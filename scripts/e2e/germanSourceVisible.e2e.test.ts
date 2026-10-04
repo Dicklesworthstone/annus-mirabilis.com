@@ -81,6 +81,7 @@ function ledgersOnDisk(): LedgerOnDisk[] {
   // `transcription.ledgerPath` is the receipt's own record of where its ledger is, so the
   // next rename carries this with it.
   const found: LedgerOnDisk[] = [];
+  const skipped: string[] = [];
   for (const [slug, bibKey] of Object.entries(PAPER_BIB_KEYS)) {
     const receiptPath = join(REPO_ROOT, "docs", "provenance", `${bibKey}.md`);
     if (!existsSync(receiptPath)) continue;
@@ -88,13 +89,31 @@ function ledgersOnDisk(): LedgerOnDisk[] {
     const status = /^\s*ledgerStatus:\s*(\S+)/m.exec(receipt)?.[1];
     // A paper whose ledger has not been started records an aspirational path. It has no
     // ledger to reach a reader, and asserting on it would be asserting on a plan.
-    if (status === undefined || status === "not-started") continue;
+    if (status === undefined || status === "not-started") {
+      skipped.push(`${bibKey} (ledgerStatus ${status ?? "absent"})`);
+      continue;
+    }
     const relative = /^\s*ledgerPath:\s*"?([^"\n]+)"?\s*$/m.exec(receipt)?.[1]?.trim();
     if (!relative) continue;
     const path = join(REPO_ROOT, relative);
     if (!existsSync(path)) continue;
     found.push({ bibKey, slug, path });
   }
+  // THE DENOMINATOR, PRINTED, because 3 admitted ledgers out of 5 keyed papers is invisible
+  // otherwise. The printed line names both skips and they are not the same kind of absence:
+  //   ap-19-289, the dissertation companion, has no ledger at all and is correctly out of scope.
+  //   ap-17-891 HAS a ledger, 31 of 31 pages since 2026-09-25, and its receipt deliberately holds
+  //   ledgerStatus not-started. The comment above that field records why: flipping it makes the
+  //   German face throw manifest-anchors-unpaired, and it must change "together with that pairing,
+  //   not before" (am-receipts-stale-status-fields-1d75, am-german-face-anchors-not-frozen-ids-jtv6).
+  // So one skip is scope and the other is a coverage gap held open for a stated reason. When the
+  // pairing lands, this count rises on its own and the line below says so without anyone editing
+  // this test (am-enpr).
+  console.log(
+    `[german source visible] ${found.length} of ${Object.keys(PAPER_BIB_KEYS).length} papers have a ` +
+      `ledger a receipt admits: ${found.map((f) => f.bibKey).join(", ")}` +
+      (skipped.length > 0 ? `; skipped ${skipped.join(", ")}` : ""),
+  );
   return found;
 }
 
@@ -119,7 +138,39 @@ function bodySentenceFrom(ledgerPath: string): string {
   throw new Error(`${ledgerPath} has no body prose to match against`);
 }
 
-test("every reviewed ledger on disk reaches a reader through its built German page", () => {
+/**
+ * The text a reader actually sees, from built HTML (am-enpr).
+ *
+ * WHY A RAW SUBSTRING MATCH WAS WRONG. This test asked `page.includes(needle)` of the HTML, and the
+ * needle is 60 characters of Einstein's German taken from the ledger. The edition annotates period
+ * vocabulary, so "molekularkinetischen" is wrapped in a `<span class="term-...">` and the raw HTML
+ * reads `...nach der <span class="term-a...` exactly where the ledger reads `...nach der molekular`.
+ * The first divergence is at character 51 of 60. The text was on the page and visible; only the
+ * instrument could not see it. For six days this reported that a reader "cannot see" a ledger whose
+ * opening sentence is the first thing on the page.
+ *
+ * SCRIPTS ARE REMOVED FIRST, and that is not tidiness. A Next.js page carries its content a second
+ * time inside a flight payload in `<script>`, so a needle could match there while the rendered
+ * markup showed nothing, and the test would certify a page no reader can read. Measured on
+ * ap-17-549: the needle appears once in the stripped text and NOT in the script payload, so the
+ * match this now makes comes from reader-visible markup.
+ */
+function visibleText(builtHtml: string): string {
+  const withoutScripts = builtHtml
+    .replace(/<script\b[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style\b[\s\S]*?<\/style>/gi, " ");
+  const withoutTags = withoutScripts.replace(/<[^>]*>/g, " ");
+  const unescaped = withoutTags
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#(?:39|x27);/g, "'");
+  return unescaped.replace(/\s+/g, " ");
+}
+
+test("every ledger a receipt records reaches a reader through its built German page", () => {
   const ledgers = ledgersOnDisk();
 
   // Reachability before the claim: with no ledgers this test would pass vacuously and
@@ -151,10 +202,15 @@ test("every reviewed ledger on disk reaches a reader through its built German pa
       continue;
     }
     const page = readFileSync(pagePath, "utf8");
-    const needle = bodySentenceFrom(ledger.path);
-    if (!page.includes(needle)) {
+    const needle = bodySentenceFrom(ledger.path).replace(/\s+/g, " ");
+    if (!visibleText(page).includes(needle)) {
       unreachable.push(`${ledger.bibKey}: the built page does not contain "${needle}…"`);
     }
+    // DELIBERATELY the RAW html, not visibleText, and the asymmetry is the point: this check must
+    // find furniture if it is anywhere, so the stricter input is the right one, and a marker hiding
+    // in the flight payload is still worth a failure. The needle check above must find text that is
+    // VISIBLE, so a false negative there is the expensive direction. Opposite failure directions
+    // want opposite inputs.
     const furniture = FURNITURE_MARKER.exec(page);
     if (furniture) {
       leakedFurniture.push(`${ledger.bibKey}: the page shows "${furniture[0]}"`);
@@ -176,8 +232,9 @@ test("every reviewed ledger on disk reaches a reader through its built German pa
     unreachable,
     [],
     `A reviewed ledger exists on disk and a reader cannot see it (am-dl4n):\n${unreachable.join("\n")}\n` +
-      "The route is not the missing piece - out/papers/<slug>/view/german/ is built and " +
-      'renders "not yet available". Nothing emits a payload of kind "bilingual-edition", ' +
-      "so loadBilingualEdition finds none. This passes unchanged once one is emitted.",
+      "The route is built and, since the German faces landed, renders the source text rather than " +
+      '"not yet available", so a failure here is no longer the missing-payload case this message ' +
+      "used to describe. Check first whether the ledger's opening sentence is on the page but " +
+      "broken up by inline markup, which is what visibleText above exists to see through.",
   );
 });
