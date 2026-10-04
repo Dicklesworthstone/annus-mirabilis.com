@@ -39,7 +39,10 @@ sourceRefs:
     id: s3
   - paper: light-quanta
     id: s4
-argumentIds: []
+argumentIds:
+  - arg-lq-entropy-temperature
+  - arg-lq-fixed-band-volume
+  - arg-lq-wien-integration
 schemaVersion: 1
 parameters:
   - id: frequency

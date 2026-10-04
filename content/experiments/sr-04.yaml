@@ -17,7 +17,9 @@ explanatoryQuestion: "What map between two inertial frames keeps both postulates
 sourceRefs:
   - paper: special-relativity
     id: s3
-argumentIds: []
+argumentIds:
+  - arg-sr-lorentz-map
+  - arg-sr-transverse-and-inverse
 schemaVersion: 1
 parameters:
   - id: vOverC

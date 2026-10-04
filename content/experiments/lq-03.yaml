@@ -16,7 +16,9 @@ sourceRefs:
     id: s2
   - paper: light-quanta
     id: s4
-argumentIds: []
+argumentIds:
+  - arg-lq-planck-constants
+  - arg-lq-fixed-band-volume
 schemaVersion: 1
 parameters:
   - id: T
