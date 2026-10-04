@@ -42,15 +42,33 @@ function EquationPlaceholder({ equationId, primary }: { equationId: string; prim
   );
 }
 
-/** Where an anchor stands, in words: s3-p7 is "§ 3, paragraph 7"; the unnumbered opening is s0. */
-function place(anchor: string): string {
-  const paragraph = anchor.match(/^s(\d+)-p(\d+)/);
+/**
+ * Where an anchor stands, in words: s3-p7 is "§ 3, paragraph 7"; the unnumbered opening is s0.
+ *
+ * THE SENTENCE IS PART OF THE PLACE (am-enpr). This matched `^s(\d+)-p(\d+)` as a PREFIX and threw
+ * the rest away, so every sentence of a paragraph got the paragraph's words. Two quotations from one
+ * paragraph therefore produced two links with one name again, which is the defect am-jmma added the
+ * place to fix. Measured on the built special-relativity Results face: "Text on page 906 of the
+ * German source, § 5, paragraph 2" was carried by `#s5-p2-s7` and `#s5-p2-s8`, and the same shape
+ * appeared on page 915 (§ 8, paragraph 10) and on mass-energy's page 640 (paragraph 7).
+ *
+ * The sentence suffix may carry a letter, because a German sentence split into two English ones
+ * keeps the source id with a letter (AGENTS.md: `s3-p2-s1a`), so `s1a` is named as "sentence 1a".
+ */
+export function place(anchor: string): string {
+  const paragraph = anchor.match(/^s(\d+)-p(\d+)(?:-s(\d+[a-z]?))?$/);
   if (paragraph) {
-    const [, section, n] = paragraph;
-    return section === "0" ? `paragraph ${n}` : `§ ${section}, paragraph ${n}`;
+    const [, section, n, sentence] = paragraph;
+    const where = section === "0" ? `paragraph ${n}` : `§ ${section}, paragraph ${n}`;
+    return sentence === undefined ? where : `${where}, sentence ${sentence}`;
   }
   const display = anchor.match(/^eq-s(\d+)-d(\d+)$/);
   if (display) return `§ ${display[1]}, display ${display[2]}`;
+  // A SECTION ANCHOR, which fell through to the raw id before and read as "s5" in a link a reader
+  // hears. 18 of the 142 anchors on the four built Results faces are this shape. Paper 4's s0 is the
+  // unnumbered opening and has no number to give, so it is named for what it is.
+  const section = anchor.match(/^s(\d+)$/);
+  if (section) return section[1] === "0" ? "the opening" : `§ ${section[1]}`;
   return anchor;
 }
 
