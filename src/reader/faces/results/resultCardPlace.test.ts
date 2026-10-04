@@ -18,7 +18,7 @@
  * rather than a sample.
  */
 import { describe, expect, it } from "bun:test";
-import { place } from "./ResultCard.tsx";
+import { place, sourceLinkName } from "./ResultCard.tsx";
 
 describe("place: the four anchor shapes the Results faces actually carry", () => {
   it("a sentence is named down to the sentence, which is the repair", () => {
@@ -106,5 +106,64 @@ describe("place: the property am-jmma asked for", () => {
     expect(oldPlace("s5-p2-s7")).toBe(oldPlace("s5-p2"));
     // And the repair separates exactly those three.
     expect(new Set([place("s5-p2-s7"), place("s5-p2-s8"), place("s5-p2")]).size).toBe(3);
+  });
+});
+
+describe("sourceLinkName: named from the destination, which is where the collision was", () => {
+  /** The two excerpts that collided: one paragraph, two sentences, two destinations. */
+  const entry = (germanHref: string) => ({
+    anchor: "s5-p2",
+    kind: "sentences" as const,
+    text: "",
+    page: 906,
+    germanHref,
+  });
+
+  it("two excerpts from ONE paragraph get two names, because they go to two sentences", () => {
+    const a = sourceLinkName(entry("/papers/special-relativity/view/german/#s5-p2-s7"));
+    const b = sourceLinkName(entry("/papers/special-relativity/view/german/#s5-p2-s8"));
+    expect(a).toBe("Text on page 906 of the German source, § 5, paragraph 2, sentence 7");
+    expect(b).toBe("Text on page 906 of the German source, § 5, paragraph 2, sentence 8");
+    expect(a).not.toBe(b);
+  });
+
+  it("the planted regression: naming from the paragraph anchor collapsed them", () => {
+    // What the code did before. Both entries carry anchor "s5-p2", so the paragraph can never
+    // separate them however well `place` describes it; only the destination can.
+    const oldName = (p: { anchor: string; page: number }) =>
+      `Text on page ${p.page} of the German source, ${place(p.anchor)}`;
+    expect(oldName({ anchor: "s5-p2", page: 906 })).toBe(oldName({ anchor: "s5-p2", page: 906 }));
+    expect(place("s5-p2")).toBe("§ 5, paragraph 2");
+  });
+
+  it("an href with no fragment falls back to the anchor rather than losing its place", () => {
+    expect(sourceLinkName(entry("/papers/special-relativity/view/german/"))).toBe(
+      "Text on page 906 of the German source, § 5, paragraph 2",
+    );
+  });
+
+  it("a display row keeps the words it had", () => {
+    expect(
+      sourceLinkName({
+        anchor: "eq-s5-d5",
+        kind: "display",
+        text: "",
+        page: 906,
+        germanHref: "/papers/special-relativity/view/german/#eq-s5-d5",
+      }),
+    ).toBe("Display on page 906 of the German source, § 5, display 5");
+  });
+
+  it("a run across a page turn names both pages", () => {
+    expect(
+      sourceLinkName({
+        anchor: "s5-p2",
+        kind: "sentences",
+        text: "",
+        page: 906,
+        lastPage: 907,
+        germanHref: "/papers/special-relativity/view/german/#s5-p2-s7",
+      }),
+    ).toBe("Text on pages 906\u2013907 of the German source, § 5, paragraph 2, sentence 7");
   });
 });

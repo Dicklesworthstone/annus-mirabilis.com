@@ -78,10 +78,18 @@ export function place(anchor: string): string {
  * called "Text on page 555 of the German source" with different destinations (am-jmma: one name,
  * one destination).
  */
-function sourceLinkName(p: PrintedLayerEntry): string {
+export function sourceLinkName(p: PrintedLayerEntry): string {
+  // NAMED FROM THE DESTINATION, NOT FROM THE PARAGRAPH IT SITS IN (am-enpr). This read
+  // `place(p.anchor)`, and `anchor` is the PARAGRAPH while `germanHref` carries the sentence: two
+  // excerpts from one paragraph both had anchor `s5-p2` and hrefs `#s5-p2-s7` and `#s5-p2-s8`, so
+  // one name covered two destinations and am-jmma's rule was broken again a level down. Deriving
+  // the name from the same fragment the link goes to is what makes one name mean one destination by
+  // construction rather than by vigilance. `anchor` remains the fallback for an href with no
+  // fragment, which is also what keeps the display rows reading as they did.
+  const fragment = p.germanHref.split("#")[1] ?? p.anchor;
   return `${p.kind === "display" ? "Display" : "Text"} ${
     p.lastPage ? `on pages ${p.page}–${p.lastPage}` : `on page ${p.page ?? "?"}`
-  } of the German source, ${place(p.anchor)}`;
+  } of the German source, ${place(fragment)}`;
 }
 
 /** "ME-01" for me-01: the name a laboratory page carries. */
