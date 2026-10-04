@@ -47,9 +47,36 @@ import { assertOutFreshness } from "../../src/testing/outFreshness.ts";
 const REPO_ROOT = resolve(fileURLToPath(new URL("../../", import.meta.url)));
 const OUT_DIR = join(REPO_ROOT, "out");
 
-/** Pages measured to carry formulas that overflow at 320px and to hydrate. */
+/** Pages measured to carry a formula that overflows at WIDTH and to hydrate. */
 const ROUTES = ["/lab/sr-03/", "/lab/lq-06/"] as const;
-const WIDTH = 320;
+/**
+ * 280, NOT 320, AND THE REASON IS THAT THE PRODUCT GOT BETTER (am-enpr).
+ *
+ * This read 320 and the gate failed its own denominator assertion: "no formula overflowed at 320px
+ * on /lab/sr-03/ or /lab/lq-06/, so this gate measured nothing." That is not a regression, it is the
+ * layout succeeding. 320px is the narrowest viewport this project promises, the docblock above
+ * records 3 overflowing formulas on /lab/sr-03/ when this gate was written, and today there are
+ * none. Measured in a headless chromium against a fresh out/, per route, `.formula` elements with
+ * scrollWidth > clientWidth:
+ *
+ *     320px  sr-03  5 formulas, 0 overflowing      lq-06  7 formulas, 0 overflowing
+ *     300px  sr-03  5 formulas, 1 overflowing (+9px)   lq-06  1 overflowing (+4px)
+ *     280px  sr-03  5 formulas, 1 overflowing (+29px)  lq-06  1 overflowing (+24px)
+ *
+ * The property this gate exists for is width-independent: WHEN a formula overflows, the tab stop and
+ * accessible name an inline script gives it must survive React's reconciliation. So the width moves
+ * to where that subject still exists rather than the gate being deleted or left vacuous. 280 and not
+ * 300 because the margin there is 24 to 29px rather than 4 to 9px, so a few pixels of legitimate
+ * layout change cannot empty the population again and send this gate back to red.
+ *
+ * This does NOT weaken the 320px promise, which is a different gate's job and still runs:
+ * src/testing/formulaWidth.e2e.test.ts asserts that no display formula is wider than its box at
+ * 320px across every route in its census, with a planted ultra-wide formula as its positive control.
+ * The two are complementary. That one says formulas fit at the narrowest supported width; this one
+ * says that where one does not fit, a keyboard can still reach it. Reading the pair together, the
+ * empty population at 320px is the first gate's success rather than this one's failure.
+ */
+const WIDTH = 280;
 
 /**
  * The implementation's last scheduled re-check, read out of the shipped source rather than copied.
