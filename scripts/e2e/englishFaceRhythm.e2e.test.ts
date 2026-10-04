@@ -101,40 +101,75 @@ function startStaticServer(rootDir: string): Promise<{ server: Server; origin: s
  * too, and the test reported "no paragraph gap to compare (English 80, German 0)" rather than
  * comparing anything. It had never been able to see the face it names.
  *
- * The repair keeps the question and widens the reach. A pair still has to share a parent, so this
- * never measures across a section boundary. But what is measured is the whitespace BETWEEN the two
- * paragraphs: their box distance less the heights of the visible elements that sit between them. For
- * an adjacent pair the subtraction is zero and the value is identical to what this returned before,
- * so the English arm's numbers do not move and the comparison stays fair; for a pair separated by a
- * note it is the space a reader sees around that note rather than the note's own height, which is
- * the rhythm this test exists to compare. Measuring `b.top - a.bottom` alone would have made the
- * German side look generously spaced purely because it carries more furniture, and the assertion
- * that English is not more spread than German would have passed for the wrong reason.
+ * The repair keeps the question and widens the reach. A pair still has to be ordered by a pair of
+ * SIBLING ancestors, so this never measures across a section boundary. What is measured is the
+ * whitespace BETWEEN the two paragraphs: their box distance less the heights of the visible elements
+ * that sit between them. Measuring `b.top - a.bottom` alone would have made the German side look
+ * generously spaced purely because it carries more furniture, and the assertion that English is not
+ * more spread than German would then have passed for the wrong reason.
+ *
+ * BOTH ARMS' POPULATIONS GREW, and saying so is the point rather than a caveat. Per-PAIR values for
+ * an adjacent pair are unchanged, because the subtraction is zero there. But pairs that share a
+ * parent WITHOUT being adjacent are now measured where they used to be skipped, so the English gap
+ * count went 80 -> 95 for relativity, 32 -> 52 for light-quanta and 24 -> 32 for brownian-motion,
+ * and the German arm went from 0 to a real median at every lane. The comparison stays fair because
+ * both arms are measured by the same rule; what changed is that each now measures all of its
+ * subject instead of the adjacent fraction of it.
  */
 async function paragraphGapEm(page: Page, selector: string) {
   return page.evaluate((sel) => {
     const ps = [...document.querySelectorAll<HTMLElement>(sel)].filter(
       (p) => (p.textContent ?? "").trim().length > 40 && p.getBoundingClientRect().height > 0,
     );
+    /**
+     * The two ancestors of `a` and `b` that are siblings of each other, or null when none are.
+     *
+     * The English face puts its paragraphs in one flow, so this returns the paragraphs themselves
+     * and the measurement below is the plain inter-paragraph gap. The German face wraps EVERY
+     * paragraph in its own `div.source-block-wrapper` (measured: 32 paragraphs, 32 distinct
+     * parents, 0 pairs sharing one), so paragraph-level sibling tests can never succeed there and
+     * this climbs to the wrappers, which ARE siblings under `div.source-blocks-list`.
+     */
+    const siblingAncestors = (
+      a: HTMLElement,
+      b: HTMLElement,
+    ): [HTMLElement, HTMLElement] | null => {
+      const chainA: HTMLElement[] = [];
+      for (let n: HTMLElement | null = a; n !== null; n = n.parentElement) chainA.push(n);
+      const indexOfA = new Map(chainA.map((n, i) => [n, i] as const));
+      for (let n: HTMLElement | null = b; n?.parentElement != null; n = n.parentElement) {
+        const i = indexOfA.get(n.parentElement);
+        if (i === undefined) continue;
+        const aSide = chainA[i - 1];
+        // i === 0 would mean b's parent is `a` itself, so there is no A-side sibling to measure from.
+        if (aSide === undefined || aSide === n) return null;
+        return [aSide, n];
+      }
+      return null;
+    };
     const gaps: number[] = [];
     for (let i = 0; i + 1 < ps.length; i++) {
       const a = ps[i] as HTMLElement;
       const b = ps[i + 1] as HTMLElement;
-      if (a.parentElement === null || a.parentElement !== b.parentElement) continue;
-      // The visible elements strictly between a and b, whose heights are furniture and not gap.
+      const pair = siblingAncestors(a, b);
+      if (pair === null) continue;
+      const [aSide, bSide] = pair;
+      // The visible elements strictly between them, whose heights are furniture and not gap.
       let between = 0;
       let reachedB = false;
-      for (let node = a.nextElementSibling; node !== null; node = node.nextElementSibling) {
-        if (node === b) {
+      for (let node = aSide.nextElementSibling; node !== null; node = node.nextElementSibling) {
+        if (node === bSide) {
           reachedB = true;
           break;
         }
         between += (node as HTMLElement).getBoundingClientRect().height;
       }
-      // b must follow a in document order under the same parent; if it does not, the pair is not a
-      // forward-consecutive pair and is skipped rather than measured backwards.
+      // bSide must follow aSide in document order; if it does not, this is not a forward-consecutive
+      // pair and it is skipped rather than measured backwards into a negative gap.
       if (!reachedB) continue;
       const em = Number.parseFloat(getComputedStyle(a).fontSize);
+      // The paragraphs' own boxes are the rhythm a reader sees, so the distance is measured between
+      // THEM even when the siblings that establish order are their wrappers.
       const box = b.getBoundingClientRect().top - a.getBoundingClientRect().bottom;
       gaps.push((box - between) / em);
     }
@@ -268,6 +303,17 @@ test("the English faces keep the German rhythm and headings, and show no alterna
   mkdirSync(scratch, { recursive: true });
   const failures: string[] = [];
   let gapsMeasured = 0;
+  /**
+   * Lanes whose own German face yielded a gap, as opposed to borrowing light-quanta's reference.
+   *
+   * The reference substitution is deliberate ("the reference where a paper has none"), and it has a
+   * cost worth printing: while `reference` was null for every width, a paper measuring 0 German gaps
+   * produced a null median and the lane said "no paragraph gap to compare". Now that the reference
+   * works, that same paper would silently borrow another's median and the vacuity would not show. So
+   * the count of lanes that measured their OWN German rhythm is printed beside the verdict, and a
+   * drop in it is visible without anything having to fail (am-enpr).
+   */
+  let germanOwnMeasured = 0;
   let disclosures = 0;
   let pairs = 0;
   let headingsCompared = 0;
@@ -344,6 +390,7 @@ test("the English faces keep the German rhythm and headings, and show no alterna
           await page.goto(`${origin}/papers/${paper}/view/parallel/`, { waitUntil: "load" });
           const parallel = await englishLayout(page);
           gapsMeasured += english.n;
+          if (own.n > 0) germanOwnMeasured += 1;
           disclosures += layout.disclosures + parallel.disclosures;
           pairs += layout.pairs + parallel.pairs;
           if (english.median === null || german.median === null)
@@ -487,7 +534,7 @@ test("the English faces keep the German rhythm and headings, and show no alterna
     server?.close();
   }
   console.log(
-    `[english face rhythm] ${gapsMeasured} English paragraph gaps, ${disclosures} disclosures, ${pairs} sibling pairs, ${headingsCompared} headings compared, § 1 compared across papers on ${crossPaperCompared} width-and-face pairs, ${partsCompared} part headings against their § 1 (${freshnessNote})`,
+    `[english face rhythm] ${gapsMeasured} English paragraph gaps, ${germanOwnMeasured} of ${PAPERS.length * WIDTHS.length} lanes measuring their own German rhythm, ${disclosures} disclosures, ${pairs} sibling pairs, ${headingsCompared} headings compared, § 1 compared across papers on ${crossPaperCompared} width-and-face pairs, ${partsCompared} part headings against their § 1 (${freshnessNote})`,
   );
   assert.ok(headingsCompared > 0, "no English heading was compared with its German heading");
   assert.ok(crossPaperCompared > 0, "§ 1 was never compared across two papers");
