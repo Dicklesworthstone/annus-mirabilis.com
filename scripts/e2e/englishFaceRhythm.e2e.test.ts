@@ -137,15 +137,22 @@ async function paragraphGapEm(page: Page, selector: string) {
       const chainA: HTMLElement[] = [];
       for (let n: HTMLElement | null = a; n !== null; n = n.parentElement) chainA.push(n);
       const indexOfA = new Map(chainA.map((n, i) => [n, i] as const));
-      for (let n: HTMLElement | null = b; n?.parentElement != null; n = n.parentElement) {
-        const i = indexOfA.get(n.parentElement);
-        if (i === undefined) continue;
-        const aSide = chainA[i - 1];
-        // i === 0 would mean b's parent is `a` itself, so there is no A-side sibling to measure from.
-        if (aSide === undefined || aSide === n) return null;
-        return [aSide, n];
+      // A `while` rather than a `for`: with a `break` in the body, TypeScript stops narrowing `n`
+      // in a for-updater and reports TS18047 on `n = n.parentElement`. Climbing by the already
+      // narrowed `parent` keeps the same walk without an assertion.
+      let n: HTMLElement = b;
+      for (;;) {
+        const parent = n.parentElement;
+        if (parent === null) return null;
+        const i = indexOfA.get(parent);
+        if (i !== undefined) {
+          const aSide = chainA[i - 1];
+          // i === 0 would mean b's parent is `a` itself, so there is no A-side sibling to measure.
+          if (aSide === undefined || aSide === n) return null;
+          return [aSide, n];
+        }
+        n = parent;
       }
-      return null;
     };
     const gaps: number[] = [];
     for (let i = 0; i + 1 < ps.length; i++) {
