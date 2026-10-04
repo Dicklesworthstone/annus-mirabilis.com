@@ -297,12 +297,22 @@ async function runChecks(
       // so persistence is what this waits for; the key is imported rather than written out so it
       // cannot drift from the storage namespace.
       await page.waitForFunction(
-        ({ want, key }) =>
-          document.documentElement.getAttribute("data-theme") === want &&
-          window.localStorage.getItem(key) === want,
-        { want: expected, key: THEME_STORAGE_KEY },
+        (want) => document.documentElement.getAttribute("data-theme") === want,
+        expected,
         { timeout: 5000 },
       );
+      // BEST EFFORT, AND DELIBERATELY NOT AN ASSERTION. Waiting strictly on the stored value broke
+      // the planted negative below, which swallows the write on purpose and asserts the theme check
+      // fails with its OWN message; a strict wait turned that into a timeout and changed the failure
+      // mode the plant exists to pin. So this waits for the write when there is one and gives up
+      // quietly when there is not, leaving the reload assertion to say what went wrong.
+      await page
+        .waitForFunction(
+          ({ want, key }) => window.localStorage.getItem(key) === want,
+          { want: expected, key: THEME_STORAGE_KEY },
+          { timeout: 3000 },
+        )
+        .catch(() => undefined);
     };
 
     // TWO TRANSITIONS, DERIVED FROM THE STARTING STATE RATHER THAN ASSUMED. The radio version
