@@ -287,9 +287,20 @@ async function runChecks(
     // the switch's own parts in the two-engine test below.
     const press = async (expected: string): Promise<void> => {
       await control.click({ timeout: 10_000 });
+      // WAIT FOR THE STORED VALUE TOO, NOT ONLY THE ATTRIBUTE (am-enpr). This waited on
+      // `data-theme` alone, and the attribute is set by React state while the choice is persisted
+      // separately. Under load the reload below fired between the two, so the inline head script
+      // found nothing stored and the check reported "theme did not persist across reload: expected
+      // kramgasse-night, got null" about a toggle that works. Measured: this file passes 5 of 5 run
+      // alone and fails both of its tests when run concurrently with three other browser files,
+      // which is how the node lane runs them. Persistence is what the reload assertion depends on,
+      // so persistence is what this waits for; the key is imported rather than written out so it
+      // cannot drift from the storage namespace.
       await page.waitForFunction(
-        (want) => document.documentElement.getAttribute("data-theme") === want,
-        expected,
+        ({ want, key }) =>
+          document.documentElement.getAttribute("data-theme") === want &&
+          window.localStorage.getItem(key) === want,
+        { want: expected, key: THEME_STORAGE_KEY },
         { timeout: 5000 },
       );
     };
