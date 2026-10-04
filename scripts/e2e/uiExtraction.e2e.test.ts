@@ -333,7 +333,14 @@ async function runChecks(
       .waitForFunction(
         ({ want, key }) => window.localStorage.getItem(key) === want,
         { want: DARK, key: THEME_STORAGE_KEY },
-        { timeout: 3000 },
+        // 12s, MEASURED AGAINST THE LANE'S REAL LOAD rather than chosen. `node --test` runs files in
+        // parallel, so this file competes with every other browser file. Reproducing that with eight
+        // of them: at 3000 the lane produced 7 "theme did not persist" messages and the five-checks
+        // test failed; at 12_000 it produces 2, both from the plant that swallows the write on
+        // purpose, and the five-checks test passes. Run alone the file is 5 of 5 twice over, where it
+        // was green in 2 of 6 runs before. The wait costs nothing when the write lands and is
+        // best-effort when it does not, so the ceiling only bounds how long a doomed wait lasts.
+        { timeout: 12_000 },
       )
       .catch(() => undefined);
     await page.reload({ waitUntil: "domcontentloaded" });
