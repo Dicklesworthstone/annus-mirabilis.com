@@ -19,14 +19,38 @@ import { checkOutFreshness } from "./outFreshness.ts";
 
 export const LANE_USER_AGENT = "OpenAI File Downloader, XaiImageApiFetch/1.0";
 
+/**
+ * Content types for the files `out/` actually contains (am-enpr).
+ *
+ * `.xml` WAS MISSING AND COST A GATE. An unmapped extension falls through to
+ * `application/octet-stream` below, and Chromium DOWNLOADS an octet-stream instead of rendering it,
+ * so `page.goto(".../sitemap.xml")` threw "Download is starting" and
+ * `no display formula is wider than its box at 320px` could never reach its route census. The
+ * failure named the navigation rather than the content type, which is why it read like a browser
+ * problem; the only fix needed was this table.
+ *
+ * The rest of this list is every other extension present in a built `out/` that a page or a test
+ * might fetch, added at the same time so the next one does not cost another gate: counted from
+ * `find out -type f`, .json 12012, .md 11758, .html 718, .txt 697, .js 309, .webp 190, .css 83,
+ * .ttf 26, .woff 20, .woff2 20, .pdf 9, .png 8, .wasm 6, .xml 1. `.ts` (4 files) is deliberately
+ * left unmapped: nothing fetches it, and its only sane readings here would be a guess between
+ * TypeScript source and an MPEG transport stream.
+ */
 const MIME_TYPES: Record<string, string> = {
   ".html": "text/html; charset=utf-8",
   ".js": "application/javascript",
   ".css": "text/css",
   ".json": "application/json",
   ".txt": "text/plain; charset=utf-8",
+  ".md": "text/markdown; charset=utf-8",
+  ".xml": "application/xml; charset=utf-8",
   ".svg": "image/svg+xml",
+  ".webp": "image/webp",
+  ".png": "image/png",
+  ".pdf": "application/pdf",
   ".woff2": "font/woff2",
+  ".woff": "font/woff",
+  ".ttf": "font/ttf",
   ".wasm": "application/wasm",
 };
 

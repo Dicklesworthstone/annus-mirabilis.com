@@ -202,10 +202,30 @@ test("no display formula is wider than its box at 320px", async () => {
         `German source faces: ${german.length} routes, ${germanWide} wide displays scrolling, ` +
         `${germanFound.length} problems`,
     );
-    assert.ok(laidOut > 500, `only ${laidOut} formulas were laid out`);
-    assert.ok(germanWide > 0, "the German faces' wide displays were found");
-    assert.deepEqual(found, []);
-    assert.deepEqual(germanFound, []);
+    // ONE LIST, SO A CONTROL CANNOT STAND IN FRONT OF THE FINDINGS (am-enpr).
+    //
+    // These were four assertions in this order: laidOut > 500, germanWide > 0, found empty,
+    // germanFound empty. The first two are non-vacuity controls and the last two are the actual
+    // defects, so the controls were ABOVE the findings. On 2026-10-04 `germanWide` reached 0, which
+    // aborted the test at that line and hid 119 entries in `found` that nobody could see. AGENTS.md
+    // records this exact shape: "a brittle count does not merely fail; it hides what it was standing
+    // in front of."
+    //
+    // Both kinds of claim still hold, and both are still asserted. They are collected into one list
+    // first, so a run reports every finding AND every vacuity in a single failure instead of the one
+    // that happens to come first.
+    const problems = [...found, ...germanFound];
+    if (laidOut <= 500) {
+      problems.push(
+        `only ${laidOut} formulas were laid out across ${all.length} routes, so this census measured too little to mean anything`,
+      );
+    }
+    if (germanWide === 0) {
+      problems.push(
+        `no wide display scrolled on any of the ${german.length} German source faces, so the German half of this gate measured nothing; re-pick the faces or the width rather than letting it pass empty`,
+      );
+    }
+    assert.deepEqual(problems, []);
   } finally {
     await browser.close();
     await target.close();
