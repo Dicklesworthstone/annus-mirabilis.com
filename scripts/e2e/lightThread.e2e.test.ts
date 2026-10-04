@@ -314,8 +314,15 @@ test("light-thread: a refused setting alerts and leaves the accepted example dis
           refusalText.includes("admission bounds"),
           `${engine.name}: the page refused but not in the instrument's words, got "${refusalText}"`,
         );
+        // THE SETTING IS NAMED WITH THE GREEK GLYPH, WHICH IS CORRECT COPY (am-enpr). This read
+        // `includes("beta")` and could never match: the refusal says "The observer speed β must be
+        // between −0.999999 and 0.999999. These are this instrument's admission bounds." AGENTS.md
+        // asks reader-facing text to prefer the paper's own notation, and the control is labelled β,
+        // so the ASCII spelling would be the wrong thing to require. Both forms are accepted because
+        // the claim being made is that the refusal NAMES the setting it refused, not which alphabet
+        // it names it in; the "admission bounds" assertion above already pins the wording.
         assert.ok(
-          refusalText.includes("beta"),
+          /β|beta/i.test(refusalText),
           `${engine.name}: the refusal must name the setting it refused, got "${refusalText}"`,
         );
 
