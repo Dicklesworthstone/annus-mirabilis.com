@@ -2,6 +2,7 @@
 # Written from the German of s3-p7 (p. 898) and its plate; every step was checked by hand.
 display: eq-s3-d3
 paper: special-relativity
+review: draft
 inWords:
   - text: "Half the sum of one over "
   - text: "the velocity of light"

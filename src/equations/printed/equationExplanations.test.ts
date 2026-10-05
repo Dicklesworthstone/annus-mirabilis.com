@@ -8,6 +8,8 @@
  * glyphs.
  */
 import { describe, expect, test } from "bun:test";
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import {
   assertExplanationsPublishable,
   checkPaperExplanations,
@@ -45,6 +47,82 @@ const codes = async (sources: ExplanationSource[], enforced: readonly string[] =
   (await checkPaperExplanations(ROOT, "mass-energy", { sources, enforced })).problems.map(
     (p) => p.code,
   );
+
+describe("a record's review state is recordable, and a claim needs its evidence (am-8gbg)", () => {
+  test("an absent review field is a draft, not a promotion by omission", async () => {
+    // All 200 records carried no review field at all, so the state was not merely unreviewed, it was
+    // unstatable. Defaulting is what makes the field safe to introduce: no record is promoted by
+    // having said nothing.
+    expect(await codes(plant(GOOD))).toEqual([]);
+    expect(await codes(plant({ ...GOOD, review: "draft" }))).toEqual([]);
+  });
+
+  test("an unknown state is refused rather than treated as a draft", async () => {
+    const problems = await codes(plant({ ...GOOD, review: "approved" }));
+    expect(problems).toContain("explanation-missing-level");
+  });
+
+  test('"reviewed" with no agentReview is refused', async () => {
+    // The promotion this rule exists to stop: a one-word edit turning draft prose into reviewed
+    // prose. AGENTS.md requires two agent rounds for a translation unit, and an explanation is the
+    // same kind of claim about the same physics.
+    const problems = await codes(plant({ ...GOOD, review: "reviewed" }));
+    expect(problems).toContain("explanation-missing-level");
+  });
+
+  test('"reviewed" with one round is refused, so the round count is real', async () => {
+    const problems = await codes(
+      plant({
+        ...GOOD,
+        review: "reviewed",
+        author: "TanElk",
+        agentReview: {
+          basis: "german-source-and-plate",
+          rounds: [{ reviewer: { kind: "model", id: "SomeAgent" }, date: "2026-10-05" }],
+        },
+      }),
+    );
+    expect(problems).toContain("explanation-missing-level");
+  });
+
+  test("the author cannot review their own explanation", async () => {
+    // Reusing validateAgentReview means this rule is the translation units' rule, not a second
+    // definition of "reviewed" that could drift from it.
+    const problems = await codes(
+      plant({
+        ...GOOD,
+        review: "reviewed",
+        author: "TanElk",
+        agentReview: {
+          basis: "german-source-and-plate",
+          rounds: [
+            { reviewer: { kind: "model", id: "TanElk" }, date: "2026-10-05" },
+            { reviewer: { kind: "model", id: "GreenOx" }, date: "2026-10-05" },
+          ],
+        },
+      }),
+    );
+    expect(problems).toContain("explanation-missing-level");
+  });
+
+  test("and every record on disk states its draft state explicitly", () => {
+    // The field is written into all 200 rather than left to the default, so a reader of the record
+    // sees the state instead of inferring it from an absence. Without this the default would be the
+    // only thing saying so, and a default is not a record.
+    const dir = join(ROOT, "content/equation-explanations");
+    const files = readdirSync(dir, { recursive: true }).filter(
+      (name) => typeof name === "string" && name.endsWith(".yaml"),
+    ) as string[];
+    const withoutState = files.filter(
+      (name) => !/^review:/m.test(readFileSync(join(dir, name), "utf8")),
+    );
+    console.log(
+      `[explanation review] ${files.length} record(s); ${withoutState.length} without a state`,
+    );
+    expect(files.length).toBeGreaterThanOrEqual(200);
+    expect(withoutState).toEqual([]);
+  });
+});
 
 describe("the explanation records", () => {
   test("every paper's census is printed, each display explained, refused or missing, and an enforced paper's records pass", async () => {

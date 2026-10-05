@@ -2,6 +2,7 @@
 # Written from the German of s1-p7 (p. 894) and its plate; the steps were checked by hand.
 display: eq-s1-d1
 paper: special-relativity
+review: draft
 inWords:
   - text: "The time by the clock at B"
     quantityId: coordinateTimeStationary

@@ -3,6 +3,7 @@
 # by hand.
 display: eq-s1-d2
 paper: brownian-motion
+review: draft
 inWords:
   - text: "The osmotic pressure"
     quantityId: osmoticPressure

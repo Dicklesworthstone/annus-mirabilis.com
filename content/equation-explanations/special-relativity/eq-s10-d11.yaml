@@ -2,6 +2,7 @@
 # Written from the German of s10-p18 (p. 921) and its plate; every step was checked by hand.
 display: eq-s10-d11
 paper: special-relativity
+review: draft
 inWords:
   - text: "How fast the speed across the motion"
     quantityId: coordinatePositionStationary

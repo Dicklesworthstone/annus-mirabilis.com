@@ -2,6 +2,7 @@
 # Written from the German of s6-p5 and its footnote (p. 909) and its plate; every step was checked by hand.
 display: eq-s6-d7
 paper: special-relativity
+review: draft
 inWords:
   - text: "The factor"
     quantityId: fieldScaleFactorUnknown

@@ -2,6 +2,7 @@
 # Written from the German of s4-p10 (p. 558) and its plate; the steps were checked by hand.
 display: eq-s4-d10
 paper: brownian-motion
+review: draft
 inWords:
   - text: "At the initial "
   - text: "time"

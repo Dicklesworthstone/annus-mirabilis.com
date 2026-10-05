@@ -2,6 +2,7 @@
 # Written from the German of s8-p3 (p. 146) and its plate; the steps were checked by hand.
 display: eq-s8-d2
 paper: light-quanta
+review: draft
 inWords:
   - text: "The potential Π"
     quantityId: stoppingPotentialMagnitude

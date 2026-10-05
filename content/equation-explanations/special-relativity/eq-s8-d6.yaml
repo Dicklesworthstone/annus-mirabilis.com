@@ -2,6 +2,7 @@
 # Written from the German of s8-p7 (p. 914) and its plate; every step was checked by hand.
 display: eq-s8-d6
 paper: special-relativity
+review: draft
 inWords:
   - text: "The amplitude of the incident light in the mirror's system"
     quantityId: lightAmplitudeMoving

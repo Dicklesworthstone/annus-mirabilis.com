@@ -2,6 +2,7 @@
 # Written from the German of s10-p7 and s10-p8 (p. 919) and its plate; every step was checked by hand.
 display: eq-s10-d5
 paper: special-relativity
+review: draft
 inWords:
   - text: "A mass number times an acceleration number is a force number. The words are the paper's own, printed in place of a formula, and they name no quantity: they say how the words mass and force are to be used in what follows, not what an electron does."
 r0: "The sentence the paper puts in place of an equation: a mass number times an acceleration number is a force number. It fixes a way of speaking, and is not a result about electrons."

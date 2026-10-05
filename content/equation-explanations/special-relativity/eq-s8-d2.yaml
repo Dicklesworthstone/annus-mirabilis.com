@@ -2,6 +2,7 @@
 # Written from the German of s8-p2 (p. 913) and its plate; every step was checked by hand.
 display: eq-s8-d2
 paper: special-relativity
+review: draft
 inWords:
   - text: "Seen from the moving system at its time zero, the travelling sphere is the surface where the square of "
   - text: "the factor"

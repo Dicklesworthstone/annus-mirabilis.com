@@ -2,6 +2,7 @@
 # Written from the German of s10-p10 and s10-p11 (pp. 919-920) and its plate; every step was checked by hand. The middle member's missing mass factor is the misprint err-typo-p920-1.
 display: eq-s10-d8
 paper: special-relativity
+review: draft
 inWords:
   - text: "The energy of motion of the electron"
     quantityId: kineticEnergy

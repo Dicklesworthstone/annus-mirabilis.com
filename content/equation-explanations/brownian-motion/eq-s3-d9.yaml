@@ -3,6 +3,7 @@
 # hand.
 display: eq-s3-d9
 paper: brownian-motion
+review: draft
 inWords:
   - text: "The diffusion coefficient"
     quantityId: diffusionCoefficient

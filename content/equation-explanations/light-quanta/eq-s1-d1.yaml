@@ -2,6 +2,7 @@
 # Written from the German of s1-p3 (p. 134) and its plate; the steps were checked by hand.
 display: eq-s1-d1
 paper: light-quanta
+review: draft
 inWords:
   - text: "The mean energy of one straight-line vibration of a resonator"
     quantityId: meanResonatorEnergy

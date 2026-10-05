@@ -2,6 +2,7 @@
 # Written from the German of s0-p7 (pp. 640 to 641) and the plate of page 640.
 display: eq-s0-d3
 paper: mass-energy
+review: draft
 inWords:
   - text: "The body's energy before it emits"
     quantityId: bodyEnergyMovingBefore

@@ -2,6 +2,7 @@
 # Written from the German of s9-p2 and s9-p3 (pp. 916-917) and its plate; every step was checked by hand.
 display: eq-s9-d4
 paper: special-relativity
+review: draft
 inWords:
   - text: "The velocity of the electricity in the moving system"
     quantityId: chargeVelocityMoving

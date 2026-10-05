@@ -2,6 +2,7 @@
 # Written from the German of s6-p5 to s6-p10 (pp. 909-910) and its plate; every step was checked by hand.
 display: eq-s6-d9
 paper: special-relativity
+review: draft
 inWords:
   - text: "In the moving system, "
   - text: "the electric force"

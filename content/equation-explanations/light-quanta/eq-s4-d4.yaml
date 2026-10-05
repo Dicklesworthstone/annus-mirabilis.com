@@ -2,6 +2,7 @@
 # Written from the German of s4-p2 (p. 139) and its plate; the steps were checked by hand.
 display: eq-s4-d4
 paper: light-quanta
+review: draft
 inWords:
   - text: "The entropy"
     quantityId: radiationEntropy

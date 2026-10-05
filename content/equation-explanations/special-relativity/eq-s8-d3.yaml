@@ -2,6 +2,7 @@
 # Written from the German of s8-p2 (p. 913) and its plate; every step was checked by hand.
 display: eq-s8-d3
 paper: special-relativity
+review: draft
 inWords:
   - text: "The volume of the ellipsoid in the moving system"
     quantityId: lightComplexVolumeMoving

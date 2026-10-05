@@ -2,6 +2,7 @@
 # Written from the German of s2-p1 and the plate of p. 551; the steps were checked by hand.
 display: eq-s2-d2
 paper: brownian-motion
+review: draft
 inWords:
   - text: "The entropy of the system"
     quantityId: entropy

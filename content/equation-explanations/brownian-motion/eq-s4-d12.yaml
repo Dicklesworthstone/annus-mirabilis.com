@@ -2,6 +2,7 @@
 # Written from the German of s4-p11 (p. 559) and its plate; the steps were checked by hand.
 display: eq-s4-d12
 paper: brownian-motion
+review: draft
 inWords:
   - text: "The displacement along the axis"
     quantityId: rmsDisplacement1d

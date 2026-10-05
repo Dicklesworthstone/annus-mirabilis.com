@@ -2,6 +2,7 @@
 # Written from the German of s6-p3 (p. 143) and its plate; the steps were checked by hand.
 display: eq-s6-d5
 paper: light-quanta
+review: draft
 inWords:
   - text: "The integral over all "
   - text: "frequencies"

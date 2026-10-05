@@ -2,6 +2,7 @@
 # Written from the German of s0-p5 and its footnotes (p. 639) and the plate of that page.
 display: eq-s0-d1
 paper: mass-energy
+review: draft
 inWords:
   - text: "The energy of the light measured in the moving system"
     quantityId: lightComplexEnergyMoving

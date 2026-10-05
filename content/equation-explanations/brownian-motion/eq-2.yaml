@@ -2,6 +2,7 @@
 # Written from the German of s3-p7 (p. 555) and its plate; the steps were checked by hand.
 display: eq-2
 paper: brownian-motion
+review: draft
 inWords:
   - text: "The particles carried through unit cross-section in unit time by "
   - text: "the force on each particle"

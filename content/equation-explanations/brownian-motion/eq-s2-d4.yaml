@@ -2,6 +2,7 @@
 # Written from the German of s2-p4 and the plate of p. 552; the steps were checked by hand.
 display: eq-s2-d4
 paper: brownian-motion
+review: draft
 inWords:
   - text: "The part of the integral"
     quantityId: configurationIntegral

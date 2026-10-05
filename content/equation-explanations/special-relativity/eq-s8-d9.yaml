@@ -2,6 +2,7 @@
 # Written from the German of s8-p7 (p. 914) and its plate; every step was checked by hand.
 display: eq-s8-d9
 paper: special-relativity
+review: draft
 inWords:
   - text: "In the mirror's own system, "
   - text: "the amplitude of the reflected light"

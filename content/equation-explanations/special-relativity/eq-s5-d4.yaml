@@ -3,6 +3,7 @@
 # checked by hand.
 display: eq-s5-d4
 paper: special-relativity
+review: draft
 inWords:
   - text: "The angle"
     quantityId: velocityDirectionAngle

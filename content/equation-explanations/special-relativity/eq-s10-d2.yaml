@@ -2,6 +2,7 @@
 # Written from the German of s10-p3 to s10-p5 (pp. 917-918) and its plate; every step was checked by hand.
 display: eq-s10-d2
 paper: special-relativity
+review: draft
 inWords:
   - text: "The mass of the electron"
     quantityId: electronMass

@@ -2,6 +2,7 @@
 # Written from the German of s5-p8 (p. 142) and its plate; the steps were checked by hand.
 display: eq-s5-d8
 paper: light-quanta
+review: draft
 inWords:
   - text: "The entropy"
     quantityId: entropy

@@ -2,6 +2,7 @@
 # Written from the German of s3-p12 (pp. 899-900) and its plate; every step was checked by hand.
 display: eq-s3-d14
 paper: special-relativity
+review: draft
 inWords:
   - text: "The third coordinate of the moving system"
     quantityId: coordinatePositionMoving

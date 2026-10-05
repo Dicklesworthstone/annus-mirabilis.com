@@ -2,6 +2,7 @@
 # Written from the German of s5-p2 and the plate of p. 905; the steps were checked by hand.
 display: eq-s5-d2
 paper: special-relativity
+review: draft
 inWords:
   - text: "In the stationary system the point's "
   - text: "place along the motion"

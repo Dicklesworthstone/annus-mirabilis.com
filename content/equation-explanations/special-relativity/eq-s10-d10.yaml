@@ -2,6 +2,7 @@
 # Written from the German of s10-p17 (pp. 920-921) and its plate; every step was checked by hand.
 display: eq-s10-d10
 paper: special-relativity
+review: draft
 inWords:
   - text: "The potential difference the electron has passed through"
     quantityId: acceleratingPotential

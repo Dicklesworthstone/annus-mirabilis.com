@@ -2,6 +2,7 @@
 # Written from the German of s8-p10 (p. 915) and its plate; every step was checked by hand.
 display: eq-s8-d14
 paper: special-relativity
+review: draft
 inWords:
   - text: "To a first approximation, "
   - text: "the pressure of light on the mirror"

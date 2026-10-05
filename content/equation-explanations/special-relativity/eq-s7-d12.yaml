@@ -2,6 +2,7 @@
 # Written from the German of s7-p6 and s7-p7 (p. 912) and its plate; every step was checked by hand.
 display: eq-s7-d12
 paper: special-relativity
+review: draft
 inWords:
   - text: "For an observer moving straight away from the source, the square of "
   - text: "the amplitude in the moving system"

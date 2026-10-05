@@ -2,6 +2,7 @@
 # Written from the German of s4-p2 (p. 139) and its plate; the steps were checked by hand.
 display: eq-s4-d2
 paper: light-quanta
+review: draft
 inWords:
   - text: "One over "
   - text: "the absolute temperature"

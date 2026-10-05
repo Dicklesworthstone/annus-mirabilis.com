@@ -3,6 +3,7 @@
 # checked by hand.
 display: eq-s2-d6
 paper: brownian-motion
+review: draft
 inWords:
   - text: "The two sets of regions given to "
   - text: "the centres of the particles"

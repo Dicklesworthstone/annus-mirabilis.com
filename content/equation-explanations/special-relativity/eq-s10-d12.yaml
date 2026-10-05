@@ -2,6 +2,7 @@
 # Written from the German of s10-p18 and s10-p14 (p. 921) and its plate; every step was checked by hand.
 display: eq-s10-d12
 paper: special-relativity
+review: draft
 inWords:
   - text: "The radius of curvature of the path"
     quantityId: radiusCurvatureMagnetic

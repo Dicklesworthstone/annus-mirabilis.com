@@ -2,6 +2,7 @@
 # Written from the German of s6-p2 (pp. 907-908) and its plate; every step was checked by hand.
 display: eq-s6-d2
 paper: special-relativity
+review: draft
 inWords:
   - text: "Written in "
   - text: "the moving system's time"

@@ -2,6 +2,7 @@
 # Written from the German of s3-p12 and s3-p14 (p. 900) and its plate; every step was checked by hand.
 display: eq-s3-d15
 paper: special-relativity
+review: draft
 inWords:
   - text: "The time of the moving system"
     quantityId: coordinateTimeMoving

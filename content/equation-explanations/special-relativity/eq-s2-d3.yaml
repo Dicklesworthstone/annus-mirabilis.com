@@ -2,6 +2,7 @@
 # Written from the German of s2-p7 (p. 897) and its plate; the steps were checked by hand.
 display: eq-s2-d3
 paper: special-relativity
+review: draft
 inWords:
   - text: "The time at which the ray returns to A"
     quantityId: coordinateTimeStationary

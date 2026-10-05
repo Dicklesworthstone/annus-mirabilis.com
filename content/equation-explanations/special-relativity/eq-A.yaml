@@ -2,6 +2,7 @@
 # Written from the German of s10-p5 and s10-p6 (p. 918) and its plate; every step was checked by hand.
 display: eq-A
 paper: special-relativity
+review: draft
 inWords:
   - text: "How fast the speed along "
   - text: "each coordinate"

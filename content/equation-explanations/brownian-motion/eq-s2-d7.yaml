@@ -3,6 +3,7 @@
 # checked by hand.
 display: eq-s2-d7
 paper: brownian-motion
+review: draft
 inWords:
   - text: "The two parts of the integral"
     quantityId: configurationIntegral

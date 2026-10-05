@@ -2,6 +2,7 @@
 # Written from the German of s4-p9 (p. 904) and its plate; the steps were checked by hand.
 display: eq-s4-d4
 paper: special-relativity
+review: draft
 inWords:
   - text: "The time shown by the moving clock"
     quantityId: coordinateTimeMoving

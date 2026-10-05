@@ -2,6 +2,7 @@
 # Written from the German of s2-p2 (p. 136) and its plate; the steps were checked by hand.
 display: eq-s2-d1
 paper: light-quanta
+review: draft
 inWords:
   - text: "The radiation's energy per unit volume and unit frequency"
     quantityId: frequencyEnergyDensity

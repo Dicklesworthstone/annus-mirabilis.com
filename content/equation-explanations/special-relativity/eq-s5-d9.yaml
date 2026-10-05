@@ -3,6 +3,7 @@
 # checked by hand.
 display: eq-s5-d9
 paper: special-relativity
+review: draft
 inWords:
   - text: "The speed of the moving system"
     quantityId: frameSpeed

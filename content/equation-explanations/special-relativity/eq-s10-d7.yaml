@@ -2,6 +2,7 @@
 # Written from the German of s10-p7 and s10-p8 (p. 919) and its plate; every step was checked by hand.
 display: eq-s10-d7
 paper: special-relativity
+review: draft
 inWords:
   - text: "The number that goes with an acceleration across the motion: "
   - text: "the mass of the electron"

@@ -2,6 +2,7 @@
 # Written from the German of s6-p3 (p. 908) and its plate; every step was checked by hand.
 display: eq-s6-d4
 paper: special-relativity
+review: draft
 inWords:
   - text: "In the moving system, the rate at which "
   - text: "its electric force"

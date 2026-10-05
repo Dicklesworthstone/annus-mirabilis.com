@@ -2,6 +2,7 @@
 # Written from the German of s7-p5 (p. 912) and its plate; every step was checked by hand.
 display: eq-s7-d10
 paper: special-relativity
+review: draft
 inWords:
   - text: "For a ray at right angles to the motion in the stationary system, the cosine of "
   - text: "its angle in the moving system"

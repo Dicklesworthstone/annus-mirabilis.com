@@ -2,6 +2,7 @@
 # Written from the German of s6-p1 (p. 907) and its plate; every step was checked by hand.
 display: eq-s6-d1
 paper: special-relativity
+review: draft
 inWords:
   - text: "In the stationary system, the rate at which "
   - text: "the electric force"

@@ -2,6 +2,7 @@
 # Written from the German of s2-p2 (p. 137) and its plate; the steps were checked by hand.
 display: eq-s2-d6
 paper: light-quanta
+review: draft
 inWords:
   - text: "The number of molecules in a gram-equivalent"
     quantityId: avogadroConstant

@@ -2,6 +2,7 @@
 # Written from the German of s3-p22 (p. 902) and its plate; every step was checked by hand.
 display: eq-s3-d21
 paper: special-relativity
+review: draft
 inWords:
   - text: "The three coordinates of one end of the rod"
     quantityId: coordinatePositionStationary

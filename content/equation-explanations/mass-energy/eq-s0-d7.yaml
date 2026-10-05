@@ -2,6 +2,7 @@
 # Written from the German of s0-p11 to s0-p13 (p. 641) and the plate of that page.
 display: eq-s0-d7
 paper: mass-energy
+review: draft
 inWords:
   - text: "The energy of the body's motion before the emission"
     quantityId: kineticEnergyBefore

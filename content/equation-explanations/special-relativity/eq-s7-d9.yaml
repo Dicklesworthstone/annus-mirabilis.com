@@ -2,6 +2,7 @@
 # Written from the German of s7-p5 (p. 912) and its plate; every step was checked by hand.
 display: eq-s7-d9
 paper: special-relativity
+review: draft
 inWords:
   - text: "The cosine of "
   - text: "the ray's angle in the moving system"

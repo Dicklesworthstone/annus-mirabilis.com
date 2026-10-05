@@ -2,6 +2,7 @@
 # Written from the German of s6-p4 (p. 908) and its plate; every step was checked by hand.
 display: eq-s6-d5
 paper: special-relativity
+review: draft
 inWords:
   - text: "Each component of "
   - text: "the moving system's electric force"

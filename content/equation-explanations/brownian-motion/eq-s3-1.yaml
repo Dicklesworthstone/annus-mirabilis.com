@@ -3,6 +3,7 @@
 # hand.
 display: eq-s3-1
 paper: brownian-motion
+review: draft
 inWords:
   - text: "Minus "
   - text: "the force on one particle"

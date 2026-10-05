@@ -44,6 +44,7 @@ import { findInlineMathRegions } from "../../content/editions/segmentSentences.t
 import { loadConcordanceForPaper } from "../../content/notation/loader.ts";
 import { isRegisteredQuantityId } from "../../content/quantities/registry.ts";
 import type { ConcordanceEntry } from "../../content/schemas/concordance.ts";
+import { validateAgentReview } from "../../content/schemas/source.ts";
 import { strictParse } from "../../content/schemas/strictParse.ts";
 import { loadBilingualEdition } from "../../reader/faces/bilingualLoader.ts";
 import { type DisplayTermsEntry, displayOccurrences, loadDisplayTerms } from "./displayTerms.ts";
@@ -214,6 +215,23 @@ const KATEX_DISPLAY = ((tex: string, options: object) =>
 
 type Scope = Readonly<{ anchor: string; section: string }>;
 
+/**
+ * THE REVIEW STATE IS RECORDABLE, WHICH IS DIFFERENT FROM BEING DRAFT (am-8gbg).
+ *
+ * All 200 records carried no review field of any kind, so the ~219,000 characters of physics prose a
+ * reader reads today had no state anybody could WRITE DOWN -- not an unreviewed state, an unstatable
+ * one. The sibling corpora all have theirs: 48 argument passages at `"review": "draft"`, 45
+ * foundation lessons at `review: draft`, 26 misconception ledgers at `reviewState: draft`.
+ *
+ * `draft` is the default when the field is absent, so no record is silently promoted by omission, and
+ * `corrected` or `reviewed` requires the SAME evidence a translation unit requires: an `agentReview`
+ * of at least two rounds, each reviewer a model, none of them the author, none repeated. That rule is
+ * not reimplemented here -- `validateAgentReview` from the content schemas is called, so the two
+ * corpora cannot drift into different definitions of "reviewed".
+ */
+export const EXPLANATION_REVIEW_STATES = ["draft", "corrected", "reviewed"] as const;
+export type ExplanationReviewState = (typeof EXPLANATION_REVIEW_STATES)[number];
+
 type ExplanationRecord = Readonly<{
   display: string;
   inWords: readonly WordsPhrase[];
@@ -221,6 +239,7 @@ type ExplanationRecord = Readonly<{
   r1: string;
   r2: readonly Readonly<{ latex: string; why: string }>[];
   r3?: string | undefined;
+  review: ExplanationReviewState;
 }>;
 
 /**
@@ -320,7 +339,36 @@ function readRecord(
     return undefined;
   }
   const r3 = text(o.r3);
-  return { display, inWords, r0, r1, r2, ...(r3 ? { r3 } : {}) };
+
+  // The state, defaulted rather than assumed: an absent field is a draft, and a claimed review has
+  // to carry the evidence (am-8gbg).
+  const rawReview = o.review === undefined ? "draft" : o.review;
+  if (typeof rawReview !== "string" || !EXPLANATION_REVIEW_STATES.includes(rawReview as never)) {
+    problem(
+      "explanation-missing-level",
+      display,
+      `${where}: review must be one of ${EXPLANATION_REVIEW_STATES.join(", ")}; it is ${JSON.stringify(o.review)}.`,
+    );
+    return undefined;
+  }
+  const review = rawReview as ExplanationReviewState;
+  if (review !== "draft") {
+    try {
+      // The translation units' own validator, so "reviewed" means the same thing in both corpora:
+      // at least two rounds, every reviewer a model, none of them the author, none repeated.
+      validateAgentReview(o.agentReview, String(o.author ?? ""), `${where}.agentReview`);
+    } catch (error: unknown) {
+      problem(
+        "explanation-missing-level",
+        display,
+        `${where}: review is "${review}" but its agentReview does not hold up: ` +
+          `${error instanceof Error ? error.message : String(error)}. An explanation is a draft until ` +
+          "two agents other than its author have read it, which is what a translation unit requires.",
+      );
+      return undefined;
+    }
+  }
+  return { display, inWords, r0, r1, r2, ...(r3 ? { r3 } : {}), review };
 }
 
 /** One paper's records, checked against its displays and compiled. */

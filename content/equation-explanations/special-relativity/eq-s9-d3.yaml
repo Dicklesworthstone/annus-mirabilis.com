@@ -2,6 +2,7 @@
 # Written from the German of s9-p2 (pp. 916-917) and its plate; every step was checked by hand. The missing factor on the three magnetic equations is the misprint err-typo-p916-1.
 display: eq-s9-d3
 paper: special-relativity
+review: draft
 inWords:
   - text: "One over "
   - text: "the velocity of light"

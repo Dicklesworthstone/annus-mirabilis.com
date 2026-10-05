@@ -2,6 +2,7 @@
 # Written from the German of s2-p1 and the plate of p. 551; the steps were checked by hand.
 display: eq-s2-d1
 paper: brownian-motion
+review: draft
 inWords:
   - text: "How fast one of the variables that fix the state of a system"
     quantityId: stateVariable

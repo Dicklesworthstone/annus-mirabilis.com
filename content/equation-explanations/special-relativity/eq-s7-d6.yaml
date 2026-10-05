@@ -2,6 +2,7 @@
 # Written from the German of s7-p2 (p. 911) and its plate; every step was checked by hand.
 display: eq-s7-d6
 paper: special-relativity
+review: draft
 inWords:
   - text: "The direction cosine along the third axis in the moving system"
     quantityId: directionCosineMoving

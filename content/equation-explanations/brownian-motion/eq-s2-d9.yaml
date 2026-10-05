@@ -2,6 +2,7 @@
 # Written from the German of s2-p5, s2-p7 and the plate of p. 553; the steps were checked by hand.
 display: eq-s2-d9
 paper: brownian-motion
+review: draft
 inWords:
   - text: "The two factors"
     quantityId: configurationIntegralFactor

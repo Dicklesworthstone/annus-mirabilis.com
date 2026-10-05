@@ -2,6 +2,7 @@
 # Written from the German of s7-p2 (p. 911) and its plate; every step was checked by hand.
 display: eq-s7-d3
 paper: special-relativity
+review: draft
 inWords:
   - text: "The angular frequency in the moving system"
     quantityId: waveAngularFrequencyMoving

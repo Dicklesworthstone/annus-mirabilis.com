@@ -3,6 +3,7 @@
 # hand.
 display: eq-s3-d1
 paper: brownian-motion
+review: draft
 inWords:
   - text: "The change in "
   - text: "the free energy"

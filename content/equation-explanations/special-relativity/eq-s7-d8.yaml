@@ -2,6 +2,7 @@
 # Written from the German of s7-p3 (p. 912) and its plate; every step was checked by hand.
 display: eq-s7-d8
 paper: special-relativity
+review: draft
 inWords:
   - text: "The frequency perceived"
     quantityId: waveFrequencyMoving
