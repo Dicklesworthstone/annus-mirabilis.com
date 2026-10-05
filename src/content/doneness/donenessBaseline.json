@@ -1,0 +1,310 @@
+{
+  "mass-energy": {
+    "german-face-sentences": {
+      "state": "met",
+      "met": 28,
+      "of": 28
+    },
+    "english-face-units": {
+      "state": "met",
+      "met": 43,
+      "of": 43
+    },
+    "alignment-edges": {
+      "state": "met",
+      "met": 43,
+      "of": 43
+    },
+    "paragraphs-bound": {
+      "state": "met",
+      "met": 12,
+      "of": 12
+    },
+    "paragraph-overviews-r0": {
+      "state": "met",
+      "met": 14,
+      "of": 14
+    },
+    "printed-displays-bound": {
+      "state": "met",
+      "met": 7,
+      "of": 7
+    },
+    "misconceptions-at-least-five": {
+      "state": "met",
+      "met": 5,
+      "of": 5
+    },
+    "tour-present": {
+      "state": "met",
+      "met": 1,
+      "of": 1
+    },
+    "readings-r1-r3-per-paragraph": {
+      "state": "unmeasured",
+      "met": 0,
+      "of": 0
+    },
+    "r2-expands-r1": {
+      "state": "unmeasured",
+      "met": 0,
+      "of": 0
+    },
+    "results-cards-against-section-3": {
+      "state": "unmeasured",
+      "met": 0,
+      "of": 0
+    },
+    "historians-margin-entries": {
+      "state": "unmeasured",
+      "met": 0,
+      "of": 0
+    },
+    "lab-contract-cells": {
+      "state": "unmeasured",
+      "met": 0,
+      "of": 0
+    },
+    "journey-skeleton-parts": {
+      "state": "unmeasured",
+      "met": 0,
+      "of": 0
+    },
+    "reviews-recorded-with-names": {
+      "state": "unmeasured",
+      "met": 0,
+      "of": 0
+    }
+  },
+  "light-quanta": {
+    "german-face-sentences": {
+      "state": "met",
+      "met": 135,
+      "of": 135
+    },
+    "english-face-units": {
+      "state": "met",
+      "met": 235,
+      "of": 235
+    },
+    "alignment-edges": {
+      "state": "met",
+      "met": 235,
+      "of": 235
+    },
+    "paragraphs-bound": {
+      "state": "met",
+      "met": 50,
+      "of": 50
+    },
+    "paragraph-overviews-r0": {
+      "state": "met",
+      "met": 63,
+      "of": 63
+    },
+    "printed-displays-bound": {
+      "state": "met",
+      "met": 52,
+      "of": 52
+    },
+    "misconceptions-at-least-five": {
+      "state": "met",
+      "met": 5,
+      "of": 5
+    },
+    "tour-present": {
+      "state": "short",
+      "met": 0,
+      "of": 1
+    },
+    "readings-r1-r3-per-paragraph": {
+      "state": "unmeasured",
+      "met": 0,
+      "of": 0
+    },
+    "r2-expands-r1": {
+      "state": "unmeasured",
+      "met": 0,
+      "of": 0
+    },
+    "results-cards-against-section-3": {
+      "state": "unmeasured",
+      "met": 0,
+      "of": 0
+    },
+    "historians-margin-entries": {
+      "state": "unmeasured",
+      "met": 0,
+      "of": 0
+    },
+    "lab-contract-cells": {
+      "state": "unmeasured",
+      "met": 0,
+      "of": 0
+    },
+    "journey-skeleton-parts": {
+      "state": "unmeasured",
+      "met": 0,
+      "of": 0
+    },
+    "reviews-recorded-with-names": {
+      "state": "unmeasured",
+      "met": 0,
+      "of": 0
+    }
+  },
+  "brownian-motion": {
+    "german-face-sentences": {
+      "state": "met",
+      "met": 91,
+      "of": 91
+    },
+    "english-face-units": {
+      "state": "met",
+      "met": 162,
+      "of": 162
+    },
+    "alignment-edges": {
+      "state": "met",
+      "met": 162,
+      "of": 162
+    },
+    "paragraphs-bound": {
+      "state": "met",
+      "met": 32,
+      "of": 32
+    },
+    "paragraph-overviews-r0": {
+      "state": "met",
+      "met": 35,
+      "of": 35
+    },
+    "printed-displays-bound": {
+      "state": "met",
+      "met": 43,
+      "of": 43
+    },
+    "misconceptions-at-least-five": {
+      "state": "met",
+      "met": 5,
+      "of": 5
+    },
+    "tour-present": {
+      "state": "short",
+      "met": 0,
+      "of": 1
+    },
+    "readings-r1-r3-per-paragraph": {
+      "state": "unmeasured",
+      "met": 0,
+      "of": 0
+    },
+    "r2-expands-r1": {
+      "state": "unmeasured",
+      "met": 0,
+      "of": 0
+    },
+    "results-cards-against-section-3": {
+      "state": "unmeasured",
+      "met": 0,
+      "of": 0
+    },
+    "historians-margin-entries": {
+      "state": "unmeasured",
+      "met": 0,
+      "of": 0
+    },
+    "lab-contract-cells": {
+      "state": "unmeasured",
+      "met": 0,
+      "of": 0
+    },
+    "journey-skeleton-parts": {
+      "state": "unmeasured",
+      "met": 0,
+      "of": 0
+    },
+    "reviews-recorded-with-names": {
+      "state": "unmeasured",
+      "met": 0,
+      "of": 0
+    }
+  },
+  "special-relativity": {
+    "german-face-sentences": {
+      "state": "met",
+      "met": 223,
+      "of": 223
+    },
+    "english-face-units": {
+      "state": "met",
+      "met": 381,
+      "of": 381
+    },
+    "alignment-edges": {
+      "state": "met",
+      "met": 381,
+      "of": 381
+    },
+    "paragraphs-bound": {
+      "state": "met",
+      "met": 94,
+      "of": 94
+    },
+    "paragraph-overviews-r0": {
+      "state": "met",
+      "met": 98,
+      "of": 98
+    },
+    "printed-displays-bound": {
+      "state": "met",
+      "met": 98,
+      "of": 98
+    },
+    "misconceptions-at-least-five": {
+      "state": "met",
+      "met": 5,
+      "of": 5
+    },
+    "tour-present": {
+      "state": "short",
+      "met": 0,
+      "of": 1
+    },
+    "readings-r1-r3-per-paragraph": {
+      "state": "unmeasured",
+      "met": 0,
+      "of": 0
+    },
+    "r2-expands-r1": {
+      "state": "unmeasured",
+      "met": 0,
+      "of": 0
+    },
+    "results-cards-against-section-3": {
+      "state": "unmeasured",
+      "met": 0,
+      "of": 0
+    },
+    "historians-margin-entries": {
+      "state": "unmeasured",
+      "met": 0,
+      "of": 0
+    },
+    "lab-contract-cells": {
+      "state": "unmeasured",
+      "met": 0,
+      "of": 0
+    },
+    "journey-skeleton-parts": {
+      "state": "unmeasured",
+      "met": 0,
+      "of": 0
+    },
+    "reviews-recorded-with-names": {
+      "state": "unmeasured",
+      "met": 0,
+      "of": 0
+    }
+  }
+}
