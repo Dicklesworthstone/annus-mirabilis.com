@@ -1,10 +1,10 @@
 import { execSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import * as os from "node:os";
 import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { brotliCompressSync, gzipSync, constants as zlibConstants } from "node:zlib";
+import { brotliCompressSync, gzipSync } from "node:zlib";
 import { loadCommittedProfiles } from "../src/testing/perfProfiles.ts";
 import { measureReadingFace, READING_FACE_BUDGET_BYTES } from "./measure-reading-face.ts";
 import { loadCommittedBudgets } from "./perf/budgets.ts";
@@ -32,6 +32,7 @@ import {
   type RouteTransferSummary,
   writePerfReport,
 } from "./perf/report.ts";
+import { readRouteStaticTransfer, STATIC_TRANSFER_SCOPE } from "./perf/routeStaticTransfer.ts";
 import { checkVisibleTextAndMath } from "./perf/visibleTextMath.ts";
 import { appendLogLine, logPathFor, newLogRunId } from "./scaffold/logLine.ts";
 
@@ -83,15 +84,6 @@ export const BUILD_DEPENDENT_ROWS = ["initial-route-js", "reading-face-html"] as
  * so a run where the build-dependent rows dropped out and nothing failed reported outcome "pass".
  * A false PASS is available whenever the surviving rows happen to be the ones under budget.
  */
-/**
- * HTML and CSS are compressed at brotli quality 9, not the default 11. Measured on 2026-09-24:
- * out/papers/brownian-motion/index.html (1,578 KB) is 73,438 B at q11 in 1,629 ms, and 80,948 B
- * at q9 in 26 ms. q11 made each budget run seconds slower, and the tests call it repeatedly. So
- * this figure is up to about 10% above the q11 size, never below it; the JS chunks keep q11.
- */
-function brotliStaticBytes(buf: Buffer): number {
-  return brotliCompressSync(buf, { params: { [zlibConstants.BROTLI_PARAM_QUALITY]: 9 } }).length;
-}
 
 export function unmeasuredBuildRows(
   metrics: Readonly<Record<string, { readonly status?: "pass" | "fail" | "not-available" }>>,
@@ -196,49 +188,16 @@ export async function runPerformanceBudgets(
    * that cannot measure must say so, not guess low.
    */
   /**
-   * The route's own HTML plus every stylesheet it links, brotli-compressed, read from the built
-   * `out/`. With the route's JavaScript this is the page's static transfer. Fonts and images are
-   * excluded, and a note says so. Until 2026-09-24 the total was the script bytes plus a constant
-   * 25,000 labelled "estimated HTML/CSS transfer", reported beside real measurements
-   * (am-perf-total-transfer-is-a-constant-qfe1). Returns null when the HTML was not built, so an
+   * The route's static transfer, measured from the built `out/` by
+   * scripts/perf/routeStaticTransfer.ts, which also measures the fonts it EXCLUDES.
+   *
+   * Until 2026-09-24 the total was the script bytes plus a constant 25,000 labelled "estimated
+   * HTML/CSS transfer", reported beside real measurements. The constant went then; what stayed was a
+   * field named "total transfer" with nothing stating its scope, so this now carries
+   * STATIC_TRANSFER_SCOPE and the referenced font bytes into the report
+   * (am-perf-total-transfer-is-a-constant-qfe1). Returns null when the page was not built, so an
    * absent page is reported as unmeasured, never estimated.
    */
-  function readRouteHtmlCssBytes(rootDir: string, route: string): number | null {
-    // A pattern route such as /papers/[paper] is measured on its first built instance, in sorted
-    // order, so the figure is always one real page's transfer, never an average or a guess.
-    let dir = resolve(rootDir, "out");
-    for (const segment of route.split("/").filter(Boolean)) {
-      if (/^\[.+\]$/.test(segment)) {
-        const instances = existsSync(dir)
-          ? readdirSync(dir, { withFileTypes: true })
-              .filter((e) => e.isDirectory() && existsSync(resolve(dir, e.name, "index.html")))
-              .map((e) => e.name)
-              .sort()
-          : [];
-        const first = instances.find((name) => !name.startsWith("_"));
-        if (first === undefined) return null;
-        dir = resolve(dir, first);
-      } else {
-        dir = resolve(dir, segment);
-      }
-    }
-    const htmlPath = resolve(dir, "index.html");
-    if (!existsSync(htmlPath)) return null;
-    const html = readFileSync(htmlPath);
-    let bytes = brotliStaticBytes(html);
-    const hrefs = new Set<string>();
-    for (const m of html
-      .toString("utf8")
-      .matchAll(/<link[^>]+rel="stylesheet"[^>]*href="([^"]+)"/g)) {
-      if (m[1]) hrefs.add(m[1]);
-    }
-    for (const href of hrefs) {
-      const cssPath = resolve(rootDir, "out", href.replace(/^\//, "").split("?")[0] ?? "");
-      if (existsSync(cssPath)) bytes += brotliStaticBytes(readFileSync(cssPath));
-    }
-    return bytes;
-  }
-
   function readRouteChunkSizes(
     rootDir: string,
     manifest: AppBuildManifest,
@@ -341,6 +300,7 @@ export async function runPerformanceBudgets(
     let scriptBytes = 0;
     let totalBytes = 0;
     let routeAccounting: RouteTransferSummary["byteAccounting"];
+    let staticTransfer: ReturnType<typeof readRouteStaticTransfer> = null;
     let routeViolations: readonly unknown[] = [];
 
     if (opts.plantViolationRow === 1) {
@@ -375,14 +335,14 @@ export async function runPerformanceBudgets(
         continue;
       }
       scriptBytes = res.byteAccounting.effectiveBytes;
-      const htmlCssBytes = readRouteHtmlCssBytes(root, route);
-      if (htmlCssBytes === null) {
+      staticTransfer = readRouteStaticTransfer(root, route);
+      if (staticTransfer === null) {
         totalBytes = scriptBytes;
         routeNotes.push(
           `${route}: total transfer is JavaScript only; out/ holds no HTML for this route`,
         );
       } else {
-        totalBytes = scriptBytes + htmlCssBytes;
+        totalBytes = scriptBytes + staticTransfer.htmlCssBytes;
       }
       routeAccounting = {
         rawBytes: res.byteAccounting.rawBytes,
@@ -416,6 +376,15 @@ export async function runPerformanceBudgets(
       route,
       scriptTransferBytes: scriptBytes,
       totalTransferBytes: totalBytes,
+      transferScope: STATIC_TRANSFER_SCOPE,
+      ...(staticTransfer
+        ? {
+            preloadedFontBytes: staticTransfer.preloadedFontBytes,
+            preloadedFontCount: staticTransfer.preloadedFontCount,
+            declaredFontBytes: staticTransfer.declaredFontBytes,
+            declaredFontCount: staticTransfer.declaredFontCount,
+          }
+        : {}),
       encoding: "br",
       ...(routeAccounting ? { byteAccounting: routeAccounting } : {}),
       ...(routeViolations.length > 0 ? { violations: routeViolations } : {}),

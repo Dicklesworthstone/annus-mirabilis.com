@@ -17,6 +17,32 @@ export interface RouteTransferSummary {
   route: string;
   scriptTransferBytes: number;
   totalTransferBytes: number;
+  /**
+   * WHAT `totalTransferBytes` COVERS, in words, travelling with the number
+   * (am-perf-total-transfer-is-a-constant-qfe1).
+   *
+   * The bead's defect was a constant 25,000 printed in a column labelled as a measurement. That is
+   * fixed, but the field was still named "total transfer" while excluding the largest thing a cold
+   * load fetches: the bead measured live cold totals of 0.82-1.34 MB per paper page against a
+   * reported figure 4-10x smaller, dominated by the self-hosted Newsreader faces. A reader of the
+   * artifact had no way to know the scope, and the code comment claiming "a note says so" described
+   * a note that did not exist.
+   */
+  transferScope?: string;
+  /**
+   * Fonts, measured the same way and EXCLUDED from `totalTransferBytes`, split because a browser
+   * treats the two apart: a preload is fetched whatever the page renders, an `@font-face` only if the
+   * rendered text needs that face.
+   *
+   * `declaredFontBytes` is therefore an UPPER BOUND and must never be read as a cold-load cost --
+   * that would be this bead's own mistake one field over. Measured on out/papers/brownian-motion: 66
+   * declared faces totalling 1,710,324 brotli bytes with ZERO preloads, while the bead's live cold
+   * measurement found the Newsreader faces actually fetched at 265 KB + 295 KB.
+   */
+  preloadedFontBytes?: number;
+  preloadedFontCount?: number;
+  declaredFontBytes?: number;
+  declaredFontCount?: number;
   encoding?: string;
   /**
    * Per-route byte accounting, carried into the report so a reader can audit the
