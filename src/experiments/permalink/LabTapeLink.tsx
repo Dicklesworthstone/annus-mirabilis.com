@@ -112,7 +112,7 @@ export function LabTapeLink({ link }: Readonly<{ link: LabTapeLinkState }>) {
     <>
       {link.notice && (
         <p role="alert" className="notice error" data-tape-notice="">
-          {link.notice} The laboratory shows its default settings.
+          {link.notice}
         </p>
       )}
       {link.note && (

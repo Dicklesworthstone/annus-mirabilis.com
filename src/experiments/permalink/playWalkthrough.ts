@@ -30,6 +30,8 @@ export type WalkthroughPlay =
       /** One sentence: what was applied. The laboratory adds what the numbers now say. */
       notice: string;
       steps: number;
+      /** True means the recorded identity and checkpoint were deliberately not verified. */
+      isNewRun: boolean;
       parameters: Readonly<Record<string, number | string>>;
     }>
   | Readonly<{
@@ -57,8 +59,11 @@ export function playWalkthrough(
         kind: "played",
         tapeId,
         steps: result.executedEventCount,
+        isNewRun: result.isNewRun,
         parameters: result.state,
-        notice: `The recorded walkthrough is in the laboratory: ${STEPS(result.executedEventCount)} applied, and the numbers below are this laboratory's own.`,
+        notice: result.isNewRun
+          ? `An explicitly new run is in the laboratory: ${STEPS(result.executedEventCount)} applied using the current model. The recorded identity and checkpoint were not verified; this is not a reproduced recorded result.`
+          : `The recorded walkthrough is in the laboratory: ${STEPS(result.executedEventCount)} applied, and the numbers below are this laboratory's own.`,
       };
     case "unknown-walkthrough":
       return {
