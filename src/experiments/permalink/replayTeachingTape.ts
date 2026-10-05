@@ -171,15 +171,32 @@ export function replayTeachingTapeOn(
     };
   // Keep the public checkpoint refusal code when preflight discovers the mismatch before applying
   // anything. Other invalid requests still retain their distinct repairable reason.
-  const checkpointMismatch =
-    result.kind === "invariant-violation" || result.reason === "tape-checkpoint-action-unreachable";
+  //
+  // ONE site carries this code, not two. `success` and `refusal` returned above, so the only kinds
+  // that reach here are `invariant-violation` and `invalid`: a violation IS the recorded checkpoint
+  // disagreeing with the replayed state, and so is the single invalid reason meaning the requested
+  // range cannot reach that checkpoint. Every other invalid reason is more specific than "mismatch"
+  // and is kept. Written as a ternary this needed a trailing `"tape-checkpoint-mismatch"` to narrow
+  // `result.reason`, and that fallback was UNREACHABLE: once the violation branch is taken, invalid
+  // is the only kind left. The refusal ratchet counted it as a second untested site for this code,
+  // which it was, and which no test could ever have reached (am-muyh).
+  if (
+    result.kind === "invariant-violation" ||
+    result.reason === "tape-checkpoint-action-unreachable"
+  ) {
+    return {
+      kind: "refused",
+      tapeId,
+      experimentId,
+      refusalCode: "tape-checkpoint-mismatch",
+      notice: result.notice,
+    };
+  }
   return {
     kind: "refused",
     tapeId,
     experimentId,
-    refusalCode: checkpointMismatch
-      ? "tape-checkpoint-mismatch"
-      : result.kind === "invalid" ? result.reason : "tape-checkpoint-mismatch",
+    refusalCode: result.reason,
     notice: result.notice,
   };
 }

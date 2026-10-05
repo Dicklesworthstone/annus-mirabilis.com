@@ -324,9 +324,15 @@ describe("the refusal a reader is shown, and the two codes that reach it", () =>
       ...reachable,
       events: [{ ...first, paramId: "frameSpeed", value: 5, previousValue: 0.6 }, ...rest],
     };
+    // THE WHOLE RECORD IS REPLAYED, AND `stepIndex: 0` WOULD HIDE WHAT THIS TEST ASKS. A replay is
+    // refused up front when its requested range cannot reach the recorded checkpoint, and this
+    // record's checkpoint is taken after its LAST event; stopping at the first one therefore ends
+    // short of it, and the refusal that comes back is tape-checkpoint-mismatch, decided before the
+    // laboratory is ever handed the event. The poisoned event is the first of the full range, so it
+    // is reached either way, and the assertions below are about the laboratory's reason rather than
+    // the range's. The sibling test above covers the mismatch code on its own.
     const out = replayTeachingTapeOn(ME01_TAPE, session(), TAPE_ID, {
       resolve: (id) => (id === TAPE_ID ? refusedByTheLab : null),
-      stepIndex: 0,
     });
     expect(out.kind).toBe("refused");
     if (out.kind !== "refused") throw new Error("unreachable");
