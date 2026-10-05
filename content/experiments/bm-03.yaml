@@ -338,6 +338,7 @@ acceptanceCases:
   - bm-03-locked-cluster
   - bm-03-ratio-one
   - bm-03-t-outside-declared-range-refused
+  - bm-03-volume-independent-factor-stays-a-symbol
 defaultScenario: bm-03-two-particles-double
 presets:
   - presetId: bm-03-two-particles-double

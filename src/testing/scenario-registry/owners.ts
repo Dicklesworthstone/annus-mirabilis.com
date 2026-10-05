@@ -5,6 +5,7 @@ import {
 } from "../../experiments/controls/declaredDomain.ts";
 import { MODEL_DOMAINS } from "../../generated/model-domains.ts";
 import { createDeclaredConstantSet, getConstantSet } from "../../physics/reference/constants.ts";
+import { configurationVolumeTerm, decayLengths } from "../../physics/reference/diffusion/routeA.ts";
 import {
   kernelDiffusivity,
   kernelMoments,
@@ -805,6 +806,86 @@ const OWNERS: OwnerRecord[] = [
    * `reason` and no code. Pinning the prose would make rewording it turn the scenario red, and the
    * triple the runner compares is still discriminating: the output, the status, and which output.
    */
+  /**
+   * WITH NO FORCE THERE IS NO DECAY LENGTH, NOT AN INFINITE ONE (am-nxbq, item 2).
+   *
+   * BM-04 balances an external force against diffusion and reports the length over which the equilibrium
+   * density falls by a factor e. Set the force to zero and the profile is UNIFORM: there is no fall, so
+   * there is no length over which it happens. `decayLengths` returns `not-applicable` with the reason "no
+   * force, no gradient: the equilibrium profile is uniform", and bm-04's manifest admits that status on
+   * three outputs including the osmotic decay length.
+   *
+   * The dangerous answer is an infinity, which would plot as a decay length larger than the cell and read
+   * as "the density falls very slowly" rather than "it does not fall". The force control's declared range
+   * includes zero, so a reader reaches this by dragging the force to the middle.
+   */
+  {
+    id: "diffusion.decayLengths",
+    sourcePath: fileURLToPath(
+      new URL("../../physics/reference/diffusion/routeA.ts", import.meta.url),
+    ),
+    fn: (ctx) => {
+      const result = decayLengths(
+        {
+          force: num(ctx.inputs, "force"),
+          temperature: num(ctx.inputs, "temperature"),
+          kickDiffusivity: num(ctx.inputs, "kickDiffusivity"),
+          mobility: num(ctx.inputs, "mobility"),
+        },
+        getConstantSet("modern-si-2019"),
+      );
+      const got = nonNumericOr(
+        (result.osmotic as unknown as { result?: Record<string, unknown> }).result ??
+          (result.osmotic as unknown as Record<string, unknown>),
+        "osmoticDecayLength",
+      );
+      return typeof got === "number" ? { osmoticDecayLength: got } : got;
+    },
+  },
+  /**
+   * THE VOLUME-INDEPENDENT FACTOR IS A SYMBOL, AND THAT IS WHY THE PRESSURE IS COMPUTABLE (am-nxbq, item 2).
+   *
+   * BM-03's configuration integral has a factor that does not depend on the volume: the momentum
+   * integrals and the free-energy offset. Its value is unknown, and the laboratory never needs it,
+   * because every quantity it reports is a RATIO or a DIFFERENCE between two volumes in which that factor
+   * cancels. `configurationVolumeTerm` therefore returns it as a `symbolic` result carrying its
+   * unspecified symbols, beside the numbers it does report, and bm-03's manifest admits `symbolic` on
+   * three outputs.
+   *
+   * AGENTS.md names the adversarial version of this in its fixture list, "an arbitrary entropy-density
+   * constant cancels": a reader who is handed a number for the factor can no longer see that the result
+   * does not depend on it, which is the point section 3 of the Brownian paper turns on.
+   */
+  {
+    id: "diffusion.configurationVolumeTerm",
+    sourcePath: fileURLToPath(
+      new URL("../../physics/reference/diffusion/routeA.ts", import.meta.url),
+    ),
+    fn: (ctx) => {
+      const result = configurationVolumeTerm(
+        {
+          Np: num(ctx.inputs, "particleCount"),
+          V: num(ctx.inputs, "volume"),
+          V0: num(ctx.inputs, "referenceVolume"),
+          T: num(ctx.inputs, "temperature"),
+        },
+        getConstantSet("modern-si-2019"),
+      );
+      // The input-domain branch returns a single evaluation rather than the record, so it is told apart
+      // by the absence of the field this owner reads rather than by a type assertion.
+      const record = result as unknown as Record<string, unknown>;
+      const factor = record.volumeIndependentFactor;
+      if (factor === undefined) {
+        const got = nonNumericOr(
+          (record.result ?? record) as Record<string, unknown>,
+          "volumeIndependentFactor",
+        );
+        return typeof got === "number" ? { volumeIndependentFactor: got } : got;
+      }
+      const got = nonNumericOr(factor as Record<string, unknown>, "volumeIndependentFactor");
+      return typeof got === "number" ? { volumeIndependentFactor: got } : got;
+    },
+  },
   /**
    * DIFFUSIVITY ALONE DOES NOT SETTLE A RADIUS OR A MOLECULAR NUMBER (am-nxbq, item 2).
    *

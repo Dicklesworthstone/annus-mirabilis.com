@@ -1,0 +1,44 @@
+# BM-04 with no external force has no decay length, not an infinite one (am-nxbq, item 2).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the external-force control, dragged to zero. Its declared
+# range runs from -1e-13 to 1e-13 newtons, so zero is in the middle of the slider and a reader passes
+# through it on the way between the two signs.
+#
+# WHAT THE RESULT IS. The laboratory balances the force against diffusion and reports the length over
+# which the equilibrium density falls by a factor e. With no force the equilibrium profile is UNIFORM:
+# the density does not fall, so there is no length over which it falls. The evaluator reports the quantity
+# as not applicable to these conditions, with the reason it states, and bm-04's manifest admits that
+# status on three outputs including this one.
+#
+# THE DANGEROUS ANSWER IS AN INFINITY, which would plot as a decay length far larger than the cell and
+# read as "the density falls very slowly". That is a different claim from "it does not fall", and at zero
+# force only the second one is true. With a force of 1e-14 newtons the same owner returns about 0.40
+# micrometres, so the force is the only thing that changed.
+id: "bm-04-no-force-no-decay-length"
+kind: "adversarial"
+title: "BM-04 reports no decay length when there is no force, rather than an infinite one"
+description: "BM-04 reports the length over which an equilibrium density falls by a factor e under a balance between an external force and diffusion. With the force at zero the balance holds at every height on its own, the profile is uniform, and no such length exists. The evaluator reports the quantity as not applicable and states why, rather than dividing by zero to produce an infinity that would plot as a very long decay. With a force of 1e-14 newtons the same inputs give about 0.40 micrometres."
+plausibleMistake: "That the decay length at zero force is infinite, which is the limit of the formula as the force goes to zero. The limit is a statement about a sequence of profiles that do fall, each more slowly than the last; at zero force the profile does not fall at all and there is no exponential to take a length from. A reader shown an infinity may reasonably picture a very gentle gradient, which is not what a uniform profile is."
+intendedFailure: "The evaluator checks the force before forming the quotient, so no length is produced at zero force. The scenario passes only when the quantity arrives as not applicable on the osmotic decay length; a run that returned a number fails here, including an infinity, and so does one that reported the input domain condition this same evaluator states for a non-positive temperature or mobility, which this request does not break."
+constantSetId: "modern-si-2019"
+owner: "diffusion.decayLengths"
+inputs:
+  force:
+    value: 0
+    unit: "N"
+  temperature:
+    value: 293
+    unit: "K"
+  kickDiffusivity:
+    value: 1.0e-12
+    unit: "m^2/s"
+  mobility:
+    value: 100000000
+    unit: "m/(N s)"
+expected:
+  status:
+    outputId: "osmoticDecayLength"
+    status: "not-applicable"
+    reasonCode: "not-applicable"
+modelVersion: 1
+schemaVersion: 1

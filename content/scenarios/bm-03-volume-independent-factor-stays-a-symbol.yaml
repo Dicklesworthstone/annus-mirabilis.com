@@ -1,0 +1,47 @@
+# BM-03 keeps the volume-independent factor as a symbol, and that is why the rest is computable
+# (am-nxbq, item 2).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: none. Like ME-01's ledger this is the state in every setting,
+# because the factor is unknown by nature rather than at some boundary. What a reader does move is the
+# volume ratio, and the point is that the factor is absent from the answer whatever they set it to.
+#
+# WHAT THE FACTOR IS. The configuration integral of section 3 splits into a part that depends on the
+# accessible volume and a part that does not: the momentum integrals and the free-energy offset. The
+# second part's value is unknown, and the laboratory never needs it, because every quantity it reports is
+# a ratio or a difference between two volumes in which that part cancels. The evaluator returns it as a
+# symbolic result carrying its unspecified symbols, beside the numbers it does report, and bm-03's
+# manifest admits a symbolic status on three outputs.
+#
+# WHY A NUMBER WOULD COST THE ARGUMENT. AGENTS.md lists the adversarial version among its fixtures, "an
+# arbitrary entropy-density constant cancels". A reader handed a number for the factor can no longer SEE
+# that the result does not depend on it, and the independence is the whole force of the section: the
+# osmotic pressure of the suspended particles follows from counting configurations, without any
+# assumption about what the unknown part of the integral is worth.
+id: "bm-03-volume-independent-factor-stays-a-symbol"
+kind: "adversarial"
+title: "BM-03 reports the volume-independent factor as a symbol, with no number behind it"
+description: "The configuration integral BM-03 builds separates into a volume-dependent part and a part that does not depend on the volume at all, the momentum integrals and the free-energy offset. The second is unknown and is never evaluated: the result carries its unspecified symbols and a symbolic status, while the free-energy difference and the pressure beside it are numbers. Those numbers are ratios and differences between two volumes, which is exactly where the unknown part cancels."
+plausibleMistake: "That the factor needs some value for the integral to be evaluated at all, so a convenient one may be inserted and divided out later. Inserting it hides what the argument rests on: section 3's conclusion holds for ANY value of the unknown part, and a reader shown one number can no longer see that. The cancellation is the claim, not a step on the way to one."
+intendedFailure: "The evaluator returns the factor symbolically and never forms a value for it. The scenario passes only when the symbolic status arrives on the volume-independent factor; a run that returned a number fails here, whatever the number, and so does one that reported the input domain condition this same evaluator states for a negative particle count, which is a different case the owner also reaches."
+constantSetId: "modern-si-2019"
+owner: "diffusion.configurationVolumeTerm"
+inputs:
+  particleCount:
+    value: 100
+    unit: "1"
+  volume:
+    value: 1.0e-18
+    unit: "m^3"
+  referenceVolume:
+    value: 2.0e-18
+    unit: "m^3"
+  temperature:
+    value: 293
+    unit: "K"
+expected:
+  status:
+    outputId: "volumeIndependentFactor"
+    status: "symbolic"
+    reasonCode: "symbolic"
+modelVersion: 1
+schemaVersion: 1

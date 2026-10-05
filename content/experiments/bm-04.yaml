@@ -453,6 +453,7 @@ acceptanceCases:
   - bm04-naegeli-zero-force-frozen
   - bm04-mismatched-kicks-nonequilibrium
   - bm-04-eta-outside-declared-range-refused
+  - bm-04-no-force-no-decay-length
 defaultScenario: bm04-steady-state-einstein
 tapeModel:
   modelId: brownian-motion-drift-diffusion
