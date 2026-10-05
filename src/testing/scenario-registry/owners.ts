@@ -98,7 +98,11 @@ import {
   initializeMassEnergyLedger,
   printedMassConversion,
 } from "../../physics/reference/massEnergy.ts";
-import { ionizationCount, stoppingPotentialFromEv } from "../../physics/reference/photoelectric.ts";
+import {
+  ionizationCount,
+  stoppingPotentialFromEv,
+  stoppingPotentialMagnitude,
+} from "../../physics/reference/photoelectric.ts";
 import {
   classicalCutoffEnergyDensity,
   classicalTotalEnergy,
@@ -668,15 +672,34 @@ const OWNERS: OwnerRecord[] = [
   {
     id: "diffusion.apparentSpeedRatio",
     sourcePath: diffusionPath,
+    /**
+     * THE RATIO CARRIES A STATUS RATHER THAN THROWING IT AWAY (am-nxbq).
+     *
+     * This threw `new Error("apparentSpeed did not return a value.")` on either leg being non-numeric,
+     * which turned a typed evaluation into a bare exception: a scenario driving it got a stack trace
+     * instead of a comparable status, and the ratchet could not see the refusal either. The evaluator's
+     * own domain condition for a non-positive interval is what a reader would reach, and it now arrives.
+     *
+     * Whichever leg refuses is reported, not a conflation of the two: they are different intervals, tau
+     * and tau over four, and a reader told only "the ratio is unavailable" cannot tell which.
+     */
     fn: (ctx) => {
       const D = num(ctx.inputs, "D");
       const tau = num(ctx.inputs, "tau");
       const a = apparentSpeed(D, tau);
       const b = apparentSpeed(D, tau / 4);
-      if (a.result.status !== "value" || b.result.status !== "value") {
-        throw new Error("apparentSpeed did not return a value.");
+      // The two legs' numbers come back FROM the adapter rather than being read off the results again:
+      // reading them twice is how a narrowed status and an unnarrowed value end up in one expression.
+      const legs: number[] = [];
+      for (const [leg, evaluation] of [
+        ["apparentSpeedAtTau", a],
+        ["apparentSpeedAtQuarterTau", b],
+      ] as const) {
+        const got = nonNumericOr(evaluation.result as unknown as Record<string, unknown>, leg);
+        if (typeof got !== "number") return got;
+        legs.push(got);
       }
-      return { ratio: (b.result.value as number) / (a.result.value as number) };
+      return { ratio: (legs[1] as number) / (legs[0] as number) };
     },
   },
   {
@@ -846,17 +869,38 @@ const OWNERS: OwnerRecord[] = [
       return out;
     },
   },
+  /**
+   * THE STOPPING POTENTIAL, FROM THE EVALUATOR THAT OWNS IT (am-nxbq, am-muyh).
+   *
+   * THIS OWNER DID NOT CALL THE PHOTOELECTRIC EVALUATOR AT ALL. It computed h*nu/e inline from constants
+   * written into the function body, which is the QUANTUM ENERGY in volts and not the stopping potential:
+   * the work function was subtracted nowhere. Its sourcePath named radiation.ts, so "show the code"
+   * pointed at a module that does not contain the calculation.
+   *
+   * MEASURED BEFORE AND AFTER, which is what made the repair safe to land. The one scenario on this owner,
+   * photoelectric-einstein-1905-printed, supplies a work function of ZERO, because Einstein neglected P'
+   * for the order-of-magnitude comparison and the scenario records that in its editorialInputs. At zero
+   * the two agree exactly, 4.259737727831575 V against the printed "ca. 4,3 Volt", so the printed check is
+   * unaffected. At a work function of 2 eV the evaluator gives 2.2597 V and the old owner still returned
+   * 4.2597 V: it silently dropped the input. That is the defect, and it is why agreeing on one scenario
+   * was never evidence that the owner computed the quantity it was named for.
+   *
+   * It carries a non-value status now rather than returning a number regardless, so the below-threshold
+   * case is reachable here too.
+   */
   {
     id: "photoelectric.stoppingPotentialMagnitude",
-    sourcePath: fileURLToPath(new URL("../../physics/reference/radiation.ts", import.meta.url)),
+    sourcePath: fileURLToPath(new URL("../../physics/reference/photoelectric.ts", import.meta.url)),
     fn: (ctx) => {
-      const nu = num(ctx.inputs, "frequency");
-      const h = 6.62607015e-34;
-      const e = 1.602176634e-19;
-      const v = (h * nu) / e;
-      return {
-        stoppingPotentialMagnitude: v,
-      };
+      const result = stoppingPotentialMagnitude(
+        num(ctx.inputs, "frequency"),
+        typeof ctx.inputs.workFunction === "number" ? ctx.inputs.workFunction : 0,
+      );
+      const got = nonNumericOr(
+        result as unknown as Record<string, unknown>,
+        "stoppingPotentialMagnitude",
+      );
+      return typeof got === "number" ? { stoppingPotentialMagnitude: got } : got;
     },
   },
   /**
@@ -866,12 +910,12 @@ const OWNERS: OwnerRecord[] = [
    * potential when no electron is emitted". `kMax` returns exactly that below threshold, with the reason
    * "no emitted electron in this model", and `stoppingPotentialMagnitude` passes it through.
    *
-   * A SECOND OWNER RATHER THAN A REPAIR OF THE FIRST. `photoelectric.stoppingPotentialMagnitude`, a few
-   * entries above, does NOT call this evaluator: it computes h*nu/e inline from constants written into
-   * that function, which omits the work function altogether and so is not the stopping potential, and
-   * its sourcePath names radiation.ts. One scenario and one lab definition reference it, so changing it
-   * is a separate decision with its own evidence; the defect is recorded on am-nxbq. This entry calls
-   * the kernel.
+   * WHY TWO ENTRIES OVER ONE EVALUATOR, now that the other one is repaired. This entry was written first
+   * BECAUSE `photoelectric.stoppingPotentialMagnitude` did not call this evaluator at all, computing
+   * h*nu/e inline and omitting the work function. That has since been fixed in place, with the printed
+   * check measured unchanged, so the law has one owner and the two entries differ only in the units their
+   * scenarios find convenient: this one takes the work function in electronvolts, the other in joules.
+   * Neither reimplements anything.
    *
    * `reasonCode` falls through to the status here, because a `not-applicable` result carries a prose
    * `reason` and no code. Pinning the prose would make rewording it turn the scenario red, and the
