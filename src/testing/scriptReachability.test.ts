@@ -38,7 +38,7 @@ const EXPECTED_UNREACHABLE: ReadonlyMap<string, string> = new Map([
   ],
   [
     "audit-shelf.ts",
-    "Thin CLI over src/content/audits/shelf.ts, whose auditShelf() is called by verify-content.ts. content/historical-premises/ does not exist, so verify-content passes it an empty card list.",
+    'Thin CLI over src/content/audits/shelf.ts, whose auditShelf() is called by verify-content.ts over the cards the four journeys render: measured 2026-10-05, 46 cards on 4 shelves. The second sentence here read "content/historical-premises/ does not exist, so verify-content passes it an empty card list" until then. The directory is still absent, but that stopped being the shelf audit\'s input on 2026-10-02 (am-rc1001-bridge-plan-pcjk.12), when the empty list was replaced by the live shelves -- so the reason described a vacuous run that no longer happens, which is the stale prose this map exists to prevent.',
   ],
   [
     "validate-ledger.ts",

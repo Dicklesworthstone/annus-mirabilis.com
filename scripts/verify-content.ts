@@ -404,6 +404,28 @@ const result = await runVerifyContent({
   audits: {
     readings: async () => {
       const input = loadLiveReadingsAuditInput(root);
+      // THE DENOMINATOR BESIDE THE VERDICT (am-8gbg). The misconception and shelf audits beside this
+      // one print theirs, each after a run that judged nothing and reported green; this one did not,
+      // so "0 errors" over 55 owner files and "0 errors" over an empty directory read identically.
+      // A count of 0 is a failed citation rather than a pass, so it refuses here rather than
+      // reporting a clean audit of nothing.
+      console.log(
+        `[audit-readings] ${input.owners.length} owner file(s) declaring ${input.targets.length} ` +
+          `reading target(s) in content/editorial/readings-owners`,
+      );
+      if (input.owners.length === 0 || input.targets.length === 0) {
+        return summarize("audit-readings", [
+          {
+            check: "readings-population-empty",
+            family: "audit",
+            severity: "error",
+            recordId: "audit-readings",
+            message:
+              `The readings audit examined ${input.owners.length} owner file(s) and ` +
+              `${input.targets.length} target(s). Auditing nothing is not a clean audit.`,
+          },
+        ]);
+      }
       return applyAuditExemptions(
         "readings",
         auditReadings(input),
