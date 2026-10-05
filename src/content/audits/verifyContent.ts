@@ -19,6 +19,22 @@ import { type AuditFinding, type AuditReport, findingLine, populationLine } from
 export const RULE_0_HELP =
   "Rule 0 (the user's override prerogative) is not machine-checkable and is not pretended to be.";
 
+/**
+ * Every audit `runVerifyContent` runs, in the order it runs them (am-4k0m).
+ *
+ * `journeys` is appended rather than inserted, so no line of existing output moves. The list is both
+ * the loop's iteration order and the source of the options type's key set; see `audits` below.
+ */
+export const AUDIT_ORDER = [
+  "readings",
+  "shelf",
+  "misconceptions",
+  "instruments",
+  "journeys",
+] as const;
+
+export type AuditName = (typeof AUDIT_ORDER)[number];
+
 export type ContentFile = Readonly<{ path: string; text: string }>;
 
 export type VerifyContentOptions = Readonly<{
@@ -32,12 +48,16 @@ export type VerifyContentOptions = Readonly<{
   pinnedAssets?: readonly PinnedAsset[];
   extraReports?: readonly AuditReport[];
   dimensionAudit?: () => Promise<AuditReport>;
-  audits?: {
-    readings?: () => Promise<AuditReport>;
-    shelf?: () => Promise<AuditReport>;
-    misconceptions?: () => Promise<AuditReport>;
-    instruments?: () => Promise<AuditReport>;
-  };
+  /**
+   * The registered audits, keyed by `AUDIT_ORDER`.
+   *
+   * The key set is DERIVED from the order list rather than written out beside it, so an audit cannot be
+   * added to one and forgotten in the other. Before this it was four hand-written optional fields and
+   * four hand-written nine-line blocks: a fifth audit added to the type without a matching block would
+   * have type-checked, run nothing, and reported a clean gate. One list makes that unrepresentable
+   * instead of merely tested for.
+   */
+  audits?: Partial<Record<AuditName, () => Promise<AuditReport>>>;
 }>;
 
 export type VerifyContentResult = Readonly<{
@@ -125,54 +145,20 @@ export async function runVerifyContent(
     }
   }
 
-  // 4. The four audits: readings, shelf, misconceptions, instruments
-  if (options.audits?.readings) {
-    const readingsReport = await options.audits.readings();
-    findings.push(...readingsReport.findings);
-    {
-      const line = populationLine(readingsReport);
-      if (line !== null) populations.push(line);
-    }
-    for (const finding of readingsReport.findings) {
-      if (finding.severity === "error") errors.push(findingLine(finding));
-      else flags.push(findingLine(finding));
-    }
-  }
-
-  if (options.audits?.shelf) {
-    const shelfReport = await options.audits.shelf();
-    findings.push(...shelfReport.findings);
-    {
-      const line = populationLine(shelfReport);
-      if (line !== null) populations.push(line);
-    }
-    for (const finding of shelfReport.findings) {
-      if (finding.severity === "error") errors.push(findingLine(finding));
-      else flags.push(findingLine(finding));
-    }
-  }
-
-  if (options.audits?.misconceptions) {
-    const miscReport = await options.audits.misconceptions();
-    findings.push(...miscReport.findings);
-    {
-      const line = populationLine(miscReport);
-      if (line !== null) populations.push(line);
-    }
-    for (const finding of miscReport.findings) {
-      if (finding.severity === "error") errors.push(findingLine(finding));
-      else flags.push(findingLine(finding));
-    }
-  }
-
-  if (options.audits?.instruments) {
-    const instReport = await options.audits.instruments();
-    findings.push(...instReport.findings);
-    {
-      const line = populationLine(instReport);
-      if (line !== null) populations.push(line);
-    }
-    for (const finding of instReport.findings) {
+  // 4. The registered audits, in a fixed order.
+  //
+  // This was four copies of the same nine lines, one per audit, and adding a fifth meant writing a
+  // fifth copy -- which is exactly the shape AGENTS.md warns about where two statements of one rule
+  // drift apart. The order below is the order those blocks ran in, with `journeys` appended, so no
+  // existing line of output moves. An audit absent from `options.audits` is skipped as before.
+  for (const name of AUDIT_ORDER) {
+    const run = options.audits?.[name];
+    if (!run) continue;
+    const report = await run();
+    findings.push(...report.findings);
+    const line = populationLine(report);
+    if (line !== null) populations.push(line);
+    for (const finding of report.findings) {
       if (finding.severity === "error") errors.push(findingLine(finding));
       else flags.push(findingLine(finding));
     }

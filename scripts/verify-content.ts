@@ -36,6 +36,9 @@ import {
 import { auditKernelBindings } from "../src/content/kernel/audit.ts";
 import { SLICE_KERNEL_CATALOG } from "../src/content/kernel/catalog.ts";
 import { loadProvenanceReceipts } from "../src/content/provenance/loadReceipts.ts";
+import { checkJourney } from "../src/discovery/checks/journeyChecks.ts";
+import { REAL_JOURNEYS } from "../src/discovery/journeys/realJourneys.ts";
+import { SHELF_CARD_CONTEXT } from "../src/discovery/journeys/shelves.ts";
 import { TestLogger } from "../src/testing/log/logger.ts";
 import { runArchitectureGateCli } from "./app-router-architecture.ts";
 import { mainAuditDimensions } from "./audit-dimensions.ts";
@@ -135,6 +138,21 @@ const provenance = loadProvenanceReceipts({
  * Same shape as EXPECTED_UNREACHABLE in src/testing/scriptReachability.test.ts.
  */
 const READINGS_OWNERS_NOT_YET_AUDITABLE: ReadonlyMap<string, string> = new Map([]);
+
+/**
+ * Journey findings recorded as not yet auditable, keyed by `<paper>/<rule>`.
+ *
+ * ONE ENTRY, and it is the fork contract working on its first real population rather than a defect in
+ * the gate. A debt with a reason and a deletion condition, which is what this mechanism is for; the
+ * second half of `applyAuditExemptions` raises an error the moment the finding stops being reported,
+ * so the entry cannot outlive the repair.
+ */
+const JOURNEY_FINDINGS_NOT_YET_AUDITABLE: ReadonlyMap<string, string> = new Map([
+  [
+    "brownian-motion/missing-constraint-ref",
+    "arg-fork-exner / arg-branch-apparent-speed ends on a conceptual constraint -- for a randomly kicked particle an apparent speed is set by the observation interval as much as by the particle -- and no card on the Brownian shelf states it. Its two precedents both reference an OBSERVATION (lenard-1902-photoelectric, michelson-morley-1887-no-drift). Supplying one means authoring a historical knowledge card with a source, a date and provenance, which an agent must not do; changing the outcome type instead is a judgement about what the argument concludes. Delete this entry when the card exists or the owner rules on the outcome type (am-4k0m).",
+  ],
+]);
 
 const INSTRUMENTS_NOT_YET_AUDITABLE: ReadonlyMap<string, string> = new Map([
   [
@@ -443,6 +461,44 @@ const result = await runVerifyContent({
           `${live.report.errorCount} errors, ${live.report.flagCount} flags`,
       );
       return live.report;
+    },
+    journeys: async () => {
+      // THE EPISTEMIC GATES, IN THE CONTENT GATE (am-4k0m). `checkJourney` had no non-test caller at
+      // all: it ran in the bun lane over four composed journeys and nowhere else, so the post-1904
+      // shelf refusal, the fork contract and the move-summary guard that AGENTS.md calls BUILD gates
+      // were not in any build. This is that caller.
+      //
+      // The card catalogue is passed, which is not optional dressing: the shelf rule only judges a card
+      // it can look up, and `checkJourney(journey)` with no options judged zero cards. The count of
+      // shelf references examined is printed beside the verdict for the same reason every audit beside
+      // this one prints one.
+      const journeys = REAL_JOURNEYS;
+      const shelfRefs = journeys.reduce((n, j) => n + j.shelf.length, 0);
+      console.log(
+        `[audit-journeys] ${journeys.length} journey(s) examined with ` +
+          `${Object.keys(SHELF_CARD_CONTEXT).length} card(s) in the catalogue; ` +
+          `${shelfRefs} shelf reference(s) judged against the 1904 cutoff`,
+      );
+      const findings: AuditFinding[] = journeys.flatMap((journey) =>
+        checkJourney(journey, { cards: SHELF_CARD_CONTEXT }).map((finding) => ({
+          check: finding.rule,
+          family: "audit" as const,
+          // checkJourney says error or warning; this report says error or flag. A warning is
+          // informational and must not fail a build, so it lands as a flag.
+          severity: finding.severity === "error" ? ("error" as const) : ("flag" as const),
+          paper: journey.paper,
+          recordId: `${journey.paper}/${finding.rule}`,
+          message: `${finding.message} (${finding.path})`,
+          ...(finding.repair === undefined ? {} : { requirement: finding.repair }),
+        })),
+      );
+      return applyAuditExemptions(
+        "audit-journeys",
+        summarize("audit-journeys", findings),
+        JOURNEY_FINDINGS_NOT_YET_AUDITABLE,
+        (finding) => finding.recordId,
+        journeys.length,
+      );
     },
     misconceptions: async () => {
       // The ledgers as they are on disk (am-8gbg). This passed `papers: []` and four empty sets
