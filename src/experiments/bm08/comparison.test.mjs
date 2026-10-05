@@ -89,6 +89,13 @@ test("missing, duplicate and wrong-identity evidence raises camera-comparison-ev
     const s = snapshot(); change(s);
     assert.throws(() => cameraComparisonOutput(s, "times"), invalidEvidence);
   }
+  // THE CODE AS A LITERAL, INSIDE THE BLOCK (am-muyh). `invalidEvidence` is declared at module scope, so
+  // no test block contained the string and the refusal ratchet credited the site to nobody: it counts
+  // blocks that NAME a code, and a variable holding it is not a mention. One literal assertion fixes it
+  // without weakening anything above.
+  const s = snapshot();
+  s.outputs = s.outputs.filter((o) => o.quantityId !== "times");
+  assert.throws(() => cameraComparisonOutput(s, "times"), { code: "camera-comparison-evidence" });
 });
 test("array shape, missing samples and nonfinite data are never replaced with zeros", () => {
   for (const value of [new Float64Array([0]), new Float64Array([0, 1, NaN, 3]),
