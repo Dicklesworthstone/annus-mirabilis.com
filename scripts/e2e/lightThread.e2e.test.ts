@@ -29,7 +29,7 @@ import { createServer, type Server } from "node:http";
 import { dirname, extname, join, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { chromium, webkit } from "playwright";
+import { chromium, type Route, webkit } from "playwright";
 import { assertOutFreshness } from "../../src/testing/outFreshness.ts";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -360,73 +360,159 @@ test("light-thread: a refused setting alerts and leaves the accepted example dis
   assert.equal(refusalRoute.length, 2, "both engines must have been asked");
 });
 
-test("light-thread planted negative: without the invalid handler the widget answers again", async (t) => {
+/**
+ * THE PLANTED NEGATIVE FOR am-fd1f, AND WHY IT TAKES THREE CASES RATHER THAN ONE.
+ *
+ * The assertion this guards is that the INSTRUMENT answers an out-of-bounds setting, in its
+ * own authored sentence, rather than the browser answering with "Value must be less than or
+ * equal to 0.999999". Two independent things make that true, and a plant that removes either
+ * one alone proves nothing, because the other still delivers the sentence:
+ *
+ *   - the form carries `noValidate`, so constraint validation never intercepts the submit and
+ *     the submit handler runs the evaluator;
+ *   - every control carries `onInvalid`, so if validity IS ever reported the handler suppresses
+ *     the native bubble and routes the refusal through the same evaluator.
+ *
+ * THE PREVIOUS VERSION OF THIS TEST STRIPPED `onInvalid` ALONE AND ASSERTED NO REFUSAL APPEARED.
+ * That is false of this design and the test was red for 49 of its runs while nothing it protects
+ * was broken: with `noValidate` on the form, `onInvalid` is not in the submit path at all, so
+ * removing it cannot stop the instrument answering. The red was additionally unreadable, because
+ * the plant's own regex -- `onInvalid:IDENT,` -- assumed a minified shape, and a plant that fails
+ * to land produces exactly the same red as the defect it is hunting.
+ *
+ * So each guard is removed alone, where the instrument must STILL answer, and then both together,
+ * where the browser must take over. The third case is am-fd1f reproduced: the state in which the
+ * authored sentence was unit-tested and unreachable. Six observations, two engines by three cases,
+ * and each case prints what it removed from the served bytes before any verdict is read.
+ */
+test("light-thread planted negative: the instrument's voice needs both guards, and without them the browser answers", async (t) => {
   requireBuiltRoute();
   const { baseUrl, server } = await startStaticServer();
+  /**
+   * Renaming cannot miss on the shape of a value, which deleting it did. Each guard names every
+   * spelling it is served under: `noValidate` reaches the browser through the DOCUMENT -- the
+   * payload carries it camelCased, and renaming the chunk's copy alone leaves the form with its
+   * attribute -- while `onInvalid` is bound in the chunk and keeps its colon, because the bare word
+   * also names React's own event registry and renaming that consistently would leave the handler
+   * firing under a new name.
+   */
+  // THE REPLACEMENT MUST NOT CONTAIN THE TOKEN, which is why each is a one-letter substitution
+  // rather than a suffix. Renaming `noValidate` to `noValidateRemovedByThePlant` leaves the token as
+  // a substring of its own replacement, so the "did any survive" count below counted every rename as
+  // a survivor and the plant refused itself. Same length, first letter changed, nothing else moves.
+  const GUARDS = {
+    noValidate: [
+      ["noValidate", "zoValidate"],
+      ["novalidate", "zovalidate"],
+    ],
+    onInvalid: [["onInvalid:", "znInvalid:"]],
+  } as const;
+  const CASES = [
+    { name: "noValidate stripped", strip: ["noValidate"], answers: "instrument" },
+    { name: "onInvalid stripped", strip: ["onInvalid"], answers: "instrument" },
+    { name: "both stripped", strip: ["noValidate", "onInvalid"], answers: "browser" },
+  ] as const;
+  const observed: string[] = [];
   try {
     for (const engine of ENGINES) {
       const browser = await engine.launcher.launch();
       try {
-        const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
-        const page = await context.newPage();
+        for (const probe of CASES) {
+          const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+          const page = await context.newPage();
+          // The wiring removed from the SHIPPED chunk, not from source: a source plant is
+          // invisible to a test that reads out/, and rebuilding to plant is not available
+          // here because the panes share one .next.
+          const edit = { files: 0, removed: 0, survived: 0 };
+          const rewrite = async (route: Route) => {
+            const response = await route.fetch();
+            const body = await response.text();
+            let served = body;
+            let removed = 0;
+            for (const key of probe.strip)
+              for (const [token, renamed] of GUARDS[key]) {
+                removed += served.split(token).length - 1;
+                served = served.replaceAll(token, renamed);
+              }
+            if (removed === 0) {
+              await route.fulfill({ response, body });
+              return;
+            }
+            edit.files += 1;
+            edit.removed += removed;
+            for (const key of probe.strip)
+              for (const [token] of GUARDS[key]) edit.survived += served.split(token).length - 1;
+            await route.fulfill({ response, body: served });
+          };
+          // The DOCUMENT as well as the chunks. This test rewrote only the chunks and could
+          // therefore never remove noValidate at all, which is half of why it was red.
+          await page.route(`**${ROUTE}`, rewrite);
+          await page.route("**/_next/static/chunks/**/*.js", rewrite);
 
-        // The wiring removed from the SHIPPED chunk, not from source: a source plant
-        // is invisible to a test that reads out/, and rebuilding to plant is not
-        // available here because the panes share one .next. Stripping `onInvalid:M,`
-        // from the served bytes reproduces exactly the state am-fd1f recorded.
-        const rewritten = { count: 0 };
-        await page.route("**/_next/static/chunks/**/*.js", async (route) => {
-          const response = await route.fetch();
-          const body = await response.text();
-          if (!body.includes("onInvalid:")) {
-            await route.fulfill({ response, body });
-            return;
+          await page.goto(`${baseUrl}${ROUTE}`, { waitUntil: "load", timeout: 20_000 });
+          await page
+            .locator("form[aria-label='Light-thread settings'] fieldset:not([disabled])")
+            .waitFor({ timeout: 10_000 });
+
+          // REACHABILITY BEFORE THE CLAIM, on the bytes that were SERVED rather than on the
+          // bytes that were inspected. A chunk that merely contained the token, and that the
+          // rewrite then failed to change, used to satisfy this.
+          assert.ok(
+            edit.removed > 0,
+            `${engine.name}/${probe.name}: no served chunk carried ${probe.strip.join(" or ")}, so this plant changed nothing`,
+          );
+          assert.equal(
+            edit.survived,
+            0,
+            `${engine.name}/${probe.name}: ${edit.survived} binding(s) survived the rewrite across ${edit.files} chunk(s), so the page may still have its guard`,
+          );
+
+          await page.locator("input[name='beta']").fill("2");
+          await page.getByRole("button", { name: "Apply settings" }).click();
+
+          // The instrument's own sentence, by its words rather than by any element being
+          // present: the browser's bubble is not in the DOM at all, so "an alert exists" and
+          // "the instrument answered" are different questions.
+          const instrumentSpoke = await page
+            .locator("section.laboratory [role='alert']")
+            .filter({ hasText: /admission bounds/ })
+            .count();
+          observed.push(
+            `${engine.name}/${probe.name}: removed ${edit.removed} binding(s) from ${edit.files} chunk(s); instrument sentence ${instrumentSpoke > 0 ? "shown" : "absent"}`,
+          );
+          if (probe.answers === "instrument") {
+            assert.ok(
+              instrumentSpoke > 0,
+              `${engine.name}/${probe.name}: the other guard must still deliver the instrument's sentence; removing one is not meant to silence it`,
+            );
+          } else {
+            assert.equal(
+              instrumentSpoke,
+              0,
+              `${engine.name}/${probe.name}: with neither guard the instrument cannot be the one answering, so the assertion in the refusal test is not testing them`,
+            );
           }
-          rewritten.count += 1;
-          await route.fulfill({
-            response,
-            body: body.replace(/onInvalid:[A-Za-z_$][\w$]*,/g, ""),
-          });
-        });
 
-        await page.goto(`${baseUrl}${ROUTE}`, { waitUntil: "load", timeout: 20_000 });
-        await page
-          .locator("form[aria-label='Light-thread settings'] fieldset:not([disabled])")
-          .waitFor({ timeout: 10_000 });
-
-        // Reachability before the claim: the rewrite must have hit something, or
-        // "the instrument stays silent" is true of a plant that changed nothing.
-        assert.ok(
-          rewritten.count > 0,
-          `${engine.name}: no served chunk carried an onInvalid binding, so this plant changed nothing`,
-        );
-
-        await page.locator("input[name='beta']").fill("2");
-        await page.getByRole("button", { name: "Apply settings" }).click();
-
-        const alerted = await page
-          .locator("section.laboratory [role='alert']")
-          .first()
-          .isVisible()
-          .catch(() => false);
-        assert.equal(
-          alerted,
-          false,
-          `${engine.name}: the instrument answered without its handler, so the assertion above is not testing the wiring`,
-        );
-        const nativeMessage = await page
-          .locator("input[name='beta']")
-          .evaluate((node) => (node as HTMLInputElement).validationMessage);
-        assert.notEqual(
-          nativeMessage,
-          "",
-          `${engine.name}: with the handler gone the browser must be the one answering`,
-        );
-        await context.close();
+          // In every case the control itself still refuses the value, so none of this trades
+          // the bound away: the plant removes who SAYS so, never what is enforced.
+          const nativeMessage = await page
+            .locator("input[name='beta']")
+            .evaluate((node) => (node as HTMLInputElement).validationMessage);
+          assert.notEqual(
+            nativeMessage,
+            "",
+            `${engine.name}/${probe.name}: the control stopped enforcing the bound`,
+          );
+          await context.close();
+        }
       } finally {
         await browser.close();
       }
     }
+    // The denominator, printed: three cases in each of two engines, none skipped.
+    assert.equal(observed.length, ENGINES.length * CASES.length, "every case must have been run");
+    t.diagnostic(observed.join(" | "));
+    console.log(`light-thread guard plants:\n  ${observed.join("\n  ")}`);
   } finally {
     await new Promise<void>((done) => server.close(() => done()));
   }
