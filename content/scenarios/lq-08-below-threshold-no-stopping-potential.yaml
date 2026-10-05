@@ -1,0 +1,37 @@
+# LQ-08 below the threshold frequency has no stopping potential to report (am-nxbq, item 2).
+#
+# WHICH CONTROLS A READER MOVES TO REACH IT: the light-frequency control at 500 THz, with the work
+# function left at 4.5 eV. One quantum of 500 THz light carries about 2.07 eV, which is less than the
+# 4.5 eV the metal demands, so on the light-quantum account no electron leaves the surface at all.
+#
+# WHAT THE RESULT IS. There is no stopping potential, and that is a different statement from a stopping
+# potential of zero. Zero volts would mean electrons arrive with no kinetic energy to spare; here none
+# arrive. AGENTS.md's table of typed results names this case in its not-applicable row: "A stopping
+# potential when no electron is emitted". The evaluator says the quantity is not defined for this model
+# and these conditions rather than returning a zero a reader would read off the axis.
+#
+# THE REASON CODE IS THE STATUS ITSELF, deliberately: a not-applicable result carries a prose reason
+# ("no emitted electron in this model") and no code, and pinning the prose would make rewording it turn
+# this scenario red. The triple the runner compares still discriminates, because it names the quantity.
+id: "lq-08-below-threshold-no-stopping-potential"
+kind: "adversarial"
+title: "LQ-08 reports no stopping potential below the threshold, rather than a stopping potential of zero"
+description: "The light-quantum account makes the maximum kinetic energy of an emitted electron the quantum energy less the work function. At 500 THz on a 4.5 eV surface the quantum energy is about 2.07 eV and the difference is negative, which on this model means no electron is emitted. The evaluator returns a result typed as not applicable to these conditions, carrying its reason, so the instrument says there is nothing to stop instead of drawing a stopping potential at zero volts."
+plausibleMistake: "That the stopping potential below threshold is zero, because the maximum kinetic energy is zero or less. The two readings differ in what they claim: zero volts says electrons arrive with nothing to spare, and would appear on the plot as a point on the axis, while the model's claim here is that none arrive. A zero would be indistinguishable from the measurement at exactly the threshold frequency, which is a real and different case the same evaluator reports as a value with a note."
+intendedFailure: "The evaluator reports the quantity as not applicable before any division by the elementary charge, so no voltage is produced below threshold to be plotted. The scenario passes only when that status arrives on the stopping potential; a run that returned a number fails here, including zero, and so does one that reported the result as being outside the model's domain, which is the status the same module uses for a different condition."
+constantSetId: "modern-si-2019"
+owner: "photoelectric.stoppingPotentialTyped"
+inputs:
+  frequency:
+    value: 5.0e+14
+    unit: "Hz"
+  workFunctionEv:
+    value: 4.5
+    unit: "eV"
+expected:
+  status:
+    outputId: "stoppingPotentialMagnitude"
+    status: "not-applicable"
+    reasonCode: "not-applicable"
+modelVersion: 1
+schemaVersion: 1

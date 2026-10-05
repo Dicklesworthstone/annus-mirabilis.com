@@ -12,6 +12,7 @@ import {
 } from "../../physics/reference/diffusion/walkLaws.ts";
 import {
   apparentSpeed,
+  gaussianPropagator,
   intervalProbability,
   osmoticPressure,
   rmsDisplacement,
@@ -71,7 +72,12 @@ import {
   speedForDailyLoss,
   transformEvent,
 } from "../../physics/reference/kinematics.ts";
-import { evaluatePhotonBox, printedMassConversion } from "../../physics/reference/massEnergy.ts";
+import {
+  evaluateMe02,
+  evaluatePhotonBox,
+  printedMassConversion,
+} from "../../physics/reference/massEnergy.ts";
+import { stoppingPotentialFromEv } from "../../physics/reference/photoelectric.ts";
 import {
   aperturePower,
   bandLimitedMeanQuantumEnergyWien,
@@ -261,6 +267,42 @@ function gaussianIntervalProbability(ctx: OwnerContext): Record<string, number> 
  * can set from the instrument's own temperature control, and this carries that refusal out where a
  * scenario's `expected.status` can be compared against it.
  */
+/**
+ * A REFERENCE EVALUATION, TURNED INTO THE OWNER PROTOCOL WITHOUT LOSING ITS STATUS (am-nxbq, item 2).
+ *
+ * The evaluators return a typed `ScientificResult`: `value` with a number, or one of the non-numeric
+ * statuses AGENTS.md tabulates -- `analytic-limit`, `underdetermined`, `not-applicable`,
+ * `outside-domain`, `symbolic`, `divergent`. Owners mostly THREW those away ("apparentSpeed did not
+ * return a value"), which is why 32 of 33 instruments had no resolvable non-numeric acceptance case
+ * while their own evaluators produce them: the information existed and had nowhere to go.
+ *
+ * The reason code is read from the result itself, preferring the most specific thing it carries: the
+ * `condition` a domain refusal states, then the `kind` of representation a limit offers (`point-mass`,
+ * `coefficient`), then the status. Never a string this file invents, so a scenario pins what the
+ * evaluator said and not a label added on the way past.
+ */
+function nonNumericOr(
+  result: Readonly<Record<string, unknown>>,
+  outputId: string,
+): OwnerRefusal | number {
+  if (result.status === "value" && typeof result.value === "number") return result.value;
+  const representation = result.representation;
+  const kind =
+    representation && typeof representation === "object" && "kind" in representation
+      ? String((representation as { kind: unknown }).kind)
+      : undefined;
+  return {
+    refused: {
+      outputId,
+      status: String(result.status),
+      reasonCode:
+        "condition" in result && result.condition !== undefined
+          ? String(result.condition)
+          : (kind ?? String(result.status)),
+    },
+  };
+}
+
 function osmoticPressureOwner(ctx: OwnerContext): OwnerResult {
   const set =
     ctx.constantSetId === "modern-si-2019"
@@ -409,6 +451,67 @@ const OWNERS: OwnerRecord[] = [
     id: "diffusion.gaussianIntervalProbability",
     sourcePath: diffusionPath,
     fn: gaussianIntervalProbability,
+  },
+  /**
+   * THE SPREADING CURVE, INCLUDING AT t = 0 WHERE IT IS NOT A CURVE (am-nxbq, item 2).
+   *
+   * AGENTS.md names this case in its own table of typed results: "The point distribution at t = 0" is
+   * an `analytic-limit`, not a value and not an error. `gaussianPropagator` returns it with a
+   * representation of kind `point-mass`, and until now no owner could report that: the density would
+   * have been a division by zero and an owner that threw would have read as a broken evaluator.
+   */
+  {
+    id: "diffusion.gaussianPropagator",
+    sourcePath: diffusionPath,
+    fn: (ctx) => {
+      const evaluation = gaussianPropagator(
+        num(ctx.inputs, "x"),
+        num(ctx.inputs, "elapsedTime"),
+        num(ctx.inputs, "diffusionCoefficient"),
+      );
+      const got = nonNumericOr(
+        evaluation.result as unknown as Record<string, unknown>,
+        "probabilityDensity",
+      );
+      return typeof got === "number" ? { probabilityDensity: got } : got;
+    },
+  },
+  /**
+   * THE GAS CARD, WHICH THE LIQUID STOKES MODEL REFUSES (am-nxbq, item 2).
+   *
+   * AGENTS.md names this case by name: "a gas card refuses because Stokes drag without the Cunningham
+   * slip correction is invalid when the mean free path is comparable to the radius". `stokesEinsteinD`
+   * states it as `stokes-gas-medium`, an `outside-domain` result with a model domainKind rather than an
+   * input one, and `diffusionRms` threw it away as "stokesEinsteinD did not return a value" -- which is
+   * the defect that left the Brownian labs with no typed non-numeric case while their own evaluator
+   * produced one.
+   *
+   * `medium` arrives as a number because the owner protocol carries numbers: 0 is the liquid the model
+   * covers, anything else is a gas. The same encoding `massEnergy.box` uses for its own flag.
+   */
+  {
+    id: "diffusion.stokesEinsteinTyped",
+    sourcePath: diffusionPath,
+    fn: (ctx) => {
+      const set =
+        ctx.constantSetId === "modern-si-2019"
+          ? getConstantSet("modern-si-2019")
+          : printedBrownianSet();
+      const evaluation = stokesEinsteinD(
+        {
+          T: num(ctx.inputs, "temperature"),
+          eta: num(ctx.inputs, "viscosity"),
+          a: num(ctx.inputs, "radius"),
+          medium: (ctx.inputs.medium ?? 0) === 0 ? "liquid" : "gas",
+        },
+        set,
+      );
+      const got = nonNumericOr(
+        evaluation.result as unknown as Record<string, unknown>,
+        "diffusionCoefficient",
+      );
+      return typeof got === "number" ? { diffusionCoefficient: got } : got;
+    },
   },
   {
     id: "diffusion.apparentSpeedRatio",
@@ -602,6 +705,88 @@ const OWNERS: OwnerRecord[] = [
       return {
         stoppingPotentialMagnitude: v,
       };
+    },
+  },
+  /**
+   * THE STOPPING POTENTIAL WHERE THERE IS NO ELECTRON TO STOP (am-nxbq, item 2).
+   *
+   * AGENTS.md's table of typed results names this case in its `not-applicable` row: "A stopping
+   * potential when no electron is emitted". `kMax` returns exactly that below threshold, with the reason
+   * "no emitted electron in this model", and `stoppingPotentialMagnitude` passes it through.
+   *
+   * A SECOND OWNER RATHER THAN A REPAIR OF THE FIRST. `photoelectric.stoppingPotentialMagnitude`, a few
+   * entries above, does NOT call this evaluator: it computes h*nu/e inline from constants written into
+   * that function, which omits the work function altogether and so is not the stopping potential, and
+   * its sourcePath names radiation.ts. One scenario and one lab definition reference it, so changing it
+   * is a separate decision with its own evidence; the defect is recorded on am-nxbq. This entry calls
+   * the kernel.
+   *
+   * `reasonCode` falls through to the status here, because a `not-applicable` result carries a prose
+   * `reason` and no code. Pinning the prose would make rewording it turn the scenario red, and the
+   * triple the runner compares is still discriminating: the output, the status, and which output.
+   */
+  /**
+   * THE MASS COEFFICIENT AT VANISHING SPEED (am-nxbq, item 2).
+   *
+   * AGENTS.md's `analytic-limit` row names it beside the diffusion case: "the mass coefficient at
+   * v = 0". The kinetic-energy difference and the proxy that divides by v^2/2 both go to zero there, so
+   * the coefficient is a 0/0 the evaluator refuses to perform. `evaluateMe02` returns the limit
+   * identified analytically instead, with a `coefficient` representation carrying L/c^2, and its own
+   * docstring says "with no 0/0 division". A number computed by letting v be small instead would be the
+   * step size talking.
+   *
+   * The snapshot's `limitingCoefficient` is ALWAYS this limit, at any speed, which is why the scenario
+   * for it moves the speed to zero and reads `finiteSpeedProxy` as well: the two agree in the limit,
+   * and `proxyEqualsLimit` in the same module is the check that says so.
+   */
+  {
+    id: "massEnergy.limitingCoefficient",
+    sourcePath: fileURLToPath(new URL("../../physics/reference/massEnergy.ts", import.meta.url)),
+    fn: (ctx) => {
+      const snapshot = evaluateMe02({
+        beta: num(ctx.inputs, "beta"),
+        emittedEnergy: num(ctx.inputs, "emittedEnergy"),
+      });
+      const got = nonNumericOr(
+        snapshot.limitingCoefficient as unknown as Record<string, unknown>,
+        "limitingCoefficient",
+      );
+      return typeof got === "number" ? { limitingCoefficient: got } : got;
+    },
+  },
+  /**
+   * The finite-speed proxy at exactly zero speed, which is the other half of the same story: the proxy
+   * divides by v^2/2, so at v = 0 it has no value either, and the evaluator says which kind of
+   * no-value it is rather than returning a NaN.
+   */
+  {
+    id: "massEnergy.finiteSpeedProxy",
+    sourcePath: fileURLToPath(new URL("../../physics/reference/massEnergy.ts", import.meta.url)),
+    fn: (ctx) => {
+      const snapshot = evaluateMe02({
+        beta: num(ctx.inputs, "beta"),
+        emittedEnergy: num(ctx.inputs, "emittedEnergy"),
+      });
+      const got = nonNumericOr(
+        snapshot.finiteSpeedProxy as unknown as Record<string, unknown>,
+        "finiteSpeedProxy",
+      );
+      return typeof got === "number" ? { finiteSpeedProxy: got } : got;
+    },
+  },
+  {
+    id: "photoelectric.stoppingPotentialTyped",
+    sourcePath: fileURLToPath(new URL("../../physics/reference/photoelectric.ts", import.meta.url)),
+    fn: (ctx) => {
+      const result = stoppingPotentialFromEv(
+        num(ctx.inputs, "frequency"),
+        num(ctx.inputs, "workFunctionEv"),
+      );
+      const got = nonNumericOr(
+        result as unknown as Record<string, unknown>,
+        "stoppingPotentialMagnitude",
+      );
+      return typeof got === "number" ? { stoppingPotentialMagnitude: got } : got;
     },
   },
   {

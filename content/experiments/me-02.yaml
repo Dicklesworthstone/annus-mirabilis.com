@@ -204,6 +204,7 @@ acceptanceCases:
   - me-02-limit-zero
   - me-02-adversarial-proxy
   - me-02-beta-outside-declared-range-refused
+  - me-02-zero-speed-proxy-has-no-value
 defaultScenario: me-02-0.6c
 tapeModel:
   modelId: mass-energy-coefficient-host

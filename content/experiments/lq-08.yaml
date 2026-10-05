@@ -284,6 +284,7 @@ acceptanceCases:
   - photoelectric-subthreshold-refusal
   - photoelectric-power-energy-invariance
   - lq-08-workfunction-outside-declared-range-refused
+  - lq-08-below-threshold-no-stopping-potential
 defaultScenario: photoelectric-einstein-1905-printed
 tapeModel:
   modelId: lq-08

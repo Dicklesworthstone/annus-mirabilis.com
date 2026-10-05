@@ -495,6 +495,7 @@ acceptanceCases:
   - diffusion-modern-golden
   - diffusion-apparent-speed-identity
   - bm-01-t-outside-declared-range-refused
+  - bm-01-gas-medium-not-a-number
 defaultScenario: diffusion-einstein-1905-printed
 tapeModel:
   modelId: brownian-motion-reference

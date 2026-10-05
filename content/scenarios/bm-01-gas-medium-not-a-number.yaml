@@ -1,0 +1,44 @@
+# BM-01's gas card gives a typed non-numeric result, not a diffusion coefficient (am-nxbq, item 2).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the fluid card. BM-01 offers a gas-phase card, and its
+# manifest already lists a "Gas-phase slip" line among the things the model does not include, with
+# bm-01-gas-card-refusal among its probes. Choosing that card asks for a Stokes-Einstein coefficient in
+# a medium the liquid drag law does not cover.
+#
+# WHY THIS ARRIVES AS A TYPED RESULT RATHER THAN A REFUSAL CODE. The evaluator returns an outside-domain
+# EVALUATION with a model domain kind, carrying the condition it states. AGENTS.md names this case:
+# Stokes drag without the Cunningham slip correction is invalid when the mean free path is comparable
+# to the particle radius, so the liquid formula has no standing in a gas. A number here would be a
+# coefficient for a model that does not apply, and nothing on the page would separate it from one that
+# does.
+#
+# The temperature, viscosity and radius are the printed Brownian values, all admissible on their own,
+# so the result can only be coming from the medium.
+id: "bm-01-gas-medium-not-a-number"
+kind: "adversarial"
+title: "BM-01 reports no diffusion coefficient for a gas, because the liquid drag law does not cover one"
+description: "The Stokes-Einstein coefficient BM-01 draws its spreading curve from assumes continuum drag on a sphere in a liquid. Selecting the gas card asks for that coefficient in a medium where the mean free path is comparable to the particle radius and the slip correction the formula omits is no longer negligible. The evaluator returns a typed result outside its model domain, carrying the condition it states, rather than a number. The same inputs with the liquid card return the printed coefficient, so the medium is the only thing that changed."
+plausibleMistake: "That the Stokes-Einstein formula is general, so it may be evaluated in air as readily as in water and the answer will simply be larger. The arithmetic is identical and the result would be finite, which is why this needs a typed result rather than a number: the formula's derivation assumes the fluid is a continuum at the scale of the particle, and in a gas at ordinary pressure it is not."
+intendedFailure: "The evaluator returns its typed result before dividing, so no coefficient is produced for a medium the model does not cover. The scenario passes only when the result arrives on the diffusion coefficient as a limit of the model domain, naming the gas medium as the condition; a run that returned a number fails here, and so does one that gave a different condition, such as the positive-inputs condition the same evaluator states for a non-positive radius."
+constantSetId: "modern-si-2019"
+owner: "diffusion.stokesEinsteinTyped"
+inputs:
+  temperature:
+    value: 290.15
+    unit: "K"
+  viscosity:
+    value: 0.00135
+    unit: "Pa s"
+  radius:
+    value: 5.0e-7
+    unit: "m"
+  medium:
+    value: 1
+    unit: "1"
+expected:
+  status:
+    outputId: "diffusionCoefficient"
+    status: "outside-domain"
+    reasonCode: "stokes-gas-medium"
+modelVersion: 1
+schemaVersion: 1

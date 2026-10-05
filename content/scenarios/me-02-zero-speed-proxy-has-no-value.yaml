@@ -1,0 +1,41 @@
+# ME-02's finite-speed proxy has no value at exactly zero speed (am-nxbq, item 2).
+#
+# THE ID CARRIES NO STATUS NAME, deliberately. The first spelling ended in the status itself, and the
+# voice lint refused it where me-02.yaml lists its acceptance cases: a ref is text beside an
+# instrument, so a raw status identifier in one is the same leak as one in a caption.
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the observer-speed control, v/c, taken to 0. The manifest
+# declares that control from -0.95 to 0.95 inclusive, so zero is inside the range and is the case the
+# comparison is built around.
+#
+# WHAT THE RESULT IS. The proxy this instrument plots is the kinetic-energy difference divided by
+# v squared over two. At v = 0 both the difference and the divisor are zero, so the proxy is a nought
+# over nought and has no value. The evaluator says so rather than returning a NaN or a number produced
+# by letting v be merely small, which would be the step size talking and not the physics.
+#
+# The limit itself IS available, and that is the point of the pair: the same snapshot carries a
+# limiting coefficient identified analytically as L over c squared, with no division performed, and the
+# module's own proxyEqualsLimit is the check that the two agree where both are defined. A reader is
+# shown the limit, not an arithmetic accident.
+id: "me-02-zero-speed-proxy-has-no-value"
+kind: "adversarial"
+title: "ME-02 reports no finite-speed proxy at zero speed, and offers the analytic limit instead"
+description: "ME-02 compares the exact kinetic-energy difference with its low-speed form by dividing the difference by v squared over two. At exactly zero observer speed that quotient is nought over nought, so the proxy has no value at all. The evaluator reports it as not applicable to these conditions, while the limiting coefficient in the same snapshot is identified analytically and carries its own representation. The distinction is what stops the instrument reporting a coefficient it arrived at by dividing by something arbitrarily small."
+plausibleMistake: "That the proxy at v = 0 is simply its limit, so reporting the limit's value as the proxy's is harmless. They are different claims about different quantities: the proxy is a quotient that does not exist at zero, and the limit is a value established without performing the quotient. Conflating them is how a reader comes to believe a division by zero produced a number."
+intendedFailure: "The evaluator reports the proxy as not applicable before the division, so no coefficient at zero speed is produced by arithmetic. The scenario passes only when that status arrives on the finite-speed proxy; a run that returned a number fails here, and so does one that reported the proxy as an analytic limit, which is what the limiting coefficient beside it is and the proxy is not."
+constantSetId: "modern-si-2019"
+owner: "massEnergy.finiteSpeedProxy"
+inputs:
+  beta:
+    value: 0
+    unit: "1"
+  emittedEnergy:
+    value: 1
+    unit: "J"
+expected:
+  status:
+    outputId: "finiteSpeedProxy"
+    status: "not-applicable"
+    reasonCode: "not-applicable"
+modelVersion: 1
+schemaVersion: 1

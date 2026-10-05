@@ -1,0 +1,38 @@
+# BM-06 at zero elapsed time has no density curve, and says so as a typed limit (am-nxbq, item 2).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the elapsed-time control, t, taken to 0 s. BM-06's
+# manifest declares that control from 0 s inclusive, with the reason "From the start, when every tracer
+# is at the origin, to an hour of observation", so zero is inside the range the instrument offers and
+# is the start state it means a reader to look at.
+#
+# WHAT THE RESULT IS. At t = 0 all the probability sits at the starting point. A Gaussian density with
+# zero variance is not a tall narrow curve, it is not a curve at all, and the density at the origin is
+# unbounded. AGENTS.md lists exactly this in its table of typed results: "The point distribution at
+# t = 0" is an analytic-limit with its own representation, never a NaN, an infinity or a silent clamp.
+# The evaluator returns that limit with a point-mass representation, which is the honest answer and the
+# one the instrument can draw.
+id: "bm-06-zero-time-point-mass"
+kind: "adversarial"
+title: "BM-06 reports the start state as a point distribution, not as a density"
+description: "The spreading density BM-06 plots is the Gaussian propagator, whose width is the square root of twice the diffusion coefficient times the elapsed time. At zero elapsed time that width is zero, every tracer is still at the origin, and no finite density curve represents the state. The evaluator returns an analytic limit carrying a point-mass representation rather than a number, so the instrument can draw the start state as what it is instead of as a spike whose height depends on the grid."
+plausibleMistake: "That the density at the origin at t = 0 is simply very large, so plotting a tall narrow Gaussian with a small positive time is the same picture. It is not the same claim: the height of that spike is set by the time chosen rather than by the physics, and reading a number off it would be reading the plotting choice."
+intendedFailure: "The evaluator returns its limit before forming a density, so no height is produced at zero time to be plotted or read. The scenario passes only when the analytic limit arrives on the probability density with point-mass as its representation; a run that returned a number fails here, including an infinity, and so does one that reported a different status."
+constantSetId: "modern-si-2019"
+owner: "diffusion.gaussianPropagator"
+inputs:
+  x:
+    value: 0
+    unit: "m"
+  elapsedTime:
+    value: 0
+    unit: "s"
+  diffusionCoefficient:
+    value: 1.0e-12
+    unit: "m^2/s"
+expected:
+  status:
+    outputId: "probabilityDensity"
+    status: "analytic-limit"
+    reasonCode: "point-mass"
+modelVersion: 1
+schemaVersion: 1
