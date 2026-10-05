@@ -1,0 +1,8 @@
+{
+  "diffusion-einstein-1905-modern-kb": "src/content/checks/epistemic/circularity.ts",
+  "sr-05-circle-0.6c": "src/components/lab/sr05/MovingClocksLab.tsx",
+  "sr-05-inertial-0.6c": "src/components/lab/sr05/MovingClocksLab.tsx",
+  "sr-05-light-clock-0.6c": "src/components/lab/sr05/MovingClocksLab.tsx",
+  "sr-05-low-speed-1e-4": "src/components/lab/sr05/MovingClocksLab.tsx",
+  "sr-05-out-and-back-0.6c": "src/components/lab/sr05/MovingClocksLab.tsx"
+}
