@@ -28,6 +28,11 @@ import { dirname, join } from "node:path";
 import { load as parseYaml } from "js-yaml";
 import { compileReadingContent } from "../src/content/compiler/compile.ts";
 import {
+  loadAuthoredEdges,
+  manifestUnitIds,
+  translationUnitIds,
+} from "../src/content/editions/authoredInputs.ts";
+import {
   coverageReport,
   coverageReportIsHonest,
   coverageReportJson,
@@ -258,9 +263,20 @@ export async function runEditionPipeline(options: {
   }
 
   // ------------------------------------------- 3 & 4 & 7. contract-owned stages
+  // THE CONTRACT IS GIVEN THE AUTHORED INPUTS, because it judged whatever its caller supplied and
+  // this caller supplied none. Check 8 therefore reported `empty-alignment` for every paper while
+  // 821 edges sat in content/alignments/ -- the same unsupplied-argument shape the contract's own
+  // note records about check 1 and the edition declaration. The loaders are shared with
+  // scripts/align-editions.ts so one rule has one implementation.
+  const authoredEdges = loadAuthoredEdges(slug, root);
   const contract = assertEditionContract(slug, {
     root,
     ...(ledgerText !== null ? { ledgerText } : {}),
+    ...(authoredEdges.edges.length > 0 ? { edges: authoredEdges.edges } : {}),
+    ...(manifestUnitIds(slug, root).length > 0 ? { germanIds: manifestUnitIds(slug, root) } : {}),
+    ...(translationUnitIds(slug, root).length > 0
+      ? { englishIds: translationUnitIds(slug, root) }
+      : {}),
   });
   const checkOf = (n: number) => contract.checks.find((c) => c.checkNumber === n);
 
