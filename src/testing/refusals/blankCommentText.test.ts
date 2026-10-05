@@ -29,7 +29,10 @@
  */
 
 import { describe, expect, it } from "bun:test";
-import { blankCommentText, scanRefusalThrowSites } from "./refusalScanner.ts";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import ts from "typescript";
+import { blankCommentText, findSourceFiles, scanRefusalThrowSites } from "./refusalScanner.ts";
 
 /** The codes a scan reports for a source, with their lines. */
 const scan = (source: string) =>
@@ -99,4 +102,64 @@ describe("the four cases AGENTS.md names, against the scanner's own verdict", ()
     const source = `// the "beta-refused" path cannot be driven here\n${THROWN}\n`;
     expect(scan(source)).toEqual(["2:alpha-refused"]);
   });
+});
+
+describe("the invariant that actually catches drift: no real throw is ever blanked", () => {
+  it("every throw statement in src/ and scripts/ survives blanking", () => {
+    // WHY A REPO-WIDE CHECK AND NOT ONE MORE SMALL FIXTURE. The first version of blankCommentText
+    // used `ts.createScanner`, which is a RAW lexer with no parser to tell it when a slash begins a
+    // regular expression or when a template resumes after a substitution. It therefore drifted, and
+    // on scripts/generate-quantity-ids.ts it drifted into the middle of the double-quoted string on
+    // line 68, took the `/*` inside `content/quantities/*.yaml` for a comment opener, and reported a
+    // single comment spanning lines 69 to 207 -- blanking two real `throw new Error(...)` statements
+    // at lines 124 and 128.
+    //
+    // Every one of the small both-directions cases above passed while that was true, and so did the
+    // same shape in isolation, because drift needs a file long enough to drift in. So the guard that
+    // matters is the invariant over the real tree, stated positively: what the PARSER calls a throw
+    // statement must still read `throw` after blanking. Measured 2026-10-05, the raw-scanner version
+    // loses 2 of 3227; the parser version loses 0 of 3227 across 1944 files.
+    //
+    // Blanking real code is the dangerous direction for a gate that counts constructs: what
+    // disappears is the thing being counted, and the count still looks like a count.
+    const root = process.cwd();
+    let files = 0;
+    let statements = 0;
+    const lost: string[] = [];
+    for (const dir of [join(root, "src"), join(root, "scripts")]) {
+      for (const abs of findSourceFiles(dir, { includeTestingDirs: true })) {
+        const raw = readFileSync(abs, "utf8");
+        const rel = abs.slice(root.length + 1);
+        const parsed = ts.createSourceFile(
+          abs,
+          raw,
+          ts.ScriptTarget.Latest,
+          true,
+          abs.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
+        );
+        const blanked = blankCommentText(raw, rel);
+        files += 1;
+        // Length must hold, or every line and column this module reports is wrong.
+        expect(blanked.length).toBe(raw.length);
+        const visit = (node: ts.Node): void => {
+          if (ts.isThrowStatement(node)) {
+            statements += 1;
+            const at = node.getStart(parsed);
+            if (blanked.slice(at, at + 5) !== "throw") {
+              lost.push(`${rel}:${parsed.getLineAndCharacterOfPosition(at).line + 1}`);
+            }
+          }
+          ts.forEachChild(node, visit);
+        };
+        visit(parsed);
+      }
+    }
+    console.log(
+      `[blank comment text] ${statements} real throw statements in ${files} files; ${lost.length} lost to blanking`,
+    );
+    // The denominator is named and asserted, because 0 lost of 0 found reads exactly like success.
+    expect(files).toBeGreaterThan(1_500);
+    expect(statements).toBeGreaterThan(3_000);
+    expect(lost).toEqual([]);
+  }, 180_000);
 });

@@ -322,7 +322,6 @@
   "src/testing/log/assertions.ts": 3,
   "src/testing/log/schema.ts": 1,
   "src/testing/perfProfiles.ts": 8,
-  "src/testing/refusals/refusalScanner.ts": 2,
   "src/testing/runtime-fixtures/app/placement.ts": 1,
   "src/testing/runtime-fixtures/app/workerSource.ts": 1,
   "src/testing/runtime-fixtures/eventLedgerFixture.ts": 1,

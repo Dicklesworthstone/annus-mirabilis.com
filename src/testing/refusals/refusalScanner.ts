@@ -378,34 +378,64 @@ const CODE_PROPERTY_NAMES = new Set(["code", "rule", "refusalCode", "errorCode",
  * `src/content/foundations/registry.ts:168`. Small, and in the fail-open direction for the census:
  * a site that does not exist is counted, then reported tested or untested on no evidence either way.
  *
- * The token scan is used rather than a regex because a regex cannot reliably tell a comment opener
- * inside a string from one that opens a comment, and this file already imports the compiler. Length
- * and newlines are preserved exactly so that every line number this function reports is unchanged.
+ * THE PARSER IS USED, NOT A REGEX AND NOT THE RAW SCANNER, and the second half of that was learned
+ * the hard way by this function eating real code. A regex cannot tell a comment opener inside a
+ * string from one that opens a comment. `ts.createScanner` can, but only while it stays in sync, and
+ * a RAW scanner has no parser to tell it when a slash begins a regular expression or when a template
+ * resumes after a substitution, so it drifts. On `scripts/generate-quantity-ids.ts` it drifted into
+ * the middle of the double-quoted string on line 68, read the `/*` inside
+ * `content/quantities/*.yaml` as a comment opener, and reported ONE comment spanning lines 69 to 207
+ * -- blanking the rest of the file, including two real `throw new Error(...)` statements at lines 124
+ * and 128. Blanking real code is the dangerous direction for a gate that counts constructs, because
+ * what disappears is the thing being counted, and the count still looks like a count.
+ *
+ * It was caught by measuring the sibling bare-throw census rather than by review, and the
+ * both-directions tests then in place did not catch it, because each of them held one construct and
+ * the drift needs a file long enough to drift in. blankCommentText.test.ts now also runs the real
+ * tree: every source file under src/ and scripts/ keeps every `throw` it had.
+ *
+ * `createSourceFile` parses with the real grammar, so shebangs, regular expressions, templates with
+ * substitutions and strings containing comment openers are all handled by the compiler rather than
+ * by this function. Every comment is leading trivia of some token, and the end-of-file token carries
+ * a file's trailing comments, so walking tokens reaches all of them. Length and newlines are
+ * preserved exactly, so every line number this module reports is unchanged.
  */
 export function blankCommentText(source: string, relPath: string): string {
-  const scanner = ts.createScanner(
-    ts.ScriptTarget.Latest,
-    // Trivia is NOT skipped: comments are the tokens this needs to see.
-    false,
-    relPath.endsWith(".tsx") ? ts.LanguageVariant.JSX : ts.LanguageVariant.Standard,
+  const parsed = ts.createSourceFile(
+    relPath,
     source,
+    ts.ScriptTarget.Latest,
+    // Parent pointers are required for getChildren below.
+    true,
+    relPath.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
   );
   const out = source.split("");
-  let token = scanner.scan();
-  while (token !== ts.SyntaxKind.EndOfFileToken) {
-    if (
-      token === ts.SyntaxKind.SingleLineCommentTrivia ||
-      token === ts.SyntaxKind.MultiLineCommentTrivia
-    ) {
-      const start = scanner.getTokenStart();
-      const end = scanner.getTokenEnd();
-      for (let i = start; i < end; i++) {
-        // Newlines survive, so a block comment does not merge the lines around it.
-        if (out[i] !== "\n") out[i] = " ";
-      }
+  const seen = new Set<number>();
+  const blank = (from: number, to: number): void => {
+    for (let i = from; i < to; i++) {
+      // Newlines survive, so a block comment does not merge the lines around it.
+      if (out[i] !== "\n") out[i] = " ";
     }
-    token = scanner.scan();
-  }
+  };
+  // Every comment is leading trivia of some token, and the end-of-file token carries the trailing
+  // comments of the file, so walking tokens reaches all of them.
+  const walk = (node: ts.Node): void => {
+    // BOTH SIDES ARE NEEDED. `getLeadingCommentRanges` does not claim a comment that sits on the
+    // same line as the code before it, so a trailing `// note` was left unblanked until this second
+    // call was added -- caught by the four-case tests, which is what they are for.
+    for (const range of ts.getLeadingCommentRanges(source, node.getFullStart()) ?? []) {
+      if (seen.has(range.pos)) continue;
+      seen.add(range.pos);
+      blank(range.pos, range.end);
+    }
+    for (const range of ts.getTrailingCommentRanges(source, node.getEnd()) ?? []) {
+      if (seen.has(range.pos)) continue;
+      seen.add(range.pos);
+      blank(range.pos, range.end);
+    }
+    for (const child of node.getChildren(parsed)) walk(child);
+  };
+  walk(parsed);
   return out.join("");
 }
 
@@ -1320,10 +1350,17 @@ const THROW_NEW = /\bthrow\s+new\s+[A-Za-z_$][\w$]*\s*\(/;
  * because no refusal code can be read off them.
  */
 export function scanBareThrowSites(source: string, relPath: string): BareThrowSite[] {
+  // THE SAME BLANKING AS THE CODED SCANNER, AND FOR THE SAME REASON. This read the raw source, so a
+  // comment containing the two-word throw form was counted as a bare throw site. Three were measured
+  // when the coded scanner was fixed, among them this module's own docblock at the line describing
+  // what a site looks like -- and one more appeared the moment that fix was DOCUMENTED, because the
+  // note explaining it quoted the construct. Two scanners reading one file must also agree on what
+  // that file says, or `coded` excludes a line this loop still counts.
+  const code = blankCommentText(source, relPath);
   const coded = new Set(scanRefusalThrowSites(source, relPath).map((s) => s.line));
-  const unknownLines = unknownParamThrowLines(source, relPath);
+  const unknownLines = unknownParamThrowLines(code, relPath);
   const out: BareThrowSite[] = [];
-  const lines = source.split("\n");
+  const lines = code.split("\n");
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i] ?? "";
     if (!THROW_NEW.test(line)) continue;
