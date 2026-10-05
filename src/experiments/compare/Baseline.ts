@@ -1,3 +1,6 @@
+import type { ScientificResult } from "../results/types.ts";
+import { comparisonEvidence, comparisonReason } from "./resultEvidence.ts";
+
 /** A bounded scalar projection of a completed instance-store snapshot, never a second evaluator. */
 export type ComparisonParameters = Readonly<Record<string, number | string | boolean>>;
 export type ComparisonIdentity = Readonly<{
@@ -25,6 +28,7 @@ export type ComparisonSnapshot = Readonly<{
     semanticKind: string;
     value?: unknown;
     reason?: unknown;
+    ownerId?: unknown;
   }>[];
 }>;
 export type ComparisonValue = Readonly<{
@@ -33,6 +37,8 @@ export type ComparisonValue = Readonly<{
   semanticKind: string;
   value: number | null;
   reason: string;
+  /** Complete, detached evidence when supplied by an instrument session. */
+  evidence?: ScientificResult;
 }>;
 export type Baseline = Readonly<{
   experimentId: string;
@@ -129,6 +135,7 @@ export function pinBaseline(
       (typeof output.value !== "number" || !Number.isFinite(output.value))
     )
       throw new TypeError(`Comparison output ${id} must be a finite scalar, not an array.`);
+    const evidence = comparisonEvidence(output);
     return [
       id,
       Object.freeze({
@@ -136,12 +143,8 @@ export function pinBaseline(
         unit: output.unit,
         semanticKind: output.semanticKind,
         value: output.status === "value" ? (output.value as number) : null,
-        reason:
-          typeof output.reason === "string"
-            ? output.reason
-            : output.status === "value"
-              ? ""
-              : output.status,
+        reason: comparisonReason(output, evidence),
+        ...(evidence ? { evidence } : {}),
       }),
     ];
   });

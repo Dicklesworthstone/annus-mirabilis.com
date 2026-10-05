@@ -1,3 +1,4 @@
+import { statusMessage } from "../results/explanations.ts";
 import type { Baseline, ComparisonValue } from "./Baseline.ts";
 import {
   type ComparisonContract,
@@ -30,7 +31,9 @@ function arithmetic(
   operation: "ratio" | "difference",
 ): ComparisonNumber {
   if (a.status !== "value" || b.status !== "value" || a.value === null || b.value === null)
-    return na(`Baseline: ${a.status}. Variant: ${b.status}. Both must be numeric values.`);
+    return na(
+      `Baseline: ${a.reason || statusMessage(a.status)} Variant: ${b.reason || statusMessage(b.status)} Both must be finite numeric values to calculate a ${operation}.`,
+    );
   if (operation === "ratio" && a.value === 0)
     return na("The baseline is zero; a ratio is not defined.");
   const value = operation === "ratio" ? b.value / a.value : b.value - a.value;
@@ -94,6 +97,8 @@ export function compareBaselines(
       b = variant.outputs[id];
     if (!a || !b || a.unit !== b.unit || a.semanticKind !== b.semanticKind)
       return refuse("output-contract-mismatch", `The units or meaning of ${id} changed.`);
+    if (a.evidence?.ownerId !== b.evidence?.ownerId)
+      return refuse("output-owner-mismatch", `The scientific owner of ${id} changed.`);
     rows.push(
       Object.freeze({
         id,
