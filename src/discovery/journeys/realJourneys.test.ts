@@ -29,7 +29,12 @@
  * no constraintRef, and gouy-1888-brownian-motion is on this paper's shelf. That one is a structured
  * field filled from prose, not a new claim.
  */
+
 import { describe, expect, it } from "bun:test";
+import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { load as loadYaml } from "js-yaml";
+import { validateJourney } from "../../content/schemas/journey.ts";
 import { checkJourney } from "../checks/journeyChecks.ts";
 import { REAL_JOURNEYS } from "./realJourneys.ts";
 
@@ -45,6 +50,8 @@ const DECLARED_ERRORS: readonly string[] = Object.freeze([
 
 /** Informational voice warnings, counted. A ceiling, so a new violation is caught. */
 const VOICE_WARNING_CEILING = 7;
+
+const ROOT = process.cwd();
 
 const findingsByPaper = REAL_JOURNEYS.map((journey) => ({
   paper: journey.paper,
@@ -162,6 +169,52 @@ describe("checkJourney over the real journeys, not the fixture", () => {
     expect(offShelf).toEqual([]);
     // Exactly the one declared debt names no constraint.
     expect(unreferenced).toEqual(["brownian-motion/arg-branch-apparent-speed"]);
+  });
+
+  it("THE RECORD IS FAITHFUL: each content/journeys YAML parses back to the composed journey", () => {
+    // am-4k0m's first acceptance item asks that the prose be MOVED, not rewritten, and that a diff show
+    // no reader-facing text lost. This is that clause as a machine-checked property: the records were
+    // emitted by serialising these very objects (scripts/emit-journey-records.ts), so nobody retyped a
+    // sentence, and the parse below proves the file on disk still holds exactly what the page renders.
+    //
+    // While the page renders from the module, this equality is the whole safety of the next step. The
+    // moment it is pointed at the record instead, this test is what says the reader sees the same words.
+    const missing: string[] = [];
+    const differing: string[] = [];
+    let compared = 0;
+    for (const journey of REAL_JOURNEYS) {
+      const path = resolve(ROOT, `content/journeys/${journey.paper}.yaml`);
+      if (!existsSync(path)) {
+        missing.push(journey.paper);
+        continue;
+      }
+      compared += 1;
+      const parsed = loadYaml(readFileSync(path, "utf8"));
+      // Through JSON on both sides: the record holds data, and this compares values rather than the
+      // frozen-ness or the prototype of the composed object.
+      if (JSON.stringify(parsed) !== JSON.stringify(JSON.parse(JSON.stringify(journey))))
+        differing.push(journey.paper);
+    }
+    console.log(`[journey records] ${compared} record(s) compared against the composed journeys`);
+    // Non-vacuity: all four must be on disk, or this passes by comparing nothing.
+    expect(missing).toEqual([]);
+    expect(compared).toBe(REAL_JOURNEYS.length);
+    expect(differing).toEqual([]);
+  });
+
+  it("the emitted record validates against the journey schema", () => {
+    // A record the compiler can read has to satisfy the schema, not merely round-trip. validateJourney
+    // throws on the first violation, so this is the same contract checkJourney applies.
+    for (const journey of REAL_JOURNEYS) {
+      const path = resolve(ROOT, `content/journeys/${journey.paper}.yaml`);
+      const parsed = loadYaml(readFileSync(path, "utf8"));
+      if (journey.paper === "brownian-motion") {
+        // The one declared debt: its Exner dead end names no constraint, so the schema refuses it.
+        expect(() => validateJourney(parsed)).toThrow(/missing-constraint-ref/);
+        continue;
+      }
+      expect(() => validateJourney(parsed)).not.toThrow();
+    }
   });
 
   it("the fixture keeps working, because this bead adds a population and removes none", () => {

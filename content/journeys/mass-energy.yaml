@@ -1,0 +1,170 @@
+# The discovery journey for mass-energy, as a record the compiler can read (am-4k0m).
+#
+# EMITTED, NOT TYPED. Every sentence here was copied out of the paper's own journey module by
+# scripts/emit-journey-records.ts, which serialises the Journey that src/discovery/journeys/
+# realJourneys.ts composes by reference. Nobody retyped a word, and realJourneys.test.ts asserts
+# this file parses back to exactly that object, so the record is proven faithful rather than
+# assumed. Regenerate with: bun scripts/emit-journey-records.ts
+#
+# `completeness: partial` is the honest value: `stages` and `exercises.instrumented` are declared
+# in pendingElements with their reasons, because composing them would be authoring content rather
+# than moving it. A journey claiming complete with two elements missing is the defect am-4k0m is
+# about.
+#
+# The page still renders from the module. Pointing it here is the next step, and the equality test
+# is what makes that step safe.
+id: mass-energy
+paper: mass-energy
+revision: 1
+completeness: partial
+pendingElements:
+  - element: stages
+    reason: The staged chain is the discover page's JSX structure rather than data. Composing a stage list here would be authoring content, and a stage carries premise references the shelf audit reads, so invented stages would make that audit pass over prose nobody reviewed.
+    ownerBead: am-4k0m
+  - element: exercises.instrumented
+    reason: The exercise parts are typed, machine-checked objects in each paper's own exercise module, keyed to the components that render them rather than to journey-level ExerciseRefs. Mapping them is part of the record migration.
+    ownerBead: am-4k0m
+shelf:
+  - helmholtz-1847-conservation-of-energy
+  - thomson-tait-1867-kinetic-energy
+  - maxwell-1873-radiation-pressure
+  - poynting-1884-energy-flux
+  - lebedev-1901-radiation-pressure-measured
+  - einstein-1905-light-complex-transformation
+  - thomson-1881-electromagnetic-mass
+  - poincare-1900-fictitious-fluid
+  - hasenoehrl-1904-cavity-radiation
+naggingFact: A body that gives off light in one direction recoils. If it gives off equal pulses in opposite directions it does not recoil, and yet the two pulses carry different energies as a moving observer measures them.
+firstHonestQuestion: If you already know how the energy of a light pulse changes between frames, what does the conservation of energy force you to say about the body that gave it off?
+stages: []
+forks:
+  - id: arg-fork-field-or-energy
+    afterStageId: step-05
+    question: 'How far does the claim reach: to the energy of a charged body''s field, or to energy of every kind?'
+    varies: theoretical-postulate
+    branches:
+      - id: arg-branch-field-mass
+        label: Only the field's energy has inertia
+        proponent:
+          name: J. J. Thomson, 1881
+          cardId: thomson-1881-electromagnetic-mass
+        hypothesis: A charged body's field adds to its inertia, so inertia belongs to the energy of the electromagnetic field. The light in this argument is field energy, so its leaving lowers the inertia, and nothing follows about energy of other kinds.
+        worksWhen: For charged bodies and their fields, where the added inertia can be calculated. How much it adds depends on the model of the charge.
+        steps:
+          - text: 'Start from Thomson''s result: a moving charged sphere carries a magnetic field whose energy makes it harder to accelerate.'
+          - text: Read the paper's argument the same way. The energy that leaves is light, which is field energy, so the lost inertia can be booked to the field.
+          - text: 'Ask what would tell this apart from the paper''s claim: a body whose energy of another kind changes by enough to weigh.'
+        outcome:
+          type: undecided-on-available-evidence
+          insufficiency: The 1904 shelf carries no measurement of a body whose non-electromagnetic energy changes by enough to weigh, so it cannot separate a claim about field energy from a claim about energy as such.
+          whatWouldDecide:
+            name: Cockcroft and Walton's lithium disintegration
+            recordId: cockcroft-walton-1932-lithium
+            year: 1932
+            status: later
+          plainLanguage: On the evidence of 1904 this branch is neither refuted nor confirmed. It is a narrower claim than the paper's, and the measurement that bears on it came twenty-seven years later.
+      - id: arg-branch-energy-as-such
+        label: Energy of every kind has inertia
+        hypothesis: The inertia of a body depends on its energy content, whatever form that energy takes.
+        worksWhen: Wherever the paper's premises hold. Its last step, from light to energy of any form, is the one sentence in the paper that goes beyond the calculation.
+        steps:
+          - text: 'Find where the argument used the fact that the energy left as light: only in the rule for how the light''s energy changes between frames. What it concluded is about the body''s energy of motion.'
+          - text: Conclude, as the paper does, that the mass of a body is a measure of its energy content.
+        outcome:
+          type: papers-route
+          plainLanguage: 'This is the paper''s statement, and it is a stated inference: the paper calls it evident that nothing depends on the energy leaving as radiation.'
+  - id: arg-fork-poincare-fluid
+    afterStageId: step-05
+    question: 'Two accounts of the same bookkeeping: does a fictitious fluid carried by the light save the centre of mass, or did the body''s own inertia change?'
+    varies: theoretical-postulate
+    branches:
+      - id: arg-branch-fictitious-fluid
+        label: Give the radiation a fictitious fluid
+        proponent:
+          name: Henri Poincaré, 1900
+          cardId: poincare-1900-fictitious-fluid
+        hypothesis: 'Keep the centre of mass moving uniformly by treating the radiation''s energy as a fluid that carries mass: its energy divided by the square of the speed of light. The question is the field''s bookkeeping, not the emitting body''s inertia.'
+        worksWhen: Wherever the question is how the centre of mass of a body and its radiation moves. Within that scope it gives the same numbers as the paper's route.
+        steps:
+          - text: Let a body give off a pulse of radiation. It recoils, and unless the travelling radiation is counted as carrying mass, the centre of mass of the body and the radiation together moves.
+          - text: Give the radiation a mass equal to its energy divided by the square of the speed of light, and the centre of mass moves uniformly again.
+          - text: Now ask what the body lost. The fluid accounts for the radiation. It does not say what happened to the body, and that is the question this route answers.
+        outcome:
+          type: empirically-equivalent-not-refuted
+          scopeNote: The centre-of-mass bookkeeping of emission and absorption treated in Poincaré's 1900 paper.
+          plainLanguage: 'Within its scope the fluid gives the same numbers, and nothing on the 1904 shelf refutes it. It says something different: it gives mass to the light and leaves the body''s inertia alone, where the paper''s route says the body''s inertia changed.'
+      - id: arg-branch-energy-has-inertia
+        label: Energy has inertia
+        hypothesis: The energy the body gave off was part of its inertia, so its mass fell by that energy divided by the square of the speed of light.
+        worksWhen: 'Under the two-ledger argument''s premises: the light-energy transformation, energy conservation in both frames, and an offset between the ledgers that the emission does not change.'
+        steps:
+          - text: 'Read the slow-speed result as a statement about the body: its energy of motion changed as though its mass had fallen by L/V².'
+          - text: 'Generalise, as the paper does in one sentence, from light to any energy leaving the body: the mass of a body is a measure of its energy content.'
+        outcome:
+          type: papers-route
+          plainLanguage: This is the paper's conclusion. Its last step, from light to any form of energy, is a stated inference and not a further derivation.
+move:
+  label: Read the coefficient as a lost mass
+  chainId: me-low-speed-coefficient
+  stepId: identify
+  r0Summary:
+    text: Seen by an observer moving past, the body carries less energy of motion after giving off light than before, at the same speed, just as a slightly lighter body would when the motion is slow, so, within the paper's stated premises, giving off energy lowers the body's mass by an amount set by that energy.
+    reviewState: draft
+worldChecks:
+  - id: me-world-check-mass
+    claim: The paper ends with a number and a suggestion. A change of energy L changes the mass by L/9·10²⁰, with the energy in erg and the mass in grams, and bodies whose energy content changes a great deal, radium salts for instance, might test it. The ledger below lets one joule of light leave a body. Move its boundary and read the mass that goes with it.
+    instrumentId: me-03
+    quantityId: massChange
+    expected: L/9·10²⁰ grams for an energy L in erg
+    comparisonKind: printed-prediction
+    staticWorkedExample:
+      label: What Einstein printed on the paper's last page
+      value: the mass changes by L/9·10²⁰, with the energy in erg and the mass in grams
+      unit: ''
+      constantSetId: einstein-1905-mass-energy-printed
+sourceJumps:
+  - id: jump-me-two-ledgers
+    label: 'Read the argument: two accounts of the same loss'
+    paperId: mass-energy
+    section: ''
+    targetAnchor: arg-me-two-ledgers
+    pointer: 'The two accounts: the paper writes the body''s energy before and after the emission in two frames, and uses the June paper''s rule for the energy of the light in each.'
+  - id: jump-me-subtraction
+    label: 'Read the argument: which difference survives the subtraction'
+    paperId: mass-energy
+    section: ''
+    targetAnchor: arg-me-subtraction
+    pointer: Taking the accounts from each other removes the body's unknown energy and leaves its energy of motion, with the premise about the offset stated.
+  - id: jump-me-small-speed
+    label: 'Read the argument: why the slow-speed coefficient is the one to read'
+    paperId: mass-energy
+    section: ''
+    targetAnchor: arg-me-small-speed
+    pointer: The paper's last page takes the slow-speed limit, sets it beside one half m v squared, and states the conclusion in a sentence.
+exercises: []
+ppeTask:
+  promptId: me-predict-perturb-explain-joule
+  task: Predict first. A body gives off one joule of light. Does its mass fall by about a gram, about a microgram, or by far less than either?
+  perturbPrompt: Open the boundary ledger with one joule emitted and the boundary around the body alone, and read the change in mass. Then move the boundary around the body and its light together, and read it again.
+  explainPrompt: Explain both readings. Say what you divide the energy by and why the first answer is so small, and why the second is zero.
+doors:
+  frontDoor:
+    id: door-me-front
+    title: 'The paper''s argument: two accounts of one emission'
+    arrivesAtEquationId: eq-model-me-mass-decrease
+    arrivesAtLabel: the mass falls by L/V²
+    href: /papers/mass-energy/#arg-me-two-ledgers
+    summary: Write the body's energy in two frames, take one account from the other, and read the slow-speed limit.
+  sideDoors:
+    - id: door-me-box-1906
+      title: The 1906 box, for programmers
+      arrivesAtEquationId: eq-model-me-mass-decrease
+      arrivesAtLabel: the mass falls by L/V²
+      href: /lab/me-03/?mode=box-1906
+      summary: 'Einstein''s argument of 1906, crediting Poincaré''s fluid of 1900: a pulse crosses a floating box, and the centre of mass stays put only if the light carries the mass E/c². It comes after the paper, and says so.'
+    - id: door-me-two-sheets
+      title: Two accounting sheets and one subtraction
+      arrivesAtEquationId: eq-model-me-mass-decrease
+      arrivesAtLabel: the mass falls by L/V²
+      href: /papers/mass-energy/#entry-mass-energy
+      summary: 'No algebra: keep one sheet for an observer at rest and one for an observer gliding past, and take one from the other.'

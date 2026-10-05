@@ -1,0 +1,191 @@
+# The discovery journey for special-relativity, as a record the compiler can read (am-4k0m).
+#
+# EMITTED, NOT TYPED. Every sentence here was copied out of the paper's own journey module by
+# scripts/emit-journey-records.ts, which serialises the Journey that src/discovery/journeys/
+# realJourneys.ts composes by reference. Nobody retyped a word, and realJourneys.test.ts asserts
+# this file parses back to exactly that object, so the record is proven faithful rather than
+# assumed. Regenerate with: bun scripts/emit-journey-records.ts
+#
+# `completeness: partial` is the honest value: `stages` and `exercises.instrumented` are declared
+# in pendingElements with their reasons, because composing them would be authoring content rather
+# than moving it. A journey claiming complete with two elements missing is the defect am-4k0m is
+# about.
+#
+# The page still renders from the module. Pointing it here is the next step, and the equality test
+# is what makes that step safe.
+id: special-relativity
+paper: special-relativity
+revision: 1
+completeness: partial
+pendingElements:
+  - element: stages
+    reason: The staged chain is the discover page's JSX structure rather than data. Composing a stage list here would be authoring content, and a stage carries premise references the shelf audit reads, so invented stages would make that audit pass over prose nobody reviewed.
+    ownerBead: am-4k0m
+  - element: exercises.instrumented
+    reason: The exercise parts are typed, machine-checked objects in each paper's own exercise module, keyed to the components that render them rather than to journey-level ExerciseRefs. Mapping them is part of the record migration.
+    ownerBead: am-4k0m
+shelf:
+  - newton-1687-absolute-time
+  - bradley-1729-stellar-aberration
+  - fizeau-1851-light-in-moving-water
+  - maxwell-1873-field-equations
+  - michelson-morley-1887-no-drift
+  - lorentz-1904-corresponding-states
+  - poincare-1904-principle-of-relativity
+naggingFact: Push a magnet into a coil of wire, or move the coil over the magnet at the same relative speed, and the needle deflects by the same amount. The accepted theory of 1904 accounts for the two cases by two different mechanisms, and no measurement tells them apart.
+firstHonestQuestion: If every measurement you can make comes out the same in both cases, what are you still entitled to say about which one is moving?
+stages: []
+forks:
+  - id: arg-fork-sr-source-speed
+    afterStageId: step-03
+    question: Does the speed of light depend on how fast its source is moving?
+    varies: theoretical-postulate
+    branches:
+      - id: arg-branch-sr-emission
+        label: Light keeps its source's speed
+        hypothesis: Light leaves its source at one speed relative to the source, as a ball thrown from a moving hand does, and speeds add in the ordinary way. No medium and no frame at rest are needed, and the principle of relativity holds for light as it does in mechanics.
+        worksWhen: For Michelson and Morley's null result, at every order. Their lamp moved with the apparatus, so on this view the light went out and back at the same speed relative to both arms, whichever way the Earth was moving.
+        steps:
+          - text: In the interferometer the lamp rides with the mirrors. Relative to the arms the light travels at the same speed in every direction, so the view predicts no displacement of the fringes, which is what was found.
+          - text: Maxwell's equations fix one speed for a disturbance in the field and say nothing of its source. To keep this view you give up those equations as they stand, and nothing on the shelf supplies the ones that would replace them.
+          - text: To decide it you would compare light from sources moving at different speeds. No measurement on the shelf does that.
+        outcome:
+          type: undecided-on-available-evidence
+          insufficiency: 'No measurement on the shelf compares light from sources moving at different speeds, so none of them tells this view from the next. What the shelf can weigh is the cost: this view gets the null result for nothing and gives up Maxwell''s equations as they stand, while the paper''s keeps the equations and gives up the ordinary addition of speeds.'
+          whatWouldDecide:
+            name: de Sitter's argument from double stars
+            recordId: de-sitter-1913-double-stars
+            year: 1913
+            status: later
+          plainLanguage: On the 1904 shelf this stays open, and the route does not call it refuted. In 1913 de Sitter argued from the observed motions of double stars that the velocity of light is independent of the motion of its source; that is later evidence, not on the shelf.
+      - id: arg-branch-sr-fixed-speed
+        label: One speed, whatever the source does
+        hypothesis: Light travels in empty space at one definite speed, whatever the motion of the body that emits it, as a disturbance does in Maxwell's equations.
+        worksWhen: Wherever Maxwell's equations describe light in empty space. The paper keeps them for bodies at rest and builds on them.
+        steps:
+          - text: 'Keep Maxwell''s equations as they stand: a disturbance in the field travels at the speed they fix, from whatever source.'
+          - text: Set that beside the principle of relativity. Under the ordinary addition of speeds two observers in relative motion would have to measure different speeds for the same flash, which is the puzzle of step 03.
+          - text: 'The paper calls the two presuppositions only apparently incompatible, and step 04 shows why: they fit together once the time of a distant event is set by a stated procedure.'
+        outcome:
+          type: papers-route
+          plainLanguage: 'This is the paper''s second presupposition, in its introduction: “that light is always propagated in empty space with a definite velocity V which is independent of the state of motion of the emitting body.”'
+  - id: arg-fork-sr-undetected-ether
+    afterStageId: step-02
+    question: Every attempt to detect the Earth's motion through the light medium has failed. What do you do with the medium?
+    varies: theoretical-postulate
+    branches:
+      - id: arg-branch-sr-ether-at-rest
+        label: Keep an ether at rest, and speeds that add
+        hypothesis: There is one frame at rest in the ether, and light travels at one speed relative to it. Speeds add in the ordinary way, and a moving transparent body drags light along only partly, by the fraction Fresnel proposed.
+        worksWhen: For every effect of the first order in the ratio of the Earth's speed to light's. That includes light in moving water, where Fizeau in 1851 found a displacement close to the value Fresnel's fraction gives, and the paper itself says that for quantities of the first order the laws are already known to be the same in every such frame.
+        steps:
+          - text: Send light out along an arm that moves through the ether at speed v, and back. Out, it gains on the far mirror at c − v; back, it meets the near one at c + v. The round trip takes longer than at rest, by the factor 1/(1 − v²/c²).
+          - text: 'Send it across the arm instead. It has to aim ahead of the moving mirror, and the round trip is longer by the smaller factor 1/√(1 − v²/c²). The two times differ in proportion to v²/c²: an effect of the second order.'
+          - text: Michelson and Morley built an interferometer to see that difference. For their apparatus they expected a displacement of 0.4 of a fringe, and in 1887 they reported one certainly less than a twentieth of that.
+        outcome:
+          type: dead-end-on-constraint
+          constraintRef: michelson-morley-1887-no-drift
+          plainLanguage: It meets the first-order observations, Fizeau's moving water among them, and fails at the second order, where it predicts a displacement Michelson and Morley did not find. That is one prediction against one measurement, and it does not dispose of the ether itself, which the next branch keeps.
+      - id: arg-branch-sr-lorentz-ether
+        label: Keep the ether, and let motion through it shorten bodies
+        proponent:
+          name: H. A. Lorentz, 1904
+          cardId: lorentz-1904-corresponding-states
+        hypothesis: Keep the ether at rest. Suppose that electrons, and bodies made of them, moving through it contract along their motion, and describe the moving system in a local time, a variable of the equations.
+        worksWhen: For every experiment on this shelf. Lorentz's paper of 1904 says the theory accounts for the negative results of Michelson, and of Rayleigh and Brace, and that it makes Trouton and Noble's clear at once.
+        steps:
+          - text: Shorten the arm that lies along the motion by the factor √(1 − v²/c²). Its round trip then takes exactly as long as the one across, and the second-order difference is gone.
+          - text: Give the electrons the same contraction and write the moving system's equations in local time. Every state of a system at rest then has a counterpart in motion, so no experiment of this kind can reveal the motion.
+          - text: Step 07 follows this account further. It reaches the same formulas as the paper.
+        outcome:
+          type: empirically-equivalent-not-refuted
+          scopeNote: 'Every observation on the 1904 shelf: the aberration of starlight, Fizeau''s moving water, and the null results of Michelson and Morley, of Rayleigh and Brace, and of Trouton and Noble.'
+          plainLanguage: Nothing on the shelf separates it from the paper's route, and this route does not call it refuted. Lorentz put it forward with all due reserve. What separates the two is what each takes as given and what each adds by hand, not a measurement either one fails.
+      - id: arg-branch-sr-no-rest
+        label: Raise the failure to a principle
+        hypothesis: The laws of physics are the same for every observer in uniform motion, so no experiment can reveal who is at rest. The ether is given nothing to do.
+        worksWhen: Wherever the principle holds. Poincaré had stated it in 1904 as a general principle of physics, an experimental result strongly generalized.
+        steps:
+          - text: 'Start where the paper starts: the unsuccessful attempts to detect a motion of the Earth relative to the light medium suggest that absolute rest corresponds to no property of the phenomena.'
+          - text: Add the second statement of step 03, that light travels at one speed whatever its source does. Under the ordinary addition of speeds the two conflict.
+          - text: 'Step 04 finds what has to give: the assumption that observers in relative motion agree about which distant events happen at the same time.'
+        outcome:
+          type: papers-route
+          plainLanguage: 'This is the paper''s route. It predicts the same null results as the branch before it, needs no medium at rest, and adds no contraction by hand: in § 4 the contraction comes out of the kinematics.'
+move:
+  label: Treat simultaneity as something you define, not something you find
+  chainId: arg-sr-synchronization
+  stepId: eq-model-sr-sync-equal-legs
+  r0Summary:
+    text: 'Two clocks standing apart cannot be compared until someone says what comparing them means, so the rule is laid down rather than discovered: send a light signal from the first clock to the second and back, and call the reflection simultaneous with the reading halfway between sending and receiving, which turns the apparent quarrel between the two principles into a question about coordinates that the rest of the paper settles by algebra.'
+    reviewState: draft
+worldChecks:
+  - id: sr-world-check-moving-clock
+    claim: Section 4 of the paper draws a consequence that could be measured. A clock moving at speed v, judged from the resting system, reads t√(1 − v²/V²) when the resting clocks read t, V being the paper's letter for the speed of light, so it falls behind by 1 − √(1 − v²/V²) of a second in every second; the paper writes that to second order as ½(v/V)². Choose a worldline in the laboratory below and read what the relation gives.
+    instrumentId: sr-05
+    quantityId: properTime
+    expected: 8 s on the moving clock for 10 s of the resting clocks, at 0.6 of the speed of light
+    comparisonKind: printed-prediction
+    staticWorkedExample:
+      label: What § 4's relation gives at the laboratory's first setting
+      value: 8 s on the moving clock for 10 s of the resting clocks, at 0.6 of the speed of light
+      unit: ''
+      constantSetId: modern-si-2019
+sourceJumps:
+  - id: jump-sr-s0-magnet-conductor
+    label: 'Read the opening: the magnet and the conductor'
+    paperId: special-relativity
+    section: s0
+    targetAnchor: arg-sr-magnet-conductor
+    pointer: The paper opens on the same apparatus this route opens on, and calls the two accounts of it an asymmetry that does not attach to the phenomena. The same paragraph states the two principles it will keep.
+  - id: jump-sr-s1-synchronization
+    label: 'Read section 1: what the time of a distant event means'
+    paperId: special-relativity
+    section: s1
+    targetAnchor: arg-sr-synchronization
+    pointer: The move. Section 1 lays down, by definition, that light takes the same time out and back between two clocks, and so fixes what it means for clocks at different places to agree.
+  - id: jump-sr-s2-rod-events
+    label: 'Read section 2: a length is a pair of events'
+    paperId: special-relativity
+    section: s2
+    targetAnchor: arg-sr-rod-events
+    pointer: Measuring a moving rod means marking where its ends are at one time, and section 1 has just made that phrase depend on the frame the marks are made in. The paper draws the consequence before it has any transformation to point at.
+  - id: jump-sr-s3-lorentz-map
+    label: 'Read section 3: the map the two principles leave'
+    paperId: special-relativity
+    section: s3
+    targetAnchor: arg-sr-lorentz-map
+    pointer: With the clock rule granted, the paper asks what relation between one observer's coordinates and another's keeps light at the same speed in both directions, and finds the relations forced up to a scale it then fixes.
+  - id: jump-sr-s4-clock-and-length
+    label: 'Read section 4: moving clocks and moving rods'
+    paperId: special-relativity
+    section: s4
+    targetAnchor: arg-sr-clock-and-length
+    pointer: 'The two results a reader has worked by hand here, taken from the map rather than assumed: what a moving clock reads, and what a moving rod measures, each stated with the procedure that measures it.'
+  - id: jump-sr-s5-velocity-composition
+    label: 'Read section 5: how two speeds combine'
+    paperId: special-relativity
+    section: s5
+    targetAnchor: arg-sr-velocity-composition
+    pointer: Adding speeds keeps the denominator the ordinary rule leaves out, so two speeds below the speed of light compose to a speed below it, which is the exercise in this route's last step.
+exercises: []
+ppeTask:
+  promptId: ppe-special-relativity-s4
+  task: Predict first. One clock goes out and back at 0.6 of the speed of light while the resting clocks advance 10 s; another circles at the same speed for the same 10 s. When each returns to the clock that stayed, which reads less, or do they read the same?
+  perturbPrompt: In the laboratory at step 08, press “Out and back at 0.6c” and read the moving clock; then press “Constant-speed circle at 0.6c” and read it again. Last, press “Low speed, β = 10⁻⁴” and set the exact loss per second beside the printed second-order form.
+  explainPrompt: Explain why the two paths give the same reading, and say what the laboratory computes rather than measures.
+doors:
+  frontDoor:
+    id: door-sr-front
+    title: The paper's construction from the clock-setting rule, § 3
+    arrivesAtEquationId: eq-model-sr-map-time
+    arrivesAtLabel: 'the map of § 3: x′ = γ(x − vt) and t′ = γ(t − vx/c²), with γ = 1/√(1 − v²/c²), which the paper writes ξ = β(x − vt) and τ = β(t − vx/V²)'
+    href: /papers/special-relativity/s3/#arg-sr-lorentz-map
+    summary: Set the moving system's clocks by the rule of § 1, ask what time τ an event must have for light to take equal times out and back, and solve. An unknown factor φ(v) is left, and the paper fixes it at 1 with a third system moving back at −v, and a rod set across the motion whose measured length cannot depend on the direction of travel.
+  sideDoors:
+    - id: door-sr-requirements
+      title: The map from its requirements, for programmers
+      arrivesAtEquationId: eq-model-sr-map-time
+      arrivesAtLabel: 'the map of § 3: x′ = γ(x − vt) and t′ = γ(t − vx/c²), with γ = 1/√(1 − v²/c²), which the paper writes ξ = β(x − vt) and τ = β(t − vx/V²)'
+      href: /lab/sr-04/
+      summary: 'Start from a candidate map x′ = a(x − vt), t′ = bt + dx with unknown coefficients, and add requirements one at a time: light at c in both directions, a map back of the same kind, no preferred direction in space, and nothing changed at v = 0. One map survives. Writing it as a table of coefficients is a later way of seeing it; the paper solves equations.'

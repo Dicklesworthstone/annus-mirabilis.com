@@ -163,13 +163,23 @@ describe("the four journeys' skeleton, measured from what declares it", () => {
     expect(withMove.length).toBeLessThanOrEqual(JOURNEYS.length);
   });
 
-  it("the validator still has no real population, which is what the migration is for", () => {
-    // Asserted so this file cannot be mistaken for the migration. When content/journeys/ arrives and
-    // checkJourney runs over it, this test goes red and should be replaced by one that runs the gates.
+  it("the four records now exist, and the gates run on them", () => {
+    // THIS TRIPWIRE HAS FIRED, AS DESIGNED. It asserted content/journeys/ was EMPTY, so that this file
+    // could not be mistaken for the migration am-4k0m asks for. The records now exist, emitted from the
+    // same typed modules by scripts/emit-journey-records.ts, and realJourneys.test.ts proves each one
+    // parses back to exactly the journey the page renders. So the assertion flips from "no population
+    // yet" to "the population is these four".
+    //
+    // What is still outstanding is the DIRECTION of the dependency: the pages render from the modules
+    // and the records are emitted FROM them. Pointing the pages at the records is the remaining step,
+    // and the equality proof is what will make it safe.
     const dir = join(ROOT, "content/journeys");
     const records = existsSync(dir)
-      ? readdirSync(dir).filter((f) => /\.(ya?ml|json)$/.test(f))
+      ? readdirSync(dir)
+          .filter((f) => /\.ya?ml$/.test(f))
+          .map((f) => f.replace(/\.ya?ml$/, ""))
+          .sort()
       : [];
-    expect(records).toEqual([]);
+    expect(records).toEqual(JOURNEYS.map((j) => j.paper).sort());
   });
 });
