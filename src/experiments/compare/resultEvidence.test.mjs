@@ -203,6 +203,13 @@ test("arrays, infinities, and NaN cannot enter a scalar comparison", () => {
     () => comparisonEvidence({ ...quantity, status: "value", value: new Float64Array([2]) }),
     TypeError,
   );
+  // AND THE CODE (am-muyh), for the same reason. A Float64Array rather than a plain array is what
+  // reaches this guard: the decoder accepts the typed array as a vector result and refuses a plain one
+  // with its own error, so a plain-array plant would stop above the thing being tested.
+  assert.throws(
+    () => comparisonEvidence({ ...quantity, status: "value", value: new Float64Array([2]) }),
+    { code: "comparison-requires-scalar" },
+  );
 });
 
 test("evidence validation rejects accessors without executing them", () => {

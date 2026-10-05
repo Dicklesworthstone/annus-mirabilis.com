@@ -107,6 +107,9 @@ test("incompatible identities are not exported as an accepted comparison", () =>
   const a = baseline(),
     b = { ...baseline(true), identity: { ...identity, sourceDigest: "different" } };
   assert.throws(() => serializeComparison(a, b, contract), TypeError);
+  // AND THE CODE (am-muyh): the refusal ratchet credits a code only where a test names it, so without
+  // this line the guard reads as untested even though it is exercised right above.
+  assert.throws(() => serializeComparison(a, b, contract), { code: "comparison-incompatible" });
   assert.equal(comparisonDownload(a, b, contract).kind, "unavailable");
 });
 
