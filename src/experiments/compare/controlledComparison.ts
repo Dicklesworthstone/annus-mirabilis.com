@@ -82,42 +82,74 @@ export function createControlledComparison(
   });
   const serverState = state;
   let unsubscribe: (() => void) | null = null;
-  let flight: { purpose: "baseline" | "variant"; action: number | null } | null = null;
+  type Flight = {
+    purpose: "baseline" | "variant";
+    action: number | null;
+    parameters: ComparisonParameters;
+    outcome: "pending" | "accepted" | "failed" | "cancelled";
+  };
+  let flight: Flight | null = null;
   const listeners = new Set<() => void>();
   const emit = (patch: Partial<ControlledComparisonState>) => {
     state = Object.freeze({ ...state, ...patch });
     for (const listener of listeners) listener();
   };
-  const failure = (message: string) => {
+  const failure = (message: string, active: Flight) => {
+    if (flight !== active) return;
+    active.outcome = "failed";
     flight = null;
     emit({
       pending: false,
+      requestedParameters: null,
       error: message,
       message: "The previous completed comparison is unchanged.",
     });
   };
   function refresh() {
-    if (!flight || flight.action === null) return;
-    const view = port.getSnapshot(),
-      active = flight;
-    if (view.pending || view.requested?.actionIndex !== active.action) return;
+    const active = flight;
+    if (!active || active.action === null) return;
+    const action = active.action;
+    const view = port.getSnapshot();
+    if (flight !== active) return;
+    if (view.requested && view.requested.actionIndex > action) {
+      failure("A newer session request replaced this comparison calculation.", active);
+      return;
+    }
+    if (view.pending || view.requested?.actionIndex !== action) return;
     if (
       view.status !== "accepted" ||
       !view.accepted?.final ||
-      view.accepted.actionIndex !== active.action
+      view.accepted.actionIndex !== action
     ) {
       if (["refused", "paused", "unavailable"].includes(view.status))
         failure(
           view.refusal?.message ??
             view.outcome?.message ??
             "Calculation stopped before a completed result.",
+          active,
         );
       return;
     }
     const snapshot = view.accepted;
     try {
       const current = capture(snapshot);
+      const matching = singleVariationLock(active.parameters, current.parameters, options.contract);
+      if (matching.kind !== "accepted" || matching.changedInput !== null) {
+        failure("The returned settings do not match the requested comparison.", active);
+        return;
+      }
+      const result = compareBaselines(state.baseline, current, options.contract);
+      if (result.kind !== "accepted") {
+        failure(result.message, active);
+        return;
+      }
       if (active.purpose === "baseline") {
+        const baselineResult = compareBaselines(current, current, options.contract);
+        if (baselineResult.kind !== "accepted") {
+          failure(baselineResult.message, active);
+          return;
+        }
+        active.outcome = "accepted";
         flight = null;
         emit({
           phase: "live",
@@ -126,22 +158,21 @@ export function createControlledComparison(
           variant: current,
           baselineSnapshot: snapshot,
           variantSnapshot: snapshot,
-          result: compareBaselines(current, current, options.contract),
+          result: baselineResult,
           requestedParameters: null,
           error: "",
           message: "Live baseline ready. Choose one input to vary; every other input stays fixed.",
         });
         return;
       }
-      const result = compareBaselines(state.baseline, current, options.contract);
       const invariantError = options.verifyAccepted?.(state.baselineSnapshot, snapshot, result);
-      if (result.kind !== "accepted" || invariantError) {
-        failure(
-          invariantError ??
-            (result.kind === "refused" ? result.message : "Comparison not accepted."),
-        );
+      // A verifier or a subscription may cancel/restart work synchronously.
+      if (flight !== active) return;
+      if (invariantError) {
+        failure(invariantError, active);
         return;
       }
+      active.outcome = "accepted";
       flight = null;
       emit({
         pending: false,
@@ -153,23 +184,35 @@ export function createControlledComparison(
         message: comparisonStatement(state.baseline, current, options.contract, result),
       });
     } catch {
-      failure("The returned result does not satisfy this comparison's accepted-data contract.");
+      failure(
+        "The returned result does not satisfy this comparison's accepted-data contract.",
+        active,
+      );
     }
   }
   function send(parameters: ComparisonParameters, purpose: "baseline" | "variant") {
     if (!unsubscribe || state.pending) return false;
-    flight = { purpose, action: null };
+    const active: Flight = {
+      purpose,
+      action: null,
+      parameters: Object.freeze({ ...parameters }),
+      outcome: "pending",
+    };
+    flight = active;
     emit({
       pending: true,
-      requestedParameters: Object.freeze({ ...parameters }),
+      requestedParameters: active.parameters,
       error: "",
       message:
         purpose === "baseline"
           ? "Reconstructing the baseline recording. The worked comparison remains visible."
           : "Calculating the requested variant. Both previous completed results remain visible.",
     });
+    // A reader can stop or unmount in response to the pending-state notification.
+    if (flight !== active || !unsubscribe) return false;
     try {
-      const request = port.apply(parameters);
+      const request = port.apply(active.parameters);
+      if (flight !== active) return false;
       if (request.kind !== "accepted") {
         failure(
           request.kind === "refused"
@@ -177,14 +220,22 @@ export function createControlledComparison(
               ? request.refusal.details.requirements
               : request.refusal.message
             : request.outcome.message,
+          active,
         );
         return false;
       }
-      if (flight) flight.action = request.data.actionIndex;
+      if (!Number.isSafeInteger(request.data.actionIndex) || request.data.actionIndex < 0) {
+        failure("The calculation returned an invalid request identity.", active);
+        return false;
+      }
+      active.action = request.data.actionIndex;
       refresh();
-      return true;
+      return active.outcome === "pending" || active.outcome === "accepted";
     } catch {
-      failure("The calculation could not start. The previous completed results remain available.");
+      failure(
+        "The calculation could not start. The previous completed results remain available.",
+        active,
+      );
       return false;
     }
   }
@@ -214,10 +265,15 @@ export function createControlledComparison(
     },
     pinCurrent() {
       if (state.phase !== "live" || state.pending) return false;
+      const result = compareBaselines(state.variant, state.variant, options.contract);
+      if (result.kind !== "accepted") {
+        emit({ error: result.message });
+        return false;
+      }
       emit({
         baseline: state.variant,
         baselineSnapshot: state.variantSnapshot,
-        result: compareBaselines(state.variant, state.variant, options.contract),
+        result,
         requestedParameters: null,
         error: "",
         message:
@@ -226,16 +282,24 @@ export function createControlledComparison(
       return true;
     },
     stop() {
-      if (!state.pending) return;
+      if (!state.pending || !flight) return;
+      flight.outcome = "cancelled";
       flight = null;
-      port.stop();
+      let error = "";
+      try {
+        port.stop();
+      } catch {
+        error = "The stop request could not reach the calculation; its result will not be displayed.";
+      }
       emit({
         pending: false,
-        message: "Calculation stopped. The previous completed comparison is unchanged.",
-        error: "",
+        requestedParameters: null,
+        message: "Comparison cancelled. The previous completed comparison is unchanged.",
+        error,
       });
     },
     disconnect() {
+      if (flight) flight.outcome = "cancelled";
       flight = null;
       unsubscribe?.();
       unsubscribe = null;

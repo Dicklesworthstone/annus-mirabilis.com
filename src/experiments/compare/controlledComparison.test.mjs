@@ -299,3 +299,221 @@ test("disconnect and remount require recording reconstruction, not a stale warm-
   assert.equal(c.getSnapshot().phase, "live");
   c.disconnect();
 });
+
+for (const [name, patch] of [
+  ["different settings", { parameters: { a: 9, eta: 1, interval: 1 } }],
+  ["different experiment", { experimentId: "other-instrument" }],
+  ["different units", { outputs: [{ ...snap().outputs[0], unit: "cm" }] }],
+  ["different quantity meaning", { outputs: [{ ...snap().outputs[0], semanticKind: "mean" }] }],
+  ["missing readouts", { outputs: [] }],
+]) {
+  test(`baseline reconstruction rejects ${name} without replacing the worked example`, () => {
+    const { controller: c, finish } = setup();
+    c.connect();
+    const previous = c.getSnapshot();
+    c.start();
+    finish(patch);
+    const failed = c.getSnapshot();
+    assert.equal(failed.phase, "example");
+    assert.equal(failed.baseline, previous.baseline);
+    assert.equal(failed.variant, previous.variant);
+    assert.equal(failed.result, previous.result);
+    assert.equal(failed.pending, false);
+    assert.equal(failed.requestedParameters, null);
+    assert.ok(failed.error);
+    assert.equal(c.start(), true);
+    finish();
+    assert.equal(c.getSnapshot().phase, "live");
+    assert.equal(c.getSnapshot().error, "");
+    c.disconnect();
+  });
+}
+
+for (const parameters of [
+  { a: 3, eta: 1, interval: 1 },
+  { a: 1, eta: 2, interval: 1 },
+  { a: 1, eta: 1, interval: 1 },
+]) {
+  test(`a variant must answer its dispatched settings: ${JSON.stringify(parameters)}`, () => {
+    const { controller: c, finish } = setup();
+    c.connect();
+    c.start();
+    finish();
+    const previous = c.getSnapshot().variant;
+    c.apply({ a: 2, eta: 1, interval: 1 });
+    finish({ parameters });
+    assert.equal(c.getSnapshot().variant, previous);
+    assert.equal(c.getSnapshot().pending, false);
+    assert.equal(c.getSnapshot().requestedParameters, null);
+    assert.match(c.getSnapshot().error, /settings do not match/);
+    c.disconnect();
+  });
+}
+
+test("dispatch uses detached settings even if a subscriber changes the caller's form data", () => {
+  const { controller: c, finish, port } = setup();
+  c.connect();
+  c.start();
+  finish();
+  const parameters = { a: 2, eta: 1, interval: 1 };
+  const apply = port.apply;
+  let dispatched;
+  port.apply = (input) => {
+    dispatched = input;
+    return apply(input);
+  };
+  c.subscribe(() => {
+    if (c.getSnapshot().pending) parameters.a = 3;
+  });
+  assert.equal(c.apply(parameters), true);
+  assert.equal(parameters.a, 3);
+  assert.equal(dispatched.a, 2);
+  assert.ok(Object.isFrozen(dispatched));
+  assert.equal(c.getSnapshot().requestedParameters, dispatched);
+  finish();
+  assert.equal(c.getSnapshot().variant.parameters.a, 2);
+  c.disconnect();
+});
+
+for (const action of ["stop", "disconnect"]) {
+  test(`${action} during the pending notification prevents numerical dispatch`, () => {
+    const { controller: c, counts } = setup();
+    c.connect();
+    const previous = c.getSnapshot().variant;
+    c.subscribe(() => {
+      if (c.getSnapshot().pending) c[action]();
+    });
+    assert.equal(c.start(), false);
+    assert.equal(counts().calls, 0);
+    assert.equal(c.getSnapshot().pending, false);
+    assert.equal(c.getSnapshot().requestedParameters, null);
+    assert.equal(c.getSnapshot().variant, previous);
+    c.disconnect();
+  });
+}
+
+test("cancellation during session dispatch is not reported as a successfully started request", () => {
+  const { controller: c, finish, port } = setup();
+  c.connect();
+  const previous = c.getSnapshot().variant;
+  const unsubscribe = port.subscribe(() => {
+    if (port.getSnapshot().pending) c.stop();
+  });
+  assert.equal(c.start(), false);
+  assert.equal(c.getSnapshot().pending, false);
+  finish();
+  assert.equal(c.getSnapshot().variant, previous);
+  unsubscribe();
+  c.disconnect();
+});
+
+test("synchronously rejected returned data makes start return false", () => {
+  const { controller: c, finish, port } = setup();
+  const apply = port.apply;
+  port.apply = (parameters) => {
+    const request = apply(parameters);
+    finish({ parameters: { a: 9, eta: 1, interval: 1 } });
+    return request;
+  };
+  c.connect();
+  const previous = c.getSnapshot().baseline;
+  assert.equal(c.start(), false);
+  assert.equal(c.getSnapshot().phase, "example");
+  assert.equal(c.getSnapshot().baseline, previous);
+  assert.equal(c.getSnapshot().pending, false);
+  assert.match(c.getSnapshot().error, /settings do not match/);
+  c.disconnect();
+});
+
+for (const actionIndex of [NaN, Infinity, -1, 1.5]) {
+  test(`invalid request identity ${actionIndex} cannot leave the comparison stuck pending`, () => {
+    const { controller: c, finish, port } = setup();
+    const apply = port.apply;
+    port.apply = (parameters) => {
+      apply(parameters);
+      return { kind: "accepted", data: { actionIndex } };
+    };
+    c.connect();
+    const previous = c.getSnapshot().variant;
+    assert.equal(c.start(), false);
+    assert.equal(c.getSnapshot().pending, false);
+    assert.equal(c.getSnapshot().requestedParameters, null);
+    assert.match(c.getSnapshot().error, /invalid request identity/);
+    finish();
+    assert.equal(c.getSnapshot().variant, previous);
+    c.disconnect();
+  });
+}
+
+test("cancellation inside an instrument verifier cannot publish the cancelled result", () => {
+  let controller;
+  const { controller: c, finish } = setup(() => {
+    controller.stop();
+    return null;
+  });
+  controller = c;
+  c.connect();
+  c.start();
+  finish();
+  assert.equal(c.getSnapshot().phase, "live");
+  const previous = c.getSnapshot().variant;
+  c.apply({ a: 2, eta: 1, interval: 1 });
+  finish();
+  assert.equal(c.getSnapshot().variant, previous);
+  assert.equal(c.getSnapshot().pending, false);
+  assert.equal(c.getSnapshot().requestedParameters, null);
+  c.disconnect();
+});
+
+test("local cancellation remains effective even when the transport's stop throws", () => {
+  const { controller: c, finish, port } = setup();
+  c.connect();
+  c.start();
+  finish();
+  const previous = c.getSnapshot().variant;
+  c.apply({ a: 2, eta: 1, interval: 1 });
+  port.stop = () => {
+    throw new Error("worker unavailable");
+  };
+  assert.doesNotThrow(() => c.stop());
+  assert.equal(c.getSnapshot().pending, false);
+  assert.equal(c.getSnapshot().requestedParameters, null);
+  assert.match(c.getSnapshot().error, /could not reach the calculation/);
+  finish();
+  assert.equal(c.getSnapshot().variant, previous);
+  assert.equal(c.apply({ a: 2, eta: 1, interval: 1 }), true);
+  finish();
+  assert.equal(c.getSnapshot().variant.parameters.a, 2);
+  c.disconnect();
+});
+
+test("refusal clears pending settings and retry can still replace the previous result", () => {
+  const { controller: c, finish, fail } = setup();
+  c.connect();
+  c.start();
+  finish();
+  c.apply({ a: 2, eta: 1, interval: 1 });
+  fail();
+  assert.equal(c.getSnapshot().requestedParameters, null);
+  assert.equal(c.apply({ a: 2, eta: 1, interval: 1 }), true);
+  finish();
+  assert.equal(c.getSnapshot().variant.parameters.a, 2);
+  c.disconnect();
+});
+
+test("a superseding session request clears old intent without stopping the new request", () => {
+  const { controller: c, finish, port, counts } = setup();
+  c.connect();
+  c.start();
+  finish();
+  const previous = c.getSnapshot().variant;
+  c.apply({ a: 2, eta: 1, interval: 1 });
+  port.apply({ a: 3, eta: 1, interval: 1 });
+  assert.equal(c.getSnapshot().pending, false);
+  assert.equal(c.getSnapshot().requestedParameters, null);
+  assert.match(c.getSnapshot().error, /newer session request/);
+  assert.equal(counts().stops, 0);
+  finish();
+  assert.equal(c.getSnapshot().variant, previous);
+  c.disconnect();
+});
