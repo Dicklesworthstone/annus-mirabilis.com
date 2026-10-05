@@ -26,6 +26,8 @@ import { labelRootAttributes } from "../../experiments/labels/resultAttributes.t
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { FRANKENSIM_DIFFUSION_ENGINE_SENTENCE } from "../../experiments/provenance/pinnedFrankenSim.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
+import { SessionResultWeave } from "../../reader/weave/SessionResultWeave.tsx";
+import { BM06_READER_WEAVE } from "../../reader/weave/spreadingPassages.ts";
 import { DistributionPlot, GridComparison } from "./DistributionPlot.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { gridRefusalSentences } from "./gridRefusalWords.ts";
@@ -520,6 +522,7 @@ export function BrownianLab({
           <GridComparison snapshot={snapshot} />
         </div>
       )}
+      <SessionResultWeave session={session} binding={BM06_READER_WEAVE} suspended={Boolean(error)} />
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
           children of the lab root, which labShell.css's detail rules select. */}
       {readings && (

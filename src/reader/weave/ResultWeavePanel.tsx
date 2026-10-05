@@ -2,31 +2,41 @@
 
 import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import { selectAnnouncement, selectExpandedOutsideDomain } from "../../experiments/weave/announce.ts";
-import type { createSessionWeave } from "../../experiments/weave/sessionSource.ts";
+import type { createSessionWeave, SessionWeave } from "../../experiments/weave/sessionSource.ts";
 import type { WeaveDerived, WeavePredicate } from "../../experiments/weave/types.ts";
 import { type WeavePassage, weavePassageHref } from "./brownianPassages.ts";
+import { TRACER_WEAVE_CONTEXT, type WeaveContextField, weaveContext } from "./context.ts";
 import { unlitExplanation, weaveEvidence } from "./evidence.ts";
 import { allLitContentIds, primaryFlagForContentId } from "./faceLookup.ts";
 import { connectSourceHighlights, type SourceWeavePointer } from "./sourceHighlights.ts";
 import { WeaveHighlighter, weaveAccessiblePrefix } from "./WeaveHighlighter.tsx";
 import "./resultWeave.css";
 
-export function ResultWeavePanel({ source, predicates, passages, paper, highlightPaper = false }: Readonly<{
+const SUSPENDED_WEAVE: SessionWeave = Object.freeze({ kind: "inactive", reason: "refused" });
+
+export function ResultWeavePanel({
+  source, predicates, passages, paper, highlightPaper = false,
+  contextFields = TRACER_WEAVE_CONTEXT, suspended = false, announcementsEnabled = true,
+}: Readonly<{
   source: ReturnType<typeof createSessionWeave>;
   predicates: readonly WeavePredicate[];
   passages: Readonly<Record<string, WeavePassage>>;
   paper: string;
   /** Only the primary embedded lab may annotate the surrounding paper. */
   highlightPaper?: boolean;
+  contextFields?: readonly WeaveContextField[];
+  suspended?: boolean;
+  announcementsEnabled?: boolean;
 }>) {
   const id = useId();
   const host = useRef<HTMLDetailsElement>(null);
   const [open, setOpen] = useState(false);
-  const state = useSyncExternalStore(source.subscribe, source.getSnapshot, source.getServerSnapshot);
+  const observed = useSyncExternalStore(source.subscribe, source.getSnapshot, source.getServerSnapshot);
+  const state = suspended ? SUSPENDED_WEAVE : observed;
   const previous = useRef<WeaveDerived | undefined>(undefined);
   const [announcement, setAnnouncement] = useState("");
   useEffect(() => {
-    if (!open || state.kind !== "ready") {
+    if (!announcementsEnabled || !open || state.kind !== "ready") {
       setAnnouncement("");
       return;
     }
@@ -38,9 +48,9 @@ export function ResultWeavePanel({ source, predicates, passages, paper, highligh
       setAnnouncement(flag ? `${weaveAccessiblePrefix(flag.meaning)} ${flag.pointerText}` : "");
     }
     previous.current = next;
-  }, [state, open]);
+  }, [state, open, announcementsEnabled]);
   useEffect(() => {
-    if (!highlightPaper || !open || state.kind !== "ready") return;
+    if (!announcementsEnabled || !highlightPaper || !open || state.kind !== "ready") return;
     const root = host.current?.closest("main");
     const paperPath = `/papers/${paper}`;
     const path = window.location.pathname;
@@ -53,7 +63,7 @@ export function ResultWeavePanel({ source, predicates, passages, paper, highligh
     }
     const connection = connectSourceHighlights(root, id, pointers);
     return () => connection.dispose();
-  }, [highlightPaper, open, state, paper, id, passages]);
+  }, [highlightPaper, open, state, paper, id, passages, announcementsEnabled]);
   const flags = state.kind === "ready" ? Object.values(state.derived.flags) : [];
   const expanded = selectExpandedOutsideDomain(flags);
   return (
@@ -73,8 +83,13 @@ export function ResultWeavePanel({ source, predicates, passages, paper, highligh
         </p>
       ) : (
         <p className="fine" data-weave-snapshot={state.derived.snapshotVersion}>
-          {state.prepared ? "Prepared worked example" : "Accepted trial"}. Sample size: {String(state.accepted.parameters.M ?? "not recorded")};
-          {" "}seed: {String(state.accepted.parameters.seed ?? "not recorded")}. These are the accepted settings, not unapplied form edits.
+          {state.prepared ? "Prepared worked example" : "Accepted trial"}.
+          {weaveContext(state.accepted, contextFields).map((field) => (
+            <span key={field.id} data-weave-context={field.id}>
+              {" "}{field.label}: {field.value}.
+            </span>
+          ))}
+          {" "}These are the accepted settings, not unapplied form edits.
         </p>
       )}
       <ul className="result-weave-pointers">
