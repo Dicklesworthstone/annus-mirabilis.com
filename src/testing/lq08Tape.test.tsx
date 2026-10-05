@@ -129,9 +129,18 @@ describe("a tape LQ-08 cannot honour is refused in words, and the reader's setti
     // The initial conditions are checked before replay; a recorded change is not, so the runner's
     // parameters-rejected refusal is what stops it. The reader gets the laboratory's sentence, not
     // the error it travels in.
+    //
+    // THE PLANTED CONTROL IS NUMBERED AT THE CHECKPOINT, or it is never reached. A replay stops
+    // where its checkpoint was taken, so a control numbered past it is filtered out before the
+    // laboratory can refuse it and the link restores cleanly -- which is how this test went red
+    // while nothing it protects had changed. `lq08TapeFor` records no events, so its checkpoint
+    // names action 0; that is asserted below rather than believed, and the checkpoint is moved to
+    // the control's own index so the replay executes it.
     const tape = lq08TapeFor(SHARED);
+    expect(tape.acceptedCheckpoint.acceptedActionIndex).toBe(0);
     const notice = await refusedWith({
       ...tape,
+      acceptedCheckpoint: { ...tape.acceptedCheckpoint, acceptedActionIndex: 1 },
       events: [
         { actionIndex: 1, commandClass: "setup-change", paramId: "quantumEfficiency", value: 7 },
       ],

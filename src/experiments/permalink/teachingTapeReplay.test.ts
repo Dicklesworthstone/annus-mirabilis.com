@@ -160,13 +160,29 @@ describe("the-two-pulses replays in ME-01", () => {
     expect(teachingStepIndexForCheckpoint(0)).toBeNull();
     expect(teachingStepIndexForCheckpoint(1)).toBe(0);
     expect(teachingStepIndexForCheckpoint(3)).toBe(2);
+    // WHERE THE CONFUSION AIMS, as arithmetic rather than as a digest: stepIndex 1 is checkpoint 2's
+    // step, so asking for checkpoint 1 with stepIndex 1 asks for checkpoint 2's state under
+    // checkpoint 1's label. This holds whatever the recorded digests are.
+    expect(teachingStepIndexForCheckpoint(2)).toBe(1);
 
+    // WHICH REFUSAL CATCHES IT HAS CHANGED, AND THE NEW ONE IS EARLIER AND MORE PRECISE. The replay
+    // now checks up front that the requested range can reach the recorded checkpoint, so the
+    // confusion is refused BY ITS RANGE -- a range ending one action past a checkpoint that names
+    // its own -- before any state is computed. It used to apply both events and be caught afterwards
+    // by the digest comparison, as an invariant-violation whose replayedDigest was exactly
+    // checkpoint 2's. Same defect, found later and described less well. That digest equality is no
+    // longer reachable through this path, so it is recorded here instead of asserted on a result
+    // that never gets that far.
     const confused = replayToCheckpoint(1, 1); // the checkpoint index used as a stepIndex
-    expect(confused.result.kind).toBe("invariant-violation");
-    if (confused.result.kind === "invariant-violation") {
-      // and it lands exactly on the NEXT checkpoint's recorded digest, which is why it is invisible
-      // without one to compare against.
-      expect(confused.result.replayedDigest).toBe(record.checkpoints[2]?.digest);
+    expect(confused.result.kind).toBe("invalid");
+    if (confused.result.kind === "invalid") {
+      expect(confused.result.reason).toBe("tape-checkpoint-action-unreachable");
+      // The sentence names the checkpoint's own action, read from the record rather than typed in,
+      // so the reader of a failure can see which two numbers disagree.
+      expect(confused.result.notice).toContain(`names action ${confused.cp.actionIndex}`);
     }
+    // THE POSITIVE CONTROL, without which a replay refusing for any reason at all would pass: the
+    // same checkpoint, reached through the translation, succeeds.
+    expect(replayToCheckpoint(1).result.kind).toBe("success");
   });
 });

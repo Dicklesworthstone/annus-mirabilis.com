@@ -161,6 +161,7 @@ function replayOutputs(
   checkpoint: Readonly<{ actionIndex: number; digest: string }>,
   checkpointIndex: number,
   events: readonly Readonly<{ actionIndex: number; kind?: string | undefined }>[],
+  walkthroughSeed: string | undefined,
 ): { outputs: readonly ProducedOutput[]; problem: string } {
   const opening = tapeForSettings(binding, { ...binding.defaults, ...authoredInitial });
   if (!opening)
@@ -168,24 +169,67 @@ function replayOutputs(
   const session = binding.createSession(`tape-expectations-${tapeId}-${checkpointIndex}`);
   const runner = createSessionReplayRunner(binding, session);
   const stepIndex = stepIndexForCheckpoint(events, checkpoint.actionIndex);
+  // THE CHECKPOINT'S ACTION INDEX IS TRANSLATED TOO, NOT ONLY THE STEP. An authored record numbers
+  // EVERY action, a prediction among them; the wire tape a replay drives carries only controls. A
+  // replay is now refused up front unless its range ends exactly where its checkpoint names, and it
+  // computes that endpoint from the wire events' own numbers -- so passing the authored number
+  // through refuses every checkpoint taken at a prediction. the-locked-positions is exactly that
+  // case: its checkpoint 0 sits at action 1, which is its prediction, and no control event carries
+  // that number. Translating the way `stepIndexForCheckpoint` does, by counting controls at or
+  // before the checkpoint, names action 0 for it, which is what the wire tape reaches.
+  const acceptedActionIndex =
+    events
+      .filter(
+        (event) =>
+          (event.kind ?? "control") === "control" && event.actionIndex <= checkpoint.actionIndex,
+      )
+      .at(-1)?.actionIndex ?? 0;
   const result = replayTape(
     {
       ...opening,
       acceptedCheckpoint: {
-        acceptedActionIndex: checkpoint.actionIndex,
+        acceptedActionIndex,
         acceptedInputRevision: 0,
         digest: checkpoint.digest,
       },
+      // THE REFERRING TAPE NAMES THE WALKTHROUGH'S SEED, because a replay refuses a reference whose
+      // seed differs from the record it resolves to, and rightly: a different seed is a different
+      // realization, not the same one addressed differently. `tapeForSettings` builds its opening
+      // with seed "0", so EVERY checkpoint reached through a reference was refused with
+      // teaching-tape-seed-mismatch. That cost nothing visible only because the outputs of the
+      // failed replay were read anyway; it is a harness defect of exactly the shape this file's
+      // header warns about. The seed comes from the resolved record, so it agrees by construction.
+      ...(walkthroughSeed ? { seed: walkthroughSeed as typeof opening.seed } : {}),
       ...(stepIndex === null ? {} : { teachingTapeRef: { tapeId, stepIndex } }),
     },
     { ...runner, resolveTeachingTape: resolver },
   );
+  // A FAILED REPLAY PRODUCES NOTHING TO JUDGE, and this used to read the session anyway whenever it
+  // held outputs. The session is created at the laboratory's DEFAULTS, so a replay refused before it
+  // applied anything leaves a perfectly well-formed snapshot of the wrong state -- and that state
+  // was then compared against the record and reported as a content disagreement. It cost exactly
+  // that: the-locked-positions' 0.5^10 was judged against lq-05's default of four points, 0.5^4 =
+  // 0.0625, and read as the record being wrong. The verdict now follows the replay.
+  if (result.kind !== "success") {
+    // The reason, not only the kind: "invalid" alone cannot be acted on, and the whole value of this
+    // line is telling a stale fixture apart from a wrong record.
+    const why =
+      result.kind === "invalid"
+        ? `${result.kind}: ${result.reason}`
+        : result.kind === "refusal"
+          ? `${result.kind}: ${result.refusalCode}`
+          : `${result.kind}: recorded ${result.storedDigest} replayed ${result.replayedDigest}`;
+    return { outputs: [], problem: `the replay did not reach the checkpoint (${why})` };
+  }
   const snapshot = session.getSnapshot() as {
     accepted?: { outputs?: readonly ProducedOutput[] } | null;
   };
   const outputs = snapshot.accepted?.outputs ?? [];
-  if (result.kind !== "success" && outputs.length === 0)
-    return { outputs: [], problem: `the replay did not reach the checkpoint (${result.kind})` };
+  if (outputs.length === 0)
+    return {
+      outputs: [],
+      problem: "the replay reached the checkpoint but the instrument produced no outputs",
+    };
   return { outputs, problem: "" };
 }
 
@@ -235,6 +279,7 @@ for (const file of readdirSync(TAPE_DIR)
       checkpoint,
       index,
       record.events,
+      authored?.seed,
     );
     if (!fieldQuantities.has(record.experimentId))
       fieldQuantities.set(record.experimentId, declaredFieldQuantities(record.experimentId));
