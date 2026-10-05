@@ -59,6 +59,29 @@ export const KNOWN_PROFILES: readonly GateProfile[] = ["scaffold", "preview", "l
  */
 export const QUALITY_GATE_STEPS: readonly GateStep[] = [
   // 1. Architecture gate (App Router purity & root allowlist)
+  // THE OCR PROHIBITION, REGISTERED (am-jb4c).
+  //
+  // AGENTS.md calls it permanent, with "no convenience, deadline, fallback, or 'small batch'
+  // exception", and it was the one hard rule with no step here: the scanner's only caller was its own
+  // test, so the check ran in the node lane and no release profile asked for it. Required in all three
+  // profiles for that reason -- a rule with no exceptions does not have a profile it may skip.
+  //
+  // Registered while the family is CLEAN: the scan is 4017 files, 1 violation, and that one is the
+  // pinned open question the guard subtracts and still reports. So this cannot fail a release today
+  // except on a new forbidden call, which is what it is for.
+  {
+    id: "ocr-guard",
+    title: "No forbidden OCR engine is invoked anywhere in the repository",
+    command: ["bun", "scripts/ocr-guard.ts"],
+    family: "fast",
+    cadence: "every-run",
+    requiredInCi: true,
+    requiredInProfiles: ["scaffold", "preview", "launch"],
+    availability: {
+      scriptPath: "scripts/ocr-guard.ts",
+    },
+    owner: "am-jb4c",
+  },
   {
     id: "architecture",
     title: "App Router architecture and root allowlist",

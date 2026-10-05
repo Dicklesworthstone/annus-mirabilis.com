@@ -4,43 +4,16 @@ import { dirname, resolve } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import {
+  KNOWN_UNRESOLVED_VIOLATIONS,
   loadDenylist,
   scanContentForViolations,
   scanRepositoryForForbiddenOcr,
+  undeclaredViolations,
 } from "./sources/ocrGuard.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 describe("OCR Guard (Hard Resource Policy)", () => {
-  /**
-   * The one violation the repository currently contains, pinned by file and pattern.
-   *
-   * THIS IS NOT AN APPROVAL AND IT IS NOT AN EXEMPTION MECHANISM. It is an open
-   * question recorded where it cannot be missed, and it needs an owner ruling
-   * (am-jb4c). Until am-jb4c fixed the launcher alternation, `spawnSync(...)` was
-   * invisible to the guard, so this call has never been seen by it. Fixing the
-   * matcher did not create the violation; it revealed one that was always there.
-   *
-   * The conflict, stated fairly on both sides:
-   *  - scripts/verify-facsimile-pins.ts reads folio numerals out of a parent scan's
-   *    EXISTING text layer to check which printed page a parent page is. Its own
-   *    header says reading an existing layer is parsing, not recognition, and
-   *    AGENTS.md does permit inspecting a pinned PDF. Its output is integers used
-   *    for page identity; it never becomes ledger or edition text.
-   *  - the denylist entry's own reason is narrower than its pattern: "pdftotext
-   *    text-layer extraction is forbidden IN SOURCE-LAYER PIPELINES ... must not
-   *    substitute for cloud OCR research drafts or editorial transcription." The
-   *    pattern denies every call; the reason denies a use.
-   *
-   * Resolving it means either narrowing the denylist entry or removing pdftotext
-   * from the pin gate, and both are the owner's call under AGENTS.md's hardest rule.
-   * Nobody may widen this list to quiet a new finding: a second entry here is a
-   * second decision, and it belongs to the owner too.
-   */
-  const KNOWN_UNRESOLVED_VIOLATIONS = [
-    { file: "scripts/verify-facsimile-pins.ts", pattern: "pdftotext" },
-  ] as const;
-
   it("the real codebase contains no forbidden OCR call except the one open question", {
     timeout: 30000,
   }, async () => {
@@ -257,6 +230,51 @@ describe("OCR denylist register integrity", () => {
         `a bare mention must not be refused, or the guard becomes a prose matcher: ${line}`,
       );
     }
+  });
+
+  it("the pin subtracts only an EXACT file-and-pattern match, never one or the other", () => {
+    // The hazard this forecloses: the pinned question is pdftotext in verify-facsimile-pins.ts. If the
+    // subtraction matched on the FILE alone, a new tesseract spawn added to that same file would be
+    // silently excused by someone else's open question -- and that file is the one place in the
+    // repository already permitted to touch a pinned PDF, so it is exactly where such a call would go.
+    // If it matched on the PATTERN alone, pdftotext would become legal everywhere.
+    const pin = { file: "scripts/verify-facsimile-pins.ts", pattern: "pdftotext" } as const;
+    const violation = (file: string, pattern: string) => ({
+      file,
+      pattern,
+      line: 1,
+      reason: "r",
+      snippet: "s",
+    });
+
+    // Both match: subtracted.
+    assert.equal(undeclaredViolations([violation(pin.file, pin.pattern)], [pin]).length, 0);
+    // Same file, different engine: KEPT.
+    assert.deepEqual(
+      undeclaredViolations([violation(pin.file, "tesseract")], [pin]).map((v) => v.pattern),
+      ["tesseract"],
+      "a different engine in the pinned FILE must not be excused by someone else's open question",
+    );
+    // Same engine, different file: KEPT.
+    assert.deepEqual(
+      undeclaredViolations([violation("scripts/elsewhere.ts", pin.pattern)], [pin]).map(
+        (v) => v.file,
+      ),
+      ["scripts/elsewhere.ts"],
+      "the pinned ENGINE must not become legal in every other file",
+    );
+    // And with no pin at all, nothing is subtracted.
+    assert.equal(undeclaredViolations([violation(pin.file, pin.pattern)], []).length, 1);
+  });
+
+  it("the shipped pin list holds exactly the one open question", () => {
+    // A guard against the quiet second entry the pin's own note forbids. Named rather than counted,
+    // because the identity is the point: a different file or engine here is a different decision.
+    assert.deepEqual(
+      KNOWN_UNRESOLVED_VIOLATIONS.map((entry) => `${entry.file} [${entry.pattern}]`),
+      ["scripts/verify-facsimile-pins.ts [pdftotext]"],
+      "a second pinned entry is a second owner decision, not an exemption anyone may add",
+    );
   });
 
   it("the three engines AGENTS.md names are REFUSED, as a spawn and as an import", async () => {
