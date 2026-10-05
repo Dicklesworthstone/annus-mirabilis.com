@@ -15,6 +15,7 @@ export const AVOGADRO_DEFAULTS = Object.freeze({
   molarConcentration: 20,
   specificViscosity: 0.01,
   coefficient: 2.5,
+  constantBasis: 0,
 });
 export type AvogadroParameters = Readonly<{ [K in keyof typeof AVOGADRO_DEFAULTS]: number }>;
 export type AvogadroKey = keyof AvogadroParameters;
@@ -28,6 +29,7 @@ export const AVOGADRO_FIELDS: Readonly<
     }>
   >
 > = Object.freeze({
+  constantBasis: { label: "Gas constant: 0 modern SI, 1 historical measurement", min: 0, max: 1 },
   alphaScale: { label: "Radiation constant α / reference α", min: 0.1, max: 10 },
   meanSquareUm2: { label: "Mean-square displacement in one coordinate (µm²)", min: 1e-8, max: 1e6 },
   observationSeconds: { label: "Observation interval (s)", min: 1e-6, max: 1e6 },
@@ -59,6 +61,14 @@ const keys = Object.keys(AVOGADRO_FIELDS) as AvogadroKey[];
 export function validateAvogadroParameters(input: unknown): Validation {
   if (typeof input !== "object" || input === null || Array.isArray(input))
     return refused("Settings must be a parameter record.");
+  if (![Object.prototype, null].includes(Object.getPrototypeOf(input)))
+    return refused("Settings must be a plain parameter record.");
+  // Inspect descriptors before reading a field: shared state is data, never executable accessors.
+  const descriptors = Object.getOwnPropertyDescriptors(input);
+  if (Reflect.ownKeys(input).some((key) => {
+    const descriptor = typeof key === "string" ? descriptors[key] : undefined;
+    return !descriptor || !descriptor.enumerable || !("value" in descriptor);
+  })) return refused("Settings must contain only visible data fields.");
   const record = input as Record<string, unknown>;
   if (
     Object.keys(record).length !== keys.length ||
@@ -80,6 +90,8 @@ export function validateAvogadroParameters(input: unknown): Validation {
     return refused("The independent coordinate count must be an integer.");
   if (![0, 1].includes(parameters.radiusKnown) || ![0, 1].includes(parameters.independentModel))
     return refused("Choose yes or no for the radius and observation assumptions.");
+  if (![0, 1].includes(parameters.constantBasis))
+    return refused("Choose modern SI or the historical gas measurement.");
   if (![1, 2.5].includes(parameters.coefficient))
     return refused("Choose the original coefficient 1 or the corrected coefficient 2.5.");
   return Object.freeze({ kind: "accepted", parameters: Object.freeze(parameters) });
@@ -103,7 +115,7 @@ export function encodeAvogadroParameters(input: AvogadroParameters): string {
   const checked = validateAvogadroParameters(input);
   if (checked.kind !== "accepted")
     throw new ExperimentRuntimeError("parameters-rejected", checked.reason, "avogadro");
-  const params = new URLSearchParams({ av: "1" });
+  const params = new URLSearchParams({ av: "2" });
   for (const key of keys) params.set(key, String(checked.parameters[key]));
   return params.toString();
 }
@@ -114,10 +126,18 @@ export function decodeAvogadroParameters(search: string): Validation {
   // A URL with no experiment fields may still carry theme or reader controls.
   if (!query.has("av") && !keys.some((key) => query.has(key)))
     return validateAvogadroParameters(AVOGADRO_DEFAULTS);
-  if (query.getAll("av").length !== 1 || query.get("av") !== "1")
+  const version = query.get("av");
+  if (query.getAll("av").length !== 1 || !["1", "2"].includes(version ?? ""))
     return refused("This comparison bookmark has an unsupported or ambiguous version.");
+  // Version 1 always meant modern SI for the diffusion routes. Do not reinterpret old links.
+  if (version === "1" && query.has("constantBasis"))
+    return refused("A version 1 bookmark cannot select a different gas-constant basis.");
   const draft = {} as Record<AvogadroKey, string>;
   for (const key of keys) {
+    if (key === "constantBasis" && version === "1") {
+      draft[key] = "0";
+      continue;
+    }
     if (query.getAll(key).length !== 1)
       return refused("A comparison bookmark must contain each parameter exactly once.");
     draft[key] = query.get(key) ?? "";

@@ -50,9 +50,9 @@ test("bookmarks reject duplicate versions, duplicate keys, omissions and oversiz
   for (const bad of [
     good + "&av=1",
     good + "&alphaScale=1",
-    good.replace("av=1", "av=2"),
+    good.replace(/av=\d+/, "av=999"),
     good.replace(/&radiusKnown=1/, ""),
-    good.replace("av=1&", ""),
+    good.replace(/av=\d+&/, ""),
     "x".repeat(4097),
   ]) {
     assert.equal(decodeAvogadroParameters(bad).kind, "refused", bad);

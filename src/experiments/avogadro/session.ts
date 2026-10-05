@@ -17,15 +17,14 @@ import {
   type OutputContract,
   type ParameterClass,
 } from "../store/instanceStore.ts";
+import { avogadroBasis } from "./basis.ts";
 import {
   AVOGADRO_DEFAULTS,
   type AvogadroParameters,
   validateAvogadroParameters,
 } from "./definition.ts";
 
-const constants = getConstantSet("modern-si-2019");
 const lightQuantaPrinted = getConstantSet("einstein-1905-light-quanta-printed");
-const R = constantValue(constants, "molarGasConstant").value;
 
 function scalar(
   quantityId: string,
@@ -55,6 +54,10 @@ export function evaluateAvogadro(input: unknown) {
   const checked = validateAvogadroParameters(input);
   if (checked.kind !== "accepted") return checked;
   const p = checked.parameters;
+  // Only R is used from this set. In particular, the historical estimate of N is NOT an input
+  // to either inverse problem. Radiation keeps its own, explicitly historical constant set.
+  const constants = getConstantSet(avogadroBasis(p).setId);
+  const R = constantValue(constants, "molarGasConstant").value;
   const output: ScientificResult[] = [];
   // N is inversely proportional to alpha with the printed set's other inputs held fixed: a
   // sensitivity comparison of the historical reconstruction, never an observed measurement.
