@@ -60,6 +60,7 @@ import {
   vercelCurlFetcher,
 } from "./candidate-checks";
 import { createCandidateBrowserProbe } from "./candidateBrowserProbe";
+import { assertBuildBudgets, buildBudgetVerdict } from "./deployment-build-budgets";
 import {
   assertCanonicalProjectIdentity,
   assertDeploymentReadyAndAliased,
@@ -68,6 +69,7 @@ import {
   parseDeploymentInspect,
 } from "./deployment-target";
 import type { CandidateCheckResult } from "./deployment-verification";
+import { runPerformanceBudgets } from "./run-perf-budgets";
 import { newToolRunId } from "./runIds";
 
 export const DEPLOYMENT_LOCK_PORT = 48_915;
@@ -1124,6 +1126,17 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     run("vercel", ["pull", "--yes"]);
     run("vercel", ["build", "--prod"]);
     assertCompletePrebuiltArtifact(buildStartedAt);
+
+    // THE BUDGETS, MEASURED ON THIS BUILD (am-opd1). The gate chain runs the unit-test lane before
+    // the build, so its budget test measures the `out/` the PREVIOUS deploy left behind: 6b9ec998
+    // shipped a 256,141-byte reading face against a 250,000-byte budget because eaec86a3's tree had
+    // passed and the chain was green. Measuring here, after the build and before anything is
+    // uploaded or aliased, is the only point at which the numbers describe the candidate commit.
+    const budgetRun = await runPerformanceBudgets({ silent: true });
+    for (const line of buildBudgetVerdict(budgetRun).measured) {
+      console.log(`  perf budget | ${line}`);
+    }
+    assertBuildBudgets(budgetRun);
 
     assertNoConflictingBuilds("before-deploy");
     const deployResult = run("vercel", [...VERCEL_DEPLOY_ARGS], true);

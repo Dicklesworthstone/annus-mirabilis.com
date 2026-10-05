@@ -9,6 +9,17 @@ import { normalizeAppManifestKey } from "./initialRouteGraph.ts";
 
 describe("Performance Budgets Gate Execution & Negative Tests", () => {
   test("baseline measurement passes all budgets cleanly", async () => {
+    // NOT EVIDENCE ABOUT A RELEASE CANDIDATE (am-opd1). This measures whatever `out/` is on disk,
+    // and in the verified deploy's gate chain the unit-test lane runs at step 5 while the build runs
+    // at step 9 -- so here it measures the tree the PREVIOUS deploy left behind. 6b9ec998 shipped a
+    // 256,141-byte reading face against a 250,000-byte budget with this test green, because
+    // eaec86a3's tree had passed.
+    //
+    // It still earns its place: it proves the runner works and catches a local regression once the
+    // tree is rebuilt. What it cannot say is anything about the commit being released. That is
+    // measured after the build by scripts/deployment-build-budgets.ts, which the deploy calls
+    // between `vercel build` and any upload or alias move, and whose refusal is pinned in
+    // scripts/deployment-build-budgets.test.ts.
     const result = await runPerformanceBudgets({ silent: true });
     expect(result.ok).toBe(true);
     expect(result.failedMetrics).toHaveLength(0);
