@@ -1074,6 +1074,35 @@ html:is(
     border-left: 2px solid var(--line);
     padding-left: 0.75rem;
   }
+
+  /* THE GAP WITHIN A PAIR IS AUTHORED HERE, NOT INHERITED (am-74ed).
+
+     The note above intends "one gap within a pair", reached by collapsing with the content's own
+     margin. That works while the content's margin IS one paragraph gap and fails as soon as it is
+     larger. Measured at 390px on the relativity parallel face, 37 of 115 pairs put the English more
+     than the 1.25em the gate allows, and the space came from two different places:
+
+       a section heading row   the ENGLISH h2's margin-top of 22.8px, collapsing up through the
+                               label, which is 1px tall and stops nothing
+       a part heading row      the German h1's margin-bottom of 27.36px
+
+     So the reader was told where a translation begins by whichever element happened to end one half
+     or begin the other. Zeroing the two margins that leak and giving the half the gap outright makes
+     it one paragraph gap for every pair: measured uniform at 0.94em across all 115 relativity pairs
+     and all 76 light-quanta pairs, which is exactly what the 78 already-correct pairs measured.
+
+     The descendant selector is deliberate: the margin leaks from the deepest last child, not from
+     the half's own child, so `> :last-child` reaches the wrong element and changes nothing (measured).
+     The gap follows --reader-paragraph-gap so it still answers the reader's own spacing setting. */
+  .parallel-row .parallel-half-german {
+    margin-bottom: var(--reader-paragraph-gap);
+  }
+  .parallel-row .parallel-half-german :last-child {
+    margin-bottom: 0;
+  }
+  .parallel-row .parallel-half-english > .parallel-half-label + * {
+    margin-top: 0;
+  }
 }
 
 /* 320 px narrow touch viewport. No side padding of its own: main carries the page gutter (16px
