@@ -191,8 +191,10 @@
   margin: -0.35em -0.15em;
 }
 
-@media (max-width: 22rem) {
-  .sources-section .inline-math {
-    max-width: 100%;
-  }
-}
+/* The 22rem cap this page mirrored is gone with the reader faces' (am-4z7i); the reasons, and the
+   measurement that retired it, are recorded in src/reader/reader.css beside the rule above. Kept in
+   step deliberately: the comment above says these ARE the reader faces' declarations for
+   .inline-math, so a divergence here would be worse than either value. Measured on /sources/ at
+   320x900 and 320x256 with the cap removed: 0 sub-character scrollers either way, 2 formulas that
+   genuinely scroll either way, and no sideways page scroll. This page was not one of the 39
+   affected; it changes in step, not because it had the defect. */

@@ -2381,22 +2381,32 @@ html:is(
   margin: -0.35em -0.15em;
 }
 
-/* AT 400% ZOOM THE DELIBERATE OVERHANG ESCAPES THE PAGE (dispatch 459). The cap above is
-   calc(100% + 0.3em) on purpose, because a plain 100% left every gloss formula 0.3em short and
-   scrolling, and that reason still holds at reading widths. At a ~320px viewport, which is what
-   400% of 1280 gives, there is no page gutter left to absorb it: measured on the build of
-   9dde0926 at 320x256, /papers/brownian-motion/view/parallel/ scrolled sideways by 8px and the
-   outermost uncontained offender was a .inline-math box 314px wide with its right edge at 328.
-   Two-dimensional scrolling is what WCAG 2.2 reflow forbids, and it is the one thing this page
-   must not do, so at this width the formula gives up 0.3em rather than the page giving up reflow.
-   Nothing is hidden: the box still scrolls in its line and still earns its tab stop from
-   formulaOverflow.inline.ts, and .inline-math keeps its existing entry in the
-   scrollable-regions ratchet. Above 22rem the measured rule is untouched. */
-@media (max-width: 22rem) {
-  .inline-math {
-    max-width: 100%;
-  }
-}
+/* THE 22rem CAP IS GONE, AND THE MEASUREMENT THAT PUT IT THERE NO LONGER REPRODUCES (am-4z7i).
+   
+   What stood here: at 400% zoom, which gives a ~320px viewport, the deliberate 0.3em overhang had
+   no page gutter to escape into, and dispatch 459 measured
+   /papers/brownian-motion/view/parallel/ scrolling sideways by 8px on the build of 9dde0926 at
+   320x256. Two-dimensional scrolling is what WCAG 2.2 reflow forbids, so at that width the formula
+   gave up 0.3em instead.
+   
+   The cost of that trade was the whole of am-4z7i. With `box-sizing: border-box`, a max-width of
+   100% leaves the CONTENT box 0.3em short of what the formula needs, which is exactly what the
+   rule above says a plain 100% does: "left every gloss formula 0.3em short and scrolling". So
+   below 22rem every formula that wanted its full column scrolled by 4 to 6px, under half a
+   character, becoming a scroll box with nothing to scroll to and a keyboard tab stop with nothing
+   behind it. mass-energy's gloss face alone had 34.
+   
+   Re-measured on this build across ten routes covering every face of all four papers, at BOTH
+   320x900 and 320x256, with the cap removed: 39 sub-character scrollers become 0, and
+   documentElement.scrollWidth - clientWidth stays 0px on every route at both heights, including
+   /papers/brownian-motion/view/parallel/, the page the original measurement names. The reflow
+   hazard the cap guarded is not reachable here any more; the layout around it has changed since
+   9dde0926.
+   
+   IF IT RETURNS, the repair is to give the container the 0.3em of slack rather than to starve the
+   formula of it: a formula 0.3em short scrolls on every page at every width, while the gutter
+   problem was one page at one zoom. Restoring the cap would trade 39 certain defects for one
+   conditional one. */
 
 .cue-reasoning-marked {
   font-weight: 700;
