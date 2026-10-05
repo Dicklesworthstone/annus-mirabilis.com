@@ -118,7 +118,33 @@ export async function runVoiceLint(): Promise<{
       }
     }
 
-    function scanObject(obj: unknown, filePath: string, objPath: string): void {
+    /**
+     * THE RECORD'S KIND AND LAYER ARE INHERITED, NOT RE-READ AT EVERY LEVEL (am-ep-editorial-13x).
+     *
+     * This read `rec.kind` at whatever depth it had reached, so a nested object answered for the
+     * record. A translation unit's prose lives in `inlines[]`, and an inline's own kind is "text",
+     * so `rec.kind === "translation-unit"` was false for every sentence in the corpus: the
+     * translation LAYER was dropped one level down and `checkVoice` fell back to each rule's
+     * `defaultSeverity`.
+     *
+     * Measured consequence: 47 em-dash ERRORS across content/translation-units/special-relativity,
+     * all on `inlines[n].text`, although `content/editorial/voice-rules.yaml` declares
+     * `em-dash: translationSeverity: flag` precisely so a translation is not held to house
+     * punctuation. The dashes it was failing are Einstein's own: s0-p3-s1 renders "is based — like
+     * every other electrodynamics — on the kinematics of the rigid body" as a parenthetical pair,
+     * and s4-p4-s1 ends with the trailing dash the 1905 typesetting uses to close a passage. The
+     * rule was right and the walk lost the information it needed to apply it.
+     *
+     * `recordKind` also feeds `resolveVoiceContext`, so the same loss was choosing severities by a
+     * nested object's kind rather than the record's.
+     */
+    function scanObject(
+      obj: unknown,
+      filePath: string,
+      objPath: string,
+      inheritedKind?: string,
+      inheritedSource: { readonly layer?: "prose" | "translation" | "quotation" } = {},
+    ): void {
       if (!obj || typeof obj !== "object") return;
       const rec = obj as Record<string, unknown>;
 
@@ -127,6 +153,11 @@ export async function runVoiceLint(): Promise<{
         return;
       }
 
+      // A nested object may name its own kind ("text"), but the RECORD's kind is what the rules are
+      // written against, so an inner kind never replaces an outer one.
+      const recordKind = inheritedKind ?? (typeof rec.kind === "string" ? rec.kind : undefined);
+      const recordSource =
+        recordKind === "translation-unit" ? ({ layer: "translation" } as const) : inheritedSource;
       const recId = typeof rec.id === "string" ? rec.id : filePath;
       if (recId && !allTargetTexts.has(recId)) {
         allTargetTexts.set(recId, JSON.stringify(rec));
@@ -140,14 +171,8 @@ export async function runVoiceLint(): Promise<{
         const currentPath = objPath ? `${objPath}.${key}` : key;
         if (typeof val === "string") {
           totalScanned++;
-          const voiceCtx = resolveVoiceContext(
-            typeof rec.kind === "string" ? rec.kind : undefined,
-            currentPath,
-          );
-          const findings = checkVoice(val, {
-            context: voiceCtx,
-            source: rec.kind === "translation-unit" ? { layer: "translation" } : {},
-          });
+          const voiceCtx = resolveVoiceContext(recordKind, currentPath);
+          const findings = checkVoice(val, { context: voiceCtx, source: recordSource });
 
           for (const f of findings) {
             if (
@@ -183,11 +208,13 @@ export async function runVoiceLint(): Promise<{
           for (let i = 0; i < val.length; i++) {
             if (typeof val[i] === "string") {
               totalScanned++;
-              const voiceCtx = resolveVoiceContext(
-                typeof rec.kind === "string" ? rec.kind : undefined,
-                `${currentPath}[${i}]`,
-              );
-              const findings = checkVoice(val[i] as string, { context: voiceCtx });
+              const voiceCtx = resolveVoiceContext(recordKind, `${currentPath}[${i}]`);
+              // This passed NO source at all, so a translation's string array was judged as prose
+              // even when the layer had survived to this level.
+              const findings = checkVoice(val[i] as string, {
+                context: voiceCtx,
+                source: recordSource,
+              });
               for (const f of findings) {
                 if (
                   isOverridden(overrides, recId, f.rule, f.matchedText) ||
@@ -218,11 +245,11 @@ export async function runVoiceLint(): Promise<{
                 });
               }
             } else if (typeof val[i] === "object") {
-              scanObject(val[i], filePath, `${currentPath}[${i}]`);
+              scanObject(val[i], filePath, `${currentPath}[${i}]`, recordKind, recordSource);
             }
           }
         } else if (typeof val === "object") {
-          scanObject(val, filePath, currentPath);
+          scanObject(val, filePath, currentPath, recordKind, recordSource);
         }
       }
     }

@@ -185,7 +185,11 @@ export function ResultWeavePanel({
                               {row.unit ? ` ${row.unit}` : ""}
                             </>
                           )}
-                          {row.owner && <small> — {row.owner}</small>}
+                          {/* A PARENTHESIS, NOT AN EM DASH. AGENTS.md's editorial voice forbids
+                              the em dash in every visitor-facing string, and this line put one on
+                              every evidence row of every woven lab. The voice lint caught it as its
+                              one remaining em-dash ERROR outside the translation layer. */}
+                          {row.owner && <small> ({row.owner})</small>}
                         </dd>
                       </div>
                     ))}
