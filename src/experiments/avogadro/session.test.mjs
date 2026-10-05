@@ -104,7 +104,7 @@ test("with fixed RMS, more independent observations narrow the conditional inter
  *        soluteDiffusionUm2S 0 and meanSquareUm2 0 are refused by the evaluator first and never
  *        reach a publication. Not proved unreachable, measured unreached.
  */
-test("a session refuses to open on parameters the evaluator rejects (session.ts:168)", () => {
+test("a session refuses to open on parameters the evaluator rejects (session.ts:192)", () => {
   let thrown;
   try {
     createAvogadroSession("avogadro-refusal-open", { ...AVOGADRO_DEFAULTS, meanSquareUm2: NaN });
@@ -142,7 +142,7 @@ test("a session opens on parameters the evaluator accepts", () => {
  * had already moved on - "an old result overwrites the newest accepted run", which the runtime
  * contract forbids in those words. So the surviving value is asserted too.
  */
-test("(session.ts:234) a subscriber re-entering apply() supersedes the outer token, which refuses", () => {
+test("(session.ts:179) a subscriber re-entering apply() supersedes the outer token, which refuses", () => {
   const session = createAvogadroSession("avogadro-reentrant-apply");
   const NESTED = 300;
   const OUTER = 310;

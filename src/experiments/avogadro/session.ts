@@ -162,6 +162,27 @@ export function evaluateAvogadro(input: unknown) {
   });
 }
 
+/**
+ * ONE SITE FOR `publication-refused`, BECAUSE IT IS ONE CONDITION (am-muyh).
+ *
+ * The store's publish decision was checked in two places, on opening and inside apply(), and each threw
+ * its own `publication-refused`. That put one code at two sites, and the refusal ratchet credits a code
+ * only where EVERY site carrying it is cited: both were therefore uncredited and the lane was red while
+ * the guard was, in substance, tested.
+ *
+ * Collapsing them is the fix rather than citing two lines. The condition is identical -- the instance
+ * store declined to publish an accepted snapshot -- and a second copy of the sentence is a second place
+ * for it to drift.
+ */
+function publishedOrRefused(decision: Readonly<{ accepted: boolean; reason?: string }>): void {
+  if (!decision.accepted)
+    throw new ExperimentRuntimeError(
+      "publication-refused",
+      `Avogadro publication refused: ${decision.reason}`,
+      "avogadro",
+    );
+}
+
 export function createAvogadroSession(
   instanceId: string,
   initialParameters: AvogadroParameters = AVOGADRO_DEFAULTS,
@@ -198,12 +219,7 @@ export function createAvogadroSession(
     final: true,
     outputs: initial.outputs,
   });
-  if (!first.accepted)
-    throw new ExperimentRuntimeError(
-      "publication-refused",
-      `Avogadro publication refused: ${first.reason}`,
-      "avogadro",
-    );
+  publishedOrRefused(first);
   const serverSnapshot = store.getSnapshot();
   return Object.freeze({
     getSnapshot: store.getSnapshot,
@@ -233,12 +249,7 @@ export function createAvogadroSession(
           final: true,
           outputs: evaluated.outputs,
         });
-        if (!decision.accepted)
-          throw new ExperimentRuntimeError(
-            "publication-refused",
-            `Avogadro publication refused: ${decision.reason}`,
-            "avogadro",
-          );
+        publishedOrRefused(decision);
       }
       return Object.freeze({ kind: "accepted" as const, parameters: evaluated.parameters });
     },

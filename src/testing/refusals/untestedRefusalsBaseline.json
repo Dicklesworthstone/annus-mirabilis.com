@@ -109,7 +109,6 @@
   "src/equations/tree/parse.ts": 0,
   "src/equations/tree/schema.ts": 0,
   "src/experiments/avogadro/definition.ts": 0,
-  "src/experiments/avogadro/session.ts": 1,
   "src/experiments/bm07/export.ts": 1,
   "src/experiments/bm07/kitchen/csv.ts": 1,
   "src/experiments/bm07/kitchen/protocol.ts": 0,
