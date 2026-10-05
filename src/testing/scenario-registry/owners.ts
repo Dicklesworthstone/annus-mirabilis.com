@@ -33,6 +33,7 @@ import {
 import {
   desynchronizationObserved,
   lightClock,
+  measureRodLength,
   movingRodLegs,
   movingRodLightLegs,
   properTime,
@@ -77,8 +78,13 @@ import {
   evaluatePhotonBox,
   printedMassConversion,
 } from "../../physics/reference/massEnergy.ts";
-import { stoppingPotentialFromEv } from "../../physics/reference/photoelectric.ts";
+import { ionizationCount, stoppingPotentialFromEv } from "../../physics/reference/photoelectric.ts";
+import {
+  classicalCutoffEnergyDensity,
+  classicalTotalEnergy,
+} from "../../physics/reference/radiation/classical.ts";
 import { wienSpectralEntropyDensity } from "../../physics/reference/radiation/entropy.ts";
+import { twoSourceIntensity } from "../../physics/reference/radiation/waves.ts";
 import {
   aperturePower,
   bandLimitedMeanQuantumEnergyWien,
@@ -269,6 +275,23 @@ function gaussianIntervalProbability(ctx: OwnerContext): Record<string, number> 
  * scenario's `expected.status` can be compared against it.
  */
 /**
+ * A caller of `nonNumericOr` that named the wrong key, carried as a code rather than a bare throw.
+ *
+ * Typed for two reasons. The bare-throw ratchet refused the first version, correctly: a throw with no
+ * code is invisible to the refusal ratchet, so nothing could tell whether this guard was ever
+ * exercised. And the condition is a CONTRACT error rather than a model result, so it must not be
+ * mistakable for one of the typed statuses the adapter exists to carry.
+ */
+export class OwnerContractError extends Error {
+  readonly code: "owner-value-key-unnamed";
+  constructor(code: "owner-value-key-unnamed", message: string) {
+    super(message);
+    this.name = "OwnerContractError";
+    this.code = code;
+  }
+}
+
+/**
  * A REFERENCE EVALUATION, TURNED INTO THE OWNER PROTOCOL WITHOUT LOSING ITS STATUS (am-nxbq, item 2).
  *
  * The evaluators return a typed `ScientificResult`: `value` with a number, or one of the non-numeric
@@ -282,11 +305,26 @@ function gaussianIntervalProbability(ctx: OwnerContext): Record<string, number> 
  * `coefficient`), then the status. Never a string this file invents, so a scenario pins what the
  * evaluator said and not a label added on the way past.
  */
-function nonNumericOr(
+export function nonNumericOr(
   result: Readonly<Record<string, unknown>>,
   outputId: string,
+  /** The key the accepted number sits under, where it is not `value` (events puts it in its own). */
+  valueKey = "value",
 ): OwnerRefusal | number {
-  if (result.status === "value" && typeof result.value === "number") return result.value;
+  const accepted = result[valueKey];
+  if (result.status === "value") {
+    // A "value" result whose number is under a key this caller did not name is a CALLER error, and
+    // saying so is the whole point: the first version returned the refusal branch here, which produced
+    // `{refused: {status: "value"}}` -- a refusal claiming to be a value, which no scenario could
+    // sensibly expect and which would have read as a working non-numeric case.
+    if (typeof accepted !== "number")
+      throw new OwnerContractError(
+        "owner-value-key-unnamed",
+        `${outputId}: the evaluator returned status "value" and no number under "${valueKey}". ` +
+          "Name the key the accepted number sits under.",
+      );
+    return accepted;
+  }
   const representation = result.representation;
   const kind =
     representation && typeof representation === "object" && "kind" in representation
@@ -726,6 +764,166 @@ const OWNERS: OwnerRecord[] = [
    * `reason` and no code. Pinning the prose would make rewording it turn the scenario red, and the
    * triple the runner compares is still discriminating: the output, the status, and which output.
    */
+  /**
+   * NO IONIZATION RATE BELOW THE IONIZATION THRESHOLD (am-nxbq, item 2).
+   *
+   * The same structure as LQ-08's stopping potential, on paper 1's section 9 rather than its section 8:
+   * if one quantum carries less than the ionization energy, then under the hypothesis that each absorbed
+   * quantum ionizes one molecule there is no single-quantum ionization at all. `ionizationCount` reports
+   * `not-applicable` on its rate, its molecule count AND its gram-molecule count, with the reason "no
+   * single-quantum ionization under this hypothesis", while the quantum rates beside them stay values:
+   * quanta still arrive and are still absorbed, and none of them ionizes. That is a more interesting page
+   * than a zero, because it separates what the light does from what the model says follows.
+   */
+  {
+    id: "photoelectric.ionizationRateTyped",
+    sourcePath: fileURLToPath(new URL("../../physics/reference/photoelectric.ts", import.meta.url)),
+    fn: (ctx) => {
+      const result = ionizationCount({
+        nu: num(ctx.inputs, "frequency"),
+        ionizationEnergyEv: num(ctx.inputs, "ionizationEnergyEv"),
+        incidentPowerWatts: num(ctx.inputs, "incidentPowerWatts"),
+        absorptionEfficiency: num(ctx.inputs, "absorptionEfficiency"),
+      });
+      const got = nonNumericOr(
+        result.ionizationRatePerSecond as unknown as Record<string, unknown>,
+        "ionizationRatePerSecond",
+      );
+      return typeof got === "number" ? { ionizationRatePerSecond: got } : got;
+    },
+  },
+  /**
+   * A SOURCE AT ZERO DISTANCE HAS NO INTENSITY (am-nxbq, item 2).
+   *
+   * LQ-01 draws the two-source interference pattern, and its intensity carries one over r squared from
+   * each source. At r = 0 that is not a large intensity, it is no intensity: the inverse-square law places
+   * the observer at the source, where the wave description the laboratory uses does not reach. The
+   * evaluator states `nonpositive-radius` as an outside-domain result with a physical domain kind, and
+   * lq-01's manifest admits that status on its centre-intensity output.
+   */
+  {
+    id: "radiation.twoSourceIntensityTyped",
+    sourcePath: fileURLToPath(
+      new URL("../../physics/reference/radiation/waves.ts", import.meta.url),
+    ),
+    fn: (ctx) => {
+      const result = twoSourceIntensity({
+        A1: num(ctx.inputs, "amplitude1"),
+        A2: num(ctx.inputs, "amplitude2"),
+        r1: num(ctx.inputs, "distance1"),
+        r2: num(ctx.inputs, "distance2"),
+        wavelength: num(ctx.inputs, "wavelength"),
+      });
+      const got = nonNumericOr(result as unknown as Record<string, unknown>, "centerIntensity");
+      return typeof got === "number" ? { centerIntensity: got } : got;
+    },
+  },
+  /**
+   * A SEPARATION BETWEEN NON-SIMULTANEOUS ENDPOINTS IS NOT A LENGTH (am-nxbq, item 2).
+   *
+   * This is paper 3's own insistence, made into a typed result. Section 1 defines a length measurement
+   * as the distance between endpoint marks taken AT THE SAME TIME in the measuring frame, and the whole
+   * contraction argument of section 2 rests on which frame's clocks call them simultaneous.
+   * `measureRodLength` therefore returns `not-applicable` with the condition
+   * `non-simultaneous-endpoints` and a repair naming a simultaneous pair, rather than subtracting two
+   * coordinates and calling the difference a length.
+   *
+   * The dangerous answer here is again a NUMBER: the coordinate difference of two non-simultaneous events
+   * is perfectly finite, and on the page it would be indistinguishable from a measured length. SR-03's
+   * manifest admits `not-applicable` on `measuredLength` for exactly this.
+   *
+   * The events arrive as flat numbers because the owner protocol carries numbers: t1, x1, t2, x2, with
+   * the frames and the rest length beside them. `frameIsMoving` picks which frame does the measuring,
+   * 0 for the stationary system K and anything else for the moving system k.
+   */
+  {
+    id: "events.measureRodLengthTyped",
+    sourcePath: fileURLToPath(new URL("../../physics/reference/events.ts", import.meta.url)),
+    fn: (ctx) => {
+      const measuring = (ctx.inputs.frameIsMoving ?? 0) === 0 ? "K" : "k";
+      const rest = (ctx.inputs.rodRestFrameIsMoving ?? 0) === 0 ? "K" : "k";
+      const result = measureRodLength(
+        { t: num(ctx.inputs, "t1"), x: num(ctx.inputs, "x1"), y: 0, z: 0 },
+        { t: num(ctx.inputs, "t2"), x: num(ctx.inputs, "x2"), y: 0, z: 0 },
+        measuring,
+        rest,
+        num(ctx.inputs, "frameSpeed"),
+        num(ctx.inputs, "properLength"),
+      );
+      // The accepted branch carries the length under `measuredLength`, not `value`, so the key is named.
+      const got = nonNumericOr(
+        result as unknown as Record<string, unknown>,
+        "measuredLength",
+        "measuredLength",
+      );
+      return typeof got === "number" ? { measuredLength: got } : got;
+    },
+  },
+  /**
+   * A BAND THAT RUNS BACKWARDS HAS NO ENERGY IN IT (am-nxbq, item 2).
+   *
+   * LQ-03 gives a reader two band-edge controls and lets either be moved past the other. The integral
+   * from the upper edge to the lower one is the negative of the real band's energy, so the dangerous
+   * answer here is not a crash but a NEGATIVE ENERGY DENSITY, which would appear on the plot as a
+   * physical claim. `planckBandEnergyDensity` states `inverted-frequency-range` as an outside-domain
+   * result instead, and lq-03's manifest admits that status on frequencyEnergyDensity.
+   *
+   * A SECOND OWNER RATHER THAN A REPAIR: `radiation.bandEnergy`, above, THROWS on any non-value
+   * ("planckBandEnergyDensity refused inputs"), so a scenario driving it would fail with an exception
+   * rather than a compared status. One scenario references it, so changing it is its own decision.
+   */
+  {
+    id: "radiation.bandEnergyTyped",
+    sourcePath: fileURLToPath(
+      new URL("../../physics/reference/radiation/bandIntegration.ts", import.meta.url),
+    ),
+    fn: (ctx) => {
+      const result = planckBandEnergyDensity(
+        num(ctx.inputs, "nuMin"),
+        num(ctx.inputs, "nuMax"),
+        num(ctx.inputs, "temperature"),
+        getConstantSet("modern-si-2019"),
+      );
+      const got = nonNumericOr(result as unknown as Record<string, unknown>, "bandEnergy");
+      return typeof got === "number" ? { bandEnergy: got } : got;
+    },
+  },
+  /**
+   * THE CLASSICAL ALLOCATION, WHICH HAS NO TOTAL (am-nxbq, item 2).
+   *
+   * This is the difficulty paper 1 opens from, and the honest form of it. Equipartition gives every
+   * resonator mode k_B T, the mode count grows as the cube of the frequency, and the integral over all
+   * frequencies has no finite value. `classicalTotalEnergy` therefore returns `outside-domain` with the
+   * condition `classical-total-diverges` and the reason "the classical allocation assigns unbounded
+   * total energy" at EVERY temperature: there is no number to give, and that is the point rather than a
+   * limitation of the evaluator.
+   *
+   * ONE OWNER, BOTH DIRECTIONS, because the physics is the contrast. Supply a finite positive cutoff and
+   * `classicalCutoffEnergyDensity` returns a value, which is what the laboratory plots; leave the cutoff
+   * out and the total has no value. Removing the cutoff is exactly what removes the answer, so putting
+   * both in one owner is the claim rather than a convenience.
+   *
+   * AGENTS.md's anachronism table applies to how a scenario WORDS this: "ultraviolet catastrophe" is
+   * Ehrenfest's phrase from 1911 and the pre-1905 difficulty is not the later textbook narrative, so the
+   * prose says what diverges and stops.
+   */
+  {
+    id: "radiation.classicalAllocation",
+    sourcePath: fileURLToPath(
+      new URL("../../physics/reference/radiation/classical.ts", import.meta.url),
+    ),
+    fn: (ctx) => {
+      const set = getConstantSet("modern-si-2019");
+      const T = num(ctx.inputs, "temperature");
+      const cutoff = ctx.inputs.cutoffFrequency;
+      const result =
+        typeof cutoff === "number"
+          ? classicalCutoffEnergyDensity(cutoff, T, set)
+          : classicalTotalEnergy(T, set);
+      const got = nonNumericOr(result as unknown as Record<string, unknown>, "radiationEnergy");
+      return typeof got === "number" ? { radiationEnergy: got } : got;
+    },
+  },
   /**
    * THE LORENTZ FACTOR WHERE THERE IS NO OBSERVER TO HAVE ONE (am-nxbq, item 2).
    *

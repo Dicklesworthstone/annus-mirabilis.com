@@ -299,6 +299,7 @@ actions:
 acceptanceCases:
   - photoelectric-einstein-1905-printed
   - lq-09-ionizationenergyev-outside-declared-range-refused
+  - lq-09-below-ionization-threshold-no-rate
 defaultScenario: photoelectric-einstein-1905-printed
 presets:
   - presetId: lq-09-threshold

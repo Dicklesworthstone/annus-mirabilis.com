@@ -1,0 +1,40 @@
+# LQ-09 below the ionization threshold reports no ionization rate (am-nxbq, item 2).
+#
+# WHICH CONTROLS A READER MOVES TO REACH IT: the light-frequency control at 1000 THz with the ionization
+# energy left at 10 eV. One quantum at that frequency carries about 4.14 eV, less than the 10 eV the
+# molecule demands, so under the hypothesis of paper 1 section 9 no absorbed quantum ionizes anything.
+#
+# WHAT STAYS A NUMBER, which is the interesting part. The incident and absorbed quantum RATES are still
+# values: quanta arrive, and half of them are absorbed at the efficiency set here. What has no value is
+# the ionization rate, the molecule count and the gram-molecule count, because the model's claim is about
+# what an absorbed quantum does rather than about whether light is present. Separating those two is the
+# page this record protects: a zero rate would read as "nothing happens", and what the model says is
+# "absorption happens and ionization does not follow from it".
+id: "lq-09-below-ionization-threshold-no-rate"
+kind: "adversarial"
+title: "LQ-09 reports no ionization rate below the threshold, while the absorbed quantum rate stays a number"
+description: "Section 9 of the light-quanta paper supposes that each absorbed quantum ionizes one molecule, which requires the quantum to carry at least the ionization energy. At 1000 THz a quantum carries about 4.14 eV against a 10 eV threshold, so the supposition yields nothing. The evaluator reports the ionization rate, the molecule count and the gram-molecule count as not applicable under this hypothesis, with its reason, while the incident and absorbed quantum rates beside them remain values. At 3000 THz the same inputs give an ionization rate of about 2.5e11 per second."
+plausibleMistake: "That the ionization rate below threshold is zero, so reporting zero and reporting nothing are the same. They are different claims about the same apparatus: zero would say the light produces no ions, which sounds like a measurement, while the model's statement is that single-quantum ionization is not the applicable account here at all. The absorbed quantum rate remains positive either way, and a zero ionization rate beside a positive absorption rate invites the reading that the quanta were absorbed and failed, rather than that this hypothesis does not apply."
+intendedFailure: "The evaluator compares the quantum energy with the ionization energy before forming any rate, so no ionization rate is produced below threshold. The scenario passes only when the result arrives on the ionization rate as not applicable; a run that returned a number fails here, including zero, and so does one that reported the information as insufficient to settle the rate, which is the status this same evaluator uses where the absorption fraction has not been declared and is a different gap."
+constantSetId: "modern-si-2019"
+owner: "photoelectric.ionizationRateTyped"
+inputs:
+  frequency:
+    value: 1.0e+15
+    unit: "Hz"
+  ionizationEnergyEv:
+    value: 10
+    unit: "eV"
+  incidentPowerWatts:
+    value: 1.0e-6
+    unit: "W"
+  absorptionEfficiency:
+    value: 0.5
+    unit: "1"
+expected:
+  status:
+    outputId: "ionizationRatePerSecond"
+    status: "not-applicable"
+    reasonCode: "not-applicable"
+modelVersion: 1
+schemaVersion: 1

@@ -1,0 +1,36 @@
+# LQ-02's classical allocation has no total, at any temperature (am-nxbq, item 2).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the cutoff-frequency control. The laboratory plots the
+# classical energy density accumulated up to a cutoff, and the cutoff is the thing a reader moves. Ask
+# for the total with no cutoff at all and there is no number: the mode count grows as the cube of the
+# frequency, every mode is allotted k_B T, and the sum over all frequencies does not converge.
+#
+# WHAT THE RESULT IS, AND WHAT IT IS NOT. The evaluator returns a result outside its model domain with
+# the condition it states, "the classical allocation assigns unbounded total energy", at every
+# temperature. This is the difficulty paper 1 opens from, and it is stated here as the paper states it:
+# what diverges is the total the classical allocation assigns. AGENTS.md requires that treatment. The
+# phrase "ultraviolet catastrophe" is Ehrenfest's, from 1911, and the pre-1905 difficulty is not the
+# later textbook narrative, so this record does not reach for it.
+#
+# The contrast is the whole point, so the same owner computes both: with a cutoff at 1e15 Hz and 5000 K
+# the density is about 21.46 joules per cubic metre, which is the number the laboratory draws. Removing
+# the cutoff is exactly what removes the answer.
+id: "lq-02-classical-total-has-no-value"
+kind: "adversarial"
+title: "LQ-02 reports no total for the classical allocation, rather than a very large energy density"
+description: "Equipartition allots k_B T to every resonator mode, and the number of modes below a frequency grows as its cube, so the energy density accumulated up to a cutoff grows without bound as the cutoff rises. Asked for the total with no cutoff, the evaluator reports a result outside its model domain carrying the condition it states, at every temperature, rather than a number. With a cutoff at 1e15 Hz and a temperature of 5000 K the same owner returns about 21.46 joules per cubic metre, which is what the laboratory plots, so the absence of a cutoff is the only thing that changed."
+plausibleMistake: "That the classical total is simply enormous, so a very large number or an infinity conveys it. The series has no sum: no temperature makes it finite and no arithmetic produces its value, so a number on the page would be the cutoff the code happened to use rather than a property of the allocation. An infinity would also invite the reading that the energy is merely very large, when the claim is that the allocation assigns none."
+intendedFailure: "The evaluator reports the divergence before any accumulation, so no total is produced to be printed. The scenario passes only when that result arrives on the radiation energy carrying the diverging-total condition; a run that returned a number fails here, including an infinity, and so does one that reported a non-positive cutoff or a non-positive temperature, which are the two input conditions the same evaluator states and which this request does not break."
+constantSetId: "modern-si-2019"
+owner: "radiation.classicalAllocation"
+inputs:
+  temperature:
+    value: 5000
+    unit: "K"
+expected:
+  status:
+    outputId: "radiationEnergy"
+    status: "outside-domain"
+    reasonCode: "classical-total-diverges"
+modelVersion: 1
+schemaVersion: 1

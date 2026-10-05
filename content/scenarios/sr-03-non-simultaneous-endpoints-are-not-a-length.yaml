@@ -1,0 +1,55 @@
+# SR-03: a separation between non-simultaneous endpoints is not a length (am-nxbq, item 2).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the endpoint event selection. SR-03 lets a reader pick the
+# two events at which the rod's ends are marked, and nothing stops them picking a pair separated in time.
+#
+# WHY THIS IS THE PAPER'S OWN POINT. Section 1 defines a length measurement as the distance between
+# endpoint marks made AT THE SAME TIME in the measuring frame, and the contraction of section 2 turns
+# entirely on which frame's clocks call those marks simultaneous. A separation taken from marks a second
+# apart is not a shorter or longer length, it is not a length at all, and the evaluator says so with a
+# condition naming the non-simultaneity and a repair naming a simultaneous pair.
+#
+# THE DANGEROUS ANSWER IS A NUMBER. The coordinate difference of two non-simultaneous events is
+# perfectly finite: here it is 1 light-second, which on the page would sit beside the contracted length
+# and be indistinguishable from it. SR-03's manifest admits a not-applicable result on measuredLength for
+# exactly this reason. The same two endpoints taken at one time return 1, which is the control.
+id: "sr-03-non-simultaneous-endpoints-are-not-a-length"
+kind: "adversarial"
+title: "SR-03 reports no measured length when the endpoint marks are not simultaneous"
+description: "A length in paper 3 section 1 is the distance between the two ends of a rod marked at the same time in the frame doing the measuring. SR-03 lets a reader choose the two marking events, and a pair separated in time gives a coordinate difference that is finite and is not a length. The evaluator reports the measurement as not applicable to these events, names the non-simultaneity as the condition, and offers a simultaneous pair as the repair, so no spurious length reaches the plot beside the contracted one."
+plausibleMistake: "That the difference of the two x coordinates is the rod's length whatever the times are, because that is what subtracting positions gives. It is what subtracting gives and it is not a length: between the two marks the rod has moved, so the difference mixes the rod's extent with how far it travelled. This is the confusion the whole of section 2 exists to remove, and a number here would reintroduce it under the instrument's own label."
+intendedFailure: "The evaluator compares the two times before subtracting the positions, so no length is produced from marks made a second apart. The scenario passes only when the result arrives on the measured length naming the non-simultaneous endpoints; a run that returned a number fails here, including the coordinate difference of 1, and so does one that reported the result as outside the model domain, which is a different statement the same module makes elsewhere."
+constantSetId: "modern-si-2019"
+owner: "events.measureRodLengthTyped"
+inputs:
+  t1:
+    value: 0
+    unit: "s"
+  x1:
+    value: 0
+    unit: "ls"
+  t2:
+    value: 1
+    unit: "s"
+  x2:
+    value: 1
+    unit: "ls"
+  frameSpeed:
+    value: 179875474.8
+    unit: "m/s"
+  properLength:
+    value: 1
+    unit: "ls"
+  frameIsMoving:
+    value: 0
+    unit: "1"
+  rodRestFrameIsMoving:
+    value: 1
+    unit: "1"
+expected:
+  status:
+    outputId: "measuredLength"
+    status: "not-applicable"
+    reasonCode: "non-simultaneous-endpoints"
+modelVersion: 1
+schemaVersion: 1

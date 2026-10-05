@@ -1,0 +1,42 @@
+# LQ-03 reports no energy for a band whose edges are the wrong way round (am-nxbq, item 2).
+#
+# WHICH CONTROLS A READER MOVES TO REACH IT: the two band-edge controls, the lower edge nu1 and the
+# upper edge nu2. Both are declared over the same range, from 1e11 to 1e16 Hz, so either can be moved
+# past the other and a reader will do it while sweeping a band across the spectrum.
+#
+# WHY THE DANGEROUS ANSWER HERE IS NOT A CRASH. Integrating Planck's density from the upper edge down to
+# the lower one gives exactly the negative of the real band's energy. That number is finite, plots
+# without complaint, and would appear on the page as a NEGATIVE ENERGY DENSITY, which is a physical
+# claim the model never makes. The evaluator reports the range as outside its domain instead, naming the
+# inversion, and lq-03's manifest admits that status on its frequency energy density output.
+#
+# An equal pair is the same case: a band of zero width has no interior to integrate over, and the
+# evaluator names the same condition rather than returning a zero that would read as a measurement.
+#
+# The ordered band is the control: 1e14 to 2e14 Hz at 5000 K gives about 0.0637 joules per cubic metre,
+# so swapping the two edges is the only thing that changed.
+id: "lq-03-inverted-band-has-no-energy"
+kind: "adversarial"
+title: "LQ-03 reports no band energy when the upper edge is below the lower one"
+description: "LQ-03 integrates the Planck spectral density between two frequency edges a reader chooses. With the upper edge below the lower one the integral returns the negative of the real band's energy, a finite number that would plot as a negative energy density. The evaluator reports the range as outside its domain, naming the inversion, so no negative energy reaches the page. The same edges in order, 1e14 to 2e14 Hz at 5000 K, give about 0.0637 joules per cubic metre."
+plausibleMistake: "That an inverted band is harmless because the integral is still defined, and its sign can be ignored or corrected by taking the absolute value. Taking the absolute value silently repairs the reader's request without telling them it was wrong, and leaving the sign gives a negative energy density. Neither is the band the reader asked for, and the honest answer is that the request names no band."
+intendedFailure: "The evaluator compares the edges before integrating, so no negative density is produced. The scenario passes only when the result arrives on the band energy naming the inverted range; a run that returned a number fails here, including a negative one and a zero, and so does one that named a non-positive bound or a non-positive temperature, which are the other conditions this evaluator states and which this request does not break."
+constantSetId: "modern-si-2019"
+owner: "radiation.bandEnergyTyped"
+inputs:
+  nuMin:
+    value: 2.0e+14
+    unit: "Hz"
+  nuMax:
+    value: 1.0e+14
+    unit: "Hz"
+  temperature:
+    value: 5000
+    unit: "K"
+expected:
+  status:
+    outputId: "bandEnergy"
+    status: "outside-domain"
+    reasonCode: "inverted-frequency-range"
+modelVersion: 1
+schemaVersion: 1

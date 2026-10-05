@@ -1,0 +1,166 @@
+/**
+ * THE ADAPTER THAT CARRIES A TYPED NON-NUMERIC RESULT INTO THE OWNER PROTOCOL (am-nxbq, item 2).
+ *
+ * The reference evaluators return a typed result: `value` with a number, or one of the statuses
+ * AGENTS.md tabulates. Owners mostly THREW those away, which is why 32 of 33 instruments had no
+ * resolvable non-numeric acceptance case while their own evaluators produced them. `nonNumericOr` is
+ * what carries a status through, and this file is its proof, in both directions and at its one guard.
+ *
+ * THE GUARD IS THE POINT OF THIS FILE. The first version of the adapter returned its refusal branch when
+ * a result said `status: "value"` and the number was under a key the caller had not named, which
+ * produced `{refused: {status: "value"}}`: a refusal claiming to be a value. No scenario could sensibly
+ * expect that, and nothing would have reported it, so it would have read as a working non-numeric case.
+ * `events.measureRodLengthTyped` hit exactly this, because its accepted length sits under
+ * `measuredLength`. It is now a typed contract error, and the three tests below are the refusal, the
+ * accepted path with the key named, and the accepted path with the default key.
+ */
+import { describe, expect, test } from "bun:test";
+import { getOwner, nonNumericOr, OwnerContractError } from "./owners.ts";
+
+describe("nonNumericOr: a status is carried, never flattened", () => {
+  test("a value under the default key is returned as a number", () => {
+    expect(nonNumericOr({ status: "value", value: 1.25 }, "lorentzFactor")).toBe(1.25);
+  });
+
+  test("a value under a named key is returned as a number", () => {
+    expect(
+      nonNumericOr({ status: "value", measuredLength: 1 }, "measuredLength", "measuredLength"),
+    ).toBe(1);
+  });
+
+  test("REFUSES with owner-value-key-unnamed when a value hides under an unnamed key", () => {
+    // The guard. Without it this returned a refusal whose status was "value".
+    let thrown: unknown;
+    try {
+      nonNumericOr({ status: "value", measuredLength: 1 }, "measuredLength");
+    } catch (error) {
+      thrown = error;
+    }
+    expect(thrown).toBeInstanceOf(OwnerContractError);
+    expect((thrown as OwnerContractError).code).toBe("owner-value-key-unnamed");
+    expect((thrown as OwnerContractError).message).toContain("measuredLength");
+    // And it names what to do, because a contract error a reader cannot act on is a crash.
+    expect((thrown as OwnerContractError).message).toContain("Name the key");
+  });
+
+  test("the reason code prefers the condition a result states", () => {
+    const got = nonNumericOr(
+      { status: "outside-domain", condition: "stokes-gas-medium" },
+      "diffusionCoefficient",
+    );
+    expect(got).toEqual({
+      refused: {
+        outputId: "diffusionCoefficient",
+        status: "outside-domain",
+        reasonCode: "stokes-gas-medium",
+      },
+    });
+  });
+
+  test("then the representation kind, then the status, and never a string of its own", () => {
+    expect(
+      nonNumericOr(
+        { status: "analytic-limit", representation: { kind: "point-mass" } },
+        "probabilityDensity",
+      ),
+    ).toEqual({
+      refused: {
+        outputId: "probabilityDensity",
+        status: "analytic-limit",
+        reasonCode: "point-mass",
+      },
+    });
+    // A prose-only result falls through to its status rather than pinning the prose, which would turn
+    // red when someone improves the wording.
+    expect(nonNumericOr({ status: "not-applicable", reason: "no emitted electron" }, "v")).toEqual({
+      refused: { outputId: "v", status: "not-applicable", reasonCode: "not-applicable" },
+    });
+  });
+});
+
+describe("the adapter is wired to real owners, in both directions", () => {
+  /** Each pair is one owner with inputs that give a number and inputs that give a status. */
+  const CASES: readonly Readonly<{
+    owner: string;
+    numeric: Record<string, number>;
+    typed: Record<string, number>;
+    status: string;
+    reasonCode: string;
+  }>[] = [
+    {
+      owner: "diffusion.gaussianPropagator",
+      numeric: { x: 1e-6, elapsedTime: 1, diffusionCoefficient: 1e-12 },
+      typed: { x: 0, elapsedTime: 0, diffusionCoefficient: 1e-12 },
+      status: "analytic-limit",
+      reasonCode: "point-mass",
+    },
+    {
+      owner: "diffusion.stokesEinsteinTyped",
+      numeric: { temperature: 290.15, viscosity: 0.00135, radius: 5e-7, medium: 0 },
+      typed: { temperature: 290.15, viscosity: 0.00135, radius: 5e-7, medium: 1 },
+      status: "outside-domain",
+      reasonCode: "stokes-gas-medium",
+    },
+    {
+      owner: "kinematics.gammaTyped",
+      numeric: { beta: 0.6 },
+      typed: { beta: 1 },
+      status: "outside-domain",
+      reasonCode: "superluminal-observer",
+    },
+    {
+      owner: "events.measureRodLengthTyped",
+      numeric: {
+        t1: 0,
+        x1: 0,
+        t2: 0,
+        x2: 1,
+        frameSpeed: 179875474.8,
+        properLength: 1,
+        frameIsMoving: 0,
+        rodRestFrameIsMoving: 1,
+      },
+      typed: {
+        t1: 0,
+        x1: 0,
+        t2: 1,
+        x2: 1,
+        frameSpeed: 179875474.8,
+        properLength: 1,
+        frameIsMoving: 0,
+        rodRestFrameIsMoving: 1,
+      },
+      status: "not-applicable",
+      reasonCode: "non-simultaneous-endpoints",
+    },
+    {
+      owner: "radiation.classicalAllocation",
+      numeric: { temperature: 5000, cutoffFrequency: 1e15 },
+      typed: { temperature: 5000 },
+      status: "outside-domain",
+      reasonCode: "classical-total-diverges",
+    },
+  ];
+
+  test("each owner returns a number on one side and a carried status on the other", () => {
+    // Non-vacuity: the table is real, and both halves are asserted for every row. A table of one side
+    // only would be satisfied by an owner that always refused or always returned.
+    expect(CASES.length).toBeGreaterThan(3);
+    for (const row of CASES) {
+      const owner = getOwner(row.owner);
+      const numeric = owner.fn({ inputs: row.numeric, constantSetId: "modern-si-2019" });
+      expect(numeric, `${row.owner} should return numbers`).not.toHaveProperty("refused");
+      expect(Object.values(numeric as Record<string, number>).every(Number.isFinite)).toBe(true);
+
+      const typed = owner.fn({ inputs: row.typed, constantSetId: "modern-si-2019" });
+      expect(typed, `${row.owner} should carry a status`).toHaveProperty("refused");
+      const refused = (typed as { refused: { status: string; reasonCode: string } }).refused;
+      expect(refused.status).toBe(row.status);
+      expect(refused.reasonCode).toBe(row.reasonCode);
+    }
+  });
+
+  test("every owner's source file exists, so 'show the code' can read it", () => {
+    for (const row of CASES) expect(getOwner(row.owner).sourcePath).toMatch(/\.ts$/);
+  });
+});

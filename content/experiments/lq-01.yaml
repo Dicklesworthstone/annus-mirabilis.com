@@ -587,6 +587,7 @@ predictMode:
 acceptanceCases:
   - waves-lq01
   - lq-01-wavelength-outside-declared-range-refused
+  - lq-01-source-at-zero-distance-has-no-intensity
 defaultScenario: waves-lq01
 tapeModel:
   modelId: lq-01

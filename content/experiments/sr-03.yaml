@@ -501,6 +501,7 @@ predictMode:
 acceptanceCases:
   - sr03-signature-0.6c
   - sr-03-frame-speed-outside-declared-range-refused
+  - sr-03-non-simultaneous-endpoints-are-not-a-length
 defaultScenario: sr03-signature-0.6c
 tapeModel:
   modelId: sr-03

@@ -1,0 +1,45 @@
+# LQ-01 reports no intensity for an observer at a source (am-nxbq, item 2).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the source-distance controls. LQ-01 draws the two-source
+# interference pattern and lets a reader place the observation point, and placing it at a source sets
+# that distance to zero.
+#
+# WHAT THE RESULT IS. The intensity carries one over r squared from each source, so at r = 0 there is no
+# intensity rather than a very large one: the inverse-square law puts the observer inside the source,
+# where the wave description this laboratory uses does not reach, and an idealized point source has no
+# finite intensity at its own position. The evaluator states nonpositive-radius as a result outside its
+# physical domain, and lq-01's manifest admits that status on its centre-intensity output.
+#
+# The control is the same geometry with both distances at 1: the two amplitudes add in phase and the
+# intensity is 4 in the laboratory's normalized units.
+id: "lq-01-source-at-zero-distance-has-no-intensity"
+kind: "adversarial"
+title: "LQ-01 reports no intensity when the observation point sits on a source"
+description: "The two-source intensity LQ-01 plots falls as one over the square of each distance. With one distance at zero the expression has no value: the point source is an idealization with no finite intensity at its own position, and the wave picture does not describe the interior of a source. The evaluator reports a result outside its physical domain naming the non-positive radius, rather than an infinity that would plot as a spike. With both distances at 1 the same owner returns 4, the in-phase sum of two unit amplitudes."
+plausibleMistake: "That the intensity at a source is infinite, so an infinity is the honest answer and the plot may simply clip it. An infinity here is an artefact of an idealization: a real source has an extent, and the model says nothing about the field inside it. Clipping a spike also hides the reason, leaving a reader to infer that intensity grows without bound as they approach a source, which is a claim about the idealization and not about light."
+intendedFailure: "The evaluator checks both distances before forming the quotient, so no intensity is produced at a source. The scenario passes only when the result arrives on the centre intensity naming the non-positive radius; a run that returned a number fails here, including an infinity, and so does one that named invalid parameters, which is the condition this same evaluator uses for an amplitude or a wavelength it cannot use and which this request does not break."
+constantSetId: "modern-si-2019"
+owner: "radiation.twoSourceIntensityTyped"
+inputs:
+  amplitude1:
+    value: 1
+    unit: "1"
+  amplitude2:
+    value: 1
+    unit: "1"
+  distance1:
+    value: 0
+    unit: "1"
+  distance2:
+    value: 1
+    unit: "1"
+  wavelength:
+    value: 1
+    unit: "1"
+expected:
+  status:
+    outputId: "centerIntensity"
+    status: "outside-domain"
+    reasonCode: "nonpositive-radius"
+modelVersion: 1
+schemaVersion: 1
