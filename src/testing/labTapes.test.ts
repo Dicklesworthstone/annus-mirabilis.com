@@ -97,16 +97,27 @@ describe("every laboratory's shared link restores its settings", async () => {
       // The initial conditions are checked before replay; a recorded change is not, so the
       // runner's parameters-rejected refusal stops it, and the reader gets the laboratory's
       // sentence rather than the error it travels in.
+      //
+      // THE PLANTED EVENT HAS TO BE REACHABLE, and for 21 labs it silently stopped being so. A
+      // replay now stops where its checkpoint was taken (`event.actionIndex <= accepted` in
+      // replay.ts), and `tapeForSettings` records no events, so its checkpoint names action 0.
+      // An event numbered 1 therefore sat PAST the checkpoint and was filtered out before the
+      // laboratory could refuse it: the link restored cleanly and this test went red for a
+      // fixture reason rather than a product one. The checkpoint below is moved to the planted
+      // event's own index so the replay executes it. Both halves are asserted rather than
+      // assumed, and the test below keeps the dropping behaviour as an explicit positive.
       const settings = changedSettings(binding);
       const tape = settings ? tapeForSettings(binding, settings) : null;
       expect(tape).not.toBeNull();
       if (!tape || !settings) return;
       const numeric = Object.keys(settings).find((k) => typeof settings[k] === "number");
       expect(numeric).toBeDefined();
+      expect(tape.acceptedCheckpoint.acceptedActionIndex).toBe(0);
       const session = binding.createSession(`${lab}-tape-event`);
       const before = { ...session.acceptedParameters() };
       const restored = restoreTape(binding, session, {
         ...tape,
+        acceptedCheckpoint: { ...tape.acceptedCheckpoint, acceptedActionIndex: 1 },
         events: [
           { actionIndex: 1, commandClass: "setup-change", paramId: numeric ?? "", value: "abc" },
         ],
@@ -126,6 +137,31 @@ describe("every laboratory's shared link restores its settings", async () => {
         }
       }
       expect(session.acceptedParameters()).toEqual(before);
+    });
+
+    test(`${lab}: a control recorded PAST the checkpoint is dropped, not refused`, () => {
+      // The other half of the test above, and the behaviour that made its planted event
+      // unreachable. A shared link's checkpoint IS the shared state, so an inline tape that
+      // retained later controls restores to the checkpoint and ignores them. This is asserted
+      // here, on a control the laboratory would REFUSE, so the two cases are told apart by the
+      // event's index alone: at the checkpoint's index it refuses, past it the link restores.
+      const settings = changedSettings(binding);
+      const tape = settings ? tapeForSettings(binding, settings) : null;
+      expect(tape).not.toBeNull();
+      if (!tape || !settings) return;
+      const numeric = Object.keys(settings).find((k) => typeof settings[k] === "number");
+      expect(numeric).toBeDefined();
+      expect(tape.acceptedCheckpoint.acceptedActionIndex).toBe(0);
+      const session = binding.createSession(`${lab}-tape-past-checkpoint`);
+      const restored = restoreTape(binding, session, {
+        ...tape,
+        events: [
+          { actionIndex: 1, commandClass: "setup-change", paramId: numeric ?? "", value: "abc" },
+        ],
+      });
+      expect(restored.kind).toBe("restored");
+      // And the dropped control left no trace: the settings are the checkpoint's, not the event's.
+      expect(session.acceptedParameters()).toEqual(settings);
     });
 
     test(`${lab}: another laboratory's tape leaves the settings alone`, () => {
