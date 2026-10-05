@@ -259,15 +259,71 @@ describe("OCR denylist register integrity", () => {
     }
   });
 
-  it("the three engines AGENTS.md names by name are all covered", async () => {
-    // Quoted from the policy: "This includes `focr`, Tesseract, OCRmyPDF, vision
-    // transcription loops, and any other process whose purpose is to recognize text
-    // from page pixels." The first three are named, so they are checkable.
+  it("the three engines AGENTS.md names are REFUSED, as a spawn and as an import", async () => {
+    // Quoted from the policy: "This includes `focr`, Tesseract, OCRmyPDF, vision transcription loops,
+    // and any other process whose purpose is to recognize text from page pixels." The first three are
+    // named, so they are checkable.
+    //
+    // THIS ASKED WHETHER THE DENYLIST MENTIONED THEM, which is not what its name claimed (am-jb4c).
+    // It read `patterns.some((p) => p.includes(tool))`, so "tesseract.js".includes("tesseract") made
+    // tesseract "covered" by an entry whose category is dependency-or-import -- and a category decides
+    // which matchers compile at all. A substring of a pattern string says nothing about whether the
+    // guard refuses anything. It now drives scanContentForViolations, the function this file already
+    // imported.
+    //
+    // Measured before the denylist change below: all three were refused for a SPAWN and allowed for an
+    // import and a require, tesseract included, because its only import entries are "tesseract.js" and
+    // "node-tesseract-ocr" and `import x from "tesseract"` contains neither. An engine bound as a
+    // module recognises text exactly as one launched as a binary does, so the three are now
+    // import-or-spawn and both shapes are checked here.
     const namedInPolicy = ["focr", "tesseract", "ocrmypdf"];
     const { denylist } = await loadDenylist(ROOT);
-    const patterns = denylist.map((entry) => entry.pattern.toLowerCase());
+    const unrefused: string[] = [];
+    for (const tool of namedInPolicy) {
+      const shapes = {
+        spawn: `import { spawnSync } from "node:child_process";\nspawnSync("${tool}", ["page.png"]);\n`,
+        import: `import engine from "${tool}";\nexport const e = engine;\n`,
+        require: `const engine = require("${tool}");\n`,
+      };
+      for (const [shape, content] of Object.entries(shapes))
+        if (scanContentForViolations(`probe-${tool}.ts`, content, denylist).length === 0)
+          unrefused.push(`${tool} as a ${shape}`);
+    }
+    assert.deepEqual(
+      unrefused,
+      [],
+      "AGENTS.md names these OCR engines; the guard must REFUSE each one, not merely mention it",
+    );
+  });
 
-    const uncovered = namedInPolicy.filter((tool) => !patterns.some((p) => p.includes(tool)));
-    assert.deepEqual(uncovered, [], "AGENTS.md names these OCR engines and the denylist must too");
+  it("PLANT: removing the binary-or-spawn entry for an engine stops it being refused", async () => {
+    // The negative the old test could not have: it passed on the pattern STRING, so removing an entry
+    // left "tesseract.js" behind and the substring still matched. Driven on the denylist as an
+    // argument rather than by editing the file, so nothing on disk changes and no restore is needed.
+    const { denylist } = await loadDenylist(ROOT);
+    const spawnContent =
+      'import { spawnSync } from "node:child_process";\nspawnSync("tesseract", ["p.png"]);\n';
+    assert.ok(
+      scanContentForViolations("probe.ts", spawnContent, denylist).length > 0,
+      "the shipped denylist must refuse a tesseract spawn, or the plant below proves nothing",
+    );
+    const without = denylist.filter((e) => e.pattern !== "tesseract");
+    assert.notEqual(without.length, denylist.length, "the entry must have been there to remove");
+    assert.equal(
+      scanContentForViolations("probe.ts", spawnContent, without).length,
+      0,
+      "with the tesseract entry gone the spawn must go unrefused; if it still refuses, this test is " +
+        "measuring some other entry and the coverage claim above rests on it",
+    );
+    // And the entry that WOULD have satisfied the old substring test does not refuse the spawn, which
+    // is the whole defect: tesseract.js is dependency-or-import, so it compiles no spawn matcher.
+    const onlyTheJsEntry = denylist.filter((e) => e.pattern === "tesseract.js");
+    assert.equal(onlyTheJsEntry.length, 1, "tesseract.js must still be in the denylist");
+    assert.equal(
+      scanContentForViolations("probe.ts", spawnContent, onlyTheJsEntry).length,
+      0,
+      "tesseract.js alone must not refuse a tesseract spawn: a pattern a substring test accepts is " +
+        "not a matcher that fires",
+    );
   });
 });

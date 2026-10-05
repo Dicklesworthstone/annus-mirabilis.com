@@ -14,18 +14,18 @@
     },
     {
       "pattern": "tesseract",
-      "category": "binary-or-spawn",
-      "reason": "Tesseract CLI / C++ library is a local OCR engine forbidden by repository resource policy."
+      "category": "import-or-spawn",
+      "reason": "Tesseract CLI / C++ library is a local OCR engine forbidden by repository resource policy. Refused as an import as well as a spawn: an engine bound as a module recognises text just as one launched as a binary does (am-jb4c)."
     },
     {
       "pattern": "ocrmypdf",
-      "category": "binary-or-spawn",
-      "reason": "OCRmyPDF runs local OCR engines forbidden by repository resource policy."
+      "category": "import-or-spawn",
+      "reason": "OCRmyPDF runs local OCR engines forbidden by repository resource policy. Refused as an import as well as a spawn: an engine bound as a module recognises text just as one launched as a binary does (am-jb4c)."
     },
     {
       "pattern": "focr",
-      "category": "binary-or-spawn",
-      "reason": "focr is a local fast OCR tool forbidden by repository resource policy."
+      "category": "import-or-spawn",
+      "reason": "focr is a local fast OCR tool forbidden by repository resource policy. Refused as an import as well as a spawn: an engine bound as a module recognises text just as one launched as a binary does (am-jb4c)."
     },
     {
       "pattern": "easyocr",
