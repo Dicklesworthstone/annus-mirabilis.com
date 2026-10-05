@@ -76,6 +76,7 @@ import {
 import {
   evaluateMe02,
   evaluatePhotonBox,
+  initializeMassEnergyLedger,
   printedMassConversion,
 } from "../../physics/reference/massEnergy.ts";
 import { ionizationCount, stoppingPotentialFromEv } from "../../physics/reference/photoelectric.ts";
@@ -282,9 +283,11 @@ function gaussianIntervalProbability(ctx: OwnerContext): Record<string, number> 
  * exercised. And the condition is a CONTRACT error rather than a model result, so it must not be
  * mistakable for one of the typed statuses the adapter exists to carry.
  */
+export type OwnerContractCode = "owner-value-key-unnamed" | "owner-assessment-without-data";
+
 export class OwnerContractError extends Error {
-  readonly code: "owner-value-key-unnamed";
-  constructor(code: "owner-value-key-unnamed", message: string) {
+  readonly code: OwnerContractCode;
+  constructor(code: OwnerContractCode, message: string) {
     super(message);
     this.name = "OwnerContractError";
     this.code = code;
@@ -338,6 +341,44 @@ export function nonNumericOr(
         "condition" in result && result.condition !== undefined
           ? String(result.condition)
           : (kind ?? String(result.status)),
+    },
+  };
+}
+
+/**
+ * THE INFERENCE FAMILY'S RESULT SHAPE, WHICH IS A DIFFERENT ONE (am-nxbq, item 2).
+ *
+ * `src/physics/reference/inference*` does not return a `ScientificResult`. It returns an `Assessment`:
+ * `{kind: "accepted", data}` or `{kind: "no-value", status, reason}`, where the status is one of
+ * `underdetermined`, `not-applicable` and `outside-domain`. `nonNumericOr` cannot read it, because an
+ * accepted assessment carries no `status` field at all and would therefore look non-numeric -- the exact
+ * shape of error the guard in that function exists to catch, one layer out.
+ *
+ * So this is its own adapter rather than a widened one. The reason code is the status, for the same
+ * reason as the prose-only cases: an assessment carries a sentence rather than a code, and pinning the
+ * sentence would make rewording it turn a scenario red.
+ */
+export function assessmentOr<T>(
+  assessment: Readonly<{ kind: string; status?: string; reason?: string; data?: T }>,
+  outputId: string,
+  pick: (data: T) => number,
+): OwnerRefusal | number {
+  if (assessment.kind === "accepted") {
+    if (assessment.data === undefined)
+      throw new OwnerContractError(
+        // ITS OWN CODE, not the one above. The two conditions are different -- a number under a key the
+        // caller did not name, and an accepted assessment with nothing in it -- and the refusal ratchet
+        // credits a code only where every site carrying it is cited, so sharing one made BOTH invisible.
+        "owner-assessment-without-data",
+        `${outputId}: the assessment was accepted and carries no data to read.`,
+      );
+    return pick(assessment.data);
+  }
+  return {
+    refused: {
+      outputId,
+      status: String(assessment.status ?? "no-value"),
+      reasonCode: String(assessment.status ?? "no-value"),
     },
   };
 }
@@ -764,6 +805,67 @@ const OWNERS: OwnerRecord[] = [
    * `reason` and no code. Pinning the prose would make rewording it turn the scenario red, and the
    * triple the runner compares is still discriminating: the output, the status, and which output.
    */
+  /**
+   * DIFFUSIVITY ALONE DOES NOT SETTLE A RADIUS OR A MOLECULAR NUMBER (am-nxbq, item 2).
+   *
+   * AGENTS.md's `underdetermined` row names this case: "Radius and molecular number from diffusivity
+   * alone". The Stokes-Einstein relation ties the diffusion coefficient to the product of the molecular
+   * number and the radius, so one measured coefficient fixes a FAMILY of pairs rather than either member,
+   * and BM-07 draws that family. With no diffusion scale at all the family cannot be drawn either, and
+   * `identifiabilityFamily` reports the information as insufficient with the sentence stating what is
+   * needed. BM-07's manifest admits an underdetermined status on three outputs for this reason.
+   *
+   * The accepted branch returns the product, which is what the family is a curve of, so a scenario on the
+   * other side pins a number rather than nothing.
+   */
+  {
+    id: "inference.identifiabilityFamily",
+    sourcePath: fileURLToPath(new URL("../../physics/reference/inference.ts", import.meta.url)),
+    fn: (ctx) => {
+      const assessment = identifiabilityFamily(
+        {
+          D: num(ctx.inputs, "diffusionCoefficient"),
+          T: num(ctx.inputs, "temperature"),
+          eta: num(ctx.inputs, "viscosity"),
+          radiusRange: [num(ctx.inputs, "radiusMin"), num(ctx.inputs, "radiusMax")],
+          synthetic: (ctx.inputs.synthetic ?? 1) !== 0,
+        },
+        getConstantSet("modern-si-2019"),
+      );
+      const got = assessmentOr(
+        assessment as never,
+        "molecularNumberRadiusProduct",
+        (data: { product: number }) => data.product,
+      );
+      return typeof got === "number" ? { molecularNumberRadiusProduct: got } : got;
+    },
+  },
+  /**
+   * THE BODY'S ABSOLUTE ENERGY STAYS A SYMBOL (am-nxbq, item 2).
+   *
+   * AGENTS.md's `symbolic` row names this case: "An absolute internal energy in the historical ledger".
+   * Paper 4 never needs the body's total energy, only the DIFFERENCE before and after emission, and the
+   * circularity rule in the same document forbids initialising it with Mc^2 or gamma Mc^2, because that
+   * assumes the conclusion the paper is deriving. So `initializeMassEnergyLedger` returns the rest and
+   * moving body energies as `symbolic` results carrying the unspecified symbol E₀, with no number at all,
+   * and ME-01's manifest admits `symbolic` on five of its outputs.
+   *
+   * The same function THROWS `absolute-energy-not-admitted` if a numeric absolute energy is supplied in
+   * the historical mode, which is the anti-circularity gate rather than a typed result and is tested
+   * elsewhere. This owner reads only the symbolic result, which is the honest answer a reader is shown.
+   */
+  {
+    id: "massEnergy.historicalLedger",
+    sourcePath: fileURLToPath(new URL("../../physics/reference/massEnergy.ts", import.meta.url)),
+    fn: () => {
+      const ledger = initializeMassEnergyLedger();
+      const got = nonNumericOr(
+        ledger.restBodyBefore as unknown as Record<string, unknown>,
+        "restBodyBefore",
+      );
+      return typeof got === "number" ? { restBodyBefore: got } : got;
+    },
+  },
   /**
    * NO IONIZATION RATE BELOW THE IONIZATION THRESHOLD (am-nxbq, item 2).
    *

@@ -512,6 +512,7 @@ acceptanceCases:
   - bm-07-adversarial-unbiased-inversion
   - bm-07-perrin-1909
   - bm-07-dt-outside-declared-range-refused
+  - bm-07-no-diffusion-scale-settles-nothing
 defaultScenario: bm-07-identifiability
 tapeModel:
   modelId: inference-bm07-host

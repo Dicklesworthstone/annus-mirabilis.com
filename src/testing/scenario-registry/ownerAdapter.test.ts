@@ -15,7 +15,7 @@
  * accepted path with the key named, and the accepted path with the default key.
  */
 import { describe, expect, test } from "bun:test";
-import { getOwner, nonNumericOr, OwnerContractError } from "./owners.ts";
+import { assessmentOr, getOwner, nonNumericOr, OwnerContractError } from "./owners.ts";
 
 describe("nonNumericOr: a status is carried, never flattened", () => {
   test("a value under the default key is returned as a number", () => {
@@ -75,6 +75,71 @@ describe("nonNumericOr: a status is carried, never flattened", () => {
     expect(nonNumericOr({ status: "not-applicable", reason: "no emitted electron" }, "v")).toEqual({
       refused: { outputId: "v", status: "not-applicable", reasonCode: "not-applicable" },
     });
+  });
+});
+
+describe("assessmentOr: the inference family's result shape, which is a different one", () => {
+  /**
+   * `src/physics/reference/inference*` returns an `Assessment`: {kind: "accepted", data} or
+   * {kind: "no-value", status, reason}. An accepted assessment carries NO `status` field, so
+   * `nonNumericOr` would read it as non-numeric -- the same class of error as the guard above, one layer
+   * out, which is why this is a separate adapter rather than a widened one.
+   */
+  test("an accepted assessment returns the number its picker reads", () => {
+    expect(assessmentOr({ kind: "accepted", data: { product: 42 } }, "p", (d) => d.product)).toBe(
+      42,
+    );
+  });
+
+  test("a no-value assessment carries its status through", () => {
+    expect(
+      assessmentOr<{ product: number }>(
+        { kind: "no-value", status: "underdetermined", reason: "A positive scale is needed." },
+        "molecularNumberRadiusProduct",
+        (d) => d.product,
+      ),
+    ).toEqual({
+      refused: {
+        outputId: "molecularNumberRadiusProduct",
+        status: "underdetermined",
+        reasonCode: "underdetermined",
+      },
+    });
+  });
+
+  test("REFUSES with owner-assessment-without-data on an accepted assessment holding none", () => {
+    // Its own code, not the one the other guard uses: the refusal ratchet credits a code only where
+    // every site carrying it is cited, so one code at two sites made both invisible.
+    let thrown: unknown;
+    try {
+      assessmentOr<{ product: number }>({ kind: "accepted" }, "p", (d) => d.product);
+    } catch (error) {
+      thrown = error;
+    }
+    expect(thrown).toBeInstanceOf(OwnerContractError);
+    expect((thrown as OwnerContractError).code).toBe("owner-assessment-without-data");
+    expect((thrown as OwnerContractError).message).toContain("carries no data");
+  });
+
+  test("the real inference owner answers both ways", () => {
+    const owner = getOwner("inference.identifiabilityFamily");
+    const base = {
+      temperature: 290,
+      viscosity: 0.00135,
+      radiusMin: 1e-7,
+      radiusMax: 5e-6,
+      synthetic: 1,
+    };
+    const numeric = owner.fn({
+      inputs: { ...base, diffusionCoefficient: 3.1e-13 },
+      constantSetId: "modern-si-2019",
+    });
+    expect(numeric).not.toHaveProperty("refused");
+    const typed = owner.fn({
+      inputs: { ...base, diffusionCoefficient: 0 },
+      constantSetId: "modern-si-2019",
+    });
+    expect((typed as { refused: { status: string } }).refused.status).toBe("underdetermined");
   });
 });
 

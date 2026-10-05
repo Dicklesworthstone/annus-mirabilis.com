@@ -1,0 +1,39 @@
+# ME-01 keeps the body's absolute energy as a symbol, never a number (am-nxbq, item 2).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: none, and that is the point. This is the ledger's state on
+# arrival and in every setting. There is no control that turns the body's absolute energy into a number,
+# because the paper never needs one and the site must never supply one.
+#
+# WHY A NUMBER HERE WOULD BE A CIRCULAR ARGUMENT. Paper 4 asks what the inertia of a body has to do with
+# its energy content, and reaches the answer from the DIFFERENCE in the body's energy before and after it
+# emits light. Initialising the body with Mc squared, or with gamma Mc squared, would assume the
+# conclusion: the ledger would already contain the equivalence the paper is deriving. AGENTS.md lists
+# that exact move among the circular explanations the compiler must refuse, so the ledger reports the
+# rest and moving body energies as symbolic results carrying the unspecified symbol E nought, and ME-01's
+# manifest admits a symbolic status on five of its outputs.
+#
+# THE SAME FUNCTION ALSO REFUSES OUTRIGHT if a numeric absolute energy is supplied in the historical mode,
+# which is the anti-circularity gate rather than a typed result and is tested beside the evaluator. This
+# record pins the typed result a reader is shown.
+#
+# The reason code is the status itself, as it is for the not-applicable cases: a symbolic result carries
+# its unspecified symbol rather than a code, and the output name already says which quantity it is.
+id: "me-01-body-energy-stays-a-symbol"
+kind: "adversarial"
+title: "ME-01 reports the body's energy before emission as a symbol, with no number behind it"
+description: "ME-01 keeps two ledgers across an emission of light, in the body's rest frame and in a moving frame. The body's absolute energy appears in both and is never evaluated: the result carries the unspecified symbol E nought and a symbolic status, because every conclusion the paper draws uses the difference between two such entries and the difference is where the symbol cancels. A number here would have to come from somewhere, and the only candidate is the equivalence the paper is deriving."
+plausibleMistake: "That the ledger needs a starting value to subtract from, so setting the body's energy to Mc squared is a harmless convenience that cancels out anyway. It does cancel, and that is exactly why it is not needed; supplying it puts the paper's conclusion into its premises, and a reader who looks at the ledger sees the equivalence already assumed. AGENTS.md names this as one of the circular explanations the edition must refuse."
+intendedFailure: "The ledger initialises the body's energies symbolically, so no absolute energy is ever formed. The scenario passes only when the symbolic status arrives on the body's rest energy before emission; a run that returned a number fails here, whatever the number, and so does one that reported the entry as not applicable or as outside a domain, which would say the quantity is undefined rather than that it is deliberately unevaluated."
+constantSetId: "modern-si-2019"
+owner: "massEnergy.historicalLedger"
+inputs:
+  emittedEnergyRestFrame:
+    value: 1
+    unit: "J"
+expected:
+  status:
+    outputId: "restBodyBefore"
+    status: "symbolic"
+    reasonCode: "symbolic"
+modelVersion: 1
+schemaVersion: 1

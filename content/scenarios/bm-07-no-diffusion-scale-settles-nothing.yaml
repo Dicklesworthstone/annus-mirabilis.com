@@ -1,0 +1,50 @@
+# BM-07 with no diffusion scale cannot draw the compatible family (am-nxbq, item 2).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the inference inputs that set the estimated diffusion
+# coefficient. With no diffusion scale at all there is nothing for the Stokes-Einstein relation to
+# constrain, and the family of radius and molecular-number pairs cannot be drawn.
+#
+# WHY THE FAMILY IS THE HONEST OUTPUT IN THE FIRST PLACE. The relation ties the diffusion coefficient to
+# the product of the molecular number and the particle radius, so one measured coefficient fixes that
+# PRODUCT and neither factor on its own. AGENTS.md names this in its own table of typed results:
+# "Radius and molecular number from diffusivity alone" is underdetermined, and it names the matching
+# circularity to avoid, inferring a molecular count from diffusion while using that same count to build
+# the supposedly independent data. BM-07 draws the family for that reason, and its manifest admits an
+# underdetermined status on three of its outputs.
+#
+# The control is the same request with the printed diffusion coefficient, 3.1e-13 square metres per
+# second, which returns the product the family is a curve of.
+id: "bm-07-no-diffusion-scale-settles-nothing"
+kind: "adversarial"
+title: "BM-07 reports the information as insufficient when there is no diffusion scale to constrain"
+description: "The Stokes-Einstein relation constrains the product of the molecular number and the particle radius, not either of them, which is why BM-07 draws a family of compatible pairs rather than a single answer. With the diffusion coefficient at zero there is no constraint at all and no family to draw, so the evaluator reports the information as insufficient and states what is needed rather than returning a radius or a count. With the printed coefficient the same owner returns the product."
+plausibleMistake: "That a diffusion measurement determines the molecular number, so a single coefficient yields a single count once the temperature and viscosity are fixed. It yields the product with the radius: a smaller particle and a larger count fit the same coefficient exactly as well. Reporting one pair as the answer would be choosing a radius silently, and if that radius came from a modern value for the count the inference would be circular in the way AGENTS.md names by hand."
+intendedFailure: "The evaluator checks the diffusion scale before building the family, so no pair is produced from nothing. The scenario passes only when the insufficiency arrives on the product; a run that returned a number fails here, and so does one that reported the result as not applicable or outside a domain, which would say the quantity is undefined rather than that the data do not settle it."
+constantSetId: "modern-si-2019"
+owner: "inference.identifiabilityFamily"
+inputs:
+  diffusionCoefficient:
+    value: 0
+    unit: "m^2/s"
+  temperature:
+    value: 290
+    unit: "K"
+  viscosity:
+    value: 0.00135
+    unit: "Pa s"
+  radiusMin:
+    value: 1.0e-7
+    unit: "m"
+  radiusMax:
+    value: 5.0e-6
+    unit: "m"
+  synthetic:
+    value: 1
+    unit: "1"
+expected:
+  status:
+    outputId: "molecularNumberRadiusProduct"
+    status: "underdetermined"
+    reasonCode: "underdetermined"
+modelVersion: 1
+schemaVersion: 1

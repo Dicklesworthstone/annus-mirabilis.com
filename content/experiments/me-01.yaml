@@ -423,6 +423,7 @@ acceptanceCases:
   - me-01-golden
   - me-01-refusals
   - me-01-framespeed-outside-declared-range-refused
+  - me-01-body-energy-stays-a-symbol
 historicalOverlays: []
 realRate:
   natural: false
