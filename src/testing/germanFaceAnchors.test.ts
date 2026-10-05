@@ -32,12 +32,23 @@
  * export writes, so an anchor that only appears after hydration would be absent here and fail.
  */
 
-import { describe, expect, test } from "bun:test";
+import { afterAll, describe, expect, test } from "bun:test";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { newRunIdentity, TestLogger } from "./log/logger.ts";
 
 const ROOT = process.cwd();
 const PAPERS = ["mass-energy", "light-quanta", "brownian-motion", "special-relativity"] as const;
+const BEAD_ID = "am-german-face-anchors-not-frozen-ids-jtv6";
+
+/**
+ * One JSONL file per run under artifacts/test-logs/, which the bead's "tests and logging" section
+ * requires and which a console.log does not satisfy: a per-paper record survives the run, so the
+ * measurements in the docblock above can be checked against a dated artifact rather than re-read
+ * from scrollback. Every event carries the paper and the anchor count it was computed over, because
+ * a verdict without its denominator is the failure mode this whole file is about.
+ */
+const logger = new TestLogger("german-face-anchors", newRunIdentity());
 
 /** Ids the manifest freezes, read from its own `- id:` entries. */
 function manifestIds(paper: string): ReadonlySet<string> {
@@ -97,6 +108,10 @@ const built = faces.filter(
   (f): f is { paper: (typeof PAPERS)[number]; html: string } => f.html !== null,
 );
 
+afterAll(async () => {
+  await logger.flush();
+});
+
 describe("every anchor the built German face publishes is a frozen id", () => {
   test("the faces this reads are the built ones, and all four are present", () => {
     // Non-vacuity before any verdict: with no out/ every assertion below iterates nothing. This
@@ -127,6 +142,26 @@ describe("every anchor the built German face publishes is a frozen id", () => {
       );
     }
     console.log(`[german face anchors] ${report.join(" | ")}`);
+    for (const { paper, html } of built) {
+      const anchors = blockAnchorsOf(html);
+      logger.log({
+        testId: "german-face-block-anchors-are-frozen-ids",
+        beadId: BEAD_ID,
+        paper,
+        expected: "every rendered block anchor is a manifest id, no retired id as an anchor",
+        actual: `${new Set(anchors).size} distinct of ${anchors.length} rendered`,
+        outcome: outside.length === 0 && retiredInUse.length === 0 ? "passed" : "failed",
+        comparisonKind: "formatted",
+        jsEnabled: false,
+        extra: {
+          renderedBlockAnchors: anchors.length,
+          distinctBlockAnchors: new Set(anchors).size,
+          manifestIds: manifestIds(paper).size,
+          retiredIdsDeclared: aliases(paper).size,
+          outsideManifest: outside.filter((o) => o.startsWith(`${paper}/`)).length,
+        },
+      });
+    }
     expect(outside).toEqual([]);
     expect(retiredInUse).toEqual([]);
   });
@@ -144,6 +179,23 @@ describe("every anchor the built German face publishes is a frozen id", () => {
       expect(grammar.length).toBeGreaterThan(0);
     }
     console.log(`[german face displays] ${counts.join(" | ")}`);
+    for (const { paper, html } of built) {
+      const ids = [...idsOf(html)];
+      logger.log({
+        testId: "german-face-display-anchor-grammar",
+        beadId: BEAD_ID,
+        paper,
+        expected: "0 anchors in the retired sN-eqN spelling",
+        actual: `${ids.filter((id) => /^s\d+-eq\d+$/.test(id)).length} in sN-eqN`,
+        outcome: "passed",
+        comparisonKind: "formatted",
+        jsEnabled: false,
+        extra: {
+          grammarForm: ids.filter((id) => /^eq-s\d+-d\d+$/.test(id)).length,
+          retiredForm: ids.filter((id) => /^s\d+-eq\d+$/.test(id)).length,
+        },
+      });
+    }
   });
 
   test("every concordance first-use anchor resolves to an id on the face it names", () => {
@@ -161,6 +213,23 @@ describe("every anchor the built German face publishes is a frozen id", () => {
       }
     }
     console.log(`[german face first-use] ${examined} concordance anchors examined`);
+    for (const { paper, html } of built) {
+      const ids = idsOf(html);
+      const anchors = firstUseAnchorsOf(paper);
+      const missing = anchors.filter((a) => !ids.has(blockIdOfAnchor(a)) && !ids.has(a));
+      logger.log({
+        testId: "german-face-concordance-first-use-resolves",
+        beadId: BEAD_ID,
+        paper,
+        anchor: anchors[0] ?? "",
+        expected: `${anchors.length} first-use anchors resolve`,
+        actual: `${anchors.length - missing.length} resolve, ${missing.length} missing`,
+        outcome: missing.length === 0 ? "passed" : "failed",
+        comparisonKind: "formatted",
+        jsEnabled: false,
+        extra: { firstUseAnchors: anchors.length, unresolved: missing.length },
+      });
+    }
     expect(examined).toBeGreaterThanOrEqual(40);
     expect(unresolved).toEqual([]);
   });

@@ -5,6 +5,7 @@ import { extname, resolve, sep } from "node:path";
 import AxeBuilder from "@axe-core/playwright";
 import { chromium } from "playwright";
 import { checkCameraBrowser } from "./test-camera-browser.mjs";
+import { checkConcordanceAnchorBrowser } from "./test-concordance-anchor-browser.mjs";
 import { checkEquationBrowser } from "./test-equation-browser.mjs";
 import { checkInferenceBrowser } from "./test-inference-browser.mjs";
 import { checkKitchenBrowser } from "./test-kitchen-browser.mjs";
@@ -172,6 +173,7 @@ try {
   await checkEquationBrowser(browser, url, check);
   await checkInferenceBrowser(browser, url, check);
   await checkCameraBrowser(browser, url, check);
+  await checkConcordanceAnchorBrowser(browser, url, check);
 } finally {
   await writeFile("artifacts/browser/checks.json", JSON.stringify(evidence, null, 2));
   await browser.close();
