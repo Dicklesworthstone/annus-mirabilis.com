@@ -1,0 +1,35 @@
+# BM-08 reports no naive interval for noisy, exposed or drifting observations (am-nxbq, item 2).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: none. This is the arrival state of the laboratory's own worked
+# example, which is the point rather than a limitation: the observations BM-08 is built around are noisy,
+# exposed and drifting, so the zero-drift independent-increment interval never applies to them.
+#
+# WHAT THE NAIVE INTERVAL IS AND WHY IT IS KEPT. It is the textbook confidence interval for a diffusion
+# estimate from independent increments, and it is wrong here for three separate reasons the laboratory
+# models: localization error correlates neighbouring increments, a finite exposure averages the motion
+# during it, and stage drift adds a trend. So the interval is reported as not applicable while its point
+# estimate stays visible, which the laboratory's own sentence calls "a deliberately naive comparison". The
+# comparison is the lesson; a confidence interval around it would make the naive estimate look vouched for.
+#
+# AGENTS.md's adversarial fixture list names this family directly: "camera noise leaves neighbouring
+# increments independent" is one of the plausible wrong results that must fail for the intended reason.
+# This record is the typed half of that: the interval which assumes independence is not offered at all.
+id: "bm-08-naive-interval-does-not-apply"
+kind: "adversarial"
+title: "BM-08 reports no independent-increment interval, while keeping its naive point estimate visible"
+description: "BM-08 estimates diffusion from camera observations that carry localization error, a finite exposure and stage drift. The zero-drift independent-increment interval assumes none of those, so the laboratory reports it as not applicable and says why, while leaving the naive point estimate on the page as the comparison a reader is meant to make. This is the arrival state of the worked example rather than a boundary a reader has to find."
+plausibleMistake: "That an interval which assumes independence is still approximately right, so showing it with a caveat is more useful than withholding it. Each of the three effects the laboratory models breaks the assumption in a different direction, and the resulting interval is not merely wide or narrow but about a quantity nobody estimated. Showing it would also make the naive point estimate look vouched for, when its whole role here is to be compared against an estimator that accounts for the noise."
+intendedFailure: "The laboratory reports the quantity as not applicable rather than computing a width from an assumption its own model contradicts. The scenario passes only when that status arrives on the naive interval; a run that returned a number fails here, and so does one that reported the interval as outside a domain, which would say the conditions are wrong rather than that this estimator does not apply to them."
+constantSetId: "modern-si-2019"
+owner: "bm08.session"
+inputs:
+  exposure:
+    value: 2
+    unit: "s"
+expected:
+  status:
+    outputId: "naiveInterval"
+    status: "not-applicable"
+    reasonCode: "not-applicable"
+modelVersion: 1
+schemaVersion: 1

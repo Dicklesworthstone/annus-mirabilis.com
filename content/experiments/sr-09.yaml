@@ -301,6 +301,7 @@ acceptanceCases:
   - sr-09-transverse-0.6
   - sr-09-earth-orbit-aberration
   - sr-09-detectorspeed-outside-declared-range-refused
+  - sr-09-no-doppler-factor-without-a-second-frame
 defaultScenario: sr-09-receding-0.6
 tapeModel:
   modelId: doppler-aberration-host

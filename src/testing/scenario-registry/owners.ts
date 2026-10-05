@@ -1,4 +1,5 @@
 import { fileURLToPath } from "node:url";
+import { createBm08Session } from "../../experiments/bm08/session.ts";
 import {
   declaredDomains,
   refuseOutsideDeclaredDomain,
@@ -13,8 +14,13 @@ import { SR01_DEFAULTS } from "../../experiments/sr01/definition.ts";
 import { snapshotOutputs as sr01SnapshotOutputs } from "../../experiments/sr01/session.ts";
 import { SR02_DEFAULTS } from "../../experiments/sr02/definition.ts";
 import { snapshotOutputs as sr02SnapshotOutputs } from "../../experiments/sr02/session.ts";
+import { SR05_DEFAULTS } from "../../experiments/sr05/definition.ts";
+import { evaluateSr05 } from "../../experiments/sr05/session.ts";
+import { SR09_DEFAULTS } from "../../experiments/sr09/definition.ts";
+import { snapshotOutputs as sr09SnapshotOutputs } from "../../experiments/sr09/session.ts";
 import { SR11_DEFAULTS } from "../../experiments/sr11/definition.ts";
 import { snapshotOutputs as sr11SnapshotOutputs } from "../../experiments/sr11/session.ts";
+import bm08Example from "../../generated/bm08-example.json";
 import { MODEL_DOMAINS } from "../../generated/model-domains.ts";
 import { createDeclaredConstantSet, getConstantSet } from "../../physics/reference/constants.ts";
 import { configurationVolumeTerm, decayLengths } from "../../physics/reference/diffusion/routeA.ts";
@@ -297,6 +303,8 @@ function gaussianIntervalProbability(ctx: OwnerContext): Record<string, number> 
  * mistakable for one of the typed statuses the adapter exists to carry.
  */
 export type OwnerContractCode =
+  /** A laboratory session asked for a worker where the arrival snapshot should need none. */
+  | "owner-session-wants-a-worker"
   | "owner-value-key-unnamed"
   | "owner-assessment-without-data"
   /** A session returned its outputs and the one this owner reads is not among them. */
@@ -900,6 +908,75 @@ const OWNERS: OwnerRecord[] = [
       });
       return sessionOutputsOf(outputs, "correspondenceVerdict");
     },
+  },
+  /**
+   * THE NAIVE INTERVAL DOES NOT APPLY TO NOISY, EXPOSED OR DRIFTING OBSERVATIONS (am-nxbq, item 2).
+   *
+   * BM-08 is the camera, and its subject is that a real observation is not a clean sample of a latent
+   * path: localization error correlates neighbouring increments, a finite exposure averages the motion
+   * during it, and stage drift adds a trend. The zero-drift independent-increment interval is the textbook
+   * one and it is the wrong one here, so the laboratory reports it as `not-applicable` with that reason
+   * while keeping its point estimate visible "as a deliberately naive comparison". It is the arrival state
+   * of the prepared example, not a boundary a reader has to find.
+   *
+   * A THIRD OWNER SHAPE, and the last one this item needs: BM-05 and BM-08 build a full instance store
+   * from a PREPARED EXAMPLE and a worker factory rather than evaluating a pure function. The worker is
+   * never reached for the arrival snapshot, which is why a factory that throws is the honest argument to
+   * pass: it proves nothing here consumes one. AGENTS.md's own labelling rule is the reason this is sound
+   * rather than a shortcut, since on arrival every laboratory shows its static worked example and fetches
+   * no WASM.
+   */
+  {
+    id: "bm08.session",
+    sourcePath: fileURLToPath(new URL("../../experiments/bm08/session.ts", import.meta.url)),
+    fn: () => {
+      const session = createBm08Session("am-nxbq-acceptance", bm08Example as never, () => {
+        throw new OwnerContractError(
+          "owner-session-wants-a-worker",
+          "bm-08's arrival snapshot must not need a worker.",
+        );
+      });
+      const accepted = session.getServerSnapshot().accepted;
+      return sessionOutputsOf(accepted?.outputs ?? [], "naiveInterval");
+    },
+  },
+  /**
+   * A CLOCK AT THE SPEED OF LIGHT HAS NO PROPER TIME (am-nxbq, item 2).
+   *
+   * SR-05 is the moving clock. At |v| = c there is no inertial frame for the clock to be at rest in, so
+   * there is no proper time along its worldline, no coordinate time between its ticks, and no dilation
+   * loss to report. The session's evaluator states `superluminal-observer` on all three together, which
+   * is the honest shape: a reader must not be shown a proper time of zero beside a dilation loss, because
+   * zero is a duration and the claim is that there is no duration to give.
+   *
+   * THE OVER-DECLARATION HYPOTHESIS WAS WRONG, and recording that is worth more than the scenario. The
+   * last note on am-nxbq suggested sr-05 and sr-09 might DECLARE a status their laboratories never
+   * produce, which would have been the same defect as the bead itself. A sweep of every numeric control
+   * at nine values each, 54 settings per laboratory, found the status reachable in both: sr-05 at
+   * speed 1 and sr-09 at beta 1. The declaration is honest and the probe was too narrow before.
+   */
+  {
+    id: "sr05.session",
+    sourcePath: fileURLToPath(new URL("../../experiments/sr05/session.ts", import.meta.url)),
+    fn: (ctx) => {
+      // evaluateSr05 returns the output LIST itself rather than a record holding one.
+      return sessionOutputsOf(evaluateSr05({ ...SR05_DEFAULTS, ...ctx.inputs }), "properTime");
+    },
+  },
+  /**
+   * THE DOPPLER FACTOR AT THE SPEED OF LIGHT, AND ELEVEN QUANTITIES WITH IT (am-nxbq, item 2).
+   *
+   * SR-09 draws the Doppler shift and the aberration of a plane wave between two frames. At beta 1 there
+   * is no second frame, so ALL TWELVE of its outputs go outside the domain together with the condition
+   * `superluminal-speed`: not only the Doppler factor but the propagation angles in both frames, the two
+   * frequencies, the phase, the Lorentz factor and the four classical comparison factors. That is the
+   * shape worth pinning, because a page showing a frequency ratio beside an angle it could not have been
+   * measured at is the failure a per-output refusal would hide.
+   */
+  {
+    id: "sr09.session",
+    sourcePath: fileURLToPath(new URL("../../experiments/sr09/session.ts", import.meta.url)),
+    fn: (ctx) => sessionOutput(sr09SnapshotOutputs, SR09_DEFAULTS, ctx, "dopplerFactor"),
   },
   /**
    * LIGHT THAT NEVER REACHES A RECEDING MIRROR (am-nxbq, item 2).

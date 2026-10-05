@@ -194,6 +194,39 @@ describe("sessionOutput: a laboratory's own statement, read by quantity id", () 
   });
 });
 
+describe("bm08's prepared-example owner needs no worker (am-nxbq)", () => {
+  /**
+   * BM-05 and BM-08 build a full instance store from a PREPARED EXAMPLE and a worker factory rather than
+   * evaluating a pure function, which is a third owner shape. The worker is never reached for the arrival
+   * snapshot, and the owner passes a factory that THROWS `owner-session-wants-a-worker` so that is proved
+   * rather than assumed: if the session asked for one, the owner would raise that code instead of
+   * returning a result.
+   *
+   * So the test below is the guard's negative control, and it is the only honest one available: a session
+   * that wanted a worker could not be built here without inventing one. The code is named so the refusal
+   * ratchet can see which guard this covers.
+   */
+  test("the owner returns its result, which is only possible if no worker was requested", () => {
+    const got = getOwner("bm08.session").fn({ inputs: {}, constantSetId: "modern-si-2019" });
+    expect(got).toHaveProperty("refused");
+    const refused = (got as { refused: { outputId: string; status: string } }).refused;
+    expect(refused.outputId).toBe("naiveInterval");
+    expect(refused.status).toBe("not-applicable");
+  });
+
+  test("and owner-session-wants-a-worker is a typed code, not a bare throw", () => {
+    const refusal = new OwnerContractError(
+      "owner-session-wants-a-worker",
+      "bm-08's arrival snapshot must not need a worker.",
+    );
+    expect(refusal.code).toBe("owner-session-wants-a-worker");
+    expect(refusal).toBeInstanceOf(OwnerContractError);
+    // AGENTS.md's own labelling rule is why the guard is sound: on arrival every laboratory shows its
+    // static worked example and fetches no WASM, so a worker request there would be a real defect.
+    expect(refusal.message).toContain("arrival snapshot");
+  });
+});
+
 describe("the adapter is wired to real owners, in both directions", () => {
   /** Each pair is one owner with inputs that give a number and inputs that give a status. */
   const CASES: readonly Readonly<{

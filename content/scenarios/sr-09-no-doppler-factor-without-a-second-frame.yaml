@@ -1,0 +1,34 @@
+# SR-09 reports nothing at all when there is no second frame (am-nxbq, item 2).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the observer frame-speed control, beta, at 1. Its declared
+# range stops at 0.95, so a reader reaches 1 through a permalink or a tape, and the laboratory answers.
+#
+# ALL TWELVE OUTPUTS GO TOGETHER, and that is the point of this record rather than an aside. At beta 1
+# there is no second inertial frame, so there is no Doppler factor AND no propagation angle in either
+# frame AND no frequency in either frame AND no phase AND no Lorentz factor, and the four classical
+# comparison factors the laboratory plots beside the relativistic ones go with them. Each carries the
+# condition superluminal-speed.
+#
+# WHY THAT MATTERS MORE THAN ANY ONE OF THEM. The laboratory's whole subject is the relation between two
+# descriptions of one wave. A page that showed a frequency ratio beside a propagation angle it could not
+# have been measured at would be showing a relation between a description and nothing, which is the
+# failure a per-output refusal would hide. At 0.6c the same inputs give a Doppler factor of 0.5.
+id: "sr-09-no-doppler-factor-without-a-second-frame"
+kind: "adversarial"
+title: "SR-09 reports no Doppler factor, and no angle or frequency either, at the speed of light"
+description: "SR-09 relates the frequency, direction and phase of a plane wave in two frames. At an observer frame speed of c there is no second frame to relate anything to, and all twelve of the laboratory's outputs are reported outside the model domain together, each naming the superluminal speed: the Doppler factor, both propagation angles, both frequencies, the phase, the Lorentz factor and the four classical comparison factors. At 0.6c the same inputs give a Doppler factor of 0.5."
+plausibleMistake: "That the Doppler factor at the speed of light is zero or unbounded depending on the direction, so a limiting value could be shown with a note. Either number is a statement about a frame that does not exist, and showing one while the angles beside it are also undefined invites a reader to combine them into a measurement nothing supports. The laboratory relates two descriptions, and at this speed there is only one."
+intendedFailure: "The evaluator checks the frame speed before transforming anything, so no factor, angle or frequency is produced. The scenario passes only when the result arrives on the Doppler factor naming the superluminal speed; a run that returned a number fails here, and so does one that refused on the detector speed, which has its own separate bound and is left at rest in this request."
+constantSetId: "modern-si-2019"
+owner: "sr09.session"
+inputs:
+  beta:
+    value: 1
+    unit: "1"
+expected:
+  status:
+    outputId: "dopplerFactor"
+    status: "outside-domain"
+    reasonCode: "superluminal-speed"
+modelVersion: 1
+schemaVersion: 1

@@ -1,0 +1,37 @@
+# SR-05 reports no proper time for a clock at the speed of light (am-nxbq, item 2).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the clock-speed control, v/c, at 1. Its declared range stops
+# at 0.95, so a reader reaches 1 through a permalink or a tape rather than the slider, and the laboratory
+# answers rather than crashing.
+#
+# WHAT THE RESULT IS. At |v| = c there is no inertial frame in which the clock is at rest, so there is no
+# proper time along its worldline. The coordinate time between its ticks and the dilation loss go the same
+# way, all three carrying the condition superluminal-observer, which is the shape that matters: a reader
+# must not be shown a proper time of zero beside a dilation loss, because zero is a duration and the claim
+# is that there is no duration to give. At 0.6c the same owner returns a proper time of 8 seconds over the
+# default ten-second platform interval.
+#
+# THE OVER-DECLARATION HYPOTHESIS WAS WRONG, and the record says so because the previous note on this bead
+# raised it. sr-05 and sr-09 were suspected of DECLARING a status their laboratories never produce, which
+# would have been the same defect this bead is about. A sweep of every numeric control at nine values
+# each, 54 settings for this laboratory, found the status reachable at speed 1. The declaration is honest;
+# the earlier probe was too narrow.
+id: "sr-05-no-proper-time-at-light-speed"
+kind: "adversarial"
+title: "SR-05 reports no proper time at the speed of light, rather than a proper time of zero"
+description: "SR-05 compares a moving clock's proper time with the platform's coordinate time. At a clock speed of c there is no inertial frame in which the clock is at rest, so the proper time along its worldline is not defined; the coordinate time between its ticks and the dilation loss are reported the same way, each carrying the same condition, that there is no observer at or beyond the speed of light. At 0.6c the same inputs give a proper time of 8 seconds against a ten-second platform interval."
+plausibleMistake: "That the proper time at the speed of light is zero, since it falls toward zero as the speed rises. The limit of a sequence of proper times is zero and the quantity itself is undefined, and the difference shows on the page: a proper time of zero says the clock recorded no elapsed time, which is a measurement, while the model's statement is that there is no clock frame to record one in. A zero beside a finite dilation loss would also be arithmetically inconsistent."
+intendedFailure: "The evaluator checks the speed against its domain before forming any interval, so no proper time is produced at or beyond c. The scenario passes only when the result arrives on the proper time naming the absent observer frame as its condition; a run that returned a number fails here, including zero, and so does one that reported it as not applicable, which would say the quantity is undefined for a different reason than the domain."
+constantSetId: "modern-si-2019"
+owner: "sr05.session"
+inputs:
+  speed:
+    value: 1
+    unit: "1"
+expected:
+  status:
+    outputId: "properTime"
+    status: "outside-domain"
+    reasonCode: "superluminal-observer"
+modelVersion: 1
+schemaVersion: 1
