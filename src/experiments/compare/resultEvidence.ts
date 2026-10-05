@@ -1,6 +1,7 @@
 import { decodeResult } from "../results/codec.ts";
 import { explainResult, statusMessage } from "../results/explanations.ts";
 import type { ScientificResult } from "../results/types.ts";
+import { ComparisonContractError } from "./ComparisonContractError.ts";
 
 /** Freeze the detached scalar result, including its uncertainty and nonnumeric evidence. */
 function freezeEvidence(value: unknown): void {
@@ -17,7 +18,10 @@ export function comparisonEvidence(output: Readonly<{ status: string }>): Scient
   if (!Object.hasOwn(output, "ownerId")) return null;
   const result = decodeResult(output);
   if (result.status === "value" && typeof result.value !== "number")
-    throw new TypeError("A comparison requires a scalar result, not an array.");
+    throw new ComparisonContractError(
+      "comparison-requires-scalar",
+      "A comparison requires a scalar result, not an array.",
+    );
   freezeEvidence(result);
   return result;
 }

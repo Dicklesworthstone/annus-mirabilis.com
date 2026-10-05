@@ -1,4 +1,5 @@
 import type { Baseline } from "./Baseline.ts";
+import { ComparisonContractError } from "./ComparisonContractError.ts";
 import { COMPARISON_UNCERTAINTY_NOTE } from "./comparisonPresentation.ts";
 import { comparisonStatement } from "./comparisonStatement.ts";
 import { compareBaselines } from "./compatibility.ts";
@@ -18,7 +19,8 @@ export function serializeComparison(
 ): string {
   // Recheck compatibility rather than trusting a result from a different pair of snapshots.
   const comparison = compareBaselines(baseline, variant, contract);
-  if (comparison.kind !== "accepted") throw new TypeError(comparison.message);
+  if (comparison.kind !== "accepted")
+    throw new ComparisonContractError("comparison-incompatible", comparison.message);
   return `${JSON.stringify(
     {
       format: "annus-mirabilis-comparison",
