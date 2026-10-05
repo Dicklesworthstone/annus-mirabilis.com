@@ -11,6 +11,7 @@ import {
   encodeAvogadroParameters,
   parseAvogadroDraft,
 } from "../../../experiments/avogadro/definition.ts";
+import { avogadroBasis } from "../../../experiments/avogadro/basis.ts";
 import { createAvogadroSession } from "../../../experiments/avogadro/session.ts";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
@@ -24,6 +25,7 @@ import { LabMargin } from "../LabMargin.tsx";
 import { display, identity, result, unitText } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
 import styles from "./AvogadroLab.module.css";
+import { AvogadroSensitivity } from "./AvogadroSensitivity.tsx";
 
 const draftOf = (p: AvogadroParameters) =>
   Object.fromEntries(Object.entries(p).map(([key, value]) => [key, String(value)])) as Record<
@@ -83,6 +85,7 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
       "avogadro",
     );
   const accepted = snapshot.parameters as AvogadroParameters;
+  const basis = avogadroBasis(accepted);
 
   useEffect(() => {
     function restore() {
@@ -129,7 +132,9 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
   function control(key: AvogadroKey) {
     const field = AVOGADRO_FIELDS[key];
     const choices =
-      key === "coefficient"
+      key === "constantBasis"
+        ? [["0", "Modern SI consistency check"], ["1", "Historical gas measurement"]]
+        : key === "coefficient"
         ? [
             ["1", "Original: 1"],
             ["2.5", "Corrected: 2.5"],
@@ -224,10 +229,14 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
             <fieldset>
               <legend>Shared solvent conditions for the two diffusion routes</legend>
               <div className="input-grid">
+                {control("constantBasis")}
                 {control("temperature")}
                 {control("viscosityMpaS")}
               </div>
             </fieldset>
+            <p data-avogadro-constant-set={basis.setId}>
+              <strong>Accepted basis: {basis.label}.</strong> {basis.interpretation}
+            </p>
             <div className="actions">
               <button className="button" type="submit">
                 Compare these inputs
@@ -333,10 +342,9 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
                     <Reading snapshot={snapshot} quantity="brownianNumber" />
                   </td>
                   <td>
-                    <strong>Consistency check.</strong> With the 2019 SI the gas constant is N
-                    <sub>A</sub>k<sub>B</sub> by definition, so this compares the displacements with
-                    the defined value. Conditional on an independent radius and the admitted
-                    observation model.
+                    <strong>{basis.label}.</strong> {basis.interpretation} Conditional on an
+                    independent radius and the admitted observation model. The interval holds
+                    the selected gas constant and all auxiliary inputs exact.
                   </td>
                 </tr>
                 <tr>
@@ -350,9 +358,9 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
                     <Reading snapshot={snapshot} quantity="molecularNumber" />
                   </td>
                   <td>
-                    <strong>Consistency check</strong> on illustrative inputs with the 2019 SI gas
-                    constant: a dilute-sphere inversion with coefficient {accepted.coefficient}. Not
-                    a historical dataset or uncertainty interval.
+                    <strong>{basis.label}.</strong> A dilute-sphere inversion with coefficient
+                    {" "}{accepted.coefficient}, using the same selected gas constant as the Brownian
+                    route. These illustrative inputs are not a historical dataset or uncertainty interval.
                   </td>
                 </tr>
                 <tr>
@@ -373,18 +381,20 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
             things this page does not have: the covariance between the routes, which all depend on
             the gas constant, and the two diffusion routes also on Stokes drag and the dilute-sphere
             model; and an allowance for model discrepancy, how far each idealized model departs from
-            the real radiation, suspension or solution. The modern gas constant is defined using N
-            <sub>A</sub> and k<sub>B</sub>; agreement in the illustrative diffusion rows is not
-            independent evidence for either constant.
+            the real radiation, suspension or solution. Selecting a historically measured gas
+            constant removes dependence on the modern definition of the molecular number; it does
+            not make the routes statistically independent or turn illustrative inputs into evidence.
           </p>
         </div>
       </div>
       {/* What these rows are sits directly under them; above the instrument it came between a phone's heading and the result. */}
       <p>
-        The radiation row reconstructs a historical calculation. The other rows use authored
-        illustrative inputs and modern SI constants, so they are consistency checks, not independent
-        counts or historical measurements. No Bancelin dataset is claimed here.
+        The radiation row reconstructs a historical calculation and retains its own historical
+        constant set in both modes. The diffusion rows use the selected gas-constant basis and
+        authored illustrative observations. No historical measurement dataset is claimed here.
       </p>
+      <p className="fine">{basis.provenance}</p>
+      <AvogadroSensitivity parameters={accepted} snapshotVersion={snapshot.snapshotVersion} ready={ready} />
       <section>
         <h3>What diffusion cannot identify by itself</h3>
         <p>
@@ -466,6 +476,7 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
 
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
           children of the lab root, which labShell.css's detail rules select. */}
+      <p className="fine">The worked derivation below explains the default settings, not the current sensitivity trial.</p>
       <p data-detail="0">
         <noscript>
           <b className="reading-label">In one breath</b>
