@@ -117,6 +117,21 @@ function headingId(raw: string): string {
 export function segmentLedger(input: {
   ledgerText?: string | null | undefined;
   frozenIds?: readonly string[] | undefined;
+  /**
+   * A PROPOSAL ID TO THE FROZEN ID IT IS PUBLISHED UNDER. Without it the two namespaces below are
+   * compared by spelling, and this segmenter's spellings are deliberately not the manifest's:
+   * manifestAnchors.ts states that blocks are named here as they are met -- paragraphs `s0-p1` by
+   * count, displays `s0-eq1` by count -- and that "those are good ids for the pipeline and wrong ones
+   * to publish", while the frozen manifest never renumbers. So a unit present in both is reported
+   * TWICE, extra here and missing there, for no reason but its name. Measured on mass-energy
+   * 2026-10-05: 29 differences, 14 of them its seven displays double-counted and the other 15 the
+   * same over its paragraphs.
+   *
+   * The map comes from `manifestAnchors`, which pairs paragraphs and footnotes in PRINT order,
+   * because the manifest's numbers are not in print order, and displays by the rule
+   * `blockPages.pairDisplays` already uses. Omitted, every comparison is by id as before.
+   */
+  anchorOf?: Readonly<Record<string, string>> | undefined;
 }): SegmentLedgerResult {
   if (
     input.ledgerText === null ||
@@ -437,19 +452,31 @@ export function segmentLedger(input: {
   // Reconcile differences against frozenIds if provided
   const frozen = new Set(input.frozenIds ?? []);
   const differences: ReconciliationDifference[] = [];
+  // A proposal id reads as the frozen id it is published under, where a pairing says so. An id the
+  // map does not mention keeps its own name, so a genuinely unpaired unit is still reported.
+  const anchorOf = input.anchorOf ?? {};
+  const published = (id: string): string => anchorOf[id] ?? id;
   if (frozen.size > 0) {
     for (const block of blocks) {
-      if (!frozen.has(block.id)) {
+      if (!frozen.has(published(block.id))) {
+        const under = published(block.id);
         differences.push({
           differenceId: `unit-extra-in-ledger:${block.id}`,
           kind: "unit-extra-in-ledger",
           unitId: block.id,
-          message: `Proposed block "${block.id}" is not in the frozen manifest.`,
+          message:
+            under === block.id
+              ? `Proposed block "${block.id}" is not in the frozen manifest.`
+              : `Proposed block "${block.id}" is published as "${under}", which is not in the frozen manifest.`,
         });
       }
     }
     for (const id of frozen) {
-      if (!blocks.some((b) => b.id === id || b.sentences.some((s) => s.id === id))) {
+      if (
+        !blocks.some(
+          (b) => published(b.id) === id || b.sentences.some((s) => published(s.id) === id),
+        )
+      ) {
         differences.push({
           differenceId: `unit-missing-in-ledger:${id}`,
           kind: "unit-missing-in-ledger",

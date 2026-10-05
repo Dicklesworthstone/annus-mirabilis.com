@@ -39,6 +39,7 @@ import {
   coverageReportMarkdown,
 } from "../src/content/editions/coverageReport.ts";
 import { assertEditionContract } from "../src/content/editions/editionContract.ts";
+import { loadGermanSourceFace } from "../src/content/editions/germanSourceFace.ts";
 import {
   inspectLedgerPresence,
   PAPER_BIB_KEYS,
@@ -228,7 +229,27 @@ export async function runEditionPipeline(options: {
       { code: "manifest-absent", pending: [SENTENCE_UNIT_RULING] },
     );
   } else {
-    const segmented = segmentLedger({ ledgerText, frozenIds: manifestIds });
+    // THE PAIRING COMES FROM THE FACE THAT ALREADY COMPUTES IT, not from a fourth copy of the rule.
+    // loadGermanSourceFace segments the ledger, joins its continuations, places its pages and then
+    // calls manifestAnchors, whose `anchorOf` says which frozen id each proposal id is published
+    // under. Supplying it here is what lets this stage compare the two namespaces at all; without it
+    // every unit whose proposal spelling differs from its frozen spelling was reported twice.
+    //
+    // A pairing failure is reported as the reconcile verdict rather than thrown away: if the face
+    // cannot pair the proposal with the manifest, that IS the reconciliation result, and it is a more
+    // precise statement than a list of name differences.
+    let anchorOf: Readonly<Record<string, string>> | undefined;
+    let pairingRefusal: string | undefined;
+    try {
+      anchorOf = loadGermanSourceFace(slug, root)?.anchors.anchorOf;
+    } catch (err: unknown) {
+      pairingRefusal = err instanceof Error ? err.message : String(err);
+    }
+    const segmented = segmentLedger({
+      ledgerText,
+      frozenIds: manifestIds,
+      ...(anchorOf !== undefined ? { anchorOf } : {}),
+    });
     if (segmented.status === "absent") {
       push("reconcile", "not-available", segmented.message, {
         code: segmented.code,
@@ -238,7 +259,20 @@ export async function runEditionPipeline(options: {
       germanIds = germanAlignableIds(segmented.blocks);
       const differences = segmented.differences;
       const detail = differences.map((d) => `${d.kind} ${d.unitId}: ${d.message}`);
-      if (differences.length > 0) {
+      if (pairingRefusal !== undefined) {
+        // Reported FIRST, because a list of name differences computed without a pairing describes
+        // the missing pairing rather than the edition, and would read as a content problem.
+        push(
+          "reconcile",
+          "failed",
+          `The proposal could not be paired with the frozen manifest: ${pairingRefusal}`,
+          {
+            code: "manifest-pairing-refused",
+            evidence: detail,
+            pending: [SENTENCE_UNIT_RULING],
+          },
+        );
+      } else if (differences.length > 0) {
         push(
           "reconcile",
           "failed",

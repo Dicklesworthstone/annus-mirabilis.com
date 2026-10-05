@@ -27,6 +27,28 @@ export type ReconcileInput = Readonly<{
   blocks: readonly ProposedBlock[];
   manifestUnits?: readonly (string | ManifestUnit)[] | undefined;
   frozenIds?: readonly string[] | undefined;
+  /**
+   * THE PROPOSAL AND THE MANIFEST ARE TWO NAMESPACES, and without this map they were compared by id
+   * equality, so every unit differed in spelling alone.
+   *
+   * `manifestAnchors.ts` says it plainly: the segmenter names blocks as it meets them, paragraphs
+   * `s0-p1`, `s0-p2` by count and displays `s0-eq1` by count, and "those are good ids for the
+   * pipeline and wrong ones to publish", while the frozen manifest never renumbers. So the proposal
+   * calls a thing `s0-eq1` that the manifest froze as `eq-s0-d1`, and calls `s0-p9` what the manifest
+   * froze as `s0-p11`. Compared directly, each such unit is reported TWICE -- extra in the ledger and
+   * missing from it -- for no reason but its name.
+   *
+   * Measured on mass-energy 2026-10-05: 29 unresolved differences, 14 of them exactly its seven
+   * displays double-counted, the other 15 the same thing one level up over its paragraphs.
+   *
+   * `anchorOf` maps a proposal id to the frozen id it is published under. It is produced by
+   * `manifestAnchors`, which pairs paragraphs and footnotes in PRINT order -- the manifest's numbers
+   * are not in print order, so pairing by number would be wrong -- and displays by the rule
+   * `blockPages.pairDisplays` already uses. Passing it here reuses that one rule instead of adding a
+   * third. Omitted, every comparison below is by id as before, so a caller that has no manifest face
+   * to pair against is unchanged.
+   */
+  anchorOf?: Readonly<Record<string, string>> | undefined;
 }>;
 
 /**
@@ -45,18 +67,22 @@ export function reconcileManifest(input: ReconcileInput): readonly Reconciliatio
   }
 
   const manifestSet = new Set(manifestUnits.map((u) => u.id));
-  const proposedBlockIds = new Set(input.blocks.map((b) => b.id));
+  // A proposal id reads as the frozen id it is published under, where the pairing says so. An id the
+  // map does not mention keeps its own name, so an unpaired unit is still reported.
+  const anchorOf = input.anchorOf ?? {};
+  const frozen = (id: string): string => anchorOf[id] ?? id;
+  const proposedBlockIds = new Set(input.blocks.map((b) => frozen(b.id)));
   const proposedSentenceIds = new Set<string>();
   for (const b of input.blocks) {
     for (const s of b.sentences) {
-      proposedSentenceIds.add(s.id);
+      proposedSentenceIds.add(frozen(s.id));
     }
   }
 
   // 1. Extra blocks in ledger (proposed block not in manifest, and none of its sentences are in manifest)
   for (const block of input.blocks) {
-    const hasBlock = manifestSet.has(block.id);
-    const hasSentence = block.sentences.some((s) => manifestSet.has(s.id));
+    const hasBlock = manifestSet.has(frozen(block.id));
+    const hasSentence = block.sentences.some((s) => manifestSet.has(frozen(s.id)));
     if (!hasBlock && !hasSentence) {
       differences.push({
         differenceId: `unit-extra-in-ledger:${block.id}`,

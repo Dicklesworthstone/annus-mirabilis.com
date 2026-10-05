@@ -196,10 +196,33 @@ describe("PLANT: the ledger-present branch measures instead of announcing", () =
     // The fixture ledger is a two-page skeleton and the manifest is the real twelve-page
     // Brownian inventory, so disagreement is the correct answer here. What matters is that
     // the answer is counted and named rather than announced.
+    //
+    // TWO CODES NOW REACH THAT ANSWER, and this pinned the only one the old code could produce.
+    // The stage pairs the proposal's ids with the frozen ones before comparing them, because the
+    // two are deliberately different namespaces; on this fixture that pairing REFUSES, which is
+    // correct and more precise than a list of name differences -- a two-page skeleton cannot be
+    // paired with a twelve-page inventory. Both codes are measurements, which is the property the
+    // plant is about, and the test below exercises the other one on a real paper.
     expect(reconcile?.outcome).toBe("failed");
+    expect(["reconciliation-differences", "manifest-pairing-refused"]).toContain(reconcile?.code);
+    expect(reconcile?.message).toMatch(/\d+ unresolved difference\(s\)|could not be paired/);
+    expect(reconcile?.message).not.toBe("Segmentation ran.");
+    expect((reconcile?.evidence ?? []).length).toBeGreaterThan(0);
+  });
+
+  test("the reconcile stage still reaches a counted difference list, on a paper whose proposal pairs", async () => {
+    // Without this the test above could pass on a stage that only ever refuses to pair. mass-energy
+    // pairs, so its differences are counted: 11 of them, all sentence-level, which is the ruling
+    // am-xz2d owns. Before the pairing landed it reported 29, 18 of which were one unit under two
+    // names.
+    const run = await runEditionPipeline({ slug: "mass-energy" });
+    const reconcile = stageOf(run, "reconcile");
     expect(reconcile?.code).toBe("reconciliation-differences");
     expect(reconcile?.message).toMatch(/\d+ unresolved difference\(s\)/);
-    expect(reconcile?.message).not.toBe("Segmentation ran.");
+    // The namespace class is gone: no difference names a display equation under either spelling.
+    const evidence = (reconcile?.evidence ?? []).join(" ");
+    expect(evidence).not.toMatch(/s\d+-eq\d+/);
+    expect(evidence).not.toMatch(/"eq-s\d+-d\d+"/);
   });
 
   test("the reconcile stage names the sentence-unit ruling it stops at, whatever its verdict", async () => {
