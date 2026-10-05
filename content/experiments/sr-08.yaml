@@ -415,6 +415,7 @@ acceptanceCases:
   - sr-08-pure-magnetic-low-speed
   - sr-08-crossed-fields-null
   - sr-08-boost-outside-declared-range-refused
+  - sr-lorentz-factor-has-no-value-at-light-speed
 defaultScenario: sr-08-pure-electric-0.6c
 tapeModel:
   modelId: field-frame-change-host

@@ -445,6 +445,7 @@ acceptanceCases:
   - sr-12-gaussian-pulse-0.5c
   - sr-12-current-loop-0.6c
   - sr-12-boost-outside-declared-range-refused
+  - sr-lorentz-factor-has-no-value-at-light-speed
 defaultScenario: sr-12-neutral-conductor-0.6
 tapeModel:
   modelId: charge-current-host

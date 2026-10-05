@@ -1,0 +1,33 @@
+# SR-06 reports no composed speed when one of the two is the speed of light (am-nxbq, item 2).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the frame-speed control, v/c, set to 1. SR-06's manifest
+# declares that control as an open interval at 1, with the reason "No inertial observer moves at or
+# beyond the speed of light", so the control's own declaration is the statement this result makes.
+#
+# WHY THE COMPOSITION ITSELF IS THE INTERESTING PART. Paper 3 section 5 composes two velocities and
+# finds the result stays below c: 0.99c composed with 0.99c gives 0.99995c, which the same evaluator
+# returns as a value. That is the law working. What it cannot do is take c as an argument, because the
+# frame it would compose in does not exist, and the evaluator distinguishes those two cases with
+# different outcomes rather than with one large number.
+id: "sr-06-composition-refuses-a-light-speed-frame"
+kind: "adversarial"
+title: "SR-06 reports no composed speed when one frame is given the speed of light"
+description: "SR-06 composes a frame speed with a speed measured in that frame, the addition theorem of paper 3 section 5. Given a frame speed of exactly c there is no inertial frame to compose in, and the evaluator reports a result outside its model domain naming the superluminal observer rather than a composed speed. Two subluminal speeds, however close to c, do compose: the same evaluator returns 0.9999494975 for 0.99 composed with 0.99, which is the result the laboratory exists to show."
+plausibleMistake: "That composing c with anything gives c, so the composition could simply return 1 and be done. That answer is true of light and false as a frame composition: the formula composes the speeds of two inertial frames, and there is no inertial frame moving at c whose coordinates the second speed could be measured in. Returning 1 would make the lab appear to have composed something it cannot."
+intendedFailure: "The evaluator checks each speed against its domain before forming the quotient, so no composed speed is produced from a light-speed frame. The scenario passes only when the result arrives on the composed speed naming the superluminal observer; a run that returned a number fails here, including 1, and so does one that refused on the second speed, which is subluminal and admissible."
+constantSetId: "modern-si-2019"
+owner: "kinematics.composeCollinearTyped"
+inputs:
+  beta:
+    value: 1
+    unit: "1"
+  beta2:
+    value: 0.5
+    unit: "1"
+expected:
+  status:
+    outputId: "composedSpeedOverC"
+    status: "outside-domain"
+    reasonCode: "superluminal-observer"
+modelVersion: 1
+schemaVersion: 1

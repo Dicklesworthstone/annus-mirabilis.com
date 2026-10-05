@@ -496,6 +496,7 @@ acceptanceCases:
   - sr-13-kaufmann-overlay
   - sr-13-bucherer-overlay
   - sr-13-custommass-outside-declared-range-refused
+  - sr-lorentz-factor-has-no-value-at-light-speed
 defaultScenario: sr-13-transverse-e-2ns
 tapeModel:
   modelId: electron-dynamics-host

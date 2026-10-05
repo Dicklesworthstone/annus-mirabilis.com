@@ -290,6 +290,7 @@ acceptanceCases:
   - sr-06-angled-90deg-0.6
   - sr-06-perpendicular-boosts-0.6
   - sr-06-framebeta-outside-declared-range-refused
+  - sr-06-composition-refuses-a-light-speed-frame
 defaultScenario: sr-06-collinear-0.6-0.6
 tapeModel:
   modelId: sr-06

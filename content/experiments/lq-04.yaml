@@ -356,6 +356,7 @@ acceptanceCases:
   - lq-04-dense-refusal
   - lq-04-derived-temperature
   - lq-04-referencetemperature-outside-declared-range-refused
+  - lq-04-dense-state-leaves-the-wien-regime
 defaultScenario: lq-04-halve-volume
 tapeModel:
   modelId: "lq-04"

@@ -1,0 +1,36 @@
+# The Lorentz factor has no value at |v| = c, and six laboratories share the case (am-nxbq, item 2).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the frame-speed control of whichever of these laboratories
+# the reader is in, set to 1 in units of c. SR-04 and SR-06 declare their speed controls as open
+# intervals at 1 precisely because of this; the others stop at 0.95 and reach the same evaluator through
+# a permalink or a tape.
+#
+# ONE SCENARIO, SIX REFERENCES, and that is deliberate rather than economical. SR-04, SR-07, SR-08,
+# SR-10, SR-12 and SR-13 each declare an output named lorentzFactor and each admits a result outside the
+# model domain on it. They share one quantity and one evaluator, which is the ownership rule this
+# repository states: a reusable law belongs to one owner, and six copies of this file differing only in
+# prose would be six places for that law to drift.
+#
+# WHAT THE RESULT IS. At |beta| = 1 the factor does not merely become large. The radical's argument is
+# zero, so the factor has no value at all, and above 1 it is not real. The evaluator states its domain
+# as |beta| < 1 and names the condition superluminal observer, which is the physical fact rather than a
+# drawing range: there is no inertial frame moving at the speed of light for the factor to belong to.
+id: "sr-lorentz-factor-has-no-value-at-light-speed"
+kind: "adversarial"
+title: "The Lorentz factor is reported as having no value at the speed of light, not as a large number"
+description: "The factor every relativity laboratory here divides by is one over the square root of one minus beta squared. At beta equal to one the radicand is zero and the quotient has no value; above one the radicand is negative and the factor is not real. The shared kinematics evaluator declares its domain as |beta| < 1 and reports a result outside that domain naming the superluminal observer, rather than returning an infinity, a NaN, or a very large finite number produced by a value just short of one. The same evaluator at beta 0.6 returns exactly 1.25."
+plausibleMistake: "That the factor at the speed of light is infinite, so reporting a very large number, or an Infinity, carries the same meaning. An infinity is an arithmetic artefact of dividing by something that has become zero; the physical statement is that there is no inertial observer there at all, so there is no frame whose factor is being asked for. A reader shown a large number may reasonably conclude that the speed is attainable and the consequences merely extreme."
+intendedFailure: "The evaluator checks its domain before forming the radical, so no factor is produced at or beyond the speed of light. The scenario passes only when the result arrives on the Lorentz factor naming the superluminal observer as its condition; a run that returned a number fails here, including an infinity, and so does one that reported the result as not applicable, which is a different statement the same module uses where a quantity is undefined for a reason other than the domain."
+constantSetId: "modern-si-2019"
+owner: "kinematics.gammaTyped"
+inputs:
+  beta:
+    value: 1
+    unit: "1"
+expected:
+  status:
+    outputId: "lorentzFactor"
+    status: "outside-domain"
+    reasonCode: "superluminal-observer"
+modelVersion: 1
+schemaVersion: 1

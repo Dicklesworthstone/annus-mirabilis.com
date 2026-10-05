@@ -298,6 +298,7 @@ acceptanceCases:
   - sr-07-oblique-wave-0.6c
   - sr-07-equation-1-grouping
   - sr-07-boostbeta-outside-declared-range-refused
+  - sr-lorentz-factor-has-no-value-at-light-speed
 defaultScenario: sr-07-plane-wave-0.6c
 tapeModel:
   modelId: sr-07

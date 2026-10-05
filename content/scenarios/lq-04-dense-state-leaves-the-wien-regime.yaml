@@ -1,0 +1,40 @@
+# LQ-04 reports no Wien entropy density in a dense state (am-nxbq, item 2).
+#
+# WHICH CONTROLS A READER MOVES TO REACH IT: the radiation energy and the reference volume together,
+# which set the spectral energy density the instrument then takes the entropy of. Raising the energy in
+# a fixed volume, or shrinking the volume at fixed energy, carries the density past A times nu cubed,
+# which at 100 THz is about 6.1806e-16 joules per cubic metre per hertz.
+#
+# WHY THAT CEILING IS WHERE THE MODEL STOPS. Wien's law is the high-frequency, low-density form of the
+# radiation law, and the entropy expression paper 1 builds on it inherits that restriction: past the
+# ceiling the logarithm's argument reaches one and the expression stops describing the state. AGENTS.md
+# names this case in its own table of typed results, as "A Wien-only entropy comparison in a dense
+# state". The instrument's manifest already admits a result outside the model domain on both of its
+# spectral entropy density outputs, so the page is built to show it.
+#
+# WHAT A NUMBER HERE WOULD CLAIM, and why the refusal matters: the entropy comparison is the whole
+# argument of section 6, the step from which the light-quantum hypothesis is drawn. A value computed
+# past the ceiling would be an entropy for a state the expression does not describe, carried into that
+# argument as though it were evidence for it.
+id: "lq-04-dense-state-leaves-the-wien-regime"
+kind: "adversarial"
+title: "LQ-04 reports no spectral entropy density once the state is too dense for Wien's law"
+description: "The spectral entropy density LQ-04 compares between two volumes is Wien's, which holds where the spectral energy density is well below A times the cube of the frequency. At 100 THz that ceiling is about 6.1806e-16 joules per cubic metre per hertz; at 1e-15 the state is above it. The evaluator reports a result outside its model domain, naming the Wien regime, rather than evaluating a logarithm whose argument has reached one. The same frequency at 1e-18 returns a value, so the density is the only thing that changed."
+plausibleMistake: "That Wien's law is simply an approximation, so using it in a dense state gives an approximate entropy rather than no entropy. The expression does not degrade gracefully here: its logarithm takes the ratio of the density to the ceiling, which is at most one inside the domain, and above the ceiling the sign of the result turns over. An approximate answer and a wrong-signed one are not the same kind of thing."
+intendedFailure: "The evaluator reports the state as outside the Wien regime before taking the logarithm, so no entropy density is produced for a state the expression does not describe. The scenario passes only when that result arrives on the spectral entropy density naming the Wien regime; a run that returned a number fails here, and so does one that reported the zero-density limit, which is the other non-numeric result this same function gives and a different statement."
+constantSetId: "modern-si-2019"
+owner: "radiation.wienSpectralEntropyDensity"
+inputs:
+  spectralEnergyDensity:
+    value: 1.0e-15
+    unit: "J/(m^3 Hz)"
+  frequency:
+    value: 1.0e+14
+    unit: "Hz"
+expected:
+  status:
+    outputId: "spectralEntropyDensity"
+    status: "outside-domain"
+    reasonCode: "outside-wien-regime"
+modelVersion: 1
+schemaVersion: 1

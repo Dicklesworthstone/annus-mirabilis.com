@@ -78,6 +78,7 @@ import {
   printedMassConversion,
 } from "../../physics/reference/massEnergy.ts";
 import { stoppingPotentialFromEv } from "../../physics/reference/photoelectric.ts";
+import { wienSpectralEntropyDensity } from "../../physics/reference/radiation/entropy.ts";
 import {
   aperturePower,
   bandLimitedMeanQuantumEnergyWien,
@@ -725,6 +726,79 @@ const OWNERS: OwnerRecord[] = [
    * `reason` and no code. Pinning the prose would make rewording it turn the scenario red, and the
    * triple the runner compares is still discriminating: the output, the status, and which output.
    */
+  /**
+   * THE LORENTZ FACTOR WHERE THERE IS NO OBSERVER TO HAVE ONE (am-nxbq, item 2).
+   *
+   * Every relativity laboratory declares `outside-domain` on at least one output, and the condition
+   * their shared evaluator states is `superluminal-observer`: "No inertial observer at |v| >= c.
+   * Evaluator domain is |beta| < 1." At |beta| = 1 the factor does not merely become large, it has no
+   * value, and the evaluator says which kind of no-value that is.
+   *
+   * A SECOND OWNER RATHER THAN A REPAIR, for the reason recorded on am-nxbq: the `kinematics` owner a
+   * few entries below DROPS every non-value result (`if (g.status === "value") out.gamma = ...`), so a
+   * superluminal request returns an EMPTY record and a scenario fails with a missing output rather than
+   * a typed refusal. Nine scenarios reference that owner, so changing what it returns is a separate
+   * decision with its own evidence.
+   */
+  {
+    id: "kinematics.gammaTyped",
+    sourcePath: kinematicsPath,
+    fn: (ctx) => {
+      const result = gamma(num(ctx.inputs, "beta"));
+      const got = nonNumericOr(result as unknown as Record<string, unknown>, "lorentzFactor");
+      return typeof got === "number" ? { lorentzFactor: got } : got;
+    },
+  },
+  /**
+   * The collinear composition, whose own refusal is the one paper 3 section 5 is about: two subluminal
+   * speeds compose to a subluminal speed, so a composition that left the open unit interval would be a
+   * defect in the composition rule rather than in the inputs. The evaluator states both cases.
+   */
+  {
+    id: "kinematics.composeCollinearTyped",
+    sourcePath: kinematicsPath,
+    fn: (ctx) => {
+      const result = composeCollinear(num(ctx.inputs, "beta"), num(ctx.inputs, "beta2"));
+      // Named as sr-06's own output is named, so a scenario pins the lab's vocabulary.
+      const got = nonNumericOr(result as unknown as Record<string, unknown>, "composedSpeedOverC");
+      return typeof got === "number" ? { composedSpeedOverC: got } : got;
+    },
+  },
+  /**
+   * THE WIEN ENTROPY DENSITY, WHICH HAS A DOMAIN AND A LIMIT (am-nxbq, item 2).
+   *
+   * AGENTS.md's `outside-domain` row names this case: "A Wien-only entropy comparison in a dense
+   * state". Wien's law is the high-frequency, low-density form, and the entropy expression paper 1
+   * builds on it has no standing where the density reaches A*nu^3. The evaluator states that as
+   * `outside-wien-regime` with a model domain kind, and a reader who raises the density into the
+   * Rayleigh-Jeans region reaches it.
+   *
+   * The same function also carries an `analytic-limit` at exactly zero density, with the description
+   * "Entropy density vanishes continuously at zero radiation density": the expression contains
+   * rho*ln(rho), which is a 0*(-infinity) the evaluator will not perform, and the limit is zero. So one
+   * owner serves two different non-numeric cases on one quantity, and a scenario picks which by moving
+   * the density.
+   */
+  {
+    id: "radiation.wienSpectralEntropyDensity",
+    sourcePath: fileURLToPath(
+      new URL("../../physics/reference/radiation/entropy.ts", import.meta.url),
+    ),
+    fn: (ctx) => {
+      const result = wienSpectralEntropyDensity(
+        num(ctx.inputs, "spectralEnergyDensity"),
+        num(ctx.inputs, "frequency"),
+        getConstantSet(
+          ctx.constantSetId === "modern-si-2019" ? "modern-si-2019" : "modern-si-2019",
+        ),
+      );
+      const got = nonNumericOr(
+        result as unknown as Record<string, unknown>,
+        "spectralEntropyDensity",
+      );
+      return typeof got === "number" ? { spectralEntropyDensity: got } : got;
+    },
+  },
   /**
    * THE MASS COEFFICIENT AT VANISHING SPEED (am-nxbq, item 2).
    *

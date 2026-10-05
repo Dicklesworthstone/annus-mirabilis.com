@@ -292,6 +292,7 @@ acceptanceCases:
   - sr-04-galilean-shelf
   - sr-04-construct-0.6c
   - sr-04-voverc-outside-declared-range-refused
+  - sr-lorentz-factor-has-no-value-at-light-speed
 defaultScenario: sr-04-galilean-shelf
 tapeModel:
   modelId: "sr-04"
