@@ -26,7 +26,8 @@ export type AlignableKind =
   | "part-heading"
   | "masthead"
   | "footnote"
-  | "closing";
+  | "closing"
+  | "display";
 
 export type AlignableClassification = Readonly<{
   id: string;
@@ -35,6 +36,12 @@ export type AlignableClassification = Readonly<{
 }>;
 
 export function classifyAlignableUnit(raw: string): AlignableClassification | null {
+  // CHECKED FIRST, because a display anchor is not an "alignable unit id" in the narrow sense
+  // `parseAlignableUnitId` covers, so the early return below refuses it. Placing this branch after
+  // that return made it unreachable, which the test that reads the real corpus caught at once.
+  if (parseEquationAnchor(raw).ok) {
+    return { id: raw, kind: "display", alignsAt: "block" };
+  }
   const parsed = parseAlignableUnitId(raw);
   if (!parsed.ok) return null;
   if (parseSentenceId(raw).ok) {
@@ -58,8 +65,29 @@ export function classifyAlignableUnit(raw: string): AlignableClassification | nu
   return { id: parsed.value as string, kind: "heading", alignsAt: "block" };
 }
 
+/**
+ * A DISPLAY EQUATION IS AN ALIGNABLE GERMAN UNIT, and leaving it out emptied the alignment.
+ *
+ * `parseAlignableUnitId` covers sentences, headings, mastheads, part headings, footnotes and
+ * closings, and not display-equation anchors -- so every authored edge from a printed display was
+ * refused as "not a permanent German alignable id". Measured across the four papers on 2026-10-05:
+ * 200 such edges, 7 in mass-energy, 52 in light-quanta, 43 in brownian-motion and 98 in
+ * special-relativity, and 200 is also exactly the number of units each manifest declares with kind
+ * `display-equation`. Every one of the 200 is present in its own manifest, so these were not
+ * dangling references; the predicate simply could not describe them. Each refused edge also cost
+ * its English unit an `unaligned-target`, which is why the issue counts came in matched pairs.
+ *
+ * The rejection is kept where it belongs: a display index is 1-indexed, so `eq-s3-d0` is still
+ * refused, and the boundary test that pins that passes `eq-s3-d1` as a German id already.
+ *
+ * ONE id in the corpus is still refused after this, and deliberately: special-relativity's `eq-A`,
+ * Einstein's printed equation (A) on page 918, whose manifest unit records `originalLabel: (A)`.
+ * The anchor grammar accepts a numeric printed label (`eq-5`, `eq-s9-5`) and not a letter, and the
+ * grammar is owned by am-cm-id-scheme-8bn rather than by alignment, so it is reported as one true
+ * issue instead of quietly widened here.
+ */
 export function isPermanentGermanId(raw: string): boolean {
-  return parseAlignableUnitId(raw).ok;
+  return parseAlignableUnitId(raw).ok || parseEquationAnchor(raw).ok;
 }
 
 export function isPermanentEnglishId(raw: string): boolean {
