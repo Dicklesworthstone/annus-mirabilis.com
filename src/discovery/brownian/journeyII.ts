@@ -166,6 +166,21 @@ export const FORK_NAEGELI: Fork = {
       ],
       outcome: {
         type: "dead-end-on-constraint",
+        // THE CONSTRAINT THIS BRANCH FAILS ON, NAMED AS A CARD AND NOT ONLY IN PROSE.
+        //
+        // AGENTS.md: "A failed alternative must fail on a stated constraint or observation." The
+        // sentence below named two -- Fick's law and Gouy's observation -- and the structured field was
+        // absent, so the fork contract had nothing to check. It went unreported because checkJourney
+        // ran only over a fixture (am-4k0m); run over this journey it refuses with
+        // missing-constraint-ref, which is the gate working on its first real population.
+        //
+        // Gouy rather than Fick, following the two existing precedents in this corpus: light-quanta's
+        // dead end references lenard-1902-photoelectric and relativity's references
+        // michelson-morley-1887-no-drift, both OBSERVATIONS rather than laws. Gouy 1888 is the
+        // observation that the motion never dies away, which is what "in still water a particle stays
+        // where it is" contradicts directly. The card is on this paper's shelf, and the sentence still
+        // names both constraints, so nothing a reader is told has changed.
+        constraintRef: "gouy-1888-brownian-motion",
         plainLanguage:
           "The estimate for one impact is sound, and the conclusion does not follow from it. With the kicks off nothing spreads, which contradicts Fick's law for dissolved matter and Gouy's observation that the motion never dies away.",
       },
