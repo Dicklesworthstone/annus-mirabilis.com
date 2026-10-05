@@ -7,6 +7,7 @@ import {
   type WalkthroughAction,
   type WalkthroughTarget,
 } from "./walkthroughActions.ts";
+import { tapePath } from "../../reader/sitePaths.ts";
 import { checkpointAt, type WalkthroughCatalogue } from "./walkthroughCheckpoints.ts";
 
 async function loadCatalogue(): Promise<WalkthroughCatalogue> {
@@ -107,7 +108,7 @@ export function WalkthroughPlayer({
             {walkthroughs.map((entry) => <option key={entry.tapeId} value={entry.tapeId}>{entry.title}</option>)}
           </select>
           {walkthrough.description && <p>{walkthrough.description}</p>}
-          <p><a href={`/tapes/${walkthrough.tapeId}/`}>Read this walkthrough, its predictions, and its recorded values</a></p>
+          <p><a href={tapePath(walkthrough.tapeId)}>Read this walkthrough, its predictions, and its recorded values</a></p>
           {walkthrough.checkpoints.length === 0 ? (
             <p>This walkthrough has no recorded checkpoint to restore.</p>
           ) : (
