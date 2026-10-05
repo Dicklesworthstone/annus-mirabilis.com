@@ -414,7 +414,7 @@ describe("PLANT: the ledger-present branch measures instead of announcing", () =
  * Renaming that site's code now turns this test red, which it did not before.
  *
  * WHAT THE EARLIER REMOVAL WAS FOR, kept because the reasoning still governs. It cited
- * e2e-edition-pipeline.ts:295, and the stale-citation ratchet refused it as code-mismatched. The
+ * e2e-edition-pipeline.ts:345, and the stale-citation ratchet refused it as code-mismatched. The
  * gate's rule is to plant before repointing, so I renamed that site's code to
  * "corpus-empty-planted" and ran this suite: 12 pass, 0 fail. The citation was a claim I had not
  * verified and could not.
@@ -432,7 +432,7 @@ describe("PLANT: the ledger-present branch measures instead of announcing", () =
  * standing - execution falls through to loadReadingFiles, which throws ENOENT and fails the stage.
  */
 describe("edition pipeline: an absent corpus is not a compiler failure", () => {
-  test("the abort records its own code and spares the compiler (e2e-edition-pipeline.ts:295)", async () => {
+  test("the abort records its own code and spares the compiler (e2e-edition-pipeline.ts:345)", async () => {
     const emptyRoot = mkdtempSync(join(tmpdir(), "am-edition-no-corpus-"));
     const run = await runEditionPipeline({ slug: "brownian-motion", root: emptyRoot });
 
@@ -457,7 +457,7 @@ describe("edition pipeline: an absent corpus is not a compiler failure", () => {
     expect(run.exitCode).toBe(0);
   });
 
-  test("a present but empty corpus aborts on its own site (e2e-edition-pipeline.ts:305)", async () => {
+  test("a present but empty corpus aborts on its own site (e2e-edition-pipeline.ts:355)", async () => {
     // THE SECOND corpus-empty SITE, and it was invisible until the scanner stopped misreading it.
     // :295 refuses a MISSING content directory; :305 refuses one that is PRESENT and holds no
     // records. The two share the code, so the scanner counted corpus-empty as 1 untested of 1 and
