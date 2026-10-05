@@ -26,7 +26,8 @@ export type ReplayOptions = Readonly<{
 }>;
 
 /**
- * Replays a TapeV2 against a ReplayRunner, verifying compatibility and checkpoint invariants.
+ * Resolve a walkthrough and its endpoint before changing the laboratory. A missing reference must
+ * never turn into an apparently successful replay of the enclosing link's unrelated settings.
  */
 export function replayTape(
   tape: TapeV2,
@@ -34,49 +35,133 @@ export function replayTape(
   options?: ReplayOptions,
 ): TapeReplayResult {
   const isForceNewRun = Boolean(options?.forceNewRun);
-
-  // 1. Compatibility Check (unless forced as a new run)
+  const invalid = (reason: string, notice: string): TapeReplayResult => ({
+    kind: "invalid",
+    reason,
+    notice,
+  });
+  if (tape.experimentId !== runner.environment.experimentId) {
+    return invalid(
+      "tape-experiment-mismatch",
+      `This tape belongs to ${tape.experimentId}, not ${runner.environment.experimentId}.`,
+    );
+  }
   if (!isForceNewRun) {
+    if (tape.mode !== runner.environment.mode) {
+      return invalid(
+        "tape-mode-mismatch",
+        "This tape was recorded in a different laboratory mode.",
+      );
+    }
     const comp = checkTapeCompatibility(tape, runner.environment);
     if (!comp.compatible) {
-      return {
-        kind: "refusal",
-        refusalCode: comp.refusalCode,
-        notice: comp.notice,
-        repair: comp.repair,
-        tapeIdentity: comp.tapeIdentity,
-        currentIdentity: comp.currentIdentity,
-        offerNewRun: true,
-      };
+      return { ...comp, kind: "refusal" };
     }
   }
 
-  // 2. Resolve teaching tape if referenced
   let eventsToReplay = tape.events;
   let initialConditionsToApply = tape.initialConditions;
-
-  if (tape.teachingTapeRef) {
-    if (typeof runner.resolveTeachingTape === "function") {
-      const teachingTape = runner.resolveTeachingTape(tape.teachingTapeRef.tapeId);
-      if (teachingTape) {
-        initialConditionsToApply = teachingTape.initialConditions;
-        eventsToReplay = teachingTape.events.slice(0, tape.teachingTapeRef.stepIndex + 1);
+  const ref = tape.teachingTapeRef;
+  if (ref) {
+    if (!Number.isSafeInteger(ref.stepIndex) || ref.stepIndex < 0) {
+      return invalid(
+        "teaching-tape-step-invalid",
+        "The walkthrough step must be a non-negative whole number.",
+      );
+    }
+    if (!runner.resolveTeachingTape) {
+      return invalid(
+        "teaching-tape-unavailable",
+        `This laboratory cannot resolve walkthrough ${ref.tapeId}.`,
+      );
+    }
+    let teachingTape: TapeV2 | null;
+    try {
+      teachingTape = runner.resolveTeachingTape(ref.tapeId);
+    } catch (err: unknown) {
+      return invalid(
+        "teaching-tape-resolution-failed",
+        `Walkthrough ${ref.tapeId} could not be loaded: ${String(err)}`,
+      );
+    }
+    if (!teachingTape) {
+      return invalid(
+        "teaching-tape-unavailable",
+        `No published walkthrough is called ${ref.tapeId}.`,
+      );
+    }
+    if (teachingTape.experimentId !== runner.environment.experimentId) {
+      return invalid(
+        "teaching-tape-experiment-mismatch",
+        `Walkthrough ${ref.tapeId} belongs to ${teachingTape.experimentId}, not ${runner.environment.experimentId}.`,
+      );
+    }
+    if (!isForceNewRun) {
+      if (teachingTape.mode !== tape.mode) {
+        return invalid(
+          "teaching-tape-mode-mismatch",
+          "The walkthrough and shared link name different laboratory modes.",
+        );
       }
+      const comp = checkTapeCompatibility(teachingTape, runner.environment);
+      if (!comp.compatible) return { ...comp, kind: "refusal" };
+      if (teachingTape.seed !== tape.seed) {
+        return invalid(
+          "teaching-tape-seed-mismatch",
+          "The walkthrough and shared link name different random seeds. Start an explicitly new run to change the seed.",
+        );
+      }
+    }
+    // An event-free walkthrough can name its opening settings with step zero.
+    if (ref.stepIndex >= Math.max(1, teachingTape.events.length)) {
+      return invalid(
+        "teaching-tape-step-unavailable",
+        `Walkthrough ${ref.tapeId} has no event at step ${ref.stepIndex}.`,
+      );
+    }
+    initialConditionsToApply = teachingTape.initialConditions;
+    eventsToReplay = teachingTape.events.slice(0, ref.stepIndex + 1);
+  }
+
+  let previousAction = -1;
+  for (const event of eventsToReplay) {
+    if (!Number.isSafeInteger(event.actionIndex) || event.actionIndex < 0 || event.actionIndex < previousAction) {
+      return invalid(
+        "tape-event-order-invalid",
+        "Replay events must have non-decreasing non-negative whole-number action indices.",
+      );
+    }
+    previousAction = event.actionIndex;
+  }
+  if (!isForceNewRun) {
+    const accepted = tape.acceptedCheckpoint.acceptedActionIndex;
+    if (!Number.isSafeInteger(accepted) || accepted < 0) {
+      return invalid(
+        "tape-checkpoint-action-invalid",
+        "The accepted checkpoint must name a non-negative whole-number action index.",
+      );
+    }
+    // Inline tapes may retain later controls. Restore the recorded checkpoint, not a later state.
+    // A teaching reference already chooses its endpoint; conflicting endpoints are refused.
+    if (!ref) eventsToReplay = eventsToReplay.filter((event) => event.actionIndex <= accepted);
+    const endpoint = eventsToReplay.at(-1)?.actionIndex ?? 0;
+    if (endpoint !== accepted) {
+      return invalid(
+        "tape-checkpoint-action-unreachable",
+        `The requested replay ends at action ${endpoint}, but its checkpoint names action ${accepted}.`,
+      );
     }
   }
 
-  // 3. Apply Initial Conditions at actionIndex 0
   try {
     runner.applyInitialConditions(initialConditionsToApply);
   } catch (err: unknown) {
-    return {
-      kind: "invalid",
-      notice: `Failed to apply initial conditions: ${String(err)}`,
-      reason: "initial-conditions-failed",
-    };
+    return invalid(
+      "initial-conditions-failed",
+      `Failed to apply initial conditions: ${String(err)}`,
+    );
   }
 
-  // 4. Apply Control Events in Strict Chronological Order
   let executedCount = 0;
   try {
     for (const evt of eventsToReplay) {
@@ -84,27 +169,34 @@ export function replayTape(
       executedCount++;
     }
   } catch (err: unknown) {
-    return {
-      kind: "invalid",
-      notice: `Failed to replay event at actionIndex ${eventsToReplay[executedCount]?.actionIndex}: ${String(err)}`,
-      reason: "event-replay-failed",
-    };
+    return invalid(
+      "event-replay-failed",
+      `Failed to replay event at actionIndex ${eventsToReplay[executedCount]?.actionIndex}: ${String(err)}`,
+    );
   }
 
-  // 5. Verify Checkpoint Invariant
-  const replayedCheckpoint = runner.getAcceptedCheckpoint();
-  const state = runner.getCurrentState();
-
-  if (!isForceNewRun) {
-    if (replayedCheckpoint.digest !== tape.acceptedCheckpoint.digest) {
-      return {
-        kind: "invariant-violation",
-        notice:
-          "The calculation did not satisfy its required consistency checks. Checkpoint digest mismatch during replay.",
-        storedDigest: tape.acceptedCheckpoint.digest,
-        replayedDigest: replayedCheckpoint.digest,
-      };
-    }
+  let replayedCheckpoint: TapeAcceptedCheckpoint;
+  let state: Record<string, number | string>;
+  try {
+    replayedCheckpoint = runner.getAcceptedCheckpoint();
+    state = runner.getCurrentState();
+  } catch (err: unknown) {
+    return invalid(
+      "checkpoint-read-failed",
+      `The replayed state could not be read: ${String(err)}`,
+    );
+  }
+  if (
+    !isForceNewRun &&
+    (replayedCheckpoint.digest !== tape.acceptedCheckpoint.digest ||
+      replayedCheckpoint.acceptedActionIndex !== tape.acceptedCheckpoint.acceptedActionIndex)
+  ) {
+    return {
+      kind: "invariant-violation",
+      notice: `The calculation did not satisfy its required consistency checks. Checkpoint mismatch during replay (recorded action ${tape.acceptedCheckpoint.acceptedActionIndex}, replayed action ${replayedCheckpoint.acceptedActionIndex}).`,
+      storedDigest: tape.acceptedCheckpoint.digest,
+      replayedDigest: replayedCheckpoint.digest,
+    };
   }
 
   const runId = isForceNewRun
