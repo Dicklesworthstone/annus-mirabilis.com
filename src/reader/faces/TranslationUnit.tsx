@@ -1,6 +1,7 @@
 import { renderToString } from "katex";
 import type { ReviewRecord } from "../../content/schemas/review.ts";
 import type { EditorialNote, TranslationUnit } from "../../content/schemas/source.ts";
+import { splitSourceSentenceId } from "../anchors/emitAnchor.ts";
 import { EditorialNoteMarker } from "./EditorialNoteMarker.tsx";
 import { renderInlines, unitTerms } from "./inlines.tsx";
 import { evaluateUnitReviewState } from "./reviewState.ts";
@@ -70,6 +71,15 @@ export function TranslationUnitComponent({
 
   const matchingNotes = editorialNotes.filter((n) => n.affectedIds.includes(unit.id));
 
+  /**
+   * The source sentence id this unit is the FIRST English rendering of, or null.
+   *
+   * Only the "a" part carries it: the base anchor must land on one element, and the first is where a
+   * reader following a link to that German sentence should arrive. A unit with no letter suffix is
+   * already anchored under its own id and needs nothing.
+   */
+  const splitBaseId = splitSourceSentenceId(unit.id);
+
   return (
     <article
       id={`${anchorPrefix}${unit.id}`}
@@ -84,6 +94,22 @@ export function TranslationUnitComponent({
       tabIndex={-1}
       lang={lang}
     >
+      {/*
+        THE GERMAN SENTENCE'S OWN ID, ON THE FIRST ENGLISH SENTENCE THAT RENDERS IT.
+        AGENTS.md: "Anchors are content ids ... and they are identical across every face, so switching
+        faces keeps the reader's place." Where a German sentence becomes several English ones it keeps
+        the source id with a letter suffix, so the English face carried s4-p6-s7a, s7b and s7c and NOT
+        s4-p6-s7 -- and a link from any other face to that sentence landed nowhere. Measured on the
+        built faces 2026-10-05: 59 source sentences are split this way (mass-energy 2, light-quanta 15,
+        brownian-motion 11, special-relativity 31) and in every one of the 59 the base id was absent
+        from the English face. The weave's bm-06 pointer at s4-p6-s7 is the one that surfaced it.
+        An element cannot carry two ids, so the base is an empty anchor on the first part, which is the
+        same device the German face uses for a retired id at a page join.
+      */}
+      {splitBaseId !== null && (
+        <span id={`${anchorPrefix}${splitBaseId}`} data-split-source-anchor="" />
+      )}
+
       <div className="unit-header">
         <button
           type="button"

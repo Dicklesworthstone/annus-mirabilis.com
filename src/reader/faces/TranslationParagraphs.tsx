@@ -31,6 +31,7 @@ import type {
   TranslationUnit,
 } from "../../content/schemas/source.ts";
 import { printedDisplay } from "../../equations/printed/printedDisplays.ts";
+import { splitSourceSentenceId } from "../anchors/emitAnchor.ts";
 import { EditorialNoteMarker } from "./EditorialNoteMarker.tsx";
 import { renderInlines, unitTerms } from "./inlines.tsx";
 import { PageTurnMark } from "./PageTurnMark.tsx";
@@ -227,8 +228,15 @@ export function TranslationParagraphs({
         </Fragment>
       );
     }
+    const splitBaseId = splitSourceSentenceId(u.id);
     return (
       <Fragment key={u.id}>
+        {/* The German sentence's own id, on the first English sentence that renders it. An element
+            cannot carry two ids, so the base is an empty anchor beside the unit -- the same device the
+            German face uses for a retired id at a page join. See splitSourceSentenceId. */}
+        {splitBaseId !== null && (
+          <span id={`${anchorPrefix}${splitBaseId}`} data-split-source-anchor="" />
+        )}
         <span {...unitAttributes(u)} className="translation-unit">
           {pageMarks(u)}
           {renderInlines(

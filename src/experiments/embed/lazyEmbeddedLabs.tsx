@@ -62,6 +62,12 @@ import "../../equations/equations.css";
 // pages and not in the embed. The panel's disclosure is CSS alone (:has(), no script), so the
 // stylesheet is not decoration here: it is what closes the levels.
 import "../../reader/faces/equationExplainer.css";
+// A laboratory that weaves its accepted results into the paper's argument carries the weave's own
+// pointer styling (bm-01 and bm-06, am-08rk). It reached the lab route and not the embed route, so an
+// embedded laboratory rendered those pointers unstyled -- the same shape as the explanation panel
+// above, and the reason this file's header says every stylesheet a laboratory reaches is imported
+// HERE rather than fetched with its chunk.
+import "../../reader/weave/resultWeave.css";
 import "../../experiments/labels/executionChrome.css";
 import "../../experiments/permalink/permalink.css";
 import "../../components/lab/showTheCode.css";

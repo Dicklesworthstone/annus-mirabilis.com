@@ -89,3 +89,25 @@ export function emitAnchor(unit: EmittableUnit): string {
 export function emitContentId(unit: EmittableUnit): string {
   return emitAnchor(unit).slice(1);
 }
+
+/**
+ * THE GERMAN SENTENCE ID A SPLIT ENGLISH UNIT IS THE FIRST RENDERING OF, or null.
+ *
+ * AGENTS.md: a German sentence rendered as several English ones keeps the source id with a letter
+ * suffix (`s3-p2-s1a`, `s3-p2-s1b`), and separately: "Anchors are content ids ... identical across
+ * every face, so switching faces keeps the reader's place." Those two together mean the English face
+ * must still answer to the unsuffixed source id, and it did not. Measured on the built faces
+ * 2026-10-05: 59 source sentences are split (mass-energy 2, light-quanta 15, brownian-motion 11,
+ * special-relativity 31) and in every one the base id was absent from the English face, so a link from
+ * any other face to one of those sentences landed nowhere.
+ *
+ * Only the FIRST part answers: an id lands on one element, and the first English sentence is where a
+ * reader following that link should arrive. A unit with no suffix is already anchored under its own id.
+ *
+ * Here rather than in a renderer because two of them emit these anchors -- TranslationUnit for a
+ * standalone unit and TranslationParagraphs for a unit inside a paragraph -- and a rule kept in two
+ * places is a rule that will hold in one of them.
+ */
+export function splitSourceSentenceId(unitId: string): string | null {
+  return /^(s\d+-p\d+-s\d+)a$/.exec(unitId)?.[1] ?? null;
+}
