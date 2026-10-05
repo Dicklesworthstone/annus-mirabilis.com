@@ -361,11 +361,61 @@ function conditionalCodeSites(source: string, relPath: string): RefusalThrowSite
 /** The property names that carry a refusal code, shared by the line patterns and the AST pass. */
 const CODE_PROPERTY_NAMES = new Set(["code", "rule", "refusalCode", "errorCode", "kind"]);
 
+/**
+ * Comment text blanked with spaces, keeping every newline and the exact length.
+ *
+ * WHY A TOKENIZER AND NOT A REGEX. This scanner matches line by line, so it reads a comment
+ * DESCRIBING a refusal as a refusal. AGENTS.md states the rule it breaks -- a gate that forbids or
+ * counts a construct must read code, not text -- and names the direction of the damage: the densest
+ * prose about a construct is the documentation explaining it, so a gate good enough to explain
+ * itself is positioned to miscount on its own explanation. That is not hypothetical here. The
+ * docblock below carries a paragraph warning the author not to write the two-word throw form or a
+ * quoted property literal, because an earlier draft of that very note created a phantom site at its
+ * own line. The contortion was the workaround; this is the fix.
+ *
+ * Measured across src/ and scripts/ before the change: 2 of 2423 reported sites had their line
+ * inside a comment, `src/equations/alternateForms.ts:8` and
+ * `src/content/foundations/registry.ts:168`. Small, and in the fail-open direction for the census:
+ * a site that does not exist is counted, then reported tested or untested on no evidence either way.
+ *
+ * The token scan is used rather than a regex because a regex cannot reliably tell a comment opener
+ * inside a string from one that opens a comment, and this file already imports the compiler. Length
+ * and newlines are preserved exactly so that every line number this function reports is unchanged.
+ */
+export function blankCommentText(source: string, relPath: string): string {
+  const scanner = ts.createScanner(
+    ts.ScriptTarget.Latest,
+    // Trivia is NOT skipped: comments are the tokens this needs to see.
+    false,
+    relPath.endsWith(".tsx") ? ts.LanguageVariant.JSX : ts.LanguageVariant.Standard,
+    source,
+  );
+  const out = source.split("");
+  let token = scanner.scan();
+  while (token !== ts.SyntaxKind.EndOfFileToken) {
+    if (
+      token === ts.SyntaxKind.SingleLineCommentTrivia ||
+      token === ts.SyntaxKind.MultiLineCommentTrivia
+    ) {
+      const start = scanner.getTokenStart();
+      const end = scanner.getTokenEnd();
+      for (let i = start; i < end; i++) {
+        // Newlines survive, so a block comment does not merge the lines around it.
+        if (out[i] !== "\n") out[i] = " ";
+      }
+    }
+    token = scanner.scan();
+  }
+  return out.join("");
+}
+
 export function scanRefusalThrowSites(source: string, relPath: string): RefusalThrowSite[] {
   const sites: RefusalThrowSite[] = [];
-  const lines = source.split("\n");
-  const passOutcomeLines = passOutcomeRecordLines(source);
-  const typeLines = typeMemberLines(source);
+  // Comments blanked first: a note about a refusal is not a refusal. See blankCommentText.
+  const code = blankCommentText(source, relPath);
+  const lines = code.split("\n");
+  const passOutcomeLines = passOutcomeRecordLines(code);
+  const typeLines = typeMemberLines(code);
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i] ?? "";
@@ -402,9 +452,12 @@ export function scanRefusalThrowSites(source: string, relPath: string): RefusalT
       // immediately after the open parenthesis and those sites have a brace there, so the
       // property check below still answers for them.
       //
-      // This comment is written without the two-word throw form and without a quoted
-      // property literal on purpose. The scanner scans its own source, and an earlier draft of
-      // this note created a phantom site at this very line by containing both.
+      // HISTORY, KEPT BECAUSE IT EXPLAINS THE SHAPE OF THIS NOTE. This comment was written
+      // without the two-word throw form and without a quoted property literal on purpose,
+      // because the scanner scanned its own source and an earlier draft of this note created a
+      // phantom site at this very line by containing both. That contortion is no longer load
+      // bearing: comments are blanked before matching (blankCommentText), proved in both
+      // directions in blankCommentText.test.ts. A future author may write the example plainly.
       const strCode = strArgMatch?.[1];
       if (strCode && isRefusalCode(strCode)) {
         sites.push({
@@ -486,7 +539,8 @@ export function scanRefusalThrowSites(source: string, relPath: string): RefusalT
   // rather than replacing them, and deduplicated by line and code so a literal that a line
   // pattern already claimed is not counted twice.
   const seen = new Set(sites.map((site) => `${site.line}:${site.code}`));
-  for (const site of conditionalCodeSites(source, relPath)) {
+  // Same blanked text, so this arm cannot credit a site the loop above has already excluded.
+  for (const site of conditionalCodeSites(code, relPath)) {
     const key = `${site.line}:${site.code}`;
     if (seen.has(key)) continue;
     seen.add(key);

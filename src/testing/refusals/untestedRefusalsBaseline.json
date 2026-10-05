@@ -92,7 +92,7 @@
   "src/discovery/lightQuanta/controls.ts": 1,
   "src/discovery/lightQuanta/investigation.ts": 3,
   "src/discovery/lightQuanta/transfer.ts": 0,
-  "src/equations/alternateForms.ts": 1,
+  "src/equations/alternateForms.ts": 0,
   "src/equations/ast.ts": 0,
   "src/equations/derivations/lowSpeedState.ts": 1,
   "src/equations/derivations/renderLowSpeed.ts": 1,
