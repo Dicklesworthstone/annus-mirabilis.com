@@ -726,6 +726,65 @@ function containsCodeLiteral(asserting: string, code: string): boolean {
   return asserting.includes(`"${code}"`) || asserting.includes(`'${code}'`);
 }
 
+/**
+ * The text of every COMPLETE string literal in a file, read from its syntax tree.
+ *
+ * WHY THE SUBSTRING TEST IS NOT ENOUGH, AND WHY THIS IS THE SAME MISTAKE ONE LEVEL UP.
+ * `containsCodeLiteral` was written to replace a bare `includes(code)` that credited any block
+ * merely CONTAINING a code, so `"tape-artifact-mismatch"` covered `artifact-mismatch`. It fixed
+ * that by demanding the quotes. But `includes('"code"')` still cannot tell a literal from a
+ * quoted token sitting INSIDE a longer literal, which is what a fixture is:
+ *
+ *   '<section data-refusal-code="ftcs-unstable">'        scripts/refusalAnnouncement.test.ts:19
+ *   a one-line sample of a throwing validator, quoting its own code   bareThrowRatchet.test.ts:437
+ *
+ * The second is DESCRIBED rather than quoted, and that is not fastidiousness. Quoting it verbatim
+ * made this docblock itself match `scanRefusalThrowSites`, which registered a throw site at this
+ * line and failed the ratchet on a comment -- the hazard AGENTS.md states as "a gate written well
+ * enough to explain itself is a gate positioned to fail on its own explanation". The site scanner
+ * reading comments as code is a real and separate defect; it is measured in scannerCommentBlindness
+ * .test.ts rather than worked around here.
+ *
+ * Both are sample text a scanner test feeds to a scanner. Neither drives the real throw site of
+ * that code anywhere in src/, and both credited it as tested. That is precisely the cross-file
+ * laundering this module's header says it prevents, arriving by a route the header did not
+ * anticipate. Measured over this repository: 10 of the 39 (test file, code) credits that a
+ * stricter rule withdraws are this shape, across 10 files.
+ *
+ * WHY THIS CANNOT WITHDRAW CREDIT FROM AN HONEST TEST. A test that asserts a code writes the code
+ * as its own literal -- `toThrow("ftcs-unstable")`, `expectedCodes: ["no-positive-tolerance"]`,
+ * `const expected = "invalid-seed"` -- and each of those IS a complete literal, so each still
+ * credits. The withdrawal reaches only occurrences that are characters inside some other string,
+ * and a run of characters inside a fixture is not an assertion about the program.
+ *
+ * SCOPE, STATED RATHER THAN IMPLIED. This is computed per FILE, not per block, on purpose: a block
+ * is a fragment cut out by a `split`, so it can begin inside a construct it does not open and a
+ * parse of it would lose literals and read as absence. Absence is the fail-open direction here, so
+ * the whole file is parsed and the per-block substring test is kept beside it. The cost is that a
+ * file holding the code BOTH as a real literal and as fixture text still credits the fixture
+ * block. That is strictly narrower than today and is the residual named in creditPaths.test.ts.
+ *
+ * Backticks stay excluded, as in the rule above: no code in this repository appears only in a
+ * template-literal form, so admitting one would widen the rule without covering anything.
+ */
+export function completeStringLiteralTexts(content: string, path: string): ReadonlySet<string> {
+  const parsed = ts.createSourceFile(
+    path,
+    content,
+    ts.ScriptTarget.Latest,
+    // No parent pointers: nothing here walks upward, and setting them costs time on 1156 files.
+    false,
+    path.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
+  );
+  const texts = new Set<string>();
+  const visit = (node: ts.Node): void => {
+    if (ts.isStringLiteral(node)) texts.add(node.text);
+    ts.forEachChild(node, visit);
+  };
+  visit(parsed);
+  return texts;
+}
+
 export function blockCoversCode(block: string, code: string): boolean {
   return containsCodeLiteral(stripNonAssertingText(block), code);
 }
@@ -895,6 +954,12 @@ export function analyzeUntestedRefusals(rootDir: string): FullRefusalScanResult 
     // over every imported file's codes, so stripping in there re-scanned the same text hundreds
     // of times and pushed the scan past the ratchet's timeout.
     const blocks = content.split(/(?:test|it)\s*\(/).map(stripNonAssertingText);
+    // Parsed at most once per test file, and only when a code is actually a candidate.
+    let literalMemo: ReadonlySet<string> | undefined;
+    const completeLiterals = (): ReadonlySet<string> => {
+      literalMemo ??= completeStringLiteralTexts(content, tf);
+      return literalMemo;
+    };
     for (const srcRel of importedFiles) {
       let codeMap = testBlocksByFileAndCode.get(srcRel);
       if (!codeMap) {
@@ -905,6 +970,10 @@ export function analyzeUntestedRefusals(rootDir: string): FullRefusalScanResult 
       const codes = new Set(sites.map((s) => s.code));
 
       for (const code of codes) {
+        // A code that is nowhere a complete literal in this file cannot be asserted by any block
+        // of it, whatever the substring test says: every occurrence is then fixture text. Checked
+        // before the per-block loop so a parse is skipped entirely for a code no block mentions.
+        if (!completeLiterals().has(code)) continue;
         let blockCount = 0;
         for (let b = 1; b < blocks.length; b++) {
           const block = blocks[b] ?? "";

@@ -132,18 +132,67 @@ describe("Entrance Bridge Schema & Contract Tests (am-bm-first-encounter-fjvh)",
     expect(() => validateEntranceRecord(record)).toThrow();
   });
 
-  it("fails with 'bridge-routes-not-differentiated' when both routes have the same guidance kind", () => {
+  it("refuses an undifferentiated bridge, and names the layer that owns the refusal", () => {
+    // WHAT THIS TEST USED TO CLAIM, AND WHAT IS ACTUALLY TRUE.
+    //
+    // It was titled for `bridge-routes-not-differentiated` and asserted a bare `.toThrow()`. Two
+    // separate things were hiding behind that bare assertion, and asserting the code exposed both.
+    //
+    //   1. The fixture named `foundation:random-walks`, which is not a resolvable target, so the
+    //      record was rejected for an unresolvable target rather than for undifferentiated routes.
+    //      Any throw satisfied `.toThrow()`, so the test was green while never reaching its subject.
+    //   2. With that corrected, the refusal is STILL not the one in the title. It is `invalid-bridge`,
+    //      because validateFoundationOrBridge (src/content/schemas/argument.ts:2236) already enforces
+    //      one `more-guidance` and one `less-guidance` and throws `invalid-continue-with-routes`,
+    //      which entranceRecord.ts wraps. So entranceRecord.ts:335 cannot be reached through this
+    //      entry point at all: reaching it requires passing the inner validator, and passing the
+    //      inner validator means the routes are already differentiated. The check is a defensive
+    //      duplicate of a rule enforced one layer down, and its own code is dead on this path.
+    //
+    // This test therefore asserts the REFUSAL A CALLER OBSERVES, which is the thing that protects a
+    // reader, and records which layer owns it. The duplicate is left in place -- removing a guard to
+    // tidy a census is the wrong direction -- and its one untested site is recorded as debt in
+    // untestedRefusalsBaseline.json rather than hidden by a title that spelled a code.
     const record = {
       ...validEntranceRecord,
       bridge: {
         ...validBridge,
         continueWith: [
           { route: "more-guidance", targetId: "foundation:mean-variance-rms" },
-          { route: "more-guidance", targetId: "foundation:random-walks" },
+          { route: "more-guidance", targetId: "instrument:bm-01" },
         ],
       },
     };
-    expect(() => validateEntranceRecord(record)).toThrow();
+    let thrown: unknown;
+    try {
+      validateEntranceRecord(record);
+    } catch (error) {
+      thrown = error;
+    }
+    expect(thrown).toBeInstanceOf(EntranceSchemaError);
+    const error = thrown as EntranceSchemaError;
+    expect(error.code).toBe("invalid-bridge");
+    // The inner rule is named in the wrapped message, so this says WHY it was refused rather than
+    // only that something was. A different earlier failure -- an unresolvable target, as in (1) --
+    // would reach this line with a different message and fail here.
+    expect(error.message).toContain("invalid-continue-with-routes");
+    expect(error.message).toContain("less-guidance");
+  });
+
+  it("accepts the same record once the routes ARE differentiated, so the refusal is about the routes", () => {
+    // The positive control for the arm above. Without it, the refusal could be caused by anything
+    // else in the fixture and the test would read identically. The ONLY difference is the route kind.
+    const record = {
+      ...validEntranceRecord,
+      bridge: {
+        ...validBridge,
+        continueWith: [
+          { route: "more-guidance", targetId: "foundation:mean-variance-rms" },
+          { route: "less-guidance", targetId: "instrument:bm-01" },
+        ],
+      },
+    };
+    expect(() => validateEntranceRecord(record)).not.toThrow();
   });
 
   it("compiles a route naming a planned foundation and reports its status", () => {

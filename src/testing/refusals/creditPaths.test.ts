@@ -13,7 +13,9 @@
  *   a file-level comment naming the code                            no        yes
  *   a comment INSIDE a running test body                            no        yes
  *   a SKIPPED test body (am-3v8x)                                   no        yes
+ *   the code quoted INSIDE a longer string (closed 2026-10-05)      no        yes
  *   a running block asserting toThrow("code")                       yes       yes, for a single site
+ *   a real literal in a file that ALSO holds fixture text           yes       yes
  *   an uncited block under a code with SEVERAL sites                no        yes (am-ksl3's own rule)
  *   a running block holding the code as a BARE LITERAL              YES       NO  <- the residual hole
  *
@@ -21,19 +23,47 @@
  * item 1 holds for every code with more than one site. What remains is narrower than the bead: a string
  * literal in a running block credits a SINGLE-site code even when nothing asserts on it.
  *
- * THAT HOLE IS PINNED HERE RATHER THAN CLOSED, and the reason is a risk I can measure and a fix I
- * cannot. Closing it means deciding which syntactic shapes count as an assertion -- toThrow, toBe,
- * assert.*, rejects, and whatever a test writes next -- and a rule that guesses wrong withdraws credit
- * from honest tests, which inflates the debt rather than measuring it. The hole is narrow (one site,
- * running block, literal present, nothing asserting) and visible here; the heuristic is the owner's
- * call. Until then this file is what stops the other seven arms drifting back.
+ * ONE ARM OF IT WAS CLOSED ON 2026-10-05, after measuring what closing would cost rather than guessing.
+ * A candidate rule -- the literal must sit in a call-argument position -- was applied across the whole
+ * repository first: 39 (test file, code) credits would have been withdrawn, which is small enough to
+ * read one by one, and reading them is what decided the design. Three classes came out of it:
+ *
+ *   - fixture text, where the code is quoted INSIDE a longer string: a sample of source fed to a
+ *     scanner test, an HTML attribute in an announcement test, a code named in a test TITLE. Never an
+ *     assertion about the program, so credit is always wrong. CLOSED.
+ *   - a census or registry list, `REQUIRED_REFUSAL_CODES = [...]` in leakList.test.ts, which asserts
+ *     that a registry NAMES a code and drives no throw site. Credit is wrong. Still open.
+ *   - a real expectation held as data, `expectedCodes: ["no-positive-tolerance"]` in tolerance.cases.ts,
+ *     consumed by a runner that drives the site. Credit is RIGHT, and the call-position rule would have
+ *     withdrawn it.
+ *
+ * The last two are the same syntax -- a string in an array -- and opposite in meaning, which is why no
+ * syntactic rule separates them and why the call-position rule was not adopted. What was adopted is the
+ * part that cannot be wrong in either direction: a code must appear as a COMPLETE string literal, read
+ * from the file's syntax tree. An honest assertion writes one; characters inside a fixture are not one.
+ *
+ * COST, MEASURED RATHER THAN ASSUMED: the stricter rule surfaced exactly one previously hidden site,
+ * entranceRecord.ts:335 `bridge-routes-not-differentiated`, whose only test asserted a bare `.toThrow()`
+ * with the code spelled in its title. That test now asserts the code, so the repository's untested count
+ * returned to 84 and no baseline was raised. A gate got stricter and the debt did not grow, because the
+ * one thing it caught was worth fixing.
+ *
+ * THE REST IS STILL PINNED RATHER THAN CLOSED. A bare literal in a running block still credits a
+ * single-site code, and a registry census still credits. Both need a decision about which shapes count
+ * as an assertion, and a rule that guesses wrong withdraws credit from honest tests, which inflates the
+ * debt rather than measuring it. That decision is the owner's. Until then this file is what stops the
+ * closed arms drifting back.
  */
 
 import { describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { analyzeUntestedRefusals } from "./refusalScanner.ts";
+import {
+  analyzeUntestedRefusals,
+  blockCoversCode,
+  completeStringLiteralTexts,
+} from "./refusalScanner.ts";
 
 /** Two sites, two DIFFERENT codes, so each is single-site and attribution is unambiguous. */
 const SOURCE = `export class WidgetError extends Error {
@@ -79,6 +109,43 @@ describe("what does NOT credit a refusal site", () => {
     ).toBe(2);
   });
 
+  it("the code quoted INSIDE a longer string changes no count", () => {
+    // CLOSED 2026-10-05, and it was the largest arm of the hole below. A scanner test, a ratchet
+    // test or an HTML-announcement test embeds sample source as a string, and that sample quotes a
+    // real code. `includes('"code"')` cannot tell that from an assertion, so the fixture credited
+    // the real site elsewhere in src/ -- the cross-file laundering this module's header claims to
+    // prevent, arriving through the quotes rather than around them. Now the code must be a COMPLETE
+    // string literal somewhere in the file, read from its syntax tree.
+    //
+    // Both quoting directions are exercised, because the substring test accepts either and the
+    // single-quote-inside-double-quote form is the one that was live: a test TITLE naming a code in
+    // single quotes credited entranceRecord.ts:335 while the body asserted only a bare toThrow().
+    expect(
+      untested(
+        `${IMPORT}test("drives a sample", () => { const sample = 'throw new W("alpha-refused");'; expect(sample.length).toBeGreaterThan(0); });\n`,
+      ),
+    ).toBe(2);
+    expect(
+      untested(
+        `${IMPORT}test("names it in the title only", () => { const html = "<i data-code='alpha-refused'>"; expect(html.length).toBeGreaterThan(0); });\n`,
+      ),
+    ).toBe(2);
+
+    // THE ARM CARRIES ITS OWN RED-FIRST EVIDENCE. Asserting the count alone would pass just as well
+    // if the fixture never reached the predicate, which is how a green plant indicts the plant rather
+    // than the code. So the two rules are shown DISAGREEING on this exact input: the substring test
+    // that used to decide credit says yes, and the syntax tree says the code is no literal here. That
+    // is the whole mechanism of the fix, measured on the input the arm is about.
+    const fixture = `const sample = 'throw new W("alpha-refused");';`;
+    expect(blockCoversCode(fixture, "alpha-refused")).toBe(true);
+    expect(completeStringLiteralTexts(fixture, "f.ts").has("alpha-refused")).toBe(false);
+    // And the control, so the literal set is not simply empty on everything it is handed.
+    expect(completeStringLiteralTexts(fixture, "f.ts").size).toBeGreaterThan(0);
+    expect(
+      completeStringLiteralTexts(`const c = "alpha-refused";`, "f.ts").has("alpha-refused"),
+    ).toBe(true);
+  });
+
   it("a SKIPPED body changes no count, however it asserts", () => {
     // The arm am-3v8x completed on the citation path. A body that never runs asserts nothing.
     expect(
@@ -106,6 +173,20 @@ describe("what DOES credit a refusal site", () => {
           `test("b", () => { expect(() => b()).toThrow("beta-refused"); });\n`,
       ),
     ).toBe(0);
+  });
+
+  it("a real literal still credits though the file ALSO holds it as fixture text", () => {
+    // The direction that keeps the rule above from being a blunt withdrawal. One block asserts the
+    // code properly and another holds it inside a longer string; the honest assertion still earns
+    // its site. This is also the residual of the file-scoped check, stated as a test rather than
+    // only in a comment: the fixture block is not separately punished, because the rule asks whether
+    // the code is a complete literal ANYWHERE in the file, not in that block.
+    expect(
+      untested(
+        `${IMPORT}test("drives it", () => { expect(() => a()).toThrow("alpha-refused"); });\n` +
+          `test("sample", () => { const s = 'new W("alpha-refused")'; expect(s.length).toBeGreaterThan(0); });\n`,
+      ),
+    ).toBe(1);
   });
 
   it("an explicit site citation credits that site", () => {
