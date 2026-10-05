@@ -625,12 +625,33 @@ test("am-ahyb: the five extracted-chrome checks, in both engines, against the bu
  * Returns how many responses were rewritten, because a plant that matched nothing
  * would leave every check green and read as proof of robustness.
  */
-function breakPaletteShortcut(rewritten: { count: number }) {
+function breakPaletteShortcut(rewritten: { count: number }, lost: { count: number }) {
   const TARGET = '"k"!==e.key.toLowerCase()';
   return async (page: import("playwright").Page): Promise<void> => {
     await page.route("**/_next/static/chunks/**/*.js", async (route) => {
-      const response = await route.fetch();
-      const body = await response.text();
+      // A CHUNK THE PAGE STOPPED WAITING FOR IS NOT A TEST FAILURE (am-enpr). This read
+      // `await route.fetch()` then `await response.text()` with nothing between them and the page,
+      // and the checks that run after this plant navigate several times. A chunk request still in
+      // flight when the page moves on has its response disposed, `response.text()` rejects with
+      // "apiResponse.text: Response has been disposed", and the rejection surfaced as this test
+      // failing. Measured over six consecutive unmodified runs of this file: it struck 3 times.
+      //
+      // So a lost request is handled rather than thrown: the route continues unmodified, which is
+      // what would have happened without the plant, and the loss is COUNTED. That count matters,
+      // because the one request that must not be lost is the chunk carrying TARGET: if it were, the
+      // plant would silently not apply and the palette would open, which reads as "removing the
+      // shortcut is harmless". `rewritten.count > 0` at the call site already refuses that, and the
+      // count below tells whoever reads a failure which of the two happened.
+      let response: Awaited<ReturnType<typeof route.fetch>>;
+      let body: string;
+      try {
+        response = await route.fetch();
+        body = await response.text();
+      } catch {
+        lost.count += 1;
+        await route.continue().catch(() => undefined);
+        return;
+      }
       if (!body.includes(TARGET)) {
         await route.fulfill({ response, body });
         return;
@@ -816,8 +837,9 @@ test("am-ahyb planted negative: removing the shortcut fails the palette check on
       const browser = await engine.launcher.launch();
       try {
         const rewritten = { count: 0 };
+        const lost = { count: 0 };
         const outcomes = await runChecks(engine.name, browser, baseUrl, {
-          prepare: breakPaletteShortcut(rewritten),
+          prepare: breakPaletteShortcut(rewritten, lost),
           logPrefix: "plant-no-shortcut/",
         });
 
@@ -826,7 +848,10 @@ test("am-ahyb planted negative: removing the shortcut fails the palette check on
         // would look exactly like "removing the handler is harmless".
         assert.ok(
           rewritten.count > 0,
-          `${engine.name}: no built chunk contained the shortcut guard, so this plant changed nothing`,
+          `${engine.name}: no built chunk contained the shortcut guard, so this plant changed nothing` +
+            (lost.count > 0
+              ? ` (${lost.count} chunk request(s) were disposed before they could be rewritten, so the plant may have missed its target)`
+              : ""),
         );
 
         const failed = outcomes.filter((o) => !o.ok).map((o) => o.check);
