@@ -213,13 +213,33 @@ describe("PLANT: the ledger-present branch measures instead of announcing", () =
     expect(stageOf(absent, "reconcile")?.pending?.join(" ")).toContain("am-xz2d");
   });
 
-  test("the align stage reports the issues it found, not that alignment ran", async () => {
+  test("the align stage reports what it measured, not that alignment ran", async () => {
+    // THIS ASSERTED `failed` AND NOW ASSERTS THE MEASUREMENT, because the subject changed under it.
+    // The stage used to validate an empty edge set -- nothing passed it the authored edges -- so
+    // every paper reported `empty-alignment` and "failed" was simply what that produced. Now the
+    // edges are loaded from content/alignments/, and brownian-motion's 162 of them are complete and
+    // valid, so the correct verdict here is a pass. The plant's point was never the verdict: it was
+    // that the stage announces a literal. So it asserts the message carries a COUNT either way, and
+    // the case below shows the stage still reaches "failed" when there is something to fail on.
     const root = ledgerPresentRoot();
     const run = await runEditionPipeline({ slug: "brownian-motion", root });
     const align = stageOf(run, "align");
+    expect(align?.outcome).not.toBe("not-available");
+    expect(align?.message).toMatch(/\d+/);
+    expect(align?.message).not.toBe("Alignment ran.");
+    expect(align?.message).not.toBe("Segmentation ran.");
+  });
+
+  test("the align stage still reaches a failure, on the one record whose id the grammar refuses", async () => {
+    // Without this the test above could pass on a stage that can only ever report a pass. The
+    // failure is real and singular: special-relativity's `eq-A` is Einstein's printed equation (A)
+    // on page 918, and the anchor grammar admits a numeric printed label and not a letter, so that
+    // one edge reports `missing-source-id` and its English unit reports `unaligned-target`.
+    const run = await runEditionPipeline({ slug: "special-relativity" });
+    const align = stageOf(run, "align");
     expect(align?.outcome).toBe("failed");
     expect(align?.message).toMatch(/issue\(s\)/);
-    expect(align?.message).not.toBe("Alignment ran.");
+    expect(align?.evidence?.join(" ")).toContain("eq-A");
   });
 
   test("the compile stage fails on a corrupted record and is never a pass over an empty corpus", async () => {

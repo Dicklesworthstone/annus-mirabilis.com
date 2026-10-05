@@ -106,14 +106,17 @@ export function runAlignEditions(options: AlignEditionsOptions): AlignEditionsRe
   let englishIds = options.englishIds ? [...options.englishIds] : [];
   let edges = options.edges ? [...options.edges] : [];
 
-  // Explicitly supplied populations always win, so every existing caller and fixture is unchanged;
-  // the loaders below only fill what nothing supplied, which until now was everything.
-  if (edges.length === 0) {
+  // ABSENT AND EMPTY ARE DIFFERENT, and keying on length confused them. A caller that passes
+  // `edges: []` is stating a population -- that is how the runner's own guard test drives
+  // `empty-alignment` with alignables present -- so filling it from disk would answer a question
+  // nobody asked and silently delete that test's subject. The loaders fill only what was never
+  // supplied, which until now was every one of the three.
+  if (options.edges === undefined) {
     const loaded = loadAuthoredEdges(slug, root);
     edges = [...loaded.edges];
     issues.push(...loaded.issues);
   }
-  if (germanIds.length === 0) {
+  if (options.germanIds === undefined && germanIds.length === 0) {
     germanIds = [...manifestUnitIds(slug, root)];
   }
   if (germanIds.length === 0 && presence.presence !== "absent") {
@@ -127,7 +130,7 @@ export function runAlignEditions(options: AlignEditionsOptions): AlignEditionsRe
       // ignore read error
     }
   }
-  if (englishIds.length === 0) {
+  if (options.englishIds === undefined) {
     englishIds = [...translationUnitIds(slug, root)];
   }
 
