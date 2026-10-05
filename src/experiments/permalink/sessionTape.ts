@@ -9,9 +9,14 @@
 import type { U64String } from "../identity/u64.ts";
 import { ExperimentRuntimeError } from "../refusal.ts";
 import { computeTapeDigest, quantizeFloat } from "../tape/controlTape.ts";
-import { decodeTapePermalinkInBrowser } from "./browserCodec.ts";
-import { type ReplayRunner, replayTape } from "./replay.ts";
-import type { ExperimentEnvironment, TapeAcceptedCheckpoint, TapeV2 } from "./types.ts";
+import { prepareTapeReplay } from "./prepareReplay.ts";
+import { type ReplayOptions, type ReplayRunner, replayTape } from "./replay.ts";
+import type {
+  ExperimentEnvironment,
+  TapeAcceptedCheckpoint,
+  TapeReplayResult,
+  TapeV2,
+} from "./types.ts";
 
 type ApplyOutcome = Readonly<{ kind: string }>;
 
@@ -162,8 +167,8 @@ export function createSessionReplayRunner(
   let actionIndex = 0;
   let refusal = "";
   const current = () => tapeStateOf(session.acceptedParameters()) ?? {};
-  const apply = (patch: Record<string, unknown>) => {
-    const outcome = session.apply({ ...session.acceptedParameters(), ...patch });
+  const apply = (patch: Record<string, unknown>, base: object = session.acceptedParameters()) => {
+    const outcome = session.apply({ ...base, ...patch });
     if (outcome.kind === "accepted") return;
     refusal = requirementsOf(outcome) || "The shared settings could not be applied.";
     throw new ExperimentRuntimeError(
@@ -176,7 +181,8 @@ export function createSessionReplayRunner(
     refusalSentence: () => refusal,
     environment: binding.environment,
     applyInitialConditions(conditions) {
-      apply(settingsFromTape(conditions, binding.defaults));
+      // Omitted settings mean the laboratory defaults, never this reader's previous experiment.
+      apply(settingsFromTape(conditions, binding.defaults), binding.defaults);
       actionIndex = 0;
     },
     applyEvent(event) {
@@ -235,53 +241,89 @@ export type LabTapeRestore =
   | Readonly<{ kind: "not-restored"; notice: string }>;
 
 /**
- * Restores a decoded tape into the laboratory. Anything short of a verified replay leaves the
- * settings the reader already had, and says why in a sentence.
+ * Verify on a fresh session, then apply the exact verified controls to the live one. Expected
+ * failures leave its accepted snapshot, revisions and run identity untouched; restoring the old
+ * parameters AFTER a failed replay is not equivalent to never disturbing that run.
  */
+export function replayTapeOnSession(
+  binding: LabTapeBinding,
+  session: TapeSession,
+  tape: TapeV2,
+  options?: ReplayOptions,
+  resolve?: ReplayRunner["resolveTeachingTape"],
+): TapeReplayResult {
+  let trial: ReturnType<typeof createSessionReplayRunner>;
+  const form = digestFormOf(tape.acceptedCheckpoint.digest);
+  try {
+    trial = createSessionReplayRunner(
+      binding,
+      binding.createSession(`${binding.environment.experimentId}-replay-preflight`),
+      form,
+    );
+  } catch (err: unknown) {
+    return {
+      kind: "invalid",
+      reason: "replay-preparation-failed",
+      notice: `The replay could not be checked without changing your experiment: ${String(err)}`,
+    };
+  }
+  if (resolve) trial.resolveTeachingTape = resolve;
+  const prepared = prepareTapeReplay(tape, trial, options);
+  if (prepared.kind !== "prepared") {
+    const sentence = trial.refusalSentence();
+    return prepared.kind === "invalid" && sentence
+      ? { ...prepared, notice: `This shared state could not be restored. ${sentence}` }
+      : prepared;
+  }
+  const before = { ...session.acceptedParameters() };
+  const runner = createSessionReplayRunner(binding, session, form);
+  const result = replayTape(prepared.tape, runner, { forceNewRun: prepared.isNewRun });
+  if (result.kind === "success") return result;
+  // A live-session failure after a successful rehearsal is unexpected. Keep the failure visible,
+  // and attempt to recover the previous settings rather than leaving a half-applied walkthrough.
+  try {
+    const recovered = session.apply(before);
+    if (recovered.kind !== "accepted") {
+      return {
+        kind: "invalid",
+        reason: "replay-recovery-failed",
+        notice: `${result.notice} The previous settings could not be recovered. ${requirementsOf(recovered)}`,
+      };
+    }
+  } catch (err: unknown) {
+    return {
+      kind: "invalid",
+      reason: "replay-recovery-failed",
+      notice: `${result.notice} The previous settings could not be recovered: ${String(err)}`,
+    };
+  }
+  const sentence = runner.refusalSentence();
+  return result.kind === "invalid" && sentence
+    ? { ...result, notice: `This shared state could not be restored. ${sentence}` }
+    : result;
+}
+
+/** Restore a decoded tape; a resolver is required only when it references an authored walkthrough. */
 export function restoreTape(
   binding: LabTapeBinding,
   session: TapeSession,
   tape: TapeV2,
+  resolve?: ReplayRunner["resolveTeachingTape"],
 ): LabTapeRestore {
-  const env = binding.environment;
-  if (tape.experimentId !== env.experimentId) {
+  if (tape.experimentId !== binding.environment.experimentId) {
     return {
       kind: "not-restored",
       notice: `This shared state could not be restored: it was recorded in another laboratory, ${tape.experimentId}.`,
     };
   }
-  // The laboratory's own sentence for a setting it would refuse, before anything is replayed.
-  const checked = binding.validate({
-    ...binding.defaults,
-    ...settingsFromTape(tape.initialConditions, binding.defaults),
-  });
-  if (checked.kind !== "accepted") {
-    const requirements = requirementsOf(checked);
-    return {
-      kind: "not-restored",
-      notice: `This shared state could not be restored. ${requirements || "Its settings are not ones this laboratory accepts."}`,
-    };
-  }
-  const before = { ...session.acceptedParameters() };
-  // The checkpoint is computed in the form the link carries, so links shared before v2 still verify.
-  const runner = createSessionReplayRunner(
-    binding,
-    session,
-    digestFormOf(tape.acceptedCheckpoint.digest),
-  );
-  const replayed = replayTape(tape, runner);
+  const replayed = replayTapeOnSession(binding, session, tape, undefined, resolve);
   if (replayed.kind === "success") return { kind: "restored" };
-  // A refusal stops before anything is applied; an invalid or unverified replay may not have.
-  session.apply(before);
-  const refused = runner.refusalSentence();
   return {
     kind: "not-restored",
     notice:
       replayed.kind === "refusal"
         ? `${replayed.notice} ${replayed.repair}`
-        : replayed.kind === "invalid" && refused
-          ? `This shared state could not be restored. ${refused}`
-          : replayed.notice,
+        : replayed.notice,
   };
 }
 
@@ -299,8 +341,20 @@ export async function restoreTapeFromUrl(
   } catch {
     return { kind: "absent" };
   }
-  const decoded = await decodeTapePermalinkInBrowser(address);
-  if (decoded.kind === "absent") return { kind: "absent" };
-  if (decoded.kind === "invalid") return { kind: "not-restored", notice: decoded.notice };
-  return restoreTape(binding, session, decoded.tape);
+  if (!address.searchParams.has("tape")) return { kind: "absent" };
+  // Ordinary laboratory visits need neither the codec nor the authored catalogue.
+  try {
+    const { decodeTapePermalinkInBrowser } = await import("./browserCodec.ts");
+    const decoded = await decodeTapePermalinkInBrowser(address);
+    if (decoded.kind === "absent") return { kind: "absent" };
+    if (decoded.kind === "invalid") return { kind: "not-restored", notice: decoded.notice };
+    if (!decoded.tape.teachingTapeRef) return restoreTape(binding, session, decoded.tape);
+    const { resolveTeachingTape } = await import("./teachingTapeCatalogue.ts");
+    return restoreTape(binding, session, decoded.tape, resolveTeachingTape);
+  } catch (err: unknown) {
+    return {
+      kind: "not-restored",
+      notice: `The shared state could not be loaded: ${String(err)}`,
+    };
+  }
 }
