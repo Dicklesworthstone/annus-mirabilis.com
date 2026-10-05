@@ -13,6 +13,7 @@ import { dirname, join } from "node:path";
 import {
   inspectLedgerPresence,
   PAPERS_WAITING_ON_CLOUD_OCR,
+  translationCompleteness,
 } from "../src/content/editions/ledgerPresence.ts";
 import { PIPELINE_STAGES, runEditionPipeline } from "./e2e-edition-pipeline.ts";
 
@@ -263,6 +264,54 @@ describe("PLANT: the ledger-present branch measures instead of announcing", () =
     expect(align?.outcome).toBe("failed");
     expect(align?.message).toMatch(/issue\(s\)/);
     expect(align?.evidence?.join(" ")).toContain("eq-A");
+  });
+
+  test("the coverage stage counts the translation units on disk, where it used to pass a literal zero", async () => {
+    // The defect: `translationUnitCount: 0` was hardcoded, and translationCompleteness returns
+    // "incomplete" for any count below the German alignable count, so every paper's coverage report
+    // said its translation was incomplete whatever was authored. 821 unit records were on disk.
+    const run = await runEditionPipeline({ slug: "mass-energy" });
+    const coverage = stageOf(run, "coverage");
+    expect(coverage?.outcome).toBe("passed");
+    expect(coverage?.message).toContain("translation complete");
+
+    // THE NEGATIVE, so this cannot pass on a verdict that is always "complete": the same rule with no
+    // units returns incomplete, and with fewer units than German alignables it still does.
+    expect(
+      translationCompleteness({
+        ledger: "complete",
+        translationUnitCount: 0,
+        germanAlignableCount: 33,
+      }),
+    ).toBe("incomplete");
+    expect(
+      translationCompleteness({
+        ledger: "complete",
+        translationUnitCount: 32,
+        germanAlignableCount: 33,
+      }),
+    ).toBe("incomplete");
+    expect(
+      translationCompleteness({
+        ledger: "complete",
+        translationUnitCount: 43,
+        germanAlignableCount: 33,
+      }),
+    ).toBe("complete");
+  });
+
+  test("the contract stage names the checks that reached no verdict, not only how many", async () => {
+    // A stage that passes while two thirds of its checks examined nothing is the citation AGENTS.md
+    // warns about. The count was already honest; the names were not reported anywhere.
+    const run = await runEditionPipeline({ slug: "mass-energy" });
+    const contract = stageOf(run, "contract");
+    const unrun = (contract?.evidence ?? []).filter((e) => e.startsWith("not-available #"));
+    // Non-vacuity: this paper really does have checks that cannot run yet, so a non-empty list is a
+    // result rather than an artefact of the filter.
+    expect(unrun.length).toBeGreaterThan(0);
+    expect(contract?.message).toMatch(/\d+ passed and \d+ not-available/);
+    // Each named entry carries its reason, so the list is actionable rather than a tally.
+    for (const line of unrun) expect(line.length).toBeGreaterThan("not-available #99 x: ".length);
   });
 
   test("the compile stage fails on a corrupted record and is never a pass over an empty corpus", async () => {

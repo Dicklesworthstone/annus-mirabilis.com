@@ -443,7 +443,16 @@ export async function runEditionPipeline(options: {
           .join("; ")}`
       : `Edition contract reported ${contract.checks.filter((c) => c.outcome === "passed").length} passed and ${contract.checks.filter((c) => c.outcome === "not-available").length} not-available.`,
     {
-      evidence: failedChecks.map((c) => `#${c.checkNumber} ${c.code ?? c.check}: ${c.message}`),
+      // The checks that reached NO verdict are named, not only counted. "5 passed and 10
+      // not-available" is honest about the arithmetic and says nothing about which ten, and a stage
+      // that passes while two thirds of its checks examined nothing is exactly the citation AGENTS.md
+      // warns about. Naming them puts the gap where a reader of the run will see it.
+      evidence: [
+        ...failedChecks.map((c) => `#${c.checkNumber} ${c.code ?? c.check}: ${c.message}`),
+        ...contract.checks
+          .filter((c) => c.outcome === "not-available")
+          .map((c) => `not-available #${c.checkNumber} ${c.check}: ${c.message}`),
+      ],
       pending: [
         `per-paper edition test files do not exist in this tree (${perPaperTests.join(", ")}); this stage runs assertEditionContract and does not run bun test (am-edn-alignment-tooling-do1)`,
       ],
@@ -452,10 +461,17 @@ export async function runEditionPipeline(options: {
 
   // -------------------------------------------------------------- 8. coverage
   begin("coverage");
+  // THE TRANSLATION UNITS ARE COUNTED, not assumed to be none. This passed a literal 0, which
+  // `translationCompleteness` turns into the verdict "incomplete" whatever is on disk -- so every
+  // paper's coverage report said the translation was incomplete while 821 unit records sat in
+  // content/translation-units/ (43, 235, 162 and 381), all four of which AGENTS.md records as final
+  // under D-2026-09-25-agent-reviewed-translations. A hardcoded denominator is not a measurement, and
+  // this one was reported in a reader- and owner-facing artifact.
+  const translationUnits = translationUnitIds(slug, root);
   const report = coverageReport({
     slug,
     germanUnitCount: germanIds.length,
-    translationUnitCount: 0,
+    translationUnitCount: translationUnits.length,
     root,
   });
   const markdown = coverageReportMarkdown(report);
