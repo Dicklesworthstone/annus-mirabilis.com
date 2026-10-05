@@ -48,7 +48,14 @@ export type AlignmentIssueCode =
   | "editor-same-as-author"
   | "review-records-not-available"
   | "unit-not-reviewed"
-  | "status-disagrees-with-records";
+  | "status-disagrees-with-records"
+  /**
+   * The alignment record is on disk and could not be read or parsed. Distinct from
+   * `empty-alignment` on purpose: "no edges were authored" and "the authored edges could not be
+   * loaded" are different facts, and collapsing them would let a broken reader read as missing
+   * content -- which is exactly how 821 authored edges went unexamined.
+   */
+  | "alignment-record-unreadable";
 
 export type AlignmentIssue = Readonly<{
   code: AlignmentIssueCode;

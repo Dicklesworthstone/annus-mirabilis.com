@@ -90,8 +90,20 @@ export function isPermanentGermanId(raw: string): boolean {
   return parseAlignableUnitId(raw).ok || parseEquationAnchor(raw).ok;
 }
 
+/**
+ * THE MIRROR OF THE GERMAN CASE, and the corpus is as unambiguous about it.
+ *
+ * A display equation is addressed on the English face by the SAME anchor as on the German one --
+ * `eq-s0-d1` aligns to `eq-s0-d1` -- because AGENTS.md requires an English equation block to be
+ * byte-identical to its aligned German block. `parseTranslationUnitId` does not admit an anchor, so
+ * every edge into a printed display reported `missing-target-id`.
+ *
+ * Measured 2026-10-05: of 821 translation-unit records on disk, 200 carry an equation anchor as
+ * their own `id`, which is exactly the number of units the four manifests declare with kind
+ * `display-equation`. They are authored records, not references to nothing.
+ */
 export function isPermanentEnglishId(raw: string): boolean {
-  return parseTranslationUnitId(raw).ok;
+  return parseTranslationUnitId(raw).ok || parseEquationAnchor(raw).ok;
 }
 
 /** Paragraph ids come from `parseParagraphId`; alignment does not re-spell them. */
