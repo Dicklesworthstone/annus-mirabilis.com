@@ -646,6 +646,81 @@ export function stripNonAssertingText(block: string): string {
   return out;
 }
 
+/**
+ * THE SAME SKIP STRIP, WITHOUT TOUCHING COMMENTS, for the citation path (am-3v8x).
+ *
+ * `stripNonAssertingText` removes comments AND skipped bodies, and the code-literal path wants both.
+ * The CITATION path wants only the second: a citation inside a body that never runs must not credit
+ * its site -- "a body that never runs asserts nothing" is this file's own stated principle, and the
+ * citation path was violating it by matching over raw file text. Measured: a citation is load-bearing
+ * (removing it raises the untested count), and skipping the only test containing it did not withdraw
+ * the credit.
+ *
+ * Comments are deliberately LEFT IN. Whether a citation written in a comment should credit at all is a
+ * different question and a different bead (am-ksl3), and it is not a free change: measured over the
+ * scan roots, 2012 citations are in the raw text and 1996 survive a comment strip, so routing the
+ * citation path through the full strip would withdraw 16 of them at once. One defect at a time.
+ *
+ * PRECAUTIONARY, LIKE THE ARM IT COMPLETES, and measured as such: of 1792 test files under the scan
+ * roots, ONE uses a skip form -- this scanner's own blockCoversCode.test.ts, where the forms are test
+ * DATA inside string literals -- and none combines a skip with a site citation. So this changes no
+ * credit today. It is the guard put on while the family is clean.
+ *
+ * String-aware for the same reason the other strip is: a `test.skip(` inside a string literal is data,
+ * not a skipped test, and blockCoversCode.test.ts is precisely the file that would break if this
+ * stripped it.
+ */
+export function stripSkippedTests(block: string): string {
+  let out = "";
+  let i = 0;
+  const n = block.length;
+  while (i < n) {
+    const c = block[i] as string;
+    if (c === '"' || c === "'" || c === "`") {
+      const quote = c;
+      let literal = c;
+      i++;
+      while (i < n) {
+        const ch = block[i] as string;
+        if (ch === "\\") {
+          literal += ch + (block[i + 1] ?? "");
+          i += 2;
+          continue;
+        }
+        literal += ch;
+        i++;
+        if (ch === quote) break;
+      }
+      out += literal;
+      continue;
+    }
+    out += c;
+    i++;
+    if (c === "(" && SKIP_CALL.test(out)) {
+      out = out.slice(0, -1);
+      let depth = 1;
+      while (i < n && depth > 0) {
+        const ch = block[i];
+        if (ch === '"' || ch === "'" || ch === "`") {
+          const quote = ch;
+          i++;
+          while (i < n) {
+            if (block[i] === "\\") {
+              i += 2;
+              continue;
+            }
+            if (block[i] === quote) break;
+            i++;
+          }
+        } else if (ch === "(") depth++;
+        else if (ch === ")") depth--;
+        i++;
+      }
+    }
+  }
+  return out;
+}
+
 /** The literal test, applied to text the strip has already reduced to what can assert. */
 function containsCodeLiteral(asserting: string, code: string): boolean {
   return asserting.includes(`"${code}"`) || asserting.includes(`'${code}'`);
@@ -748,7 +823,14 @@ export function analyzeUntestedRefusals(rootDir: string): FullRefusalScanResult 
     }
 
     // Check for explicit site citations like (authored.ts:90), (verifyChain.ts:88), or (passageActions.schema.ts:60)
-    const siteCiteMatches = content.matchAll(/\(([a-zA-Z0-9_.-]+\.ts):(\d+)\)/g);
+    //
+    // READ FROM TEXT WITH SKIPPED BODIES REMOVED (am-3v8x). This matched over `content`, the raw file,
+    // so a citation inside a `test.skip` still credited its site -- which contradicts this file's own
+    // principle that a body which never runs asserts nothing, and which was measured: the citation is
+    // load-bearing, and skipping the only test containing it did not withdraw the credit. Comments are
+    // left in on purpose; see stripSkippedTests.
+    const citationText = stripSkippedTests(content);
+    const siteCiteMatches = citationText.matchAll(/\(([a-zA-Z0-9_.-]+\.ts):(\d+)\)/g);
     for (const scm of siteCiteMatches) {
       const citedBase = scm[1];
       const citedLineStr = scm[2];
