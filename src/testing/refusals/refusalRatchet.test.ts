@@ -12,6 +12,7 @@ import {
   type RefusalCodeBreakdown,
   scanRefusalThrowSites,
 } from "./refusalScanner.ts";
+import { censusOf, enumerateThrowSites, summarizeThrowSiteCensus } from "./throwSiteCensus.ts";
 
 /**
  * Untested Refusal Throw Site Ratchet Gate with Tightening Pawl (am-muyh).
@@ -303,6 +304,27 @@ describe("untested refusal throw site ratchet (am-muyh)", () => {
       `[refusal census] ${[...byRoot]
         .map(([root, t]) => `${root}: ${t.sites} coded in ${t.files} files, ${t.untested} untested`)
         .join(" | ")}`,
+    );
+
+    // WHAT THIS RATCHET CANNOT SEE, stated as a number beside what it can (am-kfkw).
+    //
+    // Every instrument above matches on a kebab code string, so a throw carrying none is not reported
+    // as uncovered -- it is not reported at all, and a class that vanishes from a report is worse than
+    // one reported as zero. am-kfkw's acceptance allows either covering that block or declaring
+    // explicitly that this does not and how many it is excluding. This is the declaration, computed by
+    // an AST walk rather than re-derived from the same regexes that are blind to it.
+    //
+    // Printed and deliberately NOT asserted against a baseline. Whether a bare throw is a defect is a
+    // judgement -- a coded reader-facing refusal and an ordinary internal invariant are both throws --
+    // so a ceiling over all of them would manufacture findings rather than measure, and in a checkout
+    // several panes write to at once it would be red for everyone within the hour. The accounting
+    // identity that makes this number trustworthy, coded plus bare equals total with no third class,
+    // is asserted in throwSiteCensus.test.ts.
+    const walked = enumerateThrowSites(ROOT);
+    console.log(
+      `[refusal census] NOT MEASURED BY THIS RATCHET: ${summarizeThrowSiteCensus(
+        censusOf(walked.sites, walked.filesScanned),
+      )}`,
     );
 
     const allRegressions: string[] = [];
