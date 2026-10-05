@@ -8,6 +8,7 @@ import type { ControlledComparisonState } from "../../experiments/compare/contro
 import { scientificDigest } from "../../experiments/digest/scientificDigest.ts";
 import { validateTapeV2 } from "../../experiments/permalink/schema.ts";
 import type { TapeV2 } from "../../experiments/permalink/types.ts";
+import { decodeResult } from "../../experiments/results/codec.ts";
 
 /**
  * True when the text carries a C0 control character other than tab, newline or
@@ -92,12 +93,32 @@ export type ComparisonReplay = Readonly<{
   explanationAfter: string;
 }>;
 
-function record(value: unknown, keys: readonly string[]): Record<string, unknown> {
+/**
+ * A saved record whose keys are exactly `keys`, plus any of `optional` (am-muyh).
+ *
+ * THE EXACT-KEY RULE IS THE POINT and is not relaxed: an unexpected field in a saved export is a field
+ * nobody validated, and letting it through is how a replay comes to carry something the instrument never
+ * accepted. What changed is that the producer grew a field the consumer had not been told about.
+ * `pinBaseline` began attaching `evidence` to an output (the detached ScientificResult, with its owner and
+ * its uncertainty), so every saved comparison from a session with evidence was refused here, which broke
+ * the notebook round trip for three test files at once.
+ *
+ * So the allowance is NAMED rather than general: `optional` lists the keys a caller knows about and will
+ * validate itself, and anything outside both lists is still refused with the same sentence.
+ */
+function record(
+  value: unknown,
+  keys: readonly string[],
+  optional: readonly string[] = [],
+): Record<string, unknown> {
+  const allowed = new Set([...keys, ...optional]);
+  const own = value && typeof value === "object" ? Reflect.ownKeys(value) : [];
   if (
     !value ||
     typeof value !== "object" ||
     ![Object.prototype, null].includes(Object.getPrototypeOf(value)) ||
-    Reflect.ownKeys(value).length !== keys.length ||
+    own.length < keys.length ||
+    own.some((key) => typeof key !== "string" || !allowed.has(key)) ||
     keys.some((key) => !Object.hasOwn(Object.getOwnPropertyDescriptor(value, key) ?? {}, "value"))
   )
     throw new TypeError("Unsupported replay fields. Keep the original export.");
@@ -162,7 +183,14 @@ function baseline(value: unknown): Baseline {
       parameters: checked.data,
       final: true,
       outputs: Object.entries(outputs).map(([quantityId, raw]) => {
-        const output = record(raw, ["status", "unit", "semanticKind", "value", "reason"]);
+        const output = record(
+          raw,
+          ["status", "unit", "semanticKind", "value", "reason"],
+          // `evidence` is optional because a comparison pinned from a session that supplied a full
+          // ScientificResult carries one, and it is VALIDATED below rather than trusted: the whole
+          // purpose of the exact-key rule is that nothing unvetted reaches a replay.
+          ["evidence"],
+        );
         if (
           ![
             "value",
@@ -176,6 +204,35 @@ function baseline(value: unknown): Baseline {
         )
           throw new TypeError("Invalid saved output status.");
         replayText(output.reason, 4096);
+        // THE SAVED EVIDENCE IS DECODED AND REBUILT AS A SNAPSHOT OUTPUT, with the OUTER SCALARS WINNING.
+        //
+        // Three shapes meet here and getting the precedence wrong breaks something each way, so each is
+        // written down. `pinBaseline` wants a SNAPSHOT output: quantityId, ownerId, status, unit,
+        // semanticKind, value, and no `reason`, because it derives the reason itself. A SAVED record has
+        // the derived `reason` and no owner. The saved `evidence` block is itself snapshot-shaped, which
+        // is what makes a faithful round trip possible at all.
+        //
+        // Handing the evidence back WHOLESALE launders tampering: the checkpoint digest covers the outer
+        // scalars, so a file whose visible value was doubled while its evidence kept the original would
+        // replay the original and verify clean. Dropping the evidence instead makes the round trip lossy,
+        // and replayEntry.test.mjs requires it to be exact. So the evidence supplies the owner and the
+        // non-numeric detail while the OUTER status, unit, semanticKind and value override it: a tampered
+        // scalar reaches the replay, changes the digest, and is caught where it is meant to be.
+        //
+        // `reason` is deliberately absent from what is handed on. It is derived, `comparisonReason`
+        // rebuilds it, and `comparisonEvidence` rejects an output carrying one because the codec has no
+        // such field.
+        if (output.evidence !== undefined) {
+          const evidence = decodeResult(output.evidence as never) as Record<string, unknown>;
+          return {
+            ...evidence,
+            quantityId,
+            status: replayText(output.status, 40),
+            unit: replayText(output.unit, 80),
+            semanticKind: replayText(output.semanticKind, 256),
+            ...(output.status === "value" ? { value: output.value } : {}),
+          };
+        }
         return {
           quantityId,
           status: replayText(output.status, 40),

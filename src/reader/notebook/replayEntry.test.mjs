@@ -165,7 +165,7 @@ test("revised and unresolved passages are not claimed unchanged", () => {
  * recipe-version throw above it read as coded too. The bare count would have fallen by two for one
  * repair - the gate satisfied without the second refusal being improved at all.
  */
-test("reject: (replayEntry.ts:248) an unsupported recipe version is refused by code, and is still a TypeError", () => {
+test("reject: (replayEntry.ts:305) an unsupported recipe version is refused by code, and is still a TypeError", () => {
   for (const mutate of [
     (r) => (r.tape.modelIdentity.modelVersion = 2),
     (r) => (r.tape.experimentId = "bm-05"),
@@ -187,7 +187,7 @@ test("reject: (replayEntry.ts:248) an unsupported recipe version is refused by c
   assert.equal(parseComparisonReplay(clone()).kind, "bm01-comparison");
 });
 
-test("reject: (replayEntry.ts:252) a tape over the bounded recipe size is refused by code, and is still a RangeError", () => {
+test("reject: (replayEntry.ts:309) a tape over the bounded recipe size is refused by code, and is still a RangeError", () => {
   const r = clone();
   // The tape can only GROW by lengthening a string: record() pins the exact key set at every level
   // and caps events and predictions at one each, so padding an id is the only route to an oversized
