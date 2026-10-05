@@ -221,3 +221,22 @@ test("shared-memory and wrongly declared NumericViews are not accepted as snapsh
     assert.throws(() => cameraComparisonArray(s, "times"), invalidEvidence);
   }
 });
+
+
+test("a NumericView cannot smuggle shared memory through its copy operation", () => {
+  const s = snapshot();
+  output(s, "times").value = { length: 4, copy: () => new Float64Array(new SharedArrayBuffer(4 * 8)) };
+  assert.throws(() => cameraComparisonArray(s, "times"), invalidEvidence);
+});
+test("malformed confidence sets cannot replace an otherwise reusable accepted pair", () => {
+  for (const side of ["baseline", "variant"]) {
+    const a = snapshot(), b = snapshot({ sigma: 0.4e-6 });
+    output(side === "baseline" ? a : b, "pairInterval").value = new Float64Array([0.7, 0.3]);
+    assert.match(verifyBm08Comparison(a, b, accepted()), /evidence is incomplete/);
+  }
+  const a = snapshot(), b = snapshot({ sigma: 0.4e-6 });
+  output(b, "pairInterval").status = "not-applicable";
+  output(b, "pairInterval").reason = "The physical confidence set is empty.";
+  delete output(b, "pairInterval").value;
+  assert.equal(verifyBm08Comparison(a, b, accepted()), null);
+});

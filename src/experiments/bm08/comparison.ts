@@ -89,7 +89,8 @@ export function cameraComparisonArray(snapshot: ComparisonSnapshot, id: string):
       "length" in value && value.length === expected && "copy" in value && typeof value.copy === "function")
     copy = value.copy();
   else invalid(`The accepted camera result is missing the array ${id}.`);
-  if (!(copy instanceof Float64Array) || copy.length !== expected || !copy.every(Number.isFinite))
+  if (!(copy instanceof Float64Array) || !(copy.buffer instanceof ArrayBuffer) ||
+      copy.length !== expected || !copy.every(Number.isFinite))
     invalid(`The accepted camera array ${id} has the wrong size or nonfinite entries.`);
   return Object.freeze(Array.from(copy));
 }
@@ -150,6 +151,11 @@ export function verifyBm08Comparison(
   if (command !== "measurement-change" && command !== "estimator-change")
     return "This comparison changes the camera or estimator, not the physical path.";
   try {
+    // These array-valued confidence sets are displayed beside the scalar comparison. Validate
+    // them before accepting the pair, so a malformed interval cannot replace a valid result.
+    for (const snapshot of [baseline, variant])
+      for (const id of ["naiveInterval", "centeredInterval", "pairInterval"] as const)
+        cameraComparisonInterval(snapshot, id);
     if (baseline.instanceId !== variant.instanceId || baseline.runId !== variant.runId ||
         ["seed", "D", "flowDrift", "noiseSeed", "clickSeed"].some((key) =>
           !Object.is(baseline.parameters[key], variant.parameters[key])))

@@ -1,0 +1,57 @@
+.camera-controlled-comparison {
+  max-width: 74rem;
+  margin-inline: auto;
+}
+.camera-comparison-plots {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.camera-comparison-plots figure {
+  min-width: 0;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+}
+.camera-comparison-plots figcaption {
+  font-weight: 600;
+  padding: 0.5rem;
+}
+.camera-comparison-plots svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.camera-comparison-plots text {
+  fill: var(--ink);
+  font-size: 12px;
+}
+.camera-comparison-axis,
+.camera-comparison-latent,
+.camera-comparison-blurred,
+.camera-comparison-observed {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+.camera-comparison-axis { stroke: var(--line); }
+.camera-comparison-latent { stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 2 4; }
+.camera-comparison-blurred { stroke: var(--muted, var(--ink)); stroke-width: 1.5; stroke-dasharray: 9 5; }
+.camera-comparison-observed { stroke: var(--accent); stroke-width: 1.5; }
+.camera-comparison-legend { font-size: 0.875rem; }
+.camera-comparison-statement { overflow-wrap: anywhere; }
+.camera-controlled-comparison details { margin-block: 1rem; }
+.camera-controlled-comparison :is(button, input, select, summary):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+@media (max-width: 56rem) {
+  .camera-comparison-plots { grid-template-columns: minmax(0, 1fr); }
+}
+@media print {
+  .camera-controlled-comparison form,
+  .camera-controlled-comparison .actions { display: none; }
+  .camera-comparison-plots figure { break-inside: avoid; }
+  .camera-controlled-comparison .comparison-scroll { overflow: visible; }
+}

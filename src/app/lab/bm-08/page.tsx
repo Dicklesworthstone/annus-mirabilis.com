@@ -42,6 +42,9 @@ export default function CameraPage() {
         <h2>From here</h2>
         <ul>
           <li>
+            <a href="/lab/bm-08/compare/">Hold one path fixed and compare camera settings</a>
+          </li>
+          <li>
             <a href="/lab/bm-07/">Start with ideal molecular-number inference</a>
           </li>
           <li>
