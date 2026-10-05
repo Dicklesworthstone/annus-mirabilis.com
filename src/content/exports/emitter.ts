@@ -16,7 +16,7 @@ import { generateJsonLd } from "./jsonld.ts";
 import { generateSectionMarkdown } from "./markdown.ts";
 import { generateParallelCorpusTsv } from "./parallelCorpus.ts";
 import { isAssetPublishable, resolveLayerRights } from "./rights.ts";
-import { validateExportRecord } from "./schemas.ts";
+import { ExportValidationError, validateExportRecord } from "./schemas.ts";
 import { generateTeiXml } from "./tei.ts";
 import type {
   ArgumentExport,
@@ -85,6 +85,21 @@ export interface ExportEmitterSourceAssetInput {
 
 export interface ExportEmitterSourceBlockInput {
   readonly id: string;
+  /**
+   * The paper slug this block belongs to.
+   *
+   * REQUIRED WHENEVER MORE THAN ONE PAPER IS EMITTED, and the reason is a measured defect. Blocks
+   * were grouped by SECTION ID alone, and every paper in this corpus uses the same section grammar
+   * (`s0`, `s1`, ...), so emitting two papers in one call gave each of them BOTH papers' blocks and
+   * sentences. Measured on two fixture papers with one block each: `papers/alpha/s0.json` listed
+   * blocks `["s0-p1","s0-p9"]` and sentences `["s0-p1-s1","s0-p9-s1"]`, and `papers/beta/s0.json`
+   * listed exactly the same. Wiring the real corpus would have published each paper carrying all
+   * four papers' source text.
+   *
+   * Optional so that a single-paper caller is unchanged; when several papers are emitted and a block
+   * does not declare one, the emit REFUSES rather than merging silently (am-49lz).
+   */
+  readonly paper?: string | undefined;
   readonly section?: string | undefined;
   readonly kind?: string | undefined;
   readonly order?: number | undefined;
@@ -324,15 +339,34 @@ export async function emitMachineReadableExports(
   const assetDigest = firstAsset ? firstAsset.sha256 : undefined;
 
   // 2. Maps for quick lookups
+  //
+  // KEYED BY PAPER AND SECTION, NOT SECTION ALONE. See `paper` on ExportEmitterSourceBlockInput:
+  // every paper here uses the same section grammar, so a section-only key merged two papers' blocks
+  // into each of them. A block with no `paper` keeps the wildcard key, which is what a single-paper
+  // caller has always passed; with several papers that is ambiguous and is refused below rather
+  // than resolved by guessing.
+  const WILDCARD_PAPER = "\u0000any";
+  const blockKey = (paper: string | undefined, section: string | undefined): string =>
+    `${paper ?? WILDCARD_PAPER}\u0000${section ?? "s1"}`;
   const blocksBySection = new Map<string, ExportEmitterSourceBlockInput[]>();
   for (const block of options.sourceBlocks ?? []) {
-    const secId = block.section ?? "s1";
-    let list = blocksBySection.get(secId);
+    const key = blockKey(block.paper, block.section);
+    let list = blocksBySection.get(key);
     if (!list) {
       list = [];
-      blocksBySection.set(secId, list);
+      blocksBySection.set(key, list);
     }
     list.push(block);
+  }
+  if ((options.papers?.length ?? 0) > 1) {
+    const undeclared = (options.sourceBlocks ?? []).filter((b) => b.paper === undefined);
+    if (undeclared.length > 0) {
+      throw new ExportValidationError(
+        "emitter-input",
+        "sourceBlocks[].paper",
+        `${options.papers.length} papers are being emitted and ${undeclared.length} source block(s) declare no paper, for example '${undeclared[0]?.id}'. Grouping by section alone would give every paper every other paper's blocks.`,
+      );
+    }
   }
 
   const notesBySection = new Map<string, ExportEmitterEditorialNoteInput[]>();
@@ -456,7 +490,10 @@ export async function emitMachineReadableExports(
     const sectionExports: SectionExport[] = [];
 
     for (const sec of paperSections) {
-      const secBlocks = blocksBySection.get(sec.id) ?? [];
+      const secBlocks =
+        blocksBySection.get(blockKey(slug, sec.id)) ??
+        blocksBySection.get(blockKey(undefined, sec.id)) ??
+        [];
       const secNotes = notesBySection.get(sec.id) ?? [];
 
       // Sentences
@@ -539,15 +576,40 @@ export async function emitMachineReadableExports(
         }
       }
 
-      // If no sentence spans were explicit, fall back to block-level sentences if available
+      // A SECTION WITH NO CUT SENTENCE UNITS EXPORTS NO SENTENCES. NOTHING HERE MINTS AN ID.
+      //
+      // This used to fall back to `${b.id}-s1` for every block, which is the one place in this file
+      // that invented an id rather than passing one through -- b.id, eq.id, arg.id, exp.id, n.id and
+      // s.id all come from the records. And it minted INTO the repository's frozen grammar:
+      // docs/CONTENT_IDS.md defines `s<n>-p<m>-s<k>` as section n, paragraph m, sentence k, so
+      // `s4-p6` + `-s1` is a well-formed id of the real scheme denoting the WHOLE PARAGRAPH where
+      // the real one denotes its first sentence. A consumer keyed on id could not detect the
+      // difference, and the exports exist for "indexing, agent-assisted review, citation" (am-49lz).
+      //
+      // Measured over the four real manifests: every unit id lives in `units`, and the minted form
+      // collides with ids that are already frozen there -- 28 distinct ids across three papers
+      // against brownian's frozen set, plus 39 that two or three papers would each mint as the same
+      // string, because the grammar is section-and-paragraph relative and unique only WITHIN a paper.
+      //
+      // The absence is DECLARED rather than silent, in the structured log beside every other export
+      // event. It is not declared in the record itself because every export schema here is closed
+      // (`additionalProperties: false`, enforced by rejectUndeclaredKeys), so a `sentencesAbsent`
+      // field is a v1 contract change and belongs to am-cm-machine-readable-exports-xgy, not here.
       if (sentences.length === 0 && blocks.length > 0) {
-        for (const b of blocks) {
-          sentences.push({
-            id: `${b.id}-s1`,
-            german: b.diplomaticText,
-            ...(b.translation ? { english: b.translation } : {}),
-            sourceBlockId: b.id,
+        try {
+          logger.log({
+            testId: `export-section-without-sentence-units-${slug}-${sec.id}`,
+            beadId: "am-49lz",
+            paper: slug,
+            anchor: sec.id,
+            expected: "sentence units cut for this section",
+            actual: `0 sentence units across ${blocks.length} block(s)`,
+            outcome: "passed",
+            message: `Section ${sec.id} of ${slug} exports no sentences: no sentence units are cut for its ${blocks.length} block(s). No id is minted.`,
+            extra: { blocks: blocks.length, sentences: 0, minted: 0 },
           });
+        } catch {
+          // Logging must never decide whether an export is emitted.
         }
       }
 
