@@ -1,0 +1,35 @@
+# ME-03 assigns no rest mass to the radiation in flight (am-nxbq, item 2).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: none. The 1906 box argument never assigns a rest mass to free
+# radiation, so no setting of the pulse energy, the box mass or the box length produces one, and the
+# laboratory reports the radiation's mass change as not applicable in every setting.
+#
+# WHAT THE ARGUMENT DOES ASSIGN. A pulse crosses from one wall to the other, the box recoils, and the
+# centre of mass must not move, which is how the argument arrives at a mass change for the EMITTING BODY
+# from the energy it gave up. The radiation in between carries energy and momentum and, in 1905
+# kinematics, no rest mass. The session says exactly that: free radiation is not assigned an inertial rest
+# mass in 1905 kinematics.
+#
+# WHY A NUMBER WOULD BE AN ANACHRONISM. Assigning E over c squared to the pulse as a rest mass is a later
+# move, and it would make the box argument circular besides: the equivalence is what the argument
+# concludes, so putting a mass on the radiation would put the conclusion into the premise. AGENTS.md names
+# that family of circularity by hand.
+id: "me-03-free-radiation-has-no-rest-mass"
+kind: "adversarial"
+title: "ME-03 reports no rest mass for the radiation in flight, in every setting"
+description: "ME-03 follows a pulse from one wall of a box to the other and requires the centre of mass to stay put, which yields a mass change for the body that emitted the pulse. The pulse itself is assigned no rest mass: it carries energy and momentum, and 1905 kinematics gives free radiation no inertial rest mass. The session reports the radiation's mass change as not applicable with that reason, rather than dividing the pulse energy by c squared and calling the quotient a mass."
+plausibleMistake: "That the pulse's mass is its energy over c squared, so the box argument could be stated by moving that mass from one wall to the other. It would then be assuming what it sets out to show, since the equivalence is the conclusion; and the quantity it would assign is not a rest mass, which for radiation is zero. The displacement bookkeeping needs the pulse's momentum and nothing else."
+intendedFailure: "The session reports the quantity as not applicable rather than forming it. The scenario passes only when that status arrives on the radiation's mass change; a run that returned a number fails here, including the pulse energy over c squared, and so does one that reported it as outside a domain, which would say the conditions are wrong rather than that the quantity is not assigned."
+constantSetId: "modern-si-2019"
+owner: "me03.session"
+inputs:
+  pulseEnergy:
+    value: 1
+    unit: "J"
+expected:
+  status:
+    outputId: "radiationMassChange"
+    status: "not-applicable"
+    reasonCode: "not-applicable"
+modelVersion: 1
+schemaVersion: 1

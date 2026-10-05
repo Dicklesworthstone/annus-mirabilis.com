@@ -1,0 +1,45 @@
+# SR-01 reports no measured one-way light speed, because it is a convention (am-nxbq, item 2).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: none, and that is the claim. No setting of the station
+# separation, the emission time, the clock offset or the station speed turns a convention into a
+# measurement, so the laboratory reports the quantity as not applicable in every setting. The scenario is
+# run at two different settings for that reason, and the manifest admits the status on this output.
+#
+# WHY IT IS A CONVENTION. Section 1 defines simultaneity between two separated clocks by STIPULATING that
+# the light takes the same time out as back, and the one-way speed follows from that stipulation. What the
+# apparatus measures independently is the TWO-WAY speed, over the round trip, where no synchronization is
+# needed because one clock times the whole journey. The laboratory's own sentence says so: the model
+# defines the one-way light speed by convention, Einstein's synchronization procedure, rather than
+# measuring it independently.
+#
+# WHAT A NUMBER WOULD CLAIM. A reader shown a one-way speed of c beside the two-way speed of c would
+# reasonably conclude that both were measured and agreed, which is the one thing section 1 denies. The
+# agreement is built in, and seeing that it is built in is the step the rest of the paper needs.
+#
+# THE OWNER IS A SESSION, which is new. Every other owner here calls a reference evaluator, and this
+# statement is not an evaluator's to make: the measurement of the round trip is physics and the
+# conventionality of the one-way split is the laboratory's editorial position. The output is found by its
+# quantity id rather than by position, because a session returns a list and a list's order is not a
+# contract.
+id: "sr-01-one-way-light-speed-is-a-convention"
+kind: "adversarial"
+title: "SR-01 reports no measured one-way light speed, in every setting"
+description: "SR-01 synchronizes two separated clocks by Einstein's procedure, which stipulates that light takes the same time from A to B as from B to A. The one-way speed is a consequence of that stipulation rather than a measurement, so the laboratory reports it as not applicable and states why, while the two-way speed over the round trip remains an ordinary measured quantity. No control changes this, which is why the record is run at a non-default station separation and speed as well."
+plausibleMistake: "That the one-way speed is measured and found to equal c, so reporting c is simply reporting the result. The apparatus cannot measure it without first agreeing when the distant clock reads zero, and that agreement is what fixes the one-way speed; the two are the same choice seen twice. A reader shown c beside the measured two-way c would conclude that two independent measurements agreed, which is the claim section 1 is at pains to withdraw."
+intendedFailure: "The laboratory reports the quantity as not applicable rather than dividing a separation by a conventional time. The scenario passes only when that status arrives on the one-way light speed; a run that returned a number fails here, including exactly c, and so does one that reported the quantity as outside a domain, which would say the conditions are wrong rather than that the quantity is not measured."
+constantSetId: "modern-si-2019"
+owner: "sr01.session"
+inputs:
+  stationSeparationLs:
+    value: 5
+    unit: "ls"
+  rodBeta:
+    value: 0.6
+    unit: "1"
+expected:
+  status:
+    outputId: "oneWayLightSpeed"
+    status: "not-applicable"
+    reasonCode: "not-applicable"
+modelVersion: 1
+schemaVersion: 1

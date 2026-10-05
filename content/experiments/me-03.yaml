@@ -599,6 +599,7 @@ acceptanceCases:
   - me-03-canonical
   - me-03-box-canonical
   - me-03-boxmass-outside-declared-range-refused
+  - me-03-free-radiation-has-no-rest-mass
 defaultScenario: me-03-box-canonical
 tapeModel:
   modelId: me-03-box-1906-v1

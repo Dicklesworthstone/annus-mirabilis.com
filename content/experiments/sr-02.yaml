@@ -255,6 +255,7 @@ acceptanceCases:
   - sr-02-path-along-motion-0.6c
   - sr-02-dipole-equatorial
   - sr-02-speed-outside-declared-range-refused
+  - sr-02-no-circuit-no-current
 defaultScenario: sr-02-uniform-10ms
 tapeModel:
   modelId: magnet-conductor-host

@@ -313,6 +313,7 @@ acceptanceCases:
   - sr-01-rod-chase-0.6c
   - sr-01-moving-pair-0.6c
   - sr-01-rodbeta-outside-declared-range-refused
+  - sr-01-one-way-light-speed-is-a-convention
 historicalOverlays: []
 realRate:
   natural: false

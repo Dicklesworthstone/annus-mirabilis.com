@@ -1,0 +1,41 @@
+# LQ-07 reports no emission when the emitted frequency exceeds the exciting one (am-nxbq, item 2).
+#
+# WHICH CONTROLS A READER MOVES TO REACH IT: the two frequency controls. Setting the exciting frequency to
+# 1000 THz and the emitted frequency to 2000 THz asks for light more energetic per quantum than the light
+# producing it. Both values are inside their declared range of 100 to 3000 THz, so the controls reach this
+# without being driven out of domain, which is the difference between this record and the declared-range
+# refusals: here the SETTINGS are admissible and the OUTCOME the model gives is not a number.
+#
+# WHY SECTION 7 FORBIDS IT. The light-quanta paper derives Stokes's rule from the hypothesis: one absorbed
+# quantum has only its own energy to give, so the quantum it produces cannot carry more. The session
+# reports the emitted rate, the emitted power and the dissipated heat as not applicable, with the reason
+# that one quantum of the exciting light has too little energy to produce light of the emitted frequency.
+#
+# IT IS A RULE RATHER THAN AN ARITHMETIC CHECK, and the laboratory's multi-quantum control is why: with
+# more than one absorbed quantum the ceiling moves, which is the deviation the paper itself anticipates. So
+# the result is conditional on the model a reader has selected and not on the two frequencies alone.
+#
+# The control is the same pair the other way round, 2000 THz exciting and 1000 THz emitted, which returns
+# an emitted rate of about 3.77e11 per second.
+id: "lq-07-stokes-rule-forbids-the-emission"
+kind: "adversarial"
+title: "LQ-07 reports no emitted rate when the emitted frequency is above the exciting one"
+description: "Section 7 of the light-quanta paper derives Stokes's rule: on the quantum hypothesis a single absorbed quantum cannot produce a quantum of higher frequency, because it has only its own energy to give. With the exciting light at 1000 THz and the emitted light asked for at 2000 THz the session reports the emitted rate, power and dissipated heat as not applicable, carrying that reason, while the same frequencies exchanged give an emitted rate of about 3.77e11 per second. Both settings are inside the controls' declared range, so this is the model's answer rather than a range limit."
+plausibleMistake: "That a weaker emission at the higher frequency is possible, so the rate should simply be small rather than absent. The rule is not about how much light comes out: a quantum of 2000 THz carries about 8.3 electronvolts and a quantum of 1000 THz about 4.1, so there is no number of exciting quanta each acting alone that produces one. A small positive rate would say the transition happens rarely, when the single-quantum hypothesis says it does not happen."
+intendedFailure: "The session compares the two quantum energies against the selected number of absorbed quanta before forming a rate, so no rate is produced for a forbidden transition. The scenario passes only when the status arrives as not applicable on the emitted rate; a run that returned a number fails here, including zero, and so does one that reported the result as outside the model's domain, which is the status this laboratory uses for a setting it does not cover rather than for a transition the model disallows."
+constantSetId: "modern-si-2019"
+owner: "lq07.session"
+inputs:
+  nu1:
+    value: 1000
+    unit: "THz"
+  nu2:
+    value: 2000
+    unit: "THz"
+expected:
+  status:
+    outputId: "emittedRate"
+    status: "not-applicable"
+    reasonCode: "not-applicable"
+modelVersion: 1
+schemaVersion: 1

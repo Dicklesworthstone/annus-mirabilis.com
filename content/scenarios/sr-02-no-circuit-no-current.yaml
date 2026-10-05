@@ -1,0 +1,36 @@
+# SR-02 reports no induced current, because the model has no circuit (am-nxbq, item 2).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: none. The laboratory models the field and the force on a test
+# charge, which is what the paper's opening asymmetry is about, and it has no circuit at all. So no
+# setting of the relative speed, the magnetic field, the segment length or the test charge produces a
+# current, and the session reports the quantity as not applicable in every setting.
+#
+# WHAT THE MODEL IS, AND WHAT IT LEAVES OUT. Paper 3 opens by observing that a magnet and a conductor in
+# relative motion give the same electromotive force while the two customary descriptions of where it comes
+# from are quite different. The force is the subject; a current would need a closed path, a resistance and
+# a load, none of which is modelled here. The session's own sentence says so: current in a real circuit is
+# not modelled, this model has no circuit.
+#
+# WHY ZERO WOULD BE WRONG RATHER THAN SAFE. A current of zero amperes says the circuit exists and carries
+# nothing, which would be a physical claim about an apparatus that is not here, and it would sit beside a
+# non-zero electromotive force looking like a contradiction. The honest reading is that the quantity is
+# outside what this model describes, which the manifest's notModeled list also records.
+id: "sr-02-no-circuit-no-current"
+kind: "adversarial"
+title: "SR-02 reports no induced current, rather than a current of zero"
+description: "SR-02 is the opening asymmetry of paper 3: a magnet and a conductor in relative motion, where the electromotive force is the same in both descriptions and its account is not. The model is the field and the force on a test charge, and it contains no circuit, no resistance and no load. The session reports the induced circuit current as not applicable with that reason, so a reader is not shown zero amperes beside a non-zero electromotive force."
+plausibleMistake: "That the current is zero because nothing is connected, so reporting zero is both true and harmless. Zero amperes is a claim about a circuit, and there is no circuit to make it about; next to a non-zero electromotive force it reads as a contradiction rather than as an omission. What the model says is that it does not describe this quantity, which is a different sentence and the one the manifest's notModeled list also records."
+intendedFailure: "The session reports the quantity as not applicable rather than forming a current. The scenario passes only when that status arrives on the induced circuit current; a run that returned a number fails here, including zero, and so does one that reported the quantity as symbolic, which is the status this laboratory uses for the electromotive force in its unevaluated form and is a different statement."
+constantSetId: "modern-si-2019"
+owner: "sr02.session"
+inputs:
+  magneticField:
+    value: 0.5
+    unit: "T"
+expected:
+  status:
+    outputId: "inducedCircuitCurrent"
+    status: "not-applicable"
+    reasonCode: "not-applicable"
+modelVersion: 1
+schemaVersion: 1

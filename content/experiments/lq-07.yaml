@@ -329,6 +329,7 @@ acceptanceCases:
   - deviation-non-wien-regime-refusal
   - modern-thermal-phonon-assisted
   - lq-07-nu1-outside-declared-range-refused
+  - lq-07-stokes-rule-forbids-the-emission
 defaultScenario: stokes-rule-einstein-1905-printed
 tapeModel:
   modelId: fluorescence-budget-reference
