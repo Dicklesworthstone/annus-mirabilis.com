@@ -15,7 +15,13 @@
  * accepted path with the key named, and the accepted path with the default key.
  */
 import { describe, expect, test } from "bun:test";
-import { assessmentOr, getOwner, nonNumericOr, OwnerContractError } from "./owners.ts";
+import {
+  assessmentOr,
+  getOwner,
+  nonNumericOr,
+  OwnerContractError,
+  sessionOutputsOf,
+} from "./owners.ts";
 
 describe("nonNumericOr: a status is carried, never flattened", () => {
   test("a value under the default key is returned as a number", () => {
@@ -140,6 +146,51 @@ describe("assessmentOr: the inference family's result shape, which is a differen
       constantSetId: "modern-si-2019",
     });
     expect((typed as { refused: { status: string } }).refused.status).toBe("underdetermined");
+  });
+});
+
+describe("sessionOutput: a laboratory's own statement, read by quantity id", () => {
+  /**
+   * Several instruments state their non-numeric result in the SESSION rather than in a reference
+   * evaluator, because the statement is the laboratory's rather than the physics': that the one-way light
+   * speed is a convention, that free radiation is assigned no rest mass, that a model with no circuit has
+   * no current. Those owners read one output BY ITS QUANTITY ID, never by position, because a session
+   * returns a list and a list's order is not a contract.
+   */
+  test("REFUSES with owner-session-output-absent when the id is not in the list", () => {
+    let thrown: unknown;
+    try {
+      sessionOutputsOf([{ quantityId: "somethingElse", status: "value", value: 1 }], "notThere");
+    } catch (error) {
+      thrown = error;
+    }
+    expect(thrown).toBeInstanceOf(OwnerContractError);
+    expect((thrown as OwnerContractError).code).toBe("owner-session-output-absent");
+    // It says how many outputs there were, so a renamed quantity is distinguishable from an empty session.
+    expect((thrown as OwnerContractError).message).toContain("1 output(s)");
+  });
+
+  test("THE CONTROL: the same list with the id present is read rather than refused", () => {
+    // Without this a function that always threw would satisfy the case above.
+    // It returns the owner protocol's record, keyed by the quantity id, not the bare number.
+    expect(sessionOutputsOf([{ quantityId: "here", status: "value", value: 7 }], "here")).toEqual({
+      here: 7,
+    });
+  });
+
+  test("and a non-value output from a real session is carried, not flattened", () => {
+    // Three real session owners, each reporting a statement its laboratory makes in every setting.
+    for (const [owner, outputId] of [
+      ["sr01.session", "oneWayLightSpeed"],
+      ["me03.session", "radiationMassChange"],
+      ["sr02.session", "inducedCircuitCurrent"],
+    ] as const) {
+      const got = getOwner(owner).fn({ inputs: {}, constantSetId: "modern-si-2019" });
+      expect(got, `${owner} should carry a status`).toHaveProperty("refused");
+      const refused = (got as { refused: { outputId: string; status: string } }).refused;
+      expect(refused.outputId).toBe(outputId);
+      expect(refused.status).toBe("not-applicable");
+    }
   });
 });
 

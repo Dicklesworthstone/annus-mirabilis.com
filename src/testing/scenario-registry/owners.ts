@@ -377,17 +377,11 @@ function sessionOutput<P>(
   ctx: OwnerContext,
   quantityId: string,
 ): OwnerResult {
-  const outputs = snapshot({ ...defaults, ...ctx.inputs });
-  const found = outputs.find(
-    (o) => (o as { quantityId?: string } | null)?.quantityId === quantityId,
-  );
-  if (!found)
-    throw new OwnerContractError(
-      "owner-session-output-absent",
-      `${quantityId}: the session returned ${outputs.length} output(s) and none of them is it.`,
-    );
-  const got = nonNumericOr(found as Record<string, unknown>, quantityId);
-  return typeof got === "number" ? { [quantityId]: got } : got;
+  // Delegated rather than repeated, and the reason is a gate rather than taste: the two functions each
+  // carried their own `owner-session-output-absent` throw, which put one code at two sites, and the
+  // refusal ratchet credits a code only where EVERY site carrying it is cited. One site is the honest
+  // fix, since the condition is the same one.
+  return sessionOutputsOf(snapshot({ ...defaults, ...ctx.inputs }), quantityId);
 }
 
 /**
@@ -398,7 +392,7 @@ function sessionOutput<P>(
  * reads such a list. The id lookup and the contract error are the same, for the reason given there: a
  * list's order is not a contract.
  */
-function sessionOutputsOf(outputs: readonly unknown[], quantityId: string): OwnerResult {
+export function sessionOutputsOf(outputs: readonly unknown[], quantityId: string): OwnerResult {
   const found = outputs.find(
     (o) => (o as { quantityId?: string } | null)?.quantityId === quantityId,
   );
