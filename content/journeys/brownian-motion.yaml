@@ -153,7 +153,7 @@ doors:
     summary: Grant that a visible particle presses on a membrane the way a dissolved molecule does, pull on the particles with a force, and let the crowd settle. The force cancels between the two ways of counting what crosses a plane each second, and the coefficient left behind depends on the temperature, the viscosity of the liquid and the radius of the particle alone.
   sideDoors:
     - id: door-bm-walk
-      title: 'Follow one particle: the walk, for programmers'
+      title: 'Follow one particle: the walk'
       arrivesAtEquationId: eq-model-bm-diffusivity-molar
       arrivesAtLabel: the diffusion coefficient of a suspended sphere, D = RT/(6πηaN), the paper's relation in today's letters
       href: /lab/bm-05/

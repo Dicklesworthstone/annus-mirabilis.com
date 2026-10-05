@@ -360,7 +360,7 @@ export const DOORS: Doors = {
   sideDoors: [
     {
       id: "door-sr-requirements",
-      title: "The map from its requirements, for programmers",
+      title: "The map from its requirements",
       arrivesAtEquationId: "eq-model-sr-map-time",
       arrivesAtLabel: MAP_LABEL,
       href: "/lab/sr-04/",

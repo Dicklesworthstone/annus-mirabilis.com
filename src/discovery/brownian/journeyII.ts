@@ -76,7 +76,7 @@ export const DOORS: Doors = {
   sideDoors: [
     {
       id: "door-bm-walk",
-      title: "Follow one particle: the walk, for programmers",
+      title: "Follow one particle: the walk",
       arrivesAtEquationId: "eq-model-bm-diffusivity-molar",
       arrivesAtLabel:
         "the diffusion coefficient of a suspended sphere, D = RT/(6πηaN), the paper's relation in today's letters",

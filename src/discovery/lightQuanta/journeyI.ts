@@ -287,7 +287,7 @@ export const DOORS: Doors = {
   sideDoors: [
     {
       id: "door-lq-programmer",
-      title: "The microstate counter, for programmers",
+      title: "The microstate counter",
       arrivesAtEquationId: "eq-model-lq-effective-count",
       arrivesAtLabel:
         "the effective count n = (N/R)(E/βν), the power to which the probability W raises V/V₀",

@@ -184,7 +184,7 @@ doors:
     summary: Set the moving system's clocks by the rule of § 1, ask what time τ an event must have for light to take equal times out and back, and solve. An unknown factor φ(v) is left, and the paper fixes it at 1 with a third system moving back at −v, and a rod set across the motion whose measured length cannot depend on the direction of travel.
   sideDoors:
     - id: door-sr-requirements
-      title: The map from its requirements, for programmers
+      title: The map from its requirements
       arrivesAtEquationId: eq-model-sr-map-time
       arrivesAtLabel: 'the map of § 3: x′ = γ(x − vt) and t′ = γ(t − vx/c²), with γ = 1/√(1 − v²/c²), which the paper writes ξ = β(x − vt) and τ = β(t − vx/V²)'
       href: /lab/sr-04/

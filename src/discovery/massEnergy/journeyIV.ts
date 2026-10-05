@@ -269,7 +269,7 @@ export const DOORS: Doors = {
   sideDoors: [
     {
       id: "door-me-box-1906",
-      title: "The 1906 box, for programmers",
+      title: "The 1906 box",
       arrivesAtEquationId: "eq-model-me-mass-decrease",
       arrivesAtLabel: "the mass falls by L/V²",
       href: BOX_1906_HREF,

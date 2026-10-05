@@ -157,7 +157,7 @@ doors:
     summary: Write the body's energy in two frames, take one account from the other, and read the slow-speed limit.
   sideDoors:
     - id: door-me-box-1906
-      title: The 1906 box, for programmers
+      title: The 1906 box
       arrivesAtEquationId: eq-model-me-mass-decrease
       arrivesAtLabel: the mass falls by L/V²
       href: /lab/me-03/?mode=box-1906
