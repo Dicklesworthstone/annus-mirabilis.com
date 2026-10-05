@@ -287,6 +287,7 @@ acceptanceCases:
   - lq05-ten-points-half-volume
   - lq05-sixty-points-logarithmic
   - lq05-locked-positions-counterexample
+  - lq-05-n-outside-declared-range-refused
 defaultScenario: lq05-ten-points-half-volume
 tapeModel:
   modelId: lq05-independent-configurations-v1

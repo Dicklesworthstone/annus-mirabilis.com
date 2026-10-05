@@ -298,6 +298,7 @@ actions:
     announcement: "Ionization count and rate updated with power"
 acceptanceCases:
   - photoelectric-einstein-1905-printed
+  - lq-09-ionizationenergyev-outside-declared-range-refused
 defaultScenario: photoelectric-einstein-1905-printed
 presets:
   - presetId: lq-09-threshold

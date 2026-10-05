@@ -586,6 +586,7 @@ predictMode:
           separatingAssumption: "Treats the light as a parallel beam that does not spread. A point source sends its power out in every direction."
 acceptanceCases:
   - waves-lq01
+  - lq-01-wavelength-outside-declared-range-refused
 defaultScenario: waves-lq01
 tapeModel:
   modelId: lq-01

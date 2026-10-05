@@ -494,6 +494,7 @@ acceptanceCases:
   - diffusion-modern-viscosity-17c
   - diffusion-modern-golden
   - diffusion-apparent-speed-identity
+  - bm-01-t-outside-declared-range-refused
 defaultScenario: diffusion-einstein-1905-printed
 tapeModel:
   modelId: brownian-motion-reference

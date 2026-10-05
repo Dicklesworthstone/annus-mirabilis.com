@@ -456,6 +456,7 @@ acceptanceCases:
   - bm-08-pairs-estimated-coverage
   - bm-08-overlap-refusal
   - bm-08-apparent-speed-noise
+  - bm-08-exposure-outside-declared-range-refused
 defaultScenario: bm-08-apparent-speed-noise
 tapeModel:
   modelId: inference-bm08-host

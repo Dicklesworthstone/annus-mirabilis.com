@@ -1,0 +1,32 @@
+# BM-05 refuses a interval between steps outside the range its manifest declares (am-nxbq, items 2 and 3).
+#
+# WHICH CONTROL VALUE A READER MOVES TO REACH IT: the control "Interval between steps", typed at 20000 s.
+# The manifest declares it at least 1e-06 and at most 10000, for the stated reason "The intervals between steps the lab offers, a microsecond up to ten thousand seconds", so 20000 is above its declared maximum.
+#
+# WHAT THE REFUSAL DOES AND DOES NOT CLAIM. Nothing forbids a twenty-thousand-second interval between steps. The instrument declares at most ten thousand, because beyond that the walk it draws is a handful of points and the statistics it reports stop meaning what the caption says.
+#
+# No other control is supplied, so the refusal can only be coming from tau: the declared-domain gate
+# skips a setting the request does not carry. The code is outside-model-domain, which is a model limit
+# rather than malformed input, and the reader is shown the range and its reason and keeps the last
+# legal state. The code itself is in `expected.status`, which is data; the prose names it in ordinary
+# language, because a raw status identifier in visitor-facing text is what the voice rule
+# status-enum-leak refuses.
+id: "bm-05-tau-outside-declared-range-refused"
+kind: "adversarial"
+title: "BM-05 refuses Interval between steps at 20000 s, outside the range it declares"
+description: "BM-05 declares its control \"Interval between steps\" as at least 1e-06 and at most 10000 s, for the reason \"The intervals between steps the lab offers, a microsecond up to ten thousand seconds\". A reader who types 20000 is asking for a setting the instrument does not model. The declared-domain gate every laboratory shares refuses because the setting lies outside the range the model declares, naming the control and the range as the page writes them, so no number is produced at a setting the model does not stand behind."
+plausibleMistake: "That a value just past the end of the control is close enough to compute anyway, because the arithmetic would succeed and return something finite. A number produced outside a model's declared range is not that model's answer, and nothing on the page would separate it from one that is."
+intendedFailure: "The gate refuses before any quantity is formed, so nothing is computed at 20000 s to be mistaken for a result this instrument vouches for. Nothing forbids a twenty-thousand-second interval between steps. The instrument declares at most ten thousand, because beyond that the walk it draws is a handful of points and the statistics it reports stop meaning what the caption says. The scenario passes only when the refusal arrives as a declared-range limit on tau, with above-max as the bound broken; a run that returned numbers fails here, and so does one that refused on a different control or on the other side of the range."
+constantSetId: "modern-si-2019"
+owner: "declaredDomain.bm-05"
+inputs:
+  tau:
+    value: 20000
+    unit: "s"
+expected:
+  status:
+    outputId: "tau"
+    status: "outside-model-domain"
+    reasonCode: "above-max"
+modelVersion: 1
+schemaVersion: 1

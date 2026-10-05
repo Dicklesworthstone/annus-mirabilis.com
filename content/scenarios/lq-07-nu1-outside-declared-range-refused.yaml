@@ -1,0 +1,32 @@
+# LQ-07 refuses a exciting frequency ν₁ outside the range its manifest declares (am-nxbq, items 2 and 3).
+#
+# WHICH CONTROL VALUE A READER MOVES TO REACH IT: the control "Exciting Frequency ν₁", typed at 6000 THz.
+# The manifest declares it at least 100 and at most 3000, for the stated reason "Optical to ultraviolet frequency range", so 6000 is above its declared maximum.
+#
+# WHAT THE REFUSAL DOES AND DOES NOT CLAIM. Six thousand terahertz is soft X-ray light, and photoluminescence at that frequency is a real subject. The range stops at three thousand, which is where this instrument's quantum-counting comparison stays within the regime the paper's Stokes rule addresses.
+#
+# No other control is supplied, so the refusal can only be coming from nu1: the declared-domain gate
+# skips a setting the request does not carry. The code is outside-model-domain, which is a model limit
+# rather than malformed input, and the reader is shown the range and its reason and keeps the last
+# legal state. The code itself is in `expected.status`, which is data; the prose names it in ordinary
+# language, because a raw status identifier in visitor-facing text is what the voice rule
+# status-enum-leak refuses.
+id: "lq-07-nu1-outside-declared-range-refused"
+kind: "adversarial"
+title: "LQ-07 refuses Exciting Frequency ν₁ at 6000 THz, outside the range it declares"
+description: "LQ-07 declares its control \"Exciting Frequency ν₁\" as at least 100 and at most 3000 THz, for the reason \"Optical to ultraviolet frequency range\". A reader who types 6000 is asking for a setting the instrument does not model. The declared-domain gate every laboratory shares refuses because the setting lies outside the range the model declares, naming the control and the range as the page writes them, so no number is produced at a setting the model does not stand behind."
+plausibleMistake: "That a value just past the end of the control is close enough to compute anyway, because the arithmetic would succeed and return something finite. A number produced outside a model's declared range is not that model's answer, and nothing on the page would separate it from one that is."
+intendedFailure: "The gate refuses before any quantity is formed, so nothing is computed at 6000 THz to be mistaken for a result this instrument vouches for. Six thousand terahertz is soft X-ray light, and photoluminescence at that frequency is a real subject. The range stops at three thousand, which is where this instrument's quantum-counting comparison stays within the regime the paper's Stokes rule addresses. The scenario passes only when the refusal arrives as a declared-range limit on nu1, with above-max as the bound broken; a run that returned numbers fails here, and so does one that refused on a different control or on the other side of the range."
+constantSetId: "modern-si-2019"
+owner: "declaredDomain.lq-07"
+inputs:
+  nu1:
+    value: 6000
+    unit: "THz"
+expected:
+  status:
+    outputId: "nu1"
+    status: "outside-model-domain"
+    reasonCode: "above-max"
+modelVersion: 1
+schemaVersion: 1

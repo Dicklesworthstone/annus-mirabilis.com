@@ -507,6 +507,7 @@ actions:
     announcement: "Teaching deviation values available"
 acceptanceCases:
   - bm-05-gaussian-step-diffusivity
+  - bm-05-tau-outside-declared-range-refused
 defaultScenario: bm-05-gaussian-step-diffusivity
 tapeModel:
   modelId: bm05-host-preview-v1

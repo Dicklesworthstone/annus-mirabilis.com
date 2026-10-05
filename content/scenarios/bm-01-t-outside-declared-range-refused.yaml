@@ -1,0 +1,32 @@
+# BM-01 refuses a temperature outside the range its manifest declares (am-nxbq, items 2 and 3).
+#
+# WHICH CONTROL VALUE A READER MOVES TO REACH IT: the control "Temperature", typed at 331 K.
+# The manifest declares it at least 273 and at most 330, for the stated reason "Liquid state of water at ordinary laboratory pressure", so 331 is above its declared maximum.
+#
+# WHAT THE REFUSAL DOES AND DOES NOT CLAIM. Water at ordinary laboratory pressure is still liquid at 331 K, so this refusal is not a claim about water. It is the instrument saying its declared range stops at 330 K, which is the range its Stokes-Einstein numbers were chosen for.
+#
+# No other control is supplied, so the refusal can only be coming from T: the declared-domain gate
+# skips a setting the request does not carry. The code is outside-model-domain, which is a model limit
+# rather than malformed input, and the reader is shown the range and its reason and keeps the last
+# legal state. The code itself is in `expected.status`, which is data; the prose names it in ordinary
+# language, because a raw status identifier in visitor-facing text is what the voice rule
+# status-enum-leak refuses.
+id: "bm-01-t-outside-declared-range-refused"
+kind: "adversarial"
+title: "BM-01 refuses Temperature at 331 K, outside the range it declares"
+description: "BM-01 declares its control \"Temperature\" as at least 273 and at most 330 K, for the reason \"Liquid state of water at ordinary laboratory pressure\". A reader who types 331 is asking for a setting the instrument does not model. The declared-domain gate every laboratory shares refuses because the setting lies outside the range the model declares, naming the control and the range as the page writes them, so no number is produced at a setting the model does not stand behind."
+plausibleMistake: "That a value just past the end of the control is close enough to compute anyway, because the arithmetic would succeed and return something finite. A number produced outside a model's declared range is not that model's answer, and nothing on the page would separate it from one that is."
+intendedFailure: "The gate refuses before any quantity is formed, so nothing is computed at 331 K to be mistaken for a result this instrument vouches for. Water at ordinary laboratory pressure is still liquid at 331 K, so this refusal is not a claim about water. It is the instrument saying its declared range stops at 330 K, which is the range its Stokes-Einstein numbers were chosen for. The scenario passes only when the refusal arrives as a declared-range limit on T, with above-max as the bound broken; a run that returned numbers fails here, and so does one that refused on a different control or on the other side of the range."
+constantSetId: "modern-si-2019"
+owner: "declaredDomain.bm-01"
+inputs:
+  T:
+    value: 331
+    unit: "K"
+expected:
+  status:
+    outputId: "T"
+    status: "outside-model-domain"
+    reasonCode: "above-max"
+modelVersion: 1
+schemaVersion: 1

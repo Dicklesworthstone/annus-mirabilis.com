@@ -306,6 +306,7 @@ actions:
     announcement: "Band energy updated"
 acceptanceCases:
   - radiation-spectra-lq03
+  - lq-03-t-outside-declared-range-refused
 defaultScenario: radiation-spectra-lq03
 tapeModel:
   modelId: "lq-03"

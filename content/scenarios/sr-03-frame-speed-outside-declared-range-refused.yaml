@@ -1,0 +1,34 @@
+# SR-03 refuses a frame speed outside the range its manifest declares (am-nxbq, items 2 and 3).
+#
+# WHICH CONTROL VALUE A READER MOVES TO REACH IT: the frame-speed control, v/c, typed at 0.96. The
+# manifest declares -0.95 to 0.95 inclusive with the reason "Subluminal frame velocity |v/c| <= 0.95",
+# so 0.96 is outside the range this instrument models.
+#
+# WHAT THE REFUSAL DOES AND DOES NOT CLAIM. It does NOT say 0.96c is impossible: it is a perfectly
+# ordinary subluminal speed, and the relativity the instrument teaches applies to it. It says the
+# instrument's declared teaching range stops at 0.95, which is why the code is outside-model-domain, a
+# model limit, rather than a malformed input. A reader is shown the range and its reason. The
+# distinction matters here more than in most labs, because |v| >= c IS impossible and the two
+# refusals must not read as the same statement.
+#
+# No other control is supplied, so the refusal can only be coming from v: the domain gate skips a
+# setting the request does not carry.
+id: "sr-03-frame-speed-outside-declared-range-refused"
+kind: "adversarial"
+title: "SR-03 refuses a frame speed of 0.96c, outside the range it declares, rather than computing one"
+description: "The instrument declares its frame-speed control as -0.95 to 0.95 in units of c, for the stated reason that it models subluminal frames within that teaching range. A reader who types 0.96 is asking for a setting the instrument does not model. The declared-domain gate every laboratory shares refuses because the setting lies outside the range the model declares, naming the control and the range as the page writes them, and the reader keeps the last legal state rather than seeing a contracted length computed outside the range the model vouches for."
+plausibleMistake: "That a value just past the slider's end is close enough to be computed anyway, since 0.96c is a physically possible speed and the Lorentz factor is finite there. The arithmetic would succeed, which is exactly the danger: a number computed outside a model's declared domain is not that model's answer, and nothing on the page would distinguish it from one that is."
+intendedFailure: "The gate refuses before any factor is formed, so no length contraction is computed at 0.96c to be mistaken for a result the instrument stands behind. The scenario passes only when the refusal arrives as a declared-range limit on the control v, with above-max as the bound broken; a run that returned numbers fails here, and so does one that refused on a different control or on the wrong side of the range."
+constantSetId: "modern-si-2019"
+owner: "declaredDomain.sr-03"
+inputs:
+  v:
+    value: 0.96
+    unit: "c"
+expected:
+  status:
+    outputId: "v"
+    status: "outside-model-domain"
+    reasonCode: "above-max"
+modelVersion: 1
+schemaVersion: 1

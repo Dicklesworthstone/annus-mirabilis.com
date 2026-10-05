@@ -291,6 +291,7 @@ actions:
 acceptanceCases:
   - sr-04-galilean-shelf
   - sr-04-construct-0.6c
+  - sr-04-voverc-outside-declared-range-refused
 defaultScenario: sr-04-galilean-shelf
 tapeModel:
   modelId: "sr-04"

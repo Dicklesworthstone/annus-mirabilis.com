@@ -422,6 +422,7 @@ actions:
 acceptanceCases:
   - me-01-golden
   - me-01-refusals
+  - me-01-framespeed-outside-declared-range-refused
 historicalOverlays: []
 realRate:
   natural: false

@@ -1,0 +1,32 @@
+# SR-13 refuses a custom particle mass outside the range its manifest declares (am-nxbq, items 2 and 3).
+#
+# WHICH CONTROL VALUE A READER MOVES TO REACH IT: the control "Custom particle mass", typed at 0 kg.
+# The manifest declares it above 0, for the stated reason "The equation of motion divides by the rest mass, so a custom particle has a positive one; at zero it has no equation of motion in this model", so 0 is below its declared minimum.
+#
+# WHAT THE REFUSAL DOES AND DOES NOT CLAIM. A particle of zero rest mass is not a light particle for this instrument: the equation of motion it integrates divides by the rest mass, which is the reason the manifest itself gives, so at zero there is no equation of motion to integrate.
+#
+# No other control is supplied, so the refusal can only be coming from customMass: the declared-domain gate
+# skips a setting the request does not carry. The code is outside-model-domain, which is a model limit
+# rather than malformed input, and the reader is shown the range and its reason and keeps the last
+# legal state. The code itself is in `expected.status`, which is data; the prose names it in ordinary
+# language, because a raw status identifier in visitor-facing text is what the voice rule
+# status-enum-leak refuses.
+id: "sr-13-custommass-outside-declared-range-refused"
+kind: "adversarial"
+title: "SR-13 refuses Custom particle mass at 0 kg, outside the range it declares"
+description: "SR-13 declares its control \"Custom particle mass\" as above 0 kg, for the reason \"The equation of motion divides by the rest mass, so a custom particle has a positive one; at zero it has no equation of motion in this model\". A reader who types 0 is asking for a setting the instrument does not model. The declared-domain gate every laboratory shares refuses because the setting lies outside the range the model declares, naming the control and the range as the page writes them, so no number is produced at a setting the model does not stand behind."
+plausibleMistake: "That a value just past the end of the control is close enough to compute anyway, because the arithmetic would succeed and return something finite. A number produced outside a model's declared range is not that model's answer, and nothing on the page would separate it from one that is."
+intendedFailure: "The gate refuses before any quantity is formed, so nothing is computed at 0 kg to be mistaken for a result this instrument vouches for. A particle of zero rest mass is not a light particle for this instrument: the equation of motion it integrates divides by the rest mass, which is the reason the manifest itself gives, so at zero there is no equation of motion to integrate. The scenario passes only when the refusal arrives as a declared-range limit on customMass, with below-min as the bound broken; a run that returned numbers fails here, and so does one that refused on a different control or on the other side of the range."
+constantSetId: "modern-si-2019"
+owner: "declaredDomain.sr-13"
+inputs:
+  customMass:
+    value: 0
+    unit: "kg"
+expected:
+  status:
+    outputId: "customMass"
+    status: "outside-model-domain"
+    reasonCode: "below-min"
+modelVersion: 1
+schemaVersion: 1

@@ -598,6 +598,7 @@ presets:
 acceptanceCases:
   - me-03-canonical
   - me-03-box-canonical
+  - me-03-boxmass-outside-declared-range-refused
 defaultScenario: me-03-box-canonical
 tapeModel:
   modelId: me-03-box-1906-v1

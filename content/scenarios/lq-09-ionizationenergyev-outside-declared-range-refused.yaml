@@ -1,0 +1,32 @@
+# LQ-09 refuses a ionization energy outside the range its manifest declares (am-nxbq, items 2 and 3).
+#
+# WHICH CONTROL VALUE A READER MOVES TO REACH IT: the control "Ionization Energy", typed at 50 eV.
+# The manifest declares it at least 1 and at most 25, for the stated reason "Molecular and atomic ionization energies (e.g. Cs 3.89 eV to He 24.59 eV)", so 50 is above its declared maximum.
+#
+# WHAT THE REFUSAL DOES AND DOES NOT CLAIM. Fifty electronvolts is a real ionization energy for a multiply charged ion. The declared range stops at twenty-five, which covers the neutral species this instrument draws, and beyond it the single-quantum account it teaches is not the one that applies.
+#
+# No other control is supplied, so the refusal can only be coming from ionizationEnergyEv: the declared-domain gate
+# skips a setting the request does not carry. The code is outside-model-domain, which is a model limit
+# rather than malformed input, and the reader is shown the range and its reason and keeps the last
+# legal state. The code itself is in `expected.status`, which is data; the prose names it in ordinary
+# language, because a raw status identifier in visitor-facing text is what the voice rule
+# status-enum-leak refuses.
+id: "lq-09-ionizationenergyev-outside-declared-range-refused"
+kind: "adversarial"
+title: "LQ-09 refuses Ionization Energy at 50 eV, outside the range it declares"
+description: "LQ-09 declares its control \"Ionization Energy\" as at least 1 and at most 25 eV, for the reason \"Molecular and atomic ionization energies (e.g. Cs 3.89 eV to He 24.59 eV)\". A reader who types 50 is asking for a setting the instrument does not model. The declared-domain gate every laboratory shares refuses because the setting lies outside the range the model declares, naming the control and the range as the page writes them, so no number is produced at a setting the model does not stand behind."
+plausibleMistake: "That a value just past the end of the control is close enough to compute anyway, because the arithmetic would succeed and return something finite. A number produced outside a model's declared range is not that model's answer, and nothing on the page would separate it from one that is."
+intendedFailure: "The gate refuses before any quantity is formed, so nothing is computed at 50 eV to be mistaken for a result this instrument vouches for. Fifty electronvolts is a real ionization energy for a multiply charged ion. The declared range stops at twenty-five, which covers the neutral species this instrument draws, and beyond it the single-quantum account it teaches is not the one that applies. The scenario passes only when the refusal arrives as a declared-range limit on ionizationEnergyEv, with above-max as the bound broken; a run that returned numbers fails here, and so does one that refused on a different control or on the other side of the range."
+constantSetId: "modern-si-2019"
+owner: "declaredDomain.lq-09"
+inputs:
+  ionizationEnergyEv:
+    value: 50
+    unit: "eV"
+expected:
+  status:
+    outputId: "ionizationEnergyEv"
+    status: "outside-model-domain"
+    reasonCode: "above-max"
+modelVersion: 1
+schemaVersion: 1

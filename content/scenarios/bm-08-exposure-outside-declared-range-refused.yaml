@@ -1,0 +1,32 @@
+# BM-08 refuses a exposure time outside the range its manifest declares (am-nxbq, items 2 and 3).
+#
+# WHICH CONTROL VALUE A READER MOVES TO REACH IT: the control "Exposure time", typed at 8 s.
+# The manifest declares it at least 0 and at most 4, for the stated reason "On the 0.25 s exposure grid, no longer than the frame spacing dt", so 8 is above its declared maximum.
+#
+# WHAT THE REFUSAL DOES AND DOES NOT CLAIM. An eight-second exposure is a real camera setting, and the motion blur it produces is the effect this instrument exists to show. The declared range stops at four seconds, which is where the blur model it uses was checked.
+#
+# No other control is supplied, so the refusal can only be coming from exposure: the declared-domain gate
+# skips a setting the request does not carry. The code is outside-model-domain, which is a model limit
+# rather than malformed input, and the reader is shown the range and its reason and keeps the last
+# legal state. The code itself is in `expected.status`, which is data; the prose names it in ordinary
+# language, because a raw status identifier in visitor-facing text is what the voice rule
+# status-enum-leak refuses.
+id: "bm-08-exposure-outside-declared-range-refused"
+kind: "adversarial"
+title: "BM-08 refuses Exposure time at 8 s, outside the range it declares"
+description: "BM-08 declares its control \"Exposure time\" as at least 0 and at most 4 s, for the reason \"On the 0.25 s exposure grid, no longer than the frame spacing dt\". A reader who types 8 is asking for a setting the instrument does not model. The declared-domain gate every laboratory shares refuses because the setting lies outside the range the model declares, naming the control and the range as the page writes them, so no number is produced at a setting the model does not stand behind."
+plausibleMistake: "That a value just past the end of the control is close enough to compute anyway, because the arithmetic would succeed and return something finite. A number produced outside a model's declared range is not that model's answer, and nothing on the page would separate it from one that is."
+intendedFailure: "The gate refuses before any quantity is formed, so nothing is computed at 8 s to be mistaken for a result this instrument vouches for. An eight-second exposure is a real camera setting, and the motion blur it produces is the effect this instrument exists to show. The declared range stops at four seconds, which is where the blur model it uses was checked. The scenario passes only when the refusal arrives as a declared-range limit on exposure, with above-max as the bound broken; a run that returned numbers fails here, and so does one that refused on a different control or on the other side of the range."
+constantSetId: "modern-si-2019"
+owner: "declaredDomain.bm-08"
+inputs:
+  exposure:
+    value: 8
+    unit: "s"
+expected:
+  status:
+    outputId: "exposure"
+    status: "outside-model-domain"
+    reasonCode: "above-max"
+modelVersion: 1
+schemaVersion: 1

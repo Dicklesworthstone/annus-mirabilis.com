@@ -267,6 +267,7 @@ acceptanceCases:
   - sr-05-circle-0.6c
   - sr-05-low-speed-1e-4
   - sr-05-light-clock-0.6c
+  - sr-05-speed-outside-declared-range-refused
 defaultScenario: sr-05-out-and-back-0.6c
 tapeModel:
   modelId: sr05-moving-clocks-reference-v1

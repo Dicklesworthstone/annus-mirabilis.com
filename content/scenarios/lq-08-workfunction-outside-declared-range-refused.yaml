@@ -1,0 +1,32 @@
+# LQ-08 refuses a work function outside the range its manifest declares (am-nxbq, items 2 and 3).
+#
+# WHICH CONTROL VALUE A READER MOVES TO REACH IT: the control "Work Function", typed at 10 eV.
+# The manifest declares it at least 0 and at most 6.5, for the stated reason "Elemental metals work function range (e.g. Cs 2.14 eV to Pt 5.65 eV), and 0 for Einstein's §8 check, which neglects the escape work", so 10 is above its declared maximum.
+#
+# WHAT THE REFUSAL DOES AND DOES NOT CLAIM. No metal in this instrument's cards has a ten-electronvolt work function, and the range stops at 6.5 for that reason. A value typed past it would produce a stopping potential for a material the instrument has no card for, which is exactly the hypothetical number its labels promise not to show.
+#
+# No other control is supplied, so the refusal can only be coming from workFunction: the declared-domain gate
+# skips a setting the request does not carry. The code is outside-model-domain, which is a model limit
+# rather than malformed input, and the reader is shown the range and its reason and keeps the last
+# legal state. The code itself is in `expected.status`, which is data; the prose names it in ordinary
+# language, because a raw status identifier in visitor-facing text is what the voice rule
+# status-enum-leak refuses.
+id: "lq-08-workfunction-outside-declared-range-refused"
+kind: "adversarial"
+title: "LQ-08 refuses Work Function at 10 eV, outside the range it declares"
+description: "LQ-08 declares its control \"Work Function\" as at least 0 and at most 6.5 eV, for the reason \"Elemental metals work function range (e.g. Cs 2.14 eV to Pt 5.65 eV), and 0 for Einstein's §8 check, which neglects the escape work\". A reader who types 10 is asking for a setting the instrument does not model. The declared-domain gate every laboratory shares refuses because the setting lies outside the range the model declares, naming the control and the range as the page writes them, so no number is produced at a setting the model does not stand behind."
+plausibleMistake: "That a value just past the end of the control is close enough to compute anyway, because the arithmetic would succeed and return something finite. A number produced outside a model's declared range is not that model's answer, and nothing on the page would separate it from one that is."
+intendedFailure: "The gate refuses before any quantity is formed, so nothing is computed at 10 eV to be mistaken for a result this instrument vouches for. No metal in this instrument's cards has a ten-electronvolt work function, and the range stops at 6.5 for that reason. A value typed past it would produce a stopping potential for a material the instrument has no card for, which is exactly the hypothetical number its labels promise not to show. The scenario passes only when the refusal arrives as a declared-range limit on workFunction, with above-max as the bound broken; a run that returned numbers fails here, and so does one that refused on a different control or on the other side of the range."
+constantSetId: "modern-si-2019"
+owner: "declaredDomain.lq-08"
+inputs:
+  workFunction:
+    value: 10
+    unit: "eV"
+expected:
+  status:
+    outputId: "workFunction"
+    status: "outside-model-domain"
+    reasonCode: "above-max"
+modelVersion: 1
+schemaVersion: 1

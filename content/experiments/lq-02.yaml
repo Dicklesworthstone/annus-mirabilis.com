@@ -237,6 +237,7 @@ acceptanceCases:
   - lq-02-total-diverges-refused
   - lq-02-probe-above-cutoff-refused
   - lq-02-nonpositive-temperature-refused
+  - lq-02-t-outside-declared-range-refused
 defaultScenario: lq-02-golden-1500k-cutoff-1e14
 tapeModel:
   modelId: lq-02

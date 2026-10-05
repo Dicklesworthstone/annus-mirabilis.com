@@ -1,0 +1,32 @@
+# LQ-06 refuses a volume ratio (v / v0) outside the range its manifest declares (am-nxbq, items 2 and 3).
+#
+# WHICH CONTROL VALUE A READER MOVES TO REACH IT: the control "Volume Ratio (V / V0)", typed at 20 .
+# The manifest declares it at least 0.0001 and at most 10, for the stated reason "The volume changes the lab compares, from the smallest part of the volume the light-quanta investigation counts, a ten-thousandth, to ten times the first volume", so 20 is above its declared maximum.
+#
+# WHAT THE REFUSAL DOES AND DOES NOT CLAIM. A twentyfold expansion is physically ordinary. The declared range stops at ten, because the comparison this instrument draws between the radiation and the gas is plotted over that span and the two curves separate off the axes beyond it.
+#
+# No other control is supplied, so the refusal can only be coming from volumeRatio: the declared-domain gate
+# skips a setting the request does not carry. The code is outside-model-domain, which is a model limit
+# rather than malformed input, and the reader is shown the range and its reason and keeps the last
+# legal state. The code itself is in `expected.status`, which is data; the prose names it in ordinary
+# language, because a raw status identifier in visitor-facing text is what the voice rule
+# status-enum-leak refuses.
+id: "lq-06-volumeratio-outside-declared-range-refused"
+kind: "adversarial"
+title: "LQ-06 refuses Volume Ratio (V / V0) at 20 , outside the range it declares"
+description: "LQ-06 declares its control \"Volume Ratio (V / V0)\" as at least 0.0001 and at most 10 , for the reason \"The volume changes the lab compares, from the smallest part of the volume the light-quanta investigation counts, a ten-thousandth, to ten times the first volume\". A reader who types 20 is asking for a setting the instrument does not model. The declared-domain gate every laboratory shares refuses because the setting lies outside the range the model declares, naming the control and the range as the page writes them, so no number is produced at a setting the model does not stand behind."
+plausibleMistake: "That a value just past the end of the control is close enough to compute anyway, because the arithmetic would succeed and return something finite. A number produced outside a model's declared range is not that model's answer, and nothing on the page would separate it from one that is."
+intendedFailure: "The gate refuses before any quantity is formed, so nothing is computed at 20  to be mistaken for a result this instrument vouches for. A twentyfold expansion is physically ordinary. The declared range stops at ten, because the comparison this instrument draws between the radiation and the gas is plotted over that span and the two curves separate off the axes beyond it. The scenario passes only when the refusal arrives as a declared-range limit on volumeRatio, with above-max as the bound broken; a run that returned numbers fails here, and so does one that refused on a different control or on the other side of the range."
+constantSetId: "modern-si-2019"
+owner: "declaredDomain.lq-06"
+inputs:
+  volumeRatio:
+    value: 20
+    unit: ""
+expected:
+  status:
+    outputId: "volumeRatio"
+    status: "outside-model-domain"
+    reasonCode: "above-max"
+modelVersion: 1
+schemaVersion: 1

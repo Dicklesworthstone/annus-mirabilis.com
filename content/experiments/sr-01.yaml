@@ -312,6 +312,7 @@ acceptanceCases:
   - sr-01-round-trip-10ls
   - sr-01-rod-chase-0.6c
   - sr-01-moving-pair-0.6c
+  - sr-01-rodbeta-outside-declared-range-refused
 historicalOverlays: []
 realRate:
   natural: false

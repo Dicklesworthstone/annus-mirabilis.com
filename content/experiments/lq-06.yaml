@@ -258,6 +258,7 @@ acceptanceCases:
   - lq06-golden-the-move
   - lq06-subexpression-mismatch-refusal
   - lq06-historical-constants-printed
+  - lq-06-volumeratio-outside-declared-range-refused
 defaultScenario: lq06-golden-the-move
 tapeModel:
   modelId: lq-06-coefficient-match

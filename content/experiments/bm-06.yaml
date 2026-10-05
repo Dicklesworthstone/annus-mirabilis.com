@@ -535,6 +535,7 @@ actions:
     announcement: "Grid comparison updated"
 acceptanceCases:
   - bm-06-one-rms-probability
+  - bm-06-a-outside-declared-range-refused
 defaultScenario: bm-06-one-rms-probability
 tapeModel:
   modelId: bm06-host-preview-v1

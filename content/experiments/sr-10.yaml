@@ -275,6 +275,7 @@ acceptanceCases:
   - sr-10-opposite-0.6
   - sr-10-transverse-in-k-0.6
   - sr-10-transverse-unprimed-0.6
+  - sr-10-beta-outside-declared-range-refused
 defaultScenario: sr-10-longitudinal-0.6
 tapeModel:
   modelId: light-complex-host

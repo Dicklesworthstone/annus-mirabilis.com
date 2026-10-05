@@ -452,6 +452,7 @@ acceptanceCases:
   - bm04-naegeli-kicks-off-drift
   - bm04-naegeli-zero-force-frozen
   - bm04-mismatched-kicks-nonequilibrium
+  - bm-04-eta-outside-declared-range-refused
 defaultScenario: bm04-steady-state-einstein
 tapeModel:
   modelId: brownian-motion-drift-diffusion

@@ -283,6 +283,7 @@ acceptanceCases:
   - photoelectric-sodium-millikan-1916
   - photoelectric-subthreshold-refusal
   - photoelectric-power-energy-invariance
+  - lq-08-workfunction-outside-declared-range-refused
 defaultScenario: photoelectric-einstein-1905-printed
 tapeModel:
   modelId: lq-08

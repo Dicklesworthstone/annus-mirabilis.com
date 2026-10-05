@@ -1,4 +1,9 @@
 import { fileURLToPath } from "node:url";
+import {
+  declaredDomains,
+  refuseOutsideDeclaredDomain,
+} from "../../experiments/controls/declaredDomain.ts";
+import { MODEL_DOMAINS } from "../../generated/model-domains.ts";
 import { createDeclaredConstantSet, getConstantSet } from "../../physics/reference/constants.ts";
 import {
   kernelDiffusivity,
@@ -1357,6 +1362,71 @@ const OWNERS: OwnerRecord[] = [
     },
   },
 ];
+
+/**
+ * ONE OWNER PER LABORATORY FOR THE DECLARED-DOMAIN REFUSAL (am-nxbq, items 2 and 3).
+ *
+ * AGENTS.md makes a refusal acceptance case mandatory, and the census said 0 of 33 instruments had
+ * one. The reason was not that the labs do not refuse: every lab's parameters module calls
+ * `refuseOutsideDeclaredDomain`, which raises the registry code `outside-model-domain` with the
+ * manifest's own range and reason, and that is the refusal a READER reaches by typing a value into a
+ * control. What was missing was a way for a scenario to drive it, because no owner reached a
+ * `makeRefusal` path at all; the reference evaluators return typed `outside-domain` EVALUATIONS, which
+ * are non-numeric results and a different thing.
+ *
+ * THE RANGES ARE NOT RESTATED HERE. `src/generated/model-domains.ts` is generated from
+ * `content/experiments/<id>.yaml`, so a bound is written once in the manifest, and this reads the same
+ * table every lab reads. A scenario that moved a control outside a range this file had copied would be
+ * testing the copy.
+ *
+ * `reasonCode` is the bound that was broken, written as `below-min` or `above-max`, rather than the
+ * requirement SENTENCE. The sentence is assembled from the manifest's label, range and reason and is
+ * reworded whenever the prose is improved; pinning it in 33 scenarios would make correct editorial
+ * work turn them red, which is the brittleness AGENTS.md describes when it says a count is for
+ * reporting and a property is for asserting. Which side of the range was broken is a property.
+ *
+ * THE ACCEPTED BRANCH ECHOES THE SETTINGS, deliberately and with nothing hidden in it. This owner is a
+ * domain gate, not a physical model: its two answers are "that setting is outside the declared range,
+ * here is the refusal" and "every setting you gave me is inside it, here they are unchanged". No
+ * scenario asserts physics through the echo, and a scenario declaring a refusal that does not arrive
+ * fails on the runner's fourth branch, which is what stops a stale expectation passing the day a range
+ * widens.
+ */
+function declaredDomainOwner(labId: string): OwnerFn {
+  return (ctx) => {
+    const refusal = refuseOutsideDeclaredDomain(labId, ctx.inputs);
+    if (refusal) {
+      const parameterId = refusal.refusal.affected.parameterIds?.[0] ?? "";
+      const domain = declaredDomains(labId)[parameterId];
+      const value = ctx.inputs[parameterId];
+      // Which side, computed from the same predicate the lab uses rather than guessed from the sign.
+      const belowMin =
+        domain?.min !== undefined &&
+        value !== undefined &&
+        (domain.minInclusive === false ? value <= domain.min : value < domain.min);
+      return {
+        refused: {
+          outputId: parameterId,
+          status: refusal.refusal.code,
+          reasonCode: belowMin ? "below-min" : "above-max",
+        },
+      };
+    }
+    return { ...ctx.inputs };
+  };
+}
+
+const declaredDomainPath = fileURLToPath(
+  new URL("../../experiments/controls/declaredDomain.ts", import.meta.url),
+);
+
+for (const labId of Object.keys(MODEL_DOMAINS)) {
+  OWNERS.push({
+    id: `declaredDomain.${labId}`,
+    sourcePath: declaredDomainPath,
+    fn: declaredDomainOwner(labId),
+  });
+}
 
 export const OWNER_REGISTRY: ReadonlyMap<string, OwnerRecord> = new Map(
   OWNERS.map((owner) => [owner.id, owner]),

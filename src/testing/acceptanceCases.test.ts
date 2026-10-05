@@ -127,10 +127,132 @@ describe("the instruments' acceptance cases", () => {
       expect(codes(planted)).toContain("acceptance-fixture-absent-from-file");
     });
 
-    test("an instrument with no refusal case, under strict", () => {
-      const planted = checkAcceptanceCases({ strict: true });
+    /**
+     * EVERY INSTRUMENT NOW HAS A REFUSAL CASE, SO THE PLANT IS THE REMOVAL (am-nxbq, items 2 and 4).
+     *
+     * This test used to assert that `acceptance-instrument-without-refusal` was PRESENT, which was
+     * true of a tree where 0 of 33 instruments had a resolvable refusal case and is no longer. An
+     * assertion that the debt exists stops being a gate the moment the debt is paid: it would have
+     * turned red on correct work and told the next author to put the hole back.
+     *
+     * So it is inverted, and the bead's own fourth item is what replaces it: delete one refusal case
+     * and the gate goes red NAMING that instrument. The plant lives in a root this test makes, because
+     * several agents edit this checkout at once and stripping a ref from a real manifest could be swept
+     * into a peer's commit between the strip and the restore.
+     *
+     * The non-numeric half is still real debt, 32 of 33 instruments, and is asserted as such below.
+     */
+    test("THE REAL TREE: every instrument has a resolvable refusal case", () => {
+      const strict = checkAcceptanceCases({ strict: true });
+      const withRefusal = strict.census.instrumentsWithRefusal;
+      console.log(
+        `[acceptance] ${withRefusal} of ${strict.census.instruments} instrument(s) have a resolvable ` +
+          `refusal case; ${strict.census.instrumentsWithNonNumeric} a non-numeric one`,
+      );
+      // Non-vacuity: there are instruments to judge, so "none is missing one" is a result.
+      expect(strict.census.instruments).toBeGreaterThanOrEqual(33);
+      expect(withRefusal).toBe(strict.census.instruments);
+      expect(codes(strict)).not.toContain("acceptance-instrument-without-refusal");
+      // The other half of the pair is NOT yet paid, and saying so is the honest state.
+      expect(codes(strict)).toContain("acceptance-instrument-without-non-numeric");
+    });
+
+    test("PLANTED: an instrument whose refusal case is deleted is named under strict", () => {
+      const root = mkdtempSync(join(tmpdir(), "am-acceptance-no-refusal-"));
+      mkdirSync(join(root, "content", "experiments"), { recursive: true });
+      mkdirSync(join(root, "content", "scenarios"), { recursive: true });
+      // A scenario that expects a refusal, written here rather than copied, so the plant does not
+      // depend on which real file happens to exist.
+      writeFileSync(
+        join(root, "content", "scenarios", "zz-01-refused.yaml"),
+        [
+          'id: "zz-01-refused"',
+          'kind: "adversarial"',
+          'title: "ZZ-01 refuses a setting outside its declared range"',
+          'description: "A planted scenario whose only job is to expect a refusal."',
+          'plausibleMistake: "That the value is close enough to compute."',
+          'intendedFailure: "The gate refuses before a number is formed."',
+          'constantSetId: "modern-si-2019"',
+          'owner: "declaredDomain.sr-03"',
+          "inputs:",
+          "  v:",
+          "    value: 0.96",
+          '    unit: "c"',
+          "expected:",
+          "  status:",
+          '    outputId: "v"',
+          '    status: "outside-model-domain"',
+          '    reasonCode: "above-max"',
+          "modelVersion: 1",
+          "schemaVersion: 1",
+          "",
+        ].join("\n"),
+      );
+      const manifest = join(root, "content", "experiments", "zz-01.yaml");
+      const withCase = 'id: "zz-01"\nacceptanceCases:\n  - "zz-01-refused"\n';
+      const withoutCase = 'id: "zz-01"\nacceptanceCases:\n  - "zz-01-refused-DELETED"\n';
+
+      // THE CONTROL FIRST, so a gate that named every instrument would not satisfy the plant.
+      writeFileSync(manifest, withCase);
+      const before = checkAcceptanceCases({ root, strict: true, baseline: [], declarations: {} });
+      expect(before.census.instrumentsWithRefusal).toBe(1);
+      expect(codes(before)).not.toContain("acceptance-instrument-without-refusal");
+
+      // THE PLANT: the ref is deleted, and the gate names the instrument that lost it.
+      writeFileSync(manifest, withoutCase);
+      const after = checkAcceptanceCases({ root, strict: true, baseline: [], declarations: {} });
+      expect(after.census.instrumentsWithRefusal).toBe(0);
+      expect(codes(after)).toContain("acceptance-instrument-without-refusal");
+      expect(
+        after.problems.find((p) => p.code === "acceptance-instrument-without-refusal")?.message,
+      ).toContain("zz-01");
+    });
+
+    test("PLANTED: a scenario that no longer expects a refusal stops counting as one", () => {
+      // The subtler direction, and the one a spelling-based census would miss: the ref resolves, the
+      // file exists, and the instrument still has no refusal case because the scenario expects a
+      // number. The kind is read from `expected.status`, never from the id.
+      const root = mkdtempSync(join(tmpdir(), "am-acceptance-kind-"));
+      mkdirSync(join(root, "content", "experiments"), { recursive: true });
+      mkdirSync(join(root, "content", "scenarios"), { recursive: true });
+      writeFileSync(
+        join(root, "content", "experiments", "zz-01.yaml"),
+        'id: "zz-01"\nacceptanceCases:\n  - "zz-01-looks-refused"\n',
+      );
+      writeFileSync(
+        join(root, "content", "scenarios", "zz-01-looks-refused.yaml"),
+        [
+          'id: "zz-01-looks-refused"',
+          'kind: "modern-golden"',
+          'title: "ZZ-01, named as a refusal and expecting a number"',
+          'description: "The id says refused and the expectation does not."',
+          'constantSetId: "modern-si-2019"',
+          'owner: "selfTest.timesTwoClosed"',
+          "inputs:",
+          "  x:",
+          "    value: 2",
+          '    unit: "1"',
+          "expected:",
+          "  outputs:",
+          '    - outputId: "value"',
+          "      value: 4",
+          '      unit: "1"',
+          '      comparisonKind: "tolerance"',
+          "      tolerance:",
+          "        relative: 1.0e-9",
+          '        rationale: "Planted; the expectation is a number so the kind is not a refusal."',
+          "modelVersion: 1",
+          "schemaVersion: 1",
+          "",
+        ].join("\n"),
+      );
+      const planted = checkAcceptanceCases({ root, strict: true, baseline: [], declarations: {} });
+      // It resolved, so this is not a dangling-ref finding.
+      expect(planted.census.resolved).toBe(1);
+      expect(codes(planted)).not.toContain("acceptance-ref-dangling");
+      // And it is still not a refusal case, because the expectation is a number.
+      expect(planted.census.instrumentsWithRefusal).toBe(0);
       expect(codes(planted)).toContain("acceptance-instrument-without-refusal");
-      expect(codes(planted)).toContain("acceptance-instrument-without-non-numeric");
     });
 
     test("a run that resolves nothing fails, whatever the baseline holds", () => {

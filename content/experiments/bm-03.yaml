@@ -337,6 +337,7 @@ acceptanceCases:
   - bm-03-pressure-matches-bm-02
   - bm-03-locked-cluster
   - bm-03-ratio-one
+  - bm-03-t-outside-declared-range-refused
 defaultScenario: bm-03-two-particles-double
 presets:
   - presetId: bm-03-two-particles-double

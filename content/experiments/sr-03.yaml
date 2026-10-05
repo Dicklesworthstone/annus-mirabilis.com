@@ -500,6 +500,7 @@ predictMode:
           separatingAssumption: "Lets some frame make the two events simultaneous. That needs v = c² dt/dx, which is faster than light when the pair is timelike."
 acceptanceCases:
   - sr03-signature-0.6c
+  - sr-03-frame-speed-outside-declared-range-refused
 defaultScenario: sr03-signature-0.6c
 tapeModel:
   modelId: sr-03

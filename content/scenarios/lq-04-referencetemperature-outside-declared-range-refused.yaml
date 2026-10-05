@@ -1,0 +1,32 @@
+# LQ-04 refuses a reference temperature outside the range its manifest declares (am-nxbq, items 2 and 3).
+#
+# WHICH CONTROL VALUE A READER MOVES TO REACH IT: the control "Reference temperature", typed at 20000 K.
+# The manifest declares it at least 500 and at most 10000, for the stated reason "Teaching range, matching lq-03's owner-shared temperature domain", so 20000 is above its declared maximum.
+#
+# WHAT THE REFUSAL DOES AND DOES NOT CLAIM. The Wien region this instrument compares against is a region of the spectrum, not a region of temperature, and the entropy expression holds above ten thousand kelvin too. The range is the one the instrument's reference calculation covers.
+#
+# No other control is supplied, so the refusal can only be coming from referenceTemperature: the declared-domain gate
+# skips a setting the request does not carry. The code is outside-model-domain, which is a model limit
+# rather than malformed input, and the reader is shown the range and its reason and keeps the last
+# legal state. The code itself is in `expected.status`, which is data; the prose names it in ordinary
+# language, because a raw status identifier in visitor-facing text is what the voice rule
+# status-enum-leak refuses.
+id: "lq-04-referencetemperature-outside-declared-range-refused"
+kind: "adversarial"
+title: "LQ-04 refuses Reference temperature at 20000 K, outside the range it declares"
+description: "LQ-04 declares its control \"Reference temperature\" as at least 500 and at most 10000 K, for the reason \"Teaching range, matching lq-03's owner-shared temperature domain\". A reader who types 20000 is asking for a setting the instrument does not model. The declared-domain gate every laboratory shares refuses because the setting lies outside the range the model declares, naming the control and the range as the page writes them, so no number is produced at a setting the model does not stand behind."
+plausibleMistake: "That a value just past the end of the control is close enough to compute anyway, because the arithmetic would succeed and return something finite. A number produced outside a model's declared range is not that model's answer, and nothing on the page would separate it from one that is."
+intendedFailure: "The gate refuses before any quantity is formed, so nothing is computed at 20000 K to be mistaken for a result this instrument vouches for. The Wien region this instrument compares against is a region of the spectrum, not a region of temperature, and the entropy expression holds above ten thousand kelvin too. The range is the one the instrument's reference calculation covers. The scenario passes only when the refusal arrives as a declared-range limit on referenceTemperature, with above-max as the bound broken; a run that returned numbers fails here, and so does one that refused on a different control or on the other side of the range."
+constantSetId: "modern-si-2019"
+owner: "declaredDomain.lq-04"
+inputs:
+  referenceTemperature:
+    value: 20000
+    unit: "K"
+expected:
+  status:
+    outputId: "referenceTemperature"
+    status: "outside-model-domain"
+    reasonCode: "above-max"
+modelVersion: 1
+schemaVersion: 1

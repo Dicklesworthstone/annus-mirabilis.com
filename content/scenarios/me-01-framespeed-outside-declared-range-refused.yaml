@@ -1,0 +1,32 @@
+# ME-01 refuses a observer speed v/c outside the range its manifest declares (am-nxbq, items 2 and 3).
+#
+# WHICH CONTROL VALUE A READER MOVES TO REACH IT: the control "Observer speed v/c", typed at 0.96 1.
+# The manifest declares it at least -0.95 and at most 0.95, for the stated reason "No inertial observer moves at or beyond the speed of light; the teaching range stays inside 0.95c", so 0.96 is above its declared maximum.
+#
+# WHAT THE REFUSAL DOES AND DOES NOT CLAIM. 0.96c is an ordinary subluminal speed and the transformation this instrument uses is valid there. The declared range stops at 0.95, and the refusal is a teaching-range limit rather than the physical bound at |v| = c, which is a different statement the instrument makes elsewhere.
+#
+# No other control is supplied, so the refusal can only be coming from frameSpeed: the declared-domain gate
+# skips a setting the request does not carry. The code is outside-model-domain, which is a model limit
+# rather than malformed input, and the reader is shown the range and its reason and keeps the last
+# legal state. The code itself is in `expected.status`, which is data; the prose names it in ordinary
+# language, because a raw status identifier in visitor-facing text is what the voice rule
+# status-enum-leak refuses.
+id: "me-01-framespeed-outside-declared-range-refused"
+kind: "adversarial"
+title: "ME-01 refuses Observer speed v/c at 0.96 1, outside the range it declares"
+description: "ME-01 declares its control \"Observer speed v/c\" as at least -0.95 and at most 0.95 1, for the reason \"No inertial observer moves at or beyond the speed of light; the teaching range stays inside 0.95c\". A reader who types 0.96 is asking for a setting the instrument does not model. The declared-domain gate every laboratory shares refuses because the setting lies outside the range the model declares, naming the control and the range as the page writes them, so no number is produced at a setting the model does not stand behind."
+plausibleMistake: "That a value just past the end of the control is close enough to compute anyway, because the arithmetic would succeed and return something finite. A number produced outside a model's declared range is not that model's answer, and nothing on the page would separate it from one that is."
+intendedFailure: "The gate refuses before any quantity is formed, so nothing is computed at 0.96 1 to be mistaken for a result this instrument vouches for. 0.96c is an ordinary subluminal speed and the transformation this instrument uses is valid there. The declared range stops at 0.95, and the refusal is a teaching-range limit rather than the physical bound at |v| = c, which is a different statement the instrument makes elsewhere. The scenario passes only when the refusal arrives as a declared-range limit on frameSpeed, with above-max as the bound broken; a run that returned numbers fails here, and so does one that refused on a different control or on the other side of the range."
+constantSetId: "modern-si-2019"
+owner: "declaredDomain.me-01"
+inputs:
+  frameSpeed:
+    value: 0.96
+    unit: "1"
+expected:
+  status:
+    outputId: "frameSpeed"
+    status: "outside-model-domain"
+    reasonCode: "above-max"
+modelVersion: 1
+schemaVersion: 1
