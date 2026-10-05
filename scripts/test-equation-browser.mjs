@@ -166,6 +166,20 @@ export async function checkEquationBrowser(browser, url, check) {
           .evaluateAll((nodes) => nodes.map((el) => getComputedStyle(el).pointerEvents))
       ).every((value) => value === "none"),
     );
+    // FOCUS MUST LEAVE THE EQUATION WIDGET BEFORE A POINTER SELECTION, and this step is here because
+    // of a measured interaction rather than a guess. The traversal above ends with `Tab`, which was
+    // reaching for "focus is no longer in the formula" but lands on `.equation-quantity.term-phrase`
+    // -- still INSIDE the widget. While focus is in there, the first pointer click on a term is
+    // consumed as a focus change and selects nothing: measured on this page, the click dispatches no
+    // click event the document can see, `data-selected-node-id` stays null on all three cards, and
+    // `document.activeElement` becomes `.equation-formula`. A SECOND click then selects normally, and
+    // so does the first one if focus has left the widget.
+    //
+    // So this clicks the card's own heading first, which is a pointer action a reader can take and
+    // which moves focus to the body. A scripted `blur()` would do the same and would not be the
+    // reader's path. The wart itself is filed as am-gbys; it is not frozen into an assertion here,
+    // because a test that asserts "the first click does nothing" goes red when that is fixed.
+    await rms.locator(".equation-heading, h3, h2").first().click();
     await rms.locator('.equation-visual [data-term="eq-model-bm-rms.t.diffusion"]').click();
     assert.equal(await rms.getAttribute("data-selected-node-id"), `${eqId("rms")}.t.diffusion`);
     await page.waitForFunction(

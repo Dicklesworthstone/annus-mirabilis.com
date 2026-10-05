@@ -80,6 +80,18 @@ export async function checkCameraBrowser(browser, url, check) {
     );
     assert.equal(workers, 0);
     assert.match(await lab.locator(".badge").innerText(), /Static worked example/);
+
+    // PREDICT MODE HIDES THE RESULTS REGION, AND WITH IT THE TYPED REFUSAL -- the same cause as in
+    // bm-05 and bm-07. With an off-grid exposure applied, the `.notice[data-refusal-code=
+    // "off-replay-grid"]` this check waits for is in the DOM and invisible, so it waited 30 seconds
+    // for a notice that was on the page. Filed as am-ig23: a reader who applies an inadmissible
+    // value while the prediction is armed sees nothing happen.
+    //
+    // Skipping is the reader's own way past the prediction, and these assertions are about the
+    // refusal rather than about predict mode.
+    await lab.getByRole("button", { name: "Skip prediction", exact: true }).click();
+    await lab.locator(".lab-results").first().waitFor({ state: "visible" });
+
     const staticRows = await rows(lab);
     await apply(lab);
     assert.equal(workers, 1);

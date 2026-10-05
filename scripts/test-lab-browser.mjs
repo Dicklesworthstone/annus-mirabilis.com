@@ -53,10 +53,42 @@ const check = (name, details = {}) => {
   evidence.push(item);
   console.log(JSON.stringify(item));
 };
+
+/**
+ * ONE FAILING CHECK MUST NOT HIDE THE REST (am-w1gj).
+ *
+ * This lane used to abort on the first `assert` that threw, so every check after it was UNMEASURED
+ * rather than passing -- and nothing said so, because an abort and a clean run both end without a
+ * verdict for the checks that never ran. On 2026-10-05 the first failure was hiding twelve more, in
+ * six different files, and each repair revealed exactly one further failure. That is the
+ * self-concealing shape AGENTS.md describes: the lane reads as "one problem" however many there are.
+ *
+ * Each registered check now runs in its own try/catch, its failure is printed in full where it
+ * happened, and the lane exits NON-ZERO at the end with a count. Nothing is weakened: a failing
+ * check still fails the lane. What changes is that one run now names every failure instead of the
+ * first.
+ *
+ * WHICH HALF THIS COVERS, stated rather than implied: the registered module checks below. The
+ * inline "interactive laboratory" block between the server start and those calls is still inside
+ * the outer try, so a throw there still aborts the lane. It passes today, and splitting it is a
+ * separate change from giving the lane a verdict.
+ */
+const failures = [];
+let attempted = 0;
+const run = async (name, fn) => {
+  attempted += 1;
+  try {
+    await fn();
+  } catch (error) {
+    const detail = String(error?.stack ?? error);
+    failures.push({ check: name, outcome: "failed", error: detail.slice(0, 4000) });
+    console.error(`\n[FAILED] ${name}\n${detail}\n`);
+  }
+};
 await mkdir("artifacts/browser", { recursive: true });
 try {
-  await checkTrajectoryBrowser(browser, url, check);
-  await checkKitchenBrowser(browser, url, check);
+  await run("trajectory", () => checkTrajectoryBrowser(browser, url, check));
+  await run("kitchen", () => checkKitchenBrowser(browser, url, check));
   const noJs = await browser.newContext({
     javaScriptEnabled: false,
     viewport: { width: 320, height: 900 },
@@ -167,15 +199,36 @@ try {
   assert.deepEqual(errors, []);
   check("interactive laboratory reflows at 320px without uncaught page errors");
   await context.close();
-  await checkTracerBrowser(browser, url, check);
-  await checkWalkBrowser(browser, url, check);
-  await checkReaderBrowser(browser, url, check);
-  await checkEquationBrowser(browser, url, check);
-  await checkInferenceBrowser(browser, url, check);
-  await checkCameraBrowser(browser, url, check);
-  await checkConcordanceAnchorBrowser(browser, url, check);
+  await run("tracer", () => checkTracerBrowser(browser, url, check));
+  await run("walk", () => checkWalkBrowser(browser, url, check));
+  await run("reader", () => checkReaderBrowser(browser, url, check));
+  await run("equation", () => checkEquationBrowser(browser, url, check));
+  await run("inference", () => checkInferenceBrowser(browser, url, check));
+  await run("camera", () => checkCameraBrowser(browser, url, check));
+  await run("concordance anchors", () => checkConcordanceAnchorBrowser(browser, url, check));
 } finally {
-  await writeFile("artifacts/browser/checks.json", JSON.stringify(evidence, null, 2));
+  await writeFile(
+    "artifacts/browser/checks.json",
+    JSON.stringify([...evidence, ...failures], null, 2),
+  );
   await browser.close();
   await new Promise((resolve) => server.close(resolve));
+}
+
+// The verdict, with its denominator. A lane that printed nothing here would be indistinguishable
+// from a lane that examined nothing, which is the citation habit AGENTS.md refuses.
+console.log(
+  JSON.stringify({
+    lane: "test-lab-browser",
+    registeredChecksAttempted: attempted,
+    failed: failures.length,
+    failedChecks: failures.map((f) => f.check),
+    evidenceRecorded: evidence.length,
+  }),
+);
+if (failures.length > 0) {
+  console.error(
+    `${failures.length} of ${attempted} registered browser checks failed: ${failures.map((f) => f.check).join(", ")}`,
+  );
+  process.exitCode = 1;
 }

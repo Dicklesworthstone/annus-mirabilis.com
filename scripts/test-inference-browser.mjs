@@ -96,6 +96,21 @@ export async function checkInferenceBrowser(browser, url, check) {
     );
     assert.equal(workers, 0);
     assert.match(await lab.locator(".badge").innerText(), /Static worked example/);
+
+    // PREDICT MODE HIDES THE RESULTS REGION, AND WITH IT THE TYPED REFUSAL. bm-07 marks its results
+    // `div.lab-results.inference-results` and keeps it `display: none` while the prediction is
+    // armed, which is by design for the response plot. The consequence measured here is not: with
+    // an out-of-grid interval applied, the refusal and its repair button
+    // ("Use the nearest available interval on the quarter-second recording grid.") are IN THE DOM
+    // and invisible, `data-refusal-code` is unset on the lab, and no alert is rendered -- so this
+    // waited 30 seconds for a control that was on the page. Filed as am-ig23, because a reader who
+    // enters an inadmissible value during predict mode sees nothing happen.
+    //
+    // Skipping is the reader's own way past the prediction, and the refusal assertions below are
+    // about the refusal rather than about predict mode, so it is skipped once here.
+    await lab.getByRole("button", { name: "Skip prediction", exact: true }).click();
+    await lab.locator(".lab-results").first().waitFor({ state: "visible" });
+
     const initialPaths = await paths(lab);
     await apply(lab);
     assert.equal(workers, 1);
