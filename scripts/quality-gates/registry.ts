@@ -540,6 +540,10 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     availability: {
       scriptPath: "scripts/verify-facsimile-pins.ts",
       tool: "pdftoppm",
+      // am-dbuk, same reasoning as the ubs gates: this binary is not an npm dependency, so its
+      // absence has to read as "poppler is not installed" rather than as a bad facsimile pin.
+      toolHint:
+        "pdftoppm is part of poppler, a system toolchain this repository does not install. Its absence means poppler is not present on this machine - it is NOT a finding about a pinned facsimile, and no page was rendered or compared. AGENTS.md's OCR policy keeps pdftoppm available on purpose (it is not a denylisted engine), so obtain poppler through the system package manager and put pdftoppm on PATH.",
     },
     owner: "am-cf6m",
   },
@@ -653,7 +657,15 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
       cadence: "every-run",
       requiredInCi: false,
       requiredInProfiles: [],
-      availability: { scriptPath: "scripts/app/apple-quality.ts", tool: "xcodebuild" },
+      availability: {
+        scriptPath: "scripts/app/apple-quality.ts",
+        tool: "xcodebuild",
+        // am-dbuk, generalised from `ubs` to every separately obtained binary: without this, a
+        // machine without Xcode refuses with "Required tool 'xcodebuild' was not found" and reads as
+        // a broken app gate rather than an absent toolchain.
+        toolHint:
+          "xcodebuild ships with Xcode and is NOT installed by this repository. Its absence means Xcode is not present on this machine - it is NOT a finding about the iOS app, and no Apple check has run. AGENTS.md puts the apple family on a local lane that never gates a website release (requiredInCi is false and no web profile lists these steps), so a website deploy is unaffected. Install Xcode from the App Store, or run the website gates with --family fast.",
+      },
       owner: "am-app-apple-quality-gate-q6gs",
     }),
   ),
