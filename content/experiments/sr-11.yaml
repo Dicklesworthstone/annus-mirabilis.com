@@ -299,6 +299,7 @@ acceptanceCases:
   - sr-11-mirror-frame-0.6
   - sr-11-stationary
   - sr-11-beta-outside-declared-range-refused
+  - sr-11-light-never-reaches-the-receding-mirror
 defaultScenario: sr-11-normal-0.6
 tapeModel:
   modelId: moving-mirror-host

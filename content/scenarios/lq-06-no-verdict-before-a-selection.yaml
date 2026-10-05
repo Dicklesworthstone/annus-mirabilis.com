@@ -1,0 +1,33 @@
+# LQ-06 gives no correspondence verdict before a subexpression is chosen (am-nxbq, item 2).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the subexpression selector, left where it arrives, at none.
+# This is a SELECTION STATE rather than a physical boundary, and the record says so rather than dressing
+# it as one: nothing about the radiation forbids a verdict here, the reader simply has not asked for one.
+#
+# WHY IT IS STILL A TYPED RESULT WORTH PINNING. The alternative to not-applicable is a verdict of false
+# before anything is selected, and false reads as "the correspondence fails" where the truth is "nothing
+# has been asked". That is exactly the difference the typed-result discipline exists to keep, and the
+# laboratory's own sentence makes it: no subexpression selected yet.
+#
+# MEASURED, so the other branches are known rather than assumed: with the ratio N E over R beta nu selected
+# the verdict is 1, and with the presentation subexpression it is 0. So the verdict is a real comparison
+# when it is asked for, and this record pins the state before it is.
+id: "lq-06-no-verdict-before-a-selection"
+kind: "adversarial"
+title: "LQ-06 reports no correspondence verdict until a subexpression is selected"
+description: "LQ-06 asks whether a chosen subexpression of the entropy-volume relation corresponds to a count of independent quanta. On arrival nothing is chosen, so there is no verdict: the laboratory reports it as not applicable with that reason, rather than returning a false that would read as a failed correspondence. Selecting the ratio N E over R beta nu gives a verdict of 1 and selecting the presentation subexpression gives 0, so the comparison is real once it is asked for."
+plausibleMistake: "That an unselected state may as well report false, since no correspondence has been established. False is an answer to a question nobody asked, and it is the wrong answer to the question the reader will ask next: the ratio this laboratory is built around does correspond, and a reader who saw false first has been told the opposite of what the section concludes."
+intendedFailure: "The laboratory checks whether a subexpression is selected before forming a verdict. The scenario passes only when the status arrives as not applicable on the correspondence verdict; a run that returned a number fails here, including 0, and so does one that reported the verdict as outside a domain, which would say the conditions are wrong rather than that nothing was selected."
+constantSetId: "modern-si-2019"
+owner: "lq06.session"
+inputs:
+  subexpressionSelected:
+    value: 0
+    unit: "1"
+expected:
+  status:
+    outputId: "correspondenceVerdict"
+    status: "not-applicable"
+    reasonCode: "not-applicable"
+modelVersion: 1
+schemaVersion: 1

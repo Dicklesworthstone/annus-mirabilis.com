@@ -3,6 +3,8 @@ import {
   declaredDomains,
   refuseOutsideDeclaredDomain,
 } from "../../experiments/controls/declaredDomain.ts";
+import { LQ06_DEFAULTS } from "../../experiments/lq06/definition.ts";
+import { lq06Outputs } from "../../experiments/lq06/session.ts";
 import { LQ07_DEFAULTS } from "../../experiments/lq07/definition.ts";
 import { evaluateLq07 } from "../../experiments/lq07/session.ts";
 import { ME03_DEFAULTS } from "../../experiments/me03/definition.ts";
@@ -11,6 +13,8 @@ import { SR01_DEFAULTS } from "../../experiments/sr01/definition.ts";
 import { snapshotOutputs as sr01SnapshotOutputs } from "../../experiments/sr01/session.ts";
 import { SR02_DEFAULTS } from "../../experiments/sr02/definition.ts";
 import { snapshotOutputs as sr02SnapshotOutputs } from "../../experiments/sr02/session.ts";
+import { SR11_DEFAULTS } from "../../experiments/sr11/definition.ts";
+import { snapshotOutputs as sr11SnapshotOutputs } from "../../experiments/sr11/session.ts";
 import { MODEL_DOMAINS } from "../../generated/model-domains.ts";
 import { createDeclaredConstantSet, getConstantSet } from "../../physics/reference/constants.ts";
 import { configurationVolumeTerm, decayLengths } from "../../physics/reference/diffusion/routeA.ts";
@@ -865,6 +869,58 @@ const OWNERS: OwnerRecord[] = [
    * `reason` and no code. Pinning the prose would make rewording it turn the scenario red, and the
    * triple the runner compares is still discriminating: the output, the status, and which output.
    */
+  /**
+   * NO VERDICT UNTIL A SUBEXPRESSION IS SELECTED (am-nxbq, item 2).
+   *
+   * LQ-06 asks a reader to pick a subexpression of the entropy-volume relation and says whether it
+   * corresponds to a count of independent quanta. Before anything is picked there is no verdict to give,
+   * and the laboratory reports it as not applicable with the reason "No subexpression selected yet."
+   *
+   * THIS IS A SELECTION STATE, NOT A PHYSICAL BOUNDARY, and the scenario says so plainly rather than
+   * dressing it as one. It is still worth a typed result: the alternative is a verdict of false before the
+   * reader has chosen, which would read as "the correspondence fails" rather than "nothing has been
+   * asked", and that is precisely the difference between not-applicable and a value the typed-result
+   * discipline exists to keep.
+   *
+   * `subexpressionSelected` is a numeric flag because the owner protocol carries numbers: 0 leaves the
+   * laboratory's own default of none, and 1 selects the ratio N E over R beta nu, which is the one the
+   * paper's section 6 comparison turns on. Measured: none gives the not-applicable verdict, that ratio
+   * gives 1, and the presentation subexpression gives 0, so all three branches are real.
+   */
+  {
+    id: "lq06.session",
+    sourcePath: fileURLToPath(new URL("../../experiments/lq06/session.ts", import.meta.url)),
+    fn: (ctx) => {
+      const selected =
+        (ctx.inputs.subexpressionSelected ?? 0) === 0 ? "none" : "N_E_over_R_beta_nu";
+      const outputs = lq06Outputs({
+        ...LQ06_DEFAULTS,
+        ...ctx.inputs,
+        selectedSubexpression: selected,
+      });
+      return sessionOutputsOf(outputs, "correspondenceVerdict");
+    },
+  },
+  /**
+   * LIGHT THAT NEVER REACHES A RECEDING MIRROR (am-nxbq, item 2).
+   *
+   * SR-11 is paper 3 section 8's moving mirror: light falls on a mirror that is itself moving, and the
+   * reflected frequency, the radiation pressure and the energy balance all follow. The geometry has a
+   * boundary the laboratory must state rather than compute through. If the mirror recedes faster than the
+   * component of the light's velocity along its motion, the light never catches it: the condition is
+   * cos(phi) <= beta, and at beta 0.5 it is already reached by phi = 80 degrees.
+   *
+   * ALL TEN of the laboratory's outputs are then not applicable together, which is the honest shape: there
+   * is no reflection, so there is no reflected frequency AND no pressure AND no work rate, rather than a
+   * pressure of zero beside a frequency ratio of something. sr-11's manifest admits both not-applicable
+   * and outside-domain on all ten, and its own kernel note distinguishes three refusals that are three
+   * different facts, this interception condition being one of them.
+   */
+  {
+    id: "sr11.session",
+    sourcePath: fileURLToPath(new URL("../../experiments/sr11/session.ts", import.meta.url)),
+    fn: (ctx) => sessionOutput(sr11SnapshotOutputs, SR11_DEFAULTS, ctx, "frequencyRatio"),
+  },
   /**
    * STOKES'S RULE: ONE QUANTUM CANNOT MAKE A MORE ENERGETIC ONE (am-nxbq, item 2).
    *

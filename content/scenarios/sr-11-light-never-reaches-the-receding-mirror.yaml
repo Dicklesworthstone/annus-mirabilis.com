@@ -1,0 +1,42 @@
+# SR-11 reports nothing when the light never reaches the mirror (am-nxbq, item 2).
+#
+# WHICH CONTROLS A READER MOVES TO REACH IT: the mirror speed and the incident angle together. At a mirror
+# speed of 0.5c and an incident angle of 80 degrees the condition cos(phi) <= beta is met, and the light
+# never catches the mirror. Both settings are inside their declared ranges, so the controls reach this
+# without being driven out of domain.
+#
+# WHAT THE CONDITION MEANS. The mirror recedes along the axis. What matters is the component of the light's
+# velocity along that axis, which is cos(phi) in units of c. When that component is no greater than the
+# mirror's own speed the gap never closes, so there is no reflection at all, and 80 degrees against 0.5c is
+# already past the boundary: cos 80 degrees is about 0.174.
+#
+# ALL TEN OUTPUTS GO TOGETHER, which is the shape this record exists to pin. There is no reflected
+# frequency AND no radiation pressure AND no work rate, rather than a pressure of zero beside a frequency
+# ratio of something: a zero pressure would say the light arrived and pushed with no force. sr-11's own
+# kernel note separates three refusals as three different facts, and this interception condition is one of
+# them, distinct from a speed at or beyond c and from the indeterminate case exactly on the boundary.
+#
+# The control is the same mirror speed at 30 degrees, where cos phi is about 0.866 and the light does
+# arrive: the frequency ratio is about 0.512.
+id: "sr-11-light-never-reaches-the-receding-mirror"
+kind: "adversarial"
+title: "SR-11 reports no reflection when the mirror outruns the light's approach"
+description: "SR-11 is the moving mirror of paper 3 section 8. The mirror recedes along an axis, and only the component of the light's velocity along that axis closes the gap. At a mirror speed of 0.5c and an incident angle of 80 degrees that component, cos phi at about 0.174, is below the mirror's speed, so the light never arrives. All ten of the laboratory's outputs are reported as not applicable together, carrying the condition, rather than a frequency ratio beside a radiation pressure of zero. At 30 degrees the same mirror speed gives a frequency ratio of about 0.512."
+plausibleMistake: "That a grazing angle simply gives a weak reflection, so the pressure should be small and the frequency ratio close to one. The geometry is not a matter of degree here: either the light reaches the mirror or it does not, and past the boundary it does not, so there is no reflected ray whose properties could be small. A radiation pressure of zero would say the light arrived and pushed with no force, which is a different and false statement."
+intendedFailure: "The session checks the interception condition before forming any reflected quantity, so no frequency ratio or pressure is produced for light that never arrives. The scenario passes only when the status arrives as not applicable on the frequency ratio; a run that returned a number fails here, including one, and so does one that reported the result as outside the model's domain, which this laboratory uses for a speed at or beyond c and is a different fact."
+constantSetId: "modern-si-2019"
+owner: "sr11.session"
+inputs:
+  beta:
+    value: 0.5
+    unit: "1"
+  incidentAngleDeg:
+    value: 80
+    unit: "deg"
+expected:
+  status:
+    outputId: "frequencyRatio"
+    status: "not-applicable"
+    reasonCode: "not-applicable"
+modelVersion: 1
+schemaVersion: 1
