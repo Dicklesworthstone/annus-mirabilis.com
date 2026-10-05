@@ -34,6 +34,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadTeachingTapes, loadWireTeachingTapes } from "../src/content/teachingTapes.ts";
+import { loadWalkthroughCatalogue } from "../src/content/walkthroughs.ts";
 import { BM01_DRAFT_TAPE } from "../src/experiments/bm01/draftTape.ts";
 import { BM04_DRAFT_TAPE } from "../src/experiments/bm04/draftTape.ts";
 import { BM05_DRAFT_TAPE } from "../src/experiments/bm05/draftTape.ts";
@@ -249,6 +250,10 @@ async function generateTeachingTapes(root: string) {
   await writeFile(
     resolve(root, "src/generated/teaching-tapes.json"),
     `${JSON.stringify({ tapes: byId, problems }, null, 2)}\n`,
+  );
+  await writeFile(
+    resolve(root, "src/generated/walkthroughs.json"),
+    `${JSON.stringify(loadWalkthroughCatalogue(root), null, 2)}\n`,
   );
   return { tapes: Object.keys(byId).length, problems: problems.length };
 }
