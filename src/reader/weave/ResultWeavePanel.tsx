@@ -6,16 +6,21 @@ import type { createSessionWeave } from "../../experiments/weave/sessionSource.t
 import type { WeaveDerived, WeavePredicate } from "../../experiments/weave/types.ts";
 import { type WeavePassage, weavePassageHref } from "./brownianPassages.ts";
 import { unlitExplanation, weaveEvidence } from "./evidence.ts";
+import { allLitContentIds, primaryFlagForContentId } from "./faceLookup.ts";
+import { connectSourceHighlights, type SourceWeavePointer } from "./sourceHighlights.ts";
 import { WeaveHighlighter, weaveAccessiblePrefix } from "./WeaveHighlighter.tsx";
 import "./resultWeave.css";
 
-export function ResultWeavePanel({ source, predicates, passages, paper }: Readonly<{
+export function ResultWeavePanel({ source, predicates, passages, paper, highlightPaper = false }: Readonly<{
   source: ReturnType<typeof createSessionWeave>;
   predicates: readonly WeavePredicate[];
   passages: Readonly<Record<string, WeavePassage>>;
   paper: string;
+  /** Only the primary embedded lab may annotate the surrounding paper. */
+  highlightPaper?: boolean;
 }>) {
   const id = useId();
+  const host = useRef<HTMLDetailsElement>(null);
   const [open, setOpen] = useState(false);
   const state = useSyncExternalStore(source.subscribe, source.getSnapshot, source.getServerSnapshot);
   const previous = useRef<WeaveDerived | undefined>(undefined);
@@ -34,10 +39,25 @@ export function ResultWeavePanel({ source, predicates, passages, paper }: Readon
     }
     previous.current = next;
   }, [state, open]);
+  useEffect(() => {
+    if (!highlightPaper || !open || state.kind !== "ready") return;
+    const root = host.current?.closest("main");
+    const paperPath = `/papers/${paper}`;
+    const path = window.location.pathname;
+    if (!root || (path !== paperPath && !path.startsWith(`${paperPath}/`))) return;
+    const pointers: SourceWeavePointer[] = [];
+    for (const contentId of allLitContentIds(state.derived)) {
+      const flag = primaryFlagForContentId(state.derived, contentId);
+      if (!flag || !passages[flag.predicateId]) continue;
+      pointers.push({ contentId, meaning: flag.meaning, descriptionId: `${id}-${flag.predicateId}` });
+    }
+    const connection = connectSourceHighlights(root, id, pointers);
+    return () => connection.dispose();
+  }, [highlightPaper, open, state, paper, id, passages]);
   const flags = state.kind === "ready" ? Object.values(state.derived.flags) : [];
   const expanded = selectExpandedOutsideDomain(flags);
   return (
-    <details className="result-weave" data-result-weave={paper}
+    <details ref={host} className="result-weave" data-result-weave={paper}
       onToggle={(event) => setOpen(event.currentTarget.open)}>
       <summary id={`${id}-title`}>What this trial points to in the paper</summary>
       <p>
@@ -64,9 +84,9 @@ export function ResultWeavePanel({ source, predicates, passages, paper }: Readon
           const flag = state.kind === "ready" ? state.derived.flags[predicate.id] : undefined;
           return (
             <li key={predicate.id} data-weave-row={predicate.id}>
-              <WeaveHighlighter flag={flag} expanded={expanded === predicate.id} reducedMotion>
+              <div id={`${id}-${predicate.id}`}><WeaveHighlighter flag={flag} expanded={expanded === predicate.id} reducedMotion>
                 <strong>{passage.title}</strong>
-              </WeaveHighlighter>
+              </WeaveHighlighter></div>
               {flag && !flag.lit && <p>{unlitExplanation(flag)}</p>}
               <p className="result-weave-links">
                 <a href={weavePassageHref(paper, passage.sentenceId, "german")}>German source</a>

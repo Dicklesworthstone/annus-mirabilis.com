@@ -12,7 +12,7 @@ import { TracerLab } from "./TracerLab.tsx";
 const predicates = withWeavePassages(BM01_WEAVE_PREDICATES, BM01_WEAVE_PASSAGES);
 
 /** The lab and the paper pointers share one session and one set of accepted outputs. */
-export function WovenTracerLab(props: ComponentProps<typeof TracerLab>) {
+export function WovenTracerLab({ highlightPaper = false, ...props }: ComponentProps<typeof TracerLab> & { highlightPaper?: boolean }) {
   const id = useId();
   const [session] = useState(() => props.session ?? createBm01Session(
     props.instanceId ?? `woven-bm01-${id}`, props.example, createBm01BrowserChannel,
@@ -23,7 +23,7 @@ export function WovenTracerLab(props: ComponentProps<typeof TracerLab>) {
   return (
     <>
       <TracerLab {...props} session={session} />
-      <ResultWeavePanel source={source} predicates={predicates} passages={BM01_WEAVE_PASSAGES} paper="brownian-motion" />
+      <ResultWeavePanel source={source} predicates={predicates} passages={BM01_WEAVE_PASSAGES} paper="brownian-motion" highlightPaper={highlightPaper} />
     </>
   );
 }

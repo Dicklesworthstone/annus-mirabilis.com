@@ -16,6 +16,7 @@ export default function InlineTracerLab() {
     <>
       <LocalPredictions />
       <TracerLab
+        highlightPaper
         example={tracerExample as PreparedBm01Example}
         title="Investigate the displacement argument"
         equationScope="lab"
