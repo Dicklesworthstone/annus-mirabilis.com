@@ -3,6 +3,14 @@ import {
   declaredDomains,
   refuseOutsideDeclaredDomain,
 } from "../../experiments/controls/declaredDomain.ts";
+import { LQ07_DEFAULTS } from "../../experiments/lq07/definition.ts";
+import { evaluateLq07 } from "../../experiments/lq07/session.ts";
+import { ME03_DEFAULTS } from "../../experiments/me03/definition.ts";
+import { snapshotOutputs as me03SnapshotOutputs } from "../../experiments/me03/session.ts";
+import { SR01_DEFAULTS } from "../../experiments/sr01/definition.ts";
+import { snapshotOutputs as sr01SnapshotOutputs } from "../../experiments/sr01/session.ts";
+import { SR02_DEFAULTS } from "../../experiments/sr02/definition.ts";
+import { snapshotOutputs as sr02SnapshotOutputs } from "../../experiments/sr02/session.ts";
 import { MODEL_DOMAINS } from "../../generated/model-domains.ts";
 import { createDeclaredConstantSet, getConstantSet } from "../../physics/reference/constants.ts";
 import { configurationVolumeTerm, decayLengths } from "../../physics/reference/diffusion/routeA.ts";
@@ -284,7 +292,11 @@ function gaussianIntervalProbability(ctx: OwnerContext): Record<string, number> 
  * exercised. And the condition is a CONTRACT error rather than a model result, so it must not be
  * mistakable for one of the typed statuses the adapter exists to carry.
  */
-export type OwnerContractCode = "owner-value-key-unnamed" | "owner-assessment-without-data";
+export type OwnerContractCode =
+  | "owner-value-key-unnamed"
+  | "owner-assessment-without-data"
+  /** A session returned its outputs and the one this owner reads is not among them. */
+  | "owner-session-output-absent";
 
 export class OwnerContractError extends Error {
   readonly code: OwnerContractCode;
@@ -344,6 +356,59 @@ export function nonNumericOr(
           : (kind ?? String(result.status)),
     },
   };
+}
+
+/**
+ * ONE LABORATORY SESSION'S OUTPUT, BY ITS QUANTITY ID (am-nxbq, item 2).
+ *
+ * Several instruments state their non-numeric result in the SESSION rather than in a reference evaluator,
+ * because the statement is the laboratory's rather than the physics': that the one-way light speed is a
+ * convention, that free radiation is assigned no rest mass, that a model with no circuit has no current.
+ * Measured on am-nxbq, most of the instruments still without a non-numeric acceptance case are in that
+ * position, so this is the shape they follow.
+ *
+ * BY QUANTITY ID, NEVER BY POSITION. A session returns a list, and a list's order is not a contract; an
+ * owner reading `outputs[9]` would silently follow whatever moved there. An absent id is a typed contract
+ * error rather than an undefined, so a renamed output says so instead of producing nothing.
+ */
+function sessionOutput<P>(
+  snapshot: (p: P) => readonly unknown[],
+  defaults: P,
+  ctx: OwnerContext,
+  quantityId: string,
+): OwnerResult {
+  const outputs = snapshot({ ...defaults, ...ctx.inputs });
+  const found = outputs.find(
+    (o) => (o as { quantityId?: string } | null)?.quantityId === quantityId,
+  );
+  if (!found)
+    throw new OwnerContractError(
+      "owner-session-output-absent",
+      `${quantityId}: the session returned ${outputs.length} output(s) and none of them is it.`,
+    );
+  const got = nonNumericOr(found as Record<string, unknown>, quantityId);
+  return typeof got === "number" ? { [quantityId]: got } : got;
+}
+
+/**
+ * One output of an already-evaluated snapshot, by its quantity id.
+ *
+ * `sessionOutput` merges defaults and calls the session itself; some sessions take their parameters
+ * differently or return a record with an `outputs` list beside other fields, and this is the half that
+ * reads such a list. The id lookup and the contract error are the same, for the reason given there: a
+ * list's order is not a contract.
+ */
+function sessionOutputsOf(outputs: readonly unknown[], quantityId: string): OwnerResult {
+  const found = outputs.find(
+    (o) => (o as { quantityId?: string } | null)?.quantityId === quantityId,
+  );
+  if (!found)
+    throw new OwnerContractError(
+      "owner-session-output-absent",
+      `${quantityId}: the snapshot carried ${outputs.length} output(s) and none of them is it.`,
+    );
+  const got = nonNumericOr(found as Record<string, unknown>, quantityId);
+  return typeof got === "number" ? { [quantityId]: got } : got;
 }
 
 /**
@@ -806,6 +871,82 @@ const OWNERS: OwnerRecord[] = [
    * `reason` and no code. Pinning the prose would make rewording it turn the scenario red, and the
    * triple the runner compares is still discriminating: the output, the status, and which output.
    */
+  /**
+   * STOKES'S RULE: ONE QUANTUM CANNOT MAKE A MORE ENERGETIC ONE (am-nxbq, item 2).
+   *
+   * Section 7 of the light-quanta paper derives Stokes's rule from the quantum hypothesis: the emitted
+   * frequency cannot exceed the exciting frequency, because a single absorbed quantum has only its own
+   * energy to give. LQ-07 lets a reader set the two frequencies independently, and asking for an emitted
+   * frequency above the exciting one asks for something the hypothesis forbids. The session reports the
+   * emitted rate, the emitted power and the dissipated heat as not applicable with the reason "One quantum
+   * of the exciting light has too little energy to produce light of the emitted frequency", and lq-07's
+   * manifest admits that status on ten outputs.
+   *
+   * The multi-quantum control is why this is a rule rather than an arithmetic check: with k absorbed
+   * quanta the ceiling moves, which is the deviation case the paper itself anticipates, so the refusal is
+   * conditional on the model a reader has selected rather than on the frequencies alone.
+   */
+  {
+    id: "lq07.session",
+    sourcePath: fileURLToPath(new URL("../../experiments/lq07/session.ts", import.meta.url)),
+    fn: (ctx) => {
+      const evaluated = evaluateLq07({ ...LQ07_DEFAULTS, ...ctx.inputs });
+      return sessionOutputsOf(evaluated.outputs, "emittedRate");
+    },
+  },
+  /**
+   * FREE RADIATION IS NOT ASSIGNED A REST MASS (am-nxbq, item 2).
+   *
+   * ME-03 is the 1906 box: a pulse crosses from one wall to the other and the box recoils, and the
+   * argument assigns a mass change to the EMITTING BODY from the energy it lost. It does not assign a rest
+   * mass to the radiation in flight, and 1905 kinematics gives it none, so the session reports the
+   * radiation's mass change as not applicable with the reason "Free radiation is not assigned an inertial
+   * rest mass in 1905 kinematics." That is an editorial position about what the paper claims, held in
+   * every setting, which is why no control reaches it and why a number there would be a claim the paper
+   * does not make.
+   */
+  {
+    id: "me03.session",
+    sourcePath: fileURLToPath(new URL("../../experiments/me03/session.ts", import.meta.url)),
+    fn: (ctx) => sessionOutput(me03SnapshotOutputs, ME03_DEFAULTS, ctx, "radiationMassChange"),
+  },
+  /**
+   * NO CURRENT, BECAUSE THERE IS NO CIRCUIT (am-nxbq, item 2).
+   *
+   * SR-02 is the opening asymmetry of paper 3: a magnet and a conductor in relative motion, where the
+   * electromotive force is the same and the two descriptions of where it comes from are not. The model is
+   * the field and the force on a test charge; it has no circuit, no resistance and no load, so there is no
+   * current to report. The session says exactly that, "Current in a real circuit is not modeled; this
+   * model has no circuit", rather than reporting a current of zero, which would say the circuit exists
+   * and carries nothing.
+   */
+  {
+    id: "sr02.session",
+    sourcePath: fileURLToPath(new URL("../../experiments/sr02/session.ts", import.meta.url)),
+    fn: (ctx) => sessionOutput(sr02SnapshotOutputs, SR02_DEFAULTS, ctx, "inducedCircuitCurrent"),
+  },
+  /**
+   * THE ONE-WAY SPEED OF LIGHT IS A CONVENTION, NOT A MEASUREMENT (am-nxbq, item 2).
+   *
+   * This is paper 3 section 1's own point, and SR-01 already states it: `snapshotOutputs` pushes
+   * `oneWayLightSpeed` as `not-applicable` with the reason "The model defines the one-way light speed by
+   * convention (Einstein's synchronization procedure), rather than measuring it independently." It is the
+   * state in every setting, because no control can turn a convention into a measurement.
+   *
+   * A SESSION-LEVEL OWNER, which is a new shape here and the reason this entry is worth its length. Every
+   * owner above calls a reference evaluator. This one calls a LABORATORY SESSION, because that is where
+   * the result lives: the measurement of the two-way speed is an evaluator's business and the statement
+   * that the one-way speed is conventional is the laboratory's. Most of the instruments still without a
+   * non-numeric acceptance case are in the same position, measured on am-nxbq, so this is the shape they
+   * will follow: the lab's own defaults merged with the scenario's inputs, the session called once, and
+   * the output found BY ITS QUANTITY ID rather than by position, because a session returns a list and a
+   * list's order is not a contract.
+   */
+  {
+    id: "sr01.session",
+    sourcePath: fileURLToPath(new URL("../../experiments/sr01/session.ts", import.meta.url)),
+    fn: (ctx) => sessionOutput(sr01SnapshotOutputs, SR01_DEFAULTS, ctx, "oneWayLightSpeed"),
+  },
   /**
    * WITH NO FORCE THERE IS NO DECAY LENGTH, NOT AN INFINITE ONE (am-nxbq, item 2).
    *
