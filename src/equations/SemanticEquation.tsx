@@ -94,12 +94,36 @@ export function SemanticEquation({
   }, []);
   // TERMS AS TARGETS (dispatch 144): pointing at or focusing anything that names a quantity lights
   // every instance of that exact quantity in this card; a click still selects, as before.
-  const [pointed, setPointed] = useState<string | null>(null);
-  useEffect(() => {
-    if (root.current) lightQuantity(root.current, pointed);
-  }, [pointed]);
+  /**
+   * THE POINTED QUANTITY IS A REF, NOT STATE, AND THAT IS WHAT MAKES A CLICK WORK (am-gbys).
+   *
+   * It was `useState`, with an effect calling `lightQuantity` whenever it changed. The highlight is
+   * applied IMPERATIVELY by that function -- it sets and removes `data-lit` attributes -- so the
+   * state bought nothing but a re-render, and the re-render broke pointer input.
+   *
+   * Measured on the built export: with focus inside this widget, the first pointer click on a term
+   * selected nothing and a capture-phase document listener saw NO click event. The event trace shows
+   * why. On mousedown the browser moves focus, so `focusout` and `focusin` both fire BETWEEN
+   * mousedown and mouseup, each one setting this value and re-rendering. A MutationObserver on
+   * `.equation-visual` recorded two childList replacements during that single press: the container
+   * survived and the term span inside it did not, because the equation's HTML is injected with
+   * `dangerouslySetInnerHTML` and was re-set. A click is only synthesised when mousedown and mouseup
+   * land on the same node, so destroying that node mid-press suppresses the click entirely. The
+   * second click then worked, which is the two-click wart a reader felt: after selecting a term, the
+   * next press on "Patterns instead of colour" also did nothing.
+   *
+   * A ref keeps the highlight exactly as it was and removes the render, so the span the pointer
+   * pressed is still there when the pointer is released. The guard also skips the work when the
+   * pointed quantity has not changed, which is the common case while a pointer moves within one term.
+   */
+  const pointed = useRef<string | null>(null);
+  const point = (next: string | null): void => {
+    if (pointed.current === next) return;
+    pointed.current = next;
+    if (root.current) lightQuantity(root.current, next);
+  };
   const pointAt = (target: EventTarget | null) =>
-    setPointed(root.current ? quantityAt(root.current, target) : null);
+    point(root.current ? quantityAt(root.current, target) : null);
   useEffect(() => {
     for (const element of root.current?.querySelectorAll<HTMLElement>("[data-term],[data-op]") ??
       []) {
@@ -203,9 +227,9 @@ export function SemanticEquation({
       data-selected-node-id={current ?? undefined}
       data-pattern={String(pattern)}
       onPointerOver={(e) => pointAt(e.target)}
-      onPointerLeave={() => setPointed(null)}
+      onPointerLeave={() => point(null)}
       onFocus={(e) => pointAt(e.target)}
-      onBlur={() => setPointed(null)}
+      onBlur={() => point(null)}
     >
       <header>
         <p className="eyebrow">
