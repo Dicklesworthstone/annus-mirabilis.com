@@ -109,9 +109,15 @@ export async function checkKitchenBrowser(browser, url, check) {
   try {
     await page.goto(url + route);
     const lab = page.locator('[data-instrument-id="bm-07-kitchen"]').first();
+    // THE CSV INPUT, NAMED BY ITS `accept`. bm-07 has TWO file inputs now, the observation CSV and
+    // a local video, so `input[type="file"]` is ambiguous: it was a strict-mode violation at the
+    // setInputFiles calls below and, here, quietly resolved to whichever comes first in the DOM.
+    // Both forms are pinned to the CSV, because which input this waits on is the whole point.
     await page.waitForFunction(
       () =>
-        !document.querySelector('[data-instrument-id="bm-07-kitchen"] input[type="file"]').disabled,
+        !document.querySelector(
+          '[data-instrument-id="bm-07-kitchen"] input[type="file"][accept*="csv"]',
+        ).disabled,
     );
     assert.equal(workers, 0);
     assert.equal(await out(lab, "correctedD").count(), 0);
@@ -239,7 +245,7 @@ export async function checkKitchenBrowser(browser, url, check) {
 
     const old = await identity(lab);
     await lab
-      .locator('input[type="file"]')
+      .locator('input[type="file"][accept*="csv"]')
       .setInputFiles({ name: "bad.csv", mimeType: "text/csv", buffer: Buffer.from("not a CSV") });
     await lab.getByRole("button", { name: "Import selected CSV", exact: true }).click();
     await page.waitForFunction(() =>
@@ -248,7 +254,7 @@ export async function checkKitchenBrowser(browser, url, check) {
         .textContent.includes("columns:"),
     );
     assert.deepEqual(await identity(lab), old);
-    await lab.locator('input[type="file"]').setInputFiles({
+    await lab.locator('input[type="file"][accept*="csv"]').setInputFiles({
       name: "too-large.csv",
       mimeType: "text/csv",
       buffer: Buffer.alloc(2097153, 120),
@@ -260,7 +266,7 @@ export async function checkKitchenBrowser(browser, url, check) {
     const readerCsv = practice
       .replace("# data_origin=synthetic", "# data_origin=reader-supplied")
       .replace(/# sample=.*/, `# sample=${marker} <img src=x onerror=alert(1)>`);
-    await lab.locator('input[type="file"]').setInputFiles({
+    await lab.locator('input[type="file"][accept*="csv"]').setInputFiles({
       name: "my-observations.csv",
       mimeType: "text/csv",
       buffer: Buffer.from(readerCsv),

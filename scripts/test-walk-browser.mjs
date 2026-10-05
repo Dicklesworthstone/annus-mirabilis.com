@@ -56,6 +56,21 @@ export async function checkWalkBrowser(browser, url, check) {
     assert.equal(workers, 0);
     assert.deepEqual(errors, []);
     check("BM-05: hydration preserves the worked example without starting a random trial");
+
+    // PREDICT MODE WITHHOLDS THE RESULTS, BY DESIGN, AND THIS CHECK PREDATES IT. AGENTS.md turns
+    // predict mode on for a first-time visitor: "before the first change the response plot is
+    // hidden". bm-05 implements that by marking the results region `data-predict-response`, and
+    // while it is armed the region is `display: none`. Its contents are still in the DOM, so every
+    // `getAttribute("data-value")` below kept working and only the `innerText` assertions failed --
+    // which is why this surfaced as "the page lost a sentence" rather than as "the results are
+    // hidden". Measured in that state: one .lab-results element, display none, holding the copy.
+    //
+    // Skipping is the reader's own way past it ("The result appears when you choose, say you have
+    // one in mind, or skip"), and AGENTS.md is explicit that a reader may move straight on. The
+    // prediction is not what this check is about, so it is skipped once, here, rather than answered
+    // differently at each assertion.
+    await lab.getByRole("button", { name: "Skip prediction", exact: true }).click();
+    await lab.locator(".lab-results").waitFor({ state: "visible" });
     const value = (id) =>
       lab
         .locator(`[data-quantity-id="${id}"]:not(.kernel-ident)`)
@@ -122,6 +137,20 @@ export async function checkWalkBrowser(browser, url, check) {
       const gap = Number(await value("shapeTerm"));
       if (kernel === "gaussian") {
         assert.equal(gap, 0);
+        // THE SHAPE COMPARISON ONLY EXISTS ONCE THERE ARE STEPS TO COMPARE, and that is the
+        // product being right rather than the page losing copy. Changing the step law is a
+        // setup-change, so it starts a new accepted run with 0 observed steps, and at `p.n === 0`
+        // WalkLab renders "Before any steps, all walkers are at zero. There is no finite-width
+        // Gaussian or standardized shape comparison." instead of the paragraph asserted below. So
+        // this read innerText immediately after applying and timed out on text the page correctly
+        // was not showing yet. Observing four steps is the reader's own next action, and it keeps
+        // the same trial by design ("They return to the same trial, not a fresh sample").
+        //
+        // The gap is read ABOVE, before this observation, so the two numeric assertions in this
+        // loop are unaffected by it.
+        await accepted(() =>
+          lab.getByRole("button", { name: "Observe 4 steps", exact: true }).click(),
+        );
         assert.match(await lab.innerText(), /Gaussian steps are the exception/);
       } else assert.ok(Math.abs(gap - 0.0073842319360238) < 1e-12);
     }

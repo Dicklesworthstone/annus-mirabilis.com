@@ -93,10 +93,18 @@ export async function checkTrajectoryBrowser(browser, url, check) {
     await lab.locator('[data-accepted-run="2"]').waitFor();
     const result = lab.locator('[data-accepted-run="2"]');
     assert.equal(await result.getAttribute("data-result-status"), "analyzed");
-    assert.match(
-      await result.getByRole("row", { name: /^Diffusion estimate / }).innerText(),
-      /1\.87500e-12/,
-    );
+    // THE PRINTED POWER OF TEN, NOT A DOUBLE'S SERIALIZATION. This asserted `1.87500e-12`, which
+    // is the form AGENTS.md's precision rule keeps off a reading surface and which
+    // src/testing/labNoENotation.test.tsx now refuses across 30+ routes (am-08rk). So the old
+    // expectation encoded the defect: it would have gone red on the repair and green on a
+    // regression. Updating it is not regenerating a golden to match broken output -- the direction
+    // is fixed independently, by a rule and by a gate that reads every lab page.
+    //
+    // The `not` arm is the half that makes this a real assertion rather than a reformatting: a
+    // future change back to e-notation fails here even if the mantissa still matches.
+    const estimateRow = await result.getByRole("row", { name: /^Diffusion estimate / }).innerText();
+    assert.match(estimateRow, /1\.87500\s*\u00d7\s*10[\u2212-]12/);
+    assert.doesNotMatch(estimateRow, /e-12/);
     assert.equal(await result.locator('[data-semantic-kind="consistency-check"]').count(), 0);
     check("the real host estimates the declared 2D arithmetic fixture in canonical SI");
 

@@ -23,28 +23,77 @@ export async function checkReaderBrowser(browser, url, check) {
   try {
     const page = await noJs.newPage();
     await page.goto(url + route);
-    assert.equal(await page.locator(".reader-passage").count(), 6);
+    // A FLOOR WITH ITS COUNT REPORTED, NOT A FROZEN CENSUS. This asserted exactly 6 and went red at
+    // 9, on correct work: passages were authored. AGENTS.md says a count used as evidence is
+    // reported and anchored, while a PROPERTY is what gets asserted, because freezing a census into
+    // an equality makes a test brittle and, worse, aborts above the checks that matter -- the
+    // reading-depth and no-script assertions below never ran while this was red.
+    //
+    // The floor keeps the direction that matters: losing a passage still fails. The exact number is
+    // printed instead, so a change is visible without being fatal.
+    const passages = await page.locator(".reader-passage").count();
+    console.log(JSON.stringify({ check: "reader passages", passages, floor: 6 }));
+    assert.ok(passages >= 6, `the Brownian reader shows ${passages} passages, fewer than 6`);
     const passage = page.locator(`#${firstId}`);
+    // WITHOUT JAVASCRIPT A READER IS GIVEN BOTH THE OVERVIEW AND THE FULL EXPLANATION, LABELLED.
+    // This asserted that R0 is NOT visible, which was the earlier design. The page now ships a
+    // `<noscript>` stylesheet whose rule is `[data-reading="0"] { display: block !important }`,
+    // beating the `hidden` attribute that the static HTML still carries for a scripted reader, and
+    // `<noscript>` labels "In one breath" and "Full explanation" so the two readings are told apart.
+    // The no-script notice says it in words: "JavaScript is off. The full explanation is shown."
+    // So showing R0 here is deliberate, and the old assertion would have gone red on the change
+    // that introduced the labels.
+    //
+    // Both arms are asserted rather than the one, because "R0 is visible" alone would also pass on
+    // a page that had lost the labels and stacked two unlabelled readings on the reader.
     assert.ok(await passage.locator('[data-reading="1"]').isVisible());
-    assert.ok(!(await passage.locator('[data-reading="0"]').isVisible()));
+    assert.ok(await passage.locator('[data-reading="0"]').isVisible());
+    // Case-insensitive: the labels are uppercased by CSS, so innerText returns "IN ONE BREATH".
+    assert.match(await passage.locator('[data-reading="0"]').innerText(), /in one breath/i);
+    assert.match(await passage.locator('[data-reading="1"]').innerText(), /full explanation/i);
     // Show every step is a native disclosure per passage (PaperPage/PaperReader): without
     // JavaScript its summary is visible by design and the steps stay closed until opened.
     const everyStep = passage.locator('details[data-reading="2"]');
     assert.equal(await everyStep.getAttribute("open"), null);
     assert.ok(!(await everyStep.locator(":scope > :not(summary)").first().isVisible()));
-    // The status is a native disclosure now, closed by default, so its body is in the
-    // document but not in innerText; the claim is that the page says it, not that it is open.
-    assert.match(
-      (await page.locator("[data-source-status]").textContent()) ?? "",
-      /not the German source/,
-    );
+    // THE STATUS NOTICE IS GONE BY AN OWNER DECISION, so asserting it is asserting against a frozen
+    // ruling. docs/DECISIONS.md D-2026-09-25-no-review-status-banners records the owner verbatim --
+    // "we don't need messages like this on the site, they just detract from the site and the
+    // experience and aren't meaningful" -- and names the covered notices, among them "the German
+    // face's 'Machine draft, not reviewed' box". `[data-source-status]` is no longer rendered on a
+    // paper page: `PaperStatus` in src/reader/paperStatus.tsx still exists and has no caller, so
+    // this timed out for 30 seconds waiting for an element the site is not allowed to show.
+    //
+    // The assertion is withdrawn rather than retargeted, because there is nothing it could point at
+    // without reintroducing the banner. What replaces it is the claim the decision leaves standing:
+    // the reading page states which face a reader is on, which is navigation rather than a status
+    // banner, and the record of review lives in the units and docs/provenance/.
+    assert.equal(await page.locator("[data-source-status]").count(), 0);
+    assert.ok((await page.getByRole("link", { name: /German/ }).count()) > 0);
     assert.ok((await page.locator("math").count()) > 10);
     await page.screenshot({ path: "artifacts/browser/reader-no-js-320-top.png" });
     // The passage holds more than one .local-steps disclosure (its equations explorer is one
     // too), so address the R2 disclosure itself.
     await everyStep.locator(":scope > summary").click();
-    assert.match(await everyStep.innerText(), /2\.236/);
-    assert.ok(await everyStep.locator(".foundation-inline").first().isVisible());
+    // WITHOUT SCRIPTS, "SHOW EVERY STEP" IS A REAL LINK, NOT INLINED PROSE, and that is the
+    // documented design rather than a loss. AGENTS.md sets a 250 kB gzip budget for a reading face
+    // and says that over budget "a section's R2 and R3 texts load from a static JSON fragment on
+    // first expansion, with real links for no-script readers". The disclosure now says exactly
+    // that: "Read every step on this section's own page, where they are part of the page."
+    //
+    // So the claim worth asserting is REACHABILITY, not inlining: this used to match /2.236/ in the
+    // disclosure, and the number has not disappeared from the site, it has moved to the page the
+    // link names. Following the link is what proves a no-script reader can still get every step,
+    // which is the accessibility requirement the old assertion stood for.
+    const stepsHref = await everyStep.getByRole("link").first().getAttribute("href");
+    assert.ok(stepsHref, "the no-script R2 disclosure offers no link to the steps");
+    const stepsPage = await noJs.newPage();
+    try {
+      await stepsPage.goto(new URL(stepsHref, url).toString());
+      assert.match(await stepsPage.locator("main").innerText(), /2\.236/);
+    } finally {
+      await stepsPage.close();
+    }
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
     check(
       "reader remains complete without JavaScript, including native derivation disclosures and 320px reflow",
@@ -266,7 +315,17 @@ export async function checkReaderBrowser(browser, url, check) {
     // in-page source face that way.
     await page.goto(`${url}${route}?view=german#${firstId}`);
     await page.locator('[data-reader-root][data-enhanced="true"]').waitFor();
-    assert.match(await passage.locator("[data-face-source]").innerText(), /not yet available/);
+    // THE IN-PAGE SOURCE FACE NOW HANDS THE READER THE REAL ROUTES. This asserted
+    // /not yet available/, which was true when the German and English faces did not exist as pages.
+    // They do, so FaceFallback offers them instead: "Read the German source for the whole paper →".
+    // Holding the test to the old message would keep it red for as long as the faces exist, and
+    // green again only if they were lost -- the wrong direction for both.
+    const faceFallback = passage.locator("[data-face-source]");
+    assert.match(await faceFallback.innerText(), /Read the German source/);
+    const germanHref = await faceFallback
+      .getByRole("link", { name: /German source/ })
+      .getAttribute("href");
+    assert.match(germanHref ?? "", /\/papers\/brownian-motion\/view\/german\/?$/);
     assert.ok(!(await passage.locator("[data-face-reading]").isVisible()));
     await page.locator('.reader-controls [data-view-link="reading"]').click();
     await passage.getByRole("button", { name: /^Copy a link to this passage:/u }).click();
@@ -349,7 +408,27 @@ export async function checkReaderBrowser(browser, url, check) {
       .getAttribute("href");
     const data = await (await context.request.get(url + jsonLink)).json();
     assert.equal(data.paper.sourceStatus, "in-preparation");
-    assert.equal(data.arguments.length, 6);
+    // ANOTHER FROZEN CENSUS, and the fix is the one the comment below already applies to its
+    // neighbour: this asserted 6 and broke at 9 when passages were authored. The property that
+    // holds at any size is correspondence -- the export lists exactly the passages the page
+    // renders, by id -- and it is strictly stronger than a count, because a build that exported
+    // nine arguments while rendering a different nine would pass an equality on the number.
+    // Verified against the built artifacts before being asserted: 9 exported, 9 on the page,
+    // identical sets.
+    const exportedArguments = data.arguments.map((a) => a.id).sort();
+    const renderedPassages = await page.evaluate(() =>
+      [...document.querySelectorAll(".reader-passage")].map((n) => n.id).sort(),
+    );
+    console.log(
+      JSON.stringify({
+        check: "explanation JSON matches the rendered passages",
+        exported: exportedArguments.length,
+        rendered: renderedPassages.length,
+      }),
+    );
+    // Non-vacuity on purpose: two empty lists are deepEqual.
+    assert.ok(exportedArguments.length >= 6, `${exportedArguments.length} arguments exported`);
+    assert.deepEqual(exportedArguments, renderedPassages);
     // A census here froze 13 and broke when the lessons grew to 22 ("A count is for reporting,
     // not for asserting", AGENTS.md). The property: the export lists exactly the foundations
     // this page offers as lessons, and there is at least one.
@@ -377,7 +456,19 @@ export async function checkReaderBrowser(browser, url, check) {
       `${url}${route}s5/?detail=2&open=foundation:mean-variance-rms#arg-bm-inference`,
     );
     await page.locator("dialog[open]").waitFor();
-    assert.equal(await page.locator(".reader-passage").count(), 2);
+    // A THIRD CENSUS: s5 held 2 passages and holds 1, because the sections were re-partitioned.
+    // What this step is about is the deep link -- a foundation dialog opens over the section and
+    // Escape returns focus to the passage the URL names -- so the assertion is that the section
+    // renders THAT passage, which is what the two lines below depend on. Checked against the built
+    // section first: s5 renders exactly arg-bm-inference.
+    const sectionPassages = await page.evaluate(() =>
+      [...document.querySelectorAll(".reader-passage")].map((n) => n.id),
+    );
+    console.log(JSON.stringify({ check: "s5 passages", ids: sectionPassages }));
+    assert.ok(
+      sectionPassages.includes("arg-bm-inference"),
+      `s5 renders [${sectionPassages.join(", ")}], not the passage this deep link names`,
+    );
     await page.keyboard.press("Escape");
     await page.locator("[data-clarification-dialog]").waitFor({ state: "hidden" });
     assert.equal(new URL(page.url()).pathname, `${route}s5/`);

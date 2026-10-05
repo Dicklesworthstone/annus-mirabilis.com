@@ -8,6 +8,25 @@ export async function checkEquationBrowser(browser, url, check) {
   const card = (scope, name) => scope.locator(`[data-equation-id="${eqId(name)}"]`);
   const value = (scope, name, term) =>
     card(scope, name).locator(`[data-term-value="${eqId(name)}.t.${term}"]`);
+  /**
+   * Opens a card's term-and-operation explorer, which is a CLOSED `<details class="equation-parts">`
+   * holding the chips in a `<nav class="equation-chips">`.
+   *
+   * This is why `getByRole("button", { name: "Why a square root? operation" })` found nothing and
+   * waited 30 seconds: a closed disclosure keeps its contents out of the ACCESSIBILITY TREE, and
+   * role locators query that tree, while `locator("button")` queries the DOM and found all 13. The
+   * chips were never removed and their aria-labels never changed -- measured on the built page, the
+   * label is exactly "Why a square root? operation" -- so the failure read like a missing control
+   * and was a closed drawer. AGENTS.md describes the design: a formula "reads as a whole, with an
+   * optional term-and-operation explorer and a clear way out".
+   *
+   * Idempotent, because a click on an open disclosure would close it again.
+   */
+  const openParts = async (cardLocator) => {
+    const parts = cardLocator.locator("details.equation-parts").first();
+    if ((await parts.getAttribute("open")) === null)
+      await parts.locator(":scope > summary").click();
+  };
   const staticContext = await browser.newContext({
     javaScriptEnabled: false,
     viewport: { width: 320, height: 900 },
@@ -15,8 +34,48 @@ export async function checkEquationBrowser(browser, url, check) {
   try {
     const page = await staticContext.newPage();
     await page.goto(`${url}/lab/bm-01/`);
-    assert.equal(await page.locator("[data-equation-id]").count(), 3);
-    assert.equal(await page.locator(".equation-mathml math").count(), 3);
+    // A CENSUS THAT BROKE ON CORRECT WORK, and the first repair of it was wrong too, which is worth
+    // recording. `.equation-mathml math` was frozen at 3 and is 6, so the obvious fix was to pair it
+    // with the card count -- but the cards are still 3. Measured on the built page: 3 cards, 9
+    // `.equation-mathml` wrappers, 10 `<math>` elements, because a card renders several notation
+    // forms. Equality against the card count would have been a new frozen census wearing the shape
+    // of a property.
+    //
+    // The claim worth asserting is PER CARD, which is also the accessibility requirement AGENTS.md
+    // states ("KaTeX HTML plus MathML"): no equation card is served without a MathML form, and no
+    // MathML wrapper is empty. Both hold at any number of cards or forms.
+    const perCard = await page.locator("[data-equation-id]").evaluateAll((nodes) =>
+      nodes.map((n) => ({
+        id: n.getAttribute("data-equation-id"),
+        math: n.querySelectorAll("math").length,
+      })),
+    );
+    // A LIVE REGION SHARES THIS CLASS AND IS CORRECTLY EMPTY ON ARRIVAL. Three of the nine
+    // `.equation-mathml` elements are `<p role="status" aria-live="polite">`, one per card, holding
+    // nothing until there is something to announce. Demanding MathML inside them would be demanding
+    // an announcement before any interaction, so they are excluded by role rather than by counting
+    // around them.
+    const emptyWrappers = await page
+      .locator('.equation-mathml:not([role="status"])')
+      .evaluateAll((nodes) => nodes.filter((n) => n.querySelectorAll("math").length === 0).length);
+    const liveRegions = await page.locator('.equation-mathml[role="status"]').count();
+    console.log(
+      JSON.stringify({
+        check: "bm-01 equation cards",
+        cards: perCard.length,
+        perCard,
+        emptyWrappers,
+        liveRegions,
+      }),
+    );
+    assert.ok(perCard.length >= 3, `bm-01 renders ${perCard.length} equation cards, fewer than 3`);
+    assert.deepEqual(
+      perCard.filter((c) => c.math === 0),
+      [],
+    );
+    assert.equal(emptyWrappers, 0);
+    // One announcement region per card, so the exclusion above is scoped rather than open-ended.
+    assert.equal(liveRegions, perCard.length);
     assert.ok(
       (
         await page
@@ -28,7 +87,11 @@ export async function checkEquationBrowser(browser, url, check) {
     assert.match(await value(page, "diffusivity", "viscosity").innerText(), /^1 mPa·s$/);
     const rms = card(page, "rms");
     await rms.getByText("Model assumptions and every term’s meaning", { exact: true }).click();
-    assert.match(await rms.innerText(), /This is a unit check, not a proof/);
+    // THE SAME CLAIM, REWRITTEN. The card said "This is a unit check, not a proof" and now says
+    // "Every term's units were checked when this page was built. That checks the units, not the
+    // model." The substance is what this assertion is for -- the card must not let a passing unit
+    // check read as a proof of the model -- so it is asserted on the sentence that carries it.
+    assert.match(await rms.innerText(), /checks the units, not the model/);
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
     await rms.screenshot({ path: "artifacts/browser/equations-no-js-320.png" });
     check(
@@ -54,6 +117,7 @@ export async function checkEquationBrowser(browser, url, check) {
     await page.waitForFunction(
       () => !document.querySelector('[data-instrument-id="bm-01"] button[type="submit"]').disabled,
     );
+    await openParts(rms);
     await rms.getByRole("button", { name: "Why a square root? operation", exact: true }).waitFor();
     // Since ad178896 the trial form sits in the closed "Experiment settings" drawer.
     await lab.locator("details.experiment-settings > summary").click();
@@ -125,6 +189,7 @@ export async function checkEquationBrowser(browser, url, check) {
           .evaluateAll((nodes) => nodes.map((el) => getComputedStyle(el).textDecorationStyle))
       ).every((style) => style === "double"),
     );
+    await openParts(diffusion);
     await diffusion.getByRole("button", { name: "Dynamic viscosity term", exact: true }).click();
     await diffusion
       .getByRole("button", { name: "Edit this input in the laboratory", exact: true })
@@ -234,6 +299,7 @@ export async function checkEquationBrowser(browser, url, check) {
       .getByRole("button", { name: "Open a second separate ensemble", exact: true })
       .click();
     const second = page.locator('[data-instrument-id="bm-01"]').nth(1);
+    await openParts(card(second, "rms"));
     await card(second, "rms")
       .getByRole("button", { name: "Diffusion coefficient term", exact: true })
       .click();
@@ -249,6 +315,7 @@ export async function checkEquationBrowser(browser, url, check) {
       "equations: canonical coordinate RMS is not replaced by a vector or sample statistic, and separate placements stay isolated",
     );
 
+    await openParts(rms);
     await rms.getByRole("button", { name: "Why a square root? operation", exact: true }).click();
     const audit = await new AxeBuilder({ page })
       .include('[data-instrument-id="bm-01"]')
@@ -274,6 +341,7 @@ export async function checkEquationBrowser(browser, url, check) {
       readerRms = card(passage, "rms");
     assert.match(await readerRms.locator("[data-equation-values]").innerText(), /Symbolic here/);
     const workersBefore = workers;
+    await openParts(readerRms);
     await readerRms
       .getByRole("button", { name: "Why a square root? operation", exact: true })
       .click();

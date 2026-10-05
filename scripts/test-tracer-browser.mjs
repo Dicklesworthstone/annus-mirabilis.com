@@ -21,6 +21,15 @@ export async function checkTracerBrowser(browser, url, check) {
     await staticPage.locator('[data-output="diffusionCoefficient"]').innerText(),
     /0\.42944/,
   );
+  // THE CONTROL MOVED INSIDE A DRAWER, NOT AWAY. AGENTS.md puts advanced controls in an
+  // "Experiment settings" drawer, and bm-01 renders them in `<details class="experiment-settings">`
+  // with no `open` attribute. A closed disclosure hides its contents from the accessibility tree,
+  // so `getByRole` could not see the button and this timed out after 30 seconds -- a failure that
+  // reads like a missing button and is really a changed layout. Opening the disclosure is the
+  // reader's own path and needs no JavaScript, which is the point of asserting it in this context.
+  const settings = staticPage.locator("details.experiment-settings").first();
+  assert.equal(await settings.getAttribute("open"), null);
+  await settings.locator(":scope > summary").click();
   assert.ok(
     await staticPage
       .getByRole("button", { name: "Apply trial settings", exact: true })
