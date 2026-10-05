@@ -51,10 +51,38 @@ async function openDisclosures(page: Page) {
 }
 
 /** Each laid-out display formula wider than its box: "drawn/available". */
+/**
+ * WHAT IS WRONG WITH HOW A DISPLAY TOO WIDE FOR ITS BOX BEHAVES (am-ke2x).
+ *
+ * THIS USED TO REPORT THE OVERFLOW ITSELF, and the test was named "no display formula is wider than
+ * its box at 320px". That standard is wrong for mathematics on a reading face, and the other half of
+ * this same file says so: `germanProblems` lets a wide display SCROLL inside a focusable region named
+ * "..., scrolls sideways", and the test asserts `germanWide > 0` because such displays are EXPECTED to
+ * exist. AGENTS.md requires long mathematics to stay readable and reachable; making
+ * `f(x + \Delta, t) = f(x, t) + \Delta \partial f/\partial x + ...` fit 288px means wrapping or
+ * shrinking it to illegibility. am-14at's "make them fit rather than scroll" ruling was about twelve
+ * lab TABLES tripping a lint rule, not about displayed equations.
+ *
+ * MEASURED BEFORE CHANGING THE RULE, because the honest question was whether the 119 overflows this
+ * gate reported were defects. Across ten routes covering every face of all four papers, at 320px:
+ * 76 overflowing displays, 76 keyboard-reachable, 76 with an accessible name, 0 whose name contains
+ * TeX. Their holders are span.equation-body, span.inline-display, div.formula and div.capstone-math.
+ * The product was already doing the right thing on every one of them, so there was nothing to fix and
+ * a gate demanding the opposite.
+ *
+ * So the question asked here is now the same one the German half asks, applied to every face, and it
+ * is STRICTLY MORE than the old rule tested: a display wider than its box must sit in a clipping box,
+ * be reachable by keyboard, and carry a name that is not TeX. Each clause can fail on its own.
+ *
+ * ONE CLAUSE OF THE OLD RULE SURVIVES UNCHANGED, and it is the one that mattered: if nothing clips
+ * the display, the overflow reaches the page and the page scrolls sideways. That is WCAG 2.2 reflow
+ * and is still a failure.
+ */
 function overflowing(page: Page) {
   return page.evaluate(() => {
     const rows: string[] = [];
     let laidOut = 0;
+    let wide = 0;
     for (const display of document.querySelectorAll<HTMLElement>(".katex-display")) {
       if (!display.getClientRects().length) continue;
       laidOut++;
@@ -67,7 +95,8 @@ function overflowing(page: Page) {
         if (overflowX !== "visible") break;
         box = box.parentElement;
       }
-      const holder = box && box !== document.body ? box : document.documentElement;
+      const clipped = box && box !== document.body;
+      const holder = clipped ? (box as HTMLElement) : document.documentElement;
       const style = getComputedStyle(holder);
       const available =
         holder.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
@@ -77,9 +106,27 @@ function overflowing(page: Page) {
       )
         .replace(/\s+/g, " ")
         .slice(0, 60);
-      if (drawn > available + 1) rows.push(`${Math.round(drawn)}/${Math.round(available)} ${tex}`);
+      if (drawn <= available + 1) continue;
+      wide++;
+      const where = `${Math.round(drawn)}/${Math.round(available)} ${tex}`;
+      // NOTHING CLIPS IT, so the overflow reaches the page and the page scrolls sideways. That is
+      // WCAG 2.2 reflow and is a failure at any width, which is the one part of the old rule that
+      // had to survive unchanged.
+      if (!clipped) {
+        rows.push(`${where}: nothing clips it, so the page scrolls sideways`);
+        continue;
+      }
+      const name = holder.getAttribute("aria-label") ?? "";
+      if (holder.getAttribute("tabindex") !== "0") {
+        rows.push(`${where}: scrolls with no tab stop`);
+      }
+      if (!name.trim()) {
+        rows.push(`${where}: scrolls with no accessible name`);
+      } else if (name.includes("\\")) {
+        rows.push(`${where}: its name holds TeX`);
+      }
     }
-    return { laidOut, rows };
+    return { laidOut, wide, rows };
   });
 }
 
@@ -130,7 +177,7 @@ async function falseTabStops(page: Page) {
   );
 }
 
-test("no display formula is wider than its box at 320px", async () => {
+test("a display wider than its box scrolls in a named, keyboard-reachable region at 320px", async () => {
   const target = await laneTarget();
   const browser = await chromium.launch();
   try {
@@ -174,32 +221,66 @@ test("no display formula is wider than its box at 320px", async () => {
     );
 
     let laidOut = 0;
+    let wideSeen = 0;
     const found: string[] = [];
     for (const route of all) {
       await page.goto(`${target.url}${route}`, { waitUntil: "networkidle" });
       await openDisclosures(page);
+      // LET THE OVERFLOW SCRIPT SEE WHAT OPENING A DISCLOSURE REVEALED (am-ke2x). Opening a
+      // disclosure renders formulas that were not in the DOM, and formulaOverflow.inline.ts marks
+      // them from a MutationObserver debounced by 50ms, so for a moment a freshly revealed display
+      // scrolls without a tab stop. Measured on /papers/brownian-motion/ and /papers/light-quanta/,
+      // sampling after opening every disclosure: 0 unmarked at +0ms, 1 at +100ms, 0 at +400ms and
+      // 0 at +1500ms. Without this wait the gate reported that one as a keyboard-reachability defect
+      // on both pages, which it is not.
+      //
+      // A fixed interval rather than waiting for the assertion to come true: waiting until nothing
+      // is unmarked would make the check vacuous, since it would wait precisely until it passed. The
+      // bound is small against what the clause guards, a display that is permanently unreachable, and
+      // the same pattern is already used for this script below ("its last timed pass runs 1.2s after
+      // load").
+      await page.waitForTimeout(500);
       const result = await overflowing(page);
       laidOut += result.laidOut;
+      wideSeen += result.wide;
       for (const row of result.rows) found.push(`${route} ${row}`);
       for (const stop of await falseTabStops(page))
         found.push(`${route} ${stop}: nothing to scroll`);
     }
-    // The German source faces: wide displays scroll, in named focusable regions.
+    // THE GERMAN FACES GO THROUGH THE SAME CENSUS NOW (am-ke2x), and then through their own extra
+    // checks. `germanProblems` asks its question of `.source-equation` only, and the German faces'
+    // wide displays are not in one: measured at 320px on /papers/brownian-motion/view/german/, 11
+    // displays overflow and every holder is a `span.inline-display`, while `.source-equation` occurs
+    // twice on the page and neither instance overflows. So its `wide` count was 0 of 32 routes and
+    // the control built on it reported that the German half "measured nothing" - correctly, and about
+    // its own selector rather than about the pages.
+    //
+    // Running `overflowing()` over these routes as well fixes that without a second selector to
+    // drift: it finds the holder by walking up to whatever actually clips, so it cannot miss a class
+    // it was not told about, and it asserts exactly what germanProblems asserts of a wide display
+    // (clipped, keyboard-reachable, named, name free of TeX). germanProblems is kept for the two
+    // things it checks that the census does not: whether the PAGE scrolls sideways, and a display
+    // that fits while carrying a tab stop.
     let germanWide = 0;
     const germanFound: string[] = [];
     for (const route of german) {
       await page.goto(`${target.url}${route}`, { waitUntil: "networkidle" });
+      await openDisclosures(page);
       // The overflow script's last timed pass runs 1.2s after load.
       await page.waitForTimeout(1500);
+      const census = await overflowing(page);
+      laidOut += census.laidOut;
+      germanWide += census.wide;
+      for (const row of census.rows) germanFound.push(`${route} ${row}`);
       const result = await germanProblems(page);
       for (const stop of await falseTabStops(page))
         germanFound.push(`${route} ${stop}: nothing to scroll`);
-      germanWide += result.wide;
       for (const problem of result.problems) germanFound.push(`${route} ${problem}`);
     }
     console.log(
-      `[formula width] ${all.length} routes, ${laidOut} laid-out formulas, ${found.length} overflow; ` +
-        `German source faces: ${german.length} routes, ${germanWide} wide displays scrolling, ` +
+      `[formula width] ${all.length} routes, ${laidOut} laid-out formulas, ${wideSeen} wider than ` +
+        `their box, ${found.length} problems; ` +
+        `German source faces: ${german.length} routes, ${germanWide} wider than their box, ` +
         `${germanFound.length} problems`,
     );
     // ONE LIST, SO A CONTROL CANNOT STAND IN FRONT OF THE FINDINGS (am-enpr).
@@ -220,9 +301,19 @@ test("no display formula is wider than its box at 320px", async () => {
         `only ${laidOut} formulas were laid out across ${all.length} routes, so this census measured too little to mean anything`,
       );
     }
+    // Per face family, because one total could hide an empty half. This is now counted by the same
+    // census as the reading faces, so it measures the pages rather than one class name.
     if (germanWide === 0) {
       problems.push(
-        `no wide display scrolled on any of the ${german.length} German source faces, so the German half of this gate measured nothing; re-pick the faces or the width rather than letting it pass empty`,
+        `no display was wider than its box on any of the ${german.length} German source faces, so the German half of this gate measured nothing`,
+      );
+    }
+    // The reading faces' own non-vacuity, which the old rule did not need and this one does: it
+    // asserts a property OF wide displays, so with none anywhere it would pass over an empty
+    // population. Measured today: 76 across ten routes, so this is a floor and not a census.
+    if (wideSeen === 0) {
+      problems.push(
+        `no display was wider than its box on any of the ${all.length} routes, so the clause about how a wide display must behave measured nothing`,
       );
     }
     assert.deepEqual(problems, []);
