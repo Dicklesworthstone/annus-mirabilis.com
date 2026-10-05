@@ -481,6 +481,34 @@ describe("mutation fixtures for implemented contract checks (AC 5)", () => {
     expect(check4?.code).toBe("count-reconciliation-mismatch");
   });
 
+  test("check 4's PASS names its denominator, so a zero cannot read as a match (am-izth)", () => {
+    // am-izth was filed because check 4 reported "Manifest per-page counts and receipt pageMap
+    // match" for every edition while comparing nothing. The comparison is real now -- it calls
+    // reconcilePageMapAgainstManifest with section ids derived from each paper's OWN manifest -- but
+    // the pass message still read "across every reconciled page" with no number, so a reader was
+    // handed a positive claim and no way to tell 31 pages from 0. A count used as evidence names its
+    // denominator, and a positive verdict over an empty population is the defect this check carries
+    // in its history.
+    const measured: string[] = [];
+    for (const slug of [
+      "brownian-motion",
+      "light-quanta",
+      "mass-energy",
+      "special-relativity",
+    ] as const) {
+      const check4 = assertEditionContract(slug).checks.find((c) => c.checkNumber === 4);
+      expect(check4?.outcome).toBe("passed");
+      const message = check4?.message ?? "";
+      // Both sides of the comparison appear as numbers, and neither is zero.
+      const entries = Number(/match across all (\d+) receipt pageMap/.exec(message)?.[1] ?? "0");
+      const units = Number(/compared against (\d+) manifest unit/.exec(message)?.[1] ?? "0");
+      expect(entries).toBeGreaterThan(0);
+      expect(units).toBeGreaterThan(0);
+      measured.push(`${slug}: ${entries} entries vs ${units} units`);
+    }
+    console.log(`[edition contract check 4] ${measured.join(" | ")}`);
+  });
+
   test("PLANTED check 6 mutation: uncovered id removal fails with id-snapshot-uncovered", () => {
     const result = assertEditionContract("brownian-motion", {
       ledgerText: LEDGER,
@@ -1131,7 +1159,7 @@ describe("am-r3qt: the five undriven refusal sites in editionContract.ts", () =>
     onlyThisOne(result, "ledger-not-clean");
   });
 
-  test("(editionContract.ts:1429) differing display math fires display-math-bytes-differ", () => {
+  test("(editionContract.ts:1443) differing display math fires display-math-bytes-differ", () => {
     const result = assertEditionContract("brownian-motion", {
       ledgerText: LEDGER,
       editionText: LEDGER_EDITION_TEXT,
@@ -1148,7 +1176,7 @@ describe("am-r3qt: the five undriven refusal sites in editionContract.ts", () =>
     onlyThisOne(result, "display-math-bytes-differ");
   });
 
-  test("(editionContract.ts:1751) an unaligned German id fires translation-incomplete", () => {
+  test("(editionContract.ts:1765) an unaligned German id fires translation-incomplete", () => {
     const result = assertEditionContract("brownian-motion", {
       ledgerText: LEDGER,
       editionText: LEDGER_EDITION_TEXT,

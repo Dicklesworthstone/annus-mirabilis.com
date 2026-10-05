@@ -124,7 +124,18 @@ describe("mini-paper fixture contract (am-edn-alignment-tooling-do1)", () => {
   test("check 4 passes: the manifest's pages and the receipt's pageMap agree", () => {
     const c = outcomeOf(FIXTURE, 4);
     expect(c?.outcome).toBe("passed");
-    expect(c?.message).toContain("every reconciled page");
+    // THE MESSAGE NAMES ITS DENOMINATOR (am-izth). This asserted the phrase "every reconciled page",
+    // which is a positive claim with no number behind it -- the shape am-izth was filed about, since
+    // a pass over zero entries would have read identically. The verdict now carries both sides of
+    // the comparison, and this fixture is small enough to state them: 1 receipt pageMap entry
+    // against 6 manifest units.
+    expect(c?.message).toMatch(/match across all (\d+) receipt pageMap entry/);
+    const entries = Number(
+      /match across all (\d+) receipt pageMap/.exec(c?.message ?? "")?.[1] ?? "0",
+    );
+    const units = Number(/compared against (\d+) manifest unit/.exec(c?.message ?? "")?.[1] ?? "0");
+    expect(entries).toBeGreaterThan(0);
+    expect(units).toBeGreaterThan(0);
   });
 
   test("MUTATION: a receipt page claiming a footnote mark the manifest lacks fails check 4", () => {

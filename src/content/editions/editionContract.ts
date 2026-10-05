@@ -1150,6 +1150,16 @@ export function assertEditionContract(
 
   let pageMapMismatches: readonly PageMapMismatch[] | null = null;
   let reconciliationUnavailable: string | null = null;
+  /**
+   * How many receipt pageMap entries the comparison actually covered (am-izth).
+   *
+   * The pass message read "match across every reconciled page" with no number, so a reader of the
+   * contract was given a positive claim and no way to tell 31 pages from 0. That is the same shape
+   * this check was filed for, one step smaller: the comparison is real now, but its result was still
+   * unanchored. AGENTS.md: a count used as evidence names its denominator, and N == 0 is a failed
+   * citation rather than a pass.
+   */
+  let reconciledEntries = 0;
   // am-izth. The option may force a FAILURE, which is how the test drives the mismatch branch,
   // but it may never assert a PASS. The defect this check carried was a positive match reported
   // without comparing anything, and a caller-supplied `true` would be the same defect through a
@@ -1203,6 +1213,7 @@ export function assertEditionContract(
                 .filter((section): section is string => /^s\d+$/.test(section ?? "")),
             ),
           ].sort();
+          reconciledEntries = (pageMap as readonly PageMapEntryLike[]).length;
           pageMapMismatches = reconcilePageMapAgainstManifest(
             manifest.units as readonly ManifestUnitLike[],
             pageMap as readonly PageMapEntryLike[],
@@ -1231,7 +1242,10 @@ export function assertEditionContract(
     const check4Passed =
       options.perPageCountsMatch === false
         ? false
-        : pageMapMismatches !== null && pageMapMismatches.length === 0;
+        : // A zero-entry reconciliation is not a match (am-izth). Without the last clause, a receipt
+          // whose pageMap became empty between the guard above and here would report a positive match
+          // over nothing -- which is the defect this check was filed for, arriving by a shorter route.
+          pageMapMismatches !== null && pageMapMismatches.length === 0 && reconciledEntries > 0;
     checks.push({
       checkNumber: 4,
       check: "count-reconciliation",
@@ -1240,7 +1254,7 @@ export function assertEditionContract(
       outcome: check4Passed ? "passed" : "failed",
       code: check4Passed ? undefined : "count-reconciliation-mismatch",
       message: check4Passed
-        ? `Manifest per-page counts and receipt pageMap match across ${(pageMapMismatches ?? []).length === 0 ? "every reconciled page" : "?"}.`
+        ? `Manifest per-page counts and receipt pageMap match across all ${reconciledEntries} receipt pageMap entry(ies), compared against ${bundle.ok ? bundle.manifest.units.length : 0} manifest unit(s).`
         : `Manifest per-page counts disagree with the receipt pageMap in ${(pageMapMismatches ?? []).length} place(s): ${(
             pageMapMismatches ?? []
           )
