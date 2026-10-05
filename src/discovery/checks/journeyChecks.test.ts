@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { validateJourney } from "../../content/schemas/journey.ts";
 import { FIXTURE_JOURNEY_BROWNIAN, FIXTURE_PARTIAL_JOURNEY } from "../testing/fixtureJourney.ts";
 import { checkJourney } from "./journeyChecks.ts";
 
@@ -105,7 +106,7 @@ describe("checkJourney: complete and partial journeys", () => {
 });
 
 describe("journeyChecks refusal throw sites (am-muyh)", () => {
-  test("journey-explanation-exercise-count (journeyChecks.ts:250): accept <= 4 explanation exercises, reject > 4", () => {
+  test("journey-explanation-exercise-count (journeyChecks.ts:330): accept <= 4 explanation exercises, reject > 4", () => {
     const baseExercises = FIXTURE_JOURNEY_BROWNIAN.exercises.filter(
       (e) => e.role === "instrumented",
     );
@@ -141,7 +142,7 @@ describe("journeyChecks refusal throw sites (am-muyh)", () => {
     expect(rejectFinding?.severity).toBe("error");
   });
 
-  test("fork-undecided-already-decidable (journeyChecks.ts:420): accept post-1904 evidence, reject pre-1905 evidence", () => {
+  test("fork-undecided-already-decidable (journeyChecks.ts:500): accept post-1904 evidence, reject pre-1905 evidence", () => {
     const fork0 = FIXTURE_JOURNEY_BROWNIAN.forks[0];
     if (!fork0) throw new Error("Fixture missing fork 0");
     const branch0 = fork0.branches[0];
@@ -207,7 +208,29 @@ describe("journeyChecks refusal throw sites (am-muyh)", () => {
     expect(rejectFinding?.severity).toBe("error");
   });
 
-  test("fork-papers-route-count (journeyChecks.ts:434): accept exactly one papers-route branch, reject zero or multiple", () => {
+  /**
+   * THE CITATION NAMED THE WRONG FILE, and a plant is what found it (am-4k0m).
+   *
+   * This test's heading used to name journeyChecks.ts line 434. Renaming the rule at journeyChecks's
+   * own fork-papers-route-count site turned NOTHING red: validateJourney throws that code FIRST, at
+   * journey.ts line 794, and checkJourney returns the schema error as a finding without ever reaching
+   * its own site. Renaming the schema's line turns exactly this test red, so that is where the rule
+   * this test drives lives, and the heading now says so.
+   *
+   * The journeyChecks site is therefore unreachable through the public entry point, like the
+   * fork-undecided-missing-what-would-decide branch beside it. Both are left in place and recorded on
+   * am-4k0m rather than removed.
+   *
+   * Two notes on the citation itself, each a rule this repair walked into:
+   *
+   * - validateJourney is imported and asserted on directly, not for decoration. The scanner resolves a
+   *   cited basename against the files the test IMPORTS, so a citation naming a file this test did not
+   *   import would be silently dropped rather than checked, which is a citation nobody verifies.
+   * - Every line number above is written in words rather than in the parenthesised citation form,
+   *   because the scanner matches that form anywhere in the file. Prose ABOUT a stale citation would
+   *   otherwise BE one, which is the same rule as a gate reading text where it meant to read code.
+   */
+  test("fork-papers-route-count (journey.ts:794): accept exactly one papers-route branch, reject zero or multiple", () => {
     const fork0 = FIXTURE_JOURNEY_BROWNIAN.forks[0];
     if (!fork0) throw new Error("Fixture missing fork 0");
     // Default FIXTURE_JOURNEY_BROWNIAN has exactly 1 papers-route branch per fork
@@ -235,9 +258,13 @@ describe("journeyChecks refusal throw sites (am-muyh)", () => {
     const rejectFinding = rejectFindings.find((f) => f.rule === "fork-papers-route-count");
     expect(rejectFinding).toBeDefined();
     expect(rejectFinding?.severity).toBe("error");
+    // And the refusal comes from the SCHEMA, which is the claim the heading now makes. Without this the
+    // citation would name a file this test only reaches by accident.
+    expect(() => validateJourney(rejectZeroJourney)).toThrow(/fork-papers-route-count/);
+    expect(() => validateJourney(FIXTURE_JOURNEY_BROWNIAN)).not.toThrow();
   });
 
-  test("prediction-numeric-literal-forbidden (journeyChecks.ts:559): accept non-numeric choices, reject raw numeric literal", () => {
+  test("prediction-numeric-literal-forbidden (journeyChecks.ts:644): accept non-numeric choices, reject raw numeric literal", () => {
     const stage0 = FIXTURE_JOURNEY_BROWNIAN.stages[0];
     if (!stage0) throw new Error("Fixture missing stage 0");
     // Accept case: choices are conceptual strings
@@ -289,7 +316,7 @@ describe("journeyChecks refusal throw sites (am-muyh)", () => {
     expect(rejectFinding?.severity).toBe("error");
   });
 
-  test("world-check-later-evidence-year-invalid (journeyChecks.ts:602): accept post-1904 year, reject <= 1904", () => {
+  test("world-check-later-evidence-year-invalid (journeyChecks.ts:687): accept post-1904 year, reject <= 1904", () => {
     const wc0 = FIXTURE_JOURNEY_BROWNIAN.worldChecks[0];
     if (!wc0?.laterEvidence) {
       throw new Error("Fixture missing world check 0 with laterEvidence");
@@ -334,7 +361,7 @@ describe("journeyChecks refusal throw sites (am-muyh)", () => {
     expect(rejectFinding?.severity).toBe("error");
   });
 
-  test("rejects when non-JourneySchemaError is thrown during journey validation (journeyChecks.ts:94)", () => {
+  test("rejects when non-JourneySchemaError is thrown during journey validation (journeyChecks.ts:113)", () => {
     const corruptJourney = {
       ...FIXTURE_JOURNEY_BROWNIAN,
       get paper() {
@@ -352,7 +379,7 @@ describe("journeyChecks refusal throw sites (am-muyh)", () => {
     expect(validFindings.some((f) => f.rule === "journey-schema-error")).toBe(false);
   });
 
-  test("rejects when undecided branch is missing insufficiency statement (journeyChecks.ts:382)", () => {
+  test("rejects when undecided branch is missing insufficiency statement (journeyChecks.ts:462)", () => {
     let calls = 0;
     const branch0 = FIXTURE_JOURNEY_BROWNIAN.forks[0]?.branches[0];
     const branch1 = FIXTURE_JOURNEY_BROWNIAN.forks[0]?.branches[1];
@@ -415,8 +442,25 @@ describe("journeyChecks refusal throw sites (am-muyh)", () => {
     );
   });
 
-  test("rejects when undecided branch is missing whatWouldDecide (journeyChecks.ts:393)", () => {
-    let calls = 0;
+  test("rejects when an undecided branch is missing whatWouldDecide", () => {
+    // REWRITTEN 2026-10-05 (am-4k0m), and the reason is a finding rather than a tidy-up.
+    //
+    // This test used to build the branch with a GETTER that returned a value for the first three reads
+    // and `undefined` afterwards, so that `validateJourney` would accept the object and `checkJourney`
+    // would then see the field missing. That only worked while the two functions read the property a
+    // specific number of times, and it stopped working the moment `checkJourney` began reading the
+    // NORMALISED record the schema returns instead of the raw object -- a repair that fixed a TypeError
+    // crash on input the schema calls valid. A test tuned to a read count is coupled to the
+    // implementation rather than to the behaviour, and it broke on a correct change.
+    //
+    // WHAT THE OLD TEST WAS REACHING, measured: `checkJourney`'s own
+    // `fork-undecided-missing-what-would-decide` branch is UNREACHABLE through any input the schema
+    // accepts. Omitting the field plainly makes `validateJourney` throw `missing-what-would-decide`
+    // first, and `checkJourney` reports that instead. The duplicate branch is dead code behind the
+    // schema; it is left in place rather than removed, and recorded on am-4k0m.
+    //
+    // So this asserts the PROPERTY -- an undecided branch with no whatWouldDecide is refused through
+    // the public entry point -- on an input a record could actually hold.
     const branch0 = FIXTURE_JOURNEY_BROWNIAN.forks[0]?.branches[0];
     const branch1 = FIXTURE_JOURNEY_BROWNIAN.forks[0]?.branches[1];
     if (!branch0 || !branch1) throw new Error("Missing branches");
@@ -425,9 +469,6 @@ describe("journeyChecks refusal throw sites (am-muyh)", () => {
       outcome: {
         type: "undecided-on-available-evidence",
         insufficiency: "Evidence was insufficient in 1904.",
-        get whatWouldDecide() {
-          return calls++ < 3 ? { name: "Test", recordId: "rec-1" } : undefined;
-        },
       },
     };
     const testJourney = {
@@ -441,12 +482,12 @@ describe("journeyChecks refusal throw sites (am-muyh)", () => {
     };
 
     const rejectFindings = checkJourney(testJourney as any);
-    const finding = rejectFindings.find(
-      (f) => f.rule === "fork-undecided-missing-what-would-decide",
-    );
+    const finding = rejectFindings.find((f) => /what-would-decide/.test(f.rule));
     expect(finding).toBeDefined();
     expect(finding?.severity).toBe("error");
-    expect(finding?.message).toContain("missing whatWouldDecide");
+    expect(finding?.message).toContain("whatWouldDecide");
+    // The outcome type is named, so the refusal says which rule it belongs to.
+    expect(finding?.message).toContain("undecided-on-available-evidence");
 
     // Accept case: valid whatWouldDecide
     const acceptJourney = {

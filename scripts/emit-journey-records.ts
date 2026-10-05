@@ -20,7 +20,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import yaml from "js-yaml";
-import { REAL_JOURNEYS } from "../src/discovery/journeys/realJourneys.ts";
+import { JOURNEY_LINEAGE, REAL_JOURNEYS } from "../src/discovery/journeys/realJourneys.ts";
 
 const ROOT = process.cwd();
 const DIR = join(ROOT, "content/journeys");
@@ -50,8 +50,28 @@ function main(): void {
   const written: string[] = [];
   for (const journey of REAL_JOURNEYS) {
     const path = join(DIR, `${journey.paper}.yaml`);
+    /**
+     * THE RECORD IS THE JOURNEY PLUS ITS REVISION METADATA (am-4k0m).
+     *
+     * `lineage` is added here rather than carried on the `Journey`, because it is a fact about how the
+     * FILE reached this revision and not part of what the journey claims. AGENTS.md asks for exactly
+     * that separation ("keep contentRevision, sourceAssetDigest, translationRevision ... separate"),
+     * and `computeCanonicalRecordHash` already excludes revision metadata from a record's content hash
+     * for the same reason. `check-revisions.ts` reads this key from the YAML by name and requires it of
+     * any record past revision 1; mass-energy went to 2 when its record gained the admittedImports
+     * declaration its own card had been carrying alone.
+     *
+     * The faithfulness test compares the record against the composed journey with this key excluded, so
+     * adding it here does not weaken "no reader-facing text lost": a lineage entry is not reader-facing
+     * text, and nothing else in the file comes from anywhere but the modules.
+     */
+    const lineage = JOURNEY_LINEAGE[journey.paper];
+    const record = {
+      ...JSON.parse(JSON.stringify(journey)),
+      ...(lineage === undefined ? {} : { lineage }),
+    };
     // `sortKeys: false` keeps the schema's own order, which reads as the skeleton does.
-    const body = yaml.dump(JSON.parse(JSON.stringify(journey)), {
+    const body = yaml.dump(record, {
       indent: 2,
       lineWidth: -1,
       sortKeys: false,

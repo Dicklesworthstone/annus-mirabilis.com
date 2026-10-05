@@ -37,6 +37,7 @@ import { load as loadYaml } from "js-yaml";
 import { validateJourney } from "../../content/schemas/journey.ts";
 import { checkJourney } from "../checks/journeyChecks.ts";
 import { REAL_JOURNEYS } from "./realJourneys.ts";
+import { SHELF_CARD_CONTEXT } from "./shelves.ts";
 
 /**
  * The one error that stands, named by paper and rule.
@@ -53,10 +54,21 @@ const VOICE_WARNING_CEILING = 7;
 
 const ROOT = process.cwd();
 
+/**
+ * The card catalogue, passed on every call. WITHOUT IT THE 1904 SHELF RULE IS SILENT.
+ *
+ * `checkJourney(journey)` used to be called with no options at all here, and the shelf-date rule only
+ * fires on a card it can look up, so the rule that AGENTS.md calls a build gate examined zero cards on
+ * the very population this file exists to examine. Planting `plant-jeans-1905` -- status available,
+ * latestYear 1905, no flag -- on light-quanta's shelf produced 0 shelf-date violations before the
+ * context was passed and 1 after. The plant is kept below so that silence cannot return.
+ */
+const CARDS = { cards: SHELF_CARD_CONTEXT } as const;
+
 const findingsByPaper = REAL_JOURNEYS.map((journey) => ({
   paper: journey.paper,
   journey,
-  findings: checkJourney(journey),
+  findings: checkJourney(journey, CARDS),
 }));
 
 describe("checkJourney over the real journeys, not the fixture", () => {
@@ -181,6 +193,7 @@ describe("checkJourney over the real journeys, not the fixture", () => {
     // moment it is pointed at the record instead, this test is what says the reader sees the same words.
     const missing: string[] = [];
     const differing: string[] = [];
+    const carriedLineage: string[] = [];
     let compared = 0;
     for (const journey of REAL_JOURNEYS) {
       const path = resolve(ROOT, `content/journeys/${journey.paper}.yaml`);
@@ -189,17 +202,32 @@ describe("checkJourney over the real journeys, not the fixture", () => {
         continue;
       }
       compared += 1;
-      const parsed = loadYaml(readFileSync(path, "utf8"));
+      const parsed = loadYaml(readFileSync(path, "utf8")) as Record<string, unknown>;
+      // `lineage` is EXCLUDED, and only `lineage`. It is revision metadata the emitter adds -- a fact
+      // about how the file reached its revision, not part of what the journey claims -- which is the
+      // separation AGENTS.md asks for and the same exclusion `computeCanonicalRecordHash` already
+      // makes. Excluding it does not loosen "no reader-facing text lost": a lineage entry is not
+      // reader-facing text, and the arm below checks that nothing ELSE was excluded by mistake.
+      const { lineage, ...content } = parsed;
+      if (lineage !== undefined) carriedLineage.push(journey.paper);
       // Through JSON on both sides: the record holds data, and this compares values rather than the
       // frozen-ness or the prototype of the composed object.
-      if (JSON.stringify(parsed) !== JSON.stringify(JSON.parse(JSON.stringify(journey))))
+      if (JSON.stringify(content) !== JSON.stringify(JSON.parse(JSON.stringify(journey))))
         differing.push(journey.paper);
     }
-    console.log(`[journey records] ${compared} record(s) compared against the composed journeys`);
+    console.log(
+      `[journey records] ${compared} record(s) compared against the composed journeys; ` +
+        `${carriedLineage.length} carry a lineage (${carriedLineage.join(", ") || "none"})`,
+    );
     // Non-vacuity: all four must be on disk, or this passes by comparing nothing.
     expect(missing).toEqual([]);
     expect(compared).toBe(REAL_JOURNEYS.length);
     expect(differing).toEqual([]);
+    // And the exclusion is not a hole anybody can widen: exactly the records past revision 1 carry a
+    // lineage, so a lineage on a revision-1 record, or a missing one past it, fails here.
+    const pastFirst = REAL_JOURNEYS.filter((j) => Number(j.revision) > 1).map((j) => j.paper);
+    expect(carriedLineage.sort()).toEqual(pastFirst.sort());
+    expect(pastFirst.length).toBeGreaterThan(0);
   });
 
   it("the emitted record validates against the journey schema", () => {
@@ -221,5 +249,215 @@ describe("checkJourney over the real journeys, not the fixture", () => {
     // am-4k0m's last acceptance line. The fixture's own tests are elsewhere; this asserts only that
     // the real journeys are a SECOND population rather than a replacement.
     expect(REAL_JOURNEYS.every((j) => j.id !== "fixture-journey")).toBe(true);
+  });
+});
+
+/**
+ * THE PLANTED NEGATIVES, AGAINST A REAL JOURNEY (am-4k0m, fourth acceptance item).
+ *
+ * The bead names three by hand -- "a post-1904 card without a flag must go red; a fork whose branch has
+ * no worksWhen must go red; a journey with no MOVE must go red" -- and asks for the plant to print what
+ * landed before the verdict is read. Each case below does exactly that, and the planting found more than
+ * it was sent for:
+ *
+ *   - The post-1904 plant STAYED GREEN. The shelf-date rule ran only over `stage.premiseRefs`, and the
+ *     four real journeys declare no stages, so the rule examined nothing on the population a reader
+ *     reaches. journeyChecks section 1b now checks the journey's own shelf with the same
+ *     `evaluateShelfDate`, and this plant turns it red.
+ *   - A fourth plant, not asked for, CRASHED the gate: a stage carrying only the four fields the schema
+ *     REQUIRES threw a TypeError at `for (const pRef of stage.premiseRefs)`, because `checkJourney`
+ *     discarded the normalised record `validateJourney` returns and read the raw object instead, so
+ *     every default the schema promises was missing. A crash is not a refusal.
+ *
+ * Both repairs are in journeyChecks.ts, and both were measured before and after on the real journeys:
+ * the four papers' findings are 5, 1, 2 and 0 either way, so neither repair changed a verdict about the
+ * content. What changed is which plants can be caught.
+ */
+describe("the plants: each epistemic gate, broken on purpose, on a real journey", () => {
+  /** A real journey by paper, as the lane sees it. */
+  const real = (paper: string) => {
+    const journey = REAL_JOURNEYS.find((j) => j.paper === paper);
+    if (!journey) throw new Error(`no real journey for ${paper}; the plant cannot be placed.`);
+    return journey;
+  };
+  const errorsOf = (journey: unknown, cards: typeof SHELF_CARD_CONTEXT = SHELF_CARD_CONTEXT) =>
+    checkJourney(journey as never, { cards }).filter((f) => f.severity === "error");
+
+  it("the catalogue covers every shelf id, so the rule has something to look up", () => {
+    // The non-vacuity arm for the whole describe below. A card the context does not know is skipped by
+    // design, so an incomplete catalogue would make the shelf rule silent while every plant still
+    // passed -- the silence would move rather than be caught.
+    const refs = REAL_JOURNEYS.flatMap((j) => j.shelf.map((id) => `${j.paper}/${id}`));
+    const missing = refs.filter(
+      (ref) => !SHELF_CARD_CONTEXT[String(ref.split("/").slice(1).join("/"))],
+    );
+    console.log(
+      `[shelf rule] ${refs.length} shelf reference(s) across ${REAL_JOURNEYS.length} journeys; ` +
+        `catalogue holds ${Object.keys(SHELF_CARD_CONTEXT).length} card(s); ${missing.length} unknown`,
+    );
+    expect(refs.length).toBeGreaterThan(30);
+    expect(missing).toEqual([]);
+  });
+
+  it("A POST-1904 CARD WITH NO FLAG ON A REAL SHELF GOES RED (journeyChecks.ts:203)", () => {
+    const journey = real("light-quanta");
+    const planted = { ...journey, shelf: [...journey.shelf, "plant-jeans-1905-correction"] };
+    const cards = {
+      ...SHELF_CARD_CONTEXT,
+      "plant-jeans-1905-correction": {
+        id: "plant-jeans-1905-correction",
+        date: { latestYear: 1905 },
+        status: "available",
+      },
+    };
+    // What landed, before the verdict is read.
+    console.log(
+      `[plant] light-quanta shelf ${journey.shelf.length} -> ${planted.shelf.length} ids, last = ` +
+        `${planted.shelf.at(-1)}, status available, latestYear 1905, no flag`,
+    );
+    const errors = errorsOf(planted, cards);
+    expect(errors.map((e) => e.rule)).toContain("shelf-date-violation");
+    const violation = errors.find((e) => e.rule === "shelf-date-violation");
+    // Named, and the reader is told what to do about it.
+    expect(violation?.message).toContain("plant-jeans-1905-correction");
+    expect(violation?.path).toBe(`journey.shelf[${planted.shelf.length - 1}]`);
+    expect(violation?.repair ?? "").not.toBe("");
+  });
+
+  it("a LATER card on a real shelf goes red too, because later evidence is not a premise", () => {
+    // The second half of the shelf rule, and a different reason code, so the two cases cannot be
+    // satisfied by one branch: a 1916 confirmation belongs in a world check.
+    const journey = real("light-quanta");
+    const planted = { ...journey, shelf: [...journey.shelf, "plant-millikan-1916"] };
+    const cards = {
+      ...SHELF_CARD_CONTEXT,
+      "plant-millikan-1916": {
+        id: "plant-millikan-1916",
+        date: { latestYear: 1916 },
+        status: "later",
+      },
+    };
+    console.log(`[plant] added plant-millikan-1916, status later, latestYear 1916`);
+    const violation = errorsOf(planted, cards).find((e) => e.rule === "shelf-date-violation");
+    expect(violation).toBeDefined();
+    expect(violation?.message).toContain("later-card");
+  });
+
+  it("a FORK BRANCH WITH NO worksWhen GOES RED", () => {
+    const journey = real("brownian-motion");
+    const fork = journey.forks[0];
+    const branch = fork?.branches[0];
+    expect(branch?.worksWhen ?? "").not.toBe("");
+    const { worksWhen: _removed, ...stripped } = branch as Record<string, unknown>;
+    const planted = {
+      ...journey,
+      forks: [{ ...fork, branches: [stripped, ...(fork?.branches ?? []).slice(1)] }],
+    };
+    console.log(
+      `[plant] ${fork?.id} / ${(branch as { id?: string })?.id}: worksWhen removed ` +
+        `(was ${String((branch as { worksWhen?: string })?.worksWhen).length} characters)`,
+    );
+    expect(errorsOf(planted).map((e) => e.rule)).toContain("missing-branch-works-when");
+  });
+
+  it("a JOURNEY WITH NO MOVE GOES RED", () => {
+    const journey = real("light-quanta");
+    expect(journey.move.label.length).toBeGreaterThan(5);
+    const { move: _removed, ...stripped } = journey as unknown as Record<string, unknown>;
+    console.log(`[plant] light-quanta move removed (was "${journey.move.label}")`);
+    expect(errorsOf(stripped).map((e) => e.rule)).toContain("missing-move");
+  });
+
+  it("a STAGE citing a post-1904 card is refused too (journeyChecks.ts:627)", () => {
+    // THE OTHER shelf-date SITE, and the one that was unreachable on this population: the rule inside the
+    // stage loop. No real journey declares stages -- the staged chain is the discover page's JSX -- so
+    // that site had nothing to judge, which is exactly why the shelf-level rule above was added rather
+    // than this one being trusted. It is still the rule a journey WILL hit once its stages become data,
+    // so it is planted here, with a stage carrying every field the schema requires.
+    const journey = real("light-quanta");
+    const planted = {
+      ...journey,
+      stages: [
+        {
+          id: "plant-stage",
+          title: "A planted stage",
+          question: "Does a stage citing a 1905 card get refused?",
+          computeFromShelf: "Nothing; this stage exists to reach one rule.",
+          premiseRefs: [{ cardId: "plant-jeans-1905-in-a-stage" }],
+        },
+      ],
+    };
+    const cards = {
+      ...SHELF_CARD_CONTEXT,
+      "plant-jeans-1905-in-a-stage": {
+        id: "plant-jeans-1905-in-a-stage",
+        date: { latestYear: 1905 },
+        status: "available",
+      },
+    };
+    console.log(
+      `[plant] light-quanta given 1 stage citing plant-jeans-1905-in-a-stage ` +
+        `(status available, latestYear 1905, no flag)`,
+    );
+    const violation = errorsOf(planted, cards).find((e) => e.rule === "shelf-date-violation");
+    expect(violation).toBeDefined();
+    // The stage path's own message names the stage, where the shelf path's names the shelf index. The
+    // two sites are told apart by that, which is what makes citing them separately meaningful.
+    expect(violation?.message).toContain("plant-stage");
+    expect(violation?.path).toContain("premiseRefs");
+  });
+
+  it("a stage with only its required fields does NOT crash the gate", () => {
+    // The plant that was not asked for. Before the normalisation repair this threw a TypeError, so the
+    // gate produced a stack trace rather than a finding on input the schema calls valid.
+    const journey = real("light-quanta");
+    const planted = {
+      ...journey,
+      stages: [
+        {
+          id: "plant-stage",
+          title: "A planted stage",
+          question: "Does the gate survive a stage with no optional fields?",
+          computeFromShelf: "Nothing; this stage exists to reach one code path.",
+        },
+      ],
+    };
+    console.log(
+      `[plant] light-quanta stages 0 -> 1, keys = ${Object.keys(planted.stages[0] ?? {}).join(",")}`,
+    );
+    // A verdict, not a throw. Which findings it reports is a separate question; that it REACHES a
+    // verdict is this plant's whole point.
+    expect(() => checkJourney(planted as never, CARDS)).not.toThrow();
+    // And the stage really was examined rather than skipped: declaring `stages` pending while carrying
+    // one is itself an error, which is the gate reading the stage it was handed.
+    expect(errorsOf(planted).map((e) => e.rule)).toContain(
+      "journey-pending-element-already-present",
+    );
+  });
+
+  it("and the unmodified journeys stay green, so no plant above is a function that always refuses", () => {
+    // The positive control. Measured both before and after the two repairs in journeyChecks.ts:
+    // 5, 1, 2 and 0 findings, with the one declared error in brownian-motion.
+    for (const journey of REAL_JOURNEYS) {
+      const errors = errorsOf(journey).map((e) => `${journey.paper}/${e.rule}`);
+      expect(errors.filter((e) => !DECLARED_ERRORS.includes(e))).toEqual([]);
+    }
+  });
+
+  it("mass-energy declares the one 1905 import its own card admits, and the others declare none", () => {
+    // The shelf rule's first real finding: the card carried the admitted-import block and the journey
+    // declared nothing, so the mass-energy shelf refused with admitted-import-undeclared. The
+    // declaration is derived from the card, which is why it is one line of data and not a new claim.
+    const byPaper = new Map(REAL_JOURNEYS.map((j) => [j.paper, j.admittedImports ?? []]));
+    expect((byPaper.get("mass-energy") ?? []).map((i) => i.importId)).toEqual([
+      "einstein-1905-light-complex-transformation",
+    ]);
+    for (const paper of ["light-quanta", "brownian-motion", "special-relativity"]) {
+      expect(byPaper.get(paper)).toEqual([]);
+    }
+    // Derived, not retyped: both strings come from the card.
+    const declared = (byPaper.get("mass-energy") ?? [])[0];
+    expect(declared?.provenance ?? "").toContain("Zur Elektrodynamik bewegter");
+    expect(declared?.sourceAnchor).toBe("/papers/special-relativity/s8/");
   });
 });

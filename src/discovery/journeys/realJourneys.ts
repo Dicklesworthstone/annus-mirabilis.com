@@ -34,7 +34,8 @@
  * would be the exact shape of defect this bead is about.
  */
 
-import type { Journey, PendingElement } from "../../content/schemas/journey.ts";
+import type { RevisionLineageEntry } from "../../content/revisions.ts";
+import type { AdmittedImport, Journey, PendingElement } from "../../content/schemas/journey.ts";
 import * as brownian from "../brownian/journeyII.ts";
 import * as lightQuanta from "../lightQuanta/journeyI.ts";
 import * as massEnergy from "../massEnergy/journeyIV.ts";
@@ -66,6 +67,19 @@ const PENDING: readonly PendingElement[] = Object.freeze([
   }),
 ]);
 
+/** Only the card fields this module reads; the cards themselves stay in their own files. */
+type ShelfCard = Readonly<{
+  id: string;
+  admittedImport?:
+    | boolean
+    | Readonly<{
+        declaringJourney: string;
+        anchor?: string | undefined;
+        provenance?: string | undefined;
+      }>
+    | undefined;
+}>;
+
 type SkeletonModule = Readonly<{
   NAGGING_FACT: string;
   FIRST_HONEST_QUESTION: string;
@@ -86,19 +100,95 @@ function forksOf(module: Record<string, unknown>): Journey["forks"] {
   );
 }
 
+/**
+ * The journey-level declarations for the 1905 results its own cards admit, BY REFERENCE.
+ *
+ * AGENTS.md permits one import past the 1904 cutoff: "an explicitly admitted 1905 result whose
+ * provenance is shown (the September mass-energy journey may import the relativity paper's section 8
+ * light-energy transformation)". The CARD carries that declaration already -- declaringJourney,
+ * anchor and provenance on `einstein-1905-light-complex-transformation` -- and the journey record
+ * carried none, so once the shelf-date rule reached the shelf (journeyChecks section 1b) the
+ * mass-energy shelf refused with `admitted-import-undeclared`. That refusal was correct: the rule
+ * requires the JOURNEY to say which imports it admits, not only the card to say it is one.
+ *
+ * Derived rather than retyped, for this module's standing reason: the importId is the card's id, the
+ * provenance and anchor are the card's own strings, and a second admitted import added to any shelf
+ * reaches its journey without anyone remembering this function exists. A card whose block names a
+ * different journey is not admitted here, which is what `declaringJourney` is for.
+ */
+function admittedImportsOf(paper: string, shelf: readonly ShelfCard[]): readonly AdmittedImport[] {
+  return Object.freeze(
+    shelf.flatMap((card) => {
+      const block = card.admittedImport;
+      if (!block || typeof block !== "object") return [];
+      if (block.declaringJourney !== paper) return [];
+      if (!block.provenance || !block.anchor) return [];
+      return [
+        Object.freeze({
+          importId: card.id,
+          provenance: block.provenance,
+          sourceAnchor: block.anchor,
+        }),
+      ];
+    }),
+  );
+}
+
+/**
+ * Each journey record's own revision, bumped when ITS content changes rather than all four together.
+ *
+ * mass-energy is at 2 because its record gained the `admittedImports` declaration its own card had
+ * carried alone -- a substantive change to what the record claims, which is why `check-revisions`
+ * refused the emitted file at revision 1. The other three are untouched and stay at 1: raising them
+ * would assert a change that did not happen.
+ */
+const REVISIONS: Readonly<Record<string, number>> = Object.freeze({
+  "light-quanta": 1,
+  "brownian-motion": 1,
+  "special-relativity": 1,
+  "mass-energy": 2,
+});
+
+/**
+ * The lineage a record past revision 1 owes, which `src/content/revisions.ts` defines and this only
+ * supplies: every revision from 1 up, each with a non-empty reason and an ISO date.
+ *
+ * EXPORTED FOR THE EMITTER RATHER THAN PUT ON THE JOURNEY, and the distinction is the one AGENTS.md
+ * draws when it says to keep contentRevision, sourceAssetDigest and the rest separate. A lineage is
+ * RECORD metadata: it says how the file came to be at this revision. It is not part of what the
+ * journey claims, so it belongs to the emitted record and not to the `Journey` the pages read. The
+ * faithfulness test compares the record against the composed journey with this metadata excluded, for
+ * the same reason `computeCanonicalRecordHash` excludes revision metadata from its hash.
+ */
+export const JOURNEY_LINEAGE: Readonly<Record<string, readonly RevisionLineageEntry[]>> =
+  Object.freeze({
+    "mass-energy": Object.freeze([
+      Object.freeze({
+        revision: 1,
+        reason:
+          "The record as first emitted from the journey modules, carrying no journey-level admittedImports. Its shelf listed einstein-1905-light-complex-transformation, whose own card declares the import, and the record declared nothing; the shelf-date rule refused that as admitted-import-undeclared once it reached the shelf (am-4k0m).",
+        date: "2026-10-05",
+      }),
+    ]),
+  });
+
 function compose(
   paper: string,
   module: SkeletonModule & Record<string, unknown>,
-  shelf: readonly { id: string }[],
+  shelf: readonly ShelfCard[],
 ): Journey {
+  const admittedImports = admittedImportsOf(paper, shelf);
   return Object.freeze({
     id: paper,
     paper,
-    revision: 1,
+    revision: REVISIONS[paper] ?? 1,
     // Partial, and the pending list says which two elements and why. The honest value.
     completeness: "partial" as const,
     pendingElements: PENDING,
     shelf: Object.freeze(shelf.map((card) => card.id)),
+    // Empty for three of the four journeys, which is the honest value: only mass-energy imports a
+    // 1905 result, and the schema omits an empty array rather than recording one.
+    ...(admittedImports.length > 0 ? { admittedImports } : {}),
     naggingFact: module.NAGGING_FACT,
     firstHonestQuestion: module.FIRST_HONEST_QUESTION,
     stages: Object.freeze([]),

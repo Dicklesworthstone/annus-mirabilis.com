@@ -15,7 +15,7 @@
 # is what makes that step safe.
 id: mass-energy
 paper: mass-energy
-revision: 1
+revision: 2
 completeness: partial
 pendingElements:
   - element: stages
@@ -34,6 +34,10 @@ shelf:
   - thomson-1881-electromagnetic-mass
   - poincare-1900-fictitious-fluid
   - hasenoehrl-1904-cavity-radiation
+admittedImports:
+  - importId: einstein-1905-light-complex-transformation
+    provenance: Section 8 of Zur Elektrodynamik bewegter Körper, received 30 June 1905, published 26 September 1905. The mass-energy paper was received 27 September 1905 and rests on it.
+    sourceAnchor: /papers/special-relativity/s8/
 naggingFact: A body that gives off light in one direction recoils. If it gives off equal pulses in opposite directions it does not recoil, and yet the two pulses carry different energies as a moving observer measures them.
 firstHonestQuestion: If you already know how the energy of a light pulse changes between frames, what does the conservation of energy force you to say about the body that gave it off?
 stages: []
@@ -168,3 +172,7 @@ doors:
       arrivesAtLabel: the mass falls by L/V²
       href: /papers/mass-energy/#entry-mass-energy
       summary: 'No algebra: keep one sheet for an observer at rest and one for an observer gliding past, and take one from the other.'
+lineage:
+  - revision: 1
+    reason: The record as first emitted from the journey modules, carrying no journey-level admittedImports. Its shelf listed einstein-1905-light-complex-transformation, whose own card declares the import, and the record declared nothing; the shelf-date rule refused that as admitted-import-undeclared once it reached the shelf (am-4k0m).
+    date: '2026-10-05'
