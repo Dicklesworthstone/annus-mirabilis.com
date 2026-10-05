@@ -9,6 +9,7 @@
  * it fails here only for an enforced paper.
  */
 import { checkPaperExplanations } from "../src/equations/printed/equationExplanations.ts";
+import { marginCountRefusal } from "../src/equations/printed/historianMargin.ts";
 
 const PAPERS = ["mass-energy", "light-quanta", "brownian-motion", "special-relativity"];
 
@@ -26,5 +27,15 @@ for (const paper of papers) {
   for (const p of checked.problems) console.log(`  ${p.code}: ${p.message}`);
   if (checked.missing.length > 0) console.log(`  no record yet: ${checked.missing.join(", ")}`);
   problems += checked.problems.length;
+
+  // The coarse half of the historian's-margin gate (am-8gbg). r3 is optional, so a record losing one
+  // is not a refusal from readRecord the way a lost r0 is; the count above would simply move. This
+  // holds each paper to the number recorded in historianMargin.baseline.json. It is a count and says
+  // so: historianMargin.test.ts, in the other lane, is what names the record.
+  const marginRefusal = marginCountRefusal(paper, census.withMargin);
+  if (marginRefusal) {
+    console.log(`  explanation-margin-lost: ${marginRefusal}`);
+    problems += 1;
+  }
 }
 process.exit(problems > 0 ? 1 : 0);
