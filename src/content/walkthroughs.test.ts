@@ -46,7 +46,7 @@ test("ME-01 seeks to every authored stop in both directions through its real ses
   assert.ok(walkthrough);
   assert.ok(walkthrough.checkpoints.length > 1);
   const session = ME01_TAPE.createSession("checkpoint-walkthrough-roundtrip");
-  const stops = [...walkthrough.checkpoints, ...walkthrough.checkpoints.toReversed()];
+  const stops = [...walkthrough.checkpoints, ...[...walkthrough.checkpoints].reverse()];
   for (const stop of stops) {
     assert.ok(stop.tape);
     assert.equal(restoreTape(ME01_TAPE, session, stop.tape).kind, "restored", stop.label);

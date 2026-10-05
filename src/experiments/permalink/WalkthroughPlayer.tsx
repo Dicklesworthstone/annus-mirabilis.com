@@ -3,6 +3,7 @@
 import { useEffect, useId, useState } from "react";
 import {
   applyWalkthroughCheckpoint,
+  calculateWalkthroughCheckpoint,
   type WalkthroughAction,
   type WalkthroughTarget,
 } from "./walkthroughActions.ts";
@@ -153,6 +154,19 @@ export function WalkthroughPlayer({
                   {formOnly ? "Load next settings" : "Restore next checkpoint"}
                 </button>
               </div>
+              {target.kind === "session" && target.calculate && checkpoint &&
+                (!checkpoint.tape || result?.kind === "refused") && (
+                  <p>
+                    <button
+                      type="button"
+                      style={{ whiteSpace: "normal", maxWidth: "100%" }}
+                      onClick={() => setResult(calculateWalkthroughCheckpoint(target, walkthrough, index))}
+                    >
+                      Calculate these settings as a new run
+                    </button>{" "}
+                    This uses the current laboratory, not a reproduction of the recorded run.
+                  </p>
+                )}
             </>
           )}
           {result && (

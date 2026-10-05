@@ -13,7 +13,11 @@ import {
   tapeForSettings,
 } from "./sessionTape.ts";
 import type { TapeV2 } from "./types.ts";
-import type { WalkthroughTarget } from "./walkthroughActions.ts";
+import {
+  retainedWalkthroughTape,
+  type RetainedWalkthroughTape,
+  type WalkthroughTarget,
+} from "./walkthroughActions.ts";
 import { WalkthroughPlayer } from "./WalkthroughPlayer.tsx";
 
 export type LabTapeLinkState = Readonly<{
@@ -43,6 +47,7 @@ export function useLabTapeLink<P extends object>(
   onRestored?: (parameters: P) => void,
 ): LabTapeLinkState {
   const [notice, setNotice] = useState("");
+  const [checkpointShare, setCheckpointShare] = useState<RetainedWalkthroughTape | null>(null);
   // The latest callback, so a new closure on each render neither re-runs the restore nor goes stale.
   const restoredRef = useRef(onRestored);
   restoredRef.current = onRestored;
@@ -58,9 +63,15 @@ export function useLabTapeLink<P extends object>(
       live = false;
     };
   }, [binding, session, enabled]);
+  const sharedCheckpoint = enabled && acceptedParameters
+    ? retainedWalkthroughTape(checkpointShare, binding, session, acceptedParameters) : null;
+  useEffect(() => {
+    if (checkpointShare && !sharedCheckpoint) setCheckpointShare(null);
+  }, [checkpointShare, sharedCheckpoint]);
   const shareTape = useMemo(
-    () => (enabled && acceptedParameters ? tapeForSettings(binding, acceptedParameters) : null),
-    [binding, acceptedParameters, enabled],
+    () => sharedCheckpoint ?? (enabled && acceptedParameters
+      ? tapeForSettings(binding, acceptedParameters) : null),
+    [binding, acceptedParameters, enabled, sharedCheckpoint],
   );
   const walkthrough = useMemo<WalkthroughTarget | undefined>(() => enabled ? {
     kind: "session",
@@ -69,11 +80,30 @@ export function useLabTapeLink<P extends object>(
       const restored = restoreTape(binding, session, tape);
       if (restored.kind === "restored") {
         setNotice("");
-        restoredRef.current?.(session.acceptedParameters());
+        const parameters = session.acceptedParameters();
+        setCheckpointShare({ binding, session, parameters: { ...parameters }, tape });
+        restoredRef.current?.(parameters);
         return { kind: "restored" };
       }
       return { kind: "not-restored", notice: restored.kind === "not-restored"
         ? restored.notice : "The checkpoint could not be restored." };
+    },
+    calculate(recorded) {
+      const settings = { ...binding.defaults, ...settingsFromTape(recorded, binding.defaults) };
+      const tape = tapeForSettings(binding, settings);
+      if (!tape) return {
+        kind: "not-restored",
+        notice: requirementsOf(binding.validate(settings)) || "This laboratory does not accept the recorded settings.",
+      };
+      const restored = restoreTape(binding, session, tape);
+      if (restored.kind !== "restored") return {
+        kind: "not-restored",
+        notice: restored.kind === "not-restored" ? restored.notice : "The new calculation could not be applied.",
+      };
+      setCheckpointShare(null);
+      setNotice("");
+      restoredRef.current?.(session.acceptedParameters());
+      return { kind: "calculated" };
     },
   } : undefined, [binding, session, enabled]);
   return { notice, shareTape, walkthrough };
