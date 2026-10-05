@@ -6,16 +6,22 @@ import { ShareControl } from "./ShareControl.tsx";
 import {
   type LabTapeBinding,
   restoreTapeFromUrl,
+  restoreTape,
+  requirementsOf,
+  settingsFromTape,
   type TapeSession,
   tapeForSettings,
 } from "./sessionTape.ts";
 import type { TapeV2 } from "./types.ts";
+import type { WalkthroughTarget } from "./walkthroughActions.ts";
+import { WalkthroughPlayer } from "./WalkthroughPlayer.tsx";
 
 export type LabTapeLinkState = Readonly<{
   notice: string;
   shareTape: TapeV2 | null;
   /** A link read without fault, said plainly rather than as an error (a worker lab's loaded form). */
   note?: string | undefined;
+  walkthrough?: WalkthroughTarget | undefined;
 }>;
 
 /**
@@ -56,7 +62,21 @@ export function useLabTapeLink<P extends object>(
     () => (enabled && acceptedParameters ? tapeForSettings(binding, acceptedParameters) : null),
     [binding, acceptedParameters, enabled],
   );
-  return { notice, shareTape };
+  const walkthrough = useMemo<WalkthroughTarget | undefined>(() => enabled ? {
+    kind: "session",
+    experimentId: binding.environment.experimentId,
+    restore(tape) {
+      const restored = restoreTape(binding, session, tape);
+      if (restored.kind === "restored") {
+        setNotice("");
+        restoredRef.current?.(session.acceptedParameters());
+        return { kind: "restored" };
+      }
+      return { kind: "not-restored", notice: restored.kind === "not-restored"
+        ? restored.notice : "The checkpoint could not be restored." };
+    },
+  } : undefined, [binding, session, enabled]);
+  return { notice, shareTape, walkthrough };
 }
 
 /**
@@ -94,7 +114,24 @@ export function useDraftTapeLink(
       enabled && acceptedParameters ? draftTapeForSettings(binding, acceptedParameters) : null,
     [binding, acceptedParameters, enabled],
   );
-  return { notice, shareTape, note };
+  const walkthrough = useMemo<WalkthroughTarget | undefined>(() => enabled ? {
+    kind: "form",
+    experimentId: binding.environment.experimentId,
+    load(recorded) {
+      const settings = { ...binding.defaults, ...settingsFromTape(recorded, binding.defaults) };
+      const checked = binding.validate(settings);
+      if (checked.kind !== "accepted") return {
+        kind: "not-restored",
+        notice: requirementsOf(checked) || "This laboratory does not accept the recorded settings.",
+      };
+      const data = checked.data;
+      loadedRef.current(data && typeof data === "object" ? data as Record<string, unknown> : settings);
+      setNotice("");
+      setNote("");
+      return { kind: "loaded" };
+    },
+  } : undefined, [binding, enabled]);
+  return { notice, shareTape, note, walkthrough };
 }
 
 /**
@@ -120,6 +157,8 @@ export function LabTapeLink({ link }: Readonly<{ link: LabTapeLinkState }>) {
           {link.note}
         </p>
       )}
+      {link.walkthrough && <p><a href="/tapes/">Read recorded walkthroughs</a></p>}
+      {hydrated && link.walkthrough && <WalkthroughPlayer key={link.walkthrough.experimentId} target={link.walkthrough} />}
       {hydrated && link.shareTape && <ShareControl tape={link.shareTape} />}
     </>
   );
