@@ -6,7 +6,7 @@
  * as a client component's props, in its flight data too.
  */
 import { LocalPredictions } from "../components/lab/LocalPredictions.tsx";
-import { TracerLab } from "../components/lab/TracerLab.tsx";
+import { WovenTracerLab as TracerLab } from "../components/lab/WovenTracerLab.tsx";
 import type { PreparedBm01Example } from "../experiments/bm01/session.ts";
 import tracerExample from "../generated/bm01-example.json";
 

@@ -1,0 +1,36 @@
+.result-weave {
+  margin-block: 1.5rem;
+  padding: 1rem;
+  border: 1px solid currentColor;
+  border-radius: 0.4rem;
+}
+.result-weave-pointers {
+  list-style: none;
+  padding: 0;
+}
+.result-weave-pointers > li + li {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid currentColor;
+}
+.result-weave .weave-highlight {
+  display: block;
+  padding: 0.6rem;
+  color: inherit;
+  background: transparent;
+  border-inline-start: 0.3rem solid currentColor;
+}
+.result-weave .weave-pointer {
+  display: block;
+  margin-top: 0.4rem;
+}
+.result-weave .weave-assumption-active { border-inline-start-style: dashed; }
+.result-weave .weave-quantity-compared { border-inline-start-style: dotted; }
+.result-weave .weave-agreement-within-bound { border-inline-start-style: double; }
+.result-weave .weave-outside-domain { border: 2px solid currentColor; }
+.result-weave summary { cursor: pointer; }
+.result-weave dl > div { margin-block: 0.5rem; }
+.result-weave dt { font-weight: 600; }
+.result-weave dd { margin-inline-start: 1rem; }
+.result-weave :is(dt, dd, small) { overflow-wrap: anywhere; }
+.result-weave-links a { text-underline-offset: 0.2em; }

@@ -3,7 +3,7 @@ import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { LabTapes } from "../../../components/lab/LabTapes.tsx";
 import { LabWrongTurns } from "../../../components/lab/LabWrongTurns.tsx";
-import { TracerComparison } from "../../../components/lab/TracerLab.tsx";
+import { WovenTracerComparison as TracerComparison } from "../../../components/lab/WovenTracerLab.tsx";
 import { LAB_CARDS, labShareImages } from "../../../components/share/shareImages.ts";
 import example from "../../../generated/bm01-example.json";
 import { NotModeledLine } from "../NotModeledLine.tsx";
