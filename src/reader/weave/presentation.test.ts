@@ -16,7 +16,10 @@ const flag: WeaveFlag = {
   predicateId: predicate.id, meaning: predicate.meaning, lit: false, state: "hold",
   targets: predicate.targets, pointerText: predicate.pointerText,
 };
-const accepted = (outputs: unknown[]) => ({ outputs }) as AcceptedSnapshot;
+// Through `unknown`, which is what tsc asks for: a bare assertion from `{ outputs }` to
+// AcceptedSnapshot is refused because the two do not sufficiently overlap, and this file is a
+// test helper standing in for a whole snapshot on purpose.
+const accepted = (outputs: unknown[]) => ({ outputs }) as unknown as AcceptedSnapshot;
 const output = (quantityId: string, value: number, unit = "m") => ({
   quantityId, status: "value", value, unit, ownerId: "numerical-owner", semanticKind: "test",
 });
