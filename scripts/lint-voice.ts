@@ -17,7 +17,11 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { EXCLUDED_FIELDS, isOverridden } from "../src/content/checks/voice/check.ts";
+import {
+  EXCLUDED_FIELDS,
+  QUOTED_FIELDS,
+  isOverridden,
+} from "../src/content/checks/voice/check.ts";
 import { extractAllComponentStrings } from "../src/content/checks/voice/componentText.ts";
 import { resolveVoiceContext } from "../src/content/checks/voice/contexts.ts";
 import { checkVoice } from "../src/content/checks/voice/index.ts";
@@ -158,6 +162,15 @@ export async function runVoiceLint(): Promise<{
       const recordKind = inheritedKind ?? (typeof rec.kind === "string" ? rec.kind : undefined);
       const recordSource =
         recordKind === "translation-unit" ? ({ layer: "translation" } as const) : inheritedSource;
+      /**
+       * A QUOTED FIELD IS NOT THE AUTHOR SPEAKING, and this script was the only reader that did not
+       * know. `check.ts` keeps `QUOTED_FIELDS` and sets `layer: "quotation"` for them; the compiler
+       * check has always done so and this script never imported it. The field it exists for is a
+       * misconception's `temptingClaims`, whose whole purpose is to state the claim the ledger then
+       * refutes, so linting it for overclaiming fires the rule on the one field that must overclaim.
+       */
+      const sourceForField = (key: string) =>
+        QUOTED_FIELDS.has(key) ? ({ ...recordSource, layer: "quotation" } as const) : recordSource;
       const recId = typeof rec.id === "string" ? rec.id : filePath;
       if (recId && !allTargetTexts.has(recId)) {
         allTargetTexts.set(recId, JSON.stringify(rec));
@@ -172,7 +185,7 @@ export async function runVoiceLint(): Promise<{
         if (typeof val === "string") {
           totalScanned++;
           const voiceCtx = resolveVoiceContext(recordKind, currentPath);
-          const findings = checkVoice(val, { context: voiceCtx, source: recordSource });
+          const findings = checkVoice(val, { context: voiceCtx, source: sourceForField(key) });
 
           for (const f of findings) {
             if (
@@ -213,7 +226,7 @@ export async function runVoiceLint(): Promise<{
               // even when the layer had survived to this level.
               const findings = checkVoice(val[i] as string, {
                 context: voiceCtx,
-                source: recordSource,
+                source: sourceForField(key),
               });
               for (const f of findings) {
                 if (
