@@ -132,55 +132,46 @@ outputs:
     quantityId: configurationProbability
     allowedStatuses:
       - value
-      - outside-domain
     primary: true
   - id: lnW
     quantityId: lnW
     allowedStatuses:
       - value
-      - outside-domain
     primary: true
   - id: log10W
     quantityId: log10W
     allowedStatuses:
       - value
-      - outside-domain
     primary: true
   - id: deltaSOverKb
     quantityId: entropy
     allowedStatuses:
       - value
-      - outside-domain
     primary: true
   - id: sampleFraction
     quantityId: sampleFraction
     allowedStatuses:
       - value
-      - outside-domain
     primary: false
   - id: successCount
     quantityId: successCount
     allowedStatuses:
       - value
-      - outside-domain
     primary: false
   - id: drawCountAfter
     quantityId: drawCount
     allowedStatuses:
       - value
-      - outside-domain
     primary: false
   - id: expectedTrialsToOne
     quantityId: expectedTrials
     allowedStatuses:
       - value
-      - outside-domain
     primary: false
   - id: lockedProbability
     quantityId: configurationProbability
     allowedStatuses:
       - value
-      - outside-domain
     primary: false
 assumptions:
   - "No favored part of the space or direction in volume V_0."

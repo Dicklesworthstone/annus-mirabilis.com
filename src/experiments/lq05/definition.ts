@@ -68,43 +68,44 @@ const c = (
 ): OutputContract =>
   Object.freeze({ unit, semanticKind, ownerId, statuses: Object.freeze([...statuses]) });
 
+/**
+ * THE DECLARED STATUSES NARROWED TO WHAT THIS LABORATORY PRODUCES (am-nxbq).
+ *
+ * All nine of these outputs declared `["value", "outside-domain"]` and LQ-05 has no code path that
+ * produces an outside-domain result. Measured three ways before the change: `definition.ts` was the ONLY
+ * file under src/experiments/lq05/ mentioning any non-value status, grepping all six of them across the
+ * directory; `session.ts` writes `status: "value"` as a literal nine times, its only other status
+ * literals being the envelope kinds "accepted" and "refused"; and a sweep of 24 settings, each numeric
+ * control at its declared bounds plus all three view modes and the locked-positions mode, produced zero
+ * non-value outputs. What the laboratory DOES produce at a heavy setting is an EXECUTION OUTCOME, which
+ * AGENTS.md separates from a result status by name: "Transport errors, allocation limits, worker
+ * cancellation, and missing artifacts are separate execution outcomes."
+ *
+ * So nine contract entries named a status nothing produces, which is the defect am-nxbq is about one
+ * level up: a field that reads as a specification and is not one. The helper's default is `["value"]`,
+ * so the third argument simply comes off.
+ *
+ * SAFE, AND CHECKED RATHER THAN ASSUMED: no audit or gate requires an instrument to DECLARE a non-value
+ * status (the only non-empty rule is on an action's acceptedResult, which `["value"]` satisfies); nothing
+ * cross-checks this record against content/experiments/lq-05.yaml for statuses; and the lab component's
+ * one use of this record, `deriveHostExecution`, does not read `statuses` at all.
+ *
+ * REVERSIBLE IN ONE ARGUMENT PER OUTPUT, and the owner may disagree: the other reading of
+ * `allowedStatuses` is a forward-looking tolerance, what the page must be prepared to render, rather than
+ * a claim about present behaviour. I judged the truthful reading the right one, because a declaration
+ * that corresponds to nothing cannot be checked, and widening it is part of adding the path. The strict
+ * acceptance gate still records LQ-05 as having no non-numeric case either way, so this hides no debt.
+ */
 export const LQ05_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.freeze({
-  configurationProbability: c("1", "probability", "radiation.independentPointsProbability", [
-    "value",
-    "outside-domain",
-  ]),
-  lnW: c("1", "log-probability", "radiation.independentPointsProbability", [
-    "value",
-    "outside-domain",
-  ]),
-  log10W: c("1", "log10-probability", "radiation.independentPointsProbability", [
-    "value",
-    "outside-domain",
-  ]),
-  deltaSOverKb: c("1", "entropy-dimensionless", "radiation.independentPointsProbability", [
-    "value",
-    "outside-domain",
-  ]),
-  sampleFraction: c("1", "empirical-probability", "radiation.sampleIndependentPoints", [
-    "value",
-    "outside-domain",
-  ]),
-  successCount: c("1", "success-count", "radiation.sampleIndependentPoints", [
-    "value",
-    "outside-domain",
-  ]),
-  drawCountAfter: c("1", "draw-count", "radiation.sampleIndependentPoints", [
-    "value",
-    "outside-domain",
-  ]),
-  expectedTrialsToOne: c("1", "expected-trials", "radiation.independentPointsProbability", [
-    "value",
-    "outside-domain",
-  ]),
-  lockedProbability: c("1", "locked-probability", "radiation.lockedPositionsProbability", [
-    "value",
-    "outside-domain",
-  ]),
+  configurationProbability: c("1", "probability", "radiation.independentPointsProbability"),
+  lnW: c("1", "log-probability", "radiation.independentPointsProbability"),
+  log10W: c("1", "log10-probability", "radiation.independentPointsProbability"),
+  deltaSOverKb: c("1", "entropy-dimensionless", "radiation.independentPointsProbability"),
+  sampleFraction: c("1", "empirical-probability", "radiation.sampleIndependentPoints"),
+  successCount: c("1", "success-count", "radiation.sampleIndependentPoints"),
+  drawCountAfter: c("1", "draw-count", "radiation.sampleIndependentPoints"),
+  expectedTrialsToOne: c("1", "expected-trials", "radiation.independentPointsProbability"),
+  lockedProbability: c("1", "locked-probability", "radiation.lockedPositionsProbability"),
 });
 
 export const LQ05_PRESETS: Readonly<
