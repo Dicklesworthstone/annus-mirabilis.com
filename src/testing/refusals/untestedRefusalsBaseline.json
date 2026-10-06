@@ -150,7 +150,7 @@
   "src/testing/e2e/fixture-apps/selftest/instrument.ts": 0,
   "src/testing/scenario-registry/datasetInference.ts": 1,
   "src/units/adapters.ts": 0,
-  "src/units/tolerance.ts": 1,
+  "src/units/tolerance.ts": 0,
   "src/visuals/kit/viewGuard.ts": 0,
   "src/workers/protocol/bm01.ts": 0,
   "src/workers/protocol/bm04.ts": 0,

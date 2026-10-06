@@ -29,6 +29,42 @@ describe("validateToleranceSpec", () => {
     });
   }
 
+  /*
+   * THE ABSOLUTE ARM, which the data cases drove without crediting (am-r3qt).
+   *
+   * `invalid-number` is raised at :66 for the absolute tolerance and at :72 for the relative one. The
+   * relative arm has had the cited test below since this file was written; the absolute arm is driven
+   * only through VALIDATE_CASES, whose generated block names read "invalid-number-negative-absolute"
+   * and "invalid-number-infinite-absolute" - and those do NOT name the code, because the scanner's
+   * token match requires a boundary and `-negative` follows immediately. So the site was driven and
+   * uncreditable at once: a citation is the only thing that credits a code with several sites, and a
+   * generated name cannot carry one without changing the case data every other reader shares.
+   *
+   * A dedicated test beside the relative one is the symmetric answer, and it costs the case file
+   * nothing.
+   */
+  test("reject: (tolerance.ts:66) invalid-number reported when absolute tolerance is negative or not finite", () => {
+    expect(
+      validateToleranceSpec({ absolute: -1 }, 10.0).some((i) => i.code === "invalid-number"),
+    ).toBe(true);
+    expect(
+      validateToleranceSpec({ absolute: Number.POSITIVE_INFINITY }, 10.0).some(
+        (i) => i.code === "invalid-number",
+      ),
+    ).toBe(true);
+    expect(
+      validateToleranceSpec({ absolute: Number.NaN }, 10.0).some(
+        (i) => i.code === "invalid-number",
+      ),
+    ).toBe(true);
+    // Zero is LEGAL - "a finite number >= 0" - so an implementation refusing every absolute would pass
+    // the three rejects above and fail here. That boundary is the whole reason this arm is separate
+    // from the relative one, whose own domain is [0, 1).
+    expect(
+      validateToleranceSpec({ absolute: 0 }, 10.0).some((i) => i.code === "invalid-number"),
+    ).toBe(false);
+  });
+
   test("reject: (tolerance.ts:72) invalid-number reported when relative tolerance is outside [0, 1) or not finite", () => {
     const issues = validateToleranceSpec({ relative: -0.05 }, 10.0);
     expect(issues.some((i) => i.code === "invalid-number")).toBe(true);
