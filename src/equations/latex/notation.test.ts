@@ -80,3 +80,74 @@ test("the same unbound symbol resolves without refusing when strictness is off",
   assert.equal(resolved.glyph, "no-such-term");
   assert.equal(resolved.role, "input");
 });
+
+/**
+ * The other two refusals in this module (am-r3qt). Both codes are SINGLE-SITE, so unlike the
+ * `missing-entry` pair above they are distinguishable by code alone; each case still asserts the
+ * message, because the two sites sit four lines apart on the same `if (paper)` branch and a
+ * refusal that fired at the wrong one would carry the right code.
+ *
+ * Neither needs `strictConcordance`. Strict derives from `Boolean(paper) || perspective ===
+ * "modern"`, and both cases supply a paper, so strictness here is the ordinary production
+ * setting rather than a flag set to reach the throw.
+ */
+test('(notation.ts:55) an unknown paper refuses with "unknown-paper" rather than falling back', () => {
+  assert.throws(
+    () =>
+      resolveSymbolGlyph(absent, {
+        paper: "no-such-paper",
+        sectionId: "s1",
+        equationId: "eq-unknown-paper",
+      } as RenderLatexOptions),
+    (error: unknown) => {
+      assert.ok(error instanceof NotationScopeError);
+      assert.equal(error.kind, "unknown-paper");
+      assert.match(error.message, /references unknown paper "no-such-paper"/);
+      // The loader's own reason is carried through, not swallowed: a reader of the refusal can
+      // tell a missing concordance file from a malformed one.
+      assert.match(error.message, /eq-unknown-paper/);
+      return true;
+    },
+  );
+});
+
+test('(notation.ts:71) a real paper with no scope refuses with "missing-scope"', () => {
+  assert.throws(
+    () =>
+      resolveSymbolGlyph(absent, {
+        paper: "brownian-motion",
+        equationId: "eq-missing-scope",
+      } as RenderLatexOptions),
+    (error: unknown) => {
+      assert.ok(error instanceof NotationScopeError);
+      assert.equal(error.kind, "missing-scope");
+      assert.match(
+        error.message,
+        /missing notation scope \(sectionId or anchor\) for paper "brownian-motion"/,
+      );
+      // NOT unknown-paper: brownian-motion resolves, so this refusal is about the scope and
+      // proves the concordance loaded first.
+      assert.notEqual((error as NotationScopeError).kind, "unknown-paper");
+      return true;
+    },
+  );
+});
+
+test("an anchor satisfies the scope requirement that sectionId satisfies", () => {
+  // The negative for missing-scope: `scope` is `sectionId ?? anchor`, so a resolver that only
+  // read sectionId would refuse this too, and the test above would pass while the anchor route
+  // was broken for every reader who arrived by one.
+  assert.throws(
+    () =>
+      resolveSymbolGlyph(absent, {
+        paper: "brownian-motion",
+        anchor: "s1",
+        equationId: "eq-scope-by-anchor",
+      } as RenderLatexOptions),
+    (error: unknown) => {
+      assert.ok(error instanceof NotationScopeError);
+      assert.notEqual((error as NotationScopeError).kind, "missing-scope");
+      return true;
+    },
+  );
+});
