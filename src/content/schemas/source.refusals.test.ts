@@ -278,7 +278,7 @@ test("validatePaper: (source.ts:155) invalid-record rejects non-object raw recor
   assert.equal(accepted.slug, "brownian-motion");
 });
 
-test("validatePaper: (source.ts:140) invalid-bib-key rejects malformed bibKey, accepts valid ap-vol-page", () => {
+test("validatePaper: (source.ts:167) invalid-bib-key rejects malformed bibKey, accepts valid ap-vol-page", () => {
   assertSchemaRefusal(
     () => validatePaper({ ...VALID_PAPER, bibKey: "invalid_key" }),
     "invalid-bib-key",
@@ -287,7 +287,7 @@ test("validatePaper: (source.ts:140) invalid-bib-key rejects malformed bibKey, a
   assert.equal(accepted.bibKey, "ap-17-549");
 });
 
-test("validatePaper: (source.ts:148) missing-title-german rejects empty or missing titleGerman, accepts non-empty string", () => {
+test("validatePaper: (source.ts:175) missing-title-german rejects empty or missing titleGerman, accepts non-empty string", () => {
   assertSchemaRefusal(
     () => validatePaper({ ...VALID_PAPER, titleGerman: "   " }),
     "missing-title-german",
@@ -300,7 +300,7 @@ test("validatePaper: (source.ts:148) missing-title-german rejects empty or missi
   assert.equal(accepted.titleGerman, "Gültiger deutscher Titel");
 });
 
-test("validatePaper: (source.ts:156) missing-title-english rejects empty or missing titleEnglishWorking, accepts valid title", () => {
+test("validatePaper: (source.ts:183) missing-title-english rejects empty or missing titleEnglishWorking, accepts valid title", () => {
   assertSchemaRefusal(
     () => validatePaper({ ...VALID_PAPER, titleEnglishWorking: "" }),
     "missing-title-english",
@@ -312,7 +312,7 @@ test("validatePaper: (source.ts:156) missing-title-english rejects empty or miss
   assert.equal(accepted.titleEnglishWorking, "Valid English Working Title");
 });
 
-test("validatePaper: (source.ts:166) missing-editorial-additions rejects non-array editorialAdditions, accepts array", () => {
+test("validatePaper: (source.ts:193) missing-editorial-additions rejects non-array editorialAdditions, accepts array", () => {
   assertSchemaRefusal(
     () => validatePaper({ ...VALID_PAPER, editorialAdditions: null }),
     "missing-editorial-additions",
@@ -350,7 +350,7 @@ test("validatePaper: (source.ts:183) missing-phrase rejects addition with non-st
   assert.equal(accepted.editorialAdditions[0]?.phrase, "Microscopic");
 });
 
-test("validatePaper: (source.ts:190) missing-reason rejects addition with non-string reason, accepts string reason", () => {
+test("validatePaper: (source.ts:217) missing-reason rejects addition with non-string reason, accepts string reason", () => {
   assertSchemaRefusal(
     () =>
       validatePaper({
@@ -366,7 +366,7 @@ test("validatePaper: (source.ts:190) missing-reason rejects addition with non-st
   assert.equal(accepted.editorialAdditions[0]?.reason, "Clarifies scope.");
 });
 
-test("validatePaper: (source.ts:197) missing-basis rejects addition with non-string germanBasis, accepts string germanBasis", () => {
+test("validatePaper: (source.ts:224) missing-basis rejects addition with non-string germanBasis, accepts string germanBasis", () => {
   assertSchemaRefusal(
     () =>
       validatePaper({
@@ -382,14 +382,14 @@ test("validatePaper: (source.ts:197) missing-basis rejects addition with non-str
   assert.equal(accepted.editorialAdditions[0]?.germanBasis, "no-direct-basis");
 });
 
-test("validatePaper: (source.ts:238) missing-dates rejects empty or non-array dates, accepts non-empty dates", () => {
+test("validatePaper: (source.ts:265) missing-dates rejects empty or non-array dates, accepts non-empty dates", () => {
   assertSchemaRefusal(() => validatePaper({ ...VALID_PAPER, dates: [] }), "missing-dates");
   assertSchemaRefusal(() => validatePaper({ ...VALID_PAPER, dates: null }), "missing-dates");
   const accepted = validatePaper({ ...VALID_PAPER, dates: VALID_DATES });
   assert.equal(accepted.dates.length, 3);
 });
 
-test("validatePaper: (source.ts:253) missing-journal rejects null or non-object journal, accepts valid journal", () => {
+test("validatePaper: (source.ts:280) missing-journal rejects null or non-object journal, accepts valid journal", () => {
   assertSchemaRefusal(() => validatePaper({ ...VALID_PAPER, journal: null }), "missing-journal");
   assertSchemaRefusal(
     () => validatePaper({ ...VALID_PAPER, journal: "Annalen" }),
@@ -399,7 +399,7 @@ test("validatePaper: (source.ts:253) missing-journal rejects null or non-object 
   assert.equal(accepted.journal.name, "Annalen der Physik");
 });
 
-test("validatePaper: (source.ts:266) invalid-journal-pages rejects invalid pages {first, last}, accepts ordered range", () => {
+test("validatePaper: (source.ts:293) invalid-journal-pages rejects invalid pages {first, last}, accepts ordered range", () => {
   assertSchemaRefusal(
     () =>
       validatePaper({
@@ -430,7 +430,7 @@ test("validateSourceAsset: (source.ts:341) invalid-record rejects non-object raw
   assert.equal(accepted.mimeType, "application/pdf");
 });
 
-test("validateSourceAsset: (source.ts:331) invalid-acquisition-date rejects non-YYYY-MM-DD date, accepts ISO date", () => {
+test("validateSourceAsset: (source.ts:358) invalid-acquisition-date rejects non-YYYY-MM-DD date, accepts ISO date", () => {
   assertSchemaRefusal(
     () => validateSourceAsset({ ...VALID_ASSET, acquisitionDate: "09-01-2026" }),
     "invalid-acquisition-date",
@@ -443,7 +443,7 @@ test("validateSourceAsset: (source.ts:331) invalid-acquisition-date rejects non-
   assert.equal(accepted.acquisitionDate, "2026-09-01");
 });
 
-test("validateSourceAsset: (source.ts:339) invalid-sha256 rejects malformed hash, accepts 64-char hex", () => {
+test("validateSourceAsset: (source.ts:366) invalid-sha256 rejects malformed hash, accepts 64-char hex", () => {
   assertSchemaRefusal(
     () => validateSourceAsset({ ...VALID_ASSET, sha256: "not-a-hash" }),
     "invalid-sha256",
@@ -456,7 +456,7 @@ test("validateSourceAsset: (source.ts:339) invalid-sha256 rejects malformed hash
   assert.equal(accepted.sha256, "c".repeat(64));
 });
 
-test("validateSourceAsset: (source.ts:347) invalid-mime-type rejects mime without slash, accepts valid mime", () => {
+test("validateSourceAsset: (source.ts:374) invalid-mime-type rejects mime without slash, accepts valid mime", () => {
   assertSchemaRefusal(
     () => validateSourceAsset({ ...VALID_ASSET, mimeType: "pdf" }),
     "invalid-mime-type",
@@ -465,7 +465,7 @@ test("validateSourceAsset: (source.ts:347) invalid-mime-type rejects mime withou
   assert.equal(accepted.mimeType, "application/pdf");
 });
 
-test("validateSourceAsset: (source.ts:355) invalid-page-count rejects non-positive or non-integer pageCount, accepts integer", () => {
+test("validateSourceAsset: (source.ts:382) invalid-page-count rejects non-positive or non-integer pageCount, accepts integer", () => {
   assertSchemaRefusal(
     () => validateSourceAsset({ ...VALID_ASSET, pageCount: 0 }),
     "invalid-page-count",
@@ -478,7 +478,7 @@ test("validateSourceAsset: (source.ts:355) invalid-page-count rejects non-positi
   assert.equal(accepted.pageCount, 12);
 });
 
-test("validateSourceAsset: (source.ts:363) missing-page-mapping rejects empty or non-array pageMapping, accepts non-empty array", () => {
+test("validateSourceAsset: (source.ts:390) missing-page-mapping rejects empty or non-array pageMapping, accepts non-empty array", () => {
   assertSchemaRefusal(
     () => validateSourceAsset({ ...VALID_ASSET, pageMapping: [] }),
     "missing-page-mapping",
@@ -539,7 +539,7 @@ test("validateSourceAsset: (source.ts:390) invalid-reuse-terms rejects unknown r
   assert.equal(accepted.rights.reuseTerms, "no-reuse-offered");
 });
 
-test("validateSourceAsset: (source.ts:398) missing-rights-statement rejects non-string rights.statement, accepts string statement", () => {
+test("validateSourceAsset: (source.ts:425) missing-rights-statement rejects non-string rights.statement, accepts string statement", () => {
   assertSchemaRefusal(
     () =>
       validateSourceAsset({
@@ -555,7 +555,7 @@ test("validateSourceAsset: (source.ts:398) missing-rights-statement rejects non-
   assert.equal(accepted.rights.statement, "Public domain in the United States.");
 });
 
-test("validateSourceAsset: (source.ts:408) invalid-publication-decision rejects invalid decision value, accepts valid decision", () => {
+test("validateSourceAsset: (source.ts:435) invalid-publication-decision rejects invalid decision value, accepts valid decision", () => {
   assertSchemaRefusal(
     () => validateSourceAsset({ ...VALID_ASSET, publicationDecision: "commercial-publish" }),
     "invalid-publication-decision",
@@ -567,7 +567,7 @@ test("validateSourceAsset: (source.ts:408) invalid-publication-decision rejects 
   assert.equal(accepted.publicationDecision, "reference-only");
 });
 
-test("validateSourceAsset: (source.ts:416) invalid-cloud-processing rejects invalid cloudProcessing value, accepts valid enum", () => {
+test("validateSourceAsset: (source.ts:443) invalid-cloud-processing rejects invalid cloudProcessing value, accepts valid enum", () => {
   assertSchemaRefusal(
     () => validateSourceAsset({ ...VALID_ASSET, cloudProcessing: "unrestricted" }),
     "invalid-cloud-processing",
@@ -576,7 +576,7 @@ test("validateSourceAsset: (source.ts:416) invalid-cloud-processing rejects inva
   assert.equal(accepted.cloudProcessing, "unknown");
 });
 
-test("validateSourceAsset: (source.ts:424) missing-cloud-processing-basis rejects empty cloudProcessingBasis, accepts non-empty string", () => {
+test("validateSourceAsset: (source.ts:451) missing-cloud-processing-basis rejects empty cloudProcessingBasis, accepts non-empty string", () => {
   assertSchemaRefusal(
     () => validateSourceAsset({ ...VALID_ASSET, cloudProcessingBasis: "   " }),
     "missing-cloud-processing-basis",
@@ -594,7 +594,7 @@ test("validateSourceAsset: (source.ts:435) invalid-path rejects non-string path 
   assert.equal(accepted.path, undefined);
 });
 
-test("validateSourceAsset: (source.ts:455) invalid-pin-local-path rejects pin-local-only path outside sources/, accepts sources/ path", () => {
+test("validateSourceAsset: (source.ts:482) invalid-pin-local-path rejects pin-local-only path outside sources/, accepts sources/ path", () => {
   assertSchemaRefusal(
     () =>
       validateSourceAsset({
@@ -695,7 +695,7 @@ test("validateSourceAsset: (source.ts:542) missing-required-rights-field rejects
   assert.equal(accepted.rights.recordedAt, "2026-09-01");
 });
 
-test("validateSourceAsset: (source.ts:537) missing-publication-reason rejects non-publish decision without publicationReason, accepts with reason", () => {
+test("validateSourceAsset: (source.ts:564) missing-publication-reason rejects non-publish decision without publicationReason, accepts with reason", () => {
   assertSchemaRefusal(
     () =>
       validateSourceAsset({
@@ -813,7 +813,7 @@ test("validateSourceBlock: (source.ts:682) invalid-record rejects non-object raw
   assert.equal(accepted.id, "s1-p1");
 });
 
-test("validateSourceBlock: (source.ts:699) invalid-locator rejects non-object locator, accepts valid locator", () => {
+test("validateSourceBlock: (source.ts:716) invalid-locator rejects non-object locator, accepts valid locator", () => {
   assertSchemaRefusal(
     () => validateSourceBlock({ ...VALID_BLOCK, locators: ["bad-locator"] }),
     "invalid-locator",
@@ -825,7 +825,7 @@ test("validateSourceBlock: (source.ts:699) invalid-locator rejects non-object lo
   assert.equal(accepted.locators.length, 1);
 });
 
-test("validateSourceBlock: (source.ts:719) invalid-printed-page rejects non-numeric printedPage, accepts number", () => {
+test("validateSourceBlock: (source.ts:736) invalid-printed-page rejects non-numeric printedPage, accepts number", () => {
   assertSchemaRefusal(
     () =>
       validateSourceBlock({
@@ -841,7 +841,7 @@ test("validateSourceBlock: (source.ts:719) invalid-printed-page rejects non-nume
   assert.equal(accepted.locators[0]?.printedPage, 549);
 });
 
-test("validateSourceBlock: (source.ts:746) invalid-locator-region rejects non-numeric region properties, accepts numeric region", () => {
+test("validateSourceBlock: (source.ts:763) invalid-locator-region rejects non-numeric region properties, accepts numeric region", () => {
   assertSchemaRefusal(
     () =>
       validateSourceBlock({
@@ -869,7 +869,7 @@ test("validateSourceBlock: (source.ts:746) invalid-locator-region rejects non-nu
   assert.equal(accepted.locators[0]?.region?.x, 10);
 });
 
-test("validateSourceBlock: (source.ts:771) invalid-contained-in rejects whitespace or empty containedIn, accepts valid string", () => {
+test("validateSourceBlock: (source.ts:788) invalid-contained-in rejects whitespace or empty containedIn, accepts valid string", () => {
   assertSchemaRefusal(
     () => validateSourceBlock({ ...VALID_BLOCK, containedIn: "   " }),
     "invalid-contained-in",
@@ -904,7 +904,7 @@ test("validateSourceBlock: (source.ts:828) invalid-direction rejects invalid tex
   assert.equal(accepted.dir, "ltr");
 });
 
-test("validateSourceBlock: (source.ts:826) invalid-transcription-status rejects invalid status.transcription, accepts valid value", () => {
+test("validateSourceBlock: (source.ts:843) invalid-transcription-status rejects invalid status.transcription, accepts valid value", () => {
   assertSchemaRefusal(
     () =>
       validateSourceBlock({
@@ -920,7 +920,7 @@ test("validateSourceBlock: (source.ts:826) invalid-transcription-status rejects 
   assert.equal(accepted.status.transcription, "reviewed");
 });
 
-test("validateSourceBlock: (source.ts:838) invalid-math-status rejects invalid status.mathTranscription, accepts valid value", () => {
+test("validateSourceBlock: (source.ts:855) invalid-math-status rejects invalid status.mathTranscription, accepts valid value", () => {
   assertSchemaRefusal(
     () =>
       validateSourceBlock({
@@ -936,7 +936,7 @@ test("validateSourceBlock: (source.ts:838) invalid-math-status rejects invalid s
   assert.equal(accepted.status.mathTranscription, "not-applicable");
 });
 
-test("validateSourceBlock: (source.ts:846) invalid-translation-status rejects invalid status.translation, accepts valid value", () => {
+test("validateSourceBlock: (source.ts:863) invalid-translation-status rejects invalid status.translation, accepts valid value", () => {
   assertSchemaRefusal(
     () =>
       validateSourceBlock({
@@ -952,7 +952,7 @@ test("validateSourceBlock: (source.ts:846) invalid-translation-status rejects in
   assert.equal(accepted.status.translation, "reviewed");
 });
 
-test("validateSourceBlock: (source.ts:854) invalid-review-status rejects invalid status.review, accepts valid value", () => {
+test("validateSourceBlock: (source.ts:871) invalid-review-status rejects invalid status.review, accepts valid value", () => {
   assertSchemaRefusal(
     () =>
       validateSourceBlock({
@@ -968,7 +968,7 @@ test("validateSourceBlock: (source.ts:854) invalid-review-status rejects invalid
   assert.equal(accepted.status.review, "accepted");
 });
 
-test("validateSourceBlock: (source.ts:874) missing-span-id rejects sentenceSpan without string id, accepts with id", () => {
+test("validateSourceBlock: (source.ts:891) missing-span-id rejects sentenceSpan without string id, accepts with id", () => {
   assertSchemaRefusal(
     () =>
       validateSourceBlock({
@@ -1037,7 +1037,7 @@ test("validateAlignment: (source.ts:1111) invalid-record rejects non-object raw 
   assert.equal(accepted.id, "align-brownian-s3");
 });
 
-test("validateAlignment: (source.ts:1106) missing-edges rejects empty or non-array edges, accepts non-empty array", () => {
+test("validateAlignment: (source.ts:1123) missing-edges rejects empty or non-array edges, accepts non-empty array", () => {
   assertSchemaRefusal(() => validateAlignment({ ...VALID_ALIGNMENT, edges: [] }), "missing-edges");
   assertSchemaRefusal(
     () => validateAlignment({ ...VALID_ALIGNMENT, edges: null }),
@@ -1063,7 +1063,7 @@ test("validateAlignment: (source.ts:1120) invalid-edge rejects non-object edge e
   assert.equal(accepted.edges.length, 1);
 });
 
-test("validateAlignment: (source.ts:1127) invalid-edge-source rejects edge missing paper or blockId in source, accepts complete source", () => {
+test("validateAlignment: (source.ts:1144) invalid-edge-source rejects edge missing paper or blockId in source, accepts complete source", () => {
   assertSchemaRefusal(
     () =>
       validateAlignment({
@@ -1084,7 +1084,7 @@ test("validateAlignment: (source.ts:1127) invalid-edge-source rejects edge missi
   assert.equal(accepted.edges[0]?.source.blockId, "s3-p1");
 });
 
-test("validateAlignment: (source.ts:1135) invalid-edge-target rejects edge missing translationUnitId in target, accepts complete target", () => {
+test("validateAlignment: (source.ts:1152) invalid-edge-target rejects edge missing translationUnitId in target, accepts complete target", () => {
   assertSchemaRefusal(
     () =>
       validateAlignment({
@@ -1116,7 +1116,7 @@ test("validateGlossUnit: (source.ts:1218) invalid-record rejects non-object raw 
   assert.equal(accepted.sentenceId, "s1-p1-s1");
 });
 
-test("validateGlossUnit: (source.ts:1238) missing-sentence-id rejects empty or missing sentenceId, accepts valid id", () => {
+test("validateGlossUnit: (source.ts:1227) missing-sentence-id rejects empty or missing sentenceId, accepts valid id", () => {
   assertSchemaRefusal(
     () => validateGlossUnit({ ...VALID_GLOSS, sentenceId: "   " }),
     "missing-sentence-id",
@@ -1148,7 +1148,7 @@ test("validateGlossUnit: (source.ts:1292) invalid-language-tag rejects invalid s
   assert.equal(accepted.sourceLang, "de");
 });
 
-test("validateGlossUnit: (source.ts:1312) missing-attribution rejects falsy attribution, accepts valid attribution entry", () => {
+test("validateGlossUnit: (source.ts:1301) missing-attribution rejects falsy attribution, accepts valid attribution entry", () => {
   assertSchemaRefusal(
     () => validateGlossUnit({ ...VALID_GLOSS, attribution: null }),
     "missing-attribution",
@@ -1161,7 +1161,7 @@ test("validateGlossUnit: (source.ts:1312) missing-attribution rejects falsy attr
   assert.equal(accepted.attribution.id, "jemanuel");
 });
 
-test("validateGlossUnit: (source.ts:1325) missing-tokens rejects empty or non-array tokens, accepts non-empty array", () => {
+test("validateGlossUnit: (source.ts:1314) missing-tokens rejects empty or non-array tokens, accepts non-empty array", () => {
   assertSchemaRefusal(() => validateGlossUnit({ ...VALID_GLOSS, tokens: [] }), "missing-tokens");
   assertSchemaRefusal(() => validateGlossUnit({ ...VALID_GLOSS, tokens: null }), "missing-tokens");
   const accepted = validateGlossUnit({ ...VALID_GLOSS, tokens: VALID_GLOSS.tokens });
@@ -1200,7 +1200,7 @@ test("validateGlossUnit: (source.ts:1359) invalid-token rejects non-object token
   assert.equal(accepted.tokens.length, 1);
 });
 
-test("validateGlossUnit: (source.ts:1363) missing-german-token rejects token missing string german word, accepts with german", () => {
+test("validateGlossUnit: (source.ts:1352) missing-german-token rejects token missing string german word, accepts with german", () => {
   assertSchemaRefusal(
     () => validateGlossUnit({ ...VALID_GLOSS, tokens: [{ english: "word" }] }),
     "missing-german-token",
@@ -1286,7 +1286,7 @@ test("validateEditorialNote: (source.ts:1664) invalid-record rejects non-object 
   assert.equal(accepted.id, "note-dispute-1");
 });
 
-test("validateEditorialNote: (source.ts:1548) missing-claim rejects empty or non-string claim, accepts non-empty claim", () => {
+test("validateEditorialNote: (source.ts:1684) missing-claim rejects empty or non-string claim, accepts non-empty claim", () => {
   assertSchemaRefusal(
     () => validateEditorialNote({ ...VALID_NOTE, claim: "   " }),
     "missing-claim",
@@ -1314,7 +1314,7 @@ test("validateEditorialNote: (source.ts:1713) invalid-direction rejects invalid 
   assert.equal(accepted.dir, "ltr");
 });
 
-test("validateEditorialNote: (source.ts:1608) invalid-correction-layer rejects layer other than source or translation, accepts source", () => {
+test("validateEditorialNote: (source.ts:1744) invalid-correction-layer rejects layer other than source or translation, accepts source", () => {
   assertSchemaRefusal(
     () => validateEditorialNote({ ...VALID_CORRECTION_NOTE, layer: "gloss" }),
     "invalid-correction-layer",
@@ -1387,7 +1387,7 @@ test("validateTranslationEdition: (source.ts:1772) missing-edition-id rejects em
   assert.equal(accepted.editionId, "edition-en-standard");
 });
 
-test("validateTranslationEdition: (source.ts:1780) missing-paper-id rejects empty or missing paperId, accepts valid paperId", () => {
+test("validateTranslationEdition: (source.ts:1939) missing-paper-id rejects empty or missing paperId, accepts valid paperId", () => {
   assertSchemaRefusal(
     () => validateTranslationEdition({ ...VALID_EDITION, paperId: "   " }),
     "missing-paper-id",
@@ -1460,7 +1460,7 @@ test("validateTranslationEdition: (source.ts:1829) invalid-review-state rejects 
   assert.equal(accepted.reviewState, "reviewed");
 });
 
-test("validateTranslationEdition: (source.ts:1843) missing-units rejects non-array units, accepts array of units", () => {
+test("validateTranslationEdition: (source.ts:2002) missing-units rejects non-array units, accepts array of units", () => {
   assertSchemaRefusal(
     () => validateTranslationEdition({ ...VALID_EDITION, units: null }),
     "missing-units",
