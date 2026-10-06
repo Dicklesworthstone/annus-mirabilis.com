@@ -17,6 +17,12 @@ import { decodeLq01Settings } from "../../experiments/lq01/permalink.ts";
 import { createLq01Session, type PreparedLq01Example } from "../../experiments/lq01/session.ts";
 import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
+import {
+  type ApplyFailure,
+  applyFailure,
+  failureCode,
+  failureFromThrown,
+} from "../../experiments/results/applyFailure.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
@@ -142,7 +148,7 @@ export function WaveDescriptionLab({
 
   const [draft, setDraft] = useState(() => toLq01Draft(example.parameters));
   const [ready, setReady] = useState(false);
-  const [error, setError] = useState("");
+  const [failure, setFailure] = useState<ApplyFailure | null>(null);
   const [linkNote, setLinkNote] = useState("");
   // A shared ?tape= link puts its settings in the form and starts nothing; Apply calculates them.
   const tapeLink = useDraftTapeLink(LQ01_DRAFT_TAPE, p, true, (settings) =>
@@ -166,14 +172,13 @@ export function WaveDescriptionLab({
   function apply(parameters: Lq01Parameters) {
     const outcome = session.apply(parameters);
     if (outcome.kind === "refused") {
-      setError(
-        typeof outcome.refusal.details?.requirements === "string"
-          ? outcome.refusal.details.requirements
-          : outcome.refusal.message,
-      );
+      // THE REFUSAL IS KEPT (am-ig23): the code, the ranked repairs and the staleness marking all
+      // survived the validator and were thrown away at this assignment.
+      const failed = applyFailure(outcome);
+      if (failed) setFailure(failed);
       return;
     }
-    setError("");
+    setFailure(null);
     setLinkNote("");
   }
 
@@ -184,7 +189,7 @@ export function WaveDescriptionLab({
     try {
       apply(fromLq01Draft(next));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Check the entered settings.");
+      setFailure(failureFromThrown(e, "Check the entered settings."));
     }
   }
 
@@ -200,13 +205,13 @@ export function WaveDescriptionLab({
     try {
       apply(fromLq01Draft(draft));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Check the entered settings.");
+      setFailure(failureFromThrown(e, "Check the entered settings."));
     }
   }
 
   function preset(parameters: Lq01Parameters) {
     setDraft(toLq01Draft(parameters));
-    setError("");
+    setFailure(null);
     apply(parameters);
   }
 
@@ -277,7 +282,7 @@ export function WaveDescriptionLab({
           onSubmit={submit}
           noValidate
           aria-label="Wave description laboratory settings"
-          aria-describedby={error ? `${id}-error` : undefined}
+          aria-describedby={failure ? `${id}-error` : undefined}
         >
           <fieldset disabled={!ready}>
             <legend>What to look at</legend>
@@ -464,10 +469,39 @@ export function WaveDescriptionLab({
               </div>
             </ExperimentSettings>
 
-            {error && (
-              <p id={`${id}-error`} role="alert" className="notice error">
-                {error} {KEPT_RESULT}
-              </p>
+            {failure && (
+              /**
+               * THE TYPED SURFACE (am-ig23): the code a gate can find beside the reason a reader can
+               * read, and the admissible boundary AGENTS.md asks a refusal to offer. The parameter
+               * schema already supplies the ranked repairs; they were discarded one layer below here.
+               */
+              <div
+                id={`${id}-error`}
+                role="alert"
+                className="notice error"
+                data-refusal-code={failureCode(failure)}
+                data-apply-failure={failure.kind}
+              >
+                <p>
+                  {failure.text} {KEPT_RESULT}
+                </p>
+                {failure.kind === "refused"
+                  ? failure.refusal.rankedRepairs.map((repair) => {
+                      const action = repair.action;
+                      if (!action) return null;
+                      return (
+                        <button
+                          key={`validation-${action.parameterId}-${repair.label}`}
+                          type="button"
+                          className="secondary"
+                          onClick={() => apply({ ...p, [action.parameterId]: action.value })}
+                        >
+                          {repair.label}
+                        </button>
+                      );
+                    })
+                  : null}
+              </div>
             )}
             {linkNote && <p className="notice">{linkNote}</p>}
           </fieldset>

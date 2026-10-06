@@ -29,6 +29,11 @@ import {
 import { LQ04_TAPE } from "../../../experiments/lq04/tape.ts";
 import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
+import {
+  type ApplyFailure,
+  applyFailure,
+  failureCode,
+} from "../../../experiments/results/applyFailure.ts";
 /**
  * LQ-04: the radiation entropy workbench (am-lq-04-entropy-workbench-senj).
  *
@@ -151,7 +156,7 @@ export function EntropyWorkbenchLab({
     ).label,
   );
   const [draft, setDraft] = useState(() => toDraft(p));
-  const [error, setError] = useState("");
+  const [failure, setFailure] = useState<ApplyFailure | null>(null);
 
   useEffect(() => {
     return () => session.disconnect();
@@ -160,14 +165,13 @@ export function EntropyWorkbenchLab({
   function apply(parameters: unknown) {
     const outcome = session.apply(parameters);
     if (outcome.kind === "refused") {
-      setError(
-        typeof outcome.refusal.details?.requirements === "string"
-          ? outcome.refusal.details.requirements
-          : outcome.refusal.message,
-      );
+      // THE REFUSAL IS KEPT (am-ig23): the code, the ranked repairs and the staleness marking all
+      // survived the validator and were thrown away at this assignment.
+      const failed = applyFailure(outcome);
+      if (failed) setFailure(failed);
       return;
     }
-    setError("");
+    setFailure(null);
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -318,11 +322,39 @@ export function EntropyWorkbenchLab({
           </fieldset>
 
           <button type="submit">Apply</button>
-          {error ? (
-            <p role="alert" className="error">
-              {withScripts(error)} {KEPT_RESULT}
-            </p>
-          ) : null}
+          {failure && (
+            /**
+             * THE TYPED SURFACE (am-ig23): the code a gate can find beside the reason a reader can
+             * read, and the admissible boundary AGENTS.md asks a refusal to offer. The parameter
+             * schema already supplies the ranked repairs; they were discarded one layer below here.
+             */
+            <div
+              role="alert"
+              className="error"
+              data-refusal-code={failureCode(failure)}
+              data-apply-failure={failure.kind}
+            >
+              <p>
+                {withScripts(failure.text)} {KEPT_RESULT}
+              </p>
+              {failure.kind === "refused"
+                ? failure.refusal.rankedRepairs.map((repair) => {
+                    const action = repair.action;
+                    if (!action) return null;
+                    return (
+                      <button
+                        key={`validation-${action.parameterId}-${repair.label}`}
+                        type="button"
+                        className="secondary"
+                        onClick={() => apply({ ...p, [action.parameterId]: action.value })}
+                      >
+                        {repair.label}
+                      </button>
+                    );
+                  })
+                : null}
+            </div>
+          )}
         </form>
 
         <div className="lab-results">
