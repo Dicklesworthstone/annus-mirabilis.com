@@ -38,6 +38,10 @@ export function WalkthroughPlayer({
   const [result, setResult] = useState<WalkthroughAction | null>(null);
   const experimentId = target.experimentId;
 
+  // A biome-ignore reason must fit ONE line: the suppression applies only when the comment
+  // directly precedes the diagnostic, so a wrapped reason puts a plain comment there instead and
+  // silently does nothing. That cost two runs here. The reason itself is at the dependency list.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: retry is the re-run trigger, see below
   useEffect(() => {
     if (!open || catalogue) return;
     let active = true;
@@ -59,6 +63,12 @@ export function WalkthroughPlayer({
     return () => {
       active = false;
     };
+  // `retry` is deliberately a dependency this effect never reads. It is a counter bumped by the
+  // "Retry loading walkthroughs" button below, and being in this list is the entire mechanism by
+  // which pressing that button re-runs the load. Biome marks its suggestion FIXABLE, and applying
+  // it would leave the button rendered, clickable and inert - a reader-facing affordance that
+  // silently does nothing. Verified before writing this: setRetry is called in exactly one place,
+  // that button's onClick, and nowhere else.
   }, [open, catalogue, load, retry]);
 
   const walkthroughs =

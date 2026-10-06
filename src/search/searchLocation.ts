@@ -12,6 +12,13 @@ function valid(value: SearchLocation): boolean {
     value.query.length <= SEARCH_LIMITS.queryCharacters &&
     // In Unicode mode this matches only lone surrogates, not complete astral characters.
     !/[\uD800-\uDFFF]/u.test(value.query) &&
+    // The control characters below are the SUBJECT of this test, not an accident in it. The rule
+    // exists to catch a control character that reached a pattern by mistake, usually pasted; here
+    // the class is written out on purpose so a query carrying one is refused, which is what keeps
+    // an untrusted fragment from putting a NUL or an escape sequence into a URL, a log line or a
+    // DOM attribute. Six of the lint gate's errors were this one line. Removing the class would
+    // not satisfy the rule's intent, it would delete the check.
+    // biome-ignore lint/suspicious/noControlCharactersInRegex: deliberate, see above
     !/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/u.test(value.query) &&
     (value.paper === "" || /^[a-z0-9][a-z0-9-]{0,79}$/u.test(value.paper)) &&
     (value.type === "" || SEARCH_TYPES.includes(value.type))
