@@ -523,7 +523,7 @@ Participants:
       );
     });
 
-    it("refuses a met count that cannot describe a participant", () => {
+    it("refuses a met count that cannot describe a participant (roundReports.ts:254)", () => {
       // The resolved branch was covered; this is the met branch beside it,
       // which a plant sweep found deletable with this file green.
       for (const met of ["0", "-1", "1.5", '"two"']) {
@@ -541,7 +541,7 @@ Participants:
       }
     });
 
-    it("refuses counts that cannot describe a round", () => {
+    it("refuses counts that cannot describe a round (roundReports.ts:267)", () => {
       expectRefusal(
         withBarriers(`  - code: omitted-inference
     anchor: "#s4-p2"

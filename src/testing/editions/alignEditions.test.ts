@@ -50,7 +50,7 @@ describe("scripts/align-editions.ts runner and CLI guards", () => {
       expect(runAlignEditions({ slug: withLedger }).outcome).not.toBe("not-available");
   });
 
-  test("PLANTED: --require-reviewed refuses with unit-not-reviewed when no reviewed units exist", () => {
+  test("PLANTED: --require-reviewed refuses with unit-not-reviewed when no reviewed units exist (align-editions.ts:201)", () => {
     const result = runAlignEditions({
       slug: "brownian-motion",
       requireReviewed: true,
@@ -62,7 +62,7 @@ describe("scripts/align-editions.ts runner and CLI guards", () => {
     expect(issue?.message).toContain("--require-reviewed specified, but no reviewed units exist");
   });
 
-  test("PLANTED: --require-reviewed refuses unreviewed unit state with unit-not-reviewed", () => {
+  test("PLANTED: --require-reviewed refuses unreviewed unit state with unit-not-reviewed (align-editions.ts:209)", () => {
     const result = runAlignEditions({
       slug: "brownian-motion",
       requireReviewed: true,

@@ -68,7 +68,7 @@ describe("Markdown Allowlist & Constrained Dialect (am-cm-compiler-core-oa7)", (
     logTest("markdown-reject-script", "passed", "Rejected <script> tag with line number");
   });
 
-  it("rejects MDX import and export statements", () => {
+  it("rejects MDX import and export statements (loaders.ts:378)", () => {
     const mdImport = "import { InteractiveChart } from './Chart.tsx';\n\n# Chart page";
     const r1 = validateConstrainedMarkdown(mdImport, "import.md");
     expect(r1.ok).toBe(false);
@@ -81,7 +81,7 @@ describe("Markdown Allowlist & Constrained Dialect (am-cm-compiler-core-oa7)", (
     logTest("markdown-reject-mdx-imports", "passed", "Rejected MDX import and export statements");
   });
 
-  it("rejects JSX / MDX component syntax", () => {
+  it("rejects JSX / MDX component syntax (loaders.ts:388)", () => {
     const md = "# Interactive\n\n<SimulationCanvas width={800} height={600} />\n";
     const result = validateConstrainedMarkdown(md, "jsx.md");
     expect(result.ok).toBe(false);

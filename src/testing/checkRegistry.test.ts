@@ -132,7 +132,7 @@ describe("Check Plugin Registry & Crash Containment (am-cm-compiler-core-oa7)", 
     );
   });
 
-  it("contains check crashes: reports check-crashed and executes subsequent checks", async () => {
+  it("contains check crashes: reports check-crashed and executes subsequent checks (registry.ts:164)", async () => {
     let secondCheckRan = false;
 
     const crashingCheck: ContentCheck = {

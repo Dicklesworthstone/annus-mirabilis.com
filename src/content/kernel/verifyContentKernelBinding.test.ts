@@ -180,7 +180,7 @@ describe("verify-content kernel binding audit (am-inst-show-the-code-4brv)", () 
     expect(missing?.message).toContain("no pinned hash");
   });
 
-  test("pin written against uncommitted source (differing from git HEAD) fails audit with uncommitted-pinned-source", () => {
+  test("pin written against uncommitted source (differing from git HEAD) fails audit with uncommitted-pinned-source (verify.ts:220)", () => {
     const livePins = loadPins(resolve(root, "src/content/kernel/pins.json"));
     // Planted pin differing from committed HEAD source
     const modifiedPins: KernelPinFile = {
@@ -214,7 +214,7 @@ describe("verify-content kernel binding audit (am-inst-show-the-code-4brv)", () 
     expect(uncommitted?.message).toContain("does not match committed source in git HEAD");
   });
 
-  test("uncommitted working-tree modifications in pinned kernel file fails audit with uncommitted-pinned-source", () => {
+  test("uncommitted working-tree modifications in pinned kernel file fails audit with uncommitted-pinned-source (verify.ts:199)", () => {
     const livePins = loadPins(resolve(root, "src/content/kernel/pins.json"));
     const headText = readFileSync(
       resolve(root, "src/physics/reference/diffusion/distributions.ts"),
