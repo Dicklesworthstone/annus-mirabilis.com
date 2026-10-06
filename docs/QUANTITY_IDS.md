@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 314 quantities, 45 rejected spellings, 0 reserved spellings.
+Total: 315 quantities, 45 rejected spellings, 0 reserved spellings.
 
 ## Registered quantities
 
@@ -248,6 +248,7 @@ Total: 314 quantities, 45 rejected spellings, 0 reserved spellings.
 | radiationPressureMirror | Radiation pressure on a mirror | -1,1,-2,0,0,0 | not-applicable | scalar | — |
 | radiusCurvatureElectric | Radius of curvature (electric deflection) | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | radiusCurvatureMagnetic | Radius of curvature (magnetic deflection) | 1,0,0,0,0,0 | not-applicable | scalar | — |
+| radiusNumberProduct | Compatible radius × number | 1,0,0,0,0,-1 | not-applicable | scalar | — |
 | rapidity | Rapidity | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | recedingDopplerFactor | Receding line-of-sight Doppler factor | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | recoilSpeed | Recoil speed | 1,0,-1,0,0,0 | not-applicable | scalar | — |

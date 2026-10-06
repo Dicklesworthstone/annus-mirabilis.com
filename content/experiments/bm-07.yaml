@@ -395,7 +395,7 @@ outputs:
       - underdetermined
       - not-applicable
   - id: radiusNumberProduct
-    quantityId: avogadroNumberEstimate
+    quantityId: radiusNumberProduct
     allowedStatuses:
       - value
       - underdetermined

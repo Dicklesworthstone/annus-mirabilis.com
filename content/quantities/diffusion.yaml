@@ -345,6 +345,24 @@
   frame: not-applicable
   colorRole: statistical
 
+- id: radiusNumberProduct
+  name: Compatible radius × number
+  description: >
+    The product a·N that displacements alone fix, as BM-07's own r1 says: "Displacements
+    alone fix only the product of radius and number, a·N". It is a length times a molecular
+    number per mole, so it is NOT a number of molecules per mole and is a different quantity
+    from avogadroNumberEstimate. Until 2026-10-06 bm-07.yaml bound its radiusNumberProduct
+    output to avogadroNumberEstimate, which is per-mole: a mismatch of a whole length
+    dimension that anything reading the output's quantityId for a name, a unit or a colour
+    inherited. am-ff2s.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, -1]
+  permittedUnits:
+    - unit: m/mol
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
 - id: osmoticDecayLength
   name: Osmotic decay length
   description: >

@@ -339,7 +339,6 @@ export const OUTPUT_LABELS: Readonly<Record<string, string>> = Object.freeze({
   diffusionCoefficientEstimate: "Estimated D",
   diffusionInterval: "Interval for D at the chosen coverage",
   degreesOfFreedom: "Degrees of freedom",
-  radiusNumberProduct: "Compatible radius × number",
   familyRadii: "Radii in the compatible family",
   familyNumbers: "Molecular numbers in the compatible family",
   molecularInterval: "Selected interval for N",
