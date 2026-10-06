@@ -281,6 +281,78 @@ test("collisions.test: renderEquationLatex throws NotationScopeError on modern g
   assert.equal(nonCollidingRes.formRelation, "rename-only");
 });
 
+/**
+ * `modern-glyph-collision` is raised at TWO sites and they are not the same complaint (am-r3qt):
+ *
+ *   (collisions.ts:62) the glyph could not be RESOLVED at all - resolveSymbolGlyph threw and the
+ *                      diagnostic carries that resolver's own message, for ONE quantity
+ *   (collisions.ts:78) two quantities resolved to the SAME glyph, which is the collision the rule
+ *                      is named for, and the diagnostic names BOTH
+ *
+ * :78 was cited and :62 was not. They are told apart here by the message and by how many quantity
+ * ids the diagnostic carries, because the rule string alone cannot distinguish them.
+ *
+ * Reaching :62 needs the resolver to throw, and an unknown paper does it: resolveSymbolGlyph
+ * refuses with `unknown-paper` when the concordance will not load, and supplying a paper is also
+ * what makes this check strict, so no flag has to be set to reach the arm.
+ */
+test("refusal (collisions.ts:62): a glyph that cannot be resolved is reported, not swallowed", () => {
+  const tree: Expression = rel("=", sym("zz", "noSuchQuantityHere"), sym("w", "anotherAbsentOne"));
+  const res = checkEquationGlyphCollisions(tree, {
+    paper: "no-such-paper",
+    sectionId: "s1",
+    equationId: "eq-test-unresolvable-glyph",
+  });
+  assert.equal(res.ok, false);
+  const diag = res.diagnostics.find((d) => d.rule === "modern-glyph-collision");
+  assert.ok(diag, "an unresolvable glyph must produce a modern-glyph-collision diagnostic");
+  assert.equal(diag?.kind, "error");
+  // The resolver's own reason is carried through rather than replaced by a collision message.
+  assert.match(String(diag?.message), /unknown paper "no-such-paper"/);
+  // NOT the collision message, and NOT two quantity ids: :78 names both colliding quantities,
+  // this site names the one whose glyph would not resolve.
+  assert.doesNotMatch(String(diag?.message), /collides between quantities/);
+  assert.equal(diag?.quantityIds.length, 1);
+});
+
+test("a resolvable equation produces no modern-glyph-collision, so :62 is about the failure", () => {
+  // The negative: a check that reported every symbol would satisfy the case above. Two distinct
+  // quantities with distinct modern glyphs resolve and collide with nothing.
+  const tree: Expression = rel("=", sym("a", "quantityA"), sym("b", "quantityB"));
+  const registry = {
+    quantityA: {
+      id: "quantityA",
+      name: "A",
+      glyph: "\\alpha",
+      dimension: [],
+      unit: "1",
+      displayUnit: "1",
+      displayPower: 0,
+      semanticKind: "variable" as const,
+      role: "result" as const,
+      definition: "",
+    },
+    quantityB: {
+      id: "quantityB",
+      name: "B",
+      glyph: "\\beta",
+      dimension: [],
+      unit: "1",
+      displayUnit: "1",
+      displayPower: 0,
+      semanticKind: "variable" as const,
+      role: "result" as const,
+      definition: "",
+    },
+  };
+  const res = checkEquationGlyphCollisions(tree, {
+    perspective: "modern",
+    registry,
+    equationId: "eq-test-no-collision",
+  });
+  assert.ok(!res.diagnostics.some((d) => d.rule === "modern-glyph-collision"));
+});
+
 test("refusal (collisions.ts:78): modern-glyph-collision reports error when modern glyph collides", () => {
   const tree: Expression = rel("=", sym("a", "quantityA"), sym("b", "quantityB"));
   const registry = {

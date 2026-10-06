@@ -83,4 +83,44 @@ describe("am-eq-spoken-forms-w4f: lintSpokenForm tests", () => {
     assert.equal(res.errors.length, 0);
     assert.equal(res.warnings.length, 0);
   });
+
+  /**
+   * `no-raw-latex` is raised at TWO sites and they are different complaints (am-r3qt):
+   *
+   *   (lintSpokenForm.ts:31) the text is empty or not a string at all
+   *   (lintSpokenForm.ts:48) the text IS a string and contains a raw LaTeX command
+   *
+   * They share a rule, so each case asserts its own MESSAGE. :31 was the untested one, and it
+   * matters more than it looks: an equation whose authored spoken form is missing arrives here as
+   * an empty string, and this is the site that refuses to let it pass as "no findings".
+   */
+  test("(lintSpokenForm.ts:31) no-raw-latex: an empty spoken form is refused, not treated as clean", () => {
+    const res = lintSpokenForm("");
+    assert.equal(res.valid, false);
+    const err = res.errors.find((e) => e.rule === "no-raw-latex");
+    assert.ok(err, "an empty spoken form must produce a no-raw-latex error");
+    assert.match(err.message, /non-empty string/);
+    // NOT the raw-command message: that one belongs to :48, and an empty string contains no
+    // command to name, so a finding carrying it would mean the wrong site fired.
+    assert.doesNotMatch(err.message, /Raw LaTeX command/);
+    assert.equal(err.match, undefined);
+  });
+
+  test("(lintSpokenForm.ts:31) no-raw-latex: a non-string spoken form is refused the same way", () => {
+    // The other half of the guard's condition. An undefined authored form is the likelier
+    // accident of the two, since a missing YAML key reads as undefined rather than as "".
+    const res = lintSpokenForm(undefined as unknown as string);
+    assert.equal(res.valid, false);
+    assert.ok(
+      res.errors.some((e) => e.rule === "no-raw-latex" && /non-empty string/.test(e.message)),
+    );
+  });
+
+  test("a short but real spoken form passes, so :31 is about absence and not about brevity", () => {
+    // The negative: a guard written as a length threshold would refuse this too, and both cases
+    // above would still pass.
+    const res = lintSpokenForm("E equals m c squared");
+    assert.equal(res.valid, true);
+    assert.equal(res.errors.length, 0);
+  });
 });
