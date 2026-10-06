@@ -21,7 +21,7 @@
   "src/content/schemas/authorship.ts": 3,
   "src/content/schemas/dates.ts": 2,
   "src/content/schemas/dimensionBasis.ts": 3,
-  "src/content/schemas/experiment.ts": 134,
+  "src/content/schemas/experiment.ts": 0,
   "src/content/schemas/reading.ts": 1,
   "src/content/schemas/source.ts": 57,
   "src/equations/alternateForms.ts": 0,

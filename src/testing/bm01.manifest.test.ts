@@ -117,7 +117,7 @@ describe("bm01.manifest: BM-01 manifest registration (am-bm-01-tracer-ensemble-h
     }
   });
 
-  test("a preset id in colon form is rejected with the hyphen form named (experiment.ts:1464)", () => {
+  test("invalid-preset-id: a preset id in colon form is rejected with the hyphen form named (experiment.ts:1477)", () => {
     const raw = loadRawManifest() as Record<string, unknown>;
     const presets = raw.presets as Record<string, unknown>[];
     const firstPreset = presets[0];

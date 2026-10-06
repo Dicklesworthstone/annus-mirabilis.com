@@ -93,7 +93,7 @@ test("(experiment.ts:420) invalid-accepted-result: an action must declare what a
 });
 
 /**
- * (experiment.ts:1211) all-views-require-capabilities is UNREACHABLE, and this test says so instead
+ * (experiment.ts:1224) all-views-require-capabilities is UNREACHABLE, and this test says so instead
  * of pretending to cover it.
  *
  * It survived deletion for a reason stronger than "no test drives it": no input can drive it. The
@@ -116,7 +116,7 @@ test("(experiment.ts:420) invalid-accepted-result: an action must declare what a
  * The repair is the owner's call, not mine: delete the site, or order it before the fallback check
  * so it can speak. Recorded on am-kd9h.
  */
-test("(experiment.ts:1211) all-views-require-capabilities cannot fire for any of the 31 view-kind sets", () => {
+test("(experiment.ts:1224) all-views-require-capabilities cannot fire for any of the 31 view-kind sets", () => {
   const KINDS = ["svg", "canvas", "three", "table", "text"] as const;
   const legalRequires = (kind: string): string[] =>
     kind === "canvas" ? ["canvas-2d"] : kind === "three" ? ["webgl"] : [];
@@ -158,7 +158,7 @@ test("(experiment.ts:1211) all-views-require-capabilities cannot fire for any of
   assert.equal([...outcomes].filter(([, c]) => c === "ACCEPTED").length, 25);
 });
 
-test("(experiment.ts:1446) invalid-preset: a preset entry must be an object", () => {
+test("(experiment.ts:1459) invalid-preset: a preset entry must be an object", () => {
   const raw = fixture("experiment-valid.yaml");
   raw.presets = ["bm-01-standard-water"];
   refuses(() => validateExperiment(raw), {
@@ -183,7 +183,7 @@ test("(experiment.ts:1446) invalid-preset: a preset entry must be an object", ()
   assert.equal(validateExperiment(none).id, "bm-01");
 });
 
-test("(experiment.ts:3520) invalid-prompt-id: a tour step's promptId is checked against the grammar", () => {
+test("(experiment.ts:3592) invalid-prompt-id: a tour step's promptId is checked against the grammar", () => {
   const raw = fixture("tour-valid.yaml");
   // Step 2 carries a promptId; step 1 carries a presetId. They are validated by two sites eight
   // lines apart that share neither path nor grammar, so the step chosen here decides which fires.
