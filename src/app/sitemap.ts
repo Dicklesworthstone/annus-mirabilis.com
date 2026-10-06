@@ -59,6 +59,17 @@ export type Exemption =
 export const NOT_IN_SITEMAP: ReadonlyMap<string, Exemption> = new Map<string, Exemption>([
   ["/lab/", { kind: "canonical", canonical: "/instruments/" }],
   ["/embed/", { kind: "noindex" }],
+  /*
+   * The full-page search view (am-esis, found by this file's own test going red).
+   *
+   * It landed with 44ba6524 on 2026-10-05 and nothing added it here, so the "every page at a fixed
+   * address is listed or exempted" check has been failing since. The page itself declares
+   * `robots: { index: false, follow: true }`: its content is whatever a reader typed, so there is
+   * nothing stable for a crawler to index, while `follow` keeps the edition pages it links to
+   * reachable. Recording that here is what the test asks for, and it verifies the claim against the
+   * page's own metadata rather than taking this line's word for it.
+   */
+  ["/search/results/", { kind: "noindex" }],
   ["/discover/light-quanta/investigate/", { kind: "noindex" }],
   ["/discover/special-relativity/investigate/", { kind: "noindex" }],
   ["/discover/mass-energy/investigate/", { kind: "noindex" }],
