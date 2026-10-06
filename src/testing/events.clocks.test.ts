@@ -361,7 +361,7 @@ describe("events.clocks: Proper time, worldlines, and light clock (am-ref-events
       }
     });
 
-    test("refusal (events.ts:735): superluminal-segment rejects superluminal velocity in smooth worldline", () => {
+    test("refusal (events.ts:787): superluminal-segment rejects superluminal velocity in smooth worldline", () => {
       // Accept: subluminal smooth velocity
       const accepted = properTime(
         {

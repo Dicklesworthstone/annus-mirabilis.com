@@ -65,7 +65,7 @@ test("tape mutations cannot change two inputs, command class, seed, grid, or che
     assert.throws(() => parseComparisonReplay(r));
   }
 });
-test("reject: (replayEntry.ts:135) bm01-comparison tape variation mismatch throws TypeError", () => {
+test("reject: (replayEntry.ts:389) bm01-comparison tape variation mismatch throws TypeError", () => {
   const r = clone();
   r.tape.events[0].commandClass = "observer-change";
   assert.throws(
@@ -81,7 +81,7 @@ test("accept: bm01-comparison tape with exact saved single variation parses clea
   assert.equal(parsed.kind, "bm01-comparison");
   assert.equal(parsed.tape.events[0].commandClass, "setup-change");
 });
-test("reject: (replayEntry.ts:138) bm01-comparison replay checkpoint mismatch throws TypeError", () => {
+test("reject: (replayEntry.ts:389) bm01-comparison replay checkpoint mismatch throws TypeError", () => {
   const r = clone();
   r.tape.acceptedCheckpoint.acceptedInputRevision++;
   assert.throws(

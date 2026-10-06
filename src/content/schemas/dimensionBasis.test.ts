@@ -91,7 +91,7 @@ describe("dimensionBasis schema refusal throw sites (am-muyh)", () => {
     );
   });
 
-  test("dimensionBasis: (dimensionBasis.ts:104) rational-not-reduced raised when fraction is not in lowest terms", () => {
+  test("dimensionBasis: (dimensionBasis.ts:103) rational-not-reduced raised when fraction is not in lowest terms", () => {
     assert.throws(
       () => validateRationalScale({ num: 2, den: 4 }),
       (err) => {

@@ -511,7 +511,7 @@ describe("Kernel TypeScript extraction refusal sites (extractTypeScript.ts) (am-
 
 describe("Kernel verification refusal sites (verify.ts) (am-muyh)", () => {
   // Site 16 (line 86)
-  test("site (verify.ts:86) kernel-pin-missing: reports kernel-pin-missing when pins file is missing catalog function key, accepts matching pins", () => {
+  test("site (verify.ts:181) kernel-pin-missing: reports kernel-pin-missing when pins file is missing catalog function key, accepts matching pins", () => {
     const tempPinsPath = join(TEMP_BASE, `empty-pins-${Date.now()}.json`);
     writeFileSync(
       tempPinsPath,

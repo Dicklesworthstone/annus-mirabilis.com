@@ -39,7 +39,7 @@ describe("authorship schema refusal throw sites (am-muyh)", () => {
     assert.equal(accepted.id, "einstein");
   });
 
-  test("authorship: (authorship.ts:70) invalid-model-prefix raised when id starts with model:", () => {
+  test("authorship: (authorship.ts:69) invalid-model-prefix raised when id starts with model:", () => {
     assert.throws(
       () => validateAuthorshipEntry({ id: "model:gpt-4", kind: "human" }),
       (err) => {
@@ -84,7 +84,7 @@ describe("authorship schema refusal throw sites (am-muyh)", () => {
     assert.equal(accepted.modelId, "claude-3-opus");
   });
 
-  test("authorship: (authorship.ts:114) agent-as-reviewer raised when agent assigned reviewer role", () => {
+  test("authorship: (authorship.ts:113) agent-as-reviewer raised when agent assigned reviewer role", () => {
     assert.throws(
       () =>
         validateAuthorshipEntry(
