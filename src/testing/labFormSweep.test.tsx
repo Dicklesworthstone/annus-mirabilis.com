@@ -75,10 +75,34 @@ async function settle(c: HTMLElement): Promise<void> {
   }
 }
 
+/**
+ * The laboratory's SETTINGS fields.
+ *
+ * A text field is in scope when typing nonsense into it should be refused, which is true of a physical setting
+ * and false of a free-text annotation. `[data-share-form]` was already excluded for that reason; the reader's
+ * experiment recorder, added by 66296834, brought two more - `title` and `label`, the name and note a reader
+ * gives a saved experiment - and they are prose, so nothing refuses them and nothing should.
+ *
+ * MEASURED, AND THIS SWEEP WAS RED FOR A DAY BECAUSE OF IT. It went from 34 pass / 0 fail at 71792960 to
+ * 6 pass / 28 fail at 66296834, the next commit, and stayed red through 2026-10-06. Every failure was one of
+ * these two fields reported as "silent" on nearly every lab, which is the sweep's own population having grown
+ * rather than any lab regressing: the docblock above says "every text or number field", which was equivalent
+ * to "every setting" only while every such field was one. The second failing assertion was the same cause -
+ * `untyped` lost "sr-05", because a lab driven by buttons alone now had the recorder's text fields to type
+ * into.
+ *
+ * The exclusion is by the recorder's own container attribute rather than by field name, so a renamed field
+ * stays excluded and a new SETTING called `title` would not be.
+ */
 function fields(c: HTMLElement): HTMLInputElement[] {
   return [...c.querySelectorAll("input")].filter((i) => {
     const t = (i.getAttribute("type") ?? "text").toLowerCase();
-    return (t === "text" || t === "number") && !i.readOnly && !i.closest("[data-share-form]");
+    return (
+      (t === "text" || t === "number") &&
+      !i.readOnly &&
+      !i.closest("[data-share-form]") &&
+      !i.closest("[data-experiment-recorder]")
+    );
   }) as HTMLInputElement[];
 }
 function state(c: HTMLElement) {
