@@ -38,17 +38,30 @@ describe("getKernelListingsForInstrument", () => {
     }
   });
 
-  test("returns all 7 listings for BM-06", () => {
+  test("BM-06's listings include every kernel named here, each with real pinned source", () => {
+    // WAS `expect(listings.length).toBe(7)`, which broke on correct work: adding catalogue entries for
+    // moments and mostLikelyRadius2d took it to 9 and turned this red while nothing it protects had
+    // changed. The identity assertions below are what the test is for and they hold at any size, so
+    // the census is replaced by them plus an explicit floor, per AGENTS.md's rule that a count is for
+    // reporting and a property is for asserting. A listing may be ADDED here without touching this
+    // test; one may not disappear.
     const listings = getKernelListingsForInstrument("bm-06");
-    expect(listings.length).toBe(7);
     const names = listings.map((l) => l.exportName);
-    expect(names).toContain("gaussianPropagator");
-    expect(names).toContain("intervalProbability");
-    expect(names).toContain("erf");
-    expect(names).toContain("erfc");
-    expect(names).toContain("radialPropagator2d");
-    expect(names).toContain("radialPropagator3d");
-    expect(names).toContain("ftcs1d");
+    for (const expected of [
+      "gaussianPropagator",
+      "intervalProbability",
+      "erf",
+      "erfc",
+      "radialPropagator2d",
+      "radialPropagator3d",
+      "ftcs1d",
+      "moments",
+      "mostLikelyRadius2d",
+    ])
+      expect(names).toContain(expected);
+    // Non-vacuity, on purpose: an empty listings array would satisfy no toContain above, but the
+    // per-listing loop below would also iterate zero times and pass, so the floor is stated.
+    expect(listings.length).toBeGreaterThanOrEqual(9);
 
     for (const listing of listings) {
       expect(listing.source).toBeTruthy();

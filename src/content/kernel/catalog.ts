@@ -231,6 +231,62 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
     identifierBindings: [bind("ftcs1d", "D", "diffusionCoefficient")],
     independentReferences: [],
   },
+  // BM-06'S LAST TWO UNPINNED KERNELS (am-f3e4, 2026-10-06). The manifest declares seven and five had
+  // an entry here. These two are the distribution's summary numbers, which is where a reader is most
+  // likely to assume one number stands for the spread when three different ones do.
+  {
+    instrumentId: "bm-06",
+    kernel: tsRef("src/physics/reference/diffusion/distributions.ts", "mostLikelyRadius2d"),
+    words: {
+      r0: "The distance from the start a tracer is most often found at, in two dimensions, which is not the average distance and not zero.",
+      r1: "In one dimension the most likely position is the starting point. In two it is not: the radial density is r over 2Dt times the falling exponential, so near the start the circumference of available positions is growing from nothing and the product peaks away from zero. Setting the derivative to zero puts the peak at the square root of 2Dt, which is exactly the one-dimensional root-mean-square displacement. The growth of available room and the fall of density cancel there.",
+      r2: "The function is a guard and one square root, and the square root is the interesting part: it is computed as the scale helper does it, by the square root of 2 times the square root of D times the square root of t, rather than the square root of their product. That is not style. At D and t both 1e-300 the product underflows to zero and the direct form returns a radius of 0, while the factored form returns 1.4142135623730952e-300; at 1e300 each the product overflows to infinity and the factored form returns 1.4142135623730952e+300. Diffusivities in this edition run around 4e-13 with times a reader may set freely, so the margin matters. There is no three-dimensional counterpart here because the owning bead's specification gives no closed form for it, and inventing one would be a different claim.",
+      r3: "Einstein works in one dimension throughout section 4 and asks for the root mean square, not the mode, so this quantity is not in the paper. It is included because the two-dimensional picture is what a reader sees under a microscope, and because the coincidence of the 2D mode with the 1D root mean square is the kind of thing that looks like a mistake until the circumference argument is made.",
+    },
+    liveTerms: ["mostLikelyRadius2d", "diffusionCoefficient"],
+    identifierBindings: [
+      bind("mostLikelyRadius2d", "D", "diffusionCoefficient"),
+      bind("mostLikelyRadius2d", "t", "observationInterval"),
+      // The function's own name standing for its output, which is the convention already used in
+      // this file by gaussianPropagator -> probabilityDensity. It is not the same as binding a
+      // CALLEE's name: there is no local here holding the radius, the whole body is the quantity.
+      bind("mostLikelyRadius2d", "mostLikelyRadius2d", "mostLikelyRadius2d"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "bm-06",
+    kernel: tsRef("src/physics/reference/diffusion/distributions.ts", "moments"),
+    words: {
+      r0: "The four summary numbers of the spread at this time, in one, two or three dimensions, returned together so that none of them can be mistaken for another.",
+      r1: "Write sigma for the square root of 2Dt. Then the mean square of a single coordinate is sigma squared whatever the dimension, the mean square distance from the start is d times that, and the root mean square distance is the square root of d times sigma. The mean distance is the one that changes shape with dimension: sigma times the square root of 2 over pi in one dimension, sigma times the square root of pi over 2 in two, and sigma times twice the square root of 2 over pi in three, which are 0.798, 1.253 and 1.596 times sigma. In two dimensions that puts the mode at sigma, the mean at 1.253 sigma and the root mean square at 1.414 sigma: three different distances, all describing the same cloud.",
+      r2: "The four are returned in one frozen object on purpose, because the failure this prevents is using one of them where another belongs. Each carries its own canonical quantity, so a plot asking for the mean radial distance cannot be handed the root mean square. The validity guard covers d as well as D and t, and an invalid request returns all four as outside-domain rather than returning some numbers and some refusals, since a caller that got a partial object would have to check each field. The last argument to each make call is D > 0 and t > 0, which marks the degenerate start: at t = 0 every one of the four is legitimately zero and that zero is a limit rather than a measurement, which is a distinction the display needs and the arithmetic cannot carry on its own.",
+      r3: "The paper gives one of these four, the root mean square in one dimension, and gives it as the quantity to compare with observation because it is what a series of position readings yields. The mean distance is easier to picture and harder to estimate from data, which is roughly why Einstein does not use it, and the two differ by about a fifth in one dimension.",
+    },
+    equationId: "eq-model-bm-gaussian-second-moment",
+    liveTerms: [
+      "meanSquareDisplacement1d",
+      "meanSquareDisplacement",
+      "meanRadialDistance",
+      "rmsRadialDistance",
+    ],
+    identifierBindings: [
+      bind("moments", "D", "diffusionCoefficient", [
+        "eq-model-bm-gaussian-second-moment.t.diffusivity",
+      ]),
+      bind("moments", "t", "observationInterval"),
+      // s and mean are named locals; marginal, total and rmsRadius are the keys under which each
+      // result is both looked up and returned, and are the only names those three have. Declaring a
+      // liveTerm the kernel holds in no identifier at all would make this entry fail its own check,
+      // which is what the first draft of it did.
+      bind("moments", "s", "rmsDisplacement1d"),
+      bind("moments", "mean", "meanRadialDistance"),
+      bind("moments", "marginal", "meanSquareDisplacement1d"),
+      bind("moments", "total", "meanSquareDisplacement"),
+      bind("moments", "rmsRadius", "rmsRadialDistance"),
+    ],
+    independentReferences: [],
+  },
   /*
     MASS-ENERGY (dispatch 173). Each entry is one of the kernelFunctions its instrument's manifest
     declares (content/experiments/me-0N.yaml, owner), with that manifest's identifierBindings for

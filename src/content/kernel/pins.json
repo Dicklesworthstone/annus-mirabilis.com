@@ -17,6 +17,8 @@
     "radialPropagator2d@src/physics/reference/diffusion/distributions.ts": "sha256:58040898d39023e9e0e937741b8bb0885bad8976be85b6817c2b5ff3ef0916b2",
     "radialPropagator3d@src/physics/reference/diffusion/distributions.ts": "sha256:37f9cc144c032a6104ceaa5b2020114d14a16a314620ad493149e5ee1bfdb6e8",
     "ftcs1d@src/physics/reference/diffusion/ftcs.ts": "sha256:c04f80e8182597a114b7d20f492eb86053f90b4cc9e7cd299f516a6b44eb4755",
+    "mostLikelyRadius2d@src/physics/reference/diffusion/distributions.ts": "sha256:24607afcf7f13cfb370a997b05b76cf356cdfebf71c1e444881afb1b4ca20a5c",
+    "moments@src/physics/reference/diffusion/distributions.ts": "sha256:f099d80b76b0e66d80e4c167412664639d3ce45b9b1fb003359d394dd0135bbf",
     "evaluatePulseEnergies@src/physics/reference/massEnergy.ts": "sha256:eeb7552ef2676c312d9ed38a3601b7b3e1ed2387493ddaf20fd923234c7546de",
     "evaluateLedgers@src/physics/reference/massEnergy.ts": "sha256:ad34802170ca8f200c091d17119d686c02b7a4beaf02d073f1722ac74965eae4",
     "evaluateSubtraction@src/physics/reference/massEnergy.ts": "sha256:98436f159f767fc6824c6c3c79b8716f767c1e762857e1836ecef2058d24f207",

@@ -63,8 +63,6 @@ describe("declared kernel functions against the pins (am-f3e4)", () => {
       "continuumLimit@src/physics/reference/diffusion/walkLaws.ts",
       "kernelMoments@src/physics/reference/diffusion/walkLaws.ts",
       "kolmogorovShapeTerm@src/physics/reference/diffusion/walkLaws.ts",
-      "moments@src/physics/reference/diffusion/distributions.ts",
-      "mostLikelyRadius2d@src/physics/reference/diffusion/distributions.ts",
       "observeWalks@src/physics/reference/diffusion/walks.ts",
       "solveCandidateFamily@src/physics/reference/kinematics/constraints.ts",
     ]);
@@ -101,6 +99,6 @@ describe("declared kernel functions against the pins (am-f3e4)", () => {
       `[declared pins] raw keys report ${rawMissing} missing; resolved keys ${resolvedMissing}`,
     );
     expect(rawMissing).toBeGreaterThan(resolvedMissing);
-    expect(resolvedMissing).toBe(10);
+    expect(resolvedMissing).toBe(8);
   });
 });
