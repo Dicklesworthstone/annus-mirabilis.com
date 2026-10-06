@@ -3,7 +3,12 @@ import { cpSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { compileReadingContent } from "../src/content/compiler/compile.ts";
-import { loadReadingFiles, paragraphBindingDiagnostics } from "./build-content.ts";
+import {
+  loadReadingFiles,
+  paragraphBindingDiagnostics,
+  parseCliArgs,
+  runContentCompileOnce,
+} from "./build-content.ts";
 
 describe("a required paper's binding gap fails the build by name", () => {
   const ROOT = process.cwd();
@@ -116,5 +121,39 @@ describe("AC5: error aggregation across multiple files", () => {
 
     // All errors are collected and reported together (not halting on the first failure)
     expect(result.diagnostics.length).toBeGreaterThanOrEqual(2);
+  });
+});
+
+/**
+ * THE TWO CLI REFUSALS IN THIS SCRIPT (am-r3qt). Both are `code:` fields inside a
+ * console.error(JSON.stringify(...)), one in the watch handler and one in the argument parser's
+ * catch, and neither had any test. They are different kinds of untested and the difference is the
+ * point.
+ */
+describe("the CLI's two refusal paths", () => {
+  test("missing-corpus-argument: --corpus with no path is refused by the parser", () => {
+    // THE CONDITION the log line reports, driven directly. parseCliArgs is exported; the
+    // console.error that renders its failure is in the unexported CLI block, reachable only by
+    // executing the script, so what is paid here is the contract and not the logging site.
+    expect(() => parseCliArgs(["--corpus"])).toThrow(/Missing directory path following --corpus/);
+    // The flag at the END of the list is the real-world shape: a shell expanding an empty variable
+    // leaves the flag with nothing after it.
+    expect(() => parseCliArgs(["--watch", "--corpus"])).toThrow(/--corpus/);
+
+    // The negative: ordinary argument sets parse, so the refusal is about the missing path.
+    expect(parseCliArgs([])).toEqual({ corpusDir: "content", watchMode: false });
+    expect(parseCliArgs(["--corpus", "fixtures", "--watch", "--no-emit"])).toEqual({
+      corpusDir: "fixtures",
+      watchMode: true,
+      shouldEmit: false,
+    });
+  });
+
+  test("watch-compile-crashed guards a real crash: an absent corpus directory throws", () => {
+    // The watch handler catches a THROW from runContentCompileOnce, as distinct from a compile
+    // that merely fails. Those are different outcomes and only one reaches that catch: a corpus
+    // whose JSON is malformed returns false, while a corpus directory that is not there throws.
+    const root = mkdtempSync(join(tmpdir(), "am-build-content-absent-corpus-"));
+    expect(runContentCompileOnce("content", { root, shouldEmit: false })).rejects.toThrow(/ENOENT/);
   });
 });
