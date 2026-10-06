@@ -24,6 +24,7 @@
 import { spawnSync } from "node:child_process";
 import { CATALOGUE_IDS, CATALOGUE_STATUS } from "../src/experiments/catalogue.ts";
 import { familyPaper } from "../src/search/documents.ts";
+import { TestLogger } from "../src/testing/log/logger.ts";
 import { reportPopulation } from "./gate-census/population.ts";
 
 export interface LaneCheck {
@@ -127,8 +128,19 @@ export function formatLane(checks: readonly LaneCheck[]): string {
 }
 
 if (process.argv[1]?.endsWith("typecheck-lane.ts")) {
+  const logger = new TestLogger("typecheck-lane");
   const checks = [checkInstrumentPaperMapping(), checkTypes(runTsc)];
   console.log(formatLane(checks));
+  // PERSISTED (am-uxh9). This lane's whole reason for existing is that an exit code cannot say which
+  // of its checks broke - and until now its own report could not say so either once the terminal
+  // scrolled, which is the same defect one level further out. One row per named check carrying its
+  // detail, so "the compiler failed to RUN" and "the types failed" stay distinguishable afterwards.
+  for (const check of checks)
+    logger.log({
+      testId: check.name,
+      outcome: check.ok ? "passed" : "failed",
+      message: check.detail,
+    });
   // The census line (am-rc1001-bridge-plan-pcjk.9). The population is the CHECKS this lane ran, which
   // is the number its own existence is about: this lane exists because `bun run typecheck` runs 34
   // generators before tsc and its exit code cannot say which half broke, so a lane that silently ran
@@ -139,5 +151,14 @@ if (process.argv[1]?.endsWith("typecheck-lane.ts")) {
     noun: "named lane checks",
     minimum: 2,
   });
+  logger.log({
+    testId: "typecheck-lane-summary",
+    outcome: checks.every((c) => c.ok) && !censusVacuous ? "passed" : "failed",
+    message:
+      `${checks.filter((c) => c.ok).length} of ${checks.length} named lane check(s) passed` +
+      `${censusVacuous ? "; REFUSED as vacuous against its declared minimum" : ""}`,
+  });
+  await logger.flush();
+  console.log(`Structured log: ${logger.filePath}`);
   process.exit(checks.every((c) => c.ok) && !censusVacuous ? 0 : 1);
 }

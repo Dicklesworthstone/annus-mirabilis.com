@@ -30,6 +30,7 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { TestLogger } from "../src/testing/log/logger.ts";
 import { blankComments } from "../src/testing/source/comments.ts";
 import { reportPopulation } from "./gate-census/population.ts";
 
@@ -325,6 +326,11 @@ export function findRenameSurvivorsIn(sources: ReadonlyMap<string, string>): Ren
 
 if (process.argv[1] && path.resolve(process.argv[1]).endsWith("check-renamed-refusal-codes.ts")) {
   const root = process.cwd();
+  // PERSISTED (am-uxh9), and this one is mine. I rebuilt this gate earlier in the same session that
+  // re-derived that bead's sweep, added a files-examined count and a census line, and still left it
+  // writing nothing - the identical mistake the bead's own author recorded about a gate they wrote:
+  // "I read 'prints a report' as 'has a report'." A full table on stdout is not an artifact.
+  const logger = new TestLogger("renamed-refusal-codes");
   const result = findRenameSurvivors(root);
   console.log("=== Renamed refusal codes: both-sides check (am-p465) ===");
   // The population this check rests on is the FILES, not the codes: a run that read ten sources would
@@ -345,9 +351,28 @@ if (process.argv[1] && path.resolve(process.argv[1]).endsWith("check-renamed-ref
   for (const s of result.survivors) {
     console.log(`\n  ${s.file}:${s.line}  ${s.oldForm}  (thrown elsewhere as "${s.kebab}")`);
     console.log(`      ${s.text}`);
+    logger.log({
+      testId: `${s.file}:${s.line}`,
+      outcome: "failed",
+      message: `${s.oldForm} survives in code; thrown elsewhere as "${s.kebab}" :: ${s.text}`,
+    });
   }
   if (result.survivors.length === 0) {
     console.log("\nNo renamed code has a surviving old-form reference in code.");
   }
+  // The summary carries all four numbers, because the survivor count alone is the one number that
+  // cannot distinguish a clean tree from a scan that read nothing: 0 survivors out of 4344 files and
+  // 0 out of 0 are the same verdict and opposite findings.
+  logger.log({
+    testId: "renamed-refusal-codes-summary",
+    outcome: result.survivors.length === 0 && !censusVacuous ? "passed" : "failed",
+    message:
+      `${result.filesExamined} tracked source(s) examined; ${result.thrownCodes} kebab code(s) thrown; ` +
+      `${result.mentions} old-form mention(s), ${result.prose} documentation or accepted, ` +
+      `${result.survivors.length} surviving code reference(s)` +
+      `${censusVacuous ? "; REFUSED as vacuous against its declared minimum" : ""}`,
+  });
+  await logger.flush();
+  console.log(`\nStructured log: ${logger.filePath}`);
   process.exit(result.survivors.length === 0 && !censusVacuous ? 0 : 1);
 }
