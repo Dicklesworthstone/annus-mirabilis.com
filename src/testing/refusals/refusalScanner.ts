@@ -948,10 +948,30 @@ export function analyzeUntestedRefusals(rootDir: string): FullRefusalScanResult 
     // shared across this tree, `session.ts` by 37 files. One mention credited
     // all 37. I tripped it myself, in a comment, and the slack pawl is the only
     // thing that caught it. A test covers what it loads.
+    // A SUBJECT LOADED BY A RESOLVABLE RELATIVE PATH IS LOADED, however it is spelled (am-muyh).
+    //
+    // The fourth pattern is `new URL("./page.tsx", import.meta.url)`, which is how a test that COMPILES
+    // its subject reaches it: src/app/lab/bm-08/compare/page.contract.test.mjs reads the route with
+    // readFileSync and runs it in a private VM with injected dependencies, which is a thorough test and
+    // was invisible here. Co-location did not catch it either, because `page.contract.test.mjs` pairs with
+    // `page.contract.ts` and not with `page.tsx`. So a route whose refusal was driven three times read as
+    // untested, and the only ways out would have been renaming a peer's file or citing a line the scanner
+    // also resolves through this same list.
+    //
+    // This does NOT reopen the am-fkyc hole described ABOVE. That was a raw substring test over the whole
+    // file, which credited any source whose BASENAME appeared anywhere, comments included, and 74
+    // basenames are shared in this tree. A `new URL` path is relative and resolved against the test's own
+    // directory exactly as an import is, so it names one file and no other.
+    //
+    // Both directions are held by the am-fkyc test in refusalRatchet.test.ts, where that hole's own
+    // fixtures live: MENTION_ONLY credits nothing, a `new URL` resolving to the source credits it, and
+    // URL_ELSEWHERE, a `new URL` naming a DIFFERENT file, credits nothing. The last two are what this
+    // change added, because a widening that cannot fail is not a widening anybody checked.
     for (const match of [
       ...content.matchAll(/\bfrom\s+["']([^"']+)["']/g),
       ...content.matchAll(/\bimport\s*\(\s*["']([^"']+)["']/g),
       ...content.matchAll(/\brequire\s*\(\s*["']([^"']+)["']/g),
+      ...content.matchAll(/\bnew\s+URL\s*\(\s*["'](\.[^"']+)["']\s*,/g),
     ]) {
       const importPath = match[1];
       if (importPath?.startsWith(".")) {

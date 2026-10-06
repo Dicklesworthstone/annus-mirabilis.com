@@ -734,6 +734,46 @@ test("widget-refused is refused", () => {
       0,
       "a test that imports the module and names the code does cover it",
     );
+
+    // AND A THIRD WAY OF LOADING IT (am-muyh): `new URL("./x.ts", import.meta.url)`, which is how a test
+    // that COMPILES its subject reaches it. src/app/lab/bm-08/compare/page.contract.test.mjs reads the
+    // route that way, runs it in a private VM with injected dependencies, and drives its refusal three
+    // times; the route still read as untested, because co-location pairs `page.contract.test.mjs` with
+    // `page.contract.ts` and the path is in no import statement.
+    //
+    // The fixture puts the path in a readFileSync, exactly as that route test does, and asserts the credit
+    // lands. The MENTION_ONLY case above is the negative control that matters here: a resolvable relative
+    // path names one file, while a bare basename names 74 of them in this tree, so this widens what counts
+    // as loading without reopening am-fkyc.
+    const URL_LOADED = `
+import { readFileSync } from "node:fs";
+import test from "node:test";
+const source = readFileSync(new URL("../widget/validate.ts", import.meta.url), "utf8");
+test("widget-refused is refused", () => {
+  if (!source.includes("widget-refused")) throw new Error("no");
+});
+`;
+    const urlRoot = build("url", URL_LOADED);
+    const urlLoaded = analyzeUntestedRefusals(urlRoot).analyses.get("src/widget/validate.ts");
+    assert.ok(urlLoaded, "the fixture source must be scanned at all");
+    assert.equal(urlLoaded.totalSites, 1);
+    assert.equal(
+      urlLoaded.untestedSitesCount,
+      0,
+      "a test that loads the module through new URL and names the code does cover it",
+    );
+
+    // THE NEGATIVE CONTROL FOR THE NEW PATTERN: a `new URL` that does NOT resolve to the source credits
+    // nothing. Without this, the pattern could be crediting on the mere presence of the words.
+    const URL_ELSEWHERE = URL_LOADED.replace("../widget/validate.ts", "../widget/notTheSource.ts");
+    const urlOther = build("url-elsewhere", URL_ELSEWHERE);
+    const urlMissed = analyzeUntestedRefusals(urlOther).analyses.get("src/widget/validate.ts");
+    assert.ok(urlMissed, "the fixture source must be scanned at all");
+    assert.equal(
+      urlMissed.untestedSitesCount,
+      1,
+      "a new URL naming a different file is not a test of this one",
+    );
   });
 });
 
