@@ -29,6 +29,8 @@ pathIgnorePatterns = [
   "scripts/gate-census/judge.node.test.ts",
   # am-jioj: reads out/, so it belongs in the lane that already refuses a stale build.
   "src/testing/a11y/actionContractsRendered.node.test.ts",
+  # am-ig23: reads `git ls-files`, which bun's runner cannot posix_spawn here.
+  "src/testing/refusals/flattenedRefusals.test.ts",
   "src/testing/a11y/accessibleNamesBrowser.test.mjs",
   "src/testing/styles/computedStylesLayout.test.ts",
   "src/testing/foundCalculus.browser.test.mjs",
