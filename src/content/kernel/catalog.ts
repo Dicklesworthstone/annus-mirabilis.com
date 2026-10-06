@@ -1654,6 +1654,38 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
       bind("stoppingPotentialMagnitude", "e", "elementaryCharge", [
         "eq-model-lq-stopping-energy.t.charge",
       ]),
+      // The output itself, through the function's own name, which is the only identifier standing for
+      // it: the potential is returned inline as kResult.value over e (am-1nnj, 2026-10-06).
+      bind(
+        "stoppingPotentialMagnitude",
+        "stoppingPotentialMagnitude",
+        "stoppingPotentialMagnitude",
+        ["eq-model-lq-stopping-energy.t.stopping"],
+      ),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "lq-08",
+    kernel: tsRef("src/physics/reference/photoelectric.ts", "thresholdFrequency"),
+    words: {
+      r0: "The lowest frequency that can free an electron at all: the escape work divided by the quantum constant.",
+      r1: "One quantum carries h nu, and freeing an electron costs the work function, so below nu = Phi / h nothing comes out however bright the light is. That last clause is the whole of paper 1's section 8 reduced to a sentence: brightness changes how MANY quanta arrive and not what each one carries, so intensity cannot buy a threshold. A 2.0 eV work function puts the threshold at 483.6 THz, in the visible, and a 2.3 eV one at 556.1 THz.",
+      r2: "Two guards, and they are different kinds of refusal rather than one shape repeated. A non-finite work function is a malformed request, reported as an input problem. A negative one is a request outside physics, reported as physical: a surface that pays you to leave is not a surface. Only then is the quantum constant read from the active constant set, which is why h is a local here and not a literal, and the quotient returned with its unit named Hz. The function takes JOULES, and thresholdFrequencyFromEv beside it is the wrapper that multiplies an electron-volt figure by the elementary charge first; keeping the conversion outside this function is what stops a work function in the wrong unit from looking like a plausible threshold.",
+      r3: "Einstein does not write this formula. Section 8 gives the stopping potential relation, and the threshold is its consequence at zero kinetic energy; the explicit nu sub 0 belongs to the later textbook presentation. Millikan's 1916 measurements are what settled the linear relation and its slope, and they are later evidence, labelled as such wherever this instrument shows them.",
+    },
+    equationId: "eq-model-lq-threshold-frequency",
+    liveTerms: ["thresholdFrequency", "workFunction", "planckConstant"],
+    identifierBindings: [
+      bind("thresholdFrequency", "workFunctionJoules", "workFunction", [
+        "eq-model-lq-threshold-frequency.t.escapeWork",
+      ]),
+      bind("thresholdFrequency", "h", "planckConstant", [
+        "eq-model-lq-threshold-frequency.t.planck",
+      ]),
+      bind("thresholdFrequency", "thresholdFrequency", "thresholdFrequency", [
+        "eq-model-lq-threshold-frequency.t.threshold",
+      ]),
     ],
     independentReferences: [],
   },

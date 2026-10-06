@@ -189,6 +189,12 @@ owner:
       language: ts
       module: "src/physics/reference/photoelectric.ts"
       exportName: "stoppingPotentialMagnitude"
+    # The lab reaches this through thresholdFrequencyFromEv, a unit wrapper; this is the function that
+    # computes the quantity, and lq-08 DISPLAYS thresholdFrequency as one of its outputs (am-1nnj).
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/photoelectric.ts"
+      exportName: "thresholdFrequency"
   identifierBindings:
     - kernelFunction: "stoppingPotentialMagnitude"
       identifier: "nu"
@@ -202,6 +208,18 @@ owner:
     - kernelFunction: "stoppingPotentialMagnitude"
       identifier: "kResult"
       quantityId: "maxKineticEnergy"
+    # The three live terms lq-08 DISPLAYS that nothing bound. Each function returns its value inline,
+    # so the function's own name is the only identifier standing for it, which is the convention
+    # gaussianPropagator -> probabilityDensity already uses here. h is an ordinary local.
+    - kernelFunction: "stoppingPotentialMagnitude"
+      identifier: "stoppingPotentialMagnitude"
+      quantityId: "stoppingPotentialMagnitude"
+    - kernelFunction: "thresholdFrequency"
+      identifier: "thresholdFrequency"
+      quantityId: "thresholdFrequency"
+    - kernelFunction: "thresholdFrequency"
+      identifier: "h"
+      quantityId: "planckConstant"
 views:
   - id: lq-08-energy-diagram
     kind: svg

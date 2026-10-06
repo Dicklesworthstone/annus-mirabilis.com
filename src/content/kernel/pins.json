@@ -81,6 +81,7 @@
     "entropyWithUnfixedConstant@src/physics/reference/radiation/entropy.ts": "sha256:a42ddd67d2512e13a098f27a5197b950ee973e796d7510b1a41621a9606ca5b7",
     "fluorescenceBudget@src/physics/reference/photoelectric.ts": "sha256:11d71dbe93a9da3598599f4cc6cea5d332f7f441988613168aa553ff6c379002",
     "stoppingPotentialMagnitude@src/physics/reference/photoelectric.ts": "sha256:d3b770e4a65e0a36833d8dd82384f33a3b6e6909190c9b094ceca3043aafc29a",
+    "thresholdFrequency@src/physics/reference/photoelectric.ts": "sha256:b4d4f20456f82bd81b428c228019feec7d22d7425d4be0c55dedd3c5255abf7a",
     "osmoticPressure@src/physics/reference/diffusion/distributions.ts": "sha256:a981b895ccd74c72c660fd64bc27c0406701b50b7828b2e62565bdf6f9f3468c",
     "volumeFraction@src/physics/reference/diffusion/routeA.ts": "sha256:ae2fc4df5d298eb04523984a56ab3654a70a0e788503682ade2e87c839113fb2",
     "diluteDomainCheck@src/physics/reference/diffusion/routeA.ts": "sha256:7168af3321032692f9d3f7dfa32ec59745529da1b4ceecbb016e3ed2173cd0bc",
