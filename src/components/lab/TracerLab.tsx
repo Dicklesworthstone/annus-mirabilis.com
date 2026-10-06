@@ -16,6 +16,12 @@ import { labelRootAttributes } from "../../experiments/labels/resultAttributes.t
 import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import type { ExecutionStateKind } from "../../experiments/provenance/executionState.ts";
 import { FRANKENSIM_BROWNIAN_ENGINE_SENTENCE } from "../../experiments/provenance/pinnedFrankenSim.ts";
+import {
+  type ApplyFailure,
+  applyFailure,
+  failureCode,
+  failureFromThrown,
+} from "../../experiments/results/applyFailure.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import equationPayload from "../../generated/bm01-equations.json";
@@ -110,7 +116,7 @@ export function TracerLab({
   const [draft, setDraft] = useState(() => toTracerDraft(example.parameters)),
     [ready, setReady] = useState(false),
     [dirty, setDirty] = useState(false),
-    [error, setError] = useState(""),
+    [failure, setFailure] = useState<ApplyFailure | null>(null),
     [note, setNote] = useState(""),
     [zoom, setZoom] = useState(1);
   // A shared ?tape= link puts its settings in the form and starts no worker; Apply runs them.
@@ -134,19 +140,18 @@ export function TracerLab({
   }, [session]);
   function apply(settings: Bm01Parameters) {
     const r = session.apply(settings);
-    if (r.kind !== "accepted") {
-      setError(
-        r.kind === "refused"
-          ? typeof r.refusal.details?.requirements === "string"
-            ? r.refusal.details.requirements
-            : r.refusal.message
-          : r.outcome.message,
-      );
+    // THE REFUSAL IS KEPT, NOT FLATTENED (am-ig23). This read the requirements string or the message and
+    // handed a sentence to setError, which threw away the refusal's CODE, its RANKED REPAIRS and the
+    // staleness marking - three of the four things AGENTS.md's refusal contract asks for. The sentence
+    // was right and a reader saw it; nothing else survived, and no gate could find the code on the page.
+    const failed = applyFailure(r);
+    if (failed) {
+      setFailure(failed);
       return;
     }
     setDraft(toTracerDraft(settings));
     setDirty(false);
-    setError("");
+    setFailure(null);
     setNote("");
   }
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -154,7 +159,7 @@ export function TracerLab({
     try {
       apply(fromTracerDraft(draft));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Check the settings.");
+      setFailure(failureFromThrown(e, "Check the settings."));
     }
   }
   function newTrial() {
@@ -165,9 +170,12 @@ export function TracerLab({
       if (w0 !== undefined && w1 !== undefined) {
         apply({ ...p, seed: ((BigInt(w0) << 32n) | BigInt(w1)).toString() });
       }
-    } catch {
-      setError(
-        "A new random seed is unavailable on this device. Enter a different seed explicitly.",
+    } catch (e) {
+      setFailure(
+        failureFromThrown(
+          e,
+          "A new random seed is unavailable on this device. Enter a different seed explicitly.",
+        ),
       );
     }
   }
@@ -424,10 +432,41 @@ export function TracerLab({
                 These edits are a draft. Graphs and numbers still describe the accepted trial below.
               </p>
             )}
-            {error && (
-              <p className="notice error" role="alert">
-                {error} {KEPT_RESULT}
-              </p>
+            {failure && (
+              /**
+               * THE TYPED SURFACE (am-ig23), matching the worker-refusal surface further down rather than
+               * disagreeing with it inside one file. `data-refusal-code` is what a browser check keys on
+               * and what makes a refusal auditable after the fact; the ranked repairs are the admissible
+               * boundary AGENTS.md asks a refusal to offer, and bm01's parameter schema already supplies
+               * them. Before this, a refusal raised while validating the form took the codeless path and
+               * one raised by the worker took the typed one, twenty lines apart.
+               */
+              <div
+                className="notice error"
+                role="alert"
+                data-refusal-code={failureCode(failure)}
+                data-apply-failure={failure.kind}
+              >
+                <p>
+                  {failure.text} {KEPT_RESULT}
+                </p>
+                {failure.kind === "refused"
+                  ? failure.refusal.rankedRepairs.map((repair) => {
+                      const action = repair.action;
+                      if (!action) return null;
+                      return (
+                        <button
+                          key={`validation-${action.parameterId}-${repair.label}`}
+                          type="button"
+                          className="secondary"
+                          onClick={() => apply({ ...p, [action.parameterId]: action.value })}
+                        >
+                          {repair.label}
+                        </button>
+                      );
+                    })
+                  : null}
+              </div>
             )}
           </div>
           <div className="lab-results">

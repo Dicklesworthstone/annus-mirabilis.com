@@ -49,7 +49,7 @@ const ROOT = resolve(fileURLToPath(new URL("../../../", import.meta.url)));
 const CANONICAL = "src/experiments/results/refusalSentence.ts";
 
 /**
- * THE RECORDED DEBT, measured 2026-10-06 with comments blanked: 18 sites in 17 files.
+ * THE RECORDED DEBT, measured 2026-10-06 with comments blanked: 16 sites in 15 files.
  *
  * It opened at 26 in 25. Eight came off the same day, in two passes - bm05, bm07, WalkLab, InferenceLab, then
  * sr03, sr06, RodSimultaneityLab and VelocityCompositionLab - and the ratchet went RED each time, which is the
@@ -59,12 +59,19 @@ const CANONICAL = "src/experiments/results/refusalSentence.ts";
  * Each is a place that flattens a typed refusal to its sentence. Converting one means pointing it at
  * `applyFailure`/`refusalSentence` and keeping the refusal, which is a per-lab change with a reader-facing
  * surface to get right, not a rename. Filed on am-ig23.
+ *
+ * ONE SHAPE IS BLOCKED ON A DESIGN DECISION, not on effort, and naming it here saves the next author the
+ * hour it took to find. lq08/PhotoelectricLab.tsx calls `setError` for a model refusal AND for
+ * client-side field validation ("Thermal: enter a number.", lq08RangeSentence). An ApplyFailure cannot
+ * honestly carry the second: `unexplained` means a RESULT that explained nothing, and a field a reader
+ * left blank produced no result at all. Dressing it as one would invent a model refusal, which is the
+ * dishonesty applyFailure.ts exists to undo. That component needs TWO pieces of state - a typed failure
+ * and a field message - before it can be converted, and the same question applies to any other site on
+ * this list whose error state is shared with local validation.
  */
 const FLATTENING_SITES: Readonly<Record<string, number>> = {
   "src/components/discover/BrownianInvestigation.tsx": 1,
-  "src/components/lab/BrownianLab.tsx": 1,
   "src/components/lab/DriftDiffusionLab.tsx": 1,
-  "src/components/lab/TracerLab.tsx": 1,
   "src/components/lab/WaveDescriptionLab.tsx": 1,
   "src/components/lab/bm03/ConfigurationLab.tsx": 1,
   "src/components/lab/lq03/SpectrumLab.tsx": 1,
@@ -159,6 +166,8 @@ test("the converted paths are NOT in the list, which is what conversion looks li
     "src/components/lab/sr06/VelocityCompositionLab.tsx",
     "src/experiments/sr03/controls.ts",
     "src/experiments/sr06/controls.ts",
+    "src/components/lab/TracerLab.tsx",
+    "src/components/lab/BrownianLab.tsx",
   ];
   for (const file of converted) assert.ok(!Object.keys(report.perFile).includes(file), file);
   /*
@@ -182,7 +191,7 @@ test("the recorded debt names only real files, and no duplicates", () => {
   assert.equal(new Set(names).size, names.length);
   assert.equal(
     Object.values(FLATTENING_SITES).reduce((a, b) => a + b, 0),
-    18,
+    16,
   );
   for (const name of names) assert.doesNotThrow(() => readFileSync(join(ROOT, name), "utf8"));
 });

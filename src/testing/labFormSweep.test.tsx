@@ -118,6 +118,22 @@ function state(c: HTMLElement) {
       ""
     }/${measured("data-accepted-measurement-revision")}`,
     requested: `${lab?.getAttribute("data-input-revision") ?? ""}/${measured("data-measurement-revision")}`,
+    // THE CODE, NOT ONLY THE SENTENCE (am-ig23). `marked` below asks whether a refusal SAYS the shown
+    // results are the last accepted. It cannot ask whether the refusal is identifiable, and that is the
+    // half the flattening conversions exist to restore: a reason a reader can read and a code a gate can
+    // find are two different obligations, and seven labs carried `data-apply-failure` with nothing
+    // driving it.
+    codes: [...c.querySelectorAll("[data-refusal-code]")]
+      .map((e) => e.getAttribute("data-refusal-code") ?? "")
+      .filter((x) => x !== ""),
+    // `data-apply-failure` ONLY, for the conversion assertion. The first version keyed on
+    // `data-refusal-code` and found fifteen labs, because the WORKER-refusal surface carries that
+    // attribute too and has for some time - a true measurement of a different property. This attribute
+    // is written only by the form-validation surface the am-ig23 conversions create, so it is the one
+    // that can tell a converted lab from an unconverted one.
+    applyFailures: [...c.querySelectorAll("[data-apply-failure]")]
+      .map((e) => e.getAttribute("data-apply-failure") ?? "")
+      .filter((x) => x !== ""),
     alerts: [...c.querySelectorAll('[role="alert"], .notice.error, .error, .form-error')]
       .map((e) => (e.textContent ?? "").trim())
       .filter(Boolean)
@@ -175,6 +191,10 @@ async function probe(c: HTMLElement, i: number, value: string) {
     // Only a refusal that appeared or changed for this value counts.
     refusal: after.alerts !== "" && after.alerts !== before.alerts,
     marked: KEPT.test(after.alerts),
+    // Only a code that was not already on the page before this value: the worker-refusal surface can
+    // carry one from an earlier state, and crediting that would make an unconverted lab look converted.
+    coded: after.codes.filter((x) => !before.codes.includes(x)),
+    applyFailed: after.applyFailures.length > before.applyFailures.length,
     raw: [...new Set(after.text.match(RAW) ?? [])].filter((h) => !before.text.includes(h)),
   } as const;
 }
@@ -195,6 +215,8 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
   const unmarked: Record<string, string[]> = {};
   let refusals = 0;
   let marked = 0;
+  const codedRoutes = new Set<string>();
+  const typedSurfaceRoutes = new Set<string>();
   const untyped: string[] = [];
   let typed = 0;
 
@@ -268,6 +290,12 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
               refusals++;
               if (r.marked) marked++;
               else plain.push(`${name}=${JSON.stringify(v)}`);
+              // AFTER the pair above, not between them. Inserted in the middle, this statement stole the
+              // `else` from `if (r.marked)` and `plain` then collected every refusal that carried no
+              // code - 17 findings on bm-02 alone, a lab this change does not touch. A dangling else is
+              // what an inserted line does to the construct it lands inside.
+              if (r.coded.length > 0) codedRoutes.add(route);
+              if (r.applyFailed) typedSurfaceRoutes.add(route);
             }
           }
         }
@@ -302,10 +330,57 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
         .map(([r]) => r)
         .join(", ")}`,
     );
+    console.log(
+      `[form sweep] refusals carrying data-refusal-code, by lab: ${[...codedRoutes].sort().join(", ") || "NONE"}`,
+    );
     expect(typed).toBeGreaterThan(400);
     // The mark is found somewhere, so a pattern that could never match would not pass as a clean run.
     expect(marked).toBeGreaterThan(0);
     // SR-05 is driven by buttons alone. Any other lab with nothing to type means the sweep lost it.
     expect(untyped).toEqual(["sr-05"]);
+  });
+
+  /**
+   * THE TYPED REFUSAL SURFACE, DRIVEN (am-ig23).
+   *
+   * Seven laboratories render `data-refusal-code` and `data-apply-failure` on a refusal raised while
+   * validating the form, and until now NOTHING asserted that any of them appears. The conversions were
+   * verified by typecheck and by the suites staying green, which establishes that the code compiles and
+   * not that a reader ever sees a code - the exact gap between a refusal existing and a refusal being
+   * delivered.
+   *
+   * An EXACT SET rather than a count, for the same reason the flattening list is one: a lab that loses
+   * its typed surface in a refactor fails here by name, and a lab that gains one fails too, which is
+   * what makes adding it to this list a deliberate act. The list only grows as conversions land.
+   *
+   * The codes counted are only those NOT already on the page before the value was typed, so a
+   * worker-refusal surface carrying one from an earlier state cannot make an unconverted lab read as
+   * converted.
+   */
+  /**
+   * The labs whose FORM-validation refusal renders the typed surface, measured 2026-10-06 by the sweep
+   * above and written down afterwards, not predicted.
+   *
+   * Seven, and they correspond one-for-one with the seven source files carrying `data-apply-failure`:
+   * TracerLab (bm-01), WalkLab (bm-05), BrownianLab (bm-06), InferenceLab (bm-07), CameraLab (bm-08),
+   * RodSimultaneityLab (sr-03) and VelocityCompositionLab (sr-06). That correspondence is the point - it
+   * says the attribute a reader's browser receives is the one the component declares, which neither a
+   * typecheck nor a grep of the source can establish.
+   *
+   * THE LIST ONLY GROWS. A lab that loses its typed surface in a refactor fails here by name, and a lab
+   * that gains one fails too, so adding a line is a deliberate act taken when a conversion lands rather
+   * than a number that drifts.
+   */
+  const RECORDED_TYPED_SURFACE = ["bm-01", "bm-05", "bm-06", "bm-07", "bm-08", "sr-03", "sr-06"];
+  test("every lab converted to keep a typed refusal renders it to the reader", () => {
+    console.log(
+      `[form sweep] form-validation refusals carrying data-apply-failure, by lab: ${
+        [...typedSurfaceRoutes].sort().join(", ") || "NONE"
+      }`,
+    );
+    // Non-vacuity first: a selector that matched nothing would make the set below trivially equal to an
+    // empty recorded list and read as a clean run.
+    expect(typedSurfaceRoutes.size).toBeGreaterThan(0);
+    expect([...typedSurfaceRoutes].sort()).toEqual(RECORDED_TYPED_SURFACE);
   });
 });

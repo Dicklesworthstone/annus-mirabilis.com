@@ -25,6 +25,12 @@ import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { FRANKENSIM_DIFFUSION_ENGINE_SENTENCE } from "../../experiments/provenance/pinnedFrankenSim.ts";
+import {
+  type ApplyFailure,
+  applyFailure,
+  failureCode,
+  failureFromThrown,
+} from "../../experiments/results/applyFailure.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import { SessionResultWeave } from "../../reader/weave/SessionResultWeave.tsx";
 import { BM06_READER_WEAVE } from "../../reader/weave/spreadingPassages.ts";
@@ -93,7 +99,7 @@ export function BrownianLab({
   const [draft, setDraft] = useState(() => toDraft(example.parameters));
   const [ready, setReady] = useState(false),
     [dirty, setDirty] = useState(false);
-  const [error, setError] = useState(""),
+  const [failure, setFailure] = useState<ApplyFailure | null>(null),
     [linkNote, setLinkNote] = useState("");
   const [sharedUrl, setSharedUrl] = useState("");
   useEffect(() => {
@@ -109,20 +115,22 @@ export function BrownianLab({
     return () => session.disconnect();
   }, [session]);
   function reflectRequest(outcome: ReturnType<typeof session.apply>) {
+    // THE REFUSAL IS KEPT (am-ig23). Flattening it here cost the code, the ranked repairs and the
+    // staleness marking, while this same file's worker-refusal surface carried all three - two paths
+    // disagreeing about the same refusal inside one component.
+    //
+    // The `kind !== "accepted"` test stays as the guard rather than `if (applyFailure(outcome))`,
+    // because it is what narrows `outcome` for the `outcome.data.parameters` read below. Discriminating
+    // through a helper returns the failure but tells TypeScript nothing about the outcome.
     if (outcome.kind !== "accepted") {
-      setError(
-        outcome.kind === "refused"
-          ? typeof outcome.refusal.details?.requirements === "string"
-            ? outcome.refusal.details.requirements
-            : outcome.refusal.message
-          : outcome.outcome.message,
-      );
+      const failed = applyFailure(outcome);
+      if (failed) setFailure(failed);
       return;
     }
     // The worker has not accepted this result yet. Copy the issued request, not the
     // previous accepted parameters: otherwise the next edit silently loses copied D.
     setDraft(toDraft(outcome.data.parameters as Bm06Parameters));
-    setError("");
+    setFailure(null);
     setDirty(false);
     setLinkNote("");
   }
@@ -134,13 +142,13 @@ export function BrownianLab({
     try {
       apply(fromDraft(draft));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Check the entered settings.");
+      setFailure(failureFromThrown(e, "Check the entered settings."));
     }
   }
   function preset(parameters: Bm06Parameters) {
     setDraft(toDraft(parameters));
     setDirty(true);
-    setError("");
+    setFailure(null);
   }
   function copyDiffusivity() {
     if (!externalDiffusivitySource || dirty || view.pending) return;
@@ -220,7 +228,7 @@ export function BrownianLab({
         <form
           onSubmit={submit}
           aria-label="Brownian laboratory settings"
-          aria-describedby={error ? `${id}-error` : undefined}
+          aria-describedby={failure ? `${id}-error` : undefined}
         >
           <fieldset disabled={!ready}>
             <legend>Set up the question</legend>
@@ -371,10 +379,40 @@ export function BrownianLab({
               Unapplied settings. Results still describe the accepted settings shown beside them.
             </p>
           )}
-          {error && (
-            <p id={`${id}-error`} role="alert" className="notice error">
-              {error} {KEPT_RESULT}
-            </p>
+          {failure && (
+            /**
+             * THE TYPED SURFACE (am-ig23). The `id` is kept exactly as it was, because the diffusivity
+             * field's `aria-describedby` points at it: renaming the element would have detached the
+             * refusal from the control it is about, which is a worse accessibility regression than the
+             * missing code this change is fixing.
+             */
+            <div
+              id={`${id}-error`}
+              role="alert"
+              className="notice error"
+              data-refusal-code={failureCode(failure)}
+              data-apply-failure={failure.kind}
+            >
+              <p>
+                {failure.text} {KEPT_RESULT}
+              </p>
+              {failure.kind === "refused"
+                ? failure.refusal.rankedRepairs.map((repair) => {
+                    const action = repair.action;
+                    if (!action) return null;
+                    return (
+                      <button
+                        key={`validation-${action.parameterId}-${repair.label}`}
+                        type="button"
+                        className="secondary"
+                        onClick={() => apply({ ...p, [action.parameterId]: action.value })}
+                      >
+                        {repair.label}
+                      </button>
+                    );
+                  })
+                : null}
+            </div>
           )}
         </form>
         <div className="lab-results" {...identity(snapshot)}>
@@ -522,7 +560,11 @@ export function BrownianLab({
           <GridComparison snapshot={snapshot} />
         </div>
       )}
-      <SessionResultWeave session={session} binding={BM06_READER_WEAVE} suspended={Boolean(error)} />
+      <SessionResultWeave
+        session={session}
+        binding={BM06_READER_WEAVE}
+        suspended={Boolean(failure)}
+      />
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
           children of the lab root, which labShell.css's detail rules select. */}
       {readings && (
