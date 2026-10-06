@@ -303,7 +303,7 @@ describe("Facsimile Page Anchor Quality Gate (am-cf6m)", () => {
         verifiedAnchor: { parentPageIndex: 20, printedPage: 10, verifiedBy: "human:reviewer" },
       });
 
-    test("a config directory that does not exist refuses with INVALID_CONFIG (verify-facsimile-anchors.ts:57)", () => {
+    test("a config directory that does not exist refuses with INVALID_CONFIG (verify-facsimile-anchors.ts:58)", () => {
       const absent = path.join(os.tmpdir(), `am-anchor-absent-${process.pid}-${Date.now()}`);
       expect(fs.existsSync(absent)).toBe(false);
 
@@ -323,7 +323,7 @@ describe("Facsimile Page Anchor Quality Gate (am-cf6m)", () => {
       expect(report.results[absent]?.errors[0]).not.toContain("Failed to read or parse YAML");
     });
 
-    test("a key matching no config refuses with INVALID_CONFIG (verify-facsimile-anchors.ts:84)", () => {
+    test("a key matching no config refuses with INVALID_CONFIG (verify-facsimile-anchors.ts:85)", () => {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), "am-anchor-nokey-"));
       fs.writeFileSync(path.join(dir, "ap-17-132.yaml"), validConfigYaml());
 
@@ -352,7 +352,7 @@ describe("Facsimile Page Anchor Quality Gate (am-cf6m)", () => {
       fs.rmSync(dir, { recursive: true, force: true });
     });
 
-    test("a config whose YAML will not parse refuses with INVALID_CONFIG (verify-facsimile-anchors.ts:112)", () => {
+    test("a config whose YAML will not parse refuses with INVALID_CONFIG (verify-facsimile-anchors.ts:113)", () => {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), "am-anchor-badyaml-"));
       // An unterminated flow sequence followed by a bare colon: js-yaml raises rather than
       // returning a partial document, which is the only way to reach the catch arm.

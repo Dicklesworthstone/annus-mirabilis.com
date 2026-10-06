@@ -161,7 +161,7 @@ describe("App Router Architecture Gate", () => {
   });
 
   describe("Rule 2: Second App Router root and special files", () => {
-    it("rejects root-level app/page.tsx (app-router-architecture.ts:204)", () => {
+    it("rejects root-level app/page.tsx (app-router-architecture.ts:205)", () => {
       const entries: RepoEntry[] = [{ path: "app/page.tsx", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.ok(violations.length >= 1);
@@ -170,7 +170,7 @@ describe("App Router Architecture Gate", () => {
       );
     });
 
-    it("rejects src/other/layout.tsx (app-router-architecture.ts:217)", () => {
+    it("rejects src/other/layout.tsx (app-router-architecture.ts:218)", () => {
       const entries: RepoEntry[] = [{ path: "src/other/layout.tsx", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
@@ -187,7 +187,7 @@ describe("App Router Architecture Gate", () => {
       assert.equal(at(violations, 0).path, "src/reader/route.ts");
     });
 
-    it("rejects docs/site/next.config.mjs (app-router-architecture.ts:228)", () => {
+    it("rejects docs/site/next.config.mjs (app-router-architecture.ts:229)", () => {
       const entries: RepoEntry[] = [{ path: "docs/site/next.config.mjs", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
@@ -206,7 +206,7 @@ describe("App Router Architecture Gate", () => {
       assert.deepEqual(violations, []);
     });
 
-    it("rejects pages directory under ios/ (e.g. ios/App/pages/index.swift) (app-router-architecture.ts:240)", () => {
+    it("rejects pages directory under ios/ (e.g. ios/App/pages/index.swift) (app-router-architecture.ts:241)", () => {
       const entries: RepoEntry[] = [{ path: "ios/App/pages/index.swift", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
@@ -242,7 +242,7 @@ describe("App Router Architecture Gate", () => {
   });
 
   describe("Rule 4: Root allowlist", () => {
-    it("fails on unignored root scratch.ts (app-router-architecture.ts:277)", () => {
+    it("fails on unignored root scratch.ts (app-router-architecture.ts:278)", () => {
       const entries: RepoEntry[] = [{ path: "scratch.ts", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
@@ -293,7 +293,7 @@ describe("App Router Architecture Gate", () => {
       assert.deepEqual(violationsAfter, []);
     });
 
-    it("handles root sources/ directory: passes when ignored, fails when not ignored (app-router-architecture.ts:265)", () => {
+    it("handles root sources/ directory: passes when ignored, fails when not ignored (app-router-architecture.ts:266)", () => {
       const entries: RepoEntry[] = [{ path: "sources", kind: "directory" }];
 
       // Ignored: passes

@@ -1420,15 +1420,13 @@ export async function main(
     // refusal above already catches 0; this adds a FLOOR, because six pinned facsimiles means a run
     // that found two is reading the wrong directory, and that is indistinguishable from a clean run by
     // reading the final line. Measured 2026-10-06: 6 configurations.
-    if (
-      reportPopulation({
-        gate: "facsimile-config",
-        examined: checked,
-        noun: "facsimile source configurations",
-        minimum: 4,
-      })
-    )
-      return finish(4);
+    const belowFloor = reportPopulation({
+      gate: "facsimile-config",
+      examined: checked,
+      noun: "facsimile source configurations",
+      minimum: 4,
+    });
+    if (configPopulationRefuses(belowFloor, configDir)) return finish(4);
     return finish(0);
   }
 
@@ -1587,4 +1585,35 @@ if (isMainModule) {
     console.error("Fatal error:", err);
     process.exit(1);
   });
+}
+
+/**
+ * WHOSE CORPUS THE FLOOR IS ABOUT (am-ksl3, found by its own ratchet).
+ *
+ * The census floor of four says that a run finding two configurations is reading the WRONG directory,
+ * and that is a claim about THIS repository's pinned corpus. `--config-dir` is documented interface:
+ * a caller who names a directory has not read the wrong one by accident, they have asked a different
+ * question, and a floor derived from the default corpus does not answer it.
+ *
+ * I got this wrong when the floor landed. The CLI test points `--check-config` at a one-config fixture
+ * and asserts 0; the floor returned 4, and that red sat in the shared tree for hours because the
+ * commit that added it was verified by running the gate rather than the gate's tests. A population
+ * floor belongs to the population it was measured on.
+ *
+ * It does NOT weaken the gate: the registry step invokes this with no override, so the floor still
+ * binds the only run that is a gate. Nothing is lost from an overridden run either, because the census
+ * LINE prints either way - the measurement survives and only the verdict is scoped. The emptiness
+ * refusal is deliberately NOT scoped: zero configurations is a wrong path in any directory.
+ *
+ * AND IT LIVES AT THE END OF THE FILE ON PURPOSE. This file's refusal sites are cited BY LINE NUMBER
+ * from its test (the `(download-facsimiles.ts:NNN)` convention), so inserting anything above them
+ * silently invalidates every citation below and withdraws the credit the tests had earned. That is how
+ * this very bug was found: three gate commits each added one import line near the top, which moved 55
+ * citations by one and took the untested count from 7 to 33 with no stale-citation finding to explain
+ * it. Writing this helper near `checkAllConfigs`, where it belongs by subject, moved 22 sites by 24
+ * lines and did it a second time inside an hour. New top-level code in this file goes at the bottom
+ * until line citations stop being the credit mechanism.
+ */
+export function configPopulationRefuses(belowFloor: boolean, configDir?: string): boolean {
+  return belowFloor && configDir === undefined;
 }

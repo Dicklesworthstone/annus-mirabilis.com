@@ -231,7 +231,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       assert.ok(finding?.message.includes("207-445"), `must contain ${String("207-445")}`);
     });
 
-    test("a declared LAST index that disagrees while the first agrees (verify-facsimile-pins.ts:400)", () => {
+    test("a declared LAST index that disagrees while the first agrees (verify-facsimile-pins.ts:401)", () => {
       // The two parent-folio-offset-mismatch sites are separate arms and only one had a
       // test. They differ in what a reader has to do about them: a wrong FIRST index means
       // the window starts in the wrong place, and a wrong LAST index with a right first
@@ -691,7 +691,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       fs.writeFileSync(full, bytes);
     }
 
-    test("a config with no pinned artifact at all (verify-facsimile-pins.ts:859)", () => {
+    test("a config with no pinned artifact at all (verify-facsimile-pins.ts:860)", () => {
       const config = baseConfig();
       delete (config as { pinned?: unknown }).pinned;
       const root = tempRoot("no-pinned");
@@ -705,19 +705,19 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       assert.match(String(mine[0]?.message), /records no pinned artifact/);
     });
 
-    test("a pinned artifact with no parent record (verify-facsimile-pins.ts:867)", () => {
+    test("a pinned artifact with no parent record (verify-facsimile-pins.ts:868)", () => {
       const config = baseConfig();
       delete ((config as { pinned: Record<string, unknown> }).pinned as { parent?: unknown })
         .parent;
       assert.ok(codesFrom(config, tempRoot("no-parent-record")).includes("parent-record-missing"));
     });
 
-    test("a config declaring no printed range or parent page indices (verify-facsimile-pins.ts:882)", () => {
+    test("a config declaring no printed range or parent page indices (verify-facsimile-pins.ts:883)", () => {
       const config = baseConfig({ articlePages: {} });
       assert.ok(codesFrom(config, tempRoot("no-range")).includes("invalid-config"));
     });
 
-    test("a pinned PDF that is not on disk (verify-facsimile-pins.ts:896)", () => {
+    test("a pinned PDF that is not on disk (verify-facsimile-pins.ts:897)", () => {
       // The temp root is empty, so the recorded path resolves to nothing.
       const root = tempRoot("absent-extract");
       assert.ok(codesFrom(baseConfig(), root).includes("pinned-pdf-unavailable"));
@@ -730,7 +730,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       assert.match(String(mine[0]?.message), /is not on disk/);
     });
 
-    test("a parent scan that is not on disk (verify-facsimile-pins.ts:903)", () => {
+    test("a parent scan that is not on disk (verify-facsimile-pins.ts:904)", () => {
       // The extract exists and the parent does not: this is the CI condition, and it
       // must name the parent rather than the extract.
       const root = tempRoot("absent-parent");
@@ -743,7 +743,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       );
     });
 
-    test("a pinned PDF whose bytes are not the recorded digest (verify-facsimile-pins.ts:929)", {
+    test("a pinned PDF whose bytes are not the recorded digest (verify-facsimile-pins.ts:930)", {
       skip: toolGated,
     }, () => {
       const root = tempRoot("extract-digest");
@@ -752,7 +752,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       assert.ok(codesFrom(baseConfig(), root).includes("pinned-digest-conflict"));
     });
 
-    test("a parent scan whose bytes are not the recorded digest (verify-facsimile-pins.ts:977)", {
+    test("a parent scan whose bytes are not the recorded digest (verify-facsimile-pins.ts:978)", {
       skip: toolGated,
     }, () => {
       // The extract's digest is made to match so the parent is the only conflict left,
@@ -1050,13 +1050,13 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       throw new Error("the measurement succeeded where it was required to refuse");
     }
 
-    test("pdfinfo refusing a file that is not a PDF (verify-facsimile-pins.ts:654)", () => {
+    test("pdfinfo refusing a file that is not a PDF (verify-facsimile-pins.ts:655)", () => {
       const refusal = refusalFrom(() => pdfPageCount(notAPdf("pdfinfo-nonpdf")));
       assert.equal(refusal.code, "page-render-failed");
       assert.match(refusal.message, /pdfinfo failed/);
     });
 
-    test("pdfinfo succeeding without reporting a page count (verify-facsimile-pins.ts:661)", () => {
+    test("pdfinfo succeeding without reporting a page count (verify-facsimile-pins.ts:662)", () => {
       // A separate arm from the one above and unreachable through a real pdfinfo, which
       // always prints Pages: on success. A stub that exits 0 silently is the only way to
       // produce it, and the arm exists because "exit 0" is not the same as "answered".
@@ -1070,7 +1070,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       assert.match(refusal.message, /did not report a page count/);
     });
 
-    test("pdftoppm present but not runnable (verify-facsimile-pins.ts:693)", () => {
+    test("pdftoppm present but not runnable (verify-facsimile-pins.ts:694)", () => {
       // Present and not executable: a spawn error that is NOT ENOENT. This is the state
       // am-yf6h was in, and the refusal must not claim the tool is missing.
       const dir = scratch("pdftoppm-unrunnable");
@@ -1085,13 +1085,13 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       );
     });
 
-    test("pdftoppm running and producing no page (verify-facsimile-pins.ts:699)", () => {
+    test("pdftoppm running and producing no page (verify-facsimile-pins.ts:700)", () => {
       const refusal = refusalFrom(() => renderPageHash(notAPdf("pdftoppm-nonpdf"), 1));
       assert.equal(refusal.code, "page-render-failed");
       assert.match(refusal.message, /could not render page 1/);
     });
 
-    test("pdftotext present but not runnable (verify-facsimile-pins.ts:722)", () => {
+    test("pdftotext present but not runnable (verify-facsimile-pins.ts:723)", () => {
       const dir = scratch("pdftotext-unrunnable");
       fs.writeFileSync(path.join(dir, "pdftotext"), "#!/bin/sh\nexit 0\n", { mode: 0o644 });
       const refusal = withOnlyPath(dir, () =>
@@ -1101,13 +1101,13 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       assert.ok(!refusal.message.includes("not available on PATH"), refusal.message);
     });
 
-    test("pdftotext refusing a file that is not a PDF (verify-facsimile-pins.ts:728)", () => {
+    test("pdftotext refusing a file that is not a PDF (verify-facsimile-pins.ts:729)", () => {
       const refusal = refusalFrom(() => pdfPageTexts(notAPdf("pdftotext-nonpdf")));
       assert.equal(refusal.code, "page-render-failed");
       assert.match(refusal.message, /pdftotext failed/);
     });
 
-    test("a pinned PDF holding a different number of pages than the record says (verify-facsimile-pins.ts:939)", () => {
+    test("a pinned PDF holding a different number of pages than the record says (verify-facsimile-pins.ts:940)", () => {
       // A real PDF with correct digests and a wrong page count: the one artifact check
       // that needs the tools AND a genuine file, so it could not be reached from the
       // synthetic configs in 5b. ap-34-591 is used because it is the smallest pin.
@@ -1149,7 +1149,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       assert.ok(!codes.includes("parent-digest-conflict"), codes.join(", "));
     });
 
-    test("a measurement that fails for a reason the gate has no code for (verify-facsimile-pins.ts:954)", () => {
+    test("a measurement that fails for a reason the gate has no code for (verify-facsimile-pins.ts:955)", () => {
       // The catch-all. Everything above produces a typed PinMeasurementError; this arm is
       // what happens when something else throws inside the measurement block, and without
       // it an unreadable file would surface as an untyped crash rather than a finding.
@@ -1195,7 +1195,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       }
     });
 
-    test("the PARENT measurement failing for a reason the gate has no code for (verify-facsimile-pins.ts:1049)", () => {
+    test("the PARENT measurement failing for a reason the gate has no code for (verify-facsimile-pins.ts:1050)", () => {
       // The OTHER catch-all, and the one site in this file that no test drove. 954 and 1049 are
       // structurally identical blocks emitting the same code AND the same message shape, so a
       // citation alone cannot tell them apart and a single arm pointed at either would read as
@@ -1337,7 +1337,7 @@ describe("the six undriven refusal sites", () => {
     c: "c".repeat(64),
   };
 
-  test("(verify-facsimile-pins.ts:277) only the FIRST page differs, so only the first site speaks", () => {
+  test("(verify-facsimile-pins.ts:278) only the FIRST page differs, so only the first site speaks", () => {
     const findings = evaluateContentIdentity({
       key: "ap-99-001",
       declaredFirstIndex: 83,
@@ -1355,7 +1355,7 @@ describe("the six undriven refusal sites", () => {
     assert.match(String(findings[0]?.message), /parent page 83/);
   });
 
-  test("(verify-facsimile-pins.ts:289) only the LAST page differs, so only the second site speaks", () => {
+  test("(verify-facsimile-pins.ts:290) only the LAST page differs, so only the second site speaks", () => {
     const findings = evaluateContentIdentity({
       key: "ap-99-001",
       declaredFirstIndex: 83,
@@ -1388,7 +1388,7 @@ describe("the six undriven refusal sites", () => {
     );
   });
 
-  test("(verify-facsimile-pins.ts:387) the parent's own text layer contradicts the declared first index", () => {
+  test("(verify-facsimile-pins.ts:388) the parent's own text layer contradicts the declared first index", () => {
     // 200 folio observations at a uniform offset of 9 put printed page 1 at parent page 10. The
     // config declares 11, so the parent's own text layer and the config disagree about where the
     // same printed page is. The vote count has to clear extractVoteFloor or the consensus is
@@ -1430,7 +1430,7 @@ describe("the six undriven refusal sites", () => {
     );
   });
 
-  test("(verify-facsimile-pins.ts:637) a tool that exists but cannot be started is NOT reported as missing", () => {
+  test("(verify-facsimile-pins.ts:638) a tool that exists but cannot be started is NOT reported as missing", () => {
     // A real EACCES, not a mock: a file that exists and is not executable. The distinction this
     // site exists for is that "the tool is absent" and "this process could not launch it" are
     // different facts, and only the first is evidence about the host's toolchain.
@@ -1461,7 +1461,7 @@ describe("the six undriven refusal sites", () => {
     );
   });
 
-  test("(verify-facsimile-pins.ts:859) a config with no pinned record has nothing to verify", () => {
+  test("(verify-facsimile-pins.ts:860) a config with no pinned record has nothing to verify", () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), "am-r3qt-nopin-"));
     const result = verifyPin(
       {
@@ -1475,7 +1475,7 @@ describe("the six undriven refusal sites", () => {
     assert.match(String(mine[0]?.message), /records no pinned artifact/);
   });
 
-  test("(verify-facsimile-pins.ts:896) a pinned record whose PDF is not on disk names the path", () => {
+  test("(verify-facsimile-pins.ts:897) a pinned record whose PDF is not on disk names the path", () => {
     // Distinguished from :859 by the message, because the two sites share a code: this one has a
     // pinned record and the file is missing, that one has no record at all.
     const root = fs.mkdtempSync(path.join(os.tmpdir(), "am-r3qt-nofile-"));
