@@ -31,6 +31,10 @@ pathIgnorePatterns = [
   "src/testing/a11y/actionContractsRendered.node.test.ts",
   # am-ig23: reads `git ls-files`, which bun's runner cannot posix_spawn here.
   "src/testing/refusals/flattenedRefusals.test.ts",
+  # am-uxh9: bun CAN run this one. It is here for lane independence, the same reason the gate-census
+  # entries above are: it asserts a property of every registry step, and `bun run test` is one of
+  # them, so a proof living only in the bun lane disappears at the moment that lane fails open.
+  "scripts/quality-gates/gatesPersistEvidence.node.test.ts",
   "src/testing/a11y/accessibleNamesBrowser.test.mjs",
   "src/testing/a11y/noScriptControls.browser.test.mjs",
   "src/testing/styles/computedStylesLayout.test.ts",
