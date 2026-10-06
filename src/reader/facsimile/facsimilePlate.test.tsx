@@ -217,4 +217,74 @@ describe("the controller keeps the plate on the selected page", () => {
     );
     unmount();
   });
+
+  /**
+   * COPYING THE LINK WITHOUT A CLIPBOARD (am-r3qt). controller.ts line 132 throws
+   * "clipboard-unavailable" when navigator.clipboard.writeText is missing, and catches it
+   * immediately: the throw is a control-flow device, and the behaviour that matters is the
+   * FALLBACK it reaches - the share field is focused and selected and the reader is told, in
+   * words, that clipboard access is not required.
+   *
+   * That path is what a reader gets on a browser that withholds the Clipboard API, or over
+   * plain http where it is unavailable by origin. No test clicked the share button before this
+   * one, so the fallback had never run.
+   *
+   * THESE CASES DO NOT DRIVE THE THROW, and planting says so: replacing the guard with
+   * `if (false)` leaves both green. With no clipboard, reading `.writeText` off an undefined
+   * `navigator.clipboard` throws a TypeError into the SAME catch, so the explicit throw and the
+   * accident produce identical behaviour and removing it is unobservable. The guard is redundant
+   * with the failure it anticipates - which is a reason to record it, not to delete it: it states
+   * the intent, and the TypeError does not.
+   *
+   * So what is paid here is the FALLBACK BEHAVIOUR, which is reader-facing and was untested, not
+   * the throw site. The site stays on am-r3qt's list as category 3 with this as its reason.
+   */
+  test("without a clipboard the link is selected and the reader is told copying is manual", async () => {
+    const { root, unmount, status, click } = await mounted();
+    const field = root.querySelector<HTMLInputElement>("[data-facsimile-share-url]");
+    expect(field).not.toBeNull();
+    // happy-dom DOES provide a Clipboard API, which I assumed it did not until this assertion
+    // caught me. So the condition under test has to be created: the API is removed for this case
+    // and put back afterwards. Asserted before and after, because a case that silently failed to
+    // remove it would take the success path and still find the status it was looking for.
+    expect(window.navigator.clipboard?.writeText).toBeInstanceOf(Function);
+    const real = window.navigator.clipboard;
+    Object.defineProperty(window.navigator, "clipboard", { configurable: true, value: undefined });
+    try {
+      expect(window.navigator.clipboard?.writeText).toBeUndefined();
+      click("[data-facsimile-share]");
+      await Promise.resolve();
+      expect(status()).toContain("Clipboard access is not required");
+      expect(window.document.activeElement).toBe(field);
+    } finally {
+      Object.defineProperty(window.navigator, "clipboard", { configurable: true, value: real });
+      unmount();
+    }
+  });
+
+  test("with a clipboard the link is copied and the status says so", async () => {
+    // The negative: a control that always took the fallback would pass the case above. A minimal
+    // writeText is installed for this case only and removed afterwards.
+    const { root, unmount, status, click } = await mounted();
+    const written: string[] = [];
+    const real = window.navigator.clipboard;
+    Object.defineProperty(window.navigator, "clipboard", {
+      configurable: true,
+      value: { writeText: async (text: string) => void written.push(text) },
+    });
+    try {
+      click("[data-facsimile-share]");
+      await Promise.resolve();
+      await Promise.resolve();
+      expect(written.length).toBe(1);
+      expect(written[0]).toBe(
+        root.querySelector<HTMLInputElement>("[data-facsimile-share-url]")?.value,
+      );
+      expect(status()).toContain("copied");
+      expect(status()).not.toContain("Clipboard access is not required");
+    } finally {
+      Object.defineProperty(window.navigator, "clipboard", { configurable: true, value: real });
+      unmount();
+    }
+  });
 });
