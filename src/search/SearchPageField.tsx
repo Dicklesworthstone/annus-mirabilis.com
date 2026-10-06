@@ -66,6 +66,9 @@ export function SearchPageField() {
           ⌘ / Ctrl K
         </span>
       </button>
+      <p className="fine">
+        <a href="/search/results/">Open full-page search with filters and shareable results</a>
+      </p>
       <p className="search-launch-status fine" role="status">
         {failed ? "Search could not open. Every entry is listed below." : ""}
       </p>

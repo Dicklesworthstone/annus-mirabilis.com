@@ -1,0 +1,61 @@
+.full-search {
+  max-inline-size: 58rem;
+}
+.full-search form > label,
+.full-search-filters label {
+  display: block;
+  font-weight: 600;
+}
+.full-search input,
+.full-search select {
+  display: block;
+  box-sizing: border-box;
+  inline-size: 100%;
+  min-block-size: 44px;
+  margin-block-start: 0.4rem;
+  padding: 0.6rem;
+  font: inherit;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--line);
+}
+.full-search :focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+.full-search-filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-block: 1rem;
+}
+.full-search-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.full-search-actions button {
+  min-block-size: 44px;
+}
+.full-search-results {
+  list-style: none;
+  padding: 0;
+}
+.full-search-results li {
+  margin-block: 1.5rem;
+  padding-block-end: 1rem;
+  border-block-end: 1px solid currentColor;
+  overflow-wrap: anywhere;
+}
+.full-search-results h2 {
+  font-size: 1.15rem;
+  margin-block-end: 0.35rem;
+}
+.full-search-results p {
+  margin-block: 0.35rem;
+}
+@media (max-width: 580px) {
+  .full-search-filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

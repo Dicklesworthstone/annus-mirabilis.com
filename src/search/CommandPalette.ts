@@ -7,6 +7,7 @@ import {
   searchResultHref,
 } from "./core.ts";
 import { type LoadedSearch, searchIndexLoader } from "./loadIndex.ts";
+import { searchResultsHref } from "./searchLocation.ts";
 import { TYPE_LABELS } from "./typeLabels.ts";
 
 let sequence = 0;
@@ -138,9 +139,14 @@ export function openCommandPalette(
   retry.hidden = true;
   const browse = element("a", "Browse the papers and outlines instead");
   browse.href = "/papers/";
+  const fullPage = element("a", "Open full-page results (link includes query and filters)");
+  fullPage.className = "search-full-page";
+  const fullPageRow = element("p");
+  fullPageRow.append(fullPage);
+  fullPageRow.hidden = true;
   const help = element(
     "p",
-    "Use Up and Down to select a result, Enter to open it, or Escape to return to your reading.",
+    "Use Up and Down to select a result, Enter to open it, or Escape to return to your reading. Use double quotes to match adjacent words.",
     "fine search-keyboard-help",
   );
   dialog.append(
@@ -154,6 +160,7 @@ export function openCommandPalette(
     results,
     retry,
     help,
+    fullPageRow,
     browse,
   );
 
@@ -181,6 +188,8 @@ export function openCommandPalette(
     } else input.removeAttribute("aria-activedescendant");
   }
   function clearResults() {
+    fullPageRow.hidden = true;
+    fullPage.removeAttribute("href");
     resultListeners.abort();
     resultListeners = new AbortController();
     hits = [];
@@ -203,6 +212,15 @@ export function openCommandPalette(
         ? `${loaded.engine.size} entries available. Try “clocks disagree”, “Avogadro”, or “mean square”.`
         : "Nothing in this version of the site can be searched yet. The papers page shows what is ready to read.";
       return;
+    }
+    const href = searchResultsHref({
+      query: input.value,
+      paper: paper.value,
+      type: type.value as SearchType | "",
+    });
+    if (href) {
+      fullPage.href = href;
+      fullPageRow.hidden = false;
     }
     const found = loaded.engine.search(input.value, {
       ...(paper.value ? { paper: paper.value } : {}),
