@@ -55,6 +55,24 @@ export type CensusRecord = Readonly<{
    * spot.
    */
   populationMayBeEmpty?: Readonly<{ reason: string }>;
+  /**
+   * FOR A GATE THAT RUNS A THIRD-PARTY TOOL, whose output this repository does not author.
+   *
+   * `lint` is biome, `unit-tests` is bun's runner. Neither can be made to print the census line, and
+   * wrapping them would mean changing the registry's command for steps every pane runs - a shared risk
+   * for a reporting improvement. They do, however, each print their own population: "Checked 7 files in
+   * 6ms", "Ran 19 tests across 1 file". So the census extracts the count from the tool's own wording
+   * instead, which keeps it a READER rather than a trusting consumer.
+   *
+   * That wording is the exact subject of the AGENTS.md incident this census exists for: biome printed
+   * "Checked 0 files in 1629µs" because zsh did not word-split an unquoted variable, the chain continued,
+   * and "biome clean on all four" went into a commit message. A census that reads this number would have
+   * refused that run.
+   *
+   * `pattern` is a regular expression source with ONE capture group holding the count, stored as a
+   * string so a record stays data. A pattern that does not match is a finding, never a zero.
+   */
+  toolPopulation?: Readonly<{ pattern: string; noun: string; minimum: number; why: string }>;
 }>;
 
 /** The plant every adopting gate shares: raise its own declared floor out of reach. */
@@ -141,6 +159,90 @@ export const CENSUS_RECORDS: readonly CensusRecord[] = [
       "fraction of one total marks a correct single-paper run vacuous.",
     gateRefusesVacuous: true,
     plants: [],
+  },
+  {
+    gate: "lint",
+    noun: "files checked by biome",
+    howRead:
+      "Parsed from biome's own summary line, because this gate runs a third-party tool. See " +
+      "toolPopulation below.",
+    gateRefusesVacuous: false,
+    plants: [],
+    toolPopulation: {
+      pattern: String.raw`Checked (\d+) files? in`,
+      noun: "files checked by biome",
+      // Measured 2026-10-06 over the repository: biome checks several thousand files. The floor is 500,
+      // which no partial invocation reaches and every real repo-wide run clears.
+      minimum: 500,
+      why:
+        "biome's output is not ours to change, and wrapping it would mean changing the registry command " +
+        "for a step every pane runs. Its 'Checked N files' line is the number AGENTS.md's first recorded " +
+        "instance turned on: 'Checked 0 files in 1629µs', from an unquoted variable zsh did not " +
+        "word-split, after which 'biome clean on all four' went into a commit message.",
+    },
+  },
+  {
+    gate: "format-check",
+    noun: "files checked by biome",
+    howRead: "Parsed from biome's own summary line, as for `lint`.",
+    gateRefusesVacuous: false,
+    plants: [],
+    toolPopulation: {
+      pattern: String.raw`Checked (\d+) files? in`,
+      noun: "files checked by biome",
+      minimum: 500,
+      why: "Same tool and same line as `lint`; a format run that checked nothing is equally silent.",
+    },
+  },
+  {
+    gate: "unit-tests",
+    noun: "tests run by bun",
+    howRead: "Parsed from bun's own summary line, because this gate runs a third-party runner.",
+    gateRefusesVacuous: false,
+    plants: [],
+    toolPopulation: {
+      pattern: String.raw`Ran (\d+) tests? across`,
+      noun: "tests run by bun",
+      // Measured over the lane: more than fifteen thousand tests. The floor is 5000, far below any real
+      // run and far above the shapes that go vacuous - an empty file list, or a filter matching nothing.
+      minimum: 5000,
+      why:
+        "AGENTS.md records the same mechanism costing a second agent fifteen planted negatives: " +
+        "`bun test $SUITES` with the paths in an unquoted variable ran nothing and every plant read as " +
+        "passing. 'Ran N tests' is what distinguishes that from a clean lane.",
+    },
+  },
+  {
+    gate: "ubs-diff",
+    noun: "changed source files scanned by ubs",
+    howRead:
+      "ubs scans the working-tree diff. Measured 2026-10-06 on a tree whose only change was a .jsonl " +
+      "file: 'no recognizable languages in .../git_scan', exit 0, nothing examined.",
+    gateRefusesVacuous: false,
+    plants: [],
+    populationMayBeEmpty: {
+      reason:
+        "The population IS a diff, so zero is correct whenever no source file changed - which is the " +
+        "normal state of a clean release checkout. That makes this step structurally unable to " +
+        "contribute to a release profile even though it is required in all three: it will examine " +
+        "nothing and pass. Recorded here rather than silently counted as covered; moving it to a " +
+        "whole-tree scan, or dropping it from the profiles, is its owner's decision " +
+        "(am-scaf-quality-gates-ci-4xx).",
+    },
+  },
+  {
+    gate: "ubs-staged",
+    noun: "staged source files scanned by ubs",
+    howRead: "ubs scans the git index. Zero staged files is the normal state outside a commit.",
+    gateRefusesVacuous: false,
+    plants: [],
+    populationMayBeEmpty: {
+      reason:
+        "Same shape as ubs-diff and the same consequence: the index is empty except in the moments " +
+        "around a commit, so in a release profile this step examines nothing and passes. It is a " +
+        "pre-commit aid wired into a release chain, which is a question for its owner " +
+        "(am-scaf-quality-gates-ci-4xx) rather than a denominator this census can supply.",
+    },
   },
   {
     gate: "verify-content",

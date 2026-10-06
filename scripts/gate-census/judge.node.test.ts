@@ -255,6 +255,103 @@ test("the real records' empty-population reasons are all substantial", () => {
 });
 
 /**
+ * READING A THIRD-PARTY TOOL'S OWN POPULATION (am-rc1001-bridge-plan-pcjk.9).
+ *
+ * `lint` is biome and `unit-tests` is bun's runner; neither can be made to print the census line, and
+ * wrapping them would mean changing the registry command for steps every pane runs. Each does print its
+ * own count, and those exact lines are the subject of AGENTS.md's first two recorded instances:
+ * "Checked 0 files in 1629µs" and a `bun test $SUITES` that ran nothing while fifteen plants read as
+ * passing. The specimens below are those lines verbatim.
+ */
+
+const toolRecord = (over: Partial<CensusRecord> = {}): CensusRecord =>
+  record({
+    toolPopulation: {
+      pattern: String.raw`Checked (\d+) files? in`,
+      noun: "files checked by biome",
+      minimum: 500,
+      why: "x".repeat(90),
+    },
+    ...over,
+  });
+
+test("a tool's real summary line supplies the count", () => {
+  const found = judgeGate(step(), toolRecord(), {
+    output: "Checked 4344 files in 812ms. No fixes applied.",
+    exitCode: 0,
+    routes: ["bun run gates"],
+  });
+  assert.deepEqual(codes(found), []);
+});
+
+test("THE RECORDED INCIDENT: 'Checked 0 files in 1629µs' is below the floor and is reported", () => {
+  const found = judgeGate(step(), toolRecord(), {
+    output: "Checked 0 files in 1629µs. No fixes applied.",
+    exitCode: 0,
+    routes: ["bun run gates"],
+  });
+  assert.deepEqual(codes(found), ["population-below-minimum"]);
+  assert.match(found[0]?.message ?? "", /0 files checked by biome/);
+  assert.match(found[0]?.message ?? "", /minimum of 500/);
+});
+
+test("the singular 'Checked 1 file' also parses, since biome inflects", () => {
+  const found = judgeGate(step(), toolRecord(), {
+    output: "Checked 1 file in 3ms. No fixes applied.",
+    exitCode: 0,
+    routes: ["bun run gates"],
+  });
+  assert.deepEqual(codes(found), ["population-below-minimum"]);
+});
+
+test("tool-population-unreadable fires when the wording does not match, and never reads zero", () => {
+  // The direction that matters: a tool that changed its summary must be a finding, not a silent zero,
+  // because a zero would be a number the tool never reported.
+  const found = judgeGate(step(), toolRecord(), {
+    output: "biome 2.0: inspected 4344 source files, no diagnostics",
+    exitCode: 0,
+    routes: ["bun run gates"],
+  });
+  assert.deepEqual(codes(found), ["tool-population-unreadable"]);
+  assert.match(found[0]?.message ?? "", /do not read a non-match as zero/);
+});
+
+test("bun's own line parses with its own pattern", () => {
+  const bunRecord = record({
+    toolPopulation: {
+      pattern: String.raw`Ran (\d+) tests? across`,
+      noun: "tests run by bun",
+      minimum: 5000,
+      why: "x".repeat(90),
+    },
+  });
+  const clean = judgeGate(step(), bunRecord, {
+    output: "Ran 15770 tests across 1120 files. [92.00s]",
+    exitCode: 0,
+    routes: ["bun run gates"],
+  });
+  assert.deepEqual(codes(clean), []);
+  // And the vacuous shape AGENTS.md records: an unquoted variable made the filter match nothing.
+  const vacuous = judgeGate(step(), bunRecord, {
+    output: "Ran 0 tests across 0 files. [2.00ms]",
+    exitCode: 0,
+    routes: ["bun run gates"],
+  });
+  assert.deepEqual(codes(vacuous), ["population-below-minimum"]);
+});
+
+test("a gate that prints its OWN census line is judged by that, not by its tool pattern", () => {
+  // Precedence matters: the authored line is authoritative where it exists, so a gate adopting the line
+  // later does not keep being read through a tool regex that happens to match something.
+  const found = judgeGate(step(), toolRecord(), {
+    output: "Checked 0 files in 1629µs.\n[census] demo examined 42 widgets (minimum 10)",
+    exitCode: 0,
+    routes: ["bun run gates"],
+  });
+  assert.deepEqual(codes(found), []);
+});
+
+/**
  * LAST ON PURPOSE. node runs top-level tests in declaration order and this one reads what the cases
  * above put into `seen`, so a case added BELOW it is invisible to it. That is not hypothetical: the
  * declared-empty cases were appended after it and it went red reporting

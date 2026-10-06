@@ -75,11 +75,43 @@ export function judgeGate(
   }
   const line = parsed.reports.find((r) => r.gate === gate);
   if (line === undefined) {
-    findings.push({
-      gate,
-      code: "no-population-printed",
-      message: `exited ${observed.exitCode} without printing a census line for itself, so what it examined is unknown.`,
-    });
+    const tool = record.toolPopulation;
+    if (tool === undefined) {
+      findings.push({
+        gate,
+        code: "no-population-printed",
+        message: `exited ${observed.exitCode} without printing a census line for itself, so what it examined is unknown.`,
+      });
+      return findings;
+    }
+    // A third-party tool's own wording. A pattern that does not match is a finding and never a zero:
+    // reading "no match" as "examined nothing" would invent a number the tool did not report.
+    const match = new RegExp(tool.pattern).exec(observed.output);
+    const captured = match?.[1];
+    if (captured === undefined) {
+      findings.push({
+        gate,
+        code: "tool-population-unreadable",
+        message: `its tool printed nothing matching /${tool.pattern}/, so the count it examined cannot be read. The tool's wording may have changed; do not read a non-match as zero.`,
+      });
+      return findings;
+    }
+    const examined = Number(captured);
+    if (!Number.isInteger(examined)) {
+      findings.push({
+        gate,
+        code: "tool-population-unreadable",
+        message: `captured ${JSON.stringify(captured)} from its tool's output, which is not an integer count.`,
+      });
+      return findings;
+    }
+    if (examined < tool.minimum) {
+      findings.push({
+        gate,
+        code: "population-below-minimum",
+        message: `its tool reports ${examined} ${tool.noun} against the declared minimum of ${tool.minimum}.`,
+      });
+    }
     return findings;
   }
   if (line.noun !== record.noun) {
@@ -162,6 +194,7 @@ export const FINDING_CODES = [
   "empty-population-reason-too-short",
   "malformed-population-line",
   "no-population-printed",
+  "tool-population-unreadable",
   "population-noun-changed",
   "population-below-minimum",
   "plant-anchor-missing",
