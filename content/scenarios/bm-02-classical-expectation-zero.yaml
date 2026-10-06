@@ -1,0 +1,71 @@
+# THE ALTERNATIVE THAT PREDICTS NOTHING AT ALL, LEFT STANDING (am-nxbq, item 1).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the model selector, from the molecular-kinetic reading to
+# classical thermodynamics of suspended bodies. Every other setting is BM-02's default, so the two
+# readings differ in exactly one choice and can be put side by side.
+#
+# WHAT THE CLASSICAL MODEL SAYS AND WHY IT IS NOT STUPID. Classical thermodynamics treats a suspended
+# particle as a small piece of matter, not as a participant in the thermal motion of the liquid, and
+# assigns it no osmotic pressure whatever: the partition feels nothing. That was a reasonable position
+# in 1905 and it is reported here as zero, which is a VALUE and not a refusal, because the model is
+# perfectly definite about the answer. Giving it a status of outside-domain or not-applicable would be a
+# way of not stating an opinion a rival model does hold.
+#
+# THE TWO READINGS ARE BOTH TOO SMALL TO WEIGH, WHICH IS THE HISTORICAL POINT. 4.0e-6 pascal against 0,
+# on a force of 4.0e-14 newton against 0: no apparatus of the period could separate them, so the osmotic
+# pressure cannot be what decides between the models. What decides it is the DISPLACEMENTS of section 5,
+# and later Perrin's sedimentation equilibrium of 1908 to 1909, which is dated later evidence and is
+# labelled as such wherever the site shows it. The evaluator's own model note says this in the same
+# words, so a reader who opens the model note is told why the comparison they are looking at is not an
+# experiment.
+#
+# AGENTS.md: "A failed alternative must fail on a stated constraint or observation" and "no rival is
+# made to fail by programming every test with the favored conclusion". This record is the fair hearing:
+# the classical model's prediction is computed, reported, and left standing beside the other.
+id: "bm-02-classical-expectation-zero"
+kind: "modern-golden"
+title: "BM-02 under classical thermodynamics: the partition feels exactly nothing"
+description: "Selecting classical thermodynamics of suspended bodies instead of the molecular-kinetic reading, at otherwise identical settings, gives an osmotic pressure of zero, a force on the partition of zero and a head of zero. The number density and the volume fraction are unchanged, because they are counts and geometry that both models agree on. The difference between the two readings is 4 microPascal, which no apparatus of 1905 could weigh, so this comparison states what the models claim and settles nothing on its own."
+constantSetId: "modern-si-2019"
+owner: "diffusion.bm02Partition"
+inputs:
+  Np:
+    value: 1000
+    unit: "1"
+  V_um3:
+    value: 1000000
+    unit: "um^3"
+  T:
+    value: 293.15
+    unit: "K"
+  a_um:
+    value: 0.5
+    unit: "um"
+  A_um2:
+    value: 10000
+    unit: "um^2"
+  model:
+    value: 1
+    unit: "1"
+expected:
+  outputs:
+    - outputId: osmoticPressure
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-30
+        rationale: "An exact zero by construction rather than a cancellation, so the tolerance is absolute: a relative tolerance against zero admits any value at all, which the scenario schema refuses outright and rightly."
+    - outputId: partitionForce
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-30
+        rationale: "Zero pressure on a finite area, exactly."
+    - outputId: numberDensity
+      value: 1.0e15
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Unchanged from the molecular-kinetic reading: both models count the same particles in the same volume, and this is what makes the two readings comparable rather than two different experiments."
+modelVersion: 1
+schemaVersion: 1

@@ -1,0 +1,57 @@
+# PAST THE DILUTE LIMIT THERE IS NO PRESSURE TO REPORT (am-nxbq, items 2 and 3).
+#
+# WHICH CONTROL VALUE A READER MOVES TO REACH IT: the particle count, raised from a thousand to a
+# hundred thousand in the same volume. Nothing about a hundred thousand particles is unphysical; what
+# fails is the MODEL, whose independent-particle assumption needs the particles to be sparse.
+#
+# THE BOUNDARY IS DECLARED AND IT IS NOT ARBITRARY. The laboratory states phi at most 0.01 and gives its
+# reason: the hard-sphere virial correction at that bound is about 4 per cent, so inside it the ideal
+# law is good to a few per cent and outside it the ideal law is simply the wrong law. At a hundred
+# thousand particles phi is 0.0524, five times the bound, where particles see each other and the
+# pressure is no longer n k T.
+#
+# ALL THREE DEPENDENT OUTPUTS REFUSE TOGETHER, which is the honest shape: the pressure, the force on the
+# partition and the head of liquid are one claim in three units, so reporting a force beside a refused
+# pressure would be showing the consequence of something the model declined to assert. The number
+# density and the volume fraction stay VALUES, because they are counts and geometry and remain perfectly
+# well defined; it is the law relating them to a pressure that has run out.
+#
+# WHAT A READER SHOULD TAKE FROM IT. This is a model refusal, not an error and not a physical
+# impossibility. Concentrated suspensions have osmotic pressures; they do not have THIS one. The useful
+# next action is to lower the count, widen the volume, or accept a different model, and the laboratory
+# states the maximum admitted count and the minimum admitted volume so the reader can do the first two
+# without guessing.
+id: "bm-02-dilute-boundary-refused"
+kind: "adversarial"
+title: "BM-02 refuses the osmotic pressure at a volume fraction five times its dilute bound"
+description: "A hundred thousand half-micron particles in a cubic millimetre occupy 5.24 per cent of it, against a declared dilute bound of 1 per cent. The ideal osmotic law assumes the particles do not see one another, and at this packing they do. The pressure, the force on the partition and the hydrostatic head all refuse together, naming the volume-fraction condition, while the number density and the volume fraction themselves stay values because counts and geometry are unaffected."
+plausibleMistake: "That a denser suspension simply presses harder, so the ideal law can be run at any concentration and will merely understate the answer. It does not understate it in a knowable way: past the dilute limit the correction is not a small constant but a series in the volume fraction, and the first term alone is already 4 per cent at the declared bound. A page that printed n k T at 5 per cent packing would be showing a number from a model that no longer applies, with nothing on it to say so."
+intendedFailure: "The domain check runs before the pressure is formed, so no ideal-law number is produced at a packing the model does not cover. The scenario passes only when the refusal arrives on the osmotic pressure naming the volume-fraction bound; a run that returned a pressure fails here however plausible the figure, and so does one that refused the number density or the volume fraction, which would say the geometry was unavailable when only the law was."
+constantSetId: "modern-si-2019"
+owner: "diffusion.bm02Partition"
+inputs:
+  Np:
+    value: 100000
+    unit: "1"
+  V_um3:
+    value: 1000000
+    unit: "um^3"
+  T:
+    value: 293.15
+    unit: "K"
+  a_um:
+    value: 0.5
+    unit: "um"
+  A_um2:
+    value: 10000
+    unit: "um^2"
+  model:
+    value: 0
+    unit: "1"
+expected:
+  status:
+    outputId: "osmoticPressure"
+    status: "outside-domain"
+    reasonCode: "volume fraction <= 0.01"
+modelVersion: 1
+schemaVersion: 1

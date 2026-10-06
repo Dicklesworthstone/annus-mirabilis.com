@@ -1,4 +1,5 @@
 import { fileURLToPath } from "node:url";
+import { computeBm02Snapshot, DEFAULT_BM02_INPUTS } from "../../experiments/bm02/session.ts";
 import { createBm08Session } from "../../experiments/bm08/session.ts";
 import {
   declaredDomains,
@@ -538,6 +539,48 @@ function lq02Field(
   return typeof got === "number" ? { [field]: got } : got;
 }
 
+/**
+ * BM-02's partition, from the laboratory's own session (am-nxbq, item 1).
+ *
+ * THE MODEL IS AN INPUT AND IT IS ENCODED AS A NUMBER, because an owner takes numeric inputs only:
+ * 0 is the molecular-kinetic model and 1 is classical thermodynamics of suspended bodies, which is a
+ * labelled ALTERNATIVE rather than a wrong answer and predicts zero pressure. Encoding a model choice
+ * the way bm-05 encodes its step kernel keeps the two readings comparable in one scenario family.
+ *
+ * All five outputs come back together when they are values, because the laboratory's claim is the chain:
+ * a number density gives a pressure, the pressure gives a force on a stated area, and the force gives a
+ * head of liquid. A scenario pinning the pressure alone would pass while the area was being misapplied.
+ */
+function bm02Partition(ctx: OwnerContext): OwnerResult {
+  const snapshot = computeBm02Snapshot({
+    ...DEFAULT_BM02_INPUTS,
+    Np: num(ctx.inputs, "Np"),
+    V_um3: num(ctx.inputs, "V_um3"),
+    T: num(ctx.inputs, "T"),
+    a_um: num(ctx.inputs, "a_um"),
+    A_um2: num(ctx.inputs, "A_um2"),
+    model:
+      num(ctx.inputs, "model") === 1
+        ? "classical-thermodynamics-suspended-bodies"
+        : "molecular-kinetic",
+  });
+  const numbers: Record<string, number> = {};
+  for (const field of [
+    "numberDensity",
+    "volumeFraction",
+    "osmoticPressure",
+    "partitionForce",
+    "hydrostaticHead",
+  ] as const) {
+    const held = snapshot[field] as unknown as { result?: unknown };
+    const record = (held.result ?? held) as Record<string, unknown>;
+    const got = nonNumericOr(record, field);
+    if (typeof got !== "number") return got;
+    numbers[field] = got;
+  }
+  return numbers;
+}
+
 function diffusionRms(ctx: OwnerContext): OwnerResult {
   const set =
     ctx.constantSetId === "modern-si-2019"
@@ -648,6 +691,19 @@ const OWNERS: OwnerRecord[] = [
     id: "diffusion.stokesEinsteinRms",
     sourcePath: diffusionPath,
     fn: diffusionRms,
+  },
+  /**
+   * THE OSMOTIC PARTITION, WHOLE (am-nxbq, item 1).
+   *
+   * BM-02 asks whether suspended particles press on a partition the way dissolved molecules do, and
+   * whether their SIZE changes that pressure at the same number per volume. Both halves need the same
+   * owner: the pressure comes from the number density and the volume fraction comes from the radius, so
+   * only a reading that carries both can show that doubling the radius moves one and not the other.
+   */
+  {
+    id: "diffusion.bm02Partition",
+    sourcePath: fileURLToPath(new URL("../../experiments/bm02/session.ts", import.meta.url)),
+    fn: bm02Partition,
   },
   {
     id: "diffusion.osmoticPressure",

@@ -1,0 +1,69 @@
+# DOUBLING THE PARTICLE RADIUS MOVES THE VOLUME FRACTION AND NOT THE PRESSURE (am-nxbq, item 1).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the particle radius, from BM-02's default of 0.5 micron to
+# 1 micron, with the particle count and the volume untouched.
+#
+# THIS IS THE PAPER'S CLAIM, NOT A PROPERTY OF THE ARITHMETIC. Section 2 argues that suspended particles
+# obey the osmotic law of dissolved molecules, and the content of that law is that the pressure counts
+# PARTICLES and ignores what they are: n k T, with no radius in it. So eight times the particle volume,
+# at the same number per volume, presses on the partition exactly as hard. That is a strong claim and a
+# surprising one, and it is what makes a visible speck comparable to a sugar molecule.
+#
+# WHY THIS IS NOT A TAUTOLOGY, which matters because a test that cannot fail is worse than none. The
+# session computes the volume fraction FROM the radius and the pressure from the number density, by
+# different routes through different functions. If anyone gave the pressure a radius dependence - a
+# finite-size correction, a hydrodynamic factor, a virial term taken past the dilute limit - the volume
+# fraction below would still move by its factor of eight and the pressure would no longer match
+# bm-02-default-golden. The two scenarios are a pair and are meant to be read together.
+#
+# WHAT THE MODEL DOES NOT CLAIM. Size-independence holds in the dilute limit this laboratory declares,
+# phi at most 0.01, and the hard-sphere virial correction at that bound is about 4 per cent. Doubling
+# the radius here takes phi from 5.2e-4 to 4.2e-3, still inside it. The claim is not that size never
+# matters; it is that at this dilution it does not, which is a statement with a stated domain.
+id: "bm-02-size-independence"
+kind: "modern-golden"
+title: "BM-02: eight times the particle volume, the same pressure on the partition"
+description: "Doubling the particle radius at the same particle count and volume multiplies the volume fraction by eight, from 5.236e-4 to 4.189e-3, and leaves the osmotic pressure and the force on the partition exactly where they were, at 4.0474e-6 pascal and 4.0474e-14 newton. The osmotic law counts particles and ignores their size, which is what lets a speck visible in a microscope be compared with a dissolved molecule."
+constantSetId: "modern-si-2019"
+owner: "diffusion.bm02Partition"
+inputs:
+  Np:
+    value: 1000
+    unit: "1"
+  V_um3:
+    value: 1000000
+    unit: "um^3"
+  T:
+    value: 293.15
+    unit: "K"
+  a_um:
+    value: 1.0
+    unit: "um"
+  A_um2:
+    value: 10000
+    unit: "um^2"
+  model:
+    value: 0
+    unit: "1"
+expected:
+  outputs:
+    - outputId: volumeFraction
+      value: 0.00418879020478639
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Exactly eight times the default case's 5.235987755982987e-4, because the fraction goes as the cube of the radius and the radius is doubled."
+    - outputId: osmoticPressure
+      value: 4.0473725435e-6
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Byte for byte the value bm-02-default-golden pins at half this radius. The pair is the assertion: if the pressure acquired a radius dependence this number would move and that one would not."
+    - outputId: partitionForce
+      value: 4.0473725435e-14
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Unchanged for the same reason, since the area did not change either."
+modelVersion: 1
+schemaVersion: 1

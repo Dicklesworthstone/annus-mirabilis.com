@@ -1,0 +1,81 @@
+# THE PARTITION AT BM-02'S ARRIVAL SETTINGS, END TO END (am-nxbq, item 1).
+#
+# WHICH CONTROL VALUES A READER MOVES TO REACH IT: none. A thousand particles in a cubic millimetre of
+# water at 293.15 K, half a micron in radius, against a partition of 1e4 square microns, are BM-02's own
+# defaults.
+#
+# THE CLAIM IS THE CHAIN, WHICH IS WHY ALL FIVE NUMBERS ARE PINNED TOGETHER. Section 2 of paper 2 argues
+# that suspended particles obey the same osmotic law as dissolved molecules: the pressure is the number
+# density times kT and nothing else. From there the force on a partition is that pressure times its
+# area, and the head of liquid that force would support is the force over the area over rho g. Pinning
+# the pressure alone would pass while the area was being misapplied two steps later.
+#
+# THE SIZE OF THE NUMBERS IS ITSELF THE LESSON. Four microPascals is an extremely small pressure, and
+# 4.0e-14 newtons is an extremely small force, and this is a real difficulty with the argument rather
+# than a presentational one: nobody in 1905 could weigh it. What made the molecular-kinetic claim
+# testable was not the pressure but the DISPLACEMENTS of section 5, which is why the paper spends its
+# length there. The hydrostatic head of 4.1e-10 metres says the same thing in a unit a reader can
+# picture: four ten-thousandths of a micron of water.
+#
+# The volume fraction is carried because the whole result is conditional on it: at 5.2e-4 the particles
+# occupy about one two-thousandth of the liquid, comfortably inside the dilute limit this model
+# declares, and bm-02-dilute-boundary-refused pins what happens when it is not.
+id: "bm-02-default-golden"
+kind: "modern-golden"
+title: "BM-02 at its defaults: 4.0474 microPascal on the partition, and the chain from density to head"
+description: "A thousand particles of half-micron radius in a cubic millimetre of water at 293.15 kelvin give a number density of 1e15 per cubic metre and a volume fraction of 5.236e-4. Under the molecular-kinetic model the osmotic pressure is that density times kT, 4.0474e-6 pascal; on a partition of 1e4 square microns that is a force of 4.0474e-14 newton, which would support a head of water 4.1354e-10 metre high. Every step is pinned, because the laboratory's claim is the chain and not any one of its links."
+constantSetId: "modern-si-2019"
+owner: "diffusion.bm02Partition"
+inputs:
+  Np:
+    value: 1000
+    unit: "1"
+  V_um3:
+    value: 1000000
+    unit: "um^3"
+  T:
+    value: 293.15
+    unit: "K"
+  a_um:
+    value: 0.5
+    unit: "um"
+  A_um2:
+    value: 10000
+    unit: "um^2"
+  model:
+    value: 0
+    unit: "1"
+expected:
+  outputs:
+    - outputId: numberDensity
+      value: 1.0e15
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "A thousand particles in 1e-12 cubic metre, exact as written."
+    - outputId: volumeFraction
+      value: 0.0005235987755982987
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Np times four thirds pi a cubed over V, a closed form in exact inputs."
+    - outputId: osmoticPressure
+      value: 4.0473725435e-6
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "n k T with k exact by definition since 2019, so the only error admitted is floating-point."
+    - outputId: partitionForce
+      value: 4.0473725435e-14
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The pressure times 1e4 square microns, which is 1e-8 square metre, so the force is the pressure times 1e-8 exactly."
+    - outputId: hydrostaticHead
+      value: 4.1354422871429516e-10
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-9
+        rationale: "The pressure over rho g, with the solvent density declared as 998 kg/m^3 by the session. The tolerance is looser than the others because g and rho are stated constants of the laboratory rather than defined ones."
+modelVersion: 1
+schemaVersion: 1
