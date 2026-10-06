@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { constantValue, getConstantSet } from "../../physics/reference/constants.ts";
-import { AVOGADRO_DEFAULTS } from "./definition.ts";
 import { avogadroBasis } from "./basis.ts";
-import { createAvogadroSession, evaluateAvogadro } from "./session.ts";
+import { AVOGADRO_DEFAULTS } from "./definition.ts";
 import { studyAvogadroSensitivity } from "./sensitivity.ts";
+import { createAvogadroSession, evaluateAvogadro } from "./session.ts";
 
 const scalar = (evaluation, id) => {
   assert.equal(evaluation.kind, "accepted");

@@ -1,5 +1,5 @@
 import type { TapeV2 } from "./types.ts";
-import { checkpointAt, type CheckpointWalkthrough } from "./walkthroughCheckpoints.ts";
+import { type CheckpointWalkthrough, checkpointAt } from "./walkthroughCheckpoints.ts";
 
 /** Adapters use the existing laboratory session or form validator; no physics is computed here. */
 export type WalkthroughTarget =

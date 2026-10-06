@@ -2,10 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   captureRecordedStop,
-  readRecordedExperiment,
-  recordedExperimentWalkthrough,
   RECORDING_FORMAT,
   RECORDING_LIMITS,
+  readRecordedExperiment,
+  recordedExperimentWalkthrough,
   writeRecordedExperiment,
 } from "./recordedExperiments.ts";
 

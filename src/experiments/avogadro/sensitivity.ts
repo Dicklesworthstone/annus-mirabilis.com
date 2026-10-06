@@ -1,10 +1,10 @@
+import type { ScientificResult } from "../results/types.ts";
 import {
   AVOGADRO_FIELDS,
   type AvogadroKey,
   type AvogadroParameters,
   validateAvogadroParameters,
 } from "./definition.ts";
-import type { ScientificResult } from "../results/types.ts";
 
 export const AVOGADRO_STUDY_ROUTES = Object.freeze([
   Object.freeze({ id: "radiationNumber", label: "Radiation" }),

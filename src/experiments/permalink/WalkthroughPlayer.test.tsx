@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { LabTapeLink } from "./LabTapeLink.tsx";
-import type { WalkthroughTarget } from "./walkthroughActions.ts";
 import { WalkthroughPlayer } from "./WalkthroughPlayer.tsx";
+import type { WalkthroughTarget } from "./walkthroughActions.ts";
 
 const target: WalkthroughTarget = {
   kind: "session",

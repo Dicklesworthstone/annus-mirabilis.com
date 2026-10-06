@@ -1,14 +1,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { AVOGADRO_BASES, avogadroBasis } from "./basis.ts";
 import {
   AVOGADRO_DEFAULTS,
   AVOGADRO_FIELDS,
-  validateAvogadroParameters,
-  parseAvogadroDraft,
-  encodeAvogadroParameters,
   decodeAvogadroParameters,
+  encodeAvogadroParameters,
+  parseAvogadroDraft,
+  validateAvogadroParameters,
 } from "./definition.ts";
-import { AVOGADRO_BASES, avogadroBasis } from "./basis.ts";
 
 for (const constantBasis of [0, 1]) {
   test(`basis ${constantBasis} round-trips every parameter and has a registered identity`, () => {

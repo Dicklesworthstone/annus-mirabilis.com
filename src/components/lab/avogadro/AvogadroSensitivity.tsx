@@ -8,14 +8,14 @@ import {
   type AvogadroParameters,
   encodeAvogadroParameters,
 } from "../../../experiments/avogadro/definition.ts";
-import { evaluateAvogadro } from "../../../experiments/avogadro/session.ts";
 import {
   AVOGADRO_STUDY_ROUTES,
   type AvogadroSensitivityStudy,
-  type SensitivityPoint,
   parseSensitivityValues,
+  type SensitivityPoint,
   studyAvogadroSensitivity,
 } from "../../../experiments/avogadro/sensitivity.ts";
+import { evaluateAvogadro } from "../../../experiments/avogadro/session.ts";
 import { decodeResult } from "../../../experiments/results/codec.ts";
 import { ResultStatusNote } from "../../../experiments/results/ResultStatusNote.tsx";
 import { display, unitText } from "../presentation.ts";

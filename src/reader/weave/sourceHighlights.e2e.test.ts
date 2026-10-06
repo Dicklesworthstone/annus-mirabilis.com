@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test, { after, before, beforeEach } from "node:test";
-import { chromium, type Browser, type Page } from "playwright";
+import { type Browser, chromium, type Page } from "playwright";
 import ts from "typescript";
 import type { connectSourceHighlights, SourceWeavePointer } from "./sourceHighlights.ts";
+
 type BrowserHarness = Window & {
   connect: typeof connectSourceHighlights;
   entries: readonly SourceWeavePointer[];

@@ -2,10 +2,10 @@ import { describe, expect, test } from "bun:test";
 import { ME01_TAPE } from "../me01/tape.ts";
 import {
   captureRecordedStop,
-  readRecordedExperiment,
-  recordedExperimentWalkthrough,
   type RecordedExperiment,
   type RecordingResult,
+  readRecordedExperiment,
+  recordedExperimentWalkthrough,
   writeRecordedExperiment,
 } from "./recordedExperiments.ts";
 import { validateTapeV2 } from "./schema.ts";

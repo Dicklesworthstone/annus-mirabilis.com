@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
-import { createBm01Session, type PreparedBm01Example } from "../../experiments/bm01/session.ts";
 import { WovenTracerLab } from "../../components/lab/WovenTracerLab.tsx";
+import { createBm01Session, type PreparedBm01Example } from "../../experiments/bm01/session.ts";
 import example from "../../generated/bm01-example.json";
 
 test("the real prepared tracer example reaches the reader panel without starting another worker", () => {

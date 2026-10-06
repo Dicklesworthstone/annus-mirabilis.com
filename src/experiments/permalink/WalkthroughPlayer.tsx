@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
+import { tapePath } from "../../reader/sitePaths.ts";
 import {
   applyWalkthroughCheckpoint,
   calculateWalkthroughCheckpoint,
   type WalkthroughAction,
   type WalkthroughTarget,
 } from "./walkthroughActions.ts";
-import { tapePath } from "../../reader/sitePaths.ts";
 import { checkpointAt, type WalkthroughCatalogue } from "./walkthroughCheckpoints.ts";
 
 async function loadCatalogue(): Promise<WalkthroughCatalogue> {

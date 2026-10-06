@@ -9,9 +9,9 @@ import {
   replayTapeOnSession,
   restoreTape,
   restoreTapeFromUrl,
-  tapeStateDigestIn,
   type TapeDigestForm,
   type TapeSession,
+  tapeStateDigestIn,
 } from "./sessionTape.ts";
 import type { TapeControlEvent, TapeV2 } from "./types.ts";
 

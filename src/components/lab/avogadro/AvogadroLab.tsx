@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { avogadroBasis } from "../../../experiments/avogadro/basis.ts";
 import {
   AVOGADRO_CAPTION,
   AVOGADRO_DEFAULTS,
@@ -11,7 +12,6 @@ import {
   encodeAvogadroParameters,
   parseAvogadroDraft,
 } from "../../../experiments/avogadro/definition.ts";
-import { avogadroBasis } from "../../../experiments/avogadro/basis.ts";
 import { createAvogadroSession } from "../../../experiments/avogadro/session.ts";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";

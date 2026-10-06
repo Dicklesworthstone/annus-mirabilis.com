@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { AcceptedSnapshot, ExperimentView } from "../store/instanceStore.ts";
-import type { WeavePredicate } from "./types.ts";
 import { createSessionWeave, weaveOutputs } from "./sessionSource.ts";
+import type { WeavePredicate } from "./types.ts";
 
 const predicate: WeavePredicate = {
   id: "test-threshold",

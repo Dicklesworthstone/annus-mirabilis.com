@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { EMPTY_SEARCH, readSearchLocation, searchResultsHref } from "./searchLocation.ts";
 import { createSearchEngine, SEARCH_TYPES } from "./core.ts";
+import { EMPTY_SEARCH, readSearchLocation, searchResultsHref } from "./searchLocation.ts";
 
 test("shared searches retain exact query spelling and every filter without an HTTP query", () => {
   for (const query of [

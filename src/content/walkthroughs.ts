@@ -2,12 +2,12 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { permalinkTapeFromControlTape } from "../experiments/permalink/fromControlTape.ts";
+import type { TapeV2 } from "../experiments/permalink/types.ts";
 import {
   type CheckpointWalkthrough,
   checkpointPrefixes,
   type WalkthroughCatalogue,
 } from "../experiments/permalink/walkthroughCheckpoints.ts";
-import type { TapeV2 } from "../experiments/permalink/types.ts";
 import { validateControlTape } from "../experiments/tapes/schema.ts";
 import { parseYaml } from "./provenance/yaml.ts";
 

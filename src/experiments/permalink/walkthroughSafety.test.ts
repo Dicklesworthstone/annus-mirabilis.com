@@ -3,7 +3,7 @@ import test from "node:test";
 import type { U64String } from "../identity/u64.ts";
 import { playWalkthrough } from "./playWalkthrough.ts";
 import { replayTeachingTapeOn } from "./replayTeachingTape.ts";
-import { type LabTapeBinding, tapeStateDigestIn, type TapeSession } from "./sessionTape.ts";
+import { type LabTapeBinding, type TapeSession, tapeStateDigestIn } from "./sessionTape.ts";
 import type { TapeV2 } from "./types.ts";
 
 function session() {

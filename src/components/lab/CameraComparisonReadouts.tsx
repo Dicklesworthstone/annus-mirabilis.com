@@ -1,10 +1,10 @@
-import type { ComparisonSnapshot } from "../../experiments/compare/Baseline.ts";
-import { comparisonDisplay } from "../../experiments/compare/comparisonStatement.ts";
 import {
+  type CameraComparisonFrame,
   cameraComparisonFrames,
   cameraComparisonInterval,
-  type CameraComparisonFrame,
 } from "../../experiments/bm08/comparison.ts";
+import type { ComparisonSnapshot } from "../../experiments/compare/Baseline.ts";
+import { comparisonDisplay } from "../../experiments/compare/comparisonStatement.ts";
 
 const intervals = [
   ["naiveInterval", "Naive independent-increment interval"],

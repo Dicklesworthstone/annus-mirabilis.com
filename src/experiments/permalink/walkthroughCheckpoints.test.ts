@@ -2,9 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type { ControlTapeV2, TapeCheckpoint } from "../tapes/schema.ts";
 import {
+  type CheckpointWalkthrough,
   checkpointAt,
   checkpointPrefixes,
-  type CheckpointWalkthrough,
 } from "./walkthroughCheckpoints.ts";
 
 const cp = (actionIndex: number, label: string): TapeCheckpoint => ({

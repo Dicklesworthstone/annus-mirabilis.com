@@ -5,8 +5,8 @@ import { SEARCH_LIMITS, SEARCH_TYPES, type SearchHit, searchResultHref } from ".
 import type { LoadedSearch } from "./loadIndex.ts";
 import {
   EMPTY_SEARCH,
-  type SearchLocation,
   readSearchLocation,
+  type SearchLocation,
   searchResultsHref,
 } from "./searchLocation.ts";
 import { TYPE_LABELS } from "./typeLabels.ts";

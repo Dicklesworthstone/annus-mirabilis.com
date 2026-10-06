@@ -52,9 +52,9 @@ import {
   type FrankenSimExports,
 } from "../src/workers/wasm/frankensimCalls.ts";
 import { loadBundle, type WasmBindgenGlue, wasmFileOf } from "../src/workers/wasm/loadBundle.ts";
+import { reportPopulation } from "./gate-census/population.ts";
 import { parseCapabilityMatrix } from "./wasm-artifacts/capabilityMatrix.ts";
 import { evaluateSizeBudget } from "./wasm-artifacts/sizeBudget.ts";
-import { reportPopulation } from "./gate-census/population.ts";
 
 export interface VerificationCheckResult {
   readonly testId: string;

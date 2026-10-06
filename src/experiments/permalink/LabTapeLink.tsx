@@ -6,20 +6,20 @@ import { ExperimentRecorder } from "./ExperimentRecorder.tsx";
 import { ShareControl } from "./ShareControl.tsx";
 import {
   type LabTapeBinding,
-  restoreTapeFromUrl,
-  restoreTape,
   requirementsOf,
+  restoreTape,
+  restoreTapeFromUrl,
   settingsFromTape,
   type TapeSession,
   tapeForSettings,
 } from "./sessionTape.ts";
 import type { TapeV2 } from "./types.ts";
+import { WalkthroughPlayer } from "./WalkthroughPlayer.tsx";
 import {
-  retainedWalkthroughTape,
   type RetainedWalkthroughTape,
+  retainedWalkthroughTape,
   type WalkthroughTarget,
 } from "./walkthroughActions.ts";
-import { WalkthroughPlayer } from "./WalkthroughPlayer.tsx";
 
 export type LabTapeLinkState = Readonly<{
   notice: string;
