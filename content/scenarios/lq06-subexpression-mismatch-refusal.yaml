@@ -1,0 +1,65 @@
+# SELECTING THE COEFFICIENT WITHOUT ITS FACTOR GIVES A VERDICT OF NO (am-nxbq, item 1).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the subexpression selector, set to E / (beta nu) instead of
+# N E / (R beta nu).
+#
+# WHY THIS IS THE TEMPTING SLIP RATHER THAN AN ARBITRARY WRONG ANSWER. The radiation's entropy-volume law
+# is (E / beta nu) ln(V/V0), so E / (beta nu) is the coefficient sitting right there in the expression,
+# and it is natural to read IT as the count of independent things. It is not. The gas law's coefficient is
+# n k, and k is R / N, so matching the two requires the factor N / R: the count is N E / (R beta nu) and
+# the energy of one quantum is R beta nu / N. A reader who stops at E / (beta nu) has matched an entropy
+# against a number of things divided by Boltzmann's constant, which is a dimensional mismatch dressed as
+# an identification.
+#
+# WHAT THE INSTRUMENT DOES, AND WHY A 0 IS NOT A REFUSAL. The verdict is 0: a definite no, not an error and
+# not an absence. That matters, because the three states this laboratory can be in are different claims -
+# nothing selected is not applicable, the right selection is 1, a wrong selection is 0 - and collapsing
+# any two of them would lose the distinction the reader is being taught. E, nu and V as selections give 0
+# the same way; this record uses the near miss because it is the one a careful reader actually makes.
+#
+# The quantum energy stays available at 3.9756e-19 J throughout, because h nu does not depend on what the
+# reader selected. The instrument is not withholding arithmetic, it is reporting whether a comparison has
+# been drawn correctly.
+id: "lq06-subexpression-mismatch-refusal"
+kind: "adversarial"
+title: "LQ-06 with E/(beta nu) selected: a verdict of no, because the factor N over R is missing"
+description: "The radiation entropy's volume coefficient is E over beta nu, and reading that as the count of independent quanta is the near miss: the ideal gas coefficient is n times Boltzmann's constant, so matching them needs the factor N over R, giving N E over R beta nu. Selecting the smaller expression returns a correspondence verdict of 0, a definite no rather than an absence, while the quantum energy remains 3.9756e-19 J because h nu does not depend on the selection."
+plausibleMistake: "That the coefficient visible in the entropy expression is the quantum count, since the two laws have the same shape and that factor sits in the same place. The shapes match and the coefficients do not: one carries Boltzmann's constant and the other does not, and the missing factor is exactly what converts an entropy per unit volume ratio into a number of independent things. Nothing about the expression's appearance signals it, which is why the laboratory makes the reader select and then judges the selection."
+intendedFailure: "The verdict distinguishes a wrong selection from no selection: 0 rather than not applicable. The scenario passes only when a verdict of 0 arrives on this selection; a run returning 1 would mean the instrument accepted a coefficient that is short by N over R, and a run returning not applicable would mean it could not tell a mistaken comparison from an unattempted one."
+constantSetId: "modern-si-2019"
+owner: "lq06.session"
+inputs:
+  subexpressionSelected:
+    value: 2
+    unit: "1"
+  printedConstants:
+    value: 0
+    unit: "1"
+  radiationEnergy:
+    value: 9.055615e-9
+    unit: "J"
+  frequency:
+    value: 6.0e14
+    unit: "Hz"
+  volumeRatio:
+    value: 0.5
+    unit: "1"
+  temperature:
+    value: 3000
+    unit: "K"
+expected:
+  outputs:
+    - outputId: correspondenceVerdict
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-9
+        rationale: "A definite no. Absolute tolerance, since the reference is an exact zero that a relative tolerance cannot bound, and the value must be 0 rather than merely not 1."
+    - outputId: quantumEnergy
+      value: 3.9756420899999997e-19
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Unchanged from lq06-golden-the-move, byte for byte: the energy is h nu whatever the reader selected, and asserting it here is what shows the instrument is judging the comparison rather than the arithmetic."
+modelVersion: 1
+schemaVersion: 1

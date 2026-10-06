@@ -1,0 +1,79 @@
+# THE ONE NON-OBVIOUS STEP IN PAPER 1, AS A NUMBER (am-nxbq, item 1).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the subexpression selector, set to N E / (R beta nu). On
+# arrival nothing is selected and the verdict is deliberately not applicable, which
+# lq-06-no-verdict-before-a-selection pins; the reader has to make the comparison before the instrument
+# will say whether it holds.
+#
+# WHAT THE MOVE IS. Section 6 of paper 1 computes how the entropy of monochromatic radiation changes when
+# its volume changes, and finds S - S0 = (E / beta nu) ln(V/V0) in Wien's regime. The entropy of an ideal
+# gas of n independent points changes by n k ln(V/V0) over the same volume change. The two expressions
+# have the same FORM, and Einstein's move is to read off the coefficient: if the radiation behaves as
+# n independent things, then n = N E / (R beta nu), and the energy of one of them is R beta nu / N, which
+# is h nu. That is the whole derivation of the light quantum, and it is a comparison of two coefficients
+# rather than a calculation.
+#
+# WHY THE VERDICT IS A SEPARATE OUTPUT FROM THE ENERGY. The quantum energy, 3.9756e-19 J or 2.4814 eV at
+# 600 THz, is just h nu and is available whatever the reader selects; the instrument is not withholding
+# arithmetic. What depends on the selection is whether the CORRESPONDENCE has been drawn, and that is
+# what the verdict reports. A page that showed the energy and called it derived would be giving the
+# answer without the step.
+#
+# WHAT IT IS AND IS NOT. AGENTS.md is explicit that this reasoning is heuristic in the paper's own words,
+# and section 6's conclusion is that monochromatic radiation of low density behaves "as if" it consisted
+# of independent quanta. The verdict of 1 records that the two volume laws match in form at these
+# settings, not that the quantum hypothesis has been proved; section 8's photoelectric prediction and
+# Lenard's observations are where it is tested.
+id: "lq06-golden-the-move"
+kind: "modern-golden"
+title: "LQ-06 with the coefficient selected: the two volume laws correspond, and one quantum is 2.4814 eV"
+description: "Selecting the subexpression N E over R beta nu is the move section 6 of paper 1 makes: the radiation's entropy-volume law and an ideal gas's have the same form, so the coefficient can be read as a count of independent things. The instrument returns a correspondence verdict of 1, an effective independent count of 2.2778e10 at these settings, and a quantum energy of 3.9756e-19 J, which is 2.4814 eV and is h nu at 600 THz. Before the selection the verdict is not applicable rather than false, because nothing has been asked."
+constantSetId: "modern-si-2019"
+owner: "lq06.session"
+inputs:
+  subexpressionSelected:
+    value: 1
+    unit: "1"
+  printedConstants:
+    value: 0
+    unit: "1"
+  radiationEnergy:
+    value: 9.055615e-9
+    unit: "J"
+  frequency:
+    value: 6.0e14
+    unit: "Hz"
+  volumeRatio:
+    value: 0.5
+    unit: "1"
+  temperature:
+    value: 3000
+    unit: "K"
+expected:
+  outputs:
+    - outputId: correspondenceVerdict
+      value: 1
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-9
+        rationale: "A verdict carried as 0 or 1. Absolute, because 0 is one of its two values and a relative tolerance cannot bound an exact zero."
+    - outputId: quantumEnergy
+      value: 3.9756420899999997e-19
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "h nu at 600 THz with h exact by definition since 2019. The same number LQ-08 computes for its quantum energy, which is the point: one quantity reached by two routes through two laboratories."
+    - outputId: quantumEnergyEv
+      value: 2.481400618154315
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The same energy in electronvolts, through the exact elementary charge."
+    - outputId: effectiveIndependentCount
+      value: 22777742047.700275
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "N E / (R beta nu) at the stated radiation energy and frequency, which is the coefficient the move reads off. It is a count and is large, which is why the quanta are not individually visible."
+modelVersion: 1
+schemaVersion: 1

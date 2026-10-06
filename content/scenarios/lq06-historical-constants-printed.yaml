@@ -1,0 +1,75 @@
+# EINSTEIN'S OWN CONSTANTS, AND THE ONE PER CENT THEY COST (am-nxbq, item 1).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the constant set, from the modern one to the values paper 1
+# prints, with the coefficient selected as in lq06-golden-the-move. Nothing else changes.
+#
+# WHY THE PAIR MATTERS MORE THAN EITHER ROW. The quantum magnitude R beta nu / N is built from three
+# measured quantities, and in 1905 all three were measurements with error bars: the gas constant, Wien's
+# constant beta, and Avogadro's number. Today R and N are defined rather than measured, and k = R/N is
+# exact, so the same expression carries no uncertainty from the constants at all. Running both sets at the
+# same frequency separates what the derivation gives from what the measurements of the period gave.
+#
+# WHAT THE NUMBERS ARE. At 600 THz the printed constants give a quantum energy of 3.9322e-19 J, which is
+# 2.4543 eV, against the modern 3.9756e-19 J and 2.4814 eV. The printed value is about 1.1 per cent lower.
+# The correspondence verdict is 1 in both, which is the important part: the MOVE does not depend on the
+# constants, only the number it yields does.
+#
+# A NOTE ON THE KIND, WHICH IS WRONG AND IS THE CLOSEST AVAILABLE. This record is declared
+# modern-golden while its constant set is Einstein's printed one, which reads as a contradiction and is
+# one. The taxonomy has no kind for a COMPUTATION IN A HISTORICAL CONSTANT SET: historical-fixture
+# reproduces a printed NUMBER and the schema enforces that, refusing a tolerance and demanding
+# comparisonKind "rounds-to" against printed text, and paper 1 section 6 prints no number for this
+# quantity - it prints the three constants. modern-golden is the only kind whose mechanics fit a computed
+# value with a tolerance. The gap is reported on am-nxbq rather than papered over here.
+#
+# AGENTS.md: "Modern constants are the exact 2019 SI values. Historical constants carry their era,
+# provenance, and precision. The two sets are never mixed in one calculation without saying so." This
+# record is one calculation in the historical set, named as such, and its modern twin is a separate
+# record. The 1.1 per cent is a fact about 1905 metrology, not about the physics.
+id: "lq06-historical-constants-printed"
+kind: "modern-golden"
+title: "LQ-06 with paper 1's printed constants: one quantum is 2.4543 eV, 1.1 per cent below the modern value"
+description: "The quantum magnitude R beta nu / N is built from three quantities that were measurements in 1905 and are definitions now. Evaluating it with the constants paper 1 prints gives 3.9322e-19 J at 600 THz, which is 2.4543 eV, against 2.4814 eV from the 2019 SI constants: about 1.1 per cent lower. The correspondence verdict is 1 under both sets, so what the period's metrology changed is the number and not the derivation."
+constantSetId: "einstein-1905-light-quanta-printed"
+owner: "lq06.session"
+inputs:
+  subexpressionSelected:
+    value: 1
+    unit: "1"
+  printedConstants:
+    value: 1
+    unit: "1"
+  radiationEnergy:
+    value: 9.055615e-9
+    unit: "J"
+  frequency:
+    value: 6.0e14
+    unit: "Hz"
+  volumeRatio:
+    value: 0.5
+    unit: "1"
+  temperature:
+    value: 3000
+    unit: "K"
+expected:
+  outputs:
+    - outputId: quantumEnergy
+      value: 3.932232739059968e-19
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "R beta nu / N in the printed set. The tolerance is tight because the arithmetic is exact once the three constants are fixed; what is uncertain is the constants themselves, and that uncertainty belongs to the constant-set entry rather than to this comparison."
+    - outputId: quantumEnergyEv
+      value: 2.454306632373449
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The same energy in electronvolts. Against the modern 2.481400618154315 eV, which lq06-golden-the-move pins, the printed set is lower by about 1.1 per cent."
+    - outputId: correspondenceVerdict
+      value: 1
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-9
+        rationale: "The same verdict as under modern constants, which is the assertion that the move is independent of the constant set."
+modelVersion: 1
+schemaVersion: 1

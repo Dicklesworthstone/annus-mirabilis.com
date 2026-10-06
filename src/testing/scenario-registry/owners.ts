@@ -1066,14 +1066,34 @@ const OWNERS: OwnerRecord[] = [
     id: "lq06.session",
     sourcePath: fileURLToPath(new URL("../../experiments/lq06/session.ts", import.meta.url)),
     fn: (ctx) => {
-      const selected =
-        (ctx.inputs.subexpressionSelected ?? 0) === 0 ? "none" : "N_E_over_R_beta_nu";
+      const code = ctx.inputs.subexpressionSelected ?? 0;
+      // 2 IS A SUBEXPRESSION THAT DOES NOT MATCH, and it had to be added as its own code rather than as
+      // "anything but 1": E/(beta nu) is the quantum COUNT before the N over R factor, which is the
+      // tempting slip rather than an arbitrary wrong answer, and a reader who selects it gets a verdict
+      // of 0 instead of a refusal. E, nu and V give 0 the same way; this is the instructive one.
+      const selected = code === 1 ? "N_E_over_R_beta_nu" : code === 2 ? "E_over_beta_nu" : "none";
+      // The printed set is Einstein's own R, beta and N, which the session admits by name. Keeping it a
+      // numeric code is the owner protocol's constraint, and the historical and modern readings must stay
+      // separable, since AGENTS.md forbids mixing the two sets in one calculation without saying so.
+      const constantSetId =
+        (ctx.inputs.printedConstants ?? 0) === 1
+          ? "einstein-1905-light-quanta-printed"
+          : "modern-si-2019";
       const outputs = lq06Outputs({
         ...LQ06_DEFAULTS,
         ...ctx.inputs,
         selectedSubexpression: selected,
+        constantSetId,
       });
-      return sessionOutputsOf(outputs, "correspondenceVerdict");
+      const verdict = sessionOutputsOf(outputs, "correspondenceVerdict");
+      if (isOwnerRefusal(verdict)) return verdict;
+      const numbers: Record<string, number> = { ...verdict };
+      for (const outputId of ["quantumEnergy", "quantumEnergyEv", "effectiveIndependentCount"]) {
+        const got = sessionOutputsOf(outputs, outputId);
+        if (isOwnerRefusal(got)) return got;
+        Object.assign(numbers, got);
+      }
+      return numbers;
     },
   },
   /**
