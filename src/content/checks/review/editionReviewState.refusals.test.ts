@@ -120,6 +120,51 @@ describe("editionReviewState.ts refusal throw sites (am-muyh)", () => {
     const acceptResult = check(acceptContext);
     expect(acceptResult.ok).toBe(true);
   });
+  /*
+   * THE :147 SIBLING CANNOT FIRE, and this asserts why rather than restating it (am-r3qt).
+   *
+   * Reaching it needs `germanSourceRecords` to be non-empty and the loop to complete without
+   * returning. Every check inside the loop RETURNS on failure, so the only way through is the
+   * `continue` at the staleness check: a record whose `scope` holds no entry for this unit.
+   *
+   * That cannot happen, because the store's index IS the scope. `ReviewStore.register` walks
+   * `record.scope` and files the record under each `scopeEntry.recordId`, and `getRecordsForUnit`
+   * reads exactly that index - so every record it returns for a unit necessarily scopes that unit,
+   * `scope.find` always succeeds, and the `continue` is dead. The site is a fall-through the type
+   * system requires and the data cannot produce.
+   *
+   * The claim is ASSERTED below against the real store, so it goes red if register stops indexing by
+   * scope or getRecordsForUnit starts returning anything wider. That is the only way :147 becomes
+   * live, and it is the kind of change nobody would connect to this site without a note here.
+   *
+   * NOT CITED, deliberately: `review-record-missing` has two sites, so a citation is the only thing
+   * that credits one, and citing :147 would mark a site tested that nothing drives.
+   */
+  test("the store can only return records that scope the unit, so the fall-through is dead", () => {
+    const store = new ReviewStore();
+    const scoped: ReviewRecord = {
+      id: "rev-scope-indexing",
+      reviewType: "german-source",
+      reviewer: "open-german-source-brownian-motion",
+      date: "2026-09-16",
+      result: "accepted",
+      scope: [{ recordId: "unit-scoped", translationRevision: 1, unitHash: "sha256-hash-initial" }],
+    };
+    store.register(scoped);
+
+    // Every record returned for a unit scopes that unit. This is the property the fall-through
+    // depends on being false, and it holds for the one it does scope...
+    const forScoped = store.getRecordsForUnit("unit-scoped");
+    expect(forScoped.length).toBe(1);
+    for (const r of forScoped) {
+      expect(r.scope.some((e) => e.recordId === "unit-scoped")).toBe(true);
+    }
+
+    // ...and the record is NOT returned for a unit it does not scope, which is what stops a
+    // scope-less record ever reaching the loop.
+    expect(store.getRecordsForUnit("unit-not-in-scope").length).toBe(0);
+  });
+
   // --------------------------------------------------------------------------
   // Site 3: line 51 - review-record-missing (no german-source record for the unit)
   //
