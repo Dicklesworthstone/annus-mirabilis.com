@@ -205,7 +205,15 @@ export async function checkWalkBrowser(browser, url, check) {
     await lab.locator('[name="n"]').fill("401");
     const previous = await lab.getAttribute("data-snapshot-version");
     await apply.click();
-    await lab.getByText(/exact uniform-sum shape comparison is bounded to 400 steps/).waitFor();
+    // SCOPED TO THE REFUSAL NOTICE, not to any text on the page (am-ig23). Unscoped, this matched TWO
+    // elements and failed Playwright's strict mode: the notice's own paragraph, and the
+    // `span.kernel-string` in which show-the-code renders that same sentence as a string LITERAL of the
+    // kernel source. The second is the wrong population - it is there whether or not a reader was ever
+    // refused - so naming the notice is both correct and stricter than the version it replaces.
+    await lab
+      .locator(".notice.error")
+      .getByText(/exact uniform-sum shape comparison is bounded to 400 steps/)
+      .waitFor();
     assert.equal(await lab.getAttribute("data-snapshot-version"), previous);
     await accepted(() =>
       lab.getByRole("button", { name: "Restore accepted settings", exact: true }).click(),
