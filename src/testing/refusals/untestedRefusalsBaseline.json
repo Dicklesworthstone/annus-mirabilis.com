@@ -73,7 +73,7 @@
   "src/content/schemas/authorship.ts": 0,
   "src/content/schemas/concordance.ts": 0,
   "src/content/schemas/dates.ts": 0,
-  "src/content/schemas/dimensionBasis.ts": 2,
+  "src/content/schemas/dimensionBasis.ts": 0,
   "src/content/schemas/experiment.ts": 0,
   "src/content/schemas/inlines.ts": 1,
   "src/content/schemas/journey.ts": 0,

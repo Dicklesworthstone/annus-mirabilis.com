@@ -20,7 +20,7 @@
   "src/content/schemas/argument.ts": 5,
   "src/content/schemas/authorship.ts": 1,
   "src/content/schemas/dates.ts": 0,
-  "src/content/schemas/dimensionBasis.ts": 2,
+  "src/content/schemas/dimensionBasis.ts": 0,
   "src/content/schemas/experiment.ts": 0,
   "src/content/schemas/reading.ts": 0,
   "src/content/schemas/source.ts": 17,

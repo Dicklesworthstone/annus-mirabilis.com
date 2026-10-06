@@ -37,7 +37,18 @@ describe("dimensionBasis schema refusal throw sites (am-muyh)", () => {
     assert.equal(accepted.num, 3);
   });
 
-  test("dimensionBasis: (dimensionBasis.ts:76) invalid-denominator raised when denominator is non-integer", () => {
+  /*
+   * THE CITED LINE IS THE `throw new`, NOT THE CODE LITERAL (am-r3qt / am-kf8w).
+   *
+   * These two cited :76 and :128, which are the lines holding the code STRING of a wrapped throw. The
+   * scanner anchors a site at the `throw new` line above it, so both citations named a line with no
+   * site and credited nothing, while the tests were driving the sites all along.
+   *
+   * Repointed to :75 and :127, each proved by renaming that one site's code and confirming only its
+   * own test reddened. Nothing is orphaned: there is no site at 76 or 128 for the citation to have
+   * been crediting.
+   */
+  test("dimensionBasis: (dimensionBasis.ts:75) invalid-denominator raised when denominator is non-integer", () => {
     assert.throws(
       () => validateRationalScale({ num: 1, den: 2.5 }),
       (err) => {
@@ -102,7 +113,7 @@ describe("dimensionBasis schema refusal throw sites (am-muyh)", () => {
     );
   });
 
-  test("dimensionBasis: (dimensionBasis.ts:128) luminous-intensity-forbidden raised when object specifies cd/candela", () => {
+  test("dimensionBasis: (dimensionBasis.ts:127) luminous-intensity-forbidden raised when object specifies cd/candela", () => {
     assert.throws(
       () => validateRationalDimension({ cd: 1 }),
       (err) => {
