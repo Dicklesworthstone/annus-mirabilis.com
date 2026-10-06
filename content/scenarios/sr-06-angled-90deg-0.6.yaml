@@ -1,0 +1,75 @@
+# 0.6c ACROSS 0.6c: THE TRANSVERSE COMPONENT IS DIVIDED BY GAMMA (am-nxbq, item 1).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the angle, from 0 to 90 degrees. This was a PRESET id in
+# acceptanceCases; the acceptance case is what those settings must produce.
+#
+# WHAT THE COMPONENTS ARE AND WHY THE SECOND ONE SURPRISES PEOPLE. A point moving at 0.6c perpendicular to
+# the boost, seen from the boosted frame, has x-component 0.6 - the frame's own speed, as expected - and
+# y-component 0.48, which is 0.6 divided by the Lorentz factor 1.25. The transverse velocity is REDUCED
+# although nothing is moving transversely in the boost direction, because the velocity is a ratio of a
+# distance to a TIME and the time is what changed. The composed speed is 0.76837 against a Galilean
+# 0.84853, which is 0.6 times the square root of two.
+#
+# RAPIDITY ADDITION IS NOT APPLICABLE HERE, AND THAT IS THE POINT OF HAVING BOTH RECORDS. In the collinear
+# case the instrument reports a rapidity sum of 2 ln 2 and the composition IS an addition. At 90 degrees it
+# reports not applicable, because rapidity adds along one line only: two perpendicular rapidities do not
+# combine into a third by addition, and a page that printed a sum here would be offering a later
+# mathematical aid where it does not apply. sr-06-collinear-0.6-0.6 is the companion.
+#
+# NOR IS THERE A ROTATION. rotationDeg is also not applicable at this setting, which distinguishes this
+# record from sr-06-perpendicular-boosts-0.6: there, the same composed velocity comes with a Wigner
+# rotation of -12.68 degrees, because composing two BOOSTS is not the same operation as transforming one
+# velocity. The three records differ in which of those two statuses is a number.
+id: "sr-06-angled-90deg-0.6"
+kind: "modern-golden"
+title: "SR-06 at 90 degrees: components 0.6 and 0.48, and rapidity addition does not apply"
+description: "A point moving at 0.6c perpendicular to the boost has, in the boosted frame, an x-component of 0.6 and a y-component of 0.48 - the transverse velocity divided by the Lorentz factor, because the velocity is a distance over a time and the time changed. The composed speed is 0.76837 against a Galilean 0.84853. Rapidity addition is reported as not applicable, because rapidities add along one line only, and so is the rotation. The Lorentz factor of the composed motion is 1.5625."
+constantSetId: "modern-si-2019"
+owner: "sr06.composition"
+inputs:
+  mode:
+    value: 1
+    unit: "1"
+  frameBeta:
+    value: 0.6
+    unit: "1"
+  movingSpeed:
+    value: 0.6
+    unit: "1"
+  alphaDeg:
+    value: 90
+    unit: "deg"
+expected:
+  outputs:
+    - outputId: composedUxOverC
+      value: 0.6
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The frame's own speed, exactly: a point with no x-velocity in one frame moves at the frame speed in the other."
+    - outputId: composedUyOverC
+      value: 0.48
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "0.6 divided by the Lorentz factor 1.25, exactly 0.48. This is the reading worth pinning: the transverse component is reduced although the boost is not transverse."
+    - outputId: composedSpeedOverC
+      value: 0.7683749084919418
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The hypotenuse of 0.6 and 0.48, which is 0.6 times the square root of 1 + 0.64. Subluminal, as it must be."
+    - outputId: galileanSpeedOverC
+      value: 0.848528137423857
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "0.6 times the square root of two, which is what adding the two perpendicular velocities as vectors would give. Also subluminal here, which is why the 90 degree case is a weaker discriminator than the collinear one."
+    - outputId: composedGamma
+      value: 1.5625
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The factor of 0.76837c, which is 1/0.64 exactly. THIS RECORD FOUND A DEFECT: the instrument reported 2.125 here, the factor of the COLLINEAR composition, beside a composed speed of 0.76837c. Drafting the rationale for 2.125 is what exposed it, because 1.25 squared is 1.5625 and not 2.125. Fixed in 4b948275 with a consistency assertion across every mode and angle, planted against the historical expression."
+modelVersion: 1
+schemaVersion: 1

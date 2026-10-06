@@ -1,0 +1,84 @@
+# 0.6c ALONG 0.6c IS 0.882c, AND THE RAPIDITIES ADD EXACTLY (am-nxbq, item 1).
+#
+# WHICH CONTROL VALUES A READER MOVES TO REACH IT: none. Both speeds at 0.6c along one line are SR-06's
+# own defaults and the preset its manifest named here; the acceptance case is what those settings must
+# produce.
+#
+# THE NUMBER, AND WHY IT IS A RATIONAL. Section 5's composition gives (0.6 + 0.6) / (1 + 0.36), which is
+# 1.2/1.36, which is 15/17 = 0.88235294... exactly. The shortfall below c is 2/17 = 0.117647...; adding
+# the speeds would give 1.2c, superluminal, and that is reported beside it so the reader sees what the old
+# rule claims rather than being told it is wrong.
+#
+# WHAT ACTUALLY ADDS. Rapidity does: artanh(0.6) is exactly ln 2, and the composed rapidity is 2 ln 2,
+# which is artanh(15/17). So the composition is an ADDITION after all, of the right quantity, and this is
+# the only mode in which the instrument reports a rapidity sum - sr-06-angled-90deg-0.6 is where it is not
+# applicable, because rapidities add only along one line. That contrast is why this record pins the sum
+# rather than describing it.
+#
+# THE INVERSE RECOVERS THE INPUT. Composing back with -0.6c returns 0.6000000000000002, which is the check
+# that the map is a group operation and not a formula applied once. A reader who doubts the composition can
+# run it backwards.
+#
+# AGENTS.md's rule about fair hearings applies to the Galilean line above: at any speed anybody had
+# handled, 1.2c and 0.882c would have been indistinguishable from each other's measurement error. The old
+# rule is not foolish; it is the low-speed limit of this one, and sr-04-galilean-shelf is where that is
+# made explicit.
+id: "sr-06-collinear-0.6-0.6"
+kind: "modern-golden"
+title: "SR-06 at 0.6c along 0.6c: 15/17 of c, where adding would give 1.2"
+description: "Section 5's composition of 0.6c along 0.6c gives exactly 15/17 of the speed of light, 0.88235, with a shortfall below c of 2/17. Adding the speeds gives 1.2c, which is superluminal and is reported beside it. What does add is rapidity: artanh(0.6) is exactly ln 2 and the composed rapidity is 2 ln 2, which is the only mode in which the instrument reports a rapidity sum at all."
+constantSetId: "modern-si-2019"
+owner: "sr06.composition"
+inputs:
+  mode:
+    value: 0
+    unit: "1"
+  frameBeta:
+    value: 0.6
+    unit: "1"
+  movingSpeed:
+    value: 0.6
+    unit: "1"
+  alphaDeg:
+    value: 0
+    unit: "deg"
+expected:
+  outputs:
+    - outputId: composedSpeedOverC
+      value: 0.8823529411764707
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "15/17 exactly: (0.6 + 0.6)/(1 + 0.36) = 1.2/1.36. A rational, so the only error admitted is in forming it."
+    - outputId: galileanSpeedOverC
+      value: 1.2
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The sum of the two speeds, superluminal. Asserted because the case is a comparison and a record showing only the right answer would not be one."
+    - outputId: shortfall
+      value: 0.11764705882352945
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "2/17, the distance below c, formed without cancelling 1 against 0.88235 - which is what the output's own contract name, cancellation-free-shortfall-from-c, is about."
+    - outputId: rapiditySum
+      value: 1.3862943611198906
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "2 ln 2, which is artanh(15/17). This is the quantity that adds, and it is reported ONLY in collinear mode; the angled case has it not applicable."
+    - outputId: composedGamma
+      value: 2.125000000000001
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "17/8 at 15/17 of c. Against the two-boost case's 1.5625, which is 1.25 squared and belongs to the matrix product rather than to this velocity."
+    - outputId: inverseUxOverC
+      value: 0.6000000000000002
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Composing the result back with the opposite boost returns the input, which is the check that this is a group operation rather than a formula applied once."
+modelVersion: 1
+schemaVersion: 1

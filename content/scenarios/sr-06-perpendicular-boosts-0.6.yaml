@@ -1,0 +1,77 @@
+# TWO BOOSTS ARE NOT ONE BOOST: THE PRODUCT CARRIES A ROTATION (am-nxbq, item 1).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the mode, from transforming one velocity to composing two
+# BOOSTS, with the second at right angles to the first. This was a PRESET id in acceptanceCases; the
+# acceptance case is what those settings must produce.
+#
+# WHAT IS THE SAME AND WHAT IS NOT. The composed velocity is identical to the angled case - components 0.6
+# and 0.48, speed 0.76837c - so a reader comparing only velocities would see no difference at all. Two
+# things do differ:
+#
+#   the ROTATION is -12.6804 degrees instead of not applicable. The product of two boosts at an angle is
+#   not a boost: it is a boost followed by a spatial rotation, and the axes of the doubly boosted frame
+#   are turned relative to the original by that angle
+#
+#   the LORENTZ FACTOR is 1.5625, which is 1.25 squared - the product of the two boosts' own factors -
+#   and here it is also the factor of 0.76837c, so the two readings agree
+#
+# WHY THE ROTATION IS NOT A CURIOSITY. It is the reason the Lorentz transformations form a group whose
+# boosts alone do not: compose two and you leave the set you started in. A reader who takes "velocities
+# compose" as the whole story has no way to anticipate that the axes have turned, and the angle is
+# measurable in principle - it is the kinematic half of what later physics calls Thomas precession.
+#
+# AND IT IS A LATER AID, LABELLED. Naming the rotation after Wigner, and the 4x4 product matrix the
+# instrument publishes in this mode, are twentieth-century ways of organising the same 1905 algebra.
+# AGENTS.md's anachronism controls apply: the paper composes velocities in section 5 and does not write
+# matrices, so this record presents them as a modern organisation of the paper's result and not as the
+# paper's method.
+#
+# sr-06-angled-90deg-0.6 is the companion, and the pair is the assertion: same velocity, different
+# operation, and only one of them turns the axes.
+id: "sr-06-perpendicular-boosts-0.6"
+kind: "modern-golden"
+title: "SR-06 composing two perpendicular boosts: the same velocity, and the axes turned 12.68 degrees"
+description: "Composing a 0.6c boost with a second 0.6c boost at right angles gives the same composed velocity as transforming a single perpendicular velocity - components 0.6 and 0.48, speed 0.76837c - but the product of two boosts at an angle is not a boost. It is a boost followed by a rotation of -12.6804 degrees, and its Lorentz factor is 1.5625, which is 1.25 squared. A reader comparing only velocities would see no difference between the two modes."
+constantSetId: "modern-si-2019"
+owner: "sr06.composition"
+inputs:
+  mode:
+    value: 2
+    unit: "1"
+  frameBeta:
+    value: 0.6
+    unit: "1"
+  secondBeta:
+    value: 0.6
+    unit: "1"
+  secondAngleDeg:
+    value: 90
+    unit: "deg"
+expected:
+  outputs:
+    - outputId: rotationDeg
+      value: -12.680383491819825
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-9
+        rationale: "The Wigner rotation of the product. Not applicable in the other two modes, which is what makes this the one assertion that distinguishes composing two boosts from transforming one velocity."
+    - outputId: composedGamma
+      value: 1.5625
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "1.25 squared, the product of the two boosts' own factors, and also the factor of the composed 0.76837c. Those two readings agreeing is the check the instrument's own history turns on: an earlier version showed this 1.5625 beside the collinear 0.882c, to which it does not belong."
+    - outputId: composedSpeedOverC
+      value: 0.7683749084919418
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Identical to sr-06-angled-90deg-0.6, byte for byte. Asserting it in both is the point: the velocity does not distinguish the two operations and the rotation does."
+    - outputId: composedUyOverC
+      value: 0.48
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "0.6 divided by 1.25, as in the angled case. The components are the same too."
+modelVersion: 1
+schemaVersion: 1

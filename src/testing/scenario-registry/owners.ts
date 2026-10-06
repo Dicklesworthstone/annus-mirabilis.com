@@ -32,6 +32,8 @@ import {
 import { evaluateSr04 } from "../../experiments/sr04/session.ts";
 import { SR05_DEFAULTS } from "../../experiments/sr05/definition.ts";
 import { evaluateSr05 } from "../../experiments/sr05/session.ts";
+import { SR06_DEFAULTS } from "../../experiments/sr06/definition.ts";
+import { evaluateSr06 } from "../../experiments/sr06/session.ts";
 import { SR09_DEFAULTS } from "../../experiments/sr09/definition.ts";
 import { snapshotOutputs as sr09SnapshotOutputs } from "../../experiments/sr09/session.ts";
 import { SR11_DEFAULTS } from "../../experiments/sr11/definition.ts";
@@ -1236,6 +1238,65 @@ const OWNERS: OwnerRecord[] = [
       ]) {
         const held = evaluated[key];
         if (typeof held === "number") numbers[key] = held;
+      }
+      return numbers;
+    },
+  },
+  /**
+   * VELOCITY COMPOSITION IN ITS THREE MODES (am-nxbq, item 1).
+   *
+   * SR-06 is section 5 of paper 3, and its three modes are three different questions:
+   *
+   *   collinear    0.6c along 0.6c gives 0.882c where adding gives 1.2c, and the RAPIDITIES add
+   *                exactly - ln 2 plus ln 2
+   *   angled       0.6c across 0.6c gives components 0.6 and 0.48, the transverse one divided by
+   *                gamma, and rapidity addition is NOT APPLICABLE because rapidities add only along
+   *                one line
+   *   two-boosts   the same composed velocity, but the product of the two boosts carries gamma 1.5625
+   *                rather than 2.125 and a Wigner rotation of -12.68 degrees
+   *
+   * `mode` is encoded numerically, 0 collinear, 1 angled, 2 two-boosts, as every other string control in
+   * this file is. The outputs that are legitimately not applicable in some modes - the rotation, the
+   * rapidity sum, the product matrix - are returned CONDITIONALLY, so one owner serves all three without
+   * a mode's honest no-value making the whole reading refuse.
+   *
+   * The results are looked up BY NAME. The evaluation is a positional array whose order does not match
+   * the declared key order of SR06_OUTPUTS, which is exactly the hazard the comment on sessionOutputsOf
+   * warns about, and each element carries its own quantityId.
+   */
+  {
+    id: "sr06.composition",
+    sourcePath: fileURLToPath(new URL("../../experiments/sr06/session.ts", import.meta.url)),
+    fn: (ctx) => {
+      const code = num(ctx.inputs, "mode");
+      const mode = code === 2 ? "two-boosts" : code === 1 ? "angled" : "collinear";
+      const outputs = evaluateSr06({ ...SR06_DEFAULTS, ...ctx.inputs, mode } as never);
+      const numbers: Record<string, number> = {};
+      for (const outputId of [
+        "composedUxOverC",
+        "composedUyOverC",
+        "composedSpeedOverC",
+        "galileanSpeedOverC",
+        "printedSpeedOverC",
+        "shortfall",
+        "composedGamma",
+        "rapidityFrame",
+        "rapidityMoving",
+        "inverseUxOverC",
+        "inverseUyOverC",
+      ]) {
+        const got = sessionOutputsOf(outputs, outputId);
+        if (isOwnerRefusal(got)) return got;
+        Object.assign(numbers, got);
+      }
+      for (const outputId of [
+        "rotationDeg",
+        "rapiditySum",
+        "fizeauIncrement",
+        "fresnelIncrement",
+      ]) {
+        const got = sessionOutputsOf(outputs, outputId);
+        if (!isOwnerRefusal(got)) Object.assign(numbers, got);
       }
       return numbers;
     },
