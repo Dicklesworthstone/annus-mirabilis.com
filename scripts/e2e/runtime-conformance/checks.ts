@@ -1,6 +1,7 @@
 import type { Page } from "playwright";
 import { parseInstrumentRoot } from "../domContract.ts";
 import { missingIdentityAttribute } from "./identityReader.ts";
+import { classifyNetworkRequest, type NetworkKind } from "./networkLogClassifier.ts";
 import { readSchedulerMark } from "./performanceMarkReader.ts";
 
 declare global {
@@ -278,4 +279,60 @@ export async function checkPlantedMarkMismatchFails(page: Page): Promise<CheckRe
     return fail(`planted page failed for the wrong reason: ${result.message}`);
   }
   return pass("planted page's am:accepted mark disagrees with its displayed snapshot, as required");
+}
+
+/**
+ * WHAT THE PAGE FETCHES ON ARRIVAL, CLASSIFIED (am-xyxk, am-1nnj's sibling finding).
+ *
+ * `classifyNetworkRequest` sat in this directory with no caller: nothing watched the network during a
+ * conformance run, and this file had zero references to network or fetch. The property worth asserting
+ * is one the master plan states as design rather than as hope: on arrival an instrument shows its
+ * static worked example and fetches NO WASM. A reader on a slow connection pays for that promise, and
+ * nothing checked it anywhere in the browser lane.
+ *
+ * NON-VACUITY IS THE FIXTURE'S OWN DOING, which is why this check is worth having here rather than
+ * against a page that could not fetch wasm if it tried. RUNTIME_FIXTURE_ENTRY serves
+ * fs-annus-diffusion/.../fs_annus_diffusion_bg.wasm and public/wasm/manifest.json, so a wasm request
+ * is available to be made and the app declining to make one is a fact about the app. A check that no
+ * wasm arrives where none is servable would pass for ever and mean nothing.
+ *
+ * The collector is attached BEFORE navigation and returns a reader, because a listener added after
+ * goto misses exactly the requests the arrival contract is about.
+ */
+export type ObservedRequest = Readonly<{ url: string; kind: NetworkKind }>;
+
+export function recordNetworkKinds(page: Page): () => readonly ObservedRequest[] {
+  const seen: ObservedRequest[] = [];
+  page.on("request", (request) => {
+    const url = request.url();
+    seen.push({ url, kind: classifyNetworkRequest(url) });
+  });
+  return () => seen;
+}
+
+/**
+ * The predicate, separated from the page so it is testable without a browser: no wasm, and something
+ * was actually observed. An empty list is a FAILURE rather than a pass, because a page that fetched
+ * nothing at all did not load and would otherwise satisfy "no wasm" perfectly.
+ */
+export function noWasmOnArrival(seen: readonly ObservedRequest[]): CheckResult {
+  if (seen.length === 0) {
+    return fail(
+      "no requests were observed at all, so the page did not load and nothing was checked",
+    );
+  }
+  const wasm = seen.filter((r) => r.kind === "wasm");
+  if (wasm.length > 0) {
+    return fail(
+      `arrival fetched ${wasm.length} wasm request(s): ${wasm.map((r) => r.url).join(", ")}`,
+    );
+  }
+  const page = seen.filter((r) => r.kind === "page").length;
+  return pass(
+    `arrival fetched ${seen.length} request(s), ${page} of them page assets, and no wasm`,
+  );
+}
+
+export function checkNoWasmOnArrival(seen: readonly ObservedRequest[]): CheckResult {
+  return noWasmOnArrival(seen);
 }

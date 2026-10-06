@@ -13,6 +13,7 @@ import { type RunningFixtureServer, startFixtureServer } from "../fixtures/fixtu
 import {
   type CheckResult,
   checkNoLeakedWorkers,
+  checkNoWasmOnArrival,
   checkObserverChangePreservesWorld,
   checkPlantedLeakedWorkerFails,
   checkPlantedMarkMismatchFails,
@@ -23,6 +24,7 @@ import {
   checkSnapshotIdentityAcrossViews,
   checkStaleAfterTeardownRejected,
   checkTwoPlacementsIndependent,
+  recordNetworkKinds,
 } from "./checks.ts";
 import { assertRuntimeRegistration } from "./fixtureRegistration.ts";
 
@@ -94,6 +96,20 @@ export async function runRuntimeConformance(
       provesBead: string;
       run: (page: Page) => Promise<CheckResult>;
     }[] = [
+      {
+        // The arrival contract: an instrument shows its static worked example and fetches no wasm.
+        // The collector is attached BEFORE goto, since a listener added after it misses exactly the
+        // requests this is about. Non-vacuous because RUNTIME_FIXTURE_ENTRY serves a wasm artifact
+        // and a manifest, so the request is available to be made (am-xyxk).
+        id: "no-wasm-on-arrival",
+        provesBead: "am-rt-browser-conformance-09i5",
+        run: async (p) => {
+          const seen = recordNetworkKinds(p);
+          await p.goto(`${server.url}/runtime-conformance.html#/runtime`);
+          await waitReady(p);
+          return checkNoWasmOnArrival(seen());
+        },
+      },
       {
         id: "two-placements-independent",
         provesBead: "am-rt-snapshot-store-aft",

@@ -48,10 +48,12 @@ const EXPECTED_ORPHANED: ReadonlyMap<string, string> = new Map([
   // a pass-through, into all four of those call sites. A missing root attribute is now a named failing
   // check. The pass-through half, readInstrumentIdentity, is still called by nothing, and retiring it
   // is a smaller question than the one this entry was holding open.
-  [
-    "networkLogClassifier.ts",
-    "Helper half of an unwritten check: nothing classifies network requests during a conformance run (checks.ts has no network handling at all). Its predicate is also tautologically tested and is filed separately.",
-  ],
+  // networkLogClassifier.ts came OUT of this map on 2026-10-06. Its reason was "nothing classifies
+  // network requests during a conformance run (checks.ts has no network handling at all)", and
+  // checks.ts now watches the network from before navigation and asserts the arrival contract: an
+  // instrument shows its static worked example and fetches no wasm. Non-vacuous because the runtime
+  // fixture SERVES a wasm artifact and a manifest, so declining to fetch one is a fact about the app.
+  // Its predicate's tautological-test complaint is filed separately and is untouched by this.
   [
     "rafSampler.ts",
     "Helper half of an unwritten check: nothing samples painted frames during a conformance run.",

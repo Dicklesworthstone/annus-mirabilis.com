@@ -108,3 +108,57 @@ test("the old behaviour is gone: no check rejects instead of returning a result"
     assert.equal(result.ok, false);
   });
 });
+
+/**
+ * THE ARRIVAL CONTRACT, tested without a browser (am-xyxk).
+ *
+ * `classifyNetworkRequest` had no caller anywhere: nothing watched the network during a conformance
+ * run. The predicate it now feeds is separated from the page precisely so these four arms can run in
+ * the unit lane, and the browser half is three lines in run.ts.
+ */
+import { checkNoWasmOnArrival, type ObservedRequest } from "./checks.ts";
+import { classifyNetworkRequest } from "./networkLogClassifier.ts";
+
+const observed = (...urls: string[]): ObservedRequest[] =>
+  urls.map((url) => ({ url, kind: classifyNetworkRequest(url) }));
+
+test("a normal arrival passes and says what it saw", () => {
+  const result = checkNoWasmOnArrival(
+    observed(
+      "http://127.0.0.1:1/runtime-conformance.html",
+      "http://127.0.0.1:1/app.js",
+      "blob:http://127.0.0.1:1/abc",
+    ),
+  );
+  assert.equal(result.ok, true);
+  assert.match(result.message, /3 request\(s\)/);
+  assert.match(result.message, /no wasm/);
+});
+
+test("a wasm fetch on arrival fails and names the url", () => {
+  // The fixture SERVES this artifact, which is what makes the passing case above meaningful.
+  const result = checkNoWasmOnArrival(
+    observed(
+      "http://127.0.0.1:1/runtime-conformance.html",
+      "http://127.0.0.1:1/fs-annus-diffusion/80a1f8fda6f69003/fs_annus_diffusion_bg.wasm",
+    ),
+  );
+  assert.equal(result.ok, false);
+  assert.match(result.message, /fs_annus_diffusion_bg\.wasm/);
+  assert.match(result.message, /1 wasm request/);
+});
+
+test("a wasm path without the extension is still wasm, since the classifier reads /wasm/ too", () => {
+  const result = checkNoWasmOnArrival(observed("http://127.0.0.1:1/wasm/manifest.json"));
+  assert.equal(result.ok, false);
+  assert.match(result.message, /wasm request/);
+});
+
+test("observing NOTHING fails rather than passing, because a page that loaded nothing has no wasm", () => {
+  // The vacuity arm, and the reason the predicate counts before it filters: a listener attached after
+  // goto, or a navigation that never happened, both produce an empty list that would otherwise read as
+  // the cleanest possible pass.
+  const result = checkNoWasmOnArrival([]);
+  assert.equal(result.ok, false);
+  assert.match(result.message, /did not load|nothing was checked/);
+});
