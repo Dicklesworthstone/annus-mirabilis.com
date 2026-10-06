@@ -43,7 +43,7 @@
   "scripts/probe-frankensim-copy.ts": 4,
   "scripts/quality-gates.ts": 1,
   "scripts/quality-gates/bunfigNodeOnlyTests.ts": 7,
-  "scripts/repoint-refusal-citation.ts": 1,
+  "scripts/repoint-refusal-citation.ts": 2,
   "scripts/run-node-tests.ts": 4,
   "scripts/sources/ocrPlanSchema.ts": 1,
   "scripts/sources/ocrRunner.ts": 10,

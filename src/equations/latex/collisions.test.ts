@@ -281,7 +281,7 @@ test("collisions.test: renderEquationLatex throws NotationScopeError on modern g
   assert.equal(nonCollidingRes.formRelation, "rename-only");
 });
 
-test("refusal (collisions.ts:73): modern-glyph-collision reports error when modern glyph collides", () => {
+test("refusal (collisions.ts:78): modern-glyph-collision reports error when modern glyph collides", () => {
   const tree: Expression = rel("=", sym("a", "quantityA"), sym("b", "quantityB"));
   const registry = {
     quantityA: {

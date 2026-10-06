@@ -1840,7 +1840,7 @@ test("argument.refusals: validateReadingSet rejects invalid closing targetId gra
   }, "invalid-target-id-for-kind");
 });
 
-test("argument.refusals: validateReadingSet rejects invalid equation targetId grammar (argument.ts:2647)", () => {
+test("argument.refusals: validateReadingSet rejects invalid equation targetId grammar (argument.ts:2658)", () => {
   // Accept path
   assert.ok(
     validateReadingSet({
@@ -1860,7 +1860,7 @@ test("argument.refusals: validateReadingSet rejects invalid equation targetId gr
   }, "invalid-target-id-for-kind");
 });
 
-test("argument.refusals: validateReadingSet rejects invalid derivation-step targetId grammar (argument.ts:2657)", () => {
+test("argument.refusals: validateReadingSet rejects invalid derivation-step targetId grammar (argument.ts:2668)", () => {
   // Accept path
   assert.ok(
     validateReadingSet({
@@ -1880,7 +1880,7 @@ test("argument.refusals: validateReadingSet rejects invalid derivation-step targ
   }, "invalid-target-id-for-kind");
 });
 
-test("argument.refusals: validateReadingSet rejects invalid instrument-caption targetId grammar (argument.ts:2667)", () => {
+test("argument.refusals: validateReadingSet rejects invalid instrument-caption targetId grammar (argument.ts:2678)", () => {
   // Accept path
   assert.ok(
     validateReadingSet({

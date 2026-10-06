@@ -65,14 +65,72 @@ export function mayRepoint(kind: "stale" | "code-mismatched"): boolean {
   return kind === "stale";
 }
 
+/**
+ * The one candidate hint whose plant reddens the citing test, or null when none or several do.
+ *
+ * Restores after EVERY candidate and asserts the restore, because this plants repeatedly in one file
+ * and a half-restored module would corrupt every later measurement in the same run.
+ */
+function disambiguate(
+  f: { testFile: string; source: string; citedLine: number; hint: readonly number[] },
+  root: string,
+): number | null {
+  const path = resolve(root, f.source);
+  const original = readFileSync(path, "utf8");
+  const CODE = /"[a-z][a-z0-9]*(?:-[a-z0-9]+)+"/;
+  const winners: number[] = [];
+  for (const candidate of f.hint) {
+    const lines = original.split("\n");
+    let idx = -1;
+    for (let i = candidate - 1; i < Math.min(lines.length, candidate + 4); i += 1)
+      if (CODE.test(lines[i] ?? "")) {
+        idx = i;
+        break;
+      }
+    if (idx === -1) continue;
+    lines[idx] = (lines[idx] as string).replace(CODE, '"zz-planted-renamed"');
+    writeFileSync(path, lines.join("\n"));
+    try {
+      const base = f.source.split("/").pop() as string;
+      if (failingTitles(f.testFile).some((t) => t.includes(`(${base}:${f.citedLine})`)))
+        winners.push(candidate);
+    } finally {
+      writeFileSync(path, original);
+      // THE SECOND DECLARED BARE THROW, and it is the same invariant as the first: a planted file was
+      // put back. It matters more here than there, because this plants REPEATEDLY in one file and a
+      // half-restored module would corrupt every later measurement in the run rather than one.
+      if (readFileSync(path, "utf8") !== original)
+        throw new Error(`failed to restore ${f.source} byte-identically`);
+    }
+  }
+  return winners.length === 1 ? (winners[0] as number) : null;
+}
+
 /** The findings on one source file whose repair target is determined by identity, never by proximity. */
 export function unambiguousRepoints(source: string, root = ROOT): Repoint[] {
   const report = analyzeUntestedRefusals(root);
   const out: Repoint[] = [];
   for (const f of report.citationFindings) {
-    if (f.source !== source || f.hint.length !== 1) continue;
+    if (f.source !== source || f.hint.length === 0) continue;
     if (!mayRepoint(f.kind)) continue;
-    const to = f.hint[0] as number;
+    /*
+     * AN AMBIGUOUS FINDING IS SETTLED BY PLANTING, not by position (am-r3qt).
+     *
+     * When the citing block names a code with SEVERAL sites the audit offers several hints, and this
+     * tool used to skip the finding - rightly, because choosing by proximity is the misattribution
+     * am-ksl3 exists to prevent. A plant decides what proximity cannot: rename each candidate's code
+     * in turn and see which makes the CITING test redden. Exactly one means the target is identified
+     * rather than guessed, and the ambiguity was only ever in the hint.
+     *
+     * Measured on dimensionBasis.ts, where `invalid-denominator` has three sites: the citation was off
+     * by one, naming the line holding the code STRING of a wrapped throw rather than the `throw new`
+     * the scanner anchors. The hint could not say which of three; the plant could, at once.
+     *
+     * Two or more winners means the test drives several sites and WHICH it should name is editorial,
+     * so that finding is left alone exactly as before.
+     */
+    const to = f.hint.length === 1 ? (f.hint[0] as number) : disambiguate(f, root);
+    if (to === null) continue;
     const lines = readFileSync(resolve(root, f.source), "utf8").split("\n");
     // The code at the target line, read from the file rather than from the finding, because a
     // `stale` finding carries no siteCode and the plant needs the literal to rename.

@@ -445,7 +445,7 @@ describe("Monomial Factor-Set Binding and Dual View", () => {
       expect((thrown as ContentError).code).toBe("monomial-fractional-power");
     });
 
-    test("refusal (monomial.ts:125): monomial-invalid-node rejects unsupported node kinds", () => {
+    test("refusal (monomial.ts:118): monomial-invalid-node rejects unsupported node kinds", () => {
       // Accept: symbol node
       const accepted = extractMonomialFactorSet(sym("t.x", "q"));
       expect(accepted.factors.length).toBe(1);
