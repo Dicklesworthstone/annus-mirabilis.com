@@ -159,7 +159,7 @@ describe("Review Schema and Status Checks", () => {
     );
   });
 
-  it("planted negative: a record that claims review without a reviewer is refused", () => {
+  it("planted negative: a record that claims review without a reviewer is refused (review.ts:595)", () => {
     assert.throws(
       () =>
         validateReviewRecord({

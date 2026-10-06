@@ -134,7 +134,22 @@ describe("Versioned buffer header validation refusal sites (am-muyh)", () => {
   });
 
   // Site 3 (line 110)
-  test("site (buffers.ts:110) unknown-layout: rejects missing or non-primitive layoutId or layoutVersion, accepts valid layout identifiers", () => {
+  /*
+   * TWO CITATIONS ON ONE TEST, because this test drives two sites of one code (am-r3qt).
+   *
+   * `unknown-layout` is raised at :110 and :118, and `buffer-shape-mismatch` at :147, :155 and :163.
+   * Each of these accept/reject pairs exercises the whole validation, so it reaches more than the one
+   * site its title named, and a code with several sites is credited only by an explicit citation - so
+   * the unnamed sites read as untested while a test was driving them the whole time. This bead's
+   * category 2.
+   *
+   * Proved before writing, one site at a time: renaming the code at :118 reddens the first test and
+   * nothing else, and renaming it at :163 reddens the second. Not inferred from the pair's shape.
+   *
+   * The right repair is a SECOND citation rather than moving the first, which would only swap which
+   * site is uncredited.
+   */
+  test("site (buffers.ts:110) and (buffers.ts:118) unknown-layout: rejects missing or non-primitive layoutId or layoutVersion, accepts valid layout identifiers", () => {
     const accepted = validateBufferHeader(VALID_BROWNIAN_HEADER);
     assert.equal(accepted.ok, true);
 
@@ -305,7 +320,7 @@ describe("Versioned buffer header validation refusal sites (am-muyh)", () => {
   });
 
   // Site 8 (line 155)
-  test("site (buffers.ts:155) buffer-shape-mismatch: rejects shape violating layout-specific constraint, accepts shape satisfying constraints", () => {
+  test("site (buffers.ts:155) and (buffers.ts:163) buffer-shape-mismatch: rejects shape violating layout-specific constraint, accepts shape satisfying constraints", () => {
     // brownian-frames@1 requires shape[0] >= 1 && shape[1] >= 1
     const acceptedBrownian = validateBufferHeader(VALID_BROWNIAN_HEADER);
     assert.equal(acceptedBrownian.ok, true);
