@@ -557,6 +557,72 @@ describe("11. verifyPins reporting", () => {
     expect(entry(results, "ap-99-004").status).toBe("not-available");
     expect(allOk).toBe(false);
   });
+
+  /**
+   * THE PAGE COUNT IS A SECOND, INDEPENDENT CLAIM (am-xoxn criterion 2).
+   *
+   * A digest binds THESE BYTES to THIS RECORD and says nothing about whether the record's other
+   * fields describe them. `pageCount` is the one a reader acts on - the page map, the receipt and
+   * the facsimile viewer all count through it - and a config carrying a correct sha256 and a wrong
+   * pageCount passed this CI-required gate green until now.
+   *
+   * It is counted with validatePdf, which parses the buffer, so the check adds NO tool dependency
+   * to a requiredInCi gate. That is why it can live here rather than in facsimile-pins, where the
+   * other pinned-only checks are stranded behind pdfinfo and the git-ignored parent scans.
+   */
+  test("a correct digest with a wrong recorded pageCount is refused, and named as the record's fault", () => {
+    const pdfBuf = fs.readFileSync(path.join(FIXTURES_DIR, "valid-2page.pdf"));
+    fs.writeFileSync(path.join(testRoot, "public", "papers", "pdfs", "ap-99-005.pdf"), pdfBuf);
+    const base = {
+      configVersion: 1,
+      key: "ap-99-005",
+      candidates: [
+        {
+          url: "https://example.org/5.pdf",
+          kind: "article",
+          expectedPageCountRange: { min: 1, max: 9 },
+        },
+      ],
+      articlePages: { printedFirst: 1, printedLast: 2 },
+      rights: { rightsStatus: "scan-open-terms", publicationDecision: "publish" },
+    };
+    const write = (pageCount: number | undefined) =>
+      fs.writeFileSync(
+        path.join(configDir, "ap-99-005.yaml"),
+        JSON.stringify({
+          ...base,
+          pinned: {
+            path: "public/papers/pdfs/ap-99-005.pdf",
+            sha256: sha256File(pdfBuf),
+            ...(pageCount === undefined ? {} : { pageCount }),
+          },
+        }),
+      );
+    const statusOf = () =>
+      entry(
+        verifyPins({ configDir, repoRoot: testRoot, requireLocal: false }).results,
+        "ap-99-005",
+      );
+
+    // The fixture is a real two-page PDF, so a recorded 3 is a record that does not describe it.
+    write(3);
+    const wrong = statusOf();
+    expect(wrong.status).toBe("page-count-mismatch");
+    expect(wrong.expected).toBe("3");
+    expect(wrong.actual).toBe("2");
+    // NOT reported as a digest mismatch: the two call for opposite repairs, and saying the file is
+    // not the pinned file would send a reader to repin a correct facsimile.
+    expect(wrong.status).not.toBe("mismatch");
+
+    // The accepting case, so the refusal is about the disagreement rather than about the field.
+    write(2);
+    expect(statusOf().status).toBe("ok");
+
+    // AN ABSENT pageCount IS AN ABSENT CLAIM, not a disagreement. Without this guard the check
+    // read `2 !== undefined` as a mismatch and turned the test above this one red.
+    write(undefined);
+    expect(statusOf().status).toBe("ok");
+  });
 });
 
 describe("12. Loopback HTTP network test server", () => {

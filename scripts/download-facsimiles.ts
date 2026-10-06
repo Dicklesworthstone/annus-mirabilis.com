@@ -677,7 +677,7 @@ export function verifyPins(options?: {
   results: Record<
     string,
     {
-      status: "ok" | "mismatch" | "missing" | "not-available";
+      status: "ok" | "mismatch" | "page-count-mismatch" | "missing" | "not-available";
       path: string;
       expected?: string;
       actual?: string;
@@ -696,7 +696,7 @@ export function verifyPins(options?: {
   const results: Record<
     string,
     {
-      status: "ok" | "mismatch" | "missing" | "not-available";
+      status: "ok" | "mismatch" | "page-count-mismatch" | "missing" | "not-available";
       path: string;
       expected?: string;
       actual?: string;
@@ -736,6 +736,35 @@ export function verifyPins(options?: {
     } else {
       const actualSha = sha256File(fullPath);
       if (actualSha === cfg.pinned.sha256) {
+        // THE PAGE COUNT IS A SECOND, INDEPENDENT CLAIM (am-xoxn criterion 2).
+        //
+        // A digest binds THESE BYTES to THIS RECORD. It says nothing about whether the record's
+        // OTHER fields describe them, and `pageCount` is the one a reader acts on: it is what the
+        // page map, the receipt and the facsimile viewer count through. A config carrying a
+        // correct sha256 and a wrong pageCount passed this gate until now, in CI, green.
+        //
+        // Counted with validatePdf, which parses the buffer itself, so this adds NO tool
+        // dependency to a requiredInCi gate - the reason it can live here rather than in
+        // facsimile-pins, where the pinned-only checks are stranded behind `pdfinfo` and the
+        // git-ignored parent scans.
+        // An ABSENT pageCount is not a disagreement, it is an absent claim, and this gate checks
+        // claims rather than requiring them. Without this guard a config that records no page
+        // count reported `2 !== undefined` as a mismatch - which the existing verifyPins test
+        // caught on the first run, correctly. Whether the field OUGHT to be mandatory is the
+        // config schema's question, not this gate's.
+        const declaredPages = cfg.pinned.pageCount;
+        const counted =
+          typeof declaredPages === "number" ? validatePdf(fs.readFileSync(fullPath)) : null;
+        if (counted?.valid && counted.pageCount !== declaredPages) {
+          results[key] = {
+            status: "page-count-mismatch",
+            path: cfg.pinned.path,
+            expected: String(declaredPages),
+            actual: String(counted.pageCount),
+          };
+          allOk = false;
+          continue;
+        }
         results[key] = {
           status: "ok",
           path: cfg.pinned.path,
@@ -1453,6 +1482,16 @@ export async function main(
       } else if (r.status === "mismatch") {
         console.error(
           `❌ ${k}: DIGEST MISMATCH at ${r.path} (expected ${r.expected}, got ${r.actual})`,
+        );
+      } else if (r.status === "page-count-mismatch") {
+        // NOT a digest mismatch, and the difference decides what to do next. The bytes ARE the
+        // pinned bytes - the digest matched before this was reached - so the file on disk is
+        // right and the RECORD is wrong. Saying "the file on disk is not the file that was
+        // pinned" here would send a reader to repin a correct facsimile.
+        console.error(
+          `❌ ${k}: PAGE COUNT MISMATCH at ${r.path} (record says ${r.expected} pages, the file has ${r.actual}). ` +
+            "The digest matched, so these ARE the pinned bytes and the record is what is wrong. " +
+            "Correct pageCount in the config; do NOT repin.",
         );
       } else {
         console.error(`❌ ${k}: MISSING file at ${r.path}`);
