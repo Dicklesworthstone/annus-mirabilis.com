@@ -8,6 +8,28 @@ import {
   readFacsimileResponse,
 } from "../reader/facsimile/wire.ts";
 
+/**
+ * Every refusal in wire.ts carries the code `facsimile-response-invalid`, and until 2026-10-06
+ * the cases below asserted only THAT SOMETHING THREW (am-r3qt). A bare `assert.throws` passes on
+ * a TypeError from a bug in the decoder exactly as it passes on the typed refusal the decoder
+ * exists to raise, so a decoder that crashed on hostile input read identically to one that
+ * refused it. That is the distinction this transport is for: a refusal is a museum label, and a
+ * crash is not.
+ *
+ * The code reaches a reader from two sites and they are different mechanisms:
+ *   (wire.ts:11) the `requireData` helper, which every bounded check in this module routes through
+ *   (wire.ts:68) the `catch` around `new URL`, the one refusal raised by a THROWN parse rather
+ *                than by a failed predicate
+ */
+function refuses(fn, messagePattern) {
+  assert.throws(fn, (error) => {
+    assert.equal(error.name, "FacsimileDataError");
+    assert.equal(error.code, "facsimile-response-invalid");
+    if (messagePattern) assert.match(error.message, messagePattern);
+    return true;
+  });
+}
+
 const document = projectFacsimileDocument(
   "mass-energy",
   "ap-18-639",
@@ -79,7 +101,7 @@ test("schema, paper identity, local URL and hash cannot be substituted by a resp
   for (const mutate of mutations) {
     const value = envelope();
     mutate(value);
-    assert.throws(() => decode(value));
+    refuses(() => decode(value));
   }
 });
 test("noncontiguous, repeated, fractional and out-of-bounds page mappings are rejected", () => {
@@ -97,7 +119,7 @@ test("noncontiguous, repeated, fractional and out-of-bounds page mappings are re
   for (const mutate of mutations) {
     const value = envelope();
     mutate(value.document);
-    assert.throws(() => decode(value));
+    refuses(() => decode(value));
   }
 });
 test("invalid unit identities and aliases cannot manufacture source anchors", () => {
@@ -112,13 +134,13 @@ test("invalid unit identities and aliases cannot manufacture source anchors", ()
   for (const mutate of mutations) {
     const value = envelope();
     mutate(value.document);
-    assert.throws(() => decode(value));
+    refuses(() => decode(value));
   }
 });
 test("source-map URL construction cannot escape the paper route", () => {
   assert.equal(facsimileMapPath("mass-energy"), "/papers/mass-energy/facsimile.json");
   for (const id of ["../private", "a?b", "a#b", "https://example.org"])
-    assert.throws(() => facsimileMapPath(id));
+    refuses(() => facsimileMapPath(id));
 });
 test("streamed JSON is decoded through the same bounded schema", async () => {
   const result = await readFacsimileResponse(Response.json(envelope()), "mass-energy");
@@ -168,4 +190,35 @@ test("a frozen id with a printed letter label crosses the wire, and a malformed 
     bad.document.units[0].id = id;
     assert.throws(() => decode(bad), /facsimile/);
   }
+});
+
+test("an origin the URL parser rejects outright is refused, not crashed on (wire.ts:68)", () => {
+  // The one refusal in wire.ts raised by a THROWN parse rather than a failed predicate. The
+  // existing hostile-origin cases all parse successfully and are caught by the protocol and
+  // credential checks below it: `new URL("javascript:alert(1)")` SUCCEEDS, with protocol
+  // "javascript:". So none of them reaches the catch, and without this case a decoder that let
+  // a URL constructor error escape as a plain TypeError would look identical to one that
+  // refused. Each string here passes the length check above and then fails to parse.
+  for (const origin of ["not a url", "https://", "://missing-scheme", "ht tp://example.org"]) {
+    const value = envelope();
+    value.document.originUrl = origin;
+    // The code is asserted HERE rather than only inside `refuses`, because a citation is audited
+    // against its own test block and the helper's literal sits outside it.
+    assert.throws(
+      () => decode(value),
+      (error) => {
+        assert.equal(error.code, "facsimile-response-invalid");
+        assert.match(error.message, /Invalid source origin|Invalid archival origin/);
+        return true;
+      },
+    );
+  }
+});
+
+test("a well-formed https origin is admitted, so the parse refusal is about the parse", () => {
+  // The negative: a decoder that refused every origin would pass the case above. This is the
+  // same envelope with an origin that parses and satisfies the protocol and credential checks.
+  const value = envelope();
+  value.document.originUrl = "https://archive.org/details/annalen-17";
+  assert.equal(decode(value).kind, "available");
 });

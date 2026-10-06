@@ -140,7 +140,7 @@
   "src/reader/facsimile/controller.ts": 1,
   "src/reader/facsimile/document.ts": 0,
   "src/reader/facsimile/server.ts": 1,
-  "src/reader/facsimile/wire.ts": 2,
+  "src/reader/facsimile/wire.ts": 0,
   "src/reader/misconceptions/interventionGate.ts": 0,
   "src/reader/misconceptions/types.ts": 0,
   "src/reader/notebook/replayEntry.ts": 0,
