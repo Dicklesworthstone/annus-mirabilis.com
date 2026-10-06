@@ -135,7 +135,7 @@ test("population-noun-changed fires when the gate reads a different population t
   assert.match(found[0]?.message ?? "", /widgets/);
 });
 
-test("population-below-minimum fires on a count under the gate's OWN declared floor", () => {
+test("population-below-minimum fires on a count under the gate's OWN declared floor (judge.ts:127)", () => {
   // The minimum comes from the printed line, never from the record: a census trusting a number copied
   // into its record would inherit the gate's silence.
   const found = judgeGate(step(), record(), {
@@ -284,7 +284,7 @@ test("a tool's real summary line supplies the count", () => {
   assert.deepEqual(codes(found), []);
 });
 
-test("THE RECORDED INCIDENT: 'Checked 0 files in 1629µs' is below the floor and is reported", () => {
+test("THE RECORDED INCIDENT: 'Checked 0 files in 1629µs' is below the floor and is reported (judge.ts:111)", () => {
   const found = judgeGate(step(), toolRecord(), {
     output: "Checked 0 files in 1629µs. No fixes applied.",
     exitCode: 0,
@@ -304,7 +304,7 @@ test("the singular 'Checked 1 file' also parses, since biome inflects", () => {
   assert.deepEqual(codes(found), ["population-below-minimum"]);
 });
 
-test("tool-population-unreadable fires when the wording does not match, and never reads zero", () => {
+test("tool-population-unreadable fires when the wording does not match, and never reads zero (judge.ts:94)", () => {
   // The direction that matters: a tool that changed its summary must be a finding, not a silent zero,
   // because a zero would be a number the tool never reported.
   const found = judgeGate(step(), toolRecord(), {
@@ -314,6 +314,37 @@ test("tool-population-unreadable fires when the wording does not match, and neve
   });
   assert.deepEqual(codes(found), ["tool-population-unreadable"]);
   assert.match(found[0]?.message ?? "", /do not read a non-match as zero/);
+});
+
+/*
+ * THE FOURTH REFUSAL SITE, WHICH NOTHING DROVE (am-ksl3 / am-muyh).
+ *
+ * `tool-population-unreadable` is raised at two places: once when the pattern matches nothing, and
+ * once when it matches and the capture is not an integer. The first had a test; the second did not,
+ * and under this bead's rule a code with several sites is credited only by a CITATION, so the gap was
+ * real rather than bookkeeping. It cannot be reached with a `(\\d+)` pattern, because digits always
+ * parse - which is exactly why it needs a record whose pattern captures something else, and why no
+ * existing test happened to cover it.
+ */
+test("a capture that is not an integer count is unreadable, not a number (judge.ts:103)", () => {
+  const fractional = record({
+    toolPopulation: {
+      pattern: String.raw`examined ([\d.]+) things`,
+      noun: "things",
+      minimum: 1,
+      why: "x".repeat(90),
+    },
+  });
+  const found = judgeGate(step(), fractional, {
+    output: "examined 3.5 things",
+    exitCode: 0,
+    routes: ["bun run gates"],
+  });
+  assert.deepEqual(codes(found), ["tool-population-unreadable"]);
+  // The message must quote what it captured, so an author can see WHY their pattern is wrong rather
+  // than only that it is.
+  assert.match(found[0]?.message ?? "", /"3\.5"/);
+  assert.match(found[0]?.message ?? "", /not an integer count/);
 });
 
 test("bun's own line parses with its own pattern", () => {
