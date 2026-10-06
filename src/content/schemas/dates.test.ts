@@ -169,7 +169,7 @@ describe("dates schema refusal throw sites (am-muyh)", () => {
     assert.equal(accepted.verifiedAt, "2026-09-15");
   });
 
-  test("dates: (dates.ts:188) chronology-received-before-dateline raised when received is before date-line", () => {
+  test("dates: (dates.ts:187) chronology-received-before-dateline raised when received is before date-line", () => {
     const dateline = validatePaperDate({
       ...validDay,
       type: "date-line",
@@ -201,7 +201,7 @@ describe("dates schema refusal throw sites (am-muyh)", () => {
     assert.doesNotThrow(() => validateChronology([earlyDateline, received]));
   });
 
-  test("dates: (dates.ts:199) chronology-published-before-received raised when publication is before received", () => {
+  test("dates: (dates.ts:198) chronology-published-before-received raised when publication is before received", () => {
     const received = validatePaperDate({
       ...validDay,
       type: "received",
