@@ -1,10 +1,27 @@
 /**
  * Quality Gates Registry for annus-mirabilis.com
  *
- * Defines the single, typed, canonical quality gate chain used by:
- * - Local CLI runner (`bun run gates` / `bun scripts/quality-gates.ts`)
- * - GitHub Actions CI workflows (`.github/workflows/quality-gates.yml`, `.github/workflows/nightly-gates.yml`)
- * - Publication release script (`am-rel-verified-deploy-qndt`)
+ * Defines the single, typed, canonical quality gate chain. WHAT ACTUALLY RUNS IT (am-7bkr):
+ * - `bun run gates`, which dsr invokes. Families `fast` and `browser`, cadence every-run.
+ * - `bun run gates:apple`, local only. AGENTS.md: Apple validation "runs locally as the `apple`
+ *   gate family, not in the website's CI".
+ * - `bun scripts/verified-production-deploy.ts --profile <scaffold|preview|launch>`, which sweeps
+ *   every family at every cadence for the steps that profile requires.
+ *
+ * NOT GitHub Actions. This header listed `.github/workflows/quality-gates.yml` and
+ * `nightly-gates.yml` as consumers until 2026-10-06, and they are not: docs/DECISIONS.md
+ * D-2026-09-22-dsr-is-the-ci-never-github-actions records the owner's standing rule verbatim, "we
+ * don't use gh actions for CI *EVER*, we ONLY use /dsr", and dsr's own repos.yaml entry for this
+ * repository says so in a comment. Five workflow files are tracked and none of them executes. A
+ * header naming a non-runner as a consumer is how a step comes to look enforced while no path
+ * reaches it, which is this bead's whole subject, so it is corrected here rather than left.
+ *
+ * ONE STEP CLASS IS STILL UNREACHED IN PRACTICE, measured 2026-10-06 and recorded rather than
+ * quietly fixed: the two `perf` steps (perf-budgets, resource-stress, cadence nightly) are required
+ * only by the `preview` and `launch` profiles, and every release so far has run under `scaffold`.
+ * `bun run gates` does not reach them either, because it is every-run and they are nightly, and
+ * there is no nightly runner under dsr. So nothing runs the perf family today. Which profile should
+ * require them is an owner call and is filed on am-7bkr.
  *
  * Requirements:
  * - Never weaken a gate.
