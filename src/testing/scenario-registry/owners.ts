@@ -174,6 +174,28 @@ export function isOwnerRefusal(result: OwnerResult): result is OwnerRefusal {
   return typeof result === "object" && result !== null && "refused" in result;
 }
 
+/**
+ * SYNCHRONOUS, AND WIDENING IT IS NOT A LOCAL CHANGE (am-nxbq).
+ *
+ * BM-05 is the one instrument whose typed non-numeric case no scenario can reach, and this type is why.
+ * Its case is real and reader-reachable: `src/workers/operations/bm05.ts` at `p.n === 0` reports five
+ * outputs as not-applicable together, with the reason that before any steps there is a point mass rather
+ * than a finite-width Gaussian comparison, and the `n` control's declared range starts at 0. It is the
+ * same physics as bm-06's t = 0 limit, which IS a scenario. But reaching it means `measureBm05`, which is
+ * async and needs a `WalkRecording` from `createBm05Recording`, and no synchronous owner can await one.
+ * The prepared-example shape that worked for bm-08 does not help, because bm-05's arrival example carries
+ * no non-value output.
+ *
+ * WHAT THE WIDENING COSTS, measured rather than guessed, because I first asserted it without checking.
+ * Allowing `OwnerResult | Promise<OwnerResult>` here is backward compatible on its own: a synchronous
+ * owner still satisfies the union. What is not backward compatible is the RUNNER.
+ * `runLoadedScenarios` in run.ts is synchronous, returning a plain object and calling `runOne` in a plain
+ * loop, so it and `runOne` would both become async and every call site that consumes them would need to
+ * await, including scripts/run-scenarios.ts, `runScenariosIsolated`, and the scenario test files.
+ *
+ * That is one unit of work with a real blast radius, not a line to slip into another change, which is why
+ * bm-05 is recorded as open rather than closed with an invented scenario.
+ */
 export type OwnerFn = (ctx: OwnerContext) => OwnerResult;
 export type OwnerRecord = Readonly<{
   id: string;
