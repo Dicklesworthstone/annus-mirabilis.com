@@ -560,6 +560,68 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
     ],
     independentReferences: [],
   },
+  // THE LAST FOUR DECLARED KERNELS IN THE REPOSITORY WITH NO CATALOGUE ENTRY (am-f3e4, 2026-10-06).
+  // Three belong to SR-04's constraint engine, which is where the transformation is DERIVED rather
+  // than used, and one is SR-03's simultaneity verdict. With these, every kernel any manifest declares
+  // can show a reader its source.
+  {
+    instrumentId: "sr-04",
+    kernel: tsRef("src/physics/reference/kinematics.ts", "boostMatrixXT"),
+    words: {
+      r0: "The transformation written as a two-by-two table of coefficients, which is the form that makes its one defining property visible.",
+      r1: "Put the transformation of x and t side by side and it is a matrix: gamma on the diagonal, minus gamma v in one corner and minus gamma v over c squared in the other. Its determinant is 1, exactly, at every speed, which is the statement that the transformation preserves areas in the x-t plane. Its two eigenvalues are the square roots of (1 minus beta) over (1 plus beta) and its reciprocal, and at 0.6 c those come out as exactly one half and exactly two: the directions along the two light rays are stretched and squeezed by reciprocal factors, and their product being 1 is the determinant again.",
+      r2: "The function refuses before it computes, and the first refusal is the interesting one: in the 1904 mode it declines outright, because a matrix is a modern surface rather than something available on the shelf this edition's discovery route is built from. Only then are gamma and c checked, gamma returning its own refusal for a speed at or past light. The matrix itself is built by a private helper so that the SAME layout is used wherever a boost is composed, which is what lets composeBoosts multiply two of them and read a composite gamma out of the product's first entry; if this function returned a differently arranged table, that extraction would be reading the wrong slot.",
+      r3: "Einstein writes section 3's result as four equations, not as a matrix, and the matrix form is Minkowski's way of seeing it from 1908. Keeping it behind a 1904-mode refusal is the edition's rule that modern notation and modern knowledge are separate choices: a reader may have the matrix, and a reader reconstructing the 1904 desk may not be handed it as though it were available.",
+    },
+    liveTerms: ["frameSpeed", "lorentzFactor", "speedOfLight"],
+    identifierBindings: [
+      bind("boostMatrixXT", "beta", "frameSpeed"),
+      bind("boostMatrixXT", "c", "speedOfLight"),
+      bind("boostMatrixXT", "g", "lorentzFactor"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-04",
+    kernel: tsRef("src/physics/reference/kinematics/constraints.ts", "checkCandidateMap"),
+    words: {
+      r0: "A proposed set of transformation coefficients measured against each requirement in turn, so a reader can see which one a guess breaks.",
+      r1: "Offer four numbers for the transformation and this says how far each requirement is from being met. Light moving right must still move at c, light moving left must too, and the transformation must be reciprocal, which for the longitudinal coefficient means its square times (1 minus beta squared) equals 1. Each requirement comes back as a residual, zero when it holds, so a guess is not simply wrong but wrong by an amount and in a named way. Put gamma in for that coefficient and the reciprocity residual is exactly zero.",
+      r2: "Returning residuals rather than booleans is the whole design. A reader moving a coefficient by hand needs to know whether they are approaching a constraint or leaving it, which a true-or-false answer cannot say, and the sign tells them which side they are on. allHold is derived from the residuals rather than computed separately, so it cannot disagree with them. identifiesLongitudinalScale is reported apart from the rest because the light-speed conditions alone do not fix that coefficient: they leave a one-parameter family, and saying so is the point of the instrument rather than a limitation of it.",
+      r3: "This is section 3's argument taken apart. Einstein imposes the requirements in prose and arrives at the coefficients; here the requirements are separate dials and the coefficients are the reader's to propose, which is a reconstruction and is labelled as one. The family that the light conditions leave open is what Einstein closes with his reciprocity and isotropy arguments, and a reader who has watched the residual for that one requirement refuse to vanish has met the step the paper spends a paragraph on.",
+    },
+    liveTerms: ["frameSpeed", "transformationCoefficientA"],
+    identifierBindings: [
+      bind("checkCandidateMap", "v", "frameSpeed"),
+      bind("checkCandidateMap", "a", "transformationCoefficientA"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-04",
+    kernel: tsRef("src/physics/reference/kinematics/constraints.ts", "solveCandidateFamily"),
+    words: {
+      r0: "With the requirements a reader has switched on, what the transformation is forced to be, and what is left free.",
+      r1: "Switch on a subset of the requirements and this reports which transformations still satisfy them. With all of them on, one answer survives and it is Einstein's. With the reciprocity requirement off, a whole family survives, and the instrument says so rather than quietly picking a member of it. Hand it a candidate instead and it reports that candidate's residuals, which is the other way of asking the same question.",
+      r2: "The two modes come back under different statuses, residual-report for a candidate and the solved family otherwise, so a caller cannot mistake one for the other. Both are preceded by the same two refusals, and the second is a model statement rather than an arithmetic one: a non-finite v is a malformed request, while a speed at or past light has no inertial observer at all and refuses under its own code. The enabled requirements arrive as a list and are turned into a set once, so switching the same one on twice cannot count twice toward whatever is forced.",
+      r3: "A reader can switch off a requirement Einstein never states as separable and watch a family appear, which is the fair-hearing rule in working form: the alternatives are not foolish, they are underdetermined, and the paper's result is what the full set of requirements forces rather than the only coherent thing anyone could have written.",
+    },
+    liveTerms: ["frameSpeed"],
+    identifierBindings: [
+      bind("solveCandidateFamily", "v", "frameSpeed"),
+      bind("solveCandidateFamily", "transverseScale", "transformationCoefficientA"),
+    ],
+    independentReferences: [],
+  },
+  // SR-03'S classifySimultaneity CANNOT BE PINNED, and the reason is a defect in the pinning
+  // machinery rather than anything about the kernel (am-f3e4, measured 2026-10-06). verify.ts pins
+  // with extractTypeScriptExport and then compares against git HEAD with extractTypeScriptFromText,
+  // and the two disagree on any export that carries overload signatures: for classifySimultaneity the
+  // first takes lines 337-428, 3003 characters including its three signatures, and the second takes
+  // 352-428, 2566 characters of the implementation only. So the pin never matches HEAD and the
+  // refusal reads "Pin was written against uncommitted source" on a file that is clean. redescribe in
+  // the same module disagrees the same way, 608-668 against 613-668. Its entry is withheld until the
+  // two extractors agree; writing one would put a pin in the file that the audit refuses on every run.
   {
     instrumentId: "sr-05",
     kernel: tsRef("src/physics/reference/kinematics.ts", "dilationLossPerSecond"),
