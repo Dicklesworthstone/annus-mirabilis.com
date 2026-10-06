@@ -54,10 +54,20 @@ const EXPECTED_ORPHANED: ReadonlyMap<string, string> = new Map([
   // instrument shows its static worked example and fetches no wasm. Non-vacuous because the runtime
   // fixture SERVES a wasm artifact and a manifest, so declining to fetch one is a fact about the app.
   // Its predicate's tautological-test complaint is filed separately and is untouched by this.
-  [
-    "rafSampler.ts",
-    "Helper half of an unwritten check: nothing samples painted frames during a conformance run.",
-  ],
+  // rafSampler.ts came OUT of this map on 2026-10-06. Its reason was "Helper half of an unwritten
+  // check: nothing samples painted frames during a conformance run", and checks.ts now samples 25
+  // animation frames across two setup changes and hands the settled ones to findMislabeledPaint. The
+  // check asks the question the predicate makes possible: a frame whose labeled input revision is
+  // ahead of the accepted revision that produced its number is LEGITIMATE while pending or while
+  // distinguished as refused or unavailable, and a defect only when the page simultaneously calls the
+  // view "accepted". Proved by plant: setting data-view-state to "accepted" unconditionally in the
+  // fixture turned exactly this one check red - "25 settled frame(s) painted 0.4559512189589441 from
+  // accepted revision 2 while labeled 3" - and the other thirteen stayed green.
+  //
+  // Wiring it found a second defect, in the harness rather than the module: run.ts opened every
+  // assertion with a goto to a url differing from the current one only in its FRAGMENT, which is a
+  // same-document navigation, so eleven checks had been sharing one document and one set of workers.
+  // See freshNavigation.ts for the measured sequence.
   // tapeUrlBuilder.ts came OUT of this map on 2026-10-06. Its reason was "nothing exercises a tape
   // seed URL during a conformance run", and checks.ts now navigates with a built url carrying
   // 2^64 - 1 and compares the accepted snapshot's own seed with it. Wiring it found a bug in the

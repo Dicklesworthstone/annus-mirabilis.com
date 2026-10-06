@@ -14,6 +14,7 @@ import {
   type CheckResult,
   checkLargeSeedSurvivesUrlRoundTrip,
   checkNoLeakedWorkers,
+  checkNoMislabeledPaint,
   checkNoWasmOnArrival,
   checkObserverChangePreservesWorld,
   checkPlantedLeakedWorkerFails,
@@ -28,6 +29,7 @@ import {
   recordNetworkKinds,
 } from "./checks.ts";
 import { assertRuntimeRegistration } from "./fixtureRegistration.ts";
+import { openRuntimeFixture } from "./freshNavigation.ts";
 
 export type RuntimeConformanceOptions = Readonly<{
   canary?: boolean;
@@ -106,8 +108,7 @@ export async function runRuntimeConformance(
         provesBead: "am-rt-browser-conformance-09i5",
         run: async (p) => {
           const seen = recordNetworkKinds(p);
-          await p.goto(`${server.url}/runtime-conformance.html#/runtime`);
-          await waitReady(p);
+          await openRuntimeFixture(p, `${server.url}/runtime-conformance.html#/runtime`);
           return checkNoWasmOnArrival(seen());
         },
       },
@@ -121,11 +122,22 @@ export async function runRuntimeConformance(
           checkLargeSeedSurvivesUrlRoundTrip(p, `${server.url}/runtime-conformance.html#/runtime`),
       },
       {
+        // Sampled across animation frames rather than read once after settling, because a frame that
+        // paints an old number under a new label is invisible to a check that looks only at the end
+        // state. Settled frames only: a pending frame is entitled to show the previous accepted value
+        // while the requested revision is ahead of it (am-xyxk).
+        id: "no-mislabeled-paint",
+        provesBead: "am-rt-browser-conformance-09i5",
+        run: async (p) => {
+          await openRuntimeFixture(p, `${server.url}/runtime-conformance.html#/runtime`);
+          return checkNoMislabeledPaint(p, "#placement-a", "runtime-analytic-a");
+        },
+      },
+      {
         id: "two-placements-independent",
         provesBead: "am-rt-snapshot-store-aft",
         run: async (p) => {
-          await p.goto(`${server.url}/runtime-conformance.html#/runtime`);
-          await waitReady(p);
+          await openRuntimeFixture(p, `${server.url}/runtime-conformance.html#/runtime`);
           return checkTwoPlacementsIndependent(p);
         },
       },
@@ -133,8 +145,7 @@ export async function runRuntimeConformance(
         id: "snapshot-identity-across-views",
         provesBead: "am-rt-snapshot-store-aft",
         run: async (p) => {
-          await p.goto(`${server.url}/runtime-conformance.html#/runtime`);
-          await waitReady(p);
+          await openRuntimeFixture(p, `${server.url}/runtime-conformance.html#/runtime`);
           return checkSnapshotIdentityAcrossViews(p, "#placement-a");
         },
       },
@@ -142,8 +153,7 @@ export async function runRuntimeConformance(
         id: "observer-change-preserves-world",
         provesBead: "am-rt-command-classes-dzp",
         run: async (p) => {
-          await p.goto(`${server.url}/runtime-conformance.html#/runtime`);
-          await waitReady(p);
+          await openRuntimeFixture(p, `${server.url}/runtime-conformance.html#/runtime`);
           return checkObserverChangePreservesWorld(p);
         },
       },
@@ -151,8 +161,7 @@ export async function runRuntimeConformance(
         id: "teardown-no-leaked-workers",
         provesBead: "am-rt-memory-lifecycle-5ws",
         run: async (p) => {
-          await p.goto(`${server.url}/runtime-conformance.html#/runtime`);
-          await waitReady(p);
+          await openRuntimeFixture(p, `${server.url}/runtime-conformance.html#/runtime`);
           return checkNoLeakedWorkers(p);
         },
       },
@@ -160,8 +169,7 @@ export async function runRuntimeConformance(
         id: "route-transition-does-not-advance-randomness",
         provesBead: "am-rt-memory-lifecycle-5ws",
         run: async (p) => {
-          await p.goto(`${server.url}/runtime-conformance.html#/runtime`);
-          await waitReady(p);
+          await openRuntimeFixture(p, `${server.url}/runtime-conformance.html#/runtime`);
           return checkRouteTransitionDoesNotAdvanceRandomness(p);
         },
       },
@@ -169,8 +177,7 @@ export async function runRuntimeConformance(
         id: "stale-after-teardown-rejected",
         provesBead: "am-rt-worker-protocol-gaq",
         run: async (p) => {
-          await p.goto(`${server.url}/runtime-conformance.html#/runtime`);
-          await waitReady(p);
+          await openRuntimeFixture(p, `${server.url}/runtime-conformance.html#/runtime`);
           return checkStaleAfterTeardownRejected(p);
         },
       },
@@ -178,8 +185,7 @@ export async function runRuntimeConformance(
         id: "scheduler-marks-match-accepted-snapshot",
         provesBead: "am-rt-worker-scheduler-7tl",
         run: async (p) => {
-          await p.goto(`${server.url}/runtime-conformance.html#/runtime`);
-          await waitReady(p);
+          await openRuntimeFixture(p, `${server.url}/runtime-conformance.html#/runtime`);
           return checkSchedulerMarksMatchAcceptedSnapshot(p, "#placement-a");
         },
       },

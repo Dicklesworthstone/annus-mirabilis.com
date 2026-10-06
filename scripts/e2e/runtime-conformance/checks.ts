@@ -1,8 +1,10 @@
 import type { Page } from "playwright";
 import { parseInstrumentRoot } from "../domContract.ts";
+import { openRuntimeFixture } from "./freshNavigation.ts";
 import { missingIdentityAttribute } from "./identityReader.ts";
 import { classifyNetworkRequest, type NetworkKind } from "./networkLogClassifier.ts";
 import { readSchedulerMark } from "./performanceMarkReader.ts";
+import { findMislabeledPaint } from "./rafSampler.ts";
 import { seedFromTapeUrl, tapeUrlWithSeed } from "./tapeUrlBuilder.ts";
 
 declare global {
@@ -16,6 +18,7 @@ declare global {
       workerMessageCount: (instanceId: string) => number;
       observerChange: (instanceId: string, frameSpeed: number) => void;
       measurementChange: (instanceId: string, interval: number) => void;
+      setupChange: (instanceId: string, seed: string) => void;
       presentationChange: (instanceId: string) => void;
       publishAfterTeardown: (instanceId: string) => boolean;
     };
@@ -364,8 +367,10 @@ export async function checkLargeSeedSurvivesUrlRoundTrip(
   if (inUrl !== seed) {
     return fail(`the built url carries seed ${String(inUrl)} rather than ${seed}`);
   }
-  await page.goto(url);
-  await page.waitForSelector('[data-reader-root][data-ready="true"]', { timeout: 15000 });
+  // Through the helper, so this arrival is a new document like every other one. The url differs from
+  // the previous check's in its query, which WOULD navigate, but relying on that is relying on the
+  // very coincidence that hid the fragment-only bug (am-xyxk).
+  await openRuntimeFixture(page, url);
   await page.waitForFunction(() => {
     const el = document.querySelector("#placement-a");
     return el?.getAttribute("data-pending") === "false";
@@ -378,4 +383,164 @@ export async function checkLargeSeedSurvivesUrlRoundTrip(
     return fail(`the accepted seed is ${accepted}, not the ${seed} the url carried`);
   }
   return pass(`a seed of ${seed}, above 2^53, reached the accepted snapshot unchanged`);
+}
+
+/**
+ * NO SETTLED FRAME CLAIMS A NUMBER IT DID NOT COMPUTE (am-xyxk).
+ *
+ * rafSampler sat here with no caller: nothing sampled painted frames during a conformance run. The
+ * contract it serves is one of the runtime rules written in plain words - never display old numbers
+ * beneath new labels - and a violation is invisible to every other check in this file, because they
+ * all read the DOM once after things have settled.
+ *
+ * WHAT THE PREDICATE FINDS IS A CANDIDATE, NOT A DEFECT, and that distinction is the whole design.
+ * `findMislabeledPaint` returns a frame whose labeled input revision is ahead of the accepted
+ * revision that produced its number. Such a frame is legitimate in two situations and a defect in a
+ * third:
+ *   - while an update is in flight (`data-pending` true), the page may keep showing the previous
+ *     accepted value, and it says so;
+ *   - when the requested revision was REFUSED or could not be computed, the page keeps the last
+ *     accepted snapshot and distinguishes it (`data-view-state` refused or unavailable, plus an
+ *     execution outcome, and `data-seed` still naming the ACCEPTED seed);
+ *   - a frame that is settled AND calls itself `accepted` while its labeled revision is ahead of the
+ *     accepted one is the defect: it presents an old number as the answer to a newer question.
+ * So this samples frames, hands the settled ones to the predicate, and asks of every candidate it
+ * returns whether the DOM distinguishes it. A check that simply demanded no candidates would have
+ * failed on a legitimate refusal, and one that filtered candidates out by view-state before asking
+ * anything would have been a tautology, since `instrumentRootAttributes` builds an accepted
+ * snapshot's revisions from the very request it is labelled with.
+ *
+ * MEASURED IN CHROMIUM ON 2026-10-06, which is how the two arms below were chosen. A measurement
+ * change and an observer change each bumped `data-snapshot-version` (1 to 2 to 3) and left
+ * `data-input-revision` at 1, because `revisionFor` in instanceStore.ts routes only setup-change and
+ * physical-intervention to the input counter. The protocol-mismatch hook, which dispatches a
+ * setup-change and then makes the worker answer with a bad protocol version, produced exactly the
+ * candidate shape: labeled 2, accepted 1, pending false, view-state `unavailable`, seed still 1. The
+ * fixture's worker is fast enough that rAF never catches a pending frame at all, so a design resting
+ * on pending windows would have had nothing to sample.
+ */
+export async function checkNoMislabeledPaint(
+  page: Page,
+  selector: string,
+  instanceId: string,
+): Promise<CheckResult> {
+  const sampled = await page.evaluate(
+    async ({ sel, id, frames }) => {
+      type Frame = Readonly<{
+        value: number;
+        labeledRevision: number;
+        acceptedRevision: number;
+        viewState: string;
+        pending: boolean;
+        seed: string;
+      }>;
+      const read = (): Frame | null => {
+        const root = document.querySelector(sel);
+        if (!root) return null;
+        const text = root.querySelector("[data-probe-value]")?.textContent ?? "";
+        const parsed = Number.parseFloat(text.replace(/[^0-9.eE+-]/g, ""));
+        return {
+          value: Number.isFinite(parsed) ? parsed : Number.NaN,
+          labeledRevision: Number(root.getAttribute("data-input-revision") ?? "-1"),
+          acceptedRevision: Number(root.getAttribute("data-accepted-input-revision") ?? "-1"),
+          viewState: root.getAttribute("data-view-state") ?? "",
+          pending: root.getAttribute("data-pending") === "true",
+          seed: root.getAttribute("data-seed") ?? "",
+        };
+      };
+      const sample = async (count: number): Promise<Frame[]> => {
+        const out: Frame[] = [];
+        for (let i = 0; i < count; i += 1) {
+          await new Promise((resolve) => {
+            requestAnimationFrame(() => resolve(undefined));
+          });
+          const frame = read();
+          if (frame) out.push(frame);
+        }
+        return out;
+      };
+      const hooks = window.__amRuntimeConformance;
+      const before = read();
+      // ARM ONE: a setup change that SUCCEEDS. Both revisions move together, so no candidate should
+      // appear at all. A new seed is used so the painted number is forced to change.
+      hooks?.setupChange(id, "77");
+      const clean = await sample(frames);
+      // ARM TWO: a setup change whose answer cannot be accepted, which strands the requested revision
+      // ahead of the accepted one while the page is settled. This is the arm that gives the predicate
+      // something to find.
+      hooks?.forceProtocolMismatch(id);
+      const stranded = await sample(frames);
+      return { before, clean, stranded };
+    },
+    { sel: selector, id: instanceId, frames: 25 },
+  );
+  const { before, clean, stranded } = sampled;
+  if (before === null) return fail(`${selector} was not on the page, so no frame was sampled`);
+  if (clean.length === 0 || stranded.length === 0) {
+    return fail(
+      `sampling collected ${clean.length} and ${stranded.length} frame(s) of ${selector}; an arm with no frames judges nothing`,
+    );
+  }
+  // NON-VACUITY FOR ARM ONE: the setup change has to have taken, in the accepted revision and in the
+  // painted number. Without both, "no candidate appeared" is a statement about a page that never
+  // changed.
+  const settledClean = clean.filter((frame) => !frame.pending);
+  const acceptedMoved = settledClean.some(
+    (frame) => frame.acceptedRevision > before.acceptedRevision,
+  );
+  if (!acceptedMoved) {
+    return fail(
+      `the accepted input revision never moved past ${before.acceptedRevision}, so the setup change did not take and the clean arm proves nothing`,
+    );
+  }
+  const repainted = settledClean.some((frame) => frame.value !== before.value);
+  if (!repainted) {
+    return fail(
+      `the painted probe value stayed ${before.value} across the setup change, so no number was repainted and a mislabeled paint could not be visible`,
+    );
+  }
+  const falseCandidate = findMislabeledPaint(settledClean);
+  if (falseCandidate) {
+    return fail(
+      `an accepted setup change left a settled frame labeled ${falseCandidate.labeledRevision} over accepted revision ${falseCandidate.acceptedRevision}`,
+    );
+  }
+  // NON-VACUITY FOR ARM TWO: the predicate must actually return a candidate here, or the question
+  // below is never asked and the check passes on an empty population.
+  const settledStranded = stranded.filter((frame) => !frame.pending);
+  const candidates = settledStranded.filter(
+    (frame) => frame.labeledRevision > frame.acceptedRevision,
+  );
+  if (findMislabeledPaint(settledStranded) === undefined) {
+    return fail(
+      `no settled frame had its label ahead of its accepted revision after a stranded request, so nothing was judged (${settledStranded.length} settled frame(s), labels ${settledStranded.map((f) => `${f.labeledRevision}/${f.acceptedRevision}`).join(" ")})`,
+    );
+  }
+  const undistinguished = candidates.filter((frame) => frame.viewState === "accepted");
+  if (undistinguished.length > 0) {
+    const worst = undistinguished[0];
+    return fail(
+      `${undistinguished.length} settled frame(s) painted ${worst?.value} from accepted revision ${worst?.acceptedRevision} while labeled ${worst?.labeledRevision} and calling the view "accepted"`,
+    );
+  }
+  // And the number's own provenance: a stranded frame must still report the seed that was ACCEPTED,
+  // not the one it was asked for. The comparison is against the seed observed on the last settled
+  // frame of arm one rather than against a literal, which is how this read the first time and was
+  // wrong: 77 is the stranded frames' legitimate seed, because arm one accepted it.
+  const acceptedSeed = settledClean.at(-1)?.seed ?? "";
+  const seedLeak = candidates.find((frame) => frame.seed !== acceptedSeed);
+  if (seedLeak) {
+    return fail(
+      `a stranded frame reported seed ${seedLeak.seed} rather than the accepted ${acceptedSeed}, at accepted revision ${seedLeak.acceptedRevision}`,
+    );
+  }
+  if (acceptedSeed === "") {
+    return fail(
+      "no settled frame reported a seed, so the stranded frames' seeds were not compared",
+    );
+  }
+  const states = [...new Set(candidates.map((frame) => frame.viewState))].sort();
+  return pass(
+    `${settledClean.length} settled frame(s) across an accepted setup change label their own revision, and ${candidates.length} stranded frame(s) are distinguished as ${states.join(", ")} rather than accepted, all still reporting the accepted seed ${acceptedSeed}`,
+  );
 }

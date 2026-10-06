@@ -25,6 +25,16 @@ type ConformanceHooks = {
   workerMessageCount: (instanceId: string) => number;
   observerChange: (instanceId: string, frameSpeed: number) => void;
   measurementChange: (instanceId: string, interval: number) => void;
+  /**
+   * A SETUP CHANGE, which is the only command class that moves the INPUT revision (am-xyxk).
+   * `revisionFor` in instanceStore.ts maps setup-change and physical-intervention to "input" and
+   * every other class to its own counter, so a harness driving observerChange or measurementChange
+   * leaves data-input-revision where it was. Measured in Chromium on 2026-10-06: after a
+   * measurement change and then an observer change, data-input-revision was still 1 while
+   * data-snapshot-version went 1 to 2 to 3. The mislabeled-paint check needs the input revision to
+   * move, so it needs this.
+   */
+  setupChange: (instanceId: string, seed: string) => void;
   presentationChange: (instanceId: string) => void;
   publishAfterTeardown: (instanceId: string) => boolean;
 };
@@ -231,6 +241,9 @@ function installHooks(): void {
     },
     observerChange(instanceId, frameSpeed) {
       placements.get(instanceId)?.observerChange(frameSpeed);
+    },
+    setupChange(instanceId, seed) {
+      placements.get(instanceId)?.issueSetup(seed, 0);
     },
     measurementChange(instanceId, interval) {
       placements.get(instanceId)?.measurementChange(interval);
