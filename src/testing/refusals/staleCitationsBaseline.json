@@ -29,7 +29,7 @@
   "src/equations/latex/collisions.ts": 0,
   "src/equations/latex/notation.ts": 0,
   "src/equations/latex/render.ts": 1,
-  "src/equations/missingStep/contentCheck.ts": 5,
+  "src/equations/missingStep/contentCheck.ts": 3,
   "src/equations/monomial.ts": 1,
   "src/equations/record.ts": 1,
   "src/experiments/bm07/kitchen/csv.ts": 0,
