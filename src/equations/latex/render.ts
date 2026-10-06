@@ -11,7 +11,8 @@
 
 import { loadConcordanceForPaper } from "../../content/notation/loader.ts";
 import type { AlternateForm } from "../alternateForms.ts";
-import { type Expression, nodeId } from "../ast.ts";
+import { type Expression, nodeId, walk } from "../ast.ts";
+import { namingEquation } from "../nodeKindRefusal.ts";
 import type { QuantityRegistry } from "../quantities.ts";
 import { checkEquationGlyphCollisions } from "./collisions.ts";
 import { wrapHtmlClass, wrapHtmlData } from "./markers.ts";
@@ -497,6 +498,19 @@ export function renderEquationLatex(input: RenderEquationLatexInput): RenderEqua
     activeAlternateForm = alt;
   } else {
     throw new Error(`Unknown form kind: ${(form as { kind: string }).kind}`);
+  }
+
+  // An out-of-domain node kind reaching the renderer refuses with BOTH the kind and the equation
+  // named (am-ghr8 criterion 2). children() knows the kind and has no equation in scope; this is
+  // the nearest frame that has one, so the enrichment happens here. Checking up front rather than
+  // wrapping each traversal means every form - printed, modern and alternate - is covered by one
+  // site, and the refusal arrives before any partial LaTeX has been built. The cost is one extra
+  // traversal of a small tree: the collision check on the next statement walks it again
+  // unconditionally, which is also why this cannot refuse an equation that used to render.
+  try {
+    walk(targetTree);
+  } catch (err) {
+    throw namingEquation(err, equation.id);
   }
 
   // Check glyph collisions

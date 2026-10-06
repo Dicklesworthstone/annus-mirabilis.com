@@ -6,6 +6,7 @@
  * Bead: am-eq-expression-tree-8kl
  */
 
+import { unsupportedNodeKind } from "../nodeKindRefusal.ts";
 import type { ExactScale, Expression, NodeKind } from "./types.ts";
 
 export function children(node: Expression): readonly Expression[] {
@@ -77,6 +78,11 @@ export function children(node: Expression): readonly Expression[] {
       if (node.otherwise) list.push(node.otherwise);
       return list;
     }
+    // See ast.ts's children(): the same assertion, on the other model. am-ghr8 criterion 5 asks
+    // for it on "whichever children() survives", and the decision that picks one is still open,
+    // so both carry it.
+    default:
+      return unsupportedNodeKind(node, "src/equations/tree/walk.ts");
   }
 }
 

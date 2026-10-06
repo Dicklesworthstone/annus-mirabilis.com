@@ -1,5 +1,6 @@
 import { ContentError } from "../content/compiler/json.ts";
 import { rational } from "../content/dimensions/rational.ts";
+import { unsupportedNodeKind } from "./nodeKindRefusal.ts";
 import type { QuantityRegistry } from "./quantities.ts";
 export type ExactScale = Readonly<{ num: number; den: number }>;
 type Op = Readonly<{ opId?: string }>;
@@ -131,6 +132,11 @@ export function children(n: Expression): readonly Expression[] {
       return [n.expression, n.from, n.to];
     case "partialOperator":
       return [n.variable];
+    // The exhaustiveness assertion and the runtime refusal in one (am-ghr8, criteria 2 and 5).
+    // `n` is `never` here only while every kind above has a case, so adding a kind to Expression
+    // without handling it is a COMPILE error rather than an undefined return.
+    default:
+      return unsupportedNodeKind(n, "src/equations/ast.ts");
   }
 }
 export const nodeId = (n: Expression): string | null =>

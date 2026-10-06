@@ -88,28 +88,28 @@
       "refused": "Equation \"eq-sr-s3-2\" symbol \"eq-sr-s3-2.t.tau\" has no concordance entry in scope \"sr-s3\" for paper \"special-relativity\"."
     },
     "8.eq-sr-boost.printed.plain": {
-      "refused": "undefined is not an object (evaluating 'children(root).flatMap')"
+      "refused": "Equation \"eq-sr-boost\": Expression node kind \"matrix\" is outside the expression model of src/equations/ast.ts, so it cannot be traversed or rendered."
     },
     "8.eq-sr-boost.printed.colorized": {
-      "refused": "undefined is not an object (evaluating 'children(root).flatMap')"
+      "refused": "Equation \"eq-sr-boost\": Expression node kind \"matrix\" is outside the expression model of src/equations/ast.ts, so it cannot be traversed or rendered."
     },
     "8.eq-sr-boost.modern.plain": {
-      "refused": "undefined is not an object (evaluating 'children(root).flatMap')"
+      "refused": "Equation \"eq-sr-boost\": Expression node kind \"matrix\" is outside the expression model of src/equations/ast.ts, so it cannot be traversed or rendered."
     },
     "8.eq-sr-boost.modern.colorized": {
-      "refused": "undefined is not an object (evaluating 'children(root).flatMap')"
+      "refused": "Equation \"eq-sr-boost\": Expression node kind \"matrix\" is outside the expression model of src/equations/ast.ts, so it cannot be traversed or rendered."
     },
     "9.eq-lq-pe.printed.plain": {
-      "refused": "undefined is not an object (evaluating 'children(root).flatMap')"
+      "refused": "Equation \"eq-lq-pe\": Expression node kind \"piecewise\" is outside the expression model of src/equations/ast.ts, so it cannot be traversed or rendered."
     },
     "9.eq-lq-pe.printed.colorized": {
-      "refused": "undefined is not an object (evaluating 'children(root).flatMap')"
+      "refused": "Equation \"eq-lq-pe\": Expression node kind \"piecewise\" is outside the expression model of src/equations/ast.ts, so it cannot be traversed or rendered."
     },
     "9.eq-lq-pe.modern.plain": {
-      "refused": "undefined is not an object (evaluating 'children(root).flatMap')"
+      "refused": "Equation \"eq-lq-pe\": Expression node kind \"piecewise\" is outside the expression model of src/equations/ast.ts, so it cannot be traversed or rendered."
     },
     "9.eq-lq-pe.modern.colorized": {
-      "refused": "undefined is not an object (evaluating 'children(root).flatMap')"
+      "refused": "Equation \"eq-lq-pe\": Expression node kind \"piecewise\" is outside the expression model of src/equations/ast.ts, so it cannot be traversed or rendered."
     },
     "10.eq-sr-s6-1.printed.plain": {
       "latex": "Y' = \\beta\\,\\left(Y - \\frac{v}{V}\\,N\\right)"
