@@ -23,6 +23,30 @@
  * ids, which is the right way to size a debt and the wrong way to certify a case: a ref called
  * `...-refused` that resolved to a scenario expecting a number would be worse than a dangling one.
  *
+ * WHAT IT REFUSES TO CALL AN ACCEPTANCE CASE AT ALL, AND WHY THE DEBT IS NOT ONE DEBT. Measured on
+ * 2026-10-05 over the same 33 manifests, which declare 135 presets between them: of 106 dangling
+ * refs, **67 are a preset of the SAME instrument** that names them, 0 are a preset of another, and
+ * 39 are neither. Sixteen instruments' entire dangling list is their own preset list copied into the
+ * field: bm-03 6 of 6, bm-08 9 of 9, sr-13 7 of 7, sr-11 6 of 6, sr-05 5 of 5, sr-12 5 of 5, and so
+ * on. A preset is `{ label, parameters }` and carries NO expectation (see
+ * `src/experiments/bm03/definition.ts`, `"bm-03-ratio-one"`), so a ref naming one asserts nothing
+ * about a result, and writing a scenario file named after it would not be the repair either: the
+ * repair is a scenario that STATES what the preset's parameters should produce.
+ *
+ * That distinction is the reason this is reported separately rather than counted as 106 missing
+ * files. The three populations need three different repairs, and the undifferentiated count told an
+ * author to write 106 scenarios when 67 of them are a manifest that cites initial conditions where
+ * an expectation was required. A dangling ref that is its lab's own preset is still dangling - it
+ * resolves to nothing - and it is named by its own code so the diagnosis is accurate.
+ *
+ * A near miss worth recording, because it is the same error this file exists to refuse: the first
+ * measurement of that split read 106 of 106 refs as "present somewhere in the tree", because
+ * `src/testing/acceptanceCasesBaseline.json` lists every one of them and lives under `src/`. The
+ * instrument was inside its own population. Excluding the baseline, 71 appear in code and 35 nowhere.
+ * Of the 71, the ones in a test file are mostly named by a test asserting that the id parses as a
+ * preset id, which is a naming check and not evidence of a result, so declaring those files as
+ * in-code fixtures would have been proof-class inflation dressed as paying down debt.
+ *
  * THE BASELINE RECORDS THE DEBT, and shrinking it is the only allowed direction. A new dangling ref
  * fails. A baselined ref that now resolves fails too, because the baseline must be kept honest; the
  * message says to remove the line. `--strict` refuses any dangling ref at all, which is how this
@@ -62,11 +86,18 @@ export type AcceptanceRef = Readonly<{
   /** What the scenario it resolves to expects, when that is a status rather than numbers. */
   status?: string | undefined;
   kind?: "refusal" | "non-numeric" | undefined;
+  /**
+   * Set when the ref did not resolve AND is a preset declared by the same manifest. It is not a
+   * second kind of resolution: the ref is dangling either way, and this records which repair it
+   * needs.
+   */
+  ownPreset?: true | undefined;
 }>;
 
 export type AcceptanceProblem = Readonly<{
   code:
     | "acceptance-ref-dangling"
+    | "acceptance-ref-is-a-preset"
     | "acceptance-baseline-slack"
     | "acceptance-fixture-undeclared"
     | "acceptance-fixture-missing-file"
@@ -88,6 +119,12 @@ export type AcceptanceCensus = Readonly<{
   viaScenario: number;
   viaFixture: number;
   dangling: number;
+  /** Presets declared across every manifest read, the denominator of the split below. */
+  presetsDeclared: number;
+  /** Of `dangling`, the ones that are a preset of the instrument that names them. */
+  danglingOwnPreset: number;
+  /** Of `dangling`, the rest: a ref that is not a preset of its instrument and resolves to nothing. */
+  danglingOther: number;
   /** Instruments with at least one case that resolves to a scenario expecting a refusal. */
   instrumentsWithRefusal: number;
   instrumentsWithNonNumeric: number;
@@ -115,9 +152,17 @@ type ManifestRef = Readonly<{
   ref: string;
   noRefusal?: string | undefined;
   noNonNumeric?: string | undefined;
+  /** The preset ids this same manifest declares. */
+  presets: ReadonlySet<string>;
 }>;
 
-/** Each manifest's acceptance refs, in manifest order. */
+/**
+ * Each manifest's acceptance refs, in manifest order, carrying the preset ids the SAME manifest
+ * declares. The presets come from the manifest rather than from `REGISTERED_PRESET_IDS` in
+ * content/schemas/experiment.ts on purpose: that list is hand-maintained and held 128 ids on
+ * 2026-10-05 where the manifests declared 135, so reading it would have made the split depend on how
+ * current the registry is rather than on what the instrument declares.
+ */
 function manifestRefs(root: string): ManifestRef[] {
   const dir = join(root, "content", "experiments");
   const out: ManifestRef[] = [];
@@ -126,6 +171,7 @@ function manifestRefs(root: string): ManifestRef[] {
     const raw = strictParse(readFileSync(join(dir, name), "utf8"), "yaml", name) as {
       acceptanceCases?: unknown;
       acceptanceCoverage?: { noRefusalCase?: unknown; noNonNumericCase?: unknown };
+      presets?: unknown;
     } | null;
     if (!raw || typeof raw !== "object") continue;
     const lab = name.slice(0, -".yaml".length);
@@ -137,10 +183,17 @@ function manifestRefs(root: string): ManifestRef[] {
       typeof raw.acceptanceCoverage?.noNonNumericCase === "string"
         ? raw.acceptanceCoverage.noNonNumericCase
         : undefined;
+    const presets = new Set<string>();
+    if (Array.isArray(raw.presets))
+      for (const p of raw.presets) {
+        const id = (p as { presetId?: unknown } | null)?.presetId;
+        if (typeof id === "string" && id !== "") presets.add(id);
+      }
     const cases = Array.isArray(raw.acceptanceCases) ? raw.acceptanceCases : [];
-    if (cases.length === 0) out.push({ lab, ref: "", noRefusal, noNonNumeric });
+    if (cases.length === 0) out.push({ lab, ref: "", noRefusal, noNonNumeric, presets });
     for (const c of cases)
-      if (typeof c === "string" && c !== "") out.push({ lab, ref: c, noRefusal, noNonNumeric });
+      if (typeof c === "string" && c !== "")
+        out.push({ lab, ref: c, noRefusal, noNonNumeric, presets });
   }
   return out;
 }
@@ -185,7 +238,7 @@ export function checkAcceptanceCases(options: Options = {}): AcceptanceReport {
   const rows = manifestRefs(root);
 
   const refs: AcceptanceRef[] = [];
-  for (const { lab, ref } of rows) {
+  for (const { lab, ref, presets } of rows) {
     if (ref === "") continue;
     const scenario = scenarios.get(ref);
     if (scenario) {
@@ -219,7 +272,14 @@ export function checkAcceptanceCases(options: Options = {}): AcceptanceReport {
         continue;
       }
     }
-    refs.push({ lab, ref, resolution: "dangling" });
+    // The preset mark is reached only here, AFTER both resolutions have been tried, so a preset that
+    // also has a real scenario resolves as that scenario and is never diagnosed as one of these.
+    refs.push({
+      lab,
+      ref,
+      resolution: "dangling",
+      ...(presets.has(ref) ? { ownPreset: true as const } : {}),
+    });
   }
 
   const distinct = new Set(refs.map((r) => r.ref));
@@ -228,10 +288,17 @@ export function checkAcceptanceCases(options: Options = {}): AcceptanceReport {
 
   for (const row of dangling)
     if (options.strict || !baseline.has(row.ref))
-      problems.push({
-        code: "acceptance-ref-dangling",
-        message: `${row.lab}: acceptance case ${JSON.stringify(row.ref)} resolves to no scenario and is not a declared in-code fixture.${options.strict ? "" : " It is new debt: write the case, or declare the fixture that holds it."}`,
-      });
+      problems.push(
+        row.ownPreset
+          ? {
+              code: "acceptance-ref-is-a-preset",
+              message: `${row.lab}: acceptance case ${JSON.stringify(row.ref)} is a preset this manifest declares, not a case. A preset carries parameters and no expectation, so it asserts nothing about a result. Write a scenario that states what those parameters should produce; naming the scenario after the preset is not enough on its own.`,
+            }
+          : {
+              code: "acceptance-ref-dangling",
+              message: `${row.lab}: acceptance case ${JSON.stringify(row.ref)} resolves to no scenario and is not a declared in-code fixture.${options.strict ? "" : " It is new debt: write the case, or declare the fixture that holds it."}`,
+            },
+      );
   for (const recorded of baseline)
     if (!danglingIds.has(recorded))
       problems.push({
@@ -285,6 +352,9 @@ export function checkAcceptanceCases(options: Options = {}): AcceptanceReport {
       viaScenario: refs.filter((r) => r.resolution === "scenario").length,
       viaFixture: refs.filter((r) => r.resolution === "fixture").length,
       dangling: dangling.length,
+      presetsDeclared: new Set(rows.flatMap((r) => [...r.presets])).size,
+      danglingOwnPreset: dangling.filter((r) => r.ownPreset === true).length,
+      danglingOther: dangling.filter((r) => r.ownPreset !== true).length,
       instrumentsWithRefusal,
       instrumentsWithNonNumeric,
     },

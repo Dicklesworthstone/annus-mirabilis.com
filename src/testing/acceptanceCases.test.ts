@@ -278,4 +278,131 @@ describe("the instruments' acceptance cases", () => {
       expect(codes(planted)).not.toContain("acceptance-ref-dangling");
     });
   });
+
+  /**
+   * A REF THAT IS THE INSTRUMENT'S OWN PRESET IS A DIFFERENT DEBT (am-nxbq, 2026-10-05).
+   *
+   * 67 of the tree's 106 dangling refs are a preset the same manifest declares, and a preset is
+   * `{ label, parameterValues }` with no expectation, so such a ref asserts nothing about a result.
+   * The three tests below pin the distinction in both directions, because a diagnosis that fires on
+   * everything is no more useful than one that fires on nothing: the second test is the control where
+   * the ref is NOT a preset and must get the plain dangling code instead.
+   */
+  describe("the split between a dangling ref and a ref that is its own preset", () => {
+    const manifest = (cases: readonly string[], presets: readonly string[]) =>
+      [
+        'id: "zz-04"',
+        "acceptanceCases:",
+        ...cases.map((c) => `  - ${JSON.stringify(c)}`),
+        "presets:",
+        ...presets.flatMap((p) => [`  - presetId: ${JSON.stringify(p)}`, `    label: "A preset"`]),
+        "",
+      ].join("\n");
+
+    test("PLANTED: a case naming this manifest's own preset is named as a preset, not as missing", () => {
+      const root = mkdtempSync(join(tmpdir(), "am-acceptance-own-preset-"));
+      mkdirSync(join(root, "content", "experiments"), { recursive: true });
+      mkdirSync(join(root, "content", "scenarios"), { recursive: true });
+      writeFileSync(
+        join(root, "content", "experiments", "zz-04.yaml"),
+        manifest(["zz-04-slow"], ["zz-04-slow"]),
+      );
+      const planted = checkAcceptanceCases({ root, baseline: [], declarations: {} });
+      expect(planted.census.refs).toBe(1);
+      expect(planted.census.presetsDeclared).toBe(1);
+      expect(planted.census.danglingOwnPreset).toBe(1);
+      expect(planted.census.danglingOther).toBe(0);
+      expect(codes(planted)).toContain("acceptance-ref-is-a-preset");
+      // The accurate diagnosis REPLACES the vague one rather than joining it, so the author is not
+      // told to write a file named after the preset.
+      expect(codes(planted)).not.toContain("acceptance-ref-dangling");
+      expect(
+        planted.problems.find((p) => p.code === "acceptance-ref-is-a-preset")?.message,
+      ).toContain("zz-04-slow");
+      // It is NOT a second kind of resolution. The ref still resolves to nothing.
+      expect(planted.census.resolved).toBe(0);
+      expect(planted.census.dangling).toBe(1);
+    });
+
+    test("THE CONTROL: a case that is not a preset still gets the plain dangling code", () => {
+      // Without this, a preset code that fired on every dangling ref would pass the test above.
+      const root = mkdtempSync(join(tmpdir(), "am-acceptance-not-preset-"));
+      mkdirSync(join(root, "content", "experiments"), { recursive: true });
+      mkdirSync(join(root, "content", "scenarios"), { recursive: true });
+      writeFileSync(
+        join(root, "content", "experiments", "zz-04.yaml"),
+        manifest(["zz-04-no-such-case"], ["zz-04-slow"]),
+      );
+      const planted = checkAcceptanceCases({ root, baseline: [], declarations: {} });
+      expect(planted.census.presetsDeclared).toBe(1);
+      expect(planted.census.danglingOwnPreset).toBe(0);
+      expect(planted.census.danglingOther).toBe(1);
+      expect(codes(planted)).toContain("acceptance-ref-dangling");
+      expect(codes(planted)).not.toContain("acceptance-ref-is-a-preset");
+    });
+
+    test("a preset that ALSO has a real scenario resolves, and is diagnosed as neither", () => {
+      // The ordering that matters: the preset mark is reached only after both resolutions have been
+      // tried. A manifest is allowed to name a preset AND have a scenario stating what those
+      // parameters produce, which is exactly the repair the 67 need, so that repair must not keep
+      // reading as the defect it fixes.
+      const root = mkdtempSync(join(tmpdir(), "am-acceptance-preset-with-scenario-"));
+      mkdirSync(join(root, "content", "experiments"), { recursive: true });
+      mkdirSync(join(root, "content", "scenarios"), { recursive: true });
+      writeFileSync(
+        join(root, "content", "experiments", "zz-04.yaml"),
+        manifest(["zz-04-slow"], ["zz-04-slow"]),
+      );
+      writeFileSync(
+        join(root, "content", "scenarios", "zz-04-slow.yaml"),
+        [
+          'id: "zz-04-slow"',
+          'kind: "modern-golden"',
+          'title: "ZZ-04 at the slow preset"',
+          'description: "What the slow preset\'s parameters should produce."',
+          'constantSetId: "modern-si-2019"',
+          'owner: "selfTest.timesTwoClosed"',
+          "inputs:",
+          "  x:",
+          "    value: 3",
+          '    unit: "1"',
+          "expected:",
+          "  outputs:",
+          '    - outputId: "value"',
+          "      value: 6",
+          '      unit: "1"',
+          '      comparisonKind: "tolerance"',
+          "      tolerance:",
+          "        relative: 1.0e-9",
+          '        rationale: "Exact in this evaluator."',
+          "modelVersion: 1",
+          "schemaVersion: 1",
+          "",
+        ].join("\n"),
+      );
+      const resolved = checkAcceptanceCases({ root, baseline: [], declarations: {} });
+      expect(resolved.census.resolved).toBe(1);
+      expect(resolved.census.viaScenario).toBe(1);
+      expect(resolved.census.danglingOwnPreset).toBe(0);
+      expect(codes(resolved)).not.toContain("acceptance-ref-is-a-preset");
+      expect(codes(resolved)).not.toContain("acceptance-ref-dangling");
+      expect(resolved.refs[0]?.ownPreset).toBeUndefined();
+    });
+
+    test("THE REAL TREE: the split is exhaustive, and both sides are occupied", () => {
+      const c = report.census;
+      console.log(
+        `[acceptance] ${c.dangling} dangling of ${c.refs} refs: ${c.danglingOwnPreset} a preset of ` +
+          `the instrument that names it, ${c.danglingOther} neither; ${c.presetsDeclared} presets ` +
+          `declared across ${c.instruments} manifests`,
+      );
+      // Exhaustive: every dangling ref is in exactly one of the two buckets.
+      expect(c.danglingOwnPreset + c.danglingOther).toBe(c.dangling);
+      // Non-vacuity, deliberately, both ways: a split with one empty side would make either half of
+      // the diagnosis untested by the real tree while reading as a clean result.
+      expect(c.danglingOwnPreset).toBeGreaterThan(0);
+      expect(c.danglingOther).toBeGreaterThan(0);
+      expect(c.presetsDeclared).toBeGreaterThan(0);
+    });
+  });
 });
