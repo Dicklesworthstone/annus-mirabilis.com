@@ -99,10 +99,33 @@ function scratchRoot(): string {
  * printed when git refuses - in which case plants are SKIPPED rather than redirected into the shared
  * checkout, because a plant in a shared checkout is the thing this avoids.
  */
+function gitHead(cwd: string): string {
+  return execFileSync("git", ["rev-parse", "HEAD"], {
+    cwd,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  }).trim();
+}
+
 function ensurePlantWorktree(): string | null {
   const path = join(scratchRoot(), "gate-census-worktree");
   if (existsSync(join(path, "package.json"))) {
-    console.log(`  plant worktree (reused): ${path}`);
+    // MOVED TO THE CURRENT HEAD, because a reused worktree stays at the commit it was made from and a
+    // plant's anchor is a string in a file at a particular revision. Found by the census's own
+    // plant-anchor-missing finding: six plants reported "its anchor appears 0 time(s)" the first time
+    // gates adopted the line in a commit newer than the worktree. The finding was right and the fix is
+    // here rather than in the plants.
+    const wanted = gitHead(ROOT);
+    if (gitHead(path) !== wanted) {
+      execFileSync("git", ["switch", "--detach", wanted], {
+        cwd: path,
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "pipe"],
+      });
+      console.log(`  plant worktree moved to ${wanted.slice(0, 8)}: ${path}`);
+    } else {
+      console.log(`  plant worktree (reused, at ${wanted.slice(0, 8)}): ${path}`);
+    }
   } else {
     try {
       execFileSync("git", ["worktree", "add", "--detach", path, "HEAD"], {

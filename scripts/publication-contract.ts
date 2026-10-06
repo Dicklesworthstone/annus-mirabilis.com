@@ -21,6 +21,7 @@ import {
   loadAllowlist,
   scanRepository,
 } from "./app-router-architecture.ts";
+import { reportPopulation } from "./gate-census/population.ts";
 import { type ObservedSubprocess, spawnObserved } from "./spawnObserved.ts";
 
 export const PUBLICATION_CONTRACT_TESTS: readonly string[] = [
@@ -271,6 +272,18 @@ export function verifyPublicationContract(
       `📊 Publication Contract Summary: ${success ? "PASSED" : "FAILED"} (exit: ${exitCode})`,
     );
     console.log(`   Passed: ${passedCount} | Failed: ${failedCount} | Refused: ${refusedCount}`);
+    // The census line (am-rc1001-bridge-plan-pcjk.9). The population is the contract STEPS executed: a
+    // run that executed one would print "Failed: 0" and read as a passing contract. Measured 2026-10-06:
+    // 8 steps, 8 passed. The floor is 6, below the current set and above a partial load.
+    //
+    // Printed inside the non-silent branch, where the rest of the summary is, because the silent branch
+    // is the library caller's and the census reads a CLI run's output.
+    reportPopulation({
+      gate: "publication-contract",
+      examined: results.length,
+      noun: "publication contract steps",
+      minimum: 6,
+    });
     console.log(`   Structured log: ${logPath}`);
     console.log("======================================================\n");
   }

@@ -16,6 +16,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import yaml from "js-yaml";
+import { reportPopulation } from "./gate-census/population.ts";
 import { newToolRunId } from "./runIds";
 import {
   type Candidate,
@@ -1415,6 +1416,19 @@ export async function main(
       return finish(3); // INVALID_CONFIG
     }
     console.log(`\nAll ${checked} facsimile source configurations verified valid.`);
+    // The same population in the census's grammar (am-rc1001-bridge-plan-pcjk.9). The EMPTY_CONFIG
+    // refusal above already catches 0; this adds a FLOOR, because six pinned facsimiles means a run
+    // that found two is reading the wrong directory, and that is indistinguishable from a clean run by
+    // reading the final line. Measured 2026-10-06: 6 configurations.
+    if (
+      reportPopulation({
+        gate: "facsimile-config",
+        examined: checked,
+        noun: "facsimile source configurations",
+        minimum: 4,
+      })
+    )
+      return finish(4);
     return finish(0);
   }
 

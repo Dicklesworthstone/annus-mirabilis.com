@@ -11,6 +11,7 @@ import path from "node:path";
 import { type CheckResult, checkReceipt } from "../src/content/provenance/checkReceipt.ts";
 import { validateSurveyRecord } from "../src/content/provenance/surveySchema.ts";
 import { newRunIdentity } from "../src/testing/log/logger.ts";
+import { reportPopulation } from "./gate-census/population.ts";
 
 type CliOptions = {
   key?: string;
@@ -290,9 +291,17 @@ export async function runCheckReceipts(rawArgs: string[] = process.argv.slice(2)
   console.log(
     `\nSummary: ${filesChecked} files checked, ${totalErrors} errors, ${totalFlags} flags.`,
   );
+  // The census line (am-rc1001-bridge-plan-pcjk.9). Measured 2026-10-06: 10 receipt files, 0 errors,
+  // 43 flags. A floor of 6 is one per pinned facsimile: fewer means the receipt directory was not read.
+  const censusVacuous = reportPopulation({
+    gate: "receipts",
+    examined: filesChecked,
+    noun: "provenance receipt files",
+    minimum: 6,
+  });
   console.log(`Log written to: ${logFile}`);
 
-  return totalErrors > 0 ? 1 : 0;
+  return totalErrors > 0 || censusVacuous ? 1 : 0;
 }
 
 const isMainModule =

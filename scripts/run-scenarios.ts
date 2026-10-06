@@ -1,6 +1,7 @@
 #!/usr/bin/env bun
 import { defaultScenarioDirs, loadScenarios } from "../src/testing/scenario-registry/load.ts";
 import { runCrossOwnerScenario, runLoadedScenarios } from "../src/testing/scenario-registry/run.ts";
+import { reportPopulation } from "./gate-census/population.ts";
 
 function arg(name: string): string | undefined {
   const idx = process.argv.indexOf(name);
@@ -105,4 +106,14 @@ console.log(
   }),
 );
 
-if (failed > 0) process.exit(1);
+// The census line (am-rc1001-bridge-plan-pcjk.9). The population is the scenario ROWS, including the
+// not-available ones: a registry that loaded six rows would report "0 failed" and read as a clean
+// suite. Measured 2026-10-06: 118 rows, 112 passed, 0 failed, 6 not available.
+const censusVacuous = reportPopulation({
+  gate: "scenarios",
+  examined: passed + failed + notAvailable,
+  noun: "scenario rows",
+  minimum: 80,
+});
+
+if (failed > 0 || censusVacuous) process.exit(1);

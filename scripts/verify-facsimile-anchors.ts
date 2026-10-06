@@ -22,6 +22,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import yaml from "js-yaml";
 import { TestLogger } from "../src/testing/log/logger.ts";
+import { reportPopulation } from "./gate-census/population.ts";
 import {
   type AnchorValidationResult,
   validateFacsimileAnchor,
@@ -192,6 +193,19 @@ export async function runCli(): Promise<number> {
   });
   await logger.flush();
   console.log(`Structured log: ${logger.filePath}`);
+
+  // The census line (am-rc1001-bridge-plan-pcjk.9), in the function that owns the EXIT CODE rather than
+  // the one that formats the report. It first landed in the formatter, which returns a string, so the
+  // verdict would have been computed and discarded - the same half-wiring that makes a gate look like
+  // it checks something. Six receipts carry page maps; a run that checked two is reading the wrong
+  // directory and its summary line would look identical.
+  const censusVacuous = reportPopulation({
+    gate: "facsimile-page-anchors",
+    examined: report.checkedCount,
+    noun: "facsimile page maps",
+    minimum: 4,
+  });
+  if (censusVacuous) return 4;
 
   return report.valid ? 0 : 3;
 }

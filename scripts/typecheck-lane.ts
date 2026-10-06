@@ -24,6 +24,7 @@
 import { spawnSync } from "node:child_process";
 import { CATALOGUE_IDS, CATALOGUE_STATUS } from "../src/experiments/catalogue.ts";
 import { familyPaper } from "../src/search/documents.ts";
+import { reportPopulation } from "./gate-census/population.ts";
 
 export interface LaneCheck {
   readonly name: string;
@@ -128,5 +129,15 @@ export function formatLane(checks: readonly LaneCheck[]): string {
 if (process.argv[1]?.endsWith("typecheck-lane.ts")) {
   const checks = [checkInstrumentPaperMapping(), checkTypes(runTsc)];
   console.log(formatLane(checks));
-  process.exit(checks.every((c) => c.ok) ? 0 : 1);
+  // The census line (am-rc1001-bridge-plan-pcjk.9). The population is the CHECKS this lane ran, which
+  // is the number its own existence is about: this lane exists because `bun run typecheck` runs 34
+  // generators before tsc and its exit code cannot say which half broke, so a lane that silently ran
+  // one of its two checks would be the same failure one level up. Measured 2026-10-06: 2 of 2.
+  const censusVacuous = reportPopulation({
+    gate: "typecheck-lane",
+    examined: checks.length,
+    noun: "named lane checks",
+    minimum: 2,
+  });
+  process.exit(checks.every((c) => c.ok) && !censusVacuous ? 0 : 1);
 }
