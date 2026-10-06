@@ -165,9 +165,13 @@ export function CameraComparisonReadouts({
         <span className="camera-comparison-observed-key">Solid: camera positions</span>
       </p>
       <h3>Which uncertainty statement applies?</h3>
-      {/* biome-ignore lint/a11y/noNoninteractiveTabindex: keyboard scrolling of the paired confidence sets */}
+      {/* The suppression below sits on the tabIndex attribute, not on <section>. Biome anchors a
+          suppression to the line DIRECTLY preceding the diagnostic, and this diagnostic is
+          reported at the attribute - so the comment spent its life two lines too high and the
+          error it names was never suppressed. */}
       <section
         className="comparison-scroll"
+        // biome-ignore lint/a11y/noNoninteractiveTabindex: keyboard scrolling of the paired sets
         tabIndex={0}
         aria-label="Paired camera confidence sets"
       >

@@ -13,7 +13,8 @@ import { restoreTape, tapeForSettings } from "./sessionTape.ts";
 import type { TapeV2 } from "./types.ts";
 import { applyWalkthroughCheckpoint, type WalkthroughTarget } from "./walkthroughActions.ts";
 
-function valueOf<T>(outcome: RecordingResult<T>): T {
+/** The accepted value, or a failure naming the notice. Was `valueOf`, which shadows the global. */
+function acceptedValue<T>(outcome: RecordingResult<T>): T {
   expect(outcome.kind).toBe("accepted");
   if (outcome.kind !== "accepted") throw new Error(outcome.notice);
   return outcome.value;
@@ -25,7 +26,7 @@ function snapshot(frameSpeed: number): TapeV2 {
   return tape;
 }
 function saved(tape: TapeV2, previous: RecordedExperiment | null = null) {
-  return valueOf(
+  return acceptedValue(
     captureRecordedStop(
       previous,
       tape,
@@ -59,8 +60,8 @@ describe("reader recordings through ME-01's real tape validator and session", ()
     const first = snapshot(0.6);
     const second = snapshot(-0.2);
     const recording = saved(second, saved(first));
-    const file = valueOf(writeRecordedExperiment(recording, validateTapeV2));
-    const imported = valueOf(readRecordedExperiment(file, "me-01", validateTapeV2));
+    const file = acceptedValue(writeRecordedExperiment(recording, validateTapeV2));
+    const imported = acceptedValue(readRecordedExperiment(file, "me-01", validateTapeV2));
     const { session, target } = reader();
     const before = session.getSnapshot();
     const walkthrough = recordedExperimentWalkthrough(imported);
