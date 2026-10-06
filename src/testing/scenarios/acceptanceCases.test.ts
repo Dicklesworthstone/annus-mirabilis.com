@@ -42,12 +42,28 @@ const DECLARED = JSON.parse(
 ) as Record<string, string>;
 const INPUTS: ResolveInputs = { declaredConstants: DECLARED };
 
-/** Measured 2026-10-05. A ceiling on what is NOT a scenario, and a floor on what is. */
+/**
+ * Measured 2026-10-05. A ceiling on what is NOT a scenario, and a floor on what is.
+ *
+ * The preset ceiling rose from 62 and the declared-constant ceiling fell from 6 in the same change,
+ * and the pair has to be read together or it looks like a ceiling being raised to pass. Five refs
+ * moved between the two buckets and none entered or left the debt: `sr-05-circle-0.6c`,
+ * `sr-05-inertial-0.6c`, `sr-05-light-clock-0.6c`, `sr-05-low-speed-1e-4` and
+ * `sr-05-out-and-back-0.6c` were classified here as declared constants - string literals in
+ * MovingClocksLab.tsx's own preset ordering - only because REGISTERED_PRESET_IDS was missing all six
+ * of sr-05's presets. With the registry completed against the manifests they classify as what they
+ * are, and `diffusion-einstein-1905-modern-kb` is the one genuine declared constant left.
+ *
+ * NOT-A-SCENARIO IS UNCHANGED AT 106 ACROSS THE MOVE, which is the fact that makes it safe, and
+ * `notAScenarioAtMost` below is asserted so that a future pair of edits cannot let a real regression
+ * in one bucket hide behind a reduction in another.
+ */
 const EXPECTED = {
   scenarioAtLeast: 13,
-  registeredPresetAtMost: 62,
-  declaredConstantAtMost: 6,
+  registeredPresetAtMost: 67,
+  declaredConstantAtMost: 1,
   unresolvedAtMost: 38,
+  notAScenarioAtMost: 106,
 } as const;
 
 const KINDS: readonly RefResolution[] = [
@@ -84,6 +100,11 @@ describe("the acceptance-case refs of every manifest", () => {
     expect(count("declared-constant")).toBeLessThanOrEqual(EXPECTED.declaredConstantAtMost);
     // The number resolving to nothing may fall and must not rise.
     expect(count("unresolved")).toBeLessThanOrEqual(EXPECTED.unresolvedAtMost);
+    // AND THE SUM, because the four ceilings above can each hold while refs move from a weaker class
+    // into a stronger-sounding one. What may not rise is the total that is not a scenario: that is
+    // the debt, and the per-bucket figures only say where it sits.
+    const notAScenario = resolved.length - count("scenario");
+    expect(notAScenario).toBeLessThanOrEqual(EXPECTED.notAScenarioAtMost);
   });
 
   it("every declared constant is still a string literal in the module that declares it", () => {
