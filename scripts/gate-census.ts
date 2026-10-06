@@ -51,7 +51,7 @@ import {
   unlinkSync,
   writeFileSync,
 } from "node:fs";
-import { join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { type Finding, judgeGate, judgePlant } from "./gate-census/judge.ts";
 import { parsePopulationLines } from "./gate-census/population.ts";
 import { allRoutes, reachedBy } from "./gate-census/reach.ts";
@@ -141,8 +141,26 @@ function ensurePlantWorktree(): string | null {
     }
     console.log(`  plant worktree (new): ${path}`);
   }
-  const modules = join(path, "node_modules");
-  if (!existsSync(modules)) symlinkSync(join(ROOT, "node_modules"), modules);
+  // GITIGNORED BUILD PRODUCTS THE GATES NEED, linked from the main tree rather than regenerated.
+  //
+  // A worktree is a checkout of TRACKED files, so everything a generator produces is absent from it.
+  // Found by the census's own plant-red-for-the-wrong-reason finding: the scenarios plant made the gate
+  // exit 1 without printing VACUOUS, and the gate had in fact died on
+  // "Cannot find module '../../generated/bm08-example.json'" before it ever reached its census line. The
+  // finding was right to refuse that as evidence.
+  //
+  // src/generated is linked rather than rebuilt because `prepare:content` is 34 generators and a plant
+  // is about the gate's own refusal path, not about the freshness of a worked example. The link means a
+  // plant reads the MAIN tree's generated files beside HEAD's tracked sources, which is stated here
+  // because it is a real limitation: a plant that depended on a generated file matching HEAD exactly
+  // would need a prepared worktree instead.
+  for (const relative of ["node_modules", "src/generated"]) {
+    const target = join(path, relative);
+    if (!existsSync(target)) {
+      mkdirSync(dirname(target), { recursive: true });
+      symlinkSync(join(ROOT, relative), target);
+    }
+  }
   return path;
 }
 
