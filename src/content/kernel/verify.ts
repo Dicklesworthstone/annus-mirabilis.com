@@ -204,10 +204,16 @@ export function verifySliceKernels(options: {
           }
           try {
             const headSource = runGit(["show", `HEAD:${extracted.filePath}`]);
+            // THE SAME NODE SELECTION AS THE PIN, which it was not until 2026-10-06. The pin above
+            // comes from extractTypeScriptExport, which keeps a function's overload signatures; this
+            // comparison used the in-memory extractor's default, which drops them. For any overloaded
+            // export the two spans differed, so the pin could never equal the HEAD hash and the audit
+            // refused for ever with a message blaming uncommitted source on a clean file.
             const headExtracted = extractTypeScriptFromText({
               fileName: extracted.filePath,
               sourceText: headSource,
               exportName: entry.kernel.exportName,
+              includeOverloadSignatures: true,
             });
             if (headExtracted.sourceHash !== expected) {
               issues.push({

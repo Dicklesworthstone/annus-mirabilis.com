@@ -198,12 +198,28 @@ export function extractTypeScriptExport(options: {
  * Extract from in-memory source. Does not follow re-exports: the caller must
  * point at the defining module. Overload signatures without bodies are omitted
  * so the result is the implementation.
+ *
+ * `includeOverloadSignatures` KEEPS THEM, which is what extractTypeScriptExport always does, and it
+ * exists because comparing one rule against the other is not a comparison (am-f3e4, 2026-10-06).
+ * verify.ts writes a pin with extractTypeScriptExport and then verified it against git HEAD with this
+ * function's default, so for any export carrying overload signatures the two spans differed and the
+ * pin could never match: classifySimultaneity in events.ts is lines 337-428 and 3003 characters to the
+ * path extractor and 352-428 and 2566 to this one, and redescribe beside it is 608-668 against
+ * 613-668. The audit then refused with "Pin was written against uncommitted source" against a file git
+ * reports clean, which is a message naming the wrong cause and cost someone ten minutes hunting an
+ * edit that did not exist.
+ *
+ * The default is unchanged on purpose. scripts/snapshotFunctionHash.mjs computes hashes that are
+ * already stored in generated worked examples, and extract-kernel-source.ts's extractFunctionSource
+ * reports the implementation to its callers; flipping the default would move both. Only the comparison
+ * opts in.
  */
 export function extractTypeScriptFromText(options: {
   fileName: string;
   sourceText: string;
   exportName: string;
   revision?: string;
+  includeOverloadSignatures?: boolean;
 }): ExtractedKernelSource {
   const sf = parse(options.fileName, options.sourceText);
   const hit = findInFile(sf, options.exportName, options.fileName);
@@ -220,7 +236,7 @@ export function extractTypeScriptFromText(options: {
     );
   }
   const impl = hit.nodes.filter((n) => !ts.isFunctionDeclaration(n) || n.body);
-  const nodes = impl.length > 0 ? impl : hit.nodes;
+  const nodes = options.includeOverloadSignatures ? hit.nodes : impl.length > 0 ? impl : hit.nodes;
   const starts = nodes.map((n) => n.getStart(hit.sourceFile, true));
   const ends = nodes.map((n) => n.end);
   const start = Math.min(...starts);
