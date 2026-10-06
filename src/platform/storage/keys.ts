@@ -183,6 +183,13 @@ export const DISCOVERY_NOTE_KEYS = Object.freeze({
   "special-relativity": "am:discovery-notes:v1:special-relativity",
   "mass-energy": "am:discovery-notes:v1:mass-energy",
 });
+/** Editable capstone drafts, independently exportable and clearable in /your-data/. */
+export const CAPSTONE_WORKSHEET_KEYS = Object.freeze({
+  "light-quanta": "am:capstone-worksheet:v1:light-quanta",
+  "brownian-motion": "am:capstone-worksheet:v1:brownian-motion",
+  "special-relativity": "am:capstone-worksheet:v1:special-relativity",
+  "mass-energy": "am:capstone-worksheet:v1:mass-energy",
+});
 /** Each paper by the name the rest of the site uses, for the label /your-data/ shows. */
 const DISCOVERY_PAPER_NAMES: Readonly<Record<keyof typeof DISCOVERY_NOTE_KEYS, string>> = {
   "light-quanta": "Light quanta",
@@ -301,6 +308,16 @@ export const SEED_ENTRIES: readonly KeyRegistration[] = [
       {
         maxBytes: 128_000,
       },
+    ),
+  ),
+
+  ...(Object.keys(CAPSTONE_WORKSHEET_KEYS) as (keyof typeof CAPSTONE_WORKSHEET_KEYS)[]).map((paper) =>
+    document_(
+      CAPSTONE_WORKSHEET_KEYS[paper],
+      "am-disc-capstones-infra-3352",
+      1,
+      `Capstone worksheet: ${DISCOVERY_PAPER_NAMES[paper]}`,
+      { maxBytes: 300_000 },
     ),
   ),
 

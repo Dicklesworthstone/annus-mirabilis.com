@@ -1,4 +1,4 @@
-.capstone-worksheet { margin-block: 3rem; border-top: 1px solid currentColor; padding-block: 1.5rem; }
+.capstone-worksheet { max-width: 54rem; margin-inline: auto; padding-inline: clamp(.75rem, 4vw, 1.5rem); margin-block: 3rem; border-top: 1px solid currentColor; padding-block: 1.5rem; }
 .capstone-worksheet *, .capstone-worksheet *::before, .capstone-worksheet *::after { box-sizing: border-box; }
 .capstone-toolbar { display: flex; flex-wrap: wrap; gap: .6rem; margin-block: 1rem; align-items: center; }
 .capstone-worksheet button { min-height: 2.75rem; padding: .4rem .7rem; }

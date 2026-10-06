@@ -4,6 +4,8 @@ import { useEffect, useId, useRef, useState } from "react";
 import { dependencyFeedback } from "../shared/dependencyFeedback.ts";
 import { ReorderList } from "../shared/ReorderList.tsx";
 import type { Capstone } from "./capstoneSchema.ts";
+import { createBrowserWorksheetStorage } from "./worksheetPersistence.ts";
+import { createWorksheetStore, type WorksheetSnapshot, type WorksheetStorage, type WorksheetStore } from "./worksheetStore.ts";
 import {
   assumptionFeedback,
   emptyWorksheet,
@@ -32,10 +34,11 @@ export type WorksheetInstrument = Readonly<{
 }>;
 
 /** Optional private work, separate from the edition's authored claims and source text. */
-export function CapstoneWorksheet({ capstone, equations, instruments }: Readonly<{
+export function CapstoneWorksheet({ capstone, equations, instruments, storage }: Readonly<{
   capstone: Capstone;
   equations: readonly WorksheetEquation[];
   instruments: readonly WorksheetInstrument[];
+  storage?: WorksheetStorage;
 }>) {
   const prefix = useId();
   const section = useRef<HTMLElement>(null);
@@ -45,6 +48,9 @@ export function CapstoneWorksheet({ capstone, equations, instruments }: Readonly
   const [clearing, setClearing] = useState(false);
   const [pending, setPending] = useState<WorksheetState | null>(null);
   const [notice, setNotice] = useState("");
+  const [loadingSaved, setLoadingSaved] = useState(false);
+  const store = useRef<WorksheetStore | null>(null);
+  const [persistence, setPersistence] = useState<Pick<WorksheetSnapshot, "persistence" | "message" | "recoveryRaw">>({ persistence: "unopened", message: "", recoveryRaw: null });
   const importGeneration = useRef(0);
   const urls = useRef(new Map<string, ReturnType<typeof setTimeout>>());
   const feedbackHeading = useRef<HTMLHeadingElement>(null);
@@ -59,7 +65,31 @@ export function CapstoneWorksheet({ capstone, equations, instruments }: Readonly
   ) : null;
 
   useEffect(() => {
+    const current = createWorksheetStore(capstone, storage ?? createBrowserWorksheetStorage(capstone.paper));
+    store.current = current;
+    const refresh = () => {
+      const snapshot = current.getSnapshot();
+      setState(snapshot.worksheet);
+      setPersistence(snapshot);
+    };
+    current.open();
+    refresh();
     setReady(true);
+    const unsubscribe = current.subscribe(refresh);
+    const check = () => current.checkForExternalChange();
+    window.addEventListener("storage", check);
+    window.addEventListener("pageshow", check);
+    window.addEventListener("focus", check);
+    return () => {
+      unsubscribe();
+      store.current = null;
+      window.removeEventListener("storage", check);
+      window.removeEventListener("pageshow", check);
+      window.removeEventListener("focus", check);
+    };
+  }, [capstone, storage]);
+
+  useEffect(() => {
     const pendingUrls = urls.current;
     const page = section.current?.closest(".capstone-page");
     const afterPrint = () => page?.removeAttribute("data-print-worksheet");
@@ -85,15 +115,16 @@ export function CapstoneWorksheet({ capstone, equations, instruments }: Readonly
       setNotice("That change exceeds the worksheet's size limit. Nothing was changed; export a copy before shortening your work.");
       return;
     }
-    setState(next);
+    if (store.current) store.current.edit(next);
+    else setState(next);
     setNotice("");
   }
-  function download() {
+  function download(text: string, filename: string) {
     try {
-      const url = URL.createObjectURL(new Blob([exportWorksheet(state)], { type: "application/json" }));
+      const url = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
       const link = document.createElement("a");
       link.href = url;
-      link.download = `${capstone.id}-worksheet.json`;
+      link.download = filename;
       link.hidden = true;
       section.current?.append(link);
       link.click();
@@ -111,7 +142,8 @@ export function CapstoneWorksheet({ capstone, equations, instruments }: Readonly
     const generation = ++importGeneration.current;
     setPending(null);
     if (!file) return;
-    if (file.size > WORKSHEET_LIMITS.bytes) {
+    // Pretty-printed exports include whitespace; admission still enforces the compact payload limit.
+    if (file.size > WORKSHEET_LIMITS.bytes * 4) {
       setNotice("This file is too large for a worksheet. Nothing was imported.");
       return;
     }
@@ -124,6 +156,7 @@ export function CapstoneWorksheet({ capstone, equations, instruments }: Readonly
       }
       setPending(next);
       setClearing(false);
+      setLoadingSaved(false);
       setNotice("");
     } catch {
       if (generation === importGeneration.current)
@@ -149,16 +182,23 @@ export function CapstoneWorksheet({ capstone, equations, instruments }: Readonly
         </div>
       ) : (
         <>
-          <p className="capstone-controls">Work stays in this tab. Export it before leaving, then import the file to continue another time.</p>
+          <p className="capstone-controls" role="status" aria-live="polite">{persistence.message}</p>
           <div className="capstone-controls capstone-toolbar">
-            <button type="button" onClick={download}>Export this worksheet</button>
+            <button type="button" onClick={() => download(exportWorksheet(state), `${capstone.id}-worksheet.json`)}>Export this worksheet</button>
+            {persistence.persistence === "session-only" && <button type="button" onClick={() => store.current?.retry()}>Retry saving</button>}
+            {persistence.recoveryRaw !== null && <button type="button" onClick={() => download(persistence.recoveryRaw ?? "", `${capstone.id}-saved-original.txt`)}>Export saved original</button>}
+            {persistence.persistence !== "saved" && <button type="button" onClick={() => {
+              importGeneration.current++;
+              setPending(null); setClearing(false); setLoadingSaved(true);
+            }}>Load saved worksheet</button>}
             <button type="button" onClick={() => {
               section.current?.closest(".capstone-page")?.setAttribute("data-print-worksheet", "true");
               window.print();
             }}>Print this worksheet</button>
-            <button type="button" onClick={() => {
+            <button type="button" disabled={persistence.persistence === "conflict"} onClick={() => {
               importGeneration.current++;
               setPending(null);
+              setLoadingSaved(false);
               setClearing(true);
             }}>Clear this worksheet</button>
             <label htmlFor={`${prefix}-import`}>Import a worksheet JSON file</label>
@@ -173,9 +213,16 @@ export function CapstoneWorksheet({ capstone, equations, instruments }: Readonly
             <button type="button" onClick={() => { change(pending); setPending(null); setCompare(false); worksheetHeading.current?.focus(); }}>Replace with imported worksheet</button>
             <button type="button" onClick={() => setPending(null)}>Cancel import</button>
           </div>}
+          {loadingSaved && <div className="capstone-controls" role="group" aria-label="Confirm loading the saved worksheet">
+            <p>Replace this tab's work with the saved worksheet? Export this tab first to keep both versions.</p>
+            <button type="button" onClick={() => {
+              if (store.current?.reloadConfirmed()) { setLoadingSaved(false); setCompare(false); worksheetHeading.current?.focus(); }
+            }}>Replace with saved worksheet</button>
+            <button type="button" onClick={() => setLoadingSaved(false)}>Keep this tab's work</button>
+          </div>}
           {clearing && <div className="capstone-controls" role="group" aria-label="Confirm clearing this worksheet">
-            <p>Clear this capstone's work? Export it first to keep a copy. Other capstones are not changed.</p>
-            <button type="button" onClick={() => { change(emptyWorksheet(capstone)); setClearing(false); setCompare(false); worksheetHeading.current?.focus(); }}>Confirm clear</button>
+            <p>Clear this capstone's work? Export it first to keep a copy. Other capstones are not changed. This also removes any unreadable saved copy; export that original first to keep it.</p>
+            <button type="button" onClick={() => { if (store.current?.clearConfirmed()) { setClearing(false); setCompare(false); worksheetHeading.current?.focus(); } }}>Confirm clear</button>
             <button type="button" onClick={() => setClearing(false)}>Keep my work</button>
           </div>}
 
@@ -203,10 +250,10 @@ export function CapstoneWorksheet({ capstone, equations, instruments }: Readonly
           {equations.map((equation) => <section key={equation.equationId}>
             <h4>{equation.title}</h4><p>{equation.purpose}</p>
             {/* Only build-time KaTeX from the edition, never a reader's annotation. */}
-            <div className="capstone-math"
+            <div className="capstone-math" role="math" aria-label={equation.spoken}
               // biome-ignore lint/security/noDangerouslySetInnerHtml: immutable build-time KaTeX from the authored equation tree.
               dangerouslySetInnerHTML={{ __html: equation.html }} />
-            <p>{equation.spoken}</p>
+            <p aria-hidden="true">{equation.spoken}</p>
             <p><a href={equation.href}>See the equation in the paper</a></p>
             <label className="capstone-controls" htmlFor={`${prefix}-${equation.equationId}`}>Your annotation for {equation.title}</label>
             <textarea className="capstone-controls" id={`${prefix}-${equation.equationId}`} rows={3} maxLength={WORKSHEET_LIMITS.text} value={state.annotations[equation.equationId] ?? ""} onChange={(event) => change({ ...state, annotations: { ...state.annotations, [equation.equationId]: event.currentTarget.value } })} />

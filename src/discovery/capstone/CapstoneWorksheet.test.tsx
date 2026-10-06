@@ -5,6 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { installDom, uninstallDom } from "../../testing/reactDom.ts";
 import { CapstoneWorksheet } from "./CapstoneWorksheet.tsx";
 import type { Capstone } from "./capstoneSchema.ts";
+import type { WorksheetStorage } from "./worksheetStore.ts";
 
 const ids = ["a", "b", "c", "d", "e", "f"];
 const dependencies: Record<string, string[]> = { a: [], b: [], c: ["a", "b"], d: ["c"], e: ["d"], f: ["d"] };
@@ -15,10 +16,17 @@ const capstone: Capstone = {
   assumptions: [{ id: "independence", statement: "Independent intervals", kind: "idealization" }],
   explanationPrompt: "Explain the chain to another reader.", selfCheckNotes: {}, limits: "A test fixture, not a measurement.", reviewRecordIds: [],
 };
-const props = { capstone, equations: [], instruments: [] };
+let saved: string | null = null;
+let quota = false;
+const storage: WorksheetStorage = {
+  read: () => saved === null ? { status: "missing" } : { status: "ok", raw: saved },
+  write(raw) { if (quota) return "quota"; saved = raw; return "saved"; },
+  remove() { saved = null; return "removed"; },
+};
+const props = { capstone, equations: [], instruments: [], storage };
 let root: Root | null = null;
 
-beforeEach(installDom);
+beforeEach(async () => { await installDom(); saved = null; quota = false; });
 afterEach(async () => {
   await act(async () => root?.unmount());
   root = null;
@@ -87,4 +95,29 @@ describe("optional capstone worksheet", () => {
     expect(order()).toEqual([...ids].reverse());
     expect(document.querySelectorAll(".capstone-table-row input").length).toBe(0);
   });
+  test("device work survives unmount and returning to the worksheet", async () => {
+    await mount();
+    await click("Use the paper's order");
+    await click("Add a row");
+    await act(async () => { (document.querySelector('input[type="checkbox"]') as HTMLInputElement).click(); });
+    await act(async () => root?.unmount());
+    root = null;
+    await mount();
+    expect(order()).toEqual(ids);
+    expect(document.querySelectorAll(".capstone-table-row input").length).toBe(2);
+    expect((document.querySelector('input[type="checkbox"]') as HTMLInputElement).checked).toBe(true);
+    expect(document.body.textContent).toContain("Changes stay on this device");
+  });
+  test("a full device retains editing and displays session-only recovery", async () => {
+    quota = true;
+    await mount();
+    await click("Use the paper's order");
+    expect(order()).toEqual(ids);
+    expect(document.body.textContent).toContain("could not be saved on this device");
+    expect(button("Retry saving")).toBeDefined();
+    quota = false;
+    await click("Retry saving");
+    expect(document.body.textContent).toContain("Saved on this device");
+  });
+
 });
