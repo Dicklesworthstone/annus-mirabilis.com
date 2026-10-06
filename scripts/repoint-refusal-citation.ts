@@ -90,18 +90,26 @@ function disambiguate(
     if (idx === -1) continue;
     lines[idx] = (lines[idx] as string).replace(CODE, '"zz-planted-renamed"');
     writeFileSync(path, lines.join("\n"));
+    // The restore runs on both paths, and its verification is NOT in a `finally`. A throw there
+    // replaces whatever the try was propagating, so a measurement failure would vanish behind the
+    // restore check and a restore failure would arrive with no account of what had gone wrong
+    // first. Catching, restoring, then deciding keeps both: the restore failure still wins,
+    // because a half-restored module corrupts every later measurement in the run rather than one,
+    // and the original is carried on `cause` instead of being discarded.
+    let failure: unknown;
     try {
       const base = f.source.split("/").pop() as string;
       if (failingTitles(f.testFile).some((t) => t.includes(`(${base}:${f.citedLine})`)))
         winners.push(candidate);
-    } finally {
-      writeFileSync(path, original);
-      // THE SECOND DECLARED BARE THROW, and it is the same invariant as the first: a planted file was
-      // put back. It matters more here than there, because this plants REPEATEDLY in one file and a
-      // half-restored module would corrupt every later measurement in the run rather than one.
-      if (readFileSync(path, "utf8") !== original)
-        throw new Error(`failed to restore ${f.source} byte-identically`);
+    } catch (error) {
+      failure = error;
     }
+    writeFileSync(path, original);
+    // THE SECOND DECLARED BARE THROW, and it is the same invariant as the first: a planted file was
+    // put back. It matters more here than there, because this plants REPEATEDLY in one file.
+    if (readFileSync(path, "utf8") !== original)
+      throw new Error(`failed to restore ${f.source} byte-identically`, { cause: failure });
+    if (failure !== undefined) throw failure;
   }
   return winners.length === 1 ? (winners[0] as number) : null;
 }
@@ -186,30 +194,45 @@ function provedByPlant(r: Repoint): { proved: boolean; reason: string } {
     return { proved: false, reason: `could not find "${r.siteCode}" at or below :${r.to}` };
   lines[idx] = (lines[idx] as string).replace(`"${r.siteCode}"`, '"zz-planted-renamed-code"');
   writeFileSync(path, lines.join("\n"));
+  // The restore is sequenced rather than put in a `finally`, for the reason noted at the other
+  // plant site: a throw in `finally` REPLACES whatever the block was propagating, so a restore
+  // failure would arrive stripped of the measurement failure that may have caused it, and a
+  // measurement failure would vanish entirely whenever the restore also failed. Here the verdict
+  // is computed into a variable, the file is put back on every path, and only then is the
+  // restore judged.
+  let verdict: { proved: boolean; reason: string } | undefined;
+  let failure: unknown;
   try {
     const failures = failingTitles(r.testFile);
     const citing = failures.filter((t) => t.includes(`(${r.source.split("/").pop()}:${r.from})`));
-    if (failures.length === 0) return { proved: false, reason: "the plant reddened NOTHING" };
-    if (citing.length === 0)
-      return {
+    if (failures.length === 0) verdict = { proved: false, reason: "the plant reddened NOTHING" };
+    else if (citing.length === 0)
+      verdict = {
         proved: false,
         reason: `the citing test did NOT redden; ${failures.length} other(s) did: ${failures.slice(0, 2).join(" | ")}`,
       };
-    const others = failures.length - citing.length;
-    return {
-      proved: true,
-      reason: `${citing[0]}${others > 0 ? `  (+${others} sibling test(s) drive the same site)` : ""}`,
-    };
-  } finally {
-    writeFileSync(path, before);
-    const after = readFileSync(path, "utf8");
-    // ONE BARE THROW, DECLARED IN bareThrowsBaseline.json rather than given a kebab code. It is not a
-    // model refusal a reader will ever see: it is this script's own invariant that a planted file was
-    // put back, and if it fires the right outcome is a stack trace at the exact line, not a typed
-    // refusal record. A code here would add a site to the untested-refusal census that no test can
-    // reach without deliberately breaking the restore.
-    if (after !== before) throw new Error(`failed to restore ${r.source} byte-identically`);
+    else {
+      const others = failures.length - citing.length;
+      verdict = {
+        proved: true,
+        reason: `${citing[0]}${others > 0 ? `  (+${others} sibling test(s) drive the same site)` : ""}`,
+      };
+    }
+  } catch (error) {
+    failure = error;
   }
+  writeFileSync(path, before);
+  const after = readFileSync(path, "utf8");
+  // ONE BARE THROW, DECLARED IN bareThrowsBaseline.json rather than given a kebab code. It is not a
+  // model refusal a reader will ever see: it is this script's own invariant that a planted file was
+  // put back, and if it fires the right outcome is a stack trace at the exact line, not a typed
+  // refusal record. A code here would add a site to the untested-refusal census that no test can
+  // reach without deliberately breaking the restore. The measurement failure, if there was one,
+  // rides on `cause` rather than being discarded.
+  if (after !== before)
+    throw new Error(`failed to restore ${r.source} byte-identically`, { cause: failure });
+  if (failure !== undefined) throw failure;
+  return verdict as { proved: boolean; reason: string };
 }
 
 async function main(): Promise<number> {
