@@ -144,8 +144,15 @@ export function SearchResults({ load = loadSearch }: { load?: () => Promise<Load
           still match; quoted words are not expanded or typo-corrected.
         </p>
         <div className="full-search-filters">
-          <label htmlFor="edition-search-paper">
-            Paper or collection
+          {/* The label and its control are SIBLINGS, not nested (am-qt1j). A value-bearing control
+              inside its own <label> makes the control's current value part of its accessible name,
+              so a screen reader announces "Paper or collection All papers and collections" as the
+              name of the field rather than its label plus its value. htmlFor/id carries the
+              association instead. The wrapper is the grid cell .full-search-filters used to get
+              from the label itself; every rule here is a descendant selector, so none needed
+              changing. */}
+          <div className="full-search-filter">
+            <label htmlFor="edition-search-paper">Paper or collection</label>
             <select
               id="edition-search-paper"
               value={criteria.paper}
@@ -161,9 +168,9 @@ export function SearchResults({ load = loadSearch }: { load?: () => Promise<Load
                 </option>
               ))}
             </select>
-          </label>
-          <label htmlFor="edition-search-type">
-            Result type
+          </div>
+          <div className="full-search-filter">
+            <label htmlFor="edition-search-type">Result type</label>
             <select
               id="edition-search-type"
               value={criteria.type}
@@ -178,7 +185,7 @@ export function SearchResults({ load = loadSearch }: { load?: () => Promise<Load
                 </option>
               ))}
             </select>
-          </label>
+          </div>
         </div>
         <div className="full-search-actions">
           <button type="submit">Search</button>

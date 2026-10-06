@@ -29,6 +29,15 @@
   gap: 1rem;
   margin-block: 1rem;
 }
+/* One filter's grid cell, holding a label and its control as SIBLINGS (am-qt1j). The <label> used
+   to be the cell itself, with the control nested inside it; nesting a value-bearing control makes
+   its current value part of its accessible name. The cell exists so the generic
+   `.full-search select` rules still lay the control out beneath its label, and `min-inline-size: 0`
+   keeps a long option string from pushing the cell past the `minmax(0, 1fr)` track above. */
+.full-search-filter {
+  display: block;
+  min-inline-size: 0;
+}
 .full-search-actions {
   display: flex;
   flex-wrap: wrap;
@@ -48,7 +57,10 @@
   overflow-wrap: anywhere;
 }
 .full-search-results h2 {
-  font-size: 1.15rem;
+  /* `--type-body`, not 1.15rem. The invented size was 18.4px against this step's 19px, a
+     difference no reader can see, and it was the 19th distinct font-size in the repository
+     against a baseline of 18 - so the type-scale ratchet has been red since this file landed. */
+  font-size: var(--type-body);
   margin-block-end: 0.35rem;
 }
 .full-search-results p {
