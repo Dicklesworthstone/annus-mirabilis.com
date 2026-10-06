@@ -7,11 +7,11 @@
  * 3.  (reconciliation.ts:237) missing-reason
  * 4.  (reconciliation.ts:255) invalid-alias-record
  * 5.  (reconciliation.ts:288) retired-id-reused
- * 6.  (reconciliation.ts:261) update-required (in confirmAlias)
+ * 6.  (reconciliation.ts:302) update-required (in confirmAlias)
  * 7.  (reconciliation.ts:311) no-write-flag (WriteBlocksResult type declaration)
  * 8.  (reconciliation.ts:366) no-write-flag (in writeProposedBlocks)
  * 9.  (reconciliation.ts:374) write-blocks-refused-differences
- * 10. (reconciliation.ts:368) update-required (in writeProposedBlocks)
+ * 10. (reconciliation.ts:409) update-required (in writeProposedBlocks)
  */
 
 import assert from "node:assert/strict";
@@ -324,9 +324,9 @@ describe("Reconciliation Refusal Sites (reconciliation.ts)", () => {
     });
   });
 
-  // 6. (reconciliation.ts:261) update-required (in confirmAlias)
-  describe("Site (reconciliation.ts:261): update-required (confirmAlias)", () => {
-    it("rejects overwriting existing alias without --update flag (reconciliation.ts:261)", () => {
+  // 6. (reconciliation.ts:302) update-required (in confirmAlias)
+  describe("Site (reconciliation.ts:302): update-required (confirmAlias)", () => {
+    it("rejects overwriting existing alias without --update flag (reconciliation.ts:302)", () => {
       const tempDir = getTestTempDir();
       const aliasFile = join(tempDir, "brownian-motion.yaml");
 
@@ -367,7 +367,7 @@ describe("Reconciliation Refusal Sites (reconciliation.ts)", () => {
       }
     });
 
-    it("accepts overwriting existing alias with --update flag (reconciliation.ts:261)", () => {
+    it("accepts overwriting existing alias with --update flag (reconciliation.ts:302)", () => {
       const tempDir = getTestTempDir();
       const aliasFile = join(tempDir, "brownian-motion.yaml");
 
@@ -505,9 +505,9 @@ describe("Reconciliation Refusal Sites (reconciliation.ts)", () => {
     });
   });
 
-  // 10. (reconciliation.ts:368) update-required (in writeProposedBlocks)
-  describe("Site (reconciliation.ts:368): update-required (writeProposedBlocks)", () => {
-    it("rejects overwriting existing block files without update flag (reconciliation.ts:368)", () => {
+  // 10. (reconciliation.ts:409) update-required (in writeProposedBlocks)
+  describe("Site (reconciliation.ts:409): update-required (writeProposedBlocks)", () => {
+    it("rejects overwriting existing block files without update flag (reconciliation.ts:409)", () => {
       const tempDir = getTestTempDir();
 
       // First write succeeds
@@ -539,7 +539,7 @@ describe("Reconciliation Refusal Sites (reconciliation.ts)", () => {
       }
     });
 
-    it("accepts overwriting existing block files with update flag (reconciliation.ts:368)", () => {
+    it("accepts overwriting existing block files with update flag (reconciliation.ts:409)", () => {
       const tempDir = getTestTempDir();
 
       // First write

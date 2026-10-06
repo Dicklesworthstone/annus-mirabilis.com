@@ -62,7 +62,7 @@ describe("checkIntervention", () => {
     }
   });
 
-  test("intervention-review-record-stale when the record's scope omits the misconception itself", () => {
+  test("intervention-review-record-stale when the record's scope omits the misconception itself (interventionGate.ts:68)", () => {
     const verdict = checkIntervention(fixtureHalvingDiffusivity, [
       acceptedRecord({ scope: [{ recordId: "bm-06", contentRevision: 3 }] }),
     ]);
@@ -70,7 +70,7 @@ describe("checkIntervention", () => {
     if (!verdict.ok) expect(verdict.code).toBe("intervention-review-record-stale");
   });
 
-  test("intervention-review-record-stale when the record does not cover the instrument's current manifest revision", () => {
+  test("intervention-review-record-stale when the record does not cover the instrument's current manifest revision (interventionGate.ts:84)", () => {
     const verdict = checkIntervention(
       fixtureHalvingDiffusivity,
       [

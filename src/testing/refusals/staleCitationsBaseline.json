@@ -10,7 +10,7 @@
   "src/content/dimensions/runtimeMapping.ts": 0,
   "src/content/editions/brownianInventory.ts": 8,
   "src/content/editions/editionDeclaration.ts": 0,
-  "src/content/editions/reconciliation.ts": 22,
+  "src/content/editions/reconciliation.ts": 14,
   "src/content/editions/segmentSentences.ts": 0,
   "src/content/kernel/verify.ts": 0,
   "src/content/ledger/ledgerMathSettings.ts": 0,

@@ -36,7 +36,7 @@ describe("JSON and URL Codecs for 64-bit identities", () => {
       expect(parsed.stepCount).toBe(100);
     });
 
-    it("strictly rejects JSON numbers for declared u64 fields to prevent float truncation", () => {
+    it("strictly rejects JSON numbers for declared u64 fields to prevent float truncation (jsonCodec.ts:57)", () => {
       // 9007199254740993 as raw JSON number would be parsed as 9007199254740992 by float parser
       const dangerousJson = '{"seed":9007199254740993,"stepCount":10}';
 

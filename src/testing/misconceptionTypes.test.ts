@@ -34,7 +34,7 @@ describe("parseWhatIsTrue", () => {
     expect(content.r3).toBe("sigma^2 is linear in D, not lambda itself");
   });
 
-  test("throws misconception-what-is-true-malformed when whatIsTrue is not an object", () => {
+  test("throws misconception-what-is-true-malformed when whatIsTrue is not an object (types.ts:29)", () => {
     expect(() => parseWhatIsTrue("just a string", "misc-x")).toThrow(MisconceptionShapeError);
     try {
       parseWhatIsTrue(null, "misc-x");

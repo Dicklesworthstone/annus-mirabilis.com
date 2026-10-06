@@ -520,14 +520,14 @@ describe("alignment split guards: missing-split-sibling and invalid-split-suffix
     expect(issues.filter((i) => i.code === "missing-split-sibling")).toHaveLength(0);
   });
 
-  test("PLANTED: split suffixes not starting with 'a' refuse with invalid-split-suffix", () => {
+  test("PLANTED: split suffixes not starting with 'a' refuse with invalid-split-suffix (alignment.ts:232)", () => {
     const issues = validateAlignmentSplits(["s3-p2-s1b", "s3-p2-s1c"]);
     const issue = issues.find((i) => i.code === "invalid-split-suffix");
     expect(issue).toBeDefined();
     expect(issue?.message).toContain('must start with suffix "a"');
   });
 
-  test("PLANTED: unsuffixed base unit colliding with suffixed splits refuses with invalid-split-suffix", () => {
+  test("PLANTED: unsuffixed base unit colliding with suffixed splits refuses with invalid-split-suffix (alignment.ts:241)", () => {
     const issues = validateAlignmentSplits(["s3-p2-s1", "s3-p2-s1a", "s3-p2-s1b"]);
     const issue = issues.find(
       (i) => i.code === "invalid-split-suffix" && i.targetId === "s3-p2-s1",

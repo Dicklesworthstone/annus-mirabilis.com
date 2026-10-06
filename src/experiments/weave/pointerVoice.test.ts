@@ -63,7 +63,7 @@ describe("checkPointerVoice", () => {
     });
   }
 
-  test("statistical agreement pointer requires bound, significance, sample size, and seed", () => {
+  test("statistical agreement pointer requires bound, significance, sample size, and seed (pointerVoice.ts:51)", () => {
     const incompletePredicate: WeavePredicate = {
       id: "p4",
       instrumentId: "bm-01",
@@ -107,7 +107,7 @@ describe("checkPointerVoice", () => {
     expect(pointerVoiceOk(completePredicate)).toBe(true);
   });
 
-  test("deterministic agreement pointer requires bound or tolerance", () => {
+  test("deterministic agreement pointer requires bound or tolerance (pointerVoice.ts:59)", () => {
     const incompletePredicate: WeavePredicate = {
       id: "p5",
       instrumentId: "bm-01",
