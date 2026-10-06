@@ -6,6 +6,8 @@ import {
   refuseOutsideDeclaredDomain,
 } from "../../experiments/controls/declaredDomain.ts";
 import { computeLq02Snapshot } from "../../experiments/lq02/session.ts";
+import { LQ05_DEFAULTS } from "../../experiments/lq05/definition.ts";
+import { evaluateLq05 } from "../../experiments/lq05/session.ts";
 import { LQ06_DEFAULTS } from "../../experiments/lq06/definition.ts";
 import { lq06Outputs } from "../../experiments/lq06/session.ts";
 import { LQ07_DEFAULTS } from "../../experiments/lq07/definition.ts";
@@ -1062,6 +1064,46 @@ const OWNERS: OwnerRecord[] = [
    * paper's section 6 comparison turns on. Measured: none gives the not-applicable verdict, that ratio
    * gives 1, and the presentation subexpression gives 0, so all three branches are real.
    */
+  /**
+   * COUNTING INDEPENDENT POSSIBILITIES, AND WHAT HAPPENS WHEN THEY ARE NOT (am-nxbq, item 1).
+   *
+   * LQ-05 is section 5 of paper 1 as arithmetic: if n things are independently somewhere in a volume,
+   * the chance of finding them all in a fraction f of it is f to the n, so the entropy change is
+   * n k ln f - linear in n, which is what makes the gas comparison in LQ-06 possible at all.
+   *
+   * `locked` IS A NUMERIC FLAG because the owner protocol carries numbers, 1 for locked and 0 for
+   * independent, and it is the control this laboratory exists to offer: lock the points together and the
+   * probability is f rather than f to the n, with no n in it. The EXACT combinatorial outputs are
+   * returned and the sampled ones are not, because a seeded sample count is a statement about stream
+   * semantics rather than about the counting law, and mixing the two in one reading would invite a
+   * scenario to assert a statistic as though it were arithmetic.
+   */
+  {
+    id: "lq05.session",
+    sourcePath: fileURLToPath(new URL("../../experiments/lq05/session.ts", import.meta.url)),
+    fn: (ctx) => {
+      const evaluated = evaluateLq05({
+        ...LQ05_DEFAULTS,
+        n: num(ctx.inputs, "n"),
+        f: num(ctx.inputs, "f"),
+        locked: num(ctx.inputs, "locked") === 1,
+      });
+      const numbers: Record<string, number> = {};
+      for (const outputId of [
+        "configurationProbability",
+        "lnW",
+        "log10W",
+        "deltaSOverKb",
+        "expectedTrialsToOne",
+        "lockedProbability",
+      ]) {
+        const got = sessionOutputsOf(evaluated.outputs, outputId);
+        if (isOwnerRefusal(got)) return got;
+        Object.assign(numbers, got);
+      }
+      return numbers;
+    },
+  },
   {
     id: "lq06.session",
     sourcePath: fileURLToPath(new URL("../../experiments/lq06/session.ts", import.meta.url)),

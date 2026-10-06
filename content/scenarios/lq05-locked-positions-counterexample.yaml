@@ -1,0 +1,72 @@
+# THE LOCKED-POSITION PROBABILITY IS NOT f TO THE n (am-nxbq, item 1).
+#
+# AGENTS.md names this fixture in its adversarial list in exactly five words: "the locked-position
+# probability is f^n". It is listed there as a deliberately plausible WRONG result that must fail for the
+# intended reason, and this record is it.
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the lock, switched on with ten points and the fraction at a
+# half. Nothing else changes, so the two readings differ in one choice and can be set side by side with
+# lq05-ten-points-half-volume.
+#
+# WHAT LOCKING MEANS AND WHY THE n VANISHES. Independence is the premise doing all the work in section 5.
+# Lock the points to each other and they are no longer ten things that might each be anywhere; they are
+# ONE thing - a rigid cluster - that might be anywhere. The chance that it is in a given half is a half.
+# Not a half to the tenth: a half. So the probability is f, the entropy change is k ln f, and the number
+# of points does not appear in either. The instrument reports 0.5 against the independent reading's
+# 0.0009765625, a factor of 1024 at this n, and an expected wait of 2 trials against 1024.
+#
+# WHY THIS IS THE FIXTURE THAT PROTECTS SECTION 6. The entire comparison with an ideal gas rests on the
+# entropy being proportional to the NUMBER of things, because that is what lets a coefficient be read as
+# a count. If locked points still gave f to the n, the counting argument would be insensitive to
+# independence and would therefore establish nothing about the radiation being made of independent
+# quanta. The counterexample is what shows the premise is load-bearing.
+#
+# NOT A REFUSAL. Both readings are values, and that is deliberate: the locked model is a perfectly
+# well-defined model that gives a perfectly definite answer. What is wrong is applying the independent
+# formula to it, and the instrument shows that by computing both rather than by declining to compute one.
+id: "lq05-locked-positions-counterexample"
+kind: "adversarial"
+title: "LQ-05 with the points locked together: the probability is a half, not a half to the tenth"
+description: "Locking ten points to each other makes them one rigid cluster, so the chance of finding them in a given half of the volume is one half and the entropy change is the logarithm of one half, with the number of points appearing in neither. Against the independent reading of 0.0009765625 that is a factor of 1024 at this n, and the expected wait falls from 1024 trials to 2. The counting argument of section 5 is therefore sensitive to independence, which is what makes it evidence about independent quanta in section 6."
+plausibleMistake: "That the probability of all n points being in a fraction f is f to the n because there are n points, so the formula holds however they are arranged. The exponent counts INDEPENDENT choices and not objects: ten points rigidly fixed to one another make one choice between them, so the exponent is one. A page applying f to the n here would report 0.0009765625 for a situation whose answer is 0.5, understating it by three orders of magnitude while looking exactly like the correct calculation."
+intendedFailure: "The locked model is evaluated as its own model rather than through the independent formula, so the probability comes out as f and the entropy as ln f with no n in them. The scenario passes only when the locked probability is 0.5 and the configuration probability agrees with it; a run returning 0.0009765625 would be the planted mistake itself, and a run that refused would be declining to evaluate a model that is well defined."
+constantSetId: "modern-si-2019"
+owner: "lq05.session"
+inputs:
+  n:
+    value: 10
+    unit: "1"
+  f:
+    value: 0.5
+    unit: "1"
+  locked:
+    value: 1
+    unit: "1"
+expected:
+  outputs:
+    - outputId: configurationProbability
+      value: 0.5
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The fraction itself, not the fraction to the tenth. Against lq05-ten-points-half-volume's 0.0009765625 at the same n and f, which is the comparison the fixture exists to make."
+    - outputId: lockedProbability
+      value: 0.5
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The laboratory computes the locked probability separately and it must agree with the configuration probability under the lock. Two routes to the same number, so a lock that failed to take effect would show as a disagreement rather than as a plausible figure."
+    - outputId: lnW
+      value: -0.6931471805599453
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "ln(1/2) with no factor of n. Exactly one tenth of the independent case's -6.931471805599453, which is the n that has disappeared."
+    - outputId: expectedTrialsToOne
+      value: 2
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Two trials against 1024 for ten independent points. The wait is the form in which the factor of 1024 can be felt."
+modelVersion: 1
+schemaVersion: 1

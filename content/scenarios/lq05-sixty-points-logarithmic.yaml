@@ -1,0 +1,57 @@
+# SIXTY POINTS: THE PROBABILITY IS UNIMAGINABLE AND THE ENTROPY IS ORDINARY (am-nxbq, item 1).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the number of points, raised to 60 with the fraction still a
+# half.
+#
+# WHY SIXTY RATHER THAN A LARGER OR SMALLER NUMBER. It is where the two scales visibly part company. The
+# probability is 2 to the minus 60, which is 8.6736e-19: a wait of about 1.15e18 trials, longer than the
+# age of the universe in seconds. The entropy change is 60 ln(1/2), which is -41.589 - a perfectly
+# ordinary number, six times the value at ten points and not remotely unimaginable. The logarithm is what
+# converts one into the other, and that is the move section 5 makes before section 6 can compare anything
+# with a gas.
+#
+# THE LINEARITY IS THE ASSERTION, AND IT IS CHECKED AGAINST ITS SIBLING. lnW here is exactly six times
+# lnW at ten points, because 60 ln f over 10 ln f is 6 whatever f is. A model in which the points were
+# not independent would not give that ratio, which is the point of
+# lq05-locked-positions-counterexample, where the n disappears from the expression entirely.
+#
+# log10W IS CARRIED BECAUSE IT IS THE READABLE ONE. -18.0618 says "about eighteen orders of magnitude",
+# which is the form a reader can hold, and it is the base-ten shadow of the same linearity.
+id: "lq05-sixty-points-logarithmic"
+kind: "modern-golden"
+title: "LQ-05 with sixty points: a probability of 8.67e-19 and an entropy of only -41.589"
+description: "Sixty independent points are all in a given half with probability two to the minus sixty, 8.6736e-19, a wait of about 1.15e18 trials. The entropy change is sixty times the logarithm of a half, -41.589, which is an ordinary number and exactly six times its value at ten points. The logarithm is what turns an unimaginable probability into a manageable entropy, and the exact proportionality to the number of things is what makes the gas comparison in LQ-06 possible."
+constantSetId: "modern-si-2019"
+owner: "lq05.session"
+inputs:
+  n:
+    value: 60
+    unit: "1"
+  f:
+    value: 0.5
+    unit: "1"
+  locked:
+    value: 0
+    unit: "1"
+expected:
+  outputs:
+    - outputId: configurationProbability
+      value: 8.67361737988405e-19
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Two to the minus sixty, exactly representable in binary64, so the only error admitted is in forming the power."
+    - outputId: lnW
+      value: -41.58883083359672
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Sixty times ln(1/2), and exactly six times the -6.931471805599453 that lq05-ten-points-half-volume pins. The ratio is the linearity in n."
+    - outputId: log10W
+      value: -18.061799739838868
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The same quantity in base ten, which is the form a reader can hold: about eighteen orders of magnitude."
+modelVersion: 1
+schemaVersion: 1

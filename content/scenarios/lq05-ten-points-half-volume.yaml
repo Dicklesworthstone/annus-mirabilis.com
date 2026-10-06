@@ -1,0 +1,58 @@
+# TEN INDEPENDENT POINTS IN HALF THE VOLUME (am-nxbq, item 1).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the number of points, from LQ-05's default of 4 to 10, with
+# the volume fraction left at a half.
+#
+# THE ARITHMETIC, WHICH IS THE WHOLE OF SECTION 5. If each of n points is independently somewhere in a
+# volume, the chance that a particular one is in a given half is a half, and the chance that ALL of them
+# are is a half multiplied by itself n times. At n = 10 that is 1/1024, which is 0.0009765625 exactly.
+# The entropy change is k ln of that probability, so ten points give 10 ln(1/2) and nothing else: the
+# logarithm turns a product into a sum and the n comes out in front.
+#
+# WHY TEN IS THE INSTRUCTIVE NUMBER. It is small enough to enumerate and already large enough to be
+# surprising: a reader asked to guess how often ten independently placed specks are all in the left half
+# usually guesses far too high. The expected number of trials before it happens once is 1024, which the
+# instrument reports beside the probability so the answer can be felt rather than read.
+#
+# WHY THE SAMPLED COUNT IS NOT ASSERTED HERE. The laboratory also draws trials - 13 successes in 10,000
+# at the default seed, against the exact 9.77 expected - and that number is a statement about the random
+# stream rather than about the counting law. Pinning it in this record would mix a statistic into an
+# arithmetic assertion, so it stays out and is a separate question.
+id: "lq05-ten-points-half-volume"
+kind: "modern-golden"
+title: "LQ-05 with ten independent points: a probability of 1/1024 and an entropy of 10 ln(1/2)"
+description: "Ten points independently somewhere in a volume are all in a given half with probability one half to the tenth, 0.0009765625, so the entropy change is ten times the natural logarithm of a half. The expected wait for it to happen once is 1024 trials. The factor of ten appears in front of the logarithm and nowhere else, which is the linearity in the number of things that makes the comparison with an ideal gas possible."
+constantSetId: "modern-si-2019"
+owner: "lq05.session"
+inputs:
+  n:
+    value: 10
+    unit: "1"
+  f:
+    value: 0.5
+    unit: "1"
+  locked:
+    value: 0
+    unit: "1"
+expected:
+  outputs:
+    - outputId: configurationProbability
+      value: 0.0009765625
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "One half to the tenth, exactly representable in binary64 as 2 to the minus 10, so the only error admitted is in the power itself."
+    - outputId: lnW
+      value: -6.931471805599453
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Ten times ln(1/2). The linearity in n is the assertion, and lq05-sixty-points-logarithmic checks it again six times further out."
+    - outputId: expectedTrialsToOne
+      value: 1024
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The reciprocal of the probability, exact at this n. Reported so the probability can be felt as a wait rather than read as a decimal."
+modelVersion: 1
+schemaVersion: 1
