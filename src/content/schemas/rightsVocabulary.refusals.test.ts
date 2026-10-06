@@ -65,6 +65,81 @@ function baseVocabYaml(overrides: Record<string, string> = {}): string {
   return lines.join("\n");
 }
 
+/**
+ * THE requireGroup GUARD CANNOT FIRE, and this asserts why (am-r3qt).
+ *
+ * `unsupported-expression` is raised at three sites. Two are reachable and driven. The third, inside
+ * `requireGroup`, throws when a capture group is undefined - and every caller passes a match from a
+ * pattern whose group at that index is MANDATORY:
+ *
+ *     /^(\S+)\s+in\s+\[(.*)\]$/      groups 1 and 2
+ *     /^(\S+)\s*==\s*'([^']*)'$/      groups 1 and 2
+ *     /^(\S+)\s*!=\s*null$/           group 1
+ *     /^(\S+)\s*!=\s*'([^']*)'$/      groups 1 and 2
+ *     /^'([^']*)'$/                     group 1
+ *
+ * None is optional and none sits behind an alternation, so a match always supplies them. The throw is
+ * a `noUncheckedIndexedAccess` obligation, not a condition - the same shape as
+ * writeGeneratedSection.ts:74 and editionReviewState.ts:147.
+ *
+ * ASSERTED THROUGH THE PUBLIC SURFACE rather than by reading the regexes, because the claim that
+ * matters is "parsing each supported form never reaches that throw", and `evaluateExpression` is what
+ * a caller uses. If any pattern gained an optional group or an alternation, one of these parses would
+ * raise `unsupported-expression` and this goes red.
+ *
+ * NOT CITED, deliberately: the code has three sites, so a citation is the only thing that credits one,
+ * and citing the dead arm would mark it tested.
+ */
+describe("the capture-group guard is unreachable for every supported expression form", () => {
+  const CONTEXT = { a: "x", b: null, c: "yes", d: "no" } as const;
+
+  test("each of the five supported forms parses without reaching the guard", () => {
+    // One expression per pattern, each exercising the groups requireGroup asks for.
+    const forms = [
+      "a in ['x', 'y']",
+      "a == 'x'",
+      "b != null",
+      "a != 'z'",
+      "a in ['x'] && a == 'x'",
+    ];
+    for (const form of forms) {
+      // The assertion is that this does not THROW; the boolean it returns is the other tests' subject.
+      expect(() => evaluateExpression(form, CONTEXT)).not.toThrow();
+    }
+  });
+
+  test("PLANTED: an unsupported form still refuses, so the arm above is not vacuous", () => {
+    // Without this, a parser that silently accepted everything would satisfy the test above while the
+    // two reachable sites of this code had stopped working.
+    expect(() => evaluateExpression("a ~= 'x'", CONTEXT)).toThrow(RightsVocabularyError);
+  });
+
+  test("a clause with no value reaches the FINAL refusal, never the capture-group guard", () => {
+    /*
+     * THIS IS THE ARM THAT ACTUALLY BITES, and the first version of this test did not have it.
+     *
+     * Parsing the five supported forms proves nothing about the guard: every one of them supplies its
+     * value, so the group participates whether or not it is optional. Measured by planting - making
+     * EQ_PATTERN's value group `(?:'([^']*)')?` - and watching all fifteen tests stay GREEN. An
+     * assertion that cannot fail under the change it describes is worth nothing, however well it reads.
+     *
+     * `a ==` is the input that separates them. Against the real pattern it does not match at all and
+     * falls through to the LAST refusal, whose message is "unrecognized constraint clause". With an
+     * optional group it WOULD match, group 2 would be undefined, and requireGroup's own message -
+     * "could not extract a required capture group" - would come back instead. Both carry
+     * `unsupported-expression`, so only the message tells them apart.
+     */
+    let message = "";
+    try {
+      evaluateExpression("a ==", CONTEXT);
+    } catch (err) {
+      message = (err as RightsVocabularyError).message;
+    }
+    expect(message).toContain("unrecognized constraint clause");
+    expect(message).not.toContain("required capture group");
+  });
+});
+
 describe("rightsVocabulary.ts reachable refusal throw sites (am-muyh)", () => {
   // --------------------------------------------------------------------------
   // Site 1: line 59 - invalid-category
