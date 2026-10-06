@@ -733,3 +733,128 @@
   mathematicalKind: scalar
   frame: not-applicable
   colorRole: space-geometry
+
+# NINE QUANTITIES THE REFERENCE EVALUATORS ALREADY NAME AND THIS REGISTRY DID NOT DEFINE
+# (am-bzsk, measured 2026-10-06). distributions.ts's identity table and walkLaws.ts's moment
+# table pass these ids to every result they build, so a reader was already being shown values
+# labelled with them while nothing here said what they mean, what dimension they carry, or
+# which statistic they are. The drift surfaced when kernel bindings were written against them
+# and the new catalogue gate refused: see ae8395a6. Dimensions are [L, M, T, I, Theta, N].
+
+- id: meanRadialDistance
+  name: Mean radial distance
+  description: >
+    The mean distance from the starting point after a given time, in one, two or three
+    dimensions. Distinct from rmsRadialDistance and from mostLikelyRadius2d, which are three
+    different numbers describing one cloud: in two dimensions they stand in the ratio
+    1.253 : 1.414 : 1 times the square root of 2 D t.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  statistic: mean
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: rmsRadialDistance
+  name: RMS radial distance
+  description: >
+    The root-mean-square distance from the starting point after a given time, the square root
+    of d times 2 D t in d dimensions. The quantity paper 2 works with in one dimension,
+    because it is what a series of position readings yields.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  statistic: rms
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: mostLikelyRadius2d
+  name: Most likely radius (two dimensions)
+  description: >
+    Where the two-dimensional radial density peaks, at the square root of 2 D t, which equals
+    the one-dimensional RMS displacement because the growing circumference of available
+    positions cancels the falling density. No `statistic` is declared: the mode is not one of
+    the enumerated kinds, and naming an inexact one would be worse than documenting it here.
+    Two-dimensional only; the owning specification gives no closed form in three.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: meanSquareDisplacement
+  name: Mean-square displacement (all coordinates)
+  description: >
+    The mean of the squared distance from the start over all d coordinates, d times
+    meanSquareDisplacement1d. Kept distinct from that one-dimensional quantity because the
+    factor of d is exactly the thing a reader comparing a plot with paper 2 can lose.
+  dimensionStatus: declared
+  dimension: [2, 0, 0, 0, 0, 0]
+  statistic: mean-square
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: stepMean
+  name: Step mean
+  description: >
+    The mean of one step of a random-walk kernel, zero for every symmetric kernel this edition
+    admits. Reported rather than assumed, because a kernel whose mean is not zero produces
+    drift and not diffusion alone.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  statistic: mean
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: stepSecondMoment
+  name: Step second moment
+  description: >
+    The mean of the squared step length. For a symmetric kernel it equals stepVariance, and
+    the two are kept apart because they stop being equal the moment the mean is not zero.
+  dimensionStatus: declared
+  dimension: [2, 0, 0, 0, 0, 0]
+  statistic: mean-square
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: stepVariance
+  name: Step variance
+  description: >
+    The variance of one step. Its finiteness is the hypothesis that makes a random walk
+    approach diffusion, which is why the evaluator refuses it for the Cauchy step law rather
+    than returning a large number: that variance does not exist.
+  dimensionStatus: declared
+  dimension: [2, 0, 0, 0, 0, 0]
+  statistic: variance
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: stepFourthMoment
+  name: Step fourth moment
+  description: >
+    The mean of the fourth power of the step length, which sets how fast the walk's
+    distribution approaches a Gaussian. No `statistic` is declared because the enumerated
+    kinds stop at the second moment.
+  dimensionStatus: declared
+  dimension: [4, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: continuumDiffusionCoefficient
+  name: Continuum diffusion coefficient
+  description: >
+    The coefficient a shrinking random walk reaches in the limit, step variance over twice the
+    step interval. Deliberately not diffusionCoefficient: that is a property of a liquid and
+    this is the coefficient of a declared limiting procedure, and a plot mixing the two would
+    compare a model choice with an observation. Holding the step size fixed while the interval
+    shrinks reaches no limit at all, which the evaluator refuses by name.
+  dimensionStatus: declared
+  dimension: [2, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material

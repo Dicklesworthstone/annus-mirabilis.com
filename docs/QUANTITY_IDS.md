@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 305 quantities, 45 rejected spellings, 0 reserved spellings.
+Total: 314 quantities, 45 rejected spellings, 0 reserved spellings.
 
 ## Registered quantities
 
@@ -56,6 +56,7 @@ Total: 305 quantities, 45 rejected spellings, 0 reserved spellings.
 | configurationIntegral | Configuration integral | symbolic | not-applicable | scalar | — |
 | configurationIntegralFactor | Configuration integral factor | symbolic | not-applicable | scalar | — |
 | configurationProbability | Configuration probability | 0,0,0,0,0,0 | not-applicable | scalar | independentPointsProbability, multiplicity, statisticalProbability |
+| continuumDiffusionCoefficient | Continuum diffusion coefficient | 2,0,-1,0,0,0 | not-applicable | scalar | — |
 | conversionYield | Fluorescent conversion yield | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | coordinatePositionMoving | Coordinate position (moving system) | 1,0,0,0,0,0 | moving-system | vector | — |
 | coordinatePositionStationary | Coordinate position (stationary system) | 1,0,0,0,0,0 | stationary-system | vector | — |
@@ -186,8 +187,10 @@ Total: 305 quantities, 45 rejected spellings, 0 reserved spellings.
 | maxProbabilityDifference | Maximum probability difference | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | meanDisplacement1d | Mean displacement (one dimension) | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | meanQuantumEnergyWien | Mean quantum energy over a Wien spectrum | 2,1,-2,0,0,0 | not-applicable | scalar | meanQuantumEnergy |
+| meanRadialDistance | Mean radial distance | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | meanResonatorEnergy | Mean resonator energy | 2,1,-2,0,0,0 | not-applicable | scalar | meanOscillatorEnergy |
 | meanResonatorEnergyAtFrequency | Mean resonator energy at a given frequency | 2,1,-2,0,0,0 | not-applicable | scalar | resonatorMeanEnergyAtFrequency |
+| meanSquareDisplacement | Mean-square displacement (all coordinates) | 2,0,0,0,0,0 | not-applicable | scalar | — |
 | meanSquareDisplacement1d | Mean-square displacement (one dimension) | 2,0,0,0,0,0 | not-applicable | scalar | — |
 | measuredPosition1d | Measured position (one dimension) | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | microstateEnergy | Microstate energy | 2,1,-2,0,0,0 | not-applicable | scalar | — |
@@ -195,6 +198,7 @@ Total: 305 quantities, 45 rejected spellings, 0 reserved spellings.
 | mobility | Mobility | 0,-1,1,0,0,0 | not-applicable | scalar | — |
 | molarGasConstant | Molar gas constant | 2,1,-2,-1,0,-1 | not-applicable | scalar | gasConstant |
 | molesPerVolume | Moles per volume | -3,0,0,0,0,1 | not-applicable | scalar | — |
+| mostLikelyRadius2d | Most likely radius (two dimensions) | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | naiveGammaMinusOne | Naive Lorentz-factor excess | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | numberDensity | Number density | -3,0,0,0,0,0 | not-applicable | scalar | — |
 | observationInterval | Observation interval | 0,0,1,0,0,0 | not-applicable | scalar | — |
@@ -251,6 +255,7 @@ Total: 305 quantities, 45 rejected spellings, 0 reserved spellings.
 | relativeSpectralEmission | Relative spectral emission | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | relativeViscosity | Relative viscosity | 0,0,0,0,0,0 | not-applicable | scalar | viscosityRatio |
 | rmsDisplacement1d | RMS displacement (one dimension) | 1,0,0,0,0,0 | not-applicable | scalar | — |
+| rmsRadialDistance | RMS radial distance | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | sampleSize | Number of values in a sample | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | scaleFactorUnknown | Unknown scale factor: phi(v) | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | scaledDisplacement | Scaled displacement | 0,0,0,0,0,0 | not-applicable | scalar | — |
@@ -269,8 +274,12 @@ Total: 305 quantities, 45 rejected spellings, 0 reserved spellings.
 | stabilityRatio | Stability ratio | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | stateVariable | State variable | symbolic | not-applicable | scalar | — |
 | stateVariableRate | State variable rate | symbolic | not-applicable | scalar | — |
+| stepFourthMoment | Step fourth moment | 4,0,0,0,0,0 | not-applicable | scalar | — |
 | stepInterval | Step interval | 0,0,1,0,0,0 | not-applicable | scalar | — |
+| stepMean | Step mean | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | stepRms | Step RMS | 1,0,0,0,0,0 | not-applicable | scalar | — |
+| stepSecondMoment | Step second moment | 2,0,0,0,0,0 | not-applicable | scalar | — |
+| stepVariance | Step variance | 2,0,0,0,0,0 | not-applicable | scalar | — |
 | stoppingPotentialMagnitude | Stopping potential magnitude | 2,1,-3,0,-1,0 | not-applicable | scalar | — |
 | suspensionViscosityCoefficient | Suspension viscosity coefficient | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | systemEnergy | System energy | 2,1,-2,0,0,0 | not-applicable | scalar | — |
