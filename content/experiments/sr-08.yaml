@@ -424,23 +424,47 @@ teachingTapes:
   - tapeId: field-frame-change
     title: field frame change
 presets:
+  # Each preset now carries the FIELD it is named after. All three used to set only the boost and the
+  # test charge, so a consumer reading the declared preset for "Pure magnetic field" or "Null field
+  # invariant E = cB" got the default pure electric field and neither condition. The values below are
+  # the ones src/components/lab/sr08/FieldFrameChangeLab.tsx applies from its own buttons, which is why
+  # the page was right while this record was not.
   - presetId: sr-08-pure-electric-0.6c
     label: Pure electric field at 0.6c
     parameterValues:
       boost: 179875474.8
       testCharge: 1.602176634e-19
+      electricFieldX: 0
+      electricFieldY: 1
+      electricFieldZ: 0
+      magneticFieldX: 0
+      magneticFieldY: 0
+      magneticFieldZ: 0
     scenarioId: sr-08-pure-electric-0.6c
   - presetId: sr-08-pure-magnetic-low-speed
     label: Pure magnetic field at 10 m/s
     parameterValues:
       boost: 10
       testCharge: 1.602176634e-19
+      electricFieldX: 0
+      electricFieldY: 0
+      electricFieldZ: 0
+      magneticFieldX: 0
+      magneticFieldY: 0
+      magneticFieldZ: 1
     scenarioId: sr-08-pure-magnetic-low-speed
   - presetId: sr-08-crossed-fields-null
     label: Null field invariant E = cB
     parameterValues:
       boost: 179875474.8
       testCharge: 1.602176634e-19
+      electricFieldX: 0
+      electricFieldY: 1
+      electricFieldZ: 0
+      magneticFieldX: 0
+      magneticFieldY: 0
+      # 1/c tesla, so that E = cB exactly and both field invariants vanish.
+      magneticFieldZ: 3.3356409519815204e-9
     scenarioId: sr-08-crossed-fields-null
 probes:
   - toggle-frame
