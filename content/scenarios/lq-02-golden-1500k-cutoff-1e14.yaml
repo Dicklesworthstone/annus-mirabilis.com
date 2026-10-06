@@ -1,0 +1,53 @@
+# WHAT THE CLASSICAL ALLOCATION GIVES WHEN YOU STOP IT SOMEWHERE (am-nxbq, item 1).
+#
+# WHICH CONTROL VALUES A READER MOVES TO REACH IT: none. 1500 K, a cutoff at 1e14 Hz and a probe at
+# 1e13 Hz are LQ-02's own defaults, so these are the first numbers the instrument shows anybody.
+#
+# THE PHYSICS. The laboratory's premise is the one classical statistical mechanics forces: every
+# resonator gets the same mean energy kT whatever its frequency. At 1500 K that is 2.0710e-20 J per
+# resonator, which is two thirds of the kinetic energy of a free molecule at the same temperature,
+# because a molecule has three translational degrees of freedom and a resonator's mean energy here is
+# counted over two. The number of modes below a frequency goes as the cube of that frequency, so the
+# energy density below the cutoff goes as the cube too, and at 1e14 Hz it is 6.4392e-3 J/m^3.
+#
+# THE SHARE IS WHERE THE DIFFICULTY SHOWS. The probe sits a factor of ten below the cutoff, so the
+# energy below the probe is a THOUSANDTH of the energy below the cutoff, and 0.999 of the total sits in
+# the top decade of frequency. Nothing in the classical allocation stops that pattern repeating as the
+# cutoff is raised, which is what lq-02-tenfold-widening-1000x states as a ratio and what
+# lq-02-classical-total-has-no-value states as the absence of a total.
+#
+# ON NAMING. The phrase "ultraviolet catastrophe" is Ehrenfest's, from 1911, and AGENTS.md's anachronism
+# table forbids presenting it as the 1905 difficulty. The numbers here say what grows; they do not
+# narrate a catastrophe.
+id: "lq-02-golden-1500k-cutoff-1e14"
+kind: "modern-golden"
+title: "LQ-02 at its defaults: 6.4392e-3 J/m^3 below the cutoff, and 0.999 of it above the probe"
+description: "The classical allocation gives every resonator the same mean energy whatever its frequency. At 1500 kelvin with a cutoff at 1e14 Hz, the energy density below the cutoff is 6.4392e-3 J/m^3, and with a probe one decade lower, 0.999 of that energy lies between the probe and the cutoff. The lopsidedness is the whole point: the mode count grows as the cube of the frequency, so the energy is concentrated at the top of whatever range is admitted, wherever the top is put."
+constantSetId: "modern-si-2019"
+owner: "lq02.allocation"
+inputs:
+  T:
+    value: 1500
+    unit: "K"
+  nuCutoff:
+    value: 1.0e14
+    unit: "Hz"
+  probeFrequency:
+    value: 1.0e13
+    unit: "Hz"
+expected:
+  outputs:
+    - outputId: energyUpToCutoff
+      value: 0.006439187004807029
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "A closed form in the cube of the cutoff with constants exact by definition, so the only error admitted is floating-point."
+    - outputId: shareAboveProbe
+      value: 0.999
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Exact: the probe is a decade below the cutoff and the energy goes as the cube, so the share below the probe is one thousandth and the share above it is 1 - 1/1000."
+modelVersion: 1
+schemaVersion: 1

@@ -1,0 +1,45 @@
+# NO MEAN RESONATOR ENERGY AT ZERO KELVIN (am-nxbq, items 2 and 3).
+#
+# WHICH CONTROL VALUE A READER MOVES TO REACH IT: the temperature, set to 0. LQ-02 declares a positive
+# range for it, so a reader dragging the slider is stopped by the declared-domain gate, which
+# lq-02-t-outside-declared-range-refused pins separately. This record is the layer BENEATH that one: the
+# evaluator's own guard, which holds for a permalink, a teaching tape or an embed carrying a value no
+# control offers.
+#
+# WHY ZERO IS OUTSIDE THE MODEL RATHER THAN A COLD CASE OF IT. The mean energy per resonator in this
+# allocation is proportional to the temperature, so the arithmetic at T = 0 gives exactly zero, and a
+# zero is the most dangerous answer available: it reads as a physical statement about a body at zero
+# kelvin when it is really the model being evaluated where it does not apply. The laboratory is about
+# how a given quantity of thermal energy is distributed across frequencies. At zero there is no thermal
+# energy to distribute and no distribution to describe.
+#
+# THE GUARD IS IN THE SESSION FOR A MEASURED REASON, recorded in its own source: the bare owner function
+# always returns a value, trusting its caller for the temperature's domain, while the cutoff energy
+# validates the temperature itself. Composing the two without the session's guard would show a
+# negative or zero mean energy beside a correctly refusing cutoff energy, an inconsistency a reader has
+# no way to detect.
+id: "lq-02-nonpositive-temperature-refused"
+kind: "adversarial"
+title: "LQ-02 refuses the mean resonator energy at zero temperature rather than reporting zero"
+description: "The mean energy the classical allocation gives each resonator is proportional to the temperature. At zero kelvin the arithmetic returns zero, and zero is not the answer: the laboratory describes how thermal energy is spread across frequencies, and at zero there is none to spread. The evaluator states that the temperature must be positive and finite, so the page shows a refusal naming the condition rather than a zero that would read as a measurement."
+plausibleMistake: "That zero kelvin is the natural bottom of the temperature control and therefore a legitimate limiting case, giving zero energy per resonator. The number is arithmetically right and physically empty, and it is worse than an error because it is plausible: a reader seeing 0 J beside a frequency axis would take it as the model's statement about a very cold body rather than as the model being used outside its domain."
+intendedFailure: "The guard refuses before a mean energy is formed, so no zero reaches the page and no negative one can be produced by a temperature below zero. The scenario passes only when the refusal arrives on the mean resonator energy with the nonpositive-temperature condition; a run returning 0 fails here, which is the whole point, and so does one that refused for the declared control range instead, which is the separate statement pinned by lq-02-t-outside-declared-range-refused."
+constantSetId: "modern-si-2019"
+owner: "lq02.meanResonatorEnergy"
+inputs:
+  T:
+    value: 0
+    unit: "K"
+  nuCutoff:
+    value: 1.0e14
+    unit: "Hz"
+  probeFrequency:
+    value: 1.0e13
+    unit: "Hz"
+expected:
+  status:
+    outputId: "meanResonatorEnergy"
+    status: "outside-domain"
+    reasonCode: "nonpositive-temperature"
+modelVersion: 1
+schemaVersion: 1

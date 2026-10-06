@@ -4,6 +4,7 @@ import {
   declaredDomains,
   refuseOutsideDeclaredDomain,
 } from "../../experiments/controls/declaredDomain.ts";
+import { computeLq02Snapshot } from "../../experiments/lq02/session.ts";
 import { LQ06_DEFAULTS } from "../../experiments/lq06/definition.ts";
 import { lq06Outputs } from "../../experiments/lq06/session.ts";
 import { LQ07_DEFAULTS } from "../../experiments/lq07/definition.ts";
@@ -505,6 +506,36 @@ function osmoticPressureOwner(ctx: OwnerContext): OwnerResult {
       },
     };
   return { osmoticPressure: evaluation.result.value };
+}
+
+/**
+ * LQ-02's snapshot, from the laboratory's own session (am-nxbq, item 1).
+ *
+ * The three controls are read from the scenario rather than defaulted, because every LQ-02 case turns
+ * on one of them: the cutoff is what makes the total finite, the probe is what can be asked for above
+ * the cutoff, and the temperature is what can be asked for at zero.
+ */
+function lq02Snapshot(ctx: OwnerContext) {
+  return computeLq02Snapshot({
+    T: num(ctx.inputs, "T"),
+    nuCutoff: num(ctx.inputs, "nuCutoff"),
+    probeFrequency: num(ctx.inputs, "probeFrequency"),
+    constantSetId: "modern-si-2019",
+  });
+}
+
+/** One named field of that snapshot, keeping its typed status rather than throwing it away. */
+function lq02Field(
+  ctx: OwnerContext,
+  field:
+    | "meanResonatorEnergy"
+    | "energyUpToCutoff"
+    | "energyUpToProbe"
+    | "shareAboveProbe"
+    | "tenfoldWidenedEnergy",
+): OwnerResult {
+  const got = nonNumericOr(lq02Snapshot(ctx)[field] as unknown as Record<string, unknown>, field);
+  return typeof got === "number" ? { [field]: got } : got;
 }
 
 function diffusionRms(ctx: OwnerContext): OwnerResult {
@@ -1479,6 +1510,84 @@ const OWNERS: OwnerRecord[] = [
    * Ehrenfest's phrase from 1911 and the pre-1905 difficulty is not the later textbook narrative, so the
    * prose says what diverges and stops.
    */
+  /**
+   * HOW MUCH ENERGY THE CLASSICAL ALLOCATION PUTS BELOW A CUTOFF, AND WHERE IT PUTS IT (am-nxbq, item 1).
+   *
+   * LQ-02 asks what happens if every resonator gets the same mean energy whatever its frequency. Below a
+   * stated cutoff the answer is a number, and the number is lopsided: the energy density goes as the cube
+   * of the cutoff, so almost all of it sits just under the top. Both outputs come from one owner because
+   * the share is computed FROM the two energies and reporting it beside a different pair would be a
+   * different claim.
+   */
+  {
+    id: "lq02.allocation",
+    sourcePath: fileURLToPath(new URL("../../experiments/lq02/session.ts", import.meta.url)),
+    fn: (ctx) => {
+      const numbers: Record<string, number> = {};
+      for (const field of ["energyUpToCutoff", "shareAboveProbe"] as const) {
+        const got = lq02Field(ctx, field);
+        if (isOwnerRefusal(got)) return got;
+        Object.assign(numbers, got);
+      }
+      return numbers;
+    },
+  },
+  /**
+   * WIDENING THE CUTOFF TENFOLD MULTIPLIES THE ENERGY BY A THOUSAND (am-nxbq, item 1).
+   *
+   * The ratio, not the two energies, because the ratio is the claim: it is the cube of ten for every
+   * temperature and every starting cutoff, which is what shows the growth has no ceiling to approach.
+   * The session computes it and nothing could read it until now.
+   *
+   * AGENTS.md's anachronism table governs how a scenario WORDS this: "ultraviolet catastrophe" is
+   * Ehrenfest's phrase from 1911, so the prose says what grows and stops there.
+   */
+  {
+    id: "lq02.growthRatio",
+    sourcePath: fileURLToPath(new URL("../../experiments/lq02/session.ts", import.meta.url)),
+    fn: (ctx) => {
+      const ratio = lq02Snapshot(ctx).growthRatio;
+      // null is the session's way of saying the two energies are not both values, which happens for a
+      // nonpositive temperature. Reporting it as a refusal keeps that a typed outcome rather than a
+      // missing output, and names the field a reader would be looking at.
+      if (ratio === null)
+        return {
+          refused: {
+            outputId: "growthRatio",
+            status: "outside-domain",
+            reasonCode: "cutoff-energies-not-values",
+          },
+        };
+      return { growthRatio: ratio };
+    },
+  },
+  /**
+   * A SHARE ABOVE A PROBE THAT SITS ABOVE THE CUTOFF (am-nxbq, item 2).
+   *
+   * The probe divides the energy below the cutoff into two parts, so a probe ABOVE the cutoff divides
+   * nothing: there is no band between them. The session states `probe-above-cutoff` rather than
+   * returning a negative share, which is what the arithmetic would give and what a reader would have no
+   * way to recognise as meaningless.
+   */
+  {
+    id: "lq02.shareAboveProbe",
+    sourcePath: fileURLToPath(new URL("../../experiments/lq02/session.ts", import.meta.url)),
+    fn: (ctx) => lq02Field(ctx, "shareAboveProbe"),
+  },
+  /**
+   * NO MEAN RESONATOR ENERGY AT ZERO TEMPERATURE (am-nxbq, item 2).
+   *
+   * The mean energy per resonator is proportional to the temperature, so at T = 0 the arithmetic gives
+   * zero and the physics gives nothing: the allocation this laboratory is about is a statement about a
+   * body at a temperature, and zero kelvin is outside the model rather than a cold case of it. The
+   * session's own guard exists because the bare owner function trusts its caller for T's domain, which
+   * would have let a nonpositive T produce a negative energy beside a correctly refusing cutoff energy.
+   */
+  {
+    id: "lq02.meanResonatorEnergy",
+    sourcePath: fileURLToPath(new URL("../../experiments/lq02/session.ts", import.meta.url)),
+    fn: (ctx) => lq02Field(ctx, "meanResonatorEnergy"),
+  },
   {
     id: "radiation.classicalAllocation",
     sourcePath: fileURLToPath(

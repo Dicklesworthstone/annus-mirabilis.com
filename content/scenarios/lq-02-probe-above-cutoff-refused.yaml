@@ -1,0 +1,45 @@
+# A PROBE ABOVE THE CUTOFF DIVIDES NOTHING (am-nxbq, items 2 and 3).
+#
+# WHICH CONTROL VALUE A READER MOVES TO REACH IT: the probe frequency, raised to 1e15 Hz while the
+# cutoff stays at LQ-02's default of 1e14 Hz. Both are inside their own declared ranges; what is wrong
+# is the RELATION between them, which no single control's range can express.
+#
+# WHY THE ARITHMETIC WOULD NOT STOP. The share above the probe is (E_cutoff - E_probe) / E_cutoff. With
+# the probe above the cutoff, E_probe is the larger number and the formula returns a NEGATIVE share: at
+# these settings it would read about -999, a share of the energy that is not a share of anything. A
+# negative fraction is the kind of wrong answer a reader cannot recognise as wrong, because nothing
+# about it looks like an error.
+#
+# WHAT THE INSTRUMENT DOES INSTEAD. The session states `probe-above-cutoff`, naming the relation rather
+# than either control, and the energies either side of it stay values: the cutoff energy and the probe
+# energy are both perfectly well defined, and it is only the share between them that has no meaning.
+# That is the honest shape, because refusing all three would suggest the settings were unphysical when
+# they are merely in the wrong order.
+#
+# The reason code is the session's own condition. The prose names it in ordinary language, because a raw
+# status identifier in visitor-facing text is what the voice rule status-enum-leak refuses.
+id: "lq-02-probe-above-cutoff-refused"
+kind: "adversarial"
+title: "LQ-02 refuses a share above a probe that sits above the cutoff, rather than returning a negative share"
+description: "The probe frequency divides the energy below the cutoff into a part below the probe and a part above it. Put the probe above the cutoff and there is no part above it to report: the subtraction that defines the share would return a negative number, about -999 at these settings, which is not a share of anything. The instrument states that the probe must be at or below the cutoff and keeps both energies, since each is well defined on its own."
+plausibleMistake: "That a probe above the cutoff is simply a probe that catches everything, so the share above it should be zero or the whole. Neither follows from the formula, which subtracts the probe energy from the cutoff energy and divides: above the cutoff that subtraction changes sign, and a page that printed the result would be showing a negative fraction of a positive energy."
+intendedFailure: "The share is refused before the subtraction is reported, so no negative fraction reaches the page. The scenario passes only when the refusal arrives on the share with the probe-above-cutoff condition; a run returning any number fails here, including zero and one, each of which would be an answer to a question that was not asked."
+constantSetId: "modern-si-2019"
+owner: "lq02.shareAboveProbe"
+inputs:
+  T:
+    value: 1500
+    unit: "K"
+  nuCutoff:
+    value: 1.0e14
+    unit: "Hz"
+  probeFrequency:
+    value: 1.0e15
+    unit: "Hz"
+expected:
+  status:
+    outputId: "shareAboveProbe"
+    status: "outside-domain"
+    reasonCode: "probe-above-cutoff"
+modelVersion: 1
+schemaVersion: 1

@@ -1,0 +1,47 @@
+# WIDENING THE CUTOFF TENFOLD MULTIPLIES THE ENERGY BY A THOUSAND (am-nxbq, item 1).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the cutoff frequency, raised by a factor of ten from
+# LQ-02's default of 1e14 Hz. The instrument computes both and reports the ratio, so the reader does not
+# have to hold two numbers in their head to see the pattern.
+#
+# WHY A RATIO RATHER THAN THE TWO ENERGIES. The ratio is the claim. Under the classical allocation the
+# mode count below a frequency goes as the cube of that frequency, so the energy density does too, and
+# ten cubed is a thousand for EVERY temperature and every starting cutoff. Pinning the two energies
+# would pin one arithmetic; pinning the ratio pins the scaling law, which is the thing that does not
+# stop.
+#
+# WHAT IT IS EVIDENCE FOR, AND WHAT IT IS NOT. This is the consequence of an assumption made legible:
+# if equipartition holds up to any frequency you care to name, then admitting a decade more of spectrum
+# multiplies the energy by a thousand, and no finite answer is approached. It is not evidence that
+# nature behaves this way, and the site must not say so: a simulator programmed with an assumption
+# demonstrates the assumption's consequences, never the world. What the world does is paper 1's subject
+# from section 3 onwards.
+#
+# ON NAMING. "Ultraviolet catastrophe" is Ehrenfest's phrase from 1911 and is not the pre-1905
+# difficulty; AGENTS.md's anachronism table says so. This record states the ratio and stops.
+id: "lq-02-tenfold-widening-1000x"
+kind: "modern-golden"
+title: "LQ-02: a tenfold wider cutoff holds exactly a thousand times the energy"
+description: "Raising the cutoff frequency by a factor of ten multiplies the classical energy density below it by 1000, because the mode count below a frequency goes as the cube of that frequency. The factor does not depend on the temperature or on where the cutoff started, which is why it states a scaling law rather than a particular arithmetic, and why nothing in the classical allocation suggests a largest sensible cutoff."
+constantSetId: "modern-si-2019"
+owner: "lq02.growthRatio"
+inputs:
+  T:
+    value: 1500
+    unit: "K"
+  nuCutoff:
+    value: 1.0e14
+    unit: "Hz"
+  probeFrequency:
+    value: 1.0e13
+    unit: "Hz"
+expected:
+  outputs:
+    - outputId: growthRatio
+      value: 1000
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-9
+        rationale: "Exactly ten cubed. The computed ratio is 1000.0000000000003 because the two energies are formed separately before being divided, so the tolerance admits that cancellation error and nothing larger."
+modelVersion: 1
+schemaVersion: 1
