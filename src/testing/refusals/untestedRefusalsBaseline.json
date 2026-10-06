@@ -2,7 +2,7 @@
   "scripts/a11y/checks.ts": 0,
   "scripts/align-editions.ts": 0,
   "scripts/app-router-architecture.ts": 0,
-  "scripts/backfill-review-records.ts": 1,
+  "scripts/backfill-review-records.ts": 0,
   "scripts/build-content.ts": 2,
   "scripts/check-receipts.ts": 0,
   "scripts/download-facsimiles.ts": 7,
