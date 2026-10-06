@@ -1308,7 +1308,7 @@ describe("17. Complete downloadFacsimile engine lifecycle, parent reuse, and ref
     expect(fs.statSync(dest).mtimeMs).toBe(preMtime);
   });
 
-  test("17.5 refusal: conflicting pinned record in config refuses with PINNED_DIGEST_CONFLICT (download-facsimiles.ts:1236) (exit 2)", async () => {
+  test("17.5 refusal: conflicting pinned record in config refuses with PINNED_DIGEST_CONFLICT (download-facsimiles.ts:1265) (exit 2)", async () => {
     const key = "ap-99-106";
     const conflictSha = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
     writeTestConfig(key, {
@@ -1774,7 +1774,7 @@ describe("17. Complete downloadFacsimile engine lifecycle, parent reuse, and ref
     expect(caughtError.exitCode).toBe(4);
   });
 
-  test("17.14 refusal: network retries exhausted on persistent 503 (download-facsimiles.ts:944) (exit 4)", async () => {
+  test("17.14 refusal: network retries exhausted on persistent 503 (download-facsimiles.ts:973) (exit 4)", async () => {
     const key = "ap-99-115";
     writeTestConfig(key, {
       configVersion: 1,
@@ -2291,7 +2291,7 @@ describe("21. Refusals nobody had ever seen fire (am-muyh)", () => {
     throw new Error("the call succeeded where it was required to refuse");
   }
 
-  test("21.1 restoring a key that was never pinned (download-facsimiles.ts:806)", async () => {
+  test("21.1 restoring a key that was never pinned (download-facsimiles.ts:835)", async () => {
     const key = "ap-99-201";
     writeConfig(key);
     const error = await refusalFrom(() => restorePin(key, { configDir, repoRoot: testRoot }));
@@ -2299,7 +2299,7 @@ describe("21. Refusals nobody had ever seen fire (am-muyh)", () => {
     expect(error.message).toContain(key);
   });
 
-  test("21.2 a pinned record whose origin URL is plain HTTP (download-facsimiles.ts:833)", async () => {
+  test("21.2 a pinned record whose origin URL is plain HTTP (download-facsimiles.ts:862)", async () => {
     // Not loopback, so the NODE_ENV=test exemption for 127.0.0.1 does not apply: this
     // is the real refusal, not the test-harness path around it.
     const key = "ap-99-202";
@@ -2324,7 +2324,7 @@ describe("21. Refusals nobody had ever seen fire (am-muyh)", () => {
     expect(error.message).toContain("http://archive.org");
   });
 
-  test("21.3 fetching from a plain HTTP URL with no redirect behind it (download-facsimiles.ts:912)", async () => {
+  test("21.3 fetching from a plain HTTP URL with no redirect behind it (download-facsimiles.ts:941)", async () => {
     // The redirect case has its own code (redirect-to-http), so the empty chain is what
     // distinguishes this refusal from that one.
     const error = await refusalFrom(() =>
@@ -2336,7 +2336,7 @@ describe("21. Refusals nobody had ever seen fire (am-muyh)", () => {
     expect(error.message).not.toContain("Redirect");
   });
 
-  test("21.4 an HTTP status that is neither success nor worth retrying (download-facsimiles.ts:951)", async () => {
+  test("21.4 an HTTP status that is neither success nor worth retrying (download-facsimiles.ts:980)", async () => {
     // 404 is terminal: 429 and 5xx retry, and exhausting those retries is a different
     // code (network-retries-exhausted). A single call must be enough to reach this one.
     let calls = 0;
@@ -2353,7 +2353,7 @@ describe("21. Refusals nobody had ever seen fire (am-muyh)", () => {
     expect(calls).toBe(1);
   });
 
-  test("21.5 a redirect chain that runs out of attempts still holding a redirect (download-facsimiles.ts:973)", async () => {
+  test("21.5 a redirect chain that runs out of attempts still holding a redirect (download-facsimiles.ts:1002)", async () => {
     // A different site from 21.4 and reached differently: with no retries left the loop
     // exits still holding the 302, so the check after the loop is what refuses. Without
     // it the function would go on to read a body that was never fetched.
@@ -2371,7 +2371,7 @@ describe("21. Refusals nobody had ever seen fire (am-muyh)", () => {
     expect(error.message).toContain("Failed to retrieve 200 OK");
   });
 
-  test("21.6 a candidate index the config does not have (download-facsimiles.ts:1096)", async () => {
+  test("21.6 a candidate index the config does not have (download-facsimiles.ts:1125)", async () => {
     const key = "ap-99-206";
     writeConfig(key);
     const error = await refusalFrom(() =>
@@ -2706,7 +2706,7 @@ describe("21. Refusals nobody had ever seen fire (am-muyh)", () => {
     expect(error.message).toContain("already pinned");
   });
 
-  test("22.9 restoring over a file whose bytes are not the pinned ones (download-facsimiles.ts:822)", async () => {
+  test("22.9 restoring over a file whose bytes are not the pinned ones (download-facsimiles.ts:851)", async () => {
     // Restore never touches an existing conflicting file. Overwriting here would destroy
     // whatever is actually on disk to satisfy a record that may itself be the wrong one.
     const key = "ap-99-229";
@@ -2735,7 +2735,7 @@ describe("21. Refusals nobody had ever seen fire (am-muyh)", () => {
     expect(error.message).toContain("will not touch an existing conflicting file");
   });
 
-  test("22.10 a restore download that does not return 200 (download-facsimiles.ts:845)", async () => {
+  test("22.10 a restore download that does not return 200 (download-facsimiles.ts:874)", async () => {
     // restorePin's own status check, which is a different site from fetchToStaging's:
     // this one has no retry ladder behind it, so one non-200 is terminal.
     const key = "ap-99-230";
@@ -2766,7 +2766,7 @@ describe("21. Refusals nobody had ever seen fire (am-muyh)", () => {
     expect(error.message).toContain("410");
   });
 
-  test("22.11 a redirect with no Location to follow (download-facsimiles.ts:925)", async () => {
+  test("22.11 a redirect with no Location to follow (download-facsimiles.ts:954)", async () => {
     // A 3xx is only usable if it says where to go. Without a Location there is nothing
     // to follow, and treating it as a retry would hammer the host for no reason.
     const error = await refusalFrom(() =>
@@ -2778,7 +2778,7 @@ describe("21. Refusals nobody had ever seen fire (am-muyh)", () => {
     expect(error.message).toContain("missing Location header");
   });
 
-  test("22.12 a transport that keeps throwing until the retries run out (download-facsimiles.ts:965)", async () => {
+  test("22.12 a transport that keeps throwing until the retries run out (download-facsimiles.ts:994)", async () => {
     // The catch-side exhaustion arm. Its sibling at 943 exhausts on repeated 5xx
     // RESPONSES and is driven by 17.14; this one is the transport never answering at
     // all, which is a different failure for an operator to read.
