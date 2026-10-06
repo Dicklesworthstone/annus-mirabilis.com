@@ -19,6 +19,12 @@ import { labelRootAttributes } from "../../experiments/labels/resultAttributes.t
 import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { FRANKENSIM_NORMALS_ENGINE_SENTENCE } from "../../experiments/provenance/pinnedFrankenSim.ts";
+import {
+  type ApplyFailure,
+  applyFailure,
+  failureCode,
+  failureFromThrown,
+} from "../../experiments/results/applyFailure.ts";
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
@@ -104,7 +110,15 @@ export function WalkLab({
   const [draft, setDraft] = useState(() => toWalkDraft(example.parameters)),
     [ready, setReady] = useState(false),
     [dirty, setDirty] = useState(false),
-    [error, setError] = useState(""),
+    /**
+     * The typed failure of the last apply, not a string (am-ig23).
+     *
+     * This held `typeof r.refusal.details?.requirements === "string" ? ... : r.refusal.message`, which is the
+     * sentence and nothing else; the code, the ranked repairs and the staleness marking were lost at the
+     * assignment. WalkLab was the only one of the twenty-six sites that guarded against a non-string
+     * requirements, so its sentence was right where sixteen others would have shown "[object Object]".
+     */
+    [failure, setFailure] = useState<ApplyFailure | null>(null),
     [note, setNote] = useState("");
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("bm-05", BM05_PROMPTS);
@@ -127,19 +141,14 @@ export function WalkLab({
   }, [session]);
   function apply(settings: Bm05Parameters) {
     const r = session.apply(settings);
-    if (r.kind !== "accepted") {
-      setError(
-        r.kind === "refused"
-          ? typeof r.refusal.details?.requirements === "string"
-            ? r.refusal.details.requirements
-            : r.refusal.message
-          : r.outcome.message,
-      );
+    const failed = applyFailure(r);
+    if (failed) {
+      setFailure(failed);
       return;
     }
     setDraft(toWalkDraft(settings));
     setDirty(false);
-    setError("");
+    setFailure(null);
     setNote("");
   }
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -147,7 +156,8 @@ export function WalkLab({
     try {
       apply(fromWalkDraft(draft));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Check the settings.");
+      // fromWalkDraft throws ParameterRefusalError now, so the refusal survives the throw.
+      setFailure(failureFromThrown(e, "Check the settings."));
     }
   }
   function newTrial() {
@@ -156,9 +166,12 @@ export function WalkLab({
       const high = words[0] ?? 0;
       const low = words[1] ?? 0;
       apply({ ...p, seed: ((BigInt(high) << 32n) | BigInt(low)).toString() });
-    } catch {
-      setError(
-        "A new random seed is unavailable on this device. Enter a different seed explicitly.",
+    } catch (e) {
+      setFailure(
+        failureFromThrown(
+          e,
+          "A new random seed is unavailable on this device. Enter a different seed explicitly.",
+        ),
       );
     }
   }
@@ -330,10 +343,35 @@ export function WalkLab({
               These edits are a draft. The graph and numbers still describe the accepted trial.
             </p>
           )}
-          {error && (
-            <p className="notice error" role="alert">
-              {error} {KEPT_RESULT}
-            </p>
+          {failure && (
+            /* THE TYPED SURFACE for a refusal raised while validating the form (am-ig23): the code a gate can
+               find, and the admissible value the schema already supplies, beside the sentence a reader reads. */
+            <div
+              className="notice error"
+              role="alert"
+              data-refusal-code={failureCode(failure)}
+              data-apply-failure={failure.kind}
+            >
+              <p>
+                {failure.text} {KEPT_RESULT}
+              </p>
+              {failure.kind === "refused"
+                ? failure.refusal.rankedRepairs.map((repair) => {
+                    const action = repair.action;
+                    if (!action) return null;
+                    return (
+                      <button
+                        key={`validation-${action.parameterId}-${repair.label}`}
+                        type="button"
+                        className="secondary"
+                        onClick={() => apply({ ...p, [action.parameterId]: action.value })}
+                      >
+                        {repair.label}
+                      </button>
+                    );
+                  })
+                : null}
+            </div>
           )}
           <div className="actions">
             {[4, 16, 64, 400].map((n) => (

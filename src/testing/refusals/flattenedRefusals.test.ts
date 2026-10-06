@@ -49,7 +49,12 @@ const ROOT = resolve(fileURLToPath(new URL("../../../", import.meta.url)));
 const CANONICAL = "src/experiments/results/refusalSentence.ts";
 
 /**
- * THE RECORDED DEBT, measured 2026-10-06 with comments blanked: 26 sites in 25 files.
+ * THE RECORDED DEBT, measured 2026-10-06 with comments blanked: 22 sites in 21 files.
+ *
+ * It opened at 26 in 25. Four came off the same day - bm05/controls.ts, bm07/controls.ts, WalkLab.tsx and
+ * InferenceLab.tsx - and the ratchet went RED when they did, which is the mechanism working: a baseline entry
+ * that no longer holds is a failure, so the conversions and this list land in one commit rather than leaving
+ * HEAD red in between.
  *
  * Each is a place that flattens a typed refusal to its sentence. Converting one means pointing it at
  * `applyFailure`/`refusalSentence` and keeping the refusal, which is a per-lab change with a reader-facing
@@ -59,10 +64,8 @@ const FLATTENING_SITES: Readonly<Record<string, number>> = {
   "src/components/discover/BrownianInvestigation.tsx": 1,
   "src/components/lab/BrownianLab.tsx": 1,
   "src/components/lab/DriftDiffusionLab.tsx": 1,
-  "src/components/lab/InferenceLab.tsx": 1,
   "src/components/lab/RodSimultaneityLab.tsx": 1,
   "src/components/lab/TracerLab.tsx": 1,
-  "src/components/lab/WalkLab.tsx": 1,
   "src/components/lab/WaveDescriptionLab.tsx": 1,
   "src/components/lab/bm03/ConfigurationLab.tsx": 1,
   "src/components/lab/lq03/SpectrumLab.tsx": 1,
@@ -74,8 +77,6 @@ const FLATTENING_SITES: Readonly<Record<string, number>> = {
   "src/components/lab/sr06/VelocityCompositionLab.tsx": 1,
   "src/components/lab/sr07/FieldEquationsLab.tsx": 2,
   "src/discovery/lightQuanta/investigation.ts": 1,
-  "src/experiments/bm05/controls.ts": 1,
-  "src/experiments/bm07/controls.ts": 1,
   "src/experiments/bm07/kitchen/analyze.ts": 1,
   "src/experiments/compare/controlledComparison.ts": 1,
   "src/experiments/sr03/controls.ts": 1,
@@ -146,18 +147,33 @@ test("the canonical implementation is excluded BY NAME and still contains the ex
   assert.ok(!Object.keys(report.perFile).includes(CANONICAL));
 });
 
-test("the three converted paths are NOT in the list, which is what conversion looks like", () => {
+test("the converted paths are NOT in the list, which is what conversion looks like", () => {
   // bm-08's component and its controls module were converted on 2026-10-06, and both still carry docblocks
   // QUOTING the expression to record what was wrong with it. A scan over raw text would count those
   // explanations as defects; with comments blanked they are absent, which is the conversion and the blanker
   // proving itself at once.
-  const converted = ["src/components/lab/CameraLab.tsx", "src/experiments/bm08/controls.ts"];
+  const converted = [
+    "src/components/lab/CameraLab.tsx",
+    "src/experiments/bm08/controls.ts",
+    "src/components/lab/WalkLab.tsx",
+    "src/components/lab/InferenceLab.tsx",
+    "src/experiments/bm05/controls.ts",
+    "src/experiments/bm07/controls.ts",
+  ];
   for (const file of converted) assert.ok(!Object.keys(report.perFile).includes(file), file);
-  for (const file of converted)
+  /*
+   * AND THE CONTROL, narrowed to what is actually true. The first version asserted that EVERY converted file
+   * still mentions the expression in prose, which is a property of how each conversion happened to be
+   * commented rather than a requirement, and it failed on InferenceLab - correctly. What the control is for is
+   * showing that the blanker is what excludes these files, not their no longer containing the words at all.
+   * Two of them carry a docblock quoting the old expression, so they make that point; the PLANTED case below
+   * makes it directly on the blanker.
+   */
+  for (const documented of ["src/components/lab/CameraLab.tsx", "src/experiments/bm08/controls.ts"])
     assert.match(
-      readFileSync(join(ROOT, file), "utf8"),
+      readFileSync(join(ROOT, documented), "utf8"),
       PATTERN,
-      `${file} should still mention it in prose`,
+      `${documented} documents the old expression, so raw text would count it`,
     );
 });
 
@@ -166,7 +182,7 @@ test("the recorded debt names only real files, and no duplicates", () => {
   assert.equal(new Set(names).size, names.length);
   assert.equal(
     Object.values(FLATTENING_SITES).reduce((a, b) => a + b, 0),
-    26,
+    22,
   );
   for (const name of names) assert.doesNotThrow(() => readFileSync(join(ROOT, name), "utf8"));
 });

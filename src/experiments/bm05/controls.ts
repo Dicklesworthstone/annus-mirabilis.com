@@ -1,4 +1,5 @@
 import { formatScaledDecimal, parseScaledDecimal } from "../../units/decimalScale.ts";
+import { ParameterRefusalError } from "../results/applyFailure.ts";
 import { BM05_DEFAULTS, type Bm05Parameters } from "./definition.ts";
 import { validateBm05Parameters } from "./parameters.ts";
 export type WalkDraft = Record<keyof Bm05Parameters, string>;
@@ -28,13 +29,10 @@ export function fromWalkDraft(d: WalkDraft): Bm05Parameters {
         ? d[key]
         : parseScaledDecimal(d[key], key === "stepRms" ? 6 : 0);
   const r = validateBm05Parameters(values);
-  if (r.kind !== "accepted")
-    throw new TypeError(
-      r.kind === "refused"
-        ? typeof r.refusal.details?.requirements === "string"
-          ? r.refusal.details.requirements
-          : r.refusal.message
-        : r.outcome.message,
-    );
+  // THE REFUSAL TRAVELS WITH THE THROW (am-ig23). This flattened a typed refusal to its sentence, one layer
+  // below any component that could have shown it, so the code, the ranked repairs and the staleness marking
+  // were destroyed here and the catch upstream could not tell a refusal from an ordinary programming error.
+  if (r.kind === "refused") throw new ParameterRefusalError(r.refusal);
+  if (r.kind !== "accepted") throw new TypeError(r.outcome.message);
   return r.data;
 }

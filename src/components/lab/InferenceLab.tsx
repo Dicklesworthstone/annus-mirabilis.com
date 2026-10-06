@@ -24,6 +24,12 @@ import {
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
+import {
+  type ApplyFailure,
+  applyFailure,
+  failureCode,
+  failureFromThrown,
+} from "../../experiments/results/applyFailure.ts";
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
@@ -78,7 +84,8 @@ export function InferenceLab({
   const [draft, setDraft] = useState(() => toInferenceDraft(example.parameters));
   const [ready, setReady] = useState(false),
     [dirty, setDirty] = useState(false),
-    [error, setError] = useState(""),
+    /** The typed failure of the last apply, not a string (am-ig23). See applyFailure.ts. */
+    [failure, setFailure] = useState<ApplyFailure | null>(null),
     [note, setNote] = useState(""),
     [revealedRun, setRevealedRun] = useState<string | null>(null);
   const revealed = revealedRun === snapshot.runId,
@@ -114,17 +121,14 @@ export function InferenceLab({
   }
   function apply(settings: Bm07Parameters) {
     const response = session.apply(settings);
-    if (response.kind !== "accepted") {
-      setError(
-        response.kind === "refused"
-          ? String(response.refusal.details?.requirements ?? response.refusal.message)
-          : response.outcome.message,
-      );
+    const failed = applyFailure(response);
+    if (failed) {
+      setFailure(failed);
       return;
     }
     setDraft(toInferenceDraft(settings));
     setDirty(false);
-    setError("");
+    setFailure(null);
     setNote("");
   }
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -132,7 +136,8 @@ export function InferenceLab({
     try {
       apply({ ...fromInferenceDraft(draft), coverageTrials: 0 });
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Check the input settings.");
+      // fromInferenceDraft throws ParameterRefusalError now, so the refusal survives the throw.
+      setFailure(failureFromThrown(e, "Check the input settings."));
     }
   }
   function newTrial() {
@@ -145,9 +150,12 @@ export function InferenceLab({
         seed: ((BigInt(high) << 32n) | BigInt(low)).toString(),
         coverageTrials: 0,
       });
-    } catch {
-      setError(
-        `A random seed is unavailable here. Type a seed of your own in the generator settings: any whole number from 0 to ${SEED_MAX_READABLE}.`,
+    } catch (e) {
+      setFailure(
+        failureFromThrown(
+          e,
+          `A random seed is unavailable here. Type a seed of your own in the generator settings: any whole number from 0 to ${SEED_MAX_READABLE}.`,
+        ),
       );
     }
   }
@@ -399,10 +407,35 @@ export function InferenceLab({
               accepted settings.
             </p>
           )}
-          {error && (
-            <p className="notice error" role="alert">
-              {error} {KEPT_RESULT}
-            </p>
+          {failure && (
+            /* THE TYPED SURFACE for a refusal raised while validating the form (am-ig23): the code a gate can
+               find, and the admissible value the schema already supplies, beside the sentence a reader reads. */
+            <div
+              className="notice error"
+              role="alert"
+              data-refusal-code={failureCode(failure)}
+              data-apply-failure={failure.kind}
+            >
+              <p>
+                {failure.text} {KEPT_RESULT}
+              </p>
+              {failure.kind === "refused"
+                ? failure.refusal.rankedRepairs.map((repair) => {
+                    const action = repair.action;
+                    if (!action) return null;
+                    return (
+                      <button
+                        key={`validation-${action.parameterId}-${repair.label}`}
+                        type="button"
+                        className="secondary"
+                        onClick={() => apply({ ...p, [action.parameterId]: action.value })}
+                      >
+                        {repair.label}
+                      </button>
+                    );
+                  })
+                : null}
+            </div>
           )}
           <div className="actions">
             <button
