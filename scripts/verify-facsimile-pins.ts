@@ -54,6 +54,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import yaml from "js-yaml";
 import { TestLogger } from "../src/testing/log/logger.ts";
+import { reportPopulation } from "./gate-census/population.ts";
 import {
   type FacsimileSourceConfig,
   validateFacsimileAnchor,
@@ -1249,6 +1250,22 @@ export async function runCli(): Promise<number> {
   });
   await logger.flush();
   console.log(`Structured log: ${logger.filePath}`);
+
+  // The census line (am-rc1001-bridge-plan-pcjk.9), in the function that owns the EXIT CODE and not in
+  // the formatter, which returns a string. It went into the formatter first, exactly as it did in
+  // verify-facsimile-anchors.ts: the verdict would have been computed and discarded, which is the
+  // half-wiring that makes a gate look like it checks something. Biome's unused-variable rule caught it
+  // both times, which is worth knowing - the shape has a reliable tell.
+  //
+  // Six facsimiles are pinned, so a run that checked two is reading the wrong directory and its summary
+  // line would look identical.
+  const censusVacuous = reportPopulation({
+    gate: "facsimile-pins",
+    examined: report.checkedCount,
+    noun: "pinned facsimiles",
+    minimum: 4,
+  });
+  if (censusVacuous) return 4;
 
   return report.valid ? 0 : 3;
 }

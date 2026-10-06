@@ -17,11 +17,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import {
-  EXCLUDED_FIELDS,
-  QUOTED_FIELDS,
-  isOverridden,
-} from "../src/content/checks/voice/check.ts";
+import { EXCLUDED_FIELDS, isOverridden, QUOTED_FIELDS } from "../src/content/checks/voice/check.ts";
 import { extractAllComponentStrings } from "../src/content/checks/voice/componentText.ts";
 import { resolveVoiceContext } from "../src/content/checks/voice/contexts.ts";
 import { checkVoice } from "../src/content/checks/voice/index.ts";
@@ -34,6 +30,7 @@ import {
 import type { VoiceContext } from "../src/content/checks/voice/rules.ts";
 import { parseYaml } from "../src/content/provenance/yaml.ts";
 import { newRunIdentity } from "../src/testing/log/logger.ts";
+import { reportPopulation } from "./gate-census/population.ts";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const LOGS_DIR = path.join(ROOT, "artifacts", "test-logs", "voice-lint");
@@ -453,6 +450,16 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       console.log(
         `[voice-lint] Scanned ${res.totalScanned} items. Errors: ${res.errorCount}, Flags: ${res.flagCount}, Info: ${res.infoCount}`,
       );
+      // The census line (am-rc1001-bridge-plan-pcjk.9). The population is the visitor-facing STRINGS
+      // scanned. Measured 2026-10-06: 82166 items, 8 errors, 68 flags, 1048 info. A floor of 20000 is
+      // well below any real corpus and far above a partial load, which is the failure that would make
+      // "Errors: 0" mean nothing.
+      reportPopulation({
+        gate: "voice-lint",
+        examined: res.totalScanned,
+        noun: "visitor-facing strings",
+        minimum: 20000,
+      });
       console.log(`[voice-lint] Log saved to: ${res.logFilePath}`);
       if (res.errorCount > 0) {
         process.exit(1);

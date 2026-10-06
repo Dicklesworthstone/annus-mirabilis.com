@@ -181,6 +181,29 @@ export const CENSUS_RECORDS: readonly CensusRecord[] = [
     ],
   },
   {
+    gate: "facsimile-pins",
+    noun: "pinned facsimiles",
+    howRead:
+      "report.checkedCount over the pinned facsimile configs, comparing anchor, content identity and " +
+      "folio coverage. Measured 2026-10-06: 6 pins checked, 6 verified, 0 refused. Note this gate's own " +
+      "caveat: /sources is git-ignored, so in an environment without the parent scans its refusals are a " +
+      "statement about the environment and not about the pins.",
+    gateRefusesVacuous: true,
+    plants: [minimumPlant("facsimile-pins", "scripts/verify-facsimile-pins.ts", 4, "VACUOUS")],
+  },
+  {
+    gate: "voice-lint",
+    noun: "visitor-facing strings",
+    howRead:
+      "res.totalScanned over every visitor-facing string in the corpus. Measured 2026-10-06: 82166 items, " +
+      "8 errors, 68 flags, 1048 info. The gate is RED today on those 8 errors, which are physics " +
+      "vocabulary under review (am-x9xf, am-lmgx) and not this census's business; it is requiredInCi " +
+      "false and required in no profile.",
+    // The gate's exit comes from its error count, so a floor would not change its verdict today.
+    gateRefusesVacuous: false,
+    plants: [],
+  },
+  {
     gate: "stashes",
     noun: "git stashes",
     howRead:
