@@ -137,3 +137,23 @@ describe("the gate's own directory is excluded by path, not by prefix (am-f6hr)"
     );
   });
 });
+
+/*
+ * WHERE THIS DETECTOR'S FINDINGS GO, AND WHAT IS STILL UNTESTED ABOUT THAT (am-r3qt).
+ *
+ * The cases above drive this scanner against fixture roots and assert non-empty finding sets, so
+ * the DETECTION is covered. What is not covered is scripts/lint-voice.ts rendering a finding into
+ * its structured log - the entry carrying rule, severity, outcome, file, line, matchedText and a
+ * suggestion, written at line 419 of that script.
+ *
+ * It cannot be covered from here, and the reason is not neglect. runVoiceLint is exported and
+ * callable in process, but it calls this scanner with the REPOSITORY ROOT, not with a root a
+ * caller chooses. The loop that builds the log entry therefore runs only when this repository
+ * itself contains a second deny list - which it does not, and which the first case above asserts
+ * it does not. The rendering is reachable exactly when the repository is unhealthy.
+ *
+ * Driving it honestly would mean either giving runVoiceLint a root parameter, or lifting the
+ * log-entry construction into a function a test can call with a finding. Both are changes to that
+ * script rather than to this test, and belong to whoever owns it. The site stays on am-r3qt's
+ * list, correctly: the condition is driven here, the rendering is not.
+ */
