@@ -1,0 +1,52 @@
+# THE APPARENT SPEED IS NOT A SPEED, AT BM-01'S OWN WORKING POINT (am-nxbq, item 1).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: "Observation interval". BM-01 arrives at 1 second; quartering
+# it to 0.25 second is an ordinary move that nothing refuses, and the apparent speed DOUBLES.
+#
+# WHY THAT IS THE POINT RATHER THAN A CURIOSITY. A tracer's path has no velocity in the ordinary sense:
+# the displacement grows as the square root of the elapsed time, so dividing it by that time gives
+# sqrt(2D/tau), which depends on how often you look. Shorten the interval and the number rises without
+# bound; lengthen it and the number falls. A quantity that changes when the OBSERVER changes their
+# sampling cadence, with no physical intervention at all, is a property of the measurement and not of the
+# motion. This is the measurement-change versus physical-intervention distinction the runtime contract
+# draws, made arithmetic.
+#
+# THE NUMBER THIS INSTRUMENT SHOWS. At BM-01's defaults the diffusion coefficient is 3.1485e-13 m^2/s,
+# so the one-second displacement is 0.7935 micron and the apparent speed is 0.7935 micron per second.
+# That is the figure AGENTS.md names when it asks for "the Brownian walk at about 0.8 micron per second
+# beside the sped-up version", and the reason the site may print it with a scale bar is precisely that
+# the interval is stated beside it. Printed alone it would be a velocity the particle does not have.
+#
+# THE TWO ROUTES ARE INDEPENDENT ON PURPOSE. One quarters the interval and evaluates the apparent speed
+# twice through the reference evaluator; the other states the closed-form exponent, that tau^(-1/2)
+# scaling gives exactly 2. A second call to the same routine would not be a check, and AGENTS.md says so
+# in the same words about band integration: a reference must be independently implemented.
+id: diffusion-apparent-speed-identity
+kind: identity
+title: "BM-01: quartering the observation interval doubles the apparent speed, so it is not a speed"
+description: "At BM-01's own diffusion coefficient, the apparent speed obtained by dividing the root-mean-square displacement by the observation interval is 0.7935 micron per second at one second. Quartering the interval does not reveal a faster particle; it returns exactly twice the number, because the apparent speed scales as the inverse square root of the interval. The ratio is 2 whatever the diffusion coefficient, which is what makes it an identity rather than a measurement."
+constantSetId: modern-si-2019
+owner: diffusion.apparentSpeedRatio
+inputs:
+  D:
+    value: 3.1484801651441766e-13
+    unit: "m2/s"
+  tau:
+    value: 1
+    unit: s
+routes:
+  - routeId: evaluated-ratio
+    owner: diffusion.apparentSpeedRatio
+    description: "Two host evaluations of apparentSpeed, at the interval BM-01 arrives on and at a quarter of it."
+  - routeId: closed-exponent
+    owner: diffusion.apparentSpeedExponent
+    description: "The closed-form tau^(-1/2) scaling, stated independently rather than by calling apparentSpeed again."
+expected:
+  outputs:
+    - outputId: ratio
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: "Exact: sqrt(2D/(tau/4)) / sqrt(2D/tau) = 2 for every positive D and tau, so the only error admitted is floating-point."
+modelVersion: 1
+schemaVersion: 1

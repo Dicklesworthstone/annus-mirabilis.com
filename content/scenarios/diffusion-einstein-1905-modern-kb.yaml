@@ -1,0 +1,61 @@
+# EINSTEIN'S PRINTED INPUTS, RECOMPUTED WITH MODERN CONSTANTS (am-nxbq, item 1).
+#
+# THIS IS NOT A SECOND COPY OF diffusion-einstein-1905-printed, and the distinction is one AGENTS.md
+# draws explicitly: "Historical fixtures test that the site reproduces what Einstein printed from his
+# stated inputs ... Modern golden scenarios test calculations and plumbing from modern constant sets."
+# The two share every INPUT and differ in one thing, the constant set, which is what makes the pair
+# worth having. The historical row is also a pending transcription and must not pass on remembered
+# numbers; this row has nothing to transcribe, because every constant in it is defined.
+#
+# WHAT THE PAIR SEPARATES. Paper 2 section 5 works from T = 290.15 K, eta = 1.35e-3 Pa s and
+# a = 0.5 micron, and prints about 0.8 micron for the mean displacement in one second. Reproducing that
+# number could mean two different things: that the site's arithmetic agrees with Einstein's, or that it
+# agrees with his constants. Recomputing the same inputs under the 2019 SI constants answers the second
+# question on its own. The answer is 0.7935 micron, so the printed "0,8 Mikron" survives the change of
+# constants to its stated precision, and the difference between the two rows is the measurement history
+# of R and N rather than anything about the physics.
+#
+# WHY THE MODERN SET IS NOT THREE INDEPENDENT INPUTS. AGENTS.md: "In the modern set R = N_A k_B and N_A
+# is exact by definition, so these are not three independent uncertain inputs." The Boltzmann constant is
+# exact by definition since 2019, so D here carries no uncertainty from the constants at all; what
+# uncertainty the real quantity has comes from the viscosity and the radius, which this scenario holds
+# fixed at Einstein's stated values on purpose.
+#
+# WHICH CONTROL VALUES A READER MOVES TO REACH IT: the temperature, viscosity and radius fields at
+# BM-01's own defaults, with the observation interval at 1 second. Nothing here is out of the ordinary;
+# this is the instrument's arrival state read under a different declared constant set.
+id: diffusion-einstein-1905-modern-kb
+kind: modern-golden
+title: "BM-01 under 2019 SI constants: Einstein's printed inputs give 0.7935 micron in one second"
+description: "The Stokes-Einstein relation at paper 2's own stated inputs, evaluated with the modern constant set rather than the printed historical one. D = kT/(6 pi eta a) is 3.1485e-13 m^2/s, and the one-dimensional root-mean-square displacement after one second, sqrt(2 D t), is 7.9353e-7 m. Einstein printed about 0.8 micron for this case, so the figure he gives survives the replacement of his constants by defined modern ones at the precision he states it to."
+constantSetId: modern-si-2019
+owner: diffusion.stokesEinsteinRms
+inputs:
+  temperature:
+    value: 290.15
+    unit: K
+  viscosity:
+    value: 0.00135
+    unit: "Pa s"
+  particleRadius:
+    value: 5.0e-7
+    unit: m
+  elapsedTime:
+    value: 1
+    unit: s
+expected:
+  outputs:
+    - outputId: diffusionCoefficient
+      value: 3.1484801651441766e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "kT/(6 pi eta a) with k exact by definition since 2019 and the three inputs exact as written, so the only error admitted is floating-point."
+    - outputId: rmsDisplacement1d
+      value: 7.935338890235472e-7
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "sqrt(2 D t) at t = 1 s. Rounds to 0.8 micron at one significant figure, which is the precision Einstein prints; the pending historical row is what checks that printed figure, and this row checks the arithmetic."
+modelVersion: 1
+schemaVersion: 1
