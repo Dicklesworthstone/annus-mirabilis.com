@@ -475,6 +475,79 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
     ],
     independentReferences: [],
   },
+  // SR-05'S REMAINING FOUR KERNELS (am-f3e4, 2026-10-06). The manifest declares six and only two had
+  // an entry here, so four of the six were pinned by nothing and shown to nobody. Together they are
+  // the whole of section 4: a clock's own tick, a worldline's accumulated proper time, the lag at
+  // reunion against the paper's printed estimate of it, and that estimate read backwards.
+  {
+    instrumentId: "sr-05",
+    kernel: tsRef("src/experiments/sr05/worldline.ts", "lightClockTicks"),
+    words: {
+      r0: "One tick of a clock made from a light pulse bouncing across the motion, timed by the clock itself and then by the system it moves through.",
+      r1: "Give the arm a length in light-seconds and the light's own round trip takes twice that, because in those units c is one light-second per second exactly. That is the proper tick, and it does not depend on the speed: the clock is not aware of its motion. Timed by the stationary system the same tick takes gamma times longer, since the pulse must travel a longer slanted path to return to a mirror that has moved on. At an arm of one light-second and a speed of 0.6 c the proper tick is 2 seconds and the coordinate tick is 2.5, because gamma is 1.25.",
+      r2: "Choosing light-seconds for the arm is what removes c from the arithmetic, and it is the reason this function has two lines of algebra rather than four. The guard on the arm is separate from the guard on the speed and comes first: an arm that is not a finite positive number is a malformed request, while a speed at or past c is a request outside the model, and gamma returns that refusal itself rather than having it restated here. The transverse arrangement is not incidental. A clock whose arm lies along the motion would need the length contraction as well, and the two effects would have to be disentangled before the tick could be read; across the motion the arm's length is the same in both systems and the slanted path is the whole of the effect.",
+      r3: "Einstein does not build a light clock. The device is a later teaching instrument, usually credited to the 1960s textbooks, and it is offered here as a picture of the result rather than as the paper's argument: section 4 gets the same gamma from the transformation of section 3 directly, without a mechanism. What the picture adds is that nothing about the clock's construction matters, which is the step a reader often wants and the paper leaves implicit.",
+    },
+    equationId: "eq-model-sr-time-dilation",
+    liveTerms: ["properTimeElapsed", "eventSeparationTemporalStationary", "lorentzFactor"],
+    identifierBindings: [
+      bind("lightClockTicks", "armLengthLs", "lengthProper"),
+      bind("lightClockTicks", "properTick", "properTimeElapsed"),
+      bind("lightClockTicks", "coordinateTick", "eventSeparationTemporalStationary", [
+        "eq-model-sr-time-dilation.t.factor",
+      ]),
+      bind("lightClockTicks", "beta", "frameSpeed"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-05",
+    kernel: tsRef("src/experiments/sr05/worldline.ts", "properTimeAlongLegs"),
+    words: {
+      r0: "A clock carried along a path of straight segments, and how much less time it records than the system it travelled through.",
+      r1: "Each leg contributes its full duration to the coordinate time and its duration divided by gamma to the proper time. The sum is the whole content: proper time is not a property of the two endpoints but of the path between them, and a path that spends longer at speed records less. Two legs of one second each at 0.6 c give a coordinate time of 2 seconds and a proper time of 1.6.",
+      r2: "The durations are coordinate durations, which is what makes the sum a simple one. Each leg's gamma is computed from that leg's own beta, so a path may change speed as often as it likes, and a refusal from any leg's gamma is returned at once rather than after the remaining legs are added, so a partial sum is never reported as a total. An empty list refuses rather than returning zero: a worldline with no legs has no proper time to report, and a zero would be read as a clock that recorded nothing. Nothing here requires the path to return to where it started, which is why the reunion case is a separate function rather than an option on this one.",
+      r3: "Section 4 treats one clock moved along a closed polygonal path and states the result for a slowly travelled curve as the limit of such paths. This function is that polygon, with the limit left to the caller. Einstein's own closing remark, that a clock at the equator runs slow compared with one at the pole, is the one place the paper applies it to the world, and it is wrong for a reason outside the 1905 theory: the two clocks also sit at different gravitational potentials, which the general theory supplies and this function does not model.",
+    },
+    equationId: "eq-model-sr-transported-clock",
+    liveTerms: ["properTimeElapsed", "coordinateTimeStationary", "lorentzFactor"],
+    identifierBindings: [
+      bind("properTimeAlongLegs", "properTime", "properTimeElapsed"),
+      bind("properTimeAlongLegs", "coordinateTime", "coordinateTimeStationary"),
+      bind("properTimeAlongLegs", "g", "lorentzFactor"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-05",
+    kernel: tsRef("src/experiments/sr05/worldline.ts", "reunionComparison"),
+    words: {
+      r0: "The two clocks compared when the travelling one gets back, with the paper's own small-speed estimate of the lag printed beside the exact one.",
+      r1: "The travelling clock's reading is the proper time along its path and the stationary clock's is the coordinate time, so the lag is the difference. The function also accumulates what section 4 prints: half of beta squared per second, summed leg by leg. The two are not the same number and the panel shows both. For two legs of one second at 0.6 c the exact lag is 0.4 seconds and the printed estimate is 0.36, so the paper's form understates the lag by exactly a tenth of it at that speed. At any speed a clock has ever actually been carried the two agree far beyond measurement.",
+      r2: "The exact lag is taken as coordinate time minus proper time, both already summed by properTimeAlongLegs, rather than accumulated as a third running total: one subtraction of two quantities that differ by a visible amount is safe, where summing many small per-leg differences would not be. The printed estimate is accumulated separately and per leg, because half of beta squared is a rate and each leg has its own beta. travelingProperTime and stationaryProperTime are both returned even though the second equals coordinateTime, which is deliberate: the reader is comparing two CLOCKS, and naming one of them the coordinate time would hide that a clock at rest in the system reads it.",
+      r3: "The paper states the lag for a closed path and calls the travelling clock's loss half of (v over V) squared per second, neglecting fourth-order and higher magnitudes. Keeping that form beside the exact one is the point of this function: the approximation is Einstein's, not an artefact, and seeing where it departs is how a reader learns what neglecting fourth order buys and costs. The experiment that settled it is Hafele and Keating's in 1971, flying caesium clocks around the world, which is later evidence and labelled as such wherever this instrument cites it.",
+    },
+    equationId: "eq-model-sr-transported-clock",
+    liveTerms: ["properTimeElapsed", "coordinateTimeStationary"],
+    identifierBindings: [
+      bind("reunionComparison", "travelingProperTime", "properTimeElapsed"),
+      bind("reunionComparison", "coordinateTime", "coordinateTimeStationary"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-05",
+    kernel: tsRef("src/physics/reference/kinematics.ts", "speedForDailyLoss"),
+    words: {
+      r0: "The question asked backwards: how fast would a clock have to travel to lose this much in a day.",
+      r1: "Fix the loss as a fraction of a day and the speed follows. If a clock loses a fraction L of each second then one over gamma is 1 minus L, so beta squared is 2 L minus L squared. Losing one second per day is a fraction of about 1.157 parts in a hundred thousand, and the speed that does it is 0.00481 c, which is about 1442 kilometres per second. That is the arithmetic that makes the effect feel remote: a clock in low orbit moves at a fortieth of that.",
+      r2: "The inversion is exact, not the paper's second-order form read backwards, and the way it is written is the reason. Solving 1 over gamma equals 1 minus L gives beta squared equals 1 minus (1 minus L) squared, and for a small L those two squares agree to most of their digits, so that subtraction throws them away. Expanding it by hand to 2 L minus L squared leaves no near-equal subtraction at all. Measured at one second per day the naive form returns 2.3148014188900667e-5 and this one returns 2.3148014188957476e-5, so about four digits were being lost. The guards bracket the question rather than the answer: a loss must be positive and less than a whole day, and the resulting beta squared must land strictly inside zero and one, which catches the case where a loss inside a day still asks for a speed at or past light.",
+    },
+    equationId: "eq-model-sr-slow-clock",
+    liveTerms: [],
+    identifierBindings: [],
+    independentReferences: [],
+  },
   {
     instrumentId: "sr-06",
     kernel: tsRef("src/physics/reference/kinematics.ts", "composedSpeedShortfall"),

@@ -63,14 +63,10 @@ describe("declared kernel functions against the pins (am-f3e4)", () => {
       "continuumLimit@src/physics/reference/diffusion/walkLaws.ts",
       "kernelMoments@src/physics/reference/diffusion/walkLaws.ts",
       "kolmogorovShapeTerm@src/physics/reference/diffusion/walkLaws.ts",
-      "lightClockTicks@src/experiments/sr05/worldline.ts",
       "moments@src/physics/reference/diffusion/distributions.ts",
       "mostLikelyRadius2d@src/physics/reference/diffusion/distributions.ts",
       "observeWalks@src/physics/reference/diffusion/walks.ts",
-      "properTimeAlongLegs@src/experiments/sr05/worldline.ts",
-      "reunionComparison@src/experiments/sr05/worldline.ts",
       "solveCandidateFamily@src/physics/reference/kinematics/constraints.ts",
-      "speedForDailyLoss@src/physics/reference/kinematics.ts",
     ]);
   });
 
@@ -105,6 +101,6 @@ describe("declared kernel functions against the pins (am-f3e4)", () => {
       `[declared pins] raw keys report ${rawMissing} missing; resolved keys ${resolvedMissing}`,
     );
     expect(rawMissing).toBeGreaterThan(resolvedMissing);
-    expect(resolvedMissing).toBe(14);
+    expect(resolvedMissing).toBe(10);
   });
 });
