@@ -526,6 +526,53 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
     ],
     independentReferences: [],
   },
+  // TWO MORE OF SR-06'S KERNELS, BOTH OF WHICH IT CALLS AND NEITHER OF WHICH HAD AN ENTRY HERE, so
+  // neither could be pinned and neither appeared in show-the-code (am-f3e4, am-1nnj, 2026-10-06).
+  // transformVelocity was not even declared in the manifest until 70687812, which is why four
+  // velocity-component live terms resolved to nothing while the function computing them was invisible.
+  {
+    instrumentId: "sr-06",
+    kernel: tsRef("src/physics/reference/kinematics.ts", "transformVelocity"),
+    words: {
+      r0: "A particle's velocity as the moving frame measures it: the component along the motion changes by one rule, the two across it by another.",
+      r1: "This is section 5 read as a transformation rather than as a formula for one speed. Given a velocity in the stationary system K and a frame moving at v along x, the new component along x is (u sub x minus v) divided by (1 minus u sub x v over c squared). The two transverse components are divided by that SAME denominator and then by gamma as well. The asymmetry is the whole content: the longitudinal direction carries no gamma and the transverse directions each carry one, so a velocity that was purely across the motion acquires a component along it and shrinks in the direction it had. Take a light ray travelling along y in K and boost at 0.6 c: in the moving frame its components are minus 0.6 c and 0.8 c, because gamma is 1.25 and one over gamma is exactly 0.8, and the speed is the square root of 0.36 plus 0.64, which is c again.",
+      r2: "The order of the guards is the argument. Gamma is computed first and its refusal returned unchanged, so a frame speed at or past c never reaches the arithmetic. Then every component and c are checked finite with c positive, which is a malformed request rather than an unphysical one. Then the particle's own speed is measured with Math.hypot and refused if it EXCEEDS c, which deliberately admits a speed of exactly c: light has to be transformable, and the ray above is the case that would break if the test were not strict. Only then is v formed as beta times c, and the denominator 1 minus u sub x v over c squared; a vanishing denominator is refused rather than returned as an infinity. The transverse components divide by gamma times the denominator in one step rather than twice in sequence, so there is one rounding instead of two. Note that the returned object's keys are ux, uy and uz, the components in the MOVING system, while the same three names read off the argument u are the components in the stationary one; the colours in this panel follow the returned values.",
+      r3: "Einstein writes the stationary system K and the moving one k, with the moving coordinates named xi, eta and zeta, and he presents section 5 as the composition of two velocities rather than as a coordinate transformation of one. The two statements are the same arithmetic. The transverse rule is where the later textbook treatment and the printed one diverge in appearance: a modern presentation usually writes the factor as one over gamma times the denominator, which is what this function computes, while the paper arrives at the composed speed directly.",
+    },
+    equationId: "eq-model-sr-velocity-x",
+    liveTerms: [
+      "velocityComponentXMoving",
+      "velocityComponentYMoving",
+      "frameSpeed",
+      "speedOfLight",
+    ],
+    identifierBindings: [
+      bind("transformVelocity", "ux", "velocityComponentXMoving", [
+        "eq-model-sr-velocity-x.t.uxMoving",
+      ]),
+      bind("transformVelocity", "uy", "velocityComponentYMoving"),
+      bind("transformVelocity", "beta", "frameSpeed", ["eq-model-sr-velocity-x.t.speed"]),
+      bind("transformVelocity", "c", "speedOfLight", ["eq-model-sr-velocity-x.t.light"]),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-06",
+    kernel: tsRef("src/physics/reference/kinematics.ts", "composeBoosts"),
+    words: {
+      r0: "Two frame changes applied one after the other, and what is left over when the result is written as a single frame change.",
+      r1: "Multiply the two boost matrices and the product is not, in general, a boost. It is a boost followed by a rotation of the spatial axes, and this function separates them. The composite gamma is the product's first entry, the composite velocity is read from its first column divided by that gamma, and dividing the product by the boost those numbers describe leaves the rotation. For two boosts along the same line the rotation is the identity and the composite speed is the collinear composition: 0.6 c with 0.6 c gives 15 over 17, which is the 0.8823529411764706 this instrument's own trace row shows. For boosts at an angle the rotation is real, and its angle is what the panel reports as the Wigner angle.",
+      r2: "The extraction is deliberately indirect. Nothing reads a velocity out of the product matrix by name; the first column is used because for a pure boost that column is gamma times (1, minus beta), so dividing by the 00 entry recovers minus beta and the three components are negated back. The sign is the part worth reading twice. Before any of that the 00 entry is checked to be finite and at least 1, since a product that is not a Lorentz boost block has no composite gamma to report, and the two boosts are required to share one value of c, which is a malformed request rather than a physical limit. generalBoost is then asked to build a boost from those components, and its refusal is returned unchanged rather than repaired, so a composition that lands at or past c refuses where the single boost would. The rotation is obtained from the product and the INVERSE of the extracted boost, which is why inverseBoost is called at all.",
+      r3: "The rotation has no counterpart in the 1905 paper, which composes collinear velocities and does not treat the general case. It is Wigner's, from 1939, and it is included here as a modern lens rather than as part of the paper's argument: the point a reader can take back to section 5 is that the collinear case Einstein treats is exactly the case where the rotation vanishes.",
+    },
+    liveTerms: ["frameSpeed", "lorentzFactor"],
+    identifierBindings: [
+      bind("composeBoosts", "g", "lorentzFactor"),
+      bind("composeBoosts", "speed", "frameSpeed"),
+      bind("composeBoosts", "c", "speedOfLight"),
+    ],
+    independentReferences: [],
+  },
 
   // SR-01, SR-02, SR-07 and SR-11 (am-f3e4, dispatch 324).
   //

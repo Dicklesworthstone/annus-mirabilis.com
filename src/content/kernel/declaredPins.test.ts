@@ -60,7 +60,6 @@ describe("declared kernel functions against the pins (am-f3e4)", () => {
       "boostMatrixXT@src/physics/reference/kinematics.ts",
       "checkCandidateMap@src/physics/reference/kinematics/constraints.ts",
       "classifySimultaneity@src/physics/reference/events.ts",
-      "composeBoosts@src/physics/reference/kinematics.ts",
       "continuumLimit@src/physics/reference/diffusion/walkLaws.ts",
       "kernelMoments@src/physics/reference/diffusion/walkLaws.ts",
       "kolmogorovShapeTerm@src/physics/reference/diffusion/walkLaws.ts",
@@ -72,15 +71,6 @@ describe("declared kernel functions against the pins (am-f3e4)", () => {
       "reunionComparison@src/experiments/sr05/worldline.ts",
       "solveCandidateFamily@src/physics/reference/kinematics/constraints.ts",
       "speedForDailyLoss@src/physics/reference/kinematics.ts",
-      // ADDED 2026-10-05, and it is a debt rising by one, so the reason is here rather than in a
-      // commit message. sr-06's session.ts imports and calls transformVelocity for every composed
-      // velocity, and the manifest did not declare it, which is why four velocity-component live
-      // terms resolved to nothing. Declaring it is a correction, and it takes live-term-unbound from
-      // 56 to 54; no already-declared kernel of sr-06 holds a velocity component, since composeBoosts
-      // works in bx/by/bz. A pin cannot be added with it: pins are written from SLICE_KERNEL_CATALOG,
-      // and a catalogue entry needs authored plain-language words and an equationId, which is
-      // am-f3e4's editorial unit rather than something to generate. Delete this line when it is pinned.
-      "transformVelocity@src/physics/reference/kinematics.ts",
     ]);
   });
 
@@ -115,6 +105,6 @@ describe("declared kernel functions against the pins (am-f3e4)", () => {
       `[declared pins] raw keys report ${rawMissing} missing; resolved keys ${resolvedMissing}`,
     );
     expect(rawMissing).toBeGreaterThan(resolvedMissing);
-    expect(resolvedMissing).toBe(16); // see the identity list above for the sixteenth
+    expect(resolvedMissing).toBe(14);
   });
 });

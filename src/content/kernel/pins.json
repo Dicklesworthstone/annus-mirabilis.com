@@ -32,6 +32,8 @@
     "composedSpeedShortfall@src/physics/reference/kinematics.ts": "sha256:af74a43a1adb32361c07caa5d8676b82a29c1da6511f68fcb855fe6d187c3b56",
     "compositionIncrement@src/physics/reference/kinematics.ts": "sha256:85f4b6196296e162324a7317248b6a2da914aeb3e075f4990ec20bbe0c9c659c",
     "composePrinted@src/physics/reference/kinematics.ts": "sha256:6867c4fe6fc64d68167f2382a7113dcb7ef7d09a8bd0ca42e5b34db9ef2853f2",
+    "transformVelocity@src/physics/reference/kinematics.ts": "sha256:102de489521087583df2cc489403725edccee0d8b48e5edee95a544867515685",
+    "composeBoosts@src/physics/reference/kinematics.ts": "sha256:59f82b0ca2478158af91aa019feaaa99403c1cce4814881e40a07124773f2f77",
     "synchronizationRound@src/physics/reference/events.ts": "sha256:1557f3d2d285dee31050bddc7756e77ad268c548679ea2df033a0cc82ce8329b",
     "movingRodLegs@src/physics/reference/events.ts": "sha256:869f8dd7ae1e8ef5ed98cd28e30e035ff460262b1e9283049cf6506176530b22",
     "desynchronizationObserved@src/physics/reference/events.ts": "sha256:1c9a8f695ba4e2c163566af44652e1a0b949caa26c80de55c70ab629d4c04dfb",
