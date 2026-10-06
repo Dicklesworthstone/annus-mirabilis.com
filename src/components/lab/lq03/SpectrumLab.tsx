@@ -33,6 +33,11 @@ import {
 import { LQ03_TAPE } from "../../../experiments/lq03/tape.ts";
 import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
+import {
+  type ApplyFailure,
+  applyFailure,
+  failureCode,
+} from "../../../experiments/results/applyFailure.ts";
 import { statusMessage } from "../../../experiments/results/explanations.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
@@ -180,7 +185,7 @@ export function SpectrumLab({
   );
   const [draft, setDraft] = useState(() => toDraft(p));
   const [ready, setReady] = useState(false);
-  const [error, setError] = useState("");
+  const [failure, setFailure] = useState<ApplyFailure | null>(null);
 
   const evaluation = evaluateLq03(p);
   const spectrum = evaluateLq03Spectrum(p);
@@ -193,14 +198,14 @@ export function SpectrumLab({
   function apply(parameters: unknown) {
     const outcome = session.apply(parameters);
     if (outcome.kind === "refused") {
-      setError(
-        typeof outcome.refusal.details?.requirements === "string"
-          ? outcome.refusal.details.requirements
-          : outcome.refusal.message,
-      );
+      // THE REFUSAL IS KEPT (am-ig23). Flattening it to its sentence discarded the code, the ranked
+      // repairs and the staleness marking - three of the four things AGENTS.md's refusal contract asks
+      // for - one layer below any component that could have shown them.
+      const failed = applyFailure(outcome);
+      if (failed) setFailure(failed);
       return;
     }
-    setError("");
+    setFailure(null);
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -263,7 +268,7 @@ export function SpectrumLab({
           noValidate
           onSubmit={submit}
           aria-label="Radiation spectrum settings"
-          aria-describedby={error ? `${id}-error` : undefined}
+          aria-describedby={failure ? `${id}-error` : undefined}
         >
           <fieldset disabled={!ready}>
             <legend className="visually-hidden">Spectrum settings</legend>
@@ -419,10 +424,39 @@ export function SpectrumLab({
               <button type="submit">Apply settings</button>
             </ExperimentSettings>
           </fieldset>
-          {error && (
-            <p id={`${id}-error`} className="notice" role="alert">
-              {withScripts(error)} {KEPT_RESULT}
-            </p>
+          {failure && (
+            /**
+             * THE TYPED SURFACE (am-ig23): the code a gate can find beside the reason a reader can
+             * read. `withScripts` is kept on the sentence, because this lab's refusal messages carry
+             * superscripts that would otherwise reach the reader as literal markup.
+             */
+            <div
+              id={`${id}-error`}
+              className="notice"
+              role="alert"
+              data-refusal-code={failureCode(failure)}
+              data-apply-failure={failure.kind}
+            >
+              <p>
+                {withScripts(failure.text)} {KEPT_RESULT}
+              </p>
+              {failure.kind === "refused"
+                ? failure.refusal.rankedRepairs.map((repair) => {
+                    const action = repair.action;
+                    if (!action) return null;
+                    return (
+                      <button
+                        key={`validation-${action.parameterId}-${repair.label}`}
+                        type="button"
+                        className="secondary"
+                        onClick={() => apply({ ...p, [action.parameterId]: action.value })}
+                      >
+                        {repair.label}
+                      </button>
+                    );
+                  })
+                : null}
+            </div>
           )}
         </form>
 

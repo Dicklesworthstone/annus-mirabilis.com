@@ -361,9 +361,10 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
    * The labs whose FORM-validation refusal renders the typed surface, measured 2026-10-06 by the sweep
    * above and written down afterwards, not predicted.
    *
-   * Seven, and they correspond one-for-one with the seven source files carrying `data-apply-failure`:
+   * Nine, and they correspond one-for-one with the source files carrying `data-apply-failure`:
    * TracerLab (bm-01), WalkLab (bm-05), BrownianLab (bm-06), InferenceLab (bm-07), CameraLab (bm-08),
-   * RodSimultaneityLab (sr-03) and VelocityCompositionLab (sr-06). That correspondence is the point - it
+   * SpectrumLab (lq-03), RodSimultaneityLab (sr-03), LorentzMapLab (sr-04) and
+   * VelocityCompositionLab (sr-06). That correspondence is the point - it
    * says the attribute a reader's browser receives is the one the component declares, which neither a
    * typecheck nor a grep of the source can establish.
    *
@@ -371,7 +372,17 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
    * that gains one fails too, so adding a line is a deliberate act taken when a conversion lands rather
    * than a number that drifts.
    */
-  const RECORDED_TYPED_SURFACE = ["bm-01", "bm-05", "bm-06", "bm-07", "bm-08", "sr-03", "sr-06"];
+  const RECORDED_TYPED_SURFACE = [
+    "bm-01",
+    "bm-05",
+    "bm-06",
+    "bm-07",
+    "bm-08",
+    "lq-03",
+    "sr-03",
+    "sr-04",
+    "sr-06",
+  ];
   test("every lab converted to keep a typed refusal renders it to the reader", () => {
     console.log(
       `[form sweep] form-validation refusals carrying data-apply-failure, by lab: ${

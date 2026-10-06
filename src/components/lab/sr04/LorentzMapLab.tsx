@@ -9,6 +9,11 @@ import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts"
 import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
 import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
+import {
+  type ApplyFailure,
+  applyFailure,
+  failureCode,
+} from "../../../experiments/results/applyFailure.ts";
 import { statusMessage } from "../../../experiments/results/explanations.ts";
 import {
   ALL_CONSTRAINTS,
@@ -148,7 +153,7 @@ export function LorentzMapLab({
   );
   const [draft, setDraft] = useState(() => toDraft(p));
   const [ready, setReady] = useState(false);
-  const [error, setError] = useState("");
+  const [failure, setFailure] = useState<ApplyFailure | null>(null);
 
   const evaluation = evaluateSr04(p);
 
@@ -160,14 +165,14 @@ export function LorentzMapLab({
   function apply(parameters: unknown) {
     const outcome = session.apply(parameters);
     if (outcome.kind === "refused") {
-      setError(
-        typeof outcome.refusal.details?.requirements === "string"
-          ? outcome.refusal.details.requirements
-          : outcome.refusal.message,
-      );
+      // THE REFUSAL IS KEPT (am-ig23). Flattening it to its sentence discarded the code, the ranked
+      // repairs and the staleness marking - three of the four things AGENTS.md's refusal contract asks
+      // for - one layer below any component that could have shown them.
+      const failed = applyFailure(outcome);
+      if (failed) setFailure(failed);
       return;
     }
-    setError("");
+    setFailure(null);
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -227,7 +232,7 @@ export function LorentzMapLab({
         <form
           onSubmit={submit}
           aria-label="Lorentz map construction settings"
-          aria-describedby={error ? `${id}-error` : undefined}
+          aria-describedby={failure ? `${id}-error` : undefined}
         >
           <fieldset disabled={!ready}>
             <legend>Frame speed and slow case</legend>
@@ -372,10 +377,39 @@ export function LorentzMapLab({
           </fieldset>
         </form>
 
-        {error && (
-          <p id={`${id}-error`} className="notice" role="alert">
-            {error} {KEPT_RESULT}
-          </p>
+        {failure && (
+          /**
+           * THE TYPED SURFACE (am-ig23): the code a gate can find beside the reason a reader can
+           * read. It matches the shape the other converted laboratories use, so a browser check keys on
+           * one attribute across all of them.
+           */
+          <div
+            id={`${id}-error`}
+            className="notice"
+            role="alert"
+            data-refusal-code={failureCode(failure)}
+            data-apply-failure={failure.kind}
+          >
+            <p>
+              {failure.text} {KEPT_RESULT}
+            </p>
+            {failure.kind === "refused"
+              ? failure.refusal.rankedRepairs.map((repair) => {
+                  const action = repair.action;
+                  if (!action) return null;
+                  return (
+                    <button
+                      key={`validation-${action.parameterId}-${repair.label}`}
+                      type="button"
+                      className="secondary"
+                      onClick={() => apply({ ...p, [action.parameterId]: action.value })}
+                    >
+                      {repair.label}
+                    </button>
+                  );
+                })
+              : null}
+          </div>
         )}
 
         <div className="results" aria-live="polite">
