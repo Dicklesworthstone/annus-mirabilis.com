@@ -11,11 +11,11 @@
 .investigation-workspace summary { min-height: 44px; align-content: center; }
 .investigation-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .investigation-reading { margin-block: 1rem; padding-block: 1rem; border-top: 1px solid var(--line); }
-.investigation-reading h5 { margin-top: 0; font-size: 1rem; }
+.investigation-reading h5 { margin-top: 0; font-size: var(--type-small); }
 .investigation-reading dt { font-weight: 600; margin-top: 0.65rem; }
 .investigation-reading dd { margin-left: 0; }
 .investigation-words, .investigation-reading p { white-space: pre-wrap; }
-.investigation-reading pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 0.8rem; }
+.investigation-reading pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: var(--type-fine); }
 .investigation-workspace p, .investigation-workspace dt, .investigation-workspace dd { overflow-wrap: anywhere; }
 @media print {
   .investigation-workspace textarea, .investigation-workspace input, .investigation-workspace button,
