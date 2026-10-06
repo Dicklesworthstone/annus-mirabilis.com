@@ -1540,7 +1540,7 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
     for (const key of Object.keys(entries))
       if (key !== "noRefusalCase" && key !== "noNonNumericCase")
         throw new ExperimentValidationError(
-          "invalid-acceptance-coverage",
+          "unknown-acceptance-coverage-key",
           `acceptanceCoverage key "${key}" is not one of noRefusalCase, noNonNumericCase.`,
           "Experiment",
           `${path}.acceptanceCoverage.${key}`,
@@ -1564,7 +1564,7 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
     const noNonNumericCase = reason("noNonNumericCase");
     if (noRefusalCase === undefined && noNonNumericCase === undefined)
       throw new ExperimentValidationError(
-        "invalid-acceptance-coverage",
+        "empty-acceptance-coverage",
         "acceptanceCoverage declares neither noRefusalCase nor noNonNumericCase, so it excuses nothing.",
         "Experiment",
         `${path}.acceptanceCoverage`,
