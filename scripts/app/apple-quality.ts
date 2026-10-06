@@ -999,16 +999,38 @@ function log(logRunId: string, id: string, verdict: StepVerdict, durationMs: num
       timestamp: new Date().toISOString(),
       suite: "app-apple-gate",
       logRunId,
+      // `testId` IS THE FIELD EVERY READER USES (am-uxh9). These rows carried the step identity under
+      // `step` alone, which is not in src/testing/log/schema.ts, so summarize-test-logs read
+      // `event.testId` as undefined and a failing step summarized as
+      // "[app-apple-gate] undefined: 3 SwiftLint violations" - the suite named and the step lost, on
+      // the one gate family whose failures nobody can reproduce from CI. Demonstrated against the
+      // real summarizer with a row of this exact old shape before the change.
+      //
+      // `step` is KEPT beside it rather than renamed: three artifacts already on disk use that field,
+      // and dropping it would make them unreadable to anything written against them. This is the same
+      // shape of finding as the lint-voice repair on this bead, where 616 rows carried the right
+      // subject and omitted `outcome`.
+      testId: id,
       step: id,
       outcome: verdict.outcome,
       durationMs,
-      xcode,
-      simulatorName: (details.device as string | undefined) ?? DEVICE,
-      simulatorUdid: (details.udid as string | undefined) ?? null,
-      osVersion: (details.osVersion as string | undefined) ?? null,
-      xcresultPath: (details.xcresultPath as string | undefined) ?? null,
       message: verdict.message,
-      ...(details.lastOutput === undefined ? {} : { lastOutput: details.lastOutput }),
+      // THE APPLE-SPECIFIC FIELDS GO IN `extra`, WHICH IS WHERE THE SCHEMA PUTS THEM (am-uxh9). They
+      // were top-level, and five of them are not in FIELD_ORDER, so the repository's own
+      // `validateEvent` REJECTED every row this gate has ever written: "Unknown field \"xcode\"; move
+      // it to extra.xcode." Measured against a real row on 2026-10-06, not inferred.
+      //
+      // That is the difference between a row that exists and a row anything can read. These rows are
+      // written raw rather than through TestLogger, so nothing was validating them and nothing
+      // complained - the gate persisted faithfully into a shape its own schema refuses.
+      extra: {
+        xcode,
+        simulatorName: (details.device as string | undefined) ?? DEVICE,
+        simulatorUdid: (details.udid as string | undefined) ?? null,
+        osVersion: (details.osVersion as string | undefined) ?? null,
+        xcresultPath: (details.xcresultPath as string | undefined) ?? null,
+        ...(details.lastOutput === undefined ? {} : { lastOutput: details.lastOutput }),
+      },
     })}\n`,
   );
 }
