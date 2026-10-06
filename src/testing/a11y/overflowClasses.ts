@@ -22,11 +22,8 @@
 import { readFileSync } from "node:fs";
 import { relative } from "node:path";
 import { findProjectCssFiles } from "../../app/theme/colourChannels.ts";
+import { blankComments, blankCommentsAndStrings } from "../source/comments.ts";
 
-const COMMENT = /\/\*[\s\S]*?\*\//g;
-const LINE_COMMENT = /\/\/[^\n]*/g;
-/** A quoted string in CSS: `content: "a.test.tsx"` must not contribute a class called `test`. */
-const STRING = /"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'/g;
 const RULE = /([^{}]*)\{([^{}]*)\}/g;
 const OVERFLOW = /(?:^|[\s;])(overflow(?:-x|-y)?)\s*:\s*(auto|scroll)\b/g;
 /**
@@ -46,24 +43,19 @@ export type OverflowRule = Readonly<{
   classes: readonly string[];
 }>;
 
-const blankOut = (text: string): string => text.replace(/[^\n]/g, " ");
-
 /**
- * Blank comment bodies only, keeping length and newlines. Handles both `/* *\/` and `//`, so it serves
- * TypeScript as well as CSS.
+ * Blanking moved to src/testing/source/comments.ts, which is a SCANNER rather than two regexes.
  *
- * Needed in both places for the same reason. In CSS a commented-out rule is not a rule. In TypeScript, a
- * list of class names carries comments that QUOTE other attributes - `tabIndex={0}`, `role="region"` - and
- * a parser reading the whole block reported `0` and `region` as audited class names. That was found by this
- * module's own test going red on two names that are not classes.
+ * The regex pair here read a double slash inside a string - `"https://example.com"` - as the start of a line
+ * comment and blanked the rest of the line, code included. That is a silent miss, and three gates had written
+ * the same pair separately. The shared module is tested in both directions and documents the one case it still
+ * cannot decide, a regular-expression literal.
  */
-export function blankComments(source: string): string {
-  return source.replace(COMMENT, blankOut).replace(LINE_COMMENT, blankOut);
-}
+export { blankComments } from "../source/comments.ts";
 
 /** Blank comment and string bodies, keeping length and newlines so offsets and lines stay valid. */
 export function blankNonCode(css: string): string {
-  return blankComments(css).replace(STRING, blankOut);
+  return blankCommentsAndStrings(css);
 }
 
 /**

@@ -30,6 +30,7 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { blankComments } from "../src/testing/source/comments.ts";
 import { reportPopulation } from "./gate-census/population.ts";
 
 /** `file:line` sites where the uppercase form is a different thing that merely spells the same. */
@@ -212,10 +213,14 @@ const within = (ranges: readonly [number, number][], offset: number): boolean =>
  * Bodies are blanked rather than deleted so that offsets and line numbers are unchanged, which keeps
  * this usable beside the offset-based classification below.
  */
-export function blankComments(source: string): string {
-  const blank = (m: string) => m.replace(/[^\n]/g, " ");
-  return source.replace(/\/\*[\s\S]*?\*\//g, blank).replace(/\/\/.*/g, blank);
-}
+/**
+ * Blanking moved to src/testing/source/comments.ts (a SCANNER, not two regexes).
+ *
+ * The pair that used to live here read a double slash inside a string - `"https://example.com"` - as the start
+ * of a line comment and blanked the rest of the line, code included: a silent miss. Three gates had written
+ * the same pair separately. Re-exported so this module's existing importers and its own test keep working.
+ */
+export { blankComments } from "../src/testing/source/comments.ts";
 
 export interface RenameSurvivorReport {
   /** How many tracked sources were read. The denominator every count below rests on. */
