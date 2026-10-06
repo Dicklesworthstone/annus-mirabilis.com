@@ -281,9 +281,13 @@ export const OUTPUT_LABELS: Readonly<Record<string, string>> = Object.freeze({
   walkerCount: "Number of walkers",
   walkPositions: "Walker positions after the last step",
   traceDisplacements: "Displacements along the drawn traces",
-  stepMean: "Mean step",
-  stepSecondMoment: "Step variance",
-  stepFourthMoment: "Step fourth moment",
+  // stepMean, stepSecondMoment, stepFourthMoment and mostLikelyRadius2d came OUT of this table on
+  // 2026-10-06, because 3507608d made all four registered quantities and this table may not shadow the
+  // registry: outputName reads the registry first and only then here. One of the four was also simply
+  // wrong, which is how a hand-written label beside a registry entry fails. It read
+  // stepSecondMoment: "Step variance", and the second moment is not the variance; they agree only when
+  // the mean is zero, and stepVariance exists separately. A reader asking for the second moment was
+  // shown the other one's name.
   stepKurtosis: "Excess kurtosis of one step",
   sumKurtosis: "Excess kurtosis of the summed displacement",
   modelMeanSquare: "Model mean square",
@@ -322,7 +326,6 @@ export const OUTPUT_LABELS: Readonly<Record<string, string>> = Object.freeze({
   meanRadius3d: "Mean radius ⟨r⟩ in three dimensions",
   rmsRadius2d: "RMS radius √⟨r²⟩ in two dimensions",
   rmsRadius3d: "RMS radius √⟨r²⟩ in three dimensions",
-  mostLikelyRadius2d: "Most likely radius in two dimensions",
   gridDensity: "Numerical density in each grid cell",
   gridTimeStep: "Numerical time step",
   cellMasses: "Probability in each grid cell, between reflecting walls",
