@@ -84,11 +84,22 @@ test("invalid selection never changes a session", () => {
 
 test("an unconvertible stop keeps the authored failure visible without calling restore", () => {
   const { target, seen } = sessionTarget();
-  const out = applyWalkthroughCheckpoint(target, {
-    ...walkthrough,
-    checkpoints: [{ actionIndex: 0, label: "Opening", settings: {}, tape: null,
-      unavailable: "The record does not carry a valid checkpoint digest." }],
-  }, 0);
+  const out = applyWalkthroughCheckpoint(
+    target,
+    {
+      ...walkthrough,
+      checkpoints: [
+        {
+          actionIndex: 0,
+          label: "Opening",
+          settings: {},
+          tape: null,
+          unavailable: "The record does not carry a valid checkpoint digest.",
+        },
+      ],
+    },
+    0,
+  );
   assert.equal(out.kind, "refused");
   assert.match(out.notice, /digest/);
   assert.deepEqual(seen, []);
@@ -96,10 +107,14 @@ test("an unconvertible stop keeps the authored failure visible without calling r
 
 test("a missing refusal explanation still yields a visible refusal", () => {
   const { target } = sessionTarget();
-  const out = applyWalkthroughCheckpoint(target, {
-    ...walkthrough,
-    checkpoints: [{ actionIndex: 0, label: "Opening", settings: {}, tape: null }],
-  }, 0);
+  const out = applyWalkthroughCheckpoint(
+    target,
+    {
+      ...walkthrough,
+      checkpoints: [{ actionIndex: 0, label: "Opening", settings: {}, tape: null }],
+    },
+    0,
+  );
   assert.equal(out.kind, "refused");
   assert.match(out.notice, /no replayable/);
 });
@@ -109,7 +124,10 @@ test("form laboratories receive stop settings, not events or a request to start 
   const target: WalkthroughTarget = {
     kind: "form",
     experimentId: "me-01",
-    load(settings) { seen.push(settings); return { kind: "loaded" }; },
+    load(settings) {
+      seen.push(settings);
+      return { kind: "loaded" };
+    },
   };
   const out = applyWalkthroughCheckpoint(target, walkthrough, 0);
   assert.equal(out.kind, "loaded");
@@ -121,19 +139,26 @@ test("form laboratories receive stop settings, not events or a request to start 
 
 test("form-only loading does not pretend to verify a missing recorded digest", () => {
   const target: WalkthroughTarget = {
-    kind: "form", experimentId: "me-01", load: () => ({ kind: "loaded" }),
+    kind: "form",
+    experimentId: "me-01",
+    load: () => ({ kind: "loaded" }),
   };
-  const out = applyWalkthroughCheckpoint(target, {
-    ...walkthrough,
-    checkpoints: [{ actionIndex: 0, label: "Opening", settings: { angle: 0 }, tape: null }],
-  }, 0);
+  const out = applyWalkthroughCheckpoint(
+    target,
+    {
+      ...walkthrough,
+      checkpoints: [{ actionIndex: 0, label: "Opening", settings: { angle: 0 }, tape: null }],
+    },
+    0,
+  );
   assert.equal(out.kind, "loaded");
   assert.match(out.notice, /has not been verified/);
 });
 
 test("a form validator refusal does not earn a loaded notice", () => {
   const target: WalkthroughTarget = {
-    kind: "form", experimentId: "me-01",
+    kind: "form",
+    experimentId: "me-01",
     load: () => ({ kind: "not-restored", notice: "Choose an admitted distribution." }),
   };
   const out = applyWalkthroughCheckpoint(target, walkthrough, 0);
@@ -142,8 +167,11 @@ test("a form validator refusal does not earn a loaded notice", () => {
 
 test("unexpected adapter failures are visible and never claim rollback or success", () => {
   const target: WalkthroughTarget = {
-    kind: "session", experimentId: "me-01",
-    restore: () => { throw new Error("fixture failure"); },
+    kind: "session",
+    experimentId: "me-01",
+    restore: () => {
+      throw new Error("fixture failure");
+    },
   };
   const out = applyWalkthroughCheckpoint(target, walkthrough, 0);
   assert.equal(out.kind, "refused");
@@ -152,7 +180,10 @@ test("unexpected adapter failures are visible and never claim rollback or succes
 });
 
 test("matching accepted settings is order-independent and preserves sub-display precision", () => {
-  assert.equal(sameWalkthroughSettings({ radius: 3e-7, mode: "a" }, { mode: "a", radius: 3e-7 }), true);
+  assert.equal(
+    sameWalkthroughSettings({ radius: 3e-7, mode: "a" }, { mode: "a", radius: 3e-7 }),
+    true,
+  );
   assert.equal(sameWalkthroughSettings({ radius: 3e-7 }, { radius: 4e-7 }), false);
   assert.equal(sameWalkthroughSettings({ radius: 3e-7 }, { radius: 3e-7, mode: "a" }), false);
   assert.equal(sameWalkthroughSettings({ enabled: true }, { enabled: "true" }), false);

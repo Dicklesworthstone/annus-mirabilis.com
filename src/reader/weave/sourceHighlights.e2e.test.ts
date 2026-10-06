@@ -12,20 +12,27 @@ type BrowserHarness = Window & {
 
 // Real Chromium DOM tests of the production controller. No deployed site or generated corpus
 // is needed; canonical variants are inputs, whose grammar is tested by contentIds.test.ts.
-const compiled = ts.transpileModule(readFileSync(new URL("./sourceHighlights.ts", import.meta.url), "utf8"), {
-  compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext },
-}).outputText;
+const compiled = ts.transpileModule(
+  readFileSync(new URL("./sourceHighlights.ts", import.meta.url), "utf8"),
+  {
+    compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext },
+  },
+).outputText;
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(compiled).toString("base64")}`;
 let browser: Browser;
 let page: Page;
 before(async () => {
   browser = await chromium.launch({
     headless: true,
-    ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE } : {}),
+    ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE
+      ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE }
+      : {}),
   });
   page = await browser.newPage();
 });
-after(async () => { await browser?.close(); });
+after(async () => {
+  await browser?.close();
+});
 beforeEach(async () => {
   await page.setContent(`<main id="paper">
     <p><span class="source-sentence" id="s4-p6-s9" data-sentence-id="s4-p6-s9" aria-describedby="existing" data-aligned-active="true">German <b>source</b>.</span></p>
@@ -40,7 +47,9 @@ beforeEach(async () => {
     const w = window as unknown as BrowserHarness;
     w.connect = module.connectSourceHighlights;
     w.entries = ["s4-p6-s9", "s4-p6-s9a", "s4-p6-s9b"].map((contentId) => ({
-      contentId, meaning: "agreement-within-stated-bound", descriptionId: "pointer",
+      contentId,
+      meaning: "agreement-within-stated-bound",
+      descriptionId: "pointer",
     }));
     w.connection = w.connect(document.querySelector("#paper") as Element, "primary", w.entries);
   }, moduleUrl);
@@ -49,7 +58,10 @@ beforeEach(async () => {
 test("German and both English split units share the pointer, regardless of DOM id prefix", async () => {
   assert.equal(await page.locator("#paper [data-live-weave-owner=primary]").count(), 3);
   for (const id of ["s4-p6-s9", "en-s4-p6-s9a", "en-s4-p6-s9b"]) {
-    assert.equal(await page.locator(`[id="${id}"]`).getAttribute("data-live-weave-meaning"), "agreement-within-stated-bound");
+    assert.equal(
+      await page.locator(`[id="${id}"]`).getAttribute("data-live-weave-meaning"),
+      "agreement-within-stated-bound",
+    );
   }
   assert.equal(await page.locator("#not-source").getAttribute("data-live-weave-owner"), null);
   assert.equal(await page.locator("#unrelated").getAttribute("data-live-weave-owner"), null);
@@ -77,7 +89,9 @@ test("a face inserted after evaluation is annotated by its declared content id",
     element.textContent = "Late face.";
     document.querySelector("#paper")?.append(element);
   });
-  await page.waitForFunction(() => document.querySelector("#late")?.getAttribute("data-live-weave-owner") === "primary");
+  await page.waitForFunction(
+    () => document.querySelector("#late")?.getAttribute("data-live-weave-owner") === "primary",
+  );
   assert.equal(await page.locator("#late").textContent(), "Late face.");
 });
 test("disposal removes only this feature's descriptions and leaves concurrent additions", async () => {
@@ -88,7 +102,10 @@ test("disposal removes only this feature's descriptions and leaves concurrent ad
     (window as unknown as BrowserHarness).connection.dispose();
   });
   assert.equal(await page.locator("[data-live-weave-owner]").count(), 0);
-  assert.equal(await page.locator('[id="s4-p6-s9"]').getAttribute("aria-describedby"), "existing later-description");
+  assert.equal(
+    await page.locator('[id="s4-p6-s9"]').getAttribute("aria-describedby"),
+    "existing later-description",
+  );
 });
 test("another annotator cannot steal or clear an existing owner's source marks", async () => {
   await page.evaluate(() => {

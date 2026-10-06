@@ -4,9 +4,19 @@ import { createSearchEngine, SEARCH_LIMITS } from "./core.ts";
 
 // Authored test prose, not a quotation attributed to the edition or historical evidence.
 const doc = (id, text, patch = {}) => ({
-  id, text, title: "Test passage", type: "argument", paper: "brownian-motion",
-  section: "s5", lang: "en", terms: [], route: "/papers/brownian-motion/",
-  anchor: id, face: "reading", scopeLabel: "Authored test passage", ...patch,
+  id,
+  text,
+  title: "Test passage",
+  type: "argument",
+  paper: "brownian-motion",
+  section: "s5",
+  lang: "en",
+  terms: [],
+  route: "/papers/brownian-motion/",
+  anchor: id,
+  face: "reading",
+  scopeLabel: "Authored test passage",
+  ...patch,
 });
 const ids = (engine, query, options) => engine.search(query, options).map((hit) => hit.document.id);
 
@@ -19,7 +29,7 @@ test("quoted passages require adjacent words in order, including stop words", ()
   ]);
   assert.ok(ids(engine, "motion particle").includes("separated"));
   assert.deepEqual(ids(engine, '"motion of a particle"'), ["exact"]);
-  assert.deepEqual(ids(engine, '“motion of a particle”'), ["exact"]);
+  assert.deepEqual(ids(engine, "“motion of a particle”"), ["exact"]);
   assert.deepEqual(ids(engine, '"motion a particle"'), []);
 });
 
@@ -34,13 +44,16 @@ test("multiple quotations and unquoted terms are all required", () => {
 });
 
 test("a phrase cannot cross fields, separate terms, or be supplied by an alias", () => {
-  const engine = createSearchEngine([
-    doc("body", "Mean square displacement."),
-    doc("title", "Unrelated text.", { title: "Mean square displacement" }),
-    doc("cross-field", "square displacement", { title: "Mean" }),
-    doc("cross-term", "Unrelated text.", { terms: ["mean", "square"] }),
-    doc("alias-only", "An unrelated sentence."),
-  ], [{ phrase: "mean square", target: "alias-only", label: "search aid" }]);
+  const engine = createSearchEngine(
+    [
+      doc("body", "Mean square displacement."),
+      doc("title", "Unrelated text.", { title: "Mean square displacement" }),
+      doc("cross-field", "square displacement", { title: "Mean" }),
+      doc("cross-term", "Unrelated text.", { terms: ["mean", "square"] }),
+      doc("alias-only", "An unrelated sentence."),
+    ],
+    [{ phrase: "mean square", target: "alias-only", label: "search aid" }],
+  );
   assert.ok(ids(engine, "mean square").includes("alias-only"));
   assert.deepEqual(new Set(ids(engine, '"mean square"')), new Set(["body", "title"]));
 });
@@ -99,17 +112,19 @@ test("snippets use actual prefix and typo matches, and multi-piece scientific no
 });
 
 test("short excerpts, alias-only matches and empty bodies remain honest", () => {
-  const engine = createSearchEngine([
-    doc("short", "  Daß\nWärme  "),
-    doc("empty", "", { title: "Diffusion" }),
-  ], [{ phrase: "heat", target: "short", label: "modern term" }]);
+  const engine = createSearchEngine(
+    [doc("short", "  Daß\nWärme  "), doc("empty", "", { title: "Diffusion" })],
+    [{ phrase: "heat", target: "short", label: "modern term" }],
+  );
   assert.equal(engine.search("heat")[0].snippet, "Daß Wärme");
   assert.equal(engine.search("diffusion")[0].snippet, "");
 });
 
 test("long unbroken text remains bounded and does not split surrogate pairs", () => {
   const text = "🧪".repeat(200);
-  const hit = createSearchEngine([doc("unicode", text, { title: "Diffusion" })]).search("diffusion")[0];
+  const hit = createSearchEngine([doc("unicode", text, { title: "Diffusion" })]).search(
+    "diffusion",
+  )[0];
   assert.ok(hit.snippet.length <= 220);
   assert.equal(hit.snippet.isWellFormed(), true);
 });
@@ -117,7 +132,10 @@ test("long unbroken text remains bounded and does not split surrogate pairs", ()
 test("query limits and deterministic result order still hold for passage search", () => {
   const records = [doc("b", "Mean square displacement"), doc("a", "Mean square displacement")];
   const engine = createSearchEngine(records);
-  assert.deepEqual(engine.search('"mean square"'), createSearchEngine([...records].reverse()).search('"mean square"'));
+  assert.deepEqual(
+    engine.search('"mean square"'),
+    createSearchEngine([...records].reverse()).search('"mean square"'),
+  );
   assert.deepEqual(engine.search(`"${"x".repeat(SEARCH_LIMITS.queryCharacters)}"`), []);
   assert.equal(engine.search('"mean square"', { limit: 1 })[0].document.id, "a");
 });

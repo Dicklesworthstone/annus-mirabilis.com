@@ -133,18 +133,21 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
     const field = AVOGADRO_FIELDS[key];
     const choices =
       key === "constantBasis"
-        ? [["0", "Modern SI consistency check"], ["1", "Historical gas measurement"]]
-        : key === "coefficient"
         ? [
-            ["1", "Original: 1"],
-            ["2.5", "Corrected: 2.5"],
+            ["0", "Modern SI consistency check"],
+            ["1", "Historical gas measurement"],
           ]
-        : key === "radiusKnown" || key === "independentModel"
+        : key === "coefficient"
           ? [
-              ["1", "Yes"],
-              ["0", "No"],
+              ["1", "Original: 1"],
+              ["2.5", "Corrected: 2.5"],
             ]
-          : null;
+          : key === "radiusKnown" || key === "independentModel"
+            ? [
+                ["1", "Yes"],
+                ["0", "No"],
+              ]
+            : null;
     return (
       <div className="input-field" key={key}>
         <label htmlFor={`${id}-${key}`}>{field.label}</label>
@@ -343,8 +346,8 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
                   </td>
                   <td>
                     <strong>{basis.label}.</strong> {basis.interpretation} Conditional on an
-                    independent radius and the admitted observation model. The interval holds
-                    the selected gas constant and all auxiliary inputs exact.
+                    independent radius and the admitted observation model. The interval holds the
+                    selected gas constant and all auxiliary inputs exact.
                   </td>
                 </tr>
                 <tr>
@@ -358,9 +361,10 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
                     <Reading snapshot={snapshot} quantity="molecularNumber" />
                   </td>
                   <td>
-                    <strong>{basis.label}.</strong> A dilute-sphere inversion with coefficient
-                    {" "}{accepted.coefficient}, using the same selected gas constant as the Brownian
-                    route. These illustrative inputs are not a historical dataset or uncertainty interval.
+                    <strong>{basis.label}.</strong> A dilute-sphere inversion with coefficient{" "}
+                    {accepted.coefficient}, using the same selected gas constant as the Brownian
+                    route. These illustrative inputs are not a historical dataset or uncertainty
+                    interval.
                   </td>
                 </tr>
                 <tr>
@@ -394,7 +398,11 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
         authored illustrative observations. No historical measurement dataset is claimed here.
       </p>
       <p className="fine">{basis.provenance}</p>
-      <AvogadroSensitivity parameters={accepted} snapshotVersion={snapshot.snapshotVersion} ready={ready} />
+      <AvogadroSensitivity
+        parameters={accepted}
+        snapshotVersion={snapshot.snapshotVersion}
+        ready={ready}
+      />
       <section>
         <h3>What diffusion cannot identify by itself</h3>
         <p>
@@ -476,7 +484,10 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
 
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
           children of the lab root, which labShell.css's detail rules select. */}
-      <p className="fine">The worked derivation below explains the default settings, not the current sensitivity trial.</p>
+      <p className="fine">
+        The worked derivation below explains the default settings, not the current sensitivity
+        trial.
+      </p>
       <p data-detail="0">
         <noscript>
           <b className="reading-label">In one breath</b>

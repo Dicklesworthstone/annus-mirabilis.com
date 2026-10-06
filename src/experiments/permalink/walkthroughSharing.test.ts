@@ -10,18 +10,26 @@ import {
 import type { CheckpointWalkthrough } from "./walkthroughCheckpoints.ts";
 
 const tape: TapeV2 = {
-  tapeVersion: 2, experimentId: "me-01", mode: "me-01:default",
+  tapeVersion: 2,
+  experimentId: "me-01",
+  mode: "me-01:default",
   modelIdentity: { modelId: "fixture", modelVersion: 1 },
-  constantSetId: "fixture", seed: "0" as TapeV2["seed"],
-  streamVersion: "deterministic", allocationId: "deterministic",
+  constantSetId: "fixture",
+  seed: "0" as TapeV2["seed"],
+  streamVersion: "deterministic",
+  allocationId: "deterministic",
   initialConditions: { angle: 0 },
   events: [{ actionIndex: 1, commandClass: "setup-change", paramId: "angle", value: 90 }],
   acceptedCheckpoint: {
-    acceptedActionIndex: 1, acceptedInputRevision: 0, digest: "host:0123456789abcdef",
+    acceptedActionIndex: 1,
+    acceptedInputRevision: 0,
+    digest: "host:0123456789abcdef",
   },
 };
 const walkthrough: CheckpointWalkthrough = {
-  tapeId: "record", title: "Record", experimentId: "me-01",
+  tapeId: "record",
+  title: "Record",
+  experimentId: "me-01",
   checkpoints: [{ actionIndex: 1, label: "Broadside", settings: { angle: 90 }, tape }],
 };
 
@@ -29,9 +37,16 @@ function fixture() {
   const calculated: object[] = [];
   let restores = 0;
   const target: WalkthroughTarget = {
-    kind: "session", experimentId: "me-01",
-    restore: () => { restores++; return { kind: "not-restored", notice: "Different model." }; },
-    calculate: (settings) => { calculated.push(settings); return { kind: "calculated" }; },
+    kind: "session",
+    experimentId: "me-01",
+    restore: () => {
+      restores++;
+      return { kind: "not-restored", notice: "Different model." };
+    },
+    calculate: (settings) => {
+      calculated.push(settings);
+      return { kind: "calculated" };
+    },
   };
   return { target, calculated, restores: () => restores };
 }
@@ -74,8 +89,12 @@ test("new calculation does not accept another laboratory or an invalid checkpoin
 test("form labs cannot accidentally start calculations through the new-run action", () => {
   let loads = 0;
   const target: WalkthroughTarget = {
-    kind: "form", experimentId: "me-01",
-    load: () => { loads++; return { kind: "loaded" }; },
+    kind: "form",
+    experimentId: "me-01",
+    load: () => {
+      loads++;
+      return { kind: "loaded" };
+    },
   };
   assert.equal(calculateWalkthroughCheckpoint(target, walkthrough, 0).kind, "refused");
   assert.equal(loads, 0);
@@ -84,11 +103,13 @@ test("form labs cannot accidentally start calculations through the new-run actio
 test("a rejected new calculation remains a refusal, not a computed result", () => {
   const target: WalkthroughTarget = {
     ...fixture().target,
-    kind: "session", restore: () => ({ kind: "restored" }),
+    kind: "session",
+    restore: () => ({ kind: "restored" }),
     calculate: () => ({ kind: "not-restored", notice: "Outside this model." }),
   };
   assert.deepEqual(calculateWalkthroughCheckpoint(target, walkthrough, 0), {
-    kind: "refused", notice: "Outside this model.",
+    kind: "refused",
+    notice: "Outside this model.",
   });
 });
 

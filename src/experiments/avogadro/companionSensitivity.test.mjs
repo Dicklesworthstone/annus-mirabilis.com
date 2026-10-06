@@ -16,27 +16,54 @@ function companionOwner(parameters) {
     gasConstant: 8.31,
     viscosityCoefficient: parameters.coefficient,
   });
-  return { kind: "accepted", parameters, outputs: [
-    ...["radiationNumber", "brownianNumber"].map(quantityId => ({ quantityId, status: "value", value: 1, unit: "mol^-1", ownerId: "inert-fixture", semanticKind: "fixture" })),
-    companion.molecularNumber,
-  ] };
+  return {
+    kind: "accepted",
+    parameters,
+    outputs: [
+      ...["radiationNumber", "brownianNumber"].map((quantityId) => ({
+        quantityId,
+        status: "value",
+        value: 1,
+        unit: "mol^-1",
+        ownerId: "inert-fixture",
+        semanticKind: "fixture",
+      })),
+      companion.molecularNumber,
+    ],
+  };
 }
-const companion = (point) => point.readings.find(reading => reading.result.quantityId === "molecularNumber");
+const companion = (point) =>
+  point.readings.find((reading) => reading.result.quantityId === "molecularNumber");
 const close = (a, b) => assert.ok(Math.abs(a - b) < 1e-12 * Math.max(1, Math.abs(b)));
 
 test("real companion owner: the viscosity correction changes the inferred number by the predicted factor", () => {
-  const got = studyAvogadroSensitivity({ ...AVOGADRO_DEFAULTS, coefficient: 1 }, "coefficient", [1, 2.5], companionOwner);
+  const got = studyAvogadroSensitivity(
+    { ...AVOGADRO_DEFAULTS, coefficient: 1 },
+    "coefficient",
+    [1, 2.5],
+    companionOwner,
+  );
   assert.equal(got.kind, "accepted");
   close(companion(got.study.points[1]).ratio, Math.sqrt(2.5));
   assert.equal(companion(got.study.points[1]).result.ownerId, "molecular-dimensions");
 });
 test("real companion owner: doubling solute diffusivity does not get mistaken for a linear inverse", () => {
-  const got = studyAvogadroSensitivity(AVOGADRO_DEFAULTS, "soluteDiffusionUm2S", [1000], companionOwner);
+  const got = studyAvogadroSensitivity(
+    AVOGADRO_DEFAULTS,
+    "soluteDiffusionUm2S",
+    [1000],
+    companionOwner,
+  );
   assert.equal(got.kind, "accepted");
   close(companion(got.study.points[0]).ratio, 2 ** -1.5);
 });
 test("real companion owner: leaving the dilute regime retains the model-domain explanation", () => {
-  const got = studyAvogadroSensitivity(AVOGADRO_DEFAULTS, "specificViscosity", [0.2], companionOwner);
+  const got = studyAvogadroSensitivity(
+    AVOGADRO_DEFAULTS,
+    "specificViscosity",
+    [0.2],
+    companionOwner,
+  );
   assert.equal(got.kind, "accepted");
   const reading = companion(got.study.points[0]);
   assert.equal(reading.result.status, "outside-domain");
@@ -44,7 +71,12 @@ test("real companion owner: leaving the dilute regime retains the model-domain e
   assert.equal(reading.ratio, null);
 });
 test("real companion owner: absent concentration information stays an identifiable family, not a chosen N", () => {
-  const got = studyAvogadroSensitivity({ ...AVOGADRO_DEFAULTS, molarConcentration: 0, specificViscosity: 0 }, "soluteDiffusionUm2S", [250, 1000], companionOwner);
+  const got = studyAvogadroSensitivity(
+    { ...AVOGADRO_DEFAULTS, molarConcentration: 0, specificViscosity: 0 },
+    "soluteDiffusionUm2S",
+    [250, 1000],
+    companionOwner,
+  );
   assert.equal(got.kind, "accepted");
   for (const point of got.study.points) {
     assert.equal(companion(point).result.status, "underdetermined");

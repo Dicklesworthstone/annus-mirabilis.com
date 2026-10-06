@@ -11,7 +11,9 @@ test("the real prepared tracer example reaches the reader panel without starting
     throw new Error("SSR must not start a worker");
   });
   const before = session.getSnapshot().accepted;
-  const html = renderToStaticMarkup(<WovenTracerLab example={example as PreparedBm01Example} session={session} />);
+  const html = renderToStaticMarkup(
+    <WovenTracerLab example={example as PreparedBm01Example} session={session} />,
+  );
   expect(workers).toBe(0);
   expect(session.getSnapshot().accepted).toBe(before);
   expect(html).toContain("What this trial points to in the paper");

@@ -118,7 +118,11 @@ describe(`special-relativity source-manifest report CLI (${BEAD})`, () => {
     const printedPages = sourceAsset.pageMapping
       .map((page) => page.printedPage)
       .filter((page): page is number => typeof page === "number");
-    assert.equal(printedPages.length, 31, "all 31 journal pages must be mapped with a printed page");
+    assert.equal(
+      printedPages.length,
+      31,
+      "all 31 journal pages must be mapped with a printed page",
+    );
 
     const unmappedPages: number[] = [];
     for (const printedPage of printedPages) {

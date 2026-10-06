@@ -46,11 +46,26 @@
   fill: none;
   vector-effect: non-scaling-stroke;
 }
-.camera-comparison-axis { stroke: var(--line); }
-.camera-comparison-latent { stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 2 4; }
-.camera-comparison-blurred { stroke: var(--muted, var(--ink)); stroke-width: 1.5; stroke-dasharray: 9 5; }
-.camera-comparison-observed { stroke: var(--accent); stroke-width: 1.5; }
-.camera-comparison-legend { font-size: var(--type-fine); }
+.camera-comparison-axis {
+  stroke: var(--line);
+}
+.camera-comparison-latent {
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-dasharray: 2 4;
+}
+.camera-comparison-blurred {
+  stroke: var(--muted, var(--ink));
+  stroke-width: 1.5;
+  stroke-dasharray: 9 5;
+}
+.camera-comparison-observed {
+  stroke: var(--accent);
+  stroke-width: 1.5;
+}
+.camera-comparison-legend {
+  font-size: var(--type-fine);
+}
 /*
  * THE LEGEND KEYS MATCH THEIR LINES BY DASH PATTERN, NOT BY COLOUR ALONE (am-vw1o).
  *
@@ -83,18 +98,30 @@
   border-bottom-style: solid;
   border-bottom-color: var(--accent);
 }
-.camera-comparison-statement { overflow-wrap: anywhere; }
-.camera-controlled-comparison details { margin-block: 1rem; }
+.camera-comparison-statement {
+  overflow-wrap: anywhere;
+}
+.camera-controlled-comparison details {
+  margin-block: 1rem;
+}
 .camera-controlled-comparison :is(button, input, select, summary):focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
 @media (max-width: 56rem) {
-  .camera-comparison-plots { grid-template-columns: minmax(0, 1fr); }
+  .camera-comparison-plots {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 @media print {
   .camera-controlled-comparison form,
-  .camera-controlled-comparison .actions { display: none; }
-  .camera-comparison-plots figure { break-inside: avoid; }
-  .camera-controlled-comparison .comparison-scroll { overflow: visible; }
+  .camera-controlled-comparison .actions {
+    display: none;
+  }
+  .camera-comparison-plots figure {
+    break-inside: avoid;
+  }
+  .camera-controlled-comparison .comparison-scroll {
+    overflow: visible;
+  }
 }

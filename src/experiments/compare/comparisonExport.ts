@@ -8,8 +8,7 @@ import type { ComparisonContract } from "./singleVariationLock.ts";
 /** A bounded, no-JavaScript download of accepted data, not a stochastic replay tape. */
 const MAX_DOWNLOAD_CHARACTERS = 256_000;
 export type ComparisonDownload = Readonly<
-  | { kind: "ready"; href: string; filename: string }
-  | { kind: "unavailable"; message: string }
+  { kind: "ready"; href: string; filename: string } | { kind: "unavailable"; message: string }
 >;
 
 export function serializeComparison(

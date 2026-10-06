@@ -35,7 +35,12 @@ function route(verdict) {
     if (specifier.endsWith("/CameraControlledComparison.tsx"))
       return { CameraControlledComparison: component };
     if (specifier.endsWith("/bm08/parameters.ts"))
-      return { validateBm08Parameters: (input) => { calls.push(input); return verdict; } };
+      return {
+        validateBm08Parameters: (input) => {
+          calls.push(input);
+          return verdict;
+        },
+      };
     if (specifier.endsWith("/experiments/refusal.ts")) return { ExperimentRuntimeError };
     if (specifier.endsWith("/bm08-example.json")) return { default: example };
     if (specifier.endsWith(".css")) return {};
@@ -46,7 +51,8 @@ function route(verdict) {
   return { ...exports, example, calls, component, imports };
 }
 function nodes(element) {
-  return !element || typeof element !== "object" ? []
+  return !element || typeof element !== "object"
+    ? []
     : [element, ...(element.children ?? []).flatMap(nodes)];
 }
 
@@ -57,7 +63,12 @@ test("missing camera evidence throws camera-comparison-evidence, while identifie
     code: "camera-comparison-evidence",
   });
   const { statuses, ...identity } = BM08_OUTPUTS.times;
-  const value = { quantityId: "times", ...identity, status: "value", value: new Float64Array([0, 1]) };
+  const value = {
+    quantityId: "times",
+    ...identity,
+    status: "value",
+    value: new Float64Array([0, 1]),
+  };
   assert.equal(cameraComparisonOutput({ outputs: [value] }, "times"), value);
 });
 
@@ -89,8 +100,17 @@ test("an accepted route forwards checked parameters, not the unvalidated JSON ob
 test("the route keeps its canonical address and onward links to the full scientific context", () => {
   const page = route({ kind: "accepted", data: {} });
   assert.equal(page.metadata.alternates.canonical, "/lab/bm-08/compare/");
-  const links = new Set(nodes(page.default()).filter((node) => node.type === "a").map((node) => node.props.href));
-  for (const href of ["/lab/bm-08/", "/lab/bm-01/compare/", "/lab/bm-07/", "/papers/brownian-motion/#arg-bm-inference"])
+  const links = new Set(
+    nodes(page.default())
+      .filter((node) => node.type === "a")
+      .map((node) => node.props.href),
+  );
+  for (const href of [
+    "/lab/bm-08/",
+    "/lab/bm-01/compare/",
+    "/lab/bm-07/",
+    "/papers/brownian-motion/#arg-bm-inference",
+  ])
     assert.ok(links.has(href), href);
 });
 

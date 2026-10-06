@@ -77,11 +77,17 @@ test("walkthrough play reaches the accepted state and retains the verified repla
 test("walkthrough checkpoint and identity refusals leave the live snapshot untouched", () => {
   for (const record of [
     { ...tape(), constantSetId: "historical" },
-    { ...tape(), acceptedCheckpoint: { ...tape().acceptedCheckpoint, digest: "host:ffffffffffffffff" } },
+    {
+      ...tape(),
+      acceptedCheckpoint: { ...tape().acceptedCheckpoint, digest: "host:ffffffffffffffff" },
+    },
   ]) {
     const { live, applied } = session();
     const before = live.getSnapshot();
-    assert.equal(playWalkthrough(binding, live, "fixture", { resolve: () => record }).kind, "refused");
+    assert.equal(
+      playWalkthrough(binding, live, "fixture", { resolve: () => record }).kind,
+      "refused",
+    );
     assert.equal(live.getSnapshot(), before);
     assert.deepEqual(applied, []);
   }
@@ -90,7 +96,9 @@ test("walkthrough checkpoint and identity refusals leave the live snapshot untou
 test("a resolver exception becomes a reader-visible refusal rather than a thrown event handler", () => {
   const { live, applied } = session();
   const result = playWalkthrough(binding, live, "fixture", {
-    resolve: () => { throw new Error("catalogue unavailable"); },
+    resolve: () => {
+      throw new Error("catalogue unavailable");
+    },
   });
   assert.equal(result.kind, "refused");
   if (result.kind === "refused") {
@@ -111,11 +119,19 @@ test("play resolves the named record once, not again during preflight or live ap
 });
 
 test("malformed step indices are refused, including an explicitly new run", () => {
-  for (const stepIndex of [-1, 0.5, Number.NaN, Number.POSITIVE_INFINITY, Number.MAX_SAFE_INTEGER + 1]) {
+  for (const stepIndex of [
+    -1,
+    0.5,
+    Number.NaN,
+    Number.POSITIVE_INFINITY,
+    Number.MAX_SAFE_INTEGER + 1,
+  ]) {
     for (const asNewRun of [false, true]) {
       const { live, applied } = session();
       const result = replayTeachingTapeOn(binding, live, "fixture", {
-        resolve: () => tape(), stepIndex, asNewRun,
+        resolve: () => tape(),
+        stepIndex,
+        asNewRun,
       });
       assert.equal(result.kind, "refused");
       if (result.kind === "refused") assert.equal(result.refusalCode, "teaching-tape-step-invalid");
@@ -126,7 +142,10 @@ test("malformed step indices are refused, including an explicitly new run", () =
 
 test("an intermediate step cannot borrow the final checkpoint's verification", () => {
   const { live, applied } = session();
-  const result = replayTeachingTapeOn(binding, live, "fixture", { resolve: () => tape(), stepIndex: 0 });
+  const result = replayTeachingTapeOn(binding, live, "fixture", {
+    resolve: () => tape(),
+    stepIndex: 0,
+  });
   assert.equal(result.kind, "refused");
   if (result.kind === "refused") assert.equal(result.refusalCode, "tape-checkpoint-mismatch");
   assert.deepEqual(applied, []);
@@ -177,16 +196,21 @@ test("walkthrough playback honours legacy digest formats as shared-link restorat
         digest: tapeStateDigestIn(form, { x: 3, y: 4 }, 2),
       },
     };
-    assert.equal(playWalkthrough(binding, live, "fixture", { resolve: () => record }).kind, "played", form);
+    assert.equal(
+      playWalkthrough(binding, live, "fixture", { resolve: () => record }).kind,
+      "played",
+      form,
+    );
   }
 });
-
 
 test("a high-level seek past the end retains the scrubber's last-step behavior", () => {
   for (const asNewRun of [false, true]) {
     const { live } = session();
     const result = playWalkthrough(binding, live, "fixture", {
-      resolve: () => tape(), stepIndex: 99, asNewRun,
+      resolve: () => tape(),
+      stepIndex: 99,
+      asNewRun,
     });
     assert.equal(result.kind, "played");
     if (result.kind === "played") {

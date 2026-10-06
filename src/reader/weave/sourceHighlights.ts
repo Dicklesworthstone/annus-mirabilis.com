@@ -7,7 +7,8 @@ export type SourceWeavePointer = Readonly<{
   descriptionId: string;
 }>;
 
-const SOURCE_SENTENCES = ".source-sentence[data-sentence-id], .translation-unit[data-translation-unit-id]";
+const SOURCE_SENTENCES =
+  ".source-sentence[data-sentence-id], .translation-unit[data-translation-unit-id]";
 const OWNER = "data-live-weave-owner";
 const MEANING = "data-live-weave-meaning";
 
@@ -31,7 +32,8 @@ export function connectSourceHighlights(
       element.removeAttribute(OWNER);
       element.removeAttribute(MEANING);
       if (record.addedDescription) {
-        const descriptions = (element.getAttribute("aria-describedby") ?? "").split(/\s+/)
+        const descriptions = (element.getAttribute("aria-describedby") ?? "")
+          .split(/\s+/)
           .filter((id) => id && id !== record.descriptionId);
         if (descriptions.length) element.setAttribute("aria-describedby", descriptions.join(" "));
         else element.removeAttribute("aria-describedby");
@@ -44,10 +46,14 @@ export function connectSourceHighlights(
     if (disposed) return;
     clear();
     for (const element of root.querySelectorAll(SOURCE_SENTENCES)) {
-      const contentId = element.getAttribute("data-sentence-id") ?? element.getAttribute("data-translation-unit-id");
+      const contentId =
+        element.getAttribute("data-sentence-id") ??
+        element.getAttribute("data-translation-unit-id");
       const pointer = contentId === null ? undefined : pointers.get(contentId);
       if (!pointer || element.hasAttribute(OWNER)) continue;
-      const descriptions = (element.getAttribute("aria-describedby") ?? "").split(/\s+/).filter(Boolean);
+      const descriptions = (element.getAttribute("aria-describedby") ?? "")
+        .split(/\s+/)
+        .filter(Boolean);
       const addedDescription = !descriptions.includes(pointer.descriptionId);
       if (addedDescription) descriptions.push(pointer.descriptionId);
       element.setAttribute("aria-describedby", descriptions.join(" "));

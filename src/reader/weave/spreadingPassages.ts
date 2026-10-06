@@ -20,7 +20,8 @@ export const BM06_WEAVE_PASSAGES: Readonly<Record<string, WeavePassage>> = Objec
 export const BM06_WEAVE_CONTEXT: readonly WeaveContextField[] = Object.freeze([
   Object.freeze({ parameterId: "t", label: "Elapsed time", unit: "s" }),
   Object.freeze({
-    parameterId: "gridEnabled", label: "Numerical grid",
+    parameterId: "gridEnabled",
+    label: "Numerical grid",
     values: Object.freeze({ true: "enabled", false: "off" }),
   }),
 ]);

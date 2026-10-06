@@ -125,7 +125,11 @@ export function replayTape(
 
   let previousAction = -1;
   for (const event of eventsToReplay) {
-    if (!Number.isSafeInteger(event.actionIndex) || event.actionIndex < 0 || event.actionIndex < previousAction) {
+    if (
+      !Number.isSafeInteger(event.actionIndex) ||
+      event.actionIndex < 0 ||
+      event.actionIndex < previousAction
+    ) {
       return invalid(
         "tape-event-order-invalid",
         "Replay events must have non-decreasing non-negative whole-number action indices.",

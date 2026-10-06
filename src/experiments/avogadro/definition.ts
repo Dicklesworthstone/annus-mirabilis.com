@@ -65,10 +65,13 @@ export function validateAvogadroParameters(input: unknown): Validation {
     return refused("Settings must be a plain parameter record.");
   // Inspect descriptors before reading a field: shared state is data, never executable accessors.
   const descriptors = Object.getOwnPropertyDescriptors(input);
-  if (Reflect.ownKeys(input).some((key) => {
-    const descriptor = typeof key === "string" ? descriptors[key] : undefined;
-    return !descriptor || !descriptor.enumerable || !("value" in descriptor);
-  })) return refused("Settings must contain only visible data fields.");
+  if (
+    Reflect.ownKeys(input).some((key) => {
+      const descriptor = typeof key === "string" ? descriptors[key] : undefined;
+      return !descriptor || !descriptor.enumerable || !("value" in descriptor);
+    })
+  )
+    return refused("Settings must contain only visible data fields.");
   const record = input as Record<string, unknown>;
   if (
     Object.keys(record).length !== keys.length ||

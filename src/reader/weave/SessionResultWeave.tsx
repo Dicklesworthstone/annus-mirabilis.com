@@ -18,7 +18,10 @@ export type ReaderWeaveBinding = Readonly<{
 
 /** Subscribe to the laboratory's existing session; construction starts no calculation. */
 export function SessionResultWeave({
-  session, binding, suspended = false, announcementsEnabled = true,
+  session,
+  binding,
+  suspended = false,
+  announcementsEnabled = true,
 }: Readonly<{
   session: WeaveSession;
   binding: ReaderWeaveBinding;
@@ -28,13 +31,15 @@ export function SessionResultWeave({
   announcementsEnabled?: boolean;
 }>) {
   const source = useMemo(() => createSessionWeave(session, binding), [session, binding]);
-  return <ResultWeavePanel
-    source={source}
-    predicates={binding.predicates}
-    passages={binding.passages}
-    paper={binding.paper}
-    contextFields={binding.contextFields}
-    suspended={suspended}
-    announcementsEnabled={announcementsEnabled}
-  />;
+  return (
+    <ResultWeavePanel
+      source={source}
+      predicates={binding.predicates}
+      passages={binding.passages}
+      paper={binding.paper}
+      contextFields={binding.contextFields}
+      suspended={suspended}
+      announcementsEnabled={announcementsEnabled}
+    />
+  );
 }

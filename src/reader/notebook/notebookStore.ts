@@ -138,19 +138,22 @@ export function createNotebookStore(storage: NotebookStorage) {
     // Reconciliation consent is tied to the exact saved bytes shown in the review. This is an
     // optimistic check, not an atomic cross-tab transaction; normal unreviewed writes still stop
     // on conflicts, and a newly unavailable/corrupt store is never treated as a cleared notebook.
-    if (lease && (
-      (saved.raw.status !== "ok" && saved.raw.status !== "missing") ||
-      saved.text !== lease.raw
-    )) return {
-      ok: false,
-      message: "The saved notebook changed or became unavailable after this preview. Nothing was merged. Refresh the preview before saving.",
-    };
-    if (!lease && (
-      state.persistence === "conflict" ||
-      (saved.raw.status !== "unavailable" &&
-        saved.text !== baseRaw &&
-        !(state.persistence === "session-only" && saved.text === JSON.stringify(state.document)))
-    )) {
+    if (
+      lease &&
+      ((saved.raw.status !== "ok" && saved.raw.status !== "missing") || saved.text !== lease.raw)
+    )
+      return {
+        ok: false,
+        message:
+          "The saved notebook changed or became unavailable after this preview. Nothing was merged. Refresh the preview before saving.",
+      };
+    if (
+      !lease &&
+      (state.persistence === "conflict" ||
+        (saved.raw.status !== "unavailable" &&
+          saved.text !== baseRaw &&
+          !(state.persistence === "session-only" && saved.text === JSON.stringify(state.document))))
+    ) {
       publish({ ...state, document, persistence: "conflict", message: CONFLICT_MESSAGE });
       return { ok: true };
     }
@@ -180,16 +183,25 @@ export function createNotebookStore(storage: NotebookStorage) {
     saved() {
       open();
       const saved = readSaved();
-      if ((saved.raw.status !== "ok" && saved.raw.status !== "missing") ||
-        (saved.raw.status === "ok" && saved.text === null)) {
-        throw new NotebookMergeError("notebook-merge-saved-unavailable", "The saved notebook could not be read. This tab's work and the saved original are unchanged; export this tab or retry when storage is available.");
+      if (
+        (saved.raw.status !== "ok" && saved.raw.status !== "missing") ||
+        (saved.raw.status === "ok" && saved.text === null)
+      ) {
+        throw new NotebookMergeError(
+          "notebook-merge-saved-unavailable",
+          "The saved notebook could not be read. This tab's work and the saved original are unchanged; export this tab or retry when storage is available.",
+        );
       }
       if (saved.text !== null && estimateBytes(NOTEBOOK_KEY, saved.text) > storage.maxBytes) {
-        throw new NotebookMergeError("notebook-merge-saved-too-large", "The saved notebook exceeds this version's byte limit. Keep both exports; nothing was merged.");
+        throw new NotebookMergeError(
+          "notebook-merge-saved-too-large",
+          "The saved notebook exceeds this version's byte limit. Keep both exports; nothing was merged.",
+        );
       }
       return {
         raw: saved.text,
-        document: saved.text === null ? emptyNotebook() : parseNotebookDocument(storage.decode(saved.text)),
+        document:
+          saved.text === null ? emptyNotebook() : parseNotebookDocument(storage.decode(saved.text)),
       };
     },
     commit: (document, lease) => commit(document, false, lease),

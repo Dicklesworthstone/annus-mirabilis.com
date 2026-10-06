@@ -147,7 +147,9 @@ test("missing and throwing walkthrough resolvers leave the accepted run untouche
   const request = { ...tape(), teachingTapeRef: { tapeId: "missing", stepIndex: 0 } };
   assertUntouched(request);
   assertUntouched(request, () => null);
-  assertUntouched(request, () => { throw new Error("catalogue offline"); });
+  assertUntouched(request, () => {
+    throw new Error("catalogue offline");
+  });
 });
 
 test("all three supported settings digest forms still restore", () => {
@@ -176,16 +178,25 @@ test("preparation captures immutable controls and never overwrites the recorded 
   assert.ok(event);
   (event as { value: number }).value = 9;
   const fresh = session().live;
-  assert.equal(replayTape(prepared.tape, createSessionReplayRunner(binding, fresh)).kind, "success");
+  assert.equal(
+    replayTape(prepared.tape, createSessionReplayRunner(binding, fresh)).kind,
+    "success",
+  );
   assert.deepEqual(fresh.acceptedParameters(), { x: 3, y: 2, visible: true });
 });
 
 test("a preflight construction failure is reported without touching the live laboratory", () => {
   const { live, applied } = session();
-  const result = replayTapeOnSession({
-    ...binding,
-    createSession: () => { throw new Error("cannot create trial"); },
-  }, live, tape());
+  const result = replayTapeOnSession(
+    {
+      ...binding,
+      createSession: () => {
+        throw new Error("cannot create trial");
+      },
+    },
+    live,
+    tape(),
+  );
   assert.equal(result.kind, "invalid");
   if (result.kind === "invalid") assert.equal(result.reason, "replay-preparation-failed");
   assert.deepEqual(applied, []);
@@ -214,11 +225,16 @@ test("failure to recover a live session is not disguised as an ordinary refused 
 
 test("an explicitly new run bypasses recorded identity and digest but remains marked new", () => {
   const { live } = session();
-  const result = replayTapeOnSession(binding, live, {
-    ...tape(),
-    constantSetId: "historical",
-    acceptedCheckpoint: { ...tape().acceptedCheckpoint, digest: "host:ffffffffffffffff" },
-  }, { forceNewRun: true });
+  const result = replayTapeOnSession(
+    binding,
+    live,
+    {
+      ...tape(),
+      constantSetId: "historical",
+      acceptedCheckpoint: { ...tape().acceptedCheckpoint, digest: "host:ffffffffffffffff" },
+    },
+    { forceNewRun: true },
+  );
   assert.equal(result.kind, "success");
   if (result.kind === "success") assert.equal(result.isNewRun, true);
   assert.deepEqual(live.acceptedParameters(), { x: 3, y: 2, visible: true });
@@ -226,7 +242,11 @@ test("an explicitly new run bypasses recorded identity and digest but remains ma
 
 test("ordinary page visits do not load a tape or change the experiment", async () => {
   const { live, applied } = session();
-  for (const href of ["not a URL", "https://example.test/lab/fixture/", "https://example.test/?other=1"]) {
+  for (const href of [
+    "not a URL",
+    "https://example.test/lab/fixture/",
+    "https://example.test/?other=1",
+  ]) {
     assert.deepEqual(await restoreTapeFromUrl(binding, live, href), { kind: "absent" });
   }
   assert.deepEqual(applied, []);

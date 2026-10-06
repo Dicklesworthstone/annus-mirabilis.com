@@ -66,49 +66,72 @@ export function useLabTapeLink<P extends object>(
       live = false;
     };
   }, [binding, session, enabled]);
-  const sharedCheckpoint = enabled && acceptedParameters
-    ? retainedWalkthroughTape(checkpointShare, binding, session, acceptedParameters) : null;
+  const sharedCheckpoint =
+    enabled && acceptedParameters
+      ? retainedWalkthroughTape(checkpointShare, binding, session, acceptedParameters)
+      : null;
   useEffect(() => {
     if (checkpointShare && !sharedCheckpoint) setCheckpointShare(null);
   }, [checkpointShare, sharedCheckpoint]);
   const recordingTape = useMemo(
-    () => enabled && acceptedParameters ? tapeForSettings(binding, acceptedParameters) : null,
+    () => (enabled && acceptedParameters ? tapeForSettings(binding, acceptedParameters) : null),
     [binding, acceptedParameters, enabled],
   );
   const shareTape = sharedCheckpoint ?? recordingTape;
-  const walkthrough = useMemo<WalkthroughTarget | undefined>(() => enabled ? {
-    kind: "session",
-    experimentId: binding.environment.experimentId,
-    restore(tape) {
-      const restored = restoreTape(binding, session, tape);
-      if (restored.kind === "restored") {
-        setNotice("");
-        const parameters = session.acceptedParameters();
-        setCheckpointShare({ binding, session, parameters: { ...parameters }, tape });
-        restoredRef.current?.(parameters);
-        return { kind: "restored" };
-      }
-      return { kind: "not-restored", notice: restored.kind === "not-restored"
-        ? restored.notice : "The checkpoint could not be restored." };
-    },
-    calculate(recorded) {
-      const settings = { ...binding.defaults, ...settingsFromTape(recorded, binding.defaults) };
-      const tape = tapeForSettings(binding, settings);
-      if (!tape) return {
-        kind: "not-restored",
-        notice: requirementsOf(binding.validate(settings)) || "This laboratory does not accept the recorded settings.",
-      };
-      const restored = restoreTape(binding, session, tape);
-      if (restored.kind !== "restored") return {
-        kind: "not-restored",
-        notice: restored.kind === "not-restored" ? restored.notice : "The new calculation could not be applied.",
-      };
-      setCheckpointShare(null);
-      setNotice("");
-      restoredRef.current?.(session.acceptedParameters());
-      return { kind: "calculated" };
-    },
-  } : undefined, [binding, session, enabled]);
+  const walkthrough = useMemo<WalkthroughTarget | undefined>(
+    () =>
+      enabled
+        ? {
+            kind: "session",
+            experimentId: binding.environment.experimentId,
+            restore(tape) {
+              const restored = restoreTape(binding, session, tape);
+              if (restored.kind === "restored") {
+                setNotice("");
+                const parameters = session.acceptedParameters();
+                setCheckpointShare({ binding, session, parameters: { ...parameters }, tape });
+                restoredRef.current?.(parameters);
+                return { kind: "restored" };
+              }
+              return {
+                kind: "not-restored",
+                notice:
+                  restored.kind === "not-restored"
+                    ? restored.notice
+                    : "The checkpoint could not be restored.",
+              };
+            },
+            calculate(recorded) {
+              const settings = {
+                ...binding.defaults,
+                ...settingsFromTape(recorded, binding.defaults),
+              };
+              const tape = tapeForSettings(binding, settings);
+              if (!tape)
+                return {
+                  kind: "not-restored",
+                  notice:
+                    requirementsOf(binding.validate(settings)) ||
+                    "This laboratory does not accept the recorded settings.",
+                };
+              const restored = restoreTape(binding, session, tape);
+              if (restored.kind !== "restored")
+                return {
+                  kind: "not-restored",
+                  notice:
+                    restored.kind === "not-restored"
+                      ? restored.notice
+                      : "The new calculation could not be applied.",
+                };
+              setCheckpointShare(null);
+              setNotice("");
+              restoredRef.current?.(session.acceptedParameters());
+              return { kind: "calculated" };
+            },
+          }
+        : undefined,
+    [binding, session, enabled],
+  );
   return { notice, shareTape, recordingTape, walkthrough };
 }
 
@@ -147,23 +170,37 @@ export function useDraftTapeLink(
       enabled && acceptedParameters ? draftTapeForSettings(binding, acceptedParameters) : null,
     [binding, acceptedParameters, enabled],
   );
-  const walkthrough = useMemo<WalkthroughTarget | undefined>(() => enabled ? {
-    kind: "form",
-    experimentId: binding.environment.experimentId,
-    load(recorded) {
-      const settings = { ...binding.defaults, ...settingsFromTape(recorded, binding.defaults) };
-      const checked = binding.validate(settings);
-      if (checked.kind !== "accepted") return {
-        kind: "not-restored",
-        notice: requirementsOf(checked) || "This laboratory does not accept the recorded settings.",
-      };
-      const data = checked.data;
-      loadedRef.current(data && typeof data === "object" ? data as Record<string, unknown> : settings);
-      setNotice("");
-      setNote("");
-      return { kind: "loaded" };
-    },
-  } : undefined, [binding, enabled]);
+  const walkthrough = useMemo<WalkthroughTarget | undefined>(
+    () =>
+      enabled
+        ? {
+            kind: "form",
+            experimentId: binding.environment.experimentId,
+            load(recorded) {
+              const settings = {
+                ...binding.defaults,
+                ...settingsFromTape(recorded, binding.defaults),
+              };
+              const checked = binding.validate(settings);
+              if (checked.kind !== "accepted")
+                return {
+                  kind: "not-restored",
+                  notice:
+                    requirementsOf(checked) ||
+                    "This laboratory does not accept the recorded settings.",
+                };
+              const data = checked.data;
+              loadedRef.current(
+                data && typeof data === "object" ? (data as Record<string, unknown>) : settings,
+              );
+              setNotice("");
+              setNote("");
+              return { kind: "loaded" };
+            },
+          }
+        : undefined,
+    [binding, enabled],
+  );
   return { notice, shareTape, recordingTape: shareTape, note, walkthrough };
 }
 
@@ -190,11 +227,20 @@ export function LabTapeLink({ link }: Readonly<{ link: LabTapeLinkState }>) {
           {link.note}
         </p>
       )}
-      {link.walkthrough && <p><a href="/tapes/">Read recorded walkthroughs</a></p>}
-      {hydrated && link.walkthrough && <WalkthroughPlayer key={link.walkthrough.experimentId} target={link.walkthrough} />}
+      {link.walkthrough && (
+        <p>
+          <a href="/tapes/">Read recorded walkthroughs</a>
+        </p>
+      )}
       {hydrated && link.walkthrough && (
-        <ExperimentRecorder key={`recording-${link.walkthrough.experimentId}`}
-          target={link.walkthrough} tape={link.recordingTape ?? null} />
+        <WalkthroughPlayer key={link.walkthrough.experimentId} target={link.walkthrough} />
+      )}
+      {hydrated && link.walkthrough && (
+        <ExperimentRecorder
+          key={`recording-${link.walkthrough.experimentId}`}
+          target={link.walkthrough}
+          tape={link.recordingTape ?? null}
+        />
       )}
       {hydrated && link.shareTape && <ShareControl tape={link.shareTape} />}
     </>

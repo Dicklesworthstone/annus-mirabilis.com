@@ -20,8 +20,11 @@ export function loadWalkthroughCatalogue(root: string = process.cwd()): Walkthro
   const dir = join(root, "content", "experiments", "tapes");
   const walkthroughs: CheckpointWalkthrough[] = [];
   const problems: string[] = [];
-  if (!existsSync(dir)) return { walkthroughs, problems: ["The walkthrough directory is missing."] };
-  for (const file of readdirSync(dir).filter((name) => name.endsWith(".yaml")).sort()) {
+  if (!existsSync(dir))
+    return { walkthroughs, problems: ["The walkthrough directory is missing."] };
+  for (const file of readdirSync(dir)
+    .filter((name) => name.endsWith(".yaml"))
+    .sort()) {
     try {
       const record = validateControlTape(parseYaml(readFileSync(join(dir, file), "utf8")), file);
       const checkpoints = checkpointPrefixes(record).map((prefix) => {

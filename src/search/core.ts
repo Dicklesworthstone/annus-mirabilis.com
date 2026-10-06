@@ -506,8 +506,12 @@ export function createSearchEngine(
         if (quotedPhrases.length) {
           // Do not stitch a quotation across the title/body boundary or between unrelated terms.
           // Aliases remain useful search aids, but cannot claim a quotation occurs in the source.
-          const fields = [document.title, document.text, ...document.terms].map(normalizeSearchText);
-          if (!quotedPhrases.every((quoted) => fields.some((field) => containsPhrase(field, quoted))))
+          const fields = [document.title, document.text, ...document.terms].map(
+            normalizeSearchText,
+          );
+          if (
+            !quotedPhrases.every((quoted) => fields.some((field) => containsPhrase(field, quoted)))
+          )
             continue;
         }
         let score = initialScore;

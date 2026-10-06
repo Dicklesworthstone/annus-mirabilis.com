@@ -320,10 +320,7 @@ export function restoreTape(
   if (replayed.kind === "success") return { kind: "restored" };
   return {
     kind: "not-restored",
-    notice:
-      replayed.kind === "refusal"
-        ? `${replayed.notice} ${replayed.repair}`
-        : replayed.notice,
+    notice: replayed.kind === "refusal" ? `${replayed.notice} ${replayed.repair}` : replayed.notice,
   };
 }
 

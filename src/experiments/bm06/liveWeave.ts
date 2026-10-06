@@ -21,8 +21,16 @@ export const BM06_LIVE_WEAVE_PREDICATES: readonly WeavePredicate[] = Object.free
     pointerText:
       "The accepted density and interval probability are evaluations of the point-source solution introduced here.",
     conditions: Object.freeze([
-      Object.freeze({ kind: "status" as const, quantityId: "probabilityDensity", equals: "value" as const }),
-      Object.freeze({ kind: "status" as const, quantityId: "intervalProbability", equals: "value" as const }),
+      Object.freeze({
+        kind: "status" as const,
+        quantityId: "probabilityDensity",
+        equals: "value" as const,
+      }),
+      Object.freeze({
+        kind: "status" as const,
+        quantityId: "intervalProbability",
+        equals: "value" as const,
+      }),
     ]),
   }),
   Object.freeze({
@@ -33,7 +41,11 @@ export const BM06_LIVE_WEAVE_PREDICATES: readonly WeavePredicate[] = Object.free
     pointerText:
       "The grid's published cell-probability difference is within the stated bound, with no wall contact detected at the model's threshold. The finite box and unbounded solution still have different boundaries.",
     conditions: Object.freeze([
-      Object.freeze({ kind: "status" as const, quantityId: "stabilityRatio", equals: "value" as const }),
+      Object.freeze({
+        kind: "status" as const,
+        quantityId: "stabilityRatio",
+        equals: "value" as const,
+      }),
       Object.freeze({ kind: "regime" as const, on: "wallContact", equals: "0" }),
       Object.freeze({
         kind: "threshold" as const,

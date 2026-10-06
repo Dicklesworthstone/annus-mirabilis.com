@@ -38,7 +38,9 @@ export function weaveOutputs(snapshot: AcceptedSnapshot): Readonly<Record<string
     outputs[output.quantityId] = Object.freeze({
       quantityId: output.quantityId,
       status: output.status,
-      ...(output.status === "value" && typeof output.value === "number" && Number.isFinite(output.value)
+      ...(output.status === "value" &&
+      typeof output.value === "number" &&
+      Number.isFinite(output.value)
         ? { value: output.value }
         : {}),
     });
@@ -76,13 +78,26 @@ export function createSessionWeave(
     if (view === previousView) return current;
     previousView = view;
     const accepted = view.accepted;
-    const wrong = accepted && (accepted.experimentId !== options.instrumentId ||
-      (instanceId !== undefined && accepted.instanceId !== instanceId));
-    const stale = accepted && view.requested &&
-      (accepted.runId !== view.requested.runId || accepted.actionIndex !== view.requested.actionIndex);
-    const reason = wrong ? "wrong-instance" : view.refusal || view.status === "refused" ? "refused" :
-      view.status === "unavailable" ? "unavailable" : view.pending || stale ? "pending" :
-      !accepted ? "no-result" : undefined;
+    const wrong =
+      accepted &&
+      (accepted.experimentId !== options.instrumentId ||
+        (instanceId !== undefined && accepted.instanceId !== instanceId));
+    const stale =
+      accepted &&
+      view.requested &&
+      (accepted.runId !== view.requested.runId ||
+        accepted.actionIndex !== view.requested.actionIndex);
+    const reason = wrong
+      ? "wrong-instance"
+      : view.refusal || view.status === "refused"
+        ? "refused"
+        : view.status === "unavailable"
+          ? "unavailable"
+          : view.pending || stale
+            ? "pending"
+            : !accepted
+              ? "no-result"
+              : undefined;
     if (reason || !accepted) {
       // A refusal must not preserve a previously lit hysteresis state. Pending merely hides it;
       // it does not evaluate yesterday's results against today's requested inputs.
@@ -104,7 +119,12 @@ export function createSessionWeave(
       });
       previousAccepted = accepted;
     }
-    current = Object.freeze({ kind: "ready", accepted, derived, prepared: accepted === serverView.accepted });
+    current = Object.freeze({
+      kind: "ready",
+      accepted,
+      derived,
+      prepared: accepted === serverView.accepted,
+    });
     return current;
   }
 

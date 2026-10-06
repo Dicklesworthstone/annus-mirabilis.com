@@ -33,13 +33,19 @@ export class NotebookMergeError extends TypeError {
 
 /** Exact structural comparison, not display rounding, timestamps, or a probabilistic digest. */
 function canonical(value: unknown): string {
-  return JSON.stringify(value, (_key, item: unknown) => {
-    if (item && typeof item === "object" && !Array.isArray(item)) {
-      const record = item as Record<string, unknown>;
-      return Object.fromEntries(Object.keys(record).sort().map((key) => [key, record[key]]));
-    }
-    return item;
-  }) ?? "undefined";
+  return (
+    JSON.stringify(value, (_key, item: unknown) => {
+      if (item && typeof item === "object" && !Array.isArray(item)) {
+        const record = item as Record<string, unknown>;
+        return Object.fromEntries(
+          Object.keys(record)
+            .sort()
+            .map((key) => [key, record[key]]),
+        );
+      }
+      return item;
+    }) ?? "undefined"
+  );
 }
 function entryContent(entry: NotebookEntry): string {
   const { id: _id, ...content } = entry;
@@ -92,9 +98,11 @@ export function planNotebookMerge(
     const stem = copyStem(entry.id, content);
     // A copy may sit beyond a now-free earlier candidate. Search retained copies first, so
     // removing an unrelated allocation obstacle does not make a repeated import multiply notes.
-    const previousCopy = [...byId.entries()].find(([id, candidate]) =>
-      (id === stem || (id.startsWith(`${stem}_`) && /^[1-9][0-9]*$/.test(id.slice(stem.length + 1)))) &&
-      entryContent(candidate) === content,
+    const previousCopy = [...byId.entries()].find(
+      ([id, candidate]) =>
+        (id === stem ||
+          (id.startsWith(`${stem}_`) && /^[1-9][0-9]*$/.test(id.slice(stem.length + 1)))) &&
+        entryContent(candidate) === content,
     );
     if (previousCopy) {
       duplicates++;
@@ -105,18 +113,25 @@ export function planNotebookMerge(
     while (reserved.has(copiedId)) copiedId = `${stem}_${suffix++}`;
     const choice = choices.has(entry.id) ? choices.get(entry.id) : "keep-both";
     if (choice !== "keep-both" && choice !== "keep-current") {
-      throw new NotebookMergeError("notebook-merge-choice-invalid", "Choose whether to keep both versions or leave the incoming version out.");
+      throw new NotebookMergeError(
+        "notebook-merge-choice-invalid",
+        "Choose whether to keep both versions or leave the incoming version out.",
+      );
     }
     const fields = ["kind", "title", "text", "createdAt", "frame", "replay"];
     const left = existing as unknown as Record<string, unknown>;
     const right = entry as unknown as Record<string, unknown>;
-    conflicts.push(Object.freeze({
-      current: existing,
-      incoming: entry,
-      choice,
-      copiedId: choice === "keep-both" ? copiedId : null,
-      changedFields: Object.freeze(fields.filter((field) => canonical(left[field]) !== canonical(right[field]))),
-    }));
+    conflicts.push(
+      Object.freeze({
+        current: existing,
+        incoming: entry,
+        choice,
+        copiedId: choice === "keep-both" ? copiedId : null,
+        changedFields: Object.freeze(
+          fields.filter((field) => canonical(left[field]) !== canonical(right[field])),
+        ),
+      }),
+    );
     if (choice === "keep-current") {
       skipped++;
       continue;
@@ -164,7 +179,8 @@ export type NotebookMergePort = Readonly<{
   /** Recheck a saved lease immediately before writing, using the store's normal size protection. */
   commit(document: NotebookDocument, lease?: SavedNotebookLease): NotebookMergeChange;
 }>;
-const STALE = "The notebook changed after this preview. Nothing was merged. Refresh the preview and review the versions again.";
+const STALE =
+  "The notebook changed after this preview. Nothing was merged. Refresh the preview and review the versions again.";
 const UNKNOWN = "This merge preview is no longer active. Open a new preview; nothing was merged.";
 
 /**
@@ -176,7 +192,10 @@ export function createNotebookMergeController(port: NotebookMergePort) {
   const reviews = new WeakMap<NotebookMergeReview, { base: string; lease?: SavedNotebookLease }>();
   const failed = (error: unknown): Readonly<{ ok: false; message: string }> => ({
     ok: false,
-    message: error instanceof Error ? error.message : "The notebooks could not be merged. Both originals are unchanged.",
+    message:
+      error instanceof Error
+        ? error.message
+        : "The notebooks could not be merged. Both originals are unchanged.",
   });
   function issue(
     input: unknown,
@@ -198,54 +217,75 @@ export function createNotebookMergeController(port: NotebookMergePort) {
     const context = reviews.get(review);
     if (!context) return { ok: false, message: UNKNOWN };
     if (canonical(port.current()) !== context.base) return { ok: false, message: STALE };
-    if (context.lease && port.saved().raw !== context.lease.raw) return { ok: false, message: STALE };
+    if (context.lease && port.saved().raw !== context.lease.raw)
+      return { ok: false, message: STALE };
     return { ok: true };
   }
   function previewSavedMerge(choices: NotebookMergeChoices = new Map()): NotebookReviewResult {
     try {
       const saved = port.saved();
       return issue(saved.document, "saved", choices, { raw: saved.raw });
-    } catch (error) { return failed(error); }
+    } catch (error) {
+      return failed(error);
+    }
   }
   return Object.freeze({
     previewImport(input: unknown): NotebookReviewResult {
-      try { return issue(input, "file", new Map()); }
-      catch (error) { return failed(error); }
+      try {
+        return issue(input, "file", new Map());
+      } catch (error) {
+        return failed(error);
+      }
     },
     previewSavedMerge,
     reviseMerge(review: NotebookMergeReview, choices: NotebookMergeChoices): NotebookReviewResult {
       try {
         const checked = stillCurrent(review);
         if (!checked.ok) return checked;
-        const next = issue(review.plan.incoming, review.source, choices, reviews.get(review)?.lease);
+        const next = issue(
+          review.plan.incoming,
+          review.source,
+          choices,
+          reviews.get(review)?.lease,
+        );
         reviews.delete(review);
         return next;
-      } catch (error) { return failed(error); }
+      } catch (error) {
+        return failed(error);
+      }
     },
     refreshMerge(review: NotebookMergeReview): NotebookReviewResult {
       if (!reviews.has(review)) return { ok: false, message: UNKNOWN };
       try {
-        const next = review.source === "saved"
-          ? previewSavedMerge()
-          : issue(review.plan.incoming, "file", new Map());
+        const next =
+          review.source === "saved"
+            ? previewSavedMerge()
+            : issue(review.plan.incoming, "file", new Map());
         if (next.ok) reviews.delete(review);
         return next;
-      } catch (error) { return failed(error); }
+      } catch (error) {
+        return failed(error);
+      }
     },
     commitMerge(review: NotebookMergeReview): NotebookMergeChange {
       try {
         const checked = stillCurrent(review);
         if (!checked.ok) return checked;
-        if (!review.plan.withinLimit) return {
-          ok: false,
-          message: `The combined notebook would have ${review.plan.document.entries.length} entries; the limit is ${review.plan.entryLimit}. Nothing was merged. Leave incoming versions out or export and make room first.`,
-        };
+        if (!review.plan.withinLimit)
+          return {
+            ok: false,
+            message: `The combined notebook would have ${review.plan.document.entries.length} entries; the limit is ${review.plan.entryLimit}. Nothing was merged. Leave incoming versions out or export and make room first.`,
+          };
         const document = port.admit(review.plan.document);
         const outcome = port.commit(document, reviews.get(review)?.lease);
         if (outcome.ok) reviews.delete(review);
         return outcome;
-      } catch (error) { return failed(error); }
+      } catch (error) {
+        return failed(error);
+      }
     },
-    cancelMerge(review: NotebookMergeReview) { reviews.delete(review); },
+    cancelMerge(review: NotebookMergeReview) {
+      reviews.delete(review);
+    },
   });
 }

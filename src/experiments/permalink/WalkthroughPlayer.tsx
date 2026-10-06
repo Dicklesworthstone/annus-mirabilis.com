@@ -43,19 +43,26 @@ export function WalkthroughPlayer({
     let active = true;
     setLoading(true);
     setLoadError("");
-    void load().then((next) => {
-      if (!active) return;
-      setCatalogue(next);
-      setLoading(false);
-    }).catch(() => {
-      if (!active) return;
-      setLoadError("The recorded walkthroughs could not be loaded. Retry or read them on the walkthrough page.");
-      setLoading(false);
-    });
-    return () => { active = false; };
+    void load()
+      .then((next) => {
+        if (!active) return;
+        setCatalogue(next);
+        setLoading(false);
+      })
+      .catch(() => {
+        if (!active) return;
+        setLoadError(
+          "The recorded walkthroughs could not be loaded. Retry or read them on the walkthrough page.",
+        );
+        setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
   }, [open, catalogue, load, retry]);
 
-  const walkthroughs = catalogue?.walkthroughs.filter((entry) => entry.experimentId === experimentId) ?? [];
+  const walkthroughs =
+    catalogue?.walkthroughs.filter((entry) => entry.experimentId === experimentId) ?? [];
   const walkthrough = walkthroughs.find((entry) => entry.tapeId === tapeId) ?? walkthroughs[0];
   const checkpoint = walkthrough ? checkpointAt(walkthrough, index) : null;
   const formOnly = target.kind === "form";
@@ -82,14 +89,19 @@ export function WalkthroughPlayer({
       {loadError && (
         <>
           <p role="alert">{loadError}</p>
-          <button type="button" onClick={() => setRetry((value) => value + 1)}>Retry loading walkthroughs</button>
+          <button type="button" onClick={() => setRetry((value) => value + 1)}>
+            Retry loading walkthroughs
+          </button>
         </>
       )}
       {catalogue && walkthroughs.length === 0 && (
         <p>No checkpoint walkthrough is available for this laboratory in this edition.</p>
       )}
       {catalogue && catalogue.problems.length > 0 && (
-        <p>Some authored records could not be loaded into the player. The readable walkthrough pages remain available.</p>
+        <p>
+          Some authored records could not be loaded into the player. The readable walkthrough pages
+          remain available.
+        </p>
       )}
       {walkthrough && (
         <fieldset style={{ minWidth: 0, maxWidth: "100%" }}>
@@ -105,10 +117,18 @@ export function WalkthroughPlayer({
               setResult(null);
             }}
           >
-            {walkthroughs.map((entry) => <option key={entry.tapeId} value={entry.tapeId}>{entry.title}</option>)}
+            {walkthroughs.map((entry) => (
+              <option key={entry.tapeId} value={entry.tapeId}>
+                {entry.title}
+              </option>
+            ))}
           </select>
           {walkthrough.description && <p>{walkthrough.description}</p>}
-          <p><a href={tapePath(walkthrough.tapeId)}>Read this walkthrough, its predictions, and its recorded values</a></p>
+          <p>
+            <a href={tapePath(walkthrough.tapeId)}>
+              Read this walkthrough, its predictions, and its recorded values
+            </a>
+          </p>
           {walkthrough.checkpoints.length === 0 ? (
             <p>This walkthrough has no recorded checkpoint to restore.</p>
           ) : (
@@ -131,9 +151,13 @@ export function WalkthroughPlayer({
               </select>
               {checkpoint && (
                 <div aria-live="polite" data-walkthrough-checkpoint={checkpoint.actionIndex}>
-                  <p><strong>{checkpoint.label}</strong></p>
+                  <p>
+                    <strong>{checkpoint.label}</strong>
+                  </p>
                   {checkpoint.teachingNote && <p>{checkpoint.teachingNote}</p>}
-                  {!formOnly && !checkpoint.tape && <p>{checkpoint.unavailable || "This stop cannot be replayed."}</p>}
+                  {!formOnly && !checkpoint.tape && (
+                    <p>{checkpoint.unavailable || "This stop cannot be replayed."}</p>
+                  )}
                 </div>
               )}
               <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
@@ -155,13 +179,17 @@ export function WalkthroughPlayer({
                   {formOnly ? "Load next settings" : "Restore next checkpoint"}
                 </button>
               </div>
-              {target.kind === "session" && target.calculate && checkpoint &&
+              {target.kind === "session" &&
+                target.calculate &&
+                checkpoint &&
                 (!checkpoint.tape || result?.kind === "refused") && (
                   <p>
                     <button
                       type="button"
                       style={{ whiteSpace: "normal", maxWidth: "100%" }}
-                      onClick={() => setResult(calculateWalkthroughCheckpoint(target, walkthrough, index))}
+                      onClick={() =>
+                        setResult(calculateWalkthroughCheckpoint(target, walkthrough, index))
+                      }
                     >
                       Calculate these settings as a new run
                     </button>{" "}
@@ -180,7 +208,9 @@ export function WalkthroughPlayer({
           )}
         </fieldset>
       )}
-      <p><a href="/tapes/">Browse all recorded walkthroughs</a></p>
+      <p>
+        <a href="/tapes/">Browse all recorded walkthroughs</a>
+      </p>
     </details>
   );
 }

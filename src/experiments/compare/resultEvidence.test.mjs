@@ -119,7 +119,10 @@ for (const { payload, explanation } of cases) {
         /Baseline: (symbolic|analytic-limit|underdetermined|not-applicable|outside-domain|divergent)\./,
       );
     }
-    assert.deepEqual(JSON.parse(JSON.stringify(baseline)).outputs.reading.evidence, reading.evidence);
+    assert.deepEqual(
+      JSON.parse(JSON.stringify(baseline)).outputs.reading.evidence,
+      reading.evidence,
+    );
   });
 }
 
@@ -128,7 +131,10 @@ test("pinned nested evidence is detached and cannot change through either refere
   const baseline = pin(payload);
   payload.unspecifiedSymbols.push("changed later");
   assert.deepEqual(baseline.outputs.reading.evidence.unspecifiedSymbols, ["E₀"]);
-  assert.throws(() => baseline.outputs.reading.evidence.unspecifiedSymbols.push("changed"), TypeError);
+  assert.throws(
+    () => baseline.outputs.reading.evidence.unspecifiedSymbols.push("changed"),
+    TypeError,
+  );
   const domain = pin(cases[4].payload).outputs.reading.evidence;
   assert.throws(() => {
     domain.boundary.value = 2;
@@ -257,5 +263,8 @@ test("existing ownerless scalar projections remain compatible", () => {
     compareBaselines(baseline, pin({ status: "value", value: 4 }, true, false), contract).kind,
     "accepted",
   );
-  assert.match(pin({ status: "symbolic" }, false, false).outputs.reading.reason, /unspecified quantities/);
+  assert.match(
+    pin({ status: "symbolic" }, false, false).outputs.reading.reason,
+    /unspecified quantities/,
+  );
 });

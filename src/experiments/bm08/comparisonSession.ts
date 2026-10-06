@@ -1,5 +1,9 @@
 import { createControlledComparison } from "../compare/controlledComparison.ts";
-import { BM08_COMPARISON, requireBm08ComparisonExample, verifyBm08Comparison } from "./comparison.ts";
+import {
+  BM08_COMPARISON,
+  requireBm08ComparisonExample,
+  verifyBm08Comparison,
+} from "./comparison.ts";
 import { BM08_DRAFT_TAPE } from "./draftTape.ts";
 import { createBm08Session, type PreparedBm08Example } from "./session.ts";
 

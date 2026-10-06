@@ -26,7 +26,8 @@ export function weaveContext(
     const value = Object.hasOwn(accepted.parameters, field.parameterId)
       ? accepted.parameters[field.parameterId]
       : undefined;
-    const present = typeof value === "boolean" ||
+    const present =
+      typeof value === "boolean" ||
       (typeof value === "number" && Number.isFinite(value)) ||
       (typeof value === "string" && value.length > 0);
     const key = String(value);

@@ -1,15 +1,50 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createNotebookMergeController, NotebookMergeError, planNotebookMerge } from "./mergeReview.ts";
+import {
+  createNotebookMergeController,
+  NotebookMergeError,
+  planNotebookMerge,
+} from "./mergeReview.ts";
 
 // This lane tests the merge algorithm and review protocol on canonical documents. Admission and
 // persistence are ports here; mergeReview.integration.test.mjs exercises the real schema and store.
-const frame = Object.freeze({ paper: "brownian-motion", anchor: "arg-bm-observable", view: "reading", detail: 1, lens: "paper", open: "" });
-const entry = (id, text = id, patch = {}) => Object.freeze({ id, kind: "note", frame, title: "My reading", text, createdAt: "2026-09-20T10:00:00.000Z", ...patch });
-const document = (entries = [], lastPlace = null) => Object.freeze({ format: "annus-reading-notebook", schemaVersion: 1, entries: Object.freeze(entries), lastPlace });
-const plan = (current, incoming, choices = new Map(), limit = 500) => planNotebookMerge(current, incoming, limit, choices);
-const allContent = (e) => { const { id, ...rest } = e; return rest; };
-const place = { frame, title: "Current reading", recap: "A spread need not have a nonzero mean.", recapKind: "overview" };
+const frame = Object.freeze({
+  paper: "brownian-motion",
+  anchor: "arg-bm-observable",
+  view: "reading",
+  detail: 1,
+  lens: "paper",
+  open: "",
+});
+const entry = (id, text = id, patch = {}) =>
+  Object.freeze({
+    id,
+    kind: "note",
+    frame,
+    title: "My reading",
+    text,
+    createdAt: "2026-09-20T10:00:00.000Z",
+    ...patch,
+  });
+const document = (entries = [], lastPlace = null) =>
+  Object.freeze({
+    format: "annus-reading-notebook",
+    schemaVersion: 1,
+    entries: Object.freeze(entries),
+    lastPlace,
+  });
+const plan = (current, incoming, choices = new Map(), limit = 500) =>
+  planNotebookMerge(current, incoming, limit, choices);
+const allContent = (e) => {
+  const { id, ...rest } = e;
+  return rest;
+};
+const place = {
+  frame,
+  title: "Current reading",
+  recap: "A spread need not have a nonzero mean.",
+  recapKind: "overview",
+};
 
 test("edited copies preserve both full versions without replacing any current work", () => {
   const left = document([entry("shared", "local work"), entry("only-local")], place);
@@ -40,7 +75,9 @@ test("reimporting an edited version recognizes the preserved copy", () => {
 
 test("different edits of the same entry remain separate and each reimports idempotently", () => {
   let current = document([entry("a", "original")]);
-  const sources = ["edit one", "edit two", "edit three"].map((text) => document([entry("a", text)]));
+  const sources = ["edit one", "edit two", "edit three"].map((text) =>
+    document([entry("a", text)]),
+  );
   for (const source of sources) current = plan(current, source).document;
   assert.equal(current.entries.length, 4);
   for (const source of sources) assert.equal(plan(current, source).added, 0);
@@ -55,7 +92,10 @@ test("explicitly leaving an incoming version out does not block unrelated additi
   assert.equal(got.skipped, 1);
   assert.equal(got.keptBoth, 0);
   assert.equal(got.conflicts[0].copiedId, null);
-  assert.deepEqual(got.document.entries.map((e) => e.text), ["mine", "b"]);
+  assert.deepEqual(
+    got.document.entries.map((e) => e.text),
+    ["mine", "b"],
+  );
 });
 
 test("new timestamps are not permission to overwrite earlier work", () => {
@@ -68,20 +108,43 @@ test("new timestamps are not permission to overwrite earlier work", () => {
 });
 
 test("equality includes source frame, kind, title and every nested replay value", () => {
-  const a = entry("a", "", { kind: "replay", replay: { before: "first", tape: { seed: "18446744073709551615", initialConditions: { radius: 1.000000000001e-9 } } } });
-  const b = entry("a", "", { kind: "replay", replay: { before: "first", tape: { seed: "18446744073709551615", initialConditions: { radius: 1.000000000002e-9 } } } });
+  const a = entry("a", "", {
+    kind: "replay",
+    replay: {
+      before: "first",
+      tape: { seed: "18446744073709551615", initialConditions: { radius: 1.000000000001e-9 } },
+    },
+  });
+  const b = entry("a", "", {
+    kind: "replay",
+    replay: {
+      before: "first",
+      tape: { seed: "18446744073709551615", initialConditions: { radius: 1.000000000002e-9 } },
+    },
+  });
   const got = plan(document([a]), document([b]));
   assert.equal(got.keptBoth, 1);
   assert.deepEqual(got.conflicts[0].changedFields, ["replay"]);
   assert.deepEqual(allContent(got.document.entries[1]), allContent(b));
-  for (const patch of [{ frame: { ...frame, lens: "modern" } }, { kind: "question" }, { title: "A different title" }]) {
+  for (const patch of [
+    { frame: { ...frame, lens: "modern" } },
+    { kind: "question" },
+    { title: "A different title" },
+  ]) {
     assert.equal(plan(document([entry("x")]), document([entry("x", "x", patch)])).keptBoth, 1);
   }
 });
 
 test("structurally equal data in a different property order is not an edited version", () => {
   const a = entry("a");
-  const b = { createdAt: a.createdAt, text: a.text, title: a.title, frame: Object.fromEntries(Object.entries(frame).reverse()), kind: a.kind, id: a.id };
+  const b = {
+    createdAt: a.createdAt,
+    text: a.text,
+    title: a.title,
+    frame: Object.fromEntries(Object.entries(frame).reverse()),
+    kind: a.kind,
+    id: a.id,
+  };
   const got = plan(document([a]), document([b]));
   assert.equal(got.duplicates, 1);
   assert.equal(got.added, 0);
@@ -96,7 +159,8 @@ test("equal text under independent ids remains independent reader work", () => {
 test("copy ids are bounded, deterministic, and never use a timestamp or random source", () => {
   const a = document([entry("x".repeat(80), "local")]);
   const b = document([entry("x".repeat(80), "imported")]);
-  const first = plan(a, b), second = plan(a, b);
+  const first = plan(a, b),
+    second = plan(a, b);
   const id = first.document.entries[1].id;
   assert.match(id, /^[a-zA-Z0-9_-]{1,80}$/);
   assert.deepEqual(first, second);
@@ -155,7 +219,12 @@ test("capacity counts copied versions and offers a review rather than truncating
 
 test("every incoming item is accounted for exactly once", () => {
   const left = document([entry("same"), entry("copy", "mine"), entry("skip", "mine")]);
-  const right = document([entry("same"), entry("copy", "theirs"), entry("skip", "theirs"), entry("new")]);
+  const right = document([
+    entry("same"),
+    entry("copy", "theirs"),
+    entry("skip", "theirs"),
+    entry("new"),
+  ]);
   const got = plan(left, right, new Map([["skip", "keep-current"]]));
   assert.equal(got.added + got.duplicates + got.skipped, right.entries.length);
   assert.equal(got.document.entries.length, left.entries.length + got.added);
@@ -163,7 +232,16 @@ test("every incoming item is accounted for exactly once", () => {
 });
 
 test("notebook-merge-choice-invalid: runtime choices cannot silently discard an incoming version", () => {
-  assert.throws(() => plan(document([entry("a", "mine")]), document([entry("a", "theirs")]), new Map([["a", "overwrite"]])), (error) => error instanceof NotebookMergeError && error.code === "notebook-merge-choice-invalid");
+  assert.throws(
+    () =>
+      plan(
+        document([entry("a", "mine")]),
+        document([entry("a", "theirs")]),
+        new Map([["a", "overwrite"]]),
+      ),
+    (error) =>
+      error instanceof NotebookMergeError && error.code === "notebook-merge-choice-invalid",
+  );
 });
 
 function harness(initial = document(), limit = 500) {
@@ -177,30 +255,54 @@ function harness(initial = document(), limit = 500) {
     entryLimit: limit,
     admit(input) {
       admitted++;
-      if (!input || input.format !== "annus-reading-notebook") throw new Error("Admission refused this document.");
+      if (!input || input.format !== "annus-reading-notebook")
+        throw new Error("Admission refused this document.");
       return structuredClone(input);
     },
     current: () => local,
     saved: () => ({ document: savedDocument, raw }),
     commit(next, lease) {
       if (refusal) return { ok: false, message: refusal };
-      if (lease && lease.raw !== raw) return { ok: false, message: "Storage changed before the write." };
-      local = next; savedDocument = next; raw = JSON.stringify(next); writes++;
+      if (lease && lease.raw !== raw)
+        return { ok: false, message: "Storage changed before the write." };
+      local = next;
+      savedDocument = next;
+      raw = JSON.stringify(next);
+      writes++;
       return { ok: true };
     },
   });
   return {
     controller,
-    get local() { return local; },
-    get writes() { return writes; },
-    get admitted() { return admitted; },
-    edit(next) { local = next; },
-    external(next) { savedDocument = next; raw = JSON.stringify(next); },
-    clearExternal() { savedDocument = document(); raw = null; },
-    refuse(message) { refusal = message; },
+    get local() {
+      return local;
+    },
+    get writes() {
+      return writes;
+    },
+    get admitted() {
+      return admitted;
+    },
+    edit(next) {
+      local = next;
+    },
+    external(next) {
+      savedDocument = next;
+      raw = JSON.stringify(next);
+    },
+    clearExternal() {
+      savedDocument = document();
+      raw = null;
+    },
+    refuse(message) {
+      refusal = message;
+    },
   };
 }
-const reviewed = (result) => { assert.equal(result.ok, true, result.message); return result.review; };
+const reviewed = (result) => {
+  assert.equal(result.ok, true, result.message);
+  return result.review;
+};
 
 test("preview and changing choices perform no writes; confirmation admits the result again", () => {
   const h = harness(document([entry("a", "mine")]));
@@ -212,7 +314,10 @@ test("preview and changing choices perform no writes; confirmation admits the re
   assert.equal(h.controller.commitMerge(revised).ok, true);
   assert.ok(h.admitted > before);
   assert.equal(h.writes, 1);
-  assert.deepEqual(h.local.entries.map((e) => e.text), ["mine", "b"]);
+  assert.deepEqual(
+    h.local.entries.map((e) => e.text),
+    ["mine", "b"],
+  );
 });
 
 test("a consumed, cancelled, forged, or another store's review never commits", () => {
@@ -238,7 +343,10 @@ test("local changes invalidate a preview and refresh preserves new work", () => 
   const fresh = reviewed(h.controller.refreshMerge(preview));
   assert.equal(fresh.plan.current.entries[0].text, "newer local");
   assert.equal(h.controller.commitMerge(fresh).ok, true);
-  assert.deepEqual(h.local.entries.map((e) => e.text), ["newer local", "new-local", "theirs"]);
+  assert.deepEqual(
+    h.local.entries.map((e) => e.text),
+    ["newer local", "new-local", "theirs"],
+  );
 });
 
 test("remembered-place changes also invalidate reviewed state", () => {
@@ -256,7 +364,10 @@ test("cross-tab reconciliation preserves both tabs and supplies a saved-byte lea
   assert.equal(preview.source, "saved");
   assert.equal(h.writes, 0);
   assert.equal(h.controller.commitMerge(preview).ok, true);
-  assert.deepEqual(h.local.entries.map((e) => e.text), ["local", "saved", "saved-only"]);
+  assert.deepEqual(
+    h.local.entries.map((e) => e.text),
+    ["local", "saved", "saved-only"],
+  );
 });
 
 test("a second external change blocks confirm, including an external clear", () => {
@@ -270,7 +381,10 @@ test("a second external change blocks confirm, including an external clear", () 
   assert.equal(cleared.savedWasCleared, true);
   assert.equal(cleared.plan.incoming.entries.length, 0);
   assert.equal(h.controller.commitMerge(cleared).ok, true);
-  assert.deepEqual(h.local.entries.map((e) => e.id), ["local"]);
+  assert.deepEqual(
+    h.local.entries.map((e) => e.id),
+    ["local"],
+  );
 });
 
 test("refresh resets choices so decisions about old versions are not reused", () => {
@@ -290,7 +404,10 @@ test("over-capacity review is wholly refused and can be narrowed without discard
   assert.equal(h.writes, 0);
   const revised = reviewed(h.controller.reviseMerge(first, new Map([["a", "keep-current"]])));
   assert.equal(h.controller.commitMerge(revised).ok, true);
-  assert.deepEqual(h.local.entries.map((e) => e.text), ["mine", "b"]);
+  assert.deepEqual(
+    h.local.entries.map((e) => e.text),
+    ["mine", "b"],
+  );
 });
 
 test("admission failures and storage failures leave work intact and failed reviews retryable", () => {
@@ -309,9 +426,16 @@ test("admission failures and storage failures leave work intact and failed revie
 test("failure to read saved data is not an empty notebook or permission to write", () => {
   let commits = 0;
   const c = createNotebookMergeController({
-    entryLimit: 500, admit: (input) => input, current: () => document([entry("local")]),
-    saved() { throw new Error("Saved original cannot be read."); },
-    commit() { commits++; return { ok: true }; },
+    entryLimit: 500,
+    admit: (input) => input,
+    current: () => document([entry("local")]),
+    saved() {
+      throw new Error("Saved original cannot be read.");
+    },
+    commit() {
+      commits++;
+      return { ok: true };
+    },
   });
   const got = c.previewSavedMerge();
   assert.equal(got.ok, false);
@@ -320,9 +444,18 @@ test("failure to read saved data is not an empty notebook or permission to write
 });
 
 test("merging and inspecting a replay never invokes an evaluator or changes its evidence", () => {
-  const replay = { tape: { seed: "0", acceptedCheckpoint: { digest: "host:0000000000000000" } }, explanationBefore: "guess", explanationAfter: "learned" };
+  const replay = {
+    tape: { seed: "0", acceptedCheckpoint: { digest: "host:0000000000000000" } },
+    explanationBefore: "guess",
+    explanationAfter: "learned",
+  };
   const current = document([entry("a", "local", { kind: "replay", replay })]);
-  const incoming = document([entry("a", "imported", { kind: "replay", replay: { ...replay, explanationAfter: "another conclusion" } })]);
+  const incoming = document([
+    entry("a", "imported", {
+      kind: "replay",
+      replay: { ...replay, explanationAfter: "another conclusion" },
+    }),
+  ]);
   const got = plan(current, incoming);
   assert.deepEqual(got.document.entries[0].replay, replay);
   assert.deepEqual(got.document.entries[1].replay, incoming.entries[0].replay);

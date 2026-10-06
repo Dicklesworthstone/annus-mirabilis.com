@@ -74,48 +74,86 @@ export function readRecordedExperiment(
   experimentId: string,
   admit: AdmitRecordingTape,
 ): RecordingResult<RecordedExperiment> {
-  if (source.length > RECORDING_LIMITS.bytes ||
-    new TextEncoder().encode(source).byteLength > RECORDING_LIMITS.bytes)
-    return refuse("This recording exceeds the one-megabyte limit. The current recording is unchanged.");
+  if (
+    source.length > RECORDING_LIMITS.bytes ||
+    new TextEncoder().encode(source).byteLength > RECORDING_LIMITS.bytes
+  )
+    return refuse(
+      "This recording exceeds the one-megabyte limit. The current recording is unchanged.",
+    );
   let raw: unknown;
   try {
     raw = JSON.parse(source);
   } catch {
     return refuse("This file is not valid JSON. The current recording is unchanged.");
   }
-  if (!safeData(raw)) return refuse("The recording contains unsupported or excessively nested data.");
-  if (!isObject(raw) || !keysAre(raw, ["format", "version", "experimentId", "title", "stops"]) ||
-    raw.format !== RECORDING_FORMAT || raw.version !== 1)
+  if (!safeData(raw))
+    return refuse("The recording contains unsupported or excessively nested data.");
+  if (
+    !isObject(raw) ||
+    !keysAre(raw, ["format", "version", "experimentId", "title", "stops"]) ||
+    raw.format !== RECORDING_FORMAT ||
+    raw.version !== 1
+  )
     return refuse("This is not a supported Annus Mirabilis experiment recording (version 1).");
   if (raw.experimentId !== experimentId)
-    return refuse("This recording belongs to a different laboratory. Open it in the laboratory where it was made.");
-  if (!text(raw.title, RECORDING_LIMITS.title)) return refuse("Give the recording a short, nonempty title.");
-  if (!Array.isArray(raw.stops) || raw.stops.length === 0 || raw.stops.length > RECORDING_LIMITS.stops)
+    return refuse(
+      "This recording belongs to a different laboratory. Open it in the laboratory where it was made.",
+    );
+  if (!text(raw.title, RECORDING_LIMITS.title))
+    return refuse("Give the recording a short, nonempty title.");
+  if (
+    !Array.isArray(raw.stops) ||
+    raw.stops.length === 0 ||
+    raw.stops.length > RECORDING_LIMITS.stops
+  )
     return refuse(`A recording must contain between 1 and ${RECORDING_LIMITS.stops} saved stops.`);
   const stops: RecordedStop[] = [];
   const ids = new Set<string>();
   for (const [index, stop] of raw.stops.entries()) {
-    if (!isObject(stop) || !keysAre(stop, ["id", "label", "note", "tape"]) ||
-      !text(stop.id, 80) || !/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(stop.id) || ids.has(stop.id) ||
-      !text(stop.label, RECORDING_LIMITS.label) || !text(stop.note, RECORDING_LIMITS.note, true))
-      return refuse(`Saved stop ${index + 1} needs a short label and a note of at most ${RECORDING_LIMITS.note} characters.`);
+    if (
+      !isObject(stop) ||
+      !keysAre(stop, ["id", "label", "note", "tape"]) ||
+      !text(stop.id, 80) ||
+      !/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(stop.id) ||
+      ids.has(stop.id) ||
+      !text(stop.label, RECORDING_LIMITS.label) ||
+      !text(stop.note, RECORDING_LIMITS.note, true)
+    )
+      return refuse(
+        `Saved stop ${index + 1} needs a short label and a note of at most ${RECORDING_LIMITS.note} characters.`,
+      );
     ids.add(stop.id);
     try {
       const tape = admit(stop.tape, `recording.stops[${index}].tape`);
-      if (tape.experimentId !== experimentId) return refuse(`Saved stop ${index + 1} belongs to another laboratory.`);
-      if (tape.events.length !== 0 || tape.teachingTapeRef || tape.acceptedCheckpoint.acceptedActionIndex !== 0)
+      if (tape.experimentId !== experimentId)
+        return refuse(`Saved stop ${index + 1} belongs to another laboratory.`);
+      if (
+        tape.events.length !== 0 ||
+        tape.teachingTapeRef ||
+        tape.acceptedCheckpoint.acceptedActionIndex !== 0
+      )
         return refuse(`Saved stop ${index + 1} is not a self-contained settings snapshot.`);
       // An admission function may return nested references. Never retain an importer's mutable data.
       const detached: TapeV2 = JSON.parse(JSON.stringify(tape));
       if (!safeData(detached)) return refuse(`Saved stop ${index + 1} contains unsupported data.`);
       stops.push({ id: stop.id, label: stop.label, note: stop.note, tape: detached });
     } catch {
-      return refuse(`Saved stop ${index + 1} has an invalid experiment tape. No stops have been imported.`);
+      return refuse(
+        `Saved stop ${index + 1} has an invalid experiment tape. No stops have been imported.`,
+      );
     }
   }
-  return { kind: "accepted", value: freezeData({
-    format: RECORDING_FORMAT, version: 1, experimentId, title: raw.title, stops,
-  }) };
+  return {
+    kind: "accepted",
+    value: freezeData({
+      format: RECORDING_FORMAT,
+      version: 1,
+      experimentId,
+      title: raw.title,
+      stops,
+    }),
+  };
 }
 
 /** Capture ONLY the accepted-state tape supplied by the lab, never draft form values. */
@@ -128,20 +166,28 @@ export function captureRecordedStop(
   admit: AdmitRecordingTape,
 ): RecordingResult<RecordedExperiment> {
   if (previous && previous.experimentId !== tape.experimentId)
-    return refuse("Start a separate recording for this laboratory; the existing recording is unchanged.");
+    return refuse(
+      "Start a separate recording for this laboratory; the existing recording is unchanged.",
+    );
   if (previous && previous.stops.length >= RECORDING_LIMITS.stops)
-    return refuse(`The ${RECORDING_LIMITS.stops}-stop limit has been reached. Download this recording before starting another.`);
+    return refuse(
+      `The ${RECORDING_LIMITS.stops}-stop limit has been reached. Download this recording before starting another.`,
+    );
   const ids = new Set(previous?.stops.map((stop) => stop.id) ?? []);
   let nextId = (previous?.stops.length ?? 0) + 1;
   while (ids.has(`stop-${nextId}`)) ++nextId;
   try {
-    return readRecordedExperiment(JSON.stringify({
-      format: RECORDING_FORMAT,
-      version: 1,
-      experimentId: tape.experimentId,
-      title,
-      stops: [...(previous?.stops ?? []), { id: `stop-${nextId}`, label, note, tape }],
-    }), tape.experimentId, admit);
+    return readRecordedExperiment(
+      JSON.stringify({
+        format: RECORDING_FORMAT,
+        version: 1,
+        experimentId: tape.experimentId,
+        title,
+        stops: [...(previous?.stops ?? []), { id: `stop-${nextId}`, label, note, tape }],
+      }),
+      tape.experimentId,
+      admit,
+    );
   } catch {
     return refuse("The accepted settings could not be saved. The existing recording is unchanged.");
   }
@@ -164,7 +210,9 @@ export function writeRecordedExperiment(
 }
 
 /** Reuse the checkpoint action adapters; they retain the distinction between replay and form loading. */
-export function recordedExperimentWalkthrough(recording: RecordedExperiment): CheckpointWalkthrough {
+export function recordedExperimentWalkthrough(
+  recording: RecordedExperiment,
+): CheckpointWalkthrough {
   return {
     tapeId: `personal-${recording.experimentId}`,
     experimentId: recording.experimentId,

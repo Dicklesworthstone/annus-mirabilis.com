@@ -24,16 +24,36 @@
   display: block;
   margin-top: 0.4rem;
 }
-.result-weave .weave-assumption-active { border-inline-start-style: dashed; }
-.result-weave .weave-quantity-compared { border-inline-start-style: dotted; }
-.result-weave .weave-agreement-within-bound { border-inline-start-style: double; }
-.result-weave .weave-outside-domain { border: 2px solid currentColor; }
-.result-weave summary { cursor: pointer; }
-.result-weave dl > div { margin-block: 0.5rem; }
-.result-weave dt { font-weight: 600; }
-.result-weave dd { margin-inline-start: 1rem; }
-.result-weave :is(dt, dd, small) { overflow-wrap: anywhere; }
-.result-weave-links a { text-underline-offset: 0.2em; }
+.result-weave .weave-assumption-active {
+  border-inline-start-style: dashed;
+}
+.result-weave .weave-quantity-compared {
+  border-inline-start-style: dotted;
+}
+.result-weave .weave-agreement-within-bound {
+  border-inline-start-style: double;
+}
+.result-weave .weave-outside-domain {
+  border: 2px solid currentColor;
+}
+.result-weave summary {
+  cursor: pointer;
+}
+.result-weave dl > div {
+  margin-block: 0.5rem;
+}
+.result-weave dt {
+  font-weight: 600;
+}
+.result-weave dd {
+  margin-inline-start: 1rem;
+}
+.result-weave :is(dt, dd, small) {
+  overflow-wrap: anywhere;
+}
+.result-weave-links a {
+  text-underline-offset: 0.2em;
+}
 
 /* Text and alignment remain untouched. Different underline forms survive grayscale and reduced motion. */
 [data-live-weave-owner] {
@@ -42,7 +62,15 @@
   text-underline-offset: 0.2em;
   text-decoration-thickness: 0.12em;
 }
-[data-live-weave-meaning="assumption-active"] { text-decoration-style: dashed; }
-[data-live-weave-meaning="quantity-compared"] { text-decoration-style: dotted; }
-[data-live-weave-meaning="agreement-within-stated-bound"] { text-decoration-style: double; }
-[data-live-weave-meaning="outside-selected-domain"] { text-decoration-style: wavy; }
+[data-live-weave-meaning="assumption-active"] {
+  text-decoration-style: dashed;
+}
+[data-live-weave-meaning="quantity-compared"] {
+  text-decoration-style: dotted;
+}
+[data-live-weave-meaning="agreement-within-stated-bound"] {
+  text-decoration-style: double;
+}
+[data-live-weave-meaning="outside-selected-domain"] {
+  text-decoration-style: wavy;
+}

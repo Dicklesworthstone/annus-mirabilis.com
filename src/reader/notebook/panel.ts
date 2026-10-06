@@ -210,19 +210,28 @@ export function mountNotebookPanel(
     clearMerge();
     confirmation.replaceChildren();
     confirmation.hidden = true;
-    if (!result.ok) { report(result); return; }
+    if (!result.ok) {
+      report(result);
+      return;
+    }
     error.textContent = "";
     confirmation.hidden = false;
-    mergePanel = mountNotebookMergePanel(confirmation, store, result.review, () => {
-      report({ ok: true });
-      clearMerge();
-      confirmation.hidden = true;
-      home();
-    }, () => {
-      clearMerge();
-      confirmation.hidden = true;
-      home();
-    });
+    mergePanel = mountNotebookMergePanel(
+      confirmation,
+      store,
+      result.review,
+      () => {
+        report({ ok: true });
+        clearMerge();
+        confirmation.hidden = true;
+        home();
+      },
+      () => {
+        clearMerge();
+        confirmation.hidden = true;
+        home();
+      },
+    );
   }
   importFile.addEventListener("change", () => {
     const generation = ++importGeneration;

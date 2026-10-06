@@ -12,18 +12,39 @@ import { TracerLab } from "./TracerLab.tsx";
 const predicates = withWeavePassages(BM01_WEAVE_PREDICATES, BM01_WEAVE_PASSAGES);
 
 /** The lab and the paper pointers share one session and one set of accepted outputs. */
-export function WovenTracerLab({ highlightPaper = false, ...props }: ComponentProps<typeof TracerLab> & { highlightPaper?: boolean }) {
+export function WovenTracerLab({
+  highlightPaper = false,
+  ...props
+}: ComponentProps<typeof TracerLab> & { highlightPaper?: boolean }) {
   const id = useId();
-  const [session] = useState(() => props.session ?? createBm01Session(
-    props.instanceId ?? `woven-bm01-${id}`, props.example, createBm01BrowserChannel,
-  ));
-  const source = useMemo(() => createSessionWeave(session, {
-    instrumentId: "bm-01", constantSetId: BM01_MODEL.constantSetId, predicates,
-  }), [session]);
+  const [session] = useState(
+    () =>
+      props.session ??
+      createBm01Session(
+        props.instanceId ?? `woven-bm01-${id}`,
+        props.example,
+        createBm01BrowserChannel,
+      ),
+  );
+  const source = useMemo(
+    () =>
+      createSessionWeave(session, {
+        instrumentId: "bm-01",
+        constantSetId: BM01_MODEL.constantSetId,
+        predicates,
+      }),
+    [session],
+  );
   return (
     <>
       <TracerLab {...props} session={session} />
-      <ResultWeavePanel source={source} predicates={predicates} passages={BM01_WEAVE_PASSAGES} paper="brownian-motion" highlightPaper={highlightPaper} />
+      <ResultWeavePanel
+        source={source}
+        predicates={predicates}
+        passages={BM01_WEAVE_PASSAGES}
+        paper="brownian-motion"
+        highlightPaper={highlightPaper}
+      />
     </>
   );
 }
@@ -44,8 +65,13 @@ export function WovenTracerComparison({ example }: { example: PreparedBm01Exampl
         </button>
       </div>
       {second && (
-        <WovenTracerLab example={example} title="A separate tracer ensemble" equationScope="compare"
-          equationScopeLabel="comparison ensemble" linked={false} />
+        <WovenTracerLab
+          example={example}
+          title="A separate tracer ensemble"
+          equationScope="compare"
+          equationScopeLabel="comparison ensemble"
+          linked={false}
+        />
       )}
     </>
   );

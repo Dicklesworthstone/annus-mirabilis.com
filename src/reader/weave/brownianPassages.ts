@@ -16,12 +16,14 @@ export const BM01_WEAVE_PASSAGES: Readonly<Record<string, WeavePassage>> = Objec
   "bm01-s4-cancellation": Object.freeze({
     title: "Symmetry and the diffusion equation",
     sentenceId: "s4-p6-s9",
-    pointerText: "The signed mean and mean square are inside the comparison bands published by this trial's numerical owner.",
+    pointerText:
+      "The signed mean and mean square are inside the comparison bands published by this trial's numerical owner.",
   }),
   "bm01-s5-distribution-agreement": Object.freeze({
     title: "The Gaussian distribution of displacements",
     sentenceId: "s4-p10-s7",
-    pointerText: "The distribution-distance output is within the stated sampling bound for this accepted trial.",
+    pointerText:
+      "The distribution-distance output is within the stated sampling bound for this accepted trial.",
   }),
   "bm01-s5-printed-numbers": Object.freeze({
     title: "Einstein's numerical example",
@@ -35,17 +37,25 @@ export function withWeavePassages(
   predicates: readonly WeavePredicate[],
   passages: Readonly<Record<string, WeavePassage>>,
 ): readonly WeavePredicate[] {
-  return Object.freeze(predicates.map((predicate) => {
-    const passage = passages[predicate.id];
-    return passage ? Object.freeze({
-      ...predicate,
-      targets: Object.freeze([passage.sentenceId]),
-      pointerText: passage.pointerText,
-    }) : predicate;
-  }));
+  return Object.freeze(
+    predicates.map((predicate) => {
+      const passage = passages[predicate.id];
+      return passage
+        ? Object.freeze({
+            ...predicate,
+            targets: Object.freeze([passage.sentenceId]),
+            pointerText: passage.pointerText,
+          })
+        : predicate;
+    }),
+  );
 }
 
 /** The standalone source faces both expose canonical sentence anchors without a prefix. */
-export function weavePassageHref(paper: string, sentenceId: string, face: "german" | "english"): string {
+export function weavePassageHref(
+  paper: string,
+  sentenceId: string,
+  face: "german" | "english",
+): string {
   return `/papers/${encodeURIComponent(paper)}/view/${face}/#${encodeURIComponent(sentenceId)}`;
 }

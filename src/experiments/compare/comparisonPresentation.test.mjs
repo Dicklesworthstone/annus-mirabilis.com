@@ -99,7 +99,10 @@ test("measurement uncertainty retains the dataset and uncertainty type", () => {
 test("missing uncertainty is not replaced by a fabricated interval", () => {
   assert.equal(comparisonUncertaintyText(result(), 1, "m"), null);
   assert.equal(comparisonUncertaintyText({ status: "symbolic", value: null }, 1, "m"), null);
-  assert.match(COMPARISON_UNCERTAINTY_NOTE, /no uncertainty propagation or statistical significance/);
+  assert.match(
+    COMPARISON_UNCERTAINTY_NOTE,
+    /no uncertainty propagation or statistical significance/,
+  );
 });
 
 test("every command has its own scientific role instead of calling all changes physical", () => {

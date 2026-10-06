@@ -7,19 +7,23 @@ export type WalkthroughTarget =
       kind: "session";
       experimentId: string;
       /** Explicit new calculation; never used as an automatic fallback for a refused replay. */
-      calculate?: ((settings: Readonly<Record<string, number | string>>) =>
-        | Readonly<{ kind: "calculated" }>
-        | Readonly<{ kind: "not-restored"; notice: string }>) | undefined;
-      restore(tape: TapeV2):
-        | Readonly<{ kind: "restored" }>
-        | Readonly<{ kind: "not-restored"; notice: string }>;
+      calculate?:
+        | ((
+            settings: Readonly<Record<string, number | string>>,
+          ) =>
+            | Readonly<{ kind: "calculated" }>
+            | Readonly<{ kind: "not-restored"; notice: string }>)
+        | undefined;
+      restore(
+        tape: TapeV2,
+      ): Readonly<{ kind: "restored" }> | Readonly<{ kind: "not-restored"; notice: string }>;
     }>
   | Readonly<{
       kind: "form";
       experimentId: string;
-      load(settings: Readonly<Record<string, number | string>>):
-        | Readonly<{ kind: "loaded" }>
-        | Readonly<{ kind: "not-restored"; notice: string }>;
+      load(
+        settings: Readonly<Record<string, number | string>>,
+      ): Readonly<{ kind: "loaded" }> | Readonly<{ kind: "not-restored"; notice: string }>;
     }>;
 
 export type WalkthroughAction = Readonly<{
@@ -76,8 +80,10 @@ export function applyWalkthroughCheckpoint(
 export function sameWalkthroughSettings(left: object, right: object): boolean {
   const entries = Object.entries(left);
   const other = right as Record<string, unknown>;
-  return entries.length === Object.keys(right).length &&
-    entries.every(([key, value]) => Object.hasOwn(other, key) && Object.is(value, other[key]));
+  return (
+    entries.length === Object.keys(right).length &&
+    entries.every(([key, value]) => Object.hasOwn(other, key) && Object.is(value, other[key]))
+  );
 }
 
 /** Use recorded settings with today's lab only after the reader explicitly asks for a new run. */
@@ -86,16 +92,18 @@ export function calculateWalkthroughCheckpoint(
   walkthrough: CheckpointWalkthrough,
   index: number,
 ): WalkthroughAction {
-  if (target.experimentId !== walkthrough.experimentId) return {
-    kind: "refused",
-    notice: `This walkthrough belongs to ${walkthrough.experimentId}, not ${target.experimentId}.`,
-  };
+  if (target.experimentId !== walkthrough.experimentId)
+    return {
+      kind: "refused",
+      notice: `This walkthrough belongs to ${walkthrough.experimentId}, not ${target.experimentId}.`,
+    };
   const checkpoint = checkpointAt(walkthrough, index);
   if (!checkpoint) return { kind: "refused", notice: "Choose one of the recorded checkpoints." };
-  if (target.kind !== "session" || !target.calculate) return {
-    kind: "refused",
-    notice: "Load the recorded settings into the form and use the laboratory's Apply control.",
-  };
+  if (target.kind !== "session" || !target.calculate)
+    return {
+      kind: "refused",
+      notice: "Load the recorded settings into the form and use the laboratory's Apply control.",
+    };
   try {
     const result = target.calculate(checkpoint.settings);
     if (result.kind !== "calculated") return { kind: "refused", notice: result.notice };
@@ -122,6 +130,10 @@ export function retainedWalkthroughTape(
   session: object,
   parameters: object,
 ): TapeV2 | null {
-  return retained && retained.binding === binding && retained.session === session &&
-    sameWalkthroughSettings(retained.parameters, parameters) ? retained.tape : null;
+  return retained &&
+    retained.binding === binding &&
+    retained.session === session &&
+    sameWalkthroughSettings(retained.parameters, parameters)
+    ? retained.tape
+    : null;
 }

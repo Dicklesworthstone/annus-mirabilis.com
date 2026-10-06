@@ -118,10 +118,17 @@ test("the resolved walkthrough's model, mode, seed and laboratory are checked", 
 });
 
 test("even a new run cannot route a walkthrough into another laboratory", () => {
-  const { runner, applied } = observedRunner(() => ({ ...tape(), experimentId: "another-laboratory" }));
+  const { runner, applied } = observedRunner(() => ({
+    ...tape(),
+    experimentId: "another-laboratory",
+  }));
   assert.equal(replayTape(reference(), runner, { forceNewRun: true }).kind, "invalid");
   assert.deepEqual(applied, []);
-  assert.equal(replayTape({ ...tape(), experimentId: "another-laboratory" }, runner, { forceNewRun: true }).kind, "invalid");
+  assert.equal(
+    replayTape({ ...tape(), experimentId: "another-laboratory" }, runner, { forceNewRun: true })
+      .kind,
+    "invalid",
+  );
   assert.deepEqual(applied, []);
 });
 
@@ -149,14 +156,20 @@ test("a teaching reference restores its exact prefix using authored settings, no
 
 test("an event-free walkthrough restores opening settings at step zero", () => {
   const { runner, applied } = observedRunner(() => tape([]));
-  const result = replayTape({ ...tape([]), teachingTapeRef: { tapeId: "opening", stepIndex: 0 } }, runner);
+  const result = replayTape(
+    { ...tape([]), teachingTapeRef: { tapeId: "opening", stepIndex: 0 } },
+    runner,
+  );
   assert.equal(result.kind, "success");
   assert.deepEqual(applied, ["initial"]);
 });
 
 test("inline tapes stop at the accepted checkpoint even when later events are retained", () => {
   const { runner, applied } = observedRunner();
-  const result = replayTape({ ...tape(), acceptedCheckpoint: tape(events.slice(0, 1)).acceptedCheckpoint }, runner);
+  const result = replayTape(
+    { ...tape(), acceptedCheckpoint: tape(events.slice(0, 1)).acceptedCheckpoint },
+    runner,
+  );
   assert.equal(result.kind, "success");
   assert.deepEqual(runner.getCurrentState(), { x: 3, y: 2 });
   assert.deepEqual(applied, ["initial", "event:2"]);
@@ -166,7 +179,10 @@ test("contradictory or unreachable checkpoints are refused before replay", () =>
   for (const request of [
     { ...reference(0), acceptedCheckpoint: tape().acceptedCheckpoint },
     { ...tape(), acceptedCheckpoint: { ...tape().acceptedCheckpoint, acceptedActionIndex: 3 } },
-    { ...tape(), acceptedCheckpoint: { ...tape().acceptedCheckpoint, acceptedActionIndex: Number.NaN } },
+    {
+      ...tape(),
+      acceptedCheckpoint: { ...tape().acceptedCheckpoint, acceptedActionIndex: Number.NaN },
+    },
   ]) {
     const { runner, applied } = observedRunner(() => tape());
     assert.equal(replayTape(request, runner).kind, "invalid");
@@ -196,7 +212,9 @@ test("checkpoint action identity is checked even when a runner returns the recor
 
 test("checkpoint read errors are reported instead of escaping into the reader's event handler", () => {
   const { runner } = observedRunner();
-  runner.getAcceptedCheckpoint = () => { throw new Error("no accepted snapshot"); };
+  runner.getAcceptedCheckpoint = () => {
+    throw new Error("no accepted snapshot");
+  };
   const result = replayTape(tape(), runner);
   assert.equal(result.kind, "invalid");
   if (result.kind === "invalid") assert.equal(result.reason, "checkpoint-read-failed");
@@ -204,12 +222,15 @@ test("checkpoint read errors are reported instead of escaping into the reader's 
 
 test("an explicitly new run still executes all requested events and reports that it is new", () => {
   const { runner, applied } = observedRunner(() => ({ ...tape(), constantSetId: "other" }));
-  const result = replayTape({ ...reference(), acceptedCheckpoint: tape([]).acceptedCheckpoint }, runner, { forceNewRun: true });
+  const result = replayTape(
+    { ...reference(), acceptedCheckpoint: tape([]).acceptedCheckpoint },
+    runner,
+    { forceNewRun: true },
+  );
   assert.equal(result.kind, "success");
   if (result.kind === "success") assert.equal(result.isNewRun, true);
   assert.deepEqual(applied, ["initial", "event:2", "event:5"]);
 });
-
 
 test("multiple controls at the same action retain their authored order, including action zero", () => {
   const controls: readonly TapeControlEvent[] = [

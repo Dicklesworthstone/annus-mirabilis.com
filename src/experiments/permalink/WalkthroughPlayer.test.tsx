@@ -8,15 +8,22 @@ import { WalkthroughPlayer } from "./WalkthroughPlayer.tsx";
 const target: WalkthroughTarget = {
   kind: "session",
   experimentId: "me-01",
-  restore: () => { assert.fail("Rendering must never start a replay."); },
+  restore: () => {
+    assert.fail("Rendering must never start a replay.");
+  },
 };
 
 test("the player initially offers a named disclosure and readable fallback without loading data", () => {
   let loads = 0;
-  const html = renderToStaticMarkup(<WalkthroughPlayer target={target} load={async () => {
-    loads++;
-    return { walkthroughs: [], problems: [] };
-  }} />);
+  const html = renderToStaticMarkup(
+    <WalkthroughPlayer
+      target={target}
+      load={async () => {
+        loads++;
+        return { walkthroughs: [], problems: [] };
+      }}
+    />,
+  );
   assert.match(html, /<summary>Explore recorded walkthroughs<\/summary>/);
   assert.match(html, /href="\/tapes\/"/);
   assert.match(html, /data-walkthrough-player="me-01"/);
@@ -25,9 +32,15 @@ test("the player initially offers a named disclosure and readable fallback witho
 });
 
 test("server markup keeps a real reading link but no hydration-dependent checkpoint controls", () => {
-  const html = renderToStaticMarkup(<LabTapeLink link={{
-    notice: "", shareTape: null, walkthrough: target,
-  }} />);
+  const html = renderToStaticMarkup(
+    <LabTapeLink
+      link={{
+        notice: "",
+        shareTape: null,
+        walkthrough: target,
+      }}
+    />,
+  );
   assert.match(html, /href="\/tapes\/"/);
   assert.doesNotMatch(html, /<button|<select|data-walkthrough-player/);
 });

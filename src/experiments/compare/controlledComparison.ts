@@ -289,7 +289,8 @@ export function createControlledComparison(
       try {
         port.stop();
       } catch {
-        error = "The stop request could not reach the calculation; its result will not be displayed.";
+        error =
+          "The stop request could not reach the calculation; its result will not be displayed.";
       }
       emit({
         pending: false,
