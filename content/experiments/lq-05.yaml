@@ -279,6 +279,8 @@ acceptanceCases:
   - lq05-sixty-points-logarithmic
   - lq05-locked-positions-counterexample
   - lq-05-n-outside-declared-range-refused
+acceptanceCoverage:
+  noNonNumericCase: "Every LQ-05 output is a probability or its logarithm, finite at every admitted setting, so the model produces no symbolic, analytic-limit, underdetermined, not-applicable, outside-domain or divergent result for a scenario to expect. Measured 2026-10-05 three ways and recorded in commit 698552a0's message: definition.ts was the only file under src/experiments/lq05 naming any non-value status, session.ts writes the literal status value nine times and no other result status, and a sweep of 24 settings, each numeric control at its declared bounds plus all three view modes and the locked-positions mode, produced zero non-value outputs. What a heavy setting does produce is an execution outcome, which AGENTS.md separates from a result status by name. The nine declared outside-domain entries were withdrawn in that commit for naming a status nothing produces; building such a path, not declaring it, is what would retire this entry."
 defaultScenario: lq05-ten-points-half-volume
 tapeModel:
   modelId: lq05-independent-configurations-v1

@@ -604,6 +604,19 @@ export type Experiment = Readonly<{
   views: readonly ViewSpec[];
   actions: readonly ActionContract[];
   acceptanceCases: readonly string[];
+  /**
+   * Why this instrument's model admits no refusal case, or no non-numeric one, where that is the
+   * truth rather than a gap. am-nxbq requires every instrument to have a resolvable case of each kind
+   * "or a written declaration in its manifest saying why its model admits neither", and
+   * scripts/check-acceptance-cases.ts has read this field since it was written. It was not in this
+   * type until 2026-10-05, so `validateExperiment` dropped it from every validated Experiment: a
+   * manifest could carry the declaration, the gate would honour it, and no other consumer could see
+   * it. A reason is required to be a sentence, because a one-word excuse is how an escape hatch
+   * becomes the default answer.
+   */
+  acceptanceCoverage?:
+    | Readonly<{ noRefusalCase?: string | undefined; noNonNumericCase?: string | undefined }>
+    | undefined;
   defaultScenario: string;
   tapeModel: Readonly<{ modelId: string; modelVersion: number }>;
   teachingTapes: readonly Readonly<{ tapeId: string; title: string }>[];
@@ -1511,6 +1524,57 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
     );
   }
 
+  // acceptanceCoverage: the declared reason a kind of case does not exist for this model.
+  let acceptanceCoverage: Experiment["acceptanceCoverage"];
+  if (o.acceptanceCoverage !== undefined) {
+    const raw = o.acceptanceCoverage;
+    if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
+      throw new ExperimentValidationError(
+        "invalid-acceptance-coverage",
+        "acceptanceCoverage must be an object with noRefusalCase and/or noNonNumericCase.",
+        "Experiment",
+        `${path}.acceptanceCoverage`,
+      );
+    }
+    const entries = raw as Record<string, unknown>;
+    for (const key of Object.keys(entries))
+      if (key !== "noRefusalCase" && key !== "noNonNumericCase")
+        throw new ExperimentValidationError(
+          "invalid-acceptance-coverage",
+          `acceptanceCoverage key "${key}" is not one of noRefusalCase, noNonNumericCase.`,
+          "Experiment",
+          `${path}.acceptanceCoverage.${key}`,
+        );
+    const reason = (key: "noRefusalCase" | "noNonNumericCase"): string | undefined => {
+      const value = entries[key];
+      if (value === undefined) return undefined;
+      // A sentence, not an excuse. The threshold is the one this repository already uses for an
+      // authored term definition, because the two do the same job: they stop a field that exists to
+      // carry a reason from being satisfied by "n/a".
+      if (typeof value !== "string" || value.trim().length < 80)
+        throw new ExperimentValidationError(
+          "acceptance-coverage-reason-too-short",
+          `acceptanceCoverage.${key} must be a reason of at least 80 characters saying why this model admits no such case; got ${typeof value === "string" ? `${value.trim().length} characters` : typeof value}.`,
+          "Experiment",
+          `${path}.acceptanceCoverage.${key}`,
+        );
+      return value.trim();
+    };
+    const noRefusalCase = reason("noRefusalCase");
+    const noNonNumericCase = reason("noNonNumericCase");
+    if (noRefusalCase === undefined && noNonNumericCase === undefined)
+      throw new ExperimentValidationError(
+        "invalid-acceptance-coverage",
+        "acceptanceCoverage declares neither noRefusalCase nor noNonNumericCase, so it excuses nothing.",
+        "Experiment",
+        `${path}.acceptanceCoverage`,
+      );
+    acceptanceCoverage = Object.freeze({
+      ...(noRefusalCase !== undefined ? { noRefusalCase } : {}),
+      ...(noNonNumericCase !== undefined ? { noNonNumericCase } : {}),
+    });
+  }
+
   // Modes
   const modes: ExperimentMode[] = [];
   if (Array.isArray(o.modes)) {
@@ -1610,6 +1674,7 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
       new Set(outputs.map((out) => out.id)),
     ),
     acceptanceCases,
+    ...(acceptanceCoverage !== undefined ? { acceptanceCoverage } : {}),
     defaultScenario: (o.defaultScenario as string) || "default",
     tapeModel: (o.tapeModel as { modelId: string; modelVersion: number }) || {
       modelId: "tape-v1",
