@@ -88,26 +88,40 @@ describe("every kernel catalogue quantity id is one content/quantities defines",
     expect(report.liveTerms).toEqual([]);
   });
 
-  test("the nine that were wrong on 2026-10-06 are still not registered, so this cannot pass by their arrival", () => {
-    // If one of these is later added to content/quantities as a real record with a dimension and a
-    // frame, this case fails and should be deleted along with its name: the gate above then covers it
-    // properly. Until then it pins the historical fact, and it stops the two tests above from being
-    // satisfied by someone defining a quantity merely to silence them.
+  test("the two that are not quantities at all are still not registered", () => {
+    // SEVEN NAMES CAME OUT OF THIS LIST on 2026-10-06, under the instruction the previous version of
+    // this comment gave: "if one of these is later added to content/quantities as a real record with a
+    // dimension and a frame, this case fails and should be deleted along with its name". They were
+    // added, because the kernels were already naming them and this registry was not defining them,
+    // which is the drift am-bzsk recorded. stepMean, stepSecondMoment, stepVariance, stepFourthMoment,
+    // meanSquareDisplacement, meanRadialDistance, rmsRadialDistance, mostLikelyRadius2d and
+    // continuumDiffusionCoefficient are now records with dimensions, and the two tests above cover
+    // them properly.
+    //
+    // These two remain, and they are a different kind of thing rather than a smaller version of the
+    // same one: a step KERNEL and a limiting PROCEDURE are selections among models, not physical
+    // quantities, so there is nothing for them to be the id of. If either is ever added, that is a
+    // decision to review rather than a gap to fill.
+    for (const id of ["stepKernelChoice", "limitingProcedureChoice"])
+      expect(known.has(id)).toBe(false);
+    // And the counterpart, so the list above is not a list of typos: these ARE registered, and the
+    // kernels that hold them are bound to them.
     for (const id of [
+      "meanSquareDisplacement1d",
+      "rmsDisplacement1d",
+      "kolmogorovDistance",
+      // The nine added on 2026-10-06, asserted present so that removing one is a visible change
+      // rather than a quiet return to a binding that names nothing.
       "stepMean",
+      "stepSecondMoment",
       "stepVariance",
+      "stepFourthMoment",
       "meanSquareDisplacement",
       "meanRadialDistance",
       "rmsRadialDistance",
       "mostLikelyRadius2d",
       "continuumDiffusionCoefficient",
-      "stepKernelChoice",
-      "limitingProcedureChoice",
     ])
-      expect(known.has(id)).toBe(false);
-    // And the counterpart, so the list above is not a list of typos: these ARE registered, and the
-    // kernels that hold them are bound to them.
-    for (const id of ["meanSquareDisplacement1d", "rmsDisplacement1d", "kolmogorovDistance"])
       expect(known.has(id)).toBe(true);
   });
 

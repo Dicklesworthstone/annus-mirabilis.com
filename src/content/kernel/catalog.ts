@@ -167,12 +167,17 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
       r2: "The four are built from one table of names so that each carries its own canonical quantity and unit, and the refusal path builds the same four keys from the same table, so a caller that handles the accepted case field by field cannot be handed an object missing a field. The Cauchy branch is the reason the function exists at all: a sampler can draw Cauchy steps perfectly well, and the sum of those steps does not approach a Gaussian however many are taken, so the quantity a diffusion coefficient would be computed FROM is undefined. Refusing here, at the moments, keeps that fact at the place a reader can see it instead of surfacing later as a diffusivity that will not settle.",
       r3: "Einstein assumes a step distribution with a finite mean square in section 4 and says so in those words, which is the hypothesis this function tests rather than a technicality. The heavy-tailed alternative is Levy's, from the 1920s and 1930s, and it is offered in this instrument as a modern lens: the walk still happens and the central limit theorem does not apply to it.",
     },
-    // No bindings, and that is the measured state rather than an omission: this kernel's only
-    // scalar names are the four moments, whose quantities the code calls stepMean, stepSecondMoment,
-    // stepVariance and stepFourthMoment, and content/quantities defines none of those four. Its one
-    // parameter is a kernel CHOICE, for which there is no canonical quantity at all.
-    liveTerms: [],
-    identifierBindings: [],
+    // The four moments are bound through the keys the result object uses for them, which are the only
+    // names they have; all four quantities became records on 2026-10-06, which is why this entry had
+    // no bindings when it was written. The one parameter is a kernel CHOICE and still has no canonical
+    // quantity, which is a kind of thing rather than a gap.
+    liveTerms: ["stepMean", "stepSecondMoment", "stepVariance", "stepFourthMoment"],
+    identifierBindings: [
+      bind("kernelMoments", "mean", "stepMean"),
+      bind("kernelMoments", "secondMoment", "stepSecondMoment"),
+      bind("kernelMoments", "variance", "stepVariance"),
+      bind("kernelMoments", "fourthMoment", "stepFourthMoment"),
+    ],
     independentReferences: [],
   },
   {
@@ -184,12 +189,15 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
       r2: "The refusal is the whole content of this function and it is deliberately not a clamp or a very large number. Both scalings are arithmetically computable, and one of them has no limit, so returning a figure for it would be a wrong answer dressed as a right one. The guards run in one block before either branch, so a malformed scale and an unsupported scaling name are refused at the same place, and the accepted branch is a single expression. Note that the quantity returned is named continuumDiffusionCoefficient rather than diffusionCoefficient: it is the coefficient of a declared limiting procedure, not a measured property of a liquid, and a plot that mixed the two would be comparing a model choice with an observation.",
       r3: "Section 4 passes from a step picture to the diffusion equation in one move, taking the limit without naming which quantities are held fixed, because in that context only one choice makes sense. Making the choice explicit here is a modern reading, and the reason to do it is that a reader with sliders can make the other choice in two seconds.",
     },
-    liveTerms: ["stepRms", "stepInterval"],
+    liveTerms: ["stepRms", "stepInterval", "continuumDiffusionCoefficient"],
     identifierBindings: [
       bind("continuumLimit", "stepScale", "stepRms"),
       bind("continuumLimit", "tau", "stepInterval"),
       // `scaling` selects the limiting procedure and is not a physical quantity, so it has no
-      // canonical id to bind to; the returned continuumDiffusionCoefficient has none either.
+      // canonical id to bind to. The coefficient's quantity became a record on 2026-10-06, and it is
+      // bound through the function's own name, which is the only identifier that stands for it: the
+      // value itself is returned inline.
+      bind("continuumLimit", "continuumLimit", "continuumDiffusionCoefficient"),
     ],
     independentReferences: [],
   },
@@ -310,13 +318,13 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
       r2: "The function is a guard and one square root, and the square root is the interesting part: it is computed as the scale helper does it, by the square root of 2 times the square root of D times the square root of t, rather than the square root of their product. That is not style. At D and t both 1e-300 the product underflows to zero and the direct form returns a radius of 0, while the factored form returns 1.4142135623730952e-300; at 1e300 each the product overflows to infinity and the factored form returns 1.4142135623730952e+300. Diffusivities in this edition run around 4e-13 with times a reader may set freely, so the margin matters. There is no three-dimensional counterpart here because the owning bead's specification gives no closed form for it, and inventing one would be a different claim.",
       r3: "Einstein works in one dimension throughout section 4 and asks for the root mean square, not the mode, so this quantity is not in the paper. It is included because the two-dimensional picture is what a reader sees under a microscope, and because the coincidence of the 2D mode with the 1D root mean square is the kind of thing that looks like a mistake until the circumference argument is made.",
     },
-    liveTerms: ["diffusionCoefficient"],
+    liveTerms: ["diffusionCoefficient", "mostLikelyRadius2d"],
     identifierBindings: [
       bind("mostLikelyRadius2d", "D", "diffusionCoefficient"),
       bind("mostLikelyRadius2d", "t", "observationInterval"),
-      // The output is NOT bound. Binding the function's own name to its output is the convention
-      // gaussianPropagator uses, but the quantity it would name, "mostLikelyRadius2d", is not among
-      // content/quantities' 305 ids, so the binding would point at nothing.
+      // The function's own name standing for its output, the convention gaussianPropagator uses.
+      // Withheld on 2026-10-06 while the quantity was undefined; the record exists now.
+      bind("mostLikelyRadius2d", "mostLikelyRadius2d", "mostLikelyRadius2d"),
     ],
     independentReferences: [],
   },
@@ -330,7 +338,13 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
       r3: "The paper gives one of these four, the root mean square in one dimension, and gives it as the quantity to compare with observation because it is what a series of position readings yields. The mean distance is easier to picture and harder to estimate from data, which is roughly why Einstein does not use it, and the two differ by about a fifth in one dimension.",
     },
     equationId: "eq-model-bm-gaussian-second-moment",
-    liveTerms: ["meanSquareDisplacement1d", "rmsDisplacement1d"],
+    liveTerms: [
+      "meanSquareDisplacement1d",
+      "rmsDisplacement1d",
+      "meanRadialDistance",
+      "meanSquareDisplacement",
+      "rmsRadialDistance",
+    ],
     identifierBindings: [
       bind("moments", "D", "diffusionCoefficient", [
         "eq-model-bm-gaussian-second-moment.t.diffusivity",
@@ -342,11 +356,13 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
       // which is what the first draft of it did.
       bind("moments", "s", "rmsDisplacement1d"),
       bind("moments", "marginal", "meanSquareDisplacement1d"),
-      // mean, total and rmsRadius are NOT bound, and the reason is a drift this entry must not
-      // paper over: the kernel names their quantities "meanRadialDistance", "meanSquareDisplacement"
-      // and "rmsRadialDistance", and content/quantities holds none of those three among its 305 ids.
-      // A binding to an id the registry does not define is exactly the false record the canonical-id
-      // rule exists to stop, so the three are left out here and the drift is on am-bzsk.
+      // These three were withdrawn on 2026-10-06 because content/quantities defined none of their
+      // quantities, and they return now that it does. mean and s are named locals; marginal, total
+      // and rmsRadius are the keys under which each result is both looked up and returned, and are
+      // the only names those three have.
+      bind("moments", "mean", "meanRadialDistance"),
+      bind("moments", "total", "meanSquareDisplacement"),
+      bind("moments", "rmsRadius", "rmsRadialDistance"),
     ],
     independentReferences: [],
   },
