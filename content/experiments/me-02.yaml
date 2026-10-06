@@ -154,7 +154,7 @@ owner:
     - kernelFunction: evaluateMe02
       identifier: "massChangeSigned"
       quantityId: massChangeSigned
-  traceScenarioId: mass-energy-printed-factor
+  traceScenarioId: me-02-0.6c
   traceRows:
     - label: Exact kinetic-energy difference at 0.6c
       expression: "L (gamma - 1) = L gamma^2 beta^2 / (gamma + 1)"

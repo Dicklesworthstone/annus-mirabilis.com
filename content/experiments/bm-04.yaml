@@ -361,16 +361,16 @@ owner:
     - kernelFunction: equilibriumBalance
       identifier: "mobilityD"
       quantityId: diffusionCoefficient
-  traceScenarioId: bm-04-golden
+  traceScenarioId: bm04-steady-state-einstein
   traceRows:
     - label: "Stokes mobility"
       expression: "mu = 1 / (6 * pi * eta * a)"
-      value: 1.057754e11
+      value: 1.058915e8
       unit: "kg-1 s"
       quantityId: mobility
     - label: "Diffusivity at m = 1"
       expression: "D = mu * k_B * T"
-      value: 4.280967e-13
+      value: 4.285824e-13
       unit: "m2/s"
       quantityId: diffusionCoefficient
     - label: "Osmotic decay length at 4.047 fN"
