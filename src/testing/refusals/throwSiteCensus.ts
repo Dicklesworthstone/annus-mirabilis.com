@@ -38,6 +38,12 @@ export type ThrowSite = Readonly<{
   file: string;
   /** 1-indexed, from the source file's own line map. */
   line: number;
+  /**
+   * 1-indexed, from the same line map. A LINE IS NOT A UNIQUE ADDRESS: three throws can sit on one
+   * line, as a compact test double's read/write/remove do, so file-and-line alone cannot tell
+   * legitimate siblings from a walk that visited one node twice. The column is what separates them.
+   */
+  column: number;
   /** The nearest named function, method or class, or "(module scope)". */
   enclosing: string;
   /** `coded` when any string in the thrown expression is a kebab code; `bare` otherwise. */
@@ -106,10 +112,13 @@ export function throwSitesInSource(
         ts.forEachChild(inner, scan);
       };
       if (node.expression !== undefined) scan(node.expression);
-      const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
+      const { line, character } = sourceFile.getLineAndCharacterOfPosition(
+        node.getStart(sourceFile),
+      );
       sites.push({
         file: relPath,
         line: line + 1,
+        column: character + 1,
         enclosing: enclosingName(node),
         kind: code === undefined ? "bare" : "coded",
         ...(code === undefined ? {} : { code }),

@@ -64,12 +64,21 @@ describe("the throw-site census accounts for every site", () => {
       expect(site.line).toBeGreaterThan(0);
       expect(site.enclosing.length).toBeGreaterThan(0);
     }
-    // Two bare throws in one function are told apart only by position, so the pairs must be distinct.
-    const keys = sites.map((s) => `${s.file}:${s.line}`);
+    // Two bare throws in one function are told apart only by position, so the triples must be distinct.
+    //
+    // THE KEY CARRIES A COLUMN, AND IT HAD TO. This read `file:line` and asserted no duplicates, on the
+    // stated ground that "a single line may legitimately hold one throw only". That is not true: a
+    // compact storage double writes `read() { throw ... }, write() { throw ... }, remove() { throw ... }`
+    // on one line, and src/discovery/capstone/worksheetStore.test.ts:52 does exactly that. The gate went
+    // red on correct code. Adding the column makes the key STRICTER rather than looser - a walk that
+    // visited one node twice still produces identical triples - while three siblings on a line are now
+    // three addresses, which is what they are.
+    const keys = sites.map((s) => `${s.file}:${s.line}:${s.column}`);
     const duplicated = keys.filter((k, i) => keys.indexOf(k) !== i);
-    // A single line may legitimately hold one throw only; a duplicate would mean the walk visited a
-    // node twice, which would inflate every count above.
     expect(duplicated).toEqual([]);
+
+    // Non-vacuity, and the reason the column is not a free pass: every site must HAVE one.
+    for (const site of sites) expect(site.column).toBeGreaterThan(0);
   });
 });
 
