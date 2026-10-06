@@ -353,7 +353,9 @@ export type OwnerContractCode =
   | "owner-value-key-unnamed"
   | "owner-assessment-without-data"
   /** A session returned its outputs and the one this owner reads is not among them. */
-  | "owner-session-output-absent";
+  | "owner-session-output-absent"
+  /** Two registry entries claim one id, so a scenario naming it gets whichever the Map kept. */
+  | "owner-id-duplicated";
 
 export class OwnerContractError extends Error {
   readonly code: OwnerContractCode;
@@ -3021,6 +3023,46 @@ for (const labId of Object.keys(MODEL_DOMAINS)) {
     fn: declaredDomainOwner(labId),
   });
 }
+
+/**
+ * Ids appearing more than once, in first-seen order.
+ *
+ * Exported and pure so the guard below can be proved in BOTH directions from a test that does not
+ * depend on the registry being broken: a list with a repeat must be reported and a list without one
+ * must come back empty. A gate whose only proof is the population it guards cannot be shown to work
+ * until it is already failing.
+ */
+export function duplicateOwnerIds(ids: readonly string[]): readonly string[] {
+  const seen = new Set<string>();
+  const repeated = new Set<string>();
+  for (const id of ids) {
+    if (seen.has(id)) repeated.add(id);
+    seen.add(id);
+  }
+  return [...repeated];
+}
+
+/**
+ * TWO ENTRIES WITH ONE ID ARE A SILENT SUBSTITUTION, WHICH IS WHY THIS THROWS AT LOAD (am-nxbq).
+ *
+ * `new Map(entries)` keeps the LAST entry for a repeated key, so a second owner added under an
+ * existing id does not collide, does not warn, and does not lose: it quietly replaces the other one
+ * for every scenario that names it, or is itself replaced depending on which appears later in the
+ * file. Found by making the mistake: a second "sr02.session" meant a scenario was evaluated by the
+ * wrong owner and refused on an output the intended owner never reads, with nothing to say so.
+ *
+ * Refusing at module load rather than at lookup is deliberate. The defect is in the REGISTRY and is
+ * the same for every caller, so the first import should state it, and a per-lookup check would only
+ * fire for scenarios that happened to name the shadowed id.
+ */
+const repeatedOwnerIds = duplicateOwnerIds(OWNERS.map((owner) => owner.id));
+if (repeatedOwnerIds.length > 0)
+  throw new OwnerContractError(
+    "owner-id-duplicated",
+    `${repeatedOwnerIds.length} scenario owner id(s) are registered twice: ${repeatedOwnerIds.join(", ")}. ` +
+      "A repeated id is resolved by position rather than refused, so one of the two owners is silently " +
+      "unreachable and scenarios naming it are evaluated by the other. Give each owner its own id.",
+  );
 
 export const OWNER_REGISTRY: ReadonlyMap<string, OwnerRecord> = new Map(
   OWNERS.map((owner) => [owner.id, owner]),
