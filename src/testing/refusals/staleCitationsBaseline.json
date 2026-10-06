@@ -4,7 +4,7 @@
   "scripts/sources/supersedePin.ts": 0,
   "scripts/verify-facsimile-pins.ts": 0,
   "src/content/anchors.ts": 7,
-  "src/content/checks/structural/structural.ts": 14,
+  "src/content/checks/structural/structural.ts": 9,
   "src/content/compiler/compile.ts": 6,
   "src/content/compiler/compiler.ts": 6,
   "src/content/dimensions/runtimeMapping.ts": 2,

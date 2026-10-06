@@ -992,34 +992,63 @@ export function analyzeUntestedRefusals(rootDir: string): FullRefusalScanResult 
     // principle that a body which never runs asserts nothing, and which was measured: the citation is
     // load-bearing, and skipping the only test containing it did not withdraw the credit. Comments are
     // left in on purpose; see stripSkippedTests.
+    // A CITED LINE CREDITS ONLY WHERE THE BLOCK ALSO NAMES THAT SITE'S CODE (am-ksl3, 2026-10-05).
+    //
+    // A line number is not an identity. When an insertion moves a file, every citation below it goes
+    // on pointing at a line, and that line now holds a DIFFERENT site. Without the condition below
+    // the citation credits whatever is there: on 2026-10-05, `(experiment.ts:1555)`, written for
+    // missing-lens-label, landed on a throw site for acceptance-coverage-reason-too-short that was
+    // minutes old, and that brand-new code read as tested by a test which never constructs an
+    // acceptanceCoverage value. The scanner already SAW it, as the code-mismatched finding below, and
+    // credited it anyway; the finding and the credit now agree.
+    //
+    // This is the same rule as the ambiguous-site rule further down, in the other direction:
+    // attribution is by identity, never by position or quantity. Like that one it can only RAISE an
+    // untested count, so it cannot be used to make a failing check pass.
+    //
+    // THE SCOPE IS THE FILE, NOT THE BLOCK, AND THE FIRST ATTEMPT HERE GOT THAT WRONG. Requiring the
+    // citation's own block to name the code withdrew 28 further sites across 6 files, and they were
+    // not laundering: the code is named one line above, in the enclosing `describe`, which the split
+    // on `test|it(` cuts away - `structural.reports.test.ts` has
+    // `describe("duplicate-id: the source-block site, ...")` wrapping
+    // `test("(structural.ts:167) two source blocks share an id ...")`, and the accepts half of an
+    // accept/reject pair carries the citation without the code for the same structural reason. File
+    // scope is what completeStringLiteralTexts already uses, for the argument its own comment makes:
+    // a block is a fragment that can begin inside a construct it does not open, so absence in a block
+    // is not absence. File scope still refuses the specimen, because experiment.test.ts does not
+    // mention acceptance-coverage-reason-too-short anywhere - a citation cannot credit a code the test
+    // file never names.
     const citationText = stripSkippedTests(content);
-    const siteCiteMatches = citationText.matchAll(/\(([a-zA-Z0-9_.-]+\.ts):(\d+)\)/g);
-    for (const scm of siteCiteMatches) {
+    for (const scm of citationText.matchAll(/\(([a-zA-Z0-9_.-]+\.ts):(\d+)\)/g)) {
       const citedBase = scm[1];
       const citedLineStr = scm[2];
-      if (citedBase && citedLineStr) {
-        const citedLine = Number.parseInt(citedLineStr, 10);
-        // Scoped to the files this test actually imports. The citation says
-        // WHICH SITE in a file the test drives; it is not itself a claim to
-        // have driven a file, and matching it by basename alone across the
-        // tree is the same laundering am-fkyc names - `(session.ts:42)` in a
-        // comment would otherwise credit line 42 of all 37 session.ts files.
-        for (const srcRel of importedFiles) {
-          if (basename(srcRel) === citedBase) {
-            let citedSet = explicitSiteCitations.get(srcRel);
-            if (!citedSet) {
-              citedSet = new Set<number>();
-              explicitSiteCitations.set(srcRel, citedSet);
-            }
-            citedSet.add(citedLine);
-          }
+      if (!citedBase || !citedLineStr) continue;
+      const citedLine = Number.parseInt(citedLineStr, 10);
+      // Scoped to the files this test actually imports. The citation says
+      // WHICH SITE in a file the test drives; it is not itself a claim to
+      // have driven a file, and matching it by basename alone across the
+      // tree is the same laundering am-fkyc names - `(session.ts:42)` in a
+      // comment would otherwise credit line 42 of all 37 session.ts files.
+      for (const srcRel of importedFiles) {
+        if (basename(srcRel) !== citedBase) continue;
+        const at = (sitesByFile.get(srcRel) ?? []).find((site) => site.line === citedLine);
+        if (!at || !blockNamesCode(citationText, at.code)) continue;
+        let citedSet = explicitSiteCitations.get(srcRel);
+        if (!citedSet) {
+          citedSet = new Set<number>();
+          explicitSiteCitations.set(srcRel, citedSet);
         }
+        citedSet.add(citedLine);
       }
     }
 
     // Audit those same citations, per test block so "the codes this block names" is well
-    // defined. Separate pass from the credit collection above, which stays byte for byte
-    // as it was: a citation in a file header still credits, and this only reports.
+    // defined. Reporting only, and DELIBERATELY STRICTER THAN THE CREDIT ABOVE: this asks whether the
+    // citation's own block names the site's code, which is the better convention, while credit asks
+    // only whether the file does. So a `code-mismatched` finding is a citation worth tidying and no
+    // longer implies the credit was fake; the 51 of them on 2026-10-05 are mostly a code named in an
+    // enclosing `describe`. The two agree on the case that matters: a code the file never mentions is
+    // reported here AND credits nothing above.
     for (const block of content.split(/(?:test|it)\s*\(/)) {
       for (const m of block.matchAll(/\(([a-zA-Z0-9_.-]+\.ts):(\d+)\)/g)) {
         const citedBase = m[1];

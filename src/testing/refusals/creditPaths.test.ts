@@ -224,3 +224,97 @@ describe("THE RESIDUAL HOLE, pinned so it cannot widen unnoticed", () => {
     expect(analyzeUntestedRefusals(root).totalUntested).toBe(2);
   });
 });
+
+/**
+ * WHAT A LINE CITATION CREDITS (am-ksl3, 2026-10-05).
+ *
+ * A citation is the ONLY way to credit a code with several sites, so it is the one arm where position
+ * decides identity, and a line number is not an identity. The specimen that forced this:
+ * `(experiment.ts:1555)` was written for `missing-lens-label`; a 65-line insertion above it moved that
+ * line onto a throw site for `acceptance-coverage-reason-too-short` written minutes earlier, and the
+ * scanner reported the new code as tested, by a test that never constructs an acceptanceCoverage value.
+ * It emitted a `code-mismatched` finding at the same time and credited the site anyway.
+ *
+ * The rule now: a cited line credits only when the test file NAMES that site's code. The scope is the
+ * file, which the first attempt got wrong by asking the citation's own block - the code is very often
+ * one line above in the enclosing `describe`, which the split on `test|it(` cuts away, and requiring
+ * the block withdrew 28 sites across 6 files that were honestly tested. The last arm below is the
+ * regression guard for that, and it is the reason the over-strict version cannot come back quietly.
+ */
+describe("what a line citation credits", () => {
+  // One code at two sites, so a mention credits neither and only a citation can credit either.
+  const TWO_SITES = `export class WidgetError extends Error {
+  constructor(public code: string) {
+    super(code);
+  }
+}
+export function c(): never {
+  throw new WidgetError("gamma-refused");
+}
+export function d(): never {
+  throw new WidgetError("gamma-refused");
+}
+`;
+  const SITE_LINE = 7; // the first `throw new`, asserted below rather than trusted
+  const CITING_IMPORT = 'import { c, d } from "./multi.ts";\n';
+
+  const untestedMulti = (testBody: string): number => {
+    const root = mkdtempSync(join(tmpdir(), "credit-citation-"));
+    mkdirSync(join(root, "src/thing"), { recursive: true });
+    writeFileSync(join(root, "src/thing/multi.ts"), TWO_SITES);
+    writeFileSync(join(root, "src/thing/multi.test.ts"), testBody);
+    return analyzeUntestedRefusals(root).totalUntested;
+  };
+
+  it("the fixture's own line number is what this file claims it is", () => {
+    // The plants below all turn on line 7. If the fixture shifted, every one of them would cite a
+    // line with no site and go green for the wrong reason, which is the failure this whole file is
+    // about.
+    expect(TWO_SITES.split("\n")[SITE_LINE - 1]).toContain(
+      'throw new WidgetError("gamma-refused")',
+    );
+    // And the denominator: two sites, nothing crediting them.
+    expect(untestedMulti(CITING_IMPORT)).toBe(2);
+  });
+
+  it("a citation whose file names the site's code credits that site", () => {
+    expect(
+      untestedMulti(
+        `${CITING_IMPORT}test("(multi.ts:${SITE_LINE}) gamma-refused is thrown", () => { expect(() => c()).toThrow("gamma-refused"); });\n`,
+      ),
+    ).toBe(1);
+  });
+
+  it("PLANTED: a citation whose file never names the site's code credits nothing", () => {
+    // The specimen's shape. The citation is correct about the line and the file is silent about what
+    // lives there, so there is nothing identifying the site with this test. Before 2026-10-05 this
+    // returned 1 and the drifted-onto site read as tested.
+    expect(
+      untestedMulti(
+        `${CITING_IMPORT}test("(multi.ts:${SITE_LINE}) something is thrown", () => { expect(() => c()).toThrow(); });\n`,
+      ),
+    ).toBe(2);
+  });
+
+  it("PLANTED: a citation naming a DIFFERENT code credits nothing, even a real one elsewhere", () => {
+    // The sharper form: the file does name a code, and it is not the code at the cited line. A rule
+    // that only checked "does this file name any code" would pass this and still launder.
+    expect(
+      untestedMulti(
+        `${CITING_IMPORT}test("(multi.ts:${SITE_LINE}) epsilon-refused is thrown", () => { expect(() => c()).toThrow("epsilon-refused"); });\n`,
+      ),
+    ).toBe(2);
+  });
+
+  it("the code may be named in an enclosing describe, which the block split cuts away", () => {
+    // THE REGRESSION GUARD for the over-strict first attempt. structural.reports.test.ts is written
+    // exactly this way - `describe("duplicate-id: the source-block site, ...")` around
+    // `test("(structural.ts:167) two source blocks share an id ...")` - and asking the citation's own
+    // block withdrew 14 sites in that one file alone. The credit must survive this shape.
+    expect(
+      untestedMulti(
+        `${CITING_IMPORT}describe("gamma-refused: both sites", () => { test("(multi.ts:${SITE_LINE}) the first one", () => { expect(() => c()).toThrow(); }); });\n`,
+      ),
+    ).toBe(1);
+  });
+});
