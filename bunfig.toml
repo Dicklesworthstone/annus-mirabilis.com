@@ -35,6 +35,7 @@ pathIgnorePatterns = [
   # entries above are: it asserts a property of every registry step, and `bun run test` is one of
   # them, so a proof living only in the bun lane disappears at the moment that lane fails open.
   "scripts/quality-gates/gatesPersistEvidence.node.test.ts",
+  "scripts/quality-gates/ciExemptionReasons.node.test.ts",
   # am-t84m: reads `git ls-files` to state the client-boundary check's denominator from the index
   # rather than from the walker being measured, and bun's runner cannot posix_spawn git here.
   "src/testing/appRouterCoverage.node.test.ts",

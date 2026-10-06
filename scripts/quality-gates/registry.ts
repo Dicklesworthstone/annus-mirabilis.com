@@ -62,6 +62,19 @@ export interface GateStep {
   readonly family: GateFamily;
   readonly cadence: GateCadence;
   readonly requiredInCi: boolean;
+  /**
+   * WHY this step is not required in CI, as DATA rather than as a code comment (am-xoxn).
+   *
+   * The bead's words: "`requiredInCi: false` stops being a flag whose reason lives only in a code
+   * comment". Every exemption here had a reason and most were written down, but in prose beside
+   * the entry, where nothing could read them and nothing noticed when one had none. Four had none
+   * at all.
+   *
+   * Required whenever `requiredInCi` is false and forbidden when it is true, both enforced by
+   * ciExemptionReasons.node.test.ts - the second half matters as much as the first, because an
+   * optional field that may be present anywhere becomes decoration.
+   */
+  readonly notRequiredInCiReason?: string;
   readonly requiredInProfiles: readonly GateProfile[];
   readonly availability: AvailabilityProbe;
   readonly owner: string; // bead id
@@ -220,6 +233,8 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     family: "fast",
     cadence: "every-run",
     requiredInCi: false,
+    notRequiredInCiReason:
+      "A fresh CI checkout has no stash refs: stashes are purely local and `git ls-remote origin` returns none, so this step could only ever pass there. Marking it required would manufacture a green rather than check anything.",
     requiredInProfiles: ["scaffold", "preview", "launch"],
     availability: {
       scriptPath: "scripts/check-stashes.ts",
@@ -256,6 +271,8 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     family: "fast",
     cadence: "every-run",
     requiredInCi: false,
+    notRequiredInCiReason:
+      "Scans files modified in the working tree, and a fresh CI checkout has none. Measured 2026-10-06 on a clean tree: `ubs --diff` exits 0 having printed no file census at all, so in CI it would examine nothing and pass. Same shape as `stashes`.",
     requiredInProfiles: ["scaffold", "preview", "launch"],
     availability: {
       tool: "ubs",
@@ -272,6 +289,8 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     family: "fast",
     cadence: "every-run",
     requiredInCi: false,
+    notRequiredInCiReason:
+      "Scans files staged in the index, and a fresh CI checkout stages nothing. Like `ubs-diff`, it would examine an empty set in CI and pass without checking anything.",
     requiredInProfiles: ["scaffold", "preview", "launch"],
     availability: {
       tool: "ubs",
@@ -360,6 +379,8 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     family: "fast",
     cadence: "every-run",
     requiredInCi: false,
+    notRequiredInCiReason:
+      "THE RECORDED REASON WAS MISSING and this one is derived from measurement rather than from the original intent, which nobody wrote down: at HEAD on 2026-10-06 `bun scripts/lint-voice.ts` exits 1 (4 errors, 73 flags over 82,176 strings), so requiring it would fail every CI run. That is a reason to fix the errors or to declare the flags acceptable, not a permanent exemption; it is written here so the question is visible. See am-xoxn.",
     requiredInProfiles: [],
     availability: {
       scriptPath: "scripts/lint-voice.ts",
@@ -427,6 +448,8 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     family: "fast",
     cadence: "nightly",
     requiredInCi: false,
+    notRequiredInCiReason:
+      "Nothing emits scenario coverage evidence yet, so the step has no input to report on. Reversible in one word: when am-cm-coverage-ledger-0ip wires a loader and something emits evidence, put the cadence back to every-run and pass the path in `command`.",
     requiredInProfiles: ["preview", "launch"],
     availability: {
       scriptPath: "scripts/coverage-report.ts",
@@ -553,6 +576,8 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     // compare the pinned extracts against. The release profiles run on a machine that holds
     // the parents, and an unavailable required step fails a profile run rather than passing.
     requiredInCi: false,
+    notRequiredInCiReason:
+      "The parent scans are not committed (/sources is git-ignored), so CI has nothing to compare the pinned extracts against. The release profiles run on a machine that holds the parents, and an unavailable required step fails a profile run rather than passing. The pinned-only half of this chain is in CI as the digest check; this entry keeps the checks that genuinely need both sides.",
     requiredInProfiles: ["preview", "launch"],
     availability: {
       scriptPath: "scripts/verify-facsimile-pins.ts",
@@ -632,6 +657,8 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     family: "perf",
     cadence: "nightly",
     requiredInCi: false,
+    notRequiredInCiReason:
+      "A nightly step in the `perf` family, which CI's every-run lanes do not select: dsr runs --family fast and --family browser. Requiring it would declare a dependency on a lane no CI job invokes, which is the drift am-browser-gate-identity-7nq2 is about.",
     requiredInProfiles: ["preview", "launch"],
     availability: {
       scriptPath: "scripts/run-perf-budgets.ts",
@@ -645,6 +672,8 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     family: "perf",
     cadence: "nightly",
     requiredInCi: false,
+    notRequiredInCiReason:
+      "A nightly step in the `perf` family, for the same reason as `perf-budgets`: no CI job passes --family perf, so the declaration would point at a lane nothing runs.",
     requiredInProfiles: ["preview", "launch"],
     availability: {
       scriptPath: "scripts/resource-stress.ts",
@@ -673,6 +702,8 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
       family: "apple",
       cadence: "every-run",
       requiredInCi: false,
+      notRequiredInCiReason:
+        "AGENTS.md's iPhone app chapter: \"Apple validation runs locally as the `apple` gate family, not in the website's CI.\" dsr runs --family fast and --family browser and neither selects these steps, workflowScan.test.ts refuses a workflow that invokes --family apple, and they start Xcode builds that must never run on every dsr check. No web release profile lists them, so no website deploy waits on Xcode.",
       requiredInProfiles: [],
       availability: {
         scriptPath: "scripts/app/apple-quality.ts",
