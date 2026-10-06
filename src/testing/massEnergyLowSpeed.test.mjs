@@ -8,7 +8,10 @@ import {
   lowSpeedHref,
 } from "../equations/derivations/lowSpeedState.ts";
 import { buildMassEnergyElimination } from "../equations/derivations/massEnergyElimination.ts";
-import { buildMassEnergyLowSpeed } from "../equations/derivations/massEnergyLowSpeed.ts";
+import {
+  buildMassEnergyLowSpeed,
+  LowSpeedProofError,
+} from "../equations/derivations/massEnergyLowSpeed.ts";
 import { parseEquationRecord } from "../equations/record.ts";
 import { evaluateMe02 } from "../physics/reference/massEnergy.ts";
 
@@ -343,4 +346,41 @@ test("the independent numerical owner separates finite-speed proxy from the deri
       assert.ok(result.exactDifference.value > result.quadraticApproximation.value);
     }
   }
+});
+
+/**
+ * `premise-selection-invalid` (lowSpeedState.ts:15) is ONE site guarding THREE conditions with a
+ * single OR, and the loop above drives none of them: it sweeps all 32 premise subsets at the three
+ * legal orders, so every selection it builds is well formed by construction. That is the right
+ * shape for what it tests and it leaves the refusal untouched (am-r3qt).
+ *
+ * Each condition is driven separately, because an OR satisfied by one arm says nothing about the
+ * other two, and the likeliest real failure is a URL: decodeLowSpeedSetup reads a selection out of
+ * a query string, where an order of 3 or a repeated id costs nothing to write.
+ */
+for (const [why, selection] of [
+  ["an approximation order that is not 2, 4 or 6", { selected: [], order: 3 }],
+  ["the same premise id listed twice", { selected: [ids[0], ids[0]], order: 2 }],
+  ["a premise id this proof does not have", { selected: ["no-such-premise"], order: 2 }],
+])
+  test(`premise-selection-invalid: ${why} is refused`, () => {
+    assert.throws(
+      () => assessLowSpeed(proof, selection),
+      (error) => {
+        assert.ok(error instanceof LowSpeedProofError);
+        assert.equal(error.code, "premise-selection-invalid");
+        assert.match(error.message, /Invalid low-speed premise selection or approximation order/);
+        return true;
+      },
+    );
+  });
+
+test("premise-selection-invalid: a well-formed selection at each legal order is accepted", () => {
+  // The negative. A guard that refused everything would satisfy all three cases above, and the
+  // sweep that would have caught it tests assessment CONTENT rather than acceptance.
+  for (const order of [2, 4, 6])
+    assert.equal(assessLowSpeed(proof, { selected: [ids[0]], order }).length > 0, true);
+  // The empty selection is legal too: nothing selected is a reader who has chosen nothing yet,
+  // not a malformed request, and conflating the two would block the page's initial state.
+  assert.equal(assessLowSpeed(proof, { selected: [], order: 2 }).length > 0, true);
 });

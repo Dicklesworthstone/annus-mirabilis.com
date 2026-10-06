@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import { readdir, readFile } from "node:fs/promises";
 import test from "node:test";
-import { buildMassEnergyLowSpeed } from "../equations/derivations/massEnergyLowSpeed.ts";
+import {
+  buildMassEnergyLowSpeed,
+  LowSpeedProofError,
+} from "../equations/derivations/massEnergyLowSpeed.ts";
 import { renderLowSpeedProof } from "../equations/derivations/renderLowSpeed.ts";
 import { compileEquation } from "../equations/render.ts";
 
@@ -60,4 +63,42 @@ test("the renderer refuses a missing canonical source instead of emitting a part
         compiled.filter((e) => e.id !== id),
       ),
     );
+});
+
+/**
+ * `missing-low-speed-equation` (renderLowSpeed.ts:39) fires when the checked certificate names an
+ * equation id that the compiled catalogue handed to the renderer does not contain. Every case above
+ * passes the SAME records the certificate was built from, so the two can never disagree and the
+ * refusal is never reached (am-r3qt).
+ *
+ * It is not a defensive guard: the certificate and the catalogue are assembled separately, and a
+ * renderer that silently dropped an equation the proof depends on would publish a derivation with a
+ * step missing and no sign that anything had gone.
+ */
+test("missing-low-speed-equation: an id the compiled catalogue lacks is refused, not skipped", () => {
+  const checked = buildMassEnergyLowSpeed(records);
+  const compiled = records.map(compileEquation);
+  const dropped = checked.equationIds[0];
+  assert.ok(
+    dropped,
+    "the certificate must name at least one equation for this case to mean anything",
+  );
+  const withoutIt = compiled.filter((e) => e.id !== dropped);
+  assert.equal(withoutIt.length, compiled.length - 1, "exactly one equation was removed");
+
+  assert.throws(
+    () => renderLowSpeedProof(checked, withoutIt),
+    (error) => {
+      assert.ok(error instanceof LowSpeedProofError);
+      assert.equal(error.code, "missing-low-speed-equation");
+      assert.match(error.message, new RegExp(`Missing low-speed equation ${dropped}`));
+      return true;
+    },
+  );
+});
+
+test("missing-low-speed-equation: the full catalogue renders, so the refusal is about the gap", () => {
+  // The negative: a renderer that threw on every call would satisfy the case above.
+  const checked = buildMassEnergyLowSpeed(records);
+  assert.equal(renderLowSpeedProof(checked, records.map(compileEquation)).equations.length, 5);
 });
