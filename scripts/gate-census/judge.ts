@@ -203,3 +203,27 @@ export const FINDING_CODES = [
   "plant-stayed-green",
   "plant-red-for-the-wrong-reason",
 ] as const;
+
+/**
+ * Which findings mean anything in a `--list` run, where NO gate is executed.
+ *
+ * `--list` judges every gate against `output: ""`. That emptiness is a property of the run, not
+ * of the gate, so any finding derived from reading the gate's output is an artifact and must be
+ * dropped. Two codes are derived that way:
+ *
+ *   no-population-printed       the gate prints its own census line
+ *   tool-population-unreadable  the count is read out of a third-party tool's wording
+ *
+ * Only the first was dropped until 2026-10-06, so every gate deferring to a tool - lint,
+ * format-check, unit-tests - reported on every `--list` that its tool "printed nothing matching"
+ * its pattern and that the wording "may have changed". No tool had run. Three of the 26 findings
+ * in that listing were this, and the message pointed at the tools rather than at the mode.
+ *
+ * It is a function with a name so it can be tested in both directions. The bug lived in an inline
+ * `.filter` in the census's main, which no test reaches, and the half that matters is the SECOND
+ * direction: a code dropped here must still fire in a real run, or silencing the artifact would
+ * silence the check. judge.node.test.ts drives both codes against real output.
+ */
+export function meaningfulWithoutRunning(code: string): boolean {
+  return code !== "no-population-printed" && code !== "tool-population-unreadable";
+}

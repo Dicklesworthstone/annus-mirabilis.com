@@ -52,7 +52,12 @@ import {
   writeFileSync,
 } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { type Finding, judgeGate, judgePlant } from "./gate-census/judge.ts";
+import {
+  type Finding,
+  judgeGate,
+  judgePlant,
+  meaningfulWithoutRunning,
+} from "./gate-census/judge.ts";
 import { parsePopulationLines } from "./gate-census/population.ts";
 import { allRoutes, reachedBy } from "./gate-census/reach.ts";
 import { type GatePlant, recordFor } from "./gate-census/records.ts";
@@ -235,8 +240,9 @@ function main(): number {
         console.log(`  ${step.id}: ${record.noun}; reached by ${routesHere.length} route(s)`);
       findings.push(
         ...judgeGate(step, record, { output: "", exitCode: 0, routes: routesHere }).filter(
-          // In --list mode no gate is executed, so a missing line says nothing about the gate.
-          (f) => record === undefined || f.code !== "no-population-printed",
+          // No gate is executed here, so nothing read out of a gate's output means anything.
+          // The rule has a name and a test of its own; see meaningfulWithoutRunning.
+          (f) => record === undefined || meaningfulWithoutRunning(f.code),
         ),
       );
       continue;

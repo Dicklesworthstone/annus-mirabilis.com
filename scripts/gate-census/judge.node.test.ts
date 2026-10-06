@@ -13,7 +13,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { GateStep } from "../quality-gates/registry.ts";
-import { FINDING_CODES, judgeGate, judgePlant } from "./judge.ts";
+import { FINDING_CODES, judgeGate, judgePlant, meaningfulWithoutRunning } from "./judge.ts";
 import { type CensusRecord, CENSUS_RECORDS as REAL_RECORDS } from "./records.ts";
 
 const seen = new Set<string>();
@@ -396,4 +396,49 @@ test("EVERY code in FINDING_CODES has been exercised above", () => {
   const missing = FINDING_CODES.filter((code) => !seen.has(code));
   assert.deepEqual(missing, [], `these codes were never driven: ${missing.join(", ")}`);
   assert.ok(seen.size >= FINDING_CODES.length, `${seen.size} codes seen`);
+});
+
+/*
+ * THE --list FILTER (am-rc1001-bridge-plan-pcjk.9).
+ *
+ * `--list` judges every gate against `output: ""`, so any finding derived from reading a gate's
+ * output is an artifact of the mode. Until 2026-10-06 only `no-population-printed` was dropped,
+ * and every gate deferring to a third-party tool reported on every listing that its tool
+ * "printed nothing matching" its pattern - which was true and meant nothing, because no tool had
+ * run. The rule now has a name so it can be tested; the filter it replaced lived inline in the
+ * census's main, which no test reaches, and that is why it was wrong for as long as it was.
+ */
+test("the two output-derived codes are dropped in --list, and no others are (judge.ts)", () => {
+  assert.equal(meaningfulWithoutRunning("no-population-printed"), false);
+  assert.equal(meaningfulWithoutRunning("tool-population-unreadable"), false);
+  // Every other code this module can emit survives, asserted over the real list rather than a
+  // sample, so a new code is included the day it is added instead of being silently dropped.
+  const dropped = FINDING_CODES.filter((c) => !meaningfulWithoutRunning(c));
+  assert.deepEqual([...dropped].sort(), ["no-population-printed", "tool-population-unreadable"]);
+  assert.ok(FINDING_CODES.length > dropped.length, "the filter must not drop everything");
+});
+
+test("both dropped codes still FIRE in a real run, so the filter silences a mode and not a check", () => {
+  // THE HALF THAT MATTERS. Dropping an artifact is only safe while the code it drops still
+  // reports a real defect when a gate actually runs. Each arm below supplies real output.
+  const unreadable = judgeGate(step(), toolRecord(), {
+    output: "biome 2.0: inspected 4344 source files, no diagnostics",
+    exitCode: 0,
+    routes: ["bun run gates"],
+  });
+  assert.deepEqual(codes(unreadable), ["tool-population-unreadable"]);
+  // The MESSAGE, not just the code, because this code is raised at TWO sites in judge.ts: the
+  // pattern matching nothing, and a capture that is not an integer. Planting the first site
+  // showed that execution falls through to the second, where Number(undefined) is NaN and the
+  // same code is pushed with different wording - so a test asserting only the code stays green
+  // against a defect in the site it names.
+  assert.match(unreadable[0]?.message ?? "", /printed nothing matching/);
+  assert.doesNotMatch(unreadable[0]?.message ?? "", /which is not an integer count/);
+
+  const silent = judgeGate(step(), record(), {
+    output: "everything is fine\n",
+    exitCode: 0,
+    routes: ["bun run gates"],
+  });
+  assert.deepEqual(codes(silent), ["no-population-printed"]);
 });
