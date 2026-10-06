@@ -124,7 +124,8 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { classifyDirtySources, uncitableReason } from "../../src/testing/buildFaithfulness.ts";
-import { assertOutFreshness } from "../../src/testing/outFreshness.ts";
+import { lastMeasurementNote, recordMeasurement } from "../../src/testing/lastMeasurement.ts";
+import { assertOutFreshness, checkOutFreshness } from "../../src/testing/outFreshness.ts";
 
 const REPO_ROOT = resolve(fileURLToPath(new URL("../../", import.meta.url)));
 const OUT_DIR = join(REPO_ROOT, "out");
@@ -405,7 +406,24 @@ interface Pair {
   readonly readingFaceUsable: boolean;
 }
 
+const GATE = "phone-overflow";
+
 test("no built route overflows its layout viewport at a supported phone width", async (t) => {
+  /*
+   * THE LAST REAL MEASUREMENT IS REPORTED BEFORE THE REFUSAL, NOT INSTEAD OF IT (am-1bso).
+   *
+   * A build takes minutes and four panes commit production files every few minutes, so the window in which
+   * out/ is fresh is often shorter than build-plus-gate. The bead recorded what that costs: a run measured 924
+   * pairs, a commit landed, the next run refused in 67ms, and "the first run's regression names were lost with
+   * it". This gate's verdict is unchanged - a stale out/ still fails, with the same message - and a reader of
+   * the refusal now also learns what the last run that DID measure found.
+   *
+   * That is deliberately NOT the bead's direction (a). The promise stays "the current tree does not overflow";
+   * only the evidence is kept. Attributing the promise to a pinned commit is a weakening the bead reserves for
+   * the owner.
+   */
+  const probe = checkOutFreshness("out", REPO_ROOT);
+  if (!probe.fresh) t.diagnostic(lastMeasurementNote(REPO_ROOT, GATE));
   const freshness = assertOutFreshness("out", REPO_ROOT);
   // This block used to ASSERT that out/ predated the dirty sources, print a count, and continue.
   // On 2026-09-22 that claim was false - two files were saved 81 seconds into the build and out/
@@ -643,6 +661,16 @@ test("no built route overflows its layout viewport at a supported phone width", 
         `${v.id} (scrollWidth ${v.scrollWidth} vs clientWidth ${v.clientWidth}, +${v.scrollWidth - v.clientWidth}px)`,
     )
     .sort();
+  // Recorded here, where a real sweep has happened and the regression list is known, and before any assertion
+  // can end the test: a measurement that happened is kept whatever the verdict (am-1bso).
+  recordMeasurement(REPO_ROOT, {
+    gate: GATE,
+    buildCommit: freshness.buildCommit,
+    takenAt: new Date().toISOString(),
+    examined: measured.length,
+    violations: regressions.length,
+    findings: regressions,
+  });
   if (regressions.length > 0)
     failures.push(
       `REGRESSION - these overflow at a phone width and are not in BASELINE_OVERFLOWING:\n  ${regressions.join("\n  ")}\nFix the page, or if the overflow is intended and contained, say why in this file.`,

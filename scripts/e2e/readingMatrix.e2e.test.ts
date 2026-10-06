@@ -5,7 +5,10 @@ import { extname, join, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
-import { assertOutFreshness } from "../../src/testing/outFreshness.ts";
+import { lastMeasurementNote, recordMeasurement } from "../../src/testing/lastMeasurement.ts";
+import { assertOutFreshness, checkOutFreshness } from "../../src/testing/outFreshness.ts";
+
+const GATE = "reading-matrix";
 
 /**
  * THE READING MATRIX, AS A GATE RATHER THAN AS PROSE (am design overhaul).
@@ -159,7 +162,7 @@ async function measure(
   });
 }
 
-test("the twelve reading combinations: desktop holds the band, phone holds its recorded reason", async () => {
+test("the twelve reading combinations: desktop holds the band, phone holds its recorded reason", async (t) => {
   // A stale out/ would measure a build nobody is looking at. Absent is refused for the same reason.
   //
   // IT CANNOT TELL CORRUPT FROM STALE, and that limit is worth knowing rather than discovering.
@@ -167,7 +170,15 @@ test("the twelve reading combinations: desktop holds the band, phone holds its r
   // `next build` runs in one checkout clobber .next/ - surfaces as the SAME refusal as an
   // out-of-date one. That is the safe direction: it declines instead of reporting numbers from a
   // partial build. But "this gate refused" means "do not trust out/", never "out/ is merely old".
-  assertOutFreshness();
+  /*
+   * THE LAST REAL MEASUREMENT IS REPORTED BEFORE THE REFUSAL (am-1bso). The verdict is unchanged - a stale or
+   * half-written out/ still declines - and a reader of the refusal also learns what the last run that DID
+   * measure found, rather than nothing. The bead's harm was that a refusal arriving between two builds took a
+   * real result with it.
+   */
+  const probe = checkOutFreshness();
+  if (!probe.fresh) t.diagnostic(lastMeasurementNote(process.cwd(), GATE));
+  const freshness = assertOutFreshness();
 
   const site = await serveOut();
   const PAGE = `${site.origin}/papers/brownian-motion/`;
@@ -187,6 +198,16 @@ test("the twelve reading combinations: desktop holds the band, phone holds its r
         }
       }
     }
+    // Recorded where a real sweep has happened and before any assertion can end the test: a measurement that
+    // happened is kept whatever the verdict (am-1bso).
+    recordMeasurement(process.cwd(), {
+      gate: GATE,
+      buildCommit: freshness.buildCommit,
+      takenAt: new Date().toISOString(),
+      examined: MEASURES.length * TYPE_SCALES.length,
+      violations: outOfBand.length,
+      findings: outOfBand,
+    });
     assert.deepEqual(
       outOfBand,
       [],

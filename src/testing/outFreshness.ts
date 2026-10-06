@@ -18,6 +18,16 @@ export interface OutFreshnessResult {
    */
   readonly dirtyStaticSources?: readonly string[] | undefined;
   /**
+   * The commit out/ was built from, where it could be determined: the last commit at or before out/'s
+   * mtime (am-1bso).
+   *
+   * Reported, never a verdict. It exists so a gate that DID run can say which commit its numbers belong
+   * to, and so a later refusal can name the commit of the last real measurement instead of leaving a
+   * reader with nothing. The bead records the harm: when the window closed between two runs, "the first
+   * run's regression names were lost with it".
+   */
+  readonly buildCommit?: string | undefined;
+  /**
    * How many commits between the build commit and HEAD touched a static source, and over how
    * long. Reported on a staleness refusal so a reader can tell a BURST from a structural
    * problem without re-deriving it (am-1bso).
@@ -113,6 +123,13 @@ export function checkOutFreshness(
   gitRunner?: GitRunner,
 ): OutFreshnessResult {
   const git = gitRunner ?? defaultGitRunner(baseDir);
+  /**
+   * The commit out/ was built from, hoisted so every return can name it (am-1bso).
+   *
+   * Declared outside the try because two later returns - the two-hour temporal backstop and the clean
+   * result - are outside it, and a reader of a refusal needs the commit as much as a reader of a pass.
+   */
+  let buildCommitSha: string | undefined;
   const targetDir = resolve(baseDir, rootDir);
   if (!existsSync(targetDir)) {
     return { present: false, fresh: false, reason: `Directory not found: ${rootDir}` };
@@ -189,6 +206,7 @@ export function checkOutFreshness(
     if (!existsSync(admittedContentDir)) {
       return {
         present: true,
+        buildCommit: buildCommitSha,
         fresh: false,
         buildDigest: outBuildDigest,
         expectedDigest: currentBuildDigest ?? undefined,
@@ -204,6 +222,7 @@ export function checkOutFreshness(
         if (contentLog.length > 0) {
           return {
             present: true,
+            buildCommit: buildCommitSha,
             fresh: false,
             buildDigest: outBuildDigest,
             expectedDigest: currentBuildDigest,
@@ -214,6 +233,7 @@ export function checkOutFreshness(
         // Fallback: strict digest mismatch if git cannot verify
         return {
           present: true,
+          buildCommit: buildCommitSha,
           fresh: false,
           buildDigest: outBuildDigest,
           expectedDigest: currentBuildDigest,
@@ -227,6 +247,7 @@ export function checkOutFreshness(
     if (headCommitMs !== undefined && outMtimeMs < headCommitMs - 2000) {
       return {
         present: true,
+        buildCommit: buildCommitSha,
         fresh: false,
         outMtimeMs,
         headCommitMs,
@@ -242,6 +263,7 @@ export function checkOutFreshness(
       // Find commit at or immediately before out/ mtime
       const outMtimeIso = new Date(outMtimeMs + 5000).toISOString();
       const buildCommit = git(["log", "-1", `--before=${outMtimeIso}`, "--format=%H"]);
+      buildCommitSha = buildCommit || undefined;
 
       if (buildCommit && buildCommit !== headCommitSha) {
         // Check commit count distance
@@ -250,6 +272,7 @@ export function checkOutFreshness(
         if (Number.isFinite(commitCount) && commitCount > MAX_COMMITS_SINCE_BUILD) {
           return {
             present: true,
+            buildCommit: buildCommitSha,
             fresh: false,
             buildDigest: outBuildDigest ?? undefined,
             expectedDigest: currentBuildDigest ?? undefined,
@@ -321,6 +344,7 @@ export function checkOutFreshness(
 
           return {
             present: true,
+            buildCommit: buildCommitSha,
             fresh: false,
             buildDigest: outBuildDigest ?? undefined,
             expectedDigest: currentBuildDigest ?? undefined,
@@ -375,6 +399,7 @@ export function checkOutFreshness(
   if (headCommitMs !== undefined && outMtimeMs < headCommitMs - MAX_BUILD_AGE_VS_HEAD_MS) {
     return {
       present: true,
+      buildCommit: buildCommitSha,
       fresh: false,
       buildDigest: outBuildDigest ?? undefined,
       expectedDigest: currentBuildDigest ?? undefined,
@@ -387,6 +412,7 @@ export function checkOutFreshness(
 
   return {
     present: true,
+    buildCommit: buildCommitSha,
     fresh: true,
     buildDigest: outBuildDigest ?? undefined,
     expectedDigest: currentBuildDigest ?? undefined,
