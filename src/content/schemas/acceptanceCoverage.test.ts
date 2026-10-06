@@ -56,31 +56,31 @@ describe("acceptanceCoverage, the declared reason a kind of case does not exist"
 
   test("acceptance-coverage-reason-too-short: a reason too short to be a reason is refused", () => {
     const raw = { ...manifestOf("bm-05"), acceptanceCoverage: { noNonNumericCase: "n/a" } };
-    expect(() => validateExperiment(raw)).toThrow(/acceptance-coverage-reason-too-short/);
+    expect(() => validateExperiment(raw)).toThrow("acceptance-coverage-reason-too-short");
     // And the message says how short it was, so the author is not left guessing the threshold.
     expect(() => validateExperiment(raw)).toThrow(/3 characters/);
   });
 
   test("acceptance-coverage-reason-too-short: a reason that is not a string is refused by the same code", () => {
     const raw = { ...manifestOf("bm-05"), acceptanceCoverage: { noRefusalCase: 42 } };
-    expect(() => validateExperiment(raw)).toThrow(/acceptance-coverage-reason-too-short/);
+    expect(() => validateExperiment(raw)).toThrow("acceptance-coverage-reason-too-short");
   });
 
   test("unknown-acceptance-coverage-key: a key that is not one of the two is refused rather than ignored", () => {
     // The near miss: `noNonNumeric` instead of `noNonNumericCase` would otherwise excuse nothing
     // while reading, in the manifest, exactly like a declaration that works.
     const raw = { ...manifestOf("bm-05"), acceptanceCoverage: { noNonNumeric: A_REASON } };
-    expect(() => validateExperiment(raw)).toThrow(/unknown-acceptance-coverage-key/);
+    expect(() => validateExperiment(raw)).toThrow("unknown-acceptance-coverage-key");
   });
 
   test("empty-acceptance-coverage: a declaration that declares nothing is refused", () => {
     const raw = { ...manifestOf("bm-05"), acceptanceCoverage: {} };
-    expect(() => validateExperiment(raw)).toThrow(/empty-acceptance-coverage/);
+    expect(() => validateExperiment(raw)).toThrow("empty-acceptance-coverage");
   });
 
   test("invalid-acceptance-coverage: a declaration that is not an object at all is refused", () => {
     const raw = { ...manifestOf("bm-05"), acceptanceCoverage: [A_REASON] };
-    expect(() => validateExperiment(raw)).toThrow(/invalid-acceptance-coverage/);
+    expect(() => validateExperiment(raw)).toThrow("invalid-acceptance-coverage");
   });
 
   test("a long enough reason is accepted, and is trimmed rather than stored as written", () => {

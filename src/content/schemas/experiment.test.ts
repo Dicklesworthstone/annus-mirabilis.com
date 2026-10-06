@@ -476,7 +476,7 @@ test("Experiment: Planted Negative - natural: true without scaleBar fails with m
   );
 });
 
-test("Experiment: (experiment.ts:259) missing-visual-affordance rejected when visualAffordance empty, accepted with visualAffordance", () => {
+test("Experiment: missing-visual-affordance rejected when visualAffordance empty, accepted with visualAffordance", () => {
   assert.throws(
     () =>
       checkAccessibleEquivalence({
@@ -501,7 +501,7 @@ test("Experiment: (experiment.ts:259) missing-visual-affordance rejected when vi
   );
 });
 
-test("Experiment: (experiment.ts:325) invalid-action-contract rejected when raw is not object, accepted when valid", () => {
+test("Experiment: invalid-action-contract rejected when raw is not object, accepted when valid", () => {
   assert.throws(
     () => validateActionContract("not-an-object"),
     (err: any) => {
@@ -524,7 +524,7 @@ test("Experiment: (experiment.ts:325) invalid-action-contract rejected when raw 
   assert.equal(accepted.actionId, "sample-displacement");
 });
 
-test("Experiment: (experiment.ts:336) missing-action-id rejected when actionId missing or whitespace, accepted with actionId", () => {
+test("Experiment: missing-action-id rejected when actionId missing or whitespace, accepted with actionId", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   const act = { ...raw.actions[0], actionId: "   " };
@@ -541,7 +541,7 @@ test("Experiment: (experiment.ts:336) missing-action-id rejected when actionId m
   assert.equal(accepted.actionId, "sample-displacement");
 });
 
-test("Experiment: (experiment.ts:366) missing-action-question rejected when question too short or missing, accepted with question", () => {
+test("Experiment: missing-action-question rejected when question too short or missing, accepted with question", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   const act = { ...raw.actions[0], question: "Why?" };
@@ -558,7 +558,7 @@ test("Experiment: (experiment.ts:366) missing-action-question rejected when ques
   assert.equal(accepted.question, "How does displacement change over time?");
 });
 
-test("Experiment: (experiment.ts:400) missing-action-command-class rejected when commandClass missing, accepted with commandClass", () => {
+test("Experiment: missing-action-command-class rejected when commandClass missing, accepted with commandClass", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   const act = { ...raw.actions[0], commandClass: "" };
@@ -621,7 +621,7 @@ test("Experiment: (experiment.ts:439) invalid-accepted-result rejected when allo
   assert.deepEqual(accepted.acceptedResult.allowedStatuses, ["value"]);
 });
 
-test("Experiment: (experiment.ts:623) invalid-record rejected when raw is not an object, accepted when object", () => {
+test("Experiment: (experiment.ts:636) invalid-record rejected when raw is not an object, accepted when object", () => {
   assert.throws(
     () => validateExperiment("not-an-object"),
     (err: any) => {
@@ -644,7 +644,7 @@ test("Experiment: (experiment.ts:623) invalid-record rejected when raw is not an
   assert.ok(accepted);
 });
 
-test("Experiment: (experiment.ts:634) missing-id rejected when id is not a string, accepted with id", () => {
+test("Experiment: (experiment.ts:647) missing-id rejected when id is not a string, accepted with id", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   delete raw.id;
@@ -661,7 +661,7 @@ test("Experiment: (experiment.ts:634) missing-id rejected when id is not a strin
   assert.equal(accepted.id, "bm-01");
 });
 
-test("Experiment: (experiment.ts:642) invalid-instrument-id rejected when instrumentId format invalid, accepted for valid format", () => {
+test("Experiment: invalid-instrument-id rejected when instrumentId format invalid, accepted for valid format", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.id = "bad_instrument_format";
@@ -678,7 +678,7 @@ test("Experiment: (experiment.ts:642) invalid-instrument-id rejected when instru
   assert.equal(accepted.id, "bm-01");
 });
 
-test("Experiment: (experiment.ts:653) missing-title rejected when title missing or empty, accepted with title", () => {
+test("Experiment: (experiment.ts:666) missing-title rejected when title missing or empty, accepted with title", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.title = "   ";
@@ -695,7 +695,7 @@ test("Experiment: (experiment.ts:653) missing-title rejected when title missing 
   assert.equal(accepted.title, "Valid Experiment Title");
 });
 
-test("Experiment: (experiment.ts:660) missing-question rejected when explanatoryQuestion is missing or empty, accepted with question", () => {
+test("Experiment: missing-question rejected when explanatoryQuestion is missing or empty, accepted with question", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.explanatoryQuestion = "";
@@ -712,7 +712,7 @@ test("Experiment: (experiment.ts:660) missing-question rejected when explanatory
   assert.equal(accepted.explanatoryQuestion, "How do microscopic particles diffuse?");
 });
 
-test("Experiment: (experiment.ts:668) missing-source-refs rejected when sourceRefs is not array, accepted when array", () => {
+test("Experiment: missing-source-refs rejected when sourceRefs is not array, accepted when array", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.sourceRefs = "not-an-array";
@@ -729,7 +729,7 @@ test("Experiment: (experiment.ts:668) missing-source-refs rejected when sourceRe
   assert.deepEqual(accepted.sourceRefs, ["src-einstein-1905-sec-4"]);
 });
 
-test("Experiment: (experiment.ts:676) missing-argument-ids rejected when argumentIds is not array, accepted when array", () => {
+test("Experiment: missing-argument-ids rejected when argumentIds is not array, accepted when array", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.argumentIds = null;
@@ -746,7 +746,7 @@ test("Experiment: (experiment.ts:676) missing-argument-ids rejected when argumen
   assert.deepEqual(accepted.argumentIds, ["arg-diffusion-equilibrium"]);
 });
 
-test("Experiment: (experiment.ts:684) invalid-schema-version rejected when schemaVersion not positive number, accepted with positive", () => {
+test("Experiment: invalid-schema-version rejected when schemaVersion not positive number, accepted with positive", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.schemaVersion = 0;
@@ -763,7 +763,7 @@ test("Experiment: (experiment.ts:684) invalid-schema-version rejected when schem
   assert.equal(accepted.schemaVersion, 1);
 });
 
-test("Experiment: (experiment.ts:694) missing-parameters rejected when parameters empty or not array, accepted with parameters", () => {
+test("Experiment: missing-parameters rejected when parameters empty or not array, accepted with parameters", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.parameters = [];
@@ -780,7 +780,7 @@ test("Experiment: (experiment.ts:694) missing-parameters rejected when parameter
   assert.ok(accepted.parameters.length > 0);
 });
 
-test("Experiment: (experiment.ts:708) invalid-parameter rejected when parameter element not an object, accepted when valid", () => {
+test("Experiment: invalid-parameter rejected when parameter element not an object, accepted when valid", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.parameters[0] = "not-a-parameter-object";
@@ -797,7 +797,7 @@ test("Experiment: (experiment.ts:708) invalid-parameter rejected when parameter 
   assert.ok(accepted.parameters[0]?.id);
 });
 
-test("Experiment: (experiment.ts:717) missing-param-id rejected when parameter id missing or empty, accepted with id", () => {
+test("Experiment: missing-param-id rejected when parameter id missing or empty, accepted with id", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.parameters[0].id = "   ";
@@ -814,7 +814,7 @@ test("Experiment: (experiment.ts:717) missing-param-id rejected when parameter i
   assert.equal(accepted.parameters[0]?.id, "temperature");
 });
 
-test("Experiment: (experiment.ts:725) missing-param-quantity-id rejected when quantityId missing or empty, accepted with quantityId", () => {
+test("Experiment: missing-param-quantity-id rejected when quantityId missing or empty, accepted with quantityId", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.parameters[0].quantityId = "";
@@ -831,7 +831,7 @@ test("Experiment: (experiment.ts:725) missing-param-quantity-id rejected when qu
   assert.equal(accepted.parameters[0]?.quantityId, "temperature");
 });
 
-test("Experiment: (experiment.ts:733) missing-model-domain rejected when modelDomain missing or not object, accepted with domain", () => {
+test("Experiment: missing-model-domain rejected when modelDomain missing or not object, accepted with domain", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   delete raw.parameters[0].modelDomain;
@@ -848,7 +848,7 @@ test("Experiment: (experiment.ts:733) missing-model-domain rejected when modelDo
   assert.equal(accepted.parameters[0]?.modelDomain.min, 273.15);
 });
 
-test("Experiment: (experiment.ts:741) missing-visual-range rejected when visualRange missing or not object, accepted with range", () => {
+test("Experiment: missing-visual-range rejected when visualRange missing or not object, accepted with range", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   delete raw.parameters[0].visualRange;
@@ -865,7 +865,7 @@ test("Experiment: (experiment.ts:741) missing-visual-range rejected when visualR
   assert.equal(accepted.parameters[0]?.visualRange.min, 280);
 });
 
-test("Experiment: (experiment.ts:749) missing-param-mapping rejected when mapping missing or not object, accepted with mapping", () => {
+test("Experiment: missing-param-mapping rejected when mapping missing or not object, accepted with mapping", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   delete raw.parameters[0].mapping;
@@ -882,7 +882,7 @@ test("Experiment: (experiment.ts:749) missing-param-mapping rejected when mappin
   assert.equal(accepted.parameters[0]?.mapping.kind, "linear");
 });
 
-test("Experiment: (experiment.ts:758) invalid-param-mapping-kind rejected when mapping kind unknown, accepted with standard kind", () => {
+test("Experiment: invalid-param-mapping-kind rejected when mapping kind unknown, accepted with standard kind", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.parameters[0].mapping = { kind: "exponential" };
@@ -899,7 +899,7 @@ test("Experiment: (experiment.ts:758) invalid-param-mapping-kind rejected when m
   assert.equal(accepted.parameters[0]?.mapping.kind, "log");
 });
 
-test("Experiment: (experiment.ts:766) invalid-command-class rejected when commandClass unknown, accepted with standard class", () => {
+test("Experiment: invalid-command-class rejected when commandClass unknown, accepted with standard class", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.parameters[0].commandClass = "unknown-command-class";
@@ -916,7 +916,7 @@ test("Experiment: (experiment.ts:766) invalid-command-class rejected when comman
   assert.equal(accepted.parameters[0]?.commandClass, "setup-change");
 });
 
-test("Experiment: (experiment.ts:837) missing-outputs rejected when outputs empty or not array, accepted with outputs", () => {
+test("Experiment: missing-outputs rejected when outputs empty or not array, accepted with outputs", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.outputs = [];
@@ -933,7 +933,7 @@ test("Experiment: (experiment.ts:837) missing-outputs rejected when outputs empt
   assert.ok(accepted.outputs.length > 0);
 });
 
-test("Experiment: (experiment.ts:852) invalid-output rejected when output item not an object, accepted when valid", () => {
+test("Experiment: invalid-output rejected when output item not an object, accepted when valid", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.outputs[0] = "not-an-output-object";
@@ -950,7 +950,7 @@ test("Experiment: (experiment.ts:852) invalid-output rejected when output item n
   assert.ok(accepted.outputs[0]?.id);
 });
 
-test("Experiment: (experiment.ts:861) missing-output-id rejected when output id missing or whitespace, accepted with id", () => {
+test("Experiment: missing-output-id rejected when output id missing or whitespace, accepted with id", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.outputs[0].id = "   ";
@@ -967,7 +967,7 @@ test("Experiment: (experiment.ts:861) missing-output-id rejected when output id 
   assert.equal(accepted.outputs[0]?.id, "tracerPositions");
 });
 
-test("Experiment: (experiment.ts:869) missing-output-quantity-id rejected when output quantityId missing, accepted with quantityId", () => {
+test("Experiment: missing-output-quantity-id rejected when output quantityId missing, accepted with quantityId", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.outputs[0].quantityId = "";
@@ -984,7 +984,7 @@ test("Experiment: (experiment.ts:869) missing-output-quantity-id rejected when o
   assert.equal(accepted.outputs[0]?.quantityId, "displacement");
 });
 
-test("Experiment: (experiment.ts:877) missing-allowed-statuses rejected when allowedStatuses empty, accepted with statuses", () => {
+test("Experiment: missing-allowed-statuses rejected when allowedStatuses empty, accepted with statuses", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.outputs[0].allowedStatuses = [];
@@ -1001,7 +1001,7 @@ test("Experiment: (experiment.ts:877) missing-allowed-statuses rejected when all
   assert.deepEqual(accepted.outputs[0]?.allowedStatuses, ["value"]);
 });
 
-test("Experiment: (experiment.ts:886) invalid-output-status rejected when status unknown, accepted for standard status", () => {
+test("Experiment: invalid-output-status rejected when status unknown, accepted for standard status", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.outputs[0].allowedStatuses = ["unknown-status"];
@@ -1018,7 +1018,7 @@ test("Experiment: (experiment.ts:886) invalid-output-status rejected when status
   assert.deepEqual(accepted.outputs[0]?.allowedStatuses, ["value", "outside-domain"]);
 });
 
-test("Experiment: (experiment.ts:929) missing-assumptions rejected when assumptions is not array, accepted when array", () => {
+test("Experiment: missing-assumptions rejected when assumptions is not array, accepted when array", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.assumptions = "not-an-array";
@@ -1035,7 +1035,7 @@ test("Experiment: (experiment.ts:929) missing-assumptions rejected when assumpti
   assert.equal(accepted.assumptions.length, 1);
 });
 
-test("Experiment: (experiment.ts:937) missing-admitted-domain rejected when admittedDomain empty or whitespace, accepted with domain", () => {
+test("Experiment: missing-admitted-domain rejected when admittedDomain empty or whitespace, accepted with domain", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.admittedDomain = "   ";
@@ -1055,7 +1055,7 @@ test("Experiment: (experiment.ts:937) missing-admitted-domain rejected when admi
   );
 });
 
-test("Experiment: (experiment.ts:947) missing-owner rejected when owner missing or not object, accepted with owner", () => {
+test("Experiment: missing-owner rejected when owner missing or not object, accepted with owner", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   delete raw.owner;
@@ -1072,7 +1072,7 @@ test("Experiment: (experiment.ts:947) missing-owner rejected when owner missing 
   assert.ok(accepted.owner.kind);
 });
 
-test("Experiment: (experiment.ts:957) invalid-owner-kind rejected when owner kind unknown, accepted for valid kinds", () => {
+test("Experiment: invalid-owner-kind rejected when owner kind unknown, accepted for valid kinds", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.owner.kind = "unsupported-owner";
@@ -1089,7 +1089,7 @@ test("Experiment: (experiment.ts:957) invalid-owner-kind rejected when owner kin
   assert.equal(accepted.owner.kind, "reference-evaluator");
 });
 
-test("Experiment: (experiment.ts:966) missing-static-reason rejected when static owner lacks staticReason, accepted with reason", () => {
+test("Experiment: missing-static-reason rejected when static owner lacks staticReason, accepted with reason", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.owner = {
@@ -1112,7 +1112,7 @@ test("Experiment: (experiment.ts:966) missing-static-reason rejected when static
   );
 });
 
-test("Experiment: (experiment.ts:974) static-owner-has-functions rejected when static owner declares kernel functions, accepted without functions", () => {
+test("Experiment: static-owner-has-functions rejected when static owner declares kernel functions, accepted without functions", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.owner = {
@@ -1141,7 +1141,7 @@ test("Experiment: (experiment.ts:974) static-owner-has-functions rejected when s
   assert.equal(accepted.owner.kind, "static");
 });
 
-test("Experiment: (experiment.ts:982) static-owner-has-trace rejected when static owner declares trace rows, accepted without trace", () => {
+test("Experiment: static-owner-has-trace rejected when static owner declares trace rows, accepted without trace", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.owner = {
@@ -1162,7 +1162,7 @@ test("Experiment: (experiment.ts:982) static-owner-has-trace rejected when stati
   assert.equal(accepted.owner.kind, "static");
 });
 
-test("Experiment: (experiment.ts:998) invalid-kernel-function rejected when function item is not object, accepted when object", () => {
+test("Experiment: invalid-kernel-function rejected when function item is not object, accepted when object", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.owner.kernelFunctions = ["not-an-object"];
@@ -1179,7 +1179,7 @@ test("Experiment: (experiment.ts:998) invalid-kernel-function rejected when func
   assert.ok(accepted);
 });
 
-test("Experiment: (experiment.ts:1007) invalid-kernel-display-role rejected when displayRole unknown, accepted for valid role", () => {
+test("Experiment: invalid-kernel-display-role rejected when displayRole unknown, accepted for valid role", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.owner.kernelFunctions[0].displayRole = "unknown-role";
@@ -1198,7 +1198,7 @@ test("Experiment: (experiment.ts:1007) invalid-kernel-display-role rejected when
   assert.equal(kf0.displayRole, "reference-implementation");
 });
 
-test("Experiment: (experiment.ts:1027) missing-ts-kernel-fields rejected when TS kernel lacks module/exportName, accepted with both", () => {
+test("Experiment: missing-ts-kernel-fields rejected when TS kernel lacks module/exportName, accepted with both", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.owner.kernelFunctions = [
@@ -1225,7 +1225,7 @@ test("Experiment: (experiment.ts:1027) missing-ts-kernel-fields rejected when TS
   assert.equal(kf0.module, "src/physics/reference/brownian.ts");
 });
 
-test("Experiment: (experiment.ts:1036) missing-rust-kernel-fields rejected when Rust kernel lacks fields, accepted with all", () => {
+test("Experiment: missing-rust-kernel-fields rejected when Rust kernel lacks fields, accepted with all", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.owner.kernelFunctions = [
@@ -1257,7 +1257,7 @@ test("Experiment: (experiment.ts:1036) missing-rust-kernel-fields rejected when 
   assert.equal(kf0.crate, "frankensim-core");
 });
 
-test("Experiment: (experiment.ts:1044) missing-kernel-language rejected when language not ts or rust, accepted with valid language", () => {
+test("Experiment: missing-kernel-language rejected when language not ts or rust, accepted with valid language", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.owner.kernelFunctions = [
@@ -1288,7 +1288,7 @@ test("Experiment: (experiment.ts:1044) missing-kernel-language rejected when lan
   assert.equal(kf0.language, "ts");
 });
 
-test("Experiment: (experiment.ts:1103) missing-views rejected when views empty or not array, accepted with views", () => {
+test("Experiment: missing-views rejected when views empty or not array, accepted with views", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.views = [];
@@ -1305,7 +1305,7 @@ test("Experiment: (experiment.ts:1103) missing-views rejected when views empty o
   assert.ok(accepted.views.length > 0);
 });
 
-test("Experiment: (experiment.ts:1119) invalid-view rejected when view element not object, accepted when valid", () => {
+test("Experiment: invalid-view rejected when view element not object, accepted when valid", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.views[0] = "not-a-view-object";
@@ -1322,7 +1322,7 @@ test("Experiment: (experiment.ts:1119) invalid-view rejected when view element n
   assert.ok(accepted.views[0]?.id);
 });
 
-test("Experiment: (experiment.ts:1128) invalid-view-kind rejected when view kind unknown, accepted with standard kind", () => {
+test("Experiment: invalid-view-kind rejected when view kind unknown, accepted with standard kind", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.views[0].kind = "webgl-mesh";
@@ -1339,7 +1339,7 @@ test("Experiment: (experiment.ts:1128) invalid-view-kind rejected when view kind
   assert.equal(accepted.views[0]?.kind, "svg");
 });
 
-test("Experiment: (experiment.ts:1178) svg-view-declares-capability rejected when svg declares requires, accepted without requires", () => {
+test("Experiment: svg-view-declares-capability rejected when svg declares requires, accepted without requires", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   const svgView = raw.views.find((v: any) => v.kind === "svg");
@@ -1357,14 +1357,14 @@ test("Experiment: (experiment.ts:1178) svg-view-declares-capability rejected whe
   assert.ok(accepted);
 });
 
-test("Experiment: (experiment.ts:1210) all-views-require-capabilities invariant ensures at least one view has no capabilities requirement", () => {
+test("Experiment: all-views-require-capabilities invariant ensures at least one view has no capabilities requirement", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   const accepted = validateExperiment(raw);
   assert.ok(accepted.views.some((v) => !v.requires || v.requires.length === 0));
 });
 
-test("Experiment: (experiment.ts:1231) missing-real-rate-quantity rejected when natural: true lacks quantity, accepted with quantity", () => {
+test("Experiment: missing-real-rate-quantity rejected when natural: true lacks quantity, accepted with quantity", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.realRate = { natural: true, quantity: "   ", scaleBar: { length: 1, unit: "m" } };
@@ -1381,7 +1381,7 @@ test("Experiment: (experiment.ts:1231) missing-real-rate-quantity rejected when 
   assert.equal(accepted.realRate.natural, true);
 });
 
-test("Experiment: (experiment.ts:1255) invalid-real-rate rejected when natural not boolean, accepted with boolean", () => {
+test("Experiment: invalid-real-rate rejected when natural not boolean, accepted with boolean", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.realRate = { natural: "neither-true-nor-false" };
@@ -1398,7 +1398,7 @@ test("Experiment: (experiment.ts:1255) invalid-real-rate rejected when natural n
   assert.equal(accepted.realRate.natural, false);
 });
 
-test("Experiment: (experiment.ts:1265) missing-predict-mode rejected when predictMode missing or not object, accepted with predictMode", () => {
+test("Experiment: missing-predict-mode rejected when predictMode missing or not object, accepted with predictMode", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   delete raw.predictMode;
@@ -1415,7 +1415,7 @@ test("Experiment: (experiment.ts:1265) missing-predict-mode rejected when predic
   assert.ok(accepted.predictMode);
 });
 
-test("Experiment: (experiment.ts:1287) missing-predict-prompts rejected when enabled is true but prompts empty, accepted with prompts", () => {
+test("Experiment: missing-predict-prompts rejected when enabled is true but prompts empty, accepted with prompts", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.predictMode = { enabled: true, prompts: [] };
@@ -1432,7 +1432,7 @@ test("Experiment: (experiment.ts:1287) missing-predict-prompts rejected when ena
   assert.ok("enabled" in accepted.predictMode && accepted.predictMode.prompts.length > 0);
 });
 
-test("Experiment: (experiment.ts:1301) invalid-predict-prompt rejected when prompt element is not object, accepted when valid", () => {
+test("Experiment: invalid-predict-prompt rejected when prompt element is not object, accepted when valid", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.predictMode.prompts[0] = "not-a-prompt-object";
@@ -1449,7 +1449,7 @@ test("Experiment: (experiment.ts:1301) invalid-predict-prompt rejected when prom
   assert.ok("enabled" in accepted.predictMode && accepted.predictMode.prompts[0]?.promptId);
 });
 
-test("Experiment: (experiment.ts:1310) missing-prompt-id rejected when promptId is missing, accepted with promptId", () => {
+test("Experiment: missing-prompt-id rejected when promptId is missing, accepted with promptId", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   delete raw.predictMode.prompts[0].promptId;
@@ -1466,7 +1466,7 @@ test("Experiment: (experiment.ts:1310) missing-prompt-id rejected when promptId 
   assert.ok("enabled" in accepted.predictMode && accepted.predictMode.prompts[0]?.promptId);
 });
 
-test("Experiment: (experiment.ts:1319) invalid-predict-prompt-id rejected when promptId format invalid, accepted with valid format", () => {
+test("Experiment: invalid-predict-prompt-id rejected when promptId format invalid, accepted with valid format", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.predictMode.prompts[0].promptId = "invalid_prompt_id";
@@ -1483,7 +1483,7 @@ test("Experiment: (experiment.ts:1319) invalid-predict-prompt-id rejected when p
   assert.ok("enabled" in accepted.predictMode && accepted.predictMode.prompts[0]?.promptId);
 });
 
-test("Experiment: (experiment.ts:1329) missing-prompt-target rejected when neither controlId nor actionId present, accepted with controlId", () => {
+test("Experiment: missing-prompt-target rejected when neither controlId nor actionId present, accepted with controlId", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   delete raw.predictMode.prompts[0].controlId;
@@ -1501,7 +1501,7 @@ test("Experiment: (experiment.ts:1329) missing-prompt-target rejected when neith
   assert.ok("enabled" in accepted.predictMode && accepted.predictMode.prompts[0]?.controlId);
 });
 
-test("Experiment: (experiment.ts:1337) duplicate-prompt-target rejected when multiple prompts target same control/action, accepted when targets unique", () => {
+test("Experiment: duplicate-prompt-target rejected when multiple prompts target same control/action, accepted when targets unique", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   const p0 = raw.predictMode.prompts[0];
@@ -1526,7 +1526,7 @@ test("Experiment: (experiment.ts:1337) duplicate-prompt-target rejected when mul
   assert.ok("enabled" in accepted.predictMode && accepted.predictMode.prompts.length === 2);
 });
 
-test("Experiment: (experiment.ts:1363) invalid-candidate rejected when candidate element not object, accepted when valid", () => {
+test("Experiment: invalid-candidate rejected when candidate element not object, accepted when valid", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.predictMode.prompts[0].candidates[0] = "not-a-candidate-object";
@@ -1545,7 +1545,7 @@ test("Experiment: (experiment.ts:1363) invalid-candidate rejected when candidate
   );
 });
 
-test("Experiment: (experiment.ts:1372) missing-candidate-id rejected when candidate id missing or whitespace, accepted with id", () => {
+test("Experiment: missing-candidate-id rejected when candidate id missing or whitespace, accepted with id", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.predictMode.prompts[0].candidates[0].id = "   ";
@@ -1565,7 +1565,7 @@ test("Experiment: (experiment.ts:1372) missing-candidate-id rejected when candid
   );
 });
 
-test("Experiment: (experiment.ts:1380) duplicate-candidate-id rejected when candidate id repeated, accepted when unique", () => {
+test("Experiment: duplicate-candidate-id rejected when candidate id repeated, accepted when unique", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.predictMode.prompts[0].candidates[1].id = raw.predictMode.prompts[0].candidates[0].id;
@@ -1585,7 +1585,7 @@ test("Experiment: (experiment.ts:1380) duplicate-candidate-id rejected when cand
   );
 });
 
-test("Experiment: (experiment.ts:1430) invalid-predict-mode rejected when neither enabled nor exempt, accepted with exempt", () => {
+test("Experiment: invalid-predict-mode rejected when neither enabled nor exempt, accepted with exempt", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.predictMode = { neither: "enabled-nor-exempt" };
@@ -1602,7 +1602,7 @@ test("Experiment: (experiment.ts:1430) invalid-predict-mode rejected when neithe
   assert.ok("exempt" in accepted.predictMode && accepted.predictMode.exempt);
 });
 
-test("Experiment: (experiment.ts:1454) missing-preset-id rejected when preset lacks presetId, accepted with presetId", () => {
+test("Experiment: missing-preset-id rejected when preset lacks presetId, accepted with presetId", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   delete raw.presets[0].presetId;
@@ -1619,7 +1619,7 @@ test("Experiment: (experiment.ts:1454) missing-preset-id rejected when preset la
   assert.equal(accepted.presets[0]?.presetId, "bm-01-standard-water");
 });
 
-test("Experiment: (experiment.ts:1463) invalid-preset-id rejected when presetId format invalid, accepted with valid format", () => {
+test("Experiment: (experiment.ts:1477) invalid-preset-id rejected when presetId format invalid, accepted with valid format", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.presets[0].presetId = "invalid_preset_id";
@@ -1637,7 +1637,7 @@ test("Experiment: (experiment.ts:1463) invalid-preset-id rejected when presetId 
   assert.equal(accepted.presets[0]?.presetId, "bm-01-standard-water");
 });
 
-test("Experiment: (experiment.ts:1505) missing-refusal-acceptance-case rejected when outputs allow non-value but acceptanceCases empty, accepted with case", () => {
+test("Experiment: missing-refusal-acceptance-case rejected when outputs allow non-value but acceptanceCases empty, accepted with case", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.acceptanceCases = [];
@@ -1654,7 +1654,7 @@ test("Experiment: (experiment.ts:1505) missing-refusal-acceptance-case rejected 
   assert.ok(accepted.acceptanceCases?.length === 1);
 });
 
-test("Experiment: (experiment.ts:1520) invalid-mode rejected when mode element is not an object, accepted when valid", () => {
+test("Experiment: invalid-mode rejected when mode element is not an object, accepted when valid", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.modes = ["not-a-mode-object"];
@@ -1677,7 +1677,7 @@ test("Experiment: (experiment.ts:1520) invalid-mode rejected when mode element i
   assert.equal(accepted.modes?.[0]?.id, "bm-01:standard");
 });
 
-test("Experiment: (experiment.ts:1529) missing-mode-id rejected when mode lacks id, accepted with id", () => {
+test("Experiment: missing-mode-id rejected when mode lacks id, accepted with id", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.modes = [
@@ -1699,7 +1699,7 @@ test("Experiment: (experiment.ts:1529) missing-mode-id rejected when mode lacks 
   assert.equal(accepted.modes?.[0]?.id, "bm-01:standard");
 });
 
-test("Experiment: (experiment.ts:1538) invalid-mode-id rejected when mode id format invalid, accepted with valid format", () => {
+test("Experiment: invalid-mode-id rejected when mode id format invalid, accepted with valid format", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.modes = [
@@ -1722,7 +1722,7 @@ test("Experiment: (experiment.ts:1538) invalid-mode-id rejected when mode id for
   assert.equal(accepted.modes?.[0]?.id, "bm-01:standard");
 });
 
-test("Experiment: (experiment.ts:1546) invalid-historical-status rejected when historicalStatus unknown, accepted for valid status", () => {
+test("Experiment: invalid-historical-status rejected when historicalStatus unknown, accepted for valid status", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.modes = [
@@ -1745,7 +1745,7 @@ test("Experiment: (experiment.ts:1546) invalid-historical-status rejected when h
   assert.equal(accepted.modes?.[0]?.historicalStatus, "contemporary-alternative");
 });
 
-test("Experiment: (experiment.ts:1555) missing-lens-label rejected when later-development mode lacks lensLabel, accepted with lensLabel", () => {
+test("Experiment: missing-lens-label rejected when later-development mode lacks lensLabel, accepted with lensLabel", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.modes = [
@@ -1967,7 +1967,7 @@ test("Scenario: Planted Negative - retired constantSet field is rejected", () =>
   );
 });
 
-test("Scenario: (experiment.ts:1932) invalid-record rejected when raw is not an object, accepted when object", () => {
+test("Scenario: (experiment.ts:2004) invalid-record rejected when raw is not an object, accepted when object", () => {
   assert.throws(
     () => validateScenario("not-an-object" as any),
     (err: any) => {
@@ -1990,7 +1990,7 @@ test("Scenario: (experiment.ts:1932) invalid-record rejected when raw is not an 
   assert.ok(accepted);
 });
 
-test("Scenario: (experiment.ts:1942) missing-id rejected when id is missing or empty, accepted with id", () => {
+test("Scenario: (experiment.ts:2014) missing-id rejected when id is missing or empty, accepted with id", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.id = "   ";
@@ -2007,7 +2007,7 @@ test("Scenario: (experiment.ts:1942) missing-id rejected when id is missing or e
   assert.equal(accepted.id, "valid-scenario-id");
 });
 
-test("Scenario: (experiment.ts:1949) invalid-scenario-kind rejected when kind is unknown, accepted for standard kinds", () => {
+test("Scenario: invalid-scenario-kind rejected when kind is unknown, accepted for standard kinds", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.kind = "unsupported-scenario-kind";
@@ -2024,7 +2024,7 @@ test("Scenario: (experiment.ts:1949) invalid-scenario-kind rejected when kind is
   assert.equal(accepted.kind, "modern-golden");
 });
 
-test("Scenario: (experiment.ts:1960) adversarial-missing-plausible-mistake rejected when mistake empty, accepted with mistake", () => {
+test("Scenario: adversarial-missing-plausible-mistake rejected when mistake empty, accepted with mistake", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.kind = "adversarial";
@@ -2043,7 +2043,7 @@ test("Scenario: (experiment.ts:1960) adversarial-missing-plausible-mistake rejec
   assert.equal(accepted.plausibleMistake, "Omitting back-EMF term");
 });
 
-test("Scenario: (experiment.ts:1968) adversarial-missing-intended-failure rejected when failure empty, accepted with failure", () => {
+test("Scenario: adversarial-missing-intended-failure rejected when failure empty, accepted with failure", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.kind = "adversarial";
@@ -2062,7 +2062,7 @@ test("Scenario: (experiment.ts:1968) adversarial-missing-intended-failure reject
   assert.equal(accepted.intendedFailure, "Current diverges at high frequency");
 });
 
-test("Scenario: (experiment.ts:1987) missing-constant-set-id rejected when empty or missing, accepted with valid id", () => {
+test("Scenario: missing-constant-set-id rejected when empty or missing, accepted with valid id", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.constantSetId = "";
@@ -2079,7 +2079,7 @@ test("Scenario: (experiment.ts:1987) missing-constant-set-id rejected when empty
   assert.equal(accepted.constantSetId, "einstein-1905-brownian-printed");
 });
 
-test("Scenario: (experiment.ts:2070) invalid-constant-set-mixing rejected when mixing invalid, accepted when declared with reason", () => {
+test("Scenario: invalid-constant-set-mixing rejected when mixing invalid, accepted when declared with reason", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.constantSetMixing = { declared: false, reason: "" };
@@ -2103,7 +2103,7 @@ test("Scenario: (experiment.ts:2070) invalid-constant-set-mixing rejected when m
   );
 });
 
-test("Scenario: (experiment.ts:2125) misprint-missing-evidence rejected when misprint lacks reading or receiptRef, accepted with evidence", () => {
+test("Scenario: misprint-missing-evidence rejected when misprint lacks reading or receiptRef, accepted with evidence", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.kind = "historical-fixture";
@@ -2133,7 +2133,7 @@ test("Scenario: (experiment.ts:2125) misprint-missing-evidence rejected when mis
   assert.equal(accepted.transcription?.status, "verified-suspected-misprint");
 });
 
-test("Scenario: (experiment.ts:2159) editorial-input-missing-fields rejected when source or reason missing, accepted when present", () => {
+test("Scenario: editorial-input-missing-fields rejected when source or reason missing, accepted when present", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.editorialInputs = [{ source: "Editorial note 1" }]; // missing reason
@@ -2150,7 +2150,7 @@ test("Scenario: (experiment.ts:2159) editorial-input-missing-fields rejected whe
   assert.equal(accepted.editorialInputs?.length, 1);
 });
 
-test("Scenario: (experiment.ts:2173) documented-alternative-missing-printed-rep rejected when printedRepresentation missing, accepted with rep", () => {
+test("Scenario: documented-alternative-missing-printed-rep rejected when printedRepresentation missing, accepted with rep", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.documentedAlternatives = [{ description: "Alternative formula form" }];
@@ -2167,7 +2167,7 @@ test("Scenario: (experiment.ts:2173) documented-alternative-missing-printed-rep 
   assert.equal(accepted.documentedAlternatives?.length, 1);
 });
 
-test("Scenario: (experiment.ts:2221) discrimination-missing-hypotheses rejected when fewer than 2 hypotheses, accepted with 2", () => {
+test("Scenario: discrimination-missing-hypotheses rejected when fewer than 2 hypotheses, accepted with 2", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.kind = "discrimination";
@@ -2204,7 +2204,7 @@ test("Scenario: (experiment.ts:2221) discrimination-missing-hypotheses rejected 
   assert.equal(accepted.hypotheses?.length, 2);
 });
 
-test("Scenario: (experiment.ts:2244) discrimination-missing-observation rejected when observation missing, accepted with observation", () => {
+test("Scenario: discrimination-missing-observation rejected when observation missing, accepted with observation", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.kind = "discrimination";
@@ -2242,7 +2242,7 @@ test("Scenario: (experiment.ts:2244) discrimination-missing-observation rejected
   assert.equal(accepted.observation?.observableId, "diffusivity");
 });
 
-test("Scenario: (experiment.ts:2287) missing-expected rejected when expected block missing, accepted with expected", () => {
+test("Scenario: missing-expected rejected when expected block missing, accepted with expected", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   delete raw.expected;
@@ -2262,7 +2262,7 @@ test("Scenario: (experiment.ts:2287) missing-expected rejected when expected blo
   assert.equal(accepted.expected.outputs.length, 1);
 });
 
-test("Scenario: (experiment.ts:2298) discrimination-missing-outcome rejected when outcome invalid or missing, accepted with valid outcome", () => {
+test("Scenario: discrimination-missing-outcome rejected when outcome invalid or missing, accepted with valid outcome", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.kind = "discrimination";
@@ -2300,7 +2300,7 @@ test("Scenario: (experiment.ts:2298) discrimination-missing-outcome rejected whe
   assert.equal(accepted.expected.outcome, "discriminates");
 });
 
-test("Scenario: (experiment.ts:2346) tolerance-comparison-missing-spec rejected when tolerance spec invalid, accepted with rationale", () => {
+test("Scenario: tolerance-comparison-missing-spec rejected when tolerance spec invalid, accepted with rationale", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.expected = {
@@ -2324,7 +2324,7 @@ test("Scenario: (experiment.ts:2346) tolerance-comparison-missing-spec rejected 
   assert.equal(out0.comparisonKind, "tolerance");
 });
 
-test("Scenario: (experiment.ts:2363) rounds-to-tolerance-forbidden rejected when tolerance supplied, accepted without tolerance", () => {
+test("Scenario: rounds-to-tolerance-forbidden rejected when tolerance supplied, accepted without tolerance", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.kind = "historical-fixture";
@@ -2356,7 +2356,7 @@ test("Scenario: (experiment.ts:2363) rounds-to-tolerance-forbidden rejected when
   assert.equal(out0.comparisonKind, "rounds-to");
 });
 
-test("Scenario: (experiment.ts:2371) rounds-to-missing-printed-spec rejected when printedValue missing, accepted with spec", () => {
+test("Scenario: rounds-to-missing-printed-spec rejected when printedValue missing, accepted with spec", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.kind = "historical-fixture";
@@ -2386,7 +2386,7 @@ test("Scenario: (experiment.ts:2371) rounds-to-missing-printed-spec rejected whe
   assert.equal(out0.printedValue, "1.5");
 });
 
-test("Scenario: (experiment.ts:2379) half-even-missing-reason rejected when reason missing, accepted with reason", () => {
+test("Scenario: half-even-missing-reason rejected when reason missing, accepted with reason", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.kind = "historical-fixture";
@@ -2418,7 +2418,7 @@ test("Scenario: (experiment.ts:2379) half-even-missing-reason rejected when reas
   assert.equal(out0.roundingConvention, "half-even");
 });
 
-test("Scenario: (experiment.ts:2415) invalid-comparison-kind rejected when kind unknown, accepted for bitwise", () => {
+test("Scenario: invalid-comparison-kind rejected when kind unknown, accepted for bitwise", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.expected = {
@@ -2475,7 +2475,7 @@ test("HistoricalDataset: Planted Negative - bare number in cell array is rejecte
   );
 });
 
-test("DataCell: (experiment.ts:2626) invalid-data-cell rejected when raw is not an object, accepted when valid", () => {
+test("DataCell: invalid-data-cell rejected when raw is not an object, accepted when valid", () => {
   assert.throws(
     () => validateDataCell("not-an-object" as any),
     (err: any) => {
@@ -2497,7 +2497,7 @@ test("DataCell: (experiment.ts:2626) invalid-data-cell rejected when raw is not 
   assert.equal(accepted.value, 42);
 });
 
-test("DataCell: (experiment.ts:2638) missing-cell-number-value rejected on non-numeric value, accepted when valid", () => {
+test("DataCell: missing-cell-number-value rejected on non-numeric value, accepted when valid", () => {
   assert.throws(
     () => validateDataCell({ kind: "number", value: "not-a-number" } as any),
     (err: any) => {
@@ -2520,7 +2520,7 @@ test("DataCell: (experiment.ts:2638) missing-cell-number-value rejected on non-n
   assert.equal(accepted.originalToken, "3.14");
 });
 
-test("DataCell: (experiment.ts:2652) missing-cell-reason rejected when reason missing or empty, accepted with reason", () => {
+test("DataCell: missing-cell-reason rejected when reason missing or empty, accepted with reason", () => {
   assert.throws(
     () => validateDataCell({ kind: "missing" } as any),
     (err: any) => {
@@ -2542,7 +2542,7 @@ test("DataCell: (experiment.ts:2652) missing-cell-reason rejected when reason mi
   assert.equal(accepted.reason, "Data point lost during exposure");
 });
 
-test("DataCell: (experiment.ts:2662) invalid-bound-direction rejected when direction not upper/lower, accepted when valid", () => {
+test("DataCell: invalid-bound-direction rejected when direction not upper/lower, accepted when valid", () => {
   assert.throws(
     () => validateDataCell({ kind: "bound", direction: "sideways", value: 10 } as any),
     (err: any) => {
@@ -2556,7 +2556,7 @@ test("DataCell: (experiment.ts:2662) invalid-bound-direction rejected when direc
   assert.equal(acceptedUpper.direction, "upper");
 });
 
-test("DataCell: (experiment.ts:2670) missing-bound-value rejected on non-numeric value, accepted with number", () => {
+test("DataCell: missing-bound-value rejected on non-numeric value, accepted with number", () => {
   assert.throws(
     () => validateDataCell({ kind: "bound", direction: "lower", value: "bad" } as any),
     (err: any) => {
@@ -2578,7 +2578,7 @@ test("DataCell: (experiment.ts:2670) missing-bound-value rejected on non-numeric
   assert.equal(acceptedLower.value, 0.05);
 });
 
-test("DataCell: (experiment.ts:2684) invalid-cell-kind rejected on unknown kind, accepted for known kinds", () => {
+test("DataCell: invalid-cell-kind rejected on unknown kind, accepted for known kinds", () => {
   assert.throws(
     () => validateDataCell({ kind: "unsupported-cell-type" } as any),
     (err: any) => {
@@ -2692,7 +2692,7 @@ test("HistoricalDataset: Planted Negative - forbidden result relations (confirme
   );
 });
 
-test("HistoricalDataset: (experiment.ts:2723) invalid-record rejected when raw is not an object, accepted when object", () => {
+test("HistoricalDataset: (experiment.ts:2795) invalid-record rejected when raw is not an object, accepted when object", () => {
   assert.throws(
     () => validateHistoricalDataset("not-an-object" as any),
     (err: any) => {
@@ -2715,7 +2715,7 @@ test("HistoricalDataset: (experiment.ts:2723) invalid-record rejected when raw i
   assert.ok(accepted);
 });
 
-test("HistoricalDataset: (experiment.ts:2733) missing-id rejected when id is missing or whitespace, accepted with id", () => {
+test("HistoricalDataset: (experiment.ts:2805) missing-id rejected when id is missing or whitespace, accepted with id", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.id = "   ";
@@ -2732,7 +2732,7 @@ test("HistoricalDataset: (experiment.ts:2733) missing-id rejected when id is mis
   assert.equal(accepted.id, "perrin-1909-table-1");
 });
 
-test("HistoricalDataset: (experiment.ts:2741) missing-title rejected when title missing or empty, accepted with title", () => {
+test("HistoricalDataset: (experiment.ts:2813) missing-title rejected when title missing or empty, accepted with title", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.title = "";
@@ -2749,7 +2749,7 @@ test("HistoricalDataset: (experiment.ts:2741) missing-title rejected when title 
   assert.equal(accepted.title, "Valid Title");
 });
 
-test("HistoricalDataset: (experiment.ts:2724) invalid-evidence-status rejected when status unknown, accepted for valid statuses", () => {
+test("HistoricalDataset: invalid-evidence-status rejected when status unknown, accepted for valid statuses", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.evidenceStatus = "unverified-lore";
@@ -2820,7 +2820,7 @@ test("HistoricalDataset: unexpected-withdrawal rejected on a standing measuremen
   assert.equal(standing.withdrawal, undefined);
 });
 
-test("HistoricalDataset: (experiment.ts:2734) missing-publications rejected when publications empty or non-array, accepted with entries", () => {
+test("HistoricalDataset: missing-publications rejected when publications empty or non-array, accepted with entries", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.publications = [];
@@ -2837,7 +2837,7 @@ test("HistoricalDataset: (experiment.ts:2734) missing-publications rejected when
   assert.equal(accepted.publications.length, 1);
 });
 
-test("HistoricalDataset: (experiment.ts:2748) invalid-publication rejected when publication is not an object, accepted when valid", () => {
+test("HistoricalDataset: invalid-publication rejected when publication is not an object, accepted when valid", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.publications = ["not-a-publication-object"];
@@ -2854,7 +2854,7 @@ test("HistoricalDataset: (experiment.ts:2748) invalid-publication rejected when 
   assert.equal(accepted.publications[0]?.id, "perrin-1909-ann-chim");
 });
 
-test("HistoricalDataset: (experiment.ts:2756) missing-publication-id rejected when publication id is missing or empty, accepted with id", () => {
+test("HistoricalDataset: missing-publication-id rejected when publication id is missing or empty, accepted with id", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.publications[0].id = "   ";
@@ -2871,7 +2871,7 @@ test("HistoricalDataset: (experiment.ts:2756) missing-publication-id rejected wh
   assert.equal(accepted.publications[0]?.id, "perrin-1909-ann-chim");
 });
 
-test("HistoricalDataset: (experiment.ts:2779) missing-publication-locator rejected when locator missing or not object, accepted with locator", () => {
+test("HistoricalDataset: missing-publication-locator rejected when locator missing or not object, accepted with locator", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   delete raw.publications[0].locator;
@@ -2888,7 +2888,7 @@ test("HistoricalDataset: (experiment.ts:2779) missing-publication-locator reject
   assert.equal(accepted.publications[0]?.locator.kind, "table");
 });
 
-test("HistoricalDataset: (experiment.ts:2798) missing-unnumbered-table-page rejected when unnumbered-table lacks page number, accepted with page", () => {
+test("HistoricalDataset: missing-unnumbered-table-page rejected when unnumbered-table lacks page number, accepted with page", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.publications[0].locator = { kind: "unnumbered-table" };
@@ -2909,7 +2909,7 @@ test("HistoricalDataset: (experiment.ts:2798) missing-unnumbered-table-page reje
   assert.equal(accepted.publications[0]?.locator.kind, "unnumbered-table");
 });
 
-test("HistoricalDataset: (experiment.ts:2807) missing-text-locator-fields rejected when text locator lacks page or sentence, accepted with both", () => {
+test("HistoricalDataset: missing-text-locator-fields rejected when text locator lacks page or sentence, accepted with both", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.publications[0].locator = { kind: "text", page: 12 };
@@ -2926,7 +2926,7 @@ test("HistoricalDataset: (experiment.ts:2807) missing-text-locator-fields reject
   assert.equal(accepted.publications[0]?.locator.kind, "text");
 });
 
-test("HistoricalDataset: (experiment.ts:2815) invalid-locator-kind rejected when locator kind unknown, accepted with standard kind", () => {
+test("HistoricalDataset: invalid-locator-kind rejected when locator kind unknown, accepted with standard kind", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.publications[0].locator = { kind: "footnote-reference", number: 4 };
@@ -2943,7 +2943,7 @@ test("HistoricalDataset: (experiment.ts:2815) invalid-locator-kind rejected when
   assert.equal(accepted.publications[0]?.locator.kind, "figure");
 });
 
-test("HistoricalDataset: (experiment.ts:2857) invalid-primary-publication-id rejected when primaryPublicationId does not match any publication, accepted when matched", () => {
+test("HistoricalDataset: invalid-primary-publication-id rejected when primaryPublicationId does not match any publication, accepted when matched", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.primaryPublicationId = "unregistered-pub-id";
@@ -2960,7 +2960,7 @@ test("HistoricalDataset: (experiment.ts:2857) invalid-primary-publication-id rej
   assert.equal(accepted.primaryPublicationId, "perrin-1909-ann-chim");
 });
 
-test("HistoricalDataset: (experiment.ts:2873) invalid-series rejected when series item is not an object, accepted when valid", () => {
+test("HistoricalDataset: invalid-series rejected when series item is not an object, accepted when valid", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.series = ["not-a-series-object"];
@@ -2979,7 +2979,7 @@ test("HistoricalDataset: (experiment.ts:2873) invalid-series rejected when serie
   assert.equal(accepted.series?.length, 1);
 });
 
-test("HistoricalDataset: (experiment.ts:2881) missing-series-id rejected when series lacks id or is empty, accepted with id", () => {
+test("HistoricalDataset: missing-series-id rejected when series lacks id or is empty, accepted with id", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.series = [{ id: "  ", publicationId: "perrin-1909-ann-chim" }];
@@ -2996,7 +2996,7 @@ test("HistoricalDataset: (experiment.ts:2881) missing-series-id rejected when se
   assert.equal(accepted.series?.[0]?.id, "series-01");
 });
 
-test("HistoricalDataset: (experiment.ts:2890) series-unknown-publication-id rejected when series publicationId is not declared, accepted with valid pub id", () => {
+test("HistoricalDataset: series-unknown-publication-id rejected when series publicationId is not declared, accepted with valid pub id", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.series = [{ id: "series-01", publicationId: "phantom-pub" }];
@@ -3013,7 +3013,7 @@ test("HistoricalDataset: (experiment.ts:2890) series-unknown-publication-id reje
   assert.equal(accepted.series?.[0]?.publicationId, "perrin-1909-ann-chim");
 });
 
-test("HistoricalDataset: (experiment.ts:2925) missing-digitizer rejected when digitizer block missing or not object, accepted with digitizer", () => {
+test("HistoricalDataset: missing-digitizer rejected when digitizer block missing or not object, accepted with digitizer", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   delete raw.digitizer;
@@ -3030,7 +3030,7 @@ test("HistoricalDataset: (experiment.ts:2925) missing-digitizer rejected when di
   assert.equal(accepted.digitizer.name, "Editorial Team");
 });
 
-test("HistoricalDataset: (experiment.ts:2938) invalid-digitization-revision rejected when revision is not positive integer, accepted with positive integer", () => {
+test("HistoricalDataset: invalid-digitization-revision rejected when revision is not positive integer, accepted with positive integer", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.digitizer.digitizationRevision = 0;
@@ -3047,7 +3047,7 @@ test("HistoricalDataset: (experiment.ts:2938) invalid-digitization-revision reje
   assert.equal(accepted.digitizer.digitizationRevision, 2);
 });
 
-test("HistoricalDataset: (experiment.ts:2948) missing-columns rejected when columns array empty or non-array, accepted with columns", () => {
+test("HistoricalDataset: missing-columns rejected when columns array empty or non-array, accepted with columns", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.columns = [];
@@ -3064,7 +3064,7 @@ test("HistoricalDataset: (experiment.ts:2948) missing-columns rejected when colu
   assert.equal(accepted.columns.length, 3);
 });
 
-test("HistoricalDataset: (experiment.ts:2961) invalid-column rejected when column element is not an object, accepted when valid", () => {
+test("HistoricalDataset: invalid-column rejected when column element is not an object, accepted when valid", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.columns[0] = "not-a-column-object";
@@ -3081,7 +3081,7 @@ test("HistoricalDataset: (experiment.ts:2961) invalid-column rejected when colum
   assert.equal(accepted.columns[0]?.name, "Granule Radius");
 });
 
-test("HistoricalDataset: (experiment.ts:2977) invalid-column-role rejected when role not in COLUMN_ROLES, accepted for valid roles", () => {
+test("HistoricalDataset: invalid-column-role rejected when role not in COLUMN_ROLES, accepted for valid roles", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.columns[0].role = "imaginary-role";
@@ -3098,7 +3098,7 @@ test("HistoricalDataset: (experiment.ts:2977) invalid-column-role rejected when 
   assert.equal(accepted.columns[0]?.role, "observed");
 });
 
-test("HistoricalDataset: (experiment.ts:3010) invalid-row rejected when row item is not object with cells array, accepted when valid", () => {
+test("HistoricalDataset: invalid-row rejected when row item is not object with cells array, accepted when valid", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.rows[0] = "not-a-row-object";
@@ -3115,7 +3115,7 @@ test("HistoricalDataset: (experiment.ts:3010) invalid-row rejected when row item
   assert.equal(accepted.rows.length, 2);
 });
 
-test("HistoricalDataset: (experiment.ts:3058) missing-result-statement rejected when addressesResults entry lacks statement, accepted with statement", () => {
+test("HistoricalDataset: missing-result-statement rejected when addressesResults entry lacks statement, accepted with statement", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.addressesResults[0].statement = "   ";
@@ -3166,7 +3166,7 @@ function makeValidFit() {
   };
 }
 
-test("HistoricalDataset: (experiment.ts:3081) invalid-fit rejected when fit is not an object, accepted when valid", () => {
+test("HistoricalDataset: invalid-fit rejected when fit is not an object, accepted when valid", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.fits = ["not-a-fit-object"];
@@ -3183,7 +3183,7 @@ test("HistoricalDataset: (experiment.ts:3081) invalid-fit rejected when fit is n
   assert.equal(accepted.fits?.length, 1);
 });
 
-test("HistoricalDataset: (experiment.ts:3089) missing-fit-id rejected when fit id missing or empty, accepted with id", () => {
+test("HistoricalDataset: missing-fit-id rejected when fit id missing or empty, accepted with id", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   const fit = makeValidFit();
@@ -3202,7 +3202,7 @@ test("HistoricalDataset: (experiment.ts:3089) missing-fit-id rejected when fit i
   assert.equal(accepted.fits?.[0]?.id, "valid-fit-id");
 });
 
-test("HistoricalDataset: (experiment.ts:3097) missing-fit-label rejected when fit label missing or empty, accepted with label", () => {
+test("HistoricalDataset: missing-fit-label rejected when fit label missing or empty, accepted with label", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   const fit = makeValidFit();
@@ -3221,7 +3221,7 @@ test("HistoricalDataset: (experiment.ts:3097) missing-fit-label rejected when fi
   assert.equal(accepted.fits?.[0]?.label, "Linear fit");
 });
 
-test("HistoricalDataset: (experiment.ts:3105) missing-fit-objective rejected when fitObjective missing or empty, accepted with objective", () => {
+test("HistoricalDataset: missing-fit-objective rejected when fitObjective missing or empty, accepted with objective", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   const fit = makeValidFit();
@@ -3240,7 +3240,7 @@ test("HistoricalDataset: (experiment.ts:3105) missing-fit-objective rejected whe
   assert.equal(accepted.fits?.[0]?.fitObjective, "Estimate Avogadro number");
 });
 
-test("HistoricalDataset: (experiment.ts:3128) fit-unknown-series-id rejected when seriesId not in series list, accepted when matching", () => {
+test("HistoricalDataset: fit-unknown-series-id rejected when seriesId not in series list, accepted when matching", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.series = [{ id: "series-alpha", publicationId: "perrin-1909-ann-chim" }];
@@ -3262,7 +3262,7 @@ test("HistoricalDataset: (experiment.ts:3128) fit-unknown-series-id rejected whe
   assert.equal(accepted.fits?.[0]?.seriesId, "series-alpha");
 });
 
-test("HistoricalDataset: (experiment.ts:3141) missing-rows-used rejected when rowsUsed is not array, accepted when array", () => {
+test("HistoricalDataset: missing-rows-used rejected when rowsUsed is not array, accepted when array", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   const fit = makeValidFit();
@@ -3281,7 +3281,7 @@ test("HistoricalDataset: (experiment.ts:3141) missing-rows-used rejected when ro
   assert.deepEqual(accepted.fits?.[0]?.rowsUsed, [0]);
 });
 
-test("HistoricalDataset: (experiment.ts:3149) missing-rows-excluded rejected when rowsExcluded is not array, accepted when array", () => {
+test("HistoricalDataset: missing-rows-excluded rejected when rowsExcluded is not array, accepted when array", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   const fit = makeValidFit();
@@ -3300,7 +3300,7 @@ test("HistoricalDataset: (experiment.ts:3149) missing-rows-excluded rejected whe
   assert.equal(accepted.fits?.[0]?.rowsExcluded.length, 1);
 });
 
-test("HistoricalDataset: (experiment.ts:3160) invalid-row-used-index rejected when rowsUsed contains invalid index, accepted with valid index", () => {
+test("HistoricalDataset: invalid-row-used-index rejected when rowsUsed contains invalid index, accepted with valid index", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   const fit = makeValidFit();
@@ -3319,7 +3319,7 @@ test("HistoricalDataset: (experiment.ts:3160) invalid-row-used-index rejected wh
   assert.deepEqual(accepted.fits?.[0]?.rowsUsed, [0]);
 });
 
-test("HistoricalDataset: (experiment.ts:3168) duplicate-row-used rejected when index repeated in rowsUsed, accepted when unique", () => {
+test("HistoricalDataset: duplicate-row-used rejected when index repeated in rowsUsed, accepted when unique", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   const fit = makeValidFit();
@@ -3338,7 +3338,7 @@ test("HistoricalDataset: (experiment.ts:3168) duplicate-row-used rejected when i
   assert.deepEqual(accepted.fits?.[0]?.rowsUsed, [0]);
 });
 
-test("HistoricalDataset: (experiment.ts:3184) invalid-fit-exclusion rejected when exclusion item is not an object, accepted when object", () => {
+test("HistoricalDataset: invalid-fit-exclusion rejected when exclusion item is not an object, accepted when object", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   const fit = makeValidFit();
@@ -3357,7 +3357,7 @@ test("HistoricalDataset: (experiment.ts:3184) invalid-fit-exclusion rejected whe
   assert.equal(accepted.fits?.[0]?.rowsExcluded.length, 1);
 });
 
-test("HistoricalDataset: (experiment.ts:3197) invalid-row-excluded-index rejected when rowIndex is out of bounds, accepted when valid", () => {
+test("HistoricalDataset: invalid-row-excluded-index rejected when rowIndex is out of bounds, accepted when valid", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   const fit = makeValidFit();
@@ -3376,7 +3376,7 @@ test("HistoricalDataset: (experiment.ts:3197) invalid-row-excluded-index rejecte
   assert.equal(accepted.fits?.[0]?.rowsExcluded[0]?.rowIndex, 1);
 });
 
-test("HistoricalDataset: (experiment.ts:3213) duplicate-row-excluded rejected when rowIndex repeated in rowsExcluded, accepted when unique", () => {
+test("HistoricalDataset: duplicate-row-excluded rejected when rowIndex repeated in rowsExcluded, accepted when unique", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   const fit = makeValidFit();
@@ -3398,7 +3398,7 @@ test("HistoricalDataset: (experiment.ts:3213) duplicate-row-excluded rejected wh
   assert.equal(accepted.fits?.[0]?.rowsExcluded.length, 1);
 });
 
-test("HistoricalDataset: (experiment.ts:3247) missing-fit-parameters rejected when parameters empty or not array, accepted with parameters", () => {
+test("HistoricalDataset: missing-fit-parameters rejected when parameters empty or not array, accepted with parameters", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   const fit = makeValidFit();
@@ -3425,7 +3425,7 @@ test("HistoricalDataset: (experiment.ts:3247) missing-fit-parameters rejected wh
   assert.equal(accepted.fits?.[0]?.parameters.length, 1);
 });
 
-test("HistoricalDataset: (experiment.ts:3258) invalid-fit-parameter rejected when parameter element is not an object, accepted when valid", () => {
+test("HistoricalDataset: invalid-fit-parameter rejected when parameter element is not an object, accepted when valid", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   const fit = makeValidFit();
@@ -3452,7 +3452,7 @@ test("HistoricalDataset: (experiment.ts:3258) invalid-fit-parameter rejected whe
   assert.equal(accepted.fits?.[0]?.parameters[0]?.name, "mobility");
 });
 
-test("HistoricalDataset: (experiment.ts:3266) missing-fit-parameter-name rejected when parameter name missing or empty, accepted with name", () => {
+test("HistoricalDataset: missing-fit-parameter-name rejected when parameter name missing or empty, accepted with name", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   const fit = makeValidFit();
@@ -3473,7 +3473,7 @@ test("HistoricalDataset: (experiment.ts:3266) missing-fit-parameter-name rejecte
   assert.equal(accepted.fits?.[0]?.parameters[0]?.name, "mobility");
 });
 
-test("HistoricalDataset: (experiment.ts:3274) missing-fit-parameter-quantity-id rejected when quantityId missing or empty, accepted with quantityId", () => {
+test("HistoricalDataset: missing-fit-parameter-quantity-id rejected when quantityId missing or empty, accepted with quantityId", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   const fit = makeValidFit();
@@ -3494,7 +3494,7 @@ test("HistoricalDataset: (experiment.ts:3274) missing-fit-parameter-quantity-id 
   assert.equal(accepted.fits?.[0]?.parameters[0]?.quantityId, "mobility");
 });
 
-test("HistoricalDataset: (experiment.ts:3282) missing-fit-parameter-value rejected when value missing or NaN, accepted with number value", () => {
+test("HistoricalDataset: missing-fit-parameter-value rejected when value missing or NaN, accepted with number value", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   const fit = makeValidFit();
@@ -3515,7 +3515,7 @@ test("HistoricalDataset: (experiment.ts:3282) missing-fit-parameter-value reject
   assert.equal(accepted.fits?.[0]?.parameters[0]?.value, 1.2e11);
 });
 
-test("HistoricalDataset: (experiment.ts:3290) missing-fit-parameter-unit rejected when unit is not a string, accepted with string unit", () => {
+test("HistoricalDataset: missing-fit-parameter-unit rejected when unit is not a string, accepted with string unit", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   const fit = makeValidFit();
@@ -3536,7 +3536,7 @@ test("HistoricalDataset: (experiment.ts:3290) missing-fit-parameter-unit rejecte
   assert.equal(accepted.fits?.[0]?.parameters[0]?.unit, "s/kg");
 });
 
-test("HistoricalDataset: (experiment.ts:3298) invalid-fit-parameter-source rejected when source not fitted-here or imported, accepted for valid source", () => {
+test("HistoricalDataset: invalid-fit-parameter-source rejected when source not fitted-here or imported, accepted for valid source", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   const fit = makeValidFit();
@@ -3621,7 +3621,7 @@ test("Tour: Planted Negative - step declaring both tapeId and presetId fails", (
   );
 });
 
-test("Tour: (experiment.ts:3429) invalid-record rejected when raw is not an object, accepted when valid", () => {
+test("Tour: (experiment.ts:3501) invalid-record rejected when raw is not an object, accepted when valid", () => {
   assert.throws(
     () => validateTour("not-an-object" as any),
     (err: any) => {
@@ -3644,7 +3644,7 @@ test("Tour: (experiment.ts:3429) invalid-record rejected when raw is not an obje
   assert.equal(accepted.id, "tour-brownian-overview");
 });
 
-test("Tour: (experiment.ts:3434) missing-id rejected when id is missing or empty, accepted with id", () => {
+test("Tour: (experiment.ts:3506) missing-id rejected when id is missing or empty, accepted with id", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "tour-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.id = "   ";
@@ -3661,7 +3661,7 @@ test("Tour: (experiment.ts:3434) missing-id rejected when id is missing or empty
   assert.equal(accepted.id, "custom-tour-id");
 });
 
-test("Tour: (experiment.ts:3412) invalid-tour-budget rejected when budget is unknown, accepted for standard budgets", () => {
+test("Tour: invalid-tour-budget rejected when budget is unknown, accepted for standard budgets", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "tour-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.budget = "two-hours";
@@ -3678,7 +3678,7 @@ test("Tour: (experiment.ts:3412) invalid-tour-budget rejected when budget is unk
   assert.equal(accepted.budget, "one-evening");
 });
 
-test("Tour: (experiment.ts:3432) missing-completion-statement rejected when completionStatement is missing or empty, accepted with statement", () => {
+test("Tour: missing-completion-statement rejected when completionStatement is missing or empty, accepted with statement", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "tour-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   delete raw.completionStatement;
@@ -3695,7 +3695,7 @@ test("Tour: (experiment.ts:3432) missing-completion-statement rejected when comp
   assert.equal(accepted.completionStatement, "You have completed the tour.");
 });
 
-test("Tour: (experiment.ts:3441) missing-tour-steps rejected when steps is empty or not array, accepted with non-empty array", () => {
+test("Tour: missing-tour-steps rejected when steps is empty or not array, accepted with non-empty array", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "tour-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.steps = [];
@@ -3711,7 +3711,7 @@ test("Tour: (experiment.ts:3441) missing-tour-steps rejected when steps is empty
   assert.ok(accepted.steps.length > 0);
 });
 
-test("Tour: (experiment.ts:3454) invalid-tour-step rejected when step is not an object, accepted when step is valid object", () => {
+test("Tour: invalid-tour-step rejected when step is not an object, accepted when step is valid object", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "tour-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.steps[0] = "not-an-object";
@@ -3727,7 +3727,7 @@ test("Tour: (experiment.ts:3454) invalid-tour-step rejected when step is not an 
   assert.equal(typeof accepted.steps[0], "object");
 });
 
-test("Tour: (experiment.ts:3462) missing-step-anchor-id rejected when step anchorId is missing or empty, accepted with anchorId", () => {
+test("Tour: missing-step-anchor-id rejected when step anchorId is missing or empty, accepted with anchorId", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "tour-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.steps[0].anchorId = "";
@@ -3744,7 +3744,7 @@ test("Tour: (experiment.ts:3462) missing-step-anchor-id rejected when step ancho
   assert.equal(accepted.steps[0]?.anchorId, "step-01-anchor");
 });
 
-test("Tour: (experiment.ts:3509) invalid-preset-id rejected when presetId format is malformed, accepted when valid", () => {
+test("Tour: (experiment.ts:3581) invalid-preset-id rejected when presetId format is malformed, accepted when valid", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "tour-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.steps[0].instrumentPreset = {
@@ -3863,7 +3863,7 @@ test("ConstantSet: Planted Negative - editorial-input missing reason or sensitiv
   );
 });
 
-test("ConstantSet: (experiment.ts:3617) invalid-record rejected when raw is not an object, accepted when valid", () => {
+test("ConstantSet: (experiment.ts:3689) invalid-record rejected when raw is not an object, accepted when valid", () => {
   assert.throws(
     () => validateConstantSet("not-an-object" as any),
     (err: any) => {
@@ -3885,7 +3885,7 @@ test("ConstantSet: (experiment.ts:3617) invalid-record rejected when raw is not 
   assert.equal(accepted.id, "einstein-1905-brownian-printed");
 });
 
-test("ConstantSet: (experiment.ts:3627) missing-id rejected when id is missing or empty, accepted with id", () => {
+test("ConstantSet: (experiment.ts:3699) missing-id rejected when id is missing or empty, accepted with id", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "constant-set-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.id = "   ";
@@ -3906,7 +3906,7 @@ test("ConstantSet: (experiment.ts:3627) missing-id rejected when id is missing o
   assert.equal(accepted.id, "modern-si-2019");
 });
 
-test("ConstantSet: (experiment.ts:3625) invalid-gas-constant-provenance rejected when provenance is invalid, accepted when valid", () => {
+test("ConstantSet: invalid-gas-constant-provenance rejected when provenance is invalid, accepted when valid", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "constant-set-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.gasConstantProvenance = "guessed";
@@ -3923,7 +3923,7 @@ test("ConstantSet: (experiment.ts:3625) invalid-gas-constant-provenance rejected
   assert.equal(accepted.gasConstantProvenance, "measured-without-counting-molecules");
 });
 
-test("ConstantSet: (experiment.ts:3634) missing-entries rejected when entries is empty or not array, accepted with non-empty entries", () => {
+test("ConstantSet: missing-entries rejected when entries is empty or not array, accepted with non-empty entries", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "constant-set-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.entries = [];
@@ -3939,7 +3939,7 @@ test("ConstantSet: (experiment.ts:3634) missing-entries rejected when entries is
   assert.ok(accepted.entries.length > 0);
 });
 
-test("ConstantSet: (experiment.ts:3649) invalid-entry rejected when entry is not an object, accepted when entry is object", () => {
+test("ConstantSet: invalid-entry rejected when entry is not an object, accepted when entry is object", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "constant-set-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.entries[0] = "not-an-object";
@@ -3955,7 +3955,7 @@ test("ConstantSet: (experiment.ts:3649) invalid-entry rejected when entry is not
   assert.equal(typeof accepted.entries[0], "object");
 });
 
-test("ConstantSet: (experiment.ts:3657) invalid-entry-kind rejected when entry kind is unknown, accepted for standard kinds", () => {
+test("ConstantSet: invalid-entry-kind rejected when entry kind is unknown, accepted for standard kinds", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "constant-set-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.entries[0].kind = "unsupported-kind";
@@ -4024,7 +4024,7 @@ test("Experiment: a predict prompt's explanation is kept, and refused when it is
   }
 });
 
-test("Experiment: (experiment.ts:3960) incomplete-independent-reference rejected when an entry omits quantityId, accepted when it carries one", () => {
+test("Experiment: incomplete-independent-reference rejected when an entry omits quantityId, accepted when it carries one", () => {
   // THE MALFORMED RECORD THAT READ AS A MISSING FILE (am-33q6). checkIndependentReferences builds
   // content/verification/<experimentId>/<quantityId>.yaml from the two ids, so an entry with only
   // an experimentId was stringified into ".../undefined.yaml" and reported as missing CONTENT.

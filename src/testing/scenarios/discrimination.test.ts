@@ -126,7 +126,7 @@ describe("discrimination scenarios", () => {
     ).toThrow("discrimination-indistinguishable-stored-residual");
   });
 
-  test("AC 24: discrimination scenario requires tolerance block (experiment.ts:2265)", () => {
+  test("AC 24: discrimination scenario requires tolerance block: discrimination-missing-tolerance", () => {
     const baseValid = {
       id: "test-discrimination-ac24",
       kind: "discrimination" as const,
@@ -158,7 +158,7 @@ describe("discrimination scenarios", () => {
     };
 
     // Missing tolerance fails
-    expect(() => validateScenario(baseValid)).toThrow(/discrimination-missing-tolerance/);
+    expect(() => validateScenario(baseValid)).toThrow("discrimination-missing-tolerance");
 
     // With valid tolerance passes
     expect(() =>
@@ -172,7 +172,7 @@ describe("discrimination scenarios", () => {
     ).not.toThrow();
   });
 
-  test("AC 26: discrimination scenario id matching registered preset id fails (experiment.ts:2214)", () => {
+  test("AC 26: discrimination scenario id matching registered preset id fails: discrimination-preset-id-collision", () => {
     const colliding = {
       id: "sr-02-apparatus", // Matches registered preset id from content/experiments/sr-02.yaml
       kind: "discrimination" as const,
@@ -207,7 +207,7 @@ describe("discrimination scenarios", () => {
       schemaVersion: 1,
     };
 
-    expect(() => validateScenario(colliding)).toThrow(/discrimination-preset-id-collision/);
+    expect(() => validateScenario(colliding)).toThrow("discrimination-preset-id-collision");
 
     // Non-colliding id passes
     expect(() =>
@@ -215,7 +215,7 @@ describe("discrimination scenarios", () => {
     ).not.toThrow();
   });
 
-  test("AC 27: tolerance without rationale fails; rationale naming apparatus resolution, numerical bound, or observational uncertainty passes (experiment.ts:2277)", () => {
+  test("AC 27: tolerance without rationale fails; rationale naming apparatus resolution, numerical bound, or observational uncertainty passes: discrimination-invalid-tolerance-rationale", () => {
     const makeWithRationale = (rationale?: unknown) => ({
       id: "test-tolerance-rationale",
       kind: "discrimination" as const,
@@ -252,12 +252,12 @@ describe("discrimination scenarios", () => {
 
     // Missing rationale fails
     expect(() => validateScenario(makeWithRationale())).toThrow(
-      /discrimination-invalid-tolerance-rationale/,
+      "discrimination-invalid-tolerance-rationale",
     );
 
     // Generic uninformative rationale fails
     expect(() => validateScenario(makeWithRationale("a generic explanation"))).toThrow(
-      /discrimination-invalid-tolerance-rationale/,
+      "discrimination-invalid-tolerance-rationale",
     );
 
     // Apparatus resolution passes
