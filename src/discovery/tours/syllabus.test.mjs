@@ -53,10 +53,10 @@ for (const [name, lessons, sessions] of [
 ]) test(`syllabus-missing-lesson: a missing ${name} cannot yield a partial syllabus`, () => {
   assert.throws(() => buildSyllabus(lessons, sessions), code("syllabus-missing-lesson"));
 });
-test("syllabus-duplicate-id: duplicate lessons are not overwritten", () => {
+test("syllabus-duplicate-id: duplicate lessons are not overwritten (syllabus.ts:51)", () => {
   assert.throws(() => buildSyllabus([lesson("a"), lesson("a")], []), code("syllabus-duplicate-id"));
 });
-test("syllabus-duplicate-id: duplicate sessions are not conflated", () => {
+test("syllabus-duplicate-id: duplicate sessions are not conflated (syllabus.ts:100)", () => {
   assert.throws(() => buildSyllabus([lesson("a")], [session("one", ["a"]), session("one", [])]), code("syllabus-duplicate-id"));
 });
 test("syllabus-invalid-id: lesson or session identities cannot turn into unsafe anchors", () => {
