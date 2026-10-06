@@ -1,0 +1,61 @@
+# ME-01's canonical case: the paper's own arithmetic at the laboratory's own defaults (am-nxbq, item 1).
+#
+# WHICH CONTROL VALUES A READER MOVES TO REACH IT: none. These ARE the defaults a reader arrives on,
+# which is deliberate. The first numbers the instrument shows anybody are the numbers paper 4 turns on,
+# so the case that pins them is the case a reader is looking at before touching anything.
+#
+# THE PHYSICS, stated so this is a case and not a slot filled. A body at rest emits two equal light
+# pulses in opposite directions, total energy L. Seen from a frame moving at v, the two pulses carry
+# (L/2)gamma(1 - beta cos phi) and (L/2)gamma(1 + beta cos phi). The angle terms are equal and opposite,
+# so the SUM is gamma L for every phi: the moving observer measures more light energy than the rest
+# observer, by exactly the factor gamma, however the axis is tilted. At v = 0.6c, gamma = 1.25, so the
+# rest ledger books 1 J of light and the moving ledger books 1.25 J.
+#
+# WHAT THE THIRD NUMBER IS, AND WHY IT IS THE POINT. Energy is conserved in both frames, so subtracting
+# one balance from the other removes the body's unknown absolute energies and leaves
+# K0 - K1 = L(gamma - 1): the body's KINETIC energy fell by 0.25 J although it did not change speed. A
+# body whose kinetic energy depends on its velocity in the usual way can only have lost kinetic energy at
+# constant velocity by losing MASS, which is the inference paper 4 exists to make. The three numbers
+# below are the whole argument: 1, 1.25, and the 0.25 that is their difference.
+#
+# 0.25 J is also L(gamma - 1) exactly, not approximately. The low-speed reading L v^2 / (2 c^2) gives
+# 0.18 J at this speed and is a different claim; this instrument states the exact one, and the proxy is
+# ME-02's subject.
+id: "me-01-golden"
+kind: "modern-golden"
+title: "ME-01 at its defaults: 1 J of light in the rest ledger, 1.25 J in the moving one, and 0.25 J of kinetic energy gone"
+description: "A body at rest emits two equal and opposite light pulses of total energy 1 J. An observer moving at 0.6c measures the same light as 1.25 J, because each pulse's Doppler factor multiplies the pair's sum by gamma while the angle terms cancel. Energy is conserved in both frames, so the difference between the two balances is a loss of 0.25 J from the body's kinetic energy at unchanged velocity, which is L(gamma - 1) exactly."
+constantSetId: "modern-si-2019"
+owner: "me01.twoLedgers"
+inputs:
+  frameSpeed:
+    value: 0.6
+    unit: "1"
+  emittedEnergyRestFrame:
+    value: 1
+    unit: "J"
+  emissionAngle:
+    value: 0
+    unit: "deg"
+expected:
+  outputs:
+    - outputId: emittedEnergyRestFrame
+      value: 1
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The rest-frame light balance is the emitted energy itself, carried through unchanged."
+    - outputId: lightComplexEnergyMoving
+      value: 1.25
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Exact: gamma L with gamma = 1/sqrt(1 - 0.36) = 1.25, a terminating decimal at this speed, so the only error admitted is floating-point."
+    - outputId: kineticEnergyDifference
+      value: 0.25
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Exact: L(gamma - 1) = 0.25 J. Not the low-speed proxy L v^2 / (2 c^2), which is 0.18 J here and is a different claim."
+modelVersion: 1
+schemaVersion: 1

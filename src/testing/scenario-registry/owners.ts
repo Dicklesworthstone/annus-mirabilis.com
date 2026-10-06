@@ -8,6 +8,8 @@ import { LQ06_DEFAULTS } from "../../experiments/lq06/definition.ts";
 import { lq06Outputs } from "../../experiments/lq06/session.ts";
 import { LQ07_DEFAULTS } from "../../experiments/lq07/definition.ts";
 import { evaluateLq07 } from "../../experiments/lq07/session.ts";
+import { ME01_DEFAULTS } from "../../experiments/me01/definition.ts";
+import { snapshotOutputs as me01SnapshotOutputs } from "../../experiments/me01/session.ts";
 import { ME03_DEFAULTS } from "../../experiments/me03/definition.ts";
 import { snapshotOutputs as me03SnapshotOutputs } from "../../experiments/me03/session.ts";
 import { SR01_DEFAULTS } from "../../experiments/sr01/definition.ts";
@@ -1103,6 +1105,58 @@ const OWNERS: OwnerRecord[] = [
     id: "me03.session",
     sourcePath: fileURLToPath(new URL("../../experiments/me03/session.ts", import.meta.url)),
     fn: (ctx) => sessionOutput(me03SnapshotOutputs, ME03_DEFAULTS, ctx, "radiationMassChange"),
+  },
+  /**
+   * THE TWO LEDGERS, AT THE SETTINGS A READER ARRIVES ON (am-nxbq, item 1).
+   *
+   * ME-01 is paper 4's whole argument in three numbers, and this owner returns all three at once because
+   * the argument is the RELATION between them rather than any one: the rest ledger books L of light, the
+   * moving ledger books gamma L, and the difference between the two balances is a loss of L(gamma - 1)
+   * from the body's kinetic energy at unchanged velocity. Pinning only the moving balance would pass
+   * while the subtraction that carries the inference was wrong.
+   *
+   * If any of the three is non-numeric it RETURNS that refusal rather than the partial record, and
+   * deliberately does not throw: run.ts already answers a golden holding a refusal with "this route
+   * compares numbers and has no expected.status to compare it against", naming the owner and the code,
+   * so a throw here would be a second, worse copy of a diagnostic that exists. What must not happen is
+   * the third case, a record carrying two numbers and a refusal, which would let a scenario pass having
+   * compared two thirds of its subject.
+   */
+  {
+    id: "me01.twoLedgers",
+    sourcePath: fileURLToPath(new URL("../../experiments/me01/session.ts", import.meta.url)),
+    fn: (ctx) => {
+      const outputs = me01SnapshotOutputs({ ...ME01_DEFAULTS, ...ctx.inputs });
+      const numbers: Record<string, number> = {};
+      for (const quantityId of [
+        "emittedEnergyRestFrame",
+        "lightComplexEnergyMoving",
+        "kineticEnergyDifference",
+      ]) {
+        const got = sessionOutputsOf(outputs, quantityId);
+        if (isOwnerRefusal(got)) return got;
+        Object.assign(numbers, got);
+      }
+      return numbers;
+    },
+  },
+  /**
+   * NO OBSERVER AT THE SPEED OF LIGHT, SAID BY THE EVALUATOR AND NOT ONLY BY THE CONTROL (am-nxbq, item 2).
+   *
+   * ME-01 already has a declared-range refusal: its observer-speed control stops at 0.95, and
+   * me-01-framespeed-outside-declared-range-refused pins a reader typing 0.96. That is a TEACHING range,
+   * and its scenario says so, naming the physical bound as "a different statement the instrument makes
+   * elsewhere". This owner is that elsewhere. At |beta| >= 1 the reference evaluator refuses on its own,
+   * with the condition "|beta| < 1", independently of whether any control gate ran.
+   *
+   * The two layers matter separately because a parameter can reach the evaluator without passing a
+   * control: a permalink, a teaching tape and an embed all carry values no field offers. Pinning only the
+   * control gate would leave the evaluator free to return a number through those routes.
+   */
+  {
+    id: "me01.session",
+    sourcePath: fileURLToPath(new URL("../../experiments/me01/session.ts", import.meta.url)),
+    fn: (ctx) => sessionOutput(me01SnapshotOutputs, ME01_DEFAULTS, ctx, "lightComplexEnergyMoving"),
   },
   /**
    * NO CURRENT, BECAUSE THERE IS NO CIRCUIT (am-nxbq, item 2).

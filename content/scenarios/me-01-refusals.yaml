@@ -1,0 +1,50 @@
+# ME-01 refuses every number at the speed of light, in the evaluator rather than at the control
+# (am-nxbq, items 2 and 3).
+#
+# WHICH CONTROL VALUE A READER MOVES TO REACH IT: "Observer speed v/c", set to 1. A reader dragging the
+# slider cannot get there, because the control stops at 0.95; a reader who ARRIVES there does so through a
+# permalink, a teaching tape or an embed, each of which carries a value no field offers.
+#
+# WHY THIS IS NOT THE REFUSAL ALREADY PINNED. me-01-framespeed-outside-declared-range-refused pins 0.96
+# and is a TEACHING-range limit: 0.96c is an ordinary subluminal speed and the transformation is valid
+# there, so that refusal says the instrument declines to teach outside its stated range. This one is the
+# PHYSICAL bound. At |beta| >= 1 there is no inertial observer at all, gamma has no value, and the refusal
+# would stand however wide the control's range were drawn. The earlier scenario names this as "a different
+# statement the instrument makes elsewhere", and this file is that elsewhere.
+#
+# WHY THE PLURAL. The refusal is not one output's. Every numeric quantity in both ledgers refuses together
+# with the same condition - the moving light balance, the rest light balance and the kinetic difference -
+# which is the honest shape: there is no observer, so there is no ledger, rather than a light energy
+# beside a kinetic difference that could not have been measured. The scenario names the moving balance
+# because a scenario pins one output; the owner's own note records that all three arrive together, and a
+# run in which only one refused would fail the next assertion down.
+#
+# The reason code is the evaluator's own condition string, "|beta| < 1", rather than a kebab-case code,
+# because that is what the reference evaluator sets and the registry reads the condition when one is
+# present. The prose states it in ordinary language, because a raw status identifier in visitor-facing
+# text is what the voice rule status-enum-leak refuses.
+id: "me-01-refusals"
+kind: "adversarial"
+title: "ME-01 produces no ledger at all for an observer moving at the speed of light"
+description: "ME-01 asks what two observers' energy ledgers force you to say about a body that emits light. At an observer speed of c there is no such observer: the Lorentz factor has no value, so neither the moving light balance nor the kinetic difference it feeds exists. The reference evaluator refuses on its own condition, not merely because a control's range stopped it, so the refusal also holds for a permalink or a teaching tape that carries the value past the control."
+plausibleMistake: "That the speed of light is the natural end of the slider and so the natural thing to evaluate at, giving a limiting case rather than a refusal. The limit is not a value here: gamma diverges, and the moving observer's light energy and the body's kinetic loss both grow without bound, so a page showing a very large number would be reporting the arithmetic of a frame that does not exist."
+intendedFailure: "The evaluator refuses before any balance is formed, so nothing is computed at |v| = c to be mistaken for a result this instrument vouches for. The scenario passes only when the refusal arrives as an outside-domain result on the moving light balance carrying the condition that the observer speed is below the speed of light; a run that returned a number fails here however large it is, and so does one that refused for the declared teaching range instead, which is a different statement and is pinned separately."
+constantSetId: "modern-si-2019"
+owner: "me01.session"
+inputs:
+  frameSpeed:
+    value: 1
+    unit: "1"
+  emittedEnergyRestFrame:
+    value: 1
+    unit: "J"
+  emissionAngle:
+    value: 0
+    unit: "deg"
+expected:
+  status:
+    outputId: "lightComplexEnergyMoving"
+    status: "outside-domain"
+    reasonCode: "|beta| < 1"
+modelVersion: 1
+schemaVersion: 1
