@@ -468,7 +468,7 @@ describe("Kernel TypeScript extraction refusal sites (extractTypeScript.ts) (am-
   });
 
   // Site 14 (line 211)
-  test("site (extractTypeScript.ts:211) kernel-export-missing: rejects in-memory text missing named export, accepts defined export", () => {
+  test("site (extractTypeScript.ts:227) kernel-export-missing: rejects in-memory text missing named export, accepts defined export", () => {
     assert.throws(
       () =>
         extractTypeScriptFromText({
@@ -489,7 +489,7 @@ describe("Kernel TypeScript extraction refusal sites (extractTypeScript.ts) (am-
   });
 
   // Site 15 (line 217)
-  test("site (extractTypeScript.ts:217) kernel-reexport: rejects re-exported symbol from text, accepts defining module function", () => {
+  test("site (extractTypeScript.ts:233) kernel-reexport: rejects re-exported symbol from text, accepts defining module function", () => {
     assert.throws(
       () =>
         extractTypeScriptFromText({
