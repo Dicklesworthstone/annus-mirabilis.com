@@ -1,0 +1,65 @@
+# ONE QUANTUM CANNOT MAKE A MORE ENERGETIC ONE (am-nxbq, item 1).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the emitted frequency, raised to 1000 THz while the exciting
+# light stays at LQ-07's default 850 THz. Both are ordinary visible-to-ultraviolet frequencies and
+# neither control objects; what fails is the energy budget between them.
+#
+# THE DERIVATION, WHICH IS SECTION 7's WHOLE ARGUMENT. If light of frequency nu1 is absorbed one quantum
+# at a time, the energy available to produce one emitted quantum is h nu1 and no more. An emitted quantum
+# of frequency nu2 costs h nu2. So nu2 at most nu1, which is Stokes's rule, and the ceiling here is
+# exactly the exciting frequency: 850 THz. Asking for 1000 THz asks for 4.1357 eV out of 3.5153 eV in,
+# a deficit of 0.6204 eV that the model has nowhere to find.
+#
+# WHAT MAKES THIS A DERIVATION RATHER THAN A RULE LOOKED UP. Stokes's rule was an empirical
+# generalisation before 1905 and the paper does not cite it as a premise; it falls out of the quantum
+# hypothesis, which is the paper's reason for drawing attention to it. A reader who sees the ceiling move
+# when the absorption model changes - which deviation-multi-quantum-absorption shows - has seen that the
+# rule is a consequence and not an axiom.
+#
+# THE VERDICT IS A NUMBER HERE BECAUSE IT IS A VERDICT. `allowed` is 0, and the energy left for other
+# channels is reported as not applicable rather than as a negative number: when the transition cannot
+# happen there is no leftover energy to account for, which is a different statement from there being
+# none left over.
+id: "anti-stokes-single-quantum-disallowed"
+kind: "adversarial"
+title: "LQ-07: 1000 THz out of 850 THz in is refused, with the 0.6204 eV deficit named"
+description: "Under single-quantum absorption the energy available to make one emitted quantum is the energy of one absorbed quantum, 3.5153 eV at 850 THz. An emitted quantum at 1000 THz would cost 4.1357 eV. The instrument reports the emission as not allowed, puts the ceiling at exactly the exciting frequency, and names the shortfall of 0.6204 eV, which is Stokes's rule derived rather than looked up."
+plausibleMistake: "That fluorescence is a matter of energy flowing from a bright beam into a material, so a sufficiently intense source at 850 THz could drive emission at 1000 THz by supplying more total energy. More intensity means more quanta, and the budget that fails here is the budget of ONE transition; a thousand quanta of 3.5153 eV still do not make one of 4.1357 eV so long as they are absorbed one at a time. The intensity does not appear in the ceiling at all."
+intendedFailure: "The ceiling is computed from the exciting frequency alone and the verdict is reported before any emission rate is formed, so no anti-Stokes emission is produced for a reader to read as a prediction. The scenario passes only when the verdict is not allowed, the ceiling is the exciting frequency and the deficit is 0.6204 eV; a run that allowed it, or that put the ceiling anywhere else, would be asserting a different absorption model than the one selected."
+constantSetId: "modern-si-2019"
+owner: "lq07.budget"
+inputs:
+  regime:
+    value: 0
+    unit: "1"
+  nu1:
+    value: 850
+    unit: "THz"
+  nu2:
+    value: 1000
+    unit: "THz"
+  multiQuantumK:
+    value: 1
+    unit: "1"
+expected:
+  outputs:
+    - outputId: allowed
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-9
+        rationale: "A verdict carried as 0 or 1. The tolerance is absolute because the reference is an exact zero, which a relative tolerance cannot bound."
+    - outputId: nu2Max
+      value: 850
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Exactly the exciting frequency, which is what single-quantum absorption makes the ceiling. Any other value would mean a different absorption model."
+    - outputId: energyDeficitEv
+      value: 0.6203501545385789
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "h times 150 THz in electronvolts, formed as the difference of the two quantum energies, so the only error admitted is floating-point."
+modelVersion: 1
+schemaVersion: 1

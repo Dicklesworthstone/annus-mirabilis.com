@@ -1,0 +1,65 @@
+# A MODERN LENS, DATED AND LABELLED: THERMAL ENERGY RAISES THE CEILING (am-nxbq, item 1).
+#
+# WHICH CONTROL VALUES A READER MOVES TO REACH IT: the regime, set to the modern thermal allowance, with
+# the body at 300 K. The exciting frequency stays at 850 THz and the proposed emission at 1000 THz.
+#
+# WHAT THIS IS NOT. It is not Einstein's argument and the record says so: anti-Stokes fluorescence
+# assisted by lattice vibrations is a later understanding, and the quantised lattice vibration itself is
+# named after 1905. AGENTS.md's anachronism controls apply, and this case is a modern lens offered beside
+# the paper rather than a correction of it. The 1905 ceiling is what
+# anti-stokes-single-quantum-disallowed pins; this one shows what changes when you let the body
+# contribute.
+#
+# WHAT THE MODEL ALLOWS, STATED AS THE LABORATORY STATES IT. The emitting body is not at absolute zero,
+# so some of its own thermal energy can go into the emitted quantum. The allowance is n k T with n the
+# number of thermal modes admitted, which this instrument declares as 10 by default, so the ceiling
+# becomes nu1 + n k T / h. At 300 K that is 850 + 62.5099 = 912.5099 THz. Measured against the
+# temperature it is exactly linear in T, as that formula requires: 870.8366 at 100 K, 975.0197 at 600 K
+# and 1100.0394 at 1200 K.
+#
+# THE EMISSION IS STILL REFUSED, WHICH IS THE POINT. 1000 THz is above 912.5099, so the verdict stays not
+# allowed and the deficit falls from 0.6204 eV to 0.3618 eV. The thermal allowance narrows the gap
+# without closing it, so a reader sees that the mechanism is real and bounded rather than a licence to
+# ignore the budget. Pushing the body hotter, or admitting more modes, would close it, and the ceiling
+# says exactly how much of either it would take.
+id: "modern-thermal-phonon-assisted"
+kind: "modern-golden"
+title: "LQ-07 with a thermal allowance: the ceiling rises to 912.51 THz and still refuses 1000"
+description: "A modern lens on section 7, dated after 1905 and labelled as such: an emitting body at a finite temperature can put some of its own thermal energy into the emitted quantum, so the ceiling becomes the exciting frequency plus n k T over h, with ten thermal modes admitted by default. At 300 kelvin that raises it from 850 to 912.51 THz and cuts the deficit at 1000 THz from 0.6204 to 0.3618 eV. The emission is still not allowed, which is what makes the allowance a bounded mechanism rather than a way around the budget."
+constantSetId: "modern-si-2019"
+owner: "lq07.budget"
+inputs:
+  regime:
+    value: 3
+    unit: "1"
+  nu1:
+    value: 850
+    unit: "THz"
+  nu2:
+    value: 1000
+    unit: "THz"
+  bodyTemperatureK:
+    value: 300
+    unit: "K"
+expected:
+  outputs:
+    - outputId: nu2Max
+      value: 912.5098573699828
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "850 THz plus ten times k T / h at 300 K, which is 62.5099 THz. Checked to be linear in the body temperature at 100, 300, 600 and 1200 K, which is what n k T / h requires and what a different mechanism would not give."
+    - outputId: allowed
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-9
+        rationale: "Still refused, because 1000 THz is above the raised ceiling. A verdict of allowed here would mean the allowance had been applied without a ceiling, which is the misreading this case guards."
+    - outputId: energyDeficitEv
+      value: 0.36183015667422364
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The single-quantum deficit of 0.6204 eV less the thermal allowance of ten k T at 300 K, 0.2585 eV. The allowance narrows the gap and does not close it."
+modelVersion: 1
+schemaVersion: 1

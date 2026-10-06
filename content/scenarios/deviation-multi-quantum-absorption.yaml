@@ -1,0 +1,69 @@
+# THE FIRST EXCEPTION THE PAPER ITSELF NAMES (am-nxbq, item 1).
+#
+# WHICH CONTROL VALUES A READER MOVES TO REACH IT: the regime, from the paper's own assumption to its
+# first printed deviation, and the absorption order to 2. The emitted frequency stays at 1000 THz, which
+# the single-quantum budget refused.
+#
+# WHY THE CEILING MOVES AND WHERE IT MOVES TO. Stokes's rule follows from ONE quantum being absorbed per
+# emission. Section 7 is explicit that at high radiation density several quanta may combine in a single
+# transition, and then the energy available is k times h nu1. With k = 2 the ceiling becomes twice the
+# exciting frequency, 1700 THz, so 1000 THz is comfortably allowed and 2.8950 eV is left over for other
+# channels. The deficit is zero: nothing is missing.
+#
+# THE RATES STOP BEING DEFINED, AND THAT IS THE INTERESTING PART. The same setting makes the absorbed and
+# emitted RATES not applicable, with the evaluator's reason that several quanta can combine in one
+# emission so a one-to-one rate is not defined. A model that says two quanta may make one has given up
+# the correspondence between quanta counted in and quanta counted out, and the honest instrument reports
+# a verdict and an energy budget while declining to report a rate. A page that showed a halved rate
+# instead would be inventing a bookkeeping the model does not supply.
+#
+# THIS IS A PRINTED DEVIATION, NOT A MODERN AMENDMENT. Einstein names the condition in 1905, so the case
+# carries the paper's own historical status rather than a later lens; modern-thermal-phonon-assisted is
+# the one that is dated after 1905 and says so.
+id: "deviation-multi-quantum-absorption"
+kind: "modern-golden"
+title: "LQ-07 with two quanta per emission: the ceiling doubles to 1700 THz and the rate stops being defined"
+description: "Section 7 allows that at high radiation density several quanta may combine in one emission. Setting the absorption order to two makes the energy available twice the quantum energy, so the ceiling on the emitted frequency becomes twice the exciting frequency, 1700 THz. The 1000 THz emission the single-quantum budget refused is now allowed with 2.8950 eV left for other channels and no deficit. The per-quantum rates become not applicable in the same breath, because a model in which two quanta make one has no one-to-one count to report."
+constantSetId: "modern-si-2019"
+owner: "lq07.budget"
+inputs:
+  regime:
+    value: 1
+    unit: "1"
+  nu1:
+    value: 850
+    unit: "THz"
+  nu2:
+    value: 1000
+    unit: "THz"
+  multiQuantumK:
+    value: 2
+    unit: "1"
+expected:
+  outputs:
+    - outputId: allowed
+      value: 1
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-9
+        rationale: "The verdict flips from the single-quantum case at the same two frequencies, which is the assertion: the rule is a consequence of the absorption model and not an axiom."
+    - outputId: nu2Max
+      value: 1700
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Exactly twice the exciting frequency, since two quanta supply twice the energy. Any other ceiling would mean k entered the budget some other way."
+    - outputId: energyDeficitEv
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Zero because the emission is within budget; absolute rather than relative, since a relative tolerance cannot bound an exact zero."
+    - outputId: eOtherEv
+      value: 2.8949673878467013
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Two quanta of 3.5153 eV less one of 4.1357 eV. Reported as a value only because the transition is allowed; in the refused case the same field is not applicable, which is a different statement from zero."
+modelVersion: 1
+schemaVersion: 1

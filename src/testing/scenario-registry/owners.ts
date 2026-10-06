@@ -1180,6 +1180,53 @@ const OWNERS: OwnerRecord[] = [
    * quanta the ceiling moves, which is the deviation case the paper itself anticipates, so the refusal is
    * conditional on the model a reader has selected rather than on the frequencies alone.
    */
+  /**
+   * THE FLUORESCENCE ENERGY BUDGET, IN ALL FOUR REGIMES LQ-07 OFFERS (am-nxbq, item 1).
+   *
+   * Section 7 of paper 1 derives Stokes's rule from the quantum hypothesis - emitted light cannot
+   * exceed the exciting frequency, because one absorbed quantum has only its own energy to give - and
+   * then names the conditions under which it may be broken. The laboratory's `regime` control selects
+   * among the paper's own cases and one modern lens, and this owner returns the BUDGET rather than the
+   * rates: the verdict, the ceiling on the emitted frequency, the energy left over for other channels
+   * and the deficit when there is none. lq07.session beside it reports the rates, which are a different
+   * question and refuse under different conditions.
+   *
+   * THE REGIME IS ENCODED AS A NUMBER, as bm-02's model and bm-05's kernel are, because an owner takes
+   * numeric inputs only: 0 standard-stokes, 1 deviation-multi-quantum, 2 deviation-non-wien, 3
+   * modern-thermal. Anything else is the paper's own case, which is the safe default for a control that
+   * selects between a historical claim and its exceptions.
+   */
+  {
+    id: "lq07.budget",
+    sourcePath: fileURLToPath(new URL("../../experiments/lq07/session.ts", import.meta.url)),
+    fn: (ctx) => {
+      const code = num(ctx.inputs, "regime");
+      const regime =
+        code === 1
+          ? "deviation-multi-quantum"
+          : code === 2
+            ? "deviation-non-wien"
+            : code === 3
+              ? "modern-thermal"
+              : "standard-stokes";
+      const evaluated = evaluateLq07({ ...LQ07_DEFAULTS, ...ctx.inputs, regime } as never);
+      const numbers: Record<string, number> = {};
+      for (const outputId of ["allowed", "nu2Max", "energyDeficitEv"]) {
+        const got = sessionOutputsOf(evaluated.outputs, outputId);
+        if (isOwnerRefusal(got)) return got;
+        Object.assign(numbers, got);
+      }
+      // eOtherEv IS CONDITIONAL AND THAT IS NOT A PARTIAL RESULT. The energy left over for non-optical
+      // channels exists only when the transition is allowed; when it is refused the evaluator reports
+      // not-applicable, which is the right answer and a different statement from zero left over. The
+      // three fields above are the verdict and are always numbers, so including this one when it is a
+      // value adds a reading rather than completing a broken one, and a scenario asserting it where it
+      // is absent fails on a missing output rather than passing on a substitute.
+      const other = sessionOutputsOf(evaluated.outputs, "eOtherEv");
+      if (!isOwnerRefusal(other)) Object.assign(numbers, other);
+      return numbers;
+    },
+  },
   {
     id: "lq07.session",
     sourcePath: fileURLToPath(new URL("../../experiments/lq07/session.ts", import.meta.url)),

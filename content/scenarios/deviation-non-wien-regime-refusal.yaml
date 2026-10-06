@@ -1,0 +1,50 @@
+# THE SECOND EXCEPTION: WHERE THE HYPOTHESIS IS NOT ADMITTED, NO BOUND IS DERIVED (am-nxbq, items 2 and 3).
+#
+# WHICH CONTROL VALUE A READER MOVES TO REACH IT: the source temperature, raised to 9000 K with the
+# regime set to the paper's second printed deviation. The exciting frequency stays at 850 THz.
+#
+# WHAT THE WIEN CONDITION IS AND WHY IT BOUNDS THE ARGUMENT. Paper 1 derives the light-quantum
+# description from the entropy of radiation IN WIEN'S REGIME, where exp(-h nu / k T) is small. Section 7
+# says in so many words that light outside that regime may behave differently, so Stokes's rule is not
+# claimed there. The instrument holds the laboratory's declared smallness threshold at one per cent, so
+# the regime ends where exp(-h nu1 / k T_source) rises above 0.01. At 850 THz that is a source hotter
+# than about 8858 K, and 9000 K is past it.
+#
+# WHAT IS REFUSED, AND WHAT IS NOT. The VERDICT is refused: the instrument declines to say whether the
+# emission is allowed, with the evaluator's own reason that "the light-quantum description is admitted
+# only where Wien's law holds, and section 7 allows that other light may behave differently, so no bound
+# is derived." That is a refusal to make a claim rather than a claim that the emission is impossible, and
+# it is the opposite verdict from anti-stokes-single-quantum-disallowed at the same two frequencies. The
+# two energies are still reported, because h nu is h nu whatever the source temperature.
+#
+# A REFUSAL TO DERIVE IS NOT A PREDICTION OF FAILURE. A reader at 9000 K has not been told that
+# anti-Stokes emission happens; they have been told that this argument does not reach. That distinction
+# is the whole reason the status is typed rather than being a zero or a false.
+id: "deviation-non-wien-regime-refusal"
+kind: "adversarial"
+title: "LQ-07 outside Wien's regime: the instrument declines to bound the emitted frequency at all"
+description: "The light-quantum description in paper 1 is derived where Wien's radiation law holds, and section 7 allows that other light may behave differently. With the source at 9000 kelvin the smallness parameter exp(-h nu / k T) rises above the laboratory's declared one per cent threshold, so the verdict on the emission is refused rather than decided: no bound on the emitted frequency is derived. The two quantum energies are still reported, since they do not depend on the source temperature."
+plausibleMistake: "That a hotter source should make anti-Stokes emission easier, so the refusal is the instrument conceding that the emission now happens. It is not a verdict of either kind. The refusal says the derivation that produced Stokes's rule rests on a radiation law which no longer applies, so this instrument has nothing to say about the ceiling; reading it as permission would turn a stated limit of the argument into a physical prediction."
+intendedFailure: "The verdict is refused before any ceiling is reported, so no bound appears that the paper does not claim at this temperature. The scenario passes only when the verdict carries the outside-Wien condition; a run that returned allowed or not allowed would be extending section 7's argument past the regime the paper confines it to, which is the anachronism this case exists to prevent."
+constantSetId: "modern-si-2019"
+owner: "lq07.budget"
+inputs:
+  regime:
+    value: 2
+    unit: "1"
+  nu1:
+    value: 850
+    unit: "THz"
+  nu2:
+    value: 1000
+    unit: "THz"
+  sourceTemperatureK:
+    value: 9000
+    unit: "K"
+expected:
+  status:
+    outputId: "allowed"
+    status: "outside-domain"
+    reasonCode: "outside-wien-domain"
+modelVersion: 1
+schemaVersion: 1
