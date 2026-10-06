@@ -1,7 +1,6 @@
 import {
   alignedBoost,
   composeBoosts,
-  composeCollinear,
   composedSpeedShortfall,
   composePrinted,
   compositionIncrement,
@@ -138,11 +137,15 @@ export function evaluateSr06(p: Sr06Parameters): ScientificResult[] {
       );
     }
   } else {
-    const collinear = p.movingSpeed < 1 ? composeCollinear(p.frameBeta, p.movingSpeed) : null;
-    const g =
-      collinear?.status === "value"
-        ? 1 / Math.sqrt(1 - collinear.value * collinear.value)
-        : 1 / Math.sqrt(1 - U * U);
+    // THE FACTOR BELONGS TO THE SPEED BESIDE IT, WHICH IS WHY U IS THE ONLY INPUT HERE.
+    //
+    // This read the COLLINEAR composition of the two speeds whatever the angle, so at 90 degrees the
+    // table showed U = 0.768c beside gamma = 2.125, and 2.125 is the factor of 0.882c. That is the same
+    // defect the comment at the top of this function records as fixed in two-boosts mode, surviving in
+    // this branch, and nothing caught it: the gamma-against-U consistency was asserted for two-boosts
+    // mode only. In collinear mode U already equals the collinear composition, so this changes that
+    // reading by one bit and the angled reading from 2.125 to 1.5625.
+    const g = 1 / Math.sqrt(1 - U * U);
     outputs.push(
       absent(
         "rotationDeg",

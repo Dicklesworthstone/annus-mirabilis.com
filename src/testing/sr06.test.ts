@@ -115,6 +115,44 @@ describe("SR-06 two-boosts mode reports the doubly boosted frame's velocity", ()
     expect(read(p, "composedUyOverC")).toBeCloseTo(0.48, 12);
     expect(1 / Math.sqrt(1 - U * U)).toBeCloseTo(read(p, "composedGamma"), 10);
   });
+  test("the Lorentz factor belongs to the composed speed, IN EVERY MODE", () => {
+    // THIS IS THE ASSERTION THAT WAS MISSING, and its absence is why a defect survived in plain sight.
+    // The consistency of gamma with U was checked for two-boosts mode only, three tests above. In the
+    // angled branch composedGamma was computed from the COLLINEAR composition of the two speeds whatever
+    // the angle, so at 90 degrees the table read U = 0.768c beside gamma = 2.125 - and 2.125 is the
+    // factor of 0.882c. Same defect as the one the session's own comment records as fixed in two-boosts
+    // mode, surviving in the branch nobody asserted.
+    //
+    // Checked across modes AND angles rather than at one setting, because the bug was invisible at
+    // alpha = 0 (where the collinear composition IS the composed speed) and that is exactly where a
+    // single-point test would have been written.
+    for (const p of [
+      { mode: "collinear" as const, frameBeta: 0.6, movingSpeed: 0.6, alphaDeg: 0 },
+      { mode: "angled" as const, frameBeta: 0.6, movingSpeed: 0.6, alphaDeg: 90 },
+      { mode: "angled" as const, frameBeta: 0.6, movingSpeed: 0.6, alphaDeg: 45 },
+      { mode: "angled" as const, frameBeta: 0.8, movingSpeed: 0.5, alphaDeg: 60 },
+      { mode: "two-boosts" as const, frameBeta: 0.6, secondBeta: 0.6, secondAngleDeg: 90 },
+    ]) {
+      const U = read(p, "composedSpeedOverC");
+      const gamma = read(p, "composedGamma");
+      expect(Number.isFinite(U)).toBe(true);
+      expect(Number.isFinite(gamma)).toBe(true);
+      expect(gamma).toBeCloseTo(1 / Math.sqrt(1 - U * U), 10);
+    }
+  });
+
+  test("the angled factor is 1.5625 and not the collinear 2.125, named rather than only derived", () => {
+    // The identity above would also pass if both quantities were wrong together. This names the two
+    // numbers, so a regression that recomputed BOTH from the collinear composition could not hide in it.
+    const p = { mode: "angled" as const, frameBeta: 0.6, movingSpeed: 0.6, alphaDeg: 90 };
+    expect(read(p, "composedSpeedOverC")).toBeCloseTo(0.7683749084919418, 12);
+    expect(read(p, "composedGamma")).toBeCloseTo(1.5625, 12);
+    expect(read({ ...p, mode: "collinear" as const, alphaDeg: 0 }, "composedGamma")).toBeCloseTo(
+      2.125,
+      12,
+    );
+  });
+
   test("the collinear and angled modes still compose the moving point", () => {
     expect(read({ mode: "collinear" }, "composedSpeedOverC")).toBeCloseTo(15 / 17, 12);
     expect(read({ mode: "angled", alphaDeg: 90 }, "composedSpeedOverC")).toBeCloseTo(0.768375, 6);
