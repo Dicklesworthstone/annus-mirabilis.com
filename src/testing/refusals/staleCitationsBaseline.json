@@ -18,7 +18,7 @@
   "src/content/manifest/schema.ts": 0,
   "src/content/revisions.ts": 7,
   "src/content/schemas/argument.ts": 2,
-  "src/content/schemas/authorship.ts": 1,
+  "src/content/schemas/authorship.ts": 0,
   "src/content/schemas/dates.ts": 0,
   "src/content/schemas/dimensionBasis.ts": 0,
   "src/content/schemas/experiment.ts": 0,
