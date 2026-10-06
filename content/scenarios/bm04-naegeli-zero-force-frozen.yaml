@@ -1,0 +1,55 @@
+# NO FORCE AND NO KICKS: THE BALANCE IS NOT A SMALL NUMBER, IT IS NOT AN EVALUATION (am-nxbq, items 2 and 3).
+#
+# WHICH CONTROL VALUES A READER MOVES TO REACH IT: the kick strength to 0 and the force to 0, which the
+# laboratory offers together as the "Naegeli frozen step" preset with a step-shaped starting profile.
+#
+# WHY A STEP PROFILE MAKES THE POINT VISIBLE. Under Naegeli's premise with no force applied, nothing at
+# all happens: a sharp step in concentration stays a sharp step forever, because there is no drift to
+# move it and no spreading to smooth it. That is the strongest form of the objection and the easiest to
+# check against a microscope, which shows a step smoothing out in seconds.
+#
+# WHAT THE INSTRUMENT REFUSES AND WHY THE REFUSAL IS THE RIGHT ANSWER. The kinetic route to the
+# diffusivity is mu|F| times the decay length, and the decay length is the kick diffusivity over
+# mu|F|. With both the force and the kicks at zero that is zero times zero over zero. The evaluator
+# states it in exactly those terms - "0/0 is not an evaluation; the equilibrium construction relates two
+# descriptions of the same state" - and reports the kinetic diffusivity as not applicable rather than as
+# zero, as infinite, or as a number arrived at by cancelling one zero against another.
+#
+# THE EQUILIBRIUM ROUTE KEEPS ITS VALUE, and the contrast is the lesson. mu k_B T is 4.2858e-13 m^2/s
+# whatever the force is, because it describes what the liquid would do to a particle; the kinetic route
+# needs an actual force to divide by. One number survives the limit and the other does not, and a page
+# that printed zero for both would be claiming the liquid stops being a liquid when you stop pushing.
+#
+# The reason code is the status itself, as for the other not-applicable records: there is no failed
+# condition to name, because nothing was attempted.
+id: "bm04-naegeli-zero-force-frozen"
+kind: "adversarial"
+title: "BM-04 with no force and no kicks: the kinetic diffusivity is not applicable, not zero"
+description: "With the kick strength and the applied force both at zero, the kinetic route to the diffusivity is zero divided by zero. The instrument reports it as not applicable, stating that the equilibrium construction relates two descriptions of one state rather than evaluating a ratio, while the equilibrium relation keeps its value of 4.2858e-13 m^2/s because it describes the liquid and not the experiment. Under this premise a step in concentration would stand still forever, which is the sharpest form of Naegeli's objection and the easiest to check."
+plausibleMistake: "That zero force and zero kicks give zero diffusion, so the kinetic diffusivity is simply zero. The expression is 0/0, and a page printing zero would be choosing one of the values it could be made to approach: take the kicks to zero first and it is zero, take the force to zero first and it is unbounded. Choosing silently is worse than refusing, because the number would carry no sign that a limit had been taken at all."
+intendedFailure: "The division is not performed, so no value is manufactured from the double zero. The scenario passes only when the kinetic diffusivity arrives as not applicable; a run returning 0 fails here, which is the point, and so does one returning the equilibrium number, which would conflate the two routes exactly where the laboratory is trying to tell them apart."
+constantSetId: "modern-si-2019"
+owner: "diffusion.equilibriumBalance"
+inputs:
+  F:
+    value: 0
+    unit: "N"
+  m:
+    value: 0
+    unit: "1"
+  T:
+    value: 293.15
+    unit: "K"
+  eta:
+    value: 0.001002
+    unit: "Pa s"
+  a:
+    value: 5.0e-7
+    unit: "m"
+expected:
+  status:
+    outputId: "balanceD"
+    status: "not-applicable"
+    reasonCode: "not-applicable"
+modelVersion: 1
+schemaVersion: 1

@@ -1,0 +1,67 @@
+# KICKS THAT DO NOT MATCH THE RELATION ARE NOT A STEADY STATE (am-nxbq, item 1).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the kick strength, set to 2 with the force and the liquid
+# left alone. The laboratory offers it as the "Mismatched kinetic kicks" preset.
+#
+# WHAT IS BEING TESTED. Section 3's balance is not an identity that holds for any numbers you like: it
+# says that IF a suspension in a force field sits in a steady profile, THEN the diffusivity supplied by
+# the kicks equals mu k_B T. Doubling the kicks while leaving the liquid, the particle and the force
+# alone breaks the antecedent, and the instrument must say so rather than quietly reporting a steady
+# state at twice the spreading.
+#
+# WHAT HAPPENS PHYSICALLY. With twice the required diffusivity the particles spread faster than the
+# force can pile them up, so the profile does not stand still: it keeps flattening. The equilibrium
+# relation still reports 4.2858e-13 m^2/s, because it is a property of the liquid and the particle; the
+# kinetic route reports 8.5716e-13, exactly twice it; and the ratio is 2 rather than 1, which is the
+# instrument saying in one number that this is not an equilibrium.
+#
+# WHY A RATIO AND NOT A BOOLEAN. The evaluator also carries a yes-or-no agreement flag, and a flag can
+# only say that something is wrong. The ratio says BY HOW MUCH, so a reader who moves the control sees
+# the disagreement grow smoothly from 1 rather than flipping, and the same number at 1 is the agreement
+# that bm04-steady-state-einstein pins.
+id: "bm04-mismatched-kicks-nonequilibrium"
+kind: "adversarial"
+title: "BM-04 with twice the required kicks: the two routes disagree by exactly a factor of two"
+description: "Doubling the kick strength supplies twice the diffusivity the equilibrium relation requires, so the balance that section 3 assumes does not hold. The equilibrium route still gives 4.2858e-13 m^2/s because it describes the liquid and the particle; the kinetic route gives 8.5716e-13, and the ratio is 2. The particles spread faster than the force can concentrate them, so the profile keeps flattening instead of standing still."
+plausibleMistake: "That the balance is an identity which holds whatever the kicks are doing, so any kick strength still yields a steady state at some diffusivity. The relation is conditional on the profile being steady, and a reader who takes it as unconditional will read the kinetic number as the real diffusivity of a real equilibrium that is not there. The instrument reporting a single diffusivity, rather than two and their ratio, would make that misreading the natural one."
+intendedFailure: "Both routes are reported and their ratio with them, so a mismatch cannot be hidden behind one number. The scenario passes only when the kinetic diffusivity is exactly twice the equilibrium one and the ratio is 2; a run where the two agreed would mean the kick strength was being ignored, which would make bm04-steady-state-einstein pass for the wrong reason as well."
+constantSetId: "modern-si-2019"
+owner: "diffusion.equilibriumBalance"
+inputs:
+  F:
+    value: 4.047373e-15
+    unit: "N"
+  m:
+    value: 2
+    unit: "1"
+  T:
+    value: 293.15
+    unit: "K"
+  eta:
+    value: 0.001002
+    unit: "Pa s"
+  a:
+    value: 5.0e-7
+    unit: "m"
+expected:
+  outputs:
+    - outputId: mobilityD
+      value: 4.2858239975545054e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Unchanged from the balanced case: mu k_B T does not depend on the kick strength, which is what makes the comparison meaningful."
+    - outputId: balanceD
+      value: 8.57164799510901e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Exactly twice the equilibrium diffusivity, because the kick strength multiplies it and the force cancels out of the kinetic route as it does in the balanced case."
+    - outputId: kickStrength
+      value: 2
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-9
+        rationale: "The ratio of the two routes, 2 rather than 1. The evaluator's own agreement flag uses a tolerance of 1e-9 on this quantity, so this matches what it would decide."
+modelVersion: 1
+schemaVersion: 1

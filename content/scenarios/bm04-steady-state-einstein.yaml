@@ -1,0 +1,64 @@
+# THE BALANCE SECTION 3 IS BUILT ON, AT THE SETTINGS A READER ARRIVES ON (am-nxbq, item 1).
+#
+# WHICH CONTROL VALUES A READER MOVES TO REACH IT: none. A force of 4.047 fN, kick strength 1, water at
+# 293.15 K and a half-micron particle are BM-04's own defaults and its "Einstein equilibrium balance"
+# preset. 4.047 fN is not an arbitrary force: it is k_B T over one micron, the force that would do one
+# unit of thermal energy of work over a micron, which is why the laboratory arrives there.
+#
+# WHAT THE TWO DIFFUSIVITIES ARE AND WHY BOTH ARE REPORTED. One comes from the EQUILIBRIUM relation,
+# D = mu k_B T, where mu is the Stokes mobility of a sphere in a viscous liquid: it says how fast
+# particles must spread if a suspension in a force field is to sit still in a steady profile. The other
+# is the diffusivity the molecular KICKS actually supply, as the laboratory's kick-strength control sets
+# it. Section 3's argument is that these two are the same quantity arrived at twice, and the scenario
+# pins both and their ratio rather than either alone, because the claim is that they agree.
+#
+# WHY THE FORCE CANCELS, which is the laboratory's own question. The decay length of the equilibrium
+# profile is k_B T over the force, and the drift speed is mu times the force; multiply them and the
+# force disappears. A reader who doubles the force halves the decay length and doubles the drift, and
+# the diffusivity does not move. That is what makes the result a statement about the liquid and the
+# particle rather than about the experimenter's choice of force, and it is why the kick strength here is
+# exactly 1 at a force nobody tuned.
+id: "bm04-steady-state-einstein"
+kind: "modern-golden"
+title: "BM-04 at the Einstein balance: both routes give 4.2858e-13 m^2/s and the kick strength is exactly 1"
+description: "At BM-04's defaults the Stokes mobility of a half-micron sphere in water at 293.15 K gives an equilibrium diffusivity of 4.2858e-13 m^2/s through D = mu k_B T. With the kick strength at 1 the molecular kicks supply exactly that diffusivity, so the balance between drift and spreading closes and the ratio of the two routes is 1. The applied force sets the decay length and the drift speed separately, and cancels between them."
+constantSetId: "modern-si-2019"
+owner: "diffusion.equilibriumBalance"
+inputs:
+  F:
+    value: 4.047373e-15
+    unit: "N"
+  m:
+    value: 1
+    unit: "1"
+  T:
+    value: 293.15
+    unit: "K"
+  eta:
+    value: 0.001002
+    unit: "Pa s"
+  a:
+    value: 5.0e-7
+    unit: "m"
+expected:
+  outputs:
+    - outputId: mobilityD
+      value: 4.2858239975545054e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "mu k_B T with the Stokes mobility of the stated sphere and k_B exact by definition, so the only error admitted is floating-point."
+    - outputId: balanceD
+      value: 4.285823997554505e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The same number by the other route. It differs from the line above in the last bit because it is formed as mu|F| times k_B T/(mu|F|) rather than as mu k_B T, which is the cancellation the argument turns on."
+    - outputId: kickStrength
+      value: 1
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-9
+        rationale: "The ratio of the two routes. Exactly 1 is the agreement itself; the evaluator's own boolean uses a tolerance of 1e-9 on this quantity and this matches it."
+modelVersion: 1
+schemaVersion: 1

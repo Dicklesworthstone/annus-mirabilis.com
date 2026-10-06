@@ -1,0 +1,72 @@
+# NAEGELI'S HYPOTHESIS, RUN RATHER THAN DESCRIBED (am-nxbq, item 1).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the kick strength, from 1 to 0, with the force left alone.
+# The laboratory calls it the "Naegeli kicks-off branch" and says in its own prose that this is how you
+# test his hypothesis.
+#
+# WHOSE OBJECTION THIS IS AND WHY IT DESERVES A FAIR HEARING. Carl von Naegeli argued in 1879 that a
+# single molecular impact is far too feeble to shift a body visible under a microscope, and he was
+# RIGHT about that: the mass ratio is enormous and one collision moves a particle immeasurably little.
+# The objection is not foolish and this record does not mock it. What it misses is that the impacts do
+# not arrive one at a time or from one direction, and that the quantity which accumulates is not the
+# velocity but the MEAN SQUARE of the displacement. Einstein's answer is a change of statistic, not a
+# claim that the kicks are stronger than Naegeli thought.
+#
+# WHAT THE INSTRUMENT SHOWS WHEN YOU TURN THEM OFF. The equilibrium relation still returns its
+# diffusivity, 4.2858e-13 m^2/s, because mu k_B T is a property of the liquid and the particle and knows
+# nothing about whether kicks are happening. The diffusivity the kicks SUPPLY is exactly zero, and the
+# ratio between the two is zero rather than one: the balance does not close. Physically the particles
+# drift down the force and nothing spreads them back, so they pile up against the wall and there is no
+# steady profile at all. That is a definite, checkable consequence of Naegeli's premise, and it is not
+# what a microscope shows.
+#
+# THIS IS A CONSEQUENCE, NOT A REFUTATION BY SIMULATION. The instrument is showing what Naegeli's
+# assumption implies, which is what a simulator can do; whether nature agrees is settled by the
+# displacements of section 5 and by Perrin's later measurements, and the site says so wherever it shows
+# this branch.
+id: "bm04-naegeli-kicks-off-drift"
+kind: "adversarial"
+title: "BM-04 with the kicks off: drift with nothing to oppose it, and a balance that does not close"
+description: "Setting the kick strength to zero is Naegeli's hypothesis that molecular impacts cannot move a visible particle. The equilibrium relation still gives 4.2858e-13 m^2/s, because mu k_B T describes the liquid and the particle; the diffusivity the kicks supply is zero, and the ratio of the two is zero. The force then drives a drift that nothing opposes, so no steady profile exists, which is a definite consequence of the premise rather than a failure of the instrument."
+plausibleMistake: "That turning the kicks off should simply make everything zero, including the diffusivity the equilibrium relation reports, since there is no diffusion happening. The relation does not describe what is happening; it says what WOULD have to spread the particles for the profile to stand still. Reporting it as zero would hide the discrepancy that is the whole point of the branch, because the two routes would then agree on zero and the balance would look closed."
+intendedFailure: "The two routes are reported separately, so their disagreement is visible as a kick strength of zero instead of one. The scenario passes only when the equilibrium diffusivity keeps its value while the kick diffusivity is exactly zero; a run where both were zero, or where the equilibrium route followed the kicks down, would be asserting that Naegeli's premise is self-consistent with a steady suspension, which is the claim this branch refutes."
+constantSetId: "modern-si-2019"
+owner: "diffusion.equilibriumBalance"
+inputs:
+  F:
+    value: 4.047373e-15
+    unit: "N"
+  m:
+    value: 0
+    unit: "1"
+  T:
+    value: 293.15
+    unit: "K"
+  eta:
+    value: 0.001002
+    unit: "Pa s"
+  a:
+    value: 5.0e-7
+    unit: "m"
+expected:
+  outputs:
+    - outputId: mobilityD
+      value: 4.2858239975545054e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Unchanged from the Einstein balance, byte for byte: mu k_B T does not depend on the kick strength, and that is the assertion."
+    - outputId: balanceD
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-30
+        rationale: "Exactly zero by construction rather than by cancellation, so the tolerance is absolute; a relative tolerance against zero admits any value at all and the schema refuses it."
+    - outputId: kickStrength
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-30
+        rationale: "Zero over a positive diffusivity. One would mean the balance closed, which is exactly what Naegeli's premise cannot deliver."
+modelVersion: 1
+schemaVersion: 1

@@ -26,8 +26,17 @@ import { SR11_DEFAULTS } from "../../experiments/sr11/definition.ts";
 import { snapshotOutputs as sr11SnapshotOutputs } from "../../experiments/sr11/session.ts";
 import bm08Example from "../../generated/bm08-example.json";
 import { MODEL_DOMAINS } from "../../generated/model-domains.ts";
-import { createDeclaredConstantSet, getConstantSet } from "../../physics/reference/constants.ts";
-import { configurationVolumeTerm, decayLengths } from "../../physics/reference/diffusion/routeA.ts";
+import {
+  createDeclaredConstantSet,
+  getConstantSet,
+  thermalConstant,
+} from "../../physics/reference/constants.ts";
+import {
+  configurationVolumeTerm,
+  decayLengths,
+  equilibriumBalance,
+  stokesMobility,
+} from "../../physics/reference/diffusion/routeA.ts";
 import {
   kernelDiffusivity,
   kernelMoments,
@@ -1295,6 +1304,87 @@ const OWNERS: OwnerRecord[] = [
    * as "the density falls very slowly" rather than "it does not fall". The force control's declared range
    * includes zero, so a reader reaches this by dragging the force to the middle.
    */
+  /**
+   * THE EQUILIBRIUM BALANCE, AND NAEGELI'S BRANCH THROUGH IT (am-nxbq, item 1).
+   *
+   * BM-04 is section 3 of paper 2: a directional force is set against random spreading, and the balance
+   * between them fixes how fast the particles diffuse. The laboratory's control `m` is the KICK STRENGTH,
+   * the factor by which the molecular kicks supply more or less diffusivity than the equilibrium
+   * relation D = mu k_B T requires, so m = 1 is Einstein's balance and m = 0 is Naegeli's hypothesis that
+   * molecular impacts do nothing at all. This owner takes m and forms the kick diffusivity from it, the
+   * way the laboratory does, rather than making a scenario state an absolute diffusivity whose
+   * relationship to the balance a reader would have to work out.
+   *
+   * `kickStrength` IS THE NUMERIC CARRIER OF `agree`. The evaluator also returns a boolean, and a
+   * boolean is exactly what a scenario's expected outputs cannot express; kickStrength is 1 when and
+   * only when the kicks match the relation, so asserting the number asserts the agreement and says by
+   * how much it fails when it fails.
+   */
+  {
+    id: "diffusion.equilibriumBalance",
+    sourcePath: fileURLToPath(
+      new URL("../../physics/reference/diffusion/routeA.ts", import.meta.url),
+    ),
+    fn: (ctx) => {
+      const eta = num(ctx.inputs, "eta");
+      const a = num(ctx.inputs, "a");
+      const temperature = num(ctx.inputs, "T");
+      const set = getConstantSet("modern-si-2019");
+      const muEval = stokesMobility(eta, a);
+      const mu = nonNumericOr(muEval.result as unknown as Record<string, unknown>, "mobility");
+      if (typeof mu !== "number") return mu;
+      // The same product the evaluator forms internally, so m scales the kicks against the relation
+      // rather than against some other diffusivity.
+      const mobilityD = mu * thermalConstant(set).value * temperature;
+      const balance = equilibriumBalance(
+        {
+          force: num(ctx.inputs, "F"),
+          temperature,
+          eta,
+          a,
+          kickDiffusivity: num(ctx.inputs, "m") * mobilityD,
+        },
+        set,
+      );
+      if (!("mobilityD" in balance)) {
+        // equilibriumBalance returns a flat evaluation rather than the balance record when its own
+        // domain check refuses, so the refusal is reported on the diffusion coefficient it would have
+        // produced. A number here would mean the shape changed and is a contract error, not a result.
+        const refused = nonNumericOr(
+          (balance as { result?: unknown }).result as Record<string, unknown>,
+          "diffusionCoefficient",
+        );
+        // A number cannot arrive here: the flat shape is only returned by the domain guard, which
+        // always refuses. Reporting it as a refusal rather than throwing keeps this owner free of a
+        // throw site, and any scenario that met it would fail loudly on an unrecognised reason.
+        return typeof refused === "number"
+          ? {
+              refused: {
+                outputId: "diffusionCoefficient",
+                status: "outside-domain",
+                reasonCode: "balance-record-absent",
+              },
+            }
+          : refused;
+      }
+      const held = balance as {
+        mobilityD: { result?: Record<string, unknown> } & Record<string, unknown>;
+        balanceD: { result?: Record<string, unknown> } & Record<string, unknown>;
+        kickStrength: number;
+      };
+      const numbers: Record<string, number> = {};
+      for (const [outputId, carrier] of [
+        ["mobilityD", held.mobilityD],
+        ["balanceD", held.balanceD],
+      ] as const) {
+        const got = nonNumericOr((carrier.result ?? carrier) as Record<string, unknown>, outputId);
+        if (typeof got !== "number") return got;
+        numbers[outputId] = got;
+      }
+      numbers.kickStrength = held.kickStrength;
+      return numbers;
+    },
+  },
   {
     id: "diffusion.decayLengths",
     sourcePath: fileURLToPath(
