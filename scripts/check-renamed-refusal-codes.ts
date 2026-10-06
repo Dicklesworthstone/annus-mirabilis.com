@@ -70,6 +70,63 @@ export const ACCEPTED_COLLISIONS: ReadonlyMap<string, string> = new Map([
       'holds both spellings at once - `if (BIBLIOGRAPHIC_KEY.test(raw)) return "bibliographic-key";` ' +
       "- the constant and the route kind it returns.",
   ],
+  // THE SEVEN ADDED ON 2026-10-06, when this gate was found RED in the chain it is required in.
+  // It reported 20 surviving code references across seven files and two spellings. Both spellings
+  // are proven never to have been a refusal code, by the same test the entries above use, and the
+  // proof is the strongest form available: a search of the WHOLE history for the spelling as a
+  // string literal returns nothing.
+  //
+  //   git log --oneline -S'"AGENT_REVIEW_BASIS"'  --all   ->  0 commits
+  //   git log --oneline -S'"TEAM_ID_PLACEHOLDER"' --all   ->  0 commits
+  //
+  // So neither kebab code has ever been written in the old form anywhere, ever, and these are
+  // collisions of the kind the header's KNOWN LIMIT describes rather than survivors of the rename.
+  //
+  // Each is also a collision with a VALUE that is not a code, which is what distinguishes it:
+  // AGENT_REVIEW_BASIS holds a decision id and TEAM_ID_PLACEHOLDER holds an Apple placeholder
+  // string. That observation is general - FILE_NOT_FOUND above is a hash sentinel, UNADMITTED_DIGEST
+  // a hex digest, BIBLIOGRAPHIC_KEY a regular expression - and a value-aware rule would make this
+  // map much shorter. Changing the classifier is a larger decision than unblocking the chain, and is
+  // recorded on am-p465 rather than taken here.
+  [
+    "src/content/schemas/source.ts:AGENT_REVIEW_BASIS",
+    "A constant holding a DECISION ID, `export const AGENT_REVIEW_BASIS = " +
+      '"D-2026-09-25-agent-reviewed-translations"` at line 2032, arrived with the agent-review work ' +
+      "in 661d6534. The kebab 'agent-review-basis' is the refusal this same file returns two lines " +
+      "below a USE of that constant: `if (o.basis !== AGENT_REVIEW_BASIS)` refuses with " +
+      '"agent-review-basis". The constant names the value a unit must carry and the code names the ' +
+      "failure to carry it, so both spellings legitimately coexist within six lines.",
+  ],
+  [
+    "src/content/schemas/agentReview.test.ts:AGENT_REVIEW_BASIS",
+    "Imports and passes the decision-id constant above as a default argument. Same evidence.",
+  ],
+  [
+    "src/reader/faces/agentChecked.render.test.tsx:AGENT_REVIEW_BASIS",
+    "Imports the decision-id constant above to build a reviewed TranslationUnit. Same evidence.",
+  ],
+  [
+    "scripts/app/identity.ts:TEAM_ID_PLACEHOLDER",
+    "A constant holding an Apple placeholder VALUE, `export const TEAM_ID_PLACEHOLDER = " +
+      '"OWNER_SUPPLIES_APPLE_TEAM_ID"` at line 12, moved out of its test by 66b37210. The kebab ' +
+      "'team-id-placeholder' is a member of AssociationErrorCode in scripts/app/association-file.ts, " +
+      "the code returned when the association file still carries that placeholder. Neither spelling " +
+      "is the other: one is the string being looked for, the other is the refusal for finding it.",
+  ],
+  [
+    "scripts/app/association-file.ts:TEAM_ID_PLACEHOLDER",
+    "Compares the parsed team id against the placeholder constant above and returns the kebab code " +
+      "when they are equal, so this file holds both spellings at once for the same reason " +
+      "paperRoutes.ts does. Same evidence.",
+  ],
+  [
+    "scripts/app/association-file.test.ts:TEAM_ID_PLACEHOLDER",
+    "Builds a fixture carrying the placeholder value and asserts the kebab refusal. Same evidence.",
+  ],
+  [
+    "scripts/app/identity.test.ts:TEAM_ID_PLACEHOLDER",
+    "Asserts the parser's handling of the placeholder constant above. Same evidence.",
+  ],
 ]);
 
 /**
@@ -133,18 +190,65 @@ function titleRanges(source: string): [number, number][] {
 const within = (ranges: readonly [number, number][], offset: number): boolean =>
   ranges.some(([a, b]) => offset >= a && offset < b);
 
-export function findRenameSurvivors(root: string): {
+/**
+ * Blank every comment BODY, keeping the file's length and its newlines (am-rc1001-bridge-plan-pcjk.9).
+ *
+ * The classifying half below has excluded comments since the beginning. The COLLECTING half did not,
+ * and read a comment that quotes a refusal code as a site that throws one, which is AGENTS.md's "a
+ * gate that forbids a construct must read code, not text" in the half that builds the denominator
+ * rather than the half that judges. A comment quoting a code made the gate hunt for that code's
+ * uppercase form across the whole tree, which inflates the reported population and could in principle
+ * manufacture a survivor out of two unrelated comments.
+ *
+ * Found by this gate's own new test: a docblock explaining the test's fixture quoted
+ * `throw new Error("zz-planted-code")`, and that invented code entered the real code set.
+ *
+ * MEASURED BEFORE CHANGING IT, because stripping could in principle lose a real code. Over every
+ * tracked source at 441ac4d6: 1695 codes raw, 1694 with comments blanked, exactly one lost, and the
+ * one lost is `zz-planted-code` from that docblock. Nothing is gained, so no comment was hiding a code
+ * the collector needed. A code that appears ONLY in a comment is not a code this check can be about.
+ *
+ * Bodies are blanked rather than deleted so that offsets and line numbers are unchanged, which keeps
+ * this usable beside the offset-based classification below.
+ */
+export function blankComments(source: string): string {
+  const blank = (m: string) => m.replace(/[^\n]/g, " ");
+  return source.replace(/\/\*[\s\S]*?\*\//g, blank).replace(/\/\/.*/g, blank);
+}
+
+export interface RenameSurvivorReport {
   readonly thrownCodes: number;
   readonly mentions: number;
   readonly prose: number;
   readonly survivors: readonly RenameSurvivor[];
-} {
+}
+
+/**
+ * Read every tracked source this check examines. Separated from the judging half below so that half
+ * can be tested at all (am-rc1001-bridge-plan-pcjk.9, 2026-10-06).
+ *
+ * This gate had NO test. `findRenameSurvivors` was exported and imported by nothing, its only
+ * consumer was the registry entry, and its classification - which the header rightly calls "the whole
+ * value" - was unproven in both directions. It was also RED in the chain it is required in, and
+ * finding that took running it by hand. A gate that cannot be driven with a known input cannot be
+ * shown to bite, and an exclusion list that grows without such a proof is indistinguishable from a
+ * weakened gate.
+ */
+export function readTrackedSources(root: string): Map<string, string> {
   const files = execFileSync("git", ["ls-files"], { cwd: root, encoding: "utf8" })
     .split("\n")
     .filter((f) => /\.(ts|tsx|mts|mjs|json)$/.test(f));
   const sources = new Map<string, string>();
   for (const f of files) sources.set(f, readFileSync(path.join(root, f), "utf8"));
+  return sources;
+}
 
+export function findRenameSurvivors(root: string): RenameSurvivorReport {
+  return findRenameSurvivorsIn(readTrackedSources(root));
+}
+
+/** The judging half: given the sources, which old-form mentions are survivors and which are prose. */
+export function findRenameSurvivorsIn(sources: ReadonlyMap<string, string>): RenameSurvivorReport {
   // The code set is NOT just throw sites. Most refusals in this codebase are RETURNED - a
   // validator hands back { refusalCode } or { code } rather than throwing - and a first version
   // of this check collected only the thrown form with a literal code. Planting the old form back into
@@ -157,7 +261,9 @@ export function findRenameSurvivors(root: string): {
     new RegExp(String.raw`\b(?:code|refusalCode|errorCode)\s*:\s*"${KEBAB}"`, "g"),
   ];
   const thrown = new Set<string>();
-  for (const source of sources.values()) {
+  for (const raw of sources.values()) {
+    // Comments blanked: see blankComments above. A comment that QUOTES a code is not a site.
+    const source = blankComments(raw);
     for (const re of SOURCES) for (const m of source.matchAll(re)) thrown.add(m[1] as string);
     // Union members, but ONLY from a type whose name ends in Code. A blanket `| "kebab"` sweep
     // took the code set from 956 to 2166 and produced 42 survivors, every one a collision:
