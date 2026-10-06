@@ -1658,6 +1658,34 @@ const OWNERS: OwnerRecord[] = [
       return typeof got === "number" ? { finiteSpeedProxy: got } : got;
     },
   },
+  /**
+   * HOW WRONG THE LOW-SPEED PROXY IS WHERE IT IS WRONG (am-nxbq, item 1).
+   *
+   * AGENTS.md lists "the low-speed proxy is the exact mass coefficient at every speed" among the
+   * adversarial fixtures this edition must hold, and until now nothing could express it: ME-02 computed
+   * the excess and no owner read it. The quantity is (2 dK / v^2) / (L / c^2) - 1, the fraction by which
+   * the finite-speed proxy overstates the coefficient the paper identifies, and it is a NUMBER at every
+   * admitted speed rather than a refusal, which is what makes it a fixture rather than a guard: the
+   * mistake produces an answer, and the answer is wrong by an amount this reports.
+   *
+   * The evaluator names `massEnergy.proxyExcess` as its own ownerId, so this entry takes that id rather
+   * than the manifest's output name.
+   */
+  {
+    id: "massEnergy.proxyExcess",
+    sourcePath: fileURLToPath(new URL("../../physics/reference/massEnergy.ts", import.meta.url)),
+    fn: (ctx) => {
+      const snapshot = evaluateMe02({
+        beta: num(ctx.inputs, "beta"),
+        emittedEnergy: num(ctx.inputs, "emittedEnergy"),
+      });
+      const got = nonNumericOr(
+        snapshot.proxyExcess as unknown as Record<string, unknown>,
+        "proxyExcess",
+      );
+      return typeof got === "number" ? { proxyExcess: got } : got;
+    },
+  },
   {
     id: "photoelectric.stoppingPotentialTyped",
     sourcePath: fileURLToPath(new URL("../../physics/reference/photoelectric.ts", import.meta.url)),

@@ -1,0 +1,45 @@
+# THE MASS COEFFICIENT AT v = 0 IS A LIMIT, NOT A DIVISION BY ZERO (am-nxbq, items 1 and 2).
+#
+# AGENTS.md tabulates this exact case in its own list of typed results: "analytic-limit | A defined
+# limit with its own representation | The point distribution at t = 0; THE MASS COEFFICIENT AT v = 0".
+# This is that row, as a record the runner executes.
+#
+# WHICH CONTROL VALUE A READER MOVES TO REACH IT: "Observer speed" set to 0. It is inside the declared
+# range, so no gate stops it; the reader is asking a legitimate question and gets a legitimate answer
+# that is not a number of the usual kind.
+#
+# WHY THE QUESTION IS SHARP. ME-02 reads the body's lost inertia from the SMALL-SPEED coefficient of its
+# kinetic energy: dK = L(gamma - 1), and dividing twice that by v^2 gives a mass. At v = 0 that division
+# is 0/0. The honest answer is not an error, not infinity, and not a silent zero: the limit exists, it is
+# L/c^2, and the evaluator returns it as a defined limit carrying its own representation, with the
+# description "The mass coefficient identified at vanishing speed, L/c^2, with no 0/0 division."
+#
+# THE STATUS IS THE POINT, NOT THE NUMBER. The limit carries 1.1126500560536185e-17 kg for L = 1 J, and
+# this scenario deliberately does not pin that figure as a value: pinning it as a value would be the very
+# confusion the typed status exists to prevent, a limit reported as though it were an ordinary reading.
+# me-02-adversarial-proxy pins the number that a reader who makes that confusion would see instead.
+#
+# The reason code is the representation's kind rather than a condition, because an analytic limit has no
+# failed condition to name: it is defined, and what it carries is a coefficient.
+id: "me-02-limit-zero"
+kind: "modern-golden"
+title: "ME-02 reports the mass coefficient at zero speed as a defined limit, never a division by zero"
+description: "ME-02 identifies the body's lost inertia from the small-speed coefficient of its kinetic energy, which means dividing a kinetic difference by the square of a speed. At zero speed both are zero. The instrument does not divide: it reports the limit the paper actually uses, L over c squared, as a defined limit carrying its own value, so a reader who takes the speed to zero sees the coefficient the argument identifies rather than an error, an infinity or a zero."
+plausibleMistake: "That zero speed is a degenerate setting the instrument should refuse, or else one where the coefficient is zero because the kinetic difference is. Both readings lose the paper's conclusion. The coefficient is the LIMIT of a ratio whose numerator and denominator both vanish, and it is exactly where the argument is made: Einstein takes the small-speed case on purpose, because that is where the kinetic energy of a body is governed by its mass alone."
+intendedFailure: "No division is performed at zero speed, so no zero, infinity or not-a-number can reach the page. The scenario passes only when the limiting coefficient arrives as a defined limit carrying a coefficient representation; a run that returned it as an ordinary value fails here, and so does one that refused it as outside a domain or as not applicable, each of which would say the quantity is unavailable when it is the one the paper names."
+constantSetId: "modern-si-2019"
+owner: "massEnergy.limitingCoefficient"
+inputs:
+  beta:
+    value: 0
+    unit: "1"
+  emittedEnergy:
+    value: 1
+    unit: "J"
+expected:
+  status:
+    outputId: "limitingCoefficient"
+    status: "analytic-limit"
+    reasonCode: "coefficient"
+modelVersion: 1
+schemaVersion: 1

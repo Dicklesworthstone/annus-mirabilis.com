@@ -1,0 +1,50 @@
+# THE LOW-SPEED PROXY IS NOT THE MASS COEFFICIENT AT EVERY SPEED (am-nxbq, item 1).
+#
+# AGENTS.md names this fixture in its own adversarial list, in these words: "the low-speed proxy is the
+# exact mass coefficient at every speed". It is listed there as a deliberately plausible WRONG result
+# that must fail for the intended reason, and this record is it.
+#
+# WHICH CONTROL VALUE A READER MOVES TO REACH IT: "Observer speed" at 0.6, which is ME-02's own default
+# and well inside its declared range. Nothing refuses, and that is the whole difficulty: the mistake
+# returns a finite, plausible, wrong number rather than an error.
+#
+# THE MISTAKE, STATED EXACTLY. ME-02 shows two quantities a reader can easily conflate. The LIMITING
+# COEFFICIENT is L/c^2, the mass the paper identifies. The FINITE-SPEED PROXY is 2 dK / v^2, the same
+# formula evaluated at whatever speed is set, which is what you get by treating the small-speed
+# coefficient as though it held at any speed. They agree only as v goes to zero.
+#
+# THE SIZE OF THE ERROR IS AN EXACT RATIONAL, which is why this is a fixture rather than an anecdote.
+# The ratio is 2(gamma - 1)/beta^2, so at beta = 0.6, where gamma = 1.25, it is 2(0.25)/0.36 = 25/18.
+# The proxy therefore overstates the coefficient by 7/18, which is 0.3888... , near enough 39 per cent.
+# At beta = 0.01 the same excess is 7.5e-5, and at beta = 0 the proxy is not applicable at all, which is
+# pinned separately by me-02-zero-speed-proxy-has-no-value.
+#
+# WHAT THIS DOES NOT SAY. The proxy is not a bug and ME-02 is right to show it: watching it converge on
+# the coefficient as the speed falls is how a reader sees WHY the paper takes the small-speed case. What
+# must never happen is the page presenting the proxy's value at 0.6c as the body's mass change. The
+# signed mass change beside it is the honest quantity and does not vary with the observer's speed.
+id: "me-02-adversarial-proxy"
+kind: "adversarial"
+title: "ME-02's finite-speed proxy overstates the mass coefficient by 7/18 at 0.6c, and the excess is reported"
+description: "A reader who takes the small-speed coefficient to hold at any speed computes twice the kinetic difference over the square of the speed and calls the result the body's mass change. At 0.6c that is 1.545e-17 kg where the coefficient the paper identifies is 1.113e-17 kg. ME-02 reports the fraction by which the proxy exceeds the limit, 2(gamma - 1)/beta^2 - 1, exactly 7/18 at this speed, so the gap between the two quantities is on the page as a number rather than left for the reader to not notice."
+plausibleMistake: "That the coefficient relating lost energy to lost mass can be read off at any convenient speed, since the relation is supposed to be exact. The relation IS exact; the proxy is not the relation. 2 dK / v^2 equals L/c^2 only in the limit of small speed, and at 0.6c it is 25/18 of it, so a reader who reads the proxy at the default setting and calls it the mass change is wrong by 39 per cent while seeing a plausible number in plausible units."
+intendedFailure: "The excess is computed and shown rather than being left implicit, so the two quantities cannot be silently interchanged. The scenario passes only when the excess at 0.6c is 7/18 to within floating-point error; a run reporting zero excess would be asserting the proxy IS the coefficient at every speed, which is the claim this fixture exists to refuse, and a run reporting some other value would mean the proxy, the limit, or the relation between them had changed."
+constantSetId: "modern-si-2019"
+owner: "massEnergy.proxyExcess"
+inputs:
+  beta:
+    value: 0.6
+    unit: "1"
+  emittedEnergy:
+    value: 1
+    unit: "J"
+expected:
+  outputs:
+    - outputId: proxyExcess
+      value: 0.3888888888888889
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Exact: 2(gamma - 1)/beta^2 - 1 = 25/18 - 1 = 7/18 at beta = 0.6, a rational with no truncation in it, so the only error admitted is floating-point."
+modelVersion: 1
+schemaVersion: 1
