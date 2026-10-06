@@ -1,7 +1,7 @@
 /**
  * Refusal site coverage for src/content/anchors.ts (am-muyh).
  *
- * Covers all 7 refusal return sites in anchors.ts:
+ * Covers the refusal return sites in anchors.ts:
  * 1. (anchors.ts:178) retired-heading-anchor
  * 2. (anchors.ts:186) retired-footnote-sentence-anchor
  * 3. (anchors.ts:222) result-anchor-grammar
@@ -9,6 +9,14 @@
  * 5. (anchors.ts:260) lab-anchor-grammar
  * 6. (anchors.ts:277) card-anchor-grammar
  * 7. (anchors.ts:294) object-anchor-grammar
+ * 8. (anchors.ts:160) anchor-grammar, the empty or non-string input
+ * 9. (anchors.ts:337) anchor-grammar, the fall-through for a fragment no arm recognized
+ *
+ * 8 and 9 were added for am-r3qt and are the two ends of parseAnchor rather than two more arms:
+ * 160 refuses before any grammar is consulted and 337 refuses after every arm has declined. They
+ * SHARE the rule `anchor-grammar`, so each case asserts its own message; naming the rule alone
+ * would credit both sites from either case. The header said "all 7" while carrying nine sites,
+ * which is why it now names the sites instead of counting them.
  */
 
 import assert from "node:assert/strict";
@@ -160,6 +168,73 @@ describe("Anchor Refusal Sites (anchors.ts)", () => {
         assert.equal(res.value.kind, "object");
         assert.equal(res.value.targetId, "object-desk-mirror");
       }
+    });
+  });
+
+  // 8. (anchors.ts:160) anchor-grammar, before any grammar is consulted
+  describe("Site (anchors.ts:160): anchor-grammar on empty input", () => {
+    it("refuses the empty string with rule anchor-grammar (anchors.ts:160)", () => {
+      const res = parseAnchor("");
+      assert.equal(res.ok, false);
+      if (!res.ok) {
+        assert.equal(res.rule, "anchor-grammar");
+        assert.match(res.error, /non-empty string/);
+        // NOT the fall-through message: that one belongs to :337, and an empty anchor reaching
+        // it would mean parseAnchor had tried to parse "#" as a fragment.
+        assert.doesNotMatch(res.error, /Unknown anchor format/);
+      }
+    });
+
+    it("accepts a fragment the anchor-grammar guard must not swallow (anchors.ts:160)", () => {
+      // The negative: a guard written as `if (!raw.startsWith("#"))` would refuse this too.
+      const res = parseAnchor("s3-p2-s1");
+      assert.equal(res.ok, true);
+    });
+  });
+
+  // 9. (anchors.ts:337) anchor-grammar, after every arm has declined
+  describe("Site (anchors.ts:337): anchor-grammar fall-through", () => {
+    it("refuses an unrecognized fragment with rule anchor-grammar (anchors.ts:337)", () => {
+      const res = parseAnchor("#not-a-real-anchor-shape");
+      assert.equal(res.ok, false);
+      if (!res.ok) {
+        assert.equal(res.rule, "anchor-grammar");
+        assert.match(res.error, /Unknown anchor format '#not-a-real-anchor-shape'/);
+        // NOT the empty-input message: that one belongs to :160.
+        assert.doesNotMatch(res.error, /non-empty string/);
+      }
+    });
+
+    it("names the normalized fragment, not the raw input, in its message (anchors.ts:337)", () => {
+      // parseAnchor prepends the '#' before reporting, so a reader copying the message back
+      // into a URL gets a fragment rather than a bare word.
+      const res = parseAnchor("not-a-real-anchor-shape");
+      assert.equal(res.ok, false);
+      if (!res.ok) {
+        assert.equal(res.rule, "anchor-grammar");
+        assert.match(res.error, /'#not-a-real-anchor-shape'/);
+      }
+    });
+
+    it("catches a bare '#', which survives the empty-input guard (anchors.ts:337)", () => {
+      // Which site catches a bare hash is the kind of thing a reader would guess wrong, so it is
+      // asserted rather than assumed, and it lives HERE rather than beside :160 because planting
+      // :337 is what reddens it. A citation is an attribution, and attributing this case to :160
+      // because "#" looks empty would be the positional attribution the scanner warns about.
+      const res = parseAnchor("#");
+      assert.equal(res.ok, false);
+      if (!res.ok) {
+        assert.equal(res.rule, "anchor-grammar");
+        assert.match(res.error, /Unknown anchor format/);
+      }
+    });
+
+    it("lets a closing anchor through rather than refusing anchor-grammar (anchors.ts:337)", () => {
+      // The negative for :337: if the arms above it stopped matching, every anchor on the site
+      // would arrive here and this suite would still be green on the refusal cases alone.
+      const res = parseAnchor("#closing-dateline");
+      assert.equal(res.ok, true);
+      if (res.ok) assert.equal(res.value.kind, "closing");
     });
   });
 });
