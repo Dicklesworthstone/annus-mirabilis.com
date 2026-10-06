@@ -1,6 +1,7 @@
 import { createModalCloseButton, makeDismissible } from "../../a11y/modal/dismiss.ts";
 import { exportNotebookHtml, exportNotebookJson } from "./export.ts";
-import { mergeNotebook } from "./import.ts";
+import { mountNotebookMergePanel } from "./mergePanel.ts";
+import type { NotebookReviewResult } from "./mergeReview.ts";
 import type { NotebookChange, NotebookStore } from "./notebookStore.ts";
 import {
   NOTEBOOK_LIMITS,
@@ -122,6 +123,11 @@ export function mountNotebookPanel(
       },
     ),
   );
+  const combine = button("Review and combine notebooks", () => {
+    importGeneration++;
+    importFile.value = "";
+    showMerge(store.previewSavedMerge());
+  });
   const clear = button("Clear notebook", () =>
     confirm(
       "Clear all saved notes and the remembered reading place? Export first to keep a copy. Other settings and discovery notes are not changed.",
@@ -155,7 +161,7 @@ export function mountNotebookPanel(
       "text/html;charset=utf-8",
     ),
   );
-  controls.append(exportJson, exportReadable, retry, recovery, load, clear);
+  controls.append(exportJson, exportReadable, retry, recovery, combine, load, clear);
   const importLabel = node("label", "Import an exported notebook JSON file");
   const importFile = node("input");
   importFile.type = "file";
@@ -195,8 +201,35 @@ export function mountNotebookPanel(
   const urls = new Map<string, ReturnType<typeof setTimeout>>();
   let disposed = false,
     importGeneration = 0;
+  let mergePanel: ReturnType<typeof mountNotebookMergePanel> | null = null;
+  function clearMerge() {
+    mergePanel?.dispose();
+    mergePanel = null;
+  }
+  function showMerge(result: NotebookReviewResult) {
+    clearMerge();
+    confirmation.replaceChildren();
+    confirmation.hidden = true;
+    if (!result.ok) { report(result); return; }
+    error.textContent = "";
+    confirmation.hidden = false;
+    mergePanel = mountNotebookMergePanel(confirmation, store, result.review, () => {
+      report({ ok: true });
+      clearMerge();
+      confirmation.hidden = true;
+      home();
+    }, () => {
+      clearMerge();
+      confirmation.hidden = true;
+      home();
+    });
+  }
   importFile.addEventListener("change", () => {
     const generation = ++importGeneration;
+    // A new file selection withdraws the old confirmation immediately, even if reading fails.
+    clearMerge();
+    confirmation.replaceChildren();
+    confirmation.hidden = true;
     const file = importFile.files?.[0];
     if (!file) return;
     if (file.size > 4 * 1_048_576) {
@@ -209,20 +242,12 @@ export function mountNotebookPanel(
       .then((text) => {
         if (disposed || generation !== importGeneration) return;
         const imported = parseNotebookDocument(JSON.parse(text));
-        const preview = mergeNotebook(store.getSnapshot().document, imported);
-        error.textContent = "";
-        confirm(
-          `Import ${preview.added} new entries? ${preview.duplicates} identical entries are already here and will not be duplicated. Existing notes and the current reading place are kept. Nothing is uploaded.`,
-          () => {
-            // Recheck against the current document, not the potentially stale preview.
-            report(store.importConfirmed(imported));
-          },
-        );
+        showMerge(store.previewImport(imported));
       })
       .catch(() => {
         if (!disposed && generation === importGeneration)
           error.textContent =
-            "This file is unsupported, malformed, or conflicts with an existing entry. No entries were imported. Keep the original file.";
+            "This file is unsupported or malformed. No entries were imported. Keep the original file.";
       })
       .finally(() => {
         if (!disposed && generation === importGeneration) importFile.value = "";
@@ -255,6 +280,9 @@ export function mountNotebookPanel(
     }
   }
   function confirm(message: string, action: () => void) {
+    importGeneration++;
+    importFile.value = "";
+    clearMerge();
     confirmation.replaceChildren(
       node("p", message),
       button("Confirm", () => {
@@ -277,6 +305,7 @@ export function mountNotebookPanel(
     retry.hidden = state.persistence !== "session-only";
     recovery.hidden = state.recoveryRaw === null;
     load.hidden = state.persistence !== "conflict";
+    combine.hidden = state.persistence !== "conflict";
     clear.disabled = state.persistence === "conflict";
     // An empty notebook offers nothing to export: the two export buttons appear with the first
     // entry. Clear stays while a remembered reading place is left to forget. Import stays always,
@@ -441,6 +470,8 @@ export function mountNotebookPanel(
   function closePanel() {
     if (!dialog?.open) return;
     importGeneration++;
+    importFile.value = "";
+    clearMerge();
     clearReplays();
     renderedEntries = null;
     dialog.close();
@@ -465,6 +496,7 @@ export function mountNotebookPanel(
     dispose() {
       disposed = true;
       importGeneration++;
+      clearMerge();
       unsubscribe();
       closePanel();
       clearReplays();
