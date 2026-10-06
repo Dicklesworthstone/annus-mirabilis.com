@@ -81,6 +81,15 @@ function renderPlacement(placement: RuntimePlacement, mount: HTMLElement): void 
     mount.setAttribute("data-pending", view.pending ? "true" : "false");
   }
   mount.setAttribute("data-execution-label", executionLabel(view));
+  // THE ACCEPTED SEED, AS A CANONICAL DECIMAL STRING (am-xyxk). A seed is an unsigned 64-bit value
+  // and JavaScript's safe-integer range ends at 2^53 - 1, so the runtime contract carries it as a
+  // string end to end and a round trip through a URL has to preserve every digit. Nothing exposed it
+  // to the harness, so no browser check could tell a preserved seed from one that had been through a
+  // double. It is read from the ACCEPTED parameters rather than the requested ones: a seed that was
+  // asked for and refused must not appear here as though it had taken effect.
+  const acceptedSeed = view.accepted?.parameters.seed;
+  if (typeof acceptedSeed === "string") mount.setAttribute("data-seed", acceptedSeed);
+  else mount.removeAttribute("data-seed");
   const probe = numericOutput(view, "fixtureProbe");
   const latent = numericOutput(view, "latentDraws");
   const noise = numericOutput(view, "noiseDraws");

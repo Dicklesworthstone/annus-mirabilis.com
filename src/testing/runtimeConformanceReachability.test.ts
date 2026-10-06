@@ -58,10 +58,12 @@ const EXPECTED_ORPHANED: ReadonlyMap<string, string> = new Map([
     "rafSampler.ts",
     "Helper half of an unwritten check: nothing samples painted frames during a conformance run.",
   ],
-  [
-    "tapeUrlBuilder.ts",
-    "Helper half of an unwritten check: nothing exercises a tape seed URL during a conformance run.",
-  ],
+  // tapeUrlBuilder.ts came OUT of this map on 2026-10-06. Its reason was "nothing exercises a tape
+  // seed URL during a conformance run", and checks.ts now navigates with a built url carrying
+  // 2^64 - 1 and compares the accepted snapshot's own seed with it. Wiring it found a bug in the
+  // module itself: the builder appended ?seed= blindly, so on a hash route the query landed inside
+  // the FRAGMENT where neither URL.searchParams nor the page's location.search can see it, and the
+  // seed was silently ignored. Its own test had only ever passed a fragment-free path.
 ]);
 
 const sourceFiles = readdirSync(DIR)

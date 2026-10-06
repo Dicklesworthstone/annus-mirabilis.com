@@ -3,6 +3,7 @@ import { parseInstrumentRoot } from "../domContract.ts";
 import { missingIdentityAttribute } from "./identityReader.ts";
 import { classifyNetworkRequest, type NetworkKind } from "./networkLogClassifier.ts";
 import { readSchedulerMark } from "./performanceMarkReader.ts";
+import { seedFromTapeUrl, tapeUrlWithSeed } from "./tapeUrlBuilder.ts";
 
 declare global {
   interface Window {
@@ -335,4 +336,46 @@ export function noWasmOnArrival(seen: readonly ObservedRequest[]): CheckResult {
 
 export function checkNoWasmOnArrival(seen: readonly ObservedRequest[]): CheckResult {
   return noWasmOnArrival(seen);
+}
+
+/**
+ * A SEED ABOVE 2^53 SURVIVES THE URL AND REACHES THE ACCEPTED SNAPSHOT (am-xyxk).
+ *
+ * tapeUrlBuilder sat here with no caller: nothing exercised a tape seed URL during a conformance run.
+ * The runtime contract says a seed is an unsigned 64-bit value carried as a canonical decimal string,
+ * because JavaScript's safe-integer range ends at 2^53 - 1, and it asks for a URL round trip that
+ * identifies the same stream after reload. A seed that went through a double would come back changed
+ * in its last digits and look entirely plausible.
+ *
+ * The seed used is 2^64 - 1, the largest the contract admits, which is 18446744073709551615 and is
+ * 2048 away from the nearest double. If any layer converted it to a number and back the attribute
+ * would read 18446744073709551616 instead, so this check cannot pass by accident.
+ *
+ * seedFromTapeUrl is used to read the seed back out of the URL the builder made, so the two halves of
+ * that module are checked against each other rather than one of them being trusted.
+ */
+export async function checkLargeSeedSurvivesUrlRoundTrip(
+  page: Page,
+  basePath: string,
+): Promise<CheckResult> {
+  const seed = "18446744073709551615";
+  const url = tapeUrlWithSeed(basePath, seed);
+  const inUrl = seedFromTapeUrl(url);
+  if (inUrl !== seed) {
+    return fail(`the built url carries seed ${String(inUrl)} rather than ${seed}`);
+  }
+  await page.goto(url);
+  await page.waitForSelector('[data-reader-root][data-ready="true"]', { timeout: 15000 });
+  await page.waitForFunction(() => {
+    const el = document.querySelector("#placement-a");
+    return el?.getAttribute("data-pending") === "false";
+  });
+  const accepted = await page.locator("#placement-a").getAttribute("data-seed");
+  if (accepted === null) {
+    return fail("#placement-a exposes no data-seed, so the accepted seed cannot be compared");
+  }
+  if (accepted !== seed) {
+    return fail(`the accepted seed is ${accepted}, not the ${seed} the url carried`);
+  }
+  return pass(`a seed of ${seed}, above 2^53, reached the accepted snapshot unchanged`);
 }

@@ -12,6 +12,7 @@ import { FIXTURE_APP_REGISTRY } from "../fixtures/fixtureApps.ts";
 import { type RunningFixtureServer, startFixtureServer } from "../fixtures/fixtureServer.ts";
 import {
   type CheckResult,
+  checkLargeSeedSurvivesUrlRoundTrip,
   checkNoLeakedWorkers,
   checkNoWasmOnArrival,
   checkObserverChangePreservesWorld,
@@ -109,6 +110,15 @@ export async function runRuntimeConformance(
           await waitReady(p);
           return checkNoWasmOnArrival(seen());
         },
+      },
+      {
+        // The 64-bit seed contract, end to end: built into a url, read back out of it, and compared
+        // with the accepted snapshot's own seed. 2^64 - 1 is 2048 away from the nearest double, so a
+        // layer that passed it through a number would be caught rather than rounding to itself.
+        id: "large-seed-survives-url-round-trip",
+        provesBead: "am-rt-browser-conformance-09i5",
+        run: async (p) =>
+          checkLargeSeedSurvivesUrlRoundTrip(p, `${server.url}/runtime-conformance.html#/runtime`),
       },
       {
         id: "two-placements-independent",
