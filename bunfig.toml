@@ -41,6 +41,7 @@ pathIgnorePatterns = [
   "src/testing/appRouterCoverage.node.test.ts",
   "src/testing/a11y/accessibleNamesBrowser.test.mjs",
   "src/testing/a11y/noScriptControls.browser.test.mjs",
+  "src/discovery/investigation/workspace.browser.test.mjs",
   "src/testing/styles/computedStylesLayout.test.ts",
   "src/testing/foundCalculus.browser.test.mjs",
   "src/testing/asupersyncProfile.test.ts",
