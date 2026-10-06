@@ -132,18 +132,22 @@ test("constant-set changes fork physics, presentation and volume changes do not"
  * THE CODE NAME IS DELIBERATELY NOT IN THE TEST'S TITLE. The refusal ratchet credits a site when
  * a test block names its code, and this block would then read as PAYMENT for a site nothing
  * drives - the bead's own words are "a test that merely mentions the code is not payment".
- * THIS RECORD CREDITS THE SITE, AND IT SHOULD NOT. The ratchet now reads changes.ts as 0 untested
- * because of this block, and that zero means "documented", not "driven". I tried twice to avoid
- * it: removing the parenthesised `(changes.ts:16)`, which is a citation to the scanner, and
- * removing the code from the test's title. Neither helped, and the reason is structural -
- * `unsupported-parameter-class` has exactly ONE site in this file, and for a single-site code the
- * scanner credits any test block that NAMES it. decode.ts's unreachability record stays uncredited
- * only because `malformed-response` is multi-site there, so a mention picks out no site.
+ * THIS RECORD MUST NOT CREDIT THE SITE, and getting that right took three attempts. The rule,
+ * established by planting rather than by reading the scanner:
  *
- * So a single-site unreachable refusal cannot be documented in a test without being credited by
- * it. The alternative is a record that may not name the refusal it is about, which is worse. The
- * honest fix is in the instrument, not here; recorded on am-r3qt so the zero is not read as
- * payment.
+ *   a code named in a STRING LITERAL in executable code    CREDITS the site
+ *   a code named in a COMMENT                              does not
+ *   a file-and-line in the parenthesised citation form     CREDITS, and comments are read for it
+ *
+ * So a category-3 record CAN name its refusal, as long as the name stays in prose and the line
+ * number is never written in the parenthesised form. This block does both, and changes.ts stays
+ * on the untested list, which is correct: it is documented, not driven.
+ *
+ * WHAT COST THE THIRD ATTEMPT, because it is worth more than the rule: my own explanation of the
+ * second attempt QUOTED the citation form while saying I had removed it, and the scanner read the
+ * quotation. That is AGENTS.md's "a gate that forbids a construct must read code, not text",
+ * arriving from the other side - the prose describing a citation is a citation. The line number
+ * above is therefore written as "line 16" and nowhere in parentheses.
  */
 test("the lq06 parameter-class guard is unreachable, and the two facts that make it so", () => {
   const source = readFileSync(new URL("./changes.ts", import.meta.url), "utf8");

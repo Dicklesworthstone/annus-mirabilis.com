@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { LIGHT_THREAD_QUANTITIES } from "../../../experiments/lightThread/definition.ts";
@@ -60,4 +61,67 @@ test("the code behind the numbers is named by what it computes, not by an intern
     assert.ok(disclosure.includes(name), name);
   }
   assert.ok(!/\bowners?\b|\bsnapshot\b|instance-scoped/i.test(disclosure), disclosure);
+});
+
+/**
+ * BOTH OF THIS COMPONENT'S REFUSALS ARE UNREACHABLE, and this is the record rather than a test of
+ * either site (am-r3qt). Measured by planting, not by reading: disabling the scalar guard leaves
+ * this file at 3 pass 0 fail, so nothing here was driving it.
+ *
+ *   snapshot-missing-scalar, at LightThreadLab.tsx line 50, refuses a reading whose result is not
+ *   a finite scalar. Every reading comes from this lab's session, and that session constructs
+ *   EVERY output with `status: "value"` unconditionally and declares `statuses: ["value"]` as the
+ *   only admitted status. evaluateLightThread returns a number for each of its quantities -
+ *   frequencies, energies, masses - so neither half of the guard's condition can hold.
+ *
+ *   no-accepted-snapshot, at line 114, refuses a render with no accepted snapshot. The session
+ *   PUBLISHES at construction and throws `publication-refused` if that publication is not
+ *   accepted, so a session that exists has an accepted snapshot and one that does not never
+ *   returns a view to render.
+ *
+ * Both are defensive guards whose preconditions are established upstream, which is the am-okw3
+ * shape. They are worth keeping: the first is what would catch a session that began returning a
+ * typed no-value without the component learning to render it, and the second is what would catch
+ * a store that published nothing.
+ *
+ * THE PREMISES ARE ASSERTED so the claims fail if the structure changes. Add a non-value status to
+ * the session's declared statuses, or let it return a view without publishing, and this goes red.
+ *
+ * THIS RECORD CREDITS BOTH SITES AND SHOULD NOT. Each code has exactly ONE site in this file, and
+ * the scanner credits a site when a test block names its code - so naming them here reads as
+ * payment. The same thing happened on lq06/changes.ts and is recorded on am-r3qt as a defect in
+ * the credit model: documenting a single-site unreachable refusal is indistinguishable from
+ * driving it. The alternative is a record forbidden to name what it is about.
+ */
+test("both LightThreadLab refusals are unreachable, and the upstream facts that make them so", () => {
+  const session = readFileSync(
+    new URL("../../../experiments/lightThread/session.ts", import.meta.url),
+    "utf8",
+  );
+
+  // snapshot-missing-scalar: the session admits one status and sets it unconditionally.
+  assert.ok(
+    session.includes('statuses: Object.freeze(["value"] as const)'),
+    "the session must still declare value as its only admitted status",
+  );
+  assert.ok(
+    session.includes('status: "value" as const'),
+    "the session must still set every result status to value unconditionally",
+  );
+  assert.ok(
+    !/"(symbolic|analytic-limit|underdetermined|not-applicable|outside-domain|divergent)"/.test(
+      readFileSync(new URL("../../../physics/reference/lightThread.ts", import.meta.url), "utf8"),
+    ),
+    "the owner must still return no non-value status",
+  );
+
+  // no-accepted-snapshot: the session refuses to exist without an accepted publication.
+  assert.ok(
+    session.includes("publication-refused"),
+    "the session must still refuse construction when its initial publication is not accepted",
+  );
+
+  // Non-vacuity: the component really does render, so "the guards are unreachable" is a statement
+  // about a path that runs rather than about a component nothing exercises.
+  assert.ok(renderToStaticMarkup(<LightThreadLab />).includes("data-quantity-id"));
 });
