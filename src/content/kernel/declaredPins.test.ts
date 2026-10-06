@@ -56,15 +56,7 @@ describe("declared kernel functions against the pins (am-f3e4)", () => {
     console.log(`[declared pins] ${summarizeDeclaredPins(report)}`);
     for (const key of report.missing)
       console.log(`[declared pins]   ${report.missingByInstrument.get(key)}  ${key}`);
-    expect(report.missing).toEqual([
-      // THE LAST ONE, and it is not an unwritten entry. sr-03 declares classifySimultaneity and the
-      // pinning machinery cannot pin it: verify.ts pins with extractTypeScriptExport and checks
-      // against HEAD with extractTypeScriptFromText, and the two disagree on an export carrying
-      // overload signatures (337-428 against 352-428 here). A pin would make the audit refuse on
-      // every run with a message blaming uncommitted source on a clean file. The reason is also at
-      // the withheld entry's place in catalog.ts; both come out when the extractors agree.
-      "classifySimultaneity@src/physics/reference/events.ts",
-    ]);
+    expect(report.missing).toEqual([]);
   });
 
   /**
@@ -98,6 +90,6 @@ describe("declared kernel functions against the pins (am-f3e4)", () => {
       `[declared pins] raw keys report ${rawMissing} missing; resolved keys ${resolvedMissing}`,
     );
     expect(rawMissing).toBeGreaterThan(resolvedMissing);
-    expect(resolvedMissing).toBe(1);
+    expect(resolvedMissing).toBe(0);
   });
 });

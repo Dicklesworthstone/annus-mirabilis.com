@@ -613,15 +613,27 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
     ],
     independentReferences: [],
   },
-  // SR-03'S classifySimultaneity CANNOT BE PINNED, and the reason is a defect in the pinning
-  // machinery rather than anything about the kernel (am-f3e4, measured 2026-10-06). verify.ts pins
-  // with extractTypeScriptExport and then compares against git HEAD with extractTypeScriptFromText,
-  // and the two disagree on any export that carries overload signatures: for classifySimultaneity the
-  // first takes lines 337-428, 3003 characters including its three signatures, and the second takes
-  // 352-428, 2566 characters of the implementation only. So the pin never matches HEAD and the
-  // refusal reads "Pin was written against uncommitted source" on a file that is clean. redescribe in
-  // the same module disagrees the same way, 608-668 against 613-668. Its entry is withheld until the
-  // two extractors agree; writing one would put a pin in the file that the audit refuses on every run.
+  // SR-03'S classifySimultaneity, pinnable since the two extractors were made to agree. It had been
+  // withheld because verify.ts pinned with extractTypeScriptExport and compared against HEAD with
+  // extractTypeScriptFromText's default, which drops overload signatures, so a pin on an overloaded
+  // export could never match: 337-428 against 352-428 here, and 608-668 against 613-668 for
+  // redescribe beside it. The comparison now opts into the same node selection as the pin.
+  {
+    instrumentId: "sr-03",
+    kernel: tsRef("src/physics/reference/events.ts", "classifySimultaneity"),
+    words: {
+      r0: "Whether two events happen at the same time, answered with the tolerance named rather than assumed, and answered again for an observer in motion.",
+      r1: "Two readings are simultaneous when their difference is zero, and no measurement gives exactly zero, so the question cannot be answered without a tolerance. This function takes one and reports the verdict against it, and in its fullest form it takes two events and a boost and reports what the moving observer finds. That is section 2's content: the same pair of events may be simultaneous for one observer and ordered for another, and which of them comes first can depend on who is asking.",
+      r2: "The three signatures are one function because they are one question asked with more or less information: a single time difference, two readings with a tolerance, or two events under a boost. Keeping them together means the tolerance is handled in one place rather than in three, and the overloads make a caller say which question they are asking instead of passing a sentinel. A verdict near the tolerance is reported as near it rather than resolved to one side, because a function that rounded there would be making the reader's judgement for them about whether their clocks can tell. The signatures are part of what this panel shows, which is not incidental: they are how the function says that the three questions are different, and for a while they were also the reason it could not be pinned.",
+      r3: "Section 2 defines simultaneity by a light-signal convention and then shows that observers in relative motion disagree about it. Nothing in the paper mentions a tolerance, because it reasons about exact coordinates; a reader with sliders has numbers instead, and the tolerance is where that difference lives rather than something the physics supplies.",
+    },
+    liveTerms: ["coordinateTimeStationary", "coordinateTimeMoving"],
+    identifierBindings: [
+      bind("classifySimultaneity", "timeA", "coordinateTimeStationary"),
+      bind("classifySimultaneity", "timeB", "coordinateTimeMoving"),
+    ],
+    independentReferences: [],
+  },
   {
     instrumentId: "sr-05",
     kernel: tsRef("src/physics/reference/kinematics.ts", "dilationLossPerSecond"),
