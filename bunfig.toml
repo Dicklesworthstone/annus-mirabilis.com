@@ -25,6 +25,7 @@ pathIgnorePatterns = [
   # moment that lane fails open. AGENTS.md: "keep a version of its proof in a DIFFERENT lane from the
   # one it controls."
   "scripts/gate-census/population.node.test.ts",
+  "scripts/gate-census/reach.node.test.ts",
   "src/testing/a11y/accessibleNamesBrowser.test.mjs",
   "src/testing/styles/computedStylesLayout.test.ts",
   "src/testing/foundCalculus.browser.test.mjs",
