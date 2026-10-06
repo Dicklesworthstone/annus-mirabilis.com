@@ -59,6 +59,21 @@ interface LogEntry {
   readonly summary?: Record<string, unknown> | undefined;
 }
 
+/**
+ * Does this record say, in its own data, that its text is translated from another language?
+ *
+ * Exported so both directions can be driven without reading the corpus. The cross-language test is
+ * the whole predicate: a record whose sourceLang EQUALS its lang is not a translation and must get no
+ * exemption, and a record declaring neither is ordinary site prose.
+ */
+export function recordDeclaresTranslation(rec: Record<string, unknown>): boolean {
+  return (
+    typeof rec.sourceLang === "string" &&
+    typeof rec.lang === "string" &&
+    rec.sourceLang !== rec.lang
+  );
+}
+
 export async function runVoiceLint(): Promise<{
   errorCount: number;
   flagCount: number;
@@ -157,8 +172,31 @@ export async function runVoiceLint(): Promise<{
       // A nested object may name its own kind ("text"), but the RECORD's kind is what the rules are
       // written against, so an inner kind never replaces an outer one.
       const recordKind = inheritedKind ?? (typeof rec.kind === "string" ? rec.kind : undefined);
+      /**
+       * A RECORD THAT SAYS IT WAS TRANSLATED IS A TRANSLATION, whatever its `kind` (am-dbpk class).
+       *
+       * This keyed the translation layer on `kind === "translation-unit"` alone. A GLOSS UNIT declares
+       * no `kind` at all - it declares `lang: "en"` and `sourceLang: "de"` - so every one of the 542
+       * gloss units was linted as the site's own prose, and the `overclaim` rule fired at its default
+       * severity of ERROR on six of them.
+       *
+       * The word is "proved", and in every case it is Einstein's. s4-p8-s1 glosses "bewiesene", the
+       * past participle of beweisen, with the note "'the result proved for a polygonal line', the
+       * phrase before its noun". AGENTS.md requires a translation to preserve modality - "A heuristic
+       * stays a heuristic, an approximation stays approximate" - so the only way to satisfy the rule
+       * as it stood was to MISTRANSLATE the source. A gate that can only be made green by corrupting
+       * the content it guards is wrong about its own scope, and voice-rules.yaml already carries
+       * `translationSeverity` for exactly this: the house voice is the site's, not the source's.
+       *
+       * Keyed on the record's own declaration rather than on a path, so it cannot drift when a
+       * directory is renamed, and it is a cross-language test: a record whose sourceLang EQUALS its
+       * lang is not a translation and gets no exemption. Measured across the corpus on 2026-10-06,
+       * every record declaring `sourceLang` declares a different `lang`.
+       */
       const recordSource =
-        recordKind === "translation-unit" ? ({ layer: "translation" } as const) : inheritedSource;
+        recordKind === "translation-unit" || recordDeclaresTranslation(rec)
+          ? ({ layer: "translation" } as const)
+          : inheritedSource;
       /**
        * A QUOTED FIELD IS NOT THE AUTHOR SPEAKING, and this script was the only reader that did not
        * know. `check.ts` keeps `QUOTED_FIELDS` and sets `layer: "quotation"` for them; the compiler
