@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import { lq06Changes } from "./changes.ts";
 import { LQ06_CLASSES, LQ06_DEFAULTS, LQ06_PRESETS } from "./definition.ts";
@@ -108,4 +109,55 @@ test("constant-set changes fork physics, presentation and volume changes do not"
     "presentation-change",
   );
   assert.deepEqual(lq06Changes(LQ06_DEFAULTS, LQ06_DEFAULTS), []);
+});
+
+/**
+ * `unsupported-parameter-class`, at changes.ts line 16, CANNOT BE REACHED TODAY, and this is the record
+ * rather than a test of the site (am-r3qt). It is not a dead guard: it is a live one whose
+ * condition no current data satisfies.
+ *
+ * lq06Changes looks each changed parameter's class up in a `groups` object with three keys -
+ * input, measurement, presentation - and refuses a class that is not among them. ParameterClass
+ * has FIVE members: the two it omits are `observer` and `estimator`. LQ06_CLASSES assigns only
+ * the three covered classes across all nine parameters, so no key can reach the throw.
+ *
+ * It goes live the day someone classifies an LQ-06 parameter as observer or estimator, which is
+ * exactly the mistake it exists to catch - and under AGENTS.md's runtime contract those two are
+ * the classes that MUST NOT be folded into a setup change, because an observer change may not
+ * restart an experiment or consume new randomness.
+ *
+ * So the premise is asserted rather than the site driven, following decode.ts's precedent: add a
+ * fourth class to LQ06_CLASSES without extending `groups`, and this goes red.
+ *
+ * THE CODE NAME IS DELIBERATELY NOT IN THE TEST'S TITLE. The refusal ratchet credits a site when
+ * a test block names its code, and this block would then read as PAYMENT for a site nothing
+ * drives - the bead's own words are "a test that merely mentions the code is not payment".
+ * THIS RECORD CREDITS THE SITE, AND IT SHOULD NOT. The ratchet now reads changes.ts as 0 untested
+ * because of this block, and that zero means "documented", not "driven". I tried twice to avoid
+ * it: removing the parenthesised `(changes.ts:16)`, which is a citation to the scanner, and
+ * removing the code from the test's title. Neither helped, and the reason is structural -
+ * `unsupported-parameter-class` has exactly ONE site in this file, and for a single-site code the
+ * scanner credits any test block that NAMES it. decode.ts's unreachability record stays uncredited
+ * only because `malformed-response` is multi-site there, so a mention picks out no site.
+ *
+ * So a single-site unreachable refusal cannot be documented in a test without being credited by
+ * it. The alternative is a record that may not name the refusal it is about, which is worse. The
+ * honest fix is in the instrument, not here; recorded on am-r3qt so the zero is not read as
+ * payment.
+ */
+test("the lq06 parameter-class guard is unreachable, and the two facts that make it so", () => {
+  const source = readFileSync(new URL("./changes.ts", import.meta.url), "utf8");
+  const block = source.slice(source.indexOf("const groups"), source.indexOf("for (const key of"));
+  const covered = [...block.matchAll(/^\s+(\w+):\s*\{\},/gm)].map((m) => m[1]);
+  assert.deepEqual(covered, ["input", "measurement", "presentation"]);
+
+  // Every class LQ06_CLASSES actually assigns is one the groups object covers. Assign a fourth
+  // and this fails, which is the whole point of recording the claim instead of asserting a throw
+  // nothing can produce.
+  const assigned = [...new Set(Object.values(LQ06_CLASSES))].sort();
+  assert.deepEqual(assigned, ["input", "measurement", "presentation"]);
+  for (const cls of assigned) assert.ok(covered.includes(cls), `groups must cover ${cls}`);
+
+  // Non-vacuity: there are parameters to classify, so "every class is covered" is a result.
+  assert.ok(Object.keys(LQ06_CLASSES).length >= 9);
 });
