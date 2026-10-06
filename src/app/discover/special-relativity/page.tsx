@@ -242,6 +242,20 @@ export default function SpecialRelativityRoute() {
             Go straight to the explanation: the map that respects light in both directions
           </StepDoor>
           <StepDoor href="/lab/sr-04/">Build the map rather than receive it</StepDoor>
+          {/*
+            THE INVESTIGATION HAD NO DOOR (am-esis). /discover/special-relativity/investigate/ is
+            built and served - 214 kB, about 12,700 characters of main text, 68 passing tests behind
+            it - and no page in the built site linked to it, so a reader could reach it only by
+            typing the URL. Measured on out/: three of the four papers' investigate routes had
+            inbound links and this one had zero.
+
+            It belongs in step 05 rather than anywhere else: the investigation's own title is
+            "construct a map and choose a measurement", and this is the step where the map gets
+            built. The wording is its own, not invented for the door.
+          */}
+          <StepDoor href="/discover/special-relativity/investigate/">
+            Construct the map yourself and choose the measurement that decides it
+          </StepDoor>
         </StepDoors>
       </section>
 

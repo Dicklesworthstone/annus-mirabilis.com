@@ -238,6 +238,18 @@ export default function LightQuantaRoute() {
           <StepDoor href="/lab/lq-04/">
             Take the entropy of a spectrum and change its volume
           </StepDoor>
+          {/*
+            THE INVESTIGATION HAD NO DOOR (am-esis). /discover/light-quanta/investigate/ is built and
+            served and nothing in the built site linked to it: a reader could reach it only by typing
+            the URL. Measured on out/, its only "inbound link" was its own JavaScript chunk.
+
+            Step 04 rather than elsewhere, because the investigation's own title is "entropy, counting
+            and emission" and this is the step that works the entropy of a fixed band. The wording is
+            drawn from the page it opens, not written for the door.
+          */}
+          <StepDoor href="/discover/light-quanta/investigate/">
+            Count the states yourself and see what the volume law suggests
+          </StepDoor>
         </StepDoors>
       </section>
       <Fork fork={FORK_ENTROPY_ACCOUNT} />
