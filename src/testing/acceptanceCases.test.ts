@@ -140,11 +140,22 @@ describe("the instruments' acceptance cases", () => {
      * several agents edit this checkout at once and stripping a ref from a real manifest could be swept
      * into a peer's commit between the strip and the restore.
      *
-     * The non-numeric half is still real debt, 32 of 33 instruments, and is asserted as such below.
+     * THE NON-NUMERIC HALF IS NOW PAID TOO, and this docblock predicted its own next failure. It
+     * used to end "The non-numeric half is still real debt, 32 of 33 instruments, and is asserted as
+     * such below" - and the assertion below was `toContain("acceptance-instrument-without-non-numeric")`,
+     * which is exactly the shape the paragraphs above call out. On 2026-10-06 bm-05, the last
+     * unexcused instrument, got its case (content/scenarios/bm-05-cauchy-step-has-no-diffusivity.yaml)
+     * and this test went RED ON CORRECT WORK, telling whoever read it to put the hole back. The same
+     * repair is applied: the assertion is inverted and a plant replaces it, below the refusal one.
+     *
+     * Measured at that point: 33 instruments, 33 with a resolvable refusal case, 32 with a resolvable
+     * non-numeric case, and ZERO problems carrying either code - the 33rd is lq-05, whose
+     * `acceptanceCoverage.noNonNumericCase` is the criterion's own second branch.
      */
     test("THE REAL TREE: every instrument has a resolvable refusal case", () => {
       const strict = checkAcceptanceCases({ strict: true });
       const withRefusal = strict.census.instrumentsWithRefusal;
+      const withNonNumeric = strict.census.instrumentsWithNonNumeric;
       console.log(
         `[acceptance] ${withRefusal} of ${strict.census.instruments} instrument(s) have a resolvable ` +
           `refusal case; ${strict.census.instrumentsWithNonNumeric} a non-numeric one`,
@@ -153,8 +164,15 @@ describe("the instruments' acceptance cases", () => {
       expect(strict.census.instruments).toBeGreaterThanOrEqual(33);
       expect(withRefusal).toBe(strict.census.instruments);
       expect(codes(strict)).not.toContain("acceptance-instrument-without-refusal");
-      // The other half of the pair is NOT yet paid, and saying so is the honest state.
-      expect(codes(strict)).toContain("acceptance-instrument-without-non-numeric");
+      // BOTH halves are now paid, so both are asserted the same way. An instrument may satisfy the
+      // non-numeric half with a resolvable case OR with a written declaration, which is the
+      // criterion's own wording, and the code below fires when it has neither.
+      expect(codes(strict)).not.toContain("acceptance-instrument-without-non-numeric");
+      // NON-VACUITY IN THE OTHER DIRECTION, which the refusal half does not need and this one does:
+      // a tree where EVERY instrument was excused by declaration would also carry no such code and
+      // would mean nothing. This floor says most are covered by a real scenario. It was 32 of 33
+      // when written; raise it as the last declaration is retired, never lower it.
+      expect(withNonNumeric).toBeGreaterThanOrEqual(32);
     });
 
     test("PLANTED: an instrument whose refusal case is deleted is named under strict", () => {
@@ -206,6 +224,60 @@ describe("the instruments' acceptance cases", () => {
       expect(
         after.problems.find((p) => p.code === "acceptance-instrument-without-refusal")?.message,
       ).toContain("zz-01");
+    });
+
+    test("PLANTED: an instrument whose non-numeric case is deleted is named under strict", () => {
+      // The non-numeric twin of the plant above, added when the assertion it replaces was inverted.
+      // `not-applicable` is in NON_NUMERIC_STATUSES and is NOT a key of refusalCodeRegistry, which
+      // the classifier consults FIRST - so this scenario counts as non-numeric and not as a refusal.
+      // Checked rather than assumed: a status in both sets would classify as a refusal and this plant
+      // would then be testing the other half while appearing to test this one.
+      const root = mkdtempSync(join(tmpdir(), "am-acceptance-no-non-numeric-"));
+      mkdirSync(join(root, "content", "experiments"), { recursive: true });
+      mkdirSync(join(root, "content", "scenarios"), { recursive: true });
+      writeFileSync(
+        join(root, "content", "scenarios", "zz-02-no-value.yaml"),
+        [
+          'id: "zz-02-no-value"',
+          'kind: "adversarial"',
+          'title: "ZZ-02 reports no value where its model defines none"',
+          'description: "A planted scenario whose only job is to expect a non-numeric result."',
+          'plausibleMistake: "That a number can stand in for a quantity the model does not define."',
+          'intendedFailure: "The evaluator reports the quantity as not applicable to these conditions."',
+          'constantSetId: "modern-si-2019"',
+          'owner: "declaredDomain.sr-03"',
+          "inputs:",
+          "  v:",
+          "    value: 0.5",
+          '    unit: "c"',
+          "expected:",
+          "  status:",
+          '    outputId: "v"',
+          '    status: "not-applicable"',
+          '    reasonCode: "not-applicable"',
+          "modelVersion: 1",
+          "schemaVersion: 1",
+          "",
+        ].join("\n"),
+      );
+      const manifest = join(root, "content", "experiments", "zz-02.yaml");
+      const withCase = 'id: "zz-02"\nacceptanceCases:\n  - "zz-02-no-value"\n';
+      const withoutCase = 'id: "zz-02"\nacceptanceCases:\n  - "zz-02-no-value-DELETED"\n';
+
+      // THE CONTROL FIRST, so a gate that named every instrument would not satisfy the plant.
+      writeFileSync(manifest, withCase);
+      const before = checkAcceptanceCases({ root, strict: true, baseline: [], declarations: {} });
+      expect(before.census.instrumentsWithNonNumeric).toBe(1);
+      expect(codes(before)).not.toContain("acceptance-instrument-without-non-numeric");
+
+      // THE PLANT: the ref is deleted, and the gate names the instrument that lost it.
+      writeFileSync(manifest, withoutCase);
+      const after = checkAcceptanceCases({ root, strict: true, baseline: [], declarations: {} });
+      expect(after.census.instrumentsWithNonNumeric).toBe(0);
+      expect(codes(after)).toContain("acceptance-instrument-without-non-numeric");
+      expect(
+        after.problems.find((p) => p.code === "acceptance-instrument-without-non-numeric")?.message,
+      ).toContain("zz-02");
     });
 
     test("PLANTED: a scenario that no longer expects a refusal stops counting as one", () => {
