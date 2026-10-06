@@ -420,7 +420,7 @@ describe("Monomial Factor-Set Binding and Dual View", () => {
   });
 
   describe("monomial refusal throw sites (am-muyh)", () => {
-    test("refusal (monomial.ts:108): monomial-fractional-power rejects fractional exponents", () => {
+    test("refusal (monomial.ts:101): monomial-fractional-power rejects fractional exponents", () => {
       // Accept: integer power (den: 1)
       const accepted = extractMonomialFactorSet({
         kind: "power",
@@ -547,7 +547,7 @@ describe("Monomial Factor-Set Binding and Dual View", () => {
       }
     });
 
-    test("refusal (monomial.ts:346): composite-group-invalid-kind rejects unrecognized group kind", () => {
+    test("refusal (monomial.ts:333): composite-group-invalid-kind rejects unrecognized group kind", () => {
       // Accept: valid group kind "subtree"
       const accepted = validateCompositeGroup(
         {

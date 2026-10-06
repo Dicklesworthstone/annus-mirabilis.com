@@ -1728,7 +1728,7 @@ test("argument.refusals: validateMisconception rejects missing whyTempting (argu
   }, "missing-why-tempting");
 });
 
-test("argument.refusals: validateMisconception rejects missing whatIsTrue (argument.ts:2418)", () => {
+test("argument.refusals: validateMisconception rejects missing whatIsTrue (argument.ts:2428)", () => {
   // Accept path
   assert.ok(validateMisconception(validMisconception));
 
@@ -1970,7 +1970,7 @@ test("argument.refusals: validateAuthoringContract rejects missing bridge (argum
   }, "missing-bridge");
 });
 
-test("argument.refusals: validateAuthoringContract rejects malformed qualification entry (argument.ts:2802)", () => {
+test("argument.refusals: validateAuthoringContract rejects malformed qualification entry (argument.ts:2813)", () => {
   // Accept path
   const withQual = {
     ...validAuthoringContract,
