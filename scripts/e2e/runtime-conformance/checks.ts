@@ -1,5 +1,6 @@
 import type { Page } from "playwright";
 import { parseInstrumentRoot } from "../domContract.ts";
+import { missingIdentityAttribute } from "./identityReader.ts";
 import { readSchedulerMark } from "./performanceMarkReader.ts";
 
 declare global {
@@ -35,9 +36,48 @@ async function rootAttrs(page: Page, selector: string): Promise<Record<string, s
   });
 }
 
+/**
+ * parseInstrumentRoot, with a DomContractError turned into a NAMED CHECK FAILURE (am-xyxk).
+ *
+ * This file had no try/catch anywhere, so a root missing a required data attribute threw out of
+ * whichever check was parsing it and took the whole conformance run with it. A reader of the output
+ * then saw a crash where the harness should have said which attribute was absent on which placement,
+ * and the run's remaining checks never executed. missingIdentityAttribute was written for exactly
+ * this and nothing called it: it is the one export of identityReader.ts that is not a pass-through to
+ * parseInstrumentRoot, and it turns the error into the name of the attribute that was missing.
+ *
+ * Returning a CheckResult rather than throwing a tidier error is the point: a missing attribute is a
+ * conformance FAILURE of the page, not a fault in the harness, so it belongs in the same channel as
+ * every other failing check.
+ */
+function identityOrFailure(
+  attrs: Record<string, string | null>,
+  selector: string,
+):
+  | { ok: true; identity: ReturnType<typeof parseInstrumentRoot> }
+  | { ok: false; failure: CheckResult } {
+  try {
+    return { ok: true, identity: parseInstrumentRoot(attrs) };
+  } catch (error) {
+    const attribute = missingIdentityAttribute(error);
+    return {
+      ok: false,
+      failure: fail(
+        attribute === undefined
+          ? `${selector} does not satisfy the instrument root contract: ${error instanceof Error ? error.message : String(error)}`
+          : `${selector} is missing the required root attribute ${attribute}`,
+      ),
+    };
+  }
+}
+
 export async function checkTwoPlacementsIndependent(page: Page): Promise<CheckResult> {
-  const a = parseInstrumentRoot(await rootAttrs(page, "#placement-a"));
-  const b = parseInstrumentRoot(await rootAttrs(page, "#placement-b"));
+  const aRead = identityOrFailure(await rootAttrs(page, "#placement-a"), "#placement-a");
+  if (!aRead.ok) return aRead.failure;
+  const bRead = identityOrFailure(await rootAttrs(page, "#placement-b"), "#placement-b");
+  if (!bRead.ok) return bRead.failure;
+  const a = aRead.identity;
+  const b = bRead.identity;
   if (a.instanceId === b.instanceId) return fail("two placements share instanceId");
   if (a.runId === b.runId) return fail("two placements share runId");
   return pass("two placements have distinct instanceId and runId");
@@ -65,7 +105,9 @@ export async function checkSnapshotIdentityAcrossViews(
 }
 
 export async function checkObserverChangePreservesWorld(page: Page): Promise<CheckResult> {
-  const before = parseInstrumentRoot(await rootAttrs(page, "#placement-a"));
+  const beforeRead = identityOrFailure(await rootAttrs(page, "#placement-a"), "#placement-a");
+  if (!beforeRead.ok) return beforeRead.failure;
+  const before = beforeRead.identity;
   const beforeEvents = await page.locator("#placement-a").getAttribute("data-event-set-digest");
   const beforeWorld = await page.locator("#placement-a").getAttribute("data-worldline-digest");
   await page.evaluate(async () => {
@@ -78,7 +120,9 @@ export async function checkObserverChangePreservesWorld(page: Page): Promise<Che
     const el = document.querySelector("#placement-a");
     return el?.getAttribute("data-pending") === "false";
   });
-  const after = parseInstrumentRoot(await rootAttrs(page, "#placement-a"));
+  const afterRead = identityOrFailure(await rootAttrs(page, "#placement-a"), "#placement-a");
+  if (!afterRead.ok) return afterRead.failure;
+  const after = afterRead.identity;
   const afterEvents = await page.locator("#placement-a").getAttribute("data-event-set-digest");
   const afterWorld = await page.locator("#placement-a").getAttribute("data-worldline-digest");
   if (after.runId !== before.runId) return fail("observer change forked a new runId");
