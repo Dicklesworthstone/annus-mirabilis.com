@@ -216,3 +216,32 @@ test("readable export escapes hostile content and makes no executable or remote 
 test("notebook namespace is the already registered owner key", () => {
   assert.equal(NOTEBOOK_KEY, "am:notebook:v1");
 });
+
+// The two refusals on the saved-merge port (am-r3qt). Both are reached through
+// previewSavedMerge, which is the only caller of the port's saved() and which turns a
+// NotebookMergeError into a refusal record rather than letting it escape. Each test
+// asserts the MESSAGE, not just ok:false, because every other failure on this path also
+// returns ok:false and a test that only checked the flag would pass on the wrong refusal.
+test("(notebookStore.ts:185) notebook-merge-saved-unavailable: a saved notebook that cannot be read refuses the merge and keeps both originals", () => {
+  const storage = backend(JSON.stringify(emptyNotebook()));
+  const store = createNotebookStore(storage);
+  store.add(entry("n1", "Work in this tab"));
+  const before = JSON.stringify(store.getSnapshot().document);
+  storage.mode = "blocked";
+  const result = store.previewSavedMerge();
+  assert.equal(result.ok, false);
+  assert.match(result.message, /saved notebook could not be read/);
+  assert.match(result.message, /unchanged/);
+  // The refusal is not a silent discard: this tab's work survives it.
+  assert.equal(JSON.stringify(store.getSnapshot().document), before);
+});
+test("(notebookStore.ts:188) notebook-merge-saved-too-large: a saved notebook over the byte limit refuses the merge and says to keep both exports", () => {
+  const storage = backend(JSON.stringify(emptyNotebook()));
+  storage.maxBytes = 32;
+  const store = createNotebookStore(storage);
+  storage.replace(JSON.stringify({ ...emptyNotebook(), entries: [entry("n1", "x".repeat(4000))] }));
+  const result = store.previewSavedMerge();
+  assert.equal(result.ok, false);
+  assert.match(result.message, /exceeds this version's byte limit/);
+  assert.match(result.message, /nothing was merged/);
+});
