@@ -4,7 +4,7 @@ import { dimension } from "./rational.ts";
 import { mapToRuntimeDimension } from "./runtimeMapping.ts";
 
 describe("runtimeMapping refusal coverage (am-muyh)", () => {
-  describe("out-of-range (runtimeMapping.ts:24) & (runtimeMapping.ts:62)", () => {
+  describe("out-of-range (runtimeMapping.ts:62) & (runtimeMapping.ts:62)", () => {
     test("reject: (runtimeMapping.ts:62) out-of-range refused when dimension exponent exceeds i8 upper bound 127", () => {
       const dimTooLarge = dimension(["128", "0", "0", "0", "0", "0"]);
       const res = mapToRuntimeDimension(dimTooLarge, "si");
@@ -15,7 +15,7 @@ describe("runtimeMapping refusal coverage (am-muyh)", () => {
       }
     });
 
-    test("reject: (runtimeMapping.ts:24) out-of-range refused when dimension exponent exceeds i8 lower bound -128", () => {
+    test("reject: (runtimeMapping.ts:62) out-of-range refused when dimension exponent exceeds i8 lower bound -128", () => {
       const dimTooSmall = dimension(["-129", "0", "0", "0", "0", "0"]);
       const res = mapToRuntimeDimension(dimTooSmall, "si");
       assert.equal(res.ok, false);

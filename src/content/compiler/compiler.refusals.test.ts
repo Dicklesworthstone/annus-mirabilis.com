@@ -9,9 +9,9 @@
  * 2. src/content/compiler/checks/registry.ts (1 site):
  *    - (registry.ts:172) check-crashed
  * 3. src/content/compiler/compile.ts (3 sites):
- *    - (compile.ts:186) path-identity
- *    - (compile.ts:272) equation-review-pending
- *    - (compile.ts:282) editorial-review-pending
+ *    - (compile.ts:226) path-identity
+ *    - (compile.ts:328) equation-review-pending
+ *    - (compile.ts:338) editorial-review-pending
  * 4. src/content/compiler/quantities.ts (4 sites):
  *    - (quantities.ts:39) invalid-yaml
  *    - (quantities.ts:54) invalid-legacy-spellings
@@ -20,7 +20,7 @@
  * 5. src/content/compiler/loaders.ts (1 site):
  *    - (loaders.ts:263) yaml-parse-error
  * 6. src/content/compiler/compiler.ts (3 sites):
- *    - (compiler.ts:191) path-identity
+ *    - (compiler.ts:219) path-identity
  *    - (compiler.ts:259) equation-review-pending
  *    - (compiler.ts:272) editorial-review-pending
  *
@@ -180,7 +180,7 @@ describe("src/content/compiler/checks/registry.ts Refusals", () => {
 });
 
 describe("src/content/compiler/compile.ts Refusals", () => {
-  test("compileReadingContent: (compile.ts:186) path-identity rejects record id mismatching file path, accepts matching id", () => {
+  test("compileReadingContent: (compile.ts:226) path-identity rejects record id mismatching file path, accepts matching id", () => {
     // Reject: foundation id does not match path slug
     const mismatchFile = {
       path: "content/foundations/expected-slug.json",
@@ -205,7 +205,7 @@ describe("src/content/compiler/compile.ts Refusals", () => {
     expect(acceptResult.diagnostics.some((d) => d.code === "path-identity")).toBe(false);
   });
 
-  test("compileReadingContent: (compile.ts:272) equation-review-pending emits review diagnostic for draft equations, accepts non-equations", () => {
+  test("compileReadingContent: (compile.ts:328) equation-review-pending emits review diagnostic for draft equations, accepts non-equations", () => {
     // Reject/Flag: equation emits equation-review-pending review diagnostic
     const eqFile = {
       path: "content/equations/brownian-motion/eq-model-bm-apparent-speed.json",
@@ -223,7 +223,7 @@ describe("src/content/compiler/compile.ts Refusals", () => {
     expect(fdnResult.diagnostics.some((d) => d.code === "equation-review-pending")).toBe(false);
   });
 
-  test("compileReadingContent: (compile.ts:282) editorial-review-pending emits review diagnostic for draft foundation, accepts non-foundation non-argument", () => {
+  test("compileReadingContent: (compile.ts:338) editorial-review-pending emits review diagnostic for draft foundation, accepts non-foundation non-argument", () => {
     // Reject/Flag: foundation emits editorial-review-pending review diagnostic
     const fdnFile = {
       path: "content/foundations/test-fdn.json",
@@ -336,7 +336,7 @@ describe("src/content/compiler/loaders.ts Refusals", () => {
 });
 
 describe("src/content/compiler/compiler.ts Refusals", () => {
-  test("compileContent: (compiler.ts:191) path-identity rejects record id mismatching file path parameter, accepts matching id", async () => {
+  test("compileContent: (compiler.ts:219) path-identity rejects record id mismatching file path parameter, accepts matching id", async () => {
     // Reject: record id does not match path parameter
     const mismatchFile = {
       path: "content/foundations/expected-id.json",

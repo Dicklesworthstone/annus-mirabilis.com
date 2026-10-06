@@ -92,7 +92,7 @@ function assertRejectionReason(
 
 describe("Versioned buffer header validation refusal sites (am-muyh)", () => {
   // Site 1 (line 95)
-  test("site (buffers.ts:95) non-plain-header: rejects non-object or null header, accepts valid plain object header", () => {
+  test("site (buffers.ts:103) non-plain-header: rejects non-object or null header, accepts valid plain object header", () => {
     const accepted = validateBufferHeader(VALID_BROWNIAN_HEADER);
     assert.equal(accepted.ok, true);
 
@@ -108,7 +108,7 @@ describe("Versioned buffer header validation refusal sites (am-muyh)", () => {
   });
 
   // Site 2 (line 101)
-  test("site (buffers.ts:101) unknown-field: rejects unknown fields in buffer header, accepts canonical fields", () => {
+  test("site (buffers.ts:109) unknown-field: rejects unknown fields in buffer header, accepts canonical fields", () => {
     const accepted = validateBufferHeader(VALID_BROWNIAN_HEADER);
     assert.equal(accepted.ok, true);
 
@@ -361,7 +361,7 @@ describe("Versioned buffer header validation refusal sites (am-muyh)", () => {
   });
 
   // Site 9 (line 169)
-  test("site (buffers.ts:169) buffer-length-mismatch: rejects byteLength not matching shape product * 8, accepts exact byte length", () => {
+  test("site (buffers.ts:177) buffer-length-mismatch: rejects byteLength not matching shape product * 8, accepts exact byte length", () => {
     const accepted = validateBufferHeader(VALID_BROWNIAN_HEADER);
     assert.equal(accepted.ok, true);
 

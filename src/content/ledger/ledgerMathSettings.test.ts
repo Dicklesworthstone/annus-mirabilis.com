@@ -3,8 +3,8 @@ import test, { describe } from "node:test";
 import { parseLedgerMath } from "./ledgerMathSettings.ts";
 
 describe("ledgerMathSettings refusal throw sites (am-muyh)", () => {
-  describe("math-macro-definition (ledgerMathSettings.ts:41)", () => {
-    test("reject: (ledgerMathSettings.ts:41) macro definition returns math-macro-definition refusal", () => {
+  describe("math-macro-definition (ledgerMathSettings.ts:62)", () => {
+    test("reject: (ledgerMathSettings.ts:62) macro definition returns math-macro-definition refusal", () => {
       const result = parseLedgerMath("\\def\\myMacro{foo}");
       assert.equal(result.ok, false);
       if (!result.ok) {
@@ -25,8 +25,8 @@ describe("ledgerMathSettings refusal throw sites (am-muyh)", () => {
     });
   });
 
-  describe("math-parse (ledgerMathSettings.ts:56)", () => {
-    test("reject: (ledgerMathSettings.ts:56) invalid LaTeX syntax returns math-parse refusal", () => {
+  describe("math-parse (ledgerMathSettings.ts:78)", () => {
+    test("reject: (ledgerMathSettings.ts:78) invalid LaTeX syntax returns math-parse refusal", () => {
       const result = parseLedgerMath("\\frac{1}");
       assert.equal(result.ok, false);
       if (!result.ok) {

@@ -28,10 +28,10 @@
  *   flagged the tested one. A citation that drifts onto another real site is worse than a
  *   citation that drifts onto blank space.
  * - brownianInventory.ts (4 sites):
- *   7. (brownianInventory.ts:246) invented-source-units
+ *   7. (brownianInventory.ts:311) invented-source-units
  *   8. (brownianInventory.ts:301) ids-frozen-without-facsimile
  *   9. (brownianInventory.ts) alias admission: legitimate retirement vs defect
- *   10. (brownianInventory.ts:264) paper-overclaimed
+ *   10. (brownianInventory.ts:333) paper-overclaimed
  */
 
 import assert from "node:assert/strict";
@@ -435,9 +435,9 @@ describe("Editions Refusal Sites", () => {
   // brownianInventory.ts (4 sites)
   // ==========================================
   describe("brownianInventory.ts refusal sites", () => {
-    // 7. (brownianInventory.ts:246) invented-source-units
-    describe("Site (brownianInventory.ts:246): invented-source-units", () => {
-      it("throws invented-source-units when source units are present without pinned facsimile (brownianInventory.ts:246)", () => {
+    // 7. (brownianInventory.ts:311) invented-source-units
+    describe("Site (brownianInventory.ts:311): invented-source-units", () => {
+      it("throws invented-source-units when source units are present without pinned facsimile (brownianInventory.ts:311)", () => {
         const tempRoot = createTempBrownianFixture();
 
         // Break the facsimile receipt so facsimilePinned is false
@@ -476,7 +476,7 @@ describe("Editions Refusal Sites", () => {
         );
       });
 
-      it("does not throw invented-source-units when units array is empty without pinned facsimile (brownianInventory.ts:246)", () => {
+      it("does not throw invented-source-units when units array is empty without pinned facsimile (brownianInventory.ts:311)", () => {
         const tempRoot = createTempBrownianFixture();
         // Default fixture has empty units in manifest
         const inv = loadBrownianInventory(tempRoot);
@@ -717,12 +717,12 @@ describe("Editions Refusal Sites", () => {
       });
     });
 
-    // 10. (brownianInventory.ts:264) paper-overclaimed
-    // (brownianInventory.ts:304) ids-frozen-without-units (am-muyh).
+    // 10. (brownianInventory.ts:333) paper-overclaimed
+    // (brownianInventory.ts:323) ids-frozen-without-units (am-muyh).
     // The last of the five sites ebe6529 added without a test; the refusal
     // ratchet caught all five as a regression against a baseline of 0.
-    describe("Site (brownianInventory.ts:304): ids-frozen-without-units", () => {
-      it("throws ids-frozen-without-units when the manifest freezes ids over an empty inventory (brownianInventory.ts:304)", () => {
+    describe("Site (brownianInventory.ts:323): ids-frozen-without-units", () => {
+      it("throws ids-frozen-without-units when the manifest freezes ids over an empty inventory (brownianInventory.ts:323)", () => {
         const tempRoot = createTempBrownianFixture();
         const manifestPath = join(tempRoot, "content/source-blocks/brownian-motion/manifest.yaml");
         const manifest = yaml.load(readFileSync(manifestPath, "utf8")) as Record<string, unknown>;
@@ -744,15 +744,15 @@ describe("Editions Refusal Sites", () => {
         );
       });
 
-      it("admits a frozen manifest that actually inventories its units (brownianInventory.ts:304)", () => {
+      it("admits a frozen manifest that actually inventories its units (brownianInventory.ts:323)", () => {
         const tempRoot = createTempBrownianFixture();
         const inv = loadBrownianInventory(tempRoot);
         assert.equal(inv.paper, "brownian-motion");
       });
     });
 
-    describe("Site (brownianInventory.ts:264): paper-overclaimed", () => {
-      it("throws paper-overclaimed when paper status is not explanation-preview (brownianInventory.ts:264)", () => {
+    describe("Site (brownianInventory.ts:333): paper-overclaimed", () => {
+      it("throws paper-overclaimed when paper status is not explanation-preview (brownianInventory.ts:333)", () => {
         const tempRoot = createTempBrownianFixture();
 
         const paperPath = join(tempRoot, "content/papers/brownian-motion.json");
@@ -775,14 +775,14 @@ describe("Editions Refusal Sites", () => {
         );
       });
 
-      it("does not throw paper-overclaimed when status is explanation-preview / in-preparation (brownianInventory.ts:264)", () => {
+      it("does not throw paper-overclaimed when status is explanation-preview / in-preparation (brownianInventory.ts:333)", () => {
         const tempRoot = createTempBrownianFixture();
         const inv = loadBrownianInventory(tempRoot);
         assert.equal(inv.paper, "brownian-motion");
       });
     });
 
-    // 11. (brownianInventory.ts:583) receipt-pagemap-absent (am-h83f).
+    // 11. (brownianInventory.ts:471) receipt-pagemap-absent (am-h83f).
     // a92732ba added this site with no test and the am-muyh pawl caught it.
     // The receipt page map is the evidence `resolveEquationPage` reads, so a
     // receipt carrying none cannot be reconciled against its manifest at all.
@@ -790,8 +790,8 @@ describe("Editions Refusal Sites", () => {
     // refuses both; the two reject arms below drive the two halves of its
     // disjunction and each asserts which half it reached, so the pair cannot
     // quietly collapse into one branch tested twice.
-    describe("Site (brownianInventory.ts:583): receipt-pagemap-absent", () => {
-      it("throws receipt-pagemap-absent when the receipt carries no pageMap key (brownianInventory.ts:583)", () => {
+    describe("Site (brownianInventory.ts:471): receipt-pagemap-absent", () => {
+      it("throws receipt-pagemap-absent when the receipt carries no pageMap key (brownianInventory.ts:471)", () => {
         const tempRoot = createTempBrownianFixture();
         assert.ok(
           Array.isArray(receiptPageMap(tempRoot)),
@@ -815,7 +815,7 @@ describe("Editions Refusal Sites", () => {
         );
       });
 
-      it("throws receipt-pagemap-absent when the receipt's pageMap is an empty list (brownianInventory.ts:583)", () => {
+      it("throws receipt-pagemap-absent when the receipt's pageMap is an empty list (brownianInventory.ts:471)", () => {
         const tempRoot = createTempBrownianFixture();
         rewriteReceiptPageMap(tempRoot, "pageMap: []");
         const parsed = receiptPageMap(tempRoot);
@@ -839,7 +839,7 @@ describe("Editions Refusal Sites", () => {
       // page map that disagrees with the manifest on a known page, and the
       // disagreement has to come back. The restored fixture then has to stop
       // reporting it, which is the control that separates a plant from a story.
-      it("reconciles a receipt whose pageMap is present, and reports a planted disagreement (brownianInventory.ts:583)", () => {
+      it("reconciles a receipt whose pageMap is present, and reports a planted disagreement (brownianInventory.ts:471)", () => {
         const baselineRoot = createTempBrownianFixture();
         const baseline = brownianPageMapMismatches(baselineRoot);
         assert.ok(Array.isArray(baseline));
