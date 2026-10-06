@@ -63,12 +63,12 @@ export function WalkthroughPlayer({
     return () => {
       active = false;
     };
-  // `retry` is deliberately a dependency this effect never reads. It is a counter bumped by the
-  // "Retry loading walkthroughs" button below, and being in this list is the entire mechanism by
-  // which pressing that button re-runs the load. Biome marks its suggestion FIXABLE, and applying
-  // it would leave the button rendered, clickable and inert - a reader-facing affordance that
-  // silently does nothing. Verified before writing this: setRetry is called in exactly one place,
-  // that button's onClick, and nowhere else.
+    // `retry` is deliberately a dependency this effect never reads. It is a counter bumped by the
+    // "Retry loading walkthroughs" button below, and being in this list is the entire mechanism by
+    // which pressing that button re-runs the load. Biome marks its suggestion FIXABLE, and applying
+    // it would leave the button rendered, clickable and inert - a reader-facing affordance that
+    // silently does nothing. Verified before writing this: setRetry is called in exactly one place,
+    // that button's onClick, and nowhere else.
   }, [open, catalogue, load, retry]);
 
   const walkthroughs =

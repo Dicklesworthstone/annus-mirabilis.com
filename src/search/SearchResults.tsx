@@ -118,6 +118,12 @@ export function SearchResults({ load = loadSearch }: { load?: () => Promise<Load
   return (
     <div className="search-page-field-wrap full-search">
       {/* No named form controls: a pre-hydration/native submit must not send the query to a server. */}
+      {/* `role="search"` on a <form>, not the newer <search> element, and this is a recorded design
+          rather than an oversight: SearchResults.test.tsx asserts `form[role="search"]`, and no
+          <search> element appears anywhere in this repository. Swapping it is an accessibility
+          decision needing a real assistive-technology check, which this repository requires and
+          does not take an automated rule as a substitute for. */}
+      {/* biome-ignore lint/a11y/useSemanticElements: role="search" is asserted by this page's test */}
       <form
         role="search"
         action="/search/results/"
