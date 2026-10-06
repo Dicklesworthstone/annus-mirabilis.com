@@ -241,6 +241,72 @@ describe("THE RESIDUAL HOLE, pinned so it cannot widen unnoticed", () => {
  * the block withdrew 28 sites across 6 files that were honestly tested. The last arm below is the
  * regression guard for that, and it is the reason the over-strict version cannot come back quietly.
  */
+/**
+ * THE BLOCK SPLITTER MUST NOT MATCH THE WORD "it" IN PROSE (am-ksl3, 2026-10-06).
+ *
+ * The citation audit decides which codes a block names by splitting a test file on `test(`/`it(`. The
+ * pattern was /(?:test|it)\s*\(/, which also matches the BARE WORD `it` followed by a space and a
+ * paren - so a title reading `"... with no file behind it (download-facsimiles.ts:72)"` was cut between
+ * `it` and `(`, leaving `download-facsimiles.ts:72)` at the head of the next block with its opening
+ * paren gone. The audit's own citation regex then could not see it.
+ *
+ * The consequence was silence, not noise. The CREDIT path scans the whole file rather than per block, so
+ * those citations went on being load-bearing; when three import lines moved their sites by one, the
+ * credit was correctly withdrawn and NO stale finding was ever reported to say why. The untested count
+ * rose and the audit that exists to explain such a rise was blind to exactly those three.
+ *
+ * Measured over the real repository when the pattern was tightened: `totalUntested` 104 before and 104
+ * after, `totalSites` 2493 both, so the change moves no credit in either direction - it only makes one
+ * more citation visible to the report. Six titles in the tree contain the shape.
+ *
+ * No real call is affected: a grep for `test`/`it` followed by whitespace and a paren finds none in src
+ * or scripts, because the formatter writes `it(`.
+ */
+describe("the audit sees a citation after the word it", () => {
+  const findingsFor = (testBody: string) => {
+    const root = mkdtempSync(join(tmpdir(), "credit-splitter-"));
+    mkdirSync(join(root, "src/thing"), { recursive: true });
+    // Two sites under one code, so only a citation can credit either and the audit has something to say.
+    writeFileSync(
+      join(root, "src/thing/multi.ts"),
+      `export class WidgetError extends Error {\n  constructor(public code: string) {\n    super(code);\n  }\n}\nexport function c(): never {\n  throw new WidgetError("gamma-refused");\n}\nexport function d(): never {\n  throw new WidgetError("gamma-refused");\n}\n`,
+    );
+    writeFileSync(join(root, "src/thing/multi.test.ts"), testBody);
+    return analyzeUntestedRefusals(root).citationFindings;
+  };
+  const IMPORT_MULTI = 'import { c, d } from "./multi.ts";\n';
+
+  it("PLANTED: a stale citation is reported even when the title says the word it first", () => {
+    // Line 99 holds no site, so this is stale however the title reads. Before the splitter was
+    // tightened this produced ZERO findings: the paren was consumed by the split.
+    const found = findingsFor(
+      `${IMPORT_MULTI}test("the thing with nothing behind it (multi.ts:99) gamma-refused", () => { expect(() => c()).toThrow("gamma-refused"); });\n`,
+    );
+    expect(found.map((f) => `${f.kind}:${f.citedLine}`)).toEqual(["stale:99"]);
+  });
+
+  it("the control: the same stale citation without the word it was always reported", () => {
+    // The arm that worked before, so a change that broke it could not hide behind the plant above.
+    const found = findingsFor(
+      `${IMPORT_MULTI}test("the thing with nothing behind (multi.ts:99) gamma-refused", () => { expect(() => c()).toThrow("gamma-refused"); });\n`,
+    );
+    expect(found.map((f) => `${f.kind}:${f.citedLine}`)).toEqual(["stale:99"]);
+  });
+
+  it("a real it() call is still a block boundary, so the two codes stay separate", () => {
+    // The direction a careless tightening would break: `it(` with no space must still split, or every
+    // block would name every code in the file and the per-block audit would become vacuous.
+    const found = findingsFor(
+      `${IMPORT_MULTI}it("drives one (multi.ts:7)", () => { expect(() => c()).toThrow("gamma-refused"); });\nit("mentions nothing (multi.ts:99)", () => { expect(() => d()).toThrow(); });\n`,
+    );
+    // The second block names no code, so its stale citation is reported with an empty repair hint,
+    // which is only true if the two titles landed in different blocks.
+    const stale = found.filter((f) => f.kind === "stale");
+    expect(stale.map((f) => f.citedLine)).toEqual([99]);
+    expect(stale[0]?.hint).toEqual([]);
+  });
+});
+
 describe("what a line citation credits", () => {
   // One code at two sites, so a mention credits neither and only a citation can credit either.
   const TWO_SITES = `export class WidgetError extends Error {

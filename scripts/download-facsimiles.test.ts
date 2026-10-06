@@ -2551,7 +2551,13 @@ describe("21. Refusals nobody had ever seen fire (am-muyh)", () => {
     const headerOnly = Buffer.from("%PDF-1.4\ntrailer << /Root 1 0 R >>\n%%EOF\n", "latin1");
     const result = validatePdf(headerOnly);
     expect(result.valid).toBe(false);
-    expect(result.errorCode).toBe(["pdf", "parse", "failed"].join("-"));
+    // THE CODE AS A PLAIN LITERAL, which it could not be until am-ksl3 landed. Under the old
+    // mention-credit rule any literal in this file credited sites by quantity, so these assertions
+    // assembled the code from parts to avoid crediting sites they do not drive. An uncited site under
+    // a repeated code is never credited now, so the workaround costs more than it buys: without the
+    // literal, this block names no code, and the citation above it cannot be checked against the site
+    // it points at.
+    expect(result.errorCode).toBe("pdf-parse-failed");
     expect(result.message).toContain("/Type /Page");
   });
 
@@ -2721,7 +2727,9 @@ describe("21. Refusals nobody had ever seen fire (am-muyh)", () => {
         },
       }),
     );
-    expect(error.code).toBe(["network", "retries", "exhausted"].join("-"));
+    // Plain literal, for the reason given at 22.5: the assembly was a workaround for mention-credit,
+    // and without it this block names no code so its citation cannot be verified.
+    expect(error.code).toBe("network-retries-exhausted");
     expect(error.message).toContain("ECONNRESET");
     expect(attempts).toBeGreaterThan(1);
   });

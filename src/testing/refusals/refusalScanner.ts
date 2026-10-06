@@ -1049,7 +1049,26 @@ export function analyzeUntestedRefusals(rootDir: string): FullRefusalScanResult 
     // longer implies the credit was fake; the 51 of them on 2026-10-05 are mostly a code named in an
     // enclosing `describe`. The two agree on the case that matters: a code the file never mentions is
     // reported here AND credits nothing above.
-    for (const block of content.split(/(?:test|it)\s*\(/)) {
+    // NO `\s*` BEFORE THE PAREN, AND THAT IS NOT A STYLE CHOICE (am-ksl3, 2026-10-06).
+    //
+    // The pattern was /(?:test|it)\s*\(/, which also matches the BARE WORD `it` followed by a space and
+    // a paren. Three titles in scripts/download-facsimiles.test.ts read "... with no file behind it
+    // (download-facsimiles.ts:72)", so the split cut between `it` and `(` and left
+    // `download-facsimiles.ts:72)` at the head of the next block with its opening paren gone. The
+    // citation regex below could then never match it, and those three citations were invisible to this
+    // audit while remaining load-bearing for CREDIT, which scans the whole file instead of per block.
+    //
+    // The failure was therefore silent in the worst possible place: when three gate commits each added
+    // one import line and moved every site down by one, credit was correctly withdrawn and the audit
+    // that exists to explain such a withdrawal said nothing about exactly those three.
+    //
+    // Tightening it moves NO credit. Measured over the whole repository: totalUntested 104 before and
+    // 104 after, totalSites 2493 both, one additional citation reported. And no real call is affected,
+    // because the formatter writes `it(` - a grep for test/it followed by whitespace and a paren finds
+    // none in src or scripts. creditPaths.test.ts plants both directions, including the control that a
+    // real `it(` is still a block boundary, since a splitter that stopped splitting would make this
+    // per-block audit vacuous rather than wrong.
+    for (const block of content.split(/(?:test|it)\(/)) {
       for (const m of block.matchAll(/\(([a-zA-Z0-9_.-]+\.ts):(\d+)\)/g)) {
         const citedBase = m[1];
         const citedLine = Number.parseInt(m[2] ?? "", 10);
@@ -1086,7 +1105,7 @@ export function analyzeUntestedRefusals(rootDir: string): FullRefusalScanResult 
     // Strip once per block, not once per (block, code). The predicate below runs inside a loop
     // over every imported file's codes, so stripping in there re-scanned the same text hundreds
     // of times and pushed the scan past the ratchet's timeout.
-    const blocks = content.split(/(?:test|it)\s*\(/).map(stripNonAssertingText);
+    const blocks = content.split(/(?:test|it)\(/).map(stripNonAssertingText);
     // Parsed at most once per test file, and only when a code is actually a candidate.
     let literalMemo: ReadonlySet<string> | undefined;
     const completeLiterals = (): ReadonlySet<string> => {

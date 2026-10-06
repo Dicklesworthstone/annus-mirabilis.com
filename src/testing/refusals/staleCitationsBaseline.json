@@ -1,5 +1,5 @@
 {
-  "scripts/download-facsimiles.ts": 1,
+  "scripts/download-facsimiles.ts": 0,
   "scripts/sources/facsimileSourceSchema.ts": 2,
   "scripts/sources/supersedePin.ts": 0,
   "scripts/verify-facsimile-pins.ts": 0,
