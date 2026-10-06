@@ -1,0 +1,66 @@
+# THE SMALL-SPEED COEFFICIENT, READ AT A SPEED THAT IS NOT SMALL (am-nxbq, item 1).
+#
+# WHICH CONTROL VALUES A READER MOVES TO REACH IT: none. 0.6c with one joule emitted is ME-02's own
+# default and the preset its manifest names here.
+#
+# WHY THIS RESOLVES A REF THAT NAMED A PRESET. me-02-0.6c was a PRESET id sitting in acceptanceCases,
+# which is a starting parameter set with no expected output - the category error this bead exists to
+# find. A preset says where to begin; an acceptance case says what those settings must produce. This is
+# that, at the same settings.
+#
+# THE TWO ROUTES AND THE GAP BETWEEN THEM. Paper 4 identifies the body's lost mass from the coefficient
+# of its kinetic energy AT SMALL SPEEDS. The exact loss is L(gamma - 1), which is 0.25 J here. The
+# small-speed form is L v squared over 2 c squared, which is 0.18 J. They differ by 28 per cent of the
+# exact value, exactly, because (0.25 - 0.18) / 0.25 is 7/25 and both numbers terminate at this speed.
+#
+# SO THE QUALIFIER IS LOAD-BEARING AND THIS IS WHERE A READER SEES IT. At 0.6c the approximation the
+# derivation rests on is wrong by more than a quarter. The conclusion is not wrong; it is drawn in a
+# limit, and the instrument's whole purpose is to let a reader watch the two routes converge as the
+# speed falls rather than take the limit on trust. me-02-limit-zero pins the other end of that
+# convergence, where the coefficient is a defined limit rather than a ratio.
+#
+# THE MASS CHANGE IS THE ONE QUANTITY THAT DOES NOT DEPEND ON THE SPEED. 1.1127e-17 kg is L over c
+# squared, and it is reported here and signed negative for the body that lost it, which is the answer
+# the paper is after. The finite-speed proxy for the same quantity is 39 per cent too large at this
+# speed, which me-02-adversarial-proxy pins separately.
+id: "me-02-0.6c"
+kind: "modern-golden"
+title: "ME-02 at 0.6c: an exact loss of 0.25 J against the small-speed form's 0.18 J, 28 per cent apart"
+description: "At 0.6c a body emitting one joule loses exactly L(gamma - 1) = 0.25 J of kinetic energy, where the small-speed form L v squared over 2 c squared gives 0.18 J: a relative gap of 28 per cent. The mass change itself is 1.1127e-17 kg, which is L over c squared and does not depend on the speed at all. The gap is the reason paper 4 draws its conclusion in the small-speed limit, and watching it close as the speed falls is what this instrument is for."
+constantSetId: "modern-si-2019"
+owner: "massEnergy.me02Ledger"
+inputs:
+  beta:
+    value: 0.6
+    unit: "1"
+  emittedEnergy:
+    value: 1
+    unit: "J"
+expected:
+  outputs:
+    - outputId: exactDifference
+      value: 0.25
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "L(gamma - 1) with gamma = 1.25 exactly at 0.6c, so 0.25 is exact and not rounded. The same number ME-01 reaches by subtracting two energy ledgers, which is the point of having both instruments."
+    - outputId: quadraticApproximation
+      value: 0.18
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "L beta squared over 2, which is 0.36/2 exactly. Asserted so the gap below is a difference of two pinned numbers rather than a claim about one."
+    - outputId: quadraticDiscrepancy
+      value: 0.28
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "(0.25 - 0.18) / 0.25 = 7/25 exactly. This is the quantity that says the small-speed qualifier is load-bearing, so it is asserted rather than described."
+    - outputId: massChangeSigned
+      value: -1.1126500560536185e-17
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Minus L over c squared, negative for the body that lost it. Independent of the speed, which is why it is the paper's answer and the kinetic difference above is the route to it."
+modelVersion: 1
+schemaVersion: 1

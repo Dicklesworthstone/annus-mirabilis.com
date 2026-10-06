@@ -2122,6 +2122,41 @@ const OWNERS: OwnerRecord[] = [
    * for it moves the speed to zero and reads `finiteSpeedProxy` as well: the two agree in the limit,
    * and `proxyEqualsLimit` in the same module is the check that says so.
    */
+  /**
+   * ME-02's LEDGER AT ONE SPEED, EXACT AND APPROXIMATE SIDE BY SIDE (am-nxbq, item 1).
+   *
+   * ME-02 reads the body's lost inertia from the SMALL-SPEED coefficient of its kinetic energy, and the
+   * instrument's job is to show why the qualifier is there. The exact difference L(gamma - 1) and the
+   * quadratic proxy L v squared over 2 c squared are both reported, with the relative gap between them,
+   * because the gap is the subject: it is what tells a reader that the paper's conclusion is drawn in a
+   * limit rather than at the speed on the slider.
+   *
+   * The existing per-output owners beside this one each return ONE quantity, which is right for a refusal
+   * or a typed limit. A golden about the DIFFERENCE between two routes needs both in one reading.
+   */
+  {
+    id: "massEnergy.me02Ledger",
+    sourcePath: fileURLToPath(new URL("../../physics/reference/massEnergy.ts", import.meta.url)),
+    fn: (ctx) => {
+      const snapshot = evaluateMe02({
+        beta: num(ctx.inputs, "beta"),
+        emittedEnergy: num(ctx.inputs, "emittedEnergy"),
+      }) as unknown as Record<string, unknown>;
+      const numbers: Record<string, number> = {};
+      for (const key of [
+        "exactDifference",
+        "quadraticApproximation",
+        "quadraticDiscrepancy",
+        "inertialMassDecrease",
+        "massChangeSigned",
+      ]) {
+        const got = nonNumericOr(snapshot[key] as Record<string, unknown>, key);
+        if (typeof got !== "number") return got;
+        numbers[key] = got;
+      }
+      return numbers;
+    },
+  },
   {
     id: "massEnergy.limitingCoefficient",
     sourcePath: fileURLToPath(new URL("../../physics/reference/massEnergy.ts", import.meta.url)),

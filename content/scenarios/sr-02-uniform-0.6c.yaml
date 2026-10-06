@@ -1,0 +1,77 @@
+# THE SAME CONFIGURATION AT 0.6c, WHERE THE TWO ACCOUNTS DIFFER BY A QUARTER (am-nxbq, item 1).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the speed, from ten metres per second to 0.6c, with the
+# uniform field and the transverse path untouched. This was a PRESET id in acceptanceCases; the
+# acceptance case is what those settings must produce.
+#
+# WHAT HAPPENS. The magnet-frame electromotive force is 1.7988e7 volts and the conductor-frame one is
+# 2.2484e7, and the relative excess between them is EXACTLY 0.25. That is gamma - 1 at this speed, so the
+# ratio of the two accounts is exactly the Lorentz factor, 1.25. The paired reading at ten metres per
+# second is the same comparison with an excess of 5.56e-16, which is floating-point.
+#
+# WHY 0.25 AND NOT SOMETHING MESSY. The older theory computes the motional force as v cross B with the
+# field as measured in whichever frame it calls stationary, and the two frames' fields differ by gamma for
+# a transverse field. So the discrepancy is not an approximation error that could be made smaller by
+# measuring more carefully; it is the factor the two descriptions disagree by, and it grows without bound
+# as the speed rises. At 0.6c it is already a quarter of the answer.
+#
+# WHAT IT DOES AND DOES NOT ESTABLISH. It shows that the asymmetry paper 3's first paragraph objects to is
+# MEASURABLE in principle, not merely inelegant - the two accounts make different predictions once v over c
+# is not negligible. It does not show which is right: no induction experiment at 0.6c has ever been done
+# with a magnet and a coil, and what settles the question is the kinematics of sections 1 and 2 together
+# with the whole body of later evidence. The existing discrimination scenarios beside this one are about
+# that distinction; this record pins the numbers they discriminate between.
+#
+# The endpoint simultaneity offset is zero here, as at ten metres per second, because the path is
+# transverse. That is what keeps the two electromotive forces comparable at all, and it is why the
+# along-motion case has to refuse the comparison instead of reporting a bigger number.
+id: "sr-02-uniform-0.6c"
+kind: "modern-golden"
+title: "SR-02 at 0.6c: the two accounts of induction differ by exactly gamma minus one"
+description: "The same uniform field and transverse path at 0.6c give 1.7988e7 volts in the magnet's frame and 2.2484e7 in the conductor's, a relative excess of exactly 0.25, which is the Lorentz factor less one. The two descriptions differ by a factor of gamma rather than by a small error, so the asymmetry paper 3 objects to becomes measurable in principle once v over c is not negligible. At ten metres per second the same comparison agrees to 5.56e-16."
+constantSetId: "modern-si-2019"
+owner: "sr02.fieldsAndPath"
+inputs:
+  pathOrientation:
+    value: 0
+    unit: "1"
+  fieldModel:
+    value: 0
+    unit: "1"
+  speed:
+    value: 179875474.8
+    unit: "m/s"
+  magneticField:
+    value: 1
+    unit: "T"
+  segmentLength:
+    value: 0.1
+    unit: "m"
+expected:
+  outputs:
+    - outputId: electromotiveForceMagnetFrame
+      value: 17987547.48
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "B times v times the path length with v = 0.6c, which is 1 times 1.798754748e8 times 0.1. Exact in the inputs as written."
+    - outputId: electromotiveForceConductorFrame
+      value: 22484434.35
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Exactly 1.25 times the line above, because the transverse field the conductor's frame measures is gamma times the stationary one."
+    - outputId: electromotiveForceExcess
+      value: 0.25
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma - 1 at 0.6c, exactly. This is the assertion: the two accounts disagree by the Lorentz factor and not by a shrinkable error, which is what makes the asymmetry measurable in principle."
+    - outputId: endpointSimultaneityOffset
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-18
+        rationale: "Zero because the path is transverse, at this speed as at ten metres per second. It is what keeps the two forces comparable; along the motion it is nonzero and the comparison is refused instead."
+modelVersion: 1
+schemaVersion: 1

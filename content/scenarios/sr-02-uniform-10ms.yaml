@@ -1,0 +1,75 @@
+# THE TWO DESCRIPTIONS AGREE AT LABORATORY SPEEDS, WHICH IS WHY NOBODY NOTICED (am-nxbq, item 1).
+#
+# WHICH CONTROL VALUES A READER MOVES TO REACH IT: none. A uniform one-tesla field, a transverse path of
+# a tenth metre, and ten metres per second are SR-02's own defaults and the preset its manifest named
+# here.
+#
+# WHY THIS RESOLVES A REF THAT NAMED A PRESET. sr-02-uniform-10ms was a PRESET id in acceptanceCases: a
+# place to start with no expected output. This is the acceptance case at those settings.
+#
+# WHAT PAPER 3's FIRST PARAGRAPH SAYS AND WHAT THIS SHOWS. The older theory describes the same relative
+# motion two different ways depending on which body it calls stationary: an electric field arises in one
+# account and a motional force in the other. Einstein's objection is that the two descriptions have
+# nothing in common except the observable, and his first sentence calls that asymmetry one that "does not
+# attach to the phenomena". At ten metres per second the two electromotive forces agree to 5.56e-16 in
+# relative terms, which is floating-point and not physics: the discrepancy the theory carries is of order
+# v squared over c squared, and at this speed that is about 1e-15.
+#
+# SO THIS IS THE CASE THAT EXPLAINS THE HISTORY. Every nineteenth-century measurement of induction was
+# made at speeds like this one, where the two accounts are indistinguishable to any apparatus. The
+# asymmetry was a problem of PRINCIPLE for decades before it was a measurable discrepancy, which is why
+# the paper opens with a conceptual objection rather than an experiment.
+#
+# sr-02-uniform-0.6c is the same configuration where the gap is 25 per cent, and the pair is the point.
+# The existing discrimination scenarios test the machinery that tells the two apart; these two pin the
+# numbers it is telling apart.
+id: "sr-02-uniform-10ms"
+kind: "modern-golden"
+title: "SR-02 at ten metres per second: the two accounts of induction agree to floating-point"
+description: "A uniform one-tesla field, a transverse path of a tenth metre, and a relative speed of ten metres per second give an electromotive force of 1 volt in the magnet's frame and the same to within 5.56e-16 in relative terms in the conductor's. The discrepancy the older theory carries is of order v squared over c squared, about 1e-15 here, so at any speed a nineteenth-century apparatus could reach the two descriptions are indistinguishable. That is why paper 3 opens with an objection of principle rather than a measurement."
+constantSetId: "modern-si-2019"
+owner: "sr02.fieldsAndPath"
+inputs:
+  pathOrientation:
+    value: 0
+    unit: "1"
+  fieldModel:
+    value: 0
+    unit: "1"
+  speed:
+    value: 10
+    unit: "m/s"
+  magneticField:
+    value: 1
+    unit: "T"
+  segmentLength:
+    value: 0.1
+    unit: "m"
+expected:
+  outputs:
+    - outputId: electromotiveForceMagnetFrame
+      value: 1
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "B times v times the path length, 1 times 10 times 0.1, exactly 1 volt. Chosen as the default because it makes the comparison below a comparison of two numbers near unity."
+    - outputId: electromotiveForceExcess
+      value: 5.563250280268097e-16
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-14
+        rationale: "A relative residual at the scale of binary64 cancellation. Bounded rather than pinned, because what is asserted is that the two frames agree to floating-point at this speed, not the rounding of one platform."
+    - outputId: lorentzFactor
+      value: 1.0000000000000007
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Indistinguishable from 1 at ten metres per second, and carrying its own rounding: the departure from unity is about 5.6e-16, which is the same order as the excess above and is where that excess comes from."
+    - outputId: endpointSimultaneityOffset
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-18
+        rationale: "Zero for a transverse path at any speed, which is what makes the two electromotive forces the same quantity and the comparison legitimate. sr-02-path-along-motion-0.6c is where it is not."
+modelVersion: 1
+schemaVersion: 1
