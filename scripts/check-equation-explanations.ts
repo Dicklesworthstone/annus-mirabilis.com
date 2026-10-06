@@ -10,11 +10,13 @@
  */
 import { checkPaperExplanations } from "../src/equations/printed/equationExplanations.ts";
 import { marginCountRefusal } from "../src/equations/printed/historianMargin.ts";
+import { reportPopulation } from "./gate-census/population.ts";
 
 const PAPERS = ["mass-energy", "light-quanta", "brownian-motion", "special-relativity"];
 
 const papers = process.argv.slice(2).length > 0 ? process.argv.slice(2) : PAPERS;
 let problems = 0;
+let displaysExamined = 0;
 for (const paper of papers) {
   const checked = await checkPaperExplanations(process.cwd(), paper);
   const { census } = checked;
@@ -24,6 +26,7 @@ for (const paper of papers) {
       // no count showed until am-8gbg. Printed beside the verdict rather than left to be found.
       `${census.withMargin} of ${census.explained} carry a historian's margin`,
   );
+  displaysExamined += census.displays;
   for (const p of checked.problems) console.log(`  ${p.code}: ${p.message}`);
   if (checked.missing.length > 0) console.log(`  no record yet: ${checked.missing.join(", ")}`);
   problems += checked.problems.length;
@@ -38,4 +41,28 @@ for (const paper of papers) {
     problems += 1;
   }
 }
-process.exit(problems > 0 ? 1 : 0);
+// One census line over every paper examined (am-rc1001-bridge-plan-pcjk.9). The per-paper lines above
+// stay: they are what an author reads. This is what a reader across gates can compare.
+//
+// THE FLOOR IS PER PAPER, not a fraction of a total, and the first version of this got it wrong in a
+// way worth keeping written down. Scaling one total by the NUMBER of papers asked for made
+// `bun scripts/check-equation-explanations.ts mass-energy` report "7 displays (minimum 38) VACUOUS" on
+// a completely correct run, because mass-energy prints 7 displays and relativity prints 98. A floor
+// that depends on which papers were asked for has to be summed over those papers.
+//
+// Measured 2026-10-06: mass-energy 7, light-quanta 52, brownian-motion 43, special-relativity 98, 200
+// in all. The floors are about 70% of each, so a full run clears 139 and a partial load does not.
+const DISPLAY_FLOOR: Record<string, number> = {
+  "mass-energy": 5,
+  "light-quanta": 36,
+  "brownian-motion": 30,
+  "special-relativity": 68,
+};
+const vacuous = reportPopulation({
+  gate: "equation-explanations",
+  examined: displaysExamined,
+  noun: `printed displays across ${papers.length} paper(s)`,
+  // An unknown paper name contributes 1, so a typo cannot lower the floor to zero and pass.
+  minimum: papers.reduce((sum, paper) => sum + (DISPLAY_FLOOR[paper] ?? 1), 0),
+});
+process.exit(problems > 0 || vacuous ? 1 : 0);

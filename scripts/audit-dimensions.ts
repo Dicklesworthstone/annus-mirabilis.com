@@ -19,6 +19,7 @@ import type {
   UnitSystemContext,
 } from "../src/content/dimensions/unitSystems.ts";
 import { newRunIdentity, TestLogger } from "../src/testing/log/logger.ts";
+import { reportPopulation } from "./gate-census/population.ts";
 
 const REPO_ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 
@@ -267,7 +268,17 @@ if (process.argv[1]?.endsWith("audit-dimensions.ts")) {
       console.log(
         `Dimension audit: ${summary.total} total (${summary.consistent} consistent, ${summary.unsupportedCheck} review flags, ${summary.inconsistent} errors, ${summary.semanticMismatch} semantic mismatches)`,
       );
-      process.exit(exitCode);
+      // The census line (am-rc1001-bridge-plan-pcjk.9). This gate already refuses an empty corpus -
+      // the comment above records a day when it printed "0 total" and exited 0 while 18 records sat on
+      // disk - and the minimum states the same floor in the census's grammar. 154 records were measured
+      // on 2026-10-06; 100 is below any plausible corpus and above a partial load.
+      const censusVacuous = reportPopulation({
+        gate: "audit-dimensions",
+        examined: summary.total,
+        noun: "equation records with trees",
+        minimum: 100,
+      });
+      process.exit(censusVacuous ? 1 : exitCode);
     })
     .catch((err) => {
       console.error("audit-dimensions failed:", err);

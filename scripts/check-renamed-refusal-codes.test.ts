@@ -266,6 +266,15 @@ describe("the collector reads code, not text", () => {
 });
 
 describe("the population is reported, so a run over nothing is visible", () => {
+  test("the report names its denominator, so a count is never offered without one", () => {
+    // filesExamined was added with the census line (am-rc1001-bridge-plan-pcjk.9). The population this
+    // check rests on is the FILES: a run that read ten sources would report few codes and no survivors
+    // and would read exactly like a clean tree.
+    const report = run({ "src/a.ts": "export const a = 1;\n", "src/b.ts": thrower });
+    expect(report.filesExamined).toBe(2);
+    expect(run({}).filesExamined).toBe(0);
+  });
+
   test("an empty source set yields zero codes and zero survivors, which must never read as a pass", () => {
     // AGENTS.md: zero files checked reads as clean. The gate exits 0 on `survivors.length === 0`, so
     // an empty corpus is indistinguishable from a clean one by the exit code alone. This records the

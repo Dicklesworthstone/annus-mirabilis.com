@@ -17,6 +17,7 @@ import { randomBytes } from "node:crypto";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, extname, join, normalize, relative } from "node:path";
 import { pathToFileURL } from "node:url";
+import { reportPopulation } from "./gate-census/population.ts";
 
 /**
  * Generates a standard log run ID in the format YYYYMMDDTHHMMSSZ-<8 hex>.
@@ -572,6 +573,23 @@ export function runArchitectureGateCli(rootDir: string = process.cwd()): number 
   const artifactsDir = join(rootDir, "artifacts");
 
   writeGateLog(artifactsDir, logRunId, entries, violations);
+
+  // The census line, on EVERY path including the failing one, so the population can be read from a red
+  // run as well as a green one (am-rc1001-bridge-plan-pcjk.9). The minimum is about a third of the
+  // 32489 entries measured on 2026-10-06.
+  const censusVacuous = reportPopulation({
+    gate: "architecture",
+    examined: entries.length,
+    noun: "repository entries",
+    minimum: 10000,
+  });
+  if (censusVacuous) {
+    console.error(
+      `\n🚨 Architecture Gate Refused: ${entries.length} entries is below the declared minimum, so ` +
+        "no verdict about the App Router root can rest on it.\n",
+    );
+    return 1;
+  }
 
   if (violations.length > 0) {
     console.error(

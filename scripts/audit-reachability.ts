@@ -13,6 +13,7 @@ import { fileURLToPath } from "node:url";
 import { ComprehensionLogger } from "../src/comprehension/logger.ts";
 import { auditCorpusReachability } from "../src/comprehension/reachability.ts";
 import type { Argument } from "../src/content/schemas/reading.ts";
+import { reportPopulation } from "./gate-census/population.ts";
 
 function loadArgumentsFromDir(dir: string): Argument[] {
   const args: Argument[] = [];
@@ -74,6 +75,21 @@ export function runReachabilityAuditCli(): void {
     },
     logger,
   );
+
+  // The census line (am-rc1001-bridge-plan-pcjk.9). 48 argument nodes were measured on 2026-10-06, so
+  // 40 is a floor a real corpus clears and a partial load does not. Printed beside the JSON line rather
+  // than replacing it, since the JSON is what the audit's own consumers read.
+  //
+  // RECORDED WHILE ADDING THIS: the line below exits 0 unconditionally, with the comment "Always exit 0
+  // as specified in acceptance criteria", so this registry step cannot fail however many findings it
+  // reports. The census can now at least see what it examined. Changing its verdict belongs to its
+  // owner, am-edit-comprehension-protocol-ouih.
+  reportPopulation({
+    gate: "audit-reachability",
+    examined: report.totalNodes,
+    noun: "argument nodes",
+    minimum: 40,
+  });
 
   console.log(
     JSON.stringify({

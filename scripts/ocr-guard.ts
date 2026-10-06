@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+
 /**
  * THE OCR GUARD, RUNNABLE (am-jb4c).
  *
@@ -23,6 +24,7 @@
  * repository, so a scanned count of zero is a FAILURE here rather than a pass.
  */
 
+import { reportPopulation } from "./gate-census/population.ts";
 import {
   KNOWN_UNRESOLVED_VIOLATIONS,
   scanRepositoryForForbiddenOcr,
@@ -38,6 +40,24 @@ async function main(): Promise<void> {
     `[ocr-guard] ${result.scannedFileCount} file(s) scanned; ${result.violations.length} violation(s), ` +
       `${pinnedSeen} of them the pinned open question, ${undeclared.length} undeclared`,
   );
+  // The same number in the census's one grammar, so a reader across gates can ask whether any of them
+  // examined nothing (am-rc1001-bridge-plan-pcjk.9). Printed BEFORE the verdict and on every path,
+  // because a census that could only read a passing run could not tell a failing gate from a vacuous
+  // one. The minimum is about 25% of the 4080 measured on 2026-10-06: a repository that lost three
+  // quarters of its tracked sources is not a repository this scan has examined.
+  const censusVacuous = reportPopulation({
+    gate: "ocr-guard",
+    examined: result.scannedFileCount,
+    noun: "tracked source files",
+    minimum: 1000,
+  });
+  if (censusVacuous) {
+    console.error(
+      "[ocr-guard] REFUSED: the scan examined fewer files than its declared minimum, so a clean " +
+        "result would be a statement about a population this repository does not have.",
+    );
+    process.exit(1);
+  }
 
   // A scan over nothing is not a clean scan. Checked before the verdict, not after.
   if (result.scannedFileCount === 0) {

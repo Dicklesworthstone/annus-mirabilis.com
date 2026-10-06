@@ -30,6 +30,7 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { reportPopulation } from "./gate-census/population.ts";
 
 /** `file:line` sites where the uppercase form is a different thing that merely spells the same. */
 export const ACCEPTED_COLLISIONS: ReadonlyMap<string, string> = new Map([
@@ -217,6 +218,8 @@ export function blankComments(source: string): string {
 }
 
 export interface RenameSurvivorReport {
+  /** How many tracked sources were read. The denominator every count below rests on. */
+  readonly filesExamined: number;
   readonly thrownCodes: number;
   readonly mentions: number;
   readonly prose: number;
@@ -312,13 +315,24 @@ export function findRenameSurvivorsIn(sources: ReadonlyMap<string, string>): Ren
       }
     }
   }
-  return { thrownCodes: thrown.size, mentions, prose, survivors };
+  return { filesExamined: sources.size, thrownCodes: thrown.size, mentions, prose, survivors };
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]).endsWith("check-renamed-refusal-codes.ts")) {
   const root = process.cwd();
   const result = findRenameSurvivors(root);
   console.log("=== Renamed refusal codes: both-sides check (am-p465) ===");
+  // The population this check rests on is the FILES, not the codes: a run that read ten sources would
+  // report few codes and no survivors and read exactly like a clean tree (am-rc1001-bridge-plan-pcjk.9).
+  // 4344 tracked .ts/.tsx/.mts/.mjs/.json sources were measured on 2026-10-06 - a different filter
+  // from ocr-guard's 4083, which is why the number is printed rather than shared. The floor is a
+  // quarter of that.
+  const censusVacuous = reportPopulation({
+    gate: "renamed-refusal-codes",
+    examined: result.filesExamined,
+    noun: "tracked sources",
+    minimum: 1000,
+  });
   console.log(`kebab codes thrown in the tree:   ${result.thrownCodes}`);
   console.log(`old-form mentions:                ${result.mentions}`);
   console.log(`  documentation or accepted:      ${result.prose}`);
@@ -330,5 +344,5 @@ if (process.argv[1] && path.resolve(process.argv[1]).endsWith("check-renamed-ref
   if (result.survivors.length === 0) {
     console.log("\nNo renamed code has a surviving old-form reference in code.");
   }
-  process.exit(result.survivors.length === 0 ? 0 : 1);
+  process.exit(result.survivors.length === 0 && !censusVacuous ? 0 : 1);
 }

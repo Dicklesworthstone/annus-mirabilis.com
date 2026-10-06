@@ -14,6 +14,7 @@ import {
 } from "../src/physics/reference/constants.ts";
 import { newRunIdentity } from "../src/testing/log/logger.ts";
 import { withinTolerance } from "../src/units/tolerance.ts";
+import { reportPopulation } from "./gate-census/population.ts";
 
 function requireEntry(set: ConstantSet, quantityId: string): ConstantEntry {
   const entry = set.entries.find((e) => e.quantityId === quantityId);
@@ -570,6 +571,24 @@ function main(): void {
     writeFileSync(failuresPath, JSON.stringify(failures, null, 2), "utf-8");
     console.error(
       `\nFAILED with ${failures.length} error(s). Failure details written to: ${failuresPath}`,
+    );
+    process.exit(1);
+  }
+
+  const censusVacuous = reportPopulation({
+    gate: "verify-constant-sets",
+    examined: loadedSets.length,
+    noun: "constant set records",
+    // Measured 2026-10-06: 7 sets load from content/quantities/constant-sets/ (printed, not guessed:
+    // the first draft of this comment said 4). The floor is 2 because
+    // the whole point of this gate is comparing a historical set against a modern one, so one set
+    // cannot support a verdict - and 0 would read as the cleanest possible run.
+    minimum: 2,
+  });
+  if (censusVacuous) {
+    console.error(
+      `\nREFUSED: ${loadedSets.length} constant set(s) is below the declared minimum, so comparing a ` +
+        "historical set with a modern one did not happen and nothing above establishes it.",
     );
     process.exit(1);
   }
