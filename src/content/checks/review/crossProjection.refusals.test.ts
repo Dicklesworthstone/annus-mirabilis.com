@@ -75,6 +75,46 @@ describe("crossProjection.ts refusal throw sites (am-muyh)", () => {
   });
 
   // --------------------------------------------------------------------------
+  // Site 1: line 127 - cross-projection-stale (contentRevision mismatch)
+  //
+  // The SIBLING of site 2 below, and nothing drove it (am-r3qt). `cross-projection-stale` is raised
+  // twice, once for each revision, and a code with several sites is credited only by a citation - so
+  // the contentRevision arm sat on the untested list while its twin was covered. The two are not
+  // interchangeable: a record can go stale on the content while its translation is current, which is
+  // the ordinary case when a source block is revised and the English has not been retouched.
+  // --------------------------------------------------------------------------
+  test("rejects when contentRevision does not match current compiled revision (crossProjection.ts:127)", () => {
+    const record = createBaseRecord("xproj-rev-valid");
+
+    // Reject: contentRevision mismatch (1 vs 2), translationRevision matches (1 vs 1), so exactly one
+    // issue is raised and it is this site's, not its twin's.
+    const staleIssues = checkCrossProjectionStaleness(record, {
+      contentRevision: 2,
+      translationRevision: 1,
+    });
+    expect(staleIssues.length).toBe(1);
+    expect(staleIssues[0]?.code).toBe("cross-projection-stale");
+    expect(staleIssues[0]?.message).toBe(
+      "Cross-projection review contentRevision 1 does not match current compiled revision 2.",
+    );
+    expect(staleIssues[0]?.claimId).toBe("bm-claim-01");
+    expect(staleIssues[0]?.expectedRevision).toBe(1);
+    expect(staleIssues[0]?.actualRevision).toBe(2);
+
+    // Accept: both current, so neither arm fires. Without this the assertion above would hold on an
+    // implementation that reported staleness unconditionally.
+    expect(
+      checkCrossProjectionStaleness(record, { contentRevision: 1, translationRevision: 1 }).length,
+    ).toBe(0);
+
+    // And BOTH stale raises both, which is the only check that the two arms are independent rather
+    // than one guard reported twice.
+    expect(
+      checkCrossProjectionStaleness(record, { contentRevision: 2, translationRevision: 2 }).length,
+    ).toBe(2);
+  });
+
+  // --------------------------------------------------------------------------
   // Site 2: line 137 - cross-projection-stale (translationRevision mismatch)
   // --------------------------------------------------------------------------
   test("rejects when translationRevision does not match current compiled revision (crossProjection.ts:137)", () => {
