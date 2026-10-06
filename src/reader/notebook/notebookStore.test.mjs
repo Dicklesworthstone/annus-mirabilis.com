@@ -222,7 +222,20 @@ test("notebook namespace is the already registered owner key", () => {
 // NotebookMergeError into a refusal record rather than letting it escape. Each test
 // asserts the MESSAGE, not just ok:false, because every other failure on this path also
 // returns ok:false and a test that only checked the flag would pass on the wrong refusal.
-test("(notebookStore.ts:185) notebook-merge-saved-unavailable: a saved notebook that cannot be read refuses the merge and keeps both originals", () => {
+//
+// REPOINTED :185 -> :190 and :188 -> :196 on 2026-10-06, hours after they were written. I ran
+// `bun run format` by accident - it is `biome format --write .` over the whole repository - and
+// it split both `throw new NotebookMergeError(...)` calls across lines, moving every site below
+// them. That is the cost of a line-number citation and it is worth stating where it happened:
+// nothing about these refusals changed, and both citations were wrong within the day.
+//
+// Each repoint was proved by planting its own site, not by reading the new number off the file.
+// RENAMING THE CODE DOES NOT WORK HERE and that is not a defect in the plant: the code never
+// surfaces, because previewSavedMerge catches NotebookMergeError into a message-only record. So
+// each site was disabled with `false &&` instead, and each reddened exactly the test that cites
+// it, 17 pass 1 fail. The ratchet's instruction says to rename the code; where the code is
+// unobservable, disabling the site is the same question asked the only way it can be.
+test("(notebookStore.ts:190) notebook-merge-saved-unavailable: a saved notebook that cannot be read refuses the merge and keeps both originals", () => {
   const storage = backend(JSON.stringify(emptyNotebook()));
   const store = createNotebookStore(storage);
   store.add(entry("n1", "Work in this tab"));
@@ -235,7 +248,7 @@ test("(notebookStore.ts:185) notebook-merge-saved-unavailable: a saved notebook 
   // The refusal is not a silent discard: this tab's work survives it.
   assert.equal(JSON.stringify(store.getSnapshot().document), before);
 });
-test("(notebookStore.ts:188) notebook-merge-saved-too-large: a saved notebook over the byte limit refuses the merge and says to keep both exports", () => {
+test("(notebookStore.ts:196) notebook-merge-saved-too-large: a saved notebook over the byte limit refuses the merge and says to keep both exports", () => {
   const storage = backend(JSON.stringify(emptyNotebook()));
   storage.maxBytes = 32;
   const store = createNotebookStore(storage);
