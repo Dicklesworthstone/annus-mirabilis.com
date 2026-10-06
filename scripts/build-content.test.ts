@@ -129,6 +129,16 @@ describe("AC5: error aggregation across multiple files", () => {
  * console.error(JSON.stringify(...)), one in the watch handler and one in the argument parser's
  * catch, and neither had any test. They are different kinds of untested and the difference is the
  * point.
+ *
+ * WHAT THESE CASES DO NOT PAY, so the ledger entry is not mistaken for an oversight: both sites
+ * stay on am-r3qt's list, and correctly. The log statements sit in code no test reaches - line 462
+ * in the unexported CLI block that reads process.argv, and line 399 behind a watcher that would
+ * have to lose its corpus directory AFTER attaching. A test cannot arrange the second here:
+ * removing a directory is a deletion and AGENTS.md Rule 1 has no exception for one a test created,
+ * and a rename does not reliably deliver a change event to a path that no longer exists.
+ *
+ * So the CONDITIONS are driven below and the RENDERING is not. Paying the rendering means lifting
+ * the log-entry construction out of the CLI block into a function a test can call with a failure.
  */
 describe("the CLI's two refusal paths", () => {
   test("missing-corpus-argument: --corpus with no path is refused by the parser", () => {

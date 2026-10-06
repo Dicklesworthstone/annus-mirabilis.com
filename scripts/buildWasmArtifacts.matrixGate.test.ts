@@ -271,3 +271,20 @@ describe("manifest values recorded and verification against moved rows (am-fs-sl
     );
   });
 });
+
+/*
+ * A LEDGER ENTRY FOR verify-wasm-artifacts.ts THAT IS NOT A REFUSAL (am-r3qt).
+ *
+ * The refusal scanner records a site at verify-wasm-artifacts.ts line 775 carrying the code
+ * `ftcs-unstable`. That line is
+ *
+ *     expected: { stablePassed: true, massConserved: true, refusalCode: "ftcs-unstable" },
+ *
+ * an EXPECTED-VALUE field in a check record - the script asserting that the WASM returns that
+ * refusal, which is the opposite of raising one. scripts/candidate-checks.ts carries the same
+ * shape under `expectedCode:`.
+ *
+ * The real `ftcs-unstable` site is src/physics/reference/diffusion/ftcs.ts, and it is NOT on
+ * am-r3qt's list, so the refusal itself is already driven. Writing a test to "cover" line 775
+ * would be covering an assertion's expected value. Recorded rather than silenced.
+ */

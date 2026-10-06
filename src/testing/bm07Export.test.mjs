@@ -40,3 +40,22 @@ test("SI observation exports preserve every accepted position and exclude hidden
   }
   assert.throws(() => inferenceObservationCsv(session.getSnapshot().accepted, "bogus"));
 });
+
+/*
+ * A LEDGER ENTRY FOR THIS MODULE THAT IS NOT A REFUSAL (am-r3qt).
+ *
+ * The refusal scanner records a site at bm07/export.ts line 12 carrying the code
+ * `synthetic-observations`. Both halves of that are wrong, and neither is this module's fault:
+ *
+ *   line 12 is `throw new TypeError("Observation data is unavailable.")` - a bare throw with no
+ *   code argument at all;
+ *   the string it was given as a code is seven lines below, in `const meta = { kind:
+ *   "synthetic-observations", units: "SI", ... }`, where it is a METADATA LABEL on the exported
+ *   CSV. AGENTS.md requires exactly that label: "Demonstration data is conspicuously labeled
+ *   synthetic".
+ *
+ * The scanner counts `kind:` fields carrying a kebab string, and `kind:` is this codebase's
+ * ordinary discriminated-union tag. So this module carries no refusal code whatsoever, and no test
+ * can pay the entry because there is nothing there to drive. Recorded here and on am-r3qt rather
+ * than silenced, because silencing it means editing the instrument or the baseline.
+ */
