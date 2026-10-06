@@ -70,6 +70,20 @@ import "../../reader/faces/equationExplainer.css";
 import "../../reader/weave/resultWeave.css";
 import "../../experiments/labels/executionChrome.css";
 import "../../experiments/permalink/permalink.css";
+/*
+ * The reader's experiment recorder, which an embed DOES render (am-ig23 neighbourhood, found 2026-10-06).
+ *
+ * Every lab component renders LabTapeLink, which renders ExperimentRecorder, and the embed renders the same
+ * lab components. The recorder appears after hydration, so without this import an embed served into another
+ * site showed its "Save and replay your own experiment" disclosure UNSTYLED. Measured on the built export:
+ * out/lab/bm-01 serves a stylesheet containing `experiment-recorder` rules and out/embed/lab/bm-01 serves
+ * none, across 41 stylesheet links each.
+ *
+ * This styles the control; it does not decide whether a recorder BELONGS in an embed, which is a product
+ * question - an embed is served into someone else's page, where a localStorage-backed "save your experiment"
+ * may not be wanted - and is recorded for the owner rather than answered here.
+ */
+import "../../experiments/permalink/recordedExperiments.css";
 import "../../components/lab/showTheCode.css";
 import "../../generated/quantity-colours-by-paper.css";
 import "../../components/lab/predict.css";
