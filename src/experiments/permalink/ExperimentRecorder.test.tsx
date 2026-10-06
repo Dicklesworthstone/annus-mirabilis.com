@@ -1,7 +1,12 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
-import { createContainer, installDom, removeContainer, uninstallDom } from "../../testing/reactDom.ts";
+import {
+  createContainer,
+  installDom,
+  removeContainer,
+  uninstallDom,
+} from "../../testing/reactDom.ts";
 import { ME01_TAPE } from "../me01/tape.ts";
 import { ExperimentRecorder } from "./ExperimentRecorder.tsx";
 import { restoreTape, tapeForSettings } from "./sessionTape.ts";
@@ -13,7 +18,9 @@ function tapeAt(frameSpeed: number) {
   return tape;
 }
 function button(host: HTMLElement, name: string): HTMLButtonElement {
-  const found = [...host.querySelectorAll("button")].find((element) => element.textContent === name);
+  const found = [...host.querySelectorAll("button")].find(
+    (element) => element.textContent === name,
+  );
   expect(found).toBeDefined();
   if (!found) throw new Error(`Missing button: ${name}`);
   return found;
@@ -30,19 +37,27 @@ describe("ExperimentRecorder reader controls", () => {
     const initial = session.getSnapshot();
     let restores = 0;
     const target: WalkthroughTarget = {
-      kind: "session", experimentId: "me-01",
+      kind: "session",
+      experimentId: "me-01",
       restore(tape) {
         restores++;
         const result = restoreTape(ME01_TAPE, session, tape);
-        return result.kind === "restored" ? result : {
-          kind: "not-restored", notice: result.kind === "not-restored" ? result.notice : "No tape.",
-        };
+        return result.kind === "restored"
+          ? result
+          : {
+              kind: "not-restored",
+              notice: result.kind === "not-restored" ? result.notice : "No tape.",
+            };
       },
     };
     try {
-      await act(async () => root.render(createElement(ExperimentRecorder, { target, tape: tapeAt(0.6) })));
+      await act(async () =>
+        root.render(createElement(ExperimentRecorder, { target, tape: tapeAt(0.6) })),
+      );
       await act(async () => button(host, "Save starting point").click());
-      await act(async () => root.render(createElement(ExperimentRecorder, { target, tape: tapeAt(-0.2) })));
+      await act(async () =>
+        root.render(createElement(ExperimentRecorder, { target, tape: tapeAt(-0.2) })),
+      );
       await act(async () => button(host, "Save current accepted settings").click());
       expect(host.textContent).toContain("2 of 64 saved stops");
       expect(restores).toBe(0);
@@ -50,7 +65,10 @@ describe("ExperimentRecorder reader controls", () => {
       const select = host.querySelector<HTMLSelectElement>("select");
       expect(select).not.toBeNull();
       await act(async () => {
-        if (select) { select.value = "0"; select.dispatchEvent(new Event("change", { bubbles: true })); }
+        if (select) {
+          select.value = "0";
+          select.dispatchEvent(new Event("change", { bubbles: true }));
+        }
       });
       expect(restores).toBe(0);
       await act(async () => button(host, "Restore saved stop").click());
@@ -71,22 +89,81 @@ describe("ExperimentRecorder reader controls", () => {
     const root = createRoot(host);
     let submitted = 0;
     const target: WalkthroughTarget = {
-      kind: "form", experimentId: "me-01", load: () => ({ kind: "loaded" }),
+      kind: "form",
+      experimentId: "me-01",
+      load: () => ({ kind: "loaded" }),
     };
     try {
-      await act(async () => root.render(createElement("form", {
-        onSubmit: (event) => { event.preventDefault(); submitted++; },
-      }, createElement(ExperimentRecorder, { target, tape: tapeAt(0.6) }))));
+      await act(async () =>
+        root.render(
+          createElement(
+            "form",
+            {
+              onSubmit: (event) => {
+                event.preventDefault();
+                submitted++;
+              },
+            },
+            createElement(ExperimentRecorder, { target, tape: tapeAt(0.6) }),
+          ),
+        ),
+      );
       const input = host.querySelector<HTMLInputElement>('input:not([type="file"])');
       expect(input).not.toBeNull();
-      const enter = new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true });
-      await act(async () => input?.dispatchEvent(enter));
-      expect(enter.defaultPrevented).toBe(true);
+      /*
+       * THE HANDLER IS CALLED THROUGH ITS PROPS, NOT BY DISPATCHING AN EVENT.
+       *
+       * This dispatched a native KeyboardEvent on the input and asserted `enter.defaultPrevented`.
+       * Under this repository's happy-dom harness a dispatched DOM event NEVER reaches React, so the
+       * component's onKeyDown was never invoked and defaultPrevented was false whatever the component
+       * did. The test was red against a component that has had `preventMetadataSubmit` wired to both
+       * metadata inputs since it was written: it was measuring the harness, not the guard.
+       *
+       * Reading the handler off the element's props is the form the rest of this repository uses for
+       * the same reason - see ModeAllocationLab.refusals.test.tsx and
+       * MovingMirrorLab.numberRange.test.tsx. The handler is asserted to EXIST first, so a component
+       * that lost it fails here instead of passing vacuously.
+       */
+      const propsKey = Object.keys(input as object).find((k) => k.startsWith("__reactProps$"));
+      expect(propsKey).toBeDefined();
+      const inputProps = (input as unknown as Record<string, { onKeyDown?: (e: unknown) => void }>)[
+        propsKey as string
+      ];
+      expect(typeof inputProps?.onKeyDown).toBe("function");
+      let prevented = false;
+      await act(async () => {
+        inputProps?.onKeyDown?.({
+          key: "Enter",
+          nativeEvent: { isComposing: false },
+          preventDefault: () => {
+            prevented = true;
+          },
+        });
+      });
+      expect(prevented).toBe(true);
+
+      // And the negative, so the guard is not simply "prevent everything": an ordinary character must
+      // pass through, or typing a title would be impossible.
+      let preventedOnLetter = false;
+      await act(async () => {
+        inputProps?.onKeyDown?.({
+          key: "a",
+          nativeEvent: { isComposing: false },
+          preventDefault: () => {
+            preventedOnLetter = true;
+          },
+        });
+      });
+      expect(preventedOnLetter).toBe(false);
       await act(async () => button(host, "Save starting point").click());
       expect(submitted).toBe(0);
-      expect([...host.querySelectorAll("button")].every((element) => element.type === "button")).toBe(true);
+      expect(
+        [...host.querySelectorAll("button")].every((element) => element.type === "button"),
+      ).toBe(true);
       await act(async () => button(host, "Load saved settings into form").click());
-      expect(host.querySelector('[data-recording-outcome="loaded"]')?.textContent).toContain("has not been verified");
+      expect(host.querySelector('[data-recording-outcome="loaded"]')?.textContent).toContain(
+        "has not been verified",
+      );
     } finally {
       await act(async () => root.unmount());
       removeContainer(host);
@@ -99,18 +176,27 @@ describe("ExperimentRecorder reader controls", () => {
     const session = ME01_TAPE.createSession("recording-ui-refusal");
     const initial = session.getSnapshot();
     const tape = tapeAt(0.6);
-    const corrupt = { ...tape, acceptedCheckpoint: { ...tape.acceptedCheckpoint, digest: "host:0000000000000000" } };
+    const corrupt = {
+      ...tape,
+      acceptedCheckpoint: { ...tape.acceptedCheckpoint, digest: "host:0000000000000000" },
+    };
     const target: WalkthroughTarget = {
-      kind: "session", experimentId: "me-01",
+      kind: "session",
+      experimentId: "me-01",
       restore(recorded) {
         const result = restoreTape(ME01_TAPE, session, recorded);
-        return result.kind === "restored" ? result : {
-          kind: "not-restored", notice: result.kind === "not-restored" ? result.notice : "No tape.",
-        };
+        return result.kind === "restored"
+          ? result
+          : {
+              kind: "not-restored",
+              notice: result.kind === "not-restored" ? result.notice : "No tape.",
+            };
       },
     };
     try {
-      await act(async () => root.render(createElement(ExperimentRecorder, { target, tape: corrupt })));
+      await act(async () =>
+        root.render(createElement(ExperimentRecorder, { target, tape: corrupt })),
+      );
       await act(async () => button(host, "Save starting point").click());
       await act(async () => button(host, "Restore saved stop").click());
       expect(host.querySelector('[role="alert"][data-recording-outcome="refused"]')).not.toBeNull();
