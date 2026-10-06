@@ -217,6 +217,13 @@ owner:
       language: ts
       module: "src/physics/reference/kinematics.ts"
       exportName: "compositionIncrement"
+    # session.ts imports and calls this for every composed velocity, and it was the only kernel the
+    # lab uses that this manifest did not declare, which is why the four velocity-component live
+    # terms resolved to nothing (am-1nnj).
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/kinematics.ts"
+      exportName: "transformVelocity"
   identifierBindings:
     - kernelFunction: composePrinted
       identifier: "v"
@@ -239,6 +246,21 @@ owner:
     - kernelFunction: composeBoosts
       identifier: "g"
       quantityId: lorentzFactor
+    # transformVelocity(u, beta, c) takes u in the stationary system K and RETURNS the components in
+    # the moving system k, which is Einstein's section 5 direction, so the returned ux and uy are
+    # u_x' and u_y'. The stationary pair is read as u.ux and u.uy inside the expressions and has no
+    # scalar identifier of its own, so it is deliberately NOT bound here: a binding naming "u" would
+    # attach a scalar quantity to the whole velocity vector. Frames per content/quantities/
+    # kinematics.ts: ...Stationary is u_x in K, ...Moving is u_x' in k.
+    - kernelFunction: transformVelocity
+      identifier: "ux"
+      quantityId: velocityComponentXMoving
+    - kernelFunction: transformVelocity
+      identifier: "uy"
+      quantityId: velocityComponentYMoving
+    - kernelFunction: transformVelocity
+      identifier: "beta"
+      quantityId: frameSpeed
   traceScenarioId: sr-06-collinear-0.6-0.6
   traceRows:
     - label: "Collinear 0.6c with 0.6c"
