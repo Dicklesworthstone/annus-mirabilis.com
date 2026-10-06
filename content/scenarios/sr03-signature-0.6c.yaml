@@ -1,0 +1,57 @@
+# THE CONTRACTION AT 0.6c, REACHED AS A MEASUREMENT (am-nxbq, item 1).
+#
+# WHICH CONTROL VALUES A READER MOVES TO REACH IT: none. A rod at rest in the moving system with proper
+# length 10, measured from the stationary system at 0.6c, is SR-03's arrival state.
+#
+# WHY THIS IS SECTION 2's RESULT AND NOT A FORMULA LOOKED UP. A length is the distance between the rod's
+# two ends AT ONE TIME in the frame doing the measuring. Which pair of events counts as "at one time"
+# depends on the frame, and that is the whole content of paper 3's section 2: the stationary observer's
+# simultaneous pair is not the moving observer's. So this record asks the kinematics which endpoint events
+# are simultaneous in the measuring frame, and then measures the separation of exactly those events. The
+# answer is 8, and the 8 was computed by the selection rather than handed to the measurement.
+#
+# THE NUMBER IS EXACT AND THAT IS WHY 0.6c WAS CHOSEN FOR THE WHOLE EDITION. At 0.6c the Lorentz factor
+# is 1.25 and its reciprocal is 0.8, both terminating decimals, so the contracted length of a 10-unit rod
+# is exactly 8 with nothing rounded. A reader can check it by hand, which is the point of the site using
+# that speed everywhere.
+#
+# WHAT IT IS NOT. It is not a claim about what a camera would photograph: AGENTS.md's anachronism table
+# separates simultaneous-coordinate measurement from received light and optical appearance, and this is
+# the former. It is also not the rod shrinking in its own frame; the proper length is reported beside the
+# measurement, unchanged at 10, so the two readings sit together and neither can be mistaken for the
+# other.
+id: "sr03-signature-0.6c"
+kind: "modern-golden"
+title: "SR-03 at 0.6c: a rod of proper length 10 measures 8, from the endpoints that are simultaneous"
+description: "A rod at rest in the moving system has proper length 10. Measuring it from the stationary system means taking the separation of its two ends at one time in THAT system, and the pair of endpoint events which is simultaneous there is separated by 8. The Lorentz factor at 0.6c is 1.25 and its reciprocal 0.8 exactly, so the number is exact rather than rounded. The proper length is reported beside it, unchanged at 10, so a reader cannot mistake the measurement for a statement about the rod in its own frame."
+constantSetId: "modern-si-2019"
+owner: "events.rodSignature"
+inputs:
+  frameSpeed:
+    value: 0.6
+    unit: "1"
+  properLength:
+    value: 10
+    unit: "m"
+  frameIsMoving:
+    value: 0
+    unit: "1"
+  rodRestFrameIsMoving:
+    value: 1
+    unit: "1"
+expected:
+  outputs:
+    - outputId: measuredLength
+      value: 8
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "L0 divided by the Lorentz factor, 10 over 1.25, which is 8 exactly at this speed because 1.25 and 0.8 both terminate in binary64. Computed by the endpoint selection and confirmed by the measurement, not supplied to it."
+    - outputId: properLength
+      value: 10
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Carried through unchanged. Asserting it beside the measurement is what keeps the two readings distinguishable: the rod is 10 long in its own frame and measures 8 from the other, and neither statement is the other one."
+modelVersion: 1
+schemaVersion: 1

@@ -1,0 +1,80 @@
+# A PATH ALONG THE MOTION HAS NO SINGLE ELECTROMOTIVE FORCE (am-nxbq, items 1 and 2).
+#
+# WHICH CONTROL VALUES A READER MOVES TO REACH IT: the path orientation, from transverse to along the
+# motion, and the speed to 0.6c. Both are ordinary settings and neither is refused.
+#
+# WHAT HAPPENS AND WHY IT IS THE INTERESTING CASE. SR-02 is paper 3's opening paragraph: the same relative
+# motion of magnet and conductor is described two incompatible ways by the older theory and gives one
+# measurable result. That symmetry is clean for a path across the motion. Turn the path to lie ALONG the
+# motion and two things happen at once:
+#
+#   the magnet-frame electromotive force is exactly ZERO, because v cross B is perpendicular to v and
+#   therefore has no component along a path parallel to it; and
+#
+#   the endpoints of that path are no longer simultaneous in the other frame. The offset here is
+#   2.5017e-10 seconds for a tenth-metre segment at 0.6c, and it is not a small correction to the answer,
+#   it is what stops there being one answer: "the electromotive force around this path" names a different
+#   pair of events in each frame.
+#
+# SO THE CONDUCTOR-FRAME READING IS NOT APPLICABLE, which is the honest report and is why this record
+# exists. A page showing two numbers and their difference here would be comparing quantities that are not
+# the same quantity. The fields themselves are still perfectly well defined and are reported: the magnetic
+# field becomes 1.25 in the moving frame, which is gamma times its stationary value at this speed, and an
+# electric field of -2.2484e8 appears where there was none.
+#
+# WHAT THIS IS NOT. It is not a failure of relativity or an asymmetry in the physics. The measurable
+# current in a real circuit is unaffected and is reported as not modelled here for a separate reason, which
+# sr-02-no-circuit-no-current pins. What has failed is a naive identification of two path integrals across
+# frames, which is exactly the confusion section 6 of paper 3 is written to remove.
+id: "sr-02-path-along-motion-0.6c"
+kind: "adversarial"
+title: "SR-02 with the path along the motion at 0.6c: no magnet-frame EMF, and no comparable one in the other frame"
+description: "Turning the measurement path to lie along the relative motion makes the magnet-frame electromotive force exactly zero, because the magnetic force is perpendicular to the velocity and has no component along the path. It also desynchronises the path's endpoints between the frames, by 2.5017e-10 seconds for a tenth-metre segment at 0.6c, so the electromotive force around that path is not one quantity in both frames and the conductor-frame reading is reported as not applicable. The fields remain defined: the magnetic field is gamma times its stationary value at 1.25 and an electric field of -2.2484e8 appears."
+plausibleMistake: "That the two frames must agree on the electromotive force around any path, since they agree on the current, so a zero in one frame means a zero in the other and the comparison can be made anywhere. The agreement holds for a path whose endpoints are simultaneous in both frames. Along the motion they are not, and the two path integrals run between different pairs of events; subtracting them produces a number that looks like an asymmetry in the physics and is an artefact of comparing two different questions."
+intendedFailure: "The simultaneity offset is computed and the conductor-frame reading is withheld rather than produced, so no spurious difference between frames can be displayed. The scenario passes only when the magnet-frame force is zero and the offset is nonzero at this orientation; a run reporting a nonzero magnet-frame force would have the geometry wrong, and one reporting a zero offset would have lost the desynchronisation that makes the comparison illegitimate."
+constantSetId: "modern-si-2019"
+owner: "sr02.fieldsAndPath"
+inputs:
+  pathOrientation:
+    value: 1
+    unit: "1"
+  fieldModel:
+    value: 0
+    unit: "1"
+  speed:
+    value: 179875474.8
+    unit: "m/s"
+  magneticField:
+    value: 1
+    unit: "T"
+  segmentLength:
+    value: 0.1
+    unit: "m"
+expected:
+  outputs:
+    - outputId: electromotiveForceMagnetFrame
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-18
+        rationale: "Exactly zero by geometry: v cross B is perpendicular to v, so its component along a path parallel to v vanishes. Absolute tolerance, because a relative one cannot bound an exact zero, and 1e-18 is far below the 1 volt the transverse path gives."
+    - outputId: endpointSimultaneityOffset
+      value: 2.5017307139861404e-10
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-9
+        rationale: "gamma v L / c squared for a tenth-metre segment at 0.6c. This is the quantity that makes the two frames' path integrals incomparable, so it is asserted rather than described."
+    - outputId: magneticFieldMoving
+      value: 1.25
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma times the stationary 1 tesla, exactly 1.25 at 0.6c. Reported to show the fields are perfectly well defined where the path integral is not."
+    - outputId: lorentzFactor
+      value: 1.25
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The same 1.25 the whole edition uses at 0.6c, a terminating decimal, so a reader can check the field transformation by hand."
+modelVersion: 1
+schemaVersion: 1

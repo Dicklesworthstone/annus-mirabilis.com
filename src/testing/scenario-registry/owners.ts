@@ -74,6 +74,7 @@ import {
   movingRodLegs,
   movingRodLightLegs,
   properTime,
+  selectSimultaneousEndpoints,
   synchronizationRound,
 } from "../../physics/reference/events.ts";
 import {
@@ -1078,6 +1079,53 @@ const OWNERS: OwnerRecord[] = [
    * semantics rather than about the counting law, and mixing the two in one reading would invite a
    * scenario to assert a statistic as though it were arithmetic.
    */
+  /**
+   * THE MAGNET AND THE CONDUCTOR, WITH THE PATH AND THE FIELD MODEL AS CONTROLS (am-nxbq, item 1).
+   *
+   * SR-02 is the opening paragraph of paper 3: the same relative motion of a magnet and a conductor is
+   * described two incompatible ways by the older theory, and gives one measurable current either way.
+   * The laboratory's two structural controls are the FIELD MODEL, uniform or dipole, and the PATH
+   * ORIENTATION, transverse or along the motion, and both are encoded numerically here because an owner
+   * takes numbers: fieldModel 0 uniform and 1 dipole, pathOrientation 0 transverse and 1 along-motion.
+   *
+   * THE CONDUCTOR-FRAME READINGS ARE CONDITIONAL, for the same reason lq07.budget's leftover energy is.
+   * A path along the motion has endpoints that are not simultaneous in the other frame, so the
+   * electromotive force "around that path" is not one quantity in both frames and the laboratory reports
+   * it as not applicable rather than as a number. That is the physics rather than a gap, so including the
+   * field strengths and the magnet-frame reading unconditionally and these two only when they are values
+   * is what lets one owner serve both the transverse and the along-motion case.
+   */
+  {
+    id: "sr02.fieldsAndPath",
+    sourcePath: fileURLToPath(new URL("../../experiments/sr02/session.ts", import.meta.url)),
+    fn: (ctx) => {
+      const outputs = sr02SnapshotOutputs({
+        ...SR02_DEFAULTS,
+        ...ctx.inputs,
+        fieldModel: (ctx.inputs.fieldModel ?? 0) === 1 ? "dipole" : "uniform",
+        pathOrientation: (ctx.inputs.pathOrientation ?? 0) === 1 ? "along-motion" : "transverse",
+      } as never);
+      const numbers: Record<string, number> = {};
+      for (const outputId of [
+        "magneticFieldStationary",
+        "magneticFieldMoving",
+        "electricFieldMoving",
+        "electromotiveForceMagnetFrame",
+        "lorentzFactor",
+        "pathBoostParallelComponent",
+        "endpointSimultaneityOffset",
+      ]) {
+        const got = sessionOutputsOf(outputs, outputId);
+        if (isOwnerRefusal(got)) return got;
+        Object.assign(numbers, got);
+      }
+      for (const outputId of ["electromotiveForceConductorFrame", "electromotiveForceExcess"]) {
+        const got = sessionOutputsOf(outputs, outputId);
+        if (!isOwnerRefusal(got)) Object.assign(numbers, got);
+      }
+      return numbers;
+    },
+  },
   {
     id: "lq05.session",
     sourcePath: fileURLToPath(new URL("../../experiments/lq05/session.ts", import.meta.url)),
@@ -1696,6 +1744,55 @@ const OWNERS: OwnerRecord[] = [
    * the frames and the rest length beside them. `frameIsMoving` picks which frame does the measuring,
    * 0 for the stationary system K and anything else for the moving system k.
    */
+  /**
+   * THE CONTRACTION AS A MEASUREMENT RATHER THAN A FORMULA (am-nxbq, item 1).
+   *
+   * SR-03's subject is that a length is a measurement made at ONE TIME in the measuring frame, and that
+   * which pair of endpoint events counts as "at one time" depends on the frame. So this owner does both
+   * halves of the laboratory's chain: it asks the kinematics which endpoint events are simultaneous in
+   * the measuring frame, and then measures the separation of exactly those events.
+   *
+   * THAT ORDER IS WHY THE NUMBER MEANS ANYTHING. events.measureRodLengthTyped beside it takes the two
+   * events as inputs, which is right for the case where a reader supplies a pair and asks whether it is a
+   * length at all. Supplying the contracted separation to it and then asserting the contraction would be
+   * asserting the scenario's own arithmetic. Here the separation is COMPUTED by the selection and the
+   * measurement only confirms it was simultaneous, so a contraction factor applied in the wrong place
+   * would change the answer.
+   */
+  {
+    id: "events.rodSignature",
+    sourcePath: fileURLToPath(new URL("../../physics/reference/events.ts", import.meta.url)),
+    fn: (ctx) => {
+      const measuring = (ctx.inputs.frameIsMoving ?? 0) === 0 ? "K" : "k";
+      const rest = (ctx.inputs.rodRestFrameIsMoving ?? 0) === 0 ? "K" : "k";
+      const v = num(ctx.inputs, "frameSpeed");
+      const L0 = num(ctx.inputs, "properLength");
+      const pair = selectSimultaneousEndpoints(rest, measuring, v, L0);
+      // NOT nonNumericOr HERE, and the reason is worth the line: the selection's accepted value is a PAIR
+      // OF EVENTS, not a number, so that helper's guard correctly throws owner-value-key-unnamed on it.
+      // A refusal is built by hand from the kinematics' own condition instead.
+      if (pair.status !== "value") {
+        const held = pair as unknown as Record<string, unknown>;
+        return {
+          refused: {
+            outputId: "endpointPair",
+            status: String(held.status),
+            reasonCode:
+              "condition" in held && held.condition !== undefined
+                ? String(held.condition)
+                : String(held.status),
+          },
+        };
+      }
+      const measured = measureRodLength(pair.value.e1, pair.value.e2, measuring, rest, v, L0);
+      const got = nonNumericOr(
+        measured as unknown as Record<string, unknown>,
+        "measuredLength",
+        "measuredLength",
+      );
+      return typeof got === "number" ? { measuredLength: got, properLength: L0 } : got;
+    },
+  },
   {
     id: "events.measureRodLengthTyped",
     sourcePath: fileURLToPath(new URL("../../physics/reference/events.ts", import.meta.url)),

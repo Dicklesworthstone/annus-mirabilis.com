@@ -1,0 +1,76 @@
+# THE SYMMETRY IS NOT AN ARTEFACT OF A UNIFORM FIELD (am-nxbq, item 1).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the field model, from uniform to dipole, with the test point
+# on the dipole's equator at the laboratory's default 5 cm.
+#
+# WHY A DIPOLE AND NOT JUST A UNIFORM FIELD. Paper 3's opening paragraph is about a MAGNET, and a magnet's
+# field is not uniform. A reader shown the magnet-conductor symmetry only in a uniform field is entitled to
+# wonder whether the agreement is a feature of that idealisation, and the answer is no: on the dipole's
+# equator the field is 7.9999999989e-4 tesla instead of 1, three orders of magnitude smaller and falling as
+# the inverse cube of the distance, and the two frames' electromotive forces still agree to 5.5633e-16 in
+# relative terms. The agreement is a statement about the transformation of the fields, not about their
+# shape.
+#
+# WHAT THE EQUATOR IS FOR. On the dipole's equatorial plane the field is antiparallel to the moment and
+# perpendicular to a transverse path, which is the configuration in which the comparison is cleanest: the
+# path's endpoints stay simultaneous in both frames, so the two electromotive forces are the same quantity
+# and subtracting them is legitimate. That is the contrast with sr-02-path-along-motion-0.6c, where the
+# subtraction is not.
+#
+# THE RESIDUAL IS FLOATING-POINT AND IS NAMED AS SUCH. 5.5633e-16 is about two parts in ten thousand
+# trillion, which is the scale of binary64 cancellation on quantities of this size and not a physical
+# excess. A page presenting it as a measured asymmetry would be reporting its own arithmetic error as
+# physics, which is why the record asserts a bound on it rather than its value.
+id: "sr-02-dipole-equatorial"
+kind: "modern-golden"
+title: "SR-02 with a dipole field on its equator: the two descriptions still agree, to floating-point"
+description: "A magnet's field is not uniform, so the magnet-conductor symmetry is checked again on a dipole. At the default 5 cm on the equatorial plane the field is 7.9999999989e-4 tesla, three orders of magnitude below the uniform case and falling as the inverse cube of the distance, and the electromotive forces computed in the magnet's frame and the conductor's frame still agree to 5.5633e-16 in relative terms. The agreement is a property of how the fields transform rather than of their shape."
+constantSetId: "modern-si-2019"
+owner: "sr02.fieldsAndPath"
+inputs:
+  fieldModel:
+    value: 1
+    unit: "1"
+  pathOrientation:
+    value: 0
+    unit: "1"
+  speed:
+    value: 10
+    unit: "m/s"
+  dipoleMoment:
+    value: 1
+    unit: "A m^2"
+  testPointDistance:
+    value: 0.05
+    unit: "m"
+  segmentLength:
+    value: 0.1
+    unit: "m"
+expected:
+  outputs:
+    - outputId: magneticFieldStationary
+      value: 0.0007999999998943736
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-9
+        rationale: "The equatorial dipole field, mu0 m / (4 pi r cubed), at a moment of 1 and a distance of 5 cm. Three orders of magnitude below the uniform case, which is what makes this a different test and not a repetition."
+    - outputId: electromotiveForceMagnetFrame
+      value: 0.0007999999998943736
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-9
+        rationale: "v cross B along a transverse path of a tenth metre at 10 m/s, which at this field equals the field's numerical value in these units."
+    - outputId: electromotiveForceExcess
+      value: 5.563250280268097e-16
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-14
+        rationale: "A relative residual at the scale of binary64 cancellation, not a physical excess. The tolerance is absolute and generous on purpose: what is asserted is that the two frames agree to floating-point, and pinning this figure tightly would be pinning the rounding of one platform."
+    - outputId: endpointSimultaneityOffset
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-18
+        rationale: "Zero for a transverse path, which is what makes the two electromotive forces the same quantity and the subtraction above legitimate. Along the motion it is nonzero and the subtraction is refused, which sr-02-path-along-motion-0.6c pins."
+modelVersion: 1
+schemaVersion: 1

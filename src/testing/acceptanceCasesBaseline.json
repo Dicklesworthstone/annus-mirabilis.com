@@ -31,8 +31,6 @@
     "sr-01-rod-chase-0.6c",
     "sr-01-round-trip-10ls",
     "sr-01-sync-0-10",
-    "sr-02-dipole-equatorial",
-    "sr-02-path-along-motion-0.6c",
     "sr-02-uniform-0.6c",
     "sr-02-uniform-10ms",
     "sr-04-construct-0.6c",
@@ -77,7 +75,6 @@
     "sr-13-kaufmann-overlay",
     "sr-13-magnetic-radius-0.01t",
     "sr-13-transverse-e-2ns",
-    "sr03-signature-0.6c",
     "stokes-rule-einstein-1905-printed"
   ]
 }
