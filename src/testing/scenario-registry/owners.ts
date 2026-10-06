@@ -34,6 +34,8 @@ import { SR05_DEFAULTS } from "../../experiments/sr05/definition.ts";
 import { evaluateSr05 } from "../../experiments/sr05/session.ts";
 import { SR06_DEFAULTS } from "../../experiments/sr06/definition.ts";
 import { evaluateSr06 } from "../../experiments/sr06/session.ts";
+import { SR08_DEFAULTS } from "../../experiments/sr08/definition.ts";
+import { snapshotOutputs as sr08SnapshotOutputs } from "../../experiments/sr08/session.ts";
 import { SR09_DEFAULTS } from "../../experiments/sr09/definition.ts";
 import { snapshotOutputs as sr09SnapshotOutputs } from "../../experiments/sr09/session.ts";
 import { SR11_DEFAULTS } from "../../experiments/sr11/definition.ts";
@@ -1297,6 +1299,40 @@ const OWNERS: OwnerRecord[] = [
       ]) {
         const got = sessionOutputsOf(outputs, outputId);
         if (!isOwnerRefusal(got)) Object.assign(numbers, got);
+      }
+      return numbers;
+    },
+  },
+  /**
+   * THE FIELD INVARIANTS, WHICH ARE THE SCALARS SR-08 HAS (am-nxbq, item 1).
+   *
+   * SR-08's fields are VECTORS and a scenario's expected outputs hold numbers, so what this owner returns
+   * is the laboratory's scalars: the two invariants E dot B and E squared minus c squared B squared, each
+   * in both frames, the Lorentz factor, and the proper-time Jacobian. That is not a consolation prize -
+   * the invariants are the point of section 6. The fields themselves change under the boost, sometimes
+   * appearing where there were none, and these two combinations do not.
+   *
+   * BOTH FRAMES' VALUES ARE RETURNED SO A SCENARIO CAN ASSERT THE INVARIANCE rather than describe it. A
+   * record pinning one frame's invariant says what the number is; pinning both says that the boost did not
+   * change it, which is the claim.
+   */
+  {
+    id: "sr08.invariants",
+    sourcePath: fileURLToPath(new URL("../../experiments/sr08/session.ts", import.meta.url)),
+    fn: (ctx) => {
+      const outputs = sr08SnapshotOutputs({ ...SR08_DEFAULTS, ...ctx.inputs } as never);
+      const numbers: Record<string, number> = {};
+      for (const outputId of [
+        "fieldInvariantEDotB",
+        "fieldInvariantE2MinusC2B2",
+        "fieldInvariantEDotBMoving",
+        "fieldInvariantE2MinusC2B2Moving",
+        "lorentzFactor",
+        "particleTimeJacobian",
+      ]) {
+        const got = sessionOutputsOf(outputs, outputId);
+        if (isOwnerRefusal(got)) return got;
+        Object.assign(numbers, got);
       }
       return numbers;
     },

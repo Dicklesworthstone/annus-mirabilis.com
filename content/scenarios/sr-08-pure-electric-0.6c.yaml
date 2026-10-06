@@ -1,0 +1,76 @@
+# A MAGNETIC FIELD APPEARS WHERE THERE WAS NONE, AND THE INVARIANT DOES NOT MOVE (am-nxbq, item 1).
+#
+# WHICH CONTROL VALUES A READER MOVES TO REACH IT: the laboratory's own arrival state - a pure electric
+# field of 1 V/m along y, no magnetic field, a boost of 0.6c - which is the preset its manifest named here.
+# This was a PRESET id in acceptanceCases; the acceptance case is what those settings must produce.
+#
+# WHAT THE FIELDS DO. E goes from 1 to 1.25 V/m, which is gamma times it, and a magnetic field of
+# -2.5017e-9 T appears along z out of nothing. There is no magnet anywhere in the problem. The second
+# observer is not seeing a different world: "electric" and "magnetic" are not properties a field has, they
+# are the parts of one field that a chosen frame separates it into.
+#
+# AND THE TWO COMBINATIONS THAT DO NOT CHANGE. E dot B is 0 in both frames, which says the field stays
+# perpendicular, and E squared minus c squared B squared is 1 in both frames EXACTLY - the same binary64
+# value, not merely close. Those are the quantities a reader can hold onto while the fields themselves
+# move, and asserting both frames is what makes this a statement about invariance rather than about a
+# number.
+#
+# THE FORCE IS NOT THE SAME IN BOTH FRAMES, AND THAT IS NOT A CONTRADICTION. AGENTS.md's adversarial list
+# names "forces have equal numerical components in different frames" as a plausible wrong result. The
+# transverse force on a charge at rest here is 1.6022e-19 N in the laboratory and 1.2817e-19 in the
+# comoving frame, a factor of 1/gamma, because force is a rate of change of momentum with respect to a time
+# and the two frames do not share the time. The laboratory publishes both and a residual confirming the
+# transformation, which is why those readings are not pinned here: this record is about the invariants.
+id: "sr-08-pure-electric-0.6c"
+kind: "modern-golden"
+title: "SR-08 on a pure electric field at 0.6c: a magnetic field appears, the invariant stays at 1"
+description: "A pure electric field of 1 V/m seen from a frame moving at 0.6c becomes 1.25 V/m with a magnetic field of -2.5017e-9 T alongside it, although there is no magnet in the problem. The two invariant combinations do not move: E dot B is zero in both frames and E squared minus c squared B squared is exactly 1 in both. Electric and magnetic are not properties the field has; they are how a chosen frame divides it."
+constantSetId: "modern-si-2019"
+owner: "sr08.invariants"
+inputs:
+  boost:
+    value: 179875474.8
+    unit: "m/s"
+  electricFieldY:
+    value: 1
+    unit: "V/m"
+  magneticFieldZ:
+    value: 0
+    unit: "T"
+  testCharge:
+    value: 1.602176634e-19
+    unit: "C"
+expected:
+  outputs:
+    - outputId: fieldInvariantE2MinusC2B2
+      value: 1
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "E squared with B zero, so exactly 1 in SI units at a 1 V/m field."
+    - outputId: fieldInvariantE2MinusC2B2Moving
+      value: 1
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The SAME value after the boost, although E became 1.25 and a B appeared: (1.25)^2 - c^2 (2.5017e-9)^2 = 1. Asserting both frames is the invariance; asserting one would only be a number."
+    - outputId: fieldInvariantEDotB
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-18
+        rationale: "Zero because B is zero. Absolute tolerance, since a relative one cannot bound an exact zero."
+    - outputId: fieldInvariantEDotBMoving
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-18
+        rationale: "Still zero although both fields are now nonzero: the appeared B is perpendicular to E, which is what this invariant records."
+    - outputId: lorentzFactor
+      value: 1.25
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Exactly 1.25 at 0.6c, the factor by which E grew. A reader can check 1/sqrt(1 - 0.36) by hand."
+modelVersion: 1
+schemaVersion: 1

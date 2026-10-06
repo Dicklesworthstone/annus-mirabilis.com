@@ -1,0 +1,81 @@
+# A PURE MAGNETIC FIELD AT WALKING PACE, AND THE OTHER SIGN OF THE SAME INVARIANT (am-nxbq, item 1).
+#
+# WHICH CONTROL VALUES A READER MOVES TO REACH IT: the field, from pure electric to pure magnetic - 1
+# tesla along z, no electric field - and the boost down to 10 metres per second. The LABORATORY's button
+# sets exactly this; see the note at the end about the manifest's preset, which does not.
+#
+# WHAT HAPPENS, AND WHY THE SPEED IS DELIBERATELY ORDINARY. An electric field of -10 V/m appears in the
+# moving frame where there was none, and 10 metres per second is a speed anyone can walk. That is the
+# point: the mixing of electric and magnetic is not a high-speed effect. It is first order in v/c and it
+# is how an ordinary dynamo works. What IS second order, and so invisible here, is the change in the
+# magnetic field itself: 1 tesla becomes 1.0000000000000007, a departure of 7e-16 which is the Lorentz
+# factor's own departure from 1.
+#
+# THE INVARIANT HAS THE OPPOSITE SIGN FROM THE ELECTRIC CASE, and that is the structural fact worth
+# pinning. E squared minus c squared B squared is -8.9876e16 here against +1 in sr-08-pure-electric-0.6c.
+# The sign is a frame-independent statement about which kind of field this is: no boost can turn a
+# magnetically dominated field into an electrically dominated one, which is why a charge can always be
+# brought to rest relative to one and never relative to the other.
+#
+# THE TWO FRAMES' VALUES DIFFER IN THE LAST TWO DIGITS, -89875517873681760 against -89875517873681780,
+# which is two parts in nine quadrillion: binary64 cancellation on a quantity of order c squared, not a
+# physical change. The tolerance below admits that and says so, rather than pinning one platform's
+# rounding.
+#
+# A FINDING ABOUT THE MANIFEST, recorded where it will be read. This case's inputs are the LAB's button
+# values. The manifest's preset of the same id sets only the boost and the test charge, so a consumer
+# reading the declared preset would get the default PURE ELECTRIC field at 10 m/s and not a magnetic one
+# at all. The lab hard-codes its own buttons, which is why nothing has gone wrong on the page.
+id: "sr-08-pure-magnetic-low-speed"
+kind: "modern-golden"
+title: "SR-08 on a pure magnetic field at 10 m/s: an electric field appears, and the invariant is negative"
+description: "A 1 tesla field with no electric field, seen from a frame moving at ten metres per second, acquires an electric field of -10 V/m. The mixing is first order in v over c and needs no high speed; the change in the magnetic field itself is second order and amounts to 7e-16 here. E squared minus c squared B squared is -8.9876e16, the opposite sign from the pure electric case, which is a frame-independent statement that no boost can turn a magnetically dominated field into an electrically dominated one."
+constantSetId: "modern-si-2019"
+owner: "sr08.invariants"
+inputs:
+  boost:
+    value: 10
+    unit: "m/s"
+  electricFieldY:
+    value: 0
+    unit: "V/m"
+  magneticFieldZ:
+    value: 1
+    unit: "T"
+  testCharge:
+    value: 1.602176634e-19
+    unit: "C"
+expected:
+  outputs:
+    - outputId: fieldInvariantE2MinusC2B2
+      value: -89875517873681760
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Minus c squared at a 1 tesla field with no E. NEGATIVE, against +1 in the pure electric case: the sign says which kind of field it is and no boost changes it."
+    - outputId: fieldInvariantE2MinusC2B2Moving
+      value: -89875517873681780
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The same invariant after the boost. It differs from the line above in the last two digits, two parts in nine quadrillion, which is binary64 cancellation on a quantity of order c squared and not a physical change; the tolerance admits that and nothing larger."
+    - outputId: fieldInvariantEDotB
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Zero because E is zero. Absolute tolerance, since a relative one cannot bound an exact zero."
+    - outputId: fieldInvariantEDotBMoving
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Still zero although an electric field has appeared: it is perpendicular to the magnetic one."
+    - outputId: lorentzFactor
+      value: 1.0000000000000007
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Indistinguishable from 1 at walking pace, and its departure of 7e-16 is exactly the size of the change in the magnetic field. Asserting it is what shows the first-order mixing above is not a second-order effect in disguise."
+modelVersion: 1
+schemaVersion: 1

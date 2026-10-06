@@ -1,0 +1,82 @@
+# THE NULL FIELD: BOTH INVARIANTS ZERO, AND THEY STAY ZERO (am-nxbq, item 1).
+#
+# WHICH CONTROL VALUES A READER MOVES TO REACH IT: the field set to E = cB - 1 V/m along y with 1/c tesla
+# along z - and the boost at 0.6c. These are the LAB's button values; see the note at the end about the
+# manifest's preset.
+#
+# WHY THIS CONFIGURATION IS SPECIAL. Both invariants vanish: E dot B is zero because the fields are
+# perpendicular, and E squared minus c squared B squared is zero because E equals cB exactly. A field with
+# both invariants zero is a NULL field, and it is what a plane light wave is made of. Neither of the two
+# questions a boost can usually answer has an answer here: there is no frame where the field is purely
+# electric and none where it is purely magnetic, because the sign that would decide is absent.
+#
+# AND THE BOOST CANNOT BREAK IT. Under the 0.6c boost E goes from 1 to 0.5 V/m and B from 3.3356e-9 to
+# 1.6678e-9 T - both halved, so E = cB still holds and the field is still null. That is the invariance, and
+# it is why a light wave is a light wave in every frame: no observer can boost their way into seeing a
+# static field.
+#
+# ZERO HERE IS A COMPUTED ZERO AND THE RECORD SAYS SO. The invariant comes out at 1.1102230246251565e-16,
+# which is 2 to the power -53: machine epsilon, the residue of subtracting two quantities of order 1 that
+# are equal. It is IDENTICAL in both frames, bit for bit, which is a stronger statement than each being
+# small. The assertions below are against zero with an absolute tolerance far above that residue and far
+# below anything physical, which is what AGENTS.md means by a null classification near cancellation: a
+# relative tolerance against a true zero admits everything, and pinning 1.11e-16 would pin one platform's
+# rounding as though it were a result.
+#
+# A FINDING ABOUT THE MANIFEST. These inputs are the LAB's button values. The manifest's preset of this id
+# sets only the boost and the test charge, so a consumer reading the declared preset would get the default
+# pure electric field and no null condition at all. The lab hard-codes its own buttons, which is why the
+# page is right and the record is not.
+id: "sr-08-crossed-fields-null"
+kind: "modern-golden"
+title: "SR-08 on a null field: both invariants vanish, and the boost halves both fields together"
+description: "With E equal to cB and the fields perpendicular, both invariants vanish: this is a null field, the kind a plane light wave is made of, and there is no frame in which it is purely electric or purely magnetic. A 0.6c boost halves the electric field and the magnetic field together, so E = cB still holds and the field is still null. The computed invariant is 1.11e-16 - machine epsilon, identical in both frames - so the assertions are against zero with an absolute tolerance, which is what a null condition near cancellation requires."
+constantSetId: "modern-si-2019"
+owner: "sr08.invariants"
+inputs:
+  boost:
+    value: 179875474.8
+    unit: "m/s"
+  electricFieldY:
+    value: 1
+    unit: "V/m"
+  magneticFieldZ:
+    value: 3.3356409519815204e-9
+    unit: "T"
+  testCharge:
+    value: 1.602176634e-19
+    unit: "C"
+expected:
+  outputs:
+    - outputId: fieldInvariantE2MinusC2B2
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Zero because E equals cB. The computed residue is 1.1102230246251565e-16, which is 2 to the minus 53; the tolerance sits far above it and far below any physical field combination, so it asserts the null condition without pinning a rounding."
+    - outputId: fieldInvariantE2MinusC2B2Moving
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Still zero after the boost, with the identical residue bit for bit. Asserting both frames is the invariance: the boost halves E and B together, so a null field is null for every observer."
+    - outputId: fieldInvariantEDotB
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-18
+        rationale: "Exactly zero: the fields are perpendicular by construction, so this one is not a cancellation and the tolerance can be far tighter than the other invariant's."
+    - outputId: fieldInvariantEDotBMoving
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-18
+        rationale: "Still exactly zero. Both invariants vanishing in both frames is what makes this field null rather than merely balanced at one setting."
+    - outputId: lorentzFactor
+      value: 1.25
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The same 1.25 as the pure electric case, so the difference between the two records is the field and not the boost."
+modelVersion: 1
+schemaVersion: 1
