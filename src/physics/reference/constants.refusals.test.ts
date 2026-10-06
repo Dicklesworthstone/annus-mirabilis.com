@@ -360,4 +360,88 @@ describe("constants.ts refusal throw sites (am-muyh)", () => {
       ),
     ).toBe(true);
   });
+
+  // --------------------------------------------------------------------------
+  // Site 11: line 1168 - missing-receipt-ref
+  // Site 12: line 1178 - missing-check-metadata
+  //
+  // These two are the PROVENANCE half of this checker and the only pair in it that asks about
+  // the record rather than about the physics. Everything above recomputes a printed number; these
+  // ask whether a claim ABOUT the transcription is backed. A set that silently corrected a
+  // misprint, or that claimed a check nobody performed, is exactly the editorial failure the
+  // provenance receipts exist to prevent, and it would pass every recomputation above.
+  // --------------------------------------------------------------------------
+  test("rejects printed-corrected without a receiptRef (constants.ts:1168)", () => {
+    const realSet = getConstantSet("einstein-1905-light-quanta-printed");
+
+    // Accept: the real set corrected the Wien alpha misprint AND cites where that is recorded.
+    const clean = checkPrintedConsistency(realSet);
+    expect(clean.issues.some((i) => i.code === "missing-receipt-ref")).toBe(false);
+    const corrected = realSet.entries.filter((e) => e.printedStatus === "printed-corrected");
+    expect(corrected.length).toBeGreaterThan(0);
+    for (const entry of corrected) expect(typeof entry.receiptRef).toBe("string");
+
+    // Reject: the same correction with the receipt citation removed.
+    const badSet = modifyEntry(realSet, "wienConstantAlpha", (entry) => {
+      const { receiptRef: _dropped, ...rest } = entry;
+      return { ...rest, printedStatus: "printed-corrected" as const };
+    });
+    const bad = checkPrintedConsistency(badSet);
+    expect(bad.ok).toBe(false);
+    expect(
+      bad.issues.some(
+        (i) =>
+          i.code === "missing-receipt-ref" &&
+          i.quantityId === "wienConstantAlpha" &&
+          i.message.includes("printed-corrected without a receiptRef"),
+      ),
+    ).toBe(true);
+    // NOT the metadata refusal: that one belongs to :1178 and this entry's transcription
+    // status is untouched.
+    expect(bad.issues.some((i) => i.code === "missing-check-metadata")).toBe(false);
+  });
+
+  test("rejects transcribed-and-checked without checkedBy or checkedAt (constants.ts:1178)", () => {
+    const realSet = getConstantSet("einstein-1905-light-quanta-printed");
+    const clean = checkPrintedConsistency(realSet);
+    expect(clean.issues.some((i) => i.code === "missing-check-metadata")).toBe(false);
+
+    // Reject, once per missing field, because the guard is an OR and dropping only one of them
+    // is the likelier mistake: a half-filled record claims a check it cannot attribute or date.
+    for (const drop of ["checkedBy", "checkedAt"] as const) {
+      const badSet = modifyEntry(realSet, "wienConstantAlpha", (entry) => {
+        const next = {
+          ...entry,
+          transcriptionStatus: "transcribed-and-checked" as const,
+          checkedBy: "a-reviewer",
+          checkedAt: "2026-10-06",
+        };
+        delete (next as Record<string, unknown>)[drop];
+        return next;
+      });
+      const bad = checkPrintedConsistency(badSet);
+      expect(bad.ok).toBe(false);
+      expect(
+        bad.issues.some(
+          (i) =>
+            i.code === "missing-check-metadata" &&
+            i.quantityId === "wienConstantAlpha" &&
+            i.message.includes("transcribed-and-checked without checkedBy/checkedAt"),
+        ),
+      ).toBe(true);
+    }
+
+    // Accept: both fields present satisfies the guard, so it is about the attribution and not
+    // about the status. Without this a checker that refused every transcribed-and-checked entry
+    // would pass the two rejections above.
+    const ok = checkPrintedConsistency(
+      modifyEntry(realSet, "wienConstantAlpha", (entry) => ({
+        ...entry,
+        transcriptionStatus: "transcribed-and-checked" as const,
+        checkedBy: "a-reviewer",
+        checkedAt: "2026-10-06",
+      })),
+    );
+    expect(ok.issues.some((i) => i.code === "missing-check-metadata")).toBe(false);
+  });
 });

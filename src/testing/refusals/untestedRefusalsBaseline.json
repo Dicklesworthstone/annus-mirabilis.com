@@ -126,7 +126,7 @@
   "src/experiments/shelf/settings.ts": 1,
   "src/experiments/tapes/replayer.ts": 0,
   "src/experiments/weave/pointerVoice.ts": 0,
-  "src/physics/reference/constants.ts": 2,
+  "src/physics/reference/constants.ts": 0,
   "src/physics/reference/events.ts": 0,
   "src/physics/reference/lightThread.ts": 0,
   "src/physics/reference/massEnergy.ts": 0,
