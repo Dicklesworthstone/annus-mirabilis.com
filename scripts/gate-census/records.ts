@@ -40,6 +40,21 @@ export type CensusRecord = Readonly<{
   /** Whether the gate itself exits non-zero on a vacuous population, or only the census notices. */
   gateRefusesVacuous: boolean;
   plants: readonly GatePlant[];
+  /**
+   * SET ONLY WHEN AN EMPTY POPULATION IS THE CORRECT ANSWER, with the reason.
+   *
+   * Most gates examine a corpus, and zero is a broken run. A few examine a CONDITION: `stashes` looks
+   * for stashes nobody has reviewed, and a repository with none is in the state the gate wants. Such a
+   * gate cannot declare a minimum of 1 without going red on a clean repository, and the census refuses
+   * a minimum of 0 because a minimum of 0 cannot detect anything.
+   *
+   * So the third state is declared here rather than left as an absent record. A record carrying this
+   * does not have to print a census line, and the census lists it in its own category instead of
+   * counting it as a gap. The reason is required, and it is the only thing standing between this field
+   * and an escape hatch: it has to say why zero is the gate's success condition rather than its blind
+   * spot.
+   */
+  populationMayBeEmpty?: Readonly<{ reason: string }>;
 }>;
 
 /** The plant every adopting gate shares: raise its own declared floor out of reach. */
@@ -126,6 +141,61 @@ export const CENSUS_RECORDS: readonly CensusRecord[] = [
       "fraction of one total marks a correct single-paper run vacuous.",
     gateRefusesVacuous: true,
     plants: [],
+  },
+  {
+    gate: "verify-content",
+    noun: "content records compiled",
+    howRead:
+      "options.loadFiles() handed to compileContent; the count is files.length. This gate prints more " +
+      "denominators than any other - result.populations is one line per audit saying how much of its " +
+      "subject it judged - and had no single number a reader across gates could compare. Measured " +
+      "2026-10-06: 334 records, 648 flags, 0 errors. It also calls the architecture gate, so its output " +
+      "carries TWO census lines; the census attributes by gate id and reads only its own.",
+    gateRefusesVacuous: true,
+    plants: [minimumPlant("verify-content", "scripts/verify-content.ts", 200, "VACUOUS")],
+  },
+  {
+    gate: "verify-wasm-artifacts",
+    noun: "wasm verification checks",
+    howRead:
+      "result.checks.length. The population is the CHECKS the script assembled rather than the artifacts: " +
+      "a run that registered two of them would print 'All WASM artifact verification checks PASSED' " +
+      "having verified almost nothing, and the sentence would be identical. Measured 12.",
+    gateRefusesVacuous: true,
+    plants: [
+      minimumPlant("verify-wasm-artifacts", "scripts/verify-wasm-artifacts.ts", 8, "VACUOUS"),
+    ],
+  },
+  {
+    gate: "audit-derivation-tools",
+    noun: "derivation steps",
+    howRead:
+      "report.totalSteps over the shipped derivation chains. THE DENOMINATOR IS TINY AND THAT IS A FACT " +
+      "ABOUT THE CORPUS: measured 2026-10-06, ONE chain ships (chain-bm-variance-of-sum) with 4 steps, " +
+      "because the 200 printed displays have no semantic tree yet (am-rc1001-bridge-plan-pcjk.28). The " +
+      "floor of 4 is therefore the whole corpus, and it is recorded so the next reader does not read " +
+      "'0 errors' as broad coverage. Raise it when chains land.",
+    gateRefusesVacuous: true,
+    plants: [
+      minimumPlant("audit-derivation-tools", "scripts/audit-derivation-tools.ts", 4, "VACUOUS"),
+    ],
+  },
+  {
+    gate: "stashes",
+    noun: "git stashes",
+    howRead:
+      "`git stash list` in the repository, compared with src/testing/stashes/acknowledgedStashes.json. " +
+      "Measured 2026-10-06: 8 present, 8 reviewed under a bead.",
+    gateRefusesVacuous: false,
+    plants: [],
+    populationMayBeEmpty: {
+      reason:
+        "The gate looks for stashes NOBODY HAS REVIEWED, and a repository with no stash at all is " +
+        "exactly the state it wants. A floor of 1 would go red on a clean repository, and a floor of 0 " +
+        "cannot detect anything, so neither is a declaration. What could go wrong here is the inverse " +
+        "of vacuity - a stash the gate failed to see - and that is a question about `git stash list`, " +
+        "not about a denominator this census can read.",
+    },
   },
   {
     gate: "facsimile-config",

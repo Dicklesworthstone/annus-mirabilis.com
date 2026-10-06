@@ -25,6 +25,7 @@ import {
 import { parseDerivationChain } from "../src/equations/derivations/schema.ts";
 import { auditChainTools, type ToolAuditReport } from "../src/equations/derivations/toolAudit.ts";
 import type { DerivationChain } from "../src/equations/derivations/types.ts";
+import { reportPopulation } from "./gate-census/population.ts";
 
 /**
  * The chains a reader is shown: every missing-step chain record under content/equations/derivations
@@ -217,7 +218,20 @@ export function runAuditCli(argv: string[] = process.argv.slice(2)): {
 
   console.log(`\nDetailed report written to: ${reportPath}\n`);
 
-  const exitCode = report.errors.length > 0 ? 1 : 0;
+  // The census line (am-rc1001-bridge-plan-pcjk.9). The population is the derivation STEPS judged, and
+  // it is small on purpose rather than by accident: measured 2026-10-06, ONE chain ships
+  // (chain-bm-variance-of-sum) with 4 steps, so a floor of 4 is the whole corpus. That is a fact about
+  // the corpus and not about this gate - the 200 printed displays have no semantic tree yet
+  // (am-rc1001-bridge-plan-pcjk.28) - and it is written here so the next reader sees how thin the
+  // denominator is instead of reading "0 errors" as broad coverage. Raise the floor when chains land.
+  const censusVacuous = reportPopulation({
+    gate: "audit-derivation-tools",
+    examined: report.totalSteps,
+    noun: "derivation steps",
+    minimum: 4,
+  });
+
+  const exitCode = report.errors.length > 0 || censusVacuous ? 1 : 0;
   return { report, toolRunId, reportPath, exitCode };
 }
 

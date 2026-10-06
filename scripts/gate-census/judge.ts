@@ -52,6 +52,19 @@ export function judgeGate(
     });
     return findings;
   }
+  if (record.populationMayBeEmpty !== undefined) {
+    // Declared, with a reason, so no line is required. The reason is checked for substance here rather
+    // than taken on trust: a one-word excuse is unreviewable and this field is the only place in the
+    // census where "no population" is an acceptable answer.
+    if (record.populationMayBeEmpty.reason.trim().length < 80) {
+      findings.push({
+        gate,
+        code: "empty-population-reason-too-short",
+        message: `declares that an empty population is legitimate with a reason of ${record.populationMayBeEmpty.reason.trim().length} characters. Say why zero is this gate's success condition rather than its blind spot.`,
+      });
+    }
+    return findings;
+  }
   const parsed = parsePopulationLines(observed.output);
   for (const bad of parsed.malformed) {
     findings.push({
@@ -146,6 +159,7 @@ export function judgePlant(input: {
 export const FINDING_CODES = [
   "reached-by-nothing",
   "no-census-record",
+  "empty-population-reason-too-short",
   "malformed-population-line",
   "no-population-printed",
   "population-noun-changed",

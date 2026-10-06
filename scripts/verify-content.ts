@@ -44,6 +44,7 @@ import { runArchitectureGateCli } from "./app-router-architecture.ts";
 import { mainAuditDimensions } from "./audit-dimensions.ts";
 import { loadReadingFiles } from "./build-content.ts";
 import { runRevisionCheck } from "./check-revisions.ts";
+import { reportPopulation } from "./gate-census/population.ts";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 
@@ -578,6 +579,18 @@ logger.log({
 await logger.flush();
 console.log(`Structured log: ${logger.filePath}`);
 
+// The census line (am-rc1001-bridge-plan-pcjk.9). This gate prints more denominators than any other -
+// `result.populations` is one line per audit saying how much of its subject it judged - and had no
+// single number a reader across gates could compare. The population is the RECORDS the compiler was
+// handed: a run over six would report "0 errors" and read exactly like a clean corpus. Measured
+// 2026-10-06: 323 records, 648 flags, 0 errors. The floor is 200.
+const censusVacuous = reportPopulation({
+  gate: "verify-content",
+  examined: result.recordsCompiled,
+  noun: "content records compiled",
+  minimum: 200,
+});
+
 if (result.ok) {
   console.log(
     JSON.stringify({
@@ -587,4 +600,4 @@ if (result.ok) {
     }),
   );
 }
-process.exit(result.exitCode);
+process.exit(censusVacuous ? 1 : result.exitCode);

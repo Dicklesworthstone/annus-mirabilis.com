@@ -73,6 +73,12 @@ export type VerifyContentResult = Readonly<{
    * form the licence inventory uses for "72 of 79".
    */
   populations: readonly string[];
+  /**
+   * How many content records the compiler was handed, which is the denominator every count above
+   * rests on (am-rc1001-bridge-plan-pcjk.9). A run over six records would report "0 errors" and read
+   * exactly like a clean corpus.
+   */
+  recordsCompiled: number;
 }>;
 
 export function parseInventoryFile(text: string): readonly InventoriedCheck[] {
@@ -211,6 +217,7 @@ export async function runVerifyContent(
     skipped,
     findings,
     populations,
+    recordsCompiled: files.length,
   });
 }
 

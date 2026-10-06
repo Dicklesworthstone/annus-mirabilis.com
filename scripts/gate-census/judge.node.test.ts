@@ -14,7 +14,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type { GateStep } from "../quality-gates/registry.ts";
 import { FINDING_CODES, judgeGate, judgePlant } from "./judge.ts";
-import type { CensusRecord } from "./records.ts";
+import { type CensusRecord, CENSUS_RECORDS as REAL_RECORDS } from "./records.ts";
 
 const seen = new Set<string>();
 const codes = (findings: readonly { code: string }[]): string[] => {
@@ -205,10 +205,66 @@ test("a plant that lands, reddens for the right reason and is put back produces 
   assert.deepEqual(judgePlant(plantInput()), []);
 });
 
+/**
+ * THE DECLARED-EMPTY CATEGORY (am-rc1001-bridge-plan-pcjk.9).
+ *
+ * Added when `stashes` could not adopt the printed line: it looks for stashes nobody has reviewed, so a
+ * repository with none is the state it wants. A floor of 1 would redden a clean repository and a floor
+ * of 0 cannot detect anything, so neither is a declaration. The third state is declared with a reason,
+ * and the reason is the only thing between this field and an escape hatch.
+ */
+
+test("a record declaring an empty population legitimate needs no printed line", () => {
+  const found = judgeGate(step(), record({ populationMayBeEmpty: { reason: "x".repeat(100) } }), {
+    output: "no stashes to review",
+    exitCode: 0,
+    routes: ["bun run gates"],
+  });
+  assert.deepEqual(codes(found), []);
+});
+
+test("empty-population-reason-too-short fires on a one-line excuse", () => {
+  const found = judgeGate(step(), record({ populationMayBeEmpty: { reason: "it can be empty" } }), {
+    output: "",
+    exitCode: 0,
+    routes: ["bun run gates"],
+  });
+  assert.deepEqual(codes(found), ["empty-population-reason-too-short"]);
+  assert.match(found[0]?.message ?? "", /15 characters/);
+});
+
+test("the declaration does not excuse being reached by nothing", () => {
+  // The two are independent: a gate whose subject may be empty still has to be run by something.
+  const found = judgeGate(step(), record({ populationMayBeEmpty: { reason: "x".repeat(100) } }), {
+    output: "",
+    exitCode: 0,
+    routes: [],
+  });
+  assert.deepEqual(codes(found), ["reached-by-nothing"]);
+});
+
+test("the real records' empty-population reasons are all substantial", () => {
+  // Over the real map rather than a fixture, because this field is the census's one soft edge.
+  for (const r of REAL_RECORDS) {
+    if (r.populationMayBeEmpty === undefined) continue;
+    assert.ok(
+      r.populationMayBeEmpty.reason.trim().length >= 80,
+      `${r.gate}'s empty-population reason is too short to review`,
+    );
+  }
+});
+
+/**
+ * LAST ON PURPOSE. node runs top-level tests in declaration order and this one reads what the cases
+ * above put into `seen`, so a case added BELOW it is invisible to it. That is not hypothetical: the
+ * declared-empty cases were appended after it and it went red reporting
+ * empty-population-reason-too-short as never driven, when the case driving it sat four lines later.
+ * Keep this block at the bottom of the file.
+ */
 test("EVERY code in FINDING_CODES has been exercised above", () => {
-  // Without this, a code added later would sit unseen and the census could carry a detection nobody
-  // has ever watched fire. plant-file-missing is raised by the CLI rather than by judge.ts, since it
-  // is a fact about the worktree, so it is not in this set.
+  // Without this, a code added later would sit unseen and the census could carry a detection nobody has
+  // ever watched fire. plant-file-missing is raised by the CLI rather than by judge.ts, since it is a
+  // fact about the worktree, so it is not in this set.
   const missing = FINDING_CODES.filter((code) => !seen.has(code));
   assert.deepEqual(missing, [], `these codes were never driven: ${missing.join(", ")}`);
   assert.ok(seen.size >= FINDING_CODES.length, `${seen.size} codes seen`);

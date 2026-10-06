@@ -54,6 +54,7 @@ import {
 import { loadBundle, type WasmBindgenGlue, wasmFileOf } from "../src/workers/wasm/loadBundle.ts";
 import { parseCapabilityMatrix } from "./wasm-artifacts/capabilityMatrix.ts";
 import { evaluateSizeBudget } from "./wasm-artifacts/sizeBudget.ts";
+import { reportPopulation } from "./gate-census/population.ts";
 
 export interface VerificationCheckResult {
   readonly testId: string;
@@ -1062,6 +1063,23 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     console.log(`\nWASM Artifact Verification Summary [${result.logRunId}]:`);
     for (const c of result.checks) {
       console.log(`  ${c.passed ? "✓ PASS" : "✗ FAIL"}: ${c.testId} - ${c.message}`);
+    }
+    // The census line (am-rc1001-bridge-plan-pcjk.9), printed before the verdict so a failing run also
+    // says how much it examined. The population is the CHECKS this script ran: a run that registered
+    // two of them would print "All WASM artifact verification checks PASSED" having verified almost
+    // nothing, and the sentence would be identical. Measured 2026-10-06: 12 checks. The floor is 8.
+    const censusVacuous = reportPopulation({
+      gate: "verify-wasm-artifacts",
+      examined: result.checks.length,
+      noun: "wasm verification checks",
+      minimum: 8,
+    });
+    if (censusVacuous) {
+      console.error(
+        "\nREFUSED: fewer checks ran than this script declares it must, so a pass would be a statement " +
+          "about a suite that was not assembled.",
+      );
+      process.exit(1);
     }
     if (!result.passed) {
       console.error("\nWASM artifact verification failed.");
