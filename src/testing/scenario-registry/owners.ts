@@ -6,6 +6,8 @@ import {
   refuseOutsideDeclaredDomain,
 } from "../../experiments/controls/declaredDomain.ts";
 import { computeLq02Snapshot } from "../../experiments/lq02/session.ts";
+import { LQ04_DEFAULTS } from "../../experiments/lq04/definition.ts";
+import { evaluateLq04 } from "../../experiments/lq04/session.ts";
 import { LQ05_DEFAULTS } from "../../experiments/lq05/definition.ts";
 import { evaluateLq05 } from "../../experiments/lq05/session.ts";
 import { LQ06_DEFAULTS } from "../../experiments/lq06/definition.ts";
@@ -1187,6 +1189,54 @@ const OWNERS: OwnerRecord[] = [
       const residuals = family?.residuals as Record<string, unknown> | undefined;
       const lightResidual = residuals?.["right-moving-light"];
       if (typeof lightResidual === "number") numbers.rightMovingLightResidual = lightResidual;
+      return numbers;
+    },
+  },
+  /**
+   * THE RADIATION ENTROPY WORKBENCH, WHICH REFUSES AS A WHOLE OR NOT AT ALL (am-nxbq, item 1).
+   *
+   * LQ-04 is section 6 of paper 1 as an instrument: it derives the temperature of a band of radiation
+   * from its energy, computes the Wien entropy density at two volumes, and reports how the entropy
+   * changed. The evaluation returns a FLAT record rather than a list of typed results, and when the
+   * state leaves Wien's regime the whole record is `outside-domain` - there is no partial answer with one
+   * quantity missing.
+   *
+   * That is a stronger statement than the per-quantity refusal beside it:
+   * radiation.wienSpectralEntropyDensity declines one density, and this declines the workbench. Both are
+   * worth pinning, and lq-04-dense-state-leaves-the-wien-regime pins the first.
+   */
+  {
+    id: "lq04.workbench",
+    sourcePath: fileURLToPath(new URL("../../experiments/lq04/session.ts", import.meta.url)),
+    fn: (ctx) => {
+      const evaluated = evaluateLq04({
+        ...LQ04_DEFAULTS,
+        ...ctx.inputs,
+      } as never) as unknown as Record<string, unknown>;
+      if (evaluated.status !== "value")
+        return {
+          refused: {
+            outputId: "radiationEntropy",
+            status: String(evaluated.status),
+            reasonCode:
+              typeof evaluated.condition === "string"
+                ? evaluated.condition
+                : String(evaluated.status),
+          },
+        };
+      const numbers: Record<string, number> = {};
+      for (const key of [
+        "initialTemperature",
+        "finalTemperature",
+        "initialX",
+        "finalX",
+        "radiationEntropy",
+        "entropyVolumeCoefficient",
+        "effectiveIndependentCount",
+      ]) {
+        const held = evaluated[key];
+        if (typeof held === "number") numbers[key] = held;
+      }
       return numbers;
     },
   },

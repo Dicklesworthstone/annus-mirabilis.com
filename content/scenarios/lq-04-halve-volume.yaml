@@ -1,0 +1,84 @@
+# HALVE THE VOLUME AND THE ENTROPY FALLS BY A STATED AMOUNT (am-nxbq, item 1).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the volume ratio, from 1 to 0.5. This was a PRESET id in
+# acceptanceCases; the acceptance case is what those settings must produce.
+#
+# WHAT SECTION 6 DOES AND WHAT THIS PINS. Einstein takes a band of monochromatic radiation of fixed
+# energy, confines it to a fraction of its volume, and asks how its entropy changed. In Wien's regime the
+# answer is (E / beta nu) ln(V/V0), and the instrument computes both ends rather than the formula: the
+# entropy density at the reference volume, the entropy density at the smaller one, and the difference.
+# At half the volume the change is -2.1798e-13 J/K.
+#
+# THE TEMPERATURE RISES, WHICH IS THE PART READERS DO NOT EXPECT. Squeezing radiation at fixed energy into
+# half the space takes its temperature from 3000 K to 3233.5 K, because the energy density doubles and the
+# temperature of a Wien band is fixed by its energy density. Nothing was heated; the same energy in less
+# room IS a higher temperature. The dimensionless parameter h nu / k T therefore FALLS, from 9.5985 to
+# 8.9053, which moves the state towards the edge of Wien's regime rather than away from it - and
+# lq-04-dense-refusal is where it goes past.
+#
+# THE COEFFICIENT AND THE COUNT ARE CARRIED BECAUSE THEY ARE THE BRIDGE TO LQ-06. 3.1448e-13 J/K is the
+# coefficient of the logarithm, and 2.2778e10 is that coefficient divided by Boltzmann's constant: the
+# number of independent things the radiation behaves as. LQ-06 is where that division is made the move;
+# here it is a reading, and the two instruments agreeing on 2.2778e10 is what makes them one argument.
+id: "lq-04-halve-volume"
+kind: "modern-golden"
+title: "LQ-04 at half the volume: entropy down 2.1798e-13 J/K, temperature up to 3233.5 K"
+description: "Confining a band of monochromatic radiation of fixed energy to half its volume lowers its entropy by 2.1798e-13 J/K and raises its temperature from 3000 to 3233.5 kelvin, because the same energy in less room is a higher energy density and so a higher temperature. The coefficient of the logarithm is 3.1448e-13 J/K, which divided by Boltzmann's constant is 2.2778e10 - the count of independent things LQ-06 reads it as."
+constantSetId: "modern-si-2019"
+owner: "lq04.workbench"
+inputs:
+  volumeRatio:
+    value: 0.5
+    unit: "1"
+  frequency:
+    value: 6.0e14
+    unit: "Hz"
+  bandwidth:
+    value: 1.0e12
+    unit: "Hz"
+  referenceVolume:
+    value: 0.001
+    unit: "m^3"
+  referenceTemperature:
+    value: 3000
+    unit: "K"
+expected:
+  outputs:
+    - outputId: initialTemperature
+      value: 2999.999999999998
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The temperature DERIVED from the band's energy, not the 3000 K that was typed in: the workbench inverts the Wien law and recovers the input to within rounding, which is the check that the derivation is self-consistent."
+    - outputId: finalTemperature
+      value: 3233.5050411420284
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The temperature at half the volume. Higher, because the energy density doubled; this is the reading a reader least expects and so the one most worth pinning."
+    - outputId: initialX
+      value: 9.598486146732448
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "h nu / k T at the reference volume. Wien's regime needs this large, and the laboratory's declared threshold is 4.6052."
+    - outputId: finalX
+      value: 8.905338966172502
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The same parameter at half the volume: smaller, so compressing moves the state TOWARDS the edge of Wien's regime. Still well inside it here."
+    - outputId: radiationEntropy
+      value: -2.1798139483112677e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The entropy change, computed as the difference of two densities at two volumes rather than from the closed form, which is why it is worth pinning: the formula and the computation are two routes to it."
+    - outputId: effectiveIndependentCount
+      value: 22777742737.57673
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-9
+        rationale: "The coefficient over Boltzmann's constant. LQ-06 pins 22777742047.700275 for the same band by its own route; the two differ in the fifth significant figure because one derives the temperature from the energy and the other takes it, which is a real difference between the instruments and not a disagreement about the physics."
+modelVersion: 1
+schemaVersion: 1

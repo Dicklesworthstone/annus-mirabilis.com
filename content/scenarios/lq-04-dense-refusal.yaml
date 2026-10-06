@@ -1,0 +1,55 @@
+# PAST THE EDGE OF WIEN'S REGIME THE WHOLE WORKBENCH DECLINES (am-nxbq, items 2 and 3).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the volume ratio, lowered to 1e-4 - the band squeezed into a
+# ten-thousandth of its volume. This was a PRESET id in acceptanceCases; the acceptance case is what those
+# settings must produce.
+#
+# HOW IT DIFFERS FROM lq-04-dense-state-leaves-the-wien-regime, WHICH EXISTS. That record pins the
+# refusal of ONE quantity, the spectral entropy density, through the evaluator that computes it. This pins
+# the refusal of the WORKBENCH: the whole evaluation returns outside-domain with the condition
+# outside-wien-regime, so there is no temperature, no entropy change and no coefficient either - not a
+# record with one field missing. Both are worth having, and the stronger statement is the one a reader
+# meets, because the page has nothing to show rather than a gap in a table.
+#
+# WHY SQUEEZING LEAVES THE REGIME, which is the physics and is counter-intuitive twice over. Wien's law is
+# the approximation to the radiation law valid when exp(-h nu / k T) is small. Compressing at fixed energy
+# RAISES the temperature, which LOWERS h nu / k T, which makes that exponential LARGER. So the dilute,
+# high-frequency corner where the light-quantum derivation works is left by making the radiation denser -
+# and the instrument reports the actual number it tripped on: e^-x = 0.678, against a tolerance that needs
+# it small.
+#
+# THE SIZE OF THE VIOLATION IS THE USEFUL PART. 0.678 is not marginal: at that point Wien's law is not a
+# slightly imperfect approximation to Planck's, it is the wrong functional form, and an entropy computed
+# from it would not be a worse estimate but a different claim. That is why the refusal is a model boundary
+# rather than a precision warning, and why its domainKind is model.
+id: "lq-04-dense-refusal"
+kind: "adversarial"
+title: "LQ-04 at a ten-thousandth of the volume: no entropy, no temperature, no coefficient"
+description: "Squeezing the band into a ten-thousandth of its volume raises its temperature enough that exp(-h nu / k T) reaches 0.678, far outside the small values Wien's law requires. The entire workbench returns outside-domain with that condition: there is no temperature, no entropy change and no coefficient, rather than a record with one field missing. Compressing radiation leaves the regime the light-quantum derivation needs, which is the opposite of what denser usually implies."
+plausibleMistake: "That a tighter squeeze simply gives a larger entropy change, since the logarithm of the volume ratio keeps growing, so the formula can be pushed as far as the control allows. The formula's COEFFICIENT comes from Wien's law, and past this point that law is the wrong functional form rather than an imperfect fit. A page that printed (E / beta nu) ln(1e-4) here would be reporting a number from an expression whose derivation no longer applies, and it would look entirely reasonable."
+intendedFailure: "The regime is checked before any temperature or entropy is formed, so no number is produced from Wien's law outside its domain. The scenario passes only when the refusal carries the outside-Wien condition on the entropy; a run returning any entropy change fails here however large, and so does one refusing for a different reason, such as a control's declared range, which is a separate statement pinned by lq-04-referencetemperature-outside-declared-range-refused."
+constantSetId: "modern-si-2019"
+owner: "lq04.workbench"
+inputs:
+  volumeRatio:
+    value: 0.0001
+    unit: "1"
+  frequency:
+    value: 6.0e14
+    unit: "Hz"
+  bandwidth:
+    value: 1.0e12
+    unit: "Hz"
+  referenceVolume:
+    value: 0.001
+    unit: "m^3"
+  referenceTemperature:
+    value: 3000
+    unit: "K"
+expected:
+  status:
+    outputId: "radiationEntropy"
+    status: "outside-domain"
+    reasonCode: "outside-wien-regime"
+modelVersion: 1
+schemaVersion: 1

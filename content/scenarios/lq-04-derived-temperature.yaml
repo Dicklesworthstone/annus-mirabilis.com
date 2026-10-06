@@ -1,0 +1,73 @@
+# THE TEMPERATURE IS DERIVED FROM THE ENERGY, AND THE INSTRUMENT PROVES IT TO ITSELF (am-nxbq, item 1).
+#
+# WHICH CONTROL VALUES A READER MOVES TO REACH IT: none, with the volume ratio at 1. This was a PRESET id
+# in acceptanceCases; the acceptance case is what those settings must produce.
+#
+# WHAT IS BEING CHECKED, AND WHY A RATIO OF 1 IS THE RIGHT PLACE TO CHECK IT. LQ-04 does not take a
+# temperature and use it; it takes the band's ENERGY and inverts Wien's law to find the temperature that
+# energy implies. The reference temperature of 3000 K is what produced the energy in the first place, so
+# recovering 2999.999999999998 from it is a round trip: energy to temperature and back, agreeing to
+# fourteen significant figures. With the volume unchanged there is nothing else happening to confuse the
+# reading.
+#
+# AND THE ENTROPY CHANGE IS EXACTLY ZERO. No volume change, no entropy change - which sounds trivial and
+# is the one case where the formula's logarithm vanishes rather than being small. A workbench that
+# returned a tiny nonzero number here would be telling a reader that confining radiation to the volume it
+# already occupies does something, and the difference between 0 and 1e-30 is the difference between a
+# computed identity and an accumulated rounding error.
+#
+# WHY THE ROUND TRIP IS WORTH A RECORD OF ITS OWN. Every other reading in this laboratory depends on the
+# derived temperature, so a systematic error there would move all of them together and look like physics.
+# Pinning the inversion against its own input is the only check that separates "the entropy changed by
+# this much" from "the temperature was wrong by this much". The residual is 2e-15 relative, which is
+# floating-point and not a model error.
+id: "lq-04-derived-temperature"
+kind: "modern-golden"
+title: "LQ-04 with the volume unchanged: the temperature round-trips to 14 figures and the entropy change is exactly zero"
+description: "LQ-04 takes the band's energy and inverts Wien's law to find its temperature rather than using the temperature it was given. At an unchanged volume that inversion recovers 2999.999999999998 from an energy generated at 3000 kelvin, a round trip agreeing to fourteen significant figures, and the entropy change is exactly zero because the logarithm of one is zero. Every other reading depends on the derived temperature, so pinning the inversion is what separates an error there from a result."
+constantSetId: "modern-si-2019"
+owner: "lq04.workbench"
+inputs:
+  volumeRatio:
+    value: 1
+    unit: "1"
+  frequency:
+    value: 6.0e14
+    unit: "Hz"
+  bandwidth:
+    value: 1.0e12
+    unit: "Hz"
+  referenceVolume:
+    value: 0.001
+    unit: "m^3"
+  referenceTemperature:
+    value: 3000
+    unit: "K"
+expected:
+  outputs:
+    - outputId: initialTemperature
+      value: 2999.999999999998
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The round trip: 3000 K generated the energy, and inverting Wien's law on that energy returns this. The residual of 2e-15 relative is floating-point, and the tolerance is set to admit that and nothing larger, because a systematic error here would move every other reading together."
+    - outputId: finalTemperature
+      value: 2999.999999999998
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Identical to the initial temperature, bit for bit, because the volume did not change. Asserting both is what shows the two ends of the calculation are the same calculation."
+    - outputId: radiationEntropy
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-30
+        rationale: "Exactly zero, not merely small: the logarithm of one vanishes. Absolute tolerance, since a relative one cannot bound an exact zero, and tight enough that an accumulated rounding error would not pass as a computed identity."
+    - outputId: initialX
+      value: 9.598486146732448
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "h nu / k T at the derived temperature, well above the laboratory's declared Wien threshold of 4.6052, which is why this state has an answer at all."
+modelVersion: 1
+schemaVersion: 1
