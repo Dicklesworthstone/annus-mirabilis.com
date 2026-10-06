@@ -31,11 +31,16 @@ import { describe, expect, test } from "bun:test";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { strictParse } from "../content/schemas/strictParse.ts";
+import { withinTolerance } from "../units/tolerance.ts";
+
+/**
+ * How far two DECLARATIONS of one value may sit apart. Not a measurement tolerance: the only
+ * difference admitted is floating-point representation, as when a manifest writes 179875474.8 and the
+ * runtime computes 0.6 * C_SI. Any real drift, including lq-04's rounded 6.5e-6, is larger.
+ */
+const DECLARATION_TOLERANCE = 1e-12;
 
 const ROOT = process.cwd();
-
-/** Numbers agreeing to this are the same declaration written two ways. */
-const SAME = 1e-9;
 
 /**
  * A manifest default and a runtime default that are not the same number or the same string. Recorded
@@ -129,13 +134,20 @@ async function compareDefaults(): Promise<Census> {
         (typeof manifestValue === "number" ||
           (typeof manifestValue === "string" && Number.isFinite(Number(manifestValue))));
       if (numeric) {
-        const declared = Number(manifestValue);
+        // THE SHARED MODULE, not a hand-rolled relative comparison (am-f5mo). The tolerance is a
+        // few parts in 1e12: these are two DECLARATIONS of one value rather than a measurement, so
+        // anything bigger than floating-point representation is a disagreement. Exact equality was
+        // tried first and is too strict: sr-08 and sr-12 declare 179875474.8 where the runtime
+        // computes 0.6 * C_SI, which is 179875474.79999998 in binary, and that is one value written
+        // two ways. A zero reference is compared exactly instead, because a relative tolerance is
+        // undefined there and a declared zero is written as zero.
         const live = runtimeValue as number;
-        const off =
+        const declared = Number(manifestValue);
+        const agrees =
           live === 0
-            ? Math.abs(declared) > SAME
-            : Math.abs(declared - live) / Math.abs(live) > SAME;
-        if (off) census.valueDisagreements.push(key);
+            ? declared === 0
+            : withinTolerance(declared, live, { relative: DECLARATION_TOLERANCE }).ok;
+        if (!agrees) census.valueDisagreements.push(key);
       } else if (typeof runtimeValue === typeof manifestValue) {
         if (String(runtimeValue) !== String(manifestValue)) census.valueDisagreements.push(key);
       } else {

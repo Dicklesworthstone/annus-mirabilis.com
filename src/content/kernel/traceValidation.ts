@@ -1,3 +1,4 @@
+import { withinTolerance } from "../../units/tolerance.ts";
 import type { KernelIssue } from "./types.ts";
 import { MAX_TRACE_ROWS } from "./types.ts";
 
@@ -116,12 +117,14 @@ export function checkTraceValues(
       continue;
     }
     comparable += 1;
-    const scale = Math.abs(found.value);
-    // Absolute near zero, relative elsewhere: a relative tolerance alone is unusable at a true zero.
-    const off =
-      scale === 0
-        ? Math.abs(row.value) > TRACE_VALUE_TOLERANCE
-        : Math.abs(row.value - found.value) / scale > TRACE_VALUE_TOLERANCE;
+    // THE SHARED MODULE (am-f5mo, src/units/tolerance.ts). What stood here divided a difference by a
+    // scale, which is withinTolerance written out by hand; the duplicate-comparison detector missed it
+    // only because the divisor was a local rather than one of the differenced names, so the rule was
+    // being broken in a form the gate could not see. Absolute at a true zero, relative elsewhere: a
+    // relative tolerance alone is undefined there, which tolerance.ts reports as relative-only-at-zero.
+    const spec =
+      found.value === 0 ? { absolute: TRACE_VALUE_TOLERANCE } : { relative: TRACE_VALUE_TOLERANCE };
+    const off = !withinTolerance(row.value, found.value, spec).ok;
     if (!off) {
       agree += 1;
       continue;
