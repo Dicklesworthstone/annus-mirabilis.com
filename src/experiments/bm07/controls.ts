@@ -1,5 +1,5 @@
 import { formatScaledDecimal, parseScaledDecimal } from "../../units/decimalScale.ts";
-import { ParameterRefusalError } from "../results/applyFailure.ts";
+import { throwApplyFailure } from "../results/applyFailure.ts";
 import { BM07_DEFAULTS, type Bm07Parameters } from "./definition.ts";
 import { validateBm07Parameters } from "./parameters.ts";
 export type InferenceDraft = Record<keyof Bm07Parameters, string>;
@@ -36,7 +36,6 @@ export function fromInferenceDraft(draft: InferenceDraft): Bm07Parameters {
   // THE REFUSAL TRAVELS WITH THE THROW (am-ig23). This flattened a typed refusal to its sentence, one layer
   // below any component that could have shown it, so the code, the ranked repairs and the staleness marking
   // were destroyed here and the catch upstream could not tell a refusal from an ordinary programming error.
-  if (r.kind === "refused") throw new ParameterRefusalError(r.refusal);
-  if (r.kind !== "accepted") throw new TypeError(r.outcome.message);
+  if (r.kind !== "accepted") throwApplyFailure(r);
   return r.data;
 }

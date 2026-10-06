@@ -1,5 +1,5 @@
 import { formatScaledDecimal, parseScaledDecimal } from "../../units/decimalScale.ts";
-import { ParameterRefusalError } from "../results/applyFailure.ts";
+import { throwApplyFailure } from "../results/applyFailure.ts";
 import { BM08_DEFAULTS, type Bm08Parameters } from "./definition.ts";
 import { validateBm08Parameters } from "./parameters.ts";
 export type CameraDraft = Record<keyof Bm08Parameters, string>;
@@ -31,7 +31,6 @@ export function fromCameraDraft(draft: CameraDraft): Bm08Parameters {
   // have shown them. The sentence was right and nothing else survived; measured on the built export, the
   // notice carried no `data-refusal-code` even after the component was fixed to keep a typed failure,
   // because what reached it was a TypeError whose message happened to be the right sentence.
-  if (r.kind === "refused") throw new ParameterRefusalError(r.refusal);
-  if (r.kind !== "accepted") throw new TypeError(r.outcome.message);
+  if (r.kind !== "accepted") throwApplyFailure(r);
   return r.data;
 }

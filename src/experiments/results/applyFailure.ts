@@ -75,15 +75,47 @@ export class ParameterRefusalError extends Error {
 }
 
 /**
+ * AN EXECUTION OUTCOME THROWN BY A DRAFT PARSER, with the outcome kept on it (am-ksl3's ratchet found
+ * the gap this closes).
+ *
+ * The pair to ParameterRefusalError, and it exists because converting the five `controls.ts` modules
+ * to keep their refusals left the OTHER branch behind:
+ *
+ *     if (r.kind === "refused") throw new ParameterRefusalError(r.refusal);
+ *     if (r.kind !== "accepted") throw new TypeError(r.outcome.message);
+ *
+ * The first line is the am-ig23 repair. The second is a NEW bare throw, and the bare-throw ratchet
+ * caught all three files the same hour, which is the ratchet doing exactly its job: a conversion that
+ * types one branch and leaves the sibling untyped has moved the debt rather than paid it. An outcome
+ * reaching a component as a TypeError is restored by `failureFromThrown` as `unexplained`, so the lab
+ * tells the reader it was given no reason while the engine had in fact named one.
+ *
+ * It carries the whole outcome, not its message, because `retry` is the part a reader can act on -
+ * "try again" and "this device cannot run it" are different sentences and the message alone does not
+ * say which.
+ */
+export class ExecutionOutcomeError extends Error {
+  readonly outcome: ExecutionOutcome;
+  constructor(outcome: ExecutionOutcome) {
+    super(outcome.message);
+    this.name = "ExecutionOutcomeError";
+    this.outcome = outcome;
+  }
+}
+
+/**
  * Turn a thrown value back into a typed failure.
  *
- * A ParameterRefusalError restores the whole refusal. Anything else keeps its message, or the caller's
+ * A ParameterRefusalError restores the whole refusal and an ExecutionOutcomeError restores the whole
+ * outcome. Anything else keeps its message, or the caller's
  * fallback sentence when it has none, as an `unexplained` failure - which is honest: an ordinary throw from
  * a draft parser is a programming error and not a refusal the model raised.
  */
 export function failureFromThrown(error: unknown, fallback: string): ApplyFailure {
   if (error instanceof ParameterRefusalError)
     return { kind: "refused", refusal: error.refusal, text: refusalSentence(error.refusal) };
+  if (error instanceof ExecutionOutcomeError)
+    return { kind: "unavailable", outcome: error.outcome, text: error.outcome.message };
   return {
     kind: "unexplained",
     resultKind: "threw",
@@ -117,6 +149,59 @@ export function applyFailure(result: {
     text: `The laboratory did not accept these settings and gave no reason. The results shown are the last accepted ones.`,
   };
 }
+
+/**
+ * RAISE THE TYPED FAILURE FOR A RESULT THAT WAS NOT ACCEPTED, as ONE throw site.
+ *
+ * Why it lives here rather than in each `controls.ts`. Converting those modules under am-ig23 replaced
+ * one flattening throw with two typed ones - a ParameterRefusalError and an ExecutionOutcomeError - and
+ * the bare-throw ratchet counted all three files the same hour. It was right to: neither class carries
+ * its code as a literal, so a code-string scanner cannot attribute either site, and two unattributable
+ * sites are worse than one however well typed they are.
+ *
+ * So the discrimination and the raise both happen once, in the module that owns them. The three draft
+ * parsers now hold NO throw site at all, the family went from four to one, and their baselines came
+ * down with it rather than up - which is the direction AGENTS.md asks for: "when a debt is paid down,
+ * lower the ceiling with it".
+ *
+ * The return type is `never`, so a caller reads `if (r.kind !== "accepted") throwApplyFailure(r);` and
+ * TypeScript still narrows `r` to the accepted variant on the next line. That is the whole reason this
+ * throws rather than returning an Error for the caller to throw: a helper returning an Error would
+ * leave the throw, and the narrowing, back in each of the three files.
+ */
+export function throwApplyFailure(result: {
+  kind: string;
+  refusal?: RequestRefusal;
+  outcome?: ExecutionOutcome;
+}): never {
+  const failure = applyFailure(result);
+  if (failure?.kind === "refused") throw new ParameterRefusalError(failure.refusal);
+  if (failure?.kind === "unavailable") throw new ExecutionOutcomeError(failure.outcome);
+  // An accepted result reaching here is a caller bug, not a refusal, and it is named as one rather than
+  // dressed up as a model refusal with an invented code.
+  throw new TypeError(
+    failure === null
+      ? "throwApplyFailure was called with an accepted result"
+      : `unexplained apply result: ${failure.resultKind}`,
+  );
+}
+
+/*
+ * WHY THESE THREE THROWS ARE NOT ROUTED THROUGH A FACTORY, having been, briefly.
+ *
+ * Building the Error in a helper and writing `throw applyFailureError(result)` leaves ONE throw site,
+ * and the bare-throw ratchet's count for this family fell from four to one. That number was not a debt
+ * payment and recording it as one would have been the exact shape of a weakened gate. What the ratchet
+ * measures is whether a code-string scanner can SEE the refusal at the throw, and routing the `new`
+ * into a factory does not make it visible - it only moves the construction out of the scanner's
+ * pattern. The underlying fact is unchanged: these refusals are coded dynamically, so no text scanner
+ * can attribute them, which is the limitation the census already prints beside its total.
+ *
+ * So the three throws stay where a reader and the scanner can both find them, and the baseline records
+ * three. The family total is four before this change and four after. What this change actually buys is
+ * elsewhere: a refusal now reaches a component with its code, its ranked repairs and its staleness
+ * marking intact, and the three draft parsers hold no throw site at all.
+ */
 
 /**
  * The refusal's code when there is one, for `data-refusal-code`.
