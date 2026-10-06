@@ -3,10 +3,11 @@
  */
 
 import assert from "node:assert/strict";
-import fs from "node:fs";
+import fs, { readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test, { describe } from "node:test";
+import { fileURLToPath } from "node:url";
 import {
   GeneratedSectionError,
   replaceGeneratedContent,
@@ -89,6 +90,53 @@ describe("writeGeneratedSection refusal throw sites (am-muyh)", () => {
         return true;
       },
     );
+  });
+
+  /*
+   * THE SECOND unbalanced-markers SITE CANNOT FIRE, and that is asserted rather than claimed (am-r3qt).
+   *
+   * `unbalanced-markers` is raised twice. The arm below, a start marker after an end marker, is real
+   * and is driven. The other, at :74, reads `startPos === undefined || endPos === undefined` - and by
+   * the time control reaches it, four earlier guards have already refused a start-marker count of 0
+   * (missing-start-marker) and of more than 1 (duplicate-start-marker), and the same pair for the end
+   * marker. So each array holds EXACTLY ONE element and neither index can be undefined. The throw
+   * exists because `noUncheckedIndexedAccess` cannot see that; it is a type obligation, not a
+   * condition.
+   *
+   * This is am-r3qt's category 3: not work, record the reason. The structural claim is asserted below
+   * rather than restated, so "unreachable by construction" goes red if one of those four guards is
+   * removed or reordered - which is the only way the site could become live.
+   *
+   * NOT CITED, deliberately. `unbalanced-markers` has two sites, so a citation is the only thing that
+   * credits one; naming the code in prose credits nothing, and citing :74 would mark a site tested
+   * that no test drives.
+   */
+  test("the located-markers guard is unreachable: four refusals precede it", () => {
+    const source = readFileSync(
+      fileURLToPath(new URL("./writeGeneratedSection.ts", import.meta.url)),
+      "utf8",
+    );
+    // Each of the four counts is refused before the indices are read, so exactly one of each remains.
+    for (const code of [
+      "missing-start-marker",
+      "duplicate-start-marker",
+      "missing-end-marker",
+      "duplicate-end-marker",
+    ]) {
+      assert.ok(source.includes(`"${code}"`), `${code} guard is gone; :74 may now be reachable`);
+    }
+    // And they precede the read, which is what makes the indices safe. Compared by position in the
+    // file rather than by line number, so an insertion above does not make this test lie.
+    const guardsEnd = Math.max(
+      ...[
+        "missing-start-marker",
+        "duplicate-start-marker",
+        "missing-end-marker",
+        "duplicate-end-marker",
+      ].map((c) => source.indexOf(`"${c}"`)),
+    );
+    const indexRead = source.indexOf("const startPos = startIndices[0]");
+    assert.ok(indexRead > guardsEnd, "the indices are read before the count guards refuse");
   });
 
   test("refusal (writeGeneratedSection.ts:81): unbalanced-markers rejects start marker after end marker", () => {

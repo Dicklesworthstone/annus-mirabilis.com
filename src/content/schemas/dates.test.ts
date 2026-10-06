@@ -87,6 +87,49 @@ describe("dates schema refusal throw sites (am-muyh)", () => {
     assert.equal(accepted.latest, "1905-05-11");
   });
 
+  /*
+   * THE DAY ARM, which nothing drove (am-r3qt).
+   *
+   * `date-precision-interval-mismatch` is raised at three sites - day, month and year - and the month
+   * and year arms below have had tests since this file was written. The day arm had none, and because
+   * the code has several sites it could not be credited by mention either, so it sat on the untested
+   * list as a number rather than as a named gap.
+   *
+   * It is the arm most likely to fire in practice. A receipt that records a paper as received on a
+   * single day and then widens the interval - a reviewer adding a second plate date, say - produces
+   * exactly this, and the other two arms would not catch it.
+   */
+  test("dates: (dates.ts:122) date-precision-interval-mismatch raised when day precision spans more than one day", () => {
+    assert.throws(
+      () =>
+        validatePaperDate({
+          ...validDay,
+          precision: "day",
+          earliest: "1905-06-30",
+          latest: "1905-07-01",
+        }),
+      (err) => {
+        assert.ok(err instanceof DateValidationError);
+        assert.equal(err.code, "date-precision-interval-mismatch");
+        // The message names BOTH bounds, because an operator reading it has to see which one moved.
+        assert.match((err as DateValidationError).message, /1905-06-30/);
+        assert.match((err as DateValidationError).message, /1905-07-01/);
+        return true;
+      },
+    );
+
+    // The accept half: a day precision whose bounds coincide is the ordinary case and must pass, or
+    // the assertion above would hold on a validator that refused every day date.
+    const accepted = validatePaperDate({
+      ...validDay,
+      precision: "day",
+      earliest: "1905-06-30",
+      latest: "1905-06-30",
+    });
+    assert.equal(accepted.precision, "day");
+    assert.equal(accepted.earliest, "1905-06-30");
+  });
+
   test("dates: (dates.ts:132) date-precision-interval-mismatch raised when month precision does not span entire month", () => {
     assert.throws(
       () =>
