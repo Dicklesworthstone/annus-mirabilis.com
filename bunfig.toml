@@ -26,6 +26,7 @@ pathIgnorePatterns = [
   # one it controls."
   "scripts/gate-census/population.node.test.ts",
   "scripts/gate-census/reach.node.test.ts",
+  "scripts/gate-census/judge.node.test.ts",
   "src/testing/a11y/accessibleNamesBrowser.test.mjs",
   "src/testing/styles/computedStylesLayout.test.ts",
   "src/testing/foundCalculus.browser.test.mjs",
