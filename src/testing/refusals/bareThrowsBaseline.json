@@ -125,6 +125,8 @@
   "src/discovery/brownian/evidence.ts": 6,
   "src/discovery/exercises/answer.ts": 14,
   "src/discovery/exercises/samplePoints.ts": 14,
+  "src/discovery/investigation/core.ts": 26,
+  "src/discovery/investigation/workspace.ts": 1,
   "src/discovery/links.ts": 2,
   "src/discovery/massEnergyArgument.ts": 7,
   "src/discovery/notebook.ts": 1,
