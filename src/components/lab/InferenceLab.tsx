@@ -24,6 +24,7 @@ import {
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
+import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import {
@@ -464,37 +465,49 @@ export function InferenceLab({
             shared link starts no worker.
           </p>
         </div>
+        {/*
+            OUTSIDE THE PREDICT GATE, BECAUSE A HIDDEN LABEL IS NOT A LABEL (am-ig23).
+            This block sat inside `div.lab-results`, which `html[data-detail] [data-predict-response="awaiting"]`
+            gives `display: none` while a prediction is armed. That is right for the response plot, which
+            AGENTS.md says must be hidden "before the first change". It is wrong for a refusal: measured on the
+            built export, the repair button was in the DOM with its only hiding ancestor the gated region, so a
+            reader who entered an inadmissible value saw nothing happen at all. A descendant cannot un-hide
+            itself from an ancestor's display:none, so the structure has to change rather than the CSS.
+          */}
+        {view.refusal && (
+          <div className="notice error" data-refusal-code={view.refusal.code}>
+            {/* data-refusal-code, and refusalSentence in place of the hand-written
+                  String(details?.requirements ?? message) - which yields "[object Object]" for a non-string
+                  requirements, and is the one expression seventeen components wrote out by hand (am-ig23). */}
+            <p>
+              {refusalSentence(view.refusal)} {KEPT_RESULT}
+            </p>
+            {view.refusal.rankedRepairs.map((repair) => {
+              const action = repair.action;
+              if (!action) return null;
+              return (
+                <button
+                  key={`${repair.label}-${action.parameterId}`}
+                  type="button"
+                  className="secondary"
+                  onClick={() => {
+                    const baseParams = (view.requested?.parameters ?? p) as Bm07Parameters;
+                    apply({
+                      ...baseParams,
+                      [action.parameterId]: action.value,
+                    });
+                  }}
+                >
+                  {repair.label}
+                </button>
+              );
+            })}
+            <button type="button" className="secondary" onClick={() => apply(p)}>
+              Restore accepted settings
+            </button>
+          </div>
+        )}
         <div className="lab-results inference-results" {...gate.response}>
-          {view.refusal && (
-            <div className="notice error">
-              <p>
-                {String(view.refusal.details?.requirements ?? view.refusal.message)} {KEPT_RESULT}
-              </p>
-              {view.refusal.rankedRepairs.map((repair) => {
-                const action = repair.action;
-                if (!action) return null;
-                return (
-                  <button
-                    key={`${repair.label}-${action.parameterId}`}
-                    type="button"
-                    className="secondary"
-                    onClick={() => {
-                      const baseParams = (view.requested?.parameters ?? p) as Bm07Parameters;
-                      apply({
-                        ...baseParams,
-                        [action.parameterId]: action.value,
-                      });
-                    }}
-                  >
-                    {repair.label}
-                  </button>
-                );
-              })}
-              <button type="button" className="secondary" onClick={() => apply(p)}>
-                Restore accepted settings
-              </button>
-            </div>
-          )}
           <InferencePath snapshot={snapshot} />
           <p
             className="status-line inference-status"

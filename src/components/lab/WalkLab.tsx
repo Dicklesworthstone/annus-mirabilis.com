@@ -19,6 +19,7 @@ import { labelRootAttributes } from "../../experiments/labels/resultAttributes.t
 import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { FRANKENSIM_NORMALS_ENGINE_SENTENCE } from "../../experiments/provenance/pinnedFrankenSim.ts";
+import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
@@ -363,27 +364,48 @@ export function WalkLab({
             independent trials. Shared links load settings only; they never start a calculation.
           </p>
         </div>
+        {/*
+            OUTSIDE THE PREDICT GATE, BECAUSE A HIDDEN LABEL IS NOT A LABEL (am-ig23).
+            This block sat inside `div.lab-results`, which `html[data-detail] [data-predict-response="awaiting"]`
+            gives `display: none` while a prediction is armed. That is right for the response plot, which
+            AGENTS.md says must be hidden "before the first change". It is wrong for a refusal: measured on the
+            built export, the repair button was in the DOM with its only hiding ancestor the gated region, so a
+            reader who entered an inadmissible value saw nothing happen at all. A descendant cannot un-hide
+            itself from an ancestor's display:none, so the structure has to change rather than the CSS.
+          */}
+        {view.outcome?.outcome === "budget-exhausted" && (
+          <div className="notice error">
+            <p>
+              {typeof view.outcome.details?.reason === "string"
+                ? view.outcome.details.reason
+                : "Reduce the walker count or recorded steps. This preview never silently reduces a trial."}
+            </p>
+            <button type="button" className="secondary" onClick={() => apply(p)}>
+              Restore accepted settings
+            </button>
+          </div>
+        )}
+        {/*
+            OUTSIDE THE PREDICT GATE, BECAUSE A HIDDEN LABEL IS NOT A LABEL (am-ig23).
+            This block sat inside `div.lab-results`, which `html[data-detail] [data-predict-response="awaiting"]`
+            gives `display: none` while a prediction is armed. That is right for the response plot, which
+            AGENTS.md says must be hidden "before the first change". It is wrong for a refusal: measured on the
+            built export, the repair button was in the DOM with its only hiding ancestor the gated region, so a
+            reader who entered an inadmissible value saw nothing happen at all. A descendant cannot un-hide
+            itself from an ancestor's display:none, so the structure has to change rather than the CSS.
+          */}
+        {view.refusal && (
+          <div className="notice error" data-refusal-code={view.refusal.code}>
+            {/* data-refusal-code, because a reason a reader can read and a code a gate can find are two
+                  different obligations and this surface met only the first. refusalSentence prefers the
+                  validator's specific requirement over the code's generic message (am-ig23). */}
+            <p>{refusalSentence(view.refusal)}</p>
+            <button type="button" className="secondary" onClick={() => apply(p)}>
+              Restore accepted settings
+            </button>
+          </div>
+        )}
         <div className="lab-results" {...gate.response}>
-          {view.outcome?.outcome === "budget-exhausted" && (
-            <div className="notice error">
-              <p>
-                {typeof view.outcome.details?.reason === "string"
-                  ? view.outcome.details.reason
-                  : "Reduce the walker count or recorded steps. This preview never silently reduces a trial."}
-              </p>
-              <button type="button" className="secondary" onClick={() => apply(p)}>
-                Restore accepted settings
-              </button>
-            </div>
-          )}
-          {view.refusal && (
-            <div className="notice error">
-              <p>{view.refusal.message}</p>
-              <button type="button" className="secondary" onClick={() => apply(p)}>
-                Restore accepted settings
-              </button>
-            </div>
-          )}
           <WalkHistogram snapshot={snapshot} />
           <table {...identity(snapshot)}>
             <caption>Step law and whole-ensemble spread</caption>

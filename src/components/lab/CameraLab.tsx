@@ -16,6 +16,13 @@ import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
+import {
+  type ApplyFailure,
+  applyFailure,
+  failureCode,
+  failureFromThrown,
+} from "../../experiments/results/applyFailure.ts";
+import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { CameraMomentTable } from "./CameraMomentTable.tsx";
@@ -54,7 +61,15 @@ export function CameraLab({
   const [draft, setDraft] = useState(() => toCameraDraft(example.parameters)),
     [ready, setReady] = useState(false),
     [dirty, setDirty] = useState(false),
-    [error, setError] = useState(""),
+    /**
+     * The typed failure of the last apply, NOT a string (am-ig23).
+     *
+     * This was `useState("")` holding `String(r.refusal.details?.requirements ?? r.refusal.message)`, which
+     * is the sentence and nothing else. The code, the ranked repairs and the staleness marking were all
+     * lost at that assignment, while the same component renders all three correctly for a WORKER refusal a
+     * few hundred lines below. Keeping the refusal lets both paths reach one surface.
+     */
+    [failure, setFailure] = useState<ApplyFailure | null>(null),
     [note, setNote] = useState("");
   // A shared ?tape= link puts its settings in the form and starts no worker; Apply runs them.
   // Read here, above the early return below, from the accepted snapshot itself. It carries no
@@ -91,17 +106,14 @@ export function CameraLab({
   }
   function apply(settings: Bm08Parameters) {
     const r = session.apply(settings);
-    if (r.kind !== "accepted") {
-      setError(
-        r.kind === "refused"
-          ? String(r.refusal.details?.requirements ?? r.refusal.message)
-          : r.outcome.message,
-      );
+    const failed = applyFailure(r);
+    if (failed) {
+      setFailure(failed);
       return;
     }
     setDraft(toCameraDraft(settings));
     setDirty(false);
-    setError("");
+    setFailure(null);
     setNote("");
   }
   function submit(e: FormEvent<HTMLFormElement>) {
@@ -109,7 +121,9 @@ export function CameraLab({
     try {
       apply({ ...fromCameraDraft(draft), coverageTrials: 0 });
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Check the camera settings.");
+      // A ParameterRefusalError carries the whole refusal through the throw, so the typed surface above
+      // gets its code and its repairs instead of a sentence (am-ig23).
+      setFailure(failureFromThrown(e, "Check the camera settings."));
     }
   }
   function newTrial() {
@@ -122,9 +136,12 @@ export function CameraLab({
         seed: ((BigInt(high) << 32n) | BigInt(low)).toString(),
         coverageTrials: 0,
       });
-    } catch {
-      setError(
-        `Type a physical seed of your own to start a new path: any whole number from 0 to ${SEED_MAX_READABLE}.`,
+    } catch (e) {
+      setFailure(
+        failureFromThrown(
+          e,
+          `Type a physical seed of your own to start a new path: any whole number from 0 to ${SEED_MAX_READABLE}.`,
+        ),
       );
     }
   }
@@ -342,10 +359,41 @@ export function CameraLab({
                 Unapplied draft. The graphs and tables still describe the accepted settings.
               </p>
             )}
-            {error && (
-              <p className="notice error" role="alert">
-                {error} {KEPT_RESULT}
-              </p>
+            {failure && (
+              /**
+               * THE TYPED SURFACE, for a refusal raised while validating the form (am-ig23).
+               *
+               * This was `<p className="notice error" role="alert">{error} {KEPT_RESULT}</p>` with no
+               * `data-refusal-code` and no repairs, while the worker-refusal surface below carried both. A
+               * reader entering an exposure of 0.3 s got the right sentence and no offer of the nearest
+               * admissible value, and no gate could find the code `off-replay-grid` anywhere on the page.
+               */
+              <div
+                className="notice error"
+                role="alert"
+                data-refusal-code={failureCode(failure)}
+                data-apply-failure={failure.kind}
+              >
+                <p>
+                  {failure.text} {KEPT_RESULT}
+                </p>
+                {failure.kind === "refused"
+                  ? failure.refusal.rankedRepairs.map((repair) => {
+                      const action = repair.action;
+                      if (!action) return null;
+                      return (
+                        <button
+                          key={`validation-${action.parameterId}-${repair.label}`}
+                          type="button"
+                          className="secondary"
+                          onClick={() => apply({ ...p, [action.parameterId]: action.value })}
+                        >
+                          {repair.label}
+                        </button>
+                      );
+                    })
+                  : null}
+              </div>
             )}
           </form>
           <div className="actions camera-presets">
@@ -403,6 +451,44 @@ export function CameraLab({
           {note && <p className="notice">{note}</p>}
           <LabTapeLink link={withPredictions(tapeLink, gate)} />
         </div>
+        {/*
+            OUTSIDE THE PREDICT GATE, BECAUSE A HIDDEN LABEL IS NOT A LABEL (am-ig23).
+            This block sat inside `div.lab-results`, which `html[data-detail] [data-predict-response="awaiting"]`
+            gives `display: none` while a prediction is armed. That is right for the response plot, which
+            AGENTS.md says must be hidden "before the first change". It is wrong for a refusal: measured on the
+            built export, the repair button was in the DOM with its only hiding ancestor the gated region, so a
+            reader who entered an inadmissible value saw nothing happen at all. A descendant cannot un-hide
+            itself from an ancestor's display:none, so the structure has to change rather than the CSS.
+          */}
+        {view.refusal && (
+          <div className="notice error" aria-live="polite" data-refusal-code={view.refusal.code}>
+            <p>{refusalSentence(view.refusal)}</p>
+            {view.refusal.rankedRepairs.map((repair) => {
+              const action = repair.action;
+              if (!action) return null;
+              const requestedParams =
+                (view.requested?.parameters as Bm08Parameters | undefined) ?? p;
+              return (
+                <button
+                  key={`${action.parameterId}-${repair.label}`}
+                  type="button"
+                  className="secondary"
+                  onClick={() =>
+                    apply({
+                      ...requestedParams,
+                      [action.parameterId]: action.value,
+                    })
+                  }
+                >
+                  {repair.label}
+                </button>
+              );
+            })}
+            <button type="button" className="secondary" onClick={() => apply(p)}>
+              Restore accepted settings
+            </button>
+          </div>
+        )}
         <div className="lab-results camera-results" {...gate.response}>
           {/*
           ROLE ALERT, BECAUSE A REFUSAL A READER CANNOT SEE IS A REFUSAL THEY NEVER RECEIVE
@@ -423,35 +509,6 @@ export function CameraLab({
           live-region stream" does not bite here; and the form error a few lines above already
           announces itself this way, as do SR-01, ME-01 and ME-03.
           */}
-          {view.refusal && (
-            <div className="notice error" aria-live="polite" data-refusal-code={view.refusal.code}>
-              <p>{String(view.refusal.details?.requirements ?? view.refusal.message)}</p>
-              {view.refusal.rankedRepairs.map((repair) => {
-                const action = repair.action;
-                if (!action) return null;
-                const requestedParams =
-                  (view.requested?.parameters as Bm08Parameters | undefined) ?? p;
-                return (
-                  <button
-                    key={`${action.parameterId}-${repair.label}`}
-                    type="button"
-                    className="secondary"
-                    onClick={() =>
-                      apply({
-                        ...requestedParams,
-                        [action.parameterId]: action.value,
-                      })
-                    }
-                  >
-                    {repair.label}
-                  </button>
-                );
-              })}
-              <button type="button" className="secondary" onClick={() => apply(p)}>
-                Restore accepted settings
-              </button>
-            </div>
-          )}
           <CameraPath snapshot={snapshot} />
           <h3>Four estimates, different assumptions</h3>
           <table>
@@ -479,6 +536,7 @@ export function CameraLab({
             <ExecutionChrome
               state={isStatic ? "static-example" : "host-accepted"}
               view={view}
+              validationRefusal={failure?.kind === "refused" ? failure.refusal : null}
               modelNote={modelNoteFromView(view, {
                 notModeled:
                   "Higher-order optical aberrations; only uniform exposure blur and Gaussian localization error.",
