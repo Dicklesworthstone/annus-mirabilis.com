@@ -7,6 +7,12 @@ import { executionStateKindFromHostLabel } from "../../../experiments/labels/exe
 import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
 import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
+import {
+  type ApplyFailure,
+  applyFailure,
+  failureCode,
+  failureFromThrown,
+} from "../../../experiments/results/applyFailure.ts";
 import { fromSr06Draft, toSr06Draft } from "../../../experiments/sr06/controls.ts";
 import {
   SR06_CAPTION,
@@ -102,7 +108,8 @@ export function VelocityCompositionLab({
     ).label,
   );
   const [draft, setDraft] = useState(() => toSr06Draft(p));
-  const [error, setError] = useState("");
+  /** The typed failure of the last apply, not a string (am-ig23). See applyFailure.ts. */
+  const [failure, setFailure] = useState<ApplyFailure | null>(null);
   const [note, setNote] = useState("");
   // One sentence for the status line: the composed speed beside the Galilean sum.
   const numberAt = (quantityId: string) => {
@@ -128,11 +135,12 @@ export function VelocityCompositionLab({
 
   function apply(next: Sr06Parameters) {
     const r = session.apply(next);
-    if (r.kind !== "accepted") {
-      setError(String(r.refusal.details?.requirements ?? r.refusal.message));
+    const failed = applyFailure(r);
+    if (failed) {
+      setFailure(failed);
       return;
     }
-    setError("");
+    setFailure(null);
     setDraft(toSr06Draft(next));
   }
 
@@ -141,7 +149,8 @@ export function VelocityCompositionLab({
     try {
       apply(fromSr06Draft(draft));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Those settings were refused.");
+      // fromSr06Draft throws ParameterRefusalError now, so the refusal survives the throw.
+      setFailure(failureFromThrown(err, "Those settings were refused."));
     }
   }
 
@@ -275,11 +284,36 @@ export function VelocityCompositionLab({
               </ExperimentSettings>
             )}
           </fieldset>
-          {error ? (
-            <p className="notice error" role="alert">
-              {error} {KEPT_RESULT}
-            </p>
-          ) : null}
+          {failure && (
+            /* THE TYPED SURFACE (am-ig23): the code a gate can find, and the admissible value the schema
+               already supplies, beside the sentence a reader reads. */
+            <div
+              className="notice error"
+              role="alert"
+              data-refusal-code={failureCode(failure)}
+              data-apply-failure={failure.kind}
+            >
+              <p>
+                {failure.text} {KEPT_RESULT}
+              </p>
+              {failure.kind === "refused"
+                ? failure.refusal.rankedRepairs.map((repair) => {
+                    const action = repair.action;
+                    if (!action) return null;
+                    return (
+                      <button
+                        key={`validation-${action.parameterId}-${repair.label}`}
+                        type="button"
+                        className="secondary"
+                        onClick={() => apply({ ...p, [action.parameterId]: action.value })}
+                      >
+                        {repair.label}
+                      </button>
+                    );
+                  })
+                : null}
+            </div>
+          )}
           {note ? <p className="fine">{note}</p> : null}
         </form>
         <AcceptedStatus

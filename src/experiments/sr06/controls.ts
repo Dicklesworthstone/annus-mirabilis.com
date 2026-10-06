@@ -1,3 +1,4 @@
+import { ParameterRefusalError } from "../results/applyFailure.ts";
 import { SR06_DEFAULTS, type Sr06Parameters } from "./definition.ts";
 import { validateSr06Parameters } from "./parameters.ts";
 
@@ -20,11 +21,15 @@ export function fromSr06Draft(draft: Sr06Draft): Sr06Parameters {
     else p[k] = draft[k];
   }
   const r = validateSr06Parameters(p);
-  if (r.kind !== "accepted")
-    throw new TypeError(
-      r.kind === "refused"
-        ? String(r.refusal.details?.requirements ?? r.refusal.message)
-        : "Invalid settings.",
-    );
+  // THE REFUSAL TRAVELS WITH THE THROW (am-ig23). This flattened a typed refusal to its sentence one layer
+  // below any component that could show it, so the code, the ranked repairs and the staleness marking were
+  // destroyed here and the catch upstream could not tell a refusal from an ordinary programming error.
+  //
+  // AND THE OTHER BRANCH WAS DEAD CODE, which only showed when the types were asked. The old expression ended
+  // `: "Invalid settings."`, reading as the message for an execution outcome; Sr06ParameterCheck has no
+  // outcome variant at all - it is `accepted | refused` - so that literal could never reach a reader. I first
+  // wrote this conversion assuming the outcome existed and kept its message, and tsc said the value was
+  // `never`.
+  if (r.kind !== "accepted") throw new ParameterRefusalError(r.refusal);
   return r.data;
 }

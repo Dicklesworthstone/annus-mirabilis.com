@@ -49,12 +49,12 @@ const ROOT = resolve(fileURLToPath(new URL("../../../", import.meta.url)));
 const CANONICAL = "src/experiments/results/refusalSentence.ts";
 
 /**
- * THE RECORDED DEBT, measured 2026-10-06 with comments blanked: 22 sites in 21 files.
+ * THE RECORDED DEBT, measured 2026-10-06 with comments blanked: 18 sites in 17 files.
  *
- * It opened at 26 in 25. Four came off the same day - bm05/controls.ts, bm07/controls.ts, WalkLab.tsx and
- * InferenceLab.tsx - and the ratchet went RED when they did, which is the mechanism working: a baseline entry
- * that no longer holds is a failure, so the conversions and this list land in one commit rather than leaving
- * HEAD red in between.
+ * It opened at 26 in 25. Eight came off the same day, in two passes - bm05, bm07, WalkLab, InferenceLab, then
+ * sr03, sr06, RodSimultaneityLab and VelocityCompositionLab - and the ratchet went RED each time, which is the
+ * mechanism working: a baseline entry that no longer holds is a failure, so the conversions and this list land
+ * in one commit rather than leaving HEAD red in between.
  *
  * Each is a place that flattens a typed refusal to its sentence. Converting one means pointing it at
  * `applyFailure`/`refusalSentence` and keeping the refusal, which is a per-lab change with a reader-facing
@@ -64,7 +64,6 @@ const FLATTENING_SITES: Readonly<Record<string, number>> = {
   "src/components/discover/BrownianInvestigation.tsx": 1,
   "src/components/lab/BrownianLab.tsx": 1,
   "src/components/lab/DriftDiffusionLab.tsx": 1,
-  "src/components/lab/RodSimultaneityLab.tsx": 1,
   "src/components/lab/TracerLab.tsx": 1,
   "src/components/lab/WaveDescriptionLab.tsx": 1,
   "src/components/lab/bm03/ConfigurationLab.tsx": 1,
@@ -74,13 +73,10 @@ const FLATTENING_SITES: Readonly<Record<string, number>> = {
   "src/components/lab/lq08/PhotoelectricLab.tsx": 1,
   "src/components/lab/lq09/IonizationLab.tsx": 1,
   "src/components/lab/sr04/LorentzMapLab.tsx": 1,
-  "src/components/lab/sr06/VelocityCompositionLab.tsx": 1,
   "src/components/lab/sr07/FieldEquationsLab.tsx": 2,
   "src/discovery/lightQuanta/investigation.ts": 1,
   "src/experiments/bm07/kitchen/analyze.ts": 1,
   "src/experiments/compare/controlledComparison.ts": 1,
-  "src/experiments/sr03/controls.ts": 1,
-  "src/experiments/sr06/controls.ts": 1,
   "src/reasoning/infer/browser.ts": 1,
 };
 
@@ -159,6 +155,10 @@ test("the converted paths are NOT in the list, which is what conversion looks li
     "src/components/lab/InferenceLab.tsx",
     "src/experiments/bm05/controls.ts",
     "src/experiments/bm07/controls.ts",
+    "src/components/lab/RodSimultaneityLab.tsx",
+    "src/components/lab/sr06/VelocityCompositionLab.tsx",
+    "src/experiments/sr03/controls.ts",
+    "src/experiments/sr06/controls.ts",
   ];
   for (const file of converted) assert.ok(!Object.keys(report.perFile).includes(file), file);
   /*
@@ -182,7 +182,7 @@ test("the recorded debt names only real files, and no duplicates", () => {
   assert.equal(new Set(names).size, names.length);
   assert.equal(
     Object.values(FLATTENING_SITES).reduce((a, b) => a + b, 0),
-    22,
+    18,
   );
   for (const name of names) assert.doesNotThrow(() => readFileSync(join(ROOT, name), "utf8"));
 });

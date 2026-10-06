@@ -26,6 +26,12 @@ import { fixed } from "./presentation.ts";
 import { withScripts } from "./subscripts.tsx";
 import "./rodSimultaneityLab.css";
 import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
+import {
+  type ApplyFailure,
+  applyFailure,
+  failureCode,
+  failureFromThrown,
+} from "../../experiments/results/applyFailure.ts";
 import { KEPT_RESULT } from "./keptResult.ts";
 import { LabMargin } from "./LabMargin.tsx";
 import { identity } from "./presentation.ts";
@@ -112,7 +118,8 @@ export function RodSimultaneityLab({
 
   const [draft, setDraft] = useState<Sr03Draft>(() => toSr03Draft(example.parameters));
   const [ready, setReady] = useState(false);
-  const [error, setError] = useState("");
+  /** The typed failure of the last apply, not a string (am-ig23). See applyFailure.ts. */
+  const [failure, setFailure] = useState<ApplyFailure | null>(null);
   const [linkNote, setLinkNote] = useState("");
 
   // Predict mode state
@@ -139,15 +146,12 @@ export function RodSimultaneityLab({
 
   function apply(parameters: Sr03Parameters) {
     const outcome = session.apply(parameters);
-    if (outcome.kind === "refused") {
-      setError(
-        typeof outcome.refusal.details?.requirements === "string"
-          ? outcome.refusal.details.requirements
-          : outcome.refusal.message,
-      );
+    const failed = applyFailure(outcome);
+    if (failed) {
+      setFailure(failed);
       return;
     }
-    setError("");
+    setFailure(null);
     setLinkNote("");
   }
 
@@ -156,7 +160,8 @@ export function RodSimultaneityLab({
     try {
       apply(fromSr03Draft(draft));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Check the entered settings.");
+      // fromSr03Draft throws ParameterRefusalError now, so the refusal survives the throw.
+      setFailure(failureFromThrown(e, "Check the entered settings."));
     }
   }
 
@@ -170,13 +175,14 @@ export function RodSimultaneityLab({
     try {
       apply(fromSr03Draft(next));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Check the entered settings.");
+      // fromSr03Draft throws ParameterRefusalError now, so the refusal survives the throw.
+      setFailure(failureFromThrown(e, "Check the entered settings."));
     }
   }
 
   function preset(parameters: Sr03Parameters) {
     setDraft(toSr03Draft(parameters));
-    setError("");
+    setFailure(null);
     apply(parameters);
   }
 
@@ -186,7 +192,7 @@ export function RodSimultaneityLab({
       endpointPairId: "frame-simultaneous",
     };
     setDraft(toSr03Draft(updated));
-    setError("");
+    setFailure(null);
     apply(updated);
   }
 
@@ -385,7 +391,7 @@ export function RodSimultaneityLab({
             noValidate
             onSubmit={submit}
             aria-label="Rod measurement and simultaneity settings"
-            aria-describedby={error ? `${id}-error` : undefined}
+            aria-describedby={failure ? `${id}-error` : undefined}
             style={{ margin: "1.5rem 0" }}
           >
             <fieldset disabled={!ready}>
@@ -623,10 +629,36 @@ export function RodSimultaneityLab({
                 </div>
               )}
 
-              {error && (
-                <p id={`${id}-error`} className="notice error" role="alert">
-                  {withScripts(error)} {KEPT_RESULT}
-                </p>
+              {failure && (
+                /* THE TYPED SURFACE (am-ig23): the code a gate can find and the schema's own admissible value,
+                   beside the sentence. withScripts keeps the subscript rendering this lab's messages use. */
+                <div
+                  id={`${id}-error`}
+                  className="notice error"
+                  role="alert"
+                  data-refusal-code={failureCode(failure)}
+                  data-apply-failure={failure.kind}
+                >
+                  <p>
+                    {withScripts(failure.text)} {KEPT_RESULT}
+                  </p>
+                  {failure.kind === "refused"
+                    ? failure.refusal.rankedRepairs.map((repair) => {
+                        const action = repair.action;
+                        if (!action) return null;
+                        return (
+                          <button
+                            key={`validation-${action.parameterId}-${repair.label}`}
+                            type="button"
+                            className="secondary"
+                            onClick={() => apply({ ...p, [action.parameterId]: action.value })}
+                          >
+                            {repair.label}
+                          </button>
+                        );
+                      })
+                    : null}
+                </div>
               )}
 
               <div className="button-group" style={{ marginTop: "1rem" }}>

@@ -1,4 +1,5 @@
 import { readTypedNumber } from "../controls/typedNumber.ts";
+import { ParameterRefusalError } from "../results/applyFailure.ts";
 import type { Sr03Parameters } from "./definition.ts";
 import { validateSr03Parameters } from "./parameters.ts";
 
@@ -59,13 +60,10 @@ export function fromSr03Draft(d: Sr03Draft): Sr03Parameters {
   };
 
   const validation = validateSr03Parameters(raw);
-  if (validation.kind === "refused") {
-    throw new Error(
-      typeof validation.refusal.details?.requirements === "string"
-        ? validation.refusal.details.requirements
-        : validation.refusal.message,
-    );
-  }
+  // THE REFUSAL TRAVELS WITH THE THROW (am-ig23). This flattened a typed refusal to its sentence one layer
+  // below any component that could show it, so the code, the ranked repairs and the staleness marking were
+  // destroyed here and the catch upstream could not tell a refusal from an ordinary programming error.
+  if (validation.kind === "refused") throw new ParameterRefusalError(validation.refusal);
   if (validation.kind !== "accepted") {
     throw new Error("Invalid parameters.");
   }
