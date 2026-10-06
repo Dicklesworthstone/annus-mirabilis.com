@@ -26,7 +26,18 @@
 }
 .camera-comparison-plots text {
   fill: var(--ink);
-  font-size: 12px;
+  /*
+   * FROM THE SCALE, NOT A RAW PIXEL SIZE (am-vw1o). This was `12px`, the one genuinely new value in the
+   * type vocabulary: `8pt` in the sibling print rule already existed in platform/print/print.css, so only
+   * this one grew it.
+   *
+   * The substitution is sound in an SVG because the value resolves in CSS pixels and is THEN scaled by the
+   * viewBox transform, so the label keeps its proportion to the plot rather than becoming independent of
+   * it. The viewBox is 600 by 280, so 12 units to about 13.2 is negligible, and the two end-anchored
+   * labels at x 66 and x 562 have room. Checked rather than assumed, because a rem inside a viewBox is the
+   * kind of substitution that silently changes what a number means.
+   */
+  font-size: var(--type-fine);
 }
 .camera-comparison-axis,
 .camera-comparison-latent,
@@ -39,7 +50,39 @@
 .camera-comparison-latent { stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 2 4; }
 .camera-comparison-blurred { stroke: var(--muted, var(--ink)); stroke-width: 1.5; stroke-dasharray: 9 5; }
 .camera-comparison-observed { stroke: var(--accent); stroke-width: 1.5; }
-.camera-comparison-legend { font-size: 0.875rem; }
+.camera-comparison-legend { font-size: var(--type-fine); }
+/*
+ * THE LEGEND KEYS MATCH THEIR LINES BY DASH PATTERN, NOT BY COLOUR ALONE (am-vw1o).
+ *
+ * The three spans carried the bare class names `latent-key`, `blurred-key` and `observed-key` with no
+ * rules anywhere, which the declared-classes ratchet refused on both counts: undeclared, and unscoped in a
+ * tree where a generic name collides. Namespaced here like their sibling paths above.
+ *
+ * Each key is underlined with the stroke pattern of the line it names, so the legend is readable in the
+ * same visual language as the plot. The dash lengths match `stroke-dasharray` on the paths: 2 4, 9 5, and
+ * solid. Colour is deliberately NOT the carrier, because AGENTS.md requires that colour never carry
+ * meaning alone, and the span text already says short dashes, long dashes and solid; the border repeats
+ * the distinction a second way rather than replacing the words. No new font-size enters, which is what the
+ * type-scale ratchet watches.
+ */
+.camera-comparison-legend .camera-comparison-latent-key,
+.camera-comparison-legend .camera-comparison-blurred-key,
+.camera-comparison-legend .camera-comparison-observed-key {
+  border-bottom-width: 2px;
+  padding-bottom: 0.1em;
+}
+.camera-comparison-legend .camera-comparison-latent-key {
+  border-bottom-style: dashed;
+  border-bottom-color: var(--ink);
+}
+.camera-comparison-legend .camera-comparison-blurred-key {
+  border-bottom-style: dashed;
+  border-bottom-color: var(--muted, var(--ink));
+}
+.camera-comparison-legend .camera-comparison-observed-key {
+  border-bottom-style: solid;
+  border-bottom-color: var(--accent);
+}
 .camera-comparison-statement { overflow-wrap: anywhere; }
 .camera-controlled-comparison details { margin-block: 1rem; }
 .camera-controlled-comparison :is(button, input, select, summary):focus-visible {

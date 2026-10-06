@@ -106,9 +106,13 @@ export function CameraComparisonReadouts({ baseline, variant, uid }: {
         ))}
       </div>
       <p className="camera-comparison-legend">
-        <span className="latent-key">Short dashes: latent frame-start positions</span>{" · "}
-        <span className="blurred-key">Long dashes: exposure averages</span>{" · "}
-        <span className="observed-key">Solid: camera positions</span>
+        <span className="camera-comparison-latent-key">
+          Short dashes: latent frame-start positions
+        </span>
+        {" · "}
+        <span className="camera-comparison-blurred-key">Long dashes: exposure averages</span>
+        {" · "}
+        <span className="camera-comparison-observed-key">Solid: camera positions</span>
       </p>
       <h3>Which uncertainty statement applies?</h3>
       {/* biome-ignore lint/a11y/noNoninteractiveTabindex: keyboard scrolling of the paired confidence sets */}
