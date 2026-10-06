@@ -228,7 +228,7 @@ export function validateSearchDocument(value: unknown): SearchDocument {
     // tape id is `the-boost-to-0.6c` (AGENTS.md permits a dot between two digits). The dot can only
     // sit BETWEEN allowed runs, so a segment can never be `.`, `..` or `.hidden`, and the traversal
     // cases in core.test.mjs stay refused: /lab/../admin has a `..` segment that matches nothing
-    // here, and /papers/%2e%2e/ has no `%` in the class at all.
+    // here, and /papers/%2e%2e/ had no `%` in the class at all.
     !/^\/(?:papers|foundations|lab|notation|discover|essays|connections|tours|tapes|capstones|timeline|1904)(?:\/[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)*)*\/?$/u.test(
       d.route,
     ) ||
@@ -311,6 +311,59 @@ export function editDistance(a: string, b: string, limit: number): number {
   return d[rows - 1]?.[cols - 1] ?? Number.POSITIVE_INFINITY;
 }
 
+/** Adjacent normalized tokens, never a substring inside a longer word or a generated regex. */
+function containsPhrase(field: string, phrase: string): boolean {
+  return ` ${field} `.includes(` ${phrase} `);
+}
+
+/**
+ * Find the strongest bounded passage in the original spelling. The masks describe the actual
+ * vocabulary admitted by this query (including prefixes and typo corrections), not an invented
+ * replacement quotation. Overlapping windows also handle expressions such as "6 × 10^23" whose
+ * normalization spans several whitespace-separated pieces. Only returned hits pay this cost.
+ */
+function passageSnippet(
+  source: string,
+  matchedWords: ReadonlyMap<string, number>,
+  phrases: readonly string[],
+): string {
+  const text = source.replace(/\s+/gu, " ").trim();
+  if (text.length <= 220) return text;
+  let bestStart = 0,
+    bestEnd = 217,
+    bestScore = -1;
+  for (let offset = 0; offset < text.length; offset += 96) {
+    let start = offset;
+    if (start > 0) {
+      start = text.indexOf(" ", start);
+      if (start < 0) break;
+      start++;
+    }
+    let end = Math.min(text.length, start + 218);
+    if (end < text.length) {
+      const boundary = text.lastIndexOf(" ", end);
+      if (boundary > start) end = boundary;
+      // A long unbroken token must still be clipped without bisecting a surrogate pair.
+      else if (text.charCodeAt(end) >= 0xdc00 && text.charCodeAt(end) <= 0xdfff) end--;
+    }
+    const normalized = normalizeSearchText(text.slice(start, end));
+    let mask = 0;
+    for (const word of normalized.split(" ")) mask |= matchedWords.get(word) ?? 0;
+    let score = 0;
+    while (mask) {
+      score++;
+      mask &= mask - 1;
+    }
+    for (const phrase of phrases) if (containsPhrase(normalized, phrase)) score += 32;
+    if (score > bestScore) {
+      bestScore = score;
+      bestStart = start;
+      bestEnd = end;
+    }
+  }
+  return `${bestStart ? "…" : ""}${text.slice(bestStart, bestEnd)}${bestEnd < text.length ? "…" : ""}`;
+}
+
 export function createSearchEngine(
   documents: readonly SearchDocument[],
   aliases: readonly SearchAlias[] = [],
@@ -362,13 +415,24 @@ export function createSearchEngine(
     ): readonly SearchHit[] {
       if (typeof query !== "string" || query.length > SEARCH_LIMITS.queryCharacters) return [];
       const phrase = normalizeSearchText(query);
+      // Only completed double quotes constrain a phrase; an unfinished quote can be typed live.
+      // Stop words inside quotes are retained by the final phrase check, even though the index
+      // intersection below omits them. Smart quotes copied from a passage work as well.
+      const quotedPhrases = [...query.matchAll(/"([^"]+)"|“([^”]+)”/gu)]
+        .map((match) => normalizeSearchText(match[1] ?? match[2] ?? ""))
+        .filter(Boolean);
       const allTerms = [...new Set(phrase.split(" ").filter(Boolean))];
       let terms = allTerms.filter((t) => !STOP_WORDS.has(t));
       if (!terms.length) terms = allTerms;
       if (!terms.length || terms.length > SEARCH_LIMITS.queryTerms) return [];
       let candidates = new Map<number, number>();
+      const matchedWords = new Map<string, number>();
+      const markWord = (word: string, termIndex: number) => {
+        matchedWords.set(word, (matchedWords.get(word) ?? 0) | (1 << termIndex));
+      };
       for (const [termIndex, term] of terms.entries()) {
         const matching = new Map(postings.get(term) ?? []);
+        if (matching.size) markWord(term, termIndex);
         // Prefixes support German compound words; one-letter physics symbols remain exact.
         if (term.length >= 3 && !/^[-+]?\d/u.test(term)) {
           let lo = 0,
@@ -385,6 +449,7 @@ export function createSearchEngine(
             if (word === term) continue;
             const wordPostings = postings.get(word);
             if (!wordPostings) continue;
+            markWord(word, termIndex);
             for (const [index, weight] of wordPostings)
               matching.set(index, Math.max(matching.get(index) ?? 0, weight * 0.5));
           }
@@ -400,6 +465,7 @@ export function createSearchEngine(
             if (editDistance(term, word, allowed) > allowed) continue;
             const wordPostings = postings.get(word);
             if (!wordPostings) continue;
+            markWord(word, termIndex);
             for (const [index, weight] of wordPostings)
               matching.set(index, Math.max(matching.get(index) ?? 0, weight * 0.4));
           }
@@ -431,12 +497,19 @@ export function createSearchEngine(
             : 20,
         ),
       );
-      const hits: SearchHit[] = [];
+      const hits: Omit<SearchHit, "snippet">[] = [];
       for (const [index, initialScore] of scores.entries()) {
         const document = docs[index];
         if (!document) continue;
         if (options.paper && document.paper !== options.paper) continue;
         if (options.type && document.type !== options.type) continue;
+        if (quotedPhrases.length) {
+          // Do not stitch a quotation across the title/body boundary or between unrelated terms.
+          // Aliases remain useful search aids, but cannot claim a quotation occurs in the source.
+          const fields = [document.title, document.text, ...document.terms].map(normalizeSearchText);
+          if (!quotedPhrases.every((quoted) => fields.some((field) => containsPhrase(field, quoted))))
+            continue;
+        }
         let score = initialScore;
         const title = titles[index];
         if (title === phrase) score += 80;
@@ -446,17 +519,19 @@ export function createSearchEngine(
         // like "k*" even scores as an exact title. A term spelled exactly as typed, case and
         // marks included, is the letter the reader meant, and it outranks its folded neighbours.
         if (document.terms.includes(query.trim())) score += 100;
-        const text = document.text.replace(/\s+/gu, " ").trim();
         hits.push({
           document,
           score,
-          snippet: text.length > 220 ? `${text.slice(0, 217)}…` : text,
           aliasLabel: labels.get(index) ?? null,
         });
       }
       return hits
         .sort((a, b) => b.score - a.score || (a.document.id < b.document.id ? -1 : 1))
-        .slice(0, limit);
+        .slice(0, limit)
+        .map((hit) => ({
+          ...hit,
+          snippet: passageSnippet(hit.document.text, matchedWords, quotedPhrases),
+        }));
     },
   });
 }
