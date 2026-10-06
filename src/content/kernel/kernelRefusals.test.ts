@@ -292,7 +292,7 @@ describe("Kernel bindings refusal sites (bindings.ts) (am-muyh)", () => {
 
 describe("Kernel check refusal sites (check.ts) (am-muyh)", () => {
   // Site (line 93), added with the refusal itself (am-1nnj).
-  test("site (check.ts:94) instrument-declares-no-arguments: reports an instrument that declares kernelFunctions but no argumentIds, and stays silent when it declares some", () => {
+  test("site instrument-declares-no-arguments: reports an instrument that declares kernelFunctions but no argumentIds, and stays silent when it declares some", () => {
     const kernelFunctions = [
       {
         displayRole: "reference-implementation",
@@ -339,7 +339,7 @@ describe("Kernel check refusal sites (check.ts) (am-muyh)", () => {
   });
 
   // Site 10 (line 132)
-  test("site (check.ts:133) kernel-export-missing: reports kernel-export-missing when extraction fails on missing module/export, accepts valid kernel", () => {
+  test("site kernel-export-missing: reports kernel-export-missing when extraction fails on missing module/export, accepts valid kernel", () => {
     const reportedBad: any[] = [];
     const contextBad = {
       records: new Map([
