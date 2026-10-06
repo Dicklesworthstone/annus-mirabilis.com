@@ -22,14 +22,24 @@ describe("getKernelListingsForInstrument", () => {
     expect(stokes?.trace?.rows.length).toBe(7);
   });
 
-  test("returns all 4 listings for BM-05", () => {
+  test("BM-05's listings include every kernel named here, each with real pinned source", () => {
+    // Same repair as the BM-06 case below: `expect(listings.length).toBe(4)` broke when four
+    // legitimate catalogue entries were added, while the identity assertions it sat above held.
     const listings = getKernelListingsForInstrument("bm-05");
-    expect(listings.length).toBe(4);
     const names = listings.map((l) => l.exportName);
-    expect(names).toContain("kernelDiffusivity");
-    expect(names).toContain("randomWalkMoments");
-    expect(names).toContain("coinWalkDistribution");
-    expect(names).toContain("recordWalks");
+    for (const expected of [
+      "kernelDiffusivity",
+      "randomWalkMoments",
+      "coinWalkDistribution",
+      "recordWalks",
+      "kernelMoments",
+      "continuumLimit",
+      "kolmogorovShapeTerm",
+      "observeWalks",
+    ])
+      expect(names).toContain(expected);
+    // Non-vacuity: an empty array satisfies no toContain and would still pass the loop below.
+    expect(listings.length).toBeGreaterThanOrEqual(8);
 
     for (const listing of listings) {
       expect(listing.source).toBeTruthy();

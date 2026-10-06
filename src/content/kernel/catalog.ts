@@ -155,6 +155,73 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
     identifierBindings: [],
     independentReferences: [],
   },
+  // BM-05'S REMAINING FOUR (am-f3e4, 2026-10-06). Its manifest declares eight kernels and four had an
+  // entry here. Three of these four are where the walk becomes diffusion and where that passage can
+  // fail, and the fourth is the replay that makes an observation at step n repeatable.
+  {
+    instrumentId: "bm-05",
+    kernel: tsRef("src/physics/reference/diffusion/walkLaws.ts", "kernelMoments"),
+    words: {
+      r0: "The mean, the mean square, the variance and the fourth moment of one step, with a refusal for the step law that has none.",
+      r1: "A random walk becomes diffusion because the steps have a finite variance, and this function is where that is checked rather than assumed. For the supported symmetric kernels it returns all four moments with their units, metres and metres squared and metres to the fourth. Ask it for the Cauchy step law and it refuses: that law's variance is not large, it does not exist, and the function returns an outside-domain result under the condition finite-moments rather than a number.",
+      r2: "The four are built from one table of names so that each carries its own canonical quantity and unit, and the refusal path builds the same four keys from the same table, so a caller that handles the accepted case field by field cannot be handed an object missing a field. The Cauchy branch is the reason the function exists at all: a sampler can draw Cauchy steps perfectly well, and the sum of those steps does not approach a Gaussian however many are taken, so the quantity a diffusion coefficient would be computed FROM is undefined. Refusing here, at the moments, keeps that fact at the place a reader can see it instead of surfacing later as a diffusivity that will not settle.",
+      r3: "Einstein assumes a step distribution with a finite mean square in section 4 and says so in those words, which is the hypothesis this function tests rather than a technicality. The heavy-tailed alternative is Levy's, from the 1920s and 1930s, and it is offered in this instrument as a modern lens: the walk still happens and the central limit theorem does not apply to it.",
+    },
+    // No bindings, and that is the measured state rather than an omission: this kernel's only
+    // scalar names are the four moments, whose quantities the code calls stepMean, stepSecondMoment,
+    // stepVariance and stepFourthMoment, and content/quantities defines none of those four. Its one
+    // parameter is a kernel CHOICE, for which there is no canonical quantity at all.
+    liveTerms: [],
+    identifierBindings: [],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "bm-05",
+    kernel: tsRef("src/physics/reference/diffusion/walkLaws.ts", "continuumLimit"),
+    words: {
+      r0: "The diffusion coefficient a shrinking step reaches, and a refusal for the way of shrinking it that reaches nothing.",
+      r1: "Take the steps smaller and more frequent and the walk approaches diffusion, but only if the two are shrunk together. Holding the step size fixed while the interval shrinks makes the coefficient grow without bound, and the function refuses that request by name, with the condition hold-variance-over-time-fixed and a sentence saying what to do instead. Under the ratio that does work the answer is the step scale squared over twice the interval: a step of one micrometre every millisecond gives 5e-10 square metres per second.",
+      r2: "The refusal is the whole content of this function and it is deliberately not a clamp or a very large number. Both scalings are arithmetically computable, and one of them has no limit, so returning a figure for it would be a wrong answer dressed as a right one. The guards run in one block before either branch, so a malformed scale and an unsupported scaling name are refused at the same place, and the accepted branch is a single expression. Note that the quantity returned is named continuumDiffusionCoefficient rather than diffusionCoefficient: it is the coefficient of a declared limiting procedure, not a measured property of a liquid, and a plot that mixed the two would be comparing a model choice with an observation.",
+      r3: "Section 4 passes from a step picture to the diffusion equation in one move, taking the limit without naming which quantities are held fixed, because in that context only one choice makes sense. Making the choice explicit here is a modern reading, and the reason to do it is that a reader with sliders can make the other choice in two seconds.",
+    },
+    liveTerms: ["stepRms", "stepInterval"],
+    identifierBindings: [
+      bind("continuumLimit", "stepScale", "stepRms"),
+      bind("continuumLimit", "tau", "stepInterval"),
+      // `scaling` selects the limiting procedure and is not a physical quantity, so it has no
+      // canonical id to bind to; the returned continuumDiffusionCoefficient has none either.
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "bm-05",
+    kernel: tsRef("src/physics/reference/diffusion/walkLaws.ts", "kolmogorovShapeTerm"),
+    words: {
+      r0: "How far the walk's own distribution still is from a Gaussian after this many steps, as the largest gap between the two curves.",
+      r1: "The central limit theorem says the gap closes, and this says by how much at a given number of steps. It is the largest vertical distance between the walk's cumulative distribution and the normal one. For the coin kernel it falls off like one over the square root of the number of steps: 0.341 at one step, 0.1875 at four, 0.0398 at a hundred and 0.00399 at ten thousand. Multiply each by the square root of its step count and all of them land near 0.3989, which is one over the square root of two pi, so the approach to a Gaussian is not merely happening, it is happening at a rate that can be quoted. For the Gaussian kernel the distance is exactly zero, and the function says why in one line: a sum of Gaussians is a Gaussian.",
+      r2: "The coin branch sums the exact binomial probabilities rather than sampling, so the distance is a property of the distribution and not of a trial. The subtlety is that the walk's distribution has atoms, so its cumulative function jumps, and the largest gap may be on either side of a jump. The loop therefore takes the larger of the gap before adding the atom's probability and the gap after, which is what makes the answer the true supremum rather than one of its one-sided neighbours. The docblock states the matching honesty: the distribution is exact, the evaluated distance is a number computed in floating point, and it is not an interval-arithmetic enclosure of itself.",
+      r3: "The theorem is Lindeberg's and Levy's, from the 1920s, and the distance is Kolmogorov's measure from 1933; none of this vocabulary is in the 1905 paper, which asserts the Gaussian form from the independence of the steps and the finiteness of their mean square. The value of the number is that a reader can ask the paper's assumption how fast it becomes true.",
+    },
+    liveTerms: ["walkStepCount"],
+    identifierBindings: [
+      bind("kolmogorovShapeTerm", "n", "walkStepCount"),
+      bind("kolmogorovShapeTerm", "distance", "kolmogorovDistance"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "bm-05",
+    kernel: tsRef("src/physics/reference/diffusion/walks.ts", "observeWalks"),
+    words: {
+      r0: "The walkers' positions at a chosen step, obtained by replaying the recorded walk rather than by drawing a new one.",
+      r1: "Looking at step 400 and then at step 300 must not change what happened. This function answers either question from the same recording: if a checkpoint exists at that step it returns it and reports that nothing was replayed, and otherwise it starts from the nearest earlier checkpoint and replays forward through the recording's own draw engine. It reports how many draws the replay consumed, so the cost of moving the observation point is visible rather than hidden.",
+      r2: "Three guards are worth reading. The replay checks that the draws it receives name the same producer as the recording did, and fails rather than continuing if they do not, because a sequence from a different engine would be a different walk presented as the same one. A coordinate that stops being representable fails rather than propagating as an infinity into a plot. And a checkpoint is published only after the whole replay completes, so a cancelled observation leaves no partial milestone behind for the next call to start from. The loop yields to the host every chunk and checks for cancellation on both sides of that yield, which is what lets a reader drag an observation slider without the page stopping, and the chunk size is required to be bounded so that a malformed option cannot make the yield never happen.",
+      r3: "Nothing here is in the paper; it is the machinery that makes a reader's observation of a stochastic model repeatable, which the paper does not need because it works with distributions rather than realisations. The rule it implements is this edition's: changing where you look is a measurement change and never a new experiment.",
+    },
+    liveTerms: [],
+    identifierBindings: [bind("observeWalks", "n", "walkStepCount")],
+    independentReferences: [],
+  },
   {
     instrumentId: "bm-06",
     kernel: tsRef("src/physics/reference/diffusion/distributions.ts", "gaussianPropagator"),
@@ -243,14 +310,13 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
       r2: "The function is a guard and one square root, and the square root is the interesting part: it is computed as the scale helper does it, by the square root of 2 times the square root of D times the square root of t, rather than the square root of their product. That is not style. At D and t both 1e-300 the product underflows to zero and the direct form returns a radius of 0, while the factored form returns 1.4142135623730952e-300; at 1e300 each the product overflows to infinity and the factored form returns 1.4142135623730952e+300. Diffusivities in this edition run around 4e-13 with times a reader may set freely, so the margin matters. There is no three-dimensional counterpart here because the owning bead's specification gives no closed form for it, and inventing one would be a different claim.",
       r3: "Einstein works in one dimension throughout section 4 and asks for the root mean square, not the mode, so this quantity is not in the paper. It is included because the two-dimensional picture is what a reader sees under a microscope, and because the coincidence of the 2D mode with the 1D root mean square is the kind of thing that looks like a mistake until the circumference argument is made.",
     },
-    liveTerms: ["mostLikelyRadius2d", "diffusionCoefficient"],
+    liveTerms: ["diffusionCoefficient"],
     identifierBindings: [
       bind("mostLikelyRadius2d", "D", "diffusionCoefficient"),
       bind("mostLikelyRadius2d", "t", "observationInterval"),
-      // The function's own name standing for its output, which is the convention already used in
-      // this file by gaussianPropagator -> probabilityDensity. It is not the same as binding a
-      // CALLEE's name: there is no local here holding the radius, the whole body is the quantity.
-      bind("mostLikelyRadius2d", "mostLikelyRadius2d", "mostLikelyRadius2d"),
+      // The output is NOT bound. Binding the function's own name to its output is the convention
+      // gaussianPropagator uses, but the quantity it would name, "mostLikelyRadius2d", is not among
+      // content/quantities' 305 ids, so the binding would point at nothing.
     ],
     independentReferences: [],
   },
@@ -264,12 +330,7 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
       r3: "The paper gives one of these four, the root mean square in one dimension, and gives it as the quantity to compare with observation because it is what a series of position readings yields. The mean distance is easier to picture and harder to estimate from data, which is roughly why Einstein does not use it, and the two differ by about a fifth in one dimension.",
     },
     equationId: "eq-model-bm-gaussian-second-moment",
-    liveTerms: [
-      "meanSquareDisplacement1d",
-      "meanSquareDisplacement",
-      "meanRadialDistance",
-      "rmsRadialDistance",
-    ],
+    liveTerms: ["meanSquareDisplacement1d", "rmsDisplacement1d"],
     identifierBindings: [
       bind("moments", "D", "diffusionCoefficient", [
         "eq-model-bm-gaussian-second-moment.t.diffusivity",
@@ -280,10 +341,12 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
       // liveTerm the kernel holds in no identifier at all would make this entry fail its own check,
       // which is what the first draft of it did.
       bind("moments", "s", "rmsDisplacement1d"),
-      bind("moments", "mean", "meanRadialDistance"),
       bind("moments", "marginal", "meanSquareDisplacement1d"),
-      bind("moments", "total", "meanSquareDisplacement"),
-      bind("moments", "rmsRadius", "rmsRadialDistance"),
+      // mean, total and rmsRadius are NOT bound, and the reason is a drift this entry must not
+      // paper over: the kernel names their quantities "meanRadialDistance", "meanSquareDisplacement"
+      // and "rmsRadialDistance", and content/quantities holds none of those three among its 305 ids.
+      // A binding to an id the registry does not define is exactly the false record the canonical-id
+      // rule exists to stop, so the three are left out here and the drift is on am-bzsk.
     ],
     independentReferences: [],
   },
