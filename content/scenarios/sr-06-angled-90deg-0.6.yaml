@@ -70,6 +70,6 @@ expected:
       comparisonKind: tolerance
       tolerance:
         relative: 1.0e-12
-        rationale: "The factor of 0.76837c, which is 1/0.64 exactly. THIS RECORD FOUND A DEFECT: the instrument reported 2.125 here, the factor of the COLLINEAR composition, beside a composed speed of 0.76837c. Drafting the rationale for 2.125 is what exposed it, because 1.25 squared is 1.5625 and not 2.125. Fixed in 4b948275 with a consistency assertion across every mode and angle, planted against the historical expression."
+        rationale: "The factor of 0.76837c, which is 1/0.64 exactly. THIS RECORD FOUND A DEFECT: the instrument reported 2.125 here, the factor of the COLLINEAR composition, beside a composed speed of 0.76837c. Drafting the rationale for 2.125 is what exposed it, because 1.25 squared is 1.5625 and not 2.125. Fixed in cd86aff8 with a consistency assertion across every mode and angle, planted against the historical expression."
 modelVersion: 1
 schemaVersion: 1
