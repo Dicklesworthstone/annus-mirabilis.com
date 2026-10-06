@@ -72,7 +72,7 @@ describe("resolvePaperRoute", () => {
     expect(readingPage).toEqual({ ok: false, code: "unknown-face" });
   });
 
-  test("planted negative: unknown paper, section, and face refuse", async () => {
+  test("planted negative: unknown paper, section, and face refuse (paperRoutes.ts:101)", async () => {
     expect(await resolvePaperRoute({ paperId: "not-a-paper" })).toEqual({
       ok: false,
       code: "unknown-paper",
@@ -108,8 +108,20 @@ describe("resolvePaperRoute", () => {
    * set coincide, the valid-but-unreadable branch has no live example left and this test
    * covers only the readable half. The branch stays reachable in tests through the
    * invalid-slug case above (classifyPaperParam -> "invalid" -> unknown-paper).
+   *
+   * MEASURED 2026-10-06, because that note reads as a warning about a hypothetical and is about a live
+   * condition: PAPER_SLUGS holds five and listReadablePapers returns four, so `molecular-dimensions` is
+   * the valid-but-unreadable example and this branch does run today. It is the companion dissertation,
+   * and when it is compiled this test covers only the readable half and the site at :104 goes undriven.
+   *
+   * THE CITATION IS WHY THIS TITLE CHANGED (am-r3qt). `unknown-paper` is raised at TWO sites in
+   * paperRoutes.ts - :101 for a param that is not a slug at all, :104 for a slug nothing can read - and
+   * a code with several sites is credited only by an explicit `(file.ts:LINE)`. Both were driven and
+   * neither was cited, which is this bead's category 2: the test exists and the ledger could not see
+   * it. Each citation was proved by renaming that ONE site's code and confirming only its own test
+   * reddened.
    */
-  test("invariant: a valid slug is a route exactly when it is readable", async () => {
+  test("invariant: a valid slug is a route exactly when readable (paperRoutes.ts:104)", async () => {
     const readable = await listReadablePapers();
     expect(readable.length).toBeGreaterThan(0);
     // The readable set is drawn from the slug set, never wider than it.

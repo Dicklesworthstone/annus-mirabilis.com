@@ -144,7 +144,7 @@
   "src/reader/misconceptions/interventionGate.ts": 2,
   "src/reader/misconceptions/types.ts": 1,
   "src/reader/notebook/replayEntry.ts": 0,
-  "src/reader/paperRoutes.ts": 2,
+  "src/reader/paperRoutes.ts": 0,
   "src/testing/decodePng.ts": 0,
   "src/testing/docs/roundReports.ts": 2,
   "src/testing/e2e/fixture-apps/selftest/instrument.ts": 0,
