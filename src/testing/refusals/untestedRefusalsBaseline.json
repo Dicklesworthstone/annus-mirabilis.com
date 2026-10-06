@@ -33,7 +33,7 @@
   "src/content/checks/review/editionReviewState.ts": 1,
   "src/content/checks/review/statuses.ts": 1,
   "src/content/checks/structural/structural.ts": 0,
-  "src/content/checks/voice/rules.ts": 1,
+  "src/content/checks/voice/rules.ts": 0,
   "src/content/compiler/checks/registry.ts": 0,
   "src/content/compiler/compile.ts": 0,
   "src/content/compiler/compiler.ts": 0,

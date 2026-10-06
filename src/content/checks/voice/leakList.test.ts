@@ -1,9 +1,12 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { describe, it } from "node:test";
+import yaml from "js-yaml";
 import { executionOutcomeRegistry } from "../../../experiments/results/outcomes.ts";
 import { refusalCodeRegistry } from "../../../experiments/results/refusalCodes.ts";
 import type { StatusEnumLeakRule } from "./rules.ts";
-import { loadVoiceRules } from "./rules.ts";
+import { loadVoiceRules, VoiceRulesError, validateVoiceRules } from "./rules.ts";
 
 const REQUIRED_STATUSES = ["analytic-limit", "underdetermined", "not-applicable", "outside-domain"];
 
@@ -129,5 +132,49 @@ describe("status-enum-leak data lists", () => {
     const liveCodes = Object.keys(refusalCodeRegistry);
     const missing = liveCodes.filter((c) => !corruptedCodes.includes(c));
     assert.deepEqual(missing, [droppedCode]);
+  });
+});
+
+/**
+ * The validator's own refusals (am-r3qt). `validateVoiceRules` is what stands between a malformed
+ * content/editorial/voice-rules.yaml and a voice lint that silently checks less than it claims -
+ * a rule file missing a key does not fail loudly on its own, it just stops carrying that rule.
+ *
+ * The fixture is THE LIVE FILE with one key removed, parsed and deep-cloned, rather than a minimal
+ * object written here: a hand-built raw would have to satisfy every RULE_ID to reach the arm under
+ * test, and would then be a second copy of the schema that drifts from the first.
+ *
+ * `VoiceRulesError` carries no code field, so the scanner reads a code out of the message text.
+ * These cases therefore assert the MESSAGE, which is the only identity these refusals have.
+ */
+describe("validateVoiceRules refuses a malformed rules file", () => {
+  const RULES_PATH = path.join(process.cwd(), "content", "editorial", "voice-rules.yaml");
+  const live = () => yaml.load(readFileSync(RULES_PATH, "utf8")) as Record<string, unknown>;
+
+  it("(rules.ts:314) status-enum-leak without ids is refused, naming the rule", () => {
+    const raw = live();
+    const rules = raw.rules as Record<string, Record<string, unknown>>;
+    assert.ok(
+      rules["status-enum-leak"],
+      "the live file must declare the rule for this to mean anything",
+    );
+    delete rules["status-enum-leak"].ids;
+    assert.throws(
+      () => validateVoiceRules(raw),
+      (error: unknown) => {
+        assert.ok(error instanceof VoiceRulesError);
+        assert.match(error.message, /"status-enum-leak" must declare "ids"/);
+        // NOT the missing-rule message: the rule is present, only its ids were removed, and that
+        // earlier guard would fire on a differently broken file.
+        assert.doesNotMatch(error.message, /is missing the/);
+        return true;
+      },
+    );
+  });
+
+  it("the live file validates unchanged, so the refusal is about the removal", () => {
+    // The negative. A validator that refused everything would pass the case above, and this is
+    // also a standing check that the shipped rules file still satisfies its own schema.
+    assert.doesNotThrow(() => validateVoiceRules(live()));
   });
 });
