@@ -1,0 +1,48 @@
+# BM-05 reports no diffusion coefficient for a Cauchy step law, rather than a very large one
+# (am-nxbq, item 2: bm-05's non-numeric acceptance case, the last instrument without one).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the step-law control, set to Cauchy. It sits beside the
+# coin, uniform and Gaussian laws, so choosing it is one move on a control the reader is already on.
+#
+# WHAT THE RESULT IS. The relation this laboratory draws takes the diffusion coefficient from the
+# step law's SECOND MOMENT: D = <x^2> / (2 tau). A Cauchy step law has no finite second moment - its
+# tails fall off as 1/x^2, so the integral for <x^2> does not converge - and so it supplies no D at
+# any step interval. The evaluator reports the quantity as outside its model domain, carrying the
+# condition it states, and bm-05's manifest admits that status on this output and ONLY that status:
+# `allowedStatuses: ["outside-domain"]`, with no "value" beside it.
+#
+# THE DANGEROUS ANSWER IS A LARGE NUMBER, not an error. Sampling a Cauchy law and averaging the
+# squared steps always produces a finite number, and that number keeps growing with the sample size
+# instead of settling, so a simulation can print a diffusivity for a law that has none. A reader
+# shown one would reasonably conclude that heavy-tailed steps spread faster under the same relation.
+# They do not spread in this sense at all: there is no D for the relation to use, which is why Levy
+# transport is a different law rather than a larger constant.
+#
+# THE CONTROL IS IN THE SAME OWNER, which is why this is about the Cauchy law and not about the
+# owner. At stepRms 5e-7 m and tau 0.1 s the same call returns 1.25e-12 m^2/s for the coin law
+# (kernel 0), the uniform law (kernel 1) and the Gaussian law (kernel 3). Only kernel 4 refuses.
+id: "bm-05-cauchy-step-has-no-diffusivity"
+kind: "adversarial"
+title: "BM-05 reports no diffusivity for a Cauchy step law, rather than a very large one"
+description: "BM-05 takes the diffusion coefficient from the step law's second moment, D = <x^2> / (2 tau). A Cauchy step law's tails fall off as 1/x^2, so its second moment does not converge and it supplies no D at any step interval. Asked for one, the evaluator reports a result outside its model domain carrying the symmetric-finite-variance condition, rather than a number. At the same stepRms of 5e-7 m and tau of 0.1 s the coin, uniform and Gaussian laws all return 1.25e-12 m^2/s from this same owner, so the step law is the only thing that changed."
+plausibleMistake: "That a Cauchy step law simply diffuses very fast, so a large diffusivity conveys it. Sampling the law and averaging the squared steps always yields a finite number, and that number keeps growing with the sample size instead of settling, so a simulation can print a diffusivity for a law that has none. A reader shown such a number would reasonably conclude that heavy-tailed steps spread faster under the same relation; the truth is that this relation has no coefficient to offer, which is why Levy transport is a different law rather than a larger constant."
+intendedFailure: "The evaluator checks the step moments before forming the quotient, so no coefficient is produced for a law with no finite variance. The scenario passes only when the result arrives on cauchyDiffusion with status outside-domain and the symmetric-finite-variance condition; a run that returned a number fails here, including a very large one, and so does one that reported the non-positive step interval condition this same evaluator states and which this request does not break."
+constantSetId: "modern-si-2019"
+owner: "diffusion.kernelDiffusivityTyped"
+inputs:
+  kernel:
+    value: 4
+    unit: "1"
+  stepRms:
+    value: 5.0e-7
+    unit: "m"
+  tau:
+    value: 0.1
+    unit: "s"
+expected:
+  status:
+    outputId: "cauchyDiffusion"
+    status: "outside-domain"
+    reasonCode: "symmetric-finite-variance"
+modelVersion: 1
+schemaVersion: 1

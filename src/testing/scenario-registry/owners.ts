@@ -27,6 +27,7 @@ import { configurationVolumeTerm, decayLengths } from "../../physics/reference/d
 import {
   kernelDiffusivity,
   kernelMoments,
+  type StepKernel,
   type WalkKernel,
 } from "../../physics/reference/diffusion/walkLaws.ts";
 import {
@@ -1455,6 +1456,46 @@ const OWNERS: OwnerRecord[] = [
    * a typed refusal. Nine scenarios reference that owner, so changing what it returns is a separate
    * decision with its own evidence.
    */
+  /**
+   * THE DIFFUSIVITY A CAUCHY STEP LAW DOES NOT HAVE (am-nxbq, item 2).
+   *
+   * bm-05 is the one instrument with no resolvable NON-NUMERIC acceptance case, and it is correctly
+   * unexcused: its manifest declares `cauchyDiffusion` with `allowedStatuses: ["outside-domain"]`
+   * and nothing else, so that output can only ever be a typed no-value. A reader reaches it by
+   * choosing the Cauchy step law on the kernel control.
+   *
+   * A SECOND OWNER RATHER THAN A REPAIR TO walkKernelDiffusivity, for the same reason
+   * kinematics.gammaTyped sits beside kinematics: that function THROWS unless the diffusion is a
+   * value ("kernelDiffusivity did not return a diffusion value for a symmetric kernel"), which is
+   * correct for the symmetric kernels it is documented to serve and leaves it unable to express
+   * this refusal at all. Scenarios already reference it, so changing what it returns is a separate
+   * decision with its own evidence.
+   *
+   * THE KERNEL CODE EXTENDS walkKernelDiffusivity'S CONVENTION rather than inventing one: 0 coin,
+   * 1 uniform, 3 gaussian are WALK_KERNELS' own export-kernel-id numbers, and 4 is cauchy, which
+   * has no export-kernel id because it is not a WalkKernel. Taking a code at all is what lets ONE
+   * owner serve both the refusal and its control, and the control is the point: with codes 0, 1
+   * and 3 this same call returns 1.25e-12 m^2/s at stepRms 5e-7 and tau 0.1, so the no-value is a
+   * property of the Cauchy law rather than of this owner.
+   */
+  {
+    id: "diffusion.kernelDiffusivityTyped",
+    sourcePath: walkLawsPath,
+    fn: (ctx) => {
+      const code = num(ctx.inputs, "kernel");
+      const tau = num(ctx.inputs, "tau");
+      const kernel: StepKernel =
+        code === 4
+          ? { kind: "cauchy", scale: num(ctx.inputs, "stepRms") }
+          : {
+              kind: code === 0 ? "coin" : code === 1 ? "uniform" : "gaussian",
+              stepRms: num(ctx.inputs, "stepRms"),
+            };
+      const result = kernelDiffusivity(kernel, tau).diffusion;
+      const got = nonNumericOr(result as unknown as Record<string, unknown>, "cauchyDiffusion");
+      return typeof got === "number" ? { cauchyDiffusion: got } : got;
+    },
+  },
   {
     id: "kinematics.gammaTyped",
     sourcePath: kinematicsPath,

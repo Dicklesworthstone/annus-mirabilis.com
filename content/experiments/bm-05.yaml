@@ -508,6 +508,10 @@ actions:
 acceptanceCases:
   - bm-05-gaussian-step-diffusivity
   - bm-05-tau-outside-declared-range-refused
+  # The NON-NUMERIC case (am-nxbq, item 2). cauchyDiffusion declares allowedStatuses
+  # ["outside-domain"] and nothing else, so it can only ever be a typed no-value; this is the
+  # scenario that reaches it, by choosing the Cauchy step law on the kernel control.
+  - bm-05-cauchy-step-has-no-diffusivity
 defaultScenario: bm-05-gaussian-step-diffusivity
 tapeModel:
   modelId: bm05-host-preview-v1
