@@ -22,7 +22,17 @@ describe("massEnergy.noCircularity: non-circularity doctrine and absolute energy
   });
 
   describe("runtime circularity ban: rejection of Mc^2 and gamma Mc^2 seeds", () => {
-    it("rejects string 'Mc^2' with absolute-energy-not-admitted code and circularity message", () => {
+    /*
+     * CITED (am-r3qt). `absolute-energy-not-admitted` is raised at TWO sites - the circularity guard at
+     * :806 and the numeric-in-historical-mode guard at :814 - and a code with several sites is credited
+     * only by an explicit citation. Both were driven by this file from the day it was written and
+     * neither was cited, so both sat on the untested list while the doctrine they enforce is the one
+     * AGENTS.md names first among its prohibited circles: "Deriving mass-energy equivalence with a
+     * body-energy formula that already assumes it (initializing E0 = Mc^2 or gamma Mc^2)."
+     *
+     * Each citation proved by renaming that one site's code and confirming only its own arm reddened.
+     */
+    it("rejects string 'Mc^2' with absolute-energy-not-admitted code and circularity message (massEnergy.ts:806)", () => {
       expect(() => initializeMassEnergyLedger({ restEnergyBefore: "Mc^2" })).toThrow(
         "Circularity violation",
       );
@@ -78,7 +88,7 @@ describe("massEnergy.noCircularity: non-circularity doctrine and absolute energy
   });
 
   describe("rejection of numeric absolute rest energy in historical model", () => {
-    it("rejects literal numeric restEnergyBefore with code absolute-energy-not-admitted", () => {
+    it("rejects literal numeric restEnergyBefore with code absolute-energy-not-admitted (massEnergy.ts:814)", () => {
       expect(() => initializeMassEnergyLedger({ restEnergyBefore: 1.0 })).toThrow();
       try {
         initializeMassEnergyLedger({ restEnergyBefore: 1.0 });

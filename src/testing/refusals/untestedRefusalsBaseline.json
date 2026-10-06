@@ -129,7 +129,7 @@
   "src/physics/reference/constants.ts": 2,
   "src/physics/reference/events.ts": 0,
   "src/physics/reference/lightThread.ts": 0,
-  "src/physics/reference/massEnergy.ts": 2,
+  "src/physics/reference/massEnergy.ts": 0,
   "src/physics/reference/philox.ts": 0,
   "src/physics/reference/photoelectric.ts": 0,
   "src/physics/reference/shelfOptics.ts": 0,
