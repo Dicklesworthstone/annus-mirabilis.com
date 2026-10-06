@@ -18,6 +18,12 @@ import { executionStateKindFromHostLabel } from "../../experiments/labels/execut
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
+import {
+  type ApplyFailure,
+  applyFailure,
+  failureCode,
+  failureFromThrown,
+} from "../../experiments/results/applyFailure.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import {
@@ -69,7 +75,7 @@ export function DriftDiffusionLab({
   const [draft, setDraft] = useState(() => toBm04Draft(example.parameters));
   const [ready, setReady] = useState(false);
   const [dirty, setDirty] = useState(false);
-  const [error, setError] = useState("");
+  const [failure, setFailure] = useState<ApplyFailure | null>(null);
   const [linkNote, setLinkNote] = useState("");
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("bm-04", BM04_PROMPTS);
@@ -98,15 +104,16 @@ export function DriftDiffusionLab({
 
   function apply(parameters: Bm04Parameters) {
     const outcome = session.apply(parameters);
-    if (outcome.kind === "refused") {
-      setError(
-        typeof outcome.refusal.details?.requirements === "string"
-          ? outcome.refusal.details.requirements
-          : outcome.refusal.message,
-      );
+    if (outcome.kind !== "accepted") {
+      // THE REFUSAL IS KEPT (am-ig23): the code, the ranked repairs and the staleness marking all
+      // survived the validator and were discarded at this assignment. Widened from `=== "refused"` to
+      // `!== "accepted"` at the same time, because an execution OUTCOME previously fell through this
+      // branch and was treated as an accepted apply.
+      const failed = applyFailure(outcome);
+      if (failed) setFailure(failed);
       return;
     }
-    setError("");
+    setFailure(null);
     setDirty(false);
     setLinkNote("");
     setExportNote("");
@@ -117,14 +124,14 @@ export function DriftDiffusionLab({
     try {
       apply(fromBm04Draft(draft));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Check the entered settings.");
+      setFailure(failureFromThrown(e, "Check the entered settings."));
     }
   }
 
   function preset(parameters: Bm04Parameters) {
     setDraft(toBm04Draft(parameters));
     setDirty(true);
-    setError("");
+    setFailure(null);
   }
 
   function compareForce() {
@@ -307,7 +314,7 @@ export function DriftDiffusionLab({
         <form
           onSubmit={submit}
           aria-label="Drift-diffusion laboratory settings"
-          aria-describedby={error ? `${id}-error` : undefined}
+          aria-describedby={failure ? `${id}-error` : undefined}
         >
           <fieldset disabled={!ready}>
             <legend>Set up the experiment</legend>
@@ -370,7 +377,7 @@ export function DriftDiffusionLab({
                 </div>
               </div>
               <div className="button-row">
-                <button type="submit" disabled={!dirty && !error}>
+                <button type="submit" disabled={!dirty && !failure}>
                   Apply settings
                 </button>
                 <button
@@ -379,17 +386,45 @@ export function DriftDiffusionLab({
                   onClick={() => {
                     setDraft(toBm04Draft(example.parameters));
                     setDirty(true);
-                    setError("");
+                    setFailure(null);
                   }}
                 >
                   Reset to defaults
                 </button>
               </div>
             </ExperimentSettings>
-            {error && (
-              <p id={`${id}-error`} className="form-error" role="alert">
-                {error} {KEPT_RESULT}
-              </p>
+            {failure && (
+              /**
+               * THE TYPED SURFACE (am-ig23): the code a gate can find beside the reason a reader can
+               * read, and the ranked repairs this lab's parameter schema already supplies.
+               */
+              <div
+                id={`${id}-error`}
+                className="form-error"
+                role="alert"
+                data-refusal-code={failureCode(failure)}
+                data-apply-failure={failure.kind}
+              >
+                <p>
+                  {failure.text} {KEPT_RESULT}
+                </p>
+                {failure.kind === "refused"
+                  ? failure.refusal.rankedRepairs.map((repair) => {
+                      const action = repair.action;
+                      if (!action) return null;
+                      return (
+                        <button
+                          key={`validation-${action.parameterId}-${repair.label}`}
+                          type="button"
+                          className="secondary"
+                          onClick={() => apply({ ...p, [action.parameterId]: action.value })}
+                        >
+                          {repair.label}
+                        </button>
+                      );
+                    })
+                  : null}
+              </div>
             )}
             {linkNote && <p className="form-note">{linkNote}</p>}
             <LabTapeLink link={withPredictions(tapeLink, gate)} />

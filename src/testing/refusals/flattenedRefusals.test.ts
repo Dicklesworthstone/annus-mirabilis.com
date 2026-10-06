@@ -49,7 +49,7 @@ const ROOT = resolve(fileURLToPath(new URL("../../../", import.meta.url)));
 const CANONICAL = "src/experiments/results/refusalSentence.ts";
 
 /**
- * THE RECORDED DEBT, measured 2026-10-06 with comments blanked: 12 sites in 11 files.
+ * THE RECORDED DEBT, measured 2026-10-06 with comments blanked: 10 sites in 9 files.
  *
  * It opened at 26 in 25. Eight came off the same day, in two passes - bm05, bm07, WalkLab, InferenceLab, then
  * sr03, sr06, RodSimultaneityLab and VelocityCompositionLab - and the ratchet went RED each time, which is the
@@ -71,8 +71,6 @@ const CANONICAL = "src/experiments/results/refusalSentence.ts";
  */
 const FLATTENING_SITES: Readonly<Record<string, number>> = {
   "src/components/discover/BrownianInvestigation.tsx": 1,
-  "src/components/lab/DriftDiffusionLab.tsx": 1,
-  "src/components/lab/bm03/ConfigurationLab.tsx": 1,
   "src/components/lab/lq06/CoefficientMatchLab.tsx": 1,
   "src/components/lab/lq08/PhotoelectricLab.tsx": 1,
   "src/components/lab/lq09/IonizationLab.tsx": 1,
@@ -168,6 +166,8 @@ test("the converted paths are NOT in the list, which is what conversion looks li
     "src/components/lab/sr04/LorentzMapLab.tsx",
     "src/components/lab/WaveDescriptionLab.tsx",
     "src/components/lab/lq04/EntropyWorkbenchLab.tsx",
+    "src/components/lab/bm03/ConfigurationLab.tsx",
+    "src/components/lab/DriftDiffusionLab.tsx",
   ];
   for (const file of converted) assert.ok(!Object.keys(report.perFile).includes(file), file);
   /*
@@ -191,7 +191,7 @@ test("the recorded debt names only real files, and no duplicates", () => {
   assert.equal(new Set(names).size, names.length);
   assert.equal(
     Object.values(FLATTENING_SITES).reduce((a, b) => a + b, 0),
-    12,
+    10,
   );
   for (const name of names) assert.doesNotThrow(() => readFileSync(join(ROOT, name), "utf8"));
 });

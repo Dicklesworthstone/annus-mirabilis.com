@@ -22,6 +22,12 @@ import {
 } from "../../../experiments/bm03/session.ts";
 import { executionLabelFor } from "../../../experiments/labels/executionLabelFor.ts";
 import { executionLabelAttributes } from "../../../experiments/labels/resultAttributes.ts";
+import {
+  type ApplyFailure,
+  applyFailure,
+  failureCode,
+  failureFromThrown,
+} from "../../../experiments/results/applyFailure.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
 import { fixed, identity, numberText, readablePowers, sentenceNumber } from "../presentation.ts";
@@ -82,7 +88,7 @@ export function ConfigurationLab({
   const [draft, setDraft] = useState(() => toBm03Draft(p));
   const [ready, setReady] = useState(false);
   const [dirty, setDirty] = useState(false);
-  const [error, setError] = useState("");
+  const [failure, setFailure] = useState<ApplyFailure | null>(null);
   const [linkNote, setLinkNote] = useState("");
   const [sharedUrl, setSharedUrl] = useState("");
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
@@ -118,15 +124,16 @@ export function ConfigurationLab({
 
   function apply(parameters: Bm03Parameters) {
     const outcome = session.apply(parameters);
-    if (outcome.kind === "refused") {
-      setError(
-        typeof outcome.refusal.details?.requirements === "string"
-          ? outcome.refusal.details.requirements
-          : outcome.refusal.message,
-      );
+    if (outcome.kind !== "accepted") {
+      // THE REFUSAL IS KEPT (am-ig23): the code, the ranked repairs and the staleness marking all
+      // survived the validator and were discarded at this assignment. Widened from `=== "refused"` to
+      // `!== "accepted"` at the same time, because an execution OUTCOME previously fell through this
+      // branch and was treated as an accepted apply.
+      const failed = applyFailure(outcome);
+      if (failed) setFailure(failed);
       return;
     }
-    setError("");
+    setFailure(null);
     setDirty(false);
     setLinkNote("");
   }
@@ -136,14 +143,14 @@ export function ConfigurationLab({
     try {
       apply(fromBm03Draft(draft));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Check the entered settings.");
+      setFailure(failureFromThrown(e, "Check the entered settings."));
     }
   }
 
   function preset(parameters: Bm03Parameters) {
     setDraft(toBm03Draft(parameters));
     apply(parameters);
-    setError("");
+    setFailure(null);
   }
 
   function setStep(step: Bm03Step) {
@@ -210,7 +217,7 @@ export function ConfigurationLab({
         <form
           onSubmit={submit}
           aria-label="Configuration integral settings"
-          aria-describedby={error ? `${id}-error` : undefined}
+          aria-describedby={failure ? `${id}-error` : undefined}
         >
           <fieldset disabled={!ready}>
             <legend>Presets and parameters</legend>
@@ -365,10 +372,38 @@ export function ConfigurationLab({
               Unapplied settings. Results still describe the accepted settings shown beside them.
             </p>
           )}
-          {error && (
-            <p id={`${id}-error`} role="alert" className="notice error">
-              {error} {KEPT_RESULT}
-            </p>
+          {failure && (
+            /**
+             * THE TYPED SURFACE (am-ig23): the code a gate can find beside the reason a reader can
+             * read, and the ranked repairs this lab's parameter schema already supplies.
+             */
+            <div
+              id={`${id}-error`}
+              role="alert"
+              className="notice error"
+              data-refusal-code={failureCode(failure)}
+              data-apply-failure={failure.kind}
+            >
+              <p>
+                {failure.text} {KEPT_RESULT}
+              </p>
+              {failure.kind === "refused"
+                ? failure.refusal.rankedRepairs.map((repair) => {
+                    const action = repair.action;
+                    if (!action) return null;
+                    return (
+                      <button
+                        key={`validation-${action.parameterId}-${repair.label}`}
+                        type="button"
+                        className="secondary"
+                        onClick={() => apply({ ...p, [action.parameterId]: action.value })}
+                      >
+                        {repair.label}
+                      </button>
+                    );
+                  })
+                : null}
+            </div>
           )}
         </form>
         <AcceptedStatus

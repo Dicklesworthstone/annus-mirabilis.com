@@ -361,8 +361,8 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
    * The labs whose FORM-validation refusal renders the typed surface, measured 2026-10-06 by the sweep
    * above and written down afterwards, not predicted.
    *
-   * Eleven, and they correspond one-for-one with the source files carrying `data-apply-failure`:
-   * TracerLab (bm-01), WalkLab (bm-05), BrownianLab (bm-06), InferenceLab (bm-07), CameraLab (bm-08),
+   * Thirteen, and they correspond one-for-one with the source files carrying `data-apply-failure`:
+   * TracerLab (bm-01), ConfigurationLab (bm-03), DriftDiffusionLab (bm-04), WalkLab (bm-05), BrownianLab (bm-06), InferenceLab (bm-07), CameraLab (bm-08),
    * WaveDescriptionLab (lq-01), SpectrumLab (lq-03),
    * EntropyWorkbenchLab (lq-04), RodSimultaneityLab (sr-03), LorentzMapLab (sr-04) and
    * VelocityCompositionLab (sr-06). That correspondence is the point - it
@@ -375,6 +375,8 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
    */
   const RECORDED_TYPED_SURFACE = [
     "bm-01",
+    "bm-03",
+    "bm-04",
     "bm-05",
     "bm-06",
     "bm-07",
