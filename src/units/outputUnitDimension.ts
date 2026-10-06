@@ -38,7 +38,7 @@ import {
 } from "../content/schemas/dimensionBasis.ts";
 
 /** [length, mass, time, temperature, current, amount] — DIMENSION_BASIS order, not qty.ts's. */
-type Exponents = readonly [number, number, number, number, number, number];
+export type Exponents = readonly [number, number, number, number, number, number];
 
 const Z: Exponents = [0, 0, 0, 0, 0, 0];
 const add = (a: Exponents, b: Exponents, times: number): Exponents =>

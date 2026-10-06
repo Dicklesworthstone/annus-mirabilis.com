@@ -17,6 +17,7 @@ import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  type Exponents,
   exponentsEqual,
   formatExponents,
   registryExponents,
@@ -24,7 +25,7 @@ import {
 } from "./outputUnitDimension.ts";
 
 /** Expect a parse and return its exponents, so a case never asserts against an unparsed result. */
-function dim(unit: string): readonly number[] {
+function dim(unit: string): Exponents {
   const result = unitDimension(unit);
   if (result.kind !== "dimension")
     throw new Error(`${JSON.stringify(unit)} did not parse: ${result.token} (${result.reason})`);
