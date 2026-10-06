@@ -123,7 +123,7 @@
   "src/experiments/permalink/schema.ts": 0,
   "src/experiments/shelf/definition.ts": 1,
   "src/experiments/shelf/session.ts": 2,
-  "src/experiments/shelf/settings.ts": 2,
+  "src/experiments/shelf/settings.ts": 1,
   "src/experiments/tapes/replayer.ts": 0,
   "src/experiments/weave/pointerVoice.ts": 2,
   "src/physics/reference/constants.ts": 2,
