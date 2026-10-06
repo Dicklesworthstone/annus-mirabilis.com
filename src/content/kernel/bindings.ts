@@ -208,4 +208,9 @@ export function checkIndependentReferences(
   return issues;
 }
 
-export { checkTraceRowCount, checkTraceScenario } from "./traceValidation.ts";
+export {
+  type ComputedQuantity,
+  checkTraceRowCount,
+  checkTraceScenario,
+  checkTraceValues,
+} from "./traceValidation.ts";

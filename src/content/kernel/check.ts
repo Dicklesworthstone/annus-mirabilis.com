@@ -4,11 +4,13 @@ import { type Expression, walk } from "../../equations/ast.ts";
 import { type CheckContext, registerCheck } from "../compiler/checks/registry.ts";
 import type { IdentifierBinding, KernelFunctionRef } from "../schemas/experiment.ts";
 import {
+  type ComputedQuantity,
   checkIdentifierBindings,
   checkIndependentReferences,
   checkLiveTermBindings,
   checkTraceRowCount,
   checkTraceScenario,
+  checkTraceValues,
   validateDisplayRole,
 } from "./bindings.ts";
 import { SLICE_KERNEL_CATALOG } from "./catalog.ts";
@@ -26,6 +28,50 @@ function quantityIdsFromTree(tree: unknown): string[] {
   } catch {
     return [];
   }
+}
+
+/**
+ * The quantities an instrument's own generated worked example computed, keyed by quantity id.
+ *
+ * `src/generated/<lab without its hyphen>-example.json` is what the lab displays beside the trace, so
+ * it is the thing a trace row has to agree with. Its `results` are JSON strings, one per output. A
+ * missing file is not an error here: six of the eighteen manifests that carry trace rows have no
+ * generated example, and `checkTraceValues` counts those rows as not-computed rather than failing them.
+ */
+function computedExampleQuantities(
+  root: string,
+  instrumentId: string,
+): Map<string, ComputedQuantity> {
+  const out = new Map<string, ComputedQuantity>();
+  const path = resolve(root, "src/generated", `${instrumentId.replace("-", "")}-example.json`);
+  let text: string;
+  try {
+    text = readFileSync(path, "utf8");
+  } catch {
+    return out;
+  }
+  let parsed: { results?: unknown };
+  try {
+    parsed = JSON.parse(text) as { results?: unknown };
+  } catch {
+    return out;
+  }
+  if (!Array.isArray(parsed.results)) return out;
+  for (const row of parsed.results) {
+    if (typeof row !== "string") continue;
+    let value: { quantityId?: unknown; value?: unknown; unit?: unknown };
+    try {
+      value = JSON.parse(row) as typeof value;
+    } catch {
+      continue;
+    }
+    if (typeof value.quantityId !== "string" || typeof value.value !== "number") continue;
+    out.set(value.quantityId, {
+      value: value.value,
+      ...(typeof value.unit === "string" ? { unit: value.unit } : {}),
+    });
+  }
+  return out;
 }
 
 function asOwner(value: unknown): Record<string, unknown> | null {
@@ -74,6 +120,15 @@ export function liveTermsFromRecords(
 }
 
 export function runKernelIdentifierCheck(context: CheckContext, root = process.cwd()): void {
+  const traceValueCensus = {
+    rows: 0,
+    comparable: 0,
+    agree: 0,
+    notComputed: 0,
+    unitMismatch: 0,
+    noQuantityId: 0,
+    notNumeric: 0,
+  };
   for (const [key, value] of context.records.entries()) {
     const owner = asOwner(value);
     if (!owner) continue;
@@ -247,8 +302,35 @@ export function runKernelIdentifierCheck(context: CheckContext, root = process.c
       for (const issue of checkTraceRowCount(instrumentId, "owner", owner.traceRows.length)) {
         context.report({ recordId: instrumentId, rule: issue.code, message: issue.message });
       }
+      // A trace row is reader-facing arithmetic that nothing recomputed until 2026-10-05, when BM-04
+      // was found showing a Stokes mobility a thousand times its own worked example's. The census is
+      // accumulated across instruments and printed once by the caller, because 7 comparable rows of
+      // 23 reporting no error reads exactly like 23 of 23.
+      const { issues, census } = checkTraceValues(
+        instrumentId,
+        owner.traceRows as readonly { quantityId?: string; value?: unknown; unit?: string }[],
+        computedExampleQuantities(root, instrumentId),
+      );
+      traceValueCensus.rows += census.rows;
+      traceValueCensus.comparable += census.comparable;
+      traceValueCensus.agree += census.agree;
+      traceValueCensus.notComputed += census.notComputed;
+      traceValueCensus.unitMismatch += census.unitMismatch;
+      traceValueCensus.noQuantityId += census.noQuantityId;
+      traceValueCensus.notNumeric += census.notNumeric;
+      for (const issue of issues) {
+        context.report({ recordId: instrumentId, rule: issue.code, message: issue.message });
+      }
     }
   }
+  console.log(
+    `[kernel-trace-values] ${traceValueCensus.comparable} of ${traceValueCensus.rows} trace rows ` +
+      `compared against their instrument's own worked example, ${traceValueCensus.agree} agree; ` +
+      `skipped ${traceValueCensus.notComputed} with no computed quantity, ` +
+      `${traceValueCensus.unitMismatch} on a unit mismatch, ` +
+      `${traceValueCensus.noQuantityId} naming no quantity, ` +
+      `${traceValueCensus.notNumeric} with no finite value (am-1nnj)`,
+  );
 }
 
 export function registerKernelBindingCheck(): void {

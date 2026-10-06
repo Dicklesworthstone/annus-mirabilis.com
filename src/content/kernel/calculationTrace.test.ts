@@ -9,7 +9,7 @@ import {
   printedBrownianConstantSet,
   renderTraceMarkup,
 } from "./trace.ts";
-import { checkTraceRowCount, checkTraceScenario } from "./traceValidation.ts";
+import { checkTraceRowCount, checkTraceScenario, checkTraceValues } from "./traceValidation.ts";
 import { KERNEL_BEAD_ID, MAX_TRACE_ROWS } from "./types.ts";
 
 const logger = getLogger("show-the-code");
@@ -190,5 +190,154 @@ describe("calculation traces", () => {
       outcome: "passed",
       message: "Trace rows use equation role tokens and link opId to operation explanations",
     });
+  });
+});
+
+/**
+ * A SHOWN TRACE ROW AGAINST WHAT THE INSTRUMENT COMPUTES (am-1nnj, 2026-10-05).
+ *
+ * The plant here is the HISTORICAL BUG, not an invented one. BM-04's manifest showed a Stokes mobility
+ * of 1.057754e11 kg-1 s while src/generated/bm04-example.json, generated from the same defaults,
+ * computes 105891512.36985718 - a thousand times out, contradicting the diffusivity row beside it, and
+ * written exactly once in the repository so no test pinned it. Nothing recomputed a trace row at all:
+ * the schema caps traceRows at 12 and validates no number in one.
+ *
+ * So the first test below is the defect, verbatim, with the real numbers. If `checkTraceValues` is ever
+ * loosened, this is what goes red.
+ */
+describe("a trace row against the instrument's own worked example", () => {
+  const COMPUTED_BM04 = new Map([
+    ["mobility", { value: 105891512.36985718, unit: "kg-1 s" }],
+    ["diffusionCoefficient", { value: 4.2858239975545054e-13, unit: "m2/s" }],
+    ["osmoticDecayLength", { value: 9.999998872107906e-7, unit: "m" }],
+  ]);
+
+  test("PLANTED, the historical defect: BM-04's 1.057754e11 mobility is refused and named", () => {
+    const { issues, census } = checkTraceValues(
+      "bm-04",
+      [{ label: "Stokes mobility", value: 1.057754e11, unit: "kg-1 s", quantityId: "mobility" }],
+      COMPUTED_BM04,
+    );
+    expect(census.comparable).toBe(1);
+    expect(census.agree).toBe(0);
+    expect(issues).toHaveLength(1);
+    expect(issues[0]?.code).toBe("trace-row-disagrees-with-example");
+    // The message carries both numbers, because a reader of the failure has to see which is which.
+    expect(issues[0]?.message).toContain("1.057754e+11");
+    expect(issues[0]?.message).toContain("105891512.36985718");
+    expect(issues[0]?.message).toContain("Stokes mobility");
+  });
+
+  test("the repaired value passes, so the check is not simply refusing every row", () => {
+    const { issues, census } = checkTraceValues(
+      "bm-04",
+      [
+        { label: "Stokes mobility", value: 1.058915e8, unit: "kg-1 s", quantityId: "mobility" },
+        {
+          label: "Diffusivity at m = 1",
+          value: 4.285824e-13,
+          unit: "m2/s",
+          quantityId: "diffusionCoefficient",
+        },
+      ],
+      COMPUTED_BM04,
+    );
+    expect(census.comparable).toBe(2);
+    expect(census.agree).toBe(2);
+    expect(issues).toEqual([]);
+  });
+
+  test("the OTHER historical half: the diffusivity row was 0.11 percent out and that is refused too", () => {
+    // Not a rounding difference, and worth its own arm: 4.280967e-13 was the value the manifest
+    // carried, and it is 1.1e-3 relative from the computed one, a hundred times the tolerance. A check
+    // whose tolerance was set loosely enough to admit it would have passed the whole defect.
+    const { issues } = checkTraceValues(
+      "bm-04",
+      [
+        {
+          label: "Diffusivity at m = 1",
+          value: 4.280967e-13,
+          unit: "m2/s",
+          quantityId: "diffusionCoefficient",
+        },
+      ],
+      COMPUTED_BM04,
+    );
+    expect(issues).toHaveLength(1);
+    expect(issues[0]?.code).toBe("trace-row-disagrees-with-example");
+  });
+
+  test("seven-figure rounding of the real computed values agrees, so the tolerance is usable", () => {
+    // The tolerance has to admit what the convention actually writes. osmoticDecayLength rounded to
+    // 1.000000e-6 from 9.999998872107906e-7 is the manifest's own form and must not be a finding.
+    const { census, issues } = checkTraceValues(
+      "bm-04",
+      [
+        {
+          label: "Osmotic decay length",
+          value: 1.0e-6,
+          unit: "m",
+          quantityId: "osmoticDecayLength",
+        },
+      ],
+      COMPUTED_BM04,
+    );
+    expect(census.agree).toBe(1);
+    expect(issues).toEqual([]);
+  });
+
+  describe("every reason a row is skipped is counted rather than passed over", () => {
+    test("a row naming a quantity the example did not compute", () => {
+      const { census, issues } = checkTraceValues(
+        "bm-04",
+        [{ label: "x", value: 1, unit: "m", quantityId: "notComputedHere" }],
+        COMPUTED_BM04,
+      );
+      expect(census).toMatchObject({ rows: 1, comparable: 0, notComputed: 1 });
+      expect(issues).toEqual([]);
+    });
+
+    test("a row whose unit differs, which may be a display unit and is not a disagreement", () => {
+      const { census, issues } = checkTraceValues(
+        "bm-04",
+        [{ label: "x", value: 1, unit: "fN", quantityId: "mobility" }],
+        COMPUTED_BM04,
+      );
+      expect(census).toMatchObject({ comparable: 0, unitMismatch: 1 });
+      expect(issues).toEqual([]);
+    });
+
+    test("a row with no quantityId, and a row with no finite value", () => {
+      const a = checkTraceValues("bm-04", [{ label: "x", value: 1, unit: "m" }], COMPUTED_BM04);
+      expect(a.census).toMatchObject({ comparable: 0, noQuantityId: 1 });
+      const b = checkTraceValues(
+        "bm-04",
+        [{ label: "x", value: Number.NaN, unit: "kg-1 s", quantityId: "mobility" }],
+        COMPUTED_BM04,
+      );
+      expect(b.census).toMatchObject({ comparable: 0, notNumeric: 1 });
+      // A NaN is skipped rather than reported, which is a hole worth naming: it cannot be compared,
+      // and the schema is what should refuse it. Asserted so that closing it is a visible change.
+      expect(b.issues).toEqual([]);
+    });
+
+    test("no rows at all reports a comparable count of zero, never a clean pass", () => {
+      const { census, issues } = checkTraceValues("bm-04", [], COMPUTED_BM04);
+      expect(census).toMatchObject({ rows: 0, comparable: 0, agree: 0 });
+      expect(issues).toEqual([]);
+      // The caller prints this census beside its verdict for exactly this reason: an empty population
+      // and a clean one are the same empty issue list, and only the count tells them apart.
+    });
+  });
+
+  test("a true zero is compared absolutely, not relatively", () => {
+    // A relative tolerance is unusable at zero: every nonzero row would be infinitely far from it.
+    const computed = new Map([["z", { value: 0, unit: "1" }]]);
+    expect(
+      checkTraceValues("zz-01", [{ value: 0, unit: "1", quantityId: "z" }], computed).issues,
+    ).toEqual([]);
+    expect(
+      checkTraceValues("zz-01", [{ value: 1e-3, unit: "1", quantityId: "z" }], computed).issues,
+    ).toHaveLength(1);
   });
 });
