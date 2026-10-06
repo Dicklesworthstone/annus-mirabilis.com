@@ -10,6 +10,8 @@ import { LQ06_DEFAULTS } from "../../experiments/lq06/definition.ts";
 import { lq06Outputs } from "../../experiments/lq06/session.ts";
 import { LQ07_DEFAULTS } from "../../experiments/lq07/definition.ts";
 import { evaluateLq07 } from "../../experiments/lq07/session.ts";
+import { LQ08_DEFAULTS } from "../../experiments/lq08/definition.ts";
+import { evaluateLq08 } from "../../experiments/lq08/session.ts";
 import { ME01_DEFAULTS } from "../../experiments/me01/definition.ts";
 import { snapshotOutputs as me01SnapshotOutputs } from "../../experiments/me01/session.ts";
 import { ME03_DEFAULTS } from "../../experiments/me03/definition.ts";
@@ -1665,6 +1667,40 @@ const OWNERS: OwnerRecord[] = [
    * the share is computed FROM the two energies and reporting it beside a different pair would be a
    * different claim.
    */
+  /**
+   * THE PHOTOELECTRIC APPARATUS, ENERGY AND NUMBER TOGETHER (am-nxbq, item 1).
+   *
+   * LQ-08 asks "What changes the energy of the emitted electrons, and what changes their number?", and
+   * the answer is only visible when both are read from the SAME evaluation: brighter light multiplies
+   * the number and leaves the energy exactly where it was. An owner returning one of them could not
+   * state that, and two owners evaluated separately would not be the same apparatus.
+   *
+   * The order of the fields is deliberate. Below the threshold frequency the kinetic energy is the
+   * first thing that stops being a number, so a sub-threshold scenario gets its refusal named on
+   * maxKineticEnergy, which is upstream of the stopping potential and is where the model's claim
+   * actually bites.
+   */
+  {
+    id: "lq08.session",
+    sourcePath: fileURLToPath(new URL("../../experiments/lq08/session.ts", import.meta.url)),
+    fn: (ctx) => {
+      const outputs = evaluateLq08({ ...LQ08_DEFAULTS, ...ctx.inputs });
+      const numbers: Record<string, number> = {};
+      for (const quantityId of [
+        "quantumEnergy",
+        "maxKineticEnergy",
+        "stoppingPotentialMagnitude",
+        "quantumRate",
+        "emissionRate",
+        "photocurrent",
+      ]) {
+        const got = sessionOutputsOf(outputs, quantityId);
+        if (isOwnerRefusal(got)) return got;
+        Object.assign(numbers, got);
+      }
+      return numbers;
+    },
+  },
   {
     id: "lq02.allocation",
     sourcePath: fileURLToPath(new URL("../../experiments/lq02/session.ts", import.meta.url)),

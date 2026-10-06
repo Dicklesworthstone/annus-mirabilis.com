@@ -1,0 +1,73 @@
+# BRIGHTER LIGHT CHANGES THE NUMBER AND NOT THE ENERGY (am-nxbq, item 1).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the incident power, raised tenfold from LQ-08's default of
+# 1 microwatt. Nothing else is touched.
+#
+# THIS IS THE LABORATORY'S OWN QUESTION, ANSWERED IN NUMBERS. LQ-08 asks "What changes the energy of the
+# emitted electrons, and what changes their number?" Ten times the power delivers ten times as many
+# quanta of the SAME energy, so ten times as many electrons leave, each with exactly the energy it had
+# before. The quantum rate, the emission rate and the photocurrent all multiply by ten; the maximum
+# kinetic energy and the stopping potential do not move at all.
+#
+# WHY THIS IS THE PAPER'S SHARPEST POINT. On a wave account the energy a surface absorbs is spread over
+# the surface and accumulates, so a brighter beam delivers more energy per electron and the stopping
+# potential should rise with the intensity. Section 8 of paper 1 says it should not: the energy of one
+# emitted electron is set by the energy of ONE quantum, h nu less the work function, and the intensity
+# only counts how many quanta arrive. The two accounts differ by a measurement a reader can take here in
+# one click, which is why the invariance is worth pinning as an exact equality rather than described.
+#
+# WHAT IT IS AND IS NOT EVIDENCE FOR. The instrument is programmed with the quantum hypothesis, so this
+# demonstrates a CONSEQUENCE of the hypothesis and not a fact about nature. The observation that settles
+# it is Lenard's, which paper 1 cites, and later Millikan's 1916 measurement, which is dated later
+# evidence; AGENTS.md's rule against treating a simulator as experimental proof applies to this record
+# exactly as it does to the ones it sits beside.
+id: "photoelectric-power-energy-invariance"
+kind: "modern-golden"
+title: "LQ-08: ten times the power gives ten times the current and the same stopping potential"
+description: "Raising the incident power from 1 to 10 microwatt at 600 THz on a 2.2 eV surface multiplies the quantum rate, the emission rate and the photocurrent by exactly ten, and leaves the maximum kinetic energy at 4.5085e-20 J and the stopping potential at 0.281401 V, byte for byte unchanged. The energy of an emitted electron is set by one quantum and the intensity only counts how many arrive, which is the claim a wave account of absorption denies."
+constantSetId: "modern-si-2019"
+owner: "lq08.session"
+inputs:
+  incidentPower:
+    value: 0.01
+    unit: "W"
+  frequency:
+    value: 6.0e14
+    unit: "Hz"
+  workFunction:
+    value: 2.2
+    unit: "eV"
+  quantumEfficiency:
+    value: 0.1
+    unit: "1"
+  collectorPotential:
+    value: 0
+    unit: "V"
+expected:
+  outputs:
+    - outputId: stoppingPotentialMagnitude
+      value: 0.28140061815431494
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The value at one tenth this power, unchanged. The equality with the default-power reading is the assertion; any power dependence here would be a wave account of absorption smuggled into a quantum one."
+    - outputId: maxKineticEnergy
+      value: 4.508534951999996e-20
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "h nu less the work function, which carries no power term. Unchanged for the same reason as the line above."
+    - outputId: photocurrent
+      value: 0.00040299820701415306
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Exactly ten times the 4.0299820701415306e-5 A at one microwatt, because the quantum rate is the power over the quantum energy and the efficiency and charge are unchanged."
+    - outputId: emissionRate
+      value: 2515316966070253.5
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Ten times the rate at one microwatt, to the last bit: the only factor that changed is the power."
+modelVersion: 1
+schemaVersion: 1

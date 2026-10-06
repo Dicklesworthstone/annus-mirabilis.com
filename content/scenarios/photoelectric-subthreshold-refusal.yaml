@@ -1,0 +1,56 @@
+# THE QUANTA KEEP ARRIVING AND NO ELECTRON LEAVES (am-nxbq, items 2 and 3).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the frequency, lowered to 300 THz on LQ-08's default 2.2 eV
+# surface, whose threshold is 532 THz. The light is still there and the lamp is no dimmer.
+#
+# HOW THIS DIFFERS FROM lq-08-below-threshold-no-stopping-potential, WHICH EXISTS AND IS NOT THIS. That
+# record pins the STOPPING POTENTIAL as not applicable. This one pins the quantity upstream of it, the
+# maximum kinetic energy, which is where the model's claim is actually made: h nu is less than the work
+# function, so there is no energy left over, and every quantity derived from it inherits that rather
+# than deciding it independently. The pair is deliberate, because a reader who sees only the voltage
+# refused might think the apparatus failed to measure something that happened.
+#
+# THE NUMBERS BESIDE THE REFUSAL ARE THE POINT OF THE EXPERIMENT. At 300 THz the quantum rate is
+# 5.03e15 per second - HIGHER than at the default 600 THz, because the same power in smaller quanta is
+# more of them - while the emission rate and the photocurrent are exactly zero. More light, more quanta,
+# and nothing comes off. On a wave account that is very hard to arrange: energy arriving steadily on a
+# surface should eventually accumulate to the work function on some electron, and waiting longer should
+# work. The quantum account says the accumulation never happens because the transaction is one quantum
+# to one electron, and this setting is where the two accounts visibly separate.
+#
+# THE ZEROS ARE VALUES AND THE ENERGY IS NOT. That asymmetry is deliberate and is the honest shape: the
+# number of electrons leaving per second is a well-defined quantity whose value is zero, while the
+# maximum kinetic energy of an emitted electron is not a quantity at all when none is emitted. Reporting
+# the energy as zero would say electrons arrive with nothing to spare, which is the measurement at
+# exactly the threshold and is a different case.
+id: "photoelectric-subthreshold-refusal"
+kind: "adversarial"
+title: "LQ-08 below threshold: no kinetic energy to report, while the quanta arrive faster than ever"
+description: "At 300 THz on a 2.2 eV surface, below the 532 THz threshold, one quantum carries 1.99e-19 J against a work function of 3.52e-19 J. The maximum kinetic energy of an emitted electron is reported as not applicable, because no electron is emitted, while the quantum rate is 5.03e15 per second, higher than at twice the frequency, and the emission rate and photocurrent are exactly zero. More light, more quanta, and nothing comes off."
+plausibleMistake: "That light below the threshold is simply weak light, so a longer exposure or a brighter lamp should eventually free an electron. That is what an account in which energy accumulates on the surface predicts, and it is the natural reading of a maximum kinetic energy reported as zero: zero suggests a quantity that could be made positive by turning something up. The model's claim is stronger and stranger, that the energy of one electron is settled by one quantum, so no amount of waiting and no amount of brightness changes the answer."
+intendedFailure: "The kinetic energy is typed as not applicable before any stopping potential is derived from it, so no zero energy and no zero volts reach the page as though they had been measured. The scenario passes only when that status arrives on the maximum kinetic energy; a run returning 0 fails here, and so does one reporting the result as outside the model's domain, which would say the question is unanswerable rather than that the model answers it with nothing."
+constantSetId: "modern-si-2019"
+owner: "lq08.session"
+inputs:
+  incidentPower:
+    value: 0.001
+    unit: "W"
+  frequency:
+    value: 3.0e14
+    unit: "Hz"
+  workFunction:
+    value: 2.2
+    unit: "eV"
+  quantumEfficiency:
+    value: 0.1
+    unit: "1"
+  collectorPotential:
+    value: 0
+    unit: "V"
+expected:
+  status:
+    outputId: "maxKineticEnergy"
+    status: "not-applicable"
+    reasonCode: "not-applicable"
+modelVersion: 1
+schemaVersion: 1
