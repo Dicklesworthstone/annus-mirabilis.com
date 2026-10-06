@@ -1,0 +1,29 @@
+.capstone-worksheet { margin-block: 3rem; border-top: 1px solid currentColor; padding-block: 1.5rem; }
+.capstone-worksheet *, .capstone-worksheet *::before, .capstone-worksheet *::after { box-sizing: border-box; }
+.capstone-toolbar { display: flex; flex-wrap: wrap; gap: .6rem; margin-block: 1rem; align-items: center; }
+.capstone-worksheet button { min-height: 2.75rem; padding: .4rem .7rem; }
+.capstone-worksheet [aria-disabled="true"] { opacity: .6; cursor: default; }
+.capstone-worksheet textarea, .capstone-table-row input { display: block; width: 100%; max-width: 100%; font: inherit; padding: .5rem; }
+.capstone-worksheet textarea { resize: vertical; }
+.capstone-worksheet input[type="file"] { min-width: 0; max-width: 100%; }
+.capstone-worksheet h3 { margin-top: 2rem; }
+.capstone-assumption-fields, .capstone-table-row { min-width: 0; margin-block: 1rem; padding: .75rem; }
+.capstone-assumption-fields label { display: flex; gap: .6rem; padding-block: .5rem; align-items: start; }
+.capstone-assumption-fields input { flex-shrink: 0; margin-top: .35rem; }
+.capstone-assumption-fields span { min-width: 0; }
+.capstone-table-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: .5rem; }
+.capstone-drawing-box { min-height: 10rem; border: 1px solid currentColor; margin-block: 1rem; }
+.capstone-print-text, .capstone-print-table { display: none; }
+.capstone-worksheet p, .capstone-worksheet label { overflow-wrap: break-word; }
+@media print {
+  .capstone-controls, .capstone-worksheet input, .capstone-worksheet textarea { display: none !important; }
+  .capstone-page[data-print-worksheet] > .capstone-reference { display: none; }
+  .capstone-worksheet { border: 0; margin: 0; padding: 0; color: black; background: white; }
+  .capstone-print-text { display: block; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .capstone-assumption-fields .capstone-print-text { display: inline; }
+  .capstone-print-table { display: table; width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .capstone-print-table td { border: 1px solid black; padding: .3rem; overflow-wrap: anywhere; white-space: pre-wrap; }
+  .capstone-worksheet h3, .capstone-worksheet h4 { break-after: avoid; }
+  .capstone-worksheet .capstone-math, .capstone-worksheet .capstone-drawing-box { break-inside: avoid; }
+  .capstone-worksheet a::after { content: " (" attr(href) ")"; font-size: .8em; overflow-wrap: anywhere; }
+}
