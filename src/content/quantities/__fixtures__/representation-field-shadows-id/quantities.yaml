@@ -1,0 +1,21 @@
+# Defect fixture: a representationFields entry naming an id that the registry also declares.
+# registry.ts's SECOND pass must reject this, and the shadowed id is declared in a LATER record
+# than the one declaring the representation field, which is the ordering the second pass exists
+# for: a single-pass check would have accepted this file because exampleShadowedField had not
+# loaded yet when exampleShadowingQuantity was read.
+- id: exampleShadowingQuantity
+  name: Example shadowing quantity (defect fixture)
+  description: Declares a representation field whose name is also a registry id declared below.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  representationFields: [exampleShadowedField]
+
+- id: exampleShadowedField
+  name: Example shadowed field (defect fixture)
+  description: A real quantity whose id collides with the representation field declared above.
+  dimensionStatus: declared
+  dimension: [0, 0, 1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable

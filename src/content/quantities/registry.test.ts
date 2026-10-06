@@ -68,6 +68,57 @@ describe("registry loads and every record validates", () => {
     }
   });
 
+  test("reject: (registry.ts:133) throws duplicate-id when one id is declared twice", () => {
+    // The fixture has existed since the registry landed and was driven only through a
+    // SUBPROCESS, by generateQuantityIds.e2e.test.ts asserting the --check exit code. That
+    // proves the script refuses; it cannot prove the loader does, and an in-process caller is
+    // what every other reader of this registry is.
+    const fixtureDir = new URL("./__fixtures__/duplicate-id", import.meta.url).pathname;
+    try {
+      loadQuantityRegistry(fixtureDir);
+      throw new Error("expected throw");
+    } catch (err) {
+      expect(err).toBeInstanceOf(QuantityRegistryError);
+      expect((err as QuantityRegistryError).code).toBe("duplicate-id");
+      expect((err as QuantityRegistryError).message).toContain("exampleDuplicateQuantity");
+      // NOT the shadowing refusal below: both are thrown by this loader and both name an id.
+      expect((err as QuantityRegistryError).code).not.toBe("representation-field-shadows-id");
+    }
+  });
+
+  test("reject: (registry.ts:145) throws representation-field-shadows-id for a field naming a later id", () => {
+    // The fixture declares the shadowed id AFTER the record that names it as a representation
+    // field, which is the ordering the loader's second pass exists for: a single-pass check
+    // would accept this file because the shadowed id has not loaded yet when the field is read.
+    const fixtureDir = new URL("./__fixtures__/representation-field-shadows-id", import.meta.url)
+      .pathname;
+    try {
+      loadQuantityRegistry(fixtureDir);
+      throw new Error("expected throw");
+    } catch (err) {
+      expect(err).toBeInstanceOf(QuantityRegistryError);
+      expect((err as QuantityRegistryError).code).toBe("representation-field-shadows-id");
+      expect((err as QuantityRegistryError).message).toContain("exampleShadowedField");
+      expect((err as QuantityRegistryError).message).toContain("exampleShadowingQuantity");
+    }
+  });
+
+  test("a representation field that shadows nothing loads, so the refusal is about collision", () => {
+    // The negative RH-5 asks for: a loader that refused every representationFields entry would
+    // pass both cases above. The real registry declares representation fields (lnW, log10W on
+    // configurationProbability) and loads, so the second pass discriminates rather than forbids.
+    const registry = getQuantityRegistry();
+    const withFields = [...registry.quantities.values()].filter(
+      (q) => (q.representationFields ?? []).length > 0,
+    );
+    expect(withFields.length).toBeGreaterThan(0);
+    for (const q of withFields) {
+      for (const rep of q.representationFields ?? []) {
+        expect(isRegisteredQuantityId(rep)).toBe(false);
+      }
+    }
+  });
+
   test("reject: (registry.ts:82) throws frame-suffix-mismatch when quantity id suffix disagrees with frame field", () => {
     const fixtureDir = new URL("./__fixtures__/frame-suffix-mismatch", import.meta.url).pathname;
     try {

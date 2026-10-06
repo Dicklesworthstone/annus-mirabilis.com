@@ -67,7 +67,7 @@
   "src/content/owners/parseOwners.ts": 0,
   "src/content/provenance/surveySchema.ts": 0,
   "src/content/provenance/writeGeneratedSection.ts": 1,
-  "src/content/quantities/registry.ts": 2,
+  "src/content/quantities/registry.ts": 0,
   "src/content/revisions.ts": 0,
   "src/content/schemas/argument.ts": 0,
   "src/content/schemas/authorship.ts": 0,
