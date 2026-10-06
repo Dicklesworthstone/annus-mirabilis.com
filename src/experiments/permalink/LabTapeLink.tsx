@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { type DraftTapeBinding, draftTapeForSettings, loadDraftTapeFromUrl } from "./draftTape.ts";
+import { ExperimentRecorder } from "./ExperimentRecorder.tsx";
 import { ShareControl } from "./ShareControl.tsx";
 import {
   type LabTapeBinding,
@@ -23,6 +24,8 @@ import { WalkthroughPlayer } from "./WalkthroughPlayer.tsx";
 export type LabTapeLinkState = Readonly<{
   notice: string;
   shareTape: TapeV2 | null;
+  /** A fresh accepted-settings snapshot, separate from an authored checkpoint retained for sharing. */
+  recordingTape?: TapeV2 | null | undefined;
   /** A link read without fault, said plainly rather than as an error (a worker lab's loaded form). */
   note?: string | undefined;
   walkthrough?: WalkthroughTarget | undefined;
@@ -68,11 +71,11 @@ export function useLabTapeLink<P extends object>(
   useEffect(() => {
     if (checkpointShare && !sharedCheckpoint) setCheckpointShare(null);
   }, [checkpointShare, sharedCheckpoint]);
-  const shareTape = useMemo(
-    () => sharedCheckpoint ?? (enabled && acceptedParameters
-      ? tapeForSettings(binding, acceptedParameters) : null),
-    [binding, acceptedParameters, enabled, sharedCheckpoint],
+  const recordingTape = useMemo(
+    () => enabled && acceptedParameters ? tapeForSettings(binding, acceptedParameters) : null,
+    [binding, acceptedParameters, enabled],
   );
+  const shareTape = sharedCheckpoint ?? recordingTape;
   const walkthrough = useMemo<WalkthroughTarget | undefined>(() => enabled ? {
     kind: "session",
     experimentId: binding.environment.experimentId,
@@ -106,7 +109,7 @@ export function useLabTapeLink<P extends object>(
       return { kind: "calculated" };
     },
   } : undefined, [binding, session, enabled]);
-  return { notice, shareTape, walkthrough };
+  return { notice, shareTape, recordingTape, walkthrough };
 }
 
 /**
@@ -161,7 +164,7 @@ export function useDraftTapeLink(
       return { kind: "loaded" };
     },
   } : undefined, [binding, enabled]);
-  return { notice, shareTape, note, walkthrough };
+  return { notice, shareTape, recordingTape: shareTape, note, walkthrough };
 }
 
 /**
@@ -189,6 +192,10 @@ export function LabTapeLink({ link }: Readonly<{ link: LabTapeLinkState }>) {
       )}
       {link.walkthrough && <p><a href="/tapes/">Read recorded walkthroughs</a></p>}
       {hydrated && link.walkthrough && <WalkthroughPlayer key={link.walkthrough.experimentId} target={link.walkthrough} />}
+      {hydrated && link.walkthrough && (
+        <ExperimentRecorder key={`recording-${link.walkthrough.experimentId}`}
+          target={link.walkthrough} tape={link.recordingTape ?? null} />
+      )}
       {hydrated && link.shareTape && <ShareControl tape={link.shareTape} />}
     </>
   );

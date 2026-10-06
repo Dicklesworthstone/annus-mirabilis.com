@@ -1,0 +1,37 @@
+.experiment-recorder fieldset {
+  min-width: 0;
+  margin-block: 1rem;
+}
+.experiment-recorder label {
+  display: block;
+  margin-block-start: 0.75rem;
+}
+.experiment-recorder input,
+.experiment-recorder select,
+.experiment-recorder textarea {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  color: var(--ink);
+  background: var(--panel);
+}
+.experiment-recorder input[type="file"] {
+  overflow: hidden;
+}
+.experiment-recorder button {
+  min-height: 44px;
+  max-width: 100%;
+  margin-block-start: 0.5rem;
+  white-space: normal;
+}
+.recording-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.recording-stop {
+  overflow-wrap: anywhere;
+}
+.recording-note {
+  white-space: pre-wrap;
+}
