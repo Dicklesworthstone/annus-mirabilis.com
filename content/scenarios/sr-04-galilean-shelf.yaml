@@ -1,0 +1,79 @@
+# THE ORDINARY CHANGE OF FRAME, AND EXACTLY HOW IT FAILS (am-nxbq, item 1).
+#
+# WHICH CONTROL VALUES A READER MOVES TO REACH IT: none. No requirement enabled, the candidate left at
+# the ordinary change of frame (a = b = 1, d = 0), an observer at 30 m/s and an object at 10 m/s. This
+# was a PRESET id in acceptanceCases; the acceptance case is what those settings must produce.
+#
+# WHY THE GALILEAN MAP IS ON THE 1904 SHELF AND NOT A STRAW MAN. It is correct, to any precision anyone
+# could measure, for every velocity a person had ever handled. The instrument shows that first: an object
+# at 10 m/s seen by an observer at 30 m/s moves at -20 m/s, which is the subtraction everybody expects
+# and which no experiment of the period contradicted. AGENTS.md is explicit that "Galilean
+# transformations remain useful at low speeds" and that a failed alternative must fail on a stated
+# constraint, not on preference.
+#
+# WHERE IT FAILS, AS A NUMBER. Apply the same map to light and a rightward ray comes out at 0.4 of c and
+# a leftward one at -1.6. Both should have magnitude 1. The residual on the rightward light requirement
+# is -1.7988e8 metres per second, which is exactly -v: the map takes c to c - v one way and c + v the
+# other, which is what the second postulate forbids and what the ether-drift experiments failed to find.
+#
+# AND THE FAMILY IS NOT YET A FAMILY. With no requirement enabled the instrument reports a RESIDUAL
+# REPORT rather than a verdict - it is measuring how far this candidate is from satisfying each
+# requirement, not selecting among maps. That is why familyResolved is 0 here and 1 in
+# sr-04-construct-0.6c, where six requirements leave exactly one map.
+#
+# The slow case is reported in the same breath as the light failure on purpose. A reader who sees only
+# the failure learns that the old map is wrong; a reader who sees both learns the harder and truer thing,
+# that it is an excellent approximation whose domain is stated by how large v over c is.
+id: "sr-04-galilean-shelf"
+kind: "modern-golden"
+title: "SR-04 with no requirement imposed: -20 m/s for slow objects, 0.4 and -1.6 for light"
+description: "The ordinary change of frame subtracts velocities: an object at 10 m/s seen from 30 m/s moves at -20 m/s, which is right to any precision the period could measure. Applied to light at 0.6c the same map gives 0.4 of c one way and -1.6 the other, where both should be 1 in magnitude, and the residual on the rightward light requirement is -1.7988e8 m/s, exactly minus the frame speed. With no requirement enabled the instrument reports residuals rather than selecting a family of maps."
+constantSetId: "modern-si-2019"
+owner: "sr04.construct"
+inputs:
+  constraintCount:
+    value: 0
+    unit: "1"
+  vOverC:
+    value: 0.6
+    unit: "1"
+  observerSpeed:
+    value: 30
+    unit: "m/s"
+  objectSpeed:
+    value: 10
+    unit: "m/s"
+expected:
+  outputs:
+    - outputId: slowCaseGalilean
+      value: -20
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "10 minus 30, exactly. Asserted because the case is about the map being RIGHT here as well as wrong for light, and a record that showed only the failure would misrepresent what was on the shelf."
+    - outputId: rightRayFraction
+      value: 0.4000000000000001
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "(c - v)/c at v = 0.6c, which is 0.4 up to the rounding of forming it from the speed in metres per second. Should be 1 under the second postulate."
+    - outputId: leftRayFraction
+      value: -1.5999999999999999
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "-(c + v)/c, which is -1.6. The two together are the asymmetry: the map makes light's speed depend on direction, and their mean is not 1 either."
+    - outputId: rightMovingLightResidual
+      value: -179875474.79999998
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Exactly minus the frame speed, 0.6c. This is the quantity that makes the failure a measurement rather than a description, and it is what grows as the frame speed grows."
+    - outputId: familyResolved
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-9
+        rationale: "No requirement enabled means no family is selected; the instrument reports residuals. Absolute tolerance because the reference is an exact zero."
+modelVersion: 1
+schemaVersion: 1

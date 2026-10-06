@@ -22,6 +22,12 @@ import { SR01_DEFAULTS } from "../../experiments/sr01/definition.ts";
 import { snapshotOutputs as sr01SnapshotOutputs } from "../../experiments/sr01/session.ts";
 import { SR02_DEFAULTS } from "../../experiments/sr02/definition.ts";
 import { snapshotOutputs as sr02SnapshotOutputs } from "../../experiments/sr02/session.ts";
+import {
+  ALL_CONSTRAINTS,
+  joinConstraints,
+  SR04_DEFAULTS,
+} from "../../experiments/sr04/definition.ts";
+import { evaluateSr04 } from "../../experiments/sr04/session.ts";
 import { SR05_DEFAULTS } from "../../experiments/sr05/definition.ts";
 import { evaluateSr05 } from "../../experiments/sr05/session.ts";
 import { SR09_DEFAULTS } from "../../experiments/sr09/definition.ts";
@@ -1125,6 +1131,62 @@ const OWNERS: OwnerRecord[] = [
         const got = sessionOutputsOf(outputs, outputId);
         if (!isOwnerRefusal(got)) Object.assign(numbers, got);
       }
+      return numbers;
+    },
+  },
+  /**
+   * WHAT EACH REQUIREMENT DECIDES, WHICH IS SR-04's OWN QUESTION (am-nxbq, item 1).
+   *
+   * SR-04 builds the map between frames one requirement at a time, and the interesting thing is the
+   * SEQUENCE of verdicts rather than the final matrix. Measured at 0.6c:
+   *
+   *   0 constraints  a residual report on the ordinary change of frame: slow objects pass, light fails
+   *   2 constraints  underdetermined, "b = a and d = -av/c^2, with a(v) still free"
+   *   4 constraints  underdetermined, "a = +-1/sqrt(1 - v^2/c^2)" - only the branch left
+   *   6 constraints  a value: a = b = 1.25, d = -2.5017e-9, transverse scale 1
+   *
+   * `constraintCount` TAKES THE FIRST N of ALL_CONSTRAINTS rather than a set of names, because an owner
+   * carries numbers and because the laboratory's own progression is in that order. `familyResolved` is
+   * the numeric carrier of whether the family is determined, for the same reason kickStrength carries
+   * BM-04's agreement: a scenario's expected outputs cannot hold a status word or a relation string.
+   *
+   * The matrix entries are returned only when the family IS determined. Under the Galilean candidate the
+   * ray fractions and the slow-case velocity are numbers either way, and those are what the shelf case
+   * is about: 0.4 and -1.6 where both should be 1 in magnitude.
+   */
+  {
+    id: "sr04.construct",
+    sourcePath: fileURLToPath(new URL("../../experiments/sr04/session.ts", import.meta.url)),
+    fn: (ctx) => {
+      const count = Math.max(
+        0,
+        Math.min(ALL_CONSTRAINTS.length, num(ctx.inputs, "constraintCount")),
+      );
+      const evaluated = evaluateSr04({
+        ...SR04_DEFAULTS,
+        ...ctx.inputs,
+        enabledConstraints: joinConstraints(ALL_CONSTRAINTS.slice(0, count)),
+      } as never) as unknown as Record<string, unknown>;
+      const numbers: Record<string, number> = {};
+      for (const key of ["slowCaseGalilean", "rightRayFraction", "leftRayFraction"]) {
+        const got = nonNumericOr(evaluated[key] as Record<string, unknown>, key);
+        if (typeof got !== "number") return got;
+        numbers[key] = got;
+      }
+      const family = evaluated.family as Record<string, unknown> | undefined;
+      numbers.familyResolved = family?.status === "value" ? 1 : 0;
+      const determined = family?.value as Record<string, unknown> | undefined;
+      if (family?.status === "value" && determined) {
+        for (const key of ["a", "b", "d", "transverseScale"]) {
+          const held = determined[key];
+          if (typeof held === "number") numbers[key] = held;
+        }
+      }
+      // The residual on the first light requirement is what makes the shelf case a measurement rather
+      // than a description: it is how far the ordinary change of frame misses the light postulate.
+      const residuals = family?.residuals as Record<string, unknown> | undefined;
+      const lightResidual = residuals?.["right-moving-light"];
+      if (typeof lightResidual === "number") numbers.rightMovingLightResidual = lightResidual;
       return numbers;
     },
   },

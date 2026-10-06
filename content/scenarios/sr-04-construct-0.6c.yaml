@@ -1,0 +1,82 @@
+# SIX REQUIREMENTS LEAVE EXACTLY ONE MAP (am-nxbq, item 1).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the requirement list, from none to all six. This was a PRESET
+# id in acceptanceCases; the acceptance case is what those settings must produce.
+#
+# WHAT THE SIX ARE AND THE ORDER THEY DECIDE THINGS IN, measured at 0.6c rather than described:
+#
+#   none        a residual report on the ordinary change of frame, which sr-04-galilean-shelf pins
+#   two (the    underdetermined: "b = a and d = -a v / c^2, with a(v) still free". The two light
+#   light ones) requirements fix the SHAPE of the map and leave one function of v undetermined
+#   four (and   underdetermined: "a = +-1/sqrt(1 - v^2/c^2)". Reciprocity and isotropy fix the
+#   reciprocity, magnitude and leave only the branch
+#   isotropy)
+#   all six     a value: a = b = 1.25, d = -2.5017e-9, transverse scale 1
+#
+# WHY THE TWO INTERMEDIATE STATES MATTER MORE THAN THE ANSWER. They are typed UNDERDETERMINED results,
+# not failures: at four requirements the instrument knows the Lorentz factor and does not yet know the
+# sign, and saying so is different from refusing and different from guessing. This is the shape AGENTS.md
+# tabulates - "the admitted information does not select a unique value" - and SR-04 is where a reader can
+# watch information accumulate until it does.
+#
+# THE NUMBERS ARE THE MAP. a = b = 1.25 is the Lorentz factor at 0.6c, exactly, and d = -2.5017e-9 is
+# -a v / c squared in seconds per metre, which is the term that mixes time into position and is the whole
+# of the simultaneity change. transverseScale = 1 says the transverse directions are untouched, which is
+# the requirement a reader is most likely to assume rather than impose.
+#
+# WHAT THIS IS NOT. It is not a derivation of the postulates and it does not show they are true. It shows
+# what they DECIDE, which is the laboratory's own question, and it is a reconstruction: the site labels
+# this kind of route "a route you could take" and never "what Einstein thought".
+id: "sr-04-construct-0.6c"
+kind: "modern-golden"
+title: "SR-04 with all six requirements at 0.6c: a = b = 1.25 and d = -2.5017e-9, uniquely"
+description: "Imposing all six requirements at 0.6c leaves exactly one map: longitudinal scale 1.25 both ways, a time-mixing term of -2.5017e-9 seconds per metre, and the transverse directions unchanged. The route there is the point - two light requirements fix the map's shape and leave a free function of the speed, reciprocity and isotropy reduce it to plus or minus the Lorentz factor, and the identity branch and transverse requirement settle the rest. The two intermediate states are typed underdetermined results rather than failures."
+constantSetId: "modern-si-2019"
+owner: "sr04.construct"
+inputs:
+  constraintCount:
+    value: 6
+    unit: "1"
+  vOverC:
+    value: 0.6
+    unit: "1"
+  observerSpeed:
+    value: 30
+    unit: "m/s"
+  objectSpeed:
+    value: 10
+    unit: "m/s"
+expected:
+  outputs:
+    - outputId: familyResolved
+      value: 1
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-9
+        rationale: "The family is determined, against 0 in sr-04-galilean-shelf. The pair is the assertion that the requirements are what resolve it, since nothing else differs between the two records except how many are imposed."
+    - outputId: a
+      value: 1.25
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The Lorentz factor at 0.6c, exactly 1.25 and a terminating decimal, so a reader can check 1/sqrt(1 - 0.36) by hand."
+    - outputId: b
+      value: 1.25
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Equal to a, which is what the two light requirements decided before the magnitude was known. Asserting both is what shows the relation survived the later requirements."
+    - outputId: d
+      value: -2.5017307139861402e-9
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "-a v / c squared in seconds per metre. This is the term that mixes time into position, so it is the whole of the simultaneity change and is the one entry a Galilean map sets to zero."
+    - outputId: transverseScale
+      value: 1
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The transverse directions are unchanged. Asserted because it is the requirement a reader is most likely to assume rather than impose, and the sixth constraint is what actually settles it."
+modelVersion: 1
+schemaVersion: 1
