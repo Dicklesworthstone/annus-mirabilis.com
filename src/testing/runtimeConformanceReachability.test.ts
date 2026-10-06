@@ -42,10 +42,12 @@ const REL = "scripts/e2e/runtime-conformance";
  * page after load.
  */
 const EXPECTED_ORPHANED: ReadonlyMap<string, string> = new Map([
-  [
-    "identityReader.ts",
-    "Redundant wrapper, not a missing check: checks.ts imports parseInstrumentRoot from ../domContract.ts and calls it directly four times, and readInstrumentIdentity is a pass-through to that same function. Only missingIdentityAttribute is unique, and checks.ts has no try/catch, so a DomContractError crashes the run instead of naming the attribute. Retire-or-absorb needs the owner (am-xyxk item 4).",
-  ],
+  // identityReader.ts came OUT of this map on 2026-10-06. Its recorded reason named the defect that
+  // made it worth wiring - "checks.ts has no try/catch, so a DomContractError crashes the run instead
+  // of naming the attribute" - and 9bf233a2 wired missingIdentityAttribute, the one export that is not
+  // a pass-through, into all four of those call sites. A missing root attribute is now a named failing
+  // check. The pass-through half, readInstrumentIdentity, is still called by nothing, and retiring it
+  // is a smaller question than the one this entry was holding open.
   [
     "networkLogClassifier.ts",
     "Helper half of an unwritten check: nothing classifies network requests during a conformance run (checks.ts has no network handling at all). Its predicate is also tautologically tested and is filed separately.",
