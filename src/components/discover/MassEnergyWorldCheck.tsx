@@ -5,6 +5,7 @@ import type { WorldCheck as WorldCheckType } from "../../content/schemas/journey
 import { KnowledgeCardView } from "../../discovery/cards/KnowledgeCard.tsx";
 import type { KnowledgeCard } from "../../discovery/cards/types.ts";
 import { WorldCheck } from "../../discovery/WorldCheck.tsx";
+import { InvestigationLabLink, useInvestigationWitness } from "../../discovery/investigation/context.tsx";
 import type { Me03Parameters } from "../../experiments/me03/definition.ts";
 import { createMe03Session, type PreparedMe03Example } from "../../experiments/me03/session.ts";
 import type { AcceptedSnapshot, PublishedResult } from "../../experiments/store/instanceStore.ts";
@@ -62,6 +63,7 @@ export function MassEnergyWorldCheck({
   const [session] = useState(
     () => sharedSession ?? createMe03Session(`world-check-${id}`, example.parameters),
   );
+  useInvestigationWitness("me-03", session, example.sourceDigest ?? "");
   const view = useSyncExternalStore(
     session.subscribe,
     session.getSnapshot,
@@ -111,6 +113,7 @@ export function MassEnergyWorldCheck({
 
   return (
     <>
+      <InvestigationLabLink experimentId="me-03" />
       <BoundaryLedgerLab
         example={example}
         session={session}

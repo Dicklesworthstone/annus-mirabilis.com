@@ -6,6 +6,7 @@ import { EINSTEIN_TRACER_INPUTS } from "../../discovery/brownian/journeyII.ts";
 import { KnowledgeCardView } from "../../discovery/cards/KnowledgeCard.tsx";
 import type { KnowledgeCard } from "../../discovery/cards/types.ts";
 import { WorldCheck } from "../../discovery/WorldCheck.tsx";
+import { InvestigationLabLink, useInvestigationWitness } from "../../discovery/investigation/context.tsx";
 import { createBm01BrowserChannel } from "../../experiments/bm01/browser.ts";
 import type { Bm01Parameters } from "../../experiments/bm01/definition.ts";
 import { createBm01Session, type PreparedBm01Example } from "../../experiments/bm01/session.ts";
@@ -45,6 +46,7 @@ export function BrownianWorldCheck({
     () =>
       sharedSession ?? createBm01Session(`world-check-${id}`, example, createBm01BrowserChannel),
   );
+  useInvestigationWitness("bm-01", session, example.sourceDigest ?? "");
   const view = useSyncExternalStore(
     session.subscribe,
     session.getSnapshot,
@@ -102,6 +104,7 @@ export function BrownianWorldCheck({
 
   return (
     <>
+      <InvestigationLabLink experimentId="bm-01" />
       <TracerLab
         example={example}
         session={session}

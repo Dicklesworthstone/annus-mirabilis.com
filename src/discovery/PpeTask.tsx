@@ -1,5 +1,6 @@
 import type { PpeTask as PpeTaskType } from "../content/schemas/journey.ts";
 import "./journeySkeleton.css";
+import { InvestigationWorkspace } from "./investigation/Workspace.tsx";
 
 export interface PpeTaskProps {
   readonly task: PpeTaskType;
@@ -31,6 +32,7 @@ export function PpeTask({ task }: PpeTaskProps) {
           <p>{explainPrompt}</p>
         </li>
       </ol>
+      <InvestigationWorkspace task={task} />
     </section>
   );
 }

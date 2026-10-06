@@ -5,6 +5,7 @@ import type { WorldCheck as WorldCheckType } from "../../content/schemas/journey
 import { KnowledgeCardView } from "../../discovery/cards/KnowledgeCard.tsx";
 import type { KnowledgeCard } from "../../discovery/cards/types.ts";
 import { WorldCheck } from "../../discovery/WorldCheck.tsx";
+import { InvestigationLabLink, useInvestigationWitness } from "../../discovery/investigation/context.tsx";
 import type { Sr05Parameters } from "../../experiments/sr05/definition.ts";
 import { createSr05Session, type PreparedSr05Example } from "../../experiments/sr05/session.ts";
 import type { PublishedResult } from "../../experiments/store/instanceStore.ts";
@@ -52,6 +53,7 @@ export function RelativityWorldCheck({
   const [session] = useState(
     () => sharedSession ?? createSr05Session(`world-check-${id}`, example),
   );
+  useInvestigationWitness("sr-05", session, example.sourceDigest ?? "");
   const view = useSyncExternalStore(
     session.subscribe,
     session.getSnapshot,
@@ -104,6 +106,7 @@ export function RelativityWorldCheck({
 
   return (
     <>
+      <InvestigationLabLink experimentId="sr-05" />
       <MovingClocksLab example={example} session={session} />
       <WorldCheck check={check} live={live} />
       <section data-world-check-later aria-labelledby={`${id}-later`}>
