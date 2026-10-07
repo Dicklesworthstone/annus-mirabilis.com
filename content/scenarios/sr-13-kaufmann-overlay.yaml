@@ -1,0 +1,110 @@
+# The crossed-field configuration the measurements used, with Kaufmann's data on the plot (am-nxbq).
+#
+# WHICH BUTTON: "Kaufmann overlay". Both fields are present - 1e5 V/m transverse and 10 millitesla - which
+# is the crossed-field arrangement Kaufmann used from 1902 and Bucherer in 1908, and which is why BOTH radii
+# of curvature exist here where the two single-field presets each have only one.
+#
+# WHAT IS PINNED: both radii, 0.12783817697602481 m magnetic and 2.299495278112889 m electric, identical to
+# their values in the single-field records. That identity is the claim worth having: adding an electric field
+# does not change the magnetic radius, because each radius is the curvature that field alone would impose,
+# and an instrument that had coupled them would move one of the two.
+#
+# THE OVERLAY ITSELF MOVES NO COMPUTED OUTPUT. datasetOverlay selects which historical dataset is drawn
+# beside the curve, and switching it between none, kaufmann-1902-1906 and bucherer-1908 leaves all eleven
+# outputs identical - measured. That is correct and is the point of a typed `HistoricalDataset`: a digitised
+# measurement is drawn against the model and never feeds it. The record pins the model's numbers; the
+# overlay's own rows are a separate record's business.
+#
+# WHAT KAUFMANN'S DATA ACTUALLY SETTLED, since a record that only draws it invites the wrong story.
+# Kaufmann's results of 1902-1906 were initially read as favouring Abraham's rigid-sphere electron over the
+# Lorentz-Einstein prediction; the discrepancy was later traced to his field calibration, and Bucherer's
+# 1908 measurements agreed with the relativistic expression. The site's own margin owes that sequence, and
+# this record owes only the numbers the model produces at the settings the overlay is shown at.
+id: "sr-13-kaufmann-overlay"
+kind: "modern-golden"
+title: "SR-13 in crossed fields: both radii present, and each unchanged by the other field"
+description: "With a transverse electric field of 100 kilovolts per metre and a 10-millitesla magnetic field together, the crossed-field arrangement the electron-deflection measurements used, the electron has both an electric and a magnetic radius of curvature, and each equals its value when that field acts alone. The historical overlay selects which digitised dataset is drawn beside the model curve and changes no computed output, which is what a typed historical dataset is for: it is compared with the model and never feeds it."
+provenance:
+  paper: special-relativity
+  sectionId: s10
+  printedPage: 919
+  locator: "eq-s10-d7, the printed transverse mass, which the deflection measurements tested"
+constantSetId: "modern-si-2019"
+owner: "sr13.dynamics"
+inputs:
+  conventionCode:
+    value: 0
+    unit: "1"
+  massCode:
+    value: 0
+    unit: "1"
+  particleCode:
+    value: 0
+    unit: "1"
+  overlayCode:
+    value: 1
+    unit: "1"
+  electricFieldY:
+    value: 100000
+    unit: "V/m"
+  magneticFieldZ:
+    value: 0.01
+    unit: "T"
+  initialSpeed:
+    value: 0.6
+    unit: "1"
+  integrationInterval:
+    value: 2.0e-9
+    unit: "s"
+expected:
+  outputs:
+    - outputId: radiusCurvatureMagnetic
+      value: 0.12783817697602481
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Identical to its value in sr-13-magnetic-radius-0.01t, where no electric field is present: each radius is the curvature its own field would impose, and an instrument that coupled them would move this number."
+    - outputId: radiusCurvatureElectric
+      value: 2.299495278112889
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Identical to its value in sr-13-electric-radius-1e5, for the same reason. The pair of identities is this record's claim."
+    - outputId: transverseMassComoving
+      value: 1.423341205296875e-30
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma^2 times the rest mass: section 10's printed transverse mass, unchanged by the fields, which only act on the motion."
+    - outputId: transverseMassLaboratory
+      value: 1.1386729642375e-30
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma times the rest mass, the modern transverse mass. Pinned with its partner because the measurements this overlay shows were tests of which of the two a deflection obeys."
+    - outputId: longitudinalMass
+      value: 1.7791765066210937e-30
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma^3 times the rest mass. Pinned so all three masses are stated at the settings the historical data is drawn against."
+    - outputId: kineticEnergy
+      value: 2.0467764469921127e-14
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "(gamma - 1) m c^2 at 0.6c, unchanged from the field-free value: the fields bend the path without changing the speed over this interval."
+    - outputId: acceleratingPotential
+      value: 127749.7376729383
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The relativistic accelerating potential, 128 kilovolts, which is the axis Kaufmann's and Bucherer's data are plotted against."
+    - outputId: lorentzFactor
+      value: 1.25
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: "Exactly 5/4. The common factor, pinned at near-representation precision."
+modelVersion: 1
+schemaVersion: 1

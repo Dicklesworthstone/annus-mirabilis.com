@@ -1,0 +1,113 @@
+# Changing the force convention and the mass language changes NOTHING, and that is the record (am-nxbq).
+#
+# WHICH BUTTON: "Bucherer overlay". Its settings differ from sr-13-kaufmann-overlay's in exactly three
+# controls: forceConvention goes from source to laboratory, massLanguage from 1905 to modern, and
+# datasetOverlay from Kaufmann's data to Bucherer's. Every one of the eleven outputs is BYTE-IDENTICAL.
+#
+# SO THIS IS AN INVARIANCE RECORD, not a second set of numbers, and that is what makes it worth having. The
+# runtime contract's command classes separate a `presentation-change` - "camera, labels, layout, colors,
+# explanation selection" - from everything else, and require that it leave "every scientific state and data
+# identity" stable. forceConvention, massLanguage and datasetOverlay are presentation changes: the
+# laboratory publishes BOTH transverse masses always, and these controls select which the view emphasises
+# and which dataset it draws. Measured in the kernel as well as in the outputs: forceConvention and
+# massLanguage appear in electron.ts only in its input TYPE, never in a computation.
+#
+# WHY A PAIR OF RECORDS AND NOT A NOTE. If a later change made the convention control alter the computed
+# masses - plausibly, by publishing only the selected one - this record and sr-13-kaufmann-overlay would
+# disagree, and exactly one of them would turn red. A note in a docblock cannot do that. The two records
+# carry the same eight expectations for that reason, and neither is a duplicate of the other: together they
+# assert that three controls are inert, which is a statement no single record can make.
+#
+# WHAT IS NOT CLAIMED. That the two conventions are physically equivalent, which they are not: they answer
+# different questions, as section 10's own caution says. What is claimed is that SWITCHING THE CONTROL does
+# not recompute anything, because both answers are always present.
+id: "sr-13-bucherer-overlay"
+kind: "adversarial"
+title: "SR-13's force convention, mass language and overlay are presentation changes: all eleven outputs unmoved"
+description: "Switching the force convention from the paper's to the laboratory's, the mass language from 1905 to modern, and the historical overlay from Kaufmann's data to Bucherer's leaves every computed output identical to the Kaufmann case. The laboratory publishes both transverse masses always and these controls select which the view emphasises, so they are presentation changes in the runtime contract's sense, which must leave every scientific state stable. The two records carry the same expectations, so a change that made a convention recompute a mass would turn exactly one of them red."
+plausibleMistake: "That selecting the laboratory force convention should change the transverse mass the instrument reports, since the two conventions give different numbers for it. They do, and both are already published: the control chooses an emphasis, not a calculation. An implementation that published only the selected mass would make the control a setup change, and a reader comparing two presets would then see a mass move for a reason that is not physical."
+intendedFailure: "The two records pin the same eight values at settings differing only in the three presentation controls, so an implementation in which any of them entered a computation turns exactly one of the pair red and names the output. Nothing here can be satisfied by the controls being ignored entirely either, since sr-13-kaufmann-overlay asserts the same numbers under the other setting."
+provenance:
+  paper: special-relativity
+  sectionId: s10
+  printedPage: 919
+  locator: "s10-p8, that another definition of force and acceleration gives other numbers for the masses"
+constantSetId: "modern-si-2019"
+owner: "sr13.dynamics"
+inputs:
+  conventionCode:
+    value: 1
+    unit: "1"
+  massCode:
+    value: 1
+    unit: "1"
+  particleCode:
+    value: 0
+    unit: "1"
+  overlayCode:
+    value: 2
+    unit: "1"
+  electricFieldY:
+    value: 100000
+    unit: "V/m"
+  magneticFieldZ:
+    value: 0.01
+    unit: "T"
+  initialSpeed:
+    value: 0.6
+    unit: "1"
+  integrationInterval:
+    value: 2.0e-9
+    unit: "s"
+expected:
+  outputs:
+    - outputId: radiusCurvatureMagnetic
+      value: 0.12783817697602481
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Identical to the Kaufmann record's magnetic radius under the other convention. The invariance this record exists to assert."
+    - outputId: radiusCurvatureElectric
+      value: 2.299495278112889
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Identical to the Kaufmann record's electric radius. Pinned so a convention that touched the trajectory integration would be caught here too."
+    - outputId: transverseMassComoving
+      value: 1.423341205296875e-30
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma^2 times the rest mass: section 10's printed transverse mass, STILL PUBLISHED under the laboratory convention and the modern mass language, which is the point."
+    - outputId: transverseMassLaboratory
+      value: 1.1386729642375e-30
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma times the rest mass, the modern transverse mass, also still published under the paper's own convention in the companion record. Both are always present; the control selects emphasis."
+    - outputId: longitudinalMass
+      value: 1.7791765066210937e-30
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma^3 times the rest mass, unmoved."
+    - outputId: kineticEnergy
+      value: 2.0467764469921127e-14
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "(gamma - 1) m c^2, unmoved: an energy does not depend on which force convention a label prefers."
+    - outputId: acceleratingPotential
+      value: 127749.7376729383
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "128 kilovolts, unmoved."
+    - outputId: lorentzFactor
+      value: 1.25
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: "Exactly 5/4, unmoved. Pinned at near-representation precision because every other value here is a power of it."
+modelVersion: 1
+schemaVersion: 1
