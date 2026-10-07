@@ -773,7 +773,7 @@ export function parseTermId(raw: string): ParseResult<TermId> {
     return { ok: false, error: "Term ID must be a non-empty string", rule: "term-id-grammar" };
   }
   const match = raw.match(/^(.+)\.t\.(.+)$/);
-  if (!match || !match[1] || !match[2]) {
+  if (!match?.[1] || !match[2]) {
     return {
       ok: false,
       error: `Invalid term ID '${raw}': must match '<equation>.t.<name>'`,
@@ -808,7 +808,7 @@ export function parseOperationId(raw: string): ParseResult<OperationId> {
     };
   }
   const match = raw.match(/^(.+)\.op\.(.+)$/);
-  if (!match || !match[1] || !match[2]) {
+  if (!match?.[1] || !match[2]) {
     return {
       ok: false,
       error: `Invalid operation ID '${raw}': must match '<equation>.op.<name>'`,
@@ -843,7 +843,7 @@ export function parseAlternateFormId(raw: string): ParseResult<AlternateFormId> 
     };
   }
   const match = raw.match(/^(.+)\.alt\.(.+)$/);
-  if (!match || !match[1] || !match[2]) {
+  if (!match?.[1] || !match[2]) {
     return {
       ok: false,
       error: `Invalid alternate form ID '${raw}': must match '<equation>.alt.<name>'`,
