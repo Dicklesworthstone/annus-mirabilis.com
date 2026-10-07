@@ -106,7 +106,7 @@ describe("checkJourney: complete and partial journeys", () => {
 });
 
 describe("journeyChecks refusal throw sites (am-muyh)", () => {
-  test("journey-explanation-exercise-count (journeyChecks.ts:352): accept <= 4 explanation exercises, reject > 4", () => {
+  test("journey-explanation-exercise-count (journeyChecks.ts:372): accept <= 4 explanation exercises, reject > 4", () => {
     const baseExercises = FIXTURE_JOURNEY_BROWNIAN.exercises.filter(
       (e) => e.role === "instrumented",
     );
@@ -142,7 +142,7 @@ describe("journeyChecks refusal throw sites (am-muyh)", () => {
     expect(rejectFinding?.severity).toBe("error");
   });
 
-  test("fork-undecided-already-decidable (journeyChecks.ts:522): accept post-1904 evidence, reject pre-1905 evidence", () => {
+  test("fork-undecided-already-decidable (journeyChecks.ts:532): accept post-1904 evidence, reject pre-1905 evidence", () => {
     const fork0 = FIXTURE_JOURNEY_BROWNIAN.forks[0];
     if (!fork0) throw new Error("Fixture missing fork 0");
     const branch0 = fork0.branches[0];
@@ -264,7 +264,7 @@ describe("journeyChecks refusal throw sites (am-muyh)", () => {
     expect(() => validateJourney(FIXTURE_JOURNEY_BROWNIAN)).not.toThrow();
   });
 
-  test("prediction-numeric-literal-forbidden (journeyChecks.ts:666): accept non-numeric choices, reject raw numeric literal", () => {
+  test("prediction-numeric-literal-forbidden (journeyChecks.ts:686): accept non-numeric choices, reject raw numeric literal", () => {
     const stage0 = FIXTURE_JOURNEY_BROWNIAN.stages[0];
     if (!stage0) throw new Error("Fixture missing stage 0");
     // Accept case: choices are conceptual strings
@@ -316,7 +316,7 @@ describe("journeyChecks refusal throw sites (am-muyh)", () => {
     expect(rejectFinding?.severity).toBe("error");
   });
 
-  test("world-check-later-evidence-year-invalid (journeyChecks.ts:709): accept post-1904 year, reject <= 1904", () => {
+  test("world-check-later-evidence-year-invalid (journeyChecks.ts:729): accept post-1904 year, reject <= 1904", () => {
     const wc0 = FIXTURE_JOURNEY_BROWNIAN.worldChecks[0];
     if (!wc0?.laterEvidence) {
       throw new Error("Fixture missing world check 0 with laterEvidence");
@@ -361,7 +361,7 @@ describe("journeyChecks refusal throw sites (am-muyh)", () => {
     expect(rejectFinding?.severity).toBe("error");
   });
 
-  test("rejects when non-JourneySchemaError is thrown during journey validation (journeyChecks.ts:135)", () => {
+  test("rejects when non-JourneySchemaError is thrown during journey validation (journeyChecks.ts:183)", () => {
     const corruptJourney = {
       ...FIXTURE_JOURNEY_BROWNIAN,
       get paper() {
@@ -428,7 +428,7 @@ describe("journeyChecks refusal throw sites (am-muyh)", () => {
     expect(checkJourney(FIXTURE_PARTIAL_JOURNEY).length).toBeGreaterThan(0);
   });
 
-  test("rejects when undecided branch is missing insufficiency statement (journeyChecks.ts:484)", () => {
+  test("rejects when undecided branch is missing insufficiency statement (journeyChecks.ts:504)", () => {
     let calls = 0;
     const branch0 = FIXTURE_JOURNEY_BROWNIAN.forks[0]?.branches[0];
     const branch1 = FIXTURE_JOURNEY_BROWNIAN.forks[0]?.branches[1];
