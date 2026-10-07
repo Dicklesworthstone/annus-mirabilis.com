@@ -608,7 +608,13 @@ export function paperDoneness(root: string, paper: DonenessPaper): PaperDoneness
     readingsPerParagraphCell(root, paper),
     unmeasured(
       "r2-expands-r1",
-      "no record states which R2 passage expands which R1 passage, so containment cannot be checked from the records",
+      "R1 and R2 are the same passage's own `readings.full` and `readings.steps`, so the PAIRING is " +
+        "not what is missing; what is missing is a checkable notion of containment. The obvious " +
+        "mechanical proxy, that every formula R1 states also appears in R2, is already satisfied by " +
+        "44 of the 44 argument records that state one, so a cell built on it would report 44/44 and " +
+        "mean almost nothing while reading as though containment were verified. Containment is a " +
+        "claim about CLAIMS -- that every step R1 asserts is expanded in R2 -- and nothing in the " +
+        "records carries that relation",
     ),
     unmeasured(
       "results-cards-against-section-3",
