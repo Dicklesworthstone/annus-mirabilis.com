@@ -1,0 +1,89 @@
+# No change of volume, no change of free energy, and a pressure all the same (am-nxbq, the preset class).
+#
+# WHICH BUTTON: "Ratio one", two particles with the volume unchanged. It is the degenerate case of the
+# counting argument, and it is offered as a preset because the degenerate case is where a reader's
+# intuition about what the configuration integral means can be checked cheaply.
+#
+# WHAT IS PINNED. The arrangement ratio is exactly 1, since 1^2 = 1: no extra room, no extra arrangements.
+# The free-energy change is exactly 0. And the osmotic pressure is 8.094745087e-9 Pa, which is NOT zero:
+# it is 2 k_B T over the 1e-18 m^3 the pair occupies, twice the two-particles-double record's pressure
+# because the volume is half.
+#
+# THAT CONTRAST IS THE RECORD'S CONTENT. A free energy that does not change is not a pressure that does not
+# exist. The configuration integral's volume DERIVATIVE is the pressure, and a derivative is not a
+# difference: one can be zero while the other is not. A reader who takes deltaF = 0 to mean "nothing is
+# happening" has the wrong object, and so would an implementation that computed the pressure from the
+# free-energy CHANGE rather than from the number density.
+#
+# AND THE PRESSURE IS EXACTLY TWICE the two-particles-double value, 4.0473725435e-9, because that record
+# gives the same pair twice the volume. The pair of records is a check that the pressure scales as 1/V,
+# which no single record can state.
+#
+# THE LOCKED CLUSTER IS 4.0473725435e-9 Pa, again exactly half the independent pressure, as in every case
+# where two particles are locked. Pinned so the independence factor is visible at this volume too.
+id: "bm-03-ratio-one"
+kind: "adversarial"
+title: "BM-03 with no volume change: zero free-energy change and a pressure twice the double-volume case"
+description: "Two particles in an unchanged volume have an arrangement ratio of exactly one and a free-energy change of exactly zero, and an osmotic pressure of about eight nanopascals, which is twice the pressure of the same pair given double the volume. A free energy that does not change is not a pressure that does not exist: the pressure is the volume derivative of the configuration free energy, and a derivative is not a difference."
+plausibleMistake: "That a zero change of free energy means a zero pressure, since the pressure is derived from the configuration free energy and the free energy did not change. The pressure is that function's volume DERIVATIVE, not its difference between two states, and at a ratio of one the derivative is at its largest in this pair of records because the volume is smallest. An implementation that computed the pressure from the free-energy change would return zero here and pass any record that pinned only deltaF."
+intendedFailure: "The pressure is formed from the number density and the temperature, so it is nonzero whatever the volume ratio. The scenario passes only when deltaF is exactly zero AND the pressure is 8.094745087e-9, which is twice the two-particles-double record's value: an implementation deriving pressure from the free-energy difference fails on the pressure, and one ignoring the volume ratio fails on the factor of two between the two records."
+provenance:
+  paper: brownian-motion
+  sectionId: s2
+  printedPage: 553
+  locator: "s2-p7, that the volume-independent factor is independent of the volume and the positions"
+constantSetId: "modern-si-2019"
+owner: "bm03.configuration"
+inputs:
+  modelCode:
+    value: 0
+    unit: "1"
+  stepCode:
+    value: 1
+    unit: "1"
+  Np:
+    value: 2
+    unit: "1"
+  volumeRatio:
+    value: 1
+    unit: "1"
+  V0:
+    value: 1000000
+    unit: "um3"
+  T:
+    value: 293.15
+    unit: "K"
+expected:
+  outputs:
+    - outputId: deltaF
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-30
+        rationale: "Exactly zero: no extra room, so no entropy of arrangement is gained. An absolute tolerance against an exact zero, nine decades below the free energies this model produces."
+    - outputId: pressure
+      value: 8.094745087e-9
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "2 k_B T over 1e-18 m^3, and exactly twice the two-particles-double record's 4.0473725435e-9 because that case has twice the volume. The number the zero above must not be allowed to suppress."
+    - outputId: factorRatioDouble
+      value: 1
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: "1^2 = 1. Pinned so the zero free energy is visibly ln(1) and not an unrelated zero."
+    - outputId: lockedClusterPressure
+      value: 4.0473725435e-9
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Exactly half the independent pressure, as in every two-particle case: one object instead of two in the same volume."
+    - outputId: pressureAgreementResidual
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-24
+        rationale: "Exactly zero: the counting route and n k_B T agree at a ratio of one too, which is the case where an implementation confusing the derivative with the difference would diverge most."
+modelVersion: 1
+schemaVersion: 1

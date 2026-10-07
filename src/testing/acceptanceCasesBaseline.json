@@ -3,12 +3,6 @@
   "bead": "am-nxbq",
   "note": "Acceptance refs that resolve to no scenario and no declared in-code fixture. The only allowed direction is shorter: a ref removed from this list because it now resolves is the work, and a ref added to it is new debt that the gate refuses. Do not delete a dangling ref from a manifest to shorten this list: a ref naming a case nobody wrote is a debt, an absent ref is a lie. Paid so far: bm-02-nonpositive-inputs-refused (am-nxbq, the first scenario in the repository to use expected.status).",
   "dangling": [
-    "bm-03-locked-cluster",
-    "bm-03-million-particles",
-    "bm-03-overflow-guard",
-    "bm-03-pressure-matches-bm-02",
-    "bm-03-ratio-one",
-    "bm-03-two-particles-double",
     "bm-08-apparent-speed-noise",
     "bm-08-cve",
     "bm-08-drift-fluid",

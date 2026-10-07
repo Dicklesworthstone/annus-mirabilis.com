@@ -1,0 +1,99 @@
+# A ratio of 2^1000000, reported as its logarithm because no double can hold it (am-nxbq, presets).
+#
+# WHICH BUTTON: "A million particles". The configuration factor ratio is 2 to the millionth power. There
+# is no binary64 number for that, and this record is about what the laboratory does instead.
+#
+# WHAT IS PINNED, AND WHAT IS DELIBERATELY ABSENT. `factorRatioLog10` is 301029.9956639812, which is
+# 10^6 log10(2), and `factorRatioNaturalLog` is 693147.1805599453. `factorRatioDouble` IS NOT PINNED,
+# because `configurationFactorRatio` returns `representableDouble: null` and the owner then omits the
+# field rather than substituting a number. A scenario naming it here would receive undefined and fail,
+# which is the honest outcome: AGENTS.md's typed-result rule is that a quantity outside the
+# representable range is a typed state with a readable form, "never NaN, infinity, zero, or a silent
+# clamp", and a logarithm is that form.
+#
+# THE PHYSICS IS NOT ABOUT THE OVERFLOW, which is why three more numbers are pinned. The free energy falls
+# by 2.8054248672027592e-15 J, which is -10^6 k_B T ln 2, and the osmotic pressure is 0.00202368627175 Pa,
+# which is 10^6 k_B T over 2e-18 m^3. Both are perfectly representable: it is only the ARRANGEMENT COUNT
+# that overflows, and the quantities a reader cares about are its logarithmic derivatives. That is the
+# point worth taking from the case - the configuration integral is unrepresentable and the thermodynamics
+# it implies is not.
+#
+# THE LOCKED CLUSTER IS 2.02368627175e-9 Pa, unchanged from the two-particle record: a million particles
+# locked into one cluster press exactly as hard as two locked into one cluster, because in both cases
+# there is one object in the same volume. Pinned to make the independence premise's cost explicit - a
+# factor of 10^6 in the pressure.
+#
+# AND THE TWO ROUTES STILL AGREE EXACTLY, residual 0, at a pressure six orders of magnitude from the
+# two-particle case.
+id: "bm-03-million-particles"
+kind: "adversarial"
+title: "BM-03 at a million particles reports the arrangement ratio as a logarithm, because 2^1000000 is not a double"
+description: "A million independent particles given twice the volume have 2 to the millionth times as many arrangements, which no binary64 number can hold. The laboratory reports the ratio as its logarithms, about 301030 in base ten, and offers no representable value at all rather than infinity or a clamp. The free energy change and the osmotic pressure are perfectly representable, since they depend on the logarithm of the count: the configuration integral overflows and the thermodynamics it implies does not."
+plausibleMistake: "That an unrepresentable arrangement count should be reported as Infinity, as the largest double, or as a clamped maximum, since it is 'effectively infinite' anyway. Each of those is a number a reader could compare, subtract or plot, and none of them is the quantity. The mirror-image mistake is to assume that because the count overflows the pressure must too; it does not, because the pressure depends on the logarithm, and this record pins a perfectly ordinary 0.002 Pa beside a ratio of 10^301030."
+intendedFailure: "configurationFactorRatio returns representableDouble null when the exponent exceeds what binary64 holds, and the owner omits factorRatioDouble rather than inventing one, so a scenario naming that field here fails with an undefined. The logarithms are pinned instead. An implementation that returned Infinity would fail the log10 assertion only if it also lost the exponent; the record therefore also pins the free energy and the pressure, which an Infinity-returning implementation would turn into NaN."
+provenance:
+  paper: brownian-motion
+  sectionId: s2
+  printedPage: 553
+  locator: "s2-p5, the probability that the particle centres lie in given regions"
+constantSetId: "modern-si-2019"
+owner: "bm03.configuration"
+inputs:
+  modelCode:
+    value: 0
+    unit: "1"
+  stepCode:
+    value: 2
+    unit: "1"
+  Np:
+    value: 1000000
+    unit: "1"
+  volumeRatio:
+    value: 2
+    unit: "1"
+  V0:
+    value: 1000000
+    unit: "um3"
+  T:
+    value: 293.15
+    unit: "K"
+expected:
+  outputs:
+    - outputId: factorRatioLog10
+      value: 301029.9956639812
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "10^6 log10(2). The only form in which this ratio exists, and the reason the record is here."
+    - outputId: factorRatioNaturalLog
+      value: 693147.1805599453
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "10^6 ln 2. Pinned beside the base-ten form because the free energy below is k_B T times this number, so the two must agree with each other and not only with 2."
+    - outputId: deltaF
+      value: -2.8054248672027592e-15
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "-10^6 k_B T ln 2: representable, although the count is not. The quantity a reader is shown."
+    - outputId: pressure
+      value: 0.00202368627175
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "10^6 k_B T over 2e-18 m^3, about two millipascals. Ordinary, beside a ratio of 10^301030."
+    - outputId: lockedClusterPressure
+      value: 2.02368627175e-9
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Identical to the two-particle record's locked value, because one cluster in the same volume presses the same however many particles it contains. A factor of 10^6 below the independent pressure, which is what the independence premise is worth here."
+    - outputId: pressureAgreementResidual
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-18
+        rationale: "Exactly zero again, fifteen decades below the two-millipascal pressure. The agreement between counting and n k_B T holds across six orders of magnitude."
+modelVersion: 1
+schemaVersion: 1

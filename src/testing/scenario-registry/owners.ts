@@ -1,5 +1,7 @@
 import { fileURLToPath } from "node:url";
 import { computeBm02Snapshot, DEFAULT_BM02_INPUTS } from "../../experiments/bm02/session.ts";
+import { BM03_DEFAULTS } from "../../experiments/bm03/definition.ts";
+import { evaluateBm03 } from "../../experiments/bm03/session.ts";
 import { createBm08Session } from "../../experiments/bm08/session.ts";
 import {
   declaredDomains,
@@ -391,6 +393,48 @@ function sr11Params(inputs: Record<string, number>): Record<string, unknown> {
       throw new OwnerContractError(
         "owner-input-unknown",
         `"${key}" is not an SR-11 parameter, so naming it in a scenario would change nothing.`,
+      );
+    built[key] = value;
+  }
+  return built;
+}
+
+/**
+ * BM-03's parameter record. Three of its controls are CATEGORICAL strings - model, step, notation - so
+ * each travels as a code for the reason on sr05Params: run.ts coerces every input with
+ * Number(spec.value). modelCode 0 independent, 1 locked-cluster. stepCode 0 one-particle,
+ * 1 two-particles, 2 many-particles, 3 derivative. Notation is left at the laboratory's default, since
+ * it is a presentation choice and no acceptance case turns on it.
+ */
+function bm03Params(inputs: Record<string, number>): Record<string, unknown> {
+  const MODELS = ["independent", "locked-cluster"] as const;
+  const STEPS = ["one-particle", "two-particles", "many-particles", "derivative"] as const;
+  const pick = <T extends string>(
+    list: readonly T[],
+    code: number | undefined,
+    fallback: T,
+    name: string,
+  ): T => {
+    if (code === undefined) return fallback;
+    const chosen = list[code];
+    if (chosen === undefined)
+      throw new OwnerContractError(
+        "owner-mode-code-unknown",
+        `${name} ${code} names no BM-03 ${name.replace("Code", "")}; 0 to ${list.length - 1} are ${list.join(", ")}.`,
+      );
+    return chosen;
+  };
+  const built: Record<string, unknown> = {
+    ...BM03_DEFAULTS,
+    model: pick(MODELS, inputs.modelCode, BM03_DEFAULTS.model, "modelCode"),
+    step: pick(STEPS, inputs.stepCode, BM03_DEFAULTS.step, "stepCode"),
+  };
+  for (const [key, value] of Object.entries(inputs)) {
+    if (key === "modelCode" || key === "stepCode") continue;
+    if (!Object.hasOwn(BM03_DEFAULTS, key))
+      throw new OwnerContractError(
+        "owner-input-unknown",
+        `"${key}" is not a BM-03 parameter, so naming it in a scenario would change nothing.`,
       );
     built[key] = value;
   }
@@ -3716,6 +3760,93 @@ const OWNERS: OwnerRecord[] = [
         if (isOwnerRefusal(got)) return got;
         Object.assign(numbers, got);
       }
+      return numbers;
+    },
+  },
+  /**
+   * BM-03's SIX PRESETS: COUNTING ARRANGEMENTS INSTEAD OF SOLVING MOTION (am-nxbq, the preset class).
+   *
+   * Paper 2 section 3 derives the osmotic pressure of suspended particles from the probability that n
+   * INDEPENDENT particles are all found in a sub-volume V of V0, which is (V/V0)^n. BM-03 is that count:
+   * the configuration factor ratio, the free-energy change it implies, and the pressure that follows from
+   * differentiating it - with no equation of motion anywhere.
+   *
+   * THE EVALUATION RECORD IS READ, NOT THE SNAPSHOT, and this is the one thing to know before extending
+   * this owner. buildBm03Snapshot publishes its outputs keyed by QUANTITY id, and those ids REPEAT: two
+   * `osmoticPressure` entries (the independent law and the locked cluster) and four `freeEnergy` entries.
+   * `sessionOutputsOf` matches the first by quantityId, so it cannot distinguish `pressure` from
+   * `lockedClusterPressure`, and array position is not a contract. `evaluateBm03` returns a RECORD whose
+   * keys are the manifest's output ids, so that is the layer this reads. The duplicate-quantityId
+   * publication is reported on am-gpk5.
+   *
+   * THE FACTOR RATIO IS NOT ALWAYS A NUMBER, which is the point of two of the six presets. 2^1000000 and
+   * 2^1024 both exceed what binary64 can hold, so `configurationFactorRatio` returns
+   * `representableDouble: null` and gives the ratio as its logarithms instead - 301029.9956639812 and
+   * 308.2547155599167 in base ten. That is the typed-result discipline: a quantity too large to represent
+   * is reported as its logarithm, never as Infinity and never clamped. The owner therefore exposes
+   * `factorRatioLog10` always and `factorRatioDouble` only when one exists, rather than inventing a
+   * number for the overflow cases.
+   *
+   * THE INDEPENDENT PRESSURE IS CROSS-CHECKED AGAINST n*k*T, computed here by `osmoticPressure` from
+   * diffusion.ts, which is a different file and a different derivation from routeA.ts's configuration
+   * route. `pressureAgreementResidual` is their difference, so bm-03-pressure-matches-bm-02 can assert
+   * the agreement its preset name claims. This is not an `identity` scenario because that machinery
+   * passes identical inputs to both owners, and a BM-03 owner that accepted BM-02's `numberDensity`
+   * would have to stop refusing inputs it has no parameter for - a worse trade than computing both here
+   * and saying so.
+   */
+  {
+    id: "bm03.configuration",
+    sourcePath: fileURLToPath(new URL("../../experiments/bm03/session.ts", import.meta.url)),
+    fn: (ctx) => {
+      const params = bm03Params(ctx.inputs) as {
+        Np: number;
+        volumeRatio: number;
+        V0: number;
+        T: number;
+      };
+      const evaluation = evaluateBm03(params as never);
+      const numbers: Record<string, number> = {};
+      const read = (outputId: string, routeA: { result: unknown }): OwnerRefusal | number => {
+        const r = routeA.result as Record<string, unknown>;
+        return nonNumericOr(r, outputId);
+      };
+      let independentPressure = Number.NaN;
+      for (const [outputId, route] of [
+        ["deltaF", evaluation.deltaF],
+        ["pressure", evaluation.pressure],
+        ["lockedClusterPressure", evaluation.lockedClusterPressure],
+      ] as const) {
+        const got = read(outputId, route);
+        if (typeof got !== "number") return got;
+        numbers[outputId] = got;
+        if (outputId === "pressure") independentPressure = got;
+      }
+      numbers.factorRatioLog10 = evaluation.log10Exponent;
+      numbers.factorRatioNaturalLog = evaluation.naturalLogExponent;
+      const double =
+        "representableDouble" in evaluation.factorRatio
+          ? evaluation.factorRatio.representableDouble
+          : null;
+      // Absent rather than invented: a scenario naming factorRatioDouble for an overflowing case gets
+      // an undefined and fails, which is the honest outcome. 1 is a sentinel nobody could distinguish.
+      if (typeof double === "number") numbers.factorRatioDouble = double;
+      // The independent route: n*k*T from diffusion.ts, where n is the number per cubic metre in the
+      // laboratory's own volume. V0 is in cubic micrometres, so 1e-18 converts it.
+      const volumeM3 = params.V0 * 1e-18 * params.volumeRatio;
+      const direct = osmoticPressure(
+        { n: params.Np / volumeM3, T: params.T },
+        getConstantSet(
+          ctx.constantSetId === "modern-si-2019" ? "modern-si-2019" : ctx.constantSetId,
+        ),
+      );
+      const directValue = nonNumericOr(
+        direct.result as unknown as Record<string, unknown>,
+        "osmoticPressureDirect",
+      );
+      if (typeof directValue !== "number") return directValue;
+      numbers.osmoticPressureDirect = directValue;
+      numbers.pressureAgreementResidual = independentPressure - directValue;
       return numbers;
     },
   },

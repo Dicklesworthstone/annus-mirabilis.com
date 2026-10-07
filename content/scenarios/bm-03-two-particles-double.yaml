@@ -1,0 +1,95 @@
+# Two particles and twice the room: four arrangements, and the pressure that follows (am-nxbq, presets).
+#
+# WHICH BUTTON: "Two particles, double volume". It is the smallest case in which the counting argument of
+# paper 2 section 2 can be seen whole, which is why the laboratory offers it as a construction step.
+#
+# WHAT IS PINNED. The configuration factor ratio is exactly 4, which is 2^2: each of two independent
+# particles has twice as many places to be, so the pair has four times as many arrangements. The free
+# energy falls by 5.6108497344055186e-21 J, which is -2 k_B T ln 2 at 293.15 K. The osmotic pressure is
+# 4.0473725435e-9 Pa, which is 2 k_B T divided by the 2e-18 m^3 the pair occupies.
+#
+# THE LOCKED CLUSTER IS PINNED BESIDE IT, at exactly half: 2.02368627175e-9 Pa. Lock the two particles
+# together and the pair counts as ONE object, so the pressure halves. That is Einstein's independence
+# premise made quantitative in the smallest possible case, and it is the number the locked-cluster record
+# generalises to a thousand particles, where the independent law is refused outright.
+#
+# AND THE TWO ROUTES AGREE EXACTLY. `pressureAgreementResidual` is 0: the pressure obtained by
+# differentiating the configuration free energy equals n k_B T computed directly by
+# `osmoticPressure` in diffusion.ts, a different file and a different derivation. Pinned here and in
+# three of the other records, because the whole claim of section 2 is that counting arrangements gives
+# the pressure law without solving any motion.
+#
+# WHY THE RATIO IS PINNED AS A DOUBLE AND AS A LOGARITHM. 4 is representable, so `factorRatioDouble`
+# exists; the base-ten logarithm 0.6020599913279623 is pinned too, because two of this laboratory's six
+# presets produce ratios that OVERFLOW binary64 and are reported only as logarithms. The pair of fields
+# is the same in every record, so the overflow cases are not a special shape.
+id: "bm-03-two-particles-double"
+kind: "modern-golden"
+title: "BM-03 with two particles and double the volume: four arrangements, and half the pressure when they are locked together"
+description: "Two independent particles given twice the volume have four times as many arrangements, so the configuration factor ratio is exactly 4 and the free energy falls by twice k_B T ln 2. The osmotic pressure is 2 k_B T over the volume. Locking the two particles into one cluster halves the pressure, which is the independence premise of paper 2 section 2 in its smallest case. The pressure from differentiating the configuration free energy equals n k_B T computed directly, with a residual of exactly zero."
+provenance:
+  paper: brownian-motion
+  sectionId: s2
+  printedPage: 553
+  locator: "s2-p5 for the probability of an arrangement; s2-p7 for the volume-independent factor"
+constantSetId: "modern-si-2019"
+owner: "bm03.configuration"
+inputs:
+  modelCode:
+    value: 0
+    unit: "1"
+  stepCode:
+    value: 1
+    unit: "1"
+  Np:
+    value: 2
+    unit: "1"
+  volumeRatio:
+    value: 2
+    unit: "1"
+  V0:
+    value: 1000000
+    unit: "um3"
+  T:
+    value: 293.15
+    unit: "K"
+expected:
+  outputs:
+    - outputId: factorRatioDouble
+      value: 4
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: "2^2 exactly. A tolerance at the representation's limit because the quantity is a small integer and any drift would mean the exponentiation is not exact where it can be."
+    - outputId: factorRatioLog10
+      value: 0.6020599913279623
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "2 log10(2). Pinned beside the double because two of this laboratory's presets have no representable ratio and report only this field; the pair is the same shape in every record."
+    - outputId: deltaF
+      value: -5.6108497344055186e-21
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "-2 k_B T ln 2 at 293.15 K, where k_B T is 4.0473725435e-21 J. Negative because giving the particles more room lowers the free energy."
+    - outputId: pressure
+      value: 4.0473725435e-9
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "2 k_B T divided by 2e-18 m^3, which is numerically k_B T over 1e-18. The osmotic pressure of two suspended particles, from counting alone."
+    - outputId: lockedClusterPressure
+      value: 2.02368627175e-9
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Exactly half, because the locked pair counts as one object. Pinned in the same record as the independent pressure so the factor of two is visible rather than inferred across records."
+    - outputId: pressureAgreementResidual
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-24
+        rationale: "The configuration route minus n k_B T from diffusion.ts: exactly zero. An absolute tolerance against an exact zero, fifteen decades below the pressures themselves, so a real disagreement of any size fails."
+modelVersion: 1
+schemaVersion: 1

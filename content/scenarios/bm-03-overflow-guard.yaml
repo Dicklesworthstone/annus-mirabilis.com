@@ -1,0 +1,88 @@
+# 1024 particles is the FIRST count whose arrangement ratio overflows a double (am-nxbq, presets).
+#
+# WHICH BUTTON: "Overflow guard", at 1024 particles. The name is exact: with a volume ratio of 2 the
+# arrangement ratio is 2^1024, and 2^1024 is the first power of two above Number.MAX_VALUE. This is the
+# boundary itself, not a comfortable distance past it.
+#
+# THE BOUNDARY WAS MEASURED FROM BOTH SIDES, which is what makes this record worth more than the
+# million-particle one. At Np = 1023 the owner reports `factorRatioDouble` = 8.98846567431158e+307, a real
+# number; at Np = 1024 the field is ABSENT, because `configurationFactorRatio` returns
+# `representableDouble: null`. One particle changes which of the two shapes a reader is shown. A guard
+# tested only at a million particles would pass on an implementation whose threshold was wrong by a
+# factor of a thousand.
+#
+# WHAT IS PINNED. The logarithms, 308.2547155599167 in base ten and 709.782712893384 natural; the free
+# energy, -2.8727550640156255e-18 J, which is -1024 k_B T ln 2; the pressure, 0.000002072254742272 Pa; and
+# the agreement residual at zero. `factorRatioDouble` is deliberately not named, exactly as in the
+# million-particle record, so the two cases assert the same absence for the same reason.
+#
+# WHY 308.25 IS THE INTERESTING NUMBER. log10(Number.MAX_VALUE) is about 308.2547, and this ratio's
+# log10 is 308.2547155599167 - just above it. The record pins a value whose distance from the
+# representable ceiling is in the fourth decimal place, so an implementation that compared against 1e308
+# or against 309 rather than against the true maximum would fall on the wrong side here and nowhere else.
+id: "bm-03-overflow-guard"
+kind: "adversarial"
+title: "BM-03 at 1024 particles sits exactly on the overflow boundary, where 1023 still has a representable ratio"
+description: "With a volume ratio of two, 1024 particles give an arrangement ratio of 2 to the 1024th, the first power of two above the largest double. The laboratory reports no representable value and gives the logarithms instead. At 1023 particles the same instrument does report a value, 8.99 times ten to the 307th, so the boundary falls between two adjacent particle counts and this preset is on it. The free energy and the pressure remain ordinary numbers, since both depend on the logarithm of the count."
+plausibleMistake: "That an overflow guard can be tested at a comfortably large count, so a million particles is enough. It is not: a threshold compared against 1e308, or against an exponent of 309, or against the wrong constant, passes at a million and fails here, where the ratio's base-ten logarithm is 308.2547155599167 against a representable ceiling of about 308.2547. The complementary mistake is to think 1024 is an arbitrary round number; it is the first power of two that does not fit."
+intendedFailure: "The record pins the logarithms and the thermodynamic quantities while deliberately NOT naming factorRatioDouble, which the owner omits when representableDouble is null. An implementation whose overflow threshold was slightly too high would supply a value at 1024 and still pass this record's named fields, which is why the header records the measurement at 1023 as the other side of the boundary: the pair of counts, not this record alone, is what pins the threshold."
+provenance:
+  paper: brownian-motion
+  sectionId: s2
+  printedPage: 553
+  locator: "s2-p5, the probability of an arrangement of n particle centres"
+constantSetId: "modern-si-2019"
+owner: "bm03.configuration"
+inputs:
+  modelCode:
+    value: 0
+    unit: "1"
+  stepCode:
+    value: 2
+    unit: "1"
+  Np:
+    value: 1024
+    unit: "1"
+  volumeRatio:
+    value: 2
+    unit: "1"
+  V0:
+    value: 1000000
+    unit: "um3"
+  T:
+    value: 293.15
+    unit: "K"
+expected:
+  outputs:
+    - outputId: factorRatioLog10
+      value: 308.2547155599167
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "1024 log10(2), just above log10 of the largest double, about 308.2547. The fourth decimal place is where the boundary is, so a relative 1e-12 is what it takes for this number to distinguish the sides."
+    - outputId: factorRatioNaturalLog
+      value: 709.782712893384
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "1024 ln 2, which is also just above ln of the largest double, about 709.7827. Pinned so the two logarithms are consistent with each other."
+    - outputId: deltaF
+      value: -2.8727550640156255e-18
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "-1024 k_B T ln 2: an ordinary number although the count is not. At 1023 it is -2.869949639148423e-18, so the quantity is continuous across the boundary that the ratio is not."
+    - outputId: pressure
+      value: 0.000002072254742272
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "1024 k_B T over 2e-18 m^3, about two micropascals. Also continuous across the boundary."
+    - outputId: pressureAgreementResidual
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-20
+        rationale: "Exactly zero: the counting route and n k_B T agree at the overflow boundary too, which is worth asserting precisely because this is where an implementation is most likely to lose the exponent."
+modelVersion: 1
+schemaVersion: 1

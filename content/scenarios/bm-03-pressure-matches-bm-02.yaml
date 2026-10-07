@@ -1,0 +1,88 @@
+# The counting route and the pressure law agree exactly, which is section 2's whole claim (am-nxbq).
+#
+# WHICH BUTTON: "Pressure matches BM-02", at 1000 particles with the volume unchanged. The preset's name
+# is a claim, and this record is where it becomes checkable.
+#
+# WHAT IS PINNED, AND HOW THE AGREEMENT IS MADE INDEPENDENT. The osmotic pressure is
+# 0.0000040473725435 Pa by BOTH routes, and `pressureAgreementResidual` is exactly 0. The two numbers come
+# from different files: `pressure` is differentiated from the configuration free energy in
+# src/physics/reference/diffusion/routeA.ts, and `osmoticPressureDirect` is n k_B T from
+# src/physics/reference/diffusion.ts, the function BM-02 itself uses. Paper 2 section 2's argument is that
+# counting where independent particles can be yields the pressure law without any equation of motion;
+# a residual of zero across two implementations is that argument's numerical content.
+#
+# WHY THIS IS NOT AN `identity` SCENARIO, since that is the schema's own form for two routes. The identity
+# runner passes the SAME inputs to both owners, and BM-02's route needs `numberDensity` while BM-03's
+# needs Np, volumeRatio and V0. Admitting BM-02's input into the BM-03 owner would mean dropping its
+# refusal of inputs it has no parameter for, which is a guard worth more than the schema's form. So the
+# owner computes both and exposes their difference, and this comment says so rather than leaving a reader
+# to wonder why the natural form was not used.
+#
+# THE VOLUME DOES NOT CHANGE HERE, and that is the second thing the record pins. The ratio is 1, so the
+# factor ratio is 1 and the free-energy change is exactly 0 - and yet the PRESSURE is not zero. A free
+# energy that does not change is not a pressure that does not exist: the pressure is n k_B T over V and
+# needs no volume change at all. bm-03-ratio-one pins the same distinction at two particles.
+id: "bm-03-pressure-matches-bm-02"
+kind: "modern-golden"
+title: "BM-03's counting route gives BM-02's pressure exactly, with a residual of zero"
+description: "At a thousand particles in an unchanged volume, the osmotic pressure obtained by differentiating the configuration free energy equals the n k_B T of the pressure law to a residual of exactly zero, computed by two functions in two different files. That agreement is the numerical content of paper 2 section 2's argument, that counting where independent particles can be yields the pressure law without solving any motion. The volume ratio is one, so the arrangement ratio is one and the free energy change is zero, while the pressure is not: a pressure needs no volume change."
+provenance:
+  paper: brownian-motion
+  sectionId: s2
+  printedPage: 553
+  locator: "s2-p7, that the factor J depends neither on the volume nor on the particle positions"
+constantSetId: "modern-si-2019"
+owner: "bm03.configuration"
+inputs:
+  modelCode:
+    value: 0
+    unit: "1"
+  stepCode:
+    value: 3
+    unit: "1"
+  Np:
+    value: 1000
+    unit: "1"
+  volumeRatio:
+    value: 1
+    unit: "1"
+  V0:
+    value: 1000000
+    unit: "um3"
+  T:
+    value: 293.15
+    unit: "K"
+expected:
+  outputs:
+    - outputId: pressure
+      value: 0.0000040473725435
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "1000 k_B T over 1e-12 m^3, about four micropascals, by the configuration route."
+    - outputId: osmoticPressureDirect
+      value: 0.0000040473725435
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The same pressure by n k_B T from diffusion.ts, which is BM-02's own function. Pinned as its own number rather than asserted equal, so a model returning one value twice would still have to produce the right one."
+    - outputId: pressureAgreementResidual
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-20
+        rationale: "The difference of the two above: exactly zero. An absolute tolerance against an exact zero, fourteen decades below the pressures, so a disagreement in the twelfth significant figure would still fail."
+    - outputId: deltaF
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-30
+        rationale: "Exactly zero, because the volume does not change. Pinned beside a NON-zero pressure, which is the distinction the record exists to make: no change of free energy, and a pressure all the same."
+    - outputId: factorRatioDouble
+      value: 1
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: "1^1000 = 1. Representable, unlike the overflow cases, and pinned so the zero free energy above is visibly the logarithm of this one rather than a coincidence."
+modelVersion: 1
+schemaVersion: 1

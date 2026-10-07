@@ -1,0 +1,65 @@
+# Remove the independence premise and the pressure law is REFUSED, not quietly recomputed (am-nxbq).
+#
+# WHICH BUTTON: "Locked cluster", at a thousand particles. The model control is set to locked-cluster, so
+# the thousand particles are no longer independent: they move as one body.
+#
+# WHAT SR-03 DOES, AND IT IS A REFUSAL. The independent osmotic pressure arrives `outside-domain` with the
+# condition `independence-premise-removed`. Paper 2 section 2 derives the pressure from the probability
+# that n INDEPENDENT particles are all found in a sub-volume, which is (V/V0)^n. Lock them together and
+# that probability is not (V/V0)^1000, it is (V/V0)^1: the premise the derivation rests on is gone, so the
+# conclusion is not available. The laboratory says so with a typed status rather than returning the number
+# a thousand independent particles would have given, or the number one object gives, either of which a
+# reader could mistake for the pressure law still applying.
+#
+# WHY THIS IS THE MOST IMPORTANT OF BM-03's SIX PRESETS. It is the one that makes Einstein's premise
+# falsifiable inside the instrument. Every other case computes a pressure; this one establishes that the
+# pressure is conditional on something, and names what. AGENTS.md's own list of prohibited circles
+# includes inferring a molecular count while silently using that count to build the data; a laboratory
+# that quietly recomputed a pressure here would be the same shape of error.
+#
+# WHAT THE CLUSTER ITSELF DOES, measured and recorded here rather than pinned, because the runner compares
+# EITHER numbers or a refusal in one case and returns before reading the other. At these settings
+# `lockedClusterPressure` is 2.02368627175e-9 Pa - one object's worth, identical to the two-particle
+# record's locked value and 10^6 times below the independent pressure at a million particles - `deltaF` is
+# -2.8054248672027593e-21 J, which is -1 k_B T ln 2 rather than -1000, and the factor ratio is 2 rather
+# than 2^1000, with an exact decimal of "2". Those four numbers are the quantitative form of the same
+# claim and they belong in a record of their own if one is ever wanted; this ref is the refusal.
+id: "bm-03-locked-cluster"
+kind: "adversarial"
+title: "BM-03 refuses the independent pressure law for a locked cluster, naming the premise it lost"
+description: "A thousand particles locked into one cluster are not independent, so the probability that they are all found in a sub-volume is not that sub-volume ratio raised to the thousandth power. BM-03 reports the independent osmotic pressure as outside its domain with the condition that the independence premise has been removed, rather than returning the number a thousand independent particles would have given or the number one object gives. The arrangement ratio collapses from two to the thousandth to two, and the free energy change from a thousand k_B T ln 2 to one."
+plausibleMistake: "That locking the particles together is a change of degree, so the pressure law can be applied to the cluster as though it were a single large particle and the answer reported as the pressure. A number would then appear where the derivation has no conclusion: paper 2 section 2's pressure follows from independence, and the instrument would be presenting a value whose premise it had just removed. The opposite mistake is to return the thousand-particle pressure unchanged, which is what an implementation that read the model control only for display would do."
+intendedFailure: "The evaluator checks the model before forming the independent pressure, so no value is produced once independence is removed. The scenario passes only when the refusal arrives on `pressure` with status outside-domain and the condition independence-premise-removed; a run returning any number fails, including the locked cluster's own 2.02368627175e-9 Pa, and so does one reporting not-applicable, which would say the quantity is undefined for a different reason than a premise withdrawn."
+provenance:
+  paper: brownian-motion
+  sectionId: s2
+  printedPage: 553
+  locator: "s2-p5, the probability for n independent particle centres"
+constantSetId: "modern-si-2019"
+owner: "bm03.configuration"
+inputs:
+  modelCode:
+    value: 1
+    unit: "1"
+  stepCode:
+    value: 3
+    unit: "1"
+  Np:
+    value: 1000
+    unit: "1"
+  volumeRatio:
+    value: 2
+    unit: "1"
+  V0:
+    value: 1000000
+    unit: "um3"
+  T:
+    value: 293.15
+    unit: "K"
+expected:
+  status:
+    outputId: "pressure"
+    status: "outside-domain"
+    reasonCode: "independence-premise-removed"
+modelVersion: 1
+schemaVersion: 1
