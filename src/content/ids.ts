@@ -705,7 +705,7 @@ export function allocateEquationIds(
     if (!eq.printedLabel) continue;
     const norm = normalizePrintedLabel(eq.printedLabel);
     labelFrequency.set(norm, (labelFrequency.get(norm) ?? 0) + 1);
-    const sectionKey = `${sectionOf(eq)} ${norm}`;
+    const sectionKey = `${sectionOf(eq)}\u0000${norm}`;
     labelFrequencyInSection.set(sectionKey, (labelFrequencyInSection.get(sectionKey) ?? 0) + 1);
   }
 
@@ -725,7 +725,7 @@ export function allocateEquationIds(
     if (eq.printedLabel) {
       const norm = normalizePrintedLabel(eq.printedLabel);
       const globalFreq = labelFrequency.get(norm) ?? 1;
-      const sectionFreq = labelFrequencyInSection.get(`${section} ${norm}`) ?? 1;
+      const sectionFreq = labelFrequencyInSection.get(`${section}\u0000${norm}`) ?? 1;
 
       if (globalFreq > 1 && sectionFreq > 1) {
         const suffix = `${section}-d${nextDisplayIndex(section)}`;
