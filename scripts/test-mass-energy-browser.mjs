@@ -85,7 +85,16 @@ try {
   await help.click();
   await page.locator('dialog[open] [data-foundation-panel="work-energy"]').waitFor();
   assert.match(await page.locator("[data-compass-question]").innerText(), /without changing speed/);
-  await page.locator("dialog[open] [data-reader-close]").click();
+  // NAMED, not `.first()`. The dialog holds TWO [data-reader-close] controls and both really close
+  // it, so the bare attribute locator was a strict-mode violation: "Return to comparing the two",
+  // the return-caption link whose text names the trigger passage (PaperPage.tsx:854), and "Return
+  // to the exact step", the standing action (PaperPage.tsx:911). This check is named for exact
+  // focus restoration, so it presses the standing action by the name a reader reads. A role-and-name
+  // locator still FAILS if a second control ever carries the same name, which `.first()` would not.
+  await page
+    .locator("dialog[open]")
+    .getByRole("button", { name: "Return to the exact step", exact: true })
+    .click();
   await page.waitForFunction(() => document.activeElement?.id === "me-entrance-work-energy");
   assert.equal(await entrance.getAttribute("data-encounter-scenario"), "slow");
   assert.equal(await entrance.getAttribute("data-encounter-phase"), "3");
