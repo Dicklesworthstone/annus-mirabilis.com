@@ -1,0 +1,95 @@
+# The mirror at rest, which is the control every other SR-11 record is read against (am-nxbq).
+#
+# WHICH BUTTON: "Stationary". beta 0, normal incidence. Nothing here is surprising, and that is its value:
+# four of SR-11's five other presets make claims of the form "a moving mirror does NOT do what a mirror
+# does", and that sentence has no content unless this case is pinned.
+#
+# WHAT IS PINNED. The reflected frequency equals the incident exactly, 1. The amplitude ratio is 1. The ray
+# comes back at exactly 180 degrees, reversed - and exactly, not to within millionths as at beta 0.6, which
+# is itself worth seeing. The pressure of radiation is 2, which is twice the incident energy density: the
+# classical result for perfect reflection, where the light's momentum is reversed rather than absorbed.
+# The incident and reflected powers are both c, 299792458 W, and the work rate is exactly zero, because a
+# mirror that does not move cannot have work done on it.
+#
+# WHY THE PRESSURE OF 2 MATTERS BESIDE sr-11-normal-0.6's 0.5. The receding mirror at 0.6c feels a QUARTER
+# of what the stationary mirror feels. A reader with only the moving cases could not tell whether 0.5 was
+# large or small, and the formula 2u(cos phi - beta)^2/(1 - beta^2) reduces here to 2u, which is the
+# textbook value this instrument must reproduce before any of its moving-mirror numbers are worth reading.
+#
+# THE ZERO WORK RATE IS COMPUTED HERE, unlike in sr-11-mirror-frame-0.6, where the same zero is a literal
+# in the kernel. In the laboratory branch the work rate is the difference of the two powers, so this zero
+# is 299792458 - 299792458 and is evidence. The distinction is the reason the two records are written
+# differently, and it is the one thing in SR-11 most likely to be read as a duplicate.
+id: "sr-11-stationary"
+kind: "modern-golden"
+title: "SR-11's mirror at rest: frequency unchanged, exactly reversed, and pressure twice the energy density"
+description: "A mirror at rest reflects light at its own frequency and amplitude, sends it back at exactly 180 degrees, and feels a pressure of twice the incident energy density, which is the classical result for perfect reflection. The work rate is exactly zero, computed as the difference of two equal powers. This is the control the instrument's moving-mirror claims are read against: the receding mirror at 0.6c feels a quarter of this pressure."
+provenance:
+  paper: special-relativity
+  sectionId: s8
+  printedPage: 915
+  locator: "s8-p10, with v set to zero, where the pressure reduces to twice the energy density"
+constantSetId: "modern-si-2019"
+owner: "sr11.mirror"
+inputs:
+  frameCode:
+    value: 0
+    unit: "1"
+  beta:
+    value: 0
+    unit: "1"
+  incidentAngleDeg:
+    value: 0
+    unit: "deg"
+  incidentEnergyDensity:
+    value: 1
+    unit: "J/m^3"
+  mirrorArea:
+    value: 1
+    unit: "m^2"
+expected:
+  outputs:
+    - outputId: frequencyRatio
+      value: 1
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: "Exactly unchanged. A tolerance near the representation's limit, because this is the case where the formula must return a clean 1 and any drift would mean the beta-zero path differs from the limit of the beta-nonzero one."
+    - outputId: amplitudeRatio
+      value: 1
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: "Also exactly 1, pinned separately so a model computing one and copying it must still agree."
+    - outputId: phiReflectedDeg
+      value: 180
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: "Exactly reversed, where beta 0.6 gives 179.9999979086902. Pinned at this precision because the contrast between an exact 180 here and a millionths-short value there is a real statement about the arccos path, not noise."
+    - outputId: radiationPressure
+      value: 2
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: "2u at rest: the classical pressure of perfect reflection, twice the energy density because the momentum is reversed rather than absorbed. Four times the receding mirror's 0.5, which is what makes that number legible."
+    - outputId: incidentPower
+      value: 299792458
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: "u*c*A with all three unity in SI: the speed of light as a number of watts. Pinned so the zero work rate below is the difference of two STATED equal powers."
+    - outputId: reflectedPower
+      value: 299792458
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: "The same c, because nothing was taken out. Pinned as its own number rather than asserted equal to the incident power, which the kernel does not guarantee in this branch."
+    - outputId: workRate
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-9
+        rationale: "Exactly zero, and COMPUTED as 299792458 - 299792458 in the laboratory branch rather than assigned, unlike the mirror-frame record's zero. An absolute tolerance against an exact zero, sized well below any physical work rate this model produces."
+modelVersion: 1
+schemaVersion: 1

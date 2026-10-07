@@ -1,0 +1,95 @@
+# The approaching mirror does work ON the light, and the pressure is sixteen times the receding case.
+#
+# WHICH BUTTON: "Approaching (0.6c)". The same configuration as sr-11-normal-0.6 with the sign of beta
+# reversed, which is the cheapest possible change and produces the largest possible contrast.
+#
+# WHAT IS PINNED, AND THE PAIR IS THE RECORD. The reflected frequency is 4, exactly the reciprocal of the
+# receding case's 1/4: (1 + 0.6)/(1 - 0.6). The pressure is 8, which is SIXTEEN times the receding 0.5,
+# because the pressure goes as (cos phi - beta)^2 and reversing beta at normal incidence takes 0.4 to
+# 1.6. And the work rate is -1439003798.4 W, NEGATIVE: the mirror does work on the light rather than the
+# light on the mirror, which is the same energy principle of s8-p10 read in the other direction.
+#
+# WHY THE SIGN OF THE WORK IS THE POINT. A reader who has seen only the receding case can take "the light
+# pressure does work" for a fact about mirrors. It is a fact about the sign of beta. The two records pin
+# the same three powers with the same formula, and the signs disagree, so neither can be read as the
+# general case.
+#
+# THE RESIDUAL IS 9.5367431640625e-7 AND THAT IS FLOATING POINT, stated rather than tidied. It is 2^-20,
+# against powers of order 1.9e9, so about five parts in 10^16 - one or two units in the last place of a
+# binary64 subtraction of large nearby numbers. The receding case's residual is exactly 0 because its
+# powers are smaller and the cancellation lands on a representable value. Pinned with an absolute
+# tolerance sized to the powers, which is the honest way to assert a cancellation at this magnitude: a
+# relative tolerance on a quantity whose true value is zero is refused at load, and rightly.
+id: "sr-11-approaching-0.6"
+kind: "modern-golden"
+title: "SR-11's mirror approaching at 0.6c quadruples the frequency and takes work from the mirror, not the light"
+description: "Reversing the mirror's velocity turns the reflected frequency from a quarter of the incident into four times it, exactly the reciprocal, and the pressure of radiation from half the energy density into eight times it, a factor of sixteen. The work rate is negative: the approaching mirror does work on the light. The energy principle of section 8 is the same equation read in the other direction, and the two records differ only in the sign of beta."
+provenance:
+  paper: special-relativity
+  sectionId: s8
+  printedPage: 915
+  locator: "s8-p10, the work done by the light pressure per unit time"
+constantSetId: "modern-si-2019"
+owner: "sr11.mirror"
+inputs:
+  frameCode:
+    value: 0
+    unit: "1"
+  beta:
+    value: -0.6
+    unit: "1"
+  incidentAngleDeg:
+    value: 0
+    unit: "deg"
+  incidentEnergyDensity:
+    value: 1
+    unit: "J/m^3"
+  mirrorArea:
+    value: 1
+    unit: "m^2"
+expected:
+  outputs:
+    - outputId: frequencyRatio
+      value: 4
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "(1 + 0.6)/(1 - 0.6) = 4, exactly the reciprocal of sr-11-normal-0.6's 0.25. Pinned so the reciprocity is checkable across the two records rather than asserted in prose."
+    - outputId: amplitudeRatio
+      value: 4
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Equal to the frequency ratio at normal incidence, as in the receding case."
+    - outputId: radiationPressure
+      value: 8.000000000000002
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "2u(cos phi - beta)^2/(1 - beta^2) = 2 x 1.6^2/0.64 = 8. Sixteen times the receding value, because the squared bracket goes from 0.4 to 1.6."
+    - outputId: incidentPower
+      value: 479667932.8
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "c(1 + 0.6) = 1.6 x 299792458: the light and the mirror close at 1.6c in the sense of this ledger, which is a closing rate of two separations and not a speed of anything."
+    - outputId: reflectedPower
+      value: 1918671731.199999
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "6.4c, four times the incident power, which follows from the quadrupled frequency at normal incidence."
+    - outputId: workRate
+      value: -1439003798.4
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Incident minus reflected, so negative: -4.8c. The sign is the claim, and it is pinned as a signed value rather than a magnitude for that reason."
+    - outputId: energyBalanceResidual
+      value: 9.5367431640625e-7
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-5
+        rationale: "2^-20, a binary64 artefact of subtracting powers of order 1.9e9: five parts in 10^16 of them. Pinned with an absolute tolerance two decades above it and fourteen below the powers, so a real leak of any physical size fails while the last-place noise does not. The receding case's residual is exactly 0 because its magnitudes land on a representable cancellation."
+modelVersion: 1
+schemaVersion: 1

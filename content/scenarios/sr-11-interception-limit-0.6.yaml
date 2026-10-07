@@ -1,0 +1,78 @@
+# The grazing angle where the light only just reaches the receding mirror (am-nxbq, the preset class).
+#
+# WHICH BUTTON: "Interception limit (0.6c)", at 53.13010235 degrees. SR-11 refuses when cos(phi) <= beta,
+# because light whose component along the motion is slower than the mirror never catches it. At beta 0.6
+# the boundary is arccos(0.6).
+#
+# THE PRESET SITS JUST INSIDE THE BOUNDARY, BY TRUNCATION, and that is the first thing to know about this
+# record. arccos(0.6) is 53.13010235415598 degrees. The preset's angle is 53.13010235, which is SMALLER by
+# about 4e-9 degrees, so cos(phi) is just above beta and the case is admitted. Measured at the exact
+# arccos(0.6), every one of the ten outputs is refused not-applicable with "The light never reaches the
+# receding mirror because cos(phi) <= beta" - the condition is inclusive. So the preset's eight-decimal
+# truncation is what keeps it legal, and a later edit that "tidied" the angle to arccos(0.6) would turn
+# this record into a refusal. The record says so rather than leaving it to be rediscovered.
+#
+# WHAT IS PINNED, AND IT IS A LIMIT RATHER THAN A MEASUREMENT. The pressure is 1.0522782975320423e-20,
+# twenty orders below the head-on 0.5: the grazing ray delivers essentially nothing. The incident power is
+# 0.017396464646627807 W against the head-on 1.2e8. The frequency ratio is 0.9999999998911969, which is 1
+# to ten digits: a ray that barely catches the mirror comes back unshifted. And the reflected direction is
+# 53.13010235831196 degrees, the incidence angle itself rather than its supplement - the ray grazes
+# onward instead of being sent back.
+#
+# WHY THE FOUR NUMBERS BELONG TOGETHER. Individually each is "almost zero" or "almost one" and could be
+# produced by an instrument that had quietly stopped computing. Together they say the specific thing the
+# limit means: no shift, no pressure, no reversal, and a ray still travelling. The ledger residual,
+# 1.8927889048655578e-12, is almost the whole of the work rate, 1.8927905839031178e-12, which is the one
+# place in SR-11 where the balance is dominated by its own rounding - also stated, not hidden.
+id: "sr-11-interception-limit-0.6"
+kind: "adversarial"
+title: "SR-11 at the grazing angle: no Doppler shift, no pressure, and a ray that is not sent back"
+description: "At 53.13010235 degrees against a mirror receding at 0.6c, the cosine of the incidence angle only just exceeds beta, so the light barely overtakes the mirror. The reflected frequency is one to ten digits, the pressure of radiation is twenty orders of magnitude below its head-on value, and the ray leaves at its own incidence angle rather than the supplement, grazing onward instead of reversing. At the exact arccos of 0.6 the instrument refuses every output, because the interception condition is inclusive."
+plausibleMistake: "That an instrument returning essentially zero pressure and essentially unit frequency has stopped computing, or conversely that the boundary can be approached from either side without a refusal. Both readings are available and both are wrong: the numbers are the honest limit of the reflection formulae, and the condition cos(phi) <= beta refuses AT the boundary, so this preset is admitted only because its angle is truncated below arccos(0.6) by about four parts in a thousand million of a degree."
+intendedFailure: "The four pinned numbers are a limit taken together: no shift, no pressure, no reversal, and a ray still in motion. An implementation that refused slightly early would fail with a not-applicable where numbers are expected; one that refused slightly late would admit the exact arccos(0.6) that this record's header reports as refused; one that had stopped computing would not produce the particular 53.13010235831196-degree outgoing direction."
+constantSetId: "modern-si-2019"
+owner: "sr11.mirror"
+inputs:
+  frameCode:
+    value: 0
+    unit: "1"
+  beta:
+    value: 0.6
+    unit: "1"
+  incidentAngleDeg:
+    value: 53.13010235
+    unit: "deg"
+  incidentEnergyDensity:
+    value: 1
+    unit: "J/m^3"
+  mirrorArea:
+    value: 1
+    unit: "m^2"
+expected:
+  outputs:
+    - outputId: frequencyRatio
+      value: 0.9999999998911969
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Unity to ten digits: a ray that only just overtakes the mirror is reflected without a shift. Pinned at this precision rather than as approximately 1, because the departure from 1 is the measure of how far inside the boundary the preset sits."
+    - outputId: radiationPressure
+      value: 1.0522782975320423e-20
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-9
+        rationale: "2u(cos phi - beta)^2/(1 - beta^2) with the bracket about 1e-10, so the pressure is its square: twenty orders below the head-on 0.5. A relative tolerance loosened three decades because the quantity is the square of a cancellation and its last digits are cancellation residue."
+    - outputId: phiReflectedDeg
+      value: 53.13010235831196
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The incidence angle itself, not its supplement: the ray grazes onward rather than being sent back. The single number that no stalled instrument would produce, which is why the record leans on it."
+    - outputId: incidentPower
+      value: 0.017396464646627807
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-9
+        rationale: "u*c(cos phi - beta) with the bracket about 1e-10: 0.017 W against the head-on 1.2e8. Loosened for the same cancellation reason as the pressure."
+modelVersion: 1
+schemaVersion: 1

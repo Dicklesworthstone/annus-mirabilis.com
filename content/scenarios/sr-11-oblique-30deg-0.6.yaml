@@ -1,0 +1,101 @@
+# A moving mirror does not obey the law of reflection, and this is the record that proves it.
+#
+# WHICH BUTTON: "Oblique 30 degrees (0.6c)". Light arrives at 30 degrees to the normal of a mirror
+# receding at 0.6c.
+#
+# WHAT IS PINNED AND WHY IT IS THE SHARPEST CASE SR-11 HAS. The reflected ray leaves at 86.03049256006035
+# degrees in this instrument's convention. A mirror AT REST reflects the same ray at 150 degrees, which is
+# 180 minus the incidence - measured in the same instrument at beta 0, so the comparison is not against a
+# remembered rule but against the instrument's own behaviour: 0 gives 180, 15 gives 165, 30 gives 150,
+# 45 gives 135, 60 gives 120. At 0.6c the same five angles give 179.9999979, 124.46, 86.03, 62.23 and a
+# REFUSAL. The equality of incidence and reflection is a property of a mirror at rest, and the record
+# exists so that nobody can state it generally.
+#
+# THE FREQUENCY RATIO IS 0.5012023679041773, which is the second half of the same point: it is not the
+# normal-incidence 0.25 and not 1, and no angle-independent Doppler factor produces it. A reader who takes
+# the 1/4 of sr-11-normal-0.6 as "the mirror's redshift" is wrong by a factor of two here.
+#
+# THE LEDGER STILL CLOSES, to 5.960464477539063e-8 against powers of order 8e7 - about seven parts in
+# 10^16, which is floating point and is pinned as such. That the energy principle survives a change of
+# angle is worth asserting precisely because the reflection law does not.
+id: "sr-11-oblique-30deg-0.6"
+kind: "adversarial"
+title: "SR-11 reflects a 30-degree ray at 86 degrees, where a mirror at rest would give 150"
+description: "Light arriving at 30 degrees to the normal of a mirror receding at 0.6c leaves at about 86 degrees in the same convention where a mirror at rest sends it back at 150. The equality of the angles of incidence and reflection is a property of a stationary mirror, not of mirrors. The reflected frequency ratio is about 0.501, neither the normal-incidence quarter nor one, so no angle-independent Doppler factor describes this instrument. The energy ledger still balances."
+plausibleMistake: "That the angle of reflection equals the angle of incidence, and that the mirror's Doppler factor is the (1-beta)/(1+beta) of the head-on case whatever the angle. Both are what a reader carries in from optics and from sr-11-normal-0.6, and both are false here: 30 degrees in gives 86 out rather than 150, and the frequency ratio is 0.501 rather than 0.25. The temptation is strong because the stationary mirror obeys both rules exactly, which this instrument confirms at beta 0."
+intendedFailure: "The reflected direction is computed from the full aberration relation rather than by mirroring the incident angle, so the scenario passes only when the reflected angle is 86.03 and not 150. An implementation that reflected the angle geometrically would fail on phiReflectedDeg and cosPhiReflected; one that applied the normal-incidence Doppler factor at every angle would fail on frequencyRatio by a factor of two."
+provenance:
+  paper: special-relativity
+  sectionId: s8
+  printedPage: 915
+  locator: "s8-p10 for the ledger; s8's reflection relations for the direction"
+constantSetId: "modern-si-2019"
+owner: "sr11.mirror"
+inputs:
+  frameCode:
+    value: 0
+    unit: "1"
+  beta:
+    value: 0.6
+    unit: "1"
+  incidentAngleDeg:
+    value: 30
+    unit: "deg"
+  incidentEnergyDensity:
+    value: 1
+    unit: "J/m^3"
+  mirrorArea:
+    value: 1
+    unit: "m^2"
+expected:
+  outputs:
+    - outputId: phiReflectedDeg
+      value: 86.03049256006035
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The measured reflected direction. The same instrument at beta 0 gives 150 for this incidence, so the 64-degree difference is the moving mirror's and not a convention's."
+    - outputId: cosPhiReflected
+      value: 0.06922556472179586
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The cosine the angle is taken from, pinned too: it is near zero, where an arccos is at its steepest, so pinning only the degree value would hide a loss of precision in the cosine."
+    - outputId: frequencyRatio
+      value: 0.5012023679041773
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Neither 0.25 nor 1. Pinned to forbid the reading that the mirror has one Doppler factor; an angle-independent implementation is wrong here by a factor of two."
+    - outputId: radiationPressure
+      value: 0.22115473580835524
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "2u(cos phi - beta)^2/(1 - beta^2) with cos 30 = 0.866: the bracket is 0.266 rather than 0.4, so the pressure falls to less than half the head-on value."
+    - outputId: incidentPower
+      value: 79752409.69097939
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "u*c(cos phi - beta) times the area, which is the paper's A^2/8pi (V cos phi - v) at u = 1."
+    - outputId: reflectedPower
+      value: 39972096.58318287
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The departing energy, which is the paper's second expression. Pinned so the work rate below is a difference of two stated numbers."
+    - outputId: workRate
+      value: 39780313.10779646
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The difference of the two powers above, which is the energy principle of s8-p10. Still positive: the receding mirror takes energy out of the light at this angle too."
+    - outputId: energyBalanceResidual
+      value: 5.960464477539063e-8
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-6
+        rationale: "2^-24, a binary64 artefact against powers of order 8e7: seven parts in 10^16. An absolute tolerance two decades above the artefact and fourteen below the powers."
+modelVersion: 1
+schemaVersion: 1

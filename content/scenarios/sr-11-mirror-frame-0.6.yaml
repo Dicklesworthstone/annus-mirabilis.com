@@ -1,0 +1,89 @@
+# The same reflection described from the mirror's own frame: the force survives, the work does not.
+#
+# WHICH BUTTON: "Mirror frame (0.6c)". The identical physical reflection as sr-11-normal-0.6 - same mirror,
+# same speed, same light - described from the frame in which the mirror is at rest. In the runtime
+# contract's terms this is an OBSERVER CHANGE: no new experiment, no new randomness, no new events.
+#
+# WHAT IS PINNED, AND WHAT THIS RECORD REFUSES TO CLAIM. Read off the `frame === "mirror"` branch of
+# evaluateSr11 in src/physics/reference/waves.ts: `workRate` and `energyBalanceResidual` are assigned the
+# LITERAL 0 there, and `incidentPower` and `reflectedPower` are both the single `power` variable returned
+# by mirrorFrameLedger. So in this frame, pinning the work rate at zero asserts that the mirror branch was
+# taken, and asserting the two powers are equal asserts nothing whatever. Those two facts are stated here
+# because the alternative - four clean zeros presented as a conservation result - is exactly the shape of a
+# test that cannot fail.
+#
+# WHAT IS COMPUTED, and therefore what the record pins as evidence: the frequency factor
+# q = gamma(1 - beta cos phi), which is 1.25 x 0.4 = 0.5 exactly; the transformed direction, cos = 1; and
+# the force, 2 q^2 u A cos^2(phi')/c.
+#
+# THE TWO NUMBERS WORTH CROSSING BETWEEN THE FRAMES. First, 0.5 is the SQUARE ROOT of the laboratory
+# record's frequency ratio of 0.25, and that is the physical content: the lab sees the one-way Doppler
+# factor applied twice, on the way in and on the way out, while the mirror frame sees it once. Second, the
+# pressure is 0.5 in BOTH frames - the laboratory record pins 0.5000000000000001 and this one 0.5 - which
+# is the observer-change claim made checkable: the force on the mirror is the same number however it is
+# described, while the energy bookkeeping is not. mirrorFrameLedger computes `reproducedForceK` for
+# precisely this comparison, though the session does not expose it.
+#
+# THE INCIDENT POWER IS 74948114.5 W, which is 0.25c and is q^2 times the stationary record's c. It is
+# pinned because it IS computed, unlike the equality between it and the reflected power.
+id: "sr-11-mirror-frame-0.6"
+kind: "modern-golden"
+title: "SR-11 in the mirror's rest frame: the one-way Doppler factor 0.5, and the same force as the laboratory"
+description: "The same reflection as the head-on laboratory case, described from the frame where the mirror is at rest. The frequency factor is 0.5, exactly the square root of the laboratory's 0.25, because the laboratory sees the one-way Doppler shift applied twice and this frame sees it once. The pressure on the mirror is 0.5 in both frames, which is what an observer change must preserve. The work rate in this frame is zero, but it is a constant in the kernel rather than a computed cancellation, so the record does not present it as evidence."
+provenance:
+  paper: special-relativity
+  sectionId: s8
+  printedPage: 915
+  locator: "s8-p10; the mirror-rest description is the modern observer-change reading, not the paper's own"
+constantSetId: "modern-si-2019"
+owner: "sr11.mirror"
+inputs:
+  frameCode:
+    value: 1
+    unit: "1"
+  beta:
+    value: 0.6
+    unit: "1"
+  incidentAngleDeg:
+    value: 0
+    unit: "deg"
+  incidentEnergyDensity:
+    value: 1
+    unit: "J/m^3"
+  mirrorArea:
+    value: 1
+    unit: "m^2"
+expected:
+  outputs:
+    - outputId: frequencyRatio
+      value: 0.5
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: "q = gamma(1 - beta cos phi) = 1.25 x 0.4, exactly 0.5, and exactly the square root of the laboratory record's 0.25. Pinned at near-representation precision because the square-root relation between the two records is the claim and a loose tolerance would admit a near miss."
+    - outputId: cosPhiReflected
+      value: 1
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: "(cos phi - beta)/(1 - beta cos phi) = 0.4/0.4 = 1 at normal incidence: the direction is along the axis in this frame too. Computed, unlike the zeros this record declines to lean on."
+    - outputId: radiationPressure
+      value: 0.5
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The force per unit area, 2 q^2 u A cos^2(phi')/c. Equal to the laboratory record's 0.5000000000000001 to within this tolerance, which is the observer-change assertion: the force on the mirror does not depend on who describes it."
+    - outputId: incidentPower
+      value: 74948114.5
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "q^2 times c, which is 0.25 x 299792458. Pinned because it is computed; the equality between it and the reflected power is not pinned, because both come from one variable."
+    - outputId: workRate
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-9
+        rationale: "Zero, and this record states plainly that it is a LITERAL in the mirror branch of evaluateSr11 rather than a computed difference. It is pinned to assert that the mirror branch was selected at all, which is the only thing it can honestly establish. The computed zero of the same quantity lives in sr-11-stationary, where it is 299792458 - 299792458."
+modelVersion: 1
+schemaVersion: 1

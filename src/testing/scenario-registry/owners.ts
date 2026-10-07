@@ -364,6 +364,39 @@ function sr12VectorComponent(
   return component;
 }
 
+/**
+ * SR-11's parameter record. `frame` is the laboratory's STRING ("lab" or "mirror") while the manifest
+ * declares it numeric, so `frameCode` is 0 for the laboratory frame K and 1 for the mirror's rest frame
+ * k, mapped here; an unknown input is refused by name rather than dropped.
+ */
+function sr11Params(inputs: Record<string, number>): Record<string, unknown> {
+  const code = inputs.frameCode;
+  const frame =
+    code === undefined
+      ? SR11_DEFAULTS.frame
+      : code === 0
+        ? "lab"
+        : code === 1
+          ? "mirror"
+          : (() => {
+              throw new OwnerContractError(
+                "owner-mode-code-unknown",
+                `frameCode ${code} names no SR-11 frame; 0 is the laboratory K, 1 the mirror rest frame k.`,
+              );
+            })();
+  const built: Record<string, unknown> = { ...SR11_DEFAULTS, frame };
+  for (const [key, value] of Object.entries(inputs)) {
+    if (key === "frameCode") continue;
+    if (!Object.hasOwn(SR11_DEFAULTS, key))
+      throw new OwnerContractError(
+        "owner-input-unknown",
+        `"${key}" is not an SR-11 parameter, so naming it in a scenario would change nothing.`,
+      );
+    built[key] = value;
+  }
+  return built;
+}
+
 function num(inputs: Record<string, number>, key: string): number {
   const value = inputs[key];
   if (typeof value !== "number" || !Number.isFinite(value)) {
@@ -3620,6 +3653,64 @@ const OWNERS: OwnerRecord[] = [
         "chargeDensityStationary",
         "chargeDensityMoving",
         "lorentzFactor",
+      ]) {
+        const got = sessionOutputsOf(outputs, outputId);
+        if (isOwnerRefusal(got)) return got;
+        Object.assign(numbers, got);
+      }
+      return numbers;
+    },
+  },
+  /**
+   * SR-11's SIX PRESETS: THE MOVING MIRROR OF SECTION 8 (am-nxbq, the preset class).
+   *
+   * Section 8 reflects light from a mirror moving along its normal and derives the reflected frequency,
+   * the reflected amplitude, the direction, and the pressure of radiation. SR-11 is that, plus the
+   * energy ledger: incident power, reflected power, and the rate at which the mirror does work.
+   *
+   * THE DESCRIPTION FRAME TRAVELS AS A CODE, for the reason on sr05Params: run.ts coerces every input
+   * with Number(spec.value). 0 is the laboratory frame K, 1 the mirror's rest frame k. The manifest
+   * declares `frame` with default 0 and unit "dimensionless", while the laboratory's value is the STRING
+   * "lab" or "mirror" - a third divergence of the kind on am-hr4z, and the reason this owner maps rather
+   * than passes through.
+   *
+   * WHAT IS COMPUTED AND WHAT IS A CONSTANT, read off waves.ts and worth knowing before trusting any
+   * mirror-frame number. In the `frame === "mirror"` branch of evaluateSr11, `workRate` and
+   * `energyBalanceResidual` are assigned the literal 0, and `incidentPower` and `reflectedPower` are both
+   * the single `power` variable from mirrorFrameLedger. So in that frame a record pinning workRate at
+   * zero asserts that the branch was taken, not that a cancellation was computed, and asserting the two
+   * powers are equal asserts nothing at all. The computed quantities there are the frequency factor
+   * q = gamma(1 - beta cos phi), the transformed direction, and the force. The mirror-frame record says
+   * this in its own text rather than presenting four clean zeros as evidence.
+   *
+   * THE LABORATORY FRAME IS DIFFERENT: its workRate and residual come from mirrorMotion's own ledger, so
+   * incidentPower - reflectedPower - workRate is a real subtraction there and the residual is real
+   * evidence. At beta -0.6 it is 9.5367431640625e-7, which is 2^-20 against powers of order 10^9, so
+   * about five parts in 10^16 - floating-point, and pinned with an absolute tolerance that says so.
+   *
+   * THE INTERCEPTION BOUNDARY IS INCLUSIVE, measured: at the EXACT arccos(0.6) every output is refused
+   * not-applicable with "The light never reaches the receding mirror because cos(phi) <= beta". The
+   * preset's angle, 53.13010235 degrees, is truncated BELOW arccos(0.6) = 53.13010235415598, so it sits
+   * about 4e-9 degrees inside the admitted domain and returns the vanishing numbers of a grazing ray.
+   * That truncation is what keeps the preset legal, and sr-11-interception-limit-0.6 records it.
+   */
+  {
+    id: "sr11.mirror",
+    sourcePath: fileURLToPath(new URL("../../physics/reference/waves.ts", import.meta.url)),
+    fn: (ctx) => {
+      const outputs = sr11SnapshotOutputs(sr11Params(ctx.inputs) as never);
+      const numbers: Record<string, number> = {};
+      for (const outputId of [
+        "frequencyRatio",
+        "amplitudeRatio",
+        "cosPhiReflected",
+        "phiReflectedDeg",
+        "radiationPressure",
+        "radiationForce",
+        "incidentPower",
+        "reflectedPower",
+        "workRate",
+        "energyBalanceResidual",
       ]) {
         const got = sessionOutputsOf(outputs, outputId);
         if (isOwnerRefusal(got)) return got;

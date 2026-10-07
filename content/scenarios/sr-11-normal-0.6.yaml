@@ -1,0 +1,108 @@
+# Section 8's receding mirror: the light is reddened fourfold and gives up the difference as work.
+#
+# WHICH BUTTON: "Normal incidence (0.6c)". The mirror recedes along its own normal at 0.6c and the light
+# arrives head on. This is the configuration section 8 derives, and the one its printed results describe.
+#
+# WHAT IS PINNED. The reflected frequency is a quarter of the incident: (1 - beta)/(1 + beta) = 0.4/1.6,
+# exactly 1/4, which is the one-way Doppler factor applied twice - once as the light catches the receding
+# mirror and once as the reflected light returns. The amplitude ratio is the same 1/4. The pressure of
+# radiation is 0.5, which is 2u(cos phi - beta)^2/(1 - beta^2) = 2 x 0.16/0.64 at normal incidence.
+#
+# AND THE ENERGY LEDGER CLOSES EXACTLY, WHICH IS THE PAPER'S OWN SENTENCE. s8-p10 (printed page 915)
+# gives the energy striking unit area per unit time as A^2/8pi times (V cos phi - v), the energy leaving
+# as the primed form with the sign of the cosine reversed, and then: "Die Differenz dieser beiden
+# Ausdruecke ist nach dem Energieprinzip die vom Lichtdrucke in der Zeiteinheit geleistete Arbeit" - the
+# difference of these two expressions is, by the energy principle, the work done by the light pressure
+# per unit time. That identity is what this record checks numerically. The incident power is
+# 119916983.2 W, which is c(1 - beta) with unit energy density and unit area; the reflected power is
+# 29979245.8, which is 0.1c; and the mirror's work rate is 89937737.4, which is 0.3c. The three sum:
+# 119916983.2 - 29979245.8 = 89937737.4 exactly, and the residual is 0. A receding mirror takes energy
+# out of the light, and the record says how much and where it went rather than asserting conservation.
+#
+# WHY THE RESIDUAL IS REAL EVIDENCE HERE AND NOT IN THE MIRROR-FRAME RECORD. In the laboratory branch of
+# evaluateSr11 the work rate and residual come from mirrorMotion's own ledger, so the subtraction is
+# performed and the zero is computed. In the mirror-frame branch both are the literal 0 at the call site.
+# sr-11-mirror-frame-0.6 says so about itself; this record's zero is earned.
+#
+# THE ANGLE IS 179.9999979086902 AND NOT 180, which is worth stating rather than rounding away. Normal
+# incidence is a limit of the reflection formula approached through an arccos, so the direction comes back
+# a few millionths of a degree short of exactly reversed. The pinned value is what a reader sees.
+id: "sr-11-normal-0.6"
+kind: "modern-golden"
+title: "SR-11's mirror receding at 0.6c reflects a quarter of the frequency, and the ledger closes exactly"
+description: "Light falling head on a mirror that recedes at 0.6c comes back with a quarter of its frequency and a quarter of its amplitude, since the one-way Doppler factor of 0.4 over 1.6 applies on the way in and on the way out. The pressure of radiation is half the incident energy density. The incident power is 0.4c, the reflected power 0.1c and the mirror's work rate 0.3c, and the three balance exactly: the receding mirror takes the difference out of the light."
+provenance:
+  paper: special-relativity
+  sectionId: s8
+  printedPage: 915
+  locator: "s8-p10, the incident and departing energies per unit area and the work done by the light pressure"
+constantSetId: "modern-si-2019"
+owner: "sr11.mirror"
+inputs:
+  frameCode:
+    value: 0
+    unit: "1"
+  beta:
+    value: 0.6
+    unit: "1"
+  incidentAngleDeg:
+    value: 0
+    unit: "deg"
+  incidentEnergyDensity:
+    value: 1
+    unit: "J/m^3"
+  mirrorArea:
+    value: 1
+    unit: "m^2"
+expected:
+  outputs:
+    - outputId: frequencyRatio
+      value: 0.25000000000000006
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "(1 - beta)/(1 + beta) = 0.4/1.6, exactly 1/4 in real arithmetic; the pinned value is the binary64 result of the formula as written. The squared one-way factor, which is why a mirror reddens more than a receding source."
+    - outputId: amplitudeRatio
+      value: 0.25000000000000006
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Equal to the frequency ratio at normal incidence, which is section 8's result that amplitude and frequency transform by the same factor here. Pinned separately so a model computing only one and copying it would still have to agree."
+    - outputId: radiationPressure
+      value: 0.5000000000000001
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "2u(cos phi - beta)^2/(1 - beta^2) = 2 x 0.16/0.64 at phi = 0 and u = 1, exactly 0.5. Half what a mirror at rest feels, because the receding mirror is struck less often and less hard."
+    - outputId: incidentPower
+      value: 119916983.2
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "c(1 - beta) with unit energy density and area: the light closes on the mirror at 0.4c, not c. 0.4 x 299792458."
+    - outputId: reflectedPower
+      value: 29979245.799999997
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "0.1c. A quarter of the incident power, which follows from the quarter frequency at normal incidence."
+    - outputId: workRate
+      value: 89937737.4
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "0.3c, and exactly the difference of the two powers above. Pinned as its own number so the balance below is a check and not a definition."
+    - outputId: energyBalanceResidual
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-9
+        rationale: "Exactly zero: incident minus reflected minus work. An absolute tolerance against an exact zero, and 1e-9 is chosen against powers of order 10^8, so it admits one part in 10^17 of them and no physical leak."
+    - outputId: phiReflectedDeg
+      value: 179.9999979086902
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Reversed, to within a few millionths of a degree: normal incidence is a limit of the reflection formula reached through an arccos. Pinned as computed rather than rounded to 180, since a reader sees this number."
+modelVersion: 1
+schemaVersion: 1
