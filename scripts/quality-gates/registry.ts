@@ -617,6 +617,23 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     // `--fixtures --journey runtime-conformance` exits 0 today over nine live-class assertions
     // in real Chromium, three of them planted negatives that must fail.
     //
+    // HALF OF THAT IS NOW STALE, and the half that stands is a different problem from the one it
+    // names. Re-measured 2026-10-07: the quoted stub is GONE from the harness, which registers all
+    // four papers through `scripts/e2e/journeys/index.ts`, and `--paper mass-energy` now reaches a
+    // real preflight rather than a usage refusal. What it fails on is `preflight/target-identity`
+    // with "Unable to connect. Is the computer able to access the url?" -- it wants a server, and
+    // the gate chain starts none. So the blocker is the TARGET, not the wiring, and anyone reading
+    // the paragraph above would go looking for paper lanes that already exist.
+    //
+    // The capability to serve one is also already here: `scripts/e2e/paperJourneyLane.e2e.test.ts`
+    // runs a paper's seven-step journey in the node lane against `out/` on a server it starts
+    // itself, with `assertOutFreshness` refusing a stale build and a route-surgical plant that must
+    // redden it. So widening this command means giving the gate a target -- serving `out/`, or
+    // pointing `E2E_BASE_URL` at the candidate deployment the release script already builds -- and
+    // it means the browser family then depends on a fresh `out/`, which this chain does not build.
+    // That dependency is the decision to take, and it belongs to am-browser-gate-identity-7nq2
+    // rather than to a widened command slipped in here.
+    //
     // THE TITLE IS NOW WHAT IT RUNS. It said "Browser acceptance E2E vertical slices" while
     // running the runtime-conformance journey, which am-xyxk item 2 put to the owner as part of
     // a larger question: three artifacts shared the name "browser acceptance" and did three
