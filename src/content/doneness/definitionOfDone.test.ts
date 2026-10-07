@@ -51,6 +51,7 @@ function fixtureRoot(): string {
     `content/bindings/${PAPER}.yaml`,
     `content/display-terms/${PAPER}.yaml`,
     `content/misconceptions/${PAPER}`,
+    `content/journeys/${PAPER}.yaml`,
     "content/tours",
     `out/papers/${PAPER}/view/german/index.html`,
     `out/papers/${PAPER}/view/english/index.html`,
@@ -146,6 +147,69 @@ describe("the planted regressions", () => {
     expect(after.met).toBe(before.met - 1);
   });
 
+  it("the journey skeleton counts thirteen elements, and a missing or invalid record is unmeasured", () => {
+    // This cell was `unmeasured` with the reason "the discovery journeys are hand-authored JSX
+    // rather than records". The records exist now, so the reason was stale and a stale `unmeasured`
+    // reads as "nobody could check" when somebody can.
+    const root = fixtureRoot();
+    const before = cellOf(paperDoneness(root, PAPER).cells, "journey-skeleton-parts");
+    expect(before.of).toBe(13);
+    expect(before.met).toBe(11);
+    expect(before.state).toBe("short");
+    // The two that are absent are absent BY DECLARATION, and the detail says both things, because
+    // "11 of 13" without the names is a number nobody can act on.
+    expect(before.detail).toContain("absent: exercises.instrumented, stages");
+    expect(before.detail).toContain("declared pending: exercises.instrumented, stages");
+
+    // A plant on a real element, chosen so the record STAYS VALID. My first attempt emptied
+    // naggingFact, and the schema refuses that, so the cell went unmeasured and the plant measured
+    // the schema rather than the count. Emptying worldChecks is tolerated and costs exactly one
+    // element.
+    const path = join(root, `content/journeys/${PAPER}.yaml`);
+    const text = readFileSync(path, "utf8");
+    expect(text).toMatch(/^worldChecks:\n(?:[ \t]+.*\n)+/m);
+    const planted_text = text.replace(/^worldChecks:\n(?:[ \t]+.*\n)+/m, "worldChecks: []\n");
+    writeFileSync(path, planted_text);
+    // What landed, asserted before the verdict is read: a plant that did not apply produces a green
+    // that means nothing.
+    expect(readFileSync(path, "utf8")).toContain("worldChecks: []");
+    const planted = cellOf(paperDoneness(root, PAPER).cells, "journey-skeleton-parts");
+    expect(planted.state).toBe("short");
+    expect(planted.met).toBe(before.met - 1);
+    expect(planted.detail).toContain("worldChecks");
+
+    // A record that does not validate is UNMEASURED, not 0 of 13: reporting a zero would invite
+    // someone to repair thirteen elements that may all be present.
+    writeFileSync(path, "kind: not-a-journey\n");
+    const broken = cellOf(paperDoneness(root, PAPER).cells, "journey-skeleton-parts");
+    expect(broken.state).toBe("unmeasured");
+    expect(broken.of).toBe(0);
+    expect(broken.detail).toContain("does not validate");
+
+    // And an absent record is unmeasured for its own reason, which names the path. The root below
+    // carries every other input and no journey record, rather than being empty: paperDoneness reads
+    // the source-block manifest without a guard, so a bare directory throws instead of reporting.
+    const noJourney = mkdtempSync(join(tmpdir(), "doneness-nojourney-"));
+    for (const rel of [
+      `content/source-blocks/${PAPER}/manifest.yaml`,
+      `content/translation-units/${PAPER}`,
+      `content/alignments/${PAPER}.yaml`,
+      `content/bindings/${PAPER}.yaml`,
+      `content/display-terms/${PAPER}.yaml`,
+      `content/misconceptions/${PAPER}`,
+      "content/tours",
+    ]) {
+      const to = join(noJourney, rel);
+      mkdirSync(join(to, ".."), { recursive: true });
+      cpSync(join(ROOT, rel), to, { recursive: true });
+    }
+    const absent = cellOf(paperDoneness(noJourney, PAPER).cells, "journey-skeleton-parts");
+    expect(absent.state).toBe("unmeasured");
+    expect(absent.detail).toContain(`content/journeys/${PAPER}.yaml`);
+    // The neighbouring record-only cell still measures, so the absence is scoped to what went missing.
+    expect(cellOf(paperDoneness(noJourney, PAPER).cells, "alignment-edges").state).toBe("met");
+  });
+
   it("an absent built face is unmeasured, NOT met and NOT short", () => {
     // The distinction the whole report turns on: a missing input is not a verdict about the paper.
     const root = mkdtempSync(join(tmpdir(), "doneness-nobuild-"));
@@ -156,6 +220,7 @@ describe("the planted regressions", () => {
       `content/bindings/${PAPER}.yaml`,
       `content/display-terms/${PAPER}.yaml`,
       `content/misconceptions/${PAPER}`,
+      `content/journeys/${PAPER}.yaml`,
       "content/tours",
     ]) {
       const to = join(root, rel);

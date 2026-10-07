@@ -21,8 +21,13 @@
  *
  * 3. MET MEANS THE NUMERATOR REACHED THE DENOMINATOR. Not "close", not "no errors found".
  *
- * WHAT IS MEASURED AND WHAT IS NOT. Eight items are computed from real inputs; seven are declared
- * `unmeasured` with the reason and the bead that owns the missing input. Declaring them is deliberate:
+ * WHAT IS MEASURED AND WHAT IS NOT. NINE items are computed from real inputs; six are declared
+ * `unmeasured` with the reason and the bead that owns the missing input. It was eight and seven:
+ * `journey-skeleton-parts` became measurable when the discovery journeys were emitted as records
+ * under `content/journeys/`, and its stale `unmeasured` reason still said they were "hand-authored
+ * JSX rather than records". A reason that has gone stale is the same silence this file is written
+ * against, one layer up: it reads as "nobody could check" when somebody can, so an item's reason is
+ * re-read when its owning bead moves. Declaring them is deliberate:
  * the acceptance asks for a report that accounts for every item, and an item quietly left out is the
  * silent class this file is written against. They are NOT counted as met, and they are NOT counted as
  * short either, because neither would be a measurement.
@@ -30,6 +35,9 @@
 
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { journeySkeletonElements } from "../../discovery/checks/journeyChecks.ts";
+import { type Journey, validateJourney } from "../schemas/journey.ts";
+import { strictParse } from "../schemas/strictParse.ts";
 
 export const DONENESS_PAPERS = [
   "mass-energy",
@@ -126,6 +134,60 @@ const builtFace = (root: string, paper: string, face: string): string | null => 
   const path = join(root, `out/papers/${paper}/view/${face}/index.html`);
   return existsSync(path) ? readFileSync(path, "utf8") : null;
 };
+
+/**
+ * THE DISCOVERY SKELETON, COUNTED PER PAPER. Thirteen elements, from the journey record on disk.
+ *
+ * This cell was `unmeasured` with the reason "the discovery journeys are hand-authored JSX rather
+ * than records, so their skeleton parts cannot be counted (am-4k0m)". That was true when it was
+ * written and is not now: `content/journeys/<paper>.yaml` holds four emitted records, each parsed
+ * back and asserted deeply equal to the journey the pages render, and each validated against the
+ * journey schema. So the input the reason named as missing exists, and a stale `unmeasured` is the
+ * same silence this file is written against -- it reads as "nobody could check" when somebody can.
+ *
+ * THE PREDICATE IS NOT RE-DERIVED HERE. It comes from `journeySkeletonElements`, which `checkJourney`
+ * consumes for the same thirteen elements, so this report and the gate cannot disagree about what
+ * "has a fork" means. A second copy of those predicates in this file would be free to drift, which
+ * is exactly what the doneness report exists to stop happening to bead status.
+ *
+ * A PENDING ELEMENT COUNTS AS ABSENT, deliberately. Two of the four records declare `stages` and
+ * `exercises.instrumented` pending through the schema's own `pendingElements`, which is an honest
+ * declaration and not a measurement: the reader does not get a staged journey because the record
+ * says the stages are coming. `checkJourney` uses the same declarations to suppress its own
+ * findings; this cell does not, because its question is "how much of the skeleton is there".
+ */
+function journeySkeletonCell(root: string, paper: DonenessPaper): DonenessCell {
+  const path = join(root, "content", "journeys", `${paper}.yaml`);
+  if (!existsSync(path))
+    return unmeasured(
+      "journey-skeleton-parts",
+      `no journey record at content/journeys/${paper}.yaml, so its skeleton cannot be counted`,
+    );
+  let journey: Journey;
+  try {
+    journey = validateJourney(strictParse(readFileSync(path, "utf8"), "yaml"));
+  } catch (error) {
+    // A record the schema refuses is not a count of zero: it is a record nobody can read, and
+    // reporting 0 of 13 would invite someone to "fix" thirteen elements that may all be present.
+    return unmeasured(
+      "journey-skeleton-parts",
+      `content/journeys/${paper}.yaml does not validate, so its skeleton cannot be counted: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    );
+  }
+  const elements = journeySkeletonElements(journey);
+  const names = Object.keys(elements).sort();
+  const present = names.filter((name) => elements[name] === true);
+  const pending = (journey.pendingElements ?? []).map((entry) => entry.element).sort();
+  const absent = names.filter((name) => elements[name] !== true);
+  const detail =
+    `${present.length} of ${names.length} skeleton elements present in ` +
+    `content/journeys/${paper}.yaml` +
+    (absent.length > 0 ? `; absent: ${absent.join(", ")}` : "") +
+    (pending.length > 0 ? `; declared pending: ${pending.join(", ")}` : "");
+  return cell("journey-skeleton-parts", present.length, names.length, detail);
+}
 
 /** Translation-unit ids, from each record's own `id`. */
 function translationUnitIds(root: string, paper: string): readonly string[] {
@@ -320,10 +382,7 @@ export function paperDoneness(root: string, paper: DonenessPaper): PaperDoneness
       "lab-contract-cells",
       "the instrument coverage obligations are per instrument rather than per paper; mapping an instrument to the paper whose claim it answers needs a declared binding",
     ),
-    unmeasured(
-      "journey-skeleton-parts",
-      "the discovery journeys are hand-authored JSX rather than records, so their skeleton parts cannot be counted (am-4k0m)",
-    ),
+    journeySkeletonCell(root, paper),
     unmeasured(
       "reviews-recorded-with-names",
       "docs/OWNERS.md has one assigned human and 54 recruiting slots, so no paper can record a human review; an agent must not compute this as met",

@@ -66,9 +66,9 @@
       "of": 0
     },
     "journey-skeleton-parts": {
-      "state": "unmeasured",
-      "met": 0,
-      "of": 0
+      "state": "short",
+      "met": 11,
+      "of": 13
     },
     "reviews-recorded-with-names": {
       "state": "unmeasured",
@@ -143,9 +143,9 @@
       "of": 0
     },
     "journey-skeleton-parts": {
-      "state": "unmeasured",
-      "met": 0,
-      "of": 0
+      "state": "short",
+      "met": 11,
+      "of": 13
     },
     "reviews-recorded-with-names": {
       "state": "unmeasured",
@@ -220,9 +220,9 @@
       "of": 0
     },
     "journey-skeleton-parts": {
-      "state": "unmeasured",
-      "met": 0,
-      "of": 0
+      "state": "short",
+      "met": 11,
+      "of": 13
     },
     "reviews-recorded-with-names": {
       "state": "unmeasured",
@@ -297,9 +297,9 @@
       "of": 0
     },
     "journey-skeleton-parts": {
-      "state": "unmeasured",
-      "met": 0,
-      "of": 0
+      "state": "short",
+      "met": 11,
+      "of": 13
     },
     "reviews-recorded-with-names": {
       "state": "unmeasured",
