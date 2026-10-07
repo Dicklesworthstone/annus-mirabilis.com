@@ -432,11 +432,21 @@ function runOne(
         .filter((e) => e.provenance.toLowerCase().includes("printed n"))
         .map((e) => e.quantityId),
     );
-    const checks = checkEditorialInputs(scenario.editorialInputs, set, printed);
+    // The scenario's own inputs are passed so a declared value that contradicts the one the owner is
+    // actually given is caught: see the input-mismatch note in editorialInputs.ts.
+    const checks = checkEditorialInputs(
+      scenario.editorialInputs,
+      set,
+      printed,
+      scenario.inputs ?? {},
+    );
     extra.editorialInputCheck = checks.map((c) => c.check);
     extra.editorialInputs = scenario.editorialInputs;
     const mismatch = checks.find(
-      (c) => c.check === "value-mismatch" || c.check === "declared-printed",
+      (c) =>
+        c.check === "value-mismatch" ||
+        c.check === "declared-printed" ||
+        c.check === "input-mismatch",
     );
     if (mismatch) {
       return { ...base, status: "failed", message: mismatch.message };

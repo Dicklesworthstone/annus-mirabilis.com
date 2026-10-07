@@ -12,7 +12,19 @@ export type EditorialCheck =
   | "agreed"
   | "not-declared-in-set"
   | "value-mismatch"
-  | "declared-printed";
+  | "declared-printed"
+  /**
+   * The editorial input and the scenario's OWN input for the same quantity disagree. Found 2026-10-06 by
+   * a plant that was expected to go red and stayed green: a scenario declaring an editorial viscosity of
+   * 1.35e-3 while its own `viscosity` input was 1.0798059e-3 passed, because every check above compares
+   * the declared value against the CONSTANT SET and water viscosity is in no constant set, so the answer
+   * was `not-declared-in-set` and nothing looked further.
+   *
+   * That is the binding-in-two-places shape: the editorial input is what a reader is told the value is
+   * and its source, and the scenario input is what the owner was actually given. A record whose two
+   * halves disagree cites a provenance for a number it did not use.
+   */
+  | "input-mismatch";
 
 const TO_SI: Record<string, number> = {
   "J/(mol K)": 1,
@@ -41,6 +53,12 @@ export function checkEditorialInputs(
   editorialInputs: readonly EditorialInput[],
   set: ConstantSet,
   printedQuantityIds: ReadonlySet<string> = new Set(),
+  /**
+   * The scenario's own inputs, so a declared value can be checked against the one the owner is actually
+   * given. Optional, because the two existing callers that have no scenario to hand still get every other
+   * check; absent it, `input-mismatch` can never fire and the function behaves as it did before.
+   */
+  scenarioInputs: Readonly<Record<string, Readonly<{ value: number | string; unit: string }>>> = {},
 ): readonly {
   quantityId: string;
   check: EditorialCheck;
@@ -50,6 +68,27 @@ export function checkEditorialInputs(
 }[] {
   return editorialInputs.map((entry) => {
     const scenarioValue = asNumber(entry.value);
+    // CHECKED FIRST, DELIBERATELY. The constant-set checks below return early, and the
+    // `not-declared-in-set` branch is the one that hid this: a quantity in no constant set took that
+    // branch and no later check ran. A disagreement with the scenario's own input is worse than any of
+    // them, because it means the record's cited provenance belongs to a number the run never used.
+    const own = scenarioInputs[entry.quantityId];
+    if (own !== undefined) {
+      const declaredSi = toSi(scenarioValue, entry.unit);
+      const usedValue = asNumber(own.value);
+      const usedSi = toSi(usedValue, own.unit);
+      const same =
+        declaredSi !== null && usedSi !== null
+          ? declaredSi === usedSi
+          : scenarioValue === usedValue;
+      if (!same)
+        return {
+          quantityId: entry.quantityId,
+          check: "input-mismatch" as const,
+          scenarioValue,
+          message: `Editorial input ${entry.quantityId} declares ${scenarioValue} ${entry.unit} (${entry.source}) and the scenario's own ${entry.quantityId} input is ${usedValue} ${own.unit}. The cited source would stand behind a number the run did not use.`,
+        };
+    }
     const inSet = set.entries.find((e) => e.quantityId === entry.quantityId);
     if (!inSet) {
       return {
