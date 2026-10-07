@@ -34,6 +34,8 @@ import { SR05_DEFAULTS } from "../../experiments/sr05/definition.ts";
 import { evaluateSr05 } from "../../experiments/sr05/session.ts";
 import { SR06_DEFAULTS } from "../../experiments/sr06/definition.ts";
 import { evaluateSr06 } from "../../experiments/sr06/session.ts";
+import { SR07_DEFAULTS } from "../../experiments/sr07/definition.ts";
+import { evaluateSr07 } from "../../experiments/sr07/session.ts";
 import { SR08_DEFAULTS } from "../../experiments/sr08/definition.ts";
 import { snapshotOutputs as sr08SnapshotOutputs } from "../../experiments/sr08/session.ts";
 import { SR09_DEFAULTS } from "../../experiments/sr09/definition.ts";
@@ -1329,6 +1331,46 @@ const OWNERS: OwnerRecord[] = [
         "fieldInvariantE2MinusC2B2Moving",
         "lorentzFactor",
         "particleTimeJacobian",
+      ]) {
+        const got = sessionOutputsOf(outputs, outputId);
+        if (isOwnerRefusal(got)) return got;
+        Object.assign(numbers, got);
+      }
+      return numbers;
+    },
+  },
+  /**
+   * THE TRANSFORMED FIELD EQUATIONS, AND WHAT IS LEFT OVER (am-nxbq, item 1).
+   *
+   * SR-07 is section 6 of paper 3: write Maxwell's equations in one frame, transform the fields and the
+   * coordinates, and ask whether what you get back is the SAME equations. The laboratory's answer is a
+   * residual per equation component, and form invariance means those residuals are zero.
+   *
+   * `wave` is encoded numerically, 0 for the wave along the boost and 1 for the oblique one, as every
+   * other string control in this file is. The residuals, the Doppler factors and the form-invariance flag
+   * are all returned together because the interesting readings are the COMPARISONS: zero residuals beside
+   * an amplitude factor that is not one, and an amplitude factor that parts company with the frequency
+   * factor as soon as the wave is not along the boost.
+   */
+  {
+    id: "sr07.residuals",
+    sourcePath: fileURLToPath(new URL("../../experiments/sr07/session.ts", import.meta.url)),
+    fn: (ctx) => {
+      const outputs = evaluateSr07({
+        ...SR07_DEFAULTS,
+        ...ctx.inputs,
+        wave: (ctx.inputs.wave ?? 0) === 1 ? "oblique" : "plus-x",
+      } as never);
+      const numbers: Record<string, number> = {};
+      for (const outputId of [
+        "residualMax",
+        "residualFaradayZ",
+        "residualAmpereY",
+        "amplitudeFactor",
+        "frequencyFactor",
+        "lorentzFactor",
+        "formInvariant",
+        "stepIndexOut",
       ]) {
         const got = sessionOutputsOf(outputs, outputId);
         if (isOwnerRefusal(got)) return got;

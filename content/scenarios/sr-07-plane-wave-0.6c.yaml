@@ -1,0 +1,66 @@
+# THE TRANSFORMED EQUATIONS ARE THE SAME EQUATIONS, AND THE RESIDUALS ARE EXACTLY ZERO (am-nxbq, item 1).
+#
+# WHICH CONTROL VALUES A READER MOVES TO REACH IT: none. A plane wave travelling along the boost at 0.6c is
+# SR-07's arrival state and the preset its manifest named here; the acceptance case is what those settings
+# must produce.
+#
+# WHAT SECTION 6 CLAIMS AND WHAT THIS CHECKS. Transform the fields and the coordinates of a solution of
+# Maxwell's equations into another inertial frame, and what you get is a solution of THE SAME equations -
+# not similar ones, not ones with extra terms. The laboratory checks it the only honest way: it substitutes
+# the transformed quantities back in and reports what is left over, component by component. All six
+# residuals are 0, and not 0 to some tolerance: exactly 0 in binary64, because the algebra cancels term by
+# term rather than approximately.
+#
+# AND THE WAVE ITSELF IS CHANGED. The Doppler factor is 0.5 exactly - sqrt((1 - beta)/(1 + beta)) at
+# beta = 0.6 is sqrt(0.25) - so the moving observer sees half the frequency, and the AMPLITUDE is halved by
+# the same factor. Both halve together for a wave along the boost, which is what makes this the easy case;
+# sr-07-oblique-wave-0.6c is where the two factors part company.
+#
+# THE CONTRAST IS THE POINT. The equations do not change and the solution does. A reader who conflates the
+# two concludes either that relativity leaves light alone, which is false, or that it breaks Maxwell's
+# equations, which is the opposite error. Reporting zero residuals beside a factor of 0.5 is what makes the
+# distinction legible: the FORM is invariant and the CONTENT is not.
+id: "sr-07-plane-wave-0.6c"
+kind: "modern-golden"
+title: "SR-07 on a wave along the boost: every residual exactly zero, and the Doppler factor exactly 1/2"
+description: "Transforming a plane wave travelling along the boost at 0.6c and substituting it back into Maxwell's equations leaves residuals of exactly zero in all six components - the algebra cancels term by term, not approximately. The wave itself is changed: the frequency and the amplitude are both halved, because sqrt((1 - beta)/(1 + beta)) at 0.6c is exactly one half. The form of the equations is invariant and their solution is not, and the two readings side by side are what keep those apart."
+constantSetId: "modern-si-2019"
+owner: "sr07.residuals"
+inputs:
+  wave:
+    value: 0
+    unit: "1"
+  boostBeta:
+    value: 0.6
+    unit: "1"
+  stepIndex:
+    value: 0
+    unit: "1"
+expected:
+  outputs:
+    - outputId: residualMax
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-18
+        rationale: "The largest residual over all six components, exactly zero in binary64 for this wave. Absolute tolerance, since a relative one cannot bound an exact zero, and tight enough that a cancellation residue would not pass: the oblique case's is 4.3e-16, four hundred times this bound."
+    - outputId: formInvariant
+      value: 1
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-9
+        rationale: "The laboratory's own verdict that the transformed equations are the same equations. Asserted beside the residuals because a verdict computed from them is not independent evidence, and a verdict that disagreed with them would be the defect."
+    - outputId: frequencyFactor
+      value: 0.5
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "sqrt((1 - 0.6)/(1 + 0.6)) = sqrt(0.25) = 0.5, exactly. A terminating decimal, so a reader can check it by hand."
+    - outputId: amplitudeFactor
+      value: 0.5
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The SAME factor as the frequency for a wave along the boost. That the two coincide here is why this is the easy case, and sr-07-oblique-wave-0.6c is where they do not."
+modelVersion: 1
+schemaVersion: 1

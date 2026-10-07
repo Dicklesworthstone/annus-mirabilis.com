@@ -1,0 +1,72 @@
+# OFF THE BOOST AXIS, THE AMPLITUDE AND THE FREQUENCY PART COMPANY (am-nxbq, item 1).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the wave, from the one travelling along the boost to the
+# oblique one, at the same 0.6c. This was a PRESET id in acceptanceCases; the acceptance case is what those
+# settings must produce.
+#
+# WHAT CHANGES AND WHAT DOES NOT. The equations are still the same equations: the residuals are 4.3e-16 at
+# worst, which is binary64 cancellation and not a term left over - the collinear case gives exactly zero
+# because its algebra cancels term by term, and an oblique wave's does so through a sum of products that
+# rounds. The form invariance verdict is unchanged.
+#
+# THE READING WORTH HAVING IS THAT THE TWO FACTORS SEPARATE. Along the boost both the frequency and the
+# amplitude are multiplied by 0.5. Oblique at 45 degrees, the frequency factor is
+# gamma(1 - beta cos 45) = 1.25(1 - 0.4243) = 0.71967 and the amplitude factor is 1.25, which is gamma
+# itself. They are not the same number and they are not even on the same side of one: the wave is
+# red-shifted and its amplitude is INCREASED.
+#
+# WHY THAT IS NOT a contradiction. Amplitude and frequency are different things about a wave and the
+# transformation treats them differently; what is conserved is neither, and a reader who learned "the
+# Doppler factor" from the collinear case will expect one number to do both jobs. The energy accounting
+# that reconciles them is the subject of section 8 and of the mass-energy paper, which is why this record
+# stops at reporting the two factors rather than explaining them away.
+#
+# AGENTS.md's adversarial list names the related trap for the light complex: "a light complex contracts like
+# material volume (tested with longitudinal rays and with a ray transverse in the unprimed frame, because a
+# ray transverse in the moving frame gives exactly the material factor and cannot discriminate)". The same
+# shape applies here: a single-direction test cannot tell the two factors apart, so the pair of records is
+# the test and neither half is.
+id: "sr-07-oblique-wave-0.6c"
+kind: "modern-golden"
+title: "SR-07 on an oblique wave: the frequency factor is 0.7197 and the amplitude factor is 1.25"
+description: "An oblique plane wave transformed at 0.6c still satisfies the same equations - the worst residual is 4.3e-16, binary64 cancellation rather than a term left over - but the frequency and amplitude no longer scale together. The frequency factor is gamma(1 - beta cos 45 degrees) = 0.71967 and the amplitude factor is gamma itself, 1.25: the wave is red-shifted and its amplitude increased. Along the boost both factors are 0.5, so a single-direction reading cannot tell them apart."
+constantSetId: "modern-si-2019"
+owner: "sr07.residuals"
+inputs:
+  wave:
+    value: 1
+    unit: "1"
+  boostBeta:
+    value: 0.6
+    unit: "1"
+  stepIndex:
+    value: 0
+    unit: "1"
+expected:
+  outputs:
+    - outputId: residualMax
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Zero to floating point: the computed worst residual is 4.3021142204224816e-16. The bound is far above that and far below any real leftover term, which is the honest way to assert a cancellation; pinning 4.3e-16 would pin one platform's rounding. The collinear case's bound is 1e-18, because there the cancellation is exact."
+    - outputId: formInvariant
+      value: 1
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-9
+        rationale: "Still invariant, as it must be: the direction of the wave is not a property of the equations."
+    - outputId: frequencyFactor
+      value: 0.7196699141100893
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma(1 - beta cos 45 degrees) = 1.25(1 - 0.6/sqrt 2). Red-shifted, but by less than the collinear 0.5."
+    - outputId: amplitudeFactor
+      value: 1.25
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma exactly, and INCREASED where the frequency fell. This is the assertion: against the collinear case's 0.5 for both, the two factors here are on opposite sides of one, so no single Doppler number does both jobs."
+modelVersion: 1
+schemaVersion: 1

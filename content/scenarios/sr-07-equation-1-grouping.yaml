@@ -1,0 +1,70 @@
+# A DERIVATION STEP IS A PRESENTATION CHANGE AND MUST NOT MOVE A NUMBER (am-nxbq, item 1).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the derivation step, advanced to 3 on the x-component of
+# Ampere's law, with the wave and the boost left alone. This was a PRESET id in acceptanceCases; the
+# acceptance case is what those settings must produce.
+#
+# WHAT A STEP IS. SR-07 shows the transformation of each field equation as a sequence of regroupings: terms
+# collected, a factor taken out, the derivative rewritten. Step 3 of the x-component of Ampere's law is one
+# such regrouping. Nothing is computed differently; the same expression is written another way for a reader
+# following the algebra.
+#
+# SO THE ASSERTION IS THAT NOTHING MOVED. The step index is reported back as 3, and every other reading is
+# byte for byte what sr-07-plane-wave-0.6c pins at step 0: residuals exactly zero, form invariant, both
+# Doppler factors 0.5. That is the whole content of the case, and it is worth a record because the runtime
+# contract this repository holds itself to says so in its own table:
+#
+#   presentation-change | Camera, labels, layout, colors, explanation selection | EVERY scientific state
+#   and data identity must remain stable
+#
+# SR-07's own definition classes stepIndex as `presentation`, and this record is what checks that the
+# classification is true rather than declared. A laboratory where advancing the explanation recomputed the
+# physics would be in breach of that contract, and nothing else in the instrument's tests would notice: the
+# numbers would all still be internally consistent.
+#
+# WHY STEP 3 RATHER THAN ANY STEP. It is the step the manifest's preset names, and it is late enough in the
+# sequence to have passed through the regroupings that would be most likely to disturb a term.
+id: "sr-07-equation-1-grouping"
+kind: "modern-golden"
+title: "SR-07 at derivation step 3: the step index moves and no physical reading does"
+description: "Advancing to step 3 of the x-component of Ampere's law regroups the terms a reader is following and changes nothing that is computed. The step index comes back as 3 and every other reading is identical to step 0: residuals exactly zero, the form invariant, and both Doppler factors one half. SR-07 classes the step index as a presentation change, and this record is what checks that the classification is true rather than declared."
+constantSetId: "modern-si-2019"
+owner: "sr07.residuals"
+inputs:
+  wave:
+    value: 0
+    unit: "1"
+  boostBeta:
+    value: 0.6
+    unit: "1"
+  stepIndex:
+    value: 3
+    unit: "1"
+expected:
+  outputs:
+    - outputId: stepIndexOut
+      value: 3
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-9
+        rationale: "The step the reader selected, reported back. Asserted so the case is not vacuous: if the control were ignored the readings below would match step 0 for the wrong reason."
+    - outputId: residualMax
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-18
+        rationale: "Exactly zero, as at step 0. A presentation change must leave every scientific state stable, and this is the one that would move first if a regrouping had disturbed a term."
+    - outputId: frequencyFactor
+      value: 0.5
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Unchanged from step 0, byte for byte."
+    - outputId: amplitudeFactor
+      value: 0.5
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Unchanged from step 0, byte for byte. Both factors are asserted because a step that moved one and not the other would be the subtler failure."
+modelVersion: 1
+schemaVersion: 1
