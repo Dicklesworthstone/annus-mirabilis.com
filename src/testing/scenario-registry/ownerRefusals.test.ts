@@ -129,27 +129,27 @@ describe("refuseUnknownInputs: the same guard for owners that read a fixed list"
 });
 
 describe("millikanObservations: reading the dataset's own declared rows", () => {
-  const good: MillikanDocument = {
-    rows: [
-      { cells: [{ value: 5461 }, { value: "5.474e14" }, { value: -2.05 }] },
-      { cells: [{ value: 4339 }, { value: "6.925e14" }, { value: -1.492 }] },
-    ],
-    fits: [{ id: "millikan-1916-fig6-five-lines", rowsUsed: [0, 1] }],
-  };
+  // Named separately because MillikanDocument's `rows` and `fits` are OPTIONAL, and
+  // exactOptionalPropertyTypes forbids handing a possibly-undefined value to an optional property. Reading
+  // them off `good` would do exactly that.
+  const rows = [
+    { cells: [{ value: 5461 }, { value: "5.474e14" }, { value: -2.05 }] },
+    { cells: [{ value: 4339 }, { value: "6.925e14" }, { value: -1.492 }] },
+  ];
+  const fits = [{ id: "millikan-1916-fig6-five-lines", rowsUsed: [0, 1] }];
+  const good: MillikanDocument = { rows, fits };
 
   test("(owners.ts:406) a document with no rows is refused, and so is one with no declared fit", () => {
-    expect(codeOf(() => millikanObservations({ rows: [], fits: good.fits }))).toBe(
+    expect(codeOf(() => millikanObservations({ rows: [], fits }))).toBe(
       "owner-session-output-absent",
     );
     // The other half of the same site's condition: rows present, the declared fit absent.
-    expect(codeOf(() => millikanObservations({ rows: good.rows, fits: [] }))).toBe(
+    expect(codeOf(() => millikanObservations({ rows, fits: [] }))).toBe(
       "owner-session-output-absent",
     );
     // And a fit under a DIFFERENT id does not count as the declared one.
     expect(
-      codeOf(() =>
-        millikanObservations({ rows: good.rows, fits: [{ id: "other", rowsUsed: [0] }] }),
-      ),
+      codeOf(() => millikanObservations({ rows, fits: [{ id: "other", rowsUsed: [0] }] })),
     ).toBe("owner-session-output-absent");
   });
 
@@ -167,7 +167,7 @@ describe("millikanObservations: reading the dataset's own declared rows", () => 
     expect(
       codeOf(() =>
         millikanObservations({
-          rows: good.rows,
+          rows,
           fits: [{ id: "millikan-1916-fig6-five-lines", rowsUsed: [9] }],
         }),
       ),
