@@ -1,4 +1,5 @@
 import { type ReactElement, useState } from "react";
+import type { PublicationDecision } from "../../content/provenance/receiptSchema.ts";
 import {
   type DataCell,
   datasetValuesMayBeShown,
@@ -13,6 +14,14 @@ export interface DatasetEvidenceRevealProps {
   readonly onSelectRow?: ((rowIndex: number) => void) | undefined;
   readonly normalizationFactor?: number | undefined;
   readonly className?: string | undefined;
+  /**
+   * The publication decision recorded for the scan asset this reveal would crop, from the
+   * asset's own `SourceAsset.publicationDecision`. Omitted means no determination has been
+   * recorded, which withholds the crop: possessing a scan is not a determination that it may
+   * be served. A dataset's `rights.status` cannot answer this, which is why it is not read
+   * here -- see the comment on `mayPublishCrop`.
+   */
+  readonly publicationDecision?: PublicationDecision | undefined;
 }
 
 /** A record whose values may not be shown is replaced by a note saying why (am-data-millikan-1916-zh2q). */
@@ -36,6 +45,7 @@ function ShownDatasetEvidenceReveal({
   selectedRowIndex = 0,
   normalizationFactor,
   className = "",
+  publicationDecision,
 }: DatasetEvidenceRevealProps): ReactElement {
   const [activeStep, setActiveStep] = useState<1 | 2 | 3 | 4>(1);
 
@@ -45,13 +55,23 @@ function ShownDatasetEvidenceReveal({
   const locator = publication?.locator;
   const rights = dataset.rights;
 
-  // Rights publication decision: only render crop if rights allow publication
-  const canPublishCrop =
-    rights?.status === "public-domain-image" ||
-    rights?.status === "public-domain-text" ||
-    rights?.status === "cleared-image" ||
-    rights?.status === "site-original-code" ||
-    rights?.status === "site-original-prose";
+  /**
+   * A crop is served only where the asset's recorded publication decision is `publish`.
+   *
+   * This reads the DECISION, not `rights.status`, and the distinction is the whole point. The
+   * two are separate categories of `docs/rights-vocabulary.yaml`, and its constraint
+   * `publish-requires-redistributable-status` runs one way only: a `publish` decision requires a
+   * redistributable status, while a redistributable status implies nothing about the decision.
+   * Inferring permission from status is therefore necessary-but-not-sufficient, and it fails in
+   * the direction that serves bytes nobody cleared. `millikan-1916-sodium` is the live case:
+   * its status is `public-domain-text`, true of Millikan's 1916 TEXT, while the page images are
+   * an Internet Archive scan whose terms its receipt records separately. Scans are not the text.
+   *
+   * Absent decision withholds. The status vocabulary is deliberately not consulted here: it
+   * would be a second hand-copy of a list `docs/rights-vocabulary.yaml` owns, and the
+   * constraint above is already enforced where that file is loaded.
+   */
+  const mayPublishCrop = publicationDecision === "publish";
 
   const rows = seriesId ? dataset.rows.filter((r) => r.seriesId === seriesId) : dataset.rows;
   const activeRow = rows[selectedRowIndex] ?? rows[0];
@@ -212,7 +232,7 @@ function ShownDatasetEvidenceReveal({
           </div>
 
           {/* Crop display or locator-only fallback per rights policy */}
-          {canPublishCrop ? (
+          {mayPublishCrop ? (
             <div
               style={{
                 border: "1px solid var(--line)",
@@ -252,8 +272,12 @@ function ShownDatasetEvidenceReveal({
               style={{ fontSize: "0.75rem" }}
               data-testid="locator-only-notice"
             >
-              <strong>Scan image withheld per rights terms:</strong> Access to original scan is
-              reference-only. Please consult the published volume: {citationText}.
+              <strong>Scan image withheld:</strong>{" "}
+              {publicationDecision === undefined
+                ? "no publication decision is recorded for this scan, so it is not served here."
+                : `this scan's publication decision is ${publicationDecision}, so it is not served here.`}{" "}
+              The locator and rights statement above identify the page. Please consult the published
+              volume: {citationText}.
             </div>
           )}
         </section>

@@ -1,5 +1,6 @@
 import { type ReactElement, useState } from "react";
 import { getDatasetShelfStatus } from "../../content/datasets/shelf.ts";
+import type { PublicationDecision } from "../../content/provenance/receiptSchema.ts";
 import {
   type DataCell,
   datasetValuesMayBeShown,
@@ -23,6 +24,11 @@ export interface DatasetOverlayProps {
   readonly onSelectRow?: ((rowIndex: number | undefined) => void) | undefined;
   readonly showTable?: boolean | undefined;
   readonly showRevealAction?: boolean | undefined;
+  /**
+   * Passed to the evidence reveal, which serves a scan crop only where this is `publish`.
+   * See `DatasetEvidenceRevealProps.publicationDecision`: omitted withholds the crop.
+   */
+  readonly publicationDecision?: PublicationDecision | undefined;
   readonly width?: number | undefined;
   readonly height?: number | undefined;
   readonly className?: string | undefined;
@@ -56,6 +62,7 @@ function ShownDatasetOverlay({
   width = 500,
   height = 400,
   className = "",
+  publicationDecision,
 }: DatasetOverlayProps): ReactElement {
   const [internalSelectedRow, setInternalSelectedRow] = useState<number | undefined>(
     selectedRowIndex,
@@ -291,6 +298,7 @@ function ShownDatasetOverlay({
             selectedRowIndex={activeRowIdx}
             onSelectRow={handleRowSelect}
             normalizationFactor={normalizationFactor}
+            publicationDecision={publicationDecision}
           />
         </div>
       )}

@@ -82,6 +82,9 @@ describe("DatasetEvidenceReveal (am-inst-dataset-overlay-ra9r)", () => {
           createElement(DatasetEvidenceReveal, {
             dataset: ds,
             selectedRowIndex: 0,
+            // The crop follows the scan asset's recorded decision, not the dataset's rights
+            // status, so this fixture states the determination (am-inst-dataset-overlay-ra9r).
+            publicationDecision: "publish",
           }),
         );
       });
@@ -133,9 +136,11 @@ describe("DatasetEvidenceReveal (am-inst-dataset-overlay-ra9r)", () => {
     }
   });
 
-  test("rights decision: reference-only rights status suppresses scan image and shows locator-only notice", async () => {
+  test("rights decision: a reference-only publication decision suppresses the scan image and shows the locator-only notice", async () => {
     const raw = strictParse(REVEAL_FIXTURE_YAML, "yaml") as Record<string, unknown>;
     const rights = raw.rights as Record<string, unknown>;
+    // The vocabulary's in-copyright-witness-reference-only constraint ties this status to the
+    // reference-only decision; pass the coherent pair so the withholding has its real cause.
     rights.status = "in-copyright-witness-only";
     const ds = validateHistoricalDataset(raw);
 
@@ -148,6 +153,7 @@ describe("DatasetEvidenceReveal (am-inst-dataset-overlay-ra9r)", () => {
           createElement(DatasetEvidenceReveal, {
             dataset: ds,
             selectedRowIndex: 0,
+            publicationDecision: "reference-only",
           }),
         );
       });
@@ -155,7 +161,9 @@ describe("DatasetEvidenceReveal (am-inst-dataset-overlay-ra9r)", () => {
       expect(container.querySelector('[data-testid="crop-rendered"]')).toBeNull();
       const notice = container.querySelector('[data-testid="locator-only-notice"]');
       expect(notice).not.toBeNull();
-      expect(notice?.textContent).toContain("Scan image withheld per rights terms");
+      expect(notice?.textContent).toContain("Scan image withheld");
+      // The note names the decision that withheld it, not a determination nobody recorded.
+      expect(notice?.textContent).toContain("reference-only");
     } finally {
       await act(() => {
         root.unmount();
