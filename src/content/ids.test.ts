@@ -6,6 +6,8 @@
  * drift a future edit to ids.ts would otherwise introduce silently.
  */
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import {
   allocateEquationIds,
   normalizePrintedLabel,
@@ -437,8 +439,24 @@ describe("concordance, quantities, knowledge cards, and first-encounters", () =>
 });
 
 describe("type-level: a branded id cannot be passed where a different branded id is expected without parsing", () => {
-  test("this file compiles, which is the proof: see ids.types.test.ts for the @ts-expect-error cases", () => {
-    expect(true).toBe(true);
+  test("the proof this points at exists: ids.types.test.ts carries real @ts-expect-error cases", () => {
+    // This test's body was `expect(true).toBe(true)` and its title pointed at
+    // src/testing/ids.types.test.ts "for the @ts-expect-error cases". That file had NONE: every
+    // value in it was an unchecked cast asserted to be a string, so the pointer named a proof that
+    // did not exist and the tautology here kept anyone from noticing.
+    //
+    // So the pointer is now checked. If that file is emptied again, this fails and says so, which
+    // is the only way a cross-file claim about compile-time proof can be held: nothing else reads
+    // one file's title against another file's contents.
+    const proof = readFileSync(
+      resolve(import.meta.dirname, "../testing/ids.types.test.ts"),
+      "utf8",
+    );
+    const directives = proof.split("@ts-expect-error").length - 1;
+    expect(directives).toBeGreaterThanOrEqual(7);
+    // Each one has to sit on a BRANDED assignment, or it could be suppressing anything.
+    expect(proof).toContain("const asParagraph: ParagraphId = sentence;");
+    expect(proof).toContain("const fromParagraph: AlignableUnitId =");
   });
 });
 
