@@ -40,6 +40,8 @@ import { SR08_DEFAULTS } from "../../experiments/sr08/definition.ts";
 import { snapshotOutputs as sr08SnapshotOutputs } from "../../experiments/sr08/session.ts";
 import { SR09_DEFAULTS } from "../../experiments/sr09/definition.ts";
 import { snapshotOutputs as sr09SnapshotOutputs } from "../../experiments/sr09/session.ts";
+import { SR10_DEFAULTS } from "../../experiments/sr10/definition.ts";
+import { snapshotOutputs as sr10SnapshotOutputs } from "../../experiments/sr10/session.ts";
 import { SR11_DEFAULTS } from "../../experiments/sr11/definition.ts";
 import { snapshotOutputs as sr11SnapshotOutputs } from "../../experiments/sr11/session.ts";
 import bm08Example from "../../generated/bm08-example.json";
@@ -1371,6 +1373,43 @@ const OWNERS: OwnerRecord[] = [
         "lorentzFactor",
         "formInvariant",
         "stepIndexOut",
+      ]) {
+        const got = sessionOutputsOf(outputs, outputId);
+        if (isOwnerRefusal(got)) return got;
+        Object.assign(numbers, got);
+      }
+      return numbers;
+    },
+  },
+  /**
+   * THE LIGHT COMPLEX'S VOLUME AGAINST A MATERIAL BODY'S (am-nxbq, item 1).
+   *
+   * SR-10 is section 8 of paper 3: a bounded parcel of light, and what a change of frame does to its
+   * energy and its volume. The adversarial claim AGENTS.md names is that "a light complex contracts like
+   * material volume", and this owner returns both factors so a scenario can say where they agree and
+   * where they do not.
+   *
+   * V'/V IS 1/D AND THE MATERIAL FACTOR IS 1/gamma, so the two coincide exactly when D = gamma, which is
+   * when cos(theta) = 0 - a ray transverse IN THE UNPRIMED FRAME. Measured at beta = 0.6: longitudinal 2,
+   * opposite 0.5, transverse in the moving frame 1.25, transverse in the unprimed frame 0.8, against a
+   * material factor of 0.8 throughout. So the unprimed-transverse ray is the one that CANNOT discriminate,
+   * and AGENTS.md's parenthesis has that the other way round; the scenario records say so.
+   */
+  {
+    id: "sr10.lightComplex",
+    sourcePath: fileURLToPath(new URL("../../experiments/sr10/session.ts", import.meta.url)),
+    fn: (ctx) => {
+      const outputs = sr10SnapshotOutputs({ ...SR10_DEFAULTS, ...ctx.inputs } as never);
+      const numbers: Record<string, number> = {};
+      for (const outputId of [
+        "dopplerFactor",
+        "lorentzFactor",
+        "volumeFactor",
+        "materialVolumeFactor",
+        "energyDensityFactor",
+        "lightComplexEnergyMoving",
+        "lightComplexVolumeMoving",
+        "propagationAngleMoving",
       ]) {
         const got = sessionOutputsOf(outputs, outputId);
         if (isOwnerRefusal(got)) return got;

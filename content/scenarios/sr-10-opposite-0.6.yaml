@@ -1,0 +1,74 @@
+# THE LIGHT COMPLEX'S VOLUME IS NOT A MATERIAL BODY'S: head-on, against the boost (am-nxbq, item 1).
+#
+# WHICH CONTROL VALUES A READER MOVES TO REACH IT: the propagation angle at 180 degrees with the frame at
+# 0.6c. This was a PRESET id in acceptanceCases; the acceptance case is what those settings must produce.
+#
+# THE ADVERSARIAL CLAIM THIS REFUSES. AGENTS.md lists "a light complex contracts like material volume" among
+# the plausible wrong results the edition must reject. A material body's volume in the moving frame is
+# 1/gamma of its own, which is 0.8 at this speed, and the instrument reports that factor beside the light
+# complex's so the two can be compared rather than assumed.
+#
+# WHAT THE LIGHT COMPLEX ACTUALLY DOES. Its volume factor is 1/D, where D = gamma(1 - beta cos theta) is the
+# Doppler factor in the stationary frame. At 180 degrees D is 2 and the volume factor is 0.5, against the
+# material 0.8. The energy goes as D and the energy DENSITY as D squared, 4 here, which is the
+# relationship that makes the volume factor 1/D rather than anything else: density times volume is energy.
+#
+# SO THE PARCEL'S SHAPE IS NOT A MATERIAL SHAPE. A material brick shrinks along the motion whichever way it
+# points. A parcel of light shrinks or stretches according to WHERE IT IS GOING, by a factor that has no
+# upper bound as the ray turns towards the boost. That is the discrimination, and it is why the comparison
+# has to be made at more than one angle - which is the subject of sr-10-transverse-unprimed-0.6.
+id: "sr-10-opposite-0.6"
+kind: "adversarial"
+title: "SR-10 at 180 degrees: the light complex's volume factor is 0.5 where a material body's is 0.8"
+description: "A bounded parcel of light propagating at 180 degrees to the boost, seen from a frame moving at 0.6c, has its volume multiplied by 0.5. A material body's volume would be multiplied by 1/gamma, which is 0.8. The light complex's factor is the reciprocal of the Doppler factor, 2 here, because the energy transforms as D and the energy density as D squared; a parcel of light therefore stretches or shrinks according to which way it is going, and a material body does not."
+plausibleMistake: "That a bounded region of space contracts the same way whatever is inside it, so the parcel of light shrinks by 1/gamma like a brick. The region is not carried along by the boost: it is the region the light occupies, and that depends on how the light's own propagation combines with the frame change. The two factors agree at exactly one angle, which is why a single reading cannot refuse this claim."
+intendedFailure: "Both factors are reported from the same evaluation, so the claim can be checked rather than assumed. The scenario passes only when the light complex's volume factor is 0.5 while the material factor is 0.8; a run where they agreed would mean the light complex was being contracted like matter, which is the claim this fixture exists to refuse."
+constantSetId: "modern-si-2019"
+owner: "sr10.lightComplex"
+inputs:
+  beta:
+    value: 0.6
+    unit: "1"
+  propagationAngleDeg:
+    value: 180
+    unit: "deg"
+  initialEnergyJ:
+    value: 1.0
+    unit: "J"
+  initialVolumeM3:
+    value: 1.0
+    unit: "m^3"
+expected:
+  outputs:
+    - outputId: volumeFactor
+      value: 0.5
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The reciprocal of the Doppler factor, exact at this angle and speed."
+    - outputId: materialVolumeFactor
+      value: 0.8
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "1/gamma, the same at every angle. Asserting it beside the line above is the comparison; a record pinning only the light complex's factor would not refuse anything."
+    - outputId: dopplerFactor
+      value: 2
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma(1 - beta cos theta) in the stationary frame, which is what the volume factor inverts."
+    - outputId: energyDensityFactor
+      value: 4
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "D squared, which with the energy going as D is why the volume factor is 1/D: density times volume is energy."
+    - outputId: propagationAngleMoving
+      value: 180
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-9
+        rationale: "The ray's direction in the moving frame. Unchanged at this angle, which is what makes it the clean case; the transverse records are where the direction turns."
+modelVersion: 1
+schemaVersion: 1

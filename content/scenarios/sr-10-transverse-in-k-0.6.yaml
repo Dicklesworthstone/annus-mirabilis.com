@@ -1,0 +1,76 @@
+# THE RAY THAT IS TRANSVERSE IN THE MOVING FRAME, WHICH DOES DISCRIMINATE (am-nxbq, item 1).
+#
+# WHICH CONTROL VALUE A READER MOVES TO REACH IT: the propagation angle at 53.13 degrees in the stationary
+# frame. That is not an arbitrary number: cos(53.13 deg) is 0.6, which is beta, so the aberration formula
+# cos(theta') = (cos theta - beta)/(1 - beta cos theta) gives exactly 0 and the ray comes out at 90 degrees
+# in the MOVING frame. This was a PRESET id in acceptanceCases; the acceptance case is what those settings
+# must produce.
+#
+# WHAT IT SHOWS. The light complex's volume factor is 1.25 and a material body's is 0.8. The parcel of light
+# EXPANDS where a brick would contract, which is as clean a refutation of "a light complex contracts like
+# material volume" as the instrument can give: the two factors are not merely unequal, they are on opposite
+# sides of one.
+#
+# AND IT IS THE CASE THAT CAN TELL THEM APART. The volume factor is 1/D with D = gamma(1 - beta cos theta),
+# and the material factor is 1/gamma. They coincide exactly when D = gamma, that is when cos(theta) = 0 -
+# a ray at 90 degrees IN THE UNPRIMED FRAME. Here cos(theta) is 0.6, not 0, so D is 0.8 rather than 1.25 and
+# the factors differ. sr-10-transverse-unprimed-0.6 is the case where they coincide and the comparison
+# establishes nothing.
+#
+# A CORRECTION TO AGENTS.md, measured rather than argued. Its adversarial list reads: "a light complex
+# contracts like material volume (tested with longitudinal rays and with a ray transverse in the unprimed
+# frame, because a ray transverse in the moving frame gives exactly the material factor and cannot
+# discriminate)". That has the two frames the wrong way round. Measured at beta = 0.6, with the material
+# factor 0.8 throughout: longitudinal 2, opposite 0.5, transverse in the MOVING frame 1.25, transverse in
+# the UNPRIMED frame 0.8. The unprimed-transverse ray is the one that cannot discriminate, and the
+# moving-transverse ray - this record - is one of the ones that can. Derived independently as well:
+# 1/D = 1/gamma requires cos(theta) = 0 with theta measured in the unprimed frame.
+id: "sr-10-transverse-in-k-0.6"
+kind: "adversarial"
+title: "SR-10 with the ray transverse in the moving frame: the parcel expands by 1.25 where matter contracts by 0.8"
+description: "At 53.13 degrees in the stationary frame - where cos theta equals beta, so the ray comes out at exactly 90 degrees in the moving frame - the light complex's volume is multiplied by 1.25 while a material body's would be multiplied by 0.8. The parcel of light expands where a brick contracts, which refuses the claim that a light complex contracts like material volume about as sharply as the instrument can. This is one of the angles that can tell the two apart."
+plausibleMistake: "That a parcel of light transverse to the motion should behave like a transverse material dimension, which is unchanged, or like the whole body, which contracts by 1/gamma. It does neither: the volume factor is the reciprocal of the Doppler factor, and at this angle the Doppler factor is 0.8 rather than gamma, so the volume grows. Transverse in WHICH frame is the whole question, and the two answers differ."
+intendedFailure: "Both factors come from the same evaluation and are reported together, so the comparison cannot be made by eye against a remembered value. The scenario passes only when the light complex's factor is 1.25 against a material 0.8; a run where they agreed would mean the instrument had been given the unprimed-transverse angle instead, which is the case that cannot discriminate."
+constantSetId: "modern-si-2019"
+owner: "sr10.lightComplex"
+inputs:
+  beta:
+    value: 0.6
+    unit: "1"
+  propagationAngleDeg:
+    value: 53.13010235415598
+    unit: "deg"
+  initialEnergyJ:
+    value: 1.0
+    unit: "J"
+  initialVolumeM3:
+    value: 1.0
+    unit: "m^3"
+expected:
+  outputs:
+    - outputId: propagationAngleMoving
+      value: 90
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-9
+        rationale: "Exactly 90 degrees in the moving frame, which is what makes this angle the transverse-in-k case and not a round number someone liked. Asserted first because the rest of the record depends on it."
+    - outputId: volumeFactor
+      value: 1.25
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "1/D with D = gamma(1 - beta cos theta) = 1.25(1 - 0.36) = 0.8. Greater than one: the parcel expands."
+    - outputId: materialVolumeFactor
+      value: 0.8
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "1/gamma, as at every angle. On the opposite side of one from the line above, which is the discrimination."
+    - outputId: dopplerFactor
+      value: 0.8
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "0.8 here, NOT gamma. The factors coincide only when the Doppler factor equals gamma, and this is the reading that shows it does not."
+modelVersion: 1
+schemaVersion: 1

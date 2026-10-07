@@ -1,0 +1,81 @@
+# THE RAY THAT CANNOT DISCRIMINATE, AND WHY A FIXTURE MUST NOT BE BUILT ON IT (am-nxbq, item 1).
+#
+# WHICH CONTROL VALUE A READER MOVES TO REACH IT: the propagation angle at 90 degrees, transverse in the
+# STATIONARY frame. This was a PRESET id in acceptanceCases; the acceptance case is what those settings must
+# produce.
+#
+# THE POINT OF THIS RECORD IS A COINCIDENCE. The light complex's volume factor here is 0.8 and a material
+# body's is 0.8. They are EQUAL, exactly, and a reader shown only this angle would conclude that a light
+# complex does contract like material volume - the very claim AGENTS.md lists as a plausible wrong result.
+# The coincidence is not approximate and not a bug: 1/D = 1/gamma whenever D = gamma, which is whenever
+# cos(theta) = 0, which is this angle.
+#
+# SO THIS CASE IS PINNED IN ORDER TO BE EXCLUDED FROM THE ARGUMENT. The adversarial claim must be refused at
+# an angle where the two factors differ - sr-10-longitudinal-0.6 at 2 against 0.8, sr-10-opposite-0.6 at 0.5,
+# sr-10-transverse-in-k-0.6 at 1.25 - and this record exists so that nobody later cites 90 degrees as
+# evidence either way. A fixture built here would pass whether the instrument contracted light like matter or
+# not, which is the definition of a test that cannot fail.
+#
+# A CORRECTION TO AGENTS.md, measured and then derived. Its adversarial list reads: "a light complex contracts
+# like material volume (tested with longitudinal rays and with a ray transverse in the unprimed frame,
+# because a ray transverse in the moving frame gives exactly the material factor and cannot discriminate)".
+# The two frames are the wrong way round. Measured at beta = 0.6 with the material factor 0.8 throughout:
+#
+#   longitudinal (0 deg)                   volume factor 2      discriminates
+#   opposite (180 deg)                      volume factor 0.5    discriminates
+#   transverse in the MOVING frame (53.13)  volume factor 1.25   discriminates
+#   transverse in the UNPRIMED frame (90)   volume factor 0.8    CANNOT discriminate
+#
+# And independently: the volume factor is 1/D with D = gamma(1 - beta cos theta) and theta in the unprimed
+# frame, so 1/D equals 1/gamma exactly when cos(theta) = 0 - the unprimed-transverse ray. AGENTS.md
+# prescribes testing with the one case that establishes nothing and warns against one of the three that work.
+# Reported on am-nxbq; not edited here, because that file is the owner's.
+id: "sr-10-transverse-unprimed-0.6"
+kind: "adversarial"
+title: "SR-10 with the ray transverse in the stationary frame: both factors are 0.8, so this angle proves nothing"
+description: "At 90 degrees in the stationary frame the light complex's volume factor is 0.8 and a material body's is 0.8. They are exactly equal, because the volume factor is the reciprocal of the Doppler factor and the Doppler factor equals gamma whenever cos theta is zero. A reader shown only this angle would conclude that light contracts like matter. The record exists to mark the angle as unusable for that argument, so that nobody later cites it as evidence either way."
+plausibleMistake: "That any single angle will do to compare a light complex with a material body, since the instrument reports both factors at every setting. At this one angle the two are identical, so the comparison is empty: a fixture built here passes whether the instrument contracts light like matter or not. The mistake is not about the physics but about where to look, and it is the harder kind to notice because the reading is correct."
+intendedFailure: "The equality is asserted deliberately, so the record states the coincidence rather than hiding it. The scenario passes only when BOTH factors are 0.8 at this angle; if they ever differed here the aberration or the Doppler factor would have changed, and the three discriminating records would need rechecking before anything else was believed."
+constantSetId: "modern-si-2019"
+owner: "sr10.lightComplex"
+inputs:
+  beta:
+    value: 0.6
+    unit: "1"
+  propagationAngleDeg:
+    value: 90
+    unit: "deg"
+  initialEnergyJ:
+    value: 1.0
+    unit: "J"
+  initialVolumeM3:
+    value: 1.0
+    unit: "m^3"
+expected:
+  outputs:
+    - outputId: volumeFactor
+      value: 0.8
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "1/D with D = gamma(1 - 0) = gamma, so 1/gamma. Equal to the material factor below, which is the whole content of this record."
+    - outputId: materialVolumeFactor
+      value: 0.8
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "1/gamma. Identical to the line above at this angle and at no other, which is why the discrimination has to be made elsewhere."
+    - outputId: dopplerFactor
+      value: 1.25
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Exactly gamma, because cos theta is zero. This is the reading that explains the coincidence: the volume factor is 1/D, and here D is gamma."
+    - outputId: propagationAngleMoving
+      value: 126.86989764584402
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-9
+        rationale: "The ray is NOT transverse in the moving frame: aberration turns it to 126.87 degrees. That is the distinction AGENTS.md's parenthesis loses, and asserting it here is what makes the correction checkable."
+modelVersion: 1
+schemaVersion: 1
