@@ -262,6 +262,39 @@ const shelfOpticsPath = fileURLToPath(
   new URL("../../physics/reference/shelfOptics.ts", import.meta.url),
 );
 
+/**
+ * SR-05's parameter record, built rather than spread. `validateSr05Parameters` refuses any record whose
+ * key set is not exactly `SR05_DEFAULTS`, so a stray `worldlineCode` from a scenario input would be
+ * refused as invalid-parameter for a reason that has nothing to do with the case under test. The code
+ * is consumed here and never reaches the laboratory: 0 inertial, 1 out and back, 2 circle, and absent
+ * the code the laboratory's own default stands. The runner coerces every input with
+ * `Number(spec.value)`, which is why the category travels as a number at all.
+ */
+function sr05Params(inputs: Record<string, number>): Record<string, unknown> {
+  const worldline = ((): "inertial" | "out-and-back" | "circle" => {
+    const code = inputs.worldlineCode;
+    if (code === undefined) return SR05_DEFAULTS.worldlinePreset;
+    if (code === 0) return "inertial";
+    if (code === 1) return "out-and-back";
+    if (code === 2) return "circle";
+    throw new OwnerContractError(
+      "owner-worldline-code-unknown",
+      `worldlineCode ${code} names no SR-05 worldline; 0 is inertial, 1 out and back, 2 circle.`,
+    );
+  })();
+  const built: Record<string, unknown> = { ...SR05_DEFAULTS, worldlinePreset: worldline };
+  for (const [key, value] of Object.entries(inputs)) {
+    if (key === "worldlineCode") continue;
+    if (!Object.hasOwn(SR05_DEFAULTS, key))
+      throw new OwnerContractError(
+        "owner-input-unknown",
+        `"${key}" is not an SR-05 parameter, and its validator refuses a record with an extra key.`,
+      );
+    built[key] = value;
+  }
+  return built;
+}
+
 function num(inputs: Record<string, number>, key: string): number {
   const value = inputs[key];
   if (typeof value !== "number" || !Number.isFinite(value)) {
@@ -374,7 +407,15 @@ export type OwnerContractCode =
   /** A session returned its outputs and the one this owner reads is not among them. */
   | "owner-session-output-absent"
   /** Two registry entries claim one id, so a scenario naming it gets whichever the Map kept. */
-  | "owner-id-duplicated";
+  | "owner-id-duplicated"
+  /** A categorical input arrived as a numeric code the owner does not map to any category. */
+  | "owner-worldline-code-unknown"
+  /**
+   * A scenario named an input the laboratory has no parameter for. Refused rather than dropped,
+   * because a silently ignored input leaves the case running at the defaults and passing while
+   * testing something other than what it says.
+   */
+  | "owner-input-unknown";
 
 export class OwnerContractError extends Error {
   readonly code: OwnerContractCode;
@@ -3351,6 +3392,74 @@ const OWNERS: OwnerRecord[] = [
       }
 
       return out;
+    },
+  },
+  /**
+   * SR-05's FIVE PRESETS, AND THE REUNION THAT ONLY TWO OF THEM HAVE (am-nxbq, the preset class).
+   *
+   * Paper 3 section 4 ends with the transported clock: carry a synchronised clock along a closed path at
+   * speed v and, on returning, it reads less than the clock that stayed. SR-05 lets a reader choose the
+   * worldline, and the choice is CATEGORICAL rather than numeric - inertial, out and back, circle - which
+   * the manifest says in those words and carries on its presets instead of declaring a parameter.
+   *
+   * SO THE CATEGORY TRAVELS AS A CODE, and this is the one thing to know before reading the scenarios:
+   * `inputNumbers` in run.ts coerces every scenario input with `Number(spec.value)`, so a string input
+   * arrives as NaN and `validateSr05Parameters` then refuses it for a reason that has nothing to do with
+   * the case. `worldlineCode` is therefore 0 inertial, 1 out and back, 2 circle, decoded here. lq-05's
+   * `locked` already uses the same convention for a boolean, so this is the established shape rather than
+   * a new one. No scenario in the corpus passes a string input today, so nothing relies on the coercion.
+   *
+   * WHY TWO OWNERS AND NOT ONE. An inertial clock never meets the platform clock again, so SR-05 reports
+   * reunionExactLag and reunionPrintedApproxLag as not-applicable - and the runner's comparison is
+   * either/or: a scenario declares `expected.status` for a refusal OR `expected.outputs` for numbers, and
+   * the first branch returns before the second is read. A single owner carrying both would make the
+   * inertial case abort on the refusal before any of its eight numbers were compared. So `clockReadings`
+   * excludes the reunion pair deliberately, and `reunion` is where the lag is pinned - which has the
+   * useful side effect that the inertial worldline's missing reunion is pinned as its own record rather
+   * than being invisible inside a case about dilation.
+   */
+  {
+    id: "sr05.clockReadings",
+    sourcePath: fileURLToPath(new URL("../../experiments/sr05/session.ts", import.meta.url)),
+    fn: (ctx) => {
+      const outputs = evaluateSr05(sr05Params(ctx.inputs) as never);
+      const numbers: Record<string, number> = {};
+      for (const outputId of [
+        "properTime",
+        "coordinateTime",
+        "dilationLossExact",
+        "dilationLossPrintedSecondOrder",
+        "dilationLossDifference",
+        "reciprocalDilationFactor",
+        "lightClockProperTick",
+        "lightClockCoordinateTick",
+      ]) {
+        const got = sessionOutputsOf(outputs, outputId);
+        if (isOwnerRefusal(got)) return got;
+        Object.assign(numbers, got);
+      }
+      return numbers;
+    },
+  },
+  {
+    id: "sr05.reunion",
+    sourcePath: fileURLToPath(new URL("../../experiments/sr05/worldline.ts", import.meta.url)),
+    fn: (ctx) => {
+      const outputs = evaluateSr05(sr05Params(ctx.inputs) as never);
+      const numbers: Record<string, number> = {};
+      // reunionExactLag FIRST, so an inertial worldline refuses on the exact lag rather than on the
+      // printed one: the scenario names an outputId and the runner checks which output refused.
+      for (const outputId of [
+        "reunionExactLag",
+        "reunionPrintedApproxLag",
+        "properTime",
+        "coordinateTime",
+      ]) {
+        const got = sessionOutputsOf(outputs, outputId);
+        if (isOwnerRefusal(got)) return got;
+        Object.assign(numbers, got);
+      }
+      return numbers;
     },
   },
 ];

@@ -1,0 +1,50 @@
+# An inertial clock has no reunion lag, and SR-05 says so rather than reporting zero (am-nxbq, item 2).
+#
+# WHICH CONTROL A READER MOVES: the "Inertial clock at 0.6c" preset. The clock passes the platform's
+# synchronised clocks and never comes back, so there is no second meeting at which two readings can be
+# compared at one place. Section 4's transported-clock result is a statement about a clock that ARRIVES
+# somewhere: s4-p6 compares the travelling clock with "der von Anfang an in B befindlichen" - the one that
+# was at B all along - and s4-p7 extends that to a closed path. Neither covers a clock that keeps going.
+#
+# WHAT SR-05 REPORTS. reunionExactLag and reunionPrintedApproxLag both arrive not-applicable, with the
+# reason "An inertial (non-closed) worldline never reunites with the stationary clock." The status is
+# not-applicable rather than outside-domain because nothing about the inputs is out of range: the quantity
+# simply is not defined for this worldline. That distinction is the one the typed-result table draws, and
+# this is the case that exercises it.
+#
+# WHY THIS IS ITS OWN RECORD AND NOT A LINE IN sr-05-inertial-0.6c. The runner compares EITHER numbers or
+# a refusal: expected.status returns before expected.outputs is read. A single case carrying both would
+# abort on the refusal before any of the inertial preset's eight numbers were compared, so the dilation
+# numbers live in that record and the absent reunion lives here. Both are the same preset; the split is
+# the comparison model's, not the physics'.
+#
+# WHY A LAG OF ZERO WOULD BE THE WRONG ANSWER, which is what this record exists to forbid. Zero is a
+# lag: it says the two clocks agreed when they met. An inertial clock's readings and the platform's
+# disagree continuously and increasingly, and they never meet again at all, so reporting zero would assert
+# agreement where the model asserts no comparison. It would also contradict the dilation this very preset
+# reports, 8 seconds against 10, which a reader sees in the same table.
+id: "sr-05-inertial-has-no-reunion"
+kind: "adversarial"
+title: "SR-05 reports no reunion lag for an inertial clock, rather than a lag of zero"
+description: "A clock moving inertially never meets the platform clock a second time, so there is no reunion at which readings can be compared at one place. SR-05 reports the reunion lag as not applicable with that reason, rather than as a lag of zero. The status is not applicable and not outside the domain, because no input is out of range: the quantity is undefined for an open worldline, while the same preset's proper time and dilation are perfectly well defined and are pinned separately."
+plausibleMistake: "That a clock which has not reunited lags by zero, by analogy with an elapsed interval that has not yet accumulated. A lag of zero is a comparison result asserting the two clocks agreed, and it would sit in the same table as a proper time of 8 seconds against a platform 10, contradicting it. The same mistake in the other direction would report outside-domain, which would say a reader had entered something invalid when every input is inside its declared range."
+intendedFailure: "The evaluator checks whether the chosen worldline closes before forming any reunion comparison, so no lag is produced for an open one. The scenario passes only when the refusal arrives on reunionExactLag with status not-applicable; a run returning any number fails, including zero, and so does one reporting outside-domain, which would name the wrong reason for the absence."
+constantSetId: "modern-si-2019"
+owner: "sr05.reunion"
+inputs:
+  worldlineCode:
+    value: 0
+    unit: "1"
+  speed:
+    value: 0.6
+    unit: "1"
+  coordinateDuration:
+    value: 10
+    unit: "s"
+expected:
+  status:
+    outputId: "reunionExactLag"
+    status: "not-applicable"
+    reasonCode: "not-applicable"
+modelVersion: 1
+schemaVersion: 1

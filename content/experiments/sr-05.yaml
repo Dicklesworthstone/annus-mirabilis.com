@@ -267,6 +267,9 @@ acceptanceCases:
   - sr-05-circle-0.6c
   - sr-05-low-speed-1e-4
   - sr-05-light-clock-0.6c
+  # Not a preset: the inertial preset's reunion outputs are not-applicable, and the runner compares
+  # either numbers or a refusal in one case, never both, so the absent reunion is its own record.
+  - sr-05-inertial-has-no-reunion
   - sr-05-speed-outside-declared-range-refused
   - sr-05-no-proper-time-at-light-speed
 defaultScenario: sr-05-out-and-back-0.6c

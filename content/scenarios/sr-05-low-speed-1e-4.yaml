@@ -1,0 +1,84 @@
+# SR-05 at beta = 10^-4, where section 4's printed second-order form is right to eight digits (am-nxbq).
+#
+# WHICH BUTTON: "Low speed, beta = 10^-4". It sets the speed only, so the platform interval stays at the
+# laboratory's default 10 s. This is the companion to sr-05-inertial-0.6c, and the pair is the record of
+# what the paper's own parenthesis means: at 0.6c the printed form is wrong in the second digit, and here
+# it is right in the first eight.
+#
+# WHAT IS PINNED. The exact loss per second is 5.0000000125e-9 and the printed second-order form gives
+# 5e-9. They differ by 1.2500000210779794e-17, which is the next term of the expansion. Since 1/gamma is
+# sqrt(1 - b^2) = 1 - b^2/2 - b^4/8 - ..., the exact loss 1 - 1/gamma is (1/2)b^2 + (1/8)b^4 + ..., so the
+# fourth-order term at b = 10^-4 is 1.25e-17 - the pinned difference to three digits, and 2.5 parts in a
+# thousand million of the loss itself. s4-p6 drops
+# precisely those "Größen vierter und höherer Ordnung", so this record measures the size of what the paper
+# announced it was discarding.
+#
+# WHY THE LOSS IS THE RIGHT QUANTITY HERE AND THE PROPER TIME IS NOT. The travelling clock reads
+# 9.999999949999998 s against a platform 10 s, a difference in the eighth decimal place: pinning the
+# proper time at a relative 1e-12 would be pinning the platform interval, because the dilation is smaller
+# than the tolerance's reach into the leading digits. The per-second loss and its difference are the
+# quantities with signal at this speed, so they carry the record and the proper time is pinned at a
+# tolerance tight enough to see the dilation it does carry.
+#
+# THE LIGHT CLOCK AT THIS SPEED, pinned as the same statement in a second representation: the transverse
+# arm takes 2 s of its own time per tick in any setting, and 2.0000000100000004 s of platform time here.
+# The two differ in the eighth decimal, which is the same 5e-9 per second appearing as a tick rather than
+# as a rate.
+id: "sr-05-low-speed-1e-4"
+kind: "modern-golden"
+title: "SR-05 at beta = 10^-4: the printed second-order loss is right to eight digits, and the gap is the fourth-order term"
+description: "At a clock speed of 10^-4 c the exact fractional loss per second is 5.0000000125 parts in a thousand million and section 4's printed second-order form gives 5 parts in a thousand million, agreeing to eight significant figures. The difference between them, about 1.25 parts in ten quintillion, is the size of the fourth-order term the paper states it is dropping. The travelling clock reads 9.999999949999998 seconds against the platform's 10."
+provenance:
+  paper: special-relativity
+  sectionId: s4
+  printedPage: 904
+  locator: "s4-p6, the printed second-order lag and its stated fourth-order remainder"
+constantSetId: "modern-si-2019"
+owner: "sr05.clockReadings"
+inputs:
+  worldlineCode:
+    value: 1
+    unit: "1"
+  speed:
+    value: 0.0001
+    unit: "1"
+expected:
+  outputs:
+    - outputId: dilationLossExact
+      value: 5.0000000125e-9
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "1 - sqrt(1 - 1e-8). A relative tolerance, because the quantity spans nine decades between this case and the 0.6c one and an absolute tolerance chosen for either would be meaningless at the other."
+    - outputId: dilationLossPrintedSecondOrder
+      value: 5.0e-9
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "(1/2)(1e-4)^2 exactly. The printed form, which here agrees with the exact loss to eight significant figures."
+    - outputId: dilationLossDifference
+      value: 1.2500000210779794e-17
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-6
+        rationale: "The gap between exact and printed: a subtraction of two numbers agreeing to eight digits, so about eight digits of the sixteen are lost to cancellation and only the leading ones are signal. A relative 1e-6 pins the magnitude and the first digits, which is the claim, without pinning digits that are cancellation residue. This is the one tolerance here that is deliberately loose, and the reason is the arithmetic rather than any doubt about the model."
+    - outputId: properTime
+      value: 9.999999949999998
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: "10 divided by gamma at beta 1e-4. The dilation is in the eighth decimal place, so a relative 1e-12 would pass on a proper time of exactly 10 and assert nothing; 1e-15 is near the representation's own limit and is what it takes for this number to state that the clock ran slow at all."
+    - outputId: lightClockProperTick
+      value: 2
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Two light-seconds of path for a one-light-second arm, in the clock's own frame, at any speed. Pinned as the invariant against which the coordinate tick below is read."
+    - outputId: lightClockCoordinateTick
+      value: 2.0000000100000004
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: "The same tick measured on the platform, longer by gamma. Like the proper time, the difference is in the eighth decimal place and needs a tolerance tight enough to see it."
+modelVersion: 1
+schemaVersion: 1

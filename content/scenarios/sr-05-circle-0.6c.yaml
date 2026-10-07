@@ -1,0 +1,79 @@
+# SR-05's constant-speed circle at 0.6c, which is the same numbers as out and back (am-nxbq, preset class).
+#
+# WHICH BUTTON: "Constant-speed circle at 0.6c". Its parameterValues are identical to the out-and-back
+# preset's - speed 0.6, platform time 10 - because the worldline SHAPE is a category carried by the preset
+# rather than a parameter it sets. Three presets with the same two numbers are not three copies of one
+# case: the shape is what differs, and the owner receives it as a code.
+#
+# THE RECORD'S CLAIM IS AN EQUALITY, AND IT IS THE POINT. Every number here is byte-identical to
+# sr-05-out-and-back-0.6c: the lag is 2 s, the printed second-order lag 1.7999999999999998, the proper
+# time 8, the platform time 10. A circle has no turning point and an out-and-back path has exactly one,
+# so if the model's lag depended on the path's shape these two records would differ. They do not, and the
+# paper says they must not: s4-p7 (printed page 904) extends the result to "einer beliebigen polygonalen
+# Linie" from A to B, "und zwar auch dann, wenn die Punkte A und B zusammenfallen" - any polygonal line,
+# and also when A and B coincide. Only the speed and the elapsed platform time enter.
+#
+# WHY THIS IS NOT A DUPLICATE RECORD. Its value is adversarial in the strict sense: it would FAIL if the
+# laboratory ever began modelling the turn, the acceleration or the path's geometry, which is the most
+# likely way a future change breaks section 4's actual claim. A reader shown different lags for a circle
+# and a there-and-back trip at the same speed would be shown something the paper denies. A single case
+# cannot catch that; a pair with identical expectations can.
+#
+# WHAT THIS RECORD CANNOT DO, measured rather than assumed. Asking it for worldlineCode 1 instead of 2
+# leaves it GREEN, because the two codes produce byte-identical numbers - which is the claim, and is also
+# why the record cannot prove by itself which worldline ran. What proves the code reaches the laboratory
+# at all is the inertial case: sr-05-inertial-has-no-reunion passes code 0 and gets a refusal, so the
+# decoder is wired and the value is read. Between codes 1 and 2 the model is indifferent by construction,
+# so no record built on its outputs can separate them. Saying so here is cheaper than letting a later
+# reader take the pair for a discrimination it is not.
+#
+# WHAT IT IS NOT EVIDENCE FOR. The equality holds in THIS model, whose notModeled list names real clock
+# mechanisms under acceleration and rotating-frame synchronization effects. The record pins what the
+# idealised kinematics asserts, not a claim that a physical clock is indifferent to being swung in a
+# circle.
+id: "sr-05-circle-0.6c"
+kind: "adversarial"
+title: "SR-05's circle at 0.6c gives the same 2-second lag as out and back, because only speed and elapsed time enter"
+description: "A clock carried once round a circle at 0.6c over ten seconds of platform time lags by exactly the same 2 seconds as one carried out and back at the same speed, and reads the same 8 seconds. The circle has no turning point and the out-and-back path has one, so the equality is the model's claim that the lag depends on the speed and the elapsed platform time alone. Section 4 extends its result to any polygonal line from A to B and to the case where A and B coincide."
+plausibleMistake: "That a path with a turn, or one with continuous acceleration, produces a different lag than a straight there-and-back trip at the same speed, because the turn is where something physical happens to the clock. The temptation is real: an actual clock swung in a circle is under continuous acceleration, and the question of whether that affects its rate is a physical one. In this kinematics it does not enter, and the paper says so in the sentence that admits any polygonal path and the coincident endpoints."
+intendedFailure: "The evaluator forms the proper time from the speed and the leg durations only, so no shape term exists to contribute. The scenario passes only when the circle's four readings equal the out-and-back record's to within a relative 1e-12; a run that introduced a geometry-dependent or acceleration-dependent term would move at least the lag and fail here. Because both records carry the same expectations, a change breaking the equality turns exactly one of them red and names which. This case cannot detect being run on the out-and-back worldline instead, since the two give identical numbers; that the worldline code is read at all is established by the inertial case, which refuses."
+constantSetId: "modern-si-2019"
+owner: "sr05.reunion"
+inputs:
+  worldlineCode:
+    value: 2
+    unit: "1"
+  speed:
+    value: 0.6
+    unit: "1"
+  coordinateDuration:
+    value: 10
+    unit: "s"
+expected:
+  outputs:
+    - outputId: reunionExactLag
+      value: 2
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Identical to the out-and-back record's lag, which is the assertion: 10 - 10/gamma with no shape term."
+    - outputId: reunionPrintedApproxLag
+      value: 1.7999999999999998
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The printed second-order form at the same two numbers, so the equality holds in the approximation as well as in the exact theory. Pinned to the same binary64 value as the companion record."
+    - outputId: properTime
+      value: 8
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The travelling clock's reading. Pinned so the equality is asserted of the readings themselves and not only of their difference, where two compensating changes could cancel."
+    - outputId: coordinateTime
+      value: 10
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The platform's reading, unchanged. Here it also states that a circle is run over the same elapsed platform time rather than over its own circumference."
+modelVersion: 1
+schemaVersion: 1

@@ -1,0 +1,69 @@
+# SR-05's light clock at 0.6c: the mechanism behind the dilation, not a second claim (am-nxbq, presets).
+#
+# WHICH BUTTON: "Light clock at 0.6c". It sets the speed and the arm, so the platform interval stays at
+# the laboratory's default 10 s. The light clock is a transverse arm one light-second long with a pulse
+# bouncing along it: a tick is one round trip.
+#
+# WHAT IS PINNED AND WHY IT IS THE SAME FACT TWICE. In the clock's own frame the pulse travels two
+# light-seconds per tick, so the proper tick is 2 s at every speed - which is what makes it a clock. On
+# the platform the arm is moving, so the pulse travels a longer diagonal path and the tick takes 2.5 s.
+# The ratio is 1.25, which is gamma at 0.6c, and the point of the record is that this is the SAME 5/4 that
+# turns the platform's 10 s into the traveller's 8 s in sr-05-inertial-0.6c. Section 4's result and this
+# geometry are one statement, and the pair of records says so by sharing the number.
+#
+# WHY THE PROPER TICK IS PINNED AS AN INVARIANT. 2 s holds for any speed in the admitted range and for the
+# default arm, so pinning it here is pinning what did NOT move while the coordinate tick did. Without it,
+# a change that scaled both ticks together would leave the ratio right and the physics wrong, and this
+# record would pass.
+#
+# WHAT IT IS NOT. The light clock is an authored illustration of the kinematics, not a transverse
+# second-order experiment: the arm is TRANSVERSE, so the geometry gives the dilation factor directly and
+# the length contraction along the motion never enters. A reader who takes this as the Michelson-Morley
+# configuration has the wrong arm; that comparison belongs to the apparatus instruments, not here.
+#
+# THE DILATION LOSS IS PINNED ALONGSIDE at this speed, because the record's claim is an equality between
+# the light clock's ratio and the clock-rate statement, and the equality needs both sides present.
+id: "sr-05-light-clock-0.6c"
+kind: "modern-golden"
+title: "SR-05's light clock at 0.6c: a 2-second proper tick becomes 2.5 on the platform, the same 5/4 as the clock rate"
+description: "A transverse light clock with a one-light-second arm takes 2 seconds of its own time for a round trip at any speed, and 2.5 seconds of platform time when the arm moves at 0.6c. The ratio is the Lorentz factor 5/4, the same factor that turns ten seconds of platform time into eight seconds on the travelling clock, so the geometry and the clock-rate result are one statement rather than two."
+constantSetId: "modern-si-2019"
+owner: "sr05.clockReadings"
+inputs:
+  worldlineCode:
+    value: 1
+    unit: "1"
+  speed:
+    value: 0.6
+    unit: "1"
+  lightClockArm:
+    value: 1
+    unit: "ls"
+expected:
+  outputs:
+    - outputId: lightClockProperTick
+      value: 2
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Two light-seconds of path for a one-light-second arm, in the frame where the arm is at rest. Invariant across the speed range, and pinned here as the quantity that must NOT move while the coordinate tick does."
+    - outputId: lightClockCoordinateTick
+      value: 2.5
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "2 x gamma with gamma exactly 5/4, so exactly 2.5. The diagonal path the pulse covers while the arm advances."
+    - outputId: reciprocalDilationFactor
+      value: 1.25
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The factor itself, pinned so the ratio 2.5/2 is visibly the same number the clock-rate result uses rather than a coincidence of this geometry."
+    - outputId: dilationLossExact
+      value: 0.19999999999999998
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "1 - 1/gamma at 0.6c, the clock-rate side of the equality the record asserts. Identical to sr-05-inertial-0.6c's value, which is the claim that the light clock is the mechanism of that loss and not a separate effect."
+modelVersion: 1
+schemaVersion: 1

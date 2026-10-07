@@ -1,0 +1,78 @@
+# SR-05's out-and-back clock at 0.6c: the transported clock of section 4 (am-nxbq, the preset class).
+#
+# WHICH BUTTON: "Out and back at 0.6c", which is also SR-05's defaultScenario. The clock leaves, turns
+# round at half time and comes back, so the comparison happens AT ONE PLACE - which is why section 4's
+# closing remark is a claim about clocks rather than about simultaneity conventions. Readings compared at
+# separated places need a stated convention; readings compared where the clocks meet do not, and the
+# manifest's notModeled list says exactly that.
+#
+# WHAT THE PAPER PRINTS, since both pinned lags come from it. s4-p6 (printed page 904) says a clock moved
+# from A to B at speed v lags the clock that stayed by "\frac{1}{2} t v^2 / V^2 Sek. (bis auf Größen
+# vierter und höherer Ordnung)" - half t v squared over V squared seconds, up to quantities of fourth and
+# higher order. That printed form, at t = 10 s and v/V = 0.6, gives 1.7999999999999998. The exact lag is
+# 2. The paper's own parenthesis is what licenses the difference: it states the form is second order and
+# names the terms it drops, so a 10 per cent gap at 0.6c is the approximation behaving as announced
+# rather than an error. Both are pinned because a record carrying only the printed one would read as the
+# claim, and a record carrying only the exact one would lose the paper's qualification.
+#
+# WHY "OUT AND BACK" IS THE PAPER'S CASE AND NOT A GENERALISATION OF IT. s4-p7, on the same page, adds
+# that the result still holds if the clock travels "in einer beliebigen polygonalen Linie" from A to B,
+# "und zwar auch dann, wenn die Punkte A und B zusammenfallen" - also when A and B coincide. A clock that
+# goes out and comes back is that sentence, so this preset is the printed claim at its stated generality.
+#
+# THE TURN IS NOT MODELLED AND THE RECORD SAYS SO. The lag depends on the speed and the elapsed platform
+# time alone; the two legs are 5 s each and the arithmetic never asks what happened at the turn, which
+# notModeled states as real clock mechanisms under acceleration. The companion record sr-05-circle-0.6c
+# makes that concrete by giving byte-identical numbers for a path with no turn at all.
+#
+# THE PROPER TIME IS PINNED HERE TOO, not as duplication: the lag is the DIFFERENCE of two readings, and
+# a record stating only a difference cannot be checked against the two numbers it came from.
+id: "sr-05-out-and-back-0.6c"
+kind: "modern-golden"
+title: "SR-05's out-and-back clock at 0.6c lags by 2 seconds when the clocks meet again, against the printed 1.8"
+description: "A clock carried out and back at 0.6c over ten seconds of platform time reads 8 seconds on its return, so it lags the clock that stayed by 2 seconds. The comparison is made where the two clocks meet, which is what makes it independent of any simultaneity convention. Section 4's printed second-order form, half t v squared over V squared seconds up to quantities of fourth and higher order, gives 1.8 seconds for the same lag."
+provenance:
+  paper: special-relativity
+  sectionId: s4
+  printedPage: 904
+  locator: "s4-p6 for the printed second-order lag, s4-p7 for the closed path"
+constantSetId: "modern-si-2019"
+owner: "sr05.reunion"
+inputs:
+  worldlineCode:
+    value: 1
+    unit: "1"
+  speed:
+    value: 0.6
+    unit: "1"
+  coordinateDuration:
+    value: 10
+    unit: "s"
+expected:
+  outputs:
+    - outputId: reunionExactLag
+      value: 2
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "10 - 10/gamma = 10 - 8, exactly 2 seconds. The quantity readers are shown, and the one section 4 asserts exists."
+    - outputId: reunionPrintedApproxLag
+      value: 1.7999999999999998
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The printed form half t v squared over V squared at t = 10 and v/V = 0.6, which is 1.8 in real arithmetic; the pinned value is the binary64 product. Ten per cent below the exact lag, which is what the printed second-order form costs at this speed."
+    - outputId: properTime
+      value: 8
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The travelling clock's own reading, one operand of the lag. 10 divided by gamma = 5/4."
+    - outputId: coordinateTime
+      value: 10
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The platform's reading, the other operand, and also the sum of the two 5-second legs: a leg split that failed to sum would show here."
+modelVersion: 1
+schemaVersion: 1

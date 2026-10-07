@@ -1,0 +1,78 @@
+# SR-05's inertial clock at 0.6c, which is the preset a reader meets first (am-nxbq, the preset class).
+#
+# WHICH BUTTON: "Inertial clock at 0.6c". The manifest's three worldline presets all set the same two
+# numbers, speed 0.6 and platform time 10 s, because the worldline SHAPE is a category the presets carry
+# rather than a parameter they set. That is why three presets with identical parameterValues are not
+# three copies: the shape is what distinguishes them, and the owner here receives it as a code.
+#
+# WHAT IS PINNED AND WHY EACH NUMBER IS THE ONE THAT MATTERS. Over ten seconds of platform time at 0.6c
+# the travelling clock records 8 s, because gamma is exactly 5/4 at that speed and 10/gamma is exactly 8.
+# The reciprocal factor is pinned at 1.25 beside it so the eight seconds is visibly 10 divided by that
+# factor rather than an unexplained number.
+#
+# THE TWO LOSSES ARE THE EDITORIAL POINT. Paper 3 section 4 prints the loss per second to SECOND ORDER,
+# (1/2)v^2/c^2, which at 0.6c is 0.18. The exact loss, 1 - 1/gamma, is 0.19999999999999998. Pinning both
+# and their difference, 0.01999999999999999, records that at 0.6c the printed form is wrong in the second
+# digit: it is an approximation for small beta and this case is not small beta. A record carrying only
+# one of the two numbers would let a reader take the printed form for the claim.
+#
+# WHAT IS DELIBERATELY NOT HERE. An inertial clock never meets the platform clock again, so this preset
+# has no reunion lag at all; SR-05 reports that as not-applicable rather than as a lag of zero, and it is
+# pinned in its own record, sr-05-inertial-has-no-reunion, because the runner compares either numbers or
+# a refusal and never both in one case.
+id: "sr-05-inertial-0.6c"
+kind: "modern-golden"
+title: "SR-05's inertial clock at 0.6c: 8 seconds against the platform's 10, and the printed loss wrong in the second digit"
+description: "A clock moving inertially at 0.6c records 8 seconds while the platform's synchronised clocks record 10, since the Lorentz factor is exactly 5/4. The exact fractional loss per second is 0.2 and the second-order form printed in section 4 gives 0.18, so at this speed the printed approximation is already wrong in its second digit; the difference between them, about 0.02, is pinned beside both."
+constantSetId: "modern-si-2019"
+owner: "sr05.clockReadings"
+inputs:
+  worldlineCode:
+    value: 0
+    unit: "1"
+  speed:
+    value: 0.6
+    unit: "1"
+  coordinateDuration:
+    value: 10
+    unit: "s"
+expected:
+  outputs:
+    - outputId: properTime
+      value: 8
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "10 divided by gamma = 5/4, exactly 8. A relative tolerance at a value of order one; the arithmetic is two operations and carries no accumulation."
+    - outputId: coordinateTime
+      value: 10
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The platform's own interval, unchanged by the clock's motion. Pinned so the eight seconds is read against a stated ten rather than an assumed one."
+    - outputId: reciprocalDilationFactor
+      value: 1.25
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma at beta 0.6 is exactly 5/4, since 1 - 0.36 = 0.64 and its square root is 0.8. Pinned so the proper time is visibly 10/1.25."
+    - outputId: dilationLossExact
+      value: 0.19999999999999998
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "1 - 1/gamma = 1 - 0.8. Exactly 0.2 in real arithmetic; the pinned value is the binary64 result of that subtraction, and the relative tolerance covers the one ulp."
+    - outputId: dilationLossPrintedSecondOrder
+      value: 0.18
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "(1/2)(0.6)^2 = 0.18, the form printed in section 4. Representable exactly enough that the tolerance is not doing work; it is here to state the comparison kind."
+    - outputId: dilationLossDifference
+      value: 0.01999999999999999
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-9
+        rationale: "The gap between exact and printed, 0.2 - 0.18. A subtraction of two nearby numbers, so the relative tolerance is looser than the others by three decades on purpose: the quantity is a difference and its last digits are cancellation, not signal."
+modelVersion: 1
+schemaVersion: 1
