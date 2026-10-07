@@ -81,6 +81,54 @@ function checkForbiddenPhrases(text: string, path: string, journeyId: string): J
  * Validates a Journey record against all compiler rules.
  */
 /**
+ * THE DISCOVERY SKELETON, AS ONE DEFINITION. Which of the thirteen elements a journey record carries.
+ *
+ * Extracted from `checkJourney`, which still consumes it, so there is exactly one place that decides
+ * what "has a fork" or "has a move" means. The definition-of-done report
+ * (src/content/doneness/definitionOfDone.ts) counts these per paper, and a second copy of these
+ * predicates there would be free to drift from the gate -- the shape AGENTS.md names when it forbids
+ * a hand-copied vocabulary at a consumer.
+ *
+ * Presence only. It does not say whether an element is CORRECT: a fork with two branches and no
+ * `worksWhen` is present here and refused by checkJourney, which is the right division, because a
+ * count of present elements and a verdict on their content are different questions.
+ */
+export function journeySkeletonElements(journey: Journey): Record<string, boolean> {
+  const hasShelf = Boolean(journey.shelf && journey.shelf.length > 0);
+  const hasNaggingFact = Boolean(journey.naggingFact?.trim());
+  const hasFirstHonestQuestion = Boolean(journey.firstHonestQuestion?.trim());
+  const hasStages = Array.isArray(journey.stages) && journey.stages.length >= 1;
+  const hasForks =
+    Array.isArray(journey.forks) && journey.forks.length >= 2 && journey.forks.length <= 3;
+  const hasMove = Boolean(journey.move?.label && journey.move.chainId && journey.move.stepId);
+  const hasMoveSummary = Boolean(journey.move?.r0Summary?.text?.trim());
+  const hasWorldChecks = Array.isArray(journey.worldChecks) && journey.worldChecks.length >= 1;
+  const hasSourceJumps = Array.isArray(journey.sourceJumps) && journey.sourceJumps.length >= 1;
+  const instrumentedCount = journey.exercises?.filter((e) => e.role === "instrumented").length ?? 0;
+  const hasInstrumentedExercises = instrumentedCount >= 2 && instrumentedCount <= 5;
+  const hasPpeTask = Boolean(journey.ppeTask?.task?.trim());
+  const hasFrontDoor = Boolean(journey.doors?.frontDoor?.id);
+  const hasSideDoors =
+    Array.isArray(journey.doors?.sideDoors) && journey.doors.sideDoors.length >= 1;
+
+  return {
+    shelf: hasShelf,
+    naggingFact: hasNaggingFact,
+    firstHonestQuestion: hasFirstHonestQuestion,
+    stages: hasStages,
+    forks: hasForks,
+    move: hasMove,
+    "move.r0Summary": hasMoveSummary,
+    worldChecks: hasWorldChecks,
+    sourceJumps: hasSourceJumps,
+    "exercises.instrumented": hasInstrumentedExercises,
+    ppeTask: hasPpeTask,
+    "doors.frontDoor": hasFrontDoor,
+    "doors.sideDoors": hasSideDoors,
+  };
+}
+
+/**
  * WHAT A SCHEMA ERROR COSTS, said in the finding rather than left to be inferred from a count.
  *
  * `validateJourney` throws on its FIRST violation and this function returns straight after, so a
@@ -250,39 +298,11 @@ export function checkJourney(raw: Journey, options: JourneyCheckOptions = {}): J
     "doors.sideDoors",
   ];
 
-  const hasShelf = Boolean(journey.shelf && journey.shelf.length > 0);
-  const hasNaggingFact = Boolean(journey.naggingFact?.trim());
-  const hasFirstHonestQuestion = Boolean(journey.firstHonestQuestion?.trim());
-  const hasStages = Array.isArray(journey.stages) && journey.stages.length >= 1;
-  const hasForks =
-    Array.isArray(journey.forks) && journey.forks.length >= 2 && journey.forks.length <= 3;
-  const hasMove = Boolean(journey.move?.label && journey.move.chainId && journey.move.stepId);
-  const hasMoveSummary = Boolean(journey.move?.r0Summary?.text?.trim());
-  const hasWorldChecks = Array.isArray(journey.worldChecks) && journey.worldChecks.length >= 1;
-  const hasSourceJumps = Array.isArray(journey.sourceJumps) && journey.sourceJumps.length >= 1;
+  const elementPresentMap: Record<string, boolean> = journeySkeletonElements(journey);
+  // The two exercise counts stay here as well: the skeleton map answers "is the element present",
+  // and the checks below report on the counts themselves, which is a different question.
   const instrumentedCount = journey.exercises?.filter((e) => e.role === "instrumented").length ?? 0;
   const explanationCount = journey.exercises?.filter((e) => e.role === "explanation").length ?? 0;
-  const hasInstrumentedExercises = instrumentedCount >= 2 && instrumentedCount <= 5;
-  const hasPpeTask = Boolean(journey.ppeTask?.task?.trim());
-  const hasFrontDoor = Boolean(journey.doors?.frontDoor?.id);
-  const hasSideDoors =
-    Array.isArray(journey.doors?.sideDoors) && journey.doors.sideDoors.length >= 1;
-
-  const elementPresentMap: Record<string, boolean> = {
-    shelf: hasShelf,
-    naggingFact: hasNaggingFact,
-    firstHonestQuestion: hasFirstHonestQuestion,
-    stages: hasStages,
-    forks: hasForks,
-    move: hasMove,
-    "move.r0Summary": hasMoveSummary,
-    worldChecks: hasWorldChecks,
-    sourceJumps: hasSourceJumps,
-    "exercises.instrumented": hasInstrumentedExercises,
-    ppeTask: hasPpeTask,
-    "doors.frontDoor": hasFrontDoor,
-    "doors.sideDoors": hasSideDoors,
-  };
 
   const pendingSet = new Set<string>();
   if (journey.completeness === "partial" && Array.isArray(journey.pendingElements)) {
