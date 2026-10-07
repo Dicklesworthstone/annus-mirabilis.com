@@ -10,19 +10,38 @@
  * light-quanta 263, brownian-motion 178, special-relativity 436 units. So the stated blocker is
  * gone.
  *
- * WHAT IS STILL MISSING IS A PRODUCER, and saying so is the point of this note, because the old
- * wording sent a reader to look at the manifests. `StructureIndex` appears in this module and its
- * two test files and NOWHERE else: nothing in `src/content` builds one, and nothing in production
- * calls `mapToFace`, `mapToResultsFace` or `mapToFacsimilePage`.
+ * AND THE REPLACEMENT DIAGNOSIS WAS ALSO WRONG. It said, on 2026-10-07, that "what is still missing
+ * is a producer", and filed am-to1q for one. Walking the import graph from `src/app/` the same day
+ * says the gap is not a missing producer but a SECOND OWNER, for two of this module's three jobs:
  *
- * The inputs for a producer are on disk now. Every unit carries `locators[].page` (53 of 53 for
- * mass-energy), so `pdfPageByUnit` is derivable; and sentence-to-paragraph parentage follows the id
- * grammar, with 28 of mass-energy's 53 units resolving to a parent that is itself a unit. The part
- * that needs a decision rather than a loop is the level above: a paragraph's parent is a section,
- * and sections are not among the manifest's unit kinds. Filed as its own bead.
+ *     src/reader/facsimile/document.ts        9 routes   unit -> PDF page, from the SAME manifest
+ *     src/reader/weave/contentIds.ts          4 routes   canonical / split-sentence mapping
+ *     src/reader/anchors/mapToFace.ts         0 routes   this module
+ *
+ * `projectFacsimileDocument` reads `content/source-blocks/<slug>/manifest.yaml` -- the exact input a
+ * `StructureIndex` producer was to read -- and `resolveFacsimileTarget` resolves a content id to a
+ * PDF page from it, strictly more richly than `mapToFacsimilePage` below: it also accepts aliases,
+ * page anchors, and a bare section id. So a producer feeding `pdfPageByUnit` would not connect an
+ * orphan, it would install a rival to a live reader path, which is the thing "kernels own the law"
+ * forbids. Whether `mapToFacsimilePage` is retired or kept as the pure half is a removal decision
+ * and belongs to the owner; it is NOT settled here, and nothing in this module may be deleted to
+ * settle it.
+ *
+ * The split-sentence arm was the same shape and IS now fixed, by consuming the owner rather than a
+ * copy of its grammar. See the comment at that arm.
+ *
+ * WHAT REMAINS GENUINELY UNOWNED is the nearest-ancestor walk and `resultsBySection`: `parentId`
+ * appears in this module and its two tests and nowhere else, and so does `resultsBySection`.
+ *
+ * THIS MODULE IS NOT ALONE. Five of the eight modules in this directory have zero non-test
+ * importers -- aliasAnchors, mapToFace, paneIds, placeKeeper, scrollRestore -- and all five were
+ * built by am-read-anchors-navigation-a6o, which is still OPEN. `placeKeeper.ts` names its live
+ * twin in its own docblock: `src/reader/detail/nearestStableAnchor.ts`, the Detail-axis
+ * place-keeper, reaches 8 routes. The face-axis one reaches none. The debt is recorded and gated in
+ * `unwiredAnchorModules.test.ts` beside this file.
  */
 
-import { sourceSentenceId, splitSentenceIds } from "../../content/anchors.ts";
+import { contentIdVariants, isSentenceContentId } from "../weave/contentIds.ts";
 
 export interface StructureUnit {
   readonly id: string;
@@ -62,13 +81,24 @@ export function mapToFace(
 ): string | undefined {
   if (presentIds.has(id)) return id;
 
-  const sentenceMatch = id.match(/^(s\d+-p\d+-s\d+)([ab])?$/);
-  if (sentenceMatch?.[1]) {
-    const source = sourceSentenceId(id);
-    if (presentIds.has(source)) return source;
-    const [a, b] = splitSentenceIds(source);
-    if (presentIds.has(a)) return a;
-    if (presentIds.has(b)) return b;
+  // THE SPLIT-SENTENCE ARM HAS ONE OWNER, and it is not this module. `src/reader/weave/contentIds.ts`
+  // already decides what counts as a sentence anchor and which ids one can be rendered under, and its
+  // own docblock says it exists "so no face -- German face, English face, or a future gloss/parallel
+  // face -- ever has to reimplement that mapping". This module reimplemented it anyway: the guard here
+  // was an inline `/^(s\d+-p\d+-s\d+)([ab])?$/`, character-for-character the private
+  // `SENTENCE_PATTERN` of src/content/anchors.ts, which is NOT exported. A copied grammar beside an
+  // unexported original cannot be kept in step: were the id grammar to admit a third split suffix,
+  // the owner would learn it and this copy would not, and the divergence would be silent because
+  // `contentIdVariants` returns the same three ids in the same preference order this arm wanted.
+  //
+  // Measured before the change: the two predicates agreed on all 21 probe ids, which is what a copy
+  // looks like while it is still fresh rather than evidence that copying is safe.
+  if (isSentenceContentId(id)) {
+    // `contentIdVariants` canonicalises its own argument, so an English half and its German source
+    // id both produce the same three variants in the same order; no outer canonicalisation here.
+    for (const variant of contentIdVariants(id)) {
+      if (presentIds.has(variant)) return variant;
+    }
   }
 
   let current = id;
