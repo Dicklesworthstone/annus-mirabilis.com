@@ -1,0 +1,71 @@
+# TWO CLOCKS SYNCHRONISED IN ONE FRAME ARE SIX SECONDS APART IN THE OTHER (am-nxbq, item 1).
+#
+# WHICH CONTROL VALUES A READER MOVES TO REACH IT: the moving pair's speed at 0.6c over a ten light-second
+# separation. This was a PRESET id in acceptanceCases; the acceptance case is what those settings must
+# produce.
+#
+# THE NUMBER IS beta TIMES THE SEPARATION. Two clocks a distance L apart and synchronised in their own frame
+# are, in a frame moving at beta relative to them, out of step by beta L: 0.6 x 10 = 6 seconds. The leading
+# clock reads EARLIER. It is not that one clock is running wrong; both run correctly in their own frame, and
+# the two frames disagree about which pairs of events happen at the same moment.
+#
+# WHY SIX SECONDS AND NOT SOMETHING SMALLER. The desynchronisation is FIRST order in beta while time dilation
+# is second order - gamma is 1.25 here, a 25 per cent effect, and the desynchronisation is six seconds out of
+# ten. At everyday speeds the first-order term is the one that survives, which is why the simultaneity
+# result, not time dilation, is what makes the two accounts of section 1 incompatible. A reader who thinks of
+# relativity as "moving clocks run slow" has the smaller effect.
+#
+# IT DOES NOT DEPEND ON THE SYNCHRONISATION CONVENTION BEING RIGHT. The six seconds follows from applying the
+# SAME definition in both frames, which is what section 1 licenses. sr-01-sync-0-10 and
+# sr-01-round-trip-10ls pin that definition where nothing moves, and sr-01-one-way-light-speed-is-a-convention
+# records that the one-way speed is stipulated rather than measured. This record is what those three are for.
+id: "sr-01-moving-pair-0.6c"
+kind: "modern-golden"
+title: "SR-01 with the pair at 0.6c: six seconds of desynchronisation over ten light-seconds"
+description: "Two clocks ten light-seconds apart and synchronised in their own frame are six seconds out of step in a frame moving at 0.6c relative to them, with the leading clock reading earlier. Neither runs wrong: the two frames disagree about which events are simultaneous. The effect is first order in beta, where time dilation is second order, which is why simultaneity rather than clock rate is what makes the two accounts of section 1 incompatible."
+constantSetId: "modern-si-2019"
+owner: "sr01.ledger"
+inputs:
+  stationSeparationLs:
+    value: 10
+    unit: "ls"
+  emissionTimeA:
+    value: 0
+    unit: "s"
+  clockOffsetB:
+    value: 0
+    unit: "s"
+  rodBeta:
+    value: 0
+    unit: "1"
+  pairBeta:
+    value: 0.6
+    unit: "1"
+  pairSeparationLs:
+    value: 10
+    unit: "ls"
+  frameBeta:
+    value: 0
+    unit: "1"
+expected:
+  outputs:
+    - outputId: desynchronization
+      value: 6
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "beta times the separation, 0.6 x 10, exactly 6. First order in beta, which is what makes it the larger effect at ordinary speeds than the 25 per cent of gamma."
+    - outputId: roundTripSpeed
+      value: 1
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Unchanged, as in every setting: the convention is a statement about the stationary frame. Asserted so the six seconds is not read as the convention failing."
+    - outputId: criterionOffset
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "No offset was dialled into the local clock, so the six seconds comes entirely from the pair's motion and not from a clock set wrong by hand. Absolute tolerance against an exact zero."
+modelVersion: 1
+schemaVersion: 1

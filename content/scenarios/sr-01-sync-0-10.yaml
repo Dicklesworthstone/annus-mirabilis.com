@@ -1,0 +1,72 @@
+# THE SYNCHRONISATION CONVENTION, AT THE SETTING IT IS DEFINED AT (am-nxbq, item 1).
+#
+# WHICH CONTROL VALUES A READER MOVES TO REACH IT: the station separation at 5 light-seconds with the flash
+# leaving A at time 0. This was a PRESET id in acceptanceCases; the acceptance case is what those settings
+# must produce.
+#
+# WHAT SECTION 1 DOES. Einstein does not discover what time it is at B; he DEFINES it. A flash leaves A at
+# t_A, reflects at B, returns at t_A'. The distant clock is set so that t_B is halfway between: the
+# definition makes the outward and return light times equal BY STIPULATION. At five light-seconds that puts
+# t_B at 5, and the criterion offset - how far the convention's assignment sits from the clock's own reading
+# - is 0.
+#
+# AND THE ROUND-TRIP SPEED IS 1 BECAUSE OF THE DEFINITION, NOT AS A MEASUREMENT. Two times the separation
+# over the round-trip duration is exactly c here, and it would be exactly c whatever the convention assigned
+# to t_B, because the round trip never consults the distant clock. That is the distinction
+# sr-01-one-way-light-speed-is-a-convention pins from the other side, where the ONE-way speed is reported
+# not-applicable with the reason that the model defines it rather than measuring it.
+#
+# WHY A RECORD FOR THE EASY CASE. Everything SR-01 says later - the asymmetric chase legs of
+# sr-01-rod-chase-0.6c, the six-second desynchronisation of sr-01-moving-pair-0.6c - is a consequence of
+# this definition applied in a moving frame. Pinning the definition where nothing is moving is what makes
+# those later numbers attributable to the motion rather than to the convention.
+id: "sr-01-sync-0-10"
+kind: "modern-golden"
+title: "SR-01 at five light-seconds: the convention assigns 5, and the round-trip speed is 1 by construction"
+description: "A flash leaves station A at time zero, reflects at a station five light-seconds away, and returns. Section 1 does not discover the distant clock's reading, it defines it: the distant time is set halfway through the round trip, which puts it at 5, with no offset from the clock's own reading. The round-trip speed is exactly 1 and would be whatever the convention assigned, because a round trip never consults the distant clock. Everything the laboratory says about moving frames is this definition applied there."
+constantSetId: "modern-si-2019"
+owner: "sr01.ledger"
+inputs:
+  stationSeparationLs:
+    value: 5
+    unit: "ls"
+  emissionTimeA:
+    value: 0
+    unit: "s"
+  clockOffsetB:
+    value: 0
+    unit: "s"
+  rodBeta:
+    value: 0
+    unit: "1"
+  pairBeta:
+    value: 0.6
+    unit: "1"
+  pairSeparationLs:
+    value: 10
+    unit: "ls"
+  frameBeta:
+    value: 0
+    unit: "1"
+expected:
+  outputs:
+    - outputId: assignedRemoteTime
+      value: 5
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Half the round trip over five light-seconds, which is the definition rather than a result. It tracks the separation, which is what sr-01-round-trip-10ls checks at ten."
+    - outputId: roundTripSpeed
+      value: 1
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Exactly c in these units, and exactly c for any assignment to the distant clock, because the round trip does not read it. Asserted here so the later moving-frame records are not read as evidence for the convention."
+    - outputId: criterionOffset
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "The convention's assignment agrees with the clock's own reading when nothing is moving and no offset was dialled in. Absolute tolerance, since a relative one cannot bound an exact zero."
+modelVersion: 1
+schemaVersion: 1

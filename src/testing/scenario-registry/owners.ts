@@ -1453,6 +1453,42 @@ const OWNERS: OwnerRecord[] = [
       return numbers;
     },
   },
+  /**
+   * THE EVENT LEDGER OF SECTION 1 AND THE CHASE OF SECTION 2 (am-nxbq, item 1).
+   *
+   * SR-01's four readings are four different claims at overlapping settings, which is why its presets look
+   * alike and its acceptance cases do not:
+   *
+   *   assignedRemoteTime  what the synchronisation convention ASSIGNS to the distant clock
+   *   roundTripSpeed      1 by construction, because the convention is chosen to make it so
+   *   chase legs          10/(1-beta) and 10/(1+beta) - 25 and 6.25 at 0.6c, Einstein's own numbers
+   *   desynchronization   beta times the separation, 6 at 0.6c over ten light-seconds
+   *
+   * All of them come back together, because a record pinning one in isolation could not say that the
+   * round-trip speed is 1 WHILE the two legs differ by a factor of four. That juxtaposition is section 2's
+   * whole point.
+   */
+  {
+    id: "sr01.ledger",
+    sourcePath: fileURLToPath(new URL("../../experiments/sr01/session.ts", import.meta.url)),
+    fn: (ctx) => {
+      const outputs = sr01SnapshotOutputs({ ...SR01_DEFAULTS, ...ctx.inputs } as never);
+      const numbers: Record<string, number> = {};
+      for (const outputId of [
+        "assignedRemoteTime",
+        "roundTripSpeed",
+        "criterionOffset",
+        "chaseOutboundLeg",
+        "chaseReturnLeg",
+        "desynchronization",
+      ]) {
+        const got = sessionOutputsOf(outputs, outputId);
+        if (isOwnerRefusal(got)) return got;
+        Object.assign(numbers, got);
+      }
+      return numbers;
+    },
+  },
   {
     id: "lq05.session",
     sourcePath: fileURLToPath(new URL("../../experiments/lq05/session.ts", import.meta.url)),

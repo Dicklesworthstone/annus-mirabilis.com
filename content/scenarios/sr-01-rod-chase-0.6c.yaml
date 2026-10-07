@@ -1,0 +1,81 @@
+# EINSTEIN'S OWN TWO LEGS, 25 AND 6.25 (am-nxbq, item 1).
+#
+# WHICH CONTROL A READER MOVES TO REACH IT: the rod's speed, from rest to 0.6c, with the ten light-second
+# separation unchanged. This was a PRESET id in acceptanceCases; the acceptance case is what those settings
+# must produce.
+#
+# THE CALCULATION IS SECTION 2's. A rod of length 10 light-seconds moves at 0.6c and a flash is sent from its
+# trailing end to its leading end and back. Chasing the leading end, the light gains on it at 1 - 0.6, so the
+# outbound leg takes 10/(1 - 0.6) = 25 seconds. Coming back it meets the trailing end at 1 + 0.6, so the
+# return takes 10/(1 + 0.6) = 6.25. Both are exact at this speed.
+#
+# AND THE SUM IS WHERE THE FACTOR COMES FROM. 25 + 6.25 = 31.25, which is 2 x 10 / (1 - 0.36): the round trip
+# over the moving rod takes gamma squared times what it takes at rest. That is the quantity Einstein compares
+# with the stationary round trip, and the comparison is what shows that observers in the two frames cannot
+# both call their own light times equal - which is the simultaneity result, reached through a chase rather
+# than through a postulate.
+#
+# WHAT HAS NOT CHANGED. The round-trip speed is still exactly 1 and the convention's assignment is still 10,
+# because those are defined in the stationary frame and the rod's motion does not touch them. Asserting them
+# beside the asymmetric legs is the point: nothing about the DEFINITION changed, and the legs became unequal
+# anyway. sr-01-round-trip-10ls pins the same separation at rest, where both legs are 10.
+#
+# A reader who expects the legs to average back to 10 should look again: their mean is 15.625, not 10. The
+# average of 1/(1-beta) and 1/(1+beta) is 1/(1-beta squared), not 1, which is the same gamma squared and the
+# reason a round trip cannot hide the motion the way a one-way trip can.
+id: "sr-01-rod-chase-0.6c"
+kind: "modern-golden"
+title: "SR-01 with the rod at 0.6c: the chase legs are 25 and 6.25, and their sum is gamma squared times the rest value"
+description: "A flash crosses a ten light-second rod moving at 0.6c and returns. Chasing the leading end it gains at 1 - beta and takes 25 seconds; coming back it meets the trailing end at 1 + beta and takes 6.25. The sum, 31.25, is gamma squared times the twenty seconds the same trip takes at rest, which is the quantity section 2 compares with the stationary round trip. The convention's assignment and the round-trip speed are unchanged at 10 and 1, because those are defined in the stationary frame: nothing about the definition moved, and the legs became unequal anyway."
+constantSetId: "modern-si-2019"
+owner: "sr01.ledger"
+inputs:
+  stationSeparationLs:
+    value: 10
+    unit: "ls"
+  emissionTimeA:
+    value: 0
+    unit: "s"
+  clockOffsetB:
+    value: 0
+    unit: "s"
+  rodBeta:
+    value: 0.6
+    unit: "1"
+  pairBeta:
+    value: 0.6
+    unit: "1"
+  pairSeparationLs:
+    value: 10
+    unit: "ls"
+  frameBeta:
+    value: 0
+    unit: "1"
+expected:
+  outputs:
+    - outputId: chaseOutboundLeg
+      value: 25
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "10/(1 - 0.6), exactly 25. Against the 10 that sr-01-round-trip-10ls pins at rest over the same separation."
+    - outputId: chaseReturnLeg
+      value: 6.25
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "10/(1 + 0.6), exactly 6.25. A factor of four below the outbound leg, and their sum of 31.25 is gamma squared times the rest round trip of 20."
+    - outputId: roundTripSpeed
+      value: 1
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Unchanged. Asserted beside the unequal legs so the asymmetry is visibly NOT a change in the definition: the convention is a statement about the stationary frame and the rod's motion does not reach it."
+    - outputId: assignedRemoteTime
+      value: 10
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Also unchanged from the rest case, for the same reason. Two readings that do not move and two that do is the shape of the result."
+modelVersion: 1
+schemaVersion: 1

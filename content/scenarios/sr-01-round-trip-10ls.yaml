@@ -1,0 +1,76 @@
+# THE SAME CONVENTION AT TWICE THE DISTANCE, SO THE ASSIGNMENT TRACKS THE SEPARATION (am-nxbq, item 1).
+#
+# WHICH CONTROL VALUE A READER MOVES TO REACH IT: the station separation, from five light-seconds to ten.
+# This was a PRESET id in acceptanceCases; the acceptance case is what those settings must produce.
+#
+# WHAT THE PAIR WITH sr-01-sync-0-10 ESTABLISHES. The assigned distant time goes from 5 to 10 as the
+# separation goes from 5 to 10, and the round-trip speed stays exactly 1. Linear in the distance, and the
+# speed independent of it: both are properties of the DEFINITION, and seeing them at two separations is what
+# shows the definition is a rule rather than a number that happened to come out right once.
+#
+# THE ROUND-TRIP SPEED IS NOT EVIDENCE AND THIS IS WHERE TO SAY SO. Twice ten light-seconds over a twenty
+# second round trip is c. It is c at five light-seconds too, and it would be c if the distant clock were set
+# to anything at all, because the round trip is timed entirely by the clock at A. A reader who takes
+# roundTripSpeed = 1 as a measurement confirming the light postulate has mistaken a stipulation for a
+# result - and the instrument says so from the other side by reporting the ONE-way speed as not applicable,
+# which sr-01-one-way-light-speed-is-a-convention pins.
+#
+# THE CHASE LEGS ARE EQUAL HERE, 10 and 10, because the rod is at rest. sr-01-rod-chase-0.6c is the same
+# ten light-seconds with the rod moving, where they become 25 and 6.25; asserting the equal case first is
+# what makes that asymmetry attributable to the motion.
+id: "sr-01-round-trip-10ls"
+kind: "modern-golden"
+title: "SR-01 at ten light-seconds: the assignment is 10 and the round-trip speed is still exactly 1"
+description: "Doubling the station separation doubles the time the convention assigns to the distant clock, from 5 to 10, and leaves the round-trip speed at exactly 1. The first is linear in the distance and the second is independent of it, and both are properties of the definition rather than measurements: the round trip is timed entirely by the clock at A and never reads the distant one. With the rod at rest the two chase legs are equal at 10 each, which is the baseline the moving case departs from."
+constantSetId: "modern-si-2019"
+owner: "sr01.ledger"
+inputs:
+  stationSeparationLs:
+    value: 10
+    unit: "ls"
+  emissionTimeA:
+    value: 0
+    unit: "s"
+  clockOffsetB:
+    value: 0
+    unit: "s"
+  rodBeta:
+    value: 0
+    unit: "1"
+  pairBeta:
+    value: 0.6
+    unit: "1"
+  pairSeparationLs:
+    value: 10
+    unit: "ls"
+  frameBeta:
+    value: 0
+    unit: "1"
+expected:
+  outputs:
+    - outputId: assignedRemoteTime
+      value: 10
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Twice the 5 that sr-01-sync-0-10 pins at half this separation. The pair is the assertion that the assignment is linear in the distance."
+    - outputId: roundTripSpeed
+      value: 1
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Unchanged from the shorter separation, byte for byte. Independent of the distance and of whatever the distant clock reads, which is why it is a stipulation and not a measurement."
+    - outputId: chaseOutboundLeg
+      value: 10
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The rod is at rest, so the light takes the same time each way. Asserted as the baseline for sr-01-rod-chase-0.6c, where the same separation gives 25 and 6.25."
+    - outputId: chaseReturnLeg
+      value: 10
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Equal to the outbound leg. Their equality at rest is what makes the moving case's factor of four attributable to the motion."
+modelVersion: 1
+schemaVersion: 1
