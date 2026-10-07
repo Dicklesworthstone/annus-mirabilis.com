@@ -69,9 +69,19 @@ const CODE_ROOTS = ["src", "scripts", "perf", "ios"]
  * refuse rather than to record.
  */
 const UNWIRED_DEBT: Readonly<Record<string, string>> = {
+  // THE SECOND SENTENCE HERE USED TO READ "No face emits them, so a retired id still lands
+  // nowhere", and that was FALSE when it was committed. Measured in the built site the same day:
+  // GermanFace.tsx:102 emits `<span id={retired} data-alias-of={target} />` inline, and
+  // out/papers/<slug>/view/german/ carries 33 of the 37 declared records -- 3 of 4 for
+  // mass-energy, 6 of 9 for light-quanta, 7 of 7 and 17 of 17 for the other two. The four absent
+  // ones all point at reference occurrences (-r1, -r3), which are not anchors on any face, and
+  // PaperPage.tsx:174 says exactly that, naming s2-p2-s1-r3. So the capability SHIPS and the
+  // shortfall is deliberate.
   "aliasAnchors.ts":
-    "am-read-anchors-navigation-a6o: static alias anchors for retired ids, so a retired spelling " +
-    "lands without JavaScript. No face emits them, so a retired id still lands nowhere.",
+    "am-read-anchors-navigation-a6o: a typed helper for static alias anchors. The CAPABILITY is " +
+    "live, emitted inline by GermanFace.tsx:102 with `data-alias-of`, not by this module's " +
+    "`data-alias`. So this is a duplicate of working code rather than a missing feature, and " +
+    "which spelling survives is an owner call.",
   "mapToFace.ts":
     "am-to1q: two of its three jobs have live owners reading the same inputs " +
     "(facsimile/document.ts at 9 routes, weave/contentIds.ts at 4). The nearest-ancestor walk and " +
