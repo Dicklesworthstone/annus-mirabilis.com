@@ -65,7 +65,7 @@ describe("optional capstone worksheet", () => {
     expect(order()).toEqual(["e", "f", "d", "c", "b", "a"]);
     expect(document.activeElement).toBe(up);
     expect(up.getAttribute("aria-disabled")).toBe("true");
-    expect(document.querySelector(".capstone-reorder [role=status]")?.textContent).toBe("Claim 5 moved to position 1 of 6.");
+    expect(document.querySelector("[data-capstone-reorder] [role=status]")?.textContent).toBe("Claim 5 moved to position 1 of 6.");
     await act(async () => { up.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", altKey: true, bubbles: true })); });
     expect(order()).toEqual([...ids].reverse());
     expect(document.activeElement).toBe(up);

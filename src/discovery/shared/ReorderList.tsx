@@ -31,8 +31,12 @@ export function ReorderList({ items, order, onChange }: Readonly<{
     setAnnouncement(`${byId.get(id)?.label ?? "Claim"} moved to position ${next.indexOf(id) + 1} of ${next.length}.`);
   }
 
+  // THE HOOK BELOW IS A DATA ATTRIBUTE, NOT A CLASS. It exists only so a test can
+  // find the status region, and no stylesheet declares it, so as a class it was
+  // undeclared debt under am-vw1o. This repository already uses data attributes for
+  // exactly that. If a styled class was intended, the rule is the author's to add.
   return (
-    <div className="capstone-reorder">
+    <div data-capstone-reorder="">
       <p id={helpId} className="capstone-controls">
         Move a claim with its buttons, or press Alt and the up or down arrow while focused on a move button.
         A claim at the start cannot move up; a claim at the end cannot move down.
