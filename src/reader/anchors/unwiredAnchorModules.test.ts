@@ -32,7 +32,7 @@
  */
 
 import { describe, expect, test } from "bun:test";
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { basename, dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -43,7 +43,24 @@ import { fileURLToPath } from "node:url";
 // but in the runner" -- and this file still walked into it, which is why the note is repeated here
 // where the next author of a filesystem-walking test will be looking.
 const ANCHORS_DIR = dirname(fileURLToPath(import.meta.url));
-const SRC_ROOT = resolve(ANCHORS_DIR, "../..");
+const REPO_ROOT = resolve(ANCHORS_DIR, "../../..");
+
+/**
+ * EVERY CODE ROOT THAT CAN HOLD A CONSUMER, not just `src/`. This read `src/` alone when it was
+ * first written, and that is a population error of the kind AGENTS.md calls "A Check Inherits The
+ * Silence Of Whatever It Reads": a module consumed only by a script is invisible to a scanner that
+ * never opens `scripts/`, and the scanner then reports a debt that is not one.
+ *
+ * It was found by the error actually occurring, one directory over. The same `src/`-only walk
+ * reported all seven modules in `src/content/audits/` as having no consumer -- `verifyContent.ts`,
+ * `honesty.ts`, `instruments.ts`, `misconceptions.ts`, `readings.ts`, `shelfLive.ts`,
+ * `equationIdentity.ts`. All seven are imported by `scripts/`, `scripts/verify-content.ts` among
+ * them, so every one of those findings was false. The five modules in THIS directory survive the
+ * wider walk, but they survived the narrow one by luck rather than by design.
+ */
+const CODE_ROOTS = ["src", "scripts", "perf", "ios"]
+  .map((d) => join(REPO_ROOT, d))
+  .filter((d) => existsSync(d));
 
 /**
  * Each entry is one module in this directory that no non-test module imports, with the bead that
@@ -96,8 +113,7 @@ function anchorModules(): string[] {
  * Every non-test module under `src/` that imports `target`, by resolved path rather than by
  * basename: `paneIds.ts` would otherwise be credited by any file importing a different `paneIds`.
  */
-function importersOf(target: string, allFiles: readonly string[]): string[] {
-  const absolute = join(ANCHORS_DIR, target);
+function importersOfPath(absolute: string, allFiles: readonly string[]): string[] {
   const found: string[] = [];
   for (const file of allFiles) {
     if (file === absolute) continue;
@@ -109,7 +125,7 @@ function importersOf(target: string, allFiles: readonly string[]): string[] {
       const base = resolve(dirname(file), spec);
       const candidates = [base, `${base}.ts`, `${base}.tsx`, join(base, "index.ts")];
       if (candidates.includes(absolute)) {
-        found.push(relative(SRC_ROOT, file));
+        found.push(relative(REPO_ROOT, file));
         break;
       }
     }
@@ -117,9 +133,14 @@ function importersOf(target: string, allFiles: readonly string[]): string[] {
   return found.sort();
 }
 
+/** The same lookup for one module in this directory, which is the population the debt measures. */
+function importersOf(target: string, allFiles: readonly string[]): string[] {
+  return importersOfPath(join(ANCHORS_DIR, target), allFiles);
+}
+
 describe("the anchor navigation library's wiring debt", () => {
   const modules = anchorModules();
-  const all = sourceFiles(SRC_ROOT);
+  const all = CODE_ROOTS.flatMap((root) => sourceFiles(root));
   const importers = new Map(modules.map((m) => [m, importersOf(m, all)]));
 
   test("the scanner examined a real population, and says how large it was", () => {
@@ -140,12 +161,25 @@ describe("the anchor navigation library's wiring debt", () => {
     // Without this the gate is satisfiable by a scanner that resolves nothing. Each pair was read
     // from the importing file, so a rename on either side fails here rather than silently widening
     // the debt.
-    expect(importers.get("resolve.ts")).toContain("reader/navigation/state.ts");
-    expect(importers.get("aliases.ts")).toContain("reader/anchors/resolve.ts");
-    expect(importers.get("emitAnchor.ts")).toContain("reader/faces/TranslationUnit.tsx");
+    expect(importers.get("resolve.ts")).toContain("src/reader/navigation/state.ts");
+    expect(importers.get("aliases.ts")).toContain("src/reader/anchors/resolve.ts");
+    expect(importers.get("emitAnchor.ts")).toContain("src/reader/faces/TranslationUnit.tsx");
 
     const wired = modules.filter((m) => (importers.get(m) ?? []).length > 0);
     expect(wired.sort()).toEqual(["aliases.ts", "emitAnchor.ts", "resolve.ts"]);
+  });
+
+  test("POSITIVE CONTROL for the cross-root walk: a consumer in scripts/ is found", () => {
+    // The arm that matters most, because its absence is what made the FIRST version of this file
+    // wrong about a neighbouring directory. `src/content/audits/instruments.ts` has no importer
+    // anywhere in `src/`, and `scripts/verify-content.ts:16` imports it. A scanner that reads only
+    // `src/` calls that module unconsumed, which is exactly the false debt this control refuses.
+    const audited = join(REPO_ROOT, "src/content/audits/instruments.ts");
+    expect(existsSync(audited)).toBe(true);
+    const found = importersOfPath(audited, all);
+    expect(found).toContain("scripts/verify-content.ts");
+    // And nothing in src/ imports it, so the find above could only have come from the wider walk.
+    expect(found.filter((f) => f.startsWith("src/"))).toEqual([]);
   });
 
   test("every module with no importer is a recorded debt, and a new one is refused", () => {
