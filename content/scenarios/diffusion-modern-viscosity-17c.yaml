@@ -1,0 +1,85 @@
+# Einstein's own liquid, at his own temperature, with the modern viscosity (am-nxbq, the last ref).
+#
+# WHAT THE PAPER SAYS, which is what makes this record possible at all. s5-p2, printed page 559: "es sei
+# als Fluessigkeit Wasser von 17 Grad C. gewaehlt (k = 1,35 . 10^-2) und der Teilchendurchmesser sei
+# 0,001 mm" - let the liquid be chosen as WATER AT 17 DEGREES C, with k = 1.35e-2, and the particle
+# DIAMETER 0.001 mm. So the paper names the liquid, names its temperature, and states the viscosity it
+# used: 1.35e-2 poise, which is 1.35e-3 Pa s. (Einstein's k in paper 2 is viscosity, not Boltzmann's
+# constant, which is the notation collision AGENTS.md calls out in red.)
+#
+# WHAT THE MODERN REFERENCE VALUE IS FOR THAT LIQUID AT THAT TEMPERATURE. 1.0798059e-3 Pa s, from the
+# IAPWS 2008 formulation (Huber et al., J. Phys. Chem. Ref. Data 38(2) 101-125, 2009,
+# doi:10.1063/1.3088050) as served by the NIST Chemistry WebBook for water at 17.000000 C and
+# 0.101325 MPa, retrieved 2026-10-06. The citation is content/bibliography/iapws-2008-water-viscosity.json
+# and the value is declared as an editorialInput with that source, because it is a measured material
+# property rather than a defined constant and must carry its provenance.
+#
+# SO EINSTEIN'S STATED VISCOSITY IS 25.0 PER CENT HIGH FOR THE WATER HE NAMES: the ratio is
+# 1.250224693160132. This record does not explain why, and deliberately offers no theory: a 1905 handbook
+# value, a different temperature convention, or an impurity are all possible and none is established here.
+# What is established is the size of the difference and what it does to his prediction.
+#
+# WHAT IT DOES. The diffusion coefficient rises from 3.1484801651441766e-13 to 3.93630764838814e-13 m^2/s,
+# a factor of 1.250224693160132 - EXACTLY the viscosity ratio, since D goes as 1/eta. The one-second
+# displacement rises from 7.935338890235472e-7 to 8.872775944864313e-7 m, a factor of
+# 1.1181344700706315 - exactly the SQUARE ROOT of the viscosity ratio. Both ratios are pinned, and that
+# pair is the record's second purpose.
+#
+# BECAUSE THAT IS THE MISREADING AGENTS.md NAMES BY NAME: "doubling the viscosity halves the typical
+# displacement" is false, and the correct statement is that doubling it halves the diffusivity and changes
+# the RMS displacement by 1 over root 2. Here the viscosity differs by a factor of 1.2502 and the
+# displacement by 1.1181, and pinning the diffusivity beside the displacement is what makes the two
+# exponents checkable rather than asserted in prose.
+#
+# AND THE PRINTED ONE-MINUTE FIGURE SURVIVES, BARELY. At 60 s the modern viscosity gives
+# 6.872822693817853e-6 m against Einstein's 6.146687073678806e-6. He prints "ca. 6 Mikron"; his own inputs
+# give 6.15, and the modern viscosity gives 6.87, which rounds to 7 rather than 6. So the paper's printed
+# figure is right for the viscosity the paper used and would not be right for the liquid it names. Only the
+# one-second case is pinned here, because a scenario is one setting.
+id: "diffusion-modern-viscosity-17c"
+kind: "modern-golden"
+title: "Water at 17 C is 25 per cent less viscous than paper 2 assumed, and the displacement rises by its square root"
+description: "Paper 2 chooses water at 17 degrees C and states its viscosity as 1.35e-2 poise. The modern reference value for water at that temperature is 1.0798059e-3 Pa s, so the paper's figure is 25.0 per cent high. With the modern value the diffusion coefficient rises by exactly that factor, since it goes as one over the viscosity, and the one-second root-mean-square displacement rises by its square root, from 0.794 to 0.887 micron. Pinning both makes the two exponents checkable: a viscosity ratio of 1.2502 gives a displacement ratio of 1.1181, not 1.2502 and not its reciprocal."
+provenance:
+  paper: brownian-motion
+  sectionId: s5
+  printedPage: 559
+  locator: "s5-p2: es sei als Fluessigkeit Wasser von 17 Grad C. gewaehlt (k = 1,35 . 10^-2) und der Teilchendurchmesser sei 0,001 mm"
+editorialInputs:
+  - quantityId: viscosity
+    value: 0.0010798059
+    unit: "Pa s"
+    source: "iapws-2008-water-viscosity: Huber et al., New International Formulation for the Viscosity of H2O, J. Phys. Chem. Ref. Data 38(2) 101-125 (2009), doi:10.1063/1.3088050, as served by the NIST Chemistry WebBook for water at 17.000000 C and 0.101325 MPa; retrieved 2026-10-06"
+    reason: "The paper names water at 17 C as its liquid and states 1.35e-2 poise for it. This is the modern reference value for that liquid at that temperature, so the two can be compared at the paper's own stated conditions rather than at a convenient modern temperature."
+    sensitivity: "The diffusivity goes as 1/eta and the displacement as 1/sqrt(eta), so a one per cent error in this value moves D by one per cent and the displacement by half a per cent."
+constantSetId: "modern-si-2019"
+owner: "diffusion.stokesEinsteinRms"
+inputs:
+  temperature:
+    value: 290.15
+    unit: "K"
+  viscosity:
+    value: 0.0010798059
+    unit: "Pa s"
+  particleRadius:
+    value: 5.0e-7
+    unit: "m"
+  elapsedTime:
+    value: 1
+    unit: "s"
+expected:
+  outputs:
+    - outputId: diffusionCoefficient
+      value: 3.93630764838814e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "k_B T/(6 pi eta a) with k_B exact since 2019 and the viscosity as cited. Exactly 1.250224693160132 times the 3.1484801651441766e-13 that the paper's own 1.35e-3 gives, which is the viscosity ratio itself because D goes as 1/eta."
+    - outputId: rmsDisplacement1d
+      value: 8.872775944864313e-7
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "sqrt(2 D t) at t = 1 s: 0.887 micron against the 0.794 the paper's viscosity gives. The ratio is 1.1181344700706315, exactly the SQUARE ROOT of the viscosity ratio, which is the distinction between a diffusivity and a displacement that AGENTS.md's worked example exists to protect."
+modelVersion: 1
+schemaVersion: 1

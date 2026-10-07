@@ -32,10 +32,16 @@ describe("the instruments' acceptance cases", () => {
 
   test("the tree is at its recorded debt, neither more nor less", () => {
     expect(report.problems.map((p) => `${p.code}: ${p.message}`)).toEqual([]);
-    // The debt is real and this test is not vacuous about it: there IS dangling debt recorded, and
-    // the day it reaches zero this assertion is what tells the next author to delete the baseline.
-    expect(loadAcceptanceBaseline().length).toBeGreaterThan(0);
-    expect(report.census.dangling).toBeGreaterThan(0);
+    // THAT DAY ARRIVED, 2026-10-06. This read `toBeGreaterThan(0)` with the comment "the day it reaches
+    // zero this assertion is what tells the next author to delete the baseline". Every one of the 184
+    // refs now resolves to a scenario, so the debt is zero and the assertion is inverted rather than
+    // removed: the baseline is a FLOOR now, and any new ref resolving to nothing turns both of these red.
+    //
+    // The baseline FILE is deliberately kept. An empty list that refuses a new entry is a stronger gate
+    // than no gate, and AGENTS.md's RULE 1 forbids an agent deleting a file without the owner's written
+    // permission - including one whose own test invited it. Removing it is the owner's call.
+    expect(loadAcceptanceBaseline()).toHaveLength(0);
+    expect(report.census.dangling).toBe(0);
   });
 
   test("something resolves, so the resolver is not simply failing to find anything", () => {
@@ -108,23 +114,86 @@ describe("the instruments' acceptance cases", () => {
       expect(codes(planted)).toContain("acceptance-baseline-slack");
     });
 
+    /**
+     * THESE TWO USED TO BORROW A DANGLING REF FROM THE REAL TREE, and on 2026-10-06 there stopped being
+     * one: all 184 refs resolve. `report.refs.find((r) => r.resolution === "dangling")` became
+     * undefined, the declaration was keyed by "" and the expected code never fired, so both went RED ON
+     * CORRECT WORK - the third instance in this file of a test that asserted a debt and broke when the
+     * debt was paid, and the repair is the one the docblock below already prescribes: the plant lives in
+     * a root the test makes. A declaration is a claim ABOUT A REF, and a synthetic ref serves that
+     * claim exactly as well as a real one while depending on nothing.
+     */
+    const declarationRoot = (): string => {
+      const root = mkdtempSync(join(tmpdir(), "am-acceptance-declared-"));
+      mkdirSync(join(root, "content", "experiments"), { recursive: true });
+      mkdirSync(join(root, "content", "scenarios"), { recursive: true });
+      // The YAML is written out here rather than through the `manifest` helper, which belongs to a later
+      // describe block and is not in scope: one acceptance ref that nothing resolves, and one preset with
+      // a different id so the ref is NOT classified as its own preset.
+      writeFileSync(
+        join(root, "content", "experiments", "zz-05.yaml"),
+        [
+          "id: zz-05",
+          'title: "ZZ-05"',
+          "acceptanceCases:",
+          "  - zz-05-no-such-case",
+          "presets:",
+          "  - presetId: zz-05-slow",
+          '    label: "A preset"',
+          "",
+        ].join("\n"),
+      );
+      // A declaration's path is resolved against the ROOT, not against the repository, which is why these
+      // two files are written here: one that exists and does not hold the id, and one that does. Pointing
+      // at a repository path from a temp root yields acceptance-fixture-missing-file instead, which is a
+      // different claim and is what the first test asserts.
+      mkdirSync(join(root, "src", "testing"), { recursive: true });
+      writeFileSync(
+        join(root, "src", "testing", "without.ts"),
+        'export const unrelated = "zz-05-some-other-case";\n',
+      );
+      writeFileSync(
+        join(root, "src", "testing", "with.ts"),
+        'export const fixture = "zz-05-no-such-case";\n',
+      );
+      return root;
+    };
+
     test("an in-code fixture declared in a file that does not exist", () => {
-      const dangling = report.refs.find((r) => r.resolution === "dangling");
-      expect(dangling).toBeDefined();
+      const root = declarationRoot();
+      // Non-vacuity first: the ref must actually be dangling here, or the declaration below is a claim
+      // about nothing and the absent code would prove the gate silent rather than satisfied.
+      expect(checkAcceptanceCases({ root, baseline: [], declarations: {} }).census.dangling).toBe(
+        1,
+      );
       const planted = checkAcceptanceCases({
-        declarations: { [dangling?.ref ?? ""]: "src/testing/no-such-file.test.ts" },
+        root,
+        baseline: [],
+        declarations: { "zz-05-no-such-case": "src/testing/no-such-file.test.ts" },
       });
       expect(codes(planted)).toContain("acceptance-fixture-missing-file");
     });
 
     test("an in-code fixture declared in a file that does not contain it", () => {
-      const dangling = report.refs.find((r) => r.resolution === "dangling");
+      const root = declarationRoot();
       const planted = checkAcceptanceCases({
-        // This very file exists and does not contain that id, so the declaration is a claim the
-        // gate checks rather than believes.
-        declarations: { [dangling?.ref ?? ""]: "src/testing/acceptanceCases.ts" },
+        root,
+        baseline: [],
+        // A file that exists in this root and does not contain that id, so the declaration is a claim
+        // the gate checks rather than believes.
+        declarations: { "zz-05-no-such-case": "src/testing/without.ts" },
       });
       expect(codes(planted)).toContain("acceptance-fixture-absent-from-file");
+      // And the ACCEPT half, which neither test had: a declaration naming a file that DOES contain the
+      // id resolves it, so the two refusals above are about the claim being false and not about
+      // declarations being refused on principle.
+      const honest = checkAcceptanceCases({
+        root,
+        baseline: [],
+        declarations: { "zz-05-no-such-case": "src/testing/with.ts" },
+      });
+      expect(codes(honest)).not.toContain("acceptance-fixture-absent-from-file");
+      expect(codes(honest)).not.toContain("acceptance-fixture-missing-file");
     });
 
     /**
@@ -485,10 +554,11 @@ describe("the instruments' acceptance cases", () => {
       // So this is now a RATCHET on the real tree rather than a floor: zero, and a new acceptance ref
       // named after a preset of its own instrument turns it red.
       expect(c.danglingOwnPreset).toBe(0);
-      // The other side is still occupied, by diffusion-modern-viscosity-17c, which needs a cited modern
-      // water viscosity at 17 C that exists nowhere in content/. When it too reaches zero, the move is
-      // the same one: assert zero here and lean on THE CONTROL fixture above, which covers this branch.
-      expect(c.danglingOther).toBeGreaterThan(0);
+      // And the other side is empty too, as of the same day: diffusion-modern-viscosity-17c was the last
+      // one, and it resolved once the IAPWS 2008 viscosity of water at 17 C was cited. So this is the
+      // move foreseen one line above, made: assert zero and lean on THE CONTROL fixture, which drives
+      // this branch to 1 on a temp tree and does not depend on what the real tree holds.
+      expect(c.danglingOther).toBe(0);
       expect(c.presetsDeclared).toBeGreaterThan(0);
     });
   });

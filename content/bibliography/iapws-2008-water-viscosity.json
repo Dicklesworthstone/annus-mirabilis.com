@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "kind": "citation",
+  "id": "iapws-2008-water-viscosity",
+  "title": "Huber, Perkins, Laesecke, Friend, Sengers, Assael, Metaxa, Vogel, Mares and Miyagawa, New International Formulation for the Viscosity of H2O",
+  "locator": "J. Phys. Chem. Ref. Data 38(2), 101-125 (2009), doi:10.1063/1.3088050; the IAPWS 2008 release, as served by the NIST Chemistry WebBook (webbook.nist.gov, thermophysical properties of water, CAS 7732-18-5). Retrieved 2026-10-06: at 17.000000 C and 0.101325 MPa the dynamic viscosity is 0.0010798059 Pa s and the density 998.77798 kg/m3, phase liquid.",
+  "url": "https://doi.org/10.1063/1.3088050"
+}
