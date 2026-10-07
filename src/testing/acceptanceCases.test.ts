@@ -470,9 +470,24 @@ describe("the instruments' acceptance cases", () => {
       );
       // Exhaustive: every dangling ref is in exactly one of the two buckets.
       expect(c.danglingOwnPreset + c.danglingOther).toBe(c.dangling);
-      // Non-vacuity, deliberately, both ways: a split with one empty side would make either half of
-      // the diagnosis untested by the real tree while reading as a clean result.
-      expect(c.danglingOwnPreset).toBeGreaterThan(0);
+      // THE PRESET SIDE IS NOW EMPTY, AND THAT IS THE GOAL RATHER THAN A GAP. This clause read
+      // `toBeGreaterThan(0)` until 2026-10-06, as deliberate non-vacuity: a split with one empty side
+      // would leave either half of the diagnosis untested by the real tree while reading as clean. The
+      // whole preset class was then resolved - 183 of 184 refs, am-nxbq - and the assertion became a
+      // demand that the debt still exist, which is the shape AGENTS.md names when it says a paid debt
+      // lowers its ceiling rather than keeping a budget.
+      //
+      // Neither half is thereby untested. BOTH are driven by planted fixtures on temp trees above:
+      // "PLANTED: a case naming this manifest's own preset" takes danglingOwnPreset to 1, and
+      // "THE CONTROL: a case that is not a preset" takes danglingOther to 1 while holding the other at
+      // 0. Those two are what prove the classifier, and they do not depend on what the real tree holds.
+      //
+      // So this is now a RATCHET on the real tree rather than a floor: zero, and a new acceptance ref
+      // named after a preset of its own instrument turns it red.
+      expect(c.danglingOwnPreset).toBe(0);
+      // The other side is still occupied, by diffusion-modern-viscosity-17c, which needs a cited modern
+      // water viscosity at 17 C that exists nowhere in content/. When it too reaches zero, the move is
+      // the same one: assert zero here and lean on THE CONTROL fixture above, which covers this branch.
       expect(c.danglingOther).toBeGreaterThan(0);
       expect(c.presetsDeclared).toBeGreaterThan(0);
     });

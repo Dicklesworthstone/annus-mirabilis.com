@@ -19,11 +19,11 @@
  * AND THAT IS WHY THIS DOCBLOCK SAYS "owners.ts lines 658 and 721" RATHER THAN THE PARENTHESISED FORM.
  * The audit reads a citation's own BLOCK to check it names the matching code, splitting the file on
  * `test(`, so everything above the first test is one block - and this docblock names
- * owner-value-key-unnamed while explaining am-ksl3. A `(owners.ts:721)` up here was therefore read as a
+ * owner-value-key-unnamed while explaining am-ksl3. A `(owners.ts:733)` up here was therefore read as a
  * citation from a block that never names owner-session-output-absent, and reported as code-mismatched.
  * Prose about a line is not a citation of it, and the form is what distinguishes them.
  *
- * TWO OF THE TWELVE ARE NOT MINE. `nonNumericOr` and `sessionOutputsOf`, at owners.ts lines 658 and 721,
+ * TWO OF THE TWELVE ARE NOT MINE. `nonNumericOr` and `sessionOutputsOf`, at owners.ts lines 670 and 733,
  * predate this work and were credited while their codes had one site each. Adding further sites under the
  * same codes withdrew that credit, which is am-ksl3 behaving as designed rather than a regression in
  * them; they are driven here for the same reason as the rest.
@@ -58,7 +58,7 @@ function codeOf(fn: () => unknown): string {
 const MODERN = { constantSetId: "modern-si-2019" } as const;
 
 describe("ownerParams: the shared builder for every laboratory with a categorical control", () => {
-  test("(owners.ts:313) a categorical code that names no category is refused by name", () => {
+  test("(owners.ts:325) a categorical code that names no category is refused by name", () => {
     // SR-05 has three worldlines, so 9 is outside the list and the builder must say so rather than
     // silently taking the default, which would run the case at out-and-back while it claimed a circle.
     expect(
@@ -66,7 +66,7 @@ describe("ownerParams: the shared builder for every laboratory with a categorica
     ).toBe("owner-mode-code-unknown");
   });
 
-  test("(owners.ts:322) an input the laboratory has no parameter for is refused, not dropped", () => {
+  test("(owners.ts:334) an input the laboratory has no parameter for is refused, not dropped", () => {
     // The accept half is below. This is the shape that matters most: an input silently ignored leaves
     // the scenario running at the defaults and PASSING while testing something other than it says.
     expect(
@@ -101,13 +101,13 @@ describe("ownerParams: the shared builder for every laboratory with a categorica
 });
 
 describe("refuseUnknownInputs: the same guard for owners that read a fixed list", () => {
-  test("(owners.ts:494) an input outside the owner's declared list is refused by name", () => {
+  test("(owners.ts:506) an input outside the owner's declared list is refused by name", () => {
     expect(
       codeOf(() => getOwner("bm08.cameraMoments").fn({ inputs: { temperature: 300 }, ...MODERN })),
     ).toBe("owner-input-unknown");
   });
 
-  test("(owners.ts:494) an owner that reads NO scenario input refuses any at all", () => {
+  test("(owners.ts:506) an owner that reads NO scenario input refuses any at all", () => {
     // The Millikan owner's rows come from the dataset file, so there is nothing a scenario may set.
     // Same site, different population: an empty known-list must still refuse rather than accept everything.
     expect(
@@ -139,7 +139,7 @@ describe("millikanObservations: reading the dataset's own declared rows", () => 
   const fits = [{ id: "millikan-1916-fig6-five-lines", rowsUsed: [0, 1] }];
   const good: MillikanDocument = { rows, fits };
 
-  test("(owners.ts:406) a document with no rows is refused, and so is one with no declared fit", () => {
+  test("(owners.ts:418) a document with no rows is refused, and so is one with no declared fit", () => {
     expect(codeOf(() => millikanObservations({ rows: [], fits }))).toBe(
       "owner-session-output-absent",
     );
@@ -153,7 +153,7 @@ describe("millikanObservations: reading the dataset's own declared rows", () => 
     ).toBe("owner-session-output-absent");
   });
 
-  test("(owners.ts:419) a declared row whose frequency or intercept is not a number is refused", () => {
+  test("(owners.ts:431) a declared row whose frequency or intercept is not a number is refused", () => {
     expect(
       codeOf(() =>
         millikanObservations({
@@ -187,14 +187,14 @@ describe("trajectoryFinalPair: the last (x, y) of a flat trajectory array", () =
     { quantityId: "trajectoryPositions", status, value },
   ];
 
-  test("(owners.ts:437) an absent or refused trajectory has no final position", () => {
+  test("(owners.ts:449) an absent or refused trajectory has no final position", () => {
     expect(codeOf(() => trajectoryFinalPair([]))).toBe("owner-session-output-absent");
     expect(codeOf(() => trajectoryFinalPair(pair({ 0: 1, 1: 2 }, "outside-domain")))).toBe(
       "owner-session-output-absent",
     );
   });
 
-  test("(owners.ts:444) a length that is not a whole number of pairs is refused", () => {
+  test("(owners.ts:456) a length that is not a whole number of pairs is refused", () => {
     expect(codeOf(() => trajectoryFinalPair(pair({ 0: 1, 1: 2, 2: 3, length: 3 })))).toBe(
       "owner-value-key-unnamed",
     );
@@ -204,7 +204,7 @@ describe("trajectoryFinalPair: the last (x, y) of a flat trajectory array", () =
     );
   });
 
-  test("(owners.ts:451) a final pair that is not two numbers is refused", () => {
+  test("(owners.ts:463) a final pair that is not two numbers is refused", () => {
     expect(
       codeOf(() => trajectoryFinalPair(pair({ 0: 1, 1: "two" as unknown as number, length: 2 }))),
     ).toBe("owner-value-key-unnamed");
@@ -216,13 +216,13 @@ describe("trajectoryFinalPair: the last (x, y) of a flat trajectory array", () =
 });
 
 describe("sr12VectorComponent: one component of a vector output", () => {
-  test("(owners.ts:467) an output the snapshot does not carry is refused by name", () => {
+  test("(owners.ts:479) an output the snapshot does not carry is refused by name", () => {
     expect(codeOf(() => sr12VectorComponent([], "currentDensityMoving", 0))).toBe(
       "owner-session-output-absent",
     );
   });
 
-  test("(owners.ts:475) an accepted value whose component is not a number is refused", () => {
+  test("(owners.ts:487) an accepted value whose component is not a number is refused", () => {
     expect(
       codeOf(() =>
         sr12VectorComponent(
@@ -271,7 +271,7 @@ describe("sr12VectorComponent: one component of a vector output", () => {
 });
 
 describe("the two sites that predate this work, driven for the same reason", () => {
-  test("(owners.ts:658) nonNumericOr refuses a value result with no number under the named key", () => {
+  test("(owners.ts:670) nonNumericOr refuses a value result with no number under the named key", () => {
     // owner-value-key-unnamed. A "value" result whose number is under a key the caller did not name is a
     // CALLER error, and the guard exists because the first version returned a refusal claiming status
     // "value" - which no scenario could sensibly expect and which read as a working non-numeric case.
@@ -280,7 +280,7 @@ describe("the two sites that predate this work, driven for the same reason", () 
     );
   });
 
-  test("(owners.ts:721) sessionOutputsOf refuses an output the snapshot does not carry", () => {
+  test("(owners.ts:733) sessionOutputsOf refuses an output the snapshot does not carry", () => {
     // owner-session-output-absent.
     expect(codeOf(() => sessionOutputsOf([{ quantityId: "a" }], "notPresent"))).toBe(
       "owner-session-output-absent",

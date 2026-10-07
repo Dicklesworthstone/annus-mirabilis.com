@@ -1,0 +1,91 @@
+# Disjoint pairs with a KNOWN localization variance: the narrower interval, and exact coverage.
+#
+# WHICH SETTING: noiseMethod "known", so the estimator is told sigma^2 = (2e-7)^2 exactly rather than
+# estimating it. Everything else is the laboratory's default. Its companion,
+# bm-08-pairs-estimated-coverage, differs in that one control alone, and the pair of records is the
+# statement of what not knowing the noise costs.
+#
+# WHAT IS PINNED. The disjoint-pairs estimate of the diffusivity is 4.608065069469457e-13 against a true
+# 4.2944e-13, 7.3 per cent high - better than the naive estimate's 5.4 per cent low and the covariance
+# estimate's 18.9 per cent high, though one draw cannot establish that ordering. The 95 per cent interval is
+# [3.437522456587846e-13, 6.397571246151176e-13], a width of 2.96004878956333e-13, and it CONTAINS the
+# truth.
+#
+# AND THE COVERAGE IS "exact", which is the field this record exists for. `pairCoverageIsExact` is 1: with
+# sigma^2 known, the interval's chi-square construction has the stated coverage exactly, and the instrument
+# says so rather than describing every interval the same way. Its companion reports 0 for the same field,
+# and that difference is not cosmetic: an interval whose coverage is conservative is wider than it needs to
+# be by an amount nobody can compute, which is a different epistemic object from one whose coverage is
+# exact.
+#
+# WHY THE PAIRS ARE DISJOINT. Overlapping pairs would share a frame, so their increments would be correlated
+# and the interval would be too narrow - the same error in the other direction from the naive estimate's.
+# 100 frames give 50 disjoint pairs, which is pinned, so an implementation using 99 overlapping pairs would
+# produce a plausible estimate and fail here.
+id: "bm-08-pairs-exact-coverage"
+kind: "modern-golden"
+title: "BM-08's disjoint pairs with a known noise variance: 7.3 per cent high, and coverage that is exactly 95 per cent"
+description: "Told the localization variance exactly, the disjoint-pairs estimator gives a diffusivity 7.3 per cent above the true input value, with a 95 per cent interval of about 3.44 to 6.40 times ten to the minus thirteenth that contains it. The coverage is reported as exact, because the chi-square construction attains its stated level when the noise variance is known. Fifty disjoint pairs are formed from a hundred frames; overlapping pairs would share frames, correlate their increments and make the interval too narrow."
+provenance:
+  paper: brownian-motion
+  sectionId: s5
+  printedPage: 559
+  locator: "s5-p1, where the diffusion coefficient of section 3 meets the displacement of section 4 to be inferred from observation"
+constantSetId: "modern-si-2019"
+owner: "bm08.estimators"
+inputs:
+  noiseCode:
+    value: 1
+    unit: "1"
+expected:
+  outputs:
+    - outputId: pairCoverageIsExact
+      value: 1
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-9
+        rationale: "Exact coverage, as a flag, because a known sigma^2 makes the chi-square interval attain its stated level. Its companion record reports 0 at the same settings but an estimated variance, and the pair is what makes the flag mean something."
+    - outputId: pairD
+      value: 4.608065069469457e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "7.3 per cent above the true input. Pinned beside that input rather than alone."
+    - outputId: pairLower
+      value: 3.437522456587846e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The interval's lower bound, below the truth. Pinned as its own number so the containment flag is checkable from the record rather than taken on trust."
+    - outputId: pairUpper
+      value: 6.397571246151176e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The upper bound, above the truth."
+    - outputId: pairIntervalWidth
+      value: 2.96004878956333e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The width, which is the quantity the companion record is 25 per cent larger on. Pinned in both so the cost of not knowing the noise is a number rather than a remark."
+    - outputId: trueDiffusion
+      value: 4.2944e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: "An input, not a result: the diffusivity the synthetic path was generated with, which is what lets the interval below be scored at all."
+    - outputId: pairCount
+      value: 50
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-9
+        rationale: "The number of DISJOINT pairs formed from 100 frames. Pinned because the interval's width scales with it, so an interval that looked right while using overlapping pairs would fail here."
+    - outputId: pairIntervalCoversTruth
+      value: 1
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-9
+        rationale: "The interval contains the diffusivity it was given, as a flag. ONE DRAW: this is not a coverage measurement, which is what coverageTrials is for, and the record's text says so. It is pinned because an interval that covered nothing would be useless whatever its width."
+modelVersion: 1
+schemaVersion: 1

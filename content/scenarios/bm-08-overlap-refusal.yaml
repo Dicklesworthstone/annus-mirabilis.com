@@ -1,0 +1,50 @@
+# Two individually legal settings that cannot both hold: an exposure longer than the frame spacing.
+#
+# THIS PRESET DECLARES NO PARAMETER VALUES AT ALL, and that is the first thing to record. bm-08.yaml's
+# `bm-08-overlap-refusal` preset has an EMPTY parameterValues, so it names a refusal its own settings cannot
+# reach - at the laboratory's defaults, an exposure of 0.5 s in a 1 s spacing, nothing refuses. The settings
+# below are this record's own choice of the configuration the preset's name describes, and the gap is
+# reported on am-jzk1 so the preset can be given values or the ref renamed.
+#
+# WHAT THE OVERLAP IS. The exposure control admits 0 to 4 seconds and the frame spacing 1 to 4. So an
+# exposure of 4 s with a spacing of 1 s has BOTH controls inside their own declared ranges and is
+# nonetheless impossible: each frame's shutter would still be open when the next frame began, so consecutive
+# exposures would overlap and the increments between them would not be increments of anything. The kernel
+# refuses before forming a grid, and its requirement text says so: "exposure no longer than spacing".
+#
+# WHY THIS IS THE CASE WORTH HAVING. Every other refusal in bm-08 is a single control out of range, which
+# `bm-08-exposure-outside-declared-range-refused` already covers by pushing the exposure past 4. This one
+# cannot be found by sweeping one control at a time, because neither value is out of range. AGENTS.md's
+# compiler-rejection list names "invalid parameter dependencies" as its own class for exactly this reason,
+# and a per-control domain check is structurally unable to see it.
+#
+# THE REFUSAL ARRIVES ON THE GRID, not on an estimator, which the record pins by naming `cameraGrid` as the
+# refused output. That is the honest location: the grid is what encodes the frame geometry, so the geometry
+# is where an impossible geometry is caught, and no path is recorded and no observation made.
+id: "bm-08-overlap-refusal"
+kind: "adversarial"
+title: "BM-08 refuses an exposure of 4 seconds in a 1-second frame spacing, though both are inside their ranges"
+description: "The exposure control admits up to four seconds and the frame spacing from one, so an exposure of four seconds with a one-second spacing has both controls inside their declared ranges and is still impossible: each shutter would still be open when the next frame began, so consecutive exposures would overlap. The laboratory refuses when it forms the frame geometry, before recording any path, and its stated requirement is an exposure no longer than the spacing. No sweep of one control at a time can find this, because neither value is out of range."
+plausibleMistake: "That checking each control against its own declared range is enough, so a configuration whose every value is admissible must be admissible. Exposure and spacing are jointly constrained and neither range mentions the other; the invalid combination is interior to both. The complementary mistake is to treat this as the same refusal as an exposure past its maximum, which bm-08-exposure-outside-declared-range-refused covers: that one is a domain violation and this one is a dependency violation, and they are caught at different places by different code."
+intendedFailure: "cameraGrid checks the exposure against the spacing while forming the frame geometry, so the refusal arrives before any recording. The scenario passes only when it arrives on cameraGrid with the invalid-parameter code; a run that recorded a path first and refused later would name a different output, and one that admitted the configuration would return numbers and fail on the expected status."
+provenance:
+  paper: brownian-motion
+  sectionId: s5
+  printedPage: 559
+  locator: "s5-p1, where the diffusion coefficient of section 3 meets the displacement of section 4 to be inferred from observation"
+constantSetId: "modern-si-2019"
+owner: "bm08.estimators"
+inputs:
+  exposure:
+    value: 4
+    unit: "s"
+  dt:
+    value: 1
+    unit: "s"
+expected:
+  status:
+    outputId: "cameraGrid"
+    status: "outside-domain"
+    reasonCode: "invalid-parameter"
+modelVersion: 1
+schemaVersion: 1

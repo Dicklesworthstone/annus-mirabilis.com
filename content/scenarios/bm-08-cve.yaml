@@ -1,0 +1,87 @@
+# The covariance estimator, and the negative variance it honestly reports (am-nxbq, am-jzk1).
+#
+# WHY THIS RECORD EXISTS NOW AND NOT BEFORE. Four of bm-08's refs are about the ESTIMATORS, whose outputs
+# came from an `async` worker operation while the scenario registry's owner contract is synchronous. The
+# asynchrony was one setTimeout(0) yield inside the recording loop; that loop is now a generator with two
+# drivers, so `recordCameraPathSync` exists and these four records can be written. Nothing about them was
+# ever stochastic: BM08_DEFAULTS fixes seed 1905, noiseSeed 1905 and clickSeed 1926.
+#
+# WHAT THE COVARIANCE ESTIMATOR IS FOR. The naive estimate assumes independent increments and is wrong here
+# by construction, because camera noise anti-correlates neighbouring increments and exposure correlates them
+# positively. The CVE uses the covariance it measures to separate the two contributions, and reports the
+# localization variance as well as the diffusivity.
+#
+# WHAT IS PINNED, AND IT IS SCORED AGAINST A KNOWN TRUTH. The diffusivity is an INPUT here, 4.2944e-13
+# m^2/s, which is what makes this a synthetic inverse exercise rather than a measurement: the estimators
+# can be graded. The naive estimate is 4.0607670372264964e-13, 5.4 per cent LOW. The covariance estimate is
+# 5.104208624632689e-13, 18.9 per cent HIGH. Both are pinned, and so is the truth, so the record states the
+# errors rather than two numbers a reader must score themselves.
+#
+# AND THE NOISE VARIANCE COMES BACK NEGATIVE: -1.9274014996740937e-14 m^2. That is the record's real
+# content. The CVE estimates sigma^2 from a measured covariance whose true value is near zero at these
+# settings, so an unbiased estimate falls BELOW zero roughly half the time. Reporting it is correct;
+# clamping it to zero would bias the diffusivity that depends on it and would conceal that this run's
+# localization error is small. AGENTS.md's typed-result rule names the silent clamp as the thing not to do,
+# and a variance is exactly where the temptation is strongest, because a negative one looks impossible.
+#
+# THE STATIONARY-CLICK ESTIMATE IS PINNED BESIDE IT, 2.7327035665046396e-14 from 30 clicks, and it is
+# POSITIVE. Two estimates of one quantity, one negative and one positive, from the same run: that is the
+# scatter of an estimator near zero made visible, and it is why bm-08-pairs-estimated-coverage pays a wider
+# interval for using the click estimate instead of a known sigma^2.
+id: "bm-08-cve"
+kind: "adversarial"
+title: "BM-08's covariance estimator reports a NEGATIVE noise variance, and is 19 per cent high on the diffusivity"
+description: "At the laboratory's default settings the true diffusivity is an input of 4.2944 times ten to the minus thirteenth square metres per second. The naive estimate is 5.4 per cent low and the covariance estimate 18.9 per cent high, and the covariance estimator's localization variance comes back NEGATIVE, at about minus 1.93 times ten to the minus fourteenth square metres. That is correct rather than broken: it estimates a quantity whose true value is near zero, so an unbiased estimate falls below zero about half the time, and clamping it would bias the diffusivity and hide that this run's localization error is small. The stationary-click estimate of the same variance is positive."
+plausibleMistake: "That a variance cannot be negative, so a negative one is a bug to be clamped at zero or reported as an error. The estimator is unbiased for a quantity near zero and must therefore straddle it; a clamp makes the diffusivity that uses it biased and silently removes the information that the noise is small. The complementary mistake is to read the covariance estimate's 19 per cent error as the estimator being worse than the naive one, when it is correcting a different bias and its scatter at one run says nothing about either."
+intendedFailure: "The estimator subtracts a measured covariance term without a floor, so a run whose covariance exceeds the exposure contribution yields a negative sigma squared. The scenario passes only when cveSigma2 is negative AND the stationary-click estimate of the same quantity is positive; an implementation that clamped at zero fails on the first, and one that returned the click estimate for both fails on the second. The naive and covariance diffusivities are pinned beside the input truth, so an implementation that got the sign right and the magnitudes wrong fails too."
+provenance:
+  paper: brownian-motion
+  sectionId: s5
+  printedPage: 559
+  locator: "s5-p1, where the diffusion coefficient of section 3 meets the displacement of section 4 to be inferred from observation"
+constantSetId: "modern-si-2019"
+owner: "bm08.estimators"
+inputs:
+  noiseCode:
+    value: 1
+    unit: "1"
+expected:
+  outputs:
+    - outputId: cveSigma2
+      value: -1.9274014996740937e-14
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-9
+        rationale: "NEGATIVE, and asserted as a signed value rather than a magnitude because the sign is the claim. A relative 1e-9 rather than 1e-12 because the quantity is a difference of two comparable terms and its last digits are cancellation."
+    - outputId: stationaryNoiseSigma2
+      value: 2.7327035665046396e-14
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The same physical quantity, estimated from the stationary clicks instead, and POSITIVE. Pinned beside its negative partner so the straddling is visible in one record."
+    - outputId: trueDiffusion
+      value: 4.2944e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: "An input, not a result: the diffusivity the synthetic path was generated with. Pinned so the two estimates below are scored rather than merely reported."
+    - outputId: naiveD
+      value: 4.0607670372264964e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "5.4 per cent below the truth. The estimate that assumes independent increments, which camera noise and exposure both violate."
+    - outputId: covarianceD
+      value: 5.104208624632689e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "18.9 per cent above the truth. Pinned with the naive estimate so neither is read as the right answer: both are one draw from estimators with different biases and different scatter."
+    - outputId: cveCovariance
+      value: 1.0434415874061908e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The measured covariance the estimator works from, POSITIVE here because the default half-second exposure dominates the default 2e-7 of noise. It is the term whose size drives the negative sigma squared above."
+modelVersion: 1
+schemaVersion: 1

@@ -118,11 +118,23 @@ import {
   transformChargeCurrent,
   transformSI,
 } from "../../physics/reference/fields.ts";
-import { bartlettBandsMA1, cameraMoments } from "../../physics/reference/inference/observation.ts";
+import {
+  cameraGrid,
+  observeCameraPath,
+  recordCameraPathSync,
+} from "../../physics/reference/inference/camera.ts";
+import {
+  bartlettBandsMA1,
+  cameraMoments,
+  covarianceEstimator,
+  disjointPairsKnownNoiseInterval,
+  stationaryClickNoiseEstimate,
+} from "../../physics/reference/inference/observation.ts";
 import { analyzePhotoelectricData } from "../../physics/reference/inference/photoelectricData.ts";
 import {
   chiSquareInterval,
   empiricalCoverageFraction,
+  estimateIncrements,
   identifiabilityFamily,
   inverseBias,
   invertToMolecularNumber,
@@ -4221,6 +4233,138 @@ const OWNERS: OwnerRecord[] = [
       };
       if (typeof planck.standardError === "number")
         numbers.planckStandardError = planck.standardError;
+      return numbers;
+    },
+  },
+  /**
+   * BM-08's ESTIMATORS, WHICH WERE UNREACHABLE UNTIL THE CAMERA LOOP GREW A SYNCHRONOUS DRIVER (am-jzk1).
+   *
+   * Four of bm-08's acceptance refs are about the ESTIMATORS and the coverage machinery rather than the
+   * closed-form moments, and they could not be written at all: those outputs come from `measureBm08`, which
+   * was `async`, while `OwnerFn` is `(ctx) => OwnerResult`. The asynchrony turned out to be one
+   * `setTimeout(0)` yield inside the recording loop, so that loop is now a generator with two drivers and
+   * `recordCameraPathSync` exists. This owner composes the same reference functions the worker composes -
+   * `recordCameraPathSync`, `cameraGrid`, `observeCameraPath`, `estimateIncrements`, `covarianceEstimator`,
+   * `stationaryClickNoiseEstimate`, `disjointPairsKnownNoiseInterval` - rather than calling the worker
+   * operation, which is what every other owner here does with its laboratory's kernels.
+   *
+   * IT IS FULLY DETERMINISTIC. `BM08_DEFAULTS` fixes seed "1905", noiseSeed "1905" and clickSeed "1926",
+   * and the Philox streams are keyed by logical identity, so the same settings give the same path on every
+   * run and on every machine that agrees about binary64. Nothing here samples ambient entropy.
+   *
+   * WHAT THE FOUR NUMBERS MEAN AGAINST A KNOWN TRUTH, which is the point of a synthetic inverse exercise:
+   * the true diffusivity is an INPUT, 4.2944e-13 m^2/s, so each estimator can be scored. At the
+   * laboratory's defaults the naive estimate is 4.0608e-13 (5.4 per cent low), the covariance estimate is
+   * 5.1042e-13 (18.9 per cent high) and the disjoint-pairs estimate is 4.6081e-13 (7.3 per cent high) with
+   * a 95 per cent interval that CONTAINS the truth. `trueDiffusion` is returned so a record can state the
+   * comparison instead of a reader having to know the default.
+   *
+   * AND THE COVARIANCE ESTIMATOR RETURNS A NEGATIVE NOISE VARIANCE, -1.9274e-14, which is not a bug and is
+   * the reason `cveSigma2` is exposed. The CVE estimates sigma^2 from a covariance whose true value is near
+   * zero, so an unbiased estimate falls below zero about half the time; clamping it to zero would bias the
+   * diffusivity that depends on it and would hide that this run's localization error is small. AGENTS.md:
+   * never a silent clamp.
+   *
+   * THE COVERAGE KIND TRAVELS AS A FLAG. `coverageKind` is the string "exact" or "conservative", and a
+   * scenario compares numbers or a refusal, so `pairCoverageIsExact` is 1 or 0. It is the one field that
+   * distinguishes bm-08-pairs-exact-coverage from bm-08-pairs-estimated-coverage other than the interval's
+   * width, and losing it would make that pair of records a pair of numbers with no stated difference.
+   */
+  {
+    id: "bm08.estimators",
+    sourcePath: fileURLToPath(
+      new URL("../../physics/reference/inference/observation.ts", import.meta.url),
+    ),
+    fn: (ctx) => {
+      refuseUnknownInputs(
+        ctx.inputs,
+        [
+          "D",
+          "dt",
+          "exposure",
+          "sigma",
+          "flowDrift",
+          "stageDrift",
+          "d",
+          "M",
+          "clicks",
+          "noiseCode",
+        ],
+        "a BM-08 estimator input",
+      );
+      const noiseMethod = ctx.inputs.noiseCode === 1 ? "known" : BM08_DEFAULTS.noiseMethod;
+      const p = {
+        ...BM08_DEFAULTS,
+        noiseMethod,
+        ...Object.fromEntries(Object.entries(ctx.inputs).filter(([k]) => k !== "noiseCode")),
+      } as typeof BM08_DEFAULTS;
+      // The refusal every one of these four cases can reach, and the one bm-08-overlap-refusal names: the
+      // grid is formed before any observation, and it refuses an exposure longer than the frame spacing.
+      const refuse = (stage: string, result: { kind: string }): OwnerRefusal => ({
+        refused: {
+          outputId: stage,
+          status: "outside-domain",
+          reasonCode:
+            (result as { refusal?: { code?: string } }).refusal?.code ?? String(result.kind),
+        },
+      });
+      const grid = cameraGrid(p as never);
+      if (grid.kind !== "accepted") return refuse("cameraGrid", grid);
+      const recording = recordCameraPathSync({ seed: p.seed, D: p.D, flowDrift: p.flowDrift });
+      if (recording.kind !== "accepted") return refuse("cameraRecording", recording);
+      const observed = observeCameraPath(recording.data, p as never);
+      if (observed.kind !== "accepted") return refuse("cameraObservation", observed);
+      const frames = observed.data;
+      const naive = estimateIncrements(
+        frames.increments,
+        p.dt,
+        p.d,
+        "independent-increment-known-zero-drift",
+      );
+      const cve = covarianceEstimator(frames.increments, p.dt, {
+        d: p.d,
+        exposure: p.exposure,
+        knownDrift: p.flowDrift + p.stageDrift,
+      });
+      const clicks = stationaryClickNoiseEstimate(frames.stationary, { d: p.d });
+      if (naive.kind !== "accepted") return refuse("naiveD", naive);
+      if (cve.kind !== "accepted") return refuse("covarianceD", cve);
+      if (clicks.kind !== "accepted") return refuse("stationaryNoise", clicks);
+      const pair = disjointPairsKnownNoiseInterval({
+        positions: frames.observed,
+        dt: p.dt,
+        exposure: p.exposure,
+        d: p.d,
+        alpha: 1 - p.coverage,
+        noise:
+          p.noiseMethod === "known"
+            ? { kind: "exact", sigma2: p.sigma ** 2 }
+            : { kind: "stationary-clicks", estimate: clicks.data },
+      });
+      if (pair.kind !== "accepted") return refuse("pairD", pair);
+      const numbers: Record<string, number> = {
+        trueDiffusion: p.D,
+        naiveD: naive.data.dHat,
+        covarianceD: cve.data.D,
+        cveVariance: cve.data.variance,
+        cveCovariance: cve.data.covariance,
+        cveSigma2: cve.data.sigma2,
+        stationaryNoiseSigma2: clicks.data.sigma2,
+        stationaryClicks: clicks.data.clicks,
+        pairD: pair.data.estimate,
+        pairCount: pair.data.pairs,
+        pairCoverageIsExact: pair.data.coverageKind === "exact" ? 1 : 0,
+      };
+      const interval = pair.data.interval;
+      if (interval) {
+        numbers.pairLower = interval.lower;
+        numbers.pairUpper = interval.upper;
+        numbers.pairIntervalWidth = interval.upper - interval.lower;
+        // Whether the 95 per cent interval covers the diffusivity it was given. One run is not a coverage
+        // measurement - that is what coverageTrials is for - so this is a single draw's outcome and the
+        // records say so rather than reading it as 95 per cent.
+        numbers.pairIntervalCoversTruth = interval.lower <= p.D && p.D <= interval.upper ? 1 : 0;
+      }
       return numbers;
     },
   },

@@ -1,0 +1,100 @@
+# The same estimator with the noise ESTIMATED: a 25 per cent wider interval, and conservative coverage.
+#
+# WHICH SETTING: noiseMethod "stationary", so the localization variance is estimated from 30 stationary
+# clicks instead of being known. It differs from bm-08-pairs-exact-coverage in that ONE control, and the
+# pair of records is the statement of what the ignorance costs.
+#
+# WHAT IT COSTS, pinned in both records. The estimate moves from 4.608065069469457e-13 to
+# 4.760140641488901e-13, and the 95 per cent interval widens from 2.96004878956333e-13 to
+# 3.71056893671187e-13 - 25.4 per cent wider. Both intervals contain the true 4.2944e-13.
+#
+# AND THE COVERAGE KIND CHANGES FROM "exact" TO "conservative", which is the record's point and the reason
+# `pairCoverageIsExact` is exposed as a flag at all. An estimated variance carries its own uncertainty into
+# the interval, and the construction can no longer attain its stated level exactly - only bound it from the
+# safe side. So the interval is wider AND its coverage is described differently, and the instrument reports
+# both rather than presenting one 95 per cent interval indistinguishable from the other. AGENTS.md: a
+# probability confidence interval is not an interval-arithmetic enclosure, and a comparison states its
+# criterion.
+#
+# THE STATIONARY-CLICK ESTIMATE ITSELF is 2.7327035665046396e-14 against the known (2e-7)^2 = 4e-14, so it
+# is 32 per cent LOW on this run - which is the scatter the wider interval is paying for. It is pinned here,
+# and bm-08-cve pins it beside the covariance estimator's NEGATIVE estimate of the same quantity: three
+# estimates of one variance, two of them wrong in different directions and one of them impossible-looking.
+#
+# WHAT THIS IS NOT. It is not a coverage measurement. `pairIntervalCoversTruth` is one draw, and a 95 per
+# cent interval that missed on a single run would be unremarkable. Measuring coverage is what
+# `coverageTrials` is for, and that path is still out of reach of a synchronous owner because it awaits a
+# fresh recording per trial - recorded on am-jzk1 rather than approximated here.
+id: "bm-08-pairs-estimated-coverage"
+kind: "modern-golden"
+title: "BM-08's pairs with an estimated noise variance: the interval is 25 per cent wider and its coverage only conservative"
+description: "Estimating the localization variance from thirty stationary clicks instead of being told it widens the 95 per cent interval by 25 per cent and changes its coverage from exact to conservative, because an estimated variance carries its own uncertainty into the construction and the stated level can then only be bounded from the safe side. The click estimate is 32 per cent below the known variance on this run, which is the scatter the wider interval pays for. Both intervals contain the true diffusivity."
+provenance:
+  paper: brownian-motion
+  sectionId: s5
+  printedPage: 559
+  locator: "s5-p1, where the diffusion coefficient of section 3 meets the displacement of section 4 to be inferred from observation"
+constantSetId: "modern-si-2019"
+owner: "bm08.estimators"
+inputs:
+  noiseCode:
+    value: 0
+    unit: "1"
+expected:
+  outputs:
+    - outputId: pairCoverageIsExact
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-9
+        rationale: "NOT exact: conservative. The one field that distinguishes this record from its companion other than the widths, and the reason the coverage kind is exposed as a flag."
+    - outputId: pairIntervalWidth
+      value: 3.71056893671187e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "25.4 per cent wider than the known-variance record's 2.96004878956333e-13. The price of not knowing sigma^2, as a number."
+    - outputId: pairD
+      value: 4.760140641488901e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The estimate moves as well as the interval, because the estimated variance enters the point estimate too."
+    - outputId: stationaryNoiseSigma2
+      value: 2.7327035665046396e-14
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "32 per cent below the known (2e-7)^2 = 4e-14 on this run. Pinned because it is the input the wider interval is widened BY, so an implementation that widened the interval for an unrelated reason would still have to produce this."
+    - outputId: pairLower
+      value: 3.256890630249289e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Below the known-variance record's lower bound: the widening is on both sides."
+    - outputId: pairUpper
+      value: 6.967459566961159e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Above its upper bound, for the same reason."
+    - outputId: trueDiffusion
+      value: 4.2944e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: "An input, not a result: the diffusivity the synthetic path was generated with, which is what lets the interval below be scored at all."
+    - outputId: pairCount
+      value: 50
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-9
+        rationale: "The number of DISJOINT pairs formed from 100 frames. Pinned because the interval's width scales with it, so an interval that looked right while using overlapping pairs would fail here."
+    - outputId: pairIntervalCoversTruth
+      value: 1
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-9
+        rationale: "The interval contains the diffusivity it was given, as a flag. ONE DRAW: this is not a coverage measurement, which is what coverageTrials is for, and the record's text says so. It is pinned because an interval that covered nothing would be useless whatever its width."
+modelVersion: 1
+schemaVersion: 1

@@ -1,12 +1,6 @@
 {
   "measured": "2026-09-27",
   "bead": "am-nxbq",
-  "note": "Acceptance refs that resolve to no scenario and no declared in-code fixture. The only allowed direction is shorter: a ref removed from this list because it now resolves is the work, and a ref added to it is new debt that the gate refuses. Do not delete a dangling ref from a manifest to shorten this list: a ref naming a case nobody wrote is a debt, an absent ref is a lie. Paid so far: bm-02-nonpositive-inputs-refused (am-nxbq, the first scenario in the repository to use expected.status). bm-08's four remaining refs - bm-08-cve, bm-08-pairs-exact-coverage, bm-08-pairs-estimated-coverage and bm-08-overlap-refusal - are blocked on a contract rather than on work: their estimator and coverage outputs come from measureBm08 in src/workers/operations/bm08.ts, which is async, while OwnerFn is (ctx) => OwnerResult and runLoadedScenarios is synchronous. Nothing about them is stochastic, since recordCameraPath is seeded and reproducible. They need either a synchronous measurement path or an async owner contract, which is a change to a shared gate and belongs to its owner. bm-08-overlap-refusal additionally declares NO parameterValues at all, so it names a refusal its own settings cannot reach. diffusion-modern-viscosity-17c remains and needs a CITED modern dynamic viscosity of water at 17 degrees Celsius: measured 2026-10-06, no such value exists anywhere in content/quantities or content/datasets, and a plausible-looking number written in without a source is the error that ref exists to prevent. diffusion-modern-golden, landed with that measurement recorded, deliberately uses a ROUND DECLARED 1.0e-3 Pa s and claims nothing about water.",
-  "dangling": [
-    "bm-08-cve",
-    "bm-08-overlap-refusal",
-    "bm-08-pairs-estimated-coverage",
-    "bm-08-pairs-exact-coverage",
-    "diffusion-modern-viscosity-17c"
-  ]
+  "note": "Acceptance refs that resolve to no scenario and no declared in-code fixture. The only allowed direction is shorter: a ref removed from this list because it now resolves is the work, and a ref added to it is new debt that the gate refuses. Do not delete a dangling ref from a manifest to shorten this list: a ref naming a case nobody wrote is a debt, an absent ref is a lie. Paid so far: bm-02-nonpositive-inputs-refused (am-nxbq, the first scenario in the repository to use expected.status). diffusion-modern-viscosity-17c remains and needs a CITED modern dynamic viscosity of water at 17 degrees Celsius: measured 2026-10-06, no such value exists anywhere in content/quantities or content/datasets, and a plausible-looking number written in without a source is the error that ref exists to prevent. diffusion-modern-golden, landed with that measurement recorded, deliberately uses a ROUND DECLARED 1.0e-3 Pa s and claims nothing about water.",
+  "dangling": ["diffusion-modern-viscosity-17c"]
 }
