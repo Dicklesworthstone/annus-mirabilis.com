@@ -1,0 +1,92 @@
+# Two nanoseconds of transverse field: 28 millimetres of deflection bought from the forward motion.
+#
+# WHICH BUTTON: "Transverse E over 2 ns". Settings identical to sr-13-convention-0.6's and
+# sr-13-electric-radius-1e5's - 1e5 V/m transverse, no magnetic field, 0.6c - so this record pins the
+# TRAJECTORY, which is the one thing at that setting the other two do not.
+#
+# WHAT IS PINNED. After two nanoseconds the electron is at x = 0.35922472862753113 m and
+# y = -0.028079403717997657 m: 359 millimetres forward and 28 millimetres deflected. The field points in
+# +y and the charge is negative, so the deflection is negative, and the record pins the SIGN rather than a
+# magnitude for that reason.
+#
+# AND THE FORWARD DISTANCE IS SHORTER THAN THE STRAIGHT LINE, which is the record's real content. With the
+# field removed, the same electron over the same two nanoseconds reaches x = 0.3597509495999995 m, which is
+# exactly 0.6c times 2 ns. With the field on it reaches 0.35922472862753113, short by
+# 0.0005262209724683498 m - about half a millimetre, or 1.5 parts in a thousand. The transverse motion is
+# bought out of the longitudinal component, because the speed is bounded: a Newtonian electron would keep
+# its forward velocity and simply add a sideways one, reaching the same x. Pinning the straight-line x in
+# the same record is what makes the shortfall a measurement rather than a remark.
+#
+# THE SHORTFALL IS PINNED AS ITS OWN NUMBER, not inferred from the two positions, so that a model which got
+# both x values wrong by the same amount would still fail. The owner computes it by running the identical
+# settings with the field removed, which is a second evaluation rather than an algebraic estimate.
+#
+# WHAT THE TRAJECTORY IS. `trajectoryPositions` is a flat array of 242 numbers, 121 (x, y) pairs over the
+# interval, and it is one of the outputs sr-13's manifest does not declare (reported on am-hr4z). This
+# record reads its last pair.
+id: "sr-13-transverse-e-2ns"
+kind: "adversarial"
+title: "SR-13 deflects 28 millimetres in 2 nanoseconds, and travels half a millimetre less far forward for it"
+description: "An electron at 0.6c crossing a transverse field of 100 kilovolts per metre for two nanoseconds is deflected about 28 millimetres and reaches 359 millimetres forward. With the field removed it reaches 359.75 millimetres, exactly 0.6c times two nanoseconds, so the deflected path is half a millimetre shorter along the original direction. The transverse motion is bought out of the forward motion because the speed is bounded; a Newtonian electron would keep its forward velocity and add a sideways one, arriving at the same forward distance."
+plausibleMistake: "That a transverse field adds a sideways velocity and leaves the forward one alone, so the forward distance after a given time is the same with and without the field. That is exactly true for a Newtonian electron and false here: the speed cannot exceed c, so the forward component must give way as the transverse one grows. The shortfall is small, half a millimetre in 360, which is why a record pinning only the deflection would never catch an implementation that got this wrong."
+intendedFailure: "The owner runs the identical settings twice, once with the field and once without, and exposes the difference of the two final forward positions as its own output. A model that integrated the transverse motion while holding the longitudinal velocity fixed would return a shortfall of zero and fail on that output alone, while still producing a plausible 28-millimetre deflection and passing any record that pinned only y."
+provenance:
+  paper: special-relativity
+  sectionId: s10
+  printedPage: 918
+  locator: "s10-p7, the equations of motion in the form (A) for the slowly accelerated electron"
+constantSetId: "modern-si-2019"
+owner: "sr13.deflection"
+inputs:
+  conventionCode:
+    value: 0
+    unit: "1"
+  massCode:
+    value: 0
+    unit: "1"
+  particleCode:
+    value: 0
+    unit: "1"
+  overlayCode:
+    value: 0
+    unit: "1"
+  electricFieldY:
+    value: 100000
+    unit: "V/m"
+  magneticFieldZ:
+    value: 0
+    unit: "T"
+  initialSpeed:
+    value: 0.6
+    unit: "1"
+  integrationInterval:
+    value: 2.0e-9
+    unit: "s"
+expected:
+  outputs:
+    - outputId: finalY
+      value: -0.028079403717997657
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-9
+        rationale: "The deflection after two nanoseconds, negative because the field is in +y and the charge is negative. A relative 1e-9 rather than 1e-12 because the value is the endpoint of a 121-step integration and its last digits are accumulated step error, not signal."
+    - outputId: finalX
+      value: 0.35922472862753113
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-9
+        rationale: "The forward distance reached, 359 millimetres. Same tolerance and same reason as the deflection: an integrated endpoint."
+    - outputId: straightFinalX
+      value: 0.3597509495999995
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "0.6c times 2 ns exactly, from a second run with the field removed. Tighter than the deflected values because no transverse motion accumulates, so this one is arithmetic rather than integration."
+    - outputId: longitudinalShortfall
+      value: 0.0005262209724683498
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-6
+        rationale: "The difference of the two forward positions: half a millimetre in 360, so about three digits of the difference survive the cancellation and a relative 1e-6 pins those without pinning the residue. The output a model that held the forward velocity fixed would return as zero."
+modelVersion: 1
+schemaVersion: 1

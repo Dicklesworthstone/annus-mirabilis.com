@@ -1,0 +1,114 @@
+# At 0.95c the Newtonian kinetic energy is wrong by a factor of nearly five (am-nxbq, the preset class).
+#
+# WHICH BUTTON: "Energy at 0.95c". No fields: the preset is about the electron's energy at a speed, not
+# about its deflection, which is why both radii of curvature are absent here rather than pinned.
+#
+# WHAT IS PINNED. The kinetic energy is 1.803261690871817e-13 J, which is (gamma - 1) m c^2 with gamma
+# 3.202563076101742. The Newtonian half-m-v-squared gives 3.694431486820763e-14 J, SMALLER BY A FACTOR OF
+# 4.88. The accelerating potential needed to reach this speed is 1125507.4207203905 V against a Newtonian
+# 230588.2764996536 V - about 1.13 megavolts against 231 kilovolts, which is the quantity an experimenter
+# actually sets and the reason Kaufmann's and Bucherer's measurements could discriminate at all.
+#
+# WHY BOTH NUMBERS ARE PINNED IN ONE RECORD. Either alone is just a number. Together they state the size of
+# the discrepancy at a stated speed, and that discrepancy is what section 10's energy expression is FOR.
+# Pinning only the relativistic value would let a reader take it for a refinement; the factor of five is
+# what makes it a different physical claim.
+#
+# THE THREE MASSES ARE PINNED TOO, and their ratio to the 0.6c record is the point: at 0.95c the
+# longitudinal mass is 2.992141120838839e-29 kg, about 16.8 times its value at 0.6c, because it goes as
+# gamma^3 and gamma has risen from 1.25 to 3.2026. The transverse masses rise by gamma^2 and gamma. Three
+# different powers of one factor, which is why "the electron gets heavier" is not a statement anyone can
+# check without saying which mass they mean.
+#
+# THE RADII ARE ABSENT, NOT ZERO. With no electric and no magnetic field, radiusCurvatureElectric and
+# radiusCurvatureMagnetic are both refused with the condition zero-field, and the owner omits a refused
+# radius rather than reporting one. A scenario naming either here receives undefined and fails, which is
+# the honest outcome: a radius of curvature for a straight line is not a large number, it is not a quantity.
+id: "sr-13-energy-0.95"
+kind: "modern-golden"
+title: "SR-13 at 0.95c: 1.13 megavolts against the Newtonian 231 kilovolts, a factor of 4.88 in energy"
+description: "At 0.95c the electron's kinetic energy is about 1.80 times ten to the minus thirteenth joules, where the Newtonian half m v squared gives 3.69 times ten to the minus fourteenth: smaller by a factor of 4.88. The accelerating potential needed is 1.13 megavolts against a Newtonian 231 kilovolts, which is the quantity an experimenter sets and the reason the electron-deflection measurements of the 1900s could discriminate between theories. The three masses rise as the first, second and third powers of the Lorentz factor, which is 3.2026 here."
+provenance:
+  paper: special-relativity
+  sectionId: s10
+  printedPage: 920
+  locator: "s10-p12, that the kinetic-energy expression must hold for ponderable masses too"
+constantSetId: "modern-si-2019"
+owner: "sr13.dynamics"
+inputs:
+  conventionCode:
+    value: 0
+    unit: "1"
+  massCode:
+    value: 0
+    unit: "1"
+  particleCode:
+    value: 0
+    unit: "1"
+  overlayCode:
+    value: 0
+    unit: "1"
+  electricFieldY:
+    value: 0
+    unit: "V/m"
+  magneticFieldZ:
+    value: 0
+    unit: "T"
+  initialSpeed:
+    value: 0.95
+    unit: "1"
+  integrationInterval:
+    value: 2.0e-9
+    unit: "s"
+expected:
+  outputs:
+    - outputId: kineticEnergy
+      value: 1.803261690871817e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "(gamma - 1) m c^2 with gamma 3.202563076101742 and the electron rest mass. The relativistic value."
+    - outputId: kineticEnergyNewtonian
+      value: 3.694431486820763e-14
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Half m v squared at 0.95c, smaller by a factor of 4.88. Pinned in the same record because the discrepancy, not the value, is what section 10's expression is for."
+    - outputId: acceleratingPotential
+      value: 1125507.4207203905
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The kinetic energy divided by the elementary charge: 1.13 megavolts. The quantity an experimenter sets, which is what makes the discrepancy measurable rather than theoretical."
+    - outputId: acceleratingPotentialNewtonian
+      value: 230588.2764996536
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "231 kilovolts by the Newtonian expression. A fivefold error in a quantity a laboratory dials in, which is why this preset exists beside the overlays."
+    - outputId: longitudinalMass
+      value: 2.992141120838839e-29
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma^3 times the rest mass, about 16.8 times its value at 0.6c. Pinned so the cube is checkable against the 0.6c record rather than asserted."
+    - outputId: transverseMassComoving
+      value: 9.342957655282047e-30
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma^2 times the rest mass: section 10's printed transverse mass at this speed."
+    - outputId: transverseMassLaboratory
+      value: 2.9173375928178693e-30
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma times the rest mass, the modern transverse mass. Pinned with its partner so the ratio is again exactly gamma, now 3.2026 rather than 1.25."
+    - outputId: lorentzFactor
+      value: 3.202563076101742
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "1/sqrt(1 - 0.9025). The common factor in every quantity above, pinned so an error in it is distinguishable from an error in one of them."
+modelVersion: 1
+schemaVersion: 1

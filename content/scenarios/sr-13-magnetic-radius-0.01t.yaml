@@ -1,0 +1,91 @@
+# The magnetic radius of curvature at 0.01 T, and no electric radius at all (am-nxbq, the preset class).
+#
+# WHICH BUTTON: "Magnetic radius at 0.01 T". A 10-millitesla field perpendicular to the motion, with no
+# electric field, at 0.6c.
+#
+# WHAT IS PINNED. The radius of curvature is 0.12783817697602481 m, about 128 mm. It is p/(qB) with the
+# relativistic momentum gamma m v, so the 1.25 of gamma is in it: a Newtonian calculation would give
+# 102 mm. The magnetic deflection is the measurement Kaufmann and Bucherer actually made, and 128 mm at
+# 10 mT is why a tabletop apparatus could do it.
+#
+# AND THE ELECTRIC RADIUS IS ABSENT, which is half the record. With no electric field,
+# radiusCurvatureElectric is refused with the condition zero-field, and the owner omits a refused radius
+# rather than reporting one. This record names only the magnetic radius; sr-13-electric-radius-1e5 is its
+# mirror, naming only the electric one at the same speed with the fields exchanged. Neither names both.
+# sr-13-kaufmann-overlay is the case where both fields are present and both radii exist, which is the
+# crossed-field configuration the measurements used.
+#
+# THE MASSES ARE PINNED AGAIN HERE, identically to sr-13-convention-0.6, and that is deliberate rather than
+# duplication: the radius depends on the momentum, so a record pinning a radius without the mass that
+# produced it cannot distinguish a wrong field from a wrong mass. The three mass values are the same
+# because the speed is, and the record says so.
+id: "sr-13-magnetic-radius-0.01t"
+kind: "modern-golden"
+title: "SR-13's electron curves with a 128-millimetre radius in 10 millitesla, where a Newtonian one would give 102"
+description: "An electron at 0.6c in a 10-millitesla field perpendicular to its motion curves with a radius of about 128 millimetres, since the radius is the relativistic momentum over the charge times the field and the Lorentz factor of 1.25 enters through the momentum. A Newtonian calculation gives about 102 millimetres. With no electric field present the electric radius of curvature is not a large number but no quantity at all, and the laboratory refuses it rather than reporting one."
+provenance:
+  paper: special-relativity
+  sectionId: s10
+  printedPage: 919
+  locator: "s10-p7 and eq-s10-d7, the longitudinal and transverse masses of the moving electron"
+constantSetId: "modern-si-2019"
+owner: "sr13.dynamics"
+inputs:
+  conventionCode:
+    value: 0
+    unit: "1"
+  massCode:
+    value: 0
+    unit: "1"
+  particleCode:
+    value: 0
+    unit: "1"
+  overlayCode:
+    value: 0
+    unit: "1"
+  electricFieldY:
+    value: 0
+    unit: "V/m"
+  magneticFieldZ:
+    value: 0.01
+    unit: "T"
+  initialSpeed:
+    value: 0.6
+    unit: "1"
+  integrationInterval:
+    value: 2.0e-9
+    unit: "s"
+expected:
+  outputs:
+    - outputId: radiusCurvatureMagnetic
+      value: 0.12783817697602481
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma m v over q B with gamma 1.25, so 25 per cent larger than the Newtonian radius. The quantity Kaufmann and Bucherer measured."
+    - outputId: transverseMassLaboratory
+      value: 1.1386729642375e-30
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma times the rest mass. Pinned beside the radius because the radius depends on the momentum, so a record with the radius alone cannot tell a wrong field from a wrong mass."
+    - outputId: transverseMassComoving
+      value: 1.423341205296875e-30
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma^2 times the rest mass, section 10's printed value, unchanged from the 0.6c record because the speed is unchanged."
+    - outputId: lorentzFactor
+      value: 1.25
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: "Exactly 5/4, and the whole of the difference between this radius and a Newtonian one."
+    - outputId: speedRatio
+      value: 0.6
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: "Unchanged by the magnetic field, which does no work. Pinned because a field that changed the speed would change the radius for the wrong reason."
+modelVersion: 1
+schemaVersion: 1

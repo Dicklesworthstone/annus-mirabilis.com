@@ -51,6 +51,8 @@ import { SR11_DEFAULTS } from "../../experiments/sr11/definition.ts";
 import { snapshotOutputs as sr11SnapshotOutputs } from "../../experiments/sr11/session.ts";
 import { SR12_DEFAULTS } from "../../experiments/sr12/definition.ts";
 import { snapshotOutputs as sr12SnapshotOutputs } from "../../experiments/sr12/session.ts";
+import { SR13_DEFAULTS } from "../../experiments/sr13/definition.ts";
+import { snapshotOutputs as sr13SnapshotOutputs } from "../../experiments/sr13/session.ts";
 import bm08Example from "../../generated/bm08-example.json";
 import { MODEL_DOMAINS } from "../../generated/model-domains.ts";
 import {
@@ -435,6 +437,49 @@ function bm03Params(inputs: Record<string, number>): Record<string, unknown> {
       throw new OwnerContractError(
         "owner-input-unknown",
         `"${key}" is not a BM-03 parameter, so naming it in a scenario would change nothing.`,
+      );
+    built[key] = value;
+  }
+  return built;
+}
+
+/**
+ * SR-13's parameter record. Four controls are CATEGORICAL strings: forceConvention, massLanguage,
+ * particle and datasetOverlay, each travelling as a code for the reason on sr05Params. The manifest
+ * declares all four as numeric with unit "dimensionless" and default 0, which is another instance of the
+ * divergence on am-hr4z; the laboratory's values are the strings mapped here.
+ *
+ * conventionCode 0 source, 1 laboratory. massCode 0 the paper's 1905 language, 1 modern. particleCode 0
+ * electron, 1 custom (which then reads customMass and customCharge). overlayCode 0 none,
+ * 1 kaufmann-1902-1906, 2 bucherer-1908.
+ */
+function sr13Params(inputs: Record<string, number>): Record<string, unknown> {
+  const maps = {
+    conventionCode: ["forceConvention", ["source", "laboratory"]],
+    massCode: ["massLanguage", ["1905", "modern"]],
+    particleCode: ["particle", ["electron", "custom"]],
+    overlayCode: ["datasetOverlay", ["none", "kaufmann-1902-1906", "bucherer-1908"]],
+  } as const;
+  const built: Record<string, unknown> = { ...SR13_DEFAULTS };
+  for (const [codeKey, [field, values]] of Object.entries(maps) as Array<
+    [string, readonly [string, readonly string[]]]
+  >) {
+    const code = inputs[codeKey];
+    if (code === undefined) continue;
+    const chosen = values[code];
+    if (chosen === undefined)
+      throw new OwnerContractError(
+        "owner-mode-code-unknown",
+        `${codeKey} ${code} names no SR-13 ${field}; 0 to ${values.length - 1} are ${values.join(", ")}.`,
+      );
+    built[field] = chosen;
+  }
+  for (const [key, value] of Object.entries(inputs)) {
+    if (key in maps) continue;
+    if (!Object.hasOwn(SR13_DEFAULTS, key))
+      throw new OwnerContractError(
+        "owner-input-unknown",
+        `"${key}" is not an SR-13 parameter, so naming it in a scenario would change nothing.`,
       );
     built[key] = value;
   }
@@ -3848,6 +3893,121 @@ const OWNERS: OwnerRecord[] = [
       numbers.osmoticPressureDirect = directValue;
       numbers.pressureAgreementResidual = independentPressure - directValue;
       return numbers;
+    },
+  },
+  /**
+   * SR-13's SEVEN PRESETS: SECTION 10'S TWO TRANSVERSE MASSES (am-nxbq, the preset class).
+   *
+   * Section 10 derives the motion of a slowly accelerated electron and prints a transverse mass of
+   * m/(1 - v^2/V^2), which is gamma^2 times the rest mass. The modern transverse mass is gamma times the
+   * rest mass. Both are correct; they answer different questions, because "force" means a different thing
+   * in each. SR-13 publishes BOTH, always, and the forceConvention and massLanguage controls select which
+   * the view emphasises.
+   *
+   * SO THOSE TWO CONTROLS MOVE NO OUTPUT, measured rather than assumed: switching forceConvention between
+   * source and laboratory, and massLanguage between 1905 and modern, leaves all eleven outputs identical,
+   * and `forceConvention` and `massLanguage` appear in electron.ts only in its input TYPE. They are a
+   * presentation change in the runtime contract's sense, which is why sr-13-bucherer-overlay is written as
+   * an INVARIANCE record against sr-13-kaufmann-overlay rather than as a second set of numbers.
+   * datasetOverlay likewise selects a historical overlay and moves nothing computed.
+   *
+   * THREE OF THE SEVEN PRESETS CARRY IDENTICAL SETTINGS - convention-0.6, electric-radius-1e5 and
+   * transverse-e-2ns all set Ey = 1e5 with no magnetic field at 0.6c - so their records pin three
+   * different CLAIMS at one setting rather than three copies of one claim: the mass ratios, the electric
+   * radius of curvature, and the trajectory after two nanoseconds. Each says so in its own text.
+   *
+   * THE RADII ARE OMITTED WHEN REFUSED rather than invented. radiusCurvatureMagnetic refuses `zero-field`
+   * when there is no magnetic field and radiusCurvatureElectric likewise, so a preset with only one field
+   * has only one radius. The owner omits the absent one, as bm03.configuration omits an unrepresentable
+   * ratio: a scenario naming it receives undefined and fails, which is the honest outcome.
+   *
+   * A NOTE ON ONE WRONG MEASUREMENT, kept because it was nearly reported. Probing `particle` at the value
+   * "proton" moved nothing, which looked like a lab computing a proton with an electron's mass. The
+   * laboratory's type is "electron" | "custom" and has no "proton", so the probe passed an invalid value
+   * that fell through to the electron branch. With particle "custom" and a proton's customMass, NINE
+   * outputs move. The control is live and the probe was wrong.
+   */
+  {
+    id: "sr13.dynamics",
+    sourcePath: fileURLToPath(new URL("../../physics/reference/electron.ts", import.meta.url)),
+    fn: (ctx) => {
+      const outputs = sr13SnapshotOutputs(sr13Params(ctx.inputs) as never);
+      const numbers: Record<string, number> = {};
+      for (const outputId of [
+        "longitudinalMass",
+        "transverseMassComoving",
+        "transverseMassLaboratory",
+        "kineticEnergy",
+        "kineticEnergyNewtonian",
+        "acceleratingPotential",
+        "acceleratingPotentialNewtonian",
+        "lorentzFactor",
+        "speedRatio",
+      ]) {
+        const got = sessionOutputsOf(outputs, outputId);
+        if (isOwnerRefusal(got)) return got;
+        Object.assign(numbers, got);
+      }
+      // Present only when the corresponding field is: a zero field refuses its radius with `zero-field`,
+      // and omitting it is what lets one owner serve a preset with one field and a preset with two.
+      for (const outputId of ["radiusCurvatureMagnetic", "radiusCurvatureElectric"]) {
+        const found = outputs.find((o) => (o as { quantityId?: string }).quantityId === outputId) as
+          | Record<string, unknown>
+          | undefined;
+        if (found?.status === "value" && typeof found.value === "number")
+          numbers[outputId] = found.value;
+      }
+      return numbers;
+    },
+  },
+  /**
+   * THE TRAJECTORY AFTER THE DECLARED INTERVAL, AND THE FIELD-FREE LINE IT DEPARTS FROM.
+   *
+   * `trajectoryPositions` is a flat array of (x, y) pairs, 242 numbers for 121 steps, and it is one of the
+   * outputs sr-13's manifest does not declare (am-hr4z). The last pair is the position at the end of the
+   * integration interval. The owner also runs the SAME settings with the electric field removed and
+   * exposes that final x, because the interesting fact about the deflected path is not its y alone but
+   * that its x is SHORTER than the straight one: transverse motion is bought out of the longitudinal
+   * component at fixed speed.
+   */
+  {
+    id: "sr13.deflection",
+    sourcePath: fileURLToPath(new URL("../../experiments/sr13/session.ts", import.meta.url)),
+    fn: (ctx) => {
+      const params = sr13Params(ctx.inputs);
+      const lastPair = (p: Record<string, unknown>): readonly [number, number] => {
+        const found = sr13SnapshotOutputs(p as never).find(
+          (o) => (o as { quantityId?: string }).quantityId === "trajectoryPositions",
+        ) as Record<string, unknown> | undefined;
+        if (!found || found.status !== "value")
+          throw new OwnerContractError(
+            "owner-session-output-absent",
+            "trajectoryPositions is absent or refused, so no final position exists.",
+          );
+        const view = found.value as Readonly<Record<number, number>> & { length?: number };
+        const length = view.length ?? Object.keys(view).length;
+        if (length < 2 || length % 2 !== 0)
+          throw new OwnerContractError(
+            "owner-value-key-unnamed",
+            `trajectoryPositions has ${length} numbers, which is not a whole number of (x, y) pairs.`,
+          );
+        const x = view[length - 2];
+        const y = view[length - 1];
+        if (typeof x !== "number" || typeof y !== "number")
+          throw new OwnerContractError(
+            "owner-value-key-unnamed",
+            "the final trajectory pair is not two numbers.",
+          );
+        return [x, y];
+      };
+      const [finalX, finalY] = lastPair(params);
+      const [straightX] = lastPair({ ...params, electricFieldY: 0, magneticFieldZ: 0 });
+      return {
+        finalX,
+        finalY,
+        straightFinalX: straightX,
+        longitudinalShortfall: straightX - finalX,
+      };
     },
   },
 ];

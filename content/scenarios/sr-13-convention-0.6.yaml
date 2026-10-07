@@ -1,0 +1,102 @@
+# Two transverse masses, both correct, differing by exactly gamma (am-nxbq, the preset class).
+#
+# WHICH BUTTON: "Force convention at 0.6c". Three of SR-13's seven presets carry IDENTICAL settings - this
+# one, sr-13-electric-radius-1e5 and sr-13-transverse-e-2ns all set Ey = 1e5 V/m with no magnetic field at
+# 0.6c - so the three records pin three different claims at one setting rather than three copies of one.
+# This record's claim is the masses.
+#
+# WHAT THE PAPER PRINTS. eq-s10-d7, printed page 919: "Transversale Masse = mu / (1 - (v/V)^2)", which is
+# gamma^2 times the rest mass. The modern transverse mass is gamma times the rest mass. The laboratory
+# publishes both, 1.423341205296875e-30 kg and 1.1386729642375e-30 kg, and their ratio is exactly the
+# gamma of 1.25 pinned beside them. Neither is wrong; they answer different questions, because "force"
+# means a different thing in each.
+#
+# AND EINSTEIN SAYS SO HIMSELF, which is what makes the two numbers the paper's point and not a modern
+# gloss on it - though the record is a modern golden, because section 10 prints the FORMULA and no
+# kilogram value, so there is no printed number here to transcribe.
+# s10-p8, on the same printed page: "Natuerlich wuerde man bei anderer Definition der Kraft und der
+# Beschleunigung andere Zahlen fuer die Massen erhalten; man ersieht daraus, dass man bei der Vergleichung
+# verschiedener Theorien der Bewegung des Elektrons sehr vorsichtig verfahren muss" - naturally, with
+# another definition of force and acceleration one would get other numbers for the masses, from which one
+# sees that great care is needed in comparing different theories of the electron's motion. The two numbers
+# in this record are that sentence made arithmetic.
+#
+# THE LONGITUDINAL MASS IS PINNED TOO, at 1.7791765066210937e-30 kg, which is gamma^3 times the rest mass.
+# Three masses for one electron, in a fixed ratio of gamma^3 : gamma^2 : gamma = 1.953125 : 1.5625 : 1.25.
+# Pinning all three makes the ratios checkable and forbids the reading that an electron has "a" mass that
+# grows.
+#
+# THE CONVENTION CONTROL ITSELF MOVES NOTHING, measured: switching forceConvention between source and
+# laboratory, and massLanguage between 1905 and modern, leaves all eleven outputs identical, because both
+# masses are always published and the control selects which the view emphasises. That is pinned as an
+# invariance in sr-13-bucherer-overlay rather than asserted here.
+id: "sr-13-convention-0.6"
+kind: "modern-golden"
+title: "SR-13 at 0.6c: the printed transverse mass is gamma squared times the rest mass, the modern one gamma times"
+description: "Section 10 prints the transverse mass of a slowly accelerated electron as mu over one minus v squared over V squared, which is the Lorentz factor squared times the rest mass. The modern transverse mass is the Lorentz factor once. At 0.6c the laboratory publishes both, and their ratio is exactly the 1.25 of that factor. The longitudinal mass is the factor cubed. Einstein's own next sentence warns that another definition of force and acceleration gives other numbers for the masses, and that comparing theories of the electron's motion therefore needs great care."
+provenance:
+  paper: special-relativity
+  sectionId: s10
+  printedPage: 919
+  locator: "eq-s10-d7 for the printed transverse mass; s10-p8 for the caution about force definitions"
+constantSetId: "modern-si-2019"
+owner: "sr13.dynamics"
+inputs:
+  conventionCode:
+    value: 0
+    unit: "1"
+  massCode:
+    value: 0
+    unit: "1"
+  particleCode:
+    value: 0
+    unit: "1"
+  overlayCode:
+    value: 0
+    unit: "1"
+  electricFieldY:
+    value: 100000
+    unit: "V/m"
+  magneticFieldZ:
+    value: 0
+    unit: "T"
+  initialSpeed:
+    value: 0.6
+    unit: "1"
+  integrationInterval:
+    value: 2.0e-9
+    unit: "s"
+expected:
+  outputs:
+    - outputId: transverseMassComoving
+      value: 1.423341205296875e-30
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma^2 times the electron rest mass 9.1093837139e-31 kg: 1.5625 x that. The quantity section 10 prints as mu/(1 - (v/V)^2)."
+    - outputId: transverseMassLaboratory
+      value: 1.1386729642375e-30
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma times the rest mass, which is the modern transverse mass. Pinned beside the printed one so the ratio is checkable rather than asserted."
+    - outputId: longitudinalMass
+      value: 1.7791765066210937e-30
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma^3 times the rest mass. The third of three masses for one electron, pinned so the gamma^3 : gamma^2 : gamma ratio is visible and the idea of a single growing mass is forbidden."
+    - outputId: lorentzFactor
+      value: 1.25
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: "Exactly 5/4 at 0.6c. Pinned at near-representation precision because the three masses are its powers, so an error here would be the common factor in all three."
+    - outputId: speedRatio
+      value: 0.6
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: "The speed as set, pinned so the factor above is read against a stated speed."
+modelVersion: 1
+schemaVersion: 1

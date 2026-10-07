@@ -1,0 +1,85 @@
+# The electric radius of curvature, and the mirror of the magnetic case (am-nxbq, the preset class).
+#
+# WHICH BUTTON: "Electric radius at 1e5 V/m". Its settings are IDENTICAL to sr-13-convention-0.6's and
+# sr-13-transverse-e-2ns's: 1e5 V/m transverse, no magnetic field, 0.6c. Three presets at one setting, so
+# this record pins the claim its name is about and leaves the masses to the convention record and the
+# trajectory to the two-nanosecond one.
+#
+# WHAT IS PINNED. The electric radius of curvature is 2.299495278112889 m, eighteen times the magnetic
+# radius of the same electron in 10 millitesla. That ratio is the practical reason the electron-deflection
+# experiments used crossed fields rather than an electric field alone: a 2.3-metre radius needs a 2.3-metre
+# apparatus, and 128 millimetres does not.
+#
+# AND THE MAGNETIC RADIUS IS ABSENT HERE, exactly as the electric one is absent in
+# sr-13-magnetic-radius-0.01t. The pair of records is the statement: each field produces its own radius
+# and neither produces the other's, and a refused radius is omitted rather than reported as a large number.
+# The crossed-field case where both exist is sr-13-kaufmann-overlay.
+#
+# THE ACCELERATING POTENTIAL IS PINNED BESIDE IT, 127749.7376729383 V against a Newtonian
+# 91979.81112451557 V - a 39 per cent discrepancy at 0.6c, against the factor of 4.88 at 0.95c in
+# sr-13-energy-0.95. The pair of speeds shows the discrepancy growing, which is what made the measurements
+# worth making at the highest speeds available.
+id: "sr-13-electric-radius-1e5"
+kind: "modern-golden"
+title: "SR-13's electric radius of curvature is 2.3 metres, eighteen times the magnetic radius in 10 millitesla"
+description: "An electron at 0.6c in a transverse electric field of 100 kilovolts per metre curves with a radius of about 2.3 metres, eighteen times the 128-millimetre radius the same electron has in a 10-millitesla magnetic field. That ratio is the practical reason the electron-deflection measurements used crossed fields. With no magnetic field present the magnetic radius is not a quantity at all and the laboratory refuses it. The accelerating potential is 128 kilovolts against a Newtonian 92, a 39 per cent discrepancy at this speed."
+provenance:
+  paper: special-relativity
+  sectionId: s10
+  printedPage: 918
+  locator: "s10-p7, the longitudinal and transverse mass of the moving electron"
+constantSetId: "modern-si-2019"
+owner: "sr13.dynamics"
+inputs:
+  conventionCode:
+    value: 0
+    unit: "1"
+  massCode:
+    value: 0
+    unit: "1"
+  particleCode:
+    value: 0
+    unit: "1"
+  overlayCode:
+    value: 0
+    unit: "1"
+  electricFieldY:
+    value: 100000
+    unit: "V/m"
+  magneticFieldZ:
+    value: 0
+    unit: "T"
+  initialSpeed:
+    value: 0.6
+    unit: "1"
+  integrationInterval:
+    value: 2.0e-9
+    unit: "s"
+expected:
+  outputs:
+    - outputId: radiusCurvatureElectric
+      value: 2.299495278112889
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The radius an electron at 0.6c takes in 1e5 V/m transverse, eighteen times the magnetic radius of sr-13-magnetic-radius-0.01t. Pinned so the ratio between the two records is checkable."
+    - outputId: acceleratingPotential
+      value: 127749.7376729383
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The relativistic potential at 0.6c, 128 kilovolts."
+    - outputId: acceleratingPotentialNewtonian
+      value: 91979.81112451557
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "92 kilovolts Newtonian: a 39 per cent discrepancy here against 388 per cent at 0.95c in sr-13-energy-0.95. The pair of speeds shows the discrepancy growing, which is why the measurements chased the highest speeds available."
+    - outputId: lorentzFactor
+      value: 1.25
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: "Exactly 5/4, the factor in both the radius and the potential."
+modelVersion: 1
+schemaVersion: 1
