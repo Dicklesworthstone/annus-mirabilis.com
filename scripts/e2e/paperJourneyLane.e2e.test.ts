@@ -7,10 +7,25 @@
  * `runPaperJourney` walks the seven steps. The premise went stale.
  *
  * What is still true is the other half of the same note - "it was found reporting green when all eleven
- * lanes fail". The harness has NO package.json script, where every sibling browser lane has one
- * (test:search:browser, test:offline:browser, test:ui-extraction:browser and five more). So nothing in
- * the lane matrix ran it, and a harness nothing runs reports nothing: its green is the green of a command
- * never issued. That is the vacuity this file closes.
+ * lanes fail". THE PAPER JOURNEYS WERE RUN BY NOTHING. The harness's CLI has one caller, the
+ * browser-acceptance step in scripts/quality-gates/registry.ts, and it passes `--fixtures --journey
+ * runtime-conformance`: a fixture journey, not a paper. That step's own comment says why, and names this
+ * bead - "the harness itself records 'Paper vertical-slice scenarios are not wired in yet'... so it
+ * cannot pass until that bead builds the paper lanes". The lanes were built; nothing was pointed at them.
+ *
+ * SO THIS FILE NEEDS NO PACKAGE SCRIPT, and adding one would be a second mechanism. bunfig.toml excludes
+ * `scripts/e2e` and a double-star glob of `.e2e.test.ts` from `bun test` precisely because the NODE lane
+ * runs them, deriving its list from those same patterns: `nodeOnlyTestArgs` selects 88 files, 45 of them
+ * under scripts/e2e, and this one among them. Membership in the lane matrix is the filename.
+ *
+ * (That glob is spelled out in words above on purpose: written literally, its star-slash closes this
+ * block comment, and node's type stripper then refuses the file with ERR_INVALID_TYPESCRIPT_SYNTAX
+ * pointing at prose. It did, and the lane caught it.)
+ *
+ * A measurement I made and discarded, because it is the error AGENTS.md calls an audit of the wrong
+ * population: 23 of 31 files under scripts/e2e are named in no package.json script, which looks like
+ * wholesale unreachability and is not. The eight that are named are the `.mjs` ones that node cannot find
+ * by pattern. The node lane reaches the rest.
  *
  * WHY A LANE FILE AND NOT A PACKAGE SCRIPT ALONE. A script would run the harness; it would not ASSERT
  * anything about the result, and the harness's own exit path is a run record rather than a verdict. This
@@ -26,6 +41,7 @@
  * out/ fails loudly instead of walking yesterday's HTML. This lane never builds out/ for you, on purpose,
  * which is the convention the node lane already uses.
  */
+
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { createServer, type Server } from "node:http";
@@ -58,12 +74,22 @@ const CONTENT_TYPES: Readonly<Record<string, string>> = {
 };
 
 /**
- * The plant. `hide-term` serves the journey's own entry page with the term markup the
- * select-linked-term step depends on stripped, so ONE declared step becomes unperformable while every
- * other byte of the site is what the build produced. A plant that broke the whole page would prove only
- * that the journey needs a page.
+ * The plant. `hide-term` strips the attribute the select-linked-term step actually selects on, so ONE
+ * declared step becomes unperformable while every other byte of the site is what the build produced. A
+ * plant that broke the whole page would prove only that the journey needs a page.
+ *
+ * THE FIRST VERSION OF THIS PLANT STRIPPED `data-term-id` AND STAYED GREEN, which indicted the plant
+ * rather than the step: steps.ts selects `button.term-chip[data-quantity-id]`, and `data-term-id` is a
+ * different attribute the step never reads. A green plant is a finding about the plant until it has been
+ * shown to reach the predicate, so the attribute here is the one the step names.
  */
 type ServerPlant = "none" | "hide-term";
+
+/** The term step's own route, and nothing else. steps.ts:192 goes exactly here. */
+const PLANTED_ROUTES: ReadonlySet<string> = new Set([
+  "/papers/mass-energy/",
+  "/papers/mass-energy/index.html",
+]);
 
 function startStaticServer(plant: ServerPlant): Promise<{ server: Server; origin: string }> {
   const server = createServer((req, res) => {
@@ -78,9 +104,13 @@ function startStaticServer(plant: ServerPlant): Promise<{ server: Server; origin
     }
     const ext = extname(filePath);
     let body = readFileSync(filePath);
-    if (plant === "hide-term" && ext === ".html") {
-      // The attribute the term step selects on, removed from the served bytes only.
-      body = Buffer.from(body.toString("utf8").replaceAll("data-term-id", "data-term-gone"));
+    // Route-surgical: ONLY the paper index, which is the single route the term step visits. Stripping the
+    // attribute from every HTML page instead failed all seven steps - a React hydration mismatch takes the
+    // whole page down - and a plant that breaks everything cannot show that THIS step works.
+    if (plant === "hide-term" && ext === ".html" && PLANTED_ROUTES.has(rawUrl)) {
+      body = Buffer.from(
+        body.toString("utf8").replaceAll("data-quantity-id", "data-quantity-gone"),
+      );
     }
     res.writeHead(200, {
       "content-type": CONTENT_TYPES[ext] ?? "application/octet-stream",
@@ -175,6 +205,37 @@ test("PLANTED: stripping the term markup makes the journey's term step fail", as
     assert.ok(
       result.failedSteps > 0,
       "a site missing the term markup must fail the journey, or the lane proves nothing",
+    );
+    // AND IT MUST FAIL THE RIGHT STEP. A plant that took the whole page down would satisfy the line
+    // above while proving nothing about the term step, which is what the first version of this plant
+    // did: stripping the attribute site-wide failed all seven. The failed events are read by name.
+    const failed = recorder.collected.filter((event) => event.status === "fail");
+    assert.ok(failed.length > 0, "a failed step must emit a failed event");
+    // `face` carries step.kind and `action` carries step.description (paperJourney.ts:117-118). Matching
+    // on `action` first reported the term step absent while it was present, because the description is a
+    // sentence; the kind is the identity.
+    const termFailure = failed.find((event) => event.face === "select-linked-term");
+    assert.ok(
+      termFailure,
+      `the term step must be among the failures; failed kinds were ${failed.map((e) => e.face).join(", ")}`,
+    );
+    // The remaining six steps are untouched by a route-surgical plant, so this says the plant hit one
+    // step rather than the site. It is an upper bound, not an equality: a hydration mismatch on the
+    // planted page also reaches the foundation step, which shares that route.
+    // THREE of seven, measured, and the three are the ones that share the planted route: the foundation
+    // step opens from the paper index, its return comes back to the same index, and the term step reads
+    // the index's chips. The other four - the two parallel-face steps and the laboratory - are served
+    // untouched bytes and pass, which is what makes this a plant on a step rather than on the site.
+    assert.ok(
+      failed.length <= 3,
+      `the plant must not take the whole journey down; ${failed.length} of ${MASS_ENERGY.journey.steps.length} steps failed: ${failed.map((e) => e.face).join(", ")}`,
+    );
+    const survived = recorder.collected
+      .filter((event) => event.status === "pass")
+      .map((e) => e.face);
+    assert.ok(
+      survived.includes("enter-source-passage") && survived.includes("return-to-source"),
+      `the untouched routes must still pass, or the plant reached the whole site; passing kinds were ${survived.join(", ")}`,
     );
   } finally {
     server.close();
