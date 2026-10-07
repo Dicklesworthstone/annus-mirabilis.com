@@ -26,6 +26,7 @@
  */
 
 import type { FaceAvailability } from "./faceAvailability.ts";
+import { FaceSwitchAnchor } from "./faces/FaceSwitchAnchor.tsx";
 import { FACE_REGISTRY, type FaceId } from "./faces/registry.ts";
 import { faceTabList } from "./faceTabs.ts";
 import { faceLinkHref } from "./paperRoutes.ts";
@@ -58,6 +59,14 @@ export function FaceChooser({
   const { tabs, pending } = faceTabList(availability, current);
   return (
     <nav className="reader-controls" aria-label="Reading face">
+      {/* Resolves an arriving fragment this face does not publish to the id it does: a split
+          half such as s1-p10-s1a to its source s1-p10-s1 (am-read-anchors-navigation-a6o
+          criterion 2, arrival half). It renders nothing and alters no href, so the links below
+          are exactly what the server wrote and a reader without JavaScript sees no difference.
+          It does NOT carry the fragment outward; that half needs a decision about this
+          component's own links and is recorded on the bead. Mounted here rather than in each
+          face because this one component is what all seven of them draw. */}
+      <FaceSwitchAnchor />
       <div className="face-tabs">
         <a
           href={faceLinkHref(paperId, "reading", section)}
