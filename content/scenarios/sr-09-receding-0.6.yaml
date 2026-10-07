@@ -1,0 +1,59 @@
+# THE DOPPLER FACTOR receding along the line of sight (am-nxbq, item 1).
+#
+# WHICH CONTROL VALUES A READER MOVES TO REACH IT: the propagation angle at 0 degrees with the frame at
+# 0.6c and a 500 THz source. This was a PRESET id in acceptanceCases; the acceptance case is what those
+# settings must produce.
+#
+# THE NUMBER. The Doppler factor is D = gamma(1 - beta cos theta) with theta in the stationary frame, which
+# at 0 degrees and beta = 0.6 is 0.5 exactly, so a 500 THz source is seen halved. The factor is a
+# terminating decimal here, which is why 0.6c is the speed this edition uses throughout: a reader can check
+# sqrt((1 - 0.6)/(1 + 0.6)) by hand.
+#
+# WHAT THE PAIR OF LINE-OF-SIGHT RECORDS SHOWS. Receding gives 0.5 and approaching gives 2, and those are
+# reciprocals: the same relative motion seen from the two ends of the line. A first-order treatment would
+# give 1 - beta and 1 + beta, which are 0.4 and 1.6 - also reciprocal to each other only at first order,
+# and their product is 0.64 rather than 1. The relativistic factors multiply to exactly 1, which is the
+# statement that no direction is privileged, and it is why the transverse case cannot be guessed from these
+# two: sr-09-transverse-0.6 has a factor of gamma, which is neither 1 nor between 0.5 and 2 by any
+# first-order reasoning.
+#
+# THE RAY'S DIRECTION IS UNCHANGED at 0 degrees, which is what makes this the clean case: aberration
+# turns a ray only when it has a transverse component. The two transverse records are where it does.
+id: "sr-09-receding-0.6"
+kind: "modern-golden"
+title: "SR-09 receding along the line of sight at 0.6c: a Doppler factor of exactly 0.5"
+description: "A 500 THz source receding along the line of sight, seen from a frame moving at 0.6c, has its frequency multiplied by 0.5 - gamma(1 - beta cos theta) at 0 degrees - so the observed frequency is halved. The receding and approaching factors are exact reciprocals, 0.5 and 2, which is the statement that neither end of the line of sight is privileged; a first-order treatment gives 0.4 and 1.6, whose product is 0.64 rather than 1."
+constantSetId: "modern-si-2019"
+owner: "sr09.dopplerAberration"
+inputs:
+  beta:
+    value: 0.6
+    unit: "1"
+  propagationAngleDeg:
+    value: 0
+    unit: "deg"
+  frequencyTHz:
+    value: 500
+    unit: "THz"
+expected:
+  outputs:
+    - outputId: dopplerFactor
+      value: 0.5
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma(1 - beta cos theta) at 0 degrees, a terminating decimal at 0.6c. The reciprocal of the other line-of-sight record's factor, exactly."
+    - outputId: waveFrequencyMoving
+      value: 250000000000000
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "500 THz times the factor above. Asserted as well as the factor, because a record pinning only the dimensionless ratio would not catch a frequency carried in the wrong unit."
+    - outputId: propagationAngleMoving
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-9
+        rationale: "Unchanged at 0 degrees: aberration turns a ray only when it has a transverse component, and this one has none. The transverse records are where the direction moves."
+modelVersion: 1
+schemaVersion: 1

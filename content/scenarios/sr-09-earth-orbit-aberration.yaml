@@ -1,0 +1,61 @@
+# THE ONE ANGLE IN THIS LABORATORY THAT WAS MEASURED BEFORE 1905 (am-nxbq, item 1).
+#
+# WHICH CONTROL VALUE A READER MOVES TO REACH IT: the frame speed down to 9.93654e-5, which is the Earth's
+# orbital speed as a fraction of the speed of light - about 29.8 km/s - with the ray transverse. This was a
+# PRESET id in acceptanceCases; the acceptance case is what those settings must produce.
+#
+# WHAT IT GIVES. The ray's direction moves from 90 degrees to 90.00569 degrees, an aberration of 20.50
+# seconds of arc. James Bradley measured that in 1729, more than a century and a half before the paper, and
+# it sits on this edition's 1904 shelf as bradley-1729-stellar-aberration: a star's apparent position
+# describes a small ellipse over a year, with a semi-major axis of about 20.5 arcseconds.
+#
+# WHY IT MATTERS THAT THE NUMBER COMES OUT RIGHT HERE. Bradley's aberration is a FIRST-ORDER effect in v/c,
+# and the classical and relativistic predictions for it agree to the precision anyone could measure in 1729
+# or in 1905. So this reading is not evidence for the relativistic account over the classical one - it is
+# the opposite, a check that the relativistic account reproduces what was already known. AGENTS.md's
+# epistemic rules separate those two things: "A result was publicly available by a given date" is not "the
+# site uses it in a plausible reconstruction", and a shelf item is admitted for the first and used for the
+# second.
+#
+# THE DOPPLER FACTOR AT THIS SPEED IS 1.0000000049, which is second order in v/c and was far below any
+# nineteenth-century spectroscopy. That is the pair worth seeing together: the FIRST-order aberration was
+# measurable in 1729 and the SECOND-order frequency shift was not measurable until Ives and Stilwell in
+# 1938. One instrument, one setting, two effects separated by two centuries of apparatus.
+id: "sr-09-earth-orbit-aberration"
+kind: "modern-golden"
+title: "SR-09 at the Earth's orbital speed: 20.50 arcseconds of aberration, as Bradley measured in 1729"
+description: "At the Earth's orbital speed of 9.93654e-5 of the speed of light, a transverse ray's direction moves from 90 to 90.00569 degrees: an aberration of 20.50 seconds of arc, which is what Bradley measured in 1729 and what this edition carries on its 1904 shelf. The effect is first order in v over c, so the classical and relativistic predictions agree to any precision of the period, and this reading checks that the relativistic account reproduces what was already known rather than evidencing it. The Doppler factor at the same setting is 1.0000000049, second order and not measurable until 1938."
+constantSetId: "modern-si-2019"
+owner: "sr09.dopplerAberration"
+inputs:
+  beta:
+    value: 9.93654e-5
+    unit: "1"
+  propagationAngleDeg:
+    value: 90
+    unit: "deg"
+  frequencyTHz:
+    value: 500
+    unit: "THz"
+expected:
+  outputs:
+    - outputId: propagationAngleMoving
+      value: 90.00569321805901
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The aberrated direction. The departure from 90 degrees is 0.00569322 degrees, which is 20.4956 arcseconds - Bradley's constant of aberration to three figures. Asserting the angle rather than the arcseconds keeps the assertion on what the instrument computes."
+    - outputId: dopplerFactor
+      value: 1.0000000049367415
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma at this speed, which is 1 + beta squared / 2 to this order: 4.94e-9 above one. Second order in v/c where the aberration above is first order, which is why one was measured in 1729 and the other in 1938."
+    - outputId: propagationAngleStationary
+      value: 90
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-9
+        rationale: "The ray is exactly transverse in the stationary frame, which is the configuration the aberration is measured from. Asserted so the 0.00569 degrees above is a change and not an absolute reading."
+modelVersion: 1
+schemaVersion: 1

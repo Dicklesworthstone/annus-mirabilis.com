@@ -38,7 +38,10 @@ import { SR07_DEFAULTS } from "../../experiments/sr07/definition.ts";
 import { evaluateSr07 } from "../../experiments/sr07/session.ts";
 import { SR08_DEFAULTS } from "../../experiments/sr08/definition.ts";
 import { snapshotOutputs as sr08SnapshotOutputs } from "../../experiments/sr08/session.ts";
-import { SR09_DEFAULTS } from "../../experiments/sr09/definition.ts";
+import {
+  SR09_DEFAULTS,
+  SR09_DEFAULTS as SR09_PRESET_DEFAULTS,
+} from "../../experiments/sr09/definition.ts";
 import { snapshotOutputs as sr09SnapshotOutputs } from "../../experiments/sr09/session.ts";
 import { SR10_DEFAULTS } from "../../experiments/sr10/definition.ts";
 import { snapshotOutputs as sr10SnapshotOutputs } from "../../experiments/sr10/session.ts";
@@ -1410,6 +1413,38 @@ const OWNERS: OwnerRecord[] = [
         "lightComplexEnergyMoving",
         "lightComplexVolumeMoving",
         "propagationAngleMoving",
+      ]) {
+        const got = sessionOutputsOf(outputs, outputId);
+        if (isOwnerRefusal(got)) return got;
+        Object.assign(numbers, got);
+      }
+      return numbers;
+    },
+  },
+  /**
+   * DOPPLER AND ABERRATION AT FOUR DIRECTIONS (am-nxbq, item 1).
+   *
+   * SR-09 is section 7 of paper 3. The existing sr09.session owner beside this one reports ONE output for
+   * a refusal case; this returns the readings a golden needs together, because every claim here is a
+   * comparison between directions: 0.5 receding, 2 approaching, and gamma exactly at 90 degrees in the
+   * stationary frame - a shift with no classical counterpart, since a classical transverse Doppler factor
+   * is 1.
+   *
+   * The aberrated direction is returned with them, because the same 90-degree ray that gives the pure
+   * time-dilation factor is also the one aberration turns furthest, and a record that reported the factor
+   * without the direction would leave a reader thinking the ray was still transverse.
+   */
+  {
+    id: "sr09.dopplerAberration",
+    sourcePath: fileURLToPath(new URL("../../experiments/sr09/session.ts", import.meta.url)),
+    fn: (ctx) => {
+      const outputs = sr09SnapshotOutputs({ ...SR09_PRESET_DEFAULTS, ...ctx.inputs } as never);
+      const numbers: Record<string, number> = {};
+      for (const outputId of [
+        "dopplerFactor",
+        "waveFrequencyMoving",
+        "propagationAngleMoving",
+        "propagationAngleStationary",
       ]) {
         const got = sessionOutputsOf(outputs, outputId);
         if (isOwnerRefusal(got)) return got;

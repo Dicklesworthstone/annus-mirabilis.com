@@ -1,0 +1,60 @@
+# THE TRANSVERSE SHIFT, WHICH HAS NO CLASSICAL COUNTERPART (am-nxbq, item 1).
+#
+# WHICH CONTROL VALUE A READER MOVES TO REACH IT: the propagation angle at 90 degrees in the stationary
+# frame, at 0.6c with a 500 THz source. This was a PRESET id in acceptanceCases; the acceptance case is what
+# those settings must produce.
+#
+# WHY THIS IS THE PRIZE READING OF THE INSTRUMENT. A classical Doppler shift comes from the source and the
+# observer closing or opening the distance between them, so a source moving exactly across the line of sight
+# has NO classical shift: the factor would be 1. The relativistic factor here is gamma(1 - beta cos 90) =
+# gamma = 1.25, so the 500 THz source is seen at 625 THz. The whole of that shift is time dilation; nothing
+# about the geometry contributes.
+#
+# IT CANNOT BE GUESSED FROM THE LINE-OF-SIGHT CASES. Those give 0.5 and 2, exact reciprocals, and any
+# first-order reasoning interpolating between them puts the transverse value at 1. It is 1.25. That is the
+# measurement which distinguishes the relativistic account from a classical one with the same longitudinal
+# predictions, and it is the reason the three records belong together.
+#
+# AND THE RAY IS NOT TRANSVERSE IN THE OTHER FRAME. Aberration turns it to 126.87 degrees, which is the same
+# turn SR-10's unprimed-transverse ray makes. So "transverse" needs a frame named with it: a reader who
+# takes the 1.25 to be "the shift for a ray crossing the observer's view" has the wrong frame, because in
+# the moving frame this ray is well behind the perpendicular. SR-10's records turn on exactly that
+# distinction, and AGENTS.md's own clause about the light complex gets it the wrong way round.
+id: "sr-09-transverse-0.6"
+kind: "modern-golden"
+title: "SR-09 transverse at 0.6c: a factor of gamma where a classical account gives one"
+description: "A 500 THz source moving exactly across the line of sight in the stationary frame is seen at 625 THz: the Doppler factor is gamma(1 - beta cos 90), which is gamma itself, 1.25. A classical shift comes from the distance opening or closing, so it would be exactly 1 here and the whole of this shift is time dilation. It cannot be interpolated from the receding 0.5 and approaching 2, which are reciprocals that any first-order reasoning puts at 1 in between. Aberration turns the ray to 126.87 degrees, so it is not transverse in the moving frame."
+constantSetId: "modern-si-2019"
+owner: "sr09.dopplerAberration"
+inputs:
+  beta:
+    value: 0.6
+    unit: "1"
+  propagationAngleDeg:
+    value: 90
+    unit: "deg"
+  frequencyTHz:
+    value: 500
+    unit: "THz"
+expected:
+  outputs:
+    - outputId: dopplerFactor
+      value: 1.25
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Exactly gamma, because cos 90 is zero. NOT 1, which is what a classical transverse Doppler factor would be, and not anything between the 0.5 and 2 of the line-of-sight cases."
+    - outputId: waveFrequencyMoving
+      value: 624999999999999.9
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "500 THz times 1.25, to binary64: the trailing 9 is the rounding of 6.25e14 formed this way, and pinning the exact literal rather than 625000000000000 is what the measurement gives."
+    - outputId: propagationAngleMoving
+      value: 126.86989764584402
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-9
+        rationale: "Aberration: the ray is transverse in the stationary frame and well behind the perpendicular in the moving one. Asserted because 'transverse' without a frame named is the error this record exists to forestall."
+modelVersion: 1
+schemaVersion: 1
