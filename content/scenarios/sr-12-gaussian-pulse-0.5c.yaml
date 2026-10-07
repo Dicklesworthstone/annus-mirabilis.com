@@ -1,0 +1,88 @@
+# Continuity holds in BOTH frames although neither of its two terms is the same (am-nxbq, presets).
+#
+# WHICH BUTTON: "Gaussian pulse continuity (0.5c)". A charge pulse drifts at 0.5c and is described from a
+# frame moving at 0.6c.
+#
+# WHAT THIS RECORD DOES NOT CLAIM, stated first because it is the honest part. The two pulse controls move
+# NOTHING. Measured 2026-10-06 by raising each control 70 per cent from this preset's own value and
+# counting which of the fourteen outputs changed: pulseWidth and pulseAmplitude each moved zero, in this
+# mode and in all four others, and so did sphereCharge and loopLengthY. The continuity residuals are
+# exactly zero at beta 0, 0.1, 0.5, 0.6, 0.9 and -0.6. So a record that pinned the residuals as "the
+# Gaussian pulse's result" would be pinning a structural zero that no reader input can disturb, which is
+# evidence of nothing. The three declared setup-change controls that change no output are reported on
+# am-hr4z, not hidden behind a green case here.
+#
+# WHAT IT DOES CLAIM. The residual of the continuity equation is zero in the stationary frame AND in the
+# moving frame, while the charge density and the current density that enter it are different numbers in
+# the two frames. That is a property rather than a measurement, and it is the one worth asserting: the
+# conservation law is frame-independent though its terms are not. The record pins the two residuals at
+# zero together with the two densities that differ, so the zero is read against terms that moved rather
+# than against a quiet model.
+#
+# WHY IT IS AN ADVERSARIAL RECORD. The failure it exists to catch is a transform that conserves charge in
+# the frame it was written for and leaks in the other - the commonest way a four-current implementation
+# goes wrong, because the stationary case is the one anybody checks by hand. It would also catch the
+# opposite error, a residual computed in one frame and reported twice, since the two densities pinned
+# beside it must differ.
+#
+# SECTION 9 DOES NOT DISCUSS CONTINUITY, and sr-12's own historian's margin says so. The equation is
+# Maxwell's and the four-current language is Poincare's and Minkowski's, so this is a modern check on a
+# modern reading, not a reproduction of anything printed in 1905.
+id: "sr-12-gaussian-pulse-0.5c"
+kind: "adversarial"
+title: "SR-12's continuity residual is zero in both frames although the density and the current are not"
+description: "A charge pulse drifting at 0.5c, described from a frame moving at 0.6c, satisfies the continuity equation in both frames: both residuals are exactly zero, while the charge density and the current density that enter the equation are different in the two frames. The conservation law is frame-independent though its terms are not. The two pulse controls move no output of this laboratory, so the record asserts the frame-independence rather than claiming to test the pulse's shape."
+plausibleMistake: "That a transform which conserves charge in the frame it was derived for also conserves it in the other, so checking one residual is enough. The stationary residual is the one anybody verifies by hand, and a sign error in the density transform leaves it zero while the moving one leaks. The mirror-image mistake is to compute one residual and report it under both labels, which would pass a record that pinned only two zeros; that is why the two densities are pinned beside them and asserted to differ."
+intendedFailure: "Both residuals are formed from their own frame's density and current, so a transform wrong in either direction moves the moving-frame residual off zero while the stationary one stays. The scenario passes only when both residuals are zero AND the two densities differ by the gamma-with-current-term factor; a run that reported one residual twice fails on the densities, and one that leaked in the moving frame fails on the residual."
+constantSetId: "modern-si-2019"
+owner: "sr12.bodies"
+inputs:
+  modeCode:
+    value: 3
+    unit: "1"
+  pulseAmplitude:
+    value: 1
+    unit: "C/m^3"
+  carrierVelocityX:
+    value: 149896229
+    unit: "m/s"
+  pulseWidth:
+    value: 1
+    unit: "m"
+  boost:
+    value: 179875474.8
+    unit: "m/s"
+expected:
+  outputs:
+    - outputId: continuityResidualStationary
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-24
+        rationale: "Exactly zero. An absolute tolerance, because a relative one against an exact zero is refused at load; 1e-24 is far below any density-rate this model produces and far above the representation's noise floor, so a real leak of any physical size fails."
+    - outputId: continuityResidualMoving
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-24
+        rationale: "Also exactly zero, and this is the one the record is for: the stationary residual is the easy half. Same tolerance as its partner so neither frame is held to a looser standard than the other."
+    - outputId: chargeDensityStationary
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-30
+        rationale: "The pulse preset does not set a uniform charge density, so this is the laboratory's own zero. Pinned because the moving density below is NOT zero, which is what makes the pair of residuals a statement about two different frames rather than about one quiet case."
+    - outputId: chargeDensityMoving
+      value: -2.5017307139861402e-9
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "-gamma*v*Jx/c^2 with the laboratory's default Jx of 1 A/m^2: the same number as the neutral conductor's, for the same reason. It is pinned here to assert that the two frames DISAGREE about the density while agreeing that charge is conserved, which is the whole content of the record."
+    - outputId: lorentzFactor
+      value: 1.25
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma = 5/4 at this boost, pinned so the moving density is read as a transform and not as an independent number."
+modelVersion: 1
+schemaVersion: 1

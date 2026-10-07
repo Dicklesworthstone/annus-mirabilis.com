@@ -1,0 +1,89 @@
+# A neutral wire carrying a current is CHARGED in a moving frame (am-nxbq, the preset class).
+#
+# WHICH BUTTON: "Neutral conductor (0.6c)", SR-12's first preset. The wire carries Jx = 1 A/m^2 and has
+# charge density exactly zero in the stationary frame: neutral, by construction and not by cancellation
+# of two measured numbers.
+#
+# WHAT IS PINNED. In the frame moving at 0.6c the charge density is -2.5017307139861402e-9 C/m^3, which
+# is -gamma*v*Jx/c^2 with gamma = 5/4 exactly. The stationary density is pinned at 0 in the same record,
+# so the moving density is visibly produced by the motion and not by a wire that was charged to begin
+# with. The current density rises from 1 to 1.25 A/m^2, which is gamma times its rest value, and the
+# four-current invariant is -1, unchanged.
+#
+# WHY THIS IS THE RESULT AND NOT A CURIOSITY. Section 9 transforms the charge and current densities and
+# concludes that a body's charge is constant. It does NOT write a four-current, an invariant, or this
+# consequence: sr-12's own historian's margin says joining charge and current into one four-vector is the
+# later language of Poincare and Minkowski, and that the charged-wire reading is a standard modern
+# consequence the paper does not discuss. The record is therefore a modern golden, not a historical
+# fixture, and it is pinned because the standard explanation of magnetism as electrostatics plus
+# relativity rests on exactly this number.
+#
+# WHY THE INVARIANT IS PINNED TWICE, raw and normalized. The raw invariant is -1 in SI units where J is
+# 1 A/m^2 and rho is 0, so (c*rho)^2 - |J|^2 = -1. Normalized it is -1.1126500560536185e-17, which is
+# the same statement divided by c^2 and is the number a reader sees as "essentially zero against the
+# scale of c". Pinning only the normalized form would hide which of the two terms vanished.
+id: "sr-12-neutral-conductor-0.6"
+kind: "modern-golden"
+title: "SR-12's neutral conductor at 0.6c is charged in the moving frame, at -2.5 nC per cubic metre"
+description: "A wire with zero charge density and a current density of 1 ampere per square metre in the stationary frame has a charge density of about -2.5 nanocoulombs per cubic metre in a frame moving at 0.6c along it, which is minus gamma times v times Jx over c squared. The current density rises to 1.25 by the same gamma of five fourths, and the four-current invariant is unchanged. The paper transforms the densities and concludes a body's charge is constant; the four-vector language and this consequence are later."
+constantSetId: "modern-si-2019"
+owner: "sr12.fourCurrent"
+inputs:
+  modeCode:
+    value: 0
+    unit: "1"
+  chargeDensity:
+    value: 0
+    unit: "C/m^3"
+  currentDensityX:
+    value: 1
+    unit: "A/m^2"
+  boost:
+    value: 179875474.8
+    unit: "m/s"
+expected:
+  outputs:
+    - outputId: chargeDensityMoving
+      value: -2.5017307139861402e-9
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "-gamma*v*Jx/c^2 = -1.25 x 0.6/c. The result the record exists for, and the one the modern explanation of magnetism uses."
+    - outputId: chargeDensityStationary
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-30
+        rationale: "Exactly zero: the wire is neutral by construction. An absolute tolerance, because a relative one against an exact zero is refused at load, and 1e-30 is far below any density the model produces while being representable."
+    - outputId: currentDensityMovingX
+      value: 1.25
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma x Jx with gamma exactly 5/4 and the rest density zero, so the vJ term drops out and the current is purely dilated."
+    - outputId: currentDensityStationaryX
+      value: 1
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The current as set. Pinned so the 1.25 above is visibly a factor and not an absolute reading."
+    - outputId: lorentzFactor
+      value: 1.25
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma at beta 0.6, exactly 5/4. Pinned so both transformed quantities are read against the one factor they share."
+    - outputId: fourCurrentInvariant
+      value: -1
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "(c*rho)^2 - |J|^2 with rho = 0 and |J| = 1, so exactly -1 in SI. Unchanged by the boost, which is the point: the frames disagree about rho and about J and agree about this."
+    - outputId: fourCurrentInvariantNormalized
+      value: -1.1126500560536185e-17
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The same invariant divided by c^2, which is the form a reader sees beside densities of order one. Pinned beside the raw value so it is clear WHICH term vanished rather than that the sum is small."
+modelVersion: 1
+schemaVersion: 1

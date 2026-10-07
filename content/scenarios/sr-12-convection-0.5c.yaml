@@ -1,0 +1,84 @@
+# A convection current REVERSES when the observer outruns its carriers (am-nxbq, the preset class).
+#
+# WHICH BUTTON: "Convection current (0.5c to 0.6c)". A charge density of 1 C/m^3 is carried along x at
+# 0.5c, so the stationary current is J = rho*v = 149896229 A/m^2, and the observer moves at 0.6c - faster
+# than the charges themselves.
+#
+# WHAT IS PINNED, AND WHY THE SIGN IS THE WHOLE RECORD. In the moving frame the current is
+# -37474057.24999998 A/m^2: NEGATIVE. The observer has overtaken the carriers, so they drift backwards in
+# that frame and the current runs the other way. The arithmetic is gamma(Jx - v*rho) = 1.25 x (0.5c - 0.6c)
+# = 1.25 x (-0.1c), and 0.1c is 29979245.8. Nothing in section 9 forbids this and nothing about it is
+# subtle, but it is the case where a reader's intuition that "a current is a property of the wire" fails
+# visibly, which is why this preset exists and why the sign is asserted rather than the magnitude alone.
+#
+# THE DENSITY FALLS RATHER THAN RISING, which is the second half of the same point. It goes from 1 to
+# 0.875 C/m^3, not to gamma = 1.25: the transform is gamma(rho - v*Jx/c^2) and here v*Jx/c^2 = 0.6 x 0.5
+# = 0.3, so 1.25 x 0.7 = 0.875. Compare sr-12-neutral-conductor-0.6, where rho was zero and the density
+# became NEGATIVE, and sr-12-moving-sphere-0.6c, where the current term is negligible and the density
+# does rise by gamma. The three records are the same formula at three settings, and each would be
+# misread alone.
+#
+# THE NORMALIZED INVARIANT IS 0.75 HERE, and positive, where the neutral conductor gave essentially zero
+# and negative. (c*rho)^2 - |J|^2 = c^2(1 - 0.25) in these units, so 0.75 after dividing by c^2: the
+# four-current is TIMELIKE, which says a frame exists where the current vanishes and only charge remains.
+# For the neutral wire it was spacelike and no such frame exists. Pinning both records' invariants makes
+# that distinction checkable rather than asserted in prose.
+id: "sr-12-convection-0.5c"
+kind: "modern-golden"
+title: "SR-12's convection current at 0.5c reverses sign for an observer at 0.6c, and its density falls to 0.875"
+description: "A charge density of one coulomb per cubic metre carried at 0.5c gives a current of about 1.5 times ten to the eighth amperes per square metre. Seen from a frame moving at 0.6c, faster than the carriers, the current is negative: about minus 3.7 times ten to the seventh, since gamma times Jx minus v rho is 1.25 times minus 0.1c. The charge density falls to 0.875 rather than rising by gamma, because the current term enters the density transform. The normalized four-current invariant is 0.75 and positive, so a frame exists in which this current vanishes."
+constantSetId: "modern-si-2019"
+owner: "sr12.fourCurrent"
+inputs:
+  modeCode:
+    value: 1
+    unit: "1"
+  chargeDensity:
+    value: 1
+    unit: "C/m^3"
+  carrierVelocityX:
+    value: 149896229
+    unit: "m/s"
+  boost:
+    value: 179875474.8
+    unit: "m/s"
+expected:
+  outputs:
+    - outputId: currentDensityMovingX
+      value: -37474057.24999998
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma(Jx - v*rho) = 1.25 x (0.5c - 0.6c) = -1.25 x 0.1c. The sign is the claim; the magnitude is 0.1c times 1.25, so an error in either factor moves it."
+    - outputId: currentDensityStationaryX
+      value: 149896229
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "rho*v = 1 x 0.5c, exactly half the speed of light numerically. Pinned because the moving current's sign depends on this being SMALLER than the boost, and a record asserting the reversal must state both."
+    - outputId: chargeDensityStationary
+      value: 1
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The density as set."
+    - outputId: chargeDensityMoving
+      value: 0.875
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma(rho - v*Jx/c^2) = 1.25 x (1 - 0.3), exactly 0.875. Pinned to show the density FALLS here, against the moving sphere's rise by gamma: the two differ only in whether a current is present."
+    - outputId: lorentzFactor
+      value: 1.25
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The same 5/4 as in every record at this boost, pinned so the 0.875 is read as 1.25 x 0.7 rather than as a factor of its own."
+    - outputId: fourCurrentInvariantNormalized
+      value: 0.75
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "1 - (0.5)^2 = 0.75 in units of c^2. POSITIVE, where the neutral conductor's is negative: this four-current is timelike and that one is spacelike, which is the structural difference between a convection current and a conduction current and is checkable only by pinning both."
+modelVersion: 1
+schemaVersion: 1

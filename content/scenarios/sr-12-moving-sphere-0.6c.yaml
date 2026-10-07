@@ -1,0 +1,83 @@
+# The DENSITY transforms and the TOTAL CHARGE does not, which is section 9's own conclusion (am-nxbq).
+#
+# WHICH BUTTON: "Moving sphere (0.6c)". A uniformly charged sphere of radius 1 m and density 1 C/m^3,
+# described from a frame moving at 0.6c.
+#
+# WHAT IS PINNED AND WHY IT IS THE PAPER'S RESULT RATHER THAN A MODERN GLOSS. Section 9's closing
+# paragraph (s9-p3, printed page 917) derives from the transformed equations that if a charged body moves
+# arbitrarily and its charge does not change as seen from a frame moving WITH the body, "so bleibt seine
+# Ladung auch - von dem ruhenden System K aus betrachtet - konstant": its charge stays constant as seen
+# from the resting system too. The sphere's total charge is 4.1887902047863905 C in BOTH
+# frames, exactly, while its charge density rises to 1.2499999974982692 C/m^3. Both numbers are pinned in
+# one record because the constancy is only meaningful beside the density that did change: the volume
+# contracts by 1/gamma and the density rises by gamma, and the product is what section 9 says is
+# preserved. 4.1887902047863905 is (4/3)pi, the sphere's volume at radius 1 times a density of 1.
+#
+# THE DENSITY IS NOT EXACTLY 1.25, and the discrepancy is not noise. The transform is
+# gamma(rho - v*Jx/c^2), and SR12_DEFAULTS leaves currentDensityX at 1 A/m^2, which the lab's
+# moving-sphere button does not clear. So the pinned value is 1.25 x (1 - 0.6/c), short of 1.25 by about
+# 2.5 parts in a thousand million. The record pins what a reader actually sees rather than the idealised
+# 1.25, and says why: the residual current is a default the preset does not override. Compare
+# sr-12-convection-0.5c, where the current term is 0.3 rather than 2e-9 and the density FALLS.
+#
+# CHARGE INVARIANCE WAS CHECKED ACROSS BOOSTS, not only at this one. The two totals are equal at beta 0,
+# 0.6 and 0.9, which is what makes the equality a property rather than a coincidence of 5/4. Only this
+# boost is pinned here, because a scenario is one setting; the sweep is recorded in the owner's note.
+id: "sr-12-moving-sphere-0.6c"
+kind: "modern-golden"
+title: "SR-12's sphere at 0.6c: the density rises by gamma and the total charge does not change at all"
+description: "A uniformly charged sphere of radius one metre and density one coulomb per cubic metre carries a total charge of four thirds pi coulombs. Described from a frame moving at 0.6c its density rises by the Lorentz factor while its total charge is the same number to the last digit, because the volume contracts by exactly the reciprocal factor. Section 9's closing paragraph derives that constancy of a body's charge from the transformed equations; it states it as a theorem and prints no total charge, so this is a modern golden computed from the paper's conclusion rather than a transcribed number."
+provenance:
+  paper: special-relativity
+  sectionId: s9
+  printedPage: 917
+  locator: "s9-p3, the theorem that a body's charge stays constant seen from the resting system"
+constantSetId: "modern-si-2019"
+owner: "sr12.bodies"
+inputs:
+  modeCode:
+    value: 2
+    unit: "1"
+  chargeDensity:
+    value: 1
+    unit: "C/m^3"
+  sphereRadius:
+    value: 1
+    unit: "m"
+  boost:
+    value: 179875474.8
+    unit: "m/s"
+expected:
+  outputs:
+    - outputId: sphereTotalChargeStationary
+      value: 4.1887902047863905
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: "(4/3)pi at radius 1 and density 1. A tolerance at the representation's own limit, because the claim below is that the moving frame's total is the SAME number, and a loose tolerance here would admit a difference it is meant to exclude."
+    - outputId: sphereTotalChargeMoving
+      value: 4.1887902047863905
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: "The same value, which is section 9's conclusion. Pinned at the same tight tolerance as the stationary total so the two assertions together say the charge is invariant and not merely close."
+    - outputId: chargeDensityMoving
+      value: 1.2499999974982692
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma(rho - v*Jx/c^2) with the laboratory's default Jx of 1 A/m^2 still present, so 1.25 x (1 - 0.6/c) rather than a clean 1.25. Pinned as a reader sees it; the gap from 1.25 is the residual default and is named in this record's header."
+    - outputId: chargeDensityStationary
+      value: 1
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The density as set, pinned so the rise above is a factor against a stated starting value."
+    - outputId: lorentzFactor
+      value: 1.25
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma = 5/4. It is the factor the density rises by and the reciprocal of the volume's contraction, so the invariance of the product is checkable from the three numbers in this record."
+modelVersion: 1
+schemaVersion: 1

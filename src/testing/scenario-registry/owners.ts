@@ -47,6 +47,8 @@ import { SR10_DEFAULTS } from "../../experiments/sr10/definition.ts";
 import { snapshotOutputs as sr10SnapshotOutputs } from "../../experiments/sr10/session.ts";
 import { SR11_DEFAULTS } from "../../experiments/sr11/definition.ts";
 import { snapshotOutputs as sr11SnapshotOutputs } from "../../experiments/sr11/session.ts";
+import { SR12_DEFAULTS } from "../../experiments/sr12/definition.ts";
+import { snapshotOutputs as sr12SnapshotOutputs } from "../../experiments/sr12/session.ts";
 import bm08Example from "../../generated/bm08-example.json";
 import { MODEL_DOMAINS } from "../../generated/model-domains.ts";
 import {
@@ -295,6 +297,73 @@ function sr05Params(inputs: Record<string, number>): Record<string, unknown> {
   return built;
 }
 
+/**
+ * SR-12's parameter record, built rather than spread, for the same reason as sr05Params: a scenario
+ * input that is not one of the laboratory's parameters must be refused by name rather than carried
+ * into the record. `modeCode` is consumed here: 0 neutral-conductor, 1 convection, 2 moving-sphere,
+ * 3 gaussian-pulse, 4 current-loop, and absent it the laboratory's own default stands.
+ */
+function sr12Params(inputs: Record<string, number>): Record<string, unknown> {
+  const MODES = [
+    "neutral-conductor",
+    "convection",
+    "moving-sphere",
+    "gaussian-pulse",
+    "current-loop",
+  ] as const;
+  const code = inputs.modeCode;
+  const mode =
+    code === undefined
+      ? SR12_DEFAULTS.mode
+      : (MODES[code] ??
+        (() => {
+          throw new OwnerContractError(
+            "owner-mode-code-unknown",
+            `modeCode ${code} names no SR-12 mode; 0 to ${MODES.length - 1} are ${MODES.join(", ")}.`,
+          );
+        })());
+  const built: Record<string, unknown> = { ...SR12_DEFAULTS, mode };
+  for (const [key, value] of Object.entries(inputs)) {
+    if (key === "modeCode") continue;
+    if (!Object.hasOwn(SR12_DEFAULTS, key))
+      throw new OwnerContractError(
+        "owner-input-unknown",
+        `"${key}" is not an SR-12 parameter, so naming it in a scenario would change nothing.`,
+      );
+    built[key] = value;
+  }
+  return built;
+}
+
+/**
+ * One component of a VECTOR output. `sessionOutputsOf` cannot read these: `nonNumericOr` refuses a
+ * "value" result carrying no number under `value`, which is the guard working rather than failing. A
+ * refusal on the vector is passed through, so a refused current density refuses the scenario.
+ */
+function sr12VectorComponent(
+  outputs: readonly unknown[],
+  outputId: string,
+  index: number,
+): OwnerRefusal | number {
+  const found = outputs.find(
+    (o) => (o as { quantityId?: string } | null)?.quantityId === outputId,
+  ) as Record<string, unknown> | undefined;
+  if (!found)
+    throw new OwnerContractError(
+      "owner-session-output-absent",
+      `${outputId}: the snapshot carried ${outputs.length} output(s) and none of them is it.`,
+    );
+  if (found.status !== "value") return nonNumericOr(found, outputId) as OwnerRefusal;
+  const vector = found.value as Readonly<Record<number, number>> | undefined;
+  const component = vector?.[index];
+  if (typeof component !== "number")
+    throw new OwnerContractError(
+      "owner-value-key-unnamed",
+      `${outputId}: component ${index} of its accepted value is not a number.`,
+    );
+  return component;
+}
+
 function num(inputs: Record<string, number>, key: string): number {
   const value = inputs[key];
   if (typeof value !== "number" || !Number.isFinite(value)) {
@@ -415,6 +484,8 @@ export type OwnerContractCode =
    * because a silently ignored input leaves the case running at the defaults and passing while
    * testing something other than what it says.
    */
+  /** A categorical mode arrived as a numeric code the owner does not map to any mode. */
+  | "owner-mode-code-unknown"
   | "owner-input-unknown";
 
 export class OwnerContractError extends Error {
@@ -3454,6 +3525,101 @@ const OWNERS: OwnerRecord[] = [
         "reunionPrintedApproxLag",
         "properTime",
         "coordinateTime",
+      ]) {
+        const got = sessionOutputsOf(outputs, outputId);
+        if (isOwnerRefusal(got)) return got;
+        Object.assign(numbers, got);
+      }
+      return numbers;
+    },
+  },
+  /**
+   * SR-12's FIVE PRESETS, AND WHAT EACH OF THEM ACTUALLY DETERMINES (am-nxbq, the preset class).
+   *
+   * Paper 3 section 9 transforms the charge and current densities and draws from them the constancy of
+   * a body's charge. SR-12 shows that, plus the modern reading the margin names as later language: the
+   * four-current invariant, and a neutral current-carrying wire that is charged in a moving frame.
+   *
+   * THE MODE TRAVELS AS A CODE, for the reason given on sr05Params above: run.ts coerces every scenario
+   * input with Number(spec.value), so a categorical cannot arrive as a string. 0 neutral-conductor,
+   * 1 convection, 2 moving-sphere, 3 gaussian-pulse, 4 current-loop.
+   *
+   * THE PARAMETERS ARE THE LAB'S, NOT THE MANIFEST'S, and the difference matters here. sr-12.yaml's
+   * presets set no `mode` at all, so taken literally all five declare the same neutral-conductor
+   * arithmetic; ChargeCurrentLab.tsx hard-codes its own five buttons, each with the right mode. A reader
+   * reaches the lab's version, so that is what these owners reproduce, and the divergence is reported on
+   * am-hr4z rather than papered over. The manifest also never declares loopCurrent, which the lab's
+   * current-loop button sets.
+   *
+   * WHAT IS WORTH PINNING AND WHAT IS NOT, measured per preset by varying each control 70 per cent from
+   * that preset's own value and counting which of the 14 outputs moved:
+   *
+   *   chargeDensity    moves 7-8 outputs in every preset        currentDensityX  moves 3-5, except in
+   *   carrierVelocityX moves 5, in convection ONLY              convection where J = rho*v
+   *   sphereRadius     moves 2, in convection and moving-sphere boost  moves all 14
+   *   sphereCharge, loopLengthY, pulseWidth, pulseAmplitude     move NOTHING, in any of the five
+   *   loopCurrent, loopLengthX  move the two leg charges
+   *
+   * The first probe of this ran at the bare defaults and reported carrierVelocityX and sphereRadius as
+   * inert too, which was wrong: SR12_DEFAULTS has chargeDensity 0, and in convection mode J = rho*v, so
+   * a zero density masks the carrier velocity entirely. A sensitivity measured at the defaults is a
+   * statement about the defaults.
+   *
+   * SO THE CONTINUITY RESIDUALS ARE NOT PINNED AS THE PULSE'S RESULT. They are exactly zero at every
+   * admitted boost, and neither pulse control moves them, so a record claiming to test the Gaussian
+   * pulse by pinning them would be testing nothing. sr-12-gaussian-pulse-0.5c says so in its own text
+   * and pins the frame-independence instead, which is a property rather than a number.
+   */
+  {
+    id: "sr12.fourCurrent",
+    sourcePath: fileURLToPath(new URL("../../experiments/sr12/session.ts", import.meta.url)),
+    fn: (ctx) => {
+      const outputs = sr12SnapshotOutputs(sr12Params(ctx.inputs) as never);
+      const numbers: Record<string, number> = {};
+      for (const outputId of [
+        "chargeDensityStationary",
+        "chargeDensityMoving",
+        "fourCurrentInvariant",
+        "fourCurrentInvariantNormalized",
+        "lorentzFactor",
+      ]) {
+        const got = sessionOutputsOf(outputs, outputId);
+        if (isOwnerRefusal(got)) return got;
+        Object.assign(numbers, got);
+      }
+      // The two current densities are VECTORS, so sessionOutputsOf cannot read them: nonNumericOr
+      // refuses a "value" result with no number under `value`, by design. The x component is named
+      // explicitly here rather than silently taken as "the" current density.
+      for (const [outputId, exposeAs] of [
+        ["currentDensityStationary", "currentDensityStationaryX"],
+        ["currentDensityMoving", "currentDensityMovingX"],
+      ] as const) {
+        const component = sr12VectorComponent(outputs, outputId, 0);
+        // Not isOwnerRefusal: that predicate narrows an OwnerResult, and this helper's return type is
+        // the narrower OwnerRefusal | number, so the number case is the one worth testing for.
+        if (typeof component !== "number") return component;
+        numbers[exposeAs] = component;
+      }
+      return numbers;
+    },
+  },
+  {
+    id: "sr12.bodies",
+    sourcePath: fileURLToPath(new URL("../../physics/reference/fields.ts", import.meta.url)),
+    fn: (ctx) => {
+      const outputs = sr12SnapshotOutputs(sr12Params(ctx.inputs) as never);
+      const numbers: Record<string, number> = {};
+      for (const outputId of [
+        "sphereTotalChargeStationary",
+        "sphereTotalChargeMoving",
+        "loopLegChargePositive",
+        "loopLegChargeNegative",
+        "loopTotalCharge",
+        "continuityResidualStationary",
+        "continuityResidualMoving",
+        "chargeDensityStationary",
+        "chargeDensityMoving",
+        "lorentzFactor",
       ]) {
         const got = sessionOutputsOf(outputs, outputId);
         if (isOwnerRefusal(got)) return got;

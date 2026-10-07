@@ -1,0 +1,76 @@
+# A current loop's two legs acquire equal and opposite charges, and the loop stays neutral (am-nxbq).
+#
+# WHICH BUTTON: "Current loop (0.6c)". A rectangular loop carries 1 A, is 1 m along x and 0.5 m along y,
+# and is described from a frame moving at 0.6c along x.
+#
+# WHAT IS PINNED. The leg carrying current along the boost acquires -2.0013845711889123e-9 C and the
+# return leg acquires exactly the opposite, +2.0013845711889123e-9 C, so the loop's total charge is
+# exactly zero. The magnitude is v*I*Lx/c^2: 0.6/c is 2.0013845711889123e-9, and the current and length
+# are both 1 in SI. This is the neutral conductor's result applied to a closed circuit, and it is why a
+# current loop can look like a line of dipoles to a moving observer while carrying no net charge at all.
+#
+# WHY THE TOTAL IS THE CLAIM AND THE LEGS ARE THE EVIDENCE. A record pinning only the total would pass on
+# a model that computed nothing: zero is what an unimplemented loop returns. A record pinning only the
+# legs would not state that they cancel. Both are here, and the two legs are asserted separately rather
+# than as a magnitude, so a sign error in either one fails even though their sum would not.
+#
+# WHAT RESPONDS AND WHAT DOES NOT, measured 2026-10-06 at this preset's own settings. loopCurrent and
+# loopLengthX each move the two leg charges; the boost moves them too, and the signs reverse with a
+# negative boost (+2.0013845711889123e-9 at -0.6c). loopLengthY moves NOTHING, in this mode or any other,
+# although the manifest declares it as an independent setup-change control. That is reported on am-hr4z.
+# So this record is not vacuous - three controls reach it - but the loop's transverse dimension is not
+# among them, and the record says so rather than implying the whole geometry is tested.
+#
+# A MANIFEST DIVERGENCE WORTH KNOWING. sr-12.yaml's preset for this case sets `loopCurrent`, which the
+# manifest declares as no parameter at all, and sets no `mode`; the lab hard-codes its own button with
+# mode "current-loop". The inputs below are the LAB's, because that is what a reader reaches.
+id: "sr-12-current-loop-0.6c"
+kind: "modern-golden"
+title: "SR-12's current loop at 0.6c: legs at plus and minus 2 nC, and exactly zero total charge"
+description: "A rectangular loop carrying one ampere, one metre along the boost direction, acquires about minus two nanocoulombs on the leg whose current runs with the boost and exactly the opposite on its return leg, so the loop carries no net charge in the moving frame. The magnitude is v times I times the length along the boost over c squared. It is the charged-conductor result applied to a closed circuit, which is why a loop can appear as a line of dipoles to a moving observer while staying neutral overall."
+constantSetId: "modern-si-2019"
+owner: "sr12.bodies"
+inputs:
+  modeCode:
+    value: 4
+    unit: "1"
+  loopCurrent:
+    value: 1
+    unit: "A"
+  loopLengthX:
+    value: 1
+    unit: "m"
+  loopLengthY:
+    value: 0.5
+    unit: "m"
+  boost:
+    value: 179875474.8
+    unit: "m/s"
+expected:
+  outputs:
+    - outputId: loopLegChargePositive
+      value: -2.0013845711889123e-9
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "-v*I*Lx/c^2 = -0.6/c with I and Lx both 1 in SI. Asserted with its sign rather than as a magnitude, because the sign is what makes the two legs cancel and a sign error would survive a magnitude test."
+    - outputId: loopLegChargeNegative
+      value: 2.0013845711889123e-9
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Exactly the opposite, since the return leg carries the same current the other way. Pinned separately rather than derived from the first, so a model that returned the same value twice fails here."
+    - outputId: loopTotalCharge
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-30
+        rationale: "Exactly zero: the loop is neutral in every frame. An absolute tolerance, since a relative one against an exact zero is refused at load. This number alone would also be returned by a model that computed no loop at all, which is why the two legs above are pinned beside it."
+    - outputId: lorentzFactor
+      value: 1.25
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "gamma = 5/4 at this boost. Pinned so the leg charge is read against the frame it is computed in."
+modelVersion: 1
+schemaVersion: 1
