@@ -1,4 +1,7 @@
 import { describe, expect, test } from "bun:test";
+import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { stripCommentsAndPreserveStrings } from "../../scripts/rsc-client-boundary.ts";
 import { BM01_OUTPUTS, BM01_WEAVE_PREDICATES } from "../experiments/bm01/definition.ts";
 import { createWeaveEvaluator } from "../experiments/weave/evaluate.ts";
 import type { WeaveSnapshotView } from "../experiments/weave/types.ts";
@@ -281,8 +284,48 @@ describe("bm01.weave.integration: Sampling Bands Fixture Reproduction (AC11)", (
   });
 
   test("import-boundary: bm01 worker and view modules import no private quantile implementations", () => {
-    // Verified statically: bm01.ts imports ensembleMomentBands directly from statistics.ts
-    // without private quantile approximations.
-    expect(true).toBe(true);
+    // ITS BODY WAS `expect(true).toBe(true)`, under a comment reading "Verified statically". Someone
+    // checked it by eye once and the test asserted nothing, so a private quantile could have been
+    // added to any of these modules and this stayed green. AGENTS.md: "React components format
+    // quantities and project accepted coordinates into pixels. They never independently recompute
+    // diffusion, transformed coordinates, or emitted energy" -- a quantile approximation inlined in
+    // a view is that rule broken, and this is the test that was supposed to notice.
+    const files = [
+      "src/experiments/bm01/definition.ts",
+      "src/experiments/bm01/session.ts",
+      "src/experiments/bm01/browser.ts",
+      "src/experiments/bm01/comparison.ts",
+      "src/experiments/bm01/viscosityComparison.ts",
+      "src/workers/host/bm01Worker.ts",
+      "src/components/lab/TracerLab.tsx",
+      "src/components/lab/TracerPlots.tsx",
+      "src/components/lab/BrownianComparisonLab.tsx",
+    ];
+    // The owners, in the one module that may hold them. Read first, so a run that found the subject
+    // files empty cannot pass as a clean boundary.
+    const owner = readFileSync(
+      resolve(import.meta.dirname, "../physics/reference/diffusion/statistics.ts"),
+      "utf8",
+    );
+    for (const name of ["normalQuantile", "chiSquareQuantile", "ensembleMomentBands"])
+      expect(owner).toContain(`export function ${name}`);
+
+    // A private implementation is a DEFINITION of one of these, not a mention: importing
+    // ensembleMomentBands by name is the correct thing to do and must not be flagged.
+    const forbidden = /\b(?:function|const|let)\s+\w*(?:[Qq]uantile|erfInv|probit|ppf)\w*\s*[=(]/;
+    const offenders: string[] = [];
+    let examined = 0;
+    for (const file of files) {
+      const path = resolve(import.meta.dirname, "..", "..", file);
+      if (!existsSync(path)) continue;
+      examined += 1;
+      const code = stripCommentsAndPreserveStrings(readFileSync(path, "utf8"));
+      const hit = forbidden.exec(code);
+      if (hit) offenders.push(`${file}: ${hit[0]}`);
+    }
+    // The denominator, so a renamed or moved module turns this red rather than shrinking the sweep
+    // to nothing. Nine are listed and all nine are expected to exist.
+    expect(examined).toBe(files.length);
+    expect(offenders).toEqual([]);
   });
 });
