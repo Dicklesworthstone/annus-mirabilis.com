@@ -9,6 +9,27 @@ import {
   MassEnergyError,
 } from "./massEnergy.ts";
 
+/**
+ * The refusal a call raises, as its CODE, or a marker that says what happened instead.
+ *
+ * Several assertions in this file were a bare `.toThrow()` with nothing after it, which passes on
+ * ANY error -- including a TypeError from a typo in the test itself, which carries no code. The
+ * titles already claimed more than that: one of them names `absolute-energy-not-admitted` and cites
+ * its site. This closes the gap between the title and the assertion, and the doctrine is the one
+ * AGENTS.md lists first among its prohibited circles, so a refusal that passes for the wrong reason
+ * is worth more here than elsewhere.
+ */
+function refusalCodeOf(call: () => unknown): string {
+  try {
+    call();
+  } catch (error: unknown) {
+    if (!(error instanceof MassEnergyError)) return `not-a-MassEnergyError:${String(error)}`;
+    return error.code;
+  }
+  return "no-refusal-the-call-returned";
+}
+const CIRCULARITY = "absolute-energy-not-admitted";
+
 describe("massEnergy.noCircularity: non-circularity doctrine and absolute energy rejection", () => {
   describe("static checks", () => {
     it("massEnergy.ts docstring and implementation enforce non-circularity doctrine", () => {
@@ -48,13 +69,25 @@ describe("massEnergy.noCircularity: non-circularity doctrine and absolute energy
     it("rejects string variations: 'M*c^2', 'M c²', 'gamma*Mc^2', 'γMc²'", () => {
       const variations = ["M*c^2", "M c²", "M·c²", "m*c^2"];
       for (const v of variations) {
-        expect(() => initializeMassEnergyLedger({ restEnergyBefore: v })).toThrow();
+        expect(
+          refusalCodeOf(() => initializeMassEnergyLedger({ restEnergyBefore: v })),
+          v,
+        ).toBe(CIRCULARITY);
       }
 
       const movingVariations = ["gamma*Mc^2", "γMc²", "gamma-mc2", "gamma*m*c^2"];
       for (const v of movingVariations) {
-        expect(() => initializeMassEnergyLedger({ movingEnergyBefore: v })).toThrow();
+        expect(
+          refusalCodeOf(() => initializeMassEnergyLedger({ movingEnergyBefore: v })),
+          v,
+        ).toBe(CIRCULARITY);
       }
+
+      // THE ACCEPT HALF, so these eight are about the SEEDS and not about the function refusing
+      // everything handed to it. A symbolic seed that does not assert an absolute energy is admitted.
+      expect(refusalCodeOf(() => initializeMassEnergyLedger({ restEnergyBefore: "E_0" }))).toBe(
+        "no-refusal-the-call-returned",
+      );
     });
 
     it("rejects structured formula and numericFrom circular seeds", () => {
@@ -72,18 +105,20 @@ describe("massEnergy.noCircularity: non-circularity doctrine and absolute energy
     });
 
     it("evaluateLedgers rejects initial body energy with Mc^2", () => {
-      expect(() => evaluateLedgers(1.0, 0.6, 0, "Mc^2")).toThrow();
+      expect(refusalCodeOf(() => evaluateLedgers(1.0, 0.6, 0, "Mc^2"))).toBe(CIRCULARITY);
     });
 
     it("evaluateMe01 rejects initial body energy with Mc^2", () => {
-      expect(() =>
-        evaluateMe01({
-          emittedEnergyRestFrame: 1.0,
-          frameSpeed: 0.6,
-          emissionAngle: 0,
-          initialBodyEnergy: "Mc^2",
-        }),
-      ).toThrow();
+      expect(
+        refusalCodeOf(() =>
+          evaluateMe01({
+            emittedEnergyRestFrame: 1.0,
+            frameSpeed: 0.6,
+            emissionAngle: 0,
+            initialBodyEnergy: "Mc^2",
+          }),
+        ),
+      ).toBe(CIRCULARITY);
     });
   });
 
