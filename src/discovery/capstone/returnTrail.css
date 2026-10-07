@@ -1,0 +1,22 @@
+.capstone-return {
+  box-sizing: border-box;
+  max-width: 52rem;
+  margin: 1rem auto;
+  padding: 0.8rem 1.5rem;
+  border-block: 1px solid currentColor;
+  line-height: 1.5;
+}
+.capstone-return a {
+  display: inline-block;
+  padding-block: 0.25rem;
+  overflow-wrap: anywhere;
+}
+.capstone-return p {
+  margin: 0.25rem 0 0;
+  font-size: 0.9em;
+}
+@media print {
+  .capstone-return {
+    display: none;
+  }
+}

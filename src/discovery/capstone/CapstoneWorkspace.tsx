@@ -5,6 +5,7 @@ import { tapePath } from "../../reader/sitePaths.ts";
 import { CapstoneWorksheet } from "./CapstoneWorksheet.tsx";
 import { type ExperimentLaunchIndex, selectedExperimentLaunch } from "./experimentLaunch.ts";
 import { loadCapstone } from "./loadCapstone.ts";
+import { withCapstoneReturn } from "./returnRoute.ts";
 import "./worksheet.css";
 
 /** Preserve each paper's existing source-linked, script-free page as the reference edition. */
@@ -21,14 +22,14 @@ export function CapstoneWorkspace({ paper, children }: Readonly<{ paper: string;
         equations={equations.map((equation) => ({
           ...equation,
           html: renderedEquation(paper, equation.equationId)?.html ?? "",
-          href: `/papers/${paper}/view/parallel/#${equation.displayUnit}`,
+          href: withCapstoneReturn(`/papers/${paper}/view/parallel/#${equation.displayUnit}`, paper),
         }))}
         instruments={capstone.presets.map((preset, index) => {
           const launch = selectedExperimentLaunch(preset, capstoneLinks as ExperimentLaunchIndex);
           return {
             id: `${preset.instrumentId}-${index}`,
-            href: launch.href,
-            tapeHref: preset.tapeId ? tapePath(preset.tapeId) : null,
+            href: withCapstoneReturn(launch.href, paper),
+            tapeHref: preset.tapeId ? withCapstoneReturn(tapePath(preset.tapeId), paper) : null,
             purpose: `${preset.purpose} ${launch.notice}`,
             lookFor: preset.lookFor.map((item) => item.description),
           };

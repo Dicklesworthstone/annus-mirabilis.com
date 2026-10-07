@@ -15,6 +15,7 @@ import {
 import { PrimaryNavLinks } from "../components/chrome/PrimaryNavLinks.tsx";
 import { FORMULA_OVERFLOW_SOURCE } from "../components/edition/formulaOverflow.inline";
 import { shareImage } from "../components/share/shareImages.ts";
+import { CapstoneReturnTrail } from "../discovery/capstone/CapstoneReturnTrail.tsx";
 import { GuidedTourTrail } from "../discovery/tours/GuidedTourTrail.tsx";
 import { PermalinkRobotsManager } from "../experiments/permalink/PermalinkRobotsManager.tsx";
 import { READER_PREPAINT } from "../reader/detail/prepaint";
@@ -93,6 +94,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <PermalinkRobotsManager />
         <Suspense fallback={null}>
           <GuidedTourTrail />
+        </Suspense>
+        <Suspense fallback={null}>
+          <CapstoneReturnTrail />
         </Suspense>
         {/* NO SUSPENSE BOUNDARY AROUND THE PAGE. c3b3116b put one here to stop React #418, about one
             load in 300. In the static export the page suspends while it prerenders, so React
