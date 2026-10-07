@@ -106,7 +106,7 @@ describe("checkJourney: complete and partial journeys", () => {
 });
 
 describe("journeyChecks refusal throw sites (am-muyh)", () => {
-  test("journey-explanation-exercise-count (journeyChecks.ts:330): accept <= 4 explanation exercises, reject > 4", () => {
+  test("journey-explanation-exercise-count (journeyChecks.ts:352): accept <= 4 explanation exercises, reject > 4", () => {
     const baseExercises = FIXTURE_JOURNEY_BROWNIAN.exercises.filter(
       (e) => e.role === "instrumented",
     );
@@ -142,7 +142,7 @@ describe("journeyChecks refusal throw sites (am-muyh)", () => {
     expect(rejectFinding?.severity).toBe("error");
   });
 
-  test("fork-undecided-already-decidable (journeyChecks.ts:500): accept post-1904 evidence, reject pre-1905 evidence", () => {
+  test("fork-undecided-already-decidable (journeyChecks.ts:522): accept post-1904 evidence, reject pre-1905 evidence", () => {
     const fork0 = FIXTURE_JOURNEY_BROWNIAN.forks[0];
     if (!fork0) throw new Error("Fixture missing fork 0");
     const branch0 = fork0.branches[0];
@@ -264,7 +264,7 @@ describe("journeyChecks refusal throw sites (am-muyh)", () => {
     expect(() => validateJourney(FIXTURE_JOURNEY_BROWNIAN)).not.toThrow();
   });
 
-  test("prediction-numeric-literal-forbidden (journeyChecks.ts:644): accept non-numeric choices, reject raw numeric literal", () => {
+  test("prediction-numeric-literal-forbidden (journeyChecks.ts:666): accept non-numeric choices, reject raw numeric literal", () => {
     const stage0 = FIXTURE_JOURNEY_BROWNIAN.stages[0];
     if (!stage0) throw new Error("Fixture missing stage 0");
     // Accept case: choices are conceptual strings
@@ -316,7 +316,7 @@ describe("journeyChecks refusal throw sites (am-muyh)", () => {
     expect(rejectFinding?.severity).toBe("error");
   });
 
-  test("world-check-later-evidence-year-invalid (journeyChecks.ts:687): accept post-1904 year, reject <= 1904", () => {
+  test("world-check-later-evidence-year-invalid (journeyChecks.ts:709): accept post-1904 year, reject <= 1904", () => {
     const wc0 = FIXTURE_JOURNEY_BROWNIAN.worldChecks[0];
     if (!wc0?.laterEvidence) {
       throw new Error("Fixture missing world check 0 with laterEvidence");
@@ -361,7 +361,7 @@ describe("journeyChecks refusal throw sites (am-muyh)", () => {
     expect(rejectFinding?.severity).toBe("error");
   });
 
-  test("rejects when non-JourneySchemaError is thrown during journey validation (journeyChecks.ts:113)", () => {
+  test("rejects when non-JourneySchemaError is thrown during journey validation (journeyChecks.ts:135)", () => {
     const corruptJourney = {
       ...FIXTURE_JOURNEY_BROWNIAN,
       get paper() {
@@ -379,7 +379,56 @@ describe("journeyChecks refusal throw sites (am-muyh)", () => {
     expect(validFindings.some((f) => f.rule === "journey-schema-error")).toBe(false);
   });
 
-  test("rejects when undecided branch is missing insufficiency statement (journeyChecks.ts:462)", () => {
+  test("a schema error says that the rest of the checks did NOT run, on both throw paths", () => {
+    // The defect this guards: a journey that fails the schema is reported as one finding and every
+    // epistemic gate is skipped, so the output reads as a small problem. brownian-motion sat that
+    // way with a three-sentence move summary nobody had ever been told about (am-4k0m).
+    const SAYS_UNMEASURED = /UNMEASURED on this journey rather than passed/;
+
+    // Path 1: a JourneySchemaError, raised by an invalid outcome rather than by a contrived object.
+    const badOutcome = {
+      ...FIXTURE_JOURNEY_BROWNIAN,
+      forks: [
+        {
+          ...FIXTURE_JOURNEY_BROWNIAN.forks[0],
+          branches: (FIXTURE_JOURNEY_BROWNIAN.forks[0]?.branches ?? []).map((b, i) =>
+            i === 0 ? { ...b, outcome: { ...b.outcome, type: "not-a-real-outcome-type" } } : b,
+          ),
+        },
+        ...FIXTURE_JOURNEY_BROWNIAN.forks.slice(1),
+      ],
+    };
+    const schemaFindings = checkJourney(badOutcome as never);
+    expect(schemaFindings).toHaveLength(1);
+    expect(schemaFindings[0]?.severity).toBe("error");
+    expect(schemaFindings[0]?.message).toMatch(SAYS_UNMEASURED);
+    // The original reason survives beside the notice rather than being replaced by it.
+    expect(schemaFindings[0]?.message).toContain("not-a-real-outcome-type");
+
+    // Path 2: a non-JourneySchemaError, which takes the other arm of the same catch.
+    const corrupt = {
+      ...FIXTURE_JOURNEY_BROWNIAN,
+      get paper(): string {
+        throw new TypeError("Corrupt paper getter thrown");
+      },
+    };
+    const corruptFindings = checkJourney(corrupt as never);
+    expect(corruptFindings).toHaveLength(1);
+    expect(corruptFindings[0]?.message).toMatch(SAYS_UNMEASURED);
+    expect(corruptFindings[0]?.message).toContain("Corrupt paper getter thrown");
+
+    // THE NEGATIVE, so the notice is not simply appended to everything: a journey that validates
+    // carries it on no finding, and the fixture really does produce findings to check.
+    const valid = checkJourney(FIXTURE_JOURNEY_BROWNIAN);
+    // Non-vacuity FIRST: the negative below needs a message to be false about. The fixture produces
+    // one voice warning, and if a later change made it findings-free, `some` over an empty list
+    // would report "the notice is absent" while checking nothing.
+    expect(valid.length).toBeGreaterThan(0);
+    expect(valid.some((f) => SAYS_UNMEASURED.test(f.message))).toBe(false);
+    expect(checkJourney(FIXTURE_PARTIAL_JOURNEY).length).toBeGreaterThan(0);
+  });
+
+  test("rejects when undecided branch is missing insufficiency statement (journeyChecks.ts:484)", () => {
     let calls = 0;
     const branch0 = FIXTURE_JOURNEY_BROWNIAN.forks[0]?.branches[0];
     const branch1 = FIXTURE_JOURNEY_BROWNIAN.forks[0]?.branches[1];

@@ -335,7 +335,7 @@ describe("the plants: each epistemic gate, broken on purpose, on a real journey"
     expect(missing).toEqual([]);
   });
 
-  it("A POST-1904 CARD WITH NO FLAG ON A REAL SHELF GOES RED (journeyChecks.ts:203)", () => {
+  it("A POST-1904 CARD WITH NO FLAG ON A REAL SHELF GOES RED (journeyChecks.ts:225)", () => {
     const journey = real("light-quanta");
     const planted = { ...journey, shelf: [...journey.shelf, "plant-jeans-1905-correction"] };
     const cards = {
@@ -404,7 +404,7 @@ describe("the plants: each epistemic gate, broken on purpose, on a real journey"
     expect(errorsOf(stripped).map((e) => e.rule)).toContain("missing-move");
   });
 
-  it("a STAGE citing a post-1904 card is refused too (journeyChecks.ts:627)", () => {
+  it("a STAGE citing a post-1904 card is refused too (journeyChecks.ts:649)", () => {
     // THE OTHER shelf-date SITE, and the one that was unreachable on this population: the rule inside the
     // stage loop. No real journey declares stages -- the staged chain is the discover page's JSX -- so
     // that site had nothing to judge, which is exactly why the shelf-level rule above was added rather

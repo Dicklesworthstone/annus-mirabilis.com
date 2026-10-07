@@ -80,6 +80,28 @@ function checkForbiddenPhrases(text: string, path: string, journeyId: string): J
 /**
  * Validates a Journey record against all compiler rules.
  */
+/**
+ * WHAT A SCHEMA ERROR COSTS, said in the finding rather than left to be inferred from a count.
+ *
+ * `validateJourney` throws on its FIRST violation and this function returns straight after, so a
+ * journey that fails the schema is reported as exactly one finding and every epistemic gate below
+ * is skipped. "1 finding" then reads as a small problem.
+ *
+ * It was not. Measured 2026-10-07: brownian-motion carried one invalid fork outcome and reported a
+ * single finding for as long as it stood, while the move-summary guard, the fork contract and four
+ * voice checks never ran on it. Its move summary had been three sentences against a guard that
+ * requires one, from the day it was written, and no run ever said so (am-4k0m). Repairing the
+ * outcome took that journey from 1 finding to 5.
+ *
+ * Not running the rest is the right behaviour -- the checks below read the NORMALISED journey and
+ * crashed with a TypeError when they were pointed at a raw one, as the comment inside this function
+ * records -- so the repair is to make the silence audible, not to remove it.
+ */
+const UNMEASURED_SUFFIX =
+  "No other journey check ran: this function returns after a schema error, so the shelf-date rule, " +
+  "the fork contract, the mockery guard, the move-summary guard and the voice checks are UNMEASURED " +
+  "on this journey rather than passed. Expect more findings once this one is repaired.";
+
 export function checkJourney(raw: Journey, options: JourneyCheckOptions = {}): JourneyFinding[] {
   const findings: JourneyFinding[] = [];
   const jId = (raw as { id?: unknown } | null | undefined)?.id;
@@ -103,7 +125,7 @@ export function checkJourney(raw: Journey, options: JourneyCheckOptions = {}): J
       findings.push({
         rule: err.code || "journey-schema-error",
         severity: "error",
-        message: err.message,
+        message: `${err.message} ${UNMEASURED_SUFFIX}`,
         path: err.path || "journey",
         journeyId: journeyId,
       });
@@ -112,7 +134,7 @@ export function checkJourney(raw: Journey, options: JourneyCheckOptions = {}): J
       findings.push({
         rule: "journey-schema-error",
         severity: "error",
-        message,
+        message: `${message} ${UNMEASURED_SUFFIX}`,
         path: "journey",
         journeyId: journeyId,
       });
