@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { renderedEquation } from "../../app/capstones/renderedEquations.ts";
+import { withWalkthroughSelection } from "../../experiments/permalink/walkthroughLocation.ts";
 import capstoneLinks from "../../generated/capstone-links.json";
 import { tapePath } from "../../reader/sitePaths.ts";
 import { CapstoneWorksheet } from "./CapstoneWorksheet.tsx";
@@ -26,9 +27,13 @@ export function CapstoneWorkspace({ paper, children }: Readonly<{ paper: string;
         }))}
         instruments={capstone.presets.map((preset, index) => {
           const launch = selectedExperimentLaunch(preset, capstoneLinks as ExperimentLaunchIndex);
+          const returningHref = withCapstoneReturn(launch.href, paper);
+          const walkthroughHref = launch.ready && preset.tapeId
+            ? withWalkthroughSelection(returningHref, preset.instrumentId, preset.tapeId)
+            : null;
           return {
             id: `${preset.instrumentId}-${index}`,
-            href: withCapstoneReturn(launch.href, paper),
+            href: walkthroughHref ?? returningHref,
             tapeHref: preset.tapeId ? withCapstoneReturn(tapePath(preset.tapeId), paper) : null,
             purpose: `${preset.purpose} ${launch.notice}`,
             lookFor: preset.lookFor.map((item) => item.description),

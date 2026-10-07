@@ -12,9 +12,13 @@ import { DRAFT_BINDINGS, SESSION_BINDINGS } from "./generate-tape-links.ts";
 export function buildCheckpointLinks(root: string = process.cwd()) {
   return buildCheckpointLaunches(loadWalkthroughCatalogue(root), (experimentId, recorded) => {
     const binding = SESSION_BINDINGS[experimentId] ?? DRAFT_BINDINGS[experimentId];
+    if (!binding) return {
+      status: "unavailable", instrumentId: experimentId,
+      reason: "This laboratory has no checkpoint player yet.",
+    };
     // Booleans cross the tape boundary as strings. Use the same conversion as a live restore,
     // followed by the owner validator and fresh settings checkpoint writer. Unknown keys refuse.
-    const settings = binding ? settingsFromTape(recorded, binding.defaults) : recorded;
+    const settings = settingsFromTape(recorded, binding.defaults);
     return buildPresetLaunch(experimentId, settings);
   });
 }

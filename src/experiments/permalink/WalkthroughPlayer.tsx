@@ -9,6 +9,11 @@ import {
   type WalkthroughTarget,
 } from "./walkthroughActions.ts";
 import { checkpointAt, type WalkthroughCatalogue } from "./walkthroughCheckpoints.ts";
+import {
+  observeWalkthroughLocation,
+  resolveWalkthroughLocation,
+  type WalkthroughLocation,
+} from "./walkthroughLocation.ts";
 
 async function loadCatalogue(): Promise<WalkthroughCatalogue> {
   const { WALKTHROUGH_CATALOGUE } = await import("./walkthroughCatalogue.ts");
@@ -17,8 +22,9 @@ async function loadCatalogue(): Promise<WalkthroughCatalogue> {
 
 /**
  * One checkpoint player for all shared-link laboratories (am-rt-control-tapes-0gc).
- * The catalogue is loaded only when opened. Every instance has its own selection and labels;
- * the only application path is the supplied laboratory adapter, never a second numeric owner.
+ * The catalogue loads only on request, including an explicit public walkthrough link.
+ * Selection and seeking inspect instructions only. Every state-changing action still goes through
+ * the supplied laboratory adapter; a new calculation is never disguised as historical replay.
  */
 export function WalkthroughPlayer({
   target,
@@ -34,14 +40,19 @@ export function WalkthroughPlayer({
   const [loadError, setLoadError] = useState("");
   const [retry, setRetry] = useState(0);
   const [tapeId, setTapeId] = useState("");
-  const [index, setIndex] = useState(0);
+  const [manualIndex, setIndex] = useState(0);
   const [result, setResult] = useState<WalkthroughAction | null>(null);
+  const [location, setLocation] = useState<WalkthroughLocation>({ kind: "absent" });
   const experimentId = target.experimentId;
 
-  // A biome-ignore reason must fit ONE line: the suppression applies only when the comment
-  // directly precedes the diagnostic, so a wrapped reason puts a plain comment there instead and
-  // silently does nothing. That cost two runs here. The reason itself is at the dependency list.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: retry is the re-run trigger, see below
+  useEffect(() => observeWalkthroughLocation(window, (next) => {
+    setLocation(next);
+    setResult(null);
+    if (next.kind !== "absent") setOpen(true);
+  }), []);
+
+  // A biome-ignore reason must fit ONE line: it applies only directly before the diagnostic.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: retry deliberately re-runs a failed catalogue request.
   useEffect(() => {
     if (!open || catalogue) return;
     let active = true;
@@ -63,39 +74,57 @@ export function WalkthroughPlayer({
     return () => {
       active = false;
     };
-    // `retry` is deliberately a dependency this effect never reads. It is a counter bumped by the
-    // "Retry loading walkthroughs" button below, and being in this list is the entire mechanism by
-    // which pressing that button re-runs the load. Biome marks its suggestion FIXABLE, and applying
-    // it would leave the button rendered, clickable and inert - a reader-facing affordance that
-    // silently does nothing. Verified before writing this: setRetry is called in exactly one place,
-    // that button's onClick, and nowhere else.
+    // Without retry in the dependency list the retry button is rendered but inert.
   }, [open, catalogue, load, retry]);
 
   const walkthroughs =
     catalogue?.walkthroughs.filter((entry) => entry.experimentId === experimentId) ?? [];
-  const walkthrough = walkthroughs.find((entry) => entry.tapeId === tapeId) ?? walkthroughs[0];
+  const requested = location.kind === "selected" && catalogue
+    ? resolveWalkthroughLocation(location.selection, experimentId, catalogue)
+    : null;
+  const linkError = location.kind === "invalid" ? location.notice
+    : requested?.kind === "invalid" ? requested.notice : "";
+  // A bad incoming id must not display the first walkthrough as though it were the requested one.
+  const walkthrough = requested?.kind === "selected" ? requested.walkthrough
+    : location.kind === "absent" ? walkthroughs.find((entry) => entry.tapeId === tapeId) ?? walkthroughs[0]
+    : undefined;
+  const index = requested?.kind === "selected" ? requested.index : manualIndex;
   const checkpoint = walkthrough ? checkpointAt(walkthrough, index) : null;
   const formOnly = target.kind === "form";
 
-  const apply = (nextIndex: number) => {
-    if (!walkthrough) return;
+  const inspect = (nextIndex: number) => {
+    if (!walkthrough || !checkpointAt(walkthrough, nextIndex)) return;
+    setLocation({ kind: "absent" });
+    setTapeId(walkthrough.tapeId);
     setIndex(nextIndex);
-    setResult(applyWalkthroughCheckpoint(target, walkthrough, nextIndex));
+    setResult(null);
   };
 
   return (
     <details
       className="notice"
       data-walkthrough-player={experimentId}
+      open={open}
       onToggle={(event) => setOpen(event.currentTarget.open)}
     >
       <summary>Explore recorded walkthroughs</summary>
       <p>
         {formOnly
           ? "Load a recorded stop into the form, then Apply to make a new calculation. Loading settings does not replay the recorded experiment."
-          : "Choose a walkthrough and restore its recorded checkpoints, forwards or backwards. Selecting a stop previews its note; use Restore to change the laboratory."}
+          : "Choose a walkthrough and inspect its checkpoints, forwards or backwards. Then calculate with the current model or explicitly restore a recorded checkpoint. Inspecting a stop changes no laboratory settings."}
       </p>
       {loading && <p role="status">Loading recorded walkthroughs…</p>}
+      {linkError && (
+        <>
+          <p role="alert">{linkError}</p>
+          <button type="button" onClick={() => {
+            setLocation({ kind: "absent" });
+            setTapeId("");
+            setIndex(0);
+            setResult(null);
+          }}>Browse this laboratory's walkthroughs</button>
+        </>
+      )}
       {loadError && (
         <>
           <p role="alert">{loadError}</p>
@@ -122,6 +151,7 @@ export function WalkthroughPlayer({
             value={walkthrough.tapeId}
             style={{ maxWidth: "100%" }}
             onChange={(event) => {
+              setLocation({ kind: "absent" });
               setTapeId(event.currentTarget.value);
               setIndex(0);
               setResult(null);
@@ -148,10 +178,7 @@ export function WalkthroughPlayer({
                 id={`${id}-checkpoint`}
                 value={index}
                 style={{ maxWidth: "100%" }}
-                onChange={(event) => {
-                  setIndex(Number(event.currentTarget.value));
-                  setResult(null);
-                }}
+                onChange={(event) => inspect(Number(event.currentTarget.value))}
               >
                 {walkthrough.checkpoints.map((stop, stopIndex) => (
                   <option key={`${stop.actionIndex}-${stop.label}`} value={stopIndex}>
@@ -161,9 +188,7 @@ export function WalkthroughPlayer({
               </select>
               {checkpoint && (
                 <div aria-live="polite" data-walkthrough-checkpoint={checkpoint.actionIndex}>
-                  <p>
-                    <strong>{checkpoint.label}</strong>
-                  </p>
+                  <p><strong>{checkpoint.label}</strong></p>
                   {checkpoint.teachingNote && <p>{checkpoint.teachingNote}</p>}
                   {!formOnly && !checkpoint.tape && (
                     <p>{checkpoint.unavailable || "This stop cannot be replayed."}</p>
@@ -171,56 +196,37 @@ export function WalkthroughPlayer({
                 </div>
               )}
               <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-                <button type="button" disabled={index <= 0} onClick={() => apply(index - 1)}>
-                  {formOnly ? "Load previous settings" : "Restore previous checkpoint"}
+                <button type="button" disabled={index <= 0} onClick={() => inspect(index - 1)}>
+                  Inspect previous checkpoint
                 </button>
-                <button
-                  type="button"
-                  disabled={!checkpoint || (!formOnly && !checkpoint.tape)}
-                  onClick={() => apply(index)}
-                >
+                <button type="button" disabled={index >= walkthrough.checkpoints.length - 1}
+                  onClick={() => inspect(index + 1)}>
+                  Inspect next checkpoint
+                </button>
+                <button type="button" disabled={!checkpoint || (!formOnly && !checkpoint.tape)}
+                  onClick={() => setResult(applyWalkthroughCheckpoint(target, walkthrough, index))}>
                   {formOnly ? "Load checkpoint settings" : "Restore checkpoint"}
                 </button>
-                <button
-                  type="button"
-                  disabled={index >= walkthrough.checkpoints.length - 1}
-                  onClick={() => apply(index + 1)}
-                >
-                  {formOnly ? "Load next settings" : "Restore next checkpoint"}
-                </button>
               </div>
-              {target.kind === "session" &&
-                target.calculate &&
-                checkpoint &&
-                (!checkpoint.tape || result?.kind === "refused") && (
-                  <p>
-                    <button
-                      type="button"
-                      style={{ whiteSpace: "normal", maxWidth: "100%" }}
-                      onClick={() =>
-                        setResult(calculateWalkthroughCheckpoint(target, walkthrough, index))
-                      }
-                    >
-                      Calculate these settings as a new run
-                    </button>{" "}
-                    This uses the current laboratory, not a reproduction of the recorded run.
-                  </p>
-                )}
+              {target.kind === "session" && target.calculate && checkpoint && (
+                <p>
+                  <button type="button" style={{ whiteSpace: "normal", maxWidth: "100%" }}
+                    onClick={() => setResult(calculateWalkthroughCheckpoint(target, walkthrough, index))}>
+                    Calculate these settings as a new run
+                  </button>{" "}
+                  This uses the current laboratory, not a reproduction of the recorded run.
+                </p>
+              )}
             </>
           )}
           {result && (
-            <p
-              role={result.kind === "refused" ? "alert" : "status"}
-              data-walkthrough-outcome={result.kind}
-            >
+            <p role={result.kind === "refused" ? "alert" : "status"} data-walkthrough-outcome={result.kind}>
               {result.notice}
             </p>
           )}
         </fieldset>
       )}
-      <p>
-        <a href="/tapes/">Browse all recorded walkthroughs</a>
-      </p>
+      <p><a href="/tapes/">Browse all recorded walkthroughs</a></p>
     </details>
   );
 }

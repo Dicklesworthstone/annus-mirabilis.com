@@ -7,7 +7,7 @@ export type WalkthroughLocation =
   | Readonly<{ kind: "absent" }>
   | Readonly<{ kind: "invalid"; notice: string }>
   | Readonly<{ kind: "selected"; selection: WalkthroughSelection }>;
-const INVALID = "This walkthrough link is incomplete or ambiguous. Choose a walkthrough below; no checkpoint was applied.";
+const INVALID = "This walkthrough link is incomplete or ambiguous. Choose a walkthrough below; no checkpoint was selected.";
 const validId = (value: string) => /^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,159}$/.test(value) &&
   !["constructor", "prototype", "__proto__"].includes(value);
 const validAction = (value: number) => Number.isSafeInteger(value) && value >= 0;
@@ -41,14 +41,14 @@ export function resolveWalkthroughLocation(
   const matches = catalogue.walkthroughs.filter((entry) => entry.tapeId === selection.tapeId);
   const walkthrough = matches[0];
   if (matches.length !== 1 || !walkthrough || walkthrough.experimentId !== experimentId) {
-    return { kind: "invalid", notice: "This recorded walkthrough is not available in this laboratory. No checkpoint was applied." };
+    return { kind: "invalid", notice: "This recorded walkthrough is not available in this laboratory. No checkpoint was selected." };
   }
   if (selection.actionIndex === null) return { kind: "selected", walkthrough, index: 0 };
   const indices = walkthrough.checkpoints.flatMap((checkpoint, index) =>
     checkpoint.actionIndex === selection.actionIndex ? [index] : []);
   const index = indices[0];
   if (indices.length !== 1 || index === undefined) {
-    return { kind: "invalid", notice: "This recorded stop is missing or ambiguous in this edition. No checkpoint was applied." };
+    return { kind: "invalid", notice: "This recorded stop is missing or ambiguous in this edition. No checkpoint was selected." };
   }
   return { kind: "selected", walkthrough, index };
 }
@@ -83,4 +83,23 @@ export function withWalkthroughSelection(
   const joiner = queryAt < 0 ? "?" : /[?&]$/.test(head) ? "" : "&";
   const next = `${head}${joiner}walkthrough=${encodeURIComponent(tapeId)}${actionIndex === null ? "" : `&stop=${actionIndex}`}${hash}`;
   return next.length <= WALKTHROUGH_URL_LIMIT ? next : null;
+}
+
+/** Listen to real browser navigation without replacing history methods or starting an experiment. */
+export function observeWalkthroughLocation(
+  source: Pick<Window, "location" | "addEventListener" | "removeEventListener">,
+  receive: (location: WalkthroughLocation) => void,
+): () => void {
+  let active = true;
+  const read = () => {
+    if (active) receive(readWalkthroughLocation(source.location.search));
+  };
+  source.addEventListener("popstate", read);
+  source.addEventListener("pageshow", read);
+  read();
+  return () => {
+    active = false;
+    source.removeEventListener("popstate", read);
+    source.removeEventListener("pageshow", read);
+  };
 }
