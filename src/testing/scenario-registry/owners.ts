@@ -1,4 +1,6 @@
+import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { load as parseYaml } from "js-yaml";
 import { computeBm02Snapshot, DEFAULT_BM02_INPUTS } from "../../experiments/bm02/session.ts";
 import { BM03_DEFAULTS } from "../../experiments/bm03/definition.ts";
 import { evaluateBm03 } from "../../experiments/bm03/session.ts";
@@ -117,6 +119,7 @@ import {
   transformSI,
 } from "../../physics/reference/fields.ts";
 import { bartlettBandsMA1, cameraMoments } from "../../physics/reference/inference/observation.ts";
+import { analyzePhotoelectricData } from "../../physics/reference/inference/photoelectricData.ts";
 import {
   chiSquareInterval,
   empiricalCoverageFraction,
@@ -182,6 +185,7 @@ import {
   movingMirror,
   secondOrderShift,
 } from "../../physics/reference/waves.ts";
+import { modernPhotoelectricReference } from "../../reasoning/photoelectricData/session.ts";
 import {
   conductorFrameEmf,
   fresnelDraggedIncrement,
@@ -4194,6 +4198,111 @@ const OWNERS: OwnerRecord[] = [
       const systemAcross = sessionOutputsOf(other, "systemEnergyChange");
       if (!isOwnerRefusal(systemAcross))
         numbers.systemEnergyChangeOtherBoundary = systemAcross.systemEnergyChange as number;
+      return numbers;
+    },
+  },
+  /**
+   * MILLIKAN'S 1916 SODIUM POINTS, FITTED FOR THE FIRST TIME (am-nxbq, photoelectric-sodium-millikan-1916).
+   *
+   * `content/datasets/millikan-1916-sodium.yaml` holds six digitised points from Fig. 6 of Millikan's
+   * March 1916 Physical Review paper, read visually from an Internet Archive scan with a receipt at
+   * docs/provenance/datasets/millikan-1916-sodium.md. `analyzePhotoelectricData` in
+   * src/physics/reference/inference/photoelectricData.ts fits a line to such points and reports h from its
+   * slope. Measured 2026-10-06: NOTHING connected the two. The reasoning session that calls the fit uses
+   * three deliberately CONSTRUCTED row sets, whose own comment says they are "not Millikan observations",
+   * and the dataset's rows appear in no TypeScript at all. This owner is that wiring.
+   *
+   * WHAT IT FITS, AND WHY THOSE FIVE ROWS. The dataset declares a fit, millikan-1916-fig6-five-lines, with
+   * `rowsUsed: [0, 1, 2, 3, 4]` and Millikan's own sentence as its objective: the slope "was fixed
+   * primarily by a consideration of the five points corresponding to lines 5,461, 4,339, 4,047, 3,651 and
+   * 3,125" (p. 374). So the owner uses the dataset's OWN declared row selection rather than all six, and
+   * reads it from the file rather than repeating it here. `rowsUsed` is 0-based into `rows` while
+   * `analyzePhotoelectricData` requires positive integer row identities, so the index is mapped and not
+   * passed through; passing it through throws `photoelectric-row-identity`, which is how this was found.
+   *
+   * THE OFFSET MODEL IS `unknown`, DELIBERATELY. Millikan's third column is the intercept on the potential
+   * axis, signed and explicitly "uncorrected for contact E.M.F.", so an unknown common voltage sits in
+   * every reading. The SLOPE is unaffected by it, which is exactly why Millikan could measure h this way,
+   * and the fit says so by returning the work function and the threshold as `underdetermined` with the
+   * reason "An unknown common voltage offset and the surface escape work enter the same intercept. The
+   * frequency sweep alone cannot identify either the work function or its physical threshold." Those two
+   * are therefore NOT returned here: a numeric owner cannot carry them, and the scenario records the
+   * underdetermination in its own text.
+   *
+   * The scenario names the dataset through `datasetId`, `inferenceModelId` and `datasetPath`, so run.ts
+   * checks the model against the dataset's `allowedInferenceModelIds` before this owner is reached. The
+   * dataset admits `fitPhotoelectricSlope` and nothing else, which is the admission this route exists for.
+   */
+  {
+    id: "photoelectric.millikanSodiumSlope",
+    sourcePath: fileURLToPath(
+      new URL("../../physics/reference/inference/photoelectricData.ts", import.meta.url),
+    ),
+    fn: (ctx) => {
+      for (const key of Object.keys(ctx.inputs))
+        if (key !== "rowsUsedCount")
+          throw new OwnerContractError(
+            "owner-input-unknown",
+            `"${key}" is not an input of this owner: the rows come from the dataset file, not from the scenario.`,
+          );
+      const path = fileURLToPath(
+        new URL("../../../content/datasets/millikan-1916-sodium.yaml", import.meta.url),
+      );
+      const doc = parseYaml(readFileSync(path, "utf8")) as {
+        rows?: Array<{ cells?: Array<{ value?: unknown }> }>;
+        fits?: Array<{ id?: string; rowsUsed?: number[] }>;
+      };
+      const rows = doc.rows ?? [];
+      const declared = doc.fits?.find((f) => f.id === "millikan-1916-fig6-five-lines");
+      const used = declared?.rowsUsed ?? [];
+      if (rows.length === 0 || used.length === 0)
+        throw new OwnerContractError(
+          "owner-session-output-absent",
+          `the dataset carried ${rows.length} row(s) and the declared fit named ${used.length}; neither may be empty.`,
+        );
+      // 0-based in the dataset, 1-based and positive for the fit. Mapped, not passed through.
+      const observations = used.map((index) => {
+        const cells = rows[index]?.cells ?? [];
+        return {
+          row: index + 1,
+          frequencyTHz: Number(cells[1]?.value) / 1e12,
+          stoppingV: Number(cells[2]?.value),
+        };
+      });
+      if (
+        observations.some((o) => !Number.isFinite(o.frequencyTHz) || !Number.isFinite(o.stoppingV))
+      )
+        throw new OwnerContractError(
+          "owner-value-key-unnamed",
+          "a declared row of the dataset does not carry a numeric frequency and intercept.",
+        );
+      const fit = analyzePhotoelectricData(
+        observations,
+        { weighting: "equal", offset: { kind: "unknown" } },
+        modernPhotoelectricReference(),
+      );
+      if (fit.status !== "value")
+        return {
+          refused: { outputId: "planckEstimate", status: fit.status, reasonCode: fit.status },
+        };
+      const planck = fit.planckEstimate;
+      if (planck.status !== "value" || typeof planck.value !== "number")
+        return {
+          refused: {
+            outputId: "planckEstimate",
+            status: String(planck.status),
+            reasonCode: String(planck.status),
+          },
+        };
+      const numbers: Record<string, number> = {
+        slopeVoltsPerTerahertz: fit.fit.slope,
+        planckEstimate: planck.value,
+        referenceSlopeVoltsPerTerahertz: fit.referenceSlopeVPerTHz,
+        relativeSlopeDifference: fit.relativeSlopeDifference,
+        rowsFitted: observations.length,
+      };
+      if (typeof planck.standardError === "number")
+        numbers.planckStandardError = planck.standardError;
       return numbers;
     },
   },

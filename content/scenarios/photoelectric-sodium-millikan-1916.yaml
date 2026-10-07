@@ -1,0 +1,107 @@
+# Millikan's 1916 sodium points, fitted: h to within 0.7 of a standard error (am-nxbq).
+#
+# WHAT WAS NOT CONNECTED BEFORE THIS RECORD. content/datasets/millikan-1916-sodium.yaml has held six
+# digitised points from Fig. 6 of Millikan's March 1916 Physical Review paper since 2026-09-26, with a
+# receipt carrying the page map, the calibration and the point centres.
+# src/physics/reference/inference/photoelectricData.ts has held a line fit that reports h from such points.
+# Measured 2026-10-06, NOTHING joined them: the only caller of the fit uses three deliberately CONSTRUCTED
+# row sets whose own comment says they are "not Millikan observations", and the dataset's rows appeared in
+# no TypeScript at all. This is the first fit of those points in the repository.
+#
+# WHICH ROWS, AND WHY NOT ALL SIX. The dataset declares its own fit, millikan-1916-fig6-five-lines, with
+# Millikan's sentence as the objective: the slope "was fixed primarily by a consideration of the five points
+# corresponding to lines 5,461, 4,339, 4,047, 3,651 and 3,125" (p. 374). The owner reads that row selection
+# from the file rather than repeating it, so a revision of the dataset changes what is fitted without
+# anyone editing this record. All six rows give 6.526158440601266e-34 J s, so the choice moves the answer
+# by three parts in ten thousand and is editorial rather than numerical.
+#
+# WHAT IS PINNED. The slope of intercept potential against frequency is 0.004074478171072421 V/THz, and
+# h from it is 6.528033721435288e-34 J s with a standard error of 1.3785833356781923e-35 - that is
+# 2.11 per cent. The modern defined value is 6.62607015e-34, so the fit is 1.48 per cent BELOW it.
+#
+# AND 1.48 PER CENT IS NOT A DISCREPANCY, which is the one thing a reader must not take from this record.
+# The shortfall is 0.711 standard errors. Points read by eye from a 1916 figure agree with the modern
+# defined h within their own scatter, and the record pins the standard error beside the estimate so that
+# nobody can cite the 1.5 per cent as a finding. AGENTS.md: a numerical error bar is not a measurement
+# uncertainty, and a comparison needs its criterion stated.
+#
+# THE WORK FUNCTION IS UNDERDETERMINED AND THAT IS THE RECORD'S OTHER HALF. The fit returns it, and the
+# threshold frequency, as `underdetermined` with the reason "An unknown common voltage offset and the
+# surface escape work enter the same intercept. The frequency sweep alone cannot identify either the work
+# function or its physical threshold." Millikan's third column is signed and, in his own words,
+# uncorrected for contact E.M.F.; his p. 383 records that the "measured contact E.M.F. at this time was
+# 2.51 volts", obtained SEPARATELY. So the slope gives h and the intercept gives nothing without that
+# independent measurement, which is why h was what this experiment could determine. The two
+# underdetermined quantities are not pinned here because the runner compares either numbers or a refusal
+# and not both; they are reachable through the same owner if a later ref wants them.
+#
+# WHY THIS IS A MODERN GOLDEN AND NOT A HISTORICAL FIXTURE, since the data are historical. The schema
+# requires a historical fixture to compare a PRINTED number with comparisonKind "rounds-to", and it
+# refuses a tolerance on one - correctly, since that kind exists to reproduce a figure a paper prints.
+# Millikan's Fig. 6 prints no h for sodium, and the receipt records that only the 2,535 point carries a
+# printed value at all. These numbers are the site's own fit to source-pinned observations, computed with
+# modern constants, which is what a modern golden is. The data's historical character is carried by the
+# dataset's own evidenceStatus, historical-measurement, and by the transcription note below.
+#
+# WHAT THIS IS EVIDENCE FOR, PRECISELY. That the site reproduces a value of h from a real digitised
+# historical measurement, with its uncertainty. It is NOT evidence that light is quantised: Millikan set
+# out to test Einstein's equation and these points are the test's data, not its conclusion, and a linear
+# intercept-against-frequency relation is what the quantum hypothesis predicts rather than what it assumes.
+id: "photoelectric-sodium-millikan-1916"
+kind: "modern-golden"
+title: "Millikan's 1916 sodium points give h = 6.528e-34 J s, 0.7 standard errors below the modern value"
+description: "Fitting the five points Millikan says fixed his slope in Fig. 6 of his March 1916 paper gives an intercept-against-frequency slope of 0.004074 volts per terahertz, and h from it is 6.528 times ten to the minus thirty-fourth joule-seconds with a standard error of 2.11 per cent. The modern defined value is 1.48 per cent higher, which is 0.711 standard errors: points read by eye from a 1916 figure agree with it within their own scatter. The work function and the threshold come back underdetermined, because the unknown contact E.M.F. and the surface escape work share one intercept, which is why the slope was what this experiment could determine."
+provenance:
+  paper: light-quanta
+  sectionId: s8
+  printedPage: 146
+  locator: "s8, the photoelectric equation whose slope Millikan measured; the data are Millikan 1916 Fig. 6, not Einstein's paper"
+transcription:
+  status: "pending"
+  reason: "The rows are an agent's visual digitisation of Fig. 6 (agent:GreenOx, 2026-09-26), recorded as such in docs/provenance/datasets/millikan-1916-sodium.md and not reviewed by a person. Revision 1 of this dataset was withdrawn because its rows could not be traced to a printed table. The numbers pinned here are therefore a fit to a reviewed-pending digitisation, and no facsimile check by this author stands behind them."
+datasetId: "millikan-1916-sodium"
+inferenceModelId: "fitPhotoelectricSlope"
+datasetPath: "content/datasets/millikan-1916-sodium.yaml"
+constantSetId: "modern-si-2019"
+owner: "photoelectric.millikanSodiumSlope"
+inputs: {}
+expected:
+  outputs:
+    - outputId: planckEstimate
+      value: 6.528033721435288e-34
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "h from the fitted slope times the elementary charge. A tight tolerance because the arithmetic is deterministic given the rows; the PHYSICAL uncertainty is the standard error pinned below, which is five decades larger and is the number a reader should compare against."
+    - outputId: planckStandardError
+      value: 1.3785833356781923e-35
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "2.11 per cent of the estimate. Pinned so the 1.48 per cent shortfall below cannot be cited as a discrepancy: it is 0.711 of this."
+    - outputId: slopeVoltsPerTerahertz
+      value: 0.004074478171072421
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The fitted slope of intercept potential against frequency, which is h/e and is unaffected by the unknown contact E.M.F. common to every reading."
+    - outputId: referenceSlopeVoltsPerTerahertz
+      value: 0.004135667696923859
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "h/e from the 2019 SI definitions, both exact, so this number is arithmetic rather than measurement. Pinned as the comparison's other side."
+    - outputId: relativeSlopeDifference
+      value: -0.014795561523705314
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-9
+        rationale: "The fitted slope's shortfall against the defined one: 1.48 per cent low. Negative, and pinned as a signed value because the direction is part of the result."
+    - outputId: rowsFitted
+      value: 5
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-9
+        rationale: "The count the dataset's own declared fit names, read from the file. Pinned so a dataset revision that changed the row selection turns this red rather than silently refitting: the denominator of this measurement is part of it."
+modelVersion: 1
+schemaVersion: 1

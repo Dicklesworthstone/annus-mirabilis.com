@@ -1,0 +1,63 @@
+# The Stokes-Einstein relation at round modern inputs, which is the plumbing check (am-nxbq).
+#
+# WHAT THIS IS FOR, against its two companions. diffusion-einstein-1905-printed is the PENDING historical
+# row that checks Einstein's printed 0.8 micron against his own constants. diffusion-einstein-1905-modern-kb
+# evaluates HIS inputs under the 2019 SI definitions and gets 7.935338890235472e-7 m. This record is the
+# third leg: round modern inputs, chosen for arithmetic rather than inherited from the paper, so that a
+# change in the relation itself is visible without Einstein's particular numbers in the way.
+#
+# WHAT IS PINNED. D = k_B T / (6 pi eta a) at 293.15 K, a viscosity of 1.0e-3 Pa s and a radius of
+# 5.0e-7 m is 4.294395645549615e-13 m^2/s, and the one-dimensional root-mean-square displacement after one
+# second, sqrt(2 D t), is 9.267573194261392e-7 m - about 0.93 micron. At 60 s the same settings give
+# 7.17863132822653e-6 m, about 7.2 micron, which is the other end of BM-01's own default horizon; only the
+# one-second value is pinned here, because a scenario is one setting.
+#
+# THE VISCOSITY IS A ROUND DECLARED NUMBER AND NOT A MEASUREMENT OF WATER. 1.0e-3 Pa s is chosen because
+# it is exactly representable and close to water near room temperature; it is not sourced, and this record
+# makes no claim about any real fluid. The ref that WOULD make such a claim,
+# diffusion-modern-viscosity-17c, is still open precisely because it needs a cited modern viscosity at
+# 17 degrees, and no such citation exists anywhere in this repository - measured 2026-10-06 across
+# content/quantities and content/datasets. Writing this record with a plausible-looking 1.08e-3 and calling
+# it water would have been the error that ref exists to avoid.
+#
+# WHY THE CONTRAST WITH EINSTEIN'S INPUTS IS WORTH STATING. His viscosity is 1.35e-3 Pa s, a third higher
+# than this round value, and his temperature 290.15 K; together they give D = 3.1484801651441766e-13 and
+# 7.935338890235472e-7 m at one second. So the displacement here is 1.168 times his, and the ratio is
+# almost exactly sqrt(1.35) = 1.162 with the small remainder from the three-degree temperature difference.
+# A reader comparing the two records sees that the displacement goes as the inverse square root of the
+# viscosity, which is the relation AGENTS.md's own worked example warns is misread as a factor of two.
+id: "diffusion-modern-golden"
+kind: "modern-golden"
+title: "Stokes-Einstein at round modern inputs: 0.43 square micron per second and 0.93 micron in one second"
+description: "The Stokes-Einstein relation at 293.15 kelvin, a viscosity of one millipascal-second and a radius of half a micron gives a diffusion coefficient of 4.2944 times ten to the minus thirteenth square metres per second, and a one-dimensional root-mean-square displacement of about 0.93 micron after one second. The inputs are round declared numbers chosen for the arithmetic, not a measurement of water. Einstein's own inputs, with a viscosity a third higher, give 0.79 micron, and the ratio between the two is almost exactly the inverse square root of the viscosity ratio."
+constantSetId: "modern-si-2019"
+owner: "diffusion.stokesEinsteinRms"
+inputs:
+  temperature:
+    value: 293.15
+    unit: "K"
+  viscosity:
+    value: 1.0e-3
+    unit: "Pa s"
+  particleRadius:
+    value: 5.0e-7
+    unit: "m"
+  elapsedTime:
+    value: 1
+    unit: "s"
+expected:
+  outputs:
+    - outputId: diffusionCoefficient
+      value: 4.294395645549615e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "k_B T/(6 pi eta a) with k_B exact by definition since 2019 and all three inputs exact as written, so the only error admitted is floating-point. This is also BM-08's default diffusion coefficient, 0.42944e-12, to five figures."
+    - outputId: rmsDisplacement1d
+      value: 9.267573194261392e-7
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "sqrt(2 D t) at t = 1 s: about 0.93 micron. 1.168 times Einstein's 0.7935 micron under his own inputs, which is the inverse square root of the viscosity ratio to within the temperature difference."
+modelVersion: 1
+schemaVersion: 1
