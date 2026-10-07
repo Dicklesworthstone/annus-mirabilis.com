@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { dependencyFeedback } from "../shared/dependencyFeedback.ts";
 import { ReorderList } from "../shared/ReorderList.tsx";
+import { CapstoneNotebookControls } from "./CapstoneNotebookControls.tsx";
 import type { Capstone } from "./capstoneSchema.ts";
 import { createBrowserWorksheetStorage } from "./worksheetPersistence.ts";
 import {
@@ -229,6 +230,20 @@ export function CapstoneWorksheet({
           <p className="capstone-controls" role="status" aria-live="polite">
             {persistence.message}
           </p>
+          <CapstoneNotebookControls
+            capstone={capstone}
+            worksheet={state}
+            equations={equations}
+            download={download}
+            onRestore={(next) => {
+              importGeneration.current++;
+              setPending(null);
+              setLoadingSaved(false);
+              setClearing(false);
+              setCompare(false);
+              change(next);
+            }}
+          />
           <div className="capstone-controls capstone-toolbar">
             <button
               type="button"
