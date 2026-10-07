@@ -275,74 +275,107 @@ const shelfOpticsPath = fileURLToPath(
 );
 
 /**
- * SR-05's parameter record, built rather than spread. `validateSr05Parameters` refuses any record whose
- * key set is not exactly `SR05_DEFAULTS`, so a stray `worldlineCode` from a scenario input would be
- * refused as invalid-parameter for a reason that has nothing to do with the case under test. The code
- * is consumed here and never reaches the laboratory: 0 inertial, 1 out and back, 2 circle, and absent
- * the code the laboratory's own default stands. The runner coerces every input with
- * `Number(spec.value)`, which is why the category travels as a number at all.
+ * ONE PARAMETER BUILDER FOR EVERY LABORATORY WHOSE CONTROLS INCLUDE A CATEGORY.
+ *
+ * Six laboratories here - SR-05, SR-11, SR-12, SR-13, BM-03, ME-03 - have at least one CATEGORICAL
+ * control: a worldline shape, a description frame, a mode, a force convention, a particle model, a
+ * boundary. `inputNumbers` in run.ts coerces every scenario input with `Number(spec.value)`, so a
+ * category cannot arrive as a string and travels as a numeric code instead; lq-05's `locked` already
+ * used that convention for a boolean before any of these.
+ *
+ * THIS WAS SIX NEAR-IDENTICAL FUNCTIONS UNTIL THE REFUSAL RATCHET OBJECTED, and the objection was right.
+ * Each carried its own `throw new OwnerContractError("owner-input-unknown", ...)` and its own unknown-code
+ * throw, which am-muyh counted as 8 and 5 untested sites under two repeated codes - and am-ksl3's rule is
+ * that uncited sites under a repeated code are never credited, so no test could have covered them without
+ * citing thirteen line numbers. Collapsing them to ONE site per code is the repair the ratchet was asking
+ * for, rather than a baseline recording that the duplication exists.
+ *
+ * WHY THE UNKNOWN-INPUT REFUSAL MATTERS, since it is the one most easily dropped. A laboratory's own
+ * validator rejects a record whose key set is not exactly its defaults (SR-05's does so by name), so a
+ * stray code would be refused for a reason unrelated to the case. Worse, an input the builder silently
+ * IGNORED would leave the scenario running at the defaults and passing while testing something other than
+ * what it says. Refusing by name is what stops that.
  */
-function sr05Params(inputs: Record<string, number>): Record<string, unknown> {
-  const worldline = ((): "inertial" | "out-and-back" | "circle" => {
-    const code = inputs.worldlineCode;
-    if (code === undefined) return SR05_DEFAULTS.worldlinePreset;
-    if (code === 0) return "inertial";
-    if (code === 1) return "out-and-back";
-    if (code === 2) return "circle";
-    throw new OwnerContractError(
-      "owner-worldline-code-unknown",
-      `worldlineCode ${code} names no SR-05 worldline; 0 is inertial, 1 out and back, 2 circle.`,
-    );
-  })();
-  const built: Record<string, unknown> = { ...SR05_DEFAULTS, worldlinePreset: worldline };
+type CategoryMap = Readonly<Record<string, readonly [field: string, values: readonly string[]]>>;
+
+function ownerParams(
+  labName: string,
+  defaults: Readonly<Record<string, unknown>>,
+  inputs: Record<string, number>,
+  categories: CategoryMap,
+): Record<string, unknown> {
+  const built: Record<string, unknown> = { ...defaults };
+  for (const [codeKey, [field, values]] of Object.entries(categories)) {
+    const code = inputs[codeKey];
+    if (code === undefined) continue;
+    const chosen = values[code];
+    if (chosen === undefined)
+      throw new OwnerContractError(
+        "owner-mode-code-unknown",
+        `${codeKey} ${code} names no ${labName} ${field}; 0 to ${values.length - 1} are ${values.join(", ")}.`,
+      );
+    built[field] = chosen;
+  }
   for (const [key, value] of Object.entries(inputs)) {
-    if (key === "worldlineCode") continue;
-    if (!Object.hasOwn(SR05_DEFAULTS, key))
+    if (key in categories) continue;
+    if (!Object.hasOwn(defaults, key))
       throw new OwnerContractError(
         "owner-input-unknown",
-        `"${key}" is not an SR-05 parameter, and its validator refuses a record with an extra key.`,
+        `"${key}" is not a ${labName} parameter, so naming it in a scenario would change nothing.`,
       );
     built[key] = value;
   }
   return built;
 }
 
-/**
- * SR-12's parameter record, built rather than spread, for the same reason as sr05Params: a scenario
- * input that is not one of the laboratory's parameters must be refused by name rather than carried
- * into the record. `modeCode` is consumed here: 0 neutral-conductor, 1 convection, 2 moving-sphere,
- * 3 gaussian-pulse, 4 current-loop, and absent it the laboratory's own default stands.
- */
+/** SR-05's worldline is a category the manifest carries on its presets rather than declaring. */
+function sr05Params(inputs: Record<string, number>): Record<string, unknown> {
+  return ownerParams("SR-05", SR05_DEFAULTS, inputs, {
+    worldlineCode: ["worldlinePreset", ["inertial", "out-and-back", "circle"]],
+  });
+}
+
+/** SR-11's `frame` is the laboratory's STRING while the manifest declares it numeric (am-hr4z). */
+function sr11Params(inputs: Record<string, number>): Record<string, unknown> {
+  return ownerParams("SR-11", SR11_DEFAULTS, inputs, {
+    frameCode: ["frame", ["lab", "mirror"]],
+  });
+}
+
+/** SR-12's mode selects the view; its presets set none, so the lab's buttons are authoritative. */
 function sr12Params(inputs: Record<string, number>): Record<string, unknown> {
-  const MODES = [
-    "neutral-conductor",
-    "convection",
-    "moving-sphere",
-    "gaussian-pulse",
-    "current-loop",
-  ] as const;
-  const code = inputs.modeCode;
-  const mode =
-    code === undefined
-      ? SR12_DEFAULTS.mode
-      : (MODES[code] ??
-        (() => {
-          throw new OwnerContractError(
-            "owner-mode-code-unknown",
-            `modeCode ${code} names no SR-12 mode; 0 to ${MODES.length - 1} are ${MODES.join(", ")}.`,
-          );
-        })());
-  const built: Record<string, unknown> = { ...SR12_DEFAULTS, mode };
-  for (const [key, value] of Object.entries(inputs)) {
-    if (key === "modeCode") continue;
-    if (!Object.hasOwn(SR12_DEFAULTS, key))
-      throw new OwnerContractError(
-        "owner-input-unknown",
-        `"${key}" is not an SR-12 parameter, so naming it in a scenario would change nothing.`,
-      );
-    built[key] = value;
-  }
-  return built;
+  return ownerParams("SR-12", SR12_DEFAULTS, inputs, {
+    modeCode: [
+      "mode",
+      ["neutral-conductor", "convection", "moving-sphere", "gaussian-pulse", "current-loop"],
+    ],
+  });
+}
+
+/** BM-03's model and construction step; notation stays at the default, no case turning on it. */
+function bm03Params(inputs: Record<string, number>): Record<string, unknown> {
+  return ownerParams("BM-03", BM03_DEFAULTS, inputs, {
+    modelCode: ["model", ["independent", "locked-cluster"]],
+    stepCode: ["step", ["one-particle", "two-particles", "many-particles", "derivative"]],
+  });
+}
+
+/** SR-13's four categories. forceConvention and massLanguage move no output; see sr13.dynamics. */
+function sr13Params(inputs: Record<string, number>): Record<string, unknown> {
+  return ownerParams("SR-13", SR13_DEFAULTS, inputs, {
+    conventionCode: ["forceConvention", ["source", "laboratory"]],
+    massCode: ["massLanguage", ["1905", "modern"]],
+    particleCode: ["particle", ["electron", "custom"]],
+    overlayCode: ["datasetOverlay", ["none", "kaufmann-1902-1906", "bucherer-1908"]],
+  });
+}
+
+/** ME-03's boundary is the reader's choice of system; the disposition is what the energy then does. */
+function me03Params(inputs: Record<string, number>): Record<string, unknown> {
+  return ownerParams("ME-03", ME03_DEFAULTS, inputs, {
+    boundaryCode: ["boundary", ["body-alone", "body-plus-radiation"]],
+    dispositionCode: ["disposition", ["escapes", "absorbed"]],
+  });
 }
 
 /**
@@ -350,7 +383,79 @@ function sr12Params(inputs: Record<string, number>): Record<string, unknown> {
  * "value" result carrying no number under `value`, which is the guard working rather than failing. A
  * refusal on the vector is passed through, so a refused current density refuses the scenario.
  */
-function sr12VectorComponent(
+/** The shape of millikan-1916-sodium.yaml that this owner reads, and nothing more of it. */
+export type MillikanDocument = Readonly<{
+  rows?: Array<{ cells?: Array<{ value?: unknown }> }>;
+  fits?: Array<{ id?: string; rowsUsed?: number[] }>;
+}>;
+
+/**
+ * The dataset's own declared five rows, as observations the photoelectric fit accepts. Exported so its two
+ * refusals are reachable from a test: a document with no rows or no declared fit, and a declared row whose
+ * frequency or intercept is not a number. `rowsUsed` is 0-BASED into `rows` while
+ * `analyzePhotoelectricData` demands positive integer row identities, so the index is mapped here; passing
+ * it through throws photoelectric-row-identity, which is how that was found.
+ */
+export function millikanObservations(
+  doc: MillikanDocument,
+): readonly Readonly<{ row: number; frequencyTHz: number; stoppingV: number }>[] {
+  const rows = doc.rows ?? [];
+  const declared = doc.fits?.find((f) => f.id === "millikan-1916-fig6-five-lines");
+  const used = declared?.rowsUsed ?? [];
+  if (rows.length === 0 || used.length === 0)
+    throw new OwnerContractError(
+      "owner-session-output-absent",
+      `the dataset carried ${rows.length} row(s) and the declared fit named ${used.length}; neither may be empty.`,
+    );
+  const observations = used.map((index) => {
+    const cells = rows[index]?.cells ?? [];
+    return {
+      row: index + 1,
+      frequencyTHz: Number(cells[1]?.value) / 1e12,
+      stoppingV: Number(cells[2]?.value),
+    };
+  });
+  if (observations.some((o) => !Number.isFinite(o.frequencyTHz) || !Number.isFinite(o.stoppingV)))
+    throw new OwnerContractError(
+      "owner-value-key-unnamed",
+      "a declared row of the dataset does not carry a numeric frequency and intercept.",
+    );
+  return observations;
+}
+
+/**
+ * The last (x, y) pair of a flat trajectory array. Lifted out of sr13.deflection's closure so its three
+ * refusals are reachable from a test: a trajectory that is absent or refused, one whose length is not a
+ * whole number of pairs, and one whose final pair is not two numbers. The array is 242 numbers for 121
+ * steps in SR-13, and it is one of the outputs sr-13's manifest does not declare (am-hr4z).
+ */
+export function trajectoryFinalPair(outputs: readonly unknown[]): readonly [number, number] {
+  const found = outputs.find(
+    (o) => (o as { quantityId?: string } | null)?.quantityId === "trajectoryPositions",
+  ) as Record<string, unknown> | undefined;
+  if (!found || found.status !== "value")
+    throw new OwnerContractError(
+      "owner-session-output-absent",
+      "trajectoryPositions is absent or refused, so no final position exists.",
+    );
+  const view = found.value as Readonly<Record<number, number>> & { length?: number };
+  const length = view.length ?? Object.keys(view).length;
+  if (length < 2 || length % 2 !== 0)
+    throw new OwnerContractError(
+      "owner-value-key-unnamed",
+      `trajectoryPositions has ${length} numbers, which is not a whole number of (x, y) pairs.`,
+    );
+  const x = view[length - 2];
+  const y = view[length - 1];
+  if (typeof x !== "number" || typeof y !== "number")
+    throw new OwnerContractError(
+      "owner-value-key-unnamed",
+      "the final trajectory pair is not two numbers.",
+    );
+  return [x, y];
+}
+
+export function sr12VectorComponent(
   outputs: readonly unknown[],
   outputId: string,
   index: number,
@@ -375,121 +480,21 @@ function sr12VectorComponent(
 }
 
 /**
- * SR-11's parameter record. `frame` is the laboratory's STRING ("lab" or "mirror") while the manifest
- * declares it numeric, so `frameCode` is 0 for the laboratory frame K and 1 for the mirror's rest frame
- * k, mapped here; an unknown input is refused by name rather than dropped.
+ * The same unknown-input refusal for owners that read a fixed list rather than a laboratory's defaults.
+ * One site, for the reason on ownerParams: an ignored input leaves a scenario passing at the defaults
+ * while claiming to test something else.
  */
-function sr11Params(inputs: Record<string, number>): Record<string, unknown> {
-  const code = inputs.frameCode;
-  const frame =
-    code === undefined
-      ? SR11_DEFAULTS.frame
-      : code === 0
-        ? "lab"
-        : code === 1
-          ? "mirror"
-          : (() => {
-              throw new OwnerContractError(
-                "owner-mode-code-unknown",
-                `frameCode ${code} names no SR-11 frame; 0 is the laboratory K, 1 the mirror rest frame k.`,
-              );
-            })();
-  const built: Record<string, unknown> = { ...SR11_DEFAULTS, frame };
-  for (const [key, value] of Object.entries(inputs)) {
-    if (key === "frameCode") continue;
-    if (!Object.hasOwn(SR11_DEFAULTS, key))
+function refuseUnknownInputs(
+  inputs: Record<string, number>,
+  known: readonly string[],
+  what: string,
+): void {
+  for (const key of Object.keys(inputs))
+    if (!known.includes(key))
       throw new OwnerContractError(
         "owner-input-unknown",
-        `"${key}" is not an SR-11 parameter, so naming it in a scenario would change nothing.`,
+        `"${key}" is not ${what}; this owner reads ${known.length > 0 ? known.join(", ") : "no scenario input at all"}.`,
       );
-    built[key] = value;
-  }
-  return built;
-}
-
-/**
- * BM-03's parameter record. Three of its controls are CATEGORICAL strings - model, step, notation - so
- * each travels as a code for the reason on sr05Params: run.ts coerces every input with
- * Number(spec.value). modelCode 0 independent, 1 locked-cluster. stepCode 0 one-particle,
- * 1 two-particles, 2 many-particles, 3 derivative. Notation is left at the laboratory's default, since
- * it is a presentation choice and no acceptance case turns on it.
- */
-function bm03Params(inputs: Record<string, number>): Record<string, unknown> {
-  const MODELS = ["independent", "locked-cluster"] as const;
-  const STEPS = ["one-particle", "two-particles", "many-particles", "derivative"] as const;
-  const pick = <T extends string>(
-    list: readonly T[],
-    code: number | undefined,
-    fallback: T,
-    name: string,
-  ): T => {
-    if (code === undefined) return fallback;
-    const chosen = list[code];
-    if (chosen === undefined)
-      throw new OwnerContractError(
-        "owner-mode-code-unknown",
-        `${name} ${code} names no BM-03 ${name.replace("Code", "")}; 0 to ${list.length - 1} are ${list.join(", ")}.`,
-      );
-    return chosen;
-  };
-  const built: Record<string, unknown> = {
-    ...BM03_DEFAULTS,
-    model: pick(MODELS, inputs.modelCode, BM03_DEFAULTS.model, "modelCode"),
-    step: pick(STEPS, inputs.stepCode, BM03_DEFAULTS.step, "stepCode"),
-  };
-  for (const [key, value] of Object.entries(inputs)) {
-    if (key === "modelCode" || key === "stepCode") continue;
-    if (!Object.hasOwn(BM03_DEFAULTS, key))
-      throw new OwnerContractError(
-        "owner-input-unknown",
-        `"${key}" is not a BM-03 parameter, so naming it in a scenario would change nothing.`,
-      );
-    built[key] = value;
-  }
-  return built;
-}
-
-/**
- * SR-13's parameter record. Four controls are CATEGORICAL strings: forceConvention, massLanguage,
- * particle and datasetOverlay, each travelling as a code for the reason on sr05Params. The manifest
- * declares all four as numeric with unit "dimensionless" and default 0, which is another instance of the
- * divergence on am-hr4z; the laboratory's values are the strings mapped here.
- *
- * conventionCode 0 source, 1 laboratory. massCode 0 the paper's 1905 language, 1 modern. particleCode 0
- * electron, 1 custom (which then reads customMass and customCharge). overlayCode 0 none,
- * 1 kaufmann-1902-1906, 2 bucherer-1908.
- */
-function sr13Params(inputs: Record<string, number>): Record<string, unknown> {
-  const maps = {
-    conventionCode: ["forceConvention", ["source", "laboratory"]],
-    massCode: ["massLanguage", ["1905", "modern"]],
-    particleCode: ["particle", ["electron", "custom"]],
-    overlayCode: ["datasetOverlay", ["none", "kaufmann-1902-1906", "bucherer-1908"]],
-  } as const;
-  const built: Record<string, unknown> = { ...SR13_DEFAULTS };
-  for (const [codeKey, [field, values]] of Object.entries(maps) as Array<
-    [string, readonly [string, readonly string[]]]
-  >) {
-    const code = inputs[codeKey];
-    if (code === undefined) continue;
-    const chosen = values[code];
-    if (chosen === undefined)
-      throw new OwnerContractError(
-        "owner-mode-code-unknown",
-        `${codeKey} ${code} names no SR-13 ${field}; 0 to ${values.length - 1} are ${values.join(", ")}.`,
-      );
-    built[field] = chosen;
-  }
-  for (const [key, value] of Object.entries(inputs)) {
-    if (key in maps) continue;
-    if (!Object.hasOwn(SR13_DEFAULTS, key))
-      throw new OwnerContractError(
-        "owner-input-unknown",
-        `"${key}" is not an SR-13 parameter, so naming it in a scenario would change nothing.`,
-      );
-    built[key] = value;
-  }
-  return built;
 }
 
 function num(inputs: Record<string, number>, key: string): number {
@@ -605,8 +610,6 @@ export type OwnerContractCode =
   | "owner-session-output-absent"
   /** Two registry entries claim one id, so a scenario naming it gets whichever the Map kept. */
   | "owner-id-duplicated"
-  /** A categorical input arrived as a numeric code the owner does not map to any category. */
-  | "owner-worldline-code-unknown"
   /**
    * A scenario named an input the laboratory has no parameter for. Refused rather than dropped,
    * because a silently ignored input leaves the case running at the defaults and passing while
@@ -3981,31 +3984,8 @@ const OWNERS: OwnerRecord[] = [
     sourcePath: fileURLToPath(new URL("../../experiments/sr13/session.ts", import.meta.url)),
     fn: (ctx) => {
       const params = sr13Params(ctx.inputs);
-      const lastPair = (p: Record<string, unknown>): readonly [number, number] => {
-        const found = sr13SnapshotOutputs(p as never).find(
-          (o) => (o as { quantityId?: string }).quantityId === "trajectoryPositions",
-        ) as Record<string, unknown> | undefined;
-        if (!found || found.status !== "value")
-          throw new OwnerContractError(
-            "owner-session-output-absent",
-            "trajectoryPositions is absent or refused, so no final position exists.",
-          );
-        const view = found.value as Readonly<Record<number, number>> & { length?: number };
-        const length = view.length ?? Object.keys(view).length;
-        if (length < 2 || length % 2 !== 0)
-          throw new OwnerContractError(
-            "owner-value-key-unnamed",
-            `trajectoryPositions has ${length} numbers, which is not a whole number of (x, y) pairs.`,
-          );
-        const x = view[length - 2];
-        const y = view[length - 1];
-        if (typeof x !== "number" || typeof y !== "number")
-          throw new OwnerContractError(
-            "owner-value-key-unnamed",
-            "the final trajectory pair is not two numbers.",
-          );
-        return [x, y];
-      };
+      const lastPair = (p: Record<string, unknown>) =>
+        trajectoryFinalPair(sr13SnapshotOutputs(p as never));
       const [finalX, finalY] = lastPair(params);
       const [straightX] = lastPair({ ...params, electricFieldY: 0, magneticFieldZ: 0 });
       return {
@@ -4060,13 +4040,11 @@ const OWNERS: OwnerRecord[] = [
       new URL("../../physics/reference/inference/observation.ts", import.meta.url),
     ),
     fn: (ctx) => {
-      const known = ["D", "dt", "exposure", "sigma", "flowDrift", "stageDrift", "d", "M"];
-      for (const key of Object.keys(ctx.inputs))
-        if (!known.includes(key))
-          throw new OwnerContractError(
-            "owner-input-unknown",
-            `"${key}" is not a camera-moment input; this owner reads ${known.join(", ")}.`,
-          );
+      refuseUnknownInputs(
+        ctx.inputs,
+        ["D", "dt", "exposure", "sigma", "flowDrift", "stageDrift", "d", "M"],
+        "a camera-moment input",
+      );
       const D = ctx.inputs.D ?? BM08_DEFAULTS.D;
       const dt = ctx.inputs.dt ?? BM08_DEFAULTS.dt;
       const exposure = ctx.inputs.exposure ?? BM08_DEFAULTS.exposure;
@@ -4135,42 +4113,7 @@ const OWNERS: OwnerRecord[] = [
     id: "me03.ledger",
     sourcePath: fileURLToPath(new URL("../../experiments/me03/session.ts", import.meta.url)),
     fn: (ctx) => {
-      const BOUNDARIES = ["body-alone", "body-plus-radiation"] as const;
-      const DISPOSITIONS = ["escapes", "absorbed"] as const;
-      const pick = <T extends string>(
-        list: readonly T[],
-        code: number | undefined,
-        fallback: T,
-        name: string,
-      ): T => {
-        if (code === undefined) return fallback;
-        const chosen = list[code];
-        if (chosen === undefined)
-          throw new OwnerContractError(
-            "owner-mode-code-unknown",
-            `${name} ${code} names no ME-03 value; 0 to ${list.length - 1} are ${list.join(", ")}.`,
-          );
-        return chosen;
-      };
-      const built: Record<string, unknown> = {
-        ...ME03_DEFAULTS,
-        boundary: pick(BOUNDARIES, ctx.inputs.boundaryCode, ME03_DEFAULTS.boundary, "boundaryCode"),
-        disposition: pick(
-          DISPOSITIONS,
-          ctx.inputs.dispositionCode,
-          ME03_DEFAULTS.disposition,
-          "dispositionCode",
-        ),
-      };
-      for (const [key, value] of Object.entries(ctx.inputs)) {
-        if (key === "boundaryCode" || key === "dispositionCode") continue;
-        if (!Object.hasOwn(ME03_DEFAULTS, key))
-          throw new OwnerContractError(
-            "owner-input-unknown",
-            `"${key}" is not an ME-03 parameter, so naming it in a scenario would change nothing.`,
-          );
-        built[key] = value;
-      }
+      const built = me03Params(ctx.inputs);
       const outputs = me03SnapshotOutputs(built as never);
       const numbers: Record<string, number> = {};
       for (const outputId of [
@@ -4239,43 +4182,18 @@ const OWNERS: OwnerRecord[] = [
       new URL("../../physics/reference/inference/photoelectricData.ts", import.meta.url),
     ),
     fn: (ctx) => {
-      for (const key of Object.keys(ctx.inputs))
-        if (key !== "rowsUsedCount")
-          throw new OwnerContractError(
-            "owner-input-unknown",
-            `"${key}" is not an input of this owner: the rows come from the dataset file, not from the scenario.`,
-          );
+      // The rows come from the dataset file, so this owner takes no scenario input at all.
+      refuseUnknownInputs(
+        ctx.inputs,
+        [],
+        "an input of this owner: the rows come from the dataset file",
+      );
       const path = fileURLToPath(
         new URL("../../../content/datasets/millikan-1916-sodium.yaml", import.meta.url),
       );
-      const doc = parseYaml(readFileSync(path, "utf8")) as {
-        rows?: Array<{ cells?: Array<{ value?: unknown }> }>;
-        fits?: Array<{ id?: string; rowsUsed?: number[] }>;
-      };
-      const rows = doc.rows ?? [];
-      const declared = doc.fits?.find((f) => f.id === "millikan-1916-fig6-five-lines");
-      const used = declared?.rowsUsed ?? [];
-      if (rows.length === 0 || used.length === 0)
-        throw new OwnerContractError(
-          "owner-session-output-absent",
-          `the dataset carried ${rows.length} row(s) and the declared fit named ${used.length}; neither may be empty.`,
-        );
-      // 0-based in the dataset, 1-based and positive for the fit. Mapped, not passed through.
-      const observations = used.map((index) => {
-        const cells = rows[index]?.cells ?? [];
-        return {
-          row: index + 1,
-          frequencyTHz: Number(cells[1]?.value) / 1e12,
-          stoppingV: Number(cells[2]?.value),
-        };
-      });
-      if (
-        observations.some((o) => !Number.isFinite(o.frequencyTHz) || !Number.isFinite(o.stoppingV))
-      )
-        throw new OwnerContractError(
-          "owner-value-key-unnamed",
-          "a declared row of the dataset does not carry a numeric frequency and intercept.",
-        );
+      const observations = millikanObservations(
+        parseYaml(readFileSync(path, "utf8")) as MillikanDocument,
+      );
       const fit = analyzePhotoelectricData(
         observations,
         { weighting: "equal", offset: { kind: "unknown" } },
