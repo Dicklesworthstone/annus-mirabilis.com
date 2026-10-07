@@ -139,6 +139,43 @@ const builtFace = (root: string, paper: string, face: string): string | null => 
 };
 
 /**
+ * THE HISTORIAN'S MARGIN: TYPED AND COUNTED, AND STILL WITHOUT A DENOMINATOR.
+ *
+ * The reason here said "margin entries live in readings-owners r3 text rather than as typed records,
+ * so they cannot be counted per paper (am-5cza)". The first clause is no longer true:
+ * `content/editorial-notes/<paper>/*.json` holds records with `kind: "historian-margin"`, 16 across
+ * the four papers, each with a claim, its source support and a review state. Someone reading that
+ * reason would start a migration that has already happened, which is what a stale reason costs.
+ *
+ * SO THE COUNT IS REPORTED AND THE CELL STAYS UNMEASURED, and the distinction is the honest one.
+ * What the plan asks for is a REQUIRED SET -- "the six §3.9 margin entries, including 'E = mc^2 does
+ * not appear in the paper'" -- and that set exists only as prose, in the plan and in the bead text.
+ * No record enumerates it, so there is nothing to divide by. The same blocker as
+ * `results-cards-against-section-3`, and naming it the same way is deliberate: both want one typed
+ * list of what a paper owes.
+ *
+ * A FLOOR WOULD BE WORSE THAN NOTHING HERE. `misconceptions-at-least-five` divides by a floor the
+ * plan states as a floor, which is a real requirement. Inventing one for the margin -- "at least
+ * one" -- would read as `met` for a paper carrying one of six required entries, and this module's
+ * third rule is that met means the numerator reached the denominator.
+ */
+function marginEntriesCell(root: string, paper: DonenessPaper): DonenessCell {
+  const dir = join(root, "content", "editorial-notes", paper);
+  const files = existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith(".json")) : [];
+  let margin = 0;
+  for (const file of files) {
+    const record = JSON.parse(readFileSync(join(dir, file), "utf8")) as { kind?: unknown };
+    if (record.kind === "historian-margin") margin += 1;
+  }
+  return unmeasured(
+    "historians-margin-entries",
+    `${margin} typed historian-margin record(s) on disk for this paper, in content/editorial-notes/${paper}/; ` +
+      "the plan's required SET is prose and no record enumerates it, so there is no denominator to " +
+      "divide by (the same gap as results-cards-against-section-3)",
+  );
+}
+
+/**
  * THE FIVE CONTRACT ITEMS THE PLAN NAMES, FOR EVERY INSTRUMENT THIS PAPER'S CLAIMS ANSWER.
  *
  * This cell was `unmeasured` because "mapping an instrument to the paper whose claim it answers
@@ -479,10 +516,7 @@ export function paperDoneness(root: string, paper: DonenessPaper): PaperDoneness
       "results-cards-against-section-3",
       "the plan's §3 results list is prose; no typed record enumerates the results a paper must card, so there is no denominator",
     ),
-    unmeasured(
-      "historians-margin-entries",
-      "margin entries live in readings-owners r3 text rather than as typed records, so they cannot be counted per paper (am-5cza)",
-    ),
+    marginEntriesCell(root, paper),
     labContractCell(root, paper),
     journeySkeletonCell(root, paper),
     unmeasured(

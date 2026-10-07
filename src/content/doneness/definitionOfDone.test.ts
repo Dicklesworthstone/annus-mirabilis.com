@@ -18,7 +18,7 @@
  */
 
 import { describe, expect, it } from "bun:test";
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -59,6 +59,7 @@ function fixtureRoot(): string {
     // own sourceRefs rather than the id prefix, and it reads this paper's built laboratory pages,
     // because show-the-code is a claim about what a reader is served.
     "content/experiments",
+    `content/editorial-notes/${PAPER}`,
     "out/lab/me-01/index.html",
     "out/lab/me-02/index.html",
     "out/lab/me-03/index.html",
@@ -152,6 +153,39 @@ describe("the planted regressions", () => {
     const after = cellOf(paperDoneness(root, PAPER).cells, "printed-displays-bound");
     expect(after.state).toBe("short");
     expect(after.met).toBe(before.met - 1);
+  });
+
+  it("the margin cell reports its real count and still refuses a verdict, having no denominator", () => {
+    // The reason here used to say margin entries "live in readings-owners r3 text rather than as
+    // typed records". They are typed records now, and a stale reason costs a migration that has
+    // already happened. The count is reported so a reader sees the state; the cell stays
+    // unmeasured because the plan's REQUIRED set is prose and nothing enumerates it.
+    const root = fixtureRoot();
+    const c = cellOf(paperDoneness(root, PAPER).cells, "historians-margin-entries");
+    expect(c.state).toBe("unmeasured");
+    expect(c.of).toBe(0);
+    expect(c.detail).toMatch(/^4 typed historian-margin record\(s\)/);
+    expect(c.detail).toContain("no record enumerates it");
+    // The count is real, not a constant: it comes from the records, so removing one moves it.
+    const dir = join(root, `content/editorial-notes/${PAPER}`);
+    const first = readdirSync(dir)
+      .filter((f) => f.endsWith(".json"))
+      .find((f) => {
+        const record = JSON.parse(readFileSync(join(dir, f), "utf8")) as { kind?: unknown };
+        return record.kind === "historian-margin";
+      });
+    expect(first).toBeDefined();
+    const path = join(dir, first as string);
+    const original = readFileSync(path, "utf8");
+    writeFileSync(path, JSON.stringify({ ...JSON.parse(original), kind: "side-note" }));
+    expect(cellOf(paperDoneness(root, PAPER).cells, "historians-margin-entries").detail).toMatch(
+      /^3 typed historian-margin record\(s\)/,
+    );
+    writeFileSync(path, original);
+    // And it is still never met, whatever the count: that is the point of reporting without a verdict.
+    expect(cellOf(paperDoneness(root, PAPER).cells, "historians-margin-entries").state).toBe(
+      "unmeasured",
+    );
   });
 
   it("the lab contract counts five items per instrument, bound by the manifest's own sourceRefs", () => {
