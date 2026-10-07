@@ -61,9 +61,9 @@
       "of": 0
     },
     "lab-contract-cells": {
-      "state": "unmeasured",
-      "met": 0,
-      "of": 0
+      "state": "met",
+      "met": 15,
+      "of": 15
     },
     "journey-skeleton-parts": {
       "state": "short",
@@ -138,9 +138,9 @@
       "of": 0
     },
     "lab-contract-cells": {
-      "state": "unmeasured",
-      "met": 0,
-      "of": 0
+      "state": "met",
+      "met": 45,
+      "of": 45
     },
     "journey-skeleton-parts": {
       "state": "short",
@@ -215,9 +215,9 @@
       "of": 0
     },
     "lab-contract-cells": {
-      "state": "unmeasured",
-      "met": 0,
-      "of": 0
+      "state": "met",
+      "met": 40,
+      "of": 40
     },
     "journey-skeleton-parts": {
       "state": "short",
@@ -292,9 +292,9 @@
       "of": 0
     },
     "lab-contract-cells": {
-      "state": "unmeasured",
-      "met": 0,
-      "of": 0
+      "state": "met",
+      "met": 65,
+      "of": 65
     },
     "journey-skeleton-parts": {
       "state": "short",

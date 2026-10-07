@@ -55,6 +55,13 @@ function fixtureRoot(): string {
     "content/tours",
     `out/papers/${PAPER}/view/german/index.html`,
     `out/papers/${PAPER}/view/english/index.html`,
+    // The lab-contract cell reads every manifest, because the binding it trusts is each manifest's
+    // own sourceRefs rather than the id prefix, and it reads this paper's built laboratory pages,
+    // because show-the-code is a claim about what a reader is served.
+    "content/experiments",
+    "out/lab/me-01/index.html",
+    "out/lab/me-02/index.html",
+    "out/lab/me-03/index.html",
   ]) {
     const to = join(root, rel);
     mkdirSync(join(to, ".."), { recursive: true });
@@ -145,6 +152,69 @@ describe("the planted regressions", () => {
     const after = cellOf(paperDoneness(root, PAPER).cells, "printed-displays-bound");
     expect(after.state).toBe("short");
     expect(after.met).toBe(before.met - 1);
+  });
+
+  it("the lab contract counts five items per instrument, bound by the manifest's own sourceRefs", () => {
+    // This cell was `unmeasured` because "mapping an instrument to the paper whose claim it answers
+    // needs a declared binding". The binding is declared: every manifest carries sourceRefs[].paper.
+    const root = fixtureRoot();
+    const before = cellOf(paperDoneness(root, PAPER).cells, "lab-contract-cells");
+    expect(before.state).toBe("met");
+    expect(before.of).toBe(15);
+    expect(before.met).toBe(15);
+    expect(before.detail).toContain("3 instrument(s)");
+    // The five items are named in the detail, so "15 of 15" is readable without this file.
+    for (const item of ["predict", "show-the-code", "tape", "embed", "notModeled"])
+      expect(before.detail).toContain(item);
+
+    // A 165-of-165 sweep across the site needs a control, or a predicate that cannot fail and one
+    // with nothing to find look identical. Each of the four manifest items is planted separately.
+    const path = join(root, `content/experiments/me-01.yaml`);
+    const original = readFileSync(path, "utf8");
+    for (const [item, plant] of [
+      ["embed", (t: string) => t.replace(/^embeddable: true$/m, "embeddable: false")],
+      [
+        "notModeled",
+        (t: string) => t.replace(/^notModeled:\n(?:[ \t]+.*\n)+/m, "notModeled: []\n"),
+      ],
+      ["tape", (t: string) => t.replace(/^tapeModel:\n(?:[ \t]+.*\n)+/m, "")],
+      [
+        "predict",
+        (t: string) =>
+          t.replace(/^predictMode:\n(?:[ \t]+.*\n)+/m, "predictMode:\n  enabled: false\n"),
+      ],
+    ] as const) {
+      const planted_text = plant(original);
+      // The plant has to LAND, or the green below is about nothing.
+      expect(planted_text).not.toBe(original);
+      writeFileSync(path, planted_text);
+      const after = cellOf(paperDoneness(root, PAPER).cells, "lab-contract-cells");
+      expect(after.state).toBe("short");
+      expect(after.met).toBe(before.met - 1);
+      expect(after.detail).toContain(`me-01:${item}`);
+      writeFileSync(path, original);
+    }
+    // Restored, so the last assertion is about the real corpus again.
+    expect(cellOf(paperDoneness(root, PAPER).cells, "lab-contract-cells").met).toBe(before.met);
+
+    // show-the-code is the fifth and it comes from the BUILT page, because a manifest cannot make a
+    // claim about what a reader is served. Without the page the whole cell is unmeasured, in the
+    // words the ratchet's buildAbsent recognises.
+    const noBuild = mkdtempSync(join(tmpdir(), "doneness-nolab-"));
+    for (const rel of [
+      `content/source-blocks/${PAPER}/manifest.yaml`,
+      `content/alignments/${PAPER}.yaml`,
+      `content/bindings/${PAPER}.yaml`,
+      `content/display-terms/${PAPER}.yaml`,
+      "content/experiments",
+    ]) {
+      const to = join(noBuild, rel);
+      mkdirSync(join(to, ".."), { recursive: true });
+      cpSync(join(ROOT, rel), to, { recursive: true });
+    }
+    const unbuilt = cellOf(paperDoneness(noBuild, PAPER).cells, "lab-contract-cells");
+    expect(unbuilt.state).toBe("unmeasured");
+    expect(unbuilt.detail).toContain("bun run build");
   });
 
   it("the journey skeleton counts thirteen elements, and a missing or invalid record is unmeasured", () => {

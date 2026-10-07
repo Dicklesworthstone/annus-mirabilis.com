@@ -21,9 +21,12 @@
  *
  * 3. MET MEANS THE NUMERATOR REACHED THE DENOMINATOR. Not "close", not "no errors found".
  *
- * WHAT IS MEASURED AND WHAT IS NOT. NINE items are computed from real inputs; six are declared
+ * WHAT IS MEASURED AND WHAT IS NOT. TEN items are computed from real inputs; five are declared
  * `unmeasured` with the reason and the bead that owns the missing input. It was eight and seven:
- * `journey-skeleton-parts` became measurable when the discovery journeys were emitted as records
+ * `lab-contract-cells` became measurable the same day, when its reason -- that mapping an instrument
+ * to its paper "needs a declared binding" -- turned out to be describing a binding that exists, in
+ * every manifest's own `sourceRefs[].paper`. And `journey-skeleton-parts` became measurable when the
+ * discovery journeys were emitted as records
  * under `content/journeys/`, and its stale `unmeasured` reason still said they were "hand-authored
  * JSX rather than records". A reason that has gone stale is the same silence this file is written
  * against, one layer up: it reads as "nobody could check" when somebody can, so an item's reason is
@@ -134,6 +137,108 @@ const builtFace = (root: string, paper: string, face: string): string | null => 
   const path = join(root, `out/papers/${paper}/view/${face}/index.html`);
   return existsSync(path) ? readFileSync(path, "utf8") : null;
 };
+
+/**
+ * THE FIVE CONTRACT ITEMS THE PLAN NAMES, FOR EVERY INSTRUMENT THIS PAPER'S CLAIMS ANSWER.
+ *
+ * This cell was `unmeasured` because "mapping an instrument to the paper whose claim it answers
+ * needs a declared binding". That binding exists and is declared, not inferred: every one of the 33
+ * manifests carries `sourceRefs[].paper`. The id prefix agrees with it in all 33, and the agreement
+ * is ASSERTED below rather than relied on, so a manifest whose refs name another paper is reported
+ * instead of being quietly filed under its prefix.
+ *
+ * THE DENOMINATOR IS THE PROJECT'S OWN LIST, not one chosen here. am-mass-energy-first-complete-
+ * paper-ej2w names the contract in those words -- "ME-01, ME-02 and ME-03 at full contract
+ * (predict, show-the-code, tape, embed)" -- and AGENTS.md adds the fifth, that `notModeled` is shown
+ * as a plain line and "an empty list fails the audit". Five items per instrument. A longer list read
+ * off AGENTS.md's manifest paragraph would mostly restate what the schema already requires, and a
+ * cell that counts what validation guarantees measures nothing.
+ *
+ * Four are read from the manifest and the fifth from the built page, because show-the-code is a
+ * claim about what a reader is served and a manifest cannot make it. So the cell is `unmeasured`
+ * without a build, in the same words the faces use, which is what the ratchet's `buildAbsent`
+ * recognises.
+ *
+ * `predict` is met by an enabled prompt set OR by a recorded exemption with a reason, which is
+ * AGENTS.md's own disjunction ("the predict-mode flag or a recorded exemption"); five instruments
+ * are exempt and all five carry reasons of 205 characters or more.
+ */
+function labContractCell(root: string, paper: DonenessPaper): DonenessCell {
+  const dir = join(root, "content", "experiments");
+  if (!existsSync(dir))
+    return unmeasured("lab-contract-cells", `no instrument manifests at ${dir}`);
+  const items = ["predict", "show-the-code", "tape", "embed", "notModeled"] as const;
+  const prefixes: Record<DonenessPaper, string> = {
+    "light-quanta": "lq",
+    "brownian-motion": "bm",
+    "special-relativity": "sr",
+    "mass-energy": "me",
+  };
+  const mine: { id: string; manifest: Record<string, unknown> }[] = [];
+  const mismatched: string[] = [];
+  for (const file of readdirSync(dir).sort()) {
+    if (!file.endsWith(".yaml")) continue;
+    const id = file.slice(0, -".yaml".length);
+    // Parsed, not pattern-matched. My first version read `^\s+paper:` and found nothing, because
+    // every ref is a LIST ITEM and the line begins `  - paper:`. The cell reported `unmeasured`
+    // rather than 0 of 165, which is the design working, and a regex over YAML is the wrong
+    // instrument regardless.
+    const manifest = strictParse(readFileSync(join(dir, file), "utf8"), "yaml") as Record<
+      string,
+      unknown
+    >;
+    const refs = Array.isArray(manifest.sourceRefs) ? manifest.sourceRefs : [];
+    const named = new Set(
+      refs
+        .map((ref) => (ref as { paper?: unknown } | null)?.paper)
+        .filter((value): value is string => typeof value === "string"),
+    );
+    if (!named.has(paper)) continue;
+    mine.push({ id, manifest });
+    // The id prefix is a cross-check, never the binding. AGENTS.md fixes the four prefixes, and a
+    // manifest whose refs name this paper under another prefix is reported rather than absorbed.
+    if (!id.startsWith(`${prefixes[paper]}-`)) mismatched.push(id);
+  }
+  if (mine.length === 0)
+    return unmeasured(
+      "lab-contract-cells",
+      `no instrument manifest names ${paper} in its sourceRefs, so there is no denominator`,
+    );
+  let met = 0;
+  const shortfalls: string[] = [];
+  for (const { id, manifest } of mine) {
+    const page = join(root, "out", "lab", id, "index.html");
+    if (!existsSync(page))
+      return unmeasured(
+        "lab-contract-cells",
+        `no built laboratory page at out/lab/${id}/index.html; run bun run build`,
+      );
+    const predictMode = (manifest.predictMode ?? {}) as Record<string, unknown>;
+    const exemptReason = String(predictMode.exemptReason ?? predictMode.reason ?? "").trim();
+    const notModeled = manifest.notModeled;
+    const present: Record<(typeof items)[number], boolean> = {
+      // AGENTS.md's own disjunction: "the predict-mode flag or a recorded exemption".
+      predict: predictMode.enabled === true || exemptReason.length > 0,
+      "show-the-code": readFileSync(page, "utf8").includes('class="show-the-code"'),
+      tape: manifest.tapeModel !== undefined && manifest.tapeModel !== null,
+      embed: manifest.embeddable === true,
+      // AGENTS.md: shown as a plain line, and "an empty list fails the audit".
+      notModeled: Array.isArray(notModeled) && notModeled.length > 0,
+    };
+    for (const item of items) {
+      if (present[item]) met += 1;
+      else shortfalls.push(`${id}:${item}`);
+    }
+  }
+  const of = mine.length * items.length;
+  const detail =
+    `${met} of ${of} contract cells across ${mine.length} instrument(s) (${items.join(", ")})` +
+    (shortfalls.length > 0 ? `; short: ${shortfalls.join(", ")}` : "") +
+    (mismatched.length > 0
+      ? `; NAMES THIS PAPER WITHOUT ITS ID PREFIX: ${mismatched.join(", ")}`
+      : "");
+  return cell("lab-contract-cells", met, of, detail);
+}
 
 /**
  * THE DISCOVERY SKELETON, COUNTED PER PAPER. Thirteen elements, from the journey record on disk.
@@ -378,10 +483,7 @@ export function paperDoneness(root: string, paper: DonenessPaper): PaperDoneness
       "historians-margin-entries",
       "margin entries live in readings-owners r3 text rather than as typed records, so they cannot be counted per paper (am-5cza)",
     ),
-    unmeasured(
-      "lab-contract-cells",
-      "the instrument coverage obligations are per instrument rather than per paper; mapping an instrument to the paper whose claim it answers needs a declared binding",
-    ),
+    labContractCell(root, paper),
     journeySkeletonCell(root, paper),
     unmeasured(
       "reviews-recorded-with-names",
