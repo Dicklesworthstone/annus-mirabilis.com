@@ -1,5 +1,6 @@
 import { BM01_COMPARISON } from "../../experiments/bm01/comparison.ts";
 import { comparisonDisplay } from "../../experiments/compare/comparisonStatement.ts";
+import { capstoneCaptureHref, capstoneCaptureText } from "./capstoneEntry.ts";
 import { REPLAY_PREDICTIONS } from "./replayEntry.ts";
 import {
   type NotebookDocument,
@@ -54,8 +55,8 @@ export function exportNotebookHtml(input: NotebookDocument): string {
       (entry) => `<article><h2>${escapeHtml(entry.title)}</h2>
 <p>${escapeHtml(entry.kind === "nextStep" ? "Next step" : entry.kind)} · ${escapeHtml(entry.frame.paper.replaceAll("-", " "))}</p>
 <pre>${escapeHtml(entry.text)}</pre>
-${entry.kind === "replay" ? replayHtml(entry) : ""}
-<a href="${escapeHtml(`https://annus-mirabilis.com${notebookFrameHref(entry.frame)}`)}">Return to this passage</a></article>`,
+${entry.kind === "replay" ? replayHtml(entry) : entry.kind === "capstone" ? `<section><h3>Snapshot saved ${escapeHtml(entry.createdAt)}</h3><pre>${escapeHtml(capstoneCaptureText(entry.capstone))}</pre></section>` : ""}
+<a href="${escapeHtml(`https://annus-mirabilis.com${entry.kind === "capstone" ? capstoneCaptureHref(entry.capstone) : notebookFrameHref(entry.frame)}`)}">${entry.kind === "capstone" ? "Open this capstone" : "Return to this passage"}</a></article>`,
     )
     .join("\n");
   const last = document.lastPlace;

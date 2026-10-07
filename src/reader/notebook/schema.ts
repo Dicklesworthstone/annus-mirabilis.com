@@ -1,3 +1,4 @@
+import { type CapstoneCapture, parseCapstoneCapture } from "./capstoneEntry.ts";
 import { type ComparisonReplay, parseComparisonReplay, REPLAY_LIMITS } from "./replayEntry.ts";
 /** Local reader work, never a publication record or an assessment of its author. */
 export const NOTEBOOK_KEY = "am:notebook:v1";
@@ -11,7 +12,7 @@ export const NOTEBOOK_PAPERS = [
   "molecular-dimensions",
 ] as const;
 export type NotebookPaper = (typeof NOTEBOOK_PAPERS)[number];
-export const NOTEBOOK_KINDS = ["question", "example", "nextStep", "note", "replay"] as const;
+export const NOTEBOOK_KINDS = ["question", "example", "nextStep", "note", "replay", "capstone"] as const;
 export type NotebookKind = (typeof NOTEBOOK_KINDS)[number];
 export const NOTEBOOK_VIEWS = [
   "reading",
@@ -40,10 +41,12 @@ type NotebookEntryBase = Readonly<{
   createdAt: string;
 }>;
 export type NotebookTextEntry = NotebookEntryBase &
-  Readonly<{ kind: Exclude<NotebookKind, "replay"> }>;
+  Readonly<{ kind: Exclude<NotebookKind, "replay" | "capstone"> }>;
 export type NotebookReplayEntry = NotebookEntryBase &
   Readonly<{ kind: "replay"; replay: ComparisonReplay }>;
-export type NotebookEntry = NotebookTextEntry | NotebookReplayEntry;
+export type NotebookCapstoneEntry = NotebookEntryBase &
+  Readonly<{ kind: "capstone"; capstone: CapstoneCapture }>;
+export type NotebookEntry = NotebookTextEntry | NotebookReplayEntry | NotebookCapstoneEntry;
 export type LastPlace = Readonly<{
   frame: NotebookFrame;
   title: string;
@@ -115,10 +118,10 @@ export function parseNotebookFrame(input: unknown): NotebookFrame {
   }) as NotebookFrame;
 }
 export function parseNotebookEntry(input: unknown): NotebookEntry {
-  const isReplay =
-    input !== null &&
-    typeof input === "object" &&
-    Object.getOwnPropertyDescriptor(input, "kind")?.value === "replay";
+  const kind = input !== null && typeof input === "object"
+    ? Object.getOwnPropertyDescriptor(input, "kind")?.value : undefined;
+  const isReplay = kind === "replay";
+  const isCapstone = kind === "capstone";
   const e = record(input, [
     "id",
     "kind",
@@ -126,7 +129,7 @@ export function parseNotebookEntry(input: unknown): NotebookEntry {
     "title",
     "text",
     "createdAt",
-    ...(isReplay ? ["replay"] : []),
+    ...(isReplay ? ["replay"] : isCapstone ? ["capstone"] : []),
   ]);
   const id = text(e.id, 80),
     createdAt = text(e.createdAt, 32);
@@ -142,12 +145,14 @@ export function parseNotebookEntry(input: unknown): NotebookEntry {
     id,
     frame: parseNotebookFrame(e.frame),
     title: text(e.title, NOTEBOOK_LIMITS.title),
-    text: text(e.text, isReplay ? REPLAY_LIMITS.text : NOTEBOOK_LIMITS.text, isReplay),
+    text: text(e.text, isReplay ? REPLAY_LIMITS.text : NOTEBOOK_LIMITS.text, isReplay || isCapstone),
     createdAt,
   };
   const entry: NotebookEntry = isReplay
     ? Object.freeze({ ...common, kind: "replay", replay: parseComparisonReplay(e.replay) })
-    : Object.freeze({ ...common, kind: e.kind as Exclude<NotebookKind, "replay"> });
+    : isCapstone
+      ? Object.freeze({ ...common, kind: "capstone", capstone: parseCapstoneCapture(e.capstone, common.frame.paper) })
+      : Object.freeze({ ...common, kind: e.kind as NotebookTextEntry["kind"] });
   if (isReplay && new TextEncoder().encode(JSON.stringify(entry)).length > REPLAY_LIMITS.bytes)
     throw new TypeError("A complete replay entry must fit within 64 KiB. Nothing was truncated.");
   if (isReplay && common.frame.paper !== "brownian-motion")

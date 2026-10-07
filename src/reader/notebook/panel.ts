@@ -1,4 +1,6 @@
 import { createModalCloseButton, makeDismissible } from "../../a11y/modal/dismiss.ts";
+import { capstoneCaptureHref } from "./capstoneEntry.ts";
+import { appendCapstoneView } from "./capstoneView.ts";
 import { exportNotebookHtml, exportNotebookJson } from "./export.ts";
 import { mountNotebookMergePanel } from "./mergePanel.ts";
 import type { NotebookReviewResult } from "./mergeReview.ts";
@@ -30,6 +32,7 @@ export const NOTEBOOK_KIND_LABELS = {
   nextStep: "Next step",
   note: "Note",
   replay: "Comparison replay",
+  capstone: "Capstone reconstruction",
 } as const;
 export type NotebookDraft = Readonly<{ frame: NotebookFrame; title: string }>;
 /** The names the rest of the site uses (/papers/, the home plates), not the route slugs. */
@@ -343,7 +346,8 @@ export function mountNotebookPanel(
         const article = node("article");
         article.className = "notebook-entry";
         const link = node("a", entry.title);
-        link.href = notebookFrameHref(entry.frame);
+        link.href = entry.kind === "capstone"
+          ? capstoneCaptureHref(entry.capstone) : notebookFrameHref(entry.frame);
         link.addEventListener("click", (event) => {
           if (
             event.button === 0 &&
@@ -403,7 +407,10 @@ export function mountNotebookPanel(
           });
           inspect.dataset.replayInspect = entry.id;
           article.append(inspect, evidenceHost);
-        } else article.append(edit);
+        } else {
+          if (entry.kind === "capstone") appendCapstoneView(article, entry, download);
+          article.append(edit);
+        }
         article.append(remove);
         section.append(article);
       }
@@ -426,7 +433,7 @@ export function mountNotebookPanel(
     }
   });
   function add(
-    kind: Exclude<NotebookEntry["kind"], "replay">,
+    kind: Exclude<NotebookEntry["kind"], "replay" | "capstone">,
     frame: NotebookFrame,
     title: string,
     text: string,

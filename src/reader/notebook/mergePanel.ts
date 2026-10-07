@@ -14,6 +14,7 @@ const FIELD_NAMES: Readonly<Record<string, string>> = {
   createdAt: "creation time",
   frame: "reading location",
   replay: "saved comparison data",
+  capstone: "saved reconstruction",
 };
 type MergeStore = Pick<
   NotebookStore,
@@ -77,12 +78,14 @@ export function mountNotebookMergePanel(
         `Created ${entry.createdAt}. ${entry.frame.paper}, ${entry.frame.anchor}; ${entry.frame.view} view, detail ${entry.frame.detail}, ${entry.frame.lens} perspective.`,
       ),
     );
-    if (entry.kind === "replay") {
+    if (entry.kind === "replay" || entry.kind === "capstone") {
       const details = node("details");
       details.append(
-        node("summary", "Inspect the complete saved comparison data (does not run it)"),
+        node("summary", entry.kind === "capstone"
+          ? "Inspect the complete saved reconstruction (does not restore it)"
+          : "Inspect the complete saved comparison data (does not run it)"),
       );
-      const data = node("pre", JSON.stringify(entry.replay, null, 2));
+      const data = node("pre", JSON.stringify(entry.kind === "capstone" ? entry.capstone : entry.replay, null, 2));
       data.style.whiteSpace = "pre-wrap";
       data.style.overflowWrap = "anywhere";
       details.append(data);
@@ -223,7 +226,7 @@ export function mountNotebookMergePanel(
       details.append(node("summary", `Inspect all ${additions.length} entries to add`));
       for (const entry of additions)
         details.append(
-          showEntry(entry, entry.kind === "replay" ? "Saved comparison" : "Incoming note"),
+          showEntry(entry, entry.kind === "replay" ? "Saved comparison" : entry.kind === "capstone" ? "Saved reconstruction" : "Incoming note"),
         );
       root.append(details);
     }
