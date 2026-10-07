@@ -4107,6 +4107,96 @@ const OWNERS: OwnerRecord[] = [
       return numbers;
     },
   },
+  /**
+   * ME-03's BODY-ALONE LEDGER, AND WHAT MOVING THE BOUNDARY DOES TO IT (am-nxbq, me-03-canonical).
+   *
+   * Paper 4 asks whether a body that emits energy loses mass, and ME-03 answers it as a LEDGER over a
+   * boundary the reader draws. The same emission gives a different answer to "what did the body lose"
+   * depending on which objects are inside: with the body alone, it loses 1 J and E/c^2 of mass; with the
+   * radiation inside too, it loses nothing, because nothing crossed. The system totals are zero in both.
+   * That is AGENTS.md's energy-accounting action contract - "select the objects included in the system and
+   * inspect energy crossing that boundary" - and it is what this owner reads.
+   *
+   * THE CATEGORICAL CONTROLS TRAVEL AS CODES, as on sr05Params: boundaryCode 0 body-alone,
+   * 1 body-plus-radiation; dispositionCode 0 escapes, 1 absorbed. The card, mode, pulse system and
+   * notation stay at the laboratory's defaults, since no acceptance case here turns on them.
+   *
+   * `radiationMassChange` IS EXCLUDED DELIBERATELY. It is `not-applicable` in every setting - free
+   * radiation is not assigned an inertial rest mass in 1905 kinematics, which is an editorial position
+   * about what the paper claims rather than a domain boundary - and me-03-free-radiation-has-no-rest-mass
+   * already pins that refusal through me03.session. Including it here would make every numeric case abort
+   * on it, for the reason given on sr05.clockReadings.
+   */
+  {
+    id: "me03.ledger",
+    sourcePath: fileURLToPath(new URL("../../experiments/me03/session.ts", import.meta.url)),
+    fn: (ctx) => {
+      const BOUNDARIES = ["body-alone", "body-plus-radiation"] as const;
+      const DISPOSITIONS = ["escapes", "absorbed"] as const;
+      const pick = <T extends string>(
+        list: readonly T[],
+        code: number | undefined,
+        fallback: T,
+        name: string,
+      ): T => {
+        if (code === undefined) return fallback;
+        const chosen = list[code];
+        if (chosen === undefined)
+          throw new OwnerContractError(
+            "owner-mode-code-unknown",
+            `${name} ${code} names no ME-03 value; 0 to ${list.length - 1} are ${list.join(", ")}.`,
+          );
+        return chosen;
+      };
+      const built: Record<string, unknown> = {
+        ...ME03_DEFAULTS,
+        boundary: pick(BOUNDARIES, ctx.inputs.boundaryCode, ME03_DEFAULTS.boundary, "boundaryCode"),
+        disposition: pick(
+          DISPOSITIONS,
+          ctx.inputs.dispositionCode,
+          ME03_DEFAULTS.disposition,
+          "dispositionCode",
+        ),
+      };
+      for (const [key, value] of Object.entries(ctx.inputs)) {
+        if (key === "boundaryCode" || key === "dispositionCode") continue;
+        if (!Object.hasOwn(ME03_DEFAULTS, key))
+          throw new OwnerContractError(
+            "owner-input-unknown",
+            `"${key}" is not an ME-03 parameter, so naming it in a scenario would change nothing.`,
+          );
+        built[key] = value;
+      }
+      const outputs = me03SnapshotOutputs(built as never);
+      const numbers: Record<string, number> = {};
+      for (const outputId of [
+        "energyChange",
+        "massChange",
+        "radiationEnergyChange",
+        "systemEnergyChange",
+        "systemMassChange",
+        "invariantMass",
+      ]) {
+        const got = sessionOutputsOf(outputs, outputId);
+        if (isOwnerRefusal(got)) return got;
+        Object.assign(numbers, got);
+      }
+      // The same emission read over the OTHER boundary, so one record can state that the body's loss
+      // depends on where the line is drawn while the system totals do not. A second evaluation, not an
+      // algebraic guess.
+      const other = me03SnapshotOutputs({
+        ...built,
+        boundary: built.boundary === "body-alone" ? "body-plus-radiation" : "body-alone",
+      } as never);
+      const acrossBoundary = sessionOutputsOf(other, "energyChange");
+      if (!isOwnerRefusal(acrossBoundary))
+        numbers.energyChangeOtherBoundary = acrossBoundary.energyChange as number;
+      const systemAcross = sessionOutputsOf(other, "systemEnergyChange");
+      if (!isOwnerRefusal(systemAcross))
+        numbers.systemEnergyChangeOtherBoundary = systemAcross.systemEnergyChange as number;
+      return numbers;
+    },
+  },
 ];
 
 /**

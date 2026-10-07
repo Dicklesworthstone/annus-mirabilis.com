@@ -9,9 +9,6 @@
     "bm-08-pairs-exact-coverage",
     "diffusion-modern-golden",
     "diffusion-modern-viscosity-17c",
-    "lq-02-total-diverges-refused",
-    "me-03-canonical",
-    "photoelectric-sodium-millikan-1916",
-    "stokes-rule-einstein-1905-printed"
+    "photoelectric-sodium-millikan-1916"
   ]
 }

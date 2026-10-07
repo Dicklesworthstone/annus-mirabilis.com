@@ -1,0 +1,102 @@
+# What the body lost depends on where the boundary is drawn; the system totals do not (am-nxbq).
+#
+# WHICH SETTINGS: ME-03's own defaults - the boundary around the BODY ALONE, 1 joule emitted, the radiation
+# escaping, with the radium energy-source card. This is the case a reader arrives on, and the companion
+# ref me-03-box-canonical covers the 1906 photon-in-a-box half of the same laboratory through a different
+# owner.
+#
+# WHAT IS PINNED. With the boundary around the body alone, the body's energy changes by -1 J and its mass
+# by -1.1126500560536185e-17 kg, which is -E/c^2: paper 4's conclusion, in SI, for one joule. The radiation
+# outside the boundary gains 1 J. The SYSTEM energy and mass changes are exactly 0, because the emission
+# moves energy across a line and creates none.
+#
+# AND THE SAME EMISSION OVER THE OTHER BOUNDARY GIVES ZERO, which is the record's real content.
+# `energyChangeOtherBoundary` is 0: with the radiation inside the boundary nothing crossed it, so "the
+# body lost 1 J" and "nothing was lost" are both true statements about the same physical event under two
+# different choices of system. The record pins both, computed from two evaluations rather than one, and
+# pins `systemEnergyChangeOtherBoundary` at 0 to show that what did NOT change with the boundary is the
+# conservation. That is the whole point of AGENTS.md's energy-accounting action contract: a reader selects
+# which objects are inside and inspects what crosses, and the instrument must make the choice visible
+# rather than silently fixing one.
+#
+# THE INVARIANT MASS IS THE SAME ON BOTH SIDES, 1.1126500560536185e-17 kg, and it is pinned because it is
+# the quantity the boundary choice does NOT move. A reader shown only the body's -E/c^2 could take the mass
+# as having been destroyed; the invariant mass of the whole says it was relocated.
+#
+# WHAT IS NOT PINNED HERE. `radiationMassChange` is `not-applicable` in every setting - free radiation is
+# not assigned an inertial rest mass in 1905 kinematics, an editorial position about what the paper claims
+# rather than a domain boundary - so it is excluded from this owner and pinned separately in
+# me-03-free-radiation-has-no-rest-mass. The runner compares either numbers or a refusal and not both.
+id: "me-03-canonical"
+kind: "modern-golden"
+title: "ME-03's body-alone ledger: the body loses E over c squared, and over the other boundary it loses nothing"
+description: "A body emitting one joule, with the boundary drawn around the body alone, loses one joule of energy and 1.11 times ten to the minus seventeenth kilograms of mass, which is E over c squared. With the boundary drawn around the body and the radiation together, the same emission takes nothing across it and the body's change is exactly zero. Both are true of one physical event under two choices of system, and the system energy and mass changes are zero either way: the emission moves energy across a line and creates none. The invariant mass of the whole is the same on both sides."
+provenance:
+  paper: mass-energy
+  sectionId: s0
+  printedPage: 641
+  locator: "s0-p12: Gibt ein Koerper die Energie L in Form von Strahlung ab, so verkleinert sich seine Masse um L/V^2"
+constantSetId: "modern-si-2019"
+owner: "me03.ledger"
+inputs:
+  boundaryCode:
+    value: 0
+    unit: "1"
+  dispositionCode:
+    value: 0
+    unit: "1"
+  emittedEnergy:
+    value: 1
+    unit: "J"
+expected:
+  outputs:
+    - outputId: energyChange
+      value: -1
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: "The joule emitted, leaving the body. Exactly -1 by construction, pinned at near-representation precision because it is the input appearing as an output and any drift would mean the ledger is not balancing the number it was given."
+    - outputId: massChange
+      value: -1.1126500560536185e-17
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "-E/c^2 with the exact 2019 SI speed of light: paper 4's conclusion for one joule. The quantity the whole paper is about."
+    - outputId: radiationEnergyChange
+      value: 1
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: "The same joule, arriving outside the boundary. Pinned so the body's loss is visibly a transfer and not a disappearance."
+    - outputId: systemEnergyChange
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-18
+        rationale: "Exactly zero: the emission moves energy across a line and creates none. An absolute tolerance against an exact zero, eighteen decades below the joule being moved."
+    - outputId: systemMassChange
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-30
+        rationale: "Also exactly zero, at a scale thirteen decades below the body's own mass change, so a leak the size of that change would fail by thirteen orders of magnitude."
+    - outputId: invariantMass
+      value: 1.1126500560536185e-17
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "E/c^2, positive, and the same under both boundaries. The quantity the boundary choice does NOT move, pinned so the body's negative change reads as relocation rather than destruction."
+    - outputId: energyChangeOtherBoundary
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-18
+        rationale: "The same emission with the radiation INSIDE the boundary: nothing crossed, so the change is zero. Computed from a second evaluation rather than assumed, and the number that makes the boundary choice's consequence explicit."
+    - outputId: systemEnergyChangeOtherBoundary
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-18
+        rationale: "Zero under the other boundary too. Pinned beside its partner so the record states what the boundary changed (the body's ledger) and what it did not (the conservation)."
+modelVersion: 1
+schemaVersion: 1

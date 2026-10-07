@@ -1,0 +1,79 @@
+# Stokes's rule at its exact boundary: equality is allowed, and one step above it is not (am-nxbq).
+#
+# A CORRECTION TO THIS REF'S OWN NAME, first, because it would otherwise mislead whoever reads the record
+# next. The id says "einstein-1905-printed", which promises a printed number to reproduce. Section 7 of
+# the light-quanta paper (printed pages 144 to 145) prints NO number: it states the rule qualitatively from
+# the quantum hypothesis, notes that at weak illumination the generated light must be proportional to the
+# exciting intensity, and then lists the circumstances in which deviations are conceivable - "Abweichungen
+# von der Stokesschen Regel sind nach der dargelegten Auffassung der Phaenomene in folgenden Faellen
+# denkbar" (s7-p3, page 145). So this is a modern golden at a boundary the paper's rule defines, not a
+# transcription, and the record is typed accordingly. The id is the manifest's and is left alone; renaming
+# it is the owner's call.
+#
+# WHICH SETTINGS: the manifest's preset values, an exciting frequency of 850 THz and an emitted frequency
+# of 850 THz - EQUAL. That is the whole point of choosing them. Stokes's rule as the quantum hypothesis
+# gives it is that the emitted frequency cannot EXCEED the exciting one, because a single absorbed quantum
+# has only its own energy to give. Equality is therefore the limiting case the rule permits, and it is
+# where an implementation with the comparison one step wrong - a strict inequality instead of a
+# non-strict one - fails and nowhere else.
+#
+# WHAT IS PINNED. The transition is allowed, `allowed` = 1. The maximum emitted frequency `nu2Max` is 850
+# THz, equal to the exciting frequency, which is the rule stated as a number. The energy deficit is exactly
+# 0: nothing is missing. And `eOtherEv` is exactly 0: nothing is left over for non-optical channels either,
+# because the whole quantum went into the emitted one.
+#
+# THE THREE NEIGHBOURING CASES, measured, which is what makes the boundary a boundary rather than a point:
+# at an emitted 600 THz the transition is allowed with 1.033916924230965 eV left over for other channels;
+# at 900 THz it is REFUSED with a deficit of 0.206783384846193 eV; and at 850 both the surplus and the
+# deficit are zero. A record at 600 alone would not test the comparison, and the existing
+# lq-07-stokes-rule-forbids-the-emission covers the refusal side at an emitted frequency above the
+# exciting one. This record is the hinge between them.
+id: "stokes-rule-einstein-1905-printed"
+kind: "modern-golden"
+title: "LQ-07 allows an emitted frequency exactly equal to the exciting one, with nothing left over and nothing missing"
+description: "Stokes's rule as the quantum hypothesis gives it is that the emitted frequency cannot exceed the exciting one, since one absorbed quantum has only its own energy to give. At an emitted frequency exactly equal to the exciting 850 terahertz the transition is allowed, the maximum emitted frequency is the exciting frequency itself, the energy deficit is zero and the energy left for non-optical channels is zero. One step above, at 900 terahertz, the transition is refused with a deficit of 0.207 electron-volts; one step below, at 600, it is allowed with 1.034 electron-volts left over."
+provenance:
+  paper: light-quanta
+  sectionId: s7
+  printedPage: 145
+  locator: "s7-p3, the circumstances in which deviations from Stokes's rule are conceivable; the rule itself is stated qualitatively in s7-p1 and s7-p2 and no number is printed"
+constantSetId: "modern-si-2019"
+owner: "lq07.budget"
+inputs:
+  regime:
+    value: 0
+    unit: "1"
+  nu1:
+    value: 850
+    unit: "THz"
+  nu2:
+    value: 850
+    unit: "THz"
+expected:
+  outputs:
+    - outputId: allowed
+      value: 1
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-9
+        rationale: "Allowed, as a flag. Equality is the limiting case the rule PERMITS, so an implementation using a strict inequality refuses here and nowhere else in the corpus. An absolute tolerance, since the quantity is a flag and a relative one on a flag conveys nothing."
+    - outputId: nu2Max
+      value: 850
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-15
+        rationale: "The ceiling equals the exciting frequency: Stokes's rule stated as a number rather than as prose. Pinned at near-representation precision because it must equal the input exactly, not approximately."
+    - outputId: energyDeficitEv
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Exactly zero at the boundary: nothing is missing. An absolute tolerance against an exact zero, nine decades below the 0.207 eV deficit one step above, so a deficit of any physical size fails."
+    - outputId: eOtherEv
+      value: 0
+      comparisonKind: tolerance
+      tolerance:
+        absolute: 1.0e-12
+        rationale: "Also exactly zero: the whole quantum went into the emitted light, so nothing remains for other channels. Pinned beside the deficit because the boundary is where BOTH vanish, and a record pinning one would not distinguish the hinge from either side."
+modelVersion: 1
+schemaVersion: 1

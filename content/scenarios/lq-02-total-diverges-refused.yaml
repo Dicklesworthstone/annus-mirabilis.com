@@ -1,0 +1,43 @@
+# The classical total diverges at EVERY temperature, which its companion record asserts and cannot test.
+#
+# WHY A SECOND RECORD FOR THE SAME REFUSAL. lq-02-classical-total-has-no-value pins the diverging total at
+# 5000 K, and its own plausibleMistake says "no temperature makes it finite" - a claim about the whole
+# range that a record at one temperature cannot establish. This record is the other end of it, at
+# 1e-9 K: a billionth of a degree above absolute zero, which is where a reader's intuition is strongest
+# that the total must be small, and therefore where a finite answer would be most tempting to produce.
+#
+# MEASURED ACROSS THE RANGE, 2026-10-06, six temperatures spanning 21 orders of magnitude - 1e-9, 1, 300,
+# 5000, 1e6 and 1e12 K. All six refuse, with the same status and the same condition every time. The
+# divergence is a property of the ALLOCATION, not of the temperature: equipartition gives k_B T to every
+# mode and the mode count grows as the cube of the frequency, so the series has no sum however small the
+# per-mode share is.
+#
+# AND WITH A CUTOFF THE SAME OWNER IS PERFECTLY FINITE AT ALL SIX, and exactly LINEAR in temperature:
+# 4.292791336538021e-12 J/m^3 at 1e-9 K, 21.4639566826901 at 5000 K, and 4292791336.5380197 at 1e12 K,
+# all of them 4.2927913365380e-3 times the temperature with a cutoff at 1e15 Hz. So the refusal is not the
+# owner declining to compute at extremes; it is the owner distinguishing a convergent sum from a divergent
+# one. That contrast is what makes this a record and not a repetition.
+#
+# WHAT THE REFUSAL IS NOT. It is not a statement that the energy is very large, and at 1e-9 K the
+# temptation runs the other way: a reader might expect a very SMALL total. Neither is available, because
+# there is no total. The status is outside-domain rather than not-applicable because the quantity is
+# well defined for this model's inputs and the model's own domain is what excludes it.
+id: "lq-02-total-diverges-refused"
+kind: "adversarial"
+title: "LQ-02's classical total diverges at a billionth of a degree too, where the energy ought to look small"
+description: "Asked for the classical total energy density at 1e-9 kelvin, a billionth of a degree above absolute zero, the evaluator refuses with the same diverging-total condition it gives at 5000 kelvin. Six temperatures spanning 21 orders of magnitude were measured and all six refuse: equipartition gives k_B T to every mode and the mode count grows as the cube of the frequency, so the series has no sum however small the per-mode share. With a cutoff the same owner is finite at all six and exactly linear in temperature, so the refusal distinguishes a divergent sum from a convergent one rather than declining to compute at extremes."
+plausibleMistake: "That a very cold cavity has a small total energy, so the divergence is a high-temperature phenomenon and a near-zero temperature should return a near-zero number. The temperature scales every mode's share equally and cancels out of the question entirely: the sum over modes diverges at any positive temperature. The mirror-image mistake, which the companion record at 5000 K guards, is to expect a very large number instead. Neither exists."
+intendedFailure: "The evaluator reports the divergence before accumulating anything, so no total is formed at any temperature. The scenario passes only when the refusal arrives on the radiation energy with the diverging-total condition; a run returning any number fails, including a near-zero one, and so does one reporting a non-positive-temperature condition, since 1e-9 K is positive and inside the declared domain."
+constantSetId: "modern-si-2019"
+owner: "radiation.classicalAllocation"
+inputs:
+  temperature:
+    value: 1.0e-9
+    unit: "K"
+expected:
+  status:
+    outputId: "radiationEnergy"
+    status: "outside-domain"
+    reasonCode: "classical-total-diverges"
+modelVersion: 1
+schemaVersion: 1
