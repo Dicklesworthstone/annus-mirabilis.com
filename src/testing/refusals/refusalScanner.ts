@@ -446,6 +446,9 @@ export function scanRefusalThrowSites(source: string, relPath: string): RefusalT
   const lines = code.split("\n");
   const passOutcomeLines = passOutcomeRecordLines(code);
   const typeLines = typeMemberLines(code);
+  // Built once per file: a declaration may sit far from its throw. CapstoneCaptureError is declared
+  // at line 26 and thrown at line 95, which is why the eight-line property window above misses it.
+  const classCodes = declaredClassCodes(code);
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i] ?? "";
@@ -504,6 +507,20 @@ export function scanRefusalThrowSites(source: string, relPath: string): RefusalT
           file: relPath,
           line: lineNum,
           code: propCode,
+          snippet: line.trim(),
+        });
+        continue;
+      }
+      // THE THIRD FORM: the code is fixed on the thrown CLASS. See declaredClassCodes. Checked
+      // LAST, so a site that carries its own literal or a neighbouring property is still read from
+      // the site rather than from the class, and the positional-wins order above is untouched.
+      const thrownClass = /\bthrow\s+new\s+([A-Za-z_$][\w$]*)\s*\(/.exec(line)?.[1];
+      const classCode = thrownClass ? classCodes.get(thrownClass) : undefined;
+      if (classCode) {
+        sites.push({
+          file: relPath,
+          line: lineNum,
+          code: classCode,
           snippet: line.trim(),
         });
         continue;
@@ -1408,6 +1425,49 @@ function unknownParamThrowLines(source: string, relPath: string): ReadonlySet<nu
   };
   visit(file);
   return lines;
+}
+
+/**
+ * CLASSES THAT DECLARE THEIR REFUSAL CODE AS A PROPERTY, mapped from the class name to the code.
+ *
+ * The third way a refusal can be typed, and the one this scanner could not read. The other two are
+ * a quoted literal in the constructor call and a `code:`/`kind:`/`rule:` property near the throw;
+ * this is a code fixed on the CLASS, so the throw site carries no literal at all:
+ *
+ *     export class CapstoneCaptureError extends TypeError {
+ *       readonly code = "notebook-capstone-invalid";
+ *       constructor() { super("..."); this.name = "CapstoneCaptureError"; }
+ *     }
+ *     ...
+ *     throw new CapstoneCaptureError();
+ *
+ * That read as an UNTYPED throw, so `src/reader/notebook/capstoneEntry.ts` arrived as a file with
+ * an unbaselined bare throw and the ratchet went red on HEAD, while the refusal was both typed and
+ * covered by four tests naming its code. Nine classes across src and scripts use this shape and
+ * nine sites were reclassified when this landed (am-16nj).
+ *
+ * SAME-FILE ONLY, and the limit is stated rather than discovered later. The declaration is found in
+ * the file being scanned, because a one-file scanner cannot follow an import. All nine live sites
+ * declare and throw in the same module. A class imported from elsewhere and thrown with no literal
+ * still reads as bare, which is the conservative direction: it over-reports debt rather than
+ * crediting a code this function never saw.
+ *
+ * It requires a LITERAL initialiser, so `code: string` as a type member and `this.code = argument`
+ * in a constructor are both ignored: neither fixes a code, and reading them would credit a site
+ * whose code is whatever the caller passed.
+ */
+const CLASS_WITH_CODE = /\bclass\s+([A-Za-z_$][\w$]*)\s+extends\s+[\w.$]+\s*\{([\s\S]*?)\n\}/g;
+const DECLARED_CODE_PROPERTY = /(?:readonly\s+)?code\s*(?::\s*[^=;]*)?=\s*["']([a-zA-Z0-9_-]+)["']/;
+
+export function declaredClassCodes(code: string): ReadonlyMap<string, string> {
+  const out = new Map<string, string>();
+  for (const match of code.matchAll(CLASS_WITH_CODE)) {
+    const name = match[1];
+    const body = match[2] ?? "";
+    const declared = DECLARED_CODE_PROPERTY.exec(body)?.[1];
+    if (name && declared && isRefusalCode(declared)) out.set(name, declared);
+  }
+  return out;
 }
 
 /** `throw new X(` on one line. A bare `throw err;` re-throw is not a site. */
