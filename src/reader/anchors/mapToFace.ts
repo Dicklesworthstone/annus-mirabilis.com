@@ -2,10 +2,24 @@
  * Nearest-ancestor, results, split-sentence, and facsimile mapping for
  * am-read-anchors-navigation-a6o. Pure functions over a `StructureIndex`
  * the caller supplies (a fixture in tests; the compiler's per-paper
- * structure index, once am-cm-source-manifest-6qa lands real transcribed
- * units, in production -- content/source-blocks/brownian-motion/manifest.yaml
- * carries `units: []` today, so no real structure index exists yet to wire
- * this against).
+ * structure index in production).
+ *
+ * THAT PARENTHESIS USED TO SAY the index was waiting on am-cm-source-manifest-6qa and that
+ * "content/source-blocks/brownian-motion/manifest.yaml carries `units: []` today". Re-measured
+ * 2026-10-07: that bead is closed and all four manifests are inventoried -- mass-energy 53,
+ * light-quanta 263, brownian-motion 178, special-relativity 436 units. So the stated blocker is
+ * gone.
+ *
+ * WHAT IS STILL MISSING IS A PRODUCER, and saying so is the point of this note, because the old
+ * wording sent a reader to look at the manifests. `StructureIndex` appears in this module and its
+ * two test files and NOWHERE else: nothing in `src/content` builds one, and nothing in production
+ * calls `mapToFace`, `mapToResultsFace` or `mapToFacsimilePage`.
+ *
+ * The inputs for a producer are on disk now. Every unit carries `locators[].page` (53 of 53 for
+ * mass-energy), so `pdfPageByUnit` is derivable; and sentence-to-paragraph parentage follows the id
+ * grammar, with 28 of mass-energy's 53 units resolving to a parent that is itself a unit. The part
+ * that needs a decision rather than a loop is the level above: a paragraph's parent is a section,
+ * and sections are not among the manifest's unit kinds. Filed as its own bead.
  */
 
 import { sourceSentenceId, splitSentenceIds } from "../../content/anchors.ts";
