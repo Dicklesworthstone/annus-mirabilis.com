@@ -21,7 +21,7 @@
  *
  * 3. MET MEANS THE NUMERATOR REACHED THE DENOMINATOR. Not "close", not "no errors found".
  *
- * WHAT IS MEASURED AND WHAT IS NOT. TEN items are computed from real inputs; five are declared
+ * WHAT IS MEASURED AND WHAT IS NOT. ELEVEN items are computed from real inputs; four are declared
  * `unmeasured` with the reason and the bead that owns the missing input. It was eight and seven:
  * `lab-contract-cells` became measurable the same day, when its reason -- that mapping an instrument
  * to its paper "needs a declared binding" -- turned out to be describing a binding that exists, in
@@ -137,6 +137,107 @@ const builtFace = (root: string, paper: string, face: string): string | null => 
   const path = join(root, `out/papers/${paper}/view/${face}/index.html`);
   return existsSync(path) ? readFileSync(path, "utf8") : null;
 };
+
+/**
+ * ALL FOUR READINGS, FOR EVERY BOUND PARAGRAPH, THROUGH THE PASSAGES IT BINDS.
+ *
+ * The reason here said "the readings owners declare their targets in
+ * content/editorial/readings-owners/, and no loader resolves a target to the paragraph it covers".
+ * That names the wrong mechanism. Measured across all 41 readings-owners files, every one of their
+ * 63 targets is `kind: "caption"` -- instrument captions and presets. NOT ONE is a paragraph, so a
+ * loader resolving a target to a paragraph would have nothing to resolve.
+ *
+ * A paragraph's readings arrive another way, and the records say so plainly. `content/bindings/
+ * <paper>.yaml` gives each paragraph its own `r0` and a list of `passages`, and each passage is an
+ * argument record under `content/arguments/<paper>/` carrying `readings.{overview, full, steps,
+ * margin}`. Those four names are AGENTS.md's own table -- R0 Overview, R1 Full explanation, R2 Show
+ * every step, R3 Historian's margin -- so the correspondence is declared rather than assumed here.
+ *
+ * A PARAGRAPH COUNTS WHEN EVERY PASSAGE IT BINDS CARRIES ALL FOUR. Not "some passage", because the
+ * reader following any one of a paragraph's passages must land on a full set; and not the paragraph's
+ * own `r0` alone, which `paragraph-overviews-r0` already measures and which says nothing about R1 to
+ * R3. A paragraph binding a passage whose record is missing is counted as short and the passage is
+ * named, because an unresolvable reference is a gap rather than an absence of obligation.
+ */
+function readingsPerParagraphCell(root: string, paper: DonenessPaper): DonenessCell {
+  const bindings = join(root, "content", "bindings", `${paper}.yaml`);
+  if (!existsSync(bindings))
+    return unmeasured(
+      "readings-r1-r3-per-paragraph",
+      `no bindings at content/bindings/${paper}.yaml`,
+    );
+  const parsed = strictParse(readFileSync(bindings, "utf8"), "yaml") as {
+    paragraphs?: { unit?: unknown; passages?: unknown }[];
+  };
+  const paragraphs = Array.isArray(parsed.paragraphs) ? parsed.paragraphs : [];
+  if (paragraphs.length === 0)
+    return unmeasured(
+      "readings-r1-r3-per-paragraph",
+      `content/bindings/${paper}.yaml binds no paragraphs, so there is no denominator`,
+    );
+  // AGENTS.md's four readings, under the names the argument records use for them.
+  const READINGS = ["overview", "full", "steps", "margin"] as const;
+  const argumentsDir = join(root, "content", "arguments", paper);
+  const readingsOf = (passage: string): readonly string[] | null => {
+    const file = join(argumentsDir, `${passage}.json`);
+    if (!existsSync(file)) return null;
+    const record = JSON.parse(readFileSync(file, "utf8")) as { readings?: Record<string, unknown> };
+    const readings = record.readings ?? {};
+    return READINGS.filter((name) => {
+      const value = readings[name];
+      return Array.isArray(value) ? value.length > 0 : Boolean(value);
+    });
+  };
+  let met = 0;
+  let declared = 0;
+  const shortfalls: string[] = [];
+  for (const entry of paragraphs) {
+    const unit = typeof entry.unit === "string" ? entry.unit : "(unnamed)";
+    const passages = Array.isArray(entry.passages)
+      ? entry.passages.filter((p): p is string => typeof p === "string")
+      : [];
+    // A DECLARED EXCEPTION IS OUTSIDE THE OBLIGATION, NOT SHORT OF IT. An entry may carry
+    // `status: "unexplained"` with a written reason, which is how this corpus records a unit no
+    // passage takes up -- special-relativity's s1-fn1, a footnote about events at nearly the same
+    // place, and s5-p8, the sentence closing the kinematic part. am-4k0m names those two as the
+    // model for declaring rather than fixing. Counting them short would report a false defect.
+    //
+    // The REASON is what makes it a declaration. A bare `status: "unexplained"` with nothing
+    // written excuses nothing, and falls through to the shortfall below, because an undeclared
+    // exception and a declared one must not measure the same.
+    const status = (entry as { status?: unknown }).status;
+    const reason = String((entry as { reason?: unknown }).reason ?? "").trim();
+    if (status === "unexplained" && reason.length > 0) {
+      declared += 1;
+      continue;
+    }
+    if (passages.length === 0) {
+      shortfalls.push(`${unit}: binds no passage`);
+      continue;
+    }
+    const gaps: string[] = [];
+    for (const passage of passages) {
+      const have = readingsOf(passage);
+      if (have === null) {
+        gaps.push(`${passage}: no record`);
+        continue;
+      }
+      const missing = READINGS.filter((name) => !have.includes(name));
+      if (missing.length > 0) gaps.push(`${passage}: missing ${missing.join("/")}`);
+    }
+    if (gaps.length === 0) met += 1;
+    else shortfalls.push(`${unit}: ${gaps.join("; ")}`);
+  }
+  const owing = paragraphs.length - declared;
+  const detail =
+    `${met} of ${owing} obliged paragraphs reach all four readings ` +
+    `(${READINGS.join(", ")}) through every passage they bind` +
+    (declared > 0
+      ? `; ${declared} declared unexplained with a written reason and outside the obligation`
+      : "") +
+    (shortfalls.length > 0 ? `; short: ${shortfalls.slice(0, 6).join(" | ")}` : "");
+  return cell("readings-r1-r3-per-paragraph", met, owing, detail);
+}
 
 /**
  * THE HISTORIAN'S MARGIN: TYPED AND COUNTED, AND STILL WITHOUT A DENOMINATOR.
@@ -504,10 +605,7 @@ export function paperDoneness(root: string, paper: DonenessPaper): PaperDoneness
   // The seven items this report cannot compute yet. Named, with the input that is missing, and never
   // counted as met. An item left out of the table entirely is the silent class this file is against.
   cells.push(
-    unmeasured(
-      "readings-r1-r3-per-paragraph",
-      "the readings owners declare their targets in content/editorial/readings-owners/, and no loader resolves a target to the paragraph it covers (am-cm-audit-scripts-d34)",
-    ),
+    readingsPerParagraphCell(root, paper),
     unmeasured(
       "r2-expands-r1",
       "no record states which R2 passage expands which R1 passage, so containment cannot be checked from the records",

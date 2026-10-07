@@ -60,6 +60,7 @@ function fixtureRoot(): string {
     // because show-the-code is a claim about what a reader is served.
     "content/experiments",
     `content/editorial-notes/${PAPER}`,
+    `content/arguments/${PAPER}`,
     "out/lab/me-01/index.html",
     "out/lab/me-02/index.html",
     "out/lab/me-03/index.html",
@@ -153,6 +154,79 @@ describe("the planted regressions", () => {
     const after = cellOf(paperDoneness(root, PAPER).cells, "printed-displays-bound");
     expect(after.state).toBe("short");
     expect(after.met).toBe(before.met - 1);
+  });
+
+  it("all four readings per obliged paragraph, with a declared exception excluded and a bare one not", () => {
+    // The reason here used to blame a missing loader for readings-owners targets. Measured across
+    // all 41 of those files, every one of their 63 targets is kind "caption" -- not one is a
+    // paragraph. A paragraph's readings come through its bound PASSAGES instead.
+    const root = fixtureRoot();
+    const before = cellOf(paperDoneness(root, PAPER).cells, "readings-r1-r3-per-paragraph");
+    expect(before.state).toBe("met");
+    expect(before.of).toBe(14);
+    expect(before.detail).toContain("overview, full, steps, margin");
+
+    const bindings = join(root, `content/bindings/${PAPER}.yaml`);
+    const original = readFileSync(bindings, "utf8");
+
+    // A passage missing one reading makes its paragraph short. Plant it on the argument record.
+    // Flow style in these files: `passages: [arg-me-import]`, not a block list. My first regex
+    // assumed a block and matched nothing, which is why the extraction is anchored on the bracket.
+    const passage = /passages:\s*\[\s*(arg-[a-z0-9-]+)/.exec(original)?.[1] as string;
+    expect(passage).toBeTruthy();
+    const argPath = join(root, `content/arguments/${PAPER}/${passage}.json`);
+    const argOriginal = readFileSync(argPath, "utf8");
+    const record = JSON.parse(argOriginal) as { readings: Record<string, unknown> };
+    delete record.readings.steps;
+    writeFileSync(argPath, JSON.stringify(record));
+    const missingStep = cellOf(paperDoneness(root, PAPER).cells, "readings-r1-r3-per-paragraph");
+    expect(missingStep.state).toBe("short");
+    // Several paragraphs bind one passage -- mass-energy's 14 paragraphs share a handful -- so a
+    // single missing reading costs more than one paragraph. Asserting `before.met - 1` was my own
+    // error, not the cell's: the real drop is to 7. The relation asserted is the true one, that
+    // every paragraph binding this passage loses its full set.
+    expect(missingStep.met).toBeLessThan(before.met);
+    expect(missingStep.met).toBeGreaterThan(0);
+    expect(missingStep.detail).toContain("missing steps");
+    expect(missingStep.detail).toContain(passage);
+    writeFileSync(argPath, argOriginal);
+
+    // An entry that binds no passage and declares nothing is SHORT.
+    writeFileSync(bindings, original.replace(/passages:\s*\[[^\]]*\]/, "passages: []"));
+    const unbound = cellOf(paperDoneness(root, PAPER).cells, "readings-r1-r3-per-paragraph");
+    expect(unbound.state).toBe("short");
+    expect(unbound.detail).toContain("binds no passage");
+
+    // The same entry, declared unexplained WITH a reason, leaves the obligation: the denominator
+    // falls by one and the cell is met again.
+    writeFileSync(
+      bindings,
+      original.replace(
+        /passages:\s*\[[^\]]*\]/,
+        'passages: []\n    status: unexplained\n    reason: "No passage of this paper takes this up."',
+      ),
+    );
+    const declaredOk = cellOf(paperDoneness(root, PAPER).cells, "readings-r1-r3-per-paragraph");
+    expect(declaredOk.state).toBe("met");
+    expect(declaredOk.of).toBe(before.of - 1);
+    expect(declaredOk.detail).toContain("1 declared unexplained");
+
+    // THE NEGATIVE THAT MATTERS: the same declaration with an EMPTY reason excuses nothing.
+    writeFileSync(
+      bindings,
+      original.replace(
+        /passages:\s*\[[^\]]*\]/,
+        'passages: []\n    status: unexplained\n    reason: ""',
+      ),
+    );
+    const bare = cellOf(paperDoneness(root, PAPER).cells, "readings-r1-r3-per-paragraph");
+    expect(bare.state).toBe("short");
+    expect(bare.of).toBe(before.of);
+    expect(bare.detail).toContain("binds no passage");
+    writeFileSync(bindings, original);
+    expect(cellOf(paperDoneness(root, PAPER).cells, "readings-r1-r3-per-paragraph").met).toBe(
+      before.met,
+    );
   });
 
   it("the margin cell reports its real count and still refuses a verdict, having no denominator", () => {
