@@ -345,6 +345,51 @@ outputs:
     quantityId: apparentSpeedRatio
     allowedStatuses:
       - value
+  # The arrays the camera views actually read, declared so their citations resolve. CameraPath reads
+  # times/idealPositions/blurredPositions/positions, CameraSpeed reads speedTimes/idealSpeeds/
+  # cameraSpeeds, and the numerical table adds stationaryClicks; all eight are in BM08_OUTPUTS with
+  # statuses ["value"]. The quantityId echoes the output id, as bm-05 does for walkPositions,
+  # traceTimes and coinPositions: no registered quantity names a per-frame array.
+  - id: times
+    quantityId: times
+    allowedStatuses:
+      - value
+    primary: false
+  - id: positions
+    quantityId: positions
+    allowedStatuses:
+      - value
+    primary: false
+  - id: idealPositions
+    quantityId: idealPositions
+    allowedStatuses:
+      - value
+    primary: false
+  - id: blurredPositions
+    quantityId: blurredPositions
+    allowedStatuses:
+      - value
+    primary: false
+  - id: stationaryClicks
+    quantityId: stationaryClicks
+    allowedStatuses:
+      - value
+    primary: false
+  - id: speedTimes
+    quantityId: speedTimes
+    allowedStatuses:
+      - value
+    primary: false
+  - id: idealSpeeds
+    quantityId: idealSpeeds
+    allowedStatuses:
+      - value
+    primary: false
+  - id: cameraSpeeds
+    quantityId: cameraSpeeds
+    allowedStatuses:
+      - value
+    primary: false
   - id: speedCrossover
     quantityId: observationInterval
     allowedStatuses:
@@ -410,18 +455,35 @@ owner:
       identifier: "increments"
       quantityId: displacement1d
 views:
+  # Each list names the OUTPUT ids its component reads. All three previously named quantity ids -
+  # "diffusionCoefficient", shared by the four estimators and three intervals, and "apparentSpeed",
+  # shared by the ideal and measured speeds - so none of them identified an output of this manifest.
   - id: camera-path
     kind: svg
     consumes:
-      - diffusionCoefficient
+      - times
+      - idealPositions
+      - blurredPositions
+      - positions
   - id: camera-speed
     kind: svg
     consumes:
-      - apparentSpeed
+      - speedTimes
+      - idealSpeeds
+      - cameraSpeeds
   - id: camera-table
     kind: table
     consumes:
-      - diffusionCoefficient
+      - times
+      - positions
+      - idealPositions
+      - blurredPositions
+      - stationaryClicks
+      - speedTimes
+      - naiveD
+      - centeredD
+      - covarianceD
+      - pairD
 actions:
   - actionId: bm-08-choose-camera-model-and-estimator
     family: probability-diffusion

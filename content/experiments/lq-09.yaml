@@ -256,7 +256,9 @@ views:
     kind: table
     consumes:
       - frequency
-      - ionizationEnergyPerMolecule
+      # Was "ionizationEnergyPerMolecule", which is this parameter's quantityId and not an id the
+      # manifest declares. A view consuming an input names the parameter, as lq-05's grid does.
+      - ionizationEnergyEv
       - excessEnergyEv
       - absorbedLightEnergy
       - absorbedQuantumRate

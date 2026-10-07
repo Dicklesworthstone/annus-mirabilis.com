@@ -152,6 +152,26 @@ outputs:
       - value
       - outside-domain
     primary: false
+  # The two electron-volt readings the mean-energy strip and lq-06-compare-mean-energies both name.
+  # They were computed, labelled and displayed without being declared here, so their statuses were
+  # undeclared while two sites cited them; LQ06_OUTPUTS admits all three statuses on each.
+  # quantityId: the Wien mean points at the registered semantic quantity, since an electron-volt
+  # display is the same quantity in another permitted unit. The molecule's (3/2)k_B*T has no
+  # registered quantity, so it echoes its output id, which is what quantumEnergyEv above already does.
+  - id: meanQuantumEnergyWienEv
+    quantityId: meanQuantumEnergyWien
+    allowedStatuses:
+      - value
+      - outside-domain
+      - not-applicable
+    primary: false
+  - id: moleculeMeanKineticEnergyEv
+    quantityId: moleculeMeanKineticEnergyEv
+    allowedStatuses:
+      - value
+      - outside-domain
+      - not-applicable
+    primary: false
   - id: meanEnergyRatio
     quantityId: meanEnergyRatio
     allowedStatuses:
