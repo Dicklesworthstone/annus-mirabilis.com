@@ -61,12 +61,27 @@ const cancel = (): Computation<never> => ({
   kind: "outcome",
   outcome: { outcome: "cancelled", ...executionOutcomeRegistry.cancelled },
 });
-export async function recordCameraPath(
+/**
+ * THE RECORDING'S ONE LOOP, AS A GENERATOR, so a synchronous caller and an asynchronous one cannot
+ * diverge (am-jzk1).
+ *
+ * The arithmetic here was always synchronous. The only `await` in the whole camera path was
+ * `yieldControl()`, a `setTimeout(0)` promise released every `chunkSteps` steps so a 4112-step loop does
+ * not hold the worker thread, with a cancellation check after it. That made `recordCameraPath` async, which
+ * made `measureBm08` async, which put BM-08's estimator and coverage outputs out of reach of the scenario
+ * registry entirely: `OwnerFn` is `(ctx) => OwnerResult`, synchronous, so four of bm-08's acceptance refs
+ * could not be written at all.
+ *
+ * So the loop yields instead of awaiting, and the two drivers below decide what a yield means. There is ONE
+ * body, so the numbers a worker gets and the numbers a test gets are identical by construction rather than
+ * by comparison - which is the whole reason for the generator over a copied loop.
+ */
+function* recordCameraPathSteps(
   setup: CameraSetup,
-  options: CameraOptions = {},
-  replicate = 0,
-  steps = CAMERA_GRID_STEPS,
-): Promise<Computation<CameraRecording>> {
+  options: CameraOptions,
+  replicate: number,
+  steps: number,
+): Generator<void, Computation<CameraRecording>, void> {
   try {
     parseU64(setup.seed);
   } catch {
@@ -103,8 +118,6 @@ export async function recordCameraPath(
     bridgeScale = Math.sqrt((setup.D * CAMERA_GRID_DT) / 6);
   if (!(scale > 0) || !(bridgeScale > 0) || !Number.isFinite(scale))
     return bad("The recording scale is outside the numerical range.");
-  const yieldControl =
-    options.yieldControl ?? (() => new Promise<void>((resolve) => setTimeout(resolve, 0)));
   for (let step = 0; step < steps; step++) {
     for (let c = 0; c < 2; c++) {
       const a = positions[step * 2 + c] ?? 0;
@@ -115,7 +128,9 @@ export async function recordCameraPath(
         return bad("The path cannot be represented at this scale.");
     }
     if ((step + 1) % chunk === 0) {
-      await yieldControl();
+      // The chunk boundary. The async driver releases the thread here and then checks cancellation,
+      // exactly where the `await yieldControl()` used to sit; the sync driver checks cancellation only.
+      yield;
       if (options.cancelled?.()) return cancel();
     }
   }
@@ -131,6 +146,49 @@ export async function recordCameraPath(
       bytes: positions.byteLength + averages.byteLength,
     }),
   };
+}
+
+/**
+ * The asynchronous driver, which is what the worker uses and what every existing caller already called.
+ * Its observable behaviour is unchanged: the same validations in the same order, a thread release and a
+ * cancellation check at each chunk boundary, and the same accepted record.
+ */
+export async function recordCameraPath(
+  setup: CameraSetup,
+  options: CameraOptions = {},
+  replicate = 0,
+  steps = CAMERA_GRID_STEPS,
+): Promise<Computation<CameraRecording>> {
+  const yieldControl =
+    options.yieldControl ?? (() => new Promise<void>((resolve) => setTimeout(resolve, 0)));
+  const run = recordCameraPathSteps(setup, options, replicate, steps);
+  for (;;) {
+    const step = run.next();
+    if (step.done) return step.value;
+    await yieldControl();
+  }
+}
+
+/**
+ * The synchronous driver, for a caller that IS one chunk - a scenario owner, or a test. It drains the same
+ * generator without releasing the thread, which is the honest reading of the runtime contract's "long work
+ * yields between chunks": a synchronous call has no later chunk to yield to.
+ *
+ * A `cancelled` predicate still works, because the generator checks it at every boundary; `yieldControl` is
+ * ignored, since there is nothing to yield to. 4112 steps of two coordinates is the whole recording, so
+ * this returns in the time one chunk of the async version would have taken plus the rest of the loop.
+ */
+export function recordCameraPathSync(
+  setup: CameraSetup,
+  options: CameraOptions = {},
+  replicate = 0,
+  steps = CAMERA_GRID_STEPS,
+): Computation<CameraRecording> {
+  const run = recordCameraPathSteps(setup, options, replicate, steps);
+  for (;;) {
+    const step = run.next();
+    if (step.done) return step.value;
+  }
 }
 export function cameraGrid(
   p: CameraObservation,
