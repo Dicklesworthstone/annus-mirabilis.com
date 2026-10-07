@@ -2,6 +2,7 @@ import { fileURLToPath } from "node:url";
 import { computeBm02Snapshot, DEFAULT_BM02_INPUTS } from "../../experiments/bm02/session.ts";
 import { BM03_DEFAULTS } from "../../experiments/bm03/definition.ts";
 import { evaluateBm03 } from "../../experiments/bm03/session.ts";
+import { BM08_DEFAULTS } from "../../experiments/bm08/definition.ts";
 import { createBm08Session } from "../../experiments/bm08/session.ts";
 import {
   declaredDomains,
@@ -115,6 +116,7 @@ import {
   transformChargeCurrent,
   transformSI,
 } from "../../physics/reference/fields.ts";
+import { bartlettBandsMA1, cameraMoments } from "../../physics/reference/inference/observation.ts";
 import {
   chiSquareInterval,
   empiricalCoverageFraction,
@@ -4008,6 +4010,101 @@ const OWNERS: OwnerRecord[] = [
         straightFinalX: straightX,
         longitudinalShortfall: straightX - finalX,
       };
+    },
+  },
+  /**
+   * BM-08's CAMERA MOMENTS: THE FIVE PRESETS A SYNCHRONOUS OWNER CAN REACH (am-nxbq, the preset class).
+   *
+   * BM-08 asks what camera noise, exposure blur and drift do to what displacement data can tell you. Its
+   * closed-form heart is `cameraMoments` in src/physics/reference/inference/observation.ts, which is pure,
+   * deterministic, parameter-taking and needs no seed and no worker:
+   *
+   *   variance         = 2 D (dt - exposure/3) + 2 sigma^2
+   *   covariance       = D exposure / 3 - sigma^2
+   *   naiveExpectation = variance / (2 dt) + drift^2 dt / (2 d)
+   *
+   * THE COVARIANCE'S SIGN IS THE WHOLE SUBJECT. Localization error makes neighbouring increments
+   * NEGATIVELY correlated and blur makes them POSITIVELY correlated, and the two also move the apparent
+   * speed in opposite directions - inflating it to 1.0455 of the ideal under noise, deflating it to 0.9161
+   * under blur. Two of these records are that pair, and neither is readable alone.
+   *
+   * DRIFT ENTERS ONLY `naiveExpectation`, which is why bm-08-drift-fluid and bm-08-drift-stage are an
+   * invariance pair rather than two measurements: the worker sums them (`totalDrift = flowDrift +
+   * stageDrift`) before calling cameraMoments, so the moments cannot tell a drifting FLUID from a drifting
+   * STAGE. The distinction is real and lives in the recorded latent path, where `recordCameraPath` uses
+   * flowDrift only; at the level of the measurement model it is invisible, and the pair of records says so.
+   * `naiveExpectationWithoutDrift` is exposed so a single record can state that the drift moved the naive
+   * estimate and left the variance and covariance alone.
+   *
+   * FOUR OF BM-08'S NINE PRESETS ARE NOT REACHABLE FROM HERE, and the reason is structural rather than
+   * missing work. bm-08-cve, bm-08-pairs-exact-coverage, bm-08-pairs-estimated-coverage and
+   * bm-08-overlap-refusal are about the ESTIMATORS and the coverage machinery, which come from
+   * `measureBm08` in src/workers/operations/bm08.ts - an `async` function - while `OwnerFn` is
+   * `(ctx: OwnerContext) => OwnerResult`, synchronous, and `runLoadedScenarios` is synchronous too.
+   * Nothing is stochastic about them: `recordCameraPath` is seeded and reproducible. They need either a
+   * synchronous measurement path or an async owner contract, which is a change to a shared gate and
+   * belongs to its owner. The four refs stay in acceptanceCasesBaseline.json naming that.
+   *
+   * A NOTE ON WHICH SETTINGS THESE ARE. bm-08's nine declared presets are reachable from NO page: the
+   * laboratory's four buttons set sigma 0.4e-6, exposure = dt and stageDrift 0.5e-6, which match none of
+   * the manifest's values. The inputs below are the MANIFEST's, because that is what the refs name, and
+   * the divergence is reported on am-hr4z.
+   */
+  {
+    id: "bm08.cameraMoments",
+    sourcePath: fileURLToPath(
+      new URL("../../physics/reference/inference/observation.ts", import.meta.url),
+    ),
+    fn: (ctx) => {
+      const known = ["D", "dt", "exposure", "sigma", "flowDrift", "stageDrift", "d", "M"];
+      for (const key of Object.keys(ctx.inputs))
+        if (!known.includes(key))
+          throw new OwnerContractError(
+            "owner-input-unknown",
+            `"${key}" is not a camera-moment input; this owner reads ${known.join(", ")}.`,
+          );
+      const D = ctx.inputs.D ?? BM08_DEFAULTS.D;
+      const dt = ctx.inputs.dt ?? BM08_DEFAULTS.dt;
+      const exposure = ctx.inputs.exposure ?? BM08_DEFAULTS.exposure;
+      const sigma = ctx.inputs.sigma ?? BM08_DEFAULTS.sigma;
+      const d = ctx.inputs.d ?? BM08_DEFAULTS.d;
+      const M = ctx.inputs.M ?? BM08_DEFAULTS.M;
+      // The worker sums the two drifts before it ever reaches the moments, so this owner does too.
+      const drift =
+        (ctx.inputs.flowDrift ?? BM08_DEFAULTS.flowDrift) +
+        (ctx.inputs.stageDrift ?? BM08_DEFAULTS.stageDrift);
+      const moments = cameraMoments({ D, dt, exposure, sigma, drift, d });
+      if (moments.kind !== "accepted")
+        return {
+          refused: {
+            outputId: "cameraMoments",
+            status: moments.kind === "refused" ? "outside-domain" : String(moments.kind),
+            reasonCode: "invalid-parameter",
+          },
+        };
+      const m = moments.data;
+      const numbers: Record<string, number> = {
+        expectedVariance: m.variance,
+        expectedCovariance: m.covariance,
+        naiveExpectation: m.naiveExpectation,
+        apparentSpeedIdeal: m.idealApparentSpeed,
+        apparentSpeedMeasured: m.measuredApparentSpeed,
+        apparentSpeedRatio: m.apparentSpeedRatio,
+      };
+      // Absent rather than invented when there is no crossover: it exists only for pure localization
+      // error, sigma > 0 with no exposure, so an exposed case has no such interval at all.
+      if (m.crossover !== null) numbers.speedCrossover = m.crossover;
+      // The same moments with the drift removed, so one record can say the drift moved the naive
+      // estimate and nothing else. A second call rather than an algebraic subtraction.
+      const undrifted = cameraMoments({ D, dt, exposure, sigma, drift: 0, d });
+      if (undrifted.kind === "accepted")
+        numbers.naiveExpectationWithoutDrift = undrifted.data.naiveExpectation;
+      const bands = bartlettBandsMA1(m.variance, m.covariance, M, d);
+      if (bands.kind === "accepted") {
+        numbers.sdVariance = bands.data.sdVariance;
+        numbers.sdCovariance = bands.data.sdCovariance;
+      }
+      return numbers;
     },
   },
 ];

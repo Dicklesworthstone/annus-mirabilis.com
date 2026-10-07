@@ -1,0 +1,69 @@
+# A drifting STAGE and a drifting FLUID are indistinguishable in the moments, and that is the record.
+#
+# WHICH SETTINGS: the manifest's single value, stageDrift 1e-7 m/s, with every other control at the
+# laboratory's default. It differs from bm-08-drift-fluid in exactly one control: which of the two drifts
+# carries the 1e-7.
+#
+# EVERY NUMBER HERE IS BYTE-IDENTICAL to bm-08-drift-fluid's, and that is the assertion rather than a
+# duplication. `src/workers/operations/bm08.ts` computes `totalDrift = p.flowDrift + p.stageDrift` and
+# passes the SUM to cameraMoments, so the measurement model sees one drift and cannot tell a moving fluid
+# from a moving stage. The two records carry the same four expectations so that a change making the moments
+# depend on which drift it was would turn exactly one of them red.
+#
+# AND THE DISTINCTION IS REAL, WHICH IS WHY THE PAIR MATTERS. `recordCameraPath` is given flowDrift only:
+# a fluid drift moves the PARTICLES, so the latent path itself is different, while a stage drift moves the
+# CAMERA over an unchanged latent path. In the runtime contract's terms one is a setup change and the other
+# a measurement change, and they are not interchangeable even though these four numbers are. A reader told
+# only that "drift biases the estimate" has lost that difference; a record pinning the equality without
+# saying where the difference lives would help them lose it.
+#
+# WHAT THIS RECORD CANNOT DO, measured rather than assumed, in the manner of sr-05-circle-0.6c: asking it
+# for flowDrift instead of stageDrift leaves it GREEN, because the sum is all the moments see. What
+# establishes that the two inputs are read at all is the pair against the no-drift default, since the
+# naive estimate moves in both. The latent-path difference is not reachable from a synchronous owner at
+# all, for the reason given on bm08.cameraMoments.
+id: "bm-08-drift-stage"
+kind: "adversarial"
+title: "BM-08's stage drift gives the same four moments as a fluid drift, because the model sees only their sum"
+description: "A stage drift of 100 nanometres per second produces exactly the same naive expectation, variance and covariance as a fluid drift of the same size, because the measurement model is given the sum of the two. The distinction is nonetheless real: a fluid drift moves the particles and changes the latent path, while a stage drift moves the camera over an unchanged one, which is a setup change against a measurement change. The pair of records asserts the equality so that a change making the moments depend on which drift it was turns exactly one of them red."
+plausibleMistake: "That a drifting stage and a drifting fluid are the same thing because they produce the same apparent motion, or conversely that the measurement model must distinguish them because they are physically different. Both halves are wrong in a way this pair of records pins: the moments cannot tell them apart, and the latent path can. Treating the equality as a statement about the physics loses the difference; treating the difference as visible in these numbers invents one."
+intendedFailure: "The two records carry identical expectations at settings differing only in which drift field is set, so an implementation in which the moments depended on that choice turns exactly one red and names the output. The record cannot detect being asked for flowDrift instead, since the sum is all the model sees, and says so; that both inputs are read is established by the pair against the no-drift default, where the naive estimate moves."
+provenance:
+  paper: brownian-motion
+  sectionId: s5
+  printedPage: 559
+  locator: "s5-p1, where the diffusion coefficient of section 3 is joined to the displacement of section 4 to be inferred from observation"
+constantSetId: "modern-si-2019"
+owner: "bm08.cameraMoments"
+inputs:
+  stageDrift:
+    value: 1.0e-7
+    unit: "m/s"
+expected:
+  outputs:
+    - outputId: naiveExpectation
+      value: 4.0036666666666665e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Identical to bm-08-drift-fluid's, which is the claim: the model adds the two drifts before using either."
+    - outputId: naiveExpectationWithoutDrift
+      value: 3.9786666666666666e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The no-drift value from a second evaluation, identical in both records. Pinned so the bias is a difference of computed numbers here too."
+    - outputId: expectedVariance
+      value: 7.957333333333333e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Unchanged by either drift, and identical in both records."
+    - outputId: expectedCovariance
+      value: 3.157333333333334e-14
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Also unchanged and identical. The fourth of four expectations the two records share, which is what gives the pair its discriminating power."
+modelVersion: 1
+schemaVersion: 1

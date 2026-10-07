@@ -1,0 +1,77 @@
+# A noisy camera makes the particle look FASTER than it is, by a factor this record names.
+#
+# WHICH SETTINGS: 2e-7 of localization error, no exposure, one coordinate, a one-second interval - the
+# manifest's values for `bm-08-apparent-speed-noise`, which are identical to `bm-08-noise-only`'s. Two
+# refs at one setting, so this record pins the APPARENT SPEED and that one pins the covariance's sign.
+# Neither is a copy of the other, and neither setting is offered by any page (am-hr4z).
+#
+# WHAT IS PINNED. The ideal apparent speed is 9.267577892847732e-7 m/s, which is sqrt(2 D dt)/dt: the
+# root-mean-square displacement per unit time that the diffusion alone would give. The MEASURED apparent
+# speed is 9.689582034329446e-7, and the ratio is 1.0455355375871616 - about four and a half per cent
+# high.
+#
+# AND THAT RATIO IS THE REASON THIS LABORATORY EXISTS. An apparent speed read off a noisy trace is larger
+# than the real one, and it grows without limit as the observation interval shrinks: the crossover at
+# sigma^2/D, 93 milliseconds here, is where the noise contributes as much as the diffusion, and below it
+# the apparent speed is mostly instrument. A reader who measures a Brownian particle's "speed" by dividing
+# a displacement by a short interval is measuring the camera. AGENTS.md's own list of adversarial fixtures
+# asks for exactly this: a claim that the walk has a finite instantaneous speed must fail.
+#
+# WHAT THE RECORD DOES NOT CLAIM. That 1.0455 is a correction factor. It holds at THIS interval and this
+# noise, and it is 1 when sigma is 0 and unbounded as dt falls; the companion record
+# bm-08-exposure-fixture gives 0.916 for blur, in the other direction. The pair of numbers is a
+# demonstration that the apparent speed is not a property of the particle.
+id: "bm-08-apparent-speed-noise"
+kind: "adversarial"
+title: "BM-08's noisy camera reports an apparent speed 4.6 per cent high, and unboundedly high at short intervals"
+description: "With 200 nanometres of localization error and no exposure, the apparent speed read from the measured trace is 1.0455 times the ideal one computed from the diffusion coefficient alone. The excess grows as the observation interval shrinks, and below the crossover at sigma squared over D, about 93 milliseconds here, the apparent speed is mostly instrument. A Brownian particle has no finite instantaneous speed, so a displacement divided by a short interval measures the camera rather than the particle."
+plausibleMistake: "That dividing a measured displacement by a short time gives the particle's speed, and that shorter intervals give a better estimate of it. Shorter intervals give a LARGER apparent speed without limit, because the diffusive displacement falls as the square root of the interval while the localization error does not fall at all. There is no finite instantaneous speed to converge on; the ratio pinned here is 1.0455 at one second and would exceed two below about 30 milliseconds."
+intendedFailure: "The measured apparent speed is formed from the noise-inflated variance while the ideal one is formed from D and dt alone, so the ratio exceeds one for any nonzero localization error. The scenario passes only when the two speeds and their ratio all hold; an implementation that computed the apparent speed from the latent path would return a ratio of exactly one and fail, and one that applied the inflation to both would return one as well."
+provenance:
+  paper: brownian-motion
+  sectionId: s5
+  printedPage: 559
+  locator: "s5-p1, where the diffusion coefficient of section 3 is joined to the displacement of section 4 to be inferred from observation"
+constantSetId: "modern-si-2019"
+owner: "bm08.cameraMoments"
+inputs:
+  sigma:
+    value: 2.0e-7
+    unit: "m"
+  exposure:
+    value: 0
+    unit: "s"
+  d:
+    value: 1
+    unit: "1"
+  dt:
+    value: 1
+    unit: "s"
+expected:
+  outputs:
+    - outputId: apparentSpeedRatio
+      value: 1.0455355375871616
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The measured apparent speed over the ideal one: 4.6 per cent high at a one-second interval. Above one, where blur in bm-08-exposure-fixture gives 0.916, below."
+    - outputId: apparentSpeedMeasured
+      value: 9.689582034329446e-7
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "sqrt(variance)/dt with the noise-inflated variance. Pinned so the ratio is a quotient of two stated numbers rather than a bare factor."
+    - outputId: apparentSpeedIdeal
+      value: 9.267577892847732e-7
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "sqrt(2 D dt)/dt: the diffusion alone, untouched by any camera effect. The same value in every bm-08 record, which is what makes the ratios comparable across them."
+    - outputId: speedCrossover
+      value: 0.0931445603576751
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "sigma^2/D: below this interval the localization error contributes more to the apparent displacement than the diffusion does. The quantity that turns the 4.6 per cent into an unbounded error at short intervals."
+modelVersion: 1
+schemaVersion: 1

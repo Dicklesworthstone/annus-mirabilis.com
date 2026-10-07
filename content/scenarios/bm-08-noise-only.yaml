@@ -1,0 +1,87 @@
+# Localization error makes neighbouring increments NEGATIVELY correlated (am-nxbq, the preset class).
+#
+# WHICH SETTINGS, AND A WARNING ABOUT THEM. bm-08's nine declared presets are reachable from NO page: the
+# laboratory's four buttons set sigma 0.4e-6, exposure = dt and stageDrift 0.5e-6, and none of those is a
+# manifest value. These inputs are the MANIFEST's, 2e-7 of localization error with no exposure in one
+# coordinate, because that is what the ref `bm-08-noise-only` names. The divergence is on am-hr4z.
+#
+# WHAT IS PINNED, AND THE SIGN IS THE WHOLE RECORD. The expected covariance between neighbouring increments
+# is -3.9999999999999994e-14, which is exactly -sigma^2: NEGATIVE. A localization error that is independent
+# from frame to frame appears in two consecutive increments with opposite signs, because each frame's error
+# ends one increment and begins the next. So noise does not merely add scatter; it makes successive
+# increments anti-correlated, and an estimator that assumes independent increments is therefore biased by
+# construction rather than by accident.
+#
+# THE VARIANCE IS INFLATED BY 2 sigma^2, to 9.3888e-13 against the 8.5888e-13 that pure diffusion over
+# this interval would give. Both numbers come from the same formula, variance = 2 D (dt - exposure/3) +
+# 2 sigma^2, with the exposure term absent here.
+#
+# AND THE CROSSOVER IS 0.0931445603576751 SECONDS, which is sigma^2/D: the observation interval below which
+# the localization error contributes more to the apparent displacement than the diffusion does. It exists
+# ONLY for pure localization error with no exposure, and the companion record bm-08-exposure-fixture
+# has no crossover at all, where the owner omits the field rather than reporting a number.
+#
+# THE BARTLETT STANDARD DEVIATIONS are pinned beside the moments, 1.3301846897329706e-13 and
+# 9.41432766797502e-14 over 100 frames, because a covariance of -4e-14 against a standard deviation of
+# 9.4e-14 is NOT significant in a single run: the record asserts the model's expectation, and the
+# uncertainty beside it is what stops that expectation being read as a measurement.
+id: "bm-08-noise-only"
+kind: "adversarial"
+title: "BM-08's localization error makes neighbouring increments anti-correlated, at exactly minus sigma squared"
+description: "With 200 nanometres of localization error and no exposure, the expected covariance between neighbouring displacement increments is minus sigma squared, negative, because each frame's error ends one increment and begins the next with opposite sign. The variance is inflated by twice sigma squared. The crossover interval below which noise dominates diffusion is sigma squared over D, about 93 milliseconds. The Bartlett standard deviation of the covariance over 100 frames is larger than the covariance itself, so the record asserts the model's expectation and not a measurement."
+plausibleMistake: "That localization error adds independent scatter to each measured position and therefore leaves neighbouring increments independent, so that averaging more frames removes it. The error is independent per FRAME, which makes it dependent across increments: it enters increment k with one sign and increment k+1 with the other. An estimator built on independent increments is then biased however many frames are averaged, which is the defect this whole laboratory exists to show."
+intendedFailure: "The covariance is formed as D times the exposure over three minus sigma squared, so with no exposure it is strictly negative for any nonzero noise. The scenario passes only when the covariance is minus sigma squared to a relative 1e-12 and the variance carries its twice-sigma-squared inflation; an implementation treating the error as independent scatter would return a covariance of zero and fail, while still producing a plausible variance."
+provenance:
+  paper: brownian-motion
+  sectionId: s5
+  printedPage: 559
+  locator: "s5-p1, where the diffusion coefficient of section 3 is joined to the displacement of section 4 to be inferred from observation"
+constantSetId: "modern-si-2019"
+owner: "bm08.cameraMoments"
+inputs:
+  sigma:
+    value: 2.0e-7
+    unit: "m"
+  exposure:
+    value: 0
+    unit: "s"
+  d:
+    value: 1
+    unit: "1"
+  dt:
+    value: 1
+    unit: "s"
+expected:
+  outputs:
+    - outputId: expectedCovariance
+      value: -3.9999999999999994e-14
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Exactly -sigma^2 with sigma 2e-7, since the exposure term is zero. The sign is the claim and it is asserted as a signed value, not a magnitude."
+    - outputId: expectedVariance
+      value: 9.3888e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "2 D dt + 2 sigma^2 with no exposure term: 8.5888e-13 of diffusion plus 8e-14 of noise. Pinned so the inflation is visible against a diffusion-only value."
+    - outputId: speedCrossover
+      value: 0.0931445603576751
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "sigma^2/D, the interval below which the localization error contributes more than the diffusion. It exists only for pure noise, and bm-08-exposure-fixture has none at all."
+    - outputId: sdCovariance
+      value: 9.41432766797502e-14
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The Bartlett standard deviation of the covariance over 100 frames, LARGER than the covariance it accompanies. Pinned so the negative covariance above is read as the model's expectation rather than as something one run would show."
+    - outputId: sdVariance
+      value: 1.3301846897329706e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The same band for the variance, about 14 per cent of it. Pinned for the same reason."
+modelVersion: 1
+schemaVersion: 1

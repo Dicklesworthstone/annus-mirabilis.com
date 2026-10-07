@@ -1,0 +1,69 @@
+# A drift biases the naive diffusion estimate and leaves the moments alone (am-nxbq, the preset class).
+#
+# WHICH SETTINGS: the manifest's single value, flowDrift 1e-7 m/s, with every other control at the
+# laboratory's default - a half-second exposure, 2e-7 of localization error, two coordinates. No page
+# offers it (am-hr4z).
+#
+# WHAT IS PINNED. The naive expectation rises to 4.0036666666666665e-13 from the 3.9786666666666666e-13 it
+# has with no drift, and the record pins BOTH, the second computed by running the identical settings with
+# the drift removed rather than subtracted algebraically. The difference is 2.5e-15, which is
+# drift^2 dt / (2 d) with d = 2: a drift enters the naive estimate as its SQUARE, so it cannot be cancelled
+# by averaging and it always biases upward, whichever way the drift points.
+#
+# AND THE VARIANCE AND COVARIANCE ARE UNCHANGED, 7.957333333333333e-13 and 3.157333333333334e-14, pinned
+# in the same record. That is the claim: a drift does not change the increment statistics about the mean,
+# it changes the mean. An estimator that subtracts a fitted drift recovers the diffusion; the naive one
+# that does not is biased by a term in drift squared. Pinning the two unchanged moments beside the moved
+# naive estimate is what makes "the drift biases only the naive estimate" checkable rather than asserted.
+#
+# THE COMPANION RECORD IS bm-08-drift-stage, and the two are an INVARIANCE PAIR: the worker sums
+# flowDrift and stageDrift into one totalDrift before computing the moments, so a drifting FLUID and a
+# drifting STAGE are indistinguishable at this level, and the pair asserts it. The distinction is real and
+# lives elsewhere - `recordCameraPath` uses flowDrift only, so a fluid drift moves the particles and a
+# stage drift moves the camera over the same latent path - which is a measurement-change against a
+# setup-change in the runtime contract's terms, and is not visible in these numbers.
+id: "bm-08-drift-fluid"
+kind: "adversarial"
+title: "BM-08's fluid drift biases the naive estimate as drift squared, and moves no moment"
+description: "A fluid drift of 100 nanometres per second raises the naive diffusion expectation from 3.9787 to 4.0037 times ten to the minus thirteenth, a difference of drift squared times the interval over twice the number of coordinates. The variance and the covariance of the increments are unchanged. A drift does not alter the increment statistics about the mean, it alters the mean, and because it enters as its square the bias is always upward and cannot be averaged away."
+plausibleMistake: "That a drift adds a systematic displacement which averages out over many increments, or that it cancels between increments in opposite directions. It enters the naive expectation as drift SQUARED, so both signs bias upward and more data does not help. The opposite mistake is to expect a drift to broaden the increment distribution; it does not, and this record pins the variance and covariance unchanged to say so."
+intendedFailure: "The drift appears in naiveExpectation alone, as its square over twice the coordinate count, and the variance and covariance are formed without it. The scenario passes only when the naive estimate has moved AND both moments have not; an implementation that added the drift to the variance would fail on expectedVariance, and one that treated it linearly would fail on the naive estimate's 2.5e-15 difference."
+provenance:
+  paper: brownian-motion
+  sectionId: s5
+  printedPage: 559
+  locator: "s5-p1, where the diffusion coefficient of section 3 is joined to the displacement of section 4 to be inferred from observation"
+constantSetId: "modern-si-2019"
+owner: "bm08.cameraMoments"
+inputs:
+  flowDrift:
+    value: 1.0e-7
+    unit: "m/s"
+expected:
+  outputs:
+    - outputId: naiveExpectation
+      value: 4.0036666666666665e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "variance/(2 dt) + drift^2 dt/(2 d) with d = 2: the drift contributes 2.5e-15 as its square."
+    - outputId: naiveExpectationWithoutDrift
+      value: 3.9786666666666666e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The same quantity from a SECOND evaluation with the drift set to zero, not an algebraic subtraction. Pinned so the bias is the difference of two computed numbers."
+    - outputId: expectedVariance
+      value: 7.957333333333333e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Unchanged by the drift: 2 D (dt - exposure/3) + 2 sigma^2 contains no drift term. The assertion that a drift moves the mean and not the spread."
+    - outputId: expectedCovariance
+      value: 3.157333333333334e-14
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Also unchanged, and positive here because the laboratory's default half-second exposure dominates its 2e-7 of noise. Pinned so a drift that leaked into the correlation would fail."
+modelVersion: 1
+schemaVersion: 1

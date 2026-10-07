@@ -1,0 +1,83 @@
+# Exposure blur makes the same increments POSITIVELY correlated, and shrinks the apparent speed.
+#
+# WHICH SETTINGS: the manifest's, 50 nanometres of localization error with a half-second exposure in a
+# one-second interval, one coordinate. As with every bm-08 record, no page offers these values; the
+# laboratory's own buttons use different ones, which is reported on am-hr4z.
+#
+# WHAT IS PINNED, AND IT IS THE OPPOSITE SIGN TO bm-08-noise-only. The expected covariance is
+# +6.907333333333333e-14, POSITIVE, where pure localization error gives a negative one. The formula is
+# D exposure / 3 - sigma^2, so blur contributes positively and noise negatively, and here the blur term
+# 7.157e-14 outweighs the noise term 2.5e-15. A finite exposure averages the motion during it, so part of
+# the same real displacement is shared between two consecutive increments; independent per-frame error is
+# shared with opposite sign. The two effects are not two sizes of one error, they have different signs.
+#
+# AND THE APPARENT SPEED GOES THE OTHER WAY TOO. The ratio of measured to ideal apparent speed is
+# 0.9160539658533704, BELOW one, where bm-08-apparent-speed-noise gives 1.0455355375871616, ABOVE one.
+# Blur smooths the trace and makes the particle look slower; noise roughens it and makes it look faster.
+# A reader who has seen only one of the two can take "camera error inflates the apparent speed" for a rule,
+# and it is not one.
+#
+# THERE IS NO CROSSOVER HERE, and the record does not name one. `speedCrossover` exists only for pure
+# localization error with no exposure, so the owner omits the field and a scenario naming it would receive
+# undefined and fail. That is the typed-result discipline: an interval that does not exist is absent, not
+# large.
+id: "bm-08-exposure-fixture"
+kind: "adversarial"
+title: "BM-08's exposure blur correlates increments positively and makes the particle look slower"
+description: "With a half-second exposure in a one-second interval and 50 nanometres of localization error, the expected covariance between neighbouring increments is positive, where pure localization error makes it negative: blur shares part of one real displacement between two increments while independent per-frame error shares it with opposite sign. The apparent speed falls to 0.916 of the ideal, where noise alone raises it to 1.046. The two effects have different signs, not different sizes, and there is no noise-dominated crossover interval at all."
+plausibleMistake: "That camera error of any kind inflates the apparent speed and the increment covariance, so the two corrections point the same way and a single empirical fudge could absorb both. Blur and localization error have OPPOSITE signs in both quantities: the covariance is D times exposure over three minus sigma squared, and the apparent speed ratio falls below one for blur and rises above it for noise. A correction calibrated on one makes the other worse."
+intendedFailure: "The covariance's two terms carry opposite signs by construction, so with the exposure term dominant the result is positive and the apparent speed ratio is below one. The scenario passes only when both hold; an implementation that treated exposure as additional noise would return a negative covariance and a ratio above one, failing on both, and one that ignored exposure entirely would also lose the 0.916."
+provenance:
+  paper: brownian-motion
+  sectionId: s5
+  printedPage: 559
+  locator: "s5-p1, where the diffusion coefficient of section 3 is joined to the displacement of section 4 to be inferred from observation"
+constantSetId: "modern-si-2019"
+owner: "bm08.cameraMoments"
+inputs:
+  sigma:
+    value: 5.0e-8
+    unit: "m"
+  exposure:
+    value: 0.5
+    unit: "s"
+  dt:
+    value: 1
+    unit: "s"
+  d:
+    value: 1
+    unit: "1"
+expected:
+  outputs:
+    - outputId: expectedCovariance
+      value: 6.907333333333333e-14
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "D exposure / 3 - sigma^2 = 7.1573e-14 - 2.5e-15. POSITIVE, against bm-08-noise-only's negative value, which is the pair's claim."
+    - outputId: apparentSpeedRatio
+      value: 0.9160539658533704
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "Below one: blur makes the particle look SLOWER. Against 1.0455355375871616 for noise alone, which is above one. Pinned in both records so the opposite directions are checkable."
+    - outputId: apparentSpeedMeasured
+      value: 8.489601482598187e-7
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "sqrt(variance)/dt. Pinned beside the ratio so the ratio is a quotient of two stated numbers."
+    - outputId: apparentSpeedIdeal
+      value: 9.267577892847732e-7
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "sqrt(2 D dt)/dt, the same in every bm-08 record because it depends on D and dt alone. The denominator of the ratio, and the quantity no camera effect touches."
+    - outputId: expectedVariance
+      value: 7.207333333333333e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "2 D (dt - exposure/3) + 2 sigma^2: the exposure REDUCES the variance, which is why the apparent speed falls. 7.207e-13 against the noise-only case's 9.389e-13."
+modelVersion: 1
+schemaVersion: 1
