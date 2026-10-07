@@ -105,8 +105,20 @@ describe("the definition-of-done ratchet", () => {
       for (const c of paper.cells) {
         const was = baseline[paper.paper]?.[c.item];
         if (!was || buildAbsent(c)) continue;
+        // A CELL THAT STARTED BEING MEASURED COUNTS AS IMPROVED, and it did not until 2026-10-07.
+        //
+        // The two arms below ask "did it reach met" and "did the numerator rise over the same
+        // denominator". Neither fires on `unmeasured 0/0` -> `short 11/13`: the state is not met and
+        // the denominator changed. So when journey-skeleton-parts became measurable, the new figure
+        // was not required in the baseline, and because the regression test's arms key on
+        // `was.state === "met"` and on an equal denominator, a slide straight back to unmeasured
+        // would also have passed. A measurement could appear and vanish with the ratchet silent
+        // both times, which is the one thing this file exists to prevent.
+        const startedMeasuring = was.state === "unmeasured" && c.state !== "unmeasured";
         const improved =
-          (was.state !== "met" && c.state === "met") || (c.of === was.of && c.met > was.met);
+          (was.state !== "met" && c.state === "met") ||
+          (c.of === was.of && c.met > was.met) ||
+          startedMeasuring;
         if (improved)
           slack.push(
             `  "${paper.paper}" / "${c.item}": {"state": "${c.state}", "met": ${c.met}, "of": ${c.of}}   (was ${was.state} ${was.met}/${was.of})`,
