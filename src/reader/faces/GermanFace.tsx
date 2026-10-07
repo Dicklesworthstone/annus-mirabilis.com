@@ -10,6 +10,7 @@ import type { FaceAvailability } from "../faceAvailability.ts";
 import { pageRanges } from "../ledgerGaps.ts";
 import { FACE_FALLBACK_IDS, faceLinkHref } from "../paperRoutes.ts";
 import { ROOT_ARMING_SOURCE } from "../rootArming.inline.ts";
+import { AliasHashRewrite } from "./AliasHashRewrite.tsx";
 import { AlignmentController } from "./AlignmentController.tsx";
 import { buildAlignmentIndex } from "./alignment.ts";
 import { withoutClaimedDisplays } from "./displayClaims.ts";
@@ -248,6 +249,11 @@ export function GermanFace({
         ) : null}
       </div>
       <AlignmentController index={alignmentIndex} />
+      {/* The retired-id anchors above already land the reader without any script
+          (aliasesOf, am-read-anchors-navigation-a6o). This only corrects the address bar, by
+          replaceState so Back is unaffected, and does nothing when the fragment was never
+          retired. */}
+      <AliasHashRewrite aliases={aliases} />
     </div>
   );
 }
