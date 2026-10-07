@@ -191,7 +191,13 @@ describe("the route's forks name their people and work each branch to an outcome
     const markup = fork("arg-fork-exner");
     expect(text(markup)).toContain("Felix Exner, 1900");
     expect(text(markup)).toContain("a quarter of the interval, twice the speed");
-    expect(markup).toContain('data-outcome-type="dead-end-on-constraint"');
+    // correct-but-weaker, not dead-end-on-constraint. Nothing refuted Exner's measurements, and
+    // the dead-end label renders to a reader as "Constrained by physical contradiction", which
+    // this route's own prose contradicts: "The measurements can be right and the comparison
+    // still fails." The schema agrees from the other side, since a measurement-choice fork may
+    // not dead-end on a constraint. Nägeli’s fork above is a real dead end and keeps that type.
+    expect(markup).toContain('data-outcome-type="correct-but-weaker"');
+    expect(markup).not.toContain('data-outcome-type="dead-end-on-constraint"');
     expect(markup).toContain('data-outcome-type="papers-route"');
   });
 

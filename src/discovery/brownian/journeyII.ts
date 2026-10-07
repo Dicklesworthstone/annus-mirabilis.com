@@ -33,7 +33,17 @@ export const MOVE: JourneyMove = {
   chainId: "bm-variance",
   stepId: "bm-variance-cross",
   r0Summary: {
-    text: "Square the sum of a particle's displacements over many short intervals. Each product of two different displacements averages to zero, because the displacements are independent and as likely to go one way as the other. What is left is the sum of their squares, and that grows in proportion to the time.",
+    // ONE SENTENCE, because the guard requires exactly one and this was three.
+    //
+    // It was three from the day it was written and nothing reported it, because `checkJourney`
+    // returns after its first schema error and this journey had one: the Exner branch's outcome
+    // type, repaired above. So brownian-motion read as "1 finding" while the move-summary guard,
+    // the fork contract and four voice checks never ran on it at all (am-4k0m).
+    //
+    // The three sentences are restructured, not rewritten: the claim, its reason and its
+    // consequence are the same three in the same order, and no new claim enters. 53 words against
+    // the guard's ceiling of 100, no mathematics, and the review state stays `draft`.
+    text: "Squaring the sum of a particle's displacements over many short intervals leaves only the sum of their squares, because each product of two different displacements averages to zero when the displacements are independent and as likely to go one way as the other, and that surviving sum grows in proportion to the time.",
     reviewState: "draft",
   },
 };
@@ -238,7 +248,32 @@ export const FORK_EXNER: Fork = {
         },
       ],
       outcome: {
-        type: "dead-end-on-constraint",
+        // NOT dead-end-on-constraint, and the reason is about Exner rather than about the schema.
+        //
+        // No observation refuted him. The docblock above this fork says it already -- "Exner's
+        // measurements are taken as careful; what fails is the comparison" -- and the branch's own
+        // worksWhen grants that "a speed over a named interval is something you can measure and
+        // report". A dead-end-on-constraint outcome asserts a physical contradiction, and
+        // `OUTCOME_TYPE_LABELS` renders it to the reader as "Constrained by physical contradiction"
+        // (src/discovery/Branch.tsx). That is a false thing to tell a reader about this work, and
+        // AGENTS.md is explicit that "a failed alternative must fail on a stated constraint or
+        // observation" and that nobody is mocked. What fails here is a comparison between a
+        // quantity that depends on the observer's interval and one that does not.
+        //
+        // The schema reaches the same answer from the other side: this is the corpus's only
+        // `measurement-choice` fork, and `fork-measurement-choice-cannot-dead-end` forbids that
+        // outcome for one, because choosing what to measure is not a claim nature can refute. The
+        // record was therefore invalid, which is how this was found -- checkJourney running over
+        // the real journeys at last (am-4k0m), rather than over the fixture.
+        //
+        // Of the four remaining types this is the only honest one: the measurement is a valid
+        // consequence of what Exner did and less general than it appears, which is what
+        // "Valid consequence, but less general" says. empirically-equivalent-not-refuted would
+        // need a scopeNote naming an observable class, and this number is not equivalent to
+        // anything, since it has no limit as the interval shrinks.
+        // undecided-on-available-evidence would need a measurement that settles it, and none does:
+        // the quantity is ill-posed rather than unmeasured.
+        type: "correct-but-weaker",
         plainLanguage:
           "The measurements can be right and the comparison still fails: for a randomly kicked particle, an apparent speed is set by the interval as much as by the particle.",
       },

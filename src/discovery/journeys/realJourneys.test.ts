@@ -40,17 +40,30 @@ import { REAL_JOURNEYS } from "./realJourneys.ts";
 import { SHELF_CARD_CONTEXT } from "./shelves.ts";
 
 /**
- * The one error that stands, named by paper and rule.
+ * EMPTY, AND IT IS A FLOOR OF ZERO NOW RATHER THAN AN EXEMPTION.
  *
- * A record of a debt, not a budget: any other error fails, and if this one is repaired the final test
- * below fails until the line is removed, so the ceiling comes down with the work.
+ * It held `brownian-motion/missing-constraint-ref`, with the note that "if this one is repaired the
+ * final test below fails until the line is removed, so the ceiling comes down with the work". It was
+ * repaired, so the line came out. The four real journeys now produce no error of any rule.
+ *
+ * Keeping the constant rather than deleting it is deliberate: the two tests below read it, and an
+ * empty list makes them assert zero errors instead of a named exception. A new error therefore fails
+ * on arrival with nothing to add it to.
  */
-const DECLARED_ERRORS: readonly string[] = Object.freeze([
-  "brownian-motion/missing-constraint-ref",
-]);
+const DECLARED_ERRORS: readonly string[] = Object.freeze([]);
 
-/** Informational voice warnings, counted. A ceiling, so a new violation is caught. */
-const VOICE_WARNING_CEILING = 7;
+/**
+ * Informational voice warnings, counted. A ceiling, so a new violation is caught.
+ *
+ * SEVEN UNTIL 2026-10-07, AND THE FOUR ADDED ARE NOT NEW DEBT -- they were masked. `checkJourney`
+ * returns after its first schema error, and brownian-motion had one, so that journey reported a
+ * single finding and its remaining branches were never reached. Repairing the Exner outcome let the
+ * run see them: brownian-motion went from 1 finding to 4, all of them pre-existing matches on the
+ * word "independent" in prose written long before. The count rose because the instrument started
+ * working, which is the one reason a ceiling may rise, and the per-paper breakdown asserted below is
+ * what makes a future masking visible instead of inferable.
+ */
+const VOICE_WARNING_CEILING = 11;
 
 const ROOT = process.cwd();
 
@@ -140,15 +153,39 @@ describe("checkJourney over the real journeys, not the fixture", () => {
     expect(warnings.length).toBeLessThanOrEqual(VOICE_WARNING_CEILING);
     // Non-vacuity: there really are warnings, so the ceiling is measuring something.
     expect(warnings.length).toBeGreaterThan(0);
+    // THE PER-PAPER BREAKDOWN, because a total cannot show masking. brownian-motion reported one
+    // finding for as long as its schema error stood, and a falling total would have read as an
+    // improvement. Pinned per paper, a journey that goes quiet is visible on the line that names it.
+    // These are counts of informational matches on existing prose, so they are reported rather than
+    // asserted as a property; the equality is here because its failure is the signal.
+    const perPaper = Object.fromEntries(
+      findingsByPaper.map((r) => [
+        r.paper,
+        r.findings.filter((f) => f.severity === "warning").length,
+      ]),
+    );
+    expect(perPaper).toEqual({
+      "light-quanta": 5,
+      "brownian-motion": 4,
+      "special-relativity": 2,
+      "mass-energy": 0,
+    });
+    // And every paper was actually run, so a missing key cannot pass as a zero.
+    expect(Object.keys(perPaper).sort()).toEqual(REAL_JOURNEYS.map((j) => j.paper).sort());
   });
 
   it("the declared error is still real, so the exception cannot outlive its reason", () => {
-    // The tightening half. If the Exner branch gains a constraintRef, this fails and the line comes
-    // out of DECLARED_ERRORS -- a baseline that only ever protects is a budget.
+    // The tightening half, and with DECLARED_ERRORS empty it has to say so directly: a
+    // `for (const d of [])` loop asserts nothing, so the paid-off version of this test would have
+    // been vacuous and green. Assert the zero instead.
     const errors = findingsByPaper.flatMap((r) =>
       r.findings.filter((f) => f.severity === "error").map((f) => `${r.paper}/${f.rule}`),
     );
     for (const declared of DECLARED_ERRORS) expect(errors).toContain(declared);
+    expect(errors).toEqual([]);
+    // Non-vacuity: the run produced findings, so "no errors" is a verdict about a population that
+    // was examined rather than about one nothing looked at.
+    expect(findingsByPaper.flatMap((r) => r.findings).length).toBeGreaterThan(0);
   });
 
   it("every dead end that names a constraint names one on its own shelf", () => {
@@ -179,8 +216,9 @@ describe("checkJourney over the real journeys, not the fixture", () => {
     expect(deadEnds.length).toBeGreaterThan(2);
     // A reference that points off the shelf is worse than none: it reads as checked and is not.
     expect(offShelf).toEqual([]);
-    // Exactly the one declared debt names no constraint.
-    expect(unreferenced).toEqual(["brownian-motion/arg-branch-apparent-speed"]);
+    // Every dead end now names its constraint. The Exner branch used to be the exception and is no
+    // longer a dead end at all: it is `correct-but-weaker`, because nothing refuted the measurement.
+    expect(unreferenced).toEqual([]);
   });
 
   it("THE RECORD IS FAITHFUL: each content/journeys YAML parses back to the composed journey", () => {
@@ -236,11 +274,9 @@ describe("checkJourney over the real journeys, not the fixture", () => {
     for (const journey of REAL_JOURNEYS) {
       const path = resolve(ROOT, `content/journeys/${journey.paper}.yaml`);
       const parsed = loadYaml(readFileSync(path, "utf8"));
-      if (journey.paper === "brownian-motion") {
-        // The one declared debt: its Exner dead end names no constraint, so the schema refuses it.
-        expect(() => validateJourney(parsed)).toThrow(/missing-constraint-ref/);
-        continue;
-      }
+      // All four validate since the Exner outcome was repaired. brownian-motion was asserted to
+      // THROW missing-constraint-ref here, which is what a declared debt looks like in a test and is
+      // the assertion that had to be inverted when the debt was paid.
       expect(() => validateJourney(parsed)).not.toThrow();
     }
   });

@@ -57,7 +57,7 @@ forks:
           - text: 'Now change τ. For a particle kicked at random the displacement grows only as the square root of τ, so the displacement divided by τ grows as the interval shrinks: a quarter of the interval, twice the speed.'
           - text: So the number depends on how often you look, and it has no limit as you look more often. It is not a property of the particle, and comparing it with the speeds of molecules compares nothing.
         outcome:
-          type: dead-end-on-constraint
+          type: correct-but-weaker
           plainLanguage: 'The measurements can be right and the comparison still fails: for a randomly kicked particle, an apparent speed is set by the interval as much as by the particle.'
       - id: arg-branch-displacement
         label: Measure how far it gets in a given time
@@ -104,7 +104,7 @@ move:
   chainId: bm-variance
   stepId: bm-variance-cross
   r0Summary:
-    text: Square the sum of a particle's displacements over many short intervals. Each product of two different displacements averages to zero, because the displacements are independent and as likely to go one way as the other. What is left is the sum of their squares, and that grows in proportion to the time.
+    text: Squaring the sum of a particle's displacements over many short intervals leaves only the sum of their squares, because each product of two different displacements averages to zero when the displacements are independent and as likely to go one way as the other, and that surviving sum grows in proportion to the time.
     reviewState: draft
 worldChecks:
   - id: bm-world-check-displacement
