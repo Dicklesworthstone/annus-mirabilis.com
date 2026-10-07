@@ -30,7 +30,7 @@ test("walkthrough selection responds to native browser events and releases its l
         search: "?walkthrough=the-boost-to-0.6c&stop=7",
         seen: [] as unknown[], dispose: () => {},
       };
-      (window as Window & { navigationTest?: typeof state }).navigationTest = state;
+      (window as unknown as Window & { navigationTest?: typeof state }).navigationTest = state;
       state.dispose = module.observeWalkthroughLocation({
         get location() { return { search: state.search }; },
         addEventListener: window.addEventListener.bind(window),
@@ -41,12 +41,12 @@ test("walkthrough selection responds to native browser events and releases its l
           ? `Instructions at action ${next.selection?.actionIndex}` : next.kind;
       });
     }, moduleUrl);
-    const latest = () => page.evaluate(() => (window as Window & { navigationTest: { seen: unknown[] } }).navigationTest.seen.at(-1));
+    const latest = () => page.evaluate(() => (window as unknown as Window & { navigationTest: { seen: unknown[] } }).navigationTest.seen.at(-1));
     assert.deepEqual(await latest(), { kind: "selected", selection: { tapeId: "the-boost-to-0.6c", actionIndex: 7 } });
     assert.equal(await page.locator("output").textContent(), "Instructions at action 7");
     async function address(search: string, event: "popstate" | "pageshow") {
       await page.evaluate(({ search, event }) => {
-        (window as Window & { navigationTest: { search: string } }).navigationTest.search = search;
+        (window as unknown as Window & { navigationTest: { search: string } }).navigationTest.search = search;
         window.dispatchEvent(new Event(event));
       }, { search, event });
     }
@@ -60,14 +60,14 @@ test("walkthrough selection responds to native browser events and releases its l
     assert.equal((await latest() as { kind: string }).kind, "invalid");
     assert.equal(await page.locator("output").textContent(), "invalid", "do not retain stale instructions");
     const count = await page.evaluate(() => {
-      const state = (window as Window & { navigationTest: { seen: unknown[]; dispose(): void } }).navigationTest;
+      const state = (window as unknown as Window & { navigationTest: { seen: unknown[]; dispose(): void } }).navigationTest;
       state.dispose();
       state.dispose();
       return state.seen.length;
     });
     await address("?walkthrough=the-boost-to-0.6c&stop=0", "popstate");
     await address("?walkthrough=the-boost-to-0.6c&stop=0", "pageshow");
-    assert.equal(await page.evaluate(() => (window as Window & { navigationTest: { seen: unknown[] } }).navigationTest.seen.length), count);
+    assert.equal(await page.evaluate(() => (window as unknown as Window & { navigationTest: { seen: unknown[] } }).navigationTest.seen.length), count);
     assert.deepEqual(errors, []);
     console.log("walkthrough event delivery: initial selection, forward/backward address changes, pageshow, invalid query, disposal and no page errors verified; address is a test port");
   } catch (error) {

@@ -4,12 +4,14 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadWalkthroughCatalogue } from "../src/content/walkthroughs.ts";
-import { buildCheckpointLaunches } from "../src/experiments/permalink/checkpointLaunches.ts";
+import { buildCheckpointLaunches,
+  type CheckpointLaunchCatalogue,
+} from "../src/experiments/permalink/checkpointLaunches.ts";
 import { settingsFromTape } from "../src/experiments/permalink/sessionTape.ts";
 import { buildPresetLaunch } from "./generate-capstone-links.ts";
 import { DRAFT_BINDINGS, SESSION_BINDINGS } from "./generate-tape-links.ts";
 
-export function buildCheckpointLinks(root: string = process.cwd()) {
+export function buildCheckpointLinks(root: string = process.cwd()): CheckpointLaunchCatalogue {
   return buildCheckpointLaunches(loadWalkthroughCatalogue(root), (experimentId, recorded) => {
     const binding = SESSION_BINDINGS[experimentId] ?? DRAFT_BINDINGS[experimentId];
     if (!binding) return {

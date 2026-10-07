@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { loadWalkthroughCatalogue } from "../src/content/walkthroughs.ts";
+import type { CheckpointLaunchStop } from "../src/experiments/permalink/checkpointLaunches.ts";
 import { decodeTapePermalink, MAX_PERMALINK_URL_LENGTH } from "../src/experiments/permalink/codec.ts";
 import { settingsFromTape } from "../src/experiments/permalink/sessionTape.ts";
 import { readWalkthroughLocation, resolveWalkthroughLocation, WALKTHROUGH_URL_LIMIT } from "../src/experiments/permalink/walkthroughLocation.ts";
@@ -25,7 +26,7 @@ test("every recorded stop is retained and every ready link carries that stop's a
     multiStop ||= walkthrough.checkpoints.length > 1;
     for (const [index, checkpoint] of walkthrough.checkpoints.entries()) {
       stops++;
-      const stop = generatedWalkthrough.stops[index];
+      const stop: CheckpointLaunchStop | undefined = generatedWalkthrough.stops[index];
       assert.ok(stop);
       assert.equal(stop.label, checkpoint.label);
       const launch = stop.launch;
