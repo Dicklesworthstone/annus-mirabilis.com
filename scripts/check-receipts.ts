@@ -293,11 +293,32 @@ export async function runCheckReceipts(rawArgs: string[] = process.argv.slice(2)
   );
   // The census line (am-rc1001-bridge-plan-pcjk.9). Measured 2026-10-06: 10 receipt files, 0 errors,
   // 43 flags. A floor of 6 is one per pinned facsimile: fewer means the receipt directory was not read.
+  // Re-measured 2026-10-07: SIX files checked, 0 errors, 43 flags - the flags agree and the count does
+  // not, because this script reads docs/provenance at depth one and there are 6 receipts there against
+  // 12 in the tree, the rest under datasets/ and other subdirectories. So the floor now sits exactly on
+  // its population: one retired receipt turns it vacuous. That is the correct direction for a floor to
+  // be tight in, and it is said out loud here because a floor equal to its corpus is easy to read as
+  // slack when it is the opposite.
+  //
+  // THE FLOOR IS A STATEMENT ABOUT A FULL CORPUS RUN, AND `--key` IS NOT ONE. Measured 2026-10-07:
+  // `bun scripts/check-receipts.ts --key ap-17-549` printed "1 files checked, 0 errors, 0 flags" and
+  // then exited 1 on its own census, because one file is below six. Four node-lane tests call this
+  // script with exactly that flag - the ap-17-549, ap-17-132 and ap-17-891 receipt checks in the three
+  // manifest e2e suites, and the single-receipt case in the CLI suite - and all four failed on a clean
+  // corpus while the summary line above them said zero errors.
+  //
+  // So the floor follows the population the caller asked for: six for the directory, one for a named
+  // key. It is NOT disabled under --key, which would be the easy wrong answer: `--key no-such-receipt`
+  // examines zero files and must still be vacuous, because a key that matches nothing is precisely the
+  // case a census exists to catch. AGENTS.md's own rule is that a population floor belongs to its
+  // corpus, and a narrowed run has a narrower corpus rather than no floor.
   const censusVacuous = reportPopulation({
     gate: "receipts",
     examined: filesChecked,
-    noun: "provenance receipt files",
-    minimum: 6,
+    noun: options.key
+      ? `provenance receipt files matching --key ${options.key}`
+      : "provenance receipt files",
+    minimum: options.key ? 1 : 6,
   });
   console.log(`Log written to: ${logFile}`);
 
