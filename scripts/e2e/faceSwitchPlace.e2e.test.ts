@@ -413,3 +413,113 @@ test("criterion 2: a switch to facsimile shows the sentence's page", {
     );
   });
 });
+
+/**
+ * CRITERION 4: "A split English sentence maps to its German source and back."
+ *
+ * A German sentence that English must break in two keeps the source id with a letter suffix
+ * (docs/CONTENT_IDS.md), so `s1-p10-s1a` and `s1-p10-s1b` are English-only and `s1-p10-s1` is what
+ * the German face renders.
+ *
+ * THE TWO DIRECTIONS ARE NOT SYMMETRIC, and the asymmetry is not the one the criterion's wording
+ * suggests. Measured in the built relativity faces:
+ *
+ *     62 English split halves, and 0 of the 62 appear on the German face
+ *     the unsuffixed source id appears on BOTH faces (223 shared sentence ids; 223 + 62 = the
+ *     English face's 285)
+ *
+ * So the forward direction genuinely needs the variant walk -- the German face has no
+ * `s1-p10-s1a` and `contentIdVariants` truncates it to the source -- while the return direction is
+ * served by EXACT MATCH, because the English face publishes the source id too.
+ *
+ * That makes the return the more interesting assertion rather than the lesser one. `resolvedFaceAnchor`
+ * tries the requested id before any variant, so a reader coming back from German lands on the whole
+ * sentence. Reorder those two steps -- prefer the `a` half, which contentIdVariants lists first --
+ * and the reader is silently sent to HALF of the sentence they were reading. Nothing else in the
+ * suite would notice, because both ids exist and both are in the right place.
+ *
+ * The first draft of this lane asserted that the English face does NOT publish the source id, which
+ * is false, and its own guard caught it: `s1-p10-s1 IS on the English face, so this pair does not
+ * test a split`. The guard is kept below, inverted to state the fact it found.
+ */
+test("criterion 4: a split English sentence maps to its German source and back", {
+  timeout: 180_000,
+}, async (ctx) => {
+  await lane("split-sentence-round-trip", async (page, note) => {
+    const HALF = "s1-p10-s1a";
+    const OTHER_HALF = "s1-p10-s1b";
+    const SOURCE = "s1-p10-s1";
+
+    // FORWARD: the English half carries to the German face and lands on the unsuffixed source.
+    await page.goto(`${ORIGIN}/papers/${PAPER}/view/english/#${HALF}`, { waitUntil: "load" });
+    await settle(page);
+    assert.notEqual(await topOf(page, HALF), null, `${HALF} is not on the English face`);
+    assert.notEqual(
+      await topOf(page, OTHER_HALF),
+      null,
+      `${OTHER_HALF} is not on the English face`,
+    );
+    // The fact the first draft got backwards: the English face publishes the source id as well as
+    // its two halves. That is what makes the return direction an exact match.
+    assert.notEqual(
+      await topOf(page, SOURCE),
+      null,
+      `${SOURCE} is NOT on the English face; the measured corpus says it is`,
+    );
+
+    await page.locator('a[data-view-link="german"]').first().click();
+    await page.waitForURL(/\/view\/german\//, { timeout: 60_000 });
+    await settle(page);
+    const germanTop = await topOf(page, SOURCE);
+    assert.notEqual(germanTop, null, `${SOURCE} is not on the German face`);
+    // The half must NOT be there, or the mapping was never exercised and this lane proves nothing.
+    assert.equal(
+      await topOf(page, HALF),
+      null,
+      `${HALF} IS on the German face, so no variant walk happened`,
+    );
+    // And the URL names what the reader is at, which is the source id rather than the half they
+    // arrived on: a copied URL has to address something this face publishes.
+    assert.match(
+      page.url(),
+      new RegExp(`#${SOURCE}$`),
+      `the German URL still names a half: ${page.url()}`,
+    );
+    const forward = `forward: ${HALF} (English-only) -> ${SOURCE} at ${(germanTop as number).toFixed(1)}px`;
+    ctx.diagnostic(forward);
+    note(forward);
+
+    // BACK: exact match wins over the variant preference, so the reader returns to the WHOLE
+    // sentence and not to its first half.
+    await page.locator('a[data-view-link="english"]').first().click();
+    await page.waitForURL(/\/view\/english\//, { timeout: 60_000 });
+    await settle(page);
+    assert.notEqual(
+      await topOf(page, SOURCE),
+      null,
+      `${SOURCE} is not on the English face after the return`,
+    );
+    assert.match(
+      page.url(),
+      new RegExp(`#${SOURCE}$`),
+      `the return URL is ${page.url()}, not the whole sentence: exact match must beat the 'a' half that contentIdVariants lists first`,
+    );
+    const back = `back: ${SOURCE} -> ${SOURCE} by exact match, not to ${HALF}`;
+    ctx.diagnostic(back);
+    note(back);
+
+    // CONTROL. Both halves of this would pass for an implementation that ignored the fragment IF
+    // the ids happened to sit at the top of each face. So check the reader was actually moved.
+    const depth = await page.evaluate(() => ({
+      scrollY: Math.round(window.scrollY),
+      docHeight: document.documentElement.scrollHeight,
+    }));
+    const ctl = `control: landed at scrollY ${depth.scrollY} of ${depth.docHeight}px`;
+    ctx.diagnostic(ctl);
+    note(ctl);
+    assert.ok(
+      depth.scrollY > 200,
+      `the round trip ended at scrollY ${depth.scrollY}; nothing navigated`,
+    );
+  });
+});
