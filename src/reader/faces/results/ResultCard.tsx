@@ -145,6 +145,15 @@ export function ResultCard({
       className="result-card"
       id={`result-${card.resultId}`}
       data-result-id={card.resultId}
+      // THE SECTION THIS CARD ANSWERS FOR, so a reader switching to this face from a source
+      // sentence lands on the card for the section they were reading
+      // (am-read-anchors-navigation-a6o criterion 2, "a switch to results shows the section's
+      // results"). The association already existed in the record (`section:` in
+      // content/results/<paper>.yaml, projected to `sectionAnchors` by fromRecords.ts) and in the
+      // card's own eyebrow text; it was simply not addressable from the DOM, so the only client
+      // -side proxy was `data-printed-anchor`, which names an anchor the card QUOTES rather than
+      // the section it belongs to. Those differ wherever a card quotes a neighbouring section.
+      data-sections={card.sectionAnchors.join(" ")}
       aria-labelledby={`result-${card.resultId}-heading`}
     >
       <header>

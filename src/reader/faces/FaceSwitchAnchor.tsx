@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { type AnchorKind, parseAnchor } from "../../content/anchors.ts";
+import { type AnchorKind, parseAnchor, sectionAnchorOf } from "../../content/anchors.ts";
+import { mapToResultsFace } from "../anchors/mapToFace.ts";
 import { capturePlace, restoreDelta } from "../anchors/placeKeeper.ts";
 import { contentIdVariants, isSentenceContentId } from "../weave/contentIds.ts";
 
@@ -144,6 +145,46 @@ export function resolvedFaceAnchor(
   return null;
 }
 
+/**
+ * THE RESULTS FACE PUBLISHES NO SOURCE ANCHORS, so a carried sentence id lands nowhere on it.
+ * Measured in the built relativity results face: 16 cards, 186 ids, and ZERO sentence, paragraph or
+ * section ids. Criterion 2 of am-read-anchors-navigation-a6o asks that "a switch to results shows
+ * the section's results", so the id has to be mapped, not carried.
+ *
+ * `mapToResultsFace` is the owner of that mapping and takes a section -> result-ids index. The index
+ * is read from the DOM, because the association is already published there: each card carries
+ * `data-sections`, projected from the `section:` field of content/results/<paper>.yaml. Nothing new
+ * is computed here and no second copy of the association exists.
+ *
+ * WHY THE FULL FACE RATHER THAN A REDIRECT TO THE SECTION-SCOPED ROUTE. Those routes exist and are
+ * built, and sending the reader to `/papers/<paper>/<section>/view/results/` was the first design.
+ * Measured across the four papers: 29 section-scoped results routes, of which THREE are empty --
+ * light-quanta s0, brownian-motion s0 and s2 declare no result cards. A redirect would land a
+ * reader reading those sections on a page with nothing on it, which is worse than not redirecting,
+ * and the client cannot know which sections are empty without being told. Resolving on the full
+ * face degrades the right way instead: a section with cards scrolls to its first one, and a section
+ * without any leaves the reader on the complete results face.
+ */
+export function resultsAnchorForSource(
+  sourceId: string,
+  cards: readonly Readonly<{ resultId: string; sections: readonly string[] }>[],
+): string | null {
+  const section = sectionAnchorOf(sourceId);
+  if (section === null) return null;
+  const resultsBySection: Record<string, string[]> = {};
+  for (const card of cards) {
+    for (const s of card.sections) {
+      const list = resultsBySection[s] ?? [];
+      list.push(`result-${card.resultId}`);
+      resultsBySection[s] = list;
+    }
+  }
+  // `units: []` because no parent-chain walk is wanted here: a section with no cards must return
+  // nothing rather than climbing to a neighbour's results, and mapToResultsFace does not walk.
+  const anchors = mapToResultsFace(section, { units: [], resultsBySection });
+  return anchors[0] ?? null;
+}
+
 export function FaceSwitchAnchor() {
   useEffect(() => {
     const raw = window.location.hash.startsWith("#")
@@ -157,7 +198,20 @@ export function FaceSwitchAnchor() {
       // A malformed percent-escape names no anchor; leave the page as the browser left it.
       return;
     }
-    const resolved = resolvedFaceAnchor(requested, (id) => document.getElementById(id) !== null);
+    const present = (id: string) => document.getElementById(id) !== null;
+    const resolved =
+      resolvedFaceAnchor(requested, present) ??
+      // Nothing in the source grammar is on this page. If it is the results face, the carried id
+      // still names a section, and that section's first card is where the reader asked to be.
+      resultsAnchorForSource(
+        requested,
+        [...document.querySelectorAll<HTMLElement>("[data-result-id][data-sections]")].map(
+          (el) => ({
+            resultId: el.dataset.resultId ?? "",
+            sections: (el.dataset.sections ?? "").split(" ").filter((s) => s !== ""),
+          }),
+        ),
+      );
     if (resolved === null || resolved === requested) return;
     const element = document.getElementById(resolved);
     if (element === null) return;

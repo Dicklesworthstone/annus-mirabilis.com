@@ -14,6 +14,7 @@ import {
   faceHrefWithFragment,
   isPlaceKeepingUnit,
   resolvedFaceAnchor,
+  resultsAnchorForSource,
 } from "./FaceSwitchAnchor.tsx";
 
 describe("resolvedFaceAnchor maps an absent id to one this face publishes", () => {
@@ -175,5 +176,65 @@ describe("isPlaceKeepingUnit: sentence-level or finer, which is the bead's own w
     for (const id of ["acceleratingPotential", "_R_", "reader-root", "arg-bm-observable", ""]) {
       expect(isPlaceKeepingUnit(id)).toBe(false);
     }
+  });
+});
+
+describe("resultsAnchorForSource: a source sentence finds its section's results card", () => {
+  /** The shape read from the DOM: each card's id and the sections its record declares. */
+  const cards = [
+    { resultId: "sr-two-postulates", sections: ["s0"] },
+    { resultId: "sr-synchronous-clocks", sections: ["s1"] },
+    { resultId: "sr-moving-rigid-body", sections: ["s4"] },
+    { resultId: "sr-moving-clock", sections: ["s4"] },
+    { resultId: "sr-field-transformations", sections: ["s6"] },
+  ];
+
+  test("a sentence maps to the FIRST card of its section, in document order", () => {
+    expect(resultsAnchorForSource("s4-p3-s1", cards)).toBe("result-sr-moving-rigid-body");
+    expect(resultsAnchorForSource("s1-p2-s1", cards)).toBe("result-sr-synchronous-clocks");
+  });
+
+  test("a paragraph, an inline equation and a section itself all map the same way", () => {
+    expect(resultsAnchorForSource("s4-p3", cards)).toBe("result-sr-moving-rigid-body");
+    expect(resultsAnchorForSource("s4-p3-s1-m1", cards)).toBe("result-sr-moving-rigid-body");
+    expect(resultsAnchorForSource("s4", cards)).toBe("result-sr-moving-rigid-body");
+  });
+
+  test("a split half maps through its source sentence's section", () => {
+    expect(resultsAnchorForSource("s4-p3-s1a", cards)).toBe("result-sr-moving-rigid-body");
+    expect(resultsAnchorForSource("s4-p3-s1b", cards)).toBe("result-sr-moving-rigid-body");
+  });
+
+  test("A SECTION WITH NO CARDS RETURNS NULL AND DOES NOT CLIMB TO A NEIGHBOUR", () => {
+    // This is the assertion a naive implementation fails. Measured on the built site: of 29
+    // section-scoped results routes across the four papers, THREE declare no cards -- light-quanta
+    // s0, brownian-motion s0 and s2. Walking a parent chain, or falling back to the nearest
+    // section that does have one, would show a reader in s2 the results of s1 or s3 and present
+    // them as that section's. Returning null leaves them on the complete results face, which is
+    // honest about having nothing section-specific to show.
+    expect(resultsAnchorForSource("s2-p1-s1", cards)).toBeNull();
+    expect(resultsAnchorForSource("s3-p1-s1", cards)).toBeNull();
+    expect(resultsAnchorForSource("s5-p1-s1", cards)).toBeNull();
+    // s0 and s6 bracket the gap, so the test cannot pass by the index being empty.
+    expect(resultsAnchorForSource("s0-p1-s1", cards)).toBe("result-sr-two-postulates");
+    expect(resultsAnchorForSource("s6-p1-s1", cards)).toBe("result-sr-field-transformations");
+  });
+
+  test("an id that encodes no section returns null", () => {
+    // sectionAnchorOf returns null for these: the masthead's section is in its record, not its id,
+    // and the closing blocks have none. Carrying them would be a lookup against the string "null".
+    for (const id of ["masthead-title", "closing-dateline", "part-1", "eq-A", "_R_", ""]) {
+      expect(resultsAnchorForSource(id, cards)).toBeNull();
+    }
+  });
+
+  test("a card declaring two sections is found from either", () => {
+    const shared = [{ resultId: "bm-diffusivity", sections: ["s3", "s4"] }];
+    expect(resultsAnchorForSource("s3-p1-s1", shared)).toBe("result-bm-diffusivity");
+    expect(resultsAnchorForSource("s4-p1-s1", shared)).toBe("result-bm-diffusivity");
+  });
+
+  test("no cards at all returns null rather than throwing", () => {
+    expect(resultsAnchorForSource("s4-p3-s1", [])).toBeNull();
   });
 });

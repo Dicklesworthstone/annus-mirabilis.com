@@ -82,10 +82,16 @@ const UNWIRED_DEBT: Readonly<Record<string, string>> = {
     "live, emitted inline by GermanFace.tsx:102 with `data-alias-of`, not by this module's " +
     "`data-alias`. So this is a duplicate of working code rather than a missing feature, and " +
     "which spelling survives is an owner call.",
-  "mapToFace.ts":
-    "am-to1q: two of its three jobs have live owners reading the same inputs " +
-    "(facsimile/document.ts at 9 routes, weave/contentIds.ts at 4). The nearest-ancestor walk and " +
-    "resultsBySection are genuinely unowned. Whether the duplicate arm is retired is an owner call.",
+  // "mapToFace.ts" WAS HERE AND ITS MODULE-LEVEL ENTRY IS PAID, 2026-10-08.
+  // src/reader/faces/FaceSwitchAnchor.tsx imports `mapToResultsFace`, which gave
+  // `resultsBySection` -- named in the struck entry as "genuinely unowned" -- a producer: each
+  // result card now publishes `data-sections` from the `section:` field of
+  // content/results/<paper>.yaml, and the index is read from the DOM rather than computed twice.
+  //
+  // STRIKING THE MODULE ENTRY WOULD HAVE DROPPED THE REST OF THE DEBT, which is why UNWIRED_EXPORTS
+  // exists below. A module with one live import is "wired" to a per-module scanner while most of it
+  // stays dead, and this module is exactly that case: two of its three exports have no importer. A
+  // coarse gate that reads green on one import is the shape a half-wired library hides in.
   "paneIds.ts":
     "am-read-anchors-navigation-a6o: split-view DOM identity. No split view is rendered, so the " +
     "pane-b-- prefix and its data-anchor contract are unexercised outside tests.",
@@ -100,6 +106,29 @@ const UNWIRED_DEBT: Readonly<Record<string, string>> = {
     "am-read-anchors-navigation-a6o: manual scroll restoration for back and forward. " +
     "history.scrollRestoration is never set to 'manual' by any route, so the browser's own " +
     "restoration is what a reader gets.",
+};
+
+/**
+ * DEBT AT THE GRAIN OF AN EXPORT, because a module is wired as soon as ONE of its exports is.
+ * Keyed "<module>#<export>", and each entry asserts that no non-test file imports that NAME.
+ *
+ * This list exists because paying `mapToFace.ts`'s module entry would otherwise have silently
+ * retired the record of its other two jobs. The same hazard applies to any module here that
+ * acquires a single caller.
+ */
+const UNWIRED_EXPORTS: Readonly<Record<string, string>> = {
+  "mapToFace.ts#mapToFace":
+    "am-to1q: the nearest-ancestor walk (sentence -> paragraph -> section) has no caller. " +
+    "FaceSwitchAnchor's own resolvedFaceAnchor handles the split-sentence arm and stops there, so " +
+    "a reader switching to a face that publishes neither the sentence nor its paragraph gets no " +
+    "scroll rather than its section. The gloss face is the live case: 11 sentence ids and 3 " +
+    "paragraph ids for relativity against the German face's 223.",
+  "mapToFace.ts#mapToFacsimilePage":
+    "am-to1q, SETTLED BY THE OWNER 2026-10-08: this one is to STAY unwired. The live owner is " +
+    "resolveFacsimileTarget, and the ruling was that mapToFacsimilePage is not to be given a " +
+    "pdfPageByUnit producer (see mapToFace.ts's own docblock). It is listed here so the export is " +
+    "accounted for rather than appearing to be an oversight, and it is the one entry whose " +
+    "deletion condition is an owner reversal rather than an implementation.",
 };
 
 function sourceFiles(dir: string): string[] {
@@ -151,6 +180,58 @@ function importersOf(target: string, allFiles: readonly string[]): string[] {
   return importersOfPath(join(ANCHORS_DIR, target), allFiles);
 }
 
+/**
+ * Every non-test module that imports the NAME `symbol` from `absolute`. A named-import clause is
+ * read from the import statement, so a file that imports a different export of the same module
+ * does not credit this one, and a file that imports a same-named symbol from somewhere else does
+ * not either (the path is resolved first, exactly as importersOfPath does it).
+ *
+ * `import * as ns` and a default import are treated as importing EVERYTHING, because the scanner
+ * cannot see which property a namespace object is read through. That is the conservative direction
+ * for a debt list: it credits an export as wired and so can only ever UNDERSTATE the debt, never
+ * invent one. No module in this directory has a default export today, and the positive control
+ * below would fail if the clause parser stopped matching.
+ */
+function importersOfExport(
+  absolute: string,
+  symbol: string,
+  allFiles: readonly string[],
+): string[] {
+  const found: string[] = [];
+  for (const file of allFiles) {
+    if (file === absolute) continue;
+    if (basename(file).includes(".test.")) continue;
+    const text = readFileSync(file, "utf8");
+    // Every import statement in the file, with its clause and its specifier.
+    for (const match of text.matchAll(/import\s+([^;]*?)\s*from\s+"(\.[^"]+)"/g)) {
+      const clause = match[1];
+      const spec = match[2];
+      if (clause === undefined || spec === undefined) continue;
+      const base = resolve(dirname(file), spec);
+      if (![base, `${base}.ts`, `${base}.tsx`, join(base, "index.ts")].includes(absolute)) continue;
+      if (/^\s*\*\s+as\s+/.test(clause) || !clause.includes("{")) {
+        found.push(relative(REPO_ROOT, file));
+        break;
+      }
+      const names = (clause.match(/\{([^}]*)\}/)?.[1] ?? "")
+        .split(",")
+        .map(
+          (n) =>
+            n
+              .replace(/^\s*type\s+/, "")
+              .split(/\s+as\s+/)[0]
+              ?.trim() ?? "",
+        )
+        .filter((n) => n !== "");
+      if (names.includes(symbol)) {
+        found.push(relative(REPO_ROOT, file));
+        break;
+      }
+    }
+  }
+  return found.sort();
+}
+
 describe("the anchor navigation library's wiring debt", () => {
   const modules = anchorModules();
   const all = CODE_ROOTS.flatMap((root) => sourceFiles(root));
@@ -182,7 +263,14 @@ describe("the anchor navigation library's wiring debt", () => {
     // FOUR NOW, not three: placeKeeper.ts joined on 2026-10-08 (a6o criterion 2). An identity
     // assertion rather than a count, so wiring a module requires saying so here -- which is how
     // this line came to be edited rather than quietly satisfied.
-    expect(wired.sort()).toEqual(["aliases.ts", "emitAnchor.ts", "placeKeeper.ts", "resolve.ts"]);
+    expect(wired.sort()).toEqual([
+      "aliases.ts",
+      "emitAnchor.ts",
+      "mapToFace.ts",
+      "placeKeeper.ts",
+      "resolve.ts",
+    ]);
+    expect(importers.get("mapToFace.ts")).toContain("src/reader/faces/FaceSwitchAnchor.tsx");
     expect(importers.get("placeKeeper.ts")).toContain("src/reader/faces/FaceSwitchAnchor.tsx");
   });
 
@@ -207,6 +295,43 @@ describe("the anchor navigation library's wiring debt", () => {
     // run zero times and pass while proving nothing. When that day comes, this expectation is what
     // forces the list and this assertion to be struck together.
     expect(unwired.length).toBeGreaterThan(0);
+  });
+
+  test("PER-EXPORT: each declared export has no importer, and the scanner can find one", () => {
+    const paid: string[] = [];
+    for (const key of Object.keys(UNWIRED_EXPORTS)) {
+      const [mod, symbol] = key.split("#");
+      if (mod === undefined || symbol === undefined) throw new Error(`Malformed key '${key}'`);
+      const who = importersOfExport(join(ANCHORS_DIR, mod), symbol, all);
+      if (who.length > 0) paid.push(`${key} <- ${who.join(", ")}`);
+    }
+    expect(paid).toEqual([]);
+
+    // POSITIVE CONTROL, in the same test so the list above cannot be satisfied by a scanner that
+    // resolves no names at all. `mapToResultsFace` is the export this list was built around: it IS
+    // imported, by the file named here, which is why it is not in UNWIRED_EXPORTS beside its two
+    // siblings. A clause parser that stopped working would empty `paid` AND empty this.
+    const wiredExport = importersOfExport(
+      join(ANCHORS_DIR, "mapToFace.ts"),
+      "mapToResultsFace",
+      all,
+    );
+    expect(wiredExport).toContain("src/reader/faces/FaceSwitchAnchor.tsx");
+
+    // And the negative half of the control: the same file must NOT be credited for an export it
+    // does not import. Without this, a parser that credited every name in a matched module would
+    // pass the line above and make the whole list vacuous.
+    const notImported = importersOfExport(
+      join(ANCHORS_DIR, "mapToFace.ts"),
+      "mapToFacsimilePage",
+      all,
+    );
+    expect(notImported).not.toContain("src/reader/faces/FaceSwitchAnchor.tsx");
+
+    console.log(
+      `[census] unwired-exports examined ${Object.keys(UNWIRED_EXPORTS).length} declared exports; ` +
+        `control: mapToResultsFace has ${wiredExport.length} importer(s), mapToFacsimilePage ${notImported.length}`,
+    );
   });
 
   test("a debt that has been paid is struck from the list, so the record cannot become a budget", () => {
