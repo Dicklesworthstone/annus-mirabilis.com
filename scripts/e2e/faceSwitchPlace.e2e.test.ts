@@ -523,3 +523,136 @@ test("criterion 4: a split English sentence maps to its German source and back",
     );
   });
 });
+
+/**
+ * CRITERION 6: "Back and forward restore face, anchor, and relative position, even after a Detail
+ * change between visits."
+ *
+ * MEASURED BROKEN BEFORE THE FIX, which is why this lane asserts a number rather than a boolean.
+ * With history.scrollRestoration at "auto", English #s4-p3-s1 -> click German -> Back returned the
+ * right face and the right fragment and put the reader at scrollY 4 with the sentence 24,450.1px
+ * below the viewport: 24,434px of lost place. Forward worked. The engine applies its saved offset
+ * to a document that has not grown to 65,961px yet, and a Back navigation does not re-apply the
+ * fragment.
+ *
+ * So the first assertion here is that the takeover actually happened -- scrollRestoration is
+ * "manual" on a face page -- because if it silently reverted, every position check below would be
+ * measuring the engine again and would fail for a reason this docblock would not explain.
+ */
+test("criterion 6: back and forward restore the face, the anchor and the position", {
+  timeout: 180_000,
+}, async (ctx) => {
+  await lane("back-forward-restore", async (page, note) => {
+    await page.goto(`${ORIGIN}/papers/${PAPER}/view/english/#${SENTENCE}`, { waitUntil: "load" });
+    await settle(page);
+
+    // The takeover, asserted before anything that depends on it.
+    const restoration = await page.evaluate(() => history.scrollRestoration);
+    assert.equal(
+      restoration,
+      "manual",
+      `scrollRestoration is '${restoration}'; the engine still owns restoration`,
+    );
+
+    const englishTop = await topOf(page, SENTENCE);
+    assert.notEqual(englishTop, null);
+    const englishScroll = await page.evaluate(() => Math.round(window.scrollY));
+    // The reader must be DEEP in the document, or "restored the position" is indistinguishable from
+    // "the page is short". This is the control for every comparison below.
+    assert.ok(
+      englishScroll > 5000,
+      `the English face only scrolled to ${englishScroll}; the fixture cannot show a lost place`,
+    );
+
+    await page.locator('a[data-view-link="german"]').first().click();
+    await page.waitForURL(/\/view\/german\//, { timeout: 60_000 });
+    await settle(page);
+    const germanTop = await topOf(page, SENTENCE);
+    assert.notEqual(germanTop, null);
+
+    // BACK: face, anchor and position.
+    await page.goBack({ waitUntil: "load" });
+    await settle(page);
+    assert.match(
+      page.url(),
+      /\/view\/english\//,
+      `Back did not return to the English face: ${page.url()}`,
+    );
+    assert.match(page.url(), new RegExp(`#${SENTENCE}$`), `Back lost the anchor: ${page.url()}`);
+    const backTop = await topOf(page, SENTENCE);
+    assert.notEqual(backTop, null, `${SENTENCE} is not on the page after Back`);
+    const backDrift = Math.abs((backTop as number) - (englishTop as number));
+    const backLine = `Back: top ${(backTop as number).toFixed(1)}px against ${(englishTop as number).toFixed(1)}px, drift ${backDrift.toFixed(1)}px`;
+    ctx.diagnostic(backLine);
+    note(backLine);
+    assert.ok(
+      backDrift <= 8,
+      `Back restored the sentence ${backDrift.toFixed(1)}px away, over the 8 CSS px the criterion allows`,
+    );
+
+    // FORWARD: the same, to the German face.
+    await page.goForward({ waitUntil: "load" });
+    await settle(page);
+    assert.match(
+      page.url(),
+      /\/view\/german\//,
+      `Forward did not reach the German face: ${page.url()}`,
+    );
+    const forwardTop = await topOf(page, SENTENCE);
+    assert.notEqual(forwardTop, null);
+    const forwardDrift = Math.abs((forwardTop as number) - (germanTop as number));
+    const fwdLine = `Forward: top ${(forwardTop as number).toFixed(1)}px against ${(germanTop as number).toFixed(1)}px, drift ${forwardDrift.toFixed(1)}px`;
+    ctx.diagnostic(fwdLine);
+    note(fwdLine);
+    assert.ok(forwardDrift <= 8, `Forward restored the sentence ${forwardDrift.toFixed(1)}px away`);
+  });
+});
+
+/**
+ * The same journey with a DETAIL CHANGE between the visits, which is the clause the criterion adds
+ * and the reason the stored record is a fraction rather than a pixel offset. Changing Detail
+ * re-renders every paragraph at a different height, so a pixel offset saved before the change
+ * addresses different content after it; a fraction of the viewport addresses the same place.
+ */
+test("criterion 6: and the restore survives a Detail change between visits", {
+  timeout: 180_000,
+}, async (ctx) => {
+  await lane("back-forward-after-detail", async (page, note) => {
+    await page.goto(`${ORIGIN}/papers/${PAPER}/view/english/#${SENTENCE}`, { waitUntil: "load" });
+    await settle(page);
+    const before = await topOf(page, SENTENCE);
+    assert.notEqual(before, null);
+
+    await page.locator('a[data-view-link="german"]').first().click();
+    await page.waitForURL(/\/view\/german\//, { timeout: 60_000 });
+    await settle(page);
+
+    // Detail is read from `data-detail` on <html> by the inline script and by CSS, so setting it is
+    // the same change a reader's Detail control makes.
+    const was = await page.evaluate(() => {
+      const prior = document.documentElement.dataset.detail ?? null;
+      document.documentElement.dataset.detail = "2";
+      try {
+        localStorage.setItem("am:reader:v1:detail", "2");
+      } catch {
+        /* a blocked store still leaves the attribute set, which is what CSS reads */
+      }
+      return prior;
+    });
+    await page.waitForTimeout(600);
+    const detailLine = `Detail changed on the German face from ${JSON.stringify(was)} to "2"`;
+    ctx.diagnostic(detailLine);
+    note(detailLine);
+
+    await page.goBack({ waitUntil: "load" });
+    await settle(page);
+    assert.match(page.url(), new RegExp(`#${SENTENCE}$`), `Back lost the anchor: ${page.url()}`);
+    const after = await topOf(page, SENTENCE);
+    assert.notEqual(after, null, `${SENTENCE} is not on the page after Back`);
+    const drift = Math.abs((after as number) - (before as number));
+    const line = `Back after a Detail change: top ${(after as number).toFixed(1)}px against ${(before as number).toFixed(1)}px, drift ${drift.toFixed(1)}px`;
+    ctx.diagnostic(line);
+    note(line);
+    assert.ok(drift <= 8, `the restore drifted ${drift.toFixed(1)}px after a Detail change`);
+  });
+});
