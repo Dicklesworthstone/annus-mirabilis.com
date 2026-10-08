@@ -798,13 +798,25 @@ export const RELEASE_IDENTITY_SCHEMA = "annus-mirabilis-release-identity.v1";
 export type ReleaseIdentity = Readonly<{
   schema: typeof RELEASE_IDENTITY_SCHEMA;
   commit: string;
+  /**
+   * WHO WROTE IT, always "deploy" here. A plain `bun run build` now writes this file too, for the
+   * commit it is building, marked `writtenBy: "build"` -- because before that it wrote nothing and
+   * `next build` shipped whatever the last deploy had left in public/: at commit f766cdc1,
+   * out/release.json still named 6374a413 from six days earlier. The build keeps an existing
+   * identity only when it names the commit being built, which is how this one survives `vercel
+   * build` re-running the prepare lane. The field is what lets a reader of the live file tell a
+   * release from a local build; without it the two are indistinguishable.
+   */
+  writtenBy: "deploy";
   profile: ReleaseProfile;
   toolRunId: string;
   builtAt: string;
 }>;
 
-export function releaseIdentity(fields: Omit<ReleaseIdentity, "schema">): ReleaseIdentity {
-  return { schema: RELEASE_IDENTITY_SCHEMA, ...fields };
+export function releaseIdentity(
+  fields: Omit<ReleaseIdentity, "schema" | "writtenBy">,
+): ReleaseIdentity {
+  return { schema: RELEASE_IDENTITY_SCHEMA, writtenBy: "deploy", ...fields };
 }
 
 /** Writes public/release.json (gitignored), which the static export serves at /release.json. */

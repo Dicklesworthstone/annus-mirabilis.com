@@ -37,8 +37,13 @@
  */
 
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import {
+  buildIdentity,
+  identityDecision,
+  serializeIdentity,
+} from "./build/releaseIdentityForBuild.ts";
 
 /**
  * Nine, because the type path uses 1 and 2 and which one it uses depends on how tsc is invoked.
@@ -172,6 +177,38 @@ export function runPrepare(
   return null;
 }
 
+/**
+ * WRITES public/release.json FOR THE COMMIT BEING BUILT, unless the file already names it.
+ *
+ * Why here: this is the one script every build runs before `next build`, and `next build` copies
+ * `public/` into `out/`, so a file written now is the file served at `/release.json`. Before this,
+ * a plain build wrote nothing and shipped whatever the last deploy had left: at commit f766cdc1,
+ * `out/release.json` still named 6374a413 from six days earlier, well-formed and wrong.
+ *
+ * The decision is in scripts/build/releaseIdentityForBuild.ts, which is pure and tested on its own;
+ * everything here is I/O. A failure to write is reported and does NOT fail the lane: a missing
+ * release identity is a worse `/release.json` than a stale one, but it is not a reason to stop 35
+ * generators and a build, and the promotion path has its own check (smoke-test-deployment's
+ * checkReleaseIdentity) that refuses on the commit itself.
+ */
+export function syncReleaseIdentity(root: string, write = writeFileSync): string {
+  const file = join(root, "public", "release.json");
+  const head = spawnSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" });
+  const commit = (head.stdout ?? "").trim();
+  let existing: unknown = null;
+  if (existsSync(file)) {
+    try {
+      existing = JSON.parse(readFileSync(file, "utf8")) as unknown;
+    } catch {
+      existing = null;
+    }
+  }
+  const decision = identityDecision(existing, commit);
+  if (decision.action === "keep") return `release identity: kept, ${decision.reason}`;
+  write(file, serializeIdentity(buildIdentity(commit, new Date())), "utf8");
+  return `release identity: wrote ${commit.slice(0, 8)}, ${decision.reason}`;
+}
+
 function main(): void {
   const root = process.cwd();
   const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8")) as {
@@ -192,6 +229,13 @@ function main(): void {
   if (failure) {
     process.stderr.write(formatFailure(failure));
     process.exit(PREPARE_FAILED_EXIT);
+  }
+  try {
+    process.stdout.write(`${syncReleaseIdentity(root)}\n`);
+  } catch (error) {
+    process.stderr.write(
+      `release identity: NOT WRITTEN (${error instanceof Error ? error.message : String(error)}); /release.json may name another commit\n`,
+    );
   }
   process.stdout.write(`prepare lane: ${steps.length} generators ran, all clean.\n`);
 }
