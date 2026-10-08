@@ -69,7 +69,7 @@ export async function checkWalkBrowser(browser, url, check) {
     // one in mind, or skip"), and AGENTS.md is explicit that a reader may move straight on. The
     // prediction is not what this check is about, so it is skipped once, here, rather than answered
     // differently at each assertion.
-    await lab.getByRole("button", { name: "Skip prediction", exact: true }).click();
+    await lab.getByRole("button", { name: /^Skip prediction/ }).click();
     await lab.locator(".lab-results").waitFor({ state: "visible" });
     const value = (id) =>
       lab

@@ -128,7 +128,29 @@ try {
   assert.equal(await lab.locator('input[name="beta"]').inputValue(), "0.01");
   assert.equal(await lab.locator('input[name="emittedEnergy"]').inputValue(), "10");
   assert.equal(await lab.locator('select[name="energyUnit"]').inputValue(), "joule");
-  await lab.getByRole("button", { name: "Skip prediction", exact: true }).click();
+  // me-02 CARRIES TWO PROMPTS, me-02-predict-exact-versus-quadratic and
+  // me-02-predict-toward-low-speed, so one click does not clear the gate and a single locator
+  // cannot name "the" skip button. Every prompt is skipped, which is what the assertion below
+  // needs: the result is withheld until each prompt is answered or skipped.
+  //
+  // The name is matched by an anchored regex rather than `exact: true` because each control now
+  // names its own prompt (am-svdj): "Skip prediction for <that prompt's question>". A bare
+  // substring would match both and reintroduce the ambiguity this is fixing.
+  // EACH CLICK IS SCOPED TO ITS OWN PROMPT, by `data-predict-prompt` on the panel root. A single
+  // list of matching buttons does NOT work here and the first attempt proved it: skipping a prompt
+  // removes that prompt's own buttons, because the block is conditional on
+  // `record.state === "hidden"` (PredictPanel.tsx), so the matching set shrinks under the loop and
+  // `nth(1)` times out looking for an element that no longer exists.
+  const promptIds = await lab
+    .locator("[data-predict-prompt]")
+    .evaluateAll((els) => els.map((el) => el.dataset.predictPrompt));
+  if (promptIds.length === 0) throw new Error("me-02 offered no prediction to skip");
+  for (const id of promptIds) {
+    await lab
+      .locator(`[data-predict-prompt="${id}"]`)
+      .getByRole("button", { name: /^Skip prediction/ })
+      .click();
+  }
   assert.match(
     await lab.locator('[data-quantity-id="kineticEnergyDifference"]').first().innerText(),
     /0\.00050004/,

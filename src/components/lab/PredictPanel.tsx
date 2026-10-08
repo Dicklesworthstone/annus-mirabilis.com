@@ -542,10 +542,31 @@ export function PredictPanel({
 
       {record.state === "hidden" ? (
         <div className="preset-list" style={{ marginTop: "1rem" }}>
-          <button type="button" className="secondary" onClick={onSkip}>
+          {/* THE ACCESSIBLE NAME NAMES ITS PROMPT, because a page may hold several (am-svdj).
+              Counted in the built site: of the 58 pages carrying a prediction prompt, 22 carried
+              two or three of these controls with IDENTICAL names -- 19 pages with two and 3 with
+              three -- so a reader navigating by control name met "Skip prediction" repeatedly with
+              nothing to say which prediction it skipped. A sighted reader tells them apart by the
+              fieldset above; a control list, a rotor and voice control have only the name.
+
+              `aria-label` rather than visually-hidden text, following the sketch canvas at :311
+              which already disambiguates this way in this component. The visible words stay the
+              first words of the accessible name, so WCAG 2.5.3 Label in Name holds and a voice
+              user saying "Skip prediction" still matches. */}
+          <button
+            type="button"
+            className="secondary"
+            onClick={onSkip}
+            aria-label={`Skip prediction for ${prompt.question}`}
+          >
             Skip prediction
           </button>
-          <button type="button" className="secondary" onClick={onKeepToSelf}>
+          <button
+            type="button"
+            className="secondary"
+            onClick={onKeepToSelf}
+            aria-label={`I have one in mind for ${prompt.question}`}
+          >
             I have one in mind
           </button>
         </div>

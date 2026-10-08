@@ -108,7 +108,7 @@ export async function checkInferenceBrowser(browser, url, check) {
     //
     // Skipping is the reader's own way past the prediction, and the refusal assertions below are
     // about the refusal rather than about predict mode, so it is skipped once here.
-    await lab.getByRole("button", { name: "Skip prediction", exact: true }).click();
+    await lab.getByRole("button", { name: /^Skip prediction/ }).click();
     await lab.locator(".lab-results").first().waitFor({ state: "visible" });
 
     const initialPaths = await paths(lab);

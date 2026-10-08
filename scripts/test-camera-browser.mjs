@@ -89,7 +89,7 @@ export async function checkCameraBrowser(browser, url, check) {
     //
     // Skipping is the reader's own way past the prediction, and these assertions are about the
     // refusal rather than about predict mode.
-    await lab.getByRole("button", { name: "Skip prediction", exact: true }).click();
+    await lab.getByRole("button", { name: /^Skip prediction/ }).click();
     await lab.locator(".lab-results").first().waitFor({ state: "visible" });
 
     const staticRows = await rows(lab);
