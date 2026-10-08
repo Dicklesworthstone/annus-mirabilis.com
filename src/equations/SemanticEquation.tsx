@@ -330,13 +330,6 @@ export function SemanticEquation({
           })}
         </p>
       ))}
-      {/* The keyboard help is shown while the formula has focus (equations.css), and it is the
-          formula's accessible description either way: aria-describedby reads a hidden node. */}
-      <p id={`${uid}-keys`} className="fine equation-keys">
-        Select a term or operation. In the formula, Down enters an operation, Up returns to its
-        parent, and Left/Right move between siblings. Escape clears selection. Tab leaves the
-        formula.
-      </p>
       <TermChips
         label={`Quantities in ${equation.title}`}
         items={legend.map(([quantityId, name]) => ({ quantityId, name, glyphHtml: "" }))}
@@ -378,6 +371,28 @@ export function SemanticEquation({
           </button>
         ) : null}
       </div>
+      {/* THE KEYBOARD HELP SITS AFTER THE TOOLS ROW, AND THE ORDER IS THE FIX (am-fheb).
+          It was directly under the formula, ABOVE this row. It shows only while the formula has
+          focus -- `.equation-formula:focus-within ~ .equation-keys { display: block }` in
+          equations.css -- so pressing a button here moved focus out of the formula, the paragraph
+          left the flow, and the card lost 56px MID-PRESS. Measured in chromium: mousedown landed on
+          "Patterns instead of colour", the button moved up 57px, mouseup landed on the <summary>
+          that took its place, and the click was dispatched on their common ancestor. The reader got
+          nothing on the first press, and the control they lost is the alternative to colour.
+
+          A block that collapses BELOW the button cannot move the button, so the press lands. That
+          is why this is a reorder rather than reserved space (about 56px blank under every formula,
+          and relativity has 97 bound displays) or `position: absolute` (which can cover this row at
+          320px). Owner's choice of the three, 2026-10-08.
+
+          Accessibility is unaffected and the old comment here said why: it is the formula's
+          accessible description either way, because `aria-describedby={`${uid}-keys`}` above is
+          id-based and reads a hidden node wherever it sits. */}
+      <p id={`${uid}-keys`} className="fine equation-keys">
+        Select a term or operation. In the formula, Down enters an operation, Up returns to its
+        parent, and Left/Right move between siblings. Escape clears selection. Tab leaves the
+        formula.
+      </p>
       {/* Every term and operation as a button: the way to explore without a pointer or arrow
           keys. It was seven or more full-width buttons stacked under every formula, so it opens
           on request; closed, the buttons stay in the page and in the accessibility tree order. */}

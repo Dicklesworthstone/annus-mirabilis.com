@@ -562,21 +562,33 @@
 .semantic-equation .equation-keys {
   display: none;
 }
-/* THE HELP SHOWS WHILE THE FORMULA HAS FOCUS, and this rule's `display` toggle costs a click.
+/* THE HELP SHOWS WHILE THE FORMULA HAS FOCUS. The `display` toggle below used to cost a click, and
+   does not any more, because the paragraph MOVED rather than this rule changing (am-fheb,
+   2026-10-08). The history is kept because the mechanism is general and will be met again.
 
-   Measured on the built export (am-gbys): pressing "Patterns instead of colour" with the formula
-   focused fires mousedown on the button, then focusout, and the card loses 56px as this paragraph
-   leaves the flow. The button moves up 57px, mouseup lands on the `<summary>` that took its place,
-   and the click is dispatched on their common ancestor, so `data-pattern` stays "false" and the
-   toggle needs a second press. Any control under a focused formula moves the same way.
+   Measured on the built export (am-gbys): with the help directly under the formula and ABOVE the
+   tools row, pressing "Patterns instead of colour" with the formula focused fired mousedown on the
+   button, then focusout, and the card lost 56px as this paragraph left the flow. The button moved
+   up 57px, mouseup landed on the `<summary>` that took its place, and the click was dispatched on
+   their common ancestor, so `data-pattern` stayed "false" and the toggle needed a second press.
+   Reproduced independently in chromium on 2026-10-07, with a MutationObserver showing twelve
+   `data-lit` attribute changes and ZERO childList replacements: the pressed node was never
+   destroyed, the page moved under the pointer. ANY control under a focused formula moved this way.
 
    SCOPING THIS TO THE CARD WAS TRIED AND REVERTED, because it only moves the reflow: with
    `.semantic-equation:focus-within`, pressing the "term and operation" summary focuses it, the help
    APPEARS, the card grows 56px, the summary moves down, and that press is lost instead. Measured
-   both ways. A reflow on focus is unavoidable while the help occupies flow only when focused, so the
-   remedy is to take it out of flow or to reserve its space always -- and both change the layout a
-   review deliberately made quieter, which is the owner's call rather than a refactor. Left as it
-   was, with the mechanism written down. */
+   both ways.
+
+   THE REPAIR IS THE DOM ORDER, not this rule. The paragraph now renders AFTER `.equation-tools`
+   (SemanticEquation.tsx), and a block that collapses BELOW a button cannot move the button. The two
+   alternatives were put to the owner with their costs and declined: reserving the space always
+   costs about 56px of blank under every formula, and relativity's reading face carries 97 bound
+   displays; `position: absolute` can cover the tools row at 320px. The `~` selector still matches,
+   because the help is still a subsequent sibling of the formula.
+
+   A reflow on focus is still unavoidable while the help occupies flow only when focused. What
+   changed is that nothing interactive sits below the part that reflows. */
 .semantic-equation .equation-formula:focus-within ~ .equation-keys {
   display: block;
 }
