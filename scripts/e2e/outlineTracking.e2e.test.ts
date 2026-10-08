@@ -227,3 +227,134 @@ for (const width of [1440, 320] as const) {
     }
   });
 }
+
+/**
+ * CRITERION 6'S SECOND SENTENCE: "Focus lands on navigation targets and is not obscured."
+ *
+ * Both halves are measurable and both are easy to assert vacuously, so each carries its control.
+ *
+ * FOCUS: a browser does NOT move focus when a fragment link points at a non-focusable element -- the
+ * target becomes `:target` and focus stays on the LINK, so a keyboard reader's next Tab continues
+ * from the outline rather than from the section they just chose. The fix is `tabindex="-1"` on the
+ * target plus an explicit focus, and it is applied here: measured, after both a click and an Enter
+ * press on an outline link, `document.activeElement` is `section#s1` and not the anchor.
+ *
+ * OBSCURED: being in the viewport is not enough, because a sticky header can paint over the top of
+ * a focused target that is technically on screen. So this samples what is actually painted at three
+ * points across the target's first line with elementFromPoint, rather than comparing rectangles.
+ *
+ * Measured: section#s1 at top 104 (1280px) and top 266 (320px), 1,682px and 2,182px tall, with all
+ * three points reporting the target itself.
+ */
+for (const width of [1280, 320] as const) {
+  test(`focus lands on the navigation target and is not obscured at ${width}px`, {
+    timeout: 180_000,
+  }, async (ctx) => {
+    assertOutFreshness("out", REPO_ROOT);
+    const { server, origin } = await startStaticServer(OUT_DIR);
+    const executablePath = process.env.CHROMIUM_EXECUTABLE_PATH;
+    const browser = await chromium.launch(executablePath ? { executablePath } : {});
+    try {
+      const page = await browser.newPage({ viewport: { width, height: 900 } });
+      await page.goto(`${origin}/papers/${PAPER}/`, { waitUntil: "load" });
+      await page.evaluate(() => document.fonts.ready);
+      await page.waitForTimeout(1400);
+
+      // The outline collapses groups, so later links are genuinely not visible and clicking one
+      // times out. Take the first VISIBLE link past s0 -- s0 is already where the page starts, so
+      // following it would move nothing and the lane would pass without a navigation.
+      const all = page.locator(".reader-outline nav a[data-reader-anchor]");
+      const count = await all.count();
+      let anchor: string | null = null;
+      let index = -1;
+      for (let i = 0; i < count; i += 1) {
+        const candidate = all.nth(i);
+        if (!(await candidate.isVisible())) continue;
+        const value = await candidate.getAttribute("data-reader-anchor");
+        if (value && value !== "s0") {
+          anchor = value;
+          index = i;
+          break;
+        }
+      }
+      assert.notEqual(anchor, null, `no visible outline link past s0 among ${count}`);
+      await all.nth(index).click();
+      await page.waitForTimeout(1100);
+
+      const focused = await page.evaluate(() => {
+        const active = document.activeElement;
+        if (active === null || active === document.body) return null;
+        const box = active.getBoundingClientRect();
+        const style = getComputedStyle(active);
+        // What is PAINTED across the target's first line, which is what "obscured" means. Three
+        // points, because a header or a gutter can cover one edge and not the middle.
+        const y = Math.max(2, Math.min(box.top + 6, window.innerHeight - 2));
+        const painted = [0.1, 0.5, 0.9].map((fraction) => {
+          const x = Math.max(2, Math.min(box.left + box.width * fraction, window.innerWidth - 2));
+          const el = document.elementFromPoint(x, y);
+          if (el === null) return "(nothing)";
+          return el === active || active.contains(el)
+            ? "target"
+            : `${el.tagName.toLowerCase()}.${String(el.className).split(" ")[0]}`;
+        });
+        return {
+          tag: active.tagName.toLowerCase(),
+          id: active.id,
+          tabindex: active.getAttribute("tabindex"),
+          top: Math.round(box.top),
+          height: Math.round(box.height),
+          isAnchor: active.tagName.toLowerCase() === "a",
+          display: style.display,
+          painted,
+        };
+      });
+      assert.ok(focused, "nothing is focused after following an outline link");
+      const f = focused as {
+        tag: string;
+        id: string;
+        tabindex: string | null;
+        top: number;
+        height: number;
+        isAnchor: boolean;
+        display: string;
+        painted: string[];
+      };
+      ctx.diagnostic(
+        `${width}px: focus ${f.tag}#${f.id} tabindex=${f.tabindex} top=${f.top} h=${f.height} painted=${JSON.stringify(f.painted)}`,
+      );
+
+      // FOCUS LANDED ON THE TARGET, not on the link. The second assertion is the one that matters:
+      // leaving focus on the anchor is the browser's own default, so without it this lane would
+      // pass for an implementation that did nothing.
+      assert.equal(f.id, anchor, `focus is on #${f.id}, not the chosen target #${String(anchor)}`);
+      assert.equal(
+        f.isAnchor,
+        false,
+        "focus stayed on the link, which is the default this criterion exists to override",
+      );
+      assert.equal(
+        f.tabindex,
+        "-1",
+        "the target is not programmatically focusable, so focus cannot be moved to it",
+      );
+
+      // NOT OBSCURED: on screen, with a real box, and nothing painted over its first line.
+      assert.ok(
+        f.top >= 0 && f.top < 900,
+        `the focused target sits at top ${f.top}, outside the viewport`,
+      );
+      assert.ok(
+        f.height > 0 && f.display !== "none",
+        `the focused target has no box (${f.height}px, display ${f.display})`,
+      );
+      assert.deepEqual(
+        f.painted,
+        ["target", "target", "target"],
+        `something is painted over the focused target: ${f.painted.join(", ")}`,
+      );
+    } finally {
+      await browser.close();
+      await new Promise<void>((done) => server.close(() => done()));
+    }
+  });
+}
