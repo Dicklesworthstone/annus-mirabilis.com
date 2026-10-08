@@ -192,12 +192,57 @@ export async function checkEquationBrowser(browser, url, check) {
     );
     await rms.getByRole("button", { name: "Patterns instead of colour", exact: true }).click();
     assert.equal(await rms.getAttribute("data-pattern"), "true");
+    /*
+      PATTERN MODE DISTINGUISHES QUANTITIES, NOT EQUATION ROLES, and this assertion used to say the
+      opposite: `.every((style) => style === "double")` over every `.am-role-result`. It had never
+      been evaluated, because the `data-pattern` assertion above always failed first (am-fheb, the
+      focus-reflow that swallowed the press, repaired 2026-10-08). Reaching it for the first time
+      showed it cannot hold.
+
+      Measured in chromium on the built page, with pattern mode on:
+
+        .am-role-result inside rmsDisplacement1d   --qd: underline double  -> double
+        .am-role-result inside diffusionCoefficient --qd: underline solid   -> solid
+
+      `--qd` is assigned PER QUANTITY by src/generated/quantity-colours-by-paper.css, from that
+      quantity's semantic cue (`identityCues.ts`: space-geometry dotted, material double,
+      statistical wavy, and so on). `am-role-result` is an EQUATION-role class, orthogonal to it:
+      two elements can both be the result of their expression and be different quantities. So
+      "every result is double" conflated the two, and would have been false for any card whose
+      result terms are not all one cue.
+
+      What the design actually promises is that a reader who cannot use colour can still tell the
+      quantities apart, so that is what this asserts: the mechanism applies to every one, the
+      styles DIFFER across quantities, and each element's computed style is the one its own
+      quantity declares.
+    */
+    const patterned = await rms.locator(".equation-visual .am-role-result").evaluateAll((nodes) =>
+      nodes.map((el) => {
+        const cs = getComputedStyle(el);
+        return {
+          line: cs.textDecorationLine,
+          style: cs.textDecorationStyle,
+          declared: cs.getPropertyValue("--qd").trim(),
+        };
+      }),
+    );
+    // Non-vacuity, named: `.every` over an empty list is true, and one element cannot show that
+    // anything is distinguishable from anything.
     assert.ok(
-      (
-        await rms
-          .locator(".equation-visual .am-role-result")
-          .evaluateAll((nodes) => nodes.map((el) => getComputedStyle(el).textDecorationStyle))
-      ).every((style) => style === "double"),
+      patterned.length >= 2,
+      `only ${patterned.length} result terms carry a pattern, so distinguishability cannot be tested`,
+    );
+    assert.ok(
+      patterned.every((p) => p.line === "underline"),
+      `pattern mode left a result term undecorated: ${JSON.stringify(patterned)}`,
+    );
+    assert.ok(
+      new Set(patterned.map((p) => p.style)).size >= 2,
+      `every result term drew the same pattern, so monochrome does not distinguish them: ${JSON.stringify(patterned)}`,
+    );
+    assert.ok(
+      patterned.every((p) => p.declared.includes(p.style)),
+      `a term's drawn pattern is not the one its quantity declares: ${JSON.stringify(patterned)}`,
     );
     await openParts(diffusion);
     await diffusion.getByRole("button", { name: "Dynamic viscosity term", exact: true }).click();
