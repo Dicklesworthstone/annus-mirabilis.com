@@ -9,7 +9,7 @@
  * ids, every one of them a split half.
  */
 import { describe, expect, test } from "bun:test";
-import { resolvedFaceAnchor } from "./FaceSwitchAnchor.tsx";
+import { crossesFaces, faceHrefWithFragment, resolvedFaceAnchor } from "./FaceSwitchAnchor.tsx";
 
 describe("resolvedFaceAnchor maps an absent id to one this face publishes", () => {
   const germanHas = (id: string) => id === "s1-p10-s1";
@@ -55,5 +55,75 @@ describe("resolvedFaceAnchor maps an absent id to one this face publishes", () =
     const brownianGerman = (id: string) => id === "s3-p8-s2";
     expect(resolvedFaceAnchor("s3-p8-s3", brownianGerman)).toBeNull();
     expect(resolvedFaceAnchor("s2-p6", brownianGerman)).toBeNull();
+  });
+});
+
+describe("crossesFaces: only the kinds both source faces publish are carried outward", () => {
+  test("the eight measured cross-face kinds are carried", () => {
+    // Shared-id counts, English against German on special-relativity, measured in the built site.
+    for (const id of [
+      "s1-p10-s1", // sentence, 223 shared
+      "s1-p10-s1a", // sentence, split half
+      "eq-s1-d1", // equation, 98
+      "s1", // section, 10
+      "s1-fn1", // footnote, 4
+      "s1-p10-s1-m1", // inline-equation, 2
+      "part-1", // part, 2
+      "closing-dateline", // closing, 3
+      "masthead-title", // masthead, 2
+    ]) {
+      expect(crossesFaces(id)).toBe(true);
+    }
+  });
+
+  test("a PARAGRAPH id is not carried, because English publishes none", () => {
+    // German publishes 111 and English zero, so carrying one the other way lands nowhere.
+    expect(crossesFaces("s1-p10")).toBe(false);
+  });
+
+  test("an ARGUMENT id is not carried, which is the defect a peer's assertion caught", () => {
+    // scripts/test-reader-browser.mjs:316 navigates to ?view=german#arg-bm-observable and then
+    // asserts the German link's href ENDS at /view/german/. An earlier version appended every
+    // fragment, which would have broken that AND sent a reader to a face with 0 arg-* ids.
+    expect(crossesFaces("arg-bm-observable")).toBe(false);
+    expect(crossesFaces("lab-sr-01")).toBe(false);
+    expect(crossesFaces("entry-brownian-motion")).toBe(false);
+  });
+
+  test("what is not a content anchor at all is refused by the grammar, not by the list", () => {
+    // Real ids measured on both faces: quantity ids and React's own. 68 were shared and none is a
+    // place a reader can be sent.
+    for (const id of ["acceleratingPotential", "chargeDensityMoving", "_R_", "reader-root", ""]) {
+      expect(crossesFaces(id)).toBe(false);
+    }
+  });
+});
+
+describe("faceHrefWithFragment: the href is the input, never mutated in the document", () => {
+  test("a sentence fragment is carried onto a bare face path", () => {
+    expect(faceHrefWithFragment("/papers/special-relativity/view/german/", "#s1-p10-s1a")).toBe(
+      "/papers/special-relativity/view/german/#s1-p10-s1a",
+    );
+  });
+
+  test("a query-only face link gains it too, because the chooser emits ?view= as well", () => {
+    expect(faceHrefWithFragment("?view=results", "#s3-p2-s1")).toBe("?view=results#s3-p2-s1");
+  });
+
+  test("an argument or paragraph fragment leaves the href EXACTLY as it was", () => {
+    // Returning the input unchanged is what lets the caller compare and do nothing, so no
+    // navigation is intercepted that should not be.
+    const href = "/papers/brownian-motion/view/german/";
+    expect(faceHrefWithFragment(href, "#arg-bm-observable")).toBe(href);
+    expect(faceHrefWithFragment(href, "#s1-p10")).toBe(href);
+  });
+
+  test("no fragment, a bare hash, a malformed escape and an existing fragment all change nothing", () => {
+    const href = "/papers/x/view/german/";
+    expect(faceHrefWithFragment(href, "")).toBe(href);
+    expect(faceHrefWithFragment(href, "#")).toBe(href);
+    expect(faceHrefWithFragment(href, "#%E0%A4%A")).toBe(href);
+    expect(faceHrefWithFragment(`${href}#s1`, "#s2")).toBe(`${href}#s1`);
+    expect(faceHrefWithFragment("", "#s1-p1-s1")).toBe("");
   });
 });

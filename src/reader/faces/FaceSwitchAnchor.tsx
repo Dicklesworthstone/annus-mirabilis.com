@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { type AnchorKind, parseAnchor } from "../../content/anchors.ts";
 import { contentIdVariants, isSentenceContentId } from "../weave/contentIds.ts";
 
 /**
@@ -47,6 +48,63 @@ import { contentIdVariants, isSentenceContentId } from "../weave/contentIds.ts";
  * split-sentence counterpart, else null. `present` is asked rather than a set passed in, so the
  * caller can answer from the live document.
  */
+/**
+ * THE ANCHOR KINDS BOTH SOURCE FACES PUBLISH, so a carried fragment lands on something. Measured in
+ * the built site for special-relativity, English against German, as shared-id counts:
+ *
+ *     sentence 223    equation 98    section 10    footnote 4
+ *     inline-equation 2    part 2    closing 3    masthead 2
+ *
+ * EXCLUDED, each for a measured reason rather than caution:
+ *
+ *   - `paragraph`: German publishes 111 and English publishes ZERO, so it is German-only and a
+ *     carried paragraph id would land nowhere going the other way.
+ *   - `argument`, `lab`, `entry`, `result`: on neither source face; they live on the reading face.
+ *     Not hypothetical: `scripts/test-reader-browser.mjs:316` navigates to
+ *     `?view=german#arg-bm-observable` and then asserts the German link's href ENDS at
+ *     `/view/german/`. An earlier version of this island appended every fragment, which would have
+ *     broken that anchored regex AND sent the reader to a face with 0 `arg-*` ids.
+ *
+ * Anything that is not a content anchor at all -- quantity ids like `acceleratingPotential`,
+ * React's `_R_`, `reader-root` -- is refused by `parseAnchor` itself, so the grammar answers that
+ * half and this list only says which content kinds cross.
+ */
+const CROSS_FACE_KINDS: ReadonlySet<AnchorKind> = new Set<AnchorKind>([
+  "sentence",
+  "equation",
+  "section",
+  "footnote",
+  "inline-equation",
+  "part",
+  "closing",
+  "masthead",
+]);
+
+/** True when a fragment names a content anchor that both source faces publish. */
+export function crossesFaces(id: string): boolean {
+  if (!id) return false;
+  const parsed = parseAnchor(id);
+  return parsed.ok && CROSS_FACE_KINDS.has(parsed.value.kind);
+}
+
+/**
+ * The URL a face link should lead to, given the reader's current fragment. Returns `href`
+ * unchanged whenever nothing should be carried, so a caller can compare and do nothing.
+ */
+export function faceHrefWithFragment(href: string, hash: string): string {
+  if (!href || href.includes("#")) return href;
+  const raw = hash.startsWith("#") ? hash.slice(1) : hash;
+  if (!raw) return href;
+  let id: string;
+  try {
+    id = decodeURIComponent(raw);
+  } catch {
+    return href;
+  }
+  if (!crossesFaces(id)) return href;
+  return `${href}#${raw}`;
+}
+
 export function resolvedFaceAnchor(
   requestedId: string,
   present: (id: string) => boolean,
@@ -84,5 +142,50 @@ export function FaceSwitchAnchor() {
     // they are actually at.
     window.history.replaceState(window.history.state, "", `#${resolved}`);
   }, []);
+
+  /*
+    THE OUTBOUND HALF: INTERCEPT THE CLICK, NEVER REWRITE THE HREF (owner's choice, 2026-10-08).
+
+    Rewriting it was tried and withdrawn. `scripts/e2e/journeys/steps.ts:72` locates the face link
+    by an EXACT href match, so appending a fragment made it find zero links: the node lane went
+    604 pass to 601 pass / 3 fail, with the planted journey reporting "4 of 7 steps failed". An
+    href other code matches exactly is a contract, and the no-script reader depends on it too.
+
+    WHY THIS CANNOT DOUBLE-HANDLE WITH ReaderController, which also intercepts `[data-view-link]`.
+    Its effect returns early unless a clarification dialog AND an announcement region exist
+    (ReaderController.tsx:89), and its listener is attached after that guard (:597). Measured in the
+    built site: the reading page carries 2 `data-clarification-dialog` and 1
+    `data-reader-announcement`; the parallel, English, German and gloss faces carry ZERO of each and
+    16 `data-view-link` apiece. So the two populations are disjoint -- it owns the clicks wherever it
+    attaches, and on a source face nothing does, which is exactly where the fragment is lost. The
+    guard below is its own condition, read the same way, so the two cannot drift apart silently.
+  */
+  useEffect(() => {
+    if (document.querySelector("[data-clarification-dialog]") !== null) return;
+    const onClick = (event: MouseEvent): void => {
+      // Leave every modified or non-primary press to the browser: a reader opening a face in a new
+      // tab or window must get the page the href names, unchanged.
+      if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey ||
+        !(event.target instanceof Element)
+      )
+        return;
+      const link = event.target.closest<HTMLAnchorElement>("a[data-view-link]");
+      if (link === null) return;
+      const href = link.getAttribute("href") ?? "";
+      const next = faceHrefWithFragment(href, window.location.hash);
+      if (next === href) return;
+      event.preventDefault();
+      window.location.assign(next);
+    };
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
+  }, []);
+
   return null;
 }
