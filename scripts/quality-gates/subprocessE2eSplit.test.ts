@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
+import { isDsrCheck } from "../../src/testing/dsrChecks.ts";
 import {
   assertNoUnignoredSubprocessTests,
   classifyTestFileContent,
@@ -15,7 +16,6 @@ describe("subprocess tests run under node, not bun test", () => {
   const pkg = JSON.parse(readFileSync("package.json", "utf8")) as {
     scripts: Record<string, string>;
   };
-  const workflow = readFileSync(".github/workflows/quality-gates.yml", "utf8");
 
   test("bunfig.toml uses the bun 1.4.0 pathIgnorePatterns key with **/ globs", () => {
     const patterns = parsePathIgnorePatterns(bunfig);
@@ -62,8 +62,31 @@ describe("subprocess tests run under node, not bun test", () => {
     expect(printed.includes(" scripts/e2e ")).toBe(false);
   });
 
-  test("CI quality-gates workflow invokes bun run test:node", () => {
-    expect(workflow.includes("bun run test:node")).toBe(true);
+  test("the CI really runs bun run test:node, which is what makes this split mean anything", () => {
+    /*
+      THIS READ A WORKFLOW THAT NEVER EXECUTES (am-7bkr). It was
+      `expect(workflow.includes("bun run test:node")).toBe(true)` over
+      `.github/workflows/quality-gates.yml`, and the owner's standing rule is verbatim "we don't use
+      gh actions for CI *EVER*, we ONLY use /dsr" (docs/DECISIONS.md
+      D-2026-09-22-dsr-is-the-ci-never-github-actions). Five workflow files are tracked and none of
+      them runs. So the assertion was green while describing the wiring of a runner that never
+      starts, which is precisely what the rest of this file exists to prevent: a check whose subject
+      nothing reaches.
+
+      Its sibling guard, src/testing/ciGateWiring.test.ts, moved its evidence to package.json on
+      2026-09-22 for this reason and says so in its own docblock. This one was missed.
+
+      The evidence is now the same as that guard's: dsr runs `bun run <script>`, and those scripts
+      are in the repository. Three things are asserted and each can fail on its own -- the check is
+      one dsr runs, the script exists, and it is the node-only runner rather than something that
+      merely shares the name.
+    */
+    expect(isDsrCheck("test:node")).toBe(true);
+    const body = pkg.scripts["test:node"];
+    expect(typeof body).toBe("string");
+    expect(body).toContain("scripts/run-node-only-tests.ts");
+    // A positive control for the predicate itself: a name dsr does not run must not pass it.
+    expect(isDsrCheck("test:browser")).toBe(false);
   });
 
   test("every browser or subprocess-spawning test is excluded in bunfig.toml pathIgnorePatterns (am-zbcg)", () => {

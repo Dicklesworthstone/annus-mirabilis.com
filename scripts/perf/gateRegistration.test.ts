@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { DSR_CHECKS } from "../../src/testing/dsrChecks.ts";
 import { type GateStep, QUALITY_GATE_STEPS } from "../quality-gates/registry.ts";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -127,9 +128,9 @@ describe("Gate Registration Verification", () => {
     const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")) as {
       scripts?: Record<string, string>;
     };
-    // Mirrored from ~/.config/dsr/repos.yaml, tools.annus-mirabilis.checks. Asserted present
-    // below, so a drifted mirror fails here instead of narrowing the population in silence.
-    const DSR_CHECKS = ["typecheck", "test", "test:node", "gates"] as const;
+    // Mirrored ONCE, in src/testing/dsrChecks.ts, which carries the provenance and the reason.
+    // Asserted present below, so a drifted mirror fails here instead of narrowing the population
+    // in silence (am-7bkr).
 
     const surfaces = [
       ...DSR_CHECKS.map((name) => ({

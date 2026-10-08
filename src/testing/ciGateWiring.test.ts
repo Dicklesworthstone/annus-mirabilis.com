@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { QUALITY_GATE_STEPS } from "../../scripts/quality-gates/registry.ts";
+import { DSR_CHECKS } from "./dsrChecks.ts";
 
 /**
  * A gate that declares itself required must be RUN by a job (am-browser-gate-identity-7nq2).
@@ -45,7 +46,9 @@ const ROOT = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
  * and every entry is asserted to exist in package.json below. A mirror that drifted would name a
  * script that is not there, and the population test fails on that rather than quietly narrowing.
  */
-const DSR_CHECKS = ["typecheck", "test", "test:node", "gates"] as const;
+// The list itself is MIRRORED ONCE, in dsrChecks.ts, which carries the provenance above and the
+// reason. It was copied here and in scripts/perf/gateRegistration.test.ts, identically and with
+// the same reasoning spelled out twice (am-7bkr).
 
 type Step = Readonly<{ file: string; line: string }>;
 
