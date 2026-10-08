@@ -23,9 +23,13 @@
  * PDF page from it, strictly more richly than `mapToFacsimilePage` below: it also accepts aliases,
  * page anchors, and a bare section id. So a producer feeding `pdfPageByUnit` would not connect an
  * orphan, it would install a rival to a live reader path, which is the thing "kernels own the law"
- * forbids. Whether `mapToFacsimilePage` is retired or kept as the pure half is a removal decision
- * and belongs to the owner; it is NOT settled here, and nothing in this module may be deleted to
- * settle it.
+ * forbids.
+ *
+ * SETTLED BY THE OWNER, 2026-10-08: this module is KEPT, and `resolveFacsimileTarget` is named here
+ * as the live owner so that nobody wires a second producer. The options put were to retire this arm
+ * or to keep it and record the owner; keeping it was chosen, so NOTHING HERE IS TO BE DELETED and
+ * `mapToFacsimilePage` is not to be given a `pdfPageByUnit` producer. If a facsimile page is needed
+ * from a content id, call `resolveFacsimileTarget` in `src/reader/facsimile/document.ts`.
  *
  * The split-sentence arm was the same shape and IS now fixed, by consuming the owner rather than a
  * copy of its grammar. See the comment at that arm.
