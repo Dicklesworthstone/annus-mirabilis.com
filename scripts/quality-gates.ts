@@ -106,7 +106,7 @@ export function isToolOnPath(tool: string): boolean {
 
 export interface AvailabilityCheckResult {
   readonly available: boolean;
-  readonly kind: "available" | "script-missing" | "tool-missing";
+  readonly kind: "available" | "script-missing" | "tool-missing" | "artifact-missing";
   readonly details: string;
 }
 
@@ -128,6 +128,21 @@ export function checkStepAvailability(step: GateStep, rootDir: string): Availabi
         available: false,
         kind: "script-missing",
         details: `Script '${step.availability.scriptPath}' does not exist on disk.`,
+      };
+    }
+  }
+
+  if (step.availability.requiresArtifact) {
+    // A BUILD ARTEFACT THE STEP MEASURES (am-7bkr). Without it the step would run and pass having
+    // measured nothing, which is indistinguishable from a clean result. Reported as
+    // `artifact-missing` so the runner classifies it: a profile run refuses, and a local run says
+    // so and carries on, rather than printing a green nobody can interpret.
+    const { path, hint } = step.availability.requiresArtifact;
+    if (!existsSync(resolve(rootDir, path))) {
+      return {
+        available: false,
+        kind: "artifact-missing",
+        details: `'${path}' is absent, so this step would measure nothing. ${hint}`,
       };
     }
   }
@@ -237,7 +252,12 @@ export function runQualityGates(options: QualityGatesOptions = {}): QualityGates
           cadence: step.cadence,
           command: step.command,
           outcome: "refused",
-          reason: avail.kind === "tool-missing" ? "tool-unavailable" : "script-missing",
+          reason:
+            avail.kind === "tool-missing"
+              ? "tool-unavailable"
+              : avail.kind === "artifact-missing"
+                ? "artifact-missing"
+                : "script-missing",
           exitCode: null,
           durationMs: 0,
           message: avail.details,
@@ -307,7 +327,7 @@ export function runQualityGates(options: QualityGatesOptions = {}): QualityGates
     // Check availability
     const avail = checkStepAvailability(step, rootDir);
     if (!avail.available) {
-      if (avail.kind === "script-missing") {
+      if (avail.kind === "script-missing" || avail.kind === "artifact-missing") {
         results.push({
           stepId: step.id,
           title: step.title,
@@ -316,7 +336,7 @@ export function runQualityGates(options: QualityGatesOptions = {}): QualityGates
           cadence: step.cadence,
           command: step.command,
           outcome: "not-available",
-          reason: "script-missing",
+          reason: avail.kind,
           exitCode: null,
           durationMs: 0,
           message: avail.details,

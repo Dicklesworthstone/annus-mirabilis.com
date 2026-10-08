@@ -36,19 +36,31 @@ export function validateStepRegistration(
 describe("Gate Registration Verification", () => {
   const stepsMap = new Map(QUALITY_GATE_STEPS.map((s) => [s.id, s]));
 
-  test("registry contains perf-budgets (family perf, cadence nightly, owned by am-plat-perf-budgets-s3ww)", () => {
+  test("registry contains perf-budgets (family fast, cadence every-run, owned by am-plat-perf-budgets-s3ww)", () => {
     const step = stepsMap.get("perf-budgets");
     expect(step).toBeDefined();
     if (!step) return;
 
+    // WAS `perf`/`nightly`, and the registry header recorded that nothing ran it: dsr runs
+    // --family fast and --family browser, `bun run gates` is every-run, and dsr has no nightly
+    // runner. Moved on the owner's decision of 2026-10-08 (am-7bkr). Runtime was the obvious
+    // objection and was measured first: 3 seconds, passing.
     validateStepRegistration(step, {
       id: "perf-budgets",
-      family: "perf",
-      cadence: "nightly",
+      family: "fast",
+      cadence: "every-run",
       owner: "am-plat-perf-budgets-s3ww",
     });
     expect(step.command).toEqual(["bun", "scripts/run-perf-budgets.ts"]);
     expect(step.availability.scriptPath).toBe("scripts/run-perf-budgets.ts");
+    // AND IT MUST NOT PASS WITHOUT A BUILD. It measures from .next, so every-run without this
+    // would make a green that measured nothing routine, which is the half of the owner's choice
+    // that protects the other half.
+    expect(step.availability.requiresArtifact?.path).toBe(".next/app-build-manifest.json");
+    expect((step.availability.requiresArtifact?.hint ?? "").length).toBeGreaterThan(40);
+    // A required step carries no excuse: ciExemptionReasons enforces both directions.
+    expect(step.requiredInCi).toBe(true);
+    expect(step.notRequiredInCiReason).toBeUndefined();
     expect(step.requiredInProfiles).toContain("preview");
     expect(step.requiredInProfiles).toContain("launch");
   });

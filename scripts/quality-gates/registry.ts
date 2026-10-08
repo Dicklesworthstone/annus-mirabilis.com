@@ -16,12 +16,23 @@
  * header naming a non-runner as a consumer is how a step comes to look enforced while no path
  * reaches it, which is this bead's whole subject, so it is corrected here rather than left.
  *
- * ONE STEP CLASS IS STILL UNREACHED IN PRACTICE, measured 2026-10-06 and recorded rather than
- * quietly fixed: the two `perf` steps (perf-budgets, resource-stress, cadence nightly) are required
- * only by the `preview` and `launch` profiles, and every release so far has run under `scaffold`.
- * `bun run gates` does not reach them either, because it is every-run and they are nightly, and
- * there is no nightly runner under dsr. So nothing runs the perf family today. Which profile should
- * require them is an owner call and is filed on am-7bkr.
+ * THAT STEP CLASS IS NOW REACHED, and the history is kept because the measurement is the useful
+ * part. Until 2026-10-08 the two `perf` steps (perf-budgets, resource-stress, cadence nightly) were
+ * required only by the `preview` and `launch` profiles, every release so far had run under
+ * `scaffold`, and `bun run gates` did not reach them either, because it is every-run and they were
+ * nightly with no nightly runner under dsr. So nothing ran the perf family at all.
+ *
+ * Runtime was the obvious objection to moving them and was measured first, on 2026-10-08:
+ * `run-perf-budgets.ts` takes 3 SECONDS and passes; `resource-stress.ts` takes UNDER A SECOND and
+ * passes 6 of 6 scenarios, each with a real duration. So `nightly` was never justified by cost. The
+ * real obstacle was that perf-budgets measures the production build and `gates` builds nothing,
+ * which `AvailabilityProbe.requiresArtifact` now answers: without `.next`, the step reports
+ * `not-available` rather than passing over nothing.
+ *
+ * Owner's decision, 2026-10-08 (am-7bkr): refuse without a build, then every-run. Both are now
+ * `family: "fast"`, `cadence: "every-run"`, `requiredInCi: true`, so `bun run gates` executes them.
+ * The `perf` family is consequently EMPTY, which is deliberate: it exists in `GateFamily` and holds
+ * nothing, rather than holding steps no path reaches.
  *
  * Requirements:
  * - Never weaken a gate.
