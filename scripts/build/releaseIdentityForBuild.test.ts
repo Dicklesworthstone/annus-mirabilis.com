@@ -24,6 +24,7 @@ import {
   identityDecision,
   isCommitSha,
   RELEASE_IDENTITY_SCHEMA,
+  ReleaseIdentityError,
   serializeIdentity,
 } from "./releaseIdentityForBuild.ts";
 
@@ -115,8 +116,24 @@ describe("the identity a build writes", () => {
 
   test("refuses a commit that is not a sha rather than writing a placeholder", () => {
     for (const bad of ["", "HEAD", "f766cdc1", `${HEAD}0`, "../../etc/passwd"]) {
-      expect(() => buildIdentity(bad, new Date())).toThrow(TypeError);
+      expect(() => buildIdentity(bad, new Date())).toThrow(ReleaseIdentityError);
     }
+  });
+
+  test("and the refusal carries its code as a code, not inside the message", () => {
+    // The throw-site census reads a standalone kebab string in the thrown expression
+    // (throwSiteCensus.ts, KEBAB_CODE is anchored). The first version of this module put the code
+    // in the message template, so the census counted an uncoded throw with no way to name it.
+    let caught: unknown;
+    try {
+      buildIdentity("HEAD", new Date());
+    } catch (error) {
+      caught = error;
+    }
+    expect(caught).toBeInstanceOf(ReleaseIdentityError);
+    expect((caught as ReleaseIdentityError).code).toBe("release-identity-commit");
+    // And the message says what was received, because a code alone does not diagnose.
+    expect((caught as ReleaseIdentityError).message).toContain("HEAD");
   });
 
   test("serializes as pretty JSON with a trailing newline, as the deploy script's writer does", () => {

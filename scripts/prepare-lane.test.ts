@@ -81,7 +81,7 @@ describe("prepare lane: the chain is derived, not restated", () => {
     );
   });
 
-  test("REJECT: a missing phase is a fault, not an empty phase (prepare-lane.ts:101)", () => {
+  test("REJECT: a missing phase is a fault, not an empty phase (prepare-lane.ts:106)", () => {
     // A lane that silently runs zero generators and reports success is a check passing on an
     // empty set, which is the failure this repository keeps finding.
     //

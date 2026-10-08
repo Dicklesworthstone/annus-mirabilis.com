@@ -97,10 +97,31 @@ export function identityDecision(existing: unknown, headCommit: string): Identit
   };
 }
 
+/**
+ * A CODED refusal, in the shape verified-production-deploy.ts's ReleaseRefusalError uses: the code
+ * is the first argument and a standalone kebab string, which is what the throw-site census reads
+ * (src/testing/refusals/throwSiteCensus.ts, KEBAB_CODE is anchored). The first version of this file
+ * threw a TypeError with the code inside the message template, and the bare-throw ratchet refused
+ * it -- correctly: a code embedded in prose cannot be matched on, and a reader of the census would
+ * have seen one more uncoded throw with no way to name it.
+ *
+ * It is not imported from the deploy script, which would pull that module's six extensionless
+ * relative imports into the build's prepare lane.
+ */
+export class ReleaseIdentityError extends Error {
+  readonly code: string;
+  constructor(code: string, message: string) {
+    super(message);
+    this.code = code;
+    this.name = "ReleaseIdentityError";
+  }
+}
+
 export function buildIdentity(headCommit: string, now: Date): BuildReleaseIdentity {
   if (!isCommitSha(headCommit)) {
-    throw new TypeError(
-      `A build identity needs a 40-character commit sha, got '${headCommit}' (release-identity-commit).`,
+    throw new ReleaseIdentityError(
+      "release-identity-commit",
+      `A build identity needs a 40-character commit sha, got '${headCommit}'.`,
     );
   }
   return {
