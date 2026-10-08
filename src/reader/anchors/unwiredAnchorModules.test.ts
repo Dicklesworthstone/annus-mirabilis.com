@@ -89,10 +89,13 @@ const UNWIRED_DEBT: Readonly<Record<string, string>> = {
   "paneIds.ts":
     "am-read-anchors-navigation-a6o: split-view DOM identity. No split view is rendered, so the " +
     "pane-b-- prefix and its data-anchor contract are unexercised outside tests.",
-  "placeKeeper.ts":
-    "am-read-anchors-navigation-a6o: place-keeping across a FACE switch. Its own docblock names its " +
-    "live twin, src/reader/detail/nearestStableAnchor.ts, the DETAIL-axis place-keeper, which " +
-    "reaches 8 routes. One axis keeps the reader's place and the other does not.",
+  // "placeKeeper.ts" WAS HERE AND IS PAID, 2026-10-08. It is now imported by
+  // src/reader/faces/FaceSwitchAnchor.tsx, which captures the reader's place before a face switch
+  // and restores it on arrival -- a6o criterion 2's second clause, "the same relative position
+  // (within 8 CSS px)". This gate refused to let the entry stay once an importer existed, which is
+  // the half of a debt record that stops it becoming a budget, and it refused in the same run that
+  // paid it. Its live twin, src/reader/detail/nearestStableAnchor.ts, keeps the Detail axis; both
+  // axes now keep a reader's place.
   "scrollRestore.ts":
     "am-read-anchors-navigation-a6o: manual scroll restoration for back and forward. " +
     "history.scrollRestoration is never set to 'manual' by any route, so the browser's own " +
@@ -176,7 +179,11 @@ describe("the anchor navigation library's wiring debt", () => {
     expect(importers.get("emitAnchor.ts")).toContain("src/reader/faces/TranslationUnit.tsx");
 
     const wired = modules.filter((m) => (importers.get(m) ?? []).length > 0);
-    expect(wired.sort()).toEqual(["aliases.ts", "emitAnchor.ts", "resolve.ts"]);
+    // FOUR NOW, not three: placeKeeper.ts joined on 2026-10-08 (a6o criterion 2). An identity
+    // assertion rather than a count, so wiring a module requires saying so here -- which is how
+    // this line came to be edited rather than quietly satisfied.
+    expect(wired.sort()).toEqual(["aliases.ts", "emitAnchor.ts", "placeKeeper.ts", "resolve.ts"]);
+    expect(importers.get("placeKeeper.ts")).toContain("src/reader/faces/FaceSwitchAnchor.tsx");
   });
 
   test("POSITIVE CONTROL for the cross-root walk: a consumer in scripts/ is found", () => {

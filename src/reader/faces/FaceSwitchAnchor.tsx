@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { type AnchorKind, parseAnchor } from "../../content/anchors.ts";
+import { capturePlace, restoreDelta } from "../anchors/placeKeeper.ts";
 import { contentIdVariants, isSentenceContentId } from "../weave/contentIds.ts";
 
 /**
@@ -80,6 +81,31 @@ const CROSS_FACE_KINDS: ReadonlySet<AnchorKind> = new Set<AnchorKind>([
   "masthead",
 ]);
 
+/**
+ * THE UNITS PLACE-KEEPING MEASURES: "sentence-level (or finer)", in the bead's own words. A
+ * paragraph or a section is coarser than the reader's place and would restore to the top of a block
+ * they were reading the middle of; an equation or a footnote is not a position in the running text.
+ * `inline-equation` is the "or finer" case, since `s3-p2-s1-m1` sits inside a sentence.
+ */
+const PLACE_KEEPING_KINDS: ReadonlySet<AnchorKind> = new Set<AnchorKind>([
+  "sentence",
+  "inline-equation",
+]);
+
+/** True when an id addresses a unit fine enough to restore a reader's place to. */
+export function isPlaceKeepingUnit(id: string): boolean {
+  if (!id) return false;
+  const parsed = parseAnchor(id);
+  return parsed.ok && PLACE_KEEPING_KINDS.has(parsed.value.kind);
+}
+
+/**
+ * Where a captured place is left for the next page. sessionStorage rather than the URL: the
+ * fraction is a viewport measurement, not an address, and putting it in the link would make a
+ * copied URL carry one reader's scroll position.
+ */
+const PLACE_KEY = "am:reader:v1:face-switch-place";
+
 /** True when a fragment names a content anchor that both source faces publish. */
 export function crossesFaces(id: string): boolean {
   if (!id) return false;
@@ -144,6 +170,54 @@ export function FaceSwitchAnchor() {
   }, []);
 
   /*
+    THE SAME RELATIVE POSITION, criterion 2's second clause: "shows the same sentence at the same
+    relative position (within 8 CSS px)".
+
+    `scrollIntoView` and the browser's own fragment handling both put the anchor at the TOP of the
+    viewport. A reader who was reading a sentence in the middle of the screen gets it jumped to the
+    top, which is a different place even though it is the right sentence. `restoreDelta` returns the
+    delta that puts it back at the fraction it held, and a delta rather than an absolute offset
+    because an absolute one breaks under font loading, a Detail change or zoom (placeKeeper.ts).
+
+    CONSUMED ONCE. The snapshot is removed before it is used, so an ordinary later load of the same
+    face cannot restore a stale position, and a failed parse cannot wedge every future visit.
+  */
+  useEffect(() => {
+    let raw: string | null = null;
+    try {
+      raw = window.sessionStorage.getItem(PLACE_KEY);
+      if (raw !== null) window.sessionStorage.removeItem(PLACE_KEY);
+    } catch {
+      return;
+    }
+    if (raw === null) return;
+    let snapshot: { anchorId: string; relativeOffset: number };
+    try {
+      const parsed: unknown = JSON.parse(raw);
+      if (
+        typeof parsed !== "object" ||
+        parsed === null ||
+        typeof (parsed as { anchorId?: unknown }).anchorId !== "string" ||
+        typeof (parsed as { relativeOffset?: unknown }).relativeOffset !== "number" ||
+        !Number.isFinite((parsed as { relativeOffset: number }).relativeOffset)
+      )
+        return;
+      snapshot = parsed as { anchorId: string; relativeOffset: number };
+    } catch {
+      return;
+    }
+    const present = (id: string) => document.getElementById(id) !== null;
+    const landed = resolvedFaceAnchor(snapshot.anchorId, present);
+    if (landed === null) return;
+    const element = document.getElementById(landed);
+    if (element === null) return;
+    const delta = restoreDelta(element.getBoundingClientRect().top, snapshot, window.innerHeight);
+    // Instant, because this completes a navigation the reader asked for rather than animating one
+    // they did not.
+    if (Math.abs(delta) >= 1) window.scrollBy({ top: delta, behavior: "instant" });
+  }, []);
+
+  /*
     THE OUTBOUND HALF: INTERCEPT THE CLICK, NEVER REWRITE THE HREF (owner's choice, 2026-10-08).
 
     Rewriting it was tried and withdrawn. `scripts/e2e/journeys/steps.ts:72` locates the face link
@@ -178,9 +252,33 @@ export function FaceSwitchAnchor() {
       const link = event.target.closest<HTMLAnchorElement>("a[data-view-link]");
       if (link === null) return;
       const href = link.getAttribute("href") ?? "";
-      const next = faceHrefWithFragment(href, window.location.hash);
+
+      /*
+        WHERE THE READER IS, NOT WHERE THEY ARRIVED (criterion 2's second clause). `capturePlace`
+        returns the first sentence-or-finer unit at least half visible and its offset as a FRACTION
+        of the viewport height, which is what survives a different layout on the other face. The
+        arrival hash is only a fallback: a reader who scrolled is no longer at the id they came in
+        on, and carrying that would restore the wrong sentence.
+      */
+      const units = [...document.querySelectorAll<HTMLElement>("[id]")]
+        .filter((el) => isPlaceKeepingUnit(el.id))
+        .map((el) => {
+          const rect = el.getBoundingClientRect();
+          return { id: el.id, top: rect.top, height: rect.height };
+        });
+      const place = capturePlace(units, window.innerHeight);
+      const next = faceHrefWithFragment(href, place ? `#${place.anchorId}` : window.location.hash);
       if (next === href) return;
       event.preventDefault();
+      if (place) {
+        // Best effort, and the switch must happen whether or not it lands: reading continues when
+        // storage is blocked or full.
+        try {
+          window.sessionStorage.setItem(PLACE_KEY, JSON.stringify(place));
+        } catch {
+          /* no storage: the fragment alone still puts the reader on the right sentence */
+        }
+      }
       window.location.assign(next);
     };
     document.addEventListener("click", onClick);

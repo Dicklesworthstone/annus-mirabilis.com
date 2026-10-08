@@ -9,7 +9,12 @@
  * ids, every one of them a split half.
  */
 import { describe, expect, test } from "bun:test";
-import { crossesFaces, faceHrefWithFragment, resolvedFaceAnchor } from "./FaceSwitchAnchor.tsx";
+import {
+  crossesFaces,
+  faceHrefWithFragment,
+  isPlaceKeepingUnit,
+  resolvedFaceAnchor,
+} from "./FaceSwitchAnchor.tsx";
 
 describe("resolvedFaceAnchor maps an absent id to one this face publishes", () => {
   const germanHas = (id: string) => id === "s1-p10-s1";
@@ -125,5 +130,50 @@ describe("faceHrefWithFragment: the href is the input, never mutated in the docu
     expect(faceHrefWithFragment(href, "#%E0%A4%A")).toBe(href);
     expect(faceHrefWithFragment(`${href}#s1`, "#s2")).toBe(`${href}#s1`);
     expect(faceHrefWithFragment("", "#s1-p1-s1")).toBe("");
+  });
+});
+
+describe("isPlaceKeepingUnit: sentence-level or finer, which is the bead's own wording", () => {
+  test("a sentence and a split half are units", () => {
+    expect(isPlaceKeepingUnit("s3-p2-s1")).toBe(true);
+    expect(isPlaceKeepingUnit("s3-p2-s1a")).toBe(true);
+    expect(isPlaceKeepingUnit("s3-p2-s1b")).toBe(true);
+  });
+
+  test("an inline equation is the 'or finer' case", () => {
+    // s3-p2-s1-m1 sits INSIDE a sentence, so restoring to it is finer than the sentence.
+    expect(isPlaceKeepingUnit("s3-p2-s1-m1")).toBe(true);
+  });
+
+  test("a PARAGRAPH or SECTION is too coarse and must not be a unit", () => {
+    // Restoring to a paragraph puts a reader at the top of a block they were reading the middle
+    // of, which is a different place even though it is the right block. That is the whole reason
+    // the bead says "sentence-level (or finer)".
+    expect(isPlaceKeepingUnit("s3-p2")).toBe(false);
+    expect(isPlaceKeepingUnit("s3")).toBe(false);
+    expect(isPlaceKeepingUnit("part-1")).toBe(false);
+  });
+
+  test("an equation, footnote or closing block is not a position in the running text", () => {
+    expect(isPlaceKeepingUnit("eq-s1-d1")).toBe(false);
+    expect(isPlaceKeepingUnit("s1-fn1")).toBe(false);
+    expect(isPlaceKeepingUnit("closing-dateline")).toBe(false);
+    expect(isPlaceKeepingUnit("masthead-title")).toBe(false);
+  });
+
+  test("and it is NARROWER than crossesFaces, which is the point of having both", () => {
+    // crossesFaces answers "can this id be carried to the other face"; this answers "is this a
+    // place a reader can be restored to". A section crosses and is not a place; conflating them
+    // would restore every switch to the top of a section.
+    expect(crossesFaces("s3")).toBe(true);
+    expect(isPlaceKeepingUnit("s3")).toBe(false);
+    expect(crossesFaces("eq-s1-d1")).toBe(true);
+    expect(isPlaceKeepingUnit("eq-s1-d1")).toBe(false);
+  });
+
+  test("non-anchors and empties are not units", () => {
+    for (const id of ["acceleratingPotential", "_R_", "reader-root", "arg-bm-observable", ""]) {
+      expect(isPlaceKeepingUnit(id)).toBe(false);
+    }
   });
 });
