@@ -293,6 +293,8 @@ function currentFace(pathname: string): string {
 export function FaceSwitchAnchor() {
   /** The anchor's place the last time it was at least half visible. */
   const placeRef = useRef<PlaceKeeperSnapshot | undefined>(undefined);
+  /** Set when a face switch carried a place, so the history restore does not also fire. */
+  const carriedRef = useRef(false);
 
   useEffect(() => {
     const raw = window.location.hash.startsWith("#")
@@ -393,6 +395,7 @@ export function FaceSwitchAnchor() {
     if (element === null) return;
     // The offset the snapshot asks for, as a distance from the viewport top: restoreDelta with a
     // current top of 0 is exactly `-relativeOffset * viewportHeight`.
+    carriedRef.current = true;
     return holdAt(element, -restoreDelta(0, snapshot, window.innerHeight));
   }, []);
 
@@ -556,7 +559,6 @@ export function FaceSwitchAnchor() {
     setManualScrollRestoration(window.history);
 
     let lastWritten = "";
-    let lastWriteAt = 0;
     const write = (): void => {
       const place = placeRef.current;
       if (place === undefined) return;
@@ -566,10 +568,8 @@ export function FaceSwitchAnchor() {
         relativeOffset: Number(place.relativeOffset.toFixed(2)),
       };
       const key = `${record.face}|${record.anchor}|${record.relativeOffset}`;
-      const now = Date.now();
-      if (key === lastWritten || now - lastWriteAt < 500) return;
+      if (key === lastWritten) return;
       lastWritten = key;
-      lastWriteAt = now;
       try {
         const existing =
           typeof window.history.state === "object" && window.history.state !== null
@@ -584,6 +584,9 @@ export function FaceSwitchAnchor() {
 
     let stopHold: (() => void) | undefined;
     const onPopState = (): void => {
+      // A face switch that carried its own place has already restored it, and it is the more
+      // specific intent: the reader clicked a link rather than pressing Back.
+      if (carriedRef.current) return;
       stopHold?.();
       const record = parseScrollRestoreRecord(window.history.state);
       if (record === null || record.face !== currentFace(window.location.pathname)) return;
@@ -598,21 +601,42 @@ export function FaceSwitchAnchor() {
       );
     };
 
-    let frame = 0;
+    /*
+      THE WRITE IS ON THE TRAILING EDGE, which is the whole of it: it records where the reader
+      STOPPED, not where they passed through.
+
+      A leading-edge throttle was tried first and recorded the wrong place every time. Measured on
+      relativity's English face at #s4-p3-s1: the stored fraction came out 0.91 where the settled
+      position is 0.02, because the engine's convergence scrolls the anchor from 24,454px up to
+      16px over about 1.8 seconds, a write landed while it was passing 819px, and the final resting
+      position produced NO FURTHER SCROLL EVENT to correct it. So back-navigation restored the
+      place the reader scrolled through on the way in.
+
+      A trailing debounce also bounds the write rate without a throttle: one write per quiet period,
+      and replaceState is rate-limited (Safari refuses after about 100 calls in 30 seconds).
+    */
+    let timer: ReturnType<typeof setTimeout> | undefined;
     const onScroll = (): void => {
-      if (frame === 0)
-        frame = window.requestAnimationFrame(() => {
-          frame = 0;
-          write();
-        });
+      if (timer !== undefined) clearTimeout(timer);
+      timer = setTimeout(write, 300);
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("popstate", onPopState);
-    // A restored page may arrive through pageshow rather than popstate when it comes from the
-    // back/forward cache, where no navigation event fires at all.
     window.addEventListener("pageshow", onPopState);
+
+    /*
+      AND THE RESTORE RUNS ON MOUNT, not only on a navigation event. A cross-document Back on a
+      static site re-LOADS the page, and `pageshow` fires before this effect can attach a listener
+      to it -- measured: three pageshow events for the three navigations, and onPopState reached by
+      none of them, so the restore never ran and Back stayed 24,438px out.
+
+      Reading history.state on mount covers that case and cannot misfire on an ordinary first
+      visit, where the state carries no record. On a reload it restores the reader's place, which is
+      what someone pressing refresh wants.
+    */
+    onPopState();
     return () => {
-      if (frame !== 0) window.cancelAnimationFrame(frame);
+      if (timer !== undefined) clearTimeout(timer);
       stopHold?.();
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("popstate", onPopState);
