@@ -315,9 +315,77 @@ export function FaceSwitchAnchor() {
     const wanted = -restoreDelta(0, snapshot, window.innerHeight);
     const margin = Math.min(Math.max(wanted, 0), window.innerHeight * 0.8);
     element.style.scrollMarginTop = `${margin}px`;
-    // Instant by default, because this completes a navigation the reader asked for rather than
-    // animating one they did not.
     element.scrollIntoView();
+
+    /*
+      AND THEN CORRECT UNTIL IT SETTLES, because a margin cannot absorb a residual it does not know
+      about. Measured at 1280x900 on relativity's #s4-p3-s1, each after the scroll had stopped
+      moving: the anchor rests at `scroll-margin-top + about 12px`, not at the margin.
+
+          face                  margin    resting top
+          English, deep link     0px        16.1px
+          German, deep link     48px        59.5px      (48px comes from the stylesheet)
+          German, restored      16.1px      28.5px      (margin set by this effect)
+
+      The document keeps growing above the anchor after the engine's last pass -- fonts, KaTeX, late
+      blocks -- so the anchor is pushed down from wherever it was placed and nothing re-corrects it.
+      That residual is why the margin alone took the drift from 43.4px to 12.4px and no further: the
+      criterion's allowance is 8px.
+
+      So the offset is re-checked on each scroll or resize tick and corrected while it is off by
+      more than a pixel. Three conditions keep this from becoming a loop that fights someone:
+
+        - it stops as soon as two consecutive ticks agree, which is the normal exit;
+        - it stops at a deadline, so a page that never settles costs a bounded number of ticks
+          rather than running for as long as the reader stays;
+        - it stops the instant the reader shows intent -- wheel, touch, or a key. That is the
+          important one. A reader who starts scrolling has overridden the restore, and continuing
+          to correct would drag them back to a place they just left.
+    */
+    let ticks = 0;
+    const deadline = Date.now() + 4000;
+    let settledAt = Number.NaN;
+    let frame = 0;
+    let done = false;
+    const stop = () => {
+      if (done) return;
+      done = true;
+      if (frame !== 0) window.cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onTick);
+      window.removeEventListener("resize", onTick);
+      for (const kind of ["wheel", "touchstart", "keydown"] as const) {
+        window.removeEventListener(kind, stop);
+      }
+    };
+    const correct = () => {
+      frame = 0;
+      if (done) return;
+      ticks += 1;
+      const top = element.getBoundingClientRect().top;
+      const off = top - wanted;
+      if (Math.abs(off) <= 1) {
+        // Two agreeing ticks, not one: a single reading can be taken mid-animation.
+        if (Number.isFinite(settledAt) && ticks - settledAt >= 1) stop();
+        else settledAt = ticks;
+        return;
+      }
+      settledAt = Number.NaN;
+      if (ticks > 60 || Date.now() > deadline) {
+        stop();
+        return;
+      }
+      window.scrollBy({ top: off, behavior: "instant" });
+    };
+    function onTick(): void {
+      if (frame === 0) frame = window.requestAnimationFrame(correct);
+    }
+    window.addEventListener("scroll", onTick, { passive: true });
+    window.addEventListener("resize", onTick, { passive: true });
+    for (const kind of ["wheel", "touchstart", "keydown"] as const) {
+      window.addEventListener(kind, stop, { passive: true, once: true });
+    }
+    onTick();
+    return stop;
   }, []);
 
   /*
