@@ -155,6 +155,53 @@ export function anchorForSourceId(id: string): string {
 /**
  * Validates and parses any URL anchor fragment across all reader faces.
  */
+/**
+ * THE SECTION A SOURCE ANCHOR BELONGS TO: `s4-p3-s1` -> `s4`, `eq-s9-d4` -> `s9`, `s4` -> `s4`.
+ * Returns null for an anchor that is not inside a numbered section, which is not an error: the
+ * masthead, the closing blocks and paper 3's part headings genuinely sit outside one, and paper 4
+ * has no sections and writes `s0`, which IS a section for this purpose.
+ *
+ * WHY THIS LIVES HERE AND NOT AT ITS CALLER. The id grammar is this module's subject, and
+ * docs/CONTENT_IDS.md defines the section as the leading segment. A caller that wanted a section
+ * would otherwise write `/^s(\d+)/` against an id it did not parse -- which is the mistake
+ * src/reader/anchors/mapToFace.ts made with SENTENCE_PATTERN, a character-for-character copy of the
+ * unexported original a few lines below. A copy beside an unexported original cannot be kept in
+ * step, so the owner exports the question instead of leaving the pattern to be copied.
+ *
+ * A build-time caller holding the content records should prefer src/reader/faces/unitSections.ts,
+ * which reads each block's declared `section` rather than inferring it. This is for a caller that
+ * has an id and nothing else -- a client island with only the DOM and a fragment.
+ *
+ * MEASURED against every section the source records declare (sectionAnchorOf.test.ts, which reads
+ * the YAML rather than a loader's output): 955 of 961 declared (id, section) pairs across 436
+ * blocks and four papers are answerable from the id, and all 955 agree. The six that are not are
+ * `eq-2` (s3) and `eq-A` (s10), equation anchors with no section segment, and `masthead-title` and
+ * `masthead-author`, which the records place in s0 while the id says nothing. Those four return
+ * null here on purpose: a caller that needs them must read the record, and a lookup that invented
+ * s0 would be indistinguishable from one that succeeded.
+ */
+export function sectionAnchorOf(id: string): string | null {
+  const parsed = parseAnchor(id);
+  if (!parsed.ok) return null;
+  switch (parsed.value.kind) {
+    case "section":
+      return parsed.value.targetId;
+    case "paragraph":
+    case "sentence":
+    case "inline-equation":
+    case "footnote":
+    case "equation": {
+      // Every one of these ids carries its section as a leading `s<n>`, either at the start
+      // (`s4-p3-s1`, `s4-fn1`) or after the `eq-` prefix (`eq-s9-d4`). `eq-A` is the exception and
+      // falls through to null, which is why this reads the match rather than assuming one.
+      const match = parsed.value.targetId.match(/^(?:eq-)?(s\d+)(?:-|$)/);
+      return match?.[1] ?? null;
+    }
+    default:
+      return null;
+  }
+}
+
 export function parseAnchor(raw: string): ParseResult<ParsedAnchor> {
   if (!raw || typeof raw !== "string") {
     return { ok: false, error: "Anchor must be a non-empty string", rule: "anchor-grammar" };
