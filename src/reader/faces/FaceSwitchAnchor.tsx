@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { type AnchorKind, parseAnchor, sectionAnchorOf } from "../../content/anchors.ts";
 import { mapToResultsFace } from "../anchors/mapToFace.ts";
-import { capturePlace, restoreDelta } from "../anchors/placeKeeper.ts";
+import { capturePlace, type PlaceKeeperSnapshot, restoreDelta } from "../anchors/placeKeeper.ts";
 import { contentIdVariants, isSentenceContentId } from "../weave/contentIds.ts";
 
 /**
@@ -185,7 +185,31 @@ export function resultsAnchorForSource(
   return anchors[0] ?? null;
 }
 
+/**
+ * The place of the element the current fragment names, if it is at least half visible. One unit
+ * rather than a document scan, because the fragment is the reader's address and the first
+ * half-visible sentence anywhere in the document is not (see the click handler's note).
+ */
+function placeOfHash(): PlaceKeeperSnapshot | undefined {
+  const raw = window.location.hash.startsWith("#")
+    ? window.location.hash.slice(1)
+    : window.location.hash;
+  if (!raw) return undefined;
+  let element: HTMLElement | null;
+  try {
+    element = document.getElementById(decodeURIComponent(raw));
+  } catch {
+    return undefined;
+  }
+  if (element === null || !isPlaceKeepingUnit(element.id)) return undefined;
+  const rect = element.getBoundingClientRect();
+  return capturePlace([{ id: element.id, top: rect.top, height: rect.height }], window.innerHeight);
+}
+
 export function FaceSwitchAnchor() {
+  /** The anchor's place the last time it was at least half visible. */
+  const placeRef = useRef<PlaceKeeperSnapshot | undefined>(undefined);
+
   useEffect(() => {
     const raw = window.location.hash.startsWith("#")
       ? window.location.hash.slice(1)
@@ -228,10 +252,28 @@ export function FaceSwitchAnchor() {
     relative position (within 8 CSS px)".
 
     `scrollIntoView` and the browser's own fragment handling both put the anchor at the TOP of the
-    viewport. A reader who was reading a sentence in the middle of the screen gets it jumped to the
-    top, which is a different place even though it is the right sentence. `restoreDelta` returns the
-    delta that puts it back at the fraction it held, and a delta rather than an absolute offset
-    because an absolute one breaks under font loading, a Detail change or zoom (placeKeeper.ts).
+    viewport, so the same sentence rests at a different place on each face: measured at 1280x900 on
+    relativity, #s4-p3-s1 settles 16.1px from the top on the English face and 59.5px on the German
+    one, a 43.4px difference, because the German face sets each paragraph beside a "[p. 903]" locator
+    line. 43px is five times what the criterion allows and a reader sees it.
+
+    SCROLL-MARGIN, NOT A ONE-SHOT SCROLL. The obvious implementation -- compute `restoreDelta` and
+    `scrollBy` it on mount -- was written first and cannot work, because the anchor's position is not
+    settled when an effect runs. Measured on that same page: scrollY is 0 at `load`, 8,413 three
+    hundred milliseconds later and 24,438 after about 1.8 seconds, as the browser re-scrolls to the
+    anchor while the document grows past 65,000px. A delta applied at mount is computed from a
+    mid-flight position and is then overwritten by the browser's next convergence pass.
+
+    So the wanted offset is handed to the browser as `scroll-margin-top` on the target, and every
+    convergence pass -- including the ones still to come -- honours it. `scrollIntoView()` follows,
+    for the case where convergence had already finished before this effect ran. `restoreDelta` is
+    still the owner of the arithmetic; only where its answer is applied has changed, from a scroll
+    position to a margin, which is why it takes a top of 0: the margin is measured from the
+    viewport top, not from wherever the element currently sits.
+
+    The inline margin is left in place deliberately. It affects exactly one element on one page
+    view, and it means a later in-page link to the same sentence lands where the reader last chose
+    to have it rather than somewhere else.
 
     CONSUMED ONCE. The snapshot is removed before it is used, so an ordinary later load of the same
     face cannot restore a stale position, and a failed parse cannot wedge every future visit.
@@ -265,10 +307,52 @@ export function FaceSwitchAnchor() {
     if (landed === null) return;
     const element = document.getElementById(landed);
     if (element === null) return;
-    const delta = restoreDelta(element.getBoundingClientRect().top, snapshot, window.innerHeight);
-    // Instant, because this completes a navigation the reader asked for rather than animating one
-    // they did not.
-    if (Math.abs(delta) >= 1) window.scrollBy({ top: delta, behavior: "instant" });
+    // The offset the snapshot asks for, as a distance from the viewport top: restoreDelta with a
+    // current top of 0 is exactly `-relativeOffset * viewportHeight`, and the margin is its
+    // negation. Clamped to the viewport so a corrupt or stale fraction cannot push the anchor off
+    // the screen entirely, and floored at 0 because a negative scroll-margin would scroll the
+    // anchor ABOVE the top edge.
+    const wanted = -restoreDelta(0, snapshot, window.innerHeight);
+    const margin = Math.min(Math.max(wanted, 0), window.innerHeight * 0.8);
+    element.style.scrollMarginTop = `${margin}px`;
+    // Instant by default, because this completes a navigation the reader asked for rather than
+    // animating one they did not.
+    element.scrollIntoView();
+  }, []);
+
+  /*
+    KEEP THE ANCHOR'S PLACE WHILE THE READER CAN SEE IT.
+
+    A deep link's position is not settled at load. Measured on relativity's English face at
+    #s4-p3-s1, 1280x900, document 65,961px tall and the anchor 24,454px down: scrollY is 0 at
+    `load`, 8,413 three hundred milliseconds later, and 24,438 after about 1.8 seconds, as the
+    browser chases the anchor while the document grows. So there is no single moment to measure at,
+    and this records on every scroll instead, keeping the last reading taken while the anchor was at
+    least half visible.
+
+    Passive, rAF-coalesced, and it reads ONE element's rect, so a scroll does no layout work beyond
+    that. It records nothing once the anchor leaves the screen, which is what makes the stored value
+    "where the sentence was when the reader last had it in front of them" rather than "where the
+    page happens to be now".
+  */
+  useEffect(() => {
+    let frame = 0;
+    const record = () => {
+      frame = 0;
+      const place = placeOfHash();
+      if (place !== undefined) placeRef.current = place;
+    };
+    const onScroll = () => {
+      if (frame === 0) frame = window.requestAnimationFrame(record);
+    };
+    record();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      if (frame !== 0) window.cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, []);
 
   /*
@@ -333,26 +417,19 @@ export function FaceSwitchAnchor() {
         scrolling. Whether to make the chooser sticky instead is a layout decision for the owner, and
         it is recorded on the bead rather than taken here.
       */
-      const hash = window.location.hash.startsWith("#") ? window.location.hash.slice(1) : "";
-      let atHash: HTMLElement | null = null;
-      try {
-        atHash = hash === "" ? null : document.getElementById(decodeURIComponent(hash));
-      } catch {
-        atHash = null;
-      }
-      const place =
-        atHash !== null && isPlaceKeepingUnit(atHash.id)
-          ? capturePlace(
-              [
-                {
-                  id: atHash.id,
-                  top: atHash.getBoundingClientRect().top,
-                  height: atHash.getBoundingClientRect().height,
-                },
-              ],
-              window.innerHeight,
-            )
-          : undefined;
+      // THE LAST POSITION AT WHICH THE READER COULD SEE THE ANCHOR, not the position at the click.
+      // Measuring at the click reads nothing useful, and this was measured rather than assumed: the
+      // only face chooser sits 15,472 bytes into a 6.1MB document and is not sticky, so reaching it
+      // means scrolling the anchor off the screen first. Across three journeys at 1280x900
+      // (mass-energy #s0-p4-s1 and #s0-p6-s1, brownian-motion #s1-p2-s1) the German link was NEVER
+      // on screen while the sentence was, so a click-time capture is always undefined and
+      // place-keeping would be dead code.
+      //
+      // `placeRef` is kept up to date by the effect below for exactly as long as the anchor is at
+      // least half visible, so what is carried is where the sentence sat when the reader last had
+      // it in front of them. A live reading is still preferred when there is one.
+      const live = placeOfHash();
+      const place = live ?? placeRef.current;
       const next = faceHrefWithFragment(href, window.location.hash);
       if (next === href) return;
       event.preventDefault();
