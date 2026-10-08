@@ -254,20 +254,52 @@ export function FaceSwitchAnchor() {
       const href = link.getAttribute("href") ?? "";
 
       /*
-        WHERE THE READER IS, NOT WHERE THEY ARRIVED (criterion 2's second clause). `capturePlace`
-        returns the first sentence-or-finer unit at least half visible and its offset as a FRACTION
-        of the viewport height, which is what survives a different layout on the other face. The
-        arrival hash is only a fallback: a reader who scrolled is no longer at the id they came in
-        on, and carrying that would restore the wrong sentence.
+        THE ADDRESS IS THE FRAGMENT; THE FRACTION ONLY REFINES IT.
+
+        The bead specifies the capture rule as "the first sentence-level (or finer) anchor, in
+        document order, whose element is at least half visible". Implemented literally over the whole
+        document, that rule DISCARDS the reader's address, and it does so in the ordinary case rather
+        than an edge one. Measured in the built English face of special-relativity: there is exactly
+        ONE face chooser, 15,472 bytes into a 6,129,321-byte document, and `.reader-controls` sets
+        only `border-block` and `padding` -- it is not sticky (src/reader/reader.css:76). A reader who
+        followed `#s4-p3-s1` has the chooser scrolled off the top of the viewport, so switching face
+        means scrolling back to the top FIRST. The first half-visible sentence at the moment of the
+        click is therefore the first sentence of the paper, and carrying it would have replaced a
+        deep link the reader chose with the top of the paper. That is worse than doing nothing, and
+        the first version of this file did it.
+
+        So the fragment the reader is at stays the address, exactly as before place-keeping, and
+        `capturePlace` is asked about ONE unit: the element that fragment names. When it is at least
+        half visible the fraction is carried and the other face restores it; when the reader has
+        scrolled away from it, nothing is carried and the other face lands the anchor the way the
+        browser would. Both halves are honest, and neither can move the reader somewhere they did
+        not ask to go.
+
+        THE BEAD'S WORDING IS NOT WRONG, IT IS CONDITIONAL on a chooser the reader can reach without
+        scrolling. Whether to make the chooser sticky instead is a layout decision for the owner, and
+        it is recorded on the bead rather than taken here.
       */
-      const units = [...document.querySelectorAll<HTMLElement>("[id]")]
-        .filter((el) => isPlaceKeepingUnit(el.id))
-        .map((el) => {
-          const rect = el.getBoundingClientRect();
-          return { id: el.id, top: rect.top, height: rect.height };
-        });
-      const place = capturePlace(units, window.innerHeight);
-      const next = faceHrefWithFragment(href, place ? `#${place.anchorId}` : window.location.hash);
+      const hash = window.location.hash.startsWith("#") ? window.location.hash.slice(1) : "";
+      let atHash: HTMLElement | null = null;
+      try {
+        atHash = hash === "" ? null : document.getElementById(decodeURIComponent(hash));
+      } catch {
+        atHash = null;
+      }
+      const place =
+        atHash !== null && isPlaceKeepingUnit(atHash.id)
+          ? capturePlace(
+              [
+                {
+                  id: atHash.id,
+                  top: atHash.getBoundingClientRect().top,
+                  height: atHash.getBoundingClientRect().height,
+                },
+              ],
+              window.innerHeight,
+            )
+          : undefined;
+      const next = faceHrefWithFragment(href, window.location.hash);
       if (next === href) return;
       event.preventDefault();
       if (place) {
