@@ -4,6 +4,11 @@ import { useEffect, useRef } from "react";
 import { type AnchorKind, parseAnchor, sectionAnchorOf } from "../../content/anchors.ts";
 import { mapToResultsFace } from "../anchors/mapToFace.ts";
 import { capturePlace, type PlaceKeeperSnapshot, restoreDelta } from "../anchors/placeKeeper.ts";
+import {
+  parseScrollRestoreRecord,
+  restoreRelativeDelta,
+  setManualScrollRestoration,
+} from "../anchors/scrollRestore.ts";
 import { contentIdVariants, isSentenceContentId } from "../weave/contentIds.ts";
 
 /**
@@ -206,6 +211,85 @@ function placeOfHash(): PlaceKeeperSnapshot | undefined {
   return capturePlace([{ id: element.id, top: rect.top, height: rect.height }], window.innerHeight);
 }
 
+/**
+ * Puts `element`'s top at `wanted` pixels from the viewport top and KEEPS IT THERE until the page
+ * stops moving, returning a function that stops early.
+ *
+ * Both callers need this and neither can do it with one scroll. Measured at 1280x900 on
+ * relativity's #s4-p3-s1 -- a 65,961px document with the anchor 24,454px down -- scrollY is 0 at
+ * `load`, 8,413 at +300ms and 24,438 at about +1.8s, because the engine re-scrolls to the anchor
+ * while the document grows. Anything computed from a single early measurement is read off a
+ * mid-flight position and then overwritten.
+ *
+ * `scroll-margin-top` hands the target to the engine's own passes; the tick loop closes the residual
+ * the margin cannot know about. The residual is not noise and not a constant worth hard-coding --
+ * each reading below was taken after the scroll had stopped moving:
+ *
+ *     face                  margin    resting top
+ *     English, deep link     0px        16.1px
+ *     German, deep link     48px        59.5px      (48px from the stylesheet)
+ *     German, restored      16.1px      28.5px      (margin set by the restore)
+ *
+ * The anchor rests at margin + about 12px in every case, because the document keeps growing ABOVE
+ * it after the engine's last pass and nothing re-corrects. Margin alone took the English-to-German
+ * drift from 43.4px to 12.4px; the loop takes it to 0.4px, against an 8px allowance. Three exits:
+ * two consecutive agreeing
+ * ticks, a deadline and tick budget, and -- the one that matters -- any sign of reader intent, since
+ * continuing to correct after someone starts scrolling drags them back where they just left.
+ */
+function holdAt(element: HTMLElement, wanted: number): () => void {
+  const clamped = Math.min(Math.max(wanted, 0), window.innerHeight * 0.8);
+  element.style.scrollMarginTop = `${clamped}px`;
+  element.scrollIntoView();
+  let ticks = 0;
+  let settledAt = Number.NaN;
+  let frame = 0;
+  let done = false;
+  const deadline = Date.now() + 4000;
+  const stop = (): void => {
+    if (done) return;
+    done = true;
+    if (frame !== 0) window.cancelAnimationFrame(frame);
+    window.removeEventListener("scroll", onTick);
+    window.removeEventListener("resize", onTick);
+    for (const kind of ["wheel", "touchstart", "keydown"] as const) {
+      window.removeEventListener(kind, stop);
+    }
+  };
+  const correct = (): void => {
+    frame = 0;
+    if (done) return;
+    ticks += 1;
+    const off = element.getBoundingClientRect().top - clamped;
+    if (Math.abs(off) <= 1) {
+      if (Number.isFinite(settledAt) && ticks - settledAt >= 1) stop();
+      else settledAt = ticks;
+      return;
+    }
+    settledAt = Number.NaN;
+    if (ticks > 60 || Date.now() > deadline) {
+      stop();
+      return;
+    }
+    window.scrollBy({ top: off, behavior: "instant" });
+  };
+  function onTick(): void {
+    if (frame === 0) frame = window.requestAnimationFrame(correct);
+  }
+  window.addEventListener("scroll", onTick, { passive: true });
+  window.addEventListener("resize", onTick, { passive: true });
+  for (const kind of ["wheel", "touchstart", "keydown"] as const) {
+    window.addEventListener(kind, stop, { passive: true, once: true });
+  }
+  onTick();
+  return stop;
+}
+
+/** The face segment of a reading-face URL (`/papers/<paper>/view/<face>/`), or "" off a face page. */
+function currentFace(pathname: string): string {
+  return /\/view\/([a-z-]+)\/?$/.exec(pathname)?.[1] ?? "";
+}
+
 export function FaceSwitchAnchor() {
   /** The anchor's place the last time it was at least half visible. */
   const placeRef = useRef<PlaceKeeperSnapshot | undefined>(undefined);
@@ -308,84 +392,8 @@ export function FaceSwitchAnchor() {
     const element = document.getElementById(landed);
     if (element === null) return;
     // The offset the snapshot asks for, as a distance from the viewport top: restoreDelta with a
-    // current top of 0 is exactly `-relativeOffset * viewportHeight`, and the margin is its
-    // negation. Clamped to the viewport so a corrupt or stale fraction cannot push the anchor off
-    // the screen entirely, and floored at 0 because a negative scroll-margin would scroll the
-    // anchor ABOVE the top edge.
-    const wanted = -restoreDelta(0, snapshot, window.innerHeight);
-    const margin = Math.min(Math.max(wanted, 0), window.innerHeight * 0.8);
-    element.style.scrollMarginTop = `${margin}px`;
-    element.scrollIntoView();
-
-    /*
-      AND THEN CORRECT UNTIL IT SETTLES, because a margin cannot absorb a residual it does not know
-      about. Measured at 1280x900 on relativity's #s4-p3-s1, each after the scroll had stopped
-      moving: the anchor rests at `scroll-margin-top + about 12px`, not at the margin.
-
-          face                  margin    resting top
-          English, deep link     0px        16.1px
-          German, deep link     48px        59.5px      (48px comes from the stylesheet)
-          German, restored      16.1px      28.5px      (margin set by this effect)
-
-      The document keeps growing above the anchor after the engine's last pass -- fonts, KaTeX, late
-      blocks -- so the anchor is pushed down from wherever it was placed and nothing re-corrects it.
-      That residual is why the margin alone took the drift from 43.4px to 12.4px and no further: the
-      criterion's allowance is 8px.
-
-      So the offset is re-checked on each scroll or resize tick and corrected while it is off by
-      more than a pixel. Three conditions keep this from becoming a loop that fights someone:
-
-        - it stops as soon as two consecutive ticks agree, which is the normal exit;
-        - it stops at a deadline, so a page that never settles costs a bounded number of ticks
-          rather than running for as long as the reader stays;
-        - it stops the instant the reader shows intent -- wheel, touch, or a key. That is the
-          important one. A reader who starts scrolling has overridden the restore, and continuing
-          to correct would drag them back to a place they just left.
-    */
-    let ticks = 0;
-    const deadline = Date.now() + 4000;
-    let settledAt = Number.NaN;
-    let frame = 0;
-    let done = false;
-    const stop = () => {
-      if (done) return;
-      done = true;
-      if (frame !== 0) window.cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", onTick);
-      window.removeEventListener("resize", onTick);
-      for (const kind of ["wheel", "touchstart", "keydown"] as const) {
-        window.removeEventListener(kind, stop);
-      }
-    };
-    const correct = () => {
-      frame = 0;
-      if (done) return;
-      ticks += 1;
-      const top = element.getBoundingClientRect().top;
-      const off = top - wanted;
-      if (Math.abs(off) <= 1) {
-        // Two agreeing ticks, not one: a single reading can be taken mid-animation.
-        if (Number.isFinite(settledAt) && ticks - settledAt >= 1) stop();
-        else settledAt = ticks;
-        return;
-      }
-      settledAt = Number.NaN;
-      if (ticks > 60 || Date.now() > deadline) {
-        stop();
-        return;
-      }
-      window.scrollBy({ top: off, behavior: "instant" });
-    };
-    function onTick(): void {
-      if (frame === 0) frame = window.requestAnimationFrame(correct);
-    }
-    window.addEventListener("scroll", onTick, { passive: true });
-    window.addEventListener("resize", onTick, { passive: true });
-    for (const kind of ["wheel", "touchstart", "keydown"] as const) {
-      window.addEventListener(kind, stop, { passive: true, once: true });
-    }
-    onTick();
-    return stop;
+    // current top of 0 is exactly `-relativeOffset * viewportHeight`.
+    return holdAt(element, -restoreDelta(0, snapshot, window.innerHeight));
   }, []);
 
   /*
@@ -514,6 +522,102 @@ export function FaceSwitchAnchor() {
     };
     document.addEventListener("click", onClick);
     return () => document.removeEventListener("click", onClick);
+  }, []);
+
+  /*
+    BACK AND FORWARD RESTORE THE PLACE, criterion 6. This was measured broken, badly.
+
+    With `history.scrollRestoration` left at "auto", pressing Back after a face switch returned the
+    right face and the right fragment and put the reader at the TOP of the paper. Measured at
+    1280x900 on relativity, English #s4-p3-s1 -> click German -> Back:
+
+        english arrival      scrollY 24438   sentence top     16.1px
+        german after click   scrollY 27534   sentence top     16.5px
+        english after Back   scrollY     4   sentence top 24450.1px   <- 24,434px lost
+
+    Forward worked. Back did not, because the engine applies its saved offset to a document that has
+    not grown to 65,961px yet and clamps to nothing, and a Back navigation does not re-apply the
+    fragment either. A Detail change between visits made no difference: the loss was already total.
+
+    So restoration is taken over. `scrollRestoration = "manual"` stops the engine's attempt, and the
+    place is written into `history.state` as a CONTENT ANCHOR and a VIEWPORT FRACTION --
+    `parseScrollRestoreRecord` refuses a record carrying `scrollY`, `topPx` or `pixelOffset`, which
+    is what makes this survive the font load, Detail change and zoom that defeat a pixel offset.
+
+    THE WRITE IS THROTTLED AND DEDUPLICATED, which is not a detail. replaceState is rate-limited by
+    browsers (Safari refuses after about 100 calls in 30 seconds), so writing one per scroll frame
+    would have the restore silently stop working on the platform least able to report it. The record
+    is written at most every 500ms, and only when the anchor or the fraction rounded to two decimals
+    has actually changed.
+  */
+  useEffect(() => {
+    const face = currentFace(window.location.pathname);
+    if (!face) return;
+    setManualScrollRestoration(window.history);
+
+    let lastWritten = "";
+    let lastWriteAt = 0;
+    const write = (): void => {
+      const place = placeRef.current;
+      if (place === undefined) return;
+      const record = {
+        face,
+        anchor: place.anchorId,
+        relativeOffset: Number(place.relativeOffset.toFixed(2)),
+      };
+      const key = `${record.face}|${record.anchor}|${record.relativeOffset}`;
+      const now = Date.now();
+      if (key === lastWritten || now - lastWriteAt < 500) return;
+      lastWritten = key;
+      lastWriteAt = now;
+      try {
+        const existing =
+          typeof window.history.state === "object" && window.history.state !== null
+            ? (window.history.state as Record<string, unknown>)
+            : {};
+        window.history.replaceState({ ...existing, ...record }, "");
+      } catch {
+        // A refused replaceState leaves the reader with no restoration, which is where they were
+        // before this effect existed. It must never break the page.
+      }
+    };
+
+    let stopHold: (() => void) | undefined;
+    const onPopState = (): void => {
+      stopHold?.();
+      const record = parseScrollRestoreRecord(window.history.state);
+      if (record === null || record.face !== currentFace(window.location.pathname)) return;
+      const present = (id: string) => document.getElementById(id) !== null;
+      const landed = resolvedFaceAnchor(record.anchor, present);
+      if (landed === null) return;
+      const element = document.getElementById(landed);
+      if (element === null) return;
+      stopHold = holdAt(
+        element,
+        -restoreRelativeDelta(0, record.relativeOffset, window.innerHeight),
+      );
+    };
+
+    let frame = 0;
+    const onScroll = (): void => {
+      if (frame === 0)
+        frame = window.requestAnimationFrame(() => {
+          frame = 0;
+          write();
+        });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("popstate", onPopState);
+    // A restored page may arrive through pageshow rather than popstate when it comes from the
+    // back/forward cache, where no navigation event fires at all.
+    window.addEventListener("pageshow", onPopState);
+    return () => {
+      if (frame !== 0) window.cancelAnimationFrame(frame);
+      stopHold?.();
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("popstate", onPopState);
+      window.removeEventListener("pageshow", onPopState);
+    };
   }, []);
 
   return null;

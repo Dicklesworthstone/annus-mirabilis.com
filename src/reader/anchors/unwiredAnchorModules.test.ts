@@ -102,10 +102,16 @@ const UNWIRED_DEBT: Readonly<Record<string, string>> = {
   // the half of a debt record that stops it becoming a budget, and it refused in the same run that
   // paid it. Its live twin, src/reader/detail/nearestStableAnchor.ts, keeps the Detail axis; both
   // axes now keep a reader's place.
-  "scrollRestore.ts":
-    "am-read-anchors-navigation-a6o: manual scroll restoration for back and forward. " +
-    "history.scrollRestoration is never set to 'manual' by any route, so the browser's own " +
-    "restoration is what a reader gets.",
+  // "scrollRestore.ts" WAS HERE AND IS PAID, 2026-10-08. src/reader/faces/FaceSwitchAnchor.tsx
+  // imports setManualScrollRestoration, parseScrollRestoreRecord and restoreRelativeDelta, so the
+  // struck entry's claim -- "history.scrollRestoration is never set to 'manual' by any route, so
+  // the browser's own restoration is what a reader gets" -- no longer holds on a face page.
+  //
+  // WHAT THE BROWSER'S OWN RESTORATION WAS DOING, measured at 1280x900 on relativity before the
+  // change: English #s4-p3-s1 at scrollY 24438 with the sentence 16.1px from the top, click to
+  // German, then Back -> scrollY 4 with the sentence 24,450.1px down. The right face, the right
+  // fragment, and 24,434px of lost place. Forward worked; Back did not, because the engine applies
+  // its saved offset to a document that has not grown to 65,961px yet.
 };
 
 /**
@@ -263,13 +269,17 @@ describe("the anchor navigation library's wiring debt", () => {
     // FOUR NOW, not three: placeKeeper.ts joined on 2026-10-08 (a6o criterion 2). An identity
     // assertion rather than a count, so wiring a module requires saying so here -- which is how
     // this line came to be edited rather than quietly satisfied.
+    // SIX NOW: scrollRestore.ts joined on 2026-10-08 (criterion 6). An identity assertion rather
+    // than a count, so wiring a module requires saying so here.
     expect(wired.sort()).toEqual([
       "aliases.ts",
       "emitAnchor.ts",
       "mapToFace.ts",
       "placeKeeper.ts",
       "resolve.ts",
+      "scrollRestore.ts",
     ]);
+    expect(importers.get("scrollRestore.ts")).toContain("src/reader/faces/FaceSwitchAnchor.tsx");
     expect(importers.get("mapToFace.ts")).toContain("src/reader/faces/FaceSwitchAnchor.tsx");
     expect(importers.get("placeKeeper.ts")).toContain("src/reader/faces/FaceSwitchAnchor.tsx");
   });
