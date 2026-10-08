@@ -53,6 +53,22 @@ export interface AvailabilityProbe {
    * recorded. Do not invent an install command that is not documented somewhere.
    */
   readonly toolHint?: string;
+  /**
+   * A BUILD ARTEFACT THE STEP MEASURES, so a run without one reports `not-available` instead of
+   * passing over nothing (am-7bkr, owner's choice 2026-10-08).
+   *
+   * `perf-budgets` reads the production build: its own note says "measured from .next across 10
+   * routes", and without one it reports 6 of 8 rows `not-available` and still exits 0. A step that
+   * passes having measured nothing is the hazard AGENTS.md names first, and it is worse once the
+   * step is required every run, because the green becomes routine. The requirement is declared here
+   * rather than checked inside the script so the RUNNER classifies it, which is what keeps a
+   * profile run refusing (exit 2) while a local `bun run gates` reports it and carries on.
+   */
+  readonly requiresArtifact?: {
+    readonly path: string;
+    /** What to tell a reader: what is missing and the one command that makes it. */
+    readonly hint: string;
+  };
 }
 
 export interface GateStep {
@@ -671,14 +687,23 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     id: "perf-budgets",
     title: "Performance budget full measurements",
     command: ["bun", "scripts/run-perf-budgets.ts"],
-    family: "perf",
-    cadence: "nightly",
-    requiredInCi: false,
-    notRequiredInCiReason:
-      "A nightly step in the `perf` family, which CI's every-run lanes do not select: dsr runs --family fast and --family browser. Requiring it would declare a dependency on a lane no CI job invokes, which is the drift am-browser-gate-identity-7nq2 is about.",
+    // MOVED OUT OF THE `perf` FAMILY so a dsr check reaches it (am-7bkr, owner 2026-10-08).
+    // It was `perf`/`nightly`, required only by preview and launch, and the registry header
+    // recorded that nothing ran it: dsr runs --family fast and --family browser, `bun run gates`
+    // is every-run, and dsr has no nightly runner, so in practice it had never executed. Runtime
+    // was the obvious objection and it is not the obstacle: measured 2026-10-08, this step takes
+    // 3 SECONDS and PASSES. The real obstacle was that it measures the build and `gates` builds
+    // nothing, which `requiresArtifact` below answers.
+    family: "fast",
+    cadence: "every-run",
+    requiredInCi: true,
     requiredInProfiles: ["preview", "launch"],
     availability: {
       scriptPath: "scripts/run-perf-budgets.ts",
+      requiresArtifact: {
+        path: ".next/app-build-manifest.json",
+        hint: "The performance budgets are measured from the production build. Run `bun run build` first. This is not a budget failure: nothing was measured.",
+      },
     },
     owner: "am-plat-perf-budgets-s3ww",
   },
@@ -686,11 +711,14 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     id: "resource-stress",
     title: "Resource stress and leak tests",
     command: ["bun", "scripts/resource-stress.ts"],
-    family: "perf",
-    cadence: "nightly",
-    requiredInCi: false,
-    notRequiredInCiReason:
-      "A nightly step in the `perf` family, for the same reason as `perf-budgets`: no CI job passes --family perf, so the declaration would point at a lane nothing runs.",
+    // MOVED FOR THE SAME REASON AS `perf-budgets` (am-7bkr, owner 2026-10-08), and it needs NO
+    // build artefact: measured 2026-10-08 it runs in under a second from a cold tree and passes
+    // 6 of 6 scenarios, each with a real duration -- 100-mount-unmount-lifecycle-leak-check
+    // 89.61ms, wasm-memory-growth-generational-guard 4.41ms, and four more. So there is nothing
+    // here that a missing build could make vacuous.
+    family: "fast",
+    cadence: "every-run",
+    requiredInCi: true,
     requiredInProfiles: ["preview", "launch"],
     availability: {
       scriptPath: "scripts/resource-stress.ts",
