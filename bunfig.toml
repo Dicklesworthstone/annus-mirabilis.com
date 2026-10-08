@@ -19,6 +19,10 @@ pathIgnorePatterns = [
   "src/content/manifest/sourceLayers.node.test.ts",
   # am-f3e4: reads the historical pins with `git show`, which bun's runner cannot spawn here.
   "src/content/kernel/declaredPins.node.test.ts",
+  # am-rc1001-bridge-plan-pcjk.3: builds a throwaway git repository with its own local origin to
+  # check the release origin guard against REAL git. Same reason as the entry above: this file is
+  # nothing but git, and bun's runner cannot reliably spawn it here.
+  "scripts/releaseOriginGuard.node.test.ts",
   # am-rc1001-bridge-plan-pcjk.9: bun CAN run this one. It is here for the other reason the two
   # entries above are, lane independence: the gate census judges every registry step, and
   # `bun run test` is itself one of them, so a proof living only in the bun lane disappears at the
