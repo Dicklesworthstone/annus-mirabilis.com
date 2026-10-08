@@ -30,7 +30,7 @@
     "test": "bun scripts/prepare-lane.ts && bun test --isolate --timeout 60000 src scripts",
     "test:node": "node --experimental-strip-types scripts/run-node-only-tests.ts",
     "test:reference": "bun run prepare:content && bun run prepare:lab && bun test --isolate --timeout 60000 src/testing/*.test.mjs",
-    "test:browser": "bun scripts/test-mass-energy-browser.mjs && bun scripts/test-lab-browser.mjs",
+    "test:browser": "bun scripts/test-mass-energy-browser.mjs; a=$?; bun scripts/test-lab-browser.mjs; b=$?; [ $a -eq 0 ] && [ $b -eq 0 ]",
     "test:search": "node --experimental-strip-types --test src/search/*.test.mjs",
     "test:search:browser": "node --experimental-strip-types scripts/e2e/searchPalette.mjs",
     "prepare:offline": "bun scripts/build-offline-chapters.ts && bun scripts/build/injectStorageKeys.ts",
