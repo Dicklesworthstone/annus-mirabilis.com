@@ -6,6 +6,7 @@ import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { brotliCompressSync, gzipSync } from "node:zlib";
 import { loadCommittedProfiles } from "../src/testing/perfProfiles.ts";
+import { reportPopulation } from "./gate-census/population.ts";
 import { measureReadingFace, READING_FACE_BUDGET_BYTES } from "./measure-reading-face.ts";
 import { loadCommittedBudgets } from "./perf/budgets.ts";
 import { computeCalibration } from "./perf/calibration.ts";
@@ -686,6 +687,27 @@ export async function runPerformanceBudgets(
         `result. Rebuild out/ and re-run, and do not run this while a build is writing.`,
     );
   }
+  /*
+    THE POPULATION, IN THE CENSUS'S ONE GRAMMAR (am-rc1001-bridge-plan-pcjk.9).
+
+    `examined` counts the BUILD-DEPENDENT rows that reached a verdict, and the minimum is all of
+    them. That pairing is deliberate and is the only version of this line that cannot go slack: the
+    docblock on BUILD_DEPENDENT_ROWS already records why a bare number is wrong -- "a floor
+    expressed as a NUMBER would therefore be satisfied by any two rows and would silently keep
+    passing if a browser-driven row were added later". Both sides of this line are derived from that
+    same list, so adding a row raises the floor with it, and a row that fails to measure drops
+    `examined` below the minimum and prints VACUOUS.
+
+    The other six rows are not-available by construction in this harness, so they are deliberately
+    NOT the population: counting them would make the line read 8 of 8 on a run that measured
+    nothing about the build.
+  */
+  reportPopulation({
+    gate: "perf-budgets",
+    examined: BUILD_DEPENDENT_ROWS.length - unmeasuredBuildRows(metrics).length,
+    noun: "build-dependent budget rows",
+    minimum: BUILD_DEPENDENT_ROWS.length,
+  });
   console.log(
     `[run-perf-budgets] ${measuredCount} of ${Object.keys(metrics).length} rows reached real build output; ` +
       `${notAvailableMetrics.length} reported not-available` +

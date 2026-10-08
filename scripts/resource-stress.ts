@@ -39,6 +39,7 @@ import {
 import { TestLogger } from "../src/testing/log/logger.ts";
 import { HeavyFixtureLaboratory } from "../src/testing/runtime-fixtures/heavyFixture.ts";
 import { disposeSceneGraph } from "../src/visuals/three/dispose.ts";
+import { reportPopulation } from "./gate-census/population.ts";
 
 export interface ScenarioResult {
   readonly name: string;
@@ -503,6 +504,13 @@ export function runSceneGraphDisposalStress(): ScenarioResult {
 // ----------------------------------------------------------------------------
 // Main Orchestrator
 // ----------------------------------------------------------------------------
+/**
+ * How many scenarios this suite is built to run. Read by the census line as its minimum, so this
+ * number and the list below must move together; if they diverge, the run reports VACUOUS rather
+ * than a cheerful "5 of 5 passed".
+ */
+export const DECLARED_SCENARIOS = 6;
+
 export async function runResourceStressSuite(): Promise<ResourceStressReport> {
   const scenarios: ScenarioResult[] = [
     runMountUnmountStress(100),
@@ -552,6 +560,25 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     });
     await logger.flush();
 
+    /*
+      THE POPULATION, IN THE CENSUS'S ONE GRAMMAR (am-rc1001-bridge-plan-pcjk.9).
+      Printed BEFORE the verdict and on EVERY path, including --json: a census that could only read
+      a passing run could not tell a failing gate from a vacuous one, which is the whole distinction
+      it exists to make.
+
+      The minimum is DECLARED_SCENARIOS, which is the same number this run reports when nothing has
+      dropped out, so it is not a floor with slack in it: a scenario that stops being constructed --
+      an early return, a filtered list, a refactor that drops one -- takes `examined` below the
+      minimum and the line says VACUOUS. A smaller floor would let the suite shrink silently, which
+      is exactly the failure a "6 of 6 passed" summary hides, because 5 of 5 reads identically.
+    */
+    const censusVacuous = reportPopulation({
+      gate: "resource-stress",
+      examined: report.totalScenarios,
+      noun: "lifecycle scenarios",
+      minimum: DECLARED_SCENARIOS,
+    });
+
     if (isJson) {
       console.log(JSON.stringify(report, null, 2));
     } else {
@@ -575,6 +602,13 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       console.log(`Structured log: ${logger.filePath}\n`);
     }
 
+    if (censusVacuous) {
+      console.error(
+        "REFUSED: the suite ran fewer scenarios than it declares, so a PASSED verdict would be a " +
+          "statement about a population this gate does not have.",
+      );
+      process.exit(1);
+    }
     process.exit(report.passed ? 0 : 1);
   });
 }

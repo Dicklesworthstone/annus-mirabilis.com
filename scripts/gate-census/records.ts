@@ -95,6 +95,63 @@ const minimumPlant = (
 
 export const CENSUS_RECORDS: readonly CensusRecord[] = [
   {
+    gate: "resource-stress",
+    noun: "lifecycle scenarios",
+    howRead:
+      "The suite's own scenario count, printed before the verdict on every path including --json. " +
+      "A census that could only read a passing run could not tell a failing gate from a vacuous one.",
+    // The gate exits 1 on a vacuous run rather than only reporting it, so the census is a second
+    // reader of a refusal the gate already makes.
+    gateRefusesVacuous: true,
+    plants: [
+      {
+        id: "resource-stress-declares-more-than-it-runs",
+        file: "scripts/resource-stress.ts",
+        // NOT `minimum: 6,` -- the minimum is the identifier DECLARED_SCENARIOS, so the plant has to
+        // move the declaration. That is also the more faithful plant: it simulates the real defect,
+        // a scenario that stops being constructed while the summary still reads "N / N passed".
+        find: "export const DECLARED_SCENARIOS = 6;",
+        replace: "export const DECLARED_SCENARIOS = 7;",
+        expectFailureNaming: "REFUSED",
+        why:
+          "A '6 / 6 passed' summary and a '5 / 5 passed' summary read identically, which is the whole " +
+          "reason this gate needs a declared population. Raising the declaration by one makes the run " +
+          "report 6 against a minimum of 7, which is exactly the shape of a dropped scenario, and the " +
+          "gate must refuse rather than print PASSED.",
+      },
+    ],
+  },
+  {
+    gate: "perf-budgets",
+    noun: "build-dependent budget rows",
+    howRead:
+      "Counted as BUILD_DEPENDENT_ROWS less the rows that reached no verdict, which is the same " +
+      "predicate the gate's own refusal uses (`unmeasuredBuildRows`), so the census line and the " +
+      "gate's verdict cannot disagree. The other six rows are not-available by construction in this " +
+      "harness and are deliberately NOT the population: counting them would let the line read 8 of 8 " +
+      "on a run that measured nothing about the build.",
+    gateRefusesVacuous: true,
+    plants: [
+      {
+        id: "perf-budgets-declares-an-unmeasurable-row",
+        file: "scripts/run-perf-budgets.ts",
+        // The minimum is BUILD_DEPENDENT_ROWS.length, so the plant adds a row that cannot be
+        // measured. This is the defect am-7bkr found: a browser-driven row added to the list while
+        // the harness can only read build output, after which the run reports a budget result over
+        // whatever survived.
+        find: 'export const BUILD_DEPENDENT_ROWS = ["initial-route-js", "reading-face-html"] as const;',
+        replace:
+          'export const BUILD_DEPENDENT_ROWS = ["initial-route-js", "reading-face-html", "layout-shift"] as const;',
+        expectFailureNaming: "REFUSED",
+        why:
+          "The floor and the count come from one list, so the only way to make them disagree is to " +
+          "declare a row the harness cannot reach -- which is the real failure this gate was repaired " +
+          "for. `layout-shift` is one of the six that are not-available by construction, so the " +
+          "planted run measures 2 against a minimum of 3 and must refuse.",
+      },
+    ],
+  },
+  {
     gate: "ocr-guard",
     noun: "tracked source files",
     howRead:
