@@ -1,0 +1,50 @@
+# The required historian's-margin entries of the master plan section 3.9, transcribed.
+# See mass-energy.yaml in this directory for what this file is and is not.
+#
+# None of the seven is present. The three editorial notes this paper has are notation and
+# qualification notes (k is viscosity, four letters change meaning between papers, the paper's
+# stated uncertainty about the reports). All three are legitimate and none is a section 3.9 entry.
+paper: brownian-motion
+planSection: "3.9"
+ownerBead: am-bm-margin-entries-7fa4
+revision: 2
+# The bead's acceptance criteria read "All seven records and the verification note exist", so the
+# denominator is eight rather than section 3.9's seven.
+additionalRequired:
+  - name: verification-note
+    proposition: >-
+      The note recording which factual claims were checked against which primary source, with name,
+      date and edition, which this bead requires separately from the seven entries.
+entries:
+  - letter: a
+    proposition: >-
+      Sutherland's independent derivation and its history: Dunedin in January 1904, a misprinted
+      congress proceedings version in early 1905, and Phil. Mag. in June 1905, between Einstein's
+      submission and publication.
+    namedSources: ["Sutherland 1904", "Sutherland, Phil. Mag. June 1905"]
+  - letter: b
+    proposition: >-
+      Smoluchowski's independent kinetic derivation of 1906, with a different numerical factor.
+    namedSources: ["Smoluchowski 1906"]
+  - letter: c
+    proposition: >-
+      Bachelier's 1900 random-walk mathematics for stock prices.
+    namedSources: ["Bachelier 1900"]
+  - letter: d
+    proposition: >-
+      Einstein's assumption that the interval tau is long compared with the momentum relaxation
+      time. For shorter intervals the motion is ballistic, with mean square displacement
+      proportional to t squared, first measured in 2010 and 2011.
+    namedSources: ["Li et al., Science 2010", "Huang et al., Nature Physics 2011"]
+  - letter: e
+    proposition: >-
+      The 1911 viscosity correction and Bancelin's measurement.
+    namedSources: ["Einstein 1911 correction", "Bancelin"]
+  - letter: f
+    proposition: >-
+      Perrin's program of 1908 to 1909 and his 1926 Nobel Prize.
+    namedSources: ["Perrin 1909"]
+  - letter: g
+    proposition: >-
+      Exner's 1900 velocity measurements and why the observable was wrong.
+    namedSources: ["Exner 1900"]

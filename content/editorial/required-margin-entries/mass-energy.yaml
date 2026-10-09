@@ -1,0 +1,58 @@
+# The required historian's-margin entries of the master plan section 3.9, transcribed.
+#
+# This file is a DENOMINATOR, not editorial copy. Section 3.9 says "a paper is not done until its
+# list is present", and the list lived only in the plan's prose, so nothing could measure against
+# it. Counting records with `kind: historian-margin` is the wrong population: it gives 16 across
+# the four papers, of which only this paper's six are section 3.9 entries and ten are
+# notation-concordance notes that carry the same kind.
+#
+# `satisfiedBy` names an existing record only where that record makes the entry's claim. It is
+# absent where no record does, and `partial` records the case where a record covers part of the
+# plan's clause and the rest is still missing. Do not promote a partial by widening this file.
+paper: mass-energy
+planSection: "3.9"
+ownerBead: am-me-margin-entries-kfg5
+revision: 2
+# The bead requires MORE than section 3.9: its acceptance criteria read "The six required records
+# and the boundary note exist with complete fields" and "Record (g) exists ... plus the typed
+# `comparison` body". A bead outranks the plan as the executable queue, so both are listed under
+# `additionalRequired` rather than being given letters section 3.9 does not print.
+additionalRequired:
+  - name: record-g-argument-comparison
+    proposition: >-
+      A comparison of the 1905 argument with later derivations, carrying the typed `comparison`
+      body the bead requires.
+    satisfiedBy: note-me-g-argument-comparison
+  - name: boundary-note-later-derivations
+    proposition: >-
+      The editorial boundary note separating the 1905 argument from the later derivations.
+    satisfiedBy: note-me-boundary-later-derivations
+entries:
+  - letter: a
+    proposition: >-
+      The formula E = mc^2 does not appear in the 1905 paper; the familiar form belongs to 1907 and
+      later.
+    satisfiedBy: note-me-a-formula-absent
+  - letter: b
+    proposition: >-
+      The additive constant and the Newtonian kinetic-energy premise.
+    namedSources: ["Ives 1952", "Stachel and Torretti 1982"]
+    satisfiedBy: note-me-b-additive-constant
+  - letter: c
+    proposition: >-
+      The 1906 paper credits Poincare 1900 for the formal content of the center-of-mass argument.
+    satisfiedBy: note-me-c-1906-poincare
+  - letter: d
+    proposition: >-
+      Hasenoehrl 1904 to 1905 and the later priority claims, each with what was actually written.
+    satisfiedBy: note-me-d-hasenoehrl
+  - letter: e
+    proposition: >-
+      The radium proposal and the first quantitative nuclear check.
+    namedSources: ["Cockcroft and Walton 1932", "Bainbridge 1933"]
+    satisfiedBy: note-me-e-radium-and-checks
+  - letter: f
+    proposition: >-
+      Two equal opposite light pulses have nonzero invariant mass as a system, a later formal
+      explanation that resolves a common confusion and is not a hidden premise of 1905.
+    satisfiedBy: note-me-f-two-pulses

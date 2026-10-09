@@ -1,0 +1,51 @@
+# The required historian's-margin entries of the master plan section 3.9, transcribed.
+# See mass-energy.yaml in this directory for what this file is and is not.
+paper: light-quanta
+planSection: "3.9"
+ownerBead: am-lq-margin-entries-bo1b
+revision: 2
+# THE BEAD NAMES THESE RECORDS `lq-margin-a` THROUGH `lq-margin-e`, AND NO RECORD ON DISK CARRIES
+# ANY OF THOSE IDS. The five editorial notes this paper has are notation notes under `note-lq-*`
+# ids. So the bead's criterion "Records lq-margin-a ... lq-margin-e exist" is unmet by name as well
+# as by content, and whether the id convention is `lq-margin-<letter>` or `note-lq-<letter>-<slug>`
+# (which is what mass-energy's completed set uses) is unsettled. Flagged, not chosen.
+#
+# This bead's own acceptance criteria include "The definition-of-done audit finds the required list
+# complete", which is the check this directory makes possible.
+entries:
+  - letter: a
+    proposition: >-
+      The photoelectric equation is not, by itself, proof that light consists of photons: a
+      semiclassical theory with quantized matter and a classical field reproduces it. The decisive
+      evidence came with Compton scattering and, for single photons, photon anti-bunching. The site
+      does not repeat the textbook simplification.
+    namedSources:
+      ["Lamb and Scully 1969", "Compton 1923", "Kimble, Dagenais, and Mandel 1977"]
+  - letter: b
+    proposition: >-
+      Millikan verified the equation to better than one percent in 1916 while rejecting the
+      light-quantum hypothesis it came from.
+    namedSources: ["Millikan 1916"]
+  - letter: c
+    proposition: >-
+      Planck's 1913 recommendation of Einstein to the Prussian Academy excuses the light quanta as
+      an overreach. Paraphrased, never reproduced.
+    namedSources: ["Planck 1913 recommendation"]
+  - letter: d
+    proposition: >-
+      Einstein's 1951 letter to Besso, that fifty years of brooding had brought him no closer to
+      answering what light quanta are. Paraphrased, never reproduced.
+    namedSources: ["Einstein to Besso, 1951"]
+  - letter: e
+    proposition: >-
+      The section 1 derivation of the equipartition spectrum is independent of, and contemporary
+      with, Jeans's 1905 correction of Rayleigh's constant; and the phrase "ultraviolet catastrophe"
+      is Ehrenfest's, from 1911, and is labeled as later.
+    namedSources: ["Rayleigh June 1900", "Jeans 1905", "Ehrenfest 1911"]
+    partial:
+      satisfiedBy: note-lq-ultraviolet-catastrophe-is-ehrenfests
+      covers: >-
+        The Ehrenfest half only. That record dates the phrase and marks it as later.
+      missing: >-
+        The independence of the section 1 equipartition derivation from Jeans's 1905 correction,
+        which is the half that bears on whether the paper's own argument is anachronistic.
