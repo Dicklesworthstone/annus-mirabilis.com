@@ -103,7 +103,33 @@ function resolveRelative(from: string, specifier: string): string | null {
   return null;
 }
 
-const CLIENT_DIRECTIVE = /^\s*["']use client["']/m;
+/**
+ * THE "use client" DIRECTIVE, WITH A LICENCE HEADER IN FRONT OF IT.
+ *
+ * This used to be `/^\s*["']use client["']/m` tested against `readFileSync(file).slice(0, 400)`,
+ * on the reasoning that "the directive must be at the top of the file to apply, so only the head is
+ * read". The reasoning is right and the window was too small. Measured 2026-10-09: SEVEN client
+ * entries carry the donor attribution block AGENTS.md requires on every extracted file -- "preserve
+ * the license notices (including the rider language) on every extracted file" -- and that block puts
+ * the directive at bytes 390, 521, 595, 601, 664, 708 and 729. Six fall past the cut and the
+ * seventh is sliced mid-string, so none was an entry: PinnedPdfFacsimile.tsx,
+ * usePinnedPdfFacsimile.ts, LatexRenderer.tsx, ColorizedEquation.tsx, CommandPalette.tsx,
+ * useGenericWasmSource.ts and StudioKernelChips.tsx. The gate read 166 entries over 904 modules
+ * where the truth is 173 over 916.
+ *
+ * This is the direction this file's own docblock calls the dangerous one -- "Cutting too much ...
+ * would report a clean graph for ever" -- and the cut was made by a rule the repository imposes on
+ * itself, which is why no amount of care about the regex would have found it. The missed modules are
+ * not a random seven: a PDF viewer, a WASM source hook and a Three.js scene are exactly where a
+ * node builtin would be reached for.
+ *
+ * So the whole file is read and the directive is required to be the first STATEMENT, after any run
+ * of leading comments. Widening the window to 2000 bytes would have fixed these seven and left the
+ * same defect for a longer header.
+ */
+export function isClientEntry(text: string): boolean {
+  return /^\s*(?:\/\*[\s\S]*?\*\/\s*|\/\/[^\n]*\n\s*)*["']use client["']/.test(text);
+}
 
 /** Walks every "use client" module's value imports and reports each `node:` specifier reached. */
 export function walkClientGraph(root: string, srcDir = "src"): ClientGraphReport {
@@ -113,8 +139,7 @@ export function walkClientGraph(root: string, srcDir = "src"): ClientGraphReport
   const entries: string[] = [];
   for (const file of sourceFiles(src)) {
     if (isTestPath(file)) continue;
-    // The directive must be at the top of the file to apply, so only the head is read.
-    if (CLIENT_DIRECTIVE.test(readFileSync(file, "utf8").slice(0, 400))) entries.push(file);
+    if (isClientEntry(readFileSync(file, "utf8"))) entries.push(file);
   }
 
   const seen = new Set<string>();

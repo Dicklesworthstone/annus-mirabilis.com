@@ -17,10 +17,15 @@
  */
 
 import { describe, expect, it } from "bun:test";
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { summarizeClientGraph, valueImportsOf, walkClientGraph } from "./clientGraph.ts";
+import {
+  isClientEntry,
+  summarizeClientGraph,
+  valueImportsOf,
+  walkClientGraph,
+} from "./clientGraph.ts";
 
 const ROOT = process.cwd();
 
@@ -137,5 +142,52 @@ describe("the plants, against the defect four deployments actually hit", () => {
     expect(valueImportsOf('import "./a.css";')).toEqual(["./a.css"]);
     // An inline `type` specifier inside a value import still brings the module in, so it counts.
     expect(valueImportsOf('import { type A, b } from "./a.ts";')).toEqual(["./a.ts"]);
+  });
+});
+
+describe("the entry predicate, which decides the whole population", () => {
+  // A LICENCE HEADER USED TO HIDE A CLIENT ENTRY. The predicate was a regex over the first 400
+  // bytes, and the donor attribution block AGENTS.md requires on every extracted file puts the
+  // directive past that cut. Seven entries were invisible, the gate read 166 of 173, and the
+  // modules it missed are a PDF viewer, a WASM source hook and a Three.js scene -- where a node
+  // builtin is most likely to be reached for. Named by path, because the identity is the point and
+  // a count would pass while naming different members.
+  const DONOR_HEADER_ENTRIES = [
+    "src/reader/facsimile/PinnedPdfFacsimile.tsx",
+    "src/reader/facsimile/usePinnedPdfFacsimile.ts",
+    "src/equations/render/LatexRenderer.tsx",
+    "src/equations/legacy/ColorizedEquation.tsx",
+    "src/search/CommandPalette.tsx",
+    "src/workers/useGenericWasmSource.ts",
+    "src/visuals/three/StudioKernelChips.tsx",
+  ] as const;
+
+  it("a directive behind a long licence header is still a client entry", () => {
+    for (const path of DONOR_HEADER_ENTRIES) {
+      const text = readFileSync(join(ROOT, path), "utf8");
+      const offset = text.search(/["']use client["']/);
+      // The measurement, asserted rather than described: each of these really does sit past the
+      // 400-byte window, so this case cannot quietly stop testing what it was written for.
+      expect(offset).toBeGreaterThan(380);
+      expect(isClientEntry(text)).toBe(true);
+    }
+  });
+
+  it("widening a byte window would not have fixed it: the rule is structural", () => {
+    // A header of any length, with the directive after it. A window-based predicate fails this for
+    // some length; this one does not.
+    const header = `/**\n${" * padding\n".repeat(400)} */\n`;
+    expect(header.length).toBeGreaterThan(2000);
+    expect(isClientEntry(`${header}"use client";\nexport const x = 1;`)).toBe(true);
+    expect(isClientEntry(`// a line comment\n// and another\n'use client';`)).toBe(true);
+  });
+
+  it("the directive is inert anywhere but the first statement, and a string is not a directive", () => {
+    // The dangerous widening in the other direction: `/m` over a whole file would match a line
+    // inside a template or a fixture string and make a server module an entry.
+    expect(isClientEntry('import x from "y";\n"use client";')).toBe(false);
+    expect(isClientEntry('const s = "use client";')).toBe(false);
+    expect(isClientEntry('export const FIXTURE = `\n"use client";\n`;')).toBe(false);
+    expect(isClientEntry("export const x = 1;")).toBe(false);
   });
 });
