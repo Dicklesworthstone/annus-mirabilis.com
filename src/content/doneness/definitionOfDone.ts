@@ -475,13 +475,32 @@ function journeySkeletonCell(root: string, paper: DonenessPaper): DonenessCell {
   const elements = journeySkeletonElements(journey);
   const names = Object.keys(elements).sort();
   const present = names.filter((name) => elements[name] === true);
-  const pending = (journey.pendingElements ?? []).map((entry) => entry.element).sort();
+  const declared = (journey.pendingElements ?? []).map((entry) => entry.element).sort();
   const absent = names.filter((name) => elements[name] !== true);
+  /**
+   * SCOPED TO THE VOCABULARY THIS CELL COUNTS, and not because it is tidier.
+   *
+   * A journey may declare an element pending that is NOT one of the skeleton's thirteen. The first
+   * is `move.derivationChain`: every journey names its move, and three of the four have it marked
+   * in no derivation chain a reader can open, which is declared on the record (am-4k0m) but is not
+   * a missing skeleton element. Listing it beside "absent: exercises.instrumented, stages" made one
+   * sentence say two are absent and three are pending, which invites the reader to subtract and get
+   * a wrong answer about the thirteen.
+   *
+   * So the clause reports the declarations that EXPLAIN an absence, and the rest are named in their
+   * own clause rather than dropped -- an item quietly left out is the silent class this file is
+   * written against, and that applies to a declaration as much as to a cell.
+   */
+  const pending = declared.filter((element) => names.includes(element));
+  const outside = declared.filter((element) => !names.includes(element));
   const detail =
     `${present.length} of ${names.length} skeleton elements present in ` +
     `content/journeys/${paper}.yaml` +
     (absent.length > 0 ? `; absent: ${absent.join(", ")}` : "") +
-    (pending.length > 0 ? `; declared pending: ${pending.join(", ")}` : "");
+    (pending.length > 0 ? `; declared pending: ${pending.join(", ")}` : "") +
+    (outside.length > 0
+      ? `; also declared pending, outside this cell's thirteen: ${outside.join(", ")}`
+      : "");
   return cell("journey-skeleton-parts", present.length, names.length, detail);
 }
 
