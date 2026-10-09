@@ -7,6 +7,16 @@ pageCount: 17
 pageRange: [132, 148]
 idsFrozenAt: "2026-09-19T04:30:00Z"
 frozenBy: am-edn-inventory-light-quanta-skp
+# The 71 inline-equation ids were added on 2026-10-09, paying this inventory's last
+# declared absence (the Requirements row "Substantive inline equations and nontrivial symbol
+# occurrences"). Each is placed beside the alignable unit that prints it -- a sentence, or a
+# footnote where the formula is printed in one -- and inherits that unit's locators and argument
+# obligations rather than inventing its own. Its index counts EVERY inline math region of that unit
+# in printed order, including the lone symbols the criterion does not admit, so the numbers have
+# gaps on purpose and promoting a region later moves nothing. The criterion -- more than a single
+# symbol -- and the measurement behind it (131 regions here, 71 substantive) are in
+# src/content/manifest/inlineEquationUnits.ts, whose test asserts this manifest records exactly the
+# derived set. These ids are frozen like the rest: a wrong one is retired through an alias.
 units:
   - id: masthead-title
     kind: masthead-title
@@ -400,6 +410,19 @@ units:
       argumentObligations:
         - blackbody-rayleigh-divergence
 
+  - id: s1-p3-s3-m1
+    kind: inline-equation
+    section: s1
+    containedIn: s1-p3-s3
+    locators:
+      - page: 134
+    destination:
+      editionBlockId: de-light-quanta-s1-p3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
   - id: s1-p3-s4
     kind: sentence
     section: s1
@@ -410,6 +433,32 @@ units:
       editionBlockId: block-light-quanta-s1-p3-s4
       translationUnits:
         - s1-p3-s4
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-p3-s4-m1
+    kind: inline-equation
+    section: s1
+    containedIn: s1-p3-s4
+    locators:
+      - page: 134
+    destination:
+      editionBlockId: de-light-quanta-s1-p3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-p3-s4-m2
+    kind: inline-equation
+    section: s1
+    containedIn: s1-p3-s4
+    locators:
+      - page: 134
+    destination:
+      editionBlockId: de-light-quanta-s1-p3
+      translationUnits:
+        - planned
       argumentObligations:
         - blackbody-rayleigh-divergence
 
@@ -427,6 +476,20 @@ units:
       argumentObligations:
         - blackbody-rayleigh-divergence
 
+  - id: s1-p3-s5-m1
+    kind: inline-equation
+    section: s1
+    containedIn: s1-p3-s5
+    locators:
+      - page: 134
+      - page: 135
+    destination:
+      editionBlockId: de-light-quanta-s1-p3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
   - id: s1-p3-s6
     kind: sentence
     section: s1
@@ -437,6 +500,19 @@ units:
       editionBlockId: block-light-quanta-s1-p3-s6
       translationUnits:
         - s1-p3-s6
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-p3-s6-m1
+    kind: inline-equation
+    section: s1
+    containedIn: s1-p3-s6
+    locators:
+      - page: 135
+    destination:
+      editionBlockId: de-light-quanta-s1-p3
+      translationUnits:
+        - planned
       argumentObligations:
         - blackbody-rayleigh-divergence
 
@@ -537,6 +613,45 @@ units:
       argumentObligations:
         - blackbody-rayleigh-divergence
 
+  - id: s1-p4-s4-m1
+    kind: inline-equation
+    section: s1
+    containedIn: s1-p4-s4
+    locators:
+      - page: 135
+    destination:
+      editionBlockId: de-light-quanta-s1-p4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-p4-s4-m5
+    kind: inline-equation
+    section: s1
+    containedIn: s1-p4-s4
+    locators:
+      - page: 135
+    destination:
+      editionBlockId: de-light-quanta-s1-p4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-p4-s4-m7
+    kind: inline-equation
+    section: s1
+    containedIn: s1-p4-s4
+    locators:
+      - page: 135
+    destination:
+      editionBlockId: de-light-quanta-s1-p4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
   - id: eq-s1-d2
     kind: display-equation
     section: s1
@@ -581,6 +696,162 @@ units:
       - page: 135
     destination:
       editionBlockId: block-light-quanta-s1-fn3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-fn3-m2
+    kind: inline-equation
+    section: s1
+    containedIn: s1-fn3
+    locators:
+      - page: 135
+    destination:
+      editionBlockId: de-light-quanta-s1-fn3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-fn3-m3
+    kind: inline-equation
+    section: s1
+    containedIn: s1-fn3
+    locators:
+      - page: 135
+    destination:
+      editionBlockId: de-light-quanta-s1-fn3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-fn3-m4
+    kind: inline-equation
+    section: s1
+    containedIn: s1-fn3
+    locators:
+      - page: 135
+    destination:
+      editionBlockId: de-light-quanta-s1-fn3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-fn3-m6
+    kind: inline-equation
+    section: s1
+    containedIn: s1-fn3
+    locators:
+      - page: 135
+    destination:
+      editionBlockId: de-light-quanta-s1-fn3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-fn3-m7
+    kind: inline-equation
+    section: s1
+    containedIn: s1-fn3
+    locators:
+      - page: 135
+    destination:
+      editionBlockId: de-light-quanta-s1-fn3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-fn3-m8
+    kind: inline-equation
+    section: s1
+    containedIn: s1-fn3
+    locators:
+      - page: 135
+    destination:
+      editionBlockId: de-light-quanta-s1-fn3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-fn3-m9
+    kind: inline-equation
+    section: s1
+    containedIn: s1-fn3
+    locators:
+      - page: 135
+    destination:
+      editionBlockId: de-light-quanta-s1-fn3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-fn3-m10
+    kind: inline-equation
+    section: s1
+    containedIn: s1-fn3
+    locators:
+      - page: 135
+    destination:
+      editionBlockId: de-light-quanta-s1-fn3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-fn3-m11
+    kind: inline-equation
+    section: s1
+    containedIn: s1-fn3
+    locators:
+      - page: 135
+    destination:
+      editionBlockId: de-light-quanta-s1-fn3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-fn3-m12
+    kind: inline-equation
+    section: s1
+    containedIn: s1-fn3
+    locators:
+      - page: 135
+    destination:
+      editionBlockId: de-light-quanta-s1-fn3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-fn3-m17
+    kind: inline-equation
+    section: s1
+    containedIn: s1-fn3
+    locators:
+      - page: 135
+    destination:
+      editionBlockId: de-light-quanta-s1-fn3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-fn3-m18
+    kind: inline-equation
+    section: s1
+    containedIn: s1-fn3
+    locators:
+      - page: 135
+    destination:
+      editionBlockId: de-light-quanta-s1-fn3
       translationUnits:
         - planned
       argumentObligations:
@@ -819,6 +1090,19 @@ units:
       argumentObligations:
         - planck-quanta-constants
 
+  - id: s2-p2-s1-m1
+    kind: inline-equation
+    section: s2
+    containedIn: s2-p2-s1
+    locators:
+      - page: 136
+    destination:
+      editionBlockId: de-light-quanta-s2-p2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - planck-quanta-constants
+
   - id: s2-p2-s2
     kind: sentence
     section: s2
@@ -829,6 +1113,19 @@ units:
       editionBlockId: block-light-quanta-s2-p2-s2
       translationUnits:
         - s2-p2-s2
+      argumentObligations:
+        - planck-quanta-constants
+
+  - id: s2-p2-s2-m1
+    kind: inline-equation
+    section: s2
+    containedIn: s2-p2-s2
+    locators:
+      - page: 136
+    destination:
+      editionBlockId: de-light-quanta-s2-p2
+      translationUnits:
+        - planned
       argumentObligations:
         - planck-quanta-constants
 
@@ -858,6 +1155,32 @@ units:
         - s2-p2-s4a
         - s2-p2-s4b
         - s2-p2-s4c
+      argumentObligations:
+        - planck-quanta-constants
+
+  - id: s2-p2-s4-m1
+    kind: inline-equation
+    section: s2
+    containedIn: s2-p2-s4
+    locators:
+      - page: 137
+    destination:
+      editionBlockId: de-light-quanta-s2-p2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - planck-quanta-constants
+
+  - id: s2-p2-s4-m2
+    kind: inline-equation
+    section: s2
+    containedIn: s2-p2-s4
+    locators:
+      - page: 137
+    destination:
+      editionBlockId: de-light-quanta-s2-p2
+      translationUnits:
+        - planned
       argumentObligations:
         - planck-quanta-constants
 
@@ -1121,6 +1444,19 @@ units:
       argumentObligations:
         - radiation-entropy-identity
 
+  - id: s3-p2-s2-m1
+    kind: inline-equation
+    section: s3
+    containedIn: s3-p2-s2
+    locators:
+      - page: 137
+    destination:
+      editionBlockId: de-light-quanta-s3-p2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - radiation-entropy-identity
+
   - id: s3-p2-s3
     kind: sentence
     section: s3
@@ -1230,6 +1566,19 @@ units:
       argumentObligations:
         - radiation-entropy-identity
 
+  - id: s3-p3-s2-m1
+    kind: inline-equation
+    section: s3
+    containedIn: s3-p3-s2
+    locators:
+      - page: 138
+    destination:
+      editionBlockId: de-light-quanta-s3-p3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - radiation-entropy-identity
+
   - id: s3-p3-s3
     kind: sentence
     section: s3
@@ -1240,6 +1589,19 @@ units:
       editionBlockId: block-light-quanta-s3-p3-s3
       translationUnits:
         - s3-p3-s3
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: s3-p3-s3-m1
+    kind: inline-equation
+    section: s3
+    containedIn: s3-p3-s3
+    locators:
+      - page: 138
+    destination:
+      editionBlockId: de-light-quanta-s3-p3
+      translationUnits:
+        - planned
       argumentObligations:
         - radiation-entropy-identity
 
@@ -1314,6 +1676,45 @@ units:
       argumentObligations:
         - radiation-entropy-identity
 
+  - id: s3-p4-s1-m1
+    kind: inline-equation
+    section: s3
+    containedIn: s3-p4-s1
+    locators:
+      - page: 138
+    destination:
+      editionBlockId: de-light-quanta-s3-p4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: s3-p4-s1-m2
+    kind: inline-equation
+    section: s3
+    containedIn: s3-p4-s1
+    locators:
+      - page: 138
+    destination:
+      editionBlockId: de-light-quanta-s3-p4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: s3-p4-s1-m3
+    kind: inline-equation
+    section: s3
+    containedIn: s3-p4-s1
+    locators:
+      - page: 138
+    destination:
+      editionBlockId: de-light-quanta-s3-p4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - radiation-entropy-identity
+
   - id: s3-p4-s2
     kind: sentence
     section: s3
@@ -1324,6 +1725,19 @@ units:
       editionBlockId: block-light-quanta-s3-p4-s2
       translationUnits:
         - s3-p4-s2
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: s3-p4-s2-m1
+    kind: inline-equation
+    section: s3
+    containedIn: s3-p4-s2
+    locators:
+      - page: 138
+    destination:
+      editionBlockId: de-light-quanta-s3-p4
+      translationUnits:
+        - planned
       argumentObligations:
         - radiation-entropy-identity
 
@@ -1364,6 +1778,20 @@ units:
       editionBlockId: block-light-quanta-s3-p4-s5
       translationUnits:
         - s3-p4-s5
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: s3-p4-s5-m4
+    kind: inline-equation
+    section: s3
+    containedIn: s3-p4-s5
+    locators:
+      - page: 138
+      - page: 139
+    destination:
+      editionBlockId: de-light-quanta-s3-p4
+      translationUnits:
+        - planned
       argumentObligations:
         - radiation-entropy-identity
 
@@ -1481,6 +1909,19 @@ units:
       argumentObligations:
         - wien-regime-entropy-volume
 
+  - id: s4-p1-s2-m1
+    kind: inline-equation
+    section: s4
+    containedIn: s4-p1-s2
+    locators:
+      - page: 139
+    destination:
+      editionBlockId: de-light-quanta-s4-p1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - wien-regime-entropy-volume
+
   - id: s4-p1-s3
     kind: sentence
     section: s4
@@ -1554,6 +1995,19 @@ units:
       argumentObligations:
         - wien-regime-entropy-volume
 
+  - id: s4-p2-s2-m3
+    kind: inline-equation
+    section: s4
+    containedIn: s4-p2-s2
+    locators:
+      - page: 139
+    destination:
+      editionBlockId: de-light-quanta-s4-p2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - wien-regime-entropy-volume
+
   - id: s4-p2-s3
     kind: sentence
     section: s4
@@ -1590,6 +2044,32 @@ units:
       editionBlockId: block-light-quanta-s4-p2-s5
       translationUnits:
         - s4-p2-s5
+      argumentObligations:
+        - wien-regime-entropy-volume
+
+  - id: s4-p2-s5-m1
+    kind: inline-equation
+    section: s4
+    containedIn: s4-p2-s5
+    locators:
+      - page: 139
+    destination:
+      editionBlockId: de-light-quanta-s4-p2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - wien-regime-entropy-volume
+
+  - id: s4-p2-s5-m2
+    kind: inline-equation
+    section: s4
+    containedIn: s4-p2-s5
+    locators:
+      - page: 139
+    destination:
+      editionBlockId: de-light-quanta-s4-p2
+      translationUnits:
+        - planned
       argumentObligations:
         - wien-regime-entropy-volume
 
@@ -1802,6 +2282,32 @@ units:
       argumentObligations:
         - boltzmann-entropy-gas-solution
 
+  - id: s5-p2-s1-m1
+    kind: inline-equation
+    section: s5
+    containedIn: s5-p2-s1
+    locators:
+      - page: 140
+    destination:
+      editionBlockId: de-light-quanta-s5-p2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p2-s1-m2
+    kind: inline-equation
+    section: s5
+    containedIn: s5-p2-s1
+    locators:
+      - page: 140
+    destination:
+      editionBlockId: de-light-quanta-s5-p2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
   - id: s5-p2-s2
     kind: sentence
     section: s5
@@ -1812,6 +2318,32 @@ units:
       editionBlockId: block-light-quanta-s5-p2-s2
       translationUnits:
         - s5-p2-s2
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p2-s2-m1
+    kind: inline-equation
+    section: s5
+    containedIn: s5-p2-s2
+    locators:
+      - page: 140
+    destination:
+      editionBlockId: de-light-quanta-s5-p2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p2-s2-m2
+    kind: inline-equation
+    section: s5
+    containedIn: s5-p2-s2
+    locators:
+      - page: 140
+    destination:
+      editionBlockId: de-light-quanta-s5-p2
+      translationUnits:
+        - planned
       argumentObligations:
         - boltzmann-entropy-gas-solution
 
@@ -1923,6 +2455,19 @@ units:
       argumentObligations:
         - boltzmann-entropy-gas-solution
 
+  - id: s5-p6-s2-m2
+    kind: inline-equation
+    section: s5
+    containedIn: s5-p6-s2
+    locators:
+      - page: 141
+    destination:
+      editionBlockId: de-light-quanta-s5-p6
+      translationUnits:
+        - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
   - id: s5-p6-s3
     kind: sentence
     section: s5
@@ -1933,6 +2478,19 @@ units:
       editionBlockId: block-light-quanta-s5-p6-s3
       translationUnits:
         - s5-p6-s3
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p6-s3-m1
+    kind: inline-equation
+    section: s5
+    containedIn: s5-p6-s3
+    locators:
+      - page: 141
+    destination:
+      editionBlockId: de-light-quanta-s5-p6
+      translationUnits:
+        - planned
       argumentObligations:
         - boltzmann-entropy-gas-solution
 
@@ -2016,6 +2574,32 @@ units:
       argumentObligations:
         - boltzmann-entropy-gas-solution
 
+  - id: s5-p3-s2-m1
+    kind: inline-equation
+    section: s5
+    containedIn: s5-p3-s2
+    locators:
+      - page: 141
+    destination:
+      editionBlockId: de-light-quanta-s5-p3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p3-s2-m2
+    kind: inline-equation
+    section: s5
+    containedIn: s5-p3-s2
+    locators:
+      - page: 141
+    destination:
+      editionBlockId: de-light-quanta-s5-p3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
   - id: s5-p3-s3
     kind: sentence
     section: s5
@@ -2080,6 +2664,19 @@ units:
       argumentObligations:
         - boltzmann-entropy-gas-solution
 
+  - id: s5-p4-s1-m1
+    kind: inline-equation
+    section: s5
+    containedIn: s5-p4-s1
+    locators:
+      - page: 141
+    destination:
+      editionBlockId: de-light-quanta-s5-p4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
   - id: s5-p4-s2
     kind: sentence
     section: s5
@@ -2093,6 +2690,19 @@ units:
       argumentObligations:
         - boltzmann-entropy-gas-solution
 
+  - id: s5-p4-s2-m1
+    kind: inline-equation
+    section: s5
+    containedIn: s5-p4-s2
+    locators:
+      - page: 141
+    destination:
+      editionBlockId: de-light-quanta-s5-p4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
   - id: s5-p4-s3
     kind: sentence
     section: s5
@@ -2103,6 +2713,19 @@ units:
       editionBlockId: block-light-quanta-s5-p4-s3
       translationUnits:
         - s5-p4-s3
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p4-s3-m1
+    kind: inline-equation
+    section: s5
+    containedIn: s5-p4-s3
+    locators:
+      - page: 141
+    destination:
+      editionBlockId: de-light-quanta-s5-p4
+      translationUnits:
+        - planned
       argumentObligations:
         - boltzmann-entropy-gas-solution
 
@@ -2141,6 +2764,19 @@ units:
       editionBlockId: block-light-quanta-s5-p7-s2
       translationUnits:
         - s5-p7-s2
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p7-s2-m2
+    kind: inline-equation
+    section: s5
+    containedIn: s5-p7-s2
+    locators:
+      - page: 142
+    destination:
+      editionBlockId: de-light-quanta-s5-p7
+      translationUnits:
+        - planned
       argumentObligations:
         - boltzmann-entropy-gas-solution
 
@@ -2402,6 +3038,32 @@ units:
       argumentObligations:
         - quanta-entropy-inference
 
+  - id: s6-p5-s1-m3
+    kind: inline-equation
+    section: s6
+    containedIn: s6-p5-s1
+    locators:
+      - page: 143
+    destination:
+      editionBlockId: de-light-quanta-s6-p5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - quanta-entropy-inference
+
+  - id: s6-p5-s1-m5
+    kind: inline-equation
+    section: s6
+    containedIn: s6-p5-s1
+    locators:
+      - page: 143
+    destination:
+      editionBlockId: de-light-quanta-s6-p5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - quanta-entropy-inference
+
   - id: eq-s6-d4
     kind: display-equation
     section: s6
@@ -2466,6 +3128,19 @@ units:
       argumentObligations:
         - quanta-entropy-inference
 
+  - id: s6-p6-s1-m1
+    kind: inline-equation
+    section: s6
+    containedIn: s6-p6-s1
+    locators:
+      - page: 143
+    destination:
+      editionBlockId: de-light-quanta-s6-p6
+      translationUnits:
+        - planned
+      argumentObligations:
+        - quanta-entropy-inference
+
   - id: s6-p3
     kind: paragraph
     section: s6
@@ -2501,6 +3176,19 @@ units:
       editionBlockId: block-light-quanta-s6-p3-s2
       translationUnits:
         - s6-p3-s2
+      argumentObligations:
+        - quanta-entropy-inference
+
+  - id: s6-p3-s2-m1
+    kind: inline-equation
+    section: s6
+    containedIn: s6-p3-s2
+    locators:
+      - page: 143
+    destination:
+      editionBlockId: de-light-quanta-s6-p3
+      translationUnits:
+        - planned
       argumentObligations:
         - quanta-entropy-inference
 
@@ -2544,6 +3232,20 @@ units:
       editionBlockId: block-light-quanta-s6-p4-s1
       translationUnits:
         - s6-p4-s1
+      argumentObligations:
+        - quanta-entropy-inference
+
+  - id: s6-p4-s1-m1
+    kind: inline-equation
+    section: s6
+    containedIn: s6-p4-s1
+    locators:
+      - page: 143
+      - page: 144
+    destination:
+      editionBlockId: de-light-quanta-s6-p4
+      translationUnits:
+        - planned
       argumentObligations:
         - quanta-entropy-inference
 
@@ -2597,6 +3299,19 @@ units:
       argumentObligations:
         - stokes-rule-photoluminescence
 
+  - id: s7-p1-s1-m1
+    kind: inline-equation
+    section: s7
+    containedIn: s7-p1-s1
+    locators:
+      - page: 144
+    destination:
+      editionBlockId: de-light-quanta-s7-p1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - stokes-rule-photoluminescence
+
   - id: s7-p1-s2
     kind: sentence
     section: s7
@@ -2620,6 +3335,58 @@ units:
       editionBlockId: block-light-quanta-s7-p1-s3
       translationUnits:
         - s7-p1-s3
+      argumentObligations:
+        - stokes-rule-photoluminescence
+
+  - id: s7-p1-s3-m1
+    kind: inline-equation
+    section: s7
+    containedIn: s7-p1-s3
+    locators:
+      - page: 144
+    destination:
+      editionBlockId: de-light-quanta-s7-p1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - stokes-rule-photoluminescence
+
+  - id: s7-p1-s3-m2
+    kind: inline-equation
+    section: s7
+    containedIn: s7-p1-s3
+    locators:
+      - page: 144
+    destination:
+      editionBlockId: de-light-quanta-s7-p1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - stokes-rule-photoluminescence
+
+  - id: s7-p1-s3-m3
+    kind: inline-equation
+    section: s7
+    containedIn: s7-p1-s3
+    locators:
+      - page: 144
+    destination:
+      editionBlockId: de-light-quanta-s7-p1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - stokes-rule-photoluminescence
+
+  - id: s7-p1-s3-m4
+    kind: inline-equation
+    section: s7
+    containedIn: s7-p1-s3
+    locators:
+      - page: 144
+    destination:
+      editionBlockId: de-light-quanta-s7-p1
+      translationUnits:
+        - planned
       argumentObligations:
         - stokes-rule-photoluminescence
 
@@ -2891,6 +3658,19 @@ units:
       argumentObligations:
         - photoelectric-stopping-potential
 
+  - id: s8-p2-s1-m1
+    kind: inline-equation
+    section: s8
+    containedIn: s8-p2-s1
+    locators:
+      - page: 145
+    destination:
+      editionBlockId: de-light-quanta-s8-p2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
   - id: s8-p2-s2
     kind: sentence
     section: s8
@@ -3031,6 +3811,19 @@ units:
       argumentObligations:
         - photoelectric-stopping-potential
 
+  - id: s8-p3-s1-m5
+    kind: inline-equation
+    section: s8
+    containedIn: s8-p3-s1
+    locators:
+      - page: 146
+    destination:
+      editionBlockId: de-light-quanta-s8-p3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
   - id: eq-s8-d2
     kind: display-equation
     section: s8
@@ -3073,6 +3866,19 @@ units:
       argumentObligations:
         - photoelectric-stopping-potential
 
+  - id: s8-fn2-m1
+    kind: inline-equation
+    section: s8
+    containedIn: s8-fn2
+    locators:
+      - page: 146
+    destination:
+      editionBlockId: de-light-quanta-s8-fn2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
   - id: s8-p4
     kind: paragraph
     section: s8
@@ -3095,6 +3901,32 @@ units:
       editionBlockId: block-light-quanta-s8-p4-s1
       translationUnits:
         - s8-p4-s1
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p4-s1-m1
+    kind: inline-equation
+    section: s8
+    containedIn: s8-p4-s1
+    locators:
+      - page: 146
+    destination:
+      editionBlockId: de-light-quanta-s8-p4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p4-s1-m2
+    kind: inline-equation
+    section: s8
+    containedIn: s8-p4-s1
+    locators:
+      - page: 146
+    destination:
+      editionBlockId: de-light-quanta-s8-p4
+      translationUnits:
+        - planned
       argumentObligations:
         - photoelectric-stopping-potential
 
@@ -3136,6 +3968,45 @@ units:
       argumentObligations:
         - photoelectric-stopping-potential
 
+  - id: s8-p5-s1-m1
+    kind: inline-equation
+    section: s8
+    containedIn: s8-p5-s1
+    locators:
+      - page: 146
+    destination:
+      editionBlockId: de-light-quanta-s8-p5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p5-s1-m2
+    kind: inline-equation
+    section: s8
+    containedIn: s8-p5-s1
+    locators:
+      - page: 146
+    destination:
+      editionBlockId: de-light-quanta-s8-p5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p5-s1-m3
+    kind: inline-equation
+    section: s8
+    containedIn: s8-p5-s1
+    locators:
+      - page: 146
+    destination:
+      editionBlockId: de-light-quanta-s8-p5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
   - id: s8-p5-s2
     kind: sentence
     section: s8
@@ -3146,6 +4017,19 @@ units:
       editionBlockId: block-light-quanta-s8-p5-s2
       translationUnits:
         - s8-p5-s2
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p5-s2-m1
+    kind: inline-equation
+    section: s8
+    containedIn: s8-p5-s2
+    locators:
+      - page: 146
+    destination:
+      editionBlockId: de-light-quanta-s8-p5
+      translationUnits:
+        - planned
       argumentObligations:
         - photoelectric-stopping-potential
 
@@ -3409,6 +4293,32 @@ units:
       argumentObligations:
         - photoelectric-stopping-potential
 
+  - id: s8-p10-s2-m1
+    kind: inline-equation
+    section: s8
+    containedIn: s8-p10-s2
+    locators:
+      - page: 147
+    destination:
+      editionBlockId: de-light-quanta-s8-p10
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p10-s2-m2
+    kind: inline-equation
+    section: s8
+    containedIn: s8-p10-s2
+    locators:
+      - page: 147
+    destination:
+      editionBlockId: de-light-quanta-s8-p10
+      translationUnits:
+        - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
   - id: s8-p10-s3
     kind: sentence
     section: s8
@@ -3530,6 +4440,19 @@ units:
       argumentObligations:
         - gas-ionization-bounds
 
+  - id: s9-p1-s4-m1
+    kind: inline-equation
+    section: s9
+    containedIn: s9-p1-s4
+    locators:
+      - page: 148
+    destination:
+      editionBlockId: de-light-quanta-s9-p1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - gas-ionization-bounds
+
   - id: eq-s9-d1
     kind: display-equation
     section: s9
@@ -3625,6 +4548,19 @@ units:
       editionBlockId: block-light-quanta-s9-p3-s3
       translationUnits:
         - s9-p3-s3
+      argumentObligations:
+        - gas-ionization-bounds
+
+  - id: s9-p3-s3-m2
+    kind: inline-equation
+    section: s9
+    containedIn: s9-p3-s3
+    locators:
+      - page: 148
+    destination:
+      editionBlockId: de-light-quanta-s9-p3
+      translationUnits:
+        - planned
       argumentObligations:
         - gas-ionization-bounds
 

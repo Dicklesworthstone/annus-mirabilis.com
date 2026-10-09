@@ -1,6 +1,13 @@
 # Light-quanta source-id snapshot (am-edn-inventory-light-quanta-skp).
+# 2026-10-09: the 71 inline-equation ids were added, paying the last declared absence of
+# this inventory (the Requirements row "Substantive inline equations and nontrivial symbol
+# occurrences"). Each sits beside the unit that prints it. Their index counts EVERY inline math
+# region of that unit in printed order, including the lone symbols the criterion does not admit,
+# which is why the numbers have gaps (s5-p7-s2-m2 is the 2nd region of its unit). The criterion and its measurement are in
+# src/content/manifest/inlineEquationUnits.ts; 131 regions on this paper, 71 substantive.
 # Ids appear in manifest order, so a sentence sits beside its paragraph.
 # 263 ids: 128 block-level and 135 sentence.
+# Plus the 71 inline-equation ids added 2026-10-09, so 334 in all.
 # 2026-10-03: the sentence ids of the fifty paragraphs were added as units of kind `sentence`,
 # completing owner ruling am-xz2d decision 1 ("Add a sentence kind", 2026-09-20), whose text
 # asks that "the four inventories are extended to carry s<n>-p<m>-s<k>". No id is new: each was
@@ -38,18 +45,38 @@ s1-p3
 s1-p3-s1
 s1-p3-s2
 s1-p3-s3
+s1-p3-s3-m1
 s1-p3-s4
+s1-p3-s4-m1
+s1-p3-s4-m2
 s1-p3-s5
+s1-p3-s5-m1
 s1-p3-s6
+s1-p3-s6-m1
 eq-s1-d1
 s1-p4
 s1-p4-s1
 s1-p4-s2
 s1-p4-s3
 s1-p4-s4
+s1-p4-s4-m1
+s1-p4-s4-m5
+s1-p4-s4-m7
 eq-s1-d2
 s1-fn2
 s1-fn3
+s1-fn3-m2
+s1-fn3-m3
+s1-fn3-m4
+s1-fn3-m6
+s1-fn3-m7
+s1-fn3-m8
+s1-fn3-m9
+s1-fn3-m10
+s1-fn3-m11
+s1-fn3-m12
+s1-fn3-m17
+s1-fn3-m18
 eq-s1-d3
 eq-s1-d4
 eq-s1-d5
@@ -65,9 +92,13 @@ s2-p1
 s2-p1-s1
 s2-p2
 s2-p2-s1
+s2-p2-s1-m1
 s2-p2-s2
+s2-p2-s2-m1
 s2-p2-s3
 s2-p2-s4
+s2-p2-s4-m1
+s2-p2-s4-m2
 s2-p2-s5
 eq-s2-d1
 eq-s2-d2
@@ -86,6 +117,7 @@ s3-p1-s1
 s3-p2
 s3-p2-s1
 s3-p2-s2
+s3-p2-s2-m1
 s3-p2-s3
 s3-p2-s4
 s3-p2-s5
@@ -94,16 +126,23 @@ s3-fn1
 s3-p3
 s3-p3-s1
 s3-p3-s2
+s3-p3-s2-m1
 s3-p3-s3
+s3-p3-s3-m1
 eq-s3-d2
 eq-s3-d3
 eq-s3-d4
 s3-p4
 s3-p4-s1
+s3-p4-s1-m1
+s3-p4-s1-m2
+s3-p4-s1-m3
 s3-p4-s2
+s3-p4-s2-m1
 s3-p4-s3
 s3-p4-s4
 s3-p4-s5
+s3-p4-s5-m4
 eq-s3-d5
 eq-s3-d6
 eq-s3-d7
@@ -112,14 +151,18 @@ s4
 s4-p1
 s4-p1-s1
 s4-p1-s2
+s4-p1-s2-m1
 s4-p1-s3
 eq-s4-d1
 s4-p2
 s4-p2-s1
 s4-p2-s2
+s4-p2-s2-m3
 s4-p2-s3
 s4-p2-s4
 s4-p2-s5
+s4-p2-s5-m1
+s4-p2-s5-m2
 eq-s4-d2
 eq-s4-d3
 eq-s4-d4
@@ -135,7 +178,11 @@ s5-p1-s3
 s5-p1-s4
 s5-p2
 s5-p2-s1
+s5-p2-s1-m1
+s5-p2-s1-m2
 s5-p2-s2
+s5-p2-s2-m1
+s5-p2-s2-m2
 s5-p2-s3
 s5-p2-s4
 eq-s5-d1
@@ -144,23 +191,31 @@ eq-s5-d3
 s5-p6
 s5-p6-s1
 s5-p6-s2
+s5-p6-s2-m2
 s5-p6-s3
+s5-p6-s3-m1
 eq-s5-d4
 eq-s5-d5
 eq-s5-d6
 s5-p3
 s5-p3-s1
 s5-p3-s2
+s5-p3-s2-m1
+s5-p3-s2-m2
 s5-p3-s3
 s5-p3-s4
 s5-p3-s5
 s5-p4
 s5-p4-s1
+s5-p4-s1-m1
 s5-p4-s2
+s5-p4-s2-m1
 s5-p4-s3
+s5-p4-s3-m1
 s5-p7
 s5-p7-s1
 s5-p7-s2
+s5-p7-s2-m2
 s5-p8
 s5-p8-s1
 eq-s5-d7
@@ -179,23 +234,33 @@ eq-s6-d2
 eq-s6-d3
 s6-p5
 s6-p5-s1
+s6-p5-s1-m3
+s6-p5-s1-m5
 eq-s6-d4
 s6-p2
 s6-p2-s1
 s6-p6
 s6-p6-s1
+s6-p6-s1-m1
 s6-p3
 s6-p3-s1
 s6-p3-s2
+s6-p3-s2-m1
 eq-s6-d5
 s6-p4
 s6-p4-s1
+s6-p4-s1-m1
 s6-p4-s2
 s7
 s7-p1
 s7-p1-s1
+s7-p1-s1-m1
 s7-p1-s2
 s7-p1-s3
+s7-p1-s3-m1
+s7-p1-s3-m2
+s7-p1-s3-m3
+s7-p1-s3-m4
 s7-p1-s4
 s7-p1-s5
 s7-p1-s6
@@ -215,6 +280,7 @@ s8-p1-s1
 s8-fn1
 s8-p2
 s8-p2-s1
+s8-p2-s1-m1
 s8-p2-s2
 s8-p2-s3
 s8-p2-s4
@@ -225,14 +291,22 @@ s8-p2-s8
 eq-s8-d1
 s8-p3
 s8-p3-s1
+s8-p3-s1-m5
 eq-s8-d2
 eq-s8-d3
 s8-fn2
+s8-fn2-m1
 s8-p4
 s8-p4-s1
+s8-p4-s1-m1
+s8-p4-s1-m2
 s8-p5
 s8-p5-s1
+s8-p5-s1-m1
+s8-p5-s1-m2
+s8-p5-s1-m3
 s8-p5-s2
+s8-p5-s2-m1
 s8-fn3
 s8-p6
 s8-p6-s1
@@ -250,6 +324,8 @@ eq-s8-d5
 s8-p10
 s8-p10-s1
 s8-p10-s2
+s8-p10-s2-m1
+s8-p10-s2-m2
 s8-p10-s3
 s8-fn5
 s9
@@ -258,12 +334,14 @@ s9-p1-s1
 s9-p1-s2
 s9-p1-s3
 s9-p1-s4
+s9-p1-s4-m1
 eq-s9-d1
 eq-s9-d2
 s9-p3
 s9-p3-s1
 s9-p3-s2
 s9-p3-s3
+s9-p3-s3-m2
 s9-p3-s4
 s9-p3-s5
 s9-p3-s6

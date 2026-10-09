@@ -153,23 +153,10 @@ export type AbsenceDeclarations = ReadonlyMap<string, ReadonlyMap<string, Absenc
  * keyed by those same sentence ids.
  */
 export const DECLARED_ABSENCES: AbsenceDeclarations = new Map([
-  [
-    "light-quanta",
-    new Map<string, AbsenceDeclaration>([
-      [
-        // The `sentence` debt was PAID on 2026-10-03: the fifty paragraphs' 135 sentence ids are now
-        // units of kind `sentence`, a set equal to the distinct sentenceIds of the paper's alignment
-        // file. This entry went stale the moment they landed and was removed by the same change.
-        "inline-equation",
-        {
-          kind: "debt",
-          reason:
-            "The paper prints inline mathematics the Requirements table asks for as units; none is inventoried.",
-          bead: "am-edn-inventory-light-quanta-skp",
-        },
-      ],
-    ]),
-  ],
+  // light-quanta's `inline-equation` debt was PAID on 2026-10-09 and its entry removed by the
+  // same change, as the `sentence` debts were. 71 units now stand beside the units that
+  // print them, a set equal to the regions the criterion in inlineEquationUnits.ts admits
+  // (131 regions on this paper). Owed by am-edn-inventory-light-quanta-skp.
   // brownian-motion's `inline-equation` debt was PAID on 2026-10-09 and its entry removed by the
   // same change, as the `sentence` debts above were. 59 units now stand beside the sentences that
   // print them, a set equal to the regions the criterion in inlineEquationUnits.ts admits. The
