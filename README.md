@@ -10,7 +10,7 @@
 [![TypeScript: Strict](https://img.shields.io/badge/TypeScript-Strict-3178c6.svg)](https://www.typescriptlang.org/)
 [![Deployment: Vercel](https://img.shields.io/badge/Deployment-Vercel_(prebuilt)-000000.svg)](https://vercel.com/)
 
-**An interactive critical edition and discovery laboratory for Albert Einstein's four 1905 papers in *Annalen der Physik*: pinned facsimiles, reviewed German text, a new sentence-aligned English translation, explanations at the depth each reader asks for, live semantic equations, and physics instruments whose every number has a named, testable owner.**
+**An interactive critical edition and discovery laboratory for Albert Einstein's four 1905 papers in *Annalen der Physik*: pinned facsimiles, the German source text, a new sentence-aligned English translation, explanations at the depth each reader asks for, live semantic equations, and physics instruments whose every number has a named, testable owner.**
 
 [**Master Plan**](./COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_SITE_MERGED.md) · [**Agent Guidelines**](./AGENTS.md) · [**Task Graph**](./.beads/) · [**Sibling Museum: classic-patents.com**](https://classic-patents.com)
 
@@ -47,7 +47,7 @@
 4. **Colorized semantic equations** generated from expression trees. Each term binds to a canonical quantity with dimension, frame, and live value. Derivations are chains of step, reason, and tool, with the non-obvious move marked.
 5. **Thirty-three core instruments**, each answering a stated question, all running on one accepted snapshot per experiment with deterministic control tapes and FrankenSim ownership of the reusable laws.
 6. **Discovery journeys** that start from a dated 1904 shelf, offer the real alternatives at each fork, and are labeled "a route you could take," never "what Einstein thought."
-7. **The material around the papers**: methodological essays, the 1904 desk, connections among the papers, a three-ways-to-count-atoms laboratory, capstones, and the Bern bridge to `classic-patents.com`.
+7. **The material around the papers**: connections among the papers, a three-ways-to-count-atoms laboratory, and capstones. Planned, with no route today: methodological essays, the 1904 desk, and the Bern bridge to `classic-patents.com`.
 8. **Scientific honesty that survives interactivity.** A rendered animation, a computed model consequence, a verified numerical method, and an empirical observation stay distinguishable everywhere. A result that is not a number (underdetermined, outside the model, a valid limiting state) is shown as such.
 
 ---
@@ -119,7 +119,7 @@ The reading experience must be excellent without a GPU, without running a simula
 
 ## The iPhone App (Planned)
 
-An iPhone and iPad app lives in the same repository under `ios/`, specified by [the app plan](./COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_IPHONE_APP.md). It is a native SwiftUI shell around the **same edition**: the compiled papers, bundled in the app and rendered by WebKit from a local origin, so the whole edition reads offline. The shell adds what a phone does well, including a library, native search, Spotlight, Handoff to and from Safari, universal links, the share sheet, find in page, printing a chapter, Dynamic Type, and VoiceOver across native and edition surfaces.
+An iPhone and iPad app lives in the same repository under `ios/`, specified by [the app plan](./COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_IPHONE_APP.md). It is a native SwiftUI shell around the **same edition**: the compiled papers, bundled in the app and rendered by WebKit from a local origin, so the whole edition reads offline. The shell adds what a phone does well: a library, native search, Handoff to and from Safari, universal links, the share sheet, printing a chapter, Dynamic Type, and VoiceOver across native and edition surfaces. Spotlight and find in page are specified and not yet written.
 
 Nothing is recomputed natively, nothing is downloaded at runtime except facsimile PDFs a reader asks for, and no data is collected. Each app build carries the same release id as the website edition it ships.
 
