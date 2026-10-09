@@ -15,50 +15,34 @@ revision: 2
 # This bead also carries a human gate: "A named human reviewer has accepted the records".
 additionalRequired:
   - name: reception-and-confirmation-records
-    proposition: >-
-      The reception and confirmation records, with dates and exact citations, such that every
-      confirmation cited by a relativity reading resolves to a record or a timeline card.
+    proposition: "The reception and confirmation records, with dates and exact citations, such that every confirmation cited by a relativity reading resolves to a record or a timeline card."
     enumerated: false
 entries:
   - letter: a
-    proposition: >-
-      The paper has no references and closes by thanking Besso.
+    proposition: "The paper has no references and closes by thanking Besso."
     namedSources: ["ap-17-891, closing"]
   - letter: b
-    proposition: >-
-      The 1905 manuscript was discarded. Einstein wrote out a copy by hand in 1943 for a war-bond
-      auction, and that copy is in the Library of Congress.
+    proposition: "The 1905 manuscript was discarded. Einstein wrote out a copy by hand in 1943 for a war-bond auction, and that copy is in the Library of Congress."
     namedSources: ["Library of Congress, 1943 holograph"]
   - letter: c
-    proposition: >-
-      Einstein's later statement to Shankland that Fizeau's experiment and stellar aberration
-      weighed more with him than Michelson and Morley.
+    proposition: "Einstein's later statement to Shankland that Fizeau's experiment and stellar aberration weighed more with him than Michelson and Morley."
     namedSources: ["Shankland 1963"]
   - letter: d
-    proposition: >-
-      Lorentz 1904 and Poincare 1905, the 5 June note and the Palermo paper, stated from what they
-      wrote, with the difference in interpretation and the ether.
+    proposition: "Lorentz 1904 and Poincare 1905, the 5 June note and the Palermo paper, stated from what they wrote, with the difference in interpretation and the ether."
     namedSources: ["Lorentz 1904", "Poincare, 5 June 1905 note", "Poincare, Palermo 1906"]
   - letter: e
-    proposition: >-
-      The transverse mass and Planck 1906.
+    proposition: "The transverse mass and Planck 1906."
     namedSources: ["Planck 1906"]
     partial:
       satisfiedBy: note-sr-transverse-mass-depends-on-the-force-convention
-      covers: >-
-        The force-convention half: that the section 10 transverse mass is not a property of the
-        electron alone, which Einstein says on printed page 919.
-      missing: >-
-        Planck 1906, which is what makes this a historical entry rather than a reading of the page.
+      covers: "The force-convention half: that the section 10 transverse mass is not a property of the electron alone, which Einstein says on printed page 919."
+      missing: "Planck 1906, which is what makes this a historical entry rather than a reading of the page."
   - letter: f
-    proposition: >-
-      The equator-clock remark and the geoid.
+    proposition: "The equator-clock remark and the geoid."
     namedSources: ["Hafele 1970"]
   - letter: g
-    proposition: >-
-      The footnote conceding the imprecision of the rigid-body concept.
+    proposition: "The footnote conceding the imprecision of the rigid-body concept."
     namedSources: ["ap-17-891, footnote"]
   - letter: h
-    proposition: >-
-      The notation V and beta.
+    proposition: "The notation V and beta."
     namedSources: ["ap-17-891"]

@@ -18,7 +18,15 @@
  */
 
 import { describe, expect, it } from "bun:test";
-import { cpSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  cpSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  renameSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -60,6 +68,10 @@ function fixtureRoot(): string {
     // because show-the-code is a claim about what a reader is served.
     "content/experiments",
     `content/editorial-notes/${PAPER}`,
+    // The required-entry record IS the margin cell's denominator, so a fixture without it would
+    // make that cell unmeasured here while it measures against the real corpus, and the
+    // fixture-agreement test below would be the only thing to notice.
+    `content/editorial/required-margin-entries/${PAPER}.yaml`,
     `content/arguments/${PAPER}`,
     "out/lab/me-01/index.html",
     "out/lab/me-02/index.html",
@@ -229,37 +241,60 @@ describe("the planted regressions", () => {
     );
   });
 
-  it("the margin cell reports its real count and still refuses a verdict, having no denominator", () => {
-    // The reason here used to say margin entries "live in readings-owners r3 text rather than as
-    // typed records". They are typed records now, and a stale reason costs a migration that has
-    // already happened. The count is reported so a reader sees the state; the cell stays
-    // unmeasured because the plan's REQUIRED set is prose and nothing enumerates it.
+  it("the margin cell measures against the required-entry record, and mass-energy is complete", () => {
+    // THIS CELL WAS `unmeasured` AND THE REASON WAS CORRECT WHEN WRITTEN: the plan's required set
+    // existed only as prose. It exists as a record now,
+    // content/editorial/required-margin-entries/<paper>.yaml, so the cell divides by it.
+    //
+    // The old version reported "4 typed historian-margin record(s)" for this paper, and that count
+    // was the WRONG POPULATION rather than merely undivided: mass-energy happens to have 4 records
+    // of that kind and 8 required entries, all 8 present. Across the site the old count summed to
+    // 16 and the required entries actually present number 8, because ten of the 16 are
+    // notation-concordance notes carrying the same `kind`.
     const root = fixtureRoot();
+    const c = cellOf(paperDoneness(root, PAPER).cells, "historians-margin-entries");
+    expect(c.state).toBe("met");
+    expect(c.of).toBe(8);
+    expect(c.met).toBe(8);
+    expect(c.detail).toContain("resolved against the note ids on disk");
+
+    // THE CREDIT IS VERIFIED, NOT BELIEVED. Renaming a credited note on disk must drop the
+    // numerator and name the record that went missing, because a cell that trusted the record's
+    // own `satisfiedBy` would be measuring a claim instead of a corpus.
+    const dir = join(root, `content/editorial-notes/${PAPER}`);
+    const file = readdirSync(dir)
+      .filter((f) => f.endsWith(".json"))
+      .find((f) => {
+        const record = JSON.parse(readFileSync(join(dir, f), "utf8")) as { id?: unknown };
+        return record.id === "note-me-c-1906-poincare";
+      });
+    expect(file).toBeDefined();
+    const path = join(dir, file as string);
+    const original = readFileSync(path, "utf8");
+    writeFileSync(path, JSON.stringify({ ...JSON.parse(original), id: "note-me-c-RENAMED" }));
+    const broken = cellOf(paperDoneness(root, PAPER).cells, "historians-margin-entries");
+    expect(broken.state).toBe("short");
+    expect(broken.met).toBe(7);
+    expect(broken.detail).toContain("note-me-c-1906-poincare");
+    writeFileSync(path, original);
+    expect(cellOf(paperDoneness(root, PAPER).cells, "historians-margin-entries").met).toBe(8);
+  });
+
+  it("with no required-entry record the margin cell is unmeasured, never met", () => {
+    // The old branch, kept as an explicit negative. A paper whose required list has not been
+    // transcribed must report that it has no denominator rather than reporting zero of zero as
+    // met, which is this module's whole rule.
+    const root = fixtureRoot();
+    const record = join(root, `content/editorial/required-margin-entries/${PAPER}.yaml`);
+    // MOVED ASIDE, not removed. A rename is reversible and is not a deletion, which this
+    // repository treats as an invariant even inside a temporary fixture.
+    renameSync(record, `${record}.aside`);
     const c = cellOf(paperDoneness(root, PAPER).cells, "historians-margin-entries");
     expect(c.state).toBe("unmeasured");
     expect(c.of).toBe(0);
-    expect(c.detail).toMatch(/^4 typed historian-margin record\(s\)/);
-    expect(c.detail).toContain("no record enumerates it");
-    // The count is real, not a constant: it comes from the records, so removing one moves it.
-    const dir = join(root, `content/editorial-notes/${PAPER}`);
-    const first = readdirSync(dir)
-      .filter((f) => f.endsWith(".json"))
-      .find((f) => {
-        const record = JSON.parse(readFileSync(join(dir, f), "utf8")) as { kind?: unknown };
-        return record.kind === "historian-margin";
-      });
-    expect(first).toBeDefined();
-    const path = join(dir, first as string);
-    const original = readFileSync(path, "utf8");
-    writeFileSync(path, JSON.stringify({ ...JSON.parse(original), kind: "side-note" }));
-    expect(cellOf(paperDoneness(root, PAPER).cells, "historians-margin-entries").detail).toMatch(
-      /^3 typed historian-margin record\(s\)/,
-    );
-    writeFileSync(path, original);
-    // And it is still never met, whatever the count: that is the point of reporting without a verdict.
-    expect(cellOf(paperDoneness(root, PAPER).cells, "historians-margin-entries").state).toBe(
-      "unmeasured",
-    );
+    expect(c.detail).toContain("no required-entry record");
+    renameSync(`${record}.aside`, record);
+    expect(cellOf(paperDoneness(root, PAPER).cells, "historians-margin-entries").state).toBe("met");
   });
 
   it("the lab contract counts five items per instrument, bound by the manifest's own sourceRefs", () => {

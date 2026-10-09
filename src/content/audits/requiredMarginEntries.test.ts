@@ -178,7 +178,7 @@ describe("the required margin entries are a real denominator", () => {
     // so it is excluded from the denominator rather than counted as one item. Counting it as one
     // would understate the work and counting it as zero would hide it; it is reported separately.
     const enumeratedExtras = (p: PaperEntries): Extra[] =>
-      p.extras.filter((e) => e.enumerated !== false);
+      (p.extras ?? []).filter((e) => e.enumerated !== false);
     const required = papers.reduce((n, p) => n + p.entries.length + enumeratedExtras(p).length, 0);
     const satisfied = papers.reduce(
       (n, p) =>
@@ -192,7 +192,7 @@ describe("the required margin entries are a real denominator", () => {
       0,
     );
     const unenumerated = papers.reduce(
-      (n, p) => n + p.extras.filter((e) => e.enumerated === false).length,
+      (n, p) => n + (p.extras ?? []).filter((e) => e.enumerated === false).length,
       0,
     );
     console.log(

@@ -240,40 +240,83 @@ function readingsPerParagraphCell(root: string, paper: DonenessPaper): DonenessC
 }
 
 /**
- * THE HISTORIAN'S MARGIN: TYPED AND COUNTED, AND STILL WITHOUT A DENOMINATOR.
+ * THE HISTORIAN'S MARGIN, NOW WITH THE DENOMINATOR THIS COMMENT ASKED FOR.
  *
- * The reason here said "margin entries live in readings-owners r3 text rather than as typed records,
- * so they cannot be counted per paper (am-5cza)". The first clause is no longer true:
- * `content/editorial-notes/<paper>/*.json` holds records with `kind: "historian-margin"`, 16 across
- * the four papers, each with a claim, its source support and a review state. Someone reading that
- * reason would start a migration that has already happened, which is what a stale reason costs.
+ * The previous version of this cell counted records with `kind: "historian-margin"`, reported 16
+ * across the four papers, and stayed `unmeasured` on the correct ground that the plan's required
+ * SET existed only as prose. Its closing line said the margin and the results cards "both want one
+ * typed list of what a paper owes". That list now exists:
+ * `content/editorial/required-margin-entries/<paper>.yaml`, transcribed from the plan's section 3.9
+ * and extended by each paper's own owning bead, validated by
+ * `src/content/audits/requiredMarginEntries.test.ts`.
  *
- * SO THE COUNT IS REPORTED AND THE CELL STAYS UNMEASURED, and the distinction is the honest one.
- * What the plan asks for is a REQUIRED SET -- "the six §3.9 margin entries, including 'E = mc^2 does
- * not appear in the paper'" -- and that set exists only as prose, in the plan and in the bead text.
- * No record enumerates it, so there is nothing to divide by. The same blocker as
- * `results-cards-against-section-3`, and naming it the same way is deliberate: both want one typed
- * list of what a paper owes.
+ * AND THE COUNT OF 16 WAS THE WRONG POPULATION, which is why reporting it was worse than reporting
+ * nothing. Only eight of those 16 are required entries, all of them mass-energy's. The other ten
+ * are notation-concordance notes (beta is the modern gamma, k is viscosity, tau is not proper time,
+ * nu is frequency) that carry the same `kind` because they are margin notes in the layout sense. So
+ * a reader of the old detail line saw 16 of an unknown denominator and would have guessed the papers
+ * were most of the way there. Three of the four have nothing.
  *
- * A FLOOR WOULD BE WORSE THAN NOTHING HERE. `misconceptions-at-least-five` divides by a floor the
- * plan states as a floor, which is a real requirement. Inventing one for the margin -- "at least
- * one" -- would read as `met` for a paper carrying one of six required entries, and this module's
- * third rule is that met means the numerator reached the denominator.
+ * THIS CELL DOES NOT TRUST THE RECORD'S OWN CREDITS. Each `satisfiedBy` is resolved against the
+ * editorial-note ids actually on disk, because a report that believed the record would be measuring
+ * a claim rather than a corpus, and this module exists to not do that. An entry marked `partial`
+ * counts as absent: it carries half the plan's clause and names the missing half.
+ *
+ * The denominator is the ENUMERATED requirements. special-relativity's bead also requires "the
+ * reception and confirmation records" without listing them; that addition is flagged
+ * `enumerated: false` in the record and is reported in the detail rather than folded into the
+ * divisor, because inventing a count for it would recreate the gap this cell just closed.
  */
 function marginEntriesCell(root: string, paper: DonenessPaper): DonenessCell {
-  const dir = join(root, "content", "editorial-notes", paper);
-  const files = existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith(".json")) : [];
-  let margin = 0;
-  for (const file of files) {
-    const record = JSON.parse(readFileSync(join(dir, file), "utf8")) as { kind?: unknown };
-    if (record.kind === "historian-margin") margin += 1;
+  const recordPath = join(root, "content", "editorial", "required-margin-entries", `${paper}.yaml`);
+  if (!existsSync(recordPath)) {
+    return unmeasured(
+      "historians-margin-entries",
+      `no required-entry record at content/editorial/required-margin-entries/${paper}.yaml, so the ` +
+        "plan's required set has no denominator for this paper",
+    );
   }
-  return unmeasured(
-    "historians-margin-entries",
-    `${margin} typed historian-margin record(s) on disk for this paper, in content/editorial-notes/${paper}/; ` +
-      "the plan's required SET is prose and no record enumerates it, so there is no denominator to " +
-      "divide by (the same gap as results-cards-against-section-3)",
+  const parsed = strictParse(readFileSync(recordPath, "utf8"), "yaml") as {
+    entries?: unknown;
+    additionalRequired?: unknown;
+  };
+  const entries = Array.isArray(parsed.entries) ? parsed.entries : [];
+  const extras = Array.isArray(parsed.additionalRequired) ? parsed.additionalRequired : [];
+  const enumeratedExtras = extras.filter(
+    (e) => (e as { enumerated?: unknown }).enumerated !== false,
   );
+  const unenumerated = extras.length - enumeratedExtras.length;
+
+  // The ids actually on disk. A credit naming anything else is not honoured.
+  const onDisk = new Set<string>();
+  const notesDir = join(root, "content", "editorial-notes", paper);
+  if (existsSync(notesDir)) {
+    for (const file of readdirSync(notesDir).filter((f) => f.endsWith(".json"))) {
+      const record = JSON.parse(readFileSync(join(notesDir, file), "utf8")) as { id?: unknown };
+      if (typeof record.id === "string") onDisk.add(record.id);
+    }
+  }
+
+  const required = [...entries, ...enumeratedExtras] as { satisfiedBy?: unknown }[];
+  const of = required.length;
+  let met = 0;
+  const unresolved: string[] = [];
+  for (const item of required) {
+    const credit = item.satisfiedBy;
+    if (typeof credit !== "string") continue;
+    if (onDisk.has(credit)) met += 1;
+    else unresolved.push(credit);
+  }
+  const partial = entries.filter((e) => (e as { partial?: unknown }).partial !== undefined).length;
+
+  const detail =
+    `${met} of ${of} required margin entries present, resolved against the note ids on disk` +
+    (partial > 0 ? `; ${partial} recorded partial and counted absent` : "") +
+    (unenumerated > 0
+      ? `; ${unenumerated} further requirement(s) the owning bead did not enumerate, excluded from the divisor`
+      : "") +
+    (unresolved.length > 0 ? `; CREDIT NAMES A MISSING RECORD: ${unresolved.join(", ")}` : "");
+  return cell("historians-margin-entries", met, of, detail);
 }
 
 /**

@@ -19,40 +19,29 @@ revision: 2
 # `additionalRequired` rather than being given letters section 3.9 does not print.
 additionalRequired:
   - name: record-g-argument-comparison
-    proposition: >-
-      A comparison of the 1905 argument with later derivations, carrying the typed `comparison`
-      body the bead requires.
+    proposition: "A comparison of the 1905 argument with later derivations, carrying the typed `comparison` body the bead requires."
     satisfiedBy: note-me-g-argument-comparison
   - name: boundary-note-later-derivations
-    proposition: >-
-      The editorial boundary note separating the 1905 argument from the later derivations.
+    proposition: "The editorial boundary note separating the 1905 argument from the later derivations."
     satisfiedBy: note-me-boundary-later-derivations
 entries:
   - letter: a
-    proposition: >-
-      The formula E = mc^2 does not appear in the 1905 paper; the familiar form belongs to 1907 and
-      later.
+    proposition: "The formula E = mc^2 does not appear in the 1905 paper; the familiar form belongs to 1907 and later."
     satisfiedBy: note-me-a-formula-absent
   - letter: b
-    proposition: >-
-      The additive constant and the Newtonian kinetic-energy premise.
+    proposition: "The additive constant and the Newtonian kinetic-energy premise."
     namedSources: ["Ives 1952", "Stachel and Torretti 1982"]
     satisfiedBy: note-me-b-additive-constant
   - letter: c
-    proposition: >-
-      The 1906 paper credits Poincare 1900 for the formal content of the center-of-mass argument.
+    proposition: "The 1906 paper credits Poincare 1900 for the formal content of the center-of-mass argument."
     satisfiedBy: note-me-c-1906-poincare
   - letter: d
-    proposition: >-
-      Hasenoehrl 1904 to 1905 and the later priority claims, each with what was actually written.
+    proposition: "Hasenoehrl 1904 to 1905 and the later priority claims, each with what was actually written."
     satisfiedBy: note-me-d-hasenoehrl
   - letter: e
-    proposition: >-
-      The radium proposal and the first quantitative nuclear check.
+    proposition: "The radium proposal and the first quantitative nuclear check."
     namedSources: ["Cockcroft and Walton 1932", "Bainbridge 1933"]
     satisfiedBy: note-me-e-radium-and-checks
   - letter: f
-    proposition: >-
-      Two equal opposite light pulses have nonzero invariant mass as a system, a later formal
-      explanation that resolves a common confusion and is not a hidden premise of 1905.
+    proposition: "Two equal opposite light pulses have nonzero invariant mass as a system, a later formal explanation that resolves a common confusion and is not a hidden premise of 1905."
     satisfiedBy: note-me-f-two-pulses

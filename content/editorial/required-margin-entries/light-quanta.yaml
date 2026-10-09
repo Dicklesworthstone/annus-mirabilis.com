@@ -14,38 +14,21 @@ revision: 2
 # complete", which is the check this directory makes possible.
 entries:
   - letter: a
-    proposition: >-
-      The photoelectric equation is not, by itself, proof that light consists of photons: a
-      semiclassical theory with quantized matter and a classical field reproduces it. The decisive
-      evidence came with Compton scattering and, for single photons, photon anti-bunching. The site
-      does not repeat the textbook simplification.
-    namedSources:
-      ["Lamb and Scully 1969", "Compton 1923", "Kimble, Dagenais, and Mandel 1977"]
+    proposition: "The photoelectric equation is not, by itself, proof that light consists of photons: a semiclassical theory with quantized matter and a classical field reproduces it. The decisive evidence came with Compton scattering and, for single photons, photon anti-bunching. The site does not repeat the textbook simplification."
+    namedSources: ["Lamb and Scully 1969", "Compton 1923", "Kimble, Dagenais, and Mandel 1977"]
   - letter: b
-    proposition: >-
-      Millikan verified the equation to better than one percent in 1916 while rejecting the
-      light-quantum hypothesis it came from.
+    proposition: "Millikan verified the equation to better than one percent in 1916 while rejecting the light-quantum hypothesis it came from."
     namedSources: ["Millikan 1916"]
   - letter: c
-    proposition: >-
-      Planck's 1913 recommendation of Einstein to the Prussian Academy excuses the light quanta as
-      an overreach. Paraphrased, never reproduced.
+    proposition: "Planck's 1913 recommendation of Einstein to the Prussian Academy excuses the light quanta as an overreach. Paraphrased, never reproduced."
     namedSources: ["Planck 1913 recommendation"]
   - letter: d
-    proposition: >-
-      Einstein's 1951 letter to Besso, that fifty years of brooding had brought him no closer to
-      answering what light quanta are. Paraphrased, never reproduced.
+    proposition: "Einstein's 1951 letter to Besso, that fifty years of brooding had brought him no closer to answering what light quanta are. Paraphrased, never reproduced."
     namedSources: ["Einstein to Besso, 1951"]
   - letter: e
-    proposition: >-
-      The section 1 derivation of the equipartition spectrum is independent of, and contemporary
-      with, Jeans's 1905 correction of Rayleigh's constant; and the phrase "ultraviolet catastrophe"
-      is Ehrenfest's, from 1911, and is labeled as later.
+    proposition: "The section 1 derivation of the equipartition spectrum is independent of, and contemporary with, Jeans's 1905 correction of Rayleigh's constant; and the phrase \"ultraviolet catastrophe\" is Ehrenfest's, from 1911, and is labeled as later."
     namedSources: ["Rayleigh June 1900", "Jeans 1905", "Ehrenfest 1911"]
     partial:
       satisfiedBy: note-lq-ultraviolet-catastrophe-is-ehrenfests
-      covers: >-
-        The Ehrenfest half only. That record dates the phrase and marks it as later.
-      missing: >-
-        The independence of the section 1 equipartition derivation from Jeans's 1905 correction,
-        which is the half that bears on whether the paper's own argument is anachronistic.
+      covers: "The Ehrenfest half only. That record dates the phrase and marks it as later."
+      missing: "The independence of the section 1 equipartition derivation from Jeans's 1905 correction, which is the half that bears on whether the paper's own argument is anachronistic."
