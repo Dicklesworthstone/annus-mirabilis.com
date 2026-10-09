@@ -2007,6 +2007,44 @@ test("Scenario: (experiment.ts:2014) missing-id rejected when id is missing or e
   assert.equal(accepted.id, "valid-scenario-id");
 });
 
+/**
+ * THE REFUSAL I ADDED WITHOUT A TEST, which the untested-refusal ratchet found rather than review.
+ *
+ * `validatedScenarioInputs` refuses a scenario input whose `value` is not a finite number, because
+ * the runner spreads `ctx.inputs` into a numeric parameter record and a string arrives as NaN. The
+ * refusal landed with no test, so the ratchet reported experiment.ts over its baseline of 0 with
+ * `scenario-input-not-a-number (1 untested of 1)`. Both halves are here: the string and the two
+ * nonfinite numbers must be refused, and the fixture's own finite value must still be accepted.
+ */
+test("Scenario: (experiment.ts:2552) scenario-input-not-a-number rejected for a string or a nonfinite number, accepted for a finite one", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
+  const refused = (value: unknown) => {
+    const raw = strictParse(yaml, "yaml") as any;
+    raw.inputs.temperature.value = value;
+    assert.throws(
+      () => validateScenario(raw),
+      (err: any) => {
+        assert.ok(err instanceof ExperimentValidationError);
+        assert.equal(err.code, "scenario-input-not-a-number");
+        // The message names the input, so an author is told WHICH one and not merely that one broke.
+        assert.match(err.message, /input "temperature"/);
+        return true;
+      },
+      `expected a refusal for ${JSON.stringify(value)}`,
+    );
+  };
+  // A categorical as a string is the case am-wop1 decided to refuse rather than carry.
+  refused("inertial");
+  // And the two nonfinite numbers, which `typeof value === "number"` alone would let through.
+  refused(Number.NaN);
+  refused(Number.POSITIVE_INFINITY);
+
+  // The accept half, on the fixture as written: 293.15 K survives and reaches the record.
+  const accepted = validateScenario(strictParse(yaml, "yaml"));
+  assert.equal(accepted.inputs.temperature?.value, 293.15);
+  assert.equal(accepted.inputs.temperature?.unit, "K");
+});
+
 test("Scenario: invalid-scenario-kind rejected when kind is unknown, accepted for standard kinds", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
@@ -2692,7 +2730,7 @@ test("HistoricalDataset: Planted Negative - forbidden result relations (confirme
   );
 });
 
-test("HistoricalDataset: (experiment.ts:2795) invalid-record rejected when raw is not an object, accepted when object", () => {
+test("HistoricalDataset: (experiment.ts:2840) invalid-record rejected when raw is not an object, accepted when object", () => {
   assert.throws(
     () => validateHistoricalDataset("not-an-object" as any),
     (err: any) => {
@@ -2715,7 +2753,7 @@ test("HistoricalDataset: (experiment.ts:2795) invalid-record rejected when raw i
   assert.ok(accepted);
 });
 
-test("HistoricalDataset: (experiment.ts:2805) missing-id rejected when id is missing or whitespace, accepted with id", () => {
+test("HistoricalDataset: (experiment.ts:2850) missing-id rejected when id is missing or whitespace, accepted with id", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.id = "   ";
@@ -2732,7 +2770,7 @@ test("HistoricalDataset: (experiment.ts:2805) missing-id rejected when id is mis
   assert.equal(accepted.id, "perrin-1909-table-1");
 });
 
-test("HistoricalDataset: (experiment.ts:2813) missing-title rejected when title missing or empty, accepted with title", () => {
+test("HistoricalDataset: (experiment.ts:2858) missing-title rejected when title missing or empty, accepted with title", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.title = "";
@@ -3621,7 +3659,7 @@ test("Tour: Planted Negative - step declaring both tapeId and presetId fails", (
   );
 });
 
-test("Tour: (experiment.ts:3501) invalid-record rejected when raw is not an object, accepted when valid", () => {
+test("Tour: (experiment.ts:3546) invalid-record rejected when raw is not an object, accepted when valid", () => {
   assert.throws(
     () => validateTour("not-an-object" as any),
     (err: any) => {
@@ -3644,7 +3682,7 @@ test("Tour: (experiment.ts:3501) invalid-record rejected when raw is not an obje
   assert.equal(accepted.id, "tour-brownian-overview");
 });
 
-test("Tour: (experiment.ts:3506) missing-id rejected when id is missing or empty, accepted with id", () => {
+test("Tour: (experiment.ts:3551) missing-id rejected when id is missing or empty, accepted with id", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "tour-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.id = "   ";
@@ -3744,7 +3782,7 @@ test("Tour: missing-step-anchor-id rejected when step anchorId is missing or emp
   assert.equal(accepted.steps[0]?.anchorId, "step-01-anchor");
 });
 
-test("Tour: (experiment.ts:3581) invalid-preset-id rejected when presetId format is malformed, accepted when valid", () => {
+test("Tour: (experiment.ts:3626) invalid-preset-id rejected when presetId format is malformed, accepted when valid", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "tour-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.steps[0].instrumentPreset = {
@@ -3863,7 +3901,7 @@ test("ConstantSet: Planted Negative - editorial-input missing reason or sensitiv
   );
 });
 
-test("ConstantSet: (experiment.ts:3689) invalid-record rejected when raw is not an object, accepted when valid", () => {
+test("ConstantSet: (experiment.ts:3734) invalid-record rejected when raw is not an object, accepted when valid", () => {
   assert.throws(
     () => validateConstantSet("not-an-object" as any),
     (err: any) => {
@@ -3885,7 +3923,7 @@ test("ConstantSet: (experiment.ts:3689) invalid-record rejected when raw is not 
   assert.equal(accepted.id, "einstein-1905-brownian-printed");
 });
 
-test("ConstantSet: (experiment.ts:3699) missing-id rejected when id is missing or empty, accepted with id", () => {
+test("ConstantSet: (experiment.ts:3744) missing-id rejected when id is missing or empty, accepted with id", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "constant-set-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.id = "   ";

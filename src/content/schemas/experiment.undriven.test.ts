@@ -183,7 +183,7 @@ test("(experiment.ts:1459) invalid-preset: a preset entry must be an object", ()
   assert.equal(validateExperiment(none).id, "bm-01");
 });
 
-test("(experiment.ts:3592) invalid-prompt-id: a tour step's promptId is checked against the grammar", () => {
+test("(experiment.ts:3637) invalid-prompt-id: a tour step's promptId is checked against the grammar", () => {
   const raw = fixture("tour-valid.yaml");
   // Step 2 carries a promptId; step 1 carries a presetId. They are validated by two sites eight
   // lines apart that share neither path nor grammar, so the step chosen here decides which fires.
