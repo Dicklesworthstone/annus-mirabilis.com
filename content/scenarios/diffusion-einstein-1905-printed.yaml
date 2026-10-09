@@ -41,5 +41,18 @@ expected:
       printedPrecision:
         significantFigures: 1
       qualifier: about
+    # The plate prints a SECOND claim in the same breath, one sentence later: "Die mittlere
+    # Verschiebung in 1 Min. waere also ca. 6 Mikron." It is the same model and the same stated
+    # inputs at a different elapsed time, so it belongs to this scenario rather than to a sibling;
+    # src/testing/diffusion.adversarial.test.ts already reads both time points from this id.
+    - outputId: rmsDisplacement1d
+      elapsedTime:
+        value: 60
+        unit: s
+      comparisonKind: rounds-to
+      printedValue: "ca. 6 Mikron"
+      printedPrecision:
+        significantFigures: 1
+      qualifier: about
 modelVersion: 1
 schemaVersion: 1

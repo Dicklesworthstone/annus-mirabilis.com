@@ -69,7 +69,9 @@ type Scenario = {
     particleRadius?: { value?: unknown };
     elapsedTime?: { value?: unknown };
   };
-  expected?: { outputs?: { printedValue?: unknown }[] };
+  expected?: {
+    outputs?: { printedValue?: unknown; elapsedTime?: { value?: unknown } }[];
+  };
   transcription?: { status?: unknown };
 };
 
@@ -90,44 +92,96 @@ function brownianPrintedCheck(root: string, scenarioId: string): ScenarioCheck {
   const eta = scenario.inputs?.viscosity?.value;
   const a = scenario.inputs?.particleRadius?.value;
   const t = scenario.inputs?.elapsedTime?.value;
-  const printedValue = scenario.expected?.outputs?.[0]?.printedValue;
+  const outputs = scenario.expected?.outputs ?? [];
   if (
     typeof T !== "number" ||
     typeof eta !== "number" ||
     typeof a !== "number" ||
     typeof t !== "number" ||
-    typeof printedValue !== "string"
+    outputs.length === 0
   )
     throw new ResultCardsError(
       "printed-check-scenario-shape",
-      `Scenario ${scenarioId} does not state a temperature, viscosity, radius, elapsed time and printed value.`,
+      `Scenario ${scenarioId} does not state a temperature, viscosity, radius, elapsed time and at least one printed value.`,
     );
   // The modern reference viscosity is NOT chosen here. It is read from the modern-golden scenario
   // that owns it, with the citation that scenario records, so the third row's provenance is the
   // record's rather than this module's.
-  const modern = readScenario(root, MODERN_VISCOSITY_SCENARIO);
-  const viscosityInput = (modern.editorialInputs ?? []).find((e) => e.quantityId === "viscosity");
+  const modernScenario = readScenario(root, MODERN_VISCOSITY_SCENARIO);
+  const viscosityInput = (modernScenario.editorialInputs ?? []).find(
+    (e) => e.quantityId === "viscosity",
+  );
   if (typeof viscosityInput?.value !== "number" || typeof viscosityInput.source !== "string")
     throw new ResultCardsError(
       "printed-check-scenario-shape",
       `Scenario ${MODERN_VISCOSITY_SCENARIO} does not state a viscosity with a source.`,
     );
-  const r = printedBrownianDisplacement({
+  const modernViscosity = {
+    valuePaS: viscosityInput.value,
+    sourceLabel: viscosityInput.source.split(":")[0] ?? "modern reference",
+  };
+
+  // ONE GROUP OF ROWS PER PRINTED CLAIM. Page 559 prints two, a second and a minute, and each
+  // needs all three labelled values: the clause "no card shows a two-figure 60 s value without the
+  // modern label" exists because 6.2 um is his constants and 6.1 um is the modern ones, so an
+  // unlabelled 6.1 would hand a modern number to Einstein.
+  const rows: PrintedCheckRow[] = [];
+  for (const output of outputs) {
+    const printedValue = output.printedValue;
+    if (typeof printedValue !== "string")
+      throw new ResultCardsError(
+        "printed-check-scenario-shape",
+        `Scenario ${scenarioId} has an expected output with no printed value.`,
+      );
+    const seconds = typeof output.elapsedTime?.value === "number" ? output.elapsedTime.value : t;
+    const r = printedBrownianDisplacement({
+      temperatureK: T,
+      viscosityPaS: eta,
+      particleRadiusM: a,
+      elapsedSeconds: seconds,
+      modernViscosity,
+    });
+    if (r.status !== "value")
+      throw new ResultCardsError(
+        "printed-check-refused",
+        `${scenarioId} at ${seconds} s: ${r.reason ?? "the owner refused the input"}`,
+      );
+    const at = `at ${seconds} s`;
+    rows.push(
+      {
+        printedValue,
+        constantSetId: r.printed.constantSetId,
+        reproducedValue: r.printed.value,
+        reproducedText: microns(r.printed.value),
+        comparisonKind: "rounds-to",
+        label: `as printed, ${at}: his R over N as the thermal constant`,
+      },
+      {
+        printedValue: "(not printed)",
+        constantSetId: r.modern.constantSetId,
+        reproducedValue: r.modern.value,
+        reproducedText: microns(r.modern.value),
+        comparisonKind: "modern-constant",
+        label: `modern constants, ${at}: the defined Boltzmann constant, his fluid data unchanged`,
+      },
+    );
+    if (r.modernViscosity)
+      rows.push({
+        printedValue: "(not printed)",
+        constantSetId: r.modernViscosity.constantSetId,
+        reproducedValue: r.modernViscosity.value,
+        reproducedText: microns(r.modernViscosity.value),
+        comparisonKind: "modern-comparison",
+        label: `modern comparison, ${at}: today's reference viscosity for water at 17 degrees, which the paper overstates`,
+      });
+  }
+  const first = printedBrownianDisplacement({
     temperatureK: T,
     viscosityPaS: eta,
     particleRadiusM: a,
     elapsedSeconds: t,
-    modernViscosity: {
-      valuePaS: viscosityInput.value,
-      // The citation id only, not the whole retrieval sentence, which is the record's to hold.
-      sourceLabel: viscosityInput.source.split(":")[0] ?? "modern reference",
-    },
+    modernViscosity,
   });
-  if (r.status !== "value")
-    throw new ResultCardsError(
-      "printed-check-refused",
-      `${scenarioId}: ${r.reason ?? "the owner refused the input"}`,
-    );
   return {
     scenarioId,
     statedInputs: {
@@ -136,41 +190,12 @@ function brownianPrintedCheck(root: string, scenarioId: string): ScenarioCheck {
       "particle diameter": `${(a * 2e3).toPrecision(2)} mm (radius ${a.toExponential()} m)`,
       viscosity: `${eta} Pa s (printed as k = 1,35 \u00b7 10^-2)`,
       temperature: `${T} K (printed as 17 \u00b0 C)`,
-      t: `${t} s`,
     },
     transcriptionPending: scenario.transcription?.status !== "verified",
-    rows: [
-      {
-        printedValue,
-        constantSetId: r.printed.constantSetId,
-        reproducedValue: r.printed.value,
-        reproducedText: microns(r.printed.value),
-        comparisonKind: "rounds-to",
-        label: "as printed: his R over N as the thermal constant",
-      },
-      {
-        printedValue: "(not printed)",
-        constantSetId: r.modern.constantSetId,
-        reproducedValue: r.modern.value,
-        reproducedText: microns(r.modern.value),
-        comparisonKind: "modern-constant",
-        label: "modern constants: the defined Boltzmann constant, his fluid data unchanged",
-      },
-      ...(r.modernViscosity
-        ? [
-            {
-              printedValue: "(not printed)",
-              constantSetId: r.modernViscosity.constantSetId,
-              reproducedValue: r.modernViscosity.value,
-              reproducedText: microns(r.modernViscosity.value),
-              comparisonKind: "modern-comparison",
-              label:
-                "modern comparison: today's reference viscosity for water at 17 degrees, which the paper overstates",
-            },
-          ]
-        : []),
-    ],
-    comparison: r.comparison.wording,
+    rows,
+    // The owner's sentence, taken from the first claim's evaluation: it compares the constant
+    // sets, which do not change with the elapsed time.
+    comparison: first.comparison.wording,
   };
 }
 
