@@ -32,6 +32,8 @@
  * looking at a local build rather than a release, which is the distinction the stale file erased.
  */
 
+import { createHash } from "node:crypto";
+
 export const RELEASE_IDENTITY_SCHEMA = "annus-mirabilis-release-identity.v1";
 
 /** Who wrote the identity: a release through the deploy script, or a plain build. */
@@ -42,6 +44,44 @@ export interface BuildReleaseIdentity {
   readonly commit: string;
   readonly writtenBy: ReleaseIdentityWriter;
   readonly builtAt: string;
+  /**
+   * WHAT THE COMMIT ALONE DOES NOT PIN. A commit says which source built the page; it does not say
+   * which WASM bundle or which compiled edition the page was served WITH, and those are separate
+   * artifacts with their own digests. AGENTS.md asks a release manifest to bind exactly this set:
+   * "the site source revision, content edition version, source-asset hashes, WASM artifact hashes".
+   * Until these two were here, /release.json answered one of the three questions it exists for, and
+   * the iPhone app -- which the bead says "cannot bind to a web release" -- had nothing to bind to
+   * but a commit.
+   *
+   * Both are OPTIONAL and omitted rather than filled with a placeholder when their source file is
+   * absent. That is this module's existing reasoning about unknowns, applied again: "writing an
+   * 'unknown' would be worse than leaving whatever is there, because a reader cannot tell an unknown
+   * from a real identity once it is serialized." An absent field is visibly absent; "unknown" is a
+   * value that compares equal to itself across two unrelated builds.
+   */
+  readonly wasmManifestDigest?: string | undefined;
+  readonly contentEditionVersion?: string | undefined;
+}
+
+/** The sha-256 of the WASM manifest's bytes, which is what binds a page to the bundle it loads. */
+export function wasmManifestDigestOf(manifestBytes: string | undefined): string | undefined {
+  if (manifestBytes === undefined || manifestBytes.trim() === "") return undefined;
+  return createHash("sha256").update(manifestBytes, "utf8").digest("hex");
+}
+
+/**
+ * The compiled edition's own build digest, read from the index the compiler emits. Taken from the
+ * record rather than recomputed, because the compiler's digest is what the offline manifest and the
+ * reading routes already compare against; a second derivation of it could disagree with all of them.
+ */
+export function contentEditionVersionOf(contentIndexBytes: string | undefined): string | undefined {
+  if (contentIndexBytes === undefined) return undefined;
+  try {
+    const digest = (JSON.parse(contentIndexBytes) as { buildDigest?: unknown }).buildDigest;
+    return typeof digest === "string" && digest.trim() !== "" ? digest : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 export type IdentityDecision =
@@ -117,18 +157,35 @@ export class ReleaseIdentityError extends Error {
   }
 }
 
-export function buildIdentity(headCommit: string, now: Date): BuildReleaseIdentity {
+/** The bytes of the two files the identity binds, or undefined where one is absent. */
+export type BoundArtifacts = Readonly<{
+  wasmManifest?: string | undefined;
+  contentIndex?: string | undefined;
+}>;
+
+export function buildIdentity(
+  headCommit: string,
+  now: Date,
+  bound: BoundArtifacts = {},
+): BuildReleaseIdentity {
   if (!isCommitSha(headCommit)) {
     throw new ReleaseIdentityError(
       "release-identity-commit",
       `A build identity needs a 40-character commit sha, got '${headCommit}'.`,
     );
   }
+  const wasmManifestDigest = wasmManifestDigestOf(bound.wasmManifest);
+  const contentEditionVersion = contentEditionVersionOf(bound.contentIndex);
   return {
     schema: RELEASE_IDENTITY_SCHEMA,
     commit: headCommit,
     writtenBy: "build",
     builtAt: now.toISOString(),
+    // Spread so an absent artifact leaves the KEY OUT rather than setting it to undefined:
+    // JSON.stringify drops an undefined value, but `"k" in obj` would still be true, and a
+    // consumer testing presence rather than truthiness would read it as bound.
+    ...(wasmManifestDigest === undefined ? {} : { wasmManifestDigest }),
+    ...(contentEditionVersion === undefined ? {} : { contentEditionVersion }),
   };
 }
 

@@ -205,8 +205,30 @@ export function syncReleaseIdentity(root: string, write = writeFileSync): string
   }
   const decision = identityDecision(existing, commit);
   if (decision.action === "keep") return `release identity: kept, ${decision.reason}`;
-  write(file, serializeIdentity(buildIdentity(commit, new Date())), "utf8");
-  return `release identity: wrote ${commit.slice(0, 8)}, ${decision.reason}`;
+  // The two artifacts the commit does not pin. Read here rather than inside the identity module so
+  // that module stays pure and its tests need no filesystem; an absent file omits its field.
+  const readIfPresent = (rel: string): string | undefined => {
+    const path = join(root, rel);
+    if (!existsSync(path)) return undefined;
+    try {
+      return readFileSync(path, "utf8");
+    } catch {
+      return undefined;
+    }
+  };
+  const identity = buildIdentity(commit, new Date(), {
+    wasmManifest: readIfPresent(join("public", "wasm", "manifest.json")),
+    contentIndex: readIfPresent(join("generated", "content", "index.json")),
+  });
+  write(file, serializeIdentity(identity), "utf8");
+  const bound = [
+    identity.wasmManifestDigest === undefined ? undefined : "wasm",
+    identity.contentEditionVersion === undefined ? undefined : "edition",
+  ].filter(Boolean);
+  return (
+    `release identity: wrote ${commit.slice(0, 8)}, ${decision.reason}` +
+    `; bound ${bound.length > 0 ? bound.join(" and ") : "neither artifact"}`
+  );
 }
 
 function main(): void {

@@ -21,11 +21,13 @@
 import { describe, expect, test } from "bun:test";
 import {
   buildIdentity,
+  contentEditionVersionOf,
   identityDecision,
   isCommitSha,
   RELEASE_IDENTITY_SCHEMA,
   ReleaseIdentityError,
   serializeIdentity,
+  wasmManifestDigestOf,
 } from "./releaseIdentityForBuild.ts";
 
 const HEAD = "f766cdc1f33d1d9d87030df2e9e72ec49fe3104c";
@@ -144,5 +146,77 @@ describe("the identity a build writes", () => {
     // else, so `writtenBy` cannot break a promotion check. Asserted so that stays true.
     const parsed = JSON.parse(text) as Record<string, unknown>;
     expect(typeof parsed.commit).toBe("string");
+  });
+});
+
+/**
+ * THE TWO ARTIFACTS A COMMIT DOES NOT PIN (am-rc1001-bridge-plan-pcjk.3, criterion 1).
+ *
+ * /release.json answered "which source built this" and not "which WASM bundle and which compiled
+ * edition was it served with", which are separate artifacts with their own digests. Measured
+ * 2026-10-09 before this landed: out/release.json carried exactly schema, commit, writtenBy and
+ * builtAt, and the one release record on disk carries no commitOnOrigin, wasmManifestDigest or
+ * contentEditionVersion either.
+ *
+ * The ABSENT case is the half worth testing. An omitted field is visibly omitted; a placeholder
+ * "unknown" is a value that compares equal to itself across two unrelated builds, which is the same
+ * reasoning this module already applies to an unknown commit.
+ */
+describe("the bound artifacts", () => {
+  const MANIFEST = '{"bundleId":"fs-annus-diffusion","files":{"a.wasm":"deadbeef"}}';
+  const INDEX =
+    '{"buildDigest":"5295751ce13398e2584251b510d350d018f2656ab081b178542df215798a24ef"}';
+
+  test("a manifest's digest is the sha-256 of its bytes, and differs when a byte does", () => {
+    const a = wasmManifestDigestOf(MANIFEST);
+    const b = wasmManifestDigestOf(MANIFEST.replace("deadbeef", "deadbeee"));
+    expect(a).toMatch(/^[0-9a-f]{64}$/);
+    expect(b).not.toBe(a);
+  });
+
+  test("the edition version is TAKEN from the compiler's index, not recomputed", () => {
+    // Recomputing it could disagree with the offline manifest and the reading routes, which all
+    // compare against the compiler's own digest.
+    expect(contentEditionVersionOf(INDEX)).toBe(
+      "5295751ce13398e2584251b510d350d018f2656ab081b178542df215798a24ef",
+    );
+  });
+
+  test("an absent, empty or unparsable source yields undefined rather than a placeholder", () => {
+    expect(wasmManifestDigestOf(undefined)).toBeUndefined();
+    expect(wasmManifestDigestOf("   ")).toBeUndefined();
+    expect(contentEditionVersionOf(undefined)).toBeUndefined();
+    expect(contentEditionVersionOf("not json")).toBeUndefined();
+    expect(contentEditionVersionOf("{}")).toBeUndefined();
+    expect(contentEditionVersionOf('{"buildDigest":""}')).toBeUndefined();
+  });
+
+  test("both artifacts present: the identity carries both digests", () => {
+    const id = buildIdentity(HEAD, new Date("2026-10-09T00:00:00Z"), {
+      wasmManifest: MANIFEST,
+      contentIndex: INDEX,
+    });
+    expect(id.wasmManifestDigest).toMatch(/^[0-9a-f]{64}$/);
+    expect(id.contentEditionVersion).toBe(
+      "5295751ce13398e2584251b510d350d018f2656ab081b178542df215798a24ef",
+    );
+  });
+
+  test("neither present: the KEYS ARE ABSENT, not set to undefined", () => {
+    const id = buildIdentity(HEAD, new Date("2026-10-09T00:00:00Z"), {});
+    // `in` rather than a truthiness check: JSON.stringify drops an undefined value, so a reader of
+    // the serialized file could not tell, but a reader of the object could -- and a consumer that
+    // tests presence would read an undefined-valued key as bound.
+    expect("wasmManifestDigest" in id).toBe(false);
+    expect("contentEditionVersion" in id).toBe(false);
+    expect(Object.keys(id).sort()).toEqual(["builtAt", "commit", "schema", "writtenBy"]);
+  });
+
+  test("the schema stays v1, because both fields are additive", () => {
+    // smoke-test-deployment.ts's checkReleaseIdentity reads `commit` and nothing else, so an added
+    // field cannot break a promotion check. A schema bump would have.
+    const id = buildIdentity(HEAD, new Date(), { wasmManifest: MANIFEST, contentIndex: INDEX });
+    expect(id.schema).toBe(RELEASE_IDENTITY_SCHEMA);
+    expect(JSON.parse(serializeIdentity(id)).commit).toBe(HEAD);
   });
 });
