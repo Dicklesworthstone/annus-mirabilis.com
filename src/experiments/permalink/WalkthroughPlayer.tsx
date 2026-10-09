@@ -45,11 +45,15 @@ export function WalkthroughPlayer({
   const [location, setLocation] = useState<WalkthroughLocation>({ kind: "absent" });
   const experimentId = target.experimentId;
 
-  useEffect(() => observeWalkthroughLocation(window, (next) => {
-    setLocation(next);
-    setResult(null);
-    if (next.kind !== "absent") setOpen(true);
-  }), []);
+  useEffect(
+    () =>
+      observeWalkthroughLocation(window, (next) => {
+        setLocation(next);
+        setResult(null);
+        if (next.kind !== "absent") setOpen(true);
+      }),
+    [],
+  );
 
   // A biome-ignore reason must fit ONE line: it applies only directly before the diagnostic.
   // biome-ignore lint/correctness/useExhaustiveDependencies: retry deliberately re-runs a failed catalogue request.
@@ -79,15 +83,23 @@ export function WalkthroughPlayer({
 
   const walkthroughs =
     catalogue?.walkthroughs.filter((entry) => entry.experimentId === experimentId) ?? [];
-  const requested = location.kind === "selected" && catalogue
-    ? resolveWalkthroughLocation(location.selection, experimentId, catalogue)
-    : null;
-  const linkError = location.kind === "invalid" ? location.notice
-    : requested?.kind === "invalid" ? requested.notice : "";
+  const requested =
+    location.kind === "selected" && catalogue
+      ? resolveWalkthroughLocation(location.selection, experimentId, catalogue)
+      : null;
+  const linkError =
+    location.kind === "invalid"
+      ? location.notice
+      : requested?.kind === "invalid"
+        ? requested.notice
+        : "";
   // A bad incoming id must not display the first walkthrough as though it were the requested one.
-  const walkthrough = requested?.kind === "selected" ? requested.walkthrough
-    : location.kind === "absent" ? walkthroughs.find((entry) => entry.tapeId === tapeId) ?? walkthroughs[0]
-    : undefined;
+  const walkthrough =
+    requested?.kind === "selected"
+      ? requested.walkthrough
+      : location.kind === "absent"
+        ? (walkthroughs.find((entry) => entry.tapeId === tapeId) ?? walkthroughs[0])
+        : undefined;
   const index = requested?.kind === "selected" ? requested.index : manualIndex;
   const checkpoint = walkthrough ? checkpointAt(walkthrough, index) : null;
   const formOnly = target.kind === "form";
@@ -117,12 +129,17 @@ export function WalkthroughPlayer({
       {linkError && (
         <>
           <p role="alert">{linkError}</p>
-          <button type="button" onClick={() => {
-            setLocation({ kind: "absent" });
-            setTapeId("");
-            setIndex(0);
-            setResult(null);
-          }}>Browse this laboratory's walkthroughs</button>
+          <button
+            type="button"
+            onClick={() => {
+              setLocation({ kind: "absent" });
+              setTapeId("");
+              setIndex(0);
+              setResult(null);
+            }}
+          >
+            Browse this laboratory's walkthroughs
+          </button>
         </>
       )}
       {loadError && (
@@ -188,7 +205,9 @@ export function WalkthroughPlayer({
               </select>
               {checkpoint && (
                 <div aria-live="polite" data-walkthrough-checkpoint={checkpoint.actionIndex}>
-                  <p><strong>{checkpoint.label}</strong></p>
+                  <p>
+                    <strong>{checkpoint.label}</strong>
+                  </p>
                   {checkpoint.teachingNote && <p>{checkpoint.teachingNote}</p>}
                   {!formOnly && !checkpoint.tape && (
                     <p>{checkpoint.unavailable || "This stop cannot be replayed."}</p>
@@ -199,19 +218,30 @@ export function WalkthroughPlayer({
                 <button type="button" disabled={index <= 0} onClick={() => inspect(index - 1)}>
                   Inspect previous checkpoint
                 </button>
-                <button type="button" disabled={index >= walkthrough.checkpoints.length - 1}
-                  onClick={() => inspect(index + 1)}>
+                <button
+                  type="button"
+                  disabled={index >= walkthrough.checkpoints.length - 1}
+                  onClick={() => inspect(index + 1)}
+                >
                   Inspect next checkpoint
                 </button>
-                <button type="button" disabled={!checkpoint || (!formOnly && !checkpoint.tape)}
-                  onClick={() => setResult(applyWalkthroughCheckpoint(target, walkthrough, index))}>
+                <button
+                  type="button"
+                  disabled={!checkpoint || (!formOnly && !checkpoint.tape)}
+                  onClick={() => setResult(applyWalkthroughCheckpoint(target, walkthrough, index))}
+                >
                   {formOnly ? "Load checkpoint settings" : "Restore checkpoint"}
                 </button>
               </div>
               {target.kind === "session" && target.calculate && checkpoint && (
                 <p>
-                  <button type="button" style={{ whiteSpace: "normal", maxWidth: "100%" }}
-                    onClick={() => setResult(calculateWalkthroughCheckpoint(target, walkthrough, index))}>
+                  <button
+                    type="button"
+                    style={{ whiteSpace: "normal", maxWidth: "100%" }}
+                    onClick={() =>
+                      setResult(calculateWalkthroughCheckpoint(target, walkthrough, index))
+                    }
+                  >
                     Calculate these settings as a new run
                   </button>{" "}
                   This uses the current laboratory, not a reproduction of the recorded run.
@@ -220,13 +250,18 @@ export function WalkthroughPlayer({
             </>
           )}
           {result && (
-            <p role={result.kind === "refused" ? "alert" : "status"} data-walkthrough-outcome={result.kind}>
+            <p
+              role={result.kind === "refused" ? "alert" : "status"}
+              data-walkthrough-outcome={result.kind}
+            >
               {result.notice}
             </p>
           )}
         </fieldset>
       )}
-      <p><a href="/tapes/">Browse all recorded walkthroughs</a></p>
+      <p>
+        <a href="/tapes/">Browse all recorded walkthroughs</a>
+      </p>
     </details>
   );
 }

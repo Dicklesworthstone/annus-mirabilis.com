@@ -17,19 +17,42 @@ export function InvestigationWorkspace({ task }: { task: InvestigationTask }) {
     let live = true;
     let dispose: (() => void) | undefined;
     setFailed(false);
-    void import("./workspace.ts").then(({ mountInvestigationWorkspace }) => {
-      if (!live || !host.current) return;
-      dispose = mountInvestigationWorkspace(host.current, store, task).dispose;
-    }).catch(() => { if (live) setFailed(true); });
-    return () => { live = false; dispose?.(); };
+    void import("./workspace.ts")
+      .then(({ mountInvestigationWorkspace }) => {
+        if (!live || !host.current) return;
+        dispose = mountInvestigationWorkspace(host.current, store, task).dispose;
+      })
+      .catch(() => {
+        if (live) setFailed(true);
+      });
+    return () => {
+      live = false;
+      dispose?.();
+    };
   }, [requested, store, task, retry]);
   if (!store || store.spec.promptId !== task.promptId) return null;
-  return <details className="investigation-disclosure" onToggle={(event) => {
-    if (event.currentTarget.open) setRequested(true);
-  }}>
-    <summary>Record a prediction and compare the laboratory readings</summary>
-    <noscript><p>The task above works on paper. Automatic capture of accepted readings needs JavaScript.</p></noscript>
-    <div ref={host} />
-    {failed && <p role="alert">The investigation controls could not load. The task and laboratory are still available. <button type="button" onClick={() => setRetry((n) => n + 1)}>Retry investigation controls</button></p>}
-  </details>;
+  return (
+    <details
+      className="investigation-disclosure"
+      onToggle={(event) => {
+        if (event.currentTarget.open) setRequested(true);
+      }}
+    >
+      <summary>Record a prediction and compare the laboratory readings</summary>
+      <noscript>
+        <p>
+          The task above works on paper. Automatic capture of accepted readings needs JavaScript.
+        </p>
+      </noscript>
+      <div ref={host} />
+      {failed && (
+        <p role="alert">
+          The investigation controls could not load. The task and laboratory are still available.{" "}
+          <button type="button" onClick={() => setRetry((n) => n + 1)}>
+            Retry investigation controls
+          </button>
+        </p>
+      )}
+    </details>
+  );
 }

@@ -20,9 +20,11 @@ export function experimentSelectionKey(selection: ExperimentSelection): string {
 }
 
 export const LAUNCH_NOTICES = Object.freeze({
-  session: "The opening settings load when JavaScript is available. This link does not replay the walkthrough.",
+  session:
+    "The opening settings load when JavaScript is available. This link does not replay the walkthrough.",
   form: "The opening settings are placed in the form. Apply them in the laboratory to calculate. This link does not replay the walkthrough.",
-  unavailable: "The authored settings cannot be loaded by this link. The laboratory opens with its usual settings; use the walkthrough or the named preset instead.",
+  unavailable:
+    "The authored settings cannot be loaded by this link. The laboratory opens with its usual settings; use the walkthrough or the named preset instead.",
 });
 
 /** Refuse an unexpected destination rather than silently sending a capstone to a different lab. */

@@ -27,7 +27,10 @@ import { encodeSr01Settings } from "../src/experiments/sr01/permalink.ts";
 import { buildTapeLinks, DRAFT_BINDINGS, SESSION_BINDINGS } from "./generate-tape-links.ts";
 
 export const CAPSTONE_PAPERS = [
-  "brownian-motion", "light-quanta", "special-relativity", "mass-energy",
+  "brownian-motion",
+  "light-quanta",
+  "special-relativity",
+  "mass-energy",
 ] as const;
 
 function unavailable(instrumentId: string, reason: string): ExperimentLaunch {
@@ -51,39 +54,68 @@ export function buildPresetLaunch(
   const session = SESSION_BINDINGS[instrumentId];
   const draft = DRAFT_BINDINGS[instrumentId];
   const defaults = instrumentId === "sr-01" ? SR01_DEFAULTS : (session ?? draft)?.defaults;
-  if (!defaults) return unavailable(instrumentId, "This laboratory has no supported settings loader.");
-  if (Object.keys(settings).length === 0 ||
-      Object.keys(settings).some((key) => !Object.hasOwn(defaults, key))) {
-    return unavailable(instrumentId, "The preset contains empty or unrecognized laboratory settings.");
+  if (!defaults)
+    return unavailable(instrumentId, "This laboratory has no supported settings loader.");
+  if (
+    Object.keys(settings).length === 0 ||
+    Object.keys(settings).some((key) => !Object.hasOwn(defaults, key))
+  ) {
+    return unavailable(
+      instrumentId,
+      "The preset contains empty or unrecognized laboratory settings.",
+    );
   }
   const parameters = { ...defaults, ...settings };
   // SR-01 predates the tape bindings. Its existing URL codec is the authority; adding ?tape=
   // would suppress that codec, not select the synchronization preset.
   if (instrumentId === "sr-01") {
     const checked = validateSr01Parameters(parameters);
-    if (checked.kind !== "accepted") return unavailable(instrumentId, "The laboratory refused this preset.");
-    return ready(instrumentId, `/lab/${instrumentId}/${encodeSr01Settings(checked.data)}`, "session");
+    if (checked.kind !== "accepted")
+      return unavailable(instrumentId, "The laboratory refused this preset.");
+    return ready(
+      instrumentId,
+      `/lab/${instrumentId}/${encodeSr01Settings(checked.data)}`,
+      "session",
+    );
   }
   const binding = session ?? draft;
   if (!binding || binding.validate(parameters).kind !== "accepted") {
     return unavailable(instrumentId, "The laboratory refused this preset.");
   }
-  const tape = session ? tapeForSettings(session, parameters)
-    : draft ? draftTapeForSettings(draft, parameters) : null;
-  if (!tape) return unavailable(instrumentId, "The laboratory could not record the accepted settings.");
-  return ready(instrumentId, `/lab/${instrumentId}/?tape=${encodeTapePermalink(tape)}`,
-    session ? "session" : "form");
+  const tape = session
+    ? tapeForSettings(session, parameters)
+    : draft
+      ? draftTapeForSettings(draft, parameters)
+      : null;
+  if (!tape)
+    return unavailable(instrumentId, "The laboratory could not record the accepted settings.");
+  return ready(
+    instrumentId,
+    `/lab/${instrumentId}/?tape=${encodeTapePermalink(tape)}`,
+    session ? "session" : "form",
+  );
 }
 
 function declaredPreset(selection: ExperimentSelection, root: string): ExperimentLaunch {
-  const manifest = strictParse(readFileSync(
-    resolve(root, "content/experiments", `${selection.instrumentId}.yaml`), "utf8",
-  ), "yaml");
-  const candidates = isRecord(manifest) && Array.isArray(manifest.presets)
-    ? manifest.presets.filter((preset: unknown) => isRecord(preset) && preset.presetId === selection.presetId)
-    : [];
-  if (candidates.length !== 1 || !isRecord(candidates[0]) || !isRecord(candidates[0].parameterValues)) {
-    return unavailable(selection.instrumentId, "The selected preset has no unique declared parameter set.");
+  const manifest = strictParse(
+    readFileSync(resolve(root, "content/experiments", `${selection.instrumentId}.yaml`), "utf8"),
+    "yaml",
+  );
+  const candidates =
+    isRecord(manifest) && Array.isArray(manifest.presets)
+      ? manifest.presets.filter(
+          (preset: unknown) => isRecord(preset) && preset.presetId === selection.presetId,
+        )
+      : [];
+  if (
+    candidates.length !== 1 ||
+    !isRecord(candidates[0]) ||
+    !isRecord(candidates[0].parameterValues)
+  ) {
+    return unavailable(
+      selection.instrumentId,
+      "The selected preset has no unique declared parameter set.",
+    );
   }
   return buildPresetLaunch(selection.instrumentId, candidates[0].parameterValues);
 }
@@ -99,9 +131,13 @@ export function buildCapstoneLinks(): ExperimentLaunchIndex {
       if (selection.tapeId) {
         const tape = tapes.links[selection.tapeId];
         const gap = tapes.notLinked[selection.tapeId];
-        launch = tape && tape.experimentId === selection.instrumentId
-          ? ready(selection.instrumentId, tape.href, tape.kind)
-          : unavailable(selection.instrumentId, gap?.reason ?? "The selected tape has no matching laboratory launch.");
+        launch =
+          tape && tape.experimentId === selection.instrumentId
+            ? ready(selection.instrumentId, tape.href, tape.kind)
+            : unavailable(
+                selection.instrumentId,
+                gap?.reason ?? "The selected tape has no matching laboratory launch.",
+              );
       } else {
         launch = declaredPreset(selection, root);
       }
@@ -117,8 +153,11 @@ export async function generateCapstoneLinks() {
   await mkdir(dirname(destination), { recursive: true });
   await writeFile(destination, `${JSON.stringify(links, null, 2)}\n`);
   const entries = Object.values(links);
-  return { selections: entries.length, linked: entries.filter((link) => link.status === "ready").length,
-    unavailable: entries.filter((link) => link.status === "unavailable") };
+  return {
+    selections: entries.length,
+    linked: entries.filter((link) => link.status === "ready").length,
+    unavailable: entries.filter((link) => link.status === "unavailable"),
+  };
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

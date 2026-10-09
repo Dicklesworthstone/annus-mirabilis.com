@@ -8,27 +8,58 @@ import type { WalkthroughCatalogue } from "./walkthroughCheckpoints.ts";
 
 const catalogue: WalkthroughCatalogue = {
   walkthroughs: [
-    { tapeId: "another", experimentId: "sr-03", title: "Another walkthrough", checkpoints: [
-      { actionIndex: 0, label: "Another start", settings: { v: 0.1 }, tape: null },
-    ] },
-    { tapeId: "a-boost", experimentId: "sr-03", title: "A boost", checkpoints: [
-      { actionIndex: 0, label: "At rest", settings: { v: 0 }, tape: null },
-      { actionIndex: 7, label: "After the boost", settings: { v: 0.6 }, tape: null },
-    ] },
-  ], problems: [],
+    {
+      tapeId: "another",
+      experimentId: "sr-03",
+      title: "Another walkthrough",
+      checkpoints: [{ actionIndex: 0, label: "Another start", settings: { v: 0.1 }, tape: null }],
+    },
+    {
+      tapeId: "a-boost",
+      experimentId: "sr-03",
+      title: "A boost",
+      checkpoints: [
+        { actionIndex: 0, label: "At rest", settings: { v: 0 }, tape: null },
+        { actionIndex: 7, label: "After the boost", settings: { v: 0.6 }, tape: null },
+      ],
+    },
+  ],
+  problems: [],
 };
 let root: Root | null = null;
 let calculated: unknown[];
 let restored: unknown[];
 let loads: number;
 const target: WalkthroughTarget = {
-  kind: "session", experimentId: "sr-03",
-  calculate(settings) { calculated.push(settings); return { kind: "calculated" }; },
-  restore(tape) { restored.push(tape); return { kind: "not-restored", notice: "Recorded identity unavailable" }; },
+  kind: "session",
+  experimentId: "sr-03",
+  calculate(settings) {
+    calculated.push(settings);
+    return { kind: "calculated" };
+  },
+  restore(tape) {
+    restored.push(tape);
+    return { kind: "not-restored", notice: "Recorded identity unavailable" };
+  },
 };
-beforeEach(async () => { await installDom(); calculated = []; restored = []; loads = 0; });
-afterEach(async () => { await act(async () => root?.unmount()); root = null; await uninstallDom(); });
-async function mount(search: string, load = async () => { loads++; return catalogue; }) {
+beforeEach(async () => {
+  await installDom();
+  calculated = [];
+  restored = [];
+  loads = 0;
+});
+afterEach(async () => {
+  await act(async () => root?.unmount());
+  root = null;
+  await uninstallDom();
+});
+async function mount(
+  search: string,
+  load = async () => {
+    loads++;
+    return catalogue;
+  },
+) {
   window.history.replaceState({}, "", `/lab/sr-03/${search}`);
   const host = document.createElement("div");
   document.body.append(host);
@@ -36,11 +67,16 @@ async function mount(search: string, load = async () => { loads++; return catalo
   await act(async () => root?.render(createElement(WalkthroughPlayer, { target, load })));
 }
 async function click(text: string) {
-  const button = [...document.querySelectorAll("button")].find((entry) => entry.textContent?.trim() === text);
+  const button = [...document.querySelectorAll("button")].find(
+    (entry) => entry.textContent?.trim() === text,
+  );
   expect(button).toBeDefined();
   await act(async () => button?.click());
 }
-const stop = () => document.querySelector("[data-walkthrough-checkpoint]")?.getAttribute("data-walkthrough-checkpoint");
+const stop = () =>
+  document
+    .querySelector("[data-walkthrough-checkpoint]")
+    ?.getAttribute("data-walkthrough-checkpoint");
 
 test("ordinary laboratory visits keep the catalogue lazy", async () => {
   await mount("?tape=unrelated");
@@ -69,7 +105,9 @@ test("previous and next inspect only; an explicit new run uses the selected comp
   await click("Calculate these settings as a new run");
   expect(calculated).toEqual([{ v: 0.6 }]);
   expect(restored).toEqual([]);
-  expect(document.querySelector("[data-walkthrough-outcome]")?.getAttribute("data-walkthrough-outcome")).toBe("new-run");
+  expect(
+    document.querySelector("[data-walkthrough-outcome]")?.getAttribute("data-walkthrough-outcome"),
+  ).toBe("new-run");
 });
 test("missing links show no substituted first walkthrough until the reader asks to browse", async () => {
   await mount("?walkthrough=a-boost&stop=3");

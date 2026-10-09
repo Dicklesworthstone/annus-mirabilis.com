@@ -4,8 +4,16 @@ import { emptyWorksheet } from "./worksheetState.ts";
 import { createWorksheetStore, type WorksheetStorage } from "./worksheetStore.ts";
 
 const definition = (id = "capstone-test") => ({
-  id, startOrder: ["b", "a"],
-  claims: ["a", "b"].map((claim) => ({ id: claim, text: claim, anchor: claim, logicalRole: "assumption" as const, buildsOn: [], assumptionIds: [] })),
+  id,
+  startOrder: ["b", "a"],
+  claims: ["a", "b"].map((claim) => ({
+    id: claim,
+    text: claim,
+    anchor: claim,
+    logicalRole: "assumption" as const,
+    buildsOn: [],
+    assumptionIds: [],
+  })),
   assumptions: [],
 });
 function memory(initial: string | null = null) {
@@ -14,11 +22,39 @@ function memory(initial: string | null = null) {
   let unavailable = false;
   let quota = false;
   const port: WorksheetStorage = {
-    read: () => unavailable ? { status: "unavailable" } : raw === null ? { status: "missing" } : { status: "ok", raw },
-    write(value) { if (unavailable) return "unavailable"; if (quota) return "quota"; raw = value; writes++; return "saved"; },
-    remove() { if (unavailable) return "unavailable"; raw = null; return "removed"; },
+    read: () =>
+      unavailable
+        ? { status: "unavailable" }
+        : raw === null
+          ? { status: "missing" }
+          : { status: "ok", raw },
+    write(value) {
+      if (unavailable) return "unavailable";
+      if (quota) return "quota";
+      raw = value;
+      writes++;
+      return "saved";
+    },
+    remove() {
+      if (unavailable) return "unavailable";
+      raw = null;
+      return "removed";
+    },
   };
-  return { port, raw: () => raw, writes: () => writes, replace: (value: string | null) => { raw = value; }, unavailable: (value: boolean) => { unavailable = value; }, quota: (value: boolean) => { quota = value; } };
+  return {
+    port,
+    raw: () => raw,
+    writes: () => writes,
+    replace: (value: string | null) => {
+      raw = value;
+    },
+    unavailable: (value: boolean) => {
+      unavailable = value;
+    },
+    quota: (value: boolean) => {
+      quota = value;
+    },
+  };
 }
 
 describe("capstone device persistence", () => {
@@ -28,7 +64,13 @@ describe("capstone device persistence", () => {
     assert.equal(store.getSnapshot().persistence, "unopened");
     store.open();
     assert.equal(backend.writes(), 0);
-    const work = { ...emptyWorksheet(definition()), order: ["a", "b"], explanation: "My explanation", annotations: { equation: "A term" }, table: [["One", "Two"]] };
+    const work = {
+      ...emptyWorksheet(definition()),
+      order: ["a", "b"],
+      explanation: "My explanation",
+      annotations: { equation: "A term" },
+      table: [["One", "Two"]],
+    };
     assert.equal(store.edit(work), true);
     const reopened = createWorksheetStore(definition(), backend.port);
     reopened.open();
@@ -49,7 +91,17 @@ describe("capstone device persistence", () => {
     assert.equal(JSON.parse(backend.raw() ?? "{}").explanation, "Unsaved text");
   });
   it("throwing storage accessors cannot interrupt editing", () => {
-    const port: WorksheetStorage = { read() { throw new Error("blocked"); }, write() { throw new Error("blocked"); }, remove() { throw new Error("blocked"); } };
+    const port: WorksheetStorage = {
+      read() {
+        throw new Error("blocked");
+      },
+      write() {
+        throw new Error("blocked");
+      },
+      remove() {
+        throw new Error("blocked");
+      },
+    };
     const store = createWorksheetStore(definition(), port);
     assert.equal(store.edit({ ...emptyWorksheet(definition()), explanation: "Still here" }), true);
     assert.equal(store.getSnapshot().persistence, "session-only");
@@ -68,7 +120,11 @@ describe("capstone device persistence", () => {
     assert.equal(backend.raw(), saved);
   });
   it("invalid, future and wrong-capstone originals are protected without silent replacement", () => {
-    for (const raw of ["{broken", JSON.stringify({ ...emptyWorksheet(definition()), schemaVersion: 9 }), JSON.stringify(emptyWorksheet(definition("other")))]) {
+    for (const raw of [
+      "{broken",
+      JSON.stringify({ ...emptyWorksheet(definition()), schemaVersion: 9 }),
+      JSON.stringify(emptyWorksheet(definition("other"))),
+    ]) {
       const backend = memory(raw);
       const store = createWorksheetStore(definition(), backend.port);
       store.open();
@@ -86,7 +142,8 @@ describe("capstone device persistence", () => {
     const backend = memory();
     const first = createWorksheetStore(definition(), backend.port);
     const second = createWorksheetStore(definition(), backend.port);
-    first.open(); second.open();
+    first.open();
+    second.open();
     first.edit({ ...emptyWorksheet(definition()), explanation: "First" });
     second.edit({ ...emptyWorksheet(definition()), explanation: "Second" });
     assert.equal(second.getSnapshot().persistence, "conflict");
@@ -109,7 +166,8 @@ describe("capstone device persistence", () => {
     assert.equal(store.getSnapshot().worksheet.explanation, "Keep privately");
   });
   it("clearing one worksheet leaves another capstone untouched", () => {
-    const a = memory(), b = memory();
+    const a = memory(),
+      b = memory();
     const first = createWorksheetStore(definition("one"), a.port);
     const second = createWorksheetStore(definition("two"), b.port);
     first.edit({ ...emptyWorksheet(definition("one")), explanation: "First" });
@@ -133,7 +191,9 @@ describe("capstone device persistence", () => {
   it("invalid changes do not discard good work and subscribers cannot break saving", () => {
     const backend = memory();
     const store = createWorksheetStore(definition(), backend.port);
-    store.subscribe(() => { throw new Error("detached view"); });
+    store.subscribe(() => {
+      throw new Error("detached view");
+    });
     store.edit({ ...emptyWorksheet(definition()), explanation: "Keep" });
     assert.equal(store.edit({ ...emptyWorksheet(definition()), order: ["missing"] }), false);
     assert.equal(store.getSnapshot().worksheet.explanation, "Keep");

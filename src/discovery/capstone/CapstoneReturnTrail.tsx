@@ -26,7 +26,8 @@ export function CapstoneReturnTrail() {
 
   useEffect(() => {
     // Back to a historical entry with no token must not inherit a later page's return context.
-    const restore = () => setContext(nextCapstoneReturn(null, window.location.pathname, window.location.search));
+    const restore = () =>
+      setContext(nextCapstoneReturn(null, window.location.pathname, window.location.search));
     window.addEventListener("popstate", restore);
     window.addEventListener("pageshow", restore);
     return () => {

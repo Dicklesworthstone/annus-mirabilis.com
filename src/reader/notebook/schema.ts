@@ -12,7 +12,14 @@ export const NOTEBOOK_PAPERS = [
   "molecular-dimensions",
 ] as const;
 export type NotebookPaper = (typeof NOTEBOOK_PAPERS)[number];
-export const NOTEBOOK_KINDS = ["question", "example", "nextStep", "note", "replay", "capstone"] as const;
+export const NOTEBOOK_KINDS = [
+  "question",
+  "example",
+  "nextStep",
+  "note",
+  "replay",
+  "capstone",
+] as const;
 export type NotebookKind = (typeof NOTEBOOK_KINDS)[number];
 export const NOTEBOOK_VIEWS = [
   "reading",
@@ -118,8 +125,10 @@ export function parseNotebookFrame(input: unknown): NotebookFrame {
   }) as NotebookFrame;
 }
 export function parseNotebookEntry(input: unknown): NotebookEntry {
-  const kind = input !== null && typeof input === "object"
-    ? Object.getOwnPropertyDescriptor(input, "kind")?.value : undefined;
+  const kind =
+    input !== null && typeof input === "object"
+      ? Object.getOwnPropertyDescriptor(input, "kind")?.value
+      : undefined;
   const isReplay = kind === "replay";
   const isCapstone = kind === "capstone";
   const e = record(input, [
@@ -145,13 +154,21 @@ export function parseNotebookEntry(input: unknown): NotebookEntry {
     id,
     frame: parseNotebookFrame(e.frame),
     title: text(e.title, NOTEBOOK_LIMITS.title),
-    text: text(e.text, isReplay ? REPLAY_LIMITS.text : NOTEBOOK_LIMITS.text, isReplay || isCapstone),
+    text: text(
+      e.text,
+      isReplay ? REPLAY_LIMITS.text : NOTEBOOK_LIMITS.text,
+      isReplay || isCapstone,
+    ),
     createdAt,
   };
   const entry: NotebookEntry = isReplay
     ? Object.freeze({ ...common, kind: "replay", replay: parseComparisonReplay(e.replay) })
     : isCapstone
-      ? Object.freeze({ ...common, kind: "capstone", capstone: parseCapstoneCapture(e.capstone, common.frame.paper) })
+      ? Object.freeze({
+          ...common,
+          kind: "capstone",
+          capstone: parseCapstoneCapture(e.capstone, common.frame.paper),
+        })
       : Object.freeze({ ...common, kind: e.kind as NotebookTextEntry["kind"] });
   if (isReplay && new TextEncoder().encode(JSON.stringify(entry)).length > REPLAY_LIMITS.bytes)
     throw new TypeError("A complete replay entry must fit within 64 KiB. Nothing was truncated.");

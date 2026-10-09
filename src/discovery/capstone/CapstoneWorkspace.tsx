@@ -10,7 +10,10 @@ import { withCapstoneReturn } from "./returnRoute.ts";
 import "./worksheet.css";
 
 /** Preserve each paper's existing source-linked, script-free page as the reference edition. */
-export function CapstoneWorkspace({ paper, children }: Readonly<{ paper: string; children: ReactNode }>) {
+export function CapstoneWorkspace({
+  paper,
+  children,
+}: Readonly<{ paper: string; children: ReactNode }>) {
   const { capstone, equations } = loadCapstone(paper);
   return (
     <div className="capstone-page">
@@ -23,14 +26,18 @@ export function CapstoneWorkspace({ paper, children }: Readonly<{ paper: string;
         equations={equations.map((equation) => ({
           ...equation,
           html: renderedEquation(paper, equation.equationId)?.html ?? "",
-          href: withCapstoneReturn(`/papers/${paper}/view/parallel/#${equation.displayUnit}`, paper),
+          href: withCapstoneReturn(
+            `/papers/${paper}/view/parallel/#${equation.displayUnit}`,
+            paper,
+          ),
         }))}
         instruments={capstone.presets.map((preset, index) => {
           const launch = selectedExperimentLaunch(preset, capstoneLinks as ExperimentLaunchIndex);
           const returningHref = withCapstoneReturn(launch.href, paper);
-          const walkthroughHref = launch.ready && preset.tapeId
-            ? withWalkthroughSelection(returningHref, preset.instrumentId, preset.tapeId)
-            : null;
+          const walkthroughHref =
+            launch.ready && preset.tapeId
+              ? withWalkthroughSelection(returningHref, preset.instrumentId, preset.tapeId)
+              : null;
           return {
             id: `${preset.instrumentId}-${index}`,
             href: walkthroughHref ?? returningHref,

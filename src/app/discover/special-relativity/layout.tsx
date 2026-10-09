@@ -4,7 +4,12 @@ import { INVESTIGATIONS } from "../../../discovery/investigation/specs.ts";
 
 /** Keep the existing server-rendered route inside one instance-local investigation lifetime. */
 export default function DiscoveryInvestigationLayout({ children }: { children: ReactNode }) {
-  return <DiscoveryInvestigationProvider key="special-relativity" spec={INVESTIGATIONS["special-relativity"]}>
-    {children}
-  </DiscoveryInvestigationProvider>;
+  return (
+    <DiscoveryInvestigationProvider
+      key="special-relativity"
+      spec={INVESTIGATIONS["special-relativity"]}
+    >
+      {children}
+    </DiscoveryInvestigationProvider>
+  );
 }

@@ -6,13 +6,15 @@ import type { Capstone } from "./capstoneSchema.ts";
 import type { WorksheetState } from "./worksheetState.ts";
 
 /** Load the notebook only after the reader asks; the initial worksheet imports no replay engine. */
-export function CapstoneNotebookControls(props: Readonly<{
-  capstone: Capstone;
-  worksheet: WorksheetState;
-  equations: readonly CaptureEquation[];
-  onRestore(worksheet: WorksheetState): void;
-  download(text: string, filename: string): void;
-}>) {
+export function CapstoneNotebookControls(
+  props: Readonly<{
+    capstone: Capstone;
+    worksheet: WorksheetState;
+    equations: readonly CaptureEquation[];
+    onRestore(worksheet: WorksheetState): void;
+    download(text: string, filename: string): void;
+  }>,
+) {
   const id = useId();
   const [open, setOpen] = useState(false);
   const [error, setError] = useState("");
@@ -29,7 +31,10 @@ export function CapstoneNotebookControls(props: Readonly<{
     let dispose: (() => void) | undefined;
     setLoading(true);
     setError("");
-    void Promise.all([import("../../reader/notebook/browserStore.ts"), import("./notebookControls.ts")])
+    void Promise.all([
+      import("../../reader/notebook/browserStore.ts"),
+      import("./notebookControls.ts"),
+    ])
       .then(([browser, controls]) => {
         if (cancelled) return;
         const mounted = controls.mountCapstoneNotebook(container, browser.getNotebookStore(), {
@@ -45,7 +50,9 @@ export function CapstoneNotebookControls(props: Readonly<{
       .catch(() => {
         if (!cancelled) {
           setLoading(false);
-          setError("The notebook could not be opened. Your worksheet is unchanged. Close these controls and try again, or export your worksheet.");
+          setError(
+            "The notebook could not be opened. Your worksheet is unchanged. Close these controls and try again, or export your worksheet.",
+          );
         }
       });
     return () => {
@@ -53,16 +60,23 @@ export function CapstoneNotebookControls(props: Readonly<{
       dispose?.();
     };
   }, [open, capstoneId]);
-  return <div className="capstone-controls">
-    <button type="button" ref={trigger} aria-expanded={open} aria-controls={id}
-      onClick={() => {
-        setOpen(!open);
-        if (open) trigger.current?.focus();
-      }}>
-      {open ? "Close notebook snapshot controls" : "Keep or restore attempts in your notebook"}
-    </button>
-    {open && loading && <p role="status">Opening your notebook…</p>}
-    {open && error && <p role="alert">{error}</p>}
-    <div ref={host} id={id} hidden={!open} />
-  </div>;
+  return (
+    <div className="capstone-controls">
+      <button
+        type="button"
+        ref={trigger}
+        aria-expanded={open}
+        aria-controls={id}
+        onClick={() => {
+          setOpen(!open);
+          if (open) trigger.current?.focus();
+        }}
+      >
+        {open ? "Close notebook snapshot controls" : "Keep or restore attempts in your notebook"}
+      </button>
+      {open && loading && <p role="status">Opening your notebook…</p>}
+      {open && error && <p role="alert">{error}</p>}
+      <div ref={host} id={id} hidden={!open} />
+    </div>
+  );
 }

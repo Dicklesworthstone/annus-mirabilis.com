@@ -34,7 +34,11 @@ export function emptyWorksheet(capstone: Pick<Capstone, "id" | "startOrder">): W
 }
 
 /** Boundaries are a no-op: nothing is lost or duplicated by an unavailable move. */
-export function moveClaim(order: readonly string[], id: string, direction: -1 | 1): readonly string[] {
+export function moveClaim(
+  order: readonly string[],
+  id: string,
+  direction: -1 | 1,
+): readonly string[] {
   const index = order.indexOf(id);
   const target = index + direction;
   if (index < 0 || target < 0 || target >= order.length) return order;
@@ -53,7 +57,9 @@ export function markAssumption(
   checked: boolean,
 ): WorksheetState {
   const current = state.assumptionMarks[claimId] ?? [];
-  const next = checked ? [...new Set([...current, assumptionId])] : current.filter((id) => id !== assumptionId);
+  const next = checked
+    ? [...new Set([...current, assumptionId])]
+    : current.filter((id) => id !== assumptionId);
   return { ...state, assumptionMarks: { ...state.assumptionMarks, [claimId]: next } };
 }
 
@@ -66,10 +72,16 @@ export function assumptionFeedback(authored: readonly string[], selected: readon
 }
 
 function plain(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" &&
+  return (
+    value !== null &&
+    typeof value === "object" &&
     [Object.prototype, null].includes(Object.getPrototypeOf(value)) &&
-    Reflect.ownKeys(value).every((key) => typeof key === "string" &&
-      Object.hasOwn(Object.getOwnPropertyDescriptor(value, key) ?? {}, "value"));
+    Reflect.ownKeys(value).every(
+      (key) =>
+        typeof key === "string" &&
+        Object.hasOwn(Object.getOwnPropertyDescriptor(value, key) ?? {}, "value"),
+    )
+  );
 }
 function validText(value: unknown, max: number): value is string {
   if (typeof value !== "string" || value.length > max) return false;
@@ -80,12 +92,19 @@ function validText(value: unknown, max: number): value is string {
   return true;
 }
 function validId(value: unknown): value is string {
-  return typeof value === "string" && /^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,159}$/u.test(value) &&
-    !["__proto__", "constructor", "prototype"].includes(value);
+  return (
+    typeof value === "string" &&
+    /^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,159}$/u.test(value) &&
+    !["__proto__", "constructor", "prototype"].includes(value)
+  );
 }
 function idList(value: unknown): value is string[] {
-  return Array.isArray(value) && value.length <= WORKSHEET_LIMITS.items &&
-    value.every(validId) && new Set(value).size === value.length;
+  return (
+    Array.isArray(value) &&
+    value.length <= WORKSHEET_LIMITS.items &&
+    value.every(validId) &&
+    new Set(value).size === value.length
+  );
 }
 
 /**
@@ -94,19 +113,52 @@ function idList(value: unknown): value is string[] {
  */
 export function readWorksheet(input: unknown): WorksheetState | null {
   if (!plain(input)) return null;
-  const fields = ["schemaVersion", "capstoneId", "order", "annotations", "assumptionMarks", "explanation", "table"];
-  if (Object.keys(input).length !== fields.length || fields.some((key) => !Object.hasOwn(input, key))) return null;
-  if (input.schemaVersion !== 1 || !validId(input.capstoneId) || !idList(input.order) || input.order.length === 0 ||
-    !validText(input.explanation, WORKSHEET_LIMITS.text) || !plain(input.annotations) || !plain(input.assumptionMarks)) return null;
+  const fields = [
+    "schemaVersion",
+    "capstoneId",
+    "order",
+    "annotations",
+    "assumptionMarks",
+    "explanation",
+    "table",
+  ];
+  if (
+    Object.keys(input).length !== fields.length ||
+    fields.some((key) => !Object.hasOwn(input, key))
+  )
+    return null;
+  if (
+    input.schemaVersion !== 1 ||
+    !validId(input.capstoneId) ||
+    !idList(input.order) ||
+    input.order.length === 0 ||
+    !validText(input.explanation, WORKSHEET_LIMITS.text) ||
+    !plain(input.annotations) ||
+    !plain(input.assumptionMarks)
+  )
+    return null;
   const notes = Object.entries(input.annotations);
   const marks = Object.entries(input.assumptionMarks);
-  if (notes.length > WORKSHEET_LIMITS.items || marks.length > WORKSHEET_LIMITS.items ||
+  if (
+    notes.length > WORKSHEET_LIMITS.items ||
+    marks.length > WORKSHEET_LIMITS.items ||
     notes.some(([key, value]) => !validId(key) || !validText(value, WORKSHEET_LIMITS.text)) ||
-    marks.some(([key, value]) => !validId(key) || !idList(value))) return null;
+    marks.some(([key, value]) => !validId(key) || !idList(value))
+  )
+    return null;
   const table = input.table;
-  if (!Array.isArray(table) || table.length > WORKSHEET_LIMITS.rows ||
-    table.some((row) => !Array.isArray(row) || row.length === 0 || row.length > WORKSHEET_LIMITS.columns ||
-      row.some((cell) => !validText(cell, WORKSHEET_LIMITS.cell)))) return null;
+  if (
+    !Array.isArray(table) ||
+    table.length > WORKSHEET_LIMITS.rows ||
+    table.some(
+      (row) =>
+        !Array.isArray(row) ||
+        row.length === 0 ||
+        row.length > WORKSHEET_LIMITS.columns ||
+        row.some((cell) => !validText(cell, WORKSHEET_LIMITS.cell)),
+    )
+  )
+    return null;
   if (table.some((row) => row.length !== table[0].length)) return null;
   if (new TextEncoder().encode(JSON.stringify(input)).length > WORKSHEET_LIMITS.bytes) return null;
   return {
@@ -114,19 +166,30 @@ export function readWorksheet(input: unknown): WorksheetState | null {
     capstoneId: input.capstoneId,
     order: [...input.order],
     annotations: Object.fromEntries(notes) as Record<string, string>,
-    assumptionMarks: Object.fromEntries(marks.map(([key, value]) => [key, [...value as string[]]])),
+    assumptionMarks: Object.fromEntries(
+      marks.map(([key, value]) => [key, [...(value as string[])]]),
+    ),
     explanation: input.explanation,
     table: table.map((row: string[]) => [...row]),
   };
 }
 
 /** A changed edition must not silently erase an earlier attempt's claims or notes. */
-export function worksheetMatches(state: WorksheetState, capstone: Pick<Capstone, "id" | "claims" | "assumptions">): boolean {
+export function worksheetMatches(
+  state: WorksheetState,
+  capstone: Pick<Capstone, "id" | "claims" | "assumptions">,
+): boolean {
   const claims = new Set(capstone.claims.map((claim) => claim.id));
   const assumptions = new Set(capstone.assumptions.map((item) => item.id));
-  return state.capstoneId === capstone.id && state.order.length === claims.size &&
-    new Set(state.order).size === claims.size && state.order.every((id) => claims.has(id)) &&
-    Object.entries(state.assumptionMarks).every(([claim, marks]) => claims.has(claim) && marks.every((id) => assumptions.has(id)));
+  return (
+    state.capstoneId === capstone.id &&
+    state.order.length === claims.size &&
+    new Set(state.order).size === claims.size &&
+    state.order.every((id) => claims.has(id)) &&
+    Object.entries(state.assumptionMarks).every(
+      ([claim, marks]) => claims.has(claim) && marks.every((id) => assumptions.has(id)),
+    )
+  );
 }
 
 export function exportWorksheet(state: WorksheetState): string {

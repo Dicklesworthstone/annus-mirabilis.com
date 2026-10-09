@@ -311,14 +311,15 @@ export const SEED_ENTRIES: readonly KeyRegistration[] = [
     ),
   ),
 
-  ...(Object.keys(CAPSTONE_WORKSHEET_KEYS) as (keyof typeof CAPSTONE_WORKSHEET_KEYS)[]).map((paper) =>
-    document_(
-      CAPSTONE_WORKSHEET_KEYS[paper],
-      "am-disc-capstones-infra-3352",
-      1,
-      `Capstone worksheet: ${DISCOVERY_PAPER_NAMES[paper]}`,
-      { maxBytes: 300_000 },
-    ),
+  ...(Object.keys(CAPSTONE_WORKSHEET_KEYS) as (keyof typeof CAPSTONE_WORKSHEET_KEYS)[]).map(
+    (paper) =>
+      document_(
+        CAPSTONE_WORKSHEET_KEYS[paper],
+        "am-disc-capstones-infra-3352",
+        1,
+        `Capstone worksheet: ${DISCOVERY_PAPER_NAMES[paper]}`,
+        { maxBytes: 300_000 },
+      ),
   ),
 
   // Documents.

@@ -346,8 +346,10 @@ export function mountNotebookPanel(
         const article = node("article");
         article.className = "notebook-entry";
         const link = node("a", entry.title);
-        link.href = entry.kind === "capstone"
-          ? capstoneCaptureHref(entry.capstone) : notebookFrameHref(entry.frame);
+        link.href =
+          entry.kind === "capstone"
+            ? capstoneCaptureHref(entry.capstone)
+            : notebookFrameHref(entry.frame);
         link.addEventListener("click", (event) => {
           if (
             event.button === 0 &&

@@ -4,7 +4,8 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadWalkthroughCatalogue } from "../src/content/walkthroughs.ts";
-import { buildCheckpointLaunches,
+import {
+  buildCheckpointLaunches,
   type CheckpointLaunchCatalogue,
 } from "../src/experiments/permalink/checkpointLaunches.ts";
 import { settingsFromTape } from "../src/experiments/permalink/sessionTape.ts";
@@ -14,10 +15,12 @@ import { DRAFT_BINDINGS, SESSION_BINDINGS } from "./generate-tape-links.ts";
 export function buildCheckpointLinks(root: string = process.cwd()): CheckpointLaunchCatalogue {
   return buildCheckpointLaunches(loadWalkthroughCatalogue(root), (experimentId, recorded) => {
     const binding = SESSION_BINDINGS[experimentId] ?? DRAFT_BINDINGS[experimentId];
-    if (!binding) return {
-      status: "unavailable", instrumentId: experimentId,
-      reason: "This laboratory has no checkpoint player yet.",
-    };
+    if (!binding)
+      return {
+        status: "unavailable",
+        instrumentId: experimentId,
+        reason: "This laboratory has no checkpoint player yet.",
+      };
     // Booleans cross the tape boundary as strings. Use the same conversion as a live restore,
     // followed by the owner validator and fresh settings checkpoint writer. Unknown keys refuse.
     const settings = settingsFromTape(recorded, binding.defaults);
@@ -29,7 +32,10 @@ export async function generateCheckpointLinks() {
   const catalogue = buildCheckpointLinks();
   const directory = resolve(process.cwd(), "src/generated");
   await mkdir(directory, { recursive: true });
-  await writeFile(resolve(directory, "checkpoint-links.json"), `${JSON.stringify(catalogue, null, 2)}\n`);
+  await writeFile(
+    resolve(directory, "checkpoint-links.json"),
+    `${JSON.stringify(catalogue, null, 2)}\n`,
+  );
   const stops = catalogue.walkthroughs.flatMap((entry) => entry.stops);
   return {
     walkthroughs: catalogue.walkthroughs.length,

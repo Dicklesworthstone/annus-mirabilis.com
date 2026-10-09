@@ -18,7 +18,10 @@ function moduleSource(name: string): string {
     compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext },
     reportDiagnostics: true,
   });
-  assert.deepEqual(compiled.diagnostics?.filter((item) => item.category === ts.DiagnosticCategory.Error) ?? [], []);
+  assert.deepEqual(
+    compiled.diagnostics?.filter((item) => item.category === ts.DiagnosticCategory.Error) ?? [],
+    [],
+  );
   return compiled.outputText;
 }
 const dataModule = (source: string) => `data:text/javascript,${encodeURIComponent(source)}`;
@@ -52,7 +55,12 @@ test("capstone return links in an actual browser DOM", { timeout: 30_000 }, asyn
   }
   async function check(name: string, run: () => Promise<void>) {
     await t.test(name, async () => {
-      try { await run(); } catch (error) { await retainFailure(); throw error; }
+      try {
+        await run();
+      } catch (error) {
+        await retainFailure();
+        throw error;
+      }
     });
   }
   try {
@@ -64,22 +72,34 @@ test("capstone return links in an actual browser DOM", { timeout: 30_000 }, asyn
         module.mountCapstoneReturnLinks(main, "special-relativity");
     }, entry);
 
-    await check("the actual href preserves encoded settings and gains the public return", async () => {
-      assert.equal(await page.locator("#lab").getAttribute("href"),
-        "/lab/sr-03/?tape=a%2Fb%2B%3D&x=a+b&fromCapstone=special-relativity#result");
-      assert.equal(await page.locator("#source").getAttribute("href"),
-        "/papers/special-relativity/view/parallel/?fromCapstone=special-relativity#s1-p7");
-    });
+    await check(
+      "the actual href preserves encoded settings and gains the public return",
+      async () => {
+        assert.equal(
+          await page.locator("#lab").getAttribute("href"),
+          "/lab/sr-03/?tape=a%2Fb%2B%3D&x=a+b&fromCapstone=special-relativity#result",
+        );
+        assert.equal(
+          await page.locator("#source").getAttribute("href"),
+          "/papers/special-relativity/view/parallel/?fromCapstone=special-relativity#s1-p7",
+        );
+      },
+    );
     await check("external, private and download links stay untouched", async () => {
-      for (const [selector, href] of [["#external", "https://other.example/"],
-        ["#private", "/notebook/"], ["#download", "/papers/file/"]] as const) {
+      for (const [selector, href] of [
+        ["#external", "https://other.example/"],
+        ["#private", "/notebook/"],
+        ["#download", "/papers/file/"],
+      ] as const) {
         assert.equal(await page.locator(selector).getAttribute("href"), href);
       }
     });
     await check("new-tab links keep their native target", async () => {
       assert.equal(await page.locator("#blank").getAttribute("target"), "_blank");
-      assert.equal(await page.locator("#blank").getAttribute("href"),
-        "/foundations/probability/?fromCapstone=special-relativity");
+      assert.equal(
+        await page.locator("#blank").getAttribute("href"),
+        "/foundations/probability/?fromCapstone=special-relativity",
+      );
     });
     await check("newly mounted walkthrough links are enhanced", async () => {
       await page.evaluate(() => {
@@ -89,27 +109,44 @@ test("capstone return links in an actual browser DOM", { timeout: 30_000 }, asyn
         link.textContent = "Later walkthrough";
         document.querySelector("main")?.append(link);
       });
-      await page.waitForFunction(() => document.querySelector("#late")?.getAttribute("href")?.includes("fromCapstone="));
+      await page.waitForFunction(() =>
+        document.querySelector("#late")?.getAttribute("href")?.includes("fromCapstone="),
+      );
     });
     await check("a framework update keeps its new settings without losing focus", async () => {
       await page.locator("#lab").focus();
-      await page.evaluate(() => document.querySelector("#lab")?.setAttribute("href", "/lab/sr-03/?tape=CHANGED#changed"));
-      await page.waitForFunction(() => document.querySelector("#lab")?.getAttribute("href") ===
-        "/lab/sr-03/?tape=CHANGED&fromCapstone=special-relativity#changed");
+      await page.evaluate(() =>
+        document.querySelector("#lab")?.setAttribute("href", "/lab/sr-03/?tape=CHANGED#changed"),
+      );
+      await page.waitForFunction(
+        () =>
+          document.querySelector("#lab")?.getAttribute("href") ===
+          "/lab/sr-03/?tape=CHANGED&fromCapstone=special-relativity#changed",
+      );
       assert.equal(await page.evaluate(() => document.activeElement?.id), "lab");
     });
     await check("a link converted to a download loses only the enhancer's marker", async () => {
       await page.locator("#late").evaluate((link) => link.setAttribute("download", ""));
-      await page.waitForFunction(() => document.querySelector("#late")?.getAttribute("href") === "/tapes/the-two-pulses/");
+      await page.waitForFunction(
+        () => document.querySelector("#late")?.getAttribute("href") === "/tapes/the-two-pulses/",
+      );
     });
     await check("disposal restores the most recent original link", async () => {
-      await page.evaluate(() => (window as Window & { disposeLinks?: () => void }).disposeLinks?.());
-      assert.equal(await page.locator("#lab").getAttribute("href"), "/lab/sr-03/?tape=CHANGED#changed");
+      await page.evaluate(() =>
+        (window as Window & { disposeLinks?: () => void }).disposeLinks?.(),
+      );
+      assert.equal(
+        await page.locator("#lab").getAttribute("href"),
+        "/lab/sr-03/?tape=CHANGED#changed",
+      );
     });
     await check("disposal does not overwrite an intervening owner's new target", async () => {
       await page.evaluate(async (url) => {
         const module = await import(url);
-        const dispose = module.mountCapstoneReturnLinks(document.querySelector("main"), "mass-energy");
+        const dispose = module.mountCapstoneReturnLinks(
+          document.querySelector("main"),
+          "mass-energy",
+        );
         document.querySelector("#source")?.setAttribute("href", "https://changed.example/");
         dispose();
       }, entry);

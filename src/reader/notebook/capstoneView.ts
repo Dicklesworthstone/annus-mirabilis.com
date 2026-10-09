@@ -23,10 +23,15 @@ export function appendCapstoneView(
   exportButton.type = "button";
   exportButton.className = "secondary";
   exportButton.textContent = "Export this attempt as worksheet JSON";
-  exportButton.addEventListener("click", () => download(
-    exportWorksheet(entry.capstone.worksheet), "capstone-worksheet.json", "application/json",
-  ));
+  exportButton.addEventListener("click", () =>
+    download(
+      exportWorksheet(entry.capstone.worksheet),
+      "capstone-worksheet.json",
+      "application/json",
+    ),
+  );
   const help = doc.createElement("p");
-  help.textContent = "Open the capstone and choose a snapshot from your notebook to restore it after reviewing. The link does not carry your private work. An exported worksheet can also be imported there.";
+  help.textContent =
+    "Open the capstone and choose a snapshot from your notebook to restore it after reviewing. The link does not carry your private work. An exported worksheet can also be imported there.";
   host.append(date, details, exportButton, help);
 }

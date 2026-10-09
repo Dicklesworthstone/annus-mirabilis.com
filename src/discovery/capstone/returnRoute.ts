@@ -22,7 +22,8 @@ export function worksheetPaper(pathname: string): CapstoneReturnPaper | null {
 }
 /** The destination family remains the same when a paper switches face or opens a clarification. */
 export function capstoneDestination(pathname: string): string | null {
-  const match = /^\/(papers|lab|tapes|foundations)\/([a-z0-9][a-z0-9.-]*)(?:\/[a-z0-9/-]*)?\/?$/.exec(pathname);
+  const match =
+    /^\/(papers|lab|tapes|foundations)\/([a-z0-9][a-z0-9.-]*)(?:\/[a-z0-9/-]*)?\/?$/.exec(pathname);
   if (!match || pathname.includes("..")) return null;
   return `/${match[1]}/${match[2]}/`;
 }
@@ -32,15 +33,30 @@ export function capstoneReturnHref(paper: CapstoneReturnPaper): string {
 
 /** Preserve every existing query byte (especially tape encodings), adding only the public slug. */
 export function withCapstoneReturn(href: string, paper: string): string {
-  if (!isCapstoneReturnPaper(paper) || href.length > MAX_URL_LENGTH ||
-      !href.startsWith("/") || href.startsWith("//") || /[\\\u0000-\u0020\u007f]/u.test(href)) return href;
+  if (
+    !isCapstoneReturnPaper(paper) ||
+    href.length > MAX_URL_LENGTH ||
+    !href.startsWith("/") ||
+    href.startsWith("//") ||
+    /[\\\u0000-\u0020\u007f]/u.test(href)
+  )
+    return href;
   let parsed: URL;
-  try { parsed = new URL(href, ORIGIN); } catch { return href; }
+  try {
+    parsed = new URL(href, ORIGIN);
+  } catch {
+    return href;
+  }
   // Do not normalize escaped path separators, dot segments, or an external authority into a link
   // we would be willing to decorate. Fragments and the existing query stay byte-for-byte intact.
   const path = href.split(/[?#]/, 1)[0];
-  if (parsed.origin !== ORIGIN || path !== parsed.pathname || path?.includes("%") ||
-      !capstoneDestination(parsed.pathname)) return href;
+  if (
+    parsed.origin !== ORIGIN ||
+    path !== parsed.pathname ||
+    path?.includes("%") ||
+    !capstoneDestination(parsed.pathname)
+  )
+    return href;
   const existing = parsed.searchParams.getAll(CAPSTONE_RETURN_PARAM);
   if (existing.length !== 0) return href;
   const hashAt = href.indexOf("#");
@@ -69,5 +85,6 @@ export function nextCapstoneReturn(
   const paper = values[0];
   if (values.length !== 1 || !paper || !isCapstoneReturnPaper(paper)) return null;
   return previous?.destination === destination && previous.paper === paper
-    ? previous : { paper, destination };
+    ? previous
+    : { paper, destination };
 }

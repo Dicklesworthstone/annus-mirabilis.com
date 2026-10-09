@@ -8,25 +8,59 @@ import type { Capstone } from "./capstoneSchema.ts";
 import type { WorksheetStorage } from "./worksheetStore.ts";
 
 const ids = ["a", "b", "c", "d", "e", "f"];
-const dependencies: Record<string, string[]> = { a: [], b: [], c: ["a", "b"], d: ["c"], e: ["d"], f: ["d"] };
+const dependencies: Record<string, string[]> = {
+  a: [],
+  b: [],
+  c: ["a", "b"],
+  d: ["c"],
+  e: ["d"],
+  f: ["d"],
+};
 const capstone: Capstone = {
-  id: "capstone-fixture", paper: "brownian-motion", title: "A test chain", question: "What follows from the assumptions?",
-  claims: ids.map((id) => ({ id, text: `Statement ${id}`, anchor: `s1-${id}`, logicalRole: "derivation", buildsOn: dependencies[id] ?? [], assumptionIds: ["independence"] })),
-  startOrder: [...ids].reverse(), paperOrder: ids, presets: [], equations: [],
+  id: "capstone-fixture",
+  paper: "brownian-motion",
+  title: "A test chain",
+  question: "What follows from the assumptions?",
+  claims: ids.map((id) => ({
+    id,
+    text: `Statement ${id}`,
+    anchor: `s1-${id}`,
+    logicalRole: "derivation",
+    buildsOn: dependencies[id] ?? [],
+    assumptionIds: ["independence"],
+  })),
+  startOrder: [...ids].reverse(),
+  paperOrder: ids,
+  presets: [],
+  equations: [],
   assumptions: [{ id: "independence", statement: "Independent intervals", kind: "idealization" }],
-  explanationPrompt: "Explain the chain to another reader.", selfCheckNotes: {}, limits: "A test fixture, not a measurement.", reviewRecordIds: [],
+  explanationPrompt: "Explain the chain to another reader.",
+  selfCheckNotes: {},
+  limits: "A test fixture, not a measurement.",
+  reviewRecordIds: [],
 };
 let saved: string | null = null;
 let quota = false;
 const storage: WorksheetStorage = {
-  read: () => saved === null ? { status: "missing" } : { status: "ok", raw: saved },
-  write(raw) { if (quota) return "quota"; saved = raw; return "saved"; },
-  remove() { saved = null; return "removed"; },
+  read: () => (saved === null ? { status: "missing" } : { status: "ok", raw: saved }),
+  write(raw) {
+    if (quota) return "quota";
+    saved = raw;
+    return "saved";
+  },
+  remove() {
+    saved = null;
+    return "removed";
+  },
 };
 const props = { capstone, equations: [], instruments: [], storage };
 let root: Root | null = null;
 
-beforeEach(async () => { await installDom(); saved = null; quota = false; });
+beforeEach(async () => {
+  await installDom();
+  saved = null;
+  quota = false;
+});
 afterEach(async () => {
   await act(async () => root?.unmount());
   root = null;
@@ -39,14 +73,19 @@ async function mount() {
   await act(async () => root?.render(createElement(CapstoneWorksheet, props)));
 }
 function button(name: string) {
-  const found = [...document.querySelectorAll("button")].find((element) => (element.getAttribute("aria-label") ?? element.textContent) === name);
+  const found = [...document.querySelectorAll("button")].find(
+    (element) => (element.getAttribute("aria-label") ?? element.textContent) === name,
+  );
   expect(found).toBeDefined();
   return found as HTMLButtonElement;
 }
 async function click(name: string) {
   await act(async () => button(name).click());
 }
-const order = () => [...document.querySelectorAll<HTMLElement>("[data-worksheet-claim]")].map((element) => element.dataset.worksheetClaim);
+const order = () =>
+  [...document.querySelectorAll<HTMLElement>("[data-worksheet-claim]")].map(
+    (element) => element.dataset.worksheetClaim,
+  );
 
 describe("optional capstone worksheet", () => {
   test("server output provides a printable blank worksheet without inert editing controls", () => {
@@ -65,8 +104,14 @@ describe("optional capstone worksheet", () => {
     expect(order()).toEqual(["e", "f", "d", "c", "b", "a"]);
     expect(document.activeElement).toBe(up);
     expect(up.getAttribute("aria-disabled")).toBe("true");
-    expect(document.querySelector("[data-capstone-reorder] [role=status]")?.textContent).toBe("Claim 5 moved to position 1 of 6.");
-    await act(async () => { up.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", altKey: true, bubbles: true })); });
+    expect(document.querySelector("[data-capstone-reorder] [role=status]")?.textContent).toBe(
+      "Claim 5 moved to position 1 of 6.",
+    );
+    await act(async () => {
+      up.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "ArrowDown", altKey: true, bubbles: true }),
+      );
+    });
     expect(order()).toEqual([...ids].reverse());
     expect(document.activeElement).toBe(up);
   });
@@ -99,13 +144,17 @@ describe("optional capstone worksheet", () => {
     await mount();
     await click("Use the paper's order");
     await click("Add a row");
-    await act(async () => { (document.querySelector('input[type="checkbox"]') as HTMLInputElement).click(); });
+    await act(async () => {
+      (document.querySelector('input[type="checkbox"]') as HTMLInputElement).click();
+    });
     await act(async () => root?.unmount());
     root = null;
     await mount();
     expect(order()).toEqual(ids);
     expect(document.querySelectorAll(".capstone-table-row input").length).toBe(2);
-    expect((document.querySelector('input[type="checkbox"]') as HTMLInputElement).checked).toBe(true);
+    expect((document.querySelector('input[type="checkbox"]') as HTMLInputElement).checked).toBe(
+      true,
+    );
     expect(document.body.textContent).toContain("Changes stay on this device");
   });
   test("a full device retains editing and displays session-only recovery", async () => {
@@ -119,5 +168,4 @@ describe("optional capstone worksheet", () => {
     await click("Retry saving");
     expect(document.body.textContent).toContain("Saved on this device");
   });
-
 });

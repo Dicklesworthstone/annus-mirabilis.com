@@ -1,24 +1,86 @@
-.investigation-disclosure { margin-block: 1.5rem; }
-.investigation-workspace { min-width: 0; overflow-wrap: anywhere; }
-.investigation-workspace [hidden] { display: none !important; }
-.investigation-workspace label { display: block; margin-block: 1rem 0.35rem; }
-.investigation-workspace input, .investigation-workspace textarea {
-  box-sizing: border-box; width: 100%; max-width: 100%; color: var(--ink); background: var(--panel);
-  border: 1px solid var(--line); border-radius: 0.25rem; padding: 0.65rem; font: inherit;
+.investigation-disclosure {
+  margin-block: 1.5rem;
 }
-.investigation-workspace button { min-height: 44px; max-width: 100%; white-space: normal; margin-block: 0.5rem; }
-.investigation-workspace :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
-.investigation-workspace summary { min-height: 44px; align-content: center; }
-.investigation-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-.investigation-reading { margin-block: 1rem; padding-block: 1rem; border-top: 1px solid var(--line); }
-.investigation-reading h5 { margin-top: 0; font-size: var(--type-small); }
-.investigation-reading dt { font-weight: 600; margin-top: 0.65rem; }
-.investigation-reading dd { margin-left: 0; }
-.investigation-words, .investigation-reading p { white-space: pre-wrap; }
-.investigation-reading pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: var(--type-fine); }
-.investigation-workspace p, .investigation-workspace dt, .investigation-workspace dd { overflow-wrap: anywhere; }
+.investigation-workspace {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.investigation-workspace [hidden] {
+  display: none !important;
+}
+.investigation-workspace label {
+  display: block;
+  margin-block: 1rem 0.35rem;
+}
+.investigation-workspace input,
+.investigation-workspace textarea {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 0.25rem;
+  padding: 0.65rem;
+  font: inherit;
+}
+.investigation-workspace button {
+  min-height: 44px;
+  max-width: 100%;
+  white-space: normal;
+  margin-block: 0.5rem;
+}
+.investigation-workspace :focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+.investigation-workspace summary {
+  min-height: 44px;
+  align-content: center;
+}
+.investigation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.investigation-reading {
+  margin-block: 1rem;
+  padding-block: 1rem;
+  border-top: 1px solid var(--line);
+}
+.investigation-reading h5 {
+  margin-top: 0;
+  font-size: var(--type-small);
+}
+.investigation-reading dt {
+  font-weight: 600;
+  margin-top: 0.65rem;
+}
+.investigation-reading dd {
+  margin-left: 0;
+}
+.investigation-words,
+.investigation-reading p {
+  white-space: pre-wrap;
+}
+.investigation-reading pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: var(--type-fine);
+}
+.investigation-workspace p,
+.investigation-workspace dt,
+.investigation-workspace dd {
+  overflow-wrap: anywhere;
+}
 @media print {
-  .investigation-workspace textarea, .investigation-workspace input, .investigation-workspace button,
-  .investigation-workspace [data-investigation-current] { display: none; }
-  .investigation-reading h5 { break-after: avoid; }
+  .investigation-workspace textarea,
+  .investigation-workspace input,
+  .investigation-workspace button,
+  .investigation-workspace [data-investigation-current] {
+    display: none;
+  }
+  .investigation-reading h5 {
+    break-after: avoid;
+  }
 }

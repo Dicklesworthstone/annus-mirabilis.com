@@ -7,8 +7,10 @@ export type WalkthroughLocation =
   | Readonly<{ kind: "absent" }>
   | Readonly<{ kind: "invalid"; notice: string }>
   | Readonly<{ kind: "selected"; selection: WalkthroughSelection }>;
-const INVALID = "This walkthrough link is incomplete or ambiguous. Choose a walkthrough below; no checkpoint was selected.";
-const validId = (value: string) => /^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,159}$/.test(value) &&
+const INVALID =
+  "This walkthrough link is incomplete or ambiguous. Choose a walkthrough below; no checkpoint was selected.";
+const validId = (value: string) =>
+  /^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,159}$/.test(value) &&
   !["constructor", "prototype", "__proto__"].includes(value);
 const validAction = (value: number) => Number.isSafeInteger(value) && value >= 0;
 
@@ -21,11 +23,19 @@ export function readWalkthroughLocation(search: string): WalkthroughLocation {
   if (ids.length === 0 && stops.length === 0) return { kind: "absent" };
   const tapeId = ids[0];
   const stop = stops[0];
-  if (ids.length !== 1 || !tapeId || !validId(tapeId) || stops.length > 1 ||
-      (stop !== undefined && (!/^(?:0|[1-9][0-9]*)$/.test(stop) || !validAction(Number(stop))))) {
+  if (
+    ids.length !== 1 ||
+    !tapeId ||
+    !validId(tapeId) ||
+    stops.length > 1 ||
+    (stop !== undefined && (!/^(?:0|[1-9][0-9]*)$/.test(stop) || !validAction(Number(stop))))
+  ) {
     return { kind: "invalid", notice: INVALID };
   }
-  return { kind: "selected", selection: { tapeId, actionIndex: stop === undefined ? null : Number(stop) } };
+  return {
+    kind: "selected",
+    selection: { tapeId, actionIndex: stop === undefined ? null : Number(stop) },
+  };
 }
 
 export type ResolvedWalkthroughLocation =
@@ -41,14 +51,23 @@ export function resolveWalkthroughLocation(
   const matches = catalogue.walkthroughs.filter((entry) => entry.tapeId === selection.tapeId);
   const walkthrough = matches[0];
   if (matches.length !== 1 || !walkthrough || walkthrough.experimentId !== experimentId) {
-    return { kind: "invalid", notice: "This recorded walkthrough is not available in this laboratory. No checkpoint was selected." };
+    return {
+      kind: "invalid",
+      notice:
+        "This recorded walkthrough is not available in this laboratory. No checkpoint was selected.",
+    };
   }
   if (selection.actionIndex === null) return { kind: "selected", walkthrough, index: 0 };
   const indices = walkthrough.checkpoints.flatMap((checkpoint, index) =>
-    checkpoint.actionIndex === selection.actionIndex ? [index] : []);
+    checkpoint.actionIndex === selection.actionIndex ? [index] : [],
+  );
   const index = indices[0];
   if (indices.length !== 1 || index === undefined) {
-    return { kind: "invalid", notice: "This recorded stop is missing or ambiguous in this edition. No checkpoint was selected." };
+    return {
+      kind: "invalid",
+      notice:
+        "This recorded stop is missing or ambiguous in this edition. No checkpoint was selected.",
+    };
   }
   return { kind: "selected", walkthrough, index };
 }
@@ -63,8 +82,13 @@ export function withWalkthroughSelection(
   tapeId: string,
   actionIndex: number | null = null,
 ): string | null {
-  if (!/^[a-z][a-z0-9-]{1,79}$/.test(experimentId) || !validId(tapeId) ||
-      (actionIndex !== null && !validAction(actionIndex)) || href.length > WALKTHROUGH_URL_LIMIT) return null;
+  if (
+    !/^[a-z][a-z0-9-]{1,79}$/.test(experimentId) ||
+    !validId(tapeId) ||
+    (actionIndex !== null && !validAction(actionIndex)) ||
+    href.length > WALKTHROUGH_URL_LIMIT
+  )
+    return null;
   for (const character of href) {
     const code = character.charCodeAt(0);
     if (code <= 32 || code === 127 || character === "\\") return null;
@@ -77,8 +101,11 @@ export function withWalkthroughSelection(
   const queryAt = head.indexOf("?");
   const location = readWalkthroughLocation(queryAt < 0 ? "" : head.slice(queryAt));
   if (location.kind !== "absent") {
-    return location.kind === "selected" && location.selection.tapeId === tapeId &&
-      location.selection.actionIndex === actionIndex ? href : null;
+    return location.kind === "selected" &&
+      location.selection.tapeId === tapeId &&
+      location.selection.actionIndex === actionIndex
+      ? href
+      : null;
   }
   const joiner = queryAt < 0 ? "?" : /[?&]$/.test(head) ? "" : "&";
   const next = `${head}${joiner}walkthrough=${encodeURIComponent(tapeId)}${actionIndex === null ? "" : `&stop=${actionIndex}`}${hash}`;
