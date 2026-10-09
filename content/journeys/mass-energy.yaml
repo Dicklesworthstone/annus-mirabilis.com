@@ -6,10 +6,13 @@
 # this file parses back to exactly that object, so the record is proven faithful rather than
 # assumed. Regenerate with: bun scripts/emit-journey-records.ts
 #
-# `completeness: partial` is the honest value: `stages` and `exercises.instrumented` are declared
-# in pendingElements with their reasons, because composing them would be authoring content rather
-# than moving it. A journey claiming complete with two elements missing is the defect am-4k0m is
-# about.
+# `completeness: partial` is the honest value, and pendingElements says which elements and why,
+# because composing them would be authoring content rather than moving it. A journey claiming
+# complete with elements missing is the defect am-4k0m is about. The list is NOT the same for
+# all four: `stages` and `exercises.instrumented` are pending everywhere, and
+# `move.derivationChain` is pending on the three papers whose move is marked in no derivation
+# chain a reader can open -- brownian-motion's is, in content/equations/derivations/. Count the
+# entries below rather than trusting this sentence.
 #
 # The page still renders from the module. Pointing it here is the next step, and the equality test
 # is what makes that step safe.
@@ -23,6 +26,9 @@ pendingElements:
     ownerBead: am-4k0m
   - element: exercises.instrumented
     reason: The exercise parts are typed, machine-checked objects in each paper's own exercise module, keyed to the components that render them rather than to journey-level ExerciseRefs. Mapping them is part of the record migration.
+    ownerBead: am-4k0m
+  - element: move.derivationChain
+    reason: 'The move is named in this record and marked in no derivation chain a reader can open: content/equations/derivations/ holds one chain, for brownian-motion. Authoring one here means a semantic expression tree per step with registry-bound quantity ids, a registered identity per rule and a worked case, which is physics authoring rather than moving this journey''s prose into a record.'
     ownerBead: am-4k0m
 shelf:
   - helmholtz-1847-conservation-of-energy

@@ -67,6 +67,41 @@ const PENDING: readonly PendingElement[] = Object.freeze([
   }),
 ]);
 
+/**
+ * THE THIRD PENDING ELEMENT, AND THE ONE THAT IS NOT SHARED BY ALL FOUR.
+ *
+ * AGENTS.md's discovery skeleton says of the move: "the one non-obvious step, named as such and
+ * marked in the derivation chain." A journey's `move` record names it, and every journey has one.
+ * What three of the four lack is a chain a reader can OPEN at that step: `content/equations/
+ * derivations/` holds one file, bm-variance.yaml, whose `bm-variance-cross` step carries
+ * `isMove: true`. So brownian-motion's move is openable and the other three moves are prose.
+ *
+ * am-4k0m lists this as the fourth of its four drift items and allows either of two resolutions,
+ * fixed or "declared with a written reason in the record". It was neither: the census printed
+ * "1 of 4" with a floor under it, which reports a gap without declaring one, and a figure in a
+ * test log is not a record. Authoring the three missing chains is not a migration -- bm-variance
+ * is a full semantic expression tree per step with registry-bound quantity ids, registered
+ * identities and a worked case -- so it is declared here and owned where derivation chains are.
+ */
+const PENDING_MOVE_CHAIN: PendingElement = Object.freeze({
+  element: "move.derivationChain",
+  reason:
+    "The move is named in this record and marked in no derivation chain a reader can open: content/equations/derivations/ holds one chain, for brownian-motion. Authoring one here means a semantic expression tree per step with registry-bound quantity ids, a registered identity per rule and a worked case, which is physics authoring rather than moving this journey's prose into a record.",
+  ownerBead: "am-4k0m",
+});
+
+/**
+ * The papers whose move is not in an openable chain. Hardcoded because this module is composed by
+ * reference and must not read the filesystem -- it is reachable from the discover pages, and a
+ * node: import there is the defect am-t84m gates against. The list cannot go stale in silence:
+ * journeySkeletonCensus.test.ts reads the chain files on disk and refuses any journey that has a
+ * chain while declaring one pending, or lacks one while declaring nothing. Author a chain and that
+ * census tells you to delete the paper from this set.
+ */
+const MOVE_CHAIN_MISSING: ReadonlySet<string> = Object.freeze(
+  new Set(["light-quanta", "special-relativity", "mass-energy"]),
+) as ReadonlySet<string>;
+
 /** Only the card fields this module reads; the cards themselves stay in their own files. */
 type ShelfCard = Readonly<{
   id: string;
@@ -184,7 +219,9 @@ function compose(
     revision: REVISIONS[paper] ?? 1,
     // Partial, and the pending list says which two elements and why. The honest value.
     completeness: "partial" as const,
-    pendingElements: PENDING,
+    pendingElements: MOVE_CHAIN_MISSING.has(paper)
+      ? Object.freeze([...PENDING, PENDING_MOVE_CHAIN])
+      : PENDING,
     shelf: Object.freeze(shelf.map((card) => card.id)),
     // Empty for three of the four journeys, which is the honest value: only mass-energy imports a
     // 1905 result, and the schema omits an empty array rather than recording one.
