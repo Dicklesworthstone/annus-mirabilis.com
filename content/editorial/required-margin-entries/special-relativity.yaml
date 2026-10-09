@@ -50,6 +50,33 @@ entries:
     proposition: "The footnote conceding the imprecision of the rigid-body concept."
     namedSources: ["ap-17-891, footnote"]
     requiresCitations: ["ap-17-891"]
+    # THE PLAN'S DESCRIPTION DOES NOT MATCH THE PLATES, and this bead asked for exactly this check:
+    # "the correction of the plan's rigid-body description if the facsimile confirms the witness".
+    # Read from the pinned facsimile's page images on 2026-10-08 (pdftoppm renders pixels; the
+    # embedded text layer is forbidden and was not used). The paper has FOUR footnotes and neither
+    # of the two candidates is what the plan describes:
+    #
+    #   s1-fn1, printed p. 893 -- DOES concede an imprecision, but of GLEICHZEITIGKEIT, not
+    #     rigidity: "Die Ungenauigkeit, welche in dem Begriffe der Gleichzeitigkeit zweier
+    #     Ereignisse an (annaehernd) demselben Orte steckt und gleichfalls durch eine Abstraktion
+    #     ueberbrueckt werden muss, soll hier nicht eroertert werden."
+    #   s4-fn1, printed p. 903 -- IS the rigid-body footnote, attached to "eine starre Kugel" in
+    #     the first line of section 4, and it concedes nothing. It defines: "Das heisst einen
+    #     Koerper, welcher ruhend untersucht Kugelgestalt besitzt."
+    #
+    # Both machine-draft transcriptions match their plates exactly, which is also a check on those
+    # two drafts. The other two footnotes are s2-fn1 (p. 896, defining "Zeit") and s6-fn1 (p. 909,
+    # a symmetry argument).
+    #
+    # So the entry as written describes a footnote that does not exist. Whether (g) should become
+    # the simultaneity concession, the rigid-sphere definition, or both as one entry about what the
+    # paper does and does not concede, is the owner's call. Reported, not chosen, and the plan text
+    # above is left exactly as section 3.9 prints it.
+    planDescriptionDisputed:
+      reportedOn: "2026-10-08"
+      evidence: "pinned facsimile ap-17-891.pdf, page images for printed pages 893 and 903"
+      candidates: ["s1-fn1", "s4-fn1"]
+      finding: "No footnote concedes an imprecision of the rigid-body concept. s1-fn1 concedes one about simultaneity; s4-fn1 is attached to the rigid sphere and is a definition."
   - letter: h
     proposition: "The notation V and beta."
     namedSources: ["ap-17-891"]

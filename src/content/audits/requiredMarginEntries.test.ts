@@ -48,6 +48,12 @@ type Entry = {
   proposition?: unknown;
   satisfiedBy?: unknown;
   requiresCitations?: unknown;
+  planDescriptionDisputed?: {
+    reportedOn?: unknown;
+    evidence?: unknown;
+    candidates?: unknown;
+    finding?: unknown;
+  };
   partial?: { satisfiedBy?: unknown; covers?: unknown; missing?: unknown };
 };
 
@@ -339,6 +345,33 @@ describe("THE ABSENT ENTRIES ARE BLOCKED ON BIBLIOGRAPHY, AND THAT REORDERS THE 
       .map(String)
       .filter((id) => have.has(id));
     expect(resolved.length).toBeGreaterThan(0);
+  });
+});
+
+describe("an entry whose plan description the plates contradict is surfaced, not silently authored", () => {
+  const papers = records();
+
+  test("a disputed entry carries its evidence, and is never also credited as satisfied", () => {
+    const disputed = papers.flatMap(({ paper, entries }) =>
+      entries
+        .filter((e) => e.planDescriptionDisputed !== undefined)
+        .map((e) => ({ paper, letter: String(e.letter), entry: e })),
+    );
+    for (const { paper, letter, entry } of disputed) {
+      const d = entry.planDescriptionDisputed;
+      console.log(`[census] DISPUTED ${paper} (${letter}): ${String(d?.finding ?? "")}`);
+      // Evidence is required, because "the plan is wrong" without a source is just an opinion and
+      // this repository's whole method is that a claim names what was read.
+      expect(String(d?.evidence ?? "").length, `${paper} (${letter})`).toBeGreaterThan(20);
+      expect(String(d?.finding ?? "").length).toBeGreaterThan(40);
+      expect(Array.isArray(d?.candidates) && d.candidates.length > 0).toBe(true);
+      // A disputed entry describes something that may not exist, so it must not ALSO claim to be
+      // present. That combination would mean a record was written against a description the
+      // plates contradict, which is the thing this check exists to prevent.
+      expect(entry.satisfiedBy, `${paper} (${letter}) is disputed AND credited`).toBeUndefined();
+    }
+    // Non-vacuity: there is one today (relativity (g)), so an empty loop means the record lost it.
+    expect(disputed.length).toBeGreaterThan(0);
   });
 });
 
