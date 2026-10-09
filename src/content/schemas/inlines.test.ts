@@ -74,7 +74,7 @@ test("codePointSlice slices by code point, correctly across a surrogate pair", (
   assert.notEqual(astral.slice(1, 2), "\u{1D49C}");
 });
 
-test("inlines: (inlines.ts:193) footnote-mark throws when footnoteId is missing or non-string", () => {
+test("inlines: (inlines.ts:254) footnote-mark throws when footnoteId is missing or non-string", () => {
   assert.throws(
     () => validateInline({ kind: "footnote-mark", mark: "1)" }),
     /footnoteId is required/,
@@ -84,7 +84,26 @@ test("inlines: (inlines.ts:193) footnote-mark throws when footnoteId is missing 
   assert.equal(accepted.kind, "footnote-mark");
 });
 
-test("inlines: (inlines.ts:217) citation-ref throws when citationId is missing or non-string", () => {
+/**
+ * THE OTHER HALF OF footnote-mark, WHICH WAS UNCOVERED AND COST THE FIRST HALF ITS CREDIT.
+ *
+ * `case "footnote-mark"` refuses twice, a missing `mark` and a missing `footnoteId`, and the
+ * refusal scanner reads both under the one code it can infer. Its rule is that an uncited site
+ * under a repeated code is never credited, so covering only `footnoteId` left BOTH reading as
+ * untested and `inlines.ts` over its untested-refusal baseline. One test per site, each citing its
+ * own line.
+ */
+test("inlines: (inlines.ts:253) footnote-mark throws when mark is missing or non-string", () => {
+  assert.throws(
+    () => validateInline({ kind: "footnote-mark", footnoteId: "s1-fn1" }),
+    /mark is required/,
+  );
+  // And the accept half, so this is a pair rather than a one-sided refusal check.
+  const accepted = validateInline({ kind: "footnote-mark", mark: "*)", footnoteId: "s1-fn2" });
+  assert.equal(accepted.kind, "footnote-mark");
+});
+
+test("inlines: (inlines.ts:278) citation-ref throws when citationId is missing or non-string", () => {
   assert.throws(() => validateInline({ kind: "citation-ref" }), /citationId is required/);
   // Accept valid citation-ref
   const accepted = validateInline({ kind: "citation-ref", citationId: "cite-1" });
@@ -114,7 +133,7 @@ test("an absent spoken form leaves the node exactly as it was, so nothing is inv
   assert.deepEqual(validateInline({ kind: "math", latex: "x'" }), { kind: "math", latex: "x'" });
 });
 
-test("an empty spoken form is refused, since it would announce nothing", () => {
+test("(inlines.ts:229) inline-spoken-empty: an empty spoken form is refused", () => {
   assert.throws(
     () => validateInline({ kind: "math", latex: "x", spoken: "   " }),
     /spoken must be a non-empty string/,
@@ -125,7 +144,7 @@ test("an empty spoken form is refused, since it would announce nothing", () => {
   );
 });
 
-test("a display inline is refused a spoken form; its equation record already owns one", () => {
+test("(inlines.ts:236) inline-spoken-on-display: a display inline is refused a spoken form", () => {
   assert.throws(
     () =>
       validateInline({

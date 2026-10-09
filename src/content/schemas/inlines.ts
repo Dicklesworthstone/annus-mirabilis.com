@@ -5,6 +5,33 @@
 
 import { validateDirection, validateLanguageTag } from "../../i18n/language.ts";
 
+/**
+ * A CODED REFUSAL FOR THIS MODULE, WHICH IT HAD NONE OF, AND WHY ONE EXISTS NOW.
+ *
+ * Every other schema module here carries its own error class -- ArgumentSchemaError,
+ * AuthorshipValidationError, ConcordanceSchemaError, DateValidationError -- and this one did not,
+ * which is why its ten refusals are bare `new Error`. Adding the two `spoken` checks took that to
+ * twelve and the bare-throw ratchet refused the commit at its baseline of 10, offering exactly two
+ * repairs: "Give the new refusal a typed code so refusalRatchet can see it, or lower an existing
+ * bare throw in the same file." Raising the baseline is the third option and AGENTS.md forbids it:
+ * "A baseline is the record of a debt, not a budget to draw on."
+ *
+ * So the two new refusals are typed and the existing ten are left alone. Converting those ten is a
+ * larger change to a shared validator, and their messages are matched by tests elsewhere; it is
+ * the file's recorded debt and it stays recorded rather than being swept into this commit.
+ */
+export class InlineSchemaError extends Error {
+  readonly code: string;
+  readonly path: string;
+
+  constructor(code: string, message: string, path = "inline") {
+    super(`${path}: ${message} (${code})`);
+    this.name = "InlineSchemaError";
+    this.code = code;
+    this.path = path;
+  }
+}
+
 export type TextInline = Readonly<{
   kind: "text";
   text: string;
@@ -199,13 +226,17 @@ export function validateInline(node: unknown, path = "inline"): Inline {
       // author who wrote one in the wrong place would see no error and no effect.
       if (o.spoken !== undefined) {
         if (typeof o.spoken !== "string" || !o.spoken.trim()) {
-          throw new Error(
-            `${path}: spoken must be a non-empty string naming the words a reader hears; an empty one would announce nothing.`,
+          throw new InlineSchemaError(
+            "inline-spoken-empty",
+            "spoken must be a non-empty string naming the words a reader hears; an empty one would announce nothing.",
+            path,
           );
         }
         if (display) {
-          throw new Error(
-            `${path}: a display math inline (display: true) must not carry a spoken form; the authored form for that formula lives in its equation record (content/display-terms).`,
+          throw new InlineSchemaError(
+            "inline-spoken-on-display",
+            "a display math inline (display: true) must not carry a spoken form; the authored form for that formula lives in its equation record (content/display-terms).",
+            path,
           );
         }
       }
