@@ -299,6 +299,34 @@ describe("THE ABSENT ENTRIES ARE BLOCKED ON BIBLIOGRAPHY, AND THAT REORDERS THE 
     for (const [id, where] of [...outstanding].sort()) {
       console.log(`[census]   MISSING ${id.padEnd(34)} needed by ${where.join(", ")}`);
     }
+    // THE SPLIT THAT MAKES THIS ACTIONABLE, and the reason no blocking dependency was added
+    // between the margin beads and the bibliography bead: some absent entries cite records that
+    // already exist, so they can be authored today. A hard `br dep add` would have removed real
+    // work from the ready pool.
+    const authorable: string[] = [];
+    let waiting = 0;
+    for (const { paper, entries } of papers) {
+      for (const entry of entries) {
+        if (typeof entry.satisfiedBy === "string") continue;
+        const need = (Array.isArray(entry.requiresCitations) ? entry.requiresCitations : []).map(
+          String,
+        );
+        if (need.length > 0 && need.every((id) => have.has(id))) {
+          authorable.push(`${paper} (${String(entry.letter)})`);
+        } else {
+          waiting += 1;
+        }
+      }
+    }
+    console.log(
+      `[census] of the absent entries, ${authorable.length} are authorable today ` +
+        `(${authorable.join(", ")}) and ${waiting} wait on a bibliography record`,
+    );
+    // Both sides non-empty on purpose. If everything were blocked this would read as a hard
+    // dependency and the beads should be marked so; if nothing were, this bead would not exist.
+    expect(authorable.length).toBeGreaterThan(0);
+    expect(waiting).toBeGreaterThan(0);
+
     // A floor rather than an equality, so writing one of them does not turn this red. It is a
     // REPORT, and the thing it reports is a blocker, so it must not be asserted away.
     expect(outstanding.size).toBeGreaterThan(0);
