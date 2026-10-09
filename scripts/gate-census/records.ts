@@ -95,6 +95,35 @@ const minimumPlant = (
 
 export const CENSUS_RECORDS: readonly CensusRecord[] = [
   {
+    gate: "build",
+    noun: "HTML pages emitted",
+    howRead:
+      "Counted from out/ by scripts/build/reportBuildPopulation.ts, which `bun run build` now runs " +
+      "after `next build`. Files ending .html, not directories: next emits a DIRECTORY named " +
+      "out/_next/static/chunks/app/offline/[paper]/[file]/index.html, so `find -name '*.html'` " +
+      "reports 721 where the real page count is 720.",
+    // The reporter prints and never exits non-zero, deliberately: it runs at the end of the chain
+    // that vercel.json's buildCommand invokes, so a reporting line able to throw could fail every
+    // pane's build and the deploy. The census judges the number instead, as it does for `lint`.
+    gateRefusesVacuous: false,
+    plants: [
+      {
+        id: "build-floor-unreachable",
+        file: "scripts/build/reportBuildPopulation.ts",
+        // NOT `minimum: 250,` -- minimumPlant's anchor does not exist here, because the floor is a
+        // named constant the reporter and its test both read. Targeting the declaration is also the
+        // more faithful plant: the floor is the thing under review.
+        find: "export const BUILD_PAGE_FLOOR = 250;",
+        replace: "export const BUILD_PAGE_FLOOR = 99999999;",
+        expectFailureNaming: "below the declared floor",
+        why:
+          "The reporter never exits non-zero, so what this plant has to show is that the census " +
+          "LINE goes VACUOUS and the reporter says so in words. Raising the floor out of reach is " +
+          "the only edit that does it without deleting pages from a real build.",
+      },
+    ],
+  },
+  {
     gate: "browser-acceptance",
     noun: "runtime conformance assertions",
     howRead:
