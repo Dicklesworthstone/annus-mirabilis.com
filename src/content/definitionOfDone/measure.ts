@@ -40,6 +40,7 @@ import { validateSourceManifest } from "../manifest/schema.ts";
 import { deriveUnitCoverage } from "../manifest/unitCoverage.ts";
 import { type DoneCell, doneCell, unmeasuredCell } from "./cells.ts";
 import { labCellsForPaper } from "./labCells.ts";
+import { type LoadedReadings, loadLiveReadings, readingsTally } from "./readingsCells.ts";
 
 export const DONE_PAPERS = [
   "light-quanta",
@@ -319,6 +320,58 @@ export function labContractCells(
 }
 
 /**
+ * ITEM 8: every reading target carries a complete R0-R3 set.
+ *
+ * `readings-missing` is the audit's own check, so a target with a gap at any level is not clean.
+ * The denominator is the paper's reading targets as the readings-owners records declare them --
+ * which is the population the §17.7 item is about, since a target nobody owns is a different
+ * finding (`owner-unassigned`) and is counted by the audit rather than hidden here.
+ */
+export function readingsComplete(paper: string, loaded: LoadedReadings): DoneCell {
+  const tally = readingsTally(loaded, paper, ["readings-missing"]);
+  if (tally.reachable === 0) {
+    return unmeasuredCell(
+      "readings-r0-to-r3",
+      paper,
+      `auditReadings reached no reading target for this paper: ${tally.shortCircuited} were short-circuited at owner-unassigned, because the readings-owners records declare targetKinds "instrument-caption" while their targets declare kind "caption", so no owner ever matches and no later check runs (READINGS_OWNER_KIND_MISMATCH)`,
+    );
+  }
+  return doneCell(
+    "readings-r0-to-r3",
+    paper,
+    tally.clean,
+    tally.reachable,
+    "declared reading targets with a complete R0-R3 set, by auditReadings' readings-missing check",
+  );
+}
+
+/**
+ * ITEM 9: R2 expands R1.
+ *
+ * By the audit's own proxy: `R2_LENGTH_FACTOR = 1.2`, with a declared per-target override for the
+ * cases where expansion is not length. A proxy rather than a reading of the prose, and it is this
+ * repository's proxy, already written down and already enforced -- which is what separates a
+ * measurement from an invention. My earlier note called this unmeasurable and was wrong.
+ */
+export function r2CoversR1(paper: string, loaded: LoadedReadings): DoneCell {
+  const tally = readingsTally(loaded, paper, ["r2-length", "r2-override-incomplete"]);
+  if (tally.reachable === 0) {
+    return unmeasuredCell(
+      "r2-covers-r1",
+      paper,
+      `the r2-length check never ran for this paper: all ${tally.shortCircuited} of its reading targets are short-circuited at owner-unassigned (READINGS_OWNER_KIND_MISMATCH). The audit DOES judge this relation, by R2_LENGTH_FACTOR 1.2 with declared overrides, so this is reachable the moment the kind mismatch is settled`,
+    );
+  }
+  return doneCell(
+    "r2-covers-r1",
+    paper,
+    tally.clean,
+    tally.reachable,
+    "targets whose R2 is longer than R1 by the declared factor, or carry a complete override",
+  );
+}
+
+/**
  * The remaining items this report does not yet read, each with the reason and where its data is.
  *
  * Declared rather than omitted: an item missing from the table is invisible, and an item present
@@ -326,14 +379,6 @@ export function labContractCells(
  * distinction.
  */
 const NOT_YET_READ: Readonly<Record<string, string>> = {
-  "readings-r0-to-r3":
-    "src/content/audits/readings.ts auditReadings computes this, but its input is assembled from " +
-    "content/editorial/readings-owners/*.yaml plus every target's own record; wiring that loader " +
-    "is its own unit of work and must not be approximated here by counting r0 lines, which would " +
-    "report R0 coverage under an R0-R3 heading.",
-  "r2-covers-r1":
-    "a comparison between two AUTHORED texts, not a count: R2 must expand R1 rather than contradict " +
-    "it. Nothing in the records marks that relation, so any number here would be invented.",
   "margin-entries":
     "the historian's-margin entries live in content/editorial/readings-owners/*.yaml as r3 targets " +
     "(see the readings-owners note in AGENTS.md), and the required-per-paper list that would be the " +
@@ -376,6 +421,7 @@ export function cellsForPaper(
   root: string,
   paper: string,
   instruments = loadInstrumentAudit(root),
+  readings = loadLiveReadings(root),
 ): readonly DoneCell[] {
   return [
     manifestUnitsCovered(root, paper),
@@ -385,6 +431,8 @@ export function cellsForPaper(
     resultsCardsPrinted(root, paper),
     misconceptionsAtLeastFive(root, paper),
     labContractCells(paper, instruments),
+    readingsComplete(paper, readings),
+    r2CoversR1(paper, readings),
     ...declaredUnmeasured(paper),
   ];
 }
@@ -392,5 +440,8 @@ export function cellsForPaper(
 /** Every cell for every paper, with the instrument audit loaded once for all four. */
 export function allCells(root: string): readonly DoneCell[] {
   const instruments = loadInstrumentAudit(root);
-  return DONE_PAPERS.flatMap((paper) => cellsForPaper(root, paper, instruments));
+  // Loaded once for all four papers, like the instrument audit: it reads 41 records and judges
+  // every target, and doing that per paper would be four passes for the same answer.
+  const readings = loadLiveReadings(root);
+  return DONE_PAPERS.flatMap((paper) => cellsForPaper(root, paper, instruments, readings));
 }
