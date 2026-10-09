@@ -53,7 +53,9 @@
 /** The shape this reads. A manifest validated by `validateExperiment` satisfies it structurally. */
 export type CitedManifest = Readonly<{
   id: string;
-  outputs?: readonly Readonly<{ id: string }>[] | undefined;
+  // `quantityId` is optional here because the citation half does not need it; the contract join
+  // below does, and it is the field that already carries the join (am-gpk5).
+  outputs?: readonly Readonly<{ id: string; quantityId?: string | undefined }>[] | undefined;
   parameters?: readonly Readonly<{ id: string }>[] | undefined;
   views?: readonly Readonly<{ id: string; consumes?: readonly string[] | undefined }>[] | undefined;
   actions?:
@@ -150,3 +152,117 @@ export function summarizeViewCitations(report: ViewCitationReport): string {
     `${kind("unresolved")} name nothing the manifest declares`
   );
 }
+
+/**
+ * THE JOIN BETWEEN A MANIFEST'S OUTPUT IDS AND ITS LABORATORY'S RUNTIME CONTRACT (am-gpk5).
+ *
+ * The bead reports thirteen manifest outputs the contract "does not emit" and proposes either a
+ * rename or a hand-written join table. NEITHER IS NEEDED: the join is already data, in two fields
+ * that were written for it and never read together.
+ *
+ *   manifest `outputs[].quantityId`  names the contract's key
+ *   contract `<key>.ownerId`         ends in "." + the manifest's output id
+ *
+ * me-02's `limitingCoefficient`, which the bead calls "NO UNAMBIGUOUS COUNTERPART ... needs
+ * me-02's author", is `inertialMassDecrease`, whose ownerId is `massEnergy.limitingCoefficient`
+ * and whose semanticKind is `limiting-mass-coefficient`. The contract says so itself.
+ *
+ * So a join is one of three kinds, strongest first, and the kind is reported rather than
+ * flattened: `id` (the manifest id IS a contract key), `quantityId-confirmed` (joined by
+ * quantityId AND the ownerId names the manifest id back), `quantityId-only` (joined by
+ * quantityId; the ownerId cannot confirm because one owner emits several outputs, which is
+ * sr-02's case where four share `fields.emfBothDescriptions`).
+ *
+ * An output that joins by nothing is `unjoined` and is the finding. Four are, and the bead found
+ * none of them, because it looked only at outputs a VIEW cites.
+ */
+export type OutputJoinKind = "id" | "quantityId-confirmed" | "quantityId-only" | "unjoined";
+
+export type OutputJoin = Readonly<{
+  lab: string;
+  outputId: string;
+  quantityId: string | undefined;
+  contractKey: string | undefined;
+  kind: OutputJoinKind;
+}>;
+
+/** One laboratory's runtime contract, as `<key> -> { ownerId }`. */
+export type ContractOutputs = Readonly<Record<string, Readonly<{ ownerId?: string }>>>;
+
+/**
+ * Joins every declared output to its contract. A laboratory with no contract supplied is skipped
+ * and counted separately: absent is not the same as unjoined, and reporting it as unjoined would
+ * invent four defects in bm-02 and lq-02 that nobody can act on.
+ */
+export function outputContractJoins(
+  manifests: readonly CitedManifest[],
+  contracts: Readonly<Record<string, ContractOutputs>>,
+): Readonly<{ joins: readonly OutputJoin[]; labsWithoutContract: readonly string[] }> {
+  const joins: OutputJoin[] = [];
+  const labsWithoutContract: string[] = [];
+  for (const manifest of manifests) {
+    const contract = contracts[manifest.id];
+    if (contract === undefined) {
+      labsWithoutContract.push(manifest.id);
+      continue;
+    }
+    for (const output of manifest.outputs ?? []) {
+      const quantityId = typeof output.quantityId === "string" ? output.quantityId : undefined;
+      if (contract[output.id] !== undefined) {
+        joins.push(
+          Object.freeze({
+            lab: manifest.id,
+            outputId: output.id,
+            quantityId,
+            contractKey: output.id,
+            kind: "id" as const,
+          }),
+        );
+        continue;
+      }
+      const viaQuantity = quantityId === undefined ? undefined : contract[quantityId];
+      if (viaQuantity !== undefined && quantityId !== undefined) {
+        const confirmed = (viaQuantity.ownerId ?? "").endsWith(`.${output.id}`);
+        joins.push(
+          Object.freeze({
+            lab: manifest.id,
+            outputId: output.id,
+            quantityId,
+            contractKey: quantityId,
+            kind: confirmed ? ("quantityId-confirmed" as const) : ("quantityId-only" as const),
+          }),
+        );
+        continue;
+      }
+      joins.push(
+        Object.freeze({
+          lab: manifest.id,
+          outputId: output.id,
+          quantityId,
+          contractKey: undefined,
+          kind: "unjoined" as const,
+        }),
+      );
+    }
+  }
+  return Object.freeze({
+    joins: Object.freeze(joins),
+    labsWithoutContract: Object.freeze(labsWithoutContract),
+  });
+}
+
+/**
+ * The outputs that join to nothing, declared so an undeclared one fails and a stale declaration is
+ * reported, following `requiredUnitKinds.ts`. Each says WHY it cannot be joined, because "no
+ * counterpart" without a reason is the silence this bead refuses.
+ */
+export const UNJOINED_OUTPUTS: Readonly<Record<string, string>> = Object.freeze({
+  "bm-08/apparentSpeedIdeal":
+    "The contract emits idealSpeeds, a per-interval array; this manifest output is a scalar id and shares the quantityId apparentSpeed with apparentSpeedMeasured. Whether one scalar summarises the array, or the manifest should declare the array, is bm-08's author's call.",
+  "bm-08/apparentSpeedMeasured":
+    "As above against cameraSpeeds, and it shares the quantityId apparentSpeed with apparentSpeedIdeal, so the quantityId cannot distinguish them even if it were registered.",
+  "bm-08/apparentSpeedRatio":
+    "The contract emits speedRatios, a per-interval array, against this scalar id. Same question as the two above.",
+  "sr-09/detectorCrossings":
+    "No counterpart of any kind among sr-09's twelve contract keys, which are speeds, angles, frequencies, Doppler factors, a phase and a Lorentz factor. This is the phantom the bead suspected at me-02 and did not find here.",
+});
