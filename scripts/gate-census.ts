@@ -51,6 +51,7 @@ import {
   unlinkSync,
   writeFileSync,
 } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import {
   type Finding,
@@ -92,9 +93,26 @@ function runGate(
   }
 }
 
+/**
+ * Where the plant worktree lives, and it is NEVER INSIDE THE REPOSITORY.
+ *
+ * The fallback used to be `ROOT/artifacts/gate-census`, which is gitignored and therefore looked
+ * safe. It is not: git ignoring a directory says nothing about what a test runner scans. Measured
+ * 2026-10-08, with CLAUDE_SCRATCHPAD unset so the fallback was taken -- the worktree put
+ * **1,334 .test.ts files** inside the tree, a second copy of the whole suite, and
+ * `bun test scripts/perf/` then ran the WORKTREE's copy of runPerfBudgets.test.ts and failed two
+ * tests there, because a fresh worktree has no `.next` build output. The failure pointed at
+ * `artifacts/gate-census/gate-census-worktree/scripts/perf/runPerfBudgets.test.ts`, which is the
+ * only reason it was not mistaken for a real regression in the gate being measured.
+ *
+ * It cannot be fixed by adding `artifacts/` to bunfig's `pathIgnorePatterns`, which was the obvious
+ * move: that list is ALSO the node lane's source list (scripts/quality-gates/bunfigNodeOnlyTests.ts
+ * expands it into the files `bun run test:node` runs), so ignoring it in one lane would hand 1,334
+ * files to the other. A scratch worktree simply has no business inside the tree it is measuring.
+ */
 function scratchRoot(): string {
   const scratch = process.env.CLAUDE_SCRATCHPAD ?? "";
-  const dir = scratch.length > 0 ? scratch : join(ROOT, "artifacts", "gate-census");
+  const dir = scratch.length > 0 ? scratch : join(tmpdir(), "annus-mirabilis-gate-census");
   mkdirSync(dir, { recursive: true });
   return dir;
 }
