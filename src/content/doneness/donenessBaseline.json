@@ -288,7 +288,7 @@
     },
     "historians-margin-entries": {
       "state": "short",
-      "met": 0,
+      "met": 1,
       "of": 8
     },
     "lab-contract-cells": {
