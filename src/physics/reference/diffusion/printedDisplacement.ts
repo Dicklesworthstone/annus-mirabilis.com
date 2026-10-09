@@ -19,9 +19,13 @@
  * N = 6e23, whose quotient is the k_B of 1905; the modern set carries the 2019 defined k_B. So the
  * comparison isolates one constant, which is the only honest thing to show here.
  *
- * It does NOT compare against a modern VISCOSITY of water at 17 degrees, which is a different
- * question (that comparison moves the number much further, and conflating the two would read as
- * though Einstein's arithmetic were off when it is his fluid datum that is dated).
+ * THE THIRD ROW IS THE MODERN VISCOSITY, and an earlier version of this file wrongly left it out
+ * as "a different question". am-bm-results-cards-ft8k requires it: its criterion 2 asks for
+ * printed, historical-fixture, modern-constant AND modern-comparison values, each labelled with
+ * its constant set. It IS a different question from the thermal constant, which is exactly why it
+ * is a separate labelled row rather than folded into the second: the paper's 1.35e-2 poise is 25
+ * per cent high for water at 17 degrees, and that is a dated fluid datum, not an arithmetic error.
+ * The caller supplies the viscosity and its provenance; this module never picks one.
  */
 import { getConstantSet } from "../constants.ts";
 import { rmsDisplacement, stokesEinsteinD } from "./distributions.ts";
@@ -38,6 +42,12 @@ export type PrintedDisplacementInput = Readonly<{
   particleRadiusM: number;
   /** Seconds. The paper computes one second and then states one minute. */
   elapsedSeconds: number;
+  /**
+   * Pa s. The modern reference viscosity for the paper's liquid, with the provenance the caller
+   * read it from. Omitted, the third row is absent rather than invented: this module has no
+   * opinion about what water's viscosity is.
+   */
+  modernViscosity?: Readonly<{ valuePaS: number; sourceLabel: string }>;
 }>;
 
 export type PrintedDisplacementRow = Readonly<{
@@ -57,6 +67,8 @@ export type PrintedDisplacement = Readonly<{
   elapsedSeconds: number;
   printed: PrintedDisplacementRow;
   modern: PrintedDisplacementRow;
+  /** Present only when the caller supplied a modern viscosity. */
+  modernViscosity?: PrintedDisplacementRow;
   comparison: Readonly<{
     leftSetId: string;
     rightSetId: string;
@@ -110,9 +122,13 @@ export function printedBrownianDisplacement(input: PrintedDisplacementInput): Pr
     });
   }
 
-  const row = (setId: string, entryLabels: readonly string[]): PrintedDisplacementRow => {
+  const row = (
+    setId: string,
+    entryLabels: readonly string[],
+    viscosity: number,
+  ): PrintedDisplacementRow => {
     const set = getConstantSet(setId);
-    const d = stokesEinsteinD({ T, eta, a }, set).result;
+    const d = stokesEinsteinD({ T, eta: viscosity, a }, set).result;
     // An Evaluation's value is `number | Float64Array`, because the same shape carries frame
     // arrays elsewhere. Both of these are scalars, so the guard narrows rather than casts: a cast
     // would compile and hand a Float64Array to a card as though it were a length.
@@ -127,9 +143,13 @@ export function printedBrownianDisplacement(input: PrintedDisplacementInput): Pr
     });
   };
 
-  const printed = row(PRINTED_SET, printedLabels);
-  const modern = row(MODERN_SET, modernLabels);
+  const printed = row(PRINTED_SET, printedLabels, eta);
+  const modern = row(MODERN_SET, modernLabels, eta);
   const ratio = modern.value / printed.value;
+  const mv = input.modernViscosity;
+  const modernViscosity = mv
+    ? row(MODERN_SET, [`viscosity (${mv.sourceLabel})`, ...modernLabels], mv.valuePaS)
+    : undefined;
 
   return Object.freeze({
     scenarioId: BROWNIAN_PRINTED_DISPLACEMENT_SCENARIO,
@@ -137,12 +157,14 @@ export function printedBrownianDisplacement(input: PrintedDisplacementInput): Pr
     elapsedSeconds: t,
     printed,
     modern,
+    ...(modernViscosity ? { modernViscosity } : {}),
     comparison: Object.freeze({
       leftSetId: MODERN_SET,
       rightSetId: PRINTED_SET,
       ratio,
-      wording:
-        "Both rows use Einstein's printed viscosity, particle radius and temperature; only the thermal constant differs, his R over N against the defined Boltzmann constant of 2019. The modern row is the slightly smaller of the two. Displacement goes as the square root of the diffusion coefficient, so a change in that constant moves the length by less than it moves the coefficient.",
+      wording: modernViscosity
+        ? "The first two rows use Einstein's printed viscosity, particle radius and temperature and differ only in the thermal constant, his R over N against the defined Boltzmann constant of 2019; that change barely moves the length. The third row changes the fluid datum instead, to the modern reference viscosity of water at 17 degrees, and moves it much further: the paper's 1,35 . 10^-2 poise is about a quarter too high. Displacement goes as the square root of the diffusion coefficient, so a viscosity a quarter too high shortens the length by rather less than a quarter. The dated figure is the water measurement, not the arithmetic."
+        : "Both rows use Einstein's printed viscosity, particle radius and temperature; only the thermal constant differs, his R over N against the defined Boltzmann constant of 2019. The modern row is the slightly smaller of the two. Displacement goes as the square root of the diffusion coefficient, so a change in that constant moves the length by less than it moves the coefficient.",
     }),
   });
 }

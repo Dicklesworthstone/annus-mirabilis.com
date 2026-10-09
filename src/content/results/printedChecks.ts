@@ -57,7 +57,11 @@ const grams = (g: number) => `${Number(g.toPrecision(8))} g`;
 /** Seven figures in micrometres, where the two thermal constants first differ. */
 const microns = (m: number) => `${Number((m * 1e6).toPrecision(7))} um`;
 
+/** The modern-golden scenario that owns the reference viscosity for the paper's liquid. */
+const MODERN_VISCOSITY_SCENARIO = "diffusion-modern-viscosity-17c";
+
 type Scenario = {
+  editorialInputs?: { quantityId?: unknown; value?: unknown; source?: unknown }[];
   inputs?: {
     emittedEnergy?: { value?: unknown; unit?: unknown };
     temperature?: { value?: unknown };
@@ -98,11 +102,26 @@ function brownianPrintedCheck(root: string, scenarioId: string): ScenarioCheck {
       "printed-check-scenario-shape",
       `Scenario ${scenarioId} does not state a temperature, viscosity, radius, elapsed time and printed value.`,
     );
+  // The modern reference viscosity is NOT chosen here. It is read from the modern-golden scenario
+  // that owns it, with the citation that scenario records, so the third row's provenance is the
+  // record's rather than this module's.
+  const modern = readScenario(root, MODERN_VISCOSITY_SCENARIO);
+  const viscosityInput = (modern.editorialInputs ?? []).find((e) => e.quantityId === "viscosity");
+  if (typeof viscosityInput?.value !== "number" || typeof viscosityInput.source !== "string")
+    throw new ResultCardsError(
+      "printed-check-scenario-shape",
+      `Scenario ${MODERN_VISCOSITY_SCENARIO} does not state a viscosity with a source.`,
+    );
   const r = printedBrownianDisplacement({
     temperatureK: T,
     viscosityPaS: eta,
     particleRadiusM: a,
     elapsedSeconds: t,
+    modernViscosity: {
+      valuePaS: viscosityInput.value,
+      // The citation id only, not the whole retrieval sentence, which is the record's to hold.
+      sourceLabel: viscosityInput.source.split(":")[0] ?? "modern reference",
+    },
   });
   if (r.status !== "value")
     throw new ResultCardsError(
@@ -134,9 +153,22 @@ function brownianPrintedCheck(root: string, scenarioId: string): ScenarioCheck {
         constantSetId: r.modern.constantSetId,
         reproducedValue: r.modern.value,
         reproducedText: microns(r.modern.value),
-        comparisonKind: "modern-comparison",
-        label: "modern comparison: the defined Boltzmann constant, his fluid data unchanged",
+        comparisonKind: "modern-constant",
+        label: "modern constants: the defined Boltzmann constant, his fluid data unchanged",
       },
+      ...(r.modernViscosity
+        ? [
+            {
+              printedValue: "(not printed)",
+              constantSetId: r.modernViscosity.constantSetId,
+              reproducedValue: r.modernViscosity.value,
+              reproducedText: microns(r.modernViscosity.value),
+              comparisonKind: "modern-comparison",
+              label:
+                "modern comparison: today's reference viscosity for water at 17 degrees, which the paper overstates",
+            },
+          ]
+        : []),
     ],
     comparison: r.comparison.wording,
   };

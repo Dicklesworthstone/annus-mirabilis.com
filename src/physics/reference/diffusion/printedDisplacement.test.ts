@@ -75,6 +75,50 @@ describe("the owner reproduces what Einstein printed", () => {
   });
 });
 
+describe("the modern-viscosity row, which is a different question from the thermal constant", () => {
+  /** What content/scenarios/diffusion-modern-viscosity-17c.yaml records, from IAPWS-2008 via NIST. */
+  const IAPWS = { valuePaS: 0.0010798059, sourceLabel: "iapws-2008-water-viscosity" } as const;
+
+  test("it is absent unless the caller supplies a viscosity, never invented", () => {
+    expect(printedBrownianDisplacement(PLATE).modernViscosity).toBeUndefined();
+  });
+
+  test("with the modern reference viscosity the displacement rises to about 0.887 micron", () => {
+    const r = printedBrownianDisplacement({ ...PLATE, modernViscosity: IAPWS });
+    expect(r.modernViscosity).toBeDefined();
+    const v = microns(r.modernViscosity?.value ?? Number.NaN);
+    console.log(`[census] modern-viscosity row: ${v.toFixed(7)} um`);
+    expect(Number(v.toPrecision(3))).toBe(0.887);
+    // It must move the length FURTHER than the thermal constant does, which is the reason it is a
+    // separate labelled row rather than folded into the modern-constant one.
+    const dThermal = Math.abs(r.modern.value - r.printed.value);
+    const dFluid = Math.abs((r.modernViscosity?.value ?? 0) - r.printed.value);
+    expect(dFluid).toBeGreaterThan(dThermal * 10);
+  });
+
+  test("THE EXPONENT: a viscosity ratio of about 1.25 gives a displacement ratio of about 1.118", () => {
+    // The scenario's own point, and the adversarial claim it exists to refuse: the displacement
+    // does NOT follow the viscosity ratio, nor its reciprocal. It follows the square root.
+    const r = printedBrownianDisplacement({ ...PLATE, modernViscosity: IAPWS });
+    const viscosityRatio = PLATE.viscosityPaS / IAPWS.valuePaS;
+    const lengthRatio = (r.modernViscosity?.value ?? Number.NaN) / r.modern.value;
+    expect(relative(viscosityRatio, 1.2502247)).toBeLessThan(1e-6);
+    expect(relative(lengthRatio, Math.sqrt(viscosityRatio))).toBeLessThan(1e-12);
+    expect(relative(lengthRatio, 1.1181345)).toBeLessThan(1e-6);
+    // And it is neither the ratio nor its reciprocal, stated so the failure is unmistakable.
+    expect(relative(lengthRatio, viscosityRatio)).toBeGreaterThan(0.1);
+    expect(relative(lengthRatio, 1 / viscosityRatio)).toBeGreaterThan(0.1);
+  });
+
+  test("the comparison names the fluid datum as the dated thing, not the arithmetic", () => {
+    const r = printedBrownianDisplacement({ ...PLATE, modernViscosity: IAPWS });
+    expect(r.comparison.wording).toContain("square root");
+    expect(r.comparison.wording).not.toMatch(/%|per ?cent high\b.*arithmetic/i);
+    // The two wordings differ, so the third row cannot appear under a sentence that ignores it.
+    expect(r.comparison.wording).not.toBe(printedBrownianDisplacement(PLATE).comparison.wording);
+  });
+});
+
 describe("ADVERSARIAL: the plausible wrong readings of page 559", () => {
   test("a 1 micron RADIUS does not reproduce the printed 0,8 micron", () => {
     // The printed 0,001 mm is a diameter. Taking it for a radius is the mistake this fixture
