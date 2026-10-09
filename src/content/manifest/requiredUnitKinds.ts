@@ -164,25 +164,10 @@ export const DECLARED_ABSENCES: AbsenceDeclarations = new Map([
   // 134, because the 220 counted the bodies of display equations, which carry `equationId` and are
   // inventoried under `eq-*` ids. That miscount is recorded rather than quietly corrected, since it
   // is the same error the derivation's own first pass made across the corpus (914 against 714).
-  [
-    "special-relativity",
-    new Map<string, AbsenceDeclaration>([
-      // The `sentence` debt was PAID on 2026-10-03, completing owner ruling am-xz2d for the last of
-      // the four inventories: 223 sentence units, a set equal to the distinct sentenceIds of this
-      // paper's alignment file. The manifest's own `unfrozenRequiredUnitKinds` lost its sentence row
-      // in the same change, along with the `blockedBy: am-cm-source-manifest-6qa` claim it had been
-      // making for thirteen days after that bead closed.
-      [
-        "inline-equation",
-        {
-          kind: "debt",
-          reason:
-            "The last unit class this paper's `unfrozenRequiredUnitKinds` still names. Not blocked: `inline-equation` is in MANIFEST_UNIT_KINDS and its id grammar derives from a sentence id, which is now a unit here. What it needs is the editorial judgment of which inline regions are substantive, read against the plates.",
-          bead: "am-edn-inventory-relativity-0u9",
-        },
-      ],
-    ]),
-  ],
+  // special-relativity's `inline-equation` debt was PAID on 2026-10-09 and its entry removed by the
+  // same change, as the `sentence` debts were. 116 units now stand beside the units that
+  // print them, a set equal to the regions the criterion in inlineEquationUnits.ts admits
+  // (407 regions on this paper). Owed by am-edn-inventory-relativity-0u9.
   [
     "mass-energy",
     new Map<string, AbsenceDeclaration>([

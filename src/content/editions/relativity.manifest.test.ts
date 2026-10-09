@@ -712,12 +712,23 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
     // files against 436 units. The claim worth making is that every transcribed FILE is accounted for
     // at block level, so that is what is compared, and the sentence half is asserted beside it
     // against the spans those same files carry.
-    const blockLevelUnits = manifest.units.filter((u) => u.kind !== "sentence");
+    //
+    // THE SECOND TIME, which is why this names the sub-block kinds instead of excluding one. The
+    // partition was `kind !== "sentence"`, and it broke again on 2026-10-09 when 116
+    // inline-equation units landed: 213 files against 329 "block-level" units. An inline equation
+    // is a region inside a sentence, so it is no more a file than a sentence is. Listing the
+    // sub-block kinds makes the next one a deliberate edit here rather than a surprise failure.
+    const SUB_BLOCK_KINDS = new Set(["sentence", "inline-equation"]);
+    const blockLevelUnits = manifest.units.filter((u) => !SUB_BLOCK_KINDS.has(u.kind));
     const sentenceUnits = manifest.units.filter((u) => u.kind === "sentence");
+    const inlineUnits = manifest.units.filter((u) => u.kind === "inline-equation");
     expect(transcription.state === "present" && transcription.unitCount).toBe(
       blockLevelUnits.length,
     );
     expect(sentenceUnits.length).toBeGreaterThan(0);
+    // Non-vacuity for the new kind too: a partition that excluded a class with no members would
+    // read exactly like this one and prove nothing about the exclusion.
+    expect(inlineUnits.length).toBeGreaterThan(0);
 
     const json = JSON.stringify(report, null, 2);
     const text = formatManifestReportText(report);
