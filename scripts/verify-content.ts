@@ -13,6 +13,7 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import yaml from "js-yaml";
 import { auditEquationIdentity } from "../src/content/audits/equationIdentity.ts";
+import { type AuditExemption, applyAuditExemptions } from "../src/content/audits/exemptions.ts";
 import { auditInstruments, loadLiveInstrumentRows } from "../src/content/audits/instruments.ts";
 import {
   auditMisconceptions,
@@ -159,94 +160,88 @@ const READINGS_OWNERS_NOT_YET_AUDITABLE: ReadonlyMap<string, string> = new Map([
  */
 const JOURNEY_FINDINGS_NOT_YET_AUDITABLE: ReadonlyMap<string, string> = new Map([]);
 
-const INSTRUMENTS_NOT_YET_AUDITABLE: ReadonlyMap<string, string> = new Map([
+const INSTRUMENTS_NOT_YET_AUDITABLE: ReadonlyMap<string, AuditExemption> = new Map([
   [
     "avogadro-lab",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+    {
+      reason:
+        "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reported 7 finding(s) against it when re-measured on 2026-10-09. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+      findings: 7,
+    },
   ],
   [
     "light-thread",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+    {
+      reason:
+        "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reported 6 finding(s) against it when re-measured on 2026-10-09. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+      findings: 6,
+    },
   ],
   [
     "lq-09",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 3 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+    {
+      reason:
+        "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reported 1 finding(s) against it when re-measured on 2026-10-09. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+      findings: 1,
+    },
   ],
   [
     "me-01",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+    {
+      reason:
+        "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reported 1 finding(s) against it when re-measured on 2026-10-09. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+      findings: 1,
+    },
   ],
   [
     "me-03",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+    {
+      reason:
+        "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reported 1 finding(s) against it when re-measured on 2026-10-09. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+      findings: 1,
+    },
   ],
   [
     "shelf-fizeau",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+    {
+      reason:
+        "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reported 6 finding(s) against it when re-measured on 2026-10-09. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+      findings: 6,
+    },
   ],
   [
     "shelf-maxwell-galilean",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+    {
+      reason:
+        "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reported 6 finding(s) against it when re-measured on 2026-10-09. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+      findings: 6,
+    },
   ],
   [
     "shelf-michelson-morley",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+    {
+      reason:
+        "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reported 6 finding(s) against it when re-measured on 2026-10-09. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+      findings: 6,
+    },
   ],
   [
     "sr-01",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+    {
+      reason:
+        "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reported 1 finding(s) against it when re-measured on 2026-10-09. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+      findings: 1,
+    },
   ],
   [
     "sr-04",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 3 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+    {
+      reason:
+        "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reported 1 finding(s) against it when re-measured on 2026-10-09. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+      findings: 1,
+    },
   ],
 ]);
-
-/**
- * Downgrade findings against recorded items to flags, and raise an error for any recorded item
- * that no longer has findings. The second half is the part that matters: without it the map is a
- * suppression list that silently outlives its reason.
- */
-function applyAuditExemptions(
-  auditName: string,
-  report: AuditReport,
-  exemptions: ReadonlyMap<string, string>,
-  keyOf: (finding: AuditFinding) => string | undefined,
-  /** Records the audit's input held. Reported so "0 errors" cannot be read as "all of them". */
-  populationTotal: number,
-): AuditReport {
-  const covered = new Set<string>();
-  const out: AuditFinding[] = [];
-  for (const finding of report.findings) {
-    const key = keyOf(finding);
-    const reason = key === undefined ? undefined : exemptions.get(key);
-    if (key !== undefined && reason !== undefined) {
-      covered.add(key);
-      out.push({
-        ...finding,
-        severity: "flag",
-        message: `${finding.message} [recorded as not yet auditable: ${reason}]`,
-      });
-    } else {
-      out.push(finding);
-    }
-  }
-  for (const [key, reason] of exemptions) {
-    if (covered.has(key)) continue;
-    out.push({
-      check: "stale-audit-exemption",
-      family: "audit",
-      severity: "error",
-      recordId: key,
-      message: `${key} is recorded as not yet auditable, but the ${auditName} audit now reports nothing against it. Delete its entry and this reason: ${reason}`,
-    });
-  }
-  return summarize(auditName, out, {
-    total: populationTotal,
-    judged: Math.max(0, populationTotal - exemptions.size),
-    notYetAuditable: exemptions.size,
-  });
-}
 
 function loadLiveReadingsAuditInput(
   rootDir: string,
