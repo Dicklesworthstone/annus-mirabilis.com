@@ -82,3 +82,7 @@ entries:
     proposition: "The notation V and beta."
     namedSources: ["ap-17-891"]
     requiresCitations: ["ap-17-891"]
+    partial:
+      satisfiedBy: note-sr-beta-is-the-modern-gamma
+      covers: "The beta half, and thoroughly. It gives the definition on printed page 900 and again on 902, warns that a reader carrying the modern habit will read beta as the speed ratio v/c, and notes the second collision with Wien's constant in the light-quanta paper."
+      missing: "The V half. That note uses V inside the formula for beta without ever saying what V is, and in this paper V is the speed of light, where every modern reader expects c. No editorial note in content/editorial-notes/special-relativity explains that substitution, which is the one most likely to silently mislead."
