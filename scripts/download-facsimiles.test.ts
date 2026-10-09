@@ -50,6 +50,7 @@ import {
 } from "./download-facsimiles";
 import { newToolRunId } from "./runIds";
 import { FacsimileError, getExitCodeForError } from "./sources/facsimileSourceSchema";
+import { loadDenylist, scanContentForViolations } from "./sources/ocrGuard.ts";
 
 const REPO_ROOT = getRepoRoot();
 const FIXTURES_DIR = path.join(REPO_ROOT, "src", "testing", "fixtures", "pdf");
@@ -772,55 +773,69 @@ describe("13. Identity and runId discipline", () => {
 });
 
 describe("14. Static guard against local OCR and text extraction APIs", () => {
-  test("scripts/download-facsimiles.ts does not contain prohibited OCR or extraction strings", () => {
+  test("the script invokes no OCR engine and no text extractor, by the repository's own guard", async () => {
+    // DELEGATED TO scripts/sources/ocrGuard.ts (am-z0r1). This arm used to carry its own list of
+    // nine substrings and assert the file did not CONTAIN them. That is a prose matcher wearing a
+    // gate's clothes, and AGENTS.md names the failure directly: "a gate that forbids a construct
+    // must read code, not text". It cost a real sentence. Commit 4708cf6a wrote an honest line in
+    // the --verify output saying the folio check "is blocked on the pdftotext denylist ruling",
+    // and this gate went red on prose NAMING the banned tool as banned; defcd5d5 reworded it to
+    // "poppler's text extractor" to clear the red. The pressure a substring gate creates is to
+    // delete the explanation.
+    //
+    // THE GUARD IS STRICTLY STRONGER, not looser, which is the only direction allowed here:
+    //   - it requires a LAUNCHER CALL around the tool, so `execFileSync("pdftotext", ...)` and the
+    //     array form `Bun.spawnSync(["tesseract", ...])` are refused -- the second is a form the
+    //     old substring list could see only by accident, and a variable-named binary not at all;
+    //   - its denylist carries NINETEEN entries against the old nine, adding latex-ocr, surya,
+    //     kraken, doctr, rapidocr, ollama, llava, llama.cpp and the Vision symbol;
+    //   - `getTextContent` stays a bare-symbol match, because a pdf.js call cannot be "mentioned"
+    //     in code without being one.
     const content = fs.readFileSync(
       path.join(REPO_ROOT, "scripts", "download-facsimiles.ts"),
       "utf8",
     );
+    const denylist = (await loadDenylist()).denylist;
+    const violations = scanContentForViolations(
+      "scripts/download-facsimiles.ts",
+      content,
+      denylist,
+    );
+    expect(violations.map((v) => `${v.pattern}:${v.line ?? "?"}`)).toEqual([]);
+    // Non-vacuity: a denylist that failed to load, or an empty one, would pass the line above
+    // while checking nothing.
+    expect(denylist.length).toBeGreaterThanOrEqual(19);
 
-    // COMMENTS ARE STRIPPED BEFORE THE CHECKS BELOW, and the reason is this test's own name: it
-    // asserts the file contains no prohibited strings in order to establish that the codebase
-    // contains no forbidden CALL. A comment is not a call.
-    //
-    // Without this the guard cannot tell a description of a forbidden API from a use of one, and
-    // the file paid for that: a comment recording the owner's ruling verbatim - that the denylist
-    // forbids the PURPOSE rather than the tool, so both routes to a text layer carry the same
-    // reason - turned this gate red for hours. The remedies on offer were to delete true
-    // documentation of a ruling or to write it in escaped fragments. The list below already does
-    // the second to avoid matching itself, which is the same concession made once already.
-    //
-    // The strip is deliberately narrow: block comments, and line comments only where the marker
-    // OPENS the line. A trailing marker is left alone so a URL cannot be mistaken for a comment,
-    // which means a forbidden call sharing a line with a comment is still caught. That is the
-    // direction to err in. The general defect is am-v5te.
+    // `extractText` IS NOT DELEGATED, because it is not in the denylist, and adding it there is a
+    // repository-wide tightening that belongs to the guard's owner rather than to this file. Kept
+    // as a local substring check over comment-stripped source so the arm loses nothing it had.
     const code = content
       .replace(/\/\*[\s\S]*?\*\//g, "")
       .split("\n")
       .filter((line) => !/^\s*(\/\/|\*)/.test(line))
       .join("\n");
+    expect(code).not.toContain("extractText");
+  });
 
-    const prohibitedOcr = ["tesseract", "ocrmypdf", "focr", "easyocr", "paddleocr", "pix2tex"];
-    for (const tool of prohibitedOcr) {
-      expect(code.toLowerCase()).not.toContain(tool);
-    }
+  test("PLANT: the sentence this gate once refused is allowed, and a real call is not", async () => {
+    // The fixtures are the ACTUAL text 4708cf6a wrote and defcd5d5 reverted, not a synthetic
+    // stand-in, which is what am-z0r1's second criterion asks for.
+    const denylist = (await loadDenylist()).denylist;
+    const scan = (src: string) =>
+      scanContentForViolations("scripts/download-facsimiles.ts", src, denylist);
 
-    const prohibitedExtraction = [["get", "TextContent"].join(""), "pdftotext", "extractText"];
-    for (const api of prohibitedExtraction) {
-      expect(code).not.toContain(api);
-    }
+    const revertedComment =
+      "    // it runs pdftotext, which is on the OCR denylist, so it waits on that ruling\n";
+    const revertedString =
+      '        "text-layer folio check is blocked on the pdftotext denylist ruling.",\n';
+    expect(scan(revertedComment)).toEqual([]);
+    expect(scan(revertedString)).toEqual([]);
 
-    // PLANTED NEGATIVE, both directions, so the strip cannot quietly become a blanket exemption.
-    // A forbidden API in real code must still fail; the same text in a comment must not.
-    const asCall = `${code}\nconst t = await page.${["get", "TextContent"].join("")}();`;
-    const asComment = `${code}\n// we do not call ${["get", "TextContent"].join("")} here`;
-    const strip = (src: string) =>
-      src
-        .replace(/\/\*[\s\S]*?\*\//g, "")
-        .split("\n")
-        .filter((line) => !/^\s*(\/\/|\*)/.test(line))
-        .join("\n");
-    expect(strip(asCall)).toContain(["get", "TextContent"].join(""));
-    expect(strip(asComment)).not.toContain(["get", "TextContent"].join(""));
+    // And the gate still refuses an invocation, in both the positional and the array form.
+    expect(scan('    execFileSync("pdftotext", [pdf, "-"]);\n').length).toBeGreaterThan(0);
+    expect(scan('    Bun.spawnSync(["tesseract", page, "out"]);\n').length).toBeGreaterThan(0);
+    // A bare mention in a string is allowed; naming a tool is not running it.
+    expect(scan('    const note = "we never run tesseract here";\n')).toEqual([]);
   });
 
   test("scripts/download-facsimiles.ts never imports or invokes child_process or subprocess execution", () => {
