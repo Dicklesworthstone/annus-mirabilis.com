@@ -35,9 +35,11 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { load as loadYaml } from "js-yaml";
+import { auditInstruments, loadLiveInstrumentRows } from "../audits/instruments.ts";
 import { validateSourceManifest } from "../manifest/schema.ts";
 import { deriveUnitCoverage } from "../manifest/unitCoverage.ts";
 import { type DoneCell, doneCell, unmeasuredCell } from "./cells.ts";
+import { labCellsForPaper } from "./labCells.ts";
 
 export const DONE_PAPERS = [
   "light-quanta",
@@ -285,7 +287,39 @@ export function misconceptionsAtLeastFive(root: string, paper: string): DoneCell
 }
 
 /**
- * The seven items this report does not yet read, each with the reason and where its data is.
+ * ITEM 7: the lab contract cells of a paper's core instruments.
+ *
+ * Fourteen contract columns per instrument, so the population is instruments times columns. The
+ * audit is loaded and judged once per process by the caller and passed in, because
+ * `loadLiveInstrumentRows` reads every manifest and every owner test, and doing that four times --
+ * once per paper -- would make the report several times slower for the same answer.
+ */
+export function labContractCells(
+  paper: string,
+  loaded: {
+    report: ReturnType<typeof auditInstruments>;
+    rows: ReturnType<typeof loadLiveInstrumentRows>;
+  },
+): DoneCell {
+  const tally = labCellsForPaper(loaded.report, loaded.rows, paper);
+  if (tally.total === 0) {
+    return unmeasuredCell(
+      "lab-contract-cells",
+      paper,
+      `no core instrument rows loaded for this paper (expected ids beginning with its prefix)`,
+    );
+  }
+  return doneCell(
+    "lab-contract-cells",
+    paper,
+    tally.satisfied,
+    tally.total,
+    `${tally.instruments} core instruments x ${tally.columns} contract columns, judged by auditInstruments`,
+  );
+}
+
+/**
+ * The remaining items this report does not yet read, each with the reason and where its data is.
  *
  * Declared rather than omitted: an item missing from the table is invisible, and an item present
  * as `unmeasured` with a path is a work item. The bead's first criterion asks for exactly this
@@ -304,10 +338,6 @@ const NOT_YET_READ: Readonly<Record<string, string>> = {
     "the historian's-margin entries live in content/editorial/readings-owners/*.yaml as r3 targets " +
     "(see the readings-owners note in AGENTS.md), and the required-per-paper list that would be the " +
     "denominator is in the plan rather than in a record this can read.",
-  "lab-contract-cells":
-    "src/content/audits/instruments.ts auditInstruments plus loadLiveInstrumentRows computes this " +
-    "over the 33 core labs; it is per-instrument rather than per-paper, so folding it into a " +
-    "per-paper row needs the paper-to-instrument map, which is in content/experiments/<id>.yaml.",
   "journey-skeleton-parts":
     "content/journeys holds the records; the skeleton's parts (shelf, nagging fact, forks, the move, " +
     "check-against-the-world) are a structural requirement with no field asserting presence yet.",
@@ -326,8 +356,27 @@ export function declaredUnmeasured(paper: string): readonly DoneCell[] {
   );
 }
 
+/**
+ * The instrument audit, loaded and judged ONCE.
+ *
+ * `loadLiveInstrumentRows` reads every experiment manifest and indexes every owner test, so it is
+ * the expensive part of this report. Loading it per paper would do that work four times for the
+ * same answer, and the four papers' rows come out of one pass anyway.
+ */
+export function loadInstrumentAudit(root: string): {
+  report: ReturnType<typeof auditInstruments>;
+  rows: ReturnType<typeof loadLiveInstrumentRows>;
+} {
+  const rows = loadLiveInstrumentRows(root);
+  return { report: auditInstruments(rows), rows };
+}
+
 /** Every cell for one paper, measured and declared. */
-export function cellsForPaper(root: string, paper: string): readonly DoneCell[] {
+export function cellsForPaper(
+  root: string,
+  paper: string,
+  instruments = loadInstrumentAudit(root),
+): readonly DoneCell[] {
   return [
     manifestUnitsCovered(root, paper),
     englishUnitsPresent(root, paper),
@@ -335,11 +384,13 @@ export function cellsForPaper(root: string, paper: string): readonly DoneCell[] 
     displaysBound(root, paper),
     resultsCardsPrinted(root, paper),
     misconceptionsAtLeastFive(root, paper),
+    labContractCells(paper, instruments),
     ...declaredUnmeasured(paper),
   ];
 }
 
-/** Every cell for every paper. */
+/** Every cell for every paper, with the instrument audit loaded once for all four. */
 export function allCells(root: string): readonly DoneCell[] {
-  return DONE_PAPERS.flatMap((paper) => cellsForPaper(root, paper));
+  const instruments = loadInstrumentAudit(root);
+  return DONE_PAPERS.flatMap((paper) => cellsForPaper(root, paper, instruments));
 }
