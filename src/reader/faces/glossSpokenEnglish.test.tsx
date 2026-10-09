@@ -95,4 +95,48 @@ describe("speakMath", () => {
       "l star equals l the fraction with numerator 1 minus v over V cosine phi, and denominator the square root of 1 minus open paren v over V close paren squared, end root, end fraction",
     );
   });
+
+  // Each assertion below is a reading that was WRONG until the corpus census named it
+  // (am-rc1001-bridge-plan-pcjk.29): 26 of the 231 distinct inline expressions in the four
+  // papers' source blocks were spoken as a raw glyph. The left-hand side is the printed form as
+  // the papers set it, so a regression here is a reader hearing a character name again.
+  test("the variant Greek the papers print is named, not spoken as its glyph", () => {
+    // The Annalen sets rho as the variant; `\rho` was already named, `\varrho` was not.
+    expect(speakMath("\\varrho")).toBe("rho");
+    expect(speakMath("\\varrho_\\nu d \\nu")).toBe("rho sub nu d nu");
+    expect(speakMath("\\varkappa")).toBe("kappa");
+    expect(speakMath("2 \\varkappa N = R")).toBe("2 kappa N equals R");
+    expect(speakMath("\\partial \\varphi / \\partial \\varrho")).toBe(
+      "partial phi divided by partial rho",
+    );
+  });
+
+  test("an accent over a letter is a word: the mean energy is 'E bar', not 'E' and a line", () => {
+    // <mover> fell to the generic join, which said the base and then the combining character.
+    expect(speakMath("\\overline{E}")).toBe("E bar");
+    expect(speakMath("\\overline{E}_\\nu")).toBe("E bar sub nu");
+    expect(speakMath("\\bar{E}")).toBe("E bar");
+    // A limit under an operator is NOT an accent, so it keeps the generic reading. Displayed, the
+    // limit really is a <munder>, which is the branch this controls; inline KaTeX emits <msub>.
+    expect(speakMath("\\sum_\\nu", true)).toBe("the sum of nu");
+    expect(speakMath("\\sum_\\nu", false)).toBe("the sum of sub nu");
+  });
+
+  test("the double-bar relations the compositor sets are read as relations", () => {
+    expect(speakMath("A_\\nu \\geqq 0")).toBe("A sub nu is greater than or equal to 0");
+    expect(speakMath("0 \\leqq \\alpha_\\nu \\leqq 2 \\pi")).toBe(
+      "0 is less than or equal to alpha sub nu is less than or equal to 2 pi",
+    );
+    expect(speakMath("N \\neq 0")).toBe("N is not equal to 0");
+    expect(speakMath("x \\gtrless 0")).toBe("x is greater or less than 0");
+  });
+
+  test("the large operators and the ellipsis are named", () => {
+    expect(speakMath("p_1 \\ldots p_l")).toBe("p sub 1 dot dot dot p sub l");
+    expect(speakMath("\\int \\varepsilon X d x")).toBe("the integral of epsilon X d x");
+    expect(speakMath("\\sum \\frac{\\partial \\varphi_\\nu}{\\partial p_\\nu} = 0")).toBe(
+      "the sum of the fraction with numerator partial phi sub nu, and denominator partial p sub nu, " +
+        "end fraction equals 0",
+    );
+  });
 });

@@ -81,6 +81,16 @@ const OPERATORS: Readonly<Record<string, string>> = {
   ">": "is greater than",
   "≤": "is less than or equal to",
   "≥": "is greater than or equal to",
+  // The double-bar forms the Annalen compositor sets, and the relations and large operators the
+  // four papers print. Each was said as its raw glyph until a census over the corpus named them
+  // (am-rc1001-bridge-plan-pcjk.29): a screen reader given "≧" announces the character or nothing.
+  "≧": "is greater than or equal to",
+  "≦": "is less than or equal to",
+  "≠": "is not equal to",
+  "≷": "is greater or less than",
+  "…": "dot dot dot",
+  "∑": "the sum of",
+  "∫": "the integral of",
   "∞": "infinity",
   "→": "tends to",
   // Function application and invisible times: MathML structure, not words.
@@ -108,6 +118,11 @@ const LETTERS: Readonly<Record<string, string>> = {
   ξ: "xi",
   π: "pi",
   ρ: "rho",
+  // Variant forms: the papers print ϱ for rho (the Brownian and light-quanta densities) and ϰ
+  // for kappa. KaTeX emits them as themselves, so without these they were spoken as the glyph.
+  ϱ: "rho",
+  ϰ: "kappa",
+  "∂": "partial",
   σ: "sigma",
   τ: "tau",
   υ: "upsilon",
@@ -132,6 +147,22 @@ const LETTERS: Readonly<Record<string, string>> = {
   log: "log",
   ln: "natural log",
   exp: "exponential",
+};
+
+/**
+ * The accent characters KaTeX puts in an <mover>, and the word for each. Without these the
+ * generic join said the base and then the combining glyph: `\overline{E}` was "E ‾", and the
+ * mean energy of a resonator read as a letter followed by a line.
+ */
+const ACCENTS: Readonly<Record<string, string>> = {
+  "‾": "bar",
+  ˉ: "bar",
+  "¯": "bar",
+  "⃗": "vector",
+  "^": "hat",
+  "~": "tilde",
+  "˙": "dot",
+  "¨": "double dot",
 };
 
 const textOf = (node: Node): string =>
@@ -186,6 +217,14 @@ function speak(node: Node): string {
       return `${say(a)} sub ${say(b)}`;
     case "msubsup":
       return `${say(a)} sub ${say(b)} ${power(c)}`;
+    case "mover":
+    case "munder": {
+      // An accent, when the second child is one: "E bar". Anything else -- a sum's limit, say --
+      // keeps the same generic join the default case uses, so only the accents change.
+      const accent = b === undefined ? "" : textOf(b).trim();
+      const named = ACCENTS[accent];
+      return named === undefined ? kids.map(speak).join(" ") : `${say(a)} ${named}`;
+    }
     case "mtable":
       return kids.map(speak).join("; ");
     default:
