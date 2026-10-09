@@ -760,12 +760,19 @@ export function paperDoneness(root: string, paper: DonenessPaper): PaperDoneness
     unmeasured(
       "r2-expands-r1",
       "R1 and R2 are the same passage's own `readings.full` and `readings.steps`, so the PAIRING is " +
-        "not what is missing; what is missing is a checkable notion of containment. The obvious " +
-        "mechanical proxy, that every formula R1 states also appears in R2, is already satisfied by " +
-        "44 of the 44 argument records that state one, so a cell built on it would report 44/44 and " +
-        "mean almost nothing while reading as though containment were verified. Containment is a " +
+        "not what is missing; what is missing is a checkable notion of containment. Containment is a " +
         "claim about CLAIMS -- that every step R1 asserts is expanded in R2 -- and nothing in the " +
-        "records carries that relation",
+        "records carries that relation. THREE MECHANICAL PROXIES WERE TRIED AND ALL THREE ARE " +
+        "VACUOUS, measured over all 48 argument records on 2026-10-09: every formula latex of R1 " +
+        "appears in R2 in 48 of 48; every EQUATION ID of R1 appears in R2 in 48 of 48, which is the " +
+        "semantic form of the same test and was not tried before; and R2 carries more reader-facing " +
+        "content than R1 in 48 of 48, with the ratio running from 1.28 to 7.22 and a median of 2.73. " +
+        "A cell on any of them would report 48/48 and read as though containment were verified. The " +
+        "ratio is worth REPORTING and is recorded here for that reason, but it is not a verdict: a " +
+        "passage can triple in length while leaving one of R1's steps unexpanded, which is the case " +
+        "this cell exists to catch. The one proxy that does discriminate, R2 having at least as many " +
+        "BLOCKS as R1 (39 of 48), measures structure rather than expansion -- all 48 expand in " +
+        "content, so the 9 are differently shaped rather than thinner",
     ),
     resultsCardsCell(root, paper),
     marginEntriesCell(root, paper),
