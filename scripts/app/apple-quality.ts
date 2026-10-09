@@ -31,6 +31,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import yaml from "js-yaml";
 import { newRunIdentity } from "../../src/testing/log/logger.ts";
+import { reportPopulation } from "../gate-census/population.ts";
 import {
   compareWithDirectory,
   type EditionManifestFiles,
@@ -79,6 +80,16 @@ export type StepVerdict = {
   readonly outcome: "passed" | "failed";
   readonly message: string;
   readonly details?: Readonly<Record<string, unknown>>;
+  /**
+   * WHAT THIS STEP EXAMINED, declared by the step and printed once by `main`
+   * (am-rc1001-bridge-plan-pcjk.9). Optional: several Apple steps read a CONDITION rather than a
+   * corpus -- free disk against a floor, a simulator's existence -- and a population line for a
+   * single scalar would be noise with a minimum that cannot detect anything.
+   *
+   * Declared here rather than printed at each return site, so the grammar is applied in one place
+   * and a step cannot half-adopt it.
+   */
+  readonly population?: Readonly<{ examined: number; noun: string; minimum: number }>;
 };
 
 export type AppleToolchain = {
@@ -789,9 +800,25 @@ export function runStep(id: AppleStepId, logRunId: string): StepVerdict {
         (name) => join(IOS, "AnnusMirabilis", "Resources", name),
       );
       const lint = run("plutil", ["-lint", ...files]);
+      // The minimum is the list's own length: these three files are named above, so a list that
+      // lost one is the only way the count can fall, and it should be seen rather than inferred
+      // from a quieter "2 of 2 OK".
+      const plistPopulation = {
+        examined: files.length,
+        noun: "property lists linted",
+        minimum: 3,
+      } as const;
       return lint.status === 0
-        ? { outcome: "passed", message: `plutil -lint: ${files.length} of ${files.length} OK.` }
-        : { outcome: "failed", message: `plutil -lint refused:\n${lint.output.trim()}` };
+        ? {
+            outcome: "passed",
+            message: `plutil -lint: ${files.length} of ${files.length} OK.`,
+            population: plistPopulation,
+          }
+        : {
+            outcome: "failed",
+            message: `plutil -lint refused:\n${lint.output.trim()}`,
+            population: plistPopulation,
+          };
     }
     case "apple-swiftlint": {
       const lint = run("swiftlint", ["lint", "--strict"], IOS);
@@ -802,9 +829,28 @@ export function runStep(id: AppleStepId, logRunId: string): StepVerdict {
           message: "SwiftLint examined 0 files. An empty run is not a pass.",
         };
       }
+      /*
+        The floor is 20 against the 54 Swift files measured 2026-10-08. Not 54: ios/ is under active
+        construction and a legitimately smaller tree must not refuse, while a run that saw a handful
+        has lost the roots it walks. This step ALREADY refuses `examined === 0` above, which is the
+        stronger half; the floor adds the case where it reads some files but not the tree.
+      */
+      const swiftLintPopulation = {
+        examined,
+        noun: "Swift files linted",
+        minimum: 20,
+      } as const;
       return lint.status === 0
-        ? { outcome: "passed", message: `SwiftLint: 0 violations in ${examined} files.` }
-        : { outcome: "failed", message: `SwiftLint:\n${lastLines(lint.output, 40)}` };
+        ? {
+            outcome: "passed",
+            message: `SwiftLint: 0 violations in ${examined} files.`,
+            population: swiftLintPopulation,
+          }
+        : {
+            outcome: "failed",
+            message: `SwiftLint:\n${lastLines(lint.output, 40)}`,
+            population: swiftLintPopulation,
+          };
     }
     case "apple-swift-format": {
       const roots = [
@@ -840,10 +886,22 @@ export function runStep(id: AppleStepId, logRunId: string): StepVerdict {
         ],
         IOS,
       );
+      // Same corpus and same floor as SwiftLint: both walk the four source roots, and this step
+      // also refuses `examined === 0` above.
+      const swiftFormatPopulation = {
+        examined,
+        noun: "Swift files formatted-checked",
+        minimum: 20,
+      } as const;
       return lint.status === 0 && lint.output.trim() === ""
-        ? { outcome: "passed", message: `swift-format: 0 findings in ${examined} files.` }
+        ? {
+            outcome: "passed",
+            message: `swift-format: 0 findings in ${examined} files.`,
+            population: swiftFormatPopulation,
+          }
         : {
             outcome: "failed",
+            population: swiftFormatPopulation,
             message: `swift-format:\n${lastLines(lint.output, 40)}\nRun: cd ios && xcrun swift-format format --in-place --recursive --configuration .swift-format ${roots.join(" ")}`,
           };
     }
@@ -859,10 +917,17 @@ export function runStep(id: AppleStepId, logRunId: string): StepVerdict {
       const stale = checks.filter(
         ([path, size, palette]) => !existsSync(path) || !sameRaster(path, size, palette),
       );
+      // Four named rasters, so the minimum is the list's length for the same reason as the plists.
+      const rasterPopulation = {
+        examined: checks.length,
+        noun: "generated rasters compared",
+        minimum: 4,
+      } as const;
       return stale.length === 0
         ? {
             outcome: "passed",
             message: `${checks.length} of ${checks.length} generated images match the current theme tokens.`,
+            population: rasterPopulation,
           }
         : {
             outcome: "failed",
@@ -1049,6 +1114,24 @@ function main(argv: readonly string[]): number {
   const started = Date.now();
   const verdict = runStep(step.id, logRunId);
   log(logRunId, step.id, verdict, Date.now() - started);
+  /*
+    THE DECLARED POPULATION, IN THE CENSUS'S ONE GRAMMAR (am-rc1001-bridge-plan-pcjk.9), printed
+    here so the grammar is applied in ONE place and a step cannot half-adopt it.
+
+    Printed BEFORE the verdict and for a failing step as well as a passing one: a census that could
+    only read a passing run could not tell a failing gate from a vacuous one, which is the
+    distinction it exists to make. Steps that read a CONDITION rather than a corpus -- free disk
+    against a floor, a simulator's existence -- declare no population, and their records say why in
+    `populationMayBeEmpty` instead of printing a line whose minimum could not detect anything.
+  */
+  if (verdict.population !== undefined) {
+    reportPopulation({
+      gate: step.id,
+      examined: verdict.population.examined,
+      noun: verdict.population.noun,
+      minimum: verdict.population.minimum,
+    });
+  }
   (verdict.outcome === "passed" ? process.stdout : process.stderr).write(
     `${step.id}: ${verdict.message}\n`,
   );

@@ -94,6 +94,108 @@ const minimumPlant = (
 });
 
 export const CENSUS_RECORDS: readonly CensusRecord[] = [
+  /*
+    THE APPLE STEPS THAT RUN ON THIS MACHINE AND WERE VERIFIED HERE (am-rc1001-bridge-plan-pcjk.9,
+    with am-app-apple-quality-gate-q6gs owning the gate itself).
+
+    Each step DECLARES its population through the verdict's `population` field and
+    scripts/app/apple-quality.ts's `main` prints the line once, so the grammar is applied in one
+    place and a step cannot half-adopt it. Measured 2026-10-08 by running each step:
+
+      apple-plist-lint       3 property lists
+      apple-generated-fresh  4 generated rasters
+      apple-swiftlint        54 Swift files
+      apple-swift-format     54 Swift files
+      apple-toolchain        4 tools, reported as versions rather than a count
+      apple-disk             28.7 GB free against a 10 GB floor
+
+    The nine not recorded here need a simulator, a device, an Xcode build, or an exported edition
+    from a build that no longer exists on this machine (apple-edition-parity exits 1 today naming a
+    scratchpad path from another session). Declaring a population I could not observe would be
+    exactly the citation this census exists to refuse, so they stay listed against their owner.
+  */
+  {
+    gate: "apple-plist-lint",
+    noun: "property lists linted",
+    howRead:
+      "The length of the step's own file list -- Info.plist, PrivacyInfo.xcprivacy and the " +
+      "entitlements -- which is what plutil was handed.",
+    gateRefusesVacuous: false,
+    plants: [
+      {
+        id: "apple-plist-lint-declares-more-than-it-lints",
+        file: "scripts/app/apple-quality.ts",
+        find: '        noun: "property lists linted",\n        minimum: 3,',
+        replace: '        noun: "property lists linted",\n        minimum: 4,',
+        expectFailureNaming: "VACUOUS",
+        why:
+          "The three files are named in the step, so the only way the count can fall is a list " +
+          "that lost one -- which is what raising the declared minimum simulates. A quieter " +
+          "'2 of 2 OK' would otherwise read as a pass.",
+      },
+    ],
+  },
+  {
+    gate: "apple-generated-fresh",
+    noun: "generated rasters compared",
+    howRead: "The length of the step's own list of four named rasters, light and dark for each.",
+    gateRefusesVacuous: false,
+    plants: [],
+  },
+  {
+    gate: "apple-swiftlint",
+    noun: "Swift files linted",
+    howRead:
+      "Parsed by the step from SwiftLint's own 'in N files.' line, which it already refuses at " +
+      "zero ('An empty run is not a pass'). The census floor adds the case where it reads some " +
+      "files but not the tree.",
+    gateRefusesVacuous: true,
+    plants: [],
+  },
+  {
+    gate: "apple-swift-format",
+    noun: "Swift files formatted-checked",
+    howRead:
+      "Counted by the step by walking the four Swift source roots, and it refuses zero for the " +
+      "same reason SwiftLint does.",
+    gateRefusesVacuous: true,
+    plants: [],
+  },
+  {
+    gate: "apple-toolchain",
+    noun: "installed tools checked",
+    howRead:
+      "The step reports the four tools by VERSION rather than by count -- 'Xcode 26.1.1 (17B100), " +
+      "XcodeGen 2.46.0, SwiftLint 0.63.2, swift-format 6.2.1' -- which is the more useful line for " +
+      "a reader and is why it declares no population.",
+    gateRefusesVacuous: true,
+    populationMayBeEmpty: {
+      reason:
+        "This step reads a CONDITION, not a corpus: whether the installed tools match the " +
+        "apple-toolchain decision in docs/DECISIONS.md. There is no population to be vacuous over, " +
+        "and a line declaring 'examined 4 tools (minimum 4)' would carry a minimum that cannot " +
+        "detect anything the version comparison does not already refuse. It fails closed on a " +
+        "missing tool and on an unreadable decision block.",
+    },
+    plants: [],
+  },
+  {
+    gate: "apple-disk",
+    noun: "free disk measured against the toolchain decision's floor",
+    howRead:
+      "One scalar from statfs, compared with the floor the apple-toolchain decision names. " +
+      "Measured 2026-10-08: 28.7 GB free, floor 10 GB.",
+    gateRefusesVacuous: true,
+    populationMayBeEmpty: {
+      reason:
+        "There is no corpus here at all. This step reads a single quantity -- free disk -- and " +
+        "compares it with a declared floor, so the honest population is one and a minimum of one " +
+        "cannot detect anything. The failure this census guards against, a clean verdict over a " +
+        "population that was never read, cannot arise: a statfs that fails cannot produce a " +
+        "number, and the step fails closed when the decision block is unreadable.",
+    },
+    plants: [],
+  },
   {
     gate: "typecheck",
     noun: "files typechecked by tsc",
