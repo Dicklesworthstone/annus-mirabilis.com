@@ -143,17 +143,21 @@ const READINGS_OWNERS_NOT_YET_AUDITABLE: ReadonlyMap<string, string> = new Map([
 /**
  * Journey findings recorded as not yet auditable, keyed by `<paper>/<rule>`.
  *
- * ONE ENTRY, and it is the fork contract working on its first real population rather than a defect in
- * the gate. A debt with a reason and a deletion condition, which is what this mechanism is for; the
- * second half of `applyAuditExemptions` raises an error the moment the finding stops being reported,
- * so the entry cannot outlive the repair.
+ * EMPTY, AND THE MECHANISM IS WHY. It held one entry,
+ * `brownian-motion/missing-constraint-ref`, whose reason named its own deletion condition: delete
+ * when the shelf card exists "or the owner rules on the outcome type (am-4k0m)". The owner-directed
+ * session ruled on the outcome type -- the Exner branch became `correct-but-weaker`, because
+ * nothing refuted Exner and AGENTS.md requires a failed alternative to fail on a stated constraint
+ * or observation -- and the finding stopped being reported. The entry was not deleted with it, so
+ * `applyAuditExemptions` raised `stale-audit-exemption` and verify-content was RED from that
+ * repair until this commit. That is the mechanism working exactly as its docblock promises: an
+ * exemption cannot outlive its repair in silence, and the cost of leaving one behind is a red
+ * central lane rather than a quiet over-permission.
+ *
+ * Kept as an empty map rather than removed, so the code reading it asserts zero instead of
+ * disappearing -- the same reason DECLARED_ERRORS is kept empty in the journey tests.
  */
-const JOURNEY_FINDINGS_NOT_YET_AUDITABLE: ReadonlyMap<string, string> = new Map([
-  [
-    "brownian-motion/missing-constraint-ref",
-    "arg-fork-exner / arg-branch-apparent-speed ends on a conceptual constraint -- for a randomly kicked particle an apparent speed is set by the observation interval as much as by the particle -- and no card on the Brownian shelf states it. Its two precedents both reference an OBSERVATION (lenard-1902-photoelectric, michelson-morley-1887-no-drift). Supplying one means authoring a historical knowledge card with a source, a date and provenance, which an agent must not do; changing the outcome type instead is a judgement about what the argument concludes. Delete this entry when the card exists or the owner rules on the outcome type (am-4k0m).",
-  ],
-]);
+const JOURNEY_FINDINGS_NOT_YET_AUDITABLE: ReadonlyMap<string, string> = new Map([]);
 
 const INSTRUMENTS_NOT_YET_AUDITABLE: ReadonlyMap<string, string> = new Map([
   [
