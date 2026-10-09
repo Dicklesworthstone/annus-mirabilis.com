@@ -64,23 +64,23 @@
       "met": false
     },
     "lab-contract-cells|brownian-motion": {
-      "count": 0,
-      "denominator": 0,
-      "met": false
+      "count": 112,
+      "denominator": 112,
+      "met": true
     },
     "lab-contract-cells|light-quanta": {
-      "count": 0,
-      "denominator": 0,
+      "count": 125,
+      "denominator": 126,
       "met": false
     },
     "lab-contract-cells|mass-energy": {
-      "count": 0,
-      "denominator": 0,
+      "count": 40,
+      "denominator": 42,
       "met": false
     },
     "lab-contract-cells|special-relativity": {
-      "count": 0,
-      "denominator": 0,
+      "count": 180,
+      "denominator": 182,
       "met": false
     },
     "manifest-units-covered|brownian-motion": {
