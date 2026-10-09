@@ -308,3 +308,99 @@ describe("the teaching-tape pages", () => {
     }
   });
 });
+
+describe("what a reader is shown a quantity called (am-f0wi)", () => {
+  /**
+   * CRITERION 5 OF am-f0wi ASKS FOR A COUNT THAT IS REPORTED RATHER THAN FROZEN, and until now it
+   * lived only in this page's docblock, which is prose and drifts. This renders every tape and
+   * counts what the page actually produced, so the figure cannot go stale while reading as
+   * considered.
+   *
+   * THREE KINDS OF ROW, and the distinction is the bead's own:
+   *   resolved     the registry named the quantity, and the field id stays in a parenthetical
+   *                `.tape-raw-id` span so the record remains verifiable from the page.
+   *   id-shaped    a bare camelCase field id, which is the defect the bead is about.
+   *   prose        an authored phrase ("lambda_x at 1 s") or a metadata row ("Model", "Seed").
+   *                These are NOT defects and must not be counted as ones: they are already what a
+   *                reader should see, and the docblock says so.
+   *
+   * The id-shaped count is a CEILING that only comes down. Freezing it at today's figure would go
+   * red the day somebody declares one of the seven in a manifest, which is the brittleness this
+   * repository keeps paying for.
+   */
+  test("the census of label rows, with its denominator", async () => {
+    let resolved = 0;
+    const idShaped = new Set<string>();
+    let idRows = 0;
+    let proseRows = 0;
+    for (const tape of tapes) {
+      const document = dom(
+        renderToStaticMarkup(await TapePage({ params: Promise.resolve({ tape: tape.tapeId }) })),
+      );
+      resolved += document.querySelectorAll(".tape-raw-id").length;
+      for (const th of document.querySelectorAll('th[scope="row"]')) {
+        // A resolved row carries the provenance span; the rest are raw.
+        if (th.querySelector(".tape-raw-id")) continue;
+        const text = (th.textContent ?? "").trim();
+        if (/^[a-z][A-Za-z0-9]*$/.test(text)) {
+          idRows += 1;
+          idShaped.add(text);
+        } else proseRows += 1;
+      }
+    }
+    const total = resolved + idRows + proseRows;
+    console.log(
+      `[census] tape label rows examined ${total} across ${tapes.length} tapes (minimum 150): ` +
+        `${resolved} resolved through the registry, ${idRows} left as an id ` +
+        `(${idShaped.size} distinct: ${[...idShaped].sort().join(", ")}), ${proseRows} authored prose`,
+    );
+    expect(tapes.length).toBeGreaterThan(15);
+    expect(total).toBeGreaterThanOrEqual(150);
+    // Non-vacuity: the registry path must be carrying the great majority, or "resolved" would be
+    // a word for a mechanism that never fires.
+    expect(resolved).toBeGreaterThan(100);
+    // The ceiling. 9 rows, 7 distinct, on 2026-10-09. Lower it as they are declared; never raise.
+    expect(idRows).toBeLessThanOrEqual(9);
+    expect(idShaped.size).toBeLessThanOrEqual(7);
+  });
+
+  test("no row prints a bare 1 as a unit, and none prints sixteen figures", async () => {
+    // The two display defects the bead names, asserted on the rendered page rather than on the
+    // formatter, because the formatter was never the thing a reader met.
+    for (const tape of tapes) {
+      const document = dom(
+        renderToStaticMarkup(await TapePage({ params: Promise.resolve({ tape: tape.tapeId }) })),
+      );
+      for (const cell of document.querySelectorAll("td")) {
+        const text = (cell.textContent ?? "").trim();
+        expect(text, `${tape.tapeId}: a dimensionless unit printed as "1"`).not.toMatch(
+          /^-?[\d.]+ 1$/,
+        );
+        // Six significant figures is what the laboratories' writer gives; a raw double shows ten
+        // or more digits after the point.
+        expect(text, `${tape.tapeId}: full-precision double on the page`).not.toMatch(
+          /\d\.\d{10,}/,
+        );
+      }
+    }
+  });
+
+  test("the full-precision value survives in the data element, not on the page", async () => {
+    // The separation AGENTS.md asks for: the formatted value is read, the stored one stays
+    // verifiable. Without this the test above could be satisfied by throwing precision away.
+    let withValue = 0;
+    for (const tape of tapes) {
+      const document = dom(
+        renderToStaticMarkup(await TapePage({ params: Promise.resolve({ tape: tape.tapeId }) })),
+      );
+      for (const data of document.querySelectorAll("data[value]")) {
+        const stored = data.getAttribute("value") ?? "";
+        const shown = (data.textContent ?? "").trim();
+        if (stored.replace(/[^\d]/g, "").length > shown.replace(/[^\d]/g, "").length)
+          withValue += 1;
+      }
+    }
+    console.log(`[census] ${withValue} value(s) keep more precision in data[value] than they show`);
+    expect(withValue).toBeGreaterThan(0);
+  });
+});
