@@ -170,20 +170,13 @@ export const DECLARED_ABSENCES: AbsenceDeclarations = new Map([
       ],
     ]),
   ],
-  [
-    "brownian-motion",
-    new Map<string, AbsenceDeclaration>([
-      [
-        "inline-equation",
-        {
-          kind: "debt",
-          reason:
-            "69 source blocks carry 220 inline math regions and the difficulties file declares no scope limit, so the empty set is debt rather than a property of the paper. Sentences ARE inventoried here (91 units), which is why this paper is the shape the others follow.",
-          bead: "am-edn-inventory-brownian-slg",
-        },
-      ],
-    ]),
-  ],
+  // brownian-motion's `inline-equation` debt was PAID on 2026-10-09 and its entry removed by the
+  // same change, as the `sentence` debts above were. 59 units now stand beside the sentences that
+  // print them, a set equal to the regions the criterion in inlineEquationUnits.ts admits. The
+  // reason text that sat here cited "220 inline math regions"; the real figure for this paper is
+  // 134, because the 220 counted the bodies of display equations, which carry `equationId` and are
+  // inventoried under `eq-*` ids. That miscount is recorded rather than quietly corrected, since it
+  // is the same error the derivation's own first pass made across the corpus (914 against 714).
   [
     "special-relativity",
     new Map<string, AbsenceDeclaration>([
