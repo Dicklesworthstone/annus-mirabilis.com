@@ -56,9 +56,9 @@
       "of": 0
     },
     "historians-margin-entries": {
-      "state": "unmeasured",
-      "met": 0,
-      "of": 0
+      "state": "met",
+      "met": 8,
+      "of": 8
     },
     "lab-contract-cells": {
       "state": "met",
@@ -133,9 +133,9 @@
       "of": 0
     },
     "historians-margin-entries": {
-      "state": "unmeasured",
+      "state": "short",
       "met": 0,
-      "of": 0
+      "of": 5
     },
     "lab-contract-cells": {
       "state": "met",
@@ -210,9 +210,9 @@
       "of": 0
     },
     "historians-margin-entries": {
-      "state": "unmeasured",
+      "state": "short",
       "met": 0,
-      "of": 0
+      "of": 8
     },
     "lab-contract-cells": {
       "state": "met",
@@ -287,9 +287,9 @@
       "of": 0
     },
     "historians-margin-entries": {
-      "state": "unmeasured",
+      "state": "short",
       "met": 0,
-      "of": 0
+      "of": 8
     },
     "lab-contract-cells": {
       "state": "met",
