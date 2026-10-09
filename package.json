@@ -20,7 +20,7 @@
     "dev": "bun scripts/prepare-lane.ts && next dev",
     "build": "bun scripts/prepare-lane.ts && next build && bun scripts/build/reportBuildPopulation.ts",
     "start": "next start",
-    "typecheck": "bun scripts/prepare-lane.ts && tsc --noEmit",
+    "typecheck": "bun scripts/prepare-lane.ts && tsc --noEmit --diagnostics",
     "lint": "biome check . --diagnostic-level=error --max-diagnostics=none",
     "lint:all": "biome check . --max-diagnostics=none",
     "format": "biome format --write .",

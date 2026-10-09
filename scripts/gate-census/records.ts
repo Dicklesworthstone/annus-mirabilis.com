@@ -95,6 +95,41 @@ const minimumPlant = (
 
 export const CENSUS_RECORDS: readonly CensusRecord[] = [
   {
+    gate: "typecheck",
+    noun: "files typechecked by tsc",
+    howRead:
+      "Parsed from tsc's own `--diagnostics` summary, because this gate runs a third-party " +
+      "compiler. See toolPopulation below.",
+    gateRefusesVacuous: false,
+    plants: [],
+    toolPopulation: {
+      /*
+        ANCHORED ON THE PAIR tsc PRINTS, not on the word. `Files:\s+(\d+)` alone matches
+        "Total Files: 12" in any prose the step happens to emit -- verified, it does -- and the
+        census matches against the WHOLE output with no multiline flag, so a line-start anchor would
+        only ever match the first line. tsc prints `Files:` immediately above `Lines:`, so requiring
+        the pair is both specific and cheap. Verified against a real run: captures 4913, and does
+        not match "Files: many\nLines: 3".
+      */
+      pattern: String.raw`Files:\s+(\d+)\s*\n\s*Lines:`,
+      noun: "files typechecked by tsc",
+      /*
+        Measured 2026-10-08: 4,913 files, 1,107,622 lines. The floor is 2,000 -- about 40% -- because
+        what has to be caught is a tsconfig `include` that narrowed or an invocation pointed at a
+        subdirectory, either of which would let `tsc --noEmit` exit 0 having compiled a fraction of
+        the repository. tsc prints NOTHING on success without this flag, which is why this gate had
+        no population at all: a green `bun run typecheck` was indistinguishable from a green run over
+        one file. AGENTS.md records the neighbouring version of this trap -- `bun run typecheck` is
+        46 generators before the compiler, and its exit code cannot say which of the two failed.
+      */
+      minimum: 2000,
+      why:
+        "tsc's output is not ours to shape, and it prints no count at all by default. `--diagnostics` " +
+        "adds the summary without changing the exit code or what is compiled, which makes the " +
+        "population readable without wrapping the compiler.",
+    },
+  },
+  {
     gate: "build",
     noun: "HTML pages emitted",
     howRead:
