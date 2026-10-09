@@ -1789,7 +1789,7 @@ export type Scenario = Readonly<{
     | undefined;
   constantSetId: string;
   constantSetMixing?: Readonly<{ declared: true; reason: string }> | undefined;
-  inputs: Record<string, Readonly<{ value: number | string; unit: string }>>;
+  inputs: Record<string, Readonly<{ value: number; unit: string }>>;
   equations?: readonly string[] | undefined;
   owner: string;
   seedPolicy?: "fixed" | "new-trial-recorded" | undefined;
@@ -2520,6 +2520,51 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
     }
   }
 
+  /**
+   * A SCENARIO INPUT IS A NUMBER, AND A STRING IS REFUSED RATHER THAN COERCED (am-wop1).
+   *
+   * This field used to be typed `number | string` and cast here without checking, while the only
+   * consumer, `inputNumbers` in src/testing/scenario-registry/run.ts, did `Number(spec.value)`. A
+   * string input therefore reached the owner as NaN, the laboratory refused it as
+   * `invalid-parameter`, and the scenario failed for a reason unrelated to what it was written to
+   * test. The schema advertised a capability the runner did not have.
+   *
+   * THE DECISION, AND WHY THIS SIDE OF IT. am-wop1 offers refusing at load or widening the runner to
+   * carry strings through roughly 120 owners. Refusing costs nothing today, measured: 0 of 712
+   * scenario inputs across content/scenarios hold a string. Widening is a large audit of every owner
+   * that spreads `ctx.inputs` into a parameter record, bought with zero current demand.
+   *
+   * It does not forbid a categorical scenario input forever, and that is the point rather than a
+   * concession. A categorical travels as a numeric code today -- SR-05's `worldlineCode` 0/1/2,
+   * lq-05's `locked` -- and when someone wants `value: "inertial"` instead, this refusal is what
+   * tells them, by name, that the runner has to be widened first. The alternative leaves a NaN that
+   * tells them nothing.
+   */
+  function validatedScenarioInputs(
+    raw: unknown,
+    scenarioId: unknown,
+  ): Record<string, Readonly<{ value: number; unit: string }>> {
+    if (raw === null || typeof raw !== "object") return {};
+    const out: Record<string, Readonly<{ value: number; unit: string }>> = {};
+    for (const [key, spec] of Object.entries(raw as Record<string, unknown>)) {
+      const value = (spec as { value?: unknown } | null)?.value;
+      if (typeof value !== "number" || !Number.isFinite(value)) {
+        throw new ExperimentValidationError(
+          "scenario-input-not-a-number",
+          `Scenario "${String(scenarioId)}" input "${key}" is ${JSON.stringify(value)}; a scenario ` +
+            "input must be a finite number. A categorical travels as a numeric code decoded by the " +
+            "owner (SR-05's worldlineCode). Carrying a string needs the scenario runner widened " +
+            "first (am-wop1).",
+          "Scenario",
+          `inputs.${key}`,
+        );
+      }
+      const unit = (spec as { unit?: unknown }).unit;
+      out[key] = Object.freeze({ value, unit: typeof unit === "string" ? unit : "" });
+    }
+    return out;
+  }
+
   return {
     id: o.id as string,
     kind,
@@ -2536,7 +2581,7 @@ export function validateScenario(raw: unknown, path = "Scenario"): Scenario {
       : undefined,
     constantSetId: o.constantSetId as string,
     constantSetMixing,
-    inputs: (o.inputs as Record<string, Readonly<{ value: number | string; unit: string }>>) || {},
+    inputs: validatedScenarioInputs(o.inputs, o.id),
     equations: Array.isArray(o.equations) ? (o.equations as string[]) : undefined,
     owner: (o.owner as string) || "",
     seedPolicy: o.seedPolicy as "fixed" | "new-trial-recorded" | undefined,

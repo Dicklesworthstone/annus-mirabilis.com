@@ -113,12 +113,16 @@ export function runCrossOwnerScenario(
   });
 }
 
+/**
+ * The inputs, already numbers. This used to read `Number(spec.value)` against a field typed
+ * `number | string`, so a string arrived at the owner as NaN and the laboratory refused it as
+ * `invalid-parameter` -- a failure that said nothing about what the scenario tested (am-wop1).
+ * `validatedScenarioInputs` in content/schemas/experiment.ts now refuses a non-number at load,
+ * naming the scenario and the key, so there is nothing left to coerce here.
+ */
 function inputNumbers(scenario: Scenario): Record<string, number> {
   const out: Record<string, number> = {};
-  for (const [key, spec] of Object.entries(scenario.inputs ?? {})) {
-    const value = typeof spec.value === "number" ? spec.value : Number(spec.value);
-    out[key] = value;
-  }
+  for (const [key, spec] of Object.entries(scenario.inputs ?? {})) out[key] = spec.value;
   return out;
 }
 
