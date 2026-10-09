@@ -109,11 +109,69 @@ export const CENSUS_RECORDS: readonly CensusRecord[] = [
       apple-toolchain        4 tools, reported as versions rather than a count
       apple-disk             28.7 GB free against a 10 GB floor
 
+    THREE OF THE NINE WERE OBSERVED ON 2026-10-09 AND ARE NOW RECORDED BELOW. The note that
+    follows stood when it was written and was right to refuse the other six.
+
+      apple-simulators      3 named simulators, now a printed population
+      apple-edition-fresh   1073 exported edition files, now a printed population
+      apple-project-fresh   a regenerate-and-diff condition, recorded as such
+
+    The remaining SIX need a working Xcode build, and the reason they did not have one is now known
+    rather than guessed: generated/app-edition/edition-source.txt pinned the edition to
+    `/private/tmp/.../<another session id>/scratchpad/web-build-live-1200/out`, a path under another
+    agent session's scratchpad, and a scratchpad dies with its session. So the build phase failed at
+    `cd "${OUT}"` under `set -e`, which Xcode reports as exit 65 with no `error:` line, and
+    apple-build, apple-unit-tests, apple-ui-tests, apple-harness-evidence and apple-release-absence
+    all failed on it. 8c07d192 made that case say what to run; it did not make a build exist, which
+    needs a fresh web build and a re-export, so those six stay listed against their owner.
+
+    The original note, which still governs the six:
+
     The nine not recorded here need a simulator, a device, an Xcode build, or an exported edition
     from a build that no longer exists on this machine (apple-edition-parity exits 1 today naming a
     scratchpad path from another session). Declaring a population I could not observe would be
     exactly the citation this census exists to refuse, so they stay listed against their owner.
   */
+  {
+    gate: "apple-simulators",
+    noun: "named simulators",
+    howRead:
+      "ensureSimulators(REPO) returns one entry per simulator the apple-toolchain decision names, " +
+      "creating any that are missing, and the count is that list's length. Observed 2026-10-09 by " +
+      "running the step: 'examined 3 named simulators (minimum 1)'.",
+    gateRefusesVacuous: true,
+    plants: [],
+  },
+  {
+    gate: "apple-edition-fresh",
+    noun: "exported edition files",
+    howRead:
+      "The step walks generated/app-edition/edition-manifest.json file by file, hashing each one " +
+      "under the exported build's directory, and the count is manifest.files.length. Observed " +
+      "2026-10-09: 'examined 1073 exported edition files (minimum 1)'. The floor is 1 rather than " +
+      "the measured 1073 because the edition's size is a product of the web build and moves with it.",
+    gateRefusesVacuous: true,
+    plants: [],
+  },
+  {
+    gate: "apple-project-fresh",
+    noun: "regenerated project files compared with the committed project",
+    howRead:
+      "xcodegen regenerates ios/AnnusMirabilis.xcodeproj from ios/project.yml and the step reads " +
+      "`git status --porcelain` on it. Observed 2026-10-09: exit 0, 'Regenerating ios/project.yml " +
+      "changes nothing in the committed project', and the working tree stayed clean.",
+    gateRefusesVacuous: true,
+    populationMayBeEmpty: {
+      reason:
+        "A regenerate-and-diff step examines no corpus: it compares two STATES of one directory, " +
+        "and an empty diff is its success condition rather than its blind spot. A minimum of 1 " +
+        "changed file would invert the gate, and a minimum of 0 cannot detect anything. The " +
+        "failure this census guards against cannot arise here, because the comparison is against " +
+        "a file xcodegen has just written: if xcodegen does not run, the step fails on its exit " +
+        "code before any diff is read.",
+    },
+    plants: [],
+  },
   {
     gate: "apple-plist-lint",
     noun: "property lists linted",

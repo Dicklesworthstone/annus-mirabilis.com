@@ -959,14 +959,27 @@ export function runStep(id: AppleStepId, logRunId: string): StepVerdict {
       if (manifest.files.length === 0) {
         return { outcome: "failed", message: "The exported edition lists 0 files." };
       }
+      /*
+        The manifest's own file list, which this step walks file by file. The refusal above already
+        rejects a manifest listing none; the line states the same floor where the census can read it.
+        Measured 2026-10-09: 1073 files. The floor stays at 1 because the edition's size is a product
+        of the web build and moves with it, so a measured floor would fail on correct work.
+      */
+      const editionPopulation = {
+        examined: manifest.files.length,
+        noun: "exported edition files",
+        minimum: 1,
+      } as const;
       return changed.length === 0
         ? {
             outcome: "passed",
             message: `${manifest.files.length} of ${manifest.files.length} exported files still match ${outDir}.`,
+            population: editionPopulation,
           }
         : {
             outcome: "failed",
             message: `${changed.length} of ${manifest.files.length} exported files differ from ${outDir} (first: ${changed[0]?.path}). Run: bun scripts/app/export-edition.ts`,
+            population: editionPopulation,
           };
     }
     case "apple-edition-parity": {
@@ -1008,6 +1021,25 @@ export function runStep(id: AppleStepId, logRunId: string): StepVerdict {
     case "apple-simulators": {
       const simulators = ensureSimulators(REPO);
       const created = simulators.filter((s) => s.created).map((s) => s.name);
+      /*
+        A DECLARED LIST, NOT A SCALAR CONDITION (am-rc1001-bridge-plan-pcjk.9).
+
+        StepVerdict.population's docstring names "a simulator's existence" among the conditions that
+        should NOT print a line, and for `apple-disk` -- free bytes against a floor -- that is right.
+        This step is the other kind: the apple-toolchain decision NAMES a list of simulators and
+        `ensureSimulators` returns one entry per name, so there is a population with a denominator,
+        and the step already refuses zero of it in the line above. Measured 2026-10-09: 3.
+
+        The floor is 1 rather than 3 on purpose. The decision's list is a decision, so pinning its
+        current length here would make a deliberate change to it fail this gate; what cannot be
+        legitimate is a decision that names none, which is what the existing refusal says in words
+        and what this says in a number the census can read.
+      */
+      const simulatorPopulation = {
+        examined: simulators.length,
+        noun: "named simulators",
+        minimum: 1,
+      } as const;
       return {
         outcome: simulators.length > 0 ? "passed" : "failed",
         message:
@@ -1015,6 +1047,7 @@ export function runStep(id: AppleStepId, logRunId: string): StepVerdict {
             ? "The apple-toolchain decision names no simulators."
             : `${simulators.length} named simulators ready${created.length > 0 ? `, created ${created.join(", ")}` : ""}.`,
         details: { simulators },
+        population: simulatorPopulation,
       };
     }
     case "apple-build": {
