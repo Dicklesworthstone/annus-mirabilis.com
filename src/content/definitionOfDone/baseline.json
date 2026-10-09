@@ -1,7 +1,8 @@
 {
   "schema": "annus-mirabilis-definition-of-done-baseline.v1",
-  "recordedAt": "2026-10-09",
+  "recordedAt": "2026-10-08",
   "recordedFrom": "the working tree at the commit this file lands in",
+  "correction": "Lowered from the 2026-10-08 first recording: the eight readings cells (readings-r0-to-r3 and r2-covers-r1 across four papers) were recorded unmeasured on a loader defect in this directory, not on a corpus gap. A baseline is the record of a debt, so it comes down when the debt turns out not to exist.",
   "cells": {
     "displays-bound|brownian-motion": {
       "count": 43,
@@ -164,44 +165,44 @@
       "met": true
     },
     "r2-covers-r1|brownian-motion": {
-      "count": 0,
-      "denominator": 0,
-      "met": false
+      "count": 24,
+      "denominator": 24,
+      "met": true
     },
     "r2-covers-r1|light-quanta": {
-      "count": 0,
-      "denominator": 0,
-      "met": false
+      "count": 11,
+      "denominator": 11,
+      "met": true
     },
     "r2-covers-r1|mass-energy": {
-      "count": 0,
-      "denominator": 0,
-      "met": false
+      "count": 4,
+      "denominator": 4,
+      "met": true
     },
     "r2-covers-r1|special-relativity": {
-      "count": 0,
-      "denominator": 0,
-      "met": false
+      "count": 17,
+      "denominator": 17,
+      "met": true
     },
     "readings-r0-to-r3|brownian-motion": {
-      "count": 0,
-      "denominator": 0,
-      "met": false
+      "count": 24,
+      "denominator": 24,
+      "met": true
     },
     "readings-r0-to-r3|light-quanta": {
-      "count": 0,
-      "denominator": 0,
-      "met": false
+      "count": 11,
+      "denominator": 11,
+      "met": true
     },
     "readings-r0-to-r3|mass-energy": {
-      "count": 0,
-      "denominator": 0,
-      "met": false
+      "count": 4,
+      "denominator": 4,
+      "met": true
     },
     "readings-r0-to-r3|special-relativity": {
-      "count": 0,
-      "denominator": 0,
-      "met": false
+      "count": 17,
+      "denominator": 17,
+      "met": true
     },
     "results-cards-printed|brownian-motion": {
       "count": 6,
