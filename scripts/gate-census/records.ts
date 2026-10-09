@@ -95,6 +95,24 @@ const minimumPlant = (
 
 export const CENSUS_RECORDS: readonly CensusRecord[] = [
   {
+    gate: "facsimile-digests",
+    noun: "pinned digests",
+    howRead:
+      "The number of pins the verify run examined, printed before the per-pin lines and on every " +
+      "path. The sibling `facsimile-config` gate in the same script already did this, after a " +
+      "vacuous run there had become indistinguishable from a real one by reading the output; the " +
+      "verify path was not covered.",
+    gateRefusesVacuous: true,
+    plants: [
+      minimumPlant(
+        "facsimile-digests",
+        "scripts/download-facsimiles.ts",
+        1,
+        "PIN_POPULATION_BELOW_FLOOR",
+      ),
+    ],
+  },
+  {
     gate: "resource-stress",
     noun: "lifecycle scenarios",
     howRead:

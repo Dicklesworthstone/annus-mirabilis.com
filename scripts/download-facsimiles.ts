@@ -1474,6 +1474,42 @@ export async function main(
       ...(repoRoot !== undefined ? { repoRoot } : {}),
       requireLocal,
     });
+    /*
+      THE POPULATION, IN THE CENSUS'S ONE GRAMMAR (am-rc1001-bridge-plan-pcjk.9), printed BEFORE the
+      per-pin lines and on every path, including one that is about to refuse.
+
+      The `--validate` path a few dozen lines above already does this for `facsimile-config`, after
+      a vacuous run there "had become indistinguishable from the real one by reading the output".
+      The same is true here and was not covered: a verify run that found NO pins prints no ✓ lines
+      and exits 0, which reads exactly like a clean verification.
+
+      The minimum is 1, not today's 12, because `--key` verifies a SINGLE pin on purpose and a floor
+      at the full count would refuse the gate's own supported use. What has to be caught is zero,
+      the one count that cannot mean anything. (`facsimile-config` can hold a floor of 4 because it
+      always reads the whole directory.)
+
+      This counts what was EXAMINED and says nothing about what a green means. The gate's own closing
+      note is the authority there, and it is blunter than this comment could be: "--verify was green
+      all night while three pins served the wrong article."
+    */
+    const censusVacuous = reportPopulation({
+      gate: "facsimile-digests",
+      examined: Object.keys(results).length,
+      noun: "pinned digests",
+      minimum: 1,
+    });
+    if (censusVacuous) {
+      // The count is in the message, because "no pinned digest was examined" is only true of a
+      // genuine zero. My own plant caught that: raising the floor made this refuse while reporting
+      // 12 examined, and the refusal then contradicted the census line directly above it. A refusal
+      // that misstates what it saw sends a reader to the wrong cause.
+      console.error(
+        `\n❌ PIN_POPULATION_BELOW_FLOOR: ${Object.keys(results).length} pinned digest(s) examined, ` +
+          "fewer than this gate declares it must. A green here would be a statement about a " +
+          "population this repository does not have.",
+      );
+      return finish(4);
+    }
     for (const [k, r] of Object.entries(results)) {
       if (r.status === "ok") {
         console.log(`✓ ${k}: OK (${r.path})`);
