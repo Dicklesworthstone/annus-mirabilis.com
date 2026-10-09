@@ -62,12 +62,28 @@ targets:
           # lists, byte for byte. The export (never this phase) decides what ships.
           set -euo pipefail
           GEN="${SRCROOT}/../generated/app-edition"
-          OUT="$(cat "${GEN}/edition-source.txt")"
           RES="${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}"
           DEST="${RES}/Edition"
           REEXPORT="bun scripts/app/export-edition.ts"
-          if [ ! -f "${GEN}/edition-manifest.json" ]; then
+          # edition-source.txt is read before it is used, because `set -e` makes a missing file a
+          # bare `cat:` failure. On a fresh clone generated/ is absent entirely (it is gitignored),
+          # so this is the first thing a new checkout hits.
+          if [ ! -f "${GEN}/edition-manifest.json" ] || [ ! -f "${GEN}/edition-source.txt" ]; then
             echo "error: This build has no app edition. From the repository root, run: ${REEXPORT}"
+            exit 1
+          fi
+          OUT="$(cat "${GEN}/edition-source.txt")"
+          # THE EXPORTED DIRECTORY CAN BE GONE RATHER THAN CHANGED, and the two need different
+          # messages. The digest check below reports a directory whose CONTENTS moved; it cannot
+          # report one that no longer exists, because `cd "${OUT}"` fails first and `set -e` ends
+          # the phase on a raw `cd: No such file or directory`. Measured 2026-10-09: that is exactly
+          # what every Xcode build in this checkout was failing on, since the recorded path was
+          # `/private/tmp/.../<another session id>/scratchpad/web-build-live-1200/out` -- an export
+          # taken from a session scratchpad, which dies with the session. Five apple steps
+          # (apple-build, apple-unit-tests, apple-ui-tests, apple-harness-evidence,
+          # apple-release-absence) all failed with exit 65 and no `error:` line to say why.
+          if [ ! -d "${OUT}" ]; then
+            echo "error: The edition was exported from ${OUT}, which no longer exists. A path under a session scratchpad does not survive the session. From the repository root, run: ${REEXPORT} --out <your out directory>"
             exit 1
           fi
           # shasum names each file it fails; the first goes in the error, which is what Xcode shows.
