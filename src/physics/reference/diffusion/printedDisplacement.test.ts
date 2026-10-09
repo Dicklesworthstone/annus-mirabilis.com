@@ -1,0 +1,126 @@
+/**
+ * THE PRINTED 0,8 MIKRON, AND THE TWO WAYS A PLAUSIBLE WRONG READING OF PAGE 559 FAILS.
+ *
+ * The inputs are the ones the plate states, read from the pinned facsimile's page image on
+ * 2026-10-08 (`pdftoppm -f 11` on ap-17-549.pdf renders printed page 559; the embedded text layer
+ * is forbidden and was not used): N = 6.10^23, water at 17 degrees C, k = 1,35.10^-2 where k is the
+ * VISCOSITY, and a particle DIAMETER of 0,001 mm. The paper prints lambda_x = 8.10^-5 cm = 0,8
+ * Mikron for one second and "ca. 6 Mikron" for one minute.
+ *
+ * The figures asserted here are the ones am-bm-results-cards-ft8k pins in its test plan, to within
+ * the 1e-4 relative tolerance it states.
+ *
+ * TWO ADVERSARIAL FIXTURES, both named in AGENTS.md, both of which must fail for the stated reason
+ * rather than merely fail:
+ *
+ *   - "a 1 micron radius reproduces Einstein's 0.8 micron". It does not, and this is the live trap
+ *     on this page: 0,001 mm is a diameter, so the radius is 5e-7 m. Reading it as a radius halves
+ *     the diffusion coefficient and the displacement comes out a factor sqrt(2) small.
+ *   - "halving diffusivity halves displacement". It does not; the length goes as the square root,
+ *     so halving D multiplies the displacement by 1/sqrt(2). The comparison wording must not imply
+ *     otherwise, and the assertion below pins the exponent rather than the sentence.
+ */
+
+import { describe, expect, test } from "bun:test";
+import {
+  BROWNIAN_PRINTED_DISPLACEMENT_SCENARIO,
+  printedBrownianDisplacement,
+} from "./printedDisplacement.ts";
+
+/** Exactly what page 559 states, with the diameter already halved. */
+const PLATE = {
+  temperatureK: 290.15,
+  viscosityPaS: 0.00135,
+  particleRadiusM: 5e-7,
+  elapsedSeconds: 1,
+} as const;
+
+const microns = (m: number) => m * 1e6;
+const relative = (a: number, b: number) => Math.abs(a - b) / Math.abs(b);
+
+describe("the owner reproduces what Einstein printed", () => {
+  test("one second, under his constants and under the modern thermal constant", () => {
+    const r = printedBrownianDisplacement(PLATE);
+    expect(r.status).toBe("value");
+    expect(r.scenarioId).toBe(BROWNIAN_PRINTED_DISPLACEMENT_SCENARIO);
+    console.log(
+      `[census] printed displacement t=1s: printed ${microns(r.printed.value).toFixed(7)} um, ` +
+        `modern ${microns(r.modern.value).toFixed(7)} um`,
+    );
+    expect(relative(microns(r.printed.value), 0.7948)).toBeLessThan(1e-4);
+    expect(relative(microns(r.modern.value), 0.7935)).toBeLessThan(1e-4);
+    // And it rounds to what the plate prints, at the one significant figure the plate gives.
+    expect(Number(microns(r.printed.value).toPrecision(1))).toBe(0.8);
+  });
+
+  test("one minute, which the paper states as about 6 Mikron", () => {
+    const r = printedBrownianDisplacement({ ...PLATE, elapsedSeconds: 60 });
+    expect(relative(microns(r.printed.value), 6.1564)).toBeLessThan(1e-4);
+    expect(relative(microns(r.modern.value), 6.1467)).toBeLessThan(1e-4);
+    // The plate says "ca. 6", one significant figure, and 6.156 does round there.
+    expect(Number(microns(r.printed.value).toPrecision(1))).toBe(6);
+  });
+
+  test("the two rows name their constant sets and never merge into one number", () => {
+    const r = printedBrownianDisplacement(PLATE);
+    expect(r.printed.constantSetId).toBe("einstein-1905-brownian-printed");
+    expect(r.modern.constantSetId).toBe("modern-si-2019");
+    expect(r.printed.entryLabels.length).toBeGreaterThan(0);
+    expect(r.modern.entryLabels.length).toBeGreaterThan(0);
+    // The wording is the owner's and carries no percentage: a view must not compute one either.
+    expect(r.comparison.wording).not.toMatch(/%|per ?cent/i);
+    expect(r.comparison.wording.length).toBeGreaterThan(80);
+    expect(r.comparison.ratio).toBeLessThan(1);
+    expect(r.comparison.ratio).toBeGreaterThan(0.99);
+  });
+});
+
+describe("ADVERSARIAL: the plausible wrong readings of page 559", () => {
+  test("a 1 micron RADIUS does not reproduce the printed 0,8 micron", () => {
+    // The printed 0,001 mm is a diameter. Taking it for a radius is the mistake this fixture
+    // exists to catch, and it must be wrong by the specific factor rather than merely wrong.
+    const wrong = printedBrownianDisplacement({ ...PLATE, particleRadiusM: 1e-6 });
+    const right = printedBrownianDisplacement(PLATE);
+    expect(Number(microns(wrong.printed.value).toPrecision(1))).not.toBe(0.8);
+    // D goes as 1/a, so doubling the radius halves D and divides the length by sqrt(2).
+    expect(relative(right.printed.value / wrong.printed.value, Math.SQRT2)).toBeLessThan(1e-12);
+    console.log(
+      `[census] radius-as-diameter plant: ${microns(wrong.printed.value).toFixed(7)} um ` +
+        `against the printed 0.7947833`,
+    );
+  });
+
+  test("halving the diffusivity does NOT halve the displacement", () => {
+    // Pinned on the exponent, not on the owner's sentence, so a reworded comparison cannot make
+    // this pass. Halving D is the same as doubling the radius here, since D goes as 1/a.
+    const base = printedBrownianDisplacement(PLATE);
+    const halvedD = printedBrownianDisplacement({ ...PLATE, particleRadiusM: 1e-6 });
+    const ratio = halvedD.printed.value / base.printed.value;
+    expect(relative(ratio, 1 / Math.SQRT2)).toBeLessThan(1e-12);
+    // The claim under test, stated so its failure is unmistakable.
+    expect(relative(ratio, 0.5)).toBeGreaterThan(0.4);
+  });
+
+  test("a nonpositive input is a typed refusal, never a zero displacement", () => {
+    for (const bad of [
+      { ...PLATE, temperatureK: 0 },
+      { ...PLATE, viscosityPaS: -1 },
+      { ...PLATE, particleRadiusM: 0 },
+      { ...PLATE, elapsedSeconds: -1 },
+    ]) {
+      const r = printedBrownianDisplacement(bad);
+      expect(r.status).toBe("outside-domain");
+      expect(r.condition).toContain("T > 0");
+      expect(Number.isNaN(r.printed.value)).toBe(true);
+      // Never a zero wearing the look of a measurement.
+      expect(r.printed.value).not.toBe(0);
+    }
+  });
+
+  test("zero elapsed time is a legitimate zero, not a refusal", () => {
+    // The boundary the refusal above must not swallow: at t = 0 the displacement really is zero.
+    const r = printedBrownianDisplacement({ ...PLATE, elapsedSeconds: 0 });
+    expect(r.status).toBe("value");
+    expect(r.printed.value).toBe(0);
+  });
+});

@@ -14,9 +14,11 @@
 # card reads them from there. "Used later" notes stay empty until the margin records exist to
 # cite; a card lists none rather than inventing one. Probes name the laboratory, the question,
 # and a preset its manifest registers (content/experiments/bm-0N.yaml), or no preset where the
-# laboratory's default is the case the card asks about. No card names a printed check: the only
-# scenario a card's printed check can reproduce today is mass-energy's
-# (src/content/results/printedChecks.ts).
+# laboratory's default is the case the card asks about. bm-predicted-displacement names the printed
+# check diffusion-einstein-1905-printed, reproduced by printedBrownianDisplacement in
+# src/physics/reference/diffusion/printedDisplacement.ts; the card displays the owner's two rows and
+# its comparison sentence and computes nothing. That scenario's transcription is still `pending`, so
+# the check renders flagged until the plate comparison has its second, model-diverse round.
 paper: brownian-motion
 review: draft
 cards:
@@ -218,6 +220,7 @@ cards:
       - instrument: bm-01
         question: "Double the viscosity: does \\(\\lambda_x\\) halve?"
         preset: bm-01-viscosity-comparison
+    printedCheck: diffusion-einstein-1905-printed
     usedLater: []
     meanings:
       argumentStatus: "A worked example of the combined law"
