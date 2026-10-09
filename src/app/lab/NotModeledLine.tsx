@@ -11,7 +11,11 @@ import { strictParse } from "../../content/schemas/strictParse.ts";
  * none. This prints the manifest's own list; nothing is restated here.
  *
  * Every laboratory page shows its manifest's whole list visibly, outside any closed disclosure
- * (./notModeledShown.test.tsx). On 2026-10-01 seven did not: lq-01 and sr-03 printed hand-written
+ * (src/testing/notModeledVisible.test.tsx; this cited ./notModeledShown.test.tsx, a path that has
+ * never existed in any commit, so the guarantee named no reachable guard. The guard is real and
+ * passes: it strips closed <details> innermost-first, accepts "leaves out" as well as "not
+ * modelled" -- which is how bm-02, lq-01 and sr-03 state theirs -- floors the manifest-backed
+ * count above 25, and declares its two exceptions with reasons). On 2026-10-01 seven did not: lq-01 and sr-03 printed hand-written
  * paraphrases, bm-07 a list in other words, lq-04 and lq-06 constants that had drifted from their
  * manifests, and bm-06 and sr-05 a part of it.
  */
