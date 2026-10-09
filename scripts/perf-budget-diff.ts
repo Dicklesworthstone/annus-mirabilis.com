@@ -2,6 +2,7 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { TestLogger } from "../src/testing/log/logger.ts";
+import { reportPopulation } from "./gate-census/population.ts";
 import { runGitBudgetChangeCheck } from "./perf/budgetChangeCheck.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -49,6 +50,38 @@ async function logDiffRun(result: {
 async function main(): Promise<void> {
   try {
     const result = runGitBudgetChangeCheck(ROOT);
+
+    /*
+      THE POPULATION, IN THE CENSUS'S ONE GRAMMAR (am-rc1001-bridge-plan-pcjk.9), printed before any
+      verdict.
+
+      "No performance budget modifications detected" is this gate's answer on almost every run, and
+      it is the SAME SENTENCE a run that compared nothing would print: an empty budgets file, a
+      `budgets` key that moved, a parse that yielded no rows. The gate would then report PASSED over
+      a population it never had, which is the failure this census exists for.
+
+      THE FLOOR IS 1, NOT TODAY'S 8, and that is the decision worth reviewing. A floor of 8 looks
+      stronger and would be wrong: removing a budget row is a governance change this gate's own diff
+      and DECISIONS.md check exist to police, so a population floor that refused it would be the
+      gate fighting its own purpose, and it would refuse for the wrong reason -- "below floor" rather
+      than "a budget was removed without a decision entry". The floor's only job here is to catch
+      having compared nothing at all.
+    */
+    const censusVacuous = reportPopulation({
+      gate: "perf-budget-change",
+      examined: result.comparedRows,
+      noun: "budget rows",
+      minimum: 1,
+    });
+    if (censusVacuous) {
+      console.error(
+        `[perf-budget-diff] BUDGET_POPULATION_BELOW_FLOOR: ${result.comparedRows} budget row(s) ` +
+          "compared, so 'no modifications detected' would be a statement about nothing. Check that " +
+          "perf/budgets.json is present and that its `budgets` key still holds the rows.",
+      );
+      await logDiffRun(result);
+      process.exit(1);
+    }
 
     if (result.changed) {
       console.log(`[perf-budget-diff] Detected ${result.diffs.length} budget modification(s):`);

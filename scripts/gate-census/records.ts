@@ -95,6 +95,22 @@ const minimumPlant = (
 
 export const CENSUS_RECORDS: readonly CensusRecord[] = [
   {
+    gate: "perf-budget-change",
+    noun: "budget rows",
+    howRead:
+      "The union of the base and current budget ids, from the check's own comparedRows. A row " +
+      "present in either is one the check reasoned about, so a removal still counts as examined.",
+    gateRefusesVacuous: true,
+    plants: [
+      minimumPlant(
+        "perf-budget-change",
+        "scripts/perf-budget-diff.ts",
+        1,
+        "BUDGET_POPULATION_BELOW_FLOOR",
+      ),
+    ],
+  },
+  {
     gate: "facsimile-digests",
     noun: "pinned digests",
     howRead:

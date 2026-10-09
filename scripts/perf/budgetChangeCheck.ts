@@ -26,6 +26,17 @@ export interface BudgetChangeCheckResult {
   changed: boolean;
   diffs: readonly BudgetDiffItem[];
   violations: readonly string[];
+  /**
+   * How many budget rows were actually compared: the union of the base file's ids and the current
+   * file's, since a row present in either is a row this check had to reason about.
+   *
+   * Reported so the gate can declare its population (am-rc1001-bridge-plan-pcjk.9). "No
+   * performance budget modifications detected" is this gate's answer on almost every run, and it
+   * is the same sentence a run that compared NOTHING would print -- an empty budgets file, a
+   * `budgets` key that moved, a parse that yielded no rows. Without this number those two are
+   * indistinguishable from the output.
+   */
+  comparedRows: number;
   message: string;
 }
 
@@ -96,6 +107,9 @@ export function checkBudgetChanges(input: BudgetChangeCheckInput): BudgetChangeC
       changed: false,
       diffs: [],
       violations: [],
+      // The current file's rows ARE the population here: there is no base to union with, and this
+      // path still read and parsed them, so reporting 0 would understate what was examined.
+      comparedRows: Object.keys(currentBudgets).length,
       message: "No prior budget baseline found (initial establishment).",
     };
   }
@@ -170,6 +184,10 @@ export function checkBudgetChanges(input: BudgetChangeCheckInput): BudgetChangeC
 
   const changed = diffs.length > 0;
   const ok = violations.length === 0;
+  // The union of base and current ids: a row present in either is one this check reasoned about,
+  // and a removal must still count as examined or removing the last row would read as a clean run
+  // over nothing.
+  const comparedRows = new Set([...Object.keys(baseBudgets), ...Object.keys(currentBudgets)]).size;
   const message = changed
     ? ok
       ? `Budget changes verified with required measurement records and DECISIONS.md entries (${diffs.length} change(s)).`
@@ -179,6 +197,7 @@ export function checkBudgetChanges(input: BudgetChangeCheckInput): BudgetChangeC
   return {
     ok,
     changed,
+    comparedRows,
     diffs,
     violations,
     message,
