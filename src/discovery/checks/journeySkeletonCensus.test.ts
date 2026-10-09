@@ -31,6 +31,7 @@
 import { describe, expect, it } from "bun:test";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { REAL_JOURNEYS } from "../journeys/realJourneys.ts";
 
 const ROOT = process.cwd();
 
@@ -144,23 +145,87 @@ describe("the four journeys' skeleton, measured from what declares it", () => {
     expect(without).toEqual([]);
   });
 
-  it("the move-in-a-derivation-chain gap is measured and named, not left silent", () => {
-    // The one drift item of the bead's four that still stands. Reported as a count with its
-    // denominator and asserted only as a FLOOR: freezing it at 1 of 4 would turn correct work red,
-    // and asserting 4 of 4 would be asserting the fix rather than measuring the state.
+  /**
+   * The papers whose move is openable, keyed by the chain's OWN `paper` field rather than by
+   * counting files. The earlier version of this counted files with `isMove: true` and printed the
+   * number as "N of 4 journeys", which is a different population: two chains for one paper would
+   * have read as two journeys covered, and a chain naming no paper would have been credited to
+   * whichever journey a reader assumed.
+   */
+  function papersWithOpenableMove(): {
+    readonly papers: ReadonlySet<string>;
+    readonly files: number;
+  } {
     const dir = join(ROOT, "content/equations/derivations");
     const chains = existsSync(dir) ? readdirSync(dir).filter((f) => /\.(ya?ml|json)$/.test(f)) : [];
-    const withMove = chains.filter((f) =>
-      /isMove:\s*true|"isMove":\s*true/.test(readFileSync(join(dir, f), "utf8")),
+    const papers = new Set<string>();
+    for (const file of chains) {
+      const text = readFileSync(join(dir, file), "utf8");
+      if (!/isMove:\s*true|"isMove":\s*true/.test(text)) continue;
+      const match = /"paper"\s*:\s*"([^"]+)"|^paper:\s*"?([\w-]+)"?/m.exec(text);
+      const paper = match?.[1] ?? match?.[2];
+      // A chain with a move and no paper is a finding, not something to attribute by guesswork.
+      expect(paper, `chain ${file} marks a move but names no paper`).toBeDefined();
+      if (paper !== undefined) papers.add(paper);
+    }
+    return { papers, files: chains.length };
+  }
+
+  it("the move-in-a-derivation-chain gap is measured per paper, not by counting files", () => {
+    const { papers, files } = papersWithOpenableMove();
+    const covered = JOURNEYS.filter((j) => papers.has(j.paper)).map((j) => j.paper);
+    const bare = JOURNEYS.filter((j) => !papers.has(j.paper)).map((j) => j.paper);
+    console.log(
+      `[journey move chains] ${covered.length} of ${JOURNEYS.length} journeys have their move in a derivation chain a reader can open; ` +
+        `${files} chain file(s) on disk | openable: ${covered.join(", ") || "none"} | prose only: ${bare.join(", ") || "none"}`,
+    );
+    // Floors, not equalities: freezing this at 1 of 4 would turn correct work red, and asserting
+    // 4 of 4 would assert the fix rather than measure the state.
+    expect(files).toBeGreaterThan(0);
+    expect(covered.length).toBeGreaterThanOrEqual(1);
+    // Every chain's paper is one of the four, so a typo in a chain cannot inflate the coverage.
+    expect([...papers].filter((p) => !JOURNEYS.some((j) => j.paper === p))).toEqual([]);
+  });
+
+  it("a journey without an openable move DECLARES it, and one with an openable move does not", () => {
+    // This is what makes the hardcoded MOVE_CHAIN_MISSING set in realJourneys.ts safe. That module
+    // cannot read the filesystem -- it is reachable from the discover pages, where a node: import
+    // is the defect am-t84m gates against -- so the agreement between the set and the chains on
+    // disk is checked here instead. Author a chain and this test names the paper to remove.
+    const { papers } = papersWithOpenableMove();
+    const wrong: string[] = [];
+    for (const journey of REAL_JOURNEYS) {
+      const declares = (journey.pendingElements ?? []).some(
+        (pe) => pe.element === "move.derivationChain",
+      );
+      const openable = papers.has(journey.paper);
+      if (openable && declares) {
+        wrong.push(`${journey.paper}: has an openable move chain but still declares it pending`);
+      }
+      if (!openable && !declares) {
+        wrong.push(`${journey.paper}: move is prose only and nothing declares it pending`);
+      }
+    }
+    expect(wrong).toEqual([]);
+    // Non-vacuity in both directions: the corpus really does hold one of each case, so neither
+    // branch above is unreachable and a run that passes has exercised both.
+    const declaring = REAL_JOURNEYS.filter((j) =>
+      (j.pendingElements ?? []).some((pe) => pe.element === "move.derivationChain"),
     );
     console.log(
-      `[journey move chains] ${withMove.length} of ${JOURNEYS.length} journeys have their move in a derivation chain a reader can open; ${chains.length} chain file(s) on disk: ${withMove.join(", ") || "none"}`,
+      `[journey move declarations] ${declaring.length} of ${REAL_JOURNEYS.length} declare move.derivationChain pending: ` +
+        `${declaring.map((j) => j.paper).join(", ")}`,
     );
-    // The population is real, so the count means something.
-    expect(chains.length).toBeGreaterThan(0);
-    expect(withMove.length).toBeGreaterThanOrEqual(1);
-    // And the gap is stated rather than implied: fewer chains than journeys is the open item.
-    expect(withMove.length).toBeLessThanOrEqual(JOURNEYS.length);
+    expect(declaring.length).toBeGreaterThan(0);
+    expect(declaring.length).toBeLessThan(REAL_JOURNEYS.length);
+    // And every declaration carries the two fields that make it a declaration rather than a label.
+    for (const journey of declaring) {
+      const entry = (journey.pendingElements ?? []).find(
+        (pe) => pe.element === "move.derivationChain",
+      );
+      expect(entry?.reason?.length ?? 0).toBeGreaterThan(80);
+      expect(entry?.ownerBead).toBeTruthy();
+    }
   });
 
   it("the four records now exist, and the gates run on them", () => {
