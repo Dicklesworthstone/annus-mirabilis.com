@@ -140,8 +140,8 @@
     "src/physics/reference/radiation/entropy.ts": "source:sha256:fde068fefdd3cf518e4bb114960bf60160e3dc81e5f4b32dbfac26cf60ac7524",
     "src/physics/reference/diffusion/routeA.ts": "source:sha256:46c1f6ca0c5cf360c7295d50136f8f7c733e714883b7ba1304ee6f317006d3ba",
     "src/physics/reference/diffusion/driftDiffusion.ts": "source:sha256:814df5b58e46dc4ab4174450bce7994858f17094990d8de0ac8d7b47df1fe3b5",
-    "src/physics/reference/inference.ts": "source:sha256:8834cfe71ddea4febe96c633c2b296c1776a6bfadb57b8c5ddfaef14ecbb3a67",
-    "src/physics/reference/inference/observation.ts": "source:sha256:8834cfe71ddea4febe96c633c2b296c1776a6bfadb57b8c5ddfaef14ecbb3a67",
+    "src/physics/reference/inference.ts": "source:sha256:c62bbed0bfd1bcb55d6d9dccd25162c787c4eea787cae64cb9fff8c1fa2d4594",
+    "src/physics/reference/inference/observation.ts": "source:sha256:c62bbed0bfd1bcb55d6d9dccd25162c787c4eea787cae64cb9fff8c1fa2d4594",
     "src/physics/reference/electron.ts": "source:sha256:645cc163b231cbd8368f4e0591347176a93e456e48e274c10b74e0e158fa0869"
   }
 }
