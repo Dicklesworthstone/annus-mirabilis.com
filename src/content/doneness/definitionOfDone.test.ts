@@ -72,6 +72,11 @@ function fixtureRoot(): string {
     // make that cell unmeasured here while it measures against the real corpus, and the
     // fixture-agreement test below would be the only thing to notice.
     `content/editorial/required-margin-entries/${PAPER}.yaml`,
+    // Same for the section 3 results, and the fixture-agreement test DID notice: adding the cell
+    // without this line left it unmeasured in the fixture while it read met over the real corpus,
+    // which is exactly the disagreement that test exists to catch.
+    `content/editorial/required-results/${PAPER}.yaml`,
+    `content/results/${PAPER}.yaml`,
     `content/arguments/${PAPER}`,
     "out/lab/me-01/index.html",
     "out/lab/me-02/index.html",

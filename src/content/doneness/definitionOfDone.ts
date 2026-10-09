@@ -240,6 +240,85 @@ function readingsPerParagraphCell(root: string, paper: DonenessPaper): DonenessC
 }
 
 /**
+ * THE PLAN'S SECTION 3 RESULTS, AGAINST THE CARDS THAT CARRY THEM.
+ *
+ * This cell read "the plan's §3 results list is prose; no typed record enumerates the results a
+ * paper must card, so there is no denominator", and that was exactly right until
+ * content/editorial/required-results/<paper>.yaml transcribed each treatment map's "Results and
+ * printed checks" column.
+ *
+ * COUNTING CARDS IS THE WRONG POPULATION, and measurably so: the four papers hold 38 cards against
+ * 38 plan rows, which looks like agreement and is not. Per paper it is 7 against 8, 6 against 7, 9
+ * against 11 and 16 against 12 -- relativity has MORE cards than rows, because section 3 proves the
+ * principles compatible and then derives the transformation, and section 10 states three relations.
+ * A card count cannot see either direction.
+ *
+ * A `notACard` row is EXCLUDED FROM THE DIVISOR rather than counted absent, the same way
+ * marginEntriesCell excludes an unenumerated requirement. Seven of the 38 rows are declared that
+ * way, each with its reason in the record: four date-lines, two statements of modality that
+ * AGENTS.md requires be preserved rather than resolved, and section 2 of the Brownian paper, whose
+ * plan cell is a completeness requirement on a derivation with no equation in it. Counting those as
+ * missing cards would report a gap that nobody should close, which is the opposite failure from the
+ * one this cell was written against.
+ */
+function resultsCardsCell(root: string, paper: DonenessPaper): DonenessCell {
+  const recordPath = join(root, "content", "editorial", "required-results", `${paper}.yaml`);
+  if (!existsSync(recordPath)) {
+    return unmeasured(
+      "results-cards-against-section-3",
+      `no required-results record at content/editorial/required-results/${paper}.yaml, so the ` +
+        "plan's section 3 results have no denominator for this paper",
+    );
+  }
+  const parsed = strictParse(readFileSync(recordPath, "utf8"), "yaml") as { rows?: unknown };
+  const rows = (Array.isArray(parsed.rows) ? parsed.rows : []) as {
+    satisfiedBy?: unknown;
+    notACard?: unknown;
+  }[];
+
+  // The card ids actually on disk. A credit naming anything else is not honoured, which is the
+  // property that stops this record from crediting itself.
+  const onDisk = new Set<string>();
+  const cardsPath = join(root, "content", "results", `${paper}.yaml`);
+  if (existsSync(cardsPath)) {
+    const record = strictParse(readFileSync(cardsPath, "utf8"), "yaml") as { cards?: unknown };
+    for (const card of Array.isArray(record.cards) ? record.cards : []) {
+      const id = (card as { id?: unknown }).id;
+      if (typeof id === "string") onDisk.add(id);
+    }
+  }
+
+  const declaredNotACard = rows.filter((r) => typeof r.notACard === "string" && r.notACard.trim());
+  const required = rows.filter((r) => !(typeof r.notACard === "string" && r.notACard.trim()));
+  const of = required.length;
+  let met = 0;
+  const unresolved: string[] = [];
+  for (const row of required) {
+    const credits =
+      typeof row.satisfiedBy === "string"
+        ? [row.satisfiedBy]
+        : Array.isArray(row.satisfiedBy)
+          ? row.satisfiedBy.filter((c): c is string => typeof c === "string")
+          : [];
+    if (credits.length === 0) continue;
+    // Every card a multi-card row names must be present, or the row is not covered: section 4 of
+    // the Brownian paper states the diffusion equation AND the law that follows from its solution.
+    const missing = credits.filter((c) => !onDisk.has(c));
+    if (missing.length === 0) met += 1;
+    else unresolved.push(...missing);
+  }
+
+  const detail =
+    `${met} of ${of} section ${String((parsed as { planSection?: unknown }).planSection ?? "3")} ` +
+    `result rows carded, resolved against the card ids in content/results/${paper}.yaml` +
+    (declaredNotACard.length > 0
+      ? `; ${declaredNotACard.length} row(s) declared not a results card, with reasons, and excluded from the divisor`
+      : "") +
+    (unresolved.length > 0 ? `; CREDIT NAMES A MISSING CARD: ${unresolved.join(", ")}` : "");
+  return cell("results-cards-against-section-3", met, of, detail);
+}
+
+/**
  * THE HISTORIAN'S MARGIN, NOW WITH THE DENOMINATOR THIS COMMENT ASKED FOR.
  *
  * The previous version of this cell counted records with `kind: "historian-margin"`, reported 16
@@ -688,10 +767,7 @@ export function paperDoneness(root: string, paper: DonenessPaper): PaperDoneness
         "claim about CLAIMS -- that every step R1 asserts is expanded in R2 -- and nothing in the " +
         "records carries that relation",
     ),
-    unmeasured(
-      "results-cards-against-section-3",
-      "the plan's §3 results list is prose; no typed record enumerates the results a paper must card, so there is no denominator",
-    ),
+    resultsCardsCell(root, paper),
     marginEntriesCell(root, paper),
     labContractCell(root, paper),
     journeySkeletonCell(root, paper),

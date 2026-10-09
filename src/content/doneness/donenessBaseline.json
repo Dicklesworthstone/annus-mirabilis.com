@@ -51,9 +51,9 @@
       "of": 0
     },
     "results-cards-against-section-3": {
-      "state": "unmeasured",
-      "met": 0,
-      "of": 0
+      "state": "met",
+      "met": 7,
+      "of": 7
     },
     "historians-margin-entries": {
       "state": "met",
@@ -128,9 +128,9 @@
       "of": 0
     },
     "results-cards-against-section-3": {
-      "state": "unmeasured",
-      "met": 0,
-      "of": 0
+      "state": "met",
+      "met": 9,
+      "of": 9
     },
     "historians-margin-entries": {
       "state": "short",
@@ -205,9 +205,9 @@
       "of": 0
     },
     "results-cards-against-section-3": {
-      "state": "unmeasured",
-      "met": 0,
-      "of": 0
+      "state": "met",
+      "met": 4,
+      "of": 4
     },
     "historians-margin-entries": {
       "state": "short",
@@ -282,9 +282,9 @@
       "of": 0
     },
     "results-cards-against-section-3": {
-      "state": "unmeasured",
-      "met": 0,
-      "of": 0
+      "state": "met",
+      "met": 11,
+      "of": 11
     },
     "historians-margin-entries": {
       "state": "short",
