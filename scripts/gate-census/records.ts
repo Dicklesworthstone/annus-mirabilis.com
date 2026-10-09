@@ -95,6 +95,33 @@ const minimumPlant = (
 
 export const CENSUS_RECORDS: readonly CensusRecord[] = [
   {
+    gate: "coverage-report",
+    noun: "input files",
+    howRead:
+      "report.inputs, which records only files that were OPENED, each with its sha256 -- so the " +
+      "count is the population and not a restatement of the verdict. Printed on BOTH paths, or a " +
+      "census could not tell this gate's refusal from a gate that never ran.",
+    // coverageWasMeasured plus the exit in main(): a run that opened no file exits 1.
+    gateRefusesVacuous: true,
+    /*
+      NO PLANT, AND THE REASON IS THE FINDING. As registered this gate CANNOT PASS: the registry
+      runs `bun scripts/coverage-report.ts` with no arguments, and the inputs it can read are
+      `--scenario-evidence <path>` and `--review-records <path>`. Measured 2026-10-08, the bare
+      command exits 1 printing "examined 0 input files (minimum 1) VACUOUS" beside its own REFUSED
+      line; with a real input it exits 0 at "examined 1 input files (minimum 1)". So the script is
+      right and the step's registration is incomplete, which a `nightly` cadence that nothing runs
+      had kept invisible -- the same shape am-7bkr found for perf-budgets.
+
+      A plant cannot discriminate on a gate that is already red, so declaring one would be a plant
+      that passes for the wrong reason. This record instead puts the gate in the census's judged set
+      so it is listed RED against am-cm-coverage-ledger-0ip, which is what criterion 3 asks for:
+      "either fixed by its own bead with a passing plant, or listed as red in the census with its
+      bead id. None is silently green." Giving the step arbitrary paths to make it green would be
+      making a gate pass rather than wiring it, so the loaders stay with their owner.
+    */
+    plants: [],
+  },
+  {
     gate: "perf-budget-change",
     noun: "budget rows",
     howRead:

@@ -19,6 +19,7 @@ import {
   writeCoverageReportArtifacts,
 } from "../src/content/coverage/ledger.ts";
 import type { ArgumentNodeCoverage, CoverageReport } from "../src/content/coverage/types.ts";
+import { reportPopulation } from "./gate-census/population.ts";
 
 function parseArgs(args: string[]): {
   scenarioEvidencePath?: string;
@@ -287,6 +288,33 @@ export function coverageRefusal(demonstration: boolean): string {
 
 async function main() {
   const { report, provenance } = await runCoverageReport(process.argv.slice(2));
+
+  /*
+    THE POPULATION, IN THE CENSUS'S ONE GRAMMAR (am-rc1001-bridge-plan-pcjk.9), printed on BOTH
+    paths: a census that could only read the measured run could not tell this gate's refusal from a
+    gate that never ran.
+
+    `report.inputs` records only files that were OPENED, each with its sha256, so the count is the
+    honest population and not a restatement of the verdict. The gate already refuses at zero
+    (coverageWasMeasured, and the exit below), so this line reports a refusal the gate makes rather
+    than being the only thing that notices.
+
+    AS REGISTERED, THIS GATE CANNOT PASS, and the census line is how that becomes visible. The
+    registry runs `bun scripts/coverage-report.ts` with NO arguments, and the inputs it can read are
+    `--scenario-evidence <path>` and `--review-records <path>`; measured 2026-10-08, the bare command
+    exits 1 with its REFUSED line. That is correct behaviour by this script and a gap in the step's
+    registration, hidden until now by a `nightly` cadence that nothing runs -- the same shape am-7bkr
+    found for perf-budgets. Giving the step arbitrary paths to make it green would be making a gate
+    pass rather than wiring it, so the remaining dimensions' loaders stay with
+    am-cm-coverage-ledger-0ip and the census will list this red against that bead.
+  */
+  reportPopulation({
+    gate: "coverage-report",
+    examined: report.inputs.length,
+    noun: "input files",
+    minimum: 1,
+  });
+
   if (coverageWasMeasured(report)) return;
 
   // A run that names no inputs must not report counts as measured, and must not exit 0 while
