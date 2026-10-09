@@ -47,6 +47,7 @@ type Entry = {
   letter?: unknown;
   proposition?: unknown;
   satisfiedBy?: unknown;
+  requiresCitations?: unknown;
   partial?: { satisfiedBy?: unknown; covers?: unknown; missing?: unknown };
 };
 
@@ -234,6 +235,82 @@ describe("the required margin entries are a real denominator", () => {
       "note-me-f-two-pulses",
       "note-me-g-argument-comparison",
     ]);
+  });
+});
+
+/** Every bibliography id on disk. A prerequisite is outstanding when it is not among these. */
+function citationIds(): Set<string> {
+  const ids = new Set<string>();
+  const base = join(ROOT, "content/bibliography");
+  for (const file of readdirSync(base)) {
+    if (!file.endsWith(".json") && !file.endsWith(".yaml")) continue;
+    const parsed = loadYaml(readFileSync(join(base, file), "utf8")) as
+      | { id?: unknown }
+      | { id?: unknown }[]
+      | null;
+    for (const entry of Array.isArray(parsed) ? parsed : [parsed]) {
+      const id = (entry as { id?: unknown } | null)?.id;
+      if (typeof id === "string") ids.add(id);
+    }
+  }
+  return ids;
+}
+
+describe("THE ABSENT ENTRIES ARE BLOCKED ON BIBLIOGRAPHY, AND THAT REORDERS THE WORK", () => {
+  const papers = records();
+  const have = citationIds();
+
+  test("the one COMPLETE paper is the one whose citations were built", () => {
+    // This is the finding, and it is a correlation with a direction. mass-energy's margin list is
+    // the only complete one, and the bibliography is heavily its own: Bainbridge, Cockcroft and
+    // Walton, Hasenoehrl 1904 and 1905, Ives 1952, Stachel and Torretti 1982, Poincare 1900,
+    // Einstein 1906, 1907 and 1935. Every one of its six letters cites records that already exist,
+    // so it needs no prerequisite at all, while the other three need records nobody has written.
+    const me = papers.find((p) => p.paper === "mass-energy");
+    const outstanding = (me?.entries ?? []).flatMap((e) =>
+      (Array.isArray(e.requiresCitations) ? e.requiresCitations : []).map(String),
+    );
+    expect(outstanding).toEqual([]);
+    // Non-vacuity: the other three must actually declare prerequisites, or the line above would
+    // pass against a corpus where nobody had recorded any.
+    const others = papers
+      .filter((p) => p.paper !== "mass-energy")
+      .flatMap((p) => p.entries)
+      .filter((e) => Array.isArray(e.requiresCitations));
+    expect(others.length).toBe(20);
+  });
+
+  test("the outstanding citation records, named rather than counted", () => {
+    const outstanding = new Map<string, string[]>();
+    for (const { paper, entries } of papers) {
+      for (const entry of entries) {
+        for (const raw of Array.isArray(entry.requiresCitations) ? entry.requiresCitations : []) {
+          const id = String(raw);
+          if (have.has(id)) continue;
+          const at = `${paper} (${String(entry.letter)})`;
+          outstanding.set(id, [...(outstanding.get(id) ?? []), at]);
+        }
+      }
+    }
+    console.log(
+      `[census] margin-entry citations: ${have.size} bibliography record(s) on disk; ` +
+        `${outstanding.size} further record(s) must exist before the 21 absent entries can be authored`,
+    );
+    for (const [id, where] of [...outstanding].sort()) {
+      console.log(`[census]   MISSING ${id.padEnd(34)} needed by ${where.join(", ")}`);
+    }
+    // A floor rather than an equality, so writing one of them does not turn this red. It is a
+    // REPORT, and the thing it reports is a blocker, so it must not be asserted away.
+    expect(outstanding.size).toBeGreaterThan(0);
+    // And the ones that DO resolve really resolve: relativity (a), (g) and (h) cite the paper
+    // itself, which is on disk, so a prerequisite list that was simply all-missing would fail here.
+    expect(have.has("ap-17-891")).toBe(true);
+    const resolved = papers
+      .flatMap((p) => p.entries)
+      .flatMap((e) => (Array.isArray(e.requiresCitations) ? e.requiresCitations : []))
+      .map(String)
+      .filter((id) => have.has(id));
+    expect(resolved.length).toBeGreaterThan(0);
   });
 });
 
