@@ -18,7 +18,7 @@
 # is what makes that step safe.
 id: light-quanta
 paper: light-quanta
-revision: 1
+revision: 2
 completeness: partial
 pendingElements:
   - element: stages
@@ -177,3 +177,7 @@ doors:
       arrivesAtLabel: the effective count n = (N/R)(E/βν), the power to which the probability W raises V/V₀
       href: /lab/lq-05/?n=60&f=0.5&view=logarithmic&locked=0&seed=12345&trials=10000
       summary: 'Write the loop: the chance that n labelled points all sit in a fraction f of the box is f to the power n. Given that the entropy of dilute radiation changes with volume like (E/βν) ln f, invert it to a count. The same loop shows what happens when the points are not independent. In the modern lens the count is E/hν, with h = Rβ/N.'
+lineage:
+  - revision: 1
+    reason: 'Gained the move.derivationChain pending declaration: this journey''s move is named in the record and marked in no derivation chain a reader can open, and am-4k0m''s fourth drift item allows a written declaration where the fix is physics authoring. The gap had been reported only as a count in a test log, which is a measurement and not a record (am-4k0m).'
+    date: '2026-10-09'

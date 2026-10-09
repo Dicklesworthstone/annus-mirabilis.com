@@ -178,10 +178,15 @@ function admittedImportsOf(paper: string, shelf: readonly ShelfCard[]): readonly
  * would assert a change that did not happen.
  */
 const REVISIONS: Readonly<Record<string, number>> = Object.freeze({
-  "light-quanta": 1,
+  // Raised on 2026-10-09 for the three papers that gained the `move.derivationChain` pending
+  // declaration: a new entry in pendingElements changes what the record claims, and
+  // `check-revisions` refused the emitted files at their old revision. brownian-motion stays where
+  // it is, because it gained nothing -- its move IS in an openable chain, so it declares nothing
+  // new and raising it would assert a change that did not happen.
+  "light-quanta": 2,
   "brownian-motion": 1,
-  "special-relativity": 1,
-  "mass-energy": 2,
+  "special-relativity": 2,
+  "mass-energy": 3,
 });
 
 /**
@@ -203,6 +208,28 @@ export const JOURNEY_LINEAGE: Readonly<Record<string, readonly RevisionLineageEn
         reason:
           "The record as first emitted from the journey modules, carrying no journey-level admittedImports. Its shelf listed einstein-1905-light-complex-transformation, whose own card declares the import, and the record declared nothing; the shelf-date rule refused that as admitted-import-undeclared once it reached the shelf (am-4k0m).",
         date: "2026-10-05",
+      }),
+      Object.freeze({
+        revision: 2,
+        reason:
+          "Gained the move.derivationChain pending declaration: this journey's move is named in the record and marked in no derivation chain a reader can open, and am-4k0m's fourth drift item allows a written declaration where the fix is physics authoring. The gap had been reported only as a count in a test log, which is a measurement and not a record (am-4k0m).",
+        date: "2026-10-09",
+      }),
+    ]),
+    "light-quanta": Object.freeze([
+      Object.freeze({
+        revision: 1,
+        reason:
+          "Gained the move.derivationChain pending declaration: this journey's move is named in the record and marked in no derivation chain a reader can open, and am-4k0m's fourth drift item allows a written declaration where the fix is physics authoring. The gap had been reported only as a count in a test log, which is a measurement and not a record (am-4k0m).",
+        date: "2026-10-09",
+      }),
+    ]),
+    "special-relativity": Object.freeze([
+      Object.freeze({
+        revision: 1,
+        reason:
+          "Gained the move.derivationChain pending declaration: this journey's move is named in the record and marked in no derivation chain a reader can open, and am-4k0m's fourth drift item allows a written declaration where the fix is physics authoring. The gap had been reported only as a count in a test log, which is a measurement and not a record (am-4k0m).",
+        date: "2026-10-09",
       }),
     ]),
   });

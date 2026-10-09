@@ -18,7 +18,7 @@
 # is what makes that step safe.
 id: mass-energy
 paper: mass-energy
-revision: 2
+revision: 3
 completeness: partial
 pendingElements:
   - element: stages
@@ -182,3 +182,6 @@ lineage:
   - revision: 1
     reason: The record as first emitted from the journey modules, carrying no journey-level admittedImports. Its shelf listed einstein-1905-light-complex-transformation, whose own card declares the import, and the record declared nothing; the shelf-date rule refused that as admitted-import-undeclared once it reached the shelf (am-4k0m).
     date: '2026-10-05'
+  - revision: 2
+    reason: 'Gained the move.derivationChain pending declaration: this journey''s move is named in the record and marked in no derivation chain a reader can open, and am-4k0m''s fourth drift item allows a written declaration where the fix is physics authoring. The gap had been reported only as a count in a test log, which is a measurement and not a record (am-4k0m).'
+    date: '2026-10-09'

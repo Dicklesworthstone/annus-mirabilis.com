@@ -18,7 +18,7 @@
 # is what makes that step safe.
 id: special-relativity
 paper: special-relativity
-revision: 1
+revision: 2
 completeness: partial
 pendingElements:
   - element: stages
@@ -195,3 +195,7 @@ doors:
       arrivesAtLabel: 'the map of § 3: x′ = γ(x − vt) and t′ = γ(t − vx/c²), with γ = 1/√(1 − v²/c²), which the paper writes ξ = β(x − vt) and τ = β(t − vx/V²)'
       href: /lab/sr-04/
       summary: 'Start from a candidate map x′ = a(x − vt), t′ = bt + dx with unknown coefficients, and add requirements one at a time: light at c in both directions, a map back of the same kind, no preferred direction in space, and nothing changed at v = 0. One map survives. Writing it as a table of coefficients is a later way of seeing it; the paper solves equations.'
+lineage:
+  - revision: 1
+    reason: 'Gained the move.derivationChain pending declaration: this journey''s move is named in the record and marked in no derivation chain a reader can open, and am-4k0m''s fourth drift item allows a written declaration where the fix is physics authoring. The gap had been reported only as a count in a test log, which is a measurement and not a record (am-4k0m).'
+    date: '2026-10-09'
