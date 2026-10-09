@@ -32,6 +32,13 @@
  * before the entry was restored. Two is the right number rather than five, because only those two
  * of the repaired expressions use that character -- which is the check that the plant reached this
  * predicate and not some neighbouring one. The positive control above went red in the same run.
+ *
+ * The `authored` figure was planted separately, because a counter stuck at zero and a corpus with
+ * nothing authored are the same number. Writing one `spoken:` into
+ * content/source-blocks/light-quanta/s1-p3.yaml took the line to `authored 1`, and the same plant
+ * was followed through the real path -- validateSourceBlock's validateInline kept the field, and
+ * speakInlines put those words into the spoken line in place of the generated reading. The record
+ * was then restored and `git diff` on it is empty.
  */
 
 import { describe, expect, test } from "bun:test";
@@ -63,7 +70,13 @@ function defects(said: string): readonly string[] {
   return found;
 }
 
-type Occurrence = { readonly paper: string; readonly blockId: string; readonly latex: string };
+type Occurrence = {
+  readonly paper: string;
+  readonly blockId: string;
+  readonly latex: string;
+  /** The words authored for THIS occurrence, where the record carries them (MathInline.spoken). */
+  readonly spoken: string | undefined;
+};
 
 function yamlFiles(dir: string, out: string[] = []): string[] {
   for (const entry of readdirSync(dir)) {
@@ -105,7 +118,12 @@ function authoredInlines(paper: string): readonly Occurrence[] {
         object.display !== true &&
         object.equationId === undefined
       ) {
-        out.push({ paper, blockId, latex: object.latex.trim() });
+        out.push({
+          paper,
+          blockId,
+          latex: object.latex.trim(),
+          spoken: typeof object.spoken === "string" ? object.spoken : undefined,
+        });
       }
       for (const value of Object.values(object)) visit(value);
     };
@@ -137,7 +155,9 @@ describe("every inline expression a reader meets is spoken in words", () => {
   const distinct = [...new Set(all.map((o) => o.latex))];
 
   test("the census examines the corpus, and says what it examined", () => {
-    const authored = 0; // No inline node carries a `spoken` field yet; see pcjk.29.
+    // Counted from the records, never written down here: a constant 0 would keep reading as true
+    // after the first form was authored, and a census whose figures cannot move is not a census.
+    const authored = all.filter((o) => o.spoken !== undefined).length;
     const flagged = distinct.filter((latex) => defects(speakMath(latex)).length > 0);
     console.log(
       `[census] inline math: examined ${all.length} occurrences / ${distinct.length} distinct, ` +
@@ -154,6 +174,12 @@ describe("every inline expression a reader meets is spoken in words", () => {
     // broke on correct work would be replaced by a raised number rather than read.
     expect(all.length).toBeGreaterThanOrEqual(700);
     expect(distinct.length).toBeGreaterThanOrEqual(225);
+    // The ratchet, in the only direction that is a debt: `generated-flagged` is at its floor and
+    // the assertion below holds it there. `authored` is reported and NOT asserted, because a
+    // number that rises as editorial work lands is a measurement, and freezing it into an
+    // equality would turn correct work red -- which is how a census comes to sit above the check
+    // it was standing in front of.
+    expect(authored).toBeGreaterThanOrEqual(0);
   });
 
   test("NOTHING reaches a reader as a raw glyph, and a failure names the expressions", () => {
