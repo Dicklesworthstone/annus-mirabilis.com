@@ -17,7 +17,12 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { EXCLUDED_FIELDS, isOverridden, QUOTED_FIELDS } from "../src/content/checks/voice/check.ts";
+import {
+  EXCLUDED_FIELDS,
+  isOverridden,
+  isScenarioAuthoringField,
+  QUOTED_FIELDS,
+} from "../src/content/checks/voice/check.ts";
 import { extractAllComponentStrings } from "../src/content/checks/voice/componentText.ts";
 import { resolveVoiceContext } from "../src/content/checks/voice/contexts.ts";
 import { checkVoice } from "../src/content/checks/voice/index.ts";
@@ -213,6 +218,12 @@ export async function runVoiceLint(): Promise<{
 
       for (const [key, val] of Object.entries(rec)) {
         if (EXCLUDED_FIELDS.has(key)) {
+          continue;
+        }
+        // A scenario's authoring prose addresses a reviewer, not a visitor, and was measured to
+        // reach `out/` zero times in 881 sampled phrases. Its `title` is deliberately NOT in that
+        // set, because one scenario title does reach a reader (am-3gon).
+        if (isScenarioAuthoringField(recordKind, key)) {
           continue;
         }
 

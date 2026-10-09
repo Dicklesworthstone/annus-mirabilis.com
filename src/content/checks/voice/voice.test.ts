@@ -1001,6 +1001,71 @@ describe("status-enum-leak: a typed enum field is data, not prose", () => {
 });
 
 /**
+ * am-3gon: A SCENARIO'S AUTHORING PROSE IS NOT VISITOR-FACING, AND THE FIELD LIST IS THE DESIGN.
+ *
+ * 13 of voice-lint's 17 errors were in content/scenarios, and `intendedFailure` is the field that
+ * makes the case: it exists to say what an adversarial fixture must refuse WITH, so a sentence
+ * naming `outside-domain` cannot be reworded without deleting the statement.
+ *
+ * Measured against an out/ built at 095e8fe5 before anything was exempted: description (214
+ * phrases), intendedFailure (100), plausibleMistake (100) and tolerance.rationale (467) reach the
+ * built site ZERO times; `title` reaches it ONCE, from bm-07-inversion-golden. That single hit is
+ * why `title` is absent from the exempt set, and the third assertion below is what keeps it absent.
+ *
+ * All three directions in one block on purpose, so neither the exemption nor the negative can be
+ * removed without the other being noticed.
+ */
+describe("status-enum-leak: a scenario's authoring prose is not visitor-facing (am-3gon)", () => {
+  const scan = (record: Record<string, unknown>) => {
+    const reports: CheckReportItem[] = [];
+    validateVoiceRecords({
+      records: new Map<string, unknown>([["scenario-probe", { id: "scenario-probe", ...record }]]),
+      files: [],
+      indexes: {},
+      report: (item: CheckReportItem) => reports.push(item),
+    } as CheckContext);
+    return reports.filter((r) => r.rule === "status-enum-leak");
+  };
+
+  it("intendedFailure on a scenario may name the status it refuses with", () => {
+    assert.deepEqual(
+      scan({
+        kind: "adversarial",
+        intendedFailure: "The run must return outside-domain rather than a number.",
+      }),
+      [],
+    );
+  });
+
+  it("and so may a tolerance rationale, wherever it sits", () => {
+    assert.deepEqual(
+      scan({ kind: "modern-golden", rationale: "A not-applicable row carries no tolerance." }),
+      [],
+    );
+  });
+
+  it("but a scenario TITLE is still linted, because one title reaches a reader", () => {
+    // The negative that stops this being a record-wide blinding. If this starts passing, the
+    // exemption has grown from a field list into a record exemption and the measurement above no
+    // longer supports it.
+    assert.ok(
+      scan({ kind: "adversarial", title: "BM-08 and an outside-domain leak" }).length > 0,
+      "a status id in a scenario title must still be reported",
+    );
+  });
+
+  it("and a NON-scenario record gets no exemption for the same field name", () => {
+    // The kind is what grants this, not the field name, so a record that merely happens to carry a
+    // field called description is held to the house voice as before.
+    assert.ok(
+      scan({ kind: "experiment", description: "This returns outside-domain for a dense state." })
+        .length > 0,
+      "only the scenario kinds are exempt",
+    );
+  });
+});
+
+/**
  * Title Case headings (am-edit-voice-lint-trmf). The gate that makes 04dffb1b permanent: before
  * it, four browser tests incidentally pinned capitalisation - wrongly, as Title Case - and
  * cca97b8e made them case-blind, leaving the standard unenforced.

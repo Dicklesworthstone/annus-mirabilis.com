@@ -41,6 +41,64 @@ export const VOICE_LINT_CHECK_ID = "editorial.voice";
  */
 export const QUOTED_FIELDS = new Set(["temptingClaims"]);
 
+/**
+ * A SCENARIO'S AUTHORING PROSE IS NOT VISITOR-FACING, AND THE GATE WAS HOLDING IT TO THE HOUSE
+ * VOICE ANYWAY (am-3gon).
+ *
+ * This is the third scope correction this file has needed, and it is the same shape as the first
+ * two: the rules were right and the population was not. 13 of voice-lint's 17 errors were in
+ * `content/scenarios`, and the one that makes the case is `status-enum-leak` firing on
+ * `intendedFailure`. That field exists to say what an adversarial fixture must refuse WITH, so the
+ * sentence "a run returning any entropy change fails here, and so does one refusing for a different
+ * reason" has to name `outside-domain` to mean anything. Rewording it would delete the statement,
+ * which is the condition the docblock below already names: a gate that can only be made green by
+ * corrupting the content it guards is wrong about its own scope.
+ *
+ * MEASURED BEFORE EXEMPTING ANYTHING, against an `out/` freshly built at 095e8fe5:
+ *
+ *   description        214 phrases sampled    0 found in out/
+ *   intendedFailure    100                    0
+ *   plausibleMistake   100                    0
+ *   tolerance.rationale 467                   0
+ *   title              199                    1   <- ships, so NOT exempt
+ *
+ * The `title` row is why this is a field list rather than a record exemption. One scenario title
+ * reaches a reader (bm-07-inversion-golden), so a scenario is not wholesale invisible and its title
+ * stays linted; the `theater` error on sr-05-inertial-0.6c's title survives this change, as it
+ * should.
+ *
+ * KEYED ON THE RECORD'S OWN DECLARED KIND, never on a directory. A path exclusion for
+ * content/scenarios would stop asking the question, and would go wrong the day a scenario carries
+ * genuinely reader-facing prose or the directory is renamed. `intendedFailure` and
+ * `plausibleMistake` were measured to exist in no record outside content/scenarios, so the kinds
+ * below are the whole population that can reach this.
+ */
+const SCENARIO_KINDS = new Set(["adversarial", "modern-golden", "historical-fixture", "identity"]);
+
+/** Fields of a scenario that address an author or reviewer, never a visitor. */
+const SCENARIO_AUTHORING_FIELDS = new Set([
+  "description",
+  "intendedFailure",
+  "plausibleMistake",
+  "rationale",
+]);
+
+/**
+ * Whether this field of this record is a scenario's authoring prose. `rationale` is nested under
+ * `expected.outputs[n].tolerance`, so the field NAME is matched rather than the path: a tolerance
+ * rationale is an author's justification wherever it sits.
+ */
+export function isScenarioAuthoringField(
+  recordKind: string | undefined,
+  fieldName: string,
+): boolean {
+  return (
+    recordKind !== undefined &&
+    SCENARIO_KINDS.has(recordKind) &&
+    SCENARIO_AUTHORING_FIELDS.has(fieldName)
+  );
+}
+
 export const EXCLUDED_FIELDS = new Set([
   "id",
   "kind",
@@ -216,6 +274,11 @@ function scanRecordText(
           : source;
 
     for (const [key, val] of Object.entries(obj)) {
+      // Same scope as the lint script, from the same predicate, so the two readers of this module
+      // cannot disagree about what a visitor sees.
+      if (typeof obj.kind === "string" && isScenarioAuthoringField(obj.kind, key)) {
+        continue;
+      }
       if (EXCLUDED_FIELDS.has(key)) {
         continue;
       }
