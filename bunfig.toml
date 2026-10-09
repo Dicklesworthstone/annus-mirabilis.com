@@ -23,6 +23,10 @@ pathIgnorePatterns = [
   # check the release origin guard against REAL git. Same reason as the entry above: this file is
   # nothing but git, and bun's runner cannot reliably spawn it here.
   "scripts/releaseOriginGuard.node.test.ts",
+  # am-rc1001-bridge-plan-pcjk.46: installs the proposed reference-transaction hook into a
+  # throwaway repository and drives the four cases the bead names. Same reason again: it is nothing
+  # but git, and it must never touch this checkout's own .git/hooks.
+  "scripts/git-hooks/referenceTransaction.node.test.ts",
   # am-rc1001-bridge-plan-pcjk.9: bun CAN run this one. It is here for the other reason the two
   # entries above are, lane independence: the gate census judges every registry step, and
   # `bun run test` is itself one of them, so a proof living only in the bun lane disappears at the

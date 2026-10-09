@@ -1,0 +1,108 @@
+#!/bin/sh
+# MAIN ONLY MOVES FORWARD (am-rc1001-bridge-plan-pcjk.46). A PROPOSAL, NOT INSTALLED.
+#
+# Install, if the owner approves, with:
+#     ln -s ../../scripts/git-hooks/reference-transaction .git/hooks/reference-transaction
+# and remove it by deleting that symlink. Nothing else in the repository reads this file, so an
+# unapproved copy sitting here has no effect at all.
+#
+# WHY A HOOK AND NOT MORE LOG SEARCHING. refs/heads/main has been moved backwards three times --
+# 2026-09-29 (18 commits), 2026-10-05 (5) and 2026-10-08 (2) -- and four independent log sources
+# hold no trace of the command: no in-repo script, no git alias, no installed hook, zero hits in
+# 12,863 lines of shell history, and zero EXECUTED occurrences among 723,303 agent-transcript
+# records (11,297 records mention the string, which is why that distinction had to be made). A
+# reference-transaction hook is the only instrument that observes the update itself.
+#
+# WHAT IT REFUSES: exactly one thing, an update to refs/heads/main whose old object is not an
+# ancestor of the new one, outside a rebase. A fast-forward, a commit and a merge all pass, because
+# in each the old object IS an ancestor.
+#
+# WHY A REBASE IS PERMITTED. AGENTS.md's "Landing the Plane" runs `git pull --rebase`, which with
+# unpushed local commits moves main back to the upstream and replays on top. That transaction is
+# non-fast-forward and loses nothing, so refusing it would break the documented workflow. git marks
+# a rebase with $GIT_DIR/rebase-merge or rebase-apply, and that is the signal used here.
+#
+# IT FAILS OPEN, AND THAT IS A DELIBERATE TRADE THE OWNER SHOULD WEIGH. Anything this script cannot
+# determine -- git missing, GIT_DIR unset, a malformed line -- is PERMITTED and logged. A hook that
+# fails closed on an unforeseen input would stop every pane committing, in a checkout several agents
+# share, to guard against something that has happened three times in three weeks. A fail-open guard
+# cannot promise prevention; it promises that the one shape it understands is refused and that every
+# verdict is recorded. If you want fail-closed instead, say so and it is a two-line change.
+#
+# The log is append-only and lives under the git directory, so it is never committed and never
+# interferes with a working tree.
+
+state="$1"
+[ "$state" = "prepared" ] || exit 0
+
+git_dir=$(git rev-parse --git-dir 2>/dev/null) || exit 0
+[ -n "$git_dir" ] || exit 0
+log="$git_dir/ref-transaction-log"
+zero="0000000000000000000000000000000000000000"
+
+# The ancestry of the process that asked for this, which is the whole point of logging: the actor
+# has left no trace in any searchable log, so the only place to catch it is here. `ps` is read-only.
+ancestry=""
+pid=$$
+i=0
+while [ "$i" -lt 4 ] && [ -n "$pid" ] && [ "$pid" != "1" ] && [ "$pid" != "0" ]; do
+  cmd=$(ps -o command= -p "$pid" 2>/dev/null | tr '\n' ' ' | cut -c1-160)
+  [ -n "$cmd" ] || break
+  ancestry="${ancestry}[$pid] $cmd | "
+  pid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d ' ')
+  i=$((i + 1))
+done
+
+refused=0
+while read -r old new ref; do
+  [ "$ref" = "refs/heads/main" ] || continue
+
+  # THE REPORTED OLD VALUE IS NOT TRUSTWORTHY, AND THAT IS THE WHOLE DIFFICULTY.
+  #
+  # `git checkout -B main <older>` presents the transaction as a CREATE: the reported old value is
+  # all zeros, so an ancestry check on it -- which is what this bead's text specifies -- permits
+  # the one operation the bead was opened about. Measured with a probe hook:
+  #
+  #     state=prepared ref=refs/heads/main reported_old=0000000 new=624cc47 RESOLVED_NOW=0b43b95
+  #
+  # In the `prepared` state the ref has NOT been updated yet, so resolving it gives the true
+  # pre-transaction value (0b43b95 above, the commit about to be discarded). So the effective old
+  # value is whatever the ref resolves to now, and the reported zeros mean "absent" only when the
+  # ref really does not resolve.
+  effective_old="$old"
+  if [ "$old" = "$zero" ]; then
+    resolved=$(git rev-parse --verify --quiet "$ref" 2>/dev/null)
+    [ -n "$resolved" ] && effective_old="$resolved"
+  fi
+
+  verdict=""
+  if [ "$effective_old" = "$zero" ]; then
+    verdict="permit:create"
+  elif [ "$new" = "$zero" ]; then
+    # Deleting main is not a thing any documented workflow does, but it is also not the failure
+    # this bead is about, and refusing it would make `git worktree` and clone surgery fail in ways
+    # nobody would connect to this hook. Logged loudly, permitted.
+    verdict="permit:delete-LOGGED"
+  elif [ -d "$git_dir/rebase-merge" ] || [ -d "$git_dir/rebase-apply" ]; then
+    verdict="permit:rebase-in-progress"
+  elif git merge-base --is-ancestor "$effective_old" "$new" 2>/dev/null; then
+    verdict="permit:fast-forward"
+  else
+    dropped=$(git rev-list --count "$new..$effective_old" 2>/dev/null || echo "?")
+    verdict="REFUSE:non-fast-forward:${dropped}-commits-would-leave-the-branch"
+    refused=1
+  fi
+
+  printf '%s\tpid=%s\t%s\t%s\t%s -> %s\t%s\n' \
+    "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$$" "$verdict" "$ref" "$effective_old" "$new" "$ancestry" >>"$log" 2>/dev/null
+
+  if [ "$refused" = "1" ]; then
+    printf 'refs/heads/main may only move forward: %s is not an ancestor of %s, so %s commit(s) would leave the branch.\n' \
+      "$effective_old" "$new" "$dropped" >&2
+    printf 'Refused by scripts/git-hooks/reference-transaction (am-rc1001-bridge-plan-pcjk.46). The attempt is logged in %s.\n' \
+      "$log" >&2
+    printf 'If this was a rebase, it is permitted while one is in progress; if you meant to discard commits, do it on a branch that is not main.\n' >&2
+  fi
+done
+
+exit "$refused"
