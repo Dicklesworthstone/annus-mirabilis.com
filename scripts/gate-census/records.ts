@@ -95,6 +95,30 @@ const minimumPlant = (
 
 export const CENSUS_RECORDS: readonly CensusRecord[] = [
   {
+    gate: "browser-acceptance",
+    noun: "runtime conformance assertions",
+    howRead:
+      "Counted INSIDE the assertion loop, so the number is what executed rather than what the " +
+      "array declares, against a minimum of the declared length. The gate previously printed " +
+      "PASS/FAIL per assertion and a log path with no total, so a run that executed fewer than it " +
+      "declares looked identical to a complete one and every surviving assertion still said PASS.",
+    gateRefusesVacuous: true,
+    plants: [
+      {
+        id: "browser-acceptance-declares-more-than-it-runs",
+        file: "scripts/e2e/runtime-conformance/run.ts",
+        find: "    declared = assertions.length;",
+        replace: "    declared = assertions.length + 1;",
+        expectFailureNaming: "RUNTIME_CONFORMANCE_POPULATION_BELOW_FLOOR",
+        why:
+          "Simulates the real defect: an assertion that stops being constructed, or a loop that " +
+          "breaks early, while the per-assertion PASS lines all still print. Raising the declared " +
+          "count by one is the smallest edit that makes what RAN disagree with what is DECLARED, " +
+          "which is the only condition this line exists to detect.",
+      },
+    ],
+  },
+  {
     gate: "coverage-report",
     noun: "input files",
     howRead:

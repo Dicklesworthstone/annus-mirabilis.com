@@ -7,6 +7,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { type Browser, chromium, type Page } from "playwright";
 import { getLogger, newRunIdentity } from "../../../src/testing/log/logger.ts";
+import { reportPopulation } from "../../gate-census/population.ts";
 import { bundleFixtureApp } from "../fixtures/bundleFixtures.ts";
 import { FIXTURE_APP_REGISTRY } from "../fixtures/fixtureApps.ts";
 import { type RunningFixtureServer, startFixtureServer } from "../fixtures/fixtureServer.ts";
@@ -58,6 +59,14 @@ export async function runRuntimeConformance(
   });
   let browser: Browser | null = null;
   let failed = 0;
+  /** How many assertions actually executed, which is this gate's population. */
+  let ran = 0;
+  /**
+   * How many it declares. Hoisted out of the `try` because the census line is printed after the
+   * `finally`, where the assertion array itself is out of scope -- tsc caught that, and the fix is
+   * to carry the number rather than to move the reporting inside the block that can throw.
+   */
+  let declared = 0;
   try {
     browser = await chromium.launch({ headless: options.headed !== true });
     const page = await browser.newPage();
@@ -232,7 +241,9 @@ export async function runRuntimeConformance(
       },
     ];
 
+    declared = assertions.length;
     for (const assertion of assertions) {
+      ran += 1;
       const started = performance.now();
       const result = await assertion.run(page);
       const outcome = result.ok ? "passed" : "failed";
@@ -263,6 +274,34 @@ export async function runRuntimeConformance(
     if (browser) await browser.close();
     await server.close();
     logger.flushSync();
+  }
+  /*
+    THE POPULATION, IN THE CENSUS'S ONE GRAMMAR (am-rc1001-bridge-plan-pcjk.9).
+
+    This gate reported only PASS/FAIL per assertion and a log path, with no total, so a run that
+    executed FEWER assertions than it declares looked identical to a complete one: nothing printed
+    the denominator. An assertion list that lost an entry -- a filter, an early `break`, a
+    conditional that stopped constructing one -- would have gone unnoticed, and every surviving
+    assertion would still have reported PASS.
+
+    `ran` is incremented inside the loop rather than read from `assertions.length`, so the number is
+    what EXECUTED and not what was declared; the minimum is `assertions.length`, so the two
+    disagreeing is exactly the condition that prints VACUOUS. A `break` on failure would show up
+    here as well, which is worth knowing when reading a failing run.
+  */
+  const censusVacuous = reportPopulation({
+    gate: "browser-acceptance",
+    examined: ran,
+    noun: "runtime conformance assertions",
+    minimum: declared,
+  });
+  if (censusVacuous) {
+    console.error(
+      `RUNTIME_CONFORMANCE_POPULATION_BELOW_FLOOR: ${ran} of ${declared} declared ` +
+        "assertions executed, so a clean result would be a statement about a population this run " +
+        "does not have.",
+    );
+    return { ok: false, logPath: logger.filePath };
   }
   return { ok: failed === 0, logPath: logger.filePath };
 }
