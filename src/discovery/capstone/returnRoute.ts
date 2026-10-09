@@ -38,6 +38,10 @@ export function withCapstoneReturn(href: string, paper: string): string {
     href.length > MAX_URL_LENGTH ||
     !href.startsWith("/") ||
     href.startsWith("//") ||
+    // Same refusal as experimentLaunch.ts and for the same reason: the control-character range
+    // is the check. This one guards a href whose query bytes are preserved verbatim, so a
+    // smuggled newline would otherwise travel into a URL the reader is handed.
+    // biome-ignore lint/suspicious/noControlCharactersInRegex: the range is the refusal; removing it deletes the check
     /[\\\u0000-\u0020\u007f]/u.test(href)
   )
     return href;

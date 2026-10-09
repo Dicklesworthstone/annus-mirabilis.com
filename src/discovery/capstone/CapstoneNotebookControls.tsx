@@ -24,6 +24,11 @@ export function CapstoneNotebookControls(
   const latest = useRef(props);
   latest.current = props;
   const capstoneId = props.capstone.id;
+  // `capstoneId` is a deliberate RE-RUN TRIGGER, not a value this effect reads: the body
+  // reaches props through `latest.current` so it does not re-mount on every prop change,
+  // which is exactly why biome cannot see what the dependency is for. Taking its advice
+  // would leave the previous capstone's controls mounted when a reader switches worksheet.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: capstoneId re-mounts the controls when the capstone changes; the body reads props via latest.current
   useEffect(() => {
     if (!open || !host.current) return;
     const container = host.current;

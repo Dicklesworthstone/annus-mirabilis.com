@@ -34,6 +34,11 @@ export function isExperimentLaunchHref(href: string, instrumentId: string): bool
   if (href !== base && !href.startsWith(`${base}?`)) return false;
   // Generated links have no fragments, backslashes or control characters. Do not normalize a
   // suspicious path into a seemingly valid one, and do not accept a second URL after a newline.
+  // The control-character range IS the check, not an accident in it: an untrusted href that
+  // carries a NUL, a newline or a DEL is refused rather than normalised into something that
+  // looks valid. Removing the class to satisfy the rule would delete the check, which is the
+  // reasoning already recorded at src/search/searchLocation.ts for this same rule.
+  // biome-ignore lint/suspicious/noControlCharactersInRegex: the range is the refusal; removing it deletes the check
   return !/[\\#\u0000-\u0020\u007f]/u.test(href);
 }
 

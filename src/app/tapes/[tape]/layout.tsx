@@ -33,6 +33,7 @@ export default async function WalkthroughLayout({
           </p>
           <ol>
             {walkthrough.stops.map((stop, index) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: a server-rendered list that never reorders; the index only disambiguates stops sharing an actionIndex
               <li key={`${stop.actionIndex}-${index}`}>
                 <p>
                   <strong>{stop.label}</strong>

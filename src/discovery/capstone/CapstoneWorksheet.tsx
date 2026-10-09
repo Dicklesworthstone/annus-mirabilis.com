@@ -317,6 +317,7 @@ export function CapstoneWorksheet({
             {notice}
           </p>
           {pending && (
+            // biome-ignore lint/a11y/useSemanticElements: a labelled group of buttons is role=group; fieldset is for form controls and names itself with legend
             <div className="capstone-controls" role="group" aria-label="Confirm worksheet import">
               <p>
                 Replace this tab's worksheet with the imported file? Export your current work first
@@ -339,6 +340,7 @@ export function CapstoneWorksheet({
             </div>
           )}
           {loadingSaved && (
+            // biome-ignore lint/a11y/useSemanticElements: a labelled group of buttons is role=group; fieldset is for form controls and names itself with legend
             <div
               className="capstone-controls"
               role="group"
@@ -366,6 +368,7 @@ export function CapstoneWorksheet({
             </div>
           )}
           {clearing && (
+            // biome-ignore lint/a11y/useSemanticElements: a labelled group of buttons is role=group; fieldset is for form controls and names itself with legend
             <div
               className="capstone-controls"
               role="group"

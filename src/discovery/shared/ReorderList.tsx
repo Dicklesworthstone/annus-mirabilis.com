@@ -21,6 +21,11 @@ export function ReorderList({
   const [announcement, setAnnouncement] = useState("");
   const byId = new Map(items.map((item) => [item.id, item]));
 
+  // `order` is a deliberate RE-RUN TRIGGER. The body reads `pendingFocus.current`, a ref, so
+  // biome sees no reactive read; the dependency is what restores focus to the button a reader
+  // just pressed. Removing it loses focus after every reorder, which is the accessibility
+  // behaviour this component exists for.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: order restores focus after a move; the body reads a ref, so the dependency is the trigger
   useLayoutEffect(() => {
     const element = pendingFocus.current;
     pendingFocus.current = null;

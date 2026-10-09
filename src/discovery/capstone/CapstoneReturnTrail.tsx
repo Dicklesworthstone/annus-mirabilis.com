@@ -36,6 +36,10 @@ export function CapstoneReturnTrail() {
     };
   }, []);
 
+  // `pathname` is a deliberate RE-RUN TRIGGER. The body queries `document` for <main>, which
+  // is not reactive, so without it the return links stay bound to the first route's element
+  // and a reader who navigates finds them pointing at a node that is no longer there.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: pathname re-mounts the links on navigation; the body queries a non-reactive document
   useEffect(() => {
     const main = document.querySelector<HTMLElement>("main");
     if (!paper || !main) return;

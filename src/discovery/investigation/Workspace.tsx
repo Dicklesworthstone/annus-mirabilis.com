@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { InvestigationTask } from "./core.ts";
 import { useDiscoveryInvestigation } from "./context.tsx";
+import type { InvestigationTask } from "./core.ts";
 import "./investigation.css";
 
 /** Load the optional workspace only when requested; the authored task stays readable without it. */
@@ -12,6 +12,10 @@ export function InvestigationWorkspace({ task }: { task: InvestigationTask }) {
   const [requested, setRequested] = useState(false);
   const [failed, setFailed] = useState(false);
   const [retry, setRetry] = useState(0);
+  // `retry` is a deliberate RE-RUN TRIGGER and is never read here, which is precisely why
+  // biome calls it unnecessary. The "try again" button below increments it to re-attempt the
+  // dynamic import after a failure; remove the dependency and that button does nothing.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: retry re-attempts the import when the reader presses try again; it is a trigger, not a value
   useEffect(() => {
     if (!requested || !store || store.spec.promptId !== task.promptId) return;
     let live = true;
