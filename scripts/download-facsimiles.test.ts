@@ -831,11 +831,49 @@ describe("14. Static guard against local OCR and text extraction APIs", () => {
     expect(scan(revertedComment)).toEqual([]);
     expect(scan(revertedString)).toEqual([]);
 
-    // And the gate still refuses an invocation, in both the positional and the array form.
-    expect(scan('    execFileSync("pdftotext", [pdf, "-"]);\n').length).toBeGreaterThan(0);
-    expect(scan('    Bun.spawnSync(["tesseract", page, "out"]);\n').length).toBeGreaterThan(0);
-    // A bare mention in a string is allowed; naming a tool is not running it.
-    expect(scan('    const note = "we never run tesseract here";\n')).toEqual([]);
+    // AND THE GATE STILL REFUSES A REAL INVOCATION -- read from the guard's own fixtures rather
+    // than written here as literals. Writing them inline is what the first version of this test
+    // did, and it broke the repo-wide guard: `bun scripts/ocr-guard.ts` scans every tracked source
+    // file, found the two launcher calls in THIS file, and failed with two undeclared violations.
+    // The strings were test data and the scanner read them as code, which is the hazard AGENTS.md
+    // states as "a gate that forbids a construct must read code, not text" -- here pointed at the
+    // gate's own positive control.
+    //
+    // THE SECOND ATTEMPT FAILED THE SAME WAY, one layer up: the comment you are reading QUOTED
+    // those two calls while explaining them, and the guard refused line 837 for the quotation. It
+    // does not strip comments, and making it do so is a change belonging to its owner. So the
+    // calls are named here in prose only -- a denylisted binary invoked through a child-process
+    // launcher, in the positional form and in the array form -- and the text of each lives solely
+    // in the exempt fixture. AGENTS.md predicts exactly this: "the better the comment, the likelier
+    // the misfire."
+    //
+    // The repository already solved this: src/testing/fixtures/ocr-guard/ holds the invocations as
+    // real files, and ocrGuard.ts:315 skips that directory during the repo-wide walk. Reading them
+    // is strictly better than a literal, because the fixture is the same text ocr-guard.test.ts
+    // asserts against, so the two tests cannot drift. The alternative -- adding this file to the
+    // skip list -- would have stopped scanning a real pipeline file to keep its test quiet.
+    const fixture = (name: string) =>
+      fs.readFileSync(path.join(REPO_ROOT, "src/testing/fixtures/ocr-guard", name), "utf8");
+    const pdftotextCall = fixture("pdftotext-call.ts");
+    const tesseractSpawn = fixture("spawn-tesseract.ts");
+    // Print what landed before reading the verdict: a fixture that had been emptied or renamed
+    // would scan clean and the two assertions below would pass while proving nothing.
+    expect(pdftotextCall).toContain("pdftotext");
+    expect(tesseractSpawn).toContain("tesseract");
+    expect(scan(pdftotextCall).map((v) => v.pattern)).toContain("pdftotext");
+    expect(scan(tesseractSpawn).map((v) => v.pattern)).toContain("tesseract");
+
+    // AND THE ALLOWED NEIGHBOUR IS NOT REFUSED. pdftoppm renders page images and is not a denylist
+    // entry, so the same scanner over the same shape of call must stay silent -- without this the
+    // two assertions above would also pass for a scanner that refused every spawn.
+    const pdftoppmCall = fixture("allowed-pdftoppm.ts");
+    expect(pdftoppmCall).toContain("pdftoppm");
+    expect(scan(pdftoppmCall)).toEqual([]);
+
+    // A bare mention in a string is allowed; naming a tool is not running it. Composed from parts
+    // so this line is not itself a mention the repo-wide walk has to reason about.
+    const banned = ["tess", "eract"].join("");
+    expect(scan(`    const note = "we never run ${banned} here";\n`)).toEqual([]);
   });
 
   test("scripts/download-facsimiles.ts never imports or invokes child_process or subprocess execution", () => {
