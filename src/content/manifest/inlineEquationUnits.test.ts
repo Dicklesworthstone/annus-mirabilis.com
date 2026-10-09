@@ -186,6 +186,7 @@ function manifestUnits(paper: string): readonly Readonly<{
   kind: string;
   locators: readonly ManifestLocator[];
   section?: string;
+  obligations?: readonly string[] | undefined;
 }>[] {
   const path = join(ROOT, "content", "source-blocks", paper, "manifest.yaml");
   const parsed = parseYaml(readFileSync(path, "utf8")) as {
@@ -194,9 +195,13 @@ function manifestUnits(paper: string): readonly Readonly<{
       kind: string;
       locators: readonly ManifestLocator[];
       section?: string;
+      destination?: { argumentObligations?: readonly string[] };
     }>[];
   };
-  return parsed.units ?? [];
+  return (parsed.units ?? []).map((u) => ({
+    ...u,
+    obligations: u.destination?.argumentObligations,
+  }));
 }
 
 describe("the corpus: every region is placed, and every manifest matches its derivation", () => {
@@ -230,7 +235,10 @@ describe("the corpus: every region is placed, and every manifest matches its der
     for (const paper of PAPERS) {
       const units = manifestUnits(paper);
       const containers = new Map(
-        units.map((u) => [u.id, { locators: u.locators, section: u.section }]),
+        units.map((u) => [
+          u.id,
+          { locators: u.locators, section: u.section, argumentObligations: u.obligations },
+        ]),
       );
       const derived = inlineEquationUnits(sourceBlocks(paper), containers);
       const recorded = units.filter((u) => u.kind === "inline-equation").map((u) => u.id);

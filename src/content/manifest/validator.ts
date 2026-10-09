@@ -289,10 +289,17 @@ export function validateManifest(
         const isParentValid =
           unit.kind === "sentence"
             ? parent.kind === "paragraph"
-            : parent.kind === "paragraph" ||
-              parent.kind === "footnote" ||
-              parent.kind === "heading" ||
-              parent.kind === "section-heading";
+            : // An inline equation is printed INSIDE the alignable unit its id derives from, which
+              // the grammar fixes as a sentence (`s<n>-p<m>-s<k>-m<i>`) or a footnote
+              // (`s<n>-fn<k>-m<i>`). A paragraph is deliberately not accepted: a region placed on a
+              // paragraph would have no sentence to take its index from, and the index is what makes
+              // the id stable, so accepting one would freeze an id nothing could reproduce.
+              unit.kind === "inline-equation"
+              ? parent.kind === "sentence" || parent.kind === "footnote"
+              : parent.kind === "paragraph" ||
+                parent.kind === "footnote" ||
+                parent.kind === "heading" ||
+                parent.kind === "section-heading";
         if (!isParentValid) {
           addDiag(
             "error",

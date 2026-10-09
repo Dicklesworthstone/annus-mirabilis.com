@@ -111,16 +111,32 @@ export function deriveUnitCoverage(root: string, manifest: SourceManifest): Unit
   const glossed = (id: string): boolean => existsSync(join(glossDir, `${id}.yaml`));
 
   return manifest.units.map((unit) => {
-    const block = blockOf.get(unit.id);
+    // AN INLINE EQUATION IS JUDGED ON THE UNIT THAT PRINTS IT.
+    //
+    // Its id (`s<n>-p<m>-s<k>-m<i>`) is neither a block id nor a sentence-span id, so resolving it
+    // directly reports `not-transcribed` for a formula that is demonstrably transcribed -- the
+    // derivation in inlineEquationUnits.ts reads it out of that block's own `inlines`. It has no
+    // separate translation either, and that is by design rather than by omission: AGENTS.md's
+    // "Notation is not translated. Keep every symbol as printed on both faces" means the formula
+    // travels with its sentence and no translation unit will ever be keyed to it. So the anchor is
+    // the containing unit, and a sentence not yet translated carries its formulas with it.
+    const anchorId = unit.kind === "inline-equation" ? (unit.containedIn ?? unit.id) : unit.id;
+    const block = blockOf.get(anchorId);
     const spans = block === undefined ? [] : [...(blocks.get(block)?.ids ?? [])];
     // A block's own sentences, or the unit alone when it is a sentence or a one-sentence block.
-    const sentences = unit.kind === "sentence" ? [unit.id] : spans.filter((s) => s !== block);
+    const sentences =
+      unit.kind === "sentence" || (unit.kind === "inline-equation" && anchorId !== block)
+        ? [anchorId]
+        : spans.filter((s) => s !== block);
     const unitGlossed =
       sentences.length > 0 ? sentences.every(glossed) : block !== undefined && glossed(block);
     const base = { id: unit.id, kind: unit.kind, glossed: unitGlossed };
     if (block === undefined) return { ...base, status: "not-transcribed" as const };
-    const isTranslated =
-      translated.has(unit.id) || (unit.kind !== "sentence" && translated.has(block));
+    // An anchor that is not the block itself is a sentence, and a sentence must be translated in
+    // its own right: falling back to the block would credit an untranslated sentence. A footnote's
+    // formulas anchor on the footnote, which IS a block, so they take the block-level edge.
+    const anchorIsSentence = unit.kind === "sentence" || anchorId !== block;
+    const isTranslated = translated.has(anchorId) || (!anchorIsSentence && translated.has(block));
     if (!isTranslated) return { ...base, status: "not-translated" as const };
     if (!EXPLAINED_KINDS.has(unit.kind)) return { ...base, status: "covered" as const };
     // A sentence is explained through the paragraph that holds it.

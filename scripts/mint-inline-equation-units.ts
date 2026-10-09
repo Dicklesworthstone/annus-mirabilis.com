@@ -95,6 +95,10 @@ function renderUnit(unit: ManifestUnit): string {
       lines.push("      translationUnits:");
       for (const entry of destination.translationUnits) lines.push(`        - ${entry}`);
     }
+    if (destination.argumentObligations !== undefined) {
+      lines.push("      argumentObligations:");
+      for (const entry of destination.argumentObligations) lines.push(`        - ${entry}`);
+    }
   }
   return lines.join("\n");
 }
@@ -131,7 +135,14 @@ function main(): number {
   const containers = new Map(
     units.map((u) => [
       u.id,
-      { locators: u.locators as readonly ManifestLocator[], section: u.section },
+      {
+        locators: u.locators as readonly ManifestLocator[],
+        section: u.section,
+        argumentObligations:
+          typeof u.destination === "object" && u.destination !== null
+            ? u.destination.argumentObligations
+            : undefined,
+      },
     ]),
   );
   const derived = inlineEquationUnits(blocks, containers);

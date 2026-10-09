@@ -228,7 +228,11 @@ export function inlineEquationUnits(
   sources: readonly InlineUnitSource[],
   containingUnits: ReadonlyMap<
     string,
-    Readonly<{ locators: readonly ManifestLocator[]; section?: string | undefined }>
+    Readonly<{
+      locators: readonly ManifestLocator[];
+      section?: string | undefined;
+      argumentObligations?: readonly string[] | undefined;
+    }>
   >,
 ): readonly ManifestUnit[] {
   const units: ManifestUnit[] = [];
@@ -246,6 +250,12 @@ export function inlineEquationUnits(
         destination: {
           editionBlockId: `de-${source.paper}-${source.blockId}`,
           translationUnits: ["planned"],
+          // Inherited from the unit that prints the formula, never invented here. The passage
+          // obliged to explain a sentence is obliged to explain the formula inside it, so a
+          // separate obligation would either duplicate that one or quietly contradict it.
+          ...(container.argumentObligations === undefined
+            ? {}
+            : { argumentObligations: container.argumentObligations }),
         },
       });
     }
