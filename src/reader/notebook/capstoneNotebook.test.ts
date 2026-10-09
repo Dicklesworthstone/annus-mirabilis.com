@@ -3,10 +3,10 @@ import { test } from "node:test";
 import type { Capstone } from "../../discovery/capstone/capstoneSchema.ts";
 import { saveCapstoneSnapshot } from "../../discovery/capstone/notebookControls.ts";
 import { emptyWorksheet, readWorksheet } from "../../discovery/capstone/worksheetState.ts";
-import { captureCapstone, CapstoneCaptureError } from "./capstoneEntry.ts";
+import { CapstoneCaptureError, captureCapstone } from "./capstoneEntry.ts";
 import { exportNotebookHtml, exportNotebookJson } from "./export.ts";
 import { mergeNotebook } from "./import.ts";
-import type { NotebookStore, NotebookState } from "./notebookStore.ts";
+import type { NotebookState, NotebookStore } from "./notebookStore.ts";
 import { emptyNotebook, parseNotebookDocument, parseNotebookEntry } from "./schema.ts";
 
 const capstone: Capstone = {

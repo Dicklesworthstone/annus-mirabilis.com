@@ -5,11 +5,11 @@ import type { WorldCheck as WorldCheckType } from "../../content/schemas/journey
 import { EINSTEIN_TRACER_INPUTS } from "../../discovery/brownian/journeyII.ts";
 import { KnowledgeCardView } from "../../discovery/cards/KnowledgeCard.tsx";
 import type { KnowledgeCard } from "../../discovery/cards/types.ts";
-import { WorldCheck } from "../../discovery/WorldCheck.tsx";
 import {
   InvestigationLabLink,
   useInvestigationWitness,
 } from "../../discovery/investigation/context.tsx";
+import { WorldCheck } from "../../discovery/WorldCheck.tsx";
 import { createBm01BrowserChannel } from "../../experiments/bm01/browser.ts";
 import type { Bm01Parameters } from "../../experiments/bm01/definition.ts";
 import { createBm01Session, type PreparedBm01Example } from "../../experiments/bm01/session.ts";

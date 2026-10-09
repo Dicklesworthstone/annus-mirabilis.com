@@ -4,11 +4,11 @@ import { useId, useState, useSyncExternalStore } from "react";
 import type { WorldCheck as WorldCheckType } from "../../content/schemas/journey.ts";
 import { KnowledgeCardView } from "../../discovery/cards/KnowledgeCard.tsx";
 import type { KnowledgeCard } from "../../discovery/cards/types.ts";
-import { WorldCheck } from "../../discovery/WorldCheck.tsx";
 import {
   InvestigationLabLink,
   useInvestigationWitness,
 } from "../../discovery/investigation/context.tsx";
+import { WorldCheck } from "../../discovery/WorldCheck.tsx";
 import type { Me03Parameters } from "../../experiments/me03/definition.ts";
 import { createMe03Session, type PreparedMe03Example } from "../../experiments/me03/session.ts";
 import type { AcceptedSnapshot, PublishedResult } from "../../experiments/store/instanceStore.ts";

@@ -4,11 +4,11 @@ import { useId, useState, useSyncExternalStore } from "react";
 import type { WorldCheck as WorldCheckType } from "../../content/schemas/journey.ts";
 import { KnowledgeCardView } from "../../discovery/cards/KnowledgeCard.tsx";
 import type { KnowledgeCard } from "../../discovery/cards/types.ts";
-import { WorldCheck } from "../../discovery/WorldCheck.tsx";
 import {
   InvestigationLabLink,
   useInvestigationWitness,
 } from "../../discovery/investigation/context.tsx";
+import { WorldCheck } from "../../discovery/WorldCheck.tsx";
 import type { Lq08Parameters } from "../../experiments/lq08/definition.ts";
 import { createLq08Session, type PreparedLq08Example } from "../../experiments/lq08/session.ts";
 import type { PublishedResult } from "../../experiments/store/instanceStore.ts";

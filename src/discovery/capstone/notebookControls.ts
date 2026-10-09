@@ -1,8 +1,8 @@
 import {
-  type CaptureEquation,
   type CapstoneRestoreReview,
-  captureCapstone,
+  type CaptureEquation,
   capstoneCaptureText,
+  captureCapstone,
   confirmCapstoneRestore,
   reviewCapstoneRestore,
 } from "../../reader/notebook/capstoneEntry.ts";

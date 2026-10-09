@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
-import { after, before, test } from "node:test";
 import { readFile } from "node:fs/promises";
+import { after, before, test } from "node:test";
 import { chromium } from "playwright";
 import ts from "typescript";
 

@@ -7,8 +7,8 @@ import {
   markAssumption,
   moveClaim,
   readWorksheet,
-  worksheetMatches,
   WORKSHEET_LIMITS,
+  worksheetMatches,
 } from "./worksheetState.ts";
 
 const capstone = {

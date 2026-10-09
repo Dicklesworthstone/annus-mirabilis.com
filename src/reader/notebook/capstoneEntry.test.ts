@@ -5,9 +5,9 @@ import { emptyWorksheet } from "../../discovery/capstone/worksheetState.ts";
 import {
   CAPSTONE_PAPERS,
   CapstoneCaptureError,
-  captureCapstone,
   capstoneCaptureHref,
   capstoneCaptureText,
+  captureCapstone,
   confirmCapstoneRestore,
   parseCapstoneCapture,
   readCapstoneCapture,

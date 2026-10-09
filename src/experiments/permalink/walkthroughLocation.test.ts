@@ -1,13 +1,13 @@
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
+import { buildCheckpointLaunches } from "./checkpointLaunches.ts";
+import type { WalkthroughCatalogue } from "./walkthroughCheckpoints.ts";
 import {
   readWalkthroughLocation,
   resolveWalkthroughLocation,
-  withWalkthroughSelection,
   WALKTHROUGH_URL_LIMIT,
+  withWalkthroughSelection,
 } from "./walkthroughLocation.ts";
-import { buildCheckpointLaunches } from "./checkpointLaunches.ts";
-import type { WalkthroughCatalogue } from "./walkthroughCheckpoints.ts";
 
 const catalogue: WalkthroughCatalogue = {
   walkthroughs: [
