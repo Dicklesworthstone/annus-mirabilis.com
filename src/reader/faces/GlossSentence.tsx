@@ -170,7 +170,10 @@ export function GlossSentence({
   const fullGerman = printed
     ? stream.clusters
         .map((c) => {
-          const said = (a: GlossAtom) => (a.kind === "math" ? speakMath(a.node.latex) : a.text);
+          // The authored form for this occurrence, where the record carries one, else the
+          // reading generated from the formula's MathML. Same precedence as speakInlines.
+          const said = (a: GlossAtom) =>
+            a.kind === "math" ? (a.node.spoken ?? speakMath(a.node.latex)) : a.text;
           return c.kind === "word"
             ? `${c.leading.map(said).join("")}${glossUnit.tokens[c.tokenIndex]?.german ?? ""}${c.trailing.map(said).join("")}`
             : c.atoms.map(said).join("");

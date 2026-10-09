@@ -29,6 +29,20 @@ export type MathInline = Readonly<{
   display?: boolean | undefined;
   equationId?: string | undefined;
   inlineId?: string | undefined;
+  /**
+   * The words a screen reader should say for THIS occurrence, overriding the reading generated
+   * from the formula's own MathML (src/reader/faces/mathSpeech.ts). It exists because a generated
+   * reading is right for nearly all of the corpus and cannot be right for all of it: a census of
+   * the 231 distinct inline expressions found 26 that the lexicon had no word for, and while those
+   * were repaired in the lexicon, nothing before this field could correct the 27th.
+   *
+   * It is PRINTED notation, like everything on the source and translation faces. A form that says
+   * "gamma" where the paper prints the radical, or "c" where it prints V, translates the notation,
+   * which this edition does not do -- that is why the equation records' modern spoken forms are
+   * not used here. Never set on a display math inline: that formula's authored form belongs to its
+   * equation record in content/display-terms, and a second one here would be a rival source.
+   */
+  spoken?: string | undefined;
 }>;
 
 export type FootnoteMarkInline = Readonly<{
@@ -180,12 +194,28 @@ export function validateInline(node: unknown, path = "inline"): Inline {
           `${path}: a display math inline (display: true) must not carry an inlineId; it references an equation block by id instead.`,
         );
       }
+      // `spoken` is refused rather than ignored where it cannot apply, because this function
+      // rebuilds the node from the keys it knows: an unknown key is dropped in silence, so an
+      // author who wrote one in the wrong place would see no error and no effect.
+      if (o.spoken !== undefined) {
+        if (typeof o.spoken !== "string" || !o.spoken.trim()) {
+          throw new Error(
+            `${path}: spoken must be a non-empty string naming the words a reader hears; an empty one would announce nothing.`,
+          );
+        }
+        if (display) {
+          throw new Error(
+            `${path}: a display math inline (display: true) must not carry a spoken form; the authored form for that formula lives in its equation record (content/display-terms).`,
+          );
+        }
+      }
       return {
         kind: "math",
         latex: o.latex,
         ...(o.display !== undefined ? { display } : {}),
         ...(typeof o.equationId === "string" ? { equationId: o.equationId } : {}),
         ...(typeof o.inlineId === "string" ? { inlineId: o.inlineId } : {}),
+        ...(typeof o.spoken === "string" ? { spoken: o.spoken } : {}),
       };
     }
     case "footnote-mark":

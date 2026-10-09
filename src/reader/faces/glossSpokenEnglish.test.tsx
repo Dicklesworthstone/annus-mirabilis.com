@@ -140,3 +140,50 @@ describe("speakMath", () => {
     );
   });
 });
+
+/**
+ * WHICH OF THE THREE READINGS A FORMULA GETS (am-rc1001-bridge-plan-pcjk.29).
+ *
+ * Before `spoken` existed, `speakInlines` offered exactly one override and keyed it by
+ * `equationId`. A non-display inline carries none -- 1428 of the 1828 non-display inlines in the
+ * corpus, the 714 per face -- so for the whole population that needed correcting the parameter was
+ * unreachable, and no caller in production passes it at all. These tests pin the precedence that
+ * makes it reachable, and the last one is the control: without an authored form nothing changes,
+ * so the generated reading is still what nearly every expression gets.
+ */
+describe("speakInlines precedence", () => {
+  const authored = new Map([["eq-s0-d1", "the modern form nobody should hear here"]]);
+
+  test("the node's own authored form wins over the generated reading", () => {
+    expect(
+      speakInlines([{ kind: "math", latex: "\\overline{E}", spoken: "mean energy E bar" }]),
+    ).toBe("mean energy E bar");
+  });
+
+  test("it wins over the caller's map too, because it is authored for THIS occurrence", () => {
+    expect(
+      speakInlines(
+        [{ kind: "math", latex: "\\overline{E}", equationId: "eq-s0-d1", spoken: "E bar" }],
+        authored,
+      ),
+    ).toBe("E bar");
+  });
+
+  test("the map still applies to a formula that has no form of its own", () => {
+    expect(
+      speakInlines([{ kind: "math", latex: "\\overline{E}", equationId: "eq-s0-d1" }], authored),
+    ).toBe("the modern form nobody should hear here");
+  });
+
+  test("and with neither, the reading is generated -- the case that covers the whole corpus", () => {
+    expect(speakInlines([{ kind: "math", latex: "\\overline{E}" }])).toBe("E bar");
+    // Words around the formula are kept, which is the reason speakInlines exists at all.
+    expect(
+      speakInlines([
+        { kind: "text", text: "die mittlere Energie " },
+        { kind: "math", latex: "\\overline{E}_\\nu", spoken: "E bar sub nu" },
+        { kind: "text", text: " des Resonators" },
+      ]),
+    ).toBe("die mittlere Energie E bar sub nu des Resonators");
+  });
+});

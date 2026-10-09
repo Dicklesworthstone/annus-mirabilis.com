@@ -90,3 +90,56 @@ test("inlines: (inlines.ts:217) citation-ref throws when citationId is missing o
   const accepted = validateInline({ kind: "citation-ref", citationId: "cite-1" });
   assert.equal(accepted.kind, "citation-ref");
 });
+
+/**
+ * THE AUTHORED SPOKEN FORM FOR ONE OCCURRENCE (am-rc1001-bridge-plan-pcjk.29).
+ *
+ * `speakInlines` already had an `authored` parameter, but it is keyed by `equationId`, and a
+ * non-display math inline carries none: measured over the corpus, 1428 of the 1828 non-display
+ * inlines have no equationId, which is the 714 per face that bead is about. So the override
+ * existed and could not be reached for exactly the population that needed it. `spoken` is that
+ * channel, and the first test below is the one that matters -- the field has to SURVIVE
+ * validation, because validateInline rebuilds the node from the keys it knows and drops any
+ * other in silence.
+ */
+test("a math inline's authored spoken form survives validation, not dropped as unknown", () => {
+  assert.deepEqual(validateInline({ kind: "math", latex: "\\overline{E}", spoken: "E bar" }), {
+    kind: "math",
+    latex: "\\overline{E}",
+    spoken: "E bar",
+  });
+});
+
+test("an absent spoken form leaves the node exactly as it was, so nothing is invented", () => {
+  assert.deepEqual(validateInline({ kind: "math", latex: "x'" }), { kind: "math", latex: "x'" });
+});
+
+test("an empty spoken form is refused, since it would announce nothing", () => {
+  assert.throws(
+    () => validateInline({ kind: "math", latex: "x", spoken: "   " }),
+    /spoken must be a non-empty string/,
+  );
+  assert.throws(
+    () => validateInline({ kind: "math", latex: "x", spoken: 7 }),
+    /spoken must be a non-empty string/,
+  );
+});
+
+test("a display inline is refused a spoken form; its equation record already owns one", () => {
+  assert.throws(
+    () =>
+      validateInline({
+        kind: "math",
+        latex: "E = mc^2",
+        display: true,
+        spoken: "E equals m c squared",
+      }),
+    /must not carry a spoken form/,
+  );
+  // The same node without the form is accepted, so the refusal is about the form and not the flag.
+  assert.deepEqual(validateInline({ kind: "math", latex: "E = mc^2", display: true }), {
+    kind: "math",
+    latex: "E = mc^2",
+    display: true,
+  });
+});

@@ -8,7 +8,10 @@
  * is its formula read as nonsense.
  *
  * speakInlines keeps every word, and speaks each formula. An authored spoken form is the right
- * words for a formula, but none exists for the printed ones: the equation records' `spoken` forms
+ * words for a formula, and as of am-rc1001-bridge-plan-pcjk.29 a math inline can carry one in
+ * `spoken`, which wins over everything below. No record in the corpus sets one yet, so in practice
+ * every printed formula is still spoken from its own MathML. The equation records' forms are not
+ * a substitute: the equation records' `spoken` forms
  * (content/equations) are in modern notation, e prime and gamma where the paper prints l* and
  * 1/sqrt(1 - (v/V)^2), and reading those would translate the notation, which the edition does not
  * do. So each formula is spoken from its own MathML, KaTeX's text alternative for it: the printed
@@ -276,7 +279,14 @@ export function speakInlines(
     nodes
       .map((node) => {
         if (node.kind === "math") {
-          const spoken = node.equationId === undefined ? undefined : authored.get(node.equationId);
+          // The node's own form wins: it is authored for THIS occurrence, in printed notation, and
+          // is the only channel that can correct a reading the lexicon has no word for. Then the
+          // caller's map, keyed by equation id, for a formula whose printed form is authored
+          // elsewhere. A non-display inline carries no equationId, so before `spoken` existed the
+          // 714 expressions written inside sentences could not be corrected at all.
+          const spoken =
+            node.spoken ??
+            (node.equationId === undefined ? undefined : authored.get(node.equationId));
           // No padding: the text around a formula carries the spaces the line prints, and
           // "the $x$-axis" is spoken "the x-axis", not "the x -axis".
           return spoken ?? speakMath(node.latex, node.display === true);
