@@ -22,6 +22,7 @@
  */
 
 import { describe, expect, test } from "bun:test";
+import { withinTolerance } from "../../../units/tolerance.ts";
 import {
   BROWNIAN_PRINTED_DISPLACEMENT_SCENARIO,
   printedBrownianDisplacement,
@@ -36,7 +37,17 @@ const PLATE = {
 } as const;
 
 const microns = (m: number) => m * 1e6;
-const relative = (a: number, b: number) => Math.abs(a - b) / Math.abs(b);
+
+/**
+ * Comparison goes through src/units/tolerance.ts, which AGENTS.md names as the one shared module
+ * for it. This file first carried `Math.abs(a - b) / Math.abs(b)` and the tolerance ratchet caught
+ * it at a baseline of 0, correctly: a second relative comparison is the debt that ratchet exists to
+ * record, and raising the baseline to admit one would be drawing on a budget rather than paying it.
+ * Returning the verdict's `kind` rather than a boolean means a failure reads "expected within,
+ * received outside" instead of "expected true, received false".
+ */
+const atRelative = (actual: number, reference: number, relative: number): string =>
+  withinTolerance(actual, reference, { relative }).kind;
 
 describe("the owner reproduces what Einstein printed", () => {
   test("one second, under his constants and under the modern thermal constant", () => {
@@ -47,16 +58,16 @@ describe("the owner reproduces what Einstein printed", () => {
       `[census] printed displacement t=1s: printed ${microns(r.printed.value).toFixed(7)} um, ` +
         `modern ${microns(r.modern.value).toFixed(7)} um`,
     );
-    expect(relative(microns(r.printed.value), 0.7948)).toBeLessThan(1e-4);
-    expect(relative(microns(r.modern.value), 0.7935)).toBeLessThan(1e-4);
+    expect(atRelative(microns(r.printed.value), 0.7948, 1e-4)).toBe("within");
+    expect(atRelative(microns(r.modern.value), 0.7935, 1e-4)).toBe("within");
     // And it rounds to what the plate prints, at the one significant figure the plate gives.
     expect(Number(microns(r.printed.value).toPrecision(1))).toBe(0.8);
   });
 
   test("one minute, which the paper states as about 6 Mikron", () => {
     const r = printedBrownianDisplacement({ ...PLATE, elapsedSeconds: 60 });
-    expect(relative(microns(r.printed.value), 6.1564)).toBeLessThan(1e-4);
-    expect(relative(microns(r.modern.value), 6.1467)).toBeLessThan(1e-4);
+    expect(atRelative(microns(r.printed.value), 6.1564, 1e-4)).toBe("within");
+    expect(atRelative(microns(r.modern.value), 6.1467, 1e-4)).toBe("within");
     // The plate says "ca. 6", one significant figure, and 6.156 does round there.
     expect(Number(microns(r.printed.value).toPrecision(1))).toBe(6);
   });
@@ -102,12 +113,12 @@ describe("the modern-viscosity row, which is a different question from the therm
     const r = printedBrownianDisplacement({ ...PLATE, modernViscosity: IAPWS });
     const viscosityRatio = PLATE.viscosityPaS / IAPWS.valuePaS;
     const lengthRatio = (r.modernViscosity?.value ?? Number.NaN) / r.modern.value;
-    expect(relative(viscosityRatio, 1.2502247)).toBeLessThan(1e-6);
-    expect(relative(lengthRatio, Math.sqrt(viscosityRatio))).toBeLessThan(1e-12);
-    expect(relative(lengthRatio, 1.1181345)).toBeLessThan(1e-6);
+    expect(atRelative(viscosityRatio, 1.2502247, 1e-6)).toBe("within");
+    expect(atRelative(lengthRatio, Math.sqrt(viscosityRatio), 1e-12)).toBe("within");
+    expect(atRelative(lengthRatio, 1.1181345, 1e-6)).toBe("within");
     // And it is neither the ratio nor its reciprocal, stated so the failure is unmistakable.
-    expect(relative(lengthRatio, viscosityRatio)).toBeGreaterThan(0.1);
-    expect(relative(lengthRatio, 1 / viscosityRatio)).toBeGreaterThan(0.1);
+    expect(atRelative(lengthRatio, viscosityRatio, 0.1)).toBe("outside");
+    expect(atRelative(lengthRatio, 1 / viscosityRatio, 0.1)).toBe("outside");
   });
 
   test("the comparison names the fluid datum as the dated thing, not the arithmetic", () => {
@@ -127,7 +138,7 @@ describe("ADVERSARIAL: the plausible wrong readings of page 559", () => {
     const right = printedBrownianDisplacement(PLATE);
     expect(Number(microns(wrong.printed.value).toPrecision(1))).not.toBe(0.8);
     // D goes as 1/a, so doubling the radius halves D and divides the length by sqrt(2).
-    expect(relative(right.printed.value / wrong.printed.value, Math.SQRT2)).toBeLessThan(1e-12);
+    expect(atRelative(right.printed.value / wrong.printed.value, Math.SQRT2, 1e-12)).toBe("within");
     console.log(
       `[census] radius-as-diameter plant: ${microns(wrong.printed.value).toFixed(7)} um ` +
         `against the printed 0.7947833`,
@@ -140,9 +151,9 @@ describe("ADVERSARIAL: the plausible wrong readings of page 559", () => {
     const base = printedBrownianDisplacement(PLATE);
     const halvedD = printedBrownianDisplacement({ ...PLATE, particleRadiusM: 1e-6 });
     const ratio = halvedD.printed.value / base.printed.value;
-    expect(relative(ratio, 1 / Math.SQRT2)).toBeLessThan(1e-12);
+    expect(atRelative(ratio, 1 / Math.SQRT2, 1e-12)).toBe("within");
     // The claim under test, stated so its failure is unmistakable.
-    expect(relative(ratio, 0.5)).toBeGreaterThan(0.4);
+    expect(atRelative(ratio, 0.5, 0.4)).toBe("outside");
   });
 
   test("a nonpositive input is a typed refusal, never a zero displacement", () => {
