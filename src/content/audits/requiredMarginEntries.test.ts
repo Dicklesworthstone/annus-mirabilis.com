@@ -61,6 +61,21 @@ type Entry = {
 type Extra = { name?: unknown; proposition?: unknown; satisfiedBy?: unknown; enumerated?: unknown };
 type PaperEntries = { paper: string; entries: Entry[]; extras?: Extra[] };
 
+/**
+ * The records a credit names. A plan entry may be covered by MORE THAN ONE record -- (h) names
+ * two symbols, V and beta, and each has its own note -- so `satisfiedBy` is a string or a list,
+ * and everything downstream asks this rather than testing for a string.
+ */
+function creditsOf(item: { satisfiedBy?: unknown }): readonly string[] {
+  const c = item.satisfiedBy;
+  if (typeof c === "string") return [c];
+  if (Array.isArray(c)) return c.filter((x): x is string => typeof x === "string");
+  return [];
+}
+
+/** An entry counts as satisfied when it names at least one record. */
+const isSatisfied = (item: { satisfiedBy?: unknown }): boolean => creditsOf(item).length > 0;
+
 function records(): PaperEntries[] {
   return readdirSync(DIR)
     .filter((n) => n.endsWith(".yaml"))
@@ -106,8 +121,8 @@ export function unresolvedCredits(
   const bad: string[] = [];
   for (const { paper, entries, extras } of papers) {
     for (const entry of entries) {
-      for (const credit of [entry.satisfiedBy, entry.partial?.satisfiedBy]) {
-        if (typeof credit === "string" && !ids.has(credit)) {
+      for (const credit of [...creditsOf(entry), ...creditsOf(entry.partial ?? {})]) {
+        if (!ids.has(credit)) {
           bad.push(`${paper} (${String(entry.letter)}) names ${credit}, which is not on disk`);
         }
       }
@@ -115,9 +130,10 @@ export function unresolvedCredits(
     // The bead-added records are credited by the same rule: a boundary note that does not exist
     // may not be counted because the bead asked for one.
     for (const extra of extras ?? []) {
-      const credit = extra.satisfiedBy;
-      if (typeof credit === "string" && !ids.has(credit)) {
-        bad.push(`${paper} [${String(extra.name)}] names ${credit}, which is not on disk`);
+      for (const credit of creditsOf(extra)) {
+        if (!ids.has(credit)) {
+          bad.push(`${paper} [${String(extra.name)}] names ${credit}, which is not on disk`);
+        }
       }
     }
   }
@@ -160,9 +176,7 @@ describe("the required margin entries are a real denominator", () => {
     expect(unresolvedCredits(papers, ids)).toEqual([]);
     // Non-vacuity: a file with no credits at all would satisfy the line above while proving
     // nothing, so assert that credits were actually examined.
-    const credited = papers.flatMap((p) =>
-      p.entries.filter((e) => typeof e.satisfiedBy === "string"),
-    );
+    const credited = papers.flatMap((p) => p.entries.filter(isSatisfied));
     expect(credited.length).toBeGreaterThan(0);
     expect(ids.size).toBeGreaterThanOrEqual(16);
   });
@@ -190,9 +204,7 @@ describe("the required margin entries are a real denominator", () => {
     const required = papers.reduce((n, p) => n + p.entries.length + enumeratedExtras(p).length, 0);
     const satisfied = papers.reduce(
       (n, p) =>
-        n +
-        p.entries.filter((e) => typeof e.satisfiedBy === "string").length +
-        enumeratedExtras(p).filter((e) => typeof e.satisfiedBy === "string").length,
+        n + p.entries.filter(isSatisfied).length + enumeratedExtras(p).filter(isSatisfied).length,
       0,
     );
     const partial = papers.reduce(
@@ -211,8 +223,7 @@ describe("the required margin entries are a real denominator", () => {
     for (const p of papers) {
       const total = p.entries.length + enumeratedExtras(p).length;
       const s =
-        p.entries.filter((e) => typeof e.satisfiedBy === "string").length +
-        enumeratedExtras(p).filter((e) => typeof e.satisfiedBy === "string").length;
+        p.entries.filter(isSatisfied).length + enumeratedExtras(p).filter(isSatisfied).length;
       console.log(`[census]   ${p.paper}: ${s} of ${total}`);
     }
     expect(required).toBe(29);
@@ -229,9 +240,9 @@ describe("the required margin entries are a real denominator", () => {
     const me = papers.find((p) => p.paper === "mass-energy");
     expect(me).toBeDefined();
     const credited = [
-      ...(me?.entries ?? []).map((e) => e.satisfiedBy),
-      ...(me?.extras ?? []).map((e) => e.satisfiedBy),
-    ].map(String);
+      ...(me?.entries ?? []).flatMap(creditsOf),
+      ...(me?.extras ?? []).flatMap(creditsOf),
+    ];
     expect(credited.sort()).toEqual([
       "note-me-a-formula-absent",
       "note-me-b-additive-constant",
@@ -322,7 +333,7 @@ describe("THE ABSENT ENTRIES ARE BLOCKED ON BIBLIOGRAPHY, AND THAT REORDERS THE 
     let waiting = 0;
     for (const { paper, entries } of papers) {
       for (const entry of entries) {
-        if (typeof entry.satisfiedBy === "string") continue;
+        if (isSatisfied(entry)) continue;
         const at = `${paper} (${String(entry.letter)})`;
         const need = (Array.isArray(entry.requiresCitations) ? entry.requiresCitations : []).map(
           String,
@@ -357,7 +368,7 @@ describe("THE ABSENT ENTRIES ARE BLOCKED ON BIBLIOGRAPHY, AND THAT REORDERS THE 
           `${paper} (${String(entry.letter)})`,
         ).toBeGreaterThan(40);
         expect(String(g.groundedBy ?? "").length).toBeGreaterThan(20);
-        expect(entry.satisfiedBy).toBeUndefined();
+        expect(creditsOf(entry)).toEqual([]);
       }
     }
 
@@ -396,7 +407,7 @@ describe("an entry whose plan description the plates contradict is surfaced, not
       // A disputed entry describes something that may not exist, so it must not ALSO claim to be
       // present. That combination would mean a record was written against a description the
       // plates contradict, which is the thing this check exists to prevent.
-      expect(entry.satisfiedBy, `${paper} (${letter}) is disputed AND credited`).toBeUndefined();
+      expect(creditsOf(entry), `${paper} (${letter}) is disputed AND credited`).toEqual([]);
     }
     // Non-vacuity: there is one today (relativity (g)), so an empty loop means the record lost it.
     expect(disputed.length).toBeGreaterThan(0);

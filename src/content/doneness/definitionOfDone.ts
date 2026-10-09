@@ -302,10 +302,20 @@ function marginEntriesCell(root: string, paper: DonenessPaper): DonenessCell {
   let met = 0;
   const unresolved: string[] = [];
   for (const item of required) {
-    const credit = item.satisfiedBy;
-    if (typeof credit !== "string") continue;
-    if (onDisk.has(credit)) met += 1;
-    else unresolved.push(credit);
+    // A LIST OR A STRING. One plan entry can need more than one record: (h) names two symbols, V
+    // and beta, and each has its own note. Reading only the string form silently skipped the
+    // list, which showed up as this cell not moving when relativity gained its second entry.
+    const credits =
+      typeof item.satisfiedBy === "string"
+        ? [item.satisfiedBy]
+        : Array.isArray(item.satisfiedBy)
+          ? item.satisfiedBy.filter((c): c is string => typeof c === "string")
+          : [];
+    if (credits.length === 0) continue;
+    // Every record a multi-record entry names must be present, or the entry is not covered.
+    const missing = credits.filter((c) => !onDisk.has(c));
+    if (missing.length === 0) met += 1;
+    else unresolved.push(...missing);
   }
   const partial = entries.filter((e) => (e as { partial?: unknown }).partial !== undefined).length;
 

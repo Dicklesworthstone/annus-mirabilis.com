@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "kind": "historian-margin",
+  "id": "note-sr-h-v-is-the-speed-of-light",
+  "author": { "id": "agent:SlateHeron", "kind": "model", "modelId": "claude-opus-5" },
+  "reviewState": "draft",
+  "historicalStatement": "paper-asserts",
+  "claim": "Throughout this paper the speed of light is V, not c. Einstein fixes it in §1 on printed page 894, where he lays down, in accordance with experience, that the quantity twice the distance AB divided by the round-trip time is a universal constant, the speed of light in empty space. The letter is unremarkable on the page and that is what makes it worth a note: β announces itself as strange and sends a reader to check, while V looks like any other variable and will be read as a velocity, a volume, or nothing in particular. It also collides across the four papers, where V and v carry volume, velocity or light speed depending on which one you are in. Modern notation is a separate layer here: the translation keeps V as printed, and the concordance maps it to c without rewriting the source. Renaming V to c is a change of symbol, not a change of argument, and it never licenses importing a later proof.",
+  "sourceSupport": [
+    { "citationId": "ap-17-891", "locator": "§1, printed p. 894", "role": "primary" }
+  ],
+  "affectedIds": ["s1-p10", "s3-p15", "s5-p6"],
+  "evidence": "Read from the pinned facsimile's page image on 2026-10-08 (pdftoppm renders pixels at 170 dpi; the embedded text layer is forbidden and was not used). Printed page 894 carries the definition as the displayed quantity 2·AB/(t'_A − t_A) = V followed by 'eine universelle Konstante (die Lichtgeschwindigkeit im leeren Raume) sei', and the source block s1-p10 holds that sentence in diplomatic transcription, matching the plate. V recurs as the light speed at s3-p15 (p. 900, proving every ray propagates with velocity V in the moving system) and s5-p6 (p. 906, that V cannot be changed by composition with a sub-light velocity). The transcriptions are machine drafts with hand correction rather than a reviewed ledger, which is why this note is reviewState draft. It is the companion to note-sr-beta-is-the-modern-gamma: section 3.9 entry (h) is 'the notation V and beta', and that note carried beta while nothing carried V."
+}
