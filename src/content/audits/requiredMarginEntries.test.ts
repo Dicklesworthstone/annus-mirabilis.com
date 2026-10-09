@@ -48,6 +48,7 @@ type Entry = {
   proposition?: unknown;
   satisfiedBy?: unknown;
   requiresCitations?: unknown;
+  claimNotGroundable?: { reportedOn?: unknown; groundedBy?: unknown; missing?: unknown };
   planDescriptionDisputed?: {
     reportedOn?: unknown;
     evidence?: unknown;
@@ -305,33 +306,60 @@ describe("THE ABSENT ENTRIES ARE BLOCKED ON BIBLIOGRAPHY, AND THAT REORDERS THE 
     for (const [id, where] of [...outstanding].sort()) {
       console.log(`[census]   MISSING ${id.padEnd(34)} needed by ${where.join(", ")}`);
     }
-    // THE SPLIT THAT MAKES THIS ACTIONABLE, and the reason no blocking dependency was added
-    // between the margin beads and the bibliography bead: some absent entries cite records that
-    // already exist, so they can be authored today. A hard `br dep add` would have removed real
-    // work from the ready pool.
-    const authorable: string[] = [];
+    // THE SPLIT, AND THE WORD IT USED TO GET WRONG. This said "authorable today" and was
+    // measuring something weaker: whether the bibliography RECORD exists. Whether the CLAIM can be
+    // grounded is a different question, and the two came apart on light-quanta (b), whose citation
+    // resolves and whose assertions -- Millikan's one-percent figure for h, and his rejecting the
+    // light-quantum hypothesis while verifying the equation -- are claims about his own text,
+    // which is not pinned in this repository. An entry saying so carries `claimNotGroundable` and
+    // is counted into its own bucket rather than reported as ready to write.
+    //
+    // This is still why no blocking dependency was added between the margin beads and the
+    // bibliography bead: a `br dep add` would remove the genuinely reachable entries from the
+    // ready pool.
+    const citationsResolve: string[] = [];
+    const notGroundable: string[] = [];
     let waiting = 0;
     for (const { paper, entries } of papers) {
       for (const entry of entries) {
         if (typeof entry.satisfiedBy === "string") continue;
+        const at = `${paper} (${String(entry.letter)})`;
         const need = (Array.isArray(entry.requiresCitations) ? entry.requiresCitations : []).map(
           String,
         );
-        if (need.length > 0 && need.every((id) => have.has(id))) {
-          authorable.push(`${paper} (${String(entry.letter)})`);
-        } else {
+        if (need.length === 0 || !need.every((id) => have.has(id))) {
           waiting += 1;
+        } else if (entry.claimNotGroundable !== undefined) {
+          notGroundable.push(at);
+        } else {
+          citationsResolve.push(at);
         }
       }
     }
     console.log(
-      `[census] of the absent entries, ${authorable.length} are authorable today ` +
-        `(${authorable.join(", ")}) and ${waiting} wait on a bibliography record`,
+      `[census] of the absent entries, ${citationsResolve.length} have every citation on disk ` +
+        `(${citationsResolve.join(", ")}), ${notGroundable.length} have their citation but no ` +
+        `groundable claim (${notGroundable.join(", ")}), and ${waiting} wait on a bibliography record`,
     );
-    // Both sides non-empty on purpose. If everything were blocked this would read as a hard
-    // dependency and the beads should be marked so; if nothing were, this bead would not exist.
-    expect(authorable.length).toBeGreaterThan(0);
+    // All three non-empty on purpose. The middle bucket did not exist when this check was first
+    // written, and finding a member of it is what showed the original wording was wrong.
+    expect(citationsResolve.length).toBeGreaterThan(0);
+    expect(notGroundable.length).toBeGreaterThan(0);
     expect(waiting).toBeGreaterThan(0);
+    for (const { paper, entries } of papers) {
+      for (const entry of entries) {
+        const g = entry.claimNotGroundable;
+        if (g === undefined) continue;
+        // Same discipline as a dispute: saying a claim cannot be grounded means naming what IS
+        // grounded and what is not, or it is an excuse rather than a finding.
+        expect(
+          String(g.missing ?? "").length,
+          `${paper} (${String(entry.letter)})`,
+        ).toBeGreaterThan(40);
+        expect(String(g.groundedBy ?? "").length).toBeGreaterThan(20);
+        expect(entry.satisfiedBy).toBeUndefined();
+      }
+    }
 
     // A floor rather than an equality, so writing one of them does not turn this red. It is a
     // REPORT, and the thing it reports is a blocker, so it must not be asserted away.

@@ -21,6 +21,29 @@ entries:
     proposition: "Millikan verified the equation to better than one percent in 1916 while rejecting the light-quantum hypothesis it came from."
     namedSources: ["Millikan 1916"]
     requiresCitations: ["cit-millikan-1916"]
+    # ITS CITATION RESOLVES AND THE ENTRY IS STILL NOT AUTHORABLE, which is the distinction this
+    # field exists to make. cit-millikan-1916 is in the bibliography, so the prerequisite census
+    # counts this entry as unblocked. That census asks whether the bibliography RECORD exists; it
+    # does not ask whether the CLAIM can be grounded, and for this entry the answer differs.
+    #
+    # What the repository can ground: content/datasets/millikan-1916-sodium.yaml is a digitized
+    # HistoricalDataset read visually from Fig. 6 at 600 dpi by agent:GreenOx, carrying Millikan's
+    # own stated errors with pages -- the maximum error in locating any intercept at about two
+    # hundredths of a volt (p. 372), no potential departing from the line by more than .01 volt
+    # (p. 374), and the 2.51 volt contact E.M.F. (p. 383).
+    #
+    # What it cannot ground, and these are the two halves the entry actually asserts: the figure
+    # "better than one percent", which is about his determination of h rather than about intercept
+    # linearity and appears nowhere in the record; and that he REJECTED the light-quantum
+    # hypothesis while verifying the equation, which is a claim about what Millikan wrote and needs
+    # his text. The Internet Archive scan the dataset was read from is not pinned in this
+    # repository, so no page of his prose is readable here.
+    #
+    # So this entry waits on source access, not on a bibliography record.
+    claimNotGroundable:
+      reportedOn: "2026-10-08"
+      groundedBy: "content/datasets/millikan-1916-sodium.yaml, for his stated measurement errors only"
+      missing: "The one-percent figure for the h determination, and his rejection of the light-quantum hypothesis. Both are claims about Millikan's own text, which is not pinned in this repository."
   - letter: c
     proposition: "Planck's 1913 recommendation of Einstein to the Prussian Academy excuses the light quanta as an overreach. Paraphrased, never reproduced."
     namedSources: ["Planck 1913 recommendation"]
