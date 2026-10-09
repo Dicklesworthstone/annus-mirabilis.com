@@ -22,6 +22,7 @@ entries:
     proposition: "The paper has no references and closes by thanking Besso."
     namedSources: ["ap-17-891, closing"]
     requiresCitations: ["ap-17-891"]
+    satisfiedBy: note-sr-a-no-references-thanks-besso
   - letter: b
     proposition: "The 1905 manuscript was discarded. Einstein wrote out a copy by hand in 1943 for a war-bond auction, and that copy is in the Library of Congress."
     namedSources: ["Library of Congress, 1943 holograph"]
