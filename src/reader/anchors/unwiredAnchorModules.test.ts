@@ -285,16 +285,50 @@ describe("the anchor navigation library's wiring debt", () => {
   });
 
   test("POSITIVE CONTROL for the cross-root walk: a consumer in scripts/ is found", () => {
-    // The arm that matters most, because its absence is what made the FIRST version of this file
-    // wrong about a neighbouring directory. `src/content/audits/instruments.ts` has no importer
-    // anywhere in `src/`, and `scripts/verify-content.ts:16` imports it. A scanner that reads only
-    // `src/` calls that module unconsumed, which is exactly the false debt this control refuses.
-    const audited = join(REPO_ROOT, "src/content/audits/instruments.ts");
-    expect(existsSync(audited)).toBe(true);
-    const found = importersOfPath(audited, all);
-    expect(found).toContain("scripts/verify-content.ts");
-    // And nothing in src/ imports it, so the find above could only have come from the wider walk.
-    expect(found.filter((f) => f.startsWith("src/"))).toEqual([]);
+    /*
+      The arm that matters most, because its absence is what made the FIRST version of this file
+      wrong about a neighbouring directory: a scanner that reads only `src/` calls a module
+      consumed solely from `scripts/` unconsumed, which is a false debt.
+
+      IT ASSERTS THE PROPERTY OVER THE SET, NOT ONE NAMED MODULE, and that is the second thing this
+      control has taught me. It used to name `src/content/audits/instruments.ts` -- 0 importers in
+      `src/`, imported by `scripts/verify-content.ts` -- and I broke it myself by having
+      src/content/definitionOfDone import that module, which made its premise false and turned this
+      red. The control was right to refuse: the cross-root claim must not rest on one module's
+      isolation, which any later work can end.
+
+      So the question becomes "is there ANY module whose only importers live outside src/, and does
+      the walk find them", which stays true as long as the arrangement exists at all. The count is
+      printed, because a set that had become empty would make the loop below vacuous.
+    */
+    const auditsDir = join(REPO_ROOT, "src/content/audits");
+    const candidates = readdirSync(auditsDir)
+      .filter((f) => f.endsWith(".ts") && !f.includes(".test."))
+      .map((f) => join(auditsDir, f));
+    const outsideOnly: { module: string; importers: string[] }[] = [];
+    for (const candidate of candidates) {
+      const found = importersOfPath(candidate, all);
+      const fromSrc = found.filter((f) => f.startsWith("src/"));
+      const fromElsewhere = found.filter((f) => !f.startsWith("src/"));
+      if (fromSrc.length === 0 && fromElsewhere.length > 0) {
+        outsideOnly.push({ module: relative(REPO_ROOT, candidate), importers: fromElsewhere });
+      }
+    }
+    console.log(
+      `[census] cross-root control: ${outsideOnly.length} of ${candidates.length} audit modules are imported ONLY from outside src/ (${outsideOnly.map((o) => o.module.split("/").pop()).join(", ")})`,
+    );
+    // Non-vacuous: at least one such module must exist, or this control proves nothing about the
+    // walk's reach.
+    expect(outsideOnly.length).toBeGreaterThan(0);
+    for (const entry of outsideOnly) {
+      // Every importer found for such a module is outside src/, which is only possible if the walk
+      // reached beyond src/ at all.
+      expect(entry.importers.length).toBeGreaterThan(0);
+      expect(entry.importers.every((f) => !f.startsWith("src/"))).toBe(true);
+    }
+    // And the specific arrangement the first version named still has to be reachable SOMEWHERE:
+    // a scripts/ file must appear among the importers, not merely "not src/".
+    expect(outsideOnly.some((e) => e.importers.some((f) => f.startsWith("scripts/")))).toBe(true);
   });
 
   test("every module with no importer is a recorded debt, and a new one is refused", () => {
