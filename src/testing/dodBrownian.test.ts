@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
@@ -52,11 +53,30 @@ test("Brownian DoD Item 1: complete paper text inventory", async () => {
 test("Brownian DoD Item 2: bilingual edition, facsimile, and gloss status", async () => {
   const startTime = Date.now();
 
-  const facsimileExists = fs.existsSync(path.join(process.cwd(), "public/ap-17-549.pdf"));
+  // THIS ASSERTION USED TO NAME `public/ap-17-549.pdf` AND REQUIRE IT TO BE ABSENT, which it
+  // always was, because the project has never used that path (am-7ocy). The facsimile has been
+  // pinned at the canonical `public/papers/pdfs/<key>.pdf` since 2026-09-17, and every one of the
+  // eight other references in the repository spells it that way; this file held the only
+  // occurrence of the other spelling. So a gate written to go RED when the facsimile landed, and
+  // force the milestone forward, could not notice that it had.
+  //
+  // It now pins the BYTES rather than mere presence, because existence is the weaker claim and
+  // the receipt already records the digest. Removing the file, or replacing it with a different
+  // scan, turns this red.
+  const facsimilePath = path.join(process.cwd(), "public/papers/pdfs/ap-17-549.pdf");
   assert.equal(
-    facsimileExists,
-    false,
-    "Facsimile scan ap-17-549.pdf must be absent at this milestone",
+    fs.existsSync(facsimilePath),
+    true,
+    "Facsimile scan public/papers/pdfs/ap-17-549.pdf must be pinned at this milestone",
+  );
+  const receipt = fs.readFileSync(path.join(process.cwd(), "docs/provenance/ap-17-549.md"), "utf8");
+  const recorded = /^ {2}sha256: "([0-9a-f]{64})"$/m.exec(receipt)?.[1];
+  assert.ok(recorded, "The provenance receipt must record a sha256 for the pinned scan");
+  const actual = createHash("sha256").update(fs.readFileSync(facsimilePath)).digest("hex");
+  assert.equal(
+    actual,
+    recorded,
+    "The pinned Brownian facsimile must match the sha256 its receipt records",
   );
 
   const ownersPath = path.join(process.cwd(), "docs/OWNERS.md");
@@ -72,11 +92,12 @@ test("Brownian DoD Item 2: bilingual edition, facsimile, and gloss status", asyn
     paper: "brownian-motion",
     outcome: "passed",
     durationMs: Date.now() - startTime,
-    message: "Verified Item 2: facsimile absent, German reviews recruiting.",
+    message: "Verified Item 2: facsimile pinned and digest-matched, German reviews recruiting.",
     extra: {
       item: "2. Bilingual edition and gloss",
       check: "provenance-and-reviews",
-      facsimilePresent: facsimileExists,
+      facsimilePresent: true,
+      facsimileSha256: actual,
       germanReviewStatus: "open: recruiting",
     },
   });
