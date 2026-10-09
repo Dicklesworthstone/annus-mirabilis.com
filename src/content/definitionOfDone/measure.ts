@@ -333,7 +333,7 @@ export function readingsComplete(paper: string, loaded: LoadedReadings): DoneCel
     return unmeasuredCell(
       "readings-r0-to-r3",
       paper,
-      `auditReadings reached no reading target for this paper: ${tally.shortCircuited} were short-circuited at owner-unassigned, because the readings-owners records declare targetKinds "instrument-caption" while their targets declare kind "caption", so no owner ever matches and no later check runs (READINGS_OWNER_KIND_MISMATCH)`,
+      `auditReadings reached no reading target for this paper: ${tally.shortCircuited} were short-circuited at owner-unassigned, so no later check ran. This branch is a guard, not the current state -- every one of the 63 targets resolves to an owner today (READINGS_RECORD_VOCABULARY). It last fired because the loader in THIS directory mistranslated the kind field, so if it fires again, suspect the loader before the corpus`,
     );
   }
   return doneCell(
@@ -359,7 +359,7 @@ export function r2CoversR1(paper: string, loaded: LoadedReadings): DoneCell {
     return unmeasuredCell(
       "r2-covers-r1",
       paper,
-      `the r2-length check never ran for this paper: all ${tally.shortCircuited} of its reading targets are short-circuited at owner-unassigned (READINGS_OWNER_KIND_MISMATCH). The audit DOES judge this relation, by R2_LENGTH_FACTOR 1.2 with declared overrides, so this is reachable the moment the kind mismatch is settled`,
+      `the r2-length check never ran for this paper: all ${tally.shortCircuited} of its reading targets are short-circuited at owner-unassigned. A guard rather than the current state: the audit judges this relation by R2_LENGTH_FACTOR 1.2 with declared overrides, and reaches every target today (READINGS_RECORD_VOCABULARY)`,
     );
   }
   return doneCell(

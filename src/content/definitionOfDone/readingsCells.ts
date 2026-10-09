@@ -35,6 +35,34 @@ import type { AuditReport } from "../audits/types.ts";
 
 const OWNERS_DIR = join("content", "editorial", "readings-owners");
 
+/**
+ * The records' vocabulary is not the audit type's. Every one of the 63 target entries writes
+ * `kind: caption`, and `ReadingTargetKind` (audits/readings.ts:14) has NO `caption` member: the
+ * spelling is `instrument-caption`, and `src/content/schemas/argument.ts:2601` refuses `caption`
+ * by name, pointing at it. So the translation below is not a convenience, it is the mapping
+ * between a record field and a typed union, and casting instead of mapping is what made this
+ * file's first measurement wrong.
+ *
+ * `as ReadingTargetKind` on a raw string is the bug this function exists to prevent: it compiles,
+ * it reads as a type, and it silently produced a value outside the union for all 63 targets.
+ */
+function targetKindOf(entry: Record<string, unknown>): ReadingTargetKind {
+  const raw = typeof entry.kind === "string" ? entry.kind : "";
+  if (raw === "caption" || entry.captions !== undefined) return "instrument-caption";
+  const known: readonly ReadingTargetKind[] = [
+    "paragraph",
+    "heading",
+    "footnote",
+    "closing",
+    "equation",
+    "derivation-step",
+    "instrument-caption",
+  ];
+  // An unrecognised spelling falls back to the audit's own default rather than entering the union
+  // unchecked, so a new record kind shows up as an audit finding instead of as a silent member.
+  return known.includes(raw as ReadingTargetKind) ? (raw as ReadingTargetKind) : "paragraph";
+}
+
 export type LoadedReadings = Readonly<{
   input: ReadingsAuditInput;
   report: AuditReport;
@@ -56,13 +84,21 @@ export function loadLiveReadings(root: string): LoadedReadings {
       }
       if (record === null || typeof record !== "object") continue;
       const paper = typeof record.paper === "string" ? record.paper : "";
-      const kinds = Array.isArray(record.targetKinds)
-        ? (record.targetKinds.filter((k) => typeof k === "string") as ReadingTargetKind[])
-        : [];
       const list = Array.isArray(record.targets) ? record.targets : [];
+      // DERIVED from the targets, never read from the declared `targetKinds:` field, which three of
+      // the 41 records omit entirely. Reading the field made those three records' 21 targets
+      // unownable and is what produced this file's first, false, "63 of 63 unowned" measurement.
+      // scripts/verify-content.ts has derived it since before this file existed; agreeing with that
+      // loader is the point, because two loaders over one corpus that disagree is the defect.
+      const kinds: ReadingTargetKind[] = [];
       // `targetIds` is the record's own target ids, which is how the audit decides which owner owns
       // a target. Derived rather than read from a separate field, because the records do not carry
       // one: the targets ARE the declaration of ownership.
+      for (const raw of list) {
+        if (raw === null || typeof raw !== "object") continue;
+        const kind = targetKindOf(raw as Record<string, unknown>);
+        if (!kinds.includes(kind)) kinds.push(kind);
+      }
       owners.push({
         ownerBeadId: typeof record.ownerBeadId === "string" ? record.ownerBeadId : "",
         fileName,
@@ -77,7 +113,7 @@ export function loadLiveReadings(root: string): LoadedReadings {
         const entry = raw as Record<string, unknown>;
         targets.push({
           targetId: String(entry.id ?? ""),
-          targetKind: String(entry.kind ?? "") as ReadingTargetKind,
+          targetKind: targetKindOf(entry),
           paper,
           ...(entry.readings !== undefined ? { readings: entry.readings as never } : {}),
           ...(Array.isArray(entry.scopeCritical)
@@ -143,25 +179,45 @@ export function readingsTally(
 }
 
 /**
- * WHY EVERY TARGET IS CURRENTLY SHORT-CIRCUITED, measured 2026-10-09 and worth stating because it
- * is a defect in the records that nothing had caught.
+ * THE RECORDS VOCABULARY IS NOT THE AUDIT TYPES, AND A LOADER MUST TRANSLATE. This block used to
+ * claim a defect -- "all 63 targets unowned, a mismatch nothing had caught" -- AND THAT WAS FALSE.
+ * It was produced by this file's own loader, which cast `entry.kind` to `ReadingTargetKind`
+ * unchecked and read `targetKinds:` from the declared field. Corrected 2026-10-08: with the
+ * translation applied the audit returns ok=true with ZERO findings over all 63 targets.
  *
- * The 41 readings-owners records declare `targetKinds: ["instrument-caption"]` (38 occurrences)
- * while the targets inside them declare `kind: "caption"` (all 63). `ownerFor` matches an owner to
- * a target with `owner.targetKinds.includes(target.targetKind)`, so "instrument-caption" never
- * matches "caption" and the audit reports `owner-unassigned` for all 63 -- 63 errors, ok=false.
+ * Two claims in the old text were also wrong on their own terms, and both were checkable:
  *
- * It had never been seen because `auditReadings` had no live loader: this file is the first thing
- * to feed it the real records. One record (am-bm-01-tracer-ensemble-hdly.yaml) also carries no
- * `paper` field, so it is unattributable to a paper on top of being unowned.
+ *   "auditReadings had no live loader; this file is the first to feed it the real records" --
+ *      scripts/verify-content.ts:247 has loaded them since before this file existed, and its
+ *      `loadLiveReadingsAuditInput` already did BOTH things right: it maps `caption` to
+ *      `instrument-caption` and DERIVES `targetKinds` from the targets.
+ *   "which side is wrong is an editorial call for the readings owner" -- it was already settled.
+ *      `ReadingTargetKind` has no `caption` member and argument.ts:2601 refuses that spelling by
+ *      name. Nothing was awaiting a decision.
  *
- * Which side is wrong -- the type's `instrument-caption` or the records' `caption` -- is an
- * editorial call for the readings owner, not a one-word edit for me to make across 41 records, so
- * it is reported rather than fixed.
+ * Three records (am-bm-07-infer-molecular-number-frf9, am-bm-08-measurement-bias-h1ye,
+ * am-bm-01-tracer-ensemble-hdly) omit `targetKinds:` entirely, and one of those also omits
+ * `paper:`. Those are NOT defects either, for the same reason: a correct loader derives the kind
+ * from the targets and defaults the paper, which is what both live loaders do.
+ *
+ * What is left is a real, narrow lesson, which is why this constant still exists: when a record
+ * field and a typed union use different spellings, the translation belongs in ONE place, and a
+ * second loader that re-derives it will eventually disagree with the first. Here the disagreement
+ * was total -- 63 errors against zero -- and the newer loader was the wrong one.
  */
-export const READINGS_OWNER_KIND_MISMATCH = Object.freeze({
-  declaredByOwners: "instrument-caption",
-  declaredByTargets: "caption",
+export const READINGS_RECORD_VOCABULARY = Object.freeze({
+  /** What every one of the 63 target entries writes. */
+  inRecords: "caption",
+  /** The `ReadingTargetKind` member it denotes; the records spelling is not in the union. */
+  inAuditType: "instrument-caption",
   targetsAffected: 63,
+  /** The loader that has always done this correctly, and the one this file now agrees with. */
+  canonicalLoader: "scripts/verify-content.ts:247 loadLiveReadingsAuditInput",
+  /** Records omitting `targetKinds:`; harmless, because a correct loader derives it. */
+  recordsWithoutDeclaredKinds: [
+    "am-bm-07-infer-molecular-number-frf9.yaml",
+    "am-bm-08-measurement-bias-h1ye.yaml",
+    "am-bm-01-tracer-ensemble-hdly.yaml",
+  ],
   recordsWithoutPaper: ["am-bm-01-tracer-ensemble-hdly.yaml"],
 });
