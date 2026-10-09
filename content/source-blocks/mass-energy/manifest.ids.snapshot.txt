@@ -1,4 +1,10 @@
 # Mass-energy source-id snapshot (am-edn-inventory-mass-energy-g2d)
+# 2026-10-09: the 24 inline-equation ids were added, paying the last declared absence of
+# this inventory (the Requirements row "Substantive inline equations and nontrivial symbol
+# occurrences"). Each sits beside the unit that prints it. Their index counts EVERY inline math
+# region of that unit in printed order, including the lone symbols the criterion does not admit,
+# which is why the numbers have gaps (s0-p5-s2-m2 is the 2nd region of its unit). The criterion and its measurement are in
+# src/content/manifest/inlineEquationUnits.ts; 42 regions on this paper, 24 substantive.
 # Pinned facsimile ap-18-639 verified and frozen 2026-09-19T00:00:00Z
 # 2026-09-19 boundary audit: s0-p8, s0-p9 and s0-p10 retired (merged into s0-p7); ids are
 # never reused and survivors keep their numbers, so the sequence gap p7 -> p11 is intentional.
@@ -12,6 +18,7 @@
 # s0-p7-s8 straddles the page turn recorded in s0-p7.yaml (pageTurns, startsWith "Konstanten
 # der Energien") and therefore carries locators for both 640 and 641.
 # Unit ids in printed order (53 ids: 25 block-level, 28 sentence)
+# Plus the 24 inline-equation ids added 2026-10-09, so 77 in all.
 masthead-title
 masthead-author
 s0-p1
@@ -26,25 +33,47 @@ s0-p4-s1
 s0-fn2
 s0-p5
 s0-p5-s1
+s0-p5-s1-m1
 s0-p5-s2
+s0-p5-s2-m1
+s0-p5-s2-m2
+s0-p5-s2-m5
 s0-p5-s3
 eq-s0-d1
 s0-p6
 s0-p6-s1
+s0-p6-s1-m1
+s0-p6-s1-m2
+s0-p6-s1-m3
 s0-p6-s2
+s0-p6-s2-m2
+s0-p6-s2-m3
 s0-p7
 s0-p7-s1
+s0-p7-s1-m3
+s0-p7-s1-m4
 s0-p7-s2
+s0-p7-s2-m1
 s0-p7-s3
 s0-p7-s4
+s0-p7-s4-m1
+s0-p7-s4-m2
+s0-p7-s4-m3
+s0-p7-s4-m4
 s0-p7-s5
 s0-p7-s6
+s0-p7-s6-m1
 s0-p7-s7
+s0-p7-s7-m3
 s0-p7-s8
+s0-p7-s8-m1
+s0-p7-s8-m3
 s0-p7-s9
 s0-p7-s10
 s0-p7-s11
+s0-p7-s11-m1
 s0-p7-s12
+s0-p7-s12-m1
 eq-s0-d2
 eq-s0-d3
 eq-s0-d4
@@ -56,9 +85,11 @@ s0-p11-s2
 eq-s0-d7
 s0-p12
 s0-p12-s1
+s0-p12-s1-m2
 s0-p12-s2
 s0-p13
 s0-p13-s1
+s0-p13-s1-m2
 s0-p14
 s0-p14-s1
 s0-p15

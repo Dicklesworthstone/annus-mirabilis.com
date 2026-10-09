@@ -81,8 +81,15 @@ describe("every manifest unit gets a status from the tree", () => {
     // the equality broke on correct work. So the census now compares like with like, and gains the
     // sentence half it never had: block-level units against block FILES, sentence units against
     // the span ids counted from those same files.
-    const blockLevel = coverage.filter((c) => c.kind !== "sentence");
+    //
+    // THE THIRD TIME, and the partition now names the sub-block kinds instead of excluding one at a
+    // time. On 2026-10-09, 24 inline-equation units landed and `kind !== "sentence"` counted them as
+    // block FILES: 25 files against 49. An inline equation is a region inside a sentence, no more a
+    // file than a sentence is, so it gets its own census below rather than a place in either half.
+    const SUB_BLOCK_KINDS = new Set(["sentence", "inline-equation"]);
+    const blockLevel = coverage.filter((c) => !SUB_BLOCK_KINDS.has(c.kind));
     const sentenceUnits = coverage.filter((c) => c.kind === "sentence");
+    const inlineUnits = coverage.filter((c) => c.kind === "inline-equation");
     const spanIds = new Set(
       blockFiles.flatMap((f) => {
         const text = readFileSync(join(ROOT, "content/source-blocks/mass-energy", f), "utf8");
@@ -103,6 +110,22 @@ describe("every manifest unit gets a status from the tree", () => {
     // not two counts that could agree while naming different members.
     expect([...spanIds].sort()).toEqual(sentenceUnits.map((c) => c.id).sort());
     expect(sentenceUnits.length).toBeGreaterThan(0);
+    // The inline half, censused INDEPENDENTLY of the derivation that produced these units. Set
+    // equality against that derivation is asserted in inlineEquationUnits.test.ts; repeating it here
+    // would only re-ask the derivation whether it agrees with itself. What this can ask, from the
+    // files alone, is that every inline id names a real owner: an `-m<i>` suffix on a span id or a
+    // block id censused above, with a 1-based index. An id whose owner does not exist is the failure
+    // that matters, because these ids are frozen and one naming a wrong passage is not editable.
+    const censusedOwners = new Set([
+      ...spanIds,
+      ...blockFiles.map((f) => f.slice(0, -".yaml".length)),
+    ]);
+    const badlyOwned = inlineUnits.filter((c) => {
+      const match = /^(.+)-m(\d+)$/.exec(c.id);
+      return match === null || !censusedOwners.has(match[1] as string) || Number(match[2]) < 1;
+    });
+    expect(badlyOwned.map((c) => c.id)).toEqual([]);
+    expect(inlineUnits.length).toBeGreaterThan(0);
     expect(coverage.every((c) => c.status === "covered")).toBe(true);
     const text = formatManifestReportText(
       generateManifestReport(

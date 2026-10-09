@@ -183,15 +183,12 @@ export const DECLARED_ABSENCES: AbsenceDeclarations = new Map([
       // sentence ids are now units of kind `sentence` in this paper's manifest, and this entry was
       // removed by the same change, which is what `staleAbsenceDeclarations` exists to force. It
       // reported "mass-energy: 'sentence'" the moment the units landed.
-      [
-        "inline-equation",
-        {
-          kind: "debt",
-          reason:
-            "The paper's three pages print inline mathematics; none is inventoried. Owed by the same closed bead that owed the sentence row.",
-          bead: "am-edn-inventory-mass-energy-g2d",
-        },
-      ],
+      //
+      // The `inline-equation` debt was PAID on 2026-10-09, the last of the four and the last debt
+      // in this map: 24 units of 42 inline math regions. Its reason read "Owed by the same closed
+      // bead that owed the sentence row", which was true and is the reason it could not have been
+      // paid by its owner -- am-edn-inventory-mass-energy-g2d closed on 2026-09-28 still owing it.
+      // Only the structural row below remains, and no bead can close that one.
     ]),
   ],
 ]);

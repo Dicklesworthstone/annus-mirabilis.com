@@ -7,6 +7,16 @@ pageCount: 3
 pageRange: [639, 641]
 idsFrozenAt: "2026-09-19T00:00:00Z"
 frozenBy: am-edn-inventory-mass-energy-g2d
+# The 24 inline-equation ids were added on 2026-10-09, paying this inventory's last
+# declared absence (the Requirements row "Substantive inline equations and nontrivial symbol
+# occurrences"). Each is placed beside the alignable unit that prints it -- a sentence, or a
+# footnote where the formula is printed in one -- and inherits that unit's locators and argument
+# obligations rather than inventing its own. Its index counts EVERY inline math region of that unit
+# in printed order, including the lone symbols the criterion does not admit, so the numbers have
+# gaps on purpose and promoting a region later moves nothing. The criterion -- more than a single
+# symbol -- and the measurement behind it (42 regions here, 24 substantive) are in
+# src/content/manifest/inlineEquationUnits.ts, whose test asserts this manifest records exactly the
+# derived set. These ids are frozen like the rest: a wrong one is retired through an alias.
 units:
   - id: masthead-title
     kind: masthead-title
@@ -182,6 +192,18 @@ units:
       argumentObligations:
         - imported-result
 
+  - id: s0-p5-s1-m1
+    kind: inline-equation
+    containedIn: s0-p5-s1
+    locators:
+      - page: 639
+    destination:
+      editionBlockId: de-mass-energy-s0-p5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - imported-result
+
   - id: s0-p5-s2
     kind: sentence
     containedIn: s0-p5
@@ -192,6 +214,42 @@ units:
       translationUnits:
         - s0-p5-s2a
         - s0-p5-s2b
+      argumentObligations:
+        - imported-result
+
+  - id: s0-p5-s2-m1
+    kind: inline-equation
+    containedIn: s0-p5-s2
+    locators:
+      - page: 639
+    destination:
+      editionBlockId: de-mass-energy-s0-p5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - imported-result
+
+  - id: s0-p5-s2-m2
+    kind: inline-equation
+    containedIn: s0-p5-s2
+    locators:
+      - page: 639
+    destination:
+      editionBlockId: de-mass-energy-s0-p5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - imported-result
+
+  - id: s0-p5-s2-m5
+    kind: inline-equation
+    containedIn: s0-p5-s2
+    locators:
+      - page: 639
+    destination:
+      editionBlockId: de-mass-energy-s0-p5
+      translationUnits:
+        - planned
       argumentObligations:
         - imported-result
 
@@ -244,6 +302,42 @@ units:
       argumentObligations:
         - equal-opposite-emissions
 
+  - id: s0-p6-s1-m1
+    kind: inline-equation
+    containedIn: s0-p6-s1
+    locators:
+      - page: 640
+    destination:
+      editionBlockId: de-mass-energy-s0-p6
+      translationUnits:
+        - planned
+      argumentObligations:
+        - equal-opposite-emissions
+
+  - id: s0-p6-s1-m2
+    kind: inline-equation
+    containedIn: s0-p6-s1
+    locators:
+      - page: 640
+    destination:
+      editionBlockId: de-mass-energy-s0-p6
+      translationUnits:
+        - planned
+      argumentObligations:
+        - equal-opposite-emissions
+
+  - id: s0-p6-s1-m3
+    kind: inline-equation
+    containedIn: s0-p6-s1
+    locators:
+      - page: 640
+    destination:
+      editionBlockId: de-mass-energy-s0-p6
+      translationUnits:
+        - planned
+      argumentObligations:
+        - equal-opposite-emissions
+
   - id: s0-p6-s2
     kind: sentence
     containedIn: s0-p6
@@ -253,6 +347,30 @@ units:
       editionBlockId: s0-p6-s2
       translationUnits:
         - s0-p6-s2
+      argumentObligations:
+        - equal-opposite-emissions
+
+  - id: s0-p6-s2-m2
+    kind: inline-equation
+    containedIn: s0-p6-s2
+    locators:
+      - page: 640
+    destination:
+      editionBlockId: de-mass-energy-s0-p6
+      translationUnits:
+        - planned
+      argumentObligations:
+        - equal-opposite-emissions
+
+  - id: s0-p6-s2-m3
+    kind: inline-equation
+    containedIn: s0-p6-s2
+    locators:
+      - page: 640
+    destination:
+      editionBlockId: de-mass-energy-s0-p6
+      translationUnits:
+        - planned
       argumentObligations:
         - equal-opposite-emissions
 
@@ -294,6 +412,34 @@ units:
         - energy-balances
         - subtraction-kinetic-energy
 
+  - id: s0-p7-s1-m3
+    kind: inline-equation
+    containedIn: s0-p7-s1
+    locators:
+      - page: 640
+    destination:
+      editionBlockId: de-mass-energy-s0-p7
+      translationUnits:
+        - planned
+      argumentObligations:
+        - equal-opposite-emissions
+        - energy-balances
+        - subtraction-kinetic-energy
+
+  - id: s0-p7-s1-m4
+    kind: inline-equation
+    containedIn: s0-p7-s1
+    locators:
+      - page: 640
+    destination:
+      editionBlockId: de-mass-energy-s0-p7
+      translationUnits:
+        - planned
+      argumentObligations:
+        - equal-opposite-emissions
+        - energy-balances
+        - subtraction-kinetic-energy
+
   - id: s0-p7-s2
     kind: sentence
     containedIn: s0-p7
@@ -303,6 +449,20 @@ units:
       editionBlockId: s0-p7-s2
       translationUnits:
         - s0-p7-s2
+      argumentObligations:
+        - equal-opposite-emissions
+        - energy-balances
+        - subtraction-kinetic-energy
+
+  - id: s0-p7-s2-m1
+    kind: inline-equation
+    containedIn: s0-p7-s2
+    locators:
+      - page: 640
+    destination:
+      editionBlockId: de-mass-energy-s0-p7
+      translationUnits:
+        - planned
       argumentObligations:
         - equal-opposite-emissions
         - energy-balances
@@ -336,6 +496,62 @@ units:
         - energy-balances
         - subtraction-kinetic-energy
 
+  - id: s0-p7-s4-m1
+    kind: inline-equation
+    containedIn: s0-p7-s4
+    locators:
+      - page: 640
+    destination:
+      editionBlockId: de-mass-energy-s0-p7
+      translationUnits:
+        - planned
+      argumentObligations:
+        - equal-opposite-emissions
+        - energy-balances
+        - subtraction-kinetic-energy
+
+  - id: s0-p7-s4-m2
+    kind: inline-equation
+    containedIn: s0-p7-s4
+    locators:
+      - page: 640
+    destination:
+      editionBlockId: de-mass-energy-s0-p7
+      translationUnits:
+        - planned
+      argumentObligations:
+        - equal-opposite-emissions
+        - energy-balances
+        - subtraction-kinetic-energy
+
+  - id: s0-p7-s4-m3
+    kind: inline-equation
+    containedIn: s0-p7-s4
+    locators:
+      - page: 640
+    destination:
+      editionBlockId: de-mass-energy-s0-p7
+      translationUnits:
+        - planned
+      argumentObligations:
+        - equal-opposite-emissions
+        - energy-balances
+        - subtraction-kinetic-energy
+
+  - id: s0-p7-s4-m4
+    kind: inline-equation
+    containedIn: s0-p7-s4
+    locators:
+      - page: 640
+    destination:
+      editionBlockId: de-mass-energy-s0-p7
+      translationUnits:
+        - planned
+      argumentObligations:
+        - equal-opposite-emissions
+        - energy-balances
+        - subtraction-kinetic-energy
+
   - id: s0-p7-s5
     kind: sentence
     containedIn: s0-p7
@@ -364,6 +580,20 @@ units:
         - energy-balances
         - subtraction-kinetic-energy
 
+  - id: s0-p7-s6-m1
+    kind: inline-equation
+    containedIn: s0-p7-s6
+    locators:
+      - page: 640
+    destination:
+      editionBlockId: de-mass-energy-s0-p7
+      translationUnits:
+        - planned
+      argumentObligations:
+        - equal-opposite-emissions
+        - energy-balances
+        - subtraction-kinetic-energy
+
   - id: s0-p7-s7
     kind: sentence
     containedIn: s0-p7
@@ -373,6 +603,20 @@ units:
       editionBlockId: s0-p7-s7
       translationUnits:
         - s0-p7-s7
+      argumentObligations:
+        - equal-opposite-emissions
+        - energy-balances
+        - subtraction-kinetic-energy
+
+  - id: s0-p7-s7-m3
+    kind: inline-equation
+    containedIn: s0-p7-s7
+    locators:
+      - page: 640
+    destination:
+      editionBlockId: de-mass-energy-s0-p7
+      translationUnits:
+        - planned
       argumentObligations:
         - equal-opposite-emissions
         - energy-balances
@@ -388,6 +632,36 @@ units:
       editionBlockId: s0-p7-s8
       translationUnits:
         - s0-p7-s8
+      argumentObligations:
+        - equal-opposite-emissions
+        - energy-balances
+        - subtraction-kinetic-energy
+
+  - id: s0-p7-s8-m1
+    kind: inline-equation
+    containedIn: s0-p7-s8
+    locators:
+      - page: 640
+      - page: 641
+    destination:
+      editionBlockId: de-mass-energy-s0-p7
+      translationUnits:
+        - planned
+      argumentObligations:
+        - equal-opposite-emissions
+        - energy-balances
+        - subtraction-kinetic-energy
+
+  - id: s0-p7-s8-m3
+    kind: inline-equation
+    containedIn: s0-p7-s8
+    locators:
+      - page: 640
+      - page: 641
+    destination:
+      editionBlockId: de-mass-energy-s0-p7
+      translationUnits:
+        - planned
       argumentObligations:
         - equal-opposite-emissions
         - energy-balances
@@ -436,6 +710,20 @@ units:
         - energy-balances
         - subtraction-kinetic-energy
 
+  - id: s0-p7-s11-m1
+    kind: inline-equation
+    containedIn: s0-p7-s11
+    locators:
+      - page: 641
+    destination:
+      editionBlockId: de-mass-energy-s0-p7
+      translationUnits:
+        - planned
+      argumentObligations:
+        - equal-opposite-emissions
+        - energy-balances
+        - subtraction-kinetic-energy
+
   - id: s0-p7-s12
     kind: sentence
     containedIn: s0-p7
@@ -445,6 +733,20 @@ units:
       editionBlockId: s0-p7-s12
       translationUnits:
         - s0-p7-s12
+      argumentObligations:
+        - equal-opposite-emissions
+        - energy-balances
+        - subtraction-kinetic-energy
+
+  - id: s0-p7-s12-m1
+    kind: inline-equation
+    containedIn: s0-p7-s12
+    locators:
+      - page: 641
+    destination:
+      editionBlockId: de-mass-energy-s0-p7
+      translationUnits:
+        - planned
       argumentObligations:
         - equal-opposite-emissions
         - energy-balances
@@ -595,6 +897,18 @@ units:
       argumentObligations:
         - inertia-change-generalization
 
+  - id: s0-p12-s1-m2
+    kind: inline-equation
+    containedIn: s0-p12-s1
+    locators:
+      - page: 641
+    destination:
+      editionBlockId: de-mass-energy-s0-p12
+      translationUnits:
+        - planned
+      argumentObligations:
+        - inertia-change-generalization
+
   - id: s0-p12-s2
     kind: sentence
     containedIn: s0-p12
@@ -627,6 +941,18 @@ units:
       editionBlockId: s0-p13-s1
       translationUnits:
         - s0-p13-s1
+      argumentObligations:
+        - inertia-change-generalization
+
+  - id: s0-p13-s1-m2
+    kind: inline-equation
+    containedIn: s0-p13-s1
+    locators:
+      - page: 641
+    destination:
+      editionBlockId: de-mass-energy-s0-p13
+      translationUnits:
+        - planned
       argumentObligations:
         - inertia-change-generalization
 
