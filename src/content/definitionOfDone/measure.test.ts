@@ -183,15 +183,23 @@ describe("against the real corpus, the numbers agree with what this repository r
     expect(measured).toBeGreaterThanOrEqual(20);
   });
 
-  test("the manifest denominators are the ones AGENTS.md states: 263, 178, 436, 53", () => {
-    // AGENTS.md's status block records these after the 2026-10-03 re-measurement. Agreement is the
+  test("the manifest denominators are the ones AGENTS.md states: 334, 237, 552, 77", () => {
+    // AGENTS.md's status block records these after the 2026-10-09 re-measurement. Agreement is the
     // check: a report that disagreed with the figures the repository already publishes about itself
     // would be measuring something else.
+    //
+    // THESE MOVE ON CORRECT WORK, and that is the intended maintenance rather than a defect in the
+    // test. They read 263, 178, 436, 53 until the inline-equation units landed on 2026-10-09 and
+    // 270 units were added across the four papers. The pairing is deliberate: this test exists to
+    // force the published figure and the measured one to be updated in the SAME change, so a status
+    // block cannot drift away from the corpus it describes. A floor would not catch that drift,
+    // which is the whole point, so it stays an equality -- but it is an equality between two things
+    // in this repository, never a number copied from a bead.
     const expected: Record<string, number> = {
-      "light-quanta": 263,
-      "brownian-motion": 178,
-      "special-relativity": 436,
-      "mass-energy": 53,
+      "light-quanta": 334,
+      "brownian-motion": 237,
+      "special-relativity": 552,
+      "mass-energy": 77,
     };
     for (const [paper, denominator] of Object.entries(expected)) {
       const cell = cells.find((c) => c.paper === paper && c.item === "manifest-units-covered");

@@ -34,11 +34,33 @@ const PAPERS = [
 
 type Alias = Readonly<{ retiredId: string; replacementIds?: readonly string[] }>;
 
-function manifestIds(paper: string): string[] {
+/**
+ * UNIT KINDS THE ANCHOR GRAMMAR DEFINES NO ANCHOR FOR.
+ *
+ * AGENTS.md's anchor list is `#s<n>`, `#s<n>-p<m>`, `#s<n>-p<m>-s<k>`, `#eq-...`, `#result-...`,
+ * `#arg-...`, `#lab-...`, `#entry-...`. There is no `#s<n>-p<m>-s<k>-m<i>` in it, so an inline
+ * equation is a unit of the INVENTORY with no address on a reading face, which is the right
+ * reading: the formula is inside its sentence's text, and that sentence's anchor is where a reader
+ * arrives. Giving 270 of them their own anchors would be a reader-facing change to the German
+ * face, which no inventory bead implies.
+ *
+ * Excluded BY KIND, read from the manifest, never by matching the id. An id-pattern exclusion
+ * would also swallow a genuinely missing sentence anchor whose id happened to look similar, and
+ * this check exists to catch exactly that.
+ */
+const UNANCHORED_KINDS = new Set(["inline-equation"]);
+
+function manifestUnits(paper: string): readonly { id: string; kind?: string }[] {
   const raw = parseYaml(
     readFileSync(join(ROOT, "content", "source-blocks", paper, "manifest.yaml"), "utf8"),
-  ) as { units?: readonly { id: string }[] };
-  return (raw.units ?? []).map((u) => u.id);
+  ) as { units?: readonly { id: string; kind?: string }[] };
+  return raw.units ?? [];
+}
+
+function manifestIds(paper: string): string[] {
+  return manifestUnits(paper)
+    .filter((u) => !UNANCHORED_KINDS.has(u.kind ?? ""))
+    .map((u) => u.id);
 }
 
 function aliases(paper: string): Alias[] {
@@ -65,6 +87,13 @@ describe("every German face renders its source blocks (dispatch 255, step 0)", (
         problems.push("the German face does not render the source blocks");
       if (document.querySelector("[data-german-draft]"))
         problems.push("the German face still renders the ledger draft");
+
+      // The exclusion is not allowed to be vacuous: if no unit of an unanchored kind existed, the
+      // filter above would be doing nothing and this check would silently become the old, stronger
+      // one. Each paper carries inline-equation units since 2026-10-09, so this holds and says so.
+      const unanchored = manifestUnits(slug).filter((u) => UNANCHORED_KINDS.has(u.kind ?? ""));
+      if (unanchored.length === 0)
+        problems.push("no unit of an unanchored kind: the kind filter is doing nothing");
 
       const retired = aliases(slug);
       const retiredIds = new Set(retired.map((a) => a.retiredId));
@@ -120,7 +149,7 @@ describe("every German face renders its source blocks (dispatch 255, step 0)", (
         );
 
       console.log(
-        `[german face] ${slug}: ${live.length} manifest ids, ${retired.length - unpublished} aliases published (${unpublished} to reference occurrences, not anchors), ${explained} explained lines, ${footnotes.length} footnotes; ${problems.length} problems`,
+        `[german face] ${slug}: ${live.length} anchorable manifest ids (${unanchored.length} inline-equation units excluded, no anchor in the grammar), ${retired.length - unpublished} aliases published (${unpublished} to reference occurrences, not anchors), ${explained} explained lines, ${footnotes.length} footnotes; ${problems.length} problems`,
       );
       expect(problems).toEqual([]);
     });
