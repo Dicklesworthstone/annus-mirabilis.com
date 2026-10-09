@@ -1,0 +1,267 @@
+{
+  "schema": "annus-mirabilis-definition-of-done-baseline.v1",
+  "recordedAt": "2026-10-09",
+  "recordedFrom": "the working tree at the commit this file lands in",
+  "cells": {
+    "displays-bound|brownian-motion": {
+      "count": 43,
+      "denominator": 43,
+      "met": true
+    },
+    "displays-bound|light-quanta": {
+      "count": 52,
+      "denominator": 52,
+      "met": true
+    },
+    "displays-bound|mass-energy": {
+      "count": 7,
+      "denominator": 7,
+      "met": true
+    },
+    "displays-bound|special-relativity": {
+      "count": 98,
+      "denominator": 98,
+      "met": true
+    },
+    "english-units-present|brownian-motion": {
+      "count": 91,
+      "denominator": 91,
+      "met": true
+    },
+    "english-units-present|light-quanta": {
+      "count": 135,
+      "denominator": 135,
+      "met": true
+    },
+    "english-units-present|mass-energy": {
+      "count": 28,
+      "denominator": 28,
+      "met": true
+    },
+    "english-units-present|special-relativity": {
+      "count": 223,
+      "denominator": 223,
+      "met": true
+    },
+    "journey-skeleton-parts|brownian-motion": {
+      "count": 0,
+      "denominator": 0,
+      "met": false
+    },
+    "journey-skeleton-parts|light-quanta": {
+      "count": 0,
+      "denominator": 0,
+      "met": false
+    },
+    "journey-skeleton-parts|mass-energy": {
+      "count": 0,
+      "denominator": 0,
+      "met": false
+    },
+    "journey-skeleton-parts|special-relativity": {
+      "count": 0,
+      "denominator": 0,
+      "met": false
+    },
+    "lab-contract-cells|brownian-motion": {
+      "count": 0,
+      "denominator": 0,
+      "met": false
+    },
+    "lab-contract-cells|light-quanta": {
+      "count": 0,
+      "denominator": 0,
+      "met": false
+    },
+    "lab-contract-cells|mass-energy": {
+      "count": 0,
+      "denominator": 0,
+      "met": false
+    },
+    "lab-contract-cells|special-relativity": {
+      "count": 0,
+      "denominator": 0,
+      "met": false
+    },
+    "manifest-units-covered|brownian-motion": {
+      "count": 178,
+      "denominator": 178,
+      "met": true
+    },
+    "manifest-units-covered|light-quanta": {
+      "count": 263,
+      "denominator": 263,
+      "met": true
+    },
+    "manifest-units-covered|mass-energy": {
+      "count": 53,
+      "denominator": 53,
+      "met": true
+    },
+    "manifest-units-covered|special-relativity": {
+      "count": 436,
+      "denominator": 436,
+      "met": true
+    },
+    "margin-entries|brownian-motion": {
+      "count": 0,
+      "denominator": 0,
+      "met": false
+    },
+    "margin-entries|light-quanta": {
+      "count": 0,
+      "denominator": 0,
+      "met": false
+    },
+    "margin-entries|mass-energy": {
+      "count": 0,
+      "denominator": 0,
+      "met": false
+    },
+    "margin-entries|special-relativity": {
+      "count": 0,
+      "denominator": 0,
+      "met": false
+    },
+    "misconceptions-at-least-five|brownian-motion": {
+      "count": 5,
+      "denominator": 5,
+      "met": true
+    },
+    "misconceptions-at-least-five|light-quanta": {
+      "count": 5,
+      "denominator": 5,
+      "met": true
+    },
+    "misconceptions-at-least-five|mass-energy": {
+      "count": 5,
+      "denominator": 5,
+      "met": true
+    },
+    "misconceptions-at-least-five|special-relativity": {
+      "count": 5,
+      "denominator": 5,
+      "met": true
+    },
+    "paragraphs-bound|brownian-motion": {
+      "count": 32,
+      "denominator": 32,
+      "met": true
+    },
+    "paragraphs-bound|light-quanta": {
+      "count": 50,
+      "denominator": 50,
+      "met": true
+    },
+    "paragraphs-bound|mass-energy": {
+      "count": 12,
+      "denominator": 12,
+      "met": true
+    },
+    "paragraphs-bound|special-relativity": {
+      "count": 94,
+      "denominator": 94,
+      "met": true
+    },
+    "r2-covers-r1|brownian-motion": {
+      "count": 0,
+      "denominator": 0,
+      "met": false
+    },
+    "r2-covers-r1|light-quanta": {
+      "count": 0,
+      "denominator": 0,
+      "met": false
+    },
+    "r2-covers-r1|mass-energy": {
+      "count": 0,
+      "denominator": 0,
+      "met": false
+    },
+    "r2-covers-r1|special-relativity": {
+      "count": 0,
+      "denominator": 0,
+      "met": false
+    },
+    "readings-r0-to-r3|brownian-motion": {
+      "count": 0,
+      "denominator": 0,
+      "met": false
+    },
+    "readings-r0-to-r3|light-quanta": {
+      "count": 0,
+      "denominator": 0,
+      "met": false
+    },
+    "readings-r0-to-r3|mass-energy": {
+      "count": 0,
+      "denominator": 0,
+      "met": false
+    },
+    "readings-r0-to-r3|special-relativity": {
+      "count": 0,
+      "denominator": 0,
+      "met": false
+    },
+    "results-cards-printed|brownian-motion": {
+      "count": 6,
+      "denominator": 6,
+      "met": true
+    },
+    "results-cards-printed|light-quanta": {
+      "count": 9,
+      "denominator": 9,
+      "met": true
+    },
+    "results-cards-printed|mass-energy": {
+      "count": 7,
+      "denominator": 7,
+      "met": true
+    },
+    "results-cards-printed|special-relativity": {
+      "count": 16,
+      "denominator": 16,
+      "met": true
+    },
+    "reviews-with-names|brownian-motion": {
+      "count": 0,
+      "denominator": 0,
+      "met": false
+    },
+    "reviews-with-names|light-quanta": {
+      "count": 0,
+      "denominator": 0,
+      "met": false
+    },
+    "reviews-with-names|mass-energy": {
+      "count": 0,
+      "denominator": 0,
+      "met": false
+    },
+    "reviews-with-names|special-relativity": {
+      "count": 0,
+      "denominator": 0,
+      "met": false
+    },
+    "tour-present|brownian-motion": {
+      "count": 0,
+      "denominator": 0,
+      "met": false
+    },
+    "tour-present|light-quanta": {
+      "count": 0,
+      "denominator": 0,
+      "met": false
+    },
+    "tour-present|mass-energy": {
+      "count": 0,
+      "denominator": 0,
+      "met": false
+    },
+    "tour-present|special-relativity": {
+      "count": 0,
+      "denominator": 0,
+      "met": false
+    }
+  }
+}
