@@ -1,0 +1,63 @@
+# The results the master plan's section 3.5 treatment map requires of this paper, transcribed.
+# A DENOMINATOR, not editorial copy (am-definition-of-done-as-code-8w1c). See mass-energy.yaml for
+# why counting cards is the wrong population and what `notACard` is for.
+#
+# Twelve rows against SIXTEEN cards, which is why a card count cannot answer this question in either
+# direction. Four of the plan's sections carry more than one card because they state more than one
+# result: section 3 proves the principles compatible and then derives the transformation, section 4
+# gives the ellipsoid and the clock, section 8 the light complex and the mirror, section 10 three
+# relations. The mapping below is read from each card's own declared `section`, not inferred from
+# its title.
+#
+# This paper's introduction, unlike the other three, DOES carry a card: the two postulates are a
+# result the paper states and later uses, not a statement of modality.
+paper: special-relativity
+planSection: "3.5"
+ownerBead: am-definition-of-done-as-code-8w1c
+revision: 1
+rows:
+  - block: "Introduction"
+    result: "the two postulates, verbatim"
+    satisfiedBy: sr-two-postulates
+  - block: "§1 Simultaneity"
+    result: "t_B - t_A = t'_A - t_B"
+    satisfiedBy: sr-synchronous-clocks
+  - block: "§2 Lengths and times"
+    result: "the relativity of simultaneity"
+    satisfiedBy: sr-relativity-of-simultaneity
+  - block: "§3 Coordinate and time transformation"
+    result: "tau = beta(t - v x / V^2), xi = beta(x - v t), eta = y, zeta = z, beta = (1 - v^2/V^2)^(-1/2)"
+    satisfiedBy:
+      - sr-principles-compatible
+      - sr-transformation-equations
+  - block: "§4 Physical meaning"
+    result: "ellipsoid axes R sqrt(1 - v^2/V^2), R, R; a moving clock loses 1 - sqrt(1 - v^2/V^2) per second, about (1/2) v^2/V^2 [printed second-order form]"
+    satisfiedBy:
+      - sr-moving-rigid-body
+      - sr-moving-clock
+  - block: "§5 Velocity addition"
+    result: "U = (v + w) / (1 + v w / V^2); two boosts give a boost"
+    satisfiedBy: sr-velocity-addition
+  - block: "§6 Maxwell-Hertz transformation"
+    result: "X' = X, Y' = beta(Y - (v/V) N), Z' = beta(Z + (v/V) M), L' = L, M' = beta(M + (v/V) Z), N' = beta(N - (v/V) Y)"
+    satisfiedBy: sr-field-transformation
+  - block: "§7 Doppler and aberration"
+    result: "nu' = nu beta(1 - (v/V) cos phi); cos phi' = (cos phi - v/V) / (1 - (v/V) cos phi)"
+    satisfiedBy: sr-doppler-aberration
+  - block: "§8 Light energy and moving mirrors"
+    result: "E'/E = beta(1 - (v/V) cos phi) = nu'/nu; mirror pressure proportional to (cos phi - v/V)^2 / (1 - v^2/V^2) in the printed Gaussian units"
+    satisfiedBy:
+      - sr-light-complex-energy
+      - sr-moving-mirror
+  - block: "§9 Convection currents"
+    result: "the transformed equations with rho"
+    satisfiedBy: sr-convection-current
+  - block: "§10 Electron dynamics"
+    result: "longitudinal mass m beta^3, transverse mass m beta^2 (with the source's force convention); W = m V^2 (beta - 1)"
+    satisfiedBy:
+      - sr-electron-masses
+      - sr-electron-kinetic-energy
+      - sr-electron-laws
+  - block: "Closing"
+    result: "'Bern, Juni 1905'"
+    notACard: "A date-line, for the reason given on the same row of mass-energy.yaml: a closing source block checked by the source manifest, which a card would duplicate with no probe."

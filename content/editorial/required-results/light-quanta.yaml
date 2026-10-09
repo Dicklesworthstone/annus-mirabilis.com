@@ -1,0 +1,44 @@
+# The results the master plan's section 3.3 treatment map requires of this paper, transcribed.
+# A DENOMINATOR, not editorial copy (am-definition-of-done-as-code-8w1c). See mass-energy.yaml for
+# why counting cards is the wrong population and what `notACard` is for.
+#
+# The cleanest of the four: the nine numbered sections each carry one card, and the two rows without
+# one are the introduction's statement of modality and the date-line.
+paper: light-quanta
+planSection: "3.3"
+ownerBead: am-definition-of-done-as-code-8w1c
+revision: 1
+rows:
+  - block: "Introduction"
+    result: "The heuristic status, verbatim"
+    notACard: "The row's result is the paper's own modality -- that its viewpoint is heuristic -- which AGENTS.md requires be kept as such ('A heuristic stays a heuristic'). It is a statement about the standing of every result that follows rather than a result with a printed form and a probe, and it is carried by the entrance record and the historian's margin."
+  - block: "§1 Difficulty in black-body theory"
+    result: "rho_nu = (R/N)(8 pi nu^2 / L^3) T; the integral over all nu has no finite value"
+    satisfiedBy: lq-classical-difficulty
+  - block: "§2 Planck's elementary quanta"
+    result: "N = (beta/alpha)(8 pi R / L^3) [printed 6.17e23]"
+    satisfiedBy: lq-planck-constants
+  - block: "§3 Radiation entropy"
+    result: "The thermodynamic identity, derived not assumed"
+    satisfiedBy: lq-entropy-temperature
+  - block: "§4 Low-density monochromatic radiation"
+    result: "S - S_0 = (E / (beta nu)) ln(V / V_0)"
+    satisfiedBy: lq-radiation-entropy-volume
+  - block: "§5 Gases and dilute solutions"
+    result: "S - S_0 = (R/N) ln W; W = (V/V_0)^n"
+    satisfiedBy: lq-boltzmann-principle
+  - block: "§6 Interpreting radiation entropy"
+    result: "W = (V/V_0)^(N E / (R beta nu)); quanta of energy R beta nu / N"
+    satisfiedBy: lq-energy-quanta
+  - block: "§7 Stokes's rule"
+    result: "emitted nu <= absorbed nu with the thermal caveat"
+    satisfiedBy: lq-stokes-rule
+  - block: "§8 Photoelectric emission"
+    result: "Pi epsilon = (R/N) beta nu - P [printed: nu = 1.03e15 per s gives about 4.3 V]"
+    satisfiedBy: lq-photoelectric-energy
+  - block: "§9 Gas ionization"
+    result: "energy per ion <= R beta nu / N"
+    satisfiedBy: lq-ionization
+  - block: "Closing"
+    result: "'Bern, den 17. Maerz 1905'"
+    notACard: "A date-line, for the reason given on the same row of mass-energy.yaml: a closing source block checked by the source manifest, which a card would duplicate with no probe."

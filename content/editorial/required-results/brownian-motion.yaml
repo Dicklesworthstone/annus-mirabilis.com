@@ -1,0 +1,39 @@
+# The results the master plan's section 3.4 treatment map requires of this paper, transcribed.
+# A DENOMINATOR, not editorial copy (am-definition-of-done-as-code-8w1c). See mass-energy.yaml for
+# why counting cards is the wrong population and what `notACard` is for.
+#
+# Seven rows against six cards, and the mismatch is not a shortfall of one: section 5 is carded
+# TWICE (the printed displacement and the determination of N are separate results with separate
+# probes), while three rows carry no card and two of those are judgments rather than gaps.
+paper: brownian-motion
+planSection: "3.4"
+ownerBead: am-definition-of-done-as-code-8w1c
+revision: 1
+rows:
+  - block: "Introduction"
+    result: "'it is possible that the motions to be discussed here are identical with so-called Brownian molecular motion' (paraphrase)"
+    notACard: "The row's result is the paper's own hedge about the observational reports, which AGENTS.md requires be preserved rather than resolved ('Preserve the Brownian paper's stated uncertainty about the reports'). That is a statement about modality, not a numbered result with a probe, and it is carried by the paper's entrance record and the historian's margin. Recorded so the row is accounted for."
+  - block: "§1 Osmotic pressure of suspended particles"
+    result: "p = (RT/N) nu"
+    satisfiedBy: bm-osmotic-pressure
+  - block: "§2 Statistical-mechanical justification"
+    result: "the free-energy argument, complete"
+    notACard: "The plan's cell is a completeness requirement on a derivation, not a result to card: there is no equation in it. It is checked as an argument passage and its readings, which is where a derivation's completeness is representable. A card here would have no printed form to show, which is the first field a results card requires."
+  - block: "§3 Diffusion of small spheres"
+    result: "K nu = (RT/N) d(nu)/dx, K = 6 pi k P v, D = (RT/N)(1/(6 pi k P))"
+    satisfiedBy: bm-diffusion-coefficient
+  - block: "§4 Irregular motion and diffusion"
+    result: "df/dt = D d2f/dx2; D = (1/tau) integral (Delta^2 / 2) phi(Delta) d(Delta)"
+    # Two cards, because the plan's cell holds two results: the equation and the law that follows
+    # from its solution. A single `satisfiedBy` would have to drop one of them.
+    satisfiedBy:
+      - bm-diffusion-equation
+      - bm-displacement-law
+  - block: "§5 Molecular scale from visible motion"
+    result: "lambda_x = sqrt(2 D t) [printed: about 0.8 micron in 1 s, about 6 micron in 1 min, for 1 micron-diameter particles (P = 0.5 micron) in water at 17 C with k = 1.35e-2 CGS]; N = (t / lambda_x^2)(RT / (3 pi k P))"
+    satisfiedBy:
+      - bm-predicted-displacement
+      - bm-molecular-number
+  - block: "Closing"
+    result: "'Bern, Mai 1905'"
+    notACard: "A date-line, for the reason given on the same row of mass-energy.yaml: it is a closing source block checked by the source manifest, and a card would duplicate it with no probe."

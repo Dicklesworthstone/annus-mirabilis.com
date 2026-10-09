@@ -1,0 +1,42 @@
+# The results the master plan's section 3.6 treatment map requires of this paper, transcribed.
+#
+# This file is a DENOMINATOR, not editorial copy (am-definition-of-done-as-code-8w1c). The doneness
+# report's `results-cards-against-section-3` cell read "the plan's section 3 results list is prose;
+# no typed record enumerates the results a paper must card, so there is no denominator", and that
+# was exactly right: the list lived only in a markdown table. Counting the cards instead is the
+# wrong population, because it answers how many cards exist rather than whether the plan's rows are
+# covered -- and the two differ in both directions across the four papers (relativity has 16 cards
+# against 12 rows; this paper has 7 against 8).
+#
+# `satisfiedBy` names an existing card only where that card carries the row's result. `notACard`
+# records a row that is deliberately not a results card, with the reason, so a gap and a judgment
+# are not counted as the same thing. Do not turn a gap into a `notACard` to make a number move.
+paper: mass-energy
+planSection: "3.6"
+ownerBead: am-definition-of-done-as-code-8w1c
+revision: 1
+rows:
+  - block: "Imported result from paper 3"
+    result: "E'/E = beta(1 - (v/V) cos phi)"
+    satisfiedBy: me-light-energy-transformation
+  - block: "Two equal opposite emissions"
+    result: "half of L each way"
+    satisfiedBy: me-symmetric-emission
+  - block: "Energy balances in two frames"
+    result: "E_0 - E_1 = L; H_0 - H_1 = L beta"
+    satisfiedBy: me-two-balances
+  - block: "Subtraction and kinetic energy"
+    result: "K_0 - K_1 = L(beta - 1)"
+    satisfiedBy: me-kinetic-energy-drop
+  - block: "Low-speed expansion"
+    result: "L(beta - 1) = (1/2)(L/V^2) v^2 + ..."
+    satisfiedBy: me-low-speed-approximation
+  - block: "Inertia change and generalization"
+    result: "the mass diminishes by L/V^2; 'the mass of a body is a measure of its energy content'"
+    satisfiedBy: me-mass-decrease
+  - block: "Empirical closing remark"
+    result: "as printed"
+    satisfiedBy: me-closing-remarks
+  - block: "Date-line"
+    result: "'Bern, September 1905'"
+    notACard: "A date-line is a closing block, not a numbered result, and the plan's own cell for it is the printed date rather than a claim. AGENTS.md gives it the id closing-dateline under source blocks and requires it in the source manifest, which is where it is checked; a results card would duplicate that with no probe, no misconceptions and no 'where this is used later'. Recorded here so the row is accounted for rather than silently dropped from the denominator."
