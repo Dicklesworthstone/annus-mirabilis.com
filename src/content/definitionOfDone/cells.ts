@@ -61,6 +61,24 @@ export type DoneCell = Readonly<{
  * expressed here rather than at each call site because thirteen items times four papers is
  * fifty-two chances to write `count === denominator` and have it be true of nothing.
  */
+/**
+ * A CODED refusal, so the throw-site census can name it. Three bare `RangeError`s sat here until
+ * the bare-throw ratchet refused the commit: "Either give these refusals typed codes, or add the
+ * file to the baseline... and say why the debt is being recorded rather than paid." AGENTS.md
+ * settles which -- "a baseline is the record of a debt, not a budget to draw on" -- so they are
+ * coded rather than baselined. The code is the FIRST argument and a standalone kebab string,
+ * which is what src/testing/refusals/throwSiteCensus.ts reads (KEBAB_CODE is anchored, so a code
+ * inside a message template is invisible to it).
+ */
+export class DoneCellError extends Error {
+  readonly code: string;
+  constructor(code: string, message: string) {
+    super(message);
+    this.code = code;
+    this.name = "DoneCellError";
+  }
+}
+
 export function doneCell(
   item: DoneItem,
   paper: string,
@@ -69,17 +87,22 @@ export function doneCell(
   note: string,
 ): DoneCell {
   if (!Number.isInteger(count) || count < 0) {
-    throw new RangeError(`${item}/${paper}: count must be a non-negative integer, got ${count}.`);
+    throw new DoneCellError(
+      "done-cell-count",
+      `${item}/${paper}: count must be a non-negative integer, got ${count}.`,
+    );
   }
   if (!Number.isInteger(denominator) || denominator < 0) {
-    throw new RangeError(
+    throw new DoneCellError(
+      "done-cell-denominator",
       `${item}/${paper}: denominator must be a non-negative integer, got ${denominator}.`,
     );
   }
   if (count > denominator) {
     // Not defensive: a numerator above its denominator means the two were counted over different
     // populations, which is the error this whole report exists to make visible.
-    throw new RangeError(
+    throw new DoneCellError(
+      "done-cell-population-mismatch",
       `${item}/${paper}: counted ${count} of ${denominator}, which means the numerator and the ` +
         "denominator are not the same population.",
     );

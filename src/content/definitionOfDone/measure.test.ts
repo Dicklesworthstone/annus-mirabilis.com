@@ -13,7 +13,7 @@ import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { DONE_ITEMS, doneCell, formatCell, measuredCount } from "./cells.ts";
+import { DONE_ITEMS, DoneCellError, doneCell, formatCell, measuredCount } from "./cells.ts";
 import {
   allCells,
   cellsForPaper,
@@ -98,8 +98,33 @@ describe("the cell constructor enforces the rule the first criterion names", () 
   });
 
   test("a negative or fractional count throws rather than rounding", () => {
-    expect(() => doneCell("tour-present", "x", -1, 3, "")).toThrow(RangeError);
-    expect(() => doneCell("tour-present", "x", 1.5, 3, "")).toThrow(RangeError);
+    expect(() => doneCell("tour-present", "x", -1, 3, "")).toThrow(DoneCellError);
+    expect(() => doneCell("tour-present", "x", 1.5, 3, "")).toThrow(DoneCellError);
+  });
+
+  test("and each refusal carries its code as a CODE, not inside the message", () => {
+    // The throw-site census reads a standalone kebab string in the thrown expression. Three bare
+    // RangeErrors sat here until the bare-throw ratchet refused them, offering a baseline entry
+    // instead; AGENTS.md says a baseline is a debt and not a budget, so they were coded.
+    const codes: string[] = [];
+    for (const attempt of [
+      () => doneCell("tour-present", "x", -1, 3, ""),
+      () => doneCell("tour-present", "x", 1, -3, ""),
+      () => doneCell("tour-present", "x", 98, 94, ""),
+    ]) {
+      try {
+        attempt();
+      } catch (error) {
+        codes.push(
+          error instanceof DoneCellError ? error.code : `not-a-DoneCellError:${String(error)}`,
+        );
+      }
+    }
+    expect(codes).toEqual([
+      "done-cell-count",
+      "done-cell-denominator",
+      "done-cell-population-mismatch",
+    ]);
   });
 });
 
