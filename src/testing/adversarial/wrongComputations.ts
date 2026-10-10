@@ -56,6 +56,44 @@ export function wrongSeedTransport(seedDecimal: string): string {
   return String(round.seed);
 }
 
+/**
+ * Row 2, wrong: the radial distribution taken as an ordinary Gaussian in r.
+ *
+ * The real 2D radial density is p_r(r,t) = r/(2Dt) e^{-r^2/(4Dt)}, which carries the factor r from
+ * the growing circumference of available positions. A reader who writes the familiar Gaussian in r
+ * instead keeps the exponential and drops that factor, and the result still looks like a
+ * distribution: positive, peaked, decaying. It fails three separate ways, which is why the row
+ * checks normalization AND both moments rather than one of them.
+ */
+export function wrongRadialDensity(r: number, t: number, D: number): number {
+  return Math.exp(-(r * r) / (4 * D * t)) / Math.sqrt(4 * Math.PI * D * t);
+}
+/** Row 2, right: the radial density the model gives, with the circumference factor. */
+export function correctRadialDensity(r: number, t: number, D: number): number {
+  return (r / (2 * D * t)) * Math.exp(-(r * r) / (4 * D * t));
+}
+/** Row 2, wrong: the second moment that naive density implies, 2Dt rather than 4Dt. */
+export function wrongRadialSecondMoment(D: number, t: number): number {
+  return 2 * D * t;
+}
+/** Row 2, wrong: the mean radius it implies, 2 sqrt(Dt/pi) rather than sqrt(pi D t). */
+export function wrongRadialMeanRadius(D: number, t: number): number {
+  return 2 * Math.sqrt((D * t) / Math.PI);
+}
+
+/**
+ * Row 7, wrong: a light complex contracting like a material volume, by 1/gamma.
+ *
+ * Expressed as the angle-independent factor, because that IS the error: the packet's volume factor
+ * is 1/q with q = gamma(1 - beta cos theta), so it depends on the ray's direction, and a reader who
+ * reaches for length contraction gets 1/gamma at every angle. `waves.ts` already carries this as
+ * `lightComplexMaterialContractionCountermodel`; this wrapper exists so the row reads with the
+ * same shape as the others and names the claim in its own terms.
+ */
+export function wrongLightComplexVolumeFactor(gammaValue: number): number {
+  return 1 / gammaValue;
+}
+
 /** Row 13, wrong: Einstein's printed displacement attributed to a 1 micron radius. */
 export const WRONG_PRINTED_RADIUS_M = 1e-6;
 /** Row 13, right: the radius that actually reproduces the printed figure. */
@@ -85,7 +123,7 @@ export const ADVERSARIAL_ROWS: readonly Readonly<{
     row: 2,
     claim: "A radial distribution is an ordinary Gaussian",
     owner: "physics/reference/diffusion/distributions.ts radialPropagator2d, moments",
-    state: "not-yet" as const,
+    state: "implemented" as const,
   }),
   Object.freeze({
     row: 3,
@@ -114,8 +152,9 @@ export const ADVERSARIAL_ROWS: readonly Readonly<{
   Object.freeze({
     row: 7,
     claim: "A light complex contracts like material volume (corrected fixture)",
-    owner: "physics/reference/waves.ts",
-    state: "not-yet" as const,
+    owner:
+      "physics/reference/waves.ts lightComplexFactors, lightComplexMaterialContractionCountermodel",
+    state: "implemented" as const,
   }),
   Object.freeze({
     row: 8,
