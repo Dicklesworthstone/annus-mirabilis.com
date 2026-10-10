@@ -1370,6 +1370,38 @@ export const checkHeroQuoteUnresolved: ContentCheck = {
   description:
     "Verifies hero quotes and pull quotes against edition text at anchor, preserving case and punctuation while collapsing whitespace.",
   run: (ctx: CheckContext) => {
+    /**
+     * THE CENSUS, BECAUSE 0 ERRORS HERE HAS ALWAYS MEANT 0 QUOTES (am-cm-checks-structural-lq0).
+     *
+     * This check reported clean on every run of verify-content since it was written, and the
+     * reason is that NO paper record declares a hero quote, a pull quote, or anything else this
+     * reads. `editionContract.ts`'s check 12, which names this check as its owner, says the same
+     * in its own comment: "Measured on 2026-09-19, no paper record declares a hero quote, so all
+     * four report not-available today; the check goes live the day one is authored." That one is
+     * honest about it and reports `not-available`; this one silently reported a pass.
+     *
+     * TWO NUMBERS, NOT ONE, BECAUSE THE SECOND IS THE WORSE FINDING. `quotesExamined` at 0 means
+     * nothing was judged. The anchor count is the population a quote could resolve AGAINST, and
+     * measured 2026-10-10 over the whole compiled corpus IT IS ALSO ZERO.
+     *
+     * That is not a content gap, it is this check reading a layer that cannot carry what it wants.
+     * `anchorTextMap` is filled by `extractEntityPlainText`, which looks for `inlines`,
+     * `diplomaticText`, `text` or `phrase` on a compiled record -- and the edition text lives in
+     * the SOURCE BLOCKS, which `compiler.ts:80` hands to the caller rather than compiling as
+     * records, "see src/content/compiler/sourceBlockIndex.ts". The index that does reach this
+     * context carries ids only, never text. So the map is empty by construction and always was.
+     *
+     * The consequence runs the dangerous way. Authoring the first hero quote would not make this
+     * check pass; it would make verify-content RED with "no edition text at anchor", for a reason
+     * that is about the plumbing and reads like a reason about the quote. The fix is not a line
+     * here: it means deciding what a hero quote may anchor to -- a block id is in reach, a
+     * sentence id like `s0-p7-s3` is a span inside a block and is not -- and then giving this
+     * check a text source. Both are this check's owner's call, so this records the state rather
+     * than guessing at it.
+     */
+    let quotesExamined = 0;
+    let recordsWithQuotes = 0;
+
     // Collect edition text at anchors
     const anchorTextMap = new Map<string, string>(); // anchorId -> plainText (with collapsed whitespace)
 
@@ -1404,6 +1436,8 @@ export const checkHeroQuoteUnresolved: ContentCheck = {
         }
       }
 
+      quotesExamined += heroQuotes.length;
+      if (heroQuotes.length > 0) recordsWithQuotes += 1;
       for (let i = 0; i < heroQuotes.length; i++) {
         const hq = heroQuotes[i];
         if (!hq) continue;
@@ -1462,6 +1496,18 @@ export const checkHeroQuoteUnresolved: ContentCheck = {
         }
       }
     }
+    console.log(
+      `[census] hero-quote-unresolved examined ${quotesExamined} hero/pull quote(s) on ` +
+        `${recordsWithQuotes} record(s), against ${anchorTextMap.size} anchor(s) carrying edition text.` +
+        (quotesExamined === 0
+          ? " 0 quotes, so this verdict is about nothing: no paper record declares one."
+          : "") +
+        (anchorTextMap.size === 0
+          ? " 0 anchors, so no quote COULD resolve here: the edition text is in the source blocks," +
+            " which the compiler hands to the caller rather than compiling as records, and the index" +
+            " that reaches this check carries ids only (am-cm-checks-structural-lq0)."
+          : ""),
+    );
   },
 };
 
