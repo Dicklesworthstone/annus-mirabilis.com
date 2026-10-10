@@ -1,5 +1,5 @@
 import type { PredictPrompt } from "../../content/schemas/experiment.ts";
-import { notModeledFor } from "../../generated/not-modeled.ts";
+import { notModeledFor } from "../notModeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
 export interface Sr01Parameters {
   /** r_AB, light-seconds, > 0. Drives both the basic synchronization round and the section 2 rod chase. */

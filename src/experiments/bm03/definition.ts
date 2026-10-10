@@ -1,4 +1,4 @@
-import { notModeledFor } from "../../generated/not-modeled.ts";
+import { notModeledFor } from "../notModeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
 export type Bm03Step = "one-particle" | "two-particles" | "many-particles" | "derivative";
 export type Bm03Model = "independent" | "locked-cluster";

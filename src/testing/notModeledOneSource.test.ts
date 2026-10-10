@@ -102,7 +102,11 @@ describe("a laboratory's notModeled list is written in exactly one place", () =>
 
   test("the generated module is the one place, and it holds every manifest's list", async () => {
     const { labs, items, allItems } = manifestSentences();
-    const { NOT_MODELED, notModeledFor } = await import("../generated/not-modeled.ts");
+    const { NOT_MODELED } = await import("../generated/not-modeled.ts");
+    // The lookup and its refusal are NOT in the generated module, deliberately: a generated file
+    // cannot carry a tested refusal, and the bare-throw ratchet said so by reporting the first
+    // version as undeclared debt.
+    const { notModeledFor, UnknownLaboratoryError } = await import("../experiments/notModeled.ts");
     console.log(
       `[not modeled one source] generated module: ${Object.keys(NOT_MODELED).length} labs, ` +
         `${Object.values(NOT_MODELED).reduce((n, l) => n + l.length, 0)} items; manifests: ${labs} labs, ` +
@@ -112,6 +116,20 @@ describe("a laboratory's notModeled list is written in exactly one place", () =>
     expect(Object.values(NOT_MODELED).reduce((n, l) => n + l.length, 0)).toBe(allItems);
     // An unknown id refuses rather than returning an empty list, which a component would render as
     // a laboratory that leaves nothing out.
-    expect(() => notModeledFor("not-a-lab")).toThrow(/unknown-laboratory-id/);
+    // The CODE, which is the first constructor argument so refusalRatchet can credit it, and not a
+    // substring of the message.
+    let thrown: unknown;
+    try {
+      notModeledFor("not-a-lab");
+    } catch (err) {
+      thrown = err;
+    }
+    expect(thrown).toBeInstanceOf(UnknownLaboratoryError);
+    expect((thrown as InstanceType<typeof UnknownLaboratoryError>).code).toBe(
+      "unknown-laboratory-id",
+    );
+    // And a real id still returns its list, without which "refuses an unknown id" would be
+    // satisfied by refusing everything.
+    expect(notModeledFor("bm-01").length).toBeGreaterThan(0);
   });
 });

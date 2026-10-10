@@ -1,5 +1,5 @@
-import { notModeledFor } from "../../generated/not-modeled.ts";
 import type { ConstraintId } from "../../physics/reference/kinematics.ts";
+import { notModeledFor } from "../notModeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
 
 /** Re-exported so components read this type through the experiment layer, never by importing

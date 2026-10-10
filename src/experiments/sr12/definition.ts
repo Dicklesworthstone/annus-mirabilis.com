@@ -1,5 +1,5 @@
-import { notModeledFor } from "../../generated/not-modeled.ts";
 import { C_SI, type Sr12Mode, type Sr12UnitLayer } from "../../physics/reference/fields.ts";
+import { notModeledFor } from "../notModeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
 export type Sr12Parameters = Readonly<{
   mode: Sr12Mode;

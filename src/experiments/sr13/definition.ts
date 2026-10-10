@@ -1,4 +1,3 @@
-import { notModeledFor } from "../../generated/not-modeled.ts";
 import type {
   DatasetOverlayId,
   ForceConvention,
@@ -6,6 +5,7 @@ import type {
   ParticleChoice,
 } from "../../physics/reference/electron.ts";
 import { ELECTRON_MASS, ELEMENTARY_CHARGE } from "../../physics/reference/electron.ts";
+import { notModeledFor } from "../notModeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
 export type Sr13Parameters = Readonly<{
   electricFieldX: number;

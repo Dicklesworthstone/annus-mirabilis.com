@@ -15,8 +15,8 @@ import {
   type RadiationResult,
   removeUpperLimit,
 } from "../../experiments/lq02/session";
+import { notModeledFor } from "../../experiments/notModeled.ts";
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
-import { notModeledFor } from "../../generated/not-modeled.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";

@@ -1,4 +1,3 @@
-import { notModeledFor } from "../../generated/not-modeled.ts";
 import {
   ELEMENTARY_CHARGE,
   type Sr02FieldModel,
@@ -6,6 +5,7 @@ import {
   type Sr02Mode,
   type Sr02Path,
 } from "../../physics/reference/fields.ts";
+import { notModeledFor } from "../notModeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
 export type Sr02Parameters = Readonly<{
   mode: Sr02Mode;

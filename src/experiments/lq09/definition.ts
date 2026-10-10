@@ -1,4 +1,4 @@
-import { notModeledFor } from "../../generated/not-modeled.ts";
+import { notModeledFor } from "../notModeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
 export type Lq09AbsorptionMode = "all-absorbed-ionizes" | "declared-fraction" | "unknown";
 

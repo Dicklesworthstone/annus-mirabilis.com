@@ -1,10 +1,10 @@
-import { notModeledFor } from "../../generated/not-modeled.ts";
 import {
   C_SI,
   ELEMENTARY_CHARGE,
   type Sr08Frame,
   type Sr08UnitLayer,
 } from "../../physics/reference/fields.ts";
+import { notModeledFor } from "../notModeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
 export type Sr08Parameters = Readonly<{
   unitLayer: Sr08UnitLayer;

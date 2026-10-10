@@ -57,17 +57,12 @@ export async function generateNotModeled() {
 // What each laboratory's model leaves out, as its manifest declares it. The manifest is the one
 // place these sentences are written; a component renders this array rather than its own copy
 // (am-rc1001-bridge-plan-pcjk.26).
+//
+// DATA ONLY. The lookup and its typed refusal live in src/experiments/notModeled.ts, because a
+// refusal in a generated file cannot be given a tested code: the bare-throw ratchet reported this
+// module as undeclared debt the first time it carried one, and a generated file is the wrong place
+// to baseline a debt or to write a test against.
 export const NOT_MODELED: Readonly<Record<string, readonly string[]>> = ${JSON.stringify(labs, null, 2)};
-
-/** A laboratory's declared notModeled list, or a typed refusal if the id is not a laboratory. */
-export function notModeledFor(labId: string): readonly string[] {
-  const list = NOT_MODELED[labId];
-  if (list === undefined)
-    throw new RangeError(
-      \`unknown-laboratory-id: "\${labId}" has no notModeled list; content/experiments/\${labId}.yaml declares none.\`,
-    );
-  return list;
-}
 `;
   await mkdir(dirname(out), { recursive: true });
   await writeFile(out, text);

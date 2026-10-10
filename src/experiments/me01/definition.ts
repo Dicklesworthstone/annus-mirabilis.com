@@ -1,4 +1,4 @@
-import { notModeledFor } from "../../generated/not-modeled.ts";
+import { notModeledFor } from "../notModeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
 export type Me01Premise = "unchanged" | "relaxed";
 export type Me01OffsetDisplay = "symbolic" | "offsets";
