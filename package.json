@@ -38,6 +38,7 @@
     "test:offline:browser": "node --experimental-strip-types scripts/e2e/offlineChapters.mjs",
     "test:countermodels": "node --experimental-strip-types --test src/physics/reference/countermodels.test.mjs src/reasoning/countermodel/*.test.mjs scripts/generate-countermodels.test.mjs",
     "test:countermodels:browser": "node --experimental-strip-types scripts/e2e/countermodels.mjs",
+    "test:adversarial-runtime:browser": "node --experimental-strip-types scripts/e2e/adversarialRuntime.mjs",
     "test:inference-workbench": "node --experimental-strip-types --test src/physics/reference/inference/identifiability*.test.mjs src/reasoning/infer/*.test.mjs scripts/generate-inference-workbench.test.mjs",
     "test:inference-workbench:browser": "node --experimental-strip-types scripts/e2e/inferenceWorkbench.mjs",
     "test:replay": "node --experimental-strip-types --test src/reader/notebook/*.test.mjs scripts/generate-notebook-replay.test.mjs",

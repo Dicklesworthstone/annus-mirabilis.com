@@ -566,6 +566,33 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     owner: "am-ver-adversarial-audit-1ef",
   },
   {
+    // THE BROWSER HALVES OF ADVERSARIAL ROWS 9 AND 12 (am-ver-adversarial-audit-1ef).
+    //
+    // every-run and requiredInCi, because `bun run gates` invokes --family browser and the cadence
+    // filter defaults to every-run, so this declaration is actually wired; ciGateWiring.test.ts
+    // quantifies over exactly this flag and would fail if it were not.
+    //
+    // requiresArtifact names out/, so a checkout with no build reports `not-available` rather than
+    // passing having loaded nothing, and a --profile run refuses. That is the distinction
+    // AGENTS.md puts first: a run that examined nothing is not a clean run.
+    id: "adversarial-runtime",
+    title:
+      "Adversarial runtime rows: an observer change keeps the run, a 64-bit seed survives transport",
+    command: ["node", "--experimental-strip-types", "scripts/e2e/adversarialRuntime.mjs"],
+    family: "browser",
+    cadence: "every-run",
+    requiredInCi: true,
+    requiredInProfiles: ["preview", "launch"],
+    availability: {
+      scriptPath: "scripts/e2e/adversarialRuntime.mjs",
+      requiresArtifact: {
+        path: "out/index.html",
+        hint: "These two rows are checked against the real built routes over HTTP, never a DOM fixture. Run `bun run build` first. An absent out/ is not a row failure: nothing was loaded.",
+      },
+    },
+    owner: "am-ver-adversarial-audit-1ef",
+  },
+  {
     id: "receipts",
     title: "Provenance receipt check",
     command: ["bun", "scripts/check-receipts.ts", "--surveys"],
