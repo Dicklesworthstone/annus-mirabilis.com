@@ -136,7 +136,12 @@ units:
         kind: cross-paper
         target:
           paper: special-relativity
-          id: ap-17-891-s8
+          # The target is a unit or section id IN THAT PAPER, which is why the bibliographic key
+          # is not part of it: the sibling `paper` field already names the work, and no id in the
+          # relativity manifest has ever been spelled ap-17-891-*. The printed text is a SECTION
+          # reference, "l. c. s 8", so the target is the section, not the result imported from it;
+          # that import is carried by argumentObligations below (am-edn-german-edition-mass-energy-srv).
+          id: s8
     destination:
       editionBlockId: s0-p4
       argumentObligations:
@@ -386,7 +391,8 @@ units:
         kind: cross-paper
         target:
           paper: special-relativity
-          id: ap-17-891-s10
+          # See s0-p4-r1: a section id in the target paper, not a key-prefixed name.
+          id: s10
     destination:
       editionBlockId: s0-p7
       argumentObligations:

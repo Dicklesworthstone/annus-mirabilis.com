@@ -375,7 +375,11 @@ describe("mass-energy source manifest inventory (am-edn-inventory-mass-energy-g2
     expect(rP4?.occurrenceId).toBe("s0-p4-r1");
     expect(rP4?.kind).toBe("cross-paper");
     expect(rP4?.target?.paper).toBe("special-relativity");
-    expect(rP4?.target?.id).toBe("ap-17-891-s8");
+    // Corrected from "ap-17-891-s8", which resolved to nothing: ids in the relativity manifest
+    // are s<n>, never key-prefixed, and the sibling `paper` field already names the work.
+    // Whether a target RESOLVES is asked by src/content/manifest/referenceTargets.test.ts;
+    // this line only pins what this manifest says (am-edn-german-edition-mass-energy-srv).
+    expect(rP4?.target?.id).toBe("s8");
     expect(rP4?.printedText).toBe("l. c. § 8");
 
     // 3. Cross-paper reference to §10, carried by s0-p7 since the boundary audit moved the
@@ -387,7 +391,7 @@ describe("mass-energy source manifest inventory (am-edn-inventory-mass-energy-g2
     expect(rP10?.occurrenceId).toBe("s0-p7-r1");
     expect(rP10?.kind).toBe("cross-paper");
     expect(rP10?.target?.paper).toBe("special-relativity");
-    expect(rP10?.target?.id).toBe("ap-17-891-s10");
+    expect(rP10?.target?.id).toBe("s10");
     expect(rP10?.printedText).toBe("l. c. § 10");
 
     // Check that every reference sub-entry matches <containingUnitId>-r<i> with contiguous i
