@@ -57,6 +57,33 @@ export function wrongSeedTransport(seedDecimal: string): string {
 }
 
 /**
+ * Row 5, wrong: an arbitrary entropy-density constant that cancels.
+ *
+ * Wien's spectral entropy density is fixed only up to an additive function of frequency. A reader
+ * who assumes it cancels in a volume change asserts that the entropy difference is unchanged by
+ * C(nu). It is not: at fixed energy and band the retained constant adds dNu * C(nu) * (V - V0).
+ */
+export function wrongEntropyAssumesConstantCancels(deltaS: number): number {
+  return deltaS;
+}
+
+/**
+ * Row 6, wrong: a spectral density relabelled by substituting lambda = c/nu.
+ *
+ * A density is per unit of its own axis, so changing the axis requires the Jacobian |dnu/dlambda| =
+ * nu^2/c. Substituting the variable alone keeps the NUMBER and changes what it is a density of, and
+ * the result still looks like a spectrum.
+ */
+export function wrongRelabelledDensity(uNu: number): number {
+  return uNu;
+}
+
+/** Row 14, wrong: the locked-position probability taken as f^n. */
+export function wrongLockedPositionsProbability(n: number, f: number): number {
+  return f ** n;
+}
+
+/**
  * Row 3, wrong: camera noise leaving neighbouring increments independent.
  *
  * Localization error enters two consecutive increments with opposite sign, so it induces a NEGATIVE
@@ -163,14 +190,14 @@ export const ADVERSARIAL_ROWS: readonly Readonly<{
   Object.freeze({
     row: 5,
     claim: "An arbitrary entropy-density constant cancels",
-    owner: "physics/reference/radiation",
-    state: "not-yet" as const,
+    owner: "physics/reference/radiation/entropy.ts entropyWithUnfixedConstant",
+    state: "implemented" as const,
   }),
   Object.freeze({
     row: 6,
     claim: "A spectral-axis relabelling preserves density",
-    owner: "physics/reference/radiation",
-    state: "not-yet" as const,
+    owner: "physics/reference/radiation/spectra.ts spectralDensityCoordinateTransform, planckPeak*",
+    state: "implemented" as const,
   }),
   Object.freeze({
     row: 7,
@@ -218,8 +245,8 @@ export const ADVERSARIAL_ROWS: readonly Readonly<{
   Object.freeze({
     row: 14,
     claim: "The locked-position probability is f^n",
-    owner: "physics/reference/radiation",
-    state: "not-yet" as const,
+    owner: "physics/reference/radiation/configurationCounts.ts lockedPositionsProbability",
+    state: "implemented" as const,
   }),
   Object.freeze({
     row: 15,
