@@ -70,12 +70,23 @@ const CANONICAL = "src/experiments/results/refusalSentence.ts";
  * form's own hint about text that is not a number. Setting either clears the other, so one notice is
  * live at a time and a mistyped digit is never recorded as an engine fault.
  *
- * Four components were converted that way (lq06, lq08, lq09, sr07) and the remaining five sites are a
- * different question: BrownianInvestigation.tsx and the three non-component modules are not lab forms,
- * so neither the two-state shape nor `data-apply-failure` transfers to them unexamined.
+ * Five components were converted that way: lq06, lq08, lq09, sr07 and BrownianInvestigation.tsx,
+ * whose own two strings are a full notebook and a refused download rather than field validation.
+ *
+ * THE REMAINING FOUR ARE A DIFFERENT PROBLEM, and it is not effort either. None is a component:
+ * each flattens into a sink that takes a STRING, so the refusal is lost at the boundary rather than
+ * in a setState, and converting one means changing that sink's contract and every caller.
+ *
+ *   discovery/lightQuanta/investigation.ts   `fail(reason: string)` from a pure validator
+ *   experiments/bm07/kitchen/analyze.ts      `reason<T>(r): string`, whose JOB is to make a sentence
+ *   experiments/compare/controlledComparison.ts  a `failure(message, active)` callback
+ *   reasoning/infer/browser.ts               builds a message for `announce()`, a live region
+ *
+ * The last is the one to think hardest about: a live region genuinely wants a string, so the repair
+ * there is probably to keep announcing the sentence and put the CODE on an element attribute, not to
+ * pass a typed failure into `announce`.
  */
 const FLATTENING_SITES: Readonly<Record<string, number>> = {
-  "src/components/discover/BrownianInvestigation.tsx": 1,
   "src/discovery/lightQuanta/investigation.ts": 1,
   "src/experiments/bm07/kitchen/analyze.ts": 1,
   "src/experiments/compare/controlledComparison.ts": 1,
@@ -173,6 +184,7 @@ test("the converted paths are NOT in the list, which is what conversion looks li
     "src/components/lab/lq08/PhotoelectricLab.tsx",
     "src/components/lab/lq09/IonizationLab.tsx",
     "src/components/lab/sr07/FieldEquationsLab.tsx",
+    "src/components/discover/BrownianInvestigation.tsx",
   ];
   for (const file of converted) assert.ok(!Object.keys(report.perFile).includes(file), file);
   /*
@@ -195,11 +207,12 @@ test("the recorded debt names only real files, and no duplicates", () => {
   const names = Object.keys(FLATTENING_SITES);
   assert.equal(new Set(names).size, names.length);
   // The ceiling, lowered with each payment: 26 at 2026-10-06, 10 after the first thirteen
-  // conversions, 5 after lq06, lq08, lq09 and sr07 on 2026-10-09. It never rises without a reason
-  // written beside it, because a baseline that only goes up is a budget.
+  // conversions, 5 after lq06, lq08, lq09 and sr07, and 4 after BrownianInvestigation, all on
+  // 2026-10-09. It never rises without a reason written beside it, because a baseline that only
+  // goes up is a budget.
   assert.equal(
     Object.values(FLATTENING_SITES).reduce((a, b) => a + b, 0),
-    5,
+    4,
   );
   for (const name of names) assert.doesNotThrow(() => readFileSync(join(ROOT, name), "utf8"));
 });
