@@ -399,6 +399,108 @@ export function tourPresent(root: string, paper: string): DoneCell {
 }
 
 /**
+ * ITEM: the discovery journey's skeleton, part by part.
+ *
+ * DECLARED UNMEASURED ON A REASON THE RECORDS HAVE OVERTAKEN. `NOT_YET_READ` said the skeleton's
+ * parts "are a structural requirement with no field asserting presence yet". All four
+ * `content/journeys/<paper>.yaml` records now carry one field per part of AGENTS.md's "How to Add a
+ * Discovery Step": shelf, naggingFact, firstHonestQuestion, stages, forks, move, worldChecks,
+ * sourceJumps, exercises. Presence is a field, so it is readable.
+ *
+ * A PART IS PRESENT WHEN IT HAS CONTENT, not when the key exists. An empty list or a blank string
+ * would otherwise count, which is the "a result computed over an empty population is not a clean
+ * result" failure in miniature: nine keys present and all empty would score 9 of 9.
+ *
+ * AND A MISSING PART MUST BE DECLARED MISSING. Each record carries `completeness` and
+ * `pendingElements`, and every absent part is named there today with a reason -- `stages` because
+ * the staged chain still lives in the discover page's JSX (am-4k0m), and `exercises` likewise. So
+ * the note says whether each absence is declared, and `journeySkeletonUndeclared` below is the
+ * property worth asserting: a record that loses a part without declaring it is drifting from its own
+ * statement of completeness, which no count of present parts would reveal.
+ */
+const JOURNEY_SKELETON = Object.freeze([
+  "shelf",
+  "naggingFact",
+  "firstHonestQuestion",
+  "stages",
+  "forks",
+  "move",
+  "worldChecks",
+  "sourceJumps",
+  "exercises",
+]);
+
+function hasContent(value: unknown): boolean {
+  if (value === undefined || value === null) return false;
+  if (Array.isArray(value)) return value.length > 0;
+  if (typeof value === "string") return value.trim().length > 0;
+  if (typeof value === "object") return Object.keys(value as object).length > 0;
+  return Boolean(value);
+}
+
+/**
+ * The parts a journey record lacks WITHOUT naming them in its own `pendingElements`.
+ *
+ * THE DECLARATION GRAMMAR IS DOTTED, which my first version of this got wrong. The records declare
+ * `exercises.instrumented` and `move.derivationChain`, naming a SUB-PART, so an exact string match
+ * against the part name reported `exercises` as undeclared in all four papers when each record does
+ * declare it, at a finer grain. A pending element therefore declares its part when it is the part or
+ * a dotted path beneath it.
+ *
+ * `subPartOnly` keeps the finer point visible rather than absorbing it. Where the WHOLE part is
+ * absent and the only declaration is a sub-path, the record is declaring less than is missing --
+ * `exercises` is absent entirely while `exercises.instrumented` claims only the instrumented ones --
+ * and the cell's note says so. That is a smaller discrepancy than an undeclared absence and it is
+ * not the same thing, so it is reported rather than either failed or hidden.
+ */
+export function journeySkeletonUndeclared(
+  root: string,
+  paper: string,
+): Readonly<{ undeclared: readonly string[]; subPartOnly: readonly string[] }> {
+  const file = join(root, "content", "journeys", `${paper}.yaml`);
+  if (!existsSync(file)) return { undeclared: [], subPartOnly: [] };
+  const record = loadYaml(readFileSync(file, "utf8")) as Record<string, unknown>;
+  const pending = ((record.pendingElements ?? []) as readonly Record<string, unknown>[]).map((e) =>
+    String(e.element),
+  );
+  const absent = JOURNEY_SKELETON.filter((part) => !hasContent(record[part]));
+  const undeclared: string[] = [];
+  const subPartOnly: string[] = [];
+  for (const part of absent) {
+    if (pending.includes(part)) continue;
+    if (pending.some((e) => e.startsWith(`${part}.`))) subPartOnly.push(part);
+    else undeclared.push(part);
+  }
+  return { undeclared, subPartOnly };
+}
+
+export function journeySkeletonParts(root: string, paper: string): DoneCell {
+  const file = join(root, "content", "journeys", `${paper}.yaml`);
+  if (!existsSync(file)) {
+    return unmeasuredCell("journey-skeleton-parts", paper, `no journey record at ${file}`);
+  }
+  const record = loadYaml(readFileSync(file, "utf8")) as Record<string, unknown>;
+  const present = JOURNEY_SKELETON.filter((part) => hasContent(record[part]));
+  const missing = JOURNEY_SKELETON.filter((part) => !present.includes(part));
+  const { undeclared, subPartOnly } = journeySkeletonUndeclared(root, paper);
+  const declaration =
+    undeclared.length > 0
+      ? `; UNDECLARED by the record: ${undeclared.join(", ")}`
+      : subPartOnly.length > 0
+        ? `; declared in pendingElements, but only at sub-part grain for ${subPartOnly.join(", ")}`
+        : ", each named in the record's own pendingElements";
+  return doneCell(
+    "journey-skeleton-parts",
+    paper,
+    present.length,
+    JOURNEY_SKELETON.length,
+    missing.length === 0
+      ? "every part of the skeleton carries content"
+      : `missing ${missing.join(", ")}${declaration}`,
+  );
+}
+
+/**
  * ITEM 7: the lab contract cells of a paper's core instruments.
  *
  * Fourteen contract columns per instrument, so the population is instruments times columns. The
@@ -490,9 +592,6 @@ export function r2CoversR1(paper: string, loaded: LoadedReadings): DoneCell {
  * distinction.
  */
 const NOT_YET_READ: Readonly<Record<string, string>> = {
-  "journey-skeleton-parts":
-    "content/journeys holds the records; the skeleton's parts (shelf, nagging fact, forks, the move, " +
-    "check-against-the-world) are a structural requirement with no field asserting presence yet.",
   "reviews-with-names":
     "docs/provenance/<key>.md records acceptance with reviewer names; parsing a receipt's " +
     "acceptance table is its own unit, and AGENTS.md is explicit that nothing is marked reviewed " +
@@ -536,6 +635,7 @@ export function cellsForPaper(
     misconceptionsAtLeastFive(root, paper),
     marginEntries(root, paper),
     tourPresent(root, paper),
+    journeySkeletonParts(root, paper),
     labContractCells(paper, instruments),
     readingsComplete(paper, readings),
     r2CoversR1(paper, readings),
