@@ -279,7 +279,75 @@ export function runShelfDate(context: CheckContext): void {
   });
 }
 
+/**
+ * WHICH OF THIS CHECK'S THREE REFUSALS CAN FIRE (am-rc1001-bridge-plan-pcjk.32).
+ *
+ * `runLaterEvidenceUnlabeled` has three failure paths and, measured 2026-10-09, only one of them
+ * can reach the corpus:
+ *
+ *   quantityId unbound        reachable, and passes: all four world checks bind one
+ *                             (stoppingPotentialMagnitude, lambdaX, properTime, massChange)
+ *   measured-fact with no     UNREACHABLE: every world check is `printed-prediction`, so `measured`
+ *   dated comparison            is false and the branch is never entered
+ *   a post-1904 year without  UNREACHABLE: no world check carries `laterEvidence` at all, so
+ *   the later-evidence label    `if (!later) continue` leaves before the year is read
+ *
+ * So the check reports 0 findings, which it would also do if it were correct about a corpus that
+ * had none. AGENTS.md item 7 asks each journey to compare "a numerical prediction computed live
+ * from the accepted snapshot ... with a dated measurement". The live half is built -- the four
+ * WorldCheck components read `view.accepted` -- and the dated half is what is missing, which is why
+ * two thirds of this check is waiting rather than passing.
+ */
+function printWorldCheckCensus(context: CheckContext): void {
+  let journeys = 0;
+  let checks = 0;
+  let withLaterEvidence = 0;
+  let boundQuantity = 0;
+  const kinds = new Map<string, number>();
+  eachRecord(context, (_id, rec) => {
+    if (!isJourneyRecord(rec) || !Array.isArray(rec.worldChecks)) return;
+    journeys++;
+    for (const raw of rec.worldChecks) {
+      const w = asRecord(raw);
+      if (!w) continue;
+      checks++;
+      const kind = typeof w.comparisonKind === "string" ? w.comparisonKind : "(none)";
+      kinds.set(kind, (kinds.get(kind) ?? 0) + 1);
+      if (asRecord(w.laterEvidence)) withLaterEvidence++;
+      if (typeof w.quantityId === "string" && w.quantityId.trim()) boundQuantity++;
+    }
+  });
+  const measured = kinds.get("measured-fact") ?? 0;
+  if (journeys === 0) {
+    // ZERO IS NOT "THE CORPUS HAS NONE", and saying so matters more than the number. Four journey
+    // records exist in content/journeys/ and each carries one world check, bound to
+    // stoppingPotentialMagnitude, lambdaX, properTime and massChange. This check sees none of them
+    // for two independent reasons, both measured 2026-10-09: `isJourneyRecord` requires
+    // `kind === "journey"` AND an array `stages`, and the records carry no `kind` key while
+    // `stages` is declared pending (am-4k0m's pendingElements, because a stage carries premise
+    // references the shelf audit reads and inventing them would make that audit pass over prose);
+    // and nothing under src/content/compiler loads content/journeys at all.
+    console.log(
+      "[epistemic-world-checks] 0 world check(s) on 0 journey(s), and that is not the corpus: " +
+        "content/journeys holds four records each carrying one world check. isJourneyRecord wants " +
+        'kind === "journey" and an array stages; the records declare neither (stages is pending ' +
+        "per am-4k0m), and no compiler module loads content/journeys. So every refusal in this " +
+        "check is unreachable, including the quantity-id one that would otherwise pass.",
+    );
+    return;
+  }
+  console.log(
+    `[epistemic-world-checks] ${checks} world check(s) on ${journeys} journey(s): ` +
+      `${[...kinds].map(([k, n]) => `${n} ${k}`).join(", ") || "none"}; ` +
+      `${boundQuantity} bind a quantity id; ${withLaterEvidence} carry laterEvidence. ` +
+      `${measured} are measured-fact, so the dated-comparison refusal ` +
+      `${measured === 0 ? "cannot fire" : "is reachable"}, and with ${withLaterEvidence} laterEvidence ` +
+      `the post-1904 label refusal ${withLaterEvidence === 0 ? "cannot fire either" : "is reachable"}.`,
+  );
+}
+
 export function runLaterEvidenceUnlabeled(context: CheckContext): void {
+  printWorldCheckCensus(context);
   eachRecord(context, (id, rec) => {
     if (isArgumentNodeRecord(rec) && Array.isArray(rec.evidence)) {
       for (const edge of rec.evidence) {
