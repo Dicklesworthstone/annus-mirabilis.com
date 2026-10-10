@@ -22,6 +22,28 @@ export class YamlParseError extends Error {
   }
 }
 
+/**
+ * A YAML refusal that carries its code as the FIRST argument, which is this repository's
+ * convention and the only shape its refusal scanner recognises.
+ *
+ * `YamlParseError` takes `(message, line, column, code)`, so a code passed to it is invisible to
+ * `scanRefusalThrowSites` -- measured: it credits `throw new X("kebab-code", ...)` on one line or
+ * several, and credits NOTHING when the code is last. `throwSiteCensus.ts`, in the same directory,
+ * reads the whole thrown expression and does see it, so the two scanners disagreed about this file
+ * (3 coded against 0) and the bare-throw ratchet uses the stricter one.
+ *
+ * Rather than reorder a constructor used by six other sites, or widen a gate's scanner to suit one
+ * file, the three coded refusals throw this subclass. It changes nothing a caller sees:
+ * `instanceof YamlParseError` still holds, and `strictParse` reads `.code`, `.line` and `.column`
+ * exactly as before.
+ */
+export class YamlRefusalError extends YamlParseError {
+  constructor(code: string, message: string, line: number, column = 1) {
+    super(message, line, column, code);
+    this.name = "YamlRefusalError";
+  }
+}
+
 type RawLine = {
   raw: string;
   trimmed: string;
@@ -46,11 +68,11 @@ export function parseYaml(text: string): unknown {
     // format. Measured before choosing to refuse: of 2,539 committed YAML files, ZERO use a tab in
     // the indentation, so this rejects nothing that exists and the decision costs no content.
     if (match?.[1]?.includes("\t") && content !== "") {
-      throw new YamlParseError(
+      throw new YamlRefusalError(
+        "yaml-tab-indentation",
         "A tab is used for indentation. YAML forbids this; use spaces.",
         i + 1,
         (match[1].indexOf("\t") ?? 0) + 1,
-        "yaml-tab-indentation",
       );
     }
 
@@ -341,11 +363,11 @@ export function parseYaml(text: string): unknown {
     // than a parse failure, because nothing downstream can tell it from authored content.
     for (const quote of ['"', "'"] as const) {
       if (clean.startsWith(quote) && !(clean.endsWith(quote) && clean.length >= 2)) {
-        throw new YamlParseError(
+        throw new YamlRefusalError(
+          "yaml-unterminated-quote",
           `Unterminated ${quote === '"' ? "double" : "single"}-quoted scalar: ${clean.slice(0, 40)}`,
           lineNum,
           1,
-          "yaml-unterminated-quote",
         );
       }
     }
@@ -486,11 +508,11 @@ export function parseYaml(text: string): unknown {
   if (index < lines.length) {
     const line = lines[index];
     if (line) {
-      throw new YamlParseError(
+      throw new YamlRefusalError(
+        "yaml-unconsumed-content",
         `Unparsed content after the end of the document: "${line.trimmed.slice(0, 60)}". A top-level mapping cannot be followed by a sequence entry or another document body.`,
         line.lineNum,
         line.indent + 1,
-        "yaml-unconsumed-content",
       );
     }
   }

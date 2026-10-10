@@ -18,7 +18,7 @@ describe("strictParse schema refusal throw sites (am-muyh)", () => {
     assert.deepEqual(accepted, { key: "value" });
   });
 
-  test("strictParse: (strictParse.ts:157) yaml-parse-error raised when parseStrictYaml encounters invalid YAML syntax", () => {
+  test("strictParse: (strictParse.ts:165) yaml-parse-error raised when parseStrictYaml encounters invalid YAML syntax", () => {
     assert.throws(
       () => parseStrictYaml("hello"),
       (err) => {
@@ -33,7 +33,7 @@ describe("strictParse schema refusal throw sites (am-muyh)", () => {
     assert.deepEqual(accepted, { foo: [1, 2, 3] });
   });
 
-  test("strictParse: (strictParse.ts:160) yaml-parse-error raised when non-YamlParseError is thrown during YAML parsing", () => {
+  test("strictParse: (strictParse.ts:168) yaml-parse-error raised when non-YamlParseError is thrown during YAML parsing", () => {
     const originalSplit = String.prototype.split;
     try {
       String.prototype.split = function (...args) {
@@ -61,7 +61,7 @@ describe("strictParse schema refusal throw sites (am-muyh)", () => {
     assert.deepEqual(accepted, { safe: true });
   });
 
-  test("strictParse: (strictParse.ts:169) invalid-input raised when parseStrictJson receives non-string input", () => {
+  test("strictParse: (strictParse.ts:177) invalid-input raised when parseStrictJson receives non-string input", () => {
     assert.throws(
       () => parseStrictJson(undefined as unknown as string),
       (err) => {
@@ -76,7 +76,7 @@ describe("strictParse schema refusal throw sites (am-muyh)", () => {
     assert.deepEqual(accepted, { key: "value" });
   });
 
-  test("strictParse: (strictParse.ts:178) json-parse-error raised when parseStrictJson encounters malformed JSON", () => {
+  test("strictParse: (strictParse.ts:186) json-parse-error raised when parseStrictJson encounters malformed JSON", () => {
     assert.throws(
       () => parseStrictJson('{"key": broken}'),
       (err) => {
@@ -91,7 +91,7 @@ describe("strictParse schema refusal throw sites (am-muyh)", () => {
     assert.deepEqual(accepted, { valid: true });
   });
 
-  test("strictParse: (strictParse.ts:191) invalid-input raised when strictParse receives non-string input", () => {
+  test("strictParse: (strictParse.ts:199) invalid-input raised when strictParse receives non-string input", () => {
     assert.throws(
       () => strictParse(12345 as unknown as string),
       (err) => {

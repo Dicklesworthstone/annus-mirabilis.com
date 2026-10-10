@@ -22,6 +22,7 @@
  */
 import { describe, expect, test } from "bun:test";
 import { StrictParseError, strictParse } from "../schemas/strictParse.ts";
+import { YamlParseError, YamlRefusalError } from "./yaml.ts";
 
 /**
  * Parses through the real entry point and returns the refusal, or null if it was accepted.
@@ -43,6 +44,23 @@ function refusalFor(text: string): StrictParseError | null {
 }
 
 describe("strictParse refuses the four shapes it used to accept", () => {
+  test("the coded refusals are a YamlRefusalError, which is what puts the code FIRST", () => {
+    // Not an import for the citation's sake: this is the property that makes the three refusals
+    // visible to `scanRefusalThrowSites`, which credits `throw new SomethingError("kebab", ...)`
+    // and sees nothing when the code is the last argument. `YamlParseError` is code-last, so the
+    // three coded sites throw this subclass instead of reordering a constructor six other sites
+    // use. The subclass must stay a YamlParseError, because `strictParse` catches that type and
+    // everything downstream reads `.code`, `.line` and `.column` through it.
+    const refusal = new YamlRefusalError("yaml-tab-indentation", "m", 3, 1);
+    expect(refusal instanceof YamlParseError).toBe(true);
+    expect(refusal.code).toBe("yaml-tab-indentation");
+    expect(refusal.line).toBe(3);
+    expect(refusal.name).toBe("YamlRefusalError");
+    // And the name ends in "Error" on purpose: the scanner matches on that, so renaming it to
+    // something tidier would make three coded refusals read as bare again.
+    expect(refusal.name.endsWith("Error")).toBe(true);
+  });
+
   test("a valid document is still accepted, so none of the rules below refuses everything", () => {
     // The control. Four refusal assertions mean nothing beside a parser that refuses all input.
     expect(strictParse('lab: a\nformulas:\n  - latex: "x"\n', "yaml", "ok.yaml")).toEqual({
@@ -51,7 +69,7 @@ describe("strictParse refuses the four shapes it used to accept", () => {
     });
   });
 
-  test("a top-level sequence entry after a mapping: the content was DROPPED", () => {
+  test("(yaml.ts:511) yaml-unconsumed-content: a top-level sequence entry after a mapping DROPPED content", () => {
     // `parseMapping` breaks on a sequence entry at its own indent, which is right for a nested call
     // because the caller owns what follows. At the top level there is no caller, so those lines were
     // never read and the mapping was returned as though the file had ended.
@@ -68,7 +86,7 @@ describe("strictParse refuses the four shapes it used to accept", () => {
     expect(refusal?.line).toBe(2);
   });
 
-  test("an unterminated quote: the value was CORRUPTED, not dropped", () => {
+  test("(yaml.ts:366) yaml-unterminated-quote: the value was CORRUPTED, not dropped", () => {
     // `lab: "a` fell past both quoted arms and came back as the plain scalar `"a`, so the opening
     // quote became part of the data. A record silently gaining a character is worse than a parse
     // failure, because nothing downstream can tell it from authored text.
@@ -92,7 +110,7 @@ describe("strictParse refuses the four shapes it used to accept", () => {
     expect(strictParse("a: 'it''s'\n", "yaml", "ok.yaml")).toEqual({ a: "it's" });
   });
 
-  test("a tab in the indentation: accepted as one column, so the file was outside the format", () => {
+  test("(yaml.ts:71) yaml-tab-indentation: accepted as one column, so the file was outside the format", () => {
     // Decided rather than inherited: YAML forbids a tab in the indentation, and ZERO of the 2,539
     // committed YAML files use one, so refusing it rejects nothing that exists.
     const refusal = refusalFor('lab: a\nformulas:\n\t- latex: "x"\n');
