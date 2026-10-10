@@ -56,8 +56,114 @@ import { reportPopulation } from "./gate-census/population.ts";
 import { parseCapabilityMatrix } from "./wasm-artifacts/capabilityMatrix.ts";
 import { evaluateSizeBudget } from "./wasm-artifacts/sizeBudget.ts";
 
+/**
+ * WHAT PRODUCED THE NUMBER THIS CHECK JUDGED (am-verify-wasm-reports-js-as-wasm-oncl).
+ *
+ * The bead was filed when the deployed artifact was a 154-byte placeholder whose companion JS
+ * reimplemented Philox, `brownian_frames` and `diffusion1d_frames`, so the Brownian and diffusion
+ * checks passed against a JavaScript reimplementation and were cited as evidence about WASM. That
+ * premise is stale -- the manifest has pinned a real 92,751-byte module since 2026-09-26 -- but the
+ * defect the bead names is not: before this field, the string "engine" appeared ZERO times in this
+ * 42 KB script, and a reader inferred which engine answered from prose like "the compiled module
+ * exports" or "the TS port's". An inference is not a label, and the whole point of the bead is that
+ * a run must SAY what it exercised rather than leave it to be deduced.
+ *
+ * `not-exercised` is the load-bearing value. A check that fell into its catch, or that was skipped
+ * because the module did not load, establishes nothing about its engine, and this is what lets the
+ * summary say "0 of 12 checks ran a value through an export of the pinned module" instead of
+ * printing a sentence about WASM that no WASM produced.
+ */
+export type WasmCheckEngine =
+  /** A value an export of the pinned module produced, read back through the typed decoder. */
+  | "wasm-export"
+  /** Both engines, where the check's SUBJECT is whether they agree. */
+  | "wasm-vs-ts"
+  /** The artifact's bytes, hashed or validated, never executed. */
+  | "artifact-bytes"
+  /** The TypeScript transport decoder. The module supplies the control input it corrupts. */
+  | "host-decoder"
+  /** The provenance registry's admission rules. */
+  | "host-registry"
+  /** Manifest and docs/FRANKENSIM_BINDING.md text, with nothing executed at all. */
+  | "declarations"
+  /** Nothing: the check did not reach its subject, so it is not evidence about any engine. */
+  | "not-exercised";
+
+/**
+ * The engine each check CLAIMS when it reaches a verdict, declared once, away from the 25 push
+ * sites that report one.
+ *
+ * `assertDeclaredEngine` refuses a check whose reported engine is neither `not-exercised` nor the
+ * one declared here, so a check cannot be silently relabelled into a stronger claim, and a NEW check
+ * cannot report an engine at all until its claim is written down beside the other twelve. That is
+ * the same reason the census below names its population: the failure this guards against is a
+ * stronger claim appearing without anyone deciding to make it.
+ */
+const CLAIMED_ENGINE: Readonly<Record<string, WasmCheckEngine>> = {
+  "manifest-digests-and-validation": "artifact-bytes",
+  "module-instantiation": "wasm-export",
+  "capability-matrix-agreement": "declarations",
+  "export-validity-small-cases": "wasm-export",
+  "philox-normals-kats-and-suffix": "wasm-vs-ts",
+  "philox-normals-wasm-vs-ts-port": "wasm-vs-ts",
+  "brownian-trajectories-and-kernel-resolution": "wasm-export",
+  "ftcs-1d-stability-boundary": "wasm-export",
+  "malformed-output-rejection": "host-decoder",
+  "u64-boundaries-round-trip": "wasm-export",
+  "wasm-size-budget": "artifact-bytes",
+  "provenance-registry-admission": "host-registry",
+};
+
+/**
+ * Refuses a check whose engine claim is not the one declared for its testId.
+ *
+ * The code comes FIRST, which is not a stylistic choice: refusalRatchet credits a kebab code only as
+ * a typed error's first constructor argument, and the bare-throw ratchet went red on this class
+ * reading as an untyped throw while the code sat inside the message instead.
+ */
+export class UndeclaredEngineClaimError extends Error {
+  readonly code: string;
+  constructor(
+    code: string,
+    readonly testId: string,
+    readonly reported: string,
+  ) {
+    super(
+      `check "${testId}" reports engine "${reported}", which is not its declared ` +
+        `${CLAIMED_ENGINE[testId] ? `engine "${CLAIMED_ENGINE[testId]}"` : "(no declared engine: add it to CLAIMED_ENGINE)"}. ` +
+        'A check may report its declared engine or "not-exercised", never a different one.',
+    );
+    this.name = "UndeclaredEngineClaimError";
+    this.code = code;
+  }
+}
+
+export function assertDeclaredEngine(checks: readonly VerificationCheckResult[]): void {
+  for (const c of checks)
+    if (c.engine !== "not-exercised" && CLAIMED_ENGINE[c.testId] !== c.engine)
+      throw new UndeclaredEngineClaimError("undeclared-engine-claim", c.testId, c.engine);
+}
+
+/** How many checks each engine answered, in the declaration order of the union. */
+export function engineTally(
+  checks: readonly VerificationCheckResult[],
+): ReadonlyArray<readonly [WasmCheckEngine, number]> {
+  const order: readonly WasmCheckEngine[] = [
+    "wasm-export",
+    "wasm-vs-ts",
+    "artifact-bytes",
+    "host-decoder",
+    "host-registry",
+    "declarations",
+    "not-exercised",
+  ];
+  return order.map((e) => [e, checks.filter((c) => c.engine === e).length] as const);
+}
+
 export interface VerificationCheckResult {
   readonly testId: string;
+  /** What produced the number judged, never inferred from the message. */
+  readonly engine: WasmCheckEngine;
   readonly passed: boolean;
   readonly comparisonKind: "bitwise" | "tolerance" | "structural";
   readonly message: string;
@@ -192,6 +298,7 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
     }
 
     checks.push({
+      engine: "artifact-bytes",
       testId: "manifest-digests-and-validation",
       passed: matchesDigest && matchesBytes && isValid,
       comparisonKind: "bitwise",
@@ -209,6 +316,7 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
     });
   } catch (err) {
     checks.push({
+      engine: "not-exercised",
       testId: "manifest-digests-and-validation",
       passed: false,
       comparisonKind: "bitwise",
@@ -243,6 +351,7 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
     const identityChecked = loaded.kind === "loaded" && loaded.identity === expectedIdentity;
     if (loaded.kind === "loaded") fs = loaded.exports;
     checks.push({
+      engine: loaded.kind === "loaded" ? "wasm-export" : "not-exercised",
       testId: "module-instantiation",
       passed: loaded.kind === "loaded" && identityChecked,
       comparisonKind: "bitwise",
@@ -262,6 +371,7 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
     });
   } catch (err) {
     checks.push({
+      engine: "not-exercised",
       testId: "module-instantiation",
       passed: false,
       comparisonKind: "structural",
@@ -343,6 +453,7 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
     }
 
     checks.push({
+      engine: "declarations",
       testId: "capability-matrix-agreement",
       passed: matrixAgrees,
       comparisonKind: "structural",
@@ -363,6 +474,7 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
     });
   } catch (err) {
     checks.push({
+      engine: "not-exercised",
       testId: "capability-matrix-agreement",
       passed: false,
       comparisonKind: "structural",
@@ -385,6 +497,7 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
   if (!fs) {
     for (const testId of EXPORT_CHECKS)
       checks.push({
+        engine: "not-exercised",
         testId,
         passed: false,
         comparisonKind: "structural",
@@ -436,6 +549,7 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
         validateProtocolBuffer(df, { layoutId: "diffusion1d-frames", version: 1, shape: [5, 10] })
           .valid;
       checks.push({
+        engine: "wasm-export",
         testId: "export-validity-small-cases",
         passed: shapesValid,
         comparisonKind: "structural",
@@ -447,6 +561,7 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
       });
     } catch (err) {
       checks.push({
+        engine: "not-exercised",
         testId: "export-validity-small-cases",
         passed: false,
         comparisonKind: "structural",
@@ -571,6 +686,7 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
         sequenceMismatches === 0 &&
         suffixMatches;
       checks.push({
+        engine: "wasm-vs-ts",
         testId: "philox-normals-kats-and-suffix",
         passed,
         comparisonKind: "bitwise",
@@ -595,6 +711,7 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
       });
     } catch (err) {
       checks.push({
+        engine: "not-exercised",
         testId: "philox-normals-kats-and-suffix",
         passed: false,
         comparisonKind: "bitwise",
@@ -631,6 +748,7 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
           }
         }
       checks.push({
+        engine: "wasm-vs-ts",
         testId: "philox-normals-wasm-vs-ts-port",
         passed: compared === 6000 && worst <= ULP_BOUND,
         comparisonKind: "tolerance",
@@ -642,6 +760,7 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
       });
     } catch (err) {
       checks.push({
+        engine: "not-exercised",
         testId: "philox-normals-wasm-vs-ts-port",
         passed: false,
         comparisonKind: "tolerance",
@@ -712,6 +831,7 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
       const kernelRefused =
         unsupported.kind === "refused" && unsupported.refusal.code === "unsupported-kernel";
       checks.push({
+        engine: "wasm-export",
         testId: "brownian-trajectories-and-kernel-resolution",
         passed: coinValid && uniformValid && k2k3Coincide && kernelRefused,
         comparisonKind: "bitwise",
@@ -724,6 +844,7 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
       });
     } catch (err) {
       checks.push({
+        engine: "not-exercised",
         testId: "brownian-trajectories-and-kernel-resolution",
         passed: false,
         comparisonKind: "bitwise",
@@ -766,6 +887,7 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
       const refusalCode = unstable.kind === "refused" ? unstable.refusal.code : `${unstable.kind}`;
       const passed = stablePassed && massConserved && refusalCode === "ftcs-unstable";
       checks.push({
+        engine: "wasm-export",
         testId: "ftcs-1d-stability-boundary",
         passed,
         comparisonKind: "structural",
@@ -780,6 +902,7 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
       });
     } catch (err) {
       checks.push({
+        engine: "not-exercised",
         testId: "ftcs-1d-stability-boundary",
         passed: false,
         comparisonKind: "structural",
@@ -839,6 +962,7 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
         bf.length === 10;
       const passed = controlAccepted && layoutRejected && decoded.every((d) => d.rejected);
       checks.push({
+        engine: "host-decoder",
         testId: "malformed-output-rejection",
         passed,
         comparisonKind: "structural",
@@ -848,6 +972,7 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
       });
     } catch (err) {
       checks.push({
+        engine: "not-exercised",
         testId: "malformed-output-rejection",
         passed: false,
         comparisonKind: "structural",
@@ -880,6 +1005,7 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
             .kind !== "accepted",
       );
       checks.push({
+        engine: "wasm-export",
         testId: "u64-boundaries-round-trip",
         passed: allValid && distinct && violationsRefused,
         comparisonKind: "bitwise",
@@ -889,6 +1015,7 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
       });
     } catch (err) {
       checks.push({
+        engine: "not-exercised",
         testId: "u64-boundaries-round-trip",
         passed: false,
         comparisonKind: "bitwise",
@@ -902,6 +1029,7 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
     const evalResult = evaluateSizeBudget(manifest.sizeBudget, manifest.wasmBytes);
 
     checks.push({
+      engine: "artifact-bytes",
       testId: "wasm-size-budget",
       passed: evalResult.passed,
       comparisonKind: "structural",
@@ -928,6 +1056,7 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
     });
   } catch (err) {
     checks.push({
+      engine: "not-exercised",
       testId: "wasm-size-budget",
       passed: false,
       comparisonKind: "structural",
@@ -962,6 +1091,7 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
     );
 
     checks.push({
+      engine: "host-registry",
       testId: "provenance-registry-admission",
       passed:
         digestAdmitted &&
@@ -981,6 +1111,7 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
     });
   } catch (err) {
     checks.push({
+      engine: "not-exercised",
       testId: "provenance-registry-admission",
       passed: false,
       comparisonKind: "structural",
@@ -1002,6 +1133,10 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
       logRunId,
       testId: c.testId,
       beadId: "am-fs-slim-artifact-0yh",
+      // AGENTS.md's structured-log field for this: "executionLabel". The same value appears as
+      // `engine` so a reader grepping either word finds it (am-verify-wasm-reports-js-as-wasm-oncl).
+      executionLabel: c.engine,
+      engine: c.engine,
       outcome: c.passed ? "pass" : "fail",
       comparisonKind: c.comparisonKind,
       message: c.message,
@@ -1054,6 +1189,9 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
     }
   }
 
+  // Before anything is returned, so a run cannot report a stronger engine claim than the one
+  // declared for its check (am-verify-wasm-reports-js-as-wasm-oncl).
+  assertDeclaredEngine(checks);
   return { passed: allPassed, logRunId, checks };
 }
 
@@ -1062,8 +1200,16 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     const result = await runWasmVerification();
     console.log(`\nWASM Artifact Verification Summary [${result.logRunId}]:`);
     for (const c of result.checks) {
-      console.log(`  ${c.passed ? "✓ PASS" : "✗ FAIL"}: ${c.testId} - ${c.message}`);
+      console.log(`  ${c.passed ? "✓ PASS" : "✗ FAIL"} [${c.engine}]: ${c.testId} - ${c.message}`);
     }
+    // WHAT ANSWERED, BESIDE WHAT PASSED (am-verify-wasm-reports-js-as-wasm-oncl). A verdict without
+    // this line reads the same whether twelve checks ran values through the pinned module or none
+    // did, which is the condition that made the original finding possible.
+    const tally = engineTally(result.checks);
+    console.log(`  checks by engine: ${tally.map(([e, n]) => `${e} ${n}`).join(", ")}`);
+    const wasmExercised = tally
+      .filter(([e]) => e === "wasm-export" || e === "wasm-vs-ts")
+      .reduce((a, [, n]) => a + n, 0);
     // The census line (am-rc1001-bridge-plan-pcjk.9), printed before the verdict so a failing run also
     // says how much it examined. The population is the CHECKS this script ran: a run that registered
     // two of them would print "All WASM artifact verification checks PASSED" having verified almost
@@ -1085,7 +1231,24 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
       console.error("\nWASM artifact verification failed.");
       process.exit(1);
     }
-    console.log("\nAll WASM artifact verification checks PASSED.");
+    // THE SENTENCE NEVER CLAIMS WASM THAT NO WASM PRODUCED. With the artifact absent the six export
+    // checks are already pushed as "Not run: the module did not load", so the run FAILS above and
+    // never reaches here -- which is stricter than this bead asked for, and is why this branch is a
+    // second line of defence rather than the repair. It still matters: a future run in which every
+    // export check reported `not-exercised` while still passing would otherwise print a sentence
+    // about WASM verification on the strength of digests and documentation alone.
+    if (wasmExercised === 0) {
+      console.log(
+        `\nAll ${result.checks.length} checks that ran PASSED, and NO WASM EXPORT WAS EXERCISED: ` +
+          "0 of them ran a value through an export of the pinned module, so this run is not " +
+          "evidence about WASM.",
+      );
+    } else {
+      console.log(
+        `\nAll WASM artifact verification checks PASSED (${wasmExercised} of ${result.checks.length} ` +
+          "ran a value through an export of the pinned module).",
+      );
+    }
   } catch (err) {
     console.error(`Verification error: ${err instanceof Error ? err.message : String(err)}`);
     process.exit(1);
