@@ -25,10 +25,40 @@ import { compileContent } from "../../compiler/compile.ts";
 import { recordKeyFor } from "../../compiler/recordKey.ts";
 import { checkDuplicateId } from "./structural.ts";
 
+/**
+ * KEYS A FIXTURE THE WAY THE COMPILER KEYS THE REAL CORPUS (am-rc1001-bridge-plan-pcjk.10).
+ *
+ * A source block is identified by its KEY, `source-block:<paper>:<id>` (recordKey.ts), never by a
+ * `kind` field: a block's own kind is `paragraph`, `equation`, `heading` and so on, and none of
+ * the 453 committed blocks carries the string "source-block". These fixtures wrote that string as
+ * `kind` and keyed by bare id, so every assertion here was made against a key shape production
+ * never produces -- which is how seven branches in structural.ts could test for a record that
+ * cannot exist while their tests stayed green.
+ */
+function keyFor(id: string, record: unknown): string {
+  // A key the fixture already wrote in production form is left alone. Rewriting it would collapse
+  // two DISTINCT keys that declare the same id -- which is the one within-paper duplicate that is
+  // actually reachable, since `path-identity` makes two files with one id unconstructible.
+  if (id.includes(":")) return id;
+  if (!record || typeof record !== "object") return id;
+  const rec = record as Record<string, unknown>;
+  if (rec.kind !== "source-block") return id;
+  const paper = typeof rec.paper === "string" ? rec.paper : (rec.paperSlug as string) || "";
+  const recordId = typeof rec.id === "string" ? rec.id : id;
+  return `source-block:${paper}:${recordId}`;
+}
+
+/** The fixture map, with source blocks under their production keys. */
+function fixtureRecords(records: Record<string, unknown>): Map<string, unknown> {
+  return new Map<string, unknown>(
+    Object.entries(records).map(([id, record]) => [keyFor(id, record), record]),
+  );
+}
+
 function run(records: Record<string, unknown>): CheckReportItem[] {
   const reports: CheckReportItem[] = [];
   const ctx: CheckContext = {
-    records: new Map<string, unknown>(Object.entries(records)),
+    records: fixtureRecords(records),
     files: [],
     indexes: {},
     report: (item: CheckReportItem) => reports.push(item),

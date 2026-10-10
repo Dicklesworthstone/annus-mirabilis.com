@@ -24,6 +24,8 @@ import {
 import {
   editorialNotePaper,
   isEditorialNoteKey,
+  isSourceBlockKey,
+  recordKeyFor,
   sourceBlockPaper,
 } from "../../compiler/recordKey.ts";
 import type { PaperDate } from "../../schemas/dates.ts";
@@ -156,11 +158,23 @@ export const checkDuplicateId: ContentCheck = {
 
       if (!id) continue;
 
-      if (kind === "source-block") {
-        let blocks = paperSourceBlocks.get(paper);
+      // `kind !== "equation"` KEEPS THE ARM BELOW AT :352 IN CHARGE OF EQUATION BLOCKS. That arm
+      // was written for them on 2026-09-28, already reads the KEY through `sourceBlockPaper`, and
+      // reports "Duplicate equation source-block id ... within paper", which is the wording its
+      // test asserts. A blanket source-block arm here would fire first and shadow it, replacing a
+      // purpose-built refusal with a generic one -- so this arm takes the kinds nobody else
+      // claims: paragraph, heading, footnote, closing, masthead, part-heading
+      // (am-rc1001-bridge-plan-pcjk.10).
+      if (isSourceBlockKey(key) && kind !== "equation") {
+        // THE PAPER COMES FROM THE KEY. A block's id is per-paper by design, and a fixture or a
+        // record that omits `paper` would otherwise collapse every paper into the "" bucket and
+        // report three duplicates for one id legitimately reused across four papers
+        // (recordKey.ts:69 states this, and it is why `sourceBlockPaper` exists).
+        const blockPaper = sourceBlockPaper(key) ?? paper;
+        let blocks = paperSourceBlocks.get(blockPaper);
         if (!blocks) {
           blocks = new Set();
-          paperSourceBlocks.set(paper, blocks);
+          paperSourceBlocks.set(blockPaper, blocks);
         }
         if (blocks.has(id)) {
           ctx.report({
@@ -168,18 +182,18 @@ export const checkDuplicateId: ContentCheck = {
             recordId: id,
             file,
             path: id,
-            message: `Duplicate source block id "${id}" in paper "${paper}".`,
-            repair: `Assign a unique source block id within paper "${paper}".`,
+            message: `Duplicate source block id "${id}" in paper "${blockPaper}".`,
+            repair: `Assign a unique source block id within paper "${blockPaper}".`,
           });
         }
         blocks.add(id);
 
         // Check sentence spans inside source-block
         if (Array.isArray(rec.sentenceSpans)) {
-          let sIds = paperSentenceIds.get(paper);
+          let sIds = paperSentenceIds.get(blockPaper);
           if (!sIds) {
             sIds = new Set();
-            paperSentenceIds.set(paper, sIds);
+            paperSentenceIds.set(blockPaper, sIds);
           }
           for (const sp of rec.sentenceSpans) {
             if (sp && typeof sp === "object" && "id" in sp && typeof sp.id === "string") {
@@ -190,8 +204,8 @@ export const checkDuplicateId: ContentCheck = {
                   recordId: sId,
                   file,
                   path: `${id}.sentenceSpans.${sId}`,
-                  message: `Duplicate sentence span id "${sId}" in paper "${paper}".`,
-                  repair: `Assign a unique sentence span id within paper "${paper}".`,
+                  message: `Duplicate sentence span id "${sId}" in paper "${blockPaper}".`,
+                  repair: `Assign a unique sentence span id within paper "${blockPaper}".`,
                 });
               }
               sIds.add(sId);
@@ -407,7 +421,9 @@ export const checkMissingSourceBlock: ContentCheck = {
     const paperBlocks = new Map<string, Set<string>>();
     const paperSentences = new Map<string, Set<string>>();
 
-    for (const rawRec of ctx.records.values()) {
+    // entries(), not values(): a source block is identified by its KEY (recordKey.ts), and this
+    // loop previously asked `rec.kind === "source-block"`, which no block carries.
+    for (const [key, rawRec] of ctx.records.entries()) {
       if (!rawRec || typeof rawRec !== "object") continue;
       const rec = rawRec as Record<string, unknown>;
       const kind = typeof rec.kind === "string" ? rec.kind : "";
@@ -419,7 +435,7 @@ export const checkMissingSourceBlock: ContentCheck = {
             : "";
       const id = typeof rec.id === "string" ? rec.id : "";
 
-      if (kind === "source-block") {
+      if (isSourceBlockKey(key)) {
         let blocks = paperBlocks.get(paper);
         if (!blocks) {
           blocks = new Set();
@@ -685,7 +701,8 @@ export const checkBrokenAlignment: ContentCheck = {
     const paperTranslationUnits = new Map<string, Map<string, Record<string, unknown>>>();
     const paperAlignments = new Map<string, Record<string, unknown>[]>();
 
-    for (const rawRec of ctx.records.values()) {
+    // entries(), not values(): see the loop above.
+    for (const [key, rawRec] of ctx.records.entries()) {
       if (!rawRec || typeof rawRec !== "object") continue;
       const rec = rawRec as Record<string, unknown>;
       const kind = typeof rec.kind === "string" ? rec.kind : "";
@@ -699,7 +716,7 @@ export const checkBrokenAlignment: ContentCheck = {
 
       if (!paper) continue;
 
-      if (kind === "source-block") {
+      if (isSourceBlockKey(key)) {
         let blocks = paperSourceBlocks.get(paper);
         if (!blocks) {
           blocks = new Map();
@@ -1190,8 +1207,14 @@ export const checkEquationNotIdentical: ContentCheck = {
       const id = typeof rec.id === "string" ? rec.id : key;
 
       // Source equation block (German)
+      // THE CONDITION BELOW WAS UNSATISFIABLE. It read `kind === "source-block" && (rec.kind ===
+      // "equation" || ...)`, and `kind` IS `rec.kind`, so it asked one field to hold two strings
+      // at once. The German side of the equation-identity check could therefore never match a
+      // record, which is why planting `, PLANTED` into a translation unit's LaTeX produced 0
+      // reports (am-rc1001-bridge-plan-pcjk.10). The key says it is a source block; the record's
+      // own kind says it is an equation; both are now asked of the thing that knows.
       if (
-        kind === "source-block" &&
+        isSourceBlockKey(key) &&
         (rec.kind === "equation" ||
           typeof rec.latex === "string" ||
           typeof rec.math === "string" ||
@@ -1246,6 +1269,15 @@ export const checkEquationNotIdentical: ContentCheck = {
       }
     }
 
+    // THE CENSUS, BECAUSE THIS CHECK HAS REPORTED 0 OVER 0 PAIRS (am-rc1001-bridge-plan-pcjk.10).
+    // `germanEquations` was filled behind `kind === "source-block" && rec.kind === "equation"`,
+    // one field asked to hold two strings at once, so it was ALWAYS EMPTY and every pair below
+    // failed the `!== undefined` guard in silence. The guard is right -- an edge whose two ends
+    // are not both equations is not this check's business -- which is exactly why the number of
+    // pairs it actually compared has to be printed beside the verdict.
+    let edgesSeen = 0;
+    let pairsCompared = 0;
+
     // Check alignment edges connecting German equation blocks to English translation equation units
     for (const rawRec of ctx.records.values()) {
       if (!rawRec || typeof rawRec !== "object") continue;
@@ -1270,7 +1302,9 @@ export const checkEquationNotIdentical: ContentCheck = {
           ) {
             const germanMath = germanEquations.get(src.blockId);
             const englishMath = englishEquations.get(tgt.translationUnitId);
+            edgesSeen += 1;
             if (germanMath !== undefined && englishMath !== undefined) {
+              pairsCompared += 1;
               if (germanMath !== englishMath) {
                 ctx.report({
                   rule: "equation-not-identical",
@@ -1285,6 +1319,12 @@ export const checkEquationNotIdentical: ContentCheck = {
         }
       }
     }
+    console.log(
+      `[census] equation-not-identical collected ${germanEquations.size} German equation block(s) ` +
+        `and ${englishEquations.size} English equation unit(s), and compared ${pairsCompared} pair(s) ` +
+        `over ${edgesSeen} alignment edge(s) carrying both ends.` +
+        (pairsCompared === 0 ? " 0 pairs compared, so this verdict is about nothing." : ""),
+    );
   },
 };
 
@@ -1314,12 +1354,18 @@ export const checkCompleteWhileMissing: ContentCheck = {
         const paperBlocks: Record<string, unknown>[] = [];
         const paperTus: Record<string, unknown>[] = [];
 
-        for (const otherRec of ctx.records.values()) {
+        // entries(), not values(): a source block is identified by its KEY, and the paper is in
+        // the key too, so neither question needs the record to carry a field it does not.
+        for (const [otherKey, otherRec] of ctx.records.entries()) {
           if (!otherRec || typeof otherRec !== "object") continue;
           const o = otherRec as Record<string, unknown>;
-          if (o.paper === id || o.paperSlug === id) {
-            if (o.kind === "source-block") paperBlocks.push(o);
-            if (o.kind === "translation-unit") paperTus.push(o);
+          const blockPaper = sourceBlockPaper(otherKey);
+          if (blockPaper === id) {
+            paperBlocks.push(o);
+            continue;
+          }
+          if ((o.paper === id || o.paperSlug === id) && o.kind === "translation-unit") {
+            paperTus.push(o);
           }
         }
 
@@ -1530,7 +1576,7 @@ export const checkLedgerMarkerInEdition: ContentCheck = {
 
       // Only check edition entities (source blocks, translation units, editorial notes, arguments)
       if (
-        kind === "source-block" ||
+        isSourceBlockKey(key) ||
         kind === "translation-unit" ||
         isEditorialNoteKey(key) ||
         kind === "argument" ||
@@ -1569,7 +1615,7 @@ export const checkSpanDigestMismatch: ContentCheck = {
       const kind = typeof rec.kind === "string" ? rec.kind : "";
       const id = typeof rec.id === "string" ? rec.id : key;
 
-      if (kind === "source-block") {
+      if (isSourceBlockKey(key)) {
         const blockText = extractEntityPlainText(rec);
         const computedDigest = spanTextDigest(blockText);
 
@@ -1625,8 +1671,24 @@ export const checkSpanDigestMismatch: ContentCheck = {
               : undefined;
           if (src && srcRange) {
             const blockId = "blockId" in src && typeof src.blockId === "string" ? src.blockId : "";
+            // A SOURCE BLOCK IS KEYED `source-block:<paper>:<id>`, SO A BARE-ID LOOKUP MISSES IT.
+            // This read `ctx.records.get(blockId)`, which could only ever have found a block in a
+            // corpus where blocks were keyed by bare id -- that is, in a fixture. The alignment
+            // record names its own paper, so the production key is constructible; the bare id is
+            // kept as the fallback, because `indexes.byId` holds both spellings and an older
+            // fixture may still use one (am-rc1001-bridge-plan-pcjk.10).
+            const alignmentPaper =
+              typeof rec.paper === "string"
+                ? rec.paper
+                : typeof rec.paperSlug === "string"
+                  ? rec.paperSlug
+                  : "";
             const blockRec =
-              ctx.records.get(blockId) || (blockId ? indexes?.byId?.get(blockId) : undefined);
+              (blockId && alignmentPaper
+                ? ctx.records.get(recordKeyFor("source-block", alignmentPaper, blockId))
+                : undefined) ||
+              (blockId ? ctx.records.get(blockId) : undefined) ||
+              (blockId ? indexes?.byId?.get(blockId) : undefined);
             if (blockRec) {
               const blockText = extractEntityPlainText(blockRec);
               const computedDigest = spanTextDigest(blockText);

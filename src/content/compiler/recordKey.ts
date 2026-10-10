@@ -75,3 +75,23 @@ export function sourceBlockPaper(key: string): string | null {
 export function isEditorialNoteKey(key: string): boolean {
   return editorialNotePaper(key) !== null;
 }
+
+/**
+ * Whether this key names a source block, whatever the BLOCK's own kind happens to be
+ * (am-rc1001-bridge-plan-pcjk.10).
+ *
+ * The same proposition as `isEditorialNoteKey`, and the same cost when it is ignored. A source
+ * block's `kind` is `paragraph`, `equation`, `heading`, `footnote`, `closing`, `masthead` or
+ * `part-heading` -- measured over the 453 committed blocks, NONE carries the string
+ * "source-block". Seven branches in `checks/structural/structural.ts` tested `rec.kind ===
+ * "source-block"` and could therefore never match one. The sharpest of them, at the equation
+ * identity check, read
+ *
+ *     kind === "source-block" && (rec.kind === "equation" || ...)
+ *
+ * where `kind` IS `rec.kind`, so the condition is unsatisfiable by construction: it asks one
+ * field to hold two different strings at once.
+ */
+export function isSourceBlockKey(key: string): boolean {
+  return sourceBlockPaper(key) !== null;
+}

@@ -31,6 +31,36 @@ import {
   checkSpanDigestMismatch,
 } from "./structural.ts";
 
+/**
+ * KEYS A FIXTURE THE WAY THE COMPILER KEYS THE REAL CORPUS (am-rc1001-bridge-plan-pcjk.10).
+ *
+ * A source block is identified by its KEY, `source-block:<paper>:<id>` (recordKey.ts), never by a
+ * `kind` field: a block's own kind is `paragraph`, `equation`, `heading` and so on, and none of
+ * the 453 committed blocks carries the string "source-block". These fixtures wrote that string as
+ * `kind` and keyed by bare id, so every assertion here was made against a key shape production
+ * never produces -- which is how seven branches in structural.ts could test for a record that
+ * cannot exist while their tests stayed green.
+ */
+function keyFor(id: string, record: unknown): string {
+  // A key the fixture already wrote in production form is left alone. Rewriting it would collapse
+  // two DISTINCT keys that declare the same id -- which is the one within-paper duplicate that is
+  // actually reachable, since `path-identity` makes two files with one id unconstructible.
+  if (id.includes(":")) return id;
+  if (!record || typeof record !== "object") return id;
+  const rec = record as Record<string, unknown>;
+  if (rec.kind !== "source-block") return id;
+  const paper = typeof rec.paper === "string" ? rec.paper : (rec.paperSlug as string) || "";
+  const recordId = typeof rec.id === "string" ? rec.id : id;
+  return `source-block:${paper}:${recordId}`;
+}
+
+/** The fixture map, with source blocks under their production keys. */
+function fixtureRecords(records: Record<string, unknown>): Map<string, unknown> {
+  return new Map<string, unknown>(
+    Object.entries(records).map(([id, record]) => [keyFor(id, record), record]),
+  );
+}
+
 function run(
   check: { run: (ctx: CheckContext) => void },
   records: Record<string, unknown>,
@@ -38,7 +68,7 @@ function run(
 ): CheckReportItem[] {
   const reports: CheckReportItem[] = [];
   const ctx: CheckContext = {
-    records: new Map<string, unknown>(Object.entries(records)),
+    records: fixtureRecords(records),
     files: [],
     indexes,
     report: (item: CheckReportItem) => reports.push(item),
@@ -56,19 +86,57 @@ function expectSite(reports: CheckReportItem[], path: string, messageOpening: st
 
 describe("duplicate-id: the source-block site, not the twelve that already had tests", () => {
   test("(structural.ts:167) two source blocks share an id inside one paper", () => {
+    // TWO DISTINCT KEYS, ONE DECLARED ID, which is the only shape this site can actually meet.
+    // The fixture used to key them `a` and `b` as stand-ins for two files; under production keying
+    // (`source-block:<paper>:<id>`, recordKey.ts) two files in one paper declaring one id share a
+    // key and the records map holds one, so that shape is unreachable here. It is also
+    // unconstructible upstream: `path-identity` binds a block's id to its filename stem, so the
+    // compiler refuses the two files before any check sees them, which is the stronger guarantee
+    // and is recorded at structural.ts:352. What remains reachable, and what this asserts, is a
+    // caller that keys blocks by something other than the declared id
+    // (am-rc1001-bridge-plan-pcjk.10).
     const records = {
-      a: { kind: "source-block", id: "s1-p1", paper: "brownian-motion", file: "a.json" },
-      b: { kind: "source-block", id: "s1-p1", paper: "brownian-motion", file: "b.json" },
+      "source-block:brownian-motion:a": {
+        kind: "source-block",
+        id: "s1-p1",
+        paper: "brownian-motion",
+        file: "a.json",
+      },
+      "source-block:brownian-motion:b": {
+        kind: "source-block",
+        id: "s1-p1",
+        paper: "brownian-motion",
+        file: "b.json",
+      },
     };
     expectSite(run(checkDuplicateId, records), "s1-p1", "Duplicate source block id");
 
     // The same id in a DIFFERENT paper is legal, and this is the discrimination the site makes:
-    // ids are unique within a paper, never across the corpus.
+    // ids are unique within a paper, never across the corpus. The paper now comes from the KEY, so
+    // this also pins that the scoping does not fall back to a `paper` field a record may omit.
     const crossPaper = {
-      a: { kind: "source-block", id: "s1-p1", paper: "brownian-motion", file: "a.json" },
-      b: { kind: "source-block", id: "s1-p1", paper: "light-quanta", file: "b.json" },
+      "source-block:brownian-motion:a": {
+        kind: "source-block",
+        id: "s1-p1",
+        paper: "brownian-motion",
+        file: "a.json",
+      },
+      "source-block:light-quanta:b": {
+        kind: "source-block",
+        id: "s1-p1",
+        paper: "light-quanta",
+        file: "b.json",
+      },
     };
     expect(run(checkDuplicateId, crossPaper)).toHaveLength(0);
+
+    // And with the paper absent from the records entirely, which is how the key-scoping earns its
+    // keep: before it, both fell into the "" bucket and the legal cross-paper reuse was refused.
+    const noPaperField = {
+      "source-block:brownian-motion:a": { kind: "source-block", id: "s1-p1", file: "a.json" },
+      "source-block:light-quanta:b": { kind: "source-block", id: "s1-p1", file: "b.json" },
+    };
+    expect(run(checkDuplicateId, noPaperField)).toHaveLength(0);
   });
 });
 
