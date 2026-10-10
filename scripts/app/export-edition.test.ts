@@ -188,6 +188,62 @@ describe("planEdition", () => {
     }
   });
 
+  /**
+   * A SIBLING OF THE PINNED WASM BUNDLE IS DROPPED, AND THE PINNED ONE IS KEPT
+   * (am-rc1001-bridge-plan-pcjk.41, am-tny4).
+   *
+   * `public/wasm/manifest.json` names one bundle and the loader reads that manifest, so a file under
+   * another digest in the same directory cannot be reached by any page. Before this rule the export
+   * met those files at `assertFrankensimWasmPinned` and refused the WHOLE edition with
+   * `edition-wasm-unpinned` -- measured on the real build of 2026-10-10, four files under
+   * `wasm/fs-annus-diffusion/105d7ffc15414de5/`, the 154-byte placeholder, beside the pinned
+   * `80a1f8fda6f69003`.
+   *
+   * The four cases are the deliverable, not the one reclassification: the pinned bundle must be
+   * KEPT, a sibling DROPPED, pdf.js wasm untouched (a check over every wasm file would refuse four
+   * pdf.js modules, as assertFrankensimWasmPinned's own docblock records), and an absent pinned
+   * manifest must drop NOTHING rather than everything.
+   */
+  describe("unpinned-wasm-bundle", () => {
+    const PINNED = "wasm/fs-annus-diffusion/80a1f8fda6f69003";
+    const wasmPaths = [
+      `${PINNED}/fs_annus_diffusion_bg.wasm`,
+      `${PINNED}/fs_annus_diffusion.js`,
+      "wasm/fs-annus-diffusion/105d7ffc15414de5/fs_annus_diffusion_bg.wasm",
+      "wasm/fs-annus-diffusion/105d7ffc15414de5/fs_annus_diffusion.js",
+      "pdfjs/wasm/openjpeg.wasm",
+      "wasm/kernel.wasm",
+    ];
+    const withPinned = planEdition(wasmPaths, new Set<string>(), PINNED);
+    const dropped = withPinned.excluded.get("unpinned-wasm-bundle") ?? [];
+
+    it("drops every file under a sibling digest, naming them", () => {
+      assert.deepEqual(dropped, [
+        "wasm/fs-annus-diffusion/105d7ffc15414de5/fs_annus_diffusion.js",
+        "wasm/fs-annus-diffusion/105d7ffc15414de5/fs_annus_diffusion_bg.wasm",
+      ]);
+    });
+
+    it("keeps the pinned bundle, which is what the refusal exists to protect", () => {
+      assert.ok(withPinned.included.includes(`${PINNED}/fs_annus_diffusion_bg.wasm`));
+      assert.ok(withPinned.included.includes(`${PINNED}/fs_annus_diffusion.js`));
+    });
+
+    it("leaves wasm outside the pinned bundle's directory alone", () => {
+      // pdfjs/wasm/openjpeg.wasm is dropped by `unused-pdf-viewer`, not by this rule, and
+      // wasm/kernel.wasm is kept outright: neither is a sibling of the pinned bundle.
+      assert.ok(!dropped.includes("pdfjs/wasm/openjpeg.wasm"));
+      assert.ok(withPinned.included.includes("wasm/kernel.wasm"));
+    });
+
+    it("drops nothing when no pinned manifest was read", () => {
+      const noPin = planEdition(wasmPaths, new Set<string>());
+      assert.deepEqual(noPin.excluded.get("unpinned-wasm-bundle") ?? [], []);
+      for (const path of wasmPaths.filter((x) => !x.startsWith("pdfjs/")))
+        assert.ok(noPin.included.includes(path), path);
+    });
+  });
+
   it("puts every path in exactly one bucket", () => {
     const excluded = [...plan.excluded.values()].flat();
     assert.equal(plan.included.length + excluded.length, paths.length);

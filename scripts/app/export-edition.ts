@@ -144,6 +144,12 @@ export type ExclusionRule = {
 export type PlanContext = {
   readonly paths: ReadonlySet<string>;
   readonly referencedDigests: ReadonlySet<string>;
+  /**
+   * The pinned FrankenSim bundle as it appears inside the edition, e.g.
+   * `wasm/fs-annus-diffusion/80a1f8fda6f69003`, or undefined when no pinned manifest was read.
+   * Undefined disables the `unpinned-wasm-bundle` rule rather than dropping every wasm file.
+   */
+  readonly pinnedWasmPrefix?: string | undefined;
 };
 
 /**
@@ -182,6 +188,38 @@ export const EXCLUSION_RULES: readonly ExclusionRule[] = [
     matches: (path, context) => {
       const match = DIGEST_DIRECTORY.exec(path);
       return match !== null && !context.referencedDigests.has(match[1] ?? "");
+    },
+  },
+  {
+    /**
+     * A SIBLING OF THE PINNED WASM BUNDLE IS A LEFTOVER, by the same reasoning the rule above gives
+     * for an unreferenced edition digest: `public/wasm/manifest.json` names ONE bundle, a page can
+     * reach only the bundle the manifest names, so files under any other digest are from an earlier
+     * build (am-rc1001-bridge-plan-pcjk.41, am-tny4).
+     *
+     * Measured 2026-10-10: `out/wasm/fs-annus-diffusion/` holds two directories --
+     * `80a1f8fda6f69003`, the pinned 92,751-byte module, and `105d7ffc15414de5`, the 154-byte
+     * hand-built placeholder whose digest survives as the bm01 HOST reference identity in
+     * src/workers/host/hostWorker.ts. Nothing can load the second: the loader reads the manifest.
+     * The export refused the whole edition over those three files with `edition-wasm-unpinned`,
+     * which was the right verdict on the wrong subject -- they are not an unpinned MODULE being
+     * shipped as the pinned one, they are a directory nobody can reach.
+     *
+     * SCOPED TO SIBLINGS OF THE PINNED BUNDLE, never to "every .wasm". The edition also ships four
+     * pdf.js modules that are in no pinned manifest, and `assertFrankensimWasmPinned` already
+     * records why a check over every wasm file would refuse all four. This matches only paths under
+     * the pinned bundle's own parent directory, and only those outside the pinned bundle itself, so
+     * the pinned module is always kept and the refusal above still fires if it is wrong.
+     */
+    id: "unpinned-wasm-bundle",
+    reason:
+      "public/wasm/manifest.json names one FrankenSim bundle, and the loader reads that manifest, so files under another digest in the same bundle directory cannot be reached by any page (App plan; am-rc1001-bridge-plan-pcjk.41).",
+    matches: (path, context) => {
+      const pinned = context.pinnedWasmPrefix;
+      if (pinned === undefined || pinned === "") return false;
+      const parent = pinned.slice(0, pinned.lastIndexOf("/") + 1);
+      if (parent === "" || !path.startsWith(parent)) return false;
+      return !path.startsWith(`${pinned}/`);
     },
   },
   {
@@ -272,8 +310,16 @@ export type EditionPlan = {
   readonly excluded: ReadonlyMap<string, readonly string[]>;
 };
 
-export function planEdition(paths: readonly string[], digests: ReadonlySet<string>): EditionPlan {
-  const context: PlanContext = { paths: new Set(paths), referencedDigests: digests };
+export function planEdition(
+  paths: readonly string[],
+  digests: ReadonlySet<string>,
+  pinnedWasmPrefix?: string | undefined,
+): EditionPlan {
+  const context: PlanContext = {
+    paths: new Set(paths),
+    referencedDigests: digests,
+    pinnedWasmPrefix,
+  };
   const included: string[] = [];
   const excluded = new Map<string, string[]>();
   for (const path of [...paths].sort()) {
@@ -741,7 +787,23 @@ export function exportEdition(options: {
   }
 
   const digests = referencedDigests(paths, (path) => readFileSync(join(outDir, path), "utf8"));
-  const plan = planEdition(paths, digests);
+  /**
+   * The pinned bundle is read BEFORE planning, not only before the refusal below, because the
+   * `unpinned-wasm-bundle` rule needs it: a sibling of the pinned bundle has to be dropped at plan
+   * time or it reaches `assertFrankensimWasmPinned` and refuses the whole edition
+   * (am-rc1001-bridge-plan-pcjk.41, am-tny4). Absent manifest -> undefined prefix -> the rule is
+   * inert and every wasm file is kept, which is the safe direction.
+   */
+  const pinnedWasmManifestPath = join(repo, "public/wasm/manifest.json");
+  const pinnedWasmBundleDir = existsSync(pinnedWasmManifestPath)
+    ? ((JSON.parse(readFileSync(pinnedWasmManifestPath, "utf8")) as { bundleDir?: unknown })
+        .bundleDir as string | undefined)
+    : undefined;
+  const plan = planEdition(
+    paths,
+    digests,
+    typeof pinnedWasmBundleDir === "string" ? editionWasmPrefix(pinnedWasmBundleDir) : undefined,
+  );
 
   const routeCount = checkRoutesAndReferences(outDir, paths, plan.included);
   const viewerUsers = pdfViewerReferences(plan.included, (path) =>
