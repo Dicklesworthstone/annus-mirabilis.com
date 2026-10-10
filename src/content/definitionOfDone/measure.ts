@@ -288,6 +288,63 @@ export function misconceptionsAtLeastFive(root: string, paper: string): DoneCell
 }
 
 /**
+ * ITEM: the historian's-margin entries of plan section 3.9, against the per-paper requirement.
+ *
+ * THIS CELL WAS DECLARED UNMEASURED ON A REASON THAT HAS EXPIRED. `NOT_YET_READ` said "the
+ * required-per-paper list that would be the denominator is in the plan rather than in a record this
+ * can read". That was true when written and stopped being true on 2026-10-08, when
+ * `content/editorial/required-margin-entries/<paper>.yaml` landed -- four records whose own opening
+ * comment reads "This file is a DENOMINATOR, not editorial copy", one per paper, with the plan's
+ * lettered entries transcribed.
+ *
+ * COUNTING RECORDS WOULD BE THE WRONG POPULATION, and the denominator files say so in their own
+ * words: `kind: historian-margin` gives 16 across the four papers, of which only six are section
+ * 3.9 entries for mass-energy and ten are notation-concordance notes carrying the same kind. So the
+ * numerator is the REQUIREMENT satisfied, read from the requirement's side.
+ *
+ * `partial` counts as NOT satisfied. The denominator files are explicit -- "Do not promote a partial
+ * by widening this file" -- and a cell that credited a partial would report an item met while the
+ * plan's clause is half covered.
+ *
+ * `additionalRequired` is part of the denominator because a bead outranks the plan as the executable
+ * queue; the mass-energy record explains why its two entries carry names rather than letters.
+ */
+export function marginEntries(root: string, paper: string): DoneCell {
+  const file = join(root, "content", "editorial", "required-margin-entries", `${paper}.yaml`);
+  if (!existsSync(file)) {
+    return unmeasuredCell(
+      "margin-entries",
+      paper,
+      `no requirement record at ${file}, so there is no denominator to measure against`,
+    );
+  }
+  type Entry = Readonly<{ satisfiedBy?: unknown; partial?: unknown }>;
+  const record = loadYaml(readFileSync(file, "utf8")) as Readonly<{
+    entries?: readonly Entry[];
+    additionalRequired?: readonly Entry[];
+  }>;
+  const required = [...(record.entries ?? []), ...(record.additionalRequired ?? [])];
+  if (required.length === 0) {
+    return unmeasuredCell(
+      "margin-entries",
+      paper,
+      `${file} declares no entries, so a 0 of 0 here would be arithmetic rather than a verdict`,
+    );
+  }
+  const satisfied = required.filter((e) => Boolean(e.satisfiedBy) && !e.partial);
+  const partial = required.filter((e) => Boolean(e.partial)).length;
+  return doneCell(
+    "margin-entries",
+    paper,
+    satisfied.length,
+    required.length,
+    `${required.length} required by plan section 3.9 and the owning bead; ` +
+      `${satisfied.length} satisfied by a named record` +
+      (partial > 0 ? `, ${partial} partial and therefore not counted` : ""),
+  );
+}
+
+/**
  * ITEM 7: the lab contract cells of a paper's core instruments.
  *
  * Fourteen contract columns per instrument, so the population is instruments times columns. The
@@ -379,10 +436,6 @@ export function r2CoversR1(paper: string, loaded: LoadedReadings): DoneCell {
  * distinction.
  */
 const NOT_YET_READ: Readonly<Record<string, string>> = {
-  "margin-entries":
-    "the historian's-margin entries live in content/editorial/readings-owners/*.yaml as r3 targets " +
-    "(see the readings-owners note in AGENTS.md), and the required-per-paper list that would be the " +
-    "denominator is in the plan rather than in a record this can read.",
   "journey-skeleton-parts":
     "content/journeys holds the records; the skeleton's parts (shelf, nagging fact, forks, the move, " +
     "check-against-the-world) are a structural requirement with no field asserting presence yet.",
@@ -430,6 +483,7 @@ export function cellsForPaper(
     displaysBound(root, paper),
     resultsCardsPrinted(root, paper),
     misconceptionsAtLeastFive(root, paper),
+    marginEntries(root, paper),
     labContractCells(paper, instruments),
     readingsComplete(paper, readings),
     r2CoversR1(paper, readings),
