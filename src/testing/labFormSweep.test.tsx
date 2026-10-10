@@ -186,6 +186,13 @@ function state(c: HTMLElement) {
       .filter(Boolean)
       .join(" | "),
     gated: gatedRefusalSurfaces(c),
+    // THE STALENESS MARKING, BY LAB (am-m79c). `data-currency-state` has exactly one producer in
+    // the repository -- CurrencyIndicator, reached through ExecutionChrome -- so a lab that renders
+    // no chrome has no element a refusal can mark, and a reader of it is told WHY the settings were
+    // refused and not that the numbers beside the message are from the previous ones.
+    currencies: [...c.querySelectorAll("[data-currency-state]")]
+      .map((e) => e.getAttribute("data-currency-state") ?? "")
+      .filter((x) => x !== ""),
     text: c.textContent ?? "",
   };
 }
@@ -245,6 +252,10 @@ async function probe(c: HTMLElement, i: number, value: string) {
     applyFailed: after.applyFailures.length > before.applyFailures.length,
     raw: [...new Set(after.text.match(RAW) ?? [])].filter((h) => !before.text.includes(h)),
     gated: after.gated.filter((x) => !before.gated.includes(x)),
+    // A `refused` currency that was not already on the page before this value: the worker-refusal
+    // surface can carry one from an earlier state, and crediting that would make a lab with no
+    // form-validation marking read as having one.
+    currencyRefused: after.currencies.includes("refused") && !before.currencies.includes("refused"),
   } as const;
 }
 
@@ -267,6 +278,8 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
   const codedRoutes = new Set<string>();
   /** Refusal surfaces that appeared INSIDE a predict-gated region, by lab (am-ig23). */
   const gatedRefusals: string[] = [];
+  /** Labs whose FORM refusal marks the accepted readouts stale (am-m79c). */
+  const currencyRoutes = new Set<string>();
   const typedSurfaceRoutes = new Set<string>();
   const untyped: string[] = [];
   let typed = 0;
@@ -347,6 +360,7 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
               // what an inserted line does to the construct it lands inside.
               if (r.coded.length > 0) codedRoutes.add(route);
               for (const g of r.gated) gatedRefusals.push(`${route}: ${g}`);
+              if (r.currencyRefused) currencyRoutes.add(route);
               if (r.applyFailed) typedSurfaceRoutes.add(route);
             }
           }
@@ -385,6 +399,47 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
     // The denominator first: with no refusal provoked this assertion is about nothing.
     expect(refusals).toBeGreaterThan(0);
     expect(gatedRefusals).toEqual([]);
+  });
+
+  /**
+   * WHICH LABS MARK THE ACCEPTED READOUTS STALE ON A FORM REFUSAL (am-m79c).
+   *
+   * `data-currency-state` has exactly ONE producer in the repository -- `CurrencyIndicator`, reached
+   * through `ExecutionChrome` -- so a lab that renders no chrome has no element a refusal can mark,
+   * and a reader of it is told WHY the settings were refused and NOT that the numbers beside the
+   * message are from the previous settings. AGENTS.md: a refusal "freeze[s] the illegal step, show[s]
+   * the reason, and keep[s] the last legal state", and keeping a state the reader cannot tell is
+   * stale is two thirds of that.
+   *
+   * AN EXACT SET, for the reason the `data-apply-failure` list beside it is one: a lab that loses
+   * its marking in a refactor fails here by name, and a lab that gains one fails too, so adding a
+   * line is a deliberate act taken when the work lands.
+   *
+   * MEASURED 2026-10-10 AND IT WIDENS am-m79c's OWN FINDING. That bead records six labs with no
+   * execution chrome at all, three of which refuse a form. This measures the labs whose FORM refusal
+   * actually marks staleness, and there are SEVEN -- so of the 27 labs that do render a chrome, 20
+   * do not pass it a `validationRefusal` and their form refusal marks nothing. Rendering the chrome
+   * and marking a form refusal with it are different things, and only this set distinguishes them.
+   */
+  const RECORDED_STALENESS_MARKING = [
+    "bm-05",
+    "bm-08",
+    "lq-03",
+    "lq-04",
+    "lq-05",
+    "lq-07",
+    "sr-04",
+  ];
+  test("the labs whose form refusal marks the accepted readouts stale, by name (am-m79c)", () => {
+    console.log(
+      `[census] form-refusal staleness marking: ${[...currencyRoutes].sort().join(", ") || "NONE"} ` +
+        `(${currencyRoutes.size} of 33 labs; 27 render an execution chrome, so ${27 - currencyRoutes.size} ` +
+        "render one and mark nothing when a form is refused)",
+    );
+    // Non-vacuity first: a selector that matched nothing would make the set trivially equal to an
+    // empty recorded list and read as a clean run.
+    expect(currencyRoutes.size).toBeGreaterThan(0);
+    expect([...currencyRoutes].sort()).toEqual(RECORDED_STALENESS_MARKING);
   });
 
   test("the sweep typed into fields (a floor, not a census)", () => {
