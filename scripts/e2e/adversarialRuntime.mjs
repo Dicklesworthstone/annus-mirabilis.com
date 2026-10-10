@@ -52,6 +52,7 @@ import { readFile, stat } from "node:fs/promises";
 import { createServer } from "node:http";
 import { extname, resolve, sep } from "node:path";
 import { chromium, webkit } from "playwright";
+import { reportPopulation } from "../gate-census/population.ts";
 import {
   appendLogLine,
   evidenceDirFor,
@@ -433,6 +434,24 @@ async function declaredAbsences(page, engine) {
 }
 
 const engines = (process.env.BROWSERS ?? "chromium,webkit").split(",").map((s) => s.trim());
+
+// THE POPULATION, PRINTED BEFORE ANY ENGINE LAUNCHES (am-rc1001-bridge-plan-pcjk.9). ENGINES and not
+// clauses, because the collapse that matters here is an engine silently going missing: rows 9 and 12
+// are checked twice over, once per engine, and a run that quietly dropped webkit would still report
+// thirteen healthy clauses. The clause count is printed beside the verdict for a reader; the floor
+// sits on the thing whose absence would not show.
+//
+// EARLY, and that placement is the point. It sat after the engine loop until I tried to verify it on
+// a host where chromium will not launch: the suite hung before reaching the line, so a gate that
+// cannot start printed no population at all and the census could not tell that from a gate with no
+// record. The count depends only on the BROWSERS list, which is known before any work, so there is
+// no reason to make a reader wait for it.
+const censusVacuous = reportPopulation({
+  gate: "adversarial-runtime",
+  examined: engines.length,
+  noun: "browser engines",
+  minimum: 2,
+});
 const launchers = { chromium, webkit };
 try {
   for (const engine of engines) {
@@ -480,4 +499,4 @@ if (checks === 0) {
   console.error("[adversarial-runtime] NOTHING WAS CHECKED");
   process.exit(1);
 }
-process.exit(failures > 0 ? 1 : 0);
+process.exit(censusVacuous || failures > 0 ? 1 : 0);

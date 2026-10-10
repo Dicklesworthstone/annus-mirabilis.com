@@ -762,6 +762,53 @@ export const CENSUS_RECORDS: readonly CensusRecord[] = [
       minimumPlant("license-inventory", "scripts/verify-license-inventory.ts", 40, "VACUOUS"),
     ],
   },
+  /*
+    THE THREE GATES REGISTERED ON 2026-10-10, each by me and each originally without a census record
+    (am-ver-adversarial-audit-1ef, am-bm-slice-exit-demo-5922). The census reported all three as
+    `no-census-record` within hours of my registering them, which is this bead's whole thesis
+    demonstrated at my expense: "Each new gate is a fresh chance to forget it", three times in one
+    session.
+  */
+  {
+    gate: "audit-adversarial",
+    noun: "adversarial rows",
+    howRead:
+      "ADVERSARIAL_ROWS.length, imported from src/testing/adversarial/rows.ts rather than counted " +
+      "by grep: `grep -c 'state: \"implemented\"'` reports one too many because the type " +
+      "declaration contains both strings. The floor is 15 because the table is 15 rows by " +
+      "specification and the registry test asserts exactly that, so a run over 14 means a row was " +
+      "deleted rather than that the audit is clean.",
+    gateRefusesVacuous: true,
+    plants: [minimumPlant("audit-adversarial", "scripts/audit-adversarial.ts", 15, "VACUOUS")],
+  },
+  {
+    gate: "evidence-links",
+    noun: "evidence documents",
+    howRead:
+      "every *.md under docs/evidence/ and docs/decisions/, discovered rather than listed. The " +
+      "noun is DOCUMENTS and not references deliberately: this gate was repaired from a default " +
+      "that examined 1 of 5 documents while resolving all 92 references in that one, so the count " +
+      "that can collapse unnoticed is the document count. 5 documents and 328 references measured " +
+      "at registration. An explicit single-file argument prints no census line, because that form " +
+      "is an operator tool rather than the gate.",
+    gateRefusesVacuous: true,
+    plants: [minimumPlant("evidence-links", "scripts/check-evidence-links.ts", 5, "VACUOUS")],
+  },
+  {
+    gate: "adversarial-runtime",
+    noun: "browser engines",
+    howRead:
+      "the BROWSERS list, chromium and webkit, both installed here. ENGINES and not clauses, " +
+      "because adversarial rows 9 and 12 are checked twice over, once per engine, and a run that " +
+      "quietly dropped webkit would still report thirteen healthy clauses. The clause count is " +
+      "printed beside the verdict for a reader; the floor sits on the thing whose absence would " +
+      "not show. The suite also refuses before launching any engine when a subsystem these rows " +
+      "read has moved since out/ was built.",
+    gateRefusesVacuous: true,
+    plants: [
+      minimumPlant("adversarial-runtime", "scripts/e2e/adversarialRuntime.mjs", 2, "VACUOUS"),
+    ],
+  },
   {
     gate: "verify-constant-sets",
     noun: "constant set records",

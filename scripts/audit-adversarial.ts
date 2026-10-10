@@ -37,6 +37,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ADVERSARIAL_ROWS } from "../src/testing/adversarial/rows.ts";
+import { reportPopulation } from "./gate-census/population.ts";
 import { appendLogLine, logPathFor, newLogRunId } from "./scaffold/logLine.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -279,4 +280,15 @@ for (const row of failing)
 for (const row of vacuous)
   console.error(`[audit-adversarial] row ${row.row} is VACUOUS: it ran and asserted nothing`);
 
-process.exit(drift.length > 0 || failing.length > 0 || vacuous.length > 0 ? 1 : 0);
+// THE POPULATION, PRINTED (am-rc1001-bridge-plan-pcjk.9). The rows are what this audit examines, and
+// a run over fewer than fifteen is a broken registry rather than a clean audit. I registered this
+// gate without a census line, which is exactly the "each new gate is a fresh chance to forget it"
+// that bead describes.
+const censusVacuous = reportPopulation({
+  gate: "audit-adversarial",
+  examined: ADVERSARIAL_ROWS.length,
+  noun: "adversarial rows",
+  minimum: 15,
+});
+
+process.exit(censusVacuous || drift.length > 0 || failing.length > 0 || vacuous.length > 0 ? 1 : 0);

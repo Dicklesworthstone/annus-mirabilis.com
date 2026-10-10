@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { reportPopulation } from "./gate-census/population.ts";
 
 export interface EvidenceLink {
   ref: string;
@@ -299,6 +300,20 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     console.error(
       `[check-evidence-links] ${targets.length} document(s), ${totalLinks} reference(s), ${totalUnresolved} unresolved; log artifacts/test-logs/retrospective-links/${logRunId}.jsonl`,
     );
+    // THE POPULATION, PRINTED (am-rc1001-bridge-plan-pcjk.9). DOCUMENTS and not references, because
+    // the defect this gate was repaired from was a default that examined 1 of 5 documents while
+    // resolving all 92 of that one document's references. The count that can collapse is the
+    // document count. Skipped for an explicit single-file run, which is an operator tool rather
+    // than the gate.
+    const censusVacuous = explicit
+      ? false
+      : reportPopulation({
+          gate: "evidence-links",
+          examined: targets.length,
+          noun: "evidence documents",
+          minimum: 5,
+        });
+    if (censusVacuous) process.exit(1);
     if (failures.length > 0) {
       console.error(`Found ${totalUnresolved} unresolved reference(s):`);
       for (const line of failures) console.error(line);
