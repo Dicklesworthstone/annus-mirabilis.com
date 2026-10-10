@@ -31,17 +31,23 @@
  * fixtureApps.ts` has no `runtime` entry -- so that bead is genuinely outstanding and this is a live
  * pointer, not a dead one.
  *
- * WHY IT RUNS AGAINST `out/` WITHOUT A REBUILD, stated because an exit code over stale output is not
- * evidence. Measured before writing this: zero commits have touched `src/experiments/sr03`,
- * `src/experiments/bm01`, `src/experiments/store`, `src/experiments/permalink`,
- * `src/experiments/identity`, `RodSimultaneityLab.tsx` or `TracerLab.tsx` since the commit `out/` was
- * built from. The suite still prints the built commit beside its verdict, so a reader can check that
- * claim rather than take it.
+ * WHY IT RUNS AGAINST `out/` WITHOUT A REBUILD, and why that is a REFUSAL rather than a sentence.
+ * `out/` in this checkout is around a hundred commits behind HEAD, and the harness's own
+ * `assertOutFreshness` refuses past fifty, so a blanket commit count would stop this suite from ever
+ * running here. The narrower question is the right one: has anything THESE TWO ROWS depend on moved
+ * since the build? `SUBSYSTEMS` below names those paths and `assertSubsystemFreshness` asks git
+ * directly, refusing with the offending commits listed if any of them changed.
+ *
+ * The first version of this file only PRINTED the built commit and relied on a measurement recorded
+ * in a commit message. That is the shape AGENTS.md warns about twice over -- a persuasive reason to
+ * trust a gate is a reason to check separately that the gate reaches a verdict -- so the measurement
+ * is now executed on every run instead of being quoted from the day it was taken.
  *
  * Usage: node --experimental-strip-types scripts/e2e/adversarialRuntime.mjs
  *   BROWSERS=chromium,webkit   which engines to run (default both; both are installed here)
  */
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { readFile, stat } from "node:fs/promises";
 import { createServer } from "node:http";
 import { extname, resolve, sep } from "node:path";
@@ -127,6 +133,50 @@ const base = `http://127.0.0.1:${server.address().port}`;
 const builtCommit = await readFile(resolve("out/release.json"), "utf8")
   .then((text) => JSON.parse(text).commit ?? "unknown")
   .catch(() => "unknown");
+
+/**
+ * The paths these two rows actually exercise. A change to any of them invalidates this run; a change
+ * anywhere else in the repository does not.
+ */
+const SUBSYSTEMS = Object.freeze([
+  "src/experiments/sr03",
+  "src/experiments/bm01",
+  "src/experiments/store",
+  "src/experiments/permalink",
+  "src/experiments/identity",
+  "src/components/lab/RodSimultaneityLab.tsx",
+  "src/components/lab/TracerLab.tsx",
+]);
+
+/** Refuses when a subsystem this suite reads has moved since `out/` was built. */
+function assertSubsystemFreshness() {
+  if (builtCommit === "unknown") {
+    throw new Error(
+      "out/release.json names no commit, so the freshness of this build cannot be established. Run `bun run build`.",
+    );
+  }
+  let moved;
+  try {
+    moved = execFileSync("git", ["log", "--oneline", `${builtCommit}..HEAD`, "--", ...SUBSYSTEMS], {
+      encoding: "utf8",
+    }).trim();
+  } catch (error) {
+    throw new Error(
+      `could not ask git what changed since ${builtCommit}: ${error.message}. This suite reads built output, so it refuses rather than reporting over an unknown build.`,
+    );
+  }
+  if (moved.length > 0) {
+    const commits = moved.split("\n");
+    throw new Error(
+      `out/ was built from ${builtCommit.slice(0, 12)} and ${commits.length} commit(s) have since touched a subsystem these rows read, so this run would describe code that is no longer there. Run \`bun run build\`.\n  ${commits.join("\n  ")}`,
+    );
+  }
+  console.log(
+    `[adversarial-runtime] out/ built from ${builtCommit.slice(0, 12)}; 0 commits since have touched any of ${SUBSYSTEMS.length} subsystems these rows read`,
+  );
+}
+
+assertSubsystemFreshness();
 
 let failures = 0;
 let checks = 0;
