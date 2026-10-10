@@ -80,17 +80,21 @@ const CANONICAL = "src/experiments/results/refusalSentence.ts";
  *   discovery/lightQuanta/investigation.ts   `fail(reason: string)` from a pure validator
  *   experiments/bm07/kitchen/analyze.ts      `reason<T>(r): string`, whose JOB is to make a sentence
  *   experiments/compare/controlledComparison.ts  a `failure(message, active)` callback
- *   reasoning/infer/browser.ts               builds a message for `announce()`, a live region
  *
- * The last is the one to think hardest about: a live region genuinely wants a string, so the repair
- * there is probably to keep announcing the sentence and put the CODE on an element attribute, not to
- * pass a typed failure into `announce`.
+ * reasoning/infer/browser.ts WAS the fourth and is converted, and it is the one that shows the shape
+ * of the remaining three. Its string was not a mistake: `announce` writes a live region, which
+ * genuinely takes text. So the sentence stayed a sentence and the CODE moved to an attribute on the
+ * case element, beside the identities that module already publishes. It also keeps its own
+ * discrimination rather than adopting `applyFailure`, because its session has a fourth kind,
+ * `no-value`, whose `reason` applyFailure would replace with generic text.
+ *
+ * Expect the same two questions for each of the three left: what does this sink's consumer actually
+ * need, and does the result union have a kind applyFailure does not know.
  */
 const FLATTENING_SITES: Readonly<Record<string, number>> = {
   "src/discovery/lightQuanta/investigation.ts": 1,
   "src/experiments/bm07/kitchen/analyze.ts": 1,
   "src/experiments/compare/controlledComparison.ts": 1,
-  "src/reasoning/infer/browser.ts": 1,
 };
 
 /**
@@ -185,6 +189,7 @@ test("the converted paths are NOT in the list, which is what conversion looks li
     "src/components/lab/lq09/IonizationLab.tsx",
     "src/components/lab/sr07/FieldEquationsLab.tsx",
     "src/components/discover/BrownianInvestigation.tsx",
+    "src/reasoning/infer/browser.ts",
   ];
   for (const file of converted) assert.ok(!Object.keys(report.perFile).includes(file), file);
   /*
@@ -207,12 +212,12 @@ test("the recorded debt names only real files, and no duplicates", () => {
   const names = Object.keys(FLATTENING_SITES);
   assert.equal(new Set(names).size, names.length);
   // The ceiling, lowered with each payment: 26 at 2026-10-06, 10 after the first thirteen
-  // conversions, 5 after lq06, lq08, lq09 and sr07, and 4 after BrownianInvestigation, all on
-  // 2026-10-09. It never rises without a reason written beside it, because a baseline that only
-  // goes up is a budget.
+  // conversions, then 5, 4 and 3 after lq06/lq08/lq09/sr07, BrownianInvestigation and
+  // reasoning/infer/browser.ts, all on 2026-10-09. It never rises without a reason written beside
+  // it, because a baseline that only goes up is a budget.
   assert.equal(
     Object.values(FLATTENING_SITES).reduce((a, b) => a + b, 0),
-    4,
+    3,
   );
   for (const name of names) assert.doesNotThrow(() => readFileSync(join(ROOT, name), "utf8"));
 });
