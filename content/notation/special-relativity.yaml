@@ -1498,7 +1498,7 @@ entries:
       anchor: sr-s6-p1
     verification:
       printed: false
-      checkedAgainst: "Page image of printed page 907 (PDF page 17 of public/papers/pdfs/ap-17-891.pdf, rendered with pdftoppm at 300 dpi), read by eye, not the text layer. E_G IS NOT A PRINTED GLYPH AND COULD NOT BE: the paper names the electric field by its components, and page 907 says so in one sentence directly under the six Maxwell-Hertz equations - \'wobei (X, Y, Z) den Vektor der elektrischen, (L, M, N) den der magnetischen Kraft bedeutet\'. No E appears as a field symbol anywhere in section 6. This record exists to carry the Gaussian-to-SI unit conversion, which the entry\'s own note already says renames nothing and is not applied by the modern-notation view, so marking it unprinted is what the record always meant. An agent check, not a human review; human review pending."
+      checkedAgainst: "Page image of printed page 907 (PDF page 17 of public/papers/pdfs/ap-17-891.pdf, rendered with pdftoppm at 300 dpi), read by eye, not the text layer. E_G IS NOT A PRINTED GLYPH AND COULD NOT BE: the paper names the electric field by its components, and page 907 says so in one sentence directly under the six Maxwell-Hertz equations - 'wobei (X, Y, Z) den Vektor der elektrischen, (L, M, N) den der magnetischen Kraft bedeutet'. No E appears as a field symbol anywhere in section 6. This record exists to carry the Gaussian-to-SI unit conversion, which the entry's own note already says renames nothing and is not applied by the modern-notation view, so marking it unprinted is what the record always meant. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-residue-opus5"
       date: "2026-10-10"
 
