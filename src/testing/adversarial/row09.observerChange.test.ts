@@ -40,6 +40,7 @@ import {
 } from "../../experiments/commands/invariants.ts";
 import type { TypedCommand } from "../../experiments/commands/types.ts";
 import { eventSetDigest } from "../../experiments/digest/scientificDigest.ts";
+import { ieee754Hex, withinTolerance } from "../../units/tolerance.ts";
 import { lorentzBoost, type SpacetimeEvent } from "../runtime-fixtures/eventLedgerFixture.ts";
 import {
   type DescribedEvent,
@@ -243,22 +244,31 @@ describe("row 9: changing observer means starting a new experiment", () => {
     const stored = wrongRecomputedInvariantEventFields(REST_EVENTS);
     const recomputed = wrongRecomputedInvariantEventFields(boostedEvents);
 
-    // THE PHYSICS HALF, and it is a TOLERANCE comparison, which is the whole point.
+    // THE PHYSICS HALF, and it is a TOLERANCE comparison, which is the whole point. Through
+    // `withinTolerance` rather than a hand-rolled ratio: src/units/tolerance.ts is the one
+    // comparison module and `tolerance.test.ts` ratchets duplicate comparison logic to zero per
+    // file. My first version divided by hand and tripped that ratchet, which was correct of it.
     expect(recomputed.intervals.length).toBe(6);
     expect(recomputed.ids).toEqual(stored.ids);
-    const relative = recomputed.intervals.map((row, index) => {
-      const was = (stored.intervals[index] as { intervalSq: number }).intervalSq;
-      expect(row.pair).toBe((stored.intervals[index] as { pair: string }).pair);
-      return Math.abs(row.intervalSq - was) / Math.abs(was);
-    });
-    const worst = Math.max(...relative);
+    let worstDiff = 0;
+    let bitwiseMismatches = 0;
+    for (const [index, row] of recomputed.intervals.entries()) {
+      const was = stored.intervals[index] as { intervalSq: number; pair: string };
+      expect(row.pair).toBe(was.pair);
+      const verdict = withinTolerance(row.intervalSq, was.intervalSq, { relative: 1e-12 });
+      expect(verdict.ok, `${row.pair} moved by more than 1e-12 relative`).toBe(true);
+      worstDiff = Math.max(worstDiff, verdict.diff);
+      if (ieee754Hex(row.intervalSq) !== ieee754Hex(was.intervalSq)) bitwiseMismatches += 1;
+    }
     console.log(
-      `[row 09] worst relative change in a pairwise invariant interval under a ${BOOST}c boost: ${worst.toExponential(2)}`,
+      `[row 09] under a ${BOOST}c boost the pairwise invariants agree to ${worstDiff.toExponential(2)} absolute, ` +
+        `and ${bitwiseMismatches} of ${recomputed.intervals.length} differ BITWISE`,
     );
-    expect(worst).toBeLessThan(1e-12);
-    // Non-zero is the load-bearing half. If the boost happened to be exact for these coordinates the
-    // next two assertions would pass for the wrong reason, and this row would prove nothing.
-    expect(worst).toBeGreaterThan(0);
+    // The bitwise half is load-bearing. If the boost happened to be exact in binary64 for these
+    // coordinates, every assertion below would pass for the wrong reason and the row would prove
+    // nothing. Stated as a bit pattern rather than as "relative > 0", because that is the claim:
+    // the physics agrees and the bytes do not.
+    expect(bitwiseMismatches).toBeGreaterThan(0);
 
     // THE DIGEST HALF, and it is BITWISE, because a hash has no other mode. Same physics, different
     // bytes, so the digest is destroyed by a change that preserved every invariant it describes.
