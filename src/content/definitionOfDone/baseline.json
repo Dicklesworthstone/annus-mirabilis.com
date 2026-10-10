@@ -2,7 +2,7 @@
   "schema": "annus-mirabilis-definition-of-done-baseline.v1",
   "recordedAt": "2026-10-08",
   "recordedFrom": "the working tree at the commit this file lands in",
-  "correction": "Lowered from the 2026-10-08 first recording: the eight readings cells (readings-r0-to-r3 and r2-covers-r1 across four papers) were recorded unmeasured on a loader defect in this directory, not on a corpus gap. A baseline is the record of a debt, so it comes down when the debt turns out not to exist. Raised 2026-10-10 for the four margin-entries cells only: they were recorded {count: 0, denominator: 0, met: false} because the cell was declared unmeasured, and they now measure against content/editorial/required-margin-entries/<paper>.yaml. Recording the real figures is a TIGHTENING, not a budget increase: mass-energy's 8 of 8 is now met in the baseline, so a regression to 7 of 8 is refused, where against met:false it would have counted as an improvement and passed. The three papers that are not met keep their real denominators so their counts cannot fall either.",
+  "correction": "Lowered from the 2026-10-08 first recording: the eight readings cells (readings-r0-to-r3 and r2-covers-r1 across four papers) were recorded unmeasured on a loader defect in this directory, not on a corpus gap. A baseline is the record of a debt, so it comes down when the debt turns out not to exist. Raised 2026-10-10 for the four margin-entries cells only: they were recorded {count: 0, denominator: 0, met: false} because the cell was declared unmeasured, and they now measure against content/editorial/required-margin-entries/<paper>.yaml. Recording the real figures is a TIGHTENING, not a budget increase: mass-energy's 8 of 8 is now met in the baseline, so a regression to 7 of 8 is refused, where against met:false it would have counted as an improvement and passed. The three papers that are not met keep their real denominators so their counts cannot fall either. Also 2026-10-10, the four tour-present cells, for the same reason and in the same direction: they were recorded 0 of 0 met:false while the cell was unmeasured, and mass-energy's tour is present and resolving, so recording 1 of 1 met is what makes its disappearance a refusal rather than an improvement.",
   "cells": {
     "displays-bound|brownian-motion": {
       "count": 43,
@@ -246,22 +246,22 @@
     },
     "tour-present|brownian-motion": {
       "count": 0,
-      "denominator": 0,
+      "denominator": 1,
       "met": false
     },
     "tour-present|light-quanta": {
       "count": 0,
-      "denominator": 0,
+      "denominator": 1,
       "met": false
     },
     "tour-present|mass-energy": {
-      "count": 0,
-      "denominator": 0,
-      "met": false
+      "count": 1,
+      "denominator": 1,
+      "met": true
     },
     "tour-present|special-relativity": {
       "count": 0,
-      "denominator": 0,
+      "denominator": 1,
       "met": false
     }
   }
