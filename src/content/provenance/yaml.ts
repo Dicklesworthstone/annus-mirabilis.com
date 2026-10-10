@@ -6,12 +6,19 @@
 export class YamlParseError extends Error {
   readonly line: number;
   readonly column: number;
+  /**
+   * A stable name for the refusal, so a test can assert WHICH rule fired rather than that something
+   * did. Optional because the older throws predate it and their messages are what callers match on;
+   * the refusals added for am-hcx5 all carry one.
+   */
+  readonly code: string | undefined;
 
-  constructor(message: string, line: number, column = 1) {
+  constructor(message: string, line: number, column = 1, code?: string) {
     super(`YAML Parse Error at line ${line}, col ${column}: ${message}`);
     this.name = "YamlParseError";
     this.line = line;
     this.column = column;
+    this.code = code;
   }
 }
 
@@ -32,6 +39,20 @@ export function parseYaml(text: string): unknown {
     const match = raw.match(/^(\s*)(.*)$/);
     const indent = match?.[1]?.length ?? 0;
     const content = match?.[2] ?? "";
+
+    // TABS ARE REFUSED, DELIBERATELY AND NOT BY ACCIDENT (am-hcx5). The YAML spec forbids a tab in
+    // the indentation, and this reader counted one as a single column of indent, so a tab-indented
+    // document parsed as though it were space-indented and nobody was told the file was outside the
+    // format. Measured before choosing to refuse: of 2,539 committed YAML files, ZERO use a tab in
+    // the indentation, so this rejects nothing that exists and the decision costs no content.
+    if (match?.[1]?.includes("\t") && content !== "") {
+      throw new YamlParseError(
+        "A tab is used for indentation. YAML forbids this; use spaces.",
+        i + 1,
+        (match[1].indexOf("\t") ?? 0) + 1,
+        "yaml-tab-indentation",
+      );
+    }
 
     lines.push({
       raw,
@@ -314,6 +335,21 @@ export function parseYaml(text: string): unknown {
       return parseInlineObject(clean, lineNum);
     }
 
+    // AN UNTERMINATED QUOTE IS REFUSED RATHER THAN KEPT AS DATA (am-hcx5). `lab: "a` fell past both
+    // quoted arms below and was returned as the plain scalar `"a`, so the opening quote became part
+    // of the value and no error was raised -- a record's text silently gaining a character is worse
+    // than a parse failure, because nothing downstream can tell it from authored content.
+    for (const quote of ['"', "'"] as const) {
+      if (clean.startsWith(quote) && !(clean.endsWith(quote) && clean.length >= 2)) {
+        throw new YamlParseError(
+          `Unterminated ${quote === '"' ? "double" : "single"}-quoted scalar: ${clean.slice(0, 40)}`,
+          lineNum,
+          1,
+          "yaml-unterminated-quote",
+        );
+      }
+    }
+
     if (clean.startsWith('"') && clean.endsWith('"') && clean.length >= 2) {
       // One pass, so an escaped backslash is never read as the start of another escape: "\\u00df"
       // is a backslash and "u00df", while "\u00df" is ß. A \u escape was left undecoded until
@@ -421,5 +457,42 @@ export function parseYaml(text: string): unknown {
 
   skipBlankAndComments();
   if (index >= lines.length) return {};
-  return parseBlock(0);
+  const value = parseBlock(0);
+
+  /*
+    THE WHOLE DOCUMENT MUST BE CONSUMED (am-hcx5), and this one check is the whole repair for the
+    shape that lost content.
+
+    `parseMapping` BREAKS rather than throws when it meets a sequence entry at its own indent:
+
+        if (line.trimmed.startsWith("- ") || line.trimmed === "-") break;
+
+    which is right for a nested call, because the caller owns what follows. At the TOP level there
+    is no caller, so the lines after the break were simply never read, and `parseBlock(0)` returned
+    the mapping it had built as though the file were finished. A document that mixes a top-level
+    mapping with a top-level sequence entry therefore parsed "successfully" with part of its content
+    discarded and no error of any kind.
+
+    How that looked end to end, which is how it was found: appending a top-level sequence item to
+    `content/lab-explanations/bm-01.yaml` left `bun scripts/check-lab-explanations.ts` at exit 0 with
+    a census identical to the baseline to the digit -- "47 of 89 displayed formulas explained ... 0
+    with no entry" -- while python's yaml.safe_load rejected the same bytes. The planted entry
+    appeared nowhere in the parsed value.
+
+    Reporting the FIRST unconsumed line rather than counting them, because the line number is what
+    sends someone to the place, and a count would be a number without a location.
+  */
+  skipBlankAndComments();
+  if (index < lines.length) {
+    const line = lines[index];
+    if (line) {
+      throw new YamlParseError(
+        `Unparsed content after the end of the document: "${line.trimmed.slice(0, 60)}". A top-level mapping cannot be followed by a sequence entry or another document body.`,
+        line.lineNum,
+        line.indent + 1,
+        "yaml-unconsumed-content",
+      );
+    }
+  }
+  return value;
 }

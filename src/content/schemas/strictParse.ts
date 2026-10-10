@@ -150,9 +150,17 @@ export function parseStrictYaml(text: string, fileLabel?: string): unknown {
     return parseYaml(text);
   } catch (e) {
     if (e instanceof YamlParseError) {
-      const code = e.message.toLowerCase().includes("duplicate key")
-        ? "yaml-duplicate-key"
-        : "yaml-parse-error";
+      // THE PARSER'S OWN CODE WINS WHEN IT HAS ONE (am-hcx5). This used to derive the code from a
+      // SUBSTRING of the message, which collapsed every refusal but one into the catch-all
+      // `yaml-parse-error` -- so a caller could not tell an unterminated quote from a tab from
+      // unparsed trailing content, and a test could not assert which rule fired. The refusals added
+      // for am-hcx5 carry their own code; the older throws do not, and the substring is kept for
+      // exactly those, which is why this is a fallback rather than a replacement.
+      const code =
+        e.code ??
+        (e.message.toLowerCase().includes("duplicate key")
+          ? "yaml-duplicate-key"
+          : "yaml-parse-error");
       const prefix = fileLabel ? `${fileLabel}: ` : "";
       throw new StrictParseError(code, `${prefix}${e.message}`, e.line, e.column);
     }

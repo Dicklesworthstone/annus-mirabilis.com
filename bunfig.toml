@@ -18,6 +18,11 @@ pathIgnorePatterns = [
   # am-4cpx: the source layers are derived from the tree, and their proof runs in the node lane so
   # that it is not checked by the same lane the manifest report is generated in.
   "src/content/manifest/sourceLayers.node.test.ts",
+  # am-hcx5: puts every COMMITTED yaml record through parseYaml AND js-yaml and names the files the
+  # two disagree about, which is the only cheap instrument for a hand-written parser's leniency. The
+  # population is `git ls-files`, which bun's runner cannot spawn here, and the population is the
+  # point: walking the tree instead would pull in peers' untracked work-in-progress records.
+  "src/content/provenance/yamlDifferential.node.test.ts",
   # am-f3e4: reads the historical pins with `git show`, which bun's runner cannot spawn here.
   "src/content/kernel/declaredPins.node.test.ts",
   # am-rc1001-bridge-plan-pcjk.3: builds a throwaway git repository with its own local origin to
