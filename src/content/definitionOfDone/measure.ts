@@ -38,6 +38,7 @@ import { load as loadYaml } from "js-yaml";
 import { auditInstruments, loadLiveInstrumentRows } from "../audits/instruments.ts";
 import { validateSourceManifest } from "../manifest/schema.ts";
 import { deriveUnitCoverage } from "../manifest/unitCoverage.ts";
+import { loadTour } from "../tours/tours.ts";
 import { type DoneCell, doneCell, unmeasuredCell } from "./cells.ts";
 import { labCellsForPaper } from "./labCells.ts";
 import { type LoadedReadings, loadLiveReadings, readingsTally } from "./readingsCells.ts";
@@ -345,6 +346,59 @@ export function marginEntries(root: string, paper: string): DoneCell {
 }
 
 /**
+ * ITEM: the fifteen-minute tour each paper owes, present and resolving.
+ *
+ * DECLARED UNMEASURED ON A DENOMINATOR THAT DOES EXIST. `NOT_YET_READ` said "which tour each paper
+ * must have is in the plan, so there is no per-paper denominator to read". The beads are the
+ * executable work queue -- AGENTS.md, "the beads are the executable work queue, and each is written
+ * to stand on its own" -- and there are exactly four, one per paper:
+ * am-tour-15min-mass-energy-nqz1, am-tour-15min-light-quanta-yj70, am-tour-15min-brownian-z034 and
+ * am-tour-15min-relativity-qcxc, each titled "Author the fifteen-minute <paper> tour that needs no
+ * equations". So the denominator is one, per paper, and it comes from a record rather than prose.
+ *
+ * MATCHED ON THE RECORD'S OWN `paper` FIELD, not on a filename. The one tour that exists is
+ * `fifteen-minutes-mass-energy.yaml`, and the bead ids use `brownian` where the paper slug is
+ * `brownian-motion`, so a filename convention guessed from either would be wrong for at least one
+ * paper. Reading the declared field cannot be wrong about which paper a tour serves.
+ *
+ * PRESENT AND RESOLVING, with the note saying which failed. A record whose steps do not resolve is
+ * not a tour a reader can take, so it does not count; but conflating "absent" with "present and
+ * broken" would hide a real difference, and the note distinguishes them.
+ */
+export function tourPresent(root: string, paper: string): DoneCell {
+  const dir = join(root, "content", "tours");
+  if (!existsSync(dir)) {
+    return unmeasuredCell("tour-present", paper, `no tour directory at ${dir}`);
+  }
+  const ids = readdirSync(dir)
+    .filter((n) => n.endsWith(".yaml"))
+    .map((n) => n.replace(/\.yaml$/, ""));
+  for (const id of ids) {
+    const loaded = loadTour(root, id);
+    if (!loaded) continue;
+    if (loaded.tour.paper !== paper) continue;
+    if (loaded.tour.budget !== "fifteen-minutes") continue;
+    return loaded.problems.length === 0
+      ? doneCell("tour-present", paper, 1, 1, `${id} present and resolving`)
+      : doneCell(
+          "tour-present",
+          paper,
+          0,
+          1,
+          `${id} is present but does not resolve: ${loaded.problems.length} problem(s), first "${loaded.problems[0]}"`,
+        );
+  }
+  return doneCell(
+    "tour-present",
+    paper,
+    0,
+    1,
+    `no record in content/tours declares paper ${paper} with budget fifteen-minutes; ` +
+      `${ids.length} tour record(s) on disk`,
+  );
+}
+
+/**
  * ITEM 7: the lab contract cells of a paper's core instruments.
  *
  * Fourteen contract columns per instrument, so the population is instruments times columns. The
@@ -439,9 +493,6 @@ const NOT_YET_READ: Readonly<Record<string, string>> = {
   "journey-skeleton-parts":
     "content/journeys holds the records; the skeleton's parts (shelf, nagging fact, forks, the move, " +
     "check-against-the-world) are a structural requirement with no field asserting presence yet.",
-  "tour-present":
-    "content/tours holds the records, but which tour each paper must have is in the plan, so there " +
-    "is no per-paper denominator to read.",
   "reviews-with-names":
     "docs/provenance/<key>.md records acceptance with reviewer names; parsing a receipt's " +
     "acceptance table is its own unit, and AGENTS.md is explicit that nothing is marked reviewed " +
@@ -484,6 +535,7 @@ export function cellsForPaper(
     resultsCardsPrinted(root, paper),
     misconceptionsAtLeastFive(root, paper),
     marginEntries(root, paper),
+    tourPresent(root, paper),
     labContractCells(paper, instruments),
     readingsComplete(paper, readings),
     r2CoversR1(paper, readings),
