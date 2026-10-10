@@ -42,6 +42,7 @@
       "!src/physics/reference/diffusion/driftDiffusion.ts",
       "!src/physics/reference/diffusion/ftcs.ts",
       "!src/physics/reference/diffusion/ftcsReference.ts",
+      "!src/physics/reference/diffusion/printedDisplacement.ts",
       "!src/physics/reference/diffusion/routeA.ts",
       "!src/physics/reference/diffusion/statistics.ts",
       "!src/physics/reference/diffusion/tracers.ts",
