@@ -120,15 +120,28 @@ try {
     .waitFor();
   const left = page.frameLocator('iframe[name="left-test"]');
   const right = page.frameLocator('iframe[name="right-test"]');
-  const untouched = await right
-    .locator('.embed-instrument input[type="number"]')
-    .first()
-    .inputValue();
-  await left.locator('.embed-instrument input[type="number"]').first().fill("0.2");
-  assert.equal(
-    await right.locator('.embed-instrument input[type="number"]').first().inputValue(),
-    untouched,
-  );
+  /*
+    SR-04 HAS NO `input[type="number"]`, AND NEVER HAS, SO THIS STEP HAS NEVER PASSED.
+
+    Its typed settings are `type="text"` with `inputMode="decimal"`, which is the dominant
+    convention here: 33 component files use inputMode="decimal" against 20 using type="number".
+    LorentzMapLab has been written that way since edaeef6f8 on 2026-09-16; this step was written in
+    971d4b32c on 2026-09-22, six days later, against a locator that was already wrong for the lab it
+    names. Measured on the built embed: 27 inputs, 9 checkbox, 11 radio, 7 text, 0 number. It was
+    recorded as broken on am-lab-manifests-embeds-questions-missing-nree on 2026-09-24 and left.
+
+    Located BY NAME instead, which is what the step is actually about -- the same declared control
+    in two frames -- and which fails loudly on a rename rather than silently selecting some other
+    field. The count is asserted in both frames FIRST, so a renamed parameter fails by name here
+    instead of as a 30-second timeout on `inputValue`.
+  */
+  const speed = (frame) => frame.locator('.embed-instrument input[name="vOverC"]');
+  assert.equal(await speed(left).count(), 1, "left frame: one declared speed control");
+  assert.equal(await speed(right).count(), 1, "right frame: one declared speed control");
+  const untouched = await speed(right).inputValue();
+  await speed(left).fill("0.2");
+  assert.equal(await speed(left).inputValue(), "0.2");
+  assert.equal(await speed(right).inputValue(), untouched);
   assert.equal(await left.locator("html").getAttribute("data-theme"), "kramgasse-night");
   assert.equal(await right.locator("html").getAttribute("data-theme"), "annalen");
   console.log("PASS independent frame controls and presentation");
