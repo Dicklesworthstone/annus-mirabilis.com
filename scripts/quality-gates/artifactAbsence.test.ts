@@ -139,10 +139,47 @@ describe("the live registry declares it where it is needed, and only there", () 
     assert.equal(step.cadence, "every-run");
   });
 
-  it("no other step declares one, so this is not a requirement that spread by copying", () => {
+  it("only steps that measure a build artefact declare one, and each names a distinct one", () => {
+    // THE MEMBERSHIP LIST IS KEPT ON PURPOSE, and that is the decision worth recording. This read
+    // `deepEqual(declaring, ["perf-budgets"])` and went red when a second step legitimately needed
+    // the field: adversarial-runtime loads the real built routes over HTTP and measures nothing
+    // without out/. The obvious reading is that an exact census is brittle, and AGENTS.md says so
+    // under "A Count Is For Reporting, Not For Asserting" -- but here the brittleness IS the
+    // mechanism. Forcing a short conversation before a third step claims the field is the whole
+    // function of this assertion, exactly like a declared-debt list, so the list stays and
+    // adversarial-runtime was added to it deliberately rather than the list being loosened.
+    //
+    // What is NEW is that the list can no longer be a rubber stamp. The hazard named in the old
+    // title was a declaration spreading BY COPYING, and a copied declaration shows up as a
+    // duplicated path, so each declarer must now name a DISTINCT path under a build output
+    // directory with a hint long enough to tell a reader which command makes it. Membership is
+    // argued for; the properties are checked.
     const declaring = QUALITY_GATE_STEPS.filter(
       (s) => s.availability?.requiresArtifact !== undefined,
-    ).map((s) => s.id);
-    assert.deepEqual(declaring, ["perf-budgets"]);
+    );
+    const ids = declaring.map((s) => s.id).sort();
+    // Non-vacuity on purpose: a filter that matched nothing would satisfy every assertion below.
+    assert.ok(declaring.length > 0, "no step declares a required artefact");
+    assert.deepEqual(ids, ["adversarial-runtime", "perf-budgets"]);
+
+    const paths = declaring.map((s) => s.availability?.requiresArtifact?.path ?? "");
+    assert.equal(
+      new Set(paths).size,
+      paths.length,
+      `two steps name the same artefact, which is what copying looks like: ${paths.join(", ")}`,
+    );
+    for (const step of declaring) {
+      const artefact = step.availability?.requiresArtifact;
+      assert.ok(artefact, `${step.id} lost its artefact between the filter and the loop`);
+      assert.match(
+        artefact.path,
+        /^(\.next|out)\//,
+        `${step.id} names ${artefact.path}, which is not under a build output directory`,
+      );
+      assert.ok(
+        artefact.hint.length > 40,
+        `${step.id}'s hint must tell a reader what is missing and the command that makes it`,
+      );
+    }
   });
 });
