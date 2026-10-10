@@ -81,14 +81,16 @@ export async function checkCameraBrowser(browser, url, check) {
     assert.equal(workers, 0);
     assert.match(await lab.locator(".badge").innerText(), /Static worked example/);
 
-    // PREDICT MODE HIDES THE RESULTS REGION, AND WITH IT THE TYPED REFUSAL -- the same cause as in
-    // bm-05 and bm-07. With an off-grid exposure applied, the `.notice[data-refusal-code=
-    // "off-replay-grid"]` this check waits for is in the DOM and invisible, so it waited 30 seconds
-    // for a notice that was on the page. Filed as am-ig23: a reader who applies an inadmissible
-    // value while the prediction is armed sees nothing happen.
+    // WHY THE PREDICTION IS SKIPPED HERE, which is no longer the am-ig23 defect. The note this
+    // replaces said predict mode hid the results region "AND WITH IT THE TYPED REFUSAL", so this
+    // check once waited thirty seconds for a notice that was on the page and invisible. Both of
+    // bm-08's refusal surfaces now render OUTSIDE div.lab-results (CameraLab.tsx: the form notice
+    // and the worker notice both precede it), and the armed case is driven on its own page at the
+    // end of this function.
     //
-    // Skipping is the reader's own way past the prediction, and these assertions are about the
-    // refusal rather than about predict mode.
+    // The skip stays because the assertions BELOW are about results: they read the rows of
+    // div.lab-results and count workers, and that region is hidden until the prediction is
+    // answered by design. Skipping is the reader's own way past it.
     await lab.getByRole("button", { name: /^Skip prediction/ }).click();
     await lab.locator(".lab-results").first().waitFor({ state: "visible" });
 
@@ -339,5 +341,60 @@ export async function checkCameraBrowser(browser, url, check) {
     throw error;
   } finally {
     await context.close();
+  }
+
+  /**
+   * CRITERION 4 (am-ig23): A TYPED REFUSAL IS VISIBLE WHILE THE PREDICTION IS STILL ARMED.
+   *
+   * The case the bead was filed from. The notice used to sit inside `div.lab-results`, which predict
+   * mode computes as `display: none` until the prediction is answered, so a reader who applied an
+   * inadmissible exposure saw nothing happen: the element was in the DOM and invisible. AGENTS.md is
+   * explicit that a refusal is "a museum label: freeze the illegal step, show the reason, and keep
+   * the last legal state", and a hidden label is not a label.
+   *
+   * IT GETS ITS OWN CONTEXT rather than joining the flow above, for two reasons. That flow skips the
+   * prediction in its second line and counts workers, so driving a refusal there would have to
+   * un-skip it or perturb the count. A fresh page is also the honest fixture: an armed prediction is
+   * the state a first-time reader actually arrives in.
+   *
+   * The gated region is asserted HIDDEN both before and after. Without the second assertion the
+   * check would also pass if the refusal became visible by un-gating the response region, which
+   * would deliver the reason and destroy predict mode at the same time.
+   */
+  const armedContext = await browser.newContext({ viewport: { width: 1280, height: 950 } });
+  try {
+    const armed = await armedContext.newPage();
+    await armed.goto(url + route);
+    const lab = armed.locator('[data-instrument-id="bm-08"]').first();
+    await armed.waitForFunction(
+      () => !document.querySelector('[data-instrument-id="bm-08"] button[type="submit"]').disabled,
+    );
+    await lab.locator(".lab-results").first().waitFor({ state: "hidden" });
+    await lab.locator('[name="exposure"]').fill("0.3");
+    await lab.getByRole("button", { name: "Apply camera settings", exact: true }).click();
+    // `state: "visible"` is the whole assertion. Present in the DOM is what the defect looked like.
+    await lab.locator('.notice[data-refusal-code="off-replay-grid"]').waitFor({ state: "visible" });
+    await lab.locator(".lab-results").first().waitFor({ state: "hidden" });
+    // WHICH HALF OF CRITERION 1 THIS CHECK ANSWERS, because it is not both. The criterion asks for
+    // "the reason, the repair offer AND the staleness marking" outside the predict-gated region.
+    // The reason is, and that is what is asserted above. The STALENESS MARKING is not: measured
+    // here on 2026-10-09, waiting for it to be visible with the prediction armed timed out after 63
+    // polls, each resolving to
+    //
+    //     hidden <p role="status" class="execution-currency" data-currency-state="refused"
+    //            data-refusal-code="off-replay-grid">
+    //
+    // because CameraLab mounts <ExecutionChrome> inside `div.lab-results` (line 492 opens the
+    // gated region, 536 mounts the chrome). So a reader with an armed prediction is told WHY the
+    // settings were refused and is NOT told that the readouts on screen are stale.
+    //
+    // It is reported on am-ig23 rather than asserted here in either direction. Asserting it visible
+    // would be red for a defect this check does not repair, and asserting it hidden would be a test
+    // that breaks the day somebody fixes it, which is how a debt becomes a requirement. Moving the
+    // chrome out of the results region, or un-gating the region on a refusal, is a reader-facing
+    // choice that belongs to that bead.
+    check("BM-08: a typed refusal's REASON is visible to a reader whose prediction is still armed");
+  } finally {
+    await armedContext.close();
   }
 }
