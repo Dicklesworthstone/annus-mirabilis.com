@@ -3,32 +3,32 @@
  *
  * Covers all 22 untested refusal throw sites across 5 refusal codes:
  * 1. duplicate-id (12 sites):
- *    - (structural.ts:209) translation-unit
- *    - (structural.ts:221) citation
- *    - (structural.ts:233) foundation
- *    - (structural.ts:245) quantity
- *    - (structural.ts:257) experiment
- *    - (structural.ts:269) scenario
- *    - (structural.ts:281) dataset
- *    - (structural.ts:293) tour
- *    - (structural.ts:305) constant-set
- *    - (structural.ts:317) misconception
- *    - (structural.ts:355) equation
- *    - (structural.ts:381) argument
+ *    - (structural.ts:224) translation-unit
+ *    - (structural.ts:236) citation
+ *    - (structural.ts:248) foundation
+ *    - (structural.ts:260) quantity
+ *    - (structural.ts:272) experiment
+ *    - (structural.ts:284) scenario
+ *    - (structural.ts:296) dataset
+ *    - (structural.ts:308) tour
+ *    - (structural.ts:320) constant-set
+ *    - (structural.ts:332) misconception
+ *    - (structural.ts:370) equation
+ *    - (structural.ts:396) argument
  * 2. missing-source-block (3 sites):
- *    - (structural.ts:557) alignment edge missing sentenceId
- *    - (structural.ts:598) editorial note affectedIds missing source unit
- *    - (structural.ts:653) argument cross-paper reference unresolved
+ *    - (structural.ts:574) alignment edge missing sentenceId
+ *    - (structural.ts:615) editorial note affectedIds missing source unit
+ *    - (structural.ts:670) argument cross-paper reference unresolved
  * 3. broken-alignment (5 sites):
- *    - (structural.ts:833) German sentence without alignment edge
- *    - (structural.ts:860) German block-level alignable unit without alignment edge
- *    - (structural.ts:874) English translation unit without incoming alignment edge
- *    - (structural.ts:901) Suffixed translation unit without sibling split unit
- *    - (structural.ts:910) Unsuffixed translation unit exists beside suffixed units
+ *    - (structural.ts:851) German sentence without alignment edge
+ *    - (structural.ts:878) German block-level alignable unit without alignment edge
+ *    - (structural.ts:892) English translation unit without incoming alignment edge
+ *    - (structural.ts:919) Suffixed translation unit without sibling split unit
+ *    - (structural.ts:928) Unsuffixed translation unit exists beside suffixed units
  * 4. hero-quote-unresolved (1 site):
- *    - (structural.ts:1455) Hero quote text not matching anchor text
+ *    - (structural.ts:1550) Hero quote text not matching anchor text
  * 5. span-digest-mismatch (1 site):
- *    - (structural.ts:1631) Alignment edge target translation unit digest mismatch
+ *    - (structural.ts:1788) Alignment edge target translation unit digest mismatch
  *
  * Each test cites its explicit throw site (structural.ts:<line>) and provides both an accept
  * path and a reject path exercising the exact structural boundary condition.
@@ -63,11 +63,12 @@ function keyFor(id: string, record: unknown): string {
   if (id.includes(":")) return id;
   if (!record || typeof record !== "object") return id;
   const rec = record as Record<string, unknown>;
-  // ONLY `source-block`, deliberately. Keying translation units here too is more faithful still,
-  // and it reddens two further sites that read a unit by BARE id -- `checkDuplicateId`'s unit arm
-  // and `checkSpanDigestMismatch`'s target lookup at structural.ts:1684. Both are the same defect
-  // one layer along and both are recorded on am-rc1001-bridge-plan-pcjk.10; widening this helper
-  // to reach them belongs in the commit that repairs them, not in this one.
+  // ONLY `source-block`, deliberately. Keying translation units here too is more faithful still.
+  // When this was written it also reddened two sites that read a unit by BARE id; the span-digest
+  // one was repaired at 4ac97a4f, and `checkDuplicateId`'s unit arm turned out not to need it at
+  // all, because a translation unit record DOES carry `kind: "translation-unit"` unlike a source
+  // block. No line number is cited here on purpose: a parenthesised file:line in prose is read as
+  // a citation by the stale-citation ratchet, and this one had already gone stale.
   if (rec.kind !== "source-block") return id;
   const paper = typeof rec.paper === "string" ? rec.paper : (rec.paperSlug as string) || "";
   const recordId = typeof rec.id === "string" ? rec.id : id;
@@ -100,7 +101,7 @@ function createMockContext(
 }
 
 describe("checkDuplicateId Refusals (structural.ts)", () => {
-  test("checkDuplicateId: (structural.ts:209) duplicate-id rejects duplicate translation unit id in same paper, accepts unique ids", () => {
+  test("checkDuplicateId: (structural.ts:224) duplicate-id rejects duplicate translation unit id in same paper, accepts unique ids", () => {
     // Reject: duplicate translation unit id in same paper
     const reject = createMockContext({
       tu1: { kind: "translation-unit", id: "tu-1", paper: "paper-a" },
@@ -123,7 +124,7 @@ describe("checkDuplicateId Refusals (structural.ts)", () => {
     expect(accept.reports).toHaveLength(0);
   });
 
-  test("checkDuplicateId: (structural.ts:221) duplicate-id rejects duplicate citation id in bibliography namespace, accepts unique ids", () => {
+  test("checkDuplicateId: (structural.ts:236) duplicate-id rejects duplicate citation id in bibliography namespace, accepts unique ids", () => {
     // Reject: duplicate citation id
     const reject = createMockContext({
       c1: { kind: "citation", id: "cite-1" },
@@ -146,7 +147,7 @@ describe("checkDuplicateId Refusals (structural.ts)", () => {
     expect(accept.reports).toHaveLength(0);
   });
 
-  test("checkDuplicateId: (structural.ts:233) duplicate-id rejects duplicate foundation id in foundations namespace, accepts unique ids", () => {
+  test("checkDuplicateId: (structural.ts:248) duplicate-id rejects duplicate foundation id in foundations namespace, accepts unique ids", () => {
     // Reject: duplicate foundation id
     const reject = createMockContext({
       f1: { kind: "foundation", id: "fdn-1" },
@@ -169,7 +170,7 @@ describe("checkDuplicateId Refusals (structural.ts)", () => {
     expect(accept.reports).toHaveLength(0);
   });
 
-  test("checkDuplicateId: (structural.ts:245) duplicate-id rejects duplicate quantity id in quantities namespace, accepts unique ids", () => {
+  test("checkDuplicateId: (structural.ts:260) duplicate-id rejects duplicate quantity id in quantities namespace, accepts unique ids", () => {
     // Reject: duplicate quantity id
     const reject = createMockContext({
       q1: { kind: "quantity", id: "qty-1" },
@@ -192,7 +193,7 @@ describe("checkDuplicateId Refusals (structural.ts)", () => {
     expect(accept.reports).toHaveLength(0);
   });
 
-  test("checkDuplicateId: (structural.ts:257) duplicate-id rejects duplicate experiment id, accepts unique ids", () => {
+  test("checkDuplicateId: (structural.ts:272) duplicate-id rejects duplicate experiment id, accepts unique ids", () => {
     // Reject: duplicate experiment id
     const reject = createMockContext({
       e1: { kind: "experiment", id: "exp-1" },
@@ -213,7 +214,7 @@ describe("checkDuplicateId Refusals (structural.ts)", () => {
     expect(accept.reports).toHaveLength(0);
   });
 
-  test("checkDuplicateId: (structural.ts:269) duplicate-id rejects duplicate scenario id, accepts unique ids", () => {
+  test("checkDuplicateId: (structural.ts:284) duplicate-id rejects duplicate scenario id, accepts unique ids", () => {
     // Reject: duplicate scenario id
     const reject = createMockContext({
       s1: { kind: "scenario", id: "scn-1" },
@@ -234,7 +235,7 @@ describe("checkDuplicateId Refusals (structural.ts)", () => {
     expect(accept.reports).toHaveLength(0);
   });
 
-  test("checkDuplicateId: (structural.ts:281) duplicate-id rejects duplicate dataset id, accepts unique ids", () => {
+  test("checkDuplicateId: (structural.ts:296) duplicate-id rejects duplicate dataset id, accepts unique ids", () => {
     // Reject: duplicate dataset id
     const reject = createMockContext({
       d1: { kind: "dataset", id: "ds-1" },
@@ -255,7 +256,7 @@ describe("checkDuplicateId Refusals (structural.ts)", () => {
     expect(accept.reports).toHaveLength(0);
   });
 
-  test("checkDuplicateId: (structural.ts:293) duplicate-id rejects duplicate tour id, accepts unique ids", () => {
+  test("checkDuplicateId: (structural.ts:308) duplicate-id rejects duplicate tour id, accepts unique ids", () => {
     // Reject: duplicate tour id
     const reject = createMockContext({
       t1: { kind: "tour", id: "tour-1" },
@@ -276,7 +277,7 @@ describe("checkDuplicateId Refusals (structural.ts)", () => {
     expect(accept.reports).toHaveLength(0);
   });
 
-  test("checkDuplicateId: (structural.ts:305) duplicate-id rejects duplicate constant set id, accepts unique ids", () => {
+  test("checkDuplicateId: (structural.ts:320) duplicate-id rejects duplicate constant set id, accepts unique ids", () => {
     // Reject: duplicate constant set id
     const reject = createMockContext({
       c1: { kind: "constant-set", id: "cs-1" },
@@ -297,7 +298,7 @@ describe("checkDuplicateId Refusals (structural.ts)", () => {
     expect(accept.reports).toHaveLength(0);
   });
 
-  test("checkDuplicateId: (structural.ts:317) duplicate-id rejects duplicate misconception id, accepts unique ids", () => {
+  test("checkDuplicateId: (structural.ts:332) duplicate-id rejects duplicate misconception id, accepts unique ids", () => {
     // Reject: duplicate misconception id
     const reject = createMockContext({
       m1: { kind: "misconception", id: "misc-1" },
@@ -318,7 +319,7 @@ describe("checkDuplicateId Refusals (structural.ts)", () => {
     expect(accept.reports).toHaveLength(0);
   });
 
-  test("checkDuplicateId: (structural.ts:355) duplicate-id rejects duplicate equation id globally, accepts unique ids", () => {
+  test("checkDuplicateId: (structural.ts:370) duplicate-id rejects duplicate equation id globally, accepts unique ids", () => {
     // Reject: duplicate equation id globally
     const reject = createMockContext({
       e1: { kind: "equation", id: "eq-1" },
@@ -339,7 +340,7 @@ describe("checkDuplicateId Refusals (structural.ts)", () => {
     expect(accept.reports).toHaveLength(0);
   });
 
-  test("checkDuplicateId: (structural.ts:381) duplicate-id rejects duplicate argument id globally, accepts unique ids", () => {
+  test("checkDuplicateId: (structural.ts:396) duplicate-id rejects duplicate argument id globally, accepts unique ids", () => {
     // Reject: duplicate argument id globally
     const reject = createMockContext({
       a1: { kind: "argument", id: "arg-1" },
@@ -362,7 +363,7 @@ describe("checkDuplicateId Refusals (structural.ts)", () => {
 });
 
 describe("checkMissingSourceBlock Refusals (structural.ts)", () => {
-  test("checkMissingSourceBlock: (structural.ts:557) missing-source-block rejects alignment edge referencing missing sentence span, accepts valid sentence span", () => {
+  test("checkMissingSourceBlock: (structural.ts:574) missing-source-block rejects alignment edge referencing missing sentence span, accepts valid sentence span", () => {
     // Reject: alignment edge references sentence span missing from paper source blocks
     const reject = createMockContext({
       b1: {
@@ -422,7 +423,7 @@ describe("checkMissingSourceBlock Refusals (structural.ts)", () => {
     expect(accept.reports).toHaveLength(0);
   });
 
-  test("checkMissingSourceBlock: (structural.ts:598) missing-source-block rejects editorial note referencing missing source unit, accepts existing source unit", () => {
+  test("checkMissingSourceBlock: (structural.ts:615) missing-source-block rejects editorial note referencing missing source unit, accepts existing source unit", () => {
     // SHAPE AND KEY ARE THE CORPUS'S, NOT AN INVENTED PAIR (am-as1w). This fixture used to author
     // `kind: "editorial-note"` with a `paper` field under the key `note1`. No record on disk has
     // that shape: a note's `kind` is its own note kind and its paper is its directory, carried in
@@ -479,7 +480,7 @@ describe("checkMissingSourceBlock Refusals (structural.ts)", () => {
     expect(keyed.reports[0]?.message).toContain('in paper "paper-b"');
   });
 
-  test("checkMissingSourceBlock: (structural.ts:653) missing-source-block rejects cross-paper reference to non-existent record, accepts existing reference", () => {
+  test("checkMissingSourceBlock: (structural.ts:670) missing-source-block rejects cross-paper reference to non-existent record, accepts existing reference", () => {
     // Reject: argument prerequisites references special-relativity#eq-s8-d9 which does not exist
     const reject = createMockContext({
       arg1: {
@@ -516,7 +517,7 @@ describe("checkMissingSourceBlock Refusals (structural.ts)", () => {
 });
 
 describe("checkBrokenAlignment Refusals (structural.ts)", () => {
-  test("checkBrokenAlignment: (structural.ts:833) broken-alignment rejects German sentence with no alignment edge, accepts aligned sentence", () => {
+  test("checkBrokenAlignment: (structural.ts:851) broken-alignment rejects German sentence with no alignment edge, accepts aligned sentence", () => {
     // Reject: German sentence b1-s1 in block b1 has no alignment edge
     const reject = createMockContext({
       b1: {
@@ -564,7 +565,7 @@ describe("checkBrokenAlignment Refusals (structural.ts)", () => {
     expect(accept.reports).toHaveLength(0);
   });
 
-  test("checkBrokenAlignment: (structural.ts:860) broken-alignment rejects German block-level alignable unit with no alignment edge, accepts aligned block", () => {
+  test("checkBrokenAlignment: (structural.ts:878) broken-alignment rejects German block-level alignable unit with no alignment edge, accepts aligned block", () => {
     // Reject: German heading s1-h1 has no alignment edge
     const reject = createMockContext({
       s1h1: {
@@ -610,7 +611,7 @@ describe("checkBrokenAlignment Refusals (structural.ts)", () => {
     expect(accept.reports).toHaveLength(0);
   });
 
-  test("checkBrokenAlignment: (structural.ts:874) broken-alignment rejects English translation unit with no incoming alignment edge, accepts targeted translation unit", () => {
+  test("checkBrokenAlignment: (structural.ts:892) broken-alignment rejects English translation unit with no incoming alignment edge, accepts targeted translation unit", () => {
     // Reject: tu-2 has no incoming alignment edge
     const reject = createMockContext({
       s1p1: {
@@ -677,7 +678,7 @@ describe("checkBrokenAlignment Refusals (structural.ts)", () => {
     expect(accept.reports).toHaveLength(0);
   });
 
-  test("checkBrokenAlignment: (structural.ts:901) broken-alignment rejects suffixed translation unit with no sibling split unit, accepts paired split units", () => {
+  test("checkBrokenAlignment: (structural.ts:919) broken-alignment rejects suffixed translation unit with no sibling split unit, accepts paired split units", () => {
     // Reject: s3-p2-s1a exists without sibling split unit (only 1 suffix)
     const reject = createMockContext({
       s3p2s1: {
@@ -748,7 +749,7 @@ describe("checkBrokenAlignment Refusals (structural.ts)", () => {
     expect(accept.reports).toHaveLength(0);
   });
 
-  test("checkBrokenAlignment: (structural.ts:910) broken-alignment rejects unsuffixed translation unit existing beside suffixed units, accepts isolated splits", () => {
+  test("checkBrokenAlignment: (structural.ts:928) broken-alignment rejects unsuffixed translation unit existing beside suffixed units, accepts isolated splits", () => {
     // Reject: unsuffixed s3-p2-s1 exists beside suffixed units s3-p2-s1a and s3-p2-s1b
     const reject = createMockContext({
       s3p2s1Block: {
@@ -839,7 +840,7 @@ describe("checkBrokenAlignment Refusals (structural.ts)", () => {
 });
 
 describe("checkHeroQuoteUnresolved Refusals (structural.ts)", () => {
-  test("checkHeroQuoteUnresolved: (structural.ts:1455) hero-quote-unresolved rejects quote text not resolving exactly at anchor, accepts matching text", () => {
+  test("checkHeroQuoteUnresolved: (structural.ts:1550) hero-quote-unresolved rejects quote text not resolving exactly at anchor, accepts matching text", () => {
     // Reject: hero quote text does not resolve exactly at anchor s1-p1
     const reject = createMockContext({
       s1p1: {
@@ -887,7 +888,7 @@ describe("checkHeroQuoteUnresolved Refusals (structural.ts)", () => {
 });
 
 describe("checkSpanDigestMismatch Refusals (structural.ts)", () => {
-  test("checkSpanDigestMismatch: (structural.ts:1631) span-digest-mismatch rejects alignment edge target translation unit digest mismatch, accepts matching digest", () => {
+  test("checkSpanDigestMismatch: (structural.ts:1788) span-digest-mismatch rejects alignment edge target translation unit digest mismatch, accepts matching digest", () => {
     const tuContent = "English translation text for digest check.";
     const validDigest = spanTextDigest(tuContent);
 

@@ -148,7 +148,7 @@ describe("Structural Compiler Rejections", () => {
   });
 
   // 2. missing-source-block
-  it("rejects translation unit pointing to s9-p1 which does not exist (structural.ts:512)", async () => {
+  it("rejects translation unit pointing to s9-p1 which does not exist (structural.ts:529)", async () => {
     const start = performance.now();
     const base = createBaseCorpus();
     const mutated = mutateCorpus(base, [
@@ -244,7 +244,7 @@ describe("Structural Compiler Rejections", () => {
   });
 
   // 3. broken-alignment
-  it("rejects an alignment edge whose range extends beyond the sentence (structural.ts:781)", async () => {
+  it("rejects an alignment edge whose range extends beyond the sentence (structural.ts:799)", async () => {
     const start = performance.now();
     const base = createBaseCorpus();
     const mutated = mutateCorpus(base, [
@@ -469,7 +469,7 @@ describe("Structural Compiler Rejections", () => {
   });
 
   // 5. impossible-date-order
-  it("rejects received date 1905-03-16 before date-line 1905-03-17 (structural.ts:1112)", async () => {
+  it("rejects received date 1905-03-16 before date-line 1905-03-17 (structural.ts:1130)", async () => {
     const start = performance.now();
     const base = createBaseCorpus();
     const mutated = mutateCorpus(base, [
@@ -620,7 +620,7 @@ describe("Structural Compiler Rejections", () => {
     expect(dateErrors.length).toBeGreaterThanOrEqual(1);
   });
 
-  it("passes dissertation real dates and fails swapped date-line and submission dates (structural.ts:1158)", async () => {
+  it("passes dissertation real dates and fails swapped date-line and submission dates (structural.ts:1176)", async () => {
     const start = performance.now();
     const base = createBaseCorpus();
 
@@ -806,7 +806,7 @@ describe("Structural Compiler Rejections", () => {
   });
 
   // 7. complete-while-missing
-  it("rejects a paper marked complete with a machine-draft translation (structural.ts:1349)", async () => {
+  it("rejects a paper marked complete with a machine-draft translation (structural.ts:1410)", async () => {
     const start = performance.now();
     const base = createBaseCorpus();
     const mutated = mutateCorpus(base, [
@@ -876,7 +876,7 @@ describe("Structural Compiler Rejections", () => {
   });
 
   // 8. hero-quote-unresolved
-  it("rejects hero quote with changed word and ellipsis quote with out-of-order segments (structural.ts:1444)", async () => {
+  it("rejects hero quote with changed word and ellipsis quote with out-of-order segments (structural.ts:1539)", async () => {
     const start = performance.now();
     const base = createBaseCorpus();
     const mutated = mutateCorpus(base, [
@@ -992,7 +992,7 @@ describe("Structural Compiler Rejections", () => {
   });
 
   // 10. span-digest-mismatch
-  it("fails when paragraph text is edited without re-measuring sentence spans or alignment ranges, and passes once re-measured (structural.ts:1548)", async () => {
+  it("fails when paragraph text is edited without re-measuring sentence spans or alignment ranges, and passes once re-measured (structural.ts:1677)", async () => {
     const start = performance.now();
     const base = createBaseCorpus();
 

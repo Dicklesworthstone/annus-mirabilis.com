@@ -375,7 +375,7 @@ export function d(): never {
   it("the code may be named in an enclosing describe, which the block split cuts away", () => {
     // THE REGRESSION GUARD for the over-strict first attempt. structural.reports.test.ts is written
     // exactly this way - `describe("duplicate-id: the source-block site, ...")` around
-    // `test("(structural.ts:167) two source blocks share an id ...")` - and asking the citation's own
+    // `test("(structural.ts:182) two source blocks share an id ...")` - and asking the citation's own
     // block withdrew 14 sites in that one file alone. The credit must survive this shape.
     expect(
       untestedMulti(

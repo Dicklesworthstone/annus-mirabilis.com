@@ -17,6 +17,60 @@ import {
 import { auditPinnedAssets, type PinnedAsset } from "./pinnedAssets.ts";
 import { type AuditFinding, type AuditReport, findingLine, populationLine } from "./types.ts";
 
+export class PopulationFloorError extends Error {
+  readonly code: string;
+  constructor(code: string, message: string) {
+    super(message);
+    this.name = "PopulationFloorError";
+    this.code = code;
+  }
+}
+
+/**
+ * The three floors, as functions a test can drive.
+ *
+ * They were inline in the `loadFiles` config literal, which nothing can call, so the refusals had
+ * no way to be exercised and the untested-refusal ratchet counted them as undeclared debt. A floor
+ * that cannot be tested is a floor nobody has seen fire.
+ */
+export function assertJourneyPopulation(dirExists: boolean, recordCount: number): void {
+  if (dirExists && recordCount === 0) {
+    throw new PopulationFloorError(
+      "journey-records-absent",
+      "content/journeys exists and no .yaml record was read from it. Every epistemic rule keyed " +
+        "on a journey would then run over an empty population and report clean. Restore the " +
+        "records, or remove this refusal together with the directory (am-4k0m).",
+    );
+  }
+}
+
+/** The edition layer must be non-empty, and must carry the corpus's 200 printed equation blocks. */
+export function assertEditionPopulation(recordCount: number, equationBlocks: number): void {
+  if (recordCount === 0) {
+    throw new PopulationFloorError(
+      "edition-layer-absent",
+      "content/source-blocks, content/translation-units and content/alignments yielded no " +
+        "record. Seven structural checks, equation-identity and the hero-quote resolver would " +
+        "then run over an empty population and report clean (am-rc1001-bridge-plan-pcjk.10).",
+    );
+  }
+  if (equationBlocks < EQUATION_BLOCK_FLOOR) {
+    throw new PopulationFloorError(
+      "equation-population-below-floor",
+      `Only ${equationBlocks} printed equation block(s) were read from content/source-blocks, ` +
+        `and the corpus has ${EQUATION_BLOCK_FLOOR}. \`equation-not-identical\` would compare ` +
+        "fewer pairs and still report no differences, which reads exactly like a clean result " +
+        "(am-rc1001-bridge-plan-pcjk.10 step 2).",
+    );
+  }
+}
+
+/**
+ * The printed displays the corpus holds, measured rather than chosen:
+ * `content/display-terms/<paper>.yaml` gives 7 + 52 + 43 + 98.
+ */
+export const EQUATION_BLOCK_FLOOR = 200;
+
 export const RULE_0_HELP =
   "Rule 0 (the user's override prerogative) is not machine-checkable and is not pretended to be.";
 

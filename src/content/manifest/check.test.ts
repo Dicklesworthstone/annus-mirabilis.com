@@ -4,8 +4,8 @@ import { type CheckReportItem, listRegisteredChecks } from "../compiler/checks/r
 import { registerSourceManifestCheck, SOURCE_MANIFEST_CHECK_ID } from "./check.ts";
 
 describe("source manifest check refusal throw sites (am-muyh)", () => {
-  describe("manifest-schema-invalid (check.ts:47)", () => {
-    test("reject: (check.ts:47) reports manifest-schema-invalid when source manifest record fails schema validation", () => {
+  describe("manifest-schema-invalid (check.ts:86)", () => {
+    test("reject: (check.ts:86) reports manifest-schema-invalid when source manifest record fails schema validation", () => {
       registerSourceManifestCheck();
       const check = listRegisteredChecks().find((c) => c.id === SOURCE_MANIFEST_CHECK_ID);
       assert.ok(check, "SOURCE_MANIFEST_CHECK_ID must be registered");

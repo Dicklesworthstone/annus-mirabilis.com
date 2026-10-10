@@ -30,6 +30,8 @@ import {
 import { auditLiveShelves } from "../src/content/audits/shelfLive.ts";
 import { type AuditFinding, summarize } from "../src/content/audits/types.ts";
 import {
+  assertEditionPopulation,
+  assertJourneyPopulation,
   loadCommittedInventory,
   RULE_0_HELP,
   runVerifyContent,
@@ -69,6 +71,15 @@ population from landing green are recorded as debts in
 src/content/audits/compilerDebts.ts with their owning beads (am-1nnj).
 `);
 }
+
+/**
+ * A FLOOR'S REFUSAL CARRIES A CODE, so a reader and `scanRefusalThrowSites` both get a name for it.
+ *
+ * The three floors below are the only throws in this file, and they were bare. The code is the
+ * FIRST constructor argument per the owner's ruling on am-p465 ("Positional code argument"), which
+ * is also the only shape the refusal scanner reads; a code appended last is invisible to it and
+ * the site counts as bare debt.
+ */
 
 function parseArgs(argv: string[]): {
   help: boolean;
@@ -434,13 +445,7 @@ const result = await runVerifyContent({
     // and that check can only log. In THIS run the directory exists and holds four records, so a
     // zero means the directory was emptied or the read broke, and a silent zero would make every
     // journey rule read as clean over nothing -- which is the state this wiring repaired (am-4k0m).
-    if (existsSync(journeyDir) && journeyFiles.length === 0) {
-      throw new Error(
-        "content/journeys exists and no .yaml record was read from it. Every epistemic rule keyed " +
-          "on a journey would then run over an empty population and report clean. Restore the " +
-          "records, or remove this refusal together with the directory (am-4k0m).",
-      );
-    }
+    assertJourneyPopulation(existsSync(journeyDir), journeyFiles.length);
     // THE EDITION LAYER: 453 source blocks, 821 translation units, 4 alignments
     // (am-rc1001-bridge-plan-pcjk.10).
     //
@@ -521,21 +526,7 @@ const result = await runVerifyContent({
       `[census] edition-layer floor examined ${editionFiles.length} edition record(s) ` +
         `(minimum 1), of which ${equationBlocks} printed equation block(s) (minimum 200)`,
     );
-    if (editionFiles.length === 0) {
-      throw new Error(
-        "content/source-blocks, content/translation-units and content/alignments yielded no " +
-          "record. Seven structural checks, equation-identity and the hero-quote resolver would " +
-          "then run over an empty population and report clean (am-rc1001-bridge-plan-pcjk.10).",
-      );
-    }
-    if (equationBlocks < 200) {
-      throw new Error(
-        `Only ${equationBlocks} printed equation block(s) were read from content/source-blocks, ` +
-          "and the corpus has 200. `equation-not-identical` would compare fewer pairs and still " +
-          "report no differences, which reads exactly like a clean result " +
-          "(am-rc1001-bridge-plan-pcjk.10 step 2).",
-      );
-    }
+    assertEditionPopulation(editionFiles.length, equationBlocks);
     return [...readingFiles, ...experimentFiles, ...journeyFiles, ...editionFiles];
   },
   dimensionAudit: async () => {

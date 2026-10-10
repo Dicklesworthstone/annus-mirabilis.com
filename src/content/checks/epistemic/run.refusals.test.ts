@@ -185,7 +185,7 @@ test("runShelfDate: (run.ts:232) shelf-date-violation reports later card cited o
 // 4. LATER EVIDENCE UNLABELED REFUSALS (4 SITES)
 // ============================================================================
 
-test("runLaterEvidenceUnlabeled: (run.ts:361) later-evidence-unlabeled reports unformatted later evidence on argument node, accepts valid label", () => {
+test("runLaterEvidenceUnlabeled: (run.ts:370) later-evidence-unlabeled reports unformatted later evidence on argument node, accepts valid label", () => {
   // Reject: argument node with post-1904 evidence without "later evidence (YEAR)" label
   const rejectCtx = createMockContext({
     "node-ev": {
@@ -211,7 +211,7 @@ test("runLaterEvidenceUnlabeled: (run.ts:361) later-evidence-unlabeled reports u
   assert.equal(acceptCtx.reports.length, 0);
 });
 
-test("runLaterEvidenceUnlabeled: (run.ts:379) later-evidence-unlabeled reports world-check with missing quantity id, accepts bound quantity", () => {
+test("runLaterEvidenceUnlabeled: (run.ts:388) later-evidence-unlabeled reports world-check with missing quantity id, accepts bound quantity", () => {
   // Reject: world-check with empty quantityId
   const rejectCtx = createMockContext({
     "journey:brownian-motion:j-wc1": {
@@ -246,7 +246,7 @@ test("runLaterEvidenceUnlabeled: (run.ts:379) later-evidence-unlabeled reports w
   assert.equal(acceptCtx.reports.length, 0);
 });
 
-test("runLaterEvidenceUnlabeled: (run.ts:389) later-evidence-unlabeled reports measured-fact world-check without laterEvidence, accepts dated evidence", () => {
+test("runLaterEvidenceUnlabeled: (run.ts:398) later-evidence-unlabeled reports measured-fact world-check without laterEvidence, accepts dated evidence", () => {
   // Reject: comparisonKind measured-fact with no laterEvidence
   const rejectCtx = createMockContext({
     "journey:brownian-motion:j-wc2": {
@@ -282,7 +282,7 @@ test("runLaterEvidenceUnlabeled: (run.ts:389) later-evidence-unlabeled reports m
   assert.equal(acceptCtx.reports.length, 0);
 });
 
-test("runLaterEvidenceUnlabeled: (run.ts:401) later-evidence-unlabeled reports post-1904 laterEvidence without proper label format, accepts correct label", () => {
+test("runLaterEvidenceUnlabeled: (run.ts:410) later-evidence-unlabeled reports post-1904 laterEvidence without proper label format, accepts correct label", () => {
   // Reject: laterEvidence with post-1904 year but non-matching description
   const rejectCtx = createMockContext({
     "journey:brownian-motion:j-wc3": {
@@ -327,7 +327,7 @@ test("runLaterEvidenceUnlabeled: (run.ts:401) later-evidence-unlabeled reports p
 // 5. MISSING ACCESSIBILITY ALTERNATIVE REFUSALS (3 SITES)
 // ============================================================================
 
-test("runMissingAccessibility: (run.ts:420) missing-accessibility-alternative reports experiment with controls but no actions, accepts keyboard actions", () => {
+test("runMissingAccessibility: (run.ts:429) missing-accessibility-alternative reports experiment with controls but no actions, accepts keyboard actions", () => {
   // Reject: experiment with parameters but empty actions
   const rejectCtx = createMockContext({
     "exp-controls": {
@@ -356,7 +356,7 @@ test("runMissingAccessibility: (run.ts:420) missing-accessibility-alternative re
   assert.equal(acceptCtx.reports.length, 0);
 });
 
-test("runMissingAccessibility: (run.ts:432) missing-accessibility-alternative reports canvas view without text alternative or description, accepts description", () => {
+test("runMissingAccessibility: (run.ts:441) missing-accessibility-alternative reports canvas view without text alternative or description, accepts description", () => {
   // Reject: canvas view without table/text view or textualDescription
   const rejectCtx = createMockContext({
     "exp-canvas": {
@@ -387,7 +387,7 @@ test("runMissingAccessibility: (run.ts:432) missing-accessibility-alternative re
   assert.equal(acceptCtx.reports.length, 0);
 });
 
-test("runMissingAccessibility: (run.ts:448) missing-accessibility-alternative reports foundation without textual equivalent, accepts textual prose", () => {
+test("runMissingAccessibility: (run.ts:457) missing-accessibility-alternative reports foundation without textual equivalent, accepts textual prose", () => {
   // Reject: foundation without textual prose
   const rejectCtx = createMockContext({
     "found-1": {
@@ -416,7 +416,7 @@ test("runMissingAccessibility: (run.ts:448) missing-accessibility-alternative re
 // 6. MISSING NOT MODELED REFUSALS (1 SITE)
 // ============================================================================
 
-test("runMissingNotModeled: (run.ts:465) missing-not-modeled reports experiment with empty notModeled list, accepts declared limitations", () => {
+test("runMissingNotModeled: (run.ts:474) missing-not-modeled reports experiment with empty notModeled list, accepts declared limitations", () => {
   // Reject: experiment with empty notModeled list
   const rejectCtx = createMockContext({
     "exp-nm": {
@@ -446,7 +446,7 @@ test("runMissingNotModeled: (run.ts:465) missing-not-modeled reports experiment 
 // 7. COVERAGE WITHOUT OWNER REFUSALS (4 SITES)
 // ============================================================================
 
-test("runCoverageWithoutOwner: (run.ts:490) coverage-without-owner reports omitted treatment without reason, accepts written reason", () => {
+test("runCoverageWithoutOwner: (run.ts:499) coverage-without-owner reports omitted treatment without reason, accepts written reason", () => {
   // Reject: omitted treatment without reason
   const rejectCtx = createMockContext({
     "node-omit": {
@@ -476,7 +476,7 @@ test("runCoverageWithoutOwner: (run.ts:490) coverage-without-owner reports omitt
   assert.equal(acceptCtx.reports.length, 0);
 });
 
-test("runCoverageWithoutOwner: (run.ts:502) coverage-without-owner reports instrument treatment without experimentIds, accepts valid experiment id", () => {
+test("runCoverageWithoutOwner: (run.ts:511) coverage-without-owner reports instrument treatment without experimentIds, accepts valid experiment id", () => {
   // Reject: instrument treatment with empty experimentIds array
   const rejectCtx = createMockContext({
     "node-no-exp": {
@@ -503,7 +503,7 @@ test("runCoverageWithoutOwner: (run.ts:502) coverage-without-owner reports instr
   assert.equal(acceptCtx.reports.length, 0);
 });
 
-test("runCoverageWithoutOwner: (run.ts:515) coverage-without-owner reports instrument with unregistered experiment or missing owner, accepts registered owner", () => {
+test("runCoverageWithoutOwner: (run.ts:524) coverage-without-owner reports instrument with unregistered experiment or missing owner, accepts registered owner", () => {
   // Reject: instrument treatment naming experiment without owner
   const rejectCtx = createMockContext({
     "exp-no-owner": { kind: "experiment", id: "exp-no-owner" },
@@ -535,7 +535,7 @@ test("runCoverageWithoutOwner: (run.ts:515) coverage-without-owner reports instr
   assert.equal(acceptCtx.reports.length, 0);
 });
 
-test("runCoverageWithoutOwner: (run.ts:541) coverage-without-owner reports shared instrument without correspondence note, accepts documented note", () => {
+test("runCoverageWithoutOwner: (run.ts:550) coverage-without-owner reports shared instrument without correspondence note, accepts documented note", () => {
   // Reject: shared instrument where one node lacks correspondenceNote
   const rejectCtx = createMockContext({
     "exp-shared": { kind: "experiment", id: "exp-shared", owner: "sim-team" },
@@ -596,7 +596,7 @@ test("runCoverageWithoutOwner: (run.ts:541) coverage-without-owner reports share
 // 8. MISCONCEPTION MINIMUM REFUSALS (1 SITE)
 // ============================================================================
 
-test("runMisconceptionMinimum: (run.ts:583) misconception-minimum reports complete paper with fewer than 5 misconceptions, accepts 5 entries", () => {
+test("runMisconceptionMinimum: (run.ts:592) misconception-minimum reports complete paper with fewer than 5 misconceptions, accepts 5 entries", () => {
   // Reject: paper complete with only 2 misconceptions
   const rejectCtx = createMockContext({
     "paper-brownian": { kind: "paper", id: "paper-brownian", status: "complete" },
@@ -625,7 +625,7 @@ test("runMisconceptionMinimum: (run.ts:583) misconception-minimum reports comple
 // 9. APPROXIMATION UNLABELED REFUSALS (2 SITES)
 // ============================================================================
 
-test("runApproximationUnlabeled: (run.ts:605) approximation-unlabeled reports equation listing approximation but claimed exact-within-model, accepts approximation status", () => {
+test("runApproximationUnlabeled: (run.ts:614) approximation-unlabeled reports equation listing approximation but claimed exact-within-model, accepts approximation status", () => {
   // Reject: contract lists approximation but modelStatus claims exact-within-model
   const rejectCtx = createMockContext({
     "eq-approx-exact": {
@@ -651,7 +651,7 @@ test("runApproximationUnlabeled: (run.ts:605) approximation-unlabeled reports eq
   assert.equal(acceptCtx.reports.length, 0);
 });
 
-test("runApproximationUnlabeled: (run.ts:613) approximation-unlabeled reports approximation modelStatus without contract approximationsIntroduced, accepts declared list", () => {
+test("runApproximationUnlabeled: (run.ts:622) approximation-unlabeled reports approximation modelStatus without contract approximationsIntroduced, accepts declared list", () => {
   // Reject: modelStatus approximation with empty approximationsIntroduced
   const rejectCtx = createMockContext({
     "eq-unnamed-approx": {
@@ -681,7 +681,7 @@ test("runApproximationUnlabeled: (run.ts:613) approximation-unlabeled reports ap
 // 10. CIRCULAR MOLECULAR COUNT REFUSALS (2 SITES)
 // ============================================================================
 
-test("runCircularMolecularCount: (run.ts:657) circular-molecular-count reports historical inference bound to avogadroConstant, accepts avogadroNumberEstimate", () => {
+test("runCircularMolecularCount: (run.ts:666) circular-molecular-count reports historical inference bound to avogadroConstant, accepts avogadroNumberEstimate", () => {
   // Reject: historical inference output binds to avogadroConstant
   const rejectCtx = createMockContext({
     "inf-circ-output": {
@@ -710,7 +710,7 @@ test("runCircularMolecularCount: (run.ts:657) circular-molecular-count reports h
   assert.equal(acceptCtx.reports.length, 0);
 });
 
-test("runCircularMolecularCount: (run.ts:665) circular-molecular-count reports historical inference using modern-si-2019, accepts historical constant set", () => {
+test("runCircularMolecularCount: (run.ts:674) circular-molecular-count reports historical inference using modern-si-2019, accepts historical constant set", () => {
   // Reject: historical inference resolving constants from modern-si-2019
   const rejectCtx = createMockContext({
     "modern-si-2019": { kind: "constant-set", id: "modern-si-2019", entries: [] },
@@ -747,7 +747,7 @@ test("runCircularMolecularCount: (run.ts:665) circular-molecular-count reports h
 // 11. CIRCULAR REST ENERGY REFUSALS (1 SITE)
 // ============================================================================
 
-test("runCircularRestEnergy: (run.ts:687) circular-rest-energy reports historical rest energy initialized from mc2, accepts symbolic initialization", () => {
+test("runCircularRestEnergy: (run.ts:696) circular-rest-energy reports historical rest energy initialized from mc2, accepts symbolic initialization", () => {
   // Reject: historical rest energy initialized numerically from mc2
   const rejectCtx = createMockContext({
     "el-circ": {
@@ -782,7 +782,7 @@ test("runCircularRestEnergy: (run.ts:687) circular-rest-energy reports historica
 // 12. SIMULATION AS EVIDENCE REFUSALS (1 SITE)
 // ============================================================================
 
-test("runSimulationAsEvidence: (run.ts:714) simulation-as-evidence reports empirical-observation supported by simulator output, accepts historical observation", () => {
+test("runSimulationAsEvidence: (run.ts:723) simulation-as-evidence reports empirical-observation supported by simulator output, accepts historical observation", () => {
   // Reject: empirical observation supported by simulator output
   const rejectCtx = createMockContext({
     "obs-node": {
@@ -815,7 +815,7 @@ test("runSimulationAsEvidence: (run.ts:714) simulation-as-evidence reports empir
 // 13. REVIEW FLAGS REFUSALS (8 SITES)
 // ============================================================================
 
-test("runFlags: (run.ts:733) translation-ambiguity reports review flag for translation unit with unresolved alternatives, accepts clean unit", () => {
+test("runFlags: (run.ts:742) translation-ambiguity reports review flag for translation unit with unresolved alternatives, accepts clean unit", () => {
   // Reject: translation unit with unresolved alternatives
   const rejectCtx = createMockContext({
     "tu-ambig": {
@@ -844,7 +844,7 @@ test("runFlags: (run.ts:733) translation-ambiguity reports review flag for trans
   assert.equal(acceptCtx.reports.length, 0);
 });
 
-test("runFlags: (run.ts:738) translation-ambiguity computes flag fingerprint for review queue tracking, accepts clean unit", () => {
+test("runFlags: (run.ts:747) translation-ambiguity computes flag fingerprint for review queue tracking, accepts clean unit", () => {
   // Reject: fingerprint calculation matches computeFlagFingerprint
   const alts = [{ text: "suspended particles", rationale: "Literal translation" }];
   const flaggedText = JSON.stringify(alts);
@@ -876,7 +876,7 @@ test("runFlags: (run.ts:738) translation-ambiguity computes flag fingerprint for
   assert.equal(acceptCtx.reports.length, 0);
 });
 
-test("runFlags: (run.ts:757) historical-influence-claim reports review flag when claimsEinsteinKnew is true, accepts historical date statement", () => {
+test("runFlags: (run.ts:766) historical-influence-claim reports review flag when claimsEinsteinKnew is true, accepts historical date statement", () => {
   // Reject: premise asserting claimsEinsteinKnew: true
   const rejectCtx = createMockContext({
     "prem-influence": {
@@ -905,7 +905,7 @@ test("runFlags: (run.ts:757) historical-influence-claim reports review flag when
   assert.equal(acceptCtx.reports.length, 0);
 });
 
-test("runFlags: (run.ts:762) historical-influence-claim computes flag fingerprint for review tracking, accepts clean statement", () => {
+test("runFlags: (run.ts:771) historical-influence-claim computes flag fingerprint for review tracking, accepts clean statement", () => {
   // Reject: verify fingerprint for historical influence claim
   const proposition = "Einstein was influenced by Mach (1883).";
   const rejectCtx = createMockContext({
@@ -938,7 +938,7 @@ test("runFlags: (run.ts:762) historical-influence-claim computes flag fingerprin
   assert.equal(acceptCtx.reports.length, 0);
 });
 
-test("runFlags: (run.ts:778) approximation-prose reports review flag for prose approximation claim, accepts clean contract", () => {
+test("runFlags: (run.ts:787) approximation-prose reports review flag for prose approximation claim, accepts clean contract", () => {
   // Reject: authoringContract introducing approximations in prose
   const rejectCtx = createMockContext({
     "node-approx-prose": {
@@ -965,7 +965,7 @@ test("runFlags: (run.ts:778) approximation-prose reports review flag for prose a
   assert.equal(acceptCtx.reports.length, 0);
 });
 
-test("runFlags: (run.ts:783) approximation-prose computes flag fingerprint for approximation tracking, accepts clean contract", () => {
+test("runFlags: (run.ts:792) approximation-prose computes flag fingerprint for approximation tracking, accepts clean contract", () => {
   // Reject: verify fingerprint for prose approximation
   const approx = ["Equipartition assumption"];
   const flaggedText = JSON.stringify(approx);
@@ -995,7 +995,7 @@ test("runFlags: (run.ts:783) approximation-prose computes flag fingerprint for a
   assert.equal(acceptCtx.reports.length, 0);
 });
 
-test("runFlags: (run.ts:797) source-disagreement reports review flag for dispute editorial note, accepts commentary note", () => {
+test("runFlags: (run.ts:806) source-disagreement reports review flag for dispute editorial note, accepts commentary note", () => {
   // Reject: editorial note of kind dispute
   const rejectCtx = createMockContext({
     "note-dispute": {
@@ -1024,7 +1024,7 @@ test("runFlags: (run.ts:797) source-disagreement reports review flag for dispute
   assert.equal(acceptCtx.reports.length, 0);
 });
 
-test("runFlags: (run.ts:802) source-disagreement computes flag fingerprint for source disagreement tracking, accepts commentary note", () => {
+test("runFlags: (run.ts:811) source-disagreement computes flag fingerprint for source disagreement tracking, accepts commentary note", () => {
   // Reject: verify fingerprint for source-disagreement
   const claim = "Source text differs between 1905 journal and 1922 reprint.";
   const rejectCtx = createMockContext({

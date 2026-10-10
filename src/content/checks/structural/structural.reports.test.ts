@@ -48,11 +48,12 @@ function keyFor(id: string, record: unknown): string {
   if (id.includes(":")) return id;
   if (!record || typeof record !== "object") return id;
   const rec = record as Record<string, unknown>;
-  // ONLY `source-block`, deliberately. Keying translation units here too is more faithful still,
-  // and it reddens two further sites that read a unit by BARE id -- `checkDuplicateId`'s unit arm
-  // and `checkSpanDigestMismatch`'s target lookup at structural.ts:1684. Both are the same defect
-  // one layer along and both are recorded on am-rc1001-bridge-plan-pcjk.10; widening this helper
-  // to reach them belongs in the commit that repairs them, not in this one.
+  // ONLY `source-block`, deliberately. Keying translation units here too is more faithful still.
+  // When this was written it also reddened two sites that read a unit by BARE id; the span-digest
+  // one was repaired at 4ac97a4f, and `checkDuplicateId`'s unit arm turned out not to need it at
+  // all, because a translation unit record DOES carry `kind: "translation-unit"` unlike a source
+  // block. No line number is cited here on purpose: a parenthesised file:line in prose is read as
+  // a citation by the stale-citation ratchet, and this one had already gone stale.
   if (rec.kind !== "source-block") return id;
   const paper = typeof rec.paper === "string" ? rec.paper : (rec.paperSlug as string) || "";
   const recordId = typeof rec.id === "string" ? rec.id : id;
@@ -90,14 +91,14 @@ function expectSite(reports: CheckReportItem[], path: string, messageOpening: st
 }
 
 describe("duplicate-id: the source-block site, not the twelve that already had tests", () => {
-  test("(structural.ts:167) two source blocks share an id inside one paper", () => {
+  test("(structural.ts:182) two source blocks share an id inside one paper", () => {
     // TWO DISTINCT KEYS, ONE DECLARED ID, which is the only shape this site can actually meet.
     // The fixture used to key them `a` and `b` as stand-ins for two files; under production keying
     // (`source-block:<paper>:<id>`, recordKey.ts) two files in one paper declaring one id share a
     // key and the records map holds one, so that shape is unreachable here. It is also
     // unconstructible upstream: `path-identity` binds a block's id to its filename stem, so the
     // compiler refuses the two files before any check sees them, which is the stronger guarantee
-    // and is recorded at structural.ts:352. What remains reachable, and what this asserts, is a
+    // and is recorded at structural.ts:367. What remains reachable, and what this asserts, is a
     // caller that keys blocks by something other than the declared id
     // (am-rc1001-bridge-plan-pcjk.10).
     const records = {
@@ -146,7 +147,7 @@ describe("duplicate-id: the source-block site, not the twelve that already had t
 });
 
 describe("missing-source-block: the two sites that were not driven", () => {
-  test("(structural.ts:481) a paper's orderedBlockIds names a block that does not exist", () => {
+  test("(structural.ts:498) a paper's orderedBlockIds names a block that does not exist", () => {
     const records = {
       p: {
         kind: "paper",
@@ -168,7 +169,7 @@ describe("missing-source-block: the two sites that were not driven", () => {
     expect(run(checkMissingSourceBlock, complete)).toHaveLength(0);
   });
 
-  test("(structural.ts:547) an alignment edge points at a source block that does not exist", () => {
+  test("(structural.ts:564) an alignment edge points at a source block that does not exist", () => {
     const records = {
       b: { kind: "source-block", id: "s1-p1", paper: "brownian-motion" },
       al: {
@@ -218,7 +219,7 @@ describe("broken-alignment: the three sites that were not driven", () => {
     text: "In this paper it will be shown.",
   };
 
-  test("(structural.ts:762) an edge names a sentence that is not a span of its own block", () => {
+  test("(structural.ts:780) an edge names a sentence that is not a span of its own block", () => {
     const records = {
       b: block,
       t: tu,
@@ -241,7 +242,7 @@ describe("broken-alignment: the three sites that were not driven", () => {
     );
   });
 
-  test("(structural.ts:795) an edge targets a translation unit that is missing in its paper", () => {
+  test("(structural.ts:813) an edge targets a translation unit that is missing in its paper", () => {
     const records = {
       b: block,
       t: tu,
@@ -264,7 +265,7 @@ describe("broken-alignment: the three sites that were not driven", () => {
     );
   });
 
-  test("(structural.ts:810) an edge's target range runs past the end of the translation text", () => {
+  test("(structural.ts:828) an edge's target range runs past the end of the translation text", () => {
     const makeRecords = (range: { start: number; end: number }) => ({
       b: block,
       t: tu,
@@ -297,7 +298,7 @@ describe("impossible-date-order: the two later sites, distinguished by which pai
   const dateLine = d("date-line", "1905-05-01");
   const received = d("received", "1905-05-11");
 
-  test("(structural.ts:1126) received is strictly after issue publication", () => {
+  test("(structural.ts:1144) received is strictly after issue publication", () => {
     const records = {
       p: {
         kind: "paper",
@@ -323,7 +324,7 @@ describe("impossible-date-order: the two later sites, distinguished by which pai
     expect(run(checkImpossibleDateOrder, ordered)).toHaveLength(0);
   });
 
-  test("(structural.ts:1143) issue publication is strictly after a later edition", () => {
+  test("(structural.ts:1161) issue publication is strictly after a later edition", () => {
     const records = {
       p: {
         kind: "paper",
@@ -349,7 +350,7 @@ describe("impossible-date-order: the two later sites, distinguished by which pai
 });
 
 describe("the four single sites", () => {
-  test("(structural.ts:1239) equation-not-identical: germanLatex and englishLatex differ byte for byte", () => {
+  test("(structural.ts:1270) equation-not-identical: germanLatex and englishLatex differ byte for byte", () => {
     const records = {
       e: {
         kind: "equation",
@@ -379,7 +380,7 @@ describe("the four single sites", () => {
     expect(run(checkEquationNotIdentical, identical)).toHaveLength(0);
   });
 
-  test("(structural.ts:1333) complete-while-missing: a paper is complete while one of its blocks is still a draft", () => {
+  test("(structural.ts:1394) complete-while-missing: a paper is complete while one of its blocks is still a draft", () => {
     const records = {
       p: { kind: "paper", id: "brownian-motion", status: "complete" },
       b: {
@@ -425,7 +426,7 @@ describe("the four single sites", () => {
     expect(run(checkCompleteWhileMissing, inProgress)).toHaveLength(0);
   });
 
-  test("(structural.ts:1418) hero-quote-unresolved: a hero quote's anchor resolves to no edition record at all", () => {
+  test("(structural.ts:1513) hero-quote-unresolved: a hero quote's anchor resolves to no edition record at all", () => {
     const records = {
       b: {
         kind: "source-block",
@@ -467,7 +468,7 @@ describe("the four single sites", () => {
     ).toHaveLength(0);
   });
 
-  test("(structural.ts:1596) span-digest-mismatch: an edge's SOURCE span digest disagrees with the block text", () => {
+  test("(structural.ts:1742) span-digest-mismatch: an edge's SOURCE span digest disagrees with the block text", () => {
     const text = "In dieser Arbeit soll gezeigt werden.";
     const records = {
       "s1-p1": { kind: "source-block", id: "s1-p1", paper: "brownian-motion", text },
@@ -527,7 +528,7 @@ describe("the four single sites", () => {
  * executing. These drive them directly.
  */
 describe("the two sites only the node-lane e2e reached", () => {
-  test("(structural.ts:189) two source blocks in one paper declare the same sentence span id", () => {
+  test("(structural.ts:204) two source blocks in one paper declare the same sentence span id", () => {
     const records = {
       a: {
         kind: "source-block",
@@ -570,7 +571,7 @@ describe("the two sites only the node-lane e2e reached", () => {
     expect(run(checkDuplicateId, otherPaper)).toHaveLength(0);
   });
 
-  test("(structural.ts:1276) equation-not-identical: an aligned English equation differs by bytes from its German block", () => {
+  test("(structural.ts:1325) equation-not-identical: an aligned English equation differs by bytes from its German block", () => {
     const records = {
       g: {
         kind: "source-block",
