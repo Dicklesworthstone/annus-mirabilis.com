@@ -60,8 +60,27 @@ export interface PersistenceReport {
 const PERSISTS =
   /new TestLogger\(|getLogger\(|appendLogLine\(|logPathFor\(|writePerfReport\(|appendFileSync\(|writeFileSync\(|appendFile\(/;
 
-/** A scriptPath that is a config file rather than a program names a delegating step, not a gate. */
-const CONFIG_FILE = /\.(json|mjs|cjs)$/;
+/**
+ * A scriptPath that is a config file rather than a program names a delegating step, not a gate.
+ *
+ * THIS PATTERN WAS `/\.(json|mjs|cjs)$/` AND EXEMPTED EVERY `.mjs` GATE SCRIPT, not only the config
+ * modules it was aimed at. A bare extension cannot tell `next.config.mjs` from
+ * `scripts/e2e/adversarialRuntime.mjs`: the first delegates to a build tool and has no report of its
+ * own, the second is a browser suite that writes JSONL through `logPathFor`. Under the old pattern
+ * the second landed in `delegates`, which is the set this audit EXEMPTS from the persistence
+ * question -- so a `.mjs` gate that wrote nothing at all would have read as an honest delegate
+ * rather than as silent, and the audit would have said so with a clean verdict.
+ *
+ * The hole was latent rather than harmful: measured over the 51 registry steps, the old pattern
+ * matched six and the new one matches five, and the one it releases is the only non-config `.mjs`
+ * among them. That is also why no test caught it -- until a `.mjs` suite was registered there was
+ * nothing in the population for the extension to misjudge, which is the shape of a gate that cannot
+ * fail until the day it matters.
+ *
+ * So the question asked is "is this a CONFIG file", which is what the comment above always claimed:
+ * a data file by extension, or a module whose name says `.config.`.
+ */
+const CONFIG_FILE = /\.(json|ya?ml|toml)$|\.config\.(mjs|cjs|js|ts)$/;
 
 function persistsInSource(code: string): boolean {
   return PERSISTS.test(blankComments(code));

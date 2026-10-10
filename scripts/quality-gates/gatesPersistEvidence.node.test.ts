@@ -129,6 +129,56 @@ test("PLANTED: silence is detected, a helper is credited, and a comment is not",
   assert.deepEqual(localImportsOf(join(dir, "viaHelper.ts"), 'import { w } from "./gone.ts";'), []);
 });
 
+test("PLANTED: a non-config .mjs gate is AUDITED, while a .config.mjs still delegates", () => {
+  // THE EXTENSION IS NOT THE QUESTION, and this is the plant for the defect that proved it. The
+  // CONFIG_FILE pattern was `/\.(json|mjs|cjs)$/`, so every `.mjs` gate script landed in `delegates`
+  // -- the set this audit EXEMPTS. A browser suite written as `.mjs` that persisted nothing would
+  // therefore have read as an honest delegate rather than as silent, and only the extension stood
+  // between that and a clean verdict.
+  //
+  // All three directions are planted, because the repair has to hold both ways: the dangerous
+  // direction is a silent `.mjs` being excused, and the regression direction is `next.config.mjs`
+  // losing its exemption and being reported silent for not writing a log it was never meant to write.
+  const dir = mkdtempSync(join(tmpdir(), "am-mjs-persistence-"));
+  writeFileSync(join(dir, "writes.mjs"), 'const p = logPathFor("suite", id, root);\n');
+  writeFileSync(join(dir, "silent.mjs"), 'console.log("26 clause(s) checked; 0 failed");\n');
+  writeFileSync(join(dir, "tool.config.mjs"), "export default { reactStrictMode: true };\n");
+
+  const planted = auditGatePersistence(
+    [
+      { id: "plant-mjs-writes", availability: { scriptPath: "writes.mjs" } },
+      { id: "plant-mjs-silent", availability: { scriptPath: "silent.mjs" } },
+      { id: "plant-config-mjs", availability: { scriptPath: "tool.config.mjs" } },
+    ],
+    dir,
+  );
+
+  assert.deepEqual(
+    planted.persists.map((p) => p.id),
+    ["plant-mjs-writes"],
+    "a .mjs that calls logPathFor must be credited, not exempted by its extension",
+  );
+  assert.deepEqual(
+    planted.silent.map((s) => s.id),
+    ["plant-mjs-silent"],
+    "a .mjs gate that writes nothing must be reported silent; under the old pattern it was exempt",
+  );
+  assert.deepEqual(
+    planted.delegates.map((d) => d.id),
+    ["plant-config-mjs"],
+    "a .config.mjs is a config module and stays exempt",
+  );
+
+  // The live consequence, asserted on the real registry rather than only on the fixture: the one
+  // non-config .mjs step in the chain is now answered rather than excused.
+  const live = report.persists.find((p) => p.id === "adversarial-runtime");
+  assert.ok(
+    live,
+    `adversarial-runtime is a .mjs browser suite that writes JSONL through logPathFor; it must be audited, not a delegate (delegates: ${report.delegates.map((d) => d.id).join(", ")})`,
+  );
+  assert.equal(live.via, "self");
+});
+
 test("PLANTED: a registered gate whose script is missing counts as silent, not as a delegate", () => {
   // The dangerous misclassification. A missing script cannot persist, and calling it a delegate would
   // move it into the exempt set, where nothing would ever ask it again.

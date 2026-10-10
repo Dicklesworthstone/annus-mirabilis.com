@@ -560,7 +560,7 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     cadence: "nightly",
     requiredInCi: false,
     notRequiredInCiReason:
-      "The rows' own assertions run every commit in the bun lane (src/testing/adversarial/, 16 files, 315 expect() calls). This gate re-runs them one file per process to attribute assertions to rows for docs/audits/ADVERSARIAL_AUDIT.md, which is release evidence; requiredInProfiles keeps preview and launch refusing without it.",
+      "Nothing in CI would learn anything from this step, because the rows' own assertions already run on every commit in the bun lane (src/testing/adversarial/, 16 files, 315 expect() calls) and this gate re-executes those same predicates. What it adds is attribution, one file per process, so docs/audits/ADVERSARIAL_AUDIT.md can say which assertions belong to which row -- that is release evidence rather than a commit check, which is why requiredInProfiles keeps preview and launch refusing without it.",
     requiredInProfiles: ["preview", "launch"],
     availability: {
       scriptPath: "scripts/audit-adversarial.ts",
