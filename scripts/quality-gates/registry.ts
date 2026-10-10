@@ -536,6 +536,36 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     owner: "am-edit-comprehension-protocol-ouih",
   },
   {
+    // WHY THIS IS NIGHTLY AND NOT every-run, written here because the choice is the whole value of
+    // the entry (am-ver-adversarial-audit-1ef).
+    //
+    // The fifteen rows' assertions already run on every commit: `src/testing/adversarial/*.test.ts`
+    // is ordinary bun-lane work and `bun run test` executes all sixteen files. What this gate adds
+    // is the three refusals the lane cannot make -- a row marked implemented with no test file, a
+    // test file for a row the registry still calls outstanding, and a row that RAN and asserted
+    // nothing -- plus the generated report, which is what a release consumes. To count assertions
+    // per row it runs each file in its own `bun test`, fifteen process spawns, and that buys no
+    // information a commit needs. So it is release evidence rather than per-commit information.
+    //
+    // requiredInProfiles still carries preview and launch, and profile mode filters on THAT alone
+    // (quality-gates.ts:184-185 sets the cadence filter to "all" in profile mode), so a
+    // `--profile launch` run executes this gate and refuses on drift, on a vacuous row, and on any
+    // failing row. That is the sense in which the report is attached to launch readiness.
+    id: "audit-adversarial",
+    title: "Adversarial fixture audit: fifteen rows, each failing for its declared reason",
+    command: ["bun", "scripts/audit-adversarial.ts"],
+    family: "fast",
+    cadence: "nightly",
+    requiredInCi: false,
+    notRequiredInCiReason:
+      "The rows' own assertions run every commit in the bun lane (src/testing/adversarial/, 16 files, 315 expect() calls). This gate re-runs them one file per process to attribute assertions to rows for docs/audits/ADVERSARIAL_AUDIT.md, which is release evidence; requiredInProfiles keeps preview and launch refusing without it.",
+    requiredInProfiles: ["preview", "launch"],
+    availability: {
+      scriptPath: "scripts/audit-adversarial.ts",
+    },
+    owner: "am-ver-adversarial-audit-1ef",
+  },
+  {
     id: "receipts",
     title: "Provenance receipt check",
     command: ["bun", "scripts/check-receipts.ts", "--surveys"],

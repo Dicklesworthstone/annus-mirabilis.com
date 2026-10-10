@@ -204,7 +204,13 @@ lines.push(`- Row test files on disk: **${files.length}**`);
 lines.push(
   `- Rows run in this report: **${results.filter((r) => r.ran).length}**${noRun ? " (`--no-run`, so no row is claimed to pass)" : ""}`,
 );
-lines.push(`- Structured log: \`artifacts/test-logs/${SUITE}/${logRunId}.jsonl\``);
+// The DIRECTORY, not this run's file. The report is committed, so naming the per-run id rewrote one
+// line of a tracked file on every run, in a shared checkout where several agents read each other's
+// diffs. Churn with no semantic content is how a diff stops being read. The run's own id goes to
+// stderr below and into the gate's JSONL, where a reader who needs it will actually look.
+lines.push(
+  `- Structured logs: \`artifacts/test-logs/${SUITE}/\` (this run's id is printed on stderr)`,
+);
 lines.push("");
 if (drift.length > 0) {
   lines.push("> **REFUSED.** The registry and the files on disk disagree, so no result below is");
@@ -265,7 +271,7 @@ const totalAssertions = results.reduce((sum, r) => sum + r.assertions, 0);
 console.error(
   `[audit-adversarial] ${ADVERSARIAL_ROWS.length} rows declared, ${implemented.length} implemented, ` +
     `${files.length} test files on disk, ${examined} run, ${totalAssertions} assertion(s); ` +
-    `report written to ${outPath.slice(ROOT.length + 1)}`,
+    `report written to ${outPath.slice(ROOT.length + 1)}; log ${logPath.slice(ROOT.length + 1)}`,
 );
 if (drift.length > 0) console.error(`[audit-adversarial] REFUSED: ${drift.join("; ")}`);
 for (const row of failing)
