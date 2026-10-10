@@ -199,8 +199,12 @@ describe("a gate required in CI is run by a CI job (am-browser-gate-identity-7nq
     for (const { gate, by } of rows) {
       const key = by.length > 0 ? by.join(" + ") : "NOTHING";
       const list = groups.get(key) ?? [];
+      // The profile route is printed for every row, because a step reached by no dsr check may
+      // still run on every release, and a reader of this list must be able to tell those apart.
+      const profiles = gate.requiredInProfiles ?? [];
+      const alsoProfile = profiles.length > 0 ? `, runs in profile: ${profiles.join("/")}` : "";
       list.push(
-        `${gate.id} (family ${gate.family}, cadence ${gate.cadence}${gate.requiredInCi ? ", requiredInCi" : ""})`,
+        `${gate.id} (family ${gate.family}, cadence ${gate.cadence}${gate.requiredInCi ? ", requiredInCi" : ""}${alsoProfile})`,
       );
       groups.set(key, list);
     }
@@ -230,7 +234,19 @@ describe("a gate required in CI is run by a CI job (am-browser-gate-identity-7nq
         // By CADENCE: no package.json script passes `--cadence` at all, so "nightly" is a cadence
         // no dsr check invokes. That is a real declaration only when the step also stops claiming
         // to be required and says why -- both of which `ciExemptionReasons.node.test.ts` gates.
-        if (gate.cadence === "nightly" && !gate.requiredInCi && gate.notRequiredInCiReason) {
+        // A PROFILE RUN IS REAL WIRING, and leaving it out would have made this list overstate.
+        // quality-gates.ts:185 sets the cadence filter to "all" in profile mode, so a
+        // `--profile preview` run DOES execute a nightly step. A nightly step that declares
+        // requiredInProfiles therefore runs on every release; one that declares none runs nowhere
+        // at all, and only the second is a finding. Both of this repository's nightly steps are the
+        // first kind, which is why "reached by: NOTHING" is reported against the four dsr checks
+        // and is not a claim that nothing ever runs them.
+        if (
+          gate.cadence === "nightly" &&
+          !gate.requiredInCi &&
+          gate.notRequiredInCiReason &&
+          (gate.requiredInProfiles?.length ?? 0) > 0
+        ) {
           return false;
         }
         return true;
@@ -299,9 +315,20 @@ describe("a gate required in CI is run by a CI job (am-browser-gate-identity-7nq
     // And the population the excuse covers is real, so this is not a rule about an empty set.
     const nightly = QUALITY_GATE_STEPS.filter((gate) => gate.cadence === "nightly");
     console.log(
-      `[ci reachability] ${nightly.length} nightly step(s) excused by cadence: ${nightly.map((g) => g.id).join(", ") || "(none)"}`,
+      `[ci reachability] ${nightly.length} nightly step(s) excused by cadence: ${nightly
+        .map((g) => `${g.id} [profiles: ${(g.requiredInProfiles ?? []).join("/") || "NONE"}]`)
+        .join(", ")}`,
     );
     expect(nightly.length).toBeGreaterThan(0);
+    // The excuse rests on the profile route existing. A nightly step with no profile is a step
+    // nothing anywhere runs, and it must not be quietly excused by its cadence.
+    const nowhere = nightly
+      .filter((gate) => (gate.requiredInProfiles?.length ?? 0) === 0)
+      .map((gate) => gate.id);
+    expect(
+      nowhere,
+      'A nightly step declares no requiredInProfiles. No dsr check admits the nightly cadence and no profile run requires it, so nothing executes it at all. Either give it a profile or give it cadence "every-run".',
+    ).toEqual([]);
   });
 
   test("the browser gate specifically, by name, because it is the one that was unwired", () => {
