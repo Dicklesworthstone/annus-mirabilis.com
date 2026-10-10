@@ -73,26 +73,38 @@ const CANONICAL = "src/experiments/results/refusalSentence.ts";
  * Five components were converted that way: lq06, lq08, lq09, sr07 and BrownianInvestigation.tsx,
  * whose own two strings are a full notebook and a refused download rather than field validation.
  *
- * THE REMAINING FOUR ARE A DIFFERENT PROBLEM, and it is not effort either. None is a component:
- * each flattens into a sink that takes a STRING, so the refusal is lost at the boundary rather than
- * in a setState, and converting one means changing that sink's contract and every caller.
+ * THE REMAINING TWO ARE A DIFFERENT PROBLEM, and it is not effort either. Neither is a component:
+ * each flattens into a sink that takes a STRING, so the refusal dies at a contract boundary rather
+ * than in a setState, and converting one means changing that sink's type and its callers.
  *
- *   discovery/lightQuanta/investigation.ts   `fail(reason: string)` from a pure validator
- *   experiments/bm07/kitchen/analyze.ts      `reason<T>(r): string`, whose JOB is to make a sentence
- *   experiments/compare/controlledComparison.ts  a `failure(message, active)` callback
+ *   experiments/bm07/kitchen/analyze.ts           `reason<T>(r): string`, whose declared JOB is to
+ *                                                 make a sentence. Its reasons travel inside
+ *                                                 KitchenAnalysis through kitchen/protocol.ts, a
+ *                                                 VERSIONED worker protocol, to KitchenResults.tsx,
+ *                                                 and that surface shows no code anywhere today. So
+ *                                                 this one is a protocol change, not a rename.
+ *   experiments/compare/controlledComparison.ts   a `failure(message, active)` callback, 6 real
+ *                                                 importers including two comparisonSession modules.
  *
- * reasoning/infer/browser.ts WAS the fourth and is converted, and it is the one that shows the shape
- * of the remaining three. Its string was not a mistake: `announce` writes a live region, which
- * genuinely takes text. So the sentence stayed a sentence and the CODE moved to an attribute on the
- * case element, beside the identities that module already publishes. It also keeps its own
- * discrimination rather than adopting `applyFailure`, because its session has a fourth kind,
- * `no-value`, whose `reason` applyFailure would replace with generic text.
+ * TWO OF THE FOUR NON-COMPONENT SITES ARE DONE, and between them they give the questions to ask of
+ * the two left.
  *
- * Expect the same two questions for each of the three left: what does this sink's consumer actually
- * need, and does the result union have a kind applyFailure does not know.
+ * reasoning/infer/browser.ts: ask WHAT THE SINK'S CONSUMER ACTUALLY NEEDS. Its string was not a
+ * mistake, because `announce` writes a live region and a live region genuinely takes text. So the
+ * sentence stayed a sentence and the CODE moved to an attribute on the case element, beside the
+ * identities that module already publishes. Ask also whether the result union has a kind
+ * `applyFailure` does not know: that session has `no-value`, whose `reason` applyFailure would
+ * replace with generic text, so it kept its own discrimination. analyze.ts has `no-value` too.
+ *
+ * discovery/lightQuanta/investigation.ts: ask WHOSE REFUSAL IT IS. That module mixes its own range
+ * rules, which rightly keep its own `parameters-rejected` code, with a PASS-THROUGH of
+ * validateLq04Parameters and validateLq08Parameters, whose verdicts it was overwriting with that
+ * same code. Only the pass-through was converted, through `throwApplyFailure` so no new throw site
+ * appears, and its test asserts the pair: an lq-04 refusal arrives typed, AND the module's own
+ * frequency rule still raises `parameters-rejected`. A conversion that took both branches passes
+ * the first half and fails the second.
  */
 const FLATTENING_SITES: Readonly<Record<string, number>> = {
-  "src/discovery/lightQuanta/investigation.ts": 1,
   "src/experiments/bm07/kitchen/analyze.ts": 1,
   "src/experiments/compare/controlledComparison.ts": 1,
 };
@@ -190,6 +202,7 @@ test("the converted paths are NOT in the list, which is what conversion looks li
     "src/components/lab/sr07/FieldEquationsLab.tsx",
     "src/components/discover/BrownianInvestigation.tsx",
     "src/reasoning/infer/browser.ts",
+    "src/discovery/lightQuanta/investigation.ts",
   ];
   for (const file of converted) assert.ok(!Object.keys(report.perFile).includes(file), file);
   /*
@@ -212,12 +225,12 @@ test("the recorded debt names only real files, and no duplicates", () => {
   const names = Object.keys(FLATTENING_SITES);
   assert.equal(new Set(names).size, names.length);
   // The ceiling, lowered with each payment: 26 at 2026-10-06, 10 after the first thirteen
-  // conversions, then 5, 4 and 3 after lq06/lq08/lq09/sr07, BrownianInvestigation and
-  // reasoning/infer/browser.ts, all on 2026-10-09. It never rises without a reason written beside
+  // conversions, then 5, 4, 3 and 2 after lq06/lq08/lq09/sr07, BrownianInvestigation,
+  // reasoning/infer/browser.ts and discovery/lightQuanta/investigation.ts, all on 2026-10-09. It never rises without a reason written beside
   // it, because a baseline that only goes up is a budget.
   assert.equal(
     Object.values(FLATTENING_SITES).reduce((a, b) => a + b, 0),
-    3,
+    2,
   );
   for (const name of names) assert.doesNotThrow(() => readFileSync(join(ROOT, name), "utf8"));
 });
