@@ -237,8 +237,38 @@ function placeOfHash(): PlaceKeeperSnapshot | undefined {
  * ticks, a deadline and tick budget, and -- the one that matters -- any sign of reader intent, since
  * continuing to correct after someone starts scrolling drags them back where they just left.
  */
+/**
+ * The bound applied to a restore offset before it becomes `scroll-margin-top`.
+ *
+ * Exported and pure so the sign question has a test that does not need a browser, a built site or a
+ * particular page layout. That matters here because the e2e criterion which exposed the defect
+ * cannot be relied on to expose it again: whether a reader's captured offset is negative depends on
+ * where the sentence happened to sit in that build, and the same criterion passed on the next build
+ * with a POSITIVE offset, where the broken and the repaired forms agree exactly.
+ */
+export function holdMargin(wanted: number, viewportHeight: number): number {
+  const limit = viewportHeight * 0.8;
+  return Math.min(Math.max(wanted, -limit), limit);
+}
+
 function holdAt(element: HTMLElement, wanted: number): () => void {
-  const clamped = Math.min(Math.max(wanted, 0), window.innerHeight * 0.8);
+  // THE BOUND IS SYMMETRIC, because `restoreDelta` returns negatives by design and this is where
+  // they were being thrown away. `Math.max(wanted, 0)` discarded every wanted offset that put the
+  // anchor ABOVE the viewport top -- the ordinary case where a reader leaves a page having scrolled
+  // a little past the sentence. The restore then landed the anchor AT the top instead, and the drift
+  // was exactly the offset that had been clamped: criterion 6 of faceSwitchPlace measured a wanted
+  // -72.9px arriving at 0.1px, a 73.0px miss against the 8px the criterion allows, while the
+  // Detail-change variant beside it passed at 2.0px for the single reason that ITS wanted offset
+  // (16.1px) was positive.
+  //
+  // `placeKeeper.test.ts:57` asserts `restoreDelta(100, snapshot, VIEWPORT)` is -300, so the
+  // arithmetic's own test says the value can be negative; only its application could not express
+  // one. `scroll-margin-top` takes a negative length, which is what makes the repair a bound rather
+  // than a new mechanism.
+  //
+  // The magnitude cap is kept as it was and merely mirrored: a value beyond 80% of the viewport in
+  // either direction is not a place a reader left, so it is still refused.
+  const clamped = holdMargin(wanted, window.innerHeight);
   element.style.scrollMarginTop = `${clamped}px`;
   element.scrollIntoView();
   let ticks = 0;
