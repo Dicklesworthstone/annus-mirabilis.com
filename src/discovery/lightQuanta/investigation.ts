@@ -11,6 +11,7 @@ import { LQ08_DEFAULTS, LQ08_OUTPUTS } from "../../experiments/lq08/definition.t
 import { validateLq08Parameters } from "../../experiments/lq08/parameters.ts";
 import { evaluateLq08 } from "../../experiments/lq08/session.ts";
 import { ExperimentRuntimeError } from "../../experiments/refusal.ts";
+import { throwApplyFailure } from "../../experiments/results/applyFailure.ts";
 import { decodeResult, encodeResult, parseResult } from "../../experiments/results/codec.ts";
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import type { ScientificResult } from "../../experiments/results/types.ts";
@@ -162,12 +163,28 @@ export function validateLightInvestigation(input: unknown): LightInvestigationPa
   const entropy = validateLq04Parameters(entropyParameters(p));
   const photo = validateLq08Parameters(photoParameters(p));
   for (const check of [entropy, photo]) {
+    /**
+     * A REFUSAL FROM ANOTHER LAB'S SCHEMA TRAVELS WHOLE (am-ig23).
+     *
+     * Every `fail()` above is this validator's OWN range rule, and those keep their own
+     * `parameters-rejected` code because that is what they are. These two are different: the
+     * refusal is raised by validateLq04Parameters or validateLq08Parameters, and flattening it to
+     * a sentence replaced that lab's code with this module's generic one, so the reader lost the
+     * identity and nothing downstream could tell an lq-04 domain refusal from a malformed record.
+     *
+     * The raise goes through `throwApplyFailure` rather than a `throw` written here, which is the
+     * convention the five converted controls.ts modules settled: neither ParameterRefusalError nor
+     * ExecutionOutcomeError carries its code as a literal, so a code-string scanner cannot
+     * attribute a site that raises one, and the discrimination and the raise therefore happen once
+     * in the module that owns them.
+     *
+     * The second line is kept rather than left to `throwApplyFailure`'s own fallback: both
+     * validators return only accepted or refused today, but their declared type is wider, and that
+     * fallback raises a TypeError whose message is written for a developer. A reader would see it.
+     */
+    if (check.kind === "refused") throwApplyFailure(check);
     if (check.kind !== "accepted")
-      return fail(
-        check.kind === "refused"
-          ? String(check.refusal.details?.requirements ?? check.refusal.message)
-          : "These settings exceed the laboratory's supported range.",
-      );
+      return fail("These settings exceed the laboratory's supported range.");
   }
   return Object.freeze({ ...p });
 }

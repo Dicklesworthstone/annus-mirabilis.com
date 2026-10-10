@@ -25,6 +25,11 @@ import {
 import { decodeLightInvestigationSettings } from "../../discovery/lightQuanta/transfer.ts";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { ExperimentRuntimeError } from "../../experiments/refusal.ts";
+import {
+  type ApplyFailure,
+  failureCode,
+  failureFromThrown,
+} from "../../experiments/results/applyFailure.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import { display, identity, result } from "../lab/presentation.ts";
 import { InvestigationTransfer } from "./InvestigationTransfer.tsx";
@@ -120,6 +125,13 @@ export function LightQuantaInvestigation({
   const [draft, setDraft] = useState(() => lightInvestigationDraft(example.parameters));
   const [ready, setReady] = useState(false);
   const [dirty, setDirty] = useState(false);
+  /**
+   * TWO STATES, DELIBERATELY (am-ig23). `failure` is a typed refusal that travelled here through a
+   * throw; `error` stays an ordinary string for this page's own messages, which no model raised: an
+   * invalid shared link, and the session's own non-acceptance message. Only one is ever shown, and
+   * both reach the SAME element so aria-describedby keeps pointing at something.
+   */
+  const [failure, setFailure] = useState<ApplyFailure | null>(null);
   const [error, setError] = useState("");
   const [announcement, setAnnouncement] = useState("");
   const [prediction, setPrediction] = useState("");
@@ -144,18 +156,23 @@ export function LightQuantaInvestigation({
           ? "Shared settings are in the form. Choose Apply investigation settings; the worked example is still displayed."
           : "This link names a different source revision. Its settings are in the form; applying them uses this build, not a claimed replay of the older results.",
       );
-    } else if (linked.kind === "invalid") setError(linked.message);
+    } else if (linked.kind === "invalid") {
+      setFailure(null);
+      setError(linked.message);
+    }
   }, [example.sourceDigest]);
 
   function apply(parameters: LightInvestigationParameters, compareWith?: AcceptedSnapshot) {
     const outcome = session.apply(parameters);
     if (outcome.kind !== "accepted") {
+      setFailure(null);
       setError(outcome.message);
       return;
     }
     if (compareWith) setBaseline(compareWith);
     setDraft(lightInvestigationDraft(parameters));
     setDirty(false);
+    setFailure(null);
     setError("");
     setAnnouncement(
       "Accepted a new calculation. All stages and the comparison table now use the same settings.",
@@ -166,14 +183,16 @@ export function LightQuantaInvestigation({
     try {
       apply(parseLightInvestigationDraft(draft));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Check the entered settings.");
+      setError("");
+      setFailure(failureFromThrown(e, "Check the entered settings."));
     }
   }
   function perturb(action: InvestigationPerturbation) {
     try {
       apply(perturbInvestigation(p, action), snapshot ?? undefined);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "This change exceeds the supported range.");
+      setError("");
+      setFailure(failureFromThrown(e, "This change exceeds the supported range."));
     }
   }
 
@@ -211,7 +230,7 @@ export function LightQuantaInvestigation({
         <form
           onSubmit={submit}
           aria-label="Light investigation settings"
-          aria-describedby={error ? `${id}-error` : undefined}
+          aria-describedby={failure || error ? `${id}-error` : undefined}
         >
           <fieldset disabled={!ready}>
             <legend>Set up the investigation</legend>
@@ -278,9 +297,18 @@ export function LightQuantaInvestigation({
             Unapplied edits are in the form. The numbers below still describe the accepted settings.
           </p>
         )}
-        {error && (
-          <p id={`${id}-error`} className="form-error" role="alert">
-            {error} The accepted result is unchanged.
+        {(failure || error) && (
+          /* ONE element for both sources (am-ig23), so aria-describedby above always points at
+             something, with the typed identity present only when a model actually refused. */
+          <p
+            id={`${id}-error`}
+            className="form-error"
+            role="alert"
+            {...(failure
+              ? { "data-refusal-code": failureCode(failure), "data-apply-failure": failure.kind }
+              : {})}
+          >
+            {failure ? failure.text : error} The accepted result is unchanged.
           </p>
         )}
         <p role="status" aria-live="polite" aria-atomic="true" className="fine">
