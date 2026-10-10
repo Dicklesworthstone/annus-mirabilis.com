@@ -595,6 +595,28 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     owner: "am-ver-adversarial-audit-1ef",
   },
   {
+    // EVERY REFERENCE IN AN EVIDENCE DOCUMENT RESOLVES (am-bm-slice-exit-demo-5922).
+    //
+    // The script existed with a failure path and nothing branched on it, and its default examined
+    // ONE of the five evidence documents — the one that was green — while the corpus's only broken
+    // reference sat in a document the default never opened. Both halves are now repaired: the
+    // default is every markdown file under docs/evidence/ and docs/decisions/, and a run that finds
+    // no documents exits 1 rather than reporting a clean sweep over nothing.
+    //
+    // Measured at registration: 5 documents, 328 references, 0 unresolved, about a second.
+    id: "evidence-links",
+    title: "Every file, bead and log reference in an evidence document resolves",
+    command: ["bun", "scripts/check-evidence-links.ts"],
+    family: "fast",
+    cadence: "every-run",
+    requiredInCi: true,
+    requiredInProfiles: ["preview", "launch"],
+    availability: {
+      scriptPath: "scripts/check-evidence-links.ts",
+    },
+    owner: "am-bm-slice-exit-demo-5922",
+  },
+  {
     id: "receipts",
     title: "Provenance receipt check",
     command: ["bun", "scripts/check-receipts.ts", "--surveys"],

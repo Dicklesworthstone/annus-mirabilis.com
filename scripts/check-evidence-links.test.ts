@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 import {
   checkEvidenceLinksFile,
   checkEvidenceLinksInContent,
+  defaultEvidenceDocuments,
   resolveReference,
 } from "./check-evidence-links.ts";
 
@@ -109,13 +110,32 @@ Also \`src/nonexistent/code.ts\`.
     assert.equal(resolveReference("no-such-file.json", process.cwd()).resolved, false);
   });
 
-  it("every document in docs/decisions resolves cleanly, which is the population that regressed", () => {
-    for (const name of [
-      "batch-b-retrospective.md",
-      "foundation-library-scope.md",
-      "reader-faces-static.md",
-    ]) {
-      const result = checkEvidenceLinksFile(path.join("docs/decisions", name));
+  /**
+   * THE DEFAULT POPULATION, ASSERTED, because the default used to be one hard-coded document.
+   *
+   * It checked docs/decisions/batch-b-retrospective.md, which resolves 92/92, so the shipped default
+   * was green while the corpus's one broken reference sat in a document it never opened. Asserting
+   * the population separately from the verdict is the whole lesson: "0 unresolved" over one document
+   * and over five read identically.
+   */
+  it("the default population covers both evidence directories and is not empty", () => {
+    const documents = defaultEvidenceDocuments();
+    assert.ok(documents.length >= 5, `expected at least 5 documents, got ${documents.length}`);
+    assert.ok(
+      documents.some((d) => d.startsWith("docs/evidence")),
+      "docs/evidence must be in the default population",
+    );
+    assert.ok(
+      documents.some((d) => d.startsWith("docs/decisions")),
+      "docs/decisions must be in the default population",
+    );
+  });
+
+  it("every document in the default population resolves cleanly", () => {
+    const documents = defaultEvidenceDocuments();
+    assert.ok(documents.length > 0, "the population must not be empty");
+    for (const name of documents) {
+      const result = checkEvidenceLinksFile(name);
       assert.ok(result.totalLinks > 0, `${name} contributed no links`);
       assert.equal(
         result.unresolvedLinks,

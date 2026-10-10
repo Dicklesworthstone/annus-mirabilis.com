@@ -216,39 +216,90 @@ export function checkEvidenceLinksFile(
 }
 
 // CLI Execution
+/**
+ * THE EVIDENCE DOCUMENTS THIS CHECKS BY DEFAULT.
+ *
+ * It used to default to ONE hard-coded file, docs/decisions/batch-b-retrospective.md, which resolves
+ * 92/92 — so running it as shipped said nothing about the four documents beside it, and the one
+ * unresolved reference in the corpus sat in a document the default never opened. That is the mild
+ * form of the hazard AGENTS.md puts first: a run that examined one of five reads exactly like a run
+ * that examined all five.
+ *
+ * An explicit path argument still checks just that file.
+ */
+const EVIDENCE_DIRECTORIES = Object.freeze(["docs/evidence", "docs/decisions"]);
+
+export function defaultEvidenceDocuments(): string[] {
+  const found: string[] = [];
+  for (const directory of EVIDENCE_DIRECTORIES) {
+    const full = path.resolve(process.cwd(), directory);
+    if (!fs.existsSync(full)) continue;
+    for (const entry of fs.readdirSync(full)) {
+      if (entry.endsWith(".md")) found.push(path.join(directory, entry));
+    }
+  }
+  return found.sort();
+}
+
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const targetFile = process.argv[2] || "docs/decisions/batch-b-retrospective.md";
+  const explicit = process.argv[2];
+  const targets = explicit ? [explicit] : defaultEvidenceDocuments();
   try {
-    const result = checkEvidenceLinksFile(targetFile);
+    // A run over no documents is not a clean run.
+    if (targets.length === 0) {
+      console.error(
+        `[check-evidence-links] NO EVIDENCE DOCUMENTS FOUND under ${EVIDENCE_DIRECTORIES.join(", ")}. A check that examined nothing is not a pass.`,
+      );
+      process.exit(1);
+    }
+
     const logDir = path.resolve(process.cwd(), "artifacts/test-logs/retrospective-links");
     fs.mkdirSync(logDir, { recursive: true });
     const logRunId = `links-run-${Date.now()}`;
     const logFile = path.join(logDir, `${logRunId}.jsonl`);
+    const logEntries: Record<string, unknown>[] = [];
 
-    const logEntries = result.links.map((link) => ({
-      timestamp: new Date().toISOString(),
-      suite: "retrospective-links",
-      logRunId,
-      testId: "evidence-links-check",
-      beadId: "am-bm-slice-retrospective-pp09",
-      ref: link.ref,
-      kind: link.kind,
-      line: link.line,
-      resolved: link.resolved,
-      outcome: link.resolved ? "pass" : "fail",
-      message: link.message || "",
-    }));
+    let totalLinks = 0;
+    let totalUnresolved = 0;
+    const failures: string[] = [];
+
+    for (const targetFile of targets) {
+      const result = checkEvidenceLinksFile(targetFile);
+      totalLinks += result.totalLinks;
+      totalUnresolved += result.unresolvedLinks;
+      for (const link of result.links) {
+        logEntries.push({
+          timestamp: new Date().toISOString(),
+          suite: "retrospective-links",
+          logRunId,
+          testId: "evidence-links-check",
+          beadId: "am-bm-slice-retrospective-pp09",
+          document: targetFile,
+          ref: link.ref,
+          kind: link.kind,
+          line: link.line,
+          resolved: link.resolved,
+          outcome: link.resolved ? "pass" : "fail",
+          message: link.message || "",
+        });
+      }
+      console.log(
+        `[check-evidence-links] ${targetFile}: ${result.resolvedLinks}/${result.totalLinks} links resolved`,
+      );
+      for (const l of result.links.filter((x) => !x.resolved)) {
+        failures.push(`  ${targetFile} line ${l.line}: ${l.ref} (${l.message})`);
+      }
+    }
 
     fs.writeFileSync(logFile, `${logEntries.map((e) => JSON.stringify(e)).join("\n")}\n`);
 
-    console.log(
-      `[check-evidence-links] ${targetFile}: ${result.resolvedLinks}/${result.totalLinks} links resolved`,
+    // The denominator, beside the verdict, in the form the licence inventory uses.
+    console.error(
+      `[check-evidence-links] ${targets.length} document(s), ${totalLinks} reference(s), ${totalUnresolved} unresolved; log artifacts/test-logs/retrospective-links/${logRunId}.jsonl`,
     );
-    if (result.unresolvedLinks > 0) {
-      console.error(`Found ${result.unresolvedLinks} unresolved links:`);
-      for (const l of result.links.filter((x) => !x.resolved)) {
-        console.error(`  Line ${l.line}: ${l.ref} (${l.message})`);
-      }
+    if (failures.length > 0) {
+      console.error(`Found ${totalUnresolved} unresolved reference(s):`);
+      for (const line of failures) console.error(line);
       process.exit(1);
     }
   } catch (err) {
