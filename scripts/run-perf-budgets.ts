@@ -126,6 +126,9 @@ export async function runPerformanceBudgets(
   const failedMetrics: string[] = [];
   const notAvailableMetrics: string[] = [];
 
+  /** What `actual` holds when no measurement was taken. Never a number (am-snn0). */
+  const NOT_MEASURED = "not-measured";
+
   function recordMetric(
     id: string,
     passed: boolean,
@@ -145,10 +148,44 @@ export async function runPerformanceBudgets(
       : passed
         ? "pass"
         : "fail";
+    /**
+     * NO SYNTHETIC NUMBER IN THE SLOT A MEASUREMENT GOES (am-snn0).
+     *
+     * `actual` is the figure a reader of an artifact compares against the budget, and for the five
+     * rows this harness cannot measure it used to hold a plausible one: 86 ms of latency, 0.03 of
+     * layout shift, 65 ms of instrument feedback, 16.6 ms between frames. None was observed. The
+     * bead's own diagnosis of why that survived is the point -- "a `not-available` beside a
+     * plausible number reads like a measurement" -- and across 1,777 artifacts those four values
+     * never changed, because nothing produced them but the harness itself.
+     *
+     * The synthetic figure is NOT suppressed, it is moved to where it is labelled. `notes` already
+     * says "p75 latency 86 ms across 20 synthetic interactions; no browser was driven", and the
+     * bead calls the notes "scrupulously honest". A diagnostic belongs beside its disclaimer; it
+     * does not belong in the column that means "what we measured".
+     *
+     * Nothing reads `actual` arithmetically: its one consumer outside this file,
+     * scripts/deployment-build-budgets.ts:64, interpolates `String(entry?.actual ?? "none")`.
+     */
+    const reported = unavailable ? NOT_MEASURED : actual;
     if (notes !== undefined) {
-      metrics[id] = { id, budget, actual, unit, passed: effectivePassed, notes, status: resolved };
+      metrics[id] = {
+        id,
+        budget,
+        actual: reported,
+        unit,
+        passed: effectivePassed,
+        notes,
+        status: resolved,
+      };
     } else {
-      metrics[id] = { id, budget, actual, unit, passed: effectivePassed, status: resolved };
+      metrics[id] = {
+        id,
+        budget,
+        actual: reported,
+        unit,
+        passed: effectivePassed,
+        status: resolved,
+      };
     }
     if (unavailable) {
       notAvailableMetrics.push(id);
