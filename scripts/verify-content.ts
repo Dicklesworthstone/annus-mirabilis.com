@@ -8,7 +8,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import yaml from "js-yaml";
@@ -441,7 +441,75 @@ const result = await runVerifyContent({
           "records, or remove this refusal together with the directory (am-4k0m).",
       );
     }
-    return [...readingFiles, ...experimentFiles, ...journeyFiles];
+    // THE EDITION LAYER: 453 source blocks, 821 translation units, 4 alignments
+    // (am-rc1001-bridge-plan-pcjk.10).
+    //
+    // None of it had ever reached the compiler, because `loadReadingFiles` skips every `.yaml`.
+    // Seven structural branches, the equation-identity check and the hero-quote resolver all ran
+    // over an empty population in consequence, and each reported clean.
+    //
+    // THE THREE FAMILIES GO IN TOGETHER, and that is not tidiness. Measured 2026-10-10, feeding
+    // the blocks ALONE is RED: 542 `broken-alignment` errors, one per declared sentence span,
+    // every one of them false -- all 542 spans are referenced by an alignment edge, and the check
+    // simply could not see the alignment records. Feeding one half of a relation makes the
+    // relation look broken.
+    //
+    // WHAT IS DELIBERATELY LEFT OUT, with the reason:
+    //   manifest.yaml         route 12 owns it, and the manifests have their own validation
+    //                         (validateSourceManifest, unitCoverage.test.ts,
+    //                         source-manifest-report.ts). Feeding them adds 31 `sequence-gap`
+    //                         errors from an empty alias context, and adding the four
+    //                         content/aliases files changes that count by ZERO, so the validator
+    //                         is not reading the aliases it is handed. That is its own bead.
+    //   ledger-allowlist.yaml no route owns it; src/content/ledger/validateLedger.ts reads it
+    //                         directly, and route 14 excludes it by name.
+    const editionFiles: { path: string; text: string }[] = [];
+    const editionCounts: string[] = [];
+    for (const [dir, label, skip] of [
+      ["content/source-blocks", "source-blocks", ["manifest.yaml", "ledger-allowlist.yaml"]],
+      ["content/translation-units", "translation-units", []],
+    ] as const) {
+      const base = resolve(root, dir);
+      if (!existsSync(base)) continue;
+      let n = 0;
+      for (const paper of readdirSync(base).sort()) {
+        const paperDir = resolve(base, paper);
+        if (!existsSync(paperDir) || !statSync(paperDir).isDirectory()) continue;
+        for (const file of readdirSync(paperDir).sort()) {
+          if (!file.endsWith(".yaml") || (skip as readonly string[]).includes(file)) continue;
+          editionFiles.push({
+            path: `${label}/${paper}/${file}`,
+            text: readFileSync(resolve(paperDir, file), "utf8"),
+          });
+          n += 1;
+        }
+      }
+      editionCounts.push(`${label} ${n}`);
+    }
+    const alignDir = resolve(root, "content/alignments");
+    let alignments = 0;
+    if (existsSync(alignDir)) {
+      for (const file of readdirSync(alignDir).sort()) {
+        if (!file.endsWith(".yaml")) continue;
+        editionFiles.push({
+          path: `alignments/${file}`,
+          text: readFileSync(resolve(alignDir, file), "utf8"),
+        });
+        alignments += 1;
+      }
+    }
+    editionCounts.push(`alignments ${alignments}`);
+    console.log(`[verify-content] edition layer compiled: ${editionCounts.join(", ")}`);
+    // The floor, where the population is known. A zero would put every one of those checks back
+    // over an empty population while reporting clean, which is the state this widening ends.
+    if (editionFiles.length === 0) {
+      throw new Error(
+        "content/source-blocks, content/translation-units and content/alignments yielded no " +
+          "record. Seven structural checks, equation-identity and the hero-quote resolver would " +
+          "then run over an empty population and report clean (am-rc1001-bridge-plan-pcjk.10).",
+      );
+    }
+    return [...readingFiles, ...experimentFiles, ...journeyFiles, ...editionFiles];
   },
   dimensionAudit: async () => {
     const { summary } = await mainAuditDimensions([]);
