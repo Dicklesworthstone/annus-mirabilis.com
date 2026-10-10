@@ -540,12 +540,14 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     // the entry (am-ver-adversarial-audit-1ef).
     //
     // The fifteen rows' assertions already run on every commit: `src/testing/adversarial/*.test.ts`
-    // is ordinary bun-lane work and `bun run test` executes all sixteen files. What this gate adds
-    // is the three refusals the lane cannot make -- a row marked implemented with no test file, a
-    // test file for a row the registry still calls outstanding, and a row that RAN and asserted
-    // nothing -- plus the generated report, which is what a release consumes. To count assertions
-    // per row it runs each file in its own `bun test`, fifteen process spawns, and that buys no
-    // information a commit needs. So it is release evidence rather than per-commit information.
+    // is ordinary bun-lane work and `bun run test` executes all sixteen files. So does the
+    // registry-versus-disk drift check, in BOTH directions, in `adversarialImports.test.ts` -- an
+    // earlier version of this comment claimed the drift refusal as something the lane cannot make,
+    // and that was an overstatement; the lane makes it. What this gate adds that nothing else does
+    // is the VACUITY refusal, a row that ran and asserted nothing, and the generated report with
+    // assertions attributed per row, which is what a release consumes. Attribution is why it runs
+    // each file in its own `bun test`: fifteen process spawns, buying a commit no information it
+    // needs. So it is release evidence rather than per-commit information.
     //
     // requiredInProfiles still carries preview and launch, and profile mode filters on THAT alone
     // (quality-gates.ts:184-185 sets the cadence filter to "all" in profile mode), so a
