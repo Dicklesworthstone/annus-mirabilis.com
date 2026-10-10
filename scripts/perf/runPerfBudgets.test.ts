@@ -149,3 +149,38 @@ describe("build-dependent row floor (am-7bkr)", () => {
     ).toEqual([]);
   });
 });
+
+describe("a row that reached no measurement prints no number (am-snn0)", () => {
+  test("every not-available row reports the sentinel, and never a number", async () => {
+    const result = await runPerformanceBudgets({ silent: true });
+    const rows = Object.entries(result.report.metrics);
+    const unavailable = rows.filter(([, m]) => m.status === "not-available");
+    // NON-VACUITY FIRST. Six of the eight rows are unavailable by construction in this harness, so
+    // an empty set here would make the loop below assert nothing while reading as a clean pass.
+    expect(unavailable.length).toBeGreaterThan(0);
+    for (const [id, m] of unavailable) {
+      // Before this, these held 86 ms of latency, 0.03 of layout shift, 65 ms of feedback, 16.6 ms
+      // between frames and `true` for visible text. None was observed, and across 1,777 artifacts
+      // none ever changed, because nothing produced them but the harness.
+      expect(typeof m.actual, `${id} reported a value it never measured`).not.toBe("number");
+      expect(m.actual, `${id} must say not-measured`).toBe("not-measured");
+    }
+    // THE OTHER DIRECTION, so this did not simply blank the column: a row that did reach build
+    // output still carries its figure.
+    const measured = rows.filter(([, m]) => m.status === "pass" || m.status === "fail");
+    expect(measured.length).toBeGreaterThan(0);
+    for (const [id, m] of measured) {
+      expect(typeof m.actual, `${id} reached a verdict and must report its figure`).toBe("number");
+    }
+  });
+
+  test("the synthetic figure is MOVED to its note, not deleted", async () => {
+    // A diagnostic belongs beside its disclaimer. The bead calls these notes "scrupulously honest"
+    // and identifies the `actual` column as the misleading place, so the repair must keep them.
+    const result = await runPerformanceBudgets({ silent: true });
+    const latency = result.report.metrics["interaction-latency-p75"];
+    expect(latency?.status).toBe("not-available");
+    expect(latency?.notes ?? "").toContain("synthetic");
+    expect(latency?.notes ?? "").toContain("no browser was driven");
+  });
+});
