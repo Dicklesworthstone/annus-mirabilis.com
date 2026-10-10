@@ -18,10 +18,12 @@
  * `adversarialImports.test.ts` asserts no production module imports this file, which is the
  * mechanical half of that promise; the naming is the half a reader enforces.
  *
- * ELEVEN ROWS ARE NOT HERE YET and are named in ADVERSARIAL_ROWS below rather than left to be
- * rediscovered. The four implemented are the ones whose owner exists today AND whose expected value
- * the bead states, so each assertion is a number that was MEASURED against the real evaluator
- * before it was written down, not copied from the specification and hoped for.
+ * ALL FIFTEEN ROWS ARE NOW HERE. This header said "ELEVEN ROWS ARE NOT HERE YET" while the file was
+ * being filled, and `ADVERSARIAL_ROWS` in `rows.ts` is the live count either way -- a sentence in a
+ * docblock is not a census, and this one was stale within the week. Every expected value below was
+ * MEASURED against the real evaluator before it was written down, never copied from the
+ * specification and hoped for; rows 11 and 13 are each a case where the specification's own figure
+ * turned out not to be the one the owner produces.
  */
 
 /** Row 1, wrong: RMS displacement taken as proportional to D rather than to sqrt(D). */
@@ -183,3 +185,111 @@ export function wrongLightComplexVolumeFactor(gammaValue: number): number {
 export const WRONG_PRINTED_RADIUS_M = 1e-6;
 /** Row 13, right: the radius that actually reproduces the printed figure. */
 export const CORRECT_PRINTED_RADIUS_M = 0.5e-6;
+
+/* ------------------------------------------------------------------------------------------------
+ * ROW 9: "Changing observer means starting a new experiment."
+ *
+ * The row's literal claim is the first function below, and the invariant checker refuses it. The two
+ * after it are the finding, and they are worth more than the claim: BOTH are ways of recomputing the
+ * event-set digest after an observer change, and they fail differently.
+ *
+ *   (a) digesting the events as described in the NEW frame changes the digest wholesale;
+ *   (b) digesting a mathematically INVARIANT quantity, recomputed in the new frame, changes it in
+ *       the last bits only -- measured here at 1.04e-15 relative on the pairwise intervals.
+ *
+ * (b) is the dangerous one. It is correct physics, it looks like diligence, and its symptom is a
+ * digest violation the author is then tempted to "repair" by comparing digests with a tolerance,
+ * which is not a thing a digest can do. AGENTS.md's runtime contract already says which way this
+ * goes -- "Bitwise identity across all architectures, compilers, and browsers is not promised; every
+ * recorded comparison says whether it is bitwise or tolerance-based" -- so a digest may never be
+ * computed from a re-expressed quantity. An observer change CARRIES THE DIGEST FORWARD; it does not
+ * recompute it from the new description, however invariant that description's content is.
+ * ---------------------------------------------------------------------------------------------- */
+
+/** The minimum of `ExecutionStateSnapshot` row 9 needs, declared here so this module imports nothing. */
+export type ObserverStateLike = Readonly<{
+  runId: string;
+  parentRunId: string | null;
+  actionIndex: number;
+  stepIndex: number;
+  simulatedTime: number;
+  revisions: Readonly<{ input: number; observer: number; measurement: number; estimator: number }>;
+  digests: Readonly<{ eventSetDigest?: string | undefined; worldlineDigest?: string | undefined }>;
+  drawCounters: Readonly<Record<string, number>>;
+}>;
+
+/** An event as the ledger fixture describes it, in whichever frame it was described. */
+export type DescribedEvent = Readonly<{ id: string; t: number; x: number; y: number; z: number }>;
+
+/**
+ * Row 9, wrong: the frame control dispatched as a setup-change, so re-describing restarts the world.
+ *
+ * Every field below is the one a `setup-change` legitimately changes, which is why the error is
+ * plausible: the implementation is not sloppy, it is correctly implementing the wrong class. The
+ * draw counters DOUBLE rather than taking a fixed increment, because the defect regenerates the same
+ * trajectory and so consumes the same block of draws a second time. That also makes the degeneracy
+ * explicit: doubling zero is zero, so a fixture whose pre-state has consumed no draws cannot see
+ * this half of the defect at all.
+ */
+export function wrongObserverChangeAsSetup(pre: ObserverStateLike): ObserverStateLike {
+  return {
+    runId: `${pre.runId}-forked-by-an-observer-change`,
+    parentRunId: pre.runId,
+    actionIndex: pre.actionIndex + 1,
+    stepIndex: 0,
+    simulatedTime: 0,
+    revisions: { ...pre.revisions, input: pre.revisions.input + 1 },
+    digests: {
+      ...pre.digests,
+      eventSetDigest: `${pre.digests.eventSetDigest ?? "host:sha256:none"}-regenerated`,
+    },
+    drawCounters: Object.fromEntries(
+      Object.entries(pre.drawCounters).map(([stream, draws]) => [stream, draws * 2]),
+    ),
+  };
+}
+
+/**
+ * Row 9, wrong (a): digest fields taken from the events as described in the current frame.
+ *
+ * A coordinate is not frame-independent, so this digest changes under any observer change that is
+ * not the identity. It is the first thing anyone writes, because the events in hand ARE the described
+ * ones.
+ */
+export function wrongFrameDependentEventFields(events: readonly DescribedEvent[]): {
+  events: { id: string; t: number; x: number; y: number; z: number }[];
+} {
+  return { events: events.map((e) => ({ id: e.id, t: e.t, x: e.x, y: e.y, z: e.z })) };
+}
+
+/**
+ * Row 9, wrong (b): digest fields taken from a genuinely invariant quantity, recomputed in the new
+ * frame.
+ *
+ * The pairwise squared interval dt^2 - dx^2 - dy^2 - dz^2 is invariant under boosts, rotations and
+ * translations, so this field set is the considered answer rather than the careless one. It still
+ * must not be digested after a boost: the boost is arithmetic in binary64 and the recomputed
+ * intervals differ from the stored ones in the last bits, so the digest differs completely while the
+ * physics agrees to 1.04e-15. `row09.observerChange.test.ts` asserts both halves of that sentence.
+ */
+export function wrongRecomputedInvariantEventFields(events: readonly DescribedEvent[]): {
+  ids: string[];
+  intervals: { pair: string; intervalSq: number }[];
+} {
+  const intervals: { pair: string; intervalSq: number }[] = [];
+  for (let i = 0; i < events.length; i += 1) {
+    for (let j = i + 1; j < events.length; j += 1) {
+      const a = events[i] as DescribedEvent;
+      const b = events[j] as DescribedEvent;
+      const dt = b.t - a.t;
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const dz = b.z - a.z;
+      intervals.push({
+        pair: `${a.id}|${b.id}`,
+        intervalSq: dt * dt - dx * dx - dy * dy - dz * dz,
+      });
+    }
+  }
+  return { ids: events.map((e) => e.id), intervals };
+}

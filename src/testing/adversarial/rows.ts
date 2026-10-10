@@ -91,8 +91,10 @@ export const ADVERSARIAL_ROWS: readonly Readonly<{
   Object.freeze({
     row: 9,
     claim: "Changing observer means starting a new experiment",
-    owner: "experiments/store command classes (browser row)",
-    state: "not-yet" as const,
+    owner: "experiments/commands/invariants.ts checkCommandInvariants (observer-change case)",
+    state: "implemented" as const,
+    // No misconception link: this is a runtime contract error, not one of the nine
+    // special-relativity records, and none of them describes it. Undeclared rather than guessed.
   }),
   Object.freeze({
     row: 10,
