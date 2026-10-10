@@ -20,6 +20,12 @@ import { executionStateKindFromHostLabel } from "../../experiments/labels/execut
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
+import {
+  type ApplyFailure,
+  applyFailure,
+  failureCode,
+  failureFromThrown,
+} from "../../experiments/results/applyFailure.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import { BrownianLab } from "../lab/BrownianLab.tsx";
 import { display, identity } from "../lab/presentation.ts";
@@ -82,6 +88,14 @@ export function BrownianInvestigation({
   const [draft, setDraft] = useState(() => toTracerDraft(tracerExample.parameters));
   const [ready, setReady] = useState(false);
   const [dirty, setDirty] = useState(false);
+  /**
+   * TWO STATES, DELIBERATELY (am-ig23). `failure` is a typed refusal or a thrown parse error from
+   * the tracer draft; `error` stays an ordinary string for this PAGE's own messages, which no model
+   * ever saw: the notebook being full at twelve results, and a download the browser refused. Those
+   * are not refusals the experiment raised, and dressing them as one would invent a model refusal.
+   * Only one is ever shown.
+   */
+  const [failure, setFailure] = useState<ApplyFailure | null>(null);
   const [error, setError] = useState("");
   const [note, setNote] = useState("");
   const [prediction, setPrediction] = useState("");
@@ -103,19 +117,17 @@ export function BrownianInvestigation({
   const baselineInterval = baseline.outputs.observationInterval.value ?? 0;
 
   function apply(input: Bm01Parameters) {
-    const outcome = session.apply(input);
-    if (outcome.kind !== "accepted") {
-      setError(
-        outcome.kind === "refused"
-          ? typeof outcome.refusal.details?.requirements === "string"
-            ? outcome.refusal.details.requirements
-            : outcome.refusal.message
-          : outcome.outcome.message,
-      );
+    // applyFailure() keeps the refusal whole: the code, the ranked repairs and the staleness
+    // marking were all thrown away by the sentence this replaces (am-ig23).
+    const failed = applyFailure(session.apply(input));
+    if (failed) {
+      setFailure(failed);
+      setError("");
       return;
     }
     setDraft(toTracerDraft(input));
     setDirty(false);
+    setFailure(null);
     setError("");
     setNote("");
   }
@@ -124,7 +136,8 @@ export function BrownianInvestigation({
     try {
       apply(fromTracerDraft(draft));
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "Check the settings.");
+      setError("");
+      setFailure(failureFromThrown(reason, "Check the settings."));
     }
   }
   function capture() {
@@ -136,6 +149,7 @@ export function BrownianInvestigation({
         record.snapshotVersion === current.snapshotVersion,
     );
     if (!exists && records.length >= 12) {
+      setFailure(null);
       setError(
         "The notebook holds twelve results. Export it before starting another investigation.",
       );
@@ -144,6 +158,7 @@ export function BrownianInvestigation({
     if (!exists) setRecords([...records, current]);
     setBaseline(current);
     setPrediction("");
+    setFailure(null);
     setError("");
     setNote(
       "Completed result pinned. It is now the comparison baseline and the offered source for the spreading lab.",
@@ -184,6 +199,7 @@ export function BrownianInvestigation({
         `Exported ${records.length} pinned result${records.length === 1 ? "" : "s"} as ${format.toUpperCase()}.`,
       );
     } catch {
+      setFailure(null);
       setError(
         "This browser could not download the notebook. The pinned results remain on this page.",
       );
@@ -299,7 +315,28 @@ export function BrownianInvestigation({
           </form>
           <TracerPaths snapshot={snapshot} zoom={1} />
         </div>
-        {error && <p role="alert">{error}</p>}
+        {failure ? (
+          /* THE TYPED SURFACE (am-ig23): the code a gate can find, beside the sentence the reader
+             reads. The element shape is unchanged so no styling moves.
+             NO REPAIR BUTTONS HERE, and the reason is a measurement rather than an omission.
+             bm-01's parameter schema declares no repair ACTION at all (0 matches for `action: {`
+             in src/experiments/bm01/parameters.ts), so there is nothing to offer. The lab
+             components that do render them spread the instrument's CURRENT parameters into the
+             repair, and this page has no non-throwing source of those at this point: its only
+             route from the form to parameters is fromTracerDraft(draft), which throws on an
+             unparseable field, so building a repair here would need a parameter source chosen
+             without a case to test it against. Whoever adds an action to bm-01's schema should add
+             the buttons with that source settled. */
+          <p
+            role="alert"
+            data-refusal-code={failureCode(failure)}
+            data-apply-failure={failure.kind}
+          >
+            {failure.text}
+          </p>
+        ) : error ? (
+          <p role="alert">{error}</p>
+        ) : null}
         <p role="status" aria-live="polite" aria-atomic="true">
           {view.pending
             ? "Calculating. The previous accepted result remains displayed."
