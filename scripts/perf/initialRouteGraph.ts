@@ -51,6 +51,45 @@ export function normalizeRoute(route: string): string {
   return route.startsWith("/") ? route : `/${route}`;
 }
 
+/**
+ * The app-build-manifest entrypoints a browser loads on EVERY route, beside the route's own.
+ *
+ * Raw manifest keys, not normalized routes: `normalizeAppManifestKey` maps a page entrypoint back
+ * to a reader-facing route and these three are not pages, so they never appear in the normalized
+ * map the route lookup uses.
+ */
+const APP_SHELL_MANIFEST_KEYS = ["/layout", "/error", "/global-error"] as const;
+
+/**
+ * Every chunk a browser fetches for `route` before the `load` event: the route's own manifest
+ * entry, plus the app shell above.
+ *
+ * ONE SOURCE, because there were two. `run-perf-budgets.ts` reads the chunk SIZES it feeds back
+ * into `checkInitialRouteGraph`, and it resolved the route with its own copy of the same lookup --
+ * so teaching this module about the shell left the reported bytes unchanged, since the sizes it is
+ * GIVEN decide them. Both call this now.
+ *
+ * Returns undefined when the route is not in the manifest, and an empty array when its entry is
+ * empty, so a caller can tell those two apart.
+ */
+export function effectiveRouteChunks(
+  manifest: AppBuildManifest,
+  route: string,
+): readonly string[] | undefined {
+  const wanted = normalizeRoute(route);
+  let own: readonly string[] | undefined;
+  for (const [key, value] of Object.entries(manifest.pages)) {
+    if (normalizeAppManifestKey(key) === wanted) {
+      own = value;
+      break;
+    }
+  }
+  if (own === undefined) return undefined;
+  if (own.length === 0) return [];
+  const shell = APP_SHELL_MANIFEST_KEYS.flatMap((key) => manifest.pages[key] ?? []);
+  return [...new Set([...own, ...shell])];
+}
+
 const FORBIDDEN_SIGNATURES = [
   "WebGLRenderer",
   "GlobalWorkerOptions",
@@ -134,8 +173,8 @@ export function checkInitialRouteGraph(input: RouteGraphInput): RouteGraphResult
     normalizedPages.set(normalizeAppManifestKey(key), chunks);
   }
 
-  const chunks = normalizedPages.get(route);
-  if (chunks === undefined) {
+  const routeChunks = normalizedPages.get(route);
+  if (routeChunks === undefined) {
     return {
       ok: false,
       route,
@@ -143,7 +182,7 @@ export function checkInitialRouteGraph(input: RouteGraphInput): RouteGraphResult
       violations: [],
     };
   }
-  if (chunks.length === 0) {
+  if (routeChunks.length === 0) {
     return {
       ok: false,
       route,
@@ -151,6 +190,38 @@ export function checkInitialRouteGraph(input: RouteGraphInput): RouteGraphResult
       violations: [],
     };
   }
+
+  /**
+   * THE APP SHELL EVERY ROUTE FETCHES, WHICH THE ROUTE'S OWN MANIFEST ENTRY OMITS
+   * (am-rc1001-bridge-plan-pcjk.15).
+   *
+   * A route's `pages` entry lists the chunks webpack assigns to that entrypoint. It does NOT list
+   * the root layout or the error boundaries, and a browser loads all three on every page, so the
+   * first-route figure was computed over a population smaller than the one it describes.
+   *
+   * MEASURED IN CHROMIUM against the built out/, separating requests before the `load` event from
+   * requests after it -- the distinction matters, because an earlier pass of this measurement
+   * counted lazily-fetched islands and reported a 25% under-report that is not real:
+   *
+   *   /papers/special-relativity/   17 JS before load, 7 more ~11 ms after
+   *     the route entry alone        14 JS
+   *     union with the three keys    17 JS, EXACTLY the pre-load set: nothing missing, nothing extra
+   *
+   * So the omission is the shared layout and the two error boundaries, 10,594 brotli bytes at
+   * q11, a 7.2% under-report for that route (147,718 -> 158,312 against a 204,800 budget). The
+   * seven chunks that arrive 11 ms after `load` are lazy islands and are deliberately NOT counted
+   * here; whether the budget's wording covers them is a question for the owner, not for this
+   * function.
+   *
+   * The direction is safe: this can only raise the reported bytes, never lower them, so no release
+   * that was refused becomes permitted.
+   *
+   * ONE KNOWN OVER-COUNT, stated rather than hidden. For `/` and `/papers/` the union includes the
+   * route's own `page` chunk, which Chromium does not fetch on those two routes (they have no
+   * client page component), so the union reports 8 where a browser fetches 7. Over-counting is the
+   * conservative direction and the manifest is the build's own declaration of the route's graph.
+   */
+  const chunks = effectiveRouteChunks(input.manifest, route) ?? routeChunks;
 
   const violations: RouteGraphViolation[] = [];
 

@@ -14,9 +14,9 @@ import { evaluateFrameTiming, verifyThrottledPhysicsDigest } from "./perf/frameT
 import {
   type AppBuildManifest,
   checkInitialRouteGraph,
+  effectiveRouteChunks,
   INITIAL_ROUTE_JS_BUDGET_BYTES,
   normalizeAppManifestKey,
-  normalizeRoute,
 } from "./perf/initialRouteGraph.ts";
 import { evaluateInstrumentFeedback } from "./perf/instrumentFeedback.ts";
 import { evaluateInteractionLatency } from "./perf/interactionLatency.ts";
@@ -245,14 +245,12 @@ export async function runPerformanceBudgets(
     contents: Record<string, string>;
     missing: string[];
   } | null {
-    const wanted = normalizeRoute(route);
-    let chunks: readonly string[] | undefined;
-    for (const [key, value] of Object.entries(manifest.pages)) {
-      if (normalizeAppManifestKey(key) === wanted) {
-        chunks = value;
-        break;
-      }
-    }
+    // effectiveRouteChunks, not a second copy of the lookup. This function decides the reported
+    // bytes, because checkInitialRouteGraph accounts only over the sizes it is GIVEN, so a route
+    // resolved differently here is a different measurement under the same name
+    // (am-rc1001-bridge-plan-pcjk.15). It adds the app shell -- the root layout and the two error
+    // boundaries -- which a browser fetches on every route and the route's own entry omits.
+    const chunks = effectiveRouteChunks(manifest, route);
     if (chunks === undefined || chunks.length === 0) return null;
 
     const sizes: Record<string, { raw: number; gzip: number; brotli: number }> = {};
