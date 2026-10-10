@@ -500,13 +500,36 @@ const result = await runVerifyContent({
     }
     editionCounts.push(`alignments ${alignments}`);
     console.log(`[verify-content] edition layer compiled: ${editionCounts.join(", ")}`);
-    // The floor, where the population is known. A zero would put every one of those checks back
-    // over an empty population while reporting clean, which is the state this widening ends.
+    // THE FLOORS, HERE RATHER THAN IN THE CHECKS, because this is where the population is known.
+    // A check runs over whatever corpus its caller supplies, so a fixture corpus with two blocks
+    // is a legitimate two and the check can only report its count. This caller knows the corpus is
+    // the whole edition, so a shortfall here is a wiring fault.
+    //
+    // The equation floor is the one am-rc1001-bridge-plan-pcjk.10 step 2 asks for ("fail under a
+    // minimum of 200"). 200 is the measured population of printed displays -- `content/
+    // display-terms/<paper>.yaml` gives 7 + 52 + 43 + 98 -- and the count below is the German side
+    // of what `equation-not-identical` compares. Half a glob would otherwise leave that check
+    // comparing fewer pairs and still reporting no differences.
+    const equationBlocks = editionFiles.filter(
+      (f) => f.path.startsWith("source-blocks/") && /\/eq-[^/]+\.yaml$/.test(f.path),
+    ).length;
+    console.log(
+      `[census] edition-layer floor examined ${editionFiles.length} edition record(s) ` +
+        `(minimum 1), of which ${equationBlocks} printed equation block(s) (minimum 200)`,
+    );
     if (editionFiles.length === 0) {
       throw new Error(
         "content/source-blocks, content/translation-units and content/alignments yielded no " +
           "record. Seven structural checks, equation-identity and the hero-quote resolver would " +
           "then run over an empty population and report clean (am-rc1001-bridge-plan-pcjk.10).",
+      );
+    }
+    if (equationBlocks < 200) {
+      throw new Error(
+        `Only ${equationBlocks} printed equation block(s) were read from content/source-blocks, ` +
+          "and the corpus has 200. `equation-not-identical` would compare fewer pairs and still " +
+          "report no differences, which reads exactly like a clean result " +
+          "(am-rc1001-bridge-plan-pcjk.10 step 2).",
       );
     }
     return [...readingFiles, ...experimentFiles, ...journeyFiles, ...editionFiles];
