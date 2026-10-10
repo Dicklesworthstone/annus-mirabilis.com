@@ -19,17 +19,43 @@ export type ContributorCredit = Readonly<{
 /**
  * Pure renderer that produces markdown text for the editorial-acceptance section.
  */
+/**
+ * The bead that owns the absence of review records, named in the pending line.
+ *
+ * A receipt's pending grammar requires an owner (see PENDING_LINE below), and the honest owner of
+ * "no review records exist yet" is the bead that builds them. It is a default rather than a
+ * constant so a caller rendering on behalf of another bead can say so.
+ */
+export const DEFAULT_PENDING_OWNER = "am-edit-review-records-hofz";
+
+/**
+ * THE EXACT FORM A RECEIPT ACCEPTS, and the reason this is a function rather than a literal.
+ *
+ * `parseReceipt.ts` refuses any section whose content contains "Status: pending" unless the whole
+ * line matches `/^Status: pending \(owner: ([a-z0-9-]+)\)$/m`, and `docs/editorial/RECEIPT_FORMAT.md`
+ * documents that grammar. This renderer emitted "Status: pending (no review records recorded)."
+ * instead, which contains the trigger text and matches nothing -- so for as long as it existed, the
+ * ONLY output this function could produce for an empty record set was one the receipt checker
+ * rejects with `receipt-pending-malformed`. It was never caught because the command had never been
+ * run against a real receipt: all six carried the markers with nothing between them.
+ *
+ * The test beside this asserts the rendered line against parseReceipt's own regex rather than
+ * against a copy of the string, so the two cannot drift apart again without going red.
+ */
+const PENDING_LINE = (ownerBead: string): string => `Status: pending (owner: ${ownerBead})`;
+
 export function renderEditorialAcceptanceContent(
   records: readonly ReviewRecord[],
   ownersRegistry: OwnersRegistry,
   options?: {
     credits?: readonly ContributorCredit[] | undefined;
+    ownerBead?: string | undefined;
   },
 ): string {
   const lines: string[] = [];
 
   if (records.length === 0) {
-    lines.push("Status: pending (no review records recorded).");
+    lines.push(PENDING_LINE(options?.ownerBead ?? DEFAULT_PENDING_OWNER));
     return lines.join("\n");
   }
 
@@ -87,6 +113,7 @@ export async function updateReceiptEditorialAcceptance(
   ownersRegistry: OwnersRegistry = loadOwnersRegistry(),
   options?: {
     credits?: readonly ContributorCredit[] | undefined;
+    ownerBead?: string | undefined;
   },
 ): Promise<{ prefixSha256: string; suffixSha256: string }> {
   const content = renderEditorialAcceptanceContent(records, ownersRegistry, options);
@@ -102,6 +129,7 @@ export function updateReceiptEditorialAcceptanceSync(
   ownersRegistry: OwnersRegistry = loadOwnersRegistry(),
   options?: {
     credits?: readonly ContributorCredit[] | undefined;
+    ownerBead?: string | undefined;
   },
 ): { prefixSha256: string; suffixSha256: string } {
   const content = renderEditorialAcceptanceContent(records, ownersRegistry, options);

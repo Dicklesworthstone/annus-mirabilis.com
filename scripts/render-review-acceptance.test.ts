@@ -7,6 +7,7 @@ import { checkReceipt } from "../src/content/provenance/checkReceipt.ts";
 import { GeneratedSectionError } from "../src/content/provenance/writeGeneratedSection.ts";
 import { validateReviewRecord } from "../src/content/schemas/review.ts";
 import {
+  DEFAULT_PENDING_OWNER,
   renderEditorialAcceptanceContent,
   updateReceiptEditorialAcceptanceSync,
 } from "./render-review-acceptance.ts";
@@ -133,5 +134,83 @@ describe("render-review-acceptance", () => {
       () => updateReceiptEditorialAcceptanceSync(noMarkersFile, [], registry),
       GeneratedSectionError,
     );
+  });
+  /**
+   * THE EMPTY-RECORD LINE MUST SATISFY THE RECEIPT'S OWN PENDING GRAMMAR (am-edit-review-records-hofz).
+   *
+   * This is the test whose absence let the renderer ship a line no receipt would accept. It emitted
+   * "Status: pending (no review records recorded)." while `parseReceipt.ts` refuses any section
+   * containing the text "Status: pending" that does not match
+   * `/^Status: pending \(owner: ([a-z0-9-]+)\)$/m` -- so the ONLY output reachable with zero records
+   * was one the checker rejects with `receipt-pending-malformed`. Nothing went red because the
+   * command had never been run on a real receipt; all six held the markers with nothing between.
+   *
+   * THE REGEX IS READ OUT OF THE PARSER'S SOURCE, not copied here. A copy is what drifts: the two
+   * halves of this defect were a string in one file and a pattern in another, and a third copy in a
+   * test would have been one more thing to keep in step rather than a guard against it. If the
+   * parser's grammar changes, this test either follows it or fails to find it and says so.
+   */
+  it("with no records, the rendered line matches parseReceipt's pending grammar", () => {
+    const parserSource = fs.readFileSync(
+      path.join(import.meta.dirname, "../src/content/provenance/parseReceipt.ts"),
+      "utf8",
+    );
+    const declared = parserSource.match(/sec\.content\.match\(\s*\/(\^Status: pending[^/]*?)\/m\)/);
+    assert.ok(
+      declared?.[1],
+      "could not find the pending grammar in parseReceipt.ts; if it moved, this test must follow it rather than assume a copy",
+    );
+    const grammar = new RegExp(declared[1], "m");
+    // The positive control: the grammar recovered from source must reject the WRONG line, or a
+    // pattern that matched anything would make the assertion below meaningless.
+    assert.equal(
+      grammar.test("Status: pending (no review records recorded)."),
+      false,
+      "the recovered grammar accepts the malformed line, so it is not the real grammar",
+    );
+
+    const rendered = renderEditorialAcceptanceContent([], registry);
+    assert.equal(grammar.test(rendered), true, `rendered line does not parse: ${rendered}`);
+    assert.match(rendered, /^Status: pending \(owner: am-[a-z0-9-]+\)$/);
+  });
+
+  it("the pending owner is overridable, and the default names the bead that owns the absence", () => {
+    assert.match(DEFAULT_PENDING_OWNER, /^am-[a-z0-9-]+$/);
+    assert.equal(
+      renderEditorialAcceptanceContent([], registry),
+      `Status: pending (owner: ${DEFAULT_PENDING_OWNER})`,
+    );
+    assert.equal(
+      renderEditorialAcceptanceContent([], registry, { ownerBead: "am-some-other-bead" }),
+      "Status: pending (owner: am-some-other-bead)",
+    );
+  });
+
+  /**
+   * EVERY REAL RECEIPT'S ACCEPTANCE BLOCK PARSES, which is the half a unit test on the renderer
+   * cannot reach: the renderer can be correct and the files on disk still carry an older line.
+   */
+  it("all six real receipts carry an acceptance block that parses", () => {
+    const dir = path.join(import.meta.dirname, "../docs/provenance");
+    const receipts = fs.readdirSync(dir).filter((f) => /^ap-[\d-]+\.md$/.test(f));
+    assert.ok(receipts.length >= 6, `expected at least 6 receipts, found ${receipts.length}`);
+    const unparsed: string[] = [];
+    for (const file of receipts) {
+      const text = fs.readFileSync(path.join(dir, file), "utf8");
+      const block = text
+        .slice(
+          text.indexOf("<!-- generated:editorial-acceptance:start -->") +
+            "<!-- generated:editorial-acceptance:start -->".length,
+          text.indexOf("<!-- generated:editorial-acceptance:end -->"),
+        )
+        .trim();
+      if (!block.includes("Status: pending")) continue;
+      if (!/^Status: pending \(owner: [a-z0-9-]+\)$/m.test(block))
+        unparsed.push(`${file}: ${block}`);
+    }
+    console.log(
+      `[receipt acceptance] ${receipts.length} receipts examined, ${unparsed.length} with an unparsable pending line`,
+    );
+    assert.deepEqual(unparsed, []);
   });
 });
