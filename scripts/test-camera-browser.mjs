@@ -375,25 +375,31 @@ export async function checkCameraBrowser(browser, url, check) {
     // `state: "visible"` is the whole assertion. Present in the DOM is what the defect looked like.
     await lab.locator('.notice[data-refusal-code="off-replay-grid"]').waitFor({ state: "visible" });
     await lab.locator(".lab-results").first().waitFor({ state: "hidden" });
-    // WHICH HALF OF CRITERION 1 THIS CHECK ANSWERS, because it is not both. The criterion asks for
-    // "the reason, the repair offer AND the staleness marking" outside the predict-gated region.
-    // The reason is, and that is what is asserted above. The STALENESS MARKING is not: measured
-    // here on 2026-10-09, waiting for it to be visible with the prediction armed timed out after 63
-    // polls, each resolving to
+    // THE STALENESS MARKING, THE OTHER TWO THIRDS OF CRITERION 1. Criterion 1 asks for "the reason,
+    // the repair offer AND the staleness marking" outside the predict-gated region. When this check
+    // was first written only the reason was, and this line was a comment recording the measurement:
+    // waiting for the currency to be visible with the prediction armed timed out after 63 polls,
+    // each resolving to
     //
     //     hidden <p role="status" class="execution-currency" data-currency-state="refused"
     //            data-refusal-code="off-replay-grid">
     //
-    // because CameraLab mounts <ExecutionChrome> inside `div.lab-results` (line 492 opens the
-    // gated region, 536 mounts the chrome). So a reader with an armed prediction is told WHY the
-    // settings were refused and is NOT told that the readouts on screen are stale.
-    //
-    // It is reported on am-ig23 rather than asserted here in either direction. Asserting it visible
-    // would be red for a defect this check does not repair, and asserting it hidden would be a test
-    // that breaks the day somebody fixes it, which is how a debt becomes a requirement. Moving the
-    // chrome out of the results region, or un-gating the region on a refusal, is a reader-facing
-    // choice that belongs to that bead.
-    check("BM-08: a typed refusal's REASON is visible to a reader whose prediction is still armed");
+    // because CameraLab mounted <ExecutionChrome> inside `div.lab-results`. ea0ec1a52 lifted the
+    // row out, so the assertion replaces the note. It is the pair above that makes it meaningful:
+    // the currency visible AND the results region still hidden is the state criterion 1 describes,
+    // and either alone can be had by giving up the other.
+    await lab
+      .locator('[data-currency-state="refused"][data-refusal-code="off-replay-grid"]')
+      .waitFor({ state: "visible" });
+    // THE REPAIR OFFER, the third. A reader who cannot act on the reason has been informed, not
+    // helped, and the button is the one part of the label that does something.
+    await lab
+      .getByRole("button", { name: /Use the preceding recorded exposure/ })
+      .waitFor({ state: "visible" });
+    await lab.locator(".lab-results").first().waitFor({ state: "hidden" });
+    check(
+      "BM-08: a typed refusal's reason, staleness marking and repair are all visible to a reader whose prediction is still armed",
+    );
   } finally {
     await armedContext.close();
   }
