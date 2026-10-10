@@ -149,13 +149,25 @@ export function loadGermanSourceFace(
   // should happen: a page cannot be rendered honestly from records that disagree.
   const notice = sourceFaceNotice(transcription);
 
-  // `not-started` is the receipt saying no ledger has been made. Its ledgerPath is then a
-  // PLAN rather than a record - ap-17-891 and ap-19-289 both name a file nobody has
-  // written yet - so the path is not consulted and the face reports the honest absence.
+  // `not-started` is the receipt saying no ledger it will serve has been made, so the path is
+  // not consulted and the face reports the honest absence.
+  //
+  // FOR ONE OF THE TWO PAPERS THAT REACH HERE, ledgerPath IS NO LONGER A PLAN. This comment
+  // said "ap-17-891 and ap-19-289 both name a file nobody has written yet", and measured
+  // 2026-10-10 that is false of the first: public/papers/transcripts/ap-17-891-machine-draft.txt
+  // exists, 63,121 bytes, with all 31 printed pages 891-921 segmented. Its receipt holds
+  // not-started deliberately and says why in the comment above the field: flipping it makes
+  // manifestAnchors throw manifest-anchors-unpaired, re-measured the same day at 106 paragraphs
+  // on the face against 94 in the manifest, with every display unpaired as well. So the early
+  // return is still correct for ap-17-891, for a DIFFERENT reason than this comment gave: not
+  // that there is nothing to serve, but that what there is cannot yet be published under the
+  // frozen ids (am-receipts-stale-status-fields-1d75, am-german-face-anchors-not-frozen-ids-jtv6).
+  // ap-19-289, the dissertation companion, has no ledger file and is the original case.
   //
   // This is checked BEFORE the path deliberately. My first version refused those two
   // papers with ledger-path-missing, which read as "the records disagree with the disk"
-  // when the records agree perfectly: they say the work has not begun. A refusal that
+  // when the records did not disagree with it at all: ap-19-289 says the work has not
+  // begun, and ap-17-891 says the ledger it has is not one it will serve. A refusal that
   // fires on a correct state is worse than no refusal, because it trains a reader to
   // route around the one that matters.
   if (transcription.ledgerStatus === "not-started") return null;
