@@ -22,7 +22,7 @@
 # a refusal and never both in one case.
 id: "sr-05-inertial-0.6c"
 kind: "modern-golden"
-title: "SR-05's inertial clock at 0.6c: 8 seconds against the platform's 10, and the printed loss wrong in the second digit"
+title: "SR-05's inertial clock at 0.6c: 8 seconds against the platform's 10, and the printed loss off in the second digit"
 description: "A clock moving inertially at 0.6c records 8 seconds while the platform's synchronised clocks record 10, since the Lorentz factor is exactly 5/4. The exact fractional loss per second is 0.2 and the second-order form printed in section 4 gives 0.18, so at this speed the printed approximation is already wrong in its second digit; the difference between them, about 0.02, is pinned beside both."
 constantSetId: "modern-si-2019"
 owner: "sr05.clockReadings"

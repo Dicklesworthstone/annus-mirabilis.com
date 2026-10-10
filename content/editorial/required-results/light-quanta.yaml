@@ -11,7 +11,7 @@ revision: 1
 rows:
   - block: "Introduction"
     result: "The heuristic status, verbatim"
-    notACard: "The row's result is the paper's own modality -- that its viewpoint is heuristic -- which AGENTS.md requires be kept as such ('A heuristic stays a heuristic'). It is a statement about the standing of every result that follows rather than a result with a printed form and a probe, and it is carried by the entrance record and the historian's margin."
+    notACard: "The row's result is the paper's own modality, namely that its viewpoint is heuristic, which AGENTS.md requires be kept as such ('A heuristic stays a heuristic'). It is a statement about the standing of every result that follows rather than a result with a printed form and a probe, and it is carried by the entrance record and the historian's margin."
   - block: "§1 Difficulty in black-body theory"
     result: "rho_nu = (R/N)(8 pi nu^2 / L^3) T; the integral over all nu has no finite value"
     satisfiedBy: lq-classical-difficulty
