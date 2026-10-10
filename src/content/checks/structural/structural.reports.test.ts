@@ -48,6 +48,11 @@ function keyFor(id: string, record: unknown): string {
   if (id.includes(":")) return id;
   if (!record || typeof record !== "object") return id;
   const rec = record as Record<string, unknown>;
+  // ONLY `source-block`, deliberately. Keying translation units here too is more faithful still,
+  // and it reddens two further sites that read a unit by BARE id -- `checkDuplicateId`'s unit arm
+  // and `checkSpanDigestMismatch`'s target lookup at structural.ts:1684. Both are the same defect
+  // one layer along and both are recorded on am-rc1001-bridge-plan-pcjk.10; widening this helper
+  // to reach them belongs in the commit that repairs them, not in this one.
   if (rec.kind !== "source-block") return id;
   const paper = typeof rec.paper === "string" ? rec.paper : (rec.paperSlug as string) || "";
   const recordId = typeof rec.id === "string" ? rec.id : id;
@@ -573,7 +578,10 @@ describe("the two sites only the node-lane e2e reached", () => {
         paper: "brownian-motion",
         latex: "\\lambda_x = \\sqrt{2Dt}",
       },
-      e: {
+      // Keyed the production way, because the equation-identity check resolves BOTH ends of an
+      // edge through `<paper>#<id>` maps: a unit under a bare key lands at `#eq-1-en` and the
+      // edge's lookup for `brownian-motion#eq-1-en` misses it.
+      "translation-unit:brownian-motion:eq-1-en": {
         kind: "translation-unit",
         id: "eq-1-en",
         paper: "brownian-motion",
@@ -601,9 +609,10 @@ describe("the two sites only the node-lane e2e reached", () => {
 
     // Byte-identical across the edge is silent. Notation is not translated, so the English face
     // carries the German bytes and the two spaces above are a real difference, not a formatting one.
+    const UNIT_KEY = "translation-unit:brownian-motion:eq-1-en";
     const identical = {
       ...records,
-      e: { ...records.e, latex: "\\lambda_x = \\sqrt{2Dt}" },
+      [UNIT_KEY]: { ...records[UNIT_KEY], latex: "\\lambda_x = \\sqrt{2Dt}" },
     };
     expect(run(checkEquationNotIdentical, identical)).toHaveLength(0);
   });

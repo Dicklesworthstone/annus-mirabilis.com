@@ -25,6 +25,7 @@ import {
   editorialNotePaper,
   isEditorialNoteKey,
   isSourceBlockKey,
+  parseRecordKey,
   recordKeyFor,
   sourceBlockPaper,
 } from "../../compiler/recordKey.ts";
@@ -1226,7 +1227,13 @@ export const checkEquationNotIdentical: ContentCheck = {
             : typeof rec.math === "string"
               ? rec.math
               : extractEntityPlainText(rec);
-        germanEquations.set(id, mathContent);
+        // SCOPED BY PAPER, because an equation block id is per-paper and 47 of the 130 distinct
+        // ids are used by two or three papers (measured 2026-10-10: 200 block files, 130 distinct
+        // ids, so a bare-id map hides 70 of them behind a last-writer-wins collision). Keyed
+        // bare, this map held one survivor per id and the check compared that survivor against
+        // itself 200 times while 70 real blocks were never compared at all -- a clean verdict over
+        // a population two thirds the size of the one it named (am-rc1001-bridge-plan-pcjk.10).
+        germanEquations.set(`${sourceBlockPaper(key) ?? ""}#${id}`, mathContent);
       }
 
       // Translation equation unit (English)
@@ -1252,7 +1259,8 @@ export const checkEquationNotIdentical: ContentCheck = {
             : typeof rec.math === "string"
               ? rec.math
               : extractEntityPlainText(rec);
-        englishEquations.set(id, mathContent);
+        // Scoped for the same reason, from the unit's own key.
+        englishEquations.set(`${parseRecordKey(key)?.paper ?? ""}#${id}`, mathContent);
       }
 
       // Explicit equation comparison if record carries both germanLatex and englishLatex
@@ -1300,8 +1308,15 @@ export const checkEquationNotIdentical: ContentCheck = {
             "translationUnitId" in tgt &&
             typeof tgt.translationUnitId === "string"
           ) {
-            const germanMath = germanEquations.get(src.blockId);
-            const englishMath = englishEquations.get(tgt.translationUnitId);
+            // The alignment names its own paper, and both ends of an edge are in it.
+            const edgePaper =
+              typeof rec.paper === "string"
+                ? rec.paper
+                : typeof rec.paperSlug === "string"
+                  ? rec.paperSlug
+                  : "";
+            const germanMath = germanEquations.get(`${edgePaper}#${src.blockId}`);
+            const englishMath = englishEquations.get(`${edgePaper}#${tgt.translationUnitId}`);
             edgesSeen += 1;
             if (germanMath !== undefined && englishMath !== undefined) {
               pairsCompared += 1;
@@ -1321,8 +1336,8 @@ export const checkEquationNotIdentical: ContentCheck = {
     }
     console.log(
       `[census] equation-not-identical collected ${germanEquations.size} German equation block(s) ` +
-        `and ${englishEquations.size} English equation unit(s), and compared ${pairsCompared} pair(s) ` +
-        `over ${edgesSeen} alignment edge(s) carrying both ends.` +
+        `and ${englishEquations.size} English equation unit(s), keyed <paper>#<id>, and compared ` +
+        `${pairsCompared} pair(s) over ${edgesSeen} alignment edge(s) carrying both ends.` +
         (pairsCompared === 0 ? " 0 pairs compared, so this verdict is about nothing." : ""),
     );
   },

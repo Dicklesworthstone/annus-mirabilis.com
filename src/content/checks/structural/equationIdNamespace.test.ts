@@ -23,7 +23,7 @@ import { describe, expect, test } from "bun:test";
 import type { CheckContext, CheckReportItem } from "../../compiler/checks/registry.ts";
 import { compileContent } from "../../compiler/compile.ts";
 import { recordKeyFor } from "../../compiler/recordKey.ts";
-import { checkDuplicateId } from "./structural.ts";
+import { checkDuplicateId, checkEquationNotIdentical } from "./structural.ts";
 
 /**
  * KEYS A FIXTURE THE WAY THE COMPILER KEYS THE REAL CORPUS (am-rc1001-bridge-plan-pcjk.10).
@@ -42,6 +42,11 @@ function keyFor(id: string, record: unknown): string {
   if (id.includes(":")) return id;
   if (!record || typeof record !== "object") return id;
   const rec = record as Record<string, unknown>;
+  // ONLY `source-block`, deliberately. Keying translation units here too is more faithful still,
+  // and it reddens two further sites that read a unit by BARE id -- `checkDuplicateId`'s unit arm
+  // and `checkSpanDigestMismatch`'s target lookup at structural.ts:1684. Both are the same defect
+  // one layer along and both are recorded on am-rc1001-bridge-plan-pcjk.10; widening this helper
+  // to reach them belongs in the commit that repairs them, not in this one.
   if (rec.kind !== "source-block") return id;
   const paper = typeof rec.paper === "string" ? rec.paper : (rec.paperSlug as string) || "";
   const recordId = typeof rec.id === "string" ? rec.id : id;
@@ -127,5 +132,107 @@ describe("the equation id namespace", () => {
       expect(JSON.stringify(refused)).toContain("eq-dup-one");
       expect(JSON.stringify(refused)).toContain("eq-dup-two");
     });
+  });
+});
+
+/**
+ * THE EQUATION-IDENTITY MAPS ARE SCOPED BY PAPER, AND 47 OF 130 IDS NEED IT
+ * (am-rc1001-bridge-plan-pcjk.10).
+ *
+ * Measured 2026-10-10 over `content/source-blocks`: 200 equation block FILES carry only 130
+ * distinct ids, because an equation id is per-paper and `eq-s1-d1`, `eq-s2-d1` and 45 others are
+ * used by two or three papers. `germanEquations` and `englishEquations` were keyed by BARE id, so
+ * each collision kept one survivor and 70 real blocks were never compared -- while the check
+ * reported 200 pairs and no differences. A clean verdict over two thirds of the population it
+ * named.
+ *
+ * The probe that found it: planting ", PLANTED" into brownian-motion's `eq-s1-d1` translation unit
+ * produced ZERO reports, because special-relativity's unit of the same id had overwritten it in
+ * the map; planting into all 914 inline latex nodes produced 200. After scoping, the single plant
+ * produces exactly 1 and restoring it returns to 0.
+ */
+describe("the equation-identity maps are scoped by paper", () => {
+  function identityReports(records: Record<string, unknown>): CheckReportItem[] {
+    const reports: CheckReportItem[] = [];
+    checkEquationNotIdentical.run({
+      records: new Map<string, unknown>(Object.entries(records)),
+      files: [],
+      indexes: {},
+      report: (item: CheckReportItem) => reports.push(item),
+    } as CheckContext);
+    return reports;
+  }
+
+  /** One paper's German block, English unit and the alignment edge joining them. */
+  function paperTriple(paper: string, id: string, germanLatex: string, englishLatex: string) {
+    return {
+      [recordKeyFor("source-block", paper, id)]: {
+        kind: "equation",
+        id,
+        paper,
+        latex: germanLatex,
+      },
+      [recordKeyFor("translation-unit", paper, id)]: {
+        kind: "translation-unit",
+        id,
+        paper,
+        latex: englishLatex,
+      },
+      [recordKeyFor("alignment", paper, `al-${paper}`)]: {
+        kind: "alignment",
+        id: `al-${paper}`,
+        paper,
+        edges: [{ source: { blockId: id }, target: { translationUnitId: id } }],
+      },
+    };
+  }
+
+  test("two papers sharing an equation id are each compared against their OWN translation", () => {
+    // The defect, in its smallest form. Both papers print `eq-s1-d1`; brownian's translation is
+    // WRONG and relativity's is right. Keyed by bare id, relativity's pair overwrote brownian's
+    // and the wrong one was never seen.
+    const records = {
+      ...paperTriple("brownian-motion", "eq-s1-d1", "p V^* = R T z.", "p V^* = R T z. WRONG"),
+      ...paperTriple(
+        "special-relativity",
+        "eq-s1-d1",
+        "t_B - t_A = t'_A - t_B .",
+        "t_B - t_A = t'_A - t_B .",
+      ),
+    };
+    const reports = identityReports(records);
+    expect(reports).toHaveLength(1);
+    expect(reports[0]?.rule).toBe("equation-not-identical");
+    expect(reports[0]?.recordId).toBe("eq-s1-d1");
+    // And it is BROWNIAN's edge that is named, not relativity's, which is the discrimination a
+    // bare-id map cannot make.
+    expect(String(reports[0]?.path)).toContain("al-brownian-motion");
+  });
+
+  test("the same id in two papers, both correct, is silent: the scoping does not invent findings", () => {
+    const records = {
+      ...paperTriple("brownian-motion", "eq-s1-d1", "p V^* = R T z.", "p V^* = R T z."),
+      ...paperTriple(
+        "special-relativity",
+        "eq-s1-d1",
+        "t_B - t_A = t'_A - t_B .",
+        "t_B - t_A = t'_A - t_B .",
+      ),
+    };
+    expect(identityReports(records)).toEqual([]);
+  });
+
+  test("an edge whose paper matches neither end compares nothing, rather than guessing", () => {
+    // The boundary. Scoping means a lookup can MISS, and a miss must stay silent: an edge is not
+    // this check's business unless both of its ends are equations in the edge's own paper.
+    const records = {
+      ...paperTriple("brownian-motion", "eq-s1-d1", "p V^* = R T z.", "p V^* = R T z. WRONG"),
+    };
+    (
+      records[recordKeyFor("alignment", "brownian-motion", "al-brownian-motion")] as {
+        paper: string;
+      }
+    ).paper = "light-quanta";
+    expect(identityReports(records)).toEqual([]);
   });
 });

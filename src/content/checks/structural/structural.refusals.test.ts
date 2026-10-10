@@ -63,6 +63,11 @@ function keyFor(id: string, record: unknown): string {
   if (id.includes(":")) return id;
   if (!record || typeof record !== "object") return id;
   const rec = record as Record<string, unknown>;
+  // ONLY `source-block`, deliberately. Keying translation units here too is more faithful still,
+  // and it reddens two further sites that read a unit by BARE id -- `checkDuplicateId`'s unit arm
+  // and `checkSpanDigestMismatch`'s target lookup at structural.ts:1684. Both are the same defect
+  // one layer along and both are recorded on am-rc1001-bridge-plan-pcjk.10; widening this helper
+  // to reach them belongs in the commit that repairs them, not in this one.
   if (rec.kind !== "source-block") return id;
   const paper = typeof rec.paper === "string" ? rec.paper : (rec.paperSlug as string) || "";
   const recordId = typeof rec.id === "string" ? rec.id : id;
