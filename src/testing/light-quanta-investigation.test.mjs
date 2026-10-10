@@ -227,7 +227,7 @@ test("invalid edits cannot advance a request or replace accepted evidence", () =
     const refusal = session.apply({ ...DEFAULTS, ...patch });
     assert.equal(refusal.kind, "refused");
     // apply() catches the typed refusal and returns a message, so the code is asserted through
-    // the message it carries (investigation.ts:127). Without this, an unrelated throw inside
+    // the message it carries (investigation.ts:128). Without this, an unrelated throw inside
     // apply's try block would reach the reader as a rejected edit.
     assert.match(refusal.message, /\(parameters-rejected\)$/, JSON.stringify(patch));
     assert.equal(session.getSnapshot(), before);
@@ -243,7 +243,7 @@ test("accessor properties never execute at the input boundary", () => {
       return DEFAULTS.frequency;
     },
   });
-  refuses(() => validateLightInvestigation(bad), "parameters-rejected", "investigation.ts:127");
+  refuses(() => validateLightInvestigation(bad), "parameters-rejected", "investigation.ts:128");
   assert.equal(reads, 0);
 });
 test("atomic publications and comparison metadata identify every changed field", () => {
@@ -306,7 +306,7 @@ test("perturbations refuse at widget limits instead of silently clamping a compa
   refuses(
     () => perturbInvestigation({ ...DEFAULTS, incidentPower: 0.01 }, "double-power"),
     "parameters-rejected",
-    "investigation.ts:127",
+    "investigation.ts:128",
   );
   refuses(
     () => perturbInvestigation(DEFAULTS, "unknown"),
