@@ -5,16 +5,31 @@
  * BM-01 permalink with seed `9007199254740993` reproduces its latent digest after reload and differs
  * from `9007199254740992`."
  *
- * WHAT IS CHECKED HERE, AND WHAT IS DECLARED ABSENT. Three of the four clauses are checked against
- * the real built routes over HTTP. The fourth -- both digest clauses -- cannot be: NO LAB SESSION
- * PUBLISHES A SCIENTIFIC DIGEST. `src/experiments/digest/scientificDigest.ts` exists and is used by
- * the control tapes and by the invariant checker, but `instanceStore.ts` has no digest field and no
- * `data-*-digest` naming an event set or a latent path appears anywhere in the rendered markup
- * (`data-source-digest` is the build-time worked example, `data-equation-digest` is an equation
- * record). So the digest clause is a DECLARED ABSENCE below, keyed to the owning bead, and this suite
- * REFUSES in both directions: it fails if the attribute is missing while the declaration has been
- * removed, and it fails if the attribute APPEARS while the declaration is still here. The second half
- * is what makes the debt self-retiring rather than a comment nobody deletes.
+ * WHAT IS CHECKED HERE, AND WHAT BELONGS TO ANOTHER SURFACE. The production-lab clauses are checked
+ * against the real built routes over HTTP. The digest clauses are NOT, and the reason is a design
+ * decision someone else already made rather than a hole: `am-rt-browser-conformance-09i5` specifies
+ * them in detail against dedicated RUNTIME FIXTURE APPS -- "changing frame speed back and forth keeps
+ * `data-run-id`, `eventSetDigest`, and `worldlineDigest`", and on `fixtureNormals.ts`
+ * "`?seed=9007199254740993` ... reloads to the same latent digest" while "`?seed=9007199254740992`
+ * gives a different digest". Those are this suite's two clauses, proved where a digest can be
+ * published cheaply.
+ *
+ * That is why no production lab renders one, and the measurement agrees: `instanceStore.ts` has no
+ * digest field, and the only `data-*-digest` attributes in the markup are `data-source-digest` (the
+ * build-time worked example) and `data-equation-digest` (an equation record). Publishing a scientific
+ * digest from a lab session would be async via `crypto.subtle` while `useSyncExternalStore` requires
+ * a stable synchronous snapshot, so a fixture app is the cheaper and more honest place for it.
+ *
+ * So the digest clause is a DECLARED ABSENCE below, keyed to that bead, and this suite REFUSES IN
+ * BOTH DIRECTIONS: it fails if an entry is deleted while the attribute is still missing, and it fails
+ * if the attribute APPEARS on a production lab while the entry is still here -- because that would
+ * mean the design changed and this suite should then assert the digest directly. The second half is
+ * what makes the declaration self-retiring rather than a comment nobody deletes.
+ *
+ * Verified, not assumed, when this was written: `src/testing/runtime-fixtures/eventLedgerFixture.ts`
+ * and `seededWalkFixture.ts` exist, `fixtureNormals.ts` does not, and `scripts/e2e/fixtures/
+ * fixtureApps.ts` has no `runtime` entry -- so that bead is genuinely outstanding and this is a live
+ * pointer, not a dead one.
  *
  * WHY IT RUNS AGAINST `out/` WITHOUT A REBUILD, stated because an exit code over stale output is not
  * evidence. Measured before writing this: zero commits have touched `src/experiments/sr03`,
@@ -60,9 +75,9 @@ const DECLARED_ABSENCES = Object.freeze([
     attribute: "data-event-set-digest",
     route: "/lab/sr-03/",
     selector: '[data-instrument-id="sr-03"]',
-    owner: "am-rt-snapshot-store-aft",
+    owner: "am-rt-browser-conformance-09i5",
     reason:
-      "The accepted snapshot carries no scientific digest. instanceStore.ts has no digest field, and computing one is async (crypto.subtle) while useSyncExternalStore requires a stable synchronous snapshot, so publishing it is the snapshot store's design decision and not this bead's. runId, snapshotVersion and the input revisions ARE checked below, and they carry the row's claim.",
+      "That bead owns this clause verbatim -- 'changing frame speed back and forth keeps data-run-id, eventSetDigest, and worldlineDigest' -- against the eventLedgerFixture runtime app, where a digest can be published synchronously. A production lab publishes none by design. runId, snapshotVersion and both input revisions ARE checked below, and they carry the rest of the row's claim.",
   }),
   Object.freeze({
     id: "bm-01-latent-path-digest",
@@ -70,9 +85,9 @@ const DECLARED_ABSENCES = Object.freeze([
     attribute: "data-latent-path-digest",
     route: "/lab/bm-01/",
     selector: '[data-instrument-id="bm-01"]',
-    owner: "am-rt-snapshot-store-aft",
+    owner: "am-rt-browser-conformance-09i5",
     reason:
-      "Same missing field. The row's claim -- that 9007199254740993 survives transport and is a different stream from 9007199254740992 -- is carried below by the permalink round trip, which is the transport the claim is about.",
+      "Same bead, same verbatim clause: on fixtureNormals.ts '?seed=9007199254740993 ... reloads to the same latent digest' and '?seed=9007199254740992 gives a different digest'. Here the row's claim -- that the larger seed survives transport and is a different state from its neighbour -- is carried by the permalink round trip, which is the transport the claim is about.",
   }),
 ]);
 
