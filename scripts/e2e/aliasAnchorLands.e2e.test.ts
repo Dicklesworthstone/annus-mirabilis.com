@@ -187,13 +187,40 @@ const RETIRED = "s1-p4";
 const SUCCESSOR = "s1-p3";
 const GERMAN = "/papers/special-relativity/view/german/";
 
+/**
+ * Waits until the page has stopped scrolling, and FAILS if it never does.
+ *
+ * This used to exhaust its budget and `return` -- silently, with no failure path -- so a caller
+ * that could not reach a settled page measured one in flight and believed it had waited. That is
+ * how criterion 5 came to fail only under full-lane contention:
+ *
+ *     in the lane   #s1-p4 -> scrollY 3340; #s1-p3 -> scrollY 3386   (46px apart, FAIL)
+ *     alone, twice  #s1-p4 -> scrollY 3379; #s1-p3 -> scrollY 3386   (7px apart, pass)
+ *
+ * The successor's position was identical in all three runs. Only the FIRST navigation's reading
+ * moved, by 39px, in the direction of a document still growing -- and the assertion that fired
+ * reported a position comparison, which sent a reader to the alias span and the stylesheet rather
+ * than to the measurement. A flake whose message names the wrong subject costs more than the
+ * minutes it wastes.
+ *
+ * TWO CHANGES, and only the second is the repair. The budget rises from 6s to 20s, which a loaded
+ * host needs and which the test's own 180s timeout affords several times over. Exhausting it now
+ * THROWS, naming the readings, so "the page never settled" is what fails instead of a number that
+ * looks like a layout defect. The net is strictly stricter: the case that used to pass through
+ * silently is the case that now fails.
+ */
+const SETTLE_POLLS = 80;
+const SETTLE_INTERVAL_MS = 250;
+
 async function settled(page: import("playwright").Page): Promise<void> {
   await page.waitForLoadState("load");
   let last = Number.NaN;
   let stable = 0;
-  for (let i = 0; i < 24; i += 1) {
-    await page.waitForTimeout(250);
+  const seen: number[] = [];
+  for (let i = 0; i < SETTLE_POLLS; i += 1) {
+    await page.waitForTimeout(SETTLE_INTERVAL_MS);
     const now = await page.evaluate(() => window.scrollY);
+    seen.push(now);
     if (now === last) {
       stable += 1;
       if (stable >= 3) return;
@@ -202,6 +229,12 @@ async function settled(page: import("playwright").Page): Promise<void> {
       last = now;
     }
   }
+  const tail = seen.slice(-8).join(", ");
+  throw new Error(
+    `The page never settled: scrollY was still moving after ${(SETTLE_POLLS * SETTLE_INTERVAL_MS) / 1000}s ` +
+      `(${seen.length} readings, last eight: ${tail}). Nothing measured after this point would be at rest, ` +
+      `so this fails here rather than letting a caller compare positions taken in flight.`,
+  );
 }
 
 test("criterion 5: a retired id lands on its successor's location with NO JavaScript", {
