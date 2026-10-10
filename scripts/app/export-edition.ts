@@ -25,7 +25,7 @@
 
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readerDataManifest } from "../../src/platform/app-bridge/readerData.ts";
@@ -66,7 +66,9 @@ export type AppExportErrorCode =
   | "release-record-unreadable"
   | "release-record-invalid"
   | "release-unbound"
-  | "release-commit-mismatch";
+  | "release-commit-mismatch"
+  // am-rc1001-bridge-plan-pcjk.41: the edition shipped the 154-byte placeholder WASM.
+  | "edition-wasm-unpinned";
 
 /** A refusal of the export, with a code a caller or a test can branch on. */
 export class AppExportError extends Error {
@@ -409,6 +411,122 @@ export function releaseBinding(record: unknown, site: SiteBinding): ReleaseBindi
   return { releaseId: id, commit: released, profile: profile as ReleaseBinding["profile"] };
 }
 
+/**
+ * THE EDITION'S FRANKENSIM WASM MUST BE THE PINNED MODULE (am-rc1001-bridge-plan-pcjk.41).
+ *
+ * Measured 2026-10-09: the only exported edition carries
+ * `wasm/fs-annus-diffusion/105d7ffc15414de5/fs_annus_diffusion_bg.wasm` at 154 bytes -- the
+ * hand-built placeholder -- while `public/wasm/manifest.json` pins `80a1f8fda6f69003` at 92,751
+ * bytes. So BM-01 in the app could not earn the FrankenSim label whatever else were fixed, and the
+ * export never looked. AGENTS.md: "Numbers come from the edition's runtime", and a loaded WASM file
+ * does not earn the label.
+ *
+ * SCOPED TO THE PINNED BUNDLE, not to every `.wasm`. The edition also ships four pdf.js modules
+ * (jbig2, openjpeg, qcms_bg, quickjs-eval, 104,852 to 469,105 bytes), which are not FrankenSim's
+ * and are in no pinned manifest; a check over "every wasm file" would refuse all four. The subject
+ * is the files under the manifest's own `bundleDir`, matched by basename within it.
+ *
+ * A FILE THE MANIFEST DOES NOT NAME IS ALSO A PROBLEM, not just a mismatched one. The placeholder
+ * sits at a DIFFERENT digest path (`105d7ffc...` rather than `80a1f8fd...`), so a check that only
+ * compared files it found at the pinned path would have passed this edition by never meeting the
+ * placeholder at all -- which is the shape of gate this repository keeps finding.
+ */
+export type PinnedWasmFile = Readonly<{ sha256: string; size: number }>;
+
+export type WasmMismatch = Readonly<{
+  path: string;
+  reason: "not-in-pinned-manifest" | "digest-mismatch" | "size-mismatch" | "pinned-file-missing";
+  detail: string;
+}>;
+
+/** The bundle directory as it appears inside the edition, e.g. `wasm/fs-annus-diffusion/<digest>`. */
+export function editionWasmPrefix(bundleDir: string): string {
+  const marker = "public/";
+  const relative = bundleDir.startsWith(marker) ? bundleDir.slice(marker.length) : bundleDir;
+  return relative.replace(/\/+$/, "");
+}
+
+/**
+ * Every way the edition's FrankenSim WASM can fail to be the pinned module.
+ *
+ * `pinned` is keyed by basename, as `public/wasm/manifest.json` keys its `files`. Returns an empty
+ * list only when every pinned file is present at the pinned path with the pinned digest and size,
+ * and the edition carries no other file under any `wasm/fs-annus-diffusion/` path.
+ */
+export function frankensimWasmMismatches(
+  files: readonly EditionFile[],
+  bundleDir: string,
+  pinned: ReadonlyMap<string, PinnedWasmFile>,
+): readonly WasmMismatch[] {
+  const prefix = editionWasmPrefix(bundleDir);
+  const family = prefix.replace(/\/[^/]+$/, ""); // wasm/fs-annus-diffusion
+  const out: WasmMismatch[] = [];
+  const seen = new Set<string>();
+
+  for (const file of files) {
+    if (!file.path.startsWith(`${family}/`)) continue;
+    const basename = file.path.slice(file.path.lastIndexOf("/") + 1);
+    if (!file.path.startsWith(`${prefix}/`)) {
+      out.push({
+        path: file.path,
+        reason: "not-in-pinned-manifest",
+        detail: `The pinned bundle is ${prefix}; this file is under another digest path, so it is not the pinned module.`,
+      });
+      continue;
+    }
+    const expected = pinned.get(basename);
+    if (expected === undefined) {
+      out.push({
+        path: file.path,
+        reason: "not-in-pinned-manifest",
+        detail: `public/wasm/manifest.json names no file ${basename}.`,
+      });
+      continue;
+    }
+    seen.add(basename);
+    if (file.sha256 !== expected.sha256) {
+      out.push({
+        path: file.path,
+        reason: "digest-mismatch",
+        detail: `pinned sha256 ${expected.sha256.slice(0, 16)}, edition ${file.sha256.slice(0, 16)}.`,
+      });
+    } else if (file.size !== expected.size) {
+      // Only when the digest agrees, since a different digest already explains a different size.
+      out.push({
+        path: file.path,
+        reason: "size-mismatch",
+        detail: `pinned ${expected.size} bytes, edition ${file.size}.`,
+      });
+    }
+  }
+
+  for (const [basename, expected] of pinned) {
+    if (seen.has(basename)) continue;
+    out.push({
+      path: `${prefix}/${basename}`,
+      reason: "pinned-file-missing",
+      detail: `The pinned manifest names it at ${expected.size} bytes and the edition carries no such file.`,
+    });
+  }
+  return out;
+}
+
+/** Refuses with one typed code naming every mismatch, so a reader sees all of them at once. */
+export function assertFrankensimWasmPinned(
+  files: readonly EditionFile[],
+  bundleDir: string,
+  pinned: ReadonlyMap<string, PinnedWasmFile>,
+): void {
+  const mismatches = frankensimWasmMismatches(files, bundleDir, pinned);
+  if (mismatches.length === 0) return;
+  throw new AppExportError(
+    "edition-wasm-unpinned",
+    `The edition's FrankenSim WASM is not the pinned module (${mismatches.length} problem(s)): ${mismatches
+      .map((m) => `${m.path} [${m.reason}] ${m.detail}`)
+      .join(" ")} Re-export from a build whose public/wasm matches public/wasm/manifest.json.`,
+  );
+}
+
 /** Characters Xcode's file lists or `shasum -c` would misread. */
 export function unsafePathReason(path: string): string | null {
   if (path.includes("$")) {
@@ -658,6 +776,37 @@ export function exportEdition(options: {
       contentType: contentTypeFor(path),
     };
   });
+  /*
+    THE EDITION'S FRANKENSIM WASM MUST BE THE PINNED MODULE (am-rc1001-bridge-plan-pcjk.41).
+
+    Checked here, after `files` carries every shipped path with its real digest and size, and before
+    any budget or binding work, so an edition that cannot compute is refused rather than measured.
+    The only exported edition carried the 154-byte placeholder and nothing looked.
+
+    The pinned manifest is read from the repository rather than passed in: it is the one input this
+    guard must not be able to receive a convenient version of.
+  */
+  const pinnedWasmPath = join(repo, "public/wasm/manifest.json");
+  if (existsSync(pinnedWasmPath)) {
+    const pinnedRaw = JSON.parse(readFileSync(pinnedWasmPath, "utf8")) as {
+      bundleDir?: string;
+      files?: Record<string, { sha256?: string; bytes?: number; size?: number }>;
+    };
+    const pinned = new Map<string, PinnedWasmFile>();
+    // EVERY file the manifest names, not only the .wasm. The manifest pins all four of the bundle's
+    // files with digests, and "served as pinned" is a claim about the bundle. Loading only the
+    // .wasm left the bundle's own .js and .d.ts matching nothing, so the first end-to-end run
+    // reported 7 problems where the real defect is 4: the three siblings of the pinned module were
+    // flagged alongside the stale directory they were being compared against.
+    for (const [name, entry] of Object.entries(pinnedRaw.files ?? {})) {
+      if (typeof entry.sha256 !== "string") continue;
+      pinned.set(name, { sha256: entry.sha256, size: entry.bytes ?? entry.size ?? -1 });
+    }
+    if (typeof pinnedRaw.bundleDir === "string" && pinned.size > 0) {
+      assertFrankensimWasmPinned(files, pinnedRaw.bundleDir, pinned);
+    }
+  }
+
   const totalBytes = files.reduce((sum, file) => sum + file.size, 0);
   const untyped = files
     .filter((file) => file.contentType === OCTET_STREAM)
