@@ -94,6 +94,51 @@ function chainCoverage(steps: readonly Step[]): {
   return { families, everyFamily, cadences };
 }
 
+/**
+ * Families whose steps no dsr check runs, ON PURPOSE, each naming where that decision is recorded.
+ *
+ * This is a declared debt and not an allowlist: the test below refuses a stale entry and refuses an
+ * entry whose family has become reachable, so it can only shrink. Adding a family here is a claim
+ * that someone decided, in a place that can be read.
+ */
+const FAMILIES_OUT_OF_CI: Readonly<Record<string, string>> = {
+  apple:
+    "AGENTS.md: \"Apple validation runs locally as the `apple` gate family, not in the website's CI.\" Run by package.json scripts.gates:apple, which is not one of dsr's checks.",
+};
+
+/**
+ * The dsr checks that actually run `gate`, by name, or an empty list.
+ *
+ * Both routes count, because both are real wiring: the gate chain invoked for the gate's family
+ * with a cadence that admits it, or a check whose script runs the gate's own command directly. The
+ * cadence half matters and is easy to miss -- an omitted `--cadence` is not "all", it defaults to
+ * "every-run" and the runner then SKIPS any step whose cadence differs, so a nightly step inside a
+ * covered family is still reached by nothing.
+ */
+function reachingChecks(
+  gate: (typeof QUALITY_GATE_STEPS)[number],
+  steps: readonly Step[],
+): readonly string[] {
+  const reached: string[] = [];
+  for (const step of steps) {
+    const name = step.file.replace("package.json scripts.", "");
+    if (step.line.includes("quality-gates.ts")) {
+      const families = [...step.line.matchAll(/--family\s+(\S+)/g)].map((m) => m[1]);
+      const cadences = [...step.line.matchAll(/--cadence\s+(\S+)/g)].map((m) => m[1]);
+      const everyFamily = families.length === 0 || families.includes("all");
+      const familyOk = everyFamily || families.includes(gate.family);
+      const admitted = cadences.length === 0 ? ["every-run"] : cadences;
+      const cadenceOk = admitted.includes("all") || admitted.includes(gate.cadence);
+      if (familyOk && cadenceOk) {
+        reached.push(name);
+        continue;
+      }
+    }
+    if (gate.command.slice(1).every((part) => step.line.includes(part))) reached.push(name);
+  }
+  return [...new Set(reached)];
+}
+
 describe("a gate required in CI is run by a CI job (am-browser-gate-identity-7nq2)", () => {
   const steps = ciRunSteps();
   const required = QUALITY_GATE_STEPS.filter((step) => step.requiredInCi);
@@ -127,6 +172,136 @@ describe("a gate required in CI is run by a CI job (am-browser-gate-identity-7nq
       unwired,
       `A gate declares requiredInCi and no dsr check runs it. Declaring a requirement is not the same as wiring one, and this is the exact defect am-browser-gate-identity-7nq2 documents: browser-acceptance read true for its whole life while nothing executed it. Either widen the --family filter in package.json's 'gates' script, run its command directly from another dsr check, or stop claiming it is required.\n${unwired.join("\n")}`,
     ).toEqual([]);
+  });
+
+  /**
+   * THE PER-STEP LIST, PRINTED (am-7bkr item 1, verbatim: "Enumerate every registry step and say,
+   * per step, which dsr check reaches it. Print 'reached by: <check>' or 'reached by: NOTHING'.
+   * That list is the deliverable; the count alone is not.").
+   *
+   * The test above already asserts the PROPERTY that no requiredInCi gate is unreached, and it
+   * passes. What it does not do is say which check reaches which step, so nobody reading a green
+   * run can see that the apple family's fifteen steps are reached by nothing -- a fact that is
+   * correct and deliberate, and was invisible.
+   *
+   * THE ASSERTIONS HERE ARE NOT A SECOND COPY OF THE ONE ABOVE. That one quantifies over
+   * `requiredInCi` steps and asks whether each is wired. This one quantifies over ALL steps and
+   * asks the opposite question: for every step nothing runs, is that an intention recorded
+   * somewhere true? Those are different populations and different failures. A step landing in a
+   * brand-new family that no dsr check invokes passes the test above, because a new step is
+   * unlikely to declare requiredInCi on its first day, and fails this one.
+   */
+  test("every registry step says which dsr check reaches it, or NOTHING", () => {
+    const rows = QUALITY_GATE_STEPS.map((gate) => ({ gate, by: reachingChecks(gate, steps) }));
+    // Printed grouped, because 51 unsorted lines is a list nobody reads. The grouping is by
+    // reaching check so the "NOTHING" group is one block rather than scattered through the rest.
+    const groups = new Map<string, string[]>();
+    for (const { gate, by } of rows) {
+      const key = by.length > 0 ? by.join(" + ") : "NOTHING";
+      const list = groups.get(key) ?? [];
+      list.push(
+        `${gate.id} (family ${gate.family}, cadence ${gate.cadence}${gate.requiredInCi ? ", requiredInCi" : ""})`,
+      );
+      groups.set(key, list);
+    }
+    console.log(
+      `[ci reachability] ${rows.length} registry steps against ${DSR_CHECKS.length} dsr checks:`,
+    );
+    for (const [by, ids] of [...groups].sort()) {
+      console.log(`  reached by: ${by}  -- ${ids.length} step(s)`);
+      for (const id of ids.sort()) console.log(`      ${id}`);
+    }
+
+    // A pass computed over nothing would print an empty list and read exactly like this one.
+    expect(rows.length, "the registry resolved to no steps").toBeGreaterThan(40);
+    expect(
+      rows.some((r) => r.by.length > 0),
+      "no step is reached by any dsr check",
+    ).toBe(true);
+
+    // TWO ROUTES MAKE A STEP DELIBERATELY UNREACHED, and they are declared in different places,
+    // which is why this is not a single allowlist. A step excused by neither is a step nothing
+    // runs and nobody decided, and that is the finding.
+    const unreached = rows.filter((r) => r.by.length === 0).map((r) => r.gate);
+    const undeclared = unreached
+      .filter((gate) => {
+        // By FAMILY: the whole family is run somewhere other than CI, recorded below.
+        if (gate.family in FAMILIES_OUT_OF_CI) return false;
+        // By CADENCE: no package.json script passes `--cadence` at all, so "nightly" is a cadence
+        // no dsr check invokes. That is a real declaration only when the step also stops claiming
+        // to be required and says why -- both of which `ciExemptionReasons.node.test.ts` gates.
+        if (gate.cadence === "nightly" && !gate.requiredInCi && gate.notRequiredInCiReason) {
+          return false;
+        }
+        return true;
+      })
+      .map((gate) => `${gate.id} (family ${gate.family}, cadence ${gate.cadence})`);
+    expect(
+      undeclared,
+      `These steps are reached by no dsr check and nothing declares why. A step nothing runs is not a gate. Fix it one of three ways: wire its family into package.json's 'gates' script; add the family to FAMILIES_OUT_OF_CI naming where the decision is recorded; or, if it is genuinely nightly-only, give it cadence "nightly", requiredInCi false and a notRequiredInCiReason.\n${undeclared.join("\n")}`,
+    ).toEqual([]);
+
+    // The contradiction this repository is most likely to produce next: a step that declares it is
+    // required in CI while carrying a cadence no CI invocation admits. It would read as enforced.
+    const requiredButNightly = QUALITY_GATE_STEPS.filter(
+      (gate) => gate.requiredInCi && gate.cadence === "nightly",
+    ).map((gate) => gate.id);
+    expect(
+      requiredButNightly,
+      'A step is requiredInCi with cadence "nightly", and no package.json script passes --cadence, so no dsr check admits that cadence. Either give it cadence "every-run" or stop claiming it is required.',
+    ).toEqual([]);
+  });
+
+  /**
+   * THE DECLARATION REFUSES IN BOTH DIRECTIONS, which is what separates it from an allowlist.
+   *
+   * A map of families excused from CI is one edit away from being a standing permission. Two
+   * assertions stop that: a declared family with no steps is a stale excuse and must go, and a
+   * declared family that a dsr check DOES reach is an excuse that has outlived its reason -- the
+   * case that matters, because it is what happens the day someone widens the --family filter and
+   * leaves the declaration behind, which is how this repository's own browser gate came to read
+   * `requiredInCi: true` for its whole life while nothing executed it.
+   */
+  test("no family is declared out of CI stalely, and none is declared while reachable", () => {
+    for (const [family, where] of Object.entries(FAMILIES_OUT_OF_CI)) {
+      const inFamily = QUALITY_GATE_STEPS.filter((gate) => gate.family === family);
+      expect(
+        inFamily.length,
+        `Family "${family}" is declared out of CI but the registry has no step in it. A declaration with no population is a stale excuse: remove it.`,
+      ).toBeGreaterThan(0);
+
+      const reachable = inFamily.filter((gate) => reachingChecks(gate, steps).length > 0);
+      expect(
+        reachable.map((gate) => gate.id),
+        `Family "${family}" is declared out of CI (${where}) but a dsr check now reaches ${reachable.length} of its ${inFamily.length} steps. The declaration has outlived its reason: delete the entry rather than keeping an excuse beside a gate that runs.`,
+      ).toEqual([]);
+
+      // The declaration must name where the decision lives, not merely that one was taken.
+      expect(where.length, `Family "${family}" declares no provenance`).toBeGreaterThan(30);
+    }
+  });
+
+  /**
+   * THE CADENCE EXCUSE IS REFUSED THE SAME WAY, because it rests on a fact that can change.
+   *
+   * "Nightly steps are reached by nothing" is true only while no package.json script passes
+   * `--cadence`. The moment one does, a nightly step IS reachable and the excuse above would be
+   * silently excusing a step that runs -- the same shape as a stale family declaration. So the fact
+   * is asserted rather than assumed, and it fails loudly the day it stops being true, pointing at
+   * the excuse that then needs removing rather than leaving it to be noticed.
+   */
+  test("the nightly excuse rests on a measured fact: no dsr check names a cadence", () => {
+    const naming = steps.filter((step) => step.line.includes("--cadence"));
+    expect(
+      naming.map((step) => step.file),
+      'A dsr check now passes --cadence. If it admits "nightly", the cadence route in the reachability test above is excusing steps that actually run, and that branch must go. Re-measure which steps are reached before trusting it.',
+    ).toEqual([]);
+    // And the population the excuse covers is real, so this is not a rule about an empty set.
+    const nightly = QUALITY_GATE_STEPS.filter((gate) => gate.cadence === "nightly");
+    console.log(
+      `[ci reachability] ${nightly.length} nightly step(s) excused by cadence: ${nightly.map((g) => g.id).join(", ") || "(none)"}`,
+    );
+    expect(nightly.length).toBeGreaterThan(0);
   });
 
   test("the browser gate specifically, by name, because it is the one that was unwired", () => {
