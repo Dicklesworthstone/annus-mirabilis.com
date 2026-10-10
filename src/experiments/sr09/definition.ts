@@ -1,5 +1,5 @@
+import { notModeledFor } from "../../generated/not-modeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
-
 export type Sr09Parameters = Readonly<{
   beta: number;
   propagationAngleDeg: number;
@@ -39,15 +39,7 @@ export const SR09_CLASSES: Readonly<Record<keyof Sr09Parameters, ParameterClass>
 export const SR09_QUESTION =
   "How do the frequency and propagation direction of light transform between frames?";
 
-export const SR09_NOT_MODELED = Object.freeze([
-  "media and dispersion",
-  "sound in a medium",
-  "gravitational redshift",
-  "finite packets (the finite light-complex laboratory)",
-  "telescope optics and atmospheric refraction",
-  "photon picture",
-  "canal-ray apparatus beyond published values",
-]);
+export const SR09_NOT_MODELED: readonly string[] = Object.freeze(notModeledFor("sr-09"));
 
 export const SR09_MODEL = Object.freeze({
   id: "doppler-aberration-host",

@@ -1,5 +1,5 @@
+import { notModeledFor } from "../../generated/not-modeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
-
 export type Sr06Mode = "collinear" | "angled" | "two-boosts";
 
 export type Sr06Parameters = Readonly<{
@@ -48,12 +48,7 @@ export const SR06_MODEL = Object.freeze({
   label: "Ideal model, host calculation",
 });
 
-export const SR06_NOT_MODELED = Object.freeze([
-  "accelerated motion",
-  "spin dynamics and Thomas precession of real bodies (only the kinematic rotation is shown)",
-  "dispersion and the medium's own physics in Fizeau-type setups",
-  "gravity",
-]);
+export const SR06_NOT_MODELED: readonly string[] = Object.freeze(notModeledFor("sr-06"));
 
 /** The instrument's four readings, shown on the reader's detail setting. Mirrored in
  * content/editorial/readings-owners/am-sr-06-velocity-composition-7ni4.yaml, which the readings audit reads. */

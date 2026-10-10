@@ -1,5 +1,5 @@
+import { notModeledFor } from "../../generated/not-modeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
-
 export type Lq06SubexpressionChoice =
   | "none"
   | "E"
@@ -68,12 +68,7 @@ export const LQ06_MODEL = Object.freeze({
 export const LQ06_QUESTION =
   "Why does the same functional form suggest independent energy quanta, what exactly follows from the algebra, and what is a further hypothesis?";
 
-export const LQ06_NOT_MODELED: readonly string[] = Object.freeze([
-  "Radiation outside the Wien regime",
-  "Mechanism of emission and absorption (reserved for §§7–9)",
-  "Cavity wall dynamics and boundary interactions",
-  "Wave interference patterns inside the volume",
-]);
+export const LQ06_NOT_MODELED: readonly string[] = Object.freeze(notModeledFor("lq-06"));
 
 const c = (
   unit: string,

@@ -16,6 +16,7 @@ import {
   removeUpperLimit,
 } from "../../experiments/lq02/session";
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
+import { notModeledFor } from "../../generated/not-modeled.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
@@ -27,13 +28,14 @@ import { Sci } from "./Sci.tsx";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 import { withScripts } from "./subscripts.tsx";
 
-const NOT_MODELED = [
-  "The mechanism coupling matter and radiation beyond Planck's stated equilibrium condition.",
-  "Cavity shape and walls.",
-  "The approach to equilibrium.",
-  "Any quantum hypothesis.",
-  "Measured spectra (a separate instrument shows those).",
-] as const;
+/**
+ * lq-02's manifest list, not a second copy of it (am-rc1001-bridge-plan-pcjk.26).
+ *
+ * The five sentences here agreed with content/experiments/lq-02.yaml except for a trailing full
+ * stop on each. The one visible use strips those stops already -- `line.replace(/\.$/, "")` where
+ * the line is rendered -- so reading the manifest changes nothing a reader sees.
+ */
+const NOT_MODELED: readonly string[] = notModeledFor("lq-02");
 
 type Draft = Readonly<{ T: string; nuCutoff: string; probeFrequency: string }>;
 

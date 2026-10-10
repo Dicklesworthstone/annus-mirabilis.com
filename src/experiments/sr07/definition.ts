@@ -1,5 +1,5 @@
+import { notModeledFor } from "../../generated/not-modeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
-
 export type Sr07EquationId =
   | "ampere-x"
   | "ampere-y"
@@ -47,13 +47,7 @@ export const SR07_MODEL = Object.freeze({
   label: "Static worked example (algebra) and ideal model, host calculation (residuals)",
 });
 
-export const SR07_NOT_MODELED = Object.freeze([
-  "sources and currents (the charge-and-current laboratory)",
-  "media",
-  "boundary conditions",
-  "radiation reaction",
-  "field configurations other than the admitted analytic validation waves",
-]);
+export const SR07_NOT_MODELED: readonly string[] = Object.freeze(notModeledFor("sr-07"));
 
 /** The instrument's four readings, shown on the reader's detail setting. Mirrored in
  * content/editorial/readings-owners/am-sr-07-field-equations-xxes.yaml, which the readings audit reads. */

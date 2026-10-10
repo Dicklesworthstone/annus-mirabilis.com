@@ -1,5 +1,5 @@
+import { notModeledFor } from "../../generated/not-modeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
-
 export type Lq08Parameters = Readonly<{
   incidentPower: number;
   frequency: number;
@@ -66,17 +66,7 @@ export const LQ08_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
   ]),
 });
 
-export const LQ08_NOT_MODELED: readonly string[] = Object.freeze([
-  "Real-material electron energy distributions and yields",
-  "Contact potentials and surface states",
-  "Space charge",
-  "Reflection losses",
-  "Emission angles",
-  "Multi-photon or thermionic emission",
-  "The timing of individual emissions",
-  "Energy transfer models beyond the declared complete or partial cases",
-  "Any claim that the moving marks depict photons",
-]);
+export const LQ08_NOT_MODELED: readonly string[] = Object.freeze(notModeledFor("lq-08"));
 
 export const LQ08_PRESETS = Object.freeze({
   intensityProbe: Object.freeze({

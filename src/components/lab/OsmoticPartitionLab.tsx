@@ -16,6 +16,7 @@ import { typedOrNaN } from "../../experiments/controls/typedNumber.ts";
 import { executionLabelFor } from "../../experiments/labels/executionLabelFor.ts";
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
+import { notModeledFor } from "../../generated/not-modeled.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
@@ -27,16 +28,15 @@ import { Sci } from "./Sci.tsx";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 import { withScripts } from "./subscripts.tsx";
 
-const NOT_MODELED = [
-  "Particle interactions and excluded volume above the dilute domain.",
-  "Non-ideal activity coefficients.",
-  "Imperfect partitions (any real leak of particles across it).",
-  "Gravity and sedimentation.",
-  "Electrostatic effects.",
-  "Adsorption at the partition.",
-  "The kinetics and time needed to reach osmotic equilibrium.",
-  "Molecular collisions with the wall: the drawn glyphs are illustrative, not a collision simulation.",
-] as const;
+/**
+ * bm-02's manifest list, not a second copy of it (am-rc1001-bridge-plan-pcjk.26).
+ *
+ * These eight sentences were written out here as well as in content/experiments/bm-02.yaml, and
+ * agreed with it except that this copy ended each item with a full stop. The manifest is the
+ * authority -- src/testing/notModeledVisible.test.tsx holds every lab page to it -- so the bullets
+ * below now read as the manifest's phrases, without the terminal stops this copy added.
+ */
+const NOT_MODELED: readonly string[] = notModeledFor("bm-02");
 
 type Draft = Readonly<{
   Np: string;

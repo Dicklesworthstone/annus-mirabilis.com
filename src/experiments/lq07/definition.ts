@@ -1,3 +1,4 @@
+import { notModeledFor } from "../../generated/not-modeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
 
 export type Lq07Regime =
@@ -66,12 +67,7 @@ export const LQ07_MODEL = Object.freeze({
     "Each absorbed quantum is transformed into a light quantum of frequency ν₂ and/or non-optical energy channels (heat).",
     "Energy is strictly conserved in every elementary transformation: hν₁ = hν₂ + E, where E ≥ 0 is the energy passed to other channels.",
   ]),
-  notModeled: Object.freeze([
-    "Detailed atomic or molecular energy level structures and transition dipoles.",
-    "Non-radiative decay kinetics and intermediate triplet states (phosphorescence timescales).",
-    "Spatial propagation, self-absorption, and re-emission geometry inside the bulk medium.",
-    "Coherent optical effects and laser amplification.",
-  ]),
+  notModeled: Object.freeze(notModeledFor("lq-07")),
 });
 
 const c = (

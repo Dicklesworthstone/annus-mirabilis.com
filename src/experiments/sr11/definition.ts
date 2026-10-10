@@ -1,5 +1,5 @@
+import { notModeledFor } from "../../generated/not-modeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
-
 export type Sr11Frame = "lab" | "mirror";
 export type Sr11UnitLayer = "si" | "gaussian";
 
@@ -33,13 +33,7 @@ export const SR11_CLASSES: Readonly<Record<keyof Sr11Parameters, ParameterClass>
 export const SR11_QUESTION =
   "How do the frequency, angle, amplitude, and radiation pressure of light transform when reflected by a moving mirror, and how does energy balance between the light and the mirror's mechanical work?";
 
-export const SR11_NOT_MODELED = Object.freeze([
-  "mirror mass and acceleration (infinite mass limit)",
-  "finite mirror thickness and internal absorption",
-  "diffraction at mirror edges",
-  "quantum radiation pressure fluctuations",
-  "non-monochromatic wave packets",
-]);
+export const SR11_NOT_MODELED: readonly string[] = Object.freeze(notModeledFor("sr-11"));
 
 export const SR11_MODEL = Object.freeze({
   id: "moving-mirror-host",

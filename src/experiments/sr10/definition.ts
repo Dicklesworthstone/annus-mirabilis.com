@@ -1,5 +1,5 @@
+import { notModeledFor } from "../../generated/not-modeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
-
 export type Sr10Parameters = Readonly<{
   beta: number;
   propagationAngleDeg: number;
@@ -30,13 +30,7 @@ export const SR10_CLASSES: Readonly<Record<keyof Sr10Parameters, ParameterClass>
 export const SR10_QUESTION =
   "How do the energy and volume of a bounded light complex transform between frames?";
 
-export const SR10_NOT_MODELED = Object.freeze([
-  "media and dispersion",
-  "quantum photon structure",
-  "finite pulse dispersion in dielectric",
-  "gravitational redshift",
-  "boundary diffraction at packet edges",
-]);
+export const SR10_NOT_MODELED: readonly string[] = Object.freeze(notModeledFor("sr-10"));
 
 export const SR10_MODEL = Object.freeze({
   id: "light-complex-host",

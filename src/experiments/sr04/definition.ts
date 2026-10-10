@@ -1,3 +1,4 @@
+import { notModeledFor } from "../../generated/not-modeled.ts";
 import type { ConstraintId } from "../../physics/reference/kinematics.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
 
@@ -77,14 +78,7 @@ export const SR04_MODEL = Object.freeze({
 export const SR04_QUESTION =
   "What map between two inertial frames keeps both postulates, and what does each requirement decide?";
 
-export const SR04_NOT_MODELED = Object.freeze([
-  "non-aligned axes and rotations",
-  "accelerated frames",
-  "gravity",
-  "a fully rigorous derivation of linearity",
-  "origins that do not coincide",
-  "non-collinear composition (the velocity-composition laboratory)",
-]);
+export const SR04_NOT_MODELED: readonly string[] = Object.freeze(notModeledFor("sr-04"));
 
 const c = (
   unit: string,

@@ -1,3 +1,4 @@
+import { notModeledFor } from "../../generated/not-modeled.ts";
 import {
   ELEMENTARY_CHARGE,
   type Sr02FieldModel,
@@ -6,7 +7,6 @@ import {
   type Sr02Path,
 } from "../../physics/reference/fields.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
-
 export type Sr02Parameters = Readonly<{
   mode: Sr02Mode;
   descriptionFrame: Sr02Frame;
@@ -58,16 +58,7 @@ export const SR02_CLASSES: Readonly<Record<keyof Sr02Parameters, ParameterClass>
 export const SR02_QUESTION =
   "Why does moving the magnet instead of the conductor create an explanatory asymmetry, and how does the transformation remove it?";
 
-export const SR02_NOT_MODELED = Object.freeze([
-  "conductor resistance and induced currents",
-  "self-inductance",
-  "magnetization dynamics and extended-magnet fields beyond the ideal dipole",
-  "time-varying flux of extended circuits",
-  "edge fields",
-  "radiation",
-  "unipolar machines",
-  "electromotive-force comparison across frames for a path with a component along the direction of motion, which needs a declared simultaneity slice this model does not supply",
-]);
+export const SR02_NOT_MODELED: readonly string[] = Object.freeze(notModeledFor("sr-02"));
 
 export const SR02_MODEL = Object.freeze({
   id: "magnet-conductor-host",

@@ -1,5 +1,5 @@
+import { notModeledFor } from "../../generated/not-modeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
-
 export type Bm03Step = "one-particle" | "two-particles" | "many-particles" | "derivative";
 export type Bm03Model = "independent" | "locked-cluster";
 export type Bm03Notation = "printed" | "modern";
@@ -37,16 +37,7 @@ export const BM03_CLASSES: Readonly<Record<keyof Bm03Parameters, ParameterClass>
 export const BM03_QUESTION =
   "How does counting where independent particles can be produce the pressure law without solving any motion?";
 
-export const BM03_NOT_MODELED = Object.freeze([
-  "interactions between particles",
-  "excluded volume effects",
-  "external potential fields",
-  "non-ideal solutions",
-  "quantum statistics",
-  "momentum integrals beyond their cancellation in the derivative",
-  "molecular dynamics or collision trajectories",
-  "cluster formation or breakup kinetics",
-]);
+export const BM03_NOT_MODELED: readonly string[] = Object.freeze(notModeledFor("bm-03"));
 
 /** The instrument's four readings, shown on the reader's detail setting. Mirrored in
  * content/editorial/readings-owners/am-bm-03-configuration-integral-e84v.yaml, which the readings audit reads. */

@@ -1,5 +1,5 @@
+import { notModeledFor } from "../../generated/not-modeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
-
 export type Me01Premise = "unchanged" | "relaxed";
 export type Me01OffsetDisplay = "symbolic" | "offsets";
 export type Me01Notation = "printed" | "modern";
@@ -53,15 +53,7 @@ export const ME01_CLASSES: Readonly<Record<keyof Me01Parameters, ParameterClass>
 export const ME01_QUESTION =
   "If a body at rest emits two equal pulses in opposite directions, what do two observers' energy ledgers force you to say about the body?";
 
-export const ME01_NOT_MODELED = Object.freeze([
-  "recoil from asymmetric emission",
-  "finite pulse duration and shape",
-  "the emission mechanism",
-  "radiation pressure on the body during emission",
-  "gravity",
-  "the quantum nature of light",
-  "the body's absolute rest energy (kept symbolic)",
-]);
+export const ME01_NOT_MODELED: readonly string[] = Object.freeze(notModeledFor("me-01"));
 
 const contract = (
   unit: string,

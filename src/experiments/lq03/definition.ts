@@ -1,5 +1,5 @@
+import { notModeledFor } from "../../generated/not-modeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
-
 export type Lq03Coordinate = "frequency" | "wavelength";
 export type Lq03AxisScale = "linear" | "logarithmic";
 export type Lq03Convention = "per-hz" | "per-m" | "per-log" | "per-decade";
@@ -55,13 +55,7 @@ export const LQ03_MODEL = Object.freeze({
 export const LQ03_QUESTION =
   "What does a measured radiation spectrum look like at a given temperature, in which regime is Wien's law or the classical law an accurate description, and what does a density plot actually measure?";
 
-export const LQ03_NOT_MODELED = Object.freeze([
-  "emissivity and cavity imperfections",
-  "detector and spectrometer response",
-  "polarization",
-  "non-equilibrium radiation",
-  "any photon or quantum-statistical model beyond the displayed formulas",
-]);
+export const LQ03_NOT_MODELED: readonly string[] = Object.freeze(notModeledFor("lq-03"));
 
 const c = (
   unit: string,

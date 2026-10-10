@@ -1,6 +1,6 @@
 import type { PredictPrompt } from "../../content/schemas/experiment.ts";
+import { notModeledFor } from "../../generated/not-modeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
-
 export interface Sr01Parameters {
   /** r_AB, light-seconds, > 0. Drives both the basic synchronization round and the section 2 rod chase. */
   readonly stationSeparationLs: number;
@@ -41,15 +41,7 @@ export const SR01_CLASSES: Readonly<Record<keyof Sr01Parameters, ParameterClass>
 export const SR01_QUESTION =
   "How can distant clocks acquire an operational common time, and do moving clocks share it?";
 
-export const SR01_NOT_MODELED = Object.freeze([
-  "signal delays in cables or electronics",
-  "gravitational effects",
-  "accelerated or rotating clocks",
-  "clock mechanisms",
-  "the optical appearance of distant clocks",
-  "detector response times",
-  "any measurement of one-way light speed",
-]);
+export const SR01_NOT_MODELED: readonly string[] = Object.freeze(notModeledFor("sr-01"));
 
 const contract = (
   unit: string,

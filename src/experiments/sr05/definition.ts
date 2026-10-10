@@ -1,5 +1,5 @@
+import { notModeledFor } from "../../generated/not-modeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
-
 export type WorldlinePreset = "inertial" | "out-and-back" | "circle";
 
 export const WORLDLINE_PRESETS: readonly WorldlinePreset[] = Object.freeze([
@@ -121,15 +121,7 @@ export const SR05_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
   ]),
 });
 
-export const SR05_NOT_MODELED: readonly string[] = Object.freeze([
-  "Gravitational time dilation",
-  "Real clock mechanisms under acceleration",
-  "Rotating-frame (Sagnac) synchronization effects",
-  "The Earth's actual geoid shape and gravity field",
-  "Atomic-clock physics (transition frequencies, systematic shifts)",
-  "Clock noise and measurement uncertainty",
-  "Desynchronized separated-reading comparisons across frames (needs a stated simultaneity convention; only reunion comparisons are computed here)",
-]);
+export const SR05_NOT_MODELED: readonly string[] = Object.freeze(notModeledFor("sr-05"));
 
 export type Sr05Preset = Readonly<{
   id: string;

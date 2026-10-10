@@ -1,3 +1,4 @@
+import { notModeledFor } from "../../generated/not-modeled.ts";
 import type {
   DatasetOverlayId,
   ForceConvention,
@@ -6,7 +7,6 @@ import type {
 } from "../../physics/reference/electron.ts";
 import { ELECTRON_MASS, ELEMENTARY_CHARGE } from "../../physics/reference/electron.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
-
 export type Sr13Parameters = Readonly<{
   electricFieldX: number;
   electricFieldY: number;
@@ -64,14 +64,7 @@ export const SR13_CLASSES: Readonly<Record<keyof Sr13Parameters, ParameterClass>
 export const SR13_QUESTION =
   'What force, work, energy, and deflection relations follow for a slowly accelerated electron, and why do two different "transverse masses" appear?';
 
-export const SR13_NOT_MODELED = Object.freeze([
-  "radiation reaction from accelerated charges",
-  "self-electromagnetic fields and structure of the electron",
-  "quantum electrodynamic corrections and spin",
-  "space charge interactions in beam ensembles",
-  "non-uniform and fringe electromagnetic fields",
-  "apparatus-specific geometry of historical deflection experiments",
-]);
+export const SR13_NOT_MODELED: readonly string[] = Object.freeze(notModeledFor("sr-13"));
 
 export const SR13_MODEL = Object.freeze({
   id: "electron-dynamics-host",

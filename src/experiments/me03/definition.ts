@@ -1,5 +1,5 @@
+import { notModeledFor } from "../../generated/not-modeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
-
 export type Me03Boundary = "body-alone" | "radiation" | "combined-isolated-system";
 export type Me03RadiationDisposition = "escapes" | "retained" | "partly-retained";
 export type Me03Mode = "1905" | "four-momentum" | "box-1906";
@@ -66,16 +66,7 @@ export const ME03_CLASSES: Readonly<Record<keyof Me03Parameters, ParameterClass>
 export const ME03_QUESTION =
   "When energy leaves a body, which system loses mass, and which does not?";
 
-export const ME03_NOT_MODELED: readonly string[] = Object.freeze([
-  "gravitational weighing",
-  "wall stresses, or external work beyond declared inputs",
-  "nuclear and chemical mechanisms beyond cited energies",
-  "heat losses not declared",
-  "neutrino and solar-wind mass loss",
-  "the practical measurability of tiny mass changes",
-  "the 1905 argument's premises (inherited, not re-derived)",
-  "non-inertial or accelerated frames",
-]);
+export const ME03_NOT_MODELED: readonly string[] = Object.freeze(notModeledFor("me-03"));
 
 export const ME03_MODEL = Object.freeze({
   id: "me-03-boundary-ledger-v1",

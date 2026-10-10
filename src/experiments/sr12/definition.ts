@@ -1,6 +1,6 @@
+import { notModeledFor } from "../../generated/not-modeled.ts";
 import { C_SI, type Sr12Mode, type Sr12UnitLayer } from "../../physics/reference/fields.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
-
 export type Sr12Parameters = Readonly<{
   mode: Sr12Mode;
   unitLayer: Sr12UnitLayer;
@@ -67,14 +67,7 @@ export const SR12_CLASSES: Readonly<Record<keyof Sr12Parameters, ParameterClass>
 export const SR12_QUESTION =
   "How do charge density and current density transform between inertial frames, and why is a neutral current-carrying wire charged in a moving frame?";
 
-export const SR12_NOT_MODELED = Object.freeze([
-  "microscopic lattice dynamics and thermal vibrations",
-  "self-inductance and transient current startup",
-  "radiation reaction from accelerated charges",
-  "material resistance and Joule heating",
-  "finite wire thickness effects",
-  "gravitational fields and general relativistic curvature",
-]);
+export const SR12_NOT_MODELED: readonly string[] = Object.freeze(notModeledFor("sr-12"));
 
 export const SR12_MODEL = Object.freeze({
   id: "charge-current-host",

@@ -1,3 +1,4 @@
+import { notModeledFor } from "../../generated/not-modeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
 
 /**
@@ -59,13 +60,7 @@ export const LQ04_CAPTION = Object.freeze({
   r3: "Einstein printed lg for the natural logarithm and used β for the constant in Wien's exponent, so his coefficient E/βν is, in modern notation, k_{B}E/(hν), since β = h/k_{B}. He said plainly that Wien's law is not exactly valid and that his results hold only within certain limits. The comparison with an ideal gas or a dilute solution is his own sentence at the end of Section 4; reading the coefficient in terms of independent energy quanta of size Rβν/N comes only in Section 6, after the probability argument of Section 5. Planck's formula of 1901 was already known, and Einstein works in its Wien limit on purpose.",
 });
 
-export const LQ04_NOT_MODELED: readonly string[] = Object.freeze([
-  "Radiation outside the Wien regime",
-  "Broad bands",
-  "How the constrained states are prepared",
-  "Walls, mirrors, adiabatic compression, or any mechanism that changes volume",
-  "Any interpretation of E/(hν) as a count of particles",
-]);
+export const LQ04_NOT_MODELED: readonly string[] = Object.freeze(notModeledFor("lq-04"));
 
 const c = (
   unit: string,

@@ -1,3 +1,4 @@
+import { notModeledFor } from "../../generated/not-modeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
 
 export type Lq05View = "enumeration" | "sampling" | "logarithmic";
@@ -39,12 +40,7 @@ export const LQ05_MODEL = Object.freeze({
     "Other movable points may also be present without altering the independent distribution.",
     "No assumption is needed about the laws of motion of the points.",
   ]),
-  notModeled: Object.freeze([
-    "Interactions between points.",
-    "Gas dynamics or time evolution.",
-    "Radiation itself (this is the gas and dilute-solution analogy, not a model of light).",
-    "Correlations other than the fully locked case.",
-  ]),
+  notModeled: Object.freeze(notModeledFor("lq-05")),
 });
 
 export const LQ05_QUESTION =

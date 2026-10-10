@@ -1,3 +1,4 @@
+import { notModeledFor } from "../../generated/not-modeled.ts";
 import {
   C_SI,
   ELEMENTARY_CHARGE,
@@ -5,7 +6,6 @@ import {
   type Sr08UnitLayer,
 } from "../../physics/reference/fields.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
-
 export type Sr08Parameters = Readonly<{
   unitLayer: Sr08UnitLayer;
   descriptionFrame: Sr08Frame;
@@ -66,15 +66,7 @@ export const SR08_CLASSES: Readonly<Record<keyof Sr08Parameters, ParameterClass>
 export const SR08_QUESTION =
   "How do electric and magnetic descriptions change together under a boost, and what does a test charge experience in each frame?";
 
-export const SR08_NOT_MODELED = Object.freeze([
-  "field sources and currents",
-  "radiation and self-fields",
-  "radiation reaction",
-  "back-reaction on the field",
-  "media and polarization",
-  "nonuniform fields",
-  "accelerated observers",
-]);
+export const SR08_NOT_MODELED: readonly string[] = Object.freeze(notModeledFor("sr-08"));
 
 export const SR08_MODEL = Object.freeze({
   id: "field-frame-change-host",

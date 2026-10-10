@@ -1,5 +1,5 @@
+import { notModeledFor } from "../../generated/not-modeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
-
 export type Lq09AbsorptionMode = "all-absorbed-ionizes" | "declared-fraction" | "unknown";
 
 export type Lq09Parameters = Readonly<{
@@ -99,14 +99,7 @@ export const LQ09_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
   ]),
 });
 
-export const LQ09_NOT_MODELED: readonly string[] = Object.freeze([
-  "Secondary ionization and cascade ionization by energetic photoelectrons in dense gases",
-  "Multi-photon ionization processes occurring at extreme optical field intensities",
-  "Molecular dissociation channels competing with direct ionization without charge separation",
-  "Collisional de-excitation and recombination kinetics over extended reaction times",
-  "Spatial beam divergence, gas column pressure gradients, and non-uniform absorption profiles",
-  "Detailed autoionization resonances and vibrational-electronic coupling manifolds",
-]);
+export const LQ09_NOT_MODELED: readonly string[] = Object.freeze(notModeledFor("lq-09"));
 
 export const LQ09_PRESETS = Object.freeze({
   thresholdStandard: Object.freeze({

@@ -1,5 +1,5 @@
+import { notModeledFor } from "../../generated/not-modeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
-
 export type Me02Parameters = Readonly<{
   beta: number;
   emittedEnergy: number;
@@ -31,13 +31,7 @@ export const ME02_CLASSES: Readonly<Record<keyof Me02Parameters, ParameterClass>
 export const ME02_QUESTION =
   "What does a smaller energy of motion at the same speed tell you about the body's inertia, and why does the conclusion come from low speeds?";
 
-export const ME02_NOT_MODELED = Object.freeze([
-  "the premises themselves (explained, not simulated)",
-  "accelerated motion",
-  "modern momentum formulations",
-  "any body not covered by the paper's argument",
-  "uncertainty in the printed factor's rounding (shown as a labeled comparison, not modeled)",
-]);
+export const ME02_NOT_MODELED: readonly string[] = Object.freeze(notModeledFor("me-02"));
 
 export const ME02_PREDICT_PROMPT = Object.freeze({
   promptId: "me-02-predict-exact-versus-quadratic",
