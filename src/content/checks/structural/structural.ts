@@ -1623,6 +1623,26 @@ export const checkSpanDigestMismatch: ContentCheck = {
   beadId: STRUCTURAL_BEAD_ID,
   description: "Detects edited text whose sentence spans or alignment ranges were not re-measured.",
   run: (ctx: CheckContext) => {
+    /**
+     * TWO HALVES WITH VERY DIFFERENT POPULATIONS, AND ONLY ONE OF THEM HAS DATA
+     * (am-rc1001-bridge-plan-pcjk.10).
+     *
+     * Half one reads `span.textDigest` on a source block's sentence spans. Measured 2026-10-10:
+     * 453 blocks declare `sentenceSpans` and 542 spans carry a digest, so this half has a real
+     * population -- and it only reached it at 89f7e3b9, when the blocks began being compiled.
+     * Before that it examined nothing and reported clean.
+     *
+     * Half two reads `range.textDigest` on an alignment edge, and ZERO of the 821 committed edges
+     * carry a range at all: `grep -c textDigest content/alignments/*.yaml` is 0 across all four
+     * papers. So that half is correctly vacuous, and a plant into a translation unit's text
+     * produces no report NOT because the check is broken but because the data it would compare
+     * against does not exist. A reader of "0 mismatches" has to be able to tell those two cases
+     * apart, which is what the census below is for.
+     */
+    let spansWithDigest = 0;
+    let blocksWithSpans = 0;
+    const edgeRangesWithDigest = 0;
+
     // 1. Check SourceBlock.sentenceSpans
     for (const [key, rawRec] of ctx.records.entries()) {
       if (!rawRec || typeof rawRec !== "object") continue;
@@ -1635,6 +1655,7 @@ export const checkSpanDigestMismatch: ContentCheck = {
         const computedDigest = spanTextDigest(blockText);
 
         if (Array.isArray(rec.sentenceSpans)) {
+          blocksWithSpans += 1;
           for (let i = 0; i < rec.sentenceSpans.length; i++) {
             const sp = rec.sentenceSpans[i];
             if (!sp || typeof sp !== "object") continue;
@@ -1650,6 +1671,7 @@ export const checkSpanDigestMismatch: ContentCheck = {
                       typeof spanAnchor.normalizedTextDigest === "string"
                     ? spanAnchor.normalizedTextDigest
                     : "";
+              if (storedDigest) spansWithDigest += 1;
               if (storedDigest && storedDigest !== computedDigest) {
                 ctx.report({
                   rule: "span-digest-mismatch",
@@ -1666,6 +1688,19 @@ export const checkSpanDigestMismatch: ContentCheck = {
 
       // 2. Check Alignment ranges
       if (kind === "alignment" && Array.isArray(rec.edges)) {
+        // BOTH ENDS OF AN EDGE ARE KEYED `<kind>:<paper>:<id>`, so a bare-id lookup finds neither
+        // (recordKey.ts). Both halves below read `ctx.records.get(...)` by bare id, which could
+        // only ever have found a record in a corpus keyed that way -- that is, in a fixture. The
+        // alignment names its own paper, so the production key is constructible for both; the
+        // bare id stays as a fallback because `indexes.byId` holds both spellings. This matters
+        // from the moment the edition layer began being compiled at 89f7e3b9, because the records
+        // are there now (am-rc1001-bridge-plan-pcjk.10).
+        const alignmentPaper =
+          typeof rec.paper === "string"
+            ? rec.paper
+            : typeof rec.paperSlug === "string"
+              ? rec.paperSlug
+              : "";
         for (let i = 0; i < rec.edges.length; i++) {
           const edge = rec.edges[i];
           if (!edge || typeof edge !== "object") continue;
@@ -1686,18 +1721,6 @@ export const checkSpanDigestMismatch: ContentCheck = {
               : undefined;
           if (src && srcRange) {
             const blockId = "blockId" in src && typeof src.blockId === "string" ? src.blockId : "";
-            // A SOURCE BLOCK IS KEYED `source-block:<paper>:<id>`, SO A BARE-ID LOOKUP MISSES IT.
-            // This read `ctx.records.get(blockId)`, which could only ever have found a block in a
-            // corpus where blocks were keyed by bare id -- that is, in a fixture. The alignment
-            // record names its own paper, so the production key is constructible; the bare id is
-            // kept as the fallback, because `indexes.byId` holds both spellings and an older
-            // fixture may still use one (am-rc1001-bridge-plan-pcjk.10).
-            const alignmentPaper =
-              typeof rec.paper === "string"
-                ? rec.paper
-                : typeof rec.paperSlug === "string"
-                  ? rec.paperSlug
-                  : "";
             const blockRec =
               (blockId && alignmentPaper
                 ? ctx.records.get(recordKeyFor("source-block", alignmentPaper, blockId))
@@ -1736,8 +1759,19 @@ export const checkSpanDigestMismatch: ContentCheck = {
               "translationUnitId" in tgt && typeof tgt.translationUnitId === "string"
                 ? tgt.translationUnitId
                 : "";
+            // A TRANSLATION UNIT IS KEYED `translation-unit:<paper>:<id>` TOO, so the bare-id
+            // lookup here could only ever find one in a fixture -- the same defect the block
+            // lookup above had. It mattered from the moment the units started being compiled
+            // (89f7e3b9): the records are present now, and without this the target half of every
+            // span-digest comparison would silently find nothing
+            // (am-rc1001-bridge-plan-pcjk.10).
             const tuRec =
-              ctx.records.get(translationUnitId) ||
+              (translationUnitId && alignmentPaper
+                ? ctx.records.get(
+                    recordKeyFor("translation-unit", alignmentPaper, translationUnitId),
+                  )
+                : undefined) ||
+              (translationUnitId ? ctx.records.get(translationUnitId) : undefined) ||
               (translationUnitId ? indexes?.byId?.get(translationUnitId) : undefined);
             if (tuRec) {
               const tuText = extractEntityPlainText(tuRec);
@@ -1763,6 +1797,16 @@ export const checkSpanDigestMismatch: ContentCheck = {
         }
       }
     }
+    console.log(
+      `[census] span-digest-mismatch examined ${spansWithDigest} sentence span digest(s) on ` +
+        `${blocksWithSpans} block(s), and ${edgeRangesWithDigest} alignment edge range digest(s).` +
+        (spansWithDigest === 0 ? " 0 span digests, so the source-block half judged nothing." : "") +
+        (edgeRangesWithDigest === 0
+          ? " 0 edge range digests: the committed alignments carry no `range` on any edge, so the" +
+            " alignment half is vacuous BY THE DATA rather than broken, and a plant into a" +
+            " translation unit's text correctly produces nothing."
+          : ""),
+    );
   },
 };
 
