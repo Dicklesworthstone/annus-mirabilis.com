@@ -117,17 +117,24 @@ const CLAIMED_ENGINE: Readonly<Record<string, WasmCheckEngine>> = {
 /**
  * Refuses a check whose engine claim is not the one declared for its testId.
  *
- * The code comes FIRST, which is not a stylistic choice: refusalRatchet credits a kebab code only as
- * a typed error's first constructor argument, and the bare-throw ratchet went red on this class
- * reading as an untyped throw while the code sat inside the message instead.
+ * TWO RATCHETS SHAPED THIS CLASS, both of them after I had written it the obvious way.
+ *
+ * The code comes FIRST because refusalRatchet credits a kebab code only as a typed error's first
+ * constructor argument: with the code inside the message, bareThrowRatchet read the whole class as
+ * an untyped throw and went red at "4 bare throw site(s), recorded 3".
+ *
+ * The fields are DECLARED AND ASSIGNED rather than written as constructor parameter properties,
+ * because `node --experimental-strip-types` cannot erase a parameter property -- it needs code
+ * generated, not just types removed -- and src/testing/hygiene/stripTypesCompatible.test.ts is the
+ * gate that says so. It was the single failure in a 17,333-test run, named by file and line:
+ * "scripts/verify-wasm-artifacts.ts:128 parameter-property". A shorter constructor would have cost
+ * this file the node lane.
  */
 export class UndeclaredEngineClaimError extends Error {
   readonly code: string;
-  constructor(
-    code: string,
-    readonly testId: string,
-    readonly reported: string,
-  ) {
+  readonly testId: string;
+  readonly reported: string;
+  constructor(code: string, testId: string, reported: string) {
     super(
       `check "${testId}" reports engine "${reported}", which is not its declared ` +
         `${CLAIMED_ENGINE[testId] ? `engine "${CLAIMED_ENGINE[testId]}"` : "(no declared engine: add it to CLAIMED_ENGINE)"}. ` +
@@ -135,6 +142,8 @@ export class UndeclaredEngineClaimError extends Error {
     );
     this.name = "UndeclaredEngineClaimError";
     this.code = code;
+    this.testId = testId;
+    this.reported = reported;
   }
 }
 
