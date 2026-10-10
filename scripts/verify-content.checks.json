@@ -12,6 +12,7 @@
     { "id": "structural-hero-quote-unresolved", "family": "structural" },
     { "id": "structural-ledger-marker-in-edition", "family": "structural" },
     { "id": "structural-span-digest-mismatch", "family": "structural" },
+    { "id": "structural-inline-math-not-identical", "family": "structural" },
     { "id": "source-manifest-validator", "family": "manifest" },
     { "id": "editorial.voice", "family": "voice" },
     { "id": "coverage.print", "family": "coverage" },

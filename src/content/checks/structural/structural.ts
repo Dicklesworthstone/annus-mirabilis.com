@@ -1810,8 +1810,149 @@ export const checkSpanDigestMismatch: ContentCheck = {
   },
 };
 
+// ============================================================================
+// 11. inline-math-not-identical Check
+// ============================================================================
 /**
- * All 10 structural content checks.
+ * NOTATION IS NOT TRANSLATED, AND THAT RULE COVERS THE INLINE MATH TOO
+ * (am-rc1001-bridge-plan-pcjk.10 step 5).
+ *
+ * `checkEquationNotIdentical` compares the 200 printed DISPLAYS. The 714 substantive inline
+ * expressions were compared by nothing at all, and AGENTS.md's rule is the same for both: "Keep
+ * every symbol as printed on both faces."
+ *
+ * THREE DECISIONS, each measured over the real corpus on 2026-10-10 before it was taken, because
+ * the first two readings of this question both produce a number that looks like a finding and is
+ * not:
+ *
+ *  1. GROUPED BY BLOCK, not per edge. The alignment is many-to-many: one German paragraph aligns
+ *     to several English sentence units. Per edge, a paragraph is compared against ONE of its
+ *     sentences and 430 of 669 pairs "differ" by construction. Grouped, 453 blocks resolve and
+ *     the question is the one the rule asks.
+ *  2. DISPLAY MATH EXCLUDED. A printed display sits inside the German paragraph's inline flow, and
+ *     on the English face it is its own translation unit aligned to the display BLOCK. Counting
+ *     it compares a paragraph against a paragraph-minus-its-display: 86 of 336 differ. Excluding
+ *     it -- which is also what `plainText` does -- gives 7 of 329. The displays are not lost: they
+ *     are exactly what check 6 compares.
+ *  3. A MULTISET, not a sequence. English word order moves, so a symbol legitimately appears
+ *     earlier or later in the sentence; what must not change is WHICH symbols appear and how
+ *     often.
+ *
+ * SEVERITY IS FLAG, as the bead asks ("not an error until reviewed"). The seven it finds today are
+ * real and reviewable -- an English face carrying `\Pi \cdot 10^7 = 4{,}3` the German does not,
+ * another carrying `(X', Y' Z')` where the German has no such inline and the English spelling is
+ * itself missing a comma -- but whether each is a translator's clarification to keep or a
+ * notation drift to repair is an editorial judgement, not a compiler's.
+ */
+export const checkInlineMathNotIdentical: ContentCheck = {
+  id: "structural-inline-math-not-identical",
+  family: "structural",
+  severity: "flag",
+  beadId: STRUCTURAL_BEAD_ID,
+  description:
+    "Reports where a German block's inline mathematics differs from the inline mathematics of the English units aligned to it.",
+  run: (ctx: CheckContext) => {
+    /** Every non-display inline math latex in a record, in order, descending into nested inlines. */
+    const inlineMathOf = (rec: Record<string, unknown>): string[] => {
+      const out: string[] = [];
+      const walk = (nodes: unknown): void => {
+        if (!Array.isArray(nodes)) return;
+        for (const node of nodes) {
+          if (!node || typeof node !== "object") continue;
+          const n = node as Record<string, unknown>;
+          if (n.kind === "math" && typeof n.latex === "string" && n.display !== true) {
+            out.push(n.latex);
+          }
+          if (Array.isArray(n.inlines)) walk(n.inlines);
+          if (Array.isArray(n.children)) walk(n.children);
+        }
+      };
+      walk(rec.inlines);
+      return out;
+    };
+
+    // blockKey -> the translation units aligned to it, from the alignment records.
+    const grouped = new Map<string, Set<string>>();
+    for (const [, rawRec] of ctx.records.entries()) {
+      if (!rawRec || typeof rawRec !== "object") continue;
+      const rec = rawRec as Record<string, unknown>;
+      if (rec.kind !== "alignment" || !Array.isArray(rec.edges)) continue;
+      const paper =
+        typeof rec.paper === "string"
+          ? rec.paper
+          : typeof rec.paperSlug === "string"
+            ? rec.paperSlug
+            : "";
+      for (const edge of rec.edges) {
+        if (!edge || typeof edge !== "object") continue;
+        const src = (edge as Record<string, unknown>).source as Record<string, unknown> | undefined;
+        const tgt = (edge as Record<string, unknown>).target as Record<string, unknown> | undefined;
+        const blockId = typeof src?.blockId === "string" ? src.blockId : "";
+        const unitId = typeof tgt?.translationUnitId === "string" ? tgt.translationUnitId : "";
+        if (!blockId || !unitId) continue;
+        const key = recordKeyFor("source-block", paper, blockId);
+        let set = grouped.get(key);
+        if (!set) {
+          set = new Set();
+          grouped.set(key, set);
+        }
+        set.add(recordKeyFor("translation-unit", paper, unitId));
+      }
+    }
+
+    let resolved = 0;
+    let carryingMath = 0;
+    let differing = 0;
+    for (const [blockKey, unitKeys] of grouped) {
+      const block = ctx.records.get(blockKey);
+      if (!block || typeof block !== "object") continue;
+      const english: string[] = [];
+      let anyUnitMissing = false;
+      for (const unitKey of unitKeys) {
+        const unit = ctx.records.get(unitKey);
+        if (!unit || typeof unit !== "object") {
+          anyUnitMissing = true;
+          break;
+        }
+        english.push(...inlineMathOf(unit as Record<string, unknown>));
+      }
+      // A block whose units are not all present is not comparable, and guessing from the ones that
+      // are would report a difference that is an absence.
+      if (anyUnitMissing) continue;
+      resolved += 1;
+      const german = inlineMathOf(block as Record<string, unknown>);
+      if (german.length === 0 && english.length === 0) continue;
+      carryingMath += 1;
+      const asMultiset = (items: readonly string[]): string => [...items].sort().join("\u0001");
+      if (asMultiset(german) === asMultiset(english)) continue;
+      differing += 1;
+      const germanOnly = german.filter((x) => !english.includes(x));
+      const englishOnly = english.filter((x) => !german.includes(x));
+      const blockId = blockKey.split(":").slice(2).join(":");
+      ctx.report({
+        rule: "inline-math-not-identical",
+        recordId: blockId,
+        path: `source-blocks.${blockId}.inlines`,
+        message:
+          `Inline mathematics differs between the German block "${blockId}" and the ` +
+          `${unitKeys.size} English unit(s) aligned to it: ` +
+          `${germanOnly.length} only in the German (${JSON.stringify(germanOnly.slice(0, 3))}), ` +
+          `${englishOnly.length} only in the English (${JSON.stringify(englishOnly.slice(0, 3))}).`,
+        repair:
+          "Notation is not translated: keep every symbol as printed on both faces, or record the " +
+          "difference as an editorial note if the English deliberately adds a clarifying form.",
+      });
+    }
+    console.log(
+      `[census] inline-math-not-identical examined ${resolved} block(s) with all their aligned ` +
+        `units present, ${carryingMath} carrying inline math; ${differing} differ.` +
+        (carryingMath === 0 ? " 0 carrying inline math, so this verdict is about nothing." : ""),
+    );
+  },
+};
+
+/**
+ * All 11 structural content checks.
  */
 export const ALL_STRUCTURAL_CHECKS: readonly ContentCheck[] = [
   checkDuplicateId,
@@ -1824,10 +1965,11 @@ export const ALL_STRUCTURAL_CHECKS: readonly ContentCheck[] = [
   checkHeroQuoteUnresolved,
   checkLedgerMarkerInEdition,
   checkSpanDigestMismatch,
+  checkInlineMathNotIdentical,
 ];
 
 /**
- * Registers all 10 structural compiler checks into the central check registry.
+ * Registers all 11 structural compiler checks into the central check registry.
  */
 export function registerStructuralChecks(): void {
   for (const check of ALL_STRUCTURAL_CHECKS) {
