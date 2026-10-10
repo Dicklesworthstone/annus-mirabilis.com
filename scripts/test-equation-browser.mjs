@@ -5,9 +5,32 @@ import AxeBuilder from "@axe-core/playwright";
 /** Only real exported pages, rendered equation payloads and dedicated numerical owners. */
 export async function checkEquationBrowser(browser, url, check) {
   const eqId = (name) => `eq-model-bm-${name}`;
-  const card = (scope, name) => scope.locator(`[data-equation-id="${eqId(name)}"]`);
-  const value = (scope, name, term) =>
-    card(scope, name).locator(`[data-term-value="${eqId(name)}.t.${term}"]`);
+  /**
+   * THE SECOND PLACEMENT'S CARDS ANSWER TO ANOTHER SPELLING, and this check waited thirty seconds
+   * for the first one.
+   *
+   * `equationScope="compare"` on the comparison ensemble makes SemanticEquation render
+   * `data-equation-id="${eqId("rms")}-compare"` (SemanticEquation.tsx:201,
+   * `effectiveScope ? `${equation.id}-${effectiveScope}` : equation.id`). That scoping landed in
+   * 15ad291f4 on 2026-09-17, to disambiguate the reading and lab renders and their nav landmarks
+   * (am-txy3); this check's locators were written in 0c734315e the DAY BEFORE and were never
+   * updated, so the comparison assertions below have been unreachable since, and the lane has been
+   * 8 of 9 with a 30-second timeout rather than a diagnosis.
+   *
+   * Measured in Chromium on the built page before repairing it: two roots, the first carrying
+   * eq-model-bm-apparent-speed / -diffusivity / -rms and the second carrying each of those with
+   * `-compare`, three `details.equation-parts` in each. So the product is right and the locator was
+   * stale, which is the opposite of what a 30-second wait for a missing explorer suggests.
+   *
+   * `data-term-value` is NOT suffixed -- the same probe read `eq-model-bm-rms.t.diffusion` inside
+   * the `-compare` card -- so `value()` needs the unscoped key and gets it by being scoped to the
+   * card it was found in.
+   */
+  const COMPARE = "-compare";
+  const card = (scope, name, placement = "") =>
+    scope.locator(`[data-equation-id="${eqId(name)}${placement}"]`);
+  const value = (scope, name, term, placement = "") =>
+    card(scope, name, placement).locator(`[data-term-value="${eqId(name)}.t.${term}"]`);
   /**
    * Opens a card's term-and-operation explorer, which is a CLOSED `<details class="equation-parts">`
    * holding the chips in a `<nav class="equation-chips">`.
@@ -354,12 +377,16 @@ export async function checkEquationBrowser(browser, url, check) {
       .getByRole("button", { name: "Open a second separate ensemble", exact: true })
       .click();
     const second = page.locator('[data-instrument-id="bm-01"]').nth(1);
-    await openParts(card(second, "rms"));
-    await card(second, "rms")
+    // The card count is asserted before anything is clicked, so a future renaming of the scope
+    // suffix fails by name here instead of by a timeout on the control inside it.
+    assert.equal(await card(second, "rms", COMPARE).count(), 1);
+    assert.equal(await card(second, "rms").count(), 0);
+    await openParts(card(second, "rms", COMPARE));
+    await card(second, "rms", COMPARE)
       .getByRole("button", { name: "Diffusion coefficient term", exact: true })
       .click();
     assert.equal(await rms.getAttribute("data-selected-node-id"), null);
-    assert.match(await value(second, "rms", "diffusion").innerText(), /0\.42944/);
+    assert.match(await value(second, "rms", "diffusion", COMPARE).innerText(), /0\.42944/);
     assert.match(await value(lab, "rms", "diffusion").innerText(), /0\.21472/);
     assert.deepEqual(await identity(lab), unchanged);
     assert.equal(workers, 1);
@@ -392,8 +419,49 @@ export async function checkEquationBrowser(browser, url, check) {
     await page.setViewportSize({ width: 1280, height: 1000 });
     await page.goto(`${url}/papers/brownian-motion/?detail=1`);
     await page.locator('[data-reader-root][data-enhanced="true"]').waitFor();
+    /*
+      THE READER'S CARDS ARE BEHIND A DISCLOSURE AND ANSWER TO A THIRD SPELLING, and this group has
+      been unreachable since the day after it was written.
+
+      Two deliberate designs stand between this page and the cards, and neither was here on
+      2026-09-16 when these locators were written:
+
+        LazyArgumentEquations loads a step's equation payload ON FIRST OPENING of
+        `details[data-argument-equations]`, because the whole-paper page carried every argument's
+        cards in a closed disclosure -- measured at 464,754 bytes of markup, 45% of
+        /papers/special-relativity/, with the page 264,373 B gzipped against a 250,000 budget.
+        Before it is opened a no-script reader gets a real link to the section's own page instead.
+
+        It then mounts them in `EquationScope scope={`reader-${argumentId}`}`, so the card's id is
+        `eq-model-bm-rms-reader-arg-bm-observable`, not `eq-model-bm-rms`.
+
+      Measured in Chromium on the built page: with the disclosure closed the passage holds ZERO
+      `[data-equation-id]` and the whole page holds zero, with no page errors, at 1.5 s, 3 s and
+      6 s and after scrolling it into view. Opened, it holds two, with
+      `data-equations-loaded="true"` and `[data-equation-values]` reading "Symbolic here." -- which
+      is what the assertion below wanted all along.
+
+      The closed state is asserted FIRST, because it is the budget mechanism this check would
+      otherwise silently stop protecting: a change that mounted the cards eagerly would make every
+      assertion below pass and put the page back over budget.
+    */
     const passage = page.locator("#arg-bm-observable"),
-      readerRms = card(passage, "rms");
+      drawer = passage.locator("details[data-argument-equations]");
+    assert.equal(await drawer.getAttribute("data-equations-loaded"), "false");
+    assert.equal(await passage.locator("[data-equation-id]").count(), 0);
+    // A DOM LOCATOR, NOT getByRole, AND THIS FILE ALREADY SAYS WHY TEN LINES ABOVE. A closed
+    // `<details>` keeps its contents out of the ACCESSIBILITY TREE, so `getByRole("link")` found
+    // 0 of the link that is plainly in the DOM -- the same mechanism recorded in openParts, met
+    // again from the other direction while writing this assertion.
+    assert.equal(
+      await drawer.locator(`[data-equations-fragment="arg-bm-observable"] a`).count(),
+      1,
+      "a reader without JavaScript must have a real link to the section page",
+    );
+    await drawer.locator(":scope > summary").click();
+    await drawer.locator('[data-equations-loaded="true"]').or(drawer).first().waitFor();
+    const READER = "-reader-arg-bm-observable";
+    const readerRms = card(passage, "rms", READER);
     assert.match(await readerRms.locator("[data-equation-values]").innerText(), /Symbolic here/);
     const workersBefore = workers;
     await openParts(readerRms);
