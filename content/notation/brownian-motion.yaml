@@ -1536,14 +1536,15 @@ entries:
       target:
         form: symbol
         modernGlyph: "v_{\\text{drift}}"
+    notes: "The paper assigns this velocity no symbol. It is written out as the fraction K/(6 pi k P) wherever it is used, and the v-shaped glyph on these pages is the Greek nu of bm.nu.numberDensity, which is a different quantity. The id keeps the letter v for the site's own binding; nothing here claims Einstein printed it."
     sources:
-      facsimilePage: 554
-      anchor: bm-s3-p2
+      facsimilePage: 555
+      anchor: bm-s3-p6
     verification:
-      printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-549)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      printed: false
+      checkedAgainst: "Page images of printed pages 554 and 555 (PDF pages 6 and 7 of public/papers/pdfs/ap-17-549.pdf, rendered with pdftoppm at 300 dpi), read by eye, not the text layer. NO SYMBOL IS PRINTED FOR THIS VELOCITY. Page 555 reads \'erteilt die Kraft K dem einzelnen Teilchen die Geschwindigkeit\' followed by the display K/(6 pi k P) with no left-hand side, and the quantity is carried as that fraction into the next display, nu K/(6 pi k P), and into equation (2). The recorded locator was page 554, which is paragraph s3-p2 \'Es sei nu die Anzahl der suspendierten Teilchen pro Volumeneinheit\' - the number density, not a velocity - so facsimilePage was corrected from 554 to 555 and the anchor from bm-s3-p2 to bm-s3-p6, the paragraph that actually carries the quantity: the manifest puts s3-p6 on page 555 alone, and it is the paragraph beginning 'Haben die suspendierten Teilchen Kugelform (Kugelradius P)'. The gate src/content/notation/anchorCoversPage.test.ts caught the half-correction and named it: 'bm.v.driftVelocity: bm-s3-p2 page-not-covered (page 555; the block covers 554)'. THE COLLISION THIS ENTRY SAT ON: in this typeface the italic nu of the number density is easily read as a Latin v, and it is the only v-shaped glyph on either page, so an entry asserting a printed v for the drift velocity pointed a reader at a symbol that means something else. An agent check, not a human review; human review pending."
+      by: "agent:ConcordanceCheck-residue-opus5"
+      date: "2026-10-10"
 
   - id: bm.RN.groupBoltzmann
     paper: brownian-motion
@@ -1893,14 +1894,15 @@ entries:
       target:
         form: symbol
         modernGlyph: "\\text{s}"
+    notes: "Not printed in this paper. The abbreviation the paper does print for a time unit is Min., on page 559. Kept as a unit-symbol record for the site\'s own rendering, marked unprinted."
     sources:
       facsimilePage: 559
       anchor: bm-s5-p2
     verification:
-      printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-549)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      printed: false
+      checkedAgainst: "Page images of printed pages 559 and 560 (PDF pages 11 and 12 of public/papers/pdfs/ap-17-549.pdf, rendered with pdftoppm at 300 dpi), read by eye, not the text layer. THE ABBREVIATION Sek. IS NOT PRINTED. Page 559 spells the word out: \'Wir wollen berechnen, wie gross lambda_x fuer eine Sekunde ist\', and the only abbreviated time unit on the page is Min., in \'Die mittlere Verschiebung in 1 Min. waere also ca. 6 Mikron.\' Page 560, the last of the paper, carries no time unit at all beyond the date-line \'Bern, Mai 1905.\' and \'(Eingegangen 11. Mai 1905.)\'. Corroborated across the whole paper: the ledger draft holds exactly one occurrence of the string Sek, and it is the full word Sekunde on page 559. An agent check, not a human review; human review pending."
+      by: "agent:ConcordanceCheck-residue-opus5"
+      date: "2026-10-10"
 
 modernOnlySymbols:
   - id: bm.modern.kappa
