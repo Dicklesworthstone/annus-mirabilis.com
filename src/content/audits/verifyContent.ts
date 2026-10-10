@@ -8,6 +8,7 @@ import { resolve } from "node:path";
 import { listRegisteredChecks } from "../compiler/checks/registry.ts";
 import { compileContent } from "../compiler/compile.ts";
 import { loadSourceBlockIndex, sourceBlockCount } from "../compiler/sourceBlockIndex.ts";
+import { applyCompilerDebts, DECLARED_COMPILER_DEBTS } from "./compilerDebts.ts";
 import {
   compareCheckInventory,
   type InventoriedCheck,
@@ -117,7 +118,20 @@ export async function runVerifyContent(
       `affectedIds can be resolved rather than declined.`,
   );
   const compiled = await compileContent(files, { sourceBlockIndex });
-  for (const diagnostic of compiled.diagnostics) {
+  // THE TWO CLASSES RECORDED AS DEBTS, SO THE EXPERIMENT POPULATION CAN BE ALL 33 (am-1nnj).
+  // compilerDebts.ts has the reasoning and the measurement. The census lines go into
+  // `populations` rather than being printed here, because that is where every other "how much did
+  // you examine" line in this result already lives, and a ceiling nobody prints is a ceiling
+  // nobody lowers.
+  const experimentsCompiled = files.filter((file) => file.path.startsWith("experiments/")).length;
+  const debts = applyCompilerDebts(
+    compiled.diagnostics,
+    DECLARED_COMPILER_DEBTS,
+    experimentsCompiled,
+  );
+  populations.push(...debts.census);
+  errors.push(...debts.errors);
+  for (const diagnostic of debts.diagnostics) {
     // The RECORD, then where in it, then what is wrong (am-9755). This line read
     // `code: path: message` until 2026-09-27, which for a voice violation printed
     // "overclaim: whatIsTrue.r0: Voice violation [overclaim]: ..." and named no record at all.
