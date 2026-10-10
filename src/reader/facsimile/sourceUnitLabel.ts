@@ -47,6 +47,28 @@ export function sourceUnitLabel(id: string, kind: string, sectioned: boolean): s
   const sentence = /^s(\d+)-p(\d+)-s(\d+)$/.exec(id);
   if (sentence?.[1] && sentence[2] && sentence[3])
     return at(sentence[1], `paragraph ${sentence[2]}, sentence ${sentence[3]}`);
+  // A substantive inline equation, `s<n>-p<m>-s<k>-m<i>` (AGENTS.md's naming conventions). These
+  // units were added to all four manifests on 2026-10-09 and this function had no case for them,
+  // so every one of them reached the page directory as its own id: "s1-p3-s3-m1 (inline equation)".
+  // Named "inline equation" rather than "equation" because the directory also lists DISPLAY
+  // equations, and the two are different printed objects. The reader still arrives at the sentence
+  // that prints the formula -- the anchor grammar defines no `#s<n>-p<m>-s<k>-m<i>` -- so the label
+  // names the sentence first and the formula within it second.
+  const inlineEquation = /^s(\d+)-p(\d+)-s(\d+)-m(\d+)$/.exec(id);
+  if (inlineEquation?.[1] && inlineEquation[2] && inlineEquation[3] && inlineEquation[4])
+    return at(
+      inlineEquation[1],
+      `paragraph ${inlineEquation[2]}, sentence ${inlineEquation[3]}, inline equation ${inlineEquation[4]}`,
+    );
+  // The same, inside a FOOTNOTE. Measured across content/ there are exactly two inline-equation
+  // shapes, 258 of `s<n>-p<m>-s<k>-m<i>` and 16 of `s<n>-fn<k>-m<i>`, so this case and the one
+  // above cover the whole population rather than the first failure that happened to surface.
+  const footnoteInline = /^s(\d+)-fn(\d+)-m(\d+)$/.exec(id);
+  if (footnoteInline?.[1] && footnoteInline[2] && footnoteInline[3])
+    return at(
+      footnoteInline[1],
+      `footnote ${footnoteInline[2]}, inline equation ${footnoteInline[3]}`,
+    );
   // A printed equation number, normalised by CONTENT_IDS.md §4.2: "1p" is (1′), "1pp" is (1″).
   const printed = (label: string) => `(${label.replace(/pp$/, "″").replace(/p$/, "′")})`;
   const sectionPrinted = /^eq-s(\d+)-(\d+[a-z]?p{0,2})$/.exec(id);
