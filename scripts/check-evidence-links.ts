@@ -55,15 +55,17 @@ export function resolveReference(
     return { resolved: false, message: `Glob's directory does not exist: ${root}` };
   }
 
+  // ONE PASS, so `**` is decided before `*` ever sees it and no placeholder is needed. The first
+  // version replaced `**` with a \u0000 sentinel and restored it afterwards, which biome correctly
+  // refuses (lint/suspicious/noControlCharactersInRegex) and which only worked while no pattern
+  // contained that byte. Alternation in one pass has neither problem.
   const pattern = new RegExp(
     `^${segments
       .slice(literal.length)
       .join("/")
-      .replace(/[.+^${}()|[\]\\]/g, "\\$&")
-      .replace(/\*\*/g, "\u0000")
-      .replace(/\*/g, "[^/]*")
-      .replace(/\u0000/g, ".*")
-      .replace(/\?/g, "[^/]")}$`,
+      .replace(/\*\*|[*?.+^${}()|[\]\\]/g, (token) =>
+        token === "**" ? ".*" : token === "*" ? "[^/]*" : token === "?" ? "[^/]" : `\\${token}`,
+      )}$`,
   );
 
   const deep = reference.includes("**");
