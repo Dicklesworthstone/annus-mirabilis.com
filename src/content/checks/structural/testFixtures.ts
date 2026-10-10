@@ -324,8 +324,13 @@ export function createBaseCorpus(): ContentFile[] {
     {
       path: "content/alignments/test-paper.json",
       text: JSON.stringify({
+        // `align-<paper>`, which is the convention the corpus uses and the project's own builder
+        // emits: src/content/editions/alignment.ts:688 returns `{ id: \`align-${paper}\` }`, and
+        // all four committed files follow it. This fixture declared the bare slug, so when route
+        // 16b was taught the real convention the fixture became the only record in the tree that
+        // did not follow it (am-rc1001-bridge-plan-pcjk.10).
         kind: "alignment",
-        id: "test-paper",
+        id: "align-test-paper",
         paper: "test-paper",
         edges: [
           {

@@ -27,7 +27,7 @@
  * is written rather than the day someone remembers this file.
  */
 import { describe, expect, test } from "bun:test";
-import { readdirSync, statSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { matchContentRoute } from "./routes.ts";
 
@@ -125,6 +125,71 @@ describe("content routes over the real source-block tree", () => {
     expect(matchContentRoute("content/source-blocks/brownian-motion/manifest.extra.yaml")).toBe(
       null,
     );
+  });
+
+  test("a translation unit's sort prefix is not part of its id", () => {
+    // All 821 files are sort-prefixed so a directory listing reads in printed order, and the
+    // prefix is NOT the id: `090-eq-s0-d1.yaml` declares `id: eq-s0-d1`. Relativity uses two
+    // levels. Taking the whole stem made `compiler.ts:218` refuse all 821 with `path-identity`,
+    // and the alignment records were rejected along with them.
+    expect(
+      matchContentRoute("content/translation-units/mass-energy/090-eq-s0-d1.yaml")?.params.id,
+    ).toBe("eq-s0-d1");
+    expect(
+      matchContentRoute("content/translation-units/special-relativity/00-010-masthead-title.yaml")
+        ?.params.id,
+    ).toBe("masthead-title");
+    // The uppercase one, for the same reason route 14 needed it: `eq-A` is the English face of the
+    // display printed as label (A), and refusing it also broke the alignment edge that targets it.
+    expect(
+      matchContentRoute("content/translation-units/special-relativity/10-160-eq-A.yaml")?.params.id,
+    ).toBe("eq-A");
+    // The boundary: an UNPREFIXED file still routes, and no part of a real id is eaten. Measured
+    // over all 821, zero ids would themselves look like a sort prefix.
+    expect(
+      matchContentRoute("content/translation-units/mass-energy/eq-s0-d1.yaml")?.params.id,
+    ).toBe("eq-s0-d1");
+  });
+
+  test("every committed translation unit routes, and its id matches what the file declares", () => {
+    // The population, read from disk, because a rule proved on four hand-written paths says
+    // nothing about the 821.
+    const dir = join(ROOT, "content", "translation-units");
+    const mismatches: string[] = [];
+    let examined = 0;
+    for (const paper of readdirSync(dir).sort()) {
+      const paperDir = join(dir, paper);
+      if (!statSync(paperDir).isDirectory()) continue;
+      for (const name of readdirSync(paperDir).sort()) {
+        if (!name.endsWith(".yaml")) continue;
+        examined += 1;
+        const match = matchContentRoute(`content/translation-units/${paper}/${name}`);
+        const declared = /^id:\s*"?([^"\n]+)"?\s*$/m.exec(
+          readFileSync(join(paperDir, name), "utf8"),
+        )?.[1];
+        if (match === null) mismatches.push(`${paper}/${name}: unrouted`);
+        else if (match.params.id !== declared?.trim()) {
+          mismatches.push(`${paper}/${name}: route says ${match.params.id}, file says ${declared}`);
+        }
+      }
+    }
+    console.log(
+      `[content routes] ${examined} translation unit(s), ${mismatches.length} mismatched`,
+    );
+    expect(mismatches).toEqual([]);
+    expect(examined).toBeGreaterThanOrEqual(821);
+  });
+
+  test("a paper's flat alignment file is `align-<paper>`, not the bare slug", () => {
+    // What the project's own builder emits: alignment.ts:688 returns `{ id: `align-${paper}` }`,
+    // and all four committed files follow it. The route set the expected id to the bare slug, so
+    // each was refused with `path-identity` and never reached a check.
+    const match = matchContentRoute("content/alignments/brownian-motion.yaml");
+    expect(match?.kind).toBe("alignment");
+    expect(match?.params.id).toBe("align-brownian-motion");
+    // `slug` keeps the bare value, because that is the paper and consumers want it.
+    expect(match?.params.slug).toBe("brownian-motion");
+    expect(match?.params.paper).toBe("brownian-motion");
   });
 
   test("the journey route added for am-4k0m still owns its path", () => {

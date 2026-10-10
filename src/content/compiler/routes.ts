@@ -248,8 +248,24 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
   },
 
   // 15. Translation Units
+  //
+  // THE FILENAME CARRIES A SORT PREFIX AND THE ID DOES NOT (am-rc1001-bridge-plan-pcjk.10).
+  // `content/translation-units/mass-energy/090-eq-s0-d1.yaml` declares `id: eq-s0-d1`, and
+  // special-relativity uses TWO levels: `00-010-masthead-title.yaml` for `id: masthead-title`.
+  // The prefix exists so a directory listing reads in printed order. Taking the whole stem as the
+  // id made `compiler.ts:218` refuse every one of them with `path-identity`, which is why feeding
+  // this family produced 824 errors and the alignment records were rejected with them.
+  //
+  // Measured 2026-10-10 over all 821 files: stripping every leading `\d+-` group yields the
+  // declared id for 821 of 821, and ZERO ids would themselves look like a sort prefix, so the
+  // rule cannot eat part of a real id.
   {
-    pattern: /^(?:content\/)?translation-units\/([a-z0-9-]+)\/([a-z0-9-]+)\.(json|yaml|yml)$/,
+    // The id group admits uppercase for the same reason route 14 does: `10-160-eq-A.yaml` is the
+    // English face of the display Einstein printed as label (A). It is the only uppercase
+    // translation-unit filename in the corpus, and refusing it also broke the alignment edge that
+    // targets `eq-A`, so one character class produced two errors.
+    pattern:
+      /^(?:content\/)?translation-units\/([a-z0-9-]+)\/(?:\d+-)*([A-Za-z0-9-]+)\.(json|yaml|yml)$/,
     kind: "translation-unit",
     schema: "TranslationUnit",
     format: "json",
@@ -264,6 +280,11 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     format: "json",
     extractParams: (m) => ({ paper: m[1] ?? "", id: m[2] ?? "", format: m[3] ?? "" }),
   },
+  // A PAPER'S FLAT ALIGNMENT FILE DECLARES `align-<paper>`, NOT `<paper>`. All four do
+  // (`content/alignments/brownian-motion.yaml` holds `id: align-brownian-motion`), and this route
+  // set the expected id to the bare slug, so each one was refused with `path-identity` and never
+  // reached a check (am-rc1001-bridge-plan-pcjk.10). `slug` keeps the bare value, because that is
+  // the paper and some consumers want it.
   {
     pattern: /^(?:content\/)?alignments\/([a-z0-9-]+)\.(json|yaml|yml)$/,
     kind: "alignment",
@@ -271,7 +292,7 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     format: "yaml",
     extractParams: (m) => ({
       paper: m[1] ?? "",
-      id: m[1] ?? "",
+      id: `align-${m[1] ?? ""}`,
       slug: m[1] ?? "",
       format: m[2] ?? "",
     }),
