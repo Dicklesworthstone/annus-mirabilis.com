@@ -1,0 +1,11 @@
+# A unit whose second round is by a different model family. The positive control for the census.
+kind: "translation-unit"
+id: "fx-cross"
+paper: "fixture"
+translator:
+  id: "agent:a"
+  modelId: "claude-opus-5-5"
+agentReview:
+  rounds:
+    - reviewer: { id: "agent:b", modelId: "claude-opus-5-5" }
+    - reviewer: { id: "agent:c", modelId: "gpt-5.2" }

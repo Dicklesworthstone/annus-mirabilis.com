@@ -1,0 +1,11 @@
+# Every round by the translator's own family: the corpus's actual shape today.
+kind: "translation-unit"
+id: "fx-same"
+paper: "fixture"
+translator:
+  id: "agent:a"
+  modelId: "claude-opus-5-5"
+agentReview:
+  rounds:
+    - reviewer: { id: "agent:b", modelId: "claude-opus-5-5" }
+    - reviewer: { id: "agent:c", modelId: "claude-opus-5-5" }

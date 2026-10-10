@@ -1,0 +1,10 @@
+# A reviewer model the family table does not know. Its own bucket, never diversity.
+kind: "translation-unit"
+id: "fx-undeclared"
+paper: "fixture"
+translator:
+  id: "agent:a"
+  modelId: "claude-opus-5-5"
+agentReview:
+  rounds:
+    - reviewer: { id: "agent:b", modelId: "some-unlisted-model-9" }

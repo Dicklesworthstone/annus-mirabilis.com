@@ -36,6 +36,10 @@ import {
   RULE_0_HELP,
   runVerifyContent,
 } from "../src/content/audits/verifyContent.ts";
+import {
+  formatReviewerDiversity,
+  measureReviewerDiversity,
+} from "../src/content/checks/review/reviewerDiversity.ts";
 import { auditKernelBindings } from "../src/content/kernel/audit.ts";
 import { SLICE_KERNEL_CATALOG } from "../src/content/kernel/catalog.ts";
 import { loadProvenanceReceipts } from "../src/content/provenance/loadReceipts.ts";
@@ -363,6 +367,20 @@ const equationIdentity = auditEquationIdentity(root);
 console.log(
   `[audit-equation-identity] examined ${equationIdentity.blocks} equation blocks, ${equationIdentity.units} aligned English units: ${equationIdentity.report.errorCount} errors`,
 );
+// REPORT ONLY, and printed rather than audited (am-rc1001-bridge-plan-pcjk.17).
+//
+// Whether an English translation unit must carry a round by a different MODEL FAMILY is decision
+// D-B and belongs to the owner; enforcing it unasked would turn 821 final units non-final in one
+// commit. So this prints and refuses nothing. What it buys is that the state is a number: today
+// `validateAgentReview` enforces a different reviewer ID, which is what D-2026-09-25 asks for,
+// and it never compares the model, so "independent" has been doing lighter work than the word
+// suggests with nothing saying so.
+//
+// Outside the `audits` map on purpose: that map's keys are a closed union of audits that return a
+// findings report, and a report-only census is not one. Widening the union to admit something
+// that can never fail would make the map's own type a weaker claim about every member of it.
+console.log(formatReviewerDiversity(measureReviewerDiversity(root)));
+
 const result = await runVerifyContent({
   root,
   ...(baseRef !== undefined ? { baseRef } : {}),
