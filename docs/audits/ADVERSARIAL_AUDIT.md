@@ -7,7 +7,7 @@ every column below is read from the registry, the files on disk, or a test run.
 - Rows implemented: **14**
 - Row test files on disk: **14**
 - Rows run in this report: **14**
-- Structured log: `artifacts/test-logs/adversarial/20261010T035222Z-057ad25e.jsonl`
+- Structured log: `artifacts/test-logs/adversarial/20261010T035337Z-d3c7688f.jsonl`
 
 | Row | Claim | Owner | Wrong computation | Tests | Assertions | State | Misconception |
 |---:|---|---|---|---:|---:|---|---|
