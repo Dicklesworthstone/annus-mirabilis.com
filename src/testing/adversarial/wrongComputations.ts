@@ -57,6 +57,41 @@ export function wrongSeedTransport(seedDecimal: string): string {
 }
 
 /**
+ * Row 10, wrong: a moving mirror intercepting the fixed-surface incident power.
+ *
+ * A mirror receding at beta sweeps out less radiation per unit time than a stationary one, so the
+ * intercepted power is I*Am*(1 - beta) rather than I*Am. Using the fixed-surface value leaves the
+ * energy ledger unbalanced by exactly I*Am*beta, and the error is plausible because I*Am is the
+ * right answer for the mirror at rest and nothing in the formula looks frame-dependent.
+ */
+export function wrongFixedSurfaceIncidentPower(intensity: number, area: number): number {
+  return intensity * area;
+}
+
+/**
+ * Row 8, wrong: a force whose numerical components are the same in both frames.
+ *
+ * The transverse coefficient is gamma^2 in the source convention and gamma in the laboratory one,
+ * so a reader who carries one number between frames is out by gamma. The error is plausible because
+ * both are "the transverse mass" and the papers of the period used both conventions.
+ */
+export function wrongFrameIndependentTransverseCoefficient(laboratoryCoefficient: number): number {
+  return laboratoryCoefficient;
+}
+
+/**
+ * Row 15, wrong: a |J/rho| < c gate applied to a four-current.
+ *
+ * The constraint on a four-current is the INVARIANT (c*rho)^2 - |J|^2, whose sign says whether it is
+ * timelike or spacelike. A ratio test divides by the charge density, so a neutral conductor carrying
+ * a current -- rho = 0, which is an ordinary piece of copper -- gives Infinity and is rejected as
+ * superluminal. Returns the ratio so the test can show what the gate would see.
+ */
+export function wrongChargeCurrentRatio(rho: number, jx: number, c = 299792458): number {
+  return Math.abs(jx / rho) / c;
+}
+
+/**
  * Row 5, wrong: an arbitrary entropy-density constant that cancels.
  *
  * Wien's spectral entropy density is fixed only up to an additive function of frequency. A reader
@@ -209,8 +244,8 @@ export const ADVERSARIAL_ROWS: readonly Readonly<{
   Object.freeze({
     row: 8,
     claim: "Forces have equal numerical components in different frames",
-    owner: "physics/reference/electron.ts",
-    state: "not-yet" as const,
+    owner: "physics/reference/electron.ts transverseMassComoving, transverseMassLaboratory",
+    state: "implemented" as const,
   }),
   Object.freeze({
     row: 9,
@@ -221,8 +256,8 @@ export const ADVERSARIAL_ROWS: readonly Readonly<{
   Object.freeze({
     row: 10,
     claim: "A moving mirror receives the fixed-surface incident power",
-    owner: "physics/reference/waves.ts",
-    state: "not-yet" as const,
+    owner: "physics/reference/waves.ts movingMirror",
+    state: "implemented" as const,
   }),
   Object.freeze({
     row: 11,
@@ -251,7 +286,7 @@ export const ADVERSARIAL_ROWS: readonly Readonly<{
   Object.freeze({
     row: 15,
     claim: "A neutral conductor with current violates |J/rho| < c",
-    owner: "physics/reference/fields.ts",
-    state: "not-yet" as const,
+    owner: "physics/reference/fields.ts fourCurrentInvariants",
+    state: "implemented" as const,
   }),
 ]);
