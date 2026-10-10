@@ -18,6 +18,76 @@ export interface LinkCheckResult {
   links: EvidenceLink[];
 }
 
+/**
+ * Resolves a reference that may be a GLOB rather than a single path.
+ *
+ * `docs/decisions/foundation-library-scope.md` line 61 reads "reading every file under
+ * `content/foundations/*.json`", which is correct prose about 45 files that exist. This checker had
+ * no glob handling, so it resolved the literal string as a path and reported the document's one
+ * accurate sentence as a broken reference -- the only unresolved link in any evidence document, and
+ * a false one. Wiring this check into a runner while it did that would have produced a red gate on
+ * correct prose, which is how people learn to ignore red gates.
+ *
+ * A glob still has to point AT something: this returns resolved only when at least one file matches,
+ * and the message says how many, because "resolved" over a pattern that matched nothing and
+ * "resolved" over a pattern that matched 45 files must not read the same.
+ */
+export function resolveReference(
+  reference: string,
+  baseDir: string,
+): Readonly<{ resolved: boolean; message: string }> {
+  const full = path.resolve(baseDir, reference);
+  if (!/[*?]/.test(reference)) {
+    return fs.existsSync(full)
+      ? { resolved: true, message: "File exists" }
+      : { resolved: false, message: `Referenced source file does not exist: ${full}` };
+  }
+
+  // The longest leading run of segments with no metacharacter is the directory to read.
+  const segments = reference.split("/");
+  const literal: string[] = [];
+  for (const segment of segments) {
+    if (/[*?]/.test(segment)) break;
+    literal.push(segment);
+  }
+  const root = path.resolve(baseDir, literal.join("/"));
+  if (!fs.existsSync(root)) {
+    return { resolved: false, message: `Glob's directory does not exist: ${root}` };
+  }
+
+  const pattern = new RegExp(
+    `^${segments
+      .slice(literal.length)
+      .join("/")
+      .replace(/[.+^${}()|[\]\\]/g, "\\$&")
+      .replace(/\*\*/g, "\u0000")
+      .replace(/\*/g, "[^/]*")
+      .replace(/\u0000/g, ".*")
+      .replace(/\?/g, "[^/]")}$`,
+  );
+
+  const deep = reference.includes("**");
+  const matches: string[] = [];
+  const walk = (dir: string, prefix: string, depth: number) => {
+    // Bounded so a deep or looping tree cannot hang the check. Matching is NOT short-circuited at
+    // the first hit, because the count goes into the message.
+    if (depth > 8) return;
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
+      if (entry.isDirectory()) {
+        if (deep) walk(path.join(dir, entry.name), relative, depth + 1);
+        continue;
+      }
+      if (pattern.test(relative)) matches.push(relative);
+    }
+  };
+  walk(root, "", 0);
+
+  return matches.length > 0
+    ? { resolved: true, message: `Glob matches ${matches.length} file(s) under ${root}` }
+    : { resolved: false, message: `Glob matches no file under ${root}` };
+}
+
 export function checkEvidenceLinksInContent(
   content: string,
   filePath: string,
@@ -96,14 +166,13 @@ export function checkEvidenceLinksInContent(
           text.endsWith(".json") ||
           text.endsWith(".yaml"))
       ) {
-        const fullPath = path.resolve(baseDir, text);
-        const exists = fs.existsSync(fullPath);
+        const outcome = resolveReference(text, baseDir);
         links.push({
           ref: text,
           kind: "file",
           line: lineNum,
-          resolved: exists,
-          message: exists ? "File exists" : `Referenced source file does not exist: ${fullPath}`,
+          resolved: outcome.resolved,
+          message: outcome.message,
         });
       }
 

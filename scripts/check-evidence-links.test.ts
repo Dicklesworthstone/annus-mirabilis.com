@@ -2,7 +2,11 @@ import assert from "node:assert/strict";
 import path from "node:path";
 import { describe, it } from "node:test";
 import { pathToFileURL } from "node:url";
-import { checkEvidenceLinksFile, checkEvidenceLinksInContent } from "./check-evidence-links.ts";
+import {
+  checkEvidenceLinksFile,
+  checkEvidenceLinksInContent,
+  resolveReference,
+} from "./check-evidence-links.ts";
 
 describe("Evidence Links Checker", () => {
   it("resolves Markdown links from the document directory and inline source paths from the repository", () => {
@@ -68,5 +72,59 @@ Also \`src/nonexistent/code.ts\`.
     const result = checkEvidenceLinksInContent(brokenContent, "test-broken.md");
     assert.equal(result.unresolvedLinks, 2);
     assert.equal(result.resolvedLinks, 0);
+  });
+
+  /**
+   * A GLOB IS A REFERENCE, AND IT STILL HAS TO POINT AT SOMETHING.
+   *
+   * docs/decisions/foundation-library-scope.md line 61 reads "reading every file under
+   * `content/foundations/*.json`", a true sentence about 45 files that exist. The checker had no
+   * glob handling, resolved the literal string as a path, and reported that one accurate sentence as
+   * the only broken reference in any evidence document. All three directions are asserted here,
+   * because a fix that made every glob resolve would be worse than the false positive it replaced.
+   */
+  it("resolves a glob that matches, and says how many files it matched", () => {
+    const outcome = resolveReference("content/foundations/*.json", process.cwd());
+    assert.equal(outcome.resolved, true);
+    assert.match(outcome.message, /Glob matches \d+ file\(s\)/);
+    // The count is the anchoring half: a glob matching nothing must not read like this one.
+    const matched = Number(/Glob matches (\d+)/.exec(outcome.message)?.[1] ?? "0");
+    assert.ok(matched > 1, `expected more than one match, got ${matched}`);
+  });
+
+  it("REFUSES a glob that matches no file, even though its directory exists", () => {
+    const outcome = resolveReference("content/foundations/*.no-such-extension", process.cwd());
+    assert.equal(outcome.resolved, false);
+    assert.match(outcome.message, /Glob matches no file under/);
+  });
+
+  it("REFUSES a glob whose directory does not exist, and names the directory", () => {
+    const outcome = resolveReference("content/no-such-directory/*.json", process.cwd());
+    assert.equal(outcome.resolved, false);
+    assert.match(outcome.message, /Glob's directory does not exist/);
+  });
+
+  it("a plain path with no metacharacter is still resolved as a path, both ways", () => {
+    assert.equal(resolveReference("package.json", process.cwd()).resolved, true);
+    assert.equal(resolveReference("no-such-file.json", process.cwd()).resolved, false);
+  });
+
+  it("every document in docs/decisions resolves cleanly, which is the population that regressed", () => {
+    for (const name of [
+      "batch-b-retrospective.md",
+      "foundation-library-scope.md",
+      "reader-faces-static.md",
+    ]) {
+      const result = checkEvidenceLinksFile(path.join("docs/decisions", name));
+      assert.ok(result.totalLinks > 0, `${name} contributed no links`);
+      assert.equal(
+        result.unresolvedLinks,
+        0,
+        `${name}: ${result.links
+          .filter((l) => !l.resolved)
+          .map((l) => `line ${l.line} ${l.ref}`)
+          .join("; ")}`,
+      );
+    }
   });
 });
