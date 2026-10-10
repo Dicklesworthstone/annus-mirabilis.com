@@ -60,21 +60,22 @@ const CANONICAL = "src/experiments/results/refusalSentence.ts";
  * `applyFailure`/`refusalSentence` and keeping the refusal, which is a per-lab change with a reader-facing
  * surface to get right, not a rename. Filed on am-ig23.
  *
- * ONE SHAPE IS BLOCKED ON A DESIGN DECISION, not on effort, and naming it here saves the next author the
- * hour it took to find. lq08/PhotoelectricLab.tsx calls `setError` for a model refusal AND for
- * client-side field validation ("Thermal: enter a number.", lq08RangeSentence). An ApplyFailure cannot
- * honestly carry the second: `unexplained` means a RESULT that explained nothing, and a field a reader
- * left blank produced no result at all. Dressing it as one would invent a model refusal, which is the
- * dishonesty applyFailure.ts exists to undo. That component needs TWO pieces of state - a typed failure
- * and a field message - before it can be converted, and the same question applies to any other site on
- * this list whose error state is shared with local validation.
+ * THAT ONE SHAPE WAS BLOCKED ON A DESIGN DECISION AND THE DECISION IS TAKEN, 2026-10-09. The note here
+ * used to say lq08/PhotoelectricLab.tsx could not be converted because it calls `setError` for a model
+ * refusal AND for client-side field validation ("Thermal: enter a number.", lq08RangeSentence), and that
+ * an ApplyFailure cannot honestly carry the second: `unexplained` means a RESULT that explained nothing,
+ * while a field a reader left blank produced no result at all. That diagnosis was right, and the answer
+ * is the one it points at: the component keeps TWO pieces of state. `failure` is the typed refusal and
+ * owns the code, the ranked repairs and the staleness marking; `error` stays an ordinary string for the
+ * form's own hint about text that is not a number. Setting either clears the other, so one notice is
+ * live at a time and a mistyped digit is never recorded as an engine fault.
+ *
+ * Four components were converted that way (lq06, lq08, lq09, sr07) and the remaining five sites are a
+ * different question: BrownianInvestigation.tsx and the three non-component modules are not lab forms,
+ * so neither the two-state shape nor `data-apply-failure` transfers to them unexamined.
  */
 const FLATTENING_SITES: Readonly<Record<string, number>> = {
   "src/components/discover/BrownianInvestigation.tsx": 1,
-  "src/components/lab/lq06/CoefficientMatchLab.tsx": 1,
-  "src/components/lab/lq08/PhotoelectricLab.tsx": 1,
-  "src/components/lab/lq09/IonizationLab.tsx": 1,
-  "src/components/lab/sr07/FieldEquationsLab.tsx": 2,
   "src/discovery/lightQuanta/investigation.ts": 1,
   "src/experiments/bm07/kitchen/analyze.ts": 1,
   "src/experiments/compare/controlledComparison.ts": 1,
@@ -168,6 +169,10 @@ test("the converted paths are NOT in the list, which is what conversion looks li
     "src/components/lab/lq04/EntropyWorkbenchLab.tsx",
     "src/components/lab/bm03/ConfigurationLab.tsx",
     "src/components/lab/DriftDiffusionLab.tsx",
+    "src/components/lab/lq06/CoefficientMatchLab.tsx",
+    "src/components/lab/lq08/PhotoelectricLab.tsx",
+    "src/components/lab/lq09/IonizationLab.tsx",
+    "src/components/lab/sr07/FieldEquationsLab.tsx",
   ];
   for (const file of converted) assert.ok(!Object.keys(report.perFile).includes(file), file);
   /*
@@ -189,9 +194,12 @@ test("the converted paths are NOT in the list, which is what conversion looks li
 test("the recorded debt names only real files, and no duplicates", () => {
   const names = Object.keys(FLATTENING_SITES);
   assert.equal(new Set(names).size, names.length);
+  // The ceiling, lowered with each payment: 26 at 2026-10-06, 10 after the first thirteen
+  // conversions, 5 after lq06, lq08, lq09 and sr07 on 2026-10-09. It never rises without a reason
+  // written beside it, because a baseline that only goes up is a budget.
   assert.equal(
     Object.values(FLATTENING_SITES).reduce((a, b) => a + b, 0),
-    10,
+    5,
   );
   for (const name of names) assert.doesNotThrow(() => readFileSync(join(ROOT, name), "utf8"));
 });

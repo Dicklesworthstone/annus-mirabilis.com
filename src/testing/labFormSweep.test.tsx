@@ -361,11 +361,13 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
    * The labs whose FORM-validation refusal renders the typed surface, measured 2026-10-06 by the sweep
    * above and written down afterwards, not predicted.
    *
-   * Thirteen, and they correspond one-for-one with the source files carrying `data-apply-failure`:
+   * Seventeen as of 2026-10-09, and they correspond one-for-one with the source files carrying
+   * `data-apply-failure`:
    * TracerLab (bm-01), ConfigurationLab (bm-03), DriftDiffusionLab (bm-04), WalkLab (bm-05), BrownianLab (bm-06), InferenceLab (bm-07), CameraLab (bm-08),
    * WaveDescriptionLab (lq-01), SpectrumLab (lq-03),
-   * EntropyWorkbenchLab (lq-04), RodSimultaneityLab (sr-03), LorentzMapLab (sr-04) and
-   * VelocityCompositionLab (sr-06). That correspondence is the point - it
+   * EntropyWorkbenchLab (lq-04), CoefficientMatchLab (lq-06), PhotoelectricLab (lq-08),
+   * IonizationLab (lq-09), RodSimultaneityLab (sr-03), LorentzMapLab (sr-04),
+   * VelocityCompositionLab (sr-06) and FieldEquationsLab (sr-07). That correspondence is the point - it
    * says the attribute a reader's browser receives is the one the component declares, which neither a
    * typecheck nor a grep of the source can establish.
    *
@@ -384,9 +386,13 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
     "lq-01",
     "lq-03",
     "lq-04",
+    "lq-06",
+    "lq-08",
+    "lq-09",
     "sr-03",
     "sr-04",
     "sr-06",
+    "sr-07",
   ];
   test("every lab converted to keep a typed refusal renders it to the reader", () => {
     console.log(
