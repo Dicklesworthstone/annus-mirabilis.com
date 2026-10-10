@@ -443,6 +443,32 @@ export function WalkLab({
             </button>
           </div>
         )}
+        {/*
+            THE STALENESS MARKING, OUT OF THE PREDICT GATE WITH THE REASON IT BELONGS TO (am-ig23).
+
+            The two notices above were lifted out of `div.lab-results` so a refused reader is told WHY.
+            This row was not, so the same reader was told why and NOT told that the numbers still on
+            screen are from the previous settings. Measured across all 33 laboratories: 27 render an
+            execution chrome and exactly TWO - this one and bm-08 - had it inside a gated region,
+            because those two spread `gate.response` on the whole results region while the other 25 gate
+            the response-showing children.
+
+            `validationRefusal` is new here. Without it `deriveCurrencyState` reads the STORE's refusal,
+            which is empty when a parameter schema refused the form before anything reached the worker,
+            so bm-05's form refusal marked nothing stale even once it was visible. CameraLab has carried
+            the override since the first pass on this bead; this is the same argument in the same shape.
+          */}
+        <div className="lab-status-row">
+          <ExecutionChrome
+            state={executionKind}
+            view={view}
+            validationRefusal={failure?.kind === "refused" ? failure.refusal : null}
+            modelNote={modelNoteFromView(view, {
+              notModeled: "A continuous Langevin path; only independent steps of a chosen law.",
+              showTheCodeHref: `#stc-${id}`,
+            })}
+          />
+        </div>
         <div className="lab-results" {...gate.response}>
           <WalkHistogram snapshot={snapshot} />
           <table {...identity(snapshot)}>
@@ -498,16 +524,6 @@ export function WalkLab({
               </tr>
             </tbody>
           </table>
-          <div className="lab-status-row">
-            <ExecutionChrome
-              state={executionKind}
-              view={view}
-              modelNote={modelNoteFromView(view, {
-                notModeled: "A continuous Langevin path; only independent steps of a chosen law.",
-                showTheCodeHref: `#stc-${id}`,
-              })}
-            />
-          </div>
           <p className="status-line" role="status" aria-live="polite" aria-atomic="true">
             {announcement}
           </p>

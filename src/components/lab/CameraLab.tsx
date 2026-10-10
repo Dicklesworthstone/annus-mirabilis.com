@@ -489,6 +489,34 @@ export function CameraLab({
             </button>
           </div>
         )}
+        {/*
+            THE STALENESS MARKING, OUT OF THE PREDICT GATE WITH THE REASON IT BELONGS TO (am-ig23).
+
+            The notices above were lifted out of `div.lab-results` so a refused reader is told WHY. This
+            row was not, so the same reader was told why and NOT told that the numbers still on screen
+            are from the previous settings - two thirds of a museum label. Driven in Chromium: the check
+            waited 63 times on `[data-currency-state="refused"][data-refusal-code="off-replay-grid"]`
+            and each time the locator resolved to a HIDDEN element.
+
+            Measured across all 33 laboratories before moving it: 27 render an execution chrome and
+            exactly TWO - this one and bm-05 - had it inside a gated region, because those two spread
+            `gate.response` on the whole results region while the other 25 gate the response-showing
+            children (bm-01's histogram and table, lq-08's plot). So this is two labs disagreeing with a
+            settled convention, not a reader-facing choice: the execution label, the currency and the
+            model note are what a reader needs in order to PREDICT well, and they say nothing about what
+            the response is.
+          */}
+        <div className="lab-status-row">
+          <ExecutionChrome
+            state={isStatic ? "static-example" : "host-accepted"}
+            view={view}
+            validationRefusal={failure?.kind === "refused" ? failure.refusal : null}
+            modelNote={modelNoteFromView(view, {
+              notModeled:
+                "Higher-order optical aberrations; only uniform exposure blur and Gaussian localization error.",
+            })}
+          />
+        </div>
         <div className="lab-results camera-results" {...gate.response}>
           {/*
           ROLE ALERT, BECAUSE A REFUSAL A READER CANNOT SEE IS A REFUSAL THEY NEVER RECEIVE
@@ -532,17 +560,6 @@ export function CameraLab({
               ))}
             </tbody>
           </table>
-          <div className="lab-status-row">
-            <ExecutionChrome
-              state={isStatic ? "static-example" : "host-accepted"}
-              view={view}
-              validationRefusal={failure?.kind === "refused" ? failure.refusal : null}
-              modelNote={modelNoteFromView(view, {
-                notModeled:
-                  "Higher-order optical aberrations; only uniform exposure blur and Gaussian localization error.",
-              })}
-            />
-          </div>
           <p className="status-line" role="status" aria-live="polite" aria-atomic="true">
             {status}
           </p>
