@@ -8,6 +8,7 @@
 import type { EquationRecord } from "../../equations/record.ts";
 import type { Argument, Block, Citation, Foundation, Paper } from "../schemas/reading.ts";
 import { READING_IDS } from "../schemas/reading.ts";
+import { parseRecordKey } from "./recordKey.ts";
 
 export interface ContentIndexes {
   readonly byId: ReadonlyMap<string, unknown>;
@@ -79,11 +80,33 @@ export function buildContentIndexes(records: ReadonlyMap<string, unknown>): Buil
         byId.set(rawId, record);
       }
 
-      if (kind === "paper") papers.set(rawId, record as Paper);
-      else if (kind === "argument") args.set(rawId, record as Argument);
-      else if (kind === "foundation") foundations.set(rawId, record as Foundation);
-      else if (kind === "citation") citations.set(rawId, record as Citation);
-      else if (kind === "equation") equations.set(rawId, record as EquationRecord);
+      // THE FIVE TYPED MAPS ADMIT ONLY BARE-ID RECORDS, AND `kind` ALONE CANNOT DECIDE THAT
+      // (am-rc1001-bridge-plan-pcjk.10).
+      //
+      // `kind: "equation"` means two different things in two record families. A record under
+      // `content/equations/<paper>/` is an `EquationRecord` with a required `notes` array; a
+      // source block under `content/source-blocks/<paper>/eq-*.yaml` is a `SourceBlock` whose own
+      // `kind` is also "equation" and which has no `notes` at all. The casts below are unchecked,
+      // so admitting the second as the first is a crash waiting on a caller: measured in a probe
+      // on 2026-10-10, feeding the 453 source blocks to `compileContent` dies at compiler.ts:465
+      // with "undefined is not an object (evaluating 'note of eq.notes')" on the first paper.
+      //
+      // The discriminator was already here and unused: the KEY. `recordKey.ts` keys these five
+      // kinds by BARE ID precisely because they are addressed by id across papers, and everything
+      // else as `<routeKind>:<paper>:<id>`. So a namespaced key is never one of these five, and
+      // `parseRecordKey` returning null is the test. This is the same proposition recordKey.ts
+      // records for the editorial-note checks, which matched 0 of 8 records by reading `kind`
+      // where they should have read the key.
+      //
+      // Nothing changes today: no `.yaml` reaches the compiler (`loadReadingFiles` skips them all),
+      // so every record here is already bare-keyed. The guard is what makes feeding them possible.
+      if (parseRecordKey(id) === null) {
+        if (kind === "paper") papers.set(rawId, record as Paper);
+        else if (kind === "argument") args.set(rawId, record as Argument);
+        else if (kind === "foundation") foundations.set(rawId, record as Foundation);
+        else if (kind === "citation") citations.set(rawId, record as Citation);
+        else if (kind === "equation") equations.set(rawId, record as EquationRecord);
+      }
     }
   }
 
