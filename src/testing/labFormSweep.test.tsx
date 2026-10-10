@@ -42,6 +42,53 @@ const UNMARKED: readonly string[] = [];
 
 const VALUES = ["abc", "", "1e300", "-1e300"] as const;
 const KEPT = /last accepted/i;
+/**
+ * A REFUSAL INSIDE THE PREDICT GATE IS A REFUSAL NOBODY RECEIVES (am-ig23).
+ *
+ * `html[data-detail] [data-predict-response="awaiting"]` is `display: none`, and happy-dom computes no
+ * styles, so every assertion in this file reads a refusal that a real reader with an armed prediction
+ * may not be able to see. That is how bm-08's staleness marking stayed hidden for three days under a
+ * green suite. Containment is the property a layout engine is not needed for: a descendant cannot
+ * un-hide itself from an ancestor's display:none.
+ *
+ * src/testing/predictGateHidesOnlyTheResponse.test.tsx asks the same question of the surfaces that
+ * render unconditionally. These four render only once something has been refused, which is why they are
+ * asked here, where a refusal has just been provoked.
+ */
+const GATE = '[data-predict-response="awaiting"]';
+const REFUSAL_SURFACES = [
+  ".notice.error",
+  "[data-apply-failure]",
+  "[data-refusal-code]",
+  "[data-currency-state]",
+].join(", ");
+
+/**
+ * `closest`, NOT a descendant combinator, and a plant is why.
+ *
+ * The first version of this read `querySelectorAll('[data-predict-response="awaiting"] .notice.error,
+ * ...')`. Planting the defect by spreading `gate.response` ONTO WalkLab's own refusal notice left it
+ * GREEN: a descendant combinator requires a gated ANCESTOR, so an element the gate hides by carrying the
+ * attribute itself is the one case that form cannot see -- and `{...gate.response}` on the notice is the
+ * likeliest way for this defect to be reintroduced, since that is how it is spread everywhere else.
+ * `closest` includes the element itself, so both shapes are caught. Re-planted after the change, the
+ * same one line on WalkLab's notice: 28 findings naming bm-05 and its four refusal codes, red by name,
+ * restored byte-identically afterwards.
+ */
+function gatedRefusalSurfaces(c: HTMLElement): string[] {
+  return [...c.querySelectorAll(REFUSAL_SURFACES)]
+    .filter((e) => e.closest(GATE) !== null)
+    .map(
+      (e) =>
+        `${e.className || e.tagName.toLowerCase()}[${
+          e.getAttribute("data-refusal-code") ??
+          e.getAttribute("data-currency-state") ??
+          e.getAttribute("data-apply-failure") ??
+          "-"
+        }]`,
+    );
+}
+
 const RAW =
   /\bNaN\b|\bInfinity\b|\[object |must be a finite number between|\[(?:experiment|[a-z]{2}-\d{2})\] | \((?:[a-z]+-)+[a-z]+\)/g;
 
@@ -138,6 +185,7 @@ function state(c: HTMLElement) {
       .map((e) => (e.textContent ?? "").trim())
       .filter(Boolean)
       .join(" | "),
+    gated: gatedRefusalSurfaces(c),
     text: c.textContent ?? "",
   };
 }
@@ -196,6 +244,7 @@ async function probe(c: HTMLElement, i: number, value: string) {
     coded: after.codes.filter((x) => !before.codes.includes(x)),
     applyFailed: after.applyFailures.length > before.applyFailures.length,
     raw: [...new Set(after.text.match(RAW) ?? [])].filter((h) => !before.text.includes(h)),
+    gated: after.gated.filter((x) => !before.gated.includes(x)),
   } as const;
 }
 
@@ -216,6 +265,8 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
   let refusals = 0;
   let marked = 0;
   const codedRoutes = new Set<string>();
+  /** Refusal surfaces that appeared INSIDE a predict-gated region, by lab (am-ig23). */
+  const gatedRefusals: string[] = [];
   const typedSurfaceRoutes = new Set<string>();
   const untyped: string[] = [];
   let typed = 0;
@@ -295,6 +346,7 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
               // code - 17 findings on bm-02 alone, a lab this change does not touch. A dangling else is
               // what an inserted line does to the construct it lands inside.
               if (r.coded.length > 0) codedRoutes.add(route);
+              for (const g of r.gated) gatedRefusals.push(`${route}: ${g}`);
               if (r.applyFailed) typedSurfaceRoutes.add(route);
             }
           }
@@ -313,6 +365,27 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
       else expect(plain).toEqual([]);
     }, 120_000);
   }
+
+  /**
+   * THE REFUSAL A READER WITH AN ARMED PREDICTION ACTUALLY RECEIVES (am-ig23).
+   *
+   * Every refusal above was read out of a DOM with no styles, so "the reader sees a refusal" was an
+   * inference from presence, not from visibility. This asserts the one thing presence cannot tell you:
+   * that no refusal surface sits under an ancestor the predict gate hides. The sweep mounts each lab as
+   * a first-time reader, so the gate is armed on every lab that asks -- which is the exact state the
+   * defect needed and no earlier assertion here was in.
+   */
+  test("no refusal surface appears inside the predict-gated region", () => {
+    console.log(
+      `[census] predict-gate refusal visibility: ${refusals} refusal(s) provoked across ${routes.length} labs; ` +
+        `${gatedRefusals.length} surface(s) inside a gated region${
+          gatedRefusals.length ? `: ${gatedRefusals.join("; ")}` : ""
+        }`,
+    );
+    // The denominator first: with no refusal provoked this assertion is about nothing.
+    expect(refusals).toBeGreaterThan(0);
+    expect(gatedRefusals).toEqual([]);
+  });
 
   test("the sweep typed into fields (a floor, not a census)", () => {
     console.log(
