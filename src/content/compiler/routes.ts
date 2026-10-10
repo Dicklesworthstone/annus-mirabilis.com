@@ -221,8 +221,26 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
   },
 
   // 14. Source Blocks
+  //
+  // THE ID GROUP ADMITS UPPERCASE, AND ONE REAL BLOCK NEEDS IT (am-rc1001-bridge-plan-pcjk.10).
+  // It was `[a-z0-9-]+`, which refuses `source-blocks/special-relativity/eq-A.yaml` -- the display
+  // Einstein printed as label (A) on p. 918 of s10, which the manifest records as
+  // `originalLabel: "(A)"`. It is the ONLY uppercase id in the corpus
+  // (`find content/source-blocks -name '*.yaml' | grep '[A-Z]'` returns that one file), and the
+  // refusal was invisible for as long as nothing fed these files to the compiler: `matchContentRoute`
+  // returned null and the caller never asked.
+  //
+  // THE RESERVED NAMES ARE EXCLUDED HERE RATHER THAN BY THE CALLER. `manifest.yaml` sits in the same
+  // directory and route 12 owns it, so without the lookahead BOTH patterns match and
+  // `matchContentRoute` throws "Ambiguous content route". That ambiguity existed from the day route
+  // 14 was written and could not fire while nothing fed the directory; a caller that feeds it whole
+  // now gets a clean answer rather than a crash it has to filter around. `ledger-allowlist.yaml` is
+  // excluded for the opposite reason: no route owns it, it is read directly by
+  // src/content/ledger/validateLedger.ts, and admitting it here would hand the SourceBlock schema a
+  // file that is not one.
   {
-    pattern: /^(?:content\/)?source-blocks\/([a-z0-9-]+)\/([a-z0-9-]+)\.(json|yaml|yml)$/,
+    pattern:
+      /^(?:content\/)?source-blocks\/([a-z0-9-]+)\/(?!manifest\.|ledger-allowlist\.)([A-Za-z0-9-]+)\.(json|yaml|yml)$/,
     kind: "source-block",
     schema: "SourceBlock",
     format: "json",
