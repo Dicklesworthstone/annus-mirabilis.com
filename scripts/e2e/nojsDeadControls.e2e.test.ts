@@ -46,6 +46,17 @@ const ROUTES = [
   "/lab/bm-01/",
   "/lab/sr-03/",
   "/lab/lq-08/",
+  // The notation concordance, added 2026-10-10 after measuring it rather than assuming it.
+  // It was outside this population while being a reader-facing route with four buttons, three
+  // of them the site chrome this suite already clears and one its own: the `secondary`
+  // aria-pressed toggle. A static scan of out/notation/index.html cannot settle any of them,
+  // because none carries `disabled` or `hidden` and CSS is what withholds them without
+  // JavaScript -- so the verdict came from this suite's own `deadControls` predicate run
+  // against the built page with javaScriptEnabled: false, beside /papers/mass-energy/ and
+  // /lab/bm-01/ as controls. All three reported 0, which is what makes the two control
+  // routes worth naming here: a predicate that found nothing on a page the suite already
+  // asserts is clean would have been evidence about the probe, not about /notation/.
+  "/notation/",
 ] as const;
 
 const CONTENT_TYPES: Readonly<Record<string, string>> = {
