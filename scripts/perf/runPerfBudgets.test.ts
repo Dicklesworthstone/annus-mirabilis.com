@@ -1,10 +1,13 @@
 import { describe, expect, test } from "bun:test";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import {
   BUILD_DEPENDENT_ROWS,
   runPerformanceBudgets,
   unmeasuredBuildRows,
 } from "../run-perf-budgets.ts";
+import { readBuildId } from "./browserBudgetArtifact.ts";
 import { normalizeAppManifestKey } from "./initialRouteGraph.ts";
 
 describe("Performance Budgets Gate Execution & Negative Tests", () => {
@@ -152,11 +155,18 @@ describe("build-dependent row floor (am-7bkr)", () => {
 
 describe("a row that reached no measurement prints no number (am-snn0)", () => {
   test("every not-available row reports the sentinel, and never a number", async () => {
-    const result = await runPerformanceBudgets({ silent: true });
+    // DRIVEN WITH NO BROWSER ARTIFACT, DELIBERATELY (am-snn0). This used to read the ambient
+    // artifacts/budgets directory and assert that six rows were unavailable, which made it depend on
+    // whether anyone had run the browser step: once three of those rows could be measured, the test
+    // failed on CORRECT work. The property it exists for is unchanged -- a row that reached no
+    // measurement prints no number -- so it is now asserted at an input where rows certainly reach
+    // none, and the measured direction is asserted beside it as before.
+    const noArtifacts = mkdtempSync(join(tmpdir(), "perf-no-browser-"));
+    const result = await runPerformanceBudgets({ silent: true, browserBudgetRoot: noArtifacts });
     const rows = Object.entries(result.report.metrics);
     const unavailable = rows.filter(([, m]) => m.status === "not-available");
-    // NON-VACUITY FIRST. Six of the eight rows are unavailable by construction in this harness, so
-    // an empty set here would make the loop below assert nothing while reading as a clean pass.
+    // NON-VACUITY FIRST. An empty set here would make the loop below assert nothing while reading as
+    // a clean pass.
     expect(unavailable.length).toBeGreaterThan(0);
     for (const [id, m] of unavailable) {
       // Before this, these held 86 ms of latency, 0.03 of layout shift, 65 ms of feedback, 16.6 ms
@@ -177,10 +187,190 @@ describe("a row that reached no measurement prints no number (am-snn0)", () => {
   test("the synthetic figure is MOVED to its note, not deleted", async () => {
     // A diagnostic belongs beside its disclaimer. The bead calls these notes "scrupulously honest"
     // and identifies the `actual` column as the misleading place, so the repair must keep them.
-    const result = await runPerformanceBudgets({ silent: true });
+    // Also driven with no browser artifact: the synthetic figure belongs in the note only on a run
+    // that HAS no measurement. With an artifact the note carries the real p75 and its population.
+    const noArtifacts = mkdtempSync(join(tmpdir(), "perf-no-browser-"));
+    const result = await runPerformanceBudgets({ silent: true, browserBudgetRoot: noArtifacts });
     const latency = result.report.metrics["interaction-latency-p75"];
     expect(latency?.status).toBe("not-available");
     expect(latency?.notes ?? "").toContain("synthetic");
     expect(latency?.notes ?? "").toContain("no browser was driven");
+    // And the note says WHY there is no measurement and what produces one, rather than only that
+    // there is none.
+    expect(latency?.notes ?? "").toContain("measure-browser-budgets.mjs");
+  });
+  /**
+   * THE THREE ROWS THAT HAD NEVER REACHED A VERDICT, AND THE ONE WAY THAT COULD GO WRONG (am-snn0).
+   *
+   * `visible-text-math`, `interaction-latency-p75` and `layout-shift` each had a tested evaluator and
+   * a synthetic input, so each reported `not-available` on every run since the harness was written.
+   * They now report whatever `scripts/perf/measure-browser-budgets.mjs` observed.
+   *
+   * Only the artifact's LOCATION is overridden below. The build id still comes from the real `out/`
+   * and the artifact still goes through the real reader, so these drive the production path: an
+   * over-budget row must turn the gate red, and an artifact from another build must be refused
+   * rather than reported. The second is the case that looks like success -- a complete, well-formed
+   * record of real measurements, taken against a tree that is no longer there.
+   */
+  function browserArtifact(buildId: string, overrides: Record<string, unknown> = {}) {
+    return {
+      schemaVersion: 1,
+      toolRunId: "20261010T000000Z-deadbeef",
+      timestamp: "2026-10-10T00:00:00.000Z",
+      buildId,
+      browser: "chromium 999.0 (fixture)",
+      viewport: "1280x900",
+      routes: ["/", "/papers/mass-energy/"],
+      visibleTextMath: {
+        ok: true,
+        routes: 2,
+        mathMlCount: 12,
+        katexCount: 20,
+        offOriginFonts: 0,
+        violations: [],
+      },
+      interactionLatency: {
+        p75LatencyMs: 32,
+        interactionCount: 94,
+        rawEntryCount: 1523,
+        budgetMs: 200,
+        overBudget: false,
+      },
+      layoutShift: {
+        maxSessionWindowScore: 0.044,
+        sessionWindowsCount: 1,
+        worstRoute: "/",
+        budgetScore: 0.1,
+        overBudget: false,
+      },
+      ...overrides,
+    };
+  }
+
+  function writeBrowserArtifact(body: unknown): string {
+    const root = mkdtempSync(join(tmpdir(), "perf-browser-"));
+    mkdirSync(join(root, "artifacts", "budgets"), { recursive: true });
+    writeFileSync(
+      join(root, "artifacts", "budgets", "browser-20261010T000000Z-deadbeef.json"),
+      `${JSON.stringify(body)}\n`,
+      "utf8",
+    );
+    return root;
+  }
+
+  test("a usable browser artifact gives the three rows real verdicts instead of not-available", async () => {
+    const buildId = readBuildId("out");
+    expect(buildId).not.toBeNull();
+    const root = writeBrowserArtifact(browserArtifact(buildId as string));
+    const result = await runPerformanceBudgets({ silent: true, browserBudgetRoot: root });
+    for (const id of ["visible-text-math", "interaction-latency-p75", "layout-shift"]) {
+      const row = result.report.metrics[id];
+      expect(row?.status).toBe("pass");
+    }
+    // The numbers are the artifact's, not the harness's synthetic ones (which were 86 and 0.03).
+    expect(result.report.metrics["interaction-latency-p75"]?.actual).toBe(32);
+    expect(result.report.metrics["layout-shift"]?.actual).toBe(0.044);
+    expect(result.ok).toBe(true);
+  });
+
+  test("PLANTED: an over-budget layout shift in the artifact turns the gate red", async () => {
+    const buildId = readBuildId("out") as string;
+    const root = writeBrowserArtifact(
+      browserArtifact(buildId, {
+        layoutShift: {
+          maxSessionWindowScore: 0.37,
+          sessionWindowsCount: 3,
+          worstRoute: "/papers/brownian-motion/s4/",
+          budgetScore: 0.1,
+          overBudget: true,
+        },
+      }),
+    );
+    const result = await runPerformanceBudgets({ silent: true, browserBudgetRoot: root });
+    expect(result.failedMetrics).toContain("layout-shift");
+    expect(result.ok).toBe(false);
+  });
+
+  test("PLANTED: an over-budget p75 in the artifact turns the gate red", async () => {
+    const buildId = readBuildId("out") as string;
+    const root = writeBrowserArtifact(
+      browserArtifact(buildId, {
+        interactionLatency: {
+          p75LatencyMs: 264,
+          interactionCount: 94,
+          rawEntryCount: 1523,
+          budgetMs: 200,
+          overBudget: true,
+        },
+      }),
+    );
+    const result = await runPerformanceBudgets({ silent: true, browserBudgetRoot: root });
+    expect(result.failedMetrics).toContain("interaction-latency-p75");
+    expect(result.ok).toBe(false);
+  });
+
+  test("PLANTED: a visible-text-math violation in the artifact turns the gate red", async () => {
+    const buildId = readBuildId("out") as string;
+    const root = writeBrowserArtifact(
+      browserArtifact(buildId, {
+        visibleTextMath: {
+          ok: false,
+          routes: 2,
+          mathMlCount: 0,
+          katexCount: 20,
+          offOriginFonts: 1,
+          violations: ["/: initial HTML includes KaTeX markup but lacks <math> (MathML) element"],
+        },
+      }),
+    );
+    const result = await runPerformanceBudgets({ silent: true, browserBudgetRoot: root });
+    expect(result.failedMetrics).toContain("visible-text-math");
+    expect(result.ok).toBe(false);
+  });
+
+  test("an artifact naming ANOTHER build is refused, and the rows stay not-available", async () => {
+    // The dangerous case: an over-budget row from a build that is no longer on disk must neither
+    // fail the gate nor pass it. It is not a measurement of this build at all.
+    const root = writeBrowserArtifact(
+      browserArtifact("A_BUILD_THAT_IS_NOT_ON_DISK", {
+        layoutShift: {
+          maxSessionWindowScore: 0.9,
+          sessionWindowsCount: 4,
+          worstRoute: "/",
+          budgetScore: 0.1,
+          overBudget: true,
+        },
+      }),
+    );
+    const result = await runPerformanceBudgets({ silent: true, browserBudgetRoot: root });
+    for (const id of ["visible-text-math", "interaction-latency-p75", "layout-shift"]) {
+      expect(result.report.metrics[id]?.status).toBe("not-available");
+      expect(result.report.metrics[id]?.actual).toBe("not-measured");
+    }
+    expect(result.failedMetrics).not.toContain("layout-shift");
+    expect(result.ok).toBe(true);
+  });
+
+  test("with no artifact at all the three rows are not-available, as before this change", async () => {
+    const root = mkdtempSync(join(tmpdir(), "perf-browser-none-"));
+    const result = await runPerformanceBudgets({ silent: true, browserBudgetRoot: root });
+    for (const id of ["visible-text-math", "interaction-latency-p75", "layout-shift"]) {
+      expect(result.report.metrics[id]?.status).toBe("not-available");
+    }
+    expect(result.ok).toBe(true);
+  });
+
+  test("a partial artifact reports the row it carries and leaves the others not-available", async () => {
+    // A run that drove fewer than 20 interactions writes no latency row, because the evaluator
+    // refuses. That must not discard the layout-shift measurement it did take.
+    const buildId = readBuildId("out") as string;
+    const full = browserArtifact(buildId) as Record<string, unknown>;
+    delete full.interactionLatency;
+    delete full.visibleTextMath;
+    const root = writeBrowserArtifact(full);
+    const result = await runPerformanceBudgets({ silent: true, browserBudgetRoot: root });
+    expect(result.report.metrics["layout-shift"]?.status).toBe("pass");
+    expect(result.report.metrics["interaction-latency-p75"]?.status).toBe("not-available");
+    expect(result.report.metrics["visible-text-math"]?.status).toBe("not-available");
   });
 });

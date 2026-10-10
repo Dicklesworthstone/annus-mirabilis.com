@@ -2,12 +2,17 @@ import { execSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import * as os from "node:os";
-import { dirname, relative, resolve } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { brotliCompressSync, gzipSync } from "node:zlib";
 import { loadCommittedProfiles } from "../src/testing/perfProfiles.ts";
 import { reportPopulation } from "./gate-census/population.ts";
 import { measureReadingFace, READING_FACE_BUDGET_BYTES } from "./measure-reading-face.ts";
+import {
+  type BrowserBudgetArtifact,
+  type BrowserBudgetSource,
+  loadBrowserBudgets,
+} from "./perf/browserBudgetArtifact.ts";
 import { loadCommittedBudgets } from "./perf/budgets.ts";
 import { computeCalibration } from "./perf/calibration.ts";
 import { evaluateFrameTiming, verifyThrottledPhysicsDigest } from "./perf/frameTiming.ts";
@@ -48,6 +53,14 @@ export interface RunPerfBudgetsOptions {
   logRunId?: string;
   toolRunId?: string;
   silent?: boolean;
+  /**
+   * Where to look for browser-budget artifacts, overriding `rootDir/artifacts/budgets` (am-snn0).
+   *
+   * Only the LOCATION is overridden: the artifact still goes through the real reader and is still
+   * matched against the real `out/` build id, so a test that writes one exercises the production
+   * path including its staleness refusal. Nothing injects a verdict.
+   */
+  browserBudgetRoot?: string;
 }
 
 export interface RunPerfBudgetsResult {
@@ -76,6 +89,18 @@ export interface RunPerfBudgetsResult {
  * keep passing if a browser-driven row were added later, so the floor names its rows instead.
  */
 export const BUILD_DEPENDENT_ROWS = ["initial-route-js", "reading-face-html"] as const;
+
+/**
+ * The rows a browser run can supply, each paired with where it sits in the artifact (am-snn0).
+ *
+ * One list, read twice: once to report each row and once to state the census floor, so a row added
+ * to the artifact cannot be reported without also raising the floor it is counted against.
+ */
+export const BROWSER_DRIVEN_ROWS = [
+  ["visible-text-math", (a: BrowserBudgetArtifact) => a.visibleTextMath],
+  ["interaction-latency-p75", (a: BrowserBudgetArtifact) => a.interactionLatency],
+  ["layout-shift", (a: BrowserBudgetArtifact) => a.layoutShift],
+] as const satisfies readonly (readonly [string, (a: BrowserBudgetArtifact) => unknown])[];
 
 /**
  * The build-dependent rows that reached no verdict. Non-empty means the run is UNMEASURABLE and
@@ -128,6 +153,27 @@ export async function runPerformanceBudgets(
 
   /** What `actual` holds when no measurement was taken. Never a number (am-snn0). */
   const NOT_MEASURED = "not-measured";
+
+  /**
+   * THE BROWSER RUN THESE THREE ROWS REPORT, WHEN THERE IS ONE (am-snn0).
+   *
+   * `visible-text-math`, `interaction-latency-p75` and `layout-shift` have pure evaluators that
+   * implement their catalogued methods and, until this, a synthetic input and a permanent
+   * `not-available`. `scripts/perf/measure-browser-budgets.mjs` drives the built routes and records
+   * what the browser reported; this reads that record if it describes the build now in `out/`.
+   *
+   * No artifact, a stale one, or an unreadable one leaves the three rows exactly as they were --
+   * `not-available`, no number in `actual` -- with the reason and the command named in the note. A
+   * row is never reported from a run against another build: `loadBrowserBudgets` refuses that, and
+   * the refusal is the one case among the four that looks like success.
+   */
+  const browserSource: BrowserBudgetSource = loadBrowserBudgets(
+    opts.browserBudgetRoot ?? root,
+    join(root, "out"),
+  );
+  const browserNote = browserSource.usable
+    ? `driven in ${browserSource.artifact.browser} at ${browserSource.artifact.viewport} over ${browserSource.artifact.routes.length} built routes of build ${browserSource.artifact.buildId}`
+    : browserSource.note;
 
   function recordMetric(
     id: string,
@@ -566,20 +612,39 @@ export async function runPerformanceBudgets(
         </body>
       </html>`;
 
-  const visibleTextResult = checkVisibleTextAndMath(mathHtmlSample, {
-    expectedParagraphTexts: ["Visible text paragraph"],
-  });
-  recordMetric(
-    "visible-text-math",
-    visibleTextResult.ok,
-    true,
-    visibleTextResult.ok,
-    "boolean",
-    visibleTextResult.ok
-      ? "MathML and R1 present (evaluated against an inline sample, not a built page)"
-      : visibleTextResult.violations.join("; "),
-    opts.plantViolationRow === 3 ? undefined : ("not-available" as const),
-  );
+  const browserVisibleText =
+    opts.plantViolationRow === 3
+      ? undefined
+      : browserSource.usable
+        ? browserSource.artifact.visibleTextMath
+        : undefined;
+  if (browserVisibleText !== undefined) {
+    recordMetric(
+      "visible-text-math",
+      browserVisibleText.ok,
+      true,
+      browserVisibleText.ok,
+      "boolean",
+      browserVisibleText.ok
+        ? `${browserVisibleText.mathMlCount} MathML and ${browserVisibleText.katexCount} KaTeX elements in the initial HTML of ${browserVisibleText.routes} routes with scripting off, ${browserVisibleText.offOriginFonts} off-origin fonts; ${browserNote}`
+        : `${browserVisibleText.violations.join("; ")}; ${browserNote}`,
+    );
+  } else {
+    const visibleTextResult = checkVisibleTextAndMath(mathHtmlSample, {
+      expectedParagraphTexts: ["Visible text paragraph"],
+    });
+    recordMetric(
+      "visible-text-math",
+      visibleTextResult.ok,
+      true,
+      visibleTextResult.ok,
+      "boolean",
+      visibleTextResult.ok
+        ? `MathML and R1 present (evaluated against an inline sample, not a built page): ${browserNote}`
+        : visibleTextResult.violations.join("; "),
+      opts.plantViolationRow === 3 ? undefined : ("not-available" as const),
+    );
+  }
 
   // -------------------------------------------------------------------------
   // Row 4: Interaction latency p75 on mobile-low-cost (<= 200 ms)
@@ -601,19 +666,36 @@ export async function runPerformanceBudgets(
           interactionId: i + 1,
         }));
 
-  try {
-    const interactionLatencyResult = evaluateInteractionLatency(sampleLatencyDurations);
+  const browserLatency =
+    opts.plantViolationRow === 4
+      ? undefined
+      : browserSource.usable
+        ? browserSource.artifact.interactionLatency
+        : undefined;
+  if (browserLatency !== undefined) {
     recordMetric(
       "interaction-latency-p75",
-      !interactionLatencyResult.overBudget,
-      interactionLatencyResult.budgetMs,
-      interactionLatencyResult.p75LatencyMs,
+      !browserLatency.overBudget,
+      browserLatency.budgetMs,
+      browserLatency.p75LatencyMs,
       "ms",
-      `p75 latency ${interactionLatencyResult.p75LatencyMs} ms across ${interactionLatencyResult.interactionCount} synthetic interactions; no browser was driven`,
-      opts.plantViolationRow === 4 ? undefined : ("not-available" as const),
+      `p75 latency ${browserLatency.p75LatencyMs} ms across ${browserLatency.interactionCount} real interactions, grouped by interactionId from ${browserLatency.rawEntryCount} event entries; ${browserNote}`,
     );
-  } catch (err) {
-    recordMetric("interaction-latency-p75", false, 200, String(err), "ms");
+  } else {
+    try {
+      const interactionLatencyResult = evaluateInteractionLatency(sampleLatencyDurations);
+      recordMetric(
+        "interaction-latency-p75",
+        !interactionLatencyResult.overBudget,
+        interactionLatencyResult.budgetMs,
+        interactionLatencyResult.p75LatencyMs,
+        "ms",
+        `p75 latency ${interactionLatencyResult.p75LatencyMs} ms across ${interactionLatencyResult.interactionCount} synthetic interactions; no browser was driven: ${browserNote}`,
+        opts.plantViolationRow === 4 ? undefined : ("not-available" as const),
+      );
+    } catch (err) {
+      recordMetric("interaction-latency-p75", false, 200, String(err), "ms");
+    }
   }
 
   // -------------------------------------------------------------------------
@@ -627,16 +709,33 @@ export async function runPerformanceBudgets(
           { startTime: 250, value: 0.01, hadRecentInput: false },
         ];
 
-  const layoutShiftResult = evaluateLayoutShift(sampleLayoutShifts);
-  recordMetric(
-    "layout-shift",
-    !layoutShiftResult.overBudget,
-    layoutShiftResult.budgetScore,
-    layoutShiftResult.maxSessionWindowScore,
-    "score",
-    `Max window shift score ${layoutShiftResult.maxSessionWindowScore} from a synthetic shift list; no page was rendered`,
-    opts.plantViolationRow === 5 ? undefined : ("not-available" as const),
-  );
+  const browserLayoutShift =
+    opts.plantViolationRow === 5
+      ? undefined
+      : browserSource.usable
+        ? browserSource.artifact.layoutShift
+        : undefined;
+  if (browserLayoutShift !== undefined) {
+    recordMetric(
+      "layout-shift",
+      !browserLayoutShift.overBudget,
+      browserLayoutShift.budgetScore,
+      browserLayoutShift.maxSessionWindowScore,
+      "score",
+      `Largest session window ${browserLayoutShift.maxSessionWindowScore} over ${browserLayoutShift.sessionWindowsCount} window(s), worst route ${browserLayoutShift.worstRoute}; ${browserNote}`,
+    );
+  } else {
+    const layoutShiftResult = evaluateLayoutShift(sampleLayoutShifts);
+    recordMetric(
+      "layout-shift",
+      !layoutShiftResult.overBudget,
+      layoutShiftResult.budgetScore,
+      layoutShiftResult.maxSessionWindowScore,
+      "score",
+      `Max window shift score ${layoutShiftResult.maxSessionWindowScore} from a synthetic shift list; no page was rendered: ${browserNote}`,
+      opts.plantViolationRow === 5 ? undefined : ("not-available" as const),
+    );
+  }
 
   // -------------------------------------------------------------------------
   // Row 6: Instrument feedback (input to accepted paint <= 100 ms)
@@ -774,6 +873,38 @@ export async function runPerformanceBudgets(
     noun: "build-dependent budget rows",
     minimum: BUILD_DEPENDENT_ROWS.length,
   });
+  /*
+    THE BROWSER-DRIVEN ROWS GET THEIR OWN LINE, with the floor the ARTIFACT sets (am-snn0).
+
+    The comment above says the other six rows are "not-available by construction in this harness",
+    and for three of them that is no longer true: with a usable browser-budget artifact they report
+    real verdicts. They still cannot join BUILD_DEPENDENT_ROWS, because that list is what this run
+    REFUSES over, and a fast-lane run with no browser artifact would then refuse every time -- the
+    browser run is a separate registry step by design.
+
+    So the floor is the artifact's own content: however many rows it carries is how many must reach a
+    verdict, and a row that drops out between the artifact and the report prints VACUOUS. With no
+    usable artifact the line is not printed at all, because a line reading `examined 0 (minimum 0)`
+    is a census that cannot fail, which is the shape this grammar exists to make visible. The reason
+    is printed instead, and it is also in each of the three rows' notes.
+  */
+  if (browserSource.usable) {
+    const carried = BROWSER_DRIVEN_ROWS.filter(
+      ([, row]) => row(browserSource.artifact) !== undefined,
+    );
+    reportPopulation({
+      gate: "perf-budgets",
+      examined: carried.filter(
+        ([id]) => (metrics[id]?.status ?? "not-available") !== "not-available",
+      ).length,
+      noun: "browser-driven budget rows",
+      minimum: carried.length,
+    });
+  } else {
+    console.log(
+      `[run-perf-budgets] no browser-driven row was measured (${browserSource.reason}): ${browserSource.note}`,
+    );
+  }
   console.log(
     `[run-perf-budgets] ${measuredCount} of ${Object.keys(metrics).length} rows reached real build output; ` +
       `${notAvailableMetrics.length} reported not-available` +

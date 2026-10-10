@@ -160,7 +160,12 @@ describe("the live registry declares it where it is needed, and only there", () 
     const ids = declaring.map((s) => s.id).sort();
     // Non-vacuity on purpose: a filter that matched nothing would satisfy every assertion below.
     assert.ok(declaring.length > 0, "no step declares a required artefact");
-    assert.deepEqual(ids, ["adversarial-runtime", "perf-budgets"]);
+    // perf-browser-budgets added 2026-10-10 (am-snn0), argued rather than stamped: it drives the
+    // built routes in Chromium for the three budget rows that had never reached a verdict, and
+    // without out/ it drives nothing. It names `out/_next/static` and not `out/index.html`, because
+    // its first action reads that directory for the build id it stamps on its artifact -- the
+    // distinct-path rule below caught the copied path and this is the correction.
+    assert.deepEqual(ids, ["adversarial-runtime", "perf-browser-budgets", "perf-budgets"]);
 
     const paths = declaring.map((s) => s.availability?.requiresArtifact?.path ?? "");
     assert.equal(

@@ -776,6 +776,50 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     owner: "am-test-e2e-harness-bqmh",
   },
   {
+    // THE BROWSER HALF OF THREE BUDGET ROWS THAT HAD NEVER REACHED A VERDICT (am-snn0).
+    //
+    // `visible-text-math`, `interaction-latency-p75` and `layout-shift` each had a pure, tested
+    // evaluator implementing its catalogued method -- nearest-rank p75 with a 20-sample refusal,
+    // session windows with a 1 s gap and a 5 s cap -- and a SYNTHETIC input, so each reported
+    // `not-available` on every run since the harness was written. The bead's diagnosis of why that
+    // survived is the point: "a `not-available` beside a plausible number reads like a measurement".
+    //
+    // This step drives the built routes in Chromium and writes what the browser reported to
+    // artifacts/budgets/browser-<tool-run-id>.json; `perf-budgets` reads it and reports those three
+    // rows, or leaves them not-available when there is no artifact for the build on disk.
+    //
+    // NOT REQUIRED IN SCAFFOLD, and that is a choice rather than an omission. The two other
+    // browser-family steps are preview and launch, and this one adds about 90 seconds of real
+    // clicking to a lane; a scaffold release keeps the behaviour it has today, with the three rows
+    // not-available and the reason printed. Raising it to scaffold is a budget-coverage decision for
+    // the owner, not a side effect of wiring the measurement.
+    //
+    // requiresArtifact names out/, so a checkout with no build reports `not-available` rather than
+    // passing having measured nothing, and a --profile run refuses.
+    id: "perf-browser-budgets",
+    title:
+      "Browser-driven budget rows: visible text and math, interaction latency p75, layout shift",
+    command: ["node", "--experimental-strip-types", "scripts/perf/measure-browser-budgets.mjs"],
+    family: "browser",
+    cadence: "every-run",
+    requiredInCi: true,
+    requiredInProfiles: ["preview", "launch"],
+    availability: {
+      scriptPath: "scripts/perf/measure-browser-budgets.mjs",
+      requiresArtifact: {
+        // NOT out/index.html, which adversarial-runtime already names. This step's FIRST action is
+        // `readBuildId(out)`, which reads exactly this directory to find the build id it stamps on
+        // its artifact, and it exits 2 naming this path when the directory is absent. So the
+        // declaration states what the step actually requires rather than copying a neighbour's,
+        // which is the hazard artifactAbsence.test.ts's distinct-path rule exists to catch -- and it
+        // caught this one as a copy before the path was corrected.
+        path: "out/_next/static",
+        hint: "These three rows are driven against the real built routes over HTTP, never a fixture, and the artifact is stamped with the build id read from this directory. Run `bun run build` first. An absent out/ is not a budget failure: no browser was driven.",
+      },
+    },
+    owner: "am-snn0",
+  },
+  {
     id: "perf-budgets",
     title: "Performance budget full measurements",
     command: ["bun", "scripts/run-perf-budgets.ts"],
