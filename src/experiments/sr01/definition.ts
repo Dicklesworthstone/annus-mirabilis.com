@@ -163,7 +163,7 @@ export const SR01_PREDICT_MOVING_PAIR: PredictPrompt = Object.freeze({
       description:
         "The moving pair's clocks read the same as ours at every moment we compare them.",
       separatingAssumption:
-        "That would hold only if simultaneity itself did not depend on the frame doing the judging -- but the same light-signal procedure, applied by observers in relative motion, assigns different remote times to the same pair of events.",
+        "That would hold only if simultaneity itself did not depend on the frame doing the judging. But the same light-signal procedure, applied by observers in relative motion, assigns different remote times to the same pair of events.",
     }),
     Object.freeze({
       id: "leading-clock-ahead",
