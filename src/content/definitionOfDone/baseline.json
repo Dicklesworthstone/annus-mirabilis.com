@@ -2,7 +2,7 @@
   "schema": "annus-mirabilis-definition-of-done-baseline.v1",
   "recordedAt": "2026-10-08",
   "recordedFrom": "the working tree at the commit this file lands in",
-  "correction": "Lowered from the 2026-10-08 first recording: the eight readings cells (readings-r0-to-r3 and r2-covers-r1 across four papers) were recorded unmeasured on a loader defect in this directory, not on a corpus gap. A baseline is the record of a debt, so it comes down when the debt turns out not to exist.",
+  "correction": "Lowered from the 2026-10-08 first recording: the eight readings cells (readings-r0-to-r3 and r2-covers-r1 across four papers) were recorded unmeasured on a loader defect in this directory, not on a corpus gap. A baseline is the record of a debt, so it comes down when the debt turns out not to exist. Raised 2026-10-10 for the four margin-entries cells only: they were recorded {count: 0, denominator: 0, met: false} because the cell was declared unmeasured, and they now measure against content/editorial/required-margin-entries/<paper>.yaml. Recording the real figures is a TIGHTENING, not a budget increase: mass-energy's 8 of 8 is now met in the baseline, so a regression to 7 of 8 is refused, where against met:false it would have counted as an improvement and passed. The three papers that are not met keep their real denominators so their counts cannot fall either.",
   "cells": {
     "displays-bound|brownian-motion": {
       "count": 43,
@@ -106,22 +106,22 @@
     },
     "margin-entries|brownian-motion": {
       "count": 0,
-      "denominator": 0,
+      "denominator": 8,
       "met": false
     },
     "margin-entries|light-quanta": {
       "count": 0,
-      "denominator": 0,
+      "denominator": 5,
       "met": false
     },
     "margin-entries|mass-energy": {
-      "count": 0,
-      "denominator": 0,
-      "met": false
+      "count": 8,
+      "denominator": 8,
+      "met": true
     },
     "margin-entries|special-relativity": {
-      "count": 0,
-      "denominator": 0,
+      "count": 2,
+      "denominator": 9,
       "met": false
     },
     "misconceptions-at-least-five|brownian-motion": {
