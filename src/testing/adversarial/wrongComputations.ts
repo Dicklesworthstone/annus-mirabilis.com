@@ -57,6 +57,29 @@ export function wrongSeedTransport(seedDecimal: string): string {
 }
 
 /**
+ * Row 3, wrong: camera noise leaving neighbouring increments independent.
+ *
+ * Localization error enters two consecutive increments with opposite sign, so it induces a NEGATIVE
+ * covariance even when the underlying walk has independent steps. A reader who treats the measured
+ * increments as independent gets zero, and nothing about the numbers looks wrong: the variance is
+ * still inflated in the right direction, so a variance-only check passes.
+ */
+export function wrongNeighbouringCovariance(): number {
+  return 0;
+}
+
+/**
+ * Row 4, wrong: an unbiased estimate staying unbiased after inversion.
+ *
+ * E[1/X] is not 1/E[X]. For a chi-square-distributed diffusivity estimate with q degrees of
+ * freedom the inverse carries a factor q/(q - 2), which is 1.25 at q = 10 and diverges as q -> 2.
+ * Taking the inversion as bias-preserving means asserting a factor of exactly 1.
+ */
+export function wrongInversionMeanFactor(): number {
+  return 1;
+}
+
+/**
  * Row 2, wrong: the radial distribution taken as an ordinary Gaussian in r.
  *
  * The real 2D radial density is p_r(r,t) = r/(2Dt) e^{-r^2/(4Dt)}, which carries the factor r from
@@ -128,14 +151,14 @@ export const ADVERSARIAL_ROWS: readonly Readonly<{
   Object.freeze({
     row: 3,
     claim: "Camera noise leaves neighbouring increments independent",
-    owner: "physics/reference/inference.ts",
-    state: "not-yet" as const,
+    owner: "physics/reference/inference/observation.ts cameraMoments",
+    state: "implemented" as const,
   }),
   Object.freeze({
     row: 4,
     claim: "An unbiased estimate stays unbiased after inversion",
-    owner: "physics/reference/inference.ts",
-    state: "not-yet" as const,
+    owner: "physics/reference/inference.ts inverseBias",
+    state: "implemented" as const,
   }),
   Object.freeze({
     row: 5,

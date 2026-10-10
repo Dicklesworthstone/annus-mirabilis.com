@@ -23,6 +23,7 @@ import { expect, test } from "bun:test";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { ADVERSARIAL_ROWS } from "./wrongComputations.ts";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, "../../..");
@@ -89,4 +90,40 @@ test("a specifier that merely shares a basename elsewhere is NOT an offence", ()
   // Resolution, not matching: the same text from another directory points at another file.
   const fromElsewhere = resolve(ROOT, "src/physics/reference", "./wrongComputations.ts");
   expect(FORBIDDEN.includes(fromElsewhere)).toBe(false);
+});
+
+/**
+ * THE ROW REGISTRY AGREES WITH THE FILES ON DISK (am-ver-adversarial-audit-1ef).
+ *
+ * Without this the registry is decoration: a row could be marked `implemented` with no test behind
+ * it, or a row test could land while the registry still called it outstanding, and the audit's own
+ * statement of progress would drift from the audit. Both directions are asserted.
+ *
+ * It also pins that all fifteen rows are present exactly once. Counting them with `grep -c
+ * 'state: "implemented"'` gave 9 of 15 when the truth was 8, because the type declaration
+ * `state: "implemented" | "not-yet"` contains both strings; the registry is counted by importing it.
+ */
+test("every row marked implemented has a test file, and every row test is marked implemented", () => {
+  const files = readdirSync(HERE).filter((f) => /^row\d{2}\..*\.test\.ts$/.test(f));
+  const onDisk = new Set(files.map((f) => Number(f.slice(3, 5))));
+  const marked = new Set(
+    ADVERSARIAL_ROWS.filter((r) => r.state === "implemented").map((r) => r.row),
+  );
+  console.log(
+    `[adversarial rows] ${ADVERSARIAL_ROWS.length} rows, ${marked.size} marked implemented, ${onDisk.size} row test files on disk`,
+  );
+  expect(onDisk.size).toBeGreaterThan(0);
+  expect([...onDisk].sort((a, b) => a - b)).toEqual([...marked].sort((a, b) => a - b));
+});
+
+test("all fifteen rows are declared exactly once, with an owner named for each", () => {
+  const rows = ADVERSARIAL_ROWS.map((r) => r.row);
+  expect(rows.length).toBe(15);
+  expect(new Set(rows).size).toBe(15);
+  expect(Math.min(...rows)).toBe(1);
+  expect(Math.max(...rows)).toBe(15);
+  for (const row of ADVERSARIAL_ROWS) {
+    expect(row.owner.length, `row ${row.row} must name its owner module`).toBeGreaterThan(10);
+    expect(row.claim.length).toBeGreaterThan(20);
+  }
 });
