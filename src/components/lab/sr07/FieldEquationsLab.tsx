@@ -17,6 +17,11 @@ import { labelRootAttributes } from "../../../experiments/labels/resultAttribute
 import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import {
+  type ApplyFailure,
+  applyFailure,
+  failureCode,
+} from "../../../experiments/results/applyFailure.ts";
+import {
   SR07_CAPTION,
   SR07_COMPONENTS,
   SR07_EQUATIONS,
@@ -110,6 +115,14 @@ export function FieldEquationsLab({
   const tapeLink = useLabTapeLink(SR07_TAPE, session, session.acceptedParameters());
   const snapshot = view.accepted;
   const p = (snapshot?.parameters ?? example.parameters) as Sr07Parameters;
+  /**
+   * TWO STATES, DELIBERATELY (am-ig23). `failure` is a typed refusal the MODEL raised and carries a
+   * code; `error` is this form's own hint from readTypedNumber for text that is not a number at
+   * all, which no model ever saw. Folding the second into an ApplyFailure would have to call it
+   * `unexplained`, and that variant means "the engine gave no reason", so a cleared field would be
+   * recorded as an engine fault. Only one is ever shown.
+   */
+  const [failure, setFailure] = useState<ApplyFailure | null>(null);
   const [error, setError] = useState("");
   const [predict, setPredict] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
@@ -120,10 +133,13 @@ export function FieldEquationsLab({
     const shared = decodeSr07Settings(window.location.search);
     if (shared.kind !== "settings") return;
     const r = session.apply(shared.parameters);
-    if (r.kind !== "accepted") {
-      setError(String(r.refusal.details?.requirements ?? r.refusal.message));
+    const failed = applyFailure(r);
+    if (failed) {
+      setFailure(failed);
+      setError("");
       return;
     }
+    setFailure(null);
     setError("");
   }, [session]);
 
@@ -133,10 +149,13 @@ export function FieldEquationsLab({
 
   function apply(next: Sr07Parameters) {
     const r = session.apply(next);
-    if (r.kind !== "accepted") {
-      setError(String(r.refusal.details?.requirements ?? r.refusal.message));
+    const failed = applyFailure(r);
+    if (failed) {
+      setFailure(failed);
+      setError("");
       return;
     }
+    setFailure(null);
     setError("");
   }
 
@@ -145,7 +164,10 @@ export function FieldEquationsLab({
     // Number("") is 0: a cleared field, or "abc", which a number field hands over as "", was
     // applied as a boost of 0 without a word (dispatch 170).
     const boost = readTypedNumber(betaDraft, "the boost speed β");
-    if (boost.kind === "refused") return setError(boost.requirement);
+    if (boost.kind === "refused") {
+      setFailure(null);
+      return setError(boost.requirement);
+    }
     apply({ ...p, boostBeta: boost.value });
   }
 
@@ -328,7 +350,38 @@ export function FieldEquationsLab({
               <button type="submit">Apply boost</button>
             </ExperimentSettings>
           </form>
-          {error ? (
+          {failure ? (
+            /* THE TYPED SURFACE (am-ig23): the code a gate can find, and the schema's own repair,
+               beside the sentence the reader reads. sr07 DOES declare a repair action - the
+               superluminal-observer refusal offers "Use 0.6 of light speed." - so this button is
+               reachable rather than defensive, and it was unreachable before this change. */
+            <div
+              className="notice error"
+              role="alert"
+              data-refusal-code={failureCode(failure)}
+              data-apply-failure={failure.kind}
+            >
+              <p>
+                {failure.text} {KEPT_RESULT}
+              </p>
+              {failure.kind === "refused"
+                ? failure.refusal.rankedRepairs.map((repair) => {
+                    const action = repair.action;
+                    if (!action) return null;
+                    return (
+                      <button
+                        key={`validation-${action.parameterId}-${repair.label}`}
+                        type="button"
+                        className="secondary"
+                        onClick={() => apply({ ...p, [action.parameterId]: action.value })}
+                      >
+                        {repair.label}
+                      </button>
+                    );
+                  })
+                : null}
+            </div>
+          ) : error ? (
             <p className="notice error" role="alert">
               {error} {KEPT_RESULT}
             </p>

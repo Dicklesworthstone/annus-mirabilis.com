@@ -18,6 +18,11 @@ import { createLq08Session, type PreparedLq08Example } from "../../../experiment
 import { LQ08_TAPE } from "../../../experiments/lq08/tape.ts";
 import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
+import {
+  type ApplyFailure,
+  applyFailure,
+  failureCode,
+} from "../../../experiments/results/applyFailure.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
@@ -173,6 +178,14 @@ export function PhotoelectricLab({
   const gate = usePredictGate("lq-08", predict ? LQ08_PROMPTS : NO_PROMPTS);
   const [showMillikan, setShowMillikan] = useState<boolean>(true);
   const [drafts, setDrafts] = useState<Partial<Record<FieldKey, string>>>({});
+  /**
+   * TWO STATES, DELIBERATELY (am-ig23). `failure` is a typed refusal the MODEL raised and carries a
+   * code; `error` is this form's own hint for text that is not a number at all, which no model ever
+   * saw. Folding the second into an ApplyFailure would have to call it `unexplained`, and that
+   * variant means "the engine gave no reason", so a mistyped digit would be recorded as an engine
+   * fault and would pollute the data-apply-failure census. Only one is ever shown.
+   */
+  const [failure, setFailure] = useState<ApplyFailure | null>(null);
   const [error, setError] = useState("");
 
   const accepted = view.accepted;
@@ -232,12 +245,18 @@ export function PhotoelectricLab({
   const pcMicroAmps = pcVal !== null ? pcVal * 1e6 : null;
 
   function apply(patch: Partial<Lq08Params>) {
-    const outcome = session.apply(patch);
-    if (outcome.kind === "refused") {
-      const req = outcome.refusal.details?.requirements;
-      setError(typeof req === "string" ? req : outcome.refusal.message);
+    // applyFailure() keeps the refusal whole. The previous line read
+    // `if (outcome.kind === "refused")` and flattened it to a sentence, losing the code, the ranked
+    // repairs and the staleness marking; it also let any non-refusal non-acceptance fall THROUGH to
+    // the accepted branch, so the error was cleared and `true` returned while the reader was told
+    // nothing.
+    const failed = applyFailure(session.apply(patch));
+    if (failed) {
+      setFailure(failed);
+      setError("");
       return false;
     }
+    setFailure(null);
     setError("");
     return true;
   }
@@ -246,6 +265,7 @@ export function PhotoelectricLab({
     const n = Number(text.trim());
     if (text.trim() === "" || !Number.isFinite(n)) {
       setDrafts((d) => ({ ...d, [key]: text }));
+      setFailure(null);
       setError(`${FIELDS[key].label}: enter a number.`);
       return;
     }
@@ -253,6 +273,7 @@ export function PhotoelectricLab({
     if (!Number.isFinite(stored)) {
       // 1e300 THz is a number, but not one in hertz: say the range rather than "enter a number".
       setDrafts((d) => ({ ...d, [key]: text }));
+      setFailure(null);
       setError(lq08RangeSentence(key));
       return;
     }
@@ -387,11 +408,42 @@ export function PhotoelectricLab({
             )}
           </ExperimentSettings>
 
-          {error && (
+          {failure ? (
+            /* THE TYPED SURFACE (am-ig23): the code a gate can find, and the schema's own repair
+               where it supplies one, beside the sentence the reader reads. lq08's parameter schema
+               declares no repair ACTION today, so the map renders no button; it is kept so a schema
+               that gains one is offered without touching this component. */
+            <div
+              className="notice error"
+              role="alert"
+              data-refusal-code={failureCode(failure)}
+              data-apply-failure={failure.kind}
+            >
+              <p>
+                {failure.text} {KEPT_RESULT}
+              </p>
+              {failure.kind === "refused"
+                ? failure.refusal.rankedRepairs.map((repair) => {
+                    const action = repair.action;
+                    if (!action) return null;
+                    return (
+                      <button
+                        key={`validation-${action.parameterId}-${repair.label}`}
+                        type="button"
+                        className="secondary"
+                        onClick={() => apply({ [action.parameterId]: action.value })}
+                      >
+                        {repair.label}
+                      </button>
+                    );
+                  })
+                : null}
+            </div>
+          ) : error ? (
             <p role="alert" className="notice error">
               {error} {KEPT_RESULT}
             </p>
-          )}
+          ) : null}
           <AcceptedStatus
             worked={accepted === undefined || accepted === session.getServerSnapshot().accepted}
             summary={statusSummary}

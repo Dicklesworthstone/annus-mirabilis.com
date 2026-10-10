@@ -23,6 +23,11 @@ import {
 import { LQ09_TAPE } from "../../../experiments/lq09/tape.ts";
 import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
+import {
+  type ApplyFailure,
+  applyFailure,
+  failureCode,
+} from "../../../experiments/results/applyFailure.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
@@ -160,15 +165,29 @@ export function IonizationLab({ example, restoreFromLocation = false }: Ionizati
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("lq-09", LQ09_PROMPTS);
   const [drafts, setDrafts] = useState<Partial<Record<FieldKey, string>>>({});
+  /**
+   * TWO STATES, DELIBERATELY (am-ig23). `failure` is a typed refusal the MODEL raised and carries a
+   * code; `error` is this form's own hint for text that is not a number at all, which no model ever
+   * saw. Folding the second into an ApplyFailure would have to call it `unexplained`, and that
+   * variant means "the engine gave no reason", so a mistyped digit would be recorded as an engine
+   * fault and would pollute the data-apply-failure census. Only one is ever shown.
+   */
+  const [failure, setFailure] = useState<ApplyFailure | null>(null);
   const [error, setError] = useState("");
 
   function apply(patch: Partial<Lq09Parameters>) {
-    const outcome = session.apply(patch);
-    if (outcome.kind === "refused") {
-      const req = outcome.refusal.details?.requirements;
-      setError(typeof req === "string" ? req : outcome.refusal.message);
+    // applyFailure() keeps the refusal whole. The previous line read
+    // `if (outcome.kind === "refused")` and flattened it to a sentence, losing the code, the ranked
+    // repairs and the staleness marking; it also let any non-refusal non-acceptance fall THROUGH to
+    // the accepted branch, so the error was cleared and `true` returned while the reader was told
+    // nothing.
+    const failed = applyFailure(session.apply(patch));
+    if (failed) {
+      setFailure(failed);
+      setError("");
       return false;
     }
+    setFailure(null);
     setError("");
     return true;
   }
@@ -182,6 +201,7 @@ export function IonizationLab({ example, restoreFromLocation = false }: Ionizati
     const n = Number(text.trim());
     if (text.trim() === "" || !Number.isFinite(n)) {
       setDrafts((d) => ({ ...d, [key]: text }));
+      setFailure(null);
       setError(`${FIELDS[key].label}: enter a number.`);
       return;
     }
@@ -189,6 +209,7 @@ export function IonizationLab({ example, restoreFromLocation = false }: Ionizati
     if (!Number.isFinite(stored)) {
       // 1e300 THz is a number, but not one in hertz: say the range rather than "enter a number".
       setDrafts((d) => ({ ...d, [key]: text }));
+      setFailure(null);
       setError(lq09RangeSentence(key));
       return;
     }
@@ -329,11 +350,42 @@ export function IonizationLab({ example, restoreFromLocation = false }: Ionizati
             />
           </ExperimentSettings>
 
-          {error && (
+          {failure ? (
+            /* THE TYPED SURFACE (am-ig23): the code a gate can find, and the schema's own repair
+               where it supplies one, beside the sentence the reader reads. lq09's parameter schema
+               declares no repair ACTION today, so the map renders no button; it is kept so a schema
+               that gains one is offered without touching this component. */
+            <div
+              className="notice error"
+              role="alert"
+              data-refusal-code={failureCode(failure)}
+              data-apply-failure={failure.kind}
+            >
+              <p>
+                {failure.text} {KEPT_RESULT}
+              </p>
+              {failure.kind === "refused"
+                ? failure.refusal.rankedRepairs.map((repair) => {
+                    const action = repair.action;
+                    if (!action) return null;
+                    return (
+                      <button
+                        key={`validation-${action.parameterId}-${repair.label}`}
+                        type="button"
+                        className="secondary"
+                        onClick={() => apply({ [action.parameterId]: action.value })}
+                      >
+                        {repair.label}
+                      </button>
+                    );
+                  })
+                : null}
+            </div>
+          ) : error ? (
             <p role="alert" className="notice error">
               {error} {KEPT_RESULT}
             </p>
-          )}
+          ) : null}
           <AcceptedStatus
             worked={accepted === undefined || accepted === session.getServerSnapshot().accepted}
             summary={statusSummary}
