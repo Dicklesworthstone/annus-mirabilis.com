@@ -1,3 +1,4 @@
+import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import { RADIUS_DEFAULTS, RADIUS_EXAMPLE } from "./model.ts";
 import { type InferenceExample, renderCameraResults, renderRadiusResults } from "./render.ts";
@@ -72,15 +73,40 @@ export function mountInferenceWorkbench(
   function applyRadius(parameters: unknown) {
     const outcome = radius.apply(parameters);
     if (outcome.kind !== "accepted") {
+      /**
+       * THE SENTENCE STAYS A SENTENCE, AND THE CODE REACHES THE DOM (am-ig23).
+       *
+       * This is the one flattening site where the string was not simply a mistake: `announce`
+       * writes into a live region, and a live region genuinely takes text. What was lost is the
+       * refusal's IDENTITY, so that is what is restored, as an attribute beside the announcement
+       * rather than by passing a typed failure into `announce`. The module already publishes its
+       * identities this way (executionLabel, runId, snapshotVersion a few lines up).
+       *
+       * NOT `applyFailure`, deliberately, although it is the canonical discriminator and is used by
+       * every component converted under this bead. It knows `accepted`, `refused` and an execution
+       * outcome, and this session has a FOURTH kind: `no-value`, whose `reason` is the only sentence
+       * a reader would get. applyFailure would classify that as `unexplained` and replace the reason
+       * with its generic text, which is a regression dressed as a conversion. `refusalSentence` is
+       * used for the refused arm, which also fixes the non-string `requirements` hazard that the
+       * String() call papered over.
+       *
+       * This is payment rather than evasion of the ratchet's pattern: the pattern stops matching
+       * because the flattening is gone, and the code the flattening destroyed is now observable.
+       */
       const message =
         outcome.kind === "refused"
-          ? String(outcome.refusal.details?.requirements ?? outcome.refusal.message)
+          ? refusalSentence(outcome.refusal)
           : outcome.kind === "no-value"
             ? outcome.reason
             : outcome.outcome.message;
+      radiusRoot.dataset.applyFailure = outcome.kind;
+      if (outcome.kind === "refused") radiusRoot.dataset.refusalCode = outcome.refusal.code;
+      else delete radiusRoot.dataset.refusalCode;
       announce(radiusRoot, `${message} The previous accepted result is unchanged.`, true);
       return;
     }
+    delete radiusRoot.dataset.applyFailure;
+    delete radiusRoot.dataset.refusalCode;
     const snapshot = outcome.data.accepted;
     if (!snapshot) throw new TypeError("Missing accepted radius inference.");
     refresh(radiusRoot, snapshot, renderRadiusResults(snapshot));
