@@ -466,7 +466,7 @@ const result = await runVerifyContent({
     const editionFiles: { path: string; text: string }[] = [];
     const editionCounts: string[] = [];
     for (const [dir, label, skip] of [
-      ["content/source-blocks", "source-blocks", ["manifest.yaml", "ledger-allowlist.yaml"]],
+      ["content/source-blocks", "source-blocks", ["ledger-allowlist.yaml"]],
       ["content/translation-units", "translation-units", []],
     ] as const) {
       const base = resolve(root, dir);
@@ -486,19 +486,23 @@ const result = await runVerifyContent({
       }
       editionCounts.push(`${label} ${n}`);
     }
-    const alignDir = resolve(root, "content/alignments");
-    let alignments = 0;
-    if (existsSync(alignDir)) {
-      for (const file of readdirSync(alignDir).sort()) {
+    for (const [dir, label] of [
+      ["content/alignments", "alignments"],
+      ["content/aliases", "aliases"],
+    ] as const) {
+      const base = resolve(root, dir);
+      if (!existsSync(base)) continue;
+      let n = 0;
+      for (const file of readdirSync(base).sort()) {
         if (!file.endsWith(".yaml")) continue;
         editionFiles.push({
-          path: `alignments/${file}`,
-          text: readFileSync(resolve(alignDir, file), "utf8"),
+          path: `${label}/${file}`,
+          text: readFileSync(resolve(base, file), "utf8"),
         });
-        alignments += 1;
+        n += 1;
       }
+      editionCounts.push(`${label} ${n}`);
     }
-    editionCounts.push(`alignments ${alignments}`);
     console.log(`[verify-content] edition layer compiled: ${editionCounts.join(", ")}`);
     // THE FLOORS, HERE RATHER THAN IN THE CHECKS, because this is where the population is known.
     // A check runs over whatever corpus its caller supplies, so a fixture corpus with two blocks
