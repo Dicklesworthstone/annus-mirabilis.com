@@ -24,7 +24,7 @@ import {
   eachRecord,
   isArgumentNodeRecord,
   isExperimentRecord,
-  isJourneyRecord,
+  isJourneyKey,
   isProofRecord,
   recordId,
 } from "./records.ts";
@@ -198,8 +198,8 @@ export function runShelfDate(context: CheckContext): void {
     }
   });
 
-  eachRecord(context, (id, rec) => {
-    if (!isJourneyRecord(rec)) return;
+  eachRecord(context, (id, rec, key) => {
+    if (!isJourneyKey(key)) return;
     const admittedImports = Array.isArray(rec.admittedImports)
       ? rec.admittedImports
           .map((item) =>
@@ -304,8 +304,8 @@ function printWorldCheckCensus(context: CheckContext): void {
   let withLaterEvidence = 0;
   let boundQuantity = 0;
   const kinds = new Map<string, number>();
-  eachRecord(context, (_id, rec) => {
-    if (!isJourneyRecord(rec) || !Array.isArray(rec.worldChecks)) return;
+  eachRecord(context, (_id, rec, key) => {
+    if (!isJourneyKey(key) || !Array.isArray(rec.worldChecks)) return;
     journeys++;
     for (const raw of rec.worldChecks) {
       const w = asRecord(raw);
@@ -319,20 +319,29 @@ function printWorldCheckCensus(context: CheckContext): void {
   });
   const measured = kinds.get("measured-fact") ?? 0;
   if (journeys === 0) {
-    // ZERO IS NOT "THE CORPUS HAS NONE", and saying so matters more than the number. Four journey
-    // records exist in content/journeys/ and each carries one world check, bound to
-    // stoppingPotentialMagnitude, lambdaX, properTime and massChange. This check sees none of them
-    // for two independent reasons, both measured 2026-10-09: `isJourneyRecord` requires
-    // `kind === "journey"` AND an array `stages`, and the records carry no `kind` key while
-    // `stages` is declared pending (am-4k0m's pendingElements, because a stage carries premise
-    // references the shelf audit reads and inventing them would make that audit pass over prose);
-    // and nothing under src/content/compiler loads content/journeys at all.
+    // ZERO IS NOT "THE CORPUS HAS NONE", and saying so matters more than the number.
+    //
+    // THIS BRANCH WAS THE LIVE ONE FROM 2026-10-09 TO 2026-10-10, and the census it printed is
+    // kept here as the record of why: four journey records existed in content/journeys/, each
+    // carrying one world check bound to stoppingPotentialMagnitude, lambdaX, properTime and
+    // massChange, and this check saw none of them for two independent reasons. `isJourneyRecord`
+    // asked for a `kind === "journey"` FIELD that no record carries or should carry, and no route
+    // owned content/journeys so the compiler never loaded them at all. Both are repaired: the
+    // route is routes.ts entry 18c, the loader is verify-content.ts's loadFiles, and the predicate
+    // is `isJourneyKey`, which reads the record KEY as recordKey.ts says to.
+    //
+    // The branch stays, and it still only LOGS, because this function runs over whatever corpus
+    // its caller supplies and a fixture corpus with no journeys is a legitimate zero. The refusal
+    // that matters belongs where the population is known: verify-content's loadFiles refuses when
+    // content/journeys exists and yields no record, which is the wiring fault this branch used to
+    // be the only witness to.
     console.log(
-      "[epistemic-world-checks] 0 world check(s) on 0 journey(s), and that is not the corpus: " +
-        "content/journeys holds four records each carrying one world check. isJourneyRecord wants " +
-        'kind === "journey" and an array stages; the records declare neither (stages is pending ' +
-        "per am-4k0m), and no compiler module loads content/journeys. So every refusal in this " +
-        "check is unreachable, including the quantity-id one that would otherwise pass.",
+      "[epistemic-world-checks] 0 world check(s) on 0 journey(s). In the full corpus that would " +
+        "be a wiring fault rather than a corpus fact, since content/journeys holds four records " +
+        "each carrying one world check; over a fixture corpus it is simply an empty population. " +
+        "If this appears in a verify-content run, check that routes.ts still owns " +
+        "journeys/<paper>.yaml, that loadFiles still reads the directory, and that the record " +
+        "key is still `journey:<paper>:<id>` (am-4k0m).",
     );
     return;
   }
@@ -348,7 +357,7 @@ function printWorldCheckCensus(context: CheckContext): void {
 
 export function runLaterEvidenceUnlabeled(context: CheckContext): void {
   printWorldCheckCensus(context);
-  eachRecord(context, (id, rec) => {
+  eachRecord(context, (id, rec, key) => {
     if (isArgumentNodeRecord(rec) && Array.isArray(rec.evidence)) {
       for (const edge of rec.evidence) {
         const e = asRecord(edge);
@@ -368,7 +377,7 @@ export function runLaterEvidenceUnlabeled(context: CheckContext): void {
         }
       }
     }
-    if (!isJourneyRecord(rec) || !Array.isArray(rec.worldChecks)) return;
+    if (!isJourneyKey(key) || !Array.isArray(rec.worldChecks)) return;
     for (const check of rec.worldChecks) {
       const w = asRecord(check);
       if (!w) continue;

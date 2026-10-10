@@ -407,7 +407,41 @@ const result = await runVerifyContent({
         `${split.manifestOnly} manifest only, ${split.both} in both, ${split.catalogueOnly} ` +
         `catalogue only; the live-term check reads the union`,
     );
-    return [...readingFiles, ...experimentFiles];
+    // THE FOUR JOURNEY RECORDS, which nothing loaded until now (am-4k0m). content/journeys/ has
+    // held them since 2026-10-09 and `loadReadingFiles` skips every .yaml, so the compiler never
+    // saw them and every epistemic rule keyed on a journey ran over an empty population. The
+    // world check said so in its own census rather than printing a quiet 0, which is the only
+    // reason this was findable. The count is printed for the same reason every other population
+    // here is.
+    const journeyDir = resolve(root, "content/journeys");
+    const journeyFiles: { path: string; text: string }[] = [];
+    if (existsSync(journeyDir)) {
+      for (const file of readdirSync(journeyDir)
+        .filter((f) => f.endsWith(".yaml"))
+        .sort()) {
+        journeyFiles.push({
+          path: `journeys/${file}`,
+          text: readFileSync(resolve(journeyDir, file), "utf8"),
+        });
+      }
+    }
+    console.log(
+      `[verify-content] ${journeyFiles.length} journey record(s) compiled from content/journeys ` +
+        `(${journeyFiles.map((f) => f.path.replace(/^journeys\/|\.yaml$/g, "")).join(", ") || "none"})`,
+    );
+    // THE FLOOR BELONGS HERE, where the population is known. The epistemic world check runs over
+    // whatever corpus its caller supplies, so a fixture run with no journeys is a legitimate zero
+    // and that check can only log. In THIS run the directory exists and holds four records, so a
+    // zero means the directory was emptied or the read broke, and a silent zero would make every
+    // journey rule read as clean over nothing -- which is the state this wiring repaired (am-4k0m).
+    if (existsSync(journeyDir) && journeyFiles.length === 0) {
+      throw new Error(
+        "content/journeys exists and no .yaml record was read from it. Every epistemic rule keyed " +
+          "on a journey would then run over an empty population and report clean. Restore the " +
+          "records, or remove this refusal together with the directory (am-4k0m).",
+      );
+    }
+    return [...readingFiles, ...experimentFiles, ...journeyFiles];
   },
   dimensionAudit: async () => {
     const { summary } = await mainAuditDimensions([]);

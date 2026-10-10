@@ -26,6 +26,7 @@ export type ContentRouteKind =
   | "quantity"
   | "misconception"
   | "experiment"
+  | "journey"
   | "historical-premise"
   | "source-asset"
   | "source-manifest"
@@ -283,6 +284,26 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     schema: "AliasManifest",
     format: "yaml",
     extractParams: (m) => ({ slug: m[1] ?? "", id: m[1] ?? "", format: m[2] ?? "" }),
+  },
+
+  // 18c. Discovery journeys: the ten-element skeleton as a record the compiler reads.
+  //
+  // WITHOUT THIS ROUTE THE RECORDS WERE INVISIBLE (am-4k0m). content/journeys/ has held four
+  // emitted records since 2026-10-09 and no route owned the path, so `matchContentRoute` returned
+  // null for all four and they never entered `rawRecords`. The epistemic world check said so in
+  // its own census -- "0 world check(s) on 0 journey(s), and that is not the corpus" -- which is
+  // the only reason the gap was visible at all.
+  //
+  // The kind is NOT a bare-id kind, so the key is `journey:<paper>:<id>`, which is where a check
+  // learns that a record is a journey. recordKey.ts records why that is the right place: a `kind`
+  // field on the record would be a second spelling of the route's name, and the editorial-note
+  // checks matched zero records for exactly that reason.
+  {
+    pattern: /^(?:content\/)?journeys\/([a-z0-9-]+)\.(yaml|yml)$/,
+    kind: "journey",
+    schema: "Journey",
+    format: "yaml",
+    extractParams: (m) => ({ paper: m[1] ?? "", id: m[1] ?? "", format: m[2] ?? "" }),
   },
 
   // 19a. Paragraph bindings: each printed paragraph and display to its explanation

@@ -150,7 +150,7 @@ test("runShelfDate: (run.ts:232) shelf-date-violation reports later card cited o
       status: "later",
       latestYear: 1908,
     },
-    "j-brownian": {
+    "journey:brownian-motion:j-brownian": {
       kind: "journey",
       id: "j-brownian",
       stages: [],
@@ -170,7 +170,7 @@ test("runShelfDate: (run.ts:232) shelf-date-violation reports later card cited o
       status: "available",
       latestYear: 1850,
     },
-    "j-brownian": {
+    "journey:brownian-motion:j-brownian": {
       kind: "journey",
       id: "j-brownian",
       stages: [],
@@ -214,7 +214,7 @@ test("runLaterEvidenceUnlabeled: (run.ts:361) later-evidence-unlabeled reports u
 test("runLaterEvidenceUnlabeled: (run.ts:379) later-evidence-unlabeled reports world-check with missing quantity id, accepts bound quantity", () => {
   // Reject: world-check with empty quantityId
   const rejectCtx = createMockContext({
-    "j-wc1": {
+    "journey:brownian-motion:j-wc1": {
       kind: "journey",
       id: "j-wc1",
       stages: [],
@@ -229,7 +229,7 @@ test("runLaterEvidenceUnlabeled: (run.ts:379) later-evidence-unlabeled reports w
 
   // Accept: world-check with non-empty quantityId
   const acceptCtx = createMockContext({
-    "j-wc1": {
+    "journey:brownian-motion:j-wc1": {
       kind: "journey",
       id: "j-wc1",
       stages: [],
@@ -249,7 +249,7 @@ test("runLaterEvidenceUnlabeled: (run.ts:379) later-evidence-unlabeled reports w
 test("runLaterEvidenceUnlabeled: (run.ts:389) later-evidence-unlabeled reports measured-fact world-check without laterEvidence, accepts dated evidence", () => {
   // Reject: comparisonKind measured-fact with no laterEvidence
   const rejectCtx = createMockContext({
-    "j-wc2": {
+    "journey:brownian-motion:j-wc2": {
       kind: "journey",
       id: "j-wc2",
       stages: [],
@@ -264,7 +264,7 @@ test("runLaterEvidenceUnlabeled: (run.ts:389) later-evidence-unlabeled reports m
 
   // Accept: measured-fact world-check with laterEvidence
   const acceptCtx = createMockContext({
-    "j-wc2": {
+    "journey:brownian-motion:j-wc2": {
       kind: "journey",
       id: "j-wc2",
       stages: [],
@@ -285,7 +285,7 @@ test("runLaterEvidenceUnlabeled: (run.ts:389) later-evidence-unlabeled reports m
 test("runLaterEvidenceUnlabeled: (run.ts:401) later-evidence-unlabeled reports post-1904 laterEvidence without proper label format, accepts correct label", () => {
   // Reject: laterEvidence with post-1904 year but non-matching description
   const rejectCtx = createMockContext({
-    "j-wc3": {
+    "journey:brownian-motion:j-wc3": {
       kind: "journey",
       id: "j-wc3",
       stages: [],
@@ -306,7 +306,7 @@ test("runLaterEvidenceUnlabeled: (run.ts:401) later-evidence-unlabeled reports p
 
   // Accept: laterEvidence with matching "later evidence (1909)" description
   const acceptCtx = createMockContext({
-    "j-wc3": {
+    "journey:brownian-motion:j-wc3": {
       kind: "journey",
       id: "j-wc3",
       stages: [],

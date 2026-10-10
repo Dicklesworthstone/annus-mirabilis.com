@@ -19,9 +19,21 @@ import { EPISTEMIC_UNDECIDABLE } from "./undecidable.ts";
 const logger = getLogger("content-epistemic-tests");
 const BEAD = "am-cm-checks-epistemic-o7n";
 
+/**
+ * Keys each fixture the way the compiler keys the real corpus. A journey is identified by its KEY,
+ * `journey:<paper>:<id>` (recordKey.ts), not by a `kind` field, so a fixture keyed by bare id is
+ * invisible to the journey checks -- which is how these tests passed while the same checks matched
+ * zero of the four committed journey records (am-4k0m). Every other kind here is matched on a
+ * field and is unaffected by its key.
+ */
 function records(items: Record<string, unknown>[]): Map<string, unknown> {
   const map = new Map<string, unknown>();
-  for (const item of items) map.set(String(item.id), item);
+  for (const item of items) {
+    const id = String(item.id);
+    const key =
+      item.kind === "journey" ? `journey:${String(item.paper ?? "fixture-paper")}:${id}` : id;
+    map.set(key, item);
+  }
   return map;
 }
 
