@@ -789,7 +789,29 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     family: "fast",
     cadence: "every-run",
     requiredInCi: true,
-    requiredInProfiles: ["preview", "launch"],
+    // SCAFFOLD TOO, because the incident this guards was a SCAFFOLD deploy (am-opd1). 6b9ec998 went
+    // live with out/papers/brownian-motion/index.html at 256,141 B gzipped against a 250,000 budget,
+    // and the only release record on disk names the scaffold profile, which AGENTS.md's status
+    // clause says is how the live site is released. Requiring this step in preview and launch alone
+    // left the exposure exactly where it was.
+    //
+    // THE OBJECTION TO ADDING IT WAS MEASURED AND DOES NOT HOLD. It was recorded on am-opd1 as
+    // "making it block scaffold would gate releases on a step measuring a quarter of its rows":
+    // run-perf-budgets reports 2 of 8 rows reaching real build output and 6 as `not-available`, and
+    // a not-available row DOES NOT FAIL -- measured 2026-10-10, a clean run exits 0 with those six
+    // reported. The two rows that do reach the build are `initial-route-js` and
+    // `reading-face-html`, which are exactly the two this bead's acceptance criterion names ("at
+    // least initial-route-js and reading-face-html"). So a scaffold release now refuses on the
+    // measured rows and on nothing unmeasured.
+    //
+    // Driven both ways on the same build: `--plant-violation 1` exits 1 naming initial-route-js,
+    // `--plant-violation 2` exits 1 naming reading-face-html, and the unplanted run exits 0.
+    //
+    // It runs AFTER the build, which is the other half of the criterion: `build` is step 11 of the
+    // scaffold chain and this is step 34, so it measures the out/ of the candidate commit rather
+    // than the out/ a previous deploy left behind -- which is the whole mechanism of the incident,
+    // since `unit-tests` at step 6 carries a budget test that runs before anything is built.
+    requiredInProfiles: ["scaffold", "preview", "launch"],
     availability: {
       scriptPath: "scripts/run-perf-budgets.ts",
       requiresArtifact: {
