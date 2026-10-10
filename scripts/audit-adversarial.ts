@@ -94,6 +94,18 @@ function declaredMisconception(
     : { text: `**MISSING** \`${id}\``, missing: true };
 }
 
+/**
+ * Escapes a pipe for a markdown table cell.
+ *
+ * Row 15's claim is "A neutral conductor with current violates |J/rho| < c", whose two pipes split
+ * that row into eleven cells and shifted every column after the claim. The generated table had been
+ * wrong since the first run, and it is the kind of wrong a reader attributes to the renderer rather
+ * than to the data, so nobody reads it as a defect.
+ */
+function cell(text: string): string {
+  return text.replaceAll("|", "\\|");
+}
+
 type RowResult = Readonly<{
   row: number;
   file: string | null;
@@ -221,7 +233,7 @@ for (const row of ADVERSARIAL_ROWS) {
   if (link.missing)
     drift.push(`row ${row.row} declares misconception ${row.misconception}, which is not on disk`);
   lines.push(
-    `| ${row.row} | ${row.claim} | \`${row.owner}\` | ${
+    `| ${row.row} | ${cell(row.claim)} | \`${cell(row.owner)}\` | ${
       wrong.length > 0 ? wrong.map((w) => `\`${w}\``).join(", ") : "-"
     } | ${result?.ran ? `${result.pass}/${result.pass + result.fail}` : "-"} | ${
       result?.assertions ?? "-"
