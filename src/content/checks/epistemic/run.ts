@@ -70,8 +70,72 @@ function asProofs(context: CheckContext): ProofRecord[] {
   return proofs;
 }
 
+/**
+ * WHAT THE CIRCULARITY CHECKS ACTUALLY EXAMINE, PRINTED (am-rc1001-bridge-plan-pcjk.11).
+ *
+ * `runProofCycle` and `runOracleInHistoricalRoute` both iterate `asProofs(context)`, and the corpus
+ * holds no `kind: "proof"` record, so both loops run zero times and report nothing. Reporting
+ * nothing is indistinguishable from finding nothing, and these two are the gates AGENTS.md's "No
+ * circular explanations" rests on, so the silence is worth a line of output.
+ *
+ * It prints rather than refuses, deliberately. A refusal at zero would take verify-content red
+ * before the records the checks need exist, and a gate that is red on arrival gets disabled. What
+ * the number does is stop "0 cycles" being read as "no cycles": it says the loop never ran.
+ *
+ * MEASURED 2026-10-09, and the shape is not what pcjk.11 assumed. The corpus holds 48
+ * `kind: "argument"` records whose 105 premises are all PROSE ASSUMPTIONS, not references -- "The
+ * transition density is normalized, symmetric and has finite second moment" has nothing to point
+ * at. The argument-to-argument graph lives in `prerequisites`, which is ALREADY typed: 42 entries,
+ * 39 `edge: "premise"` and 3 `edge: "cross-reference"`, and compile.ts already walks them for
+ * `prerequisite-cycle`. So cycles among arguments ARE checked, by a different and working check.
+ *
+ * What is genuinely absent is the oracle vocabulary: zero `historical-derivation` and zero
+ * `modern-verification-oracle` edges exist anywhere, so `oracle-in-historical-route` has nothing to
+ * find even in principle. That is an editorial decision about which prerequisites are oracles, not
+ * a migration of the 105 assumption sentences, and it is recorded on the bead.
+ */
+function printCircularityCensus(context: CheckContext, nodes: readonly ProofGraphNode[]): void {
+  let argumentRecords = 0;
+  let proofRecords = 0;
+  let stringPremises = 0;
+  const edgeTypes = new Map<string, number>();
+  eachRecord(context, (_id, rec) => {
+    if (rec.kind === "argument") argumentRecords++;
+    if (isProofRecord(rec)) proofRecords++;
+    for (const premise of Array.isArray(rec.premises) ? rec.premises : []) {
+      if (typeof premise === "string") stringPremises++;
+    }
+    // ARGUMENT prerequisites only. A first pass counted every record's and reported "86 untyped",
+    // which was this census's own artifact: a foundation's prerequisites are plain strings by
+    // design, and lumping them in suggested untyped ARGUMENT edges exist when none do.
+    if (rec.kind !== "argument") return;
+    for (const prerequisite of Array.isArray(rec.prerequisites) ? rec.prerequisites : []) {
+      const edge =
+        prerequisite && typeof prerequisite === "object"
+          ? String(
+              (prerequisite as Record<string, unknown>).edge ??
+                (prerequisite as Record<string, unknown>).edgeType ??
+                "untyped",
+            )
+          : "untyped";
+      edgeTypes.set(edge, (edgeTypes.get(edge) ?? 0) + 1);
+    }
+  });
+  const oracleEdges = edgeTypes.get("modern-verification-oracle") ?? 0;
+  const typed = [...edgeTypes].map(([edge, n]) => `${n} ${edge}`).join(", ") || "none";
+  console.log(
+    `[epistemic-circularity] ${proofRecords} proof record(s) and ${nodes.length} proof-graph node(s) ` +
+      `examined, so the cycle and oracle loops ran ${proofRecords === 0 ? "ZERO times" : `over ${proofRecords}`}. ` +
+      `The corpus holds ${argumentRecords} argument record(s) with ${stringPremises} prose premise(s) ` +
+      `(not references) and prerequisite edges: ${typed}. ` +
+      `${oracleEdges} modern-verification-oracle edge(s), so oracle-in-historical-route cannot fire. ` +
+      "Cycles among arguments are checked separately by compile.ts prerequisite-cycle.",
+  );
+}
+
 export function runProofCycle(context: CheckContext): void {
   const nodes = asNodes(context);
+  printCircularityCensus(context, nodes);
   for (const proof of asProofs(context)) {
     const cycle = findProofCycle(nodes, proof);
     if (cycle) {
