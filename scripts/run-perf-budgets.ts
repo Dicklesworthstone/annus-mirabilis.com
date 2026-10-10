@@ -392,6 +392,37 @@ export async function runPerformanceBudgets(
     });
   }
 
+  /*
+    WHAT THIS NUMBER IS, SAID IN THE ROW ITSELF (am-rc1001-bridge-plan-pcjk.15).
+
+    The budget is defined on TRANSFERRED bytes, and this row computes brotli locally with
+    `brotliCompressSync(buf)` (initialRouteGraph.ts), whose Node default is QUALITY 11 -- the
+    maximum, and a quality no CDN spends CPU on. So the row is a floor, not a transfer measurement,
+    and without saying so it reads as one.
+
+    Measured 2026-10-09 against the served deployment, 18 chunks of /papers/special-relativity/:
+
+      compression          ratio   bytes
+      this row, brotli q11 0.222   174,308  (over 783,568 raw, PASSES the 204,800 budget)
+      this row, gzip       0.263   205,968
+      served, gzip         0.308   222,952
+      served, brotli       0.313   226,736  (OVER budget by 10.7%)
+
+    Served brotli being LARGER than served gzip is the tell: brotli beats gzip at equal effort, so
+    a CDN whose brotli is worse than its gzip is serving brotli at a low quality level. The ratios
+    are the commit-independent part of that comparison; the raw totals differ (724,447 served
+    against 783,568 here) because the served deployment is an older commit, which is also why no
+    figure below is presented as this build's served size.
+
+    Applying the measured served ratio to this build's own raw bytes gives about 245,000 B, which
+    is over budget. That is an ESTIMATE and is deliberately not what this row reports: pcjk.15 asks
+    for served bytes measured from a deployment and matching a manual curl within 1%, and only a
+    candidate deployment of THIS commit can answer that. The row keeps reporting what it can
+    actually measure, and now says which that is.
+  */
+  const compressionBasis =
+    "brotli quality 11 computed locally, a floor rather than a transfer measurement: the served " +
+    "ratio measured 2026-10-09 was 0.313 against this basis's 0.222 (am-rc1001-bridge-plan-pcjk.15)";
   recordMetric(
     "initial-route-js",
     row1Passed,
@@ -399,8 +430,8 @@ export async function runPerformanceBudgets(
     maxRouteJsBytes,
     "bytes",
     routeNotes.length > 0
-      ? `${maxRouteJsBytes > 0 ? `Max route script transfer ${maxRouteJsBytes} bytes (brotli, measured from .next)` : "No route could be measured"}. ${routeNotes.join("; ")}`
-      : `Max route script transfer ${maxRouteJsBytes} bytes (brotli, measured from .next across ${measuredRoutes.length} routes)`,
+      ? `${maxRouteJsBytes > 0 ? `Max route script transfer ${maxRouteJsBytes} bytes (${compressionBasis}, measured from .next)` : "No route could be measured"}. ${routeNotes.join("; ")}`
+      : `Max route script transfer ${maxRouteJsBytes} bytes (${compressionBasis}, measured from .next across ${measuredRoutes.length} routes)`,
   );
 
   // -------------------------------------------------------------------------
