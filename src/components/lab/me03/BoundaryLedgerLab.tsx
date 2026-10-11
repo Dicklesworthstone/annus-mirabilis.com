@@ -32,6 +32,7 @@ import {
 import { ME03_TAPE } from "../../../experiments/me03/tape.ts";
 import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
+import type { RequestRefusal } from "../../../experiments/results/refusals.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { ShowTheCode } from "../ShowTheCode.tsx";
@@ -117,6 +118,17 @@ export function BoundaryLedgerLab({
   const [draft, setDraft] = useState(() => toMe03Draft(p));
   const [error, setError] = useState("");
   const [refusalCode, setRefusalCode] = useState<string | null>(null);
+  /**
+   * The refusal OBJECT, beside the code this lab already tracked, so the chrome can mark the
+   * readouts stale (am-m79c).
+   *
+   * `refusalCode` is a string and already reaches `data-refusal-code`, which is why the form sweep
+   * counted this lab as carrying a code while recording that it marked no staleness: a code alone
+   * is not something `CurrencyForView` can read. The whole refusal was already in hand here -- the
+   * lines above pull `requirements` and `code` out of `outcome.refusal.details` -- so nothing new is
+   * computed, it is only kept.
+   */
+  const [refusal, setRefusal] = useState<RequestRefusal | null>(null);
   const [linkNote, setLinkNote] = useState("");
   const [linkPending, setLinkPending] = useState(false);
 
@@ -179,10 +191,12 @@ export function BoundaryLedgerLab({
         typeof details?.code === "string" ? (details.code as string) : outcome.refusal.code;
       setError(req);
       setRefusalCode(code);
+      setRefusal(outcome.refusal);
       return;
     }
     setError("");
     setRefusalCode(null);
+    setRefusal(null);
     setLinkNote("");
     setLinkPending(false);
   }
@@ -283,6 +297,7 @@ export function BoundaryLedgerLab({
         <ExecutionChrome
           state={executionKind}
           view={view}
+          validationRefusal={refusal}
           modelNote={modelNoteFromView(view, { notModeled: `${ME03_NOT_MODELED.join("; ")}.` })}
         />
       </div>

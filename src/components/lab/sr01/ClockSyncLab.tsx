@@ -7,6 +7,7 @@ import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts"
 import { executionLabelAttributes } from "../../../experiments/labels/resultAttributes.ts";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { refusalSentence } from "../../../experiments/results/refusalSentence.ts";
+import type { RequestRefusal } from "../../../experiments/results/refusals.ts";
 import {
   SR01_CAPTION,
   SR01_DEFAULTS,
@@ -103,6 +104,17 @@ export function ClockSyncLab({
   }));
   const [error, setError] = useState("");
   const [refusalCode, setRefusalCode] = useState<string | null>(null);
+  /**
+   * The refusal OBJECT, beside the code this lab already tracked, so the chrome can mark the
+   * readouts stale (am-m79c).
+   *
+   * `refusalCode` is a string and already reaches `data-refusal-code`, which is why the form sweep
+   * counted this lab as carrying a code while recording that it marked no staleness: a code alone
+   * is not something `CurrencyForView` can read. The two session paths below have the whole refusal;
+   * the invalid-permalink path has only a message and the synthetic code `invalid-permalink`, so it
+   * keeps the sentence and the code and marks nothing, which is honest -- no form was submitted.
+   */
+  const [refusal, setRefusal] = useState<RequestRefusal | null>(null);
   const [sharedUrl, setSharedUrl] = useState("");
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("sr-01", SR01_PREDICT_PROMPTS);
@@ -124,6 +136,7 @@ export function ClockSyncLab({
     if (result.kind === "refused") {
       setError(refusalSentence(result.refusal));
       setRefusalCode(result.refusal.code);
+      setRefusal(result.refusal);
       return;
     }
     setDraft(
@@ -165,10 +178,12 @@ export function ClockSyncLab({
       const code = typeof details?.code === "string" ? details.code : outcome.refusal.code;
       setError(refusalSentence(outcome.refusal));
       setRefusalCode(code);
+      setRefusal(outcome.refusal);
       return;
     }
     setError("");
     setRefusalCode(null);
+    setRefusal(null);
     setLinkNote("");
   }
 
@@ -228,6 +243,7 @@ export function ClockSyncLab({
         <ExecutionChrome
           state={executionKind}
           view={view}
+          validationRefusal={refusal}
           modelNote={modelNoteFromView(view, { notModeled: `${SR01_NOT_MODELED.join("; ")}.` })}
         />
       </div>

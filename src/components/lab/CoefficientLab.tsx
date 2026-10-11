@@ -23,6 +23,7 @@ import { LabTapeLink, useLabTapeLink } from "../../experiments/permalink/LabTape
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { parseResult } from "../../experiments/results/codec.ts";
 import { statusMessage } from "../../experiments/results/explanations.ts";
+import type { RequestRefusal } from "../../experiments/results/refusals.ts";
 import type { ScientificResult } from "../../experiments/results/types.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot, PublishedResult } from "../../experiments/store/instanceStore.ts";
@@ -228,6 +229,23 @@ export function CoefficientLab({
   const [typed, setTyped] = useState(() => typedFrom(example.parameters));
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
+  /**
+   * The refusal OBJECT beside the sentence, so the chrome can mark the readouts stale (am-m79c).
+   *
+   * The session's refusals, the validator's and both typed fields all carry one. The shared-link
+   * decode at mount does NOT: `decodeMe02Settings` returns a message, not a registered refusal, and
+   * that path deliberately leaves the prepared example standing rather than refusing a form the
+   * reader has not submitted, so it keeps the sentence alone.
+   */
+  const [refusal, setRefusal] = useState<RequestRefusal | null>(null);
+  function refuse(raised: RequestRefusal, sentence: string) {
+    setError(sentence);
+    setRefusal(raised);
+  }
+  function accept() {
+    setError("");
+    setRefusal(null);
+  }
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("me-02", ME02_PROMPTS);
   const linkLoaded = useRef(false);
@@ -242,33 +260,39 @@ export function CoefficientLab({
       if (outcome.kind === "accepted") {
         setDraft(linked.parameters);
         setTyped(typedFrom(linked.parameters));
-      } else setError(refusalSentence(outcome.refusal));
+      } else {
+        // The setters directly, not `refuse`: a function recreated each render would have to join
+        // this effect's dependency list, and re-running a mount-only effect to satisfy a linter is
+        // the wrong trade. Both setState functions are stable.
+        setError(refusalSentence(outcome.refusal));
+        setRefusal(outcome.refusal);
+      }
     }
     setReady(true);
   }, [session, restoreSettings]);
   function apply(parameters: Me02Parameters) {
     const outcome = session.apply(parameters);
     if (outcome.kind === "refused") {
-      setError(refusalSentence(outcome.refusal));
+      refuse(outcome.refusal, refusalSentence(outcome.refusal));
       return;
     }
     setDraft(parameters);
     setTyped(typedFrom(parameters));
-    setError("");
+    accept();
   }
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const beta = readTypedNumber(typed.beta, "the observer speed v/c");
-    if (beta.kind === "refused") return setError(beta.requirement);
+    if (beta.kind === "refused") return refuse(beta.refusal, beta.requirement);
     const energy = readTypedNumber(typed.emittedEnergy, "the emitted energy L");
-    if (energy.kind === "refused") return setError(energy.requirement);
+    if (energy.kind === "refused") return refuse(energy.refusal, energy.requirement);
     const checked = validateMe02Parameters({
       ...draft,
       beta: beta.value,
       emittedEnergy: energy.value,
     });
     if (checked.kind !== "accepted") {
-      setError(refusalSentence(checked.refusal));
+      refuse(checked.refusal, refusalSentence(checked.refusal));
       return;
     }
     apply(checked.data);
@@ -316,6 +340,7 @@ export function CoefficientLab({
         <ExecutionChrome
           state={executionKind}
           view={view}
+          validationRefusal={refusal}
           modelNote={modelNoteFromView(view, { notModeled: `${ME02_NOT_MODELED.join("; ")}.` })}
         />
       </div>

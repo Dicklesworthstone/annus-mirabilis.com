@@ -9,6 +9,7 @@ import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabT
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { statusMessage } from "../../../experiments/results/explanations.ts";
 import { refusalSentence } from "../../../experiments/results/refusalSentence.ts";
+import type { RequestRefusal } from "../../../experiments/results/refusals.ts";
 import {
   SR11_CAPTION,
   SR11_NOT_MODELED,
@@ -101,6 +102,18 @@ export function MovingMirrorLab({
   const [drafts, setDrafts] = useState<Partial<Record<NumericKey, string>>>({});
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
+  /**
+   * The refusal OBJECT beside the sentence, so the chrome can mark the readouts stale (am-m79c).
+   *
+   * Set on the SESSION path, which carries a whole refusal. The typed-field guard in `commit` below
+   * does not: it hand-rolls the parse that `readTypedNumber` performs, and that helper now carries a
+   * registered code. Routing `commit` through it was left undone deliberately -- this lab's
+   * FIELD_LABELS are sentence-initial phrases ("Mirror velocity b = v/c"), while the helper's label
+   * reads mid-sentence ("the boost speed"), so the swap would print "Enter Mirror velocity b = v/c
+   * as a number." Giving these four fields mid-sentence labels is a reader-facing copy change and
+   * belongs to whoever owns this lab's wording, not to this repair.
+   */
+  const [refusal, setRefusal] = useState<RequestRefusal | null>(null);
 
   useEffect(() => {
     setReady(true);
@@ -114,9 +127,11 @@ export function MovingMirrorLab({
     const outcome = session.apply(parameters);
     if (outcome.kind === "refused") {
       setError(refusalSentence(outcome.refusal));
+      setRefusal(outcome.refusal);
       return false;
     }
     setError("");
+    setRefusal(null);
     return true;
   }
 
@@ -202,6 +217,7 @@ export function MovingMirrorLab({
         <ExecutionChrome
           state={executionKind}
           view={view}
+          validationRefusal={refusal}
           modelNote={modelNoteFromView(view, { notModeled: `${SR11_NOT_MODELED.join("; ")}.` })}
         />
       </div>

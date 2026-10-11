@@ -27,6 +27,8 @@ import {
 } from "../../../experiments/me01/session.ts";
 import { ME01_TAPE } from "../../../experiments/me01/tape.ts";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
+import type { RequestRefusal } from "../../../experiments/results/refusals.ts";
+import { makeRefusal } from "../../../experiments/results/refusals.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
@@ -92,6 +94,17 @@ export function TwoLedgersLab({
   const [draft, setDraft] = useState(() => toMe01Draft(p));
   const [error, setError] = useState("");
   const [refusalCode, setRefusalCode] = useState<string | null>(null);
+  /**
+   * The refusal OBJECT, beside the code this lab already tracked, so the chrome can mark the
+   * readouts stale (am-m79c).
+   *
+   * `refusalCode` is a string and already reaches `data-refusal-code`, which is why the form sweep
+   * counted this lab as carrying a code while recording that it marked no staleness: a code alone
+   * is not something `CurrencyForView` can read. The whole refusal was already in hand here -- the
+   * lines above pull `requirements` and `code` out of `outcome.refusal.details` -- so nothing new is
+   * computed, it is only kept.
+   */
+  const [refusal, setRefusal] = useState<RequestRefusal | null>(null);
   const [linkNote, setLinkNote] = useState("");
   const [linkPending, setLinkPending] = useState(false);
   const [sharedUrl, setSharedUrl] = useState("");
@@ -132,10 +145,12 @@ export function TwoLedgersLab({
       const code = typeof details?.code === "string" ? details.code : null;
       setError(req);
       setRefusalCode(code);
+      setRefusal(outcome.refusal);
       return;
     }
     setError("");
     setRefusalCode(null);
+    setRefusal(null);
     setLinkNote("");
     setLinkPending(false);
   }
@@ -144,23 +159,47 @@ export function TwoLedgersLab({
   function commitDraft(next: Me01Draft) {
     setDraft(next);
     const parsed = fromMe01Draft(next);
+    /**
+     * These three guards already NAMED their codes; two of them named registered ones, so the
+     * refusal they imply can be built rather than chosen (am-m79c). `setRefusalCode` alone reaches
+     * `data-refusal-code` and is not something `CurrencyForView` can read, which is why this lab
+     * carried a code while marking no staleness. The lab's own sentence rides as the ranked repair,
+     * exactly as readTypedNumber does, so nothing a reader reads changes.
+     *
+     * The third guard set `null` deliberately, and that is left alone: picking a code for it is an
+     * editorial choice about what an emitted energy of zero IS, not a repair, and it belongs to
+     * whoever owns this lab.
+     */
     if (
       !Number.isFinite(parsed.frameSpeed) ||
       !Number.isFinite(parsed.emittedEnergyRestFrame) ||
       !Number.isFinite(parsed.emissionAngle)
     ) {
-      setError("Type a number in each field.");
+      const sentence = "Type a number in each field.";
+      setError(sentence);
       setRefusalCode("nonfinite-input");
+      setRefusal(makeRefusal("nonfinite-input", {}, { rankedRepairs: [{ label: sentence }] }));
       return;
     }
     if (Math.abs(parsed.frameSpeed) >= 1) {
-      setError("No inertial observer moves at or above the speed of light (|v/c| < 1).");
+      const sentence = "No inertial observer moves at or above the speed of light (|v/c| < 1).";
+      setError(sentence);
       setRefusalCode("superluminal-observer");
+      setRefusal(
+        makeRefusal(
+          "superluminal-observer",
+          { parameterIds: ["frameSpeed"] },
+          {
+            rankedRepairs: [{ label: sentence }],
+          },
+        ),
+      );
       return;
     }
     if (parsed.emittedEnergyRestFrame <= 0) {
       setError("Enter an emitted energy L greater than zero.");
       setRefusalCode(null);
+      setRefusal(null);
       return;
     }
     setLinkPending(false);
@@ -240,6 +279,7 @@ export function TwoLedgersLab({
         <ExecutionChrome
           state={executionKind}
           view={view}
+          validationRefusal={refusal}
           modelNote={modelNoteFromView(view, { notModeled: `${ME01_NOT_MODELED.join("; ")}.` })}
         />
       </div>
