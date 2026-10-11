@@ -647,7 +647,16 @@ export function PredictPanel({
 
       {reasoningHref ? (
         <p>
-          <a href={reasoningHref}>Show me the reasoning</a>
+          {/* THE THIRD PROMPT CONTROL, named for the same reason as the two above and missed when
+              they were fixed. The lane written for am-svdj found it: on /lab/me-02/ and
+              /embed/lab/me-02/ this link resolved to two enabled controls named "Show me the
+              reasoning", acting on me-02-predict-exact-versus-quadratic and
+              me-02-predict-toward-low-speed. Those two are the only pages that render it twice,
+              which is why counting only "Skip prediction" and "I have one in mind" reported the
+              population as repaired. */}
+          <a href={reasoningHref} aria-label={`Show me the reasoning for ${prompt.question}`}>
+            Show me the reasoning
+          </a>
         </p>
       ) : null}
     </div>
