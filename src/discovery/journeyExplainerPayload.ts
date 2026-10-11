@@ -243,3 +243,39 @@ export function compileJourneyExplainers(
 export function journeyExplainerCensusLine(build: JourneyExplainerBuild): string {
   return `${journeyExplanationCensusLine(build.census)}; ${build.drawn} explainers drawn`;
 }
+
+/**
+ * The refusal this build raises, with its code as the FIRST ARGUMENT at the throw site, as
+ * `LabExplanationsError` takes its own.
+ *
+ * The code is at the site and not only inside the constructor because that is where the refusal
+ * scanner reads it: a throw whose first argument is a message alone is counted as a bare throw,
+ * which is undeclared debt rather than a typed refusal, and it fails the ratchet. It did -- the
+ * first version of this feature threw a bare `Error` in `build-equations.ts` and took that file
+ * from its recorded 4 bare throws to 5. The ratchet named the file, the count and the line, and
+ * offered the two honest repairs; this is the first of them.
+ */
+export class JourneyExplanationsError extends Error {
+  readonly code: "journey-explanations-refused";
+  constructor(code: "journey-explanations-refused", message: string) {
+    super(`${code}: ${message}`);
+    this.name = "JourneyExplanationsError";
+    this.code = code;
+  }
+}
+
+/**
+ * Stops the build on any problem, naming each one.
+ *
+ * A declared site with NO entry is not a problem: `report.missing` carries those and the census
+ * counts them, because the journeys are glossed one at a time. A WRONG entry is, because a record
+ * naming a formula no page draws, or a step no page declares, would otherwise be a panel that
+ * quietly never appears.
+ */
+export function assertJourneyExplainersPublishable(build: JourneyExplainerBuild): void {
+  if (build.problems.length > 0)
+    throw new JourneyExplanationsError(
+      "journey-explanations-refused",
+      `content/journey-explanations/:\n${build.problems.map((p) => `  ${p}`).join("\n")}`,
+    );
+}

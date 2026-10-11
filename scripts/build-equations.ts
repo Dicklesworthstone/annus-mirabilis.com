@@ -8,8 +8,8 @@ import { compileReadingContent } from "../src/content/compiler/compile.ts";
 import { loadConcordanceForPaper } from "../src/content/notation/loader.ts";
 import { getQuantity } from "../src/content/quantities/registry.ts";
 import {
+  assertJourneyExplainersPublishable,
   compileJourneyExplainers,
-  journeyExplainerCensusLine,
 } from "../src/discovery/journeyExplainerPayload.ts";
 import { discoverInlineViews, PAGE_FORMULAS } from "../src/discovery/journeyFormulaList.ts";
 import { ARGUMENT_STEPS } from "../src/discovery/massEnergyArgument.ts";
@@ -712,10 +712,7 @@ console.log(
     problems: journeyExplainers.problems.length,
   }),
 );
-if (journeyExplainers.problems.length > 0)
-  throw new Error(
-    `content/journey-explanations/:\n${journeyExplainers.problems.map((p) => `  ${p}`).join("\n")}`,
-  );
+assertJourneyExplainersPublishable(journeyExplainers);
 /** A journey entry with its own words needs its own fragment; a display reuse shares the display's. */
 const journeyOwnExplainers = Object.values(journeyExplainers.payload.pages).flatMap((byLatex) =>
   Object.values(byLatex).filter((levels) => !levels.display && levels.equation),
@@ -890,6 +887,13 @@ await writeFile(
         return own && !own.display ? [[equation.id, onItsPage(own)] as const] : [];
       }),
       ...labOwnExplainers.map((e) => [e.equation ?? "", onItsPage(e)] as const),
+      // A JOURNEY EXPLAINER'S OWN WORDS NEED THIS ROUTE, and leaving them out was a reader-facing
+      // defect for the length of one build. `EquationExplainer` draws its control as a real anchor
+      // to `/equations/[paper]/[id]/`, which is what AGENTS.md requires of a no-JavaScript reader
+      // rather than a hydration-dependent button, and this payload is what `everyExplanationRoute()`
+      // generates those pages from. Without the line below, all 39 journey panels pointed at a 404:
+      // worse than no panel, because a broken link reads as a broken site rather than as a gap.
+      ...journeyOwnExplainers.map((e) => [e.equation ?? "", onItsPage(e)] as const),
     ]),
   })}\n`,
 );
