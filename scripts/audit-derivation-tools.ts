@@ -31,8 +31,21 @@ import { reportPopulation } from "./gate-census/population.ts";
  * The chains a reader is shown: every missing-step chain record under content/equations/derivations
  * (scripts/generate-missing-steps.mjs publishes the same files). Until 2026-09-24 this audit read
  * only the five fixture chains in src/equations/derivations/fixtures.ts, which no page renders, so
- * "Pending Tool: 0" was a statement about test data: the one shipped chain, chain-bm-variance-of-sum,
- * has four steps and none carries a tool.
+ * "Pending Tool: 0" was a statement about test data rather than about anything a reader meets.
+ *
+ * THE LAST SENTENCE USED TO SAY that the one shipped chain, chain-bm-variance-of-sum, "has four
+ * steps and none carries a tool". That was the state when this audit was repaired and it is no
+ * longer true: re-measured 2026-10-11, the run reports `Total Steps: 4 | Valid with Tool: 4 |
+ * Pending Tool: 0`, so all four carry one. The stale sentence read as a live finding, and is the
+ * reason this note exists rather than a silent edit: a docblock that states a measurement has to be
+ * re-read when its subject moves, or it becomes the most authoritative wrong answer in the file.
+ *
+ * STILL TRUE, AND NOT A FAULT OF THIS AUDIT: one chain SHIPS, against 200 printed displays. That is
+ * declared, not overlooked -- content/equations/missing-step-allowlist.yaml carries exactly one
+ * entry, marked `initialCase: true`. The census floor below is 4, which notices the population
+ * shrinking and cannot notice displays that have no chain at all; an absent chain cannot fail a
+ * loop over present ones, so authoring more is content work rather than something this gate can
+ * ask for. am-eq-derivation-chains-r4c closed over the machinery plus five fixture chains.
  */
 export function loadShippedChains(
   dir: string = join(process.cwd(), "content/equations/derivations"),
