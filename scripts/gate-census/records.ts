@@ -93,6 +93,32 @@ const minimumPlant = (
     "a statement about. It cannot pass by accident, because the count is the real one.",
 });
 
+/**
+ * The same plant where the floor is an EXPRESSION rather than a literal.
+ *
+ * `minimumPlant` anchors on `minimum: <N>,` and seven of the gates below compute their floor --
+ * `idx === -1 ? 20 : 1` for an audit with a fixture mode, `LABORATORIES.length` for a lane whose
+ * floor IS its population list. Anchoring on the whole expression keeps the property that matters:
+ * the anchor is an exact string, so a moved floor is a visible plant-anchor failure rather than a
+ * silent no-op, which is what `find` exists for.
+ */
+const computedMinimumPlant = (
+  gate: string,
+  file: string,
+  currentMinimumExpression: string,
+  expectFailureNaming: string,
+): GatePlant => ({
+  id: `${gate}-minimum-unreachable`,
+  file,
+  find: `minimum: ${currentMinimumExpression},`,
+  replace: "minimum: 99999999,",
+  expectFailureNaming,
+  why:
+    "The cheapest plant that exercises the whole path: the gate's real population is read, compared " +
+    "with a floor it cannot clear, and the refusal has to name what the clean result would have been " +
+    "a statement about. It cannot pass by accident, because the count is the real one.",
+});
+
 export const CENSUS_RECORDS: readonly CensusRecord[] = [
   /*
     THE APPLE STEPS THAT RUN ON THIS MACHINE AND WERE VERIFIED HERE (am-rc1001-bridge-plan-pcjk.9,
@@ -817,6 +843,160 @@ export const CENSUS_RECORDS: readonly CensusRecord[] = [
       "comparing a historical set with a modern one, so one set cannot support a verdict.",
     gateRefusesVacuous: true,
     plants: [minimumPlant("verify-constant-sets", "scripts/verify-constant-sets.ts", 2, "REFUSED")],
+  },
+  {
+    gate: "misconception-ledgers",
+    noun: "ledger records",
+    howRead:
+      "loadLiveMisconceptionInput(root).entries, summed over the four papers' ledgers in " +
+      "content/misconceptions/. The floor is 20 because the compiler refuses a ledger with fewer " +
+      "than five entries per paper, so 20 is the smallest total a conforming four-paper corpus can " +
+      "have; measured 2026-10-11 it holds 28. The RECORDS are the denominator rather than the " +
+      "findings: a run that read one ledger would report few findings and read exactly like a clean " +
+      "corpus.",
+    gateRefusesVacuous: true,
+    plants: [
+      computedMinimumPlant(
+        "misconception-ledgers",
+        "scripts/audit-misconceptions.ts",
+        "idx === -1 ? 20 : 1",
+        "VACUOUS",
+      ),
+    ],
+  },
+  {
+    gate: "readings-owners",
+    noun: "readings-owner files",
+    howRead:
+      "loadLiveReadingsInput(root).ownerFiles over content/editorial/readings-owners/. The floor is " +
+      "30 and the corpus held 41 files declaring 63 targets when it was set. The FILES are the " +
+      "denominator because a directory read half-way contributes no owner and no target, and the " +
+      "audit then judges a corpus with those declarations missing -- which is the defect am-8gbg was " +
+      "filed for.",
+    gateRefusesVacuous: true,
+    plants: [
+      computedMinimumPlant(
+        "readings-owners",
+        "scripts/audit-readings.ts",
+        "idx === -1 ? 30 : 1",
+        "VACUOUS",
+      ),
+    ],
+  },
+  {
+    gate: "journey-explanations",
+    noun: "journey-formula entries",
+    howRead:
+      "checkJourneyExplanations(root).census.entries over the six files of " +
+      "content/journey-explanations/. The floor is 30 against a measured 39. The gate separately " +
+      "reports two covers whose denominators are the real populations -- 28 of 28 declared " +
+      "derivation steps and 11 of 11 declared page formulas -- so an entry naming no site is named " +
+      "rather than counted.",
+    gateRefusesVacuous: true,
+    plants: [
+      computedMinimumPlant(
+        "journey-explanations",
+        "scripts/check-journey-explanations.ts",
+        "root === REPO ? 30 : 1",
+        "VACUOUS",
+      ),
+    ],
+  },
+  {
+    gate: "predict-prompt-names",
+    noun: "built pages carrying a prediction prompt",
+    howRead:
+      "The built HTML is walked for data-predict-prompt and every page carrying one is visited, so " +
+      "the population is read from what SHIPS rather than from a list of routes: a lane visiting a " +
+      "hand-written set would keep passing as prompts landed on new pages. 58 pages measured, floor " +
+      "50. Each page's controls come from Chromium's own AX tree over CDP, not from the DOM.",
+    gateRefusesVacuous: true,
+    plants: [
+      computedMinimumPlant(
+        "predict-prompt-names",
+        "scripts/predict-prompt-names-lane.ts",
+        "PLANT === undefined ? 50 : 1",
+        "VACUOUS",
+      ),
+    ],
+  },
+  {
+    gate: "no-webgl-lane",
+    noun: "laboratories opened with WebGL denied",
+    howRead:
+      "Counted as each laboratory is opened, against LABORATORIES.length -- so the floor IS the " +
+      "population list and a lane that skipped one cannot report a clean run over the rest.",
+    gateRefusesVacuous: true,
+    plants: [
+      computedMinimumPlant(
+        "no-webgl-lane",
+        "scripts/no-webgl-lane.ts",
+        "LABORATORIES.length",
+        "VACUOUS",
+      ),
+    ],
+  },
+  {
+    gate: "keyboard-only-lane",
+    noun: "keyboard claims evaluated",
+    howRead:
+      "One count per claim the lane reaches a verdict on, floor 12. The CLAIMS are the denominator " +
+      "rather than the key presses: a run that pressed Tab a thousand times and evaluated nothing " +
+      "would otherwise read as thorough.",
+    gateRefusesVacuous: true,
+    plants: [minimumPlant("keyboard-only-lane", "scripts/keyboard-only-lane.ts", 12, "VACUOUS")],
+  },
+  {
+    gate: "webkit-reading-path",
+    noun: "reading-path pages opened in WebKit",
+    howRead:
+      "Counted as each page is opened, against READING_PATH.length. A second engine is the whole " +
+      "point of this lane, so a run that opened none in WebKit and still exited 0 would be the " +
+      "exact silence it exists to remove.",
+    gateRefusesVacuous: true,
+    plants: [
+      computedMinimumPlant(
+        "webkit-reading-path",
+        "scripts/webkit-reading-path.ts",
+        "READING_PATH.length",
+        "VACUOUS",
+      ),
+    ],
+  },
+  {
+    gate: "embed-presentation-clauses",
+    noun: "embed clauses evaluated",
+    howRead:
+      "One count per clause evaluated on an embed route, floor 11 against 14 measured. The CLAUSES " +
+      "are the denominator because the routes are few and a run that loaded them all while asserting " +
+      "nothing would read as clean.",
+    gateRefusesVacuous: true,
+    plants: [
+      minimumPlant(
+        "embed-presentation-clauses",
+        "scripts/embed-presentation-clauses.ts",
+        11,
+        "VACUOUS",
+      ),
+    ],
+  },
+  {
+    gate: "journeys-in-lanes",
+    noun: "journey steps",
+    howRead:
+      "Counted as each step is reached, against PAPER_JOURNEYS.length * LANES.length * 7 -- four " +
+      "journeys across three lanes at seven steps each, so the floor is derived from the matrix " +
+      "rather than written down, and dropping a lane or a journey cannot leave the remainder looking " +
+      "complete.",
+    gateRefusesVacuous: true,
+    plants: [
+      computedMinimumPlant(
+        "journeys-in-lanes",
+        "scripts/journeys-in-lanes.ts",
+        "PAPER_JOURNEYS.length * LANES.length * 7",
+        "VACUOUS",
+      ),
+    ],
   },
 ];
 
