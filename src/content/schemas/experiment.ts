@@ -599,7 +599,18 @@ export type ExperimentMode = Readonly<{
 export type PresetEntry = Readonly<{
   presetId: string;
   label: string;
-  parameterValues: Record<string, number | string>;
+  /**
+   * The settings a preset changes, which may be BOOLEAN as well as numeric or textual.
+   *
+   * It was `number | string` until 2026-10-11, and a laboratory with a boolean setting could not
+   * state one: bm-06's grid switch is typed `gridEnabled: boolean` and refused by its own validator
+   * with "The grid switch must be true or false", so all three of its manifest presets wrote
+   * `gridEnabled: 0` or `: 1`. Those presets, as declared, were refused by the lab they belong to.
+   * Writing `false` would have been worse, because the parse below DISCARDED anything that was not
+   * a number or a string, without a word, so the parameter would have vanished from the preset
+   * instead of being wrong in it.
+   */
+  parameterValues: Record<string, number | string | boolean>;
   scenarioId?: string | undefined;
 }>;
 
@@ -1504,18 +1515,29 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
           `${psPath}.scenarioId`,
         );
       }
-      let parameterValues: Record<string, number | string> = {};
+      let parameterValues: Record<string, number | string | boolean> = {};
       if (
         ps.parameterValues &&
         typeof ps.parameterValues === "object" &&
         !Array.isArray(ps.parameterValues)
       ) {
         const pvRaw = ps.parameterValues as Record<string, unknown>;
-        const pv: Record<string, number | string> = {};
+        const pv: Record<string, number | string | boolean> = {};
         for (const [k, v] of Object.entries(pvRaw)) {
-          if (typeof v === "number" || typeof v === "string") {
-            pv[k] = v;
+          // REFUSED, not dropped. This loop used to keep numbers and strings and silently discard
+          // everything else, so a mistyped or unsupported setting left the preset without that
+          // parameter at all and nothing said so -- the preset simply applied one fewer setting
+          // than it declares. A value the model cannot carry is a defect in the record, and the
+          // compiler is where it is supposed to be caught.
+          if (typeof v !== "number" && typeof v !== "string" && typeof v !== "boolean") {
+            throw new ExperimentValidationError(
+              "preset-parameter-value-unsupported",
+              `Preset "${ps.presetId}" gives ${k} a ${v === null ? "null" : typeof v}; a parameter value must be a number, a string or a boolean.`,
+              "Experiment",
+              `${psPath}.parameterValues.${k}`,
+            );
           }
+          pv[k] = v;
         }
         parameterValues = pv;
       }

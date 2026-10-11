@@ -214,7 +214,7 @@ describe("scenario schema", () => {
     }
   });
 
-  test("tolerance spec on an expected output that fails validateToleranceSpec is rejected (experiment.ts:2458)", () => {
+  test("tolerance spec on an expected output that fails validateToleranceSpec is rejected (experiment.ts:2480)", () => {
     // Valid tolerance is accepted
     expect(() =>
       validateScenario({
@@ -281,7 +281,7 @@ describe("scenario schema", () => {
     }
   });
 
-  test("discrimination tolerance spec that fails validateToleranceSpec is rejected, accepted with valid spec (experiment.ts:2376)", () => {
+  test("discrimination tolerance spec that fails validateToleranceSpec is rejected, accepted with valid spec (experiment.ts:2398)", () => {
     const validDiscrimination = {
       id: "schema-discrimination-tolerance",
       kind: "discrimination" as const,

@@ -230,7 +230,7 @@ describe("THE RESIDUAL HOLE, pinned so it cannot widen unnoticed", () => {
  *
  * A citation is the ONLY way to credit a code with several sites, so it is the one arm where position
  * decides identity, and a line number is not an identity. The specimen that forced this:
- * `(experiment.ts:1570)` was written for `missing-lens-label`; a 65-line insertion above it moved that
+ * `(experiment.ts:1592)` was written for `missing-lens-label`; a 65-line insertion above it moved that
  * line onto a throw site for `acceptance-coverage-reason-too-short` written minutes earlier, and the
  * scanner reported the new code as tested, by a test that never constructs an acceptanceCoverage value.
  * It emitted a `code-mismatched` finding at the same time and credited the site anyway.

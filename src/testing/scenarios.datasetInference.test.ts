@@ -48,9 +48,9 @@ describe("dataset inference admission", () => {
    *
    * datasetInference.ts:47 refuses a dataset with no allowedInferenceModelIds list. It runs on
    * a `dataset` that has already returned from validateHistoricalDataset, and that validator
-   * REQUIRES the field - experiment.ts:3073, "allowedInferenceModelIds is required (may be
+   * REQUIRES the field - experiment.ts:3095, "allowedInferenceModelIds is required (may be
    * empty []). An absent list is rejected to prevent unvetted inferences." - and then builds
-   * its result with the key present at experiment.ts:3393. So Object.hasOwn is always true by
+   * its result with the key present at experiment.ts:3415. So Object.hasOwn is always true by
    * the time :47 asks, and the site is a guard whose predecessor already implies it.
    *
    * This is visible in the test above. "an absent list is a dataset-record validation failure"

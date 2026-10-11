@@ -621,7 +621,7 @@ test("Experiment: (experiment.ts:454) invalid-accepted-result rejected when allo
   assert.deepEqual(accepted.acceptedResult.allowedStatuses, ["value"]);
 });
 
-test("Experiment: (experiment.ts:651) invalid-record rejected when raw is not an object, accepted when object", () => {
+test("Experiment: (experiment.ts:662) invalid-record rejected when raw is not an object, accepted when object", () => {
   assert.throws(
     () => validateExperiment("not-an-object"),
     (err: any) => {
@@ -644,7 +644,7 @@ test("Experiment: (experiment.ts:651) invalid-record rejected when raw is not an
   assert.ok(accepted);
 });
 
-test("Experiment: (experiment.ts:662) missing-id rejected when id is not a string, accepted with id", () => {
+test("Experiment: (experiment.ts:673) missing-id rejected when id is not a string, accepted with id", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   delete raw.id;
@@ -678,7 +678,7 @@ test("Experiment: invalid-instrument-id rejected when instrumentId format invali
   assert.equal(accepted.id, "bm-01");
 });
 
-test("Experiment: (experiment.ts:681) missing-title rejected when title missing or empty, accepted with title", () => {
+test("Experiment: (experiment.ts:692) missing-title rejected when title missing or empty, accepted with title", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.title = "   ";
@@ -1619,7 +1619,41 @@ test("Experiment: missing-preset-id rejected when preset lacks presetId, accepte
   assert.equal(accepted.presets[0]?.presetId, "bm-01-standard-water");
 });
 
-test("Experiment: (experiment.ts:1492) invalid-preset-id rejected when presetId format invalid, accepted with valid format", () => {
+/**
+ * A PARAMETER VALUE THE MODEL CANNOT CARRY IS REFUSED, NOT DROPPED.
+ *
+ * This loop kept numbers and strings and silently discarded everything else, so a preset that gave
+ * a setting an array or an object simply applied one fewer setting than it declares and nothing
+ * said so. Booleans are now admitted, because a laboratory can have a boolean setting: bm-06's grid
+ * switch is typed `gridEnabled: boolean` and its own validator refuses a non-boolean, so all three
+ * of its manifest presets wrote `gridEnabled: 0` or `: 1` and were refused by the lab they belong
+ * to. Writing `false` before this change would have been worse than writing 0, because the value
+ * would have vanished instead of being wrong.
+ *
+ * Both directions: an unsupported value refuses with the code, and a boolean is kept rather than
+ * dropped, which is the half a refusal test alone would not show.
+ */
+test("Experiment: (experiment.ts:1533) preset-parameter-value-unsupported rejects an array value, and a boolean is kept", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.presets[0].parameterValues = { ...raw.presets[0].parameterValues, gridEnabled: [1, 2] };
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "preset-parameter-value-unsupported");
+      return true;
+    },
+  );
+  // And the accepted direction: a boolean survives the parse instead of being silently discarded.
+  const ok = strictParse(yaml, "yaml") as any;
+  ok.presets[0].parameterValues = { ...ok.presets[0].parameterValues, gridEnabled: false };
+  const accepted = validateExperiment(ok);
+  assert.equal(accepted.presets[0]?.parameterValues.gridEnabled, false);
+  assert.ok("gridEnabled" in (accepted.presets[0]?.parameterValues ?? {}));
+});
+
+test("Experiment: (experiment.ts:1503) invalid-preset-id rejected when presetId format invalid, accepted with valid format", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.presets[0].presetId = "invalid_preset_id";
@@ -1967,7 +2001,7 @@ test("Scenario: Planted Negative - retired constantSet field is rejected", () =>
   );
 });
 
-test("Scenario: (experiment.ts:2019) invalid-record rejected when raw is not an object, accepted when object", () => {
+test("Scenario: (experiment.ts:2041) invalid-record rejected when raw is not an object, accepted when object", () => {
   assert.throws(
     () => validateScenario("not-an-object" as any),
     (err: any) => {
@@ -1990,7 +2024,7 @@ test("Scenario: (experiment.ts:2019) invalid-record rejected when raw is not an 
   assert.ok(accepted);
 });
 
-test("Scenario: (experiment.ts:2029) missing-id rejected when id is missing or empty, accepted with id", () => {
+test("Scenario: (experiment.ts:2051) missing-id rejected when id is missing or empty, accepted with id", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.id = "   ";
@@ -2016,7 +2050,7 @@ test("Scenario: (experiment.ts:2029) missing-id rejected when id is missing or e
  * `scenario-input-not-a-number (1 untested of 1)`. Both halves are here: the string and the two
  * nonfinite numbers must be refused, and the fixture's own finite value must still be accepted.
  */
-test("Scenario: (experiment.ts:2567) scenario-input-not-a-number rejected for a string or a nonfinite number, accepted for a finite one", () => {
+test("Scenario: (experiment.ts:2589) scenario-input-not-a-number rejected for a string or a nonfinite number, accepted for a finite one", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "scenario-valid.yaml"), "utf8");
   const refused = (value: unknown) => {
     const raw = strictParse(yaml, "yaml") as any;
@@ -2730,7 +2764,7 @@ test("HistoricalDataset: Planted Negative - forbidden result relations (confirme
   );
 });
 
-test("HistoricalDataset: (experiment.ts:2855) invalid-record rejected when raw is not an object, accepted when object", () => {
+test("HistoricalDataset: (experiment.ts:2877) invalid-record rejected when raw is not an object, accepted when object", () => {
   assert.throws(
     () => validateHistoricalDataset("not-an-object" as any),
     (err: any) => {
@@ -2753,7 +2787,7 @@ test("HistoricalDataset: (experiment.ts:2855) invalid-record rejected when raw i
   assert.ok(accepted);
 });
 
-test("HistoricalDataset: (experiment.ts:2865) missing-id rejected when id is missing or whitespace, accepted with id", () => {
+test("HistoricalDataset: (experiment.ts:2887) missing-id rejected when id is missing or whitespace, accepted with id", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.id = "   ";
@@ -2770,7 +2804,7 @@ test("HistoricalDataset: (experiment.ts:2865) missing-id rejected when id is mis
   assert.equal(accepted.id, "perrin-1909-table-1");
 });
 
-test("HistoricalDataset: (experiment.ts:2873) missing-title rejected when title missing or empty, accepted with title", () => {
+test("HistoricalDataset: (experiment.ts:2895) missing-title rejected when title missing or empty, accepted with title", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.title = "";
@@ -3659,7 +3693,7 @@ test("Tour: Planted Negative - step declaring both tapeId and presetId fails", (
   );
 });
 
-test("Tour: (experiment.ts:3561) invalid-record rejected when raw is not an object, accepted when valid", () => {
+test("Tour: (experiment.ts:3583) invalid-record rejected when raw is not an object, accepted when valid", () => {
   assert.throws(
     () => validateTour("not-an-object" as any),
     (err: any) => {
@@ -3682,7 +3716,7 @@ test("Tour: (experiment.ts:3561) invalid-record rejected when raw is not an obje
   assert.equal(accepted.id, "tour-brownian-overview");
 });
 
-test("Tour: (experiment.ts:3566) missing-id rejected when id is missing or empty, accepted with id", () => {
+test("Tour: (experiment.ts:3588) missing-id rejected when id is missing or empty, accepted with id", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "tour-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.id = "   ";
@@ -3782,7 +3816,7 @@ test("Tour: missing-step-anchor-id rejected when step anchorId is missing or emp
   assert.equal(accepted.steps[0]?.anchorId, "step-01-anchor");
 });
 
-test("Tour: (experiment.ts:3641) invalid-preset-id rejected when presetId format is malformed, accepted when valid", () => {
+test("Tour: (experiment.ts:3663) invalid-preset-id rejected when presetId format is malformed, accepted when valid", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "tour-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.steps[0].instrumentPreset = {
@@ -3901,7 +3935,7 @@ test("ConstantSet: Planted Negative - editorial-input missing reason or sensitiv
   );
 });
 
-test("ConstantSet: (experiment.ts:3749) invalid-record rejected when raw is not an object, accepted when valid", () => {
+test("ConstantSet: (experiment.ts:3771) invalid-record rejected when raw is not an object, accepted when valid", () => {
   assert.throws(
     () => validateConstantSet("not-an-object" as any),
     (err: any) => {
@@ -3923,7 +3957,7 @@ test("ConstantSet: (experiment.ts:3749) invalid-record rejected when raw is not 
   assert.equal(accepted.id, "einstein-1905-brownian-printed");
 });
 
-test("ConstantSet: (experiment.ts:3759) missing-id rejected when id is missing or empty, accepted with id", () => {
+test("ConstantSet: (experiment.ts:3781) missing-id rejected when id is missing or empty, accepted with id", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "constant-set-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;
   raw.id = "   ";
