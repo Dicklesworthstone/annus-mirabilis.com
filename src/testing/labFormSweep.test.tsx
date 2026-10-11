@@ -430,14 +430,21 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
    * sweep now reports. If that subtraction does not close, the set was edited rather than earned.
    *
    * The 11 that still render a chrome and mark nothing have no form-failure state at all, so there is
-   * nothing to pass; they are not an omission of this repair. bm-03, bm-07 and sr-03 remain am-m79c's
-   * criterion 1: they refuse a form and render no chrome to mark it with.
+   * nothing to pass; they are not an omission of this repair.
+   *
+   * THEN 16 TO 19 ON THE SAME DAY, closing am-m79c's criterion 1. bm-03, bm-07 and sr-03 refuse a
+   * form and render no chrome at any position, so there was no element for a refusal to mark. Each
+   * now mounts `CurrencyForView` beside the execution label it already writes by hand -- the currency
+   * half alone, not the whole chrome, which would have added a model note and its layout to three
+   * headings. Those three are asserted BY NAME below as well as through this set.
    */
   const RECORDED_STALENESS_MARKING = [
     "bm-01",
+    "bm-03",
     "bm-04",
     "bm-05",
     "bm-06",
+    "bm-07",
     "bm-08",
     "lq-01",
     "lq-03",
@@ -447,20 +454,41 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
     "lq-07",
     "lq-08",
     "lq-09",
+    "sr-03",
     "sr-04",
     "sr-06",
     "sr-07",
   ];
+  /**
+   * The three that mark a form refusal WITHOUT rendering an execution chrome (am-m79c criterion 1).
+   *
+   * Kept apart from the set above because the census line used to subtract that set's size from 27,
+   * the number of chrome-rendering labs, and the two populations stopped being nested the moment
+   * bm-03, bm-07 and sr-03 gained a standalone `CurrencyForView`. `27 - 19 = 8` was then an answer to
+   * no question: of the 27 chrome labs, 19 - 3 = 16 mark, so 11 do not. A difference between two
+   * populations that are not nested is the count error AGENTS.md puts first, and this is the version
+   * of the line that cannot drift into it.
+   */
+  const MARKS_WITHOUT_A_CHROME = ["bm-03", "bm-07", "sr-03"];
   test("the labs whose form refusal marks the accepted readouts stale, by name (am-m79c)", () => {
+    const withChrome = [...currencyRoutes].filter((r) => !MARKS_WITHOUT_A_CHROME.includes(r));
     console.log(
       `[census] form-refusal staleness marking: ${[...currencyRoutes].sort().join(", ") || "NONE"} ` +
-        `(${currencyRoutes.size} of 33 labs; 27 render an execution chrome, so ${27 - currencyRoutes.size} ` +
-        "render one and mark nothing when a form is refused)",
+        `(${currencyRoutes.size} of 33 labs: ${withChrome.length} of the 27 that render an execution ` +
+        `chrome, so ${27 - withChrome.length} render one and mark nothing; plus ` +
+        `${MARKS_WITHOUT_A_CHROME.filter((r) => currencyRoutes.has(r)).length} of the ` +
+        `${MARKS_WITHOUT_A_CHROME.length} that mark one with no chrome at all)`,
     );
     // Non-vacuity first: a selector that matched nothing would make the set trivially equal to an
     // empty recorded list and read as a clean run.
     expect(currencyRoutes.size).toBeGreaterThan(0);
     expect([...currencyRoutes].sort()).toEqual(RECORDED_STALENESS_MARKING);
+    // And the three chrome-less labs are IN it, asserted by name rather than left to the set above:
+    // am-m79c's criterion 1 is about these three specifically, and a set equality says nothing about
+    // which members mattered.
+    for (const route of MARKS_WITHOUT_A_CHROME) {
+      expect(currencyRoutes.has(route), `${route} refuses a form and must mark it`).toBe(true);
+    }
   });
 
   test("the sweep typed into fields (a floor, not a census)", () => {
