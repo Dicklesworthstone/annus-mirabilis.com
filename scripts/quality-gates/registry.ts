@@ -796,6 +796,15 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     //
     // requiresArtifact names out/, so a checkout with no build reports `not-available` rather than
     // passing having measured nothing, and a --profile run refuses.
+    //
+    // ITS POSITION IN THIS ARRAY IS LOAD-BEARING: it sits immediately before `perf-budgets`, and the
+    // runner executes in registry order, so in any chain that selects both the artifact is written
+    // before the row that reads it. Driven end to end 2026-10-10:
+    // `bun scripts/quality-gates.ts --only perf-browser-budgets,perf-budgets` reported
+    // "[1/2] ... PASSED in 83774ms" then "[2/2] ... PASSED in 2955ms", exit 0, 0 not-available.
+    // Moving this entry after `perf-budgets` would not fail anything; it would quietly make the row
+    // read the PREVIOUS build's artifact, which the staleness check then refuses -- so the symptom
+    // would be three rows silently back to `not-available`, not an error.
     id: "perf-browser-budgets",
     title:
       "Browser-driven budget rows: visible text and math, interaction latency p75, layout shift",
