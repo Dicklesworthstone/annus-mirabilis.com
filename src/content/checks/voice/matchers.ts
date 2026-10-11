@@ -580,6 +580,41 @@ function isPerformedWell(text: string, matchIndex: number, matchedText: string):
   return /^\s+itself\b/i.test(after);
 }
 
+/**
+ * Whether this overclaim phrase sits inside a QUESTION, which asserts nothing (am-uxh9).
+ *
+ * The rule's own purpose, stated at `isDirectlyNegated` above, is "to catch a verdict on the
+ * world". SR-04's rod laboratory asks the reader `Could one of these events have caused the
+ * other?`, keyed `causalOrder`, and that is the question relativistic causality is ABOUT -- the
+ * same relation to the rule that a negated "not proved" has, expressed by asking rather than by
+ * denying, so `isDirectlyNegated` cannot see it. Rewriting the question would damage the physics
+ * to quiet the linter, which is the damage both exemptions above were written to avoid; and there
+ * is no honest rewrite, because "cause" is the concept, so the only alternatives were a different
+ * inflection to slip the phrase list, or leaving the one gate that reads 83,344 visitor-facing
+ * strings out of CI.
+ *
+ * BOTH CONDITIONS, because the second is what keeps a verdict from wearing a question mark. The
+ * sentence holding the match must END in a question mark AND OPEN with an interrogative, so
+ * "It caused the lag, didn't it?" is still a finding: its sentence ends in `?` but opens with
+ * "It". A tag question is a verdict with punctuation, and that is the case worth refusing.
+ */
+function isInterrogative(text: string, matchIndex: number): boolean {
+  const after = text.slice(matchIndex);
+  const terminator = after.search(/[.!?;]/);
+  if (terminator === -1 || after[terminator] !== "?") return false;
+  const before = text.slice(0, matchIndex);
+  const lastBreak = Math.max(
+    before.lastIndexOf("."),
+    before.lastIndexOf("!"),
+    before.lastIndexOf("?"),
+    before.lastIndexOf(";"),
+  );
+  const opener = before.slice(lastBreak + 1).trimStart();
+  return /^(could|can|did|do|does|is|are|was|were|what|why|how|which|who|whom|whose|would|will|might|must|should|shall|has|have|had|may)\b/i.test(
+    opener,
+  );
+}
+
 export function matchOverclaim(
   text: string,
   rule: OverclaimRule,
@@ -604,6 +639,10 @@ export function matchOverclaim(
         if (isDirectlyNegated(text, m.index)) continue;
         if (isPerformedWell(text, m.index, m.matchedText)) continue;
       }
+      // Applied to every phrase, not only to "caused": a question asserts nothing whichever of
+      // these words it contains, and restricting it to the one phrase that happened to surface
+      // would leave the same false positive waiting behind "vindicated" or "settled the question".
+      if (isInterrogative(text, m.index)) continue;
       findings.push(
         finding(
           ruleId,

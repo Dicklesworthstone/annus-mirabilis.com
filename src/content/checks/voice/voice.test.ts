@@ -396,6 +396,33 @@ describe("mockery", () => {
   });
 });
 
+describe('theater: "wrong turn" is a historical alternative, not a mark (am-uxh9)', () => {
+  /*
+   * This rule's own description is "mark vocabulary on reader work", and AGENTS.md defines the
+   * phrase under "Reasonable alternatives deserve a fair hearing": "A 'wrong turn' specifies a
+   * coherent hypothesis and the circumstances in which it works." The results face's "Common
+   * wrong turns" heading is that category, and it was the only ui-label occurrence of the word in
+   * the corpus -- the one error keeping the voice gate, which reads 83,344 visitor-facing strings,
+   * out of CI. Rewriting a heading the specification prescribes, to quiet a rule watching for
+   * something else, would make the gate the author of an editorial rule the spec already settles.
+   *
+   * Allowlisted as DATA (voice-rules.yaml theater.allowlist), through the same mechanism that
+   * keeps "data points" from firing the "points" rule. Both directions below, because an allowlist
+   * is the shape a weakened gate hides in.
+   */
+  for (const text of ["Common wrong turns", "A wrong turn Lorentz took"]) {
+    it(`"${text}" passes in a ui-label`, () => {
+      assert.equal(has(checkVoice(text, { context: "ui-label" }), "theater"), false);
+    });
+  }
+
+  for (const text of ["Wrong answer", "That was wrong", "wrong"]) {
+    it(`"${text}" still fails in a ui-label`, () => {
+      assert.equal(has(checkVoice(text, { context: "ui-label" }), "theater"), true);
+    });
+  }
+});
+
 describe("overclaim", () => {
   const failing = [
     "the first decisive proof of relativity",
@@ -411,6 +438,15 @@ describe("overclaim", () => {
     // The boundary of the sich-bewähren exemption below: "proved it" is two letters from
     // "proved itself" and is still a verdict on the world.
     "the 1909 count proved it",
+    // THE BOUNDARY OF THE INTERROGATIVE EXEMPTION (am-uxh9), which is where it earns its keep. A
+    // tag question is a verdict with punctuation: the sentence ends in a question mark, so the
+    // first half of the test passes, and it opens with "It" rather than an interrogative, so the
+    // second half refuses it. Without that second condition every overclaim could be licensed by
+    // appending three words.
+    "It caused the lag, didn't it?",
+    // And the exemption is scoped to the sentence holding the match, so a verdict followed by a
+    // question is still a verdict.
+    "The ether drag caused the null result. Or did it?",
   ];
   for (const text of failing) {
     it(`"${text}" fails in prose`, () => {
@@ -433,6 +469,15 @@ describe("overclaim", () => {
     // isPerformedWell). It took verify-content red on misc-lq-not-a-wave, whose whole subject is
     // that the paper keeps the wave theory.
     "The undulatory theory of light has proved itself excellently in the representation of purely optical phenomena",
+    // A QUESTION ASSERTS NOTHING (am-uxh9, matchers.ts isInterrogative). The first is SR-04's own
+    // prompt, keyed causalOrder, and it is the question relativistic causality is about: it took
+    // the voice gate red and there is no honest rewrite, because "cause" is the concept. The rest
+    // are the same shape over other phrases in the list, since restricting the exemption to the
+    // one word that surfaced would leave the identical false positive waiting behind the others.
+    "Could one of these events have caused the other?",
+    "What caused the difference in the two readings?",
+    "Did Perrin's count settle the question?",
+    "Has the slope been proved for every metal?",
   ];
   for (const text of passing) {
     it(`"${text}" passes`, () => {

@@ -371,6 +371,19 @@ rules:
       - sample point
       - grid points
       - grid point
+      # "wrong turn" IS THIS PROJECT'S OWN TERM FOR A HISTORICAL ALTERNATIVE, not a mark on a
+      # reader's work, which is what this rule's own description says it watches for. AGENTS.md
+      # defines it: "A 'wrong turn' specifies a coherent hypothesis and the circumstances in which
+      # it works", under a section headed "Reasonable alternatives deserve a fair hearing". The
+      # results face's "Common wrong turns" heading is that category, and it was the only
+      # ui-label occurrence of the word in the corpus. Rewriting a heading the specification
+      # prescribes, to quiet a rule that is watching for something else, would make the gate the
+      # author of an editorial rule the spec already settles the other way.
+      #
+      # Narrow by construction: "wrong answer" is its own markWord entry and still fires, as does
+      # a bare "wrong". Only the two-word phrase steps back.
+      - wrong turns
+      - wrong turn
     severityByContext:
       task-feedback: error
       reader-progress: error
