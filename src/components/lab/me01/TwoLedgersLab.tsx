@@ -28,7 +28,6 @@ import {
 import { ME01_TAPE } from "../../../experiments/me01/tape.ts";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import type { RequestRefusal } from "../../../experiments/results/refusals.ts";
-import { makeRefusal } from "../../../experiments/results/refusals.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
@@ -155,53 +154,33 @@ export function TwoLedgersLab({
     setLinkPending(false);
   }
 
-  /** Validate a whole draft and apply it; the typed fields and the sliders both end here. */
+  /**
+   * Validate a whole draft and apply it; the typed fields and the sliders both end here.
+   *
+   * THREE HAND-ROLLED GUARDS USED TO RUN FIRST, and every one of them was a worse copy of a check
+   * the validator already performs. `session.apply` calls `validateMe01Parameters` (session.ts:95),
+   * which refuses a non-finite speed, a |v/c| at or above 1, a non-finite angle and an emitted
+   * energy at or below zero -- each with a REGISTERED code and each carrying its sentence in
+   * `details.requirements`, which `apply` below already reads. The local guards fired first, so the
+   * validator's coded refusals were unreachable from this form and a reader got the shorter
+   * sentence with no code behind it.
+   *
+   * Two of them were given codes earlier today (am-m79c) to make the chrome mark staleness. That
+   * was a stopgap: routing through the validator gets the codes AND removes the duplicate, which is
+   * the repair the third guard was waiting for. It set `code: null`, and the reason it could not
+   * choose one is that the choice was already made in parameters.ts -- `invalid-parameter` with
+   * `details.requirements: "Enter an emitted energy L greater than zero."`, the same sentence this
+   * file was printing by hand.
+   *
+   * The reader's sentences come from the validator now, which changes two of them: the speed case
+   * reads "Enter an observer speed v/c strictly between -1 and 1: no inertial observer moves at or
+   * above light speed", and a non-numeric field is named rather than answered with "Type a number in
+   * each field." Both say what to do instead of only what is wrong, and both are the wording every
+   * other path in this lab already used.
+   */
   function commitDraft(next: Me01Draft) {
     setDraft(next);
     const parsed = fromMe01Draft(next);
-    /**
-     * These three guards already NAMED their codes; two of them named registered ones, so the
-     * refusal they imply can be built rather than chosen (am-m79c). `setRefusalCode` alone reaches
-     * `data-refusal-code` and is not something `CurrencyForView` can read, which is why this lab
-     * carried a code while marking no staleness. The lab's own sentence rides as the ranked repair,
-     * exactly as readTypedNumber does, so nothing a reader reads changes.
-     *
-     * The third guard set `null` deliberately, and that is left alone: picking a code for it is an
-     * editorial choice about what an emitted energy of zero IS, not a repair, and it belongs to
-     * whoever owns this lab.
-     */
-    if (
-      !Number.isFinite(parsed.frameSpeed) ||
-      !Number.isFinite(parsed.emittedEnergyRestFrame) ||
-      !Number.isFinite(parsed.emissionAngle)
-    ) {
-      const sentence = "Type a number in each field.";
-      setError(sentence);
-      setRefusalCode("nonfinite-input");
-      setRefusal(makeRefusal("nonfinite-input", {}, { rankedRepairs: [{ label: sentence }] }));
-      return;
-    }
-    if (Math.abs(parsed.frameSpeed) >= 1) {
-      const sentence = "No inertial observer moves at or above the speed of light (|v/c| < 1).";
-      setError(sentence);
-      setRefusalCode("superluminal-observer");
-      setRefusal(
-        makeRefusal(
-          "superluminal-observer",
-          { parameterIds: ["frameSpeed"] },
-          {
-            rankedRepairs: [{ label: sentence }],
-          },
-        ),
-      );
-      return;
-    }
-    if (parsed.emittedEnergyRestFrame <= 0) {
-      setError("Enter an emitted energy L greater than zero.");
-      setRefusalCode(null);
-      setRefusal(null);
-      return;
-    }
     setLinkPending(false);
     apply(parsed);
   }
