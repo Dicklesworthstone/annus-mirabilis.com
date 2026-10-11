@@ -107,6 +107,40 @@ describe("every German face renders its source blocks (dispatch 255, step 0)", (
           `${missing.length} of ${live.length} manifest ids have no anchor: ${missing.slice(0, 8).join(", ")}`,
         );
 
+      /**
+       * THE CONVERSE, which is the half am-german-face-anchors-not-frozen-ids-jtv6 actually asks
+       * for: "every rendered block anchor is a manifest id". The check above runs manifest ->
+       * rendered and cannot see a rendered anchor that answers to nothing in the manifest. The bead
+       * measured 102 of 102 equation anchors rendered as `sN-eqN` on 2026-09-24, a form the anchor
+       * grammar does not define; every one of those would have passed the check above untouched,
+       * because none of them is a manifest id gone missing.
+       *
+       * Measured 2026-10-11 across the four faces and in the built HTML of out/: 963 content-shaped
+       * anchors, 0 foreign, 0 of the `sN-eqN` shape. So this asserts a property that currently
+       * holds, and it is the regression that would otherwise be invisible.
+       *
+       * The id namespace is read from the manifest UNFILTERED: an inline-equation unit has no
+       * REQUIRED anchor (see UNANCHORED_KINDS) but is still a frozen id, so rendering one is not a
+       * foreign anchor. A content-shaped id is one in the grammar's namespace; ids a component
+       * makes for its own plumbing are outside it and are not block anchors.
+       */
+      const everyManifestId = new Set(manifestUnits(slug).map((u) => u.id));
+      const face = document.querySelector('[data-face="german"]') ?? document.body;
+      const rendered = [...face.querySelectorAll("[id]")].map((el) => el.id).filter(Boolean);
+      const contentShaped = [...new Set(rendered)].filter((id) =>
+        /^(?:s\d|closing-|masthead-|eq-|part-)/.test(id),
+      );
+      const foreign = contentShaped.filter((id) => !everyManifestId.has(id) && !retiredIds.has(id));
+      // Non-vacuity: with no content-shaped anchor at all the filter above is empty and this check
+      // passes while asserting nothing, which is the shape the face regressing to zero anchors
+      // would take.
+      if (contentShaped.length === 0)
+        problems.push("no content-shaped anchor on the face: the converse check is vacuous");
+      if (foreign.length > 0)
+        problems.push(
+          `${foreign.length} of ${contentShaped.length} rendered anchors are neither a manifest id nor a declared alias: ${foreign.slice(0, 8).join(", ")}`,
+        );
+
       // An alias is published for a retired id whose replacement the face publishes (a block or a
       // sentence), as manifestAnchors.ts has it; a reference occurrence (s2-p2-s1-r3) is no anchor,
       // so an alias to it would lead nowhere, and it is counted rather than required.
@@ -149,7 +183,7 @@ describe("every German face renders its source blocks (dispatch 255, step 0)", (
         );
 
       console.log(
-        `[german face] ${slug}: ${live.length} anchorable manifest ids (${unanchored.length} inline-equation units excluded, no anchor in the grammar), ${retired.length - unpublished} aliases published (${unpublished} to reference occurrences, not anchors), ${explained} explained lines, ${footnotes.length} footnotes; ${problems.length} problems`,
+        `[german face] ${slug}: ${live.length} anchorable manifest ids (${unanchored.length} inline-equation units excluded, no anchor in the grammar), ${contentShaped.length} content-shaped anchors rendered of which ${foreign.length} foreign, ${retired.length - unpublished} aliases published (${unpublished} to reference occurrences, not anchors), ${explained} explained lines, ${footnotes.length} footnotes; ${problems.length} problems`,
       );
       expect(problems).toEqual([]);
     });
