@@ -31,6 +31,7 @@ import { createServer, type Server } from "node:http";
 import { extname, join, normalize, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type Browser, chromium, type Page } from "playwright";
+import { reportPopulation } from "./gate-census/population.ts";
 
 const ROOT = resolve(fileURLToPath(import.meta.url), "..", "..");
 
@@ -111,6 +112,14 @@ function serveExport(port: number): Promise<Server> {
 }
 
 const failures: string[] = [];
+/**
+ * Laboratories this run actually opened, counted inside the loop rather than taken from
+ * LABORATORIES.length (am-rc1001-bridge-plan-pcjk.18: each lane "prints its examined population
+ * ... which is at least its floor"). The two differ exactly when it matters: the non-200 guard
+ * below THROWS, so a route that moved ends the loop early, and a count read off the declared
+ * array would still report four.
+ */
+let visited = 0;
 function check(claim: string, held: boolean, saw: string): void {
   console.log(`  ${held ? "ok  " : "FAIL"}  ${claim}  (${saw})`);
   if (!held) failures.push(`${claim}: ${saw}`);
@@ -200,6 +209,7 @@ async function main(): Promise<number> {
     const page = await context.newPage();
 
     for (const [name, route] of LABORATORIES) {
+      visited += 1;
       const errors: string[] = [];
       page.removeAllListeners("pageerror");
       page.on("pageerror", (error) => errors.push(`${error.message}`.slice(0, 120)));
@@ -255,7 +265,15 @@ async function main(): Promise<number> {
     `\n${failures.length === 0 ? "every laboratory holds with WebGL denied" : `${failures.length} failed`}`,
   );
   for (const failure of failures) console.log(`  ${failure}`);
-  return failures.length === 0 ? 0 : 1;
+  // The floor is the declared set: a run that opened fewer either crashed on a moved route or
+  // never reached one, and "0 failures" over nothing visited reads exactly like a clean lane.
+  const vacuous = reportPopulation({
+    gate: "no-webgl-lane",
+    examined: visited,
+    noun: "laboratories opened with WebGL denied",
+    minimum: LABORATORIES.length,
+  });
+  return failures.length === 0 && !vacuous ? 0 : 1;
 }
 
 process.exit(await main());

@@ -35,6 +35,7 @@ import { createServer, type Server } from "node:http";
 import { extname, join, normalize, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type Browser, chromium, type Page } from "playwright";
+import { reportPopulation } from "./gate-census/population.ts";
 
 const ROOT = resolve(fileURLToPath(import.meta.url), "..", "..");
 function flag(name: string): string | undefined {
@@ -123,7 +124,16 @@ async function tabUntil(
 }
 
 const failures: string[] = [];
+/**
+ * Claims this run actually EVALUATED (am-rc1001-bridge-plan-pcjk.18: each lane "prints its
+ * examined population ... which is at least its floor"). This lane is linear rather than a
+ * loop over a population, so the honest denominator is how many of its claims were reached:
+ * a throw in an early section leaves the later ones unevaluated, and `0 failures` over a lane
+ * that stopped after two claims reads exactly like a clean run.
+ */
+let claimsEvaluated = 0;
 function check(claim: string, held: boolean, saw: string): void {
+  claimsEvaluated += 1;
   console.log(`  ${held ? "ok  " : "FAIL"}  ${claim}  (${saw})`);
   if (!held) failures.push(`${claim}: ${saw}`);
 }
@@ -308,7 +318,16 @@ async function main(): Promise<number> {
     `\n${failures.length === 0 ? "every keyboard action could be performed" : `${failures.length} could not`}`,
   );
   for (const failure of failures) console.log(`  ${failure}`);
-  return failures.length === 0 ? 0 : 1;
+  // The floor is this lane's static `check()` call-site count, which is a LOWER bound
+  // because some sit inside loops, so a full run reports more. It is set to catch a lane
+  // that stopped early rather than to pin the number; measured count is printed beside it.
+  const vacuous = reportPopulation({
+    gate: "keyboard-only-lane",
+    examined: claimsEvaluated,
+    noun: "keyboard claims evaluated",
+    minimum: 12,
+  });
+  return failures.length === 0 && !vacuous ? 0 : 1;
 }
 
 process.exit(await main());

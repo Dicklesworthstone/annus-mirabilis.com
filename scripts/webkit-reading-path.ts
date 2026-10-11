@@ -33,6 +33,7 @@ import { createServer, type Server } from "node:http";
 import { extname, join, normalize, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type Browser, type Page, webkit } from "playwright";
+import { reportPopulation } from "./gate-census/population.ts";
 
 const ROOT = resolve(fileURLToPath(import.meta.url), "..", "..");
 
@@ -92,6 +93,12 @@ function serveExport(port: number): Promise<Server> {
 }
 
 const failures: string[] = [];
+/**
+ * Pages this run actually opened, counted in the loop rather than read off READING_PATH.length
+ * (am-rc1001-bridge-plan-pcjk.18: each lane "prints its examined population ... which is at
+ * least its floor"). A lane that threw part-way through would otherwise still report four.
+ */
+let visited = 0;
 function check(claim: string, held: boolean, saw: string): void {
   console.log(`  ${held ? "ok  " : "FAIL"}  ${claim}  (${saw})`);
   if (!held) failures.push(`${claim}: ${saw}`);
@@ -168,6 +175,7 @@ async function main(): Promise<number> {
     page.on("pageerror", (error) => errors.push(`${error.message}`.slice(0, 140)));
 
     for (const [label, route] of READING_PATH) {
+      visited += 1;
       {
         const opened = await page.goto(`${base}${route}`, { waitUntil: "load", timeout: 40000 });
         const code = opened?.status();
@@ -239,7 +247,15 @@ async function main(): Promise<number> {
     `\n${failures.length === 0 ? "the reading path holds in WebKit" : `${failures.length} failed`}`,
   );
   for (const failure of failures) console.log(`  ${failure}`);
-  return failures.length === 0 ? 0 : 1;
+  // The floor is the declared path: a run that opened fewer pages did not walk it, and
+  // "0 failures" over a path never walked reads exactly like a clean lane.
+  const vacuous = reportPopulation({
+    gate: "webkit-reading-path",
+    examined: visited,
+    noun: "reading-path pages opened in WebKit",
+    minimum: READING_PATH.length,
+  });
+  return failures.length === 0 && !vacuous ? 0 : 1;
 }
 
 process.exit(await main());
