@@ -1097,11 +1097,12 @@ Inherited from the donor's de-slopify rule and tightened. It applies to every vi
 ### Before you commit: seconds, and yours to run
 
 These are affordable enough that there is no excuse for skipping them, and between them they catch
-the two ways this repository has actually broken.
+the three ways this repository has actually broken.
 
 ```bash
 bun run check:types                        # 2.3s  tsc --noEmit AND the instrument registry, named separately
 bun run check:architecture                 # 0.3s  App Router root and root-file allowlist
+bun run test:refusals                      # 31s   ONLY if your commit changes a line count under src/
 bunx biome check --write <your files>      #       YOUR changed files, by explicit path, never the repo
 bun test <the one test file you changed>   #       one file, not a lane
 ubs --diff
@@ -1117,6 +1118,32 @@ runs the checks separately and says which one broke. Both of that day's outages 
 Biome is run **on the files you changed, by explicit path**. Repo-wide `bun run lint` is currently
 red on files nobody in this batch authored, so it cannot be a pre-commit gate, and reformatting a
 file you only touched one line of buries your change in a diff nobody can review.
+
+`bun run test:refusals` is here because **a COMMENT can turn a ratchet red**, which nobody believes
+until it happens to them. A test name carrying `(file.ts:317)` CREDITS the refusal throw site at
+that line, so an edit above it moves the site the citation names without touching the citation. The
+failure is silent and it inflates "untested debt" by exactly the work you just did.
+
+It happened **twice on 2026-10-11**, to the same person, with the second occurring after the first
+had been written down. A 15-line docblock in `src/content/schemas/experiment.ts` staled 33 citations
+across nine files, repaired by `aea85bf7e`. Then `8966871ac` added a 44-line docblock to
+`src/discovery/checks/journeyChecks.ts`, staled eight citations, and un-credited three refusal
+sites, taking that file from its baseline of 1 untested to 4 — because uncited sites under a
+repeated code are never credited (am-ksl3); repaired by `ea58d3858`. Neither commit changed any
+behaviour. Both left `untested refusal throw site ratchet` (am-muyh) and `stale citation ratchet`
+(am-ksl3) red for every pane until repaired.
+
+Both authors had already run `check:types`, Biome on the changed file, and the feature's own test
+file — 809 tests passed in the second case — and **none of those three lanes reaches
+`src/testing/refusals/`**. A green feature suite is the exact reassurance that makes the ratchet
+feel already covered.
+
+So the trigger is mechanical, not a judgement about significance: **if your commit changes the LINE
+COUNT of any file under `src/`, run it, whatever the change was.** Read the printed census rather
+than the exit code — `[refusal census] src: … N untested` rising is the signal. And repair the
+citations rather than raising the baseline: remap each cited line by locating its own content in the
+new file, which is mechanical and safe, and is written up under "A baseline is the record of a debt,
+not a budget to draw on" above.
 
 ### Central verify: minutes, and the orchestrator's to run
 
