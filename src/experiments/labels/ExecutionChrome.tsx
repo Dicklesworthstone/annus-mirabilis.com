@@ -7,8 +7,7 @@ import type { ReactElement } from "react";
 import type { ExecutionStateKind } from "../provenance/executionState.ts";
 import type { RequestRefusal } from "../results/refusals.ts";
 import type { ExperimentView } from "../store/instanceStore.ts";
-import { CurrencyIndicator } from "./CurrencyIndicator.tsx";
-import { deriveCurrencyState } from "./currencyState.ts";
+import { CurrencyForView } from "./CurrencyForView.tsx";
 import { ExecutionLabel } from "./ExecutionLabel.tsx";
 import { ModelNote } from "./ModelNote.tsx";
 import type { ModelNoteData } from "./modelNoteData.ts";
@@ -40,16 +39,13 @@ export function ExecutionChrome({
   modelNote,
   validationRefusal,
 }: ExecutionChromeProps): ReactElement {
-  const currency = validationRefusal ? "refused" : deriveCurrencyState(view);
-  // Only news is shown: running, refused or stale (dispatch 259). "These numbers match the current
-  // settings" is the state a reader assumes, and as a boxed chip above every instrument it read as
-  // debug output. The accepted state stays on the instrument root as data-currency-state.
+  // WHEN a currency indicator appears is `CurrencyForView`'s, not this component's (am-m79c). Three
+  // labs render no chrome at all and need the same rule beside their own hand-written label, and the
+  // condition held here inline would then have lived in four places.
   return (
     <div className="execution-chrome">
       <ExecutionLabel state={state} />
-      {currency !== undefined && currency !== "accepted" ? (
-        <CurrencyIndicator state={currency} refusal={validationRefusal ?? view.refusal} />
-      ) : null}
+      <CurrencyForView view={view} validationRefusal={validationRefusal} />
       {modelNote !== undefined ? <ModelNote data={modelNote} /> : null}
     </div>
   );
