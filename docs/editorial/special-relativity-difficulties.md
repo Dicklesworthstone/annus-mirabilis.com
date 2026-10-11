@@ -187,7 +187,17 @@ Each flag below corresponds to an audited feature on the facsimile page images, 
 - `flag:watch-spelling-doppeler`: the misspelling is **in the heading itself**. Verified on `artifacts/page-images/ap-17-891/page-20.png` (p. 910), the section heading prints "§ 7. Theorie des **Doppelerschen** Prinzips und der Aberration." The expected wording *Doppler'schen* is **not** printed, and the printed genitive is *Prinzips*, not *Prinzipes*. The body sentence on p. 911 (`page-21.png`) likewise prints "Dies ist das **Doppelersche** Prinzip für beliebige Geschwindig-". The ledger and the German edition keep both as printed; the receipt's `typographicalErrors` records the heading with layer `source`. Nothing silently corrects it.
 - `flag:watch-typos` matches Verified printed typographical errors in the original 1905 journal text:
   1. `s3-p10-s1` (p. 899): Prints "auf die H- und Z-Achse" instead of Y-Achse.
-  2. `s3-p19-s1` (p. 902): Prints "Stück der H-Achse" instead of Y-Achse.
+  2. `s3-p22-s4` and `s3-p22-s5` (p. 902): Print "Stück der H-Achse" instead of Y-Achse, twice
+     in the one paragraph.
+     <!-- `s3-p19-s1` until 2026-10-11: §3 runs to s3-p22 and has no p19, so that id resolved
+          to nothing in the manifest or the alias file. The text is in
+          content/source-blocks/special-relativity/s3-p22.yaml, whose locators include printed
+          page 902, and within its ten sentence spans "Stück der H-Achse" falls in s3-p22-s4
+          ("Wir fassen das Stück der H-Achse des Systems k ins Auge...") and s3-p22-s5
+          ("Dieses Stück der H-Achse ist ein relativ zum System K ... bewegter Stab"). The
+          receipt's own err-typo-p902-1 says the same independently: "das Stück der H-Achse
+          (twice)" and "occurring twice in the paragraph", so naming both sentences records
+          what that record describes rather than one of the two. -->
   3. `part-2` heading (p. 907): Prints "II. Eektrodynamischer Teil." (missing 'l' in Elektrodynamischer).
   4. `s6-p5` display (p. 909): Notation switches between $\psi(v)$ and $\varphi(v)$ across displays.
   5. `s10-p10` display (p. 920): Middle integral $\int_0^v \beta^3 v dv$ drops mass factor $\mu$ before the equals sign.
