@@ -290,6 +290,31 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     },
     owner: "am-read-equation-explanations",
   },
+  // 5d. The misconception ledgers (am-8gbg criterion 1).
+  //
+  // verify-content already calls auditMisconceptions() over the live ledgers, so the AUDIT was
+  // reachable; the SCRIPT was not, because it refused to start without --fixture and so could only
+  // ever be run against hand-written input. That is the shape AGENTS.md warns about under "A Gate's
+  // Own Test Must Not Live Only In The Lane That Gate Controls": the only way to ask this audit a
+  // question was to run a five-minute central gate, which nobody does while authoring a ledger.
+  //
+  // It is a SECOND reader of the same population rather than a duplicate of verify-content's step,
+  // and that is deliberate: this one is seconds, runs in the fast family, and prints the census for
+  // `parsePopulationLines`, so an author adding a ledger entry sees the count move. It uses
+  // verify-content's own loader, so the two cannot disagree about what the corpus holds.
+  {
+    id: "misconception-ledgers",
+    title: "Misconception ledger census",
+    command: ["bun", "scripts/audit-misconceptions.ts"],
+    family: "fast",
+    cadence: "every-run",
+    requiredInCi: true,
+    requiredInProfiles: ["scaffold", "preview", "launch"],
+    availability: {
+      scriptPath: "scripts/audit-misconceptions.ts",
+    },
+    owner: "am-8gbg",
+  },
   // 6. Ultimate Bug Scanner (diff mode)
   {
     id: "ubs-diff",

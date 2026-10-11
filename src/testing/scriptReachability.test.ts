@@ -28,10 +28,14 @@ const EXPECTED_UNREACHABLE: ReadonlyMap<string, string> = new Map([
     "audit-instruments.ts",
     "Thin CLI over src/content/audits/instruments.ts. auditInstruments() is already called by scripts/verify-content.ts, a registry step, so the audit is reachable and only this debugging entry point is not. Running the CLI over the whole catalogue exits 1 today because most of the 33 instruments are unbuilt.",
   ],
-  [
-    "audit-misconceptions.ts",
-    "Thin CLI over src/content/audits/misconceptions.ts, whose auditMisconceptions() is called by verify-content.ts over the 26 live ledger records in content/misconceptions (am-8gbg, 2026-09-27). Only this --fixture entry point is unreachable; the audit itself judges the real corpus. The reason recorded here until 2026-09-27 denied that directory any records at all, which stopped being true when the ledgers landed and was still on the page.",
-  ],
+  // audit-misconceptions.ts was here, and is not any more (am-8gbg criterion 2: "scriptReachability
+  // stops treating a --fixture-taking script as invoked: a script that can fail must be reachable
+  // with its real population"). On 2026-10-11 it gained a live default path over
+  // content/misconceptions and a registry entry, `misconception-ledgers`, so it is reachable with
+  // the population it judges and needs no excuse. Its reason had also gone stale twice: it said
+  // "26 live ledger records" where the corpus held 28, and before 2026-09-27 it denied that
+  // directory any records at all. An exemption whose prose has to be re-measured to stay true is
+  // an argument for retiring the exemption.
   [
     "audit-readings.ts",
     "Thin CLI over src/content/audits/readings.ts, whose auditReadings() is called by verify-content.ts.",
