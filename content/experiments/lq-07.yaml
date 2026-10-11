@@ -56,7 +56,7 @@ parameters:
     quantityId: regimeSelection
     displayUnit: ""
     modelDomain:
-      enumerated: []
+      enumerated: ["standard-stokes", "deviation-multi-quantum", "deviation-non-wien", "modern-thermal"]
       reason: "One of standard-stokes, deviation-multi-quantum, deviation-non-wien, modern-thermal"
     visualRange:
       min: 0

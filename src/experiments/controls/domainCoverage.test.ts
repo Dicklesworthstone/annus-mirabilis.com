@@ -130,7 +130,13 @@ describe("how many declared domains validateDomain can actually enforce", () => 
     // the u64 range and not an enumeration at all; 2 are bm-06's lower/upper, a relational
     // constraint between two parameters that this schema cannot express; and 5 are categoricals
     // whose guard I could not locate in code, so filling them would have been invention.
-    expect(unenforceable).toBeLessThanOrEqual(14);
+    // 14 -> 10 the same day, after four more were filled from their TypeScript UNION types
+    // (bm-03 model/step/notation, lq-07 regime) -- the guards my array search missed because a
+    // union is not an array literal. What remains is three representation questions and no residue:
+    // 7 seeds (a u64 range, not an enumeration), 2 relational constraints between parameter pairs
+    // (bm-06 lower/upper), and lq-05 `locked`, whose lab type is a real `boolean` -- filling it
+    // ["true","false"] would recreate exactly the incoherence me-01's three toggles already have.
+    expect(unenforceable).toBeLessThanOrEqual(10);
   });
 
   test("every declared member is a number or a string, so `item === value` compares what it can", () => {
@@ -214,27 +220,50 @@ describe("how many declared domains validateDomain can actually enforce", () => 
     expect(checked).toBeGreaterThanOrEqual(15);
   });
 
-  test("an empty enumerated list admits values its own reason excludes", () => {
+  test("an empty enumerated list with no bounds admits anything, for every one that remains", () => {
     /**
-     * THIS TEST'S SUBJECT MOVED BECAUSE THE OLD ONE WAS REPAIRED, which is what its previous note
-     * said would happen: "Documented against the live spec, so the day it is repaired this test
-     * says so by failing." bm-08's `noiseMethod` was the live instance; 2026-10-11 filled its
-     * domain from the lab's own guard, so it is now the REPAIRED case asserted below, and the live
-     * instance is bm-03's `notation`.
+     * A PROPERTY OVER THE REMAINING SET, BECAUSE NAMING AN INSTANCE MOVED TWICE IN ONE DAY.
      *
-     * Both halves are kept on purpose. AGENTS.md: "When the mechanism changes, keep the old one as
-     * an explicit negative in the same test, so the rejected design cannot creep back in under a
-     * passing suite."
+     * This test named bm-08's `noiseMethod` as the live example; that was filled, so it named
+     * bm-03's `notation`; that was filled an hour later. Each time the test went red on CORRECT
+     * work, which is the brittleness AGENTS.md records under "A Count Is For Reporting, Not For
+     * Asserting" wearing different clothes: a named instance is a census of one.
+     *
+     * So the subject is now whichever parameters still carry an empty list, found rather than
+     * written down. The property holds of every one of them by construction -- an empty
+     * `enumerated` falls through to min/max, and where those are absent too the final return admits
+     * the value -- so it needs no maintenance as the set shrinks, and it reports the set by name.
+     *
+     * It goes red when the last one is filled, which is the right failure: at that point the debt is
+     * gone and this test should be retired rather than edited.
      */
-    const notation = all.find((p) => p.lab === "bm-03" && p.spec.id === "notation")?.spec;
-    expect(notation, "bm-03/notation is the live empty-domain instance").toBeDefined();
-    expect(notation?.modelDomain?.enumerated).toEqual([]);
-    // Its reason names a closed set of two, and the validator says -42 and 999 are both inside.
-    expect(String(notation?.modelDomain?.reason)).toContain("printed");
-    for (const value of [-42, 999]) {
-      const verdict = validateDomain(notation as never, value);
-      expect(verdict.valid, `${value} is admitted by an empty domain`).toBe(true);
-      expect(verdict.status).toBe("inside");
+    // NARROWED, NOT CAST. I wrote `(spec.modelDomain?.enumerated as T[]).length` three times in
+    // this file on 2026-10-11 and Biome refused it three times; `tsc` accepts it every time, because
+    // the cast is exactly the assertion that silences the check. The shape to reach for is a local
+    // binding plus `Array.isArray`, never a cast over an optional chain.
+    const empty = all.filter(({ spec }) => {
+      const members = spec.modelDomain?.enumerated;
+      return Array.isArray(members) && members.length === 0;
+    });
+    const unbounded = empty.filter(
+      ({ spec }) => spec.modelDomain?.min === undefined && spec.modelDomain?.max === undefined,
+    );
+    console.log(
+      `[census] parameter-domains examined ${empty.length} empty enumerated list(s) (minimum 1), ` +
+        `${unbounded.length} of them with no min or max either: ` +
+        unbounded.map(({ lab, spec }) => `${lab}/${String(spec.id)}`).join(", "),
+    );
+    // Non-vacuity: with none left, the loop below would assert nothing and read as a clean pass.
+    expect(unbounded.length).toBeGreaterThan(0);
+    for (const { lab, spec } of unbounded) {
+      for (const value of [-42, 999]) {
+        const verdict = validateDomain(spec as never, value);
+        expect(
+          verdict.valid,
+          `${lab}/${String(spec.id)} admits ${value}, which its own reason excludes`,
+        ).toBe(true);
+        expect(verdict.status).toBe("inside");
+      }
     }
 
     // THE REPAIRED CASE, kept as the negative: bm-08's noiseMethod now declares its members, so the

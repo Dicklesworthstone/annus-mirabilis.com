@@ -103,7 +103,7 @@ parameters:
     quantityId: particleCount
     displayUnit: ""
     modelDomain:
-      enumerated: []
+      enumerated: ["independent", "locked-cluster"]
       reason: "Either independent particles or locked cluster"
     visualRange:
       min: 0
@@ -120,7 +120,7 @@ parameters:
     quantityId: particleCount
     displayUnit: ""
     modelDomain:
-      enumerated: []
+      enumerated: ["one-particle", "two-particles", "many-particles", "derivative"]
       reason: "One of one-particle, two-particles, many-particles, derivative"
     visualRange:
       min: 1
@@ -137,7 +137,7 @@ parameters:
     quantityId: particleCount
     displayUnit: ""
     modelDomain:
-      enumerated: []
+      enumerated: ["printed", "modern"]
       reason: "Either printed or modern"
     visualRange:
       min: 0
