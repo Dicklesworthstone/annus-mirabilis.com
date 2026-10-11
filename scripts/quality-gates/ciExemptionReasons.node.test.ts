@@ -7,9 +7,10 @@
  * Most exemptions did have a reason and it was written in prose beside the entry, where nothing
  * could read it and nothing noticed when one was missing. FOUR HAD NONE AT ALL - ubs-diff,
  * ubs-staged, voice-lint and resource-stress - and writing them is what turned up the one worth
- * seeing: voice-lint is exempt because it EXITS 1 at HEAD, which is a reason to fix the errors or
+ * seeing: voice-lint WAS exempt because it exited 1 at HEAD, which is a reason to fix the errors or
  * declare the flags acceptable rather than a permanent exemption. A comment nobody reads cannot
- * raise that question; a required field does.
+ * raise that question; a required field does -- and on 2026-10-11 the errors were fixed and the
+ * field flipped, so the question this file forced got an answer rather than a longer excuse.
  *
  * BOTH DIRECTIONS ARE ENFORCED, and the second matters as much as the first. A reason is REQUIRED
  * when requiredInCi is false and FORBIDDEN when it is true: an optional field that may appear
@@ -75,19 +76,25 @@ test("the exemptions are the ones expected, named rather than counted", () => {
   // would pass while the SET changed underneath it. Adding an exemption should require saying so
   // here, which is the point of listing them.
   const ids = QUALITY_GATE_STEPS.filter((s) => !s.requiredInCi).map((s) => s.id);
-  for (const expected of [
-    "stashes",
-    "ubs-diff",
-    "ubs-staged",
-    "voice-lint",
-    "coverage-report",
-    "facsimile-pins",
-  ])
+  for (const expected of ["stashes", "ubs-diff", "ubs-staged", "coverage-report", "facsimile-pins"])
     assert.ok(
       ids.includes(expected),
       `${expected} is no longer exempt; update this list deliberately`,
     );
   /*
+    `voice-lint` LEFT THIS LIST ON 2026-10-11, which is the question this file was written to raise
+    and the first time the answer has been yes. Its reason named the condition -- "it EXITS 1 at
+    HEAD, which is a reason to fix the errors or declare the flags acceptable rather than a
+    permanent exemption" -- and the three remaining errors were resolved: an r3 reading saying
+    Einstein "proved" a result for a polygonal path, now "derived"; and two cases where the rules
+    were stricter than the clauses they audit, "Common wrong turns" (AGENTS.md's own term for a
+    historical alternative) and SR-04's "Could one of these events have caused the other?" (a
+    question asserts nothing). Both fixed in the rules, with plants in both directions.
+
+    Measured after: exit 0, 0 errors, 72 flags, 83,344 visitor-facing strings. The gate fails on
+    errors only, so the flags did not become blockers; requiredInCi is true and the reason is
+    deleted, because this file forbids an excuse on a required step.
+
     `perf-budgets` AND `resource-stress` LEFT THIS LIST ON 2026-10-08, deliberately, which is what
     this assertion exists to force. Owner's decision on am-7bkr: both moved from `perf`/`nightly`,
     where no CI path reached them and nothing had ever run them, to `fast`/`every-run`, so

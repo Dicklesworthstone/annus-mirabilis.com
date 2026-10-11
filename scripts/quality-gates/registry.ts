@@ -613,10 +613,30 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     command: ["bun", "scripts/lint-voice.ts"],
     family: "fast",
     cadence: "every-run",
-    requiredInCi: false,
-    notRequiredInCiReason:
-      "THE RECORDED REASON WAS MISSING and this one is derived from measurement rather than from the original intent, which nobody wrote down: at HEAD on 2026-10-06 `bun scripts/lint-voice.ts` exits 1 (4 errors, 73 flags over 82,176 strings), so requiring it would fail every CI run. That is a reason to fix the errors or to declare the flags acceptable, not a permanent exemption; it is written here so the question is visible. See am-xoxn.",
-    requiredInProfiles: [],
+    /*
+     * REQUIRED NOW, because the condition its own exemption named has been met.
+     *
+     * That exemption read: "at HEAD on 2026-10-06 `bun scripts/lint-voice.ts` exits 1 (4 errors,
+     * 73 flags over 82,176 strings), so requiring it would fail every CI run. That is a reason to
+     * fix the errors or to declare the flags acceptable, not a permanent exemption; it is written
+     * here so the question is visible." Measured 2026-10-11, after the three remaining errors were
+     * resolved: exit 0, 0 errors, 72 flags, 83,344 visitor-facing strings examined. So this is the
+     * completion of that recorded intent rather than a new decision, and the exemption is deleted
+     * rather than reworded, because a repair must delete the exemption it retires.
+     *
+     * THE GATE FAILS ON ERRORS ONLY -- `if (res.errorCount > 0) process.exit(1)` in lint-voice.ts
+     * -- so the 72 flags do not make it red and requiring it does not silently promote them to
+     * blockers. What turns it red is a new ERROR, which is the point: AGENTS.md's editorial voice
+     * chapter binds "every visitor-facing string", and until now the only gate that reads all
+     * 83,344 of them was the one gate nothing ran.
+     *
+     * The three errors, for the record: an r3 reading saying Einstein "proved" a result for a
+     * polygonal path, now "derived", which is sharper and is this project's own logical-role
+     * vocabulary; and two false positives where the rules were stricter than the clauses they
+     * audit, both fixed in the rules with plants in both directions.
+     */
+    requiredInCi: true,
+    requiredInProfiles: ["scaffold", "preview", "launch"],
     availability: {
       scriptPath: "scripts/lint-voice.ts",
     },
