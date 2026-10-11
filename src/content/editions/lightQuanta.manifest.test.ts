@@ -15,6 +15,11 @@ import { validateManifest } from "../manifest/validator.ts";
 import { parseReceipt } from "../provenance/parseReceipt.ts";
 import { receiptToSourceAsset } from "../provenance/receiptToSourceAsset.ts";
 import { parseYaml } from "../provenance/yaml.ts";
+import {
+  type ManifestUnitLike,
+  type PageMapEntryLike,
+  reconcilePageMapAgainstManifest,
+} from "./pageMapReconciliation.ts";
 
 const ROOT = process.cwd();
 const LIGHT_QUANTA_BEAD = "am-edn-inventory-light-quanta-skp";
@@ -879,6 +884,192 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
       comparisonKind: "bitwise",
       message: "Content compiler check over corpus has zero errors for light-quanta.",
       extra: { check: "content-compiler" },
+    });
+  });
+  test("the receipt page map reconciles with the manifest, page by page", () => {
+    /*
+     * LIGHT-QUANTA WAS THE ONE PAPER OF FOUR WITH NO PAGE-MAP RECONCILIATION (am-izth).
+     *
+     * brownian.manifest.test.ts, massEnergy.manifest.test.ts and relativity.manifest.test.ts each
+     * reconcile their receipt's page map against their manifest field by field and plant negatives
+     * against it; this file did neither, so of the four papers three were guarded and the fourth
+     * was carrying the claim on the strength of the other three. That is the wrong-population shape
+     * AGENTS.md records: a check over three quarters of a corpus reads exactly like a check over all
+     * of it.
+     *
+     * It matters here more than the count suggests. am-izth was filed because editionContract's
+     * check 4 "affirmatively reports a match" for every edition, and its own note says the fix is
+     * that "the comparison the contract claims to make IS now made, per paper, by gates that can
+     * fail". A paper with no such gate was holding up its quarter of that sentence with nothing.
+     *
+     * Measured 2026-10-11, and every number here is a measurement rather than an expectation
+     * carried over from another paper: 334 units, 17 page-map entries covering pp. 132-148 (the
+     * locator AGENTS.md prints for ap-17-132), 52 unnumbered display ids against 52 unlabelled
+     * display-equation units, 13 footnote marks against 13 footnote units, and NO numbered
+     * equations at all -- this paper prints none, which is why the numbered field is asserted empty
+     * on both sides rather than left unexamined.
+     */
+    const logger2 = new TestLogger("manifest-light-quanta-reconciliation", newRunIdentity());
+    const { manifest } = loadManifest();
+    const receiptPath = join(ROOT, "docs/provenance/ap-17-132.md");
+    const pageMap = parseReceipt(readFileSync(receiptPath, "utf8"), receiptPath).frontMatter
+      ?.pageMap;
+    expect(Array.isArray(pageMap)).toBe(true);
+
+    const units = manifest.units as readonly ManifestUnitLike[];
+    const entries = pageMap as unknown as readonly PageMapEntryLike[];
+    expect(entries).toHaveLength(17);
+
+    /*
+     * The printed sections are this paper's own: the unnumbered introduction as s0 and the nine
+     * numbered sections. Passing `reconcilePageMapAgainstManifest`'s default would hand it
+     * Brownian's six and silently drop s6 to s9 from the manifest side, which is the mistake
+     * editionContract's check 4 documents in its own comment. The set is DERIVED from the manifest
+     * and then asserted, so a manifest that lost a section cannot narrow the comparison unnoticed.
+     */
+    const sectionIds = [
+      ...new Set(
+        units
+          .map((unit) => unit.section ?? unit.id.split("-")[0])
+          .filter((section): section is string => /^s\d+$/.test(section ?? "")),
+      ),
+    ].sort((a, b) => Number(a.slice(1)) - Number(b.slice(1)));
+    expect(sectionIds).toEqual(["s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9"]);
+
+    expect(
+      reconcilePageMapAgainstManifest(
+        units,
+        entries,
+        "am-edn-inventory-light-quanta-skp",
+        sectionIds,
+      ),
+    ).toEqual([]);
+
+    // Not vacuous: the map carries the things a stub would leave empty, and each side's count is
+    // named rather than implied.
+    const unnumbered = entries.flatMap((entry) => entry.displayEquations?.unnumberedIds ?? []);
+    const displays = units.filter((unit) => unit.kind === "display-equation");
+    expect(unnumbered).toHaveLength(52);
+    expect(new Set(unnumbered).size).toBe(52);
+    expect(displays.filter((d) => d.originalLabel === undefined)).toHaveLength(52);
+    // This paper prints no numbered equations, so the numbered field is empty on BOTH sides. Said
+    // explicitly, because an empty field that is never asserted is indistinguishable from a field
+    // the reconciliation does not read.
+    expect(entries.flatMap((entry) => entry.displayEquations?.numbered ?? [])).toEqual([]);
+    expect(displays.filter((d) => d.originalLabel !== undefined)).toEqual([]);
+    expect(entries.flatMap((entry) => entry.footnoteMarks ?? [])).toHaveLength(13);
+    expect(units.filter((unit) => unit.kind === "footnote")).toHaveLength(13);
+
+    /*
+     * `receipt-pagemap-refined-no-unnumbered-ids` refuses a `refinedBy` stamp on an entry whose
+     * `unnumberedIds` is empty, so the stamp belongs exactly on the pages that have one. Unlike
+     * mass-energy, this paper HAS pages that print no display equation, so the assertion is the
+     * correspondence rather than "every entry is stamped": pp. 132, 133 and 145 are unstamped, and
+     * they are precisely the three with no unnumbered display.
+     */
+    const unstamped = entries.filter((entry) => entry.refinedBy === undefined);
+    const withoutDisplays = entries.filter(
+      (entry) => (entry.displayEquations?.unnumberedIds ?? []).length === 0,
+    );
+    expect(unstamped.map((entry) => entry.printedPage)).toEqual([132, 133, 145]);
+    expect(withoutDisplays.map((entry) => entry.printedPage)).toEqual(
+      unstamped.map((entry) => entry.printedPage),
+    );
+    expect(
+      new Set(entries.filter((e) => e.refinedBy !== undefined).map((e) => e.refinedBy)),
+    ).toEqual(new Set(["am-edn-inventory-light-quanta-skp"]));
+
+    /*
+     * PLANTED NEGATIVES, one per field the reconciliation reads, because the `toEqual([])` above
+     * proves nothing on its own: a comparison that returned [] unconditionally would satisfy it,
+     * which is precisely the defect am-izth was filed for one layer up.
+     */
+    const clone = (): PageMapEntryLike[] => JSON.parse(JSON.stringify(entries));
+
+    const stubbed = clone().map((entry) => ({
+      ...entry,
+      displayEquations: { numbered: [], unnumberedIds: [] },
+    }));
+    expect(
+      reconcilePageMapAgainstManifest(
+        units,
+        stubbed,
+        "am-edn-inventory-light-quanta-skp",
+        sectionIds,
+      ).some((defect) => defect.field === "unnumberedIds"),
+    ).toBe(true);
+
+    const desectioned = clone().map((entry) => ({ ...entry, sectionIds: [] }));
+    expect(
+      reconcilePageMapAgainstManifest(
+        units,
+        desectioned,
+        "am-edn-inventory-light-quanta-skp",
+        sectionIds,
+      ).filter((defect) => defect.field === "sectionIds").length,
+    ).toBeGreaterThan(0);
+
+    // A phantom numbered label, which is the one field this paper leaves empty: without this plant
+    // "numbered is empty on both sides" would hold for a reconciliation that ignores the field.
+    // Built by spread rather than by assignment: PageMapEntryLike's fields are readonly, so
+    // mutating a clone compiles under `bun test` (which strips types) and fails `check:types`.
+    const phantomNumbered = clone().map((entry, index) =>
+      index === 0
+        ? {
+            ...entry,
+            displayEquations: {
+              ...(entry.displayEquations ?? { unnumberedIds: [] }),
+              numbered: ["999"],
+            },
+          }
+        : entry,
+    );
+    const numberedDefects = reconcilePageMapAgainstManifest(
+      units,
+      phantomNumbered,
+      "am-edn-inventory-light-quanta-skp",
+      sectionIds,
+    );
+    expect(numberedDefects.filter((defect) => defect.field === "numbered")).toHaveLength(1);
+    expect(numberedDefects[0]?.receipt).toEqual(["999"]);
+    expect(numberedDefects[0]?.manifest).toEqual([]);
+
+    const unstampedAll = clone().map(({ refinedBy: _drop, ...rest }) => rest);
+    expect(
+      reconcilePageMapAgainstManifest(
+        units,
+        unstampedAll,
+        "am-edn-inventory-light-quanta-skp",
+        sectionIds,
+      ).some((defect) => defect.field === "refinedBy"),
+    ).toBe(true);
+
+    const markedPage = entries.find((entry) => (entry.footnoteMarks ?? []).length > 0);
+    if (markedPage === undefined) throw new Error("no page map entry carries a footnote mark");
+    const lostFootnote = clone().map((entry) =>
+      entry.printedPage === markedPage.printedPage
+        ? { ...entry, footnoteMarks: (entry.footnoteMarks ?? []).slice(1) }
+        : entry,
+    );
+    expect(
+      reconcilePageMapAgainstManifest(
+        units,
+        lostFootnote,
+        "am-edn-inventory-light-quanta-skp",
+        sectionIds,
+      ).some((defect) => defect.field === "footnoteMarks"),
+    ).toBe(true);
+
+    logger2.log({
+      testId: "light-quanta-pagemap-reconciliation",
+      beadId: "am-izth",
+      paper: PAPER_SLUG,
+      outcome: "passed",
+      comparisonKind: "bitwise",
+      message:
+        "Receipt page map reconciles with the manifest across sections, displays, footnote marks " +
+        "and the refinement stamp; five planted negatives are caught.",
+      extra: { pageMapEntries: 17, units: units.length, plantedNegatives: 5 },
     });
   });
 });
