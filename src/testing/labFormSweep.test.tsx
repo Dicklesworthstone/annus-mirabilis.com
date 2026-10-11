@@ -452,6 +452,20 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
    * These three have no instance store at all, so `CurrencyForView` is mounted without a `view`. A
    * lab that recomputes synchronously from its accepted inputs cannot be `running` or `stale`, so a
    * refused form is the only currency news it can have.
+   *
+   * THEN 22 TO 27. Five labs that DO render a chrome marked nothing for one shared reason rather
+   * than five: `readTypedNumber`, which eight lab components use to read a typed field, returned
+   * `{ kind: "refused", requirement }` -- a sentence with no registered code -- and every caller did
+   * `setError(x.requirement)`. So a reader who typed a non-numeric value in sr-08, sr-09, sr-10,
+   * sr-12 or sr-13 was told why and never that the numbers beside the message were the previous
+   * ones. The helper now carries the registry's own codes (invalid-parameter for a value that is
+   * not a number, nonfinite-input for one too large to represent, both already defined and both
+   * `domainKind: "input"`), and the five labs pass the refusal to their chrome.
+   *
+   * THE SIX THAT STILL MARK NOTHING are me-01, me-02, me-03, sr-01, sr-05 and sr-11, and none of
+   * them calls `readTypedNumber`, so this change could not reach them: they refuse by another route,
+   * and sr-05 has no typed field at all (the sweep names it). That is the next unit, not an omission
+   * of this one.
    */
   const RECORDED_STALENESS_MARKING = [
     "bm-01",
@@ -476,6 +490,11 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
     "sr-04",
     "sr-06",
     "sr-07",
+    "sr-08",
+    "sr-09",
+    "sr-10",
+    "sr-12",
+    "sr-13",
   ];
   /**
    * The six that mark a form refusal WITHOUT rendering an execution chrome (am-m79c criteria 1, 2).
