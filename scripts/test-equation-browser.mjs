@@ -213,8 +213,18 @@ export async function checkEquationBrowser(browser, url, check) {
         .evaluate((el) => getComputedStyle(el).outlineStyle),
       "solid",
     );
-    await rms.getByRole("button", { name: "Patterns instead of colour", exact: true }).click();
+    const patterns = rms.getByRole("button", { name: "Patterns instead of colour", exact: true });
+    // BOTH SIDES OF THE TOGGLE, ON THE FIRST PRESS (am-fheb's first acceptance item). `pattern` is
+    // one piece of React state written to two places on render -- `data-pattern` on the card and
+    // `aria-pressed` on this button -- and only the card was asserted. A regression that updated
+    // the card and not the button would have left the control saying "not pressed" to a screen
+    // reader while the colours changed, which is the half a sighted reader cannot see. The term
+    // selection is asserted above, so the sequence under test is the one am-fheb failed on: select
+    // a term, then press this once.
+    assert.equal(await patterns.getAttribute("aria-pressed"), "false");
+    await patterns.click();
     assert.equal(await rms.getAttribute("data-pattern"), "true");
+    assert.equal(await patterns.getAttribute("aria-pressed"), "true");
     /*
       PATTERN MODE DISTINGUISHES QUANTITIES, NOT EQUATION ROLES, and this assertion used to say the
       opposite: `.every((style) => style === "double")` over every `.am-role-result`. It had never
