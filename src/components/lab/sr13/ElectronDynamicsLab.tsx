@@ -10,6 +10,7 @@ import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabT
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { statusMessage } from "../../../experiments/results/explanations.ts";
 import { refusalSentence } from "../../../experiments/results/refusalSentence.ts";
+import type { RequestRefusal } from "../../../experiments/results/refusals.ts";
 import {
   SR13_CAPTION,
   SR13_NOT_MODELED,
@@ -112,6 +113,23 @@ export function ElectronDynamicsLab({
   const [typed, setTyped] = useState<Sr13Typed>(() => typedFrom(example.parameters));
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
+  /**
+   * The refusal OBJECT beside the sentence, so the chrome can mark the readouts stale (am-m79c).
+   *
+   * Every refusal this form raises has one: the session's and the validator's always did, and the
+   * typed fields gained theirs when readTypedNumber began carrying a registered code. Before that a
+   * reader who typed a non-numeric value was told why and was not told that the numbers beside the
+   * message still belonged to the previous settings.
+   */
+  const [refusal, setRefusal] = useState<RequestRefusal | null>(null);
+  function refuse(raised: RequestRefusal, sentence: string) {
+    setError(sentence);
+    setRefusal(raised);
+  }
+  function accept() {
+    setError("");
+    setRefusal(null);
+  }
 
   useEffect(() => {
     setReady(true);
@@ -120,22 +138,22 @@ export function ElectronDynamicsLab({
   function apply(parameters: Sr13Parameters) {
     const outcome = session.apply(parameters);
     if (outcome.kind === "refused") {
-      setError(refusalSentence(outcome.refusal));
+      refuse(outcome.refusal, refusalSentence(outcome.refusal));
       return;
     }
     setDraft(parameters);
     setTyped(typedFrom(parameters));
-    setError("");
+    accept();
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const speed = readTypedNumber(typed.initialSpeed, "the initial speed β");
-    if (speed.kind === "refused") return setError(speed.requirement);
+    if (speed.kind === "refused") return refuse(speed.refusal, speed.requirement);
     const ey = readTypedNumber(typed.electricFieldY, "the electric field Ey");
-    if (ey.kind === "refused") return setError(ey.requirement);
+    if (ey.kind === "refused") return refuse(ey.refusal, ey.requirement);
     const bz = readTypedNumber(typed.magneticFieldZ, "the magnetic field Bz");
-    if (bz.kind === "refused") return setError(bz.requirement);
+    if (bz.kind === "refused") return refuse(bz.refusal, bz.requirement);
     const checked = validateSr13Parameters({
       ...draft,
       initialSpeed: speed.value,
@@ -143,7 +161,7 @@ export function ElectronDynamicsLab({
       magneticFieldZ: bz.value,
     });
     if (checked.kind !== "accepted") {
-      setError(refusalSentence(checked.refusal));
+      refuse(checked.refusal, refusalSentence(checked.refusal));
       return;
     }
     apply(checked.data);
@@ -202,6 +220,7 @@ export function ElectronDynamicsLab({
         <ExecutionChrome
           state={executionKind}
           view={view}
+          validationRefusal={refusal}
           modelNote={modelNoteFromView(view, { notModeled: `${SR13_NOT_MODELED.join("; ")}.` })}
         />
       </div>

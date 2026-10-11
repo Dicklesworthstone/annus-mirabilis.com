@@ -14,6 +14,7 @@ import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabT
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { statusMessage } from "../../../experiments/results/explanations.ts";
 import { refusalSentence } from "../../../experiments/results/refusalSentence.ts";
+import type { RequestRefusal } from "../../../experiments/results/refusals.ts";
 import {
   SR12_CAPTION,
   SR12_DEFAULTS,
@@ -108,6 +109,23 @@ export function ChargeCurrentLab({
   const [draft, setDraft] = useState<Sr12Parameters>(() => ({ ...example.parameters }));
   const [typed, setTyped] = useState<Sr12Typed>(() => typedFrom(example.parameters));
   const [error, setError] = useState("");
+  /**
+   * The refusal OBJECT beside the sentence, so the chrome can mark the readouts stale (am-m79c).
+   *
+   * Every refusal this form raises has one: the session's and the validator's always did, and the
+   * typed fields gained theirs when readTypedNumber began carrying a registered code. Before that a
+   * reader who typed a non-numeric value was told why and was not told that the numbers beside the
+   * message still belonged to the previous settings.
+   */
+  const [refusal, setRefusal] = useState<RequestRefusal | null>(null);
+  function refuse(raised: RequestRefusal, sentence: string) {
+    setError(sentence);
+    setRefusal(raised);
+  }
+  function accept() {
+    setError("");
+    setRefusal(null);
+  }
 
   const snapshot = view.accepted ?? session.getServerSnapshot().accepted;
   if (!snapshot) return null;
@@ -120,22 +138,22 @@ export function ChargeCurrentLab({
   function apply(parameters: Sr12Parameters) {
     const outcome = session.apply(parameters);
     if (outcome.kind === "refused") {
-      setError(refusalSentence(outcome.refusal));
+      refuse(outcome.refusal, refusalSentence(outcome.refusal));
       return;
     }
     setDraft(parameters);
     setTyped(typedFrom(parameters));
-    setError("");
+    accept();
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const boost = readTypedNumber(typed.boost, "the boost speed", (v) => v * C_SI, BOOST_TOO_LARGE);
-    if (boost.kind === "refused") return setError(boost.requirement);
+    if (boost.kind === "refused") return refuse(boost.refusal, boost.requirement);
     const rho = readTypedNumber(typed.rho, "the charge density ρ");
-    if (rho.kind === "refused") return setError(rho.requirement);
+    if (rho.kind === "refused") return refuse(rho.refusal, rho.requirement);
     const jx = readTypedNumber(typed.jx, "the current density Jx");
-    if (jx.kind === "refused") return setError(jx.requirement);
+    if (jx.kind === "refused") return refuse(jx.refusal, jx.requirement);
     const checked = validateSr12Parameters({
       ...draft,
       boost: boost.value,
@@ -143,7 +161,7 @@ export function ChargeCurrentLab({
       currentDensityX: jx.value,
     });
     if (checked.kind !== "accepted") {
-      setError(refusalSentence(checked.refusal));
+      refuse(checked.refusal, refusalSentence(checked.refusal));
       return;
     }
     apply(checked.data);
@@ -260,6 +278,7 @@ export function ChargeCurrentLab({
         <ExecutionChrome
           state={executionKind}
           view={view}
+          validationRefusal={refusal}
           modelNote={modelNoteFromView(view, { notModeled: `${SR12_NOT_MODELED.join("; ")}.` })}
         />
       </div>

@@ -10,6 +10,7 @@ import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabT
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { statusMessage } from "../../../experiments/results/explanations.ts";
 import { refusalSentence } from "../../../experiments/results/refusalSentence.ts";
+import type { RequestRefusal } from "../../../experiments/results/refusals.ts";
 import {
   SR09_CAPTION,
   SR09_NOT_MODELED,
@@ -106,27 +107,44 @@ export function DopplerAberrationLab({
   const [typed, setTyped] = useState(() => typedFrom(example.parameters));
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
+  /**
+   * The refusal OBJECT beside the sentence, so the chrome can mark the readouts stale (am-m79c).
+   *
+   * Every refusal this form raises now has one: the session's and the validator's always did, and
+   * the three typed fields gained theirs when readTypedNumber began carrying a registered code.
+   * Before that a reader who typed a non-numeric speed was told why and was not told that the
+   * Doppler factor and angles beside the message belonged to the previous settings.
+   */
+  const [refusal, setRefusal] = useState<RequestRefusal | null>(null);
+  function refuse(raised: RequestRefusal, sentence: string) {
+    setError(sentence);
+    setRefusal(raised);
+  }
+  function accept() {
+    setError("");
+    setRefusal(null);
+  }
   useEffect(() => {
     setReady(true);
   }, []);
   function apply(parameters: Sr09Parameters) {
     const outcome = session.apply(parameters);
     if (outcome.kind === "refused") {
-      setError(refusalSentence(outcome.refusal));
+      refuse(outcome.refusal, refusalSentence(outcome.refusal));
       return;
     }
     setDraft(parameters);
     setTyped(typedFrom(parameters));
-    setError("");
+    accept();
   }
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const beta = readTypedNumber(typed.beta, "the observer speed β");
-    if (beta.kind === "refused") return setError(beta.requirement);
+    if (beta.kind === "refused") return refuse(beta.refusal, beta.requirement);
     const angle = readTypedNumber(typed.propagationAngleDeg, "the propagation angle θ");
-    if (angle.kind === "refused") return setError(angle.requirement);
+    if (angle.kind === "refused") return refuse(angle.refusal, angle.requirement);
     const frequency = readTypedNumber(typed.frequencyTHz, "the frequency in K");
-    if (frequency.kind === "refused") return setError(frequency.requirement);
+    if (frequency.kind === "refused") return refuse(frequency.refusal, frequency.requirement);
     const checked = validateSr09Parameters({
       ...draft,
       beta: beta.value,
@@ -134,7 +152,7 @@ export function DopplerAberrationLab({
       frequencyTHz: frequency.value,
     });
     if (checked.kind !== "accepted") {
-      setError(refusalSentence(checked.refusal));
+      refuse(checked.refusal, refusalSentence(checked.refusal));
       return;
     }
     apply(checked.data);
@@ -188,6 +206,7 @@ export function DopplerAberrationLab({
         <ExecutionChrome
           state={executionKind}
           view={view}
+          validationRefusal={refusal}
           modelNote={modelNoteFromView(view, { notModeled: `${SR09_NOT_MODELED.join("; ")}.` })}
         />
       </div>
