@@ -437,9 +437,25 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
    * now mounts `CurrencyForView` beside the execution label it already writes by hand -- the currency
    * half alone, not the whole chrome, which would have added a model note and its layout to three
    * headings. Those three are asserted BY NAME below as well as through this set.
+   *
+   * THEN 19 TO 22, closing am-m79c's criterion 2 -- and the decision it asked for went the way the
+   * bead did not expect. The criterion offered two answers for bm-02, lq-02 and sr-02: a currency
+   * surface, or "a written reason why a lab that never refuses a form does not need one". The second
+   * was not available. Measured in the manifests, all three validate every parameter against a
+   * `modelDomain` (5, 3 and 5 of them) and declare `outside-domain` results, and each component held
+   * a live refusal branch -- `setError(refusalSentence(...))` in bm-02 and lq-02, two such branches
+   * in sr-02. They are not labs that never refuse; they are labs whose refusals THIS SWEEP COULD NOT
+   * SEE, because it looks for typed attributes and those three emitted only a sentence. The bead's
+   * own reading, "for them this is a gap waiting rather than a live one", was an artefact of that
+   * blindness: the gap was live in all three.
+   *
+   * These three have no instance store at all, so `CurrencyForView` is mounted without a `view`. A
+   * lab that recomputes synchronously from its accepted inputs cannot be `running` or `stale`, so a
+   * refused form is the only currency news it can have.
    */
   const RECORDED_STALENESS_MARKING = [
     "bm-01",
+    "bm-02",
     "bm-03",
     "bm-04",
     "bm-05",
@@ -447,6 +463,7 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
     "bm-07",
     "bm-08",
     "lq-01",
+    "lq-02",
     "lq-03",
     "lq-04",
     "lq-05",
@@ -454,13 +471,19 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
     "lq-07",
     "lq-08",
     "lq-09",
+    "sr-02",
     "sr-03",
     "sr-04",
     "sr-06",
     "sr-07",
   ];
   /**
-   * The three that mark a form refusal WITHOUT rendering an execution chrome (am-m79c criterion 1).
+   * The six that mark a form refusal WITHOUT rendering an execution chrome (am-m79c criteria 1, 2).
+   *
+   * These are exactly am-m79c's six, the labs rendering no `.execution-chrome` at any position.
+   * Adding bm-02, lq-02 and sr-02 is what keeps the census honest rather than cosmetic: while they
+   * were absent the arithmetic counted them among the 27 chrome labs and said "19 of 27 marking",
+   * which is a sentence about a population they are not in.
    *
    * Kept apart from the set above because the census line used to subtract that set's size from 27,
    * the number of chrome-rendering labs, and the two populations stopped being nested the moment
@@ -469,7 +492,7 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
    * populations that are not nested is the count error AGENTS.md puts first, and this is the version
    * of the line that cannot drift into it.
    */
-  const MARKS_WITHOUT_A_CHROME = ["bm-03", "bm-07", "sr-03"];
+  const MARKS_WITHOUT_A_CHROME = ["bm-02", "bm-03", "bm-07", "lq-02", "sr-02", "sr-03"];
   test("the labs whose form refusal marks the accepted readouts stale, by name (am-m79c)", () => {
     const withChrome = [...currencyRoutes].filter((r) => !MARKS_WITHOUT_A_CHROME.includes(r));
     console.log(
