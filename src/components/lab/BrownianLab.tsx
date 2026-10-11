@@ -501,6 +501,32 @@ export function BrownianLab({
               ? "D is the explicitly copied value, not a calculation from these physical inputs."
               : "D is calculated from these physical inputs."}
           </div>
+          {/*
+           * THE NATURAL RATE, WHICH THIS LAB'S MANIFEST DECLARES AND A READER WAS NOT GIVEN
+           * (am-inst-real-rate-mode-gtez).
+           *
+           * content/experiments/bm-06.yaml declares `realRate.natural: true`, `quantity:
+           * displacement1d` and a `scaleBar` of 1e-6 m. bm-01 serves exactly that, in a
+           * `real-rate-card` whose figure comes from the trial's own snapshot; measured in the built
+           * output, bm-06's page carried no "natural rate", no "scale bar" and no "true rate" at
+           * all. Two instruments declare a natural rate and one of them said so.
+           *
+           * The figure is read from this snapshot, never pinned: the bead's background quotes
+           * Einstein's printed 0.8 micron for water at 1.35 mPa.s, and stating that at every setting
+           * is the mistake bm-01's own comment records making.
+           *
+           * NO SPED-UP COMPARISON, unlike bm-01, because there is nothing to compare with: this lab
+           * animates nothing. It draws the distribution at one elapsed time, so the honest content
+           * is the physical scale of that spread and the bar it is measured against. A reader can
+           * then tell whether the spread on screen is a micron or a millimetre of real water.
+           *
+           * Stated for the elapsed interval rather than per second, because a diffusive displacement
+           * grows as the square root of time and "per second" would invite multiplying it.
+           */}
+          <p className="rate-annotation" data-rate-mode="natural">
+            At the natural rate a tracer moves about {display(Number(rms.toPrecision(2)), 1e6)} μm
+            along one axis in {display(p.t)} s (root mean square; scale bar: 1 μm)
+          </p>
           <div className="table-scroll">
             <table {...identity(snapshot)}>
               <caption>One accepted calculation, in explicit units</caption>
