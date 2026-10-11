@@ -27,6 +27,31 @@ function outWith(paths: readonly string[]): string {
   return root;
 }
 
+/**
+ * A built page whose gzipped size is near a target, for an end-to-end plant.
+ *
+ * INCOMPRESSIBLE BYTES, FROM A SEEDED XORSHIFT, and the reason is a fixture of mine that passed for
+ * the wrong reason. `String.fromCharCode(32 + ((i * 7919) % 90))` looks random and has period 90, so
+ * it gzips to almost nothing and an "over-budget" page built from it lands comfortably under the
+ * budget. The size a fixture ASKS for is not the size gzip gives it, so the tests below read the
+ * measured size rather than assuming the target was met.
+ */
+function outWithSized(entries: readonly (readonly [string, number])[]): string {
+  const root = mkdtempSync(join(tmpdir(), "reading-faces-sized-"));
+  for (const [path, targetGzipBytes] of entries) {
+    let state = 0x2545f491;
+    const chars: string[] = [];
+    for (let i = 0; i < Math.round(targetGzipBytes * 1.1); i += 1) {
+      state = Math.imul(state ^ (state >>> 15), 0x2c1b3c6d) >>> 0;
+      state = Math.imul(state ^ (state >>> 12), 0x297a2d39) >>> 0;
+      chars.push(String.fromCharCode(32 + (state % 94)));
+    }
+    mkdirSync(dirname(join(root, path)), { recursive: true });
+    writeFileSync(join(root, path), `<html><body>${chars.join("")}</body></html>`);
+  }
+  return root;
+}
+
 const face = (name: string, gzipBytes: number): MeasuredFace => ({ name, gzipBytes, rawBytes: 0 });
 const GERMAN = "out/papers/special-relativity/view/german/index.html";
 
@@ -148,5 +173,73 @@ describe("the verdict", () => {
       expect(r.gzipBytes).toBeGreaterThan(READING_FACE_BUDGET_BYTES);
       expect(r.reason.trim().length).toBeGreaterThan(20);
     }
+  });
+});
+
+describe("the walk and the verdict, composed (am-snn0 criterion 4)", () => {
+  /**
+   * THE TWO HALVES WERE EACH TESTED AND NEVER COMPOSED, WHICH IS HOW THE DEFECT SURVIVED.
+   *
+   * The population test at the top of this file proves the walk reaches a section's own page. "A
+   * face over the budget that is not recorded goes red" proves the verdict refuses one. Both passed
+   * while `/papers/brownian-motion/s4/` sat at 299.2 kB gzipped -- over the 250,000-byte budget, in
+   * no record and in no population -- because a walk that was too narrow and a verdict that was
+   * correct were checked on different fixtures, and nothing asked them the question together.
+   *
+   * am-snn0's fourth criterion names exactly this: "add a page over budget and confirm the walk
+   * finds it. The current walk does not, which is the proof it needs widening." So this drives the
+   * real chain, `builtReadingFacePaths` then `measureBuiltReadingFaces` then `readingFaceVerdict`,
+   * over a page at a depth the OLD shape list could not reach, and asserts the gate goes red naming
+   * it.
+   */
+  const SECTION_PAGE = "out/papers/brownian-motion/s4/index.html";
+
+  test("an over-budget page at a section depth is found, measured, and turns the verdict red", () => {
+    const root = outWithSized([
+      [SECTION_PAGE, READING_FACE_BUDGET_BYTES + 40_000],
+      // A page the old walk DID reach, comfortably inside, so the red below is attributable.
+      ["out/papers/brownian-motion/index.html", 20_000],
+    ]);
+
+    // 1. The walk finds it. The old shape list was <paper>/index.html, <paper>/view/<face>/ and
+    //    <paper>/<section>/view/gloss/; a section's own page matched none of those three.
+    const found = builtReadingFacePaths(root);
+    expect(found).toContain(SECTION_PAGE);
+    expect(found).toContain("out/papers/brownian-motion/index.html");
+
+    // 2. It is measured, and over the budget. Read rather than assumed.
+    const measured = measureBuiltReadingFaces(root);
+    const section = measured.find((m) => m.name === SECTION_PAGE);
+    expect(section).toBeDefined();
+    expect(section?.gzipBytes).toBeGreaterThan(READING_FACE_BUDGET_BYTES);
+
+    // 3. The verdict refuses it by name, with no record covering it.
+    const verdict = readingFaceVerdict(measured, []);
+    expect(verdict.ok).toBe(false);
+    expect(verdict.worstFailure?.name).toBe(SECTION_PAGE);
+    expect(verdict.failures.join("\n")).toContain(SECTION_PAGE);
+    expect(verdict.failures.join("\n")).toContain("not recorded");
+  });
+
+  test("the control: the same page under budget passes, so the red is its SIZE and not its depth", () => {
+    // Without this, the test above would also pass if the walk or the verdict refused every section
+    // page outright, which would be a different gate than the one being claimed.
+    const root = outWithSized([[SECTION_PAGE, 60_000]]);
+    const measured = measureBuiltReadingFaces(root);
+    expect(measured.map((m) => m.name)).toEqual([SECTION_PAGE]);
+    expect(measured[0]?.gzipBytes).toBeLessThan(READING_FACE_BUDGET_BYTES);
+    const verdict = readingFaceVerdict(measured, []);
+    expect(verdict.ok).toBe(true);
+    expect(verdict.failures).toEqual([]);
+  });
+
+  test("the fixture is incompressible, so an over-budget plant cannot pass by compressing away", () => {
+    // The guard on the instrument rather than on the gate. A periodic filler gzips to almost
+    // nothing, and the two tests above would then be making claims about a page that is not the size
+    // they say it is.
+    const root = outWithSized([[SECTION_PAGE, 300_000]]);
+    const [measured] = measureBuiltReadingFaces(root);
+    expect(measured).toBeDefined();
+    expect(measured?.gzipBytes ?? 0).toBeGreaterThan(150_000);
   });
 });
