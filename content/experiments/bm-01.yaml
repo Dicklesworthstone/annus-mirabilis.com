@@ -197,7 +197,7 @@ parameters:
     quantityId: displayedStatistic
     displayUnit: ""
     modelDomain:
-      enumerated: []
+      enumerated: ["mean", "mean-square", "rms", "apparent"]
       reason: "One of mean, mean-square, rms, apparent (src/experiments/bm01/parameters.ts)"
     visualRange:
       min: 0

@@ -200,7 +200,7 @@ parameters:
     quantityId: initialDistributionKind
     displayUnit: ""
     modelDomain:
-      enumerated: []
+      enumerated: ["uniform", "step", "equilibrium", "spike"]
       reason: "One of uniform, step, equilibrium, or spike"
     visualRange:
       min: 0

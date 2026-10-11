@@ -123,7 +123,14 @@ describe("how many declared domains validateDomain can actually enforce", () => 
       `[census] ${unenforceable} of ${all.length} declared domains are unenforceable ` +
         `(all of them enumerated-empty; the ${n("enumerated-string")} string domains are enforced)`,
     );
-    expect(unenforceable).toBeLessThanOrEqual(27);
+    // 27 -> 14 on 2026-10-11, the same day as 42 -> 27 and for the same reason: paid, not
+    // re-baselined. 13 parameters had their domain FILLED from the lab's own guard, which the
+    // manifest's prose `reason` already named -- transcription from the implementation rather than
+    // a judgment, which is what the remaining 14 would need. Of those: 7 are SEEDS, whose domain is
+    // the u64 range and not an enumeration at all; 2 are bm-06's lower/upper, a relational
+    // constraint between two parameters that this schema cannot express; and 5 are categoricals
+    // whose guard I could not locate in code, so filling them would have been invention.
+    expect(unenforceable).toBeLessThanOrEqual(14);
   });
 
   test("every declared member is a number or a string, so `item === value` compares what it can", () => {
@@ -208,15 +215,98 @@ describe("how many declared domains validateDomain can actually enforce", () => 
   });
 
   test("an empty enumerated list admits values its own reason excludes", () => {
-    // Documented against the live spec, so the day it is repaired this test says so by failing.
+    /**
+     * THIS TEST'S SUBJECT MOVED BECAUSE THE OLD ONE WAS REPAIRED, which is what its previous note
+     * said would happen: "Documented against the live spec, so the day it is repaired this test
+     * says so by failing." bm-08's `noiseMethod` was the live instance; 2026-10-11 filled its
+     * domain from the lab's own guard, so it is now the REPAIRED case asserted below, and the live
+     * instance is bm-03's `notation`.
+     *
+     * Both halves are kept on purpose. AGENTS.md: "When the mechanism changes, keep the old one as
+     * an explicit negative in the same test, so the rejected design cannot creep back in under a
+     * passing suite."
+     */
+    const notation = all.find((p) => p.lab === "bm-03" && p.spec.id === "notation")?.spec;
+    expect(notation, "bm-03/notation is the live empty-domain instance").toBeDefined();
+    expect(notation?.modelDomain?.enumerated).toEqual([]);
+    // Its reason names a closed set of two, and the validator says -42 and 999 are both inside.
+    expect(String(notation?.modelDomain?.reason)).toContain("printed");
+    for (const value of [-42, 999]) {
+      const verdict = validateDomain(notation as never, value);
+      expect(verdict.valid, `${value} is admitted by an empty domain`).toBe(true);
+      expect(verdict.status).toBe("inside");
+    }
+
+    // THE REPAIRED CASE, kept as the negative: bm-08's noiseMethod now declares its members, so the
+    // same probe that passed above is refused here. If this arm starts passing, a fill was reverted.
     const noiseMethod = all.find((p) => p.lab === "bm-08" && p.spec.id === "noiseMethod")?.spec;
-    expect(noiseMethod).toBeDefined();
-    expect(noiseMethod?.modelDomain?.enumerated).toEqual([]);
-    expect(String(noiseMethod?.modelDomain?.reason)).toBe("known or stationary");
-    // Two admissible methods, and the validator says -42 is inside.
-    const verdict = validateDomain(noiseMethod as never, -42);
-    expect(verdict.valid).toBe(true);
-    expect(verdict.status).toBe("inside");
+    expect(noiseMethod?.modelDomain?.enumerated).toEqual(["known", "stationary"]);
+    expect(validateDomain(noiseMethod as never, -42).valid).toBe(false);
+    for (const member of ["known", "stationary"]) {
+      expect(validateDomain(noiseMethod as never, member as never).valid).toBe(true);
+    }
+  });
+
+  test("a declared default is a member of its own declared domain, and 9 are not", () => {
+    /**
+     * THE SAFETY NET FOR EVERY FILL, AND IT FOUND NINE PRE-EXISTING INCOHERENCES (am-hr4z).
+     *
+     * Filling an `enumerated` list turns a control that admitted everything into one that admits
+     * only members, so a list omitting the parameter's own default would refuse the value the
+     * laboratory starts with. That is the one way the fill could break a reader, so it is checked
+     * over the whole corpus rather than trusted per fill. The 13 filled on 2026-10-11 all pass.
+     *
+     * NINE OTHERS DO NOT, in two kinds, and both were invisible before `validateDomain` compared
+     * like with like -- the old numeric-tolerance comparison refused every categorical value, so
+     * nothing was coherent and no mismatch stood out:
+     *
+     *   me-01, 3 toggles   `default: true` (a YAML BOOLEAN) against members `["true", "false"]`
+     *                      (strings). One quote mark: `true !== "true"`. And the lab's own type is
+     *                      `cancelAngleFactors: boolean` (me01/definition.ts), so the manifest
+     *                      disagrees with itself AND with the laboratory, which is why quoting the
+     *                      default is not obviously the repair.
+     *   me-03, 6 controls  members declared as POSITIONAL INDICES -- `[0,1,2]`, `[0,1]`,
+     *                      `[0..6]` -- against semantic defaults `"body-alone"`, `"escapes"`,
+     *                      `"me-03-card-radium"`, `"1905"`, `"two-opposite"`, `"printed"`. The
+     *                      domain names no value the parameter actually takes, so it refuses all of
+     *                      them and admits three integers that are not values at all. This is the
+     *                      positional reading of a categorical domain that
+     *                      `domain.ts` now asserts against in code, present in the data.
+     *
+     * A CEILING, NOT AN EXACT SET: these shrink as they are repaired, and an equality would go red
+     * on the repair. The names are printed so a new one is identifiable rather than merely counted.
+     * Repairing them needs the representation decided, which is am-hr4z's open schema question.
+     */
+    const withMembers = all.filter(({ spec }) => {
+      // Narrowed, not asserted: a cast over the optional chain would hide a TypeError from the
+      // typechecker, which is the defect 0127643c1 fixed two commits ago in this same file.
+      const members = spec.modelDomain?.enumerated;
+      return Array.isArray(members) && members.length > 0;
+    });
+    // Non-vacuity: an empty population would satisfy every assertion below while proving nothing.
+    expect(withMembers.length).toBeGreaterThanOrEqual(30);
+    const offenders: string[] = [];
+    let checked = 0;
+    for (const { lab, spec } of withMembers) {
+      const dflt = (spec as { default?: unknown }).default;
+      if (dflt === undefined) continue;
+      checked += 1;
+      if (!validateDomain(spec as never, dflt as never).valid) {
+        offenders.push(
+          `${lab}/${String(spec.id)} default=${JSON.stringify(dflt)} (${typeof dflt}) members=${JSON.stringify(spec.modelDomain?.enumerated)}`,
+        );
+      }
+    }
+    console.log(
+      `[census] parameter-domains examined ${checked} defaults against their declared domains ` +
+        `(minimum 30); ${checked - offenders.length} are members, ${offenders.length} are not:\n   ` +
+        offenders.join("\n   "),
+    );
+    expect(checked).toBeGreaterThanOrEqual(30);
+    // The majority must be coherent, or a corpus of nothing but mismatches would satisfy the
+    // ceiling below.
+    expect(checked - offenders.length).toBeGreaterThanOrEqual(28);
+    expect(offenders.length).toBeLessThanOrEqual(9);
   });
 
   test("a string enumerated list admits its own members and refuses everything else", () => {

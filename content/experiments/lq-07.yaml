@@ -173,7 +173,7 @@ parameters:
     quantityId: channelSelection
     displayUnit: ""
     modelDomain:
-      enumerated: []
+      enumerated: ["light-plus-heat", "light-only"]
       reason: "One of light-plus-heat or light-only"
     visualRange:
       min: 0

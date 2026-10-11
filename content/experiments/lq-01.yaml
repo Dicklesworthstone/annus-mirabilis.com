@@ -136,7 +136,7 @@ parameters:
     quantityId: measurementKind
     displayUnit: ""
     modelDomain:
-      enumerated: []
+      enumerated: ["time-average", "instantaneous"]
       reason: "One of time-average or instantaneous"
     visualRange:
       min: 0
@@ -215,7 +215,7 @@ parameters:
     quantityId: measurementKind
     displayUnit: ""
     modelDomain:
-      enumerated: []
+      enumerated: ["interference", "spreading"]
       reason: "One of interference or spreading"
     visualRange:
       min: 0
@@ -232,7 +232,7 @@ parameters:
     quantityId: measurementKind
     displayUnit: ""
     modelDomain:
-      enumerated: []
+      enumerated: ["center", "first-min", "first-max"]
       reason: "One of center, first-min, or first-max"
     visualRange:
       min: 0

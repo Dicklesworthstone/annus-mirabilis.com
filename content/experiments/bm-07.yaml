@@ -17,7 +17,7 @@ parameters:
     quantityId: observationInterval
     displayUnit: ""
     modelDomain:
-      enumerated: []
+      enumerated: ["synthetic", "perrin-1909", "kitchen"]
       reason: "synthetic, perrin-1909, or kitchen"
     visualRange:
       min: 0
@@ -152,7 +152,7 @@ parameters:
     quantityId: particleRadius
     displayUnit: ""
     modelDomain:
-      enumerated: []
+      enumerated: ["true", "false"]
       reason: "true or false"
     visualRange:
       min: 0

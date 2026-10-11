@@ -63,7 +63,7 @@ parameters:
     quantityId: displayView
     displayUnit: ""
     modelDomain:
-      enumerated: []
+      enumerated: ["enumeration", "sampling", "logarithmic"]
       reason: "One of enumeration, sampling, logarithmic"
     visualRange:
       min: 0

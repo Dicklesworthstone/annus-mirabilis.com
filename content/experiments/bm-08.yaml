@@ -199,7 +199,7 @@ parameters:
     quantityId: observationInterval
     displayUnit: ""
     modelDomain:
-      enumerated: []
+      enumerated: ["known", "stationary"]
       reason: "known or stationary"
     visualRange:
       min: 0
