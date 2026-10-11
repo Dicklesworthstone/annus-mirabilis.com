@@ -155,10 +155,54 @@ try {
     await lab.locator('[data-quantity-id="kineticEnergyDifference"]').first().innerText(),
     /0\.00050004/,
   );
-  const link = await lab.locator("[data-settings-permalink]").getAttribute("href");
-  assert.match(link, /beta=0\.01/);
-  assert.match(link, /L=10/);
-  assert.match(link, /unit=joule/);
+  /*
+    THE PERMALINK IS THE ?tape= LINK, and the readable one this used to read was removed ON PURPOSE.
+
+    This block asserted `[data-settings-permalink]`, an <a> that 7b5b4707b deleted on 2026-09-24
+    under am-inst-permalink-tape-s677: "on a lab with a ?tape= link, the tape's ShareControl is the
+    only share control", and ME-02's "Permalink to the accepted configuration" was one of six older
+    links that commit removed. Its message says "No test named a removed string (grepped)", and that
+    grep missed this file -- it checked the nine test files that RENDER these labs, and this harness
+    renders nothing. So the attribute has appeared exactly once in the repository since: on the line
+    this replaces. Counted on a build of HEAD, it appears on zero pages.
+
+    That is why this is not a locator fix. The capability AGENTS.md specifies is the tape -- "the
+    accepted snapshot's identities and the compact valid control tape serialize into ?tape=, with a
+    bounded size. Canonical document URLs never multiply into an index of slider positions" -- and
+    the readable `?beta=&L=&unit=` link was the thing that sentence rules out. Removing it moved the
+    lab TOWARD the specification, so restoring the old assertion would have been asserting against
+    it.
+
+    SO THE SETTINGS ARE ASSERTED BY OPENING THE LINK, NOT BY READING IT, which is strictly more than
+    the three substring matches here ever did: they checked an href's text and never followed it, so
+    a tape that encoded the right text and restored the wrong state would have passed. The link is
+    compact and opaque by design, so a substring assertion is not available anyway.
+  */
+  assert.equal(await lab.locator("[data-share-form]").count(), 1);
+  const share = lab.locator('[data-share-form="experiment-preset"] [data-testid="selectable-url"]');
+  await share.waitFor();
+  // The field is empty until the browser-side encode resolves (ShareControl encodes in the page,
+  // because codec.ts's node:zlib exists only on the server), and the copy action waits for it too.
+  await page.waitForFunction(() => {
+    const el = document.querySelector(
+      '[data-instrument-id="me-02"] [data-share-form="experiment-preset"] [data-testid="selectable-url"]',
+    );
+    return el instanceof HTMLInputElement && el.value.length > 0;
+  });
+  const link = await share.inputValue();
+  assert.match(link, /\/lab\/me-02\/\?tape=/);
+  assert.doesNotMatch(link, /[?&](beta|L|unit)=/);
+  const shared = await context.newPage();
+  await shared.goto(link);
+  const restored = shared.locator('[data-instrument-id="me-02"][data-settings-ready="true"]');
+  await restored.waitFor();
+  assert.equal(await restored.locator('input[name="beta"]').inputValue(), "0.01");
+  assert.equal(await restored.locator('input[name="emittedEnergy"]').inputValue(), "10");
+  assert.equal(await restored.locator('select[name="energyUnit"]').inputValue(), "joule");
+  // A link that failed to restore says so in a notice rather than silently showing the defaults, so
+  // its absence is part of the claim: these three values are restored, not merely the defaults.
+  assert.equal(await shared.locator("[data-tape-notice]").count(), 0);
+  await shared.close();
   await page.goto(`${url}/lab/me-02/?beta=0.01junk&L=10`);
   await page.locator('[data-settings-ready="true"]').waitFor();
   assert.match(
