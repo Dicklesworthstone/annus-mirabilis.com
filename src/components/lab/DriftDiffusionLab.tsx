@@ -232,7 +232,11 @@ export function DriftDiffusionLab({
         </div>
       </header>
       <div className="lab-status-row">
-        <ExecutionChrome state={executionKind} view={view} />
+        <ExecutionChrome
+          state={executionKind}
+          view={view}
+          validationRefusal={failure?.kind === "refused" ? failure.refusal : null}
+        />
       </div>
 
       <noscript>

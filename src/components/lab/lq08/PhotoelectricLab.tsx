@@ -318,6 +318,7 @@ export function PhotoelectricLab({
         <ExecutionChrome
           state={executionKind}
           view={view}
+          validationRefusal={failure?.kind === "refused" ? failure.refusal : null}
           modelNote={modelNoteFromView(view, { notModeled: `${LQ08_NOT_MODELED.join("; ")}.` })}
         />
       </div>

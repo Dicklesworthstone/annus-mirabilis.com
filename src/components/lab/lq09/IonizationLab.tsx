@@ -257,6 +257,7 @@ export function IonizationLab({ example, restoreFromLocation = false }: Ionizati
         <ExecutionChrome
           state={executionKind}
           view={snapshot}
+          validationRefusal={failure?.kind === "refused" ? failure.refusal : null}
           modelNote={modelNoteFromView(snapshot, { notModeled: `${LQ09_NOT_MODELED.join("; ")}.` })}
         />
       </div>

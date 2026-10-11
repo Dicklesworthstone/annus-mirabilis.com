@@ -214,6 +214,7 @@ export function LorentzMapLab({
         <ExecutionChrome
           state={executionKind}
           view={view}
+          validationRefusal={failure?.kind === "refused" ? failure.refusal : null}
           modelNote={modelNoteFromView(view, { notModeled: `${SR04_NOT_MODELED.join("; ")}.` })}
         />
       </div>

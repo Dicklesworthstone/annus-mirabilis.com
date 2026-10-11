@@ -273,6 +273,7 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
         <ExecutionChrome
           state={executionKind}
           view={snapshot}
+          validationRefusal={failure?.kind === "refused" ? failure.refusal : null}
           modelNote={modelNoteFromView(snapshot, { notModeled: `${LQ06_NOT_MODELED.join("; ")}.` })}
         />
       </div>

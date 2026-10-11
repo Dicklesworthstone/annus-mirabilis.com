@@ -211,6 +211,7 @@ export function EntropyWorkbenchLab({
         <ExecutionChrome
           state={executionKind}
           view={view}
+          validationRefusal={failure?.kind === "refused" ? failure.refusal : null}
           modelNote={modelNoteFromView(view, { notModeled: `${LQ04_NOT_MODELED.join("; ")}.` })}
         />
       </div>

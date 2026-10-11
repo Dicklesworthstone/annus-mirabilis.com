@@ -525,6 +525,7 @@ export function TracerLab({
               <ExecutionChrome
                 state={executionKind}
                 view={view}
+                validationRefusal={failure?.kind === "refused" ? failure.refusal : null}
                 modelNote={modelNoteFromView(view, {
                   notModeled: "Molecular collisions (no collision bath owns the displacement).",
                   showTheCodeHref: `#stc-${id}`,

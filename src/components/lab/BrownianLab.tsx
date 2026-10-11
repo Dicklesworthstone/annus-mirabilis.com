@@ -480,6 +480,7 @@ export function BrownianLab({
             <ExecutionChrome
               state={executionKind}
               view={view}
+              validationRefusal={failure?.kind === "refused" ? failure.refusal : null}
               modelNote={modelNoteFromView(view, {
                 notModeled: "The ballistic short-time regime and inertia.",
                 showTheCodeHref: `#stc-${id}`,

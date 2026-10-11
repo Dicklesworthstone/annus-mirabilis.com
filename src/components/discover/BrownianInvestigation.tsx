@@ -227,6 +227,7 @@ export function BrownianInvestigation({
           <ExecutionChrome
             state={executionKind}
             view={view}
+            validationRefusal={failure?.kind === "refused" ? failure.refusal : null}
             modelNote={modelNoteFromView(view, {
               notModeled: "Molecular collisions, inertia and a physical short-time velocity.",
               showTheCodeHref: "/lab/bm-01/",

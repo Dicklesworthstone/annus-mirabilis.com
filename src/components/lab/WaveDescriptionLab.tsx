@@ -266,7 +266,11 @@ export function WaveDescriptionLab({
         <h2 id={`${id}-title`}>{title}</h2>
       </header>
       <div className="lab-status-row">
-        <ExecutionChrome state={executionKind} view={view} />
+        <ExecutionChrome
+          state={executionKind}
+          view={view}
+          validationRefusal={failure?.kind === "refused" ? failure.refusal : null}
+        />
       </div>
 
       <noscript>

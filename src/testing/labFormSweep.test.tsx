@@ -417,18 +417,39 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
    *
    * MEASURED 2026-10-10 AND IT WIDENS am-m79c's OWN FINDING. That bead records six labs with no
    * execution chrome at all, three of which refuse a form. This measures the labs whose FORM refusal
-   * actually marks staleness, and there are SEVEN -- so of the 27 labs that do render a chrome, 20
-   * do not pass it a `validationRefusal` and their form refusal marks nothing. Rendering the chrome
+   * actually marks staleness, and there were SEVEN -- so of the 27 labs that do render a chrome, 20
+   * did not pass it a `validationRefusal` and their form refusal marked nothing. Rendering the chrome
    * and marking a form refusal with it are different things, and only this set distinguishes them.
+   *
+   * GROWN FROM 7 TO 16 ON 2026-10-11, and the arithmetic is written out because a recorded set that
+   * grows is the exact shape a weakened record also has. 13 files held a form failure in a local
+   * `failure` state and never handed it to the chrome; each gained the one line WalkLab and CameraLab
+   * already had. Those 13 files are 12 lab routes plus one discovery view that is not among the 33,
+   * and 3 of the 12 (lq-03, lq-04, sr-04) were already in this set because their refusal reaches the
+   * STORE rather than stopping at the form. So 12 - 3 = 9 new, and 7 + 9 = 16, which is what the
+   * sweep now reports. If that subtraction does not close, the set was edited rather than earned.
+   *
+   * The 11 that still render a chrome and mark nothing have no form-failure state at all, so there is
+   * nothing to pass; they are not an omission of this repair. bm-03, bm-07 and sr-03 remain am-m79c's
+   * criterion 1: they refuse a form and render no chrome to mark it with.
    */
   const RECORDED_STALENESS_MARKING = [
+    "bm-01",
+    "bm-04",
     "bm-05",
+    "bm-06",
     "bm-08",
+    "lq-01",
     "lq-03",
     "lq-04",
     "lq-05",
+    "lq-06",
     "lq-07",
+    "lq-08",
+    "lq-09",
     "sr-04",
+    "sr-06",
+    "sr-07",
   ];
   test("the labs whose form refusal marks the accepted readouts stale, by name (am-m79c)", () => {
     console.log(
