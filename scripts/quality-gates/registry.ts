@@ -337,6 +337,98 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     },
     owner: "am-8gbg",
   },
+  // 5f. THE SIX BROWSER LANES (am-rc1001-bridge-plan-pcjk.18 criterion 1: "`--family browser` runs
+  // all six lanes ... and each prints its examined population").
+  //
+  // The browser family held three steps before these -- adversarial-runtime, browser-acceptance and
+  // perf-browser-budgets -- and NONE of them is one of the six lanes the bead names. Those five
+  // scripts were reached by nothing at all, which is the bead's title: "write no evidence and are
+  // wired to no gate".
+  //
+  // THE SIXTH LANE IS NOT HERE, on purpose. The 320 px overflow sweep is
+  // scripts/e2e/phoneOverflow.e2e.test.ts, and it is already reached: bunfig ignores scripts/e2e, so
+  // it runs in the NODE lane through run-node-only-tests.ts, and it already prints a census. Adding
+  // it here would run it in two families, which should be an owner's decision rather than a side
+  // effect of this entry. So the bead's "wired to no gate" is stale for that one.
+  //
+  // EACH WAS RUN BEFORE BEING REGISTERED, on 2026-10-11 at commit 796283498, and the census it
+  // printed is recorded beside it. Registering a lane that is red on arrival trains people to
+  // ignore red gates, which is the argument this registry already accepts for validate-ledger.ts.
+  //
+  // A bare browser launch costs about 90 seconds on the measuring machine, warm or cold, which is
+  // why these are `browser` and not `fast`. Inside a lane the cost is much lower, because the
+  // browser is reused: journeys-in-lanes measured 14187ms for its first navigation and 38ms for the
+  // lane after it.
+  // measured 4 laboratories opened with WebGL denied (minimum 4), exit 0
+  {
+    id: "no-webgl-lane",
+    title: "No-WebGL laboratories",
+    command: ["bun", "scripts/no-webgl-lane.ts"],
+    family: "browser",
+    cadence: "every-run",
+    requiredInCi: true,
+    requiredInProfiles: ["scaffold", "preview", "launch"],
+    availability: {
+      scriptPath: "scripts/no-webgl-lane.ts",
+    },
+    owner: "am-rc1001-bridge-plan-pcjk.18",
+  },
+  // measured 12 keyboard claims evaluated (minimum 12), exit 0
+  {
+    id: "keyboard-only-lane",
+    title: "Keyboard-only actions",
+    command: ["bun", "scripts/keyboard-only-lane.ts"],
+    family: "browser",
+    cadence: "every-run",
+    requiredInCi: true,
+    requiredInProfiles: ["scaffold", "preview", "launch"],
+    availability: {
+      scriptPath: "scripts/keyboard-only-lane.ts",
+    },
+    owner: "am-rc1001-bridge-plan-pcjk.18",
+  },
+  // measured 4 reading-path pages opened in WebKit (minimum 4), exit 0
+  {
+    id: "webkit-reading-path",
+    title: "WebKit reading path",
+    command: ["bun", "scripts/webkit-reading-path.ts"],
+    family: "browser",
+    cadence: "every-run",
+    requiredInCi: true,
+    requiredInProfiles: ["scaffold", "preview", "launch"],
+    availability: {
+      scriptPath: "scripts/webkit-reading-path.ts",
+    },
+    owner: "am-rc1001-bridge-plan-pcjk.18",
+  },
+  // measured 14 embed clauses evaluated (minimum 11), exit 0
+  {
+    id: "embed-presentation-clauses",
+    title: "Embed presentation clauses",
+    command: ["bun", "scripts/embed-presentation-clauses.ts"],
+    family: "browser",
+    cadence: "every-run",
+    requiredInCi: true,
+    requiredInProfiles: ["scaffold", "preview", "launch"],
+    availability: {
+      scriptPath: "scripts/embed-presentation-clauses.ts",
+    },
+    owner: "am-rc1001-bridge-plan-pcjk.18",
+  },
+  // measured 84 steps, 4 journeys x 3 lanes (floor 84), exit 0
+  {
+    id: "journeys-in-lanes",
+    title: "Journeys in lanes",
+    command: ["bun", "scripts/journeys-in-lanes.ts"],
+    family: "browser",
+    cadence: "every-run",
+    requiredInCi: true,
+    requiredInProfiles: ["scaffold", "preview", "launch"],
+    availability: {
+      scriptPath: "scripts/journeys-in-lanes.ts",
+    },
+    owner: "am-rc1001-bridge-plan-pcjk.18",
+  },
   // 6. Ultimate Bug Scanner (diff mode)
   {
     id: "ubs-diff",
