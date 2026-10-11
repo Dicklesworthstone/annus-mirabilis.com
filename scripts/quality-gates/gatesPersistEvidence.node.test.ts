@@ -129,6 +129,46 @@ test("PLANTED: silence is detected, a helper is credited, and a comment is not",
   assert.deepEqual(localImportsOf(join(dir, "viaHelper.ts"), 'import { w } from "./gone.ts";'), []);
 });
 
+test("PLANTED: the async writeFile API is credited in code and still not credited in a comment", () => {
+  /*
+   * `writeFile(` was missing from the pattern list while `appendFile(` was present, so the two
+   * browser harnesses registered by am-rodb -- which write their evidence in a `finally`, 5 and 94
+   * records measured on disk -- would have been reported as silent. That is the false negative
+   * direction, which the module's own comment says is the dangerous one to get wrong in reverse: it
+   * reddens the audit for a condition the gate does not have, and the cheap way out is an exemption
+   * rather than a pattern.
+   *
+   * Both directions, because widening a pattern is exactly the shape a weakened gate hides in. A
+   * comment naming the call must still not be credited, for the reason this module states under
+   * "AND IT READS CODE, NOT TEXT": the densest prose about persistence is a gate's own docblock
+   * explaining how it persists.
+   */
+  const dir = mkdtempSync(join(tmpdir(), "am-rodb-writefile-"));
+  writeFileSync(
+    join(dir, "asyncWriter.ts"),
+    'import { writeFile } from "node:fs/promises";\nawait writeFile("artifacts/browser/checks.json", "[]");\n',
+  );
+  writeFileSync(
+    join(dir, "talksAboutIt.ts"),
+    '/** This harness used to call writeFile("artifacts/browser/checks.json", rows). */\nconsole.log("nothing");\n',
+  );
+  const planted = auditGatePersistence(
+    [
+      { id: "plant-async-writer", availability: { scriptPath: "asyncWriter.ts" } },
+      { id: "plant-talks-about-it", availability: { scriptPath: "talksAboutIt.ts" } },
+    ],
+    dir,
+  );
+  assert.deepEqual(
+    planted.persists.map((p) => p.id),
+    ["plant-async-writer"],
+  );
+  assert.deepEqual(
+    planted.silent.map((s) => s.id),
+    ["plant-talks-about-it"],
+  );
+});
+
 test("PLANTED: a non-config .mjs gate is AUDITED, while a .config.mjs still delegates", () => {
   // THE EXTENSION IS NOT THE QUESTION, and this is the plant for the defect that proved it. The
   // CONFIG_FILE pattern was `/\.(json|mjs|cjs)$/`, so every `.mjs` gate script landed in `delegates`

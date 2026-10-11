@@ -58,7 +58,23 @@ export interface PersistenceReport {
  * would quietly excuse a gate that writes nothing.
  */
 const PERSISTS =
-  /new TestLogger\(|getLogger\(|appendLogLine\(|logPathFor\(|writePerfReport\(|appendFileSync\(|writeFileSync\(|appendFile\(/;
+  /new TestLogger\(|getLogger\(|appendLogLine\(|logPathFor\(|writePerfReport\(|appendFileSync\(|writeFileSync\(|appendFile\(|writeFile\(/;
+
+/*
+ * `writeFile(` WAS MISSING WHILE `appendFile(` WAS PRESENT, which is a false negative rather than a
+ * sixth invented way to persist: the two are the same `node:fs/promises` API, and the list already
+ * credited one of them. The comment above says a missing pattern "would quietly excuse a gate that
+ * writes nothing", and this one would have done the opposite and worse -- reported a gate that DOES
+ * write as silent, which turns the audit red for a condition the gate does not have and invites
+ * someone to add an exemption instead of a pattern.
+ *
+ * Found by registering the two browser harnesses (am-rodb). Both write in a `finally`, so even a
+ * failing run retains its evidence, and the files are on disk: measured 2026-10-11,
+ * artifacts/browser/mass-energy-checks.json holds 5 records and artifacts/browser/checks.json holds
+ * 94. Crediting them is a correctness repair; the widening is checked in both directions by the
+ * planted case in this module's test, which asserts that a `writeFile(` in a COMMENT is still not
+ * credited.
+ */
 
 /**
  * A scriptPath that is a config file rather than a program names a delegating step, not a gate.
