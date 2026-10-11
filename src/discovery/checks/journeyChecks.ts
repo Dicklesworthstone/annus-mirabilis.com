@@ -42,12 +42,56 @@ export interface CardLookupContext {
   };
 }
 
+/**
+ * ONE OF THESE SIX IS READ. THE OTHER FIVE ARE DECLARED AND NEVER CONSULTED (measured 2026-10-11).
+ *
+ * This is the am-4k0m defect one layer up. That bead is about gates that ran only over a fixture;
+ * this is about a gate that accepts a resolver and then does not call it, which is worse in one
+ * specific way: a caller who passes `isMoveStep` has every reason to believe a move's ids are being
+ * resolved, and nothing in the return value says otherwise. An absent check and a check that
+ * silently declines are the same green.
+ *
+ * Measured by occurrence count over `src` and `scripts`, excluding each field's own declaration
+ * here: `cards` is read at four sites in this file (the shelf rule, the world-check card lookup and
+ * the premise lookup); `knownChains` has exactly one other occurrence in the repository and it is a
+ * COMMENT in src/app/discover/mass-energy/page.test.tsx saying "Nothing in the framework resolves a
+ * move's ids (checkJourney declares knownChains and never reads it)", written by whoever had to
+ * hand-roll that resolution per paper; `knownEquations`, `knownEntranceRecords` and `isMoveStep`
+ * have no other occurrence anywhere, in any lane, test or production. `knownInstruments` occurs
+ * elsewhere only as an unrelated field of the misconceptions audit.
+ *
+ * SO THE MOVE IDS ARE RESOLVED FOR ONE PAPER OF FOUR, BY A BESPOKE TEST RATHER THAN BY THIS GATE.
+ * Anyone implementing `isMoveStep` should know first that the four records do not share one
+ * addressing convention, which is a content question and not a plumbing one:
+ *
+ *     brownian-motion     bm-variance               + bm-variance-cross        a derivation chain file
+ *     mass-energy         me-low-speed-coefficient  + identify                 a generated certificate
+ *     light-quanta        arg-lq-entropy-correspondence + eq-model-lq-effective-count   argument + equation
+ *     special-relativity  arg-sr-synchronization    + eq-model-sr-sync-equal-legs       argument + equation
+ *
+ * Two of the four name a derivation chain and a step in it; two name an argument record and an
+ * equation record. A resolver that handled only the first shape would report the other two as
+ * dangling and read exactly like a content defect, so settle the convention before writing it.
+ * `content/equations/derivations/` holds one file and one `isMove: true`, which is the bead's "the
+ * move is marked in a chain a reader can open in 1 of 4"; the other three records declare that
+ * pending rather than claiming it (commit 07107cb7e).
+ *
+ * The five are kept rather than removed because each names a resolution this gate should eventually
+ * perform, and deleting them would lose that. They are documented here so no caller mistakes the
+ * declaration for the check.
+ */
 export interface JourneyCheckOptions {
+  /** READ: the shelf rule, the world-check card lookup and the premise lookup all consult it. */
   readonly cards?: CardLookupContext | undefined;
+  /** DECLARED ONLY, never consulted. No instrument reference is resolved by this gate. */
   readonly knownInstruments?: ReadonlySet<string> | readonly string[] | undefined;
+  /** DECLARED ONLY, never consulted. A move's `chainId` is not resolved by this gate. */
   readonly knownChains?: ReadonlySet<string> | readonly string[] | undefined;
+  /** DECLARED ONLY, never consulted. No equation reference is resolved by this gate. */
   readonly knownEquations?: ReadonlySet<string> | readonly string[] | undefined;
+  /** DECLARED ONLY, never consulted. No entrance reference is resolved by this gate. */
   readonly knownEntranceRecords?: ReadonlySet<string> | readonly string[] | undefined;
+  /** DECLARED ONLY, never consulted. Passing it does NOT cause a move's step to be checked. */
   readonly isMoveStep?: (chainId: string, stepId: string) => boolean | undefined;
 }
 
