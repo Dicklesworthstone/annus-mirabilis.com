@@ -256,6 +256,20 @@ async function main(): Promise<number> {
       );
     }
     await context.close();
+  } catch (error) {
+    /*
+     * A THROWN GUARD STILL LEAVES EVIDENCE (am-rc1001-bridge-plan-pcjk.18).
+     *
+     * The non-200 guard above throws, which is right -- a 404 body measures as clean, so continuing
+     * would produce a plausible pass. But the throw used to escape main() and the process died
+     * before the census line and the retained run, so a lane stopped this way left nothing behind
+     * except an exit code. Measured 2026-10-11 on three planted lanes: exit 1 and no summary.json.
+     * A failing run is exactly the run whose evidence someone will want.
+     *
+     * So the refusal is recorded as a failure and the lane falls through to retain it. The exit
+     * code is unchanged, because `failures` is non-empty.
+     */
+    failures.push(`lane stopped: ${error instanceof Error ? error.message : String(error)}`);
   } finally {
     await browser?.close();
     server?.close();
