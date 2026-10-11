@@ -446,6 +446,58 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     },
     owner: "am-svdj",
   },
+  /*
+   * THE TWO HARNESSES BEHIND `bun run test:browser` (am-rodb criterion 3).
+   *
+   * They appeared in NO registry entry, so they were reachable only by someone typing the npm
+   * script, and they were red on HEAD in BOTH scripts for days without anything noticing. The
+   * registry's `browser-acceptance` step runs `--fixtures --journey runtime-conformance` instead,
+   * which is a different population.
+   *
+   * REGISTERED AS TWO STEPS RATHER THAN AS THE ALIAS, because the alias's `&&` is what hid its
+   * second fault behind its first: `test:browser` now runs both and reports both (fc6ca0408), and
+   * two steps give the same guarantee by construction plus a separate verdict, a separate
+   * availability probe and a separate retained artifact for each. The alias stays as the human
+   * entry point and its content is what is gated here; nothing is reachable only through it.
+   *
+   * Each serves `out/` itself, so both test the BUILT export and say nothing about HEAD when that
+   * export is stale. `bun run test:node` carries the staleness refusal for the lanes that must have
+   * a fresh one.
+   *
+   * measured 2026-10-11 on a build of 9f1aed5ea: `bun run test:browser` exit 0 in 102 seconds, 99
+   * passing outcomes across the two. Cheaper than one bare browser launch, because each harness
+   * reuses its browser across every check.
+   */
+  // measured 5 registered checks, 5 evidence records in artifacts/browser/mass-energy-checks.json,
+  // exit 0. Its permalink assertion had cited an element retired in 7b5b4707b since 2026-09-24.
+  {
+    id: "mass-energy-browser",
+    title: "Mass-energy entrance and laboratory in a browser",
+    command: ["bun", "scripts/test-mass-energy-browser.mjs"],
+    family: "browser",
+    cadence: "every-run",
+    requiredInCi: true,
+    requiredInProfiles: ["scaffold", "preview", "launch"],
+    availability: {
+      scriptPath: "scripts/test-mass-energy-browser.mjs",
+    },
+    owner: "am-rodb",
+  },
+  // measured 9 of 9 registered checks, 94 evidence records in artifacts/browser/checks.json, exit 0.
+  // It was 8 of 9 with 87 when am-rodb was filed, `equation` the only failure (am-fheb).
+  {
+    id: "lab-browser",
+    title: "Laboratories, reader and concordance in a browser",
+    command: ["bun", "scripts/test-lab-browser.mjs"],
+    family: "browser",
+    cadence: "every-run",
+    requiredInCi: true,
+    requiredInProfiles: ["scaffold", "preview", "launch"],
+    availability: {
+      scriptPath: "scripts/test-lab-browser.mjs",
+    },
+    owner: "am-rodb",
+  },
   // 6. Ultimate Bug Scanner (diff mode)
   {
     id: "ubs-diff",
