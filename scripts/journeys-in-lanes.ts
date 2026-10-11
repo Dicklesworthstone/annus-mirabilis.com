@@ -27,14 +27,13 @@
  *   bun scripts/journeys-in-lanes.ts [--out <dir>] [--base-url http://host:port]
  */
 
-import { execFileSync } from "node:child_process";
-import { randomBytes } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { createServer, type Server } from "node:http";
 import { extname, join, normalize, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type Browser, chromium, type Page, webkit } from "playwright";
 import { PAPER_JOURNEYS } from "./e2e/journeys/index.ts";
+import { retainLaneRun } from "./gate-census/laneEvidence.ts";
 
 const ROOT = resolve(fileURLToPath(import.meta.url), "..", "..");
 function flag(name: string): string | undefined {
@@ -122,22 +121,6 @@ async function runJourney(
     }
   }
   return rows;
-}
-
-/**
- * The commit this run measured, so a retained run names its line rather than a wall-clock time.
- *
- * am-rc1001-bridge-plan-pcjk.18 asks for exactly this: its background records that these lanes'
- * "only evidence is commit messages; for example `e514e106` claims 'all 84 steps hold'". A run that
- * cannot say which commit it examined is the same kind of claim, written by a script instead of a
- * person.
- */
-function headCommit(): string {
-  try {
-    return execFileSync("git", ["rev-parse", "HEAD"], { cwd: ROOT, encoding: "utf8" }).trim();
-  } catch {
-    return "unknown";
-  }
 }
 
 /**
@@ -257,32 +240,38 @@ async function main(): Promise<number> {
    * The population is printed as well as stored, and the floor is stated: 4 journeys x 3 lanes x 7
    * steps is 84, and a run that examined fewer has lost a lane or a journey rather than passed.
    */
-  const runId = `${new Date()
-    .toISOString()
-    .replace(/[-:]/g, "")
-    .replace(/\.\d+Z$/, "Z")}-${randomBytes(4).toString("hex")}`;
-  const runDir = join(ROOT, "artifacts", "journeys-in-lanes", runId);
-  mkdirSync(runDir, { recursive: true });
-  const summary = {
-    schemaVersion: 1,
-    toolRunId: runId,
-    commit: headCommit(),
+  /**
+   * THE RETAINED RUN, through the shared writer (am-rc1001-bridge-plan-pcjk.18).
+   *
+   * This block used to build the summary and print the census by hand, and its census line DID NOT
+   * PARSE: measured 2026-10-11, `parsePopulationLines` returned 0 reports and 1 malformed for
+   * `[census] journeys-in-lanes examined 84 steps (4 journeys x 3 lanes, floor 84) at commit ...`,
+   * with the reason "does not match [census] <gate> examined <n> <noun> (minimum <m>)". It said
+   * "floor" where the grammar says "minimum" and put the commit after the closing parenthesis. So
+   * the one lane that did print a census printed one the census reader could not count, which is
+   * the case population.ts says it reports rather than drops.
+   *
+   * The commit now rides on the "Retained run:" line instead, which keeps the census line to the
+   * one grammar, and the lane-specific fields come through `extra`.
+   */
+  const { vacuous } = retainLaneRun({
+    lane: "journeys-in-lanes",
+    root: ROOT,
+    examined: steps,
+    noun: "journey steps",
+    minimum: PAPER_JOURNEYS.length * LANES.length * 7,
+    failures,
     export: OUT,
     baseUrl: base,
-    lanes: LANES.map((lane) => lane.name),
-    journeys: PAPER_JOURNEYS.map((entry) => entry.journey.sliceId),
-    stepsExamined: steps,
-    stepsExpected: PAPER_JOURNEYS.length * LANES.length * 7,
-    failures,
-    rows: record,
-  };
-  writeFileSync(join(runDir, "summary.json"), `${JSON.stringify(summary, null, 2)}\n`, "utf8");
-  console.log(
-    `[census] journeys-in-lanes examined ${steps} steps (${PAPER_JOURNEYS.length} journeys x ` +
-      `${LANES.length} lanes, floor ${summary.stepsExpected}) at commit ${summary.commit.slice(0, 9)}`,
-  );
-  console.log(`Retained run: ${join(runDir, "summary.json")}`);
-  return failures.length === 0 ? 0 : 1;
+    extra: {
+      lanes: LANES.map((lane) => lane.name),
+      journeys: PAPER_JOURNEYS.map((entry) => entry.journey.sliceId),
+      stepsExamined: steps,
+      stepsExpected: PAPER_JOURNEYS.length * LANES.length * 7,
+      rows: record,
+    },
+  });
+  return failures.length === 0 && !vacuous ? 0 : 1;
 }
 
 process.exit(await main());

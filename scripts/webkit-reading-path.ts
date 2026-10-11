@@ -33,7 +33,7 @@ import { createServer, type Server } from "node:http";
 import { extname, join, normalize, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type Browser, type Page, webkit } from "playwright";
-import { reportPopulation } from "./gate-census/population.ts";
+import { retainLaneRun } from "./gate-census/laneEvidence.ts";
 
 const ROOT = resolve(fileURLToPath(import.meta.url), "..", "..");
 
@@ -249,11 +249,17 @@ async function main(): Promise<number> {
   for (const failure of failures) console.log(`  ${failure}`);
   // The floor is the declared path: a run that opened fewer pages did not walk it, and
   // "0 failures" over a path never walked reads exactly like a clean lane.
-  const vacuous = reportPopulation({
-    gate: "webkit-reading-path",
+  // One writer for the census AND the retained run, so a lane cannot keep evidence and
+  // forget to say what it examined (am-rc1001-bridge-plan-pcjk.18 criteria 1 and 2).
+  const { vacuous } = retainLaneRun({
+    lane: "webkit-reading-path",
+    root: ROOT,
     examined: visited,
     noun: "reading-path pages opened in WebKit",
     minimum: READING_PATH.length,
+    failures,
+    export: OUT,
+    baseUrl: base,
   });
   return failures.length === 0 && !vacuous ? 0 : 1;
 }

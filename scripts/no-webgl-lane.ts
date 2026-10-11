@@ -31,7 +31,7 @@ import { createServer, type Server } from "node:http";
 import { extname, join, normalize, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type Browser, chromium, type Page } from "playwright";
-import { reportPopulation } from "./gate-census/population.ts";
+import { retainLaneRun } from "./gate-census/laneEvidence.ts";
 
 const ROOT = resolve(fileURLToPath(import.meta.url), "..", "..");
 
@@ -267,11 +267,17 @@ async function main(): Promise<number> {
   for (const failure of failures) console.log(`  ${failure}`);
   // The floor is the declared set: a run that opened fewer either crashed on a moved route or
   // never reached one, and "0 failures" over nothing visited reads exactly like a clean lane.
-  const vacuous = reportPopulation({
-    gate: "no-webgl-lane",
+  // One writer for the census AND the retained run, so a lane cannot keep evidence and
+  // forget to say what it examined (am-rc1001-bridge-plan-pcjk.18 criteria 1 and 2).
+  const { vacuous } = retainLaneRun({
+    lane: "no-webgl-lane",
+    root: ROOT,
     examined: visited,
     noun: "laboratories opened with WebGL denied",
     minimum: LABORATORIES.length,
+    failures,
+    export: OUT,
+    baseUrl: base,
   });
   return failures.length === 0 && !vacuous ? 0 : 1;
 }

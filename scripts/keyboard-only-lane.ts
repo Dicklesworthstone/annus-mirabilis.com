@@ -35,7 +35,7 @@ import { createServer, type Server } from "node:http";
 import { extname, join, normalize, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type Browser, chromium, type Page } from "playwright";
-import { reportPopulation } from "./gate-census/population.ts";
+import { retainLaneRun } from "./gate-census/laneEvidence.ts";
 
 const ROOT = resolve(fileURLToPath(import.meta.url), "..", "..");
 function flag(name: string): string | undefined {
@@ -321,11 +321,17 @@ async function main(): Promise<number> {
   // The floor is this lane's static `check()` call-site count, which is a LOWER bound
   // because some sit inside loops, so a full run reports more. It is set to catch a lane
   // that stopped early rather than to pin the number; measured count is printed beside it.
-  const vacuous = reportPopulation({
-    gate: "keyboard-only-lane",
+  // One writer for the census AND the retained run, so a lane cannot keep evidence and
+  // forget to say what it examined (am-rc1001-bridge-plan-pcjk.18 criteria 1 and 2).
+  const { vacuous } = retainLaneRun({
+    lane: "keyboard-only-lane",
+    root: ROOT,
     examined: claimsEvaluated,
     noun: "keyboard claims evaluated",
     minimum: 12,
+    failures,
+    export: OUT,
+    baseUrl: base,
   });
   return failures.length === 0 && !vacuous ? 0 : 1;
 }
