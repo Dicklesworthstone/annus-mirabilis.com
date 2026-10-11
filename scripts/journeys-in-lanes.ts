@@ -57,9 +57,55 @@ const TYPES: Readonly<Record<string, string>> = {
   ".txt": "text/plain; charset=utf-8",
 };
 
+/**
+ * ONE ROUTE ANSWERED 404 SO THIS LANE CAN BE SHOWN TO FAIL (am-rc1001-bridge-plan-pcjk.18
+ * criterion 4: "a planted failure ... turns its lane red. Record it.").
+ *
+ * IT IS A FLAG ON THIS SERVER RATHER THAN A SECOND SERVER, and that distinction cost a retracted
+ * finding. On 2026-10-11 I proved the plant with a separate static server passed in through
+ * `--base-url`. The lane went red across all four journeys, and the failures were hydration ones
+ * ("the chip never became enabled, so it never hydrated") rather than anything about the planted
+ * route. The CONTROL -- the same lane against the same server with NOTHING planted -- reproduced
+ * the identical pattern, so the probe was the defect and the plant established nothing. The cause
+ * is one line above: this server resolves `normalize(decodeURIComponent(pathname))` against three
+ * candidates, and the probe split on "?" and tried the raw path, so percent-encoded requests 404
+ * and hydration stalls.
+ *
+ * So a plant goes through the SAME path resolution the lane uses when it is green. That is the
+ * "one writer" argument again, and it is the third thing today where a probe of mine rather than
+ * the thing probed was the defect.
+ *
+ * IT CANNOT BE LEFT ON BY ACCIDENT: the registry entry invokes `bun scripts/journeys-in-lanes.ts`
+ * with no arguments, so GONE is undefined in every registered run, and the branch below is dead
+ * unless a person types the flag. It is also announced on stderr every time it answers, so a run
+ * that was planted cannot be read later as a clean one.
+ */
+const GONE = flag("--gone");
+
+/** True when a request names the planted route, in any of the forms this server would resolve. */
+function plantedGone(path: string): boolean {
+  if (GONE === undefined) return false;
+  const bare = (p: string): string => (p.length > 1 && p.endsWith("/") ? p.slice(0, -1) : p);
+  const want = bare(normalize(GONE));
+  const got = bare(path);
+  return got === want || got === `${want}/index.html` || got === `${want}.html`;
+}
+
 function serveExport(port: number): Promise<Server> {
   const server = createServer((request, response) => {
     const path = normalize(decodeURIComponent(new URL(request.url ?? "/", "http://x").pathname));
+    // Matched against the SAME three candidate forms the loop below tries, and with the trailing
+    // slash ignored on both sides. The first version of this compared `path === GONE` only, so
+    // `--gone /papers/mass-energy/s0` never matched the lane's own request for
+    // `/papers/mass-energy/s0/` and the run came back 84 of 84: A GREEN PLANT, which is a finding
+    // about the plant and not about the lane. The `[planted]` counter below is what caught it,
+    // which is why the plant announces every refusal rather than trusting the verdict.
+    if (GONE !== undefined && plantedGone(path)) {
+      console.error(`[planted] ${path} answered 404 (--gone ${GONE})`);
+      response.writeHead(404, { "content-type": "text/html; charset=utf-8" });
+      response.end("<h1>gone</h1>");
+      return;
+    }
     for (const candidate of [
       join(OUT, path),
       join(OUT, path, "index.html"),
