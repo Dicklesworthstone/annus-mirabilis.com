@@ -140,14 +140,30 @@ export function MovingMirrorLab({
     apply({ ...p, ...change });
   }
 
-  /** Commit one typed or dragged value against the accepted settings. */
+  /**
+   * Commit one typed or dragged value against the accepted settings.
+   *
+   * THE TYPED GUARD USED TO REFUSE HERE, with `${FIELD_LABELS[key]}: enter a number.` and no
+   * registered code, which is a weaker copy of a check `validateSr11Parameters` already performs
+   * for all four keys (parameters.ts:26, 51, 64, 76), each with `invalid-parameter`, the
+   * parameterId, and a sentence in `details.requirements` that already reads mid-sentence --
+   * "Enter the mirror velocity β as a number." The local guard fired first, so the validator's
+   * coded refusal was unreachable from this form.
+   *
+   * Earlier today I left this alone on the grounds that routing it through the shared
+   * `readTypedNumber` would print this lab's sentence-initial FIELD_LABELS mid-sentence ("Enter
+   * Mirror velocity β = v/c as a number."). That was the wrong comparison: the validator already
+   * has its own mid-sentence wording, so there is no copy decision to make, only a duplicate to
+   * remove.
+   *
+   * EMPTY TEXT BECOMES NaN RATHER THAN FALLING THROUGH, which is the one thing this cannot delegate:
+   * `Number("")` is 0, so a cleared field would otherwise APPLY zero without a word -- the defect
+   * typedNumber.ts's own docblock exists for. A NaN reaches the validator intact, because
+   * `optionalNumber` falls back only on an absent key and passes a present non-number through as
+   * NaN, so every one of the four keys refuses it by name.
+   */
   function commit(key: NumericKey, text: string) {
-    const n = Number(text.trim());
-    if (text.trim() === "" || !Number.isFinite(n)) {
-      setDrafts((d) => ({ ...d, [key]: text }));
-      setError(`${FIELD_LABELS[key]}: enter a number.`);
-      return;
-    }
+    const n = text.trim() === "" ? Number.NaN : Number(text.trim());
     if (apply({ ...p, [key]: n })) {
       setDrafts((d) => {
         const { [key]: _done, ...rest } = d;
