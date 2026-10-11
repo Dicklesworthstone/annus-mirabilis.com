@@ -1013,7 +1013,7 @@ export function analyzeUntestedRefusals(rootDir: string): FullRefusalScanResult 
     //
     // A line number is not an identity. When an insertion moves a file, every citation below it goes
     // on pointing at a line, and that line now holds a DIFFERENT site. Without the condition below
-    // the citation credits whatever is there: on 2026-10-05, `(experiment.ts:1555)`, written for
+    // the citation credits whatever is there: on 2026-10-05, `(experiment.ts:1570)`, written for
     // missing-lens-label, landed on a throw site for acceptance-coverage-reason-too-short that was
     // minutes old, and that brand-new code read as tested by a test which never constructs an
     // acceptanceCoverage value. The scanner already SAW it, as the code-mismatched finding below, and

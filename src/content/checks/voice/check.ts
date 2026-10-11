@@ -152,7 +152,7 @@ export const EXCLUDED_FIELDS = new Set([
   "provenance",
   // am-edit-voice-lint-trmf. A typed enum, not prose: "defined" |
   // "measured-without-counting-molecules" | "not-applicable", declared at
-  // src/content/schemas/experiment.ts:3611 and validated at :3646, and carried by all seven
+  // src/content/schemas/experiment.ts:3626 and validated at :3661, and carried by all seven
   // content/quantities/constant-sets/*.yaml records. "provenance" one line above is already
   // excluded and the match is exact field-name equality, which is the only reason this sibling
   // was scanned. Two of the seven flagged, and only because "not-applicable" happens to be a
