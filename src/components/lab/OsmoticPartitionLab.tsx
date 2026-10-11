@@ -13,10 +13,12 @@ import {
   SUGAR_0P01M_INPUTS,
 } from "../../experiments/bm02/session";
 import { typedOrNaN } from "../../experiments/controls/typedNumber.ts";
+import { CurrencyForView } from "../../experiments/labels/CurrencyForView.tsx";
 import { executionLabelFor } from "../../experiments/labels/executionLabelFor.ts";
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { notModeledFor } from "../../experiments/notModeled.ts";
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
+import type { RequestRefusal } from "../../experiments/results/refusals.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
@@ -177,6 +179,15 @@ export function OsmoticPartitionLab({
   const executionKind = accepted === example ? "static-example" : "host-accepted";
   const [draft, setDraft] = useState<Draft>(() => toDraft(example));
   const [error, setError] = useState("");
+  /**
+   * The refusal OBJECT beside the sentence, so the readouts can be marked stale (am-m79c).
+   *
+   * `error` alone is a sentence, and a sentence cannot carry the refusal's registered code or tell
+   * the currency indicator what happened. Before this, a reader of this lab entered an inadmissible
+   * value, was told why, and was not told that the pressure and force beside the message still
+   * belonged to the previous settings.
+   */
+  const [refusal, setRefusal] = useState<RequestRefusal | null>(null);
   // The chamber and the settings come first; the pressure and what explains it wait.
   const gate = usePredictGate("bm-02", BM02_PROMPTS);
 
@@ -203,10 +214,12 @@ export function OsmoticPartitionLab({
     const checked = validateBm02Parameters(next);
     if (checked.kind !== "accepted") {
       setError(checked.kind === "refused" ? refusalSentence(checked.refusal) : "");
+      setRefusal(checked.kind === "refused" ? checked.refusal : null);
       return;
     }
     setAccepted(checked.data);
     setError("");
+    setRefusal(null);
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -247,6 +260,15 @@ export function OsmoticPartitionLab({
         <p className="eyebrow">The osmotic partition</p>
         <h2 id={`${id}-title`}>{title}</h2>
         <span className="badge">{executionLabelFor(executionKind).text}</span>
+        {/*
+         * Beside the hand-written execution label rather than inside an ExecutionChrome, which is
+         * the choice CurrencyForView's docblock records and which bm-03, bm-07 and sr-03 already
+         * take. No `view`: this lab has no instance store, so its only currency news is a refused
+         * form, and the indicator renders nothing at all until there is one.
+         *
+         * In the heading, so outside every predict-gated region.
+         */}
+        <CurrencyForView validationRefusal={refusal} />
       </header>
 
       <noscript>

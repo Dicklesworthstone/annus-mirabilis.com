@@ -2,6 +2,7 @@
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
 import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { readTypedNumber } from "../../experiments/controls/typedNumber.ts";
+import { CurrencyForView } from "../../experiments/labels/CurrencyForView.tsx";
 import {
   executionLabelFor,
   executionStateKindFromHostLabel,
@@ -14,6 +15,7 @@ import {
 } from "../../experiments/provenance/executionState.ts";
 import { statusMessage } from "../../experiments/results/explanations.ts";
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
+import type { RequestRefusal } from "../../experiments/results/refusals.ts";
 import {
   SR02_APPARATUS_CAPTIONS,
   SR02_CAPTION,
@@ -143,6 +145,22 @@ export function MagnetConductorLab({
   const [typed, setTyped] = useState(() => typedFrom(example.parameters));
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
+  /**
+   * The refusal OBJECT beside the sentence, so the readouts can be marked stale (am-m79c).
+   *
+   * Set on the two paths that HAVE one: a refusal from the session and a refusal from
+   * `validateSr02Parameters`. The typed-field guards above return `readTypedNumber`'s
+   * `{ kind: "refused", requirement }`, which is a sentence with no registered code by design, so
+   * those three still mark nothing and no code is invented for them. Routing a typed-field failure
+   * through the validator, or giving typedNumber.ts a code, is a change to a helper many labs share
+   * and is not made here.
+   *
+   * The form sweep DOES see this lab mark, measured after the change: a value that is not a setting
+   * reaches the validator for at least one field rather than being stopped by every typed guard. So
+   * the gap this closes is the reachable one, and the three requirement-only guards remain a narrower
+   * hole that nothing yet marks.
+   */
+  const [refusal, setRefusal] = useState<RequestRefusal | null>(null);
   const [linkNote, setLinkNote] = useState("");
   useEffect(() => {
     setReady(true);
@@ -172,11 +190,13 @@ export function MagnetConductorLab({
     const outcome = session.apply(parameters);
     if (outcome.kind === "refused") {
       setError(refusalSentence(outcome.refusal));
+      setRefusal(outcome.refusal);
       return;
     }
     setDraft(parameters);
     setTyped(typedFrom(parameters));
     setError("");
+    setRefusal(null);
   }
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -194,6 +214,7 @@ export function MagnetConductorLab({
     });
     if (checked.kind !== "accepted") {
       setError(refusalSentence(checked.refusal));
+      setRefusal(checked.refusal);
       return;
     }
     apply(checked.data);
@@ -230,6 +251,14 @@ export function MagnetConductorLab({
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
         <span className="badge">{executionLabelFor(executionKind).text}</span>
+        {/*
+         * Beside the hand-written execution label rather than inside an ExecutionChrome, the choice
+         * CurrencyForView's docblock records. No `view`: this lab has no instance store, so its only
+         * currency news is a refused form, and nothing renders until there is one.
+         *
+         * In the heading, so outside every predict-gated region.
+         */}
+        <CurrencyForView validationRefusal={refusal} />
       </header>
       <noscript>
         <p className="notice">

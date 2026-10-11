@@ -27,7 +27,18 @@ import { CurrencyIndicator } from "./CurrencyIndicator.tsx";
 import { deriveCurrencyState } from "./currencyState.ts";
 
 export type CurrencyForViewProps = Readonly<{
-  view: ExperimentView;
+  /**
+   * The store view, where there is one. OPTIONAL, because three of the six labs am-m79c names have
+   * no instance store at all: bm-02, lq-02 and sr-02 recompute their numbers synchronously from the
+   * accepted inputs, with no worker, no pending state and no requested-versus-accepted revision.
+   *
+   * A lab in that shape cannot be `running` and cannot be `stale` -- there is no interval during
+   * which the numbers on screen belong to settings other than the accepted ones. The only currency
+   * news it can have is that the form it was just handed was refused, which is exactly the news its
+   * readers were not getting. So an absent view is not a degraded case to be defaulted around; it
+   * narrows the states that exist, and the narrowing is the honest answer rather than a gap.
+   */
+  view?: ExperimentView | undefined;
   /**
    * A refusal raised while VALIDATING the reader's form, before anything reached the worker.
    *
@@ -48,7 +59,15 @@ export function CurrencyForView({
   view,
   validationRefusal,
 }: CurrencyForViewProps): ReactElement | null {
-  const currency = validationRefusal ? "refused" : deriveCurrencyState(view);
+  const currency = validationRefusal
+    ? "refused"
+    : view
+      ? deriveCurrencyState(view)
+      : // No store: no accepted snapshot to describe, so there is nothing to say until a form is
+        // refused. Never "accepted", which would assert currency this lab cannot observe.
+        undefined;
   if (currency === undefined || currency === "accepted") return null;
-  return <CurrencyIndicator state={currency} refusal={validationRefusal ?? view.refusal} />;
+  return (
+    <CurrencyIndicator state={currency} refusal={validationRefusal ?? view?.refusal ?? null} />
+  );
 }

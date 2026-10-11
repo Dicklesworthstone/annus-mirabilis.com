@@ -3,6 +3,7 @@
 import { type FormEvent, type ReactNode, useId, useState } from "react";
 import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { typedOrNaN } from "../../experiments/controls/typedNumber.ts";
+import { CurrencyForView } from "../../experiments/labels/CurrencyForView.tsx";
 import { executionLabelFor } from "../../experiments/labels/executionLabelFor.ts";
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { LQ02_CAPTION } from "../../experiments/lq02/definition.ts";
@@ -17,6 +18,7 @@ import {
 } from "../../experiments/lq02/session";
 import { notModeledFor } from "../../experiments/notModeled.ts";
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
+import type { RequestRefusal } from "../../experiments/results/refusals.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
@@ -95,6 +97,15 @@ export function ModeAllocationLab({
   const executionKind = accepted === example ? "static-example" : "host-accepted";
   const [draft, setDraft] = useState<Draft>(() => toDraft(example));
   const [error, setError] = useState("");
+  /**
+   * The refusal OBJECT beside the sentence, so the readouts can be marked stale (am-m79c).
+   *
+   * `error` alone is a sentence, and a sentence carries neither the refusal's registered code nor
+   * anything the currency indicator can read. Before this, a reader who entered a non-positive
+   * cutoff was told why and was not told that the energies beside the message still belonged to the
+   * previous settings.
+   */
+  const [refusal, setRefusal] = useState<RequestRefusal | null>(null);
   const [divergence, setDivergence] = useState<RadiationResult<number> | null>(null);
   // The controls come first; the energies, their ratio and the refusal to total them wait.
   const gate = usePredictGate("lq-02", LQ02_PROMPTS);
@@ -115,11 +126,13 @@ export function ModeAllocationLab({
     const checked = validateLq02Parameters(next);
     if (checked.kind !== "accepted") {
       setError(checked.kind === "refused" ? refusalSentence(checked.refusal) : "");
+      setRefusal(checked.kind === "refused" ? checked.refusal : null);
       return;
     }
     setAccepted(checked.data);
     setDivergence(null);
     setError("");
+    setRefusal(null);
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -154,6 +167,14 @@ export function ModeAllocationLab({
         <p className="eyebrow">Classical mode-energy allocation</p>
         <h2 id={`${id}-title`}>{title}</h2>
         <span className="badge">{executionLabelFor(executionKind).text}</span>
+        {/*
+         * Beside the hand-written execution label rather than inside an ExecutionChrome, the choice
+         * CurrencyForView's docblock records. No `view`: this lab has no instance store, so its only
+         * currency news is a refused form, and nothing renders until there is one.
+         *
+         * In the heading, so outside every predict-gated region.
+         */}
+        <CurrencyForView validationRefusal={refusal} />
       </header>
 
       <noscript>
