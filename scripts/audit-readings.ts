@@ -37,6 +37,13 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import baseline from "../src/content/audits/readingCoverage.baseline.json" with { type: "json" };
+import {
+  type CoverageBaseline,
+  coverageCensusLine,
+  coverageFindings,
+  measureReadingCoverage,
+} from "../src/content/audits/readingCoverage.ts";
 import { auditReadings, type ReadingsAuditInput } from "../src/content/audits/readings.ts";
 import { loadLiveReadingsInput } from "../src/content/audits/readingsLive.ts";
 import { reportPopulation } from "./gate-census/population.ts";
@@ -71,6 +78,32 @@ if (idx !== -1) {
 
 const report = auditReadings(input);
 console.log(JSON.stringify(report, null, 2));
+
+/*
+ * EVERY READING POPULATION, BESIDE THE OWNERSHIP REPORT (am-rc1001-bridge-plan-pcjk.14).
+ *
+ * `auditReadings` above judges OWNERSHIP of declared targets, whose population is the 63 instrument
+ * captions -- all of which already carry four readings, which is why that gate could not fail. The
+ * census below is the other five populations it never read, with a floor each so a loader that drops
+ * a directory is caught, and a ratchet so the shortfalls may only fall.
+ */
+if (idx === -1) {
+  const pops = measureReadingCoverage(root);
+  console.log(`[audit-readings] ${coverageCensusLine(pops)}`);
+  for (const pop of pops) {
+    const shortfalls = pop.applicable
+      .map((level) => `${level} ${pop.missing[level].length}`)
+      .join(", ");
+    console.log(
+      `  ${pop.name.padEnd(12)} ${String(pop.examined).padStart(4)} examined (floor ${pop.floor})` +
+        `  missing ${shortfalls}` +
+        (pop.declared.length > 0 ? `  declared ${pop.declared.join(", ")}` : ""),
+    );
+  }
+  const coverage = coverageFindings(pops, baseline.shortfalls as CoverageBaseline);
+  for (const finding of coverage) console.error(`  [${finding.severity}] ${finding.message}`);
+  if (coverage.length > 0) process.exit(1);
+}
 
 if (idx === -1) {
   console.log(

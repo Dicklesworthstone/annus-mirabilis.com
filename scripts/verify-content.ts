@@ -19,6 +19,15 @@ import {
   auditMisconceptions,
   loadLiveMisconceptionInput,
 } from "../src/content/audits/misconceptions.ts";
+import readingCoverageBaseline from "../src/content/audits/readingCoverage.baseline.json" with {
+  type: "json",
+};
+import {
+  type CoverageBaseline,
+  coverageCensusLine,
+  coverageFindings,
+  measureReadingCoverage,
+} from "../src/content/audits/readingCoverage.ts";
 import { auditReadings } from "../src/content/audits/readings.ts";
 import { loadLiveReadingsInput } from "../src/content/audits/readingsLive.ts";
 import { auditLiveShelves } from "../src/content/audits/shelfLive.ts";
@@ -545,13 +554,39 @@ const result = await runVerifyContent({
           },
         ]);
       }
-      return applyAuditExemptions(
+      /*
+       * EVERY READING POPULATION, NOT ONLY THE DECLARED CAPTIONS (am-rc1001-bridge-plan-pcjk.14).
+       *
+       * `auditReadings` judges OWNERSHIP over the 63 instrument captions, all of which already
+       * carry four readings, so this step was green over the one population with nothing left to
+       * find. The census below reads the five it never did -- 210 paragraphs, 48 passages, 200
+       * displays, 26 headings, 9 closings -- with a floor each, so a loader that drops a directory
+       * cannot report a clean audit of what survived, and a ratchet so the shortfalls may only fall.
+       *
+       * It uses the same function the plan-named CLI calls, which is that bead's step 0: the gate
+       * and `scripts/audit-readings.ts` cannot disagree about the corpus.
+       */
+      const pops = measureReadingCoverage(root);
+      console.log(`[reading-coverage] ${coverageCensusLine(pops)}`);
+      for (const pop of pops)
+        console.log(
+          `  ${pop.name.padEnd(12)} ${String(pop.examined).padStart(4)} examined (floor ${pop.floor})` +
+            `  missing ${pop.applicable.map((l) => `${l} ${pop.missing[l].length}`).join(", ")}` +
+            (pop.declared.length > 0 ? `  declared ${pop.declared.length}` : ""),
+        );
+      const ownership = applyAuditExemptions(
         "readings",
         auditReadings(input),
         READINGS_OWNERS_NOT_YET_AUDITABLE,
         (finding) => finding.ownerBeadId,
         input.owners.length,
       );
+      const coverage = coverageFindings(
+        pops,
+        readingCoverageBaseline.shortfalls as CoverageBaseline,
+      );
+      if (coverage.length === 0) return ownership;
+      return summarize("audit-readings", [...(ownership.findings ?? []), ...coverage]);
     },
     shelf: async () => {
       // The cards the four journeys render (am-rc1001-bridge-plan-pcjk.12). This passed

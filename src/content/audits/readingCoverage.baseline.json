@@ -1,0 +1,41 @@
+{
+  "bead": "am-rc1001-bridge-plan-pcjk.14",
+  "measuredAt": "2026-10-11",
+  "measuredBy": "bun -e over src/content/audits/readingCoverage.ts, whose census prints the same numbers",
+  "note": "Missing counts per population per APPLICABLE level. They may only fall. A paragraph binding carries r0 alone by design, so its r1-r3 are absent from this file rather than recorded as a debt of 210.",
+  "shortfalls": {
+    "paragraphs": {
+      "r0": 0
+    },
+    "passages": {
+      "r0": 0,
+      "r1": 0,
+      "r2": 0,
+      "r3": 0
+    },
+    "displays": {
+      "r0": 0,
+      "r1": 0,
+      "r2": 0,
+      "r3": 129
+    },
+    "headings": {
+      "r0": 26,
+      "r1": 26,
+      "r2": 26,
+      "r3": 26
+    },
+    "closings": {
+      "r0": 9,
+      "r1": 9,
+      "r2": 9,
+      "r3": 9
+    },
+    "captions": {
+      "r0": 0,
+      "r1": 0,
+      "r2": 0,
+      "r3": 0
+    }
+  }
+}
