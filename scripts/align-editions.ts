@@ -150,7 +150,30 @@ export function runAlignEditions(options: AlignEditionsOptions): AlignEditionsRe
     );
   }
 
-  // 2. Alignment validations (rules C.1, C.4)
+  /*
+   * 2. Alignment validations (rules C.1 and C.2)
+   *
+   * THESE ATTRIBUTIONS WERE WRONG AND THE ERROR COST A P0 CRITERION ITS VERDICT. This read
+   * "(rules C.1, C.4)" and the section below read "(rule C.3)", which is how a careful audit on
+   * 2026-10-10 concluded that "C.2 is defined in no file" and that the criterion
+   * "align-editions.ts enforces rules C.1-C.8" was unfalsifiable. C.2 has been defined since
+   * 2026-09-18, with its own docblock, at the function this section calls:
+   *
+   *   C.1  alignment.ts:86   Coverage & Edges          validateManyToManyAlignment  (below)
+   *   C.2  alignment.ts:198  Edges and splits          validateAlignmentSplits      (below)
+   *   C.3  alignment.ts:252  Display equation byte identity  -- NOT called here; it is the
+   *                          edition contract's `display-math-byte-identity` check, owned by
+   *                          am-cm-checks-structural-lq0
+   *   C.4  alignment.ts:292  Inline mathematics, references, and footnote marks  (section 3)
+   *   C.5  alignment.ts:395  Terms                     validateTerms                (section 4)
+   *   C.6  alignment.ts:452  Glosses                   validateGloss                (section 5)
+   *   C.7  alignment.ts:560  Review states             validateReviewStates         (section 6)
+   *   C.8  alignment.ts:629  Derived statuses          validateDerivedStatus        (section 7)
+   *
+   * So every rule IS implemented and `alignment.ts:4` says so ("Implements rules C.1 through
+   * C.8"); two comments here named the wrong numbers, and a mislabelled comment is
+   * indistinguishable from a missing implementation to anyone auditing by grep.
+   */
   if (edges.length > 0 || germanIds.length > 0 || englishIds.length > 0) {
     const alignIssues = validateManyToManyAlignment({ edges, germanIds, englishIds });
     issues.push(...alignIssues);
@@ -161,7 +184,8 @@ export function runAlignEditions(options: AlignEditionsOptions): AlignEditionsRe
     issues.push(...splitIssues);
   }
 
-  // 3. Inline mathematics, references, and footnote marks (rule C.3)
+  // 3. Inline mathematics, references, and footnote marks (rule C.4, whose docblock at
+  //    alignment.ts:292 carries exactly this title). Previously miscredited to C.3.
   if (options.components && options.components.length > 0) {
     const mathIssues = validateInlineMathematics(options.components);
     issues.push(...mathIssues);
