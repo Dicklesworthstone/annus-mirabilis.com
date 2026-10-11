@@ -429,6 +429,23 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     },
     owner: "am-rc1001-bridge-plan-pcjk.18",
   },
+  // measured 58 built pages carrying a prediction prompt (minimum 50), 2565 exposed controls read
+  // from Chromium's AX tree, exit 0. Its first full run was RED on two pages, which is why it is
+  // here: duplicate accessible names on distinct controls are not an axe violation, so the browser
+  // family's AxeBuilder scans passed all 22 multi-prompt pages while the defect was live.
+  {
+    id: "predict-prompt-names",
+    title: "Prediction controls name their own prompt",
+    command: ["bun", "scripts/predict-prompt-names-lane.ts"],
+    family: "browser",
+    cadence: "every-run",
+    requiredInCi: true,
+    requiredInProfiles: ["scaffold", "preview", "launch"],
+    availability: {
+      scriptPath: "scripts/predict-prompt-names-lane.ts",
+    },
+    owner: "am-svdj",
+  },
   // 6. Ultimate Bug Scanner (diff mode)
   {
     id: "ubs-diff",
