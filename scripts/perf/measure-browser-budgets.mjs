@@ -64,6 +64,26 @@ const ROUTES = [
   "/lab/bm-01/",
 ];
 
+/*
+ * THE NAVIGATION BUDGET IS PLUMBING, NOT A MEASUREMENT, and it was Playwright's default 30 s.
+ *
+ * `waitUntil: "load"` waits for every subresource -- fonts, chunks, images -- and on a loaded
+ * machine the home page exceeds 30 s from a cold cache. Measured 2026-10-11 against a build of
+ * 9f1aed5ea: `page.goto: Timeout 30000ms exceeded ... navigating to "http://127.0.0.1:60737/"`, so
+ * the whole run threw and `perf-budgets` reported 6 of its 8 rows `not-available` for want of a
+ * browser artifact. That gate is requiredInCi, so the default was making a required gate flaky for
+ * a reason that has nothing to do with any budget.
+ *
+ * RAISING IT CANNOT LOOSEN A BUDGET, which is the only thing worth checking before touching a
+ * number in a perf script. None of the three navigations below times the navigation: the first
+ * reads `page.content()` for visible text, math and off-origin fonts; the second reads
+ * layout-shift from a buffered PerformanceObserver after its own explicit 4000 ms and 2500 ms
+ * waits; the third reads Event Timing entries after an explicit 3000 ms wait. Every budget is a
+ * byte count, a shift score or a latency measured after the page has settled, and none of them is
+ * "did it load inside the timeout".
+ */
+const NAV_TIMEOUT_MS = 90_000;
+
 const VIEWPORT = { width: 1280, height: 900 };
 
 const MIME = {
@@ -122,7 +142,7 @@ async function measureVisibleTextMath(base, browser) {
       const u = new URL(response.url());
       if (/\.(woff2?|ttf|otf)$/.test(u.pathname)) fonts.push(u);
     });
-    await page.goto(base + route, { waitUntil: "load" });
+    await page.goto(base + route, { waitUntil: "load", timeout: NAV_TIMEOUT_MS });
     const html = await page.content();
     const result = checkVisibleTextAndMath(html);
     mathMlCount += result.mathMlCount;
@@ -162,7 +182,7 @@ async function measureLayoutShift(base, browser) {
         }
       }).observe({ type: "layout-shift", buffered: true });
     });
-    await page.goto(base + route, { waitUntil: "load" });
+    await page.goto(base + route, { waitUntil: "load", timeout: NAV_TIMEOUT_MS });
     // The method names "load, font swap, and deferred math activation", so the window has to be
     // long enough for the deferred work to land, and a scroll is what makes a lazy island arrive.
     await page.waitForTimeout(4000);
@@ -213,7 +233,7 @@ async function measureInteractionLatency(base, browser) {
         // so explicitly ("do not set a finer threshold").
       }).observe({ type: "event", durationThreshold: 16, buffered: true });
     });
-    await page.goto(base + route, { waitUntil: "load" });
+    await page.goto(base + route, { waitUntil: "load", timeout: NAV_TIMEOUT_MS });
     await page.waitForTimeout(3000);
     const controls = await page
       .locator(
