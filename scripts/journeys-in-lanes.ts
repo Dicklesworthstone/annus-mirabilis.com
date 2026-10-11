@@ -26,7 +26,10 @@
  * Usage:
  *   bun scripts/journeys-in-lanes.ts [--out <dir>] [--base-url http://host:port]
  */
-import { existsSync, readFileSync, statSync } from "node:fs";
+
+import { execFileSync } from "node:child_process";
+import { randomBytes } from "node:crypto";
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { createServer, type Server } from "node:http";
 import { extname, join, normalize, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -121,6 +124,46 @@ async function runJourney(
   return rows;
 }
 
+/**
+ * The commit this run measured, so a retained run names its line rather than a wall-clock time.
+ *
+ * am-rc1001-bridge-plan-pcjk.18 asks for exactly this: its background records that these lanes'
+ * "only evidence is commit messages; for example `e514e106` claims 'all 84 steps hold'". A run that
+ * cannot say which commit it examined is the same kind of claim, written by a script instead of a
+ * person.
+ */
+function headCommit(): string {
+  try {
+    return execFileSync("git", ["rev-parse", "HEAD"], { cwd: ROOT, encoding: "utf8" }).trim();
+  } catch {
+    return "unknown";
+  }
+}
+
+/**
+ * ONE THROWAWAY NAVIGATION PER LANE, EXCLUDED FROM THE COUNTS, AND IT IS NOT HIDING A FAILURE.
+ *
+ * Measured 2026-10-11 before this existed: 83 of 84 steps held, and the single failure was
+ * `320px phone / mass-energy-continuous-journey / enter-source-passage`, a 30s `goto` timeout on
+ * the FIRST navigation of the entire run. The same journey's same step then passed in the 400% zoom
+ * lane and again in WebKit, which is what identifies it as startup cost rather than a defect: a
+ * freshly created server serving its first large static page, into a freshly launched browser's
+ * first context.
+ *
+ * So the first navigation of each lane is paid before the journeys begin and its duration is
+ * printed. A gate that reddens on a cold start is a flaky gate, and the alternative -- a longer
+ * timeout on the first step only -- would hide which step paid it.
+ */
+async function warmUp(page: Page, base: string): Promise<number> {
+  const started = Date.now();
+  try {
+    await page.goto(`${base}/`, { waitUntil: "domcontentloaded", timeout: 60_000 });
+  } catch {
+    // A warm-up that cannot load says nothing on its own; the journeys below will report it.
+  }
+  return Date.now() - started;
+}
+
 async function main(): Promise<number> {
   const external = flag("--base-url") ?? process.env.E2E_BASE_URL;
   let server: Server | undefined;
@@ -146,6 +189,14 @@ async function main(): Promise<number> {
   }
 
   const failures: string[] = [];
+  const record: {
+    lane: string;
+    warmUpMs: number;
+    journey: string;
+    steps: number;
+    held: number;
+    failed: { kind: string; detail: string }[];
+  }[] = [];
   let steps = 0;
   console.log(`${PAPER_JOURNEYS.length} journeys x ${LANES.length} lanes, export ${OUT}\n`);
   try {
@@ -158,11 +209,23 @@ async function main(): Promise<number> {
         });
         const page = await context.newPage();
         console.log(`== ${lane.name}`);
+        const warmMs = await warmUp(page, base);
+        console.log(`   (warm-up navigation ${warmMs}ms, not counted)`);
         for (const entry of PAPER_JOURNEYS) {
           const rows = await runJourney(page, base, entry);
           steps += rows.length;
           const held = rows.filter((row) => row.ok).length;
           console.log(`   ${entry.journey.sliceId}: ${held} of ${rows.length} steps held`);
+          record.push({
+            lane: lane.name,
+            warmUpMs: warmMs,
+            journey: entry.journey.sliceId,
+            steps: rows.length,
+            held,
+            failed: rows
+              .filter((row) => !row.ok)
+              .map((row) => ({ kind: row.kind, detail: row.detail })),
+          });
           for (const row of rows) {
             if (row.ok) continue;
             console.log(`     FAIL ${row.kind}  ${row.detail}`);
@@ -182,6 +245,43 @@ async function main(): Promise<number> {
     `\n${failures.length === 0 ? `every journey held in every lane: ${steps} steps` : `${failures.length} of ${steps} steps failed`}`,
   );
   for (const failure of failures) console.log(`  ${failure}`);
+
+  /**
+   * THE RETAINED RUN, which this lane did not write before (am-rc1001-bridge-plan-pcjk.18).
+   *
+   * That bead's finding, re-measured by the owner on 2026-10-09 and holding: five lane scripts
+   * including this one have "0 each" of writeFileSync / mkdirSync / appendFileSync, so "their only
+   * evidence is commit messages". A summary naming the commit, the lanes, the population and every
+   * failure is the difference between a run and a claim about one.
+   *
+   * The population is printed as well as stored, and the floor is stated: 4 journeys x 3 lanes x 7
+   * steps is 84, and a run that examined fewer has lost a lane or a journey rather than passed.
+   */
+  const runId = `${new Date()
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d+Z$/, "Z")}-${randomBytes(4).toString("hex")}`;
+  const runDir = join(ROOT, "artifacts", "journeys-in-lanes", runId);
+  mkdirSync(runDir, { recursive: true });
+  const summary = {
+    schemaVersion: 1,
+    toolRunId: runId,
+    commit: headCommit(),
+    export: OUT,
+    baseUrl: base,
+    lanes: LANES.map((lane) => lane.name),
+    journeys: PAPER_JOURNEYS.map((entry) => entry.journey.sliceId),
+    stepsExamined: steps,
+    stepsExpected: PAPER_JOURNEYS.length * LANES.length * 7,
+    failures,
+    rows: record,
+  };
+  writeFileSync(join(runDir, "summary.json"), `${JSON.stringify(summary, null, 2)}\n`, "utf8");
+  console.log(
+    `[census] journeys-in-lanes examined ${steps} steps (${PAPER_JOURNEYS.length} journeys x ` +
+      `${LANES.length} lanes, floor ${summary.stepsExpected}) at commit ${summary.commit.slice(0, 9)}`,
+  );
+  console.log(`Retained run: ${join(runDir, "summary.json")}`);
   return failures.length === 0 ? 0 : 1;
 }
 
