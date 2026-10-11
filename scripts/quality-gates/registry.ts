@@ -315,6 +315,28 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     },
     owner: "am-8gbg",
   },
+  // 5e. The readings-owner declarations (am-8gbg criteria 1 and 2).
+  //
+  // Registered for the same reason as 5d, and it carries a sharper finding. The loader that builds
+  // this audit's input used to end `catch { // Ignore unparseable }`, so an owner file with a YAML
+  // error contributed no owner and no targets and the audit judged a corpus with its declarations
+  // missing. Measured 2026-10-11 with a planted broken file in a scratch root, `auditReadings()`
+  // returns ok=true, errorCount=0, findings=0 -- IDENTICAL to the clean run -- because the broken
+  // file never reached its input. The audit cannot see this class of defect at all, which is why
+  // the loader now reports it and why this step exists beside verify-content's.
+  {
+    id: "readings-owners",
+    title: "Readings-owner census",
+    command: ["bun", "scripts/audit-readings.ts"],
+    family: "fast",
+    cadence: "every-run",
+    requiredInCi: true,
+    requiredInProfiles: ["scaffold", "preview", "launch"],
+    availability: {
+      scriptPath: "scripts/audit-readings.ts",
+    },
+    owner: "am-8gbg",
+  },
   // 6. Ultimate Bug Scanner (diff mode)
   {
     id: "ubs-diff",

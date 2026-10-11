@@ -36,10 +36,11 @@ const EXPECTED_UNREACHABLE: ReadonlyMap<string, string> = new Map([
   // "26 live ledger records" where the corpus held 28, and before 2026-09-27 it denied that
   // directory any records at all. An exemption whose prose has to be re-measured to stay true is
   // an argument for retiring the exemption.
-  [
-    "audit-readings.ts",
-    "Thin CLI over src/content/audits/readings.ts, whose auditReadings() is called by verify-content.ts.",
-  ],
+  // audit-readings.ts was here too, retired on 2026-10-11 with audit-misconceptions.ts for the same
+  // reason: it now has a live default path over content/editorial/readings-owners and a registry
+  // entry, `readings-owners`. Its reason was the thinnest in this map -- "whose auditReadings() is
+  // called by verify-content.ts" -- and that was true and beside the point, because the script
+  // could still only ever be run against hand-written input.
   [
     "audit-shelf.ts",
     'Thin CLI over src/content/audits/shelf.ts, whose auditShelf() is called by verify-content.ts over the cards the four journeys render: measured 2026-10-05, 46 cards on 4 shelves. The second sentence here read "content/historical-premises/ does not exist, so verify-content passes it an empty card list" until then. The directory is still absent, but that stopped being the shelf audit\'s input on 2026-10-02 (am-rc1001-bridge-plan-pcjk.12), when the empty list was replaced by the live shelves -- so the reason described a vacuous run that no longer happens, which is the stale prose this map exists to prevent.',

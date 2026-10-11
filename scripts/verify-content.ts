@@ -19,14 +19,8 @@ import {
   auditMisconceptions,
   loadLiveMisconceptionInput,
 } from "../src/content/audits/misconceptions.ts";
-import {
-  auditReadings,
-  type ReadingSet,
-  type ReadingsAuditInput,
-  type ReadingsOwnerEntry,
-  type ReadingTarget,
-  type ReadingTargetKind,
-} from "../src/content/audits/readings.ts";
+import { auditReadings } from "../src/content/audits/readings.ts";
+import { loadLiveReadingsInput } from "../src/content/audits/readingsLive.ts";
 import { auditLiveShelves } from "../src/content/audits/shelfLive.ts";
 import { type AuditFinding, summarize } from "../src/content/audits/types.ts";
 import {
@@ -259,70 +253,6 @@ const INSTRUMENTS_NOT_YET_AUDITABLE: ReadonlyMap<string, AuditExemption> = new M
     },
   ],
 ]);
-
-function loadLiveReadingsAuditInput(
-  rootDir: string,
-  options?: { ownerBeadIds?: readonly string[] },
-): ReadingsAuditInput {
-  const ownersDir = resolve(rootDir, "content/editorial/readings-owners");
-  const owners: ReadingsOwnerEntry[] = [];
-  const targets: ReadingTarget[] = [];
-  if (existsSync(ownersDir)) {
-    for (const name of readdirSync(ownersDir)) {
-      if (!name.endsWith(".yaml")) continue;
-      const beadId = name.replace(".yaml", "");
-      if (options?.ownerBeadIds && !options.ownerBeadIds.includes(beadId)) continue;
-      try {
-        const parsed = yaml.load(readFileSync(resolve(ownersDir, name), "utf8")) as Record<
-          string,
-          unknown
-        > | null;
-        const ownerBeadId = String(
-          parsed?.ownerBeadId ?? parsed?.beadId ?? name.replace(".yaml", ""),
-        );
-        const targetIds: string[] = [];
-        const targetKinds: ReadingTargetKind[] = [];
-        if (Array.isArray(parsed?.targets)) {
-          for (const rawTarget of parsed.targets) {
-            const t = rawTarget as Record<string, unknown>;
-            const kind: ReadingTargetKind =
-              t.kind === "caption" || t.captions
-                ? "instrument-caption"
-                : ((t.kind as ReadingTargetKind) ?? "paragraph");
-            const id =
-              (t.id as string | undefined) ??
-              (t.instrument ? `caption-${String(t.instrument)}` : undefined);
-            if (id) {
-              targetIds.push(id);
-              if (!targetKinds.includes(kind)) targetKinds.push(kind);
-              if (t.readings) {
-                targets.push({
-                  targetId: id,
-                  targetKind: kind,
-                  paper: String(parsed.paper ?? "brownian-motion"),
-                  readings: t.readings as ReadingSet,
-                  ...(Array.isArray(t.scopeCritical)
-                    ? { scopeCritical: t.scopeCritical.map(String) }
-                    : {}),
-                });
-              }
-            }
-          }
-        }
-        owners.push({
-          ownerBeadId,
-          fileName: name,
-          paper: String(parsed?.paper ?? "brownian-motion"),
-          targetKinds: targetKinds.length > 0 ? targetKinds : ["paragraph"],
-          targetIds,
-        });
-      } catch {
-        // Ignore unparseable
-      }
-    }
-  }
-  return { targets, owners };
-}
 
 /**
  * How many identifier bindings each source carries, and how many both carry (am-1nnj, dispatch 358).
@@ -566,7 +496,12 @@ const result = await runVerifyContent({
   },
   audits: {
     readings: async () => {
-      const input = loadLiveReadingsAuditInput(root);
+      // The loader moved to src/content/audits/readingsLive.ts so that scripts/audit-readings.ts can
+      // read the SAME population instead of only a --fixture (am-8gbg criterion 1). It is the same
+      // code, with one behaviour changed: an owner file whose YAML does not load is now reported
+      // instead of swallowed by a bare `catch { // Ignore unparseable }`.
+      const live = loadLiveReadingsInput(root);
+      const input = live.input;
       // THE DENOMINATOR BESIDE THE VERDICT (am-8gbg). The misconception and shelf audits beside this
       // one print theirs, each after a run that judged nothing and reported green; this one did not,
       // so "0 errors" over 55 owner files and "0 errors" over an empty directory read identically.
@@ -574,8 +509,29 @@ const result = await runVerifyContent({
       // reporting a clean audit of nothing.
       console.log(
         `[audit-readings] ${input.owners.length} owner file(s) declaring ${input.targets.length} ` +
-          `reading target(s) in content/editorial/readings-owners`,
+          `reading target(s) in content/editorial/readings-owners` +
+          (live.unparseable.length > 0
+            ? `; ${live.unparseable.length} owner file(s) DID NOT PARSE`
+            : ""),
       );
+      // An unparseable owner file is not a smaller corpus, it is an unjudged one: its declarations
+      // are missing from `input` and every count above was computed over what survived. Measured
+      // 2026-10-11 this list is empty over 41 files, so the guard is added while the family is
+      // clean and is expected to stay empty rather than to accumulate tolerated entries.
+      if (live.unparseable.length > 0) {
+        return summarize(
+          "audit-readings",
+          live.unparseable.map((u) => ({
+            check: "readings-owner-unparseable" as const,
+            family: "audit" as const,
+            severity: "error" as const,
+            recordId: u.fileName,
+            message:
+              `Readings-owner file ${u.fileName} did not parse (${u.reason}), so its declarations ` +
+              `were not judged. A corpus read past a broken record is not a clean corpus.`,
+          })),
+        );
+      }
       if (input.owners.length === 0 || input.targets.length === 0) {
         return summarize("audit-readings", [
           {
