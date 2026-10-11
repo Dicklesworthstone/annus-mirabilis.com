@@ -123,8 +123,36 @@ export function retainLaneRun(input: LaneRunInput): LaneRunResult {
   const runDir = join(input.root, "artifacts", input.lane, runId);
   mkdirSync(runDir, { recursive: true });
   const commit = headCommit(input.root);
-  const built = builtIdentity(input.root);
-  const drifted = built.commit !== "unknown" && built.commit !== commit;
+  /*
+   * THE BUILT IDENTITY IS RECORDED ONLY FOR A RUN THAT SAYS WHICH EXPORT IT OPENED, because the
+   * whole value of those fields is attributing a result to the artifact that produced it. Two
+   * content audits now share this writer and neither reads `out/` at all: stamping them with the
+   * export's commit is a true statement about the checkout that invites a false inference about the
+   * run, and "export built from 9f1aed5ea" under a gate that walked `content/` is exactly the kind
+   * of well-formed line this repository has recorded believing. `export` is the lane's own
+   * declaration of what it opened, so it is the right thing to key on; all six browser lanes pass
+   * it and the two audits do not.
+   */
+  const built = input.export === undefined ? undefined : builtIdentity(input.root);
+  const drifted = built !== undefined && built.commit !== "unknown" && built.commit !== commit;
+  /*
+   * THE CENSUS IS TAKEN BEFORE THE SUMMARY IS WRITTEN, because `outcome` has to account for it.
+   *
+   * It did not, and the artifact disagreed with the terminal. `audit-misconceptions.ts --root <an
+   * empty directory>` printed `examined 0 ledger records (minimum 20) VACUOUS` and exited 1, and
+   * the summary beside it recorded `"outcome": "passed"` -- because a corpus with nothing in it
+   * yields no findings, so `failures` was empty, so the run read as clean. That is am-1hst's defect
+   * exactly ("a result computed over an empty population is not a clean result"), reproduced in the
+   * evidence layer after being fixed in `summarize()`, and it was worse here than there: the whole
+   * reason these summaries exist is to be re-read later, when the terminal that said VACUOUS is
+   * gone and only the file that said "passed" remains.
+   */
+  const vacuous = reportPopulation({
+    gate: input.lane,
+    examined: input.examined,
+    noun: input.noun,
+    minimum: input.minimum,
+  });
   const summary = {
     schemaVersion: 1,
     toolRunId: runId,
@@ -133,34 +161,40 @@ export function retainLaneRun(input: LaneRunInput): LaneRunResult {
     // fields below are what make the claim attributable.
     commit,
     sourceCommit: commit,
-    builtCommit: built.commit,
-    builtAt: built.builtAt,
-    builtFromSourceCommit: !drifted,
+    ...(built === undefined
+      ? { reads: "the source tree, not the built export" }
+      : {
+          builtCommit: built.commit,
+          builtAt: built.builtAt,
+          builtFromSourceCommit: !drifted,
+        }),
     ...(input.export === undefined ? {} : { export: input.export }),
     ...(input.baseUrl === undefined ? {} : { baseUrl: input.baseUrl }),
     examined: input.examined,
     noun: input.noun,
     minimum: input.minimum,
-    outcome: input.failures.length === 0 ? "passed" : "failed",
-    failures: input.failures,
+    vacuous,
+    outcome: input.failures.length === 0 && !vacuous ? "passed" : "failed",
+    failures: vacuous
+      ? [
+          `examined ${input.examined} ${input.noun}, fewer than the minimum of ${input.minimum} this lane declares, so the run judged too little to be cited`,
+          ...input.failures,
+        ]
+      : input.failures,
     ...(input.extra ?? {}),
   };
   const path = join(runDir, "summary.json");
   writeFileSync(path, `${JSON.stringify(summary, null, 2)}\n`, "utf8");
-  const vacuous = reportPopulation({
-    gate: input.lane,
-    examined: input.examined,
-    noun: input.noun,
-    minimum: input.minimum,
-  });
   console.log(
-    `Retained run: ${path} (source ${commit.slice(0, 9)}, export built from ` +
-      `${built.commit === "unknown" ? "an export with no recorded identity" : built.commit.slice(0, 9)}` +
-      `${built.builtAt ? ` at ${built.builtAt}` : ""})`,
+    `Retained run: ${path} (source ${commit.slice(0, 9)}` +
+      (built === undefined
+        ? ", read from the source tree)"
+        : `, export built from ${built.commit === "unknown" ? "an export with no recorded identity" : built.commit.slice(0, 9)}` +
+          `${built.builtAt ? ` at ${built.builtAt}` : ""})`),
   );
   if (drifted)
     console.log(
-      `  NOTE: this lane opened an export built from ${built.commit.slice(0, 9)}, not from HEAD ` +
+      `  NOTE: this lane opened an export built from ${built?.commit.slice(0, 9)}, not from HEAD ` +
         `${commit.slice(0, 9)}. The result is true about that export and says nothing about HEAD. ` +
         `Run bun run build to make the two agree.`,
     );

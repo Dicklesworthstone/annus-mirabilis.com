@@ -55,13 +55,13 @@ import {
   loadLiveMisconceptionInput,
   type MisconceptionAuditInput,
 } from "../src/content/audits/misconceptions.ts";
-import { reportPopulation } from "./gate-census/population.ts";
+import { retainLaneRun } from "./gate-census/laneEvidence.ts";
 
 const rootIdx = process.argv.indexOf("--root");
+/** The repository, where a retained run is written whatever corpus this invocation audited. */
+const REPO = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const root =
-  rootIdx !== -1 && process.argv[rootIdx + 1]
-    ? resolve(process.argv[rootIdx + 1] as string)
-    : resolve(fileURLToPath(new URL("..", import.meta.url)));
+  rootIdx !== -1 && process.argv[rootIdx + 1] ? resolve(process.argv[rootIdx + 1] as string) : REPO;
 const idx = process.argv.indexOf("--fixture");
 if ((idx !== -1 && !process.argv[idx + 1]) || (rootIdx !== -1 && !process.argv[rootIdx + 1])) {
   console.error(
@@ -112,13 +112,39 @@ if (idx === -1) {
   );
 }
 
-// A fixture is whatever the caller handed over, so its floor is 1: the question there is whether the
-// audit reaches a verdict, not whether the corpus is whole. The live run is held to the corpus floor.
-const vacuous = reportPopulation({
-  gate: "audit-misconceptions",
+/*
+ * THE RUN IS RETAINED THROUGH THE SAME WRITER THE BROWSER LANES USE, which prints the census in the
+ * same call, so this gate cannot report a verdict and forget to say what it examined.
+ * `gatesPersistEvidence` (am-uxh9) found this gate writing no artifact at all: its findings existed
+ * until the terminal scrolled, so a refusal could not be compared with yesterday's and a pass could
+ * not be told apart from a gate that never ran.
+ *
+ * It is written under the REPOSITORY even when `--root` pointed somewhere else, because a
+ * provability run's evidence is worth keeping and a scratch directory takes it away; the corpus
+ * actually audited is recorded beside it.
+ *
+ * A fixture is whatever the caller handed over, so its floor is 1: the question there is whether the
+ * audit reaches a verdict, not whether the corpus is whole. The live run is held to the corpus floor.
+ */
+const { vacuous } = retainLaneRun({
+  lane: "misconception-ledgers",
+  root: REPO,
   examined,
   noun: idx === -1 ? "ledger records" : "fixture ledger records",
   minimum: idx === -1 ? 20 : 1,
+  failures: report.findings
+    .filter((finding) => finding.severity === "error")
+    .map((finding) => `[${finding.check}] ${finding.recordId ?? ""} ${finding.message}`.trim()),
+  extra: {
+    auditedRoot: root === REPO ? "the repository" : root,
+    fixture: idx === -1 ? null : process.argv[idx + 1],
+    papers,
+    unjudgedSources,
+    knownAnchors: input.knownAnchors.size,
+    knownResults: input.knownResults.size,
+    knownInstruments: input.knownInstruments.size,
+    report,
+  },
 });
 
 process.exit(report.ok && !vacuous ? 0 : 1);
