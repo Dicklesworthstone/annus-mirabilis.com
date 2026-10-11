@@ -62,6 +62,16 @@ test("A MENTION IS NOT A REQUEST: a url that says worker and is not one", () => 
     ["/lab/bm-01/?view=worker", "other"],
     ["/_next/static/chunks/worker-explainer-page.css", "page"],
     ["/runtime-conformance.html?mode=worker", "page"],
+    // THE TWO am-worker-predicate-tautology-9jyk NAMES, both recorded there as outputs of the
+    // shipped function. The second was fixed when the match moved to the filename; the FIRST
+    // survived that repair, because `worker-protocol.js` is a script filename containing the token
+    // and a bare substring cannot tell a module that DEFINES the worker protocol, loaded on the
+    // main thread, from a worker.
+    ["http://127.0.0.1/apps/runtime/worker-protocol.js", "page"],
+    ["http://127.0.0.1/docs/workers-guide.html", "page"],
+    // The same shape from this repository rather than from the bead: a test file whose name begins
+    // with the token and is not a worker.
+    ["/chunks/workerLabDraftTapes.js", "page"],
   ];
   for (const [url, expected] of notWorkers) {
     assert.ok(url.toLowerCase().includes("worker"), `the control must contain the token: ${url}`);
@@ -76,6 +86,54 @@ test("the query and fragment are removed before the filename is read", () => {
   assert.equal(classifyNetworkRequest("/chunks/bm06Worker.js#top"), "worker");
   assert.equal(classifyNetworkRequest("/chunks/bundle.js?worker=1"), "page");
   assert.equal(classifyNetworkRequest("/chunks/bundle.js#worker"), "page");
+});
+
+/**
+ * THE REAL POPULATION, which am-worker-predicate-tautology-9jyk asks for by name: "what URL shapes
+ * the conformance fixture app actually issues, taken from a recorded run rather than imagined".
+ *
+ * Read off the BUILT fixture output, artifacts/e2e-fixtures/runtime/, plus the page the harness
+ * serves and the blob the app makes:
+ *
+ *   bundle.js, bundle.js.map, manifest.json
+ *   fs-annus-diffusion/<digest>/fs_annus_diffusion_bg.wasm  (two digests present)
+ *   the served html page
+ *   blob:<origin>/<uuid>  -- src/testing/runtime-fixtures/app/channel.ts builds the worker with
+ *                            `new Blob([RUNTIME_WORKER_SOURCE])` and `URL.createObjectURL`
+ *
+ * TWO THINGS THIS SETTLES. The fixture's only worker request is a BLOB, so the blob arm is the one
+ * that fires in the lane and the filename arm guards traffic this fixture never issues -- worth
+ * knowing before anyone tunes the filename rule against it. And `bundle.js` is the app's own code
+ * classified as "page": NetworkKind has no "script" member, so a page asset and a page share one
+ * name. That is the type's coarseness, not a misreading, and it is asserted here so a future
+ * reading of "page" as "an html document" fails rather than quietly misinterprets the count.
+ */
+test("the fixture app's actual requests, from the built output and the app's own worker", () => {
+  const recorded: readonly (readonly [string, string])[] = [
+    ["http://127.0.0.1:8080/apps/runtime/", "page"],
+    ["http://127.0.0.1:8080/apps/runtime/index.html", "page"],
+    ["http://127.0.0.1:8080/apps/runtime/bundle.js", "page"],
+    ["http://127.0.0.1:8080/apps/runtime/bundle.js.map", "page"],
+    ["http://127.0.0.1:8080/apps/runtime/manifest.json", "page"],
+    [
+      "http://127.0.0.1:8080/apps/runtime/fs-annus-diffusion/80a1f8fda6f69003/fs_annus_diffusion_bg.wasm",
+      "wasm",
+    ],
+    [
+      "http://127.0.0.1:8080/apps/runtime/fs-annus-diffusion/105d7ffc15414de5/fs_annus_diffusion_bg.wasm",
+      "wasm",
+    ],
+    ["blob:http://127.0.0.1:8080/3f9a1c2e-0b44-4a1f-9c7e-1d2b3a4c5d6e", "worker"],
+  ];
+  for (const [url, expected] of recorded) {
+    assert.equal(classifyNetworkRequest(url), expected, url);
+  }
+  // Non-vacuity on the population itself: it must contain at least one of each kind the gate
+  // counts, or a classifier that answered one thing for everything would pass this.
+  const kinds = new Set(recorded.map(([url]) => classifyNetworkRequest(url)));
+  assert.ok(kinds.has("wasm"), "the recorded population must include a wasm request");
+  assert.ok(kinds.has("worker"), "the recorded population must include the blob worker");
+  assert.ok(kinds.has("page"), "the recorded population must include a page request");
 });
 
 test("wasm still wins over both worker arms, which is the documented precedence", () => {

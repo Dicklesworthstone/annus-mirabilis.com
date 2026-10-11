@@ -38,6 +38,35 @@ function fileNameOf(url: string): string {
 /** Extensions a worker script can have here. `.wasm` is handled before this is consulted. */
 const SCRIPT_FILE = /\.(js|mjs|cjs|ts|mts)$/;
 
+/**
+ * Does this filename NAME a worker, rather than merely mention one (am-worker-predicate-tautology-9jyk)?
+ *
+ * `file.includes("worker")` was the test, and it still called `worker-protocol.js` a worker: a module
+ * DEFINING the worker protocol, loaded on the main thread, counted as a worker request. That was the
+ * one case of this bead's two that survived the earlier repair, because that repair narrowed the
+ * POPULATION from the whole url to the filename and left the match itself a bare substring.
+ *
+ * The convention is measurable rather than guessed. Every worker in this repository is
+ * `<something>Worker.ts` -- bm01Worker, bm08Worker, hostWorker, sr03Worker, 10 of them under
+ * src/workers/host/ -- plus the vendored `pdf.worker.min.mjs`, and NO file anywhere in src, scripts
+ * or public begins `worker-`. So the token sits at the END of a dot-separated segment of the
+ * filename, and a name that merely begins with it and carries on ("worker-protocol",
+ * "workerLabDraftTapes") is talking about workers rather than being one.
+ *
+ * Why segments and not just "ends with worker": `pdf.worker.min.mjs` carries the token in a MIDDLE
+ * segment, and a rule anchored only at the end of the basename would miss the one real worker in the
+ * tree that nobody here wrote.
+ *
+ * THE LIMIT, stated rather than discovered later: a worker named `worker-foo.js` would be missed.
+ * Nothing in this repository is named that way, and if that changes this is the function to change;
+ * the blob arm above is unaffected either way, and in the conformance fixture it is the only arm that
+ * fires, because the fixture builds its worker with `new Blob` and `URL.createObjectURL`
+ * (src/testing/runtime-fixtures/app/channel.ts).
+ */
+function namesAWorker(file: string): boolean {
+  return file.split(".").some((segment) => segment === "worker" || segment.endsWith("worker"));
+}
+
 export function classifyNetworkRequest(url: string): NetworkKind {
   const lower = url.toLowerCase();
   // EVERY EXTENSION TEST READS THE FILENAME, never the whole url. The arms below were written as
@@ -54,7 +83,7 @@ export function classifyNetworkRequest(url: string): NetworkKind {
   // recognised any other way. Kept as its own arm so it is separable from the filename test.
   if (lower.startsWith("blob:")) return "worker";
 
-  if (SCRIPT_FILE.test(file) && file.includes("worker")) return "worker";
+  if (SCRIPT_FILE.test(file) && namesAWorker(file)) return "worker";
 
   if (
     file.endsWith(".html") ||
