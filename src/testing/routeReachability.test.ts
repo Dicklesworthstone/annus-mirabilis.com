@@ -66,6 +66,21 @@ function normalizeHref(href: string): string {
   return withoutFragment.replace(/\/+$/, "") || "/";
 }
 
+/**
+ * The id index for a route, from the STATIC half of the file only.
+ *
+ * Deliberately not the whole file, unlike the inbound-link index below. A fragment a reader can
+ * reach must exist in the markup the server sent: an anchor that only appears after hydration is
+ * not somewhere a no-JavaScript reader, a print view or a crawler can land, and AGENTS.md puts the
+ * book working without JavaScript among the non-negotiable outcomes. So the two questions in this
+ * file read different halves on purpose, and each says which.
+ */
+function staticIdsOf(file: string): ReadonlySet<string> {
+  const raw = readFileSync(file, "utf8");
+  const beforePayload = raw.split("<script>self.__next_f")[0] ?? raw;
+  return new Set([...beforePayload.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1] ?? ""));
+}
+
 describe("every built route is reachable by a link from another built route", () => {
   const files = existsSync(OUT) ? htmlFiles(OUT) : [];
   const routes = new Set(files.map(routeOf));
@@ -110,6 +125,42 @@ describe("every built route is reachable by a link from another built route", ()
     );
     for (const r of unreached) console.log(`[route-reachability] UNREACHABLE ${r}`);
     expect(unreached).toEqual([]);
+  });
+
+  test("every cross-page fragment link lands on an id that exists in the target's static HTML", () => {
+    // The mirror of reachability: that test asks whether anything points AT a page, this one asks
+    // whether what a page points at is there. A renamed anchor breaks silently and in bulk -- the
+    // notation page alone emits 254 of these -- and an earlier audit on this repository found two
+    // of two cross-paper targets resolving to nothing, so this is a measured failure mode and not a
+    // hypothetical one.
+    const staticIds = new Map<string, ReadonlySet<string>>();
+    for (const file of files) staticIds.set(routeOf(file), staticIdsOf(file));
+    const dangling = new Map<string, string>();
+    let examined = 0;
+    for (const file of files) {
+      const from = routeOf(file);
+      const raw = readFileSync(file, "utf8");
+      for (const match of new Set([...raw.matchAll(/href="(\/[^"]*#[^"]+)"/g)].map((m) => m[1]))) {
+        const [path = "", rawFragment = ""] = (match ?? "").split("#");
+        const fragment = rawFragment.split("?")[0] ?? "";
+        const target = path.replace(/\/+$/, "") || "/";
+        // A link to a route that does not exist is the other test's finding, not this one's.
+        const targetIds = staticIds.get(target);
+        if (!targetIds || fragment === "") continue;
+        examined += 1;
+        if (!targetIds.has(fragment)) dangling.set(`${target}#${fragment}`, from);
+      }
+    }
+    console.log(
+      `[route-reachability] ${examined} cross-page fragment link(s) examined across ` +
+        `${staticIds.size} routes; ${dangling.size} dangling target(s)`,
+    );
+    for (const [target, from] of dangling) {
+      console.log(`[route-reachability] DANGLING ${target} (linked from ${from})`);
+    }
+    // Non-vacuity: a regex that stopped matching hrefs would examine 0 and pass. Measured 5612.
+    expect(examined).toBeGreaterThan(3000);
+    expect([...dangling].map(([target, from]) => `${target} (from ${from})`)).toEqual([]);
   });
 
   test("each route declared unlinked by design really is unlinked, and really is built", () => {
