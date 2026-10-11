@@ -39,8 +39,6 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { renderToString } from "katex";
-import { checkVoice } from "../../content/checks/voice/index.ts";
-import { findInlineMathRegions } from "../../content/editions/segmentSentences.ts";
 import { loadConcordanceForPaper } from "../../content/notation/loader.ts";
 import { isRegisteredQuantityId } from "../../content/quantities/registry.ts";
 import type { ConcordanceEntry } from "../../content/schemas/concordance.ts";
@@ -48,6 +46,7 @@ import { validateAgentReview } from "../../content/schemas/source.ts";
 import { strictParse } from "../../content/schemas/strictParse.ts";
 import { loadBilingualEdition } from "../../reader/faces/bilingualLoader.ts";
 import { type DisplayTermsEntry, displayOccurrences, loadDisplayTerms } from "./displayTerms.ts";
+import { compileProse } from "./explainerProse.ts";
 import { loadInlineExceptions } from "./inlineExceptions.ts";
 import { inlineLabelId, signSource } from "./inlineLabels.ts";
 import {
@@ -508,39 +507,18 @@ export async function checkPaperExplanations(
       }
       return { html, coloured: resolved.terms.length > 0, labelled };
     };
-    const prose = (value: string, where: string): ProsePart[] => {
-      const parts: ProsePart[] = [];
-      let cursor = 0;
-      let words = "";
-      for (const region of findInlineMathRegions(value)) {
-        if (region.start > cursor) {
-          parts.push({ kind: "text", text: value.slice(cursor, region.start) });
-          words += value.slice(cursor, region.start);
-        }
-        words += " ";
-        const drawn = draw(region.latex, where, false);
-        if (drawn !== undefined)
-          parts.push({
-            kind: "math",
-            html: drawn.html,
-            ...(drawn.coloured ? { coloured: true } : {}),
-            ...(drawn.labelled ? { labelled: true } : {}),
-          });
-        cursor = region.end;
-      }
-      if (cursor < value.length) {
-        parts.push({ kind: "text", text: value.slice(cursor) });
-        words += value.slice(cursor);
-      }
-      for (const finding of checkVoice(words, { context: "prose" }))
-        if (finding.severity === "error")
-          problem(
-            "explanation-voice",
-            display,
-            `${paper} ${display} ${where}: "${finding.matchedText}" (${finding.rule}). ${finding.suggestion}`,
-          );
-      return parts;
-    };
+    // THE SHARED LOOP (am-hk4b, explainerProse.ts). This file's copy and labExplanations.ts's were
+    // the mirror pair that file's docblock said "must move together", with extraction waiting on a
+    // third use; the discovery journeys were it. What stays here is the refusal, which names this
+    // family's code and carries the paper and display a reader of the message needs.
+    const prose = (value: string, where: string): ProsePart[] =>
+      compileProse(value, where, draw, (finding, at) =>
+        problem(
+          "explanation-voice",
+          display,
+          `${paper} ${display} ${at}: "${finding.matchedText}" (${finding.rule}). ${finding.suggestion}`,
+        ),
+      );
 
     prose(record.inWords.map((p) => p.text).join(""), "inWords");
     const r0 = prose(record.r0, "r0");

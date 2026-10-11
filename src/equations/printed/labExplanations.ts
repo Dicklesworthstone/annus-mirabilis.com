@@ -35,8 +35,6 @@
  */
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { checkVoice } from "../../content/checks/voice/index.ts";
-import { findInlineMathRegions } from "../../content/editions/segmentSentences.ts";
 import { strictParse } from "../../content/schemas/strictParse.ts";
 import type {
   CompiledExplanation,
@@ -45,6 +43,7 @@ import type {
   ProsePart,
   WordsPhrase,
 } from "./equationExplanations.ts";
+import { compileProse } from "./explainerProse.ts";
 import { labFormulaSites } from "./labFormulaSites.ts";
 import { labFormula, labScope } from "./labInlines.ts";
 
@@ -380,38 +379,18 @@ function compileOwn(
     return { html: drawn.compiled.html, coloured: drawn.compiled.terms.length > 0 };
   };
 
-  const prose = (value: string, field: string): ProsePart[] => {
-    const parts: ProsePart[] = [];
-    let cursor = 0;
-    let words = "";
-    for (const region of findInlineMathRegions(value)) {
-      if (region.start > cursor) {
-        parts.push({ kind: "text", text: value.slice(cursor, region.start) });
-        words += value.slice(cursor, region.start);
-      }
-      words += " ";
-      const drawn = draw(region.latex, field, false);
-      if (drawn !== undefined)
-        parts.push({
-          kind: "math",
-          html: drawn.html,
-          ...(drawn.coloured ? { coloured: true } : {}),
-        });
-      cursor = region.end;
-    }
-    if (cursor < value.length) {
-      parts.push({ kind: "text", text: value.slice(cursor) });
-      words += value.slice(cursor);
-    }
-    for (const finding of checkVoice(words, { context: "prose" }))
-      if (finding.severity === "error")
-        problem(
-          "lab-explanation-voice",
-          where,
-          `${where} ${field}: "${finding.matchedText}" (${finding.rule}). ${finding.suggestion}`,
-        );
-    return parts;
-  };
+  // THE SHARED LOOP (am-hk4b). This was a copy of the one in equationExplanations.ts, and the
+  // docblock at the head of this file said the two "must move together" and that extracting them
+  // "waits on a THIRD USE". The discovery journeys were that third use. What is local is the
+  // refusal: this family reports a voice error under its own code, with its own message shape.
+  const prose = (value: string, field: string): ProsePart[] =>
+    compileProse(value, field, draw, (finding, at) =>
+      problem(
+        "lab-explanation-voice",
+        where,
+        `${where} ${at}: "${finding.matchedText}" (${finding.rule}). ${finding.suggestion}`,
+      ),
+    );
 
   const inWordsRaw = Array.isArray(own.inWords) ? own.inWords : [];
   const inWords: WordsPhrase[] = inWordsRaw.flatMap((value): WordsPhrase[] => {
