@@ -73,6 +73,37 @@ describe("a field tells a reader what is wrong with the value they typed", () =>
     expect(said(boost("-1e300"))).toBe(BOOST_TOO_LARGE);
   });
 
+  /**
+   * THE REFUSAL CARRIES A REGISTERED CODE, which is what lets a lab mark its readouts stale.
+   *
+   * `requirement` is the sentence beside the field and carries no code, so a form refused here
+   * could reach no currency surface: eight lab components call this function and every one did
+   * `setError(x.requirement)` alone. The two codes are the registry's own, both `domainKind:
+   * "input"`, and which one applies follows the distinction this file already pins: NaN means no
+   * number was typed (invalid-parameter), an infinity means one too large to represent
+   * (nonfinite-input). Asserted by CODE rather than by message, because the message is the
+   * registry's and a test on it would pin the registry's wording here as well.
+   */
+  test("a refused field carries the registered code for its kind of failure", () => {
+    const notANumber = readTypedNumber("abc", "the boost speed");
+    expect(notANumber.kind).toBe("refused");
+    if (notANumber.kind !== "refused") return;
+    expect(notANumber.refusal.code).toBe("invalid-parameter");
+    expect(notANumber.refusal.domainKind).toBe("input");
+    // The specific sentence rides as the repair, so nothing a reader needs is lost to the code.
+    expect(notANumber.refusal.rankedRepairs[0]?.label).toBe(notANumber.requirement);
+    expect(notANumber.refusal.details?.field).toBe("the boost speed");
+
+    const tooLarge = readTypedNumber("1e400", "the boost speed", (v) => v * C_SI, BOOST_TOO_LARGE);
+    expect(tooLarge.kind).toBe("refused");
+    if (tooLarge.kind !== "refused") return;
+    expect(tooLarge.refusal.code).toBe("nonfinite-input");
+    expect(tooLarge.refusal.rankedRepairs[0]?.label).toBe(BOOST_TOO_LARGE);
+
+    // The two kinds do NOT share a code, which is the whole point of distinguishing them.
+    expect(notANumber.refusal.code).not.toBe(tooLarge.refusal.code);
+  });
+
   test("an ordinary number is still read, in the stored unit", () => {
     // The negative control. Every assertion above is about a refusal, and a reader that refused
     // everything would satisfy all of them.
