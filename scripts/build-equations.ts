@@ -7,7 +7,13 @@ import { loadFirstUseTargets, resolveFirstUse } from "../src/app/notation/firstU
 import { compileReadingContent } from "../src/content/compiler/compile.ts";
 import { loadConcordanceForPaper } from "../src/content/notation/loader.ts";
 import { getQuantity } from "../src/content/quantities/registry.ts";
-import { discoverInlineViews } from "../src/discovery/journeyFormulaList.ts";
+import {
+  compileJourneyExplainers,
+  journeyExplainerCensusLine,
+} from "../src/discovery/journeyExplainerPayload.ts";
+import { discoverInlineViews, PAGE_FORMULAS } from "../src/discovery/journeyFormulaList.ts";
+import { ARGUMENT_STEPS } from "../src/discovery/massEnergyArgument.ts";
+import { RELATIVITY_CARDS } from "../src/discovery/specialRelativityInvestigation.ts";
 import { citedLessonTitles } from "../src/equations/citedLessonTitles.ts";
 import { buildMassEnergyElimination } from "../src/equations/derivations/massEnergyElimination.ts";
 import { buildMassEnergyLowSpeed } from "../src/equations/derivations/massEnergyLowSpeed.ts";
@@ -234,6 +240,22 @@ const sourcePaths = [
   "src/equations/derivations/linearCertificate.ts",
   "src/equations/derivations/massEnergyElimination.ts",
   "src/content/dimensions/rational.ts",
+  // THE JOURNEY EXPLAINERS (am-hk4b). Their payload is one of this build's outputs, so a changed
+  // record or a changed compile has to invalidate the digest the payload carries; without these a
+  // reader could be served yesterday's words under today's digest.
+  "src/content/journeyExplanations.ts",
+  "src/discovery/journeyExplainerPayload.ts",
+  "src/equations/printed/explainerProse.ts",
+  ...[
+    "brownian-motion",
+    "light-quanta",
+    "light-quanta-investigate",
+    "mass-energy",
+    "mass-energy-investigate",
+    "special-relativity-investigate",
+  ]
+    .map((file) => `content/journey-explanations/${file}.yaml`)
+    .filter(existsSync),
   "scripts/build-equations.ts",
   "package.json",
 ];
@@ -657,6 +679,48 @@ const labOwnExplainers = [...labExplanations.explainers.values()].flatMap((drawn
   [...drawn.values()].filter((e) => !e.display && e.equation),
 );
 
+/*
+ * THE DISCOVERY JOURNEYS' FORMULA EXPLANATIONS (am-hk4b criterion 5).
+ *
+ * 39 authored entries that no reader could reach: the site list, the renderer and the panel all
+ * existed and only this join was missing. `displayRecord` is the records just compiled in this
+ * process, not the payload on disk, for the reason labExplanations.ts gives -- at this moment the
+ * file still holds the previous run's, and a journey would otherwise reuse a record that no longer
+ * exists.
+ */
+const journeySites = new Map<string, string>([
+  ...ARGUMENT_STEPS.map(
+    (step) => [`discover/mass-energy/investigate|${step.id}`, step.latex] as const,
+  ),
+  ...RELATIVITY_CARDS.map(
+    (card) => [`discover/special-relativity/investigate|${card.id}`, card.formula] as const,
+  ),
+]);
+const journeyExplainers = compileJourneyExplainers(process.cwd(), {
+  sites: journeySites,
+  pageFormulaLatex: new Set(Object.values(PAGE_FORMULAS).map((formula) => formula.latex)),
+  pageFormulaKey: (latex) =>
+    Object.entries(PAGE_FORMULAS).find(([, formula]) => formula.latex === latex)?.[0],
+  isRegisteredQuantity: (id) => getQuantity(id) !== undefined,
+  displayRecord: (paper, display) => freshDisplayRecords.get(`${paper}\u0000${display}`),
+});
+console.log(
+  JSON.stringify({
+    event: "journey-explanations",
+    ...journeyExplainers.census,
+    drawn: journeyExplainers.drawn,
+    problems: journeyExplainers.problems.length,
+  }),
+);
+if (journeyExplainers.problems.length > 0)
+  throw new Error(
+    `content/journey-explanations/:\n${journeyExplainers.problems.map((p) => `  ${p}`).join("\n")}`,
+  );
+/** A journey entry with its own words needs its own fragment; a display reuse shares the display's. */
+const journeyOwnExplainers = Object.values(journeyExplainers.payload.pages).flatMap((byLatex) =>
+  Object.values(byLatex).filter((levels) => !levels.display && levels.equation),
+);
+
 const explainerFragments = [
   ...equationExplanations.flatMap((e) => e.explanations),
   // A model equation explained from its own record has a fragment of its own; one explained from a
@@ -669,6 +733,9 @@ const explainerFragments = [
   // not carried by the lab page. One whose words are a printed display's does not, because it
   // travels under that display's id and shares the fragment the reading face fetches.
   ...labOwnExplainers,
+  // A journey step's gloss and a journey's own record carry words the discover page does not, for
+  // the same reason a lab's own record does.
+  ...journeyOwnExplainers,
 ].map((explanation) => explainerFragment(explanation));
 for (const dir of new Set(explainerFragments.map((f) => dirname(f.path))))
   await mkdir(dir, { recursive: true });
@@ -681,6 +748,27 @@ console.log(
     bytes: explainerFragments.reduce((n, f) => n + f.json.length, 0),
   }),
 );
+/*
+ * THE DISCOVER PAGES' VIEW OF THEIR EXPLAINERS (am-hk4b). Each page keeps the equation in words and
+ * the NAMES of the levels; the levels themselves are in the fragments written above, fetched on
+ * first expansion, exactly as a reading face and a lab page keep theirs (dispatch 292).
+ */
+await writeFile(
+  "src/generated/journey-explanations.json",
+  `${JSON.stringify({
+    schemaVersion: 1,
+    rendererDigest,
+    pages: Object.fromEntries(
+      Object.entries(journeyExplainers.payload.pages).map(([page, byLatex]) => [
+        page,
+        Object.fromEntries(
+          Object.entries(byLatex).map(([latex, levels]) => [latex, inlineExplanation(levels)]),
+        ),
+      ]),
+    ),
+  })}\n`,
+);
+
 await writeFile(
   "src/generated/equation-explanations.json",
   `${JSON.stringify({

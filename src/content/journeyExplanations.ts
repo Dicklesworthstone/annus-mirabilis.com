@@ -94,6 +94,21 @@ export type JourneyExplanationEntry = Readonly<{
   inWords: readonly WordsPhrase[];
   /** The reading levels present, by name, so a caller can report what an entry carries. */
   levels: readonly string[];
+  /**
+   * The authored level VALUES, so a build can compile them without re-reading the YAML.
+   *
+   * ONE READER OF THE FAMILY IS THE POINT. The payload build needs the words, not only which
+   * levels exist, and a second reader of one corpus drifts while both keep printing a plausible
+   * number -- the defect the readings loader was consolidated to avoid earlier in this campaign.
+   * For an `own` entry these are its `own` fields; for a step gloss they are the entry's own.
+   * `r2` is a step list and the rest are prose, which is why they are not one type.
+   */
+  readings: Readonly<{
+    r0?: string | undefined;
+    r1?: string | undefined;
+    r2?: readonly Readonly<{ latex: string; why: string }>[] | undefined;
+    r3?: string | undefined;
+  }>;
 }>;
 
 export type JourneyExplanationCensus = Readonly<{
@@ -381,6 +396,19 @@ export function checkJourneyExplanations(
           );
       }
 
+      const source = kind === "own" ? (own ?? {}) : entry;
+      const readingText = (level: string): string | undefined =>
+        typeof source[level] === "string" && source[level] !== ""
+          ? (source[level] as string)
+          : undefined;
+      const r2Steps = Array.isArray(source.r2)
+        ? source.r2.flatMap((raw) => {
+            const step = (raw ?? {}) as { latex?: unknown; why?: unknown };
+            return typeof step.latex === "string" && typeof step.why === "string"
+              ? [{ latex: step.latex, why: step.why }]
+              : [];
+          })
+        : undefined;
       entries.push({
         page,
         kind,
@@ -389,6 +417,12 @@ export function checkJourneyExplanations(
         ...(kind === "display" ? { display: entry.display as string } : {}),
         inWords,
         levels,
+        readings: {
+          ...(readingText("r0") === undefined ? {} : { r0: readingText("r0") }),
+          ...(readingText("r1") === undefined ? {} : { r1: readingText("r1") }),
+          ...(r2Steps === undefined || r2Steps.length === 0 ? {} : { r2: r2Steps }),
+          ...(readingText("r3") === undefined ? {} : { r3: readingText("r3") }),
+        },
       });
     }
   }
