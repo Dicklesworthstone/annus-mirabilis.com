@@ -337,6 +337,23 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     },
     owner: "am-8gbg",
   },
+  // measured 39 journey-formula entries in 6 files (minimum 30), 28 of 28 declared derivation steps
+  // and 11 of 11 declared page formulas glossed, 128 bound phrases naming 47 quantities, exit 0.
+  // The family had NO reader of any kind before this: no loader, no renderer, no test, no checker,
+  // so a quantityId naming nothing or a step naming no step would have sat there indefinitely.
+  {
+    id: "journey-explanations",
+    title: "Discovery journey formula explanations",
+    command: ["bun", "scripts/check-journey-explanations.ts"],
+    family: "fast",
+    cadence: "every-run",
+    requiredInCi: true,
+    requiredInProfiles: ["scaffold", "preview", "launch"],
+    availability: {
+      scriptPath: "scripts/check-journey-explanations.ts",
+    },
+    owner: "am-hk4b",
+  },
   // 5f. THE SIX BROWSER LANES (am-rc1001-bridge-plan-pcjk.18 criterion 1: "`--family browser` runs
   // all six lanes ... and each prints its examined population").
   //
