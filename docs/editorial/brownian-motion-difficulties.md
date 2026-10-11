@@ -97,7 +97,13 @@ Each flag ends with a watch-list result (`pending`, `matches`, `differs`, or `no
 - `flag:s5-printed-numbers` matches `s5-p2-s1`
 - `flag:s5-printed-units` matches `s5-p2-s2` Mikron
 - `flag:r-not-printed` matches `s5-p1-s1`
-- `flag:intro-uncertainty` matches `s0-p1-s3`
+- `flag:intro-uncertainty` matches `s0-p1-s2`  <!-- s0-p1-s3 until 2026-10-11: that id does not exist in this paper and is in no alias.
+       brownian-motion's introduction has s0-p1-s1/s2 and s0-p2-s1/s2 only; s0-p1-s3 exists in
+       light-quanta and special-relativity, whose introductions run to three sentences. The
+       uncertainty is the SECOND sentence of the first paragraph: s0-p1.yaml's diplomaticText
+       holds two sentences and the second is 'Es ist möglich, daß ... die mir erreichbaren
+       Angaben über letztere sind jedoch so ungenau, daß ich mir hierüber kein Urteil bilden
+       konnte.', and content/gloss-units/brownian-motion/s0-p1-s2.yaml glosses 'ungenau'. -->
 - `flag:velocity-warning` not-found
 - `flag:s4-tau-coarse-graining` matches `s4-p3-s1`
 - `flag:dates` matches `closing-dateline` `closing-received`
