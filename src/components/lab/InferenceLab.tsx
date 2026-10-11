@@ -17,6 +17,7 @@ import { BM07_DRAFT_TAPE } from "../../experiments/bm07/draftTape.ts";
 import { inferenceObservationCsv } from "../../experiments/bm07/export.ts";
 import { decodeBm07Settings } from "../../experiments/bm07/permalink.ts";
 import { createBm07Session, type PreparedBm07Example } from "../../experiments/bm07/session.ts";
+import { CurrencyForView } from "../../experiments/labels/CurrencyForView.tsx";
 import {
   executionLabelFor,
   executionStateKindFromHostLabel,
@@ -232,6 +233,20 @@ export function InferenceLab({
             ? "Synthetic recovery · host calculation"
             : executionLabelFor(executionKind).text}
         </span>
+        {/*
+         * THE CURRENCY HALF OF THE CHROME THIS LAB DOES NOT RENDER (am-m79c).
+         *
+         * The badge above is hand-written ("Synthetic recovery · host calculation"), so this lab
+         * mounts no `ExecutionChrome` and a refused form had no element to mark. am-m79c named this
+         * lab as the one that "cannot be finished the same way, because there is nothing to move --
+         * the lab has no currency element at any position". This is that element.
+         *
+         * In the heading, so outside every predict-gated region.
+         */}
+        <CurrencyForView
+          view={view}
+          validationRefusal={failure?.kind === "refused" ? failure.refusal : null}
+        />
       </header>
       <noscript>
         <p className="notice">

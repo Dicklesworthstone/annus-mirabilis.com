@@ -26,6 +26,7 @@ import { fixed } from "./presentation.ts";
 import { withScripts } from "./subscripts.tsx";
 import "./rodSimultaneityLab.css";
 import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
+import { CurrencyForView } from "../../experiments/labels/CurrencyForView.tsx";
 import {
   type ApplyFailure,
   applyFailure,
@@ -290,6 +291,20 @@ export function RodSimultaneityLab({
             <h2 id={`${id}-title`}>{title}</h2>
           </div>
           <ExecutionLabel state={executionKind} />
+          {/*
+           * THE CURRENCY HALF OF THE CHROME THIS LAB DOES NOT RENDER (am-m79c).
+           *
+           * This lab mounts `ExecutionLabel` directly rather than `ExecutionChrome`, so it had the
+           * engine label and not the currency indicator, and a refused form marked nothing. Adopting
+           * the whole chrome would add a model note and its layout to this heading; the currency
+           * half alone is a single <p>.
+           *
+           * In the heading, so outside every predict-gated region.
+           */}
+          <CurrencyForView
+            view={view}
+            validationRefusal={failure?.kind === "refused" ? failure.refusal : null}
+          />
         </div>
       </header>
 

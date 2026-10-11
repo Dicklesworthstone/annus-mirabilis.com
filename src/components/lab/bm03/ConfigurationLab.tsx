@@ -34,6 +34,7 @@ import { fixed, identity, numberText, readablePowers, sentenceNumber } from "../
 import { ConfigurationPlot } from "./ConfigurationPlot.tsx";
 import "./bm03.css";
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
+import { CurrencyForView } from "../../../experiments/labels/CurrencyForView.tsx";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { LabMargin } from "../LabMargin.tsx";
@@ -202,6 +203,21 @@ export function ConfigurationLab({
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
         <span className="badge">{executionLabelFor(executionKind).text}</span>
+        {/*
+         * THE CURRENCY HALF OF THE CHROME THIS LAB DOES NOT RENDER (am-m79c).
+         *
+         * This lab writes its own execution label (the badge above) and mounts no `ExecutionChrome`,
+         * so until now a refused form had no element to mark: the reader was told why the settings
+         * were refused and not that the numbers beside the message belong to the previous ones.
+         * AGENTS.md: "Never display old numbers beneath new labels."
+         *
+         * In the heading, beside the label, and therefore outside every predict-gated region --
+         * which `src/testing/predictGateHidesOnlyTheResponse.test.tsx` asserts for all 33 labs.
+         */}
+        <CurrencyForView
+          view={view}
+          validationRefusal={failure?.kind === "refused" ? failure.refusal : null}
+        />
       </header>
 
       <noscript>
