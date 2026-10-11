@@ -247,14 +247,20 @@ describe("how many declared domains validateDomain can actually enforce", () => 
   test("a numeric enumerated list is unchanged, and a numeric string is not a member of it", () => {
     // The control for the repair above: widening the comparison must not make a numeric domain
     // accept the string spelling of one of its members, which is what a loose `==` would do.
-    const numeric = all.find(
-      (p) =>
-        classify(p.spec) === "enumerated-number" &&
-        (p.spec.modelDomain?.enumerated as never[]).length > 0,
-    );
+    // NO CAST OVER AN OPTIONAL CHAIN. This read
+    // `(p.spec.modelDomain?.enumerated as never[]).length > 0`, which throws a TypeError on any
+    // parameter declaring no `modelDomain` at all: the cast told TypeScript the chain could not
+    // short-circuit, so only Biome's noUnsafeOptionalChaining saw it. Narrow instead of asserting.
+    const numeric = all.find(({ spec }) => {
+      if (classify(spec) !== "enumerated-number") return false;
+      const members = spec.modelDomain?.enumerated;
+      return Array.isArray(members) && members.length > 0;
+    });
     expect(numeric).toBeDefined();
-    const members = numeric?.spec.modelDomain?.enumerated as readonly number[];
-    expect(validateDomain(numeric?.spec as never, members[0] as number).valid).toBe(true);
-    expect(validateDomain(numeric?.spec as never, String(members[0]) as never).valid).toBe(false);
+    const members = (numeric?.spec.modelDomain?.enumerated ?? []) as readonly number[];
+    const first = members[0];
+    expect(typeof first).toBe("number");
+    expect(validateDomain(numeric?.spec as never, first as number).valid).toBe(true);
+    expect(validateDomain(numeric?.spec as never, String(first) as never).valid).toBe(false);
   });
 });
