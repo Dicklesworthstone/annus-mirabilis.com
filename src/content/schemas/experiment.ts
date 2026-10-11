@@ -51,7 +51,22 @@ export type ModelDomain = Readonly<{
   max?: number | undefined;
   minInclusive?: boolean | undefined;
   maxInclusive?: boolean | undefined;
-  enumerated?: readonly number[] | undefined;
+  /**
+   * The admitted members of a categorical or discrete domain.
+   *
+   * STRINGS ARE ADMITTED BECAUSE THE CORPUS ALREADY HOLDS THEM (am-hr4z). This read
+   * `readonly number[]` while 15 declared parameters carried string members -- me-01's `notation`
+   * as `["printed", "modern"]`, its three cancel toggles as `["true", "false"]`, sr-07's
+   * `equationId` as a six-way categorical. Nothing rejected them, so the type did not describe the
+   * data and `validateDomain` compared every member on a numeric basis: no number is "printed", so
+   * those controls refused their own domains. Widening the type is what lets the comparison be
+   * written correctly rather than a new capability.
+   *
+   * An EMPTY list is a declared debt, not a domain: `validateDomain` cannot enforce one and falls
+   * through to min/max, which for 27 parameters are also absent. `domainCoverage.test.ts` holds
+   * that count as a ceiling; am-hr4z carries the decision about what replaces them.
+   */
+  enumerated?: readonly (number | string)[] | undefined;
   reason?: string | undefined;
 }>;
 

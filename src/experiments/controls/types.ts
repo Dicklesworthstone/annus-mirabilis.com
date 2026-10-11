@@ -32,7 +32,7 @@ export interface DomainValidationResult {
   readonly max?: number | undefined;
   readonly minInclusive?: boolean | undefined;
   readonly maxInclusive?: boolean | undefined;
-  readonly enumerated?: readonly number[] | undefined;
+  readonly enumerated?: readonly (number | string)[] | undefined;
 }
 
 export interface OffGridDecision {
