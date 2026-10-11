@@ -115,6 +115,20 @@ export function SemanticEquation({
    * A ref keeps the highlight exactly as it was and removes the render, so the span the pointer
    * pressed is still there when the pointer is released. The guard also skips the work when the
    * pointed quantity has not changed, which is the common case while a pointer moves within one term.
+   *
+   * THAT LAST SYMPTOM HAD A SECOND CAUSE, AND THIS REPAIR DID NOT FIX IT (am-fheb). The sentence
+   * above about "Patterns instead of colour" reads as settled and was not: with the ref in place,
+   * the press STILL did nothing on the first attempt, and `scripts/test-equation-browser.mjs` failed
+   * on it until 2026-10-08. The mechanism was different and is recorded at the tools row below --
+   * the keyboard help sat ABOVE that row and is shown only on `:focus-within`, so pressing a tools
+   * button moved focus out of the formula, the paragraph left the flow, and the button moved up 57px
+   * between mousedown and mouseup. Same shape of failure, different reason: there the pressed NODE
+   * was destroyed, here the pressed node MOVED.
+   *
+   * Both are in the same family, which is why they were confused for one: a click is synthesised
+   * only when mousedown and mouseup resolve to the same node, and anything that re-renders or
+   * reflows the pressed element mid-press breaks it. Fixing one of the two left the reader's
+   * complaint intact, so neither docblock should be read as covering the other.
    */
   const pointed = useRef<string | null>(null);
   const point = (next: string | null): void => {
