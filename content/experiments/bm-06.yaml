@@ -552,7 +552,7 @@ presets:
       t: 1
       lower: -9.267573576724385e-7
       upper: 9.267573576724385e-7
-      gridEnabled: 0
+      gridEnabled: false
       n: 101
       dx: 1e-7
       steps: 250
@@ -565,7 +565,7 @@ presets:
       t: 0
       lower: -1e-6
       upper: 1e-6
-      gridEnabled: 0
+      gridEnabled: false
       n: 101
       dx: 1e-7
       steps: 250
@@ -578,7 +578,7 @@ presets:
       t: 1
       lower: -1e-6
       upper: 1e-6
-      gridEnabled: 1
+      gridEnabled: true
       n: 101
       dx: 1e-7
       steps: 1
