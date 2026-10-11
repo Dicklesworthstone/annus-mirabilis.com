@@ -462,10 +462,25 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
    * not a number, nonfinite-input for one too large to represent, both already defined and both
    * `domainKind: "input"`), and the five labs pass the refusal to their chrome.
    *
-   * THE SIX THAT STILL MARK NOTHING are me-01, me-02, me-03, sr-01, sr-05 and sr-11, and none of
-   * them calls `readTypedNumber`, so this change could not reach them: they refuse by another route,
-   * and sr-05 has no typed field at all (the sweep names it). That is the next unit, not an omission
-   * of this one.
+   * THEN 27 TO 32, which is every lab that can refuse a form. The six that remained refused by
+   * routes the typed-field repair could not reach, and each had its refusal in hand already:
+   *
+   *   me-02  session, validator and both typed fields all carried one; only the chrome lacked it.
+   *   sr-01  tracked `refusalCode` as a STRING, which reaches `data-refusal-code` and is not
+   *          something CurrencyForView can read. The object was beside it.
+   *   me-01  three hand-rolled guards that already NAMED their codes; two named registered ones
+   *          (`nonfinite-input`, `superluminal-observer`), so their refusals are built from the
+   *          codes this lab's author chose rather than from a code picked here.
+   *   me-03  pulled `requirements` and `code` out of `outcome.refusal.details` and discarded the
+   *          refusal itself.
+   *   sr-11  session path only; its typed guard hand-rolls the parse readTypedNumber performs, and
+   *          swapping it would reprint sentence-initial field labels mid-sentence, so that is left
+   *          to whoever owns the lab's wording.
+   *
+   * THE ONE THAT MARKS NOTHING IS SR-05, and it is the honest kind of absence: it has no form
+   * refusal path at all -- zero `setError`, zero `refusalSentence`, and the sweep names it as the
+   * only lab with no typed field. There is nothing for a refusal to mark because no refusal can be
+   * raised. If sr-05 ever gains a form, this set is where that shows up.
    */
   const RECORDED_STALENESS_MARKING = [
     "bm-01",
@@ -485,6 +500,10 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
     "lq-07",
     "lq-08",
     "lq-09",
+    "me-01",
+    "me-02",
+    "me-03",
+    "sr-01",
     "sr-02",
     "sr-03",
     "sr-04",
@@ -493,6 +512,7 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
     "sr-08",
     "sr-09",
     "sr-10",
+    "sr-11",
     "sr-12",
     "sr-13",
   ];
