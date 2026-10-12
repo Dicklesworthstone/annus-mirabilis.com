@@ -263,13 +263,30 @@ export function packageOfflineChapter(
   const appendix = foundations
     .map((foundation) => {
       for (const name of foundation.citations) neededCitations.add(name);
-      // The parts and headings FoundationBody renders on the lesson's own page. The prerequisite
-      // links printed the record id ("Prerequisite: mean-variance-rms"); the closure holds every
-      // prerequisite, so each link carries its lesson's title.
+      // The parts and headings FoundationBody renders on the lesson's own page.
+      //
+      // A prerequisite is linked LOCALLY only when the closure actually carries it. This comment
+      // used to read "the closure holds every prerequisite, so each link carries its lesson's
+      // title", and `collectChapterFoundations` above contradicts that premise in its own loop:
+      // it skips a `cross-link` prerequisite deliberately, because a see-also edge is not needed
+      // to follow this lesson and pulling it in would drag its whole closure into the file.
+      //
+      // So a cross-link fell through the `?? pId` fallback and shipped a DEAD local anchor
+      // labelled with the bare record id. Measured on brownian-motion s4: `exponentials` names
+      // `logarithms` as a cross-link, and the saved chapter carried
+      // `<a href="#foundation-logarithms">logarithms</a>` beside eighteen embedded lessons and no
+      // such section. One broken anchor in twenty, and the only one whose text was an id rather
+      // than a title, which is the tell that the record was never in the bundle.
+      //
+      // It now reads as what it is, in the voice this file already uses for a laboratory it does
+      // not include: the real title, said plainly, with an explicit online link and no local
+      // anchor. An offline file must not offer a reader a section it does not contain.
       const prerequisites = foundation.prerequisites.map((p) => {
         const pId = typeof p === "string" ? p : p.foundationId.replace(/^foundation:/, "");
-        const title = foundations.find((f) => f.id === pId)?.title ?? pId;
-        return `<li><a href="#foundation-${id(pId)}">${e(title)}</a></li>`;
+        const included = foundations.find((f) => f.id === pId);
+        if (included) return `<li><a href="#foundation-${id(pId)}">${e(included.title)}</a></li>`;
+        const title = input.foundations.find((f) => f.id === pId)?.title ?? pId;
+        return `<li>${e(title)}: not included in this file. <a rel="noreferrer" href="${OFFLINE_ORIGIN}/foundations/${id(pId)}/">Open it online</a></li>`;
       });
       const example = foundation.exampleTitle
         ? `Worked example: ${e(foundation.exampleTitle)}`
