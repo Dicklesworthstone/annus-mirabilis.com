@@ -1,0 +1,10 @@
+{
+  "schema_version": "br.wal_index.quarantine.v1",
+  "database_path": "/Users/jemanuel/projects/annus-mirabilis.com/.beads/beads.db",
+  "reason": "initialized-zero-page-wal-index",
+  "main_sha256": "3562e3c6a6ff68a4fab84c8e0d2b59557b981b37d1cf7b65a987ca87aeebe1c4",
+  "wal_sha256": "9484d5098412364a4aa8d41b513db2e2df31ff291c3efea4acefcf591d57667a",
+  "shm_sha256": "75f25efbeb8860ba480b4375315a990c7d9d9479412be52e559762623ca5dd53",
+  "retained_index": "/Users/jemanuel/projects/annus-mirabilis.com/.beads/.br-wal-index-UIm6oE/poisoned-shm",
+  "completion_marker": "quarantine-complete.json"
+}
