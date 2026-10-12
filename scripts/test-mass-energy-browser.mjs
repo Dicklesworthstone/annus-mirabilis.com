@@ -4,6 +4,7 @@ import { createServer } from "node:http";
 import { extname, resolve, sep } from "node:path";
 import AxeBuilder from "@axe-core/playwright";
 import { chromium } from "playwright";
+import { reportPopulation } from "./gate-census/population.ts";
 
 const root = resolve("out");
 const types = {
@@ -250,6 +251,31 @@ try {
     "artifacts/browser/mass-energy-checks.json",
     `${JSON.stringify(evidence, null, 2)}\n`,
   );
+  /*
+   * THE CENSUS LINE THE META-GATE PARSES (am-rc1001-bridge-plan-pcjk.9).
+   *
+   * `scripts/gate-census.ts` reads a gate's population out of the greppable `examined N <noun>`
+   * line and nothing else, deliberately, so that a census never trusts a number written in a record
+   * about a gate rather than printed by the gate. Without this line this harness had no census
+   * record it could have.
+   *
+   * IT IS IN THE `finally`, which is the whole reason it is useful here. This harness has no
+   * per-check try/catch -- a throwing check aborts the run -- so the count printed is the number of
+   * checks that REACHED A VERDICT, and an abort after two of five reports two against a floor of
+   * five and refuses. A line printed only on the success path would have said five or nothing.
+   */
+  const passed = evidence.filter((row) => row.outcome === "passed").length;
+  if (
+    reportPopulation({
+      gate: "mass-energy-browser",
+      examined: passed,
+      noun: "registered browser checks",
+      // Five are registered today, and the floor is the full set: one browser launch reaches all of
+      // them, so there is no condition under which a smaller number is the correct answer.
+      minimum: 5,
+    })
+  )
+    process.exitCode = 1;
   await browser.close();
   await new Promise((resolve) => server.close(resolve));
 }

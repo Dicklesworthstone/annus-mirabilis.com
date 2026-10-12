@@ -4,6 +4,7 @@ import { createServer } from "node:http";
 import { extname, resolve, sep } from "node:path";
 import AxeBuilder from "@axe-core/playwright";
 import { chromium } from "playwright";
+import { reportPopulation } from "./gate-census/population.ts";
 import { checkCameraBrowser } from "./test-camera-browser.mjs";
 import { checkConcordanceAnchorBrowser } from "./test-concordance-anchor-browser.mjs";
 import { checkEquationBrowser } from "./test-equation-browser.mjs";
@@ -226,9 +227,31 @@ console.log(
     evidenceRecorded: evidence.length,
   }),
 );
+/*
+ * THE CENSUS LINE THE META-GATE PARSES (am-rc1001-bridge-plan-pcjk.9).
+ *
+ * The verdict above already names its denominator, which is most of the point, but
+ * `scripts/gate-census.ts` reads a gate's population out of the greppable `examined N <noun>` line
+ * and nothing else -- deliberately, so that a census never trusts a number written in a record
+ * about a gate rather than printed by the gate. Without this line this lane had no census record it
+ * could have, because a record would have been a declaration with nothing to compare against.
+ *
+ * The CHECKS are the denominator rather than the assertions inside them: each registered check
+ * drives a real page, so a run that reached nine checks and asserted nothing is a different failure
+ * from a run that reached two, and only the second is invisible without this.
+ */
+const vacuous = reportPopulation({
+  gate: "lab-browser",
+  examined: attempted,
+  noun: "registered browser checks",
+  // Nine are registered today. The floor is the full set because every one of them is reached by
+  // the same single browser launch: there is no condition under which a smaller number is correct.
+  minimum: 9,
+});
 if (failures.length > 0) {
   console.error(
     `${failures.length} of ${attempted} registered browser checks failed: ${failures.map((f) => f.check).join(", ")}`,
   );
   process.exitCode = 1;
 }
+if (vacuous) process.exitCode = 1;

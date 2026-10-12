@@ -998,6 +998,33 @@ export const CENSUS_RECORDS: readonly CensusRecord[] = [
       ),
     ],
   },
+  {
+    gate: "mass-energy-browser",
+    noun: "registered browser checks",
+    howRead:
+      "The checks that REACHED A VERDICT, counted from the evidence array in the harness's `finally`. " +
+      "This harness has no per-check try/catch -- a throwing check aborts the run -- so an abort " +
+      "after two of five reports two against a floor of five and refuses, where a line printed only " +
+      "on the success path would have said five or nothing. The CHECKS are the denominator rather " +
+      "than the assertions inside them: a run that reached two checks and asserted nothing is a " +
+      "different failure from one that reached five, and only the first is invisible without this.",
+    gateRefusesVacuous: true,
+    plants: [
+      minimumPlant("mass-energy-browser", "scripts/test-mass-energy-browser.mjs", 5, "VACUOUS"),
+    ],
+  },
+  {
+    gate: "lab-browser",
+    noun: "registered browser checks",
+    howRead:
+      "`attempted`, incremented as each registered check is run, printed beside the lane's own " +
+      "verdict line. Nine are registered today and the floor is the full set, because one browser " +
+      "launch reaches all of them: there is no condition under which a smaller number is the " +
+      "correct answer. Each check runs in its own try/catch, so a failure is reported and the count " +
+      "still reflects every check attempted.",
+    gateRefusesVacuous: true,
+    plants: [minimumPlant("lab-browser", "scripts/test-lab-browser.mjs", 9, "VACUOUS")],
+  },
 ];
 
 export function recordFor(gate: string): CensusRecord | undefined {
