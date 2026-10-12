@@ -37,6 +37,7 @@ import { createServer } from "node:http";
 import { dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
+import { reportPopulation } from "../gate-census/population.ts";
 import {
   BROWSER_BUDGET_DIR,
   BROWSER_BUDGET_PREFIX,
@@ -339,9 +340,40 @@ async function main() {
     artifact.layoutShift?.overBudget ? "layout-shift" : null,
     artifact.interactionLatency?.overBudget ? "interaction-latency-p75" : null,
   ].filter((x) => x !== null);
-  console.log(
-    `[census] browser-budgets drove ${ROUTES.length} built routes for ${rows.length} of 3 rows (minimum 1): ${rows.join(", ")}`,
-  );
+  /*
+   * TWO CENSUS LINES IN THE GRAMMAR THE META-GATE PARSES (am-rc1001-bridge-plan-pcjk.9).
+   *
+   * This printed `[census] browser-budgets drove 5 built routes for 3 of 3 rows (minimum 1): ...`,
+   * which LOOKS like a census line and is not one. `parsePopulationLines` returns it as MALFORMED --
+   * "does not match [census] <gate> examined ..." -- for two reasons at once: the verb is `drove`
+   * rather than `examined`, and the gate name is `browser-budgets` where the registry step is
+   * `perf-browser-budgets`. A gate that appears to report its population and whose report nothing
+   * can read is the defect that census exists for, wearing the census's own clothes.
+   *
+   * BOTH NUMBERS ARE KEPT, as two lines, because each catches an absence the other cannot and the
+   * gate's consumer already prints two of its own:
+   *   - the ROUTES are the surface. Driving one route instead of five still measures all three
+   *     rows, so a lost route is invisible in the row count.
+   *   - the ROWS are the budget set. Measuring five routes and producing one row is invisible in
+   *     the route count.
+   * `reportPopulation` writes both, so the wording is the uniform one and not this file's.
+   */
+  const vacuousRoutes = reportPopulation({
+    gate: "perf-browser-budgets",
+    examined: ROUTES.length,
+    noun: "built routes driven",
+    minimum: ROUTES.length,
+  });
+  const vacuousRows = reportPopulation({
+    gate: "perf-browser-budgets",
+    examined: rows.length,
+    // All three are measured by this script on every run: there is no condition under which a
+    // smaller number is the correct answer, so the floor is the full set rather than the 1 the old
+    // line declared.
+    noun: "browser-driven budget rows",
+    minimum: 3,
+  });
+  console.log(`[browser-budgets] rows measured: ${rows.join(", ")}`);
   console.log(
     `[browser-budgets] build ${buildId}; ${artifact.visibleTextMath ? `visible-text-math ok=${artifact.visibleTextMath.ok}` : "visible-text-math not measured"}; ${
       artifact.layoutShift
@@ -354,6 +386,16 @@ async function main() {
     }`,
   );
   console.log(`[browser-budgets] wrote ${path}`);
+  // The gate already refused a run with NO row. The two censuses above widen that to a run with
+  // FEWER rows or routes than it declares, which is the same proposition at a finer grain: one row
+  // of three is not evidence either, and it used to pass because the floor was declared as 1.
+  if (vacuousRoutes || vacuousRows) {
+    console.error(
+      "[browser-budgets] the run examined fewer routes or rows than this gate declares, so it is not evidence.",
+    );
+    process.exitCode = 1;
+    return;
+  }
   if (rows.length === 0) {
     console.error("[browser-budgets] no row was measured, so this run is not evidence.");
     process.exitCode = 1;
