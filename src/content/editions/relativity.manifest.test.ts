@@ -531,7 +531,15 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
     });
   });
 
-  test("alias file is empty and snapshot equals manifest IDs; mutation removing ID fails", () => {
+  // The name read "alias file is empty" until 2026-10-12, which is what the acceptance criterion
+  // of am-edn-inventory-relativity-0u9 asks for and the OPPOSITE of what this body proves: it
+  // asserts seventeen retirements by identity, each with its provenance. The criterion encodes an
+  // expectation that nothing would need retiring once ids were frozen, and the plates disagreed,
+  // which is recorded on that bead for the owner. A name claiming the inverse of its assertions is
+  // worse than a missing one: reading the test list is how an auditor ticks the box, and this one
+  // invited ticking it from a passing test that disproves it. The two sibling papers' tests are
+  // named for what they check, so only this one was stale.
+  test("alias file records every boundary retirement by identity, snapshot equals manifest IDs; mutation removing ID fails", () => {
     const { manifest } = loadManifest();
 
     // Alias file
