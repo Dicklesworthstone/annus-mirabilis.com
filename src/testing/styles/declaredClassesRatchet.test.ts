@@ -17,6 +17,24 @@ import { fileURLToPath } from "node:url";
  * 3. A new file not in the baseline fails at the first undeclared class.
  * 4. As components are refactored to semantic CSS, counts are ratcheted down.
  *
+ * THE MIGRATION IS DONE, AND THE ONE FILE LEFT IS NOT WORK. Measured 2026-10-12: of the 152 files in
+ * the baseline, 151 are at ZERO, down from 8,339 occurrences across 61 components. The whole
+ * remainder is one file:
+ *
+ *     src/equations/legacy/ColorizedEquation.tsx    380
+ *
+ * That is a recorded debt NOBODY SHOULD PAY, and the distinction matters because a baseline is read
+ * as a backlog. `docs/DECISIONS.md` D-2026-09-22 (colour per quantity) says it in those terms --
+ * "the route is the semantic `Equation` record rendered by `SemanticEquation`. The fenced donor
+ * component `src/equations/legacy/ColorizedEquation.tsx` stays fenced" -- and the fence is enforced
+ * rather than asserted: `src/testing/legacyImportBoundary.test.ts` fails on an import of it, no
+ * production module imports it, and it appears on zero built pages. So its 380 tokens are inert in a
+ * file no reader reaches, and migrating them would be work on a component the owner retired.
+ *
+ * It stays counted and the ratchet still forbids it growing. What is recorded here is the REASON,
+ * because the number without it sends the next reader to refactor a fenced file -- which is the
+ * mistake this note costs three lines to prevent.
+ *
  * WHAT THIS DOES NOT PROVE. That a class HAS a rule is not that the rule is correct, that it
  * is reachable, or that the stylesheet declaring it is loaded on the route that renders the
  * component. This gate matches a token against every `.selector` in every stylesheet under
