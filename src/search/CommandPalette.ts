@@ -18,6 +18,29 @@ function element<K extends keyof HTMLElementTagNameMap>(tag: K, text?: string, c
   return node;
 }
 
+/**
+ * What the status line says when a query, or a filter over a query, matches nothing.
+ *
+ * Exported for the same reason TYPE_LABELS was extracted: a second copy drifts and nothing
+ * compares them. `scripts/e2e/searchPalette.mjs` waited on the literal "No matching entries",
+ * which this palette has never printed and which appears nowhere in src. Being in neither test
+ * lane nor any gate (am-7mw9), the script could not report it, so two of its checks were waiting
+ * on words no component renders. The message itself is unchanged.
+ */
+export const SEARCH_NO_MATCH_STATUS = "Nothing matches. Try fewer words, or a single symbol.";
+
+/**
+ * What the status line says when the index cannot be loaded, including a corrupt shard. The retry
+ * control appears beside it, so the reader's page is unchanged and the failure is recoverable.
+ *
+ * Exported for the same reason as the message above, and found the same way: the e2e script waited
+ * on "Search could not load a complete", which this palette stopped saying when the copy was
+ * tightened to name the index. Three of that script's twelve checks were waiting on words no
+ * component renders, and nothing ran it to say so.
+ */
+export const SEARCH_INDEX_FAILED_STATUS =
+  "Search could not load its index. Your page is unchanged; try again, or browse the outlines.";
+
 /** "Filters", or "Filters · 2" when two filters narrow the search (an empty value is "all"). */
 export function filtersLabel(values: readonly string[]): string {
   const active = values.filter((value) => value !== "").length;
@@ -290,7 +313,7 @@ export function openCommandPalette(
     select(0);
     status.textContent = hits.length
       ? `${hits.length} result${hits.length === 1 ? "" : "s"} shown${found.length === SEARCH_LIMITS.results ? "; narrow the search for more specific matches" : ""}.`
-      : "Nothing matches. Try fewer words, or a single symbol.";
+      : SEARCH_NO_MATCH_STATUS;
   }
   function scheduleSearch() {
     if (timer !== undefined) clearTimeout(timer);
@@ -319,8 +342,7 @@ export function openCommandPalette(
       search();
     } catch {
       if (closed) return;
-      status.textContent =
-        "Search could not load its index. Your page is unchanged; try again, or browse the outlines.";
+      status.textContent = SEARCH_INDEX_FAILED_STATUS;
       retry.hidden = false;
     }
   }
