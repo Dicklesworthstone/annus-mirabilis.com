@@ -1,10 +1,12 @@
 import { notFound } from "next/navigation";
 import {
+  formulaUses,
   groupByPaper,
   lessonsBuildingOn,
   lessonUses,
 } from "../../../components/foundations/lessonUses";
 import { entranceLessons, passageLessons } from "../../../components/foundations/passageLessons";
+import { lessonFormulaUses } from "../../../content/lessonFormulas";
 import { contentIndex, loadFoundation, loadPaper } from "../../../content/server";
 import { FoundationBody } from "../../../reader/Blocks";
 import "../../../reader/reader.css";
@@ -43,7 +45,11 @@ export default async function Page({ params }: { params: Promise<{ concept: stri
         entranceLessons(),
       ),
     ),
-    buildOn = lessonsBuildingOn(concept, lessons);
+    buildOn = lessonsBuildingOn(concept, lessons),
+    // The other direction from `uses`: not the passages that send a reader here, but the printed
+    // displays that print this lesson's own formulas. Authored per formula in
+    // content/lesson-formulas/, with a note saying what each paper does with the shape there.
+    printed = groupByPaper(formulaUses(lessonFormulaUses(process.cwd(), concept), papers));
   return (
     <article className="foundation-page">
       <header>
@@ -62,7 +68,7 @@ export default async function Page({ params }: { params: Promise<{ concept: stri
           <a href={foundation.exports.markdown}>Read as Markdown</a>
         </p>
       </div>
-      {(uses.length > 0 || buildOn.length > 0) && (
+      {(uses.length > 0 || buildOn.length > 0 || printed.length > 0) && (
         <aside className="foundation-page-rail" aria-label="Where this lesson leads">
           {uses.length > 0 && (
             <section>
@@ -75,6 +81,34 @@ export default async function Page({ params }: { params: Promise<{ concept: stri
                       <li key={use.href}>
                         <a href={use.href}>
                           {/* The paper is named once, above; a list of links still hears it. */}
+                          <span className="visually-hidden">{group.paper} </span>
+                          {use.section && (
+                            <span className="foundation-use-where">
+                              {use.section}
+                              <span className="visually-hidden">: </span>
+                            </span>
+                          )}
+                          {use.title}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </section>
+          )}
+          {printed.length > 0 && (
+            <section>
+              {/* The note is the link's text because it says what the destination is, and because
+                  two displays in one section would otherwise both read "§5" and point elsewhere. */}
+              <h2>Where the papers print these formulas</h2>
+              {printed.map((group) => (
+                <div className="foundation-use-group" key={group.paper}>
+                  <h3>{group.paper}</h3>
+                  <ul>
+                    {group.uses.map((use) => (
+                      <li key={use.href}>
+                        <a href={use.href}>
                           <span className="visually-hidden">{group.paper} </span>
                           {use.section && (
                             <span className="foundation-use-where">

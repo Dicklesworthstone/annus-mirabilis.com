@@ -1,5 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { groupByPaper, lessonsBuildingOn, lessonsNamedBy, lessonUses } from "./lessonUses.ts";
+import {
+  formulaUses,
+  groupByPaper,
+  lessonsBuildingOn,
+  lessonsNamedBy,
+  lessonUses,
+} from "./lessonUses.ts";
 
 const lesson = (id: string) => ({ kind: "foundation", id });
 const brownian = {
@@ -144,5 +150,74 @@ describe("the lessons that build on a lesson", () => {
       { href: "/foundations/integration/", title: "Adding continuously" },
       { href: "/foundations/taylor-expansion/", title: "A local expansion" },
     ]);
+  });
+});
+
+describe("the printed displays that print a lesson's formulas", () => {
+  const edges = [
+    {
+      paper: "brownian-motion",
+      display: "eq-s2-d11",
+      section: "s2",
+      note: "Both laws at once.",
+    },
+    { paper: "light-quanta", display: "eq-s5-d6", section: "s5", note: "Boltzmann's principle." },
+    { paper: "light-quanta", display: "eq-s5-d7", section: "s5", note: "The same, turned round." },
+    { paper: "mass-energy", display: "eq-s0-d1", section: "s0", note: "The subtraction." },
+    // s4 IS one of brownian's fixture sections, so this is the row that exercises a real printed
+    // label. Without it every row here lands on a section the fixtures lack and reads null, and
+    // the label a reader actually sees would go unasserted.
+    { paper: "brownian-motion", display: "eq-s4-d9", section: "s4", note: "The bell curve." },
+    { paper: "nowhere-paper", display: "eq-s1-d1", section: "s1", note: "Dropped: unknown paper." },
+  ];
+
+  test("rows carry the FACE route, because the bare section page has no display anchor", () => {
+    // Measured 2026-10-12 on the built site: /papers/light-quanta/s5/ carries no id eq-s5-d6,
+    // while view/parallel, view/english and view/german each do. A route to the bare section
+    // would be a link that lands on the page and never reaches the formula.
+    const rows = formulaUses(edges, [massEnergy, brownian, lightQuanta]);
+    expect(rows.map((row) => row.href)).toEqual([
+      "/papers/light-quanta/s5/view/parallel/#eq-s5-d6",
+      "/papers/light-quanta/s5/view/parallel/#eq-s5-d7",
+      "/papers/brownian-motion/s2/view/parallel/#eq-s2-d11",
+      "/papers/brownian-motion/s4/view/parallel/#eq-s4-d9",
+      "/papers/mass-energy/s0/view/parallel/#eq-s0-d1",
+    ]);
+  });
+
+  test("the note is the row's title, and the section its printed label", () => {
+    const rows = formulaUses(edges, [brownian, lightQuanta]);
+    expect(rows[0]).toEqual({
+      href: "/papers/light-quanta/s5/view/parallel/#eq-s5-d6",
+      paper: "Light quanta",
+      section: null,
+      title: "Boltzmann's principle.",
+    });
+    // A section the paper does lay out is labelled as the paper prints it.
+    const s4 = rows.find((row) => row.href.includes("#eq-s4-d9"));
+    expect(s4?.section).toBe("\u00a74");
+    expect(s4?.paper).toBe("Brownian motion");
+    // brownian's s2 is not among its fixture sections, so no label is invented for it.
+    expect(rows.find((row) => row.href.includes("#eq-s2-d11"))?.section).toBeNull();
+  });
+
+  test("a paper with one section is not labelled, and an unknown paper is dropped", () => {
+    const rows = formulaUses(edges, [massEnergy]);
+    expect(rows).toEqual([
+      {
+        href: "/papers/mass-energy/s0/view/parallel/#eq-s0-d1",
+        paper: "Mass and energy",
+        section: null,
+        title: "The subtraction.",
+      },
+    ]);
+    expect(rows.some((row) => row.href.includes("nowhere-paper"))).toBe(false);
+  });
+
+  test("a paper that prints a shape twice is named once", () => {
+    const groups = groupByPaper(formulaUses(edges, [lightQuanta]));
+    expect(groups.length).toBe(1);
+    expect(groups[0]?.paper).toBe("Light quanta");
+    expect(groups[0]?.uses.length).toBe(2);
   });
 });

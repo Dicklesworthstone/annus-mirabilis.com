@@ -145,6 +145,54 @@ export function groupByPaper(uses: readonly LessonUse[]): LessonUseGroup[] {
   return groups;
 }
 
+/** One authored lesson-formula edge, as `src/content/lessonFormulas.ts` reads it off disk. */
+type FormulaEdgeLike = Readonly<{
+  paper: string;
+  display: string;
+  section: string;
+  note: string;
+}>;
+
+/**
+ * The printed displays that print this lesson's formulas, as `LessonUse` rows so that the rail
+ * groups and renders them through the same `groupByPaper` as the passage links above.
+ *
+ * This is a DIFFERENT and finer relation than `lessonUses`, which reads the arguments and lands on
+ * a passage: `/papers/light-quanta/s5/#arg-...`. These land on the printed display itself, and the
+ * route is a FACE rather than the bare section, because the bare section page does not carry the
+ * display's id. Measured 2026-10-12: `/papers/light-quanta/s5/` carries no `eq-s5-d6`, while
+ * `view/parallel`, `view/english` and `view/german` each do. `parallel` is the destination, so a
+ * reader arriving from a lesson meets the German line and its English beside it.
+ *
+ * An edge whose paper is not among the papers given is dropped: it names a section label and a
+ * paper name that only that record can supply, and inventing either would put a wrong label on a
+ * real link. `checkLessonFormulas` is what reports such an edge.
+ */
+export function formulaUses(
+  edges: readonly FormulaEdgeLike[],
+  papers: readonly PaperLike[],
+): LessonUse[] {
+  const rank = (id: string) => (PAPER_ORDER.includes(id) ? PAPER_ORDER.indexOf(id) : 99);
+  const byId = new Map(papers.map((entry) => [entry.paper.id, entry.paper]));
+  return [...edges]
+    .filter((edge) => byId.has(edge.paper))
+    .sort((a, b) => rank(a.paper) - rank(b.paper))
+    .flatMap((edge) => {
+      const paper = byId.get(edge.paper);
+      if (!paper) return [];
+      const section = paper.sections.find((entry) => entry.id === edge.section);
+      const label = section ? (section.title.split(" · ")[0] ?? section.title) : null;
+      return [
+        {
+          href: `/papers/${paper.id}/${edge.section}/view/parallel/#${edge.display}`,
+          paper: paperName(paper.title),
+          section: paper.sections.length > 1 ? label : null,
+          title: edge.note,
+        },
+      ];
+    });
+}
+
 /** The lessons that list `lessonId` among their prerequisites, in the order given. */
 export function lessonsBuildingOn(lessonId: string, lessons: readonly LessonLike[]): LessonLink[] {
   return lessons

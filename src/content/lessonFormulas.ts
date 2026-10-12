@@ -20,7 +20,11 @@
  * uses for the same case. A formula block that names equation records is already drawn from those
  * records, coloured by quantity, so declaring its letters plain is refused as a contradiction.
  *
- * Reads content/, so it is for scripts and tests, not for a page.
+ * Reads content/. `checkLessonFormulas` reads four content directories to judge claims and is for
+ * scripts and tests; `lessonFormulaUses` reads one file and judges nothing, and the foundation page
+ * calls it where `src/app/about/page.tsx` already reads content, at build time in a static export.
+ * This line said "not for a page" of the whole file until 2026-10-12, which left the edge these
+ * records exist to carry authored, validated, and shown to nobody.
  */
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -89,6 +93,54 @@ export function lessonFormulaBlocks(root: string, lesson: string): readonly Obj[
   };
   walk(JSON.parse(readFileSync(path, "utf8")));
   return blocks;
+}
+
+/** One authored edge: a printed display that prints a lesson formula's shape, and what it does. */
+export type LessonFormulaEdge = Readonly<{
+  paper: string;
+  /** The display id, which also names its section: `eq-s5-d6` is in `s5`. */
+  display: string;
+  /** The section id read off the display id, which the route needs. */
+  section: string;
+  /** What the paper does with the shape there, authored per edge. */
+  note: string;
+}>;
+
+/**
+ * THE READER-FACING HALF of these records: every edge of one lesson, in the lesson's own order.
+ *
+ * The docblock above gives the reason these files exist, and it is a reader's reason: "a reader who
+ * had just understood a lesson could not find the line in a paper that uses it". Only the checker
+ * read them, so the edge was authored, validated and never shown. This is the function a page calls.
+ *
+ * It JUDGES NOTHING, on purpose. `checkLessonFormulas` owns every rule, including whether a display
+ * exists and whether a note is present, and a second implementation of those rules in the rendering
+ * path is how two answers to one question begin. Here a record that does not parse simply yields no
+ * edge, and the checker is what says so.
+ *
+ * A display id that does not name its section is DROPPED rather than guessed, because the anchor
+ * grammar admits a bare `#eq-<printed number>` and a route invented for one would point at a page
+ * that does not carry the anchor. Measured 2026-10-12: all 16 authored edges name a section, and
+ * all 16 resolve on their declared paper's reading faces.
+ */
+export function lessonFormulaUses(root: string, lesson: string): readonly LessonFormulaEdge[] {
+  const path = join(root, LESSON_FORMULAS_DIR, `${lesson}.yaml`);
+  if (!existsSync(path)) return [];
+  const raw = parseYaml(readFileSync(path, "utf8"));
+  const entries = isObj(raw) && Array.isArray(raw.formulas) ? raw.formulas : [];
+  const edges: LessonFormulaEdge[] = [];
+  for (const entry of entries) {
+    if (!isObj(entry)) continue;
+    for (const use of Array.isArray(entry.usedAt) ? entry.usedAt : []) {
+      if (!isObj(use)) continue;
+      const paper = text(use.paper);
+      const display = text(use.display);
+      const section = /^eq-(s\d+)-/u.exec(display)?.[1] ?? "";
+      const note = text(use.note);
+      if (paper && display && section && note) edges.push({ paper, display, section, note });
+    }
+  }
+  return edges;
 }
 
 /** Every display a paper's display-terms file names, so a usedAt cannot point at nothing. */
