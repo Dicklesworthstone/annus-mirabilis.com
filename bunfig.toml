@@ -47,6 +47,10 @@ pathIgnorePatterns = [
   # because a payload that compiles and a panel a reader meets are different claims, and the first
   # build of that feature drew all 39 panels while every link they carried was a 404.
   "src/testing/journeyExplainersRendered.node.test.ts",
+  # am-german-face-anchors-not-frozen-ids-jtv6: reads the built German faces. The alias machinery's
+  # own e2e test uses synthetic markup on purpose (it measures what the engine does with a boxless
+  # fragment target), so nothing asked what the SHIPPED faces anchor until this.
+  "src/testing/germanFaceAnchors.node.test.ts",
   # am-ig23: reads `git ls-files`, which bun's runner cannot posix_spawn here.
   "src/testing/refusals/flattenedRefusals.test.ts",
   # am-uxh9: bun CAN run this one. It is here for lane independence, the same reason the gate-census
