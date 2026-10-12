@@ -1025,6 +1025,31 @@ export const CENSUS_RECORDS: readonly CensusRecord[] = [
     gateRefusesVacuous: true,
     plants: [minimumPlant("lab-browser", "scripts/test-lab-browser.mjs", 9, "VACUOUS")],
   },
+  {
+    gate: "perf-browser-budgets",
+    noun: "built routes driven",
+    howRead:
+      "ROUTES.length, counted as the lane drives each built route, and a SECOND census line reports " +
+      "the browser-driven budget rows it produced. Both are kept because each catches an absence " +
+      "the other cannot: driving one route instead of five still measures all three rows, so a lost " +
+      "route is invisible in the row count, and measuring five routes while producing one row is " +
+      "invisible in the route count. " +
+      "THIS GATE PRINTED A MALFORMED CENSUS LINE until 2026-10-12 -- `[census] browser-budgets drove " +
+      "5 built routes for 3 of 3 rows (minimum 1)` -- which parsePopulationLines returned as " +
+      "malformed for two reasons at once: the verb was `drove` rather than `examined`, and the gate " +
+      "name was `browser-budgets` where the registry step is `perf-browser-budgets`. It looked like " +
+      "a census line and nothing could read it. The row floor was also declared as 1, where all " +
+      "three rows are measured on every run, so one row of three used to pass.",
+    gateRefusesVacuous: true,
+    plants: [
+      computedMinimumPlant(
+        "perf-browser-budgets",
+        "scripts/perf/measure-browser-budgets.mjs",
+        "ROUTES.length",
+        "VACUOUS",
+      ),
+    ],
+  },
 ];
 
 export function recordFor(gate: string): CensusRecord | undefined {
