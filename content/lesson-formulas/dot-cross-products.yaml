@@ -1,0 +1,12 @@
+# dot-cross-products: where each formula's shape is printed in the papers (am-cadl).
+#
+# One entry per formula block of content/foundations/dot-cross-products.json, named by its latex exactly as the
+# lesson writes it. `usedAt` names printed displays that print this shape, with a note saying what
+# the paper does with it there. `notUsed` records, with its reason, a formula the papers do not
+# print, so the absence is a judgement and not a silence.
+lesson: dot-cross-products
+formulas:
+  - latex: "\\begin{aligned} \\mathbf{a}\\cdot\\mathbf{b} &= a_x b_x + a_y b_y + a_z b_z \\\\ &= |\\mathbf{a}|\\,|\\mathbf{b}|\\cos θ \\end{aligned}"
+    notUsed: "The 1905 papers work in components and print no vector product. special-relativity carries the field components X, Y and Z with L, M and N for the magnetic ones, as at eq-s6-d9, and never a dot between two vectors."
+  - latex: "\\mathbf{F} = q\\,\\mathbf{v}\\times\\mathbf{B}"
+    notUsed: "The same reason, and it is a fact about 1905 notation rather than about the physics. The force on a moving charge is in the paper, but as components: eq-s10-d1 prints mu times the second derivative of x equal to epsilon X, and the motional part arrives through the field transformation at eq-s6-d9 rather than through a cross product."

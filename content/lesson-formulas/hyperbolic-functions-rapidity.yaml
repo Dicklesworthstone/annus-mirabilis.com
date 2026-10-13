@@ -1,0 +1,14 @@
+# hyperbolic-functions-rapidity: where each formula's shape is printed in the papers (am-cadl).
+#
+# One entry per formula block of content/foundations/hyperbolic-functions-rapidity.json, named by its latex exactly as the
+# lesson writes it. `usedAt` names printed displays that print this shape, with a note saying what
+# the paper does with it there. `notUsed` records, with its reason, a formula the papers do not
+# print, so the absence is a judgement and not a silence.
+lesson: hyperbolic-functions-rapidity
+formulas:
+  - latex: "\\begin{gathered} \\operatorname{cosh}x = \\frac{e^x + e^{-x}}{2}, \\\\ \\operatorname{sinh}x = \\frac{e^x - e^{-x}}{2}, \\\\ \\operatorname{tanh}x = \\frac{\\operatorname{sinh}x}{\\operatorname{cosh}x} \\end{gathered}"
+    notUsed: "A later geometric lens, not the paper's. AGENTS.md dates spacetime diagrams and the geometric reading to Minkowski in 1908 and after, and the hyperbolic parameterisation comes with them. special-relativity composes velocities algebraically instead, at eq-s5-d5."
+  - latex: "\\begin{gathered} \\gamma = \\operatorname{cosh}\\varphi, \\\\ \\frac{\\gamma v}{c} = \\operatorname{sinh}\\varphi, \\\\ \\frac{v}{c} = \\operatorname{tanh}\\varphi \\end{gathered}"
+    notUsed: "The same reason. The paper's own factor is written out as a radical and named beta at eq-s6-d3; it never appears as the cosh of a parameter."
+  - latex: "\\begin{aligned} &\\operatorname{tanh}(\\varphi_1 + \\varphi_2) \\\\ &\\quad = \\frac{\\operatorname{tanh}\\varphi_1 + \\operatorname{tanh}\\varphi_2}{1 + \\operatorname{tanh}\\varphi_1\\,\\operatorname{tanh}\\varphi_2} \\end{aligned}"
+    notUsed: "The same reason. The paper adds velocities with the fraction at eq-s5-d5 and never as an addition of parameters, which is the step this form exists to make look simple."

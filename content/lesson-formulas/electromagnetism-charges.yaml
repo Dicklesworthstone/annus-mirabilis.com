@@ -1,0 +1,12 @@
+# electromagnetism-charges: where each formula's shape is printed in the papers (am-cadl).
+#
+# One entry per formula block of content/foundations/electromagnetism-charges.json, named by its latex exactly as the
+# lesson writes it. `usedAt` names printed displays that print this shape, with a note saying what
+# the paper does with it there. `notUsed` records, with its reason, a formula the papers do not
+# print, so the absence is a judgement and not a silence.
+lesson: electromagnetism-charges
+formulas:
+  - latex: "\\mathbf{F} = q\\left(\\mathbf{E} + \\mathbf{v} \\times \\mathbf{B}\\right)"
+    notUsed: "No display prints the force in vector form. special-relativity gives the components, eq-s10-d1, and expresses what a cross product would carry through the transformation of the fields at eq-s6-d9. The lesson writes the modern vector form so a reader can recognise the same content when the paper splits it into X, Y, Z and L, M, N."
+  - latex: "\\Delta W = q\\,\\Delta V"
+    notUsed: "The papers never write work as a charge times a potential difference. special-relativity eq-s10-d8 prints the work as the INTEGRAL of the force along the path, and that integral is what section 10 then evaluates."

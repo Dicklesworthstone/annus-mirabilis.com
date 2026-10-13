@@ -1,0 +1,10 @@
+# error-and-inference: where each formula's shape is printed in the papers (am-cadl).
+#
+# One entry per formula block of content/foundations/error-and-inference.json, named by its latex exactly as the
+# lesson writes it. `usedAt` names printed displays that print this shape, with a note saying what
+# the paper does with it there. `notUsed` records, with its reason, a formula the papers do not
+# print, so the absence is a judgement and not a silence.
+lesson: error-and-inference
+formulas:
+  - latex: "\\begin{aligned} &\\left[\\frac{100 \\times 0.43}{129.5612},\\ \\frac{100 \\times 0.43}{74.2219}\\right] \\\\ &\\quad = [0.3319,\\ 0.5793]\\ \\mu\\mathrm{m}^2/\\mathrm{s} \\end{aligned}"
+    notUsed: "The papers state their results without intervals. This lesson's figures are a modern inference from a historical count, and the papers print no such bracket: brownian-motion eq-s5-d3 gives the displacement itself, and the uncertainty around it is later work."

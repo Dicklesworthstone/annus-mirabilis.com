@@ -1,0 +1,10 @@
+# distributions: where each formula's shape is printed in the papers (am-cadl).
+#
+# One entry per formula block of content/foundations/distributions.json, named by its latex exactly as the
+# lesson writes it. `usedAt` names printed displays that print this shape, with a note saying what
+# the paper does with it there. `notUsed` records, with its reason, a formula the papers do not
+# print, so the absence is a judgement and not a silence.
+lesson: distributions
+formulas:
+  - latex: "P(a\\le X\\le b)=\\int_a^b p(x)\\,dx"
+    notUsed: "No display writes a probability as the integral of a density over an interval. What brownian-motion prints is the NORMALISATION, the integral of phi over every Delta equal to one, at eq-s4-d2 and again at eq-s4-d8, and that is a total rather than an interval."

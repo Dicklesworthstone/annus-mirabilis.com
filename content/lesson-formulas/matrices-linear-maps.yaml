@@ -1,0 +1,18 @@
+# matrices-linear-maps: where each formula's shape is printed in the papers (am-cadl).
+#
+# One entry per formula block of content/foundations/matrices-linear-maps.json, named by its latex
+# exactly as the lesson writes it. `usedAt` names printed displays that print this shape, with a
+# note saying what the paper does with it there. `notUsed` records, with its reason, a formula the
+# papers do not print, so the absence is a judgement and not a silence.
+lesson: matrices-linear-maps
+formulas:
+  - latex: "\\begin{aligned} x' &= p\\,x + q\\,t \\\\ t' &= r\\,x + s\\,t \\end{aligned}"
+    usedAt:
+      - paper: special-relativity
+        display: eq-s3-d25
+        note: "The transformation in its final form, and it is this shape with the coefficients DETERMINED rather than left as letters: tau and xi are each a linear combination of t and x. Section 3 is the derivation that pins the four numbers the lesson writes as p, q, r and s."
+      - paper: special-relativity
+        display: eq-s3-d15
+        note: "The same map a few lines earlier, still carrying the undetermined factor phi of v. Reading the two together shows which part of section 3 is the linear algebra and which part is the argument that phi of v is one."
+  - latex: "\\left(\\begin{aligned} 1.25 &\\quad -0.75c \\\\ -0.75/c &\\quad 1.25 \\end{aligned}\\right)"
+    notUsed: "The papers print no numeric matrix. This is the lesson's worked instance of the map above at a particular speed, and the papers evaluate their transformation in prose and in the radical at special-relativity eq-s3-d26 instead."

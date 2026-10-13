@@ -1,0 +1,10 @@
+# bridge-squaring-square-roots: where each formula's shape is printed in the papers (am-cadl).
+#
+# One entry per formula block of content/foundations/bridge-squaring-square-roots.json, named by its latex exactly as the
+# lesson writes it. `usedAt` names printed displays that print this shape, with a note saying what
+# the paper does with it there. `notUsed` records, with its reason, a formula the papers do not
+# print, so the absence is a judgement and not a silence.
+lesson: bridge-squaring-square-roots
+formulas:
+  - latex: "\\sqrt{4q}=2\\sqrt q\\quad(q\\ge 0)"
+    notUsed: "The papers print no algebraic identity about roots. This is in the lesson so that the root in brownian-motion eq-s5-d2, lambda sub x equals the root of 2 D t, is readable rather than decorative."

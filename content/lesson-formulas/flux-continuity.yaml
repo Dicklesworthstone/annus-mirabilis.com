@@ -1,0 +1,10 @@
+# flux-continuity: where each formula's shape is printed in the papers (am-cadl).
+#
+# One entry per formula block of content/foundations/flux-continuity.json, named by its latex exactly as the
+# lesson writes it. `usedAt` names printed displays that print this shape, with a note saying what
+# the paper does with it there. `notUsed` records, with its reason, a formula the papers do not
+# print, so the absence is a judgement and not a silence.
+lesson: flux-continuity
+formulas:
+  - latex: "\\frac{\\partial c}{\\partial t}=-\\frac{\\partial J}{\\partial x}"
+    notUsed: "No display defines a flux or writes a continuity equation. brownian-motion section 4 reaches the diffusion equation directly, from the expansion at eq-s4-d6 through the integral at eq-s4-d7 to the numbered eq-s4-1, without the intermediate step this lesson supplies."
