@@ -116,6 +116,28 @@ formulas:
     expect(codes(silent)).toContain("lesson-formula-neither-used-nor-not");
   });
 
+  test("plant: a note citing a display no paper prints is reported", () => {
+    // The gap this closed on 2026-10-13. `display:` was validated against the paper's printed
+    // displays; a note saying "see eq-s9-d9" was not, so a note could send a reader to a display
+    // that does not exist and ship. The corpus had 10 such citations at the time, all real, which
+    // is the moment to add a guard rather than after the first wrong one.
+    const citing = WELL_FORMED.replace(
+      "What the paper does with the shape at this display.",
+      "The same move as eq-s9-d9, which no paper prints.",
+    );
+    expect(codes(citing)).toContain("lesson-formula-note-cites-unknown-display");
+  });
+
+  test("a note citing a display that IS printed is accepted (positive control)", () => {
+    // Without this the plant above would pass against a check that rejected every citation, and
+    // the two readings are indistinguishable from a red result alone.
+    const citing = WELL_FORMED.replace(
+      "What the paper does with the shape at this display.",
+      "The same move as eq-s1-d1, which this fixture's paper prints.",
+    );
+    expect(codes(citing)).toEqual([]);
+  });
+
   test("plant: an entry naming a formula the lesson does not write is reported", () => {
     expect(codes(WELL_FORMED.replace('latex: "a = b"', 'latex: "c = d"'))).toContain(
       "lesson-formula-unknown-formula",
