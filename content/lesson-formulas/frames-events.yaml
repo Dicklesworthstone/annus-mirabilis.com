@@ -1,0 +1,15 @@
+# frames-events: where each formula's shape is printed in the papers (am-cadl).
+#
+# One entry per formula block of content/foundations/frames-events.json, named by its latex exactly as the
+# lesson writes it. `usedAt` names printed displays that print this shape, with a note saying what
+# the paper does with it there. `notUsed` records, with its reason, a formula the papers do not
+# print, so the absence is a judgement and not a silence.
+lesson: frames-events
+formulas:
+  - latex: "t_B - t_A = t'_A - t_B"
+    usedAt:
+      - paper: special-relativity
+        display: eq-s1-d1
+        note: "Einstein's definition of synchrony, printed character for character as the lesson writes it: the outward interval equals the return interval."
+  - latex: "t_B = \\frac{1}{2}\\left(t_A + t'_A\\right)"
+    notUsed: "The paper never solves its condition for the middle clock. It states the equality of the two intervals at eq-s1-d1 and stops, because that is all §1 needs in order to call two clocks synchronous. The lesson rearranges it so a reader can see the midpoint."

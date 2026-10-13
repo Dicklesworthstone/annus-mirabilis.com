@@ -1,0 +1,10 @@
+# viscosity-stokes-drag: where each formula's shape is printed in the papers (am-cadl).
+#
+# One entry per formula block of content/foundations/viscosity-stokes-drag.json, named by its latex exactly as the
+# lesson writes it. `usedAt` names printed displays that print this shape, with a note saying what
+# the paper does with it there. `notUsed` records, with its reason, a formula the papers do not
+# print, so the absence is a judgement and not a silence.
+lesson: viscosity-stokes-drag
+formulas:
+  - latex: "F = 6\\pi\\eta a v"
+    notUsed: "The papers never write Stokes' law as a force. The factor appears as its RECIPROCAL, a mobility: brownian-motion eq-s3-d5 prints K over six pi k P, the speed a force K produces, with Einstein's k for the viscosity and P for the radius. The lesson writes the force form so the six pi η a is recognisable when it turns up underneath."

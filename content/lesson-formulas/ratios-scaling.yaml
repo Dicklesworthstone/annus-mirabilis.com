@@ -1,0 +1,16 @@
+# ratios-scaling: where each formula's shape is printed in the papers (am-cadl).
+#
+# One entry per formula block of content/foundations/ratios-scaling.json, named by its latex exactly as the
+# lesson writes it. `usedAt` names printed displays that print this shape, with a note saying what
+# the paper does with it there. `notUsed` records, with its reason, a formula the papers do not
+# print, so the absence is a judgement and not a silence.
+lesson: ratios-scaling
+formulas:
+  - latex: "\\lambda_x=\\sqrt{2Dt},\\qquad D=\\frac{k_BT}{6\\pi\\eta a}"
+    usedAt:
+      - paper: brownian-motion
+        display: eq-s5-d2
+        note: "The displacement law with the paper's own symbol: λ sub x for the root mean square displacement, equal to the root of 2 D t."
+      - paper: brownian-motion
+        display: eq-s5-d1
+        note: "The diffusion coefficient in the paper's constants, which is the same shape under a different alphabet: R over N is this lesson's Boltzmann constant, Einstein's k is the viscosity the lesson calls η, and his P is the radius the lesson calls a."

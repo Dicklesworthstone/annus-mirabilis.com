@@ -1,0 +1,16 @@
+# free-energy-osmotic-pressure: where each formula's shape is printed in the papers (am-cadl).
+#
+# One entry per formula block of content/foundations/free-energy-osmotic-pressure.json, named by its latex exactly as the
+# lesson writes it. `usedAt` names printed displays that print this shape, with a note saying what
+# the paper does with it there. `notUsed` records, with its reason, a formula the papers do not
+# print, so the absence is a judgement and not a silence.
+lesson: free-energy-osmotic-pressure
+formulas:
+  - latex: "p = \\frac{RT}{N}\\,\\nu"
+    usedAt:
+      - paper: brownian-motion
+        display: eq-s1-d2
+        note: "§1 reaches this pressure from the particle count and the volume, and ends on the lesson's shape exactly: R T over N times ν."
+      - paper: brownian-motion
+        display: eq-s2-d12
+        note: "§2 reaches the same pressure a second way, as the volume derivative of the free energy, and arrives at the same right-hand side. Two routes to one line is the paper's argument that the osmotic pressure is not an assumption."

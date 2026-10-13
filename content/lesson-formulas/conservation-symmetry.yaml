@@ -1,0 +1,16 @@
+# conservation-symmetry: where each formula's shape is printed in the papers (am-cadl).
+#
+# One entry per formula block of content/foundations/conservation-symmetry.json, named by its latex exactly as the
+# lesson writes it. `usedAt` names printed displays that print this shape, with a note saying what
+# the paper does with it there. `notUsed` records, with its reason, a formula the papers do not
+# print, so the absence is a judgement and not a silence.
+lesson: conservation-symmetry
+formulas:
+  - latex: "\\begin{gathered} x^2 + y^2 + z^2 = c^2 t^2 \\\\ \\text{and} \\\\ x'^2 + y'^2 + z'^2 = c^2 t'^2 \\end{gathered}"
+    usedAt:
+      - paper: special-relativity
+        display: eq-s3-d17
+        note: "The light sphere in the resting system, printed with Einstein's V for the speed of light."
+      - paper: special-relativity
+        display: eq-s3-d18
+        note: "The same sphere in the moving system, printed in the paper's Greek letters: ξ, η and ζ for the coordinates and τ for its time. Setting the two forms side by side is the step §3 is making."

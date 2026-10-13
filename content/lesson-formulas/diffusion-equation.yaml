@@ -1,0 +1,15 @@
+# diffusion-equation: where each formula's shape is printed in the papers (am-cadl).
+#
+# One entry per formula block of content/foundations/diffusion-equation.json, named by its latex exactly as the
+# lesson writes it. `usedAt` names printed displays that print this shape, with a note saying what
+# the paper does with it there. `notUsed` records, with its reason, a formula the papers do not
+# print, so the absence is a judgement and not a silence.
+lesson: diffusion-equation
+formulas:
+  - latex: "\\frac{\\partial p}{\\partial t}=D\\frac{\\partial^2p}{\\partial x^2}"
+    usedAt:
+      - paper: brownian-motion
+        display: eq-s4-1
+        note: "The paper's own numbered result, in the same shape: the density's rate of change against its second derivative in x, with D between them. The lesson writes p where §4 writes f."
+  - latex: "J=-D\\frac{\\partial p}{\\partial x}"
+    notUsed: "No display defines a flux. The diffusive term appears inside the numbered brownian-motion eq-2 as minus D times the derivative of ν, balanced there against the drag rather than written on its own. Note also that brownian-motion prints its own J at eq-s2-d9, and that J is a different quantity from this lesson's flux."
