@@ -75,6 +75,9 @@ daemon.lock
 .beads/*.sock*
 .beads/.local_version
 .beads/recovery_*
+# br's transient WAL index, the same class as the entries above. I committed three of these
+# files by using `git add .beads/` on 2026-10-13, including a 32 kB poisoned-shm binary.
+.beads/.br-wal-index-*/
 
 # The legacy Pages Router is forbidden (AGENTS.md Rule 2). Ignoring the path keeps an
 # accidental directory out of commits; the architecture test still fails the build if it exists.
