@@ -124,6 +124,45 @@ test("every edge's display id is on the built face route it links to", () => {
   assert.deepEqual(dangling, []);
 });
 
+test("every authored edge reaches the reader, and the page invents none", () => {
+  assertOutFreshness();
+  /*
+   * The reconciliation, read off the BUILT lesson page rather than from a render.
+   *
+   * It closes the hole the two checks above cannot see. `formulaUses` drops an edge whose paper is
+   * not among the papers the page loaded, and `lessonFormulaUses` drops one whose id names no
+   * section, both silently and both by design. So a record can be valid, its display can exist,
+   * and the link can still be absent from the rail. Counting the rail's links against the authored
+   * edges is the only check that notices.
+   *
+   * Counted per lesson rather than in total, because a total hides a swap: one lesson losing a
+   * link while another gains one leaves the sum unmoved, which is the failure a count-only ratchet
+   * cannot see.
+   */
+  const authored = new Map<string, number>();
+  for (const edge of edges) authored.set(edge.lesson, (authored.get(edge.lesson) ?? 0) + 1);
+
+  const mismatched: string[] = [];
+  for (const [lesson, count] of [...authored].sort()) {
+    const page = join(OUT, "foundations", lesson, "index.html");
+    if (!existsSync(page)) {
+      mismatched.push(`${lesson}: no built page at ${page}`);
+      continue;
+    }
+    const html = readFileSync(page, "utf8");
+    const rail = /<h2>Where the papers print these formulas<\/h2>([\s\S]*?)<\/section>/u.exec(html);
+    const rendered = rail === null ? 0 : (rail[1]?.match(/href="\/papers\//gu) ?? []).length;
+    if (rendered !== count) mismatched.push(`${lesson}: authored ${count}, rendered ${rendered}`);
+  }
+  assert.deepEqual(mismatched, []);
+  console.log(
+    `[census] lesson-formula-rails examined ${authored.size} lessons with edges ` +
+      `(minimum 10), reconciling ${edges.length} authored links against the built pages`,
+  );
+  // The floor belongs here too: an empty `authored` map would reconcile vacuously above.
+  assert.ok(authored.size >= 10, `expected at least 10 lessons with edges, found ${authored.size}`);
+});
+
 test("the detector fires on a display no paper prints (planted negative)", () => {
   assertOutFreshness();
   // The arm that makes the clean result above mean something. Planted as an edge rather than by
