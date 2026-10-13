@@ -16,7 +16,8 @@ console.log(
   `lesson formulas: ${census.lessons} lessons covered, ${census.blocks} formula blocks in them; ` +
     `${census.used} name a printed display (${census.edges} edges), ` +
     `${census.notUsed} record that no paper prints the shape, ` +
-    `${census.plain} declare letters plain (${census.plainGlyphs} letters).`,
+    `${census.plain} declare letters plain (${census.plainGlyphs} letters); ` +
+    `${census.noteCitations} display ids cited in note prose, all checked against the papers.`,
 );
 for (const problem of problems) console.log(`  ${problem.code}: ${problem.message}`);
 process.exit(problems.length > 0 ? 1 : 0);

@@ -42,7 +42,8 @@ export type LessonFormulaCode =
   | "lesson-formula-note-missing"
   | "lesson-formula-glyph-not-printed"
   | "lesson-formula-reason-missing"
-  | "lesson-formula-already-bound";
+  | "lesson-formula-already-bound"
+  | "lesson-formula-note-cites-unknown-display";
 
 export type LessonFormulaProblem = Readonly<{
   code: LessonFormulaCode;
@@ -66,6 +67,15 @@ export type LessonFormulaCensus = Readonly<{
   plain: number;
   /** Letters declared plain, with their reasons. */
   plainGlyphs: number;
+  /**
+   * Display ids CITED IN A NOTE'S PROSE, which nothing checked before 2026-10-13.
+   *
+   * `display:` is validated against the paper's printed displays; a note that says "see eq-s4-d6"
+   * was not, so a note could send a reader to a display no paper prints and ship. Measured when
+   * this was added: 17 such citations across the corpus, all of them real, which is the moment to
+   * add the guard rather than after the first wrong one.
+   */
+  noteCitations: number;
 }>;
 
 export type LessonFormulas = Readonly<{
@@ -163,6 +173,15 @@ function displaysOfPapers(root: string): Map<string, Set<string>> {
 }
 
 /**
+ * Every display id a note's prose names, under both anchor grammars.
+ *
+ * `#eq-s<n>-d<j>` for an unnumbered display and `#eq-<printed number>` for a numbered one, which
+ * docs/CONTENT_IDS.md gives as the two forms. Both appear in the notes already: a reason cites
+ * brownian-motion eq-2 and another cites eq-s4-1.
+ */
+const CITED_DISPLAY = /\beq-s\d+-[a-z0-9]+|\beq-\d+\b/gu;
+
+/**
  * Every claim in content/lesson-formulas/ checked against the tree, and the census that names its
  * denominator: the formula blocks of the lessons covered, so an empty file reads as "6 with no
  * entry" and never as a clean run.
@@ -177,10 +196,37 @@ export function checkLessonFormulas(root = process.cwd()): LessonFormulas {
     notUsed: 0,
     plain: 0,
     plainGlyphs: 0,
+    noteCitations: 0,
   };
   const dir = join(root, LESSON_FORMULAS_DIR);
   if (!existsSync(dir)) return { census: { ...counted }, problems };
   const displays = displaysOfPapers(root);
+  /*
+   * Every printed display of every paper, for the note-prose check below.
+   *
+   * ANY paper rather than the edge's own, deliberately: a note legitimately cites across papers
+   * (a reason for `electromagnetism-charges` names special-relativity displays while its entry has
+   * no paper at all), so requiring the edge's paper would refuse correct notes. This catches the
+   * thing that is always wrong, an id no paper prints, and declines to guess about the rest.
+   */
+  const anyDisplay = new Set([...displays.values()].flatMap((set) => [...set]));
+  /** Each display id a note names must be one some paper prints. Counted so zero is visible. */
+  const citedDisplays = (
+    prose: string,
+    where: string,
+    problem: (code: LessonFormulaCode, where: string, message: string) => void,
+  ): void => {
+    for (const match of prose.matchAll(CITED_DISPLAY)) {
+      counted.noteCitations++;
+      const cited = match[0];
+      if (!anyDisplay.has(cited))
+        problem(
+          "lesson-formula-note-cites-unknown-display",
+          where,
+          `${where}: its note names ${cited}, which no paper prints. A note's citation is read by a reader and was not checked until now.`,
+        );
+    }
+  };
 
   for (const file of readdirSync(dir)
     .filter((name) => name.endsWith(".yaml"))
@@ -234,6 +280,7 @@ export function checkLessonFormulas(root = process.cwd()): LessonFormulas {
         );
       if (usedAt.length > 0) counted.used++;
       else if (notUsed) counted.notUsed++;
+      if (notUsed) citedDisplays(notUsed, where, problem);
       for (const use of usedAt) {
         if (!isObj(use)) continue;
         counted.edges++;
@@ -245,6 +292,7 @@ export function checkLessonFormulas(root = process.cwd()): LessonFormulas {
             where,
             `${where}: names ${paper} ${display}, which is not a printed display of that paper.`,
           );
+        citedDisplays(text(use.note), where, problem);
         if (text(use.note).length < 20)
           problem(
             "lesson-formula-note-missing",
