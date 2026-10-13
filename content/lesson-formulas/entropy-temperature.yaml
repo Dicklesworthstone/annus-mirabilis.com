@@ -1,0 +1,16 @@
+# entropy-temperature: where each formula's shape is printed in the papers (am-cadl).
+#
+# One entry per formula block of content/foundations/entropy-temperature.json, named by its latex
+# exactly as the lesson writes it. `usedAt` names printed displays that print this shape, with a
+# note saying what the paper does with it there. `notUsed` records, with its reason, a formula the
+# papers do not print, so the absence is a judgement and not a silence.
+lesson: entropy-temperature
+formulas:
+  - latex: "dS=\\frac{dE}{T},\\qquad\\left(\\frac{\\partial S}{\\partial E}\\right)_V=\\frac{1}{T}"
+    usedAt:
+      - paper: light-quanta
+        display: eq-s3-d7
+        note: "The differential form, printed as one over T times d E, which is this formula's left half rearranged and nothing more. Section 3 uses it to turn an entropy change into a temperature."
+      - paper: light-quanta
+        display: eq-s3-d8
+        note: "The derivative form, in the paper's spectral quantities: phi is the entropy density at one frequency and rho the energy density there, so this is the same relation per unit frequency rather than for the whole radiation."
