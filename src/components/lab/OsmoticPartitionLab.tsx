@@ -3,6 +3,7 @@
 import { type FormEvent, type ReactNode, useId, useState } from "react";
 import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { BM02_CAPTION } from "../../experiments/bm02/definition.ts";
+import { BM02_DRAFT_TAPE } from "../../experiments/bm02/draftTape.ts";
 import { validateBm02Parameters } from "../../experiments/bm02/parameters.ts";
 import {
   type Bm02Inputs,
@@ -17,6 +18,7 @@ import { CurrencyForView } from "../../experiments/labels/CurrencyForView.tsx";
 import { executionLabelFor } from "../../experiments/labels/executionLabelFor.ts";
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { notModeledFor } from "../../experiments/notModeled.ts";
+import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import type { RequestRefusal } from "../../experiments/results/refusals.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
@@ -24,7 +26,7 @@ import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { KEPT_RESULT } from "./keptResult.ts";
 import { LabMargin } from "./LabMargin.tsx";
-import { PredictGatePanels, usePredictGate } from "./PredictGate.tsx";
+import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { sentenceNumber } from "./presentation.ts";
 import { Sci } from "./Sci.tsx";
 import { ShowTheCode } from "./ShowTheCode.tsx";
@@ -190,6 +192,11 @@ export function OsmoticPartitionLab({
   const [refusal, setRefusal] = useState<RequestRefusal | null>(null);
   // The chamber and the settings come first; the pressure and what explains it wait.
   const gate = usePredictGate("bm-02", BM02_PROMPTS);
+  // A shared ?tape= link puts its settings in the FORM and calculates nothing; Apply runs them.
+  // The draft is set rather than the accepted inputs, so a reader sees what arrived and chooses.
+  const tapeLink = useDraftTapeLink(BM02_DRAFT_TAPE, accepted, true, (settings) => {
+    setDraft(toDraft(settings as unknown as Bm02Inputs));
+  });
 
   const snapshot = computeBm02Snapshot(accepted);
   // One sentence for the status line: the pressure on the partition, its force and its water column.
@@ -403,6 +410,7 @@ export function OsmoticPartitionLab({
             </p>
           )}
         </form>
+        <LabTapeLink link={withPredictions(tapeLink, gate)} />
         <AcceptedStatus
           worked={executionKind === "static-example"}
           summary={statusSummary}

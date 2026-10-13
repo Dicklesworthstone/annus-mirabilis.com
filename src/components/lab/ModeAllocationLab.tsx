@@ -7,6 +7,7 @@ import { CurrencyForView } from "../../experiments/labels/CurrencyForView.tsx";
 import { executionLabelFor } from "../../experiments/labels/executionLabelFor.ts";
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { LQ02_CAPTION } from "../../experiments/lq02/definition.ts";
+import { LQ02_DRAFT_TAPE } from "../../experiments/lq02/draftTape.ts";
 import { validateLq02Parameters } from "../../experiments/lq02/parameters.ts";
 import {
   computeLq02Snapshot,
@@ -17,6 +18,7 @@ import {
   removeUpperLimit,
 } from "../../experiments/lq02/session";
 import { notModeledFor } from "../../experiments/notModeled.ts";
+import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import type { RequestRefusal } from "../../experiments/results/refusals.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
@@ -24,7 +26,7 @@ import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { KEPT_RESULT } from "./keptResult.ts";
 import { LabMargin } from "./LabMargin.tsx";
-import { PredictGatePanels, usePredictGate } from "./PredictGate.tsx";
+import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { display, fixed, sentenceNumber } from "./presentation.ts";
 import { Sci } from "./Sci.tsx";
 import { ShowTheCode } from "./ShowTheCode.tsx";
@@ -109,6 +111,11 @@ export function ModeAllocationLab({
   const [divergence, setDivergence] = useState<RadiationResult<number> | null>(null);
   // The controls come first; the energies, their ratio and the refusal to total them wait.
   const gate = usePredictGate("lq-02", LQ02_PROMPTS);
+  // A shared ?tape= link puts its settings in the FORM and calculates nothing; Apply runs them.
+  // The draft is set rather than the accepted inputs, so a reader sees what arrived and chooses.
+  const tapeLink = useDraftTapeLink(LQ02_DRAFT_TAPE, accepted, true, (settings) => {
+    setDraft(toDraft(settings as unknown as Lq02Inputs));
+  });
 
   const snapshot: Lq02Snapshot = computeLq02Snapshot(accepted);
   // One sentence for the status line: the energy the classical allocation holds up to the cutoff,
@@ -235,6 +242,7 @@ export function ModeAllocationLab({
             </p>
           )}
         </form>
+        <LabTapeLink link={withPredictions(tapeLink, gate)} />
         <AcceptedStatus
           worked={executionKind === "static-example"}
           summary={statusSummary}
