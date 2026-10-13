@@ -47,6 +47,11 @@ pathIgnorePatterns = [
   # because a payload that compiles and a panel a reader meets are different claims, and the first
   # build of that feature drew all 39 panels while every link they carried was a 404.
   "src/testing/journeyExplainersRendered.node.test.ts",
+  # am-cadl: reads the built reading faces. The lesson pages render each lesson-formula edge as a
+  # link into the printed display it names, so a record naming a display the page does not carry is
+  # a dead link a reader meets. It reads the authored YAML rather than the loader's output, because
+  # the loader drops an unroutable edge and a check built on it could only see routable ones.
+  "src/testing/lessonFormulaAnchors.node.test.ts",
   # am-german-face-anchors-not-frozen-ids-jtv6: reads the built German faces. The alias machinery's
   # own e2e test uses synthetic markup on purpose (it measures what the engine does with a boxless
   # fragment target), so nothing asked what the SHIPPED faces anchor until this.
