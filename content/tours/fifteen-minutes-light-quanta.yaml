@@ -1,0 +1,138 @@
+# The light-quanta paper in fifteen minutes, without equations (am-tour-15min-light-quanta-yj70).
+# Checked by src/content/tours/tours.ts. Draft: no review is claimed, and the reader test that the
+# target claim prepares is a human gate (am-lq-review-reader-5alq), not run here.
+#
+# Nothing a reader reads here is Einstein's text or a copy of the site's readings. Reading steps name
+# paragraph units and show each paragraph's own R0 overview from content/bindings/light-quanta.yaml,
+# the first encounter is the entrance record, and the journey step shows Journey I's own move summary
+# by reference. The instrument steps cite each manifest's registered prompt, its candidate ids, and
+# the preset or tape whose settings answer it; their questions, choices and responses are this tour's
+# plain-words rendering of that prompt, as the bead authored them.
+#
+# THE BEAD'S BLOCKER HAD EXPIRED, which is why this exists now. It recorded that the cited prompts
+# were described but not registered, so the build would fail `tour-prompt-unresolved`. Measured
+# 2026-10-13: lq-01-predict-phase-shift (controlId delta), lq-05-predict-ten-points (controlId n) and
+# lq-08-predict-double-power (controlId incidentPower) are all registered in their manifests, the
+# cited presets lq-01-equal-amplitudes and lq-08-intensity-probe each set their prompt's control, and
+# the-locked-positions is an lq-05 tape carrying a control event for n. Nothing here substitutes a
+# tour-authored question for a missing prompt, which the bead forbids.
+#
+# STEP 6 DOES NOT USE THE PARAGRAPH THE BEAD NAMES, and this is the one place where it departs.
+# The bead asks for "the §6 paragraph stating the heuristic conclusion", which is s6-p6, whose R0
+# ends on the quantum's size written as R beta nu over N. `mathAndPhrasingHits` forbids beta, so that
+# R0 cannot be shown at detail 0. The bead anticipated exactly this: "The fix belongs in the readings
+# bead or a different anchor, never a substitute written in the tour." So this takes the different
+# anchor, s6-p4, which carries the heuristic character of the step without the symbol, and the
+# quantitative clause stays unshown until am-lq-readings-s5-s6-deq6 gives s6-p6 a symbol-free R0.
+# Measured with the real detector: of §6's paragraphs only p5 and p6 carry beta; p1 to p4 are clean.
+id: fifteen-minutes-light-quanta
+title: "The light-quanta paper in fifteen minutes"
+paper: light-quanta
+budget: fifteen-minutes
+requiresEquations: false
+review: draft
+introduction: "Einstein's paper of March 1905, read without equations: what it offers as a point of view, how the reasoning gets there, and what it accounts for that the wave description does not."
+completion: "You can now say what the paper claimed: in the right conditions light's energy behaves, in its thermodynamics, as if it came in independent parcels whose size depends on the frequency, and Einstein proposed, as a heuristic point of view, that light is produced and absorbed in such parcels, which accounts for why brighter light frees more electrons without making the fastest of them any faster."
+targetClaim: "Light's energy behaves as if it came in separate, independent pieces whose size depends on frequency, and this idea explains why brighter light frees more electrons but not faster ones."
+steps:
+  - id: first-encounter
+    title: "One object in half a box, then two, then three"
+    kind: first-encounter
+    record: entrance-light-quanta
+    anchor: entry-light-quanta
+    minutes: 3
+    purpose: "How one independent object, then two, then three can all end up in half a box. The small cases are counted out before any rule is named, and drawing dots is not evidence that light is made of dots."
+
+  - id: introduction
+    title: "What the wave theory does well, and where it might not"
+    kind: reading
+    anchors: [s0-p2, s0-p3]
+    minutes: 1
+    purpose: "The wave description of light works superbly for optics and will probably never be replaced there, but its observations are averages over time. For how light is produced and transformed, Einstein offers a different point of view."
+
+  - id: interference
+    title: "Two equal waves meeting"
+    kind: instrument
+    instrument: lq-01
+    promptId: lq-01-predict-phase-shift
+    preset: lq-01-equal-amplitudes
+    minutes: 2
+    purpose: "Before the parcels: the wave description's own great success. Two equal waves meet, and shifting one of them changes the brightness where they land."
+    tourPrediction:
+      promptId: lq-01-predict-phase-shift
+      question: "Two equal light waves meet at the center of a screen. Shift one of them by half a wave. What happens to the brightness at the center?"
+      choices:
+        - candidateId: unchanged
+          text: "It stays the same"
+          response: "Where the crests of one wave meet the troughs of the other, the two cancel, so the brightness at the center falls."
+        - candidateId: halves
+          text: "It halves"
+          response: "Waves add before brightness is found, so equal waves shifted by half a wave cancel completely, not halfway."
+        - candidateId: drops-to-zero
+          text: "It drops to zero"
+          response: "Equal waves shifted by half a wave cancel at the center. Explaining this interference is one of the wave description's great successes."
+
+  - id: independence
+    title: "Ten objects, each placed on its own"
+    kind: instrument
+    instrument: lq-05
+    promptId: lq-05-predict-ten-points
+    tape: the-locked-positions
+    minutes: 2
+    purpose: "The counting the paper leans on. Independent placements multiply their chances, and locking the objects together changes the answer completely."
+    tourPrediction:
+      promptId: lq-05-predict-ten-points
+      question: "Ten objects are placed in a box independently of one another, each equally likely to be anywhere. What is the chance that all ten are in the left half?"
+      choices:
+        - candidateId: lq-05-predict-ten-points-one-in-two
+          text: "About one in two"
+          response: "That is the chance for a single object. With ten independent objects the chances multiply, giving one in 1,024. If the ten were locked together, it would be one in two."
+        - candidateId: lq-05-predict-ten-points-one-in-twenty
+          text: "About one in twenty"
+          response: "Each object has a one-in-two chance on its own, and independence multiplies ten such chances into one in 1,024. Locked together, the ten would give one in two."
+        - candidateId: lq-05-predict-ten-points-one-in-a-thousand
+          text: "About one in a thousand"
+          response: "Ten independent halves multiply to one in 1,024. Independence is what makes the chance shrink so fast: locked together, the ten would give one in two."
+
+  - id: brighter-lamp
+    title: "A brighter lamp of the same color"
+    kind: instrument
+    instrument: lq-08
+    promptId: lq-08-predict-double-power
+    preset: lq-08-intensity-probe
+    minutes: 2
+    purpose: "What the point of view accounts for. Making the lamp brighter at the same frequency sends more energy each second, and the question is what that does to the electrons that leave."
+    tourPrediction:
+      promptId: lq-08-predict-double-power
+      question: "Make the lamp twice as bright without changing its frequency, which for visible light means its color. What happens to the energy of the fastest electrons?"
+      choices:
+        - candidateId: energy-increases
+          text: "It increases"
+          response: "A brighter lamp at the same frequency sends more energy each second. In this model, though, each electron still receives one parcel of the same size, so the fastest electrons keep the same energy."
+        - candidateId: energy-unchanged
+          text: "It stays the same"
+          response: "The fastest electrons keep the same energy. What grows is the number leaving each second, which doubles here."
+        - candidateId: energy-decreases
+          text: "It decreases"
+          response: "Nothing in a brighter beam of the same frequency takes energy away from each electron. The fastest keep the same energy, and more of them leave."
+
+  - id: heuristic
+    title: "The step Einstein calls a point of view"
+    kind: reading
+    anchors: [s6-p4]
+    minutes: 1
+    purpose: "Having found that the entropy of this radiation depends on volume the way a gas of independent particles does, the paper asks whether light is also produced and transformed as if it were made of such parcels. Einstein offers that as a point of view, not a proof."
+
+  - id: electrons
+    title: "What the point of view accounts for"
+    kind: reading
+    anchors: [s8-p7]
+    minutes: 1
+    purpose: "If each parcel acts on its own, the speed of the electrons that leave does not depend on how bright the light is, while the number of them does, which is what Lenard had observed."
+
+  - id: the-move
+    title: "The move, in one breath"
+    kind: journey-stage
+    moveSummaryOf: light-quanta
+    minutes: 1
+    purpose: "The one step of the argument that was not forced: reading a multiplier that came out of the entropy as a count of independent parts."
