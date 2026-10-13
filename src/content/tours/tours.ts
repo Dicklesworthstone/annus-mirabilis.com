@@ -22,7 +22,10 @@
  */
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { MOVE as BROWNIAN_MOVE } from "../../discovery/brownian/journeyII.ts";
+import { MOVE as LIGHT_QUANTA_MOVE } from "../../discovery/lightQuanta/journeyI.ts";
 import { MOVE as MASS_ENERGY_MOVE } from "../../discovery/massEnergy/journeyIV.ts";
+import { MOVE as RELATIVITY_MOVE } from "../../discovery/relativity/journeyIII.ts";
 import { REGISTERED_IDS } from "../../experiments/catalogue.ts";
 import { parseYaml } from "../provenance/yaml.ts";
 
@@ -40,6 +43,36 @@ const MOVES: Readonly<
     Readonly<{ journeyId: string; href: string; r0Summary: { text: string; reviewState: string } }>
   >
 > = {
+  /*
+   * ALL FOUR JOURNEYS, because three of them were missing and the absence read as a tour's fault.
+   *
+   * Only `mass-energy` was wired until 2026-10-13, so a tour step naming any other paper failed
+   * `tour-move-summary-missing: ... names no journey move for <paper>`. That message says the TOUR
+   * names no move, and the tour did name one: what was missing was this map's entry. Each of the
+   * four journeys has exported a `MOVE` with an `r0Summary` all along
+   * (discovery/lightQuanta/journeyI.ts, brownian/journeyII.ts, relativity/journeyIII.ts,
+   * massEnergy/journeyIV.ts), so the other three are a lookup away and were never a content gap.
+   *
+   * All four summaries are `draft` today, which the scaffold profile shows and the preview and
+   * launch profiles refuse a few lines below. That refusal is the one this map must not soften:
+   * wiring a journey here does not make its summary reviewed, and only a named physics reviewer
+   * may do that.
+   */
+  "light-quanta": {
+    journeyId: "journey-i",
+    href: "/discover/light-quanta/",
+    r0Summary: LIGHT_QUANTA_MOVE.r0Summary,
+  },
+  "brownian-motion": {
+    journeyId: "journey-ii",
+    href: "/discover/brownian-motion/",
+    r0Summary: BROWNIAN_MOVE.r0Summary,
+  },
+  "special-relativity": {
+    journeyId: "journey-iii",
+    href: "/discover/special-relativity/",
+    r0Summary: RELATIVITY_MOVE.r0Summary,
+  },
   "mass-energy": {
     journeyId: "journey-iv",
     href: "/discover/mass-energy/",
