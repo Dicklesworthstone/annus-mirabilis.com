@@ -1,0 +1,151 @@
+# The Brownian motion paper in fifteen minutes, without equations (am-tour-15min-brownian-z034).
+# Checked by src/content/tours/tours.ts. Draft: no review is claimed, and the reader test the target
+# claim prepares is a human gate (am-bm-review-reader-x77h), not run here.
+#
+# Nothing a reader reads here is Einstein's text or a copy of the site's readings. Reading steps name
+# paragraph units and show each paragraph's own R0 overview from
+# content/bindings/brownian-motion.yaml, the first encounter is the entrance record, and the journey
+# step shows Journey II's own move summary by reference. The instrument steps cite each manifest's
+# registered prompt, its candidate ids, and the preset or tape whose settings answer it.
+#
+# THIS WAS THE LAST OF THE FOUR TOURS, AND THE ONLY ONE WHOSE BLOCKER WAS REAL. All three sibling
+# beads recorded the same blocker, that the prompts they cite were described but not registered. For
+# mass-energy, light-quanta and relativity it had expired. Here it had not: bm-06's predictMode was
+# `exempt: true`, so `bm-06-predict-within-one-typical-distance` existed only inside the exemption's
+# own reason, and this bead forbids substituting a tour-authored question for a missing prompt. Both
+# of bm-06's prompts were registered in fbc2a7640, with every number recomputed against the owner
+# first, which is what made this record writable. Measured 2026-10-13, all three prompts resolve:
+#   bm-01-predict-observation-interval   control interval  preset bm-01-radius-probe      sets it
+#   bm-05-predict-step-shape             control kernel    tape   coin-to-bell            commands it
+#   bm-06-predict-within-one-typical-distance  control upper  preset bm-06-modern-one-second  sets it
+#
+# STEP 3 CITES A PRESET THE BEAD DOES NOT NAME, because it has to. The bead's step 3 cell says
+# "manifest default scenario", and the validator requires a preset or a tape: a step citing neither
+# fails tour-tape-does-not-reveal-prompt. Of the three bm-01 presets that set `interval`, this takes
+# bm-01-radius-probe. The thematically closest is bm-01-velocity-trap, whose whole subject is how the
+# apparent speed depends on the observation interval, and it is NOT used on purpose: the tour renders
+# the cited preset's label, and this bead's first Truth-at-R0 clause is that "no step mentions a
+# 'speed' or 'velocity' of Brownian motion as a property of the particles". A reveal labelled "The
+# velocity trap (Exner's mistake)" would put that word in front of the reader at exactly the step
+# where the bead forbids it.
+#
+# STEP 6 USES s5-p3 AND s5-p4, NOT s5-p1. The bead asks for "the §5 paragraph that states the
+# determination", which is s5-p3. The paragraph that states what is combined to get there, s5-p1,
+# would be the natural companion and is not used: its R0 reads "gives λx in terms of the time, the
+# temperature, the viscosity k and the radius P", which is a formula written in symbols, against
+# this bead's clause that "Quantities appear as words or plain digits". The step's own purpose line
+# carries the temperature, the viscosity and the particle size in words instead, and s5-p4 is paired
+# with s5-p3 so the paper's own closing hope that someone will soon decide the question stands beside
+# the determination. That serves the clause that nothing here claims the paper settled whether
+# molecules exist. Measured over §5: p2 carries superscripts and is refused by the detector, p1
+# carries the four symbols above, and p3 and p4 are clean.
+#
+# A NOTE FOR THE READINGS BEAD, not a defect in this record: s5-p3's R0 still names the count as N.
+# `mathAndPhrasingHits` permits a bare letter, and the other tours show "one speed V" and "clocks at
+# A and B" on the same permission, so this follows the corpus rather than inventing a stricter rule
+# here. An R0 naming the number of molecules in words would be better, and am-bm-readings-s4-s5-uqbb
+# owns that.
+id: fifteen-minutes-brownian-motion
+title: "The Brownian motion paper in fifteen minutes"
+paper: brownian-motion
+budget: fifteen-minutes
+requiresEquations: false
+review: draft
+introduction: "Einstein's paper of May 1905, read without equations: why particles you can see in a microscope have to wander if matter is made of molecules, what about that wandering can be measured, and what measuring it would tell you. The paper is about how far the particles spread, never about how fast they travel."
+completion: "You can now say what the paper claimed: particles in a liquid must wander so that their spread grows with the square root of the elapsed time (four times longer, twice as wide), and measuring that wandering, with the liquid's temperature and viscosity and the particles' size, would count the molecules."
+targetClaim: "Visible particles suspended in a liquid must wander, their spread growing with the square root of the time rather than in proportion to it, and measuring that spread together with the liquid's temperature and viscosity and the particles' size would count the molecules."
+steps:
+  - id: first-encounter
+    title: "An average of zero, and plenty of movement"
+    kind: first-encounter
+    record: entrance-brownian-motion
+    anchor: entry-brownian-motion
+    minutes: 4
+    purpose: "Four displacements, three steps left, one left, one right and three right, average to nothing while the particles have plainly moved. Ignoring the direction and squaring each value both answer it, and the paper takes the second route."
+
+  - id: introduction
+    title: "A prediction, and reports too vague to check it against"
+    kind: reading
+    anchors: [s0-p1, s0-p2]
+    minutes: 1.5
+    purpose: "On the molecular-kinetic theory of heat, particles big enough to see in a microscope, suspended in a liquid, must wander visibly. Einstein wrote that the reports of this motion available to him were too imprecise for him to judge whether it was the same thing he was predicting. If the wandering is there and its law can be observed, the sizes of atoms can be determined; if it is not, that counts against the theory."
+
+  - id: how-fast-it-spreads
+    title: "Watching for longer"
+    kind: instrument
+    instrument: bm-01
+    promptId: bm-01-predict-observation-interval
+    preset: bm-01-radius-probe
+    minutes: 2.5
+    purpose: "Many particles, watched together, drift nowhere and keep spreading. The question is how fast the spreading grows, and the answer is the one thing about this motion that can be measured cleanly."
+    tourPrediction:
+      promptId: bm-01-predict-observation-interval
+      question: "Watch many particles wander. If you watch four times as long, does the typical distance from the start become four times as large, two times as large, or stay the same?"
+      choices:
+        - candidateId: bm-01-predict-observation-interval-four-times
+          text: "Four times as large"
+          response: "The typical distance grows with the square root of the time, so four times longer gives twice as far, not four times."
+        - candidateId: bm-01-predict-observation-interval-twice
+          text: "Two times as large"
+          response: "Four times longer gives twice as far. Each particle is struck constantly from all sides; the kicks favor no direction, so the particles drift nowhere, and each new stretch of kicks moves a particle on from wherever it already is."
+        - candidateId: bm-01-predict-observation-interval-unchanged
+          text: "It stays the same"
+          response: "The spread keeps growing as long as you watch, because nothing brings a particle back to where it began."
+
+  - id: many-small-steps
+    title: "Four hundred steps, whatever the step looks like"
+    kind: instrument
+    instrument: bm-05
+    promptId: bm-05-predict-step-shape
+    tape: coin-to-bell
+    minutes: 2
+    purpose: "Why the result does not depend on the details of a single kick. Change the shape of one step and keep its typical size, and after enough steps the picture is the same."
+    tourPrediction:
+      promptId: bm-05-predict-step-shape
+      question: "Each walker takes the same number of random steps. Replace a step whose size varies with one that is always the same size, left or right. After four hundred steps, is the picture two separate piles, the same bell shape, or a wider bell?"
+      choices:
+        - candidateId: two-separate-piles
+          text: "Two separate piles"
+          response: "Two piles is what one step of fixed size gives. Four hundred of them pile up into a single bell."
+        - candidateId: same-bell-shape
+          text: "The same bell shape"
+          response: "After many steps only the typical size of a step matters, not the shape of a single step."
+        - candidateId: wider-bell
+          text: "A wider bell"
+          response: "The width is set by the typical size of a step and by how many steps are taken, and neither changed here."
+
+  - id: how-many-are-close
+    title: "How many stay near the start"
+    kind: instrument
+    instrument: bm-06
+    promptId: bm-06-predict-within-one-typical-distance
+    preset: bm-06-modern-one-second
+    minutes: 2
+    purpose: "The typical distance is a summary of a whole spread, not a fence that holds the particles in. This asks what share of them is inside it."
+    tourPrediction:
+      promptId: bm-06-predict-within-one-typical-distance
+      question: "After a fixed waiting time, about what share of the particles is closer to the start than the typical distance?"
+      choices:
+        - candidateId: about-half
+          text: "About half"
+          response: "Half of them are closer than about seven tenths of the typical distance, which is a shorter distance than the one asked about."
+        - candidateId: about-two-in-three
+          text: "About two in three"
+          response: "About 68 in 100 are closer to the start than the typical distance."
+        - candidateId: about-95-in-100
+          text: "About 95 in 100"
+          response: "That share is reached at about twice the typical distance."
+
+  - id: counting-the-molecules
+    title: "What measuring the wandering would tell you"
+    kind: reading
+    anchors: [s5-p3, s5-p4]
+    minutes: 1.5
+    purpose: "The key result. Measuring how far the particles wander in a given time, in a liquid whose temperature and viscosity are known, with particles whose size is known, would determine the number of molecules. Einstein leaves the question open, and nothing here claims that the paper by itself settled whether molecules exist."
+
+  - id: the-move
+    title: "The move, in one breath"
+    kind: journey-stage
+    moveSummaryOf: brownian-motion
+    minutes: 1
+    purpose: "The one step that turns an invisible cause into something a microscope can measure."
