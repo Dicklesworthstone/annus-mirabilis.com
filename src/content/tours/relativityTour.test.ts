@@ -313,25 +313,27 @@ describe("the relativity tour resolves", () => {
     ).toBe(true);
   });
 
-  test("planted: the §4 paragraph the bead names passes the detector, which is the gap", () => {
-    // NOT a refusal test. `mathAndPhrasingHits` does not catch a bare-letter fraction, so s4-p6
-    // would validate at detail 0 while showing "(v/V) squared" to a reader promised no equations.
-    // This pins all three facts the record's header asserts.
+  test("planted: the §4 paragraph the bead names is refused for its fraction bar", () => {
+    // This test ASSERTED A PASS until the detector was completed, because `mathAndPhrasingHits`
+    // only caught the hard-coded `L/` and let `(v/V) squared` through. The gap is closed, so the
+    // plant now shows a refusal, and the departure documented in the record's header is enforced
+    // rather than merely described. The three facts the header asserts are pinned either way.
     const named = r0Of("s4-p6");
     const used = r0Of("s4-p7");
     expect(named.length).toBeGreaterThan(0);
     expect(used.length).toBeGreaterThan(0);
-    expect(mathAndPhrasingHits(named)).toEqual([]);
     expect(named).toContain("(v/V)");
     expect(used).not.toContain("/");
-    // And planting it back really does leave the tour green, which is why the departure is
-    // documented in the record rather than enforced by the gate.
+    expect(mathAndPhrasingHits(named)).toContain("v/V");
+    // The positive control: the paragraph the record actually uses is clean.
+    expect(mathAndPhrasingHits(used)).toEqual([]);
     const edited = parseYaml(rawText) as { steps?: Record<string, unknown>[] };
     const step = (edited.steps ?? []).find((s) => s.id === "clock-carried");
     if (!step) throw new Error("the step this plant edits must exist");
     step.anchors = ["s4-p6"];
     expect(step.anchors).toEqual(["s4-p6"]);
     const { problems } = checkTour(ROOT, edited as Record<string, unknown>);
-    expect(problems.filter((p) => p.startsWith("tour-step-math:"))).toEqual([]);
+    // Named, not merely non-empty: the refusal has to be the fraction and not some other breakage.
+    expect(problems.some((p) => p.startsWith("tour-step-math:") && p.includes("v/V"))).toBe(true);
   });
 });

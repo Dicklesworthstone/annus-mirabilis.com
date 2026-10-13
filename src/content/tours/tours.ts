@@ -133,14 +133,35 @@ export function readingMinutes(text: string): number {
 }
 
 /**
- * What a step at detail 0 may never show: math delimiters or TeX, the symbols the bead names, and
- * the phrasings it forbids. Returns each hit, so a failure names what it found.
+ * A fraction bar between letters standing for quantities: `v/V`, `R/N`, `RT/N`, `vw/V`. The
+ * fifteen-minute tours promise a reader no equations, and their beads put it as "No step shows a
+ * symbol, a fraction bar, or a formula", so this is part of that promise rather than a new rule.
+ *
+ * IT GENERALIZES `L/`, WHICH WAS ALREADY IN THE SYMBOL LIST BELOW. That entry caught the one case
+ * its author met and nothing else, so `(v/V) squared` passed: measured 2026-10-13, 19 of the four
+ * papers' 210 R0 lines carry such a fraction (light-quanta 10, brownian-motion 4,
+ * special-relativity 5, mass-energy 0) and every one of them would have been shown at detail 0 had
+ * a tour named its paragraph. `special-relativity/s4-p6` is the paragraph that found this: the
+ * relativity tour's bead names it for step 7, and it reads "about half of t times (v/V) squared
+ * seconds". `L/` stays, because it also catches a bar followed by a digit, which this misses.
+ *
+ * Measured before it was added: 0 hits across the 145 strings the three existing tours show, so it
+ * reddens no tour today. What it does is refuse the next one that reaches for one of those 19.
+ */
+const BARE_LETTER_FRACTION = /(?<![A-Za-z0-9])[A-Za-z]{1,2}\/[A-Za-z]{1,2}(?![A-Za-z0-9])/u;
+
+/**
+ * What a step at detail 0 may never show: math delimiters or TeX, the symbols the bead names, a
+ * fraction bar between letters, and the phrasings it forbids. Returns each hit, so a failure names
+ * what it found.
  */
 export function mathAndPhrasingHits(text: string): string[] {
   const hits: string[] = [];
   if (/\\\(|\\\[|\$|\\[a-zA-Z]+/.test(text)) hits.push("math markup");
   for (const symbol of ["c²", "c^2", "L/", "γ", "V²", "β", "φ", "²", "³", "√"])
     if (text.includes(symbol)) hits.push(symbol);
+  const fraction = BARE_LETTER_FRACTION.exec(text);
+  if (fraction) hits.push(fraction[0]);
   if (/\b[Mm]c\b/.test(text)) hits.push("mc");
   for (const phrase of [
     /E\s*=\s*mc/i,
