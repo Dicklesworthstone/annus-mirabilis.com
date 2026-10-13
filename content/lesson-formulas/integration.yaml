@@ -1,0 +1,15 @@
+# integration: where each formula's shape is printed in the papers.
+#
+# One entry per formula block of content/foundations/integration.json, named by its latex exactly as the
+# lesson writes it. `usedAt` names printed displays that print this shape, with a note saying what
+# the paper does with it there. `notUsed` records, with its reason, a formula the papers do not
+# print, so the absence is a judgement and not a silence.
+lesson: integration
+formulas:
+  - latex: "\\int_a^b p(x)\\,dx = \\lim_{\\Delta x \\to 0} \\sum_i p(x_i)\\,\\Delta x"
+    notUsed: "The papers print integrals constantly and never the limit of sums that defines one. brownian-motion eq-s4-d2 normalises φ over every Δ and light-quanta eq-s1-d8 integrates a spectral density over all ν, both assuming the definition rather than stating it. The lesson writes it so a reader meets the sum before the symbol."
+  - latex: "\\int_a^b u\\frac{dv}{dx}\\,dx = [uv]_a^b - \\int_a^b v\\frac{du}{dx}\\,dx"
+    usedAt:
+      - paper: brownian-motion
+        display: eq-s3-d3
+        note: "Integration by parts, done rather than named: the derivative moves off δx and onto ν, and the sign flips. No boundary term is written because the ends of the interval are held fixed."

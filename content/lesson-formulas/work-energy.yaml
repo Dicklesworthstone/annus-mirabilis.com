@@ -1,0 +1,18 @@
+# work-energy: where each formula's shape is printed in the papers.
+#
+# One entry per formula block of content/foundations/work-energy.json, named by its latex exactly as the
+# lesson writes it. `usedAt` names printed displays that print this shape, with a note saying what
+# the paper does with it there. `notUsed` records, with its reason, a formula the papers do not
+# print, so the absence is a judgement and not a silence.
+lesson: work-energy
+formulas:
+  - latex: "K=\\frac{1}{2}mv^2"
+    notUsed: "No paper prints the classical kinetic energy on its own. The mass-energy paper needs only a DIFFERENCE of two kinetic energies, which it prints at eq-s0-d7, and it never writes the single-body form the lesson starts from."
+  - latex: "K_0-K_1=\\frac{1}{2}(m_0-m_1)v^2"
+    usedAt:
+      - paper: mass-energy
+        display: eq-s0-d7
+        note: "The paper's own conclusion in this shape: a difference of kinetic energies equal to one half of something times v squared. Where the lesson writes a mass difference, the paper writes L over V squared, and identifying the two is the whole argument of the paper."
+      - paper: mass-energy
+        display: eq-s0-d6
+        note: "The same difference one line earlier and exact, before the low-speed approximation: the brace, not the one half v squared. Reading the two together shows which step is the approximation."
