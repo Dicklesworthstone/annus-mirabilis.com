@@ -36,11 +36,17 @@
 #     content/editorial/readings-owners/am-bm-06-gaussian-spread-982y.yaml. The bead requires
 #     that file to land in the SAME change as real caption text, never as an empty placeholder,
 #     so it is not started here.
-#   - Two registered predict prompts (bm-06-predict-within-one-typical-distance,
-#     bm-06-predict-radial-most-likely) with full separatingAssumption text for three candidates
-#     each -- predictMode is declared exempt here rather than fabricated, since
-#     am-inst-predict-mode-ti7m (the runtime this would wire into) is still open and the bead's
-#     own worked numbers for these prompts deserve a careful pass, not a rushed one.
+#   - [DONE 2026-10-13] Two registered predict prompts
+#     (bm-06-predict-within-one-typical-distance, bm-06-predict-radial-most-likely) with full
+#     separatingAssumption text for three candidates each. This was deferred as exempt rather than
+#     fabricated, on the reason that "am-inst-predict-mode-ti7m (the runtime this would wire into)
+#     is still open and the bead's own worked numbers for these prompts deserve a careful pass, not
+#     a rushed one". That was the right call and the careful pass has now been made: see the note
+#     above predictMode at the end of this file for each number and where it was checked. HALF OF
+#     THE REASON HAD EXPIRED AND HALF NEVER APPLIED. am-inst-predict-mode-ti7m is still open today,
+#     but 40 prompts across 28 other manifests are registered regardless, so an open runtime was
+#     never what stopped a manifest from DECLARING a prompt. The worked-numbers half was the real
+#     one, and it is what this pass did.
 #   - weavePredicates: BM06_WEAVE_PREDICATES (src/experiments/bm06/definition.ts) already
 #     declares bm06-s4-solution and bm06-s4-grid-agreement, but its own comment says they predate
 #     the real am-read-result-weave-jex contract and were never run through it ("declared as data
@@ -596,6 +602,72 @@ realRate:
     length: 1e-6
     unit: "m"
 embeddable: true
+# The two prompts the bead specifies, authored 2026-10-13 against its own worked numbers, each of
+# which was recomputed independently before it was written here rather than copied:
+#   share within one RMS displacement  erf(1/sqrt2)  = 0.682689492137
+#   share within two                   erf(2/sqrt2)  = 0.954499736104
+#   the half share is reached at       0.6744898 of the RMS displacement, which at this manifest's
+#                                      modern-golden inputs is 0.6250883 um against a lambda_x of
+#                                      0.9267574 um. (Under Einstein's own one-second case the bead
+#                                      gives 0.5360732 um, which implies lambda_x = 0.7947833 um and
+#                                      so agrees with AGENTS.md's "about 0.79 um".)
+#   the 2D radial most likely radius   sqrt(2Dt), equal to the 1D RMS displacement
+#
+# The first prompt's answer is not merely arithmetic here: it is already a registered acceptance
+# case, content/scenarios/bm-06-one-rms-probability.yaml, proven against the owner
+# diffusion.gaussianIntervalProbability at exactly the interval bm-06-modern-one-second sets. The
+# second prompt's answer is what the registered owner returns: mostLikelyRadius2d(D, t) is
+# sqrt(2 * D * t) in src/physics/reference/diffusion/distributions.ts.
+#
+# TARGETS, AND WHY THEY ARE NOT THE ONES THE BEAD NAMES. The bead gives the first prompt the action
+# `interval-select` and the second the control `dimension`.
+#   - `dimension` does not exist, which the deferral note above this file's parameters already
+#     records: the runtime computes the 1D, 2D radial and 3D radial outputs together and a view
+#     chooses. So the second prompt targets the action that reveals it,
+#     bm-06-compare-radial-dimensions, whose accepted outputs include mostLikelyRadius2d.
+#   - The first prompt could target this manifest's own interval action, bm-06-select-interval, but
+#     a tour step may not cite an action-targeted prompt: src/content/tours/tours.ts reads only
+#     `controlId`, so such a step fails tour-tape-does-not-reveal-prompt whatever preset it names.
+#     am-tour-15min-brownian-z034's step 5 cites this prompt, so it takes `controlId: upper`, which
+#     bm-06-modern-one-second sets to +lambda_x with `lower` at -lambda_x. Measured across the
+#     corpus, 40 of 41 registered prompts target a control and 1 targets an action (lq-02), so this
+#     follows the corpus and BM-01's own `controlId: interval` precedent rather than inventing a form.
 predictMode:
-  exempt: true
-  reason: "am-inst-predict-mode-ti7m (the runtime this would wire into) is still open, and the bead's two prompts (bm-06-predict-within-one-typical-distance, bm-06-predict-radial-most-likely) need their full separatingAssumption text authored carefully against the bead's own worked numbers, not fabricated to fill this field. Deferred, named here rather than invented."
+  enabled: true
+  prompts:
+    - promptId: bm-06-predict-within-one-typical-distance
+      supportedCandidateId: about-two-in-three
+      controlId: upper
+      question: "What share of the tracers lies within one typical distance (one RMS displacement) of the start?"
+      explanation: "The displacement after a time t is Gaussian with mean square 2Dt, so the typical distance is λ_{x} = √(2Dt) and it is also the distribution's standard deviation. The share inside ±λ_{x} is therefore erf(1/√2) = 0.682689492137. Inside ±2λ_{x} it is 0.954499736104, and the share reaches one half at 0.6744898 λ_{x}, a shorter distance than the one asked about. All three candidates are explained on the reveal, not only the supported one."
+      candidates:
+        - id: about-half
+          label: "About half"
+          description: "The typical distance is read as the one that splits the tracers in half"
+          separatingAssumption: "Treats the typical distance as the median of the distance from the start. For a Gaussian the half share is reached at 0.6744898 λ_{x}, which at this manifest's modern-golden inputs is 0.6251 μm against a λ_{x} of 0.9268 μm, so this names a shorter distance than the question asks about."
+        - id: about-two-in-three
+          label: "About two in three"
+          description: "The Gaussian share inside one standard deviation, which here is one RMS displacement"
+          separatingAssumption: "Takes the displacement to be Gaussian with mean square 2Dt, as §4 gives it, so λ_{x} = √(2Dt) is also the standard deviation and the share inside ±λ_{x} is erf(1/√2) = 0.682689492137."
+        - id: about-95-in-100
+          label: "About 95 in 100"
+          description: "The share inside two RMS displacements rather than one"
+          separatingAssumption: "Names the two-deviation share, 0.954499736104, which belongs to ±2λ_{x}. The question asks about one typical distance, where the share is 0.682689492137."
+    - promptId: bm-06-predict-radial-most-likely
+      supportedCandidateId: about-one-typical-distance
+      actionId: bm-06-compare-radial-dimensions
+      question: "Switching to the distance from the start in two dimensions, where is the most likely distance?"
+      explanation: "In two dimensions the density of the DISTANCE from the start carries a factor r for the circumference available at that distance, so it goes as r·exp(−r²/(4Dt)). That product vanishes at the start, rises, and falls, peaking at r = √(2Dt), which is the same number as the one-dimensional RMS displacement: the growing circumference of available positions cancels the falling density near the start. This is what the registered owner returns, mostLikelyRadius2d(D, t) = √(2 D t)."
+      candidates:
+        - id: at-the-start
+          label: "At the start"
+          description: "The density of position is highest at the start, so the distance should be too"
+          separatingAssumption: "Reads the most likely DISTANCE off the density of POSITION, which is indeed highest at the start. The distance has its own density, carrying the factor r for the circumference available at that distance, and that factor vanishes at r = 0."
+        - id: about-one-typical-distance
+          label: "About one typical distance"
+          description: "The 2D radial density peaks at the 1D RMS displacement"
+          separatingAssumption: "Multiplies the falling Gaussian by the growing circumference, so r·exp(−r²/(4Dt)) peaks at r = √(2Dt), the same number as the one-dimensional RMS displacement."
+        - id: about-twice-the-typical-distance
+          label: "About twice the typical distance"
+          description: "The circumference factor is taken to push the peak well beyond the typical distance"
+          separatingAssumption: "Lets the circumference factor dominate. It shifts the peak away from the start but only to √(2Dt); at twice that distance the Gaussian factor has fallen by exp(−1.5), so the product is well past its maximum."
