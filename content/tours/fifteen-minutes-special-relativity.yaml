@@ -1,0 +1,177 @@
+# The electrodynamics paper in fifteen minutes, without equations
+# (am-tour-15min-relativity-qcxc). Checked by src/content/tours/tours.ts. Draft: no review is
+# claimed, and the reader test the target claim prepares is a human gate (am-sr-review-reader-qff7),
+# not run here.
+#
+# Nothing a reader reads here is Einstein's text or a copy of the site's readings. Reading steps name
+# paragraph units and show each paragraph's own R0 overview from
+# content/bindings/special-relativity.yaml, the first encounter is the entrance record, and the
+# journey step shows Journey III's own move summary by reference. The instrument steps cite each
+# manifest's registered prompt, its candidate ids, and the preset whose settings answer it; their
+# questions, choices and responses are this tour's plain-words rendering of that prompt.
+#
+# STEP 4 RENDERS SR-03'S REGISTERED QUESTION, NOT THE ONE THE BEAD'S TABLE DESCRIBES, and this is
+# the first of two documented departures. The bead's own pitfall note already records that this
+# step's prompt id drifted: "SR-03's prompt is `sr-03-predict-endpoint-pair`; an earlier draft of
+# this tour cited `sr-03-predict-events-pair`, which no manifest registers." Measured 2026-10-13,
+# the candidate ids drifted with it. The bead's table names `still-simultaneous-10-ls`,
+# `still-simultaneous-8-ls` and `not-simultaneous-not-a-length`; sr-03.yaml registers
+# `earlier-trailing`, `still-simultaneous` and `later-trailing`, and asks for the SIGN of the time
+# separation in the rod's frame rather than for a simultaneity-and-length verdict. Its numbers
+# differ too: the bead's 7.5 s and 12.5 ls belong to a pair 10 ls apart in our frame, while the
+# preset the bead cites, sr-03-boost-0.6c, selects the pair `platform-simultaneous` on a rod of rest
+# length 10 ls, which our frame measures as 8 ls, giving 6 seconds in the rod's frame. This tour
+# follows the manifest on all three counts, because the bead requires it to: it "never invents a
+# question its instrument does not ask and never renames a prompt its owner has registered", and
+# "the fix belongs in whichever file departed from the owner's manifest", which here is the bead's
+# own superseded table rather than sr-03.yaml.
+#
+# STEP 7 DOES NOT USE THE PARAGRAPH THE BEAD NAMES, which is the second departure and the same shape
+# as the light-quanta tour's. The bead asks for "the §4 paragraph on the clock moved from A to B",
+# which is s4-p6, and that R0 states the lag as "about half of t times (v/V) squared seconds, where
+# t is the time the journey took": three letters standing for quantities and a fraction bar. The
+# bead's own rule for this tour is that "No step shows a symbol, a fraction bar, or a formula", and
+# its instruction when an R0 cannot be shown is to take a different anchor, never a hand-written
+# substitute. So the step takes s4-p7, which carries the result's reach, from a straight trip to any
+# path of straight pieces including a closed one, without a symbol, and the step's own purpose line
+# states the lag in words. Measured over every §4 paragraph: p6 and p9 carry the fraction, p8 is the
+# equator-clock remark this bead forbids here, and p1, p3, p4, p5 and p7 are clean. The quantitative
+# clause stays unshown until am-srk-readings-s4-s5-njsh gives s4-p6 a symbol-free R0.
+#
+# NOTE FOR THE GATE, recorded because it is a gap rather than a pass: `mathAndPhrasingHits` does NOT
+# catch a bare-letter fraction such as (v/V), so s4-p6 and s4-p9 would both validate at detail 0
+# while breaking the promise this tour's product is. The detector is not changed here, because a
+# validator change commits alone; the finding is filed on this bead.
+id: fifteen-minutes-special-relativity
+title: "The electrodynamics paper in fifteen minutes"
+paper: special-relativity
+budget: fifteen-minutes
+requiresEquations: false
+review: draft
+introduction: "Einstein's paper of June 1905, read without equations: why saying that two distant things happened at the same time needs a stated rule, what follows for clocks, rods and speeds once that rule is in place, and the electrodynamics the paper was written to repair. A light-second, where it appears below, is the distance light travels in one second."
+completion: "You can now say what the paper claimed: if the laws of physics take the same form for all observers in uniform motion, and light in empty space travels at one definite speed however its source moves, then whether distant events happen at the same time depends on the observer's motion, moving clocks and rods measure differently, speeds below light's combine into a speed that is still below it, and whether a force counts as electric or magnetic depends on the observer, so the magnet-and-coil puzzle disappears."
+targetClaim: "Whether two distant events count as happening at the same time depends on how the observer is moving, which follows from taking the same laws for every observer in uniform motion together with one definite speed for light, and it carries through to clocks, to rods, to how speeds combine, and to whether a force is called electric or magnetic."
+steps:
+  - id: first-encounter
+    title: "A signal leaves at nothing and returns at ten"
+    kind: first-encounter
+    record: entrance-special-relativity
+    anchor: entry-special-relativity
+    minutes: 3
+    purpose: "A signal leaves a clock when it reads nothing and comes back when it reads ten. Giving the far reflection the time five is a rule someone lays down, not a one-way light time anyone measured."
+
+  - id: introduction
+    title: "One current, two explanations"
+    kind: reading
+    anchors: [s0-p1, s0-p2]
+    minutes: 1
+    purpose: "The current observed depends only on the relative motion of magnet and conductor, yet the theory of the day explained the two cases in two different ways. Together with the failed attempts to detect motion relative to the light medium, this suggests that the same laws hold for every observer in uniform motion. The paper adopts that principle and a second one: light in empty space travels at one definite speed, however its source moves. A light ether then becomes superfluous for the paper's purposes."
+
+  - id: moving-clocks
+    title: "A pair of clocks riding past"
+    kind: instrument
+    instrument: sr-01
+    promptId: sr-01-predict-moving-pair
+    preset: sr-01-moving-pair-0.6c
+    minutes: 2
+    purpose: "The rule of the first encounter, now used by riders who are moving past us. They follow it exactly as we would, and we watch what their clocks read by ours."
+    tourPrediction:
+      promptId: sr-01-predict-moving-pair
+      question: "A pair of clocks 10 light-seconds apart rides past at 0.6 of light speed, and the riders set their clocks with the same light-signal rule. Judged by our clocks, what do theirs show?"
+      choices:
+        - candidateId: they-agree
+          text: "They agree with ours"
+          response: "The riders did use the same rule. By our clocks, though, the signal chasing the front clock travels longer than the one coming back, so their settings differ by our reckoning."
+        - candidateId: leading-clock-ahead
+          text: "The leading clock is ahead"
+          response: "By our clocks it is the other way round: the clock at the back of the pair is the one reading ahead."
+        - candidateId: trailing-clock-ahead
+          text: "The trailing clock is ahead"
+          response: "By our clocks the trailing clock reads 6 seconds ahead of the leading one, while the riders, using their own clocks, call the pair synchronized."
+
+  - id: marking-both-ends
+    title: "Marking both ends of a moving rod"
+    kind: instrument
+    instrument: sr-03
+    promptId: sr-03-predict-endpoint-pair
+    preset: sr-03-boost-0.6c
+    minutes: 2
+    purpose: "What it takes to measure the length of something that is moving: catch both of its ends at one time. The question is whose time, and what the pair of markings looks like to the rod."
+    tourPrediction:
+      promptId: sr-03-predict-endpoint-pair
+      question: "A rod 10 light-seconds long in its own frame rides past at 0.6 of light speed. We mark both of its ends at the same moment by our clocks, and the two marks lie 8 light-seconds apart. By the rod's own clocks, were the two ends marked at the same time?"
+      choices:
+        - candidateId: earlier-trailing
+          text: "No: the front end was marked first"
+          response: "By the rod's own clocks the front end was marked 6 seconds before the rear end. Marking both ends at one of our times is not marking them at one of the rod's times, which is why the 8 light-seconds is a length for us and not for the rod."
+        - candidateId: still-simultaneous
+          text: "Yes, at the same time by the rod's clocks too"
+          response: "That keeps one time for everybody, as the older kinematics did. Section 2 shows that two events at one time in our frame are not at one time in a frame moving relative to ours."
+        - candidateId: later-trailing
+          text: "No: the rear end was marked first"
+          response: "That is the right answer with the sign turned round. With the rod travelling forward along its own length, its front end is the one marked first by its own clocks."
+
+  - id: adding-speeds
+    title: "A speed on top of a speed"
+    kind: instrument
+    instrument: sr-06
+    promptId: sr-06-predict-collinear
+    preset: sr-06-collinear-0.6-0.6
+    minutes: 2
+    purpose: "Once clocks and rods behave this way, adding two speeds cannot be a matter of adding two numbers. This is where the second principle stops being a nuisance and starts doing work."
+    tourPrediction:
+      promptId: sr-06-predict-collinear
+      question: "An object moves at 0.6 of light speed relative to a frame that itself moves at 0.6 of light speed. What speed does the platform measure?"
+      choices:
+        - candidateId: galilean-sum
+          text: "1.2 times light speed"
+          response: "Adding speeds that way assumes both observers share one time and one length scale. With the paper's procedures the platform measures about 0.88 of light speed."
+        - candidateId: relativistic-15-17
+          text: "About 0.88 of light speed"
+          response: "The platform measures fifteen seventeenths of light speed, still below it."
+        - candidateId: unchanged-0-6c
+          text: "0.6 of light speed"
+          response: "The object does move faster than the frame does, just not by the full 0.6."
+
+  - id: moving-toward-the-source
+    title: "Moving toward a distant light"
+    kind: instrument
+    instrument: sr-09
+    promptId: sr-09-predict-approaching
+    preset: sr-09-approaching-0.6
+    minutes: 2
+    purpose: "Something the paper's kinematics predicts that can be checked against light itself. Waves in a medium give two different answers here depending on which party is moving; the paper gives one."
+    tourPrediction:
+      promptId: sr-09-predict-approaching
+      question: "An observer moves toward a distant light source at 0.6 of light speed along the line of sight. What happens to the frequency the observer measures?"
+      choices:
+        - candidateId: classical-approaching-observer
+          text: "It rises to 1.6 times"
+          response: "That is the answer for waves in a medium, as sound behaves in still air, when the observer moves through the medium and everyone keeps one shared time."
+        - candidateId: classical-approaching-source
+          text: "It rises to 2.5 times"
+          response: "That is the medium answer for the other case, a source moving through the medium toward an observer at rest in it. The two medium answers differ; the paper's result does not depend on which one is moving."
+        - candidateId: doubles
+          text: "It doubles"
+          response: "The frequency doubles. The paper's factor depends only on how observer and source move relative to each other, and it lies between the two medium answers, as their geometric mean. Lorentz's 1904 theory, with its transformed variables, also gives this relative-motion factor, so the medium answers stand for the simple medium picture rather than for Lorentz's theory."
+
+  - id: clock-carried
+    title: "A clock that travelled, beside one that stayed"
+    kind: reading
+    anchors: [s4-p7]
+    minutes: 1
+    purpose: "A clock carried from one place to another, then compared with a clock that stayed behind, lags behind it, as judged from the frame in which the carried clock moved. The paper extends the result from a straight trip to any path made of straight pieces, including one that returns to where it began."
+
+  - id: asymmetry
+    title: "Electric or magnetic, depending on who asks"
+    kind: reading
+    anchors: [s6-p8]
+    minutes: 1
+    purpose: "Whether the force on a moving charge counts as electric or magnetic depends on the observer's state of motion, so the asymmetry the paper opened with disappears."
+
+  - id: the-move
+    title: "The move, in one breath"
+    kind: journey-stage
+    moveSummaryOf: special-relativity
+    minutes: 0.5
+    purpose: "The one step that was laid down rather than found."
