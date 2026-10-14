@@ -359,10 +359,10 @@ export const SUBPROCESS_LANE_EXEMPTIONS: ReadonlyMap<string, SubprocessLaneExemp
       reason: "spawns `bun scripts/source-manifest-report.ts`, so the child is bun and not node",
     },
   ],
-  [
-    "src/content/coverage/coverageLedger.test.ts",
-    { basis: "checked", reason: "spawns `bun scripts/coverage-report.ts`, so the child is bun" },
-  ],
+  // src/content/coverage/coverageLedger.test.ts was here, excused for spawning
+  // `bun scripts/coverage-report.ts`. The spawn moved to coverageReportCli.node.test.ts on
+  // 2026-10-14, so the exemption is retired rather than carried: this gate refused the stale
+  // entry by name, which is what it is for.
   [
     "src/testing/checkRevisions.integration.test.ts",
     {
