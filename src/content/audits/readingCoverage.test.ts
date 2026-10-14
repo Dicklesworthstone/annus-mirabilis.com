@@ -13,7 +13,14 @@
  * that second assertion, which is the whole finding.
  */
 import { describe, expect, test } from "bun:test";
-import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import baseline from "./readingCoverage.baseline.json" with { type: "json" };
@@ -118,7 +125,17 @@ describe("the readings audit reads every population, not the one already complet
       const paper = id.split("/")[0] ?? "";
       expect(papers.has(paper), `display shortfall id "${id}" names no paper`).toBe(true);
     }
-    expect(displays.filter((id) => id.startsWith("brownian-motion/")).length).toBeGreaterThan(0);
+    // Two properties that hold at every stage of the debt, including zero, and that the
+    // unqualified ids could not satisfy: each entry is distinct, and each names a record that
+    // exists. Before the ids carried their paper, 125 entries shared 83 spellings, so neither
+    // could be asserted. A "brownian-motion has a shortfall" line stood here for an hour and was
+    // false by the end of the day, which is what a debt asserted as a fact does.
+    expect(new Set(displays).size).toBe(displays.length);
+    for (const id of displays) {
+      expect(existsSync(resolve(".", "content/equation-explanations", `${id}.yaml`)), id).toBe(
+        true,
+      );
+    }
   });
 
   test("a paragraph binding's r1 to r3 are not baselined, because it carries r0 by design", () => {
