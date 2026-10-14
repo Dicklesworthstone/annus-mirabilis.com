@@ -4,7 +4,7 @@
  * them; tests plant a missing dispatcher case and illegal catalogue ids.
  */
 
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import yaml from "js-yaml";
 import {
@@ -53,7 +53,24 @@ export type InstrumentAuditRow = Readonly<{
   dispatcherCase: boolean;
   inCoreCatalogue: boolean;
   inNonCoreList: boolean;
-  probes: readonly string[];
+  /**
+   * THE MANIFEST'S `probes:` LIST, WHICH GOVERNS NOTHING AND IS KEPT ONLY TO BE REPORTED.
+   *
+   * The experiment schema declares it `readonly string[]` and validates no element, so an id in
+   * it resolves to whatever a reader of the manifest imagines. Measured 2026-10-14: 55 of the 77
+   * ids declared across 27 manifests are named by nothing in the tree except the manifest line
+   * that declares them. The column below reads `readerProbes` instead.
+   */
+  manifestProbes: readonly string[];
+  /**
+   * THE PROBES A READER CAN ACTUALLY OPERATE, read from the result cards in `content/results/`.
+   *
+   * Each is `{instrument, question, preset}` on a numbered result, which `resultCards.ts`
+   * validates: the instrument must be a registered laboratory, it must ask a question, and a card
+   * with no probe is reported as a problem. This is the "live probe" AGENTS.md's results-face
+   * paragraph requires, and it is the one a reader reaches.
+   */
+  readerProbes: readonly string[];
   notModeled: readonly string[];
   tapeModelId?: string;
   ownerTest: boolean;
@@ -104,7 +121,29 @@ export function auditInstruments(rows: readonly InstrumentAuditRow[]): AuditRepo
     const unread = row.manifestError
       ? `${row.id}: content/experiments/${row.id}.yaml does not parse (${row.manifestError}), so this is unknown, not absent.`
       : undefined;
-    if (row.probes.length === 0) fail("probes", unread ?? `${row.id} declares no probes.`);
+    /*
+     * THE COLUMN READS THE PROBES A READER CAN OPERATE, not the manifest's string list.
+     *
+     * Two different things are called `probes`. The manifest's is `readonly string[]` with no
+     * element validation, so the column failed only on an EMPTY list and 55 of the 77 declared
+     * ids are named by nothing but the manifest line declaring them: a column that cannot fail
+     * over contents nobody reads. The result cards' probes are validated by `resultCards.ts` --
+     * registered laboratory, a question, a preset -- and are what the reader's results face
+     * links.
+     *
+     * Measured 2026-10-14 before the change, both ways over the 33 core instruments: the manifest
+     * field failed lq-09, me-01, me-03, sr-01 and sr-04, every one of which a result card DOES
+     * probe; the reader-facing field fails bm-08, lq-01 and sr-07, which no result card probes at
+     * all. The count falls from 5 to 3 and that is not the point, because the old five were a
+     * missing declaration and the new three are three core instruments a reader cannot reach from
+     * any numbered result.
+     */
+    if (row.readerProbes.length === 0) {
+      fail(
+        "probes",
+        `${row.id} is probed by no result card, so no numbered result offers a reader a live probe into it.`,
+      );
+    }
     if (row.notModeled.length === 0) {
       fail("notModeled", unread ?? `${row.id} has an empty notModeled list.`);
     }
@@ -247,6 +286,51 @@ export function formatInstrumentAuditTable(
   return lines.join("\n");
 }
 
+/**
+ * The probes a reader can operate, indexed by the instrument each one opens.
+ *
+ * Read from `content/results/<paper>.yaml` ON DISK rather than through the result-card loader,
+ * for the reason AGENTS.md gives under "A check inherits the silence of whatever it reads": a
+ * loader that drops or repairs an entry it cannot resolve would hide exactly what this is
+ * counting. The records' own key is `instrument`, which is worth saying because the first
+ * measurement of this used `instrumentId`, found nothing anywhere, and read as a finding rather
+ * than as a broken instrument.
+ *
+ * Returns the questions rather than a count, so a caller can print what it found.
+ */
+function readerProbeIndex(rootDir: string): Map<string, string[]> {
+  const index = new Map<string, string[]>();
+  const dir = resolve(rootDir, "content/results");
+  if (!existsSync(dir)) return index;
+  for (const file of readdirSync(dir)) {
+    if (!file.endsWith(".yaml") && !file.endsWith(".yml")) continue;
+    let parsed: unknown;
+    try {
+      parsed = yaml.load(readFileSync(resolve(dir, file), "utf8"));
+    } catch {
+      // An unparseable results file is not an absent probe. It is reported by the content
+      // compiler, which owns these records; this index simply cannot see into it.
+      continue;
+    }
+    const walk = (node: unknown): void => {
+      if (Array.isArray(node)) {
+        for (const item of node) walk(item);
+        return;
+      }
+      if (!node || typeof node !== "object") return;
+      const rec = node as Record<string, unknown>;
+      const instrument = rec.instrument;
+      const question = rec.question;
+      if (typeof instrument === "string" && typeof question === "string" && question.trim()) {
+        index.set(instrument, [...(index.get(instrument) ?? []), question]);
+      }
+      for (const value of Object.values(rec)) walk(value);
+    };
+    walk(parsed);
+  }
+  return index;
+}
+
 export function loadLiveInstrumentRows(
   rootDir: string,
   options?: { ids?: readonly string[] },
@@ -255,6 +339,7 @@ export function loadLiveInstrumentRows(
   const rows: InstrumentAuditRow[] = [];
   // Read every test file once; each lab below asks which of them import its owner functions.
   const ownerTests = ownerTestIndex(rootDir);
+  const readerProbes = readerProbeIndex(rootDir);
 
   for (const id of targetIds) {
     const core = /^(lq|bm|sr|me)-\d{2}$/.test(id);
@@ -266,7 +351,7 @@ export function loadLiveInstrumentRows(
     const inNonCoreList = NON_CORE_INSTRUMENT_IDS.some((entry) => entry.id === id);
 
     const manifestPath = resolve(rootDir, "content/experiments", `${id}.yaml`);
-    let probes: string[] = [];
+    let manifestProbes: string[] = [];
     let notModeled: string[] = [];
     let tapeModelId: string | undefined;
     let ownerFunctions: OwnerFunction[] = [];
@@ -286,7 +371,7 @@ export function loadLiveInstrumentRows(
         const rawText = readFileSync(manifestPath, "utf8");
         const parsed = yaml.load(rawText) as Record<string, unknown> | null;
         if (parsed && typeof parsed === "object") {
-          if (Array.isArray(parsed.probes)) probes = parsed.probes.map(String);
+          if (Array.isArray(parsed.probes)) manifestProbes = parsed.probes.map(String);
           if (Array.isArray(parsed.notModeled)) notModeled = parsed.notModeled.map(String);
           // The manifests declare `tapeModel: { modelId, modelVersion }`. Until 2026-09-24 this read
           // `tapeModelId`, a key no manifest uses, so the tape column was never read from real data.
@@ -378,7 +463,8 @@ export function loadLiveInstrumentRows(
       dispatcherCase,
       inCoreCatalogue,
       inNonCoreList,
-      probes,
+      manifestProbes,
+      readerProbes: readerProbes.get(id) ?? [],
       notModeled,
       ...(tapeModelId !== undefined ? { tapeModelId } : {}),
       ownerTest,

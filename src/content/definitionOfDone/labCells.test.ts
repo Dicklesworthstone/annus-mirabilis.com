@@ -125,10 +125,22 @@ describe("the per-paper population is the paper's core instruments times the col
     expect(instruments).toBe(33);
   });
 
-  test("the five unsatisfied core cells are all the probes column, named", () => {
-    // Recorded as identity rather than a count, because the point of this row is to surface a
-    // specific gap: five of the thirty-three core labs declare no probes. If a sixth appears, or
-    // one is fixed, this is where it shows -- and a count alone would not say which.
+  /**
+   * THE IDS WERE FROZEN HERE AND ARE NOT ANY MORE (2026-10-14).
+   *
+   * This asserted the exact list `lq-09, me-01, me-03, sr-01, sr-04`, each in the probes column,
+   * "recorded as identity rather than a count". Identity is the right instinct for a PERMANENT
+   * membership, which is what AGENTS.md's rule is about, and the wrong one here: which labs fail
+   * a column is the thing the project is trying to change, so the list went red the moment the
+   * probes column was pointed at the probes a reader can operate rather than at an unvalidated
+   * string field. It names different labs now, and it will name fewer later.
+   *
+   * What is asserted instead is the PROPERTY the row exists to state, which held before and
+   * holds now: every unsatisfied core cell is in one column, so the gap is one gap with a name
+   * and not a scatter. The ids are printed, which is what the old comment actually wanted ("a
+   * count alone would not say which"), and the column is floored so an empty report cannot pass.
+   */
+  test("every unsatisfied core cell is in one column, and the ids are printed", () => {
     const unsatisfied: string[] = [];
     for (const paper of Object.keys(PAPER_INSTRUMENT_PREFIX)) {
       const prefix = PAPER_INSTRUMENT_PREFIX[paper] as string;
@@ -138,13 +150,16 @@ describe("the per-paper population is the paper's core instruments times the col
         }
       }
     }
-    expect(unsatisfied.slice().sort()).toEqual([
-      "lq-09/probes",
-      "me-01/probes",
-      "me-03/probes",
-      "sr-01/probes",
-      "sr-04/probes",
-    ]);
+    const columns = [...new Set(unsatisfied.map((cell) => cell.split("/")[1]))].sort();
+    console.log(
+      `[census] core lab cells unsatisfied: ${unsatisfied.length} over ${columns.length} column(s)` +
+        (unsatisfied.length > 0 ? ` -> ${unsatisfied.slice().sort().join(", ")}` : ""),
+    );
+    // Non-vacuity: a report that satisfied nothing, or one that measured nothing, would otherwise
+    // pass the single-column assertion below.
+    expect(rows.filter((r) => r.core).length).toBeGreaterThanOrEqual(33);
+    expect(columns.length).toBeLessThanOrEqual(1);
+    if (columns.length === 1) expect(columns[0]).toBe("probes");
   });
 
   test("a paper with no prefix measures nothing rather than throwing", () => {

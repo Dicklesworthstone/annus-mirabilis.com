@@ -198,30 +198,6 @@ const INSTRUMENTS_NOT_YET_AUDITABLE: ReadonlyMap<string, AuditExemption> = new M
     },
   ],
   [
-    "lq-09",
-    {
-      reason:
-        "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reported 1 finding(s) against it when re-measured on 2026-10-09. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
-      findings: 1,
-    },
-  ],
-  [
-    "me-01",
-    {
-      reason:
-        "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reported 1 finding(s) against it when re-measured on 2026-10-09. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
-      findings: 1,
-    },
-  ],
-  [
-    "me-03",
-    {
-      reason:
-        "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reported 1 finding(s) against it when re-measured on 2026-10-09. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
-      findings: 1,
-    },
-  ],
-  [
     "shelf-fizeau",
     {
       reason:
@@ -243,22 +219,6 @@ const INSTRUMENTS_NOT_YET_AUDITABLE: ReadonlyMap<string, AuditExemption> = new M
       reason:
         "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reported 6 finding(s) against it when re-measured on 2026-10-09. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
       findings: 6,
-    },
-  ],
-  [
-    "sr-01",
-    {
-      reason:
-        "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reported 1 finding(s) against it when re-measured on 2026-10-09. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
-      findings: 1,
-    },
-  ],
-  [
-    "sr-04",
-    {
-      reason:
-        "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reported 1 finding(s) against it when re-measured on 2026-10-09. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
-      findings: 1,
     },
   ],
 ]);

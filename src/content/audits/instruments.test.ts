@@ -52,6 +52,36 @@ describe("auditInstruments: paired ok/broken fixtures", () => {
     expect(errorCheckCodes(report)).toContain("instrument-notModeled");
   });
 
+  /**
+   * THE PROBES COLUMN READS THE PROBES A READER CAN OPERATE, and this is the plant that proves
+   * it. The fixture row is complete in every other column and keeps a NON-EMPTY manifest
+   * `probes:` list, so under the column's previous source it passed; its only defect is that no
+   * result card probes it. Without this, pointing the column at a new field would be a change
+   * nothing tested.
+   */
+  test("PLANTED: a lab no result card probes fails the probes column, even with a manifest list", () => {
+    const rows = loadRows("no-reader-probe.broken.json");
+    // Print what landed before reading the verdict: a plant that did not take produces a green
+    // that means nothing.
+    expect(rows[0]?.manifestProbes.length).toBeGreaterThan(0);
+    expect(rows[0]?.readerProbes).toEqual([]);
+    const report = auditInstruments(rows);
+    expect(report.ok).toBe(false);
+    expect(errorCheckCodes(report)).toContain("instrument-probes");
+    expect(report.findings.find((f) => f.check === "instrument-probes")?.message).toContain(
+      "probed by no result card",
+    );
+  });
+
+  test("CONTROL: the same row with one reader probe passes the probes column", () => {
+    const rows = loadRows("no-reader-probe.broken.json").map((row) => ({
+      ...row,
+      readerProbes: ["What does this instrument answer?"],
+    }));
+    const report = auditInstruments(rows);
+    expect(errorCheckCodes(report)).not.toContain("instrument-probes");
+  });
+
   test("PLANTED: bm-09 fails catalogue membership by code", () => {
     const report = auditInstruments(loadRows("bm-09-catalogue.broken.json"));
     expect(report.ok).toBe(false);
@@ -81,7 +111,8 @@ describe("auditInstruments: paired ok/broken fixtures", () => {
         dispatcherCase: true,
         inCoreCatalogue: true,
         inNonCoreList: false,
-        probes: ["bm-01-radius-probe"],
+        manifestProbes: ["bm-01-radius-probe"],
+        readerProbes: ["What does this instrument answer?"],
         notModeled: ["Molecular collisions."],
         tapeModelId: "bm-01@1",
         ownerTest: true,
@@ -107,7 +138,8 @@ describe("auditInstruments: paired ok/broken fixtures", () => {
         dispatcherCase: true,
         inCoreCatalogue: true,
         inNonCoreList: false,
-        probes: ["bm-01-probe"],
+        manifestProbes: ["bm-01-probe"],
+        readerProbes: ["What does this instrument answer?"],
         notModeled: ["None"],
         tapeModelId: "bm-01@1",
         ownerTest: true,
@@ -131,7 +163,8 @@ describe("auditInstruments: paired ok/broken fixtures", () => {
         dispatcherCase: true,
         inCoreCatalogue: true,
         inNonCoreList: false,
-        probes: ["bm-01-probe"],
+        manifestProbes: ["bm-01-probe"],
+        readerProbes: ["What does this instrument answer?"],
         notModeled: ["None"],
         tapeModelId: "bm-01@1",
         ownerTest: true,
@@ -154,7 +187,8 @@ describe("auditInstruments: paired ok/broken fixtures", () => {
         dispatcherCase: true,
         inCoreCatalogue: true,
         inNonCoreList: false,
-        probes: ["bm-01-probe"],
+        manifestProbes: ["bm-01-probe"],
+        readerProbes: ["What does this instrument answer?"],
         notModeled: ["None"],
         tapeModelId: "bm-01@1",
         ownerTest: true,
@@ -178,7 +212,8 @@ describe("auditInstruments: paired ok/broken fixtures", () => {
         dispatcherCase: true,
         inCoreCatalogue: true,
         inNonCoreList: false,
-        probes: ["lq-08-probes"],
+        manifestProbes: ["lq-08-probes"],
+        readerProbes: ["What does this instrument answer?"],
         notModeled: ["None"],
         tapeModelId: "lq-08@1",
         ownerTest: true,
