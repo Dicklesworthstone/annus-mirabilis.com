@@ -100,9 +100,11 @@ import { WaveDescriptionLab } from "./WaveDescriptionLab.tsx";
  */
 /**
  * The gated labs. `result` is text from each lab's result that the server markup must carry.
- * `sharesTape`: whether the lab offers a ?tape= link to carry a prediction. BM-02 and LQ-02 have no tape
- * binding; BM-03, LQ-09, ME-01 and SR-01 have none yet, their bindings waiting
- * in a worktree (dispatch 145). `statusLine`: whether the lab has a status line; BM-04, LQ-06 and ME-02 have none.
+ * `sharesTape`: whether the lab offers a ?tape= link to carry a prediction. BM-03, LQ-09, ME-01 and
+ * SR-01 have none yet, their bindings waiting in a worktree (dispatch 145). BM-02 and LQ-02 were
+ * in that list until 3d715270a (2026-10-12) gave them a share link, which this table was not
+ * updated with: the two entries said `false` while the pages offered the control, so this case
+ * asserted the control's ABSENCE and was red in the full lane from then until 2026-10-14. `statusLine`: whether the lab has a status line; BM-04, LQ-06 and ME-02 have none.
  */
 type GatedLab = Readonly<{
   lab: string;
@@ -125,7 +127,7 @@ const LABS: readonly GatedLab[] = [
     lab: "bm-02",
     element: () => createElement(OsmoticPartitionLab, {}),
     result: "One accepted calculation, in explicit units",
-    sharesTape: false,
+    sharesTape: true,
     statusLine: true,
   },
   {
@@ -183,7 +185,7 @@ const LABS: readonly GatedLab[] = [
     lab: "lq-02",
     element: () => createElement(ModeAllocationLab, {}),
     result: "Energy after widening the cutoff tenfold",
-    sharesTape: false,
+    sharesTape: true,
     statusLine: true,
   },
   {
