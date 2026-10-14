@@ -110,4 +110,36 @@ describe("resultsProjection.support: real derivation-chain graph, Brownian fixtu
       "support-mismatched-target",
     );
   });
+
+  test("a route with a FAILED step is refused, not projected as unverified (am-s1xa)", () => {
+    // VerificationState has two members, so a failed step used to arrive as one of them. The
+    // plant is the one parity.suite.ts uses, a step's `to` replaced by its `from`, applied to
+    // bm-src-step-5 because it is the LAST machine-checked step of this chain: corrupting
+    // step 1 or 2 changes nothing (they are authored-unverified, so there is no check to
+    // fail), and corrupting step 3 or 4 changes nothing either, which is am-1lds.
+    const steps = fixtureBrownianSourceOrder.steps.map((step, index) =>
+      index === fixtureBrownianSourceOrder.steps.length - 1 ? { ...step, to: step.from } : step,
+    );
+    const corrupted = { ...fixtureBrownianSourceOrder, steps };
+    const planted = corrupted.steps[corrupted.steps.length - 1];
+    expect(planted?.id).toBe("bm-src-step-5");
+
+    let caught: unknown;
+    try {
+      projectSupport(corrupted, [corrupted, fixtureBrownianPedagogicalReconstruction]);
+    } catch (e) {
+      caught = e;
+    }
+    expect(caught).toBeInstanceOf(ResultsProjectionError);
+    const error = caught as InstanceType<typeof ResultsProjectionError>;
+    expect(error.rule).toBe("support-selected-route-step-failed");
+    expect(error.message).toContain("bm-src-step-5");
+
+    // The control, and the reason the plant is evidence: as authored, the same chain projects.
+    const support = projectSupport(fixtureBrownianSourceOrder, [
+      fixtureBrownianSourceOrder,
+      fixtureBrownianPedagogicalReconstruction,
+    ]);
+    expect(support.verificationState.status).toBe("authored-unverified");
+  });
 });

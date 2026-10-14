@@ -125,6 +125,23 @@ export function projectSupport(
   // The real, step-by-step publication-gate verdict -- never re-derived from the chain's own
   // steps directly, so this can never drift from am-eq-derivation-chains-r4c's own rule.
   const gateReport = verifyChain(selected, { isPublicationGate: true });
+
+  // A step that FAILED its own rule is refused here rather than projected (am-s1xa). The
+  // reader-facing card prints a notice for "authored-unverified" and nothing at all for
+  // anything else, and `VerificationState` has only those two members, so a failed step used
+  // to arrive as `{ status: "verified" }`: measured by corrupting bm-src-step-5 of
+  // chain-bm-source-diffusion-equation, whose step report reads failed while the projection
+  // read authored-unverified and isPublicationReady false. Refusing is the same treatment a
+  // cyclic route already gets above, and for the same reason: a support layer built on a
+  // derivation that does not verify is worse than no support layer.
+  const firstFailed = gateReport.stepReports.find((s) => s.verificationStatus === "failed");
+  if (firstFailed) {
+    throw new ResultsProjectionError(
+      "support-selected-route-step-failed",
+      `Step "${firstFailed.stepId}" of route "${selected.proofRouteId}" fails its own ${firstFailed.ruleKind} check: ${firstFailed.error ?? firstFailed.ruleReason ?? "no reason given"}`,
+    );
+  }
+
   const firstUnverified = gateReport.stepReports.find(
     (s) => s.verificationStatus === "authored-unverified",
   );
