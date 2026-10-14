@@ -33,7 +33,11 @@ export function createBaseCorpus(): ContentFile[] {
         id: "cite-test-1905",
         title: "Test Citation 1905",
         role: "primary",
-        author: [{ family: "Einstein", given: "Albert" }],
+        // The governing shape is schemas/reading.ts's, which has no `author` and requires both
+        // a locator and a url. This fixture was written to source.ts's richer CSL record, which
+        // governs nothing, and the compiler's swallowed try/catch kept that invisible (am-wfuc).
+        locator: "Ann. Phys. (4) 17, 891-921 (1905).",
+        url: "https://example.org/cite-test-1905",
       }),
     },
     {

@@ -23,6 +23,7 @@
 import { describe, expect, test } from "bun:test";
 import { ContentError } from "../compiler/json.ts";
 import { CITATION_ROLES, validateReadingRecord } from "./reading.ts";
+import { validateCitation } from "./source.ts";
 
 const BASE = {
   schemaVersion: 1,
@@ -43,6 +44,33 @@ describe("citation role (am-wfuc)", () => {
     ]);
     // The losing spelling, which the entity table carried, must not be reachable as a value.
     expect(CITATION_ROLES as readonly string[]).not.toContain("comparison");
+  });
+
+  /**
+   * THE TWO VALIDATORS AGREE ON THE ENUM, ASSERTED BY DRIVING BOTH RATHER THAN BY COMPARING TWO
+   * LITERALS.
+   *
+   * `source.ts` writes the four names out as a literal union and `reading.ts` exports them as a
+   * list, and nothing had ever checked that the two say the same thing. Importing one into the
+   * other would have been tidier and was tried: a single import line shifted 98 of that file's
+   * refusal-site citations by one line each, which is a 98-item remap to repay a one-line
+   * convenience. So the duplication stays and this test is what stops it drifting -- a new name
+   * in one list and not the other turns this red from whichever side added it.
+   */
+  test("the strict validator in source.ts accepts exactly the same four roles", () => {
+    for (const role of CITATION_ROLES) {
+      const accepted = validateCitation({ id: "cit-role-fixture", title: "A title", role });
+      expect(accepted.role).toBe(role);
+    }
+    for (const bad of ["comparison", "witness", "Primary", ""]) {
+      let caught: unknown;
+      try {
+        validateCitation({ id: "cit-role-fixture", title: "A title", role: bad });
+      } catch (err) {
+        caught = err;
+      }
+      expect((caught as { code?: string } | undefined)?.code).toBe("invalid-role");
+    }
   });
 
   test("every role is accepted and survives validation, so the field is not silently dropped", () => {
@@ -72,10 +100,23 @@ describe("citation role (am-wfuc)", () => {
     }
   });
 
-  test("a record with no role is still accepted, which is what the 23 shipped records need", () => {
-    const accepted = validateReadingRecord(BASE, "fixture.json");
-    expect(accepted.id).toBe("cit-role-fixture");
-    expect((accepted as { role?: string }).role).toBeUndefined();
+  /**
+   * This asserted the opposite for one commit, on purpose. The role had to be ACCEPTED before
+   * the 23 shipped records could be backfilled, because `keys()` refuses an unlisted field, and
+   * it had to be REQUIRED afterwards or it would be one more field nothing enforced. Both
+   * halves are recorded rather than only the surviving one, so the sequence is legible to anyone
+   * reading the history and so the window cannot quietly reopen.
+   */
+  test("a record with no role is refused, which is what makes the field worth having", () => {
+    let caught: unknown;
+    try {
+      validateReadingRecord(BASE, "fixture.json");
+    } catch (err) {
+      caught = err;
+    }
+    expect(caught).toBeInstanceOf(ContentError);
+    expect((caught as ContentError).path).toBe("fixture.json.role");
+    expect((caught as ContentError).message).toBe("Missing field.");
   });
 
   test("an unknown field is still refused, so accepting a role did not open the record", () => {

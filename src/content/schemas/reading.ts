@@ -40,9 +40,26 @@ type Header = Readonly<{ schemaVersion: typeof READING_SCHEMA_VERSION; id: strin
  * The entity table's parenthetical is corrected in the same change rather than left as a second
  * spelling of one thing.
  *
- * `role` is OPTIONAL here and required one commit later, because all 23 shipped records predate
- * it and `keys()` rejects an unknown field: accepting it first is what lets the backfill land as
- * content rather than inside a validator commit.
+ * `role` was optional for one commit, so the 23 shipped records could be backfilled as content
+ * with no validator in that diff. It is required now, and this is the validator that governs
+ * `content/bibliography/`: `source.ts`'s richer CSL-shaped record is reached by nothing that
+ * reads that directory and says so in its own docblock.
+ *
+ * The entity table's spelling was never in dispute, which is worth recording because the bead
+ * said it was. AGENTS.md has read "comparison witness" since the initial commit 30f6957b7; only
+ * a bead description wrote the short form.
+ *
+ * `source.ts` keeps its own `Citation`: the richer CSL-shaped record with separate author,
+ * container, volume, issue, page and issued fields, which `am-margin-citations-7jet` will want
+ * for the records it adds, and whose `role` `validatePaper` reads for the `witnessCoincidence`
+ * rule. It does NOT govern `content/bibliography/` -- measured 2026-10-09 at fa3c3aff it passed
+ * 0 of the 23 shipped records and failed every one on `invalid-role` -- and its `locator` is a
+ * typed `{kind, value}` that no record carries and nothing constructs, where every shipped
+ * record and the margin itself use a free-text string. Reconciling the two shapes belongs to
+ * the bead that adds records. That it writes the same four role names out as a literal is held
+ * in place by `citationRole.test.ts`, which drives BOTH validators rather than importing one
+ * into the other: a single import line into source.ts shifted 98 of its refusal-site citations
+ * by one, which is a 98-item remap to repay a one-line convenience.
  */
 export const CITATION_ROLES = ["primary", "comparison-witness", "secondary", "technical"] as const;
 export type CitationRole = (typeof CITATION_ROLES)[number];
@@ -52,7 +69,7 @@ export type Citation = Header &
     title: string;
     locator: string;
     url: string;
-    role?: CitationRole;
+    role: CitationRole;
   }>;
 export type TypedPrerequisiteRef = Readonly<{
   foundationId: string;
@@ -152,19 +169,6 @@ function object(x: unknown, p: string): Record<string, unknown> {
     return error(p, "Expected a plain record.");
   return x as Record<string, unknown>;
 }
-/**
- * Checks a citation's optional `role` and hands back the record without it, so the exact-field
- * check below can stay exact. Returning a copy matters: mutating the caller's record would
- * delete the field from the object `validateReadingRecord` goes on to return, and the role would
- * vanish between being validated and being read.
- */
-function optionalRole(o: Record<string, unknown>, p: string): Record<string, unknown> {
-  if (!Object.hasOwn(o, "role")) return o;
-  choice(o.role, `${p}.role`, CITATION_ROLES);
-  const { role: _role, ...rest } = o;
-  return rest;
-}
-
 function keys(x: unknown, p: string, fields: readonly string[]): Record<string, unknown> {
   const o = object(x, p);
   for (const k of Object.keys(o)) if (!fields.includes(k)) error(`${p}.${k}`, "Unknown field.");
@@ -324,10 +328,8 @@ export function validateReadingRecord(input: unknown, path: string): ReadingReco
   const common = ["schemaVersion", "id", "kind", "title"];
   text(o.title, `${path}.title`);
   if (o.kind === "citation") {
-    // `keys` requires every listed field and refuses every unlisted one, so an optional field
-    // cannot be expressed through it. `role` is checked separately for exactly as long as it is
-    // optional; when it becomes required it joins the list and this branch goes away.
-    keys(optionalRole(o, path), path, [...common, "locator", "url"]);
+    keys(o, path, [...common, "role", "locator", "url"]);
+    choice(o.role, `${path}.role`, CITATION_ROLES);
     text(o.locator, path);
     text(o.url, path);
     let url: URL;

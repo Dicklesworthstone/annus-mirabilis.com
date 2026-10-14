@@ -526,8 +526,32 @@ function validateRecordContent(parsed: unknown, filePath: string, routeKind: str
     routeKind === "foundation" ||
     routeKind === "citation"
   ) {
-    // If it's a reading record, validate with validateReadingRecord
+    /*
+     * THE REFUSAL IS THE POINT, AND IT USED TO BE SWALLOWED FOR ALL FOUR KINDS (am-wfuc).
+     *
+     * This was `try { return validateReadingRecord(...) } catch { return parsed }`: a record
+     * that failed its schema was handed on unchanged and compiled, so validating it cost time
+     * and decided nothing. AGENTS.md calls that shape a gate that cannot fail, and am-wfuc asks
+     * for the governing validator to run over `content/bibliography/` "with no exemption map
+     * covering the whole directory".
+     *
+     * CITATIONS NO LONGER GET THE CATCH. Measured over the shipped corpus before changing it:
+     * of the records the compiler reaches on these four routes, 120 carry a `kind` and all 120
+     * pass; the six non-JSON files on them (the four argument capstones, lesson-colours,
+     * registry) carry no `kind`, so the validator is not reached for them either way. For
+     * citations the catch was hiding nothing and only reserving the right to hide something.
+     *
+     * THE OTHER THREE KEEP IT, AND THAT IS A FINDING RATHER THAN A CARVE-OUT. Removing the
+     * catch outright turns the structural suite's base corpus red, because two of its fixtures
+     * have never matched the schema the compiler claims to check them against:
+     * `content/papers/test-paper.json` carries `slug` and
+     * `content/arguments/test-paper/arg-tp-01.json` carries `thesis`, both fields of the
+     * `source.ts` record types rather than the reading ones. The swallow is why nobody knew.
+     * Repairing those fixtures means re-deciding what about thirty structural tests exercise,
+     * which is a different bead's work and not a thing to bundle into a citation-role change.
+     */
     if (parsed && typeof parsed === "object" && "kind" in parsed) {
+      if (routeKind === "citation") return validateReadingRecord(parsed, filePath);
       try {
         return validateReadingRecord(parsed, filePath);
       } catch {

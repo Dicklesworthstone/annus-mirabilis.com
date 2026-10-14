@@ -14,7 +14,11 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { splitInlineMath } from "../content/inlineMath.ts";
 import { type Misconception, validateMisconception } from "../content/schemas/argument.ts";
-import { validateMath, validateReadingRecord } from "../content/schemas/reading.ts";
+import {
+  type CitationRole,
+  validateMath,
+  validateReadingRecord,
+} from "../content/schemas/reading.ts";
 import { type EditorialNote, validateEditorialNote } from "../content/schemas/source.ts";
 import { REGISTERED_IDS, resolveCatalogueAddress } from "../experiments/catalogue.ts";
 import { parseWhatIsTrue } from "./misconceptions/types.ts";
@@ -29,7 +33,19 @@ export class MarginRecordError extends Error {
   }
 }
 
-export type MarginCitation = Readonly<{ id: string; title: string; locator: string; url: string }>;
+/**
+ * `role` is carried because a historian's margin that cannot tell a primary document from later
+ * scholarship is making the reader do the epistemic work AGENTS.md puts on the edition: "Four
+ * historical statements are not interchangeable". It was declared in the schema and read by
+ * nothing for as long as the schema was unwired (am-wfuc).
+ */
+export type MarginCitation = Readonly<{
+  id: string;
+  title: string;
+  locator: string;
+  url: string;
+  role: CitationRole;
+}>;
 
 export type PaperMargins = Readonly<{
   misconceptions: readonly Misconception[];
@@ -103,7 +119,13 @@ export function loadPaperMargins(paper: string, root: string = process.cwd()): P
     const record = validateReadingRecord(JSON.parse(readFileSync(path, "utf8")), path);
     if (record.kind !== "citation")
       throw new MarginRecordError("margin-citation-wrong-kind", `${path}: is not a citation.`);
-    citations.set(id, { id, title: record.title, locator: record.locator, url: record.url });
+    citations.set(id, {
+      id,
+      title: record.title,
+      locator: record.locator,
+      url: record.url,
+      role: record.role,
+    });
   };
 
   const noteFiles = jsonRecords(join(root, "content", "editorial-notes", paper));

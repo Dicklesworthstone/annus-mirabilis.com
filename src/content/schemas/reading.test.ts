@@ -4,7 +4,7 @@ import { ContentError } from "../compiler/json.ts";
 import { validateReadingRecord } from "./reading.ts";
 
 describe("reading schema refusals (am-muyh)", () => {
-  test("reading: (reading.ts:143) invalid-record raised when input is not a plain record or violates schema", () => {
+  test("reading: (reading.ts:160) invalid-record raised when input is not a plain record or violates schema", () => {
     assert.throws(
       () => validateReadingRecord(null, "reading.yaml"),
       (err) => {
@@ -20,6 +20,7 @@ describe("reading schema refusals (am-muyh)", () => {
       id: "cite-1",
       kind: "citation",
       title: "A valid paper",
+      role: "primary",
       locator: "p. 1-10",
       url: "https://example.org/test",
     };
