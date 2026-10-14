@@ -30,7 +30,11 @@ export async function readSearchManifest(
   );
   if (content.buildDigest !== manifest.buildDigest || manifest.profile !== expectedProfile)
     throw new Error(
-      "Search is stale for this content build or release profile. Run prepare:content.",
+      // The index is built by scripts/build-search-index.ts, the LAST step of `prepare:lab`, so
+      // naming prepare:content here sends a reader to a chain that does not rebuild it: measured
+      // on 2026-10-14, after prepare:content and prepare:offline this refusal still fired and
+      // build-search-index cleared it.
+      "Search is stale for this content build or release profile. Run `bun run prepare:lab`, whose last step builds the index, or `bun scripts/build-search-index.ts` alone.",
     );
   return { manifest, text: bytes.toString("utf8") };
 }
