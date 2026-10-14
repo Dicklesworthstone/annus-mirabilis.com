@@ -63,6 +63,42 @@ type Header = Readonly<{ schemaVersion: typeof READING_SCHEMA_VERSION; id: strin
  */
 export const CITATION_ROLES = ["primary", "comparison-witness", "secondary", "technical"] as const;
 export type CitationRole = (typeof CITATION_ROLES)[number];
+
+/**
+ * WHO CHECKED THIS RECORD AGAINST THE SOURCE, AND HOW (am-margin-citations-7jet).
+ *
+ * That bead requires "a record whose verification field is empty fails the audit" and that every
+ * record's identity "was verified against the source, with the verifier's name, the date, and the
+ * edition or archive consulted". The schema had nowhere to put any of it, so two records had
+ * already written theirs into `locator` -- the free-text string the MARGIN RENDERS TO A READER --
+ * as a 60-word note beginning "UNVERIFIED:". A field that does not exist does not stop anyone
+ * recording the fact; it only decides where the fact lands, and that was the reader's citation
+ * line.
+ *
+ * `unverified` is a first-class state rather than an absent field, because 21 of the 23 shipped
+ * records have never been checked by anyone and writing a verifier's name on them would be the
+ * exact fabrication AGENTS.md forbids. An absent field and an honest "nobody has checked this"
+ * are different claims; only the second can be counted.
+ *
+ * An agent check is NOT a human review and the vocabulary keeps them apart, the way the German
+ * ledgers do: `agent` records a machine check of bibliographic identity against a registry (for a
+ * DOI-bearing work, the metadata its publisher registered, which AGENTS.md's provenance chapter
+ * already prescribes as "DOI as currently resolvable, verified against the publisher landing page
+ * at pinning time"), and `human` is a named person who read the thing. Neither grounds a CLAIM
+ * about what the work SAYS; this field is about identity only.
+ */
+export const CITATION_VERIFICATION_STATES = ["human", "agent", "unverified"] as const;
+export type CitationVerificationState = (typeof CITATION_VERIFICATION_STATES)[number];
+export type CitationVerification = Readonly<{
+  state: CitationVerificationState;
+  /** The person or agent who checked it. Absent exactly when the state is `unverified`. */
+  by?: string;
+  /** ISO date of the check. Absent exactly when the state is `unverified`. */
+  date?: string;
+  /** What was consulted and what was compared, or why nobody has checked it yet. */
+  note: string;
+}>;
+
 export type Citation = Header &
   Readonly<{
     kind: "citation";
@@ -70,6 +106,7 @@ export type Citation = Header &
     locator: string;
     url: string;
     role: CitationRole;
+    verification?: CitationVerification;
   }>;
 export type TypedPrerequisiteRef = Readonly<{
   foundationId: string;
@@ -169,6 +206,40 @@ function object(x: unknown, p: string): Record<string, unknown> {
     return error(p, "Expected a plain record.");
   return x as Record<string, unknown>;
 }
+/**
+ * Checks a citation's `verification` and hands the record back without it, so the exact-field
+ * check can stay exact while the field is optional. Returns a COPY: mutating the caller's record
+ * would delete the field from the object `validateReadingRecord` goes on to return, and the
+ * verification would vanish between being validated and being read.
+ *
+ * The refusal that matters is the asymmetry. A `human` or `agent` state must name who and when,
+ * because a verification with no verifier is the thing this field exists to stop; an
+ * `unverified` state must NOT, because a name beside "nobody has checked this" is a
+ * contradiction, and the way that mistake happens is copying a filled-in record.
+ */
+function withoutVerification(o: Record<string, unknown>, p: string): Record<string, unknown> {
+  if (!Object.hasOwn(o, "verification")) return o;
+  const v = object(o.verification, `${p}.verification`);
+  // The state is checked FIRST because the field list depends on it: an unknown state would
+  // otherwise be refused for whichever field that unknown state happens not to carry, naming the
+  // wrong thing.
+  choice(v.state, `${p}.verification.state`, CITATION_VERIFICATION_STATES);
+  keys(
+    v,
+    `${p}.verification`,
+    ["state", "note"].concat(v.state === "unverified" ? [] : ["by", "date"]),
+  );
+  text(v.note, `${p}.verification.note`);
+  if (v.state !== "unverified") {
+    text(v.by, `${p}.verification.by`);
+    text(v.date, `${p}.verification.date`);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(v.date)))
+      error(`${p}.verification.date`, "Expected an ISO date.");
+  }
+  const { verification: _v, ...rest } = o;
+  return rest;
+}
+
 function keys(x: unknown, p: string, fields: readonly string[]): Record<string, unknown> {
   const o = object(x, p);
   for (const k of Object.keys(o)) if (!fields.includes(k)) error(`${p}.${k}`, "Unknown field.");
@@ -328,7 +399,11 @@ export function validateReadingRecord(input: unknown, path: string): ReadingReco
   const common = ["schemaVersion", "id", "kind", "title"];
   text(o.title, `${path}.title`);
   if (o.kind === "citation") {
-    keys(o, path, [...common, "role", "locator", "url"]);
+    // `keys` requires every listed field and refuses every unlisted one, so an optional field
+    // cannot be expressed through it. `verification` is checked separately for exactly as long
+    // as it is optional, which is what lets the 23 shipped records be backfilled as content
+    // rather than inside a validator commit. When it becomes required it joins the list.
+    keys(withoutVerification(o, path), path, [...common, "role", "locator", "url"]);
     choice(o.role, `${path}.role`, CITATION_ROLES);
     text(o.locator, path);
     text(o.url, path);

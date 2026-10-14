@@ -125,6 +125,73 @@ describe("citation role (am-wfuc)", () => {
     expect((caught as ContentError).message).toBe("Missing field.");
   });
 
+  /**
+   * THE VERIFICATION FIELD, WHICH IS ABOUT WHO CHECKED A RECORD AND NOT ABOUT WHAT IT SAYS
+   * (am-margin-citations-7jet).
+   *
+   * Its two refusals are asymmetric on purpose, and the asymmetry is the whole point: a `human`
+   * or `agent` verification with no verifier and no date is the thing the field exists to stop,
+   * and an `unverified` one carrying a name is a contradiction that arrives by copying a
+   * filled-in record. Both directions are driven here, and so is the state list, because a
+   * fourth state added without a rule would otherwise pass.
+   */
+  test("a verification must name who and when, unless it says nobody has checked it", () => {
+    const base = { ...BASE, role: "primary" as const };
+
+    const verified = validateReadingRecord(
+      {
+        ...base,
+        verification: {
+          state: "agent",
+          by: "agent:fixture",
+          date: "2026-10-14",
+          note: "Crossref registered metadata for the DOI.",
+        },
+      },
+      "fixture.json",
+    );
+    expect((verified as { verification?: { state: string } }).verification?.state).toBe("agent");
+
+    const unverified = validateReadingRecord(
+      { ...base, verification: { state: "unverified", note: "Nobody has checked this record." } },
+      "fixture.json",
+    );
+    expect((unverified as { verification?: { state: string } }).verification?.state).toBe(
+      "unverified",
+    );
+
+    // A verification with no verifier.
+    expect(refusalPath({ ...base, verification: { state: "agent", note: "checked" } })).toBe(
+      "fixture.json.verification.by",
+    );
+    // A verifier with no date.
+    expect(
+      refusalPath({ ...base, verification: { state: "human", by: "someone", note: "read it" } }),
+    ).toBe("fixture.json.verification.date");
+    // A date that is not one.
+    expect(
+      refusalPath({
+        ...base,
+        verification: { state: "agent", by: "a", date: "last Tuesday", note: "n" },
+      }),
+    ).toBe("fixture.json.verification.date");
+    // Nobody checked it, and yet somebody is named.
+    expect(
+      refusalPath({
+        ...base,
+        verification: { state: "unverified", by: "someone", note: "nobody has" },
+      }),
+    ).toBe("fixture.json.verification.by");
+    // A state outside the three.
+    expect(refusalPath({ ...base, verification: { state: "reviewed", note: "n" } })).toBe(
+      "fixture.json.verification.state",
+    );
+    // A verification that says nothing.
+    expect(refusalPath({ ...base, verification: { state: "unverified", note: "  " } })).toBe(
+      "fixture.json.verification.note",
+    );
+  });
+
   test("an unknown field is still refused, so accepting a role did not open the record", () => {
     let caught: unknown;
     try {
@@ -136,3 +203,12 @@ describe("citation role (am-wfuc)", () => {
     expect((caught as ContentError).path).toBe("fixture.json.rolle");
   });
 });
+function refusalPath(record: unknown): string {
+  try {
+    validateReadingRecord(record, "fixture.json");
+  } catch (err) {
+    if (err instanceof ContentError) return err.path;
+    throw err;
+  }
+  throw new Error("accepted a record that should have been refused");
+}
