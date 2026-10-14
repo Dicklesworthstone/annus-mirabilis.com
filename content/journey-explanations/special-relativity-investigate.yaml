@@ -15,6 +15,7 @@ formulas:
   # The page's own markup, not a card, so this one carries its words here.
   - latex: "\\begin{gathered}x'=x-vt,\\quad t'=t;\\\\ x=\\pm ct\\ \\Longrightarrow\\ x'=(\\pm c-v)t'\\end{gathered}"
     own:
+      spoken: "x prime equals x minus v t, and t prime equals t; so x equals plus or minus c t implies x prime equals, plus or minus c minus v, times t prime."
       inWords:
         - text: "Under the old map, "
         - text: "a position in the moving frame"

@@ -879,6 +879,9 @@ const onItsPage = (explanation: ExplainerLevels): ExplainerLevels => {
         // "discover/light-quanta/investigate").
         printed: {
           html: renderToString(journey.latex, { displayMode: true, output: "htmlAndMathml" }),
+          // An authored spoken form survives the drawing (am-sy9s): the record carries it and
+          // this branch supplies only the html, so overwriting `printed` wholesale would lose it.
+          ...(explanation.printed?.spoken ? { spoken: explanation.printed.spoken } : {}),
         },
         source: { href: `/${journey.page}/`, label: "Go back to the route" },
       }

@@ -23,6 +23,7 @@ formulas:
   # so this is the route's form and its margin says so.
   - latex: "D=\\frac{k_BT}{6\\pi\\eta a}"
     own:
+      spoken: "D equals k sub B times T, over six pi eta a."
       inWords:
         - text: "How fast a suspended substance spreads"
           quantityId: diffusionCoefficient
@@ -54,6 +55,7 @@ formulas:
   # route sets the two statements side by side and writes the mean square with angle brackets.
   - latex: "\\langle x^2\\rangle=2Dt \\qquad \\lambda_x=\\sqrt{2Dt}"
     own:
+      spoken: "The mean of x squared equals two D t; and lambda sub x equals the square root of two D t."
       inWords:
         - text: "The average of the square of "
           quantityId: displacement1d

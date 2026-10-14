@@ -109,6 +109,16 @@ export type JourneyExplanationEntry = Readonly<{
     r2?: readonly Readonly<{ latex: string; why: string }>[] | undefined;
     r3?: string | undefined;
   }>;
+  /**
+   * The authored spoken form, as a printed display carries one (am-sy9s). AGENTS.md: "Each
+   * equation's accessible name is an authored spoken form (ClearSpeak style), because generated
+   * speech is often wrong for physics notation." A journey formula is an equation a reader meets,
+   * and until this field existed 36 of them were named by KaTeX's own MathML alone.
+   *
+   * Read from the `own` block for an own record and from the entry for a step gloss, the same way
+   * the readings are, so one entry shape carries both.
+   */
+  spoken?: string | undefined;
 }>;
 
 export type JourneyExplanationCensus = Readonly<{
@@ -417,6 +427,14 @@ export function checkJourneyExplanations(
         ...(kind === "display" ? { display: entry.display as string } : {}),
         inWords,
         levels,
+        ...(typeof (kind === "own" ? own?.spoken : entry.spoken) === "string" &&
+        (kind === "own" ? own?.spoken : entry.spoken) !== ""
+          ? { spoken: (kind === "own" ? own?.spoken : entry.spoken) as string }
+          : {}),
+        ...(typeof (kind === "own" ? own?.spoken : entry.spoken) === "string" &&
+        (kind === "own" ? own?.spoken : entry.spoken) !== ""
+          ? { spoken: (kind === "own" ? own?.spoken : entry.spoken) as string }
+          : {}),
         readings: {
           ...(readingText("r0") === undefined ? {} : { r0: readingText("r0") }),
           ...(readingText("r1") === undefined ? {} : { r1: readingText("r1") }),

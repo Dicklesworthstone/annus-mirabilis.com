@@ -33,19 +33,15 @@ async function pageDocument(paper: string, display: string) {
 }
 
 /**
- * The explanations that owe an authored spoken form (am-sy9s), by identity. 36 journey formulas:
- * 8 in a journey's own words and 28 glossing a derivation step on an investigate page. A display,
- * a model equation and a journey formula that REUSES a display's record all carry one already.
+ * The explanations that owe an authored spoken form (am-sy9s), by identity. 28 step glosses on an
+ * investigate page; the eight written in a journey's OWN words were authored on 2026-10-14, when
+ * the field they needed was added, so the list fell from 36. A display, a model equation and a
+ * journey formula that reuses a display's record all carry one already.
+ *
+ * A step gloss's spoken form has the same home as an own record's, an entry in
+ * content/journey-explanations/<page>.yaml, so what remains is authoring and not plumbing.
  */
 const UNNAMED_JOURNEY_FORMULAS: ReadonlySet<string> = new Set([
-  "journey-bmDiffusionModern",
-  "journey-bmMeanSquare",
-  "journey-lqiEntropy",
-  "journey-lqiCounting",
-  "journey-lqiMatch",
-  "journey-lqiEmission",
-  "journey-lqQuantumSize",
-  "journey-sriGalilean",
   "journey-discover-mass-energy-investigate-opposite-pulses",
   "journey-discover-mass-energy-investigate-conservation",
   "journey-discover-mass-energy-investigate-light-transform",

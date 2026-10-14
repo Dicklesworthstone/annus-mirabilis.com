@@ -204,6 +204,12 @@ export function compileJourneyExplainers(
         paper: scope.paper,
         equation: `journey-${key}`,
         inWords: entry.inWords,
+        // The authored spoken form, where the record carries one (am-sy9s). `printed.html` is
+        // attached later, by onItsPage in build-equations, which keeps a spoken form it finds.
+        ...(entry.spoken ? { printed: { html: "", spoken: entry.spoken } } : {}),
+        // The authored spoken form, where the record carries one (am-sy9s). `printed.html` is
+        // attached later, by onItsPage in build-equations, which keeps a spoken form it finds.
+        ...(entry.spoken ? { printed: { html: "", spoken: entry.spoken } } : {}),
         ...(r0 === undefined ? {} : { r0: prose(r0, "r0") }),
         r1: prose(r1, "r1"),
         ...(steps.length > 0 ? { r2: steps } : {}),
@@ -222,6 +228,8 @@ export function compileJourneyExplainers(
         paper: scope.paper,
         equation: `journey-${entry.page.replaceAll("/", "-")}-${entry.step ?? ""}`,
         inWords: entry.inWords,
+        ...(entry.spoken ? { printed: { html: "", spoken: entry.spoken } } : {}),
+        ...(entry.spoken ? { printed: { html: "", spoken: entry.spoken } } : {}),
         // The step's own explanation, moved and not rephrased, as modelExplanations.ts moves a
         // record's. Wrapped as one text part because 0 of the 28 carry mathematics, measured.
         r1: text(explanation),

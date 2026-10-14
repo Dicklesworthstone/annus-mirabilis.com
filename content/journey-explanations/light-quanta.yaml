@@ -11,6 +11,7 @@ formulas:
   # that sentence and keeping its qualifications.
   - latex: "\\frac{R\\,\\beta\\,\\nu}{N}"
     own:
+      spoken: "R beta nu, over N."
       inWords:
         - text: "The gas constant"
           quantityId: molarGasConstant

@@ -10,6 +10,7 @@ formulas:
   # the route's and the margin records both substitutions.
   - latex: "S-S_0=\\frac{E}{\\beta\\nu}\\ln\\frac{V}{V_0}"
     own:
+      spoken: "S minus S sub zero equals E over beta nu, times the natural logarithm of V over V sub zero."
       inWords:
         - text: "The change in "
         - text: "the radiation's entropy"
@@ -40,6 +41,7 @@ formulas:
   # print these two probabilities side by side.
   - latex: "W_{\\mathrm{independent}}=f^n,\\quad W_{\\mathrm{locked}}=f,\\quad f=\\frac{V}{V_0}"
     own:
+      spoken: "W independent equals f to the n; W locked equals f; and f equals V over V sub zero."
       inWords:
         - text: "If the parts move independently, "
         - text: "the probability of finding them all in the smaller region"
@@ -66,6 +68,7 @@ formulas:
   # follows. The paper reaches the same magnitude in § 6 and states it in prose (s6-p6).
   - latex: "\\begin{gathered}\\frac{E}{\\beta\\nu}=n_{\\mathrm{eff}}\\frac{R}{N},\\\\ n_{\\mathrm{eff}}=\\frac{NE}{R\\beta\\nu},\\qquad \\epsilon=\\frac{R\\beta\\nu}{N}\\end{gathered}"
     own:
+      spoken: "E over beta nu equals n effective times R over N; so n effective equals N E over R beta nu, and epsilon equals R beta nu over N."
       inWords:
         - text: "Reading the entropy's coefficient as a count gives "
         - text: "the number of independent parts"
@@ -104,6 +107,7 @@ formulas:
   # paper prints the law as eq-s8-d1 and eq-s8-d2.
   - latex: "\\begin{gathered}K_{\\max}=\\frac{R\\beta\\nu}{N}-P,\\\\ \\Pi=\\frac{K_{\\max}}{e}\\quad(K_{\\max}\\geq 0)\\end{gathered}"
     own:
+      spoken: "K maximum equals R beta nu over N, minus P; and Pi equals K maximum over e, for K maximum at least zero."
       inWords:
         - text: "The most kinetic energy an electron can leave with"
           quantityId: maxKineticEnergy
