@@ -53,7 +53,7 @@
  * first pass did, is a category error and not a finding.
  */
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import yaml from "js-yaml";
 import type { AuditFinding } from "./types.ts";
 
@@ -182,9 +182,17 @@ function recordsFor(root: string, name: string): { records: Record_[]; declared:
       records.push({ id: String(d.id), readings: (d.readings ?? {}) as Record<string, unknown> });
     }
   } else if (name === "displays") {
+    // Paper-qualified, like the paragraph ids above, because a printed display id is unique only
+    // WITHIN its paper. Measured 2026-10-14: of the 125 records lacking an r3, there are 83
+    // distinct bare ids, and `eq-s3-d3`, `eq-s4-d2`, `eq-s4-d4`, `eq-s4-d5`, `eq-s3-d4` and
+    // `eq-s3-d8` each name a record in three papers. The shortfall COUNT was right, because this
+    // list keeps duplicates, but nothing could be traced back to a paper and any consumer that
+    // deduped would have lost 42 of the 125.
     for (const f of filesIn(resolve(root, "content/equation-explanations"), ".yaml")) {
       const d = readYaml(f) as Record<string, unknown> | null;
-      records.push({ id: String(d?.display ?? f), readings: (d ?? {}) as Record<string, unknown> });
+      const paper = basename(dirname(f));
+      const display = d?.display === undefined ? basename(f) : String(d.display);
+      records.push({ id: `${paper}/${display}`, readings: (d ?? {}) as Record<string, unknown> });
     }
   } else if (name === "headings" || name === "closings") {
     const want = name === "headings" ? new Set(["heading", "part-heading"]) : new Set(["closing"]);

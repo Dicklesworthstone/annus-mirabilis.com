@@ -80,13 +80,45 @@ describe("the readings audit reads every population, not the one already complet
   });
 
   test("the real shortfalls are displays' r3, headings and closings, and they are reported", () => {
-    expect(byName.get("displays")?.missing.r3).toHaveLength(129);
-    expect(byName.get("headings")?.missing.r0).toHaveLength(26);
-    expect(byName.get("closings")?.missing.r0).toHaveLength(9);
-    // Non-vacuity in the other direction: the populations that ARE complete read as complete, so
-    // "129 missing" is a measurement and not an artefact of a reader that finds nothing anywhere.
+    // CEILINGS, not censuses. These three numbers were 129, 26 and 9 when this module was written
+    // on 2026-10-11, and they are the project's readings debt, so what must hold is that they do
+    // not GROW. Asserting the equality broke on correct work within three days: four section-5
+    // historian's margins were authored on 2026-10-14 and took the display shortfall to 125, which
+    // turned this test red while nothing it protects had changed. The printed line below is the
+    // measurement; the assertion is the property.
+    const displays = byName.get("displays")?.missing.r3 ?? [];
+    const headings = byName.get("headings")?.missing.r0 ?? [];
+    const closings = byName.get("closings")?.missing.r0 ?? [];
+    console.log(
+      `[readings debt] displays without r3 ${displays.length} (129 on 2026-10-11), ` +
+        `headings without r0 ${headings.length} of 26, closings without r0 ${closings.length} of 9`,
+    );
+    expect(displays.length).toBeLessThanOrEqual(129);
+    expect(headings.length).toBeLessThanOrEqual(26);
+    expect(closings.length).toBeLessThanOrEqual(9);
+    // Non-vacuity, on purpose and in both directions. A debt of zero everywhere would satisfy
+    // three ceilings while meaning the reader found nothing, so each population that still carries
+    // a shortfall is asserted to carry one, and the populations that are COMPLETE are asserted
+    // complete, which is what makes the numbers above a measurement.
+    expect(displays.length).toBeGreaterThan(0);
+    expect(headings.length).toBeGreaterThan(0);
+    expect(closings.length).toBeGreaterThan(0);
     expect(byName.get("passages")?.missing.r3).toEqual([]);
     expect(byName.get("paragraphs")?.missing.r0).toEqual([]);
+    // Every id names its paper, which a bare display id cannot. `eq-s4-d5` and five of its
+    // neighbours each name a record in three different papers, so before this was qualified no
+    // entry of this list could be traced to a file and a consumer that deduped lost 42 of 125.
+    const papers = new Set([
+      "brownian-motion",
+      "light-quanta",
+      "mass-energy",
+      "special-relativity",
+    ]);
+    for (const id of displays) {
+      const paper = id.split("/")[0] ?? "";
+      expect(papers.has(paper), `display shortfall id "${id}" names no paper`).toBe(true);
+    }
+    expect(displays.filter((id) => id.startsWith("brownian-motion/")).length).toBeGreaterThan(0);
   });
 
   test("a paragraph binding's r1 to r3 are not baselined, because it carries r0 by design", () => {
@@ -167,7 +199,7 @@ describe("PLANTED: the floor and the ratchet both fire", () => {
     expect(displays?.examined).toBe(7);
     // Mass-energy's seven displays all carry r3 (7 of 7 in check-equation-explanations), so the
     // count rises from 0 to exactly 1 and names the id.
-    expect(displays?.missing.r3).toEqual(["eq-s0-d1"]);
+    expect(displays?.missing.r3).toEqual(["mass-energy/eq-s0-d1"]);
 
     // The ratchet is read against a baseline scoped to this scratch population, because the live
     // baseline's 129 is a count over 200 displays and says nothing about a corpus of 7.
