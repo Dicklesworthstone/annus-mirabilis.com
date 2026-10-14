@@ -27,6 +27,10 @@ pathIgnorePatterns = [
   # days with an empty stdout reaching JSON.parse, because bun's runner cannot reliably spawn here;
   # coverageLedger.test.ts now drives the generator in process and this file drives the script.
   "src/content/coverage/coverageReportCli.node.test.ts",
+  # Spawns all five gates that print a report under --json and asserts their stdout parses. Only a
+  # spawn sees what a caller sees, and bun's runner cannot spawn here; about nine seconds for the
+  # five.
+  "scripts/gate-census/jsonModeIsParseable.node.test.ts",
   # am-f3e4: reads the historical pins with `git show`, which bun's runner cannot spawn here.
   "src/content/kernel/declaredPins.node.test.ts",
   # am-rc1001-bridge-plan-pcjk.3: builds a throwaway git repository with its own local origin to

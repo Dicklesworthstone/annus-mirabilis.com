@@ -90,12 +90,18 @@ function main(argv: readonly string[]): number {
     floor is 20 against the 24 measured today -- six items across four papers -- so losing a whole
     item is caught while adding a paper or an item is not refused.
   */
-  const vacuous = reportPopulation({
-    gate: "definition-of-done",
-    examined: measured,
-    noun: "measured definition-of-done cells",
-    minimum: 20,
-  });
+  // Under --json the census goes to stderr: stdout is the report a caller parses, and a census
+  // line beside it makes the whole output unparseable. parsePopulationLines reads a gate's
+  // combined output, so the line is still read where it matters.
+  const vacuous = reportPopulation(
+    {
+      gate: "definition-of-done",
+      examined: measured,
+      noun: "measured definition-of-done cells",
+      minimum: 20,
+    },
+    argv.includes("--json") ? "stderr" : "stdout",
+  );
   if (vacuous) {
     console.error(
       `REFUSED: ${measured} of ${cells.length} cells were measured, below the floor. A table of ` +

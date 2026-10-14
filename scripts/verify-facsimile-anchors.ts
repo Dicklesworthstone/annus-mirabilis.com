@@ -192,19 +192,29 @@ export async function runCli(): Promise<number> {
     message: `${report.checkedCount} checked, ${report.passedCount} valid, ${report.failedCount} failed.`,
   });
   await logger.flush();
-  console.log(`Structured log: ${logger.filePath}`);
+  // Under --json this is a diagnostic beside a machine-readable report, so it goes to stderr:
+  // stdout is the report a caller parses. It stays on stdout for a person reading the gate.
+  const logLine = `Structured log: ${logger.filePath}`;
+  if (process.argv.includes("--json")) console.error(logLine);
+  else console.log(logLine);
 
   // The census line (am-rc1001-bridge-plan-pcjk.9), in the function that owns the EXIT CODE rather than
   // the one that formats the report. It first landed in the formatter, which returns a string, so the
   // verdict would have been computed and discarded - the same half-wiring that makes a gate look like
   // it checks something. Six receipts carry page maps; a run that checked two is reading the wrong
   // directory and its summary line would look identical.
-  const censusVacuous = reportPopulation({
-    gate: "facsimile-page-anchors",
-    examined: report.checkedCount,
-    noun: "facsimile page maps",
-    minimum: 4,
-  });
+  // Under --json the census goes to stderr: stdout is the report a caller parses, and a census
+  // line beside it makes the whole output unparseable. parsePopulationLines reads a gate's
+  // combined output, so the line is still read where it matters.
+  const censusVacuous = reportPopulation(
+    {
+      gate: "facsimile-page-anchors",
+      examined: report.checkedCount,
+      noun: "facsimile page maps",
+      minimum: 4,
+    },
+    process.argv.includes("--json") ? "stderr" : "stdout",
+  );
   if (censusVacuous) return 4;
 
   return report.valid ? 0 : 3;

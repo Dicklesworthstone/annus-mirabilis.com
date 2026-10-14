@@ -572,12 +572,18 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       minimum and the line says VACUOUS. A smaller floor would let the suite shrink silently, which
       is exactly the failure a "6 of 6 passed" summary hides, because 5 of 5 reads identically.
     */
-    const censusVacuous = reportPopulation({
-      gate: "resource-stress",
-      examined: report.totalScenarios,
-      noun: "lifecycle scenarios",
-      minimum: DECLARED_SCENARIOS,
-    });
+    // Under --json the census goes to stderr: stdout is the report a caller parses, and this
+    // line printed BEFORE it, so the output did not even begin as JSON. parsePopulationLines
+    // reads a gate's combined output, so the line is still read where it matters.
+    const censusVacuous = reportPopulation(
+      {
+        gate: "resource-stress",
+        examined: report.totalScenarios,
+        noun: "lifecycle scenarios",
+        minimum: DECLARED_SCENARIOS,
+      },
+      process.argv.includes("--json") ? "stderr" : "stdout",
+    );
 
     if (isJson) {
       console.log(JSON.stringify(report, null, 2));
