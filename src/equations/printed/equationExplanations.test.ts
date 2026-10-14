@@ -16,6 +16,7 @@ import {
   ENFORCED_EXPLANATION_PAPERS,
   EquationExplanationsError,
   type ExplanationSource,
+  loadExplanationSources,
 } from "./equationExplanations.ts";
 
 const ROOT = process.cwd();
@@ -294,15 +295,47 @@ describe("the explanation records", () => {
     const lq = await checkPaperExplanations(process.cwd(), "light-quanta");
     const me = await checkPaperExplanations(process.cwd(), "mass-energy");
 
-    // Non-vacuity in both directions, which is the whole point: a count that could only ever be 0,
-    // or only ever equal `explained`, would tell a reader nothing. Light quanta has records
-    // WITHOUT a margin and mass-energy has every record WITH one.
+    // Non-vacuity, stated so that it survives the debt being paid. This test asserted
+    // `lq.census.withMargin < lq.census.explained` as its proof that the count discriminates, and
+    // light quanta reached 52 of 52 on 2026-10-14, so the assertion failed on the work it was
+    // written to encourage. A count is for reporting; what belongs in an assertion is the
+    // property, and the property is that the census counts the records that carry an r3 and no
+    // others. A census hard-coded to `explained` fails the paper that still has a gap; a census
+    // hard-coded to 0 fails the two that do not.
     expect(lq.census.withMargin).toBeGreaterThan(0);
-    expect(lq.census.withMargin).toBeLessThan(lq.census.explained);
+    expect(lq.census.withMargin).toBeLessThanOrEqual(lq.census.explained);
     expect(me.census.withMargin).toBe(me.census.explained);
 
-    // And it counts what it says it counts, checked against the records rather than against itself.
-    const counted = lq.explanations.filter((e) => e.r3 !== undefined).length;
-    expect(lq.census.withMargin).toBe(counted);
+    // And it counts what it says it counts, checked against the records rather than against itself,
+    // for a complete paper and for one that is not.
+    for (const paper of [
+      lq,
+      me,
+      await checkPaperExplanations(process.cwd(), "special-relativity"),
+    ]) {
+      const counted = paper.explanations.filter((e) => e.r3 !== undefined).length;
+      expect(paper.census.withMargin).toBe(counted);
+    }
+    // The permanent control is a PLANT against the real corpus, not another paper's shortfall,
+    // which would be the same mistake one paper later. Strip the margin from one real record and
+    // the count must fall by exactly one while `explained` does not move: a census hard-coded to
+    // `explained`, or to a constant, fails this at any stage of the debt.
+    const sources = loadExplanationSources(process.cwd(), "mass-energy");
+    expect(sources.length).toBeGreaterThan(1);
+    let stripped = 0;
+    const withoutOne = sources.map((source) => {
+      const raw = source.raw as Record<string, unknown>;
+      if (stripped > 0 || raw.r3 === undefined) return source;
+      stripped += 1;
+      const { r3: _removed, ...rest } = raw;
+      return { file: source.file, raw: rest };
+    });
+    expect(stripped).toBe(1);
+    const planted = await checkPaperExplanations(process.cwd(), "mass-energy", {
+      sources: withoutOne,
+      enforced: [],
+    });
+    expect(planted.census.explained).toBe(me.census.explained);
+    expect(planted.census.withMargin).toBe(me.census.withMargin - 1);
   });
 });
