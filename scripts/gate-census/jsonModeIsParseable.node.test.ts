@@ -12,6 +12,9 @@
  *     verify-facsimile-pins     Extra data at 3050 of 3243, the same two
  *     resource-stress           Expecting value at 1: the census printed BEFORE the report
  *
+ * A sixth joined them for a different reason: `audit-instruments --json` printed its human
+ * markdown table before the report, so that output was unparseable from the first byte.
+ *
  * The census stays visible in every case: `parsePopulationLines` reads a gate's COMBINED output,
  * so sending the line to stderr under `--json` costs the census reader nothing.
  *
@@ -30,6 +33,10 @@ const JSON_GATES = [
   "scripts/verify-facsimile-anchors.ts",
   "scripts/verify-facsimile-pins.ts",
   "scripts/resource-stress.ts",
+  // Not a census case: this one printed its human markdown table on stdout before the report, so
+  // the output was unparseable from the first byte. The defect is the same shape -- something
+  // that is not data on the data stream -- and the test is the same test.
+  "scripts/audit-instruments.ts",
 ] as const;
 
 test("every gate that prints JSON prints ONLY JSON on stdout", () => {

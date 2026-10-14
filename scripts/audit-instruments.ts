@@ -24,8 +24,16 @@ if (fixture) {
 }
 
 const report = auditInstruments(rows);
-console.log(formatInstrumentAuditTable(report, rows));
-if (process.argv.includes("--json")) {
+// Under --json the table is a human rendering beside a machine-readable report, so it goes to
+// stderr: stdout is what a caller parses. Printing both to stdout made `--json` unparseable from
+// the first byte (12427 bytes, "Expecting value at 0"), which is the same defect five gates had
+// with their census line. Without --json the table stays where it was.
+const table = formatInstrumentAuditTable(report, rows);
+const printsJson = process.argv.includes("--json");
+if (printsJson) {
+  console.error(table);
   console.log(JSON.stringify(report, null, 2));
+} else {
+  console.log(table);
 }
 process.exit(report.ok ? 0 : 1);
