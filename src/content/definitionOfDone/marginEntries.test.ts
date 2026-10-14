@@ -12,24 +12,58 @@
  *   THE POPULATION. Counting records with `kind: historian-margin` is the wrong denominator and the
  *   requirement files say so themselves -- that kind gives 16 across the four papers, of which only
  *   mass-energy's six are section 3.9 entries and ten are notation-concordance notes sharing the
- *   kind. So the count is read from the REQUIREMENT's side, and the test asserts the denominators
- *   are the requirement lengths rather than any record count.
+ *   kind. So the count is read from the REQUIREMENT's side, and the denominators are asserted as
+ *   the requirement lengths rather than any record count.
  *
  *   A PARTIAL IS NOT A PASS. The requirement files say "Do not promote a partial by widening this
- *   file", so an entry carrying `partial` is not counted however much of the clause it covers. Both
- *   papers that have one are asserted, because an implementation that treated `satisfiedBy` as
- *   sufficient would silently credit them.
+ *   file", so an entry carrying `partial` is not counted however much of the clause it covers. An
+ *   implementation that treated `satisfiedBy` as sufficient would silently credit it.
+ *
+ * THE NUMERATORS USED TO BE PINNED HERE AND ARE NOT ANY MORE (2026-10-14). The file asserted
+ * `light-quanta` at "0 of 5" and `brownian-motion` at "0 of 8" under a comment reading "Pinned as
+ * identities rather than as a total, because the requirement lists are permanent". The LISTS are
+ * permanent; how many of them are satisfied is the thing the project is trying to change, and it
+ * changed: three entries were authored on 2026-10-14 and the equalities went red on correct work,
+ * with the partial assertion going red beside them because light-quanta's partial had been
+ * completed rather than abandoned. That is AGENTS.md's own distinction, "report a count, assert a
+ * property", applied to the wrong half. Denominators are identities and stay; numerators are
+ * reported, floored below, and never frozen.
  */
+
 import { describe, expect, test } from "bun:test";
-import { dirname, resolve } from "node:path";
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { marginEntries } from "./measure.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+const PAPERS = ["mass-energy", "light-quanta", "brownian-motion", "special-relativity"] as const;
+
+/** The requirement lists, which are the plan's and do not move. */
+const DENOMINATORS: Readonly<Record<string, number>> = {
+  "mass-energy": 8,
+  "light-quanta": 5,
+  "brownian-motion": 8,
+  "special-relativity": 9,
+};
+
+/**
+ * A root holding one requirement file, so the partial rule can be driven on values rather than on
+ * whichever paper happens to carry a partial today. The previous version of this file was keyed to
+ * light-quanta's, and expired when that entry was completed.
+ */
+function rootWithRequirement(yaml: string): string {
+  const root = mkdtempSync(join(tmpdir(), "margin-entries-"));
+  const dir = join(root, "content", "editorial", "required-margin-entries");
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, "fixture-paper.yaml"), yaml);
+  return root;
+}
 
 describe("margin-entries measures against the per-paper requirement record", () => {
   test("every paper measures, and none is unmeasured", () => {
-    for (const paper of ["mass-energy", "light-quanta", "brownian-motion", "special-relativity"]) {
+    for (const paper of PAPERS) {
       const cell = marginEntries(ROOT, paper);
       expect(cell.unmeasured, `${paper} must measure now that its requirement record exists`).toBe(
         false,
@@ -39,38 +73,85 @@ describe("margin-entries measures against the per-paper requirement record", () 
     }
   });
 
-  test("the measured values, each read from its requirement record", () => {
-    // Pinned as identities rather than as a total, because the requirement lists are permanent and
-    // a sum would move for either of two different reasons.
-    const measured = Object.fromEntries(
-      ["mass-energy", "light-quanta", "brownian-motion", "special-relativity"].map((p) => {
-        const c = marginEntries(ROOT, p);
-        return [p, `${c.count} of ${c.denominator}`];
-      }),
-    );
+  test("each denominator is its requirement list, which is the plan's and does not move", () => {
+    const measured: Record<string, string> = {};
+    for (const paper of PAPERS) {
+      const cell = marginEntries(ROOT, paper);
+      measured[paper] = `${cell.count} of ${cell.denominator}`;
+      expect(cell.denominator, `${paper} denominator`).toBe(DENOMINATORS[paper] ?? -1);
+      // Reported, not frozen. A count may rise as entries are authored and may fall if one is
+      // withdrawn; what must hold is that it never exceeds its own denominator.
+      expect(cell.count).toBeGreaterThanOrEqual(0);
+      expect(cell.count).toBeLessThanOrEqual(cell.denominator);
+    }
     console.log(`[margin-entries] ${JSON.stringify(measured)}`);
-    expect(measured["mass-energy"]).toBe("8 of 8");
-    expect(measured["light-quanta"]).toBe("0 of 5");
-    expect(measured["brownian-motion"]).toBe("0 of 8");
-    expect(measured["special-relativity"]).toBe("2 of 9");
   });
 
-  test("only mass-energy is met, and it is met because every entry names a record", () => {
+  /**
+   * The floor, which replaces the frozen equalities. mass-energy is the paper the plan's section
+   * 3.9 is fully carried for, and a regression there would mean a record was withdrawn without its
+   * requirement being withdrawn with it. The other three are floored at zero on purpose: they are
+   * incomplete, and a test that pretended otherwise would be the thing this cell exists to catch.
+   */
+  test("mass-energy stays complete, and is the only paper that is", () => {
+    expect(marginEntries(ROOT, "mass-energy").count).toBe(DENOMINATORS["mass-energy"]);
     expect(marginEntries(ROOT, "mass-energy").met).toBe(true);
     for (const paper of ["light-quanta", "brownian-motion", "special-relativity"]) {
       expect(marginEntries(ROOT, paper).met, `${paper} is not met`).toBe(false);
     }
   });
 
-  test("A PARTIAL IS NOT COUNTED, and the note says how many were withheld", () => {
-    // light-quanta has one partial and four absent of five; special-relativity one partial of nine.
-    // An implementation reading only `satisfiedBy` would score these 1 of 5 and 3 of 9.
-    const lq = marginEntries(ROOT, "light-quanta");
-    expect(lq.count).toBe(0);
-    expect(lq.note).toContain("partial");
-    const sr = marginEntries(ROOT, "special-relativity");
-    expect(sr.count).toBe(2);
-    expect(sr.note).toContain("partial");
+  test("PLANTED: a partial is not counted, and the same entry without one is", () => {
+    const partial = rootWithRequirement(
+      [
+        "paper: fixture-paper",
+        "entries:",
+        "  - letter: a",
+        '    proposition: "A requirement an entry half covers."',
+        "    partial:",
+        "      satisfiedBy: note-fixture-a",
+        '      covers: "half"',
+        '      missing: "the other half"',
+        "    satisfiedBy: note-fixture-a",
+        "",
+      ].join("\n"),
+    );
+    const withPartial = marginEntries(partial, "fixture-paper");
+    expect(withPartial.denominator).toBe(1);
+    expect(withPartial.count).toBe(0);
+    expect(withPartial.note).toContain("partial");
+
+    // The control: the same entry, the same `satisfiedBy`, no `partial`. Without this, a measure
+    // that counted nothing at all would satisfy the assertion above.
+    const complete = rootWithRequirement(
+      [
+        "paper: fixture-paper",
+        "entries:",
+        "  - letter: a",
+        '    proposition: "A requirement an entry covers."',
+        "    satisfiedBy: note-fixture-a",
+        "",
+      ].join("\n"),
+    );
+    const withoutPartial = marginEntries(complete, "fixture-paper");
+    expect(withoutPartial.denominator).toBe(1);
+    expect(withoutPartial.count).toBe(1);
+  });
+
+  /**
+   * The corpus still carries at least one partial, and the measure must keep declining to count
+   * it. Asserted as a property of the corpus rather than against a named paper, so completing one
+   * partial does not turn this red the way the previous version did.
+   */
+  test("every partial still in the corpus is withheld from its count", () => {
+    const withPartials = PAPERS.map((p) => marginEntries(ROOT, p)).filter((c) =>
+      c.note.includes("partial"),
+    );
+    expect(withPartials.length).toBeGreaterThan(0);
+    for (const cell of withPartials) {
+      expect(cell.note).toMatch(/\d+ partial and therefore not counted/);
+      expect(cell.count).toBeLessThan(cell.denominator);
+    }
   });
 
   test("a paper with no requirement record is UNMEASURED, not met", () => {
