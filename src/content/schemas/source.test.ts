@@ -10,10 +10,10 @@ import {
 } from "./dates.ts";
 import { codePointLength, codePointSlice } from "./inlines.ts";
 import {
-  type Citation,
+  type BibEntry,
   validateAlignment,
   validateArgumentComparison,
-  validateCitation,
+  validateBibEntry,
   validateEditorialNote,
   validateGlossUnit,
   validatePaper,
@@ -653,7 +653,7 @@ test("EditorialNote: dispute note requires primary sourceSupport, correction req
 // ==========================================
 // 7. CITATION TESTS
 // ==========================================
-test("Citation: accessed date required when url is present and doi is absent", () => {
+test("BibEntry: accessed date required when url is present and doi is absent", () => {
   const rawUrlNoDoiNoAccessed = {
     id: "cit-web-1",
     title: "Archive Webpage",
@@ -663,7 +663,7 @@ test("Citation: accessed date required when url is present and doi is absent", (
   };
 
   assert.throws(
-    () => validateCitation(rawUrlNoDoiNoAccessed),
+    () => validateBibEntry(rawUrlNoDoiNoAccessed),
     (err: any) => {
       assert.equal(err.code, "accessed-date-required");
       return true;
@@ -681,11 +681,11 @@ test("Citation: accessed date required when url is present and doi is absent", (
       verifiedAt: "2026-09-15",
     },
   };
-  const cit = validateCitation(rawUrlWithAccessed);
+  const cit = validateBibEntry(rawUrlWithAccessed);
   assert.equal(cit.id, "cit-web-1");
 });
 
-test("Citation: a DOI-only citation validates without an accessed date", () => {
+test("BibEntry: a DOI-only citation validates without an accessed date", () => {
   const rawDoiOnly = {
     id: "cit-doi-1",
     title: "On the Electrodynamics of Moving Bodies",
@@ -693,7 +693,7 @@ test("Citation: a DOI-only citation validates without an accessed date", () => {
     doi: "10.1002/andp.19053221004",
     role: "primary",
   };
-  const cit = validateCitation(rawDoiOnly);
+  const cit = validateBibEntry(rawDoiOnly);
   assert.equal(cit.id, "cit-doi-1");
   assert.equal(cit.doi, "10.1002/andp.19053221004");
   assert.equal(cit.accessed, undefined);
@@ -1120,14 +1120,14 @@ test("Paper: witnessCoincidence cross-check with citations", () => {
     },
   );
 
-  const secondaryCitation: Citation = {
+  const secondaryCitation: BibEntry = {
     id: "citation-cowper-1926",
     type: "book",
     title: "Investigation on the Theory of the Brownian Movement",
     author: "A. D. Cowper",
     role: "secondary",
   };
-  const witnessCitation: Citation = {
+  const witnessCitation: BibEntry = {
     ...secondaryCitation,
     role: "comparison-witness",
   };

@@ -17,7 +17,7 @@ import {
 } from "../ids.ts";
 import type { SourceAssetRights } from "../provenance/receiptToSourceAsset.ts";
 import { type PaperDate, validatePaperDate } from "./dates.ts";
-import type { Citation } from "./source.ts";
+import type { BibEntry } from "./source.ts";
 import { validateU64String } from "./u64String.ts";
 
 export class ExperimentValidationError extends Error {
@@ -2700,7 +2700,7 @@ export type DatasetPublicationLocator =
 
 export type DatasetPublication = Readonly<{
   id: string;
-  citation: Citation | string;
+  citation: BibEntry | string;
   locator: DatasetPublicationLocator;
   publicationDate: PaperDate;
 }>;
@@ -2948,7 +2948,7 @@ export function validateHistoricalDataset(
     ) {
       throw new ExperimentValidationError(
         "missing-publication-citation",
-        "Publication requires a full citation string or Citation object; uncited datasets are rejected.",
+        "Publication requires a full citation string or BibEntry object; uncited datasets are rejected.",
         "HistoricalDataset",
         `${pPath}.citation`,
       );
@@ -3026,7 +3026,7 @@ export function validateHistoricalDataset(
 
     publications.push({
       id: pRaw.id as string,
-      citation: pRaw.citation as Citation | string,
+      citation: pRaw.citation as BibEntry | string,
       locator,
       publicationDate: pubDate,
     });

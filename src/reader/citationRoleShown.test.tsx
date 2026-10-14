@@ -1,11 +1,11 @@
 /**
  * THE CITATION ROLE REACHES A READER, WHICH IS THE HALF THAT MAKES IT WORTH REQUIRING (am-wfuc).
  *
- * `validateCitation` had required a role since the schema was written and was called by nothing
- * but its own tests; the loader a reader's page goes through used a second record type with no
- * role at all. A field that is declared, validated and never shown is the thing am-wfuc's
- * criteria rule out: "either required and present on all records and READ by something a reader
- * reaches, or removed from the schema".
+ * `validateBibEntry`, named `validateCitation` then, had required a role since the schema was
+ * written and was called by nothing but its own tests; the loader a reader's page goes through
+ * used a second record type with no role at all. A field that is declared, validated and never
+ * shown is the thing am-wfuc's criteria rule out: "either required and present on all records
+ * and READ by something a reader reaches, or removed from the schema".
  *
  * These assertions run against the REAL mass-energy margin rather than a fixture, because
  * mass-energy is the one paper whose historian's-margin entries are complete and because the

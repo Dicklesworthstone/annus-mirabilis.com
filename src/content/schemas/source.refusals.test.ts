@@ -4,7 +4,7 @@ import { codePointLength } from "./inlines.ts";
 import {
   SchemaValidationError,
   validateAlignment,
-  validateCitation,
+  validateBibEntry,
   validateEditorialNote,
   validateGlossUnit,
   validatePaper,
@@ -1336,24 +1336,24 @@ test("validateEditorialNote: (source.ts:1772) invalid-review-state rejects unkno
 // 8. VALIDATE CITATION REFUSALS (3 SITES)
 // ============================================================================
 
-test("validateCitation: (source.ts:1824) invalid-record rejects non-object raw citation, accepts valid citation", () => {
-  assertSchemaRefusal(() => validateCitation(null), "invalid-record");
-  assertSchemaRefusal(() => validateCitation("bad-citation"), "invalid-record");
-  const accepted = validateCitation(VALID_CITATION);
+test("validateBibEntry: (source.ts:1824) invalid-record rejects non-object raw citation, accepts valid citation", () => {
+  assertSchemaRefusal(() => validateBibEntry(null), "invalid-record");
+  assertSchemaRefusal(() => validateBibEntry("bad-citation"), "invalid-record");
+  const accepted = validateBibEntry(VALID_CITATION);
   assert.equal(accepted.id, "cit-doi-1");
 });
 
-test("validateCitation: (source.ts:1833) missing-id rejects empty or non-string id, accepts valid id", () => {
-  assertSchemaRefusal(() => validateCitation({ ...VALID_CITATION, id: "   " }), "missing-id");
-  assertSchemaRefusal(() => validateCitation({ ...VALID_CITATION, id: null }), "missing-id");
-  const accepted = validateCitation({ ...VALID_CITATION, id: "cit-1905-einstein" });
+test("validateBibEntry: (source.ts:1833) missing-id rejects empty or non-string id, accepts valid id", () => {
+  assertSchemaRefusal(() => validateBibEntry({ ...VALID_CITATION, id: "   " }), "missing-id");
+  assertSchemaRefusal(() => validateBibEntry({ ...VALID_CITATION, id: null }), "missing-id");
+  const accepted = validateBibEntry({ ...VALID_CITATION, id: "cit-1905-einstein" });
   assert.equal(accepted.id, "cit-1905-einstein");
 });
 
-test("validateCitation: (source.ts:1836) missing-title rejects empty or non-string title, accepts valid title", () => {
-  assertSchemaRefusal(() => validateCitation({ ...VALID_CITATION, title: "   " }), "missing-title");
-  assertSchemaRefusal(() => validateCitation({ ...VALID_CITATION, title: 123 }), "missing-title");
-  const accepted = validateCitation({
+test("validateBibEntry: (source.ts:1836) missing-title rejects empty or non-string title, accepts valid title", () => {
+  assertSchemaRefusal(() => validateBibEntry({ ...VALID_CITATION, title: "   " }), "missing-title");
+  assertSchemaRefusal(() => validateBibEntry({ ...VALID_CITATION, title: 123 }), "missing-title");
+  const accepted = validateBibEntry({
     ...VALID_CITATION,
     title: "Zur Elektrodynamik bewegter Körper",
   });
@@ -1584,14 +1584,14 @@ test("validateEditorialNote: (source.ts:1676) invalid-kind rejects a note kind o
   assert.equal(validateEditorialNote(VALID_NOTE).kind, "dispute");
 });
 
-test("validateCitation: (source.ts:1844) invalid-role rejects a citation role outside the four", () => {
+test("validateBibEntry: (source.ts:1844) invalid-role rejects a citation role outside the four", () => {
   // The four roles carry different evidential weight - a comparison witness is not a
   // primary source - so an unlisted role would let a witness be cited as evidence.
   assertSchemaRefusal(
-    () => validateCitation({ ...VALID_CITATION, role: "supporting" }),
+    () => validateBibEntry({ ...VALID_CITATION, role: "supporting" }),
     "invalid-role",
   );
   for (const role of ["primary", "comparison-witness", "secondary", "technical"]) {
-    assert.equal(validateCitation({ ...VALID_CITATION, role }).role, role);
+    assert.equal(validateBibEntry({ ...VALID_CITATION, role }).role, role);
   }
 });

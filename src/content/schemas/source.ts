@@ -1,6 +1,6 @@
 /**
  * Canonical schemas and validators for source-layer entities:
- * Paper, SourceAsset, SourceBlock, TranslationUnit, Alignment, GlossUnit, EditorialNote, Citation.
+ * Paper, SourceAsset, SourceBlock, TranslationUnit, Alignment, GlossUnit, EditorialNote, BibEntry.
  * Specification: AGENTS.md and am-cm-schemas-source-1en
  */
 
@@ -149,7 +149,7 @@ export type Paper = Readonly<{
 export function validatePaper(
   raw: unknown,
   path = "Paper",
-  citations?: readonly Citation[] | ReadonlyMap<string, Citation>,
+  citations?: readonly BibEntry[] | ReadonlyMap<string, BibEntry>,
 ): Paper {
   if (!raw || typeof raw !== "object")
     throw new SchemaValidationError("invalid-record", "Paper must be an object.", "Paper", path);
@@ -231,12 +231,12 @@ export function validatePaper(
       const citMap =
         citations instanceof Map
           ? citations
-          : new Map((citations as readonly Citation[]).map((c) => [c.id, c]));
+          : new Map((citations as readonly BibEntry[]).map((c) => [c.id, c]));
       const cit = citMap.get(a.witnessCoincidence);
       if (!cit) {
         throw new SchemaValidationError(
           "witness-citation-not-found",
-          `witnessCoincidence "${a.witnessCoincidence}" does not name a known Citation.`,
+          `witnessCoincidence "${a.witnessCoincidence}" does not name a known BibEntry.`,
           "Paper",
           `${path}.editorialAdditions[${i}].witnessCoincidence`,
         );
@@ -244,7 +244,7 @@ export function validatePaper(
       if (cit.role !== "comparison-witness") {
         throw new SchemaValidationError(
           "witness-coincidence-invalid-role",
-          `witnessCoincidence must name a Citation with role "comparison-witness", got "${cit.role}".`,
+          `witnessCoincidence must name a BibEntry with role "comparison-witness", got "${cit.role}".`,
           "Paper",
           `${path}.editorialAdditions[${i}].witnessCoincidence`,
         );
@@ -1801,8 +1801,8 @@ export function validateEditorialNote(raw: unknown, path = "EditorialNote"): Edi
   };
 }
 
-// 8. CITATION
-export type Citation = Readonly<{
+// 8. BIB ENTRY -- NOT the type governing content/bibliography/; see schemas/reading.ts
+export type BibEntry = Readonly<{
   id: string;
   type: string;
   title: string;
@@ -1819,24 +1819,24 @@ export type Citation = Readonly<{
   locator?: Readonly<{ kind: "page" | "table" | "figure" | "section"; value: string }> | undefined;
 }>;
 
-export function validateCitation(raw: unknown, path = "Citation"): Citation {
+export function validateBibEntry(raw: unknown, path = "BibEntry"): BibEntry {
   if (!raw || typeof raw !== "object")
     throw new SchemaValidationError(
       "invalid-record",
-      "Citation must be an object.",
-      "Citation",
+      "BibEntry must be an object.",
+      "BibEntry",
       path,
     );
   const o = raw as Record<string, unknown>;
 
   if (typeof o.id !== "string" || !o.id.trim()) {
-    throw new SchemaValidationError("missing-id", "id is required.", "Citation", `${path}.id`);
+    throw new SchemaValidationError("missing-id", "id is required.", "BibEntry", `${path}.id`);
   }
   if (typeof o.title !== "string" || !o.title.trim()) {
     throw new SchemaValidationError(
       "missing-title",
       "title is required.",
-      "Citation",
+      "BibEntry",
       `${path}.title`,
     );
   }
@@ -1844,7 +1844,7 @@ export function validateCitation(raw: unknown, path = "Citation"): Citation {
     throw new SchemaValidationError(
       "invalid-role",
       `Invalid citation role "${o.role}".`,
-      "Citation",
+      "BibEntry",
       `${path}.role`,
     );
   }
@@ -1854,7 +1854,7 @@ export function validateCitation(raw: unknown, path = "Citation"): Citation {
     throw new SchemaValidationError(
       "accessed-date-required",
       "accessed date is required whenever URL is present and DOI is absent.",
-      "Citation",
+      "BibEntry",
       `${path}.accessed`,
     );
   }
@@ -1867,17 +1867,17 @@ export function validateCitation(raw: unknown, path = "Citation"): Citation {
     id: o.id,
     type: (o.type as string) || "article-journal",
     title: o.title,
-    author: o.author as Citation["author"],
+    author: o.author as BibEntry["author"],
     containerTitle: (o.containerTitle as string) || undefined,
     volume: (o.volume as string | number) || undefined,
     issue: (o.issue as string | number) || undefined,
     page: (o.page as string) || undefined,
-    issued: o.issued as Citation["issued"],
+    issued: o.issued as BibEntry["issued"],
     doi: (o.doi as string) || undefined,
     url: (o.url as string) || undefined,
     accessed,
-    role: o.role as Citation["role"],
-    locator: (o.locator as Citation["locator"]) || undefined,
+    role: o.role as BibEntry["role"],
+    locator: (o.locator as BibEntry["locator"]) || undefined,
   };
 }
 

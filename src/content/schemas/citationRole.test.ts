@@ -1,11 +1,13 @@
 /**
  * ONE CITATION ROLE, ONE SPELLING (am-wfuc).
  *
- * Two record types were called `Citation`. `source.ts`'s requires a role from
- * `primary | comparison-witness | secondary | technical` and was called by nothing but its own
- * tests; `reading.ts`'s has no role and is the one the reader path loads through
- * `src/reader/marginRecords.ts`. Measured 2026-10-09 at fa3c3aff over the 23 shipped records:
- * the strict validator passed 0 and failed 23, all `invalid-role`; the live one passed 23.
+ * Two record types were called `Citation`, which is why one of them is now `BibEntry`. The
+ * `source.ts` one requires a role from `primary | comparison-witness | secondary | technical`
+ * and was called by nothing but its own tests; the `reading.ts` one had no role and is the one
+ * the reader path loads, through `src/reader/marginRecords.ts`. Measured 2026-10-09 at fa3c3aff
+ * over the 23 shipped records: the strict validator passed 0 and failed 23, every one
+ * `invalid-role`; the live one passed 23. Two fixtures had been written to the wrong one of the
+ * two shapes, which is the concrete cost of the shared name and the reason for the rename.
  *
  * This file holds the role's own tests through the whole migration, so they are not spread
  * across the two schemas they are reconciling:
@@ -23,7 +25,7 @@
 import { describe, expect, test } from "bun:test";
 import { ContentError } from "../compiler/json.ts";
 import { CITATION_ROLES, validateReadingRecord } from "./reading.ts";
-import { validateCitation } from "./source.ts";
+import { validateBibEntry } from "./source.ts";
 
 const BASE = {
   schemaVersion: 1,
@@ -59,13 +61,17 @@ describe("citation role (am-wfuc)", () => {
    */
   test("the strict validator in source.ts accepts exactly the same four roles", () => {
     for (const role of CITATION_ROLES) {
-      const accepted = validateCitation({ id: "cit-role-fixture", title: "A title", role });
+      const accepted = validateBibEntry({
+        id: "cit-role-fixture",
+        title: "A title",
+        role,
+      });
       expect(accepted.role).toBe(role);
     }
     for (const bad of ["comparison", "witness", "Primary", ""]) {
       let caught: unknown;
       try {
-        validateCitation({ id: "cit-role-fixture", title: "A title", role: bad });
+        validateBibEntry({ id: "cit-role-fixture", title: "A title", role: bad });
       } catch (err) {
         caught = err;
       }

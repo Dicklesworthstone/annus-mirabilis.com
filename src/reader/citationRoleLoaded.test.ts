@@ -1,12 +1,13 @@
 /**
  * THE CITATION ROLE REACHES THE READER PATH, AND A RECORD WITHOUT ONE IS REFUSED (am-wfuc).
  *
- * `validateCitation` in `schemas/source.ts` had required a role since the schema was written and
- * was called by nothing but its own tests, while the loader a reader's page actually goes
- * through, `marginRecords.ts`, used a second record type that had no role at all. Measured
- * 2026-10-09 at fa3c3aff over the 23 shipped records: the strict validator passed 0 and failed
- * 23, all `invalid-role`; the live one passed 23. AGENTS.md's entity table requires the role, so
- * it was required by the plan, implemented in a validator, and read by nothing.
+ * `validateBibEntry` in `schemas/source.ts`, named `validateCitation` then, had required a role
+ * since the schema was written and was called by nothing but its own tests, while the loader a
+ * reader's page actually goes through, `marginRecords.ts`, used a second record type that had
+ * no role at all. Measured 2026-10-09 at fa3c3aff over the 23 shipped records: the strict
+ * validator passed 0 and failed 23, all `invalid-role`; the live one passed 23. AGENTS.md's
+ * entity table requires the role, so it was required by the plan, implemented in a validator,
+ * and read by nothing.
  *
  * These tests drive the LIVE loader, because that is the half that was unwired. The plants are
  * fixture trees rather than edits to shipped records, so a plant can never be left behind in

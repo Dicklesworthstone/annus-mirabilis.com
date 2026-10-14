@@ -9,7 +9,7 @@ import { AuthorshipGovernanceError } from "./authorship.ts";
 import {
   SchemaValidationError,
   validateAlignment,
-  validateCitation,
+  validateBibEntry,
   validateEditorialNote,
   validateGlossUnit,
   validatePaper,
@@ -104,10 +104,10 @@ test("Integration: Valid YAML fixtures parsed via strictParse pass all 8 schema 
   assert.equal(note.kind, "dispute");
   assert.equal(note.sourceSupport[0]?.role, "primary");
 
-  // 7. Citation
+  // 7. BibEntry
   const citYaml = fs.readFileSync(path.join(FIXTURES_DIR, "citation-valid.yaml"), "utf8");
   const rawCit = strictParse(citYaml, "yaml");
-  const cit = validateCitation(rawCit);
+  const cit = validateBibEntry(rawCit);
   assert.equal(cit.id, "cit-einstein-1905-bm");
   assert.equal(cit.role, "primary");
 
