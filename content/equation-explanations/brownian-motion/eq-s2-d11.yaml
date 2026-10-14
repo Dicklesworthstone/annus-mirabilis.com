@@ -38,3 +38,4 @@ r2:
     why: "A power inside a logarithm becomes a factor in front of it."
   - latex: "F = - \\frac{R T}{N} \\{ \\lg J + n \\lg V^* \\}"
     why: "The printed form. The first term inside the brace does not depend on $V^*$; the second holds the whole of that dependence."
+r3: "Two terms, and only one of them is used. The logarithm separates the unevaluated factor from the volume, and because the factor does not change when the wall moves, the next line can differentiate and lose it. The paper never says what $J$ is, and the result does not depend on knowing: the whole of the osmotic pressure comes from the term counting where the particles' centres may be. In modern notation this is $-k_B T$ times the logarithm of the configuration integral, with the ideal part separated from the interaction part and the interaction part discarded as constant."

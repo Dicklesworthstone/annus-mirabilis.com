@@ -20,3 +20,4 @@ r2:
     why: "The regions were chosen of equal size, so the two products are one number, and a number divided by itself is 1."
   - latex: "\\frac{d B}{d B'} = \\frac{J}{J'}"
     why: "What is left after that cancellation: the printed form."
+r3: "Dividing one form by the other is where the unevaluated factors become the whole question. The paper has not said what $J$ contains, and after this line it does not need to: the ratio of two parts of the integral is the ratio of two factors, and the physics that follows is an argument about that ratio. A derivation that had specified the forces between particles would have had to carry them through here; this one carries nothing."

@@ -20,3 +20,4 @@ r2:
     why: "As printed, for the second system of regions. Each primed coordinate belongs to the same particle as the unprimed one with the same index."
   - latex: "J' = \\frac{d B'}{d x'_1 d y'_1 \\ldots d z'_n}"
     why: "Read as a definition, as before: the part of the integral per unit of the second $3n$-dimensional region."
+r3: "The second set of regions is the same sizes in other places, and the comparison that follows works only because nothing distinguishes one place from another. § 1 names the force that would, and sets it aside in the paper's own words: wenigstens bei Vernachlässigung der uns hier nicht interessierenden Schwerkraft, at least when gravity, which does not interest us here, is neglected (s1-p2). A suspension in a real vessel settles; this section's liquid does not, by construction."

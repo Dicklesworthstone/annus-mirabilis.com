@@ -16,3 +16,4 @@ r2:
     why: "The probability for the second set. The denominator is the same $B$, the integral over all positions available to the particles."
   - latex: "\\frac{d B}{B} = \\frac{d B'}{B}"
     why: "The regions are of equal size, the liquid is homogeneous, no forces act, and the particles move independently of one another, so no set of positions in $V^*$ is more probable than another of the same size. The printed form."
+r3: "Reading a part of the integral divided by the whole as a probability is the step the section's footnote pays for. The identification of a frequency over time with a ratio of state integrals is what the author's 1902 and 1903 papers establish, and it is assumed here rather than argued, which is the difference between this section and the two around it. The conditions it needs are named in the sentence beside it and not in the algebra: the particles exert no forces on each other at these distances, and the liquid is the same throughout."

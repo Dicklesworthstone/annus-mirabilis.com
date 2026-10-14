@@ -14,3 +14,4 @@ r1: "This line records the choice made on the page before, where the second syst
 r2:
   - latex: "d x_1 d y_1 \\ldots d z_n = d x'_1 d y'_1 \\ldots d z'_n"
     why: "As printed. The regions were chosen to differ only in position, and this is that choice written as an equation between the two products."
+r3: "This equality is a choice about the regions, not a result about the liquid. Keeping their sizes equal and moving only their positions is what makes the next line a comparison of the two unevaluated factors alone. The step costs nothing and it is worth marking, because a reader who grants it has already granted that the liquid is the same throughout the volume, which is the assumption the section's conclusion rests on."

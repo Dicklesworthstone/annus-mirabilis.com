@@ -20,3 +20,4 @@ r2:
     why: "As printed. The product has $3n$ factors, three coordinates for each of the $n$ particles."
   - latex: "J = \\frac{d B}{d x_1 d y_1 \\ldots d z_n}"
     why: "The same statement read as a definition of $J$: the part of the integral per unit of the $3n$-dimensional region. Written this way, the claim that $J$ does not depend on the regions is the claim that halving every box halves $d B$ with it."
+r3: "The regions are a device for counting and the paper is explicit that the factor $J$ is never evaluated: what matters is that the part of the integral belonging to a set of regions is a product of their sizes with one factor, whatever that factor is. This is the shape of the argument rather than a step in it, and it is why the section can reach a pressure without a model of the forces: nothing about the particles enters except that each has a centre that can be put somewhere."

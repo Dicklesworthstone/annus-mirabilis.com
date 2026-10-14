@@ -32,3 +32,4 @@ r2:
     why: "The same for each of the $n$ particles, and the integrations are independent, so the factor $V^*$ appears $n$ times."
   - latex: "B = J V^{*n}"
     why: "The printed form. The size of the volume enters only here, and only through the power $n$."
+r3: "The integral reduces to the available volume multiplied once for every particle, which is the configuration integral of a set of bodies that do not interact. Nothing in it records how large a particle is, which is the section's quiet point: the pressure it is about to produce does not depend on the suspended bodies being small. That is what makes it applicable to particles a microscope can see, and it is also what a thermodynamicist of 1905 would have questioned, since the classical account ties the free energy to the masses and qualities of the substances and not to where the bodies are (s1-p2)."
