@@ -20,3 +20,4 @@ r2:
     why: "Add that share over every band, from the far negative displacement to the far positive one."
   - latex: "\\int_{-\\infty}^{+\\infty} \\varphi(\\Delta) d \\Delta = 1"
     why: "Every particle receives some shift in the interval, so the counts of all the bands add to the whole number of particles and the shares add to one: the printed line."
+r3: "The limits of this integral are printed on the plate and name the variable, from $\\Delta = -\\infty$ to $\\Delta = +\\infty$, which the receipt records as watch-kernel-integral, confirmed on page 557 on 2026-09-21 (docs/provenance/ap-17-549.md). The edition keeps them as printed for that reason. Nothing else in the paper fixes the scale of $\\varphi$: this line is the whole of its normalisation, and the paper uses it twice, here and again where the first term of the expanded equation has to reduce to the density itself."

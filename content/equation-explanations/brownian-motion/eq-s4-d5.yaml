@@ -20,3 +20,4 @@ r2:
     why: "The Taylor expansion of the density in the time, about the earlier time."
   - latex: "f(x, t + \\tau) = f(x, t) + \\tau \\frac{\\partial f}{\\partial t} ."
     why: "Keep the first order and drop the rest, because $\\tau$ is very small: the printed line. What was dropped is smaller than what was kept by a further factor of $\\tau$."
+r3: "The whole justification is on the page and it is four words long: da $\\tau$ sehr klein ist, because $\\tau$ is very small. The paper keeps one term in $\\tau$ and discards the rest without a further word, which is consistent with the condition it put on $\\tau$ when the frequency law was introduced. A modern treatment would state what has to be true of the density for a first-order expansion in time to be legitimate; this one relies on the interval being short, and says so."

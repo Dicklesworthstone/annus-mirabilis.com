@@ -18,3 +18,4 @@ r2:
     why: "The first term on the right of the balance, with the normalization put in."
   - latex: "\\frac{\\partial f}{\\partial t} \\cdot \\tau = \\frac{\\partial f}{\\partial x} \\int_{-\\infty}^{+\\infty} \\Delta \\varphi(\\Delta) d \\Delta + \\frac{\\partial^2 f}{\\partial x^2} \\int_{-\\infty}^{+\\infty} \\frac{\\Delta^2}{2} \\varphi(\\Delta) d \\Delta \\ldots"
     why: "Take the bare density away from both sides."
+r3: "The paper repeats the normalisation at the point of use rather than referring back to it, which is how the first term on the right becomes the density itself and cancels the density on the left. The cancellation is what leaves an equation between a time derivative and a second space derivative, so this unremarkable line is where a counting relation becomes a differential equation."
