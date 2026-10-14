@@ -4,6 +4,12 @@
   "id": "cit-einstein-1906-center-of-mass",
   "title": "A. Einstein, Das Prinzip von der Erhaltung der Schwerpunktsbewegung und die Trägheit der Energie",
   "role": "primary",
+  "verification": {
+    "state": "agent",
+    "by": "agent:claude-opus-5",
+    "date": "2026-10-14",
+    "note": "Bibliographic identity checked against the metadata the publisher registered for 10.1002/andp.19063250814: title, journal, volume, page range and year all agree with this record's locator. This is a machine check of IDENTITY against a registry, not a reading of the work, and not a human review; it grounds who wrote what, where and when, and grounds nothing about what the work says."
+  },
   "locator": "Annalen der Physik (4) 20, 627–633 (1906).",
   "url": "https://doi.org/10.1002/andp.19063250814"
 }

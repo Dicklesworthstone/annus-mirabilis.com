@@ -4,6 +4,12 @@
   "id": "ap-17-549",
   "title": "A. Einstein, On the motion of particles suspended in liquids at rest required by the molecular-kinetic theory of heat",
   "role": "primary",
+  "verification": {
+    "state": "agent",
+    "by": "agent:claude-opus-5",
+    "date": "2026-10-14",
+    "note": "Bibliographic identity checked against the metadata the publisher registered for 10.1002/andp.19053220806: title, journal, volume, page range and year all agree with this record's locator. This is a machine check of IDENTITY against a registry, not a reading of the work, and not a human review; it grounds who wrote what, where and when, and grounds nothing about what the work says."
+  },
   "locator": "Annalen der Physik (4), 17, 549–560 (1905), §§1–5. Bibliographic pointer; this preview is not a source transcription or translation.",
   "url": "https://doi.org/10.1002/andp.19053220806"
 }

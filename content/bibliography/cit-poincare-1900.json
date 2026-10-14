@@ -4,6 +4,10 @@
   "id": "cit-poincare-1900",
   "title": "H. Poincaré, La théorie de Lorentz et le principe de réaction",
   "role": "primary",
+  "verification": {
+    "state": "unverified",
+    "note": "Not checked. Archives neerlandaises (2) 5 has no DOI, so the volume, year and page range 251-278 have to be read off the scan at the archive.org item this record links to."
+  },
   "locator": "Archives néerlandaises des sciences exactes et naturelles (2) 5, 252–278 (1900).",
   "url": "https://archive.org/details/archivesnerlan0205holl"
 }

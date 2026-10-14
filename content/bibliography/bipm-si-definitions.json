@@ -4,6 +4,10 @@
   "id": "bipm-si-definitions",
   "title": "BIPM: SI measurement units and defining constants",
   "role": "technical",
+  "verification": {
+    "state": "unverified",
+    "note": "Not checked, and this one cannot be checked the same way: it names a live BIPM page rather than a fixed publication, so verifying it means retrieving the page and recording the retrieval date, which is what the schema's `accessed` field is for in the richer BibEntry shape and which this shape has no place for."
+  },
   "locator": "Modern SI definitions; not historical evidence",
   "url": "https://www.bipm.org/en/measurement-units"
 }

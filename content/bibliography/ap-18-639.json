@@ -4,6 +4,10 @@
   "id": "ap-18-639",
   "title": "A. Einstein, Does the inertia of a body depend upon its energy content?",
   "role": "primary",
+  "verification": {
+    "state": "unverified",
+    "note": "Not checked as this record stands. Its URL is the 1923 Perrett-Jeffery translation transcribed by John Walker, which the locator already declares. The Annalen citation the locator gives is the same work as cit-einstein-1905-inertia, whose DOI 10.1002/andp.19053231314 was checked on 2026-10-14 and agrees. What remains unchecked here is that the linked transcription is the edition the locator says it is."
+  },
   "locator": "Annalen der Physik (4), 18, 639–641 (1905). External 1923 Perrett–Jeffery translation, electronically transcribed by John Walker; its notation was modernized. A reference for this explanatory preview, not this edition’s translation or its pinned facsimile.",
   "url": "https://www.fourmilab.ch/etexts/einstein/E_mc2/www/"
 }

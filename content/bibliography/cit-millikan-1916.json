@@ -4,6 +4,12 @@
   "id": "cit-millikan-1916",
   "title": "R. A. Millikan, A Direct Photoelectric Determination of Planck's \"h\"",
   "role": "primary",
+  "verification": {
+    "state": "agent",
+    "by": "agent:claude-opus-5",
+    "date": "2026-10-14",
+    "note": "Bibliographic identity checked against the metadata the publisher registered for 10.1103/PhysRev.7.355: title, journal, volume, page range and year all agree with this record's locator. This is a machine check of IDENTITY against a registry, not a reading of the work, and not a human review; it grounds who wrote what, where and when, and grounds nothing about what the work says."
+  },
   "locator": "Physical Review (2), 7 (3), 355–388 (1916).",
   "url": "https://doi.org/10.1103/PhysRev.7.355"
 }

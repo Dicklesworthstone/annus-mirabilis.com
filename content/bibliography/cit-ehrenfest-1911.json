@@ -4,6 +4,12 @@
   "id": "cit-ehrenfest-1911",
   "title": "P. Ehrenfest, Welche Züge der Lichtquantenhypothese spielen in der Theorie der Wärmestrahlung eine wesentliche Rolle?",
   "role": "primary",
+  "verification": {
+    "state": "agent",
+    "by": "agent:claude-opus-5",
+    "date": "2026-10-14",
+    "note": "Bibliographic identity checked against the metadata the publisher registered for 10.1002/andp.19113411106: title, journal, volume, page range and year all agree with this record's locator. This is a machine check of IDENTITY against a registry, not a reading of the work, and not a human review; it grounds who wrote what, where and when, and grounds nothing about what the work says."
+  },
   "locator": "Annalen der Physik (4) 36, 91–118 (1911); whole series 341. Section IV, on p. 92, is headed \"Die Vermeidung der Rayleigh-Jeans-Katastrophe im Ultravioletten\".",
   "url": "https://doi.org/10.1002/andp.19113411106"
 }
