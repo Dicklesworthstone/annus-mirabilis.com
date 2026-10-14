@@ -414,6 +414,9 @@ cards:
       - instrument: sr-08
         question: "A field that is purely magnetic in K, seen from k moving at 10 m/s: what electric force does a charge at rest in k feel?"
         preset: sr-08-pure-magnetic-low-speed
+      - instrument: sr-07
+        question: "Put a plane wave through the transformation and watch the equations themselves: do the Maxwell-Hertz equations keep their form, and what do the field components have to do for that to happen?"
+        preset: sr-07-plane-wave-0.6c
     usedLater: []
     meanings:
       argumentStatus: "A consequence of the principle of relativity applied to the Maxwell-Hertz equations, with the forces in k defined by their action on a charge at rest there"

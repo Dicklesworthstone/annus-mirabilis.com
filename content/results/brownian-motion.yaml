@@ -220,6 +220,9 @@ cards:
       - instrument: bm-01
         question: "Double the viscosity: does \\(\\lambda_x\\) halve?"
         preset: bm-01-viscosity-comparison
+      - instrument: bm-08
+        question: "Now watch the same motion through a camera: sample the path more often and read the apparent speed. Does it settle on a value, and does the displacement it reports still match \\(\\lambda_x\\)?"
+        preset: bm-08-apparent-speed-noise
     printedCheck: diffusion-einstein-1905-printed
     usedLater: []
     meanings:

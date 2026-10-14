@@ -41,6 +41,9 @@ cards:
     probes:
       - instrument: lq-02
         question: "Give every resonator the same mean energy whatever its frequency: how much energy does the radiation hold as the range of frequencies widens?"
+      - instrument: lq-01
+        question: "Before the difficulty: add two waves and read what the intensity measures. What does the continuous description get right about interference, and what does it say about where the energy sits?"
+        preset: lq-01-equal-amplitudes
     usedLater: []
     meanings:
       argumentStatus: "A consequence of two conditions of equilibrium, stated as a difficulty"
