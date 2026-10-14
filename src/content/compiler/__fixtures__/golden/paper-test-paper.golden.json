@@ -184,7 +184,12 @@
       "locator": "Ann. Phys. 17, 891",
       "schemaVersion": 1,
       "title": "Annalen der Physik (4) 17, 891–921",
-      "url": "https://example.org/ap-17-891"
+      "url": "https://example.org/ap-17-891",
+      "role": "primary",
+      "verification": {
+        "state": "unverified",
+        "note": "A fixture record; there is no source to check it against."
+      }
     }
   ],
   "equations": [

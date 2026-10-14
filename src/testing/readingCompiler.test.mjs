@@ -9,6 +9,10 @@ const citation = {
   kind: "citation",
   id: "primary",
   title: "Primary record",
+  role: "primary",
+  // Required since 2bd870f4a. `unverified` is the truthful value for a fixture: there is no
+  // source behind it to check anything against.
+  verification: { state: "unverified", note: "A fixture; there is no source to check." },
   locator: "Section 4",
   url: "https://example.org/source",
 };
