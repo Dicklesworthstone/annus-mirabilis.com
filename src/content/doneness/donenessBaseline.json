@@ -113,8 +113,8 @@
       "of": 5
     },
     "tour-present": {
-      "state": "short",
-      "met": 0,
+      "state": "met",
+      "met": 1,
       "of": 1
     },
     "readings-r1-r3-per-paragraph": {
@@ -190,8 +190,8 @@
       "of": 5
     },
     "tour-present": {
-      "state": "short",
-      "met": 0,
+      "state": "met",
+      "met": 1,
       "of": 1
     },
     "readings-r1-r3-per-paragraph": {
@@ -267,8 +267,8 @@
       "of": 5
     },
     "tour-present": {
-      "state": "short",
-      "met": 0,
+      "state": "met",
+      "met": 1,
       "of": 1
     },
     "readings-r1-r3-per-paragraph": {
