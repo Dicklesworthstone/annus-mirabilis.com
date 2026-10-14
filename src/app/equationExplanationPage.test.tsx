@@ -32,46 +32,6 @@ async function pageDocument(paper: string, display: string) {
   return document;
 }
 
-/**
- * The explanations that owe an authored spoken form (am-sy9s), by identity. 28 step glosses on an
- * investigate page; the eight written in a journey's OWN words were authored on 2026-10-14, when
- * the field they needed was added, so the list fell from 36. A display, a model equation and a
- * journey formula that reuses a display's record all carry one already.
- *
- * A step gloss's spoken form has the same home as an own record's, an entry in
- * content/journey-explanations/<page>.yaml, so what remains is authoring and not plumbing.
- */
-const UNNAMED_JOURNEY_FORMULAS: ReadonlySet<string> = new Set([
-  "journey-discover-mass-energy-investigate-opposite-pulses",
-  "journey-discover-mass-energy-investigate-conservation",
-  "journey-discover-mass-energy-investigate-light-transform",
-  "journey-discover-mass-energy-investigate-rest-balance",
-  "journey-discover-mass-energy-investigate-angle-cancellation",
-  "journey-discover-mass-energy-investigate-moving-balance",
-  "journey-discover-mass-energy-investigate-subtract-balances",
-  "journey-discover-mass-energy-investigate-kinetic-offset",
-  "journey-discover-mass-energy-investigate-retain-offset",
-  "journey-discover-mass-energy-investigate-unchanged-offset",
-  "journey-discover-mass-energy-investigate-kinetic-drop",
-  "journey-discover-mass-energy-investigate-inertial-coefficient",
-  "journey-discover-mass-energy-investigate-small-speed",
-  "journey-discover-mass-energy-investigate-inertia-loss",
-  "journey-discover-mass-energy-investigate-assume-rest-energy",
-  "journey-discover-mass-energy-investigate-rest-energy-check",
-  "journey-discover-special-relativity-investigate-clocks",
-  "journey-discover-special-relativity-investigate-linear-map",
-  "journey-discover-special-relativity-investigate-light-postulate",
-  "journey-discover-special-relativity-investigate-forward-ray",
-  "journey-discover-special-relativity-investigate-backward-ray",
-  "journey-discover-special-relativity-investigate-light-family",
-  "journey-discover-special-relativity-investigate-inverse",
-  "journey-discover-special-relativity-investigate-isotropy",
-  "journey-discover-special-relativity-investigate-identity",
-  "journey-discover-special-relativity-investigate-normalize",
-  "journey-discover-special-relativity-investigate-transverse-form",
-  "journey-discover-special-relativity-investigate-transverse-light",
-]);
-
 describe("the equation explanation page", () => {
   test("draws the equation it explains, and says where it is printed", async () => {
     const routes = everyExplanationRoute();
@@ -101,8 +61,8 @@ describe("the equation explanation page", () => {
       // Its accessible name is the authored spoken form, as a face gives a printed display. A
       // laboratory's formula is named by the latex its page writes and has no authored spoken form,
       // so KaTeX's own MathML is all there is; that is recorded rather than asserted away.
-      // A laboratory's formula is named by the latex its page writes; a journey's formula is in
-      // the same position today and is NOT excused on that ground, it is listed below and owed.
+      // A journey's formula was in the same position until 2026-10-14 and was never excused on
+      // that ground: all 36 were authored (am-sy9s), so the exemption is the laboratory's alone.
       if (kind !== "lab" && !explanation.printed?.spoken) named.push(display);
       const source = explanation.source;
       if (!source?.href || !source.label) nowhere.push(display);
@@ -133,15 +93,16 @@ describe("the equation explanation page", () => {
     );
     expect(bare).toEqual([]);
     expect(nowhere).toEqual([]);
-    // THE ONE DEBT, declared by identity rather than left as a silent red (am-sy9s). Every
-    // explanation that is not a laboratory formula owes an authored spoken form, and 36 journey
-    // formulas have none: 8 written in a journey's own words and 28 glossing a derivation step on
-    // an investigate page. The list may only shrink, and an explanation outside it that lacks a
-    // spoken form fails here by name, so the debt cannot spread while it waits.
-    expect(named.filter((id) => !UNNAMED_JOURNEY_FORMULAS.has(id))).toEqual([]);
-    expect(named.length).toBeLessThanOrEqual(UNNAMED_JOURNEY_FORMULAS.size);
+    // Every explanation that is not a laboratory formula carries an authored spoken form. This
+    // asserted a 36-id exemption list while the journey formulas owed theirs (am-sy9s); the debt
+    // was paid in f5de02e3c and the list is retired rather than left empty, because an empty
+    // exemption set is a place for the next one to be added without anyone deciding. The floors
+    // below are what stop this from passing on nothing: the journey family must be non-empty and
+    // the four kinds must account for every route.
+    expect(named).toEqual([]);
     console.log(
-      `[spoken forms] ${named.length} explanations owe one, all of them journey formulas (am-sy9s)`,
+      `[spoken forms] ${routes.length - (drawn.lab ?? 0)} of ${routes.length} explanations are ` +
+        "outside the laboratory exemption, and every one has an authored spoken form",
     );
     expect(drawn.display).toBeGreaterThan(0);
     expect(drawn.model).toBeGreaterThan(0);
