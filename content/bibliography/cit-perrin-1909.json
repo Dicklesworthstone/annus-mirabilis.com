@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "kind": "citation",
+  "id": "cit-perrin-1909",
+  "title": "J. Perrin, Mouvement brownien et grandeurs moléculaires",
+  "role": "primary",
+  "verification": {
+    "state": "agent",
+    "by": "agent:claude-opus-5",
+    "date": "2026-10-14",
+    "note": "Every field of this record (title, journal, volume, issue, page range and year) is transcribed from the metadata the publisher registered for 10.1051/radium:01909006012035300, fetched 2026-10-14. The DOI resolves to the publisher's own landing page. Author names are rendered in this repository's existing style, initials and surname, because the registry's own spelling is inconsistent. This is a machine check of IDENTITY against a registry: it grounds who wrote what, where and when, and grounds nothing about what the work says. No named person has read it. READ THIS BEFORE CITING IT. Perrin published more than once in 1909 and this is the Le Radium paper, not the long Annales de Chimie et de Physique memoir \"Mouvement brownien et réalité moléculaire\", for which no DOI was found. am-bm-margin-entries-7fa4 entry (f) names only \"Perrin 1909\", so which of the two it means is undecided and is not decided here."
+  },
+  "locator": "Le Radium 6 (12), 353-360 (1909).",
+  "url": "https://doi.org/10.1051/radium:01909006012035300"
+}

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "kind": "citation",
+  "id": "cit-poincare-1906-palermo",
+  "title": "H. Poincaré, Sur la dynamique de l'électron",
+  "role": "primary",
+  "verification": {
+    "state": "agent",
+    "by": "agent:claude-opus-5",
+    "date": "2026-10-14",
+    "note": "Every field of this record (title, journal, volume, issue, page range and year) is transcribed from the metadata the publisher registered for 10.1007/bf03013466, fetched 2026-10-14. The DOI resolves to the publisher's own landing page. Author names are rendered in this repository's existing style, initials and surname, because the registry's own spelling is inconsistent. This is a machine check of IDENTITY against a registry: it grounds who wrote what, where and when, and grounds nothing about what the work says. No named person has read it. The paper was submitted in July 1905 and printed in 1906; the registered issue date is the 1906 one, which is why this record's id says 1906."
+  },
+  "locator": "Rendiconti del Circolo matematico di Palermo 21 (1), 129-175 (December 1906).",
+  "url": "https://doi.org/10.1007/bf03013466"
+}

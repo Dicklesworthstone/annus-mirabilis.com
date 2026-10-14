@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "kind": "citation",
+  "id": "cit-smoluchowski-1906",
+  "title": "M. von Smoluchowski, Zur kinetischen Theorie der Brownschen Molekularbewegung und der Suspensionen",
+  "role": "primary",
+  "verification": {
+    "state": "agent",
+    "by": "agent:claude-opus-5",
+    "date": "2026-10-14",
+    "note": "Every field of this record (title, journal, volume, issue, page range and year) is transcribed from the metadata the publisher registered for 10.1002/andp.19063261405, fetched 2026-10-14. The DOI resolves to the publisher's own landing page. Author names are rendered in this repository's existing style, initials and surname, because the registry's own spelling is inconsistent. This is a machine check of IDENTITY against a registry: it grounds who wrote what, where and when, and grounds nothing about what the work says. No named person has read it. The numerical factor by which Smoluchowski's result differs from Einstein's is a claim about the text and is NOT grounded here."
+  },
+  "locator": "Annalen der Physik (4) 21, 756-780 (1906); whole series 326, issue 14.",
+  "url": "https://doi.org/10.1002/andp.19063261405"
+}

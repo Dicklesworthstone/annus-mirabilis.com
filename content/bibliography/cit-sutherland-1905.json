@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "kind": "citation",
+  "id": "cit-sutherland-1905",
+  "title": "W. Sutherland, LXXV. A dynamical theory of diffusion for non-electrolytes and the molecular mass of albumin",
+  "role": "primary",
+  "verification": {
+    "state": "agent",
+    "by": "agent:claude-opus-5",
+    "date": "2026-10-14",
+    "note": "Every field of this record (title, journal, volume, issue, page range and year) is transcribed from the metadata the publisher registered for 10.1080/14786440509463331, fetched 2026-10-14. The DOI resolves to the publisher's own landing page. Author names are rendered in this repository's existing style, initials and surname, because the registry's own spelling is inconsistent. This is a machine check of IDENTITY against a registry: it grounds who wrote what, where and when, and grounds nothing about what the work says. No named person has read it. This grounds the Philosophical Magazine publication only. The other two dates am-bm-margin-entries-7fa4 asks for, Dunedin in January 1904 and a misprinted congress proceedings in early 1905, are not in any registry and still need their sources."
+  },
+  "locator": "The London, Edinburgh, and Dublin Philosophical Magazine and Journal of Science (6) 9 (54), 781-785 (June 1905).",
+  "url": "https://doi.org/10.1080/14786440509463331"
+}

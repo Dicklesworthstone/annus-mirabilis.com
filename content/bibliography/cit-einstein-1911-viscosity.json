@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "kind": "citation",
+  "id": "cit-einstein-1911-viscosity",
+  "title": "A. Einstein, Berichtigung zu meiner Arbeit: „Eine neue Bestimmung der Moleküldimensionen”",
+  "role": "primary",
+  "verification": {
+    "state": "agent",
+    "by": "agent:claude-opus-5",
+    "date": "2026-10-14",
+    "note": "Every field of this record (title, journal, volume, issue, page range and year) is transcribed from the metadata the publisher registered for 10.1002/andp.19113390313, fetched 2026-10-14. The DOI resolves to the publisher's own landing page. Author names are rendered in this repository's existing style, initials and surname, because the registry's own spelling is inconsistent. This is a machine check of IDENTITY against a registry: it grounds who wrote what, where and when, and grounds nothing about what the work says. No named person has read it. A Unicode variation selector trailing the registered title's closing quotation mark is removed. The series-4 volume 34 and the whole-series 339 are the same volume, and both are kept because AGENTS.md's dissertation paragraph cites the series-4 form."
+  },
+  "locator": "Annalen der Physik (4) 34, 591-592 (1911); whole series 339, issue 3.",
+  "url": "https://doi.org/10.1002/andp.19113390313"
+}
