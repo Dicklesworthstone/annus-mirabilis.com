@@ -66,8 +66,11 @@ describe("the laboratories' formula explanations", () => {
     expect(explainer?.paper).toBe("light-quanta");
     expect(explainer?.inWords.length).toBeGreaterThan(0);
     // Since dispatch 292 the payload carries the words and the names of the levels, not the levels
-    // themselves; this record's names are the ones its reading face shows.
-    expect(explainer?.levels).toEqual(["0", "1", "2"]);
+    // themselves; this record's names are the ones its reading face shows. The fourth arrived on
+    // 2026-10-14, when every one of the 200 printed displays was given a historian's margin and
+    // r3 became required of a display record: a lab reusing a display's record shows what that
+    // record shows, so the list grows with the paper rather than with this panel.
+    expect(explainer?.levels).toEqual(["0", "1", "2", "3"]);
   });
 
   test("a form the paper does not print carries the lab's own words and says so in its margin", () => {
