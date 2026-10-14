@@ -12,6 +12,7 @@
  * setting is the callout bead's too.
  */
 import { citationTitleClose } from "../content/citationTitle.ts";
+import type { CitationRole } from "../content/schemas/reading.ts";
 import type { EditorialNoteKind } from "../content/schemas/source.ts";
 import misconceptionLinks from "../generated/misconception-links.json";
 import { labName } from "./actions/labNames.ts";
@@ -59,6 +60,31 @@ const REGISTER_LABELS: Readonly<Record<string, string | undefined>> = {
   "paper-asserts": undefined,
   "publicly-available": undefined,
   "einstein-knew-or-used": undefined,
+};
+
+/**
+ * WHAT A CITED SOURCE IS, WHERE IT CHANGES WHAT THE READER SHOULD CONCLUDE (am-wfuc).
+ *
+ * The role was in the schema from the start and reached nothing: the validator that required it
+ * was called by no production file, and the loader a reader's page goes through used a second
+ * record type that had no role at all. This is the half that makes it worth carrying.
+ *
+ * Only three of the four say anything, on the same principle as REGISTER_LABELS above. A
+ * historian's margin cites primary documents by default -- Einstein's own papers, his
+ * contemporaries', the first report of a later measurement -- so labelling those would put a
+ * word under sixteen of the twenty-three records and distinguish nothing. What a reader cannot
+ * infer from a title and a journal line is that Ives 1952 and Stachel and Torretti 1982 are
+ * arguments ABOUT the derivation rather than part of it, which is the distinction AGENTS.md's
+ * epistemic chapter is built on: "Four historical statements are not interchangeable."
+ *
+ * Every source carries `data-citation-role` whether or not a word is shown, so the page keeps
+ * what the corpus knows and a test can read it.
+ */
+const CITATION_ROLE_LABELS: Readonly<Record<CitationRole, string | undefined>> = {
+  primary: undefined,
+  "comparison-witness": "A comparison witness",
+  secondary: "Later scholarship",
+  technical: "Reference data",
 };
 
 /**
@@ -294,8 +320,15 @@ export function PaperMargins({
                   const where = source.locator
                     ? `${c.locator.replace(/\.$/, "")}, ${source.locator}.`
                     : c.locator;
+                  // The page's own paper is always a primary source and is printed as the bare
+                  // journal locator, so a role word there would be noise on the one citation a
+                  // reader already knows the standing of.
+                  const roleLabel = isOwnPaper ? undefined : CITATION_ROLE_LABELS[c.role];
                   return (
-                    <span key={`${source.citationId}-${source.locator ?? n}`}>
+                    <span
+                      key={`${source.citationId}-${source.locator ?? n}`}
+                      data-citation-role={c.role}
+                    >
                       {n > 0 && " "}
                       {isOwnPaper ? (
                         <a href={c.url}>{where}</a>
@@ -305,6 +338,7 @@ export function PaperMargins({
                             <a href={c.url}>{c.title}</a>
                           </cite>
                           {citationTitleClose(c.title)} {where}
+                          {roleLabel ? ` ${roleLabel}.` : ""}
                         </>
                       )}
                     </span>
