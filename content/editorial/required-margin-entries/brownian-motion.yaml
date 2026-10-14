@@ -29,6 +29,13 @@ entries:
   - letter: d
     proposition: "Einstein's assumption that the interval tau is long compared with the momentum relaxation time. For shorter intervals the motion is ballistic, with mean square displacement proportional to t squared, first measured in 2010 and 2011."
     namedSources: ["Li et al., Science 2010", "Huang et al., Nature Physics 2011"]
+    # SATISFIED 2026-10-14 by note-bm-d-tau-and-the-ballistic-regime. Einstein's own statement of
+    # the condition is on the page (s4-p3, quoted in that record's evidence); the identification
+    # of his lower limit with the momentum relaxation time is marked there as a later reading and
+    # not his phrase. The two modern papers are named by the titles their publishers registered,
+    # which is all that is checked: neither was read, and the plan's "first measured" is left as
+    # the plan's claim rather than restated as this edition's.
+    satisfiedBy: note-bm-d-tau-and-the-ballistic-regime
     requiresCitations: ["cit-li-2010", "cit-huang-2011"]
   - letter: e
     proposition: "The 1911 viscosity correction and Bancelin's measurement."
@@ -41,4 +48,11 @@ entries:
   - letter: g
     proposition: "Exner's 1900 velocity measurements and why the observable was wrong."
     namedSources: ["Exner 1900"]
+    # SATISFIED 2026-10-14 by note-bm-g-exner-measured-the-wrong-quantity. Both halves are
+    # grounded in this repository: what Exner measured comes from the shelf card
+    # exner-1900-particle-speeds, including his own stated limits, and why the observable fails is
+    # this edition's authored fork arg-fork-exner, whose verdict is `correct-but-weaker` rather
+    # than a refutation. His paper was not read; the card reports him at one remove and the record
+    # says so.
+    satisfiedBy: note-bm-g-exner-measured-the-wrong-quantity
     requiresCitations: ["cit-exner-1900"]

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "kind": "historian-margin",
+  "id": "note-lq-e-equipartition-predates-jeans",
+  "author": {
+    "id": "agent:claude-opus-5",
+    "kind": "model",
+    "modelId": "claude-opus-5"
+  },
+  "reviewState": "draft",
+  "historicalStatement": "publicly-available",
+  "claim": "Einstein derives the equipartition spectrum here himself. He takes Planck's relation between a resonator's mean energy and the radiation density at its frequency, puts in the equipartition value \\(\\frac{R}{N}T\\) for that mean energy, and prints \\(\\rho_\\nu = \\frac{R}{N}\\frac{8\\pi\\nu^2}{L^3}T\\); in the same paragraph he says the result disagrees with experience and that the energy of the space grows without limit as the range of resonator frequencies is widened. The modern name for that result, the Rayleigh-Jeans law, carries a date this argument does not. Rayleigh's form of June 1900 was available to a reader of 1904. Jeans's correction of its constant appeared in the Philosophical Magazine for July 1905, after this paper had been received on 18 March 1905 and after it had been published on 9 June 1905, so no step of section 1 can rest on it. The familiar name is later than the argument it is attached to, and the argument is Einstein's own.",
+  "sourceSupport": [
+    {
+      "citationId": "ap-17-132",
+      "locator": "§1, printed pp. 135–136",
+      "role": "primary"
+    },
+    {
+      "citationId": "cit-rayleigh-1900",
+      "locator": "pp. 539–540",
+      "role": "primary"
+    },
+    {
+      "citationId": "cit-jeans-1905",
+      "locator": "pp. 91–98",
+      "role": "primary"
+    }
+  ],
+  "affectedIds": [
+    "s1-p4",
+    "s1-p5"
+  ],
+  "evidence": "Checked by agent:claude-opus-5 on 2026-10-14, against this repository and against the publishers' registered metadata; no page of Rayleigh's or Jeans's text was read. WHAT THE PAPER DOES: source block s1-p5 carries the two displays this note describes as eq-s1-d6 and eq-s1-d7, the second printed in the paper as the density at frequency nu, and its diplomatic text carries the two objections in Einstein's own words, that the relation 'entbehrt nicht nur der Übereinstimmung mit der Erfahrung' and that 'je weiter nämlich der Schwingungszahlenbereich der Resonatoren gewählt wird, desto größer wird die Strahlungsenergie des Raumes'. Block s1-p4 carries Planck's resonator relation. DATES: the receipt date is on the paper's own last page, source block closing-received, '(Eingegangen 18. März 1905.)', confirmed from the scan at printed page 148 in docs/provenance/ap-17-132.md; the issue publication date 1905-06-09 is the dated chronology entry in that same receipt. Jeans's July 1905 issue date and Rayleigh's June 1900 one are the registered metadata for 10.1080/14786440509463348 and 10.1080/14786440009463878, recorded in this repository's bibliography records cit-jeans-1905 and cit-rayleigh-1900. NOTATION: the paper prints the variant glyph for the density, which the source block s1-p5 carries as printed; this note writes it with the upright rho the margin's formula allowlist admits, and changes nothing else about the expression. WHAT IS NOT ESTABLISHED HERE: that Jeans's paper corrects Rayleigh's constant is the proposition the plan states and is not checked against Jeans's text; this note asserts only the chronology, which is what the independence turns on. No human reviewer has checked any of it. This note completes the half of plan section 3.9 entry (e) that note-lq-ultraviolet-catastrophe-is-ehrenfests leaves open."
+}

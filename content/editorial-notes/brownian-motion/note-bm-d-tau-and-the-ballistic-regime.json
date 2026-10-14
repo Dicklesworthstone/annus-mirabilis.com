@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "kind": "historian-margin",
+  "id": "note-bm-d-tau-and-the-ballistic-regime",
+  "author": { "id": "agent:claude-opus-5", "kind": "model", "modelId": "claude-opus-5" },
+  "reviewState": "draft",
+  "historicalStatement": "paper-asserts",
+  "claim": "The interval \\(\\tau\\) is not a free choice and Einstein says so on the page. He introduces it as very small compared with the intervals one can observe, but large enough that a particle's displacements in two successive intervals may be treated as independent events, and the derivation that follows uses that independence. In modern terms the lower limit is the time a particle takes to lose the memory of its velocity. Below it the motion is not diffusive at all: a particle still carrying its velocity travels nearly in a straight line, so the mean square displacement grows like \\(t^2\\) rather than like \\(t\\), and the quantity Einstein declines to discuss, the velocity of a suspended particle, becomes measurable. That regime was reached experimentally a century later, in a gas in 2010 and across the full transition in a liquid in 2011. Einstein's result is not corrected by this; the condition under which he derived it is the condition under which it holds.",
+  "sourceSupport": [
+    {
+      "citationId": "ap-17-549",
+      "locator": "§4, the introduction of τ",
+      "role": "primary"
+    },
+    {
+      "citationId": "cit-li-2010",
+      "locator": "Science 328 (5986), 1673–1675",
+      "role": "primary"
+    },
+    {
+      "citationId": "cit-huang-2011",
+      "locator": "Nature Physics 7 (7), 576–580",
+      "role": "primary"
+    }
+  ],
+  "affectedIds": ["s4-p2", "s4-p3"],
+  "evidence": "Checked by agent:claude-opus-5 on 2026-10-14 against this repository and against the publishers' registered metadata; neither modern paper was read. WHAT EINSTEIN WRITES: source block s4-p3 carries the sentence this note paraphrases, 'Wir führen ein Zeitintervall \\tau in die Betrachtung ein, welches sehr klein sei gegen die beobachtbaren Zeitintervalle, aber doch so groß, daß die in zwei aufeinanderfolgenden Zeitintervallen \\tau von einem Teilchen ausgeführten Bewegungen als voneinander unabhängige Ereignisse aufzufassen sind', and s4-p2 carries the independence assumption it rests on. WHAT IS MODERN AND LABELLED AS SUCH: the identification of Einstein's lower limit with the momentum relaxation time is a later reading and is not his phrase; he states the condition as independence of successive displacements and names no relaxation time. The \\(t^2\\) growth is what nearly straight-line motion means and is not taken from either modern paper. THE TWO MEASUREMENTS: both are named here by the titles their publishers registered, which is the whole of what is checked. cit-li-2010 is 'Measurement of the Instantaneous Velocity of a Brownian Particle', Science 2010; cit-huang-2011 is 'Direct observation of the full transition from ballistic to diffusive Brownian motion in a liquid', Nature Physics 2011. The plan's own entry says these are where the regime was first measured, and that priority claim is the plan's; this note says only what the two titles say, which is a measurement in 2010 and the full transition observed in a liquid in 2011. No literature search was made and no human reviewer has checked any of it."
+}

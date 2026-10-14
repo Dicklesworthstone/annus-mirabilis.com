@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "kind": "historian-margin",
+  "id": "note-bm-g-exner-measured-the-wrong-quantity",
+  "author": { "id": "agent:claude-opus-5", "kind": "model", "modelId": "claude-opus-5" },
+  "reviewState": "draft",
+  "historicalStatement": "publicly-available",
+  "claim": "Five years before this paper, Felix Exner traced gamboge particles in water for half a minute to a minute, divided the distance by the time, and compared the resulting speed with the speed the liquid's molecules should have at the same temperature. The measurements were careful and the comparison could not work, for a reason that is a property of the motion rather than of his microscope. If a particle is kicked at random, its displacement grows like the square root of the interval, so a displacement divided by its interval grows without limit as the interval shrinks: look four times as often and the apparent speed doubles. A number that depends on how often you look is not a property of the particle, and setting it beside a molecular speed compares nothing. Einstein's \\(\\lambda_x\\) avoids this by being a displacement over a stated time rather than a rate, which is why the quantity he tells a researcher to measure is the one that can be measured at all. Exner saw part of this himself: he wrote that his values were probably too small because the smallest excursions could not be traced.",
+  "sourceSupport": [
+    {
+      "citationId": "cit-exner-1900",
+      "locator": "Annalen der Physik (4) 2, 843–847",
+      "role": "primary"
+    },
+    {
+      "citationId": "ap-17-549",
+      "locator": "§5",
+      "role": "primary"
+    }
+  ],
+  "affectedIds": ["s5-p1", "s5-p4"],
+  "evidence": "Checked by agent:claude-opus-5 on 2026-10-14. Exner's paper was NOT read. WHAT EXNER MEASURED is taken from this repository's own shelf card exner-1900-particle-speeds in src/content/brownianShelf.ts, which records the gamboge particles, the half-minute to minute tracings, the implied molecular speed of about 30 cm a second at 20 degrees against G. Jaeger's calculated 270 metres a second, and his own limits in his own reported words, that the values are not very accurate and probably too small because the smallest excursions could not be traced. The card cites F. M. Exner, Ann. Phys. (4) 2, 843, dated 1900-08-09, and that locator agrees with the registered metadata for 10.1002/andp.19003070813 now recorded as cit-exner-1900. WHY THE OBSERVABLE FAILS is this edition's own argument, authored in content/journeys/brownian-motion.yaml under fork arg-fork-exner, whose outcome type is `correct-but-weaker` and whose plain-language verdict is that the measurements can be right and the comparison still fail. The square-root growth of displacement is the paper's own result in section 5. The reader can operate it: BM-08 is the laboratory where an apparent speed changes with the sampling interval. NOT ESTABLISHED: Exner's own words are reported at one remove, through the card, and no page of his text was seen here; nor is it claimed that he drew the conclusion this note draws. No human reviewer has checked any of it."
+}
