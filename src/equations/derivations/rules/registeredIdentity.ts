@@ -28,7 +28,186 @@ export interface RegisteredIdentityParams {
   readonly vanishingTermIds?: readonly string[];
 }
 
-function check({ from, to, params }: RuleCheckArgs): RuleCheckResult {
+/**
+ * Two expressions compared AS MATHEMATICS (am-1lds): presentation-only `group` wrappers are
+ * dropped and associative operators are flattened first. `structurallyEqual` is deliberately
+ * strict about authored shape, which is right for a tape and wrong for asking whether an identity
+ * was applied: the content chain's linearity step wraps its middle term in a `group` so the
+ * renderer can colour it, and sr-ped-step-4 writes one product flat and its result nested.
+ */
+function withoutGroups(e: Expression): Expression {
+  const walk = (n: Expression): Expression => {
+    if (n.kind === "group") return walk(n.argument);
+    switch (n.kind) {
+      case "sum":
+      case "product": {
+        const args = n.args.flatMap((a) => {
+          const w = walk(a);
+          return w.kind === n.kind ? [...w.args] : [w];
+        });
+        return { ...n, args };
+      }
+      case "quotient":
+        return { ...n, numerator: walk(n.numerator), denominator: walk(n.denominator) };
+      case "power":
+        return { ...n, base: walk(n.base) };
+      case "negate":
+      case "average":
+      case "function":
+        return { ...n, argument: walk(n.argument) };
+      case "relation":
+        return { ...n, left: walk(n.left), right: walk(n.right) };
+      default:
+        return n;
+    }
+  };
+  return walk(e);
+}
+
+function sameMath(a: Expression, b: Expression): boolean {
+  return structurallyEqual(withoutGroups(a), withoutGroups(b));
+}
+
+const isNumber = (e: Expression, value: string): boolean =>
+  e.kind === "number" && e.value === value;
+
+/**
+ * Drop the factors of 1 and the terms of 0 a substitution leaves behind, so that
+ * `f * 1 + df_dx * int_Delta_phi` reduces to the sum the step actually prints.
+ */
+function simplifyUnits(e: Expression): Expression {
+  const walk = (n: Expression): Expression => {
+    switch (n.kind) {
+      case "product": {
+        const args = n.args.map(walk);
+        if (args.some((a) => isNumber(a, "0"))) return { kind: "number", value: "0" };
+        const kept = args.filter((a) => !isNumber(a, "1"));
+        if (kept.length === 0) return { kind: "number", value: "1" };
+        return kept.length === 1 ? (kept[0] as Expression) : { ...n, args: kept };
+      }
+      case "sum": {
+        const args = n.args.map(walk).filter((a) => !isNumber(a, "0"));
+        if (args.length === 0) return { kind: "number", value: "0" };
+        return args.length === 1 ? (args[0] as Expression) : { ...n, args };
+      }
+      case "quotient":
+        return { ...n, numerator: walk(n.numerator), denominator: walk(n.denominator) };
+      case "power":
+        return { ...n, base: walk(n.base) };
+      case "negate":
+      case "average":
+      case "group":
+      case "function":
+        return { ...n, argument: walk(n.argument) };
+      case "relation":
+        return { ...n, left: walk(n.left), right: walk(n.right) };
+      default:
+        return n;
+    }
+  };
+  return walk(e);
+}
+
+/** Walk every symbol of a tree. */
+function eachSymbol(e: Expression, visit: (n: Extract<Expression, { kind: "symbol" }>) => void) {
+  const walk = (n: Expression): void => {
+    if (n.kind === "symbol") visit(n);
+    switch (n.kind) {
+      case "sum":
+      case "product":
+        for (const a of n.args) walk(a);
+        break;
+      case "quotient":
+        walk(n.numerator);
+        walk(n.denominator);
+        break;
+      case "power":
+        walk(n.base);
+        break;
+      case "negate":
+      case "average":
+      case "group":
+      case "function":
+        walk(n.argument);
+        break;
+      case "relation":
+        walk(n.left);
+        walk(n.right);
+        break;
+      default:
+        break;
+    }
+  };
+  walk(e);
+}
+
+function symbolIds(e: Expression): Set<string> {
+  const out = new Set<string>();
+  eachSymbol(e, (n) => out.add(n.termId));
+  return out;
+}
+
+/** The first symbol node with this termId, so a replacement carries the bindings it was authored with. */
+function findSymbol(e: Expression, termId: string): Expression | undefined {
+  let found: Expression | undefined;
+  eachSymbol(e, (n) => {
+    if (!found && n.termId === termId) found = n;
+  });
+  return found;
+}
+
+/** Replace every symbol with this termId by `value`. */
+function replaceSymbol(e: Expression, termId: string, value: Expression): Expression {
+  const walk = (n: Expression): Expression => {
+    if (n.kind === "symbol") return n.termId === termId ? value : n;
+    switch (n.kind) {
+      case "sum":
+      case "product":
+        return { ...n, args: n.args.map(walk) };
+      case "quotient":
+        return { ...n, numerator: walk(n.numerator), denominator: walk(n.denominator) };
+      case "power":
+        return { ...n, base: walk(n.base) };
+      case "negate":
+      case "average":
+      case "group":
+      case "function":
+        return { ...n, argument: walk(n.argument) };
+      case "relation":
+        return { ...n, left: walk(n.left), right: walk(n.right) };
+      default:
+        return n;
+    }
+  };
+  return walk(e);
+}
+
+/**
+ * "One declared quantity took a known value and nothing else moved": the symbol the step DECLARED
+ * it changed disappears from the result, and putting `value` in its place in the step's input
+ * reproduces that result exactly.
+ *
+ * Reading the declaration is what makes this a check rather than a hand-wave. Without it, zeroing
+ * whichever symbol happens to disappear accepts a step that dropped an unrelated term, which is
+ * planted in registeredIdentity.test.ts.
+ */
+function vanishingSubstitutionHolds(
+  from: Expression,
+  to: Expression,
+  value: Expression,
+  declared: readonly string[],
+): { ok: boolean; vanished: readonly string[]; used?: string } {
+  const after = symbolIds(to);
+  const vanished = [...symbolIds(from)].filter((id) => !after.has(id));
+  for (const id of vanished.filter((v) => declared.includes(v))) {
+    if (sameMath(simplifyUnits(replaceSymbol(from, id, value)), to)) {
+      return { ok: true, vanished, used: id };
+    }
+  }
+  return { ok: false, vanished };
+}
+
+function check({ from, to, params, changed }: RuleCheckArgs): RuleCheckResult {
   const p = params as unknown as RegisteredIdentityParams;
   if (!p?.identityId || typeof p.identityId !== "string" || !p.identityId.trim()) {
     return { outcome: "fail", reason: "registered-identity requires a valid identityId." };
@@ -203,19 +382,33 @@ function check({ from, to, params }: RuleCheckArgs): RuleCheckResult {
     }
 
     case "linearity-of-average": {
+      // FORM ONE, the identity itself: the average of a sum is the sum of the averages, term by
+      // term. Compared through `sameMath` so a term wrapped in a `group` for colouring still
+      // matches, which is why the content chain's own step used to fall through to `pass`.
       if (from.kind === "average" && from.argument.kind === "sum") {
         const summands = from.argument.args;
-        if (to.kind === "sum" && to.args.length === summands.length) {
-          const matches = to.args.every((toArg, idx) => {
-            const s = summands[idx];
-            if (!s) return false;
-            const expected: Expression = { kind: "average", argument: s };
-            return structurallyEqual(toArg, expected);
+        const target = withoutGroups(to);
+        if (target.kind === "sum" && target.args.length === summands.length) {
+          const matches = target.args.every((toArg, idx) => {
+            const summand = summands[idx];
+            if (!summand) return false;
+            return sameMath(toArg, { kind: "average", argument: summand });
           });
           if (matches) return { outcome: "pass" };
         }
       }
-      return { outcome: "pass" };
+      // FORM TWO, the step that takes the average of BOTH SIDES of a relation, which is how
+      // bm-ped-step-2 uses this identity. Averaging an equality is licensed by the same linearity.
+      if (from.kind === "relation" && to.kind === "relation" && to.operator === from.operator) {
+        const left = sameMath(to.left, { kind: "average", argument: from.left });
+        const right = sameMath(to.right, { kind: "average", argument: from.right });
+        if (left && right) return { outcome: "pass" };
+      }
+      return {
+        outcome: "unverifiable",
+        reason:
+          "linearity-of-average is checked in two forms, the average of a sum against the sum of the averages term by term, and the average taken of both sides of a relation; this step is neither.",
+      };
     }
 
     case "kernel-normalization": {
@@ -228,8 +421,26 @@ function check({ from, to, params }: RuleCheckArgs): RuleCheckResult {
       if (from.kind === "integral" && to.kind === "number" && to.value === "1") {
         return { outcome: "pass" };
       }
+      // The normalisation used INSIDE a larger expression (am-1lds). The identity says one
+      // integral is 1, so the step must be its input with that one declared symbol set to 1 and
+      // nothing else touched: on bm-src-step-3, f * int_phi + df_dx * int_Delta_phi becomes
+      // f + df_dx * int_Delta_phi. This branch returned `pass` for any sum or relation, so it
+      // could not tell that step from one whose result is its own input.
       if (from.kind === "sum" || from.kind === "relation") {
-        return { outcome: "pass" };
+        const unit = vanishingSubstitutionHolds(
+          from,
+          to,
+          { kind: "number", value: "1" },
+          changed ?? [],
+        );
+        if (unit.ok) return { outcome: "pass" };
+        return {
+          outcome: "unverifiable",
+          reason:
+            unit.vanished.length > 0
+              ? `kernel-normalization: setting the declared symbol to 1 in the step's input does not give its result; the symbols that disappear are ${unit.vanished.join(", ")} and the step declares ${(changed ?? []).join(", ") || "none of them"}.`
+              : "kernel-normalization is checked by setting the integral the step DECLARES it changed to 1; this step makes no symbol disappear, so its result is not a normalisation of its input.",
+        };
       }
       return {
         outcome: "unverifiable",
@@ -238,9 +449,58 @@ function check({ from, to, params }: RuleCheckArgs): RuleCheckResult {
       };
     }
 
-    case "odd-moments-symmetric-kernel":
+    case "odd-moments-symmetric-kernel": {
+      // The odd moment of a symmetric kernel is zero (am-1lds), so the step must be its input with
+      // that one declared symbol set to 0 and the term it stood in gone: on bm-src-step-4,
+      // f + df_dx * int_Delta_phi becomes f. This case returned `pass` unconditionally.
+      const zero = vanishingSubstitutionHolds(
+        from,
+        to,
+        { kind: "number", value: "0" },
+        changed ?? [],
+      );
+      if (zero.ok) return { outcome: "pass" };
+      return {
+        outcome: "unverifiable",
+        reason:
+          zero.vanished.length > 0
+            ? `odd-moments-symmetric-kernel: setting the declared symbol to 0 in the step's input does not give its result; the symbols that disappear are ${zero.vanished.join(", ")} and the step declares ${(changed ?? []).join(", ") || "none of them"}.`
+            : "odd-moments-symmetric-kernel is checked by setting the odd moment the step DECLARES it changed to 0; this step makes no symbol disappear.",
+      };
+    }
+
+    case "spatial-isotropy": {
+      // Isotropy says a coefficient cannot depend on the SIGN of the direction, so the step it
+      // licenses replaces one declared symbol by its mirror and changes nothing else:
+      // sr-ped-step-4 takes a_v * a_minus_v * (1 - v^2/c^2) = 1 to a_v * a_v * (1 - v^2/c^2) = 1.
+      // This case returned `pass` unconditionally (am-1lds).
+      //
+      // The mirror is recognised by the sign marker in the termId, which is a convention and is
+      // treated as one: a step that does not follow it reports unverifiable rather than passing.
+      const after = symbolIds(to);
+      const vanished = [...symbolIds(from)].filter((id) => !after.has(id));
+      const unsigned = (id: string) => id.replace(/_?minus_?|_?neg_?/gi, "_").replace(/__+/g, "_");
+      for (const gone of vanished.filter((v) => (changed ?? []).includes(v))) {
+        for (const kept of after) {
+          if (unsigned(gone) !== unsigned(kept)) continue;
+          // The REAL node, taken from the step's own result: a symbol synthesised here would carry
+          // no quantityId and would fail for a reason that has nothing to do with the identity.
+          const replacement = findSymbol(to, kept);
+          if (replacement && sameMath(replaceSymbol(from, gone, replacement), to)) {
+            return { outcome: "pass" };
+          }
+        }
+      }
+      return {
+        outcome: "unverifiable",
+        reason:
+          vanished.length > 0
+            ? `spatial-isotropy is checked by replacing the declared symbol with its mirror, the same name without the sign marker; no such replacement gives this step's result. The symbols that disappear are ${vanished.join(", ")}.`
+            : "spatial-isotropy is checked by replacing the symbol the step DECLARES it changed with its mirror; this step makes no symbol disappear.",
+      };
+    }
+
     case "cosh-sinh-identity":
-    case "spatial-isotropy":
     case "velocity-addition":
       return { outcome: "pass" };
   }

@@ -332,6 +332,9 @@ export function verifyChain(
       from: step.from,
       to: step.to,
       params: step.rule.params,
+      // What the step says it changed, so a substitution rule can check the declared node rather
+      // than any node that happens to disappear (am-1lds).
+      changed: step.changedSubexpressionIds,
     });
 
     if (checkResult.outcome === "fail") {

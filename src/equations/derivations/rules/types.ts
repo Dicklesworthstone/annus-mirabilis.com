@@ -14,6 +14,15 @@ export interface RuleCheckArgs {
   readonly from: Expression;
   readonly to: Expression;
   readonly params: Readonly<Record<string, unknown>>;
+  /**
+   * The step's own `changedSubexpressionIds` (am-1lds). A rule that verifies a substitution needs
+   * to know WHICH subexpression the step claims to have changed: without it, "the result is the
+   * input with one symbol set to zero" accepts zeroing any symbol that happens to disappear, which
+   * would credit a step that simply dropped a different term.
+   *
+   * Optional, and a rule that needs it says so in its refusal rather than assuming a default.
+   */
+  readonly changed?: readonly string[] | undefined;
 }
 
 export type RuleCheckOutcome = "pass" | "fail" | "unverifiable";
