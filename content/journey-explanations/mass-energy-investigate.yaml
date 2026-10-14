@@ -12,6 +12,7 @@ page: discover/mass-energy/investigate
 formulas:
   - latex: "L/2+L/2=L"
     step: opposite-pulses
+    spoken: "L over two, plus L over two, equals L."
     inWords:
       - text: "Two equal halves of "
       - text: "the emitted light energy"
@@ -21,12 +22,14 @@ formulas:
 
   - latex: "\\begin{aligned}&\\text{energy before}=\\text{energy after}\\\\&\\qquad+\\text{emitted light energy}\\end{aligned}"
     step: conservation
+    spoken: "Energy before equals energy after, plus the emitted light energy."
     inWords:
       - text: "In each frame separately, the energy the body had before equals the energy it has after, plus the energy carried off by the light."
     r3: "Energy conservation holding in both frames is a premise of this route, stated in words because no letters are fixed yet. The paper assumes the same thing; it writes the two balances directly in § 1 rather than naming the principle."
 
   - latex: "\\begin{gathered}l^*=l\\gamma(1-\\beta\\cos\\varphi),\\\\ \\gamma=(1-\\beta^2)^{-1/2},\\quad\\beta=v/c\\end{gathered}"
     step: light-transform
+    spoken: "l star equals l gamma, times one minus beta cosine phi; where gamma equals one minus beta squared, to the power minus one half, and beta equals v over c."
     inWords:
       - text: "The energy of a light complex in the moving frame"
         quantityId: lightComplexEnergyMoving
@@ -47,6 +50,7 @@ formulas:
 
   - latex: "E_0-E_1=L"
     step: rest-balance
+    spoken: "E sub zero minus E sub one equals L."
     inWords:
       - text: "In the rest frame, "
       - text: "the body's energy before"
@@ -62,6 +66,7 @@ formulas:
 
   - latex: "\\begin{aligned}&\\frac{L\\gamma}{2}(1-\\beta\\cos\\varphi)+\\frac{L\\gamma}{2}(1+\\beta\\cos\\varphi)\\\\&\\quad=\\gamma L\\end{aligned}"
     step: angle-cancellation
+    spoken: "L gamma over two, times one minus beta cosine phi, plus L gamma over two, times one plus beta cosine phi, equals gamma L."
     inWords:
       - text: "Adding the two transformed halves of "
       - text: "the light energy"
@@ -77,6 +82,7 @@ formulas:
 
   - latex: "H_0-H_1=\\gamma L"
     step: moving-balance
+    spoken: "H sub zero minus H sub one equals gamma L."
     inWords:
       - text: "In the moving frame, "
       - text: "the body's energy before"
@@ -95,6 +101,7 @@ formulas:
 
   - latex: "(H_0-E_0)-(H_1-E_1)=L(\\gamma-1)"
     step: subtract-balances
+    spoken: "H sub zero minus E sub zero, minus the quantity H sub one minus E sub one, equals L times gamma minus one."
     inWords:
       - text: "Subtracting the two balances, the change in the gap between "
       - text: "the moving-frame energy"
@@ -113,12 +120,14 @@ formulas:
 
   - latex: "H_i-E_i=K_i+C_i\\quad(i=0,1)"
     step: kinetic-offset
+    spoken: "H sub i minus E sub i equals K sub i plus C sub i, for i equal to zero and one."
     inWords:
       - text: "The gap between a body's energy in the two frames is its kinetic energy, plus an additive constant that the energies leave undetermined."
     r3: "A premise, not a result, and the route marks it as one. The paper writes a single C for both states and says in a footnote that the energies are determined only up to an additive constant; writing C_0 and C_1 separately is the route's way of making the next two steps ask whether that constant may change."
 
   - latex: "K_0-K_1+(C_0-C_1)=L(\\gamma-1)"
     step: retain-offset
+    spoken: "K sub zero minus K sub one, plus C sub zero minus C sub one, equals L times gamma minus one."
     inWords:
       - text: "The drop in "
       - text: "kinetic energy"
@@ -137,6 +146,7 @@ formulas:
 
   - latex: "C_0=C_1"
     step: unchanged-offset
+    spoken: "C sub zero equals C sub one."
     inWords:
       - text: "The additive constant"
         quantityId: additiveEnergyConstant
@@ -145,6 +155,7 @@ formulas:
 
   - latex: "K_0-K_1=L(\\gamma-1)"
     step: kinetic-drop
+    spoken: "K sub zero minus K sub one equals L times gamma minus one."
     inWords:
       - text: "The kinetic energy the body loses"
         quantityId: kineticEnergyBefore
@@ -159,6 +170,7 @@ formulas:
 
   - latex: "\\lim_{v\\to0}\\frac{K_0-K_1}{v^2/2}=M_0-M_1"
     step: inertial-coefficient
+    spoken: "The limit as v goes to zero of, K sub zero minus K sub one over v squared over two, equals M sub zero minus M sub one."
     inWords:
       - text: "The mass lost"
         quantityId: bodyMassBefore
@@ -173,6 +185,7 @@ formulas:
 
   - latex: "\\gamma-1=\\tfrac12(v/c)^2+O((v/c)^4)"
     step: small-speed
+    spoken: "Gamma minus one equals one half times v over c, squared, plus terms of order v over c to the fourth."
     inWords:
       - text: "One less than "
       - text: "the factor"
@@ -188,6 +201,7 @@ formulas:
 
   - latex: "M_0-M_1=\\frac{L}{c^2},\\qquad\\Delta M=-\\frac{L}{c^2}"
     step: inertia-loss
+    spoken: "M sub zero minus M sub one equals L over c squared; and delta M equals minus L over c squared."
     inWords:
       - text: "The mass the body loses"
         quantityId: bodyMassBefore
@@ -202,6 +216,7 @@ formulas:
 
   - latex: "E_0=M_0c^2,\\qquad E_1=M_1c^2"
     step: assume-rest-energy
+    spoken: "E sub zero equals M sub zero c squared, and E sub one equals M sub one c squared."
     inWords:
       - text: "A different route starts instead by assuming that "
       - text: "a body's rest energy"
@@ -217,6 +232,7 @@ formulas:
 
   - latex: "(M_0-M_1)c^2=L"
     step: rest-energy-check
+    spoken: "M sub zero minus M sub one, times c squared, equals L."
     inWords:
       - text: "On that assumption the rest balance reads: the mass lost"
         quantityId: bodyMassBefore

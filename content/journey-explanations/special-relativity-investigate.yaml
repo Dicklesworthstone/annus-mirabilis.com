@@ -49,6 +49,7 @@ formulas:
 
   - latex: "t_B = (t_A + t_A^{\\mathrm{return}})/2"
     step: clocks
+    spoken: "t sub B equals, t sub A plus t sub A return, over two."
     inWords:
       - text: "The time a distant clock is set to"
         quantityId: coordinateTimeStationary
@@ -57,6 +58,7 @@ formulas:
 
   - latex: "x'=a(v)(x-vt),\\qquad t'=b(v)t+d(v)x"
     step: linear-map
+    spoken: "x prime equals a of v, times x minus v t; and t prime equals b of v times t, plus d of v times x."
     inWords:
       - text: "A candidate map: "
       - text: "the moving frame's position"
@@ -81,6 +83,7 @@ formulas:
 
   - latex: "x=\\pm ct\\quad\\Longrightarrow\\quad x'=\\pm ct'"
     step: light-postulate
+    spoken: "x equals plus or minus c t implies x prime equals plus or minus c t prime."
     inWords:
       - text: "A ray that travels at "
       - text: "the speed of light"
@@ -96,6 +99,7 @@ formulas:
 
   - latex: "a(1-v/c)=b+cd"
     step: forward-ray
+    spoken: "a times one minus v over c, equals b plus c d."
     inWords:
       - text: "For the ray going forward, "
       - text: "the spatial factor"
@@ -117,6 +121,7 @@ formulas:
 
   - latex: "a(1+v/c)=b-cd"
     step: backward-ray
+    spoken: "a times one plus v over c, equals b minus c d."
     inWords:
       - text: "For the ray going the other way, the same relation holds with "
       - text: "the frame's speed"
@@ -129,6 +134,7 @@ formulas:
 
   - latex: "b=a,\\quad d=-av/c^2,\\quad t'=a(t-vx/c^2)"
     step: light-family
+    spoken: "b equals a; d equals minus a v over c squared; and t prime equals a times, t minus v x over c squared."
     inWords:
       - text: "The two conditions together make "
       - text: "the time factor"
@@ -156,6 +162,7 @@ formulas:
 
   - latex: "a(v)a(-v)(1-v^2/c^2)=1"
     step: inverse
+    spoken: "a of v, times a of minus v, times one minus v squared over c squared, equals one."
     inWords:
       - text: "Going out with "
       - text: "the frame's speed"
@@ -171,6 +178,7 @@ formulas:
 
   - latex: "a(v)=a(-v)"
     step: isotropy
+    spoken: "a of v equals a of minus v."
     inWords:
       - text: "The scale"
         quantityId: ansatzSpatialScale
@@ -182,6 +190,7 @@ formulas:
 
   - latex: "a(0)=1,\\qquad a(v)>0"
     step: identity
+    spoken: "a of zero equals one, and a of v is greater than zero."
     inWords:
       - text: "At rest the scale"
         quantityId: ansatzSpatialScale
@@ -193,6 +202,7 @@ formulas:
 
   - latex: "a=\\gamma=\\frac{1}{\\sqrt{1-v^2/c^2}}"
     step: normalize
+    spoken: "a equals gamma, which is one over the square root of one minus v squared over c squared."
     inWords:
       - text: "The scale"
         quantityId: ansatzSpatialScale
@@ -210,6 +220,7 @@ formulas:
 
   - latex: "y'=k(v)y,\\qquad z'=k(v)z"
     step: transverse-form
+    spoken: "y prime equals k of v times y, and z prime equals k of v times z."
     inWords:
       - text: "The coordinates across the motion"
         quantityId: coordinatePositionMoving
@@ -224,6 +235,7 @@ formulas:
 
   - latex: "k^2=\\gamma^2(1-v^2/c^2)=1,\\qquad y'=y,\\quad z'=z"
     step: transverse-light
+    spoken: "k squared equals gamma squared times one minus v squared over c squared, which is one; so y prime equals y, and z prime equals z."
     inWords:
       - text: "Testing a ray across the motion makes the square of "
       - text: "the transverse factor"
