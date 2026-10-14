@@ -23,3 +23,4 @@ r2:
     why: "How steeply that mass per unit volume changes along the column."
   - latex: "- D \\frac{\\partial (\\mu \\nu)}{\\partial x}"
     why: "The grams crossing a unit of cross-section in a unit of time, proportional to that steepness, with the sign making the flow run towards the emptier side. The printed form."
+r3: "The law of this display is Fick's, Ueber Diffusion, Ann. Phys. (Pogg.) 94, 59 (1855), and the paper states it without citing him (fick-1855-diffusion-equation). What that card records about its status matters for this step: Fick could not derive the law from the general laws of motion, and proposed it by analogy with Fourier's law for the flow of heat, as a conjecture he said his experiments put beyond doubt. So the second of the two opposed processes enters as an empirical law fifty years old, as the first entered as Stokes's hydrodynamics. What is new here is neither of them but the equilibrium between them."

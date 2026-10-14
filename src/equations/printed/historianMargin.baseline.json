@@ -1,9 +1,9 @@
 {
   "bead": "am-8gbg",
   "measuredAt": "2026-10-14",
-  "measuredBy": "bun scripts/check-equation-explanations.ts, whose census prints the same numbers. The four section-5 ids added on 2026-10-14 are the first margins authored since the inventory was cut; the floor rises with them, because a debt paid down lowers the ceiling.",
+  "measuredBy": "bun scripts/check-equation-explanations.ts, whose census prints the same numbers. The four section-5 and seven section-3 ids added on 2026-10-14 are the first margins authored since the inventory was cut; the floor rises with them, because a debt paid down lowers the ceiling.",
   "examined": 200,
-  "withMargin": 75,
+  "withMargin": 82,
   "papers": {
     "mass-energy": [
       "eq-s0-d1",
@@ -33,8 +33,15 @@
       "eq-s1-d2",
       "eq-s2-d1",
       "eq-s2-d2",
+      "eq-s3-1",
       "eq-s3-d1",
+      "eq-s3-d2",
+      "eq-s3-d3",
+      "eq-s3-d4",
       "eq-s3-d5",
+      "eq-s3-d6",
+      "eq-s3-d7",
+      "eq-s3-d8",
       "eq-s3-d9",
       "eq-s4-1",
       "eq-s4-d12",

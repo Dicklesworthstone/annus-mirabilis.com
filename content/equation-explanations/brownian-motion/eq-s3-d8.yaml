@@ -20,3 +20,4 @@ r2:
     why: "The particles all have the same mass wherever they are, so it is a constant here and passes through the derivative."
   - latex: "- D \\frac{\\partial \\nu}{\\partial x}"
     why: "Divided by the mass of one particle: the flow counted in particles. The printed form."
+r3: "Dividing the mass out needs every particle to have the same mass and that mass not to vary along the column. The paper assumes both and states neither, and it is the same assumption of one uniform species that lets § 2 treat the suspension as a dilute solution; a real suspension of mixed sizes does not satisfy it, and that is a limit of the result rather than of the algebra. The step is also where the mass leaves the argument for good: $\\mu$ is absent from § 3's result, so the diffusion coefficient depends on the radius of a particle and not on how heavy it is."

@@ -27,3 +27,4 @@ r2:
     why: "The work that force does when the slice is shifted by $\\delta x$."
   - latex: "\\delta E = - \\int_0^l K \\nu \\delta x d x"
     why: "Added over the column and made negative, because work done by the force on the substance comes out of the system's energy. The printed form."
+r3: "The column of cross-section 1 bounded by $x = 0$ and $x = l$ is a device for the calculation and not an apparatus: no quantity in § 3's result depends on $l$, which leaves with the force. The sign is the paper's convention, that work done BY the force lowers the energy of the system. What the step needs of $K$ is only that it be the same for every particle in the slice, and the paper neither says where such a force would come from nor needs to, because it is eliminated before the section ends. A modern reading would call this the energy term of a free-energy variation; Einstein writes the two terms and their sum without using that name here."
