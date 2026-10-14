@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "kind": "historian-margin",
+  "id": "note-sr-f-the-equator-clock-remark",
+  "author": {
+    "id": "agent:claude-opus-5",
+    "kind": "model",
+    "modelId": "claude-opus-5"
+  },
+  "reviewState": "draft",
+  "historicalStatement": "publicly-available",
+  "claim": "§ 4 ends by applying the closed-curve result to the Earth: a balance-wheel clock at the equator must run slower, by a very small amount, than an identical clock at one of the poles. The step from the paper's result to that sentence is where § 4 reaches past what it has established. Neither clock is an inertial clock: both are carried around by a rotating Earth, and the comparison also involves gravity, which this paper does not treat at all. A correct account of clocks at rest on the Earth's surface came with the general theory and the shape of the Earth, which is later physics, and this margin stops there rather than repairing the remark. The question was eventually put to clocks that were flown; this edition registers the identity of J. C. Hafele's 1970 note on the relativistic behaviour of moving terrestrial clocks and has read none of it.",
+  "sourceSupport": [
+    {
+      "citationId": "ap-17-891",
+      "locator": "§4, the closing sentence",
+      "role": "primary"
+    },
+    {
+      "citationId": "cit-hafele-1970",
+      "locator": "Nature 227 (5255), 270-271 (July 1970)",
+      "role": "comparison-witness"
+    }
+  ],
+  "affectedIds": [
+    "s4-p8"
+  ],
+  "evidence": "Checked by agent:claude-opus-5 on 2026-10-14 against this repository. WHAT EINSTEIN WRITES: source block s4-p8 carries the sentence this note is about, 'Man schliesst daraus, dass eine am Erdaequator befindliche Unruhuhr um einen sehr kleinen Betrag langsamer laufen muss als eine genau gleich beschaffene...', immediately after the closed-curve result and its own conditional opening, 'Nimmt man an, dass das fuer eine polygonale Linie bewiesene Resultat auch fuer eine stetig gekruemmte Kurve gelte'. WHAT IS MODERN AND LABELLED AS SUCH: that neither clock is inertial and that gravity enters are later readings, not Einstein's words here; AGENTS.md names this remark as a case where a 1905 sentence can only be followed with later physics and instructs the margin to say so and stop, which is why no corrected prediction and no number appears above. WHAT IS NOT ESTABLISHED: the size or sign of any correction, and anything about what Hafele measured. The bibliography record cit-hafele-1970 grounds that note's identity through its DOI and nothing of its content."
+}

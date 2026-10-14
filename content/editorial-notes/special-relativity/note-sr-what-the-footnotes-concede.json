@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "kind": "historian-margin",
+  "id": "note-sr-what-the-footnotes-concede",
+  "author": {
+    "id": "agent:claude-opus-5",
+    "kind": "model",
+    "modelId": "claude-opus-5"
+  },
+  "reviewState": "draft",
+  "historicalStatement": "paper-asserts",
+  "claim": "The paper carries four footnotes, and the one most often described second-hand is not among them. It is sometimes said that Einstein concedes the imprecision of the rigid-body concept. What the plates show is a concession about something else and a definition where the concession is expected. The footnote on the first page of § 1 sets aside the imprecision in the notion of the SIMULTANEITY of two events at approximately the same place, saying it must likewise be bridged by an abstraction and will not be discussed here. The footnote attached to the rigid sphere at the opening of § 4 concedes nothing at all: it defines, a body which investigated at rest has spherical form. So the paper's one admitted imprecision is about simultaneity, which is the concept § 1 is built to repair, and its rigid body is stipulated rather than apologised for.",
+  "sourceSupport": [
+    {
+      "citationId": "ap-17-891",
+      "locator": "footnotes on printed pp. 893 and 903",
+      "role": "primary"
+    }
+  ],
+  "affectedIds": [
+    "s1-fn1",
+    "s4-fn1"
+  ],
+  "evidence": "Checked by agent:claude-opus-5 on 2026-10-14 against this repository, and resting on a plate reading made by another agent on 2026-10-08 and recorded in content/editorial/required-margin-entries/special-relativity.yaml under entry (g): the four footnotes were read from the pinned facsimile's page images, s1-fn1 on printed p. 893 and s4-fn1 on p. 903, with the other two identified as s2-fn1 (p. 896, defining Zeit) and s6-fn1 (p. 909, a symmetry argument). Both machine-draft transcriptions were found to match their plates exactly. WHAT IS NOT SETTLED, and is deliberately not settled here: the master plan's § 3.9 lists a required margin entry about a footnote conceding the imprecision of the rigid-body concept, and no such footnote exists in this paper. Whether that plan entry becomes the simultaneity concession, the rigid-sphere definition, or both, is the owner's call; the requirement record says so and this note does not make it. The note stands on its own as what the footnotes say."
+}

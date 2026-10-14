@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "kind": "historian-margin",
+  "id": "note-lq-b-millikan-verified-and-rejected",
+  "author": {
+    "id": "agent:claude-opus-5",
+    "kind": "model",
+    "modelId": "claude-opus-5"
+  },
+  "reviewState": "draft",
+  "historicalStatement": "publicly-available",
+  "claim": "Eleven years after this paper, R. A. Millikan measured the stopping potential of electrons driven out of sodium and lithium by light of several frequencies, found it rising in a straight line with the frequency exactly as § 8's relation requires, and read Planck's constant off the slope as 6,57 times ten to the minus twenty-seven, with a precision of about half a per cent. He also rejected the hypothesis the relation came from. His paper opens by calling Einstein's 1905 hypothesis bold, not to say the reckless; on p. 381 the observations seem to leave no room whatever for doubt that the agreement demanded by Einstein's equation actually exists; and on p. 383, yet the semi-corpuscular theory by which Einstein arrived at his equation seems at present to be wholly untenable. A reader who meets the photoelectric effect as the experiment that settled whether light is made of particles is meeting a later story: the man whose measurement confirmed the equation did not accept the picture, and the equation's success on its own does not settle what light is.",
+  "sourceSupport": [
+    {
+      "citationId": "cit-millikan-1916",
+      "locator": "Physical Review (2) 7 (3), 355-388; the quotations at pp. 355, 381, 383 and 388",
+      "role": "primary"
+    },
+    {
+      "citationId": "ap-17-132",
+      "locator": "§8",
+      "role": "primary"
+    }
+  ],
+  "affectedIds": [
+    "s8-p1",
+    "s8-p4"
+  ],
+  "evidence": "Checked by agent:claude-opus-5 on 2026-10-14. Millikan's paper was NOT read by me. Every quotation is transcribed from the source check on this repository's shelf card `millikan-1916-photoelectric-h` (src/content/lightQuantaShelf.ts), which records a page-image read of the March 1916 issue with its leaf numbers and gives the passages used here at pp. 355, 381, 383 and 388, together with the value of h and its stated precision. The bibliography record cit-millikan-1916 grounds the paper's identity through its DOI and nothing about its content. WHAT IS NOT ESTABLISHED: why Millikan held the view he states, and whether he changed it later; neither is in this repository and neither is claimed here. The card carries status `later`, so this entry is a later development on the timeline and is not shelf evidence for any discovery step."
+}

@@ -46,10 +46,16 @@ entries:
   - letter: f
     proposition: "The equator-clock remark and the geoid."
     namedSources: ["Hafele 1970"]
+    satisfiedBy:
+      - note-sr-f-the-equator-clock-remark
     requiresCitations: ["cit-hafele-1970"]
   - letter: g
     proposition: "The footnote conceding the imprecision of the rigid-body concept."
     namedSources: ["ap-17-891, footnote"]
+    partial:
+      satisfiedBy: note-sr-what-the-footnotes-concede
+      covers: "What the paper's footnotes actually say, authored 2026-10-14 from the plate reading recorded below: the concession on printed p. 893 is about the SIMULTANEITY of two events at approximately the same place, and the rigid-sphere footnote on p. 903 is a definition that concedes nothing."
+      missing: "The plan's entry as written, because the footnote it describes does not exist in this paper. Which footnote the entry becomes is the owner's call, and the note deliberately does not make it."
     requiresCitations: ["ap-17-891"]
     # THE PLAN'S DESCRIPTION DOES NOT MATCH THE PLATES, and this bead asked for exactly this check:
     # "the correction of the plan's rigid-body description if the facsimile confirms the witness".

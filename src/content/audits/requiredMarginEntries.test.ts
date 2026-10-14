@@ -352,10 +352,19 @@ describe("THE ABSENT ENTRIES ARE BLOCKED ON BIBLIOGRAPHY, AND THAT REORDERS THE 
         `(${citationsResolve.join(", ")}), ${notGroundable.length} have their citation but no ` +
         `groundable claim (${notGroundable.join(", ")}), and ${waiting} wait on a bibliography record`,
     );
-    // All three non-empty on purpose. The middle bucket did not exist when this check was first
-    // written, and finding a member of it is what showed the original wording was wrong.
+    // The taxonomy is asserted as a PARTITION, not by requiring each bucket to have a member.
+    // The middle bucket was asserted non-empty because finding its first member is what showed
+    // the original wording was wrong, and on 2026-10-14 it emptied: light-quanta (b) was its only
+    // member and was authored from the shelf card's page-image source check, which quotes
+    // Millikan's own words with their pages. An assertion that a bucket stays occupied is an
+    // assertion that the debt stays unpaid, so what is asserted now is that every absent entry
+    // lands in exactly one bucket and that the three account for all of them.
+    const absent = papers.flatMap(({ entries }) => entries.filter((e) => !isSatisfied(e)));
+    expect(citationsResolve.length + notGroundable.length + waiting).toBe(absent.length);
+    expect(absent.length).toBeGreaterThan(0);
+    // And the instrument still discriminates: at least one entry is reachable today and at least
+    // one is not, which is the fact that makes the split worth printing.
     expect(citationsResolve.length).toBeGreaterThan(0);
-    expect(notGroundable.length).toBeGreaterThan(0);
     expect(waiting).toBeGreaterThan(0);
     for (const { paper, entries } of papers) {
       for (const entry of entries) {
