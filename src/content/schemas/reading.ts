@@ -106,7 +106,7 @@ export type Citation = Header &
     locator: string;
     url: string;
     role: CitationRole;
-    verification?: CitationVerification;
+    verification: CitationVerification;
   }>;
 export type TypedPrerequisiteRef = Readonly<{
   foundationId: string;
@@ -217,8 +217,8 @@ function object(x: unknown, p: string): Record<string, unknown> {
  * `unverified` state must NOT, because a name beside "nobody has checked this" is a
  * contradiction, and the way that mistake happens is copying a filled-in record.
  */
-function withoutVerification(o: Record<string, unknown>, p: string): Record<string, unknown> {
-  if (!Object.hasOwn(o, "verification")) return o;
+function checkVerification(o: Record<string, unknown>, p: string): Record<string, unknown> {
+  if (!Object.hasOwn(o, "verification")) error(`${p}.verification`, "Missing field.");
   const v = object(o.verification, `${p}.verification`);
   // The state is checked FIRST because the field list depends on it: an unknown state would
   // otherwise be refused for whichever field that unknown state happens not to carry, naming the
@@ -236,8 +236,9 @@ function withoutVerification(o: Record<string, unknown>, p: string): Record<stri
     if (!/^\d{4}-\d{2}-\d{2}$/.test(String(v.date)))
       error(`${p}.verification.date`, "Expected an ISO date.");
   }
-  const { verification: _v, ...rest } = o;
-  return rest;
+  // Returned unchanged: `verification` is in the exact field list now, so stripping it here
+  // would make `keys` report the field it had just validated as missing.
+  return o;
 }
 
 function keys(x: unknown, p: string, fields: readonly string[]): Record<string, unknown> {
@@ -399,11 +400,7 @@ export function validateReadingRecord(input: unknown, path: string): ReadingReco
   const common = ["schemaVersion", "id", "kind", "title"];
   text(o.title, `${path}.title`);
   if (o.kind === "citation") {
-    // `keys` requires every listed field and refuses every unlisted one, so an optional field
-    // cannot be expressed through it. `verification` is checked separately for exactly as long
-    // as it is optional, which is what lets the 23 shipped records be backfilled as content
-    // rather than inside a validator commit. When it becomes required it joins the list.
-    keys(withoutVerification(o, path), path, [...common, "role", "locator", "url"]);
+    keys(checkVerification(o, path), path, [...common, "role", "verification", "locator", "url"]);
     choice(o.role, `${path}.role`, CITATION_ROLES);
     text(o.locator, path);
     text(o.url, path);

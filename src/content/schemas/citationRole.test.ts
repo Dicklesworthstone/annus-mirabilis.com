@@ -32,6 +32,7 @@ const BASE = {
   id: "cit-role-fixture",
   kind: "citation",
   title: "A. Author, A title",
+  verification: { state: "unverified", note: "A fixture; there is no source to check." },
   locator: "A Journal 1, 1-2 (1900).",
   url: "https://doi.org/10.0000/fixture",
 } as const;
@@ -190,6 +191,17 @@ describe("citation role (am-wfuc)", () => {
     expect(refusalPath({ ...base, verification: { state: "unverified", note: "  " } })).toBe(
       "fixture.json.verification.note",
     );
+  });
+
+  /**
+   * A record with no verification at all. This is the plant for the field's own requirement, and
+   * it goes beside the role's because the two were migrated the same way: accepted, backfilled,
+   * then required. Without it, "required" would be a claim about the type rather than the
+   * validator.
+   */
+  test("a record with no verification is refused", () => {
+    const { verification: _v, ...withoutVerification } = { ...BASE, role: "primary" as const };
+    expect(refusalPath(withoutVerification)).toBe("fixture.json.verification");
   });
 
   test("an unknown field is still refused, so accepting a role did not open the record", () => {

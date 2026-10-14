@@ -33,6 +33,7 @@ export function createBaseCorpus(): ContentFile[] {
         id: "cite-test-1905",
         title: "Test Citation 1905",
         role: "primary",
+        verification: { state: "unverified", note: "A fixture; there is no source to check." },
         // The governing shape is schemas/reading.ts's, which has no `author` and requires both
         // a locator and a url. This fixture was written to source.ts's richer CSL record, which
         // governs nothing, and the compiler's swallowed try/catch kept that invisible (am-wfuc).

@@ -21,6 +21,7 @@ describe("reading schema refusals (am-muyh)", () => {
       kind: "citation",
       title: "A valid paper",
       role: "primary",
+      verification: { state: "unverified", note: "A fixture; there is no source to check." },
       locator: "p. 1-10",
       url: "https://example.org/test",
     };

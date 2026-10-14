@@ -4,6 +4,10 @@
   "id": "cite-test-1905",
   "title": "Annalen der Physik (4) 17, 891–921",
   "role": "primary",
+  "verification": {
+    "state": "unverified",
+    "note": "A fixture record; there is no source to check it against."
+  },
   "locator": "Ann. Phys. 17, 891",
   "url": "https://example.org/ap-17-891"
 }
