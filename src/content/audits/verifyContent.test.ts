@@ -116,15 +116,57 @@ describe("verify-content orchestrator", () => {
     expect(result.findings.some((f) => f.check === "review-claim-without-reviewer")).toBe(true);
   });
 
-  test("profiles that require verify-content no longer require a separate voice-lint step", () => {
+  /**
+   * THIS ASSERTED THE OPPOSITE UNTIL 2026-10-14, and was red for three days.
+   *
+   * It required the standalone voice-lint step in NO profile that runs verify-content, on the
+   * premise that verify-content folds the voice lint in and the separate step is therefore
+   * redundant. `b91c42eb5` (2026-10-11) made the step required in all three profiles, deleting an
+   * exemption whose stated condition had been met, and did not reach this test or its sibling in
+   * voiceInVerifyContent.test.ts, because both live in the bun lane and that commit's own test is
+   * in the node lane.
+   *
+   * THE PREMISE WAS HALF TRUE, which is why neither side read as wrong. The folding is real: the
+   * compiler registers `editorial.voice` and the plant in voiceInVerifyContent.test.ts proves a
+   * violation surfaces through `runVerifyContent`. But both runners call the same `checkVoice`
+   * over DIFFERENT POPULATIONS, and only one of them reads the interface.
+   *
+   * Measured 2026-10-14: `scripts/lint-voice.ts` examines 83,631 visitor-facing strings from three
+   * sources -- content records, TSX component strings under `src/`, and the message catalogs in
+   * `src/i18n/messages/` -- of which 6,847 are outside `content/` (6,815 component strings across
+   * 405 files, and 32 catalog strings). Every route in `CONTENT_ROUTES` is anchored at `content/`,
+   * so the compiler never makes a record of any of those 6,847 and the folded check cannot reach
+   * one. The step is not redundant, so requiring it is correct, and that is a finding rather than
+   * a preference between two intentions.
+   *
+   * The companion assertion -- that those populations really are disjoint in that direction -- is
+   * in voiceInVerifyContent.test.ts, so that this justification cannot expire silently.
+   */
+  test("voice-lint is required wherever verify-content is, because it reads strings the compiler never sees", () => {
     const verify = QUALITY_GATE_STEPS.find((step) => step.id === "verify-content");
     const voice = QUALITY_GATE_STEPS.find((step) => step.id === "voice-lint");
     expect(verify).toBeDefined();
     expect(voice).toBeDefined();
-    for (const profile of verify?.requiredInProfiles ?? []) {
-      expect(voice?.requiredInProfiles ?? []).not.toContain(profile);
+
+    const verifyProfiles = verify?.requiredInProfiles ?? [];
+    // Non-vacuity on purpose: an empty list would satisfy the loop below while proving nothing.
+    expect(verifyProfiles.length).toBeGreaterThan(0);
+    for (const profile of verifyProfiles) {
+      expect(voice?.requiredInProfiles ?? []).toContain(profile);
     }
-    expect(voice?.requiredInCi).toBe(false);
+    expect(voice?.requiredInCi).toBe(true);
+
+    logger.log({
+      testId: "voice-lint-required-beside-verify-content",
+      beadId: BEAD,
+      extra: {
+        family: "audit",
+        verifyProfiles,
+        voiceProfiles: voice?.requiredInProfiles ?? [],
+      },
+      outcome: "passed",
+      message: "voice-lint required in every profile that requires verify-content",
+    });
   });
 
   test("PLANTED: failing dimension audit surfaces in verify-content errors", async () => {
