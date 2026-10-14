@@ -328,7 +328,16 @@ function readRecord(
     : [];
   if (!Array.isArray(o.r2) || r2.length === 0 || r2.length !== o.r2.length)
     missing.push("r2 (a list of steps, each with its latex and why)");
-  if (o.r3 !== undefined && !text(o.r3)) missing.push("r3 (when given, prose)");
+  // r3 is REQUIRED of a record since 2026-10-14 (am-rc1001-bridge-plan-pcjk.30, step 3), the day
+  // the last of the 200 printed displays was given a historian's margin. It was optional while 129
+  // of them had none, and leaving it optional after that would have meant the next display added
+  // could ship without one and nothing would say so: the margin inventory names a record that
+  // LOSES a margin, and a new record that never had one is neither lost nor unrecorded.
+  //
+  // The TYPE keeps `r3?: string | undefined` on purpose. Consumers handle a record without one
+  // (planted fixtures, and any future record class this check does not govern), and the corpus
+  // rule belongs to the validator rather than to the shape.
+  if (!text(o.r3)) missing.push("r3 (the historian's margin, required since 2026-10-14)");
   if (missing.length > 0 || !r0 || !r1) {
     problem(
       "explanation-missing-level",

@@ -131,17 +131,31 @@ describe("the plants: removing a level is refused, and named", () => {
       "mass-energy",
       realSourcesWithout("mass-energy", String(victim), "r3"),
     );
-    // The record still compiles: r3 is optional, which is exactly why nothing refused before.
-    expect(planted.problems).toEqual([]);
-    expect(planted.all).toContain(victim);
+    // Until 2026-10-14 the record still compiled, because r3 was optional, and this inventory was
+    // the ONLY thing that noticed. Since that day the parser requires the margin, so the same
+    // plant is now refused by name as well: two independent guards on one loss, in two lanes.
+    // Two codes, and the second is the consequence of the first: the record is refused for the
+    // missing level, so the display it belonged to then has no record at all.
+    expect(planted.problems.map((p) => p.code)).toEqual([
+      "explanation-missing-level",
+      "explanation-missing",
+    ]);
+    expect(planted.problems[0]?.message).toContain("r3");
+    expect(planted.problems[1]?.display).toBe(victim);
+    // The record no longer compiles at all, so the display leaves `all` with it. That changes
+    // which drift row names it, and the change is worth asserting rather than papering over: a
+    // margin removed from a record is now a GHOST, the row that means "the recorded id matches no
+    // compiled record", and it reads that way because the record was refused rather than silently
+    // accepted without its margin.
+    expect(planted.all).not.toContain(victim);
     expect(planted.withMargin).not.toContain(victim);
 
     const drift = marginDrift("mass-energy", planted.withMargin, planted.all);
     expect(driftIsClean(drift)).toBe(false);
     // Named, not merely counted. This is the half a census cannot do.
-    expect(drift.lost).toEqual([victim]);
+    expect(drift.ghosts).toEqual([victim]);
+    expect(drift.lost).toEqual([]);
     expect(drift.unrecorded).toEqual([]);
-    expect(drift.ghosts).toEqual([]);
 
     // And the gate lane's coarse half, driven on the same planted count.
     const refusal = marginCountRefusal("mass-energy", planted.withMargin.length);

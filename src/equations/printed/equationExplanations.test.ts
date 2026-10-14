@@ -41,6 +41,9 @@ const GOOD = {
   r0: "The energy of a light complex depends on the system it is measured in.",
   r1: "The factor holds $v$ against $V$ and the angle $\\varphi$.",
   r2: [{ latex: "l^* = l", why: "At $v = 0$ the factor is 1." }],
+  // r3 has been required of a record since 2026-10-14, so the fixture that stands for a GOOD
+  // record carries one. The tests that prove the requirement remove it deliberately.
+  r3: "The relation is imported from the June paper's § 8, which this fixture stands in for.",
 };
 
 const plant = (raw: unknown, file = "eq-s0-d1.yaml"): ExplanationSource[] => [{ file, raw }];
@@ -171,8 +174,8 @@ describe("the explanation records", () => {
       explained: 1,
       refused: 0,
       missing: 6,
-      // The fixture's one record carries no r3, so the margin count is 0 here (am-8gbg).
-      withMargin: 0,
+      // The fixture carries an r3, required of a record since 2026-10-14, so the margin count is 1.
+      withMargin: 1,
     });
   });
 
@@ -255,6 +258,7 @@ describe("the explanation records", () => {
           r0: "Planted.",
           r1: "Planted, with $A_1$ and $f$.",
           r2: [{ latex: "d W = f(A_1 A_2 \\ldots)", why: "Planted." }],
+          r3: "Planted; required of a record since 2026-10-14.",
         },
         "eq-s1-d4.yaml",
       ),
@@ -335,7 +339,14 @@ describe("the explanation records", () => {
       sources: withoutOne,
       enforced: [],
     });
-    expect(planted.census.explained).toBe(me.census.explained);
+    // Since 2026-10-14 the margin is REQUIRED of a record, so stripping it does two things rather
+    // than one: the record is refused by name, and both counts fall. That is a stronger plant than
+    // the census arithmetic it replaced, and it is the proof that the requirement is live.
+    const missingLevel = planted.problems.filter((p) => p.code === "explanation-missing-level");
+    expect(missingLevel.length).toBe(1);
+    expect(missingLevel[0]?.message).toContain("r3");
+    expect(planted.census.explained).toBe(me.census.explained - 1);
     expect(planted.census.withMargin).toBe(me.census.withMargin - 1);
+    expect(planted.census.refused).toBe(me.census.refused + 1);
   });
 });
