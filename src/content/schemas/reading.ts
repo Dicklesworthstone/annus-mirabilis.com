@@ -24,8 +24,36 @@ export const READING_SCHEMA_VERSION = 1;
 export const READING_IDS = ["overview", "full", "steps", "margin"] as const;
 export type ReadingId = (typeof READING_IDS)[number];
 type Header = Readonly<{ schemaVersion: typeof READING_SCHEMA_VERSION; id: string }>;
+/**
+ * THE ROLE IS THE ONE IN `schemas/source.ts`, AND THERE IS ONLY ONE SPELLING OF IT (am-wfuc).
+ *
+ * Two record types were called `Citation`: this one, which the reader path loads through
+ * `src/reader/marginRecords.ts`, and `source.ts`'s, which requires a role and which nothing
+ * called. AGENTS.md's entity table specifies "Bibliographic record with role", so the role is
+ * required by the plan, was implemented in a validator, and reached nothing.
+ *
+ * `comparison-witness` is the surviving spelling, not the entity table's shorthand "comparison":
+ * it is what `source.ts` implements, what `source.refusals.test.ts` pins, and what
+ * `validatePaper` reads when it refuses an editorial addition whose `witnessCoincidence` names a
+ * citation of any other role. AGENTS.md's own rights chapter writes "comparison witness" in
+ * prose throughout ("cites historical translations only as attributed comparison witnesses").
+ * The entity table's parenthetical is corrected in the same change rather than left as a second
+ * spelling of one thing.
+ *
+ * `role` is OPTIONAL here and required one commit later, because all 23 shipped records predate
+ * it and `keys()` rejects an unknown field: accepting it first is what lets the backfill land as
+ * content rather than inside a validator commit.
+ */
+export const CITATION_ROLES = ["primary", "comparison-witness", "secondary", "technical"] as const;
+export type CitationRole = (typeof CITATION_ROLES)[number];
 export type Citation = Header &
-  Readonly<{ kind: "citation"; title: string; locator: string; url: string }>;
+  Readonly<{
+    kind: "citation";
+    title: string;
+    locator: string;
+    url: string;
+    role?: CitationRole;
+  }>;
 export type TypedPrerequisiteRef = Readonly<{
   foundationId: string;
   kind: "proof-edge" | "cross-link";
@@ -124,6 +152,19 @@ function object(x: unknown, p: string): Record<string, unknown> {
     return error(p, "Expected a plain record.");
   return x as Record<string, unknown>;
 }
+/**
+ * Checks a citation's optional `role` and hands back the record without it, so the exact-field
+ * check below can stay exact. Returning a copy matters: mutating the caller's record would
+ * delete the field from the object `validateReadingRecord` goes on to return, and the role would
+ * vanish between being validated and being read.
+ */
+function optionalRole(o: Record<string, unknown>, p: string): Record<string, unknown> {
+  if (!Object.hasOwn(o, "role")) return o;
+  choice(o.role, `${p}.role`, CITATION_ROLES);
+  const { role: _role, ...rest } = o;
+  return rest;
+}
+
 function keys(x: unknown, p: string, fields: readonly string[]): Record<string, unknown> {
   const o = object(x, p);
   for (const k of Object.keys(o)) if (!fields.includes(k)) error(`${p}.${k}`, "Unknown field.");
@@ -283,7 +324,10 @@ export function validateReadingRecord(input: unknown, path: string): ReadingReco
   const common = ["schemaVersion", "id", "kind", "title"];
   text(o.title, `${path}.title`);
   if (o.kind === "citation") {
-    keys(o, path, [...common, "locator", "url"]);
+    // `keys` requires every listed field and refuses every unlisted one, so an optional field
+    // cannot be expressed through it. `role` is checked separately for exactly as long as it is
+    // optional; when it becomes required it joins the list and this branch goes away.
+    keys(optionalRole(o, path), path, [...common, "locator", "url"]);
     text(o.locator, path);
     text(o.url, path);
     let url: URL;
