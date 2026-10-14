@@ -156,16 +156,20 @@ describe("the plants: removing a level is refused, and named", () => {
     const recorded = recordedMargins("special-relativity") ?? [];
     const i = live.get("special-relativity");
     const loser = recorded[0];
-    const gainer = i?.all.find((id) => !recorded.includes(id));
     expect(loser).toBeDefined();
-    expect(gainer).toBeDefined();
-    const swapped = (i?.withMargin ?? []).filter((id) => id !== loser).concat(String(gainer));
+    // The gainer used to be a record of this paper that carried no margin. Since 2026-10-14 there
+    // is none: all 98 carry one, and all 200 across the four papers do. So the swap is now built
+    // from a record that does not exist, which is the stronger form of the same plant -- the
+    // inventory must notice an id it does not hold, whether or not that id names a real display.
+    const gainer = "eq-s0-d0-not-a-display";
+    expect(i?.all ?? []).not.toContain(gainer);
+    const swapped = (i?.withMargin ?? []).filter((id) => id !== loser).concat(gainer);
     expect(swapped.length).toBe(i?.withMargin.length);
 
     // The count is content.
     expect(marginCountRefusal("special-relativity", swapped.length)).toBeUndefined();
     // The identity is not.
-    const drift = marginDrift("special-relativity", swapped, i?.all ?? []);
+    const drift = marginDrift("special-relativity", swapped, [...(i?.all ?? []), gainer]);
     expect(drift.lost).toEqual([loser]);
     expect(drift.unrecorded).toEqual([gainer]);
   });

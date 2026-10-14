@@ -100,14 +100,20 @@ describe("the readings audit reads every population, not the one already complet
       `[readings debt] displays without r3 ${displays.length} (129 on 2026-10-11), ` +
         `headings without r0 ${headings.length} of 26, closings without r0 ${closings.length} of 9`,
     );
-    expect(displays.length).toBeLessThanOrEqual(129);
+    // Displays reached ZERO on 2026-10-14, so their ceiling is now an equality and reads as one:
+    // a debt that has been paid is a property to hold, not a budget to spend back.
+    expect(displays).toEqual([]);
     expect(headings.length).toBeLessThanOrEqual(26);
     expect(closings.length).toBeLessThanOrEqual(9);
     // Non-vacuity, on purpose and in both directions. A debt of zero everywhere would satisfy
     // three ceilings while meaning the reader found nothing, so each population that still carries
     // a shortfall is asserted to carry one, and the populations that are COMPLETE are asserted
     // complete, which is what makes the numbers above a measurement.
-    expect(displays.length).toBeGreaterThan(0);
+    // Non-vacuity, for the fourth time today in this file's history and now written so that it
+    // cannot be falsified by progress. The displays population no longer has a shortfall to point
+    // at, so its proof that the reader sees records is the examined count and the two plants, not
+    // a debt; headings and closings still carry theirs and are asserted to.
+    expect(byName.get("displays")?.examined).toBe(200);
     expect(headings.length).toBeGreaterThan(0);
     expect(closings.length).toBeGreaterThan(0);
     expect(byName.get("passages")?.missing.r3).toEqual([]);
