@@ -378,7 +378,39 @@ function check({ from, to, params, changed }: RuleCheckArgs): RuleCheckResult {
         return { outcome: "pass" };
       }
 
-      return { outcome: "pass" };
+      // The identity applied to ONE SIDE of an equation (am-1lds). bm-ped-step-3 takes
+      // <x2> = <x_sum x_sum> to <x2> = n <Delta2>: the n-step generalisation of a mean square,
+      // which no substitution of a symbol by a constant reproduces, so this check is weaker than
+      // the other three in this file and is written to say so.
+      //
+      // What it establishes: the other side of the equation is untouched, the subexpression the
+      // step DECLARED is what left the rewritten side, and that side really changed. What it does
+      // not establish is that the rewrite is this identity's own, which would need the n-step
+      // expansion. The residue is asserted in registeredIdentity.test.ts rather than implied away.
+      if (from.kind === "relation" && to.kind === "relation" && from.operator === to.operator) {
+        const otherSideHeld = sameMath(from.left, to.left);
+        const rewrittenSideChanged = !sameMath(from.right, to.right);
+        const declared = changed ?? [];
+        const leftTheRewrittenSide = declared.some(
+          (id) => symbolIds(from.right).has(id) && !symbolIds(to.right).has(id),
+        );
+        if (otherSideHeld && rewrittenSideChanged && leftTheRewrittenSide) {
+          return { outcome: "pass" };
+        }
+        return {
+          outcome: "unverifiable",
+          reason:
+            `independent-zero-mean-product-vanishes on one side of an equation is checked by three things: ` +
+            `the other side unchanged (${otherSideHeld}), the rewritten side changed (${rewrittenSideChanged}), ` +
+            `and the declared subexpression gone from it (${leftTheRewrittenSide}). The step declares ${declared.join(", ") || "nothing"}.`,
+        };
+      }
+
+      return {
+        outcome: "unverifiable",
+        reason:
+          "independent-zero-mean-product-vanishes is checked for a sum whose vanishing terms are named, for a destination of zero, and for a rewrite of one side of an equation; this step is none of them.",
+      };
     }
 
     case "linearity-of-average": {

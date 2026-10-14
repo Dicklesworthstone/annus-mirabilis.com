@@ -245,3 +245,42 @@ test("linearity-of-average: both licensed forms pass, and a changed term does no
     "unverifiable",
   );
 });
+
+test("independent-zero-mean on one side of an equation: the other side must hold, and the residue is named", () => {
+  const x2 = sym("x2", "x2");
+  const xSum = sym("x_sum", "x_sum");
+  const n = sym("n", "n");
+  const delta2 = sym("Delta2", "Delta2");
+  const from = rel(avg(x2), avg(prod(xSum, xSum)));
+  const to = rel(avg(x2), prod(n, avg(delta2)));
+  const declared = ["x_sum"];
+  const zeroMean = (f: Expression, g: Expression, changed: readonly string[] = declared) =>
+    registeredIdentityRule.check({
+      from: f,
+      to: g,
+      params: {
+        identityId: "independent-zero-mean-product-vanishes",
+        premises: ["premise-independent-displacements", "premise-zero-mean-displacements"],
+      },
+      changed,
+    });
+
+  assert.equal(zeroMean(from, to).outcome, "pass");
+  // The result equal to its own input, which used to pass.
+  assert.equal(zeroMean(from, from).outcome, "unverifiable");
+  // The OTHER side rewritten instead, which the identity does not license here.
+  assert.equal(
+    zeroMean(from, rel(prod(n, avg(delta2)), avg(prod(xSum, xSum)))).outcome,
+    "unverifiable",
+  );
+  // Declaring nothing: unverifiable rather than passed.
+  assert.equal(zeroMean(from, to, []).outcome, "unverifiable");
+
+  // THE RESIDUE, asserted rather than implied away. The check establishes that one side held,
+  // that the other changed, and that the declared subexpression left it. It does NOT establish
+  // that the rewrite is this identity's: a right-hand side rewritten to something the identity
+  // never licenses satisfies it, because the n-step generalisation is not a structural rewrite
+  // and no substitution of a symbol by a constant reproduces it.
+  const unlicensed = rel(avg(x2), prod(n, n));
+  assert.equal(zeroMean(from, unlicensed).outcome, "pass");
+});

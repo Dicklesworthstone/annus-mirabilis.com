@@ -21,10 +21,15 @@
  *
  * This file does not repair a check; it names the debt by identity so that a NEW step authored
  * under a blind identity, or a check that becomes blind, fails here instead of arriving silently.
- * One remains: `independent-zero-mean-product-vanishes`, whose n-step generalisation of a mean
- * square is not a structural rewrite of its input. `expand` left the list the same day, by a
- * different repair: its five-seed equivalence check passes an unchanged step, because an
- * expansion is an identity, so the rule now refuses a result equal to its own input.
+ * NONE REMAIN as of 2026-10-14. The last two left by different repairs: `expand`'s five-seed
+ * equivalence check passes an unchanged step, because an expansion is an identity, so the rule now
+ * refuses a result equal to its own input; and `independent-zero-mean-product-vanishes` applied to
+ * one side of an equation is checked by the other side holding, the rewritten side changing, and
+ * the declared subexpression leaving it.
+ *
+ * An empty list is the strong form of this file's claim, and it is not the same as "the physics is
+ * verified". Each check's residue is asserted in registeredIdentity.test.ts, in the same test as
+ * its licensed shape.
  */
 
 import { describe, expect, test } from "bun:test";
@@ -45,9 +50,16 @@ import { getRule } from "./index.ts";
  * odd-moments-symmetric-kernel, and sr-ped-step-4 under spatial-isotropy.
  */
 const BLIND_SITES: readonly string[] = [
-  // independent-zero-mean-product-vanishes: the n-step generalisation of a mean square, which is
-  // not a structural rewrite of its input and is left declared rather than half-checked.
-  "chain-bm-pedagogical-variance/bm-ped-step-3",
+  // EMPTY since 2026-10-14, and an empty list is the strong form of this assertion: any step whose
+  // rule cannot see a wrong result fails here, by name, with nothing to compare it against.
+  //
+  // The seven that were here: bm-variance-expand under `expand`; bm-ped-step-2 and
+  // bm-variance-average under `linearity-of-average`; bm-src-step-3 under `kernel-normalization`;
+  // bm-src-step-4 under `odd-moments-symmetric-kernel`; sr-ped-step-4 under `spatial-isotropy`;
+  // and bm-ped-step-3 under `independent-zero-mean-product-vanishes`, the last to go and the one
+  // whose check is weakest, since the n-step generalisation of a mean square is not a structural
+  // rewrite. Each check's residue is asserted in registeredIdentity.test.ts: "catches a wrong
+  // result" is not "verifies the physics", and the difference is written down per identity.
 ];
 
 /**
@@ -55,13 +67,11 @@ const BLIND_SITES: readonly string[] = [
  * different weights: a blind check under an `authored-unverified` step overstates nothing,
  * since the step already says a person has not been replaced by a machine here.
  */
-const BLIND_AND_CREDITED_VERIFIED: readonly string[] = [
-  "chain-bm-pedagogical-variance/bm-ped-step-3",
-];
+const BLIND_AND_CREDITED_VERIFIED: readonly string[] = [];
 
-/** 32 today, 27 before the four repairs. A floor, so a harness that examined nothing cannot read
- * as clean, and it rises with the debt that is paid. */
-const CAUGHT_FLOOR = 30;
+/** 34 today, 27 before the repairs of 2026-10-14. A floor, so a harness that examined nothing
+ * cannot read as clean, and it rises with the debt that is paid. */
+const CAUGHT_FLOOR = 33;
 
 function allChains(): readonly DerivationChain[] {
   const chains = Object.values(fixtures).filter(
@@ -139,6 +149,7 @@ describe("rule checks measured against a result equal to the step's own input", 
       // the five-seed equivalence check could never see.
       "expand",
       "monotonic-function",
+      "registered-identity:independent-zero-mean-product-vanishes",
       // The four repaired on 2026-10-14 (am-1lds), which used to sit in the blind list.
       "registered-identity:kernel-normalization",
       "registered-identity:linearity-of-average",
@@ -164,14 +175,13 @@ describe("rule checks measured against a result equal to the step's own input", 
 
   test("the blind identities are named, so a new step under one of them is not a surprise", () => {
     const { blind } = survey();
-    expect([...new Set(blind.map((b) => b.identity))].sort()).toEqual([
-      "registered-identity:independent-zero-mean-product-vanishes",
-    ]);
+    expect([...new Set(blind.map((b) => b.identity))].sort()).toEqual([]);
     // And the four that were repaired are asserted to be CAUGHT now, by name, so a regression in
     // any one of them reddens this file rather than quietly rejoining the blind list.
     const caughtIdentities = new Set(caughtNow().map((c) => c.identity));
     for (const id of [
       "expand",
+      "registered-identity:independent-zero-mean-product-vanishes",
       "registered-identity:kernel-normalization",
       "registered-identity:odd-moments-symmetric-kernel",
       "registered-identity:spatial-isotropy",
