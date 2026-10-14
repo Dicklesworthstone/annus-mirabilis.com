@@ -13,7 +13,7 @@ import {
   type SpotCheckResult,
   spotCheckEquivalence,
 } from "./spotCheck.ts";
-import { collectTermIds } from "./treeUtils.ts";
+import { collectTermIds, containsSubtree } from "./treeUtils.ts";
 import type { DerivationChain, RouteKind, RuleKind } from "./types.ts";
 import { DerivationSchemaError, validateChainStructure } from "./types.ts";
 
@@ -263,6 +263,47 @@ export function verifyChain(
           );
         }
       }
+    }
+  }
+
+  // 3c. Step ORDER (am-nu8e). Every rule above checks one step against itself, so a chain
+  // whose steps were permuted verified happily: measured on fixturePaper4TwoLedgers, swapping
+  // steps 1 and 2 still reported passed true.
+  //
+  // The literal form the bead asked for -- step n's result equals step n+1's input -- is not
+  // the corpus's authoring convention and was measured before this was written. Over all 19
+  // chains (17 fixtures, the one content chain, 12 of them single-step) the 22 adjacent pairs
+  // are 14 EQUAL, 2 where the result is embedded in the next input, and 6 where the next step
+  // legitimately changes subject: `chain-sr-lorentz-boost-construction` starts three of its
+  // steps from named forms (`t_prime_form`, `boost_composition`, `boost_transform`), and
+  // `chain-bm-source-diffusion-equation` works on part of a three-term sum. Demanding
+  // adjacency would have reddened three real chains, so it is not what is demanded here.
+  //
+  // What is demanded is weaker and still catches a permutation: IF a step's result is used by
+  // another step, that step is its successor. 15 of the corpus's results are consumed by their
+  // successor and by nobody else, 25 are consumed by nobody (the change-of-subject steps above),
+  // and exactly one is consumed out of order -- `chain-adv-cyclic-route`, the adversarial
+  // fixture built to be cyclic, which is a true positive.
+  //
+  // A bare symbol or number is not evidence of use. `f` and `x_sum` appear in nearly every
+  // expression of their own chain, and containment of an atom produced 2 of the 3 out-of-order
+  // findings on the first measurement; both were false.
+  for (let i = 0; i < chain.steps.length; i++) {
+    const producer = chain.steps[i];
+    if (!producer) continue;
+    if (producer.to.kind === "symbol" || producer.to.kind === "number") continue;
+    for (let j = 0; j < chain.steps.length; j++) {
+      if (j === i || j === i + 1) continue;
+      const consumer = chain.steps[j];
+      if (!consumer) continue;
+      if (!containsSubtree(consumer.from, producer.to)) continue;
+      const successor = chain.steps[i + 1];
+      const ending = successor
+        ? `the step that follows it is "${successor.id}"`
+        : "it is the last step of the chain";
+      errors.push(
+        `derivation chain "${chain.id}" is out of order: step "${producer.id}" produces a result that step "${consumer.id}" starts from, but ${ending}.`,
+      );
     }
   }
 

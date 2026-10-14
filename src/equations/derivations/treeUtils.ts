@@ -205,6 +205,22 @@ export function containsId(root: Expression, id: string): boolean {
   return childrenOf(root).some((child) => containsId(child, id));
 }
 
+/**
+ * True when `subtree` appears anywhere inside `root`, compared structurally (am-nu8e).
+ *
+ * `containsId` above answers a different question: it looks for an authored id, so it is
+ * blind to an identical expression carrying a different opId and it matches a node that
+ * shares an id while holding different mathematics. This compares the trees.
+ *
+ * Callers deciding whether one step CONTINUES from another should refuse an atomic
+ * subtree before asking: a bare symbol or number is contained in almost everything
+ * around it, which is a fact about the alphabet rather than about the derivation.
+ */
+export function containsSubtree(root: Expression, subtree: Expression): boolean {
+  if (structurallyEqual(root, subtree)) return true;
+  return childrenOf(root).some((child) => containsSubtree(child, subtree));
+}
+
 function childrenOf(n: Expression): readonly Expression[] {
   switch (n.kind) {
     case "symbol":

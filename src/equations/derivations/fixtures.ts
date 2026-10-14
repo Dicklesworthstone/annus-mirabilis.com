@@ -64,6 +64,7 @@ export const fixtureBrownianPedagogicalReconstruction: DerivationChain = Object.
   proofRouteId: "route-bm-pedagogical-variance",
   routeKind: "pedagogical-reconstruction",
   target: "eq-bm-04-variance",
+  targetStepId: "bm-ped-step-5",
   entryAssumptions: Object.freeze<PremiseRef[]>([
     { ref: "premise-independent-displacements", edgeType: "pedagogical-reconstruction" },
     { ref: "premise-zero-mean-displacements", edgeType: "pedagogical-reconstruction" },
@@ -211,6 +212,7 @@ export const fixtureBrownianSourceOrder: DerivationChain = Object.freeze({
   proofRouteId: "route-bm-source-diffusion-equation",
   routeKind: "source-order",
   target: "eq-bm-04-variance",
+  targetStepId: "bm-src-step-5",
   entryAssumptions: Object.freeze<PremiseRef[]>([
     { ref: "premise-bm-transition-relation", edgeType: "historical-derivation" },
     { ref: "premise-bm-kernel-symmetry", edgeType: "historical-derivation" },
@@ -352,6 +354,7 @@ export const fixturePaper1WienEntropy: DerivationChain = Object.freeze({
   proofRouteId: "route-lq-wien-entropy",
   routeKind: "source-order",
   target: "eq-lq-04-entropy-volume",
+  targetStepId: "lq-step-3",
   entryAssumptions: Object.freeze<PremiseRef[]>([
     { ref: "premise-wien-radiation-law", edgeType: "historical-derivation" },
     { ref: "premise-zero-radiation-entropy-bc", edgeType: "historical-derivation" },
@@ -474,6 +477,7 @@ export const fixturePaper4TwoLedgers: DerivationChain = Object.freeze({
   proofRouteId: "route-me-two-ledgers",
   routeKind: "source-order",
   target: "eq-me-01-mass-energy",
+  targetStepId: "me-step-3",
   entryAssumptions: Object.freeze<PremiseRef[]>([
     {
       ref: "premise-sr-light-energy-transformation",
@@ -588,6 +592,7 @@ export const fixtureLorentzMapConstruction: DerivationChain = Object.freeze({
   proofRouteId: "route-sr-lorentz-boost-construction",
   routeKind: "pedagogical-reconstruction",
   target: "eq-sr-03-lorentz-boost",
+  targetStepId: "sr-ped-step-6",
   entryAssumptions: Object.freeze<PremiseRef[]>([
     { ref: "premise-relativity-principle", edgeType: "pedagogical-reconstruction" },
     { ref: "premise-constancy-light-speed", edgeType: "pedagogical-reconstruction" },

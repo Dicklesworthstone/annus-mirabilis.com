@@ -120,6 +120,24 @@ export interface DerivationChain {
   readonly routeKind: RouteKind;
   readonly entryAssumptions: readonly PremiseRef[];
   readonly target: string;
+  /**
+   * The step that reaches `target` (am-nu8e). Declaring it is what makes TRUNCATION
+   * visible: `verifyChain` checked each step's rule locally and nothing asked whether
+   * the chain still arrives anywhere, so removing the last step of a three-step chain
+   * left `passed: true` with two step reports.
+   *
+   * It is a STEP ID and not an expression on purpose. `target` is an id
+   * (`eq-me-01-mass-energy`, `mean-square-additivity`) and, measured 2026-10-14, not one
+   * of the 17 fixture targets nor the one content chain's target resolves to any record
+   * under `content/equations/`, so there is no authored tree to compare a result against.
+   * A step id is a claim the corpus can actually support: "this chain arrives at its
+   * target here", which is false the moment that step is dropped or stops being last.
+   *
+   * Absent means the chain makes no such claim and gets no truncation check;
+   * `targetStepDeclared.test.ts` holds the list of chains that must declare one, so the
+   * absence cannot quietly spread.
+   */
+  readonly targetStepId?: string | undefined;
   /** Authored exception to the print policy's route-kind default; absent means the default applies. */
   readonly essentialForPrint?: boolean | undefined;
   readonly steps: readonly DerivationStep[];
@@ -239,6 +257,24 @@ export function validateChainStructure(chain: DerivationChain): void {
       validateStepStructure(step, path);
       if (seenStepIds.has(step.id)) fail(path, `duplicate step id "${step.id}" within one chain.`);
       seenStepIds.add(step.id);
+    }
+  }
+  // am-nu8e. A declared target step must exist and must be the last one. Both halves are
+  // the same failure seen from two sides: a chain truncated at the end LOSES the declared
+  // step, and a chain whose steps were reordered keeps it but no longer ends on it.
+  if (chain.targetStepId !== undefined) {
+    const lastStep = chain.steps[chain.steps.length - 1];
+    if (!seenStepIds.has(chain.targetStepId)) {
+      fail(
+        "chain.targetStepId",
+        `chain "${chain.id}" declares that it reaches target "${chain.target}" at step "${chain.targetStepId}", which is not one of its ${chain.steps.length} steps.`,
+      );
+    }
+    if (lastStep && lastStep.id !== chain.targetStepId) {
+      fail(
+        "chain.targetStepId",
+        `chain "${chain.id}" declares that it reaches target "${chain.target}" at step "${chain.targetStepId}", but it ends at step "${lastStep.id}".`,
+      );
     }
   }
   const moveCount = chain.steps.filter((s) => s.isMove).length;

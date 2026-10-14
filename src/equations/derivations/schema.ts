@@ -287,6 +287,16 @@ export function parseDerivationChain(val: unknown): DerivationChain {
   const essentialForPrint =
     typeof val.essentialForPrint === "boolean" ? val.essentialForPrint : undefined;
 
+  // am-nu8e. Optional, and refused when present and empty rather than quietly dropped:
+  // a record carrying `targetStepId: ""` would otherwise parse into a chain that makes
+  // no claim at all, which is the one outcome an author writing the field cannot intend.
+  const rawTargetStepId = val.targetStepId;
+  if (rawTargetStepId !== undefined && typeof rawTargetStepId !== "string")
+    fail("chain.targetStepId", "targetStepId must be a string when present.");
+  const targetStepId = typeof rawTargetStepId === "string" ? rawTargetStepId.trim() : undefined;
+  if (rawTargetStepId !== undefined && !targetStepId)
+    fail("chain.targetStepId", "targetStepId is present but empty.");
+
   if (!Array.isArray(val.steps)) fail("chain.steps", "steps must be an array.");
   if (val.steps.length === 0) fail("chain.steps", "a chain must have at least one step.");
 
@@ -298,6 +308,7 @@ export function parseDerivationChain(val: unknown): DerivationChain {
     routeKind,
     entryAssumptions,
     target,
+    ...(targetStepId !== undefined ? { targetStepId } : {}),
     ...(essentialForPrint !== undefined ? { essentialForPrint } : {}),
     steps,
   });
