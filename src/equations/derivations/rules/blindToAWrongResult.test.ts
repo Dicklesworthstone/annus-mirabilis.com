@@ -21,9 +21,10 @@
  *
  * This file does not repair a check; it names the debt by identity so that a NEW step authored
  * under a blind identity, or a check that becomes blind, fails here instead of arriving silently.
- * The two that remain are `expand`, whose step is authored-unverified so it credits nothing, and
- * `independent-zero-mean-product-vanishes`, whose n-step generalisation is not a structural
- * rewrite.
+ * One remains: `independent-zero-mean-product-vanishes`, whose n-step generalisation of a mean
+ * square is not a structural rewrite of its input. `expand` left the list the same day, by a
+ * different repair: its five-seed equivalence check passes an unchanged step, because an
+ * expansion is an identity, so the rule now refuses a result equal to its own input.
  */
 
 import { describe, expect, test } from "bun:test";
@@ -44,8 +45,6 @@ import { getRule } from "./index.ts";
  * odd-moments-symmetric-kernel, and sr-ped-step-4 under spatial-isotropy.
  */
 const BLIND_SITES: readonly string[] = [
-  // expand: returns pass for any from/to once the shape is a power of a sum.
-  "chain-bm-variance-of-sum/bm-variance-expand",
   // independent-zero-mean-product-vanishes: the n-step generalisation of a mean square, which is
   // not a structural rewrite of its input and is left declared rather than half-checked.
   "chain-bm-pedagogical-variance/bm-ped-step-3",
@@ -136,6 +135,9 @@ describe("rule checks measured against a result equal to the step's own input", 
     expect(caught.length).toBeGreaterThanOrEqual(CAUGHT_FLOOR);
     const kinds = [...new Set(caught.map((c) => c.identity))].sort();
     expect(kinds).toEqual([
+      // expand catches it since 2026-10-14: an expansion that changed nothing is refused, which
+      // the five-seed equivalence check could never see.
+      "expand",
       "monotonic-function",
       // The four repaired on 2026-10-14 (am-1lds), which used to sit in the blind list.
       "registered-identity:kernel-normalization",
@@ -163,13 +165,13 @@ describe("rule checks measured against a result equal to the step's own input", 
   test("the blind identities are named, so a new step under one of them is not a surprise", () => {
     const { blind } = survey();
     expect([...new Set(blind.map((b) => b.identity))].sort()).toEqual([
-      "expand",
       "registered-identity:independent-zero-mean-product-vanishes",
     ]);
     // And the four that were repaired are asserted to be CAUGHT now, by name, so a regression in
     // any one of them reddens this file rather than quietly rejoining the blind list.
     const caughtIdentities = new Set(caughtNow().map((c) => c.identity));
     for (const id of [
+      "expand",
       "registered-identity:kernel-normalization",
       "registered-identity:odd-moments-symmetric-kernel",
       "registered-identity:spatial-isotropy",
