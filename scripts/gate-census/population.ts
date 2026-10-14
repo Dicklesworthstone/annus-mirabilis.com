@@ -68,9 +68,20 @@ export function populationLine(report: PopulationReport): string {
 /**
  * Print the line and say whether the run was vacuous. The caller decides the exit code: this module
  * never calls `process.exit`, so a gate's own failure reporting stays in the gate.
+ *
+ * `stream` exists for a gate whose stdout is DATA. `coverage-report --json` prints a report a
+ * caller parses, and a census line after it made that output unparseable: measured as a
+ * `JSON.parse` failure at position 1682 of 1798 bytes, which is how a six-day-old red in the bun
+ * lane began. Sending the census to stderr keeps it where `parsePopulationLines` reads it, since
+ * that function reads a gate's COMBINED output, while leaving stdout machine-readable.
  */
-export function reportPopulation(report: PopulationReport): boolean {
-  console.log(populationLine(report));
+export function reportPopulation(
+  report: PopulationReport,
+  stream: "stdout" | "stderr" = "stdout",
+): boolean {
+  const line = populationLine(report);
+  if (stream === "stderr") console.error(line);
+  else console.log(line);
   return isVacuous(report);
 }
 

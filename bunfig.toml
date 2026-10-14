@@ -23,6 +23,10 @@ pathIgnorePatterns = [
   # population is `git ls-files`, which bun's runner cannot spawn here, and the population is the
   # point: walking the tree instead would pull in peers' untracked work-in-progress records.
   "src/content/provenance/yamlDifferential.node.test.ts",
+  # The coverage-report CLI, actually spawned. The bun lane's own attempt at this was red for six
+  # days with an empty stdout reaching JSON.parse, because bun's runner cannot reliably spawn here;
+  # coverageLedger.test.ts now drives the generator in process and this file drives the script.
+  "src/content/coverage/coverageReportCli.node.test.ts",
   # am-f3e4: reads the historical pins with `git show`, which bun's runner cannot spawn here.
   "src/content/kernel/declaredPins.node.test.ts",
   # am-rc1001-bridge-plan-pcjk.3: builds a throwaway git repository with its own local origin to

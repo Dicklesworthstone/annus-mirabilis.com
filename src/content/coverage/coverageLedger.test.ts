@@ -422,8 +422,7 @@ describe("Coverage Ledger Validation and Computation Suite", () => {
     );
   });
 
-  it("CLI scripts/coverage-report.ts executes and writes valid JSON and Markdown artifacts", async () => {
-    const { execSync } = await import("node:child_process");
+  it("the report the CLI prints is generated and written, artifacts and all", async () => {
     const { existsSync, readFileSync } = await import("node:fs");
 
     const fixtureDir = join(rootDir, "artifacts", "test-fixtures", "coverage-cli");
@@ -442,38 +441,31 @@ describe("Coverage Ledger Validation and Computation Suite", () => {
     ].join("\n");
     writeFileSync(scenarioEvidenceFile, `${scenarioLines}\n`, "utf8");
 
-    // Execute CLI with --json and --scenario-evidence
+    // IN PROCESS, not spawned. This case used to run `bun scripts/coverage-report.ts` through
+    // execSync and parse its stdout, with a fallback for EBADF, and it had been red since
+    // 2026-10-08 because bun's runner cannot reliably spawn here and the fallback did not fire for
+    // what execSync returned: `jsonOutput` reached JSON.parse empty. The CLI itself is fine --
+    // run from a shell it exits 0, prints the report to stdout and writes both artifacts -- so
+    // what this lane can honestly test is the library the CLI calls, with the same inputs and the
+    // same assertions. The SPAWN is tested in coverageReportCli.node.test.ts, in the lane that can
+    // spawn, so neither half is dropped.
     const outDir = join(fixtureDir, "out");
-    let jsonOutput = "";
-    try {
-      jsonOutput = execSync(
-        `bun scripts/coverage-report.ts --scenario-evidence "${scenarioEvidenceFile}" --outDir "${outDir}" --json`,
-        { cwd: rootDir, encoding: "utf8" },
-      );
-    } catch (err: unknown) {
-      if ((err as { code?: string })?.code === "EBADF") {
-        const scenarioEvidence = [
-          { scenarioId: "sc-bm-01-eq-1", status: "passed" as const },
-          { scenarioId: "sc-bm-01-eq-2", status: "passed" as const },
-          {
-            scenarioId: "sc-bm-01-eq-3",
-            status: "failed" as const,
-            failureMessage: "Tolerance failure",
-          },
-        ];
-        const report = generateCoverageReport({
-          scenarioEvidence,
-          argumentNodes: [],
-          scenarioEvidencePath: scenarioEvidenceFile,
-        });
-        writeCoverageReportArtifacts(report, outDir);
-        jsonOutput = JSON.stringify(report);
-      } else {
-        throw err;
-      }
-    }
-
-    const parsed = JSON.parse(jsonOutput);
+    const scenarioEvidence = [
+      { scenarioId: "sc-bm-01-eq-1", status: "passed" as const },
+      { scenarioId: "sc-bm-01-eq-2", status: "passed" as const },
+      {
+        scenarioId: "sc-bm-01-eq-3",
+        status: "failed" as const,
+        failureMessage: "Tolerance failure",
+      },
+    ];
+    const report = generateCoverageReport({
+      scenarioEvidence,
+      argumentNodes: [],
+      scenarioEvidencePath: scenarioEvidenceFile,
+    });
+    writeCoverageReportArtifacts(report, outDir);
+    const parsed = JSON.parse(JSON.stringify(report));
     assert.ok(parsed.logRunId);
     assert.equal(parsed.numericalValidation.totalScenarios, 3);
     assert.equal(parsed.numericalValidation.byStatus.passing, 2);
@@ -494,7 +486,7 @@ describe("Coverage Ledger Validation and Computation Suite", () => {
     logTest(
       "cli-coverage-report-execution",
       "passed",
-      "CLI successfully runs with evidence and emits valid JSON/Markdown artifacts",
+      "The report generator emits a valid report and writes both artifacts; the CLI spawn is covered in the node lane",
     );
   });
 });

@@ -288,6 +288,9 @@ export function coverageRefusal(demonstration: boolean): string {
 
 async function main() {
   const { report, provenance } = await runCoverageReport(process.argv.slice(2));
+  // Read from argv rather than threaded out of runCoverageReport, so this stays a presentation
+  // decision in main and the reporting function keeps its shape.
+  const printsJson = process.argv.slice(2).includes("--json");
 
   /*
     THE POPULATION, IN THE CENSUS'S ONE GRAMMAR (am-rc1001-bridge-plan-pcjk.9), printed on BOTH
@@ -308,12 +311,18 @@ async function main() {
     pass rather than wiring it, so the remaining dimensions' loaders stay with
     am-cm-coverage-ledger-0ip and the census will list this red against that bead.
   */
-  reportPopulation({
-    gate: "coverage-report",
-    examined: report.inputs.length,
-    noun: "input files",
-    minimum: 1,
-  });
+  // Under --json the census goes to stderr: stdout is the report a caller parses, and a line
+  // after it makes the output unparseable. parsePopulationLines reads a gate's combined output,
+  // so the census is still read where it matters.
+  reportPopulation(
+    {
+      gate: "coverage-report",
+      examined: report.inputs.length,
+      noun: "input files",
+      minimum: 1,
+    },
+    printsJson ? "stderr" : "stdout",
+  );
 
   if (coverageWasMeasured(report)) return;
 
