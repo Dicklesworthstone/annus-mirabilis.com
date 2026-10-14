@@ -31,3 +31,4 @@ r2:
     why: "The moving system's time, as the section has just found it."
   - latex: "\\xi = a V \\left( t - \\frac{v}{V^2 - v^2} x' \\right)"
     why: "Put the second into the first. The line as printed."
+r3: "The $x'$ in these lines is NOT the moving system's coordinate. § 3 introduces $x' = x - v t$ as a Galilean auxiliary, the distance from the moving origin measured with stationary rulers and the stationary time, and the moving coordinate is $\\xi$. AGENTS.md requires the modern-notation form to give the auxiliary its own glyph for exactly this reason, and a reader who reads $x'$ as the primed coordinate of a later textbook will mis-trace every step of this section."

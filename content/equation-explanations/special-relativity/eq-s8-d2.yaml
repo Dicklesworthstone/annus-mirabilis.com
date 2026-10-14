@@ -34,3 +34,4 @@ r2:
     why: "Put these into the brackets of the sphere's equation. The third bracket, with $z$ and the third cosine, becomes $\\zeta$ less the third cosine times $\\beta \\frac{v}{V} \\xi$ in the same way."
   - latex: "\\left( \\beta \\xi - a \\beta \\frac{v}{V} \\xi \\right)^2 + \\left( \\eta - b \\beta \\frac{v}{V} \\xi \\right)^2 + \\left( \\zeta - c \\beta \\frac{v}{V} \\xi \\right)^2 = R^2"
     why: "The sphere's equation written in $k$'s coordinates at $\\tau = 0$: the display."
+r3: "The ellipsoid here is NOT § 4's contraction of a body, although the algebra rhymes. § 4 takes a material sphere at one stationary time; this takes a surface moving with the light at one instant of the MOVING system's time, $\\tau = 0$. The two give different factors, and taking the material factor for this case is one of the errors this edition keeps as an adversarial fixture, precisely because the two statements look alike on the page."

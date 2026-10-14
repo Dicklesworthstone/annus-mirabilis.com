@@ -28,3 +28,4 @@ r2:
     why: "Numerator and denominator divided by $V$, which leaves one factor $V$ in front. The printed form."
   - latex: "\\frac{\\varkappa \\lambda}{V} > 0"
     why: "Both shortfalls are positive, so the denominator exceeds the numerator by this amount and the fraction is smaller than one. Hence the printed conclusion that $U$ is less than $V$."
+r3: "Writing each speed as the speed of light less something positive is a small algebraic device and the paper's conclusion from it is unqualified: two speeds below the speed of light never compose to one above it. The symbols here are Einstein's own $\\varkappa$ and $\\lambda$, and the edition keeps them as printed rather than modernising, which is the notation rule for the source and translation faces."

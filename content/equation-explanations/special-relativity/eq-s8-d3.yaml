@@ -30,3 +30,4 @@ r2:
     why: "So the ellipsoid has the volume of the sphere divided by the factor $\\beta \\left( 1 - a \\frac{v}{V} \\right)$ that multiplies $\\xi$: the sphere is compressed along $\\xi$ by that factor."
   - latex: "\\frac{S'}{S} = \\frac{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}{1 - \\frac{v}{V} \\cos \\varphi}"
     why: "Write $\\beta$ out as $\\frac{1}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}$ and $a$ as $\\cos \\varphi$."
+r3: "The volumes differ, so the energies are not in the ratio of the squared amplitudes, and this is where § 8 earns its result rather than inheriting it from § 7. The receipt records the section's energy ratio and the transformation of the spherical wavefront as watch-light-energy (docs/provenance/ap-17-891.md)."

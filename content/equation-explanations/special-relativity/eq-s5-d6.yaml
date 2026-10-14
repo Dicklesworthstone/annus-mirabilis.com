@@ -28,3 +28,4 @@ r2:
     why: "The square under the root is a perfect square, so the root is the sum itself."
   - latex: "U = \\frac{v + w}{1 + \\frac{v w}{V^2}}"
     why: "The printed form. The numerator is the old answer and the denominator is what the theory adds."
+r3: "The collinear case is the one every later account quotes, and the paper reaches it as a special case rather than as the rule. Worth noting what it does not claim: the sum never exceeds the speed of light, but no principle forbidding faster motion has been assumed. The bound is a consequence of the composition, which is the kind of economy § 1 and § 2 were chosen for."

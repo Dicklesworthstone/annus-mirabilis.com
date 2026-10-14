@@ -36,3 +36,4 @@ r2:
     why: "Over the common denominator the numerator is $1 - \\frac{v}{V} \\cos \\varphi - \\frac{v}{V} \\cos \\varphi + \\left( \\frac{v}{V} \\right)^2$."
   - latex: "A''' = A \\frac{1 - 2 \\frac{v}{V} \\cos \\varphi + \\left( \\frac{v}{V} \\right)^2}{1 - \\left( \\frac{v}{V} \\right)^2}"
     why: "With $A'' = A' = A \\frac{1 - \\frac{v}{V} \\cos \\varphi}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}$, the factor $1 - \\frac{v}{V} \\cos \\varphi$ cancels and the two square roots multiply to $1 - \\left( \\frac{v}{V} \\right)^2$."
+r3: "Transforming back is where the answer takes its final form, and the paper writes the result in terms of the incident light alone so that it can be compared with experiment. The chain is three transformations deep, which is why § 8 is the section this edition's acceptance cases exercise most."

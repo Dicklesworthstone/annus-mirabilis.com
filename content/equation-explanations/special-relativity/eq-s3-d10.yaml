@@ -32,3 +32,4 @@ r2:
     why: "Subtract: the two terms in $v$ cancel and $V$ is left."
   - latex: "\\xi = a V \\cdot \\frac{V}{V^2 - v^2} x' = a \\frac{V^2}{V^2 - v^2} x'"
     why: "The $V$ outside and the $V$ from the bracket make $V^2$, which is the line as printed."
+r3: "The factor $a$ is left undetermined here and fixed only later, which is a feature of the derivation rather than an untidiness: § 3 gets the FORM of the transformation from the two principles and the auxiliary, and then needs one further argument, the symmetry between the two systems, to pin the scale. The receipt records the whole system of this section as watch-coord-transforms, confirmed against the plates."

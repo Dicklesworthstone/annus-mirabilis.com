@@ -24,3 +24,4 @@ r2:
     why: "Across the motion the number beneath each squared coordinate is the squared radius itself, so those two semi-axes are the radius unchanged."
   - latex: "R \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2} , \\quad R , \\quad R ."
     why: "The three together, as the paper prints them: the axes of the ellipsoid of revolution."
+r3: "A body which at rest is a sphere is, in motion and regarded from the resting system, an ellipsoid: the paper's own sentence, and the shortening is along the motion alone. Lorentz had the same contraction factor before this paper, as a contraction of matter produced by its motion through the ether; here it is a consequence of how the two systems' coordinates are related, and nothing is said to happen to the body. The two accounts give the same numbers, which is why a reader cannot choose between them on this line, and why the paper's claim to economy rests on § 1 and § 2 rather than on this result."

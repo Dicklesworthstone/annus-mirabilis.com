@@ -44,3 +44,4 @@ r2:
     why: "Where is the phase the same? Wherever $t - \\frac{a x + b y + c z}{V}$ is the same: on a plane perpendicular to the direction $(a, b, c)$, which moves along that direction a distance $V t$ in the time $t$. So the wave travels at the velocity of light."
   - latex: "X = X_0 \\sin \\Phi, \\quad L = L_0 \\sin \\Phi"
     why: "Each component of each force is its amplitude times $\\sin \\Phi$. The other four components follow the same pattern with their own amplitudes."
+r3: "A plane wave of infinite extent is an idealisation and the paper says the source is very distant, which is the same assumption in physical dress. Everything § 7 derives inherits it: a wave packet of finite width transforms the same way to leading order, but the clean statements below are statements about a plane wave."

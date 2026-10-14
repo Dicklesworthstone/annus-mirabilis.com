@@ -1,7 +1,7 @@
 {
   "bead": "am-rc1001-bridge-plan-pcjk.14",
-  "measuredAt": "2026-10-11",
-  "measuredBy": "bun -e over src/content/audits/readingCoverage.ts, whose census prints the same numbers",
+  "measuredAt": "2026-10-14",
+  "measuredBy": "bun -e over src/content/audits/readingCoverage.ts, whose census prints the same numbers. The display r3 shortfall was 129 on 2026-10-11 and is 0 since 2026-10-14, when the last of the 200 printed displays was given a historian's margin; the ceiling falls with the debt, because a baseline that only ever rises is a budget.",
   "note": "Missing counts per population per APPLICABLE level. They may only fall. A paragraph binding carries r0 alone by design, so its r1-r3 are absent from this file rather than recorded as a debt of 210.",
   "shortfalls": {
     "paragraphs": {
@@ -17,7 +17,7 @@
       "r0": 0,
       "r1": 0,
       "r2": 0,
-      "r3": 129
+      "r3": 0
     },
     "headings": {
       "r0": 26,

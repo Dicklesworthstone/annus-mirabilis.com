@@ -35,3 +35,4 @@ r2:
     why: "Square and add, using $b Y_0 = -a X_0$, $b^2 = 1 - a^2$ and $A^2 = X_0^2 + Y_0^2 + Z_0^2$: the terms in $X_0^2$ collect to $\\left( 1 - a \\frac{v}{V} \\right)^2 - \\left( 1 - \\frac{v^2}{V^2} \\right)$ times $X_0^2$."
   - latex: "A'^2 = A^2 \\frac{\\left( 1 - \\frac{v}{V} \\cos \\varphi \\right)^2}{1 - \\left( \\frac{v}{V} \\right)^2}"
     why: "Since $\\beta^2 \\left( 1 - \\frac{v^2}{V^2} \\right) = 1$, the $X_0^2$ terms cancel, leaving $\\beta^2 \\left( 1 - a \\frac{v}{V} \\right)^2 A^2$. With $a = \\cos \\varphi$ this is the display."
+r3: "The amplitude transforms with the frequency, which is what makes the energy of a light complex transform as § 8 will need. The paper's own interest in this line is in § 8's argument rather than in optics, and the margin at § 8's opening records what that argument does with it."

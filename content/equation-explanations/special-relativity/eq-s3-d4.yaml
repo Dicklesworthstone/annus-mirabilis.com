@@ -33,3 +33,4 @@ r2:
     why: "Subtract: $V - V - v = -v$."
   - latex: "\\frac{\\partial \\tau}{\\partial x'} + \\frac{v}{V^2 - v^2} \\frac{\\partial \\tau}{\\partial t} = 0"
     why: "Bring both terms to one side, which is the line as printed."
+r3: "The conclusion that the moving time cannot depend on the stationary time alone is the mathematical form of § 2's finding about the rod, and reading the two together is the clearest way to see that § 3 derives nothing new in kind: it writes down what § 1's definition and § 2's two principles already imply. The clock setting slides with position along the motion, which is the term later accounts call the relativity of simultaneity."

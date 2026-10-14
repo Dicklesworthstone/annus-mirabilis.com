@@ -20,3 +20,4 @@ r2:
     why: "How fast each component of the electric force changes along its own axis."
   - latex: "\\varrho = \\frac{\\partial X}{\\partial x} + \\frac{\\partial Y}{\\partial y} + \\frac{\\partial Z}{\\partial z}"
     why: "Their sum, the divergence of the electric force: $4 \\pi$ times the density of electricity, as the paper says."
+r3: "Defining the density by the divergence rather than by counting charges is a choice with consequences for § 10, where a charge's mass is derived from the force on it: the paper never needs a model of the electron's structure, which the contemporary theories of Abraham and Lorentz did need. This edition's shelf carries Lorentz's corresponding states of 1904 as parallel work rather than as a source (lorentz-1904-corresponding-states), and the difference in method is the clearest thing that separates the two accounts, since their formulae for this section's content largely agree."

@@ -26,3 +26,4 @@ r2:
     why: "Put $\\varphi = 0$ and factor the difference of squares under the root."
   - latex: "\\frac{E'}{E} = \\sqrt{\\frac{1 - \\frac{v}{V}}{1 + \\frac{v}{V}}}"
     why: "Cancel one square root of $1 - \\frac{v}{V}$. This is the factor of the Doppler formula for the same direction (§ 7, p. 912)."
+r3: "The energy transforms exactly as the frequency does, which Einstein marks as remarkable. It is the result the September paper will use: § 8's transformation of the energy of a light complex is the premise that mass-energy paper imports, and this edition records that import as an admitted 1905 result with its provenance shown rather than as something a 1904 reader had."

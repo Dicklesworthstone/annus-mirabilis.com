@@ -26,3 +26,4 @@ r2:
     why: "The motion across that direction, at the constant rate $w_\\eta$, measured in the same system."
   - latex: "\\zeta = 0"
     why: "The third coordinate, which the choice of axes makes zero throughout, so the point stays in one plane."
+r3: "§ 5 asks a question the two principles have already answered and the answer is not the one mechanics gave, which is why the section exists at all. The point's motion is uniform in the moving system by assumption; nothing here assumes anything about how velocities compose, and that is the whole method: compose the transformations and read off the rule."

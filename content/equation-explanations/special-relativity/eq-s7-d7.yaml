@@ -30,3 +30,4 @@ r2:
     why: "The wave travels along the line from the source to the observer, so the cosine of its direction with the motion is the cosine of the angle $\\varphi$."
   - latex: "\\nu' = \\nu \\frac{1 - \\cos \\varphi \\frac{v}{V}}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}"
     why: "Cancel $2 \\pi$ and write $\\beta$ out."
+r3: "Doppler's principle für beliebige Geschwindigkeiten is the paper's own phrase, and the generality is the point: the classical formula is the first term of this one, and the difference at the second order is the transverse factor that no ether-based account produced for the same reasons. The experiment that addressed it directly is Ives and Stilwell's of 1938, which is later evidence and sits on the timeline rather than on the 1904 shelf; this edition keeps that distinction for every confirmation."

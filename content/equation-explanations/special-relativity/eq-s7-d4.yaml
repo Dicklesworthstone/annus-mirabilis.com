@@ -25,3 +25,4 @@ r2:
     why: "Written as $\\omega' \\left( \\tau - \\frac{a' \\xi + \\ldots}{V} \\right)$ with $\\omega' = \\omega \\beta \\left( 1 - a \\frac{v}{V} \\right)$, the coefficient of $\\xi$ gives $a'$."
   - latex: "a' = \\frac{a - \\frac{v}{V}}{1 - a \\frac{v}{V}}"
     why: "The factor $\\beta$ cancels. For $a = 0$ and $v = 0.6 \\, V$ this gives $a' = -0.6$."
+r3: "The direction cosine along the motion is where the whole of aberration sits, and the paper derives it from the phase rather than from a picture of rays. That is worth noticing: aberration had been known since Bradley's observations of 1727 and explained by the addition of velocities, and here it falls out of a condition on a phase with no mechanism of light involved at all."

@@ -18,3 +18,4 @@ r1: "The second of the two equations that hold for this clock, and the one that 
 r2:
   - latex: "x = v t ."
     why: "The moving system's origin starts where the resting system's origin is and travels at the constant velocity $v$, so after a time $t$ of the resting system it has covered $v t$: the printed line."
+r3: "The clock sits at the moving origin, which is what makes this the simplest case and also what limits it: the result that follows is about a clock carried along with the system, not about any clock. A clock elsewhere in the moving system reads the same RATE but is set differently, which is § 3's position-dependent term, and conflating the two is the commonest misreading of the next line."

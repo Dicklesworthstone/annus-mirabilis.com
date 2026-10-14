@@ -40,3 +40,4 @@ r2:
     why: "Both sets describe the same processes, so the paper sets the functions in corresponding places equal, up to a factor $\\psi(v)$ that is the same for all of them. It cannot depend on the place or the time, only possibly on $v$."
   - latex: "Y' = \\psi(v) \\beta \\left( Y - \\frac{v}{V} N \\right), \\quad Z' = \\psi(v) \\beta \\left( Z + \\frac{v}{V} M \\right), \\quad L' = \\psi(v) L"
     why: "The other rows match the remaining three components the same way. That gives all six relations of the display."
+r3: "The common factor is left undetermined at this point exactly as the scale factor was in § 3, and for the same reason: the requirement fixes the form and a symmetry argument fixes the scale. A reader who wants to see where the paper's economy comes from should notice that both undetermined constants are removed by symmetry rather than by measurement."

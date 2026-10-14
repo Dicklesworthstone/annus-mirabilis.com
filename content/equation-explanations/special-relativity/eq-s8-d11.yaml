@@ -29,3 +29,4 @@ r2:
     why: "Put in $\\cos \\varphi'' = -\\frac{\\cos \\varphi - \\frac{v}{V}}{1 - \\frac{v}{V} \\cos \\varphi}$ and bring $\\frac{v}{V}$ over the same denominator: $-\\cos \\varphi + \\frac{v}{V} + \\frac{v}{V} - \\left( \\frac{v}{V} \\right)^2 \\cos \\varphi$."
   - latex: "\\cos \\varphi''' = -\\frac{\\left( 1 + \\left( \\frac{v}{V} \\right)^2 \\right) \\cos \\varphi - 2 \\frac{v}{V}}{1 - 2 \\frac{v}{V} \\cos \\varphi + \\left( \\frac{v}{V} \\right)^2}"
     why: "Divide by $1 + \\frac{v}{V} \\cos \\varphi''$, which the previous display found to be $\\frac{1 - 2 \\frac{v}{V} \\cos \\varphi + \\left( \\frac{v}{V} \\right)^2}{1 - \\frac{v}{V} \\cos \\varphi}$; the denominators $1 - \\frac{v}{V} \\cos \\varphi$ cancel."
+r3: "For a moving mirror the angle of reflection is not the angle of incidence, which is a statement a reader can check against an experiment rather than against a formalism. The paper states it flatly and does not propose an apparatus."

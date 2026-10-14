@@ -24,3 +24,4 @@ r2:
     why: "The incident light's direction cosine along the motion, § 7's $a$, is the cosine of the angle of incidence."
   - latex: "\\cos \\varphi' = \\frac{\\cos \\varphi - \\frac{v}{V}}{1 - \\frac{v}{V} \\cos \\varphi}"
     why: "§ 7's first direction cosine in $k$, the old one less $\\frac{v}{V}$ over one less their product (p. 911), written with the angles as § 7 writes it on p. 912: the law of aberration."
+r3: "Aberration applied to the incident light, which is the step a reader is most likely to skip and the one the adversarial fixture is built on: the moving mirror does not receive the light that would fall on a fixed surface in the same place, because both the direction and the rate at which energy arrives are changed by its motion."

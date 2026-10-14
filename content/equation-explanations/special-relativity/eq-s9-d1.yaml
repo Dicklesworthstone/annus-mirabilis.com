@@ -35,3 +35,4 @@ r2:
     why: "With electricity present and moving, its current $u_x \\varrho$ joins the change of the electric force as a source of the circulating magnetic force. The other two rows add $u_y \\varrho$ and $u_z \\varrho$."
   - latex: "\\frac{1}{V} \\frac{\\partial L}{\\partial t} = \\frac{\\partial Y}{\\partial z} - \\frac{\\partial Z}{\\partial y}"
     why: "The equations for the magnetic force are those of empty space: there is no magnetic current."
+r3: "Adding the convection current is the step that takes § 6's result from empty space to charges in motion, and it is the case the paper's title is about: the electrodynamics of moving bodies. Einstein's density is the divergence of the electric force over four pi, a Gaussian convention this edition keeps as printed, and the current term is the only addition. Nothing about the constitution of electricity is assumed, which is what distinguishes this section from the electron theories of the period."

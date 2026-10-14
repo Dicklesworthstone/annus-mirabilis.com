@@ -27,3 +27,4 @@ r2:
     why: "The two coordinates across the motion are carried over by section 3's transformation unchanged, so their squares enter as they stand."
   - latex: "\\frac{x^2}{\\left( \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2} \\right)^2} + y^2 + z^2 = R^2 ."
     why: "Put the three into the sphere's equation: the printed line. The paper leaves the square of the root standing rather than cancelling it, which keeps the transformed coordinate visible in the result."
+r3: "All at the one time zero is the clause that carries the physics, and it is the clause later accounts drop. The surface is the set of points the moving sphere occupies AT ONE STATIONARY TIME, so the result is a statement about simultaneous measurement with stationary rulers and clocks. It is not a statement about what a camera or an eye receives, since light from the near and far sides of the body leaves at different times. This edition keeps those two questions apart and so does the paper."

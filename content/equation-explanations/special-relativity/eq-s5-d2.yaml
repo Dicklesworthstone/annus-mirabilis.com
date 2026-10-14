@@ -40,3 +40,4 @@ r2:
     why: "The second equation of motion with that time in it. Since $\\beta$ is one over the square root, $\\beta$ times $1 - (v/V)^2$ is the square root itself. The second printed equation."
   - latex: "z = 0"
     why: "The third coordinate is unchanged by the transformation, so the motion stays in the plane it started in."
+r3: "The composition rule is derived, not postulated, and this is where it appears. The receipt records the printed system as watch-velocity-composition (docs/provenance/ap-17-891.md). What the paper does NOT do is name the rule or compare it with Fizeau's 1851 measurement of light dragged by moving water, which the rule explains and which was decades old; the comparison belongs to the shelf and to § 5's later readers."

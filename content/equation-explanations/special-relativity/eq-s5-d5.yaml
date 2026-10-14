@@ -32,3 +32,4 @@ r2:
     why: "The remaining piece of the numerator, which is what the square root in the sideways rate leaves behind."
   - latex: "U = \\frac{\\sqrt{(v^2 + w^2 + 2 v w \\cos \\alpha) - \\left( \\frac{v w \\sin \\alpha}{V} \\right)^2}}{1 + \\frac{v w \\cos \\alpha}{V^2}}"
     why: "The square root of the whole. The printed form, symmetric in the two speeds."
+r3: "Under the root sits what the parallelogram rule would give, with a subtraction beside it. Reading the general rule this way is the clearest statement of what § 5 costs the older mechanics: the old rule is not wrong by a small amount at ordinary speeds, it is the leading term of this one. The paper does not say that; it states the rule and moves to the special cases."

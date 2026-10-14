@@ -31,3 +31,4 @@ r2:
     why: "To write the phase as $\\omega'$ times $\\tau$ less the new cosines' terms over $V$, the coefficient of $\\eta$ must equal $\\frac{\\omega'}{V} b'$."
   - latex: "b' = \\frac{b}{\\beta \\left( 1 - a \\frac{v}{V} \\right)}"
     why: "Divide by $\\frac{\\omega'}{V}$ and put in $\\omega'$."
+r3: "The transverse cosines change although the motion has no component along their axes, which is the first place a reader may feel the geometry is not the familiar one: the three cosines must still describe a direction, so changing one changes the others. Nothing physical happens across the motion; a direction is a ratio, and the ratio moves."

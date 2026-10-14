@@ -34,3 +34,4 @@ r2:
     why: "The moving system's time, as the section found it."
   - latex: "\\eta = a V \\left( t - \\frac{v}{V^2 - v^2} x' \\right)"
     why: "Put the second into the first, which is the line as printed."
+r3: "The transverse ray is where this edition misread the paper's own typography, and the record of that is worth more than the result. The plate of p. 899 prints eine analoge Ueberlegung, auf die H- und Z-Achse angewandt, and this edition first recorded the H as a misprint for Y. The record was WITHDRAWN by the agent who raised it on reaching p. 902: H is capital Eta, the axis along which $\\eta$ runs, and Einstein names the moving system's axes with capital Greek throughout, Xi, Eta, Zeta. The glyph comparison had been right and the inference from it wrong (typo-h-for-y-axis-p899, docs/provenance/ap-17-891.md). The source face prints what the page prints, and no correction is offered."

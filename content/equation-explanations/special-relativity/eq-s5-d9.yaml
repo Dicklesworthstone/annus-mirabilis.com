@@ -25,3 +25,4 @@ r2:
     why: "Its factor, which is fixed by the speed appearing in the transformation and by nothing else."
   - latex: "v \\rightarrow \\frac{v + w}{1 + \\frac{v w}{V^2}}"
     why: "What the two transformations together come to: equations of exactly the form found in § 3, with this speed wherever $v$ stood. So the composition of two such transformations is again one of them."
+r3: "Composing two transformations and getting a third of the same kind is the group property, and Einstein states it in one sentence without the word. It is the structural fact later physics built on, with the geometric reading dating from Minkowski in 1908, and this edition labels such readings as later aids rather than as the paper's presentation. The paper's own interest in it is narrower and worth keeping: it shows the transformations are consistent with one another, which the two principles alone do not guarantee."

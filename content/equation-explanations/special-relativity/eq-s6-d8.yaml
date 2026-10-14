@@ -19,3 +19,4 @@ r2:
     why: "Replace $\\varphi(-v)$ by $\\varphi(v)$, which symmetry allows."
   - latex: "\\varphi(v) = 1"
     why: "A number whose square is 1 is 1 or $-1$. The paper takes 1; $-1$ would reverse every component even at $v = 0$, where the two systems coincide."
+r3: "The factor is 1, and with it § 6's transformation is complete. What the section has produced is the result the paper's title points at: moving bodies' electrodynamics needs no ether and no new force law, only the kinematics of § 3. The sentence after the result is where Einstein remarks that the asymmetry of the magnet-and-conductor case, which opens the paper, has disappeared, and that remark is the paper's own account of what the section was for."

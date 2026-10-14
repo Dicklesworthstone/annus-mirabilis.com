@@ -23,3 +23,4 @@ r2:
     why: "A ray at right angles to the motion in $K$."
   - latex: "\\cos \\varphi' = -\\frac{v}{V}"
     why: "The numerator becomes $-\\frac{v}{V}$ and the denominator 1."
+r3: "The special case is the one an astronomer measures, and the cosine's sign is the direction the observer must tilt the instrument. This is also the clearest case for the distinction this edition keeps throughout: the angle here is the direction from which the light ARRIVES for the moving observer, which is a statement about reception, while § 4's contraction is a statement about simultaneous measurement. Conflating the two is the standard error about what relativity says a moving object looks like."

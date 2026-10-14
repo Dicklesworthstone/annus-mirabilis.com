@@ -32,3 +32,4 @@ r2:
     why: "The angle of reflection equals the angle of incidence, on the other side of the normal: the direction's component along the normal reverses."
   - latex: "\\nu'' = \\nu'"
     why: "A mirror at rest does not change the frequency."
+r3: "In the mirror's own system the physics is elementary, which is the whole gain of the method: a mirror at rest reflects with the same amplitude and frequency and with the angle of incidence. Every relativistic feature of the final answer comes from the two transformations around this line and not from anything new about reflection."

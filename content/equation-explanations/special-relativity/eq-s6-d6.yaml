@@ -21,3 +21,4 @@ r2:
     why: "The second way: going from $k$ back to $K$ is the same transformation with velocity $-v$, so the same relation holds with the two systems exchanged and $v$ replaced by $-v$."
   - latex: "\\varphi(v) \\cdot \\varphi(-v) = 1"
     why: "Both give $X$, so $1 / \\varphi(v) = \\varphi(-v)$, which is the display. Solving the relations for $Y$ and $N$ gives the same condition, because $\\beta \\left( 1 - \\frac{v^2}{V^2} \\right) = \\frac{1}{\\beta}$ and $\\beta$ is the same for $v$ and $-v$."
+r3: "Going out and coming back must return the original forces, so the two factors multiply to one. The step assumes that the inverse transformation is the one with $-v$, which § 3 established, and nothing more. It is the same move the transverse-mass arguments later in the paper rely on, and it is the reason this section needs no new physical input."

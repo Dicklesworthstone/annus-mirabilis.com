@@ -26,3 +26,4 @@ r2:
     why: "The direction cosine along the motion is the cosine of the angle between the ray and the line of motion, in each system."
   - latex: "\\cos \\varphi' = \\frac{\\cos \\varphi - \\frac{v}{V}}{1 - \\frac{v}{V} \\cos \\varphi}"
     why: "Substitute. For $\\varphi = 0$ this gives $\\cos \\varphi' = 1$: a ray along the motion keeps its direction."
+r3: "Das Aberrationsgesetz in seiner allgemeinsten Form is the paper's description of this line. A reader should notice how little it assumed: no ether to drag the light, no model of the telescope, only the transformation and the condition that the phase be the same event for both observers."

@@ -42,3 +42,4 @@ r2:
     why: "Energy is energy per unit volume times volume, in each system."
   - latex: "\\frac{E'}{E} = \\frac{1 - \\frac{v}{V} \\cos \\varphi}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}"
     why: "Multiply the two ratios: one factor $1 - \\frac{v}{V} \\cos \\varphi$ cancels, and the square root divides once into $1 - \\left( \\frac{v}{V} \\right)^2$."
+r3: "Energy as density times volume is a definition, and the paper treats the density as what § 7's amplitude gives. Nothing quantised enters: this is the wave theory's energy, and the light paper's quanta have no part in it. The two 1905 papers are using light in different ways on purpose, and this edition keeps their claims separate."

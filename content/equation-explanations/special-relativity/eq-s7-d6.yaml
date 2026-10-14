@@ -31,3 +31,4 @@ r2:
     why: "Divide by $\\frac{\\omega'}{V}$ with $\\omega' = \\omega \\beta \\left( 1 - a \\frac{v}{V} \\right)$."
   - latex: "\\frac{c'}{c} = \\frac{1}{\\beta \\left( 1 - a \\frac{v}{V} \\right)}"
     why: "The second cosine is scaled by the same factor, so the ratio of the two cosines across the motion is unchanged, and the wave turns only in the plane that contains the direction of motion."
+r3: "The two transverse axes are treated alike, which is the isotropy assumption again, used here without comment. § 6 needed it to fix a factor and § 7 needs it to treat $\\eta$ and $\\zeta$ identically."

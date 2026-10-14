@@ -28,3 +28,4 @@ r2:
     why: "It crosses at the speed left over, which the section used before for the rays sent across the motion."
   - latex: "\\frac{y}{\\sqrt{V^2 - v^2}} = t"
     why: "Divide by that speed, which is the line as printed."
+r3: "The transverse speed left over is the paper's, and the reasoning is ordinary Pythagoras in the stationary system: a ray that must keep pace with the moving system along the motion has less speed across it. Nothing relativistic has been used in this line. That is what makes the result a derivation rather than a postulate, and it is also where a reader should notice that the transverse case is NOT symmetric with the longitudinal one in the argument, even though the finished transformation treats both."

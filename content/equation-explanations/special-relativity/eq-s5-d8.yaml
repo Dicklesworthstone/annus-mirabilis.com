@@ -23,3 +23,4 @@ r2:
     why: "The denominator simplified: one factor of $V$ cancels in the product, and the rest is the same sum over $V$."
   - latex: "U = \\frac{V + w}{\\frac{V + w}{V}} = V"
     why: "The sum divides out and the speed of light is left. The printed result."
+r3: "Light keeps its speed however fast the system carrying it travels, and this line is the paper's demonstration that § 2's principle survives composition. It is a consistency check and not a new result, which is how § 5 should be read: a derived rule tested against the premise it came from. An argument that had assumed the invariance in order to derive the rule would be circular, and this edition's acyclicity checks are written for exactly that family of errors."

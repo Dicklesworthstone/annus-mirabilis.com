@@ -35,3 +35,4 @@ r2:
     why: "The speed in the moving system, from the two constants of the equations of motion there. The second printed definition."
   - latex: "\\frac{d x}{d t} = \\frac{w_\\xi + v}{1 + \\frac{v w_\\xi}{V^2}}, \\quad \\frac{d y}{d t} = \\frac{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}{1 + \\frac{v w_\\xi}{V^2}} w_\\eta"
     why: "The two rates, read off the display before: both coordinates are constants times $t$, so each rate is that constant."
+r3: "Two speeds of the same point, each reckoned with its own system's rulers and clocks, and the paper is careful to say so. A reader who takes both as speeds through one space will find the next line's rule arbitrary; a reader who keeps the two systems' measuring apparatus distinct will find it forced."

@@ -24,3 +24,4 @@ r1: "The paper now turns from bodies to clocks. It takes one of the clocks which
 r2:
   - latex: "\\tau = \\frac{1}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} \\left( t - \\frac{v}{V^2} x \\right)"
     why: "Section 3's transformation of the time, applied at the place of this clock. It is quoted, not derived again."
+r3: "The factor is the paper's $\\beta$, and it is the modern $\\gamma$: one of the two cross-paper collisions AGENTS.md marks in red, since the $\\beta$ of the light paper is Wien's constant. Its printed definition on p. 900 carries a superscript this edition could not resolve from the plate, and the receipt records how the question was settled: not by an authority and not by what physics expects, but by the paper itself one page later, where the spherical wave sent from the common origin requires the exponent to be 2 (watch-beta-exponent-p900, docs/provenance/ap-17-891.md)."

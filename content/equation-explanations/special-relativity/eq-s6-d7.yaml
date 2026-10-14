@@ -21,3 +21,4 @@ r2:
     why: "The same field seen from a system moving the other way, with velocity $-v$: the sign of the term flips, $\\beta$ does not."
   - latex: "\\varphi(v) = \\varphi(-v)"
     why: "Symmetry requires the second value to be the first with its sign changed and its size kept. That holds only if $\\varphi(-v) = \\varphi(v)$."
+r3: "Reversing the direction cannot change the factor, by symmetry: an isotropy assumption, stated in one clause and doing real work. It is the kind of premise this edition marks separately, because a reader who grants the two principles has not automatically granted that space has no preferred direction, even though every physicist of 1905 did."

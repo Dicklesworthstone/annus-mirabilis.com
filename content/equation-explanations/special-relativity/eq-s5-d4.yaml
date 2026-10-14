@@ -21,3 +21,4 @@ r2:
     why: "As printed, with the components written in the letters of the axes. The tangent of the angle is the ratio of the component across the motion to the component along it."
   - latex: "w_\\xi = w \\cos \\alpha, \\quad w_\\eta = w \\sin \\alpha"
     why: "The same statement read backwards, which is the form the next display uses: the two components of a speed $w$ making the angle $\\alpha$ with the direction of the motion."
+r3: "The angle is measured in the moving system, which matters for the general rule below: the result is not symmetric in the two velocities, and the asymmetry is in which system's angle is used. Later treatments write the same content with rapidity, where collinear composition becomes addition; that notation dates from 1910 and after, and nothing in the paper needs it."

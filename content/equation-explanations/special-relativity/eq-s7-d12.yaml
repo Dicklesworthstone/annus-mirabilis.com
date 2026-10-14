@@ -26,3 +26,4 @@ r2:
     why: "Put $\\varphi = 0$ and factor the denominator."
   - latex: "A'^2 = A^2 \\frac{1 - \\frac{v}{V}}{1 + \\frac{v}{V}}"
     why: "Cancel one factor $1 - \\frac{v}{V}$."
+r3: "Rising without bound as the observer approaches the speed of light is a statement about a limit and not about a physical possibility: no inertial observer reaches that speed, which § 5's composition rule has already shown. This edition types such a case as an analytic limit with its own representation rather than as a number, for the same reason the paper states the formula and stops."
