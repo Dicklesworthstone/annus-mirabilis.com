@@ -24,3 +24,4 @@ r2:
     why: "The factor of proportionality, f, depends on where all the values lie: it is the probability density."
   - latex: "d W = f(A_1 A_2 \\ldots \\alpha_1 \\alpha_2 \\ldots) d A_1 d A_2 \\ldots d \\alpha_1 d \\alpha_2 \\ldots"
     why: "The same thing written out term by term, which is the printed line. The paper sets the arguments of f without commas between them."
+r3: "Giving the amplitudes and phases a probability density is where a statistical assumption enters § 1, and it enters in a footnote. Nothing in the electromagnetic theory of the period supplies such a density; it is a description of the radiation one is considering, as Planck's condition of natural radiation was. A reader who wants to know what § 1 assumes about light before it assumes anything about quanta should read this line and the one above it, not the difficulty at the end of the section."

@@ -41,3 +41,4 @@ r2:
     why: "The factor in front becomes the energy."
   - latex: "S = -\\frac{E}{\\beta \\nu} \\left\\{ \\lg \\frac{E}{v \\alpha \\nu^3 d \\nu} - 1 \\right\\}"
     why: "Replace $\\varrho$ inside the logarithm by $\\frac{E}{v d \\nu}$ as well: the printed line."
+r3: "The volume is lowercase $v$, as the plate prints it on p. 137, es liege eine Strahlung vor, welche das Volumen $v$ einnehme (watch-entropy-density-glyph). Writing the entropy of a given energy in a narrow band is the preparation for § 5's one question, what happens to that entropy when only the volume changes, and the narrowness of the band is a real restriction rather than a convenience: the entropy density depends on the frequency, so nothing here applies to radiation spread over a wide range."

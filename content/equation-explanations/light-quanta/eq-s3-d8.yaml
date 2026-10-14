@@ -25,3 +25,4 @@ r2:
     why: "Both are the same $d S$."
   - latex: "\\frac{\\partial \\varphi}{\\partial \\varrho} = \\frac{1}{T}"
     why: "Divide both sides by $d E$, which is not zero: the printed law."
+r3: "The paper calls this the law of black radiation, and this edition treats what it licenses carefully: the identification of the entropy rate with one over the temperature is the bridge every later section crosses. § 4 inverts it to build an entropy from Wien's law, § 5 compares that entropy at two volumes, and § 6 reads the comparison as a statement about how radiation energy is distributed in space. Each of those steps is weaker than this one, which is exact within the thermodynamics it assumes."

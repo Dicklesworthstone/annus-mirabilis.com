@@ -20,3 +20,4 @@ r2:
     why: "Its change when the density at each frequency changes by $\\delta \\varrho$."
   - latex: "\\delta \\int_0^\\infty \\varrho d \\nu = 0"
     why: "The energy is given, so the change must be zero: the printed side condition."
+r3: "The constraint is what makes the variation a physical statement rather than an identity: among all the ways a fixed energy can be spread over the frequencies, the black spectrum is the one with the greatest entropy. The paper takes that maximum property as known. It is the thermodynamics of the period, not a result of this paper, and § 3's whole work is to draw a consequence from it that § 4 can use."

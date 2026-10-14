@@ -32,3 +32,4 @@ r2:
     why: "Put that into the formula. Dividing by a fraction is multiplying by its reciprocal."
   - latex: "\\varrho_\\nu = \\frac{\\alpha}{\\beta} \\nu^2 T"
     why: "Cancel one factor $\\nu$ between the numerator and the denominator. The approximation becomes exact in the limit of large $T/\\nu$, the paper's 'in der Grenze': the printed line."
+r3: "The limit is taken for long waves and high densities, and the paper's own words for the condition are worth keeping in view, because the modern habit is to describe this as the classical limit and then to speak of a catastrophe at the other end. § 2 does neither. It takes the limit in order to compare coefficients with § 1, that is all, and the comparison is what lets a radiation measurement say something about the number of molecules in a gram-molecule."

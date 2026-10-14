@@ -14,3 +14,4 @@ r2:
     why: "The value as printed on p. 136, with the German decimal comma."
   - latex: "\\frac{\\beta \\nu}{T}"
     why: "Where it acts: in the exponent of Planck's formula. A frequency $\\nu$ counts as low when $\\beta \\nu$ is small compared with the temperature $T$."
+r3: "This $\\beta$ is Wien's constant, $h/k_B$ in modern terms, and not the $\\beta$ of the relativity paper, which is the modern Lorentz factor. The collision is one of the two AGENTS.md marks in red across the papers, and the page settles it by itself: $\\beta$ appears only in the exponent of Planck's formula, where it divides a frequency by a temperature. The value is confirmed on the plate of p. 136, printed on its own centred line with the German decimal comma, and recorded as watch-beta-constant; the receipt also notes that the embedded layer drops this line too, so the mantissa rests on the plate (docs/provenance/ap-17-132.md)."

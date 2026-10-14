@@ -30,3 +30,4 @@ r2:
     why: "The rule for integrating a logarithm: differentiating the right-hand side gives back $\\lg \\frac{\\varrho}{\\alpha \\nu^3}$. At $\\varrho = 0$ it is zero, since $\\varrho$ times its logarithm goes to zero there."
   - latex: "\\varphi(\\varrho, \\nu) = -\\frac{\\varrho}{\\beta \\nu} \\left\\{ \\lg \\frac{\\varrho}{\\alpha \\nu^3} - 1 \\right\\}"
     why: "Multiply by $-\\frac{1}{\\beta \\nu}$ and take out the factor $\\varrho$: the printed line."
+r3: "The integration starts from zero density, which fixes the constant of integration by setting the entropy of no radiation to zero. The paper does not discuss the choice, and in § 5 it does not matter: there the entropy is compared at two volumes with the same energy, and an additive constant cancels. So nothing in § 5's conclusion rests on this choice, and a treatment in which it did would be claiming more than the paper does."

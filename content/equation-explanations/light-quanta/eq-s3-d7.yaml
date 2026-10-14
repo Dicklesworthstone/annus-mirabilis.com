@@ -21,3 +21,4 @@ r2:
     why: "The energy added to the unit volume of radiation. The paper notes that it equals the heat supplied; the volume stays $v = 1$, so no work is done."
   - latex: "d S = \\frac{1}{T} d E"
     why: "For a reversible change the entropy increases by the heat supplied divided by the absolute temperature: the printed line."
+r3: "The second expression is ordinary thermodynamics, the heat divided by the absolute temperature, and the only thing the paper needs of it is that the warming be reversible. Nothing molecular or statistical enters here. That matters for how § 3's result should be read: it is a thermodynamic identity about black radiation, and it is what lets § 4 and § 5 be statistical without assuming anything statistical here."

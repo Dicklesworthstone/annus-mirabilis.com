@@ -26,3 +26,4 @@ r2:
     why: "At a fixed frequency $\\varphi$ changes only because the density does: by its rate of change with the density times the change of density."
   - latex: "d S = \\int_{\\nu = 0}^{\\nu = \\infty} \\frac{\\partial \\varphi}{\\partial \\varrho} d \\varrho d \\nu"
     why: "Add the changes over every frequency: the printed line."
+r3: "Warming by a little and adding up the frequency bands is a first-order argument, and the paper keeps it so. The volume is 1 here, which the receipt records from the plate of p. 138, einer schwarzen Strahlung vom Volumen $v = 1$, so the entropy and the entropy density are the same number in this line and only in this line (watch-entropy-density-glyph)."

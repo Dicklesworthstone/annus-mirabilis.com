@@ -28,3 +28,4 @@ r2:
     why: "The remaining integral is the increase of the energy in the unit volume, since that energy is $\\int_0^\\infty \\varrho d \\nu$."
   - latex: "d S = \\frac{\\partial \\varphi}{\\partial \\varrho} d E"
     why: "Put the two together: the printed line."
+r3: "Taking the rate out of the integral is where the previous conclusion is spent: it is allowed only because that rate is the same at every frequency in black radiation, which § 3 has just established and which is not true of radiation in general. The step therefore holds for black radiation alone, and § 4 will have to leave it behind when it turns to radiation obeying Wien's law in a narrow band."

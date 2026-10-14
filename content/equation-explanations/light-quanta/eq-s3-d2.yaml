@@ -23,3 +23,4 @@ r2:
     why: "Change the density at each frequency by a small amount $\\delta \\varrho$. To first order the entropy density changes by its rate of change with the density times that amount."
   - latex: "\\delta \\int_0^\\infty \\varphi(\\varrho, \\nu) d \\nu = 0"
     why: "At a maximum no such small change raises or lowers the entropy to first order: the printed condition, to hold whenever the energy is unchanged (the next display)."
+r3: "The entropy is a function the paper introduces and does not name. Einstein calls $\\varphi$ eine Funktion der Variabeln $\\varrho$ und $\\nu$ and lets the equation for the entropy of a volume define what it is; spectral entropy density is this edition's name for it and not his, which the receipt records as watch-entropy-density-glyph, confirmed on the plates of pp. 137 and 138 (docs/provenance/ap-17-132.md). The same entry settles the volume glyph: lowercase $v$ throughout this section, never a capital."
