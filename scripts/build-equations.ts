@@ -814,6 +814,13 @@ const labOfFormula = new Map<string, Readonly<{ lab: string; latex: string }>>()
 for (const [lab, drawn] of labExplanations.explainers)
   for (const [latex, e] of drawn)
     if (e.equation && !e.display) labOfFormula.set(e.equation, { lab, latex });
+// The same join for a journey's own words and its step glosses. Without it those explanations
+// reach `onItsPage` and fall through every branch, so their pages drew no equation and offered no
+// way back: 36 of 279 routes, measured 2026-10-14.
+const journeyOfFormula = new Map<string, Readonly<{ page: string; latex: string }>>();
+for (const [page, byLatex] of Object.entries(journeyExplainers.payload.pages))
+  for (const [latex, e] of Object.entries(byLatex))
+    if (e.equation && !e.display) journeyOfFormula.set(e.equation, { page, latex });
 /** One explanation with the equation it explains, drawn, and the way back to where it is printed. */
 const onItsPage = (explanation: ExplainerLevels): ExplainerLevels => {
   const display = explanation.display;
@@ -852,15 +859,28 @@ const onItsPage = (explanation: ExplainerLevels): ExplainerLevels => {
     };
   }
   const lab = labOfFormula.get(id);
-  return lab
+  if (lab)
+    return {
+      ...explanation,
+      // A laboratory's formula is not a compiled display: the record names it by the latex the lab
+      // page writes (labExplanations.ts), so it is drawn from that, in the lab's own notation.
+      printed: {
+        html: renderToString(lab.latex, { displayMode: true, output: "htmlAndMathml" }),
+      },
+      source: { href: `/lab/${lab.lab}/`, label: "Open the laboratory" },
+    };
+  const journey = journeyOfFormula.get(id);
+  return journey
     ? {
         ...explanation,
-        // A laboratory's formula is not a compiled display: the record names it by the latex the lab
-        // page writes (labExplanations.ts), so it is drawn from that, in the lab's own notation.
+        // A journey's formula is a laboratory's case again: named by the latex the discover page
+        // writes, so drawn from that rather than from a compiled display, and linked to the page
+        // that writes it. The page key is already the route ("discover/brownian-motion",
+        // "discover/light-quanta/investigate").
         printed: {
-          html: renderToString(lab.latex, { displayMode: true, output: "htmlAndMathml" }),
+          html: renderToString(journey.latex, { displayMode: true, output: "htmlAndMathml" }),
         },
-        source: { href: `/lab/${lab.lab}/`, label: "Open the laboratory" },
+        source: { href: `/${journey.page}/`, label: "Go back to the route" },
       }
     : explanation;
 };
