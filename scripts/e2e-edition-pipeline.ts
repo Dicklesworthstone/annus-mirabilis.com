@@ -596,10 +596,77 @@ export async function runEditionPipeline(options: {
   };
 }
 
+/**
+ * WHICH PAPER THE RUN IS ABOUT, AND A REFUSAL WHEN THAT IS NOT CLEAR.
+ *
+ * This was `argValue("--paper") ?? argValue("--slug") ?? "brownian-motion"`, which reads only the
+ * two flags. A POSITIONAL argument was ignored in silence, so
+ * `bun scripts/e2e-edition-pipeline.ts mass-energy` ran the whole nine-stage pipeline against
+ * BROWNIAN-MOTION and printed `"slug": "brownian-motion"` in a result nobody re-reads after
+ * scrolling to the stage table. Measured 2026-10-14: three different slugs passed positionally
+ * all produced `result slug: brownian-motion`, with `reconcile` failing on brownian's own block
+ * ids (s1-p5, s3-p3) while the operator believed they had asked about a paper that has no
+ * sections. With the flag, mass-energy and special-relativity differ: special-relativity also
+ * fails `align` and `contract`, which no positional run could ever have shown.
+ *
+ * The default was the other half of the same trap: a bare invocation picked one paper and said so
+ * only inside the JSON. Nothing in a gate runs this script, so a refusal costs nobody anything and
+ * AGENTS.md's first rule applies -- a run over the wrong population reads exactly like a clean one.
+ *
+ * Exported so the argument handling can be driven in a test without spawning a process.
+ */
+export function resolveSlugArgument(argv: readonly string[]):
+  | {
+      ok: true;
+      slug: RouteSlug;
+    }
+  | {
+      ok: false;
+      error: string;
+    } {
+  const flags = ["--paper", "--slug"];
+  let fromFlag: string | undefined;
+  const positionals: string[] = [];
+  for (let i = 2; i < argv.length; i++) {
+    const arg = argv[i] ?? "";
+    if (flags.includes(arg)) {
+      fromFlag = argv[i + 1];
+      i += 1;
+      continue;
+    }
+    if (arg.startsWith("--")) {
+      // Every other flag this script reads takes a value, except --require-reviewed.
+      if (arg !== "--require-reviewed") i += 1;
+      continue;
+    }
+    positionals.push(arg);
+  }
+
+  const candidates = [fromFlag, ...positionals].filter((c): c is string => c !== undefined);
+  if (candidates.length === 0) {
+    return {
+      ok: false,
+      error:
+        "Name the paper: --paper <slug>, or pass the slug as the single argument. " +
+        "There is no default, because a run that silently chose one paper and reported on it " +
+        "reads exactly like a run of the paper you asked for.",
+    };
+  }
+  const distinct = [...new Set(candidates)];
+  if (distinct.length > 1) {
+    return {
+      ok: false,
+      error: `More than one paper was named (${distinct.join(", ")}); this runs one paper at a time.`,
+    };
+  }
+  const parsed = parseRouteSlug(distinct[0] ?? "");
+  if (!parsed.ok) return { ok: false, error: parsed.error };
+  return { ok: true, slug: parsed.value };
+}
+
 const isMain = process.argv[1] !== undefined && import.meta.url === `file://${process.argv[1]}`;
 if (isMain) {
-  const slugRaw = argValue("--paper") ?? argValue("--slug") ?? "brownian-motion";
-  const parsed = parseRouteSlug(slugRaw);
+  const parsed = resolveSlugArgument(process.argv);
   if (!parsed.ok) {
     console.error(parsed.error);
     process.exit(2);
@@ -608,7 +675,7 @@ if (isMain) {
   const layersRaw = argValue("--layers");
   const sectionsRaw = argValue("--sections");
   const result = await runEditionPipeline({
-    slug: parsed.value,
+    slug: parsed.slug,
     ...(requireRaw !== undefined ? { requireStage: requireRaw as PipelineStage } : {}),
     ...(layersRaw !== undefined ? { layers: layersRaw.split(",") } : {}),
     ...(sectionsRaw !== undefined ? { sections: sectionsRaw.split(",") } : {}),

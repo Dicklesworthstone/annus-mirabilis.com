@@ -15,7 +15,11 @@ import {
   PAPERS_WAITING_ON_CLOUD_OCR,
   translationCompleteness,
 } from "../src/content/editions/ledgerPresence.ts";
-import { PIPELINE_STAGES, runEditionPipeline } from "./e2e-edition-pipeline.ts";
+import {
+  PIPELINE_STAGES,
+  resolveSlugArgument,
+  runEditionPipeline,
+} from "./e2e-edition-pipeline.ts";
 
 const REPO = process.cwd();
 const LEDGER_FIXTURE = join(REPO, "src/testing/fixtures/ledgers/fixture-clean-reviewed.txt");
@@ -494,5 +498,83 @@ describe("edition pipeline: an absent corpus is not a compiler failure", () => {
       run.stages.some((stage) => stage.stage === "compile" && stage.outcome === "passed"),
     ).toBe(false);
     expect(run.exitCode).toBe(0);
+  });
+});
+
+/**
+ * WHICH PAPER THE RUN IS ABOUT (2026-10-14).
+ *
+ * The CLI read only `--paper` and `--slug` and fell back to `"brownian-motion"`. A POSITIONAL
+ * argument was ignored in silence, so `bun scripts/e2e-edition-pipeline.ts mass-energy` ran all
+ * nine stages against brownian-motion. Measured before the change: three different slugs passed
+ * positionally all produced `result slug: brownian-motion`, with `reconcile` failing on brownian's
+ * own block ids while the operator believed they had asked about a paper with no sections at all.
+ * With the flag the papers differ -- special-relativity also fails `align` and `contract` -- so
+ * three of the four papers had never been examined by a positional run.
+ *
+ * These drive the parser on values. The population matters more than the parse: a tool that
+ * reports on the wrong paper is the exact failure AGENTS.md opens with.
+ */
+describe("the pipeline knows which paper it was asked about", () => {
+  const argv = (...rest: string[]) => ["bun", "scripts/e2e-edition-pipeline.ts", ...rest];
+
+  test("a positional slug is accepted, which it was not before", () => {
+    const r = resolveSlugArgument(argv("mass-energy"));
+    expect(r.ok).toBe(true);
+    expect(r.ok && r.slug).toBe("mass-energy");
+  });
+
+  test("both flag spellings still work, and take precedence over nothing else", () => {
+    expect(resolveSlugArgument(argv("--paper", "light-quanta"))).toEqual({
+      ok: true,
+      slug: "light-quanta",
+    });
+    expect(resolveSlugArgument(argv("--slug", "special-relativity"))).toEqual({
+      ok: true,
+      slug: "special-relativity",
+    });
+  });
+
+  test("a bare invocation REFUSES rather than choosing a paper for you", () => {
+    const r = resolveSlugArgument(argv());
+    expect(r.ok).toBe(false);
+    expect(r.ok === false && r.error).toContain("Name the paper");
+    // The reason is part of the refusal: a silent default is what made this invisible.
+    expect(r.ok === false && r.error).toContain("reads exactly like a run of the paper you asked");
+  });
+
+  test("two different papers in one invocation refuse, naming both", () => {
+    const r = resolveSlugArgument(argv("--paper", "mass-energy", "light-quanta"));
+    expect(r.ok).toBe(false);
+    expect(r.ok === false && r.error).toContain("mass-energy");
+    expect(r.ok === false && r.error).toContain("light-quanta");
+  });
+
+  test("the same paper named twice is not a conflict", () => {
+    expect(resolveSlugArgument(argv("--paper", "mass-energy", "mass-energy"))).toEqual({
+      ok: true,
+      slug: "mass-energy",
+    });
+  });
+
+  test("an unknown slug refuses and lists the real ones", () => {
+    const r = resolveSlugArgument(argv("not-a-paper"));
+    expect(r.ok).toBe(false);
+    expect(r.ok === false && r.error).toContain("light-quanta");
+  });
+
+  test("other flags and their values are not mistaken for the paper", () => {
+    expect(
+      resolveSlugArgument(
+        argv(
+          "--require-stage",
+          "contract",
+          "--layers",
+          "german",
+          "--require-reviewed",
+          "mass-energy",
+        ),
+      ),
+    ).toEqual({ ok: true, slug: "mass-energy" });
   });
 });
