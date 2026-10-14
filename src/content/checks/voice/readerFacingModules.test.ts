@@ -101,24 +101,31 @@ const NON_PROSE_KEYS: ReadonlySet<string> = new Set([
 const QUOTATION_KEYS: ReadonlySet<string> = new Set(["matched"]);
 
 /**
- * `overclaim` is NOT judged over this population yet, and this is the reason rather than a
- * convenience.
+ * EMPTY, AND THE EXEMPTION IT HELD IS RETIRED RATHER THAN RENUMBERED (2026-10-14).
  *
- * Its one finding here is a false positive of a kind already settled elsewhere on am-dbpk. In
- * src/experiments/sr05/definition.ts the R3 reading says Einstein "proved it for a path made of
- * straight pieces and assumed it for a curve". That is the distinction between a proof and an
- * assumption, drawn in the same sentence, which is the opposite of an overclaim; the rule fires
- * because `isDirectlyNegated` looks BACKWARD 40 characters for a hedge and this one follows.
+ * It held `overclaim`, excluded for ONE finding: `src/experiments/sr05/definition.ts`'s R3 reading
+ * said Einstein "proved it for a path made of straight pieces and assumed it for a curve". That
+ * sentence draws the distinction between a proof and an assumption, which is the opposite of an
+ * overclaim, and the rule fired because `isDirectlyNegated` looks BACKWARD 40 characters for a
+ * hedge while this one follows. The exclusion's own note said that rewording accurate historical
+ * prose to satisfy a lint would be the wrong repair, and it was right.
  *
- * Rewording accurate historical prose to satisfy a lint would be the wrong repair, and adding a
- * reviewed entry to content/editorial/voice-overrides.yaml is an editorial judgement with a named
- * reviewer, which an agent should not sign. So the rule is excluded here, by name, with its one
- * known finding recorded, and the choice between an override and a rule change is left to an
- * editor. Excluding it is visible; silently passing it would not be.
+ * The sentence was not reworded to satisfy the lint. It was corrected to match its own editorial
+ * record: 27a1cc43b changed that word to "derived" on 2026-10-11 in
+ * `content/editorial/readings-owners/am-sr-05-moving-clocks-2zka.yaml`, for the stated reason that
+ * "proved" is "the wrong half of the project own vocabulary", and the rendered copy never got it.
+ * 880063cf5 carried the correction into the copy a reader sees. The finding went with it, which is
+ * a side effect rather than the purpose.
+ *
+ * So this population now holds zero `overclaim` errors and the rule is judged like every other
+ * one. The set is KEPT as an empty set rather than deleted, which is this repository idiom (see
+ * `JOURNEY_FINDINGS_NOT_YET_AUDITABLE` in verify-content.ts): the code reading it then asserts
+ * zero instead of disappearing, and re-introducing an exclusion has to be done visibly.
+ *
+ * `isDirectlyNegated`'s backward-only window is untouched and is still a real defect, owned by
+ * am-dbpk. Nothing here depends on it any more.
  */
-const NOT_YET_JUDGED: ReadonlySet<string> = new Set(["overclaim"]);
-/** How many `overclaim` findings this population held when the exclusion was written. */
-const KNOWN_OVERCLAIM_FINDINGS = 1;
+const NOT_YET_JUDGED: ReadonlySet<string> = new Set([]);
 
 function readerFacingModules(): string[] {
   const out: string[] = [];
@@ -295,14 +302,27 @@ test("PLANTED: the real defect this gate was written for is caught", () => {
   );
 });
 
-test("the excluded rule's debt is the one that was measured, so it cannot grow unnoticed", () => {
+test("no rule is excluded from this population, and overclaim in particular is judged", () => {
+  // This asserted `excluded.length === 1`, the one overclaim finding the exclusion was written
+  // for, under a comment reading "Fewer means it is being paid down and the number should come
+  // with it." It was paid down; the NOT_YET_JUDGED docblock says how. The number comes with it as
+  // zero, and the assertion is now about the exclusion being EMPTY rather than about its size, so
+  // paying a debt down can never again turn this red.
+  expect([...NOT_YET_JUDGED]).toEqual([]);
   const { findings } = judged();
   const excluded = findings.filter(
     ({ finding }) => finding.severity === "error" && NOT_YET_JUDGED.has(finding.rule),
   );
-  // Recorded as the count it was written for. More than this means new prose has been added that
-  // the exclusion was never reviewed against, and the exclusion has to be re-argued rather than
-  // the number raised. Fewer means it is being paid down and the number should come with it.
-  expect(excluded.length).toBe(KNOWN_OVERCLAIM_FINDINGS);
-  expect(excluded[0]?.item.file).toBe("src/experiments/sr05/definition.ts");
+  expect(excluded.length).toBe(0);
+
+  // The half that matters: overclaim is judged over this population like any other rule now, and
+  // it finds nothing. Naming it keeps the retired exemption subject under test, so a new
+  // overclaim error fails here rather than being quietly excluded again.
+  const overclaim = findings.filter(
+    ({ finding }) => finding.rule === "overclaim" && finding.severity === "error",
+  );
+  expect(overclaim.map(({ item }) => item.key)).toEqual([]);
+  // The old final line asserted the one excluded finding was in src/experiments/sr05/definition.ts,
+  // naming the site so the exclusion could not quietly cover a second module. There is no excluded
+  // finding to name any more; what replaces it is the assertion above, that NOTHING is excluded.
 });
