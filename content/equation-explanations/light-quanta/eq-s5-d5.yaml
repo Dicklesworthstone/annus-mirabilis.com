@@ -28,3 +28,4 @@ r2:
     why: "Divide by $W_1$."
   - latex: "\\varphi_1(W_1) = C \\lg(W_1) + \\text{konst.}"
     why: "The function whose rate of change is $C$ divided by the variable is $C$ times the natural logarithm, plus a constant. The same reasoning gives $\\varphi_2$ and $\\varphi$, with the same $C$: the printed lines."
+r3: "The constant is universal because the same derivation runs for any two independent systems, and the paper says so in exactly that form rather than deriving a value. Its value is then fixed from the gas theory, $R/N$, which is Boltzmann's constant in modern notation. That is the move a modern treatment makes in the opposite direction, defining the constant first and reading the gas law off it; here the gas law is the known thing and the constant is what is being identified."

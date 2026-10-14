@@ -36,3 +36,4 @@ r2:
     why: "A number times a logarithm is the logarithm of the power with that number as exponent, the rule of section 5 read backwards."
   - latex: "S - S_0 = \\frac{R}{N} \\lg \\left[ \\left( \\frac{v}{v_0} \\right)^{\\frac{N}{R} \\frac{E}{\\beta \\nu}} \\right]"
     why: "The printed line."
+r3: "Rewriting an energy over $\\beta \\nu$ as $R/N$ times a number is the step that makes the comparison possible, and the number it produces, the energy divided by $(R/N)\\beta\\nu$, is what § 6 will read as a count of quanta. Nothing in the algebra says it is a count; it is a dimensionless quantity that happens to sit where § 5's number of independently moving points sat. The paper's conclusion is drawn from that coincidence of form, and this edition marks the move as heuristic inference because the paper's own title does."

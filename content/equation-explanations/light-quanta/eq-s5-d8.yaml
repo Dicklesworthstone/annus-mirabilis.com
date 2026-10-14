@@ -30,3 +30,4 @@ r2:
     why: "The logarithm of a power is the exponent times the logarithm."
   - latex: "S - S_0 = R \\left( \\frac{n}{N} \\right) \\lg \\left( \\frac{v}{v_0} \\right)"
     why: "Collect the factors: the printed line."
+r3: "The two sides of the paper's argument meet in this line, and the resemblance is the whole finding: the entropy of $n$ independently moving points depends on the volume exactly as § 4 found the entropy of monochromatic radiation to depend on it. Einstein does not say here that radiation consists of points. He says the dependence is the same, and he reserves the inference for § 6, where it is labelled as a conclusion drawn from the resemblance. That ordering is editorially important: the resemblance is exact within Wien's range, and the inference is heuristic, which the paper's own title calls it."

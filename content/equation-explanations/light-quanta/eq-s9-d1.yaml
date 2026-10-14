@@ -25,3 +25,4 @@ r2:
     why: "One quantum ionizes one molecule, so the quantum's energy is at least the work of ionizing one molecule, which is the work per gram-equivalent shared out over the molecules in it."
   - latex: "R \\beta \\nu \\geqq J ."
     why: "Multiply both sides by the number of molecules in a gram-molecule: the printed line."
+r3: "The section's premise is stated as a hypothesis and the inequality is what follows from it alone: if one absorbed quantum ionises one molecule, the ionisation work per gram-equivalent cannot exceed the quantum energy per gram-equivalent. Nothing here is measured and nothing is fitted. The paper is looking for a consequence that an experimenter could refuse, which is the same posture as § 8's."

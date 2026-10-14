@@ -22,3 +22,4 @@ r2:
     why: "The $n$ points move independently of one another, so the chance that all are in $v$ at once is the product of their separate chances, one factor for each point."
   - latex: "W = \\left( \\frac{v}{v_0} \\right)^n"
     why: "The same factor $n$ times is a power: the printed line."
+r3: "The counting is the one a kinetic theory of gases supplies, and it needs the points to move independently of one another: that is stated and it is the whole content of the power. Boltzmann's 1896 Vorlesungen gives the gas's entropy in a form from which this volume dependence follows (boltzmann-1896-gas-volume-entropy, the entropy at p. 58), so a reader of 1904 had both halves of § 5 available. What no reader of 1904 had is the right to apply the counting to radiation, which is § 6's step and not this one."

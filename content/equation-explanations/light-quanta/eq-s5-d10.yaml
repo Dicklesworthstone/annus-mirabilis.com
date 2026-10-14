@@ -31,3 +31,4 @@ r2:
     why: "Divide both sides by $dv$."
   - latex: "p v = R \\frac{n}{N} T"
     why: "Multiply both sides by $v$: the printed line."
+r3: "The footnote ends on the gas law, and the paper's remark about it is the one to keep: the same relation holds for the osmotic pressure of a dilute solution, and no assumption about how the molecules move was needed to get it. That is what makes the volume dependence a usable signature rather than a model-bound result, and it is why § 6 can argue from the form of an entropy to the constitution of radiation without a mechanical picture of light."

@@ -28,3 +28,4 @@ r2:
     why: "Subtract the same expression for the volume $v_0$. The $-1$ in the two brackets cancels."
   - latex: "S - S_0 = \\frac{E}{\\beta \\nu} \\lg \\left( \\frac{v}{v_0} \\right)"
     why: "Everything but the two volumes cancels in the quotient of the logarithms: the printed line."
+r3: "Section 6 starts from § 4's result and adds nothing physical before the comparison, which is the paper's care rather than its caution: everything in the inference to come has to come from the resemblance of two entropies, so the entropy is restated rather than re-derived. The restriction travels with it. § 4's expression holds where Wien's law holds, that is at large frequency over temperature and low density, so the conclusion § 6 reaches is about dilute monochromatic radiation and the paper's heading says exactly that."

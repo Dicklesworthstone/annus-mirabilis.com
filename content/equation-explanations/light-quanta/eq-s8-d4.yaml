@@ -31,3 +31,4 @@ r2:
     why: "Move the work per gram-equivalent to the left. In this form the left side is the whole energy the electron received and the right side is one quantum."
   - latex: "\\Pi E + P' \\leqq R \\beta \\nu ."
     why: "Without the assumption an electron takes up only part of a quantum, so the energy it received is at most one quantum and may be less: the printed line."
+r3: "The weakening to an inequality is the paper's own, and it is the more careful statement: without the assumption that a quantum gives its whole energy to one electron, the electron can carry away less but never more. A reader meeting the modern form, an equality with the work function, should know that the paper offers both and marks which assumption buys the equality."

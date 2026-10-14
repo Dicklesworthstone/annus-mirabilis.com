@@ -19,3 +19,4 @@ r2:
     why: "The gas constant, the number of molecules in a gram-molecule and Wien's constant are all positive, so dividing by them leaves the sense of the inequality unchanged."
   - latex: "\\nu_2 \\leqq \\nu_1 ."
     why: "Divide both sides by that common positive factor: the printed line, which is Stokes's rule."
+r3: "The paper names the known Stokes rule, which is G. G. Stokes's of 1852: the light a fluorescing substance gives out spreads over various refrangibilities, none higher than that of the exciting light (stokes-1852-refrangibility). So the inequality here is not a prediction but a check: a rule established fifty years earlier falls out of the quantum picture in one line, with the constants dividing out. The paper's own hedge is in the sentence beside it, that the rule holds where the exciting light is not too weak, since a quantum may be helped by energy already present."

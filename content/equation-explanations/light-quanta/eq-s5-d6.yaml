@@ -25,3 +25,4 @@ r2:
     why: "The value of $C$, which the paper takes from the kinetic theory of gases without deriving it."
   - latex: "S - S_0 = \\frac{R}{N} \\lg W"
     why: "Put in the value: the printed line."
+r3: "This is Boltzmann's principle in the form the paper uses, and both of its features matter for how § 6 should be read. The entropy is a DIFFERENCE from an initial state, so an additive constant never appears, and the probability is RELATIVE to that state, so the quantity in the logarithm is a ratio of counts and not an absolute probability. Einstein names Boltzmann for the principle; this edition's shelf card for the 1877 paper records that its own proposition stands unverified until someone reads Band 76, II. Abtheilung, pp. 373-435, so the attribution here is the paper's and not an independently checked one (boltzmann-1877-entropy-probability). The $\\lg$ is the natural logarithm throughout (watch-lg-is-natural-logarithm, docs/provenance/ap-17-132.md)."

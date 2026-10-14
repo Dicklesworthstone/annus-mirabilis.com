@@ -21,3 +21,4 @@ r1: "The paper calls this the general formula expressing Boltzmann's principle. 
 r2:
   - latex: "S - S_0 = \\frac{R}{N} \\lg W"
     why: "Boltzmann's principle as section 5 wrote it on p. 141: the entropy difference is $\\frac{R}{N}$ times the logarithm of the relative probability $W$. Section 6 applies it to the radiation."
+r3: "Setting Boltzmann's principle beside the radiation's entropy is the whole of the argument's machinery. Both sides were available to a reader of 1904: the principle from § 5's derivation, and the entropy from Wien's law and § 3's thermodynamic identity. What was not available, and what nobody was obliged to grant, is that a probability computed for a gas of independent points may be read off a radiation entropy. That reading is the paper's contribution and its risk."

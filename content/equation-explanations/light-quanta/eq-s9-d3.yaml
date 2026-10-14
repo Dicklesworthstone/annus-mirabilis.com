@@ -28,3 +28,4 @@ r2:
     why: "The energy needed for a whole gram-molecule: that many molecules, one quantum each."
   - latex: "j = \\frac{L}{R \\beta \\nu} ."
     why: "Divide the absorbed light energy by the energy that ionizes one gram-molecule: the printed line."
+r3: "The paper ends § 9 on a consequence with no adjustable constant: count the light absorbed and the number of ionised gram-molecules follows. That is the strongest kind of prediction the paper makes, because a free constant could absorb a disagreement and here there is none. Whether the premise holds is left to experiment, and the paper says so."

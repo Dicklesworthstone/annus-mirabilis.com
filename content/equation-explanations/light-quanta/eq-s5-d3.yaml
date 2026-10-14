@@ -12,3 +12,4 @@ r1: "The probability that two independent events both happen is the product of t
 r2:
   - latex: "W = W_1 \\cdot W_2"
     why: "For independent events the probability of both is the product of the probabilities of each. The paper names this as the meaning of the relation: the states of the two systems are independent events."
+r3: "The paper reads the product as saying the two states are independent events, and that reading is the one place in the derivation where a word about physics enters an otherwise formal argument. For two systems that do not act on each other it is unobjectionable. The weight falls later, in § 6, where the independence being asserted is between parts of one radiation field."

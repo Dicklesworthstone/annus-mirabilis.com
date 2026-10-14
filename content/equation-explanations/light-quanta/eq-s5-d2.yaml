@@ -17,3 +17,4 @@ r2:
     why: "The two systems do not interact, so the entropy of the pair is the sum of their entropies."
   - latex: "S = \\varphi(W)"
     why: "The pair is itself a system, so its entropy is a function of the probability of its state. The function $\\varphi$ is not assumed to be either system's own function."
+r3: "Additivity of the entropy is taken from thermodynamics and is not argued here. It is the load-bearing assumption of the derivation that follows: with it and the multiplication of probabilities, the logarithm is forced; without it, nothing is. The paper's own route through §§ 1 to 4 never needed it, which is why § 5 reads as a fresh start and why its conclusion is of a different kind."
