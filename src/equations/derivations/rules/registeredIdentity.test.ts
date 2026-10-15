@@ -83,6 +83,100 @@ test("independent-zero-mean-product-vanishes fails when to keeps a term that was
   assert.equal(result.outcome, "fail");
 });
 
+/*
+ * A VANISHING TERM ZEROED IN PLACE (am-s1xa), with the three ways that must still fail.
+ *
+ * The project's one content chain writes the cross term as an explicit zero rather than deleting
+ * it, so the reader watches it go. The rule accepts that shape, and these cases are what stop the
+ * acceptance from being a hole: the check must still refuse a zero that lands on a term nobody
+ * declared, a declared zero that arrives alongside an altered neighbour, and a declared term
+ * replaced by something that is not zero. The case above, where the term is left untouched, is
+ * the fourth and it is unchanged: an unaltered term is not zero either.
+ */
+const zeroed: Expression = {
+  kind: "group",
+  opId: "s.op.cross",
+  argument: { kind: "number", value: "0" },
+};
+
+test("independent-zero-mean-product-vanishes accepts the declared term zeroed in place", () => {
+  const a1sq: Expression = { kind: "group", opId: "s.op.a1sq", argument: sym("a1", "q") };
+  const cross: Expression = { kind: "group", opId: "s.op.cross", argument: sym("cross", "q") };
+  const result = registeredIdentityRule.check({
+    from: { kind: "sum", args: [a1sq, cross] },
+    to: { kind: "sum", args: [a1sq, zeroed] },
+    params: {
+      identityId: "independent-zero-mean-product-vanishes",
+      premises: ["independence", "zero-mean"],
+      vanishingTermIds: ["s.op.cross"],
+    },
+  });
+  assert.equal(result.outcome, "pass");
+});
+
+test("zeroing a term that was NOT declared to vanish fails", () => {
+  const a1sq: Expression = { kind: "group", opId: "s.op.a1sq", argument: sym("a1", "q") };
+  const cross: Expression = { kind: "group", opId: "s.op.cross", argument: sym("cross", "q") };
+  const wrongZero: Expression = {
+    kind: "group",
+    opId: "s.op.a1sq",
+    argument: { kind: "number", value: "0" },
+  };
+  const result = registeredIdentityRule.check({
+    from: { kind: "sum", args: [a1sq, cross] },
+    // a1sq is the one zeroed; the declared cross term is untouched.
+    to: { kind: "sum", args: [wrongZero, cross] },
+    params: {
+      identityId: "independent-zero-mean-product-vanishes",
+      premises: ["independence", "zero-mean"],
+      vanishingTermIds: ["s.op.cross"],
+    },
+  });
+  assert.equal(result.outcome, "fail");
+  assert.match(result.reason ?? "", /not declared to vanish and changed/);
+});
+
+test("zeroing the declared term while altering a neighbour fails", () => {
+  const a1sq: Expression = { kind: "group", opId: "s.op.a1sq", argument: sym("a1", "q") };
+  const altered: Expression = {
+    kind: "group",
+    opId: "s.op.a1sq",
+    argument: sym("somethingElse", "q"),
+  };
+  const cross: Expression = { kind: "group", opId: "s.op.cross", argument: sym("cross", "q") };
+  const result = registeredIdentityRule.check({
+    from: { kind: "sum", args: [a1sq, cross] },
+    to: { kind: "sum", args: [altered, zeroed] },
+    params: {
+      identityId: "independent-zero-mean-product-vanishes",
+      premises: ["independence", "zero-mean"],
+      vanishingTermIds: ["s.op.cross"],
+    },
+  });
+  assert.equal(result.outcome, "fail");
+});
+
+test("the declared vanishing term replaced by a non-zero value fails", () => {
+  const a1sq: Expression = { kind: "group", opId: "s.op.a1sq", argument: sym("a1", "q") };
+  const cross: Expression = { kind: "group", opId: "s.op.cross", argument: sym("cross", "q") };
+  const notZero: Expression = {
+    kind: "group",
+    opId: "s.op.cross",
+    argument: { kind: "number", value: "1" },
+  };
+  const result = registeredIdentityRule.check({
+    from: { kind: "sum", args: [a1sq, cross] },
+    to: { kind: "sum", args: [a1sq, notZero] },
+    params: {
+      identityId: "independent-zero-mean-product-vanishes",
+      premises: ["independence", "zero-mean"],
+      vanishingTermIds: ["s.op.cross"],
+    },
+  });
+  assert.equal(result.outcome, "fail");
+  assert.match(result.reason ?? "", /is not zero in the destination/);
+});
+
 test("independent-zero-mean-product-vanishes requires vanishingTermIds", () => {
   const result = registeredIdentityRule.check({
     from: { kind: "sum", args: [sym("a", "q"), sym("b", "q")] },

@@ -324,6 +324,62 @@ function check({ from, to, params, changed }: RuleCheckArgs): RuleCheckResult {
           return !id || !vanishingSet.has(id);
         });
 
+        /*
+          A VANISHING TERM MAY BE ZEROED IN PLACE, NOT ONLY REMOVED (am-s1xa).
+
+          This rule required the destination sum to hold exactly the surviving terms, so a step
+          that writes the cross term as an explicit zero failed with "destination sum must contain
+          exactly the non-vanishing terms". That is the authored form of the project's one content
+          chain: content/equations/derivations/bm-variance.yaml keeps `group(0, opId crossTerm)`
+          in the sum so a reader SEES the cross term go to zero rather than finding it gone
+          between two lines, and the renderer colours it by that opId. Measured before the change:
+          chain-bm-variance-of-sum verified 3 of its 4 steps and failed this one, so the chain was
+          not publication-ready and the result card's support layer could not be built on it.
+
+          The claim is identical either way -- the declared term is zero -- so accepting it costs
+          nothing, and the check stays exactly as strict in the two directions that matter. The
+          same-arity branch requires, position by position, that a declared term be mathematically
+          zero AND keep its own id, and that every term NOT declared to vanish be structurally
+          unchanged. So zeroing an undeclared term, zeroing the declared one while also altering a
+          neighbour, or replacing the declared term with anything that is not zero all still fail,
+          and each is planted in registeredIdentity.test.ts. The existing case where the term is
+          left untouched also still fails, because an unchanged term is not zero.
+        */
+        const isZero = (node: Expression): boolean => {
+          const bare = withoutGroups(node);
+          return bare.kind === "number" && Number.parseFloat(String(bare.value)) === 0;
+        };
+        if (to.kind === "sum" && to.args.length === from.args.length) {
+          for (let i = 0; i < from.args.length; i++) {
+            const before = from.args[i];
+            const after = to.args[i];
+            if (!before || !after) {
+              return { outcome: "fail", reason: "the sums could not be compared term by term." };
+            }
+            const id = nodeId(before);
+            if (id !== null && vanishingSet.has(id)) {
+              if (nodeId(after) !== id) {
+                return {
+                  outcome: "fail",
+                  reason: `independent-zero-mean-product-vanishes: the vanishing term "${id}" must keep its own id where it is zeroed in place, so a reader and this check are looking at the same term.`,
+                };
+              }
+              if (!isZero(after)) {
+                return {
+                  outcome: "fail",
+                  reason: `independent-zero-mean-product-vanishes: the declared vanishing term "${id}" is not zero in the destination.`,
+                };
+              }
+            } else if (!structurallyEqual(after, before)) {
+              return {
+                outcome: "fail",
+                reason: `independent-zero-mean-product-vanishes: term ${i + 1}${id === null ? "" : ` ("${id}")`} was not declared to vanish and changed.`,
+              };
+            }
+          }
+          return { outcome: "pass" };
+        }
+
         // Ensure exactly the surviving terms appear in destination
         if (to.kind === "sum") {
           if (to.args.length !== surviving.length) {
