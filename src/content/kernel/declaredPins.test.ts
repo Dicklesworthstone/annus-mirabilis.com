@@ -42,11 +42,18 @@ describe("declared kernel functions against the pins (am-f3e4)", () => {
   });
 
   /**
-   * A DEBT, NOT A BUDGET. These fifteen are declared by a manifest and carried by no pin, so their
-   * instruments show a reader some of their code and not all of it. Pin one and this case fails
-   * until its line is deleted, which is the only direction the list may move. It is asserted by
-   * IDENTITY rather than by count, so a new unpinned declaration is named rather than folded into a
-   * number, and the counts are printed beside the verdict either way.
+   * A DEBT, NOT A BUDGET, AND THE DEBT IS NOW ZERO.
+   *
+   * This read "These fifteen are declared by a manifest and carried by no pin" while the assertion
+   * below was already `toEqual([])`, so the prose described a list that the code forbade: measured
+   * 2026-10-14, 115 declarations, 111 distinct declared functions, 113 pins, 0 with no pin. The
+   * sentence is corrected rather than deleted because the SHAPE it describes is what keeps this
+   * honest, and the shape has not changed. An unpinned declaration is named by IDENTITY rather
+   * than folded into a count, so a new one fails here under its own name, and the counts are
+   * printed beside the verdict either way.
+   *
+   * Nothing about this case relaxes as the gap closes. Zero is simply where a ratchet of this
+   * shape ends up, and the floor cases below are what stop an empty read from looking like it.
    */
   test("exactly the recorded declarations have no pin, and both counts are printed", () => {
     const report = reportDeclaredPins(
