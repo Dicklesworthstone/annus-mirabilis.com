@@ -612,6 +612,35 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     owner: "am-unwired-audits-uwot",
   },
   {
+    // am-unwired-audits-uwot, the last of its six, and the one its own records argued against.
+    //
+    // scripts/validate-ledger.ts took a single path, so it could only ever be run by hand, and
+    // src/testing/scriptReachability.test.ts recorded it as deliberately unreachable because
+    // "there is nothing for it to validate; wiring it in would be red on arrival, which trains
+    // people to ignore red gates". Measured 2026-10-14 the premise was false: each of the four
+    // machine drafts validates CLEAN under its own paper slug, 63 pages and 263 paragraphs in
+    // total, in 0.07s. The reason was written when the question was reviewed ledgers, and stayed
+    // after the drafts landed and became the text the German face renders from.
+    //
+    // So this guards a reader-facing source that nothing re-checked after an edit: a dropped page
+    // marker, a glued paragraph or a line-wrap hyphen in one of these four reaches the German
+    // face. Both halves were planted before it was registered, in a scratch root so the corpus was
+    // untouched: removing one `--- MACHINE DRAFT TRANSCRIPTION PAGE 2 OF 3 ---` line from a copy
+    // of ap-18-639 took the sweep to 1 invalid and exit 1, and a root holding one ledger printed
+    // VACUOUS and REFUSED.
+    id: "german-ledgers",
+    title: "German ledger sweep",
+    command: ["bun", "scripts/validate-ledger.ts", "--all"],
+    family: "fast",
+    cadence: "every-run",
+    requiredInCi: true,
+    requiredInProfiles: ["scaffold", "preview", "launch"],
+    availability: {
+      scriptPath: "scripts/validate-ledger.ts",
+    },
+    owner: "am-unwired-audits-uwot",
+  },
+  {
     id: "verify-wasm-artifacts",
     title: "Verify WASM artifacts and hashes",
     command: ["bun", "scripts/verify-wasm-artifacts.ts"],

@@ -845,6 +845,21 @@ export const CENSUS_RECORDS: readonly CensusRecord[] = [
     plants: [minimumPlant("verify-constant-sets", "scripts/verify-constant-sets.ts", 2, "REFUSED")],
   },
   {
+    gate: "german-ledgers",
+    noun: "German ledgers",
+    howRead:
+      "inspectAllLedgers(cwd) filtered to those present on disk. That is the edition's own reader, " +
+      "so the gate and the German face cannot disagree about which file is a paper's ledger, " +
+      "including the draft/reviewed filename rule the owner set on am-wisq. The floor is 4 because " +
+      "each of the four papers of 1905 has one today (63 pages, 263 paragraphs, measured " +
+      "2026-10-14), so a sweep that finds three has lost one and must not report the survivors as a " +
+      "clean corpus. molecular-dimensions is the companion, has no ledger, and is reported rather " +
+      "than counted -- absence is ledgerAbsence.test.ts's question, and two owners for one fact is " +
+      "how they drift.",
+    gateRefusesVacuous: true,
+    plants: [minimumPlant("german-ledgers", "scripts/validate-ledger.ts", 4, "REFUSED")],
+  },
+  {
     gate: "misconception-ledgers",
     noun: "ledger records",
     howRead:

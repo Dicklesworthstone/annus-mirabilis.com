@@ -26,7 +26,7 @@ const CHECK_SHAPED = /^(audit|verify|check|lint|validate)-/;
 const EXPECTED_UNREACHABLE: ReadonlyMap<string, string> = new Map([
   [
     "audit-instruments.ts",
-    "Thin CLI over src/content/audits/instruments.ts. auditInstruments() is already called by scripts/verify-content.ts, a registry step, so the audit is reachable and only this debugging entry point is not. Running the CLI over the whole catalogue exits 1 today because most of the 33 instruments are unbuilt.",
+    "Thin CLI over src/content/audits/instruments.ts. auditInstruments() is already called by scripts/verify-content.ts, a registry step, so the audit is reachable and only this debugging entry point is not. The CLI exits 1 because it applies no exemptions: measured 2026-10-14 it reports 31 findings, every one against the five ids in NON_CORE_INSTRUMENT_IDS, which verify-content downgrades to flags under ceilings recorded for exactly 7, 6, 6, 6 and 6. All 33 CORE instruments PASS all 14 columns. The sentence here said the CLI 'exits 1 today because most of the 33 instruments are unbuilt', which was the opposite claim about the catalogue and would have been read as the core rows failing.",
   ],
   // audit-misconceptions.ts was here, and is not any more (am-8gbg criterion 2: "scriptReachability
   // stops treating a --fixture-taking script as invoked: a script that can fail must be reachable
@@ -45,10 +45,14 @@ const EXPECTED_UNREACHABLE: ReadonlyMap<string, string> = new Map([
     "audit-shelf.ts",
     'Thin CLI over src/content/audits/shelf.ts, whose auditShelf() is called by verify-content.ts over the cards the four journeys render: measured 2026-10-05, 46 cards on 4 shelves. The second sentence here read "content/historical-premises/ does not exist, so verify-content passes it an empty card list" until then. The directory is still absent, but that stopped being the shelf audit\'s input on 2026-10-02 (am-rc1001-bridge-plan-pcjk.12), when the empty list was replaced by the live shelves -- so the reason described a vacuous run that no longer happens, which is the stale prose this map exists to prevent.',
   ],
-  [
-    "validate-ledger.ts",
-    "Takes a ledger path and validates a REVIEWED transcription. public/papers/transcripts/ holds 4 machine drafts and no *-reviewed.txt, so there is nothing for it to validate; wiring it in would be red on arrival, which trains people to ignore red gates. The reason recorded here until 2026-09-27 denied that directory any files at all, which stopped being true when the drafts landed.",
-  ],
+  // validate-ledger.ts was here, and is not any more (am-unwired-audits-uwot). Its reason said
+  // "there is nothing for it to validate" because the directory holds machine drafts and no
+  // *-reviewed.txt. The second clause was true and the first did not follow: measured 2026-10-14
+  // all four drafts validate CLEAN under their own paper slug, 63 pages and 263 paragraphs, and
+  // they are the text the German face renders. It gained `--all` and the registry step
+  // `german-ledgers`, so it is now reachable with the population it judges. This map's own rule
+  // did the work: it fails when a listed script becomes reachable, so the stale reason had to be
+  // deleted rather than left sitting under a wired gate.
 ]);
 
 function readIfPresent(path: string): string {
