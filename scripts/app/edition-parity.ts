@@ -325,9 +325,12 @@ async function main(argv: readonly string[]): Promise<number> {
   } else {
     const origin = (site ?? "").replace(/\/+$/, "");
     const fetcher: Fetcher = async (url) => {
-      // AGENTS.md: every web request carries this user agent.
+      // Every web request identifies this project honestly in its user agent.
       const response = await fetch(url, {
-        headers: { "User-Agent": "OpenAI File Downloader, XaiImageApiFetch/1.0" },
+        headers: {
+          "User-Agent":
+            "annus-mirabilis-edition-parity (+https://github.com/Dicklesworthstone/annus-mirabilis.com)",
+        },
         redirect: "follow",
       });
       return { status: response.status, body: new Uint8Array(await response.arrayBuffer()) };

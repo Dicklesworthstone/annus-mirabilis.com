@@ -17,7 +17,8 @@ import { checkOutFreshness } from "./outFreshness.ts";
  * stale one is refused, as in foundCalculus.e2e.test.ts.
  */
 
-export const LANE_USER_AGENT = "OpenAI File Downloader, XaiImageApiFetch/1.0";
+export const LANE_USER_AGENT =
+  "annus-mirabilis-e2e (+https://github.com/Dicklesworthstone/annus-mirabilis.com)";
 
 /**
  * Content types for the files `out/` actually contains (am-enpr).

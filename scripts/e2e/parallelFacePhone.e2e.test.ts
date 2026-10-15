@@ -66,6 +66,8 @@ const BETWEEN_MIN_EM = 1.75;
 /** A page label's room, in ems of its own type. */
 const LOCATOR_MIN_EM = 0.75;
 const TERM_MIN_CONTRAST = 4.5;
+const REMOTE_USER_AGENT =
+  "annus-mirabilis-e2e (+https://github.com/Dicklesworthstone/annus-mirabilis.com)";
 
 const CONTENT_TYPES: Readonly<Record<string, string>> = {
   ".html": "text/html; charset=utf-8",
@@ -494,7 +496,7 @@ test("the parallel face on a phone reads as pairs, with one key, room for page l
           viewport: { width: WIDTH, height: 844 },
           colorScheme: theme,
           javaScriptEnabled: js,
-          ...(remote ? { userAgent: "OpenAI File Downloader, XaiImageApiFetch/1.0" } : {}),
+          ...(remote ? { userAgent: REMOTE_USER_AGENT } : {}),
         });
         await context.tracing.start({ snapshots: true });
         const page = await context.newPage();
@@ -601,7 +603,7 @@ test("a paragraph's sentences run on at 320 on the parallel, English and German 
         const testId = `sentence-flow-${lane}`;
         const context = await browser.newContext({
           viewport: { width: FLOW_WIDTH, height: 844 },
-          ...(remote ? { userAgent: "OpenAI File Downloader, XaiImageApiFetch/1.0" } : {}),
+          ...(remote ? { userAgent: REMOTE_USER_AGENT } : {}),
         });
         await context.tracing.start({ snapshots: true });
         const page = await context.newPage();
@@ -799,7 +801,7 @@ test("inline formulas stay inside their line at 320 on the English, parallel and
         const testId = `inline-formulas-${lane}`;
         const context = await browser.newContext({
           viewport: { width: INLINE_WIDTH, height: 844 },
-          ...(remote ? { userAgent: "OpenAI File Downloader, XaiImageApiFetch/1.0" } : {}),
+          ...(remote ? { userAgent: REMOTE_USER_AGENT } : {}),
         });
         await context.tracing.start({ snapshots: true });
         const page = await context.newPage();
@@ -1064,7 +1066,7 @@ test("the Results face reads at the reading measure, in a clear card rhythm, wit
           viewport: { width, height: 900 },
           colorScheme: theme,
           javaScriptEnabled: js,
-          ...(remote ? { userAgent: "OpenAI File Downloader, XaiImageApiFetch/1.0" } : {}),
+          ...(remote ? { userAgent: REMOTE_USER_AGENT } : {}),
         });
         await context.tracing.start({ snapshots: true });
         const page = await context.newPage();

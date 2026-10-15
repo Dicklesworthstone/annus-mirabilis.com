@@ -48,6 +48,8 @@ const OUT_DIR = join(REPO_ROOT, "out");
 const SUITE = "english-face-rhythm";
 const PAPERS = ["special-relativity", "light-quanta", "brownian-motion"] as const;
 const WIDTHS = [390, 1440] as const;
+const REMOTE_USER_AGENT =
+  "annus-mirabilis-e2e (+https://github.com/Dicklesworthstone/annus-mirabilis.com)";
 
 const CONTENT_TYPES: Readonly<Record<string, string>> = {
   ".html": "text/html; charset=utf-8",
@@ -342,7 +344,7 @@ test("the English faces keep the German rhythm and headings, and show no alterna
     for (const width of WIDTHS) {
       const context = await browser.newContext({
         viewport: { width, height: 900 },
-        ...(remote ? { userAgent: "OpenAI File Downloader, XaiImageApiFetch/1.0" } : {}),
+        ...(remote ? { userAgent: REMOTE_USER_AGENT } : {}),
       });
       const page = await context.newPage();
       await page.goto(`${origin}/papers/light-quanta/view/german/`, { waitUntil: "load" });
@@ -354,7 +356,7 @@ test("the English faces keep the German rhythm and headings, and show no alterna
         const lane = `${paper}-${width}`;
         const context = await browser.newContext({
           viewport: { width, height: 900 },
-          ...(remote ? { userAgent: "OpenAI File Downloader, XaiImageApiFetch/1.0" } : {}),
+          ...(remote ? { userAgent: REMOTE_USER_AGENT } : {}),
         });
         await context.tracing.start({ screenshots: true, snapshots: true });
         const page = await context.newPage();
@@ -513,7 +515,7 @@ test("the English faces keep the German rhythm and headings, and show no alterna
           browser,
           `${origin}/papers/${paper}/view/${face}/`,
           Number(width),
-          remote ? "OpenAI File Downloader, XaiImageApiFetch/1.0" : undefined,
+          remote ? REMOTE_USER_AGENT : undefined,
           join(scratch, `headings-${width}-${face}-${id}-${paper}`),
           { logRunId, testId, lane: `${paper}-${face}-${width}`, message: problems.join("; ") },
         );

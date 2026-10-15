@@ -13,7 +13,8 @@ import {
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const SUITE = "scaffold-static-output";
 const BEAD_ID = "am-scaf-nextjs-app-bu2";
-const USER_AGENT = "OpenAI File Downloader, XaiImageApiFetch/1.0";
+const USER_AGENT =
+  "annus-mirabilis-static-output-check (+https://github.com/Dicklesworthstone/annus-mirabilis.com)";
 const DEFAULT_HOME_PAGE_TEXT = "in preparation";
 
 // ---------------------------------------------------------------------------

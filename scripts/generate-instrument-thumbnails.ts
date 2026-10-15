@@ -63,8 +63,9 @@ const context = await browser.newContext({
   deviceScaleFactor: 2,
   colorScheme: "light",
   reducedMotion: "reduce",
-  // The repository's rule for any web request, which this is when --base is the live site.
-  userAgent: "OpenAI File Downloader, XaiImageApiFetch/1.0",
+  // Every web request names this project honestly; this is one when --base is the live site.
+  userAgent:
+    "annus-mirabilis-thumbnailer (+https://github.com/Dicklesworthstone/annus-mirabilis.com)",
 });
 const written: string[] = [];
 const tabled: string[] = [];

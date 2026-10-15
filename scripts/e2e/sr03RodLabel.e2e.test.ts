@@ -42,6 +42,8 @@ const ROUTE = "/lab/sr-03/";
 /** The lab's own settings link (experiments/sr03/permalink.ts) for the default readings at 0.8c. */
 const AT_0_8C =
   "?sr=3&rodRestFrame=k&v=0.8&L0=10&measuringFrame=K&endpointPairId=platform-simultaneous&R=1";
+const REMOTE_USER_AGENT =
+  "annus-mirabilis-e2e (+https://github.com/Dicklesworthstone/annus-mirabilis.com)";
 
 const CONTENT_TYPES: Readonly<Record<string, string>> = {
   ".html": "text/html; charset=utf-8",
@@ -177,7 +179,7 @@ test("SR-03 labels the rod with its own length and names the platform marks (am-
             const context = await browser.newContext({
               viewport: { width, height: 900 },
               javaScriptEnabled: c.jsEnabled,
-              ...(remote ? { userAgent: "OpenAI File Downloader, XaiImageApiFetch/1.0" } : {}),
+              ...(remote ? { userAgent: REMOTE_USER_AGENT } : {}),
             });
             await context.tracing.start({ screenshots: true, snapshots: true });
             const page = await context.newPage();

@@ -51,8 +51,8 @@
  *   Mirabilis" instead of "Classic Patents" in the response body; its
  *   same-origin, content-type, and `/_next/` asset-identity checks are
  *   otherwise unchanged.
- * - `USER_AGENT` unchanged: AGENTS.md's "Web Requests" section requires the
- *   same literal user agent string for every request this repository makes.
+ * - `USER_AGENT` names this project: every request this repository makes
+ *   identifies it honestly instead of borrowing another product's user agent.
  * - `RunRecorder`, `captureFailureEvidence`, `inspectFailureEvidence`,
  *   `runFailureEvidenceSelfTest`, `installDiagnostics`, and `formatError`
  *   are otherwise unchanged: they carry no patent-specific assumption, and
@@ -91,9 +91,10 @@ import {
 } from "./e2e/paper-e2e-contract.ts";
 import { newLogRunId } from "./runIds.ts";
 
-// AGENTS.md "Web Requests": every request this repository makes sets this
-// user agent, regardless of what it is fetching or why.
-const USER_AGENT = "OpenAI File Downloader, XaiImageApiFetch/1.0";
+// Every request this harness makes names this project honestly in its user
+// agent, regardless of what it is fetching or why.
+const USER_AGENT =
+  "annus-mirabilis-e2e (+https://github.com/Dicklesworthstone/annus-mirabilis.com)";
 const ACTION_TIMEOUT_MS = 15_000;
 
 interface ScenarioDiagnostics {

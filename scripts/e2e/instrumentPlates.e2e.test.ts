@@ -40,7 +40,8 @@ const OUT_DIR = join(REPO_ROOT, "out");
 const SUITE = "instrument-plates";
 const WIDTHS = [1024, 1280, 1440, 390] as const;
 const NAMED = "Share of that energy above the probe frequency";
-const REMOTE_USER_AGENT = "OpenAI File Downloader, XaiImageApiFetch/1.0";
+const REMOTE_USER_AGENT =
+  "annus-mirabilis-e2e (+https://github.com/Dicklesworthstone/annus-mirabilis.com)";
 const CONTENT_TYPES: Readonly<Record<string, string>> = {
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",

@@ -52,7 +52,8 @@ export const PDF_LIBRARY = {
 };
 
 const DEFAULT_MAX_BYTES = 268_435_456; // 256 MiB
-const DEFAULT_USER_AGENT = "OpenAI File Downloader, XaiImageApiFetch/1.0";
+const DEFAULT_USER_AGENT =
+  "annus-mirabilis-facsimile-downloader (+https://github.com/Dicklesworthstone/annus-mirabilis.com)";
 const FIXED_CREATION_DATE = "D:20000101000000Z";
 
 export function getRepoRoot(): string {
