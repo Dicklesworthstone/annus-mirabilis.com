@@ -23,12 +23,25 @@ import { LazyMassEnergyFirstEncounter } from "../../reader/lazyIslands.tsx";
 const labName = (id: string) => id.toUpperCase();
 const minutesText = (m: number) => `${m} ${m === 1 ? "minute" : "minutes"}`;
 
-function FirstEncounter({ step }: { step: Extract<TourStep, { kind: "first-encounter" }> }) {
+function FirstEncounter({
+  paper,
+  step,
+}: {
+  paper: string;
+  step: Extract<TourStep, { kind: "first-encounter" }>;
+}) {
   if (step.recordId !== "entrance-mass-energy")
     return (
       <p className="notice">
         This paper's first encounter cannot be shown inside a tour yet.{" "}
-        <a href={`/papers/mass-energy/#${step.anchor}`}>Open it on the paper's page</a>.
+        {/*
+          THE PAPER IS THE TOUR'S, NOT MASS-ENERGY'S. This read `/papers/mass-energy/#${step.anchor}`
+          while interpolating the OTHER paper's anchor, so the three tours that reach this branch
+          sent a reader to a page that does not carry the id: /papers/mass-energy/#entry-brownian-
+          motion, #entry-light-quanta and #entry-special-relativity. Each paper's own page does
+          carry its entry id, so the link resolves once the path follows the anchor.
+        */}
+        <a href={`/papers/${paper}/#${step.anchor}`}>Open it on the paper's page</a>.
       </p>
     );
   return (
@@ -123,7 +136,9 @@ export function TimedTour({ tour }: { tour: Tour }) {
               </p>
               <h2 id={`title-${step.id}`}>{step.title}</h2>
               <p>{step.purpose}</p>
-              {step.kind === "first-encounter" ? <FirstEncounter step={step} /> : null}
+              {step.kind === "first-encounter" ? (
+                <FirstEncounter paper={tour.paper} step={step} />
+              ) : null}
               {step.kind === "reading" ? <Reading paper={tour.paper} step={step} /> : null}
               {step.kind === "instrument" ? <Instrument step={step} /> : null}
               {step.kind === "journey-stage" ? <JourneyStage step={step} /> : null}
