@@ -1,0 +1,52 @@
+{
+  "kind": "misconception",
+  "id": "misc-bm-measurement-noise",
+  "paper": "brownian-motion",
+  "temptingClaims": [
+    "Measurement error only scatters the measured positions, so it leaves the steps independent and averages away over enough of them."
+  ],
+  "whyTempting": "Noise is usually met as an independent error on one measured quantity, where it does scatter the value and does average down as the measurements accumulate. Both halves are right for a quantity measured once and neither survives differencing, because a displacement is built from two positions rather than read off one.",
+  "whereItIsTrue": "An independent localization error does average down when one quantity is measured repeatedly, and over intervals long against the crossover the inflation is small: at BM-08's noise-only settings a one-second interval carries 8e-14 m\u00b2 of error against 8.5888e-13 m\u00b2 of motion, about nine per cent.",
+  "whatIsTrue": {
+    "r0": "Each frame's position carries an error, and each error is shared by the two steps on either side of it. So the error does not simply scatter the steps: it pulls neighbouring steps in opposite directions and widens every one of them. Over short intervals it can contribute more than the motion.",
+    "r1": "A displacement is a difference of two measured positions, so one frame's localization error enters the step before it with one sign and the step after it with the other. Neighbouring increments are therefore anti-correlated rather than independent, with a covariance of exactly minus sigma squared, and each increment's variance is 2 D \u0394t + 2 sigma squared rather than 2 D \u0394t. BM-08's localization-noise preset shows both: with sigma 200 nm, no exposure and a one-second interval it reports a covariance of -4.0e-14 m\u00b2 and a variance of 9.3888e-13 m\u00b2 against 8.5888e-13 m\u00b2 of diffusion. The inflation is worst at short intervals, and below sigma squared over D, about 93 ms at these settings, the error contributes more than the motion does.",
+    "r2": "(1) Write each measured position as the true position plus an independent error of standard deviation sigma. (2) A step is the difference of two measured positions, so it carries the difference of two errors, and its variance picks up sigma squared from each end: 2 D \u0394t + 2 sigma squared. (3) The frame between two neighbouring steps is shared. It enters the earlier step with a plus sign and the later step with a minus sign, so the two steps' errors have covariance minus sigma squared. (4) That is a signed quantity and the sign is the claim: independent errors would give zero, and a positive drift would give a positive value. (5) Because the covariance is not zero, averaging more steps does not remove the effect; the errors are correlated between the very steps being averaged. (6) Setting the noise term against the motion term, 2 sigma squared against 2 D \u0394t, the two are equal at \u0394t = sigma squared over D, which is the interval below which the error dominates. (7) So fitting a mean square displacement of 2 D \u0394t to short-interval data overestimates D, and the overestimate grows as the interval shrinks.",
+    "r3": "Nothing in the 1905 paper models the microscope: it predicts the displacement of a grain, not the displacement a camera records, and its own numbers are the predicted 0.8 micron in one second and about 6 microns in a minute (p. 559). The paper is also explicit that it does not know whether the published observations are good enough to decide the question. Treating the measured track as the true track is therefore a reader's addition rather than the paper's claim, and the correction is a modern one: BM-08 is an explicitly modern lens on what a real localization error does to the inference, not an account of anything in 1905."
+  },
+  "instrumentIds": [
+    "bm-08"
+  ],
+  "anchors": [
+    "s4-p12",
+    "s5-p4"
+  ],
+  "resultIds": [
+    "bm-displacement-law",
+    "bm-molecular-number"
+  ],
+  "sources": [
+    "A. Einstein, Ann. Phys. (4) 17, 549\u2013560 (1905), plate p. 559",
+    "BM-08 preset bm-08-noise-only: sigma 2e-7 m, exposure 0, one-second interval; expectedCovariance -4.0e-14 m\u00b2 (exactly minus sigma squared), expectedVariance 9.3888e-13 m\u00b2 (8.5888e-13 of diffusion plus 8e-14 of error), speedCrossover 0.0931445603576751 s (sigma squared over D), from content/scenarios/bm-08-noise-only.yaml"
+  ],
+  "intervention": {
+    "instrumentId": "bm-08",
+    "defaultsReviewed": {
+      "model": "Described from the manifest: measurement bias with localization noise, drift and exposure models over a diffusing track (BM-08: Measurement bias with localization noise, drift, and exposure models)",
+      "labels": "Described from the manifest: the localization error, the exposure and the interval as controls; the expected covariance between neighbouring increments, the expected increment variance, and the crossover interval as outputs",
+      "defaultControls": "Described from the manifest: preset bm-08-noise-only, labelled Localization noise only; sigma 2e-7 m, exposure 0, d 1",
+      "feedback": "Described from the manifest: the expected covariance is reported as a signed value, so a reader sees it is negative rather than zero, and the crossover interval moves with the error"
+    },
+    "scenarioId": "bm-08-noise-only",
+    "reviewRecordId": "pending-review-misc-bm-measurement-noise"
+  },
+  "authorship": {
+    "draftedBy": [
+      {
+        "id": "agent:claude-opus-5",
+        "kind": "model",
+        "modelId": "claude-opus-5"
+      }
+    ]
+  },
+  "reviewState": "draft"
+}
