@@ -60,8 +60,33 @@ function check({ from, to, params }: RuleCheckArgs): RuleCheckResult {
   };
 
   if (!structurallyEqual(to, expected)) {
-    // If not literally matching the unsimplified wrap, return unverifiable with spot check requirement
-    return { outcome: "pass" };
+    /*
+      THIS RETURNED `pass`, AND ITS OWN COMMENT SAID IT SHOULD NOT.
+      The line read `return { outcome: "pass" }` under the comment "If not literally matching the
+      unsimplified wrap, return unverifiable with spot check requirement", so BOTH branches passed
+      and the rule read nothing. Measured 2026-10-16 by planting three results against a
+      precondition-satisfying call of `a = b` divided by `t`: utter nonsense (`zzz = qqq`) passed,
+      a `to` identical to `from` passed, and only a bare number failed -- on the relation
+      precondition above, never on the transformation.
+
+      It was invisible because blindToAWrongResult.test.ts drives the rule SITES the 19 chains
+      contain, and 0 of their 41 steps use this rule, so the one blind check in the library was
+      the one nothing exercised. The companion case in that file now drives every rule in the
+      LIBRARY for exactly this reason.
+
+      `unverifiable` is the honest outcome rather than `fail`, because an author legitimately
+      writes the SIMPLIFIED result: dividing lambda = sqrt(2Dt) by t gives sqrt(2Dt)/t, which a
+      reader should see as sqrt(2D/t). verifyChain treats unverifiable as "not machine-checked",
+      and refuses a step that declares `verified` on it, so a simplified result now needs a spot
+      check and review instead of being certified by a checker that never looked.
+    */
+    return {
+      outcome: "unverifiable",
+      reason:
+        `applying ${p.operation} to both sides of "from" gives a result this check cannot match ` +
+        "structurally, which is expected when the author writes the simplified form; it needs a " +
+        "spot check and review rather than a machine verdict.",
+    };
   }
 
   return { outcome: "pass" };

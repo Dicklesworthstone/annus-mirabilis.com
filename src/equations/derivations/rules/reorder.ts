@@ -29,8 +29,16 @@ function isPermutationOf(a: readonly Expression[], b: readonly Expression[]): bo
 }
 
 function check({ from, to }: RuleCheckArgs): RuleCheckResult {
+  // THIS RETURNED `pass`, which made the identity permutation a valid step. A reorder that
+  // reorders nothing is not a derivation step, and accepting it meant this check said `pass` to a
+  // result equal to its own input -- the same blindness `expand` had, and the standard that repair
+  // set (am-1lds). Found 2026-10-16 by probing every rule in the library rather than only the
+  // rules the 19 chains use; 0 of their 41 steps use this one, so nothing exercised it.
   if (structurallyEqual(from, to)) {
-    return { outcome: "pass" };
+    return {
+      outcome: "fail",
+      reason: "reorder: the step's result is its own input, so nothing was reordered.",
+    };
   }
 
   if (from.kind === "sum" && to.kind === "sum") {

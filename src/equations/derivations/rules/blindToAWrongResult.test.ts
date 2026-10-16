@@ -38,7 +38,7 @@ import * as fixtures from "../fixtures.ts";
 import { parseDerivationChain } from "../schema.ts";
 import { structurallyEqual } from "../treeUtils.ts";
 import type { DerivationChain } from "../types.ts";
-import { getRule } from "./index.ts";
+import { getRule, ruleLibrary } from "./index.ts";
 
 /**
  * `chainId/stepId` for every passing step whose rule cannot see a wrong result.
@@ -189,5 +189,114 @@ describe("rule checks measured against a result equal to the step's own input", 
     ]) {
       expect(caughtIdentities.has(id), `${id} should catch a wrong result`).toBe(true);
     }
+  });
+});
+
+/**
+ * EVERY RULE IN THE LIBRARY, NOT ONLY THE ONES A CHAIN USES.
+ *
+ * The survey above walks the 19 chains' 41 steps, so it can only ask a rule whether it reads its
+ * transformation once somebody has authored a step against it. Measured 2026-10-16, 0 of those 41
+ * steps used `add-subtract-multiply-divide`, and that rule was blind: both branches of its final
+ * comparison returned `pass`, under a comment saying the first should return `unverifiable`. The
+ * one unexercised check in the library was the one that was broken, which is the shape AGENTS.md
+ * calls an absent class that cannot fail a present loop.
+ *
+ * So each rule is probed directly here, with a call built to satisfy its own preconditions, and
+ * the plant is the same one the survey uses: a `to` equal to `from`. A result equal to the step's
+ * input is certainly not the step's result, so `pass` means the check is not reading it.
+ *
+ * `unverifiable` is NOT blindness. Three rules answer that way by design -- integrate, differentiate
+ * and a registered identity whose licensed shape this generic input does not match -- and
+ * verifyChain refuses a step that declares `verified` on an unverifiable outcome, so nothing is
+ * certified by them.
+ *
+ * EVERY RULE MUST HAVE A PROBE. The last assertion is what keeps this honest: a rule added without
+ * one fails here, rather than being skipped and leaving the next blind check to be found by
+ * whoever first authors a step against it.
+ */
+type Probe = Readonly<{ from: unknown; params: unknown }>;
+
+const sym = (termId: string) => ({ kind: "symbol", termId, quantityId: "q" }) as const;
+const relation = (left: unknown, right: unknown) =>
+  ({ kind: "relation", operator: "=", left, right }) as const;
+const PROBE_FROM_RELATION = relation(sym("a"), sym("b"));
+const PROBE_FROM_SUM = { kind: "sum", args: [sym("a"), sym("b")] } as const;
+
+/** One precondition-satisfying call per rule, so the probe reaches the transformation check. */
+const PROBES: Readonly<Record<string, Probe>> = {
+  substitute: {
+    from: PROBE_FROM_RELATION,
+    params: { targetId: "a", replacement: sym("c"), citedEquality: "a = c by definition" },
+  },
+  "cancel-common-factor": {
+    from: PROBE_FROM_RELATION,
+    params: { factor: sym("k"), nonzeroCondition: "k > 0" },
+  },
+  "monotonic-function": {
+    from: PROBE_FROM_RELATION,
+    params: {
+      function: "square-root",
+      domain: "nonnegative",
+      branch: "positive",
+      branchCondition: "a distance is nonnegative",
+    },
+  },
+  integrate: {
+    from: PROBE_FROM_RELATION,
+    params: { variable: "x", boundaryCondition: "vanishes at infinity" },
+  },
+  "truncate-series": {
+    from: PROBE_FROM_SUM,
+    params: { order: 2, variable: "x", justification: "small x" },
+  },
+  "registered-identity": {
+    from: PROBE_FROM_SUM,
+    params: { identityId: "linearity-of-average", premises: ["linearity"] },
+  },
+  expand: { from: PROBE_FROM_SUM, params: {} },
+  collect: { from: PROBE_FROM_SUM, params: { termIds: ["a"] } },
+  factor: { from: PROBE_FROM_SUM, params: { factor: sym("k") } },
+  reorder: { from: PROBE_FROM_SUM, params: { justification: "commutativity" } },
+  "add-subtract-multiply-divide": {
+    from: PROBE_FROM_RELATION,
+    params: { operation: "divide", quantity: sym("t"), nonzeroCondition: "t > 0" },
+  },
+  differentiate: { from: PROBE_FROM_RELATION, params: { variable: "x" } },
+  "take-limit": {
+    from: PROBE_FROM_RELATION,
+    params: { variable: "v", to: "0", justification: "low speed" },
+  },
+  "evaluate-numerical-instance": {
+    from: PROBE_FROM_RELATION,
+    params: { bindings: { a: 1 }, tolerance: 1e-9 },
+  },
+};
+
+describe("every rule in the library is measured, not only the ones a chain uses", () => {
+  test("a rule with no probe fails here rather than being skipped", () => {
+    const missing = ruleLibrary.map((r) => r.kind).filter((kind) => PROBES[kind] === undefined);
+    expect(missing).toEqual([]);
+    // The denominator, so a library read as empty cannot pass this file.
+    expect(ruleLibrary.length).toBeGreaterThanOrEqual(14);
+  });
+
+  test("no rule returns pass for a result equal to its own input", () => {
+    const blind: string[] = [];
+    const verdicts: string[] = [];
+    for (const rule of ruleLibrary) {
+      const probe = PROBES[rule.kind];
+      if (!probe) continue;
+      const outcome = rule.check({
+        from: probe.from as never,
+        to: probe.from as never,
+        params: probe.params as never,
+        changed: [],
+      }).outcome;
+      verdicts.push(`${rule.kind}=${outcome}`);
+      if (outcome === "pass") blind.push(rule.kind);
+    }
+    console.log(`[library blindness] ${verdicts.length} rules probed: ${verdicts.join(", ")}`);
+    expect(blind).toEqual([]);
   });
 });
