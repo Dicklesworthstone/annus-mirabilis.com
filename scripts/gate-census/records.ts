@@ -860,6 +860,21 @@ export const CENSUS_RECORDS: readonly CensusRecord[] = [
     plants: [minimumPlant("german-ledgers", "scripts/validate-ledger.ts", 4, "REFUSED")],
   },
   {
+    gate: "anachronism-lint",
+    noun: "discovery strings",
+    howRead:
+      "Every string value of content/journeys and content/journey-explanations, plus every string " +
+      "LITERAL of src/discovery's .ts and .tsx modules read after blankComments has blanked their " +
+      "comments. The floor is 2000 because the three populations held 7,077 when the gate was " +
+      "written; a run that reads a few hundred has lost a directory rather than found a clean " +
+      "corpus. The .ts modules are in the population deliberately: they hold about 412,800 " +
+      "characters of long string literals against the .tsx files' 145,000, so a lint scoped to the " +
+      "voice linter's .tsx-only extractor would have missed most of the prose it exists to check " +
+      "while reporting clean.",
+    gateRefusesVacuous: true,
+    plants: [minimumPlant("anachronism-lint", "scripts/lint-anachronism.ts", 2000, "REFUSED")],
+  },
+  {
     gate: "misconception-ledgers",
     noun: "ledger records",
     howRead:

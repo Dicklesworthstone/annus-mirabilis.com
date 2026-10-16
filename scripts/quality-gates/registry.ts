@@ -641,6 +641,35 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     owner: "am-unwired-audits-uwot",
   },
   {
+    // am-cm-anachronism-lint-dl2. The epistemic checks refuse a discovery step that cites a
+    // post-1904 premise; nothing read the words around the premises, and AGENTS.md's anachronism
+    // table is a list of narrations that leak hindsight while every premise stays honest.
+    //
+    // EVERY RULE IS A LICENCE RATHER THAN A BAN, which is what the table prescribes: "Identify the
+    // phrase as Ehrenfest's (1911)", not "do not write it". So a phrase is a finding only when its
+    // own attribution is absent from the same string, and the test beside the rules plants both
+    // halves for all eleven -- the bare phrase must be caught and the prescribed treatment must
+    // not be.
+    //
+    // Green on arrival: 7,077 discovery strings, 0 unlabelled anachronisms. Registered with the
+    // family clean, so the first red is a new leak rather than a backlog. Planted against a
+    // scratch copy of the real corpus before registering: an unlabelled phrase in a journey's
+    // YAML value and in a .ts string literal were both caught and the run exited 1, the SAME
+    // phrase in a `//` comment was not, and the examined count moved by exactly the two planted
+    // values. Comments are blanked before literals are read for that reason.
+    id: "anachronism-lint",
+    title: "Unlabelled anachronism in the discovery workspace",
+    command: ["bun", "scripts/lint-anachronism.ts"],
+    family: "fast",
+    cadence: "every-run",
+    requiredInCi: true,
+    requiredInProfiles: ["scaffold", "preview", "launch"],
+    availability: {
+      scriptPath: "scripts/lint-anachronism.ts",
+    },
+    owner: "am-cm-anachronism-lint-dl2",
+  },
+  {
     id: "verify-wasm-artifacts",
     title: "Verify WASM artifacts and hashes",
     command: ["bun", "scripts/verify-wasm-artifacts.ts"],
