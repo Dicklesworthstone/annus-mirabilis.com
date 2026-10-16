@@ -289,13 +289,38 @@ test("add-subtract-multiply-divide rule: checks division nonzero condition", () 
   const from = rel("=", sym("a"), sym("b"));
   const to = rel("=", sym("a_div_c"), sym("b_div_c"));
 
-  // Division with nonzero condition -> pass
-  const posDiv = rule.check({
+  /*
+    THIS ASSERTED `pass` AND WAS ASSERTING THE CHECK'S BLINDNESS.
+
+    `to` here is a pair of symbols NAMED `a_div_c` and `b_div_c`; it is not `a / c` as a structure,
+    so nothing about it can be checked against dividing `from` by `c`. The rule returned `pass`
+    for it because both branches of its final comparison returned `pass` under a comment saying
+    the first should be `unverifiable`, and this case pinned that behaviour in place: utter
+    nonsense passed here just as readily.
+
+    The honest contract, since the repair: the structural result passes, anything else is
+    `unverifiable` and so needs a spot check, and a missing nonzeroCondition still fails. All
+    three are asserted below, so this case now distinguishes the three outcomes it used to
+    collapse into one.
+  */
+  const simplified = rule.check({
     from,
     to,
     params: { operation: "divide", quantity: sym("c"), nonzeroCondition: "c !== 0" },
   });
-  assert.equal(posDiv.outcome, "pass");
+  assert.equal(simplified.outcome, "unverifiable");
+
+  // The structural result -- both sides actually divided -- is what the check can confirm.
+  const structural = rule.check({
+    from,
+    to: rel(
+      "=",
+      { kind: "quotient", numerator: sym("a"), denominator: sym("c") },
+      { kind: "quotient", numerator: sym("b"), denominator: sym("c") },
+    ),
+    params: { operation: "divide", quantity: sym("c"), nonzeroCondition: "c !== 0" },
+  });
+  assert.equal(structural.outcome, "pass");
 
   // Division without nonzero condition -> fail
   const failDiv = rule.check({

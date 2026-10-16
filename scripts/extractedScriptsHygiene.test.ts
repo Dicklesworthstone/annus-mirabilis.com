@@ -108,7 +108,15 @@ function scanForForbiddenIdentities(
 ): { token: string; line: number }[] {
   const headerMatch = ATTRIBUTION_HEADER_PATTERN.exec(content);
   const headerEnd = headerMatch ? headerMatch.index + headerMatch[0].length : 0;
-  const body = content.slice(headerEnd);
+  // This project's own repository URL is not donor identity, though it shares the donor's GitHub
+  // owner, and AGENTS.md's web-requests rule requires an honest User-Agent that carries it.
+  // Blanked rather than removed, so reported line numbers still point at the real line. The
+  // donor's own repository URL is a separate entry in the same list and still matches.
+  const body = content
+    .slice(headerEnd)
+    .replace(/https:\/\/github\.com\/Dicklesworthstone\/annus-mirabilis\.com/g, (m) =>
+      " ".repeat(m.length),
+    );
   const bodyStartLine = content.slice(0, headerEnd).split("\n").length;
 
   const violations: { token: string; line: number }[] = [];
@@ -145,6 +153,27 @@ describe("extracted donor identity hygiene", () => {
     const tokens = violations.map((v) => v.token);
     expect(tokens).toContain("45267");
     expect(tokens).toContain("classic-patents.com");
+  });
+
+  test("this project's own repository URL is not donor identity, but the donor's still is", () => {
+    // e0888f723 adopted the honest User-Agent AGENTS.md requires, which names this project by its
+    // repository URL. That URL contains the forbidden owner prefix, so the required identity read
+    // as donor identity and two gates went red on one line of an extracted file.
+    const own =
+      'const AGENT = "annus-mirabilis-e2e (+https://github.com/Dicklesworthstone/annus-mirabilis.com)";';
+    expect(scanForForbiddenIdentities(own, forbidden)).toEqual([]);
+
+    // The narrow half, which is what makes the exemption safe rather than a hole: the donor's own
+    // repository URL is a separate entry in the same list and still matches, and so does the bare
+    // owner prefix when it is not part of this project's URL.
+    const donor = 'const SRC = "https://github.com/Dicklesworthstone/classic-patents.com";';
+    expect(scanForForbiddenIdentities(donor, forbidden).map((v) => v.token)).toContain(
+      "https://github.com/Dicklesworthstone/classic-patents.com",
+    );
+    const otherRepo = 'const X = "https://github.com/Dicklesworthstone/something-else";';
+    expect(scanForForbiddenIdentities(otherRepo, forbidden).map((v) => v.token)).toContain(
+      "https://github.com/Dicklesworthstone",
+    );
   });
 
   test("the scanner does not flag a forbidden string inside the attribution header", () => {

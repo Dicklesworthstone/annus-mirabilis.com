@@ -139,6 +139,20 @@ export interface HygieneViolation {
   excerpt: string;
 }
 
+/**
+ * This project's own repository URL, which is NOT donor identity even though it shares the
+ * donor's GitHub owner (am-cm-anachronism-lint-dl2 ran into it; e0888f723 created it).
+ *
+ * AGENTS.md's web-requests rule requires an honest User-Agent naming this project, and the one
+ * e0888f723 adopted carries this URL. The forbidden list holds the bare owner prefix
+ * `https://github.com/Dicklesworthstone`, so the required identity matched a donor token. Blanking
+ * it before the search keeps the column positions and leaves the donor's own repository URL, a
+ * separate entry in the same list, matching exactly as before.
+ */
+const OWN_REPOSITORY_URL = /https:\/\/github\.com\/Dicklesworthstone\/annus-mirabilis\.com/g;
+const withoutOwnIdentity = (text: string): string =>
+  text.replace(OWN_REPOSITORY_URL, (match) => " ".repeat(match.length));
+
 export function scanCodeForHygiene(filePath: string, content: string): HygieneViolation[] {
   const violations: HygieneViolation[] = [];
 
@@ -166,10 +180,11 @@ export function scanCodeForHygiene(filePath: string, content: string): HygieneVi
       });
     }
 
-    // 2. Check for exact forbidden strings
+    // 2. Check for exact forbidden strings, with this project's own URL blanked first.
+    const scannable = withoutOwnIdentity(line);
     for (const forbidden of FORBIDDEN_STRINGS) {
-      if (line.includes(forbidden)) {
-        const startChar = Math.max(0, line.indexOf(forbidden) - 30);
+      if (scannable.includes(forbidden)) {
+        const startChar = Math.max(0, scannable.indexOf(forbidden) - 30);
         violations.push({
           path: filePath,
           line: lineNum,
