@@ -13,17 +13,9 @@
     "r2": "(1) Write each measured position as the true position plus an independent error of standard deviation sigma. (2) A step is the difference of two measured positions, so it carries the difference of two errors, and its variance picks up sigma squared from each end: 2 D \u0394t + 2 sigma squared. (3) The frame between two neighbouring steps is shared. It enters the earlier step with a plus sign and the later step with a minus sign, so the two steps' errors have covariance minus sigma squared. (4) That is a signed quantity and the sign is the claim: independent errors would give zero, and a positive drift would give a positive value. (5) Because the covariance is not zero, averaging more steps does not remove the effect; the errors are correlated between the very steps being averaged. (6) Setting the noise term against the motion term, 2 sigma squared against 2 D \u0394t, the two are equal at \u0394t = sigma squared over D, which is the interval below which the error dominates. (7) So fitting a mean square displacement of 2 D \u0394t to short-interval data overestimates D, and the overestimate grows as the interval shrinks.",
     "r3": "Nothing in the 1905 paper models the microscope: it predicts the displacement of a grain, not the displacement a camera records, and its own numbers are the predicted 0.8 micron in one second and about 6 microns in a minute (p. 559). The paper is also explicit that it does not know whether the published observations are good enough to decide the question. Treating the measured track as the true track is therefore a reader's addition rather than the paper's claim, and the correction is a modern one: BM-08 is an explicitly modern lens on what a real localization error does to the inference, not an account of anything in 1905."
   },
-  "instrumentIds": [
-    "bm-08"
-  ],
-  "anchors": [
-    "s4-p12",
-    "s5-p4"
-  ],
-  "resultIds": [
-    "bm-displacement-law",
-    "bm-molecular-number"
-  ],
+  "instrumentIds": ["bm-08"],
+  "anchors": ["s4-p12", "s5-p4"],
+  "resultIds": ["bm-displacement-law", "bm-molecular-number"],
   "sources": [
     "A. Einstein, Ann. Phys. (4) 17, 549\u2013560 (1905), plate p. 559",
     "BM-08 preset bm-08-noise-only: sigma 2e-7 m, exposure 0, one-second interval; expectedCovariance -4.0e-14 m\u00b2 (exactly minus sigma squared), expectedVariance 9.3888e-13 m\u00b2 (8.5888e-13 of diffusion plus 8e-14 of error), speedCrossover 0.0931445603576751 s (sigma squared over D), from content/scenarios/bm-08-noise-only.yaml"

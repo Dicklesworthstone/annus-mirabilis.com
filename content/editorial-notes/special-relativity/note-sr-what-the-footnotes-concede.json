@@ -17,9 +17,6 @@
       "role": "primary"
     }
   ],
-  "affectedIds": [
-    "s1-fn1",
-    "s4-fn1"
-  ],
+  "affectedIds": ["s1-fn1", "s4-fn1"],
   "evidence": "Checked by agent:claude-opus-5 on 2026-10-14 against this repository, and resting on a plate reading made by another agent on 2026-10-08 and recorded in content/editorial/required-margin-entries/special-relativity.yaml under entry (g): the four footnotes were read from the pinned facsimile's page images, s1-fn1 on printed p. 893 and s4-fn1 on p. 903, with the other two identified as s2-fn1 (p. 896, defining Zeit) and s6-fn1 (p. 909, a symmetry argument). Both machine-draft transcriptions were found to match their plates exactly. WHAT IS NOT SETTLED, and is deliberately not settled here: the master plan's § 3.9 lists a required margin entry about a footnote conceding the imprecision of the rigid-body concept, and no such footnote exists in this paper. Whether that plan entry becomes the simultaneity concession, the rigid-sphere definition, or both, is the owner's call; the requirement record says so and this note does not make it. The note stands on its own as what the footnotes say."
 }

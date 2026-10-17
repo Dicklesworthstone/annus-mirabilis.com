@@ -22,9 +22,6 @@
       "role": "primary"
     }
   ],
-  "affectedIds": [
-    "s8-p1",
-    "s8-p4"
-  ],
+  "affectedIds": ["s8-p1", "s8-p4"],
   "evidence": "Checked by agent:claude-opus-5 on 2026-10-14. Millikan's paper was NOT read by me. Every quotation is transcribed from the source check on this repository's shelf card `millikan-1916-photoelectric-h` (src/content/lightQuantaShelf.ts), which records a page-image read of the March 1916 issue with its leaf numbers and gives the passages used here at pp. 355, 381, 383 and 388, together with the value of h and its stated precision. The bibliography record cit-millikan-1916 grounds the paper's identity through its DOI and nothing about its content. WHAT IS NOT ESTABLISHED: why Millikan held the view he states, and whether he changed it later; neither is in this repository and neither is claimed here. The card carries status `later`, so this entry is a later development on the timeline and is not shelf evidence for any discovery step."
 }

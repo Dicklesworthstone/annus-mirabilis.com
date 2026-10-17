@@ -22,8 +22,6 @@
       "role": "comparison-witness"
     }
   ],
-  "affectedIds": [
-    "s4-p8"
-  ],
+  "affectedIds": ["s4-p8"],
   "evidence": "Checked by agent:claude-opus-5 on 2026-10-14 against this repository. WHAT EINSTEIN WRITES: source block s4-p8 carries the sentence this note is about, 'Man schliesst daraus, dass eine am Erdaequator befindliche Unruhuhr um einen sehr kleinen Betrag langsamer laufen muss als eine genau gleich beschaffene...', immediately after the closed-curve result and its own conditional opening, 'Nimmt man an, dass das fuer eine polygonale Linie bewiesene Resultat auch fuer eine stetig gekruemmte Kurve gelte'. WHAT IS MODERN AND LABELLED AS SUCH: that neither clock is inertial and that gravity enters are later readings, not Einstein's words here; AGENTS.md names this remark as a case where a 1905 sentence can only be followed with later physics and instructs the margin to say so and stop, which is why no corrected prediction and no number appears above. WHAT IS NOT ESTABLISHED: the size or sign of any correction, and anything about what Hafele measured. The bibliography record cit-hafele-1970 grounds that note's identity through its DOI and nothing of its content."
 }
