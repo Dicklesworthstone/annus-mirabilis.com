@@ -6,20 +6,14 @@
     "dispatcherCase": false,
     "inCoreCatalogue": true,
     "inNonCoreList": false,
-    "notModeled": [
-      "Everything."
-    ],
+    "notModeled": ["Everything."],
     "tapeModelId": "fixture-ghost@1",
     "ownerTest": true,
     "actionContracts": 1,
     "predictEnabled": false,
     "predictExemptionReason": "Fixture has no live view.",
     "embeddable": false,
-    "manifestProbes": [
-      "ghost-probe"
-    ],
-    "readerProbes": [
-      "What does this instrument answer?"
-    ]
+    "manifestProbes": ["ghost-probe"],
+    "readerProbes": ["What does this instrument answer?"]
   }
 ]

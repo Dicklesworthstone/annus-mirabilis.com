@@ -12,11 +12,7 @@
     "actionContracts": 1,
     "predictEnabled": true,
     "embeddable": true,
-    "manifestProbes": [
-      "bm-01-radius-probe"
-    ],
-    "readerProbes": [
-      "What does this instrument answer?"
-    ]
+    "manifestProbes": ["bm-01-radius-probe"],
+    "readerProbes": ["What does this instrument answer?"]
   }
 ]

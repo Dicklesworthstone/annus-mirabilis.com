@@ -6,20 +6,14 @@
     "dispatcherCase": true,
     "inCoreCatalogue": true,
     "inNonCoreList": false,
-    "notModeled": [
-      "Molecular collisions (no collision bath owns the displacement)."
-    ],
+    "notModeled": ["Molecular collisions (no collision bath owns the displacement)."],
     "tapeModelId": "bm-01@1",
     "ownerTest": true,
     "actionContracts": 1,
     "predictEnabled": true,
     "embeddable": true,
-    "manifestProbes": [
-      "bm-01-radius-probe"
-    ],
-    "readerProbes": [
-      "What does this instrument answer?"
-    ]
+    "manifestProbes": ["bm-01-radius-probe"],
+    "readerProbes": ["What does this instrument answer?"]
   },
   {
     "id": "avogadro-lab",
@@ -28,20 +22,14 @@
     "dispatcherCase": true,
     "inCoreCatalogue": false,
     "inNonCoreList": true,
-    "notModeled": [
-      "A real historical plate count."
-    ],
+    "notModeled": ["A real historical plate count."],
     "tapeModelId": "avogadro-lab@1",
     "ownerTest": true,
     "actionContracts": 1,
     "predictEnabled": false,
     "predictExemptionReason": "Static counting desk; no first-visit curve to hide.",
     "embeddable": true,
-    "manifestProbes": [
-      "avogadro-count"
-    ],
-    "readerProbes": [
-      "What does this instrument answer?"
-    ]
+    "manifestProbes": ["avogadro-count"],
+    "readerProbes": ["What does this instrument answer?"]
   }
 ]
