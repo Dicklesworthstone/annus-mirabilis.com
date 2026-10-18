@@ -39,7 +39,7 @@ import {
 } from "../src/content/checks/anachronism/rules.ts";
 import { parseYaml } from "../src/content/provenance/yaml.ts";
 import { blankComments } from "../src/testing/source/comments.ts";
-import { reportPopulation } from "./gate-census/population.ts";
+import { retainLaneRun } from "./gate-census/laneEvidence.ts";
 
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 /*
@@ -160,11 +160,23 @@ for (const group of [errors, flags]) {
 
 // The floor is 2000 because the three populations held far more than that when this was written,
 // and a run that reads a few hundred has lost a directory rather than found a clean corpus.
-const vacuous = reportPopulation({
-  gate: "anachronism-lint",
+// retainLaneRun reports the population AND writes
+// artifacts/anachronism-lint/<tool-run-id>/summary.json, which gatesPersistEvidence requires of a
+// registered gate. `root` is the REPOSITORY even when --root points the population elsewhere: the
+// evidence is of this run, and writing it into a scratch tree would lose it.
+const { vacuous } = retainLaneRun({
+  lane: "anachronism-lint",
+  root: REPO,
   examined,
   noun: "discovery strings",
   minimum: 2000,
+  failures: errors.map(
+    (f) => `${f.file} (${f.hint}): ${f.ruleId} matched ${JSON.stringify(f.matched)}`,
+  ),
+  extra: {
+    scannedRoot: path.relative(REPO, ROOT) || ".",
+    flags: flags.map((f) => `${f.file} (${f.hint}): ${f.ruleId}`),
+  },
 });
 console.log(
   `[anachronism] ${examined} strings examined: ${errors.length} unlabelled anachronism(s), ` +

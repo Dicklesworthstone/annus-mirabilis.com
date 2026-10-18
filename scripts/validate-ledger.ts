@@ -18,7 +18,7 @@ import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { inspectAllLedgers } from "../src/content/editions/ledgerPresence.ts";
 import { validateLedger } from "../src/content/ledger/validateLedger.ts";
-import { reportPopulation } from "./gate-census/population.ts";
+import { retainLaneRun } from "./gate-census/laneEvidence.ts";
 
 /**
  * THE SWEEP, which is what makes this script reachable by a gate (am-unwired-audits-uwot).
@@ -52,6 +52,8 @@ async function validateEveryLedger(
   let invalid = 0;
   let unclean = 0;
   let pages = 0;
+  /** Named rather than counted, so the retained summary says WHICH ledger failed. */
+  const failures: string[] = [];
   for (const record of present) {
     try {
       const result = validateLedger(resolve(root, record.path), {
@@ -60,8 +62,16 @@ async function validateEveryLedger(
         allowWarnings,
       });
       pages += result.stats.pages;
-      if (!result.valid) invalid += 1;
-      else if (!result.clean) unclean += 1;
+      if (!result.valid) {
+        invalid += 1;
+        failures.push(`${record.path}: ${result.errors.length} error(s)`);
+      } else if (!result.clean) {
+        unclean += 1;
+        if (!allowWarnings)
+          failures.push(
+            `${record.path}: ${result.warnings.filter((w) => !w.acknowledged).length} unacknowledged warning(s)`,
+          );
+      }
       console.error(
         `[validate-ledger] ${record.path} (${record.slug}, ${record.presence}): ` +
           `${result.stats.pages} pages, ${result.stats.paragraphs} paragraphs, ` +
@@ -73,23 +83,34 @@ async function validateEveryLedger(
       for (const err of result.errors) console.log(JSON.stringify({ type: "finding", ...err }));
     } catch (err) {
       invalid += 1;
-      console.error(
-        `[validate-ledger] ${record.path}: validation threw: ` +
-          (err instanceof Error ? err.message : String(err)),
-      );
+      const message = err instanceof Error ? err.message : String(err);
+      failures.push(`${record.path}: validation threw: ${message}`);
+      console.error(`[validate-ledger] ${record.path}: validation threw: ${message}`);
     }
   }
   for (const record of absent) {
     console.error(`[validate-ledger] ${record.slug}: no ledger on disk (${record.path})`);
   }
 
-  const vacuous = reportPopulation({
-    gate: "german-ledgers",
+  // retainLaneRun reports the population AND writes artifacts/german-ledgers/<tool-run-id>/
+  // summary.json, which is what gatesPersistEvidence requires of a registered gate: a run nobody
+  // can read afterwards is a verdict without evidence. It is the writer six browser lanes and two
+  // content audits already share, rather than a sixth way to persist.
+  const { vacuous } = retainLaneRun({
+    lane: "german-ledgers",
+    root,
     examined: present.length,
     noun: "German ledgers",
     // The four papers of 1905, each with a ledger on disk today. A sweep that finds fewer has
     // lost one, and must not report the survivors as a clean corpus.
     minimum: 4,
+    failures,
+    extra: {
+      pages,
+      invalid,
+      uncleanWithWarnings: unclean,
+      papersWithNoLedger: absent.map((record) => record.slug),
+    },
   });
   console.error(
     `[validate-ledger] swept ${present.length} ledger(s), ${pages} pages: ` +
