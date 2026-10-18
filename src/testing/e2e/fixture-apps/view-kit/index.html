@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>View Kit Fixture Application</title>
+  <!--
+    The real stylesheets, in the order src/app/layout.tsx imports them, served as this app's
+    staticInputs. They are linked rather than restated because several of this bead's
+    requirements are decided IN CSS: comparison series distinguishable without colour, legends
+    carrying non-colour identity, the empirical/theoretical/historical-fitted marker classes. A
+    fixture page with hand-written styles would exercise its own stylesheet and report a verdict
+    about nothing.
+
+    globals.css carries the --type-* tokens and themes.css the per-theme colours, so both are
+    needed for the kit's rules to resolve; none of the values are copied here.
+  -->
+  <link rel="stylesheet" href="/apps/view-kit/globals.css">
+  <link rel="stylesheet" href="/apps/view-kit/themes.css">
+  <link rel="stylesheet" href="/apps/view-kit/visuals.css">
+  <link rel="stylesheet" href="/apps/view-kit/legends.css">
+  <style>
+    /* Page frame only. Nothing here styles a view primitive. */
+    body { margin: 0; padding: 16px; }
+    #app { max-width: 640px; margin: 0 auto; }
+  </style>
+</head>
+<body data-reader-root="true" data-ready="true" data-view="experiment">
+  <div id="app"></div>
+  <script type="module" src="/apps/view-kit/bundle.js"></script>
+</body>
+</html>

@@ -171,6 +171,27 @@ export const VIEW_KIT_FIXTURE_ENTRY: FixtureAppEntry = Object.freeze({
   entry: "src/testing/e2e/fixture-apps/view-kit/",
   outDir: "artifacts/e2e-fixtures/view-kit/",
   owner: "am-inst-2d-view-kit-u75r",
+  /*
+   * A page, so the app can be OPENED. `/apps/<id>/` resolves to `<appPath>index.html`, so an
+   * entry that declares no page bundles a `bundle.js` nothing loads: this app was registered and
+   * bundling from a55a6548f (2026-09-16) until 2026-10-18, 32 days, and for all of them a
+   * browser asking for `/apps/view-kit/` got a 404.
+   *
+   * The four stylesheets are the real ones, in src/app/layout.tsx's order, because several of
+   * this bead's requirements are decided in CSS (series distinguishable without colour, legends
+   * carrying non-colour identity). globals.css holds the --type-* tokens and themes.css the
+   * colours; linking both is what makes the kit's own rules resolve without copying a value.
+   */
+  staticInputs: [
+    {
+      from: "src/testing/e2e/fixture-apps/view-kit/index.html",
+      servedPath: "index.html",
+    },
+    { from: "src/app/globals.css", servedPath: "globals.css" },
+    { from: "src/app/theme/themes.css", servedPath: "themes.css" },
+    { from: "src/visuals/kit/visuals.css", servedPath: "visuals.css" },
+    { from: "src/visuals/kit/legends.css", servedPath: "legends.css" },
+  ],
 });
 
 export const CONTROLS_KIT_FIXTURE_ENTRY: FixtureAppEntry = Object.freeze({
