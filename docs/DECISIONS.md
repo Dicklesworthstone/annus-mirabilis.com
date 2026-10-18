@@ -162,17 +162,24 @@ reconciler must not do.
   `artifacts/test-logs/license-inventory/*.jsonl` and `license-notice/*.jsonl` run, and
   `scripts/license-inventory/` contains no reference to this document.
 - **The recorded version is known to disagree with the installed tool.** This table records
-  `3.0.0`; `ubs --version` on the reference machine reports `UBS Meta-Runner v5.0.3`. Two major
+  `3.0.0`; `ubs --version` on the reference machine reports `UBS Meta-Runner v5.5.3`. Two major
   versions apart. Which one is the project's pin is **not decided here** and must not be guessed:
   putting a plausible number into this document is exactly the failure this note exists to
   prevent.
+- **The installed tool has now moved twice while this decision waited**, which is an argument for
+  taking it rather than a detail. The observation above read `v5.0.3` when it was written and
+  again when it was re-measured on 2026-10-10; on 2026-10-18 the same command reports `v5.5.3`.
+  Nobody chose that upgrade on the project's behalf and nothing pins it, so the number this
+  document reports is whatever happened to be installed on the day it was last read.
 - **A version change in this table is a licence question, not a number edit.** The `MIT` in this
-  row was recorded against `3.0.0`. It is not evidence about `5.0.3`, and reconciling the version
+  row was recorded against `3.0.0`. It is not evidence about `5.5.3`, and reconciling the version
   without re-checking the licence of the version actually chosen would leave a licence claim
-  standing on a version nobody verified it against.
+  standing on a version nobody verified it against. Correcting the OBSERVED version above, as
+  2026-10-18 did, is not such a reconciliation: it keeps a factual sentence true and decides
+  nothing.
 - Note for whoever reconciles it: `ubs --version` prints a trailing `(git <hash>)` which is **this
   repository's HEAD at invocation**, not an ubs build id. Observed as `(git 13b28fa9)` and
-  `(git fdf4042b)` in the same session as HEAD moved. The tool version is the `v5.0.3` part alone.
+  `(git fdf4042b)` in the same session as HEAD moved. The tool version is the `v5.5.3` part alone.
 
 
 ---

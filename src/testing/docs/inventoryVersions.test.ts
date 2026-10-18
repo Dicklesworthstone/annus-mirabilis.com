@@ -164,11 +164,25 @@ describe("DECISIONS.md locked versions (am-niyd)", () => {
     const row = rows.find((r) => r.name === "ubs");
     assert.ok(row);
     assert.equal(row.version, "3.0.0", "the note says this table records 3.0.0");
+    /*
+     * THE NOTE IS THE ONE SOURCE OF THE OBSERVED VERSION, read out of it rather than repeated
+     * here. It used to be written three times -- once in the document and twice in this test --
+     * so when the installed tool moved from 5.0.3 to 5.5.3 the gate went red on a document that
+     * was merely out of date, and clearing it needed three edits that could disagree with each
+     * other. The claim this gate exists to protect is "the note's statement about the installed
+     * tool is still true", and that is exactly what comparing the note against `ubs --version`
+     * asserts.
+     *
+     * The pin is still NOT asserted against the binary: `row.version` is held to 3.0.0 above
+     * because which version the project pins is the owner's decision, and this test must not
+     * start ratifying a number by comparison.
+     */
+    const claimed = markdown.match(
+      /`ubs --version` on the reference machine reports `UBS Meta-Runner v(\d+\.\d+\.\d+)`/,
+    )?.[1];
     assert.ok(
-      markdown.includes(
-        "`ubs --version` on the reference machine reports `UBS Meta-Runner v5.0.3`",
-      ),
-      "the note must state what the installed tool reports",
+      claimed,
+      "the note must state what the installed tool reports, in the sentence this gate reads",
     );
 
     let reported: string;
@@ -186,8 +200,8 @@ describe("DECISIONS.md locked versions (am-niyd)", () => {
     const version = reported.match(/v(\d+\.\d+\.\d+)/)?.[1];
     assert.equal(
       version,
-      "5.0.3",
-      "the installed ubs no longer reports 5.0.3, so the note below the table is now wrong",
+      claimed,
+      `the note says the installed ubs reports ${claimed} and it reports ${version}, so the note below the table is now wrong`,
     );
   });
 });
