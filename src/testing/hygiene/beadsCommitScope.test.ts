@@ -53,6 +53,23 @@ const KNOWN_VIOLATIONS: ReadonlyMap<string, number> = new Map([
   ["aca14ae2", 15],
   ["18f1f4bd", 3],
   ["fa281691", 1],
+  /*
+   * 408d819c IS NOT THE am-ii21 SHAPE, and recording it beside five that are would flatten a
+   * distinction this gate exists to draw. The five above are accidents: a bare `git commit`
+   * reading a shared index swept whatever a peer had left dirty, which is why the counts are 42,
+   * 16 and 15. This one carries exactly one file outside .beads/ and carries it on purpose.
+   *
+   * "chore(beads): untrack br's transient WAL index, which I committed by mistake" removes three
+   * files under .beads/.br-wal-index-qFPx6G/ and adds three lines to .gitignore. The two halves
+   * cannot be separated: untracking a path without ignoring it means br writes it back and the
+   * next `git add .beads/` commits it again, so splitting the commit would have left the repair
+   * undone. The gate's own message names this case -- "if the mixture is deliberate, say so and
+   * record the sha here" -- and this is that.
+   *
+   * It has been red since 2026-10-13 and is not mine; I recorded it on 2026-10-17 while
+   * attributing the node lane's failures rather than leave a correct commit failing a gate.
+   */
+  ["408d819c", 1],
 ]);
 
 interface Commit {
