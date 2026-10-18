@@ -135,10 +135,50 @@ describe("coverage report honesty", () => {
     expect(coverageReportIsHonest(md, coverageReportJson(report))).toBe(true);
   });
 
-  test("SEGMENTATION.md lists every abbreviation the tokenizer uses", () => {
-    const md = readFileSync("docs/editorial/SEGMENTATION.md", "utf8");
-    for (const abbr of SENTENCE_ABBREVIATIONS) {
-      expect(md.includes(abbr)).toBe(true);
+  /**
+   * LISTED, not merely present. This asserted `md.includes(abbr)`, and for the short entries
+   * that cannot fail: six of the thirty -- `ca.`, `S.`, `p.`, `Ann.`, `d.`, `Phys.` -- occur in
+   * ordinary prose, so a document that listed none of them still satisfied a fifth of this
+   * test. Measured against docs/DECISIONS.md, which documents no tokenizer rule: 6 of 30 matched
+   * bare, 0 of 30 matched inside a code span. The segmentation document writes all thirty in
+   * code spans already, so the stronger predicate is 30 of 30 today and the repair costs
+   * nothing.
+   *
+   * The control below is inline rather than another file, so it cannot be weakened by an edit
+   * somewhere else: it is a sentence of ordinary citation prose, and it shows the retired
+   * predicate accepting entries the new one refuses.
+   */
+  test("SEGMENTATION.md lists every abbreviation the tokenizer uses, in a code span", () => {
+    const listed = (text: string, abbr: string): boolean => text.includes(`\`${abbr}\``);
+
+    /*
+     * BOTH documents, because there are two. `docs/editorial/SEGMENTATION.md` is the live one:
+     * `src/content/editions/segmentSentences.ts` calls itself an "executable copy" of it, two
+     * provenance receipts cite its paragraph-boundary rule at 939d1a51, and this gate read it
+     * alone. `docs/SEGMENTATION.md` is read by no code and no test, and neither file is a
+     * superset of the other -- the orphan uniquely carries the reconciliation and alias-repair
+     * rules, the live one uniquely carries the paragraph-boundary rule and gloss addressing.
+     *
+     * Measured 2026-10-18: on the abbreviation list the two AGREE, 30 of 30 each, and neither
+     * invents an entry the tokenizer does not know, so this is a divergence risk rather than a
+     * present contradiction. Which document survives is an editorial decision and is reported
+     * on am-edn-alignment-tooling-do1; until it is taken, holding both to the tokenizer is what
+     * stops the copy nobody reads from rotting into a rule that contradicts the code.
+     */
+    const documents = ["docs/editorial/SEGMENTATION.md", "docs/SEGMENTATION.md"] as const;
+    for (const relative of documents) {
+      const md = readFileSync(relative, "utf8");
+      for (const abbr of SENTENCE_ABBREVIATIONS) {
+        expect(listed(md, abbr), `${relative} must list \`${abbr}\``).toBe(true);
+      }
     }
+
+    const prose = "Compare Ann. d. Phys. 17, p. 891, S. 5, ca. 1905.";
+    const bare = SENTENCE_ABBREVIATIONS.filter((abbr) => prose.includes(abbr));
+    // Named rather than counted: these are the entries the retired predicate could not refuse.
+    expect(bare).toContain("p.");
+    expect(bare).toContain("S.");
+    expect(bare).toContain("Ann.");
+    expect(SENTENCE_ABBREVIATIONS.filter((abbr) => listed(prose, abbr))).toEqual([]);
   });
 });
