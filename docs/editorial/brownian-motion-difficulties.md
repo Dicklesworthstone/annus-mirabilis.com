@@ -4,9 +4,35 @@ Paper: brownian-motion. Bibliographic key: `ap-17-549`. Inventory bead: `am-edn-
 
 ## Provenance and Facsimile Note
 
-The inventory in this bead is conducted directly from authentic high-resolution page scans extracted from the parent volume: `artifacts/page-images/ap-17-549-CORRECTED/parent-173.png` through `parent-184.png` (printed pages 549–560).
+The inventory in this bead was conducted directly from authentic high-resolution page scans
+extracted from the parent volume: `artifacts/page-images/ap-17-549-CORRECTED/parent-173.png`
+through `parent-184.png` (printed pages 549–560). That is kept as the historical record of what
+was read, and it is not a path anyone should use now: `artifacts/` is gitignored, so those renders
+exist only on the machine that made them.
 
-> **Receipt page-map refinement deferral (am-cf6m):** Refinement of `docs/provenance/ap-17-549.md` front-matter `pageMap` is deferred to defect bead `am-cf6m` (P0) because `public/papers/pdfs/ap-17-549.pdf` currently contains Leyden jar pages (printed 508–519) instead of Einstein's paper (printed 549–560). Pinned PDF, facsimile source YAML, and receipt digest must not be altered here.
+> **THE PIN WAS WRONG WHEN THIS WAS WRITTEN AND IS CORRECT NOW (am-cf6m, closed 2026-09-21).**
+> This section carried, in the present tense, "`public/papers/pdfs/ap-17-549.pdf` currently
+> contains Leyden jar pages (printed 508–519) instead of Einstein's paper (printed 549–560)",
+> and that sentence outlived the repair by four weeks. The pin was replaced on 2026-09-20; the
+> retired bytes are kept at `public/papers/pdfs/retired/ap-17-549-c42f9ac27828.pdf`, whose page 1
+> still renders as printed 508 under the running head *L. Hermann*.
+>
+> Re-measured 2026-10-19: `public/papers/pdfs/ap-17-549.pdf` is sha256
+> `0192ff57013a2adc564d98f9e4256e65d1595634c1e0b30ae38313c415dd3507`, which is what
+> `docs/provenance/ap-17-549.md` declares, it has 12 pages, and a `pdftoppm` render of page 1 reads
+> printed **549**, article 5, "Über die von der molekularkinetischen Theorie der Wärme geforderte
+> Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen; von A. Einstein", with § 1 on
+> osmotic pressure. `bun scripts/verify-facsimile-pins.ts` reports all six pins verified, 0 refused,
+> ap-17-549 among them: "anchor, content identity and folio coverage all agree."
+>
+> So the pinned PDF's pdf pages 1–12 now ARE printed 549–560, exactly as the receipt's page map
+> says, and parent page 173 is pdf page 1. Read the plates from the pinned file.
+>
+> **One stale local artifact remains, and it is the trap this note exists to defuse.**
+> `artifacts/page-images/ap-17-549/page-01.png` through `page-12.png` were rendered on 2026-09-19,
+> the day BEFORE the re-pin, from the retired bytes. They still show L. Hermann's pages 508–519.
+> A plate comparison run against that directory would compare Einstein's Brownian paper with an
+> article on Leyden jars. Render from `public/papers/pdfs/ap-17-549.pdf` instead.
 
 ## Translation difficulties
 

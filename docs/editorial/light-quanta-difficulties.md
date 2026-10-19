@@ -145,13 +145,21 @@ Sentence boundaries and paragraph splits decided under `docs/editorial/SEGMENTAT
   prints the operations `a)` and `b)` under "...ermitteln denken:", and they likewise sit
   inside `s2-p2` rather than taking units.
 
-  The brownian half of the precedent could NOT be checked the same way: the pinned
-  `public/papers/pdfs/ap-17-549.pdf` is the wrong page range. Its pdf pages 1-4 render as
-  printed 508-511 of L. Hermann's "Kombinationen von Kapazitäten und Selbstinduktionen",
-  not Einstein's 549-560, while `docs/provenance/ap-17-549.md` maps pdf 1-12 onto printed
-  549-560. That defect is already known and owned by `am-cf6m`, and `am-edn-inventory-brownian-slg`
-  works from `artifacts/page-images/ap-17-549-CORRECTED/`; it is named here only to say why
-  relativity, not brownian, is cited as the operative precedent.
+  The brownian half of the precedent could not be checked the same way AT THE TIME, and the
+  reason has since been repaired. This paragraph read "the pinned `public/papers/pdfs/ap-17-549.pdf`
+  is the wrong page range", in the present tense, and that stopped being true on 2026-09-20 when the
+  pin was replaced under `am-cf6m` (closed 2026-09-21). Re-measured 2026-10-19: the pinned file is
+  sha256 `0192ff57013a2adc564d98f9e4256e65d1595634c1e0b30ae38313c415dd3507`, matching its receipt,
+  and its page 1 renders as printed 549, article 5, Einstein's Brownian paper;
+  `bun scripts/verify-facsimile-pins.ts` verifies all six pins with 0 refused. The old bytes, whose
+  pdf pages 1-4 do render as printed 508-511 of L. Hermann's "Kombinationen von Kapazitäten und
+  Selbstinduktionen", are kept at `public/papers/pdfs/retired/ap-17-549-c42f9ac27828.pdf`.
+
+  Relativity remains the operative precedent here, because that is the paper this passage was
+  actually checked against. But the brownian plates are now readable from the pin, so a future
+  check of that half needs no workaround -- and specifically not
+  `artifacts/page-images/ap-17-549/`, which was rendered the day before the re-pin and still holds
+  the Leyden-jar pages.
 
 - **Where the convention bites in this paper: §7's close on p. 145.** Page 145 opens with
   the introducing paragraph "Abweichungen von der Stokesschen Regel sind nach der
