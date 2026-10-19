@@ -21,6 +21,22 @@ entries:
   - letter: b
     proposition: "Smoluchowski's independent kinetic derivation of 1906, with a different numerical factor."
     namedSources: ["Smoluchowski 1906"]
+    # NOT AUTHORABLE TODAY, AND THE REPOSITORY HAD ALREADY SAID SO IN ITS OWN WORDS. The citation
+    # resolves, so this entry is not waiting on the bibliography; what it waits on is the one thing
+    # its proposition asserts. content/equation-explanations/brownian-motion/eq-s5-d2.yaml closes
+    # its r3 with "this edition registers its identity and not its content, so how his numerical
+    # factor stands to this one is not stated here". Writing the factor into a margin note would
+    # contradict a decision this edition has already taken in a reader-facing record, and would do
+    # it from memory rather than from the paper.
+    #
+    # Recorded here on 2026-10-19 rather than left for the next reader to re-derive, which is the
+    # lesson light-quanta (b) left behind in the other direction: a judgement that a claim cannot
+    # be grounded has to search the repository, and when the search finds the edition's own refusal
+    # it belongs in this file beside the entry.
+    claimNotGroundable:
+      reportedOn: "2026-10-19"
+      groundedBy: "Smoluchowski's identity and date are pinned as cit-smoluchowski-1906, and two reader-facing records already carry what this edition knows of him: content/equation-explanations/brownian-motion/eq-s5-d2.yaml gives the locator Ann. Phys. (4) 21, 756-780 (1906) and calls it an independent kinetic treatment of the same motion published in this journal the following year, and content/arguments/brownian-motion/arg-bm-diffusivity.json says he reached the displacement law by another route in 1906. The independence and the year are therefore grounded."
+      missing: "The numerical factor, which is the only thing the proposition adds to what is already written. Nobody in this repository has read Ann. Phys. (4) 21, 756-780, and eq-s5-d2.yaml states in the edition's own voice that it registers the paper's identity and not its content, so how Smoluchowski's factor stands to Einstein's is deliberately unstated. A margin note asserting it would be a claim about a text no pinned source here reproduces."
     requiresCitations: ["cit-smoluchowski-1906"]
   - letter: c
     proposition: "Bachelier's 1900 random-walk mathematics for stock prices."
