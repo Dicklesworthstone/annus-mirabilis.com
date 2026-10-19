@@ -578,3 +578,55 @@ describe("the pipeline knows which paper it was asked about", () => {
     ).toEqual({ ok: true, slug: "mass-energy" });
   });
 });
+
+/**
+ * THE CONTRACT-OWNED STAGES RELAY A CHECK, AND THE RELAY HAD NO PLANT.
+ *
+ * `ids` and `digests` do not judge anything themselves: they push the outcome, message and code of
+ * contract checks 6 and 1. Both checks are planted in src/testing/editions/editionContract.test.ts,
+ * which proves the CHECKS can fail; nothing proved the PIPELINE reports it. A relay that swallowed a
+ * failure, or that transposed the two check numbers, would have been invisible -- and the two stages
+ * were the only ones of the nine that this file never named.
+ *
+ * Check 6 reads the frozen snapshot from the root, so the failure is seeded in DATA rather than
+ * through an option. That matters here: the contract's own plant for check 6 passes
+ * `idSnapshotClean: false`, a flag no production caller sets, and the check's docblock records that
+ * it once decided on that flag alone and so reported every paper clean "without opening
+ * manifest.ids.snapshot.txt". A plant through the same flag would not have caught that, and would
+ * not catch a relay either.
+ */
+describe("PLANT: the contract-owned stages relay the check they name", () => {
+  test("a broken id snapshot fails the ids stage, and changes no other stage's verdict", async () => {
+    const root = ledgerPresentRoot();
+    const before = await runEditionPipeline({ slug: "brownian-motion", root });
+    // The green baseline this is planted against: without it a red `ids` proves nothing.
+    expect(stageOf(before, "ids")?.outcome).toBe("passed");
+
+    /*
+     * A frozen id the live manifest no longer carries and no alias resolves, which is what
+     * `validateFrozenIds` fails on. Appended rather than removed, so the manifest and the alias
+     * records are untouched and the only changed input is the snapshot.
+     */
+    const snapshot = join(root, "content/source-blocks/brownian-motion/manifest.ids.snapshot.txt");
+    const seeded = `${readFileSync(snapshot, "utf8").trimEnd()}\ns99-p99\n`;
+    writeFileSync(snapshot, seeded, "utf8");
+    // Print what landed before reading the verdict: a plant that did not take is a green that
+    // means nothing.
+    expect(seeded).toContain("s99-p99");
+
+    const after = await runEditionPipeline({ slug: "brownian-motion", root });
+    const ids = stageOf(after, "ids");
+    expect(ids?.outcome).toBe("failed");
+    expect(ids?.code).toBe("id-snapshot-uncovered");
+
+    /*
+     * "Fails EXACTLY the seeded stage", in the bead's words. Compared as a whole map rather than
+     * stage by stage, so a stage that changed and was not listed still shows up.
+     */
+    const outcomes = (run: Awaited<ReturnType<typeof runEditionPipeline>>) =>
+      Object.fromEntries(
+        run.stages.filter((s) => s.stage !== "ids").map((s) => [s.stage, s.outcome]),
+      );
+    expect(outcomes(after)).toEqual(outcomes(before));
+  });
+});
