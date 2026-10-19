@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "kind": "citation",
+  "id": "cit-perrin-1909-realite-moleculaire",
+  "title": "J. Perrin, Mouvement brownien et réalité moléculaire",
+  "role": "primary",
+  "verification": {
+    "state": "agent",
+    "by": "agent:SapphireCastle",
+    "date": "2026-09-26",
+    "note": "THE LONG MEMOIR, WHICH IS NOT cit-perrin-1909. That record is the Le Radium paper, and its own note says Perrin published more than once in 1909 and that which one the margin entry means \"is undecided and is not decided here\". This record exists so the distinction can be made by citing one or the other rather than by a comment. Every field here is transcribed from the source check recorded in src/content/brownianShelf.ts for the card perrin-1909-molecular-reality, which agent:SapphireCastle read from Gallica PAGE IMAGES on the date above, ark bpt6k349481 (Annales de chimie et de physique, 1909, SER8 T18, whose pagination record puts page n at image n-2). That check quotes the title and author from p. 5 (image 3), \"Mouvement brownien et réalité moléculaire; par M. Jean Perrin\", and the volume line from p. 113 (image 111), \"Ann. de Chim. et de Phys., 8e série, t. XVIII. (Septembre 1909.)\", and records that the paper ends on p. 114 where Ch. Tanret's begins. No DOI was found for this memoir, so the url is the archive consulted rather than a publisher landing page. This record was assembled on 2026-10-19 by agent:claude-opus-5 from that check; no page was re-read here, and nothing about what the memoir SAYS is grounded by this field. The card's own `limits` and `sourceChecks` carry what was read of its content."
+  },
+  "locator": "Annales de chimie et de physique (8) 18, 5-114 (September 1909).",
+  "url": "https://gallica.bnf.fr/ark:/12148/bpt6k349481"
+}

@@ -60,6 +60,30 @@ entries:
   - letter: f
     proposition: "Perrin's program of 1908 to 1909 and his 1926 Nobel Prize."
     namedSources: ["Perrin 1909"]
+    # HALF OF THIS IS GROUNDED AND HALF IS NOT, and the two halves fail for different reasons.
+    #
+    # THE PROGRAM is grounded, and well: the shelf card perrin-1909-molecular-reality in
+    # src/content/brownianShelf.ts carries a source check that agent:SapphireCastle read from
+    # Gallica page images on 2026-09-26, quoting the three Brownian methods and their values from
+    # the table of section 42 (70,5; 71,5; 65, in units of N x 10^-22), his "la valeur la plus
+    # probable me parait toujours 70,5.10^22", and the other rows that range from the viscosity of
+    # gases to the infra-red spectrum. A note can be written from that card the way (g) was written
+    # from the Exner card.
+    #
+    # BUT THE CITATION ON FILE WAS THE WRONG PAPER. `cit-perrin-1909` is the Le Radium paper, and
+    # its own verification note says Perrin published more than once in 1909 and that which one this
+    # entry means "is undecided and is not decided here". The memoir the card actually read, Ann.
+    # Chim. Phys. (8) 18, 5-114, had no citation record at all. It does now:
+    # `cit-perrin-1909-realite-moleculaire`, added 2026-10-19 with every field transcribed from that
+    # same page-image check. Which of the two this entry should require is still the owner's call,
+    # so `requiresCitations` is left as it was rather than edited.
+    #
+    # THE NOBEL PRIZE IS GROUNDED BY NOTHING HERE. The word "Nobel" appears in exactly one place in
+    # this repository: the proposition on this line. That is the half that cannot be written today.
+    claimNotGroundable:
+      reportedOn: "2026-10-19"
+      groundedBy: "Perrin's 1909 program, through the shelf card perrin-1909-molecular-reality in src/content/brownianShelf.ts, whose source check was read from Gallica page images (ark bpt6k349481) on 2026-09-26 and quotes the section 42 table with page numbers; and the memoir's own identity, now pinned as cit-perrin-1909-realite-moleculaire, Ann. Chim. Phys. (8) 18, 5-114, September 1909."
+      missing: "The 1926 Nobel Prize, which is asserted by the plan and by nothing else: a search of the whole repository finds the word Nobel only in this entry's own proposition. No pinned source here records the award, its year or its citation, so writing it would be a dated historical claim taken from memory. Separately, which of the two Perrin 1909 papers this entry requires is undecided, and the one named in requiresCitations is not the one the grounded content was read from."
     requiresCitations: ["cit-perrin-1909"]
   - letter: g
     proposition: "Exner's 1900 velocity measurements and why the observable was wrong."
