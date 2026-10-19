@@ -8,27 +8,32 @@
  * 4.  (reconciliation.ts:256) invalid-alias-record
  * 5.  (reconciliation.ts:289) retired-id-reused
  * 6.  (reconciliation.ts:303) update-required (in confirmAlias)
- * 7.  (reconciliation.ts:312) no-write-flag (WriteBlocksResult type declaration)
+ * 7.  no-write-flag, as declared in the WriteBlocksResult union -- a type, not a throw site,
+ *     so its tests cite no line (see below)
  * 8.  (reconciliation.ts:401) no-write-flag (in writeProposedBlocks)
  * 9.  (reconciliation.ts:409) write-blocks-refused-differences
  * 10. (reconciliation.ts:444) update-required (in writeProposedBlocks)
  * 11. (reconciliation.ts:462) diff-destination-required
  *
- * AN ACCEPT CASE HAS TO NAME THE CODE IT IS ACCEPTING, not only assert success. The stale-citation
- * scanner splits a test file on `test(`/`it(` and requires every `(file.ts:N)` inside a block to be
- * matched by a refusal code named in that same block (am-ksl3, refusalScanner.ts). Site 11's accept
- * case first cited line 462 while asserting nothing but `ok`, so its block named no code at all and
- * the citation was reported `code-mismatched` with an empty hint -- taking this file from its
- * baseline of 14 to 15 and turning the ratchet red on a commit that had just ADDED coverage, since
- * the untested-refusal census fell from 33 to 32 in the same breath. It now asserts
- * `notEqual(code, "diff-destination-required")`, which is both the real negative for that half of
- * the pair and the thing that makes the citation check out.
+ * A CITATION BELONGS ON THE HALF THAT DRIVES THE REFUSAL, which is why only the `rejects` cases
+ * above carry a line. The stale-citation scanner splits a test file on `test(`/`it(` and requires
+ * every `(file.ts:N)` inside a block to be matched by a refusal code named in that same block
+ * (am-ksl3, refusalScanner.ts). An `accepts` case asserts that the guard does NOT fire, so it names
+ * no code, so its citation was a claim nothing checked -- and that is the whole of this file's
+ * former `baseline 14`, measured 2026-10-19 at e5b3974d3: nine accept halves citing a line their
+ * own block does not name, plus five citations of line 312, which is the `WriteBlocksResult` TYPE
+ * DECLARATION and holds no throw site at all.
  *
- * THE BASELINE OF 14 IS NOT CAUSED BY THAT, and is left alone here. Measured 2026-10-19: five
- * citations of line 312, which is the `WriteBlocksResult` TYPE DECLARATION and holds no throw site,
- * plus nine `code-mismatched` where an accept case or a describe title cites a line its own block
- * does not name. Paying it down is a separate change, so that lowering the ceiling with it stays
- * separately reviewable.
+ * Both were repaired by deleting the claim rather than by adding an assertion to satisfy the
+ * scanner. The other repair was available -- have each accept case assert
+ * `notEqual(code, "<its code>")` -- and was written and backed out, because
+ * `assert.equal(res.ok, true)` on the line below already says that no refusal fired, so the extra
+ * line's only function would have been to make a scanner happy. The ratchet was telling the truth:
+ * those blocks do not test those codes. Every site's credit comes from its `rejects` case, and the
+ * untested-refusal census was 32 before and after, so nothing was traded for the tightening.
+ *
+ * The baseline is now 0, and it bites: restoring one accept half's citation takes the file to
+ * `1 citation(s) do not check out, baseline 0` and turns am-ksl3 red.
  */
 
 import assert from "node:assert/strict";
@@ -89,7 +94,7 @@ describe("Reconciliation Refusal Sites (reconciliation.ts)", () => {
       assert.equal(existsSync(aliasFile), false);
     });
 
-    it("accepts alias write when --confirm flag is provided (reconciliation.ts:220)", () => {
+    it("accepts alias write when --confirm flag is provided", () => {
       const tempDir = getTestTempDir();
       const aliasFile = join(tempDir, "brownian-motion.yaml");
       const res: ConfirmAliasResult = confirmAlias({
@@ -140,7 +145,7 @@ describe("Reconciliation Refusal Sites (reconciliation.ts)", () => {
       assert.equal(existsSync(aliasFile), false);
     });
 
-    it("accepts confirmed alias with valid editor identifier (reconciliation.ts:230)", () => {
+    it("accepts confirmed alias with valid editor identifier", () => {
       const tempDir = getTestTempDir();
       const aliasFile = join(tempDir, "brownian-motion.yaml");
       const res: ConfirmAliasResult = confirmAlias({
@@ -189,7 +194,7 @@ describe("Reconciliation Refusal Sites (reconciliation.ts)", () => {
       assert.equal(existsSync(aliasFile), false);
     });
 
-    it("accepts confirmed alias with non-empty editorial reason (reconciliation.ts:238)", () => {
+    it("accepts confirmed alias with non-empty editorial reason", () => {
       const tempDir = getTestTempDir();
       const aliasFile = join(tempDir, "brownian-motion.yaml");
       const res: ConfirmAliasResult = confirmAlias({
@@ -238,7 +243,7 @@ describe("Reconciliation Refusal Sites (reconciliation.ts)", () => {
       assert.equal(existsSync(aliasFile), false);
     });
 
-    it("accepts alias record with structurally valid replacement IDs (reconciliation.ts:256)", () => {
+    it("accepts alias record with structurally valid replacement IDs", () => {
       const tempDir = getTestTempDir();
       const aliasFile = join(tempDir, "brownian-motion.yaml");
       const res: ConfirmAliasResult = confirmAlias({
@@ -305,7 +310,7 @@ describe("Reconciliation Refusal Sites (reconciliation.ts)", () => {
       }
     });
 
-    it("accepts alias when replacement IDs contain only unretired fresh IDs (reconciliation.ts:289)", () => {
+    it("accepts alias when replacement IDs contain only unretired fresh IDs", () => {
       const tempDir = getTestTempDir();
       const aliasFile = join(tempDir, "brownian-motion.yaml");
 
@@ -384,7 +389,7 @@ describe("Reconciliation Refusal Sites (reconciliation.ts)", () => {
       }
     });
 
-    it("accepts overwriting existing alias with --update flag (reconciliation.ts:303)", () => {
+    it("accepts overwriting existing alias with --update flag", () => {
       const tempDir = getTestTempDir();
       const aliasFile = join(tempDir, "brownian-motion.yaml");
 
@@ -423,9 +428,16 @@ describe("Reconciliation Refusal Sites (reconciliation.ts)", () => {
     });
   });
 
-  // 7. (reconciliation.ts:312) no-write-flag (WriteBlocksResult type declaration)
-  describe("Site (reconciliation.ts:312): no-write-flag (type declaration)", () => {
-    it("validates WriteBlocksResult code union includes no-write-flag (reconciliation.ts:312)", () => {
+  /*
+   * 7. no-write-flag in the WriteBlocksResult UNION. These two name no line, and that is the
+   * point: a type declaration is not a refusal throw site, so a citation of it is reported stale
+   * forever -- five of this file's baselined 14 were this one line cited five times. The code's
+   * actual site is covered by 8 below. What these tests pin is that the union still OFFERS the
+   * code and that the success variant still typechecks, which is worth keeping and is not a site
+   * claim.
+   */
+  describe("Type: WriteBlocksResult still declares no-write-flag and its success variant", () => {
+    it("the result union still offers the no-write-flag code", () => {
       const failure: WriteBlocksResult = {
         ok: false,
         code: "no-write-flag",
@@ -435,7 +447,7 @@ describe("Reconciliation Refusal Sites (reconciliation.ts)", () => {
       assert.equal(failure.code, "no-write-flag");
     });
 
-    it("validates WriteBlocksResult success variant (reconciliation.ts:312)", () => {
+    it("the success variant still carries writtenFiles, diffFiles and unchangedFiles", () => {
       const success: WriteBlocksResult = {
         ok: true,
         writtenFiles: ["/path/to/s1.yaml"],
@@ -467,7 +479,7 @@ describe("Reconciliation Refusal Sites (reconciliation.ts)", () => {
       }
     });
 
-    it("accepts writeProposedBlocks when writeBlocks flag is true (reconciliation.ts:401)", () => {
+    it("accepts writeProposedBlocks when writeBlocks flag is true", () => {
       const tempDir = getTestTempDir();
       const res: WriteBlocksResult = writeProposedBlocks({
         slug: "brownian-motion",
@@ -510,7 +522,7 @@ describe("Reconciliation Refusal Sites (reconciliation.ts)", () => {
       }
     });
 
-    it("accepts writeProposedBlocks when differences array is empty (reconciliation.ts:409)", () => {
+    it("accepts writeProposedBlocks when differences array is empty", () => {
       const tempDir = getTestTempDir();
       const res: WriteBlocksResult = writeProposedBlocks({
         slug: "brownian-motion",
@@ -558,7 +570,7 @@ describe("Reconciliation Refusal Sites (reconciliation.ts)", () => {
       }
     });
 
-    it("accepts overwriting existing block files with update flag (reconciliation.ts:444)", () => {
+    it("accepts overwriting existing block files with update flag", () => {
       const tempDir = getTestTempDir();
 
       // First write
@@ -624,7 +636,7 @@ describe("Reconciliation Refusal Sites (reconciliation.ts)", () => {
       }
     });
 
-    it("accepts a FIRST write with no run directory, which replaces nothing (reconciliation.ts:462)", () => {
+    it("accepts a FIRST write with no run directory, which replaces nothing", () => {
       const tempDir = getTestTempDir();
       const res: WriteBlocksResult = writeProposedBlocks({
         slug: "brownian-motion",
@@ -635,15 +647,8 @@ describe("Reconciliation Refusal Sites (reconciliation.ts)", () => {
         update: true,
       });
 
-      /*
-       * `update: true` is not what triggers the refusal; replacing a file is. A writer that read the
-       * flag instead of the filesystem would refuse here, which is the over-strict half of this
-       * guard, so the accept case names the code it must NOT return rather than only asserting ok.
-       */
-      // Read before asserting ok, because assert.equal narrows `res` and the refusal branch would
-      // then be `never`.
-      const code = res.ok ? null : res.code;
-      assert.notEqual(code, "diff-destination-required");
+      // `update: true` is not what triggers the refusal; replacing a file is. A writer that read the
+      // flag instead of the filesystem would refuse here, which is the over-strict half of the guard.
       assert.equal(res.ok, true);
       if (res.ok) {
         assert.deepEqual(res.diffFiles, []);
