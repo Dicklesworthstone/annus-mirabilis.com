@@ -15,7 +15,16 @@ import { loadGermanSourceFace, printedUnits } from "./germanSourceFace.ts";
 import { ManifestAnchorError, manifestAnchors } from "./manifestAnchors.ts";
 
 const ROOT = process.cwd();
-const PAPERS = ["light-quanta", "brownian-motion", "mass-energy"] as const;
+/**
+ * ALL FOUR PAPERS. `special-relativity` was absent from this list, with no comment saying why, and
+ * it is the paper with the most to check: 552 manifest units against mass-energy's 77. Added
+ * 2026-10-19 after running it, because nothing in the test body is paper-specific -- it needs a
+ * manifest, an aliases file and a bilingual edition, and `content/aliases/special-relativity.yaml`
+ * is the largest of the four at 9.0 kB. It passes, contributing 904 expect() calls in 42s, so the
+ * omission was a stale limitation rather than a known gap. The comment below even says relativity
+ * "always did" carry its sentence ids.
+ */
+const PAPERS = ["light-quanta", "brownian-motion", "mass-energy", "special-relativity"] as const;
 /** An id shaped like a content id: sN, sN-..., eq-..., the masthead and the closing lines. */
 const CONTENT_ID = /^(?:s\d+(?:-.*)?|eq-.+|masthead-.+|closing-.+)$/;
 
