@@ -17,6 +17,27 @@ entries:
   - letter: a
     proposition: "Sutherland's independent derivation and its history: Dunedin in January 1904, a misprinted congress proceedings version in early 1905, and Phil. Mag. in June 1905, between Einstein's submission and publication."
     namedSources: ["Sutherland 1904", "Sutherland, Phil. Mag. June 1905"]
+    # THREE OF THE FOUR CLAUSES ARE GROUNDED; ONE ADJECTIVE AND ONE MONTH ARE NOT.
+    #
+    # Grounded: the Dunedin session of 12 January 1904 and the derivation itself, from the shelf
+    # card's source check read from page images on 2026-09-26, which quotes the Report's contents
+    # page and the equations on p. 119; the Philosophical Magazine publication of June 1905, from
+    # cit-sutherland-1905's registry check; and "between Einstein's submission and publication",
+    # which the sutherland-1905-phil-mag card states as its `parallelWorkBasis` against Annalen's
+    # receipt of 11 May and publication of 18 July 1905.
+    #
+    # Not grounded: that the proceedings version was MISPRINTED. The word appears nowhere in this
+    # repository in connection with Sutherland. Nor is "early 1905" supported: the Report's imprint
+    # is "John Mackay, Government Printer, Wellington. 1905." and gives no month.
+    #
+    # cit-sutherland-1905's own note used to say the Dunedin date still needed a source. It did
+    # not, and had not for eighteen days when that sentence was written. Corrected in the same
+    # change as this annotation, which is the second time in this file that a judgement of
+    # ungroundability turned out to be about one record rather than the repository.
+    claimNotGroundable:
+      reportedOn: "2026-10-19"
+      groundedBy: "Dunedin, 12 January 1904, and the derivation, through the shelf card's page-image source check of the Association's Report (agent:SapphireCastle, 2026-09-26), which quotes the contents page and the equations on p. 119; the Philosophical Magazine paper of June 1905 through cit-sutherland-1905, (6) 9 (54), 781-785; and the chronology against Einstein through the sutherland-1905-phil-mag card's parallelWorkBasis, Annalen receipt 11 May and publication 18 July 1905."
+      missing: "That the congress proceedings version was MISPRINTED, which is the claim the proposition turns on and which nothing in this repository supports: the word does not appear in connection with Sutherland anywhere. And that it appeared in EARLY 1905: the Report's imprint reads Wellington 1905 with no month, so the qualifier is the plan's and not this edition's. A note asserting either would be a historical claim from memory about a volume nobody here has read beyond the pages the card quotes."
     requiresCitations: ["cit-sutherland-1905"]
   - letter: b
     proposition: "Smoluchowski's independent kinetic derivation of 1906, with a different numerical factor."
