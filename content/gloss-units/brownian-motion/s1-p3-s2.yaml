@@ -2,9 +2,16 @@
 # Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, ap-17-549.
 id: "s1-p3-s2"
 sentenceId: "s1-p3-s2"
-revision: 1
-sourceRevision: 2
-sourceTextDigest: "af5b999e54b7d4922f56a47fcc424d8bc177c0292aa4f2bcfcaff5c8f41a957f"
+revision: 2
+sourceRevision: 3
+lineage:
+  - revision: 1
+    date: "2026-09-25"
+    reason: "af83aecc0 content(brownian-motion): word-level German gloss for the headings of §§ 1-5 and all nine sentences of § 1 (dispatch 232)"
+  - revision: 2
+    date: "2026-10-19"
+    reason: "content(brownian-motion): restore the printed reading eingelöstes on p. 550, which the ledger and the source block had silently set as two words, and mark it on the German face against receipt record err-typo-p550-1. No commit hash: lineage reasons are written from git history after the fact (b5b70dfbb), and this entry lands in the commit it describes."
+sourceTextDigest: "5f0c61c097b38bda4d2ac991858c16939f9ddedb7467f58f8df3657c7c4ed8ac"
 lang: "en"
 sourceLang: "de"
 attribution:
@@ -22,10 +29,10 @@ tokens:
     english: "theory"
   - german: "unterscheidet"
   - german: "sich"
-  - german: "ein"
-    english: "a"
-  - german: "gelöstes"
-    english: "dissolved"
+  - german: "eingelöstes"
+    english: "a dissolved"
+    grammarNote: "printed run together on p. 550, where the sense requires ein gelöstes; see err-typo-p550-1"
+    noteClass: "misprint"
   - german: "Molekül"
     english: "molecule"
   - german: "von"
@@ -100,8 +107,8 @@ multiwordUnits:
     kind: "reflexive"
     grammarNote: "reflexive: sich unterscheiden"
   - tokenIndices:
-      - 18
-      - 20
+      - 17
+      - 19
     english: "see"
     kind: "separable-verb"
     grammarNote: "einsehen, split: sieht ... ein, to see, to understand"

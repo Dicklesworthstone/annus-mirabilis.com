@@ -11,13 +11,18 @@ locators:
     printedPage: 550
   - pdfPageIndex: 3
     printedPage: 551
-diplomaticText: "Vom Standpunkte der molekularkinetischen Wärmetheorie aus kommt man aber zu einer anderen Auffassung. Nach dieser Theorie unterscheidet sich ein gelöstes Molekül von einem suspendierten Körper lediglich durch die Größe, und man sieht nicht ein, warum einer Anzahl suspendierter Körper nicht derselbe osmotische Druck entsprechen sollte, wie der nämlichen Anzahl gelöster Moleküle. Man wird anzunehmen haben, daß die suspendierten Körper infolge der Molekularbewegung der Flüssigkeit eine wenn auch sehr langsame ungeordnete Bewegung in der Flüssigkeit ausführen; werden sie durch die Wand verhindert, das Volumen V^* zu verlassen, so werden sie auf die Wand Kräfte ausüben, ebenso wie gelöste Moleküle. Sind also n suspendierte Körper im Volumen V^*, also n/V^* = \\nu in der Volumeneinheit vorhanden, und sind benachbarte unter ihnen genügend weit voneinander entfernt, so wird ihnen ein osmotischer Druck p entsprechen von der Größe: wobei N die Anzahl der in einem Gramm-Molekül enthaltenen wirklichen Moleküle bedeutet. Im nächsten Paragraph soll gezeigt werden, daß die molekularkinetische Theorie der Wärme wirklich zu dieser erweiterten Auffassung des osmotischen Druckes führt."
+diplomaticText: "Vom Standpunkte der molekularkinetischen Wärmetheorie aus kommt man aber zu einer anderen Auffassung. Nach dieser Theorie unterscheidet sich eingelöstes Molekül von einem suspendierten Körper lediglich durch die Größe, und man sieht nicht ein, warum einer Anzahl suspendierter Körper nicht derselbe osmotische Druck entsprechen sollte, wie der nämlichen Anzahl gelöster Moleküle. Man wird anzunehmen haben, daß die suspendierten Körper infolge der Molekularbewegung der Flüssigkeit eine wenn auch sehr langsame ungeordnete Bewegung in der Flüssigkeit ausführen; werden sie durch die Wand verhindert, das Volumen V^* zu verlassen, so werden sie auf die Wand Kräfte ausüben, ebenso wie gelöste Moleküle. Sind also n suspendierte Körper im Volumen V^*, also n/V^* = \\nu in der Volumeneinheit vorhanden, und sind benachbarte unter ihnen genügend weit voneinander entfernt, so wird ihnen ein osmotischer Druck p entsprechen von der Größe: wobei N die Anzahl der in einem Gramm-Molekül enthaltenen wirklichen Moleküle bedeutet. Im nächsten Paragraph soll gezeigt werden, daß die molekularkinetische Theorie der Wärme wirklich zu dieser erweiterten Auffassung des osmotischen Druckes führt."
 inlines:
   - kind: "text"
     text: "Vom Standpunkte der molekularkinetischen Wärmetheorie aus kommt man aber zu einer anderen Auffassung."
   - kind: "space"
   - kind: "text"
-    text: "Nach dieser Theorie unterscheidet sich ein gelöstes Molekül von einem suspendierten Körper "
+    text: "Nach dieser Theorie unterscheidet sich "
+  - kind: "misprint"
+    recordId: "err-typo-p550-1"
+    text: "eingelöstes"
+  - kind: "text"
+    text: " Molekül von einem suspendierten Körper "
   - kind: "emphasis"
     inlines:
       - kind: "text"
@@ -68,33 +73,33 @@ sentenceSpans:
     span:
       start: 0
       end: 101
-      blockRevision: 2
-      textDigest: "7611ccfa9fba4806fccaac2f9392679723a62793369a57afc348ababa376788c"
+      blockRevision: 3
+      textDigest: "f92877520260013a67d77cc70f77255e4a405f9b470685f5c064e93b2b7a2933"
   - id: "s1-p3-s2"
     span:
       start: 102
-      end: 380
-      blockRevision: 2
-      textDigest: "7611ccfa9fba4806fccaac2f9392679723a62793369a57afc348ababa376788c"
+      end: 379
+      blockRevision: 3
+      textDigest: "f92877520260013a67d77cc70f77255e4a405f9b470685f5c064e93b2b7a2933"
   - id: "s1-p3-s3"
     span:
-      start: 381
-      end: 702
-      blockRevision: 2
-      textDigest: "7611ccfa9fba4806fccaac2f9392679723a62793369a57afc348ababa376788c"
+      start: 380
+      end: 701
+      blockRevision: 3
+      textDigest: "f92877520260013a67d77cc70f77255e4a405f9b470685f5c064e93b2b7a2933"
   - id: "s1-p3-s4"
     span:
-      start: 703
-      end: 1022
-      blockRevision: 2
-      textDigest: "7611ccfa9fba4806fccaac2f9392679723a62793369a57afc348ababa376788c"
+      start: 702
+      end: 1021
+      blockRevision: 3
+      textDigest: "f92877520260013a67d77cc70f77255e4a405f9b470685f5c064e93b2b7a2933"
   - id: "s1-p3-s5"
     span:
-      start: 1023
-      end: 1184
-      blockRevision: 2
-      textDigest: "7611ccfa9fba4806fccaac2f9392679723a62793369a57afc348ababa376788c"
-revision: 2
+      start: 1022
+      end: 1183
+      blockRevision: 3
+      textDigest: "f92877520260013a67d77cc70f77255e4a405f9b470685f5c064e93b2b7a2933"
+revision: 3
 lineage:
   - revision: 1
     date: "2026-09-25"
@@ -102,6 +107,9 @@ lineage:
   - revision: 2
     date: "2026-09-25"
     reason: "c7c9b661 content(brownian-motion): a space after the last 6 display formulas that had none, after a colon, a footnote mark or \"t = 0\", as every display in the other three papers has (dispatch 207)"
+  - revision: 3
+    date: "2026-10-19"
+    reason: "content(brownian-motion): restore the printed reading eingelöstes on p. 550, which the ledger and this block had silently set as two words, and mark it on the German face against receipt record err-typo-p550-1. No commit hash: lineage reasons are written from git history after the fact (b5b70dfbb), and this entry lands in the commit it describes."
 status:
   transcription: "draft"
   mathTranscription: "draft"
