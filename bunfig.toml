@@ -87,4 +87,9 @@ pathIgnorePatterns = [
   "scripts/verify-facsimile-pins.test.ts",
   "src/testing/outFreshness.fixture.test.ts",
   "src/testing/hygiene/extractionCarriersDerived.test.ts",
+  # Resolves every internal fragment link in out/ against the ids of the page it names, so it
+  # belongs in the lane that already refuses a stale build rather than rediscovering that fact.
+  # The deployed-candidate version of this question is scripts/anchorTargets.ts, which only runs
+  # at release: between deploys nothing asked it, and a sweep on 2026-10-18 found 24 broken.
+  "src/testing/builtFragmentTargets.node.test.ts",
 ]
