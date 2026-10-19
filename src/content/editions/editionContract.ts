@@ -292,12 +292,34 @@ export function validateSpanRevisionCurrency(
     }
 
     if (plainText !== undefined && typeof span.textDigest === "string") {
-      const slice = plainText.slice(span.start, span.end);
-      const expectedDigest = spanTextDigest(slice);
+      /*
+       * THE DIGEST IS OF THE WHOLE BLOCK, NOT OF THE SLICE, and this computed the slice until
+       * 2026-10-19. Three authorities say block, and they were all available to be read:
+       *
+       *   src/content/schemas/spans.ts validateSpanAnchor  `spanTextDigest(plainText)`
+       *   every block in content/source-blocks               253 of 253 carry the block's digest
+       *                                                      in every one of their spans
+       *   rule C.9 of am-edn-alignment-tooling-do1           "a changed digest means the OFFSETS
+       *                                                      themselves must be re-measured"
+       *
+       * That last clause is the semantics: a block-level digest answers "did the text move under
+       * my offsets", which is the question an offset-bearing span has to ask. A slice digest would
+       * answer "did my own words change", for which re-measuring offsets is not the remedy.
+       *
+       * The error was invisible for two reasons at once, which is why it is written down here
+       * rather than just corrected. This function has NO production caller -- its only caller in
+       * the repository is its own test -- so the rule was never applied to a real block. And the
+       * test built its expected value the same way the implementation did
+       * (`spanTextDigest(plainText.slice(0, 13))`), so implementation and test agreed with each
+       * other and neither could discover that the rule was wrong. Had anyone wired this up, it
+       * would have reported span-digest-mismatch on 409 of the corpus's 542 spans -- every
+       * multi-span block -- and read as a corpus catastrophe when the corpus was right.
+       */
+      const expectedDigest = spanTextDigest(plainText);
       if (span.textDigest !== expectedDigest) {
         issues.push({
           code: "span-digest-mismatch",
-          message: `[span-digest-mismatch] Span ${spanId ? `"${spanId}" ` : ""}textDigest (${span.textDigest}) does not match computed digest of plain text (${expectedDigest}).`,
+          message: `[span-digest-mismatch] Span ${spanId ? `"${spanId}" ` : ""}textDigest (${span.textDigest}) does not match computed digest of the block's plain text (${expectedDigest}).`,
           spanId,
         });
       }

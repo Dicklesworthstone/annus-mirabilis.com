@@ -1,9 +1,19 @@
 import { describe, expect, test } from "bun:test";
 import { createHash } from "node:crypto";
-import { copyFileSync, cpSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  copyFileSync,
+  cpSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, sep } from "node:path";
 import { load as parseYaml } from "js-yaml";
+import { reportPopulation } from "../../../scripts/gate-census/population.ts";
+import type { SpanRevisionCheckInput } from "../../content/editions/editionContract.ts";
 import {
   assertEditionContract,
   CONTRACT_CHECKS_SPEC,
@@ -578,11 +588,23 @@ describe("mutation fixtures for implemented contract checks (AC 5)", () => {
 
 describe("Check 15: span revision currency and separate failure reporting (AC 6)", () => {
   const plainText = "Die Brownsche Bewegung";
-  const slice = plainText.slice(0, 13); // "Die Brownsche"
-  const validDigest = spanTextDigest(slice);
+  /*
+   * THE VALID DIGEST IS OF THE WHOLE BLOCK, and this fixture built it from the SLICE until
+   * 2026-10-19: `spanTextDigest(plainText.slice(0, 13))`. Implementation and fixture were written
+   * from the same wrong reading of the rule, so they agreed with each other and this suite could
+   * never discover it -- while the schema validator (spans.ts validateSpanAnchor), all 253 blocks
+   * in content/source-blocks, and rule C.9's "a changed digest means the OFFSETS themselves must
+   * be re-measured" all say block.
+   *
+   * The span below still covers only part of the text, deliberately: a partial span whose digest
+   * is the block's is the ordinary case in the corpus, and a fixture spanning the whole string
+   * would make the two rules indistinguishable again.
+   */
+  const validDigest = spanTextDigest(plainText);
+  const sliceDigest = spanTextDigest(plainText.slice(0, 13));
 
   test("PLANTED: block revision bumped with no text change reports span-revision-stale and NOT span-digest-mismatch", () => {
-    // Current block revision is 2, span recorded at revision 1, digest matches slice
+    // Current block revision is 2, span recorded at revision 1, digest matches the block text
     const result = assertEditionContract("brownian-motion", {
       ledgerText: LEDGER,
       spans: [
@@ -648,6 +670,27 @@ describe("Check 15: span revision currency and separate failure reporting (AC 6)
     expect(issues).toHaveLength(2);
     expect(issues.some((i) => i.code === "span-revision-stale")).toBe(true);
     expect(issues.some((i) => i.code === "span-digest-mismatch")).toBe(true);
+  });
+
+  test("PLANTED: a digest of the SLICE, which is what this check used to compute, now fails", () => {
+    /*
+     * The direct negative for the repair. Before 2026-10-19 this exact value was the one the check
+     * accepted, so a revert of editionContract.ts turns this red and names the rule it broke.
+     */
+    const issues = validateSpanRevisionCurrency([
+      {
+        spanId: "span-slice-digest",
+        span: { start: 0, end: 13, blockRevision: 1, textDigest: sliceDigest },
+        currentBlockRevision: 1,
+        plainText,
+      },
+    ]);
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0]?.code).toBe("span-digest-mismatch");
+    expect(issues[0]?.message).toContain("the block's plain text");
+    // And the two values really are different, so the plant is not asserting against itself.
+    expect(sliceDigest).not.toBe(validDigest);
   });
 
   test("spans with current revision and matching digest pass check 15 cleanly", () => {
@@ -983,7 +1026,7 @@ describe("PLANT (am-06x1): checks 4, 5 and 6 corrupt the DATA, not the flag", ()
 });
 
 /**
- * (editionContract.ts:815) invalid-route-slug.
+ * (editionContract.ts:837) invalid-route-slug.
  *
  * The line was established by planting, not by adding the drift: renaming that site's code turns
  * exactly the two tests below red and nothing else in the file. My first draft cited 802, from a
@@ -996,7 +1039,7 @@ describe("PLANT (am-06x1): checks 4, 5 and 6 corrupt the DATA, not the flag", ()
  * string and had nothing to branch on.
  */
 describe("assertEditionContract refuses a slug that is not a route", () => {
-  test("(editionContract.ts:815) a non-route slug is refused with a code, naming the legal slugs", () => {
+  test("(editionContract.ts:837) a non-route slug is refused with a code, naming the legal slugs", () => {
     let caught: unknown;
     try {
       assertEditionContract("brownian");
@@ -1116,7 +1159,7 @@ describe("am-r3qt: the five undriven refusal sites in editionContract.ts", () =>
     writeFileSync(pdf, `${readFileSync(pdf, "utf8")}\n% one byte the declaration does not know\n`);
   }
 
-  test("(editionContract.ts:776) facsimile digest, ledger ABSENT, fires digest-mismatch", () => {
+  test("(editionContract.ts:798) facsimile digest, ledger ABSENT, fires digest-mismatch", () => {
     const root = miniPaperRoot(false);
     corruptTheFacsimile(root);
     const result = assertEditionContract("mass-energy", { root });
@@ -1124,7 +1167,7 @@ describe("am-r3qt: the five undriven refusal sites in editionContract.ts", () =>
     onlyThisOne(result, "digest-mismatch");
   });
 
-  test("(editionContract.ts:1016) facsimile digest, ledger PRESENT, fires digest-mismatch", () => {
+  test("(editionContract.ts:1038) facsimile digest, ledger PRESENT, fires digest-mismatch", () => {
     const root = miniPaperRoot(true);
     corruptTheFacsimile(root);
     // Equal id counts so translation-completeness PASSES: without them the root-based
@@ -1142,7 +1185,7 @@ describe("am-r3qt: the five undriven refusal sites in editionContract.ts", () =>
     onlyThisOne(result, "digest-mismatch");
   });
 
-  test("(editionContract.ts:1097) an unclean ledger fires ledger-not-clean", () => {
+  test("(editionContract.ts:1119) an unclean ledger fires ledger-not-clean", () => {
     const result = assertEditionContract("brownian-motion", {
       ledgerText: LEDGER,
       editionText: LEDGER_EDITION_TEXT,
@@ -1159,7 +1202,7 @@ describe("am-r3qt: the five undriven refusal sites in editionContract.ts", () =>
     onlyThisOne(result, "ledger-not-clean");
   });
 
-  test("(editionContract.ts:1443) differing display math fires display-math-bytes-differ", () => {
+  test("(editionContract.ts:1465) differing display math fires display-math-bytes-differ", () => {
     const result = assertEditionContract("brownian-motion", {
       ledgerText: LEDGER,
       editionText: LEDGER_EDITION_TEXT,
@@ -1176,7 +1219,7 @@ describe("am-r3qt: the five undriven refusal sites in editionContract.ts", () =>
     onlyThisOne(result, "display-math-bytes-differ");
   });
 
-  test("(editionContract.ts:1765) an unaligned German id fires translation-incomplete", () => {
+  test("(editionContract.ts:1787) an unaligned German id fires translation-incomplete", () => {
     const result = assertEditionContract("brownian-motion", {
       ledgerText: LEDGER,
       editionText: LEDGER_EDITION_TEXT,
@@ -1189,5 +1232,118 @@ describe("am-r3qt: the five undriven refusal sites in editionContract.ts", () =>
       displayMathMatches: true,
     });
     onlyThisOne(result, "translation-incomplete");
+  });
+});
+
+/**
+ * CHECK 15 HAD NO CALLER BUT ITS OWN TEST, SO ITS RULE WAS NEVER APPLIED TO A REAL BLOCK.
+ *
+ * `validateSpanRevisionCurrency` is the edition contract's check 15 (rule C.9). Measured
+ * 2026-10-19: the only reference to it anywhere in src/ or scripts/ outside its own module was
+ * this file. A check with one caller, and that caller its test, is a rule nobody has run -- and
+ * this one was also WRONG, digesting the slice where the schema, the corpus and C.9 all say the
+ * block. The two facts protected each other: being unwired, it never met a real block; and its
+ * test having been written from the same misreading, it agreed with itself.
+ *
+ * So the repair is not only to correct the arithmetic but to give the check the population it was
+ * written for. This runs it over every sentence span of every source block in the repository, which
+ * is the first time its rule has been applied to anything but a 22-character fixture.
+ *
+ * It is a FLOOR, not a frozen count: spans arrive as papers are inventoried, and asserting the
+ * exact number would break on correct work (AGENTS.md, "A Count Is For Reporting, Not For
+ * Asserting"). The census line reports what it actually examined.
+ */
+describe("check 15 over the real corpus, which is the population it never had", () => {
+  const PAPERS = ["mass-energy", "light-quanta", "brownian-motion", "special-relativity"] as const;
+
+  /** Every sentence span of every source block, as check 15 wants them. */
+  const corpusSpans = (): readonly {
+    paper: string;
+    file: string;
+    input: SpanRevisionCheckInput;
+  }[] => {
+    const rows: { paper: string; file: string; input: SpanRevisionCheckInput }[] = [];
+    for (const paper of PAPERS) {
+      const dir = join(process.cwd(), "content", "source-blocks", paper);
+      for (const name of readdirSync(dir).sort()) {
+        if (!name.endsWith(".yaml") || name.startsWith("manifest")) continue;
+        const doc = parseYaml(readFileSync(join(dir, name), "utf8")) as Record<string, unknown>;
+        const plainText = typeof doc.diplomaticText === "string" ? doc.diplomaticText : undefined;
+        const revision = typeof doc.revision === "number" ? doc.revision : 1;
+        const spans = Array.isArray(doc.sentenceSpans) ? doc.sentenceSpans : [];
+        if (plainText === undefined) continue;
+        for (const entry of spans as Record<string, unknown>[]) {
+          const span = entry.span as Record<string, unknown> | undefined;
+          if (!span) continue;
+          rows.push({
+            paper,
+            file: name,
+            input: {
+              spanId: String(entry.id ?? name),
+              span: {
+                start: Number(span.start),
+                end: Number(span.end),
+                blockRevision:
+                  typeof span.blockRevision === "number" ? span.blockRevision : undefined,
+                textDigest: typeof span.textDigest === "string" ? span.textDigest : undefined,
+              },
+              currentBlockRevision: revision,
+              plainText,
+            },
+          });
+        }
+      }
+    }
+    return rows;
+  };
+
+  test("every sentence span in the corpus satisfies check 15", () => {
+    const rows = corpusSpans();
+    const issues = validateSpanRevisionCurrency(rows.map((r) => r.input));
+    const named = issues.map((i) => {
+      const row = rows.find((r) => r.input.spanId === i.spanId);
+      return `${row ? `${row.paper}/${row.file} ` : ""}${i.code}: ${i.message}`;
+    });
+    expect(named).toEqual([]);
+
+    const vacuous = reportPopulation({
+      gate: "edition-contract-check-15",
+      examined: rows.length,
+      noun: "source-block sentence spans",
+      minimum: 300,
+    });
+    expect(vacuous).toBe(false);
+  });
+
+  test("CONTROL: the corpus sweep can fail, shown on a real span with one byte changed", () => {
+    /*
+     * A sweep that cannot fail and a clean sweep look identical. This takes the first real span and
+     * perturbs the block text it is digested against by one character, which is exactly the drift
+     * C.9 exists to catch -- "a changed digest means the offsets themselves must be re-measured".
+     */
+    const rows = corpusSpans();
+    const first = rows[0];
+    expect(first).toBeDefined();
+    if (first === undefined) return;
+
+    const perturbed: SpanRevisionCheckInput = {
+      ...first.input,
+      plainText: `${first.input.plainText ?? ""} `,
+    };
+    const issues = validateSpanRevisionCurrency([perturbed]);
+    expect(issues.map((i) => i.code)).toEqual(["span-digest-mismatch"]);
+  });
+
+  test("CONTROL: a stale blockRevision is still reported separately, on a real span", () => {
+    // C.9: the two findings "are never collapsed into one", because they ask for different work.
+    const rows = corpusSpans();
+    const first = rows[0];
+    expect(first).toBeDefined();
+    if (first === undefined) return;
+
+    const issues = validateSpanRevisionCurrency([
+      { ...first.input, currentBlockRevision: first.input.currentBlockRevision + 1 },
+    ]);
+    expect(issues.map((i) => i.code)).toEqual(["span-revision-stale"]);
   });
 });
