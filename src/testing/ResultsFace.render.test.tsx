@@ -71,4 +71,64 @@ describe("ResultsFace.render: card ordering, section filter, genealogy slot", ()
     expect(html).toContain('data-testid="genealogy-tree"');
     expect(html).not.toContain("pending am-eq-genealogy-hmm");
   });
+
+  /**
+   * THE FILTER'S LINKS MUST LAND SOMEWHERE, which nothing asked until 2026-10-18.
+   *
+   * The test above asserts the nav is PRESENT when there is more than one section. Presence was
+   * true and the control was dead: it emitted `href="#section-s4"` and no element on the page
+   * carried that id, so all 24 such links on the three built results faces landed at the top of
+   * the page. A dead fragment returns 200 and looks like a working control, which is why only a
+   * check that resolves the href against the page's own ids can see it.
+   *
+   * Scoped to the filter nav on purpose. The cards also carry fragment links into the GERMAN face
+   * (`#s5-p2-s7`), whose targets live on another page, so asserting that every href in this markup
+   * resolves locally would be false for links that are correct.
+   */
+  function filterNav(html: string): string {
+    const nav = html.match(/<nav class="results-face-filter"[^>]*>[\s\S]*?<\/nav>/u);
+    expect(nav, "the markup must contain the section filter nav").not.toBeNull();
+    return (nav as RegExpMatchArray)[0];
+  }
+
+  test("every section-filter link lands on an id this page carries", () => {
+    const cards = [minimalCard("r1", "s4"), minimalCard("r2", "s5"), minimalCard("r3", "s10")];
+    const html = renderToStaticMarkup(<ResultsFace paper="p" cards={cards} />);
+    const nav = filterNav(html);
+
+    const targets = [...nav.matchAll(/href="#([^"]+)"/gu)].map((m) => m[1] as string);
+    const ids = new Set([...html.matchAll(/\sid="([^"]+)"/gu)].map((m) => m[1] as string));
+
+    // Non-vacuity, written down: three sections means three links, and a nav that rendered none
+    // would satisfy an "all resolve" assertion while proving nothing.
+    expect(targets.length).toBe(3);
+    expect(targets.filter((target) => !ids.has(target))).toEqual([]);
+
+    // Each link lands on the FIRST card of its section, which is what makes the anchor exist.
+    expect(nav).toContain('href="#result-r1"');
+    expect(nav).toContain('href="#result-r2"');
+    expect(nav).toContain('href="#result-r3"');
+
+    // The retired spelling, kept as an explicit negative so it cannot return under a green suite.
+    expect(nav).not.toContain('href="#section-');
+  });
+
+  test("sections are ordered by number, so s10 does not sit between s1 and s2", () => {
+    // The built relativity face read s0, s1, s10, s2, s3 ... because the anchors were sorted as
+    // strings. Cards are handed in deliberately out of order so the nav cannot pass by accident.
+    const cards = [minimalCard("r10", "s10"), minimalCard("r2", "s2"), minimalCard("r1", "s1")];
+    const nav = filterNav(renderToStaticMarkup(<ResultsFace paper="p" cards={cards} />));
+    const labels = [...nav.matchAll(/>([^<>]+)<\/a>/gu)].map((m) => m[1] as string);
+    expect(labels).toEqual(["s1", "s2", "s10"]);
+  });
+
+  test("an anchor that is not s<n> is ordered last rather than crashing the sort", () => {
+    // Paper 3 has part headings, and a future card could carry one. The fallback keeps the nav
+    // rendering instead of throwing on a shape the regex does not match.
+    const cards = [minimalCard("rp", "part-1"), minimalCard("r2", "s2"), minimalCard("r1", "s1")];
+    const nav = filterNav(renderToStaticMarkup(<ResultsFace paper="p" cards={cards} />));
+    const labels = [...nav.matchAll(/>([^<>]+)<\/a>/gu)].map((m) => m[1] as string);
+    expect(labels).toEqual(["s1", "s2", "part-1"]);
+    expect(nav).toContain('href="#result-rp"');
+  });
 });
