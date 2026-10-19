@@ -453,6 +453,7 @@ describe("block writer guards: --write-blocks and --update", () => {
       writeBlocks: true,
       update: true,
       destinationDir: destDir,
+      runDir: join(tempDir, "run"),
     });
 
     expect(secondWrite.ok).toBe(true);
@@ -465,8 +466,167 @@ describe("block writer guards: --write-blocks and --update", () => {
   });
 });
 
+/**
+ * THE DIFF IS WHAT MAKES AN OVERWRITE REVERSIBLE, AND IT HAD NO TEST.
+ *
+ * Scope B.6: "Existing block files are never overwritten without `--update`, which writes a unified
+ * diff to the run directory first. The tool never deletes a file." The criterion's test-plan line is
+ * "`--update` writes a diff before replacing, and no file is deleted", and before 2026-10-19 the
+ * test covering it asserted only that the second write returned ok and that its files still existed
+ * -- true of a writer that recorded nothing, which is what this one did.
+ *
+ * "BEFORE REPLACING" is the clause that needs proving, and the diff's own content proves it: a diff
+ * can only name the previous bytes on its `-` lines if those bytes were read before the write. So
+ * the assertions below are on the recorded text, not on the file's existence.
+ */
+describe("--update records a unified diff of what it replaced, before replacing it", () => {
+  const firstThenSecond = (): Readonly<{
+    destDir: string;
+    runDir: string;
+    first: ReturnType<typeof writeProposedBlocks>;
+    second: ReturnType<typeof writeProposedBlocks>;
+    beforeBytes: string;
+    sectionFile: string;
+  }> => {
+    const tempDir = getTempDir();
+    const destDir = join(tempDir, "blocks");
+    const runDir = join(tempDir, "run");
+
+    const proposed = segmentLedger({ ledgerText: FIXTURE_LEDGER });
+    if (proposed.status !== "proposed") throw new Error("fixture ledger did not segment");
+
+    const first = writeProposedBlocks({
+      slug: "brownian-motion",
+      blocks: proposed.blocks,
+      differences: [],
+      writeBlocks: true,
+      destinationDir: destDir,
+    });
+    if (!first.ok) throw new Error(`first write refused: ${first.code}`);
+    const sectionFile = first.writtenFiles.find((f) => f.endsWith("s1.yaml")) ?? "";
+    const beforeBytes = readFileSync(sectionFile, "utf8");
+
+    /*
+     * A real editorial change to the same section: one paragraph re-read off the plate, text and
+     * sentences together. Revising only `text` left the old wording standing in `sentences`, so the
+     * replaced file still contained it and "the previous bytes are gone from disk" could not be
+     * asserted -- the first draft of this test failed on exactly that.
+     */
+    const revised = proposed.blocks.map((block) =>
+      block.id === "s1-p1"
+        ? {
+            ...block,
+            text: "Die Bewegung ist regelmäßig. Sie hört auf.",
+            sentences: [
+              { id: "s1-p1-s1", text: "Die Bewegung ist regelmäßig." },
+              { id: "s1-p1-s2", text: "Sie hört auf." },
+            ],
+          }
+        : block,
+    );
+    const second = writeProposedBlocks({
+      slug: "brownian-motion",
+      blocks: revised,
+      differences: [],
+      writeBlocks: true,
+      update: true,
+      destinationDir: destDir,
+      runDir,
+    });
+    return { destDir, runDir, first, second, beforeBytes, sectionFile };
+  };
+
+  test("the diff names the bytes that were there before, so it was taken before the write", () => {
+    const { runDir, second, beforeBytes, sectionFile } = firstThenSecond();
+    expect(second.ok).toBe(true);
+    if (!second.ok) return;
+
+    expect(second.diffFiles.length).toBeGreaterThan(0);
+    const diffPath = second.diffFiles.find((f) => f.endsWith("s1.yaml.diff"));
+    expect(diffPath).toBeDefined();
+    if (diffPath === undefined) return;
+    expect(diffPath.startsWith(runDir)).toBe(true);
+
+    const diff = readFileSync(diffPath, "utf8");
+    expect(diff.startsWith("--- a/s1.yaml\n+++ b/s1.yaml\n@@ ")).toBe(true);
+    // The removed line is the previous text, which only the pre-write bytes contain: the file on
+    // disk no longer holds it.
+    expect(diff).toContain("unregelmäßig");
+    expect(beforeBytes).toContain("unregelmäßig");
+    expect(readFileSync(sectionFile, "utf8")).not.toContain("unregelmäßig");
+    // And the added line is the new text.
+    expect(diff).toContain("Die Bewegung ist regelmäßig");
+
+    const removed = diff.split("\n").filter((l) => l.startsWith("-") && !l.startsWith("---"));
+    const added = diff.split("\n").filter((l) => l.startsWith("+") && !l.startsWith("+++"));
+    expect(removed.length).toBeGreaterThan(0);
+    expect(added.length).toBeGreaterThan(0);
+
+    logger.log({
+      testId: "update-writes-a-diff-first",
+      beadId: BEAD,
+      outcome: "passed",
+      comparisonKind: "bitwise",
+      message: `recorded ${String(removed.length)} removed and ${String(added.length)} added line(s) for s1.yaml before replacing it`,
+    });
+  });
+
+  test("CONTROL: the same assertion fails when nothing changed, so it is reading the diff", () => {
+    // The identical proposals written twice record no diff, because there is nothing to record.
+    const tempDir = getTempDir();
+    const destDir = join(tempDir, "blocks");
+    const proposed = segmentLedger({ ledgerText: FIXTURE_LEDGER });
+    expect(proposed.status).toBe("proposed");
+    if (proposed.status !== "proposed") return;
+
+    writeProposedBlocks({
+      slug: "brownian-motion",
+      blocks: proposed.blocks,
+      differences: [],
+      writeBlocks: true,
+      destinationDir: destDir,
+    });
+    const again = writeProposedBlocks({
+      slug: "brownian-motion",
+      blocks: proposed.blocks,
+      differences: [],
+      writeBlocks: true,
+      update: true,
+      destinationDir: destDir,
+      runDir: join(tempDir, "run"),
+    });
+    expect(again.ok).toBe(true);
+    if (!again.ok) return;
+    expect(again.diffFiles).toEqual([]);
+    // Reported as unchanged rather than left as an empty list a reader cannot interpret.
+    expect(again.unchangedFiles.length).toBe(again.writtenFiles.length);
+  });
+
+  test("no file is deleted: every path present before the update is present after it", () => {
+    const { destDir, first, second } = firstThenSecond();
+    expect(second.ok).toBe(true);
+    if (!first.ok || !second.ok) return;
+
+    for (const path of first.writtenFiles) {
+      expect(existsSync(path)).toBe(true);
+    }
+    // And the writer added no section file and removed none: the same set, before and after.
+    expect([...second.writtenFiles].sort()).toEqual([...first.writtenFiles].sort());
+    expect(existsSync(destDir)).toBe(true);
+  });
+});
+
+/**
+ * "OUTPUT ORDERING IS DETERMINISTIC, SO TWO RUNS ON THE SAME INPUTS PRODUCE IDENTICAL BYTES"
+ * (scope B.6). The OUTPUTS are files. Until 2026-10-19 the only test of this criterion called
+ * `segmentLedger` twice in one process and compared `JSON.stringify` of the two returns, which is a
+ * real check of the proposal but not of the subject: nothing written to disk was ever compared, so
+ * a serializer that stamped a date or a run id into a block file would have been invisible to it.
+ *
+ * Both halves are kept below, and the first is renamed to say which half it answers.
+ */
 describe("segment-ledger byte-determinism across runs", () => {
-  test("two runs over the same fixture produce identical bytes (comparing digests)", () => {
+  test("the in-memory proposal is identical across two calls", () => {
     const run1 = JSON.stringify(segmentLedger({ ledgerText: FIXTURE_LEDGER }));
     const run2 = JSON.stringify(segmentLedger({ ledgerText: FIXTURE_LEDGER }));
 
@@ -482,5 +642,81 @@ describe("segment-ledger byte-determinism across runs", () => {
       comparisonKind: "bitwise",
       message: "two runs on the fixture ledger produce bitwise-identical serialization",
     });
+  });
+
+  /** Write the fixture's proposals into a fresh directory and digest every file that lands. */
+  const writeRun = (
+    order: "proposed" | "reversed",
+  ): Readonly<{
+    files: readonly string[];
+    digests: readonly string[];
+    texts: readonly string[];
+  }> => {
+    const destDir = join(getTempDir(), "blocks");
+    const proposed = segmentLedger({ ledgerText: FIXTURE_LEDGER });
+    if (proposed.status !== "proposed") throw new Error("fixture ledger did not segment");
+    const blocks = order === "reversed" ? [...proposed.blocks].reverse() : proposed.blocks;
+    const result = writeProposedBlocks({
+      slug: "brownian-motion",
+      blocks,
+      differences: [],
+      writeBlocks: true,
+      destinationDir: destDir,
+    });
+    if (!result.ok) throw new Error(`write refused: ${result.code}`);
+    const texts = result.writtenFiles.map((f) => readFileSync(f, "utf8"));
+    return {
+      // Relative to each run's own directory, since the temp path differs by construction.
+      files: result.writtenFiles.map((f) => f.slice(destDir.length)),
+      digests: texts.map((text) => createHash("sha256").update(text, "utf8").digest("hex")),
+      texts,
+    };
+  };
+
+  test("two runs write the same files, in the same order, with the same bytes", () => {
+    const first = writeRun("proposed");
+    const second = writeRun("proposed");
+
+    expect(second.files).toEqual(first.files);
+    expect(second.digests).toEqual(first.digests);
+    expect(second.texts).toEqual(first.texts);
+    // Not vacuous: something was written, and its digest is a real digest.
+    expect(first.files.length).toBeGreaterThan(0);
+    expect(first.digests.every((d) => /^[0-9a-f]{64}$/.test(d))).toBe(true);
+
+    logger.log({
+      testId: "segment-written-bytes-determinism",
+      beadId: BEAD,
+      outcome: "passed",
+      comparisonKind: "bitwise",
+      message: `${String(first.files.length)} written block file(s) byte-identical across two runs; digests ${first.digests.join(",")}`,
+    });
+  });
+
+  test("CONTROL: the comparison is live, because a different block order writes different bytes", () => {
+    /*
+     * The determinism claim is only worth asserting if the output is order-sensitive. A writer that
+     * sorted everything into a canonical form would satisfy the test above no matter what order it
+     * was handed, and the comparison would prove nothing about ordering. Feeding the same blocks
+     * reversed must therefore change the bytes.
+     */
+    const forward = writeRun("proposed");
+    const backward = writeRun("reversed");
+
+    /*
+     * It is order-sensitive in BOTH ways, which is more than the control set out to show. The
+     * section files come out in the order their first block was met, so reversing the blocks
+     * reverses the file list: masthead, s1, closing becomes closing, s1, masthead.
+     */
+    expect(backward.files).not.toEqual(forward.files);
+    expect([...backward.files].sort()).toEqual([...forward.files].sort());
+
+    // And within a section the blocks keep the order they arrived in, so the bytes differ too.
+    const digestOf = (
+      run: Readonly<{ files: readonly string[]; digests: readonly string[] }>,
+      name: string,
+    ): string | undefined => run.digests[run.files.indexOf(name)];
+    expect(digestOf(backward, "/s1.yaml")).toBeDefined();
+    expect(digestOf(backward, "/s1.yaml")).not.toBe(digestOf(forward, "/s1.yaml"));
   });
 });

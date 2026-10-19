@@ -23,6 +23,11 @@ pathIgnorePatterns = [
   # population is `git ls-files`, which bun's runner cannot spawn here, and the population is the
   # point: walking the tree instead would pull in peers' untracked work-in-progress records.
   "src/content/provenance/yamlDifferential.node.test.ts",
+  # am-edn-alignment-tooling-do1: compares unifiedDiff against the SYSTEM `diff -u` over the real
+  # content/source-blocks corpus, which needs a subprocess bun's runner cannot be relied on to spawn
+  # here. The half that needs no subprocess -- pinned bytes and hunk-header arithmetic -- stays in
+  # the bun lane as unifiedDiff.test.ts, so neither lane holds the whole proof.
+  "src/content/editions/unifiedDiff.node.test.ts",
   # The coverage-report CLI, actually spawned. The bun lane's own attempt at this was red for six
   # days with an empty stdout reaching JSON.parse, because bun's runner cannot reliably spawn here;
   # coverageLedger.test.ts now drives the generator in process and this file drives the script.

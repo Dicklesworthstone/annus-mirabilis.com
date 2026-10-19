@@ -5,6 +5,9 @@
  *   bun scripts/segment-ledger.ts --slug brownian-motion
  *   bun scripts/segment-ledger.ts --slug brownian-motion --confirm s1-p2=retired:s1-p1 --editor jemanuel --reason "editorial" [--update]
  *   bun scripts/segment-ledger.ts --slug brownian-motion --write-blocks [--update]
+ *
+ * `--update` replaces existing block files, and records a unified diff of each replacement under
+ * `artifacts/segmentation/<slug>/<tool-run-id>/` before touching them.
  */
 
 import { readFileSync } from "node:fs";
@@ -18,6 +21,7 @@ import {
   writeProposedBlocks,
 } from "../src/content/editions/segmentLedger.ts";
 import { parseRouteSlug, type RouteSlug } from "../src/content/ids.ts";
+import { newToolRunId } from "./runIds.ts";
 
 function argValue(flag: string): string | undefined {
   const i = process.argv.indexOf(flag);
@@ -92,14 +96,25 @@ const text = readFileSync(join(process.cwd(), presence.path), "utf8");
 const result = segmentLedger({ ledgerText: text });
 
 if (result.status === "proposed" && hasFlag("--write-blocks")) {
+  /*
+   * The run directory is this script's policy, not the writer's: `--update` replaces authored block
+   * files, and scope B.6 requires the unified diff of each replacement to be written here first. The
+   * writer refuses an overwrite with nowhere to put that record (`diff-destination-required`), so a
+   * run id is minted on every write-blocks invocation rather than only when one is needed -- an
+   * empty directory costs nothing, and deciding in advance whether this run will replace anything
+   * would duplicate the writer's own test for it.
+   */
+  const toolRunId = newToolRunId();
+  const runDir = join(process.cwd(), "artifacts", "segmentation", slug, toolRunId);
   const writeRes = writeProposedBlocks({
     slug,
     blocks: result.blocks,
     differences: result.differences,
     writeBlocks: true,
     update: hasFlag("--update"),
+    runDir,
   });
-  console.log(JSON.stringify(writeRes, null, 2));
+  console.log(JSON.stringify({ toolRunId, runDir, ...writeRes }, null, 2));
   process.exit(writeRes.ok ? 0 : 1);
 }
 

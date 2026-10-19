@@ -15,6 +15,7 @@ import { dirname, join } from "node:path";
 import yaml from "js-yaml";
 import { type AliasKind, type AliasRecord, validateAliasRecord } from "../aliases.ts";
 import type { ProposedBlock, ReconciliationDifference } from "./segmentLedger.ts";
+import { unifiedDiff } from "./unifiedDiff.ts";
 
 export type ManifestUnit = Readonly<{
   id: string;
@@ -339,17 +340,39 @@ export type WriteBlocksOptions = Readonly<{
   update?: boolean | undefined;
   root?: string | undefined;
   destinationDir?: string | undefined;
+  /**
+   * Where the unified diff of each replaced file is recorded, which scope B.6 requires `--update` to
+   * write "to the run directory first". The caller names it, because the run directory is the
+   * script's policy (`artifacts/segmentation/<slug>/<tool-run-id>/`) and a library that invented one
+   * would write into the repository from a test.
+   *
+   * Required only when this call would actually replace a file. A first write creates files and
+   * destroys nothing, so it needs no record.
+   */
+  runDir?: string | undefined;
 }>;
 
 export type WriteBlocksResult =
   | Readonly<{
       ok: true;
       writtenFiles: readonly string[];
+      /** The diff written for each replaced file whose bytes changed, in `writtenFiles` order. */
+      diffFiles: readonly string[];
+      /**
+       * Files that already held exactly these bytes. They have no diff because there was nothing to
+       * record, which is reported rather than left as an empty `diffFiles` a reader cannot
+       * distinguish from a diff step that never ran.
+       */
+      unchangedFiles: readonly string[];
       message: string;
     }>
   | Readonly<{
       ok: false;
-      code: "no-write-flag" | "write-blocks-refused-differences" | "update-required";
+      code:
+        | "no-write-flag"
+        | "write-blocks-refused-differences"
+        | "update-required"
+        | "diff-destination-required";
       message: string;
       existingFiles?: readonly string[] | undefined;
     }>;
@@ -358,6 +381,18 @@ export type WriteBlocksResult =
  * Write proposed blocks to content/source-blocks/<slug>/blocks/.
  * Refuses if differences are unresolved.
  * Refuses overwrite without --update. Never deletes files.
+ *
+ * AN OVERWRITE LEAVES A RECORD OR IT DOES NOT HAPPEN. Scope B.6 asks `--update` to write "a unified
+ * diff to the run directory first", and until 2026-10-19 nothing here wrote one: the word "diff"
+ * appeared nowhere in this file, and the test that covered the criterion asserted only that the
+ * second write succeeded and that its files still existed. So the one guard standing between a
+ * reviewed block file and its replacement produced no evidence of what it replaced.
+ *
+ * The diffs are written BEFORE any block file is touched, and the previous bytes are all read
+ * first, so a failure while recording cannot leave a file replaced with no record of its contents.
+ * Hence also `diff-destination-required`: an overwrite with nowhere to put the record is refused
+ * rather than performed silently. A first write, which creates files and destroys nothing, needs no
+ * run directory.
  */
 export function writeProposedBlocks(options: WriteBlocksOptions): WriteBlocksResult {
   if (!options.writeBlocks) {
@@ -412,24 +447,70 @@ export function writeProposedBlocks(options: WriteBlocksOptions): WriteBlocksRes
     };
   }
 
+  // Serialize everything before anything is written, so the diffs below describe exactly the bytes
+  // that will land and a serialization failure replaces no file.
+  const planned = Array.from(sectionMap.entries()).map(([sec, blocks]) => ({
+    section: sec,
+    path: join(destDir, `${sec}.yaml`),
+    content: yaml.dump({ section: sec, blocks }, { indent: 2, lineWidth: -1, sortKeys: false }),
+  }));
+
+  const replacing = planned.filter((entry) => existsSync(entry.path));
+  if (replacing.length > 0 && options.runDir === undefined) {
+    return {
+      ok: false,
+      code: "diff-destination-required",
+      message:
+        `Replacing ${replacing.length} existing block file(s) requires a run directory for the ` +
+        "unified diff of each. Pass runDir; an overwrite that records nothing is refused.",
+      existingFiles: Object.freeze(replacing.map((entry) => entry.path)),
+    };
+  }
+
+  const diffFiles: string[] = [];
+  const unchangedFiles: string[] = [];
+  const runDir = options.runDir;
+  if (replacing.length > 0 && runDir !== undefined) {
+    // Read every previous file first: a diff of bytes already replaced would record the wrong thing.
+    const records = replacing.map((entry) => ({
+      entry,
+      previous: readFileSync(entry.path, "utf8"),
+    }));
+    if (!existsSync(runDir)) mkdirSync(runDir, { recursive: true });
+    for (const { entry, previous } of records) {
+      const diff = unifiedDiff(previous, entry.content, {
+        oldLabel: `a/${entry.section}.yaml`,
+        newLabel: `b/${entry.section}.yaml`,
+      });
+      if (diff === "") {
+        unchangedFiles.push(entry.path);
+        continue;
+      }
+      const diffPath = join(runDir, `${entry.section}.yaml.diff`);
+      writeFileSync(diffPath, diff, "utf8");
+      diffFiles.push(diffPath);
+    }
+  }
+
   if (!existsSync(destDir)) {
     mkdirSync(destDir, { recursive: true });
   }
 
   const writtenFiles: string[] = [];
-  for (const [sec, blocks] of sectionMap.entries()) {
-    const p = join(destDir, `${sec}.yaml`);
-    const content = yaml.dump(
-      { section: sec, blocks },
-      { indent: 2, lineWidth: -1, sortKeys: false },
-    );
-    writeFileSync(p, content, "utf8");
-    writtenFiles.push(p);
+  for (const entry of planned) {
+    writeFileSync(entry.path, entry.content, "utf8");
+    writtenFiles.push(entry.path);
   }
 
+  const recorded =
+    diffFiles.length === 0
+      ? ""
+      : ` Recorded ${diffFiles.length} unified diff(s) in ${runDir ?? "(none)"} before replacing.`;
   return {
     ok: true,
     writtenFiles: Object.freeze(writtenFiles),
-    message: `Wrote ${writtenFiles.length} block files to ${destDir}.`,
+    diffFiles: Object.freeze(diffFiles),
+    unchangedFiles: Object.freeze(unchangedFiles),
+    message: `Wrote ${writtenFiles.length} block files to ${destDir}.${recorded}`,
   };
 }
