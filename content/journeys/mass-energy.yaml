@@ -128,12 +128,7 @@ worldChecks:
     expected: L/9·10²⁰ grams for an energy L in erg
     laterEvidence:
       year: 1932
-      description: >-
-        Cockcroft and Walton drove protons into lithium and found the two alpha particles
-        carried away about 17 million electron volts, matching the mass the nuclei had
-        lost, in Proceedings of the Royal Society A 137, 229-242 (1932). Bainbridge
-        checked that energy against mass-spectrograph values the year after, in Physical
-        Review 44, 123 (1933). Einstein's own suggestion in 1905 had been radium salts.
+      description: "Cockcroft and Walton drove protons into lithium and found the two alpha particles carried away about 17 million electron volts, matching the mass the nuclei had lost, in Proceedings of the Royal Society A 137, 229-242 (1932). Bainbridge checked that energy against mass-spectrograph values the year after, in Physical Review 44, 123 (1933). Einstein's own suggestion in 1905 had been radium salts."
       recordId: cit-cockcroft-walton-1932
     comparisonKind: printed-prediction
     staticWorkedExample:
