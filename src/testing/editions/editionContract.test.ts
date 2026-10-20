@@ -530,6 +530,99 @@ describe("mutation fixtures for implemented contract checks (AC 5)", () => {
     expect(check6?.code).toBe("id-snapshot-uncovered");
   });
 
+  /**
+   * CHECKS 8 AND 11 REACH A VERDICT AND HAD NO PLANTED NEGATIVE. Measured 2026-10-20 across every
+   * file that drives `assertEditionContract`: checks 1, 2, 4, 5, 6, 10, 13 and 14 have a mutation
+   * fixture and 3, 7, 8, 9, 11, 12 and 15 do not. Five of those seven DECLINE on the real corpus,
+   * so their green says nothing either way; two do not.
+   *
+   * #8 passes over 235 edges on light quanta, and #11 over 8 term occurrences there and 30 across
+   * the corpus -- and #11 only started reaching a verdict that day, when the pipeline began
+   * passing the term loader it had never passed (0ea88d659). A check that has just been given a
+   * population and has no plant against it is the exact thing that commit's own census was for.
+   *
+   * BOTH FIXTURES BELOW ARE THE REAL SHAPES, read off a loaded record. My first versions invented
+   * field names -- `targetIds` for an edge, which is `targetId` singular, and `unitId`/`lang` for
+   * a term occurrence, which carries `id`, `termLang`, `definitionLang` and
+   * `isOccurrenceSpecific` -- so both plants failed on SHAPE rather than on the rule they were
+   * meant to drive. The controls are what caught it: they refused too, and a control that refuses
+   * says the fixture never reached the check.
+   */
+  test("PLANTED check 8 mutation: an edge whose source is not a German id fails", () => {
+    const result = assertEditionContract("brownian-motion", {
+      ledgerText: LEDGER,
+      germanIds: ["s1-p1-s1", "s1-p1-s2"],
+      englishIds: ["s1-p1-s1", "s1-p1-s2"],
+      edges: [
+        { sourceId: "s1-p1-s1", targetId: "s1-p1-s1" },
+        // The planted edge: a source the German set does not contain. This is the shape
+        // relativity's eq-A takes on the real corpus, where it is a content question rather than
+        // a plant.
+        { sourceId: "s9-p9-s9", targetId: "s1-p1-s2" },
+      ],
+    });
+    const check8 = result.checks.find((c) => c.checkNumber === 8);
+    expect(check8).toBeDefined();
+    expect(check8?.outcome).toBe("failed");
+    expect(check8?.message).toContain("s9-p9-s9");
+    // And the control, on the same inputs minus the plant: the check must pass, or the failure
+    // above is about the fixture rather than about the edge.
+    const clean = assertEditionContract("brownian-motion", {
+      ledgerText: LEDGER,
+      germanIds: ["s1-p1-s1", "s1-p1-s2"],
+      englishIds: ["s1-p1-s1", "s1-p1-s2"],
+      edges: [
+        { sourceId: "s1-p1-s1", targetId: "s1-p1-s1" },
+        { sourceId: "s1-p1-s2", targetId: "s1-p1-s2" },
+      ],
+    });
+    expect(clean.checks.find((c) => c.checkNumber === 8)?.outcome).toBe("passed");
+  });
+
+  test("PLANTED check 11 mutation: a term definition under 80 characters fails", () => {
+    const short = "Too short.";
+    expect(short.length).toBeLessThan(80);
+    const result = assertEditionContract("brownian-motion", {
+      ledgerText: LEDGER,
+      terms: [
+        {
+          id: "s1-p1-s1#term-molekularkinetische-theorie-der-waerme#0",
+          termId: "term-molekularkinetische-theorie-der-waerme",
+          termText: "molekularkinetischen Theorie der Wärme",
+          definition: short,
+          termLang: "de",
+          definitionLang: "en",
+          isOccurrenceSpecific: true,
+        },
+      ],
+    });
+    const check11 = result.checks.find((c) => c.checkNumber === 11);
+    expect(check11).toBeDefined();
+    expect(check11?.outcome).toBe("failed");
+    expect(check11?.code).toBeDefined();
+    // The control: the same occurrence with a definition long enough must pass, so the failure is
+    // about the length rule and not about the fixture's shape.
+    const long =
+      "The molecular-kinetic theory of heat holds that heat is the motion of the molecules a body " +
+      "is made of, so a temperature is a statement about that motion rather than about a fluid.";
+    expect(long.length).toBeGreaterThan(80);
+    const clean = assertEditionContract("brownian-motion", {
+      ledgerText: LEDGER,
+      terms: [
+        {
+          id: "s1-p1-s1#term-molekularkinetische-theorie-der-waerme#0",
+          termId: "term-molekularkinetische-theorie-der-waerme",
+          termText: "molekularkinetischen Theorie der Wärme",
+          definition: long,
+          termLang: "de",
+          definitionLang: "en",
+          isOccurrenceSpecific: true,
+        },
+      ],
+    });
+    expect(clean.checks.find((c) => c.checkNumber === 11)?.outcome).toBe("passed");
+  });
+
   test("PLANTED check 10 mutation: inline math atom mismatch fails with math-atoms-differ", () => {
     const result = assertEditionContract("brownian-motion", {
       ledgerText: LEDGER,
