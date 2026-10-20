@@ -364,33 +364,135 @@ describe("PLANT: the ledger-present branch measures instead of announcing", () =
     }
   });
 
-  test("the static-html stage scans emitted HTML and fails on ledger furniture in it", async () => {
+  /**
+   * THE STAGE READS THE FACE ROUTES, and asserting on the plant the corpus can actually produce.
+   *
+   * This test used to write `out/papers/<slug>/index.html` -- the reading route, not a face -- and
+   * plant `--- REVIEWED TRANSCRIPTION PAGE 1 OF 2 ---` in it. Both were wrong in the same
+   * direction as the stage they tested. The stage's regex was keyed on the word REVIEWED, so the
+   * plant was chosen to match the detector rather than to match the corpus: all four shipping
+   * ledgers are machine drafts and open `--- MACHINE DRAFT TRANSCRIPTION PAGE n OF m ---`, a form
+   * the detector could not see. The plant below is the machine-draft form, which is the one a leak
+   * could consist of.
+   */
+  test("the static-html stage scans the face route and catches a machine-draft page marker", async () => {
     const root = ledgerPresentRoot();
-    const page = join(root, "out/papers/brownian-motion/index.html");
+    const page = join(root, "out/papers/brownian-motion/view/german/index.html");
     mkdirSync(dirname(page), { recursive: true });
 
-    writeFileSync(
-      page,
-      '<html lang="de"><body><p>Die Bewegung ist unregelmäßig.</p></body></html>',
-      "utf8",
-    );
+    // Brownian's section 0 holds six anchor-bearing units, so `--sections s0` gives this fixture
+    // a real anchor denominator of six rather than the paper's 178.
+    const s0 = ["s0-p1", "s0-p1-s1", "s0-p1-s2", "s0-p2", "s0-p2-s1", "s0-p2-s2"];
+    const facePage = (ids: readonly string[]) =>
+      `<html lang="en"><body>${ids
+        .map((id) =>
+          id.includes("-s")
+            ? `<span id="${id}">Satz</span>`
+            : `<p id="${id}" data-block-id="${id}" data-kind="paragraph" lang="de">Die Bewegung ist unregelmäßig.</p>`,
+        )
+        .join("")}</body></html>`;
+
+    writeFileSync(page, facePage(s0), "utf8");
     const green = stageOf(
-      await runEditionPipeline({ slug: "brownian-motion", root }),
+      await runEditionPipeline({ slug: "brownian-motion", root, sections: ["s0"] }),
       "static-html",
     );
     expect(green?.outcome).toBe("passed");
-    // The pass says what it scanned and does not claim the build is current.
-    expect(green?.message).toContain("index.html");
+    // The pass states its census, so a scan of nothing cannot read as a clean scan.
+    expect(green?.message).toContain("german");
+    expect(green?.message).toContain("6 of 6 anchors");
+    expect(green?.message).toContain("2 German element(s)");
     expect(green?.pending?.join(" ")).toContain("stale");
+
+    // One anchor withheld: the scan names it rather than only counting it.
+    writeFileSync(page, facePage(s0.slice(1)), "utf8");
+    const short = stageOf(
+      await runEditionPipeline({ slug: "brownian-motion", root, sections: ["s0"] }),
+      "static-html",
+    );
+    expect(short?.outcome).toBe("failed");
+    expect(short?.evidence?.join(" ")).toContain("static-html-anchor-missing");
+    expect(short?.evidence?.join(" ")).toContain("s0-p1");
 
     writeFileSync(
       page,
-      '<html lang="de"><body><p>--- REVIEWED TRANSCRIPTION PAGE 1 OF 2 --- Die Bewegung</p></body></html>',
+      '<html lang="en"><body><p>--- MACHINE DRAFT TRANSCRIPTION PAGE 1 OF 2 --- Die Bewegung</p></body></html>',
       "utf8",
     );
-    const red = stageOf(await runEditionPipeline({ slug: "brownian-motion", root }), "static-html");
+    const red = stageOf(
+      await runEditionPipeline({ slug: "brownian-motion", root, sections: ["s0"] }),
+      "static-html",
+    );
     expect(red?.outcome).toBe("failed");
-    expect(red?.code).toBe("static-html-furniture");
+    expect(red?.code).toBe("static-html-findings");
+    expect(red?.evidence?.join(" ")).toContain("static-html-ledger-page-marker");
+  });
+
+  test("a face named by --layers but not built is not-available, naming the route", async () => {
+    const root = ledgerPresentRoot();
+    const german = join(root, "out/papers/brownian-motion/view/german/index.html");
+    mkdirSync(dirname(german), { recursive: true });
+    writeFileSync(german, '<html lang="en"><body><p>text</p></body></html>', "utf8");
+    // German is there; the English face is not, and asking for the translation layer must say so
+    // rather than pass on the one face that happens to exist.
+    const stage = stageOf(
+      await runEditionPipeline({
+        slug: "brownian-motion",
+        root,
+        layers: ["german", "translation"],
+      }),
+      "static-html",
+    );
+    expect(stage?.outcome).toBe("not-available");
+    expect(stage?.code).toBe("static-html-not-available");
+    expect(stage?.message).toContain("view/english/index.html");
+  });
+
+  test("a layer that is published as no face says so, rather than passing on nothing", async () => {
+    const root = ledgerPresentRoot();
+    const stage = stageOf(
+      await runEditionPipeline({ slug: "brownian-motion", root, layers: ["notation"] }),
+      "static-html",
+    );
+    expect(stage?.outcome).toBe("not-available");
+    expect(stage?.code).toBe("static-html-no-face");
+  });
+
+  /**
+   * THE CORPUS HALF OF THE SCAN'S PROOF.
+   *
+   * `staticHtmlScan.test.ts` proves each of the five scans against fixtures, in a lane that needs
+   * no build. That is the half that keeps working when the build is broken, and it is not enough
+   * on its own: a fixture cannot show that the scans reach a real face, that their populations are
+   * not empty there, or that the anchor denominator is a real number. This half does, when `out/`
+   * is present, and says which branch it took when it is not -- rather than skipping, because a
+   * skipped test and a passing one are the same green.
+   */
+  test("over the repository's own build, the five scans reach a real population", async () => {
+    const built = join(REPO, "out/papers/brownian-motion/view/german/index.html");
+    const stage = stageOf(
+      await runEditionPipeline({ slug: "brownian-motion", root: REPO }),
+      "static-html",
+    );
+    if (!existsSync(built)) {
+      expect(stage?.outcome).toBe("not-available");
+      expect(stage?.code).toBe("static-html-not-available");
+      return;
+    }
+    expect(stage?.outcome).toBe("passed");
+    const message = stage?.message ?? "";
+    // The census, named: anchors asserted and resolved, and German elements examined. Every one of
+    // these was zero before this stage was wired, because three of the five scans did not exist.
+    const anchors = /(\d+) of (\d+) anchors/.exec(message);
+    expect(anchors, `no anchor census in: ${message}`).not.toBeNull();
+    expect(Number(anchors?.[2] ?? 0)).toBeGreaterThan(100);
+    expect(anchors?.[1]).toBe(anchors?.[2]);
+    const germanElements = /(\d+) German element/.exec(message);
+    expect(Number(germanElements?.[1] ?? 0)).toBeGreaterThan(10);
+    // And the reader reads a fraction of the bytes, which is the whole reason the LaTeX scan works.
+    const sizes = /german (\d+)K \((\d+)K read by a reader\)/.exec(message);
+    expect(sizes, `no size census in: ${message}`).not.toBeNull();
+    expect(Number(sizes?.[2] ?? 0)).toBeLessThan(Number(sizes?.[1] ?? 0));
   });
 
   test("every stage carries a duration and the run names its JSONL log", async () => {
@@ -419,8 +521,8 @@ describe("PLANT: the ledger-present branch measures instead of announcing", () =
  * caught), and the assertion on `aborted-by: corpus-empty` is what makes the citation checkable.
  * Renaming that site's code now turns this test red, which it did not before.
  *
- * WHAT THE EARLIER REMOVAL WAS FOR, kept because the reasoning still governs. It cited
- * e2e-edition-pipeline.ts:409, and the stale-citation ratchet refused it as code-mismatched. The
+ * WHAT THE EARLIER REMOVAL WAS FOR, kept because the reasoning still governs. It cited the
+ * absent-directory abort's line, and the stale-citation ratchet refused it as code-mismatched. The
  * gate's rule is to plant before repointing, so I renamed that site's code to
  * "corpus-empty-planted" and ran this suite: 12 pass, 0 fail. The citation was a claim I had not
  * verified and could not.
@@ -438,7 +540,7 @@ describe("PLANT: the ledger-present branch measures instead of announcing", () =
  * standing - execution falls through to loadReadingFiles, which throws ENOENT and fails the stage.
  */
 describe("edition pipeline: an absent corpus is not a compiler failure", () => {
-  test("the abort records its own code and spares the compiler (e2e-edition-pipeline.ts:409)", async () => {
+  test("the abort records its own code and spares the compiler (e2e-edition-pipeline.ts:505)", async () => {
     const emptyRoot = mkdtempSync(join(tmpdir(), "am-edition-no-corpus-"));
     const run = await runEditionPipeline({ slug: "brownian-motion", root: emptyRoot });
 
@@ -463,7 +565,7 @@ describe("edition pipeline: an absent corpus is not a compiler failure", () => {
     expect(run.exitCode).toBe(0);
   });
 
-  test("a present but empty corpus aborts on its own site (e2e-edition-pipeline.ts:419)", async () => {
+  test("a present but empty corpus aborts on its own site (e2e-edition-pipeline.ts:515)", async () => {
     // THE SECOND corpus-empty SITE, and it was invisible until the scanner stopped misreading it.
     // :295 refuses a MISSING content directory; :305 refuses one that is PRESENT and holds no
     // records. The two share the code, so the scanner counted corpus-empty as 1 untested of 1 and

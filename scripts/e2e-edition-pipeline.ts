@@ -47,6 +47,7 @@ import {
   translationCompleteness,
 } from "../src/content/editions/ledgerPresence.ts";
 import { germanAlignableIds, segmentLedger } from "../src/content/editions/segmentLedger.ts";
+import { type ScannedFace, scanFaceHtml } from "../src/content/editions/staticHtmlScan.ts";
 import { parseRouteSlug, type RouteSlug } from "../src/content/ids.ts";
 import { validateLedger } from "../src/content/ledger/validateLedger.ts";
 import { validateSourceManifest } from "../src/content/manifest/schema.ts";
@@ -155,7 +156,10 @@ function argValue(flag: string): string | undefined {
   return process.argv[i + 1];
 }
 
-function loadManifestUnitIds(root: string, slug: RouteSlug): readonly string[] | null {
+function loadManifestUnits(
+  root: string,
+  slug: RouteSlug,
+): readonly Readonly<{ id: string; kind: string }>[] | null {
   const manifestPath = join(root, `content/source-blocks/${slug}/manifest.yaml`);
   if (!existsSync(manifestPath)) return null;
   try {
@@ -163,10 +167,102 @@ function loadManifestUnitIds(root: string, slug: RouteSlug): readonly string[] |
       parseYaml(readFileSync(manifestPath, "utf8")),
       manifestPath,
     );
-    return manifest.units.map((unit) => unit.id);
+    return manifest.units.map((unit) => ({ id: unit.id, kind: String(unit.kind) }));
   } catch {
     return null;
   }
+}
+
+function loadManifestUnitIds(root: string, slug: RouteSlug): readonly string[] | null {
+  return loadManifestUnits(root, slug)?.map((unit) => unit.id) ?? null;
+}
+
+/*
+ * WHICH MANIFEST UNITS ARE ANCHORS, which is what section G's "every in-scope anchor id present"
+ * turns on. The authority is docs/CONTENT_IDS.md sections 7.1 and 7.2, and two kinds are
+ * deliberately NOT anchors there:
+ *
+ *   inline-equation  AGENTS.md: "These units have no reader-facing anchor, deliberately: the
+ *                    anchor grammar above defines no #s<n>-p<m>-s<k>-m<i>, so a reader arrives at
+ *                    the sentence that prints the formula." 270 units over the corpus.
+ *   the reference kinds (bibliographic, internal, cross-paper)  CONTENT_IDS.md section 6:
+ *                    "Names the occurrence in the text, not the target." 66 units.
+ *
+ * Counting either as a missing anchor would report 336 defects that are decisions. Measured
+ * 2026-10-20 against the built faces with the remaining kinds: the German face resolves 930 of
+ * 930 in-scope anchors across the four papers (53, 178, 263, 436), so this is a live gate on a
+ * real population and not a floor over an empty one.
+ */
+const ANCHOR_BEARING_UNIT_KINDS: ReadonlySet<string> = new Set([
+  "paragraph",
+  "sentence",
+  "heading",
+  "section-heading",
+  "part-heading",
+  "footnote",
+  "masthead-title",
+  "masthead-author",
+  "closing-dateline",
+  "closing-ack",
+  "closing-received",
+  "display-equation",
+]);
+
+/** The reading face each `--layers` value is published as. */
+const FACE_FOR_LAYER: Readonly<Record<string, ScannedFace>> = Object.freeze({
+  german: "german",
+  translation: "english",
+  gloss: "gloss",
+});
+
+/**
+ * The anchors a given face is responsible for publishing.
+ *
+ * THE ENGLISH FACE IS NOT ASKED FOR PARAGRAPH ANCHORS, and that exclusion is a scope statement
+ * with a measurement and an owner behind it, not a relaxation. The English face publishes
+ * translation units, which are sentence-grained; a paragraph is a German structural unit and the
+ * face declares it as `data-source-paragraph` rather than as an id. Measured 2026-10-20: with
+ * paragraphs excluded the English faces resolve 742 of 742, and with them included 188 German
+ * paragraph ids have no English anchor. Whether a reader who switches faces at `#s1-p7` should be
+ * carried to the nearest unit that exists on the new face is the nearest-ancestor arm of
+ * `src/reader/anchors/mapToFace.ts`, which is recorded as unowned and gated as debt by
+ * `unwiredAnchorModules.test.ts` under am-read-anchors-navigation-a6o. That bead owns the
+ * question; this stage reports the number so it cannot be forgotten.
+ *
+ * THE GLOSS FACE ASSERTS NO ANCHORS. It is partial by design -- the reader is told "Not yet
+ * glossed" for the sections that have no gloss units -- so the manifest is not its denominator.
+ * Measured 2026-10-20: light quanta's gloss face declares 15 ids against 263 manifest anchors.
+ * The scan says in its own notes that nothing was asserted, rather than passing quietly.
+ */
+function anchorsForFace(
+  face: ScannedFace,
+  units: readonly Readonly<{ id: string; kind: string }>[],
+  sections: readonly string[] | undefined,
+): { expected: readonly string[]; notes: readonly string[] } {
+  if (face === "gloss") {
+    return {
+      expected: [],
+      notes: ["the gloss face is partial by design, so the manifest is not its anchor denominator"],
+    };
+  }
+  const inSections = (id: string) =>
+    sections === undefined ||
+    sections.length === 0 ||
+    sections.some((section) => id === section || id.startsWith(`${section}-`));
+  const anchored = units.filter(
+    (unit) => ANCHOR_BEARING_UNIT_KINDS.has(unit.kind) && inSections(unit.id),
+  );
+  if (face !== "english") {
+    return { expected: anchored.map((unit) => unit.id), notes: [] };
+  }
+  const paragraphs = anchored.filter((unit) => unit.kind === "paragraph");
+  return {
+    expected: anchored.filter((unit) => unit.kind !== "paragraph").map((unit) => unit.id),
+    notes: [
+      `${paragraphs.length} German paragraph id(s) are not asserted on the English face; ` +
+        "the nearest-ancestor face mapping is am-read-anchors-navigation-a6o's",
+    ],
+  };
 }
 
 export async function runEditionPipeline(options: {
@@ -566,40 +662,93 @@ export async function runEditionPipeline(options: {
   }
 
   // ----------------------------------------------------------- 9. static-html
+  /*
+   * THE FIVE SCANS OF SECTION G, over each face in the layers.
+   *
+   * Audited 2026-10-20. This stage performed two of the five, over one route, and both of the two
+   * were wrong in the direction that reads as a pass:
+   *
+   *   - the marker regex was keyed on the word REVIEWED while all four shipping ledgers open
+   *     `--- MACHINE DRAFT TRANSCRIPTION PAGE n OF m ---`, so the only form it could meet was
+   *     the one it could not match. Two other modules had already been bitten by that exact
+   *     keying and fixed it; this was the third copy. It now imports the owned pattern;
+   *   - the LaTeX test ran over the whole file, where a match proves nothing: one relativity face
+   *     carries 505 KaTeX annotations and 1,213 flight-payload chunks, 351 `\frac` among them.
+   *     Scanning reader-visible text instead found one real defect on two built pages.
+   *
+   * The scans themselves, their populations and their negative controls are
+   * `src/content/editions/staticHtmlScan.ts`; this is the file-finding and reporting half.
+   */
   begin("static-html");
   const outDir = join(root, "out");
-  const readerRoute = join(outDir, "papers", slug, "index.html");
-  if (!existsSync(readerRoute)) {
+  const scannedFaces = layers
+    .map((layer) => FACE_FOR_LAYER[layer])
+    .filter((face): face is ScannedFace => face !== undefined);
+  const anchorUnits = loadManifestUnits(root, slug) ?? [];
+  const faceRoutes = scannedFaces.map((face) => ({
+    face,
+    path: join(outDir, "papers", slug, "view", face, "index.html"),
+  }));
+  const missingRoutes = faceRoutes.filter((route) => !existsSync(route.path));
+  if (scannedFaces.length === 0) {
     push(
       "static-html",
       "not-available",
-      `No prerendered reader page at out/papers/${slug}/index.html, so the emitted HTML cannot be scanned.`,
+      `No layer in [${layers.join(", ")}] is published as a reading face, so no emitted HTML was scanned.`,
+      { code: "static-html-no-face" },
+    );
+  } else if (missingRoutes.length > 0) {
+    push(
+      "static-html",
+      "not-available",
+      `No prerendered page at ${missingRoutes
+        .map((route) => `out/papers/${slug}/view/${route.face}/index.html`)
+        .join(", ")}, so the emitted HTML cannot be scanned. Run bun run build first.`,
       { code: "static-html-not-available" },
     );
   } else {
-    const html = readFileSync(readerRoute, "utf8");
-    const markers = [
-      { name: "ledger page marker", pattern: /---\s*REVIEWED\s+TRANSCRIPTION\s+PAGE\s+\d+/ },
-      { name: "raw LaTeX delimiter", pattern: /\$\$|\\\[/ },
-    ].filter((m) => m.pattern.test(html));
-    if (markers.length > 0) {
-      push(
-        "static-html",
-        "failed",
-        `Emitted HTML carries ${markers.map((m) => m.name).join(", ")}.`,
-        {
-          code: "static-html-furniture",
-          evidence: markers.map((m) => m.name),
-        },
+    const findings: string[] = [];
+    const census: string[] = [];
+    const notes: string[] = [];
+    for (const route of faceRoutes) {
+      const html = readFileSync(route.path, "utf8");
+      const anchors = anchorsForFace(route.face, anchorUnits, options.sections);
+      const scan = scanFaceHtml({ html, face: route.face, expectedAnchors: anchors.expected });
+      for (const finding of scan.findings) {
+        findings.push(
+          `${route.face}: ${finding.code}: ${finding.message}${
+            finding.sample ? ` -- ${finding.sample}` : ""
+          }`,
+        );
+      }
+      census.push(
+        `${route.face} ${Math.round(scan.examined.bytes / 1024)}K ` +
+          `(${Math.round(scan.examined.readerVisibleBytes / 1024)}K read by a reader), ` +
+          `${scan.examined.declaredIds} ids, ` +
+          `${scan.examined.anchorsResolved} of ${scan.examined.anchorsExpected} anchors, ` +
+          `${scan.examined.germanTextElements} German element(s)`,
       );
+      for (const note of [...anchors.notes, ...scan.notes]) notes.push(`${route.face}: ${note}`);
+    }
+    const built = faceRoutes
+      .map((route) => statSync(route.path).mtime.toISOString())
+      .sort()
+      .at(-1);
+    if (findings.length > 0) {
+      push("static-html", "failed", `Emitted HTML: ${findings.length} finding(s). ${findings[0]}`, {
+        code: "static-html-findings",
+        evidence: findings,
+      });
     } else {
       push(
         "static-html",
         "passed",
-        `Emitted reader page ${readerRoute} (last written ${statSync(readerRoute).mtime.toISOString()}) carries no ledger furniture or raw LaTeX.`,
+        `Five scans clean over ${faceRoutes.length} face(s), oldest written ${built}: ${census.join("; ")}.`,
         {
           pending: [
+            ...notes,
             "whether out/ was built from the current commit is not checked here, and a scan of stale output is a scan of stale output (build freshness belongs to am-rel-verified-deploy-qndt)",
+            'an UNTAGGED running head is the bare line "A. Einstein.", which the printed author line also is, so only the tagged form is scanned',
           ],
         },
       );
