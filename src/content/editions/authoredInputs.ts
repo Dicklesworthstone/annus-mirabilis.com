@@ -23,6 +23,7 @@ import {
   edgesFromAlignment,
   type GlossAlignableUnit,
   type GlossUnit,
+  type TermOccurrence,
   type UnitContent,
   type ValidateGlossInput,
 } from "./alignment.ts";
@@ -37,6 +38,10 @@ type InlineShape = Readonly<{
   latex?: unknown;
   mark?: unknown;
   referenceId?: unknown;
+  termId?: unknown;
+  definition?: unknown;
+  lang?: unknown;
+  definitionLang?: unknown;
   display?: boolean | undefined;
   math?: Readonly<{ latex?: unknown; display?: boolean | undefined }> | undefined;
   inlines?: readonly InlineShape[] | undefined;
@@ -670,4 +675,98 @@ function placeAtoms(text: string, inlines: readonly InlineShape[]): readonly Pla
   };
   walk(inlines);
   return placed;
+}
+
+/**
+ * THE SIXTH POPULATION: term occurrences (rule C.5).
+ *
+ * Same shape as the four above: `validateTerms` judged `options.terms`, nothing supplied it, and
+ * the runner reported a pass having checked no definition at all. Measured once it had one: 30
+ * term inlines over the four papers (7 brownian-motion, 8 light-quanta, 7 mass-energy, 8
+ * special-relativity), 30 distinct term ids, every definition longer than 80 characters, every
+ * German text carrying `lang: de` and every definition `lang: en`.
+ *
+ * `isOccurrenceSpecific` IS DERIVED, not read, because no record carries it. C.5 says "a
+ * definition shared by id across occurrences without an occurrence record fails", so the
+ * question is about the SET of occurrences and cannot be answered by looking at one. An
+ * occurrence is marked shared when another occurrence of the same `termId` carries a
+ * byte-identical definition. Measured today: zero term id occurs twice, so the rule is live but
+ * its positive case is unreached by the corpus -- which is exactly why
+ * `validateTerms` keeps its own planted negative rather than relying on this.
+ *
+ * NOTE FOR AN EDITORIAL PANE, not acted on here: 30 annotations over four papers is 7 or 8 per
+ * paper, and AGENTS.md names nine period words for annotation in its own list. Whether that is a
+ * deliberate small set or a coverage gap is a content question for the term beads; this loader
+ * only reports what is authored.
+ */
+export function loadTermOccurrences(
+  slug: RouteSlug,
+  root: string,
+): { terms: readonly TermOccurrence[]; issues: readonly AlignmentIssue[] } {
+  const issues: AlignmentIssue[] = [];
+  const dir = join(root, `content/source-blocks/${slug}`);
+  if (!existsSync(dir)) return { terms: [], issues };
+
+  type Raw = { blockId: string; index: number; inline: InlineShape };
+  const raw: Raw[] = [];
+
+  for (const file of readdirSync(dir).sort()) {
+    if (!file.endsWith(".yaml")) continue;
+    let record: SourceBlockShape | null;
+    try {
+      record = parseYaml(readFileSync(join(dir, file), "utf8")) as SourceBlockShape | null;
+    } catch (err: unknown) {
+      issues.push({
+        code: "alignment-record-unreadable",
+        message:
+          `content/source-blocks/${slug}/${file} is on disk and could not be loaded: ` +
+          `${err instanceof Error ? err.message : String(err)}. ` +
+          "This is not an absence of term occurrences.",
+      });
+      continue;
+    }
+    if (typeof record?.id !== "string" || !record.inlines) continue;
+    const blockId = record.id;
+    let index = 0;
+    const walk = (list: readonly InlineShape[]): void => {
+      for (const inline of list) {
+        if (inline.kind === "term") {
+          raw.push({ blockId, index, inline });
+          index += 1;
+        }
+        if (inline.inlines) walk(inline.inlines);
+      }
+    };
+    walk(record.inlines);
+  }
+
+  // A definition is "shared" when another occurrence of the same term id repeats it verbatim.
+  const byTermId = new Map<string, string[]>();
+  for (const item of raw) {
+    const termId = typeof item.inline.termId === "string" ? item.inline.termId : "";
+    const definition = typeof item.inline.definition === "string" ? item.inline.definition : "";
+    const list = byTermId.get(termId) ?? [];
+    list.push(definition);
+    byTermId.set(termId, list);
+  }
+
+  const terms: TermOccurrence[] = raw.map((item) => {
+    const termId = typeof item.inline.termId === "string" ? item.inline.termId : "";
+    const definition = typeof item.inline.definition === "string" ? item.inline.definition : "";
+    const siblings = byTermId.get(termId) ?? [];
+    const repeated = siblings.filter((d) => d === definition).length > 1;
+    return {
+      id: `${item.blockId}#${termId}#${item.index}`,
+      termId,
+      termText: typeof item.inline.text === "string" ? item.inline.text : "",
+      definition,
+      ...(typeof item.inline.lang === "string" ? { termLang: item.inline.lang } : {}),
+      ...(typeof item.inline.definitionLang === "string"
+        ? { definitionLang: item.inline.definitionLang }
+        : {}),
+      isOccurrenceSpecific: !repeated,
+    };
+  });
+
+  return { terms, issues };
 }

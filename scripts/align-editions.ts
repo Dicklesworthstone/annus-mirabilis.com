@@ -29,6 +29,7 @@ import {
   loadAlignmentComponents,
   loadAuthoredEdges,
   loadGlossInput,
+  loadTermOccurrences,
   manifestUnitIds,
   translationUnitIds,
 } from "../src/content/editions/authoredInputs.ts";
@@ -249,9 +250,24 @@ export function runAlignEditions(options: AlignEditionsOptions): AlignEditionsRe
     issues.push(...mathIssues.filter((i) => i.code !== "math-order-differs"));
   }
 
-  // 4. Terminology validation (rule C.5)
-  if (options.terms && options.terms.length > 0) {
-    const termIssues = validateTerms(options.terms);
+  /*
+   * 4. Terminology validation (rule C.5)
+   *
+   * Loaded from disk when the caller supplied none, like the edges, components and gloss units.
+   * Measured before this line existed: `options.terms` was undefined on every production call,
+   * so not one definition was ever checked for the 80-character floor or its `lang` metadata,
+   * and the runner reported a pass. The corpus carries 30 term occurrences and all 30 conform.
+   */
+  let termsExamined = 0;
+  let terms = options.terms;
+  if (terms === undefined) {
+    const loaded = loadTermOccurrences(slug, root);
+    terms = loaded.terms;
+    issues.push(...loaded.issues);
+  }
+  termsExamined = terms.length;
+  if (terms.length > 0) {
+    const termIssues = validateTerms(terms);
     issues.push(...termIssues);
   }
 
@@ -282,7 +298,33 @@ export function runAlignEditions(options: AlignEditionsOptions): AlignEditionsRe
     issues.push(...glossIssues);
   }
 
-  // 6. Review states (rule C.7)
+  /*
+   * 6. Review states (rule C.7)
+   *
+   * DELIBERATELY NOT LOADED FROM DISK, which is the one place this unit stopped. The edges,
+   * components, terms and gloss units above are all loaded now; review units are not, and the
+   * reason is a disagreement between two authorities rather than a missing loader.
+   *
+   * Measured 2026-10-19 by building review units from the translation records and running this
+   * rule with the registered check: 821 of 821 units refuse, with `review-records-not-available`
+   * on every one. All four papers' translation units are `reviewState: "reviewed"`, and
+   * `recordBackedReviewStateCheck` asks each of them for a `german-source` review record, of
+   * which the repository holds none.
+   *
+   * Two things are wrong with that question, and neither is mine to settle:
+   *   1. The check hard-codes `r.reviewType === "german-source"` and never reads
+   *      `context.layer`, although `ReviewStateCheckContext` carries one. It therefore asks the
+   *      GERMAN LEDGER's question of the translation and gloss layers too.
+   *   2. docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations made the translation layer's
+   *      authority an `agentReview` record of at least two rounds by agents other than the
+   *      translator, which `src/content/schemas/source.ts` already enforces. All 821 units carry
+   *      one. The check predates or ignores that decision for this layer.
+   *
+   * Wiring a loader here would take four green papers to red over a decision disagreement, and
+   * relaxing the check to get green would be the gate-weakening AGENTS.md names RH-1. So the
+   * population stays at 0, the `examined` census says so, and the finding is on
+   * am-edn-alignment-tooling-do1 and am-edit-review-records-hofz for an owner to settle.
+   */
   if (options.reviewUnits && options.reviewUnits.length > 0) {
     const reviewIssues = validateReviewStates(options.reviewUnits);
     issues.push(...reviewIssues);
@@ -382,7 +424,7 @@ export function runAlignEditions(options: AlignEditionsOptions): AlignEditionsRe
       germanIds: germanIds.length,
       englishIds: englishIds.length,
       components: componentsExamined,
-      terms: options.terms?.length ?? 0,
+      terms: termsExamined,
       glossUnits: glossUnitsExamined,
       reviewUnits: options.reviewUnits?.length ?? 0,
     }),

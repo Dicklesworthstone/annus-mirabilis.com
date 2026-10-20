@@ -16,10 +16,12 @@ import { describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { validateTerms } from "../../content/editions/alignment.ts";
 import {
   loadAlignmentComponents,
   loadAuthoredEdges,
   loadGlossInput,
+  loadTermOccurrences,
   manifestUnitIds,
   translationUnitIds,
 } from "../../content/editions/authoredInputs.ts";
@@ -143,7 +145,7 @@ describe("loadGlossInput", () => {
     expect(loaded.glossInput).toBeUndefined();
   });
 
-  it("an unparseable SOURCE BLOCK is reported, not read as having no alignable units (authoredInputs.ts:284)", () => {
+  it("an unparseable SOURCE BLOCK is reported, not read as having no alignable units (authoredInputs.ts:289)", () => {
     const root = mkdtempSync(join(tmpdir(), "gloss-input-blocks-"));
     mkdirSync(join(root, "content", "source-blocks", "mass-energy"), { recursive: true });
     writeFileSync(
@@ -155,7 +157,7 @@ describe("loadGlossInput", () => {
     expect(loaded.issues[0]?.message).toContain("not an absence of alignable units");
   });
 
-  it("an unparseable GLOSS UNIT is reported, not read as having no glosses (authoredInputs.ts:335)", () => {
+  it("an unparseable GLOSS UNIT is reported, not read as having no glosses (authoredInputs.ts:340)", () => {
     const root = mkdtempSync(join(tmpdir(), "gloss-input-units-"));
     mkdirSync(join(root, "content", "gloss-units", "mass-energy"), { recursive: true });
     writeFileSync(
@@ -253,7 +255,7 @@ describe("loadAlignmentComponents", () => {
 });
 
 describe("loadAlignmentComponents reports an unreadable record rather than an empty population", () => {
-  it("an unparseable SOURCE BLOCK is reported (authoredInputs.ts:530)", () => {
+  it("an unparseable SOURCE BLOCK is reported (authoredInputs.ts:535)", () => {
     const root = mkdtempSync(join(tmpdir(), "components-blocks-"));
     mkdirSync(join(root, "content", "source-blocks", "mass-energy"), { recursive: true });
     writeFileSync(
@@ -266,7 +268,7 @@ describe("loadAlignmentComponents reports an unreadable record rather than an em
     expect(loaded.issues[0]?.message).toContain("content/source-blocks/mass-energy/s0-p1.yaml");
   });
 
-  it("an unparseable TRANSLATION UNIT is reported (authoredInputs.ts:590)", () => {
+  it("an unparseable TRANSLATION UNIT is reported (authoredInputs.ts:595)", () => {
     const root = mkdtempSync(join(tmpdir(), "components-units-"));
     mkdirSync(join(root, "content", "translation-units", "mass-energy"), { recursive: true });
     writeFileSync(
@@ -291,5 +293,145 @@ describe("loadAlignmentComponents reports an unreadable record rather than an em
     expect(loaded.issues).toHaveLength(2);
     expect(loaded.issues[0]?.message).toContain("content/source-blocks/mass-energy/a.yaml");
     expect(loaded.issues[1]?.message).toContain("content/translation-units/mass-energy/b.yaml");
+  });
+});
+
+/**
+ * THE SIXTH POPULATION: term occurrences (rule C.5).
+ */
+describe("loadTermOccurrences", () => {
+  it("loads every authored term, with the per-paper counts named", () => {
+    const counts: Record<string, number> = {};
+    for (const slug of [
+      "mass-energy",
+      "light-quanta",
+      "brownian-motion",
+      "special-relativity",
+    ] as const) {
+      const loaded = loadTermOccurrences(slug as RouteSlug, ROOT);
+      expect(loaded.issues, `${slug}: a record could not be read`).toEqual([]);
+      counts[slug] = loaded.terms.length;
+      expect(loaded.terms.length, `${slug}: no term occurrences`).toBeGreaterThan(0);
+    }
+    // Reported, not frozen: the floor is what matters, because annotating another period word
+    // is correct work and must not break this.
+    const total = Object.values(counts).reduce((a, b) => a + b, 0);
+    expect(total).toBeGreaterThanOrEqual(25);
+  });
+
+  it("every loaded term carries the fields C.5 judges", () => {
+    // A loader that dropped `lang` would make `term-missing-german-lang` fire on all 30, and a
+    // loader that dropped `definition` would make the 80-character rule fire on all 30. Both
+    // would read as a corpus in ruins, so the fields are asserted here rather than inferred
+    // from the rule passing.
+    for (const slug of ["mass-energy", "special-relativity"] as const) {
+      for (const term of loadTermOccurrences(slug as RouteSlug, ROOT).terms) {
+        expect(term.termId, `${term.id}: no termId`).not.toBe("");
+        expect(term.termText, `${term.id}: no termText`).not.toBe("");
+        expect(term.definition.length, `${term.id}: short definition`).toBeGreaterThan(80);
+        expect(term.termLang, `${term.id}: termLang`).toBe("de");
+        expect(term.definitionLang, `${term.id}: definitionLang`).toBe("en");
+      }
+    }
+  });
+
+  it("occurrence-specificity is DERIVED from the set, and today no term id repeats", () => {
+    // C.5 asks whether a definition is shared across occurrences, which cannot be answered by
+    // looking at one record. No record carries the flag, so the loader computes it.
+    const all = (
+      ["mass-energy", "light-quanta", "brownian-motion", "special-relativity"] as const
+    ).flatMap((slug) => [...loadTermOccurrences(slug as RouteSlug, ROOT).terms]);
+    const ids = all.map((t) => t.termId);
+    expect(new Set(ids).size, "a term id repeats; the derivation now has a live case").toBe(
+      ids.length,
+    );
+    expect(all.every((t) => t.isOccurrenceSpecific === true)).toBe(true);
+  });
+
+  it("CONTROL: a repeated term id with the SAME definition is marked shared", () => {
+    // The positive case the corpus does not reach. Without this the derivation above could
+    // return `true` unconditionally and every assertion in this file would still pass.
+    const root = mkdtempSync(join(tmpdir(), "terms-shared-"));
+    mkdirSync(join(root, "content", "source-blocks", "mass-energy"), { recursive: true });
+    const definition =
+      "A bundle of light treated as a single object for the purposes of this argument, following the printed usage of the paper.";
+    const block = (id: string) =>
+      [
+        `id: "${id}"`,
+        'kind: "paragraph"',
+        'diplomaticText: "Ein Lichtkomplex."',
+        "inlines:",
+        '  - kind: "term"',
+        '    text: "Lichtkomplex"',
+        '    termId: "term-lichtkomplex"',
+        `    definition: "${definition}"`,
+        '    lang: "de"',
+        '    definitionLang: "en"',
+        "",
+      ].join("\n");
+    writeFileSync(
+      join(root, "content", "source-blocks", "mass-energy", "s0-p1.yaml"),
+      block("s0-p1"),
+    );
+    writeFileSync(
+      join(root, "content", "source-blocks", "mass-energy", "s0-p2.yaml"),
+      block("s0-p2"),
+    );
+
+    const loaded = loadTermOccurrences("mass-energy" as RouteSlug, root);
+    expect(loaded.terms).toHaveLength(2);
+    expect(loaded.terms.every((t) => t.isOccurrenceSpecific === false)).toBe(true);
+    expect(
+      validateTerms(loaded.terms).filter((i) => i.code === "term-not-occurrence-specific"),
+    ).toHaveLength(2);
+  });
+
+  it("CONTROL: the same term id with DIFFERENT definitions stays occurrence-specific", () => {
+    // The whole point of the rule: one word may be annotated twice, as long as each annotation
+    // was authored for its own occurrence.
+    const root = mkdtempSync(join(tmpdir(), "terms-specific-"));
+    mkdirSync(join(root, "content", "source-blocks", "mass-energy"), { recursive: true });
+    const block = (id: string, tail: string) =>
+      [
+        `id: "${id}"`,
+        'kind: "paragraph"',
+        'diplomaticText: "Ein Lichtkomplex."',
+        "inlines:",
+        '  - kind: "term"',
+        '    text: "Lichtkomplex"',
+        '    termId: "term-lichtkomplex"',
+        `    definition: "A bundle of light treated as a single object for the purposes of this argument, ${tail}"`,
+        '    lang: "de"',
+        '    definitionLang: "en"',
+        "",
+      ].join("\n");
+    writeFileSync(
+      join(root, "content", "source-blocks", "mass-energy", "s0-p1.yaml"),
+      block("s0-p1", "as section 1 uses it."),
+    );
+    writeFileSync(
+      join(root, "content", "source-blocks", "mass-energy", "s0-p2.yaml"),
+      block("s0-p2", "as the closing paragraph uses it."),
+    );
+
+    const loaded = loadTermOccurrences("mass-energy" as RouteSlug, root);
+    expect(loaded.terms).toHaveLength(2);
+    expect(loaded.terms.every((t) => t.isOccurrenceSpecific === true)).toBe(true);
+    expect(validateTerms(loaded.terms)).toEqual([]);
+  });
+
+  it("an unparseable source block is reported, not read as having no terms (authoredInputs.ts:720)", () => {
+    // Shares `alignment-record-unreadable` with the other loaders, so the message is what says
+    // which population failed: "not an absence of term occurrences".
+    const root = mkdtempSync(join(tmpdir(), "terms-unreadable-"));
+    mkdirSync(join(root, "content", "source-blocks", "mass-energy"), { recursive: true });
+    writeFileSync(
+      join(root, "content", "source-blocks", "mass-energy", "s0-p1.yaml"),
+      "id: [bad\n",
+    );
+    const loaded = loadTermOccurrences("mass-energy" as RouteSlug, root);
+    expect(loaded.terms).toEqual([]);
+    expect(loaded.issues.map((i) => i.code)).toEqual(["alignment-record-unreadable"]);
+    expect(loaded.issues[0]?.message).toContain("not an absence of term occurrences");
   });
 });

@@ -50,7 +50,7 @@ describe("scripts/align-editions.ts runner and CLI guards", () => {
       expect(runAlignEditions({ slug: withLedger }).outcome).not.toBe("not-available");
   });
 
-  test("PLANTED: --require-reviewed refuses with unit-not-reviewed when no reviewed units exist (align-editions.ts:304)", () => {
+  test("PLANTED: --require-reviewed refuses with unit-not-reviewed when no reviewed units exist (align-editions.ts:346)", () => {
     const result = runAlignEditions({
       slug: "brownian-motion",
       requireReviewed: true,
@@ -62,7 +62,7 @@ describe("scripts/align-editions.ts runner and CLI guards", () => {
     expect(issue?.message).toContain("--require-reviewed specified, but no reviewed units exist");
   });
 
-  test("PLANTED: --require-reviewed refuses unreviewed unit state with unit-not-reviewed (align-editions.ts:312)", () => {
+  test("PLANTED: --require-reviewed refuses unreviewed unit state with unit-not-reviewed (align-editions.ts:354)", () => {
     const result = runAlignEditions({
       slug: "brownian-motion",
       requireReviewed: true,
@@ -304,16 +304,33 @@ describe("the runner states what each rule examined", () => {
     expect(result.examined.components).toBeGreaterThan(30);
   });
 
-  test("the two rules with no loader report ZERO rather than hiding behind the pass", () => {
+  test("C.5 terms are LOADED too, so an 80-character floor is actually applied", () => {
     const result = runAlignEditions({
       slug: glossed(),
       layers: ["german", "translation", "gloss"],
     });
-    // Not an assertion that zero is acceptable. It is the declaration that makes the gap
-    // visible in the runner's own output, where `ok: true` says nothing about it. This read
-    // `components` too until that loader landed; when terms and review units get theirs, this
-    // test has to be revisited rather than quietly continuing to read as a pass.
-    expect(result.examined.terms).toBe(0);
+    expect(result.examined.terms).toBeGreaterThan(0);
+  });
+
+  test("the ONE rule with no loader reports ZERO rather than hiding behind the pass", () => {
+    const result = runAlignEditions({
+      slug: glossed(),
+      layers: ["german", "translation", "gloss"],
+    });
+    /*
+     * Not an assertion that zero is acceptable. It is the declaration that makes the gap visible
+     * in the runner's own output, where `ok: true` says nothing about it. This line read
+     * `components` and then `terms` as their loaders landed, and each time it had to be revisited
+     * rather than quietly continuing to read as a pass.
+     *
+     * Review units are the one left, and NOT for want of a loader: measured 2026-10-19, building
+     * them from the translation records refuses 821 of 821, because
+     * `recordBackedReviewStateCheck` asks every unit for a `german-source` review record while
+     * D-2026-09-25-agent-reviewed-translations made `agentReview` the translation layer's
+     * authority, and the check never reads `context.layer`. The runner's own comment at rule 6
+     * carries the full finding. Loading them would redden four papers over a decision
+     * disagreement; relaxing the check to get green would be RH-1.
+     */
     expect(result.examined.reviewUnits).toBe(0);
   });
 
