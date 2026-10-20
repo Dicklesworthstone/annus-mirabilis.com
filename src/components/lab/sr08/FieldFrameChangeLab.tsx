@@ -41,6 +41,7 @@ import { KEPT_RESULT } from "../keptResult.ts";
 import { LabMargin } from "../LabMargin.tsx";
 import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { ShowTheCode } from "../ShowTheCode.tsx";
+import { WalkthroughControl } from "../WalkthroughControl.tsx";
 
 const C_SI = 299792458;
 
@@ -420,6 +421,16 @@ export function FieldFrameChangeLab({
                 </div>
               </div>
               <p className="fine">Changes here apply with Apply settings.</p>
+              {/* The recorded walkthrough, played into this session. Its records became
+              carryable in f64267b03, when their checkpoint digests were recorded. */}
+              <WalkthroughControl
+                binding={SR08_TAPE}
+                session={session}
+                onPlayed={(parameters) => {
+                  setDraft({ ...(parameters as Sr08Parameters) });
+                  setTyped(typedFrom(parameters as Sr08Parameters));
+                }}
+              />
             </ExperimentSettings>
             {error ? (
               <p id={`${id}-error`} className="notice" role="alert">

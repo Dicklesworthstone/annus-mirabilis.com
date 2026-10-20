@@ -37,6 +37,7 @@ import { instrumentRootAttributes } from "../../../experiments/store/identityAtt
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { ShowTheCode } from "../ShowTheCode.tsx";
 import { withScripts } from "../subscripts.tsx";
+import { WalkthroughControl } from "../WalkthroughControl.tsx";
 import { BoundaryLedgerPlot } from "./BoundaryLedgerPlot.tsx";
 import { PhotonBoxPlot } from "./PhotonBoxPlot.tsx";
 import "../labControls.css";
@@ -620,6 +621,13 @@ export function BoundaryLedgerLab({
                 </button>
               </div>
             </fieldset>
+            {/* The recorded walkthrough, played into this session. Its records became
+              carryable in f64267b03, when their checkpoint digests were recorded. */}
+            <WalkthroughControl
+              binding={ME03_TAPE}
+              session={session}
+              onPlayed={(parameters) => setDraft(toMe03Draft(parameters as Me03Parameters))}
+            />
           </ExperimentSettings>
           {error && (
             <p className="notice error" role="alert" data-refusal-code={refusalCode ?? undefined}>

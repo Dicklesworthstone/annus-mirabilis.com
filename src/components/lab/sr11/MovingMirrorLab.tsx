@@ -34,6 +34,7 @@ import { Sci } from "../Sci.tsx";
 import { ShowTheCode } from "../ShowTheCode.tsx";
 import { SliderField } from "../SliderField.tsx";
 import { withScripts } from "../subscripts.tsx";
+import { WalkthroughControl } from "../WalkthroughControl.tsx";
 import { MovingMirrorPlot } from "./MovingMirrorPlot.tsx";
 
 function numericOf(item: PublishedResult | undefined): number | null {
@@ -323,6 +324,13 @@ export function MovingMirrorLab({
                 step={0.1}
               />
               <SliderField {...field("mirrorArea")} unit="area" min={0.1} max={100} step={0.1} />
+              {/* The recorded walkthrough, played into this session. Its records became
+              carryable in f64267b03, when their checkpoint digests were recorded. */}
+              <WalkthroughControl
+                binding={SR11_TAPE}
+                session={session}
+                onPlayed={() => setDrafts({})}
+              />
             </ExperimentSettings>
           </fieldset>
           {error ? (

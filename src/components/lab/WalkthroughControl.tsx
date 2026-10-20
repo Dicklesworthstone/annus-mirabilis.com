@@ -52,8 +52,34 @@ export function WalkthroughControl({
 }) {
   const [played, setPlayed] = useState<WalkthroughPlay | null>(null);
   const experimentId = binding.environment.experimentId;
+  /*
+   * BY MODE AS WELL AS BY EXPERIMENT, because `replay.ts` refuses on exactly that pair:
+   * `tape.mode !== runner.environment.mode` gives `tape-mode-mismatch`. Filtering on the
+   * experiment alone offered a button this component could not play.
+   *
+   * ME-03 is where it showed. It declares two modes, its binding covers `me-03:default`, and
+   * `the-1906-box` is recorded in `me-03:box-1906`; the first press returned "This tape was
+   * recorded in a different laboratory mode." No laboratory with more than one mode had mounted
+   * this control before, so the filter had never been asked the question.
+   */
+  const mode = binding.environment.mode;
   const walkthroughs = [...TEACHING_TAPES.values()]
-    .filter((tape) => tape.experimentId === experimentId)
+    .filter((tape) => tape.experimentId === experimentId && tape.mode === mode)
+    /*
+     * AND ONLY IF ITS CHECKPOINT NAMES AN ACTION THE TAPE REACHES. `replay.ts` refuses with
+     * `tape-checkpoint-mismatch` when the replay ends at one action and the checkpoint names a
+     * later one, so offering such a tape is offering a refusal.
+     *
+     * ME-03's `where-the-energy-went` is the case: one event at action 1 and a checkpoint at
+     * action 3. Its own description names three boundary cases -- body alone, radiation alone, the
+     * combined enclosure -- so two events were never authored rather than mis-numbered, and
+     * renumbering the checkpoint would make an incomplete walkthrough verify. It is declined here
+     * until the record is finished, and the button returns on its own when it is.
+     */
+    .filter((tape) => {
+      const reached = tape.events.reduce((max, event) => Math.max(max, event.actionIndex), 0);
+      return tape.acceptedCheckpoint.acceptedActionIndex <= reached;
+    })
     .map((tape) => ({ id: tape.teachingTapeRef?.tapeId ?? "", title: tape.title ?? "" }))
     .filter((entry) => entry.id !== "");
   if (walkthroughs.length === 0) return null;

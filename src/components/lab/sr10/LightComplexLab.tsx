@@ -38,6 +38,7 @@ import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGa
 import { display, fixed, identity, result, sentenceNumber } from "../presentation.ts";
 import { ShowTheCode } from "../ShowTheCode.tsx";
 import { withScripts } from "../subscripts.tsx";
+import { WalkthroughControl } from "../WalkthroughControl.tsx";
 import { LightComplexPlot } from "./LightComplexPlot.tsx";
 
 function numericOf(item: PublishedResult | undefined): number | null {
@@ -388,6 +389,16 @@ export function LightComplexLab({
                 </div>
               </div>
               <p className="fine">Changes here apply with Apply settings.</p>
+              {/* The recorded walkthrough, played into this session. Its records became
+              carryable in f64267b03, when their checkpoint digests were recorded. */}
+              <WalkthroughControl
+                binding={SR10_TAPE}
+                session={session}
+                onPlayed={(parameters) => {
+                  setDraft({ ...(parameters as Sr10Parameters) });
+                  setTyped(typedFrom(parameters as Sr10Parameters));
+                }}
+              />
             </ExperimentSettings>
             {error ? (
               <p className="notice" role="alert">
