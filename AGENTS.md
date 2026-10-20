@@ -1187,6 +1187,28 @@ So a content or source change invalidates both lanes until `bun run build` runs 
 rows after editing `content/` are this, not a regression in your change; confirm by building and
 re-running that one file. Do not skip the perf file or loosen its budgets to get green.
 
+**But 37 of the node lane's 107 files never read the build, and they are yours to run after a
+content edit:**
+
+```bash
+bun run test:node:content                  # the out/-independent subset, no build needed
+```
+
+The lane's refusal was lane-WIDE while the lane also holds everything whose population is
+`git ls-files`, because bun cannot spawn git here. Measured 2026-10-20 against a stale `out/`: 37
+files reference nothing under `out/` even through their local imports and drive no browser, and all
+37 passed, 223 tests, 0 fail, 39 seconds. Among them the parser differential, the structural checks
+over the real corpus, the ledger validator's CLI, the source-layer reads and the refusal census.
+
+**The parser differential is the one to care about.** `yamlDifferential.node.test.ts` puts every
+committed YAML record through a second parser, because this project's own `parseYaml` can accept a
+malformed record and silently drop the part it cannot place. A content edit is the only thing that
+can introduce one, and a content edit is also what makes `out/` stale, so that gate was unavailable
+at exactly the moment it was needed. On 2026-10-19 four journey records dropped by the site's parser
+reached origin/main that way (`cda842215`). The subset is derived rather than listed, by
+`scripts/quality-gates/outDependence.ts`, which says in its own docblock which direction its scan
+fails in.
+
 Until a command exists, do not report it as passing.
 
 ---
