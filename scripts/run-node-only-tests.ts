@@ -20,6 +20,7 @@ import {
   nodeOnlyTestArgs,
   nodeOnlyTestCommand,
 } from "./quality-gates/bunfigNodeOnlyTests.ts";
+import { partitionByOutDependence } from "./quality-gates/outDependence.ts";
 
 export interface GeneratedContentSnapshot {
   readonly fileHashes: ReadonlyMap<string, string>;
@@ -166,11 +167,36 @@ export interface LaneDeps {
   readonly write?: (line: string) => void;
 }
 
-export function runNodeOnlyTests(root: string = process.cwd(), deps: LaneDeps = {}): number {
+export function runNodeOnlyTests(
+  root: string = process.cwd(),
+  deps: LaneDeps = {},
+  options: Readonly<{ outIndependentOnly?: boolean }> = {},
+): number {
   const write = deps.write ?? ((line: string) => console.log(line));
   const bunfigText = readFileSync(resolve(root, BUNFIG_RELATIVE_PATH), "utf8");
-  const args = nodeOnlyTestArgs(bunfigText, root);
+  const allArgs = nodeOnlyTestArgs(bunfigText, root);
+  /*
+   * THE out/-INDEPENDENT SUBSET, WHICH RUNS WHETHER OR NOT THE BUILD IS FRESH (am-hcx5's reach).
+   *
+   * The lane's freshness refusal below is lane-WIDE, and the lane holds tests that never read the
+   * build: anything whose population is `git ls-files` has to run under node, because bun cannot
+   * spawn git here. Measured 2026-10-20 with out/ stale: 37 of the 107 files reference nothing under
+   * out/ even through their local imports and drive no browser, and all 37 passed in that state,
+   * 223 tests, 0 fail, 39 seconds. The most important of them is the parser differential, whose
+   * whole job is to catch a record this project's parser mis-reads -- and a content edit, which is
+   * the only thing that can introduce one, is also what makes out/ stale.
+   *
+   * `outDependence.ts` derives the subset and says which direction its scan fails in.
+   */
+  const partition = partitionByOutDependence(allArgs, root);
+  const args = options.outIndependentOnly ? partition.outIndependent : allArgs;
   const command = nodeOnlyTestCommand(args);
+  if (options.outIndependentOnly) {
+    write(
+      `[lane] out/-independent subset: ${partition.outIndependent.length} of ${allArgs.length} ` +
+        "node-lane files. The rest read the build or drive a browser and need bun run build.",
+    );
+  }
   write(`▶ ${command}`);
 
   // am-6v4k. The node lane went red roughly hourly with 7 to 9 failures, always the same cause:
@@ -189,7 +215,7 @@ export function runNodeOnlyTests(root: string = process.cwd(), deps: LaneDeps = 
   // condition that can be false. What it no longer refuses on is a dirty working tree, which in a
   // four-pane shared tree never is.
   const freshness = deps.freshness ?? checkOutFreshness("out", root);
-  if (freshness.present && !freshness.fresh) {
+  if (!options.outIndependentOnly && freshness.present && !freshness.fresh) {
     write(
       [
         "",
@@ -198,6 +224,13 @@ export function runNodeOnlyTests(root: string = process.cwd(), deps: LaneDeps = 
         "",
         "  Refusing to start the node lane. Seven browser and E2E tests would each rediscover",
         "  this one fact. This lane never rebuilds out/ for you, on purpose.",
+        "",
+        // A refusal that names no way forward trains people to treat it as noise, and the lane
+        // holds 37 files that do not read the build at all -- the parser differential among them.
+        `  ${partition.outIndependent.length} of these ${allArgs.length} files read neither out/ nor a`,
+        "  browser. To run those now, without a build:",
+        "",
+        "      bun run test:node:content",
         "",
       ].join("\n"),
     );
@@ -264,5 +297,6 @@ const isMain =
     pathToFileURL(process.argv[1]).href === import.meta.url);
 
 if (isMain) {
-  process.exit(runNodeOnlyTests());
+  const outIndependentOnly = process.argv.includes("--out-independent-only");
+  process.exit(runNodeOnlyTests(process.cwd(), {}, { outIndependentOnly }));
 }
