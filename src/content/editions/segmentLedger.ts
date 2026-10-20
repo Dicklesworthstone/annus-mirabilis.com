@@ -4,6 +4,7 @@
  * Supports every block kind: masthead, headings, paragraphs, equations, footnotes, closings.
  */
 
+import { reconcileManifest } from "./reconciliation.ts";
 import {
   extractSentenceInlineMathIds,
   findDisplayMathRegions,
@@ -449,43 +450,33 @@ export function segmentLedger(input: {
 
   flushParagraph();
 
-  // Reconcile differences against frozenIds if provided
-  const frozen = new Set(input.frozenIds ?? []);
-  const differences: ReconciliationDifference[] = [];
-  // A proposal id reads as the frozen id it is published under, where a pairing says so. An id the
-  // map does not mention keeps its own name, so a genuinely unpaired unit is still reported.
-  const anchorOf = input.anchorOf ?? {};
-  const published = (id: string): string => anchorOf[id] ?? id;
-  if (frozen.size > 0) {
-    for (const block of blocks) {
-      if (!frozen.has(published(block.id))) {
-        const under = published(block.id);
-        differences.push({
-          differenceId: `unit-extra-in-ledger:${block.id}`,
-          kind: "unit-extra-in-ledger",
-          unitId: block.id,
-          message:
-            under === block.id
-              ? `Proposed block "${block.id}" is not in the frozen manifest.`
-              : `Proposed block "${block.id}" is published as "${under}", which is not in the frozen manifest.`,
-        });
-      }
-    }
-    for (const id of frozen) {
-      if (
-        !blocks.some(
-          (b) => published(b.id) === id || b.sentences.some((s) => published(s.id) === id),
-        )
-      ) {
-        differences.push({
-          differenceId: `unit-missing-in-ledger:${id}`,
-          kind: "unit-missing-in-ledger",
-          unitId: id,
-          message: `Frozen id "${id}" has no proposed ledger unit.`,
-        });
-      }
-    }
-  }
+  /*
+   * RECONCILIATION HAS ONE OWNER AND THIS FUNCTION USED TO BE A SECOND COPY OF IT.
+   *
+   * `reconcileManifest` in reconciliation.ts is the rule: it pairs the two namespaces, reports a
+   * block the manifest does not have, reports a frozen id the proposal does not produce, detects a
+   * sentence-boundary split or merge, and checks the manifest's reference occurrences. This file
+   * carried its own twenty-five-line version of the first two of those, and the pipeline called
+   * THIS one, so the owner ran only in its own tests. Measured 2026-10-20, the cost of the
+   * divergence over the three papers whose face pairs:
+   *
+   *   114 of 154 inline-equation units reported as having no proposed ledger unit, because this
+   *       copy did not read `ProposedSentence.inlineMathIds`, which the segmenter above fills --
+   *       42, 134 and 124 ids on the three papers;
+   *    34 of 88 sentence units reported missing, because both copies looked the whole id up in a
+   *       pairing that maps BLOCKS, so every sentence beneath a renamed block kept the proposal's
+   *       name (`frozenIdUnder` is the structural rule);
+   *     0 boundary-differs reported, ever, and 0 reference occurrences checked, because neither
+   *       rule exists in this copy at all.
+   *
+   * So this now delegates. The `published as` wording, which was the one thing this copy did
+   * better, moved into the owner with it.
+   */
+  const differences = reconcileManifest({
+    blocks,
+    ...(input.frozenIds !== undefined ? { frozenIds: input.frozenIds } : {}),
+    ...(input.anchorOf !== undefined ? { anchorOf: input.anchorOf } : {}),
+  });
 
   return {
     status: "proposed",

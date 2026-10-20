@@ -2,18 +2,18 @@
  * Refusal throw/return site coverage for src/content/editions/reconciliation.ts (am-muyh).
  *
  * Provides dedicated accept/reject test pairs for all 11 refusal sites in reconciliation.ts:
- * 1.  (reconciliation.ts:220) confirm-required
- * 2.  (reconciliation.ts:230) missing-editor
- * 3.  (reconciliation.ts:238) missing-reason
- * 4.  (reconciliation.ts:256) invalid-alias-record
- * 5.  (reconciliation.ts:289) retired-id-reused
- * 6.  (reconciliation.ts:303) update-required (in confirmAlias)
+ * 1.  (reconciliation.ts:297) confirm-required
+ * 2.  (reconciliation.ts:307) missing-editor
+ * 3.  (reconciliation.ts:315) missing-reason
+ * 4.  (reconciliation.ts:333) invalid-alias-record
+ * 5.  (reconciliation.ts:366) retired-id-reused
+ * 6.  (reconciliation.ts:380) update-required (in confirmAlias)
  * 7.  no-write-flag, as declared in the WriteBlocksResult union -- a type, not a throw site,
  *     so its tests cite no line (see below)
- * 8.  (reconciliation.ts:401) no-write-flag (in writeProposedBlocks)
- * 9.  (reconciliation.ts:409) write-blocks-refused-differences
- * 10. (reconciliation.ts:444) update-required (in writeProposedBlocks)
- * 11. (reconciliation.ts:462) diff-destination-required
+ * 8.  (reconciliation.ts:478) no-write-flag (in writeProposedBlocks)
+ * 9.  (reconciliation.ts:486) write-blocks-refused-differences
+ * 10. (reconciliation.ts:521) update-required (in writeProposedBlocks)
+ * 11. (reconciliation.ts:539) diff-destination-required
  *
  * A CITATION BELONGS ON THE HALF THAT DRIVES THE REFUSAL, which is why only the `rejects` cases
  * above carry a line. The stale-citation scanner splits a test file on `test(`/`it(` and requires
@@ -67,9 +67,9 @@ const SAMPLE_BLOCK: ProposedBlock = {
 };
 
 describe("Reconciliation Refusal Sites (reconciliation.ts)", () => {
-  // 1. (reconciliation.ts:220) confirm-required
-  describe("Site (reconciliation.ts:220): confirm-required", () => {
-    it("rejects alias write without --confirm flag (reconciliation.ts:220)", () => {
+  // 1. (reconciliation.ts:297) confirm-required
+  describe("Site (reconciliation.ts:297): confirm-required", () => {
+    it("rejects alias write without --confirm flag (reconciliation.ts:297)", () => {
       const tempDir = getTestTempDir();
       const aliasFile = join(tempDir, "brownian-motion.yaml");
       const res: ConfirmAliasResult = confirmAlias({
@@ -119,9 +119,9 @@ describe("Reconciliation Refusal Sites (reconciliation.ts)", () => {
     });
   });
 
-  // 2. (reconciliation.ts:230) missing-editor
-  describe("Site (reconciliation.ts:230): missing-editor", () => {
-    it("rejects confirmed alias without editor identifier (reconciliation.ts:230)", () => {
+  // 2. (reconciliation.ts:307) missing-editor
+  describe("Site (reconciliation.ts:307): missing-editor", () => {
+    it("rejects confirmed alias without editor identifier (reconciliation.ts:307)", () => {
       const tempDir = getTestTempDir();
       const aliasFile = join(tempDir, "brownian-motion.yaml");
       const res: ConfirmAliasResult = confirmAlias({
@@ -168,9 +168,9 @@ describe("Reconciliation Refusal Sites (reconciliation.ts)", () => {
     });
   });
 
-  // 3. (reconciliation.ts:238) missing-reason
-  describe("Site (reconciliation.ts:238): missing-reason", () => {
-    it("rejects confirmed alias without editorial reason (reconciliation.ts:238)", () => {
+  // 3. (reconciliation.ts:315) missing-reason
+  describe("Site (reconciliation.ts:315): missing-reason", () => {
+    it("rejects confirmed alias without editorial reason (reconciliation.ts:315)", () => {
       const tempDir = getTestTempDir();
       const aliasFile = join(tempDir, "brownian-motion.yaml");
       const res: ConfirmAliasResult = confirmAlias({
@@ -217,9 +217,9 @@ describe("Reconciliation Refusal Sites (reconciliation.ts)", () => {
     });
   });
 
-  // 4. (reconciliation.ts:256) invalid-alias-record
-  describe("Site (reconciliation.ts:256): invalid-alias-record", () => {
-    it("rejects alias record that fails structural schema validation (reconciliation.ts:256)", () => {
+  // 4. (reconciliation.ts:333) invalid-alias-record
+  describe("Site (reconciliation.ts:333): invalid-alias-record", () => {
+    it("rejects alias record that fails structural schema validation (reconciliation.ts:333)", () => {
       const tempDir = getTestTempDir();
       const aliasFile = join(tempDir, "brownian-motion.yaml");
       const res: ConfirmAliasResult = confirmAlias({
@@ -266,9 +266,9 @@ describe("Reconciliation Refusal Sites (reconciliation.ts)", () => {
     });
   });
 
-  // 5. (reconciliation.ts:289) retired-id-reused
-  describe("Site (reconciliation.ts:289): retired-id-reused", () => {
-    it("rejects alias using an already-retired ID as replacement ID (reconciliation.ts:289)", () => {
+  // 5. (reconciliation.ts:366) retired-id-reused
+  describe("Site (reconciliation.ts:366): retired-id-reused", () => {
+    it("rejects alias using an already-retired ID as replacement ID (reconciliation.ts:366)", () => {
       const tempDir = getTestTempDir();
       const aliasFile = join(tempDir, "brownian-motion.yaml");
 
@@ -346,9 +346,9 @@ describe("Reconciliation Refusal Sites (reconciliation.ts)", () => {
     });
   });
 
-  // 6. (reconciliation.ts:303) update-required (in confirmAlias)
-  describe("Site (reconciliation.ts:303): update-required (confirmAlias)", () => {
-    it("rejects overwriting existing alias without --update flag (reconciliation.ts:303)", () => {
+  // 6. (reconciliation.ts:380) update-required (in confirmAlias)
+  describe("Site (reconciliation.ts:380): update-required (confirmAlias)", () => {
+    it("rejects overwriting existing alias without --update flag (reconciliation.ts:380)", () => {
       const tempDir = getTestTempDir();
       const aliasFile = join(tempDir, "brownian-motion.yaml");
 
@@ -460,9 +460,9 @@ describe("Reconciliation Refusal Sites (reconciliation.ts)", () => {
     });
   });
 
-  // 8. (reconciliation.ts:401) no-write-flag (in writeProposedBlocks)
-  describe("Site (reconciliation.ts:401): no-write-flag (writeProposedBlocks)", () => {
-    it("rejects writeProposedBlocks when writeBlocks flag is falsy (reconciliation.ts:401)", () => {
+  // 8. (reconciliation.ts:478) no-write-flag (in writeProposedBlocks)
+  describe("Site (reconciliation.ts:478): no-write-flag (writeProposedBlocks)", () => {
+    it("rejects writeProposedBlocks when writeBlocks flag is falsy (reconciliation.ts:478)", () => {
       const tempDir = getTestTempDir();
       const res: WriteBlocksResult = writeProposedBlocks({
         slug: "brownian-motion",
@@ -496,9 +496,9 @@ describe("Reconciliation Refusal Sites (reconciliation.ts)", () => {
     });
   });
 
-  // 9. (reconciliation.ts:409) write-blocks-refused-differences
-  describe("Site (reconciliation.ts:409): write-blocks-refused-differences", () => {
-    it("rejects writeProposedBlocks while differences remain unresolved (reconciliation.ts:409)", () => {
+  // 9. (reconciliation.ts:486) write-blocks-refused-differences
+  describe("Site (reconciliation.ts:486): write-blocks-refused-differences", () => {
+    it("rejects writeProposedBlocks while differences remain unresolved (reconciliation.ts:486)", () => {
       const tempDir = getTestTempDir();
       const diff: ReconciliationDifference = {
         differenceId: "diff-unresolved-1",
@@ -536,9 +536,9 @@ describe("Reconciliation Refusal Sites (reconciliation.ts)", () => {
     });
   });
 
-  // 10. (reconciliation.ts:444) update-required (in writeProposedBlocks)
-  describe("Site (reconciliation.ts:444): update-required (writeProposedBlocks)", () => {
-    it("rejects overwriting existing block files without update flag (reconciliation.ts:444)", () => {
+  // 10. (reconciliation.ts:521) update-required (in writeProposedBlocks)
+  describe("Site (reconciliation.ts:521): update-required (writeProposedBlocks)", () => {
+    it("rejects overwriting existing block files without update flag (reconciliation.ts:521)", () => {
       const tempDir = getTestTempDir();
 
       // First write succeeds
@@ -604,9 +604,9 @@ describe("Reconciliation Refusal Sites (reconciliation.ts)", () => {
     });
   });
 
-  // 11. (reconciliation.ts:462) diff-destination-required
-  describe("Site (reconciliation.ts:462): diff-destination-required", () => {
-    it("rejects replacing a block file with no run directory for its diff (reconciliation.ts:462)", () => {
+  // 11. (reconciliation.ts:539) diff-destination-required
+  describe("Site (reconciliation.ts:539): diff-destination-required", () => {
+    it("rejects replacing a block file with no run directory for its diff (reconciliation.ts:539)", () => {
       const tempDir = getTestTempDir();
       const first = writeProposedBlocks({
         slug: "brownian-motion",

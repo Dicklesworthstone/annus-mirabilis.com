@@ -17,12 +17,60 @@ import { type AliasKind, type AliasRecord, validateAliasRecord } from "../aliase
 import type { ProposedBlock, ReconciliationDifference } from "./segmentLedger.ts";
 import { unifiedDiff } from "./unifiedDiff.ts";
 
+/** A reference occurrence, as a bare id or as the manifest schema's own record. */
+export type ManifestUnitReferenceLike =
+  | string
+  | Readonly<{ id?: string | undefined; occurrenceId?: string | undefined }>;
+
 export type ManifestUnit = Readonly<{
   id: string;
   kind?: string | undefined;
   text?: string | undefined;
-  references?: readonly string[] | undefined;
+  references?: readonly ManifestUnitReferenceLike[] | undefined;
 }>;
+
+/** The id of a reference occurrence in either shape, or undefined when it names none. */
+export function referenceIdOf(reference: ManifestUnitReferenceLike): string | undefined {
+  if (typeof reference === "string") return reference.length > 0 ? reference : undefined;
+  const id = reference.id ?? reference.occurrenceId;
+  return typeof id === "string" && id.length > 0 ? id : undefined;
+}
+
+/**
+ * THE FROZEN NAME OF A PROPOSAL ID, FOLLOWING ITS STRUCTURE.
+ *
+ * `anchorOf` pairs BLOCKS and displays, because that is what `manifestAnchors` computes: a
+ * paragraph the segmenter met fourth is published under the number the frozen manifest kept for
+ * it. A sentence and an inline-math region are named FROM their block, so their frozen names
+ * follow from the block's -- `s1-p4-s2` under `s1-p4 -> s1-p3` is `s1-p3-s2` -- and nothing
+ * computed that. Reading the whole id in the map found nothing and kept the proposal's name, so
+ * every sentence beneath a renamed block was reported as missing from the ledger.
+ *
+ * Measured 2026-10-20 over the three papers whose face pairs: 88 sentence units reported missing,
+ * of which 34 resolve under this rule. The 55 that remain are real segmentation disagreements and
+ * are what this stage exists to surface.
+ *
+ * The map still wins where it speaks: an explicit entry for a sentence or an inline id overrides
+ * the structural rule, so a future pairing that enumerates them is not fought by this.
+ */
+export function frozenIdUnder(id: string, anchorOf: Readonly<Record<string, string>>): string {
+  const direct = anchorOf[id];
+  if (direct !== undefined) return direct;
+  // `<sentence>-m<i>`: pair the sentence, keep the region index.
+  const inline = /^(.*)(-m\d+)$/.exec(id);
+  if (inline?.[1] !== undefined && inline[2] !== undefined) {
+    const sentence = frozenIdUnder(inline[1], anchorOf);
+    return `${sentence}${inline[2]}`;
+  }
+  // `<block>-s<k>` or `<block>-s<k><letter>`: pair the block, keep the sentence suffix. The prefix
+  // must end in a paragraph or footnote part, so a bare section id such as `s3` is left alone.
+  const sentence = /^(.*-(?:p\d+|fn\d+))(-s\d+[a-z]?)$/.exec(id);
+  if (sentence?.[1] !== undefined && sentence[2] !== undefined) {
+    const block = anchorOf[sentence[1]];
+    if (block !== undefined) return `${block}${sentence[2]}`;
+  }
+  return id;
+}
 
 export type ReconcileInput = Readonly<{
   blocks: readonly ProposedBlock[];
@@ -71,12 +119,22 @@ export function reconcileManifest(input: ReconcileInput): readonly Reconciliatio
   // A proposal id reads as the frozen id it is published under, where the pairing says so. An id the
   // map does not mention keeps its own name, so an unpaired unit is still reported.
   const anchorOf = input.anchorOf ?? {};
-  const frozen = (id: string): string => anchorOf[id] ?? id;
+  const frozen = (id: string): string => frozenIdUnder(id, anchorOf);
   const proposedBlockIds = new Set(input.blocks.map((b) => frozen(b.id)));
   const proposedSentenceIds = new Set<string>();
+  // THE PROPOSAL ALREADY CARRIES ITS INLINE-MATH IDS AND THIS FUNCTION DID NOT READ THEM.
+  // `ProposedSentence.inlineMathIds` is populated by the segmenter -- measured 2026-10-20: 42, 134
+  // and 124 ids on mass-energy, brownian-motion and light quanta, on 15, 54 and 54 sentences. Every
+  // `inline-equation` unit of the manifest was therefore reported as having no proposed ledger unit:
+  // 24, 59 and 71 of them, 154 in all, of which only 40 are genuinely absent once the field is read
+  // and the pairing below is applied. The other 114 were an artifact of not looking.
+  const proposedInlineMathIds = new Set<string>();
   for (const b of input.blocks) {
     for (const s of b.sentences) {
       proposedSentenceIds.add(frozen(s.id));
+      for (const inlineId of s.inlineMathIds ?? []) {
+        proposedInlineMathIds.add(frozen(inlineId));
+      }
     }
   }
 
@@ -85,19 +143,28 @@ export function reconcileManifest(input: ReconcileInput): readonly Reconciliatio
     const hasBlock = manifestSet.has(frozen(block.id));
     const hasSentence = block.sentences.some((s) => manifestSet.has(frozen(s.id)));
     if (!hasBlock && !hasSentence) {
+      // THE MESSAGE SAYS WHICH NAME WAS LOOKED UP when the pairing renamed the block, because
+      // "s1-p5 is not in the frozen manifest" sends a reader to look for s1-p5 in a file that
+      // never had it, and the thing to check is the pairing. Ported from the copy of this rule
+      // that used to live in segmentLedger.ts, which had the better wording and less of the rule.
+      const under = frozen(block.id);
       differences.push({
         differenceId: `unit-extra-in-ledger:${block.id}`,
         kind: "unit-extra-in-ledger",
         unitId: block.id,
-        message: `Proposed block "${block.id}" is not in the frozen manifest.`,
+        message:
+          under === block.id
+            ? `Proposed block "${block.id}" is not in the frozen manifest.`
+            : `Proposed block "${block.id}" is published as "${under}", which is not in the frozen manifest.`,
       });
     }
   }
 
-  // 2. Missing units (frozen manifest id has no proposed block or sentence)
+  // 2. Missing units (frozen manifest id has no proposed block, sentence or inline-math region)
   for (const mUnit of manifestUnits) {
     const id = mUnit.id;
-    const found = proposedBlockIds.has(id) || proposedSentenceIds.has(id);
+    const found =
+      proposedBlockIds.has(id) || proposedSentenceIds.has(id) || proposedInlineMathIds.has(id);
     if (!found) {
       // Check if this is part of a boundary split/merge
       const isBoundary =
@@ -137,16 +204,26 @@ export function reconcileManifest(input: ReconcileInput): readonly Reconciliatio
   }
 
   // 3. Manifest references without authored inline in ledger (Scope B.2)
+  //
+  // A REFERENCE IS AN OBJECT IN THE REAL MANIFEST AND THIS READ IT AS A STRING. The schema's
+  // `ManifestUnitReference` carries `{id, occurrenceId, printedText, kind, target}`, so `${refId}`
+  // on the element produced the five characters of "[object Object]" as both the id and the
+  // message's quoted name. Measured 2026-10-20: 3, 7, 26 and 18 units across the four papers carry
+  // a non-empty references array, so this would have fired 54 times with an unusable id in each.
+  //
+  // It did not fire at all, which is the other half of the same defect and the reason nobody saw
+  // the first: the pipeline passes `frozenIds`, a list of strings, so every unit here was
+  // `{ id }` with no `references` and no `text`. `referenceIdOf` below accepts either shape.
   for (const mUnit of manifestUnits) {
-    if (mUnit.references && mUnit.references.length > 0) {
-      for (const refId of mUnit.references) {
-        differences.push({
-          differenceId: `unit-missing-in-ledger:${refId}`,
-          kind: "unit-missing-in-ledger",
-          unitId: refId,
-          message: `Frozen reference "${refId}" has no authored inline in ledger.`,
-        });
-      }
+    for (const reference of mUnit.references ?? []) {
+      const refId = referenceIdOf(reference);
+      if (refId === undefined) continue;
+      differences.push({
+        differenceId: `unit-missing-in-ledger:${refId}`,
+        kind: "unit-missing-in-ledger",
+        unitId: refId,
+        message: `Frozen reference "${refId}" has no authored inline in ledger.`,
+      });
     }
   }
 
