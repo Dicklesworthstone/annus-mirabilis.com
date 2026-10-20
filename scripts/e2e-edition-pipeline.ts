@@ -565,10 +565,44 @@ export async function runEditionPipeline(options: {
         evidence: errors.map((d) => `${d.code} ${d.path}: ${d.message}`),
       });
     } else {
+      /*
+       * THIS STAGE DOES NOT RUN THE REGISTERED CHECKS, and section G says it does.
+       *
+       * Section G: "`compile`: the content compiler's check entry point for the paper
+       * (am-cm-compiler-core-oa7), including every registered check." Measured 2026-10-20: there
+       * are two compiler entry points, and this calls the one that runs none of them.
+       *
+       *   compileReadingContent (compile.ts)  what this stage calls. A probe check registered
+       *                                       before it never ran, so ZERO of the 26 registered
+       *                                       checks are invoked. Its 247 diagnostics are the
+       *                                       compiler's own review flags, `equation-review-pending`
+       *                                       and `editorial-review-pending`, with no checkId.
+       *   compileContent (compiler.ts)        registers the seven check families in its Phase 4 and
+       *                                       calls runAllChecks. verify-content uses it.
+       *
+       * AND POINTING THIS STAGE AT THE OTHER ONE WOULD NOT HELP, which is why this reports rather
+       * than switches. `loadReadingFiles` hands over 357 files that carry no source blocks, no
+       * manifests and no journeys, so the checks' own censuses over that population read: 0 proof
+       * records, 0 world checks on 0 journeys, 0 equation pairs, 0 span digests, 0 manifests, and
+       * 52 editorial-note ids declined "because no source blocks were supplied for their papers".
+       * The same checks under verify-content report 4 world checks on 4 journeys, 200 equation
+       * pairs over 821 edges, 542 span digests on 453 blocks, 4 manifests with 37 aliases, and 7
+       * real inline-mathematics differences. The checks are alive; they are alive THERE.
+       *
+       * So running them here would be a second owner of one rule over a smaller population, which
+       * is the defect this pipeline's reconcile stage was just repaired for. The stage says what it
+       * compiled and names who runs the checks.
+       */
       push(
         "compile",
         "passed",
-        `Content compiler accepted ${files.length} file(s) and produced ${compiled.papers.length} paper payload(s).`,
+        `Content compiler accepted ${files.length} file(s) and produced ${compiled.papers.length} paper payload(s), ` +
+          `with ${compiled.diagnostics.length} review flag(s) and no error.`,
+        {
+          pending: [
+            "the 26 registered content checks are NOT run by this stage: compileReadingContent invokes none of them, and the 357 files it loads carry no source blocks, manifests or journeys for them to judge. bun scripts/verify-content.ts runs them over the whole corpus through compileContent (am-cm-compiler-core-oa7)",
+          ],
+        },
       );
     }
   } catch (err: unknown) {
