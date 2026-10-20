@@ -28,8 +28,10 @@ import { dirname, join } from "node:path";
 import { load as parseYaml } from "js-yaml";
 import { compileReadingContent } from "../src/content/compiler/compile.ts";
 import {
+  loadAlignmentComponents,
   loadAuthoredEdges,
   loadGlossInput,
+  loadTermOccurrences,
   manifestUnitIds,
   translationUnitIds,
 } from "../src/content/editions/authoredInputs.ts";
@@ -610,6 +612,31 @@ export async function runEditionPipeline(options: {
   // note records about check 1 and the edition declaration. The loaders are shared with
   // scripts/align-editions.ts so one rule has one implementation.
   const authoredEdges = loadAuthoredEdges(slug, root);
+  /*
+   * THREE POPULATIONS THE CONTRACT ASKS FOR AND THIS CALL DID NOT PASS.
+   *
+   * Measured 2026-10-20, the contract stage reported "9 passed and 10 not-available" on every
+   * paper -- a pass over barely half the contract. Three of the ten said in their own words that
+   * nothing had been supplied:
+   *
+   *     #10 inline-math-atoms    "no alignment components were supplied"
+   *     #11 term-definitions     "no term occurrences were supplied"
+   *     #13 gloss-units          "no gloss input was supplied"
+   *
+   * All three loaders exist in authoredInputs.ts and scripts/align-editions.ts already calls
+   * them, so the data was one import away: 742 alignment components with 914 inline atoms, 30
+   * term occurrences, and 542 gloss units across the corpus. The same unsupplied-argument shape
+   * this file's own comments record about check 1, check 8 and the translation denominator.
+   *
+   * The remaining seven not-available are NOT this: #1 and #14 need an edition.yaml that no paper
+   * has (a human gate: the declaration requires a human editor id from docs/OWNERS.md), #3, #7
+   * and #9 need an edition text and an English face this stage does not assemble, #12 is correct
+   * (no paper declares a hero quote), and #15 needs a span loader that does not exist -- the
+   * 542 sentence spans are read by a test that builds the input itself.
+   */
+  const contractComponents = loadAlignmentComponents(slug, root);
+  const contractTerms = loadTermOccurrences(slug, root);
+  const contractGloss = loadGlossInput(slug, root);
   const contract = assertEditionContract(slug, {
     root,
     ...(ledgerText !== null ? { ledgerText } : {}),
@@ -618,6 +645,11 @@ export async function runEditionPipeline(options: {
     ...(translationUnitIds(slug, root).length > 0
       ? { englishIds: translationUnitIds(slug, root) }
       : {}),
+    ...(contractComponents.components.length > 0
+      ? { components: contractComponents.components }
+      : {}),
+    ...(contractTerms.terms.length > 0 ? { terms: contractTerms.terms } : {}),
+    ...(contractGloss.glossInput !== undefined ? { glossInput: contractGloss.glossInput } : {}),
   });
   const checkOf = (n: number) => contract.checks.find((c) => c.checkNumber === n);
 

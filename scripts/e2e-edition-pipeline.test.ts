@@ -701,6 +701,65 @@ describe("PLANT: the ledger-present branch measures instead of announcing", () =
     expect((stage?.pending ?? []).filter((l) => !l.startsWith("completeness mode"))).toEqual([]);
   });
 
+  /**
+   * THREE CONTRACT CHECKS WERE NOT-AVAILABLE FOR WANT OF AN ARGUMENT.
+   *
+   * Measured 2026-10-20 the contract stage reported "9 passed and 10 not-available" on every
+   * paper. Three of the ten said in their own words that nothing had been supplied -- #10 "no
+   * alignment components were supplied", #11 "no term occurrences were supplied", #13 "no gloss
+   * input was supplied" -- while all three loaders exist in authoredInputs.ts and
+   * scripts/align-editions.ts already called them. Supplying them takes the stage to 12 passed
+   * and 7 not-available.
+   */
+  test("the components, terms and gloss checks reach a verdict", async () => {
+    const stage = stageOf(
+      await runEditionPipeline({ slug: "light-quanta", root: REPO }),
+      "contract",
+    );
+    expect(stage?.outcome).toBe("passed");
+    const unavailable = (stage?.evidence ?? []).filter((line) => line.startsWith("not-available"));
+    for (const check of ["#10", "#11", "#13"]) {
+      expect(
+        unavailable.some((line) => line.startsWith(`not-available ${check} `)),
+        `${check} should no longer be not-available; unavailable: ${unavailable.join(" | ")}`,
+      ).toBe(false);
+    }
+  });
+
+  test("the count moved, and the seven that remain are still named", async () => {
+    // The arithmetic, so a future regression that quietly re-drops an argument is visible, and
+    // the naming rule the stage already had: a count of seven says nothing about which seven.
+    const stage = stageOf(
+      await runEditionPipeline({ slug: "light-quanta", root: REPO }),
+      "contract",
+    );
+    const passed = Number(/reported (\d+) passed/.exec(stage?.message ?? "")?.[1] ?? 0);
+    const unavailableCount = Number(
+      /and (\d+) not-available/.exec(stage?.message ?? "")?.[1] ?? -1,
+    );
+    expect(passed).toBeGreaterThanOrEqual(12);
+    expect(unavailableCount).toBeLessThanOrEqual(7);
+    const named = (stage?.evidence ?? []).filter((line) => line.startsWith("not-available"));
+    expect(named.length).toBe(unavailableCount);
+    // Each names its number and its reason, not just its name.
+    for (const line of named) expect(line).toMatch(/^not-available #(\d+|undefined) \S+: .+/);
+  });
+
+  test("the seven that remain are the ones with no input to give them", async () => {
+    // Recorded as an identity rather than a count, because these are permanent until someone
+    // writes an edition.yaml, assembles an edition text, or builds a span loader. If one of them
+    // starts passing, this test should be the thing that asks why.
+    const stage = stageOf(
+      await runEditionPipeline({ slug: "light-quanta", root: REPO }),
+      "contract",
+    );
+    const numbers = (stage?.evidence ?? [])
+      .filter((line) => line.startsWith("not-available"))
+      .map((line) => /not-available #(\S+)/.exec(line)?.[1])
+      .sort();
+    expect(numbers).toEqual(["1", "12", "14", "15", "3", "7", "9"].sort());
+  });
+
   test("every stage carries a duration and the run names its JSONL log", async () => {
     const run = await runEditionPipeline({ slug: "mass-energy" });
     for (const stage of run.stages) {
@@ -746,7 +805,7 @@ describe("PLANT: the ledger-present branch measures instead of announcing", () =
  * standing - execution falls through to loadReadingFiles, which throws ENOENT and fails the stage.
  */
 describe("edition pipeline: an absent corpus is not a compiler failure", () => {
-  test("the abort records its own code and spares the compiler (e2e-edition-pipeline.ts:652)", async () => {
+  test("the abort records its own code and spares the compiler (e2e-edition-pipeline.ts:684)", async () => {
     const emptyRoot = mkdtempSync(join(tmpdir(), "am-edition-no-corpus-"));
     const run = await runEditionPipeline({ slug: "brownian-motion", root: emptyRoot });
 
@@ -771,7 +830,7 @@ describe("edition pipeline: an absent corpus is not a compiler failure", () => {
     expect(run.exitCode).toBe(0);
   });
 
-  test("a present but empty corpus aborts on its own site (e2e-edition-pipeline.ts:662)", async () => {
+  test("a present but empty corpus aborts on its own site (e2e-edition-pipeline.ts:694)", async () => {
     // THE SECOND corpus-empty SITE, and it was invisible until the scanner stopped misreading it.
     // :295 refuses a MISSING content directory; :305 refuses one that is PRESENT and holds no
     // records. The two share the code, so the scanner counted corpus-empty as 1 untested of 1 and
