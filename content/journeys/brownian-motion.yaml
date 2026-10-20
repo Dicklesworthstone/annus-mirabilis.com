@@ -115,10 +115,6 @@ worldChecks:
     instrumentId: bm-01
     quantityId: lambdaX1s
     expected: about 0.8 µm in one second, about 6 µm in one minute
-    laterEvidence:
-      year: 1909
-      description: "Jean Perrin photographed granules of gamboge and mastic under a microscope and measured their displacements one by one, in Le Radium 6, 353-360 (1909) and at length in Annales de chimie et de physique (8) 18, 5-114. The displacements grew as the square root of the elapsed time, which is what §5 requires, and the Avogadro number he read back from them sat near the value gas theory already gave. This is a measurement made four years after the paper, not a step in it."
-      recordId: cit-perrin-1909
     comparisonKind: printed-prediction
     staticWorkedExample:
       label: What Einstein printed in §5, taking N = 6 × 10²³ from gas theory
