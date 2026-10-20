@@ -684,8 +684,21 @@ function runCheck6(
       role: "implements",
       outcome: check6Passed ? "passed" : "failed",
       code: check6Passed ? undefined : "id-snapshot-uncovered",
+      /*
+       * THE PASS NAMES ITS POPULATION, because the sentence it used to print claimed more than it
+       * had looked at: "Every removed id is covered by an alias and added ids are valid successors
+       * (N id(s) added since the snapshot)" reported only the ADDED count, and the clause a reader
+       * acts on is the first one. Measured 2026-10-20: zero ids are removed on all four papers,
+       * because each snapshot was pruned to match its manifest when ids were retired, so that
+       * clause was a verdict over nothing on every paper while 37 retirements sat in
+       * content/aliases. The counts now sit beside the verdict, which is the only thing that makes
+       * the difference visible to whoever runs the stage.
+       */
       message: check6Passed
-        ? `Every removed id is covered by an alias and added ids are valid successors (${frozenResult?.newCount ?? 0} id(s) added since the snapshot).`
+        ? `Every removed id is covered by an alias and added ids are valid successors: ` +
+          `${frozenResult?.snapshotCount ?? 0} snapshot id(s) against ${frozenResult?.currentCount ?? 0} ` +
+          `manifest unit(s), ${frozenResult?.coveredByAliasCount ?? 0} removed and covered by an alias, ` +
+          `${frozenResult?.newCount ?? 0} added since the snapshot.`
         : `Id snapshot broken in ${breaking.length} place(s): ${breaking
             .slice(0, 3)
             .map((f) => `${f.kind}: ${f.id}`)

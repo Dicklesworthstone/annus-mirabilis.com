@@ -22,6 +22,26 @@ export interface FrozenIdValidationResult {
   readonly reusedCount: number;
   readonly newCount: number;
   readonly ok: boolean;
+  /**
+   * WHAT THIS VALIDATION EXAMINED, because `ok: true` says nothing about how much it looked at.
+   *
+   * `coveredByAliasCount` is the population the sentence "every removed id is covered by an alias"
+   * is about: a snapshot id absent from the manifest whose alias resolves. The loop below reached
+   * it with a bare `continue` and counted nothing, so a caller could report that sentence as a
+   * verdict over zero ids and could not tell. Measured 2026-10-20 over the four papers:
+   * `coveredByAliasCount` is 0 on every one of them, while content/aliases records 37 retirements
+   * (4, 7, 9 and 17) -- because each snapshot was pruned to match its manifest when the ids were
+   * retired. So the sentence has never been verified against a single retirement.
+   *
+   * Whether the snapshot is a FLOOR that keeps retired ids (which is what the check in
+   * editionContract.ts says it is, "a floor under retirement, not a freeze on addition") or a
+   * MIRROR of the current manifest (which is what four manifest tests assert, with
+   * `expect(snapshotIds).toEqual(manifestIds)`) is a question for the owner and not for this file.
+   * These counts are what make the answer visible either way.
+   */
+  readonly snapshotCount: number;
+  readonly currentCount: number;
+  readonly coveredByAliasCount: number;
 }
 
 /**
@@ -68,6 +88,7 @@ export function validateFrozenIds(
   let missingCount = 0;
   let reusedCount = 0;
   let newCount = 0;
+  let coveredByAliasCount = 0;
 
   // 1. Check every snapshot ID
   for (const snapId of snapshotIds) {
@@ -79,6 +100,9 @@ export function validateFrozenIds(
     if (alias) {
       const resolution = resolveAlias(snapId, aliases);
       if (resolution.ok) {
+        // COUNTED, not just skipped. This was a bare `continue`, so the one population the
+        // result's own headline sentence is about was the one thing it did not report.
+        coveredByAliasCount++;
         continue; // Explained by alias
       }
     }
@@ -120,5 +144,8 @@ export function validateFrozenIds(
     reusedCount,
     newCount,
     ok,
+    snapshotCount: snapshotIds.length,
+    currentCount: currentIds.length,
+    coveredByAliasCount,
   };
 }

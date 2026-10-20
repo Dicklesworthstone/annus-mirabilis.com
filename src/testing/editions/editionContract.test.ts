@@ -1026,7 +1026,7 @@ describe("PLANT (am-06x1): checks 4, 5 and 6 corrupt the DATA, not the flag", ()
 });
 
 /**
- * (editionContract.ts:837) invalid-route-slug.
+ * (editionContract.ts:850) invalid-route-slug.
  *
  * The line was established by planting, not by adding the drift: renaming that site's code turns
  * exactly the two tests below red and nothing else in the file. My first draft cited 802, from a
@@ -1039,7 +1039,7 @@ describe("PLANT (am-06x1): checks 4, 5 and 6 corrupt the DATA, not the flag", ()
  * string and had nothing to branch on.
  */
 describe("assertEditionContract refuses a slug that is not a route", () => {
-  test("(editionContract.ts:837) a non-route slug is refused with a code, naming the legal slugs", () => {
+  test("(editionContract.ts:850) a non-route slug is refused with a code, naming the legal slugs", () => {
     let caught: unknown;
     try {
       assertEditionContract("brownian");
@@ -1159,7 +1159,7 @@ describe("am-r3qt: the five undriven refusal sites in editionContract.ts", () =>
     writeFileSync(pdf, `${readFileSync(pdf, "utf8")}\n% one byte the declaration does not know\n`);
   }
 
-  test("(editionContract.ts:798) facsimile digest, ledger ABSENT, fires digest-mismatch", () => {
+  test("(editionContract.ts:811) facsimile digest, ledger ABSENT, fires digest-mismatch", () => {
     const root = miniPaperRoot(false);
     corruptTheFacsimile(root);
     const result = assertEditionContract("mass-energy", { root });
@@ -1167,7 +1167,7 @@ describe("am-r3qt: the five undriven refusal sites in editionContract.ts", () =>
     onlyThisOne(result, "digest-mismatch");
   });
 
-  test("(editionContract.ts:1038) facsimile digest, ledger PRESENT, fires digest-mismatch", () => {
+  test("(editionContract.ts:1051) facsimile digest, ledger PRESENT, fires digest-mismatch", () => {
     const root = miniPaperRoot(true);
     corruptTheFacsimile(root);
     // Equal id counts so translation-completeness PASSES: without them the root-based
@@ -1185,7 +1185,7 @@ describe("am-r3qt: the five undriven refusal sites in editionContract.ts", () =>
     onlyThisOne(result, "digest-mismatch");
   });
 
-  test("(editionContract.ts:1119) an unclean ledger fires ledger-not-clean", () => {
+  test("(editionContract.ts:1132) an unclean ledger fires ledger-not-clean", () => {
     const result = assertEditionContract("brownian-motion", {
       ledgerText: LEDGER,
       editionText: LEDGER_EDITION_TEXT,
@@ -1202,7 +1202,7 @@ describe("am-r3qt: the five undriven refusal sites in editionContract.ts", () =>
     onlyThisOne(result, "ledger-not-clean");
   });
 
-  test("(editionContract.ts:1465) differing display math fires display-math-bytes-differ", () => {
+  test("(editionContract.ts:1478) differing display math fires display-math-bytes-differ", () => {
     const result = assertEditionContract("brownian-motion", {
       ledgerText: LEDGER,
       editionText: LEDGER_EDITION_TEXT,
@@ -1219,7 +1219,7 @@ describe("am-r3qt: the five undriven refusal sites in editionContract.ts", () =>
     onlyThisOne(result, "display-math-bytes-differ");
   });
 
-  test("(editionContract.ts:1787) an unaligned German id fires translation-incomplete", () => {
+  test("(editionContract.ts:1800) an unaligned German id fires translation-incomplete", () => {
     const result = assertEditionContract("brownian-motion", {
       ledgerText: LEDGER,
       editionText: LEDGER_EDITION_TEXT,

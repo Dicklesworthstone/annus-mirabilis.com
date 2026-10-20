@@ -77,10 +77,19 @@ describe("mini-paper fixture contract (am-edn-alignment-tooling-do1)", () => {
     expect(c?.message).toContain("page-out-of-range");
   });
 
-  test("check 6 passes over the id snapshot, and says how many ids were added", () => {
+  test("check 6 passes over the id snapshot, and says what it examined", () => {
+    // The pass used to report only the ADDED count, while the clause a reader acts on is
+    // "every removed id is covered by an alias" -- which was a verdict over a population nobody
+    // printed. On the real corpus that population is zero on all four papers. All four numbers
+    // are asserted here so the message cannot quietly go back to reporting one of them.
     const c = outcomeOf(FIXTURE, 6);
     expect(c?.outcome).toBe("passed");
-    expect(c?.message).toContain("0 id(s) added");
+    expect(c?.message).toContain("snapshot id(s)");
+    expect(c?.message).toContain("manifest unit(s)");
+    expect(c?.message).toContain("removed and covered by an alias");
+    expect(c?.message).toContain("added since the snapshot");
+    // And the fixture's own numbers, so the sentence is not a template over nothing.
+    expect(c?.message).toContain("6 snapshot id(s) against 6 manifest unit(s)");
   });
 
   test("MUTATION: an id removed from the manifest without an alias fails check 6", () => {
