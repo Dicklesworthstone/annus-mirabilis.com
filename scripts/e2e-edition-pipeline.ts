@@ -386,7 +386,41 @@ export async function runEditionPipeline(options: {
           evidence: errors,
         });
       } else {
-        push("ledger", "passed", `Ledger at ${presence.path} validated clean.`);
+        /*
+         * THE PASS NAMES ITS MODE AND KEEPS ITS WARNINGS, and it used to say neither.
+         *
+         * "Validated clean" reads as the strongest verdict the validator has. It is not: the
+         * validator runs in STRUCTURAL mode unless the ledger's status is corrected,
+         * corrected-second-read or reviewed, and all four papers are in-progress or not-started,
+         * so completeness mode -- which checks page coverage and the closing blocks -- has never
+         * run on any of them. That is correct behaviour and a weaker claim than the sentence made.
+         *
+         * AND SIXTEEN WARNINGS WERE BEING DROPPED. This branch reported only `errors`. Measured
+         * 2026-10-20: 0, 3, 5 and 8 warnings across the four papers, every one of them
+         * `short-line`, "Line has only N words inside paragraph body" -- which is one of the
+         * leftovers AGENTS.md forbids by name, "sentences broken into one-word lines". The
+         * validator found them and the stage threw them away. They stay warnings, because the
+         * validator ranks them so and a machine draft is allowed to have them, but a warning
+         * nobody is shown is the same as a warning nobody raised.
+         */
+        const warnings = validation.warnings.map((w) => `${w.code ?? "warning"}: ${w.message}`);
+        push(
+          "ledger",
+          "passed",
+          `Ledger at ${presence.path} validated clean in ${validation.mode} mode ` +
+            `(status ${validation.ledgerStatus}), with ${validation.warnings.length} warning(s) ` +
+            `and ${validation.info.length} note(s).`,
+          {
+            pending: [
+              ...(validation.mode === "structural"
+                ? [
+                    "completeness mode has not run: it needs ledgerStatus corrected, corrected-second-read or reviewed, and no paper has one. Page coverage and the closing blocks are therefore unchecked here",
+                  ]
+                : []),
+              ...warnings,
+            ],
+          },
+        );
       }
     } catch (err: unknown) {
       push("ledger", "failed", `Reading or validating the ledger threw: ${String(err)}`, {

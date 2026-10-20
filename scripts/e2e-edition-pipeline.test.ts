@@ -653,6 +653,54 @@ describe("PLANT: the ledger-present branch measures instead of announcing", () =
     expect(alignment).toBe(loadAuthoredEdges("brownian-motion", REPO).edges.length);
   });
 
+  /**
+   * "VALIDATED CLEAN" IS A STRUCTURAL VERDICT, and sixteen warnings were being dropped.
+   *
+   * The validator runs in STRUCTURAL mode unless the ledger's status is corrected,
+   * corrected-second-read or reviewed. All four papers are in-progress or not-started, so
+   * completeness mode -- page coverage and the closing blocks -- has never run on any of them,
+   * and the pass said nothing about that. It also reported only `errors`: measured 2026-10-20,
+   * 0, 3, 5 and 8 warnings across the four papers, every one of them `short-line`, which is a
+   * leftover AGENTS.md forbids by name.
+   */
+  test("the ledger pass names its mode and the status that chose it", async () => {
+    const stage = stageOf(await runEditionPipeline({ slug: "light-quanta", root: REPO }), "ledger");
+    expect(stage?.outcome).toBe("passed");
+    expect(stage?.message).toContain("structural mode");
+    expect(stage?.message).toContain("status in-progress");
+    expect(stage?.pending?.join(" ")).toContain("completeness mode has not run");
+  });
+
+  test("the ledger pass keeps its warnings instead of dropping them", async () => {
+    const stage = stageOf(await runEditionPipeline({ slug: "light-quanta", root: REPO }), "ledger");
+    const count = Number(/with (\d+) warning/.exec(stage?.message ?? "")?.[1] ?? -1);
+    expect(count, stage?.message).toBeGreaterThan(0);
+    // Every warning the message counts is in the pending list: a count with nothing behind it is
+    // the shape this replaced. The list also carries the completeness-mode note, so the
+    // arithmetic is stated rather than assumed -- and the warnings are NOT all one code, which is
+    // what a `short-line` filter got wrong here: light quanta's five are four short-line and one
+    // short-paragraph, so filtering by code under-counted and read as a drop.
+    const modeNote = (stage?.pending ?? []).filter((line) =>
+      line.startsWith("completeness mode has not run"),
+    );
+    expect(modeNote).toHaveLength(1);
+    expect((stage?.pending ?? []).length).toBe(count + 1);
+    // And each one is a coded finding rather than prose, so a reader can act on it.
+    for (const line of (stage?.pending ?? []).filter((l) => !l.startsWith("completeness mode"))) {
+      expect(line, line).toMatch(/^[a-z][a-z0-9-]*: /);
+    }
+  });
+
+  test("a paper with no warnings says zero rather than omitting the clause", async () => {
+    // The control. mass-energy's ledger has none, so the clause must still be there and read 0 --
+    // otherwise "with N warning(s)" would only ever appear when it was non-zero, and its absence
+    // would be ambiguous between none and not-measured.
+    const stage = stageOf(await runEditionPipeline({ slug: "mass-energy", root: REPO }), "ledger");
+    expect(stage?.message).toContain("0 warning(s)");
+    // Only the completeness-mode note, and no warning line behind a zero count.
+    expect((stage?.pending ?? []).filter((l) => !l.startsWith("completeness mode"))).toEqual([]);
+  });
+
   test("every stage carries a duration and the run names its JSONL log", async () => {
     const run = await runEditionPipeline({ slug: "mass-energy" });
     for (const stage of run.stages) {
@@ -698,7 +746,7 @@ describe("PLANT: the ledger-present branch measures instead of announcing", () =
  * standing - execution falls through to loadReadingFiles, which throws ENOENT and fails the stage.
  */
 describe("edition pipeline: an absent corpus is not a compiler failure", () => {
-  test("the abort records its own code and spares the compiler (e2e-edition-pipeline.ts:618)", async () => {
+  test("the abort records its own code and spares the compiler (e2e-edition-pipeline.ts:652)", async () => {
     const emptyRoot = mkdtempSync(join(tmpdir(), "am-edition-no-corpus-"));
     const run = await runEditionPipeline({ slug: "brownian-motion", root: emptyRoot });
 
@@ -723,7 +771,7 @@ describe("edition pipeline: an absent corpus is not a compiler failure", () => {
     expect(run.exitCode).toBe(0);
   });
 
-  test("a present but empty corpus aborts on its own site (e2e-edition-pipeline.ts:628)", async () => {
+  test("a present but empty corpus aborts on its own site (e2e-edition-pipeline.ts:662)", async () => {
     // THE SECOND corpus-empty SITE, and it was invisible until the scanner stopped misreading it.
     // :295 refuses a MISSING content directory; :305 refuses one that is PRESENT and holds no
     // records. The two share the code, so the scanner counted corpus-empty as 1 untested of 1 and
