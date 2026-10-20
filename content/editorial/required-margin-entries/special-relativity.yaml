@@ -30,6 +30,28 @@ entries:
   - letter: c
     proposition: "Einstein's later statement to Shankland that Fizeau's experiment and stellar aberration weighed more with him than Michelson and Morley."
     namedSources: ["Shankland 1963"]
+    # THE CITATION BEING ON DISK IS NOT THE SAME AS THE CLAIM BEING GROUNDABLE, and until
+    # 2026-10-20 the audit's census said this entry and (g) "have every citation on disk", a phrase
+    # that reads as ready to author. cit-shankland-1963 pins the paper's IDENTITY through its DOI
+    # and its own verification note ends with the sentence that settles this: "What Einstein is
+    # reported to have said about Fizeau and stellar aberration is a claim about this text and is
+    # NOT grounded here." Nobody in this repository has read Shankland 1963, and the paper is not
+    # among the pinned facsimiles.
+    #
+    # Writing the note anyway would mean reporting a 1963 conversation from memory. That is the
+    # failure this field exists to record, and it is the one the Sutherland annotation below and
+    # the brownian-motion entries were written for.
+    #
+    # The half of the anachronism control this edition CAN ground is already written and is a
+    # DIFFERENT proposition, so it is not credited here as a partial: note-sr-no-experiment-is-named
+    # establishes that the paper names no experiment, searched across all 213 source blocks, and
+    # that note says in its own evidence that it "makes no claim about what Einstein knew of the
+    # Michelson-Morley result, which is a separate historical statement and would need its own
+    # evidence". Entry (c) IS that separate statement.
+    claimNotGroundable:
+      reportedOn: "2026-10-20"
+      groundedBy: "The identity of the source, through cit-shankland-1963: R. S. Shankland, Conversations with Albert Einstein, American Journal of Physics 31 (1), 47-57, January 1963, from the publisher's registered metadata for 10.1119/1.1969236. And the paper's own silence, through note-sr-no-experiment-is-named, which searched all 213 source blocks for Michelson and Morley and found neither, and holds the introduction's actual wording at s0-p2."
+      missing: "What Einstein is reported to have said: that Fizeau's experiment and stellar aberration weighed more with him than Michelson and Morley. That is a claim about the contents of Shankland 1963, which nobody here has read and which cit-shankland-1963's own verification note excludes by name. Also missing, and needed before such a note could be fair, is the surrounding qualification every reader of that paper meets: Shankland reports conversations held in 1950, 1952 and 1954 and reconstructed from his notes, so the statement is a recollection at fifty years' distance reported at second hand, and a margin entry that gave it without that frame would present a reminiscence as a fact about 1905."
     requiresCitations: ["cit-shankland-1963"]
   - letter: d
     proposition: "Lorentz 1904 and Poincare 1905, the 5 June note and the Palermo paper, stated from what they wrote, with the difference in interpretation and the ether."
