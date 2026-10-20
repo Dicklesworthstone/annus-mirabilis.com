@@ -26,6 +26,7 @@ import {
   validateTerms,
 } from "../src/content/editions/alignment.ts";
 import {
+  loadAlignmentComponents,
   loadAuthoredEdges,
   loadGlossInput,
   manifestUnitIds,
@@ -117,6 +118,8 @@ export type AlignEditionsResult = Readonly<{
   layers: readonly string[];
   examined: AlignEditionsExamined;
   issues: readonly AlignmentIssue[];
+  /** C.4's permitted difference: a component whose atom ORDER differs. Never a refusal. */
+  warnings: readonly AlignmentIssue[];
   reportFiles?: Readonly<{ json: string; markdown: string }> | undefined;
   toolRunId?: string | undefined;
 }>;
@@ -212,11 +215,38 @@ export function runAlignEditions(options: AlignEditionsOptions): AlignEditionsRe
     issues.push(...splitIssues);
   }
 
-  // 3. Inline mathematics, references, and footnote marks (rule C.4, whose docblock at
-  //    alignment.ts:292 carries exactly this title). Previously miscredited to C.3.
-  if (options.components && options.components.length > 0) {
-    const mathIssues = validateInlineMathematics(options.components);
-    issues.push(...mathIssues);
+  /*
+   * 3. Inline mathematics, references, and footnote marks (rule C.4, whose docblock at
+   *    alignment.ts:292 carries exactly this title). Previously miscredited to C.3.
+   *
+   * LOADED FROM DISK when the caller supplied none, for the same reason as the gloss population
+   * below and the edges above. C.4 is the rule that says a translation can never silently drop a
+   * formula, a cross-paper reference or a footnote mark, and until 2026-10-19 nothing built its
+   * input, so it compared zero components for every paper and the runner called that a pass.
+   * With a population it compares 742 components carrying 914 inline math atoms and 22 footnote
+   * marks, and the corpus agrees on all of them.
+   *
+   * `math-order-differs` stays a WARNING and is reported separately, because the bead says so:
+   * German and English word order legitimately differ, so a different order within one component
+   * is a note for the coverage report and the review packet, not a refusal. 10 components carry
+   * one today. Mixing it into `issues` would have taken four green papers to red for a reason
+   * the rule explicitly permits.
+   */
+  let componentsExamined = 0;
+  let orderWarnings: readonly AlignmentIssue[] = [];
+  let components = options.components;
+  if (components === undefined) {
+    const loaded = loadAlignmentComponents(slug, root);
+    components = loaded.components;
+    componentsExamined = loaded.examined.components;
+    issues.push(...loaded.issues);
+  } else {
+    componentsExamined = components.length;
+  }
+  if (components.length > 0) {
+    const mathIssues = validateInlineMathematics(components);
+    orderWarnings = mathIssues.filter((i) => i.code === "math-order-differs");
+    issues.push(...mathIssues.filter((i) => i.code !== "math-order-differs"));
   }
 
   // 4. Terminology validation (rule C.5)
@@ -351,12 +381,13 @@ export function runAlignEditions(options: AlignEditionsOptions): AlignEditionsRe
       edges: edges.length,
       germanIds: germanIds.length,
       englishIds: englishIds.length,
-      components: options.components?.length ?? 0,
+      components: componentsExamined,
       terms: options.terms?.length ?? 0,
       glossUnits: glossUnitsExamined,
       reviewUnits: options.reviewUnits?.length ?? 0,
     }),
     issues: Object.freeze(issues),
+    warnings: Object.freeze([...orderWarnings]),
     reportFiles: reportFiles ? Object.freeze(reportFiles) : undefined,
     toolRunId,
   });

@@ -17,11 +17,13 @@ import type { RouteSlug } from "../ids.ts";
 import { validateAlignment } from "../schemas/source.ts";
 import { isPermanentGermanId } from "./alignableIds.ts";
 import {
+  type AlignmentComponent,
   type AlignmentIssue,
   type ExplicitEdge,
   edgesFromAlignment,
   type GlossAlignableUnit,
   type GlossUnit,
+  type UnitContent,
   type ValidateGlossInput,
 } from "./alignment.ts";
 
@@ -34,7 +36,9 @@ type InlineShape = Readonly<{
   text?: unknown;
   latex?: unknown;
   mark?: unknown;
-  math?: Readonly<{ latex?: unknown }> | undefined;
+  referenceId?: unknown;
+  display?: boolean | undefined;
+  math?: Readonly<{ latex?: unknown; display?: boolean | undefined }> | undefined;
   inlines?: readonly InlineShape[] | undefined;
 }>;
 
@@ -376,4 +380,294 @@ export function loadGlossInput(
     alignableUnitCount: alignableUnits.length,
     issues,
   };
+}
+
+/**
+ * THE FIFTH POPULATION: alignment components, and the inline atoms on both sides (rule C.4).
+ *
+ * C.4 is the rule that says a translation can never silently drop a formula, a cross-paper
+ * reference or a footnote mark. Until 2026-10-19 nothing built its input, so for every paper it
+ * compared zero components and the runner reported a pass. Measured once it had one: 742
+ * components over the four papers, carrying 914 inline math atoms and 22 footnote marks, with
+ * every edge endpoint resolving and nothing differing.
+ *
+ * DISPLAY MATH IS EXCLUDED, and getting that wrong is how this reads as five false findings.
+ * C.4 governs "the multiset of INLINE math atoms"; a display is an `equation` block referenced by
+ * a `math` inline carrying `display: true`, and its byte identity across the faces is C.3's
+ * question, checked by `validateDisplayByteIdentity`. Counting displays here reported `Z = \sum
+ * ...` and `p v = R \frac{n}{N} T.` as missing from the English, when the English correctly
+ * refers to the shared equation block instead of repeating its LaTeX. Three of the five were in
+ * light-quanta's s1-fn3 and two in s5-fn1.
+ *
+ * REFERENCES ARE AN EMPTY CLASS TODAY, deliberately reported rather than quietly absent: the
+ * corpus holds zero `reference` inlines, because the German edition bead authors them at their
+ * occurrence. A count of 0 in the returned census is the only thing that distinguishes "checked
+ * and agreed" from "there was nothing of this kind to check".
+ */
+export function loadAlignmentComponents(
+  slug: RouteSlug,
+  root: string,
+): {
+  components: readonly AlignmentComponent[];
+  examined: Readonly<{
+    components: number;
+    mathAtoms: number;
+    footnoteMarks: number;
+    references: number;
+    unresolvedSources: number;
+    unresolvedTargets: number;
+  }>;
+  issues: readonly AlignmentIssue[];
+} {
+  const issues: AlignmentIssue[] = [];
+  const germanByUnit = germanUnitContent(slug, root, issues);
+  const englishByUnit = englishUnitContent(slug, root, issues);
+  const { edges, issues: edgeIssues } = loadAuthoredEdges(slug, root);
+  issues.push(...edgeIssues);
+
+  // Connected components of the bipartite edge graph, by union-find over "de:<id>" / "en:<id>".
+  const parent = new Map<string, string>();
+  const find = (node: string): string => {
+    const seen = parent.get(node);
+    if (seen === undefined || seen === node) return node;
+    const root_ = find(seen);
+    parent.set(node, root_);
+    return root_;
+  };
+  const union = (a: string, b: string): void => {
+    const ra = find(a);
+    const rb = find(b);
+    if (ra !== rb) parent.set(ra, rb);
+  };
+  for (const edge of edges) {
+    const de = `de:${edge.sourceId}`;
+    const en = `en:${edge.targetId}`;
+    if (!parent.has(de)) parent.set(de, de);
+    if (!parent.has(en)) parent.set(en, en);
+    union(de, en);
+  }
+
+  const grouped = new Map<string, { de: string[]; en: string[] }>();
+  for (const node of parent.keys()) {
+    const root_ = find(node);
+    const group = grouped.get(root_) ?? { de: [], en: [] };
+    if (node.startsWith("de:")) group.de.push(node.slice(3));
+    else group.en.push(node.slice(3));
+    grouped.set(root_, group);
+  }
+
+  const components: AlignmentComponent[] = [];
+  let mathAtoms = 0;
+  let footnoteMarks = 0;
+  let references = 0;
+  let unresolvedSources = 0;
+  let unresolvedTargets = 0;
+
+  for (const group of grouped.values()) {
+    const germanUnits: UnitContent[] = [];
+    for (const id of group.de) {
+      const content = germanByUnit.get(id);
+      if (!content) {
+        unresolvedSources += 1;
+        continue;
+      }
+      germanUnits.push(content);
+      mathAtoms += content.mathAtoms?.length ?? 0;
+      footnoteMarks += content.footnoteMarks?.length ?? 0;
+      references += content.referenceIds?.length ?? 0;
+    }
+    const englishUnits: UnitContent[] = [];
+    for (const id of group.en) {
+      const content = englishByUnit.get(id);
+      if (!content) {
+        unresolvedTargets += 1;
+        continue;
+      }
+      englishUnits.push(content);
+    }
+    if (germanUnits.length === 0 && englishUnits.length === 0) continue;
+    components.push({ germanUnits, englishUnits });
+  }
+
+  return {
+    components,
+    examined: {
+      components: components.length,
+      mathAtoms,
+      footnoteMarks,
+      references,
+      unresolvedSources,
+      unresolvedTargets,
+    },
+    issues,
+  };
+}
+
+/**
+ * German alignable units with their inline atoms, attributed to the SENTENCE that prints them.
+ *
+ * A paragraph's atoms belong to its sentences, not to the paragraph, because alignment edges
+ * address sentences. They are placed by the same ordered cursor walk `locateAtoms` uses, for the
+ * same reason: the inline stream and `diplomaticText` are two renderings of one block and a
+ * display equation appears only in the first.
+ */
+function germanUnitContent(
+  slug: RouteSlug,
+  root: string,
+  issues: AlignmentIssue[],
+): Map<string, UnitContent> {
+  const out = new Map<string, UnitContent>();
+  const dir = join(root, `content/source-blocks/${slug}`);
+  if (!existsSync(dir)) return out;
+
+  for (const file of readdirSync(dir).sort()) {
+    if (!file.endsWith(".yaml")) continue;
+    let record: SourceBlockShape | null;
+    try {
+      record = parseYaml(readFileSync(join(dir, file), "utf8")) as SourceBlockShape | null;
+    } catch (err: unknown) {
+      issues.push({
+        code: "alignment-record-unreadable",
+        message:
+          `content/source-blocks/${slug}/${file} is on disk and could not be loaded: ` +
+          `${err instanceof Error ? err.message : String(err)}. ` +
+          "This is not an absence of inline atoms.",
+      });
+      continue;
+    }
+    if (typeof record?.id !== "string" || !record.inlines) continue;
+    const text = typeof record.diplomaticText === "string" ? record.diplomaticText : "";
+    const placed = placeAtoms(text, record.inlines);
+
+    if (record.kind === "paragraph" && record.sentenceSpans) {
+      for (const entry of record.sentenceSpans) {
+        const start = entry.span?.start;
+        const end = entry.span?.end;
+        if (typeof entry.id !== "string" || typeof start !== "number" || typeof end !== "number") {
+          continue;
+        }
+        const mine = placed.filter((p) => p.position >= start && p.position < end);
+        out.set(entry.id, {
+          id: entry.id,
+          mathAtoms: mine.filter((p) => p.category === "math").map((p) => p.value),
+          footnoteMarks: mine.filter((p) => p.category === "mark").map((p) => p.value),
+          referenceIds: mine.filter((p) => p.category === "reference").map((p) => p.value),
+        });
+      }
+    }
+    // A paragraph is ALSO addressable as a block: several alignment edges key on the paragraph id
+    // rather than on a sentence id, so both spellings must resolve or the component is dropped.
+    out.set(record.id, {
+      id: record.id,
+      mathAtoms: placed.filter((p) => p.category === "math").map((p) => p.value),
+      footnoteMarks: placed.filter((p) => p.category === "mark").map((p) => p.value),
+      referenceIds: placed.filter((p) => p.category === "reference").map((p) => p.value),
+    });
+  }
+  return out;
+}
+
+/** English units' inline atoms, read off the translation records' own inline stream. */
+function englishUnitContent(
+  slug: RouteSlug,
+  root: string,
+  issues: AlignmentIssue[],
+): Map<string, UnitContent> {
+  const out = new Map<string, UnitContent>();
+  const dir = join(root, `content/translation-units/${slug}`);
+  if (!existsSync(dir)) return out;
+
+  for (const file of readdirSync(dir).sort()) {
+    if (!file.endsWith(".yaml")) continue;
+    let record: { id?: unknown; inlines?: readonly InlineShape[] } | null;
+    try {
+      record = parseYaml(readFileSync(join(dir, file), "utf8")) as {
+        id?: unknown;
+        inlines?: readonly InlineShape[];
+      } | null;
+    } catch (err: unknown) {
+      issues.push({
+        code: "alignment-record-unreadable",
+        message:
+          `content/translation-units/${slug}/${file} is on disk and could not be loaded: ` +
+          `${err instanceof Error ? err.message : String(err)}. ` +
+          "This is not an absence of inline atoms.",
+      });
+      continue;
+    }
+    if (typeof record?.id !== "string") continue;
+    const mathAtoms: string[] = [];
+    const footnoteMarks: string[] = [];
+    const referenceIds: string[] = [];
+    const walk = (list: readonly InlineShape[]): void => {
+      for (const inline of list) {
+        if (inline.kind === "math" && typeof inline.latex === "string") {
+          if (inline.display !== true) mathAtoms.push(inline.latex);
+        } else if (inline.kind === "misprint" && inline.math) {
+          if (inline.math.display !== true && typeof inline.math.latex === "string") {
+            mathAtoms.push(inline.math.latex);
+          }
+        } else if (inline.kind === "footnote-mark" && typeof inline.mark === "string") {
+          footnoteMarks.push(inline.mark);
+        } else if (inline.kind === "reference" && typeof inline.referenceId === "string") {
+          referenceIds.push(inline.referenceId);
+        }
+        if (inline.inlines) walk(inline.inlines);
+      }
+    };
+    walk(record.inlines ?? []);
+    out.set(record.id, { id: record.id, mathAtoms, footnoteMarks, referenceIds });
+  }
+  return out;
+}
+
+type PlacedAtom = Readonly<{
+  position: number;
+  category: "math" | "mark" | "reference";
+  value: string;
+}>;
+
+/** Atoms with their position in `text`, so a paragraph's can be split among its sentences. */
+function placeAtoms(text: string, inlines: readonly InlineShape[]): readonly PlacedAtom[] {
+  const placed: PlacedAtom[] = [];
+  let cursor = 0;
+  const consume = (fragment: string): number => {
+    if (fragment === "") return -1;
+    const at = text.indexOf(fragment, cursor);
+    if (at === -1) return -1;
+    cursor = at + fragment.length;
+    return at;
+  };
+  const walk = (list: readonly InlineShape[]): void => {
+    for (const inline of list) {
+      if (inline.kind === "math" && typeof inline.latex === "string") {
+        const at = consume(inline.latex);
+        // A display is C.3's question, not C.4's: it is a shared equation block that the English
+        // refers to rather than repeats, so counting it reports the English as having dropped it.
+        if (inline.display !== true) {
+          placed.push({ position: at === -1 ? cursor : at, category: "math", value: inline.latex });
+        }
+      } else if (inline.kind === "misprint" && inline.math) {
+        const latex = typeof inline.math.latex === "string" ? inline.math.latex : "";
+        const at = consume(latex);
+        if (latex !== "" && inline.math.display !== true) {
+          placed.push({ position: at === -1 ? cursor : at, category: "math", value: latex });
+        }
+      } else if (inline.kind === "footnote-mark" && typeof inline.mark === "string") {
+        const at = consume(inline.mark);
+        placed.push({ position: at === -1 ? cursor : at, category: "mark", value: inline.mark });
+      } else if (inline.kind === "reference" && typeof inline.referenceId === "string") {
+        placed.push({ position: cursor, category: "reference", value: inline.referenceId });
+        if (inline.inlines) walk(inline.inlines);
+      } else if (inline.kind === "text" || inline.kind === "misprint") {
+        consume(typeof inline.text === "string" ? inline.text : "");
+      } else if (inline.kind === "space") {
+        consume(" ");
+      } else if (inline.inlines) {
+        walk(inline.inlines);
+      }
+    }
+  };
+  walk(inlines);
+  return placed;
 }

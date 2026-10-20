@@ -50,7 +50,7 @@ describe("scripts/align-editions.ts runner and CLI guards", () => {
       expect(runAlignEditions({ slug: withLedger }).outcome).not.toBe("not-available");
   });
 
-  test("PLANTED: --require-reviewed refuses with unit-not-reviewed when no reviewed units exist (align-editions.ts:274)", () => {
+  test("PLANTED: --require-reviewed refuses with unit-not-reviewed when no reviewed units exist (align-editions.ts:304)", () => {
     const result = runAlignEditions({
       slug: "brownian-motion",
       requireReviewed: true,
@@ -62,7 +62,7 @@ describe("scripts/align-editions.ts runner and CLI guards", () => {
     expect(issue?.message).toContain("--require-reviewed specified, but no reviewed units exist");
   });
 
-  test("PLANTED: --require-reviewed refuses unreviewed unit state with unit-not-reviewed (align-editions.ts:282)", () => {
+  test("PLANTED: --require-reviewed refuses unreviewed unit state with unit-not-reviewed (align-editions.ts:312)", () => {
     const result = runAlignEditions({
       slug: "brownian-motion",
       requireReviewed: true,
@@ -296,16 +296,39 @@ describe("the runner states what each rule examined", () => {
     expect(result.examined.glossUnits).toBe(0);
   });
 
-  test("the three rules with no loader report ZERO rather than hiding behind the pass", () => {
+  test("C.4 components are LOADED too, so a dropped formula or footnote mark can be seen", () => {
+    const result = runAlignEditions({
+      slug: glossed(),
+      layers: ["german", "translation", "gloss"],
+    });
+    expect(result.examined.components).toBeGreaterThan(30);
+  });
+
+  test("the two rules with no loader report ZERO rather than hiding behind the pass", () => {
     const result = runAlignEditions({
       slug: glossed(),
       layers: ["german", "translation", "gloss"],
     });
     // Not an assertion that zero is acceptable. It is the declaration that makes the gap
-    // visible in the runner's own output, where `ok: true` says nothing about it.
-    expect(result.examined.components).toBe(0);
+    // visible in the runner's own output, where `ok: true` says nothing about it. This read
+    // `components` too until that loader landed; when terms and review units get theirs, this
+    // test has to be revisited rather than quietly continuing to read as a pass.
     expect(result.examined.terms).toBe(0);
     expect(result.examined.reviewUnits).toBe(0);
+  });
+
+  test("a component whose atom ORDER differs is a warning, never a refusal", () => {
+    // The bead says so: German and English word order legitimately differ. Mixing
+    // `math-order-differs` into `issues` would take four green papers to red for a difference
+    // the rule explicitly permits, so the two channels are kept apart and both are asserted.
+    const withOrder = PAPER_SLUGS.map((slug) =>
+      runAlignEditions({ slug, layers: ["german", "translation"] }),
+    ).filter((r) => r.warnings.length > 0);
+    expect(withOrder.length).toBeGreaterThan(0);
+    for (const result of withOrder) {
+      expect(result.warnings.every((w) => w.code === "math-order-differs")).toBe(true);
+      expect(result.issues.some((i) => i.code === "math-order-differs")).toBe(false);
+    }
   });
 
   test("CONTROL: a supplied population is counted, so the zeros above are about loading", () => {
