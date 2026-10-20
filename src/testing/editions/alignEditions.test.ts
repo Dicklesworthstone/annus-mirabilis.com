@@ -317,7 +317,11 @@ describe("the runner states what each rule examined", () => {
       terms: [
         {
           id: "t1",
-          text: "Lichtkomplex",
+          termId: "lichtkomplex",
+          termText: "Lichtkomplex",
+          termLang: "de",
+          definitionLang: "en",
+          isOccurrenceSpecific: true,
           definition:
             "A bundle of light treated as a single object for the purposes of this argument, following the printed usage of the 1905 paper.",
         },
