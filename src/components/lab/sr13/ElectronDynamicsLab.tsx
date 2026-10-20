@@ -103,7 +103,16 @@ export function ElectronDynamicsLab({
     session,
     session.acceptedParameters(),
     true,
-    (restored) => setDraft({ ...restored }),
+    /*
+     * BOTH halves of the form, as this laboratory's own apply handler does. `typed` holds the TEXT
+     * in the number inputs, so updating `draft` alone left a reader who opened a shared link
+     * looking at the restored results beside the previous numbers -- and re-applying without
+     * retyping would have sent the stale text back. SR-09 and SR-10 always called both.
+     */
+    (restored) => {
+      setDraft({ ...restored });
+      setTyped(typedFrom(restored));
+    },
   );
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("sr-13", SR13_PROMPTS);
