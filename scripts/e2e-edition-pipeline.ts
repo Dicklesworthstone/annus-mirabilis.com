@@ -400,8 +400,34 @@ export async function runEditionPipeline(options: {
     // precise statement than a list of name differences.
     let anchorOf: Readonly<Record<string, string>> | undefined;
     let pairingRefusal: string | undefined;
+    let pairingAbsent = false;
     try {
-      anchorOf = loadGermanSourceFace(slug, root)?.anchors.anchorOf;
+      const face = loadGermanSourceFace(slug, root);
+      /*
+       * A FACE THAT RETURNS NOTHING IS A THIRD STATE AND THIS GUARDED ONLY THE THROW.
+       *
+       * `loadGermanSourceFace(...)?.anchors.anchorOf` yields undefined when the loader returns
+       * null, and the optional chain made that indistinguishable from "no pairing was asked for".
+       * The run then compared two namespaces with nothing joining them and reported the result as
+       * content differences -- which the comment above says in its own words would read as a
+       * content problem rather than as a missing pairing.
+       *
+       * Measured 2026-10-20: the loader returns null for special-relativity and a real pairing for
+       * the other three (87, 128 and 25 entries). So relativity's stage reported 429 unresolved
+       * differences, of which the first three I checked were a retired id recorded in
+       * content/aliases with its plate evidence, a paragraph the segmenter did not join across a
+       * page break, and a display whose proposal spelling is `s1-eq1` where the manifest froze
+       * `eq-s1-d1`. None is a content defect, and the stage named none of them as a pairing
+       * artifact.
+       *
+       * The null is DELIBERATE and documented: relativity's receipt holds `ledgerStatus:
+       * not-started` because flipping it makes `manifestAnchors` throw, 106 paragraphs on the face
+       * against 94 in the manifest. So this is not-available with the reason, and
+       * `--require-stage reconcile` is what turns it back into a failure for a caller that needs
+       * it -- which is the whole purpose of that flag.
+       */
+      if (face === null || face === undefined) pairingAbsent = true;
+      else anchorOf = face.anchors.anchorOf;
     } catch (err: unknown) {
       pairingRefusal = err instanceof Error ? err.message : String(err);
     }
@@ -419,7 +445,24 @@ export async function runEditionPipeline(options: {
       germanIds = germanAlignableIds(segmented.blocks);
       const differences = segmented.differences;
       const detail = differences.map((d) => `${d.kind} ${d.unitId}: ${d.message}`);
-      if (pairingRefusal !== undefined) {
+      if (pairingAbsent) {
+        push(
+          "reconcile",
+          "not-available",
+          `No pairing between the proposal and the frozen manifest: the German source face for ` +
+            `${slug} is not published, so the two namespaces cannot be compared. ` +
+            `${differences.length} name difference(s) were computed without it and are retained as ` +
+            `evidence, not reported as content differences.`,
+          {
+            code: "manifest-pairing-unavailable",
+            evidence: detail,
+            pending: [
+              SENTENCE_UNIT_RULING,
+              "the German face is held back by the paper's receipt (ledgerStatus not-started), and publishing it is am-german-face-anchors-not-frozen-ids-jtv6's; --require-stage reconcile turns this not-available into a failure",
+            ],
+          },
+        );
+      } else if (pairingRefusal !== undefined) {
         // Reported FIRST, because a list of name differences computed without a pairing describes
         // the missing pairing rather than the edition, and would read as a content problem.
         push(

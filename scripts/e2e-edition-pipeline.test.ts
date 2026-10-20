@@ -495,6 +495,57 @@ describe("PLANT: the ledger-present branch measures instead of announcing", () =
     expect(Number(sizes?.[2] ?? 0)).toBeLessThan(Number(sizes?.[1] ?? 0));
   });
 
+  /**
+   * THE THREE STATES OF THE PAIRING, and the stage used to have two branches for them.
+   *
+   * `loadGermanSourceFace(...)?.anchors.anchorOf` yields undefined when the loader returns null,
+   * which the optional chain made indistinguishable from "no pairing was asked for". The stage
+   * guarded the THROW and not the NULL, so a run with no pairing compared two namespaces with
+   * nothing joining them and reported the result as content differences -- the thing the comment
+   * at that call says in its own words would read as a content problem.
+   *
+   * Measured 2026-10-20: the loader returns null for special-relativity, deliberately (its receipt
+   * holds ledgerStatus not-started, because publishing the face makes manifestAnchors throw, 106
+   * paragraphs against 94), and a real pairing for the other three.
+   */
+  test("an absent pairing is not-available with its differences retained, not a content failure", async () => {
+    const run = await runEditionPipeline({ slug: "special-relativity", root: REPO });
+    const stage = stageOf(run, "reconcile");
+    expect(stage?.outcome).toBe("not-available");
+    expect(stage?.code).toBe("manifest-pairing-unavailable");
+    // Nothing is thrown away: the name differences computed without a pairing are evidence.
+    expect((stage?.evidence ?? []).length).toBeGreaterThan(100);
+    expect(stage?.message).toContain("cannot be compared");
+    // And the pending list says who owns publishing the face, so the state is not a dead end.
+    expect(stage?.pending?.join(" ")).toContain("am-german-face-anchors-not-frozen-ids-jtv6");
+  });
+
+  test("--require-stage reconcile turns that not-available back into a failure", async () => {
+    // The flag is what keeps the not-available above from being a way to pass. Without this pair,
+    // reporting an unavailable pairing would be indistinguishable from relaxing the gate.
+    const required = await runEditionPipeline({
+      slug: "special-relativity",
+      root: REPO,
+      requireStage: "reconcile",
+    });
+    expect(required.exitCode).toBe(1);
+    expect(stageOf(required, "reconcile")?.outcome).toBe("not-available");
+  });
+
+  test("a paper whose face pairs still reports its real differences", async () => {
+    // The control. If the branch above fired for every paper the stage would have stopped
+    // reconciling anything, and this is what says it did not.
+    const run = await runEditionPipeline({ slug: "brownian-motion", root: REPO });
+    const stage = stageOf(run, "reconcile");
+    expect(stage?.outcome).toBe("failed");
+    expect(stage?.code).toBe("reconciliation-differences");
+    // Reported rather than frozen: the count moves when the segmentation rules or the manifest
+    // change. What is asserted is that it is a real population and not the whole manifest.
+    const count = Number(/^(\d+) unresolved/.exec(stage?.message ?? "")?.[1] ?? 0);
+    expect(count).toBeGreaterThan(0);
+    expect(count).toBeLessThan(120);
+  });
+
   test("every stage carries a duration and the run names its JSONL log", async () => {
     const run = await runEditionPipeline({ slug: "mass-energy" });
     for (const stage of run.stages) {
@@ -540,7 +591,7 @@ describe("PLANT: the ledger-present branch measures instead of announcing", () =
  * standing - execution falls through to loadReadingFiles, which throws ENOENT and fails the stage.
  */
 describe("edition pipeline: an absent corpus is not a compiler failure", () => {
-  test("the abort records its own code and spares the compiler (e2e-edition-pipeline.ts:505)", async () => {
+  test("the abort records its own code and spares the compiler (e2e-edition-pipeline.ts:548)", async () => {
     const emptyRoot = mkdtempSync(join(tmpdir(), "am-edition-no-corpus-"));
     const run = await runEditionPipeline({ slug: "brownian-motion", root: emptyRoot });
 
@@ -565,7 +616,7 @@ describe("edition pipeline: an absent corpus is not a compiler failure", () => {
     expect(run.exitCode).toBe(0);
   });
 
-  test("a present but empty corpus aborts on its own site (e2e-edition-pipeline.ts:515)", async () => {
+  test("a present but empty corpus aborts on its own site (e2e-edition-pipeline.ts:558)", async () => {
     // THE SECOND corpus-empty SITE, and it was invisible until the scanner stopped misreading it.
     // :295 refuses a MISSING content directory; :305 refuses one that is PRESENT and holds no
     // records. The two share the code, so the scanner counted corpus-empty as 1 untested of 1 and
