@@ -38,9 +38,11 @@ checkpoints:
     expectedDisplayValues:
       - label: system energy change
         value: 0
+        outputId: systemEnergyChange
         unit: "J"
         constantSetId: modern-si-2019
       - label: system mass change
         value: 0
+        outputId: systemMassChange
         unit: "kg"
         constantSetId: modern-si-2019
