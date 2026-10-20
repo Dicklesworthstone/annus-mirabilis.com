@@ -47,6 +47,10 @@ import {
   translationCompleteness,
 } from "../src/content/editions/ledgerPresence.ts";
 import { germanAlignableIds, segmentLedger } from "../src/content/editions/segmentLedger.ts";
+import {
+  compareSentenceDivision,
+  formatDivisionComparison,
+} from "../src/content/editions/sentenceDivisionComparison.ts";
 import { type ScannedFace, scanFaceHtml } from "../src/content/editions/staticHtmlScan.ts";
 import { parseRouteSlug, type RouteSlug } from "../src/content/ids.ts";
 import { validateLedger } from "../src/content/ledger/validateLedger.ts";
@@ -156,10 +160,24 @@ function argValue(flag: string): string | undefined {
   return process.argv[i + 1];
 }
 
+/**
+ * The manifest's units with the three fields this file needs.
+ *
+ * `locators` is carried because the sentence-division screen places a unit by its printed page,
+ * and a unit with no page is counted as unplaceable rather than guessed. Returning only id and
+ * kind made that counter read 91 unplaceable units on brownian-motion and 0 comparable pages --
+ * the harness correctly refusing to compare, against a shape this loader had flattened.
+ */
 function loadManifestUnits(
   root: string,
   slug: RouteSlug,
-): readonly Readonly<{ id: string; kind: string }>[] | null {
+):
+  | readonly Readonly<{
+      id: string;
+      kind: string;
+      locators?: readonly Readonly<{ page?: number | undefined }>[] | undefined;
+    }>[]
+  | null {
   const manifestPath = join(root, `content/source-blocks/${slug}/manifest.yaml`);
   if (!existsSync(manifestPath)) return null;
   try {
@@ -167,7 +185,11 @@ function loadManifestUnits(
       parseYaml(readFileSync(manifestPath, "utf8")),
       manifestPath,
     );
-    return manifest.units.map((unit) => ({ id: unit.id, kind: String(unit.kind) }));
+    return manifest.units.map((unit) => ({
+      id: unit.id,
+      kind: String(unit.kind),
+      ...(unit.locators !== undefined ? { locators: unit.locators } : {}),
+    }));
   } catch {
     return null;
   }
@@ -445,6 +467,52 @@ export async function runEditionPipeline(options: {
       germanIds = germanAlignableIds(segmented.blocks);
       const differences = segmented.differences;
       const detail = differences.map((d) => `${d.kind} ${d.unitId}: ${d.message}`);
+      /*
+       * THE SENTENCE-DIVISION SCREEN, WHICH THE OWNER CHOSE AND NOTHING CALLED.
+       *
+       * am-span-recording-decision-ero2, owner decision 2026-09-21, verbatim: "Option 3 now,
+       * Option 1 later". Option 3 is a harness comparing the manifest's sentence division with
+       * the one a segmentation run proposes, keyed on the PRINTED PAGE because a manifest's
+       * paragraph labels are an allocation history and a shared label names different paragraphs
+       * on the two sides. `sentenceDivisionComparison.ts` implements it, with its per-page
+       * determination and its unplaceable counters, and measured 2026-10-20 it had ZERO non-test
+       * callers -- a month after the decision.
+       *
+       * This stage already holds all three of its inputs, and it is the stage whose sentence
+       * differences need the frame: of the differences above, the sentence-level ones are
+       * reported as "frozen id has no proposed ledger unit", which says nothing about WHERE the
+       * two divisions part. The screen gives a page and a pair of counts.
+       *
+       * IT IS A SCREEN AND NOT A VERDICT, in the module's own words, so it does not change this
+       * stage's outcome. It compares how many sentences each side places on a page and is blind
+       * to a boundary that moves within one. Measured over the raw cut: 63 ledger pages across
+       * the four papers, all comparable, 21 agreeing and 42 differing, almost all by one.
+       *
+       * It is run on the RAW segmenter output deliberately. The German face joins page
+       * continuations and display run-ons before publishing, and a joined sentence spans two
+       * pages, so the harness cannot place it: measured, joining takes brownian-motion from 0 to
+       * 13 unplaceable sentences and light quanta from 1 to 13. The page key only works before
+       * the join, which is what the module was built against.
+       */
+      const division = compareSentenceDivision({
+        ledgerText,
+        manifestUnits: (loadManifestUnits(root, slug) ?? []) as never,
+        proposedSentences: segmented.blocks.flatMap((b) =>
+          b.sentences.map((s) => ({ id: s.id, text: s.text })),
+        ),
+      });
+      const divisionLine = formatDivisionComparison(slug, division).split("\n")[0] ?? "";
+      const divisionPending = [
+        `sentence-division screen (am-span-recording-decision-ero2 Option 3): ${divisionLine}`,
+        ...(division.totals.differing > 0
+          ? [
+              `pages where the two divisions differ: ${division.pages
+                .filter((page) => page.outcome === "comparable" && !page.agrees)
+                .map((page) => `p${page.page} ${page.manifestSentences}/${page.proposedSentences}`)
+                .join(", ")}`,
+            ]
+          : []),
+      ];
       if (pairingAbsent) {
         push(
           "reconcile",
@@ -459,6 +527,7 @@ export async function runEditionPipeline(options: {
             pending: [
               SENTENCE_UNIT_RULING,
               "the German face is held back by the paper's receipt (ledgerStatus not-started), and publishing it is am-german-face-anchors-not-frozen-ids-jtv6's; --require-stage reconcile turns this not-available into a failure",
+              ...divisionPending,
             ],
           },
         );
@@ -472,7 +541,7 @@ export async function runEditionPipeline(options: {
           {
             code: "manifest-pairing-refused",
             evidence: detail,
-            pending: [SENTENCE_UNIT_RULING],
+            pending: [SENTENCE_UNIT_RULING, ...divisionPending],
           },
         );
       } else if (differences.length > 0) {
@@ -485,15 +554,15 @@ export async function runEditionPipeline(options: {
           {
             code: "reconciliation-differences",
             evidence: detail,
-            pending: [SENTENCE_UNIT_RULING],
+            pending: [SENTENCE_UNIT_RULING, ...divisionPending],
           },
         );
       } else {
         push(
           "reconcile",
           "passed",
-          `${segmented.blocks.length} proposed block(s) reconcile with ${manifestIds.length} manifest unit(s) with no unresolved difference.`,
-          { pending: [SENTENCE_UNIT_RULING] },
+          `${segmented.blocks.length} proposed block(s) reconcile with ${manifestIds.length} manifest unit(s) with no unresolved difference. ${divisionLine}`,
+          { pending: [SENTENCE_UNIT_RULING, ...divisionPending] },
         );
       }
     }

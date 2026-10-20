@@ -546,6 +546,67 @@ describe("PLANT: the ledger-present branch measures instead of announcing", () =
     expect(count).toBeLessThan(120);
   });
 
+  /**
+   * THE SENTENCE-DIVISION SCREEN REACHES A READER, which for a month it did not.
+   *
+   * am-span-recording-decision-ero2's owner decision of 2026-09-21 was "Option 3 now, Option 1
+   * later", and Option 3 -- a per-page comparison of the manifest's sentence division with the
+   * one a segmentation run proposes -- was built as `sentenceDivisionComparison.ts` and had ZERO
+   * non-test callers when measured on 2026-10-20. The reconcile stage already held all three of
+   * its inputs.
+   */
+  test("the reconcile stage reports the division screen with its page denominator", async () => {
+    const stage = stageOf(
+      await runEditionPipeline({ slug: "brownian-motion", root: REPO }),
+      "reconcile",
+    );
+    const screen = (stage?.pending ?? []).find((p) => p.startsWith("sentence-division screen"));
+    expect(screen, `pending was: ${JSON.stringify(stage?.pending)}`).toBeDefined();
+    expect(screen).toContain("am-span-recording-decision-ero2");
+    expect(screen).toContain("ledger pages");
+    expect(screen).toContain("comparable");
+  });
+
+  test("the screen is comparing something: pages comparable, and no manifest unit unplaceable", async () => {
+    // THE NON-VACUITY, and it is not hypothetical. The first wiring passed the manifest units
+    // through a loader that returned only id and kind, so every unit lost its page locator and
+    // the screen reported "0 comparable + 12 not-available (unplaceable: 91 manifest units)".
+    // That is the harness correctly refusing to compare, against a shape the caller had
+    // flattened, and a summary line alone would have read as a result.
+    const stage = stageOf(
+      await runEditionPipeline({ slug: "brownian-motion", root: REPO }),
+      "reconcile",
+    );
+    const screen =
+      (stage?.pending ?? []).find((p) => p.startsWith("sentence-division screen")) ?? "";
+    const comparable = Number(/= (\d+) comparable/.exec(screen)?.[1] ?? 0);
+    expect(comparable, screen).toBeGreaterThan(0);
+    // An unplaceable manifest unit means a locator the caller did not pass through.
+    expect(screen).not.toContain("manifest unit(s) with no page locator");
+  });
+
+  test("when pages differ, the screen names them rather than only counting them", async () => {
+    const stage = stageOf(
+      await runEditionPipeline({ slug: "brownian-motion", root: REPO }),
+      "reconcile",
+    );
+    const screen =
+      (stage?.pending ?? []).find((p) => p.startsWith("sentence-division screen")) ?? "";
+    const differing = Number(/and (\d+) differ/.exec(screen)?.[1] ?? 0);
+    const named = (stage?.pending ?? []).find((p) => p.startsWith("pages where the two divisions"));
+    if (differing > 0) {
+      expect(
+        named,
+        "a differing count with no page list is a number nobody can act on",
+      ).toBeDefined();
+      // Each entry is `p<page> <manifest>/<proposed>`, so the reader gets the page and both counts.
+      expect(named).toMatch(/p\d+ \d+\/\d+/);
+      expect((named ?? "").split(",").length).toBe(differing);
+    } else {
+      expect(named).toBeUndefined();
+    }
+  });
+
   test("every stage carries a duration and the run names its JSONL log", async () => {
     const run = await runEditionPipeline({ slug: "mass-energy" });
     for (const stage of run.stages) {
@@ -591,7 +652,7 @@ describe("PLANT: the ledger-present branch measures instead of announcing", () =
  * standing - execution falls through to loadReadingFiles, which throws ENOENT and fails the stage.
  */
 describe("edition pipeline: an absent corpus is not a compiler failure", () => {
-  test("the abort records its own code and spares the compiler (e2e-edition-pipeline.ts:548)", async () => {
+  test("the abort records its own code and spares the compiler (e2e-edition-pipeline.ts:617)", async () => {
     const emptyRoot = mkdtempSync(join(tmpdir(), "am-edition-no-corpus-"));
     const run = await runEditionPipeline({ slug: "brownian-motion", root: emptyRoot });
 
@@ -616,7 +677,7 @@ describe("edition pipeline: an absent corpus is not a compiler failure", () => {
     expect(run.exitCode).toBe(0);
   });
 
-  test("a present but empty corpus aborts on its own site (e2e-edition-pipeline.ts:558)", async () => {
+  test("a present but empty corpus aborts on its own site (e2e-edition-pipeline.ts:627)", async () => {
     // THE SECOND corpus-empty SITE, and it was invisible until the scanner stopped misreading it.
     // :295 refuses a MISSING content directory; :305 refuses one that is PRESENT and holds no
     // records. The two share the code, so the scanner counted corpus-empty as 1 untested of 1 and
