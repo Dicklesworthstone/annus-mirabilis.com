@@ -131,6 +131,16 @@ worldChecks:
     instrumentId: sr-05
     quantityId: properTime
     expected: 8 s on the moving clock for 10 s of the resting clocks, at 0.6 of the speed of light
+    laterEvidence:
+      year: 1970
+      description: >-
+        Caesium clocks flown around the world returned reading less than the clocks that
+        stayed behind, reported by Hafele in Nature 227, 270-271 (1970) and measured with
+        Keating the following year. The comparison needs care: §4 predicts an effect of
+        speed alone, while a flying clock also runs differently because it is higher in
+        the earth's gravity, which is a result of later physics. The two terms are
+        separated before either is compared with this relation.
+      recordId: cit-hafele-1970
     comparisonKind: printed-prediction
     staticWorkedExample:
       label: What § 4's relation gives at the laboratory's first setting

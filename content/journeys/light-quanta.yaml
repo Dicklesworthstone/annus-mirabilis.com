@@ -119,6 +119,15 @@ worldChecks:
     instrumentId: lq-08
     quantityId: stoppingPotentialMagnitude
     expected: about 4.3 volts at 1.03 × 10¹⁵ per second, with the exit cost neglected
+    laterEvidence:
+      year: 1916
+      description: >-
+        R. A. Millikan measured the stopping potential against frequency for sodium and
+        found the straight line of §8, reading Planck's h from its slope, in Physical
+        Review (2) 7, 355-388 (1916). He had set out to test the equation rather than to
+        support it, and said so in that paper. His sodium points are the dataset this
+        site plots, read from a scan of the journal page.
+      recordId: millikan-1916-sodium
     comparisonKind: printed-prediction
     staticWorkedExample:
       label: What the paper prints in §8
