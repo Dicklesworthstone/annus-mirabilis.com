@@ -10,6 +10,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
+import { loadAuthoredEdges } from "../src/content/editions/authoredInputs.ts";
 import {
   inspectLedgerPresence,
   PAPERS_WAITING_ON_CLOUD_OCR,
@@ -607,6 +608,51 @@ describe("PLANT: the ledger-present branch measures instead of announcing", () =
     }
   });
 
+  /**
+   * THE COVERAGE REPORT SAID THREE AUTHORED LAYERS WERE ABSENT.
+   *
+   * `coverageReport` reads `germanEditionPresent`, `alignmentEdgeCount` and `glossUnitCount` as
+   * optional and treats undefined as absent. The stage passed none of them, so the report
+   * brownian-motion's own run wrote said "german-edition absent 107", "alignment absent 0" and
+   * "gloss absent 0" -- while the align stage of the SAME RUN had validated 162 edges for that
+   * paper. The first of those rows is self-contradictory on its face: absent, with 107 units.
+   */
+  test("no layer is reported absent while carrying units", async () => {
+    // The invariant, and the one the old report broke in writing.
+    for (const slug of ["mass-energy", "brownian-motion", "light-quanta"] as const) {
+      const stage = stageOf(await runEditionPipeline({ slug, root: REPO }), "coverage");
+      expect(stage?.outcome, slug).toBe("passed");
+      const layers = /Layers: (.*)\.$/.exec(stage?.message ?? "")?.[1] ?? "";
+      expect(layers, `no layer list in: ${stage?.message}`).not.toBe("");
+      for (const entry of layers.split(", ")) {
+        const [, presence, count] = /^(\S+) (\S+) (\d+)$/.exec(entry) ?? [];
+        if (presence === "absent") {
+          expect(Number(count), `${slug}: ${entry}`).toBe(0);
+        }
+      }
+    }
+  });
+
+  test("alignment and gloss carry the counts the loaders report, not zero", async () => {
+    // The non-vacuity. Asserting only the invariant above would pass against a report that said
+    // every layer was absent with zero units, which is what it did for two of the five.
+    const stage = stageOf(
+      await runEditionPipeline({ slug: "brownian-motion", root: REPO }),
+      "coverage",
+    );
+    const message = stage?.message ?? "";
+    expect(message).toContain("alignment authored");
+    expect(message).toContain("gloss authored");
+    expect(message).toContain("german-edition authored");
+    const alignment = Number(/alignment authored (\d+)/.exec(message)?.[1] ?? 0);
+    const gloss = Number(/gloss authored (\d+)/.exec(message)?.[1] ?? 0);
+    expect(alignment).toBeGreaterThan(100);
+    expect(gloss).toBeGreaterThan(50);
+    // The alignment row must agree with what the align stage of the same run validated, so the
+    // two cannot drift: both read the same loader.
+    expect(alignment).toBe(loadAuthoredEdges("brownian-motion", REPO).edges.length);
+  });
+
   test("every stage carries a duration and the run names its JSONL log", async () => {
     const run = await runEditionPipeline({ slug: "mass-energy" });
     for (const stage of run.stages) {
@@ -652,7 +698,7 @@ describe("PLANT: the ledger-present branch measures instead of announcing", () =
  * standing - execution falls through to loadReadingFiles, which throws ENOENT and fails the stage.
  */
 describe("edition pipeline: an absent corpus is not a compiler failure", () => {
-  test("the abort records its own code and spares the compiler (e2e-edition-pipeline.ts:617)", async () => {
+  test("the abort records its own code and spares the compiler (e2e-edition-pipeline.ts:618)", async () => {
     const emptyRoot = mkdtempSync(join(tmpdir(), "am-edition-no-corpus-"));
     const run = await runEditionPipeline({ slug: "brownian-motion", root: emptyRoot });
 
@@ -677,7 +723,7 @@ describe("edition pipeline: an absent corpus is not a compiler failure", () => {
     expect(run.exitCode).toBe(0);
   });
 
-  test("a present but empty corpus aborts on its own site (e2e-edition-pipeline.ts:627)", async () => {
+  test("a present but empty corpus aborts on its own site (e2e-edition-pipeline.ts:628)", async () => {
     // THE SECOND corpus-empty SITE, and it was invisible until the scanner stopped misreading it.
     // :295 refuses a MISSING content directory; :305 refuses one that is PRESENT and holds no
     // records. The two share the code, so the scanner counted corpus-empty as 1 untested of 1 and

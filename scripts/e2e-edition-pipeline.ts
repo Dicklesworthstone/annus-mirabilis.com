@@ -23,12 +23,13 @@
  * was not done.
  */
 
-import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { load as parseYaml } from "js-yaml";
 import { compileReadingContent } from "../src/content/compiler/compile.ts";
 import {
   loadAuthoredEdges,
+  loadGlossInput,
   manifestUnitIds,
   translationUnitIds,
 } from "../src/content/editions/authoredInputs.ts";
@@ -774,10 +775,42 @@ export async function runEditionPipeline(options: {
   // under D-2026-09-25-agent-reviewed-translations. A hardcoded denominator is not a measurement, and
   // this one was reported in a reader- and owner-facing artifact.
   const translationUnits = translationUnitIds(slug, root);
+  /*
+   * THREE MORE OPTIONAL INPUTS THIS CALL NEVER PASSED, and each defaulted to absent in a
+   * reader- and owner-facing artifact. This is the same defect the paragraph above records being
+   * fixed once, for the translation denominator, three more times in the same call.
+   *
+   * Measured 2026-10-20, the report brownian-motion's own run wrote:
+   *
+   *     german-edition  absent  107  "German edition not yet authored."
+   *     alignment       absent    0  "Alignment is explicit many-to-many edges, never paragraph counts."
+   *     gloss           absent    0  "Gloss coverage is counted by unit kind, not as a score."
+   *
+   * All three are authored, and two of the three numbers were already in this process: the align
+   * stage of the SAME RUN validated 162 edges for that paper. `coverageReport` reads
+   * `alignmentEdgeCount` and `glossUnitCount` as optional and treats undefined as zero, so the
+   * row said "absent" about content on disk.
+   *
+   * Across the four papers: 43, 162, 235 and 381 alignment edges, and 34, 103, 161 and 244 gloss
+   * units -- the gloss figures matching AGENTS.md's own count to the unit. `germanEditionPresent`
+   * is read from the authored source blocks rather than from the manifest, because the row's note
+   * says "German edition blocks authored" and that is a statement about the block files: 29, 92,
+   * 133 and 218 of them.
+   */
+  // `authoredEdges` is the contract stage's, loaded above for the same reason and reused rather
+  // than re-read: one load, and the two stages cannot disagree about the edge count.
+  const glossInput = loadGlossInput(slug, root);
+  const sourceBlockDir = join(root, "content/source-blocks", slug);
+  const germanEditionPresent =
+    existsSync(sourceBlockDir) &&
+    readdirSync(sourceBlockDir).some((name) => !name.startsWith("manifest."));
   const report = coverageReport({
     slug,
     germanUnitCount: germanIds.length,
     translationUnitCount: translationUnits.length,
+    alignmentEdgeCount: authoredEdges.edges.length,
+    glossUnitCount: glossInput.glossInput?.glossUnits.length ?? 0,
+    germanEditionPresent,
     root,
   });
   const markdown = coverageReportMarkdown(report);
@@ -796,7 +829,9 @@ export async function runEditionPipeline(options: {
     push(
       "coverage",
       "passed",
-      `Coverage report written to ${coverageJsonPath} and ${coverageMarkdownPath}: ledger ${report.ledger}, translation ${report.translation}, no aggregate figure.`,
+      `Coverage report written to ${coverageJsonPath} and ${coverageMarkdownPath}: ledger ${report.ledger}, ` +
+        `translation ${report.translation}, no aggregate figure. Layers: ` +
+        `${report.layers.map((l) => `${l.layer} ${l.presence} ${l.unitCount}`).join(", ")}.`,
     );
   } else {
     push(
