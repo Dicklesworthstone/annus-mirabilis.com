@@ -36,7 +36,7 @@ checkpoints:
   - actionIndex: 2
     stepIndex: 0
     simulatedTime: 3.33564095198152e-9
-    digest: "host:sha256:me03-the-1906-box-com-zero"
+    digest: "host:57374735eec874d7"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1

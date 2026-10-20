@@ -29,7 +29,7 @@ checkpoints:
   - actionIndex: 1
     stepIndex: 0
     simulatedTime: 0
-    digest: "host:sha256:sr11-movingMirror"
+    digest: "host:c55eb7ac72785ce8"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1

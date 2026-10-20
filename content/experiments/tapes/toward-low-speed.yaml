@@ -39,7 +39,7 @@ checkpoints:
   - actionIndex: 3
     stepIndex: 0
     simulatedTime: 0
-    digest: "host:sha256:me02-toward-low-speed-limit"
+    digest: "host:f6c04239a7dad8f6"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1

@@ -34,7 +34,7 @@ checkpoints:
   - actionIndex: 1
     stepIndex: 0
     simulatedTime: 0
-    digest: "host:sha256:sr13-electronDynamics"
+    digest: "host:91659ebe2fe3bda6"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1

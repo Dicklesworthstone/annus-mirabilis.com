@@ -37,15 +37,38 @@ const record = validateControlTape(
 
 describe("the generated teaching-tape catalogue", () => {
   test("carries the walkthroughs, and says which records it could not carry", () => {
-    // Non-vacuity on a measured count: 12 of the 22 records convert (2026-09-28). An empty
-    // catalogue would satisfy every "resolves to null" assertion below.
-    expect(TEACHING_TAPES.size).toBeGreaterThanOrEqual(10);
+    /*
+     * Non-vacuity on a measured count. An empty catalogue would satisfy every "resolves to null"
+     * assertion below, so the floor is the point.
+     *
+     * 22 OF 22 RECORDS NOW CONVERT, measured 2026-10-20. It was 12 of 22 on 2026-09-28, and the
+     * ten that did not were blocked on a checkpoint digest no author may write: it is a hash over
+     * the LABORATORY'S whole accepted parameter set, so it can be recorded by driving the lab and
+     * never authored (a1cf2d23a). Their labs had only a draft binding then. Every one now exports
+     * a `_TAPE` binding, so the eleven missing digests were recorded, and the floor rises with
+     * them.
+     */
+    expect(TEACHING_TAPES.size).toBeGreaterThanOrEqual(22);
     expect(TEACHING_TAPES.has(TAPE_ID)).toBe(true);
     expect(resolveTeachingTape(TAPE_ID)).toBe(TEACHING_TAPES.get(TAPE_ID) as TapeV2);
     expect(resolveTeachingTape("no-such-walkthrough")).toBeNull();
-    // The silence is visible: a record that cannot be carried names its file and its field.
-    expect(TEACHING_TAPE_PROBLEMS.length).toBeGreaterThan(0);
-    for (const p of TEACHING_TAPE_PROBLEMS) expect(p).toContain("content/experiments/tapes/");
+    /*
+     * THE SILENCE IS VISIBLE: a record that cannot be carried names its file and its field.
+     *
+     * This asserted `TEACHING_TAPE_PROBLEMS.length > 0`, which REQUIRED a record to be
+     * unconvertible and so went red the moment the last ten were repaired. The intent was never
+     * that a problem exist -- it was that a problem, WHEN one exists, is legible. That property
+     * holds at zero and at twenty-two, so it is what is asserted now, and the count is reported
+     * rather than pinned.
+     */
+    console.log(
+      `[teaching-tape catalogue] ${TEACHING_TAPES.size} record(s) carried, ${TEACHING_TAPE_PROBLEMS.length} that could not be`,
+    );
+    for (const p of TEACHING_TAPE_PROBLEMS) {
+      expect(p).toContain("content/experiments/tapes/");
+      // And it names the field, not only the file, or an author cannot act on it.
+      expect(p, `problem names no field: ${p}`).toMatch(/\(tape\.[A-Za-z.]+\)|tape\.[A-Za-z.]+:/);
+    }
   });
 
   test("agrees with the records it was generated from, tape for tape", () => {

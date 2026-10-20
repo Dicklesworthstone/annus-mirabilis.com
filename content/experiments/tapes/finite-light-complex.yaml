@@ -29,7 +29,7 @@ checkpoints:
   - actionIndex: 1
     stepIndex: 0
     simulatedTime: 0
-    digest: "host:sha256:sr10-evaluateSr10"
+    digest: "host:293b806c1075a98b"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1

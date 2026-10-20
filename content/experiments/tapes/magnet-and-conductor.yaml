@@ -44,7 +44,7 @@ checkpoints:
   - actionIndex: 1
     stepIndex: 0
     simulatedTime: 0
-    digest: "host:sha256:sr02-evaluateSr02"
+    digest: "host:0f9c593828c760d7"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1
@@ -55,7 +55,7 @@ checkpoints:
   - actionIndex: 2
     stepIndex: 0
     simulatedTime: 0
-    digest: "host:sha256:sr02-evaluateSr02"
+    digest: "host:db791d7b51824bd8"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1

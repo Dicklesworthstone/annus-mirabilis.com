@@ -27,7 +27,7 @@ checkpoints:
   - actionIndex: 1
     stepIndex: 0
     simulatedTime: 0
-    digest: "host:sha256:sr08-evaluateSr08"
+    digest: "host:c4452faa89b3baae"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1

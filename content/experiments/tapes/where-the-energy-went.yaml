@@ -27,7 +27,7 @@ checkpoints:
   - actionIndex: 3
     stepIndex: 0
     simulatedTime: 0
-    digest: "host:sha256:me03-where-the-energy-went-check"
+    digest: "host:e0811c0f26ef9d0d"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1
