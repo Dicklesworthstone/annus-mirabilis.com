@@ -127,8 +127,17 @@ cards:
     section: s4
     arguments: [arg-lq-fixed-band-volume, arg-lq-wien-integration]
     printed:
+      # [3, 4] -> [2, 3] on 2026-10-19. The two sentences this card quotes have not changed:
+      # "Dasselbe wurde aber für große Werte von nu/T sehr vollkommen durch das Experiment
+      # bestätigt." and "Wir legen diese Formel unseren Rechnungen zugrunde ...". What changed is
+      # the German face's segmentation of s4-p1. `Hrn.` was missing from SEGMENTATION.md's
+      # abbreviation table, so the segmenter ended a sentence inside the citation "von Hrn. W.
+      # Wien" and published "Aus den bisherigen Beobachtungen ... von Hrn." as a complete
+      # sentence, with "W. Wien für die ..." beginning the next. Adding `Hrn.` to the table, with
+      # its plate citation on ap-17-132 p. 136, took the face from 4 sentences to 3 and these two
+      # quotations from ordinals 3 and 4 to 2 and 3.
       - anchor: s4-p1
-        sentences: [3, 4]
+        sentences: [2, 3]
       - anchor: s4-p2
         sentences: [4]
     equations:

@@ -107,8 +107,17 @@ cards:
     section: s4
     arguments: [arg-bm-diffusion-equation, arg-bm-gaussian]
     printed:
+      # 7 -> 5 on 2026-10-19. The sentence this card quotes has not changed: it is
+      # "Wir erhalten aus dieser Gleichung, indem wir berücksichtigen, daß ...", the one that
+      # states the diffusion equation. What changed is the German face's segmentation of s4-p6.
+      # `etc.` was missing from SEGMENTATION.md's abbreviation table, so the segmenter ended a
+      # sentence inside "das zweite, vierte etc. Glied, während von dem ersten, dritten, fünften
+      # etc. Gliede ..." twice, and published two fragments as sentences 5 and 6 -- literally
+      # "Glied, während von dem ersten, dritten, fünften etc." Adding `etc.` to the table, with
+      # its plate citation on ap-17-549 p. 557, took the face from 7 sentences to 5 and this
+      # quotation from ordinal 7 to ordinal 5.
       - anchor: s4-p6
-        sentences: [7]
+        sentences: [5]
       - anchor: s4-p9
         sentences: [1]
       - anchor: s4-p10
