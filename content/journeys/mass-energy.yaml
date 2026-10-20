@@ -24,9 +24,6 @@ pendingElements:
   - element: stages
     reason: The staged chain is the discover page's JSX structure rather than data. Composing a stage list here would be authoring content, and a stage carries premise references the shelf audit reads, so invented stages would make that audit pass over prose nobody reviewed.
     ownerBead: am-4k0m
-  - element: exercises.instrumented
-    reason: The exercise parts are typed, machine-checked objects in each paper's own exercise module, keyed to the components that render them rather than to journey-level ExerciseRefs. Mapping them is part of the record migration.
-    ownerBead: am-4k0m
   - element: move.derivationChain
     reason: 'The move is named in this record and marked in no derivation chain a reader can open: content/equations/derivations/ holds one chain, for brownian-motion. Authoring one here means a semantic expression tree per step with registry-bound quantity ids, a registered identity per rule and a worked case, which is physics authoring rather than moving this journey''s prose into a record.'
     ownerBead: am-4k0m
@@ -151,7 +148,16 @@ sourceJumps:
     section: ''
     targetAnchor: arg-me-small-speed
     pointer: The paper's last page takes the slow-speed limit, sets it beside one half m v squared, and states the conclusion in a sentence.
-exercises: []
+exercises:
+  - id: me-mass-given-up-formula
+    role: instrumented
+    prompt: A body gives off an energy L as light. By how much does its mass fall? Write it using L and V, the paper’s letters for the energy given off and the speed of light.
+  - id: me-pulse-sum
+    role: instrumented
+    prompt: In the moving frame one pulse carries (L/2)(1 − (v/V)cos φ)/√(1 − (v/V)²) and the other (L/2)(1 + (v/V)cos φ)/√(1 − (v/V)²). Add them. Write the total using only L, v and V.
+  - id: me-equal-and-opposite
+    role: explanation
+    prompt: Why does the argument have the body give off two equal pulses in opposite directions, rather than one?
 ppeTask:
   promptId: me-predict-perturb-explain-joule
   task: Predict first. A body gives off one joule of light. Does its mass fall by about a gram, about a microgram, or by far less than either?

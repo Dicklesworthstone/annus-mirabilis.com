@@ -125,12 +125,43 @@ describe("checkJourney over the real journeys, not the fixture", () => {
       expect(journey.completeness).toBe("partial");
       const declared = (journey.pendingElements ?? []).map((p) => p.element);
       expect(declared).toContain("stages");
-      expect(declared).toContain("exercises.instrumented");
+      /*
+       * `exercises.instrumented` IS NO LONGER UNIVERSAL, and asserting it of every journey is
+       * what this line used to do. The exercises are composed now, so the declaration is derived:
+       * it exists only where the instrumented count is under the skeleton's two, which is light
+       * quanta and brownian-motion with one each. Asserting the DERIVATION rather than the
+       * constant is what makes this expire by itself when someone authors a second exercise --
+       * and `journey-pending-element-already-present` is the gate that refuses it if it does not.
+       */
+      const instrumented = journey.exercises.filter((e) => e.role === "instrumented").length;
+      expect(journey.exercises.length).toBeGreaterThan(0);
+      if (instrumented < 2) {
+        expect(declared, `${journey.paper} has ${instrumented} instrumented`).toContain(
+          "exercises.instrumented",
+        );
+      } else {
+        expect(declared, `${journey.paper} has ${instrumented} instrumented`).not.toContain(
+          "exercises.instrumented",
+        );
+      }
       for (const pending of journey.pendingElements ?? []) {
         expect(pending.reason.length).toBeGreaterThan(40);
         expect(pending.ownerBead).toBe("am-4k0m");
       }
     }
+    // Non-vacuity: both branches above must be exercised by the real corpus, or one of them is
+    // never run and the test is half a test.
+    const counts = findingsByPaper.map(
+      ({ journey }) => journey.exercises.filter((e) => e.role === "instrumented").length,
+    );
+    expect(
+      counts.some((n) => n < 2),
+      `instrumented counts: ${counts.join(", ")}`,
+    ).toBe(true);
+    expect(
+      counts.some((n) => n >= 2),
+      `instrumented counts: ${counts.join(", ")}`,
+    ).toBe(true);
   });
 
   it("no error beyond the one declared", () => {

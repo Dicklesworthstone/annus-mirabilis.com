@@ -24,9 +24,6 @@ pendingElements:
   - element: stages
     reason: The staged chain is the discover page's JSX structure rather than data. Composing a stage list here would be authoring content, and a stage carries premise references the shelf audit reads, so invented stages would make that audit pass over prose nobody reviewed.
     ownerBead: am-4k0m
-  - element: exercises.instrumented
-    reason: The exercise parts are typed, machine-checked objects in each paper's own exercise module, keyed to the components that render them rather than to journey-level ExerciseRefs. Mapping them is part of the record migration.
-    ownerBead: am-4k0m
   - element: move.derivationChain
     reason: 'The move is named in this record and marked in no derivation chain a reader can open: content/equations/derivations/ holds one chain, for brownian-motion. Authoring one here means a semantic expression tree per step with registry-bound quantity ids, a registered identity per rule and a worked case, which is physics authoring rather than moving this journey''s prose into a record.'
     ownerBead: am-4k0m
@@ -174,7 +171,22 @@ sourceJumps:
     section: s5
     targetAnchor: arg-sr-velocity-composition
     pointer: Adding speeds keeps the denominator the ordinary rule leaves out, so two speeds below the speed of light compose to a speed below it, which is the exercise in this route's last step.
-exercises: []
+exercises:
+  - id: sr-composed-speed
+    role: instrumented
+    prompt: Section 5 of the paper asks how speeds combine. A body moves at speed w relative to a system k, in the direction in which k itself moves at speed v relative to you. How fast does the body move relative to you? Write it using v, w and c, the speed of light, which the paper writes V.
+  - id: sr-clock-speed-from-readings
+    role: instrumented
+    prompt: A clock moving past you in a straight line reads τ while your clocks read t. How fast is it moving? Write v using t, tau for τ, and c, the speed of light, which the paper writes V.
+  - id: sr-moving-clock-reading
+    role: instrumented
+    prompt: Your clocks advance by t while a clock moving past you at speed v runs between two of its own ticks. What does the moving clock read? Write it using t, v and c, the speed of light.
+  - id: sr-neither-observer-wrong
+    role: explanation
+    prompt: 'Two observers in uniform motion relative to each other set their clocks by the same rule, and disagree about which distant events happen at the same time. In two or three sentences: why is neither of them wrong?'
+  - id: sr-ppe-two-paths-one-reading
+    role: explanation
+    prompt: 'Explain what you saw: why the clock that went out and back and the clock that circled read the same when they returned, and what the printed second-order form is.'
 ppeTask:
   promptId: ppe-special-relativity-s4
   task: Predict first. One clock goes out and back at 0.6 of the speed of light while the resting clocks advance 10 s; another circles at the same speed for the same 10 s. When each returns to the clock that stayed, which reads less, or do they read the same?

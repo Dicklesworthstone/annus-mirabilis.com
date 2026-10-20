@@ -25,7 +25,7 @@ pendingElements:
     reason: The staged chain is the discover page's JSX structure rather than data. Composing a stage list here would be authoring content, and a stage carries premise references the shelf audit reads, so invented stages would make that audit pass over prose nobody reviewed.
     ownerBead: am-4k0m
   - element: exercises.instrumented
-    reason: The exercise parts are typed, machine-checked objects in each paper's own exercise module, keyed to the components that render them rather than to journey-level ExerciseRefs. Mapping them is part of the record migration.
+    reason: This journey has 1 instrumented exercise(s) and the skeleton asks for two to five. The exercises it has are composed from the parts its page renders; a second one is new physics authoring -- a reference expression with declared names, domains, dimensions and a tolerance, checked against the owner -- rather than a record migration.
     ownerBead: am-4k0m
   - element: move.derivationChain
     reason: 'The move is named in this record and marked in no derivation chain a reader can open: content/equations/derivations/ holds one chain, for brownian-motion. Authoring one here means a semantic expression tree per step with registry-bound quantity ids, a registered identity per rule and a worked case, which is physics authoring rather than moving this journey''s prose into a record.'
@@ -156,7 +156,19 @@ sourceJumps:
     section: s9
     targetAnchor: arg-lq-ionization-and-counts
     pointer: If one quantum ionizes one molecule, the energy of a quantum of the ionizing light cannot be less than the energy needed to ionize it. The paper compares the bound with Stark's measurement and names what it does not settle.
-exercises: []
+exercises:
+  - id: lq-greatest-energy-formula
+    role: instrumented
+    prompt: Light of frequency ν falls on a surface from which an electron needs an energy P to escape; P is the paper’s own letter. Taking up one whole quantum hν, what is the greatest energy an electron can leave with? Write it using h, ν and P, typing ν as nu.
+  - id: lq-intensity-and-greatest-energy
+    role: explanation
+    prompt: 'In two sentences: in the paper’s picture, why does brighter light of the same frequency free more electrons, but none with more energy than before?'
+  - id: lq-locked-positions
+    role: explanation
+    prompt: In LQ-05’s locked counterexample the n points move together, as one rigid pattern placed at random. Why is the chance that all of them lie in a fraction f of the box then f, and not f to the power n?
+  - id: lq-ppe-below-and-above-threshold
+    role: explanation
+    prompt: 'Explain what you saw: why doubling the power frees no electrons below the threshold, and why above it the rate rises while the greatest energy does not.'
 ppeTask:
   promptId: ppe-light-quanta-s7-s9
   task: Predict first. A lamp gets brighter, but its frequency stays below the threshold. Of the number of electrons freed each second, the greatest energy any of them leaves with, and the power falling on the metal, which should not rise merely because the laboratory draws more marks arriving?

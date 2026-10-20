@@ -1,15 +1,13 @@
 import type { Metadata } from "next";
 import { BrownianWorldCheck } from "../../../components/discover/BrownianWorldCheck.tsx";
-import {
-  ExercisePart,
-  type ExpressionExercisePart,
-} from "../../../components/discover/ExercisePart.tsx";
-import {
-  type ExplanationExercisePart,
-  ExplanationPart,
-} from "../../../components/discover/ExplanationPart.tsx";
+import { ExercisePart } from "../../../components/discover/ExercisePart.tsx";
+import { ExplanationPart } from "../../../components/discover/ExplanationPart.tsx";
 import { NumericPart } from "../../../components/discover/NumericPart.tsx";
 import { BROWNIAN_LATER_EVIDENCE, BROWNIAN_SHELF_CARDS } from "../../../content/brownianShelf.ts";
+import {
+  DISPLACEMENT_SCALE_EXERCISE,
+  SQUARE_ROOT_IN_WORDS,
+} from "../../../discovery/brownian/journeyExercises.ts";
 import {
   DOORS,
   FIRST_HONEST_QUESTION,
@@ -41,37 +39,6 @@ import tracerExample from "../../../generated/bm01-example.json";
 const NAEGELI_WORLD: StepDoorHref = `/lab/bm-04/${encodeBm04Settings(BM04_PRESETS["naegeli-zero-force"].parameters)}`;
 
 export const metadata: Metadata = { title: "A first encounter with Brownian motion" };
-
-const DISPLACEMENT_SCALE_EXERCISE: ExpressionExercisePart = {
-  id: "bm-displacement-scale-rewrite",
-  prompt:
-    "Along one axis the mean square displacement is 2·D·t. Watch the same particle in the plane, moving along x and y independently. What is its root mean square distance from the start?",
-  declaredNames: ["D", "t"],
-  domains: {
-    D: { min: 1e-14, max: 1e-10, scale: "log" },
-    t: { min: 0.1, max: 100, scale: "log" },
-  },
-  referenceSource: "2*sqrt(D*t)",
-  tolerance: { absolute: 1e-9, relative: 1e-9 },
-  // Length, mass, time, temperature, current, amount: D in m²/s and t in s, so an answer with the
-  // wrong dimension, such as D*t, is told so before any numbers are compared.
-  dimensions: { D: ["2", "0", "-1", "0", "0", "0"], t: ["0", "0", "1", "0", "0", "0"] },
-  workedExplanation:
-    "The squared distance from the start is x² + y². Each axis contributes a mean square of 2·D·t, independently, so the mean square distance is 4·D·t, and its root is sqrt(4·D·t) = 2·sqrt(D·t). That is sqrt(2) times the one-axis value, sqrt(2·D·t), not twice it: the two mean squares add, not the two distances.",
-};
-const SQUARE_ROOT_IN_WORDS: ExplanationExercisePart = {
-  id: "bm-square-root-in-words",
-  prompt:
-    "Put it in your own words. In four times as long, a particle kicked about at random typically gets only twice as far. Why not four times as far, as a particle drifting at a steady speed would?",
-  criteria: [
-    "Each kick is independent of the last, so a step one way is as likely to be undone by the next step as to be continued.",
-    "What grows in proportion to time is the mean square displacement, because the mean squares of independent steps add.",
-    "The typical distance is the square root of the mean square, so four times the time gives the square root of four: twice as far.",
-    "A drifting particle’s steps all point the same way, so nothing cancels and its distance grows in proportion to time.",
-  ],
-  workedExplanation:
-    "Split the time into many short intervals. In each one the particle is kicked one way or the other, independently of every earlier kick, and its displacement is the sum of these steps. The average of that sum is zero, because each direction is equally likely, but the average of its square is not. Squaring the sum gives each step’s own square plus products of pairs of different steps, and because the steps are independent each of those products averages to zero. What is left is the sum of the steps’ own squares, which grows with the number of steps, and so in proportion to time. Four times as long gives four times the mean square, and the typical distance, its square root, is the square root of four times as large: twice. A particle drifting at a steady speed takes steps that all point the same way. Nothing cancels, and four times the time carries it four times as far.",
-};
 
 export default function BrownianEncounter() {
   return (

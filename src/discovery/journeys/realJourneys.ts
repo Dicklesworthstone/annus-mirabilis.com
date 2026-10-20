@@ -36,9 +36,15 @@
 
 import type { RevisionLineageEntry } from "../../content/revisions.ts";
 import type { AdmittedImport, Journey, PendingElement } from "../../content/schemas/journey.ts";
+import * as brownianExercises from "../brownian/journeyExercises.ts";
 import * as brownian from "../brownian/journeyII.ts";
+import * as lightQuantaElectron from "../lightQuanta/electronExercise.ts";
+import * as lightQuantaExercises from "../lightQuanta/journeyExercises.ts";
 import * as lightQuanta from "../lightQuanta/journeyI.ts";
 import * as massEnergy from "../massEnergy/journeyIV.ts";
+import * as massEnergyExercises from "../massEnergy/massExercise.ts";
+import * as relativityClock from "../relativity/clockExercise.ts";
+import * as relativityExercises from "../relativity/journeyExercises.ts";
 import * as relativity from "../relativity/journeyIII.ts";
 import {
   BROWNIAN_SHELF_CARDS,
@@ -55,17 +61,54 @@ const PENDING: readonly PendingElement[] = Object.freeze([
       "The staged chain is the discover page's JSX structure rather than data. Composing a stage list here would be authoring content, and a stage carries premise references the shelf audit reads, so invented stages would make that audit pass over prose nobody reviewed.",
     ownerBead: "am-4k0m",
   }),
-  Object.freeze({
-    // The gate's own name for this element, not a paraphrase of it. Declared as "exercises" first,
-    // which the gate does not recognise, so the declaration did not count and three journeys reported
-    // an undeclared missing element. A declaration spelled differently from the thing it declares is
-    // no declaration.
-    element: "exercises.instrumented",
-    reason:
-      "The exercise parts are typed, machine-checked objects in each paper's own exercise module, keyed to the components that render them rather than to journey-level ExerciseRefs. Mapping them is part of the record migration.",
-    ownerBead: "am-4k0m",
-  }),
+  // The `exercises.instrumented` pending moved out of this shared list and is now derived per
+  // paper, below, because its reason changed when the exercises landed. See PENDING_INSTRUMENTED.
 ]);
+
+/**
+ * `exercises.instrumented`, DECLARED ONLY BY THE PAPERS THAT STILL NEED IT, AND FOR THE TRUE
+ * REASON.
+ *
+ * The old declaration read "Mapping them is part of the record migration". That stopped being
+ * true when the exercises above were composed, and `journey-pending-element-already-present`
+ * caught it immediately on special-relativity and mass-energy -- a declaration refusing to
+ * outlive its reason, which is the right way round.
+ *
+ * What the declaration was also doing, which its wording did not say, is exempt the journey from
+ * rule 3 of the exercise bounds: `journey-instrumented-exercise-count` wants between 2 and 5
+ * instrumented exercises and skips the finding while this element is pending. With the exercises
+ * present the rule reaches a real population for the first time, and two papers are under it:
+ *
+ *     light-quanta       1 instrumented   (lq-greatest-energy-formula)
+ *     brownian-motion    1 instrumented   (bm-displacement-scale-rewrite)
+ *     special-relativity 3 instrumented
+ *     mass-energy        2 instrumented
+ *
+ * AGENTS.md asks a journey for "Two to five problems checked by the kernel or by numerical
+ * equivalence ... plus a predict-perturb-explain task", so the shortfall is real and authoring a
+ * second instrumented exercise for those two is physics authoring: a reference expression, its
+ * declared names, domains, dimensions and tolerance, checked against the owner. That is content
+ * work and it is not mine to improvise, so it is declared with its count and its owner.
+ *
+ * DERIVED, not hardcoded: the moment someone authors a second instrumented exercise for either
+ * paper the declaration disappears by itself, and `journey-pending-element-already-present` is
+ * what would refuse it if it did not.
+ */
+function instrumentedPending(exercises: Journey["exercises"]): readonly PendingElement[] {
+  const instrumented = exercises.filter((e) => e.role === "instrumented").length;
+  if (instrumented >= 2) return [];
+  return [
+    Object.freeze({
+      element: "exercises.instrumented",
+      reason:
+        `This journey has ${instrumented} instrumented exercise(s) and the skeleton asks for two to five. ` +
+        "The exercises it has are composed from the parts its page renders; a second one is new physics " +
+        "authoring -- a reference expression with declared names, domains, dimensions and a tolerance, " +
+        "checked against the owner -- rather than a record migration.",
+      ownerBead: "am-4k0m",
+    }),
+  ];
+}
 
 /**
  * THE THIRD PENDING ELEMENT, AND THE ONE THAT IS NOT SHARED BY ALL FOUR.
@@ -124,6 +167,75 @@ type SkeletonModule = Readonly<{
   PPE_TASK: Journey["ppeTask"];
   DOORS: Journey["doors"];
 }>;
+
+/**
+ * THE JOURNEY'S EXERCISES, COMPOSED FROM THE PARTS THE PAGES ALREADY RENDER (am-4k0m).
+ *
+ * `exercises` was declared pending with the reason "The exercise parts are typed, machine-checked
+ * objects in each paper's own exercise module, keyed to components rather than to journey-level
+ * `ExerciseRef`s. Mapping them is real work and is part of the migration." That was true, and the
+ * mapping turns out to be faithful rather than authorial: an `ExerciseRef` is `{ id, role, prompt }`,
+ * and a part already carries the id and the prompt. Only the ROLE is derived, and it is derived
+ * from the part's TYPE rather than declared a second time -- an expression part is `instrumented`
+ * because a kernel checks the reader's answer, an explanation part is `explanation` because the
+ * reader judges it against the criteria. No sentence is retyped; every string arrives by import.
+ *
+ * Twelve of the fourteen parts were already in importable modules. Brownian's two were `const`
+ * declarations inside its page, unexported, which is why this could not be composed before; they
+ * moved to `../brownian/journeyExercises.ts` character for character, where the other three
+ * papers already keep theirs.
+ */
+type ExercisePartLike = Readonly<{ id: string; prompt: string }>;
+
+function exercisesOf(
+  instrumented: readonly ExercisePartLike[],
+  explanation: readonly ExercisePartLike[],
+): Journey["exercises"] {
+  return Object.freeze([
+    ...instrumented.map((part) => ({
+      id: part.id,
+      role: "instrumented" as const,
+      prompt: part.prompt,
+    })),
+    ...explanation.map((part) => ({
+      id: part.id,
+      role: "explanation" as const,
+      prompt: part.prompt,
+    })),
+  ]);
+}
+
+/**
+ * Each paper's parts, by the names their own modules export. Listed rather than discovered,
+ * because a module's exports include references and helpers as well as parts, and a name-shaped
+ * filter would quietly pick up or drop one as those modules change.
+ */
+const EXERCISES: Readonly<Record<string, Journey["exercises"]>> = Object.freeze({
+  "light-quanta": exercisesOf(
+    [lightQuantaElectron.GREATEST_ENERGY_EXERCISE],
+    [
+      lightQuantaExercises.INTENSITY_EXPLANATION,
+      lightQuantaExercises.LOCKED_POSITIONS_EXPLANATION,
+      lightQuantaExercises.PPE_EXPLANATION,
+    ],
+  ),
+  "brownian-motion": exercisesOf(
+    [brownianExercises.DISPLACEMENT_SCALE_EXERCISE],
+    [brownianExercises.SQUARE_ROOT_IN_WORDS],
+  ),
+  "special-relativity": exercisesOf(
+    [
+      relativityExercises.COMPOSITION_EXERCISE,
+      relativityExercises.CLOCK_SPEED_EXERCISE,
+      relativityClock.MOVING_CLOCK_EXERCISE,
+    ],
+    [relativityExercises.SIMULTANEITY_EXPLANATION, relativityExercises.PPE_EXPLANATION],
+  ),
+  "mass-energy": exercisesOf(
+    [massEnergyExercises.MASS_GIVEN_UP_EXERCISE, massEnergyExercises.PULSE_SUM_EXERCISE],
+    [massEnergyExercises.EQUAL_AND_OPPOSITE_EXPLANATION],
+  ),
+});
 
 /** The forks a module exports, by their own names, so adding a third needs no change here. */
 function forksOf(module: Record<string, unknown>): Journey["forks"] {
@@ -246,9 +358,11 @@ function compose(
     revision: REVISIONS[paper] ?? 1,
     // Partial, and the pending list says which two elements and why. The honest value.
     completeness: "partial" as const,
-    pendingElements: MOVE_CHAIN_MISSING.has(paper)
-      ? Object.freeze([...PENDING, PENDING_MOVE_CHAIN])
-      : PENDING,
+    pendingElements: Object.freeze([
+      ...PENDING,
+      ...instrumentedPending(EXERCISES[paper] ?? Object.freeze([])),
+      ...(MOVE_CHAIN_MISSING.has(paper) ? [PENDING_MOVE_CHAIN] : []),
+    ]),
     shelf: Object.freeze(shelf.map((card) => card.id)),
     // Empty for three of the four journeys, which is the honest value: only mass-energy imports a
     // 1905 result, and the schema omits an empty array rather than recording one.
@@ -260,7 +374,7 @@ function compose(
     move: module.MOVE,
     worldChecks: Object.freeze([module.WORLD_CHECK]),
     sourceJumps: module.SOURCE_JUMPS,
-    exercises: Object.freeze([]),
+    exercises: EXERCISES[paper] ?? Object.freeze([]),
     ppeTask: module.PPE_TASK,
     doors: module.DOORS,
   });

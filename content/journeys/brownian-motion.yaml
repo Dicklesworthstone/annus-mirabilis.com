@@ -25,7 +25,7 @@ pendingElements:
     reason: The staged chain is the discover page's JSX structure rather than data. Composing a stage list here would be authoring content, and a stage carries premise references the shelf audit reads, so invented stages would make that audit pass over prose nobody reviewed.
     ownerBead: am-4k0m
   - element: exercises.instrumented
-    reason: The exercise parts are typed, machine-checked objects in each paper's own exercise module, keyed to the components that render them rather than to journey-level ExerciseRefs. Mapping them is part of the record migration.
+    reason: This journey has 1 instrumented exercise(s) and the skeleton asks for two to five. The exercises it has are composed from the parts its page renders; a second one is new physics authoring -- a reference expression with declared names, domains, dimensions and a tolerance, checked against the owner -- rather than a record migration.
     ownerBead: am-4k0m
 shelf:
   - brown-1828-microscopical-observations
@@ -140,7 +140,13 @@ sourceJumps:
     section: s5
     targetAnchor: arg-bm-inference
     pointer: 'The paper closes §5 by turning the relation around: measure the displacement, and the one unknown left is the number of molecules.'
-exercises: []
+exercises:
+  - id: bm-displacement-scale-rewrite
+    role: instrumented
+    prompt: Along one axis the mean square displacement is 2·D·t. Watch the same particle in the plane, moving along x and y independently. What is its root mean square distance from the start?
+  - id: bm-square-root-in-words
+    role: explanation
+    prompt: Put it in your own words. In four times as long, a particle kicked about at random typically gets only twice as far. Why not four times as far, as a particle drifting at a steady speed would?
 ppeTask:
   promptId: bm-predict-perturb-explain-radius
   task: Predict first. The tracer ensemble shows how far a particle typically gets in one second. If you double the particle's radius, does that distance halve, fall by less than half, or stay the same?
