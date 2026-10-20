@@ -196,12 +196,18 @@ describe("the real corpus: every printed number is pinned", () => {
     // that opens with math ("J ist aber auch ..."), and the manifest now counts that sentence.
     // p. 557 still differs (manifest 8 -> 10, the plate's count; the proposal's 12 includes two cuts
     // at "etc."). The heuristic's two weaknesses are now visible here instead of hidden in the ids.
+    //
+    // Re-derived 2026-10-19: agreeing 5 -> 6, differing 7 -> 6, in the improvement direction. The
+    // note above had already named the cause, "the proposal's 12 includes two cuts at `etc.`", and
+    // it stood for 24 days: `etc.` was not in the abbreviation table, so the segmenter ended a
+    // sentence inside "das zweite, vierte etc. Glied" on p. 557. `etc.` is now in the table with
+    // that plate citation, and p. 557 agrees. Nothing in the ledger or the manifest moved.
     "brownian-motion": {
       ledgerPages: 12,
       comparable: 12,
       notAvailable: 0,
-      agreeing: 5,
-      differing: 7,
+      agreeing: 6,
+      differing: 6,
       unplaceableManifestUnits: 0,
       unplaceableProposedSentences: 0,
     },
@@ -217,12 +223,18 @@ describe("the real corpus: every printed number is pinned", () => {
     // paper's inline mathematics is densest, which is the "does not cut before a sentence that
     // opens with math" case. Counted from the printed deltas. unplaceableProposedSentences
     // stays 1 because it never depended on manifest units.
+    //
+    // Re-derived 2026-10-19: agreeing 5 -> 7, differing 12 -> 10, in the improvement direction and
+    // from the same repair. This is the paper where "a cut at an abbreviation" cost the most:
+    // Einstein writes "Hrn. Planck" nine times and "bez." four, and neither was in the table, so
+    // the segmenter ended a sentence inside each. Both are now listed with their plate citations
+    // (p. 136 and p. 135). unplaceableProposedSentences stays 1 for the reason above.
     "light-quanta": {
       ledgerPages: 17,
       comparable: 17,
       notAvailable: 0,
-      agreeing: 5,
-      differing: 12,
+      agreeing: 7,
+      differing: 10,
       unplaceableManifestUnits: 0,
       unplaceableProposedSentences: 1,
     },
@@ -348,7 +360,16 @@ describe("the real corpus: every printed number is pinned", () => {
       // not.) Left as measured rather than repaired here: the repair
       // is either a ledger-wide rewrite touching four papers or a change to segmentLedger, and
       // both belong to am-span-recording-decision-ero2, not to a transcription pane.
-      unplaceableProposedSentences: 15,
+      //
+      // Re-derived 2026-10-19: 15 -> 6, and the decomposition above is why the number lands
+      // exactly there. It read "nine bare enumerators and six long sentences", so the nine were
+      // never crossings at all: the segmenter had no enumerator rule and cut "1." off its own
+      // item, producing a one-token sentence that matched no manifest unit. SEGMENTATION.md
+      // rule 8 now covers them and all nine are gone, leaving the six visible crossings the rest
+      // of this note describes. That is the half the earlier author could not repair from a
+      // transcription pane; the ledger-rewrite half is untouched and still belongs to
+      // am-span-recording-decision-ero2.
+      unplaceableProposedSentences: 6,
     },
   };
 

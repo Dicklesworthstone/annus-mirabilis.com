@@ -89,6 +89,19 @@ The following abbreviations never trigger a sentence boundary. Every abbreviatio
 - `Sitzungsber.`
 - `Akad.`
 - `Wiss.`
+- `Hrn.`
+- `Hr.`
+- `bez.`
+- `etc.`
+
+The last four were added on 2026-10-19 from printed occurrences: `Hrn.` and `Hr.` on ap-17-132
+p. 136 and p. 135, `bez.` on ap-17-132 p. 135, `etc.` on ap-17-549 p. 557. The sentence above,
+"Every abbreviation used by the tokenizer must be present in this list", now reads the other way
+round: this is the sentence-boundary list, the tokenizer's composite-token list is a declared
+subset of it, and `tokenizeGerman.ts` names the difference as `TOKENIZER_ONLY_DIVERGENCE`.
+
+A list enumerator (`1.`, `2.`, `IV.`) is also never a terminator, and it ends whatever `.` or `:`
+precedes it. See rule 8 of `docs/editorial/SEGMENTATION.md`, which is the live document.
 
 The pinned facsimile scan decides every doubtful boundary case.
 

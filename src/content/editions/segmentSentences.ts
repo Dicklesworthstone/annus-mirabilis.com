@@ -35,6 +35,14 @@ export const SENTENCE_ABBREVIATIONS = Object.freeze([
   "Sitzungsber.",
   "Akad.",
   "Wiss.",
+  // Added 2026-10-19 after a corpus sweep found 16 boundaries this module invented
+  // inside a sentence the editors had frozen. Each is verified on its own plate,
+  // which is the bar SEGMENTATION.md sets for extending the table, and the doc
+  // carries the same four entries with the same page citations.
+  "Hrn.", // ap-17-132 p. 136: "die von Hrn. Planck gegebene Bestimmung"
+  "Hr.", // ap-17-132 p. 135: "Hr. Planck hat für diesen Fall die Bedingung"
+  "bez.", // ap-17-132 p. 135: "an das Gas bez. Energieaufnahme von dem Gas"
+  "etc.", // ap-17-549 p. 557: "das zweite, vierte etc. Glied"
 ]);
 
 const ABBREV_SORTED = [...SENTENCE_ABBREVIATIONS].sort((a, b) => b.length - a.length);
@@ -102,6 +110,63 @@ function precededByOrdinal(text: string, dotIndex: number): boolean {
   return /^\s+(März|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember|Folge|Abschnitt|Band|Bd|p|pag|S)/i.test(
     rest,
   );
+}
+
+/**
+ * A list enumerator ("1.", "2.", "IV.") is not a sentence terminator.
+ *
+ * The population, measured over the four papers' frozen sentence spans: nine
+ * cases, every one of them in special-relativity (s1-p8, s2-p1, s10-p15,
+ * s10-p17, s10-p18), where the editors kept the enumerator inside the item's own
+ * sentence. The plate for s2-p1, ap-17-891 p. 895, prints each item at paragraph
+ * depth carrying its number, and the ledger sets each item as its own chunk.
+ *
+ * The discriminator against a citation's volume number is the token BEFORE the
+ * numeral. `Ann. d. Phys. 17. Die Folge` has a listed abbreviation in front of
+ * the 17 and is a citation; `definieren. 1. Die Gesetze` has an ordinary word in
+ * front of the 1 and is a list. Without that test this rule would swallow the
+ * boundary after a citation, which rule 7 of SEGMENTATION.md governs by a
+ * different mechanism and which the citation test plants.
+ */
+function isListEnumerator(text: string, dotIndex: number): boolean {
+  let runStart = dotIndex;
+  while (runStart > 0 && /[\dIVXLC]/.test(text[runStart - 1] ?? "")) runStart -= 1;
+  if (runStart === dotIndex) return false;
+  const numeral = text.slice(runStart, dotIndex);
+  // Enumerators are short. A four-digit year in a citation is not one.
+  if (/^\d+$/.test(numeral) ? numeral.length > 2 : numeral.length > 4) return false;
+
+  // Only whitespace may sit between the enumerator and whatever precedes it.
+  let before = runStart - 1;
+  while (before >= 0 && /\s/.test(text[before] ?? "")) before -= 1;
+  if (runStart > 0 && before === runStart - 1) return false;
+
+  if (before >= 0) {
+    const prev = text[before] ?? "";
+    if (!/[.:;!?]/.test(prev)) return false;
+    if (prev === "." && isInsideAbbreviation(text, before)) return false;
+  }
+
+  // An enumerator introduces an item, so an uppercase letter follows it.
+  return /^\s+[A-ZÄÖÜ]/.test(text.slice(dotIndex + 1));
+}
+
+/**
+ * An enumerator ALSO closes whatever precedes it, which is the other half of
+ * rule 8 and the half that is easy to miss.
+ *
+ * `...definieren. 1. Die Gesetze` has a terminator followed by a DIGIT, and the
+ * candidate rule wants an uppercase letter, so without this the introducing
+ * sentence and the whole list would run together as one proposal. `...gelten:
+ * 1. Wenn die Uhr` is the same shape behind a colon, and it is the one place a
+ * colon ends a sentence: rule 1 forbids it generally, and ap-17-891 p. 894 sets
+ * the items at paragraph depth after the colon, which is what the editors froze
+ * in `s1-p8`.
+ */
+function startsEnumeratedItem(text: string, punctuationIndex: number): boolean {
+  const ahead = text.slice(punctuationIndex + 1).match(/^\s+(?:\d{1,2}|[IVXLC]{1,4})\./);
+  if (!ahead) return false;
+  return isListEnumerator(text, punctuationIndex + (ahead[0] as string).length);
 }
 
 function insideSectionSign(text: string, dotIndex: number): boolean {
@@ -243,6 +308,18 @@ export function proposeSentences(
     }
 
     const ch = paragraph[i];
+    // A colon is never a boundary (rule 1) EXCEPT before a list enumerator (rule 8).
+    if (ch === ":" && !inMath(i) && startsEnumeratedItem(paragraph, i)) {
+      const text = paragraph.slice(start, i + 1).trim();
+      if (text.length > 0) {
+        proposals.push({ index: proposals.length, text, start, end: i + 1 });
+      }
+      let next = i + 1;
+      while (next < paragraph.length && /\s/.test(paragraph[next] ?? "")) next += 1;
+      start = next;
+      i = next;
+      continue;
+    }
     if (ch !== "." && ch !== "?" && ch !== "!") {
       i += 1;
       continue;
@@ -267,12 +344,16 @@ export function proposeSentences(
       i += 1;
       continue;
     }
+    if (ch === "." && isListEnumerator(paragraph, i)) {
+      i += 1;
+      continue;
+    }
 
     let j = i + 1;
     while (j < paragraph.length && /\s/.test(paragraph[j] ?? "")) j += 1;
     const next = paragraph[j];
     const atEnd = j >= paragraph.length;
-    if (!atEnd && !isUpperOrQuote(next)) {
+    if (!atEnd && !isUpperOrQuote(next) && !startsEnumeratedItem(paragraph, i)) {
       i += 1;
       continue;
     }

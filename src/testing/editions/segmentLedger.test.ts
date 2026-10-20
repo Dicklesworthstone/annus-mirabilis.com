@@ -496,7 +496,7 @@ describe("segmentation validation: contiguity and non-overlap", () => {
     expect(issue?.end).toBe(30);
   });
 
-  test("PLANTED: non-contiguous segmentation dropping intermediate text is refused (segmentSentences.ts:369)", () => {
+  test("PLANTED: non-contiguous segmentation dropping intermediate text is refused (segmentSentences.ts:450)", () => {
     const paragraph = "Die Bewegung ist unregelmäßig. Sie hört nicht auf.";
     const gapped = [
       { start: 0, end: 12, text: "Die Bewegung" },
@@ -509,7 +509,7 @@ describe("segmentation validation: contiguity and non-overlap", () => {
     expect(issue?.message).toContain("ist unregelmäßig.");
   });
 
-  test("PLANTED: segmentation dropping LEADING text is refused (segmentSentences.ts:342)", () => {
+  test("PLANTED: segmentation dropping LEADING text is refused (segmentSentences.ts:423)", () => {
     const paragraph = "Anfang. Die Bewegung ist unregelmäßig. Ende.";
     const dropLeading = [{ start: 8, end: 38, text: "Die Bewegung ist unregelmäßig." }];
     const leadingIssues = validateSegmentation(paragraph, dropLeading);
@@ -526,7 +526,7 @@ describe("segmentation validation: contiguity and non-overlap", () => {
     expect(leading?.end).toBe(8);
   });
 
-  test("PLANTED: segmentation dropping TRAILING text is refused (segmentSentences.ts:386)", () => {
+  test("PLANTED: segmentation dropping TRAILING text is refused (segmentSentences.ts:467)", () => {
     const paragraph = "Anfang. Die Bewegung ist unregelmäßig. Ende.";
     const dropTrailing = [{ start: 0, end: 38, text: "Anfang. Die Bewegung ist unregelmäßig." }];
     const trailingIssues = validateSegmentation(paragraph, dropTrailing);
@@ -540,7 +540,7 @@ describe("segmentation validation: contiguity and non-overlap", () => {
     expect(trailing?.end).toBe(paragraph.length);
   });
 
-  test("PLANTED: NO segments at all is refused, and whitespace-only text is not (segmentSentences.ts:327)", () => {
+  test("PLANTED: NO segments at all is refused, and whitespace-only text is not (segmentSentences.ts:408)", () => {
     // The fourth site, and the one nothing drove. It is the whole-text-dropped case: a caller
     // hands the validator an empty segment list for text that has content.
     //

@@ -108,9 +108,24 @@ A sentence boundary ends at `.`, `?`, or `!` when followed by whitespace and an 
    - Example: `Setzt man $x = 1.5$ in die Gleichung ein.` (No split at the decimal point).
 3. **Listed abbreviations:**
    The following abbreviations never trigger a sentence boundary:
-   `z. B.`, `d. h.`, `u. s. w.`, `usw.`, `vgl.`, `bzw.`, `ca.`, `resp.`, `a. a. O.`, `l. c.`, `S.`, `p.`, `Bd.`, `Ann.`, `d.`, `Phys.`, `Sek.`, `sec.`, `cm.`, `mm.`, `gr.`, `Fig.`, `Gl.`, `Nr.`, `Proc.`, `Wied.`, `Ber.`, `Sitzungsber.`, `Akad.`, `Wiss.`.
+   `z. B.`, `d. h.`, `u. s. w.`, `usw.`, `vgl.`, `bzw.`, `ca.`, `resp.`, `a. a. O.`, `l. c.`, `S.`, `p.`, `Bd.`, `Ann.`, `d.`, `Phys.`, `Sek.`, `sec.`, `cm.`, `mm.`, `gr.`, `Fig.`, `Gl.`, `Nr.`, `Proc.`, `Wied.`, `Ber.`, `Sitzungsber.`, `Akad.`, `Wiss.`, `Hrn.`, `Hr.`, `bez.`, `etc.`.
    - Example: `Dies gilt z. B. für verdünnte Lösungen.` (No split at `z. B.`).
    - Example: `Siehe vgl. A. Einstein hierzu.` (No split at `vgl.`).
+   - The table is extended only with a facsimile example. The last four were added on
+     2026-10-19 after a sweep of the four papers' frozen sentence spans found sixteen
+     boundaries the tool invented inside a sentence the editors had settled, and each was
+     then read on its own plate:
+     - `Hrn.` — ap-17-132 p. 136: `die von Hrn. Planck gegebene Bestimmung` (9 occurrences).
+     - `Hr.` — ap-17-132 p. 135: `Hr. Planck hat für diesen Fall die Bedingung`.
+     - `bez.` — ap-17-132 p. 135: `an das Gas bez. Energieaufnahme von dem Gas` (4 occurrences).
+       Einstein writes `bez.` where this table already carried `bzw.`; both are printed.
+     - `etc.` — ap-17-549 p. 557: `das zweite, vierte etc. Glied` (2 occurrences).
+
+   This table is **not** the composite-token table of section 4. The two answer different
+   questions and `tokenizeGerman` keeps its own list, because 32 committed gloss units
+   store `bez`, `Hrn`, `etc` and `Hr` without their periods and promoting them to composite
+   tokens is a gloss migration rather than a boundary repair. The divergence is declared in
+   `tokenizeGerman.ts` as `TOKENIZER_ONLY_DIVERGENCE` and a test refuses an undeclared one.
 4. **Single-letter initials:**
    - Example: `A. Einstein`, `M. Besso`, `H. A. Lorentz` (Never split after initials).
 5. **Ordinals before a month or noun, and Roman-numeral ordinals:**
@@ -120,6 +135,25 @@ A sentence boundary ends at `.`, `?`, or `!` when followed by whitespace and an 
    - Example: `§ 8.` (No split at `§ 8.`).
 7. **Bibliographic citation strings:**
    - Example: `Ann. d. Phys. 17. p. 891. 1905.` (Remains one sentence).
+8. **List enumerators:**
+   A short arabic or Roman numeral with its period, standing as a list item's number, is not
+   a terminator. It qualifies when it opens its alignable unit, or when only whitespace
+   separates it from a preceding `.`, `:` or `;`, and an uppercase letter follows it.
+   - Example: ap-17-891 p. 895, §2: `...folgendermaßen definieren.` then `1. Die Gesetze, nach
+     denen sich die Zustände...` then `2. Jeder Lichtstrahl bewegt sich...` (No split after
+     `1.` or `2.`; the enumerator belongs to its item's sentence).
+   - Example: ap-17-891 p. 894, §1: `...daß also allgemein die Beziehungen gelten:` then
+     `1. Wenn die Uhr in B synchron...` (No split after `1.`).
+   - **The discriminator against rule 7 is the token in front of the numeral.** A listed
+     abbreviation in front of it makes a citation's volume number, not an enumerator, so
+     `Ann. d. Phys. 17. Die Folge` keeps its boundary while `definieren. 1. Die Gesetze`
+     does not. A numeral of more than two digits is never an enumerator, which is what keeps
+     `p. 891. 1905. Hieraus` under rule 7.
+   - Measured population: nine occurrences, all in ap-17-891 (`s1-p8`, `s2-p1`, `s10-p15`,
+     `s10-p17`, `s10-p18`). The other three papers print no enumerated list at paragraph
+     depth. Note that the ledger sets each item as its own chunk, so the tool normally meets
+     an enumerator at the start of a unit; the mid-text form is reachable only where the
+     inventory merged the items into one block, as special-relativity's did.
 
 ### Display References and Sentence Boundaries
 - A sentence ends at a display only when the display's LaTeX ends with a full stop (optionally followed by spacing commands) and the following text begins with an uppercase letter.

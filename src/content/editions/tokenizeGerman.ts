@@ -6,6 +6,32 @@
 
 import { SENTENCE_ABBREVIATIONS } from "./segmentSentences.ts";
 
+/**
+ * The composite-token table, which is NOT the sentence-boundary table.
+ *
+ * These were one list, by import, until 2026-10-19. They answer different
+ * questions -- "may this dot end a sentence" and "is this dotted form one word
+ * token" -- and coupling them meant a boundary repair silently rewrote the
+ * tokenizer. Measured when the boundary table gained `Hrn.`, `Hr.`, `bez.` and
+ * `etc.`: 32 committed gloss units store those words WITHOUT their period
+ * (`bez` 15x, `Hrn` 9x, `etc` 6x, `Hr` 2x), because they were glossed while the
+ * tokenizer did not know them. Growing this list by import would have made all
+ * 32 token lists disagree with `tokenizeGerman` at once, which is a gloss
+ * migration with its own digests and revisions, not a segmentation fix.
+ *
+ * The divergence is therefore deliberate, and `TOKENIZER_ONLY_DIVERGENCE` names
+ * it so a test can refuse an undeclared one. Whether those four should become
+ * composite tokens -- `vgl.`, `Ann.` and `p.` already are, so the corpus is
+ * internally inconsistent today -- is an editorial call with 32 units of work
+ * behind it, and it belongs to a gloss bead rather than to this module.
+ */
+export const TOKEN_ABBREVIATIONS = Object.freeze(
+  SENTENCE_ABBREVIATIONS.filter((a) => !["Hrn.", "Hr.", "bez.", "etc."].includes(a)),
+);
+
+/** The entries the boundary table carries that the composite table deliberately does not. */
+export const TOKENIZER_ONLY_DIVERGENCE = Object.freeze(["Hrn.", "Hr.", "bez.", "etc."]);
+
 export type GermanTokenKind = "word" | "math" | "footnote-mark" | "punctuation";
 
 export type GermanToken = Readonly<{
@@ -29,7 +55,7 @@ export const UNIT_WORDS = Object.freeze([
   "Amp.",
 ]);
 
-const ABBREV_SORTED = [...SENTENCE_ABBREVIATIONS, ...UNIT_WORDS]
+const ABBREV_SORTED = [...TOKEN_ABBREVIATIONS, ...UNIT_WORDS]
   .filter((v, i, arr) => arr.indexOf(v) === i)
   .sort((a, b) => b.length - a.length);
 

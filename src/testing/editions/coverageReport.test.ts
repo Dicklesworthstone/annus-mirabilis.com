@@ -164,6 +164,14 @@ describe("coverage report honesty", () => {
      * present contradiction. Which document survives is an editorial decision and is reported
      * on am-edn-alignment-tooling-do1; until it is taken, holding both to the tokenizer is what
      * stops the copy nobody reads from rotting into a rule that contradicts the code.
+     *
+     * Re-measured 2026-10-19 at 34 of 34 each, after `Hrn.`, `Hr.`, `bez.` and `etc.` were added
+     * from printed occurrences. The two documents still agree, and this gate is what caught the
+     * orphan being left behind: the first edit touched only the live file. The list is the
+     * SENTENCE-BOUNDARY list, which from that date is no longer identical to the tokenizer's
+     * composite-token list; `sentenceBoundaryRules.test.ts` holds that declared divergence, and
+     * this gate deliberately checks the larger of the two against both documents, because an
+     * entry the boundary rule knows and the documents do not is the drift that matters here.
      */
     const documents = ["docs/editorial/SEGMENTATION.md", "docs/SEGMENTATION.md"] as const;
     for (const relative of documents) {
