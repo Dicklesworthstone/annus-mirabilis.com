@@ -423,22 +423,42 @@ export function ResultCard({
         )
       )}
 
+      {/*
+        THE FOUR MEANINGS TYPESET THEIR MATHEMATICS, like every other authored string on this
+        card. They were the only group here rendered as bare text, and one of the corpus's 152
+        meanings values carries inline mathematics: special-relativity's mirror-pressure card,
+        whose model line names the cos-squared form. A reader got the six characters of the
+        delimiter and the control sequence, literally, on two built pages -- the paper's results
+        face and its section 8 results face -- which is the one thing the plan forbids outright:
+        raw LaTeX is never visible to a reader.
+
+        InlineMathText returns its argument unchanged when there is no `\( … \)` in it, so the
+        other 151 values render exactly as before.
+      */}
       <dl className="result-meanings" aria-label="Four kinds of meaning">
         <div>
           <dt>Argument</dt>
-          <dd>{card.meanings.argumentStatus}</dd>
+          <dd>
+            <InlineMathText text={card.meanings.argumentStatus} />
+          </dd>
         </div>
         <div>
           <dt>Model</dt>
-          <dd>{card.meanings.modelStatus}</dd>
+          <dd>
+            <InlineMathText text={card.meanings.modelStatus} />
+          </dd>
         </div>
         <div>
           <dt>Evidence</dt>
-          <dd>{card.meanings.evidentialRole}</dd>
+          <dd>
+            <InlineMathText text={card.meanings.evidentialRole} />
+          </dd>
         </div>
         <div>
           <dt>History</dt>
-          <dd>{card.meanings.historicalStatus}</dd>
+          <dd>
+            <InlineMathText text={card.meanings.historicalStatus} />
+          </dd>
         </div>
       </dl>
     </article>
