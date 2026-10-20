@@ -62,6 +62,15 @@ entries:
   - letter: c
     proposition: "Bachelier's 1900 random-walk mathematics for stock prices."
     namedSources: ["Bachelier 1900"]
+    # THE CITATION LANDED ON 2026-10-20 AND THE CLAIM DID NOT, so this entry is annotated in the
+    # same change that created cit-bachelier-1900. Creating a bibliography record moves an entry
+    # out of the audit's "waits on a bibliography record" bucket and into "has every citation on
+    # disk", which reads as ready to author; that is only true when the record grounds the
+    # proposition, and here it grounds the identity alone.
+    claimNotGroundable:
+      reportedOn: "2026-10-20"
+      groundedBy: "The thesis's identity, through cit-bachelier-1900: L. Bachelier, Theorie de la speculation, Annales scientifiques de l'Ecole normale superieure (3) 17, 21-86, 1900, from the metadata the publisher registered for 10.24033/asens.476, whose primary resource is the NUMDAM item ASENS_1900_3_17__21_0. That establishes that a mathematician published on the theory of speculation in a mathematics journal in 1900, which is the part of the proposition about WHERE and WHEN."
+      missing: "That the thesis develops RANDOM-WALK mathematics, which is the part the entry exists for and the only part that makes it a historian's-margin note rather than a bibliography line. The registry carries a title and a pagination and nothing about contents, the thesis is not among this repository's pinned facsimiles, and nobody here has read its 66 pages. A note asserting what Bachelier derived, or that his mathematics is the same as section 4's, would be a claim from memory about a text this edition has not opened. The free scan at the NUMDAM item is where a reader with the French and the time would start."
     requiresCitations: ["cit-bachelier-1900"]
   - letter: d
     proposition: "Einstein's assumption that the interval tau is long compared with the momentum relaxation time. For shorter intervals the motion is ballistic, with mean square displacement proportional to t squared, first measured in 2010 and 2011."

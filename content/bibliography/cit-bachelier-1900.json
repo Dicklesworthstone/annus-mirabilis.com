@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "kind": "citation",
+  "id": "cit-bachelier-1900",
+  "title": "L. Bachelier, Théorie de la spéculation",
+  "role": "primary",
+  "verification": {
+    "state": "agent",
+    "by": "agent:claude-opus-5",
+    "date": "2026-10-20",
+    "note": "Every field of this record (title, journal, volume, page range and year) is transcribed from the metadata the publisher registered for 10.24033/asens.476, fetched 2026-10-20 by DOI content negotiation (https://doi.org/10.24033/asens.476 with Accept: application/vnd.citationstyles.csl+json). The DOI resolves to the publisher's own landing page, and the registered primary resource is the NUMDAM item ASENS_1900_3_17__21_0. The registry gives no issue number and does NOT give the series: the (3) in the locator is read from that item id, where the third field is the series, and is the one field here not taken from the registry's own metadata. This is a machine check of IDENTITY against a registry: it grounds who wrote what, where and when, and grounds nothing about what the work says. No named person has read it. In particular, that this thesis develops RANDOM-WALK mathematics, which is what brownian-motion margin entry (c) asserts, is a claim about its contents and is NOT grounded here; that entry carries claimNotGroundable for exactly this reason."
+  },
+  "locator": "Annales scientifiques de l'École normale supérieure (3) 17, 21-86 (1900).",
+  "url": "https://doi.org/10.24033/asens.476"
+}
