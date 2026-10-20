@@ -760,6 +760,68 @@ describe("PLANT: the ledger-present branch measures instead of announcing", () =
     expect(numbers).toEqual(["1", "12", "14", "15", "3", "7", "9"].sort());
   });
 
+  /**
+   * THE ALIGN PASS CARRIES THE CENSUS runAlignEditions ALREADY COMPUTES.
+   *
+   * `AlignEditionsExamined` exists because of the defect align-editions.ts records in its own
+   * docblock: `"issues": []` while five of the eight rules had examined nothing. The census is
+   * returned on every run -- edges, German ids, English ids, components, terms, gloss units,
+   * review units -- and this stage reported one of the seven numbers, the German unit count.
+   */
+  test("the align pass states every population the run examined", async () => {
+    const stage = stageOf(
+      await runEditionPipeline({ slug: "brownian-motion", root: REPO }),
+      "align",
+    );
+    expect(stage?.outcome).toBe("passed");
+    for (const noun of [
+      "edge(s)",
+      "English id(s)",
+      "component(s)",
+      "term(s)",
+      "gloss unit(s)",
+      "review unit(s)",
+    ]) {
+      expect(stage?.message, `the census omits ${noun}`).toContain(noun);
+    }
+    // Real populations, not a template over zeros.
+    expect(Number(/(\d+) edge\(s\)/.exec(stage?.message ?? "")?.[1] ?? 0)).toBeGreaterThan(100);
+    expect(Number(/(\d+) component\(s\)/.exec(stage?.message ?? "")?.[1] ?? 0)).toBeGreaterThan(50);
+  });
+
+  test("the census follows the layers, which is what makes it a measurement", async () => {
+    // The pair that proves the numbers are read from the run and not printed as a constant: the
+    // gloss population loads only when the gloss layer is asked for, so a german-only run must
+    // report 0 and a three-layer run must report the corpus count.
+    const germanOnly = stageOf(
+      await runEditionPipeline({ slug: "brownian-motion", root: REPO }),
+      "align",
+    );
+    expect(germanOnly?.message).toContain("0 gloss unit(s)");
+    const allLayers = stageOf(
+      await runEditionPipeline({
+        slug: "brownian-motion",
+        root: REPO,
+        layers: ["german", "translation", "gloss"],
+      }),
+      "align",
+    );
+    const gloss = Number(/(\d+) gloss unit\(s\)/.exec(allLayers?.message ?? "")?.[1] ?? 0);
+    expect(gloss).toBeGreaterThan(50);
+  });
+
+  test("rule C.7's empty population is declared, not left as a zero in a list", async () => {
+    // 0 review units is not a clean result: the check asks the German-ledger question of a
+    // translation-layer corpus, and the reason is a decision disagreement rather than a missing
+    // loader. A zero in a census with no note beside it reads as nothing to check.
+    const stage = stageOf(
+      await runEditionPipeline({ slug: "brownian-motion", root: REPO }),
+      "align",
+    );
+    expect(stage?.message).toContain("0 review unit(s)");
+    expect(stage?.pending?.join(" ")).toContain("am-edit-review-records-hofz");
+  });
+
   test("every stage carries a duration and the run names its JSONL log", async () => {
     const run = await runEditionPipeline({ slug: "mass-energy" });
     for (const stage of run.stages) {

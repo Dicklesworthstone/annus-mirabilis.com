@@ -787,7 +787,36 @@ export async function runEditionPipeline(options: {
     });
     const issues = aligned.issues.map((i) => `${i.code}: ${i.message}`);
     if (aligned.ok) {
-      push("align", "passed", `Alignment validated ${germanIds.length} German unit(s).`);
+      /*
+       * THE PASS CARRIES THE CENSUS `runAlignEditions` ALREADY COMPUTES, and it used to drop it.
+       *
+       * `AlignEditionsExamined` exists because of the defect align-editions.ts records in its own
+       * docblock: `"issues": []` while five of the eight rules had examined nothing at all. The
+       * census is returned on every run -- edges, German ids, English ids, components, terms,
+       * gloss units, review units -- and this stage reported one of the seven numbers.
+       *
+       * A pass naming only the German unit count cannot distinguish "rules C.1 to C.8 all ran and
+       * found nothing" from "five of them had no population", which is the exact thing the census
+       * was built to make visible.
+       */
+      const examined = aligned.examined;
+      push(
+        "align",
+        "passed",
+        `Alignment validated ${germanIds.length} German unit(s): ${examined.edges} edge(s), ` +
+          `${examined.englishIds} English id(s), ${examined.components} component(s), ` +
+          `${examined.terms} term(s), ${examined.glossUnits} gloss unit(s), ` +
+          `${examined.reviewUnits} review unit(s).`,
+        {
+          ...(examined.reviewUnits === 0
+            ? {
+                pending: [
+                  "rule C.7 examined 0 review units: recordBackedReviewStateCheck asks the German-source question of a translation-layer corpus, and wiring it as written would redden four papers over a decision disagreement (am-edit-review-records-hofz)",
+                ],
+              }
+            : {}),
+        },
+      );
     } else {
       push(
         "align",
