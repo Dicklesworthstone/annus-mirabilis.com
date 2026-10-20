@@ -33,13 +33,44 @@ export class PopulationFloorError extends Error {
  * no way to be exercised and the untested-refusal ratchet counted them as undeclared debt. A floor
  * that cannot be tested is a floor nobody has seen fire.
  */
-export function assertJourneyPopulation(dirExists: boolean, recordCount: number): void {
+/**
+ * The journey floor, which counts records PARSED and not files READ.
+ *
+ * It took only `recordCount`, filled from `journeyFiles.length`, and that is the count of files
+ * `readFileSync` returned. On 2026-10-19 all four journey records shipped with a `>-` folded
+ * scalar that python's yaml.safe_load accepts and `src/content/provenance/yaml.ts` refuses. Every
+ * file still read, so the floor passed and `verify-content` printed "4 journey record(s) compiled
+ * from content/journeys" and `ok: true`, while the compiled corpus held none of them and
+ * `[epistemic-world-checks]` fell from 4 to 0. The only witness was that census, which logs
+ * rather than refuses by design, because it runs over whatever corpus its caller supplies.
+ *
+ * So the floor now takes both numbers and refuses on the GAP as well as on zero. A file in
+ * content/journeys that yields no record is a fault whether it is the only file or one of four:
+ * a partial drop is the more dangerous case, because the remaining records keep every count
+ * plausible.
+ */
+export function assertJourneyPopulation(
+  dirExists: boolean,
+  recordCount: number,
+  parsedCount: number = recordCount,
+): void {
   if (dirExists && recordCount === 0) {
     throw new PopulationFloorError(
       "journey-records-absent",
       "content/journeys exists and no .yaml record was read from it. Every epistemic rule keyed " +
         "on a journey would then run over an empty population and report clean. Restore the " +
         "records, or remove this refusal together with the directory (am-4k0m).",
+    );
+  }
+  if (dirExists && parsedCount < recordCount) {
+    throw new PopulationFloorError(
+      "journey-records-unparsed",
+      `${recordCount - parsedCount} of ${recordCount} .yaml file(s) in content/journeys were ` +
+        "read but yielded no record. Reading a file is not parsing it: every epistemic rule " +
+        "keyed on a dropped journey runs over an empty population and reports clean, and the " +
+        "file count stays right. Note that the project's parser is " +
+        "src/content/provenance/yaml.ts, which refuses constructs other YAML parsers accept " +
+        "(am-4k0m).",
     );
   }
 }

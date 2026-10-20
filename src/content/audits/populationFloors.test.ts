@@ -44,6 +44,43 @@ describe("verify-content's population floors", () => {
     expect(refusalFrom(() => assertJourneyPopulation(false, 0))).toBeNull();
   });
 
+  /**
+   * THE DEFECT THAT SHIPPED, 2026-10-19, planted here because the floor could not see it.
+   *
+   * All four journey records went to origin/main carrying a `>-` folded scalar that python's
+   * yaml.safe_load accepts and `src/content/provenance/yaml.ts` refuses. Every file still READ,
+   * so `journeyFiles.length` was 4, this floor passed, `verify-content` printed "4 journey
+   * record(s)" and `ok: true`, and the compiled corpus held none of them. The epistemic world
+   * check fell from 4 to 0 and only its own census said so.
+   *
+   * Reading a file is not parsing it, and the floor now takes both counts.
+   */
+  test("journey-records-unparsed: four files read, none of them a record", () => {
+    const refusal = refusalFrom(() => assertJourneyPopulation(true, 4, 0));
+    expect(refusal?.code).toBe("journey-records-unparsed");
+    expect(refusal?.message).toContain("read but yielded no record");
+    // It names the project's parser, because that is the thing a reader has to know: another
+    // parser accepting the file is not evidence.
+    expect(refusal?.message).toContain("src/content/provenance/yaml.ts");
+  });
+
+  test("a PARTIAL drop refuses too, which is the more dangerous shape", () => {
+    // Three records surviving keeps every count plausible and every other audit non-vacuous,
+    // so a partial drop is exactly the one nobody would chase.
+    const refusal = refusalFrom(() => assertJourneyPopulation(true, 4, 3));
+    expect(refusal?.code).toBe("journey-records-unparsed");
+    expect(refusal?.message).toContain("1 of 4");
+  });
+
+  test("the boundary in both directions, so the new refusal is not always-on", () => {
+    // Every file parsed: admitted.
+    expect(refusalFrom(() => assertJourneyPopulation(true, 4, 4))).toBeNull();
+    // No directory: admitted whatever the counts say.
+    expect(refusalFrom(() => assertJourneyPopulation(false, 0, 0))).toBeNull();
+    // The default keeps every existing caller's meaning: one argument means "all read parsed".
+    expect(refusalFrom(() => assertJourneyPopulation(true, 4))).toBeNull();
+  });
+
   test("edition-layer-absent: no block, unit or alignment was read", () => {
     const refusal = refusalFrom(() => assertEditionPopulation(0, 0));
     expect(refusal?.code).toBe("edition-layer-absent");

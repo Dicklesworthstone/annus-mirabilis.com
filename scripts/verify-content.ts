@@ -46,6 +46,7 @@ import {
 import { auditKernelBindings } from "../src/content/kernel/audit.ts";
 import { SLICE_KERNEL_CATALOG } from "../src/content/kernel/catalog.ts";
 import { loadProvenanceReceipts } from "../src/content/provenance/loadReceipts.ts";
+import { parseYaml as parseProvenanceYaml } from "../src/content/provenance/yaml.ts";
 import { checkJourney } from "../src/discovery/checks/journeyChecks.ts";
 import { REAL_JOURNEYS } from "../src/discovery/journeys/realJourneys.ts";
 import { SHELF_CARD_CONTEXT } from "../src/discovery/journeys/shelves.ts";
@@ -353,16 +354,28 @@ const result = await runVerifyContent({
         });
       }
     }
+    // PARSED, not read. `journeyFiles.length` counts what readFileSync returned, and a file that
+    // reads perfectly can still yield no record: see assertJourneyPopulation's note on the folded
+    // scalar that took all four records out of the corpus while this line still printed 4.
+    const journeyParsed = journeyFiles.filter((f) => {
+      try {
+        const rec = parseProvenanceYaml(f.text) as { worldChecks?: unknown } | null;
+        return rec !== null && typeof rec === "object";
+      } catch {
+        return false;
+      }
+    });
     console.log(
-      `[verify-content] ${journeyFiles.length} journey record(s) compiled from content/journeys ` +
-        `(${journeyFiles.map((f) => f.path.replace(/^journeys\/|\.yaml$/g, "")).join(", ") || "none"})`,
+      `[verify-content] ${journeyParsed.length} of ${journeyFiles.length} journey record(s) ` +
+        `parsed from content/journeys ` +
+        `(${journeyParsed.map((f) => f.path.replace(/^journeys\/|\.yaml$/g, "")).join(", ") || "none"})`,
     );
     // THE FLOOR BELONGS HERE, where the population is known. The epistemic world check runs over
     // whatever corpus its caller supplies, so a fixture run with no journeys is a legitimate zero
     // and that check can only log. In THIS run the directory exists and holds four records, so a
     // zero means the directory was emptied or the read broke, and a silent zero would make every
     // journey rule read as clean over nothing -- which is the state this wiring repaired (am-4k0m).
-    assertJourneyPopulation(existsSync(journeyDir), journeyFiles.length);
+    assertJourneyPopulation(existsSync(journeyDir), journeyFiles.length, journeyParsed.length);
     // THE EDITION LAYER: 453 source blocks, 821 translation units, 4 alignments
     // (am-rc1001-bridge-plan-pcjk.10).
     //
