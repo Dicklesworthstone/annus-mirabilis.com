@@ -50,7 +50,7 @@ describe("scripts/align-editions.ts runner and CLI guards", () => {
       expect(runAlignEditions({ slug: withLedger }).outcome).not.toBe("not-available");
   });
 
-  test("PLANTED: --require-reviewed refuses with unit-not-reviewed when no reviewed units exist (align-editions.ts:225)", () => {
+  test("PLANTED: --require-reviewed refuses with unit-not-reviewed when no reviewed units exist (align-editions.ts:274)", () => {
     const result = runAlignEditions({
       slug: "brownian-motion",
       requireReviewed: true,
@@ -62,7 +62,7 @@ describe("scripts/align-editions.ts runner and CLI guards", () => {
     expect(issue?.message).toContain("--require-reviewed specified, but no reviewed units exist");
   });
 
-  test("PLANTED: --require-reviewed refuses unreviewed unit state with unit-not-reviewed (align-editions.ts:233)", () => {
+  test("PLANTED: --require-reviewed refuses unreviewed unit state with unit-not-reviewed (align-editions.ts:282)", () => {
     const result = runAlignEditions({
       slug: "brownian-motion",
       requireReviewed: true,
@@ -250,5 +250,79 @@ describe("scripts/align-editions.ts CLI process execution", () => {
     expect(parsed.reportFiles).toBeDefined();
     expect(existsSync(parsed.reportFiles.json)).toBe(true);
     expect(existsSync(parsed.reportFiles.markdown)).toBe(true);
+  });
+});
+
+/**
+ * WHAT THE RUNNER EXAMINED, which is a different question from whether it passed.
+ *
+ * Until 2026-10-19 this runner answered `"outcome": "passed"` with `"issues": []` for all four
+ * papers while five of the eight C rules had examined nothing: `components`, `terms`,
+ * `glossInput` and `reviewUnits` come from the caller, and the CLI entry point passes only slug,
+ * layers, sections, requireReviewed and report. The coverage report it wrote in the same run said
+ * the gloss layer was `absent | 0` while 542 authored gloss units sat on disk.
+ *
+ * The gloss half is now loaded from disk. The other three are not, and these tests pin BOTH
+ * facts, so the day a loader lands for terms or components the zero below has to be revisited
+ * rather than quietly continuing to read as a pass.
+ */
+describe("the runner states what each rule examined", () => {
+  const glossed = (): RouteSlug =>
+    PAPER_SLUGS.find((slug) => inspectLedgerPresence(slug).presence === "complete") ??
+    ("brownian-motion" as RouteSlug);
+
+  test("the gloss layer is LOADED, not reported absent, for a paper that has one", () => {
+    const slug = glossed();
+    const result = runAlignEditions({ slug, layers: ["german", "translation", "gloss"] });
+    expect(result.examined.glossUnits).toBeGreaterThan(30);
+    expect(result.examined.edges).toBeGreaterThan(30);
+    expect(result.examined.germanIds).toBeGreaterThan(30);
+  });
+
+  test("a layer set that excludes gloss does not load it, so scope stays honest", () => {
+    const result = runAlignEditions({ slug: glossed(), layers: ["german", "translation"] });
+    expect(result.examined.glossUnits).toBe(0);
+  });
+
+  test("an explicitly EMPTY gloss input is still a population the caller named", () => {
+    // Absent and empty are different. A caller stating `{glossUnits: [], alignableUnits: []}` is
+    // naming a population, and filling it from disk would answer a question nobody asked, which
+    // is the discipline authoredInputs.ts already records for edges.
+    const result = runAlignEditions({
+      slug: glossed(),
+      layers: ["german", "translation", "gloss"],
+      glossInput: { glossUnits: [], alignableUnits: [] },
+    });
+    expect(result.examined.glossUnits).toBe(0);
+  });
+
+  test("the three rules with no loader report ZERO rather than hiding behind the pass", () => {
+    const result = runAlignEditions({
+      slug: glossed(),
+      layers: ["german", "translation", "gloss"],
+    });
+    // Not an assertion that zero is acceptable. It is the declaration that makes the gap
+    // visible in the runner's own output, where `ok: true` says nothing about it.
+    expect(result.examined.components).toBe(0);
+    expect(result.examined.terms).toBe(0);
+    expect(result.examined.reviewUnits).toBe(0);
+  });
+
+  test("CONTROL: a supplied population is counted, so the zeros above are about loading", () => {
+    // Without this, the three zeros could mean the counter is broken rather than the loader
+    // missing, and the two look identical in the output.
+    const result = runAlignEditions({
+      slug: glossed(),
+      layers: ["german", "translation", "gloss"],
+      terms: [
+        {
+          id: "t1",
+          text: "Lichtkomplex",
+          definition:
+            "A bundle of light treated as a single object for the purposes of this argument, following the printed usage of the 1905 paper.",
+        },
+      ],
+    });
+    expect(result.examined.terms).toBe(1);
   });
 });

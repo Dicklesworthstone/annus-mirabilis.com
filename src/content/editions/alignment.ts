@@ -442,9 +442,28 @@ export type GlossUnit = Readonly<{
   editor?: { id: string; kind: string } | undefined;
 }>;
 
+/**
+ * An alignable unit as C.6 reads it.
+ *
+ * `mathRegions` and `footnoteMarks` are offsets INTO `text`, and they are what makes the rule
+ * "Math atoms and footnote marks are never glossed" checkable. Without them `tokenizeGerman` sees
+ * a unit's inline LaTeX as ordinary German: measured over the corpus on 2026-10-19, supplying no
+ * regions made 266 of 542 gloss units disagree with their own text, every one of them because a
+ * printed symbol such as `L`, `V`, `\varphi` or a footnote mark had been counted as a word. With
+ * the regions supplied, 535 of 542 agree exactly. They are optional because a caller holding only
+ * plain prose is still asking a real question; a caller holding a source block passes them.
+ */
+export type GlossAlignableUnit = Readonly<{
+  id: string;
+  text: string;
+  digest?: string | undefined;
+  mathRegions?: readonly Readonly<{ start: number; end: number }>[] | undefined;
+  footnoteMarks?: readonly Readonly<{ start: number; end: number }>[] | undefined;
+}>;
+
 export type ValidateGlossInput = Readonly<{
   glossUnits: readonly GlossUnit[];
-  alignableUnits: readonly { id: string; text: string; digest?: string }[];
+  alignableUnits: readonly GlossAlignableUnit[];
   tokenizer?: ((text: string) => readonly { text: string }[]) | undefined;
 }>;
 
@@ -503,21 +522,48 @@ export function validateGloss(input: ValidateGlossInput): readonly AlignmentIssu
     if (input.tokenizer || alignable.text) {
       const tokens = input.tokenizer
         ? input.tokenizer(alignable.text)
-        : wordTokens(tokenizeGerman(alignable.text));
+        : wordTokens(
+            tokenizeGerman(alignable.text, {
+              ...(alignable.mathRegions ? { mathRegions: alignable.mathRegions } : {}),
+              ...(alignable.footnoteMarks ? { footnoteMarks: alignable.footnoteMarks } : {}),
+            }),
+          );
       const wordCount = tokens.length;
 
       const coveredTokens = new Set<number>();
       for (const gloss of g.glosses ?? []) {
         coveredTokens.add(gloss.tokenIndex);
       }
+      /*
+       * A COLLISION IS TWO MULTIWORD UNITS, not a multiword over a word that also has its own
+       * reading. This counted any second cover, including a token glossed on its own line and
+       * then named in a phrase, and that is stricter than the rule it audits: C.6 says "no token
+       * belongs to two multiword units", the schema permits the overlap, and
+       * `GlossSentence.tsx` resolves it by preferring the multiword, so three authorities agree
+       * against the implementation.
+       *
+       * Measured over the 542 committed gloss units when this was first run against the corpus:
+       * 28 findings, every one of them a separable verb or fixed phrase in brownian-motion whose
+       * head word also carries a word gloss -- `ist ... zu erstrecken` glossed "is to be
+       * extended" over tokens 2, 13 and 14 while token 14 `erstrecken` reads "extend". Genuine
+       * two-multiword overlaps in the same corpus: zero. So the strict form had a 100% false
+       * rate, and correcting it to the written rule removes no true finding.
+       */
+      const multiwordCover = new Map<number, number>();
       for (const mw of g.multiwords ?? []) {
         for (const idx of mw.tokenIndices) {
-          if (coveredTokens.has(idx)) {
+          multiwordCover.set(idx, (multiwordCover.get(idx) ?? 0) + 1);
+        }
+      }
+      for (const mw of g.multiwords ?? []) {
+        for (const idx of mw.tokenIndices) {
+          if ((multiwordCover.get(idx) ?? 0) > 1) {
             issues.push({
               code: "gloss-token-collision",
               sourceId: sId,
-              message: `Gloss token index ${idx} in unit "${sId}" belongs to multiple gloss entries.`,
+              message: `Gloss token index ${idx} in unit "${sId}" belongs to more than one multiword unit.`,
             });
+            multiwordCover.set(idx, 1);
           }
           coveredTokens.add(idx);
         }

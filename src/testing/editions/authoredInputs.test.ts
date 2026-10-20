@@ -18,6 +18,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   loadAuthoredEdges,
+  loadGlossInput,
   manifestUnitIds,
   translationUnitIds,
 } from "../../content/editions/authoredInputs.ts";
@@ -101,5 +102,81 @@ describe("the authored alignment inputs load from disk", () => {
     expect(loaded.edges).toEqual([]);
     expect(loaded.issues.map((i) => i.code)).toEqual(["alignment-record-unreadable"]);
     expect(loaded.issues[0]?.message).toContain("not an absence of authored edges");
+  });
+});
+
+/**
+ * THE FOURTH POPULATION: gloss units and the alignable units they address.
+ *
+ * Same defect, two months later and one layer over. `--layers german,translation,gloss` reported
+ * `"outcome": "passed"` for all four papers on 2026-10-19 and wrote a coverage report whose gloss
+ * row read `absent | 0`, while 542 authored gloss units sat in content/gloss-units/. The flag was
+ * accepted and nothing ran, and the report said ABSENT where the truth was UNLOADED -- which is
+ * the same conflation the edge tests above guard, stated about a different directory.
+ */
+describe("loadGlossInput", () => {
+  it("loads the real corpus, with the count named", () => {
+    for (const [slug, floor] of [
+      ["mass-energy", 30],
+      ["light-quanta", 150],
+      ["brownian-motion", 95],
+      ["special-relativity", 230],
+    ] as const) {
+      const loaded = loadGlossInput(slug as RouteSlug, ROOT);
+      expect(loaded.issues, `${slug}: a record could not be read`).toEqual([]);
+      expect(loaded.glossInput, `${slug}: nothing loaded`).toBeDefined();
+      expect(
+        loaded.glossInput?.glossUnits.length ?? 0,
+        `${slug}: gloss units below the floor`,
+      ).toBeGreaterThan(floor);
+      expect(loaded.alignableUnitCount, `${slug}: alignables below the floor`).toBeGreaterThan(
+        floor,
+      );
+    }
+  });
+
+  it("a paper with no gloss directory yields undefined, not an empty population", () => {
+    // Absent and empty are different: `undefined` lets the caller decline the check with a
+    // reason, where `{glossUnits: []}` would make it pass over nothing.
+    const loaded = loadGlossInput("molecular-dimensions" as RouteSlug, ROOT);
+    expect(loaded.glossInput).toBeUndefined();
+  });
+
+  it("an unparseable SOURCE BLOCK is reported, not read as having no alignable units (authoredInputs.ts:280)", () => {
+    const root = mkdtempSync(join(tmpdir(), "gloss-input-blocks-"));
+    mkdirSync(join(root, "content", "source-blocks", "mass-energy"), { recursive: true });
+    writeFileSync(
+      join(root, "content", "source-blocks", "mass-energy", "s0-p1.yaml"),
+      "id: [unclosed\n",
+    );
+    const loaded = loadGlossInput("mass-energy" as RouteSlug, root);
+    expect(loaded.issues.map((i) => i.code)).toEqual(["alignment-record-unreadable"]);
+    expect(loaded.issues[0]?.message).toContain("not an absence of alignable units");
+  });
+
+  it("an unparseable GLOSS UNIT is reported, not read as having no glosses (authoredInputs.ts:331)", () => {
+    const root = mkdtempSync(join(tmpdir(), "gloss-input-units-"));
+    mkdirSync(join(root, "content", "gloss-units", "mass-energy"), { recursive: true });
+    writeFileSync(
+      join(root, "content", "gloss-units", "mass-energy", "s0-p1-s1.yaml"),
+      "sentenceId: [unclosed\n",
+    );
+    const loaded = loadGlossInput("mass-energy" as RouteSlug, root);
+    expect(loaded.issues.map((i) => i.code)).toEqual(["alignment-record-unreadable"]);
+    expect(loaded.issues[0]?.message).toContain("not an absence of gloss units");
+  });
+
+  it("the two unreadable paths are told apart by their message, not only by their code", () => {
+    // They share `alignment-record-unreadable`, so a reader who sees only the code cannot say
+    // which directory failed. The sentence after the colon is what distinguishes them.
+    const root = mkdtempSync(join(tmpdir(), "gloss-input-both-"));
+    mkdirSync(join(root, "content", "source-blocks", "mass-energy"), { recursive: true });
+    mkdirSync(join(root, "content", "gloss-units", "mass-energy"), { recursive: true });
+    writeFileSync(join(root, "content", "source-blocks", "mass-energy", "a.yaml"), "x: [bad\n");
+    writeFileSync(join(root, "content", "gloss-units", "mass-energy", "b.yaml"), "y: [bad\n");
+    const loaded = loadGlossInput("mass-energy" as RouteSlug, root);
+    expect(loaded.issues).toHaveLength(2);
+    expect(loaded.issues[0]?.message).toContain("content/source-blocks/mass-energy/a.yaml");
+    expect(loaded.issues[1]?.message).toContain("content/gloss-units/mass-energy/b.yaml");
   });
 });

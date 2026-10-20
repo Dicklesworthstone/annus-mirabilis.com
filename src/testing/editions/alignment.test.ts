@@ -798,7 +798,51 @@ describe("gloss validation guards: gloss-target-not-alignable, gloss-unit-unknow
     expect(issues.filter((i) => i.code === "gloss-missing-token")).toHaveLength(0);
   });
 
-  test("PLANTED: gloss token index belonging to multiple multiwords or glosses refuses with gloss-token-collision", () => {
+  /**
+   * A COLLISION IS TWO MULTIWORD UNITS OVER ONE TOKEN, which is what C.6 writes: "no token
+   * belongs to two multiword units". This planted the other shape -- a word gloss on index 1 and
+   * a multiword over [1, 2] -- and asserted it collides, which is stricter than the rule, than
+   * the schema, which permits the overlap, and than `GlossSentence.tsx`, which resolves it by
+   * preferring the multiword. Measured over the 542 committed gloss units on 2026-10-19 when the
+   * check first met the corpus: 28 findings of the strict kind, every one a separable verb or
+   * fixed phrase in brownian-motion whose head word also carries its own reading, and ZERO of the
+   * written kind. A 100% false rate, so correcting it removes no true finding.
+   *
+   * The retired shape is kept below as an explicit negative, so it cannot creep back under a
+   * passing suite.
+   */
+  test("PLANTED: a token in TWO multiword units refuses with gloss-token-collision", () => {
+    const text = "Die Brownsche Bewegung";
+    const digest = createHash("sha256").update(text, "utf8").digest("hex");
+    const issues = validateGloss({
+      glossUnits: [
+        {
+          sentenceId: "s1-p1-s1",
+          sourceTextDigest: digest,
+          attribution: { id: "alice", kind: "human" },
+          editor: { id: "bob", kind: "human" },
+          glosses: [{ tokenIndex: 0, text: "The" }],
+          multiwords: [
+            { tokenIndices: [1, 2], text: "Brownian motion" },
+            { tokenIndices: [2], text: "motion" }, // token index 2 is in both
+          ],
+        },
+      ],
+      alignableUnits: [{ id: "s1-p1-s1", text, digest }],
+    });
+    const issue = issues.find((i) => i.code === "gloss-token-collision");
+    expect(issue).toBeDefined();
+    expect(issue?.sourceId).toBe("s1-p1-s1");
+    expect(issue?.message).toContain(
+      'Gloss token index 2 in unit "s1-p1-s1" belongs to more than one multiword unit',
+    );
+    // Reported once, not once per owning multiword.
+    expect(issues.filter((i) => i.code === "gloss-token-collision")).toHaveLength(1);
+  });
+
+  test("NEGATIVE: a word gloss under a token that a multiword also covers is not a collision", () => {
+    // The retired rule. `ist ... zu erstrecken` reads "is to be extended" as a phrase while
+    // `erstrecken` reads "extend" as a word, and brownian-motion authors 28 of these.
     const text = "Die Brownsche Bewegung";
     const digest = createHash("sha256").update(text, "utf8").digest("hex");
     const issues = validateGloss({
@@ -812,17 +856,14 @@ describe("gloss validation guards: gloss-target-not-alignable, gloss-unit-unknow
             { tokenIndex: 0, text: "The" },
             { tokenIndex: 1, text: "Brownian" },
           ],
-          multiwords: [{ tokenIndices: [1, 2], text: "Brownian motion" }], // token index 1 collides!
+          multiwords: [{ tokenIndices: [1, 2], text: "Brownian motion" }],
         },
       ],
       alignableUnits: [{ id: "s1-p1-s1", text, digest }],
     });
-    const issue = issues.find((i) => i.code === "gloss-token-collision");
-    expect(issue).toBeDefined();
-    expect(issue?.sourceId).toBe("s1-p1-s1");
-    expect(issue?.message).toContain(
-      'Gloss token index 1 in unit "s1-p1-s1" belongs to multiple gloss entries',
-    );
+    expect(issues.filter((i) => i.code === "gloss-token-collision")).toEqual([]);
+    // And the overlap still covers token 2, so nothing reads as missing either.
+    expect(issues.filter((i) => i.code === "gloss-missing-token")).toEqual([]);
   });
 
   test("disjoint token indices across glosses and multiwords pass collision check", () => {

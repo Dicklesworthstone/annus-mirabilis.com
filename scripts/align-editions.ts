@@ -27,6 +27,7 @@ import {
 } from "../src/content/editions/alignment.ts";
 import {
   loadAuthoredEdges,
+  loadGlossInput,
   manifestUnitIds,
   translationUnitIds,
 } from "../src/content/editions/authoredInputs.ts";
@@ -82,12 +83,39 @@ export type AlignEditionsOptions = Readonly<{
  */
 export type AlignEditionsOutcome = "passed" | "failed" | "not-available";
 
+/**
+ * What each of rules C.1 to C.8 actually looked at on this run.
+ *
+ * AGENTS.md: "A Tool's Exit Code Is Not Evidence Until You Know What It Examined", and this
+ * runner was the case in point. Until 2026-10-19 it printed `"outcome": "passed"` with
+ * `"issues": []` while five of the eight rules had examined nothing at all, because
+ * `components`, `terms`, `glossInput` and `reviewUnits` are supplied by the caller and the CLI
+ * entry point passes only slug, layers, sections, requireReviewed and report. The gloss half is
+ * now loaded from disk; the other three are not, and a `0` here is how a reader can tell. A pass
+ * on a rule whose population is 0 establishes nothing, and nothing in `ok: true` says so.
+ */
+export type AlignEditionsExamined = Readonly<{
+  /** C.1, C.2: alignment edges, German alignable ids, English unit ids. */
+  edges: number;
+  germanIds: number;
+  englishIds: number;
+  /** C.4: alignment components whose inline atoms were compared. */
+  components: number;
+  /** C.5: term occurrences whose definitions were checked. */
+  terms: number;
+  /** C.6: gloss units validated against their alignable unit. */
+  glossUnits: number;
+  /** C.7, C.8: units whose review state and derived status were judged. */
+  reviewUnits: number;
+}>;
+
 export type AlignEditionsResult = Readonly<{
   ok: boolean;
   outcome: AlignEditionsOutcome;
   exitCode: number;
   slug: RouteSlug;
   layers: readonly string[];
+  examined: AlignEditionsExamined;
   issues: readonly AlignmentIssue[];
   reportFiles?: Readonly<{ json: string; markdown: string }> | undefined;
   toolRunId?: string | undefined;
@@ -197,9 +225,30 @@ export function runAlignEditions(options: AlignEditionsOptions): AlignEditionsRe
     issues.push(...termIssues);
   }
 
-  // 5. Gloss validation (rule C.6)
-  if (options.glossInput) {
-    const glossIssues = validateGloss(options.glossInput);
+  /*
+   * 5. Gloss validation (rule C.6)
+   *
+   * LOADED FROM DISK WHEN THE CALLER SUPPLIED NOTHING, for the reason authoredInputs.ts already
+   * gives about edges and ids: a validator reading an argument nothing passes cannot fail, and
+   * cannot pass either. Measured 2026-10-19 before this line existed, `--layers
+   * german,translation,gloss` reported `"outcome": "passed"` for all four papers and wrote a
+   * coverage report whose gloss row read `absent | 0`, while 542 authored gloss units sat in
+   * content/gloss-units/. The flag was accepted and nothing ran.
+   *
+   * `undefined` and an explicitly empty input stay different, exactly as they do for edges: a
+   * caller that passes `{glossUnits: [], alignableUnits: []}` is naming a population, and filling
+   * it from disk would answer a question nobody asked.
+   */
+  let glossUnitsExamined = 0;
+  let glossInput = options.glossInput;
+  if (glossInput === undefined && layers.includes("gloss")) {
+    const loaded = loadGlossInput(slug, root);
+    glossInput = loaded.glossInput;
+    issues.push(...loaded.issues);
+  }
+  if (glossInput) {
+    glossUnitsExamined = glossInput.glossUnits.length;
+    const glossIssues = validateGloss(glossInput);
     issues.push(...glossIssues);
   }
 
@@ -263,7 +312,7 @@ export function runAlignEditions(options: AlignEditionsOptions): AlignEditionsRe
       germanUnitCount: germanIds.length,
       translationUnitCount: englishIds.length,
       alignmentEdgeCount: edges.length,
-      glossUnitCount: options.glossInput?.glossUnits.length ?? 0,
+      glossUnitCount: glossUnitsExamined,
       // A partial ledger is not a German edition that is present: this reports coverage, not
       // the existence of a file.
       germanEditionPresent: presence.presence === "complete",
@@ -298,6 +347,15 @@ export function runAlignEditions(options: AlignEditionsOptions): AlignEditionsRe
     exitCode: ok ? 0 : 1,
     slug,
     layers: Object.freeze([...layers]),
+    examined: Object.freeze({
+      edges: edges.length,
+      germanIds: germanIds.length,
+      englishIds: englishIds.length,
+      components: options.components?.length ?? 0,
+      terms: options.terms?.length ?? 0,
+      glossUnits: glossUnitsExamined,
+      reviewUnits: options.reviewUnits?.length ?? 0,
+    }),
     issues: Object.freeze(issues),
     reportFiles: reportFiles ? Object.freeze(reportFiles) : undefined,
     toolRunId,
