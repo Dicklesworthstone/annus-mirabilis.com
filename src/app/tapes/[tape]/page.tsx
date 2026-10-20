@@ -28,9 +28,29 @@ import "../tapes.css";
  * the instrument carries the walkthrough's opening state in the `?tape=` link the laboratory already
  * restores on load, so a reader arrives set up rather than copying numbers off this page by hand.
  * scripts/generate-tape-links.ts builds each link through the LABORATORY'S OWN binding, so a link
- * exists only where the instrument accepts that state; 19 of 21 do, and the other two keep the plain
- * link and this page's older sentence. The link carries the opening state only and replays nothing:
- * the recorded checkpoints hold placeholder digests, so a replay would verify nothing.
+ * exists only where the instrument accepts that state. ALL 22 DO, measured 2026-10-20
+ * (`{"linked":22,"notLinked":0,"replayable":22,"unconvertible":0}`); it was 19 of 21.
+ *
+ * THE CLAUSE THAT USED TO END THIS PARAGRAPH IS NO LONGER TRUE, and it is corrected rather than
+ * quietly dropped. It read: "The link carries the opening state only and replays nothing: the
+ * recorded checkpoints hold placeholder digests, so a replay would verify nothing." That was
+ * right for every record when it was written and is now right for five of twenty-two.
+ *
+ * 17 of the 22 carry a checkpoint digest a replay REPRODUCES: 26 checkpoints, verified by driving
+ * each laboratory's own binding (f64267b03 recorded eleven of them, after the same method
+ * reproduced all 15 that already existed, 0 differing). A digest here can only be recorded and
+ * never authored, because it hashes the LABORATORY'S whole accepted parameter set, including
+ * fields no walkthrough mentions.
+ *
+ * THE OTHER FIVE -- camera-bias (bm-08), coin-to-bell (bm-05), einstein-0-8-micron (bm-01),
+ * perrins-count (bm-07), the-boost-to-0.6c (sr-03) -- carry 64 repeated hex digits, which
+ * satisfies the permalink schema's digest pattern exactly, so they are carried in a link whose
+ * checkpoint cannot verify. Their laboratories export no `_TAPE` binding, so no digest can be
+ * recorded for them yet, and three of them are tapes AGENTS.md names by id. That is the gap to
+ * close next, and it is a laboratory binding rather than an authoring task.
+ *
+ * WHAT THIS PAGE STILL DOES NOT DO, unchanged by any of the above: it runs nothing. The link
+ * carries the opening state, and the numbers below are the author's recorded expectations.
  *
  * WITHOUT JAVASCRIPT the settings do not arrive, because the laboratory reads the link after mount.
  * That is the state a laboratory is in anyway with no script, and it says so itself; the page does
