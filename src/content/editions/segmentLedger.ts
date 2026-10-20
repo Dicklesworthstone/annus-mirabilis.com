@@ -48,7 +48,17 @@ export type ReconciliationDifference = Readonly<{
     | "unit-extra-in-ledger"
     | "label-differs"
     | "locator-differs"
-    | "count-differs";
+    | "count-differs"
+    /**
+     * A DECLINE, not a finding: the manifest carries reference occurrences and a proposed
+     * sentence has no channel for them, so the comparison cannot be made from what the
+     * reconciler is given. It is in this union rather than silently dropped because an
+     * unjudged population that nobody reports is the thing the registry's own rule forbids --
+     * "a check that needs them must DECLINE and say so, never condemn every id as missing".
+     * Before this it pushed one `unit-missing-in-ledger` per occurrence, unconditionally, with
+     * no comparison anywhere: 54 differences across the four papers that nothing could clear.
+     */
+    | "reference-inlines-not-comparable";
   unitId: string;
   message: string;
   proposedRepair?:

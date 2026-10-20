@@ -207,6 +207,67 @@ describe("a reference occurrence is read in either shape", () => {
     expect(referenceIdOf("")).toBeUndefined();
   });
 
+  test("the reference population DECLINES once rather than condemning every occurrence", () => {
+    /*
+     * The check had no membership test at all: it pushed one `unit-missing-in-ledger` per
+     * reference occurrence, unconditionally, so nothing a ledger could contain would clear one.
+     * Measured 2026-10-20: 3, 7, 26 and 18 units across the four papers carry a non-empty
+     * references array, so wiring it as written would have added 54 permanent differences.
+     *
+     * A proposed sentence carries `id`, `text` and `inlineMathIds` and nothing else, so the
+     * comparison cannot be made from what the reconciler is given. The registry's own rule for
+     * that case is to decline and say so, which is what this asserts: ONE decline naming the
+     * count, not one finding per occurrence.
+     */
+    const differences = reconcileManifest({
+      blocks: [
+        {
+          id: "s0-fn1",
+          kind: "footnote" as const,
+          text: "A. Einstein, Ann. d. Phys. 17. p. 891. 1905.",
+          sentences: [{ id: "s0-fn1", text: "A. Einstein, Ann. d. Phys. 17. p. 891. 1905." }],
+        },
+      ],
+      manifestUnits: [
+        {
+          id: "s0-fn1",
+          kind: "footnote",
+          references: [
+            { id: "s0-fn1-r1", occurrenceId: "s0-fn1-r1" },
+            { id: "s0-fn1-r2", occurrenceId: "s0-fn1-r2" },
+            { id: "s0-fn1-r3", occurrenceId: "s0-fn1-r3" },
+          ],
+        },
+      ],
+    });
+    const declines = differences.filter((d) => d.kind === "reference-inlines-not-comparable");
+    expect(declines).toHaveLength(1);
+    expect(declines[0]?.message).toContain("3 manifest reference occurrence(s)");
+    expect(declines[0]?.message).toContain("Declining");
+    // And NOT one finding per occurrence, which is what it used to do.
+    const perOccurrence = differences.filter(
+      (d) => /-r\d+$/.test(d.unitId) && d.kind === "unit-missing-in-ledger",
+    );
+    expect(perOccurrence).toEqual([]);
+  });
+
+  test("a unit with no references produces no decline, so the decline is not unconditional", () => {
+    // The control. A decline that fires whatever the manifest holds is the same defect wearing a
+    // different word.
+    const differences = reconcileManifest({
+      blocks: [
+        {
+          id: "s0-p1",
+          kind: "paragraph" as const,
+          text: "Ein Satz.",
+          sentences: [{ id: "s0-p1", text: "Ein Satz." }],
+        },
+      ],
+      manifestUnits: [{ id: "s0-p1", kind: "paragraph" }],
+    });
+    expect(differences.filter((d) => d.kind === "reference-inlines-not-comparable")).toEqual([]);
+  });
+
   test("the difference names the reference, not an object", () => {
     const differences = reconcileManifest({
       blocks: [

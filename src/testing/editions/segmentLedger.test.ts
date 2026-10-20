@@ -426,7 +426,23 @@ describe("reconciliation against frozen manifest", () => {
     }
   });
 
-  test("PLANTED: a manifest references[] entry with no authored inline in ledger is reported as unit-missing-in-ledger", () => {
+  /**
+   * A MANIFEST REFERENCE IS REPORTED, AND THE SHAPE OF THE REPORT CHANGED. This test asserted one
+   * `unit-missing-in-ledger` per reference occurrence, which is what the check produced -- and
+   * the plant could not distinguish anything, because the check had NO membership test. It
+   * pushed a difference for every occurrence unconditionally, so a reference that DID have an
+   * authored inline would have been reported identically. There is no such control to write: a
+   * `ProposedSentence` carries `id`, `text` and `inlineMathIds` and has no channel for a
+   * reference inline at all, so the comparison cannot be made from what the reconciler is given.
+   *
+   * The bead's test plan asks that "a manifest references[] entry with no authored inline is
+   * reported", and every entry still is: the decline NAMES them all. What changed is that they
+   * arrive as one decline rather than as one finding each, because 54 occurrences across the four
+   * papers would be 54 permanent differences against a stage section G requires to reach zero,
+   * and a difference nothing can ever clear is not a difference. The registry's own rule for an
+   * input a check cannot reach is to decline and say so (am-as1w).
+   */
+  test("PLANTED: manifest references[] entries are reported, as one decline naming each", () => {
     const proposed = segmentLedger({ ledgerText: FIXTURE_LEDGER });
     expect(proposed.status).toBe("proposed");
     if (proposed.status !== "proposed") return;
@@ -435,19 +451,41 @@ describe("reconciliation against frozen manifest", () => {
       { id: "masthead-title" },
       { id: "masthead-author" },
       { id: "s1" },
-      { id: "s1-p1-s1", references: ["s1-p1-s1-r1"] },
+      { id: "s1-p1-s1", references: ["s1-p1-s1-r1", "s1-p1-s1-r2"] },
       { id: "s1-p1-s2" },
       { id: "closing-dateline" },
     ];
 
     const diffs = reconcileManifest({ blocks: proposed.blocks, manifestUnits });
-    const refDiff = diffs.find((d) => d.differenceId === "unit-missing-in-ledger:s1-p1-s1-r1");
-    expect(refDiff).toBeDefined();
-    expect(refDiff?.kind).toBe("unit-missing-in-ledger");
-    expect(refDiff?.unitId).toBe("s1-p1-s1-r1");
-    expect(refDiff?.message).toContain(
-      'Frozen reference "s1-p1-s1-r1" has no authored inline in ledger',
-    );
+    const declines = diffs.filter((d) => d.kind === "reference-inlines-not-comparable");
+    expect(declines).toHaveLength(1);
+    expect(declines[0]?.message).toContain("2 manifest reference occurrence(s)");
+    // Every occurrence is named, so nothing the bead asks to be reported is lost.
+    expect(declines[0]?.message).toContain("s1-p1-s1-r1");
+    expect(declines[0]?.message).toContain("s1-p1-s1-r2");
+    // And not one finding per occurrence, which is what this used to assert.
+    expect(
+      diffs.filter((d) => d.unitId.endsWith("-r1") && d.kind === "unit-missing-in-ledger"),
+    ).toEqual([]);
+  });
+
+  test("PLANTED: a manifest with no references[] produces no decline", () => {
+    // The control the old plant could not have: a decline that fires whatever the manifest holds
+    // is the unconditional check wearing a different word.
+    const proposed = segmentLedger({ ledgerText: FIXTURE_LEDGER });
+    if (proposed.status !== "proposed") return;
+    const diffs = reconcileManifest({
+      blocks: proposed.blocks,
+      manifestUnits: [
+        { id: "masthead-title" },
+        { id: "masthead-author" },
+        { id: "s1" },
+        { id: "s1-p1-s1" },
+        { id: "s1-p1-s2" },
+        { id: "closing-dateline" },
+      ],
+    });
+    expect(diffs.filter((d) => d.kind === "reference-inlines-not-comparable")).toEqual([]);
   });
 
   test("determinism: two runs on identical inputs produce byte-identical results", () => {

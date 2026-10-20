@@ -214,17 +214,42 @@ export function reconcileManifest(input: ReconcileInput): readonly Reconciliatio
   // It did not fire at all, which is the other half of the same defect and the reason nobody saw
   // the first: the pipeline passes `frozenIds`, a list of strings, so every unit here was
   // `{ id }` with no `references` and no `text`. `referenceIdOf` below accepts either shape.
-  for (const mUnit of manifestUnits) {
-    for (const reference of mUnit.references ?? []) {
-      const refId = referenceIdOf(reference);
-      if (refId === undefined) continue;
-      differences.push({
-        differenceId: `unit-missing-in-ledger:${refId}`,
-        kind: "unit-missing-in-ledger",
-        unitId: refId,
-        message: `Frozen reference "${refId}" has no authored inline in ledger.`,
-      });
-    }
+  //
+  // AND IT HAS NO MEMBERSHIP TEST, which is the defect that outlives the one above. As written it
+  // pushed a difference for EVERY reference occurrence unconditionally: there is no comparison
+  // against the proposal, so nothing a ledger could contain would ever clear one. A check that
+  // cannot pass is not a check, and wiring it as it stood would have added 54 permanent
+  // differences the moment a caller passed real units.
+  //
+  // THE PROPOSAL HAS NO CHANNEL FOR A REFERENCE INLINE. `ProposedSentence` carries `id`, `text`
+  // and `inlineMathIds`, and nothing else; the segmenter emits no reference occurrences, so the
+  // comparison this check wants cannot be made from what it is given. The repository's own rule
+  // for that case is in the check registry: "Absent means a check that needs them must DECLINE
+  // and say so, never condemn every id as missing (am-as1w)."
+  //
+  // So it declines, once, naming the population it did not judge, rather than reporting each of
+  // them as missing. When the segmenter gains a reference channel this becomes a real comparison
+  // and the decline goes with it.
+  const referenceOccurrences = manifestUnits.flatMap((unit) =>
+    (unit.references ?? []).map(referenceIdOf).filter((id): id is string => id !== undefined),
+  );
+  if (referenceOccurrences.length > 0) {
+    differences.push({
+      differenceId: "reference-inlines-not-comparable",
+      kind: "reference-inlines-not-comparable",
+      unitId: referenceOccurrences[0] ?? "",
+      message:
+        `${referenceOccurrences.length} manifest reference occurrence(s) were not judged: a ` +
+        "proposed sentence carries no reference inlines, only inline math ids, so there is " +
+        "nothing to compare them against. Declining rather than reporting each as missing. " +
+        // NAMED, not merely counted: the bead's test plan asks that "a manifest references[]
+        // entry with no authored inline is reported", and every entry is named here. What
+        // changed is the SHAPE -- one decline carrying all of them rather than one
+        // unit-missing-in-ledger each -- because the proposal cannot carry a reference inline at
+        // all, so per-entry findings would be 54 permanent differences against a stage section G
+        // requires to reach zero.
+        `Occurrences: ${referenceOccurrences.join(", ")}.`,
+    });
   }
 
   return Object.freeze(differences);
