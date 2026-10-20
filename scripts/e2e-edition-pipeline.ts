@@ -68,6 +68,32 @@ export const PIPELINE_STAGES = [
 
 export type PipelineStage = (typeof PIPELINE_STAGES)[number];
 
+/** Whether a string names one of the nine stages. */
+export function isPipelineStage(raw: string): raw is PipelineStage {
+  return (PIPELINE_STAGES as readonly string[]).includes(raw);
+}
+
+/**
+ * The --require-stage argument, or a refusal naming the nine stages.
+ *
+ * Exported so the argument handling can be driven in a test without spawning a process, exactly
+ * as `resolveSlugArgument` is.
+ */
+export function resolveRequireStageArgument(
+  raw: string | undefined,
+): { ok: true; stage: PipelineStage | undefined } | { ok: false; error: string } {
+  if (raw === undefined) return { ok: true, stage: undefined };
+  if (!isPipelineStage(raw)) {
+    return {
+      ok: false,
+      error:
+        `--require-stage "${raw}" is not a pipeline stage. ` +
+        `The nine are: ${PIPELINE_STAGES.join(", ")}.`,
+    };
+  }
+  return { ok: true, stage: raw };
+}
+
 export type StageResult = Readonly<{
   stage: PipelineStage;
   outcome: "passed" | "failed" | "not-available";
@@ -86,6 +112,13 @@ export type PipelineRun = Readonly<{
   translationCompleteness: TranslationCompleteness;
   stages: readonly StageResult[];
   logPath?: string | undefined;
+  /**
+   * Why the run refused before it could judge anything, when it did.
+   *
+   * A refusal is not a failed stage, and `exitCode: 1` alone cannot say which happened. See
+   * `resolveRequireStageArgument`.
+   */
+  refusal?: Readonly<{ code: "unknown-require-stage"; message: string }> | undefined;
 }>;
 
 /**
@@ -147,6 +180,37 @@ export async function runEditionPipeline(options: {
 }): Promise<PipelineRun> {
   const root = options.root ?? process.cwd();
   const slug = options.slug;
+  /*
+   * AN UNKNOWN STAGE NAME IS A REFUSAL, NOT A FAILED STAGE, and until 2026-10-19 the two were the
+   * same exit code with the same fields. `--require-stage` was read as
+   * `requireRaw as PipelineStage` and never checked, so the require test below --
+   * `stages.find(s => s.stage === options.requireStage)` returning undefined, then
+   * `undefined?.outcome !== "passed"` -- was true for every misspelling. Measured on
+   * molecular-dimensions: `--require-stage ledger` exits 1 with ledger `not-available`, and
+   * `--require-stage ledgre` exits 1 with nine stages recorded, no stage by that name, and
+   * nothing anywhere in the result saying the name was wrong.
+   *
+   * That direction is the dangerous one. The definition-of-done audits run
+   * `--require-stage static-html`; a run spelled `static_html` or `statichtml` goes red for ever
+   * and reads as a content problem, and the obvious "fix" -- dropping the flag -- turns the gate
+   * green over nothing.
+   *
+   * This is the same defect `resolveSlugArgument` above was written for, on the other argument.
+   */
+  if (options.requireStage !== undefined && !isPipelineStage(options.requireStage)) {
+    return {
+      exitCode: 2,
+      slug,
+      translationCompleteness: "not-applicable-no-ledger",
+      stages: Object.freeze([]),
+      refusal: {
+        code: "unknown-require-stage",
+        message:
+          `--require-stage "${String(options.requireStage)}" is not a pipeline stage. ` +
+          `The nine are: ${PIPELINE_STAGES.join(", ")}.`,
+      },
+    };
+  }
   const layers = options.layers ?? ["german"];
   const stages: StageResult[] = [];
   const started = new Map<PipelineStage, number>();
@@ -671,12 +735,16 @@ if (isMain) {
     console.error(parsed.error);
     process.exit(2);
   }
-  const requireRaw = argValue("--require-stage");
+  const requireParsed = resolveRequireStageArgument(argValue("--require-stage"));
+  if (!requireParsed.ok) {
+    console.error(requireParsed.error);
+    process.exit(2);
+  }
   const layersRaw = argValue("--layers");
   const sectionsRaw = argValue("--sections");
   const result = await runEditionPipeline({
     slug: parsed.slug,
-    ...(requireRaw !== undefined ? { requireStage: requireRaw as PipelineStage } : {}),
+    ...(requireParsed.stage !== undefined ? { requireStage: requireParsed.stage } : {}),
     ...(layersRaw !== undefined ? { layers: layersRaw.split(",") } : {}),
     ...(sectionsRaw !== undefined ? { sections: sectionsRaw.split(",") } : {}),
     requireReviewed: process.argv.includes("--require-reviewed"),

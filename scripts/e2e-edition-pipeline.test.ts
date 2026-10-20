@@ -17,6 +17,8 @@ import {
 } from "../src/content/editions/ledgerPresence.ts";
 import {
   PIPELINE_STAGES,
+  type PipelineStage,
+  resolveRequireStageArgument,
   resolveSlugArgument,
   runEditionPipeline,
 } from "./e2e-edition-pipeline.ts";
@@ -418,7 +420,7 @@ describe("PLANT: the ledger-present branch measures instead of announcing", () =
  * Renaming that site's code now turns this test red, which it did not before.
  *
  * WHAT THE EARLIER REMOVAL WAS FOR, kept because the reasoning still governs. It cited
- * e2e-edition-pipeline.ts:345, and the stale-citation ratchet refused it as code-mismatched. The
+ * e2e-edition-pipeline.ts:409, and the stale-citation ratchet refused it as code-mismatched. The
  * gate's rule is to plant before repointing, so I renamed that site's code to
  * "corpus-empty-planted" and ran this suite: 12 pass, 0 fail. The citation was a claim I had not
  * verified and could not.
@@ -436,7 +438,7 @@ describe("PLANT: the ledger-present branch measures instead of announcing", () =
  * standing - execution falls through to loadReadingFiles, which throws ENOENT and fails the stage.
  */
 describe("edition pipeline: an absent corpus is not a compiler failure", () => {
-  test("the abort records its own code and spares the compiler (e2e-edition-pipeline.ts:345)", async () => {
+  test("the abort records its own code and spares the compiler (e2e-edition-pipeline.ts:409)", async () => {
     const emptyRoot = mkdtempSync(join(tmpdir(), "am-edition-no-corpus-"));
     const run = await runEditionPipeline({ slug: "brownian-motion", root: emptyRoot });
 
@@ -461,7 +463,7 @@ describe("edition pipeline: an absent corpus is not a compiler failure", () => {
     expect(run.exitCode).toBe(0);
   });
 
-  test("a present but empty corpus aborts on its own site (e2e-edition-pipeline.ts:355)", async () => {
+  test("a present but empty corpus aborts on its own site (e2e-edition-pipeline.ts:419)", async () => {
     // THE SECOND corpus-empty SITE, and it was invisible until the scanner stopped misreading it.
     // :295 refuses a MISSING content directory; :305 refuses one that is PRESENT and holds no
     // records. The two share the code, so the scanner counted corpus-empty as 1 untested of 1 and
@@ -628,5 +630,126 @@ describe("PLANT: the contract-owned stages relay the check they name", () => {
         run.stages.filter((s) => s.stage !== "ids").map((s) => [s.stage, s.outcome]),
       );
     expect(outcomes(after)).toEqual(outcomes(before));
+  });
+});
+
+/**
+ * THE NINE-STAGE MATRIX, which `--require-stage` had one case of.
+ *
+ * am-edn-alignment-tooling-do1 G specifies nine stages and a `--require-stage` that turns a
+ * `not-available` into a failure. One case was covered -- `ledger` on a paper with no ledger --
+ * and the other eight were never exercised, so the flag's behaviour was known for one ninth of
+ * its domain.
+ *
+ * The specimen is molecular-dimensions because its nine outcomes are a SPREAD rather than a
+ * uniform result: measured 2026-10-19, compile and coverage pass and the other seven are
+ * not-available. A specimen where every stage agreed could not tell a flag that reads the named
+ * stage from one that reads the run's overall verdict.
+ */
+describe("--require-stage over all nine stages", () => {
+  test("each stage is required independently, and the verdict follows THAT stage", async () => {
+    const baseline = await runEditionPipeline({ slug: "molecular-dimensions" });
+    // The spread this test depends on, asserted rather than assumed: if the specimen ever becomes
+    // uniform the matrix below stops distinguishing anything and this says so first.
+    const passed = baseline.stages.filter((s) => s.outcome === "passed").map((s) => s.stage);
+    const notPassed = baseline.stages.filter((s) => s.outcome !== "passed").map((s) => s.stage);
+    expect(baseline.stages).toHaveLength(9);
+    expect(passed.length).toBeGreaterThan(0);
+    expect(notPassed.length).toBeGreaterThan(0);
+
+    const disagreements: string[] = [];
+    for (const stage of PIPELINE_STAGES) {
+      const run = await runEditionPipeline({ slug: "molecular-dimensions", requireStage: stage });
+      const outcome = run.stages.find((s) => s.stage === stage)?.outcome;
+      const expected = outcome === "passed" ? 0 : 1;
+      if (run.exitCode !== expected) {
+        disagreements.push(
+          `--require-stage ${stage}: outcome ${outcome}, expected exit ${expected}, got ${run.exitCode}`,
+        );
+      }
+      // A required stage never silently changes what the pipeline reports about the others.
+      expect(run.stages, `${stage}: stage list changed`).toHaveLength(9);
+    }
+    expect(disagreements).toEqual([]);
+  });
+
+  test("the baseline exit code is NOT what --require-stage returns, which is the point", () => {
+    // A `not-available` stage does not fail the run on its own: the bead says --require-stage is
+    // what turns one into a failure, and a flag that merely echoed the overall verdict would
+    // exit 0 for every stage here.
+    return runEditionPipeline({ slug: "molecular-dimensions" }).then(async (baseline) => {
+      expect(baseline.exitCode).toBe(0);
+      const required = await runEditionPipeline({
+        slug: "molecular-dimensions",
+        requireStage: "ledger",
+      });
+      expect(required.exitCode).toBe(1);
+    });
+  });
+});
+
+/**
+ * AN UNKNOWN STAGE NAME IS A REFUSAL, NOT A FAILED STAGE.
+ *
+ * `--require-stage` was read as `requireRaw as PipelineStage` and never checked. Measured before
+ * the repair: `--require-stage ledgre` on molecular-dimensions exited 1 with nine stages
+ * recorded, no stage by that name, and nothing in the result saying the name was wrong -- the
+ * same exit code and the same fields as a genuinely failed required stage.
+ *
+ * The dangerous direction is the definition-of-done audits, which run
+ * `--require-stage static-html`. Spelled `static_html` that goes red for ever and reads as a
+ * content problem, and the obvious repair -- dropping the flag -- turns the gate green over
+ * nothing.
+ */
+describe("--require-stage refuses a name that is not a stage", () => {
+  test("the resolver takes all nine and refuses anything else", () => {
+    for (const stage of PIPELINE_STAGES) {
+      const parsed = resolveRequireStageArgument(stage);
+      expect(parsed.ok, `${stage} should resolve`).toBe(true);
+      if (parsed.ok) expect(parsed.stage).toBe(stage);
+    }
+    // Absent is not invalid: no flag means no requirement.
+    const absent = resolveRequireStageArgument(undefined);
+    expect(absent.ok).toBe(true);
+    if (absent.ok) expect(absent.stage).toBeUndefined();
+
+    for (const bad of ["ledgre", "static_html", "statichtml", "", "LEDGER", "all"]) {
+      const parsed = resolveRequireStageArgument(bad);
+      expect(parsed.ok, `${JSON.stringify(bad)} should be refused`).toBe(false);
+      if (!parsed.ok) {
+        // The refusal names the nine, because a reader who misspelled one needs the list.
+        expect(parsed.error).toContain("static-html");
+        expect(parsed.error).toContain("ledger");
+      }
+    }
+  });
+
+  test("the pipeline itself refuses, so a programmatic caller cannot bypass the CLI check", async () => {
+    const run = await runEditionPipeline({
+      slug: "molecular-dimensions",
+      requireStage: "ledgre" as PipelineStage,
+    });
+    expect(run.exitCode).toBe(2);
+    expect(run.refusal?.code).toBe("unknown-require-stage");
+    expect(run.refusal?.message).toContain("ledgre");
+    // Nothing ran: a refusal is not a run with findings, and 0 stages is what says so.
+    expect(run.stages).toEqual([]);
+  });
+
+  test("exit 2 separates a refusal from exit 1, which is a judged failure", async () => {
+    // The distinction the repair exists for, asserted as a pair rather than described.
+    const refused = await runEditionPipeline({
+      slug: "molecular-dimensions",
+      requireStage: "ledgre" as PipelineStage,
+    });
+    const failed = await runEditionPipeline({
+      slug: "molecular-dimensions",
+      requireStage: "ledger",
+    });
+    expect(refused.exitCode).toBe(2);
+    expect(failed.exitCode).toBe(1);
+    expect(refused.refusal).toBeDefined();
+    expect(failed.refusal).toBeUndefined();
+    expect(failed.stages).toHaveLength(9);
   });
 });
