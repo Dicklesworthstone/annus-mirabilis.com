@@ -372,12 +372,27 @@ describe("the planted regressions", () => {
     const root = fixtureRoot();
     const before = cellOf(paperDoneness(root, PAPER).cells, "journey-skeleton-parts");
     expect(before.of).toBe(13);
-    expect(before.met).toBe(11);
+    /*
+     * THE MET COUNT IS A FLOOR, NOT AN EQUALITY, and it was `11` until 2026-10-20. The exercises
+     * were composed from the parts the discover pages already render (228cee48b) and mass-energy
+     * went to 12 of 13, so the equality reported correct work as a regression -- the failure
+     * AGENTS.md records under "A test that asserts a debt breaks when it is paid".
+     *
+     * Measured that day across the four papers: light-quanta 11, brownian-motion 11,
+     * special-relativity 12, mass-energy 12. The two at 11 still lack
+     * `exercises.instrumented`, each having one instrumented exercise where the skeleton asks
+     * for two; the two at 12 have it.
+     *
+     * What is asserted as an identity is the element still absent on every paper, because
+     * naming `stages` is stable in a way counting is not.
+     */
+    expect(before.met, before.detail).toBeGreaterThanOrEqual(12);
+    expect(before.met).toBeLessThan(13);
     expect(before.state).toBe("short");
-    // The two that are absent are absent BY DECLARATION, and the detail says both things, because
-    // "11 of 13" without the names is a number nobody can act on.
-    expect(before.detail).toContain("absent: exercises.instrumented, stages");
-    expect(before.detail).toContain("declared pending: exercises.instrumented, stages");
+    // Absent BY DECLARATION, and the detail says both things, because a bare count is a number
+    // nobody can act on.
+    expect(before.detail).toContain("absent: stages");
+    expect(before.detail).toContain("declared pending: stages");
 
     // A plant on a real element, chosen so the record STAYS VALID. My first attempt emptied
     // naggingFact, and the schema refuses that, so the cell went unmeasured and the plant measured
