@@ -31,6 +31,7 @@ import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { KEPT_RESULT } from "./keptResult.ts";
 import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { ShowTheCode } from "./ShowTheCode.tsx";
+import { WalkthroughControl } from "./WalkthroughControl.tsx";
 import "./coefficientLab.css";
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
@@ -456,6 +457,17 @@ export function CoefficientLab({
                   Physical outputs use joules and kilograms; normalized mode uses c = 1 and
                   normalized energy and mass units.
                 </p>
+                {/* The recorded walkthrough, played into this session. This laboratory's
+                    component sits directly in src/components/lab/ rather than in a per-lab
+                    directory, which is why the mount of a3170522f skipped it. */}
+                <WalkthroughControl
+                  binding={ME02_TAPE}
+                  session={session}
+                  onPlayed={(parameters) => {
+                    setDraft({ ...(parameters as Me02Parameters) });
+                    setTyped(typedFrom(parameters as Me02Parameters));
+                  }}
+                />
               </ExperimentSettings>
               {error ? (
                 <p id={`${id}-error`} className="notice" role="alert">

@@ -30,7 +30,9 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
+import { DEFAULT_PREPARED_EXAMPLE as ME02_EXAMPLE } from "../../experiments/me02/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as ME03_EXAMPLE } from "../../experiments/me03/session.ts";
+import { DEFAULT_PREPARED_EXAMPLE as SR02_EXAMPLE } from "../../experiments/sr02/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR08_EXAMPLE } from "../../experiments/sr08/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR09_EXAMPLE } from "../../experiments/sr09/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR10_EXAMPLE } from "../../experiments/sr10/session.ts";
@@ -43,6 +45,8 @@ import {
   removeContainer,
   uninstallDom,
 } from "../../testing/reactDom.ts";
+import { CoefficientLab } from "./CoefficientLab.tsx";
+import { MagnetConductorLab } from "./MagnetConductorLab.tsx";
 import { BoundaryLedgerLab } from "./me03/BoundaryLedgerLab.tsx";
 import { FieldFrameChangeLab } from "./sr08/FieldFrameChangeLab.tsx";
 import { DopplerAberrationLab } from "./sr09/DopplerAberrationLab.tsx";
@@ -53,6 +57,12 @@ import { ElectronDynamicsLab } from "./sr13/ElectronDynamicsLab.tsx";
 
 /** The laboratories mounted in this change, with the walkthroughs each is expected to offer. */
 const LABS = [
+  // These two live directly in src/components/lab/ rather than in a per-lab directory, which
+  // is exactly why the mount of a3170522f missed them: the loop was keyed on
+  // `src/components/lab/<labId>/*Lab.tsx` and found no directory, so the population was wrong
+  // and the count read as complete.
+  { id: "sr-02", Lab: MagnetConductorLab, example: SR02_EXAMPLE },
+  { id: "me-02", Lab: CoefficientLab, example: ME02_EXAMPLE },
   { id: "sr-08", Lab: FieldFrameChangeLab, example: SR08_EXAMPLE },
   { id: "sr-09", Lab: DopplerAberrationLab, example: SR09_EXAMPLE },
   { id: "sr-10", Lab: LightComplexLab, example: SR10_EXAMPLE },
@@ -129,7 +139,10 @@ describe("a laboratory's recorded walkthrough is reachable and plays", () => {
       `[census] ${withButton} of ${LABS.length} laboratories offer a playable walkthrough; ${total} button(s) in all`,
     );
     expect(offered.size, "a laboratory test did not run").toBe(LABS.length);
-    expect(withButton).toBeGreaterThanOrEqual(6);
-    expect(total).toBeGreaterThanOrEqual(6);
+    // The floor rose from 6 to 8 when sr-02 and me-02 were mounted. It is a floor, not a census:
+    // ME-03 still offers none for a record reason, and a laboratory that gains a walkthrough
+    // raises this without anyone editing it.
+    expect(withButton).toBeGreaterThanOrEqual(8);
+    expect(total).toBeGreaterThanOrEqual(8);
   });
 });

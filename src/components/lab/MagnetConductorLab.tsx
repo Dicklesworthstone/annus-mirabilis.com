@@ -38,6 +38,7 @@ import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGat
 import { display, identity, result, sentenceNumber } from "./presentation.ts";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 import { withScripts } from "./subscripts.tsx";
+import { WalkthroughControl } from "./WalkthroughControl.tsx";
 
 const SPEED_06C = 0.6 * 299792458;
 
@@ -406,6 +407,17 @@ export function MagnetConductorLab({
                 </div>
               </div>
               <p className="fine">Changes here apply with Apply settings.</p>
+              {/* The recorded walkthrough, played into this session. This laboratory's
+                  component sits directly in src/components/lab/ rather than in a per-lab
+                  directory, which is why the mount of a3170522f skipped it. */}
+              <WalkthroughControl
+                binding={SR02_TAPE}
+                session={session}
+                onPlayed={(parameters) => {
+                  setDraft({ ...(parameters as Sr02Parameters) });
+                  setTyped(typedFrom(parameters as Sr02Parameters));
+                }}
+              />
             </ExperimentSettings>
             {error ? (
               <p id={`${id}-error`} className="notice" role="alert">
