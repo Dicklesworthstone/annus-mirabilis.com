@@ -222,9 +222,13 @@ it needs an owner ruling rather than a silent fix. Bead `am-rc1001-bridge-plan-p
   `data-derivation-chain` in 0 built pages. The only reader-facing proofs remain the two mass-energy
   explorers, on two built pages.
 - **`/essays/`, `/1904/`, `/timeline/`, `/bern/`: all still 404**, no route at HEAD.
-- **Machine-readable exports still 404 while every paper page advertises four of them** in
-  `<link rel="alternate">`. A machine client asking for `application/json` receives a 60,107-byte
-  HTML 404 page.
+- ~~**Machine-readable exports still 404 while every paper page advertises four of them.**~~
+  **WITHDRAWN as a HEAD defect, 2026-10-20.** Measured on live: four `rel="alternate"` links, all
+  404. Measured on HEAD's build: **zero** such links on the same page. `a40a67a5f` (2026-10-02,
+  under the previous reality check's own bead `pcjk.8`) made a page advertise an export only once
+  its file is published, precisely because "the links, not the exports, were the defect". It
+  landed the same day as the refused candidate and has never shipped. The exports themselves are
+  still not emitted, which is `am-cm-machine-readable-exports-xgy` and unchanged.
 - **A clean checkout still cannot build.** The named 2026-10-01 defect was repaired (a static walk
   from the six `prepare:content` steps now reaches 0 generated-JSON imports), but the chain fails at
   a **new** site in the same class: `prepare:content` step 2 of 47 needs `src/generated/not-modeled.ts`,
@@ -368,6 +372,17 @@ green gate, which earns no capability credit and costs the swarm an agent each t
 ---
 
 ## 8. Vision goals with no covering bead
+
+**Read this list with section 2 in hand.** Three of the eight entries below were withdrawn within
+hours of writing them, and two of those three dissolved for the same reason: **a live-based audit
+of a three-week-old deployment manufactures defects that the repository already fixed.** The
+clarity-signal links and the exports `rel="alternate"` links are both real on live and both absent
+at HEAD, repaired on 2026-10-02 and never shipped. The sitemap entry was simply wrong.
+
+That is a finding about method, not only about this list: while the deployment gap is open, any
+row measured on live must be re-measured against the built `out/` before it is called a defect.
+The 2026-10-01 check had the same exposure and could not have known it, because live and `main`
+had only just diverged.
 
 Carried forward where still true, and new ones found today:
 
