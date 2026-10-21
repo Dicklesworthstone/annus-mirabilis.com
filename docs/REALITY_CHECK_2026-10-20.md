@@ -272,7 +272,7 @@ Found by re-measuring with the same instruments:
 |---|---|
 | `bun run check:types` | ok, 2 of 2 |
 | `bun scripts/verify-content.ts` | `{"ok":true,"flags":1339,"skipped":[]}`, 1,680 records compiled |
-| `bun test --isolate` (full bun lane) | **17,866 pass, 1 skip, 0 fail**, 1,903 files, 587 s (measured this session at `a3170522f`) |
+| `bun test --isolate` (full bun lane) | **17,866 pass, 1 skip, 0 fail**, 17,867 tests over 1,903 files, 402,859 expect() calls |
 | `bun run test:refusals` | 107 pass, 0 fail; census `src: 2375 coded in 1852 files, 32 untested` |
 | `bun scripts/verify-wasm-artifacts.ts` | 12 of 12 |
 | `bun scripts/publication-contract.ts` | 8 of 8 |
@@ -280,11 +280,25 @@ Found by re-measuring with the same instruments:
 | `bun scripts/lint-anachronism.ts` | 7,161 strings, 0 unlabelled |
 | `bun scripts/ocr-guard.ts` | 4,370 files, 1 violation, 1 declared, 0 undeclared |
 | Perf budgets | **2 of 8 rows measured**; `initial-route-js` 196,812 / 204,800 and `reading-face-html` 239,638 / 250,000 both pass; 6 rows `not-available`; **overall `outcome: "pass"`** |
+| `bun run check:architecture` | 0 violations over 34,509 entries |
+| `bunx biome check .` | **0 errors**, 618 warnings, over 4,773 files |
+| `bun run test:node` | **refuses to start** on a stale `out/`, naming the digest mismatch |
+| `bun run test:node:content` | 223 pass, 0 fail (the 37 of 107 files that read neither `out/` nor a browser) |
 | Clean checkout | **BROKEN**, exit 9, `prepare:content` step 2 of 47 |
+| `bareThrowsBaseline.json` | 1,452 across 361 files (was 1,429) |
 
-A dedicated software-integrity investigator was still running the lanes at HEAD when this document
-was written; the lane figure above is my own measurement from earlier in the same session, three
-commits behind HEAD, with the affected suites re-run green at HEAD.
+**HEAD's lanes are green, which they were not on 2026-10-01.** The bun lane went from 4 failures to
+**0** while gaining 2,180 tests. The prior check's six "real" node-lane failures: three are
+measurably resolved (`formatterExclusions` ×2 now pass in the out-independent subset; the
+`inlines.ts:330` parameter property is gone), and three remain **unmeasured**, because they sit
+outside the 37-file subset and the full lane refuses without a build.
+
+**The clean-checkout defect was re-measured with a control**, so the delta is not an artifact of
+method: `git archive HEAD | tar -x` into a scratch tree fails at step 2 of 47 needing
+`src/generated/not-modeled.ts` (written by the first step of the later `prepare:lab`), while the
+same procedure at the prior commit `82e010bb9` reproduces the old report exactly — step 3 of 44,
+`build-equations.ts`, `equation-explanations.json`. One named instance fixed; a new instance of the
+same class one step earlier.
 
 **Reading-face weight, measured over the built `out/`:** 257 reader paper pages, **6 over the 250 kB
 gzipped budget**, worst `papers/special-relativity/view/parallel/index.html` at **700,799 B** (2.8×).
