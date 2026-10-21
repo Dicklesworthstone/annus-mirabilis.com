@@ -27,6 +27,7 @@
     "format:check": "biome format .",
     "gates": "bun scripts/quality-gates.ts --fail-fast --family fast && bun scripts/quality-gates.ts --fail-fast --family browser",
     "gates:apple": "bun scripts/quality-gates.ts --fail-fast --family apple",
+    "gates:nightly": "bun scripts/quality-gates.ts --family fast --cadence nightly",
     "test": "bun scripts/prepare-lane.ts && bun test --isolate --timeout 60000 src scripts",
     "test:node": "node --experimental-strip-types scripts/run-node-only-tests.ts",
     "test:node:content": "node --experimental-strip-types scripts/run-node-only-tests.ts --out-independent-only",
