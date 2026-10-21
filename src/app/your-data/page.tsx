@@ -111,13 +111,13 @@ export default function YourDataPage() {
       </section>
 
       <section className="reading" aria-labelledby="not-built">
-        <h2 id="not-built">One of these is not built yet</h2>
+        <h2 id="not-built">One of these was withdrawn</h2>
         <p>
-          <code>am:clarity:v1</code> is reserved for a one-click &ldquo;this was clear / this was
-          not&rdquo; answer under a paragraph, recording the detail level and the anchor and nothing
-          about you. The key is registered and the control is not written, so as of today nothing
-          writes to it and there is nothing in it to export. It is named here anyway, because a list
-          that quietly left it out would be a list you could not check.
+          <code>am:clarity:v1</code> was reserved for a one-click &ldquo;this was clear / this was
+          not&rdquo; answer under a paragraph. That feature was withdrawn on 2 October 2026 and will
+          not be built, so nothing writes to the key, nothing ever did, and there is nothing in it
+          to export. The site collects no answers of any kind. The key is named here anyway, because
+          a list that quietly left it out would be a list you could not check.
         </p>
       </section>
 
