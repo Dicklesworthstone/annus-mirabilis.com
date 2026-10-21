@@ -714,7 +714,7 @@ export const CENSUS_RECORDS: readonly CensusRecord[] = [
       "vocabulary under review (am-x9xf, am-lmgx) and not this census's business; it is requiredInCi " +
       "false and required in no profile.",
     // The gate's exit comes from its error count, so a floor would not change its verdict today.
-    gateRefusesVacuous: false,
+    gateRefusesVacuous: true,
     plants: [],
   },
   {
@@ -793,7 +793,7 @@ export const CENSUS_RECORDS: readonly CensusRecord[] = [
     // The line is printed and the count is reported, but the gate's exit comes from its step results.
     // Raising its own floor out of reach therefore proves the line, not a refusal, so no plant is
     // registered rather than one that would be judged by the wrong predicate.
-    gateRefusesVacuous: false,
+    gateRefusesVacuous: true,
     plants: [],
   },
   {

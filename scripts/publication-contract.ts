@@ -278,12 +278,22 @@ export function verifyPublicationContract(
     //
     // Printed inside the non-silent branch, where the rest of the summary is, because the silent branch
     // is the library caller's and the census reads a CLI run's output.
-    reportPopulation({
-      gate: "publication-contract",
-      examined: results.length,
-      noun: "publication contract steps",
-      minimum: 6,
-    });
+    // The verdict is READ, not only printed: this call discarded `reportPopulation`'s return, so
+    // a run that loaded no step would have printed its own floor and still summarised as a
+    // passing contract.
+    if (
+      reportPopulation({
+        gate: "publication-contract",
+        examined: results.length,
+        noun: "publication contract steps",
+        minimum: 6,
+      })
+    ) {
+      console.error(
+        "   Refusing: fewer contract steps ran than the floor, so this summary is about nothing.",
+      );
+      process.exitCode = 1;
+    }
     console.log(`   Structured log: ${logPath}`);
     console.log("======================================================\n");
   }

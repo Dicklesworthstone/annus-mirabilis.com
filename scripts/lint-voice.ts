@@ -503,13 +503,24 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       // scanned. Measured 2026-10-06: 82166 items, 8 errors, 68 flags, 1048 info. A floor of 20000 is
       // well below any real corpus and far above a partial load, which is the failure that would make
       // "Errors: 0" mean nothing.
-      reportPopulation({
+      // THE VERDICT IS READ, NOT ONLY PRINTED. `reportPopulation` returns whether the run was
+      // vacuous and this call discarded it, so a sweep over 0 strings printed
+      // "(minimum 20000)" beside "Errors: 0" and exited 0 -- a gate reporting its own emptiness
+      // and passing anyway, which is the shape the census line exists to make visible.
+      const vacuous = reportPopulation({
         gate: "voice-lint",
         examined: res.totalScanned,
         noun: "visitor-facing strings",
         minimum: 20000,
       });
       console.log(`[voice-lint] Log saved to: ${res.logFilePath}`);
+      if (vacuous) {
+        console.error(
+          "[voice-lint] refusing: the scan examined fewer strings than its floor, so " +
+            '"Errors: 0" is about nothing.',
+        );
+        process.exit(1);
+      }
       if (res.errorCount > 0) {
         process.exit(1);
       }
