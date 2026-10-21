@@ -52,12 +52,48 @@ describe("reading-face hydration baseline (am-rc1001-bridge-plan-pcjk.52)", () =
     expect(m.overBudget).toBe(false);
   });
 
+  test("a synthetic face: the element tree is counted, and math is not counted twice", () => {
+    /*
+     * The field added 2026-10-21, because math is a THIRD of the corpus payload and the serialised
+     * element tree is 55% -- the docblock said math was "essentially all of it" and sent an author
+     * after one of two causes. A naive `everything that is not math` would count module rows and
+     * the two must not overlap, so both are asserted here rather than only the total.
+     */
+    const html =
+      "<html><body><p>text</p>" +
+      `<script>self.__next_f.push([1,"${katexRow(70)}"])</script>` +
+      `<script>self.__next_f.push([1,"\\n71:[\\"$\\",\\"div\\",null,{\\"className\\":\\"face\\"}]"])</script>` +
+      `<script>self.__next_f.push([1,"\\n72:I[\\"./chunk.js\\",[],\\"TermChips\\"]"])</script>` +
+      "</body></html>";
+    const m = faceHydration("probe/view/parallel", html);
+    expect(m.katexFlightBytes).toBeGreaterThan(0);
+    expect(m.elementTreeBytes).toBeGreaterThan(0);
+    // Disjoint: a math text row is not an element tree row, and neither is the module row, so the
+    // two buckets together cannot exceed the payload. A predicate that said "not math" would.
+    expect(m.katexFlightBytes + m.elementTreeBytes).toBeLessThanOrEqual(m.flightBytes);
+    // And the module row is in neither bucket, which is what keeps the remainder honest.
+    expect(m.katexFlightBytes + m.elementTreeBytes).toBeLessThan(m.flightBytes);
+  });
+
+  test("a math text row is NOT counted as an element tree row", () => {
+    // The negative a naive implementation fails: with no element-tree row at all the field is 0,
+    // rather than absorbing the math row.
+    const html =
+      "<html><body>" +
+      `<script>self.__next_f.push([1,"${katexRow(70)}"])</script>` +
+      "</body></html>";
+    const m = faceHydration("probe/view/german", html);
+    expect(m.katexFlightBytes).toBeGreaterThan(0);
+    expect(m.elementTreeBytes).toBe(0);
+  });
+
   test("a page with no payload reports zero rather than dividing by zero", () => {
     const none = faceHydration("probe/view/plain", "<html><body><p>text</p></body></html>");
     expect(none.flightBytes).toBe(0);
     expect(none.flightShare).toBe(0);
     expect(none.katexShareOfFlight).toBe(0);
     expect(none.katexFlightBytes).toBe(0);
+    expect(none.elementTreeBytes).toBe(0);
   });
 
   test("a face gzip cannot bring under the budget is reported over", () => {
