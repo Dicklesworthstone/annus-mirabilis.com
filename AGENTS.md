@@ -1115,9 +1115,19 @@ typechecker, and its exit code cannot tell you which of the two failed. On 2026-
 having printed no `error TS` line at all, because a generator threw and `tsc` never ran. The lane
 runs the checks separately and says which one broke. Both of that day's outages turn it red.
 
-Biome is run **on the files you changed, by explicit path**. Repo-wide `bun run lint` is currently
-red on files nobody in this batch authored, so it cannot be a pre-commit gate, and reformatting a
-file you only touched one line of buries your change in a diff nobody can review.
+Biome is run **on the files you changed, by explicit path**, because reformatting a file you only
+touched one line of buries your change in a diff nobody can review. That reason stands on its own
+and is the whole of the rule.
+
+**The second reason this paragraph used to give is no longer true.** It read: "Repo-wide
+`bun run lint` is currently red on files nobody in this batch authored, so it cannot be a
+pre-commit gate." Measured 2026-10-21: `bun run lint` exits **0**, `Checked 4778 files in 2s`, and
+`bun run format:check` exits **0** over 4,700. The registry had already overtaken the claim in any
+case -- `lint` and `format-check` are both `requiredInCi: true` in the `fast` family at
+`every-run`, so a statement that the repo-wide run cannot be a gate contradicted the gate chain
+that was running it. A clause like this one decays in the direction of discouraging a check that
+has since been repaired, which is worth more than its size: it is read at session start as a
+permission to skip.
 
 `bun run test:refusals` is here because **a COMMENT can turn a ratchet red**, which nobody believes
 until it happens to them. A test name carrying `(file.ts:317)` CREDITS the refusal throw site at
