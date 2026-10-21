@@ -388,9 +388,13 @@ Carried forward where still true, and new ones found today:
   (`CoefficientLab.tsx`) and `sr-02` (`MagnetConductorLab.tsx`). Both have full `_TAPE` bindings.
   They were missed today because they live directly in `src/components/lab/` rather than in a
   per-lab subdirectory. **NEW**
-- **The sitemap omits five of seven faces.** All 244 `<loc>` entries cover only `german` and
-  `english`; `parallel`, `gloss`, `results`, `split` and `facsimile` appear 0 times, though every
-  paper page links to them. **NEW**
+- ~~**The sitemap omits five of seven faces.**~~ **WITHDRAWN, 2026-10-20.** The omission is a
+  canonical-URL rule, not a gap: German and English are listed because they are LANGUAGE
+  ALTERNATES of each other and carry the `hreflang` pair; the other five are alternate
+  presentations of text already canonical elsewhere in the same sitemap. `sitemap.test.ts` already
+  asserted the exclusion. What was wrong was the docblock's reason ("query-parameter faces"),
+  which describes `?view=` and not five real built routes, and a test that pinned one of the five.
+  Both repaired in `4fb429c49`.
 - **22 `dangling-independent-reference` debts resolve into `content/verification/`, a directory that
   does not exist at all.** **NEW**
 - **Seven labs have a published tape and no control**; five of them (bm-01, bm-05, bm-07, bm-08,
