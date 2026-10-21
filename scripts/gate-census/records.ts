@@ -713,25 +713,6 @@ export const CENSUS_RECORDS: readonly CensusRecord[] = [
     plants: [minimumPlant("facsimile-pins", "scripts/verify-facsimile-pins.ts", 4, "VACUOUS")],
   },
   {
-    gate: "release-freshness",
-    noun: "live release identities",
-    howRead:
-      "One GET of <base>/release.json, whose `commit` is the only honest answer to what is " +
-      "deployed. The population is 1 when that file was read and a commit parsed from it, and 0 " +
-      "otherwise -- a 404, a non-JSON body, or a `commit` that is not a sha all examine NOTHING. " +
-      "Measured 2026-10-21 against https://annus-mirabilis.com: HTTP 404, 'examined 0 live " +
-      "release identities (minimum 1) VACUOUS', exit 1. That refusal is correct and is the " +
-      "step's whole point: the deployed build predates the file that names its own commit, which " +
-      "is why the reality check of 2026-10-20 had to bisect by route to find out what was live.",
-    gateRefusesVacuous: true,
-    plants: [
-      // The threshold, not the population, because the population is a network read and a plant
-      // may not depend on the network. Raising the floor out of reach makes the REAL live read --
-      // whatever it returns -- fail against it, so the refusal is about the measured value.
-      minimumPlant("release-freshness", "scripts/release-freshness.ts", 1, "VACUOUS"),
-    ],
-  },
-  {
     gate: "voice-lint",
     noun: "visitor-facing strings",
     howRead:

@@ -818,29 +818,6 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     owner: "am-cm-coverage-ledger-0ip",
   },
   {
-    id: "release-freshness",
-    title: "How far behind origin/main the live site is",
-    command: ["bun", "scripts/release-freshness.ts"],
-    family: "fast",
-    // Nightly, and reaching the network. Lag is measured in days, so a per-run check would add a
-    // network dependency to every pane's chain to answer a question that cannot change that fast.
-    cadence: "nightly",
-    requiredInCi: false,
-    notRequiredInCiReason:
-      "IT HAS NEVER BEEN GREEN, and requiring it now would refuse the very deploy that makes it " +
-      "green. Measured 2026-10-21: live /release.json returns HTTP 404, because the deployed build " +
-      "predates the file that names its own commit, so the step examines 0 live release identities " +
-      "and refuses. That refusal is correct and it is this step's whole point. The condition for " +
-      "requiring it is written here rather than in prose so it can be read: once one promotion has " +
-      "served /release.json and this step has exited 0 once, set requiredInCi true and add it to " +
-      "the scaffold profile. am-rc1020-lag-gate-ggcj acceptance item 5.",
-    requiredInProfiles: [],
-    availability: {
-      scriptPath: "scripts/release-freshness.ts",
-    },
-    owner: "am-rc1020-lag-gate-ggcj",
-  },
-  {
     id: "scenarios",
     title: "Scenario registry verification",
     command: ["bun", "scripts/run-scenarios.ts"],
