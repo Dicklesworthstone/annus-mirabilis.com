@@ -70,7 +70,15 @@ describe("sitemap", () => {
       expect(urls).toContain(absoluteUrl(paperPath(paperId)));
       expect(urls).toContain(absoluteUrl(faceFallbackPath(paperId, "german")));
       expect(urls).toContain(absoluteUrl(faceFallbackPath(paperId, "english")));
-      expect(urls).not.toContain(absoluteUrl(faceFallbackPath(paperId, "results")));
+      // ALL FIVE non-language faces, not a sample. Each is a real built route that returns
+      // 200 and is omitted on the canonical-URL rule in sitemap.ts's docblock; pinning only
+      // one of them let a change that started emitting the other four pass.
+      for (const face of ["parallel", "gloss", "results", "split", "facsimile"] as const) {
+        expect(
+          urls,
+          `${face} is an alternate presentation and must stay out of the sitemap`,
+        ).not.toContain(absoluteUrl(faceFallbackPath(paperId, face)));
+      }
     }
     expect(urls.some((url) => url.includes("ap-17-549"))).toBe(false);
   });

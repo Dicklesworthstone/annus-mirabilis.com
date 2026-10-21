@@ -104,10 +104,26 @@ export function labPaths(root: string = process.cwd()): string[] {
 }
 
 /**
- * Canonical URLs only. Papers: each paper, its sections, and the German and English face pages;
- * query-parameter faces and other fallbacks are omitted (am-read-shell-routes-3ua). Then the
- * fixed pages, the four discovery routes, the foundation lessons, the instruments and each
- * paper's sources page.
+ * Canonical URLs only. Papers: each paper, its sections, and the German and English face pages.
+ *
+ * WHY THOSE TWO FACES AND NOT THE OTHER FIVE, stated precisely because the old wording here said
+ * "query-parameter faces and other fallbacks are omitted" and that describes something else:
+ * `parallel`, `gloss`, `results`, `split` and `facsimile` are real built routes that return 200,
+ * not `?view=` fallbacks. They are omitted on a canonical-URL rule, not for being unreachable.
+ *
+ * German and English are listed because they are LANGUAGE ALTERNATES of each other, and each
+ * entry carries the `hreflang` pair to say so (`readerSitemapEntries`, paperRoutes.ts). The other
+ * five are alternate PRESENTATIONS of text that is already canonical somewhere in this sitemap:
+ * `parallel` sets the two language faces side by side, `gloss` derives from the same sentences,
+ * `results` cards claims already on the paper page, `split` is a chooser, and `facsimile` is a
+ * viewer for a PDF listed on the sources page. Listing them would offer a crawler several URLs
+ * for one text, which is what a canonical URL is for avoiding.
+ *
+ * The exclusion is asserted, face by face, in sitemap.test.ts -- all five, not a sample, so a
+ * later change that starts emitting one of them goes red here rather than silently.
+ *
+ * Then the fixed pages, the four discovery routes, the foundation lessons, the instruments and
+ * each paper's sources page.
  *
  * Tape permalinks and export paths are strictly sitemap-exempt (am-6t51 / am-inst-permalink-tape-s677).
  */
