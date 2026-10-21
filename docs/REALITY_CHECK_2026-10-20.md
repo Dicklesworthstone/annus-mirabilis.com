@@ -377,9 +377,13 @@ Carried forward where still true, and new ones found today:
   `src/app/your-data/page.tsx:113-120` describes `am:clarity:v1` as "reserved for a one-click 'this
   was clear / this was not' answer … the control is not written". The owner withdrew the feature on
   2026-10-02. **NEW**
-- **The MERGED plan still demands the clarity signal** in four places including §16.6 and the Batch I
-  row, although the owner's selected option text was verbatim "remove the clarity signal **from the
-  plan** and AGENTS.md". AGENTS.md was updated; the plan was not. **NEW**
+- ~~**The MERGED plan still demands the clarity signal.**~~ **WITHDRAWN, 2026-10-20, by reading the
+  decision in full rather than its option text.** D-2026-10-02-withdraw-clarity-signal says in its
+  own consequence clause: *"This entry supersedes plan §16.6's clarity signal and the
+  clarity-signal item in §19.3 batch I. The plan document is a dated record and is not edited."*
+  So the plan's four remaining mentions are the intended state, not a residue, and the same
+  decision assigns the reserved storage key to the orchestrator by name. The only real residue was
+  `/your-data/`, repaired in `6436175a8`.
 - **Two laboratories have a converted, carryable walkthrough and no Play button**: `me-02`
   (`CoefficientLab.tsx`) and `sr-02` (`MagnetConductorLab.tsx`). Both have full `_TAPE` bindings.
   They were missed today because they live directly in `src/components/lab/` rather than in a
