@@ -63,6 +63,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import {
   type Finding,
   judgeGate,
@@ -72,7 +73,7 @@ import {
 import { parsePopulationLines } from "./gate-census/population.ts";
 import { allRoutes, reachedBy } from "./gate-census/reach.ts";
 import { type GatePlant, recordFor } from "./gate-census/records.ts";
-import { QUALITY_GATE_STEPS } from "./quality-gates/registry.ts";
+import { type GateStep, QUALITY_GATE_STEPS } from "./quality-gates/registry.ts";
 
 const ROOT = process.cwd();
 
@@ -247,29 +248,53 @@ function runPlant(
   });
 }
 
+/** What `--gate` selected, or why it refused. A refusal is never an empty selection. */
+export type StepSelection =
+  | { readonly kind: "all"; readonly steps: readonly GateStep[] }
+  | { readonly kind: "some"; readonly steps: readonly GateStep[]; readonly ids: readonly string[] }
+  | { readonly kind: "refused"; readonly message: string };
+
+/**
+ * Read a repeatable `--gate <id>` off argv. PURE, and exported, so its refusals are provable in the
+ * bun unit lane without spawning this script or running a single gate -- the same reason the plant
+ * anchors are checked there. The refusals are the whole point: a filter that silently selected
+ * nothing would print "findings: 0" and read exactly like a clean full census, which is the defect
+ * this file exists to notice.
+ */
+export function selectSteps(
+  argv: readonly string[],
+  all: readonly GateStep[] = QUALITY_GATE_STEPS,
+): StepSelection {
+  const ids = new Set<string>();
+  for (let i = 0; i < argv.length; i += 1) {
+    if (argv[i] !== "--gate") continue;
+    const id = argv[i + 1];
+    // A following flag is a missing value, not an id, so `--gate --plants` refuses rather than
+    // selecting a step called "--plants" and finding nothing.
+    if (id === undefined || id.startsWith("--")) {
+      return { kind: "refused", message: "--gate needs a step id, as in --gate voice-lint." };
+    }
+    ids.add(id);
+  }
+  if (ids.size === 0) return { kind: "all", steps: all };
+  const unknown = [...ids].filter((id) => !all.some((s) => s.id === id));
+  if (unknown.length > 0) {
+    return { kind: "refused", message: `--gate names no registry step: ${unknown.join(", ")}` };
+  }
+  return { kind: "some", steps: all.filter((s) => ids.has(s.id)), ids: [...ids] };
+}
+
 function main(): number {
   const argv = process.argv.slice(2);
   const listOnly = argv.includes("--list");
   const withPlants = argv.includes("--plants");
-  // Repeatable `--gate <id>`. Empty means every step, which keeps the no-flag behaviour exact.
-  const only = new Set<string>();
-  for (let i = 0; i < argv.length; i += 1) {
-    if (argv[i] !== "--gate") continue;
-    const id = argv[i + 1];
-    if (id === undefined || id.startsWith("--")) {
-      console.error("--gate needs a step id, as in --gate voice-lint.");
-      return 1;
-    }
-    only.add(id);
-  }
-  const unknown = [...only].filter((id) => !QUALITY_GATE_STEPS.some((s) => s.id === id));
-  if (unknown.length > 0) {
-    // A filter that matched nothing would print `findings: 0` and read as a clean census.
-    console.error(`--gate names no registry step: ${unknown.join(", ")}`);
+  const selection = selectSteps(argv);
+  if (selection.kind === "refused") {
+    console.error(selection.message);
     return 1;
   }
-  const steps =
-    only.size === 0 ? QUALITY_GATE_STEPS : QUALITY_GATE_STEPS.filter((s) => only.has(s.id));
+  const steps = selection.steps;
+  const only = selection.kind === "some" ? selection.ids : [];
   const routes = allRoutes(ROOT);
   const findings: Finding[] = [];
   const plantWorktree = withPlants ? ensurePlantWorktree() : null;
@@ -279,9 +304,9 @@ function main(): number {
   console.log(`registry steps: ${QUALITY_GATE_STEPS.length}, with census: ${covered.length}`);
   console.log(`routes parsed: ${routes.length}`);
 
-  if (only.size > 0)
+  if (only.length > 0)
     console.log(
-      `--gate: ${steps.length} of ${QUALITY_GATE_STEPS.length} step(s): ${[...only].join(", ")}`,
+      `--gate: ${steps.length} of ${QUALITY_GATE_STEPS.length} step(s): ${only.join(", ")}`,
     );
   for (const step of steps) {
     const record = recordFor(step.id);
@@ -324,4 +349,13 @@ function main(): number {
   return findings.length === 0 ? 0 : 1;
 }
 
-process.exit(main());
+/*
+ * ONLY WHEN RUN DIRECTLY. This was a bare `process.exit(main())`, so importing anything from this
+ * file RAN THE WHOLE CENSUS -- all 60 recorded gates -- and then exited the importing process.
+ * Found by the first test that imported `selectSteps`: it hung, because it was executing the
+ * census rather than testing a function. A module whose top level has an effect cannot be tested,
+ * which is the same reason a probe may not sit under src/ (AGENTS.md RULE 2 point 3).
+ */
+if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  process.exit(main());
+}
