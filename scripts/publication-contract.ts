@@ -41,6 +41,12 @@ export interface ContractVerificationOptions {
   readonly logRunId?: string;
   readonly logsDir?: string;
   readonly silent?: boolean;
+  /**
+   * The smallest number of executed steps that is not vacuous. Defaults to 6 for the default
+   * corpus and 1 for an injected `tests` list, which is the only claim true of a population this
+   * function did not choose. See the note beside the census line below.
+   */
+  readonly populationFloor?: number;
 }
 
 export interface ContractStepResult {
@@ -234,11 +240,22 @@ export function verifyPublicationContract(
    * a run that executed one would print "Failed: 0" and read as a passing contract. Measured
    * 2026-10-21: 8 steps. The floor is 6, below the current set and above a partial load.
    */
+  /*
+   * THE FLOOR BELONGS TO THE CORPUS IT DESCRIBES. 6 is a statement about
+   * PUBLICATION_CONTRACT_TESTS, the set the CLI runs; it is not true of a caller that injects its
+   * own `tests`. Folding the verdict into `exitCode` without this distinction turned the unit test
+   * "runs successfully with an injected mock runner" red, because one injected test plus the
+   * preflights is fewer than 6 steps -- a correct refusal of the wrong population.
+   *
+   * So an injected population names its own floor and otherwise gets 1: it must not be EMPTY,
+   * which is the whole claim, and nothing stronger is true of a list this function did not choose.
+   * The CLI passes no `tests`, so the path that actually had the hole keeps the floor of 6.
+   */
   const population: PopulationReport = {
     gate: "publication-contract",
     examined: results.length,
     noun: "publication contract steps",
-    minimum: 6,
+    minimum: options.populationFloor ?? (options.tests === undefined ? 6 : 1),
   };
   const vacuous = isVacuous(population);
 

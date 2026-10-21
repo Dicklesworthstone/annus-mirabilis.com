@@ -821,7 +821,11 @@ export const CENSUS_RECORDS: readonly CensusRecord[] = [
     noun: "publication contract steps",
     howRead:
       "results.length, the contract steps executed. A run that executed one would print 'Failed: 0' and " +
-      "read as a passing contract. Measured 2026-10-21: 8 steps against a floor of 6, exit 0.",
+      "read as a passing contract. Measured 2026-10-21: 8 steps against a floor of 6, exit 0. The " +
+      "floor of 6 describes the DEFAULT corpus; a caller that injects its own `tests` gets a floor " +
+      "of 1, because an injected population must not be empty and nothing stronger is true of a " +
+      "list the function did not choose. The CLI passes no `tests`, so the path that had the hole " +
+      "keeps the 6.",
     // THE COMMENT HERE USED TO REFUSE A PLANT, and its reason stopped being true one commit before
     // this one. It read: "the gate's exit comes from its step results. Raising its own floor out of
     // reach therefore proves the line, not a refusal, so no plant is registered rather than one that
@@ -829,10 +833,14 @@ export const CENSUS_RECORDS: readonly CensusRecord[] = [
     // floor a refusal, so the plant is now judged by exactly the right predicate.
     gateRefusesVacuous: true,
     plants: [
-      minimumPlant(
+      // A COMPUTED floor, because 6 describes the DEFAULT corpus and an injected `tests` list is a
+      // different population (see the note at the census line in that file). The anchor moved when
+      // the literal became this expression, and the plant-anchor test beside this file caught it in
+      // the same session rather than in fourteen days, which is what it is for.
+      computedMinimumPlant(
         "publication-contract",
         "scripts/publication-contract.ts",
-        6,
+        "options.populationFloor ?? (options.tests === undefined ? 6 : 1)",
         "Refusing: fewer contract steps ran than the floor",
       ),
     ],
