@@ -489,3 +489,32 @@ Ordered so each track makes the next meaningful.
   signal the owner withdrew on 2026-10-02.
 - **`src/components/lab/WalkthroughControl.tsx`** says "me-02 and me-03's records do not convert";
   all 22 records convert as of today.
+
+---
+
+## 12. Executed the same day
+
+Track V and most of Track C were run in the session that wrote this document. Recorded here
+because a reality check whose bridge plan is never executed is the thing this project's own
+doctrine calls process.
+
+| Commit | Item | Effect, measured |
+|---|---|---|
+| `344dbc728` | Track V.5, the mislabel | human-gate reach **211 of 615 -> 109 of 615**; `am-vw1o` kept its label after the same check, its acceptance being a DECISIONS entry |
+| `ea1d15b86` | Track H.17, the two Play buttons | **12 laboratories / 13 buttons -> 14 / 15**; a derived shortfall gate goes red naming all nine labs at `3ba47a8c7` |
+| `6436175a8` | Track H.14, `/your-data/` | a withdrawn feature stopped being advertised as pending |
+| `9746eca01` | Track C.8, the node lane | 65 -> **66** registered steps; the lane holding the parser differential is required in all three profiles |
+| `4fb429c49` | Track H.16 | the sitemap's reason corrected, and its test pins five exclusions rather than one |
+| `8cb3c80d4`, `d57af90b3` | Track C.9, the clean checkout | **48 of 48 generators clean** on a tree with no `src/generated/`; the ordering invariant asserted with the real defect as its plant |
+| `600f18faa` | Track C.7, partially | two gates that computed their own emptiness and discarded it now refuse on it |
+
+**Four of section 8's eight new entries were withdrawn in the process**, two of them because they
+were measured on a three-week-old deployment. That is the caveat now at the head of that section,
+and it is the most transferable thing this check produced.
+
+**Not done, and each for a stated reason:** the deploy (E-A, wants explicit authorization in the
+conversation), the closure pass (E-B, orchestrator-only), `pdftotext` (E-C, owner ruling), and a
+fifth decision found while executing — `coverage-report` is `requiredInProfiles: ["preview",
+"launch"]` and is **VACUOUS today**, 0 input files against a floor of 1, declared and owned by
+`am-cm-coverage-ledger-0ip`. Wiring its verdict would redden both release profiles, so it is
+recorded on `am-rc1020-bridge-plan-n3kr` with three options rather than acted on.
