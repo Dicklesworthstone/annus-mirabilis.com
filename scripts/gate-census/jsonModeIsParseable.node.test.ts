@@ -33,6 +33,10 @@ const JSON_GATES = [
   "scripts/verify-facsimile-anchors.ts",
   "scripts/verify-facsimile-pins.ts",
   "scripts/resource-stress.ts",
+  // Reaches the network, and is safe here anyway: readLiveIdentity catches a fetch failure and
+  // returns a note rather than throwing, so stdout is valid JSON whether or not the live site
+  // answers. Its census line goes to stderr under --json for exactly this test's reason.
+  "scripts/release-freshness.ts",
   // Not a census case: this one printed its human markdown table on stdout before the report, so
   // the output was unparseable from the first byte. The defect is the same shape -- something
   // that is not data on the data stream -- and the test is the same test.
