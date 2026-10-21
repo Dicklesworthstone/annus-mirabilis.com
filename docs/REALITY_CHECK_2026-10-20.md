@@ -229,10 +229,14 @@ it needs an owner ruling rather than a silent fix. Bead `am-rc1001-bridge-plan-p
   its file is published, precisely because "the links, not the exports, were the defect". It
   landed the same day as the refused candidate and has never shipped. The exports themselves are
   still not emitted, which is `am-cm-machine-readable-exports-xgy` and unchanged.
-- **A clean checkout still cannot build.** The named 2026-10-01 defect was repaired (a static walk
-  from the six `prepare:content` steps now reaches 0 generated-JSON imports), but the chain fails at
-  a **new** site in the same class: `prepare:content` step 2 of 47 needs `src/generated/not-modeled.ts`,
-  written by the **first step of the later `prepare:lab`**. Exit 9, named step.
+- ~~**A clean checkout still cannot build.**~~ **FIXED, 2026-10-20, `8cb3c80d4`.** The chain failed
+  at `prepare:content` step 2 needing `src/generated/not-modeled.ts`, written by the first step of
+  the later `prepare:lab`. `generate-not-modeled.mjs` reads only `content/experiments/*.yaml`, so
+  it now runs first; it stays at the head of `prepare:lab` too, being idempotent and costing
+  0.02 s. Measured on a `git archive HEAD` tree with no `src/generated/`: **48 of 48 generators
+  ran, all clean.** The ordering invariant is now asserted statically by
+  `scripts/prepareChainOrder.test.ts` (`d57af90b3`), with the real defect as its plant, because
+  this class had survived its own repair twice.
 - **The node lane gates nothing.** `unit-tests` is `bun run test`, the bun lane only. No registry
   step runs `test:node` or `test:node:content`. That lane holds the YAML parser differential which,
   on 2026-10-19, caught **all four journey records being silently dropped** by the site's own parser
@@ -410,8 +414,11 @@ Carried forward where still true, and new ones found today:
   asserted the exclusion. What was wrong was the docblock's reason ("query-parameter faces"),
   which describes `?view=` and not five real built routes, and a test that pinned one of the five.
   Both repaired in `4fb429c49`.
-- **22 `dangling-independent-reference` debts resolve into `content/verification/`, a directory that
-  does not exist at all.** **NEW**
+- ~~**22 `dangling-independent-reference` debts resolve into `content/verification/`.**~~ **NOT a
+  no-bead gap.** The debt is real and the directory is genuinely absent, but it is recorded with a
+  ceiling of 22 and an owner, `am-ver-quantity-records-fby2`, and `compilerDebts.ts:103` states
+  the absence in the same words this row used. Listing it as uncovered was an error of the row,
+  not of the repository.
 - **Seven labs have a published tape and no control**; five of them (bm-01, bm-05, bm-07, bm-08,
   sr-03) are worker laboratories whose shared links "load settings only", so this needs the
   architectural ruling in section 9, not a mount. **NEW**
