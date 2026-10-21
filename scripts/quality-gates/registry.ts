@@ -247,6 +247,34 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     },
     owner: "am-scaf-quality-gates-ci-4xx",
   },
+  // 5a. The out/-independent node lane (am-rc1020-bridge-plan-n3kr)
+  //
+  // THE NODE LANE GATED NOTHING UNTIL THIS STEP. `unit-tests` above is `bun run test`, the bun
+  // lane only, and no registry step ran `test:node` in any profile. That lane holds
+  // `src/content/provenance/yamlDifferential.node.test.ts`, which puts every committed YAML record
+  // through a second parser because this project's own `parseYaml` can accept a malformed record
+  // and silently drop the part it cannot place. On 2026-10-19 it caught all four journey records
+  // being dropped that way (`cda842215`), on a lane no profile ran.
+  //
+  // WHY THE SUBSET AND NOT THE WHOLE LANE. `bun run test:node` refuses to start on a stale `out/`,
+  // on purpose, so as a gate step it would redden every run that had not just built -- which is
+  // most of them, since a content edit is what makes `out/` stale and is also what this gate is
+  // for. `test:node:content` is the subset derived for exactly this case by
+  // `scripts/quality-gates/outDependence.ts`: the files that reference nothing under `out/` even
+  // through their local imports and drive no browser. It needs no build.
+  {
+    id: "node-content-lane",
+    title: "Node lane, the out/-independent subset",
+    command: ["bun", "run", "test:node:content"],
+    family: "fast",
+    cadence: "every-run",
+    requiredInCi: true,
+    requiredInProfiles: ["scaffold", "preview", "launch"],
+    availability: {
+      scriptPath: "scripts/run-node-only-tests.ts",
+    },
+    owner: "am-rc1020-bridge-plan-n3kr",
+  },
   // 5b. Unreviewed git stashes (am-70ig)
   //
   // requiredInCi is false and that is the honest setting, not a convenience: refs/stash is never

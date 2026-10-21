@@ -587,6 +587,26 @@ export const CENSUS_RECORDS: readonly CensusRecord[] = [
     },
   },
   {
+    gate: "node-content-lane",
+    noun: "tests run by node",
+    howRead:
+      "Parsed from node:test's own summary line, because this gate runs a third-party runner.",
+    gateRefusesVacuous: true,
+    plants: [],
+    toolPopulation: {
+      pattern: String.raw`\u2139 pass (\d+)`,
+      noun: "tests run by node",
+      // Measured 2026-10-20: 223 tests over 35 suites in the out/-independent subset. The floor is
+      // 150, below any real run of the subset and far above the shapes that go vacuous: a filter
+      // matching nothing, or the lane's own preflight skipping every file.
+      minimum: 150,
+      why:
+        "The subset exists because the full node lane refuses on a stale out/. A run that " +
+        "selected no files would print a zero and exit 0, which is the exact shape this lane " +
+        "was carved out to keep visible.",
+    },
+  },
+  {
     gate: "unit-tests",
     noun: "tests run by bun",
     howRead: "Parsed from bun's own summary line, because this gate runs a third-party runner.",
