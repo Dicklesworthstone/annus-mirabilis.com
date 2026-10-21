@@ -550,7 +550,14 @@ export const CENSUS_RECORDS: readonly CensusRecord[] = [
       "the papers actually requested, because mass-energy prints 7 displays and relativity 98, so a " +
       "fraction of one total marks a correct single-paper run vacuous.",
     gateRefusesVacuous: true,
-    plants: [],
+    plants: [
+      computedMinimumPlant(
+        "equation-explanations",
+        "scripts/check-equation-explanations.ts",
+        "papers.reduce((sum, paper) => sum + (DISPLAY_FLOOR[paper] ?? 1), 0)",
+        "VACUOUS",
+      ),
+    ],
   },
   {
     gate: "lint",
@@ -709,13 +716,25 @@ export const CENSUS_RECORDS: readonly CensusRecord[] = [
     gate: "voice-lint",
     noun: "visitor-facing strings",
     howRead:
-      "res.totalScanned over every visitor-facing string in the corpus. Measured 2026-10-06: 82166 items, " +
-      "8 errors, 68 flags, 1048 info. The gate is RED today on those 8 errors, which are physics " +
-      "vocabulary under review (am-x9xf, am-lmgx) and not this census's business; it is requiredInCi " +
-      "false and required in no profile.",
-    // The gate's exit comes from its error count, so a floor would not change its verdict today.
+      "res.totalScanned over every visitor-facing string in the corpus. Re-measured 2026-10-21: " +
+      "84083 items, 0 errors, 72 flags, 1076 info, exit 0. THIS ENTRY SAID THE OPPOSITE OF THE " +
+      "GATE'S STANDING FOR TEN DAYS: it read 'the gate is RED today on those 8 errors' and 'it is " +
+      "requiredInCi false and required in no profile', both measured 2026-10-06 and both false " +
+      "since 2026-10-11, when the errors were resolved and the registry made it requiredInCi with " +
+      "all three profiles. A census record that understates its gate's standing is the one place " +
+      "a reader checks to find out whether the gate matters.",
+    // Its exit now comes from the error count OR this floor: the vacuity verdict was computed and
+    // discarded until 600f18faa, so the plant below is the proof of that wiring rather than of the
+    // census line, and it would have stayed green against the commit before it.
     gateRefusesVacuous: true,
-    plants: [],
+    plants: [
+      minimumPlant(
+        "voice-lint",
+        "scripts/lint-voice.ts",
+        20000,
+        "refusing: the scan examined fewer strings than its floor",
+      ),
+    ],
   },
   {
     gate: "stashes",
@@ -762,7 +781,20 @@ export const CENSUS_RECORDS: readonly CensusRecord[] = [
       "filesChecked over docs/provenance. Measured 10 files, 0 errors, 43 flags; the floor of 6 is one " +
       "per pinned facsimile, so a run that read none of them cannot pass.",
     gateRefusesVacuous: true,
-    plants: [minimumPlant("receipts", "scripts/check-receipts.ts", 6, "VACUOUS")],
+    plants: [
+      // DEAD FROM d072d0aa4 UNTIL 2026-10-21, and nothing said so. That commit gave this gate a
+      // --key mode, turning its floor from the literal `6` into `options.key ? 1 : 6`, and the
+      // plant's anchor still named the literal. So it matched 0 times and every `--plants` run
+      // reported plant-anchor-missing for it -- which is the census working, and is also a finding
+      // nobody read, because a full `--plants` run was too expensive to make. Found by the anchor
+      // test beside this file, which is why that test reads the anchors instead of the gates.
+      computedMinimumPlant(
+        "receipts",
+        "scripts/check-receipts.ts",
+        "options.key ? 1 : 6",
+        "VACUOUS",
+      ),
+    ],
   },
   {
     gate: "scenarios",
@@ -789,12 +821,21 @@ export const CENSUS_RECORDS: readonly CensusRecord[] = [
     noun: "publication contract steps",
     howRead:
       "results.length, the contract steps executed. A run that executed one would print 'Failed: 0' and " +
-      "read as a passing contract.",
-    // The line is printed and the count is reported, but the gate's exit comes from its step results.
-    // Raising its own floor out of reach therefore proves the line, not a refusal, so no plant is
-    // registered rather than one that would be judged by the wrong predicate.
+      "read as a passing contract. Measured 2026-10-21: 8 steps against a floor of 6, exit 0.",
+    // THE COMMENT HERE USED TO REFUSE A PLANT, and its reason stopped being true one commit before
+    // this one. It read: "the gate's exit comes from its step results. Raising its own floor out of
+    // reach therefore proves the line, not a refusal, so no plant is registered rather than one that
+    // would be judged by the wrong predicate." That was right when written and 600f18faa made the
+    // floor a refusal, so the plant is now judged by exactly the right predicate.
     gateRefusesVacuous: true,
-    plants: [],
+    plants: [
+      minimumPlant(
+        "publication-contract",
+        "scripts/publication-contract.ts",
+        6,
+        "Refusing: fewer contract steps ran than the floor",
+      ),
+    ],
   },
   {
     gate: "license-inventory",

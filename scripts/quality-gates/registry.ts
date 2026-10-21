@@ -727,9 +727,12 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
      * completion of that recorded intent rather than a new decision, and the exemption is deleted
      * rather than reworded, because a repair must delete the exemption it retires.
      *
-     * THE GATE FAILS ON ERRORS ONLY -- `if (res.errorCount > 0) process.exit(1)` in lint-voice.ts
-     * -- so the 72 flags do not make it red and requiring it does not silently promote them to
-     * blockers. What turns it red is a new ERROR, which is the point: AGENTS.md's editorial voice
+     * THE GATE FAILS ON ERRORS, OR ON ITS OWN FLOOR -- `if (res.errorCount > 0) process.exit(1)`
+     * in lint-voice.ts, and since 600f18faa a refusal when the scan examined fewer than 20,000
+     * strings. This clause read "ON ERRORS ONLY" until 2026-10-21, which was true when written.
+     * Either way the 72 flags do not make it red and requiring it does not silently promote them to
+     * blockers. What turns it red is a new ERROR, or a sweep that stopped reading the corpus, which
+     * is the point: AGENTS.md's editorial voice
      * chapter binds "every visitor-facing string", and until now the only gate that reads all
      * 83,344 of them was the one gate nothing ran.
      *

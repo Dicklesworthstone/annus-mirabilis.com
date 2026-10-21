@@ -4,6 +4,16 @@
  *   bun scripts/gate-census.ts --list      # no gate is executed; coverage and routes
  *   bun scripts/gate-census.ts             # runs each recorded gate and reads what it printed
  *   bun scripts/gate-census.ts --plants    # also applies each recorded plant and requires a red
+ *   bun scripts/gate-census.ts --plants --gate voice-lint --gate lint   # those two steps only
+ *
+ * `--gate <id>` IS WHY PLANTS GET WRITTEN. A full `--plants` run executes every recorded gate AND
+ * every recorded plant, each plant being one more whole gate run. That is the right thing for a
+ * central verify and far too expensive to ask of someone adding ONE plant to ONE record, so the
+ * honest consequence was that nobody added one: 21 of the 60 records carried `plants: []` on
+ * 2026-10-21, this file's own affordance being the reason. The flag is repeatable, it narrows the
+ * steps iterated and nothing else, and an id that matches no step is a refusal rather than a quiet
+ * empty run -- a filter that silently selected nothing would print "findings: 0" and read exactly
+ * like a clean full census, which is the defect this whole file exists to notice.
  *
  * AGENTS.md states one proposition four times - "A Tool's Exit Code Is Not Evidence Until You Know What
  * It Examined", "A Gate's Own Test Must Not Live Only In The Lane That Gate Controls", "A Check Inherits
@@ -241,6 +251,25 @@ function main(): number {
   const argv = process.argv.slice(2);
   const listOnly = argv.includes("--list");
   const withPlants = argv.includes("--plants");
+  // Repeatable `--gate <id>`. Empty means every step, which keeps the no-flag behaviour exact.
+  const only = new Set<string>();
+  for (let i = 0; i < argv.length; i += 1) {
+    if (argv[i] !== "--gate") continue;
+    const id = argv[i + 1];
+    if (id === undefined || id.startsWith("--")) {
+      console.error("--gate needs a step id, as in --gate voice-lint.");
+      return 1;
+    }
+    only.add(id);
+  }
+  const unknown = [...only].filter((id) => !QUALITY_GATE_STEPS.some((s) => s.id === id));
+  if (unknown.length > 0) {
+    // A filter that matched nothing would print `findings: 0` and read as a clean census.
+    console.error(`--gate names no registry step: ${unknown.join(", ")}`);
+    return 1;
+  }
+  const steps =
+    only.size === 0 ? QUALITY_GATE_STEPS : QUALITY_GATE_STEPS.filter((s) => only.has(s.id));
   const routes = allRoutes(ROOT);
   const findings: Finding[] = [];
   const plantWorktree = withPlants ? ensurePlantWorktree() : null;
@@ -250,7 +279,11 @@ function main(): number {
   console.log(`registry steps: ${QUALITY_GATE_STEPS.length}, with census: ${covered.length}`);
   console.log(`routes parsed: ${routes.length}`);
 
-  for (const step of QUALITY_GATE_STEPS) {
+  if (only.size > 0)
+    console.log(
+      `--gate: ${steps.length} of ${QUALITY_GATE_STEPS.length} step(s): ${[...only].join(", ")}`,
+    );
+  for (const step of steps) {
     const record = recordFor(step.id);
     const routesHere = reachedBy(routes, step);
     if (record === undefined || listOnly) {

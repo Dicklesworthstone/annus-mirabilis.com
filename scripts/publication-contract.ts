@@ -21,7 +21,7 @@ import {
   loadAllowlist,
   scanRepository,
 } from "./app-router-architecture.ts";
-import { reportPopulation } from "./gate-census/population.ts";
+import { isVacuous, type PopulationReport, reportPopulation } from "./gate-census/population.ts";
 import { type ObservedSubprocess, spawnObserved } from "./spawnObserved.ts";
 
 export const PUBLICATION_CONTRACT_TESTS: readonly string[] = [
@@ -215,8 +215,35 @@ export function verifyPublicationContract(
   const failedCount = results.filter((r) => r.outcome === "failed").length;
   const refusedCount = results.filter((r) => r.outcome === "refused").length;
 
-  const success = !hasFailure && !hasRefusal;
-  const exitCode = hasRefusal ? 2 : hasFailure ? 1 : 0;
+  /*
+   * THE POPULATION, DECIDED HERE AND PRINTED BELOW, and the split is the whole repair.
+   *
+   * 600f18faa read `reportPopulation`'s return and set `process.exitCode = 1` on it, inside the
+   * `if (!silent)` reporting branch. Both halves of that were wrong and the gate stayed green:
+   * the CLI ends with `process.exit(result.exitCode)`, which DISCARDS `process.exitCode`, and the
+   * returned `exitCode` was computed here, before the check, so no caller ever saw the verdict.
+   * A library caller running silent never reached the check at all.
+   *
+   * Measured by the plant: `bun scripts/gate-census.ts --plants --gate publication-contract` with
+   * the floor raised out of reach reported `plant-stayed-green` -- "the gate exited 0 with the
+   * violation present". The commit that introduced the bug cited the predicate being right at both
+   * ends, which it was; the predicate was never the thing in doubt.
+   *
+   * So the decision uses `isVacuous`, which is pure, and the printing uses `reportPopulation` in
+   * the branch where the rest of the summary lives. The population is the contract STEPS executed:
+   * a run that executed one would print "Failed: 0" and read as a passing contract. Measured
+   * 2026-10-21: 8 steps. The floor is 6, below the current set and above a partial load.
+   */
+  const population: PopulationReport = {
+    gate: "publication-contract",
+    examined: results.length,
+    noun: "publication contract steps",
+    minimum: 6,
+  };
+  const vacuous = isVacuous(population);
+
+  const success = !hasFailure && !hasRefusal && !vacuous;
+  const exitCode = hasRefusal ? 2 : hasFailure || vacuous ? 1 : 0;
 
   // Write structured JSONL logs
   const baseLogsDir =
@@ -276,23 +303,14 @@ export function verifyPublicationContract(
     // run that executed one would print "Failed: 0" and read as a passing contract. Measured 2026-10-06:
     // 8 steps, 8 passed. The floor is 6, below the current set and above a partial load.
     //
-    // Printed inside the non-silent branch, where the rest of the summary is, because the silent branch
-    // is the library caller's and the census reads a CLI run's output.
-    // The verdict is READ, not only printed: this call discarded `reportPopulation`'s return, so
-    // a run that loaded no step would have printed its own floor and still summarised as a
-    // passing contract.
-    if (
-      reportPopulation({
-        gate: "publication-contract",
-        examined: results.length,
-        noun: "publication contract steps",
-        minimum: 6,
-      })
-    ) {
+    // Printed inside the non-silent branch, where the rest of the summary is, because the silent
+    // branch is the library caller's and the census reads a CLI run's output. The VERDICT is not
+    // taken from this call: it was decided above, so that `exitCode` carries it for every caller.
+    reportPopulation(population);
+    if (vacuous) {
       console.error(
         "   Refusing: fewer contract steps ran than the floor, so this summary is about nothing.",
       );
-      process.exitCode = 1;
     }
     console.log(`   Structured log: ${logPath}`);
     console.log("======================================================\n");
