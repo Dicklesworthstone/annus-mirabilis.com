@@ -596,6 +596,104 @@ export function explainedEquationDocuments(
     .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 }
 
+/** A common wrong turn, for the search index. Rows injected; see explainedEquationDocuments. */
+export type SearchWrongTurn = Readonly<{
+  id: string;
+  paper: string;
+  paperTitle: string;
+  /** The record's own tempting claim, which is what a reader would type. */
+  claim: string;
+  /** Why it is tempting, where it is true, and what is true, from the record. */
+  text: string;
+}>;
+
+/**
+ * THE 29 COMMON WRONG TURNS, FOUND BY THE WRONG BELIEF ITSELF.
+ *
+ * Measured on the index of 2026-10-22: `misconception` was one of EIGHT declared search types with
+ * zero documents, beside a heading already written for it in TYPE_LABELS ("Common wrong turns") and
+ * a route family already allowed by the validator. Four of the eight have real records behind them
+ * and four do not, so this is a builder that was never written rather than content that is absent.
+ * A reader who typed "Einstein's paper proved that molecules exist" -- which is a record's own
+ * `temptingClaims[0]`, verbatim -- found nothing, and that sentence is the single best query a
+ * reader could possibly make of this edition.
+ *
+ * THE TITLE IS THE CLAIM, WHICH THE EDITION DOES NOT ENDORSE, so the frame has to carry that. Two
+ * things do: the palette and /search/ group these under "Common wrong turns" (TYPE_LABELS), and the
+ * scope line beside every hit says what the record does with the claim. The claims are 29 to 129
+ * characters, median 64, against index titles of median 16 and max 167, so none is clipped.
+ */
+export function wrongTurnDocuments(
+  wrongTurns: readonly SearchWrongTurn[],
+  profile: SearchProfile,
+): readonly SearchDocument[] {
+  searchProfile(profile);
+  if (profile !== "scaffold") return [];
+  return wrongTurns
+    .map((wrongTurn) =>
+      validateSearchDocument({
+        id: `misconception:${wrongTurn.id}`,
+        type: "misconception",
+        paper: wrongTurn.paper,
+        section: "",
+        lang: "en",
+        // The callout's own element on the paper page (`id="misconception-<id>"`, measured in the
+        // built HTML). PaperMargins renders only on the whole-paper page, never on a section, so
+        // there is one address and no face.
+        route: `/papers/${wrongTurn.paper}/`,
+        anchor: `misconception-${wrongTurn.id}`,
+        face: "",
+        title: wrongTurn.claim,
+        text: wrongTurn.text,
+        terms: [wrongTurn.id],
+        scopeLabel: `${wrongTurn.paperTitle} · a claim the edition examines rather than endorses: why it tempts, and what is true`,
+      }),
+    )
+    .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+}
+
+/** A capstone, for the search index. Rows injected; see explainedEquationDocuments. */
+export type SearchCapstone = Readonly<{
+  paper: string;
+  paperTitle: string;
+  /** The record's own title, as the page's h1 renders it. */
+  title: string;
+  /** Its question and the claims it asks a reader to arrange, from the record. */
+  text: string;
+}>;
+
+/**
+ * THE FOUR CAPSTONES. `capstone` was another of the eight declared types with no documents, with
+ * its heading written ("Capstones"), its route family allowed, and four real pages behind it since
+ * September. A reader searching "rebuild the September argument", which is a capstone's own title
+ * and the h1 of its page, found nothing.
+ */
+export function capstoneDocuments(
+  capstones: readonly SearchCapstone[],
+  profile: SearchProfile,
+): readonly SearchDocument[] {
+  searchProfile(profile);
+  if (profile !== "scaffold") return [];
+  return capstones
+    .map((capstone) =>
+      validateSearchDocument({
+        id: `capstone:${capstone.paper}`,
+        type: "capstone",
+        paper: capstone.paper,
+        section: "",
+        lang: "en",
+        route: `/capstones/${capstone.paper}/`,
+        anchor: "",
+        face: "",
+        title: capstone.title,
+        text: capstone.text,
+        terms: [capstone.paper],
+        scopeLabel: `${capstone.paperTitle} · the paper's argument as claims to arrange, optional and printable`,
+      }),
+    )
+    .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+}
+
 export function notationDocuments(
   glyphs: readonly SearchNotationGlyph[],
   profile: SearchProfile,

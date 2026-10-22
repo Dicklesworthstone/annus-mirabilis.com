@@ -11,6 +11,7 @@ import { loadGermanSourceFace } from "../src/content/editions/germanSourceFace.t
 import type { RouteSlug } from "../src/content/ids.ts";
 import { loadTeachingTapes } from "../src/content/teachingTapes.ts";
 import { requireTour, tourIds } from "../src/content/tours/tours.ts";
+import { capstoneExists, loadCapstone } from "../src/discovery/capstone/loadCapstone.ts";
 import { ROUTE_INDEX } from "../src/discovery/routeIndex.ts";
 import { GUIDED_TOURS } from "../src/discovery/tours/catalogue.ts";
 import {
@@ -36,6 +37,8 @@ import {
   MASTHEAD_TITLE_ID,
   unitTranslating,
 } from "../src/reader/faces/translationMasthead.ts";
+import { loadPaperMargins } from "../src/reader/marginRecords.ts";
+import { parseWhatIsTrue } from "../src/reader/misconceptions/types.ts";
 import { paperSourceFaces } from "../src/reader/paperSourceFaces.ts";
 import { tapePath } from "../src/reader/sitePaths.ts";
 import { packageSearchIndex } from "../src/search/build.ts";
@@ -44,6 +47,7 @@ import {
   aliasesForDocuments,
   assertSearchCoverage,
   assertSearchFaceCoverage,
+  capstoneDocuments,
   discoveryDocuments,
   documentsFromCompiled,
   englishTranslationDocuments,
@@ -51,13 +55,16 @@ import {
   germanSourceDocuments,
   notationAliases,
   notationDocuments,
+  type SearchCapstone,
   type SearchEnglishParagraph,
   type SearchExplainedEquation,
   type SearchProfile,
+  type SearchWrongTurn,
   searchInlineText,
   searchProfile,
   tourDocuments,
   walkthroughDocuments,
+  wrongTurnDocuments,
 } from "../src/search/documents.ts";
 
 /**
@@ -237,7 +244,48 @@ export async function loadSearchCorpus(
    * a build-time constant on both sides, so it is asserted once in catalogue.test.ts rather than
    * re-checked on every build with a refusal nothing can reach.
    */
+  /*
+   * THE WRONG TURNS AND THE CAPSTONES (am-9p8v follow-up). Measured on the index of 2026-10-22:
+   * `misconception` and `capstone` were two of eight declared search types with ZERO documents,
+   * each with a heading already written in TYPE_LABELS and a route family already allowed by the
+   * validator, and each with real reader-facing records behind it. Builders that were never
+   * written, not content that is absent.
+   */
+  const wrongTurns: SearchWrongTurn[] = [];
+  const capstones: SearchCapstone[] = [];
   for (const { paper } of papers) {
+    const margins = loadPaperMargins(paper.id);
+    for (const wrongTurn of margins.misconceptions) {
+      const claim = wrongTurn.temptingClaims[0];
+      // A record with no tempting claim has nothing a reader would type, and the schema permits
+      // none; skipping it is visible in the census below rather than silent.
+      if (!claim) continue;
+      wrongTurns.push({
+        id: wrongTurn.id,
+        paper: paper.id,
+        paperTitle: paper.title,
+        claim,
+        text: [
+          ...wrongTurn.temptingClaims.slice(1),
+          wrongTurn.whyTempting,
+          wrongTurn.whereItIsTrue,
+          // `whatIsTrue` is `unknown` at the schema layer and is validated at the render
+          // boundary by this parser, which is the only place its shape is known (types.ts says so).
+          parseWhatIsTrue(wrongTurn.whatIsTrue, wrongTurn.id).r0,
+        ]
+          .filter(Boolean)
+          .join(" "),
+      });
+    }
+    if (capstoneExists(paper.id)) {
+      const { capstone } = loadCapstone(paper.id);
+      capstones.push({
+        paper: paper.id,
+        paperTitle: paper.title,
+        title: capstone.title,
+        text: [capstone.question, ...capstone.claims.map((claim) => claim.text)].join(" "),
+      });
+    }
     const labels = new Map(paper.sections.map((s) => [s.id, sectionShortLabel(s.title)]));
     // mass-energy prints no numbered sections and its whole argument is s0, so its displays are
     // cited by number alone rather than under a section that does not exist.
@@ -259,6 +307,8 @@ export async function loadSearchCorpus(
   const documents = [
     ...documentsFromCompiled(papers, foundations, instruments, profile, equationTerms),
     ...explainedEquationDocuments(explainedEquations, profile),
+    ...wrongTurnDocuments(wrongTurns, profile),
+    ...capstoneDocuments(capstones, profile),
     ...walkthroughDocuments(walkthroughs, profile),
     ...discoveryDocuments(ROUTE_INDEX, profile),
     ...tourDocuments(guidedTours, profile),
