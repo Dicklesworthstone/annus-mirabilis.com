@@ -1120,7 +1120,7 @@ the three ways this repository has actually broken.
 bun run check:types                        # 2.3s  tsc --noEmit AND the instrument registry, named separately
 bun run check:architecture                 # 0.3s  App Router root and root-file allowlist
 bun run test:refusals                      # 31s   ONLY if your commit changes a line count under src/
-bun test src/testing/styles/               # 8s    ONLY if your commit adds or edits a .css under src/
+bun run test:styles                        # 8s    ONLY if your commit adds or edits a .css under src/
 bunx biome check --write <your files>      #       YOUR changed files, by explicit path, never the repo
 bun test <the one test file you changed>   #       one file, not a lane
 ubs --diff
@@ -1147,14 +1147,15 @@ that was running it. A clause like this one decays in the direction of discourag
 has since been repaired, which is worth more than its size: it is read at session start as a
 permission to skip.
 
-`bun test src/testing/styles/` is here for the same reason one level over: **a new stylesheet is
+`bun run test:styles` is here for the same reason one level over: **a new stylesheet is
 gated by ratchets that no page test reaches.** On 2026-10-22 two new catalogue stylesheets took the
 font-size vocabulary from 18 distinct values to 22 (0.78rem, 0.9rem, 1.05rem, 1.1rem) and the
 line-height vocabulary from 13 to 15, and `typeScaleRatchet` refused them. Nothing said so for an
 hour: `check:types`, Biome on the changed files, the two new page tests (10 passing), the three link
 gates and `test:refusals` were all green, and the only lane that runs that ratchet is the full bun
 suite, which `--profile scaffold` runs as `unit-tests` and which takes nine minutes. Eight seconds
-here answers it, and the repair is to use a step from the scale in `src/app/globals.css`
+here answers it, and the script exists so that this line names something a pane can run rather than a
+path it has to retype, and the repair is to use a step from the scale in `src/app/globals.css`
 (`--type-micro/fine/small/body/lead/title/display`) rather than to raise the baseline -- a baseline
 is the record of a debt, as the section above says.
 
