@@ -13,7 +13,13 @@
  * whole reason that bucket exists rather than a filter.
  */
 import { describe, expect, test } from "bun:test";
-import { CATALOGUE_GROUPS, cataloguePapers, equationCatalogue } from "./catalogue.ts";
+import {
+  CATALOGUE_GROUPS,
+  cataloguePapers,
+  equationCatalogue,
+  equationLocator,
+  sectionShortLabel,
+} from "./catalogue.ts";
 import { everyExplanationRoute, fullExplanation } from "./fullExplanations.ts";
 import { printedDisplayOrder } from "./printedDisplays.ts";
 
@@ -122,6 +128,79 @@ describe("the equations catalogue", () => {
     // Measured 2026-10-22: 279 across the four, 200 of them printed displays.
     expect(papers.reduce((sum, entry) => sum + entry.total, 0)).toBeGreaterThanOrEqual(279);
     expect(papers.reduce((sum, entry) => sum + entry.byKind.printed, 0)).toBe(200);
+  });
+
+  test("every printed display gets a locator the anchor grammar recognised", () => {
+    /*
+     * The locator is what a search result is titled by, so an id the grammar does not recognise
+     * would put `eq-whatever` in front of a reader. The fallback is deliberate (a dropped row is
+     * worse than an ugly one) and this is the assertion that keeps it a safety net: all 200 are
+     * recognised today, and a new id shape turns this red rather than appearing in the index.
+     */
+    const sections = (section: string) => section.replace(/^s/, "§");
+    const unrecognised: string[] = [];
+    let printed = 0;
+    for (const paper of PAPERS) {
+      for (const row of equationCatalogue(paper)) {
+        if (row.kind !== "printed") continue;
+        printed += 1;
+        if (equationLocator(row.display, sections) === row.display)
+          unrecognised.push(`${paper}/${row.display}`);
+      }
+    }
+    expect(printed).toBe(200);
+    expect(unrecognised, unrecognised.join(", ")).toEqual([]);
+  });
+
+  test("PLANTED: the locator reads the grammar, and says so differently for each shape", () => {
+    const sections = (section: string) => (section === "s3" ? "§3" : null);
+    // The four shapes the corpus actually holds, measured 2026-10-22: 196, 2, 1 and 1 of them.
+    expect(equationLocator("eq-s3-d7", sections)).toBe("§3, display 7");
+    expect(equationLocator("eq-s3-1", sections)).toBe("§3, equation (1)");
+    expect(equationLocator("eq-2", sections)).toBe("Equation (2)");
+    expect(equationLocator("eq-A", sections)).toBe("Equation (A)");
+    // A paper with no sections to cite: mass-energy prints none and its argument is all s0, so
+    // "§0, display 1" would cite something that does not exist.
+    expect(equationLocator("eq-s0-d1", () => null)).toBe("Display 1");
+    expect(equationLocator("eq-s0-d1", (s) => (s === "s0" ? "Introduction" : null))).toBe(
+      "Introduction, display 1",
+    );
+    // And the fallback, which must be the id itself rather than a blank or a throw.
+    expect(equationLocator("lab-bm-05-discrete-walk", sections)).toBe("lab-bm-05-discrete-walk");
+    expect(equationLocator("eq-s9-d1", sections)).toBe("Display 1");
+  });
+
+  test("sectionShortLabel takes the citation and leaves the editorial gloss", () => {
+    // The 28 section titles in the four paper records all carry the interpunct.
+    expect(sectionShortLabel("§1 · operational simultaneity")).toBe("§1");
+    expect(sectionShortLabel("Introduction · a heuristic viewpoint")).toBe("Introduction");
+    expect(sectionShortLabel("The unsectioned argument · explanatory reading")).toBe(
+      "The unsectioned argument",
+    );
+    // No interpunct: the whole title, trimmed, rather than an empty label.
+    expect(sectionShortLabel("  §4  ")).toBe("§4");
+  });
+
+  test("every paper the catalogue knows is one the content index compiles", async () => {
+    /*
+     * The two populations have different sources: this module reads the explanations payload, and
+     * the search index and the catalogue pages read the compiled content index. A paper in the
+     * first and not the second would lose between 40 and 122 search documents and would render a
+     * page with no title, and both failures are quiet. Asserted here rather than refused at build
+     * time because both sides are build-time constants: there is no run in which this can newly
+     * become false without a commit.
+     */
+    const { contentIndex } = await import("../../content/server.ts");
+    const compiled = new Set(
+      (await contentIndex()).payloads
+        .filter((payload) => payload.kind === "paper")
+        .map((payload) => payload.id),
+    );
+    expect(compiled.size).toBeGreaterThanOrEqual(4);
+    const missing = cataloguePapers()
+      .map((entry) => entry.paper)
+      .filter((paper) => !compiled.has(paper));
+    expect(missing, missing.join(", ")).toEqual([]);
   });
 
   test("printedDisplayOrder deduplicates and keeps the paper's own displays", () => {

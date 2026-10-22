@@ -508,6 +508,94 @@ export function walkthroughDocuments(
     .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 }
 
+/**
+ * AN EXPLAINED EQUATION, FOR THE SEARCH INDEX. Built by the caller from
+ * `src/equations/printed/catalogue.ts`, because that module reads the explanations payload and this
+ * one is imported by a page (src/app/notation/notationData.ts): a payload imported here would ride
+ * into that page's server bundle for nothing.
+ */
+export type SearchExplainedEquation = Readonly<{
+  /** The explanation's own id, which is the last segment of its page's address. */
+  display: string;
+  paper: string;
+  paperTitle: string;
+  /** Where the equation sits, as a reader would cite it: "§3, display 7" (equationLocator). */
+  locator: string;
+  /** The equation in ordinary language: the explanation's own `inWords`. */
+  words: string;
+  /** The authored spoken form, a search TERM rather than the title; see below. */
+  spoken: string;
+}>;
+
+/**
+ * THE PRINTED DISPLAYS A READER CAN SEARCH FOR BY WHAT THEY SAY.
+ *
+ * Measured on the index of 2026-10-22, before this existed: 998 documents, 106 of type "equation",
+ * and every one of the 106 an `eq-model-*` teaching equation routed at its argument anchor. ZERO
+ * documents routed under /equations/. So the 200 printed displays each had an authored sentence
+ * saying what the equation claims, written for the explainer and shipped on 195 pages, and a
+ * reader searching for those words found nothing: not the equation, and not the page that explains
+ * it at four depths.
+ *
+ * THE TITLE IS THE LOCATOR, NOT THE SPOKEN FORM, and that is a measurement rather than a taste.
+ * AGENTS.md makes the authored spoken form an equation's accessible name, which argues for using
+ * it here; but the 271 spoken forms run from 13 to 1,672 characters (median 84, p90 230) against
+ * existing index titles of median 16 and max 167, and /search/ renders a title with no clamp. A
+ * 1,672-character link text would be a defect introduced for the sake of a principle that the
+ * `terms` field satisfies anyway: the spoken form is searchable here, it is just not the link.
+ *
+ * ONE AUTHORED SPOKEN FORM IS 1,672 CHARACTERS, which is longer than a search TERM may be, so the
+ * spoken form travels in `text` beside the words rather than in `terms`. Found by the validator
+ * refusing the document rather than by reading the limit: a refusal in this builder would have
+ * taken one page out of the index while every count stayed plausible.
+ *
+ * WHAT IS LEFT OUT, with the reason, because 200 of 279 is not all of them:
+ *   35 derivation steps  already indexed, as `equation:eq-model-*` at their argument anchor; a
+ *                        second document for the same equation would put one thing in the list
+ *                        twice under two addresses
+ *   36 route equations   no authored short name. Their ids are two shapes, `journey-bmMeanSquare`
+ *                        and `journey-discover-mass-energy-investigate-opposite-pulses`, and a
+ *                        title humanised from the first reads "Bm mean square"
+ *    8 lab formulas      `labName` gives the laboratory's own heading, but two of the eight are
+ *                        sr-03's and would share it, so the title would not tell them apart
+ * Both of the last two want a `title` on the record rather than a derivation here, which is
+ * content work; the 200 need no such decision because the anchor grammar already locates them.
+ */
+export function explainedEquationDocuments(
+  equations: readonly SearchExplainedEquation[],
+  profile: SearchProfile,
+): readonly SearchDocument[] {
+  searchProfile(profile);
+  if (profile !== "scaffold") return [];
+  return equations
+    .map((equation) =>
+      validateSearchDocument({
+        id: `equation-explained:${equation.paper}:${equation.display}`,
+        type: "equation",
+        paper: equation.paper,
+        section: "",
+        lang: "en",
+        // The explanation's own page, where the equation is drawn above its four readings. No
+        // face and no anchor: the page IS the destination, not a position within another one.
+        route: `/equations/${equation.paper}/${equation.display}/`,
+        anchor: "",
+        face: "",
+        title: equation.locator,
+        /*
+         * The words AND the spoken form, both searchable, because a term may not exceed 1,000
+         * characters (SEARCH_LIMITS, enforced by validateSearchDocument) and the longest authored
+         * spoken form in the corpus is 1,672: relativity's § 6, which is six equations read out.
+         * Putting it in `terms` would refuse that document, and refusing one document is how a
+         * page goes missing from search while every count still looks right.
+         */
+        text: [equation.words, equation.spoken].filter(Boolean).join(" "),
+        terms: [equation.display],
+        scopeLabel: `${equation.paperTitle} · printed display, with its explanation`,
+      }),
+    )
+    .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+}
+
 export function notationDocuments(
   glyphs: readonly SearchNotationGlyph[],
   profile: SearchProfile,

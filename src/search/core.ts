@@ -224,12 +224,19 @@ export function validateSearchDocument(value: unknown): SearchDocument {
     // unfindable: measured on the published shards, /papers/, /foundations/ and /lab/ were indexed
     // and /tapes/ had zero documents.
     //
+    // `equations` joins it for the same reason and the same measurement (am-9p8v). The 279
+    // explanation pages have existed since dispatch 292; measured on the index of 2026-10-22, 0 of
+    // 998 documents routed under /equations/, so each of the 200 printed displays had an authored
+    // sentence saying what the equation claims and no reader could search for it. This family is
+    // what let that silence last: a document pointing at one of those pages was refused here, so
+    // the index could not have carried one even if a builder had offered it.
+    //
     // A segment is `[a-zA-Z0-9_-]+` optionally followed by `.[a-zA-Z0-9_-]+` groups, because one
     // tape id is `the-boost-to-0.6c` (AGENTS.md permits a dot between two digits). The dot can only
     // sit BETWEEN allowed runs, so a segment can never be `.`, `..` or `.hidden`, and the traversal
     // cases in core.test.mjs stay refused: /lab/../admin has a `..` segment that matches nothing
     // here, and /papers/%2e%2e/ had no `%` in the class at all.
-    !/^\/(?:papers|foundations|lab|notation|discover|essays|connections|tours|tapes|capstones|timeline|1904)(?:\/[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)*)*\/?$/u.test(
+    !/^\/(?:papers|foundations|lab|notation|discover|equations|essays|connections|tours|tapes|capstones|timeline|1904)(?:\/[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)*)*\/?$/u.test(
       d.route,
     ) ||
     !/^[a-zA-Z0-9_.:-]*$/u.test(d.anchor as string) ||

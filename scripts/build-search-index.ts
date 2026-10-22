@@ -13,6 +13,11 @@ import { loadTeachingTapes } from "../src/content/teachingTapes.ts";
 import { requireTour, tourIds } from "../src/content/tours/tours.ts";
 import { ROUTE_INDEX } from "../src/discovery/routeIndex.ts";
 import { GUIDED_TOURS } from "../src/discovery/tours/catalogue.ts";
+import {
+  equationCatalogue,
+  equationLocator,
+  sectionShortLabel,
+} from "../src/equations/printed/catalogue.ts";
 import { recordLatex } from "../src/equations/recordLatex.ts";
 import {
   CATALOGUE_IDS,
@@ -42,10 +47,12 @@ import {
   discoveryDocuments,
   documentsFromCompiled,
   englishTranslationDocuments,
+  explainedEquationDocuments,
   germanSourceDocuments,
   notationAliases,
   notationDocuments,
   type SearchEnglishParagraph,
+  type SearchExplainedEquation,
   type SearchProfile,
   searchInlineText,
   searchProfile,
@@ -215,8 +222,43 @@ export async function loadSearchCorpus(
       );
     }
   }
+  /*
+   * THE PRINTED DISPLAYS, EACH FOUND BY WHAT IT SAYS (am-9p8v). Measured on the index this
+   * replaces: 0 of 998 documents routed under /equations/, so none of the 200 authored sentences
+   * that say what a printed equation claims was searchable, and neither was the page that explains
+   * it. The locator is derived from the paper's OWN section titles, which is why this is built here
+   * rather than in documents.ts: `papers` holds the compiled records.
+   */
+  const explainedEquations: SearchExplainedEquation[] = [];
+  /*
+   * Driven by the COMPILED papers rather than by the catalogue's own list, so the two populations
+   * cannot disagree at build time: a paper with no explanations contributes no rows, and a paper
+   * the catalogue knows and the content index does not cannot exist here. That second direction is
+   * a build-time constant on both sides, so it is asserted once in catalogue.test.ts rather than
+   * re-checked on every build with a refusal nothing can reach.
+   */
+  for (const { paper } of papers) {
+    const labels = new Map(paper.sections.map((s) => [s.id, sectionShortLabel(s.title)]));
+    // mass-energy prints no numbered sections and its whole argument is s0, so its displays are
+    // cited by number alone rather than under a section that does not exist.
+    const sectioned = paper.sections.length > 1;
+    for (const row of equationCatalogue(paper.id)) {
+      if (row.kind !== "printed") continue;
+      explainedEquations.push({
+        display: row.display,
+        paper: paper.id,
+        paperTitle: paper.title,
+        locator: equationLocator(row.display, (section) =>
+          sectioned ? (labels.get(section) ?? null) : null,
+        ),
+        words: row.words,
+        spoken: row.spoken,
+      });
+    }
+  }
   const documents = [
     ...documentsFromCompiled(papers, foundations, instruments, profile, equationTerms),
+    ...explainedEquationDocuments(explainedEquations, profile),
     ...walkthroughDocuments(walkthroughs, profile),
     ...discoveryDocuments(ROUTE_INDEX, profile),
     ...tourDocuments(guidedTours, profile),

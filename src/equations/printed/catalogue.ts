@@ -37,6 +37,12 @@ export type CatalogueRow = Readonly<{
   href: string;
   /** The equation in ordinary language, the explanation's own `inWords`. */
   words: string;
+  /**
+   * The authored spoken form, as a reading face gives a printed display its accessible name. Empty
+   * for the 8 of 279 explanations that carry no drawn equation. The catalogue page does not use it;
+   * the search index carries it as a term, never as a title (explainedEquationDocuments says why).
+   */
+  spoken: string;
   kind: CatalogueKind;
   /** The authored label on the explanation's way back, kept so `elsewhere` can name itself. */
   sourceLabel: string;
@@ -72,6 +78,7 @@ export function equationCatalogue(paper: string): readonly CatalogueRow[] {
       display: route.display,
       href: `/equations/${paper}/${route.display}/`,
       words: explanation.inWords.map((phrase) => phrase.text).join(""),
+      spoken: explanation.printed?.spoken ?? "",
       kind: kindOf(sourceLabel),
       sourceLabel,
     });
@@ -158,3 +165,49 @@ export const CATALOGUE_GROUPS: readonly Readonly<{
       "Explained equations whose way back this catalogue has not met. They are listed so that a new kind of explanation is visible here rather than missing.",
   },
 ];
+
+/**
+ * The short label a paper record gives a section: "§1" from "§1 · operational simultaneity",
+ * "Introduction" from "Introduction · a heuristic viewpoint". The interpunct separates the
+ * citation from the editorial gloss in every one of the 28 section titles, so the half before it
+ * is the part a reader would write down.
+ */
+export function sectionShortLabel(title: string): string {
+  const [citation] = title.split("·");
+  return (citation ?? title).trim();
+}
+
+/**
+ * WHERE A PRINTED DISPLAY SITS, as a reader would cite it: "§3, display 7", "§3, equation (1)",
+ * "Equation (2)". Derived from the anchor grammar in docs/CONTENT_IDS.md and from the paper's own
+ * section titles, never authored here.
+ *
+ * `sectionLabelOf` returns the section's short label, or null when the paper has no sections to
+ * cite: mass-energy prints no numbered sections and its whole argument is `s0`, so "§0, display 1"
+ * would be a citation to something that does not exist, and its displays are cited by number
+ * alone. The caller owns that decision because the caller holds the paper record.
+ *
+ * An id the grammar does not recognise falls back to ITSELF rather than to null. A null would have
+ * to be dropped or shown blank, and a dropped row is a page a reader cannot find, which is the
+ * defect this whole catalogue exists to end; a row reading "eq-whatever" is visible and sorts out
+ * the next morning. `catalogue.test.ts` asserts that all 200 printed displays are recognised
+ * today, so the fallback is a safety net rather than a resting place.
+ */
+export function equationLocator(
+  display: string,
+  sectionLabelOf: (section: string) => string | null,
+): string {
+  const unnumbered = /^eq-(s\d+)-d(\d+)$/.exec(display);
+  if (unnumbered?.[1] && unnumbered[2]) {
+    const section = sectionLabelOf(unnumbered[1]);
+    return section ? `${section}, display ${unnumbered[2]}` : `Display ${unnumbered[2]}`;
+  }
+  const numbered = /^eq-(s\d+)-(\d+)$/.exec(display);
+  if (numbered?.[1] && numbered[2]) {
+    const section = sectionLabelOf(numbered[1]);
+    return section ? `${section}, equation (${numbered[2]})` : `Equation (${numbered[2]})`;
+  }
+  const bare = /^eq-([0-9]+|[A-Z])$/.exec(display);
+  if (bare?.[1]) return `Equation (${bare[1]})`;
+  return display;
+}
