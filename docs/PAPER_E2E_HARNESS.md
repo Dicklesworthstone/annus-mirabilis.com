@@ -294,7 +294,7 @@ because the journey never navigated back (`am-im0x`). Both are fixed: the
 journey returns to the home page first, and an absent control now fails and
 names the selector it searched for.
 
-One check is red on purpose today:
+One check used to be red, and this section used to say it was red on purpose:
 
 ```
 [FAIL] command-palette: No visible palette trigger matched
@@ -303,10 +303,46 @@ One check is red on purpose today:
        mounts it.
 ```
 
-That is a real gap in the built site, not a harness defect. The check stays and
-turns green by mounting the palette; it is not to be softened back into a pass.
+**That was a selector failure, not a gap in the built site, and this paragraph
+asserted the opposite for eighteen days.** It read "That is a real gap in the
+built site, not a harness defect. The check stays and turns green by mounting
+the palette; it is not to be softened back into a pass." Both sentences were
+wrong, and together they instructed the next reader to go and mount a component
+that `src/app/layout.tsx:86` already mounts on every page:
+
+```html
+<a href="/search/" class="search-launcher" aria-haspopup="dialog">Search <span aria-hidden="true">(⌘ / Ctrl K)</span></a>
+```
+
+That anchor is in the built HTML of every route. It is an `<a>` and it carries
+no `aria-label`, so neither `[data-command-palette-trigger]` nor
+`button[aria-label*='search' i]` could ever match it. The palette a reader opens
+is built imperatively by `src/search/CommandPalette.ts`; the React component in
+`CommandPalette.tsx` beside it is imported by nothing except its own test and
+appears in no built chunk, so "no page mounts it" was true of that file and
+false of the capability. `am-ahyb`'s `scripts/e2e/uiExtraction.e2e.test.ts` had
+already diagnosed this in its own comment — "a selector failure wearing the
+clothes of a product gap" — and drives `a.search-launcher[aria-haspopup='dialog']`
+in both Chromium and WebKit, with a plant that breaks the shortcut and asserts
+the palette check and only that one then fails.
+
+`smoke.ts` now searches for the control the layout renders and the dialog
+`CommandPalette.ts` builds, keeping the two old selectors beside them. Nothing
+is loosened: a page with no trigger takes the same failing branch, which
+`smoke.test.ts` holds against a fixture with no palette, and a trigger that
+opens no dialog still fails on the `waitForSelector` timeout.
+
 `--smoke` is reachable only through that flag, and the `browser-acceptance`
-gate step invokes the runner with no flags, so this red does not enter CI.
+gate step invokes the runner with no flags, so this check does not enter CI
+either way.
+
+**Neither state has been re-measured in a browser on this machine**, because
+`~/Library/Caches/ms-playwright` is a symlink to
+`/Volumes/ExtData/fastmcp-work-20261010/offloaded-caches/ms-playwright` and that
+path does not exist: the volume is mounted but empty. Every Playwright lane
+refuses to launch here with "Executable doesn't exist". Whoever next has a
+working browser should run `bun scripts/e2e-paper-vertical-slices.ts --smoke`
+and record the four results.
 
 ## What a self-test proves
 

@@ -116,14 +116,23 @@ test("a toggle whose name says the theme it is already on fails the check", asyn
   }
 });
 
-test("an unmounted command palette fails the check and names what was searched for", async () => {
+test("a page with no command palette fails the check and names what was searched for", async () => {
+  // The fixture served here carries no palette of any kind, so the else branch is the one under
+  // test and this stays a real negative: the check must not pass on a page with no trigger.
+  //
+  // IT USED TO ASSERT THE MESSAGE NAMED `CommandPalette.tsx` AND SAID NO PAGE MOUNTED IT. That
+  // sentence was wrong about the real site -- src/app/layout.tsx mounts <SearchLauncher/> on every
+  // page and src/search/CommandPalette.ts builds the dialog -- so the assertion pinned a false
+  // explanation in place. What the test's own name claims is that the message NAMES WHAT WAS
+  // SEARCHED FOR, which is what it now checks: each of the three selectors the locator tries.
   const { baseUrl, server } = await serve(IDENTITY + THEME_GROUP);
   try {
     const result = await runSmokeJourney({ baseUrl });
     const palette = result.checks.find((c) => c.check === "command-palette");
     assert.equal(palette?.ok, false);
+    assert.match(palette?.message ?? "", /a\.search-launcher\[aria-haspopup='dialog'\]/);
     assert.match(palette?.message ?? "", /data-command-palette-trigger/);
-    assert.match(palette?.message ?? "", /CommandPalette\.tsx/);
+    assert.match(palette?.message ?? "", /button\[aria-label\*='search' i\]/);
   } finally {
     await close(server);
   }

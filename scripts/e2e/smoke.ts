@@ -177,15 +177,46 @@ export async function runSmokeJourney(options: RunSmokeOptions = {}): Promise<Sm
     }
 
     // 4. Command palette check (am-scaf-extract-ui-components-c31 integration)
+    //
+    // THIS CHECK SEARCHED FOR A CONTROL THE SITE HAS NEVER RENDERED, AND REPORTED THAT AS A
+    // PRODUCT GAP. Until 2026-10-22 the trigger locator was
+    // `[data-command-palette-trigger], button[aria-label*='search' i]` and the failure message
+    // read "The component exists at src/search/CommandPalette.tsx but no page mounts it."
+    // Both halves of that sentence are misleading:
+    //
+    //   - src/app/layout.tsx:86 mounts <SearchLauncher/> on EVERY page, and the control is in
+    //     the built HTML of every route: <a href="/search/" class="search-launcher"
+    //     aria-haspopup="dialog">Search (⌘ / Ctrl K)</a>. It is an ANCHOR with no aria-label,
+    //     so neither of the two old selectors could ever match it.
+    //   - the palette a reader opens is built by src/search/CommandPalette.ts, not by the React
+    //     component in the .tsx beside it. That .tsx is imported by nothing but its own test and
+    //     appears in no built chunk, so "no page mounts it" is true of the file and false of the
+    //     capability.
+    //
+    // scripts/e2e/uiExtraction.e2e.test.ts (am-ahyb) had already found this and written it down:
+    // "a selector failure wearing the clothes of a product gap". It drives
+    // `a.search-launcher[aria-haspopup='dialog']` in both Chromium and WebKit, opens the palette
+    // on the shortcut, closes it with Escape and checks focus returns, and carries a plant that
+    // breaks the shortcut and asserts THIS check and only this one then fails. Two files in one
+    // directory disagreed about the same fact and the wrong one was the one a reader met first.
+    //
+    // The selectors below are the element the layout renders and the dialog
+    // src/search/CommandPalette.ts builds (a native <dialog data-search-dialog="true">). The old
+    // selectors are KEPT alongside them: they cost nothing, and a future control that does carry
+    // them should still be found. Nothing here is loosened -- a page with no palette takes the
+    // else branch exactly as before, and a trigger that is present but opens no dialog still
+    // fails on the waitForSelector timeout.
+    const PALETTE_TRIGGER =
+      "a.search-launcher[aria-haspopup='dialog'], [data-command-palette-trigger], button[aria-label*='search' i]";
+    const PALETTE_DIALOG =
+      "dialog[data-search-dialog][open], [data-command-palette-dialog], [role='dialog']";
     const paletteStarted = performance.now();
     try {
-      const paletteTrigger = page
-        .locator("[data-command-palette-trigger], button[aria-label*='search' i]")
-        .first();
+      const paletteTrigger = page.locator(PALETTE_TRIGGER).first();
       const count = await paletteTrigger.count();
       if (count > 0 && (await paletteTrigger.isVisible())) {
         await paletteTrigger.click();
-        await page.waitForSelector("[data-command-palette-dialog], [role='dialog']", {
+        await page.waitForSelector(PALETTE_DIALOG, {
           timeout: 2000,
         });
         checks.push({
@@ -195,13 +226,13 @@ export async function runSmokeJourney(options: RunSmokeOptions = {}): Promise<Sm
           durationMs: performance.now() - paletteStarted,
         });
       } else {
-        // am-im0x: an unmounted palette is a real gap in the built site, not a
-        // passing check. src/search/CommandPalette.tsx exists; nothing renders it.
+        // am-im0x: a page with no palette trigger is a real gap, not a passing check. The message
+        // names what was searched for and makes no claim about WHY it is absent, because the
+        // previous guess at the why was wrong for eighteen days.
         checks.push({
           check: "command-palette",
           ok: false,
-          message:
-            "No visible palette trigger matched [data-command-palette-trigger] or button[aria-label*='search' i]. The component exists at src/search/CommandPalette.tsx but no page mounts it.",
+          message: `No visible palette trigger matched ${PALETTE_TRIGGER}.`,
           durationMs: performance.now() - paletteStarted,
         });
       }
