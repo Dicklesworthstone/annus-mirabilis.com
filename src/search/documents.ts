@@ -687,7 +687,15 @@ export function capstoneDocuments(
         face: "",
         title: capstone.title,
         text: capstone.text,
-        terms: [capstone.paper],
+        /*
+         * NOT THE PAPER SLUG, which is the same defect the connection builder below records and
+         * which this builder shipped with. Measured after it landed: a term match outweighs body
+         * text, so "brownian motion", "light quanta", "special relativity" and "mass energy" each
+         * returned the capstone ABOVE the paper itself. A reader typing a paper's name wants the
+         * paper. queryQuality.test.ts now pins all four, which it did not before: its two typo
+         * queries happened to fuzzy-match past the capstone and reported nothing.
+         */
+        terms: [`capstone-${capstone.paper}`],
         scopeLabel: `${capstone.paperTitle} · the paper's argument as claims to arrange, optional and printable`,
       }),
     )
@@ -757,6 +765,71 @@ export function marginNoteDocuments(
         text: note.text,
         terms: [note.id],
         scopeLabel: `${note.paperTitle} · ${note.kind === "dispute" ? "a recorded disagreement" : note.kind === "side-note" ? "a side note" : "the historian's margin"}, with its sources`,
+      }),
+    )
+    .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+}
+
+/** A connection between two papers, for the search index. Rows injected; see above. */
+export type SearchConnectionThread = Readonly<{
+  id: string;
+  /** The record's own sentence saying what the connection is. */
+  what: string;
+  /** "Uses a result", "Reaches the same number", and so on: the record's own label. */
+  label: string;
+  /** The paper slugs it joins, in received order. */
+  papers: readonly string[];
+  /** What a reader is told about the use, where the record carries one. */
+  text: string;
+}>;
+
+/**
+ * THE FIVE CONNECTIONS AMONG THE PAPERS. The last of the four declared-but-empty types with records
+ * behind it. /connections/ has existed since dispatch 253 and carries an element id for each of the
+ * five (verified in the built HTML), so the destination was settled and only the builder was
+ * missing.
+ *
+ * `paper` is the CROSS-PAPER scope rather than one of the two a connection joins, which is what the
+ * field means elsewhere in this index for a document that belongs to no single paper (a walkthrough
+ * with no resolved passage takes the same value). Filing it under one of its two papers would hide
+ * it from a filter on the other.
+ */
+export function connectionDocuments(
+  connections: readonly SearchConnectionThread[],
+  profile: SearchProfile,
+): readonly SearchDocument[] {
+  searchProfile(profile);
+  if (profile !== "scaffold") return [];
+  return connections
+    .map((connection) =>
+      validateSearchDocument({
+        id: `connection:${connection.id}`,
+        type: "connection-thread",
+        paper: "cross-paper",
+        section: "",
+        lang: "en",
+        route: "/connections/",
+        anchor: connection.id,
+        face: "",
+        title: connection.what,
+        text: connection.text,
+        /*
+         * NO TERMS AT ALL, which is a repair and the only builder here that needs it. The first
+         * version carried `[connection.id, ...connection.papers]` and queryQuality.test.ts went
+         * red on "brownain" and "relativty"; the live cause was worse than the typo tolerance it
+         * blamed, because a term match outweighs body text and "relativity" then returned three
+         * connection records with no relativity paper in the top three at all.
+         *
+         * The rule this teaches is narrower than "ids are not terms", which the other builders
+         * here disprove: `misc-bm-proves-molecules`, `note-bm-k-is-viscosity` and `eq-s3-d7` are
+         * all terms and harm nothing. It is that an id CONTAINING A WORD A READER WOULD TYPE FOR
+         * SOMETHING ELSE must not be a term, and these five ids are exactly that:
+         * `relativity-premises`, `molecular-number`, `energy-transformation`, `light-thread`,
+         * `counting`. Each connection stays findable through its own sentence, which names both
+         * papers, and a reader typing a slug is not a query this index owes an answer to.
+         */
+        terms: [],
+        scopeLabel: `Across the papers · ${connection.label.toLowerCase()}, joining ${connection.papers.length} of the four`,
       }),
     )
     .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));

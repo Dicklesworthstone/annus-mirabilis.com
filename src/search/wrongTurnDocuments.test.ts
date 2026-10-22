@@ -16,8 +16,10 @@ import { describe, expect, test } from "bun:test";
 import { searchResultHref } from "./core.ts";
 import {
   capstoneDocuments,
+  connectionDocuments,
   marginNoteDocuments,
   type SearchCapstone,
+  type SearchConnectionThread,
   type SearchMarginNote,
   type SearchWrongTurn,
   wrongTurnDocuments,
@@ -150,5 +152,52 @@ describe("marginNoteDocuments", () => {
   test("only the scaffold profile publishes them", () => {
     expect(marginNoteDocuments([NOTE], "preview")).toEqual([]);
     expect(marginNoteDocuments([], "scaffold")).toEqual([]);
+  });
+});
+
+describe("connectionDocuments", () => {
+  const CONNECTION: SearchConnectionThread = Object.freeze({
+    id: "energy-transformation",
+    what: "The September paper takes the light-energy transformation from relativity §8.",
+    label: "Uses a result",
+    papers: ["special-relativity", "mass-energy"],
+    text: "The September paper takes the light-energy transformation from relativity §8. The mass-energy paper starts from this transformation, citing § 8.",
+  });
+
+  test("a connection reaches its own element on the connections page", () => {
+    const [document] = connectionDocuments([CONNECTION], "scaffold");
+    expect(document?.id).toBe("connection:energy-transformation");
+    expect(document?.type).toBe("connection-thread");
+    expect(document?.anchor).toBe("energy-transformation");
+    expect(searchResultHref(document as NonNullable<typeof document>)).toBe(
+      "/connections/#energy-transformation",
+    );
+  });
+
+  test("it is filed cross-paper, not under one of the two it joins", () => {
+    const [document] = connectionDocuments([CONNECTION], "scaffold");
+    /*
+     * A connection belongs to no single paper, and filing it under one of its two would hide it
+     * from a filter on the other. `cross-paper` is what this index already uses for a document
+     * with no single paper (a walkthrough with no resolved passage takes the same value).
+     */
+    expect(document?.paper).toBe("cross-paper");
+    /*
+     * AND IT CARRIES NO TERMS. The first version had `[id, ...papers]`, and queryQuality.test.ts
+     * went red on two typo queries: a term match outweighs body text, so all five connections
+     * outranked the papers themselves and "relativity" returned three connection records with no
+     * relativity paper in the top three. These five ids each contain a word a reader types for
+     * something else (`relativity-premises`, `molecular-number`, `counting`), which is what makes
+     * this builder the exception; `eq-s3-d7` and `misc-bm-proves-molecules` do not and stay terms.
+     */
+    expect(document?.terms).toEqual([]);
+    // Both papers are searchable terms, which is how a reader looking for one of them finds it.
+    expect(document?.scopeLabel).toContain("uses a result");
+    expect(document?.scopeLabel).toContain("joining 2 of the four");
+  });
+
+  test("only the scaffold profile publishes them", () => {
+    expect(connectionDocuments([CONNECTION], "launch")).toEqual([]);
+    expect(connectionDocuments([], "scaffold")).toEqual([]);
   });
 });

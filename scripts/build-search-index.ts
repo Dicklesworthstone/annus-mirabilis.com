@@ -7,6 +7,7 @@ import {
   loadFoundationPayload,
   loadPaperPayload,
 } from "../src/content/compiler/serverLoaders.ts";
+import { loadConnections } from "../src/content/connections/connections.ts";
 import { loadGermanSourceFace } from "../src/content/editions/germanSourceFace.ts";
 import type { RouteSlug } from "../src/content/ids.ts";
 import { loadTeachingTapes } from "../src/content/teachingTapes.ts";
@@ -49,6 +50,7 @@ import {
   assertSearchCoverage,
   assertSearchFaceCoverage,
   capstoneDocuments,
+  connectionDocuments,
   discoveryDocuments,
   documentsFromCompiled,
   englishTranslationDocuments,
@@ -58,6 +60,7 @@ import {
   notationAliases,
   notationDocuments,
   type SearchCapstone,
+  type SearchConnectionThread,
   type SearchEnglishParagraph,
   type SearchExplainedEquation,
   type SearchMarginNote,
@@ -257,6 +260,15 @@ export async function loadSearchCorpus(
   const wrongTurns: SearchWrongTurn[] = [];
   const capstones: SearchCapstone[] = [];
   const marginNotes: SearchMarginNote[] = [];
+  // The five connections among the papers, which belong to no single paper and so are built
+  // outside the per-paper loop.
+  const connections: SearchConnectionThread[] = loadConnections().map((connection) => ({
+    id: connection.id,
+    what: connection.what,
+    label: connection.label,
+    papers: connection.papers,
+    text: [connection.what, connection.uses?.text].filter(Boolean).join(" "),
+  }));
   for (const { paper } of papers) {
     const margins = loadPaperMargins(paper.id);
     const sectionLabels = new Map(paper.sections.map((s) => [s.id, sectionShortLabel(s.title)]));
@@ -327,6 +339,7 @@ export async function loadSearchCorpus(
     ...wrongTurnDocuments(wrongTurns, profile),
     ...capstoneDocuments(capstones, profile),
     ...marginNoteDocuments(marginNotes, profile),
+    ...connectionDocuments(connections, profile),
     ...walkthroughDocuments(walkthroughs, profile),
     ...discoveryDocuments(ROUTE_INDEX, profile),
     ...tourDocuments(guidedTours, profile),

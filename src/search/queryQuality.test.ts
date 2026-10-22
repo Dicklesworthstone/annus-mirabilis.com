@@ -82,6 +82,53 @@ test("the corpus holds the notation and the German passages these queries need",
   expect(aliases.some((a) => a.label === "modern term")).toBe(true);
 });
 
+/**
+ * A RECORD DERIVED FROM A PAPER MUST NOT OUTRANK THE PAPER FOR THE PAPER'S OWN NAME.
+ *
+ * Added with the connection documents (2026-10-22) because two builders broke this within an hour
+ * of each other and the ten queries above reported nothing. Both put the PAPER SLUG in `terms`,
+ * where a match outweighs body text: with it, "relativity" returned three connection records and
+ * no relativity paper in the top three at all, and "brownian motion", "light quanta", "special
+ * relativity" and "mass energy" each returned that paper's CAPSTONE above the paper.
+ *
+ * The list above could not see either. "brownain" and "relativty" are typo queries and fuzzy
+ * matching happened to carry them past the capstone, so the one defect that shipped (the capstone
+ * terms, in bdd872200) was green for an hour. The property asserted here is the one that was
+ * violated, not the queries that happened to notice: for a paper's own name, every document
+ * DERIVED from that paper ranks below the paper itself.
+ *
+ * It does not assert that the paper is FIRST. Three of the four names put the discovery route
+ * first, because the route's title is exactly the paper's short name, and that ordering predates
+ * this test and is a question for the owner rather than an invariant to freeze here.
+ */
+const DERIVED_TYPES = ["capstone", "connection-thread", "misconception", "margin"] as const;
+
+for (const [query, slug] of [
+  ["brownian motion", "brownian-motion"],
+  ["light quanta", "light-quanta"],
+  ["special relativity", "special-relativity"],
+  ["mass energy", "mass-energy"],
+] as const) {
+  test(`"${query}" reaches the paper before anything derived from it`, () => {
+    const ranked = dropRepeatedHits(engine.search(query, { limit: SEARCH_LIMITS.results })).map(
+      (hit) => hit.document,
+    );
+    // Non-vacuity: a query that matched nothing would pass every clause below.
+    expect(ranked.length).toBeGreaterThan(3);
+    const paperAt = ranked.findIndex((d) => d.id === `paper:${slug}`);
+    expect({ query, paperFound: paperAt !== -1 }).toEqual({ query, paperFound: true });
+    const derivedAbove = ranked
+      .slice(0, paperAt)
+      .filter(
+        (d) =>
+          (DERIVED_TYPES as readonly string[]).includes(d.type) &&
+          (d.paper === slug || d.paper === "cross-paper"),
+      )
+      .map((d) => d.id);
+    expect(derivedAbove, derivedAbove.join(", ")).toEqual([]);
+  });
+}
+
 for (const [query, isTarget, why] of FIRST) {
   test(`"${query}" lands first on ${why}`, () => {
     const shown = topThree(query);
