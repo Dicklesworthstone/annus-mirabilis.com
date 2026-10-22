@@ -18,6 +18,7 @@ import {
   cataloguePapers,
   equationCatalogue,
   equationLocator,
+  marginNoteLocator,
   sectionShortLabel,
 } from "./catalogue.ts";
 import { everyExplanationRoute, fullExplanation } from "./fullExplanations.ts";
@@ -168,6 +169,27 @@ describe("the equations catalogue", () => {
     // And the fallback, which must be the id itself rather than a blank or a throw.
     expect(equationLocator("lab-bm-05-discrete-walk", sections)).toBe("lab-bm-05-discrete-walk");
     expect(equationLocator("eq-s9-d1", sections)).toBe("Display 1");
+  });
+
+  test("PLANTED: marginNoteLocator reads the sentence-id grammar, and refuses to guess", () => {
+    const sections = (section: string) =>
+      section === "s3" ? "§3" : section === "s0" ? "Introduction" : null;
+    // The shapes the 28 committed notes actually carry, measured 2026-10-22: 25 are s<n>-p<m>,
+    // one is s1-fn1, one is closing-ack, one carries no affected id at all.
+    expect(marginNoteLocator("s3-p6", sections)).toBe("§3, paragraph 6");
+    expect(marginNoteLocator("s0-p1", sections)).toBe("Introduction, paragraph 1");
+    expect(marginNoteLocator("s3-fn1", sections)).toBe("§3, footnote 1");
+    expect(marginNoteLocator("closing-ack", sections)).toBe("The closing acknowledgment");
+    expect(marginNoteLocator("closing-dateline", sections)).toBe("The date-line");
+    // A sentence id narrows to its paragraph, because that is where the note is rendered.
+    expect(marginNoteLocator("s3-p6-s2", sections)).toBe("§3, paragraph 6");
+    // A paper with no sections to cite: mass-energy's notes are all under s0 and it prints none.
+    expect(marginNoteLocator("s0-p12", () => null)).toBe("Paragraph 12");
+    // And the refusals: no affected id, and an id the grammar does not know. `null` here is read
+    // by the caller as "a note on the paper as a whole", never as a blank title.
+    expect(marginNoteLocator(undefined, sections)).toBeNull();
+    expect(marginNoteLocator("not-an-id", sections)).toBeNull();
+    expect(marginNoteLocator("s9-p1", sections)).toBe("Paragraph 1");
   });
 
   test("sectionShortLabel takes the citation and leaves the editorial gloss", () => {

@@ -694,6 +694,74 @@ export function capstoneDocuments(
     .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 }
 
+/** A historian's-margin note, for the search index. Rows injected; see explainedEquationDocuments. */
+export type SearchMarginNote = Readonly<{
+  id: string;
+  paper: string;
+  paperTitle: string;
+  /** Where the note attaches, as a reader would cite it: "§3, paragraph 2" (marginNoteLocator). */
+  locator: string;
+  /** The note's own claim, with its reasoning and evidence where it carries them. */
+  text: string;
+  /** historian-margin, side-note or dispute, for the scope line. */
+  kind: string;
+}>;
+
+/**
+ * THE 28 HISTORICAL NOTES. The third of the eight declared-but-empty search types to be built, and
+ * the one that needed a decision rather than a builder: a note carries `claim`, 313 to 1,253
+ * characters with a median of 680, and no short name, against index titles of median 16 and a
+ * /search/ view that renders a title with no clamp.
+ *
+ * SO THE TITLE IS WHERE THE NOTE ATTACHES, derived from its own `affectedIds[0]` in the same style
+ * as the printed displays' locators, and the claim is the text. 27 of the 28 carry an affected id
+ * (25 of the form `s<n>-p<m>`, one `s1-fn1`, one `closing-ack`); the 28th is about the paper as a
+ * whole and says so in its title.
+ *
+ * THE COST, MEASURED RATHER THAN DISCOVERED LATER: 11 of the 28 share a title with another note,
+ * because several notes attach to one paragraph -- four to mass-energy's `s0-p12` alone, which has
+ * no section to qualify it. A reader therefore meets four results titled "Paragraph 12",
+ * distinguished by their snippets. That is worse than a unique title and much better than no
+ * document, which is the whole of the choice: this edition's rule is that a dropped row is a page a
+ * reader cannot find.
+ *
+ * AND THE ID CANNOT SUPPLY THE DIFFERENCE, which is why the obvious repair is not taken here. The
+ * ids are descriptive kebab slugs, but a single letter in them is sometimes a sequence marker and
+ * sometimes the subject: `note-bm-g-exner-measured-the-wrong-quantity` wants the `g` dropped and
+ * `note-bm-k-is-viscosity` wants it kept, because k IS the thing the note is about. Undecidable
+ * from the id, so a derived discriminator would silently mangle one of the two. The fix is a short
+ * `title` on each of the 28 records, which is content work and is on am-ahgo; this derivation moves
+ * nothing when it arrives.
+ */
+export function marginNoteDocuments(
+  notes: readonly SearchMarginNote[],
+  profile: SearchProfile,
+): readonly SearchDocument[] {
+  searchProfile(profile);
+  if (profile !== "scaffold") return [];
+  return notes
+    .map((note) =>
+      validateSearchDocument({
+        id: `margin:${note.id}`,
+        type: "margin",
+        paper: note.paper,
+        section: "",
+        lang: "en",
+        // PaperMargins renders the note as `id={`note-${note.id}`}`, and the record ids already
+        // begin with `note-`, so the element id is doubled in the built HTML. Spelled the way the
+        // page spells it rather than the way it reads; searchAnchorsResolve holds the two together.
+        route: `/papers/${note.paper}/`,
+        anchor: `note-${note.id}`,
+        face: "",
+        title: note.locator,
+        text: note.text,
+        terms: [note.id],
+        scopeLabel: `${note.paperTitle} · ${note.kind === "dispute" ? "a recorded disagreement" : note.kind === "side-note" ? "a side note" : "the historian's margin"}, with its sources`,
+      }),
+    )
+    .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+}
+
 export function notationDocuments(
   glyphs: readonly SearchNotationGlyph[],
   profile: SearchProfile,

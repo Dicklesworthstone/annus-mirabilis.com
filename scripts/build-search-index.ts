@@ -17,6 +17,7 @@ import { GUIDED_TOURS } from "../src/discovery/tours/catalogue.ts";
 import {
   equationCatalogue,
   equationLocator,
+  marginNoteLocator,
   sectionShortLabel,
 } from "../src/equations/printed/catalogue.ts";
 import { recordLatex } from "../src/equations/recordLatex.ts";
@@ -53,11 +54,13 @@ import {
   englishTranslationDocuments,
   explainedEquationDocuments,
   germanSourceDocuments,
+  marginNoteDocuments,
   notationAliases,
   notationDocuments,
   type SearchCapstone,
   type SearchEnglishParagraph,
   type SearchExplainedEquation,
+  type SearchMarginNote,
   type SearchProfile,
   type SearchWrongTurn,
   searchInlineText,
@@ -253,8 +256,26 @@ export async function loadSearchCorpus(
    */
   const wrongTurns: SearchWrongTurn[] = [];
   const capstones: SearchCapstone[] = [];
+  const marginNotes: SearchMarginNote[] = [];
   for (const { paper } of papers) {
     const margins = loadPaperMargins(paper.id);
+    const sectionLabels = new Map(paper.sections.map((s) => [s.id, sectionShortLabel(s.title)]));
+    const hasSections = paper.sections.length > 1;
+    const labelOf = (section: string) =>
+      hasSections ? (sectionLabels.get(section) ?? null) : null;
+    for (const note of margins.notes) {
+      const locator = marginNoteLocator(note.affectedIds[0], labelOf);
+      marginNotes.push({
+        id: note.id,
+        paper: paper.id,
+        paperTitle: paper.title,
+        // One of the 28 names no affected id and is about the paper as a whole; it says so rather
+        // than being given a position it does not have.
+        locator: locator ?? "A note on the paper as a whole",
+        text: [note.claim, note.reasoning, note.evidence].filter(Boolean).join(" "),
+        kind: note.kind,
+      });
+    }
     for (const wrongTurn of margins.misconceptions) {
       const claim = wrongTurn.temptingClaims[0];
       // A record with no tempting claim has nothing a reader would type, and the schema permits
@@ -286,19 +307,15 @@ export async function loadSearchCorpus(
         text: [capstone.question, ...capstone.claims.map((claim) => claim.text)].join(" "),
       });
     }
-    const labels = new Map(paper.sections.map((s) => [s.id, sectionShortLabel(s.title)]));
     // mass-energy prints no numbered sections and its whole argument is s0, so its displays are
-    // cited by number alone rather than under a section that does not exist.
-    const sectioned = paper.sections.length > 1;
+    // cited by number alone rather than under a section that does not exist (labelOf, above).
     for (const row of equationCatalogue(paper.id)) {
       if (row.kind !== "printed") continue;
       explainedEquations.push({
         display: row.display,
         paper: paper.id,
         paperTitle: paper.title,
-        locator: equationLocator(row.display, (section) =>
-          sectioned ? (labels.get(section) ?? null) : null,
-        ),
+        locator: equationLocator(row.display, labelOf),
         words: row.words,
         spoken: row.spoken,
       });
@@ -309,6 +326,7 @@ export async function loadSearchCorpus(
     ...explainedEquationDocuments(explainedEquations, profile),
     ...wrongTurnDocuments(wrongTurns, profile),
     ...capstoneDocuments(capstones, profile),
+    ...marginNoteDocuments(marginNotes, profile),
     ...walkthroughDocuments(walkthroughs, profile),
     ...discoveryDocuments(ROUTE_INDEX, profile),
     ...tourDocuments(guidedTours, profile),

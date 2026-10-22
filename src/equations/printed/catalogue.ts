@@ -211,3 +211,33 @@ export function equationLocator(
   if (bare?.[1]) return `Equation (${bare[1]})`;
   return display;
 }
+
+/**
+ * WHERE A MARGIN NOTE ATTACHES, as a reader would cite it: "§3, paragraph 2", "§1, footnote 1",
+ * "The closing acknowledgment". Reads the sentence-id grammar of docs/CONTENT_IDS.md off the
+ * note's own `affectedIds[0]`, with the section's short label supplied by the caller exactly as
+ * `equationLocator` takes it.
+ *
+ * `null` for a note that names no affected id, which is one of the 28: the caller titles that one
+ * as a note on the paper as a whole rather than guessing a position for it.
+ */
+export function marginNoteLocator(
+  affectedId: string | undefined,
+  sectionLabelOf: (section: string) => string | null,
+): string | null {
+  if (!affectedId) return null;
+  if (affectedId === "closing-ack") return "The closing acknowledgment";
+  if (affectedId === "closing-dateline") return "The date-line";
+  const paragraph = /^(s\d+)-p(\d+)(?:-s\d+[a-z]?)?$/.exec(affectedId);
+  if (paragraph?.[1] && paragraph[2]) {
+    const section = sectionLabelOf(paragraph[1]);
+    return section ? `${section}, paragraph ${paragraph[2]}` : `Paragraph ${paragraph[2]}`;
+  }
+  const footnote = /^(s\d+)-fn(\d+)$/.exec(affectedId);
+  if (footnote?.[1] && footnote[2]) {
+    const section = sectionLabelOf(footnote[1]);
+    return section ? `${section}, footnote ${footnote[2]}` : `Footnote ${footnote[2]}`;
+  }
+  const section = /^s(\d+)$/.exec(affectedId) ? sectionLabelOf(affectedId) : null;
+  return section;
+}

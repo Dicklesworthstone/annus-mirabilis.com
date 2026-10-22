@@ -16,7 +16,9 @@ import { describe, expect, test } from "bun:test";
 import { searchResultHref } from "./core.ts";
 import {
   capstoneDocuments,
+  marginNoteDocuments,
   type SearchCapstone,
+  type SearchMarginNote,
   type SearchWrongTurn,
   wrongTurnDocuments,
 } from "./documents.ts";
@@ -103,5 +105,50 @@ describe("capstoneDocuments", () => {
     expect(document?.scopeLabel).toContain("optional");
     expect(capstoneDocuments([CAPSTONE], "launch")).toEqual([]);
     expect(capstoneDocuments([], "scaffold")).toEqual([]);
+  });
+});
+
+describe("marginNoteDocuments", () => {
+  const NOTE: SearchMarginNote = Object.freeze({
+    id: "note-bm-k-is-viscosity",
+    paper: "brownian-motion",
+    paperTitle: "Brownian motion",
+    locator: "§3, paragraph 6",
+    text: "Einstein's k in this paper is the viscosity of the liquid, not Boltzmann's constant.",
+    kind: "historian-margin",
+  });
+
+  test("the note reaches its own element on the paper page, doubled prefix and all", () => {
+    const [document] = marginNoteDocuments([NOTE], "scaffold");
+    expect(document?.id).toBe("margin:note-bm-k-is-viscosity");
+    expect(document?.type).toBe("margin");
+    expect(document?.title).toBe("§3, paragraph 6");
+    /*
+     * PaperMargins renders `id={`note-${note.id}`}` and the record ids already begin with `note-`,
+     * so the element id in the built HTML is doubled. Spelled here the way the PAGE spells it,
+     * which is not the way it reads; src/testing/searchAnchorsResolve.test.ts holds the two
+     * together against out/, so this is verified rather than agreed between two files.
+     */
+    expect(document?.anchor).toBe("note-note-bm-k-is-viscosity");
+    expect(searchResultHref(document as NonNullable<typeof document>)).toBe(
+      "/papers/brownian-motion/#note-note-bm-k-is-viscosity",
+    );
+  });
+
+  test("the scope line names which margin the note belongs to", () => {
+    const of = (kind: string) =>
+      marginNoteDocuments([{ ...NOTE, kind }], "scaffold")[0]?.scopeLabel ?? "";
+    expect(of("historian-margin")).toContain("the historian's margin");
+    expect(of("side-note")).toContain("a side note");
+    expect(of("dispute")).toContain("a recorded disagreement");
+    // Every kind says "with its sources", because a historical claim without them is the thing
+    // AGENTS.md forbids.
+    for (const kind of ["historian-margin", "side-note", "dispute"])
+      expect(of(kind)).toContain("with its sources");
+  });
+
+  test("only the scaffold profile publishes them", () => {
+    expect(marginNoteDocuments([NOTE], "preview")).toEqual([]);
+    expect(marginNoteDocuments([], "scaffold")).toEqual([]);
   });
 });
