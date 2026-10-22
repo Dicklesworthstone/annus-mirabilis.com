@@ -1,0 +1,146 @@
+/*
+ * THE EQUATIONS CATALOGUE (am-9p8v), shared by /equations/ and /equations/<paper>/.
+ *
+ * A row is a sentence, not a formula, and the module that builds the rows records why with the
+ * measurement: one paper's drawn equations are 1,056 kB of markup against 27 kB of sentences. So
+ * the layout is a reading column of linked sentences, each with its address in the mono face, and
+ * nothing here needs to hold a formula's width. At 320px the id sits above its sentence rather
+ * than beside it, so no row sets a minimum width and no region scrolls sideways.
+ */
+
+.equation-catalogue {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+}
+
+.equation-catalogue-lede {
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.equation-catalogue-german {
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.5;
+  margin: 0.25rem 0 2rem;
+}
+
+.equation-catalogue-group {
+  margin: 2.5rem 0 0;
+}
+
+.equation-catalogue-clause {
+  color: var(--muted);
+  line-height: 1.55;
+  margin: 0.25rem 0 0.75rem;
+}
+
+.equation-catalogue-count {
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.equation-catalogue-rows,
+.equation-catalogue-papers {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 1px;
+  background: var(--rule);
+  border-block: 1px solid var(--rule);
+}
+
+.equation-catalogue-rows a,
+.equation-catalogue-papers a {
+  display: grid;
+  gap: 0.2rem 0.75rem;
+  padding: 0.7rem 0.5rem;
+  min-height: 44px;
+  align-content: center;
+  background: var(--paper);
+  color: inherit;
+  text-decoration: none;
+}
+
+.equation-catalogue-rows a:hover,
+.equation-catalogue-rows a:focus-visible,
+.equation-catalogue-papers a:hover,
+.equation-catalogue-papers a:focus-visible {
+  background: var(--wash);
+}
+
+.equation-catalogue-id {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.equation-catalogue-words {
+  line-height: 1.5;
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-underline-offset: 0.18em;
+}
+
+.equation-catalogue-rows a:hover .equation-catalogue-words,
+.equation-catalogue-rows a:focus-visible .equation-catalogue-words {
+  text-decoration-color: currentColor;
+}
+
+/* The id beside the sentence once there is room for both; stacked below 32rem. */
+@media (min-width: 32rem) {
+  .equation-catalogue-rows a {
+    grid-template-columns: 7.5rem 1fr;
+  }
+
+  .equation-catalogue-id {
+    text-align: right;
+    padding-top: 0.15em;
+  }
+}
+
+.equation-catalogue-paper-title {
+  font-size: 1.1rem;
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-underline-offset: 0.18em;
+}
+
+.equation-catalogue-paper-count {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.equation-catalogue-paper-german {
+  color: var(--muted);
+  font-style: italic;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.equation-catalogue-kinds {
+  margin: 1rem 0 0;
+}
+
+.equation-catalogue-kinds dt {
+  font-weight: 600;
+  margin-top: 1.1rem;
+}
+
+.equation-catalogue-kinds dd {
+  margin: 0.2rem 0 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.equation-catalogue-elsewhere {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+  line-height: 1.6;
+}

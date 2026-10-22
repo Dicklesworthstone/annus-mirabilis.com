@@ -65,8 +65,9 @@ export default function NotFound() {
           The <a href="/instruments/">instruments</a> let you operate the arguments yourself. The{" "}
           <a href="/discover/">discovery routes</a> reconstruct the problem before its solution was
           known. The <a href="/foundations/">foundations</a> explain the mathematics a passage
-          assumes, and the <a href="/notation/">notation concordance</a> records what each printed
-          symbol means in each paper.
+          assumes, the <a href="/equations/">equations</a> are listed by what each one says, and the{" "}
+          <a href="/notation/">notation concordance</a> records what each printed symbol means in
+          each paper.
         </p>
         <p>
           If you know roughly what you are looking for, <a href="/search/">search</a> reaches every

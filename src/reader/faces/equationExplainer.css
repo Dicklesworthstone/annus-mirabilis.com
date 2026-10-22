@@ -243,3 +243,11 @@
   font-family: var(--font-sans);
   font-size: var(--type-small);
 }
+
+/* The way up to the paper's equations catalogue (am-9p8v). It sits under the way back to the
+   passage, so the two directions read as a pair rather than as one rule with two links. */
+.equation-explanation-catalogue {
+  margin: 0.4rem 0 0;
+  font-family: var(--font-sans);
+  font-size: var(--type-small);
+}

@@ -143,3 +143,68 @@
     border-left-color: var(--ink);
   }
 }
+
+/*
+ * THE CAPSTONE INDEX (am-9p8v): the door a trimmed /capstones/<paper>/ finds. Four rows, each the
+ * record's title over its question, on the same ruled-list device the equations catalogue uses.
+ */
+.capstone-index {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+}
+
+.capstone-index-lede {
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.capstone-index-list {
+  list-style: none;
+  padding: 0;
+  margin: 2rem 0 0;
+  display: grid;
+  gap: 1px;
+  background: var(--rule);
+  border-block: 1px solid var(--rule);
+}
+
+.capstone-index-list a {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.9rem 0.5rem;
+  min-height: 44px;
+  background: var(--paper);
+  color: inherit;
+  text-decoration: none;
+}
+
+.capstone-index-list a:hover,
+.capstone-index-list a:focus-visible {
+  background: var(--wash);
+}
+
+.capstone-index-title {
+  font-size: 1.1rem;
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-underline-offset: 0.18em;
+}
+
+.capstone-index-question {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.capstone-index-count {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.capstone-index-elsewhere {
+  margin-top: 2.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+  line-height: 1.6;
+}

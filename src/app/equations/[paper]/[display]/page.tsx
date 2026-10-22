@@ -77,6 +77,11 @@ export default async function Page({
           <a href={explanation.source.href}>{explanation.source.label}</a>
         </p>
       ) : null}
+      {/* The way up, which did not exist until am-9p8v: /equations/<paper>/ was a 404 with between
+          40 and 122 of these pages beneath it, so trimming this address reached nothing. */}
+      <p className="equation-explanation-catalogue">
+        <a href={`/equations/${paper}/`}>Every equation in this paper</a>
+      </p>
     </main>
   );
 }

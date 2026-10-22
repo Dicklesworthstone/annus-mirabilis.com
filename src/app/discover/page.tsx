@@ -183,6 +183,18 @@ export default function DiscoverIndex() {
           </p>
         </section>
       )}
+
+      {/* The capstones' own index, which did not exist until am-9p8v: /capstones/ was a 404 with
+          the four pages beneath it, so a reader who trimmed one of those addresses found nothing.
+          This is the door from the routes to the arguments laid out whole. */}
+      <section className="reading page-flush">
+        <h2>When you have followed a route</h2>
+        <p>
+          The <a href="/capstones/">capstones</a> lay each paper&rsquo;s argument out whole: the
+          claims, the chain that fixes what has to come before what, and the assumptions each claim
+          leans on. One per paper, optional, and made to be printed.
+        </p>
+      </section>
     </>
   );
 }

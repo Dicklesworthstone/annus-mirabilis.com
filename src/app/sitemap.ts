@@ -6,6 +6,7 @@ import { loadTeachingTapes } from "../content/teachingTapes.ts";
 import { tourIds } from "../content/tours/tours.ts";
 import { ROUTE_INDEX } from "../discovery/routeIndex.ts";
 import { GUIDED_TOURS } from "../discovery/tours/catalogue.ts";
+import { cataloguePapers } from "../equations/printed/catalogue.ts";
 import { isSitemapExemptUrl } from "../experiments/permalink/canonical.ts";
 import { absoluteUrl, readerSitemapEntries } from "../reader/paperRoutes.ts";
 import { tapePath } from "../reader/sitePaths.ts";
@@ -23,6 +24,7 @@ export const FIXED_PAGES = [
   "/discover/",
   "/discover/brownian-motion/investigate/",
   "/foundations/",
+  "/equations/",
   "/instruments/",
   "/kitchen/",
   "/notation/",
@@ -32,6 +34,8 @@ export const FIXED_PAGES = [
   // is per-device or a duplicate of another canonical. All four are written: mass-energy
   // (am-disc-capstones-infra-3352), brownian-motion (am-disc-capstone-brownian-f8tq), light-quanta
   // (am-disc-capstone-light-quanta-98xc) and special-relativity (am-disc-capstone-relativity-t8hg).
+  // The index, added with the page (am-9p8v): /capstones/ was a 404 with these four beneath it.
+  "/capstones/",
   "/capstones/brownian-motion/",
   "/capstones/light-quanta/",
   "/capstones/mass-energy/",
@@ -139,6 +143,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...FIXED_PAGES,
     ...ROUTE_INDEX.map((route) => `/discover/${route.slug}/`),
     ...lessons,
+    // One catalogue per paper that has explained equations (am-9p8v). They sit under a dynamic
+    // segment, so sitemap.test.ts's fixed-address walk cannot see them: left out here they would
+    // be four pages a crawler is never told about, each listing between 40 and 122 explanations.
+    ...cataloguePapers().map(({ paper }) => `/equations/${paper}/`),
     ...labPaths(),
     ...sources,
     // One page per authored teaching tape (am-2rl9). They are the only address at which

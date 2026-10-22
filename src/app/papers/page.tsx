@@ -220,6 +220,7 @@ export default function Papers() {
                 {paper.title === "Light quanta" && (
                   <div className="actions">
                     <a href="/papers/light-quanta/">Read the argument</a>
+                    <a href="/equations/light-quanta/">Every equation, listed by what it says</a>
                     <a href="/papers/light-quanta/#entry-light-quanta">
                       Start with a counting example
                     </a>
@@ -230,6 +231,7 @@ export default function Papers() {
                 {paper.title === "Brownian motion" && (
                   <div className="actions">
                     <a href="/papers/brownian-motion/">Read the argument</a>
+                    <a href="/equations/brownian-motion/">Every equation, listed by what it says</a>
                     {paper.firstEncounterAnchor && (
                       <a href={paper.firstEncounterAnchor}>Start with one worked example</a>
                     )}
@@ -240,6 +242,9 @@ export default function Papers() {
                 {paper.title === "Special relativity" && (
                   <div className="actions">
                     <a href="/papers/special-relativity/">Read the argument</a>
+                    <a href="/equations/special-relativity/">
+                      Every equation, listed by what it says
+                    </a>
                     <a href="/papers/special-relativity/#entry-special-relativity">
                       Start by setting a distant clock
                     </a>
@@ -251,6 +256,7 @@ export default function Papers() {
                 {paper.title === "Mass and energy" && (
                   <div className="actions">
                     <a href="/papers/mass-energy/">Read the argument</a>
+                    <a href="/equations/mass-energy/">Every equation, listed by what it says</a>
                     <a href="/papers/mass-energy/#entry-mass-energy">
                       Start with one worked example
                     </a>

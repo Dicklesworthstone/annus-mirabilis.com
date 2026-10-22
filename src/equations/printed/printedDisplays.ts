@@ -47,3 +47,31 @@ export function printedDisplayInPaper(
   const inSection = section ? found.filter((d) => d.display.startsWith(`eq-${section}-`)) : [];
   return inSection.length === 1 ? inSection[0] : undefined;
 }
+
+/**
+ * One paper's display ids IN PRINTED ORDER, deduplicated, keeping each id's first appearance.
+ *
+ * The order is the payload's own, which is the order `content/display-terms/<paper>.yaml` lists the
+ * displays, and that file is authored in printed order. NO SORT OF THE IDS REPRODUCES IT: Brownian
+ * § 3 runs `eq-s3-d3`, `eq-s3-1`, `eq-s3-d4`, putting the printed (1) between two unnumbered
+ * displays, and `eq-2` falls after `eq-s3-d8` while carrying no section in its id at all. Two of
+ * the 200 printed displays are in that last position (`brownian-motion/eq-2` and
+ * `special-relativity/eq-A`), which is why the equations catalogue lists a paper's printed displays
+ * in one printed-order sequence rather than grouping them under section headings: the section a
+ * reader would see beside those two would be inferred from a neighbour rather than read from a
+ * record.
+ *
+ * The dedupe is not defensive: the payload holds 201 rows for 200 distinct displays, because
+ * `mass-energy/eq-s0-d1` is carried under two LaTeX forms and this payload is keyed by display AND
+ * latex (`BY_KEY` above). A catalogue wants the display once.
+ */
+export function printedDisplayOrder(paper: string): readonly string[] {
+  const seen = new Set<string>();
+  const order: string[] = [];
+  for (const display of DISPLAYS) {
+    if (display.paper !== paper || seen.has(display.display)) continue;
+    seen.add(display.display);
+    order.push(display.display);
+  }
+  return order;
+}

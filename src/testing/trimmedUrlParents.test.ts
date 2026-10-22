@@ -20,19 +20,35 @@
  * `vercel.json` carries no rewrite and `next.config` only sets `trailingSlash`, so these are 404s
  * on the deployment and not an artefact of reading the directory.
  *
- * SO THE 43 ARE A DECLARED DEBT AND MAY ONLY FALL, which is this repository's pattern for a gap it
+ * SO THEY ARE A DECLARED DEBT AND MAY ONLY FALL, which is this repository's pattern for a gap it
  * has measured and not yet decided -- `perf/readingFaceRecords.json` ("The budget is not raised")
  * and `readingCoverage.baseline.json` ("They may only fall"). A NEW unresolvable parent is a
  * failure. A declared one that starts resolving is also a failure, because the entry has to go
  * when the debt is paid: a baseline that only ever rises is a budget.
  *
- * WHY THIS FILE DOES NOT FIX THEM. The two with a natural destination, `/equations/` with 279
- * descendant routes and `/capstones/` with 4, need an index page that does not exist -- there is no
- * equations catalogue to re-render, so unlike `/lab/` the fix is a new reader-facing surface, which
- * is product design and the owner's. The other 36 are intermediate segments (`/papers/<paper>/
- * view/`, `/offline/<paper>/`, `/embed/lab/`) where a reader trimming one more segment reaches a
- * real page. Both groups are recorded below with their descendant counts so whoever decides has the
- * numbers, and neither is invented here.
+ * SIX OF THE 43 WERE PAID, AND THE DEBT FELL TO 37 (am-9p8v, 2026-10-22, re-measured over a fresh
+ * build: 764 page routes, 37 parent paths that resolve to nothing, 37 declared, 0 undeclared). The
+ * two groups with a natural destination now have one, and both are derived rather than authored:
+ * `/equations/` and the four `/equations/<paper>/` serve the edition's equations catalogue, every
+ * explained equation listed by what it says, taken from the explanation's own `inWords` and grouped
+ * by its own `source.label` (`src/equations/printed/catalogue.ts`); `/capstones/` serves the four
+ * capstones from their own records. Those six entries were deleted from the list in the same
+ * change, which is what this file's second half is for.
+ *
+ * THE REMAINING 37 STAY DECLARED, AS A DECISION RATHER THAN A DEFERRAL. All of them are
+ * intermediate segments, and a reader who trims one more segment reaches the page they were
+ * reading: `/papers/<paper>/view/` and `/papers/<paper>/s<n>/view/` (32 entries) namespace the
+ * seven faces and carry no meaning of their own, `/offline/<paper>/` (4) is the same shape, and
+ * `/embed/lab/` (1, with 36 beneath it) is an embedding namespace rather than a reader surface --
+ * an index there would invite a reader into pages built to sit in someone else's frame, with
+ * attribution and a link back instead of the site's own chrome.
+ *
+ * The alternative is not free, which is the half of this decision worth writing down. A route here
+ * costs an inbound link or an entry in `routeReachability.test.ts`'s allowlist, which is an
+ * allowlist of two and is meant to stay small; a sitemap listing or a recorded exemption, which
+ * `sitemap.test.ts` checks against the page's own metadata; and an offline-manifest entry. Thirty-
+ * two doors onto pages one trim away would be thirty-two of each, and `/lab/` -- the precedent --
+ * is one page onto a catalogue that 36 instruments share, not one page per instrument.
  */
 
 import { describe, expect, test } from "bun:test";
@@ -42,19 +58,13 @@ import { join, posix, resolve } from "node:path";
 const OUT = resolve(process.cwd(), "out");
 
 /**
- * Parent paths that 404 today, each with the number of built routes beneath it, measured
- * 2026-10-21. Explicit paths rather than patterns: a fifth paper's faces would add entries and
- * SHOULD turn this red, so that the class is decided rather than silently extended.
+ * Parent paths that 404 today, each with the number of built routes beneath it, re-measured over a
+ * fresh build on 2026-10-22: 37 of them, down from 43, with the six the equations and capstones
+ * catalogues answered deleted rather than left here. Explicit paths rather than patterns: a fifth
+ * paper's faces would add entries and SHOULD turn this red, so that the class is decided rather
+ * than silently extended.
  */
 const DECLARED_DEAD_ENDS: Readonly<Record<string, number>> = Object.freeze({
-  // A natural index that does not exist. The biggest dead end in the edition by descendants.
-  "/equations/": 279,
-  "/equations/special-relativity/": 122,
-  "/equations/light-quanta/": 62,
-  "/equations/brownian-motion/": 55,
-  "/equations/mass-energy/": 40,
-  // A natural index that does not exist, four descendants.
-  "/capstones/": 4,
   // Intermediate segments: trimming one more reaches a real page.
   "/embed/lab/": 36,
   "/offline/special-relativity/": 11,
@@ -143,7 +153,7 @@ function deadEnds(): Map<string, number> {
 describe("a trimmed URL finds a page, or the dead end is declared", () => {
   test("the build is present and the population is not vacuous", () => {
     // Otherwise every assertion below iterates nothing and passes, which is the clean-run-over-an-
-    // empty-population shape. Measured 2026-10-21: 758 page routes.
+    // empty-population shape. Measured 2026-10-22 over a fresh build: 764 page routes.
     expect(
       PAGE_ROUTES.length,
       "no built page routes under out/. Run `bun run build`; this gate reads the build.",
@@ -166,9 +176,10 @@ describe("a trimmed URL finds a page, or the dead end is declared", () => {
   });
 
   test("a declared dead end that now resolves must leave this list", () => {
-    // The other half of a ratchet, and the half that is usually missing: when `/equations/` gets
-    // its index, this test goes red until the entry is deleted. A baseline that only ever rises is
-    // a budget.
+    // The other half of a ratchet, and the half that is usually missing. It has now fired once in
+    // anger: when `/equations/` and `/capstones/` got their index pages (am-9p8v) this test went
+    // red on six entries until they were deleted, which is what it is for. A baseline that only
+    // ever rises is a budget.
     const fixed = Object.keys(DECLARED_DEAD_ENDS).filter((parent) => resolvesInBuild(parent));
     expect(
       fixed,
@@ -186,15 +197,26 @@ describe("a trimmed URL finds a page, or the dead end is declared", () => {
     expect(resolvesInBuild("/instruments/")).toBe(true);
     expect(resolvesInBuild("/papers/mass-energy/")).toBe(true);
     expect(resolvesInBuild("/papers/not-a-paper/")).toBe(false);
+    /*
+     * The six paid debts, named rather than merely absent from the list above. Deleting an entry
+     * and deleting the page that answered it are the same diff to the test above -- both leave a
+     * shorter list with nothing undeclared -- so the pages are asserted here, where losing one
+     * fails with the path in the message.
+     */
+    expect(resolvesInBuild("/equations/"), "the equations catalogue (am-9p8v)").toBe(true);
+    expect(resolvesInBuild("/equations/special-relativity/")).toBe(true);
+    expect(resolvesInBuild("/equations/mass-energy/")).toBe(true);
+    expect(resolvesInBuild("/capstones/"), "the capstone index (am-9p8v)").toBe(true);
 
     // The walk must find the declared ones; if it enumerated nothing, "0 undeclared" would be
     // vacuous rather than clean.
     const found = deadEnds();
     expect(
-      found.get("/equations/"),
-      "/equations/ is the largest declared dead end",
-    ).toBeGreaterThan(200);
+      found.get("/embed/lab/"),
+      "/embed/lab/ is the largest declared dead end, with 36 embeds beneath it",
+    ).toBeGreaterThan(20);
     expect(found.has("/papers/mass-energy/view/")).toBe(true);
+    expect(found.has("/equations/")).toBe(false);
     // And it must NOT report a parent that resolves.
     expect(found.has("/papers/")).toBe(false);
     expect(found.has("/lab/")).toBe(false);
