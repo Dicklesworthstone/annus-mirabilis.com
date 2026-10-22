@@ -155,8 +155,7 @@
 }
 
 .capstone-index-lede {
-  font-size: 1.05rem;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 .capstone-index-list {
@@ -185,7 +184,7 @@
 }
 
 .capstone-index-title {
-  font-size: 1.1rem;
+  font-size: var(--type-body);
   text-decoration: underline;
   text-decoration-color: var(--rule);
   text-underline-offset: 0.18em;
@@ -198,7 +197,7 @@
 
 .capstone-index-count {
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: var(--type-fine);
   color: var(--muted);
 }
 
@@ -206,5 +205,5 @@
   margin-top: 2.5rem;
   padding-top: 1rem;
   border-top: 1px solid var(--rule);
-  line-height: 1.6;
+  line-height: 1.5;
 }

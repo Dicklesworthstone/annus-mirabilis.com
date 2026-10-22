@@ -15,8 +15,7 @@
 }
 
 .equation-catalogue-lede {
-  font-size: 1.05rem;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 .equation-catalogue-german {
@@ -32,13 +31,13 @@
 
 .equation-catalogue-clause {
   color: var(--muted);
-  line-height: 1.55;
+  line-height: 1.5;
   margin: 0.25rem 0 0.75rem;
 }
 
 .equation-catalogue-count {
   font-family: var(--font-mono);
-  font-size: 0.8em;
+  font-size: var(--type-fine);
   color: var(--muted);
   font-weight: 400;
 }
@@ -75,7 +74,7 @@
 
 .equation-catalogue-id {
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: var(--type-fine);
   color: var(--muted);
 }
 
@@ -104,7 +103,7 @@
 }
 
 .equation-catalogue-paper-title {
-  font-size: 1.1rem;
+  font-size: var(--type-body);
   text-decoration: underline;
   text-decoration-color: var(--rule);
   text-underline-offset: 0.18em;
@@ -112,15 +111,15 @@
 
 .equation-catalogue-paper-count {
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: var(--type-fine);
   color: var(--muted);
 }
 
 .equation-catalogue-paper-german {
   color: var(--muted);
   font-style: italic;
-  font-size: 0.9rem;
-  line-height: 1.45;
+  font-size: var(--type-small);
+  line-height: 1.4;
 }
 
 .equation-catalogue-kinds {
@@ -135,12 +134,12 @@
 .equation-catalogue-kinds dd {
   margin: 0.2rem 0 0;
   color: var(--muted);
-  line-height: 1.55;
+  line-height: 1.5;
 }
 
 .equation-catalogue-elsewhere {
   margin-top: 3rem;
   padding-top: 1rem;
   border-top: 1px solid var(--rule);
-  line-height: 1.6;
+  line-height: 1.5;
 }
