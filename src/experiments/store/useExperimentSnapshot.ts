@@ -8,6 +8,7 @@ import {
   useRef,
   useSyncExternalStore,
 } from "react";
+import { markPainted } from "../../workers/scheduler/marks.ts";
 import type { AcceptedSnapshot, createInstanceStore, ExperimentView } from "./instanceStore.ts";
 import { createInstanceRegistry, type InstanceRegistry } from "./registry.ts";
 
@@ -95,6 +96,69 @@ export function useExperimentInstance(
 }
 
 /**
+ * THE THIRD SCHEDULER MARK, WHICH NOTHING EMITTED (am-snn0).
+ *
+ * `scheduler.ts`'s own requirement list says it "Emits `am:input`, `am:accepted`, `am:painted`",
+ * and it imports two of the three. `markPainted` was written, exported, documented ("emitted after
+ * the frame that commits a new snapshotVersion") and tested by calling it directly in
+ * `src/testing/scheduler.marks.test.ts` -- a test that proves the function works and cannot notice
+ * that no caller exists. The consequence is the `instrument-feedback` budget: AGENTS.md asks for
+ * "parameter feedback within 100 ms once loaded, measured to the accepted VISIBLE snapshot", and
+ * `evaluateInstrumentFeedback` joins input to paint, so with no paint mark it matches nothing,
+ * measures zero actions, and returns `maxFeedbackMs: 0` with `overBudget: false`. A budget that
+ * reads as met over an empty population is the shape AGENTS.md leads with, so the mark belongs
+ * here, in the one hook every instrument view reads its published snapshot through.
+ *
+ * WHY THE SECOND FRAME, AND WHICH WAY THE ERROR GOES. A passive effect runs after React has
+ * mutated the DOM and BEFORE the browser paints, so marking there would time the commit, not the
+ * pixels. One `requestAnimationFrame` callback runs at the start of the frame that paints the
+ * commit, still before it. The mark is therefore emitted from a second nested frame, which is the
+ * first moment the snapshot is known to have been displayed. That OVERSTATES the paint instant by
+ * up to one frame interval, and the direction is the safe one: it can only make a slow page fail,
+ * never make a failing page pass.
+ *
+ * WHERE IT DELIBERATELY STAYS SILENT. With no `requestAnimationFrame` (server rendering, a DOM
+ * stub) nothing is marked rather than marked from the effect, because two different definitions
+ * under one mark name would make the budget's number mean whichever environment produced it. The
+ * harness then reports `instrument-feedback` as `not-available`, which is true.
+ *
+ * Two views of one instance each mark the snapshot they painted. That is not deduplicated here:
+ * `evaluateInstrumentFeedback` takes the first paint matching the accepted snapshotVersion, so the
+ * reported figure is the earliest view that displayed it, which is the claim the budget makes.
+ */
+function usePaintedMark(view: ExperimentView): void {
+  const painted = useRef<string | null>(null);
+  const scheduled = useRef<string | null>(null);
+  const accepted = view.accepted;
+  const key = accepted
+    ? `${accepted.instanceId}:${accepted.actionIndex}:${accepted.snapshotVersion}`
+    : null;
+  useEffect(() => {
+    if (accepted === null || key === null) return;
+    if (painted.current === key || scheduled.current === key) return;
+    if (typeof requestAnimationFrame !== "function" || typeof cancelAnimationFrame !== "function") {
+      return;
+    }
+    scheduled.current = key;
+    let inner = 0;
+    const outer = requestAnimationFrame(() => {
+      inner = requestAnimationFrame(() => {
+        scheduled.current = null;
+        painted.current = key;
+        markPainted(accepted.instanceId, accepted.actionIndex, accepted.snapshotVersion);
+      });
+    });
+    return () => {
+      // StrictMode mounts, cleans up, and mounts again. Clearing the scheduled key here rather
+      // than treating it as already painted is what keeps that second mount emitting the mark.
+      if (scheduled.current === key) scheduled.current = null;
+      cancelAnimationFrame(outer);
+      if (inner !== 0) cancelAnimationFrame(inner);
+    };
+  }, [accepted, key]);
+}
+
+/**
  * Wraps `useSyncExternalStore` over the instance's own `subscribe` /
  * `getSnapshot` / `getServerSnapshot`. `getSnapshot` returns the identical
  * cached reference until the store's next publication or requested-state
@@ -114,6 +178,7 @@ export function useExperimentView<T = ExperimentView>(
     handle.store.getSnapshot,
     handle.store.getServerSnapshot,
   );
+  usePaintedMark(view);
   return useMemo(() => (selector ? selector(view) : (view as unknown as T)), [view, selector]);
 }
 
