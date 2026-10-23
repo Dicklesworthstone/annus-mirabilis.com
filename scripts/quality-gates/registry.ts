@@ -1115,14 +1115,30 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     // requiresArtifact names out/, so a checkout with no build reports `not-available` rather than
     // passing having measured nothing, and a --profile run refuses.
     //
-    // ITS POSITION IN THIS ARRAY IS LOAD-BEARING: it sits immediately before `perf-budgets`, and the
-    // runner executes in registry order, so in any chain that selects both the artifact is written
-    // before the row that reads it. Driven end to end 2026-10-10:
+    // ITS POSITION IN THIS ARRAY IS LOAD-BEARING WITHIN ONE INVOCATION, AND THAT WAS NOT ENOUGH.
+    // It sits immediately before `perf-budgets` and the runner executes in registry order, so a
+    // chain that selects both in ONE invocation writes the artifact before the row that reads it.
+    // Driven end to end 2026-10-10:
     // `bun scripts/quality-gates.ts --only perf-browser-budgets,perf-budgets` reported
     // "[1/2] ... PASSED in 83774ms" then "[2/2] ... PASSED in 2955ms", exit 0, 0 not-available.
-    // Moving this entry after `perf-budgets` would not fail anything; it would quietly make the row
-    // read the PREVIOUS build's artifact, which the staleness check then refuses -- so the symptom
-    // would be three rows silently back to `not-available`, not an error.
+    //
+    // BUT NO ROUTINE CHAIN MAKES THAT INVOCATION, measured 2026-10-23. This step is `browser` family
+    // and `perf-budgets` is `fast`, the only CI path that runs either is `bun run gates`, and that
+    // was `--family fast && --family browser` -- two invocations, fast FIRST. So the consumer ran
+    // before the producer on every run, the newest artifact always described the previous build, and
+    // `run-perf-budgets.ts` refused it as stale. The three browser-driven rows were therefore
+    // `not-available` in CI BY CONSTRUCTION, not because nobody had run the producer: measured that
+    // day, 7 artifacts on disk and not one for the current build.
+    //
+    // The repair is in package.json rather than here, because the families are right -- this step is
+    // 90 seconds of real clicking and belongs in the browser lane, while `perf-budgets` also carries
+    // two build-dependent rows that belong in the fast loop. `gates` now appends
+    // `--only perf-budgets`, a 3-second third invocation that re-reads the artifact the browser
+    // family just wrote. Reversing the two families would have worked and was rejected: with
+    // --fail-fast it would make a cheap fast-family failure wait 18 minutes to be found.
+    //
+    // Moving this entry after `perf-budgets` in this array would still not fail anything; it would
+    // quietly take the single-invocation case back to `not-available` as well.
     id: "perf-browser-budgets",
     title:
       "Browser-driven budget rows: visible text and math, interaction latency p75, layout shift",

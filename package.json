@@ -25,7 +25,7 @@
     "lint:all": "biome check . --max-diagnostics=none",
     "format": "biome format --write .",
     "format:check": "biome format .",
-    "gates": "bun scripts/quality-gates.ts --fail-fast --family fast && bun scripts/quality-gates.ts --fail-fast --family browser",
+    "gates": "bun scripts/quality-gates.ts --fail-fast --family fast && bun scripts/quality-gates.ts --fail-fast --family browser && bun scripts/quality-gates.ts --only perf-budgets",
     "gates:apple": "bun scripts/quality-gates.ts --fail-fast --family apple",
     "gates:nightly": "bun scripts/quality-gates.ts --all --family fast --cadence nightly",
     "test": "bun scripts/prepare-lane.ts && bun test --isolate --timeout 60000 src scripts",
