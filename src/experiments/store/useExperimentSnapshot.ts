@@ -125,37 +125,40 @@ export function useExperimentInstance(
  * Two views of one instance each mark the snapshot they painted. That is not deduplicated here:
  * `evaluateInstrumentFeedback` takes the first paint matching the accepted snapshotVersion, so the
  * reported figure is the earliest view that displayed it, which is the claim the budget makes.
+ *
+ * WHY THE EFFECT IS KEYED ON THE TRIPLE AND NOT ON THE SNAPSHOT OBJECT, which is the one design
+ * choice here that a plant decided rather than an argument. The first version of this hook held
+ * two refs and skipped a key it had already marked, keyed on `accepted`. Planting the removal of
+ * both refs left all five tests green, because `useSyncExternalStore` hands back the identical
+ * `accepted` reference across a pending transition, so the effect never re-ran and the guards were
+ * unreachable through the public hook. Keying on the three primitives instead makes the re-run
+ * condition BE the condition -- a new instance, action or snapshotVersion -- so the single mark per
+ * snapshot is a property of this hook rather than of another module's reference identity, and
+ * removing the dependency list is a mutant the tests now catch.
  */
 function usePaintedMark(view: ExperimentView): void {
-  const painted = useRef<string | null>(null);
-  const scheduled = useRef<string | null>(null);
   const accepted = view.accepted;
-  const key = accepted
-    ? `${accepted.instanceId}:${accepted.actionIndex}:${accepted.snapshotVersion}`
-    : null;
+  const instanceId = accepted?.instanceId ?? null;
+  const actionIndex = accepted?.actionIndex ?? null;
+  const snapshotVersion = accepted?.snapshotVersion ?? null;
   useEffect(() => {
-    if (accepted === null || key === null) return;
-    if (painted.current === key || scheduled.current === key) return;
+    if (instanceId === null || actionIndex === null || snapshotVersion === null) return;
     if (typeof requestAnimationFrame !== "function" || typeof cancelAnimationFrame !== "function") {
       return;
     }
-    scheduled.current = key;
     let inner = 0;
     const outer = requestAnimationFrame(() => {
       inner = requestAnimationFrame(() => {
-        scheduled.current = null;
-        painted.current = key;
-        markPainted(accepted.instanceId, accepted.actionIndex, accepted.snapshotVersion);
+        markPainted(instanceId, actionIndex, snapshotVersion);
       });
     });
+    // StrictMode mounts, cleans up, and mounts again, so this cancels rather than letting a
+    // cancelled commit mark a paint; the second mount schedules the frames again.
     return () => {
-      // StrictMode mounts, cleans up, and mounts again. Clearing the scheduled key here rather
-      // than treating it as already painted is what keeps that second mount emitting the mark.
-      if (scheduled.current === key) scheduled.current = null;
       cancelAnimationFrame(outer);
       if (inner !== 0) cancelAnimationFrame(inner);
     };
-  }, [accepted, key]);
+  }, [instanceId, actionIndex, snapshotVersion]);
 }
 
 /**

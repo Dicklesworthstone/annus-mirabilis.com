@@ -19,19 +19,24 @@ import { createContainer, installDom, removeContainer, uninstallDom } from "./re
  * level up, and this file is the other half: it mounts a real view over the real instance store,
  * publishes a real snapshot, and asks the performance timeline what was marked.
  *
- * THE CASES ARE CHOSEN SO THAT NO SINGLE WRONG IMPLEMENTATION SATISFIES THEM, and the set was
- * settled by planting each wrong implementation rather than by reasoning about them. Removing the
- * call reddens 1, 2, 4 and 5 and leaves 3 green, which is right: 3 is the control for a hook that
- * marks unconditionally. A hook that marks once and never again fails 4. A hook that re-marks a
- * snapshot it has already marked fails 2 and 5.
+ * THE THREE PLANTS THAT SETTLED THIS SET, each run and each printed before its verdict was read:
  *
- * ONE PLANT CAME BACK GREEN AND CHANGED THIS FILE. Deleting the hook's two dedupe guards
- * (`painted` / `scheduled`) left all four original cases passing, because the effect's dependency
- * is the `accepted` object and `useSyncExternalStore` hands back the identical reference between
- * publications, so the effect does not re-run on a repeat render at all. The guards are therefore
- * not what cases 1-4 discriminate, and a comment here said they were. Case 5 is the one that
- * reaches them: it drives a view TRANSITION that keeps the same accepted snapshot, which is what
- * a store rebuilding its accepted object would do on every pending state.
+ *   A  delete `usePaintedMark(view)`, the historical state   -> 1, 2, 4, 5 red; 3 GREEN
+ *   B  delete the hook's two dedupe refs                     -> all five GREEN
+ *   C  delete the effect's dependency list                   -> 5 red; 1, 2, 3, 4 green
+ *
+ * A leaving case 3 green is correct and is why 3 is here: it is the control for a hook that marks
+ * unconditionally, so it must pass when nothing marks at all.
+ *
+ * B IS THE ONE THAT CHANGED CODE. Its green said the dedupe refs were unreachable: the effect was
+ * keyed on the `accepted` object and `useSyncExternalStore` returns the identical reference across
+ * a pending transition, so the effect never re-ran and the refs never fired. A comment here had
+ * claimed cases 1-4 discriminated them. The hook was re-keyed on the three primitives instead and
+ * the refs deleted, which is what makes C a reachable mutant rather than a hypothetical one.
+ *
+ * C shows what case 5 is for. It is the only case that drives a view TRANSITION keeping the same
+ * accepted snapshot, which is what a reader sees whenever an instrument goes pending: the same
+ * pixels. Nothing was painted again, and a hook that re-marks on every commit says it was.
  */
 
 const OUTPUT_CONTRACT = {
@@ -93,10 +98,12 @@ describe("am:painted is emitted by the view that displays an accepted snapshot",
   test("case 1: publishing a snapshot marks it painted, with the triple the feedback budget joins on", async () => {
     const container = createContainer();
     const registry = createInstanceRegistry();
-    let handle: ReturnType<typeof useExperimentInstance> | null = null;
+    const held: { current: ReturnType<typeof useExperimentInstance> | null } = {
+      current: null,
+    };
     function Probe() {
       const acquired = useExperimentInstance("placement/painted-1", "BM06", buildOptions);
-      handle = acquired;
+      held.current = acquired;
       useExperimentView(acquired);
       return null;
     }
@@ -109,7 +116,7 @@ describe("am:painted is emitted by the view that displays an accepted snapshot",
           </ExperimentInstanceProvider>,
         );
       });
-      const store = handle?.store;
+      const store = held.current?.store;
       if (!store) throw new Error("expected an acquired instance");
       // Nothing has been published, so nothing can have been painted yet. Asserted before the
       // publication rather than after, so a hook that marks on mount is caught here too.
@@ -166,10 +173,12 @@ describe("am:painted is emitted by the view that displays an accepted snapshot",
   test("case 2: re-rendering without a new publication marks nothing further", async () => {
     const container = createContainer();
     const registry = createInstanceRegistry();
-    let handle: ReturnType<typeof useExperimentInstance> | null = null;
+    const held: { current: ReturnType<typeof useExperimentInstance> | null } = {
+      current: null,
+    };
     function Probe() {
       const acquired = useExperimentInstance("placement/painted-2", "BM06", buildOptions);
-      handle = acquired;
+      held.current = acquired;
       useExperimentView(acquired);
       return null;
     }
@@ -183,7 +192,7 @@ describe("am:painted is emitted by the view that displays an accepted snapshot",
       await act(() => {
         root.render(tree);
       });
-      const store = handle?.store;
+      const store = held.current?.store;
       if (!store) throw new Error("expected an acquired instance");
       let token: ReturnType<typeof store.issue> | undefined;
       await act(() => {
@@ -263,10 +272,12 @@ describe("am:painted is emitted by the view that displays an accepted snapshot",
   test("case 5: a view transition that keeps the accepted snapshot does not re-mark it", async () => {
     const container = createContainer();
     const registry = createInstanceRegistry();
-    let handle: ReturnType<typeof useExperimentInstance> | null = null;
+    const held: { current: ReturnType<typeof useExperimentInstance> | null } = {
+      current: null,
+    };
     function Probe() {
       const acquired = useExperimentInstance("placement/painted-5", "BM06", buildOptions);
-      handle = acquired;
+      held.current = acquired;
       useExperimentView(acquired);
       return null;
     }
@@ -279,7 +290,7 @@ describe("am:painted is emitted by the view that displays an accepted snapshot",
           </ExperimentInstanceProvider>,
         );
       });
-      const store = handle?.store;
+      const store = held.current?.store;
       if (!store) throw new Error("expected an acquired instance");
       let token: ReturnType<typeof store.issue> | undefined;
       await act(() => {
@@ -333,10 +344,12 @@ describe("am:painted is emitted by the view that displays an accepted snapshot",
   test("case 4: a second publication is marked as its own paint, at its own snapshotVersion", async () => {
     const container = createContainer();
     const registry = createInstanceRegistry();
-    let handle: ReturnType<typeof useExperimentInstance> | null = null;
+    const held: { current: ReturnType<typeof useExperimentInstance> | null } = {
+      current: null,
+    };
     function Probe() {
       const acquired = useExperimentInstance("placement/painted-4", "BM06", buildOptions);
-      handle = acquired;
+      held.current = acquired;
       useExperimentView(acquired);
       return null;
     }
@@ -349,7 +362,7 @@ describe("am:painted is emitted by the view that displays an accepted snapshot",
           </ExperimentInstanceProvider>,
         );
       });
-      const store = handle?.store;
+      const store = held.current?.store;
       if (!store) throw new Error("expected an acquired instance");
       for (let step = 0; step < 2; step++) {
         let token: ReturnType<typeof store.issue> | undefined;
