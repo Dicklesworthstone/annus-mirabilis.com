@@ -43,6 +43,14 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "../..");
  * would have to guess which reads and writes are a handoff, and a wrong guess here produces either
  * a vacuous test or a false alarm about two unrelated gates. Add a pair when a gate starts reading
  * another gate's artifact.
+ *
+ * ONE ENTRY IS THE WHOLE POPULATION, MEASURED RATHER THAN ASSUMED -- otherwise a list of one reads
+ * as an oversight. A scratchpad probe scanned all 66 registered steps for an `artifacts/<dir>` path
+ * appearing near a write call versus near a read call: 27 steps touch `artifacts/` and 26 of them
+ * only WRITE, almost all of them their own `test-logs` run evidence, which no gate reads back. The
+ * single pair where one step's written directory is another step's read directory is the one below,
+ * and it is the cross-family one. So the risk this file guards is currently concentrated in exactly
+ * one place, and a second entry means a new coupling someone introduced on purpose.
  */
 const HANDOFFS: readonly { producer: string; consumer: string; artifact: string }[] = [
   {
