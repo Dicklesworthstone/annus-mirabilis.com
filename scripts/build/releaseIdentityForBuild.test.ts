@@ -255,7 +255,10 @@ describe("a kept identity still binds the artifacts the deploy script could not 
       contentIndex: INDEX,
     });
     expect(result).not.toBeNull();
-    expect([...(result?.added ?? [])].sort()).toEqual(["contentEditionVersion", "wasmManifestDigest"]);
+    expect([...(result?.added ?? [])].sort()).toEqual([
+      "contentEditionVersion",
+      "wasmManifestDigest",
+    ]);
     // Every field the deploy script wrote survives. This is the half that makes the change a merge
     // rather than the replace identityDecision exists to prevent.
     for (const [key, value] of Object.entries(fromDeploy)) {
