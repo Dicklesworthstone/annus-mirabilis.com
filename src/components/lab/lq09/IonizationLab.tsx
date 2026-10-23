@@ -41,6 +41,7 @@ import { WalkthroughControl } from "../WalkthroughControl.tsx";
 import { IonizationCountingPlot, IonizationThresholdLadderPlot } from "./IonizationPlot.tsx";
 import "./ionizationLab.css";
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
+import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { LabMargin } from "../LabMargin.tsx";
 import { PredictGatePanels, usePredictGate } from "../PredictGate.tsx";
@@ -110,11 +111,7 @@ export function IonizationLab({ example, restoreFromLocation = false }: Ionizati
     restoreFromLocation,
   );
 
-  const snapshot = useSyncExternalStore(
-    session.subscribe,
-    session.getSnapshot,
-    session.getServerSnapshot,
-  );
+  const snapshot = useInstrumentView(session);
 
   const accepted = snapshot.accepted;
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked

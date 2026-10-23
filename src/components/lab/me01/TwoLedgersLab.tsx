@@ -39,6 +39,7 @@ import { TwoLedgersPlot } from "./TwoLedgersPlot.tsx";
 import "../labControls.css";
 import "./me01.css";
 import "../showTheCode.css";
+import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { LabMargin } from "../LabMargin.tsx";
@@ -70,11 +71,7 @@ export function TwoLedgersLab({
     createMe01Session(`me01-${id}`, example?.parameters ?? ME01_DEFAULTS),
   );
 
-  const view = useSyncExternalStore(
-    session.subscribe,
-    session.getSnapshot,
-    session.getServerSnapshot,
-  );
+  const view = useInstrumentView(session);
 
   const fallbackParams = example?.parameters ?? ME01_DEFAULTS;
   const accepted = view.accepted;

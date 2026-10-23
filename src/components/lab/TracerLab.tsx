@@ -24,6 +24,7 @@ import {
 } from "../../experiments/results/applyFailure.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
+import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import equationPayload from "../../generated/bm01-equations.json";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { TimeLegend } from "../../visuals/kit/TimeLegend.tsx";
@@ -106,11 +107,7 @@ export function TracerLab({
   if (!serverAccepted) {
     throw new Error("Missing accepted tracer snapshot");
   }
-  const view = useSyncExternalStore(
-      session.subscribe,
-      session.getSnapshot,
-      session.getServerSnapshot,
-    ),
+  const view = useInstrumentView(session),
     snapshot = view.accepted ?? serverAccepted,
     p = snapshot.parameters as Bm01Parameters;
   const [draft, setDraft] = useState(() => toTracerDraft(example.parameters)),

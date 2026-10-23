@@ -27,6 +27,7 @@ import {
   failureFromThrown,
 } from "../../experiments/results/applyFailure.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
+import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { BrownianLab } from "../lab/BrownianLab.tsx";
 import { display, identity } from "../lab/presentation.ts";
 import { SeedHelp } from "../lab/SeedHelp.tsx";
@@ -63,11 +64,7 @@ export function BrownianInvestigation({
   const [session] = useState(() =>
     createBm01Session(`investigation-${id}`, tracerExample, createBm01BrowserChannel),
   );
-  const view = useSyncExternalStore(
-    session.subscribe,
-    session.getSnapshot,
-    session.getServerSnapshot,
-  );
+  const view = useInstrumentView(session);
   const accepted = view.accepted ?? session.getServerSnapshot().accepted;
   if (!accepted) {
     throw new Error("Missing accepted snapshot for BrownianInvestigation");

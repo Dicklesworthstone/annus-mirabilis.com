@@ -39,6 +39,7 @@ import { decodeSr07Settings } from "../../../experiments/sr07/permalink.ts";
 import { createSr07Session, type PreparedSr07Example } from "../../../experiments/sr07/session.ts";
 import { SR07_TAPE } from "../../../experiments/sr07/tape.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
+import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
@@ -106,11 +107,7 @@ export function FieldEquationsLab({
 }) {
   const id = useId();
   const [session] = useState(() => createSr07Session(`sr07-${id}`, example.parameters));
-  const view = useSyncExternalStore(
-    session.subscribe,
-    session.getSnapshot,
-    session.getServerSnapshot,
-  );
+  const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
   const tapeLink = useLabTapeLink(SR07_TAPE, session, session.acceptedParameters());
   const snapshot = view.accepted;

@@ -20,6 +20,7 @@ import { deriveHostExecution } from "../../../experiments/provenance/executionSt
 import { ExperimentRuntimeError } from "../../../experiments/refusal.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../../experiments/store/instanceStore.ts";
+import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { LabMargin } from "../LabMargin.tsx";
 import { display, identity, result, unitText } from "../presentation.ts";
@@ -68,11 +69,7 @@ function Reading({ snapshot, quantity }: { snapshot: AcceptedSnapshot; quantity:
 export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {}) {
   const id = useId();
   const [session] = useState(() => createAvogadroSession(`avogadro-${id}`));
-  const view = useSyncExternalStore(
-    session.subscribe,
-    session.getSnapshot,
-    session.getServerSnapshot,
-  );
+  const view = useInstrumentView(session);
   const [draft, setDraft] = useState(() => draftOf(AVOGADRO_DEFAULTS));
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");

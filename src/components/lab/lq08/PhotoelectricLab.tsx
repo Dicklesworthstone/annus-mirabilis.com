@@ -43,6 +43,7 @@ import {
 import "./photoelectricLab.css";
 
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
+import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { LabMargin } from "../LabMargin.tsx";
 import { ShowTheCode } from "../ShowTheCode.tsx";
 export type PhotoelectricLabProps = Readonly<{
@@ -168,11 +169,7 @@ export function PhotoelectricLab({
     () => sharedSession ?? createLq08Session(instanceId, example),
     [sharedSession, instanceId, example],
   );
-  const view = useSyncExternalStore(
-    session.subscribe,
-    session.getSnapshot,
-    session.getServerSnapshot,
-  );
+  const view = useInstrumentView(session);
 
   // The drawings' frames and the controls come first; what the prompts ask about waits.
   const gate = usePredictGate("lq-08", predict ? LQ08_PROMPTS : NO_PROMPTS);

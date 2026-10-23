@@ -185,6 +185,52 @@ export function useExperimentView<T = ExperimentView>(
   return useMemo(() => (selector ? selector(view) : (view as unknown as T)), [view, selector]);
 }
 
+/**
+ * The three functions `useSyncExternalStore` needs, as an experiment session exposes them.
+ * Structural rather than nominal on purpose: a laboratory's `session`, a comparison's
+ * `controller` and a weave's `source` are all built on `createInstanceStore` and all satisfy it,
+ * and the typechecker is what decides whether a given store belongs here. A store whose snapshot
+ * is not an `ExperimentView` is refused at the call site instead of being adapted.
+ */
+export type InstrumentViewSource = Readonly<{
+  subscribe: (onStoreChange: () => void) => () => void;
+  getSnapshot: () => ExperimentView;
+  getServerSnapshot: () => ExperimentView;
+}>;
+
+/**
+ * THE ONE SUBSCRIPTION EVERY INSTRUMENT VIEW READS ITS PUBLISHED SNAPSHOT THROUGH (am-snn0).
+ *
+ * This existed as `useExperimentView` above and had NO production caller: measured 2026-10-23,
+ * `rg -l "useExperimentView|useExperimentSnapshot" src/components src/app src/discovery` returned
+ * zero files, while 46 call sites across 45 modules spelled the same three-argument
+ * `useSyncExternalStore` by hand. The duplication was invisible because every copy was correct.
+ *
+ * It stopped being invisible when the paint mark was wired. `usePaintedMark` can only fire where
+ * the subscription is, so a mark added to `useExperimentView` reached nothing, and the
+ * `instrument-feedback` budget stayed unmeasurable for want of a caller rather than for want of a
+ * browser. Forty-six copies also means forty-six places to forget it, which is why this is a
+ * consolidation and not an added line per laboratory: `noDirectInstrumentSubscription.test.ts`
+ * holds the count at zero so the next laboratory inherits the mark instead of re-deriving it.
+ *
+ * `useExperimentView` keeps its registry-scoped handle signature for callers that acquire an
+ * instance through `ExperimentInstanceProvider`; this is the same hook for a session a component
+ * already owns.
+ *
+ * SEVEN OF THE 46 SITES DO NOT BELONG HERE, and the typechecker decided which rather than a
+ * judgement about them: the adoption was applied mechanically to all 46 and `tsc` refused seven.
+ * Two comparison controllers publish `phase`/`baseline`/`variant`, three equation scopes publish
+ * `{ nodeId, quantityId, kind }`, a weave source publishes an observation keyed by `kind`, and
+ * KitchenLab's session nests the view inside a wider state. None of them is one accepted snapshot,
+ * so none of them can paint one. `noDirectInstrumentSubscription.test.ts` lists all seven by name
+ * with that reason and refuses an eighth.
+ */
+export function useInstrumentView(source: InstrumentViewSource): ExperimentView {
+  const view = useSyncExternalStore(source.subscribe, source.getSnapshot, source.getServerSnapshot);
+  usePaintedMark(view);
+  return view;
+}
+
 /** The accepted snapshot only, or `null` before any publication (requirement 7). */
 export function useExperimentSnapshot(handle: ExperimentInstanceHandle): AcceptedSnapshot | null {
   return useExperimentView(handle, (view) => view.accepted);

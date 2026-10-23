@@ -34,6 +34,7 @@ import { ShowTheCode } from "./ShowTheCode.tsx";
 import { WalkthroughControl } from "./WalkthroughControl.tsx";
 import "./coefficientLab.css";
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
+import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { LabMargin } from "./LabMargin.tsx";
 import { display, identity, result } from "./presentation.ts";
@@ -202,11 +203,7 @@ export function CoefficientLab({
 }) {
   const id = useId();
   const [session] = useState(() => createMe02Session(`me02-${id}`, example));
-  const view = useSyncExternalStore(
-    session.subscribe,
-    session.getSnapshot,
-    session.getServerSnapshot,
-  );
+  const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
   const tapeLink = useLabTapeLink(
     ME02_TAPE,

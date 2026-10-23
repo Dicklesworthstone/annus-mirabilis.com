@@ -12,6 +12,7 @@ import { WorldCheck } from "../../discovery/WorldCheck.tsx";
 import type { Me03Parameters } from "../../experiments/me03/definition.ts";
 import { createMe03Session, type PreparedMe03Example } from "../../experiments/me03/session.ts";
 import type { AcceptedSnapshot, PublishedResult } from "../../experiments/store/instanceStore.ts";
+import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { BoundaryLedgerLab } from "../lab/me03/BoundaryLedgerLab.tsx";
 import { sentenceNumber } from "../lab/presentation.ts";
 
@@ -67,11 +68,7 @@ export function MassEnergyWorldCheck({
     () => sharedSession ?? createMe03Session(`world-check-${id}`, example.parameters),
   );
   useInvestigationWitness("me-03", session, example.sourceDigest ?? "");
-  const view = useSyncExternalStore(
-    session.subscribe,
-    session.getSnapshot,
-    session.getServerSnapshot,
-  );
+  const view = useInstrumentView(session);
   const snapshot = view.accepted ?? session.getServerSnapshot().accepted;
   // Refused, not guessed: without an accepted snapshot there is no mass to read, and a readout of
   // zeros would be a number the ledger never produced.

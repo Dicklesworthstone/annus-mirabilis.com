@@ -35,6 +35,7 @@ import { ConfigurationPlot } from "./ConfigurationPlot.tsx";
 import "./bm03.css";
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { CurrencyForView } from "../../../experiments/labels/CurrencyForView.tsx";
+import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { LabMargin } from "../LabMargin.tsx";
@@ -69,11 +70,7 @@ export function ConfigurationLab({
     createBm03Session(`bm03-${id}`, example?.parameters ?? BM03_DEFAULTS),
   );
 
-  const view = useSyncExternalStore(
-    session.subscribe,
-    session.getSnapshot,
-    session.getServerSnapshot,
-  );
+  const view = useInstrumentView(session);
 
   const fallback =
     session.getServerSnapshot().accepted ??

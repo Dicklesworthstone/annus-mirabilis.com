@@ -40,6 +40,7 @@ import {
 } from "../../../experiments/results/applyFailure.ts";
 import { statusMessage } from "../../../experiments/results/explanations.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
+import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
 import { LabMargin } from "../LabMargin.tsx";
@@ -154,11 +155,7 @@ export function SpectrumLab({
   const [session] = useState(() =>
     createLq03Session(`lq03-${id}`, example?.parameters ?? LQ03_DEFAULTS),
   );
-  const view = useSyncExternalStore(
-    session.subscribe,
-    session.getSnapshot,
-    session.getServerSnapshot,
-  );
+  const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
   const tapeLink = useLabTapeLink(
     LQ03_TAPE,

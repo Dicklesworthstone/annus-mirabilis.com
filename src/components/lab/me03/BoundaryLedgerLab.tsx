@@ -43,6 +43,7 @@ import { PhotonBoxPlot } from "./PhotonBoxPlot.tsx";
 import "../labControls.css";
 import "./me03.css";
 import "../showTheCode.css";
+import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
@@ -88,11 +89,7 @@ export function BoundaryLedgerLab({
     () => sharedSession ?? createMe03Session(`me03-${id}`, example?.parameters ?? ME03_DEFAULTS),
   );
 
-  const view = useSyncExternalStore(
-    session.subscribe,
-    session.getSnapshot,
-    session.getServerSnapshot,
-  );
+  const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
   const tapeLink = useLabTapeLink(
     ME03_TAPE,

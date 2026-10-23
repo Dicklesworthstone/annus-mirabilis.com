@@ -31,6 +31,7 @@ import {
   failureFromThrown,
 } from "../../experiments/results/applyFailure.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
+import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { display, identity, result } from "../lab/presentation.ts";
 import { InvestigationTransfer } from "./InvestigationTransfer.tsx";
 
@@ -109,11 +110,7 @@ export function LightQuantaInvestigation({
   const [session] = useState(() =>
     createLightInvestigationSession(`light-investigation-${id}`, example),
   );
-  const view = useSyncExternalStore(
-    session.subscribe,
-    session.getSnapshot,
-    session.getServerSnapshot,
-  );
+  const view = useInstrumentView(session);
   const snapshot = view.accepted;
   if (!snapshot)
     throw new ExperimentRuntimeError(

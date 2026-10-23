@@ -14,6 +14,7 @@ import { createBm01BrowserChannel } from "../../experiments/bm01/browser.ts";
 import type { Bm01Parameters } from "../../experiments/bm01/definition.ts";
 import { createBm01Session, type PreparedBm01Example } from "../../experiments/bm01/session.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
+import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { fixed, result, sentenceNumber } from "../lab/presentation.ts";
 import { TracerLab } from "../lab/TracerLab.tsx";
 
@@ -50,11 +51,7 @@ export function BrownianWorldCheck({
       sharedSession ?? createBm01Session(`world-check-${id}`, example, createBm01BrowserChannel),
   );
   useInvestigationWitness("bm-01", session, example.sourceDigest ?? "");
-  const view = useSyncExternalStore(
-    session.subscribe,
-    session.getSnapshot,
-    session.getServerSnapshot,
-  );
+  const view = useInstrumentView(session);
   const snapshot = view.accepted ?? session.getServerSnapshot().accepted;
   // Refused, not guessed: without an accepted snapshot there is no prediction to compare, and a
   // readout of zeros or of the inputs would be a number the instrument never produced.

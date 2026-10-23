@@ -25,6 +25,7 @@ import {
   failureFromThrown,
 } from "../../experiments/results/applyFailure.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
+import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import {
   DensityProfilePlot,
@@ -61,11 +62,7 @@ export function DriftDiffusionLab({
   const [session] = useState(() =>
     createBm04Session(`bm04-${id}`, example, createBm04BrowserChannel),
   );
-  const view = useSyncExternalStore(
-    session.subscribe,
-    session.getSnapshot,
-    session.getServerSnapshot,
-  );
+  const view = useInstrumentView(session);
   const snapshot =
     view.accepted ??
     session.getServerSnapshot().accepted ??

@@ -48,6 +48,7 @@ import type {
   AcceptedSnapshot,
   PublishedResult,
 } from "../../../experiments/store/instanceStore.ts";
+import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
 import { LabMargin } from "../LabMargin.tsx";
@@ -126,11 +127,7 @@ export function EntropyWorkbenchLab({
   const [session] = useState(() =>
     createLq04Session(`lq04-${id}`, example?.parameters ?? LQ04_DEFAULTS),
   );
-  const view = useSyncExternalStore(
-    session.subscribe,
-    session.getSnapshot,
-    session.getServerSnapshot,
-  );
+  const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
   const tapeLink = useLabTapeLink(
     LQ04_TAPE,

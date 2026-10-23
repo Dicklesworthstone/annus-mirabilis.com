@@ -32,6 +32,7 @@ import {
   failureFromThrown,
 } from "../../experiments/results/applyFailure.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
+import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { SessionResultWeave } from "../../reader/weave/SessionResultWeave.tsx";
 import { BM06_READER_WEAVE } from "../../reader/weave/spreadingPassages.ts";
 import { DistributionPlot, GridComparison } from "./DistributionPlot.tsx";
@@ -79,11 +80,7 @@ export function BrownianLab({
   if (!serverAccepted) {
     throw new Error("Missing accepted Brownian motion snapshot");
   }
-  const view = useSyncExternalStore(
-    session.subscribe,
-    session.getSnapshot,
-    session.getServerSnapshot,
-  );
+  const view = useInstrumentView(session);
   const snapshot = view.accepted ?? serverAccepted;
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time worked example every reader
   // first sees is a static worked example; only an accepted recalculation is a host calculation.

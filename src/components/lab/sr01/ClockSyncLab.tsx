@@ -30,6 +30,7 @@ import { withScripts } from "../subscripts.tsx";
 import "../labControls.css";
 import "../showTheCode.css";
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
+import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
@@ -73,11 +74,7 @@ export function ClockSyncLab({
     createSr01Session(`sr01-${id}`, example?.parameters ?? SR01_DEFAULTS),
   );
 
-  const view = useSyncExternalStore(
-    session.subscribe,
-    session.getSnapshot,
-    session.getServerSnapshot,
-  );
+  const view = useInstrumentView(session);
   const fallbackParams = example?.parameters ?? SR01_DEFAULTS;
   const accepted = view.accepted;
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked

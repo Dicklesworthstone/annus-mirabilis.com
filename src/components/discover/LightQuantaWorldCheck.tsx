@@ -12,6 +12,7 @@ import { WorldCheck } from "../../discovery/WorldCheck.tsx";
 import type { Lq08Parameters } from "../../experiments/lq08/definition.ts";
 import { createLq08Session, type PreparedLq08Example } from "../../experiments/lq08/session.ts";
 import type { PublishedResult } from "../../experiments/store/instanceStore.ts";
+import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { PhotoelectricLab } from "../lab/lq08/PhotoelectricLab.tsx";
 import { sentenceNumber } from "../lab/presentation.ts";
 
@@ -51,11 +52,7 @@ export function LightQuantaWorldCheck({
     () => sharedSession ?? createLq08Session(`world-check-${id}`, example),
   );
   useInvestigationWitness("lq-08", session, example.sourceDigest ?? "");
-  const view = useSyncExternalStore(
-    session.subscribe,
-    session.getSnapshot,
-    session.getServerSnapshot,
-  );
+  const view = useInstrumentView(session);
   const snapshot = view.accepted ?? session.getServerSnapshot().accepted;
   // Refused, not guessed: without an accepted snapshot there is no potential to read, and a readout
   // of zero would be a number the laboratory never produced.

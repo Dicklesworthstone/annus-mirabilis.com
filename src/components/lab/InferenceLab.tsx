@@ -33,6 +33,7 @@ import {
 } from "../../experiments/results/applyFailure.ts";
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
+import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import {
   InferenceCoverage,
@@ -75,11 +76,7 @@ export function InferenceLab({
   if (!serverAccepted) {
     throw new Error("Missing accepted inference snapshot");
   }
-  const view = useSyncExternalStore(
-      session.subscribe,
-      session.getSnapshot,
-      session.getServerSnapshot,
-    ),
+  const view = useInstrumentView(session),
     snapshot = view.accepted ?? serverAccepted,
     p = snapshot.parameters as Bm07Parameters;
   const [draft, setDraft] = useState(() => toInferenceDraft(example.parameters));

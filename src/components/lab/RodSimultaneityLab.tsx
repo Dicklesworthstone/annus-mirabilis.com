@@ -33,6 +33,7 @@ import {
   failureCode,
   failureFromThrown,
 } from "../../experiments/results/applyFailure.ts";
+import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { KEPT_RESULT } from "./keptResult.ts";
 import { LabMargin } from "./LabMargin.tsx";
 import { identity } from "./presentation.ts";
@@ -106,11 +107,7 @@ export function RodSimultaneityLab({
   const [session] = useState(() =>
     createSr03Session(`sr03-${id}`, example, createSr03BrowserChannel),
   );
-  const view = useSyncExternalStore(
-    session.subscribe,
-    session.getSnapshot,
-    session.getServerSnapshot,
-  );
+  const view = useInstrumentView(session);
   const snapshot =
     view.accepted ??
     session.getServerSnapshot().accepted ??

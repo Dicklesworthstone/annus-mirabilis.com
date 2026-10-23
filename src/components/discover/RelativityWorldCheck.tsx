@@ -12,6 +12,7 @@ import { WorldCheck } from "../../discovery/WorldCheck.tsx";
 import type { Sr05Parameters } from "../../experiments/sr05/definition.ts";
 import { createSr05Session, type PreparedSr05Example } from "../../experiments/sr05/session.ts";
 import type { PublishedResult } from "../../experiments/store/instanceStore.ts";
+import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { sentenceNumber } from "../lab/presentation.ts";
 import { MovingClocksLab } from "../lab/sr05/MovingClocksLab.tsx";
 
@@ -57,11 +58,7 @@ export function RelativityWorldCheck({
     () => sharedSession ?? createSr05Session(`world-check-${id}`, example),
   );
   useInvestigationWitness("sr-05", session, example.sourceDigest ?? "");
-  const view = useSyncExternalStore(
-    session.subscribe,
-    session.getSnapshot,
-    session.getServerSnapshot,
-  );
+  const view = useInstrumentView(session);
   const snapshot = view.accepted ?? session.getServerSnapshot().accepted;
   // Refused, not guessed: without an accepted snapshot there is no reading, and a readout of zeros
   // would be a number the laboratory never produced.

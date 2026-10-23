@@ -23,6 +23,7 @@ import type {
   AcceptedSnapshot,
   PublishedResult,
 } from "../../../experiments/store/instanceStore.ts";
+import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
@@ -91,11 +92,7 @@ export function MovingMirrorLab({
 }) {
   const id = useId();
   const [session] = useState(() => createSr11Session(`sr11-${id}`, example));
-  const view = useSyncExternalStore(
-    session.subscribe,
-    session.getSnapshot,
-    session.getServerSnapshot,
-  );
+  const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
   const tapeLink = useLabTapeLink(SR11_TAPE, session, session.acceptedParameters());
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.

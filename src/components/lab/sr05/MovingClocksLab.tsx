@@ -21,6 +21,7 @@ import { withScripts } from "../subscripts.tsx";
 import "./sr05.css";
 
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
+import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { LabMargin } from "../LabMargin.tsx";
 import { ShowTheCode } from "../ShowTheCode.tsx";
 export type MovingClocksLabProps = Readonly<{
@@ -88,11 +89,7 @@ export function MovingClocksLab({
     () => sharedSession ?? createSr05Session(instanceId, example),
     [sharedSession, instanceId, example],
   );
-  const view = useSyncExternalStore(
-    session.subscribe,
-    session.getSnapshot,
-    session.getServerSnapshot,
-  );
+  const view = useInstrumentView(session);
 
   /**
    * A shared ?tape= link restores through this laboratory's own session (dispatch 335). There is no

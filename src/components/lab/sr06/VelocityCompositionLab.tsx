@@ -27,6 +27,7 @@ import { createSr06Session, type PreparedSr06Example } from "../../../experiment
 import { SR06_TAPE } from "../../../experiments/sr06/tape.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../../experiments/store/instanceStore.ts";
+import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
@@ -80,11 +81,7 @@ export function VelocityCompositionLab({
 }) {
   const id = useId();
   const [session] = useState(() => createSr06Session(`sr06-${id}`, example.parameters));
-  const view = useSyncExternalStore(
-    session.subscribe,
-    session.getSnapshot,
-    session.getServerSnapshot,
-  );
+  const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
   const tapeLink = useLabTapeLink(
     SR06_TAPE,

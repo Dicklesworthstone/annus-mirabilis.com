@@ -28,6 +28,7 @@ import {
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
+import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { KEPT_RESULT } from "./keptResult.ts";
@@ -88,11 +89,7 @@ export function WalkLab({
   if (!serverAccepted) {
     throw new Error("Missing accepted walk snapshot");
   }
-  const view = useSyncExternalStore(
-      session.subscribe,
-      session.getSnapshot,
-      session.getServerSnapshot,
-    ),
+  const view = useInstrumentView(session),
     snapshot = view.accepted ?? serverAccepted,
     p = snapshot.parameters as Bm05Parameters;
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time worked example every reader

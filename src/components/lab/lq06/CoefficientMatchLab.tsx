@@ -36,6 +36,7 @@ import { WalkthroughControl } from "../WalkthroughControl.tsx";
 import { CoefficientMatchSideBySidePlot, MeanEnergyStripPlot } from "./CoefficientMatchPlot.tsx";
 import "./coefficientMatchLab.css";
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
+import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { KEPT_RESULT } from "../keptResult.ts";
 import { LabMargin } from "../LabMargin.tsx";
@@ -131,11 +132,7 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
   const session = useMemo(() => createLq06Session("lq06-interactive-session", example), [example]);
   const uid = useId();
 
-  const snapshot = useSyncExternalStore(
-    session.subscribe,
-    session.getSnapshot,
-    session.getServerSnapshot,
-  );
+  const snapshot = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
   const tapeLink = useLabTapeLink(LQ06_TAPE, session, session.acceptedParameters());
 

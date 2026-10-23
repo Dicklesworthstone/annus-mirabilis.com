@@ -40,6 +40,7 @@ import { FluorescencePlot } from "./FluorescencePlot.tsx";
 import "./fluorescenceLab.css";
 
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
+import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { LabMargin } from "../LabMargin.tsx";
 import { ShowTheCode } from "../ShowTheCode.tsx";
 
@@ -57,11 +58,7 @@ export function FluorescenceLab({
     createLq07Session(`lq07-${id}`, example?.parameters ?? LQ07_DEFAULTS),
   );
 
-  const view = useSyncExternalStore(
-    session.subscribe,
-    session.getSnapshot,
-    session.getServerSnapshot,
-  );
+  const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
   const tapeLink = useLabTapeLink(
     LQ07_TAPE,

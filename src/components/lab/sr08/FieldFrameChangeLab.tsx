@@ -36,6 +36,7 @@ import { withScripts } from "../subscripts.tsx";
 import { FieldFrameChangePlot } from "./FieldFrameChangePlot.tsx";
 import "../labControls.css";
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
+import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { KEPT_RESULT } from "../keptResult.ts";
 import { LabMargin } from "../LabMargin.tsx";
@@ -110,11 +111,7 @@ export function FieldFrameChangeLab({
 }) {
   const id = useId();
   const [session] = useState(() => createSr08Session(`sr08-${id}`, example));
-  const view = useSyncExternalStore(
-    session.subscribe,
-    session.getSnapshot,
-    session.getServerSnapshot,
-  );
+  const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
   const tapeLink = useLabTapeLink(
     SR08_TAPE,

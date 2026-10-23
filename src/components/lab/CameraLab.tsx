@@ -24,6 +24,7 @@ import {
 } from "../../experiments/results/applyFailure.ts";
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
+import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { CameraMomentTable } from "./CameraMomentTable.tsx";
 import { CameraCoverage, CameraPath, CameraSpeed } from "./CameraPlots.tsx";
@@ -53,11 +54,7 @@ export function CameraLab({
     [session] = useState(() => createBm08Session(`bm08-${id}`, example, createBm08BrowserChannel));
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("bm-08", BM08_PROMPTS);
-  const view = useSyncExternalStore(
-    session.subscribe,
-    session.getSnapshot,
-    session.getServerSnapshot,
-  );
+  const view = useInstrumentView(session);
   const [draft, setDraft] = useState(() => toCameraDraft(example.parameters)),
     [ready, setReady] = useState(false),
     [dirty, setDirty] = useState(false),

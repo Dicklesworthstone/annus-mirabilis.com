@@ -44,6 +44,7 @@ import {
 import "./waveDescriptionLab.css";
 
 import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
+import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { LabMargin } from "./LabMargin.tsx";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 export type WaveDescriptionLabProps = Readonly<{
@@ -135,11 +136,7 @@ export function WaveDescriptionLab({
   const [session] = useState(() =>
     createLq01Session(`lq01-${id}`, example, createLq01BrowserChannel),
   );
-  const view = useSyncExternalStore(
-    session.subscribe,
-    session.getSnapshot,
-    session.getServerSnapshot,
-  );
+  const view = useInstrumentView(session);
   const snapshot =
     view.accepted ??
     session.getServerSnapshot().accepted ??
