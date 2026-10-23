@@ -130,15 +130,43 @@ export type PipelineRun = Readonly<{
 }>;
 
 /**
- * The sentence-unit ruling this pipeline stops at.
+ * WHY THIS STAGE STILL CANNOT REACH AGREEMENT, re-measured 2026-10-23.
  *
- * src/content/manifest/types.ts has no `sentence` kind, so a proposed sentence
- * has no manifest unit to reconcile against. Block-level reconciliation is real
- * and runs; sentence-level reconciliation is not performed and is never counted
- * as performed. The decision belongs to am-xz2d and the owner, not to this file.
+ * THIS CONSTANT SAID THE OPPOSITE OF THE TRUTH ON BOTH OF ITS CLAUSES, and it is printed in the
+ * `pending` list of every reconcile result, which is where a reader looks to find out what is
+ * blocking them. It read "the manifest format has no sentence kind (am-xz2d decision 1, owner
+ * ruling pending)", and this docblock added "sentence-level reconciliation is not performed and is
+ * never counted as performed".
+ *
+ *   - `MANIFEST_UNIT_KINDS` in src/content/manifest/types.ts HAS held `sentence` and
+ *     `inline-equation` since the owner's ruling of 2026-09-20, whose verbatim option was "Add a
+ *     sentence kind" -- the comment recording that ruling sits three lines above the entry.
+ *   - The ruling is therefore NOT pending. It was given, and all four manifests were extended under
+ *     it (brownian-motion in September, the other three on 2026-10-03), which is why the four
+ *     inventories now hold 77, 334, 237 and 552 units rather than 53, 263, 178 and 436.
+ *   - And sentence-level reconciliation IS performed. The mass-energy run on 2026-10-23 reported
+ *     `unit-missing-in-ledger s0-p7-s7`, `s0-p7-s7-m3`, `s0-p7-s8` and eight more: those are
+ *     sentence and inline-equation ids, so the reconciler is comparing exactly the granularity this
+ *     constant said it could not reach.
+ *
+ * A pending line naming an owner ruling as the blocker is read as "nothing an agent can do", which
+ * is the most expensive thing a stale reason can say. The actual blocker is narrower and is already
+ * stated by the two lines that accompany this one: THE TWO DIVISIONS DISAGREE. The segmenter
+ * proposes a paragraph break the frozen manifest does not have -- for mass-energy, a block `s0-p8`
+ * that is not in the manifest, which is why the manifest's `s0-p7-s7` through `s0-p7-s12` then have
+ * no proposed unit to match. 11 of the 12 differences on that paper are that one disagreement
+ * cascading through the sentence numbering, not eleven separate gaps.
+ *
+ * Where a sentence's boundaries are recorded, and against which text, is am-span-recording-decision-ero2,
+ * which is still an open owner decision. That is the ruling this stage waits on; am-xz2d's is done.
  */
 export const SENTENCE_UNIT_RULING =
-  "sentence-level reconciliation: the manifest format has no sentence kind (am-xz2d decision 1, owner ruling pending)";
+  "sentence-level reconciliation runs (the manifest has had `sentence` and `inline-equation` kinds " +
+  "since the owner's am-xz2d ruling of 2026-09-20); what is unresolved is WHERE a sentence's " +
+  "boundaries are recorded and against which text, which is the open owner decision " +
+  "am-span-recording-decision-ero2. A proposed division that differs from the frozen manifest's " +
+  "cascades through the sentence numbering below it, so a count of differences is not a count of " +
+  "independent gaps.";
 
 /** Control-flow marker for an empty corpus; never surfaced as a compiler error. */
 /**

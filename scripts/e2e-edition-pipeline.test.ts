@@ -16,12 +16,14 @@ import {
   PAPERS_WAITING_ON_CLOUD_OCR,
   translationCompleteness,
 } from "../src/content/editions/ledgerPresence.ts";
+import { MANIFEST_UNIT_KINDS } from "../src/content/manifest/types.ts";
 import {
   PIPELINE_STAGES,
   type PipelineStage,
   resolveRequireStageArgument,
   resolveSlugArgument,
   runEditionPipeline,
+  SENTENCE_UNIT_RULING,
 } from "./e2e-edition-pipeline.ts";
 
 const REPO = process.cwd();
@@ -867,7 +869,7 @@ describe("PLANT: the ledger-present branch measures instead of announcing", () =
  * standing - execution falls through to loadReadingFiles, which throws ENOENT and fails the stage.
  */
 describe("edition pipeline: an absent corpus is not a compiler failure", () => {
-  test("the abort records its own code and spares the compiler (e2e-edition-pipeline.ts:684)", async () => {
+  test("the abort records its own code and spares the compiler (e2e-edition-pipeline.ts:712)", async () => {
     const emptyRoot = mkdtempSync(join(tmpdir(), "am-edition-no-corpus-"));
     const run = await runEditionPipeline({ slug: "brownian-motion", root: emptyRoot });
 
@@ -892,7 +894,7 @@ describe("edition pipeline: an absent corpus is not a compiler failure", () => {
     expect(run.exitCode).toBe(0);
   });
 
-  test("a present but empty corpus aborts on its own site (e2e-edition-pipeline.ts:694)", async () => {
+  test("a present but empty corpus aborts on its own site (e2e-edition-pipeline.ts:722)", async () => {
     // THE SECOND corpus-empty SITE, and it was invisible until the scanner stopped misreading it.
     // :295 refuses a MISSING content directory; :305 refuses one that is PRESENT and holds no
     // records. The two share the code, so the scanner counted corpus-empty as 1 untested of 1 and
@@ -1180,5 +1182,44 @@ describe("--require-stage refuses a name that is not a stage", () => {
     expect(refused.refusal).toBeDefined();
     expect(failed.refusal).toBeUndefined();
     expect(failed.stages).toHaveLength(9);
+  });
+});
+
+/**
+ * THE PENDING REASON MUST STAY TRUE, because it is the line a reader consults to find out what is
+ * blocking them, and a stale one costs more than silence.
+ *
+ * What it said until 2026-10-23: "the manifest format has no sentence kind (am-xz2d decision 1,
+ * owner ruling pending)". Both clauses were false. `MANIFEST_UNIT_KINDS` has held `sentence` and
+ * `inline-equation` since the owner's ruling of 2026-09-20 -- the comment recording that ruling sits
+ * three lines above the entry -- and all four manifests were extended under it, taking the
+ * inventories from 53/263/178/436 units to 77/334/237/552. A pending line naming an owner ruling as
+ * the blocker reads as "nothing an agent can do here", which is the most expensive thing a stale
+ * reason can say.
+ *
+ * These assertions are tied to the CORPUS rather than to the wording, so correcting the sentence
+ * again does not break them, but reverting the claim does.
+ */
+describe("the reconcile stage's pending reason", () => {
+  test("does not claim the manifest lacks a sentence kind, because it has one", () => {
+    expect(MANIFEST_UNIT_KINDS).toContain("sentence");
+    expect(MANIFEST_UNIT_KINDS).toContain("inline-equation");
+    // The specific false claim, asserted as a negative against the thing that makes it false.
+    expect(SENTENCE_UNIT_RULING).not.toMatch(/manifest format has no sentence kind/);
+    expect(SENTENCE_UNIT_RULING).not.toMatch(/am-xz2d[^.]*pending/);
+  });
+
+  test("names the owner decision that IS open, rather than the one that was given", () => {
+    // am-span-recording-decision-ero2: "where a sentence's boundaries are recorded, and against
+    // which text". That is what this stage waits on; am-xz2d's ruling has been given and applied.
+    expect(SENTENCE_UNIT_RULING).toMatch(/am-span-recording-decision-ero2/);
+    expect(SENTENCE_UNIT_RULING).toMatch(/am-xz2d/);
+  });
+
+  test("says a difference count is not a count of independent gaps", () => {
+    // 11 of mass-energy's 12 differences on 2026-10-23 were one division disagreement cascading
+    // through the sentence numbering below it. A reader given only "12 differences" would size the
+    // work at twelve decisions instead of one.
+    expect(SENTENCE_UNIT_RULING).toMatch(/cascade|not a count of/i);
   });
 });
