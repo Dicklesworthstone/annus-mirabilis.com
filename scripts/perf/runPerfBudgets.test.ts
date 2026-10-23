@@ -2,12 +2,12 @@ import { describe, expect, test } from "bun:test";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { DECLARED_SCENARIOS, runResourceStressSuite } from "../resource-stress.ts";
 import {
   BUILD_DEPENDENT_ROWS,
   runPerformanceBudgets,
   unmeasuredBuildRows,
 } from "../run-perf-budgets.ts";
-import { DECLARED_SCENARIOS, runResourceStressSuite } from "../resource-stress.ts";
 import { readBuildId } from "./browserBudgetArtifact.ts";
 import { normalizeAppManifestKey } from "./initialRouteGraph.ts";
 

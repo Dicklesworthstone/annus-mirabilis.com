@@ -14,7 +14,6 @@ import {
   loadBrowserBudgets,
 } from "./perf/browserBudgetArtifact.ts";
 import { loadCommittedBudgets } from "./perf/budgets.ts";
-import { DECLARED_SCENARIOS, runResourceStressSuite } from "./resource-stress.ts";
 import { computeCalibration } from "./perf/calibration.ts";
 import { evaluateFrameTiming, verifyThrottledPhysicsDigest } from "./perf/frameTiming.ts";
 import {
@@ -41,6 +40,7 @@ import {
 } from "./perf/report.ts";
 import { readRouteStaticTransfer, STATIC_TRANSFER_SCOPE } from "./perf/routeStaticTransfer.ts";
 import { checkVisibleTextAndMath } from "./perf/visibleTextMath.ts";
+import { DECLARED_SCENARIOS, runResourceStressSuite } from "./resource-stress.ts";
 import { appendLogLine, logPathFor, newLogRunId } from "./scaffold/logLine.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -858,11 +858,13 @@ export async function runPerformanceBudgets(
     "resource-lifecycle",
     stressComplete && stress.passed,
     "no-leak",
-    "not-measured",  // MUTANT B: a verdict over something it says it never measured
+    stressComplete
+      ? `${stress.passedScenarios} of ${stress.totalScenarios} scenarios passed`
+      : "not-measured",
     "status",
     stressComplete
       ? `scripts/resource-stress.ts ran in process: ${stress.passedScenarios} of ${stress.totalScenarios} lifecycle scenarios passed` +
-        (stressNames === "" ? "." : `; failed: ${stressNames}.`)
+          (stressNames === "" ? "." : `; failed: ${stressNames}.`)
       : `the lifecycle suite reported ${stress.totalScenarios} scenarios against ${DECLARED_SCENARIOS} declared, so a verdict here would be a statement about a population it does not have.`,
     stressComplete ? undefined : ("not-available" as const),
   );
