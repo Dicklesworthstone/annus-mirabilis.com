@@ -285,6 +285,72 @@ describe("a row that reached no measurement prints no number (am-snn0)", () => {
     return root;
   }
 
+  /**
+   * `instrument-feedback`, replayed from an artifact rather than driven live, and the limit of this
+   * evidence is stated rather than left implied.
+   *
+   * THIS IS CAPTURE-AND-REPLAY, NOT A LIVE RUN (AGENTS.md's proof hierarchy, RH-2). What it proves
+   * is the join: that a present, valid feedback row reaches the row's verdict, that its number is
+   * the artifact's and not the harness's synthetic 65 ms, that over budget turns the gate red, and
+   * that an absent row still reports `not-available` rather than passing. What it does NOT prove is
+   * that a browser can produce such a row on this machine: Playwright's browsers live on a volume
+   * that no longer holds them and the disk has 562 MiB free, so the live half is blocked rather
+   * than done, and `am-snn0` carries that with the numbers.
+   *
+   * The paint mark the row depends on IS proved live, in `src/testing/paintedMark.test.tsx`, which
+   * mounts a real view over the real store and reads the real performance timeline.
+   */
+  const feedbackRow = {
+    maxFeedbackMs: 61.5,
+    actionsMeasured: 7,
+    instrumentsOperated: 3,
+    supersededExcluded: 1,
+    budgetMs: 100,
+    overBudget: false,
+    worstRoute: "/lab/bm-01/",
+  };
+
+  test("a feedback row in the artifact gives instrument-feedback a real verdict, with the artifact's number", async () => {
+    const buildId = readBuildId("out") as string;
+    const root = writeBrowserArtifact(
+      browserArtifact(buildId, { instrumentFeedback: feedbackRow }),
+    );
+    const result = await runPerformanceBudgets({ silent: true, browserBudgetRoot: root });
+    const row = result.report.metrics["instrument-feedback"];
+    expect(row?.status).toBe("pass");
+    // 61.5, not the 65 the synthetic marks produce. A row reading 65 would mean the consumer never
+    // looked at the artifact, which is indistinguishable from a pass by eye.
+    expect(row?.actual).toBe(61.5);
+    expect(row?.budget).toBe(100);
+    // The note carries the population, so a reader of the report can tell 7 actions from none.
+    expect(String(row?.notes)).toContain("7 real actions");
+    expect(String(row?.notes)).toContain("/lab/bm-01/");
+  });
+
+  test("an over-budget feedback row turns the gate red", async () => {
+    const buildId = readBuildId("out") as string;
+    const root = writeBrowserArtifact(
+      browserArtifact(buildId, {
+        instrumentFeedback: { ...feedbackRow, maxFeedbackMs: 480, overBudget: true },
+      }),
+    );
+    const result = await runPerformanceBudgets({ silent: true, browserBudgetRoot: root });
+    expect(result.report.metrics["instrument-feedback"]?.status).toBe("fail");
+    expect(result.report.metrics["instrument-feedback"]?.actual).toBe(480);
+    expect(result.ok).toBe(false);
+  });
+
+  test("an artifact with no feedback row leaves the row not-available, never passing", async () => {
+    // The control. Before `markPainted` had a caller this was the only outcome a real run could
+    // reach, and the row has to say so rather than report the synthetic 65 ms as a measurement.
+    const buildId = readBuildId("out") as string;
+    const root = writeBrowserArtifact(browserArtifact(buildId));
+    const result = await runPerformanceBudgets({ silent: true, browserBudgetRoot: root });
+    const row = result.report.metrics["instrument-feedback"];
+    expect(row?.status).toBe("not-available");
+    expect(String(row?.notes)).toContain("no instrument was operated");
+  });
+
   test("a usable browser artifact gives the three rows real verdicts instead of not-available", async () => {
     const buildId = readBuildId("out");
     expect(buildId).not.toBeNull();
