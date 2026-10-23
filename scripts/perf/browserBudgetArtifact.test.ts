@@ -116,6 +116,57 @@ describe("validateArtifact", () => {
     expect(problems.some((p) => p.includes("interactionLatency.rawEntryCount"))).toBe(true);
   });
 
+  /** The row whose evaluator returns a passing verdict over an empty action set. */
+  const feedbackRow = {
+    maxFeedbackMs: 61.5,
+    actionsMeasured: 7,
+    instrumentsOperated: 3,
+    supersededExcluded: 1,
+    budgetMs: 100,
+    overBudget: false,
+    worstRoute: "/lab/bm-01/",
+  };
+
+  test("accepts a complete instrument-feedback row", () => {
+    expect(validateArtifact({ ...artifact(), instrumentFeedback: feedbackRow })).toEqual([]);
+  });
+
+  test("REFUSES a feedback row measured over zero actions, which would be a budget met over nothing", () => {
+    // The whole reason this row has a validator clause of its own. `evaluateInstrumentFeedback`
+    // over no matching marks returns `maxFeedbackMs: 0, overBudget: false`, which a consumer would
+    // report as a pass. Before `markPainted` had a caller, that was the only result a real browser
+    // run could have produced.
+    const problems = validateArtifact({
+      ...artifact(),
+      instrumentFeedback: { ...feedbackRow, actionsMeasured: 0, maxFeedbackMs: 0 },
+    });
+    expect(problems.some((p) => p.includes("actionsMeasured is 0"))).toBe(true);
+  });
+
+  test("a feedback row that is present and complete is accepted even when over budget", () => {
+    // A failing budget is a measurement. The refusal above is about an ABSENT population, not a
+    // bad number, and conflating the two would make the validator a second budget check.
+    expect(
+      validateArtifact({
+        ...artifact(),
+        instrumentFeedback: { ...feedbackRow, maxFeedbackMs: 480, overBudget: true },
+      }),
+    ).toEqual([]);
+  });
+
+  test("rejects a half-present feedback row", () => {
+    const { actionsMeasured: _dropped, ...half } = feedbackRow;
+    const problems = validateArtifact({ ...artifact(), instrumentFeedback: half });
+    expect(problems.some((p) => p.includes("instrumentFeedback.actionsMeasured"))).toBe(true);
+  });
+
+  test("a feedback row alone is a run that measured something", () => {
+    const { layoutShift: _dropped, ...withoutLayoutShift } = artifact();
+    expect(validateArtifact({ ...withoutLayoutShift, instrumentFeedback: feedbackRow })).toEqual(
+      [],
+    );
+  });
+
   test("rejects an empty route list", () => {
     const problems = validateArtifact({ ...artifact(), routes: [] });
     expect(problems.some((p) => p.includes("routes"))).toBe(true);
