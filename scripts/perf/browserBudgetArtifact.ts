@@ -69,6 +69,32 @@ export type LayoutShiftRow = Readonly<{
   overBudget: boolean;
 }>;
 
+/**
+ * `instrument-feedback`, the fourth row, and the one whose evaluator had BOTH halves missing.
+ *
+ * The other three only wanted a browser. This one also wanted its third mark: `markPainted` was
+ * exported, documented and tested in isolation while no product code called it, so
+ * `evaluateInstrumentFeedback` -- which joins `am:input` to `am:accepted` to `am:painted` on
+ * (instanceId, actionIndex, snapshotVersion) -- could never match an action however the page was
+ * driven. It would have returned `maxFeedbackMs: 0, overBudget: false` from a real browser run:
+ * a budget met over nothing.
+ *
+ * `actionsMeasured` is therefore the field that makes this row evidence rather than a number. A
+ * zero is not written: the driver omits the row, and the harness says `not-available`.
+ * `instrumentsOperated` is the surface count, because one instrument answering while four refuse
+ * is invisible in the action count.
+ */
+export type InstrumentFeedbackRow = Readonly<{
+  maxFeedbackMs: number;
+  actionsMeasured: number;
+  instrumentsOperated: number;
+  supersededExcluded: number;
+  budgetMs: number;
+  overBudget: boolean;
+  /** The route whose action carried `maxFeedbackMs`, so a failure names a page. */
+  worstRoute: string;
+}>;
+
 export type BrowserBudgetArtifact = Readonly<{
   schemaVersion: number;
   toolRunId: string;
@@ -83,6 +109,7 @@ export type BrowserBudgetArtifact = Readonly<{
   visibleTextMath?: VisibleTextMathRow;
   interactionLatency?: InteractionLatencyRow;
   layoutShift?: LayoutShiftRow;
+  instrumentFeedback?: InstrumentFeedbackRow;
 }>;
 
 export type BrowserBudgetSource =
@@ -172,7 +199,34 @@ export function validateArtifact(value: unknown): readonly string[] {
     if (typeof r.overBudget !== "boolean") problems.push("layoutShift.overBudget is not a boolean");
   }
 
-  if (vtm === undefined && lat === undefined && cls === undefined) {
+  const feedback = a.instrumentFeedback;
+  if (feedback !== undefined) {
+    const r = feedback as Record<string, unknown>;
+    for (const k of [
+      "maxFeedbackMs",
+      "actionsMeasured",
+      "instrumentsOperated",
+      "supersededExcluded",
+      "budgetMs",
+    ]) {
+      if (!finite(r[k])) problems.push(`instrumentFeedback.${k} is not a finite number`);
+    }
+    if (typeof r.worstRoute !== "string")
+      problems.push("instrumentFeedback.worstRoute is not a string");
+    if (typeof r.overBudget !== "boolean")
+      problems.push("instrumentFeedback.overBudget is not a boolean");
+    // The one row-level refusal in this validator, and it is here rather than left to the driver
+    // because a present row is what a consumer reports. A feedback row measured over zero actions
+    // would publish `maxFeedbackMs: 0, overBudget: false` -- the exact empty-population pass this
+    // row exists to replace -- so the artifact refuses to carry it at all.
+    if (finite(r.actionsMeasured) && (r.actionsMeasured as number) < 1) {
+      problems.push(
+        "instrumentFeedback.actionsMeasured is 0, so the row reports a budget verdict over no action; omit the row instead",
+      );
+    }
+  }
+
+  if (vtm === undefined && lat === undefined && cls === undefined && feedback === undefined) {
     problems.push("no row is present, so the run measured nothing");
   }
   return problems;
