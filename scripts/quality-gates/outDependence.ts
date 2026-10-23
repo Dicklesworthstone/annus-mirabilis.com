@@ -29,6 +29,7 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
+import { blankComments } from "../../src/testing/source/comments.ts";
 
 /**
  * A reference to the build output. Each alternative is a way this repository actually names it,
@@ -105,14 +106,76 @@ export function outReferenceIn(
   return undefined;
 }
 
-/** Whether this file drives a real browser, read from the file itself and not from its imports. */
-export function drivesBrowser(file: string): boolean {
-  if (!existsSync(file)) return false;
+/**
+ * The module where a browser driver was found, FOLLOWING LOCAL IMPORTS, or undefined.
+ *
+ * THIS READ ONLY THE FILE ITSELF UNTIL 2026-10-23, and the docblock above said so as though it were
+ * a design choice -- "whether this module can see the path to it is not the question". It was the
+ * question. `scripts/e2e/smoke.test.ts` contains ZERO of the tokens below; its helper
+ * `./smoke.ts`, one import away, contains four and launches Chromium. So the test was classified
+ * browser-free and landed in the `out/`-independent subset -- the lane an agent is told to run after
+ * a content edit (`bun run test:node:content`) -- which made that lane fail on any machine without
+ * browsers. Measured on this one, where `~/Library/Caches/ms-playwright` is a symlink to a volume
+ * that no longer holds the browsers: 6 failures in the subset, all
+ * `browserType.launch: Executable doesn't exist`.
+ *
+ * That is the precise shape AGENTS.md records under "A Check Inherits The Silence Of Whatever It
+ * Reads": the filter read the test file, and the thing it was looking for lived one layer down.
+ * `outReferenceIn` had followed imports from the start; this one had not, so the two filters
+ * disagreed about how far to look while sharing a sentence about being independent.
+ *
+ * COMMENTS ARE BLANKED FIRST, AND WITHOUT THAT THE IMPORT WALK WOULD MAKE THINGS WORSE. Measured
+ * before the change: following imports with a raw text match reclassifies 10 of the 37 subset files,
+ * and 4 of those 10 match a single word in a DOCBLOCK -- `src/testing/log/schema.ts:264`, "every
+ * write path (logger, assertions, evidence, playwright, scripts) passes through". Those four
+ * (summarize-test-logs, structural, validateLedgerCli, evidence) drive no browser and would have
+ * been dropped from the subset for a word in a sentence about the mechanism. AGENTS.md: "the densest
+ * prose about a forbidden construct is the documentation explaining why it is forbidden." The
+ * blanker is `src/testing/source/comments.ts`, which exists because two gates wrote their own and a
+ * third was about to; this is not a fourth.
+ *
+ * WHY THE `out/` SCAN IS LEFT READING RAW TEXT. Its false positives are cheap and its docblock says
+ * why -- a comment mentioning `out/` leaves a file in the gated group, "which is where it was
+ * already". The directions are not symmetric: for `out/`, a false positive costs nothing and a false
+ * negative breaks the subset; for the browser filter, a false NEGATIVE breaks the subset and a false
+ * positive silently shrinks it. So this filter needs both halves and that one needs neither.
+ */
+export function browserDriverIn(
+  file: string,
+  root: string,
+  seen: Set<string> = new Set(),
+  depth = 0,
+): string | undefined {
+  if (depth > MAX_DEPTH || seen.has(file) || !existsSync(file)) return undefined;
+  seen.add(file);
+  let text: string;
   try {
-    return BROWSER_DRIVER.test(readFileSync(file, "utf8"));
+    text = blankComments(readFileSync(file, "utf8"));
   } catch {
-    return false;
+    return undefined;
   }
+  if (BROWSER_DRIVER.test(text)) {
+    return file.startsWith(root) ? file.slice(root.length + 1) : file;
+  }
+  for (const match of text.matchAll(LOCAL_IMPORT)) {
+    const spec = match[1];
+    if (spec === undefined) continue;
+    const dep = resolveLocal(file, spec);
+    if (dep === undefined) continue;
+    const found = browserDriverIn(dep, root, seen, depth + 1);
+    if (found !== undefined) return found;
+  }
+  return undefined;
+}
+
+/**
+ * Whether this file drives a real browser, itself or through a local import.
+ *
+ * Kept as a boolean wrapper because callers and tests ask the yes/no question; `browserDriverIn`
+ * is what says WHERE, which is what a reason line needs.
+ */
+export function drivesBrowser(file: string, root: string = process.cwd()): boolean {
+  return browserDriverIn(file, root) !== undefined;
 }
 
 export function partitionByOutDependence(
@@ -124,9 +187,12 @@ export function partitionByOutDependence(
   const reasons: Record<string, string> = {};
   for (const relative of files) {
     const absolute = resolve(root, relative);
-    if (drivesBrowser(absolute)) {
+    const driver = browserDriverIn(absolute, root);
+    if (driver !== undefined) {
       needsOut.push(relative);
-      reasons[relative] = "drives a browser, so it needs a served site";
+      // Naming the module is the difference between a reason and a label: the driver is often an
+      // import away, which is the defect this filter was repaired for.
+      reasons[relative] = `drives a browser in ${driver}, so it needs a served site`;
       continue;
     }
     const found = outReferenceIn(absolute, root);

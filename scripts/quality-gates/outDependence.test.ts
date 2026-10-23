@@ -11,11 +11,12 @@
  */
 
 import { describe, expect, test } from "bun:test";
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { nodeOnlyTestArgs } from "./bunfigNodeOnlyTests.ts";
 import {
+  browserDriverIn,
   CONTENT_GATES_THAT_MUST_STAY_REACHABLE,
   drivesBrowser,
   outReferenceIn,
@@ -142,5 +143,100 @@ describe("the partition over the real lane", () => {
     const shouldBeGated = laneFiles.filter((f) => f.includes("foundCalculus.e2e"));
     expect(shouldBeGated.length).toBeGreaterThan(0);
     for (const file of shouldBeGated) expect(gated.has(file), file).toBe(true);
+  });
+});
+
+/**
+ * THE BROWSER FILTER FOLLOWS IMPORTS, AND BLANKS COMMENTS FIRST (both halves, both directions).
+ *
+ * THE DEFECT, measured 2026-10-23. `drivesBrowser` read only the file it was given, and its docblock
+ * said so as though it were a design choice. `scripts/e2e/smoke.test.ts` contains NONE of the browser
+ * tokens; its helper `./smoke.ts`, one import away, launches Chromium. So the test was classified
+ * browser-free, entered the `out/`-independent subset -- the lane an agent is told to run after a
+ * content edit -- and that lane failed with 6 `browserType.launch: Executable doesn't exist` on this
+ * machine, where the Playwright cache is a symlink to a volume that no longer holds the browsers.
+ *
+ * WHY BLANKING IS NOT OPTIONAL HERE, measured before the change rather than argued: following
+ * imports with a RAW text match reclassifies 10 of the 37 subset files, and 7 of those 10 match the
+ * single word "Playwright" inside a DOCBLOCK -- `src/testing/log/schema.ts:264` ("every write path
+ * (logger, assertions, evidence, playwright, scripts) passes through"), `scripts/e2e/domContract.ts:3`
+ * and `scripts/e2e/checks/measure.ts:6`. Those seven drive no browser and ran green without one. So
+ * the import walk alone would have shrunk the safety net from 37 to 27 for a word in a sentence,
+ * which is AGENTS.md's "a gate that forbids a construct must read code, not text" exactly. With
+ * blanking the subset is 34: three real drivers gated, seven false ones kept.
+ */
+describe("the browser filter reads through imports, and reads code rather than prose", () => {
+  const root = mkdtempSync(join(tmpdir(), "am-outdep-browser-"));
+  const write = (rel: string, body: string): string => {
+    const path = join(root, rel);
+    mkdirSync(dirname(path), { recursive: true });
+    writeFileSync(path, body, "utf8");
+    return path;
+  };
+
+  test("THE DEFECT: a driver one import away is found, and the module is named", () => {
+    write(
+      "helper.ts",
+      'import { chromium } from "playwright";\nexport const go = () => chromium;\n',
+    );
+    const test1 = write("a.test.ts", 'import { go } from "./helper.ts";\nexport const x = go;\n');
+    // The test file itself carries no token at all: this is the case that was missed.
+    expect(/playwright|chromium/i.test(readFileSync(test1, "utf8"))).toBe(false);
+    expect(drivesBrowser(test1, root)).toBe(true);
+    expect(browserDriverIn(test1, root)).toBe("helper.ts");
+  });
+
+  // Proves the BLANKING half through the walk. Note it passes vacuously against a file-only
+  // matcher, which never reaches schema.ts at all -- the line-comment case below and the real-corpus
+  // validateLedgerCli case are the two that go red against that mutant.
+  test("a token in a DOCBLOCK is not a driver, at any depth", () => {
+    // The real false positive, reproduced: a module whose prose names Playwright while importing
+    // nothing from it. Seven subset files matched exactly this before blanking.
+    write(
+      "schema.ts",
+      "/**\n * Every write path (logger, assertions, evidence, playwright, scripts) passes through.\n */\nexport const f = 1;\n",
+    );
+    const test2 = write("b.test.ts", 'import { f } from "./schema.ts";\nexport const y = f;\n');
+    expect(browserDriverIn(test2, root)).toBeUndefined();
+    expect(drivesBrowser(test2, root)).toBe(false);
+  });
+
+  test("a token in a line comment beside real code is not a driver either", () => {
+    write("c.test.ts", "// chromium is deliberately NOT used here\nexport const z = 1;\n");
+    expect(drivesBrowser(join(root, "c.test.ts"), root)).toBe(false);
+  });
+
+  test("THE CONTROL: a driver in the file itself is still found", () => {
+    // Without this the change could have been "always false", which satisfies both negatives above
+    // and would put every browser test into the subset.
+    const direct = write(
+      "d.test.ts",
+      'import { webkit } from "playwright";\nexport const w = webkit;\n',
+    );
+    expect(drivesBrowser(direct, root)).toBe(true);
+    expect(browserDriverIn(direct, root)).toBe("d.test.ts");
+  });
+
+  test("the real corpus: the lane's own smoke test is gated, and names where", () => {
+    // Driven against the repository rather than a fixture, because the fixture cannot show that the
+    // helper is reached through the real import graph.
+    const smoke = join(ROOT, "scripts/e2e/smoke.test.ts");
+    expect(existsSync(smoke)).toBe(true);
+    expect(drivesBrowser(smoke, ROOT)).toBe(true);
+    expect(browserDriverIn(smoke, ROOT)).toBe("scripts/e2e/smoke.ts");
+    // And the partition says so in its reason, which is what a reader of the lane output sees.
+    const part = partitionByOutDependence(["scripts/e2e/smoke.test.ts"], ROOT);
+    expect(part.outIndependent).toEqual([]);
+    expect(part.reasons["scripts/e2e/smoke.test.ts"]).toMatch(
+      /drives a browser in scripts\/e2e\/smoke\.ts/,
+    );
+  });
+
+  test("the real corpus: a file whose only token is a docblock word stays independent", () => {
+    // src/content/ledger/validateLedgerCli.test.ts reaches src/testing/log/schema.ts, whose
+    // docblock names playwright. It drives no browser and must stay in the subset.
+    const cli = join(ROOT, "src/content/ledger/validateLedgerCli.test.ts");
+    expect(existsSync(cli)).toBe(true);
+    expect(drivesBrowser(cli, ROOT)).toBe(false);
   });
 });
