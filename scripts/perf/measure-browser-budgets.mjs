@@ -44,6 +44,7 @@ import {
   BROWSER_BUDGET_SCHEMA_VERSION,
   readBuildId,
 } from "./browserBudgetArtifact.ts";
+import { evaluateInstrumentFeedback } from "./instrumentFeedback.ts";
 import { evaluateInteractionLatency } from "./interactionLatency.ts";
 import { evaluateLayoutShift } from "./layoutShift.ts";
 import { checkVisibleTextAndMath } from "./visibleTextMath.ts";
@@ -63,6 +64,24 @@ const ROUTES = [
   "/papers/brownian-motion/s4/",
   "/foundations/logarithms/",
   "/lab/bm-01/",
+];
+
+/**
+ * THE LABORATORIES THE `instrument-feedback` ROW IS DRIVEN OVER, one per paper plus the one lab
+ * whose results FrankenSim computes.
+ *
+ * Deliberately NOT `ROUTES` above. Those five span what the other three rows are about -- the
+ * mathematics the visible-text row judges, the controls the latency row clicks -- and adding four
+ * laboratories to them would change three settled populations as a side effect of measuring a
+ * fourth. This row needs pages that accept a snapshot when a parameter changes, which is a
+ * different question, so it gets its own list and its own count in the artifact.
+ */
+const INSTRUMENT_ROUTES = [
+  "/lab/bm-01/",
+  "/lab/bm-05/",
+  "/lab/lq-03/",
+  "/lab/sr-01/",
+  "/lab/me-01/",
 ];
 
 /*
@@ -277,6 +296,157 @@ async function measureInteractionLatency(base, browser) {
   }
 }
 
+/**
+ * `instrument-feedback`: a real parameter change on a real laboratory, timed from the input to the
+ * frame that displayed the accepted snapshot.
+ *
+ * THE ACTION IS DRIVEN THROUGH THE DOM CONTRACT, NOT THROUGH BUTTON COPY. `data-snapshot-version`
+ * and `data-accepted-action-index` are the identity attributes every instrument root publishes
+ * (src/experiments/store/identityAttributes.ts), validated at the browser boundary by
+ * scripts/e2e/domContract.ts. So this nudges the laboratory's own numeric controls, submits, and
+ * waits for THAT attribute to advance. A locator keyed on "Apply trial settings" would have to be
+ * re-swept every time a caption is edited, which this repository has paid for before; an attribute
+ * the DOM contract owns cannot drift without a gate noticing.
+ *
+ * THE SNAPSHOT VERSION ADVANCING IS ALSO THE NON-VACUITY CHECK, and it is independent of the thing
+ * being measured. The marks come from the scheduler and the paint hook; the attribute comes from
+ * the store through the rendered DOM. If the attribute never advances, no action happened, and this
+ * returns null rather than a row -- which is what keeps a laboratory that silently refuses from
+ * reading as "feedback within budget".
+ */
+async function measureInstrumentFeedback(base, browser) {
+  let actionsMeasured = 0;
+  let instrumentsOperated = 0;
+  let supersededExcluded = 0;
+  let maxFeedbackMs = 0;
+  let worstRoute = "";
+  let budgetMs = 0;
+  let overBudget = false;
+  const perRoute = [];
+
+  for (const route of INSTRUMENT_ROUTES) {
+    const context = await browser.newContext({ viewport: VIEWPORT });
+    const page = await context.newPage();
+    let accepted = 0;
+    try {
+      await page.goto(base + route, { waitUntil: "load", timeout: NAV_TIMEOUT_MS });
+      const root = page.locator("[data-accepted-action-index]").first();
+      await root.waitFor({ state: "attached", timeout: 20_000 });
+
+      // Three actions per laboratory: enough for a maximum to mean something, few enough that a
+      // slow page does not dominate the run. Each is a separate parameter change, because the
+      // budget is about the feedback of an action, not about a steady state.
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const before = Number((await root.getAttribute("data-snapshot-version")) ?? "0");
+        const fields = await root.locator('input[type="number"], input[type="range"]').all();
+        let nudged = false;
+        for (const field of fields.slice(0, 2)) {
+          try {
+            const next = await field.evaluate((el) => {
+              const step = Number(el.step) || 1;
+              const value = Number(el.value);
+              const max = el.max === "" ? Number.POSITIVE_INFINITY : Number(el.max);
+              const min = el.min === "" ? Number.NEGATIVE_INFINITY : Number(el.min);
+              const up = value + step;
+              return String(up <= max ? up : Math.max(min, value - step));
+            });
+            // `fill` goes through the native setter, which is what a controlled React input reads;
+            // assigning `.value` in the page would change the DOM and not the component.
+            await field.fill(next, { timeout: 2000 });
+            nudged = true;
+          } catch {
+            /* a disabled or detached control is not an action */
+          }
+        }
+        if (!nudged) break;
+        const submits = await root.locator('button[type="submit"], button:not([disabled])').all();
+        for (const submit of submits.slice(0, 4)) {
+          try {
+            await submit.click({ timeout: 1500, noWaitAfter: true });
+          } catch {
+            /* ignore a control that will not take a click */
+          }
+          try {
+            await page.waitForFunction(
+              ([selector, previous]) => {
+                const node = document.querySelector(selector);
+                return (
+                  node !== null &&
+                  Number(node.getAttribute("data-snapshot-version") ?? "0") > previous
+                );
+              },
+              ["[data-accepted-action-index]", before],
+              { timeout: 4000 },
+            );
+            accepted += 1;
+            break;
+          } catch {
+            /* that control did not produce a snapshot; try the next */
+          }
+        }
+      }
+
+      // One more frame pair, so the last action's paint mark is on the timeline before it is read.
+      await page.waitForTimeout(250);
+      const marks = await page.evaluate(() =>
+        performance
+          .getEntriesByType("mark")
+          .filter(
+            (e) => e.name === "am:input" || e.name === "am:accepted" || e.name === "am:painted",
+          )
+          .map((e) => ({ name: e.name, startTime: e.startTime, detail: e.detail })),
+      );
+      const usable = marks.filter((m) => m.detail && typeof m.detail.instanceId === "string");
+      const result = evaluateInstrumentFeedback(usable);
+      budgetMs = result.budgetMs;
+      supersededExcluded += result.supersededExclusions.length;
+      if (result.actions.length > 0) {
+        instrumentsOperated += 1;
+        actionsMeasured += result.actions.length;
+        if (result.overBudget) overBudget = true;
+        if (result.maxFeedbackMs > maxFeedbackMs) {
+          maxFeedbackMs = result.maxFeedbackMs;
+          worstRoute = route;
+        }
+      }
+      perRoute.push({
+        route,
+        snapshotsAccepted: accepted,
+        marks: usable.length,
+        actions: result.actions.length,
+        maxMs: result.maxFeedbackMs,
+      });
+    } catch (error) {
+      perRoute.push({
+        route,
+        snapshotsAccepted: accepted,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    } finally {
+      await context.close();
+    }
+  }
+
+  console.log(`[browser-budgets] instrument feedback per route: ${JSON.stringify(perRoute)}`);
+  if (actionsMeasured === 0) {
+    // No row rather than a zero. `evaluateInstrumentFeedback` returns maxFeedbackMs 0 and
+    // overBudget false over an empty action set, which would publish a budget met over nothing.
+    console.log(
+      "[browser-budgets] instrument feedback NOT MEASURED: no laboratory produced an input/accepted/painted triple",
+    );
+    return null;
+  }
+  return {
+    maxFeedbackMs,
+    actionsMeasured,
+    instrumentsOperated,
+    supersededExcluded,
+    budgetMs,
+    overBudget,
+    worstRoute,
+  };
+}
+
 function toolRunId() {
   const stamp = new Date()
     .toISOString()
@@ -322,6 +492,10 @@ async function main() {
       const row = await measureInteractionLatency(base, browser);
       if (row !== null) artifact.interactionLatency = row;
     }
+    if (wanted("instrument-feedback")) {
+      const row = await measureInstrumentFeedback(base, browser);
+      if (row !== null) artifact.instrumentFeedback = row;
+    }
   } finally {
     await browser.close();
     server.close();
@@ -332,13 +506,17 @@ async function main() {
   const path = join(dir, `${BROWSER_BUDGET_PREFIX}${artifact.toolRunId}.json`);
   writeFileSync(path, `${JSON.stringify(artifact, null, 2)}\n`, "utf8");
 
-  const rows = ["visibleTextMath", "layoutShift", "interactionLatency"].filter(
-    (k) => artifact[k] !== undefined,
-  );
+  const rows = [
+    "visibleTextMath",
+    "layoutShift",
+    "interactionLatency",
+    "instrumentFeedback",
+  ].filter((k) => artifact[k] !== undefined);
   const over = [
     artifact.visibleTextMath?.ok === false ? "visible-text-math" : null,
     artifact.layoutShift?.overBudget ? "layout-shift" : null,
     artifact.interactionLatency?.overBudget ? "interaction-latency-p75" : null,
+    artifact.instrumentFeedback?.overBudget ? "instrument-feedback" : null,
   ].filter((x) => x !== null);
   /*
    * TWO CENSUS LINES IN THE GRAMMAR THE META-GATE PARSES (am-rc1001-bridge-plan-pcjk.9).
@@ -360,16 +538,28 @@ async function main() {
    */
   const vacuousRoutes = reportPopulation({
     gate: "perf-browser-budgets",
-    examined: ROUTES.length,
+    examined: ROUTES.length + INSTRUMENT_ROUTES.length,
     noun: "built routes driven",
-    minimum: ROUTES.length,
+    minimum: ROUTES.length + INSTRUMENT_ROUTES.length,
   });
   const vacuousRows = reportPopulation({
     gate: "perf-browser-budgets",
     examined: rows.length,
-    // All three are measured by this script on every run: there is no condition under which a
-    // smaller number is the correct answer, so the floor is the full set rather than the 1 the old
-    // line declared.
+    /*
+     * FOUR ROWS ARE ATTEMPTED AND THE FLOOR IS THREE, which is a statement about which omissions
+     * are honest rather than a rounding of the full set.
+     *
+     * The first two cannot legitimately be absent: `visible-text-math` reads served HTML and
+     * `layout-shift` reads the browser's own entries, and both are produced by any run that
+     * navigated. The other two can. `interaction-latency-p75` is omitted when fewer than 20
+     * interactions were driven, because its catalogued method refuses a smaller sample, and
+     * `instrument-feedback` is omitted when no laboratory accepted a snapshot. So a floor of 3
+     * permits at most ONE such omission and still refuses a run that measured less than that.
+     *
+     * The line this replaced declared 3 as "the full set ... there is no condition under which a
+     * smaller number is the correct answer", which was already untrue of the latency row when it
+     * was written: that row's own driver returns null by design and says so in its comment.
+     */
     noun: "browser-driven budget rows",
     minimum: 3,
   });
@@ -383,6 +573,10 @@ async function main() {
       artifact.interactionLatency
         ? `p75 ${artifact.interactionLatency.p75LatencyMs} ms over ${artifact.interactionLatency.interactionCount} interactions`
         : "interaction-latency not measured"
+    }; ${
+      artifact.instrumentFeedback
+        ? `instrument-feedback ${artifact.instrumentFeedback.maxFeedbackMs} ms over ${artifact.instrumentFeedback.actionsMeasured} actions on ${artifact.instrumentFeedback.instrumentsOperated} laboratories`
+        : "instrument-feedback not measured"
     }`,
   );
   console.log(`[browser-budgets] wrote ${path}`);

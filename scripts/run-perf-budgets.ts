@@ -84,10 +84,18 @@ export interface RunPerfBudgetsResult {
  *   interaction-latency-p75, layout-shift, instrument-feedback, animation-frame-rate,
  *   resource-lifecycle
  *
- * The other six are not-available BY CONSTRUCTION in this harness: five are hardcoded unavailable
- * unless a plantViolationRow flag makes them measurable, and resource-lifecycle is unconditional.
- * A floor expressed as a NUMBER would therefore be satisfied by any two rows and would silently
- * keep passing if a browser-driven row were added later, so the floor names its rows instead.
+ * A floor expressed as a NUMBER would be satisfied by any two rows and would silently keep passing
+ * if a browser-driven row were added later, so the floor names its rows instead.
+ *
+ * THE "OTHER SIX" SENTENCE THAT USED TO CLOSE THIS BLOCK IS GONE, because it decayed into a claim
+ * about the harness that the harness had outgrown twice. It read: "five are hardcoded unavailable
+ * unless a plantViolationRow flag makes them measurable, and resource-lifecycle is unconditional".
+ * Measured 2026-10-23, FOUR of those six reach a real verdict from a browser-budget artifact
+ * (visible-text-math, interaction-latency-p75, layout-shift, instrument-feedback) and
+ * resource-lifecycle is joined to the resource-stress suite. Only animation-frame-rate is still
+ * computed from synthetic input, and its reason is in its own row. A sentence counting what cannot
+ * be measured is a sentence that goes stale every time someone measures one of them, so the count
+ * lives in BROWSER_DRIVEN_ROWS below and the census line prints it.
  */
 export const BUILD_DEPENDENT_ROWS = ["initial-route-js", "reading-face-html"] as const;
 
@@ -101,6 +109,7 @@ export const BROWSER_DRIVEN_ROWS = [
   ["visible-text-math", (a: BrowserBudgetArtifact) => a.visibleTextMath],
   ["interaction-latency-p75", (a: BrowserBudgetArtifact) => a.interactionLatency],
   ["layout-shift", (a: BrowserBudgetArtifact) => a.layoutShift],
+  ["instrument-feedback", (a: BrowserBudgetArtifact) => a.instrumentFeedback],
 ] as const satisfies readonly (readonly [string, (a: BrowserBudgetArtifact) => unknown])[];
 
 /**
@@ -770,16 +779,33 @@ export async function runPerformanceBudgets(
           }, // 65 ms <= 100 ms
         ];
 
-  const instrumentFeedbackResult = evaluateInstrumentFeedback(sampleMarks);
-  recordMetric(
-    "instrument-feedback",
-    !instrumentFeedbackResult.overBudget,
-    instrumentFeedbackResult.budgetMs,
-    instrumentFeedbackResult.maxFeedbackMs,
-    "ms",
-    `Total feedback time ${instrumentFeedbackResult.maxFeedbackMs} ms from synthetic marks; no instrument was operated`,
-    opts.plantViolationRow === 6 ? undefined : ("not-available" as const),
-  );
+  const browserFeedback =
+    opts.plantViolationRow === 6
+      ? undefined
+      : browserSource.usable
+        ? browserSource.artifact.instrumentFeedback
+        : undefined;
+  if (browserFeedback !== undefined) {
+    recordMetric(
+      "instrument-feedback",
+      !browserFeedback.overBudget,
+      browserFeedback.budgetMs,
+      browserFeedback.maxFeedbackMs,
+      "ms",
+      `Worst feedback ${browserFeedback.maxFeedbackMs} ms from input to the frame that displayed the accepted snapshot, over ${browserFeedback.actionsMeasured} real actions on ${browserFeedback.instrumentsOperated} laboratories (worst ${browserFeedback.worstRoute}, ${browserFeedback.supersededExcluded} superseded action(s) excluded); ${browserNote}`,
+    );
+  } else {
+    const instrumentFeedbackResult = evaluateInstrumentFeedback(sampleMarks);
+    recordMetric(
+      "instrument-feedback",
+      !instrumentFeedbackResult.overBudget,
+      instrumentFeedbackResult.budgetMs,
+      instrumentFeedbackResult.maxFeedbackMs,
+      "ms",
+      `Total feedback time ${instrumentFeedbackResult.maxFeedbackMs} ms from synthetic marks; no instrument was operated: ${browserNote}`,
+      opts.plantViolationRow === 6 ? undefined : ("not-available" as const),
+    );
+  }
 
   // -------------------------------------------------------------------------
   // Row 7: Animation frame timing (desktop <= 16.7 ms, mobile <= 33.4 ms)
