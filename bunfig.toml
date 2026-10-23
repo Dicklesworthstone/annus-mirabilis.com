@@ -42,6 +42,12 @@ pathIgnorePatterns = [
   # check the release origin guard against REAL git. Same reason as the entry above: this file is
   # nothing but git, and bun's runner cannot reliably spawn it here.
   "scripts/releaseOriginGuard.node.test.ts",
+  # am-rc1001-bridge-plan-pcjk.3: drives prepare-lane's syncReleaseIdentity over a one-commit git
+  # fixture, which is where the keep branch's early return actually shipped a release identity that
+  # bound no artifact. Same reason: it spawns `git rev-parse HEAD` in the fixture root. The pure
+  # halves (identityDecision, backfillBoundArtifacts) stay in the bun lane as
+  # scripts/build/releaseIdentityForBuild.test.ts, so neither lane holds the whole proof.
+  "scripts/prepareLaneReleaseIdentity.node.test.ts",
   # am-rc1001-bridge-plan-pcjk.46: installs the proposed reference-transaction hook into a
   # throwaway repository and drives the four cases the bead names. Same reason again: it is nothing
   # but git, and it must never touch this checkout's own .git/hooks.

@@ -811,12 +811,37 @@ export type ReleaseIdentity = Readonly<{
   profile: ReleaseProfile;
   toolRunId: string;
   builtAt: string;
+  /**
+   * THE ORIGIN GUARD'S ANSWER, RECORDED RATHER THAN DISCARDED
+   * (am-rc1001-bridge-plan-pcjk.3 item 1: "`commitOnOrigin` (true/false at build time)").
+   *
+   * `assertCommitOnOrigin` runs a fresh `git fetch` and `git merge-base --is-ancestor` immediately
+   * before this identity is written, and throws `release-commit-not-on-origin` when the answer is
+   * no. So by the time this field is set the fact is already established and was simply being
+   * thrown away.
+   *
+   * IT IS ALWAYS TRUE WHEN PRESENT, AND ITS ABSENCE IS THE INFORMATION. A reader of a live
+   * `/release.json` cannot otherwise tell a release that was gated on origin/main from one written
+   * by a path that never asked -- and on 2026-09-29 the live site was built from 27 commits that
+   * existed on no branch and no remote, which is the event this whole field exists to make visible
+   * afterwards rather than only refusable beforehand. A plain `bun run build` omits it, correctly:
+   * it makes no such claim, and `vercel.json`'s buildCommand begins `git init`, so inside the build
+   * environment there is no origin to ask.
+   */
+  commitOnOrigin: true;
 }>;
 
 export function releaseIdentity(
-  fields: Omit<ReleaseIdentity, "schema" | "writtenBy">,
+  fields: Omit<ReleaseIdentity, "schema" | "writtenBy" | "commitOnOrigin">,
 ): ReleaseIdentity {
-  return { schema: RELEASE_IDENTITY_SCHEMA, writtenBy: "deploy", ...fields };
+  return {
+    schema: RELEASE_IDENTITY_SCHEMA,
+    writtenBy: "deploy",
+    // Not a parameter. Every caller reaches this line only past assertCommitOnOrigin, and letting a
+    // caller pass the value would make the field a claim rather than a record of the check.
+    commitOnOrigin: true,
+    ...fields,
+  };
 }
 
 /** Writes public/release.json (gitignored), which the static export serves at /release.json. */

@@ -40,6 +40,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
+  backfillBoundArtifacts,
   buildIdentity,
   identityDecision,
   serializeIdentity,
@@ -204,7 +205,6 @@ export function syncReleaseIdentity(root: string, write = writeFileSync): string
     }
   }
   const decision = identityDecision(existing, commit);
-  if (decision.action === "keep") return `release identity: kept, ${decision.reason}`;
   // The two artifacts the commit does not pin. Read here rather than inside the identity module so
   // that module stays pure and its tests need no filesystem; an absent file omits its field.
   const readIfPresent = (rel: string): string | undefined => {
@@ -216,10 +216,26 @@ export function syncReleaseIdentity(root: string, write = writeFileSync): string
       return undefined;
     }
   };
-  const identity = buildIdentity(commit, new Date(), {
+  const boundArtifacts = {
     wasmManifest: readIfPresent(join("public", "wasm", "manifest.json")),
     contentIndex: readIfPresent(join("generated", "content", "index.json")),
-  });
+  };
+  if (decision.action === "keep") {
+    /*
+      KEEPING THE DEPLOY'S IDENTITY STILL BINDS THE ARTIFACTS IT COULD NOT KNOW.
+
+      This branch used to return here, and the consequence ran the wrong way round: the deploy
+      script writes public/release.json BEFORE `vercel build`, so it cannot carry the WASM manifest
+      digest or the content edition version, and keeping its file meant production's /release.json
+      bound the commit alone while a plain local build's bound all three. backfillBoundArtifacts
+      adds only absent fields and never overwrites one, so profile and toolRunId are untouched.
+    */
+    const backfilled = backfillBoundArtifacts(existing, boundArtifacts);
+    if (backfilled === null) return `release identity: kept, ${decision.reason}`;
+    write(file, `${JSON.stringify(backfilled.identity, null, 2)}\n`, "utf8");
+    return `release identity: kept, ${decision.reason}; bound ${backfilled.added.join(" and ")}`;
+  }
+  const identity = buildIdentity(commit, new Date(), boundArtifacts);
   write(file, serializeIdentity(identity), "utf8");
   const bound = [
     identity.wasmManifestDigest === undefined ? undefined : "wasm",

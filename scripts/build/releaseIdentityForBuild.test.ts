@@ -20,6 +20,7 @@
 
 import { describe, expect, test } from "bun:test";
 import {
+  backfillBoundArtifacts,
   buildIdentity,
   contentEditionVersionOf,
   identityDecision,
@@ -218,5 +219,83 @@ describe("the bound artifacts", () => {
     const id = buildIdentity(HEAD, new Date(), { wasmManifest: MANIFEST, contentIndex: INDEX });
     expect(id.schema).toBe(RELEASE_IDENTITY_SCHEMA);
     expect(JSON.parse(serializeIdentity(id)).commit).toBe(HEAD);
+  });
+});
+
+/**
+ * THE DEFECT THE BACKFILL ANSWERS, and it ran the opposite way to the one above.
+ *
+ * `identityDecision` keeping a deploy-written file is correct: its `profile` and `toolRunId` should
+ * survive. But the deploy script writes `public/release.json` BEFORE `vercel build`, so it cannot
+ * carry a digest of artifacts that build has not produced. The prepare lane kept the file and
+ * returned early, so the identity that SHIPPED bound the commit alone while a plain local build's
+ * bound the commit, the WASM bundle and the compiled edition.
+ *
+ * Measured 2026-10-23: the live `/release.json` schema has carried `wasmManifestDigest` and
+ * `contentEditionVersion` since 2026-10-09 on the build path, and `ReleaseIdentity` in
+ * verified-production-deploy.ts has never declared either field, so no release could have had them.
+ */
+describe("a kept identity still binds the artifacts the deploy script could not know", () => {
+  const MANIFEST = '{"bundleId":"fs-annus-diffusion","files":{"a.wasm":"deadbeef"}}';
+  const INDEX =
+    '{"buildDigest":"5295751ce13398e2584251b510d350d018f2656ab081b178542df215798a24ef"}';
+  const fromDeploy = {
+    schema: RELEASE_IDENTITY_SCHEMA,
+    commit: HEAD,
+    writtenBy: "deploy",
+    profile: "scaffold",
+    toolRunId: "20261002T210830Z-8b3bf18a",
+    builtAt: "2026-10-02T21:08:30.542Z",
+    commitOnOrigin: true,
+  };
+
+  test("THE MEASURED DEFECT: a deploy identity gains both digests and loses no field", () => {
+    const result = backfillBoundArtifacts(fromDeploy, {
+      wasmManifest: MANIFEST,
+      contentIndex: INDEX,
+    });
+    expect(result).not.toBeNull();
+    expect([...(result?.added ?? [])].sort()).toEqual(["contentEditionVersion", "wasmManifestDigest"]);
+    // Every field the deploy script wrote survives. This is the half that makes the change a merge
+    // rather than the replace identityDecision exists to prevent.
+    for (const [key, value] of Object.entries(fromDeploy)) {
+      expect(result?.identity[key]).toEqual(value);
+    }
+    expect(result?.identity.contentEditionVersion).toBe(
+      "5295751ce13398e2584251b510d350d018f2656ab081b178542df215798a24ef",
+    );
+    expect(result?.identity.wasmManifestDigest).toMatch(/^[0-9a-f]{64}$/);
+  });
+
+  test("A FIELD ALREADY THERE IS NEVER OVERWRITTEN, even when it is empty", () => {
+    // `in`, not truthiness: a key present with an empty value was written deliberately by whoever
+    // wrote it, and replacing it would be exactly the overwrite this must not do.
+    const result = backfillBoundArtifacts(
+      { ...fromDeploy, wasmManifestDigest: "", contentEditionVersion: "already-here" },
+      { wasmManifest: MANIFEST, contentIndex: INDEX },
+    );
+    expect(result).toBeNull();
+  });
+
+  test("nothing to add returns null, so the caller leaves the file untouched", () => {
+    // A rewrite with identical bytes would churn the file's mtime on every prepare run, and
+    // staleness checks elsewhere in this repository read mtimes.
+    expect(backfillBoundArtifacts(fromDeploy, {})).toBeNull();
+    expect(backfillBoundArtifacts(null, { wasmManifest: MANIFEST })).toBeNull();
+    expect(backfillBoundArtifacts("not an object", { wasmManifest: MANIFEST })).toBeNull();
+    expect(backfillBoundArtifacts([1, 2], { wasmManifest: MANIFEST })).toBeNull();
+  });
+
+  test("one present and one absent adds only the absent one", () => {
+    const result = backfillBoundArtifacts(fromDeploy, { contentIndex: INDEX });
+    expect(result?.added).toEqual(["contentEditionVersion"]);
+    expect("wasmManifestDigest" in (result?.identity ?? {})).toBe(false);
+  });
+
+  test("an unparseable content index adds no field rather than a wrong one", () => {
+    // contentEditionVersionOf swallows the parse error and returns undefined; the backfill must
+    // then add nothing, not a key whose value is undefined.
+    const result = backfillBoundArtifacts(fromDeploy, { contentIndex: "{not json" });
+    expect(result).toBeNull();
   });
 });

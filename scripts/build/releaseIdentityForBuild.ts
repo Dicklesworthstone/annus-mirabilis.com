@@ -192,3 +192,50 @@ export function buildIdentity(
 export function serializeIdentity(identity: BuildReleaseIdentity): string {
   return `${JSON.stringify(identity, null, 2)}\n`;
 }
+
+/**
+ * THE FIELDS A KEPT IDENTITY IS MISSING, AND WHY THE RELEASE IS THE ONE THAT MISSES THEM.
+ *
+ * `identityDecision` returning `keep` is correct and its reasoning above is correct: the deploy
+ * script wrote this file for this very commit a moment ago, and its `profile` and `toolRunId`
+ * should survive. The consequence nobody looked at is the other direction. The deploy script writes
+ * `public/release.json` BEFORE `vercel build`, and the two digests below are facts about artifacts
+ * that build has not produced yet -- `public/wasm/manifest.json` and
+ * `generated/content/index.json`. So the deploy identity cannot carry them, the build keeps it and
+ * returns early, and the identity that SHIPS has neither.
+ *
+ * The result was backwards: a plain local build's `/release.json` bound the commit, the WASM bundle
+ * and the compiled edition, while production's bound only the commit. That is the opposite of the
+ * docblock's "its richer identity ... survives and is what ships", which was true of the two fields
+ * it names and false of these two. AGENTS.md asks a release manifest to bind "the site source
+ * revision, content edition version, source-asset hashes, WASM artifact hashes"; a released
+ * identity with only the commit answers one of those.
+ *
+ * KEEPING IS NOT REPLACING. This adds a field only where the existing identity has none, and never
+ * overwrites a value that is there -- so a deploy identity that one day carries its own digest wins,
+ * and no field the deploy script wrote can be lost by a build re-running the prepare lane. It
+ * returns null when there is nothing to add, so the caller can leave the file untouched rather than
+ * rewriting it with identical bytes.
+ */
+export function backfillBoundArtifacts(
+  existing: unknown,
+  bound: BoundArtifacts,
+): { readonly identity: Record<string, unknown>; readonly added: readonly string[] } | null {
+  if (existing === null || typeof existing !== "object" || Array.isArray(existing)) return null;
+  const record = existing as Record<string, unknown>;
+  const candidates: readonly [string, string | undefined][] = [
+    ["wasmManifestDigest", wasmManifestDigestOf(bound.wasmManifest)],
+    ["contentEditionVersion", contentEditionVersionOf(bound.contentIndex)],
+  ];
+  const additions: Record<string, unknown> = {};
+  const added: string[] = [];
+  for (const [key, value] of candidates) {
+    // `in` rather than a truthiness test: a key present with a null or empty value was written
+    // deliberately by whoever wrote it, and overwriting it would be the replace this must not do.
+    if (value === undefined || key in record) continue;
+    additions[key] = value;
+    added.push(key);
+  }
+  if (added.length === 0) return null;
+  return { identity: { ...record, ...additions }, added };
+}
