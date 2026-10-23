@@ -762,55 +762,39 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     owner: "am-gov-license-inventory-w6yz",
   },
   {
-    // THIS STEP CANNOT PASS ON A ROUTINE RUN, AND THE SCRIPT IS RIGHT TO REFUSE.
+    // THE REVERSAL THIS ENTRY ASKED FOR, TAKEN (am-igdv). What stood here, from 2026-10-08 until
+    // 2026-10-23, was a long and correct account of why this step could not pass: the script reads
+    // `--scenario-evidence` and `--review-records`, the chain passes neither, so it opened no file
+    // and refused. It ended "This is reversible in one word. When am-cm-coverage-ledger-0ip wires a
+    // loader and something emits scenario evidence, put cadence back to every-run."
     //
-    // coverage-report.ts reads two inputs, `--scenario-evidence <path>` and
-    // `--review-records <path>`, and the chain passes neither. It therefore opens no file, and
-    // `coverageWasMeasured` refuses rather than printing counts over an empty set - which is the
-    // defect am-9n4g was raised for and exactly the right instinct. The refusal is untouched here.
+    // The first half of that condition is now met and the second turns out not to have been needed.
+    // `scripts/coverage-report.ts` reads FIVE of the seven dimensions from the content tree on a
+    // bare run -- source status, translation review, argument treatment, instrument availability,
+    // accessibility equivalence -- opening 906 files at 450faa7e0 and printing each one's digest.
+    // The two that genuinely need an evidence file still report `not-run` rather than zero, which is
+    // the honest form the other five were modelled on. So the step passes on what it can measure and
+    // stays silent about what it cannot, and the old entry's "nothing emits evidence" reason no
+    // longer describes the step's ability to run.
     //
-    // MEASURED before deciding, because "wire the chain" was the obvious fix and it is not
-    // available: NOTHING IN THE TREE PRODUCES EITHER INPUT. `--scenario-evidence` appears only in
-    // coverage-report.test.ts and the ledger's own tests, which build fixtures in temp dirs;
-    // run-scenarios.ts writes no artifact at all. For review records there is code
-    // (backfill-review-records.ts, render-review-acceptance.ts) and test logs under
-    // artifacts/test-logs/review-records/, but no committed records file in the input format. So
-    // there is no path to pass, and the script's own text says why: "the remaining dimensions
-    // have no loader wired (am-cm-coverage-ledger-0ip)".
+    // cadence every-run is affordable, measured rather than assumed: 236 ms cold, 98 ms warm.
     //
-    // So the CHAIN was wrong, not the gate. Moved from every-run to nightly:
-    //   - a routine `--family fast` run uses cadence "every-run" and now skips it, instead of
-    //     carrying a permanent red at step 18 of 28. A required gate that can never pass trains
-    //     people to discount the whole chain, which costs more than the step reports.
-    //   - a `--profile preview` or `--profile launch` run uses cadence "all" (quality-gates.ts:168),
-    //     so it STILL RUNS and still blocks there. Unmeasured coverage should stop a release, and
-    //     requiredInProfiles is unchanged.
-    //   - requiredInCi GOES FALSE, and that is a correction to this comment's first version.
-    //     I wrote that it could stay true because quality-gates.ts:455 exempts a step skipped for
-    //     cadence. That is true of the RUNNER and it is not the only claim the flag makes.
-    //     ciGateWiring.test.ts asserts a second invariant: every requiredInCi gate must be
-    //     EXECUTED by some dsr check. package.json's `gates` runs --family fast and --family
-    //     browser with no --cadence, so only every-run is admitted and a nightly gate is reachable
-    //     by no dsr check at all. Moving the cadence without clearing the flag left this gate
-    //     declaring a requirement nothing could satisfy, and central verify went red on exactly
-    //     that. The flag is dropped rather than the invariant silenced.
+    // requiredInCi goes back to true, and the invariant that forced it false is satisfied rather
+    // than silenced. ciGateWiring.test.ts asserts that every requiredInCi gate is EXECUTED by some
+    // dsr check; package.json's `gates` runs --family fast with no --cadence, which admits only
+    // every-run, so a nightly gate was reachable by no check at all. Moving the cadence back is what
+    // makes the flag satisfiable, which is why the two change together here.
     //
-    //     What the flag stood for is not lost. requiredInProfiles still carries preview and
-    //     launch, and profile mode filters on THAT alone (quality-gates.ts:211), never on
-    //     requiredInCi, so a --profile launch run still executes this gate and still refuses.
-    //     check-stashes.ts:13 records the same pattern for the same reason, and 23 gates still
-    //     declare requiredInCi, so ciGateWiring keeps a real population to quantify over.
-    //
-    // This is reversible in one word. When am-cm-coverage-ledger-0ip wires a loader and something
-    // emits scenario evidence, put cadence back to every-run and pass the path in `command`.
+    // WHAT WOULD MAKE THIS RED, so the step is not merely green: a content dimension going empty.
+    // Each of the four has its own floor in src/content/coverage/loaders.ts (COVERAGE_FLOORS) and
+    // the script refuses on any one of them individually, because a single population count over
+    // four dimensions cannot see three of them go quiet while the fourth carries the census.
     id: "coverage-report",
     title: "Multi-dimensional coverage ledger report",
     command: ["bun", "scripts/coverage-report.ts"],
     family: "fast",
-    cadence: "nightly",
-    requiredInCi: false,
-    notRequiredInCiReason:
-      "Nothing emits scenario coverage evidence yet, so the step has no input to report on. Reversible in one word: when am-cm-coverage-ledger-0ip wires a loader and something emits evidence, put the cadence back to every-run and pass the path in `command`.",
+    cadence: "every-run",
+    requiredInCi: true,
     requiredInProfiles: ["preview", "launch"],
     availability: {
       scriptPath: "scripts/coverage-report.ts",

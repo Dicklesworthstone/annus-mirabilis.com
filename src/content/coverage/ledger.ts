@@ -77,6 +77,19 @@ export interface LedgerContext {
       }[]
     | undefined;
   readonly reviewRecordsPath?: string | undefined;
+  /**
+   * Files a loader already opened, with their digests, recorded in `report.inputs` ahead of the two
+   * this function opens for itself (am-igdv).
+   *
+   * The two paths above are single optional files, so this function could open them on demand. The
+   * four content dimensions are directories of hundreds of files, and the loader that walks them is
+   * the only thing that knows which ones it actually read -- a manifest directory with no
+   * `manifest.yaml` is skipped, a non-`arg-` file in the arguments tree is not a node. Rebuilding
+   * that list here would be a second, driftable answer to a question the loader has already
+   * answered, and `report.inputs.length` is what the census counts, so a wrong list is a wrong
+   * population rather than a cosmetic difference.
+   */
+  readonly openedInputs?: readonly CoverageReportInput[] | undefined;
 }
 
 export function generateToolRunId(date: Date = new Date()): string {
@@ -186,7 +199,7 @@ export function generateCoverageReport(
   context: LedgerContext,
   toolRunId: string = generateToolRunId(),
 ): CoverageReport {
-  const inputs: CoverageReportInput[] = [];
+  const inputs: CoverageReportInput[] = [...(context.openedInputs ?? [])];
 
   // Record scenario evidence input if present
   if (context.scenarioEvidencePath && existsSync(context.scenarioEvidencePath)) {
@@ -453,6 +466,37 @@ function dimensionLines(
   return lines;
 }
 
+/**
+ * The inputs line: every file named while the list is short, a per-kind census once it is not.
+ *
+ * This printed each path in full until am-igdv wired the loaders, at which point one bare run put
+ * about 900 absolute paths on a single line and the gate's output went to 113 KB. Truncating to the
+ * first few would be worse than either: the reader could no longer tell 900 files from 5, which is
+ * the one thing this line exists to say.
+ *
+ * So above the threshold each KIND reports its file count and a digest OVER the per-file digests, in
+ * their recorded order. That digest is not decoration -- it is what makes "the same 552 manifest
+ * units" checkable between two runs without the paths, and it changes when any file in the kind
+ * changes, which a count alone does not. The full list stays in the JSON artifact beside it.
+ */
+export function formatInputsLine(inputs: readonly CoverageReportInput[], nameUpTo = 6): string {
+  if (inputs.length === 0) return "None";
+  if (inputs.length <= nameUpTo) {
+    return inputs.map((i) => `\`${i.path}\` (${i.sha256.slice(0, 8)})`).join(", ");
+  }
+  const byKind = new Map<string, string[]>();
+  for (const input of inputs) {
+    const list = byKind.get(input.kind) ?? [];
+    list.push(input.sha256);
+    byKind.set(input.kind, list);
+  }
+  const parts = [...byKind.entries()].map(([kind, digests]) => {
+    const combined = computeSha256(digests.join("\n")).slice(0, 8);
+    return `${digests.length} \`${kind}\` (combined ${combined})`;
+  });
+  return `${inputs.length} files -- ${parts.join(", ")}`;
+}
+
 export function formatCoverageMarkdown(report: CoverageReport): string {
   const lines: string[] = [];
 
@@ -460,9 +504,7 @@ export function formatCoverageMarkdown(report: CoverageReport): string {
   lines.push(``);
   lines.push(`- **Tool Run ID:** \`${report.logRunId}\``);
   lines.push(`- **Generated At:** ${report.generatedAt}`);
-  lines.push(
-    `- **Inputs:** ${report.inputs.length > 0 ? report.inputs.map((i) => `\`${i.path}\` (${i.sha256.slice(0, 8)})`).join(", ") : "None"}`,
-  );
+  lines.push(`- **Inputs:** ${formatInputsLine(report.inputs)}`);
   lines.push(``);
 
   lines.push(

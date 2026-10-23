@@ -51,8 +51,37 @@ test("coverage-report prints its report and writes both artifacts", () => {
   assert.equal(parsed.numericalValidation.totalScenarios, 3);
   assert.equal(parsed.numericalValidation.byStatus.passing, 2);
   assert.equal(parsed.numericalValidation.byStatus.failing, 1);
-  assert.equal(parsed.inputs.length, 1);
-  assert.equal(parsed.inputs[0]?.kind, "scenario-evidence");
+
+  /*
+    THE INPUTS, AS A PROPERTY RATHER THAN A CENSUS. These two lines read
+    `assert.equal(parsed.inputs.length, 1)` and `parsed.inputs[0]?.kind === "scenario-evidence"`
+    until am-igdv wired the content loaders, at which point one run opened 907 files and the frozen
+    count broke on correct work -- the shape AGENTS.md records under "A Count Is For Reporting, Not
+    For Asserting". The question the test was asking is still worth asking, so it is asked of the
+    thing that is actually stable: the evidence file we passed is recorded exactly once, and each
+    content dimension is represented. Floors, not equalities, so adding a paper or a lab stays green.
+  */
+  const byKind = new Map<string, number>();
+  for (const input of parsed.inputs as { path: string; kind: string }[]) {
+    byKind.set(input.kind, (byKind.get(input.kind) ?? 0) + 1);
+  }
+  console.log(`[coverage-report cli] inputs by kind ${JSON.stringify([...byKind])}`);
+  assert.equal(byKind.get("scenario-evidence"), 1, "the evidence file must be recorded once");
+  assert.ok(
+    (parsed.inputs as { path: string }[]).some((i) => i.path === evidence),
+    "the evidence file we passed is not among the recorded inputs",
+  );
+  for (const [kind, floor] of [
+    ["source-manifest", 4],
+    ["translation-unit", 400],
+    ["instrument-manifest", 30],
+    ["argument-nodes", 40],
+  ] as const) {
+    assert.ok(
+      (byKind.get(kind) ?? 0) >= floor,
+      `${kind}: ${byKind.get(kind) ?? 0} recorded, floor ${floor} -- a bare run must read the tree`,
+    );
+  }
 
   const jsonArtifact = join(outDir, `${parsed.logRunId}.json`);
   const mdArtifact = join(outDir, `${parsed.logRunId}.md`);

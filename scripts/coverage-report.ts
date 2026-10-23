@@ -3,9 +3,28 @@
  * Multi-Dimensional Coverage Report CLI.
  *
  * Usage:
- *   bun scripts/coverage-report.ts [--scenario-evidence <path>] [--review-records <path>] [--outDir <dir>] [--json]
+ *   bun scripts/coverage-report.ts [--scenario-evidence <path>] [--review-records <path>]
+ *                                  [--root <dir>] [--outDir <dir>] [--json]
  *
- * Spec: AGENTS.md §10.4 and am-cm-coverage-ledger-0ip
+ * Spec: AGENTS.md and am-cm-coverage-ledger-0ip, wired to the content tree by am-igdv.
+ *
+ * FIVE OF THE SEVEN DIMENSIONS ARE READ FROM `content/` ON A BARE RUN (am-igdv). Until 2026-10-23
+ * none of them were: `LedgerContext` was handed an empty array and two empty maps, so a bare run --
+ * which is how the gate chain invokes this step -- opened no file, printed `VACUOUS`, and refused.
+ * The step is `requiredInProfiles: ["preview", "launch"]`, so neither profile could pass, whatever
+ * the state of the papers. The engine was never the gap; it had nothing to compute over.
+ *
+ * The `--demonstration` flag and its three-node fixture are gone, per the deletion condition the
+ * fixture itself carried: "when ... wires real loaders for source manifests, argument nodes and
+ * instruments, this fixture and the --demonstration flag go away and the dimensions become
+ * measured." The fixture described brownian-motion only, in three nodes and three instruments,
+ * against a real population of 48 and 33.
+ *
+ * TWO DIMENSIONS STILL DEPEND ON AN EXPLICIT INPUT and still report `not-run` without it:
+ * numerical validation reads `--scenario-evidence`, editorial review reads `--review-records`.
+ * Those are evidence a run produces, not records in the tree, and the ledger already reports their
+ * absence as `not-run` rather than as a count of zero -- which is the honest form the three unwired
+ * dimensions were modelled on in the first place.
  */
 
 import { existsSync, readFileSync } from "node:fs";
@@ -18,21 +37,25 @@ import {
   type LedgerContext,
   writeCoverageReportArtifacts,
 } from "../src/content/coverage/ledger.ts";
-import type { ArgumentNodeCoverage, CoverageReport } from "../src/content/coverage/types.ts";
+import { loadCoverageFromContent } from "../src/content/coverage/loaders.ts";
+import type { CoverageReport } from "../src/content/coverage/types.ts";
 import { reportPopulation } from "./gate-census/population.ts";
+
+/** The dimensions that need an explicit evidence file, named so a zero is never read as a count. */
+const EVIDENCE_FED_DIMENSIONS = ["Numerical Validation", "Editorial Review"] as const;
 
 function parseArgs(args: string[]): {
   scenarioEvidencePath?: string;
   reviewRecordsPath?: string;
+  root: string;
   outDir: string;
   json: boolean;
-  demonstration: boolean;
 } {
   let scenarioEvidencePath: string | undefined;
   let reviewRecordsPath: string | undefined;
+  let root = process.cwd();
   let outDir = join(process.cwd(), "artifacts", "coverage");
   let json = false;
-  let demonstration = false;
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
@@ -43,23 +66,24 @@ function parseArgs(args: string[]): {
     } else if (arg === "--review-records" && i + 1 < args.length) {
       const val = args[++i];
       if (val) reviewRecordsPath = val;
+    } else if (arg === "--root" && i + 1 < args.length) {
+      const val = args[++i];
+      if (val) root = resolve(val);
     } else if (arg === "--outDir" && i + 1 < args.length) {
       const val = args[++i];
       if (val) outDir = val;
     } else if (arg === "--json") {
       json = true;
-    } else if (arg === "--demonstration") {
-      demonstration = true;
     }
   }
 
   const result: {
     scenarioEvidencePath?: string;
     reviewRecordsPath?: string;
+    root: string;
     outDir: string;
     json: boolean;
-    demonstration: boolean;
-  } = { outDir, json, demonstration };
+  } = { root, outDir, json };
   if (scenarioEvidencePath !== undefined) {
     result.scenarioEvidencePath = scenarioEvidencePath;
   }
@@ -72,16 +96,16 @@ function parseArgs(args: string[]): {
 /**
  * Did this run measure anything at all (am-9n4g)?
  *
- * `report.inputs` records only files that were opened, each with its sha256, so an empty
- * inputs list is the report saying in its own data that it read nothing. That is the honest
- * detector here, and it is the same field the markdown renders as "Inputs: None".
+ * `report.inputs` records only files that were opened, each with its sha256, so an empty inputs list
+ * is the report saying in its own data that it read nothing. That is the honest detector here, and it
+ * is the same field the markdown renders as "Inputs: None".
  *
  * The bead reported this gate emitting "Total source units: 158 / reviewed: 158" beneath
- * "Inputs: None", from a literal in this file. 342d13da moved that fixture behind
- * --demonstration, which cleared the default path and left two things standing: the flag still
- * printed the forbidden pair, and the DEFAULT run measured nothing and exited 0 while being
- * requiredInCi. A required gate that passes having opened no file certifies nothing and reads
- * as conformance, which is the shape this sweep opened with.
+ * "Inputs: None", from a literal in this file. 342d13da moved that fixture behind --demonstration,
+ * which cleared the default path and left two things standing: the flag still printed the forbidden
+ * pair, and the DEFAULT run measured nothing and exited 0 while being requiredInCi. A required gate
+ * that passes having opened no file certifies nothing and reads as conformance. Both halves are now
+ * answered by the loaders rather than by a refusal: the default run opens about 900 files.
  */
 export function coverageWasMeasured(report: CoverageReport): boolean {
   return report.inputs.length > 0;
@@ -91,11 +115,13 @@ export async function runCoverageReport(args: string[]): Promise<{
   report: CoverageReport;
   jsonPath: string;
   mdPath: string;
-  /** Says whether the unwired dimensions were measured, so a caller cannot read a 0 as a count. */
+  /** Says which dimensions still await an evidence file, so a caller cannot read a 0 as a count. */
   provenance: string;
-  unwiredDimensions: readonly string[];
+  evidenceFedDimensions: readonly string[];
+  /** Any content dimension whose population fell below its floor, as readable lines. */
+  shortfalls: readonly string[];
 }> {
-  const { scenarioEvidencePath, reviewRecordsPath, outDir, json, demonstration } = parseArgs(args);
+  const { scenarioEvidencePath, reviewRecordsPath, root, outDir, json } = parseArgs(args);
 
   let scenarioEvidence:
     | { scenarioId: string; status: "passed" | "failed" | "skipped"; failureMessage?: string }[]
@@ -123,119 +149,15 @@ export async function runCoverageReport(args: string[]): Promise<{
     reviewRecords = JSON.parse(content);
   }
 
-  // am-wdqy's sibling, found by the empty-set sweep: THESE THREE COLLECTIONS ARE LITERALS IN THIS
-  // FILE. Nothing reads the content tree for them. Run with no arguments, this gate printed
-  //
-  //     - **Inputs:** None
-  //     ## 1. Source Status
-  //     Total source units: 158
-  //     - reviewed: 158
-  //
-  // and exited 0, while registered requiredInCi with cadence every-run and required in the preview
-  // and launch profiles. (Both registry flags have since changed - the step is nightly and no
-  // longer requiredInCi - but the defect this paragraph describes was real at the time and the
-  // refusal below is what answers it.) "Inputs: None" and "158 reviewed" are two lines apart and only one of them
-  // is true. The numbers are not a measurement of this repository and never were.
-  //
-  // The model for the honest form is in this same file: the numerical-validation dimension already
-  // reports `not-run` when its evidence is absent rather than a count of zero. These three now
-  // behave the same way - they are supplied only under --demonstration, and a default run reports
-  // them as not measured, with the reason.
-  //
-  // DELETION CONDITION: when am-cm-coverage-ledger-0ip wires real loaders for source manifests,
-  // argument nodes and instruments, this fixture and the --demonstration flag go away and the
-  // dimensions become measured. This bead is not that work; it is the gate not lying in the meantime.
-  const demonstrationNodes: ArgumentNodeCoverage[] = [
-    {
-      id: "arg-bm-observable",
-      paper: "brownian-motion",
-      section: "s1",
-      logicalRole: "premise",
-      readingsPresent: ["R0", "R1", "R2", "R3"],
-      treatment: {
-        kind: "instrument",
-        experimentIds: ["bm-01"],
-        correspondenceNote: "Visualizes observable particle suspension.",
-      },
-      accessibilityEquivalent: {
-        kind: "action-contract",
-        details: "Nonvisual telemetry stepper.",
-      },
-      acceptanceScenarioIds: ["sc-bm-01-observable"],
-    },
-    {
-      id: "arg-bm-diffusion-equation",
-      paper: "brownian-motion",
-      section: "s2",
-      logicalRole: "derivation",
-      readingsPresent: ["R0", "R1", "R2", "R3"],
-      treatment: {
-        kind: "instrument",
-        experimentIds: ["bm-05"],
-        correspondenceNote: "Demonstrates diffusion density progression.",
-      },
-      accessibilityEquivalent: {
-        kind: "textual-equivalent",
-        details: "Step-by-step mathematical ladder.",
-      },
-      acceptanceScenarioIds: ["sc-bm-05-diffusion"],
-    },
-    {
-      id: "arg-bm-inference",
-      paper: "brownian-motion",
-      section: "s3",
-      logicalRole: "conclusion",
-      readingsPresent: ["R0", "R1", "R2", "R3"],
-      treatment: {
-        kind: "instrument",
-        experimentIds: ["bm-06"],
-        correspondenceNote: "Inference of molecular dimensions from displacement.",
-      },
-      acceptanceScenarioIds: ["sc-bm-06-inference"],
-    },
-  ];
-
-  const demonstrationInstruments = new Map([
-    [
-      "bm-01",
-      { id: "bm-01", provenance: "host-calculation-available" as const, paper: "brownian-motion" },
-    ],
-    [
-      "bm-05",
-      {
-        id: "bm-05",
-        provenance: "accepted-frankensim-result-demonstrated" as const,
-        paper: "brownian-motion",
-      },
-    ],
-    ["bm-06", { id: "bm-06", provenance: "artifact-loaded" as const, paper: "brownian-motion" }],
-  ]);
-
-  const demonstrationSourceManifests = new Map([
-    [
-      "brownian-motion",
-      {
-        paper: "brownian-motion",
-        totalUnits: 158,
-        byStatus: { reviewed: 158 },
-      },
-    ],
-  ]);
-
-  // The three unwired dimensions. Empty by default so no fabricated figure is presented as
-  // coverage; the provenance block below says an empty figure here means "not measured", which is
-  // the distinction a bare 0 cannot carry.
-  const UNWIRED_DIMENSIONS = [
-    "Source Status",
-    "Argument Treatment",
-    "Instrument Availability",
-  ] as const;
+  const loaded = loadCoverageFromContent(root);
 
   const context: LedgerContext = {
-    argumentNodes: demonstration ? demonstrationNodes : [],
-    instruments: demonstration ? demonstrationInstruments : new Map(),
-    sourceManifests: demonstration ? demonstrationSourceManifests : new Map(),
-    knownExperiments: demonstration ? new Set(["bm-01", "bm-05", "bm-06"]) : new Set<string>(),
+    argumentNodes: loaded.argumentNodes,
+    instruments: loaded.instruments,
+    sourceManifests: loaded.sourceManifests,
+    translationUnits: loaded.translationUnits,
+    knownExperiments: loaded.knownExperiments,
+    openedInputs: loaded.opened,
     scenarioEvidence,
     scenarioEvidencePath,
     reviewRecords,
@@ -248,68 +170,84 @@ export async function runCoverageReport(args: string[]): Promise<{
 
   // The provenance block goes to stdout in BOTH modes, because a JSON consumer reading
   // sourceStatus.totalUnits has the same right to know whether that figure was measured. The
-  // CoverageReport type cannot carry it without a change that belongs to
-  // am-cm-coverage-ledger-0ip, so under --json it rides as a `provenance` field of the printed
-  // object. It used to follow the JSON as a bare line, which made --json output unparseable.
-  const provenance = demonstration
-    ? `DEMONSTRATION RUN. ${UNWIRED_DIMENSIONS.join(", ")} are filled from a fixture in scripts/coverage-report.ts, not measured from this repository. Do not cite these figures as coverage.`
-    : `NOT MEASURED: ${UNWIRED_DIMENSIONS.join(", ")} have no loader wired (am-cm-coverage-ledger-0ip), so their figures are absent rather than zero. Every other dimension below is measured from its declared input.`;
+  // CoverageReport type cannot carry it without a change that belongs to the ledger's own bead, so
+  // under --json it rides as a `provenance` field of the printed object. It used to follow the JSON
+  // as a bare line, which made --json output unparseable.
+  const missing = EVIDENCE_FED_DIMENSIONS.filter((d) =>
+    d === "Numerical Validation" ? scenarioEvidence === undefined : reviewRecords === undefined,
+  );
+  const provenance =
+    missing.length === 0
+      ? "Every dimension below is measured from its declared input; the content dimensions are read from the tree at --root and each file opened is listed with its digest."
+      : `MEASURED FROM THE TREE: source status, translation review, argument treatment, instrument availability and accessibility equivalence, each over the files listed above with their digests. NOT MEASURED: ${missing.join(", ")} report not-run because no evidence file was given (--scenario-evidence, --review-records); that is an absence, not a zero.`;
 
-  // Counts are withheld when nothing was measured and no fixture was requested, so the
-  // forbidden pair - "Inputs: None" above a populated Source Status - cannot be produced at all
-  // on the default path. Under --demonstration the figures ARE printed, because that is what was
-  // asked for, and main() still refuses so they cannot be cited as coverage.
-  const withhold = report.inputs.length === 0 && !demonstration;
   if (json) {
-    console.log(JSON.stringify({ ...report, provenance }, null, 2));
-  } else if (withhold) {
-    console.log(
-      `# Annus Mirabilis Multi-Dimensional Coverage Ledger\n\n- **Tool Run ID:** \`${toolRunId}\`\n- **Inputs:** None\n\nNo dimension was measured, so no figures are printed.`,
-    );
+    console.log(JSON.stringify({ ...report, provenance, shortfalls: loaded.shortfalls }, null, 2));
   } else {
     console.log(formatCoverageMarkdown(report));
     console.log(`\nArtifacts written:\n- JSON: ${jsonPath}\n- Markdown: ${mdPath}`);
+    /*
+      THE PER-INSTRUMENT RULE THAT FIRED, printed because this dimension is the one a reader is most
+      likely to take on trust. AGENTS.md: "A loaded WASM file does not earn the FrankenSim label."
+      Each line names the file the loader read to decide the state, so the state can be checked
+      rather than believed, and so a mapping that drifts is visible in the output instead of only in
+      a diff.
+    */
+    console.log("\n## Instrument provenance, with the evidence for each state\n");
+    for (const inst of [...loaded.instruments.values()].sort((a, b) => a.id.localeCompare(b.id))) {
+      console.log(`- \`${inst.id}\` ${inst.provenance} -- ${inst.evidence}`);
+    }
   }
   if (!json) console.log(`\n${provenance}`);
 
-  return { report, jsonPath, mdPath, provenance, unwiredDimensions: UNWIRED_DIMENSIONS };
+  return {
+    report,
+    jsonPath,
+    mdPath,
+    provenance,
+    evidenceFedDimensions: EVIDENCE_FED_DIMENSIONS,
+    shortfalls: loaded.shortfalls,
+  };
 }
 
 /** The refusal text, as a function so a test can assert it without spawning a process. */
-export function coverageRefusal(demonstration: boolean): string {
-  const shared =
-    "No coverage is established by this run. `--scenario-evidence <path>` and" +
-    " `--review-records <path>` are the inputs this report can read today; the remaining" +
-    " dimensions have no loader wired (am-cm-coverage-ledger-0ip).";
-  return demonstration
-    ? `REFUSED: --demonstration fills dimensions from a fixture in this script, not from the content tree. ${shared} The figures printed above are the fixture's and must never be cited as coverage.`
-    : `REFUSED: this run opened no input file, so every dimension is unmeasured. ${shared}`;
+export function coverageRefusal(shortfalls: readonly string[]): string {
+  if (shortfalls.length > 0) {
+    return (
+      `REFUSED: a content dimension found less than its floor (${shortfalls.join("; ")}). ` +
+      "A dimension that reads nothing reports exactly like a dimension that is complete, so this " +
+      "run establishes no coverage. Check that --root names the repository root and that content/ " +
+      "is present; the floors are in src/content/coverage/loaders.ts (COVERAGE_FLOORS)."
+    );
+  }
+  return (
+    "REFUSED: this run opened no input file, so every dimension is unmeasured. No coverage is " +
+    "established by this run. The content dimensions read content/source-blocks, " +
+    "content/translation-units, content/experiments and content/arguments under --root; " +
+    "numerical validation and editorial review read --scenario-evidence and --review-records."
+  );
 }
 
 async function main() {
-  const { report, provenance } = await runCoverageReport(process.argv.slice(2));
+  const { report, provenance, shortfalls } = await runCoverageReport(process.argv.slice(2));
   // Read from argv rather than threaded out of runCoverageReport, so this stays a presentation
   // decision in main and the reporting function keeps its shape.
   const printsJson = process.argv.slice(2).includes("--json");
 
   /*
-    THE POPULATION, IN THE CENSUS'S ONE GRAMMAR (am-rc1001-bridge-plan-pcjk.9), printed on BOTH
-    paths: a census that could only read the measured run could not tell this gate's refusal from a
-    gate that never ran.
+    THE POPULATION, IN THE CENSUS'S ONE GRAMMAR (am-rc1001-bridge-plan-pcjk.9).
 
     `report.inputs` records only files that were OPENED, each with its sha256, so the count is the
-    honest population and not a restatement of the verdict. The gate already refuses at zero
-    (coverageWasMeasured, and the exit below), so this line reports a refusal the gate makes rather
-    than being the only thing that notices.
+    honest population and not a restatement of the verdict.
 
-    AS REGISTERED, THIS GATE CANNOT PASS, and the census line is how that becomes visible. The
-    registry runs `bun scripts/coverage-report.ts` with NO arguments, and the inputs it can read are
-    `--scenario-evidence <path>` and `--review-records <path>`; measured 2026-10-08, the bare command
-    exits 1 with its REFUSED line. That is correct behaviour by this script and a gap in the step's
-    registration, hidden until now by a `nightly` cadence that nothing runs -- the same shape am-7bkr
-    found for perf-budgets. Giving the step arbitrary paths to make it green would be making a gate
-    pass rather than wiring it, so the remaining dimensions' loaders stay with
-    am-cm-coverage-ledger-0ip and the census will list this red against that bead.
+    THE MINIMUM IS 1 AND STAYS 1, now that a bare run measures. The real floors are per-dimension and
+    live with the loaders (COVERAGE_FLOORS), because the failure worth catching is not "no file at
+    all" -- which a 1 would catch -- but one dimension going quietly empty while the others carry the
+    census over the line. A single number over four populations cannot see that, so it is not asked
+    to: the shortfall list below refuses on any dimension individually.
+
+    The registry's note that "as registered, this gate cannot pass" was true from 2026-10-08 until
+    2026-10-23 and is no longer: the bare command the registry runs now opens the content tree.
   */
   // Under --json the census goes to stderr: stdout is the report a caller parses, and a line
   // after it makes the output unparseable. parsePopulationLines reads a gate's combined output,
@@ -324,12 +262,12 @@ async function main() {
     printsJson ? "stderr" : "stdout",
   );
 
-  if (coverageWasMeasured(report)) return;
+  if (coverageWasMeasured(report) && shortfalls.length === 0) return;
 
   // A run that names no inputs must not report counts as measured, and must not exit 0 while
   // required in CI. Both halves matter: the exit code is what the pipeline reads, the withheld
   // figures are what a person reads.
-  console.error(`\n${coverageRefusal(process.argv.slice(2).includes("--demonstration"))}`);
+  console.error(`\n${coverageRefusal(shortfalls)}`);
   console.error(provenance);
   process.exit(1);
 }

@@ -69,7 +69,18 @@ export type EditorialReviewStatus = "accepted" | "needs-rereview" | "not-reviewe
 export interface CoverageReportInput {
   readonly path: string;
   readonly sha256: string;
-  readonly kind: "source-manifest" | "scenario-evidence" | "review-records" | "argument-nodes";
+  /**
+   * `translation-unit` and `instrument-manifest` joined this union when the loaders that read them
+   * landed (am-igdv). Until then the union named four kinds and the report could only ever record
+   * two of them, because nothing opened a file for the other two.
+   */
+  readonly kind:
+    | "source-manifest"
+    | "scenario-evidence"
+    | "review-records"
+    | "argument-nodes"
+    | "translation-unit"
+    | "instrument-manifest";
 }
 
 export interface DimensionStatusSummary {
