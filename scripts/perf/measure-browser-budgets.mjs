@@ -44,7 +44,7 @@ import {
   BROWSER_BUDGET_SCHEMA_VERSION,
   readBuildId,
 } from "./browserBudgetArtifact.ts";
-import { evaluateInstrumentFeedback } from "./instrumentFeedback.ts";
+import { aggregateInstrumentFeedback, evaluateInstrumentFeedback } from "./instrumentFeedback.ts";
 import { evaluateInteractionLatency } from "./interactionLatency.ts";
 import { evaluateLayoutShift } from "./layoutShift.ts";
 import { checkVisibleTextAndMath } from "./visibleTextMath.ts";
@@ -315,13 +315,8 @@ async function measureInteractionLatency(base, browser) {
  * reading as "feedback within budget".
  */
 async function measureInstrumentFeedback(base, browser) {
-  let actionsMeasured = 0;
-  let instrumentsOperated = 0;
-  let supersededExcluded = 0;
-  let maxFeedbackMs = 0;
-  let worstRoute = "";
-  let budgetMs = 0;
-  let overBudget = false;
+  /** One entry per laboratory, folded by `aggregateInstrumentFeedback`, which is unit-tested. */
+  const evaluations = [];
   const perRoute = [];
 
   for (const route of INSTRUMENT_ROUTES) {
@@ -398,17 +393,7 @@ async function measureInstrumentFeedback(base, browser) {
       );
       const usable = marks.filter((m) => m.detail && typeof m.detail.instanceId === "string");
       const result = evaluateInstrumentFeedback(usable);
-      budgetMs = result.budgetMs;
-      supersededExcluded += result.supersededExclusions.length;
-      if (result.actions.length > 0) {
-        instrumentsOperated += 1;
-        actionsMeasured += result.actions.length;
-        if (result.overBudget) overBudget = true;
-        if (result.maxFeedbackMs > maxFeedbackMs) {
-          maxFeedbackMs = result.maxFeedbackMs;
-          worstRoute = route;
-        }
-      }
+      evaluations.push({ route, evaluation: result });
       perRoute.push({
         route,
         snapshotsAccepted: accepted,
@@ -428,23 +413,13 @@ async function measureInstrumentFeedback(base, browser) {
   }
 
   console.log(`[browser-budgets] instrument feedback per route: ${JSON.stringify(perRoute)}`);
-  if (actionsMeasured === 0) {
-    // No row rather than a zero. `evaluateInstrumentFeedback` returns maxFeedbackMs 0 and
-    // overBudget false over an empty action set, which would publish a budget met over nothing.
+  const row = aggregateInstrumentFeedback(evaluations);
+  if (row === null) {
     console.log(
       "[browser-budgets] instrument feedback NOT MEASURED: no laboratory produced an input/accepted/painted triple",
     );
-    return null;
   }
-  return {
-    maxFeedbackMs,
-    actionsMeasured,
-    instrumentsOperated,
-    supersededExcluded,
-    budgetMs,
-    overBudget,
-    worstRoute,
-  };
+  return row;
 }
 
 function toolRunId() {

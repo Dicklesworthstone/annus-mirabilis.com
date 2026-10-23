@@ -133,3 +133,72 @@ export function evaluateInstrumentFeedback(
     budgetMs,
   };
 }
+
+/** One laboratory's evaluation, kept beside the route so a failure can name a page. */
+export interface RouteFeedback {
+  readonly route: string;
+  readonly evaluation: InstrumentFeedbackEvaluation;
+}
+
+export interface AggregatedInstrumentFeedback {
+  readonly maxFeedbackMs: number;
+  readonly actionsMeasured: number;
+  readonly instrumentsOperated: number;
+  readonly supersededExcluded: number;
+  readonly budgetMs: number;
+  readonly overBudget: boolean;
+  readonly worstRoute: string;
+}
+
+/**
+ * Folds several laboratories' evaluations into the one artifact row, or `null` when no action was
+ * measured anywhere (am-snn0).
+ *
+ * THE NULL IS THE POINT, and it is here rather than inside the browser driver so that it can be
+ * tested without a browser. `evaluateInstrumentFeedback` over marks that join nothing returns
+ * `{ actions: [], maxFeedbackMs: 0, overBudget: false }` -- a passing verdict over an empty
+ * population, which is precisely what a real browser run produced for as long as `markPainted` had
+ * no caller. Summing that across five laboratories gives `0 ms, within a 100 ms budget` and reads
+ * like the best possible result. So an aggregate with no action is not a row at all: the driver
+ * omits it, the artifact validator refuses it if it appears anyway, and the harness reports
+ * `not-available`, which is true.
+ *
+ * `instrumentsOperated` counts laboratories that produced at least one measured action, not
+ * laboratories visited, because one instrument answering while four refuse is invisible in the
+ * action count alone.
+ */
+export function aggregateInstrumentFeedback(
+  perRoute: readonly RouteFeedback[],
+): AggregatedInstrumentFeedback | null {
+  let maxFeedbackMs = 0;
+  let actionsMeasured = 0;
+  let instrumentsOperated = 0;
+  let supersededExcluded = 0;
+  let overBudget = false;
+  let worstRoute = "";
+  // The budget belongs to the evaluator, so it is read from an evaluation rather than restated
+  // here; a default would let a wrong budget travel in the artifact as if it were the method's.
+  let budgetMs = INSTRUMENT_FEEDBACK_BUDGET_MS;
+  for (const { route, evaluation } of perRoute) {
+    supersededExcluded += evaluation.supersededExclusions.length;
+    budgetMs = evaluation.budgetMs;
+    if (evaluation.actions.length === 0) continue;
+    instrumentsOperated += 1;
+    actionsMeasured += evaluation.actions.length;
+    if (evaluation.overBudget) overBudget = true;
+    if (evaluation.maxFeedbackMs > maxFeedbackMs) {
+      maxFeedbackMs = evaluation.maxFeedbackMs;
+      worstRoute = route;
+    }
+  }
+  if (actionsMeasured === 0) return null;
+  return {
+    maxFeedbackMs,
+    actionsMeasured,
+    instrumentsOperated,
+    supersededExcluded,
+    budgetMs,
+    overBudget,
+    worstRoute,
+  };
+}
