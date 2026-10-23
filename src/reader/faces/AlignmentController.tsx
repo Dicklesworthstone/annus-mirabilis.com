@@ -1,12 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import {
-  type AlignmentIndex,
-  getAlignedSources,
-  getAlignedTargets,
-  getSentenceIndex,
-} from "./alignment.ts";
+import { type AlignmentIndex, getAlignedSources, getAlignedTargets } from "./alignment.ts";
+import { computeHighlights, nextSentenceId, prevSentenceId } from "./alignmentHighlight.ts";
 
 export interface AlignmentControllerProps {
   readonly index: AlignmentIndex;
@@ -40,47 +36,43 @@ export function AlignmentController({
       }
     }
 
-    function applyHighlights(id: string, kind: "source" | "target", announce = false) {
+    /** A German sentence's element, or its block's when the id names a whole block. */
+    function sourceElement(id: string): Element | null {
+      return (
+        root.querySelector(`[data-sentence-id="${id}"]`) ||
+        root.querySelector(`[data-block-id="${id}"]`)
+      );
+    }
+
+    function targetElement(id: string): Element | null {
+      return root.querySelector(`[data-translation-unit-id="${id}"]`);
+    }
+
+    /**
+     * WHICH IDS LIGHT UP IS DECIDED BY `computeHighlights`, NOT HERE. This function walked the
+     * index itself and reached the same answer by a second route; `alignmentHighlight.ts` is a
+     * pure module with a 6.5 KB test file and, until this change, no caller, so every assertion in
+     * that test described a module the reader never ran while the live traversal below it had no
+     * test of its own. Delegating makes the test a statement about what a reader gets.
+     *
+     * The DOM half stays here, because it is the half that is about this page: which attribute
+     * marks the active sentence and which marks its partners.
+     */
+    function applyHighlights(id: string, kind: "source" | "target") {
       clearHighlights();
-
-      if (kind === "source") {
-        const sourceEl =
-          root.querySelector(`[data-sentence-id="${id}"]`) ||
-          root.querySelector(`[data-block-id="${id}"]`);
-        if (sourceEl) {
-          sourceEl.setAttribute("data-aligned-active", "true");
-        }
-
-        const targets = getAlignedTargets(index, id);
-        for (const tid of targets) {
-          const targetEl = root.querySelector(`[data-translation-unit-id="${tid}"]`);
-          if (targetEl) {
-            targetEl.setAttribute("data-aligned-partner", "true");
-          }
-        }
-
-        if (announce && targets.length > 0) {
-          setAnnouncement(`Source sentence ${id} aligned to translation ${targets.join(", ")}.`);
-        }
-      } else {
-        const targetEl = root.querySelector(`[data-translation-unit-id="${id}"]`);
-        if (targetEl) {
-          targetEl.setAttribute("data-aligned-active", "true");
-        }
-
-        const sources = getAlignedSources(index, id);
-        for (const sid of sources) {
-          const sourceEl =
-            root.querySelector(`[data-sentence-id="${sid}"]`) ||
-            root.querySelector(`[data-block-id="${sid}"]`);
-          if (sourceEl) {
-            sourceEl.setAttribute("data-aligned-partner", "true");
-          }
-        }
-
-        if (announce && sources.length > 0) {
-          setAnnouncement(`Translation unit ${id} aligned to source ${sources.join(", ")}.`);
-        }
+      const highlights = computeHighlights(index, id, kind);
+      const activeKind = highlights.activeKind;
+      if (highlights.activeId === null || activeKind === null) return;
+      const active =
+        activeKind === "source"
+          ? sourceElement(highlights.activeId)
+          : targetElement(highlights.activeId);
+      active?.setAttribute("data-aligned-active", "true");
+      const partners =
+        activeKind === "source" ? highlights.highlightedTargetIds : highlights.highlightedSourceIds;
+      for (const partnerId of partners) {
+        const el = activeKind === "source" ? targetElement(partnerId) : sourceElement(partnerId);
+        el?.setAttribute("data-aligned-partner", "true");
       }
     }
 
@@ -101,7 +93,7 @@ export function AlignmentController({
         if (firstSentence) {
           firstSentence.focus();
           const sid = firstSentence.getAttribute("data-sentence-id") || firstSentence.id;
-          if (sid) applyHighlights(sid, "source", false);
+          if (sid) applyHighlights(sid, "source");
         }
         return;
       }
@@ -116,7 +108,7 @@ export function AlignmentController({
             const el = root.querySelector(`[data-sentence-id="${sid}"]`);
             return el?.textContent?.replace(/Show English translation/g, "").trim() || sid;
           });
-          applyHighlights(uid, "target", false);
+          applyHighlights(uid, "target");
           setAnnouncement(`German source: ${texts.join(" ")}`);
         }
         return;
@@ -132,7 +124,7 @@ export function AlignmentController({
             const el = root.querySelector(`[data-translation-unit-id="${tid}"]`);
             return el?.textContent?.replace(/Show the German source/g, "").trim() || tid;
           });
-          applyHighlights(sid, "source", false);
+          applyHighlights(sid, "source");
           setAnnouncement(`English translation: ${texts.join(" ")}`);
         }
         return;
@@ -195,9 +187,10 @@ export function AlignmentController({
         e.preventDefault();
         const currentActive = root.querySelector("[data-aligned-active]");
         const currentId = currentActive?.getAttribute("data-sentence-id") || currentActive?.id;
-        const currentIdx = currentId ? getSentenceIndex(index, currentId) : -1;
-        const nextIdx = Math.min(currentIdx + 1, index.orderedSentenceIds.length - 1);
-        const nextId = index.orderedSentenceIds[nextIdx];
+        // Document order comes from `nextSentenceId`, which this block used to recompute with its
+        // own min/max arithmetic. The two agreed -- no current sentence and an unknown sentence
+        // both land on the first -- and agreeing by coincidence is how they would stop agreeing.
+        const nextId = nextSentenceId(index, currentId);
         if (nextId) {
           const el = root.querySelector<HTMLElement>(`[data-sentence-id="${nextId}"]`);
           if (el) {
@@ -209,9 +202,7 @@ export function AlignmentController({
         e.preventDefault();
         const currentActive = root.querySelector("[data-aligned-active]");
         const currentId = currentActive?.getAttribute("data-sentence-id") || currentActive?.id;
-        const currentIdx = currentId ? getSentenceIndex(index, currentId) : 0;
-        const prevIdx = Math.max(currentIdx - 1, 0);
-        const prevId = index.orderedSentenceIds[prevIdx];
+        const prevId = prevSentenceId(index, currentId);
         if (prevId) {
           const el = root.querySelector<HTMLElement>(`[data-sentence-id="${prevId}"]`);
           if (el) {
