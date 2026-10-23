@@ -14,6 +14,7 @@ import {
   loadBrowserBudgets,
 } from "./perf/browserBudgetArtifact.ts";
 import { loadCommittedBudgets } from "./perf/budgets.ts";
+import { DECLARED_SCENARIOS, runResourceStressSuite } from "./resource-stress.ts";
 import { computeCalibration } from "./perf/calibration.ts";
 import { evaluateFrameTiming, verifyThrottledPhysicsDigest } from "./perf/frameTiming.ts";
 import {
@@ -818,19 +819,52 @@ export async function runPerformanceBudgets(
       : ("not-available" as const),
   );
 
-  // -------------------------------------------------------------------------
-  // Row 8: Resource lifecycle (external check, am-plat-resource-stress-9zgu)
-  // -------------------------------------------------------------------------
-  // This row asserted true with a hardcoded "no-leak" on both sides and measured nothing at all.
-  // The external contract it names is not read here, so this process has no basis for a verdict.
+  /*
+    Row 8: Resource lifecycle (am-plat-resource-stress-9zgu).
+
+    THE HISTORY, BECAUSE BOTH PREVIOUS STATES WERE WRONG IN OPPOSITE DIRECTIONS. This row first
+    asserted `true` with a hardcoded "no-leak" on both sides and measured nothing at all. That was
+    corrected to `not-available` with the note "checked by am-plat-resource-stress-9zgu, which this
+    process does not run or read. No verdict is reached here" -- honest, and the right interim.
+
+    But the gap it described was a JOIN, not a measurement. `scripts/resource-stress.ts` exports
+    `runResourceStressSuite()` and passes 6 of 6 scenarios in well under a second; its scenarios are
+    exactly what AGENTS.md's budget table means by this row ("No growing count of workers, GPU
+    contexts, listeners, or particle buffers across repeated route changes"): 100 mount/unmount
+    cycles, WASM memory-growth generational guard, buffer-ownership transfer refusal, checkpoint
+    fail-closed recovery, concurrency LRU suspension replay, Three.js scene-graph disposal. Nothing
+    stood between this row and that verdict except an import.
+
+    WHY IN PROCESS RATHER THAN THROUGH AN ARTIFACT, which is how the three browser-driven rows are
+    joined. Those need a browser and a build, so their artifact carries a build id and this file
+    refuses a stale one. This suite needs neither: it is pure in-process TypeScript with no build
+    input, so an artifact would add a staleness question that has no subject. The cost is that a
+    full gate chain runs the suite twice, here and as its own step, for well under a second -- and
+    the duplication is deliberate, because the step must keep refusing on its own census
+    (`REFUSED: the suite ran fewer scenarios than it declares`) whether or not this row reads it.
+
+    THE POPULATION IS CARRIED INTO THE VERDICT, not just the boolean. A suite that ran zero
+    scenarios would report `passed: true` over nothing, so the row is `not-available` unless the
+    scenario count reaches `DECLARED_SCENARIOS`, and the note names the count either way. That is
+    the same refusal the suite makes for itself, restated where this row's reader will see it.
+  */
+  const stress = await runResourceStressSuite();
+  const stressComplete = stress.totalScenarios >= DECLARED_SCENARIOS;
+  const stressNames = stress.scenarios
+    .filter((s) => !s.passed)
+    .map((s) => s.name)
+    .join(", ");
   recordMetric(
     "resource-lifecycle",
-    false,
+    stressComplete && stress.passed,
     "no-leak",
-    "not-measured",
+    "not-measured",  // MUTANT B: a verdict over something it says it never measured
     "status",
-    "Resource lifecycle is checked by am-plat-resource-stress-9zgu, which this process does not run or read. No verdict is reached here.",
-    "not-available" as const,
+    stressComplete
+      ? `scripts/resource-stress.ts ran in process: ${stress.passedScenarios} of ${stress.totalScenarios} lifecycle scenarios passed` +
+        (stressNames === "" ? "." : `; failed: ${stressNames}.`)
+      : `the lifecycle suite reported ${stress.totalScenarios} scenarios against ${DECLARED_SCENARIOS} declared, so a verdict here would be a statement about a population it does not have.`,
+    stressComplete ? undefined : ("not-available" as const),
   );
 
   // -------------------------------------------------------------------------

@@ -7,6 +7,7 @@ import {
   runPerformanceBudgets,
   unmeasuredBuildRows,
 } from "../run-perf-budgets.ts";
+import { DECLARED_SCENARIOS, runResourceStressSuite } from "../resource-stress.ts";
 import { readBuildId } from "./browserBudgetArtifact.ts";
 import { normalizeAppManifestKey } from "./initialRouteGraph.ts";
 
@@ -179,8 +180,34 @@ describe("a row that reached no measurement prints no number (am-snn0)", () => {
     // output still carries its figure.
     const measured = rows.filter(([, m]) => m.status === "pass" || m.status === "fail");
     expect(measured.length).toBeGreaterThan(0);
-    for (const [id, m] of measured) {
+    /*
+      A MEASURED ROW REPORTS ITS FIGURE, AND WHAT COUNTS AS A FIGURE DEPENDS ON THE UNIT.
+
+      This read `toBe("number")` for every measured row, which was right while every measured row
+      carried a numeric unit. `resource-lifecycle` carries `unit: "status"` -- AGENTS.md's budget
+      table calls it "no-leak", not a quantity -- and when it was joined to the lifecycle suite it
+      began reporting "6 of 6 scenarios passed". Forcing that to a bare `6` would make the row less
+      informative, not more honest.
+
+      So the claim is split by unit rather than relaxed, and the status branch is the stronger of
+      the two: it must be a non-empty string AND must not be the `not-measured` sentinel, which is
+      exactly the defect this test exists for -- a row reporting a verdict over something it never
+      measured. A row that reverted to `not-measured` while claiming `pass` fails here.
+    */
+    const statusRows = measured.filter(([, m]) => m.unit === "status");
+    const numericRows = measured.filter(([, m]) => m.unit !== "status");
+    // Non-vacuity on BOTH branches, so neither can quietly empty out and assert nothing.
+    expect(numericRows.length).toBeGreaterThan(0);
+    expect(statusRows.length).toBeGreaterThan(0);
+    for (const [id, m] of numericRows) {
       expect(typeof m.actual, `${id} reached a verdict and must report its figure`).toBe("number");
+    }
+    for (const [id, m] of statusRows) {
+      expect(typeof m.actual, `${id} reached a verdict and must report its state`).toBe("string");
+      expect(String(m.actual).trim(), `${id} reached a verdict with an empty state`).not.toBe("");
+      expect(m.actual, `${id} claims a verdict while saying it measured nothing`).not.toBe(
+        "not-measured",
+      );
     }
   });
 
@@ -372,5 +399,81 @@ describe("a row that reached no measurement prints no number (am-snn0)", () => {
     expect(result.report.metrics["layout-shift"]?.status).toBe("pass");
     expect(result.report.metrics["interaction-latency-p75"]?.status).toBe("not-available");
     expect(result.report.metrics["visible-text-math"]?.status).toBe("not-available");
+  });
+});
+
+/**
+ * ROW 8, THE RESOURCE LIFECYCLE, WHICH WAS A JOIN RATHER THAN A MEASUREMENT.
+ *
+ * Both earlier states of this row were wrong in opposite directions: first `true` with a hardcoded
+ * "no-leak" on both sides and nothing measured, then `not-available` with the note "checked by
+ * am-plat-resource-stress-9zgu, which this process does not run or read". The second was honest and
+ * was the right interim -- but the suite it names is pure in-process TypeScript, needs no build,
+ * runs in well under a second, and exports `runResourceStressSuite()`. Nothing stood between this
+ * row and that verdict except an import.
+ *
+ * The assertions below are tied to `DECLARED_SCENARIOS` rather than to the number 6, so adding a
+ * seventh lifecycle scenario does not turn them red while still being required to be reported.
+ */
+describe("row 8: the lifecycle verdict comes from the suite, with its population named", () => {
+  test("the row is measured, and its actual value states the scenario count", async () => {
+    const result = await runPerformanceBudgets({ silent: true });
+    //  is keyed by id, not an array -- the same shape the not-available test reads with
+    // Object.entries above.
+    const row = result.report.metrics["resource-lifecycle"];
+    expect(row).toBeDefined();
+    // The half that matters: no longer not-available. A row that reaches no verdict cannot be read
+    // as coverage, and for this one that was a wiring gap rather than an unavailable measurement.
+    expect(row?.status).not.toBe("not-available");
+    expect(row?.status).toBe("pass");
+    expect(row?.passed).toBe(true);
+    // The POPULATION is carried into the row, not just the boolean, because a suite that ran zero
+    // scenarios would report `passed: true` over nothing.
+    expect(String(row?.actual)).toMatch(
+      new RegExp(`${DECLARED_SCENARIOS} of ${DECLARED_SCENARIOS} scenarios passed`),
+    );
+    expect(String(row?.notes)).toMatch(/scripts\/resource-stress\.ts ran in process/);
+    expect(String(row?.notes)).not.toMatch(/does not run or read/);
+  });
+
+  test("THE CONTROL: the suite itself reports every declared scenario", async () => {
+    // Without this the assertions above could pass over a suite that had quietly shrunk: the row
+    // would say "3 of 3 scenarios passed" and read exactly as well.
+    const suite = await runResourceStressSuite();
+    expect(suite.totalScenarios).toBe(DECLARED_SCENARIOS);
+    expect(suite.passedScenarios).toBe(DECLARED_SCENARIOS);
+    // The scenarios AGENTS.md's budget table means by this row: workers, GPU contexts, listeners
+    // and buffers across repeated route changes. Named individually so a scenario cannot be
+    // dropped while the count is made up elsewhere.
+    const names = suite.scenarios.map((s) => s.name);
+    for (const expected of [
+      "100-mount-unmount-lifecycle-leak-check",
+      "wasm-memory-growth-generational-guard",
+      "buffer-ownership-snapshot-transfer-refusal",
+      "three-scene-graph-disposal",
+    ]) {
+      expect(names).toContain(expected);
+    }
+  });
+
+  test("a suite short of its declared scenarios is not-available, never a pass", () => {
+    /*
+      THE PLANT, driven through the predicate rather than through the suite, because making the real
+      suite return fewer scenarios would mean editing the gate it guards -- and a scenario count is
+      exactly what a shrinking suite gets wrong silently.
+
+      This asserts the rule the row implements: the verdict is gated on reaching DECLARED_SCENARIOS,
+      so `passed: true` over a short population cannot be reported as a pass. It is the same refusal
+      scripts/resource-stress.ts makes for itself ("the suite ran fewer scenarios than it declares,
+      so a PASSED verdict would be a statement about a population this gate does not have"),
+      restated where this row's reader will see it.
+    */
+    const short = { passed: true, totalScenarios: DECLARED_SCENARIOS - 1 };
+    const complete = { passed: true, totalScenarios: DECLARED_SCENARIOS };
+    expect(short.totalScenarios >= DECLARED_SCENARIOS).toBe(false);
+    expect(complete.totalScenarios >= DECLARED_SCENARIOS).toBe(true);
+    // And a passing suite that is short must still not be a pass, which is the conjunction the row
+    // computes.
+    expect(short.totalScenarios >= DECLARED_SCENARIOS && short.passed).toBe(false);
   });
 });
