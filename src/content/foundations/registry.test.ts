@@ -194,6 +194,49 @@ describe("checkRecordsAgainstRegistry: real content directory", () => {
     const authoredWithoutRecord = issues.filter((i) => i.code === "authored-without-record");
     expect(authoredWithoutRecord).toEqual([]);
   });
+
+  /**
+   * THE OTHER DIRECTION, ASKED OF THE REAL CORPUS RATHER THAN A FIXTURE.
+   *
+   * `authored-without-record` above was the only code this describe block checked against the real
+   * registry. The surplus direction -- a lesson record the registry does not know -- was proved on
+   * a fixture with an empty registry and never asked of the corpus, and a one-way check cannot see
+   * a surplus. It had a live instance the whole time.
+   *
+   * It is also a RECURRENCE. The test above this one records the same defect from 2026-09-24:
+   * the registry named `foundation:error-inference`, no record matched, and the lesson read as
+   * unregistered while its entry stayed `planned`. The guard written then names that one id, so it
+   * could not see the next instance of its own class.
+   *
+   * MEASURED 2026-10-24: 46 entries (44 authored, 2 planned), 45 record files, one issue.
+   * `electromagnetism-charges` is authored and reader-facing -- three argument records link to it
+   * (arg-lq-stopping-and-losses, arg-sr-magnet-conductor, arg-sr-field-components), it has a
+   * lesson-formulas record, and src/app/foundations/page.tsx names it in a cluster -- while the
+   * registry still carries `foundation:electromagnetism-needed-here` as `planned` with no file. So
+   * the registry UNDERSTATES what is built, and anything counting authored lessons from it is one
+   * short while naming a planned lesson that is done.
+   *
+   * Not repaired here: canonicalIds.ts says only am-ep-foundations-z1e may change the canonical
+   * table, and registry.yaml is derived from it, so which id is the right one is that epic's
+   * ruling and not this test's. A list, so a SECOND unregistered record fails by name and this one
+   * fails as stale once the ids are reconciled.
+   */
+  test("the corpus's unregistered records are exactly the one declared, named with its reason", () => {
+    const DECLARED_UNREGISTERED: readonly string[] = ["electromagnetism-charges"];
+    // Non-vacuity: an empty corpus or an empty registry would make any filter below trivially
+    // satisfied, and both read as a pass.
+    expect(registry.entries.length).toBeGreaterThan(40);
+    expect(registry.entries.filter((e) => e.status === "authored").length).toBeGreaterThan(40);
+
+    const unregistered = issues
+      .filter((i) => i.code === "unregistered-record")
+      .map((i) => i.id)
+      .sort();
+    expect(unregistered).toEqual([...DECLARED_UNREGISTERED].sort());
+
+    // And no third code appears without this test being rewritten to say what it means.
+    expect([...new Set(issues.map((i) => i.code))].sort()).toEqual(["unregistered-record"]);
+  });
 });
 
 describe("checkRecordsAgainstRegistry: fixture violations", () => {
@@ -212,8 +255,9 @@ describe("checkRecordsAgainstRegistry: fixture violations", () => {
   });
 
   test("a record missing from the registry fails", () => {
-    // The real content directory has 18 files; a registry with zero entries
-    // must report every one of them as unregistered.
+    // A registry with zero entries must report every record file as unregistered. The count is
+    // deliberately not asserted here: it was written as "18 files" and the directory holds 45 as
+    // of 2026-10-24, so the number decayed while the property it illustrates did not.
     const empty = parseRegistry({ schemaVersion: 1, entries: [] });
     const issues = checkRecordsAgainstRegistry(empty);
     expect(issues.length).toBeGreaterThan(0);
