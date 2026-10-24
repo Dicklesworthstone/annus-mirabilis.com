@@ -33,6 +33,7 @@
     "test:node:content": "node --experimental-strip-types scripts/run-node-only-tests.ts --out-independent-only",
     "test:refusals": "bun test --isolate --timeout 60000 src/testing/refusals",
     "test:styles": "bun test src/testing/styles",
+    "test:doneness": "bun test --isolate --timeout 60000 src/content/doneness",
     "test:reference": "bun run prepare:content && bun run prepare:lab && bun test --isolate --timeout 60000 src/testing/*.test.mjs",
     "test:browser": "bun scripts/test-mass-energy-browser.mjs; a=$?; bun scripts/test-lab-browser.mjs; b=$?; [ $a -eq 0 ] && [ $b -eq 0 ]",
     "test:search": "node --experimental-strip-types --test src/search/*.test.mjs",

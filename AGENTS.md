@@ -1121,6 +1121,7 @@ bun run check:types                        # 2.3s  tsc --noEmit AND the instrume
 bun run check:architecture                 # 0.3s  App Router root and root-file allowlist
 bun run test:refusals                      # 31s   ONLY if your commit changes a line count under src/
 bun run test:styles                        # 8s    ONLY if your commit adds or edits a .css under src/
+bun run test:doneness                      # 9s    ONLY if your commit changes a record a definition-of-done cell measures
 bunx biome check --write <your files>      #       YOUR changed files, by explicit path, never the repo
 bun test <the one test file you changed>   #       one file, not a lane
 ubs --diff
@@ -1163,6 +1164,22 @@ The same suite holds `rawHexRatchet` (a colour written as a hex literal rather t
 `declaredClassesRatchet` (the Tailwind-shaped class names of D-2026-09-17) and
 `orphanedStylesheets` (a `.css` nothing imports), so the trigger is the file extension, not the kind
 of edit.
+
+`bun run test:doneness` is here because **the pawl fires on an IMPROVEMENT**, so the better the work
+the likelier this is red, and no lane a content author would think to run reaches it. On 2026-10-24
+authoring one editorial-note record moved `brownian-motion / historians-margin-entries` from 2 of 8
+to 3 of 8 while `src/content/doneness/donenessBaseline.json` still said 2, and
+`donenessRatchet.test.ts` refused with *"no baseline is slack: a cell that has improved must be
+recorded at its new figure"*. The author had already run `check:types`, Biome on the changed files,
+the three margin audits (20 passing) and `test:node:content` (197 passing); **none of those four
+reaches that ratchet**, and the only lane that does is the nine-minute full bun suite, so `main`
+carried a red required step until a central gate run found it.
+
+The trigger is neither a file extension nor a line count: it is whether the commit changed anything
+a definition-of-done CELL MEASURES — a record under `content/`, a manifest, an owner file, a
+requirement denominator. One record is enough. Repair it by writing the new figure into the baseline
+in the SAME commit, which is "when a debt is paid down, lower the ceiling with it" from the section
+above, and never by leaving the old number.
 
 `bun run test:refusals` is here because **a COMMENT can turn a ratchet red**, which nobody believes
 until it happens to them. A test name carrying `(file.ts:317)` CREDITS the refusal throw site at
