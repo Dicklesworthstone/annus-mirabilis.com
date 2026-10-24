@@ -4,6 +4,20 @@
  *
  * Consumes verdict objects from tolerance.ts and produces consistent wording.
  * NEVER implements its own comparison formulas.
+ *
+ * NO PRODUCTION MODULE IMPORTS THIS, AND NOBODY HAS REIMPLEMENTED IT EITHER (am-50bk, triaged
+ * 2026-10-24). The verdicts are produced and consumed: `src/units/tolerance.ts` returns them and
+ * `src/equations/derivations/spotCheck.ts` reads `verdict.ok`, `.kind`, `.diff` and `.allowed`
+ * as fields, carrying them into its own typed result. No caller turns one into a sentence, here
+ * or anywhere, so a tolerance comparison has no reader-facing wording at all.
+ *
+ * That makes this an unmounted capability rather than a twin, and it is worth saying which,
+ * because "unused formatter" invites someone to delete it. The sentences AGENTS.md asks for are
+ * precisely the distinctions these four functions keep apart: a probability confidence interval
+ * is not an interval-arithmetic enclosure, and a numerical error bar is not a measurement
+ * uncertainty. The wording above is diagnostic rather than reader-facing despite the first line
+ * of this docblock, so whoever mounts it writes the reader's half against the editorial voice
+ * and keeps these as the diagnostic forms.
  */
 
 import type {

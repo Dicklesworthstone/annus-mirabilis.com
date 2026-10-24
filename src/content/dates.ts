@@ -1,6 +1,27 @@
 /**
  * Precision-aware date formatting and chronological comparison helpers.
  * Specification: AGENTS.md and am-cm-schemas-source-1en
+ *
+ * NO PRODUCTION MODULE IMPORTS THIS, AND DELEGATING TO IT MEANS UNIFYING TWO DATE MODELS
+ * (am-50bk, triaged 2026-10-24). The live counterparts exist and were written separately:
+ * `src/app/sources/page.tsx:45` declares its own six-line `formatDate`, and
+ * `src/content/provenance/checkReceipt.ts:1048` its own `validateChronology` beside
+ * `compareDatesAtCoarserPrecision`.
+ *
+ * They could not simply call this file, because there are TWO `PaperDate` types in this
+ * repository and the live pages use the other one. `src/content/schemas/dates.ts`, which this
+ * module reads, carries `earliest` and `latest` and a four-member `DATE_PRECISIONS` including
+ * `range`; `src/content/provenance/receiptSchema.ts`, which the receipts and `/sources` use,
+ * carries a single `iso` and a three-member `DATE_PRECISIONS` with no `range`. Both export
+ * `PaperDate`, `PaperDateType` and `DATE_PRECISIONS` under those names, so an import that picks
+ * the wrong one type-checks until a field is touched.
+ *
+ * Both chronology checks are live, so the ordering rule AGENTS.md names is not missing: the
+ * receipt one is the stricter of the two, comparing at the coarser of the two precisions where
+ * this file's `compareDates` compares interval strings. What this file holds that neither live
+ * path does is `compareDates`'s `"indeterminate"` for overlapping intervals and
+ * `formatDateStrict`'s refusal to format below the recorded precision. Those belong to the
+ * interval model, and whether the edition keeps two date models is a decision above this file.
  */
 
 import type { DatePrecision, PaperDate } from "./schemas/dates.ts";

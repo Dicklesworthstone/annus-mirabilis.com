@@ -1,4 +1,20 @@
-/** A syllabus orders the edition's actual prerequisite edges, not a second curriculum graph. */
+/**
+ * A syllabus orders the edition's actual prerequisite edges, not a second curriculum graph.
+ *
+ * NO PRODUCTION MODULE IMPORTS THIS, AND THE RECORDS IT ORDERS DO NOT EXIST (am-50bk, triaged
+ * 2026-10-24). `buildSyllabus` takes lessons and SESSIONS, and no record anywhere under
+ * `content/` declares a session: the word appears in no file there. Its neighbours in this
+ * directory are all live and all a different product. `catalogue.ts` holds `GUIDED_TOURS`, an
+ * ordered list of stops with a budget, which `ActiveTourGuide.tsx`, `GuidedTourTrail.tsx` and
+ * `TimedTour.tsx` render; a tour walks a reader through anchors, where a syllabus splits the
+ * foundation library into sittings.
+ *
+ * So this is built ahead of its content, and calling it an unused module would send the next
+ * agent to wire something that would render nothing. The work is deciding how the 45 foundation
+ * lessons divide into sessions and authoring that record, which is editorial, and the ordering
+ * machinery here (proof edges order, cross-links do not, cycles refuse by code) is waiting for
+ * it rather than missing.
+ */
 export type SyllabusLesson = Readonly<{
   id: string;
   title: string;

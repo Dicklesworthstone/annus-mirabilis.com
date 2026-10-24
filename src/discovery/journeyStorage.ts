@@ -1,6 +1,22 @@
 /**
  * Storage adapter for Discovery Journey local choices under `am:journeys:v1`.
  * Specification: am-disc-journey-framework-umbg, am-plat-local-storage-km8f
+ *
+ * NO PRODUCTION MODULE IMPORTS THIS, AND THE KEY IT OWNS IS PROMISED TO A READER (am-50bk,
+ * triaged 2026-10-24). This is the only module in the tree that can write `am:journeys:v1`.
+ * Nothing calls it: `Fork.tsx` and `Branch.tsx` hold no state at all, and no page under
+ * `src/app/discover/` persists anything. So the key is never written.
+ *
+ * The consequence is visible to a reader rather than only to this file.
+ * `src/platform/storage/keys.ts` registers `am:journeys:v1` as exportable and clearable and
+ * describes it as "Your choices and progress in Discover", and `/your-data` renders that registry
+ * through `DataPanel.tsx`. A reader is therefore offered a category of their own data that is
+ * always empty, and `readerData.test.ts` already asserts the key is absent from the stored set
+ * while present in the registry, which is the condition written down from the other side.
+ *
+ * The repair is to make the journeys persist a fork choice, which is a feature of
+ * am-disc-journey-framework-umbg, the bead the key itself names as owner, and not a wiring change
+ * that belongs here. Until then this module is the capability and the promise is unmet.
  */
 
 import { createMigrationChain, type MigrationChain } from "../platform/storage/migrations.ts";

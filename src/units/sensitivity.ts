@@ -1,6 +1,22 @@
 /**
  * Sensitivity analysis formatting and unit conversion rules.
  * (am-ver-precision-display-5e5)
+ *
+ * NO PRODUCTION MODULE IMPORTS THIS, AND THE ONE LIVE SENSITIVITY SAYS SOMETHING DIFFERENT ON
+ * PURPOSE (am-50bk, triaged 2026-10-24). `src/experiments/avogadro/sensitivity.ts` shares the
+ * word and not the job: it runs a study, varying one parameter and reporting a
+ * `ScientificResult` per point, each with its own unit and no derivative to convert.
+ *
+ * The site's one displayed derivative is `src/components/foundations/NudgeSensitivityDemo.tsx`,
+ * which prints the ratio ΔV/Δν and labels it `V·s`, explaining in its own prose that "volts
+ * divided by hertz gives volt-seconds". `formatSensitivity` here would print `V/Hz`. Delegating
+ * would replace a simplification the lesson is about with the unsimplified form, so the
+ * duplication is this file rather than the demo, exactly as with `src/reader/Outline.tsx`.
+ *
+ * What is genuinely unmounted is `convertSensitivity`, which is AGENTS.md's "Unit conversions
+ * apply to sensitivities as well as values" and has nothing to convert while one fixed unit pair
+ * is the whole population. Note before wiring it: it handles length and time only and raises a
+ * bare `Error`, which is the debt `src/testing/refusals/bareThrowsBaseline.json` records.
  */
 
 import { type FormatNumberOptions, formatCleanNumber, formatSignificantFigures } from "./format.ts";
