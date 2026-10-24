@@ -1213,7 +1213,7 @@ Do not run these to check your own commit. They are expensive, they are shared, 
 running a full lane is four times the cost of the orchestrator running it once.
 
 ```bash
-bun run gates                              # full local gate chain (bun scripts/quality-gates.ts --fail-fast --family fast)
+bun run gates                              # THREE legs: --family fast, THEN --family browser, THEN --only perf-budgets
 bun scripts/quality-gates.ts --profile scaffold  # scaffold release profile verification
 bun scripts/quality-gates.ts --profile preview   # preview release profile verification
 bun scripts/quality-gates.ts --profile launch    # launch release profile verification

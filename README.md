@@ -192,7 +192,7 @@ Read [`AGENTS.md`](./AGENTS.md) before changing anything. The scaffold has lande
 ```bash
 bun install
 bun run dev          # local development server
-bun run gates        # quality gates chain: --fail-fast --family fast AND then --family browser
+bun run gates        # three legs: --family fast, then --family browser, then --only perf-budgets
 bun scripts/quality-gates.ts --profile scaffold  # scaffold release profile verification
 bun scripts/quality-gates.ts --profile preview   # preview release profile verification
 bun scripts/quality-gates.ts --profile launch    # launch release profile verification
