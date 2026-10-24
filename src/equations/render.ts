@@ -7,11 +7,26 @@ import { navigationTree } from "./navigation.ts";
 import { type PrintedForm, printedForm } from "./notationForms.ts";
 import type { NotationNoteTarget } from "./notationNoteTarget.ts";
 import { recordQuantities } from "./printedGlyphs.ts";
-import type { QuantityRegistry } from "./quantities.ts";
+import { EQUATION_ROLE_CLASS_NAMES, type QuantityRegistry } from "./quantities.ts";
 import { type EquationRecord, parseEquationRecord } from "./record.ts";
 import { layoutLatex } from "./rowLayout.ts";
 import { teachingProfile } from "./teachingProfiles.ts";
 import type { CompiledEquation } from "./viewTypes.ts";
+
+/**
+ * The class branch of the KaTeX trust callback, exported so it can be asserted in BOTH directions.
+ *
+ * A check that reads rendered HTML can see this set NARROW -- a refused class is dropped from the
+ * output -- but it cannot see it WIDEN, because the corpus only ever emits the three classes the
+ * quantity registries declare, so a callback admitting ten would produce byte-identical pages.
+ * Widening is the dangerous direction: it is what a source record would need in order to carry an
+ * arbitrary class attribute out through mathematics. `equationRoles.test.ts` names the seven
+ * meaning-role classes among the things this must refuse.
+ */
+export function admitsRoleClass(className: string): boolean {
+  return EQUATION_ROLE_CLASS_NAMES.includes(className);
+}
+
 /**
  * The concordance a record's printed form is read from, and the section its argument sits in: the
  * same letter can name different quantities in different sections.
@@ -149,10 +164,7 @@ function compile(input: EquationRecord, notation: NotationContext | undefined): 
       maxSize: 20,
       strict: (code: string) => (code === "htmlExtension" ? "ignore" : "error"),
       trust: (context) => {
-        if (context.command === "\\htmlClass")
-          return ["am-role-input", "am-role-result", "am-role-constant"].includes(
-            String(context.class),
-          );
+        if (context.command === "\\htmlClass") return admitsRoleClass(String(context.class));
         if (context.command !== "\\htmlData") return false;
         const attributes = context.attributes as Record<string, string>;
         return (

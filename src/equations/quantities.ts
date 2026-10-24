@@ -1,3 +1,33 @@
+/**
+ * THE EQUATION ROLE VOCABULARY, and the single source of the class names built from it.
+ *
+ * Three roles, not seven. A term is an `input` the reader sets, a `result` the model computes, or
+ * a `constant` the active constant set supplies, so this says where a number in an equation COMES
+ * FROM. It is the vocabulary the renderer emits (`wrapHtmlClass` in latex/markers.ts, from this
+ * `role` field), the KaTeX trust callback admits (render.ts), the stylesheet colours
+ * (equations.css) and the kernel trace marks (content/kernel/trace.ts).
+ *
+ * IT IS NOT `COLOR_ROLES` (content/schemas/meanings.ts): energy, time-rate, space-geometry,
+ * material, statistical, field, quanta, which say what a quantity MEANS. The two vocabularies are
+ * disjoint -- no name in either appears in the other -- and `src/design/semanticColor/classNames.ts`
+ * records that at length, because its own docblock asserted for weeks that its seven were "the
+ * only seven classes the KaTeX trust callback admits".
+ *
+ * Four sites spelled these three strings independently before this constant existed, one of them
+ * a trust callback. WIDENING THIS SET WIDENS WHAT A SOURCE RECORD CAN PUT IN A CLASS ATTRIBUTE
+ * THROUGH MATHEMATICS, so adding a role is a security change, not a styling one.
+ */
+export const EQUATION_ROLES = ["input", "result", "constant"] as const;
+export type EquationRole = (typeof EQUATION_ROLES)[number];
+
+export function equationRoleClassName(role: EquationRole): string {
+  return `am-role-${role}`;
+}
+
+export const EQUATION_ROLE_CLASS_NAMES: readonly string[] = Object.freeze(
+  EQUATION_ROLES.map(equationRoleClassName),
+);
+
 /** Brownian explanatory slice, not a completed cross-paper notation concordance. */
 export type Quantity = Readonly<{
   id: string;
@@ -8,7 +38,7 @@ export type Quantity = Readonly<{
   displayUnit: string;
   displayPower: number;
   semanticKind: string;
-  role: "result" | "input" | "constant";
+  role: EquationRole;
   definition: string;
 }>;
 const q = (

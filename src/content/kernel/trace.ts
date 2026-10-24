@@ -1,4 +1,8 @@
-import { BROWNIAN_QUANTITIES } from "../../equations/quantities.ts";
+import {
+  BROWNIAN_QUANTITIES,
+  type EquationRole,
+  equationRoleClassName,
+} from "../../equations/quantities.ts";
 import { explainRefusal } from "../../experiments/results/explanations.ts";
 import { createDeclaredConstantSet } from "../../physics/reference/constants.ts";
 import {
@@ -215,7 +219,7 @@ export function assertTraceBounds(
   return checkTraceRowCount(instrumentId, functionName, rows.length);
 }
 
-export function roleForQuantity(quantityId: string): "result" | "input" | "constant" | undefined {
+export function roleForQuantity(quantityId: string): EquationRole | undefined {
   const q = BROWNIAN_QUANTITIES[quantityId];
   if (q) return q.role;
   if (
@@ -235,7 +239,7 @@ export function renderTraceMarkup(trace: WorkedTrace): string {
       const qty = r.quantityId ? ` data-quantity-id="${r.quantityId}"` : "";
       const op = r.opId ? ` data-op-id="${r.opId}"` : "";
       const role = r.quantityId ? roleForQuantity(r.quantityId) : undefined;
-      const roleCls = role ? ` class="am-role-${role}"` : "";
+      const roleCls = role ? ` class="${equationRoleClassName(role)}"` : "";
       const value = typeof r.value === "number" ? String(r.value) : r.value;
       const expr = r.opId
         ? `<a href="#${escapeHtml(r.opId)}" aria-label="Operation explanation for ${escapeHtml(r.opId)}">${escapeHtml(r.expression)}</a>`
