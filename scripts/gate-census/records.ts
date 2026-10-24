@@ -1144,7 +1144,14 @@ export const CENSUS_RECORDS: readonly CensusRecord[] = [
       computedMinimumPlant(
         "perf-browser-budgets",
         "scripts/perf/measure-browser-budgets.mjs",
-        "ROUTES.length",
+        // Was "ROUTES.length" and went dead on cd17ba282, which added INSTRUMENT_ROUTES and made
+        // this floor a sum. The anchor matched 0 times from then until 2026-10-24, so the plant
+        // could not be applied and this gate's refusal path was unproven for as long as that stood.
+        // That is the failure `computedMinimumPlant`'s own docblock predicts, working: an exact
+        // string makes a moved floor a visible anchor failure rather than a silent no-op. Still
+        // unique in the file, which is what plantAnchors.test.ts requires: the other `minimum:` is
+        // the rows floor at line 539.
+        "ROUTES.length + INSTRUMENT_ROUTES.length",
         "VACUOUS",
       ),
     ],
