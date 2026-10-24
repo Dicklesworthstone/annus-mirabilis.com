@@ -13,6 +13,28 @@ revision: 2
 additionalRequired:
   - name: verification-note
     proposition: "The note recording which factual claims were checked against which primary source, with name, date and edition, which this bead requires separately from the seven entries."
+    # SATISFIED 2026-10-24 by note-bm-velocity-warning-absent-from-1905, and this is the one
+    # requirement in this file that needed no text nobody here has read. The bead asks for a check
+    # of "the claim that the 1905 paper itself warns that the observable is not a mean velocity",
+    # and the claim is decidable from the edition's own witnesses. It is false: Geschwindigkeit
+    # occurs twice in the paper, in §2 and §3, and nowhere in §§4 and 5. The record was written
+    # from all 90 source blocks, from the machine-draft ledger as a second transcription, and from
+    # the page images of printed pages 556 to 560, which is every page of the two sections.
+    #
+    # WHAT IT DOES NOT DO, so that the credit is not read as more than it is. The bead's "if
+    # absent" branch asks for the explicit apparent-velocity discussion to be attributed to the
+    # 1906, 1907 and 1908 papers. The record declines that half: none of the three is pinned here,
+    # none has a citation record, and nobody in this repository has read them, so an attribution
+    # would be a dated claim from memory. That is the same judgement the entries above record as
+    # claimNotGroundable, and it is NOT a partial of this requirement, because this requirement is
+    # for the verification record and the attribution is the action the verification licenses.
+    #
+    # FOUND WHILE CHECKING, and reported to am-bm-08-measurement-bias-h1ye rather than repaired
+    # here: two reader-facing r3 readings in content/editorial/readings-owners/ already make the
+    # attribution, "Einstein did warn, in 1906 and again in 1907" and "Einstein pointed out in
+    # 1907". This bead's own text asks those readings to cite the verification record instead of
+    # restating the attribution, and the record they would cite does not make it.
+    satisfiedBy: note-bm-velocity-warning-absent-from-1905
 entries:
   - letter: a
     proposition: "Sutherland's independent derivation and its history: Dunedin in January 1904, a misprinted congress proceedings version in early 1905, and Phil. Mag. in June 1905, between Einstein's submission and publication."
