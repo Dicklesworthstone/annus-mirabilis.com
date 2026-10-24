@@ -1,4 +1,23 @@
 /**
+ * SUPERSEDED SPELLING, NO PRODUCTION CALLER (am-50bk triage, 2026-10-24). The measurement below is
+ * sound and the conclusion it reached is live on the site -- but through a different spelling, so
+ * read this before using `aliasAnchorProps`.
+ *
+ * `GermanFace.tsx` and `GermanDraftFace.tsx` each emit the alias span themselves, as
+ * `<span id={retired} data-alias-of={target} />`: the retired id with no `hidden`, which is the
+ * property this file established, PLUS the successor's id, which `AliasHashRewrite.tsx` needs in
+ * order to rewrite the hash. `aliasAnchorProps` returns `{ id, "data-alias": "" }`, carrying no
+ * target, so it cannot feed that island. The live form ships in 19 built pages and is checked in
+ * the bun lane by `germanFaceSourceBlocks.test.tsx`, which asserts each retired id is an alias OF
+ * the right successor.
+ *
+ * One residue worth knowing: `scripts/e2e/aliasAnchorLands.e2e.test.ts` ties its engine measurement
+ * to the code by asserting this module's key set, `["data-alias", "id"]`. Its own docblock says
+ * that without such a tie "the test proves a fact about HTML and says nothing about this
+ * repository" -- and the tie is to this module rather than to the spelling the site serves.
+ *
+ * ---- the measurement, as authored ----
+ *
  * Static alias anchors so a retired id lands without JavaScript.
  * Placed at the successor's location; `id` is the retired spelling.
  *

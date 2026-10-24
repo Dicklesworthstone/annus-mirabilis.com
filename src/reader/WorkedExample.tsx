@@ -1,6 +1,29 @@
 import type { WorkedExample as WorkedExampleRecord } from "../content/schemas/argument";
 
 /**
+ * NO CALLER, AND NO RECORD TO RENDER EITHER (am-50bk triage, 2026-10-24). The gap here is
+ * authoring, not wiring, which is the opposite of what "unused component" usually means.
+ *
+ * This renders the `WorkedExample` type of `src/content/schemas/argument.ts`: the five parts
+ * `question`, `given`, `plausibleFirstThought`, `decisiveStep`, `limitation`. Measured over the
+ * whole corpus, NOTHING carries that shape. `plausibleFirstThought` appears in no content file at
+ * all -- only in the schema, its fixtures and its tests. The 45 records in `content/foundations/`
+ * carry a different shape (`question`, `explanation`, `example`, `exampleTitle`, `summary`,
+ * `stoppingPoint`), and all four `bridge` records embedded in the entrance records omit the field,
+ * which `Bridge` makes optional.
+ *
+ * SO OUTCOME 2 IS NOT UNMET. AGENTS.md's "Unfamiliar mathematics opens into an explanation with a
+ * worked example" is delivered: `FoundationBody` in `src/reader/Blocks.tsx` renders every lesson's
+ * worked example from its `example` blocks under a "Worked example" heading, and that is what a
+ * reader gets on `/foundations/<concept>/`. What is absent is this particular five-part structure,
+ * whose value is naming the plausible first thought and the limitation explicitly.
+ *
+ * Mounting this component would therefore render nothing. The work it waits on is editorial -- a
+ * record authored in that shape -- and it belongs to am-found-library-infra-002t. Kept under
+ * RULE 1.
+ *
+ * ---- as authored ----
+ *
  * Renders a Foundation or Bridge's five-part worked example
  * (am-found-library-infra-002t). Pure and presentational: no storage read
  * or write, no analytics, no onToggle handler of any kind. The decisive

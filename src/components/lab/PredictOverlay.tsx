@@ -18,6 +18,26 @@ export interface PredictOverlayProps {
 }
 
 /**
+ * NO CALLER, AND NOTHING YET TO OVERLAY (am-50bk triage, 2026-10-24).
+ *
+ * Predict mode itself is live: `PredictGate.tsx` is mounted by many laboratories, `LocalPredictions`
+ * sits in `src/app/lab/layout.tsx`, and a reader's choice is persisted through
+ * `predict/predictStorage.ts` and carried into a shared `?tape=` link by `withPredictions`.
+ *
+ * This component is the other half AGENTS.md describes -- "The accepted snapshot then draws the
+ * real curve over the prediction" -- and it needs a prediction that HAS a curve. It takes
+ * `resultPoints` and a `SketchPoint` choice. Measured 2026-10-24: all 44 authored prompts in
+ * `src/generated/predict-prompts.ts` are candidate choices among named alternatives, and
+ * `GeneratedPredictPrompt` has no `form` field, so no prompt in the corpus yields a sketch to draw.
+ * Mounted today it would have nothing to put on the axes.
+ *
+ * So the dashed-versus-solid, square-versus-round, legend-and-table machinery below is correct and
+ * waiting on an authored sketch prompt, not on an import. Its companions in the same state are
+ * `src/experiments/predict/predictTape.ts` (which would serialize such a prediction) and
+ * `predictSketch.ts`. Owner: am-inst-predict-mode-ti7m. Kept under RULE 1.
+ *
+ * ---- as authored ----
+ *
  * PredictOverlay (am-inst-predict-mode-ti7m):
  * Visually distinguishes the reader's prediction from the computed model result
  * WITHOUT relying on color alone:

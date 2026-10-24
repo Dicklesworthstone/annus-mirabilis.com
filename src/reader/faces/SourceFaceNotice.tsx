@@ -1,4 +1,30 @@
 /**
+ * RETIRED BY AN OWNER DECISION, AND NOT TO BE MOUNTED AGAIN (am-50bk triage, 2026-10-24).
+ *
+ * `docs/DECISIONS.md` D-2026-09-25-no-review-status-banners lists, among the notices the owner
+ * removed, "the German face's 'Machine draft, not reviewed' box" -- this component. The decision
+ * quotes him directly: "we don't need messages like this on the site, they just detract from the
+ * site and the experience and aren't meaningful". The record stays in each unit's `reviewState`
+ * and in `docs/provenance/`, which are the audit trail and not reader copy.
+ *
+ * So no production module imports this file, and that is the correct state rather than a gap.
+ * `GermanFace.tsx` and `GermanDraftFace.tsx` both cite the decision at the point where the label
+ * used to go, and the live faces are guarded against its return by explicit negatives in
+ * `GermanDraftFace.test.tsx` and `editionCoverage.test.tsx` (they assert the rendered HTML carries
+ * neither `data-source-draft-notice` nor "Machine draft, not reviewed").
+ *
+ * READ THAT BEFORE BELIEVING THE TEST BESIDE THIS FILE. `SourceFaceNotice.test.tsx` renders this
+ * component directly and asserts that "every shipped draft paper renders both the persistent label
+ * and the full sentence". It passes, and it describes a design that was withdrawn: it is green,
+ * faithful, and to the wrong design, which AGENTS.md names as its own failure mode under "A Check
+ * Inherits The Silence Of Whatever It Reads". The decision governs; the requirement below is the
+ * superseded one, kept because RULE 1 forbids deleting the file.
+ *
+ * The notices D-2026-09-25 kept are the ones that tell a reader what is MISSING, "because those
+ * are navigation, not provenance". A draft label is provenance, which is why it went.
+ *
+ * ---- the superseded requirement, as authored ----
+ *
  * The persistent label on a German source face that is not a reviewed text.
  *
  * am-dl4n criterion 2, requirement 1: the notice is not dismissible and does not scroll

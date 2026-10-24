@@ -4,6 +4,13 @@
  * "Relationship to the Donor Projects"). Every function here is pure: no DOM
  * access, no history mutation. Callers push or replace history themselves,
  * exactly once per face change, using the string this module returns.
+ *
+ * SUPERSEDED, NO PRODUCTION CALLER (am-50bk triage, 2026-10-24). `ReaderController.tsx` and
+ * `src/reader/navigation/state.ts` read `?view=` and `?panes=` themselves, so the reader's face
+ * switching does not pass through here and the assertions in `viewMode.test.ts` describe a module
+ * nobody executes. Kept under RULE 1. Before reaching for these functions, check whether the live
+ * pair already answers the question: two parsers for one query parameter is the condition this
+ * note exists to stop, not a thing to restore.
  */
 import {
   DEFAULT_FACE,
