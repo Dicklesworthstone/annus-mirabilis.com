@@ -36,7 +36,21 @@ try {
     () => document.querySelector("[data-reader-root]")?.getAttribute("data-enhanced") === "true",
   );
   await page.evaluate(() => document.fonts.ready);
+  // The reading's bm-01 sits behind a disclosure that mounts it on first opening, since
+  // LazyInlineTracerLab moved it out of the server-rendered HTML (the prepared example was
+  // 43,337 of the page's 246,825 gzipped bytes). Open it, which is now how a reader reaches it:
+  // the laboratory's own section promises "opening an explanation never starts one", and the
+  // identity comparison below is the only check anywhere that reads that promise against the
+  // mounted experiment rather than against the component in isolation.
+  await page.locator('details[data-inline-lab="bm-01"] > summary').click();
+  await page.waitForFunction(
+    () =>
+      document
+        .querySelector('details[data-inline-lab="bm-01"]')
+        ?.getAttribute("data-inline-lab-mounted") === "true",
+  );
   const lab = page.locator('section[data-instrument-id="bm-01"]').first();
+  await lab.waitFor();
   const identity = await lab.evaluate((el) => [
     el.dataset.instanceId,
     el.dataset.runId,
@@ -130,7 +144,12 @@ try {
   await cross.locator(":scope > summary").click();
   assert.equal(await cross.locator("math").count(), 2);
   assert.equal(await cross.locator("table").count(), 3);
-  assert.ok((await cross.innerText()).includes("not the paper’s printed calculation"));
+  // The panel's own disclaimer, matched case-INSENSITIVELY on purpose: `.eyebrow` carries
+  // `text-transform: uppercase`, and `innerText` returns the RENDERED text, so the reader sees
+  // this sentence in capitals and a case-sensitive substring of the authored one cannot match.
+  // `textContent` would match, and is the wrong instrument here because it joins adjacent
+  // elements with no separator.
+  assert.match(await cross.innerText(), /not the paper’s printed calculation/i);
   await staticPage.screenshot({ path: resolve(output, "static-cross-term-320.png") });
   checks.push(
     "JavaScript-disabled route contains identical mathematics, premises and all three distributions",
@@ -140,6 +159,10 @@ try {
     resolve(output, "results.json"),
     JSON.stringify({ outcome: "pass", scope: "actual HTTP application", checks, errors }, null, 2),
   );
+  // The census, in the same form embeddedLaboratories.mjs prints, because the lane that drives
+  // this file asserts what it says it examined rather than its exit code: a run that reached the
+  // site, asserted nothing and exited 0 is indistinguishable from this one without it.
+  console.log(`${checks.length} missing-step explorer browser cases passed.`);
 } catch (error) {
   if (page) await page.screenshot({ path: resolve(output, "failure.png") }).catch(() => {});
   await writeFile(

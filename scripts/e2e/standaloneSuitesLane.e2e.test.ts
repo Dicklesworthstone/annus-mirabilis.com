@@ -89,21 +89,40 @@ const RUN: readonly Suite[] = Object.freeze([
     nodeTest: true,
     census: /^# pass (\d+)$/m,
   }),
+  Object.freeze({
+    // 5s. 6 checks on /papers/brownian-motion/s4/, including the only one anywhere that reads the
+    // reading's own promise -- "opening an explanation never starts one" -- against the MOUNTED
+    // bm-01 rather than against the component in isolation.
+    //
+    // THIS ENTRY WAS IN DECLARED_UNWIRED BELOW, ON A REASON THAT WAS WRONG. It said the route
+    // "links to the laboratory rather than an inline mount", measured from the single
+    // `data-instrument-id` in the built HTML. The reading DOES mount bm-01: LazyInlineTracerLab
+    // puts it behind `<details data-inline-lab="bm-01">` and loads it on first opening, so the
+    // attribute is absent from the HTML by design and present once the disclosure is open. Both
+    // halves were finished; nothing joined them. The repair was to open the disclosure.
+    file: "scripts/e2e/missingStepExplorer.mjs",
+    baseUrlVar: "AM_BASE_URL",
+    nodeTest: false,
+    census: /(\d+) missing-step explorer browser cases passed\./,
+  }),
 ]);
 
 /**
  * Suites that are still reached by nothing, each with the reason it is not in RUN. Measured
  * 2026-10-25 against the same build; the full diagnosis is on am-test-e2e-harness-bqmh.
  *
- * Every one of these is suite drift rather than a site defect, and three of the four drifted against
- * a DELIBERATE current design, so none can be repaired by changing a selector. That is why they are
- * declared here instead of being wired red or quietly dropped.
+ * Both are suite drift rather than a site defect, and both drifted against a DELIBERATE current
+ * design, so neither can be repaired by changing a selector. That is why they are declared here
+ * instead of being wired red or quietly dropped.
+ *
+ * A third entry, missingStepExplorer.mjs, was here until its reason was re-measured and found
+ * false; it is in RUN above, with the correction recorded at its entry. Treat each reason below as
+ * a measurement that can be wrong in the same direction: an absent attribute is evidence about the
+ * served HTML, never by itself evidence that nothing mounts it.
  */
 const DECLARED_UNWIRED: Readonly<Record<string, string>> = Object.freeze({
   "scripts/e2e/facsimile.mjs":
     "Waits for `[data-facsimile-reader] iframe`, which the built HTML deliberately does not carry on any of the four papers: FaceFallback.integration.test.tsx:69 and facsimilePlate.test.tsx:153 both assert the served markup contains no <iframe>, and FacsimilePanel.tsx:163 mounts one behind interaction. Deciding what it should wait for is a design question, not a selector change.",
-  "scripts/e2e/missingStepExplorer.mjs":
-    'Waits for `section[data-instrument-id="bm-01"]` on /papers/brownian-motion/s4/. That attribute is on the route exactly once, on `<a href="/lab/bm-01/">` -- a link to the laboratory rather than an inline mount. Whether that route should embed bm-01 is reader-facing design.',
   "scripts/e2e/lightQuantaInvestigation.mjs":
     "Asserts `deepEqual(requests, [])` with its listener attached after networkidle and readiness, so the proposition is that operating the investigation fetches nothing further; 7 lazily-loaded `_next/static/chunks/*.js` now arrive on interaction. Excluding `_next` would weaken the assertion to get green, which is a budget decision rather than a test repair.",
 });
