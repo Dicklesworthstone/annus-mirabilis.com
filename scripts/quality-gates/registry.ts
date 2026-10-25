@@ -1068,8 +1068,23 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     // grounds that it resolves the duplication instead of relabelling it
     // (am-browser-gate-identity-7nq2).
     //
-    // WIDEN THE COMMAND, DO NOT WIDEN THE TITLE BACK, when am-test-e2e-harness-bqmh builds the
-    // paper lanes: the journey is what this gate covers until a --paper run can pass.
+    // A --PAPER RUN CAN NOW PASS, AND THE ANSWER WAS NOT TO WIDEN THIS COMMAND. The paragraph here
+    // used to read "WIDEN THE COMMAND, DO NOT WIDEN THE TITLE BACK, when am-test-e2e-harness-bqmh
+    // builds the paper lanes: the journey is what this gate covers until a --paper run can pass."
+    // Measured 2026-10-25 against a 765-page build served over HTTP, one invocation per paper:
+    // brownian-motion, light-quanta and special-relativity each reported 8 passed actions and 0
+    // failed, in 5s, 4s and 9s. Eight is one preflight plus all seven declared steps.
+    //
+    // They are wired, but NOT HERE. `scripts/e2e/paperJourneyLane.e2e.test.ts` now generates one
+    // test per registered paper -- all four since 70aea7817 -- and the node lane reaches it by
+    // filename, so `bun run test:node`, one of dsr's four checks, runs every journey. Widening this
+    // command would run them a second time AND would make the browser family depend on a fresh
+    // `out/` that this chain does not build, which is the dependency the paragraph above declines on
+    // am-browser-gate-identity-7nq2's behalf. That reasoning did not change; the coverage arrived by
+    // the other route.
+    //
+    // SO THE TITLE STAYS, and so does the command. This step is the runtime-conformance journey and
+    // says so.
     title: "Runtime conformance in live Chromium",
     command: [
       "bun",
