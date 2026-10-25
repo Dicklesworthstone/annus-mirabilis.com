@@ -46,6 +46,15 @@ async function visit(run, { search = "", javaScriptEnabled = true } = {}) {
   }
 }
 const outcome = (page) => page.locator("[data-distinction]").getAttribute("data-distinction");
+/**
+ * SCOPED TO THE WORKBENCH, because a bare getByRole("alert") is no longer unique. Next renders
+ * `<div role="alert" aria-live="assertive" id="__next-route-announcer__">` on every page, so the
+ * unscoped query resolved to two elements and Playwright's strict mode refused BOTH assertions that
+ * read an alert - while the workbench's own `<p role="alert" class="notice error">`
+ * (IndependenceWorkbench.tsx:223, inside the root at :135) carried exactly the expected copy. The
+ * failure was this file's, not the page's.
+ */
+const workbenchAlert = (page) => page.locator("[data-occupancy-workbench]").getByRole("alert");
 async function openRecord(page) {
   await page.getByText("Test a count record against both models", { exact: true }).click();
 }
@@ -102,7 +111,7 @@ test("a malformed record leaves the accepted record intact", async () =>
     const before = await page.locator("[data-evidence-status]").innerText();
     await page.getByLabel(/^Frequencies for K/u).fill("1,4,,4,1");
     await page.getByRole("button", { name: "Analyze count record", exact: true }).click();
-    assert.match(await page.getByRole("alert").innerText(), /exactly 5/u);
+    assert.match(await workbenchAlert(page).innerText(), /exactly 5/u);
     assert.equal(await page.locator("[data-evidence-status]").innerText(), before);
   }));
 
@@ -112,7 +121,7 @@ test("unapplied settings cannot relabel evidence; accepting changed settings cle
     await page.getByRole("button", { name: "Illustration: mixed counts", exact: true }).click();
     await page.getByLabel("Number of labeled points", { exact: true }).fill("5");
     await page.getByRole("button", { name: "Analyze count record", exact: true }).click();
-    assert.match(await page.getByRole("alert").innerText(), /Apply or discard/u);
+    assert.match(await workbenchAlert(page).innerText(), /Apply or discard/u);
     assert.match(await page.locator("[data-evidence-status]").innerText(), /n = 4/u);
     await page.getByRole("button", { name: "Apply model settings", exact: true }).click();
     assert.equal(await page.locator("[data-evidence-status]").count(), 0);
