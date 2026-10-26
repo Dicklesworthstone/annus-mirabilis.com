@@ -111,4 +111,7 @@ pathIgnorePatterns = [
   # reads out/ from the bun lane with no freshness refusal, so it can pass over a stale build; that
   # is its own to fix, not something this entry changes.)
   "src/testing/assetTargetsResolve.node.test.ts",
+  # Counts the Suspense boundaries in out/ that bailed out to client-side rendering. Reads out/, so
+  # it belongs in the lane that refuses a stale build, for the same reason as the entries above.
+  "src/testing/clientSideBailouts.node.test.ts",
 ]
