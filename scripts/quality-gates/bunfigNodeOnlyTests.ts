@@ -32,8 +32,66 @@ export function shouldSkipDirectory(nameOrRelPath: string, isAtRoot: boolean): b
   return isAtRoot && SKIP_DIRS_AT_ROOT.has(name);
 }
 
+/**
+ * Blank the body of every `#` comment, keeping newlines so the list's shape survives.
+ *
+ * A DOUBLE QUOTE IN A COMMENT USED TO SWALLOW THE ENTRY AFTER IT, and the loss was invisible. The
+ * entries here are each preceded by several lines of prose explaining why that file cannot run under
+ * bun, and on 2026-10-25 one of those comments quoted an HTML attribute -- the three characters
+ * `href` followed by an equals sign and a quote. That quote opened a run which the next pattern's
+ * own quote closed, so `"([^"]+)"` returned the COMMENT as a pattern and the real path was consumed
+ * as the space between two captures. The derived node lane stayed at 109 files.
+ *
+ * The direction is the worst available. bun's real TOML parser handles comments correctly, so bun
+ * SKIPS the listed file; this parser lost it, so node never receives it. The file is then run by
+ * nobody while appearing in the ignore list, which is the exact failure this module's own docblock
+ * records above for a different cause.
+ *
+ * NOTHING WOULD HAVE REPORTED IT. Every check over this list -- here, and in subprocessE2eSplit.ts
+ * -- asks whether each pattern the PARSER RETURNED reaches the node lane. A pattern the parser
+ * never returned is absent from the population those checks iterate, so they pass. AGENTS.md: "A
+ * check is only as honest as the layer it reads, and when that layer drops something quietly the
+ * check cannot see what is missing."
+ *
+ * In TOML a `#` inside a quoted string is literal, so the scan tracks whether it is in a string
+ * rather than blanking from every `#` to the end of the line. A pattern containing a `#` is not
+ * plausible, but a blanker that ate one would be the same class of silent loss.
+ */
+export function blankTomlComments(tomlText: string): string {
+  let out = "";
+  let inString = false;
+  let inComment = false;
+  for (const ch of tomlText) {
+    if (ch === "\n") {
+      out += ch;
+      inComment = false;
+      inString = false;
+      continue;
+    }
+    if (inComment) {
+      out += " ";
+      continue;
+    }
+    if (ch === '"') {
+      inString = !inString;
+      out += ch;
+      continue;
+    }
+    if (ch === "#" && !inString) {
+      inComment = true;
+      out += " ";
+      continue;
+    }
+    out += ch;
+  }
+  return out;
+}
+
+/** A pattern is one path or glob on one line. Anything else means the parse went wrong. */
+const PLAUSIBLE_PATTERN = /^[^\s"#]+$/;
+
 export function parsePathIgnorePatterns(bunfigText: string): string[] {
-  const block = bunfigText.match(/pathIgnorePatterns\s*=\s*\[([\s\S]*?)\]/);
+  const block = blankTomlComments(bunfigText).match(/pathIgnorePatterns\s*=\s*\[([\s\S]*?)\]/);
   if (block === null || block[1] === undefined) {
     throw new Error(
       "bunfig.toml is missing [test].pathIgnorePatterns. Subprocess tests would run under bun test or nowhere.",
@@ -44,6 +102,14 @@ export function parsePathIgnorePatterns(bunfigText: string): string[] {
     .filter((p): p is string => p !== undefined);
   if (patterns.length === 0) {
     throw new Error("bunfig.toml [test].pathIgnorePatterns is empty.");
+  }
+  // Refuse at the moment of corruption rather than returning a list that is quietly short. This is
+  // a property and not a census: it holds at any number of entries, and it names the offender.
+  const malformed = patterns.filter((p) => !PLAUSIBLE_PATTERN.test(p));
+  if (malformed.length > 0) {
+    throw new Error(
+      `bunfig.toml [test].pathIgnorePatterns parsed ${malformed.length} entr(y/ies) that are not a single path or glob, so the list was misread and files listed there would run under neither lane: ${malformed.map((p) => JSON.stringify(p.slice(0, 80))).join(", ")}`,
+    );
   }
   return patterns;
 }

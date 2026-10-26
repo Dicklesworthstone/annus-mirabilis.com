@@ -5,6 +5,7 @@ import { describe, it } from "node:test";
 import {
   assertNoUnignoredSubprocessTests,
   BUNFIG_RELATIVE_PATH,
+  blankTomlComments,
   classifyTestFileContent,
   expandIgnorePatternsToTestFiles,
   findUnignoredSubprocessTests,
@@ -20,6 +21,64 @@ import {
 describe("bunfigNodeOnlyTests", () => {
   it("refuses a bunfig without pathIgnorePatterns rather than inventing an empty skip list", () => {
     assert.throws(() => parsePathIgnorePatterns('[test]\nroot = "."\n'), /pathIgnorePatterns/);
+  });
+
+  it("a DOUBLE QUOTE IN A COMMENT does not swallow the entry after it", () => {
+    /*
+     * The real failure, 2026-10-25: a comment above an entry quoted an HTML attribute, and the
+     * parser read raw text, so that quote opened a run which the next pattern's quote closed. The
+     * comment came back as a "pattern" and the real path was consumed as the gap between two
+     * captures, silently. bun's own TOML parser ignores comments and so SKIPS the listed file, so
+     * the file was then run by neither lane while sitting in the ignore list.
+     *
+     * Both directions, because a blanker that blanked everything would return no patterns and
+     * throw, which looks like a different bug and would be read as one.
+     */
+    const withQuoteInComment = [
+      "[test]",
+      "pathIgnorePatterns = [",
+      '  # the sibling gate matches ` href="` and says so',
+      '  "src/testing/first.node.test.ts",',
+      '  "src/testing/second.node.test.ts",',
+      "]",
+      "",
+    ].join("\n");
+    assert.deepEqual(parsePathIgnorePatterns(withQuoteInComment), [
+      "src/testing/first.node.test.ts",
+      "src/testing/second.node.test.ts",
+    ]);
+    // And a pattern is still read when the comment holds no quote, so the blanker is not simply
+    // discarding the whole list.
+    const plain =
+      '[test]\npathIgnorePatterns = [\n  # a reason\n  "src/testing/only.test.ts",\n]\n';
+    assert.deepEqual(parsePathIgnorePatterns(plain), ["src/testing/only.test.ts"]);
+  });
+
+  it("blankTomlComments keeps line count, keeps code, and leaves a # inside a string alone", () => {
+    const source = '# lead\nkey = "a#b"  # trailing\nother = "c"\n';
+    const blanked = blankTomlComments(source);
+    assert.equal(blanked.split("\n").length, source.split("\n").length);
+    assert.ok(blanked.includes('key = "a#b"'), "a # inside a quoted string is literal in TOML");
+    assert.ok(blanked.includes('other = "c"'), "code after a comment line must survive");
+    assert.ok(!blanked.includes("trailing"), "a trailing comment body must be blanked");
+    assert.ok(!blanked.includes("lead"), "a whole-line comment body must be blanked");
+  });
+
+  it("a misread pattern list is refused rather than returned short", () => {
+    // The guard that turns the silent loss above into a failure that names the offender, for any
+    // future way the capture can go wrong rather than only the one already seen.
+    assert.throws(
+      () => parsePathIgnorePatterns('[test]\npathIgnorePatterns = [\n  "a b c",\n]\n'),
+      /not a single path or glob/,
+    );
+    // The live file must satisfy the same invariant, which is the half that protects the repository
+    // rather than the function.
+    const liveBunfig = readFileSync(resolve(process.cwd(), BUNFIG_RELATIVE_PATH), "utf8");
+    const live = parsePathIgnorePatterns(liveBunfig);
+    assert.ok(live.length > 20, `only ${live.length} live pattern(s)`);
+    for (const pattern of live) {
+      assert.match(pattern, /^[^\s"#]+$/, `live pattern is not a single path or glob: ${pattern}`);
+    }
   });
 
   it("a basename-only quality-gates.test.ts pattern does not expand, matching bun 1.4.0", () => {
