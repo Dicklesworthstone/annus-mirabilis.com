@@ -6,9 +6,9 @@
  * rendered NOTHING there, and the client must render it after hydration. Nothing in this repository
  * counted them, so a site-wide condition was invisible.
  *
- * MEASURED 2026-10-26 over the built `out/`: **765 HTML pages, 2,211 bailout markers. 737 pages
- * carry exactly 3; the other 28 carry 0 and are all `/offline/...` chapters, which use a different
- * shell.** So every page on the reading path carries three.
+ * MEASURED 2026-10-26, BEFORE the repair: **765 HTML pages, 2,211 bailout markers; 737 pages
+ * carrying exactly 3, and 28 at 0 -- all `/offline/...` chapters, which use a different shell.** So
+ * every page on the reading path carried three. AFTER `da12fd9f7`: **0 markers, all 765 pages.**
  *
  * WHERE THE THREE COME FROM, named so a fourth is diagnosable rather than mysterious.
  * `src/app/layout.tsx` wraps three components in `<Suspense fallback={null}>`: `GuidedTourTrail`,
@@ -48,10 +48,19 @@ const OUT = resolve(ROOT, "out");
 const BAILOUT = 'data-dgst="BAILOUT_TO_CLIENT_SIDE_RENDERING"';
 
 /**
- * The three in `src/app/layout.tsx`, and no more. Lowering this is the repair; raising it is taking
- * on reader-facing hydration debt and needs the reason written here beside the number.
+ * ZERO, BECAUSE THE DEBT WAS PAID (`da12fd9f7`, same day this gate landed at 3).
+ *
+ * `AfterHydration` defers the three trails past prerender, so `useSearchParams()` is never called
+ * while the static export runs and no boundary bails out. Re-measured over the next build: **0
+ * markers across all 765 pages**, from 2,211. AGENTS.md: "when a debt is paid down, lower the
+ * ceiling with it" -- a ceiling left at 3 would silently re-admit three bailouts per page.
+ *
+ * Raising this is taking on reader-facing hydration debt and needs the reason written here beside
+ * the number. It is NOT justified by the #418 this gate was written alongside: removing the
+ * bailouts did not fix that (`de14283b5`), so a future bailout cannot be excused as harmless on the
+ * grounds that these three turned out not to cause it either.
  */
-const CEILING_PER_PAGE = 3;
+const CEILING_PER_PAGE = 0;
 
 function walk(dir: string, found: string[] = []): string[] {
   for (const entry of readdirSync(dir)) {
@@ -135,5 +144,15 @@ describe("client-side rendering bailouts in the built site", () => {
     // And the assumption: no page under out/ is TypeScript source, so no docblock can be counted.
     const sources = PAGES.filter((p) => p.endsWith(".ts") || p.endsWith(".tsx"));
     assert.deepEqual(sources, [], "out/ must hold no source files for this count to be honest");
+    /*
+     * THE CEILING COMPARISON CAN STILL FAIL AT ZERO, asserted rather than assumed. A gate whose
+     * population has gone to zero is the shape that quietly stops biting: every real page now
+     * carries 0 markers, so the only thing standing between this file and permanent vacuous green
+     * is that `n > CEILING_PER_PAGE` rejects a single marker. One synthetic page says so.
+     */
+    const exceeds = (n: number): boolean => n > CEILING_PER_PAGE;
+    assert.equal(exceeds(0), false, "a clean page must pass");
+    assert.equal(exceeds(1), true, `one bailout must fail at ceiling ${CEILING_PER_PAGE}`);
+    assert.equal(exceeds(3), true, "the three this gate was written at must now fail");
   });
 });
