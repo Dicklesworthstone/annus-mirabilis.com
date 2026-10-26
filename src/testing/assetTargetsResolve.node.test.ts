@@ -13,10 +13,11 @@
  * `<img src>` exists; a renamed or never-generated figure produces a 404 at read time and a clean
  * build.
  *
- * MEASURED 2026-10-25 over the built `out/`: 765 pages, 274 distinct asset targets, 74 of them
- * reached through a `srcset`, 9 that resolve only once percent-decoded, and 0 that resolve to
- * nothing. 1.7 seconds. The guard goes in while the count is zero, which is the only comfortable
- * time to add one.
+ * MEASURED 2026-10-25 over the built `out/`: 765 pages, 274 distinct asset targets (174 `.js` and
+ * 100 `.webp`), 74 of them reached through a `srcset`, 9 that resolve only once percent-decoded, 0
+ * that resolve to nothing, and 100 of 100 referenced images carrying their format's magic bytes
+ * with none under 512 bytes. 4.0 seconds for the six tests. The guard goes in while the count is
+ * zero, which is the only comfortable time to add one.
  *
  * SRCSET IS SPELLED `srcSet` IN THE SERVED BYTES, with a capital S, because that is the React prop
  * name and React passes it through. HTML attribute names are case-insensitive so browsers are
@@ -29,12 +30,21 @@
  * other end are a valid image, that its dimensions match the `width`/`height` attributes, or that
  * a `url(...)` inside CSS resolves. The first is a decode question and `scripts/e2e/facsimile.mjs`
  * asks it in a browser for the plate; the third is a different population and a different parser.
- * This file answers existence, for the whole site, from the build alone.
+ * This file answers existence, and for an image it also answers that the bytes are that format,
+ * for the whole site, from the build alone.
+ *
+ * EXISTENCE IS NOT ENOUGH FOR AN IMAGE. The plates are produced by a script
+ * (`scripts/generate-page-plates.ts`, `scripts/figures/page_plates.py`), and a run that is
+ * interrupted or fails midway leaves a short or empty file at the right path. Every assertion above
+ * would still pass, the page would still link to it, and the reader would get a broken image. So a
+ * referenced file whose extension this gate recognises is also checked for that format's magic
+ * bytes, which is exact rather than a size threshold: a baseline is the record of a debt, and
+ * "bigger than N bytes" would be one.
  */
 
 import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { dirname, join, posix, resolve } from "node:path";
+import { dirname, extname, join, posix, resolve } from "node:path";
 import { describe, test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { assertOutFreshness } from "./outFreshness.ts";
@@ -43,6 +53,23 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const OUT = resolve(ROOT, "out");
 const SRC = /\ssrc="([^"]*)"/gi;
 const SRCSET = /\ssrcset="([^"]*)"/gi;
+
+/**
+ * The leading bytes each image format must carry. Only `.webp` has any files in this build (100 of
+ * them); the rest are here because adding a format later should not silently add an unchecked one,
+ * and the controls below prove every predicate can REJECT, so none of them is a decoration.
+ */
+const IMAGE_MAGIC: Readonly<Record<string, (head: Buffer) => boolean>> = Object.freeze({
+  ".webp": (h) =>
+    h.subarray(0, 4).toString("latin1") === "RIFF" &&
+    h.subarray(8, 12).toString("latin1") === "WEBP",
+  ".png": (h) =>
+    h.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])),
+  ".jpg": (h) => h[0] === 0xff && h[1] === 0xd8 && h[2] === 0xff,
+  ".jpeg": (h) => h[0] === 0xff && h[1] === 0xd8 && h[2] === 0xff,
+  ".gif": (h) => h.subarray(0, 4).toString("latin1") === "GIF8",
+  ".avif": (h) => h.subarray(4, 8).toString("latin1") === "ftyp",
+});
 /** Not a path into the build: another origin, an inline payload, or a protocol the build cannot serve. */
 const SKIP = /^(?:https?:|mailto:|tel:|data:|blob:|about:|javascript:|#|\/\/)/i;
 
@@ -128,6 +155,20 @@ function assetTargets(): Map<string, { pages: string[]; attributes: Set<string> 
   return targets;
 }
 
+/** Every referenced file whose extension names an image format this gate knows. */
+function referencedImages(): { target: string; file: string; ext: string }[] {
+  const found: { target: string; file: string; ext: string }[] = [];
+  for (const target of assetTargets().keys()) {
+    const ext = extname(target).toLowerCase();
+    if (IMAGE_MAGIC[ext] === undefined) continue;
+    const decoded = decodePath(target);
+    const served = SERVED.has(target) ? target : SERVED.has(decoded) ? decoded : undefined;
+    if (served === undefined) continue; // the resolving test owns that failure, not this one
+    found.push({ target, file: join(OUT, served.slice(1)), ext });
+  }
+  return found;
+}
+
 describe("every asset reference in the built site resolves", () => {
   test("the build is present, fresh, and the population is not vacuous", () => {
     // A STALE out/ IS REFUSED RATHER THAN READ, which is why this file is in the node lane and
@@ -153,6 +194,63 @@ describe("every asset reference in the built site resolves", () => {
       viaSrcset > 0,
       "no asset was reached through a srcset; the responsive half of this gate is examining nothing",
     );
+  });
+
+  test("every referenced image carries its format's magic bytes", () => {
+    assertOutFreshness("out", ROOT);
+    const images = referencedImages();
+    // Non-vacuity on purpose, and separately from the population above: a change that stopped
+    // recognising `.webp` would leave this test iterating nothing and passing.
+    assert.ok(images.length >= 50, `only ${images.length} referenced image(s) to check`);
+    const wrong: string[] = [];
+    for (const { target, file, ext } of images) {
+      const head = readFileSync(file).subarray(0, 32);
+      const check = IMAGE_MAGIC[ext];
+      if (check !== undefined && !check(head)) {
+        wrong.push(
+          `${target} (${statSync(file).size} bytes) starts "${head
+            .subarray(0, 12)
+            .toString("latin1")
+            .replace(/[^\x20-\x7e]/g, ".")}"`,
+        );
+      }
+    }
+    assert.deepEqual(
+      wrong,
+      [],
+      `referenced files that are not the image they claim:\n${wrong.join("\n")}`,
+    );
+    console.log(
+      `[assetcheck] ${images.length} referenced image(s) carry their format's magic bytes`,
+    );
+  });
+
+  test("PLANTED: the magic predicates reject wrong bytes as well as accepting right ones", () => {
+    // Without this the test above proves nothing: a predicate that returned true for anything would
+    // report every file clean, and a clean sweep and a sweep that cannot fail look identical.
+    const webp = IMAGE_MAGIC[".webp"];
+    const png = IMAGE_MAGIC[".png"];
+    assert.ok(webp !== undefined && png !== undefined);
+    assert.equal(webp(Buffer.from("RIFF\u0000\u0000\u0000\u0000WEBPVP8 ", "latin1")), true);
+    assert.equal(webp(Buffer.from("<!DOCTYPE html><html>", "latin1")), false, "a 404 page body");
+    assert.equal(webp(Buffer.alloc(32)), false, "a zero-filled file");
+    assert.equal(
+      webp(Buffer.from("RIFF\u0000\u0000\u0000\u0000WAVEfmt ", "latin1")),
+      false,
+      "RIFF but not WEBP",
+    );
+    assert.equal(
+      png(
+        Buffer.concat([
+          Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+          Buffer.alloc(8),
+        ]),
+      ),
+      true,
+    );
+    assert.equal(png(Buffer.alloc(32)), false);
+    // A truncated file is the actual failure mode a half-written plate produces, so drive it.
+    assert.equal(webp(Buffer.from("RIF", "latin1")), false, "a truncated header");
   });
 
   test("no asset reference points at a file the build does not serve", () => {
