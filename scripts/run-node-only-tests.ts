@@ -14,6 +14,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { TestLogger } from "../src/testing/log/logger.ts";
 import { checkOutFreshness, type OutFreshnessResult } from "../src/testing/outFreshness.ts";
 import {
   BUNFIG_RELATIVE_PATH,
@@ -165,6 +166,24 @@ export interface LaneDeps {
     root: string,
   ) => { status: number | null; error?: Error | undefined };
   readonly write?: (line: string) => void;
+  /**
+   * One structured row per decision this lane makes (am-uxh9). Optional, so every existing caller
+   * and the in-process tests are unaffected; `isMain` wires it to a TestLogger.
+   *
+   * WHY IT EXISTS. `node-content-lane` is a registered gate, required in CI and in all three
+   * profiles, and `gatesPersistEvidence` found it leaving no artifact at all: the lane printed a
+   * perfectly convincing report and exited, and once the terminal scrolled nothing recorded WHICH
+   * of its four endings had happened. The four are not interchangeable -- a stale-out/ refusal, a
+   * failure to spawn node, generated-content corruption, and ordinary test failures all return 1 --
+   * and the first and third are not failures of any test. That is the same defect `typecheck-lane`
+   * records one level further in: an exit code cannot say which half broke.
+   *
+   * NOT A CENSUS LINE. This lane's population is already declared in `scripts/gate-census/records.ts`
+   * and read from node:test's OWN `pass N` summary, deliberately, because the runner is third-party.
+   * Printing a second count here would be a competing source of truth for the same number, which
+   * that file's docblock forbids in as many words.
+   */
+  readonly record?: (row: Readonly<{ testId: string; outcome: string; message: string }>) => void;
 }
 
 export function runNodeOnlyTests(
@@ -173,6 +192,7 @@ export function runNodeOnlyTests(
   options: Readonly<{ outIndependentOnly?: boolean }> = {},
 ): number {
   const write = deps.write ?? ((line: string) => console.log(line));
+  const record = deps.record ?? (() => {});
   const bunfigText = readFileSync(resolve(root, BUNFIG_RELATIVE_PATH), "utf8");
   const allArgs = nodeOnlyTestArgs(bunfigText, root);
   /*
@@ -198,6 +218,13 @@ export function runNodeOnlyTests(
     );
   }
   write(`▶ ${command}`);
+  record({
+    testId: "lane-selection",
+    outcome: args.length > 0 ? "passed" : "failed",
+    message: options.outIndependentOnly
+      ? `out/-independent subset: ${args.length} of ${allArgs.length} node-lane file(s) selected`
+      : `full node lane: ${args.length} file(s) selected`,
+  });
 
   // am-6v4k. The node lane went red roughly hourly with 7 to 9 failures, always the same cause:
   // out/ stale against HEAD. checkOutFreshness already diagnosed it correctly, but only from
@@ -234,8 +261,20 @@ export function runNodeOnlyTests(
         "",
       ].join("\n"),
     );
+    record({
+      testId: "out-freshness",
+      outcome: "failed",
+      message: `REFUSED before spawning anything: ${freshness.reason ?? "no reason recorded"}`,
+    });
     return 1;
   }
+  record({
+    testId: "out-freshness",
+    outcome: "passed",
+    message: freshness.present
+      ? `out/ present and fresh (build commit ${freshness.buildCommit ?? "unrecorded"})`
+      : "out/ absent, which this lane does not treat as a failure: the tests that need it skip",
+  });
 
   const dirty = freshness.dirtyStaticSources ?? [];
   const dirtyNotice = dirty.length > 0 ? formatDirtyStaticSourcesNotice(dirty) : "";
@@ -268,12 +307,24 @@ export function runNodeOnlyTests(
   if (hasCorruption) {
     write(formatCorruptionReport(diff));
   }
+  record({
+    testId: "generated-content-integrity",
+    outcome: hasCorruption ? "failed" : "passed",
+    message: hasCorruption
+      ? `generated/content changed while the lane ran: ${diff.modified.length} modified, ${diff.added.length} added, ${diff.deleted.length} deleted`
+      : `generated/content unchanged across ${beforeSnapshot.fileHashes.size} hashed file(s)`,
+  });
 
   if (result.error) {
     write(`Failed to spawn node --test: ${result.error.message}`);
     if (dirtyNotice) {
       write(dirtyNotice);
     }
+    record({
+      testId: "node-test-spawn",
+      outcome: "failed",
+      message: `node --test could not be spawned: ${result.error.message}`,
+    });
     return 1;
   }
 
@@ -285,6 +336,11 @@ export function runNodeOnlyTests(
   }
 
   const testExitCode = result.status ?? 0;
+  record({
+    testId: "node-test",
+    outcome: testExitCode === 0 ? "passed" : "failed",
+    message: `node --test over ${args.length} file(s) exited ${testExitCode}`,
+  });
   if (hasCorruption) {
     return 1;
   }
@@ -298,5 +354,20 @@ const isMain =
 
 if (isMain) {
   const outIndependentOnly = process.argv.includes("--out-independent-only");
-  process.exit(runNodeOnlyTests(process.cwd(), {}, { outIndependentOnly }));
+  // PERSISTED (am-uxh9). See LaneDeps.record for why: this is a registered, CI-required gate that
+  // left no artifact, so its four distinguishable endings were indistinguishable afterwards.
+  const logger = new TestLogger("node-lane");
+  const status = runNodeOnlyTests(
+    process.cwd(),
+    { record: (row) => void logger.log(row) },
+    { outIndependentOnly },
+  );
+  logger.log({
+    testId: "node-lane-summary",
+    outcome: status === 0 ? "passed" : "failed",
+    message: `${outIndependentOnly ? "out/-independent subset" : "full node lane"} exited ${status}`,
+  });
+  await logger.flush();
+  console.log(`Structured log: ${logger.filePath}`);
+  process.exit(status);
 }
