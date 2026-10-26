@@ -367,6 +367,64 @@ test("the orphan set is exactly what this lane runs plus the declared debt", () 
   );
 });
 
+/**
+ * What a failing suite's output should SAY, which a blind tail does not.
+ *
+ * THIS FILE REPORTED `last 1200 chars` AND THAT HID THE ANSWER. A TAP run prints the failing case as
+ * `not ok N - <name>` followed by its error, and then every later passing case, so the tail holds
+ * the summary and the last few successes while the one line anyone needs has scrolled off. Twice on
+ * 2026-10-25 the lane said `guidedTours.mjs exited 1 ... pass 10 fail 1` and the output it attached
+ * could not say WHICH of the eleven, which is a refusal that names no way forward.
+ *
+ * So the failing lines are extracted first, by name, and the tail is kept after them for the suites
+ * that are not node:test and print no TAP at all.
+ */
+function failureDigest(output: string): string {
+  const lines = output.split("\n");
+  const failing: string[] = [];
+  for (const [index, line] of lines.entries()) {
+    if (!/^\s*not ok \d+/.test(line)) continue;
+    // The name, then the YAML block under it, which is where the assertion text lives. Bounded, so
+    // one enormous diff cannot push the other failures out of view again.
+    failing.push(line.trim(), ...lines.slice(index + 1, index + 14).map((l) => `  ${l.trim()}`));
+  }
+  return failing.length > 0
+    ? `${failing.length} line(s) naming the failure:\n${failing.join("\n")}`
+    : `no TAP failure line found; last 1200 chars:\n${output.slice(-1200)}`;
+}
+
+test("a failing suite's report names the failing case rather than the tail", () => {
+  // Driven with synthetic TAP, including the shape that defeated the old message: the failure is
+  // followed by later PASSING cases and the summary, so the tail is exactly where it is not.
+  const tap = [
+    "TAP version 13",
+    "# Subtest: a tour reaches its finish anchor",
+    "not ok 3 - a tour reaches its finish anchor",
+    "  ---",
+    "  duration_ms: 30044",
+    "  error: 'locator.waitFor: Timeout 30000ms exceeded'",
+    "  ...",
+    "# Subtest: a later case that passes",
+    "ok 4 - a later case that passes",
+    "1..4",
+    "# tests 4",
+    "# pass 3",
+    "# fail 1",
+  ].join("\n");
+  const digest = failureDigest(tap);
+  assert.match(digest, /not ok 3 - a tour reaches its finish anchor/);
+  assert.match(digest, /Timeout 30000ms exceeded/);
+  // The premise, asserted rather than assumed: the tail of such a run holds no failure line at all.
+  assert.ok(
+    !tap.slice(-200).includes("not ok"),
+    "if the tail held the failure this function would be pointless",
+  );
+  // And a suite that prints no TAP still gets something to read, so the fallback is not silent.
+  const plain = `${"x".repeat(2000)}\nsomething broke`;
+  assert.match(failureDigest(plain), /no TAP failure line found/);
+  assert.match(failureDigest(plain), /something broke/);
+});
+
 for (const suite of RUN) {
   test(`${suite.file} passes against the built site`, async () => {
     assertOutFreshness("out", REPO_ROOT);
@@ -382,11 +440,7 @@ for (const suite of RUN) {
       const examined = Number(match[1]);
       console.log(`[standalone suites] ${suite.file}: ${examined} case(s) passed`);
       assert.ok(examined > 0, `${suite.file} reported ${examined} passing cases`);
-      assert.equal(
-        status,
-        0,
-        `${suite.file} exited ${status}; last 1200 chars:\n${output.slice(-1200)}`,
-      );
+      assert.equal(status, 0, `${suite.file} exited ${status}. ${failureDigest(output)}`);
     } finally {
       server.close();
     }
