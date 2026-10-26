@@ -122,8 +122,14 @@ const RUN: readonly Suite[] = Object.freeze([
  * served HTML, never by itself evidence that nothing mounts it.
  */
 const DECLARED_UNWIRED: Readonly<Record<string, string>> = Object.freeze({
+  // THE REASON HERE IS NOT THE ONE THIS ENTRY CARRIED. It said the suite waits for an <iframe> the
+  // built HTML deliberately lacks, which was true and is now repaired in 2ff67b8a7: the embedded
+  // viewer is a rendered plate, and the suite asserts the plate's printed page, that it decoded, and
+  // that it follows the page input. All 8 paper-by-width cases pass. The blocker below is what the
+  // repair uncovered, three sections further down the same file, and it is a question about the
+  // product rather than about the suite.
   "scripts/e2e/facsimile.mjs":
-    "Waits for `[data-facsimile-reader] iframe`, which the built HTML deliberately does not carry on any of the four papers: FaceFallback.integration.test.tsx:69 and facsimilePlate.test.tsx:153 both assert the served markup contains no <iframe>, and FacsimilePanel.tsx:163 mounts one behind interaction. Deciding what it should wait for is a design question, not a selector change.",
+    'Its inline-panel section clicks `a[data-view-link="facsimile"]` on /papers/brownian-motion/ to prove that switching to the scan IN PLACE keeps the same mounted bm-01 and fetches facsimile.json exactly once. The reading route carries no such control: measured over the 2026-10-25 build, 224 routes carry that link and every one is a /papers/<paper>/<section>/view/<face>/ page, while the reading route offers only `?view=reading` and `?view=results`. The panel itself IS there, server-rendered and hidden, saying "Your reading position and laboratory are unchanged" -- which only means anything for an in-place switch. So both halves exist and nothing joins them, and whether the reading route should carry the face chooser is a reader-facing decision with a recorded constraint against it: faceAvailability.ts reports facsimile as `unknown` because establishing it costs a 1.6-4.4 MB PDF hash, and FaceFallback requires that "ordinary reading remains static and light". Sections 2 to 4 of the suite are otherwise sound; every anchor they name is present in the build.',
   "scripts/e2e/lightQuantaInvestigation.mjs":
     "Asserts `deepEqual(requests, [])` with its listener attached after networkidle and readiness, so the proposition is that operating the investigation fetches nothing further; 7 lazily-loaded `_next/static/chunks/*.js` now arrive on interaction. Excluding `_next` would weaken the assertion to get green, which is a budget decision rather than a test repair.",
 });
