@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { type ReactNode, Suspense } from "react";
+import type { ReactNode } from "react";
 import "katex/dist/katex.min.css";
 import "./globals.css";
 import "./theme/themes.css";
@@ -18,6 +18,7 @@ import { shareImage } from "../components/share/shareImages.ts";
 import { CapstoneReturnTrail } from "../discovery/capstone/CapstoneReturnTrail.tsx";
 import { GuidedTourTrail } from "../discovery/tours/GuidedTourTrail.tsx";
 import { PermalinkRobotsManager } from "../experiments/permalink/PermalinkRobotsManager.tsx";
+import { AfterHydration } from "../platform/hydration/AfterHydration.tsx";
 import { READER_PREPAINT } from "../reader/detail/prepaint";
 import { NotebookLauncher } from "../reader/notebook/NotebookLauncher.tsx";
 import { SearchLauncher } from "../search/SearchLauncher.tsx";
@@ -92,12 +93,19 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           </div>
         </header>
         <PermalinkRobotsManager />
-        <Suspense fallback={null}>
+        {/* AfterHydration, NOT Suspense: both trails call useSearchParams(), which a static export
+            cannot resolve, so a Suspense boundary here emitted
+            template[data-dgst="BAILOUT_TO_CLIENT_SIDE_RENDERING"] and React client-rendered the
+            body region around it -- React #418 on one load in five of every page under ~57 KB
+            (am-xh2o). A mount gate never calls the hook while prerendering. Reader-visible
+            behaviour is unchanged: a bailed-out boundary rendered nothing before hydration either.
+            src/platform/hydration/AfterHydration.tsx carries the measurement. */}
+        <AfterHydration>
           <GuidedTourTrail />
-        </Suspense>
-        <Suspense fallback={null}>
+        </AfterHydration>
+        <AfterHydration>
           <CapstoneReturnTrail />
-        </Suspense>
+        </AfterHydration>
         {/* NO SUSPENSE BOUNDARY AROUND THE PAGE. c3b3116b put one here to stop React #418, about one
             load in 300. In the static export the page suspends while it prerenders, so React
             streamed the whole page as a hidden late segment (<div hidden id="S:0">) with an empty
@@ -107,9 +115,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             page renders inline in <main>, and #418 needs another fix
             (src/testing/rootLayoutHydration.test.tsx). */}
         <main id="main">{children}</main>
-        <Suspense fallback={null}>
+        <AfterHydration>
           <GuidedTourTrail compact />
-        </Suspense>
+        </AfterHydration>
         {/*
           THE FOOTER CARRIES THE PAGE THAT EXPLAINS WHAT THE SITE STORES.
           Measured 2026-09-22 across every .tsx in src/: `href="/your-data/"` appeared ZERO times.
