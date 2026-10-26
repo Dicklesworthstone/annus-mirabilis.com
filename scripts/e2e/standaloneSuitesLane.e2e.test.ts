@@ -48,6 +48,7 @@ import { dirname, extname, join, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { assertOutFreshness } from "../../src/testing/outFreshness.ts";
+import { blankComments } from "../../src/testing/source/comments.ts";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const OUT_DIR = join(REPO_ROOT, "out");
@@ -178,7 +179,7 @@ function startStaticServer(): Promise<{ server: Server; origin: string }> {
 /**
  * Every file under src/ and scripts/ that could name a suite, plus package.json, EXCEPT THIS ONE.
  *
- * Excluding this file is not a convenience. It names all six suites itself -- three in RUN and three
+ * Excluding this file is not a convenience. It names all six suites itself -- four in RUN and two
  * in DECLARED_UNWIRED -- so including it makes every suite look reached and the derivation returns
  * the empty set, which is precisely the shape AGENTS.md warns about: a check that can match the
  * thing doing the checking. It did, on this file's first working run, and the non-vacuity assertion
@@ -204,7 +205,33 @@ function searchableFiles(): readonly string[] {
   return found;
 }
 
-/** The `.mjs` suites under scripts/e2e whose basename appears in no other file. */
+/**
+ * Is `name` named by this body AS CODE? Comments are blanked first, strings are not.
+ *
+ * THE FIRST VERSION READ RAW TEXT AND WAS DEFEATED WITHIN THE HOUR, in the dangerous direction.
+ * A comment added to missingStepExplorer.mjs read "the same form embeddedLaboratories.mjs prints",
+ * and that mention alone took embeddedLaboratories.mjs out of the orphan set: the derivation
+ * reported 5 unnamed suites where 6 are unnamed, and nothing failed, because a suite LEAVING the
+ * orphan set only shrinks the population the assertions range over. AGENTS.md states this exactly
+ * -- "a gate that forbids a construct must read code, not text", and "the densest prose about a
+ * forbidden construct is the documentation explaining why it is forbidden". Here the prose about an
+ * unwired suite is the note recording that it is unwired.
+ *
+ * STRINGS ARE DELIBERATELY NOT BLANKED, and that is not an oversight. The legitimate way these
+ * suites are reached is a string: a `package.json` script, or an argument in a spawn array. Blank
+ * strings as well and every suite in the repository looks orphaned, including the nine that are
+ * properly wired -- a refusal in the safe direction, and a useless instrument.
+ *
+ * Measured over 4,419 searched files on 2026-10-25: blanking comments changes exactly one verdict
+ * today (embeddedLaboratories.mjs returns to the orphan set). Two other suites carry a prose-only
+ * mention -- adversarialRuntime.mjs in gatesPersistEvidence.ts, searchPalette.mjs in
+ * CommandPalette.ts -- and both stay out of the set because package.json names them in code.
+ */
+function namesSuite(body: string, name: string): boolean {
+  return blankComments(body).includes(name);
+}
+
+/** The `.mjs` suites under scripts/e2e whose basename appears as code in no other file. */
 function orphanSuites(): readonly string[] {
   const suites = readdirSync(E2E_DIR)
     .filter((name) => name.endsWith(".mjs"))
@@ -218,7 +245,7 @@ function orphanSuites(): readonly string[] {
     let named = false;
     for (const [file, body] of bodies) {
       if (file === self) continue;
-      if (body.includes(name)) {
+      if (namesSuite(body, name)) {
         named = true;
         break;
       }
@@ -270,6 +297,19 @@ function runSuite(
 }
 
 test("the orphan set is exactly what this lane runs plus the declared debt", () => {
+  // The naming predicate, proved in BOTH directions at the point of use, because reading prose as
+  // wiring is how this derivation was already wrong once and the failure was silent. A blanker that
+  // blanked everything would report every suite orphaned forever, so the second case is not padding.
+  assert.equal(
+    namesSuite("// the idiom is the one guidedTours.mjs prints\n", "guidedTours.mjs"),
+    false,
+    "a suite mentioned only in a comment must not count as reached",
+  );
+  assert.equal(
+    namesSuite('spawn("node", ["scripts/e2e/guidedTours.mjs"]);\n', "guidedTours.mjs"),
+    true,
+    "a suite named in code must count as reached",
+  );
   const orphans = orphanSuites();
   // Non-vacuity: this lane's whole value is that the set is non-empty and accounted for. An empty
   // derivation would make every assertion below pass over nothing, which is how a check that has
