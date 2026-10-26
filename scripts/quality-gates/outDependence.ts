@@ -139,6 +139,38 @@ export function outReferenceIn(
  * already". The directions are not symmetric: for `out/`, a false positive costs nothing and a false
  * negative breaks the subset; for the browser filter, a false NEGATIVE breaks the subset and a false
  * positive silently shrinks it. So this filter needs both halves and that one needs neither.
+ *
+ * THAT SHRINKAGE HAS NOW BEEN MEASURED, AND IT IS NOT FREE (2026-10-25). Six of the lane's 110 files
+ * are gated by this filter for one reason -- "drives a browser in scripts/quality-gates/registry.ts"
+ * -- and NONE of them drives a browser:
+ *
+ *     scripts/gate-census/judge.node.test.ts        scripts/quality-gates.test.ts
+ *     scripts/gate-census/reach.node.test.ts        scripts/quality-gates/ciExemptionReasons.node.test.ts
+ *     scripts/verify-facsimile-pins.test.ts         scripts/quality-gates/gatesPersistEvidence.node.test.ts
+ *
+ * They import `registry.ts`, and the five BROWSER_DRIVER matches in its blanked text are a gate's
+ * own NAME: `id: "webkit-reading-path"`, `title: "WebKit reading path"`,
+ * `command: ["bun", "scripts/webkit-reading-path.ts"]`, its `scriptPath`, and the title "Runtime
+ * conformance in live Chromium". Data strings, not calls. Blanking comments does not reach them,
+ * because they are code. This is the rule one layer further in than the paragraph above: a module
+ * that NAMES a browser gate is not a module that drives one, exactly as AGENTS.md records for a
+ * process check -- "the command line that names a program is not the program".
+ *
+ * WHAT IT COST. All six are gate-chain tests, so the only lane that reaches them is the full
+ * `bun run test:node`, which refuses on a stale `out/`. Two of them fire on an IMPROVEMENT:
+ * `ciExemptionReasons` goes red when a step stops being CI-exempt, and `gatesPersistEvidence` when a
+ * new gate lands silent. Both were red on `main` for two days (`coverage-report` leaving the exempt
+ * set in 4559012a0; `node-content-lane` persisting nothing) while every pane's pre-commit checks
+ * stayed green, because no cheap lane could run them. All six need no build at all: the two above
+ * run in under two seconds with `out/` absent.
+ *
+ * THE NARROWING THIS SUGGESTS, measured but NOT applied here, because it changes which tests run
+ * without a build and deserves its own unit of work: match the DRIVER'S CALL AND IMPORT SHAPES
+ * rather than bare names -- `from "playwright"`, `chromium.launch(`, `webkit.launch(`, `.newPage(`,
+ * `newContext(` -- which `"webkit-reading-path"` does not match and which every real browser test
+ * here does, itself or through the local import this filter already follows. Whoever takes it must
+ * drive `outDependence.test.ts` in both directions first: the dangerous direction is still a browser
+ * test judged build-independent, and that is what `ccb31ff39` was repairing.
  */
 export function browserDriverIn(
   file: string,
