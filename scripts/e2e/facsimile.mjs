@@ -40,7 +40,32 @@ try {
         );
         assert.equal(await root.getAttribute("data-facsimile-pdf-page"), "2");
         assert.equal(await root.locator("[data-facsimile-page-link]").count(), paper.count);
-        assert.match(await root.locator("iframe").getAttribute("src"), /#page=2$/);
+        // THE EMBEDDED VIEWER IS A RENDERED PLATE, NOT A PDF IFRAME. This line read
+        // `root.locator("iframe").getAttribute("src")` matched against `/#page=2$/`, which is the
+        // old design: FaceFallback.integration.test.tsx:69 and facsimilePlate.test.tsx:153 both
+        // assert the served markup carries no <iframe>, and the PDF is now reached through the
+        // [data-facsimile-direct] link checked further down. So the same question -- does the
+        // viewer show the page the deep link asked for -- is asked of the plate, and by the
+        // PRINTED journal page rather than the PDF page index, which is the stronger binding.
+        const plate = root.locator("[data-facsimile-plate]");
+        assert.match(
+          await plate.getAttribute("src"),
+          new RegExp(`/${paper.first + 1}\\.webp$`),
+          `the plate must be printed page ${paper.first + 1}, the one #facsimile-page-${paper.first + 1} asked for`,
+        );
+        // AND IT DECODED. Nothing else in this repository asks whether a built <img> resolves, so
+        // a missing plate file would leave the facsimile face -- whose entire purpose is the scan
+        // -- visibly empty while every attribute asserted above stayed correct. The plate carries
+        // loading="lazy", hence the scroll before the wait.
+        await plate.scrollIntoViewIfNeeded();
+        await page.waitForFunction(
+          (selector) => {
+            const image = document.querySelector(selector);
+            return Boolean(image?.complete && image.naturalWidth > 0);
+          },
+          "[data-facsimile-reader] [data-facsimile-plate]",
+          { timeout: 15000 },
+        );
         const input = root.getByLabel("Printed journal page", { exact: true });
         for (const value of [
           "",
@@ -58,6 +83,14 @@ try {
         await input.fill(String(paper.first));
         await input.press("Enter");
         assert.equal(await root.getAttribute("data-facsimile-pdf-page"), "1");
+        // The plate FOLLOWS the control, which the page-number attribute alone cannot show: a
+        // viewer that updated its attributes and kept showing the previous scan would satisfy
+        // every other assertion here.
+        assert.match(
+          await plate.getAttribute("src"),
+          new RegExp(`/${paper.first}\\.webp$`),
+          "typing a printed page must change the plate, not only the attributes",
+        );
         assert.equal(
           await root.getByRole("button", { name: "Previous page", exact: true }).isDisabled(),
           true,
@@ -214,3 +247,6 @@ try {
   await browser.close();
 }
 console.log(JSON.stringify({ passed: true, results }, null, 2));
+// The census on its own line, in the form the other standalone suites print, because the lane that
+// drives this file reads what it says it examined rather than its exit code.
+console.log(`${results.length} facsimile browser cases passed.`);
