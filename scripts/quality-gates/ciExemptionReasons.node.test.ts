@@ -76,11 +76,28 @@ test("the exemptions are the ones expected, named rather than counted", () => {
   // would pass while the SET changed underneath it. Adding an exemption should require saying so
   // here, which is the point of listing them.
   const ids = QUALITY_GATE_STEPS.filter((s) => !s.requiredInCi).map((s) => s.id);
-  for (const expected of ["stashes", "ubs-diff", "ubs-staged", "coverage-report", "facsimile-pins"])
+  for (const expected of ["stashes", "ubs-diff", "ubs-staged", "facsimile-pins"])
     assert.ok(
       ids.includes(expected),
       `${expected} is no longer exempt; update this list deliberately`,
     );
+  /*
+    `coverage-report` LEFT THIS LIST ON 2026-10-23, in `4559012a0`, and this assertion stayed red
+    for two days because the departure was not recorded here. The improvement is what broke it,
+    which is this file working: its exemption reason had been "nothing emits evidence", and
+    `scripts/coverage-report.ts` now reads FIVE of the seven dimensions straight from the content
+    tree on a bare run -- source status, translation review, argument treatment, instrument
+    availability, accessibility equivalence -- opening 906 files and printing each digest, while
+    the two that genuinely need an evidence file report `not-run` rather than zero. So the step
+    passes on what it can measure and stays silent about what it cannot, and the condition its
+    exemption named is satisfied rather than silenced.
+
+    Its cadence moved to every-run in the same commit, and that is not incidental:
+    ciGateWiring.test.ts requires every requiredInCi gate to be EXECUTED by some dsr check, and
+    `bun run gates` passes --family fast with no --cadence, which admits only every-run. A nightly
+    gate marked requiredInCi would have been reachable by no check at all. Measured 236 ms cold,
+    98 ms warm.
+  */
   /*
     `voice-lint` LEFT THIS LIST ON 2026-10-11, which is the question this file was written to raise
     and the first time the answer has been yes. Its reason named the condition -- "it EXITS 1 at
