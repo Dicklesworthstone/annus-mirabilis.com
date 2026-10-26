@@ -4,7 +4,7 @@
  * RENDER CHILDREN ONLY AFTER MOUNT, SO A HOOK A STATIC EXPORT CANNOT RESOLVE IS NEVER CALLED WHILE
  * PRERENDERING.
  *
- * WHAT THIS FIXES. `src/app/layout.tsx` renders three trails -- `GuidedTourTrail`,
+ * WHAT THIS CHANGES. `src/app/layout.tsx` renders three trails -- `GuidedTourTrail`,
  * `CapstoneReturnTrail`, `GuidedTourTrail compact` -- and both components call
  * `useSearchParams()`. In a static export that hook cannot be resolved at build time, so each
  * instance made Next give up on its Suspense boundary and emit
@@ -12,11 +12,24 @@
  * rendered NOTHING there and the client had to render it after hydration. Measured over the build
  * before this change: **2,211 such markers, three on each of 737 pages.**
  *
- * Those three boundaries are the measured cause of React #418 on **one load in five of every page
- * under about 57 KB** -- `/`, `/accessibility/`, `/capstones/`, `/notebook/`, `/equations/`,
- * `/search/results/`, all four tour outlines -- against 0 of 80 loads on pages over 133 KB
- * (am-xh2o). A MutationObserver recording removals inside `<body>` showed React discarding the body
- * region around those boundaries, taking `a.skip-link` and `header.site-header` with it.
+ * I BELIEVED THOSE BOUNDARIES WERE THE CAUSE OF REACT #418, AND THE EXPERIMENT REFUTED IT. Keep that
+ * written here, because the shape of the evidence was convincing and someone will reach the same
+ * conclusion again. A MutationObserver recording removals inside `<body>` showed React discarding
+ * the body region around exactly these boundaries, taking `a.skip-link` and `header.site-header`
+ * with it; the marker count matched the boundary count exactly, three and three, on every page; and
+ * #418 fell on one load in five of the short pages. Every part of that is true and it is not a
+ * cause.
+ *
+ * Measured after this change, 405 loads at 9 concurrent contexts, every load's hydration confirmed:
+ * the bailout markers are **2,211 to 0** across all 765 pages, and #418 is **still 34 of 405**. So
+ * this commit removes the bailouts and does NOT fix am-xh2o, which stays open. What it does buy the
+ * next investigation is one fewer confound: the failing boundary is no longer in the page at all.
+ *
+ * It also corrected a claim of mine that was over-read from a small sample. I had reported the size
+ * correlation as "monotone, no overlap" from 0 of 80 loads on pages over 133 KB. At 180 loads
+ * `/notation/` (3.4 MB) shows 3. The tendency is real and strong -- 31 of 225 on pages under 57 KB
+ * against 3 of 180 above -- but it is a tendency, not a clean separation, and 0 of 80 at a ~2% rate
+ * was never evidence of absence.
  *
  * WHY A MOUNT GATE RATHER THAN CHANGING THE TRAILS. Passing `<GuidedTourTrail />` as `children`
  * creates an ELEMENT; React does not call the component until it renders one. So while
