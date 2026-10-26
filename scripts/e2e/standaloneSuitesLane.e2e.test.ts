@@ -47,17 +47,33 @@
  * asserted nothing would exit 0, which is indistinguishable from a clean run; so each entry names
  * the line it must print and the count must exceed zero.
  *
- * IF A SUITE HERE TIMES OUT IN THE FULL NODE LANE, SUSPECT CONTENTION BEFORE THE SITE. This file
- * drives four browser suites as subprocesses, and `node --test` runs the lane's 110 files
- * concurrently, so these four compete with every other browser and E2E test for CPU. Measured
- * 2026-10-25: in the full lane `guidedTours.mjs` reported 10 of 11 and took 90s, failing on
- * `page.locator("#tour-finish").waitFor()` against Playwright's 30s default; run alone against the
- * same build minutes later it was 11 of 11 in 34s. The suite's own node:test budget is 180s, so
- * what expired was a locator wait, not the test. `uiExtraction.e2e.test.ts` failed the same way in
- * the same run, its theme plant reading `got null` -- localStorage not yet written when read after
- * reload -- where alone it correctly reads `got annalen`. Neither was touched: one observation is
- * not a reason to raise a timeout, which is how a real defect gets masked. Re-run the one suite
- * alone on a quiet machine and compare the census before concluding anything about the page.
+ * IF A SUITE HERE FAILS ONLY IN THE FULL NODE LANE, READ THE DIGEST BEFORE BLAMING CONTENTION --
+ * AND KNOW THAT `guidedTours.mjs` IS CURRENTLY EXPECTED TO FAIL THERE, FOR A REAL REASON.
+ *
+ * This file drives five browser suites as subprocesses while `node --test` runs the lane's 110
+ * files concurrently, so they compete with every other browser test for CPU. That is a real
+ * condition and it does produce failures: a 30s locator wait expiring, or `uiExtraction`'s theme
+ * plant reading `got null` because localStorage was read after a reload the click never reached.
+ * Alone on a quiet machine the same suites are green.
+ *
+ * BUT CONTENTION IS A CONDITION, NOT A CAUSE, AND I GOT THAT WRONG TWICE HERE. `guidedTours.mjs`
+ * failed in all three full lane runs of 2026-10-25 while passing 11 of 11 alone, and I twice wrote
+ * it off as a flake. What it actually reports, once `failureDigest` below could name the case, is
+ *
+ *     not ok 1 - brownian-motion: follow every real destination and finish from the last stop
+ *       error: A guide must not introduce a page execution error.
+ *       + [ 'Minified React error #418 ...' ]
+ *
+ * a hydration mismatch, reproduced at about 8% over 24 walks with 8 concurrent contexts and 0 times
+ * in 18 sequential walks. It is filed as **am-xh2o** (P1) with the measurement. So this lane is
+ * expected to be red on that one case until that bead is fixed, and that is the lane working: the
+ * suite ran nowhere before, and the defect was invisible for exactly that reason.
+ *
+ * The practice, in order: read the digest, which names the failing case and its error; if it is a
+ * timeout or an emptiness guard, re-run that one suite alone and compare the census; if it is a
+ * page execution error, it is a defect that contention merely made visible. Do not raise a timeout
+ * on one observation, which is how a real defect gets masked -- and do not call something a flake
+ * before you know which case failed.
  */
 
 import assert from "node:assert/strict";
