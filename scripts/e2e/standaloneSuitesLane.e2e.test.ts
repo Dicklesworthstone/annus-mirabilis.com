@@ -126,20 +126,46 @@ const RUN: readonly Suite[] = Object.freeze([
     nodeTest: false,
     census: /(\d+) missing-step explorer browser cases passed\./,
   }),
+  Object.freeze({
+    // 5s. 3 cases at two widths plus a no-JavaScript pass over /discover/light-quanta/investigate/.
+    //
+    // ALSO MOVED OUT OF DECLARED_UNWIRED, and the reason it was declared was sound at the time: it
+    // asserted `deepEqual(requests, [])` after readiness, and 7 requests arrive. What changed is the
+    // measurement. All 7, at BOTH widths, identically, are resourceType `script` on this origin
+    // under `/_next/static/chunks/`, with 0 that are anything else and 0 page errors. So the old
+    // assertion was answering two questions at once -- does operating the investigation send reader
+    // data or fetch a computed result, and does it load further CODE -- and only the first is a
+    // proposition this project holds. The second is false deliberately, by the same code-splitting
+    // decision that moved bm-01 behind a disclosure in the entry above.
+    //
+    // The suite now asserts the PROPERTY (every request is this origin's own static script) and
+    // REPORTS the count, which is "A Count Is For Reporting, Not For Asserting" applied as written.
+    // Its predicate is driven in both directions at the point of definition, refusing a fetch named
+    // like a chunk, a content record, another origin, a WASM loader, a plate and a hosted model.
+    file: "scripts/e2e/lightQuantaInvestigation.mjs",
+    baseUrlVar: "BASE_URL",
+    nodeTest: false,
+    census: /(\d+) light-quanta investigation browser cases passed\./,
+  }),
 ]);
 
 /**
  * Suites that are still reached by nothing, each with the reason it is not in RUN. Measured
  * 2026-10-25 against the same build; the full diagnosis is on am-test-e2e-harness-bqmh.
  *
- * Both are suite drift rather than a site defect, and both drifted against a DELIBERATE current
- * design, so neither can be repaired by changing a selector. That is why they are declared here
- * instead of being wired red or quietly dropped.
+ * ONE ENTRY REMAINS, and it is the only one of the original six that cannot be wired by repairing
+ * the suite: its blocker is a reader-facing design decision with a recorded constraint against it.
  *
- * A third entry, missingStepExplorer.mjs, was here until its reason was re-measured and found
- * false; it is in RUN above, with the correction recorded at its entry. Treat each reason below as
- * a measurement that can be wrong in the same direction: an absent attribute is evidence about the
- * served HTML, never by itself evidence that nothing mounts it.
+ * THE OTHER TWO LEFT THIS LIST ON 2026-10-25, and in both cases what changed was the measurement
+ * rather than the suite's difficulty. `missingStepExplorer.mjs` was declared on a reason that was
+ * FALSE -- an absent `data-instrument-id` is evidence about the served HTML, never by itself
+ * evidence that nothing mounts it, and LazyInlineTracerLab mounts bm-01 on first opening.
+ * `lightQuantaInvestigation.mjs` was declared on a reason that was TRUE and incomplete: its
+ * `deepEqual(requests, [])` was answering two questions at once, and enumerating the 7 requests
+ * showed that only one of them is a proposition this project holds.
+ *
+ * So read the reason below as a measurement that can be wrong in either direction, and re-measure
+ * before concluding that a suite here is unwirable.
  */
 const DECLARED_UNWIRED: Readonly<Record<string, string>> = Object.freeze({
   // THE REASON HERE IS NOT THE ONE THIS ENTRY CARRIED. It said the suite waits for an <iframe> the
@@ -150,8 +176,6 @@ const DECLARED_UNWIRED: Readonly<Record<string, string>> = Object.freeze({
   // product rather than about the suite.
   "scripts/e2e/facsimile.mjs":
     'Its inline-panel section clicks `a[data-view-link="facsimile"]` on /papers/brownian-motion/ to prove that switching to the scan IN PLACE keeps the same mounted bm-01 and fetches facsimile.json exactly once. The reading route carries no such control: measured over the 2026-10-25 build, 224 routes carry that link and every one is a /papers/<paper>/<section>/view/<face>/ page, while the reading route offers only `?view=reading` and `?view=results`. The panel itself IS there, server-rendered and hidden, saying "Your reading position and laboratory are unchanged" -- which only means anything for an in-place switch. So both halves exist and nothing joins them, and whether the reading route should carry the face chooser is a reader-facing decision with a recorded constraint against it: faceAvailability.ts reports facsimile as `unknown` because establishing it costs a 1.6-4.4 MB PDF hash, and FaceFallback requires that "ordinary reading remains static and light". Sections 2 to 4 of the suite are otherwise sound; every anchor they name is present in the build.',
-  "scripts/e2e/lightQuantaInvestigation.mjs":
-    "Asserts `deepEqual(requests, [])` with its listener attached after networkidle and readiness, so the proposition is that operating the investigation fetches nothing further; 7 lazily-loaded `_next/static/chunks/*.js` now arrive on interaction. Excluding `_next` would weaken the assertion to get green, which is a budget decision rather than a test repair.",
 });
 
 const CONTENT_TYPES: Readonly<Record<string, string>> = {
@@ -205,7 +229,7 @@ function startStaticServer(): Promise<{ server: Server; origin: string }> {
 /**
  * Every file under src/ and scripts/ that could name a suite, plus package.json, EXCEPT THIS ONE.
  *
- * Excluding this file is not a convenience. It names all six suites itself -- four in RUN and two
+ * Excluding this file is not a convenience. It names all six suites itself -- five in RUN and one
  * in DECLARED_UNWIRED -- so including it makes every suite look reached and the derivation returns
  * the empty set, which is precisely the shape AGENTS.md warns about: a check that can match the
  * thing doing the checking. It did, on this file's first working run, and the non-vacuity assertion

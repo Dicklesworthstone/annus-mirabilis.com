@@ -3,6 +3,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { chromium } from "playwright";
 import { decodeLightInvestigationSettings } from "../../src/discovery/lightQuanta/transfer.ts";
+import { exponentialSpoken } from "../../src/units/scientific.ts";
 
 // Real built route only. No DOM substitute is allowed for a navigation failure.
 const base = process.env.BASE_URL ?? "http://127.0.0.1:3000";
@@ -258,15 +259,41 @@ try {
           .getByRole("button", { name: "Apply linked coefficient settings", exact: true })
           .click();
         assert.equal(await entry.count(), 0);
+        /*
+         * THE RESTORED PAGE SHOWS THE SOURCE PAGE'S NUMBER, read through the cell's AUTHORED SPOKEN
+         * FORM and compared with the project's own formatter.
+         *
+         * This line was `assert.equal(countText, sourceCount.toExponential(6))` against the cell's
+         * innerText, and it is the third thing in this file that asserted against a design the
+         * project had already rejected. `src/units/scientific.ts` exists because `toExponential` is
+         * a serialization format that was reaching readers -- 202 such tokens on 22 of 38 laboratory
+         * pages on 2026-09-22 -- and `labNoENotation.test.tsx` now forbids it site-wide. The cell
+         * renders `1.0555 × 10<sup>10</sup>` with `aria-label="1.0555 times 10 to the power 10"`.
+         *
+         * NOT innerText, for a second reason worth keeping: it returns "1.0555 × 1010", because the
+         * `<sup>10</sup>` exponent runs into the base `10` with no separator. A substring or equality
+         * check on that string is reading a number that is not on the page.
+         *
+         * `exponentialSpoken(sourceCount, 4)` is the comparison: the SOURCE page's full-precision
+         * value, through the renderer's own formatter, at the four fraction digits this instrument
+         * displays. A deliberate change of that precision should update this line and say so; that
+         * is a formatting contract, not an arithmetic coincidence.
+         */
         const countCell = restore
           .locator('tr[data-quantity-id="effectiveIndependentCount"] td')
           .last();
-        console.log(
-          `[PROBE] outerHTML=${JSON.stringify(await countCell.evaluate((el) => el.outerHTML))}`,
+        assert.equal(
+          await countCell.locator("span.sci").getAttribute("aria-label"),
+          exponentialSpoken(sourceCount, 4),
+          "the restored page must show the source page's count, spoken as this site speaks it",
         );
-        console.log(`[PROBE] innerText=${JSON.stringify(await countCell.innerText())}`);
-        console.log(`[PROBE] sourceCount=${sourceCount}`);
-        assert.equal(await countCell.innerText(), sourceCount.toExponential(6));
+        // The rejected notation, kept as an explicit refusal so it cannot creep back under a
+        // passing suite. AGENTS.md: "keep the old one as an explicit negative in the same test".
+        assert.doesNotMatch(
+          await countCell.innerText(),
+          /e[+-]\d/i,
+          "a reader-facing quantity must not be serialized as e-notation",
+        );
       } finally {
         await restore.close();
       }
