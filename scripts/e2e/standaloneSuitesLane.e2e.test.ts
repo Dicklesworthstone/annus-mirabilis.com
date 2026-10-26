@@ -24,11 +24,19 @@
  * failure the six above never produced. DECLARED_UNWIRED is a record of debt and carries a reason
  * per entry; it can only shrink.
  *
- * REACHABILITY IS A NAME SEARCH, and that is the honest instrument for this question: "is this file
- * mentioned anywhere" is a question about text, not about syntax, since these suites are reached by
- * a shell command in package.json as often as by an import. It errs toward calling an orphan
- * reached (a file named only in a comment counts), which is the safe direction for a population
- * that gates work.
+ * REACHABILITY IS A NAME SEARCH OVER CODE, comments blanked. The search is textual on purpose,
+ * because these suites are reached by a shell command in `package.json` as often as by an import,
+ * so the question is "is this file named anywhere", not a question about syntax. But it reads CODE:
+ * strings count, comments do not.
+ *
+ * THIS PARAGRAPH SAID THE OPPOSITE, and said the wrong direction was the safe one. It read: "It
+ * errs toward calling an orphan reached (a file named only in a comment counts), which is the safe
+ * direction for a population that gates work." That is backwards. A suite wrongly called REACHED
+ * leaves the orphan set, and the assertions below range over that set, so the debt shrinks in
+ * silence and nothing turns red. It happened within the hour: a comment added to
+ * `missingStepExplorer.mjs` mentioned `embeddedLaboratories.mjs`, and the derivation reported 5
+ * unnamed suites where 6 are unnamed, green. See `namesSuite` below for the repair and the
+ * measurement.
  *
  * TAP, NOT THE SPEC REPORTER, for the two node:test suites. Their census line under the default
  * reporter is `<glyph> pass N` with a non-ASCII glyph, and reading it with the wrong glyph is a
@@ -38,6 +46,18 @@
  * EVERY SUITE'S CENSUS IS ASSERTED, NOT ITS EXIT CODE ALONE. A suite that launched a browser and
  * asserted nothing would exit 0, which is indistinguishable from a clean run; so each entry names
  * the line it must print and the count must exceed zero.
+ *
+ * IF A SUITE HERE TIMES OUT IN THE FULL NODE LANE, SUSPECT CONTENTION BEFORE THE SITE. This file
+ * drives four browser suites as subprocesses, and `node --test` runs the lane's 110 files
+ * concurrently, so these four compete with every other browser and E2E test for CPU. Measured
+ * 2026-10-25: in the full lane `guidedTours.mjs` reported 10 of 11 and took 90s, failing on
+ * `page.locator("#tour-finish").waitFor()` against Playwright's 30s default; run alone against the
+ * same build minutes later it was 11 of 11 in 34s. The suite's own node:test budget is 180s, so
+ * what expired was a locator wait, not the test. `uiExtraction.e2e.test.ts` failed the same way in
+ * the same run, its theme plant reading `got null` -- localStorage not yet written when read after
+ * reload -- where alone it correctly reads `got annalen`. Neither was touched: one observation is
+ * not a reason to raise a timeout, which is how a real defect gets masked. Re-run the one suite
+ * alone on a quiet machine and compare the census before concluding anything about the page.
  */
 
 import assert from "node:assert/strict";
