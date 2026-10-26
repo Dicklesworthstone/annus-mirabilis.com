@@ -103,4 +103,12 @@ pathIgnorePatterns = [
   # The deployed-candidate version of this question is scripts/anchorTargets.ts, which only runs
   # at release: between deploys nothing asked it, and a sweep on 2026-10-18 found 24 broken.
   "src/testing/builtFragmentTargets.node.test.ts",
+  # Asks whether every `src` and `srcset` in out/ names a file the build serves, which
+  # linkTargetsResolve.test.ts does not: that gate's population is ` href="` and it says so. Here
+  # for the same reason as the four entries above -- it reads out/, so it belongs in the lane that
+  # REFUSES a stale build. A gate about the artifact a reader will get, answered against yesterday's
+  # build, passes while saying nothing, and that is the dangerous direction. (The sibling href gate
+  # reads out/ from the bun lane with no freshness refusal, so it can pass over a stale build; that
+  # is its own to fix, not something this entry changes.)
+  "src/testing/assetTargetsResolve.node.test.ts",
 ]
