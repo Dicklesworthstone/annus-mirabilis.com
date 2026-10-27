@@ -163,6 +163,26 @@ const RUN: readonly Suite[] = Object.freeze([
     nodeTest: false,
     census: /(\d+) light-quanta investigation browser cases passed\./,
   }),
+  Object.freeze({
+    // 9 checks on /discover/brownian-motion/: pin a prediction, reload, find it restored, and watch
+    // a restored investigation refuse a new reading. Written with its wiring
+    // (am-rc1001-bridge-plan-pcjk.27) rather than found orphaned, which is why it enters RUN here
+    // instead of DECLARED_UNWIRED.
+    //
+    // IT WAITS FOR THE PIN BUTTON TO BECOME *ENABLED*, not merely visible, and that wait is the
+    // test. The button is disabled until the store holds an accepted reading, which arrives only
+    // when BrownianWorldCheck's bm-01 session connects through useInvestigationWitness, so a
+    // version that waited on visibility would pass with the laboratory never connected at all.
+    //
+    // It also answers the one clause a unit test cannot: it records every request across the whole
+    // flow INCLUDING the reload and asserts that none carries the reader's prediction, none leaves
+    // this origin, and none is a POST. noUpload.test.ts answers what the module graph can do; this
+    // answers what happened.
+    file: "scripts/e2e/investigationPersistence.mjs",
+    baseUrlVar: "AM_BASE_URL",
+    nodeTest: false,
+    census: /(\d+) investigation persistence browser cases passed\./,
+  }),
 ]);
 
 /**
