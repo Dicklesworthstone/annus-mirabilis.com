@@ -21,7 +21,13 @@ import {
 
 describe("bunfigNodeOnlyTests", () => {
   it("refuses a bunfig without pathIgnorePatterns rather than inventing an empty skip list", () => {
-    assert.throws(() => parsePathIgnorePatterns('[test]\nroot = "."\n'), /pathIgnorePatterns/);
+    assert.throws(
+      () => parsePathIgnorePatterns('[test]\nroot = "."\n'),
+      (error) =>
+        error instanceof BunfigLaneError &&
+        error.code === "bunfig-pattern-list-absent" &&
+        /pathIgnorePatterns/.test(error.message),
+    );
   });
 
   it("a DOUBLE QUOTE IN A COMMENT does not swallow the entry after it", () => {
@@ -63,6 +69,18 @@ describe("bunfigNodeOnlyTests", () => {
     assert.ok(blanked.includes('other = "c"'), "code after a comment line must survive");
     assert.ok(!blanked.includes("trailing"), "a trailing comment body must be blanked");
     assert.ok(!blanked.includes("lead"), "a whole-line comment body must be blanked");
+  });
+
+  it("an empty pattern list is refused rather than treated as nothing to skip", () => {
+    // An empty list and a missing one are DIFFERENT refusals: an empty one parses, so without this
+    // the derivation would return no skips and every subprocess test would run under bun test.
+    assert.throws(
+      () => parsePathIgnorePatterns("[test]\npathIgnorePatterns = [\n]\n"),
+      (error) =>
+        error instanceof BunfigLaneError &&
+        error.code === "bunfig-pattern-list-empty" &&
+        /is empty/.test(error.message),
+    );
   });
 
   it("a misread pattern list is refused rather than returned short", () => {

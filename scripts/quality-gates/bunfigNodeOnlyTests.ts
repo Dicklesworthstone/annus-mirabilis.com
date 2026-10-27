@@ -103,9 +103,14 @@ const PLAUSIBLE_PATTERN = /^[^\s"#]+$/;
  * The `Error` suffix is required, not stylistic: `scanRefusalThrowSites` reads a positional
  * refusal code only off `throw new <...>Error(`.
  */
+export type BunfigRefusalCode =
+  | "bunfig-pattern-list-absent"
+  | "bunfig-pattern-list-empty"
+  | "bunfig-pattern-misparsed";
+
 export class BunfigLaneError extends Error {
-  readonly code: "bunfig-pattern-misparsed";
-  constructor(code: "bunfig-pattern-misparsed", message: string) {
+  readonly code: BunfigRefusalCode;
+  constructor(code: BunfigRefusalCode, message: string) {
     super(message);
     this.name = "BunfigLaneError";
     this.code = code;
@@ -115,7 +120,8 @@ export class BunfigLaneError extends Error {
 export function parsePathIgnorePatterns(bunfigText: string): string[] {
   const block = blankTomlComments(bunfigText).match(/pathIgnorePatterns\s*=\s*\[([\s\S]*?)\]/);
   if (block === null || block[1] === undefined) {
-    throw new Error(
+    throw new BunfigLaneError(
+      "bunfig-pattern-list-absent",
       "bunfig.toml is missing [test].pathIgnorePatterns. Subprocess tests would run under bun test or nowhere.",
     );
   }
@@ -123,7 +129,10 @@ export function parsePathIgnorePatterns(bunfigText: string): string[] {
     .map((m) => m[1])
     .filter((p): p is string => p !== undefined);
   if (patterns.length === 0) {
-    throw new Error("bunfig.toml [test].pathIgnorePatterns is empty.");
+    throw new BunfigLaneError(
+      "bunfig-pattern-list-empty",
+      "bunfig.toml [test].pathIgnorePatterns is empty.",
+    );
   }
   // Refuse at the moment of corruption rather than returning a list that is quietly short. This is
   // a property and not a census: it holds at any number of entries, and it names the offender.
