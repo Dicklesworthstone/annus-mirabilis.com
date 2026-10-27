@@ -5,6 +5,7 @@ import { describe, it } from "node:test";
 import {
   assertNoUnignoredSubprocessTests,
   BUNFIG_RELATIVE_PATH,
+  BunfigLaneError,
   blankTomlComments,
   classifyTestFileContent,
   expandIgnorePatternsToTestFiles,
@@ -69,7 +70,10 @@ describe("bunfigNodeOnlyTests", () => {
     // future way the capture can go wrong rather than only the one already seen.
     assert.throws(
       () => parsePathIgnorePatterns('[test]\npathIgnorePatterns = [\n  "a b c",\n]\n'),
-      /not a single path or glob/,
+      (error) =>
+        error instanceof BunfigLaneError &&
+        error.code === "bunfig-pattern-misparsed" &&
+        /not a single path or glob/.test(error.message),
     );
     // The live file must satisfy the same invariant, which is the half that protects the repository
     // rather than the function.

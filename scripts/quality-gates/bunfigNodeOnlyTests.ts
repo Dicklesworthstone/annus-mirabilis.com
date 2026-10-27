@@ -90,6 +90,28 @@ export function blankTomlComments(tomlText: string): string {
 /** A pattern is one path or glob on one line. Anything else means the parse went wrong. */
 const PLAUSIBLE_PATTERN = /^[^\s"#]+$/;
 
+/**
+ * A refusal this lane derivation can name.
+ *
+ * It exists because of how it was found rather than by design. The malformed-pattern refusal
+ * below was added bare on 2026-10-25 (5a8c0192b) and took this file from its recorded 7 bare
+ * throw sites to 8, so `test:refusals` was red on main for two days -- the author (me) having run
+ * the lane tests and the typechecker, neither of which reaches that ratchet. AGENTS.md says to
+ * run `bun run test:refusals` when a commit changes the line count of any file under `src/`; this
+ * file is under `scripts/`, which the ratchet also governs and which that sentence does not name.
+ *
+ * The `Error` suffix is required, not stylistic: `scanRefusalThrowSites` reads a positional
+ * refusal code only off `throw new <...>Error(`.
+ */
+export class BunfigLaneError extends Error {
+  readonly code: "bunfig-pattern-misparsed";
+  constructor(code: "bunfig-pattern-misparsed", message: string) {
+    super(message);
+    this.name = "BunfigLaneError";
+    this.code = code;
+  }
+}
+
 export function parsePathIgnorePatterns(bunfigText: string): string[] {
   const block = blankTomlComments(bunfigText).match(/pathIgnorePatterns\s*=\s*\[([\s\S]*?)\]/);
   if (block === null || block[1] === undefined) {
@@ -107,7 +129,8 @@ export function parsePathIgnorePatterns(bunfigText: string): string[] {
   // a property and not a census: it holds at any number of entries, and it names the offender.
   const malformed = patterns.filter((p) => !PLAUSIBLE_PATTERN.test(p));
   if (malformed.length > 0) {
-    throw new Error(
+    throw new BunfigLaneError(
+      "bunfig-pattern-misparsed",
       `bunfig.toml [test].pathIgnorePatterns parsed ${malformed.length} entr(y/ies) that are not a single path or glob, so the list was misread and files listed there would run under neither lane: ${malformed.map((p) => JSON.stringify(p.slice(0, 80))).join(", ")}`,
     );
   }
