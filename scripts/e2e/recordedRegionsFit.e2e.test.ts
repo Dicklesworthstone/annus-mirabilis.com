@@ -91,6 +91,7 @@ import {
   RECORDED_NON_OVERFLOWING,
 } from "../../src/testing/a11y/recordedRegions.ts";
 import { assertOutFreshness } from "../../src/testing/outFreshness.ts";
+import { dismissPredictMode } from "./predictMode.ts";
 
 const REPO_ROOT = resolve(fileURLToPath(new URL("../../", import.meta.url)));
 const OUT_DIR = join(REPO_ROOT, "out");
@@ -195,37 +196,6 @@ const NO_SCRIPT_OVERFLOWING: ReadonlyMap<string, string> = new Map([
     '309px/288px, 21px hidden. Same element, same geometry with scripts, where initFormulaOverflow gives it tabindex=0 and the name "Formula, scrolls sideways".',
   ],
 ]);
-
-/**
- * Answers the prediction prompt the only way a check honestly can: by skipping it.
- *
- * WITHOUT THIS THE SCRIPT STATE IS NOT THE STATE THE RECORDS DESCRIBE, and the first run of this
- * file proved it rather than reasoning about it. With scripts on and no interaction, seven lab
- * records reported `laidOut=0` at both widths, so every verdict about them came from the no-script
- * reading alone, and the message read "a recorded non-overflowing region overflows" while the state
- * the measurement was taken in had never been loaded. A gate that cannot reach the claim it is
- * checking is the failure AGENTS.md calls self-concealing.
- *
- * Skipping is the right control of the three. "I have one in mind" stores nothing and reveals,
- * which would do; choosing a candidate would record a prediction, which writes to the reader's own
- * storage port and changes what the panel then says. `PredictGate.skip` reveals the result and is
- * the documented escape ("Skipping always shows the result"), so it is the smallest action that
- * puts the page in the state a reader who declined to predict is in.
- *
- * It returns the number of prompts dismissed, which the census prints: a run where this silently
- * clicked nothing would otherwise be indistinguishable from one where it worked.
- */
-async function dismissPredictMode(page: Page): Promise<number> {
-  const skips = page.locator('button[aria-label^="Skip prediction"]');
-  const count = await skips.count();
-  for (let index = 0; index < count; index++) {
-    // Each click re-renders the panel, so the first button is re-resolved rather than held.
-    const first = page.locator('button[aria-label^="Skip prediction"]').first();
-    if ((await first.count()) === 0) break;
-    await first.click({ timeout: 5000 });
-  }
-  return count;
-}
 
 const PREPARATIONS: ReadonlyMap<string, (page: Page) => Promise<void>> = new Map([
   [

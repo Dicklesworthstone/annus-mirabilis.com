@@ -126,6 +126,7 @@ import { chromium } from "playwright";
 import { classifyDirtySources, uncitableReason } from "../../src/testing/buildFaithfulness.ts";
 import { lastMeasurementNote, recordMeasurement } from "../../src/testing/lastMeasurement.ts";
 import { assertOutFreshness, checkOutFreshness } from "../../src/testing/outFreshness.ts";
+import { dismissPredictMode } from "./predictMode.ts";
 
 const REPO_ROOT = resolve(fileURLToPath(new URL("../../", import.meta.url)));
 const OUT_DIR = join(REPO_ROOT, "out");
@@ -208,6 +209,9 @@ const PLANT_WIDTH = 320;
 // The stylesheet fix could not reach the last two because neither used the wrapper: they needed
 // a markup change, not a rule. That is why they outlived their four siblings by a day, and it is
 // the reason to distrust "the baseline got shorter" as evidence of anything on its own.
+/** See the assertion below: a floor on the reveal, so it cannot fail silently. */
+const MIN_PROMPTS_REVEALED = 200;
+
 const BASELINE_OVERFLOWING: readonly BaselineEntry[] = Object.freeze([
   // /discover/brownian-motion/ - THE EXCURSION IS EXPLAINED, AND IT WAS NOT THE COPY.
   //
@@ -463,6 +467,7 @@ test("no built route overflows its layout viewport at a supported phone width", 
   const { server, origin } = await startStaticServer(OUT_DIR);
   const browser = await chromium.launch();
   const measured: Pair[] = [];
+  let revealed = 0;
   const loadFailures: string[] = [];
   try {
     for (const width of PHONE_WIDTHS) {
@@ -483,6 +488,18 @@ test("no built route overflows its layout viewport at a supported phone width", 
               continue;
             }
             await settleFonts(page);
+            // THE LABORATORY RESULTS ARE REVEALED BEFORE THE PAGE IS MEASURED. Predict mode hides
+            // every result region until the reader answers, so a sweep that only loads a lab page
+            // measures a page with its results display:none -- see scripts/e2e/predictMode.ts for
+            // the measurement. Here it changes no verdict TODAY and that was established before
+            // this line was written rather than hoped for: 46 lab routes at 320, 360 and 390px,
+            // 114 prompts skipped, 0 overflowing pairs before the reveal and 0 after, so the
+            // empty baseline below survives the correction. It is in anyway, because the property
+            // this file asserts is about the page a reader gets, and a future change that makes a
+            // revealed result widen the page would otherwise be invisible here.
+            const skipped = await dismissPredictMode(page);
+            revealed += skipped;
+            if (skipped > 0) await settleFonts(page);
             const box = await page.evaluate(() => ({
               scrollWidth: document.documentElement.scrollWidth,
               clientWidth: document.documentElement.clientWidth,
@@ -615,6 +632,31 @@ test("no built route overflows its layout viewport at a supported phone width", 
     `Measured ${measured.length} pairs but ${routes.length} routes x ${PHONE_WIDTHS.length} widths is ${routes.length * PHONE_WIDTHS.length}. A partial sweep cannot establish the property.`,
   );
 
+  // The reveal is asserted, not merely done: a rename of the skip control would make
+  // dismissPredictMode click nothing, and this sweep would go back to measuring lab pages with
+  // their results hidden without a word of difference in its output.
+  //
+  // THIS FILE'S OWN FIGURE: 249 prompts dismissed on build JixSZcH_gKrPYZwRLv1qg, 2026-10-27,
+  // printed beside the pair count in the census above so the number this asserts on is never an
+  // unprinted one.
+  //
+  // THE DRAFT THAT STOOD HERE IS WORTH KEEPING AS A WARNING, because it was wrong in a way that
+  // looked arithmetical rather than careless. It read "342 prompts were skipped", reached by
+  // multiplying 114 by three. 114 was real but belonged to a DIFFERENT POPULATION -- a probe over
+  // the 46 /lab/ routes -- while the per-width figure over all 764 routes is 83, which
+  // `unreachableScrollRegions` prints. So the shape of the estimate was right (one width's worth,
+  // times three widths) and the operand was wrong, and 83 x 3 = 249 is exactly what this file
+  // then measured. An estimate that happens to use the right formula on the wrong number is
+  // indistinguishable from a measurement until someone runs it.
+  //
+  // The floor is 200 against the measured 249, a floor rather than an equality, with room for a
+  // laboratory to gain or lose a prompt.
+  assert.ok(
+    revealed >= MIN_PROMPTS_REVEALED,
+    `Only ${revealed} prediction prompt(s) were skipped, against 249 measured on 2026-10-27. ` +
+      "A sweep that revealed none measures every laboratory with its results display:none.",
+  );
+
   const violations = measured.filter((m) => m.scrollWidth > m.clientWidth);
 
   // ASSERTED: the property, in the only form true today, two-sided and by identity.
@@ -635,7 +677,7 @@ test("no built route overflows its layout viewport at a supported phone width", 
   const expected = violations.filter((v) => baseline.has(v.id));
   const unexpected = violations.filter((v) => !baseline.has(v.id));
   t.diagnostic(
-    `build ${buildId}: measured ${measured.length} pairs (${routes.length} routes x ${PHONE_WIDTHS.length} widths: ${PHONE_WIDTHS.join(", ")}px); ${violations.length} overflowing = ${expected.length} expected by BASELINE_OVERFLOWING + ${unexpected.length} not. REGRESSIONS ARE THE SECOND GROUP AND ARE NAMED IN THE ASSERTION BELOW, NOT IN THESE LINES.`,
+    `build ${buildId}: revealed ${revealed} prediction prompt(s); measured ${measured.length} pairs (${routes.length} routes x ${PHONE_WIDTHS.length} widths: ${PHONE_WIDTHS.join(", ")}px); ${violations.length} overflowing = ${expected.length} expected by BASELINE_OVERFLOWING + ${unexpected.length} not. REGRESSIONS ARE THE SECOND GROUP AND ARE NAMED IN THE ASSERTION BELOW, NOT IN THESE LINES.`,
   );
   for (const v of violations) {
     const tag = baseline.has(v.id) ? "in-baseline " : "NOT-IN-BASELINE";

@@ -65,6 +65,7 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { assertOutFreshness } from "../../src/testing/outFreshness.ts";
+import { dismissPredictMode } from "./predictMode.ts";
 
 const REPO_ROOT = resolve(fileURLToPath(new URL("../../", import.meta.url)));
 const OUT_DIR = join(REPO_ROOT, "out");
@@ -152,47 +153,6 @@ async function settleFonts(page: import("playwright").Page): Promise<void> {
 const SETTLE_FLOOR_MS = 1400;
 const SETTLE_POLLS = 12;
 const SETTLE_INTERVAL_MS = 150;
-
-/**
- * REVEALS THE LABORATORY RESULTS, WITHOUT WHICH THIS SWEEP CANNOT SEE ONE OF THEM (am-14at).
- *
- * `PredictGate.tsx` spreads `gate.response` onto every element that shows a result, giving it
- * `data-predict-response="awaiting"`, and the server renders `awaiting` for every laboratory
- * because `open` is computed after mount. So a page that is merely LOADED hides every telemetry
- * table, plot and value panel behind `display: none`, and a hidden box reports
- * `scrollWidth === clientWidth === 0`. The predicate above skips it at the first line.
- *
- * Measured 2026-10-27 on /lab/lq-08/ at 320px, same build, same predicate: `.table-scroll`
- * "Values at these settings" reads `0/0 laid=false` as loaded and `254/254 laid=true` once the
- * prompt is answered. Seven of the sixteen regions in `RECORDED_NON_OVERFLOWING` are lab tables
- * and not one was in this sweep's population before this function existed. The previous census --
- * "1128 scrollable container(s) across 764 route(s); 0 not keyboard reachable" -- was a true
- * statement about a population that excluded every laboratory result.
- *
- * That is the direction that matters: a hidden region reads as ABSENT, not as clean, so nothing in
- * the output said the population had a hole in it. AGENTS.md states the general case ("a vacuous
- * run is indistinguishable from a clean one"); this is it applied to a subset.
- *
- * Skipping is the right control of the three the panel offers. "I have one in mind" also reveals;
- * choosing a candidate would record a prediction into the reader's own storage port and change
- * what the panel then says. `PredictGate.skip` reveals the result and is the documented escape
- * ("Skipping always shows the result").
- *
- * A TWIN OF THIS EXISTS in `scripts/e2e/recordedRegionsFit.e2e.test.ts`, deliberately duplicated:
- * this repository extracts a helper on the THIRD use, and there are two. If a third appears, the
- * three go into one module.
- */
-async function dismissPredictMode(page: import("playwright").Page): Promise<number> {
-  const selector = 'button[aria-label^="Skip prediction"]';
-  const total = await page.locator(selector).count();
-  for (let index = 0; index < total; index += 1) {
-    // Each click re-renders the panel, so the first button is re-resolved rather than held.
-    const next = page.locator(selector).first();
-    if ((await next.count()) === 0) break;
-    await next.click({ timeout: 5000 });
-  }
-  return total;
-}
 
 async function readAtRest(
   page: import("playwright").Page,
