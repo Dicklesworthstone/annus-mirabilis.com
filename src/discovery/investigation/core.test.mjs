@@ -6,7 +6,7 @@ import {
   exportInvestigationHtml,
   exportInvestigationJson,
   INVESTIGATION_LIMITS,
-  InvestigationRefusal,
+  InvestigationRefusalError,
   parseInvestigationReport,
   readInvestigationEvidence,
 } from "./core.ts";
@@ -437,7 +437,7 @@ const refusalCode = (work) => {
   try {
     work();
   } catch (error) {
-    return error instanceof InvestigationRefusal ? error.code : `${error.name}: not a refusal`;
+    return error instanceof InvestigationRefusalError ? error.code : `${error.name}: not a refusal`;
   }
   return "no refusal at all";
 };
@@ -459,6 +459,14 @@ test("an exported investigation parses back to the identical bytes, uncertainty 
   const admitted = parseInvestigationReport(signed);
   assert.ok(Object.is(admitted.baseline.reading.outputs[0].value, -0));
   assert.match(exportInvestigationJson(admitted), /"value": -0,/);
+});
+
+test("capture-before-prediction: nothing is captured until a prediction is pinned", () => {
+  const h = setup();
+  const result = h.store.capture("Double radius");
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "capture-before-prediction");
+  assert.equal(h.store.getSnapshot().report, null);
 });
 
 test("restore opens a kept investigation and says it came from the device, not from this session", () => {
@@ -522,9 +530,18 @@ test("restarting clears the restored flag, so the next investigation is this ses
 test("the parser refuses every shape a tampered or foreign saved investigation can take", () => {
   const { json } = exported();
   const clone = () => JSON.parse(json);
-  assert.equal(refusalCode(() => parseInvestigationReport("[]")), "report-not-a-record");
-  assert.equal(refusalCode(() => parseInvestigationReport(null)), "report-not-a-record");
-  assert.equal(refusalCode(() => parseInvestigationReport([])), "report-not-a-record");
+  assert.equal(
+    refusalCode(() => parseInvestigationReport("[]")),
+    "report-not-a-record",
+  );
+  assert.equal(
+    refusalCode(() => parseInvestigationReport(null)),
+    "report-not-a-record",
+  );
+  assert.equal(
+    refusalCode(() => parseInvestigationReport([])),
+    "report-not-a-record",
+  );
   assert.equal(
     refusalCode(() => {
       const r = clone();
@@ -563,7 +580,7 @@ test("the parser refuses every shape a tampered or foreign saved investigation c
       r.baseline.reading.origin = "measured-in-a-laboratory";
       return parseInvestigationReport(r);
     }),
-    "report-format-unknown",
+    "reading-origin-unknown",
   );
   assert.equal(
     refusalCode(() => {
@@ -571,7 +588,7 @@ test("the parser refuses every shape a tampered or foreign saved investigation c
       r.baseline.reading.outputs[0].status = "measured";
       return parseInvestigationReport(r);
     }),
-    "report-format-unknown",
+    "reading-status-unknown",
   );
   assert.equal(
     refusalCode(() => {
@@ -582,6 +599,22 @@ test("the parser refuses every shape a tampered or foreign saved investigation c
       return parseInvestigationReport(r);
     }),
     "report-observation-limit",
+  );
+  assert.equal(
+    refusalCode(() => {
+      const r = clone();
+      delete r.baseline.reading.outputs;
+      return parseInvestigationReport(r);
+    }),
+    "reading-outputs-missing",
+  );
+  assert.equal(
+    refusalCode(() => {
+      const r = clone();
+      delete r.observations;
+      return parseInvestigationReport(r);
+    }),
+    "report-observations-missing",
   );
   // The primitives the live laboratory path uses are reached, and they throw their own TypeError
   // rather than a refusal code: this asserts the parser did not quietly re-admit what they reject.

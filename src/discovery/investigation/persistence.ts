@@ -29,8 +29,8 @@ import {
   writeRaw,
 } from "../../platform/storage/store.ts";
 import {
+  InvestigationRefusalError,
   type InvestigationReport,
-  InvestigationRefusal,
   parseInvestigationReport,
 } from "./core.ts";
 
@@ -99,7 +99,7 @@ export function readStoredInvestigation(
     return { status: "ok", report: parseInvestigationReport(document.report) };
   } catch (error) {
     return setAside(
-      error instanceof InvestigationRefusal ? error.code : "investigation-report-unreadable",
+      error instanceof InvestigationRefusalError ? error.code : "investigation-report-unreadable",
     );
   }
 }

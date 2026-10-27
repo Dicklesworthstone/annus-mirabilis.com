@@ -65,11 +65,21 @@ export type InvestigationState = Readonly<{
    */
   restored: boolean;
 }>;
+/**
+ * One code per refusal SITE, not per family. A code carried by two sites credits neither of them
+ * in the refusal census unless each is cited by line (am-ksl3), so "every shape of malformed
+ * report" deliberately does not share one code.
+ */
 export type InvestigationRefusalCode =
+  | "capture-before-prediction"
   | "report-not-a-record"
   | "report-format-unknown"
   | "report-unknown-field"
   | "report-observation-limit"
+  | "report-observations-missing"
+  | "reading-origin-unknown"
+  | "reading-outputs-missing"
+  | "reading-status-unknown"
   | "restore-would-replace"
   | "restore-task-mismatch"
   | "capture-after-restore";
@@ -77,12 +87,18 @@ export type InvestigationRefusalCode =
  * A refusal a caller can name. The reader is shown `message` and never a code (AGENTS.md: "Status
  * names never leak to readers as cryptic warnings"), and the tests assert on `code`, so the
  * reader-facing wording can be rewritten without silently deleting a tested refusal.
+ *
+ * The `Error` suffix is load bearing, not decoration. `scanRefusalThrowSites` reads a positional
+ * refusal code only off `throw new <...>Error(`, so this class was first written as
+ * `InvestigationRefusal` and all eleven of its sites were counted BARE -- taking the bare-throw
+ * ratchet from its recorded 26 to 37 while the codes themselves were perfectly good. A refusal
+ * class that does not end in `Error` is invisible to the instrument that governs refusals here.
  */
-export class InvestigationRefusal extends Error {
+export class InvestigationRefusalError extends Error {
   readonly code: InvestigationRefusalCode;
   constructor(code: InvestigationRefusalCode, message: string) {
     super(message);
-    this.name = "InvestigationRefusal";
+    this.name = "InvestigationRefusalError";
     this.code = code;
   }
 }
@@ -330,7 +346,7 @@ function closed(
 ): Record<string, unknown> {
   for (const key of Object.keys(record))
     if (!fields.includes(key))
-      throw new InvestigationRefusal(
+      throw new InvestigationRefusalError(
         "report-unknown-field",
         `The saved investigation describes ${what} with a field this edition does not define. It was not loaded, and nothing was overwritten.`,
       );
@@ -339,13 +355,13 @@ function closed(
 function storedReading(value: unknown): Reading {
   const record = closed(object(value), READING_FIELDS, "a reading");
   if (record.origin !== "prepared-worked-example" && record.origin !== "accepted-laboratory-result")
-    throw new InvestigationRefusal(
-      "report-format-unknown",
+    throw new InvestigationRefusalError(
+      "reading-origin-unknown",
       "A saved reading does not say whether it came from a prepared example or an accepted calculation.",
     );
   if (!Array.isArray(record.outputs))
-    throw new InvestigationRefusal(
-      "report-format-unknown",
+    throw new InvestigationRefusalError(
+      "reading-outputs-missing",
       "A saved reading carries no list of selected readings.",
     );
   // Results are deliberately NOT closed-field: a result carries its owner's own metadata (a
@@ -355,8 +371,8 @@ function storedReading(value: unknown): Reading {
     const result = object(candidate);
     text(result.quantityId, 160);
     if (!STATUSES.has(String(result.status)))
-      throw new InvestigationRefusal(
-        "report-format-unknown",
+      throw new InvestigationRefusalError(
+        "reading-status-unknown",
         `A saved reading's status "${String(result.status)}" is not one this edition defines.`,
       );
     text(result.ownerId);
@@ -403,26 +419,26 @@ export function parseInvestigationReport(value: unknown): InvestigationReport {
   try {
     record = object(value);
   } catch {
-    throw new InvestigationRefusal(
+    throw new InvestigationRefusalError(
       "report-not-a-record",
       "The saved investigation is not a record this edition can read.",
     );
   }
   closed(record, REPORT_FIELDS, "the investigation");
   if (record.format !== "annus-discovery-investigation" || record.version !== 1)
-    throw new InvestigationRefusal(
+    throw new InvestigationRefusalError(
       "report-format-unknown",
       "The saved investigation was not written by this edition's investigation workspace.",
     );
   const task = closed(object(record.task), TASK_FIELDS, "the task");
   const observationList = Array.isArray(record.observations) ? record.observations : undefined;
   if (!observationList)
-    throw new InvestigationRefusal(
-      "report-format-unknown",
+    throw new InvestigationRefusalError(
+      "report-observations-missing",
       "The saved investigation carries no list of captured readings.",
     );
   if (observationList.length > INVESTIGATION_LIMITS.observations)
-    throw new InvestigationRefusal(
+    throw new InvestigationRefusalError(
       "report-observation-limit",
       `The saved investigation holds more than ${INVESTIGATION_LIMITS.observations} comparison readings.`,
     );
@@ -513,7 +529,7 @@ export function createInvestigationStore(spec: InvestigationSpec) {
     } catch (error) {
       return refused(
         error instanceof Error ? error.message : "The investigation could not be changed.",
-        error instanceof InvestigationRefusal ? error.code : undefined,
+        error instanceof InvestigationRefusalError ? error.code : undefined,
       );
     }
   }
@@ -599,7 +615,7 @@ export function createInvestigationStore(spec: InvestigationSpec) {
     restore(report: InvestigationReport): InvestigationChange {
       return change(() => {
         if (state.report)
-          throw new InvestigationRefusal(
+          throw new InvestigationRefusalError(
             "restore-would-replace",
             "An investigation is already open on this page. The saved one was left untouched.",
           );
@@ -608,7 +624,7 @@ export function createInvestigationStore(spec: InvestigationSpec) {
           report.paper !== spec.paper ||
           report.experimentId !== spec.experimentId
         )
-          throw new InvestigationRefusal(
+          throw new InvestigationRefusalError(
             "restore-task-mismatch",
             "The saved investigation belongs to a different task, so it was not opened here.",
           );
@@ -620,9 +636,17 @@ export function createInvestigationStore(spec: InvestigationSpec) {
     capture(label: string): InvestigationChange {
       return change(() => {
         const report = state.report;
-        if (!report) throw new TypeError("Record your prediction and starting reading first.");
+        // Coded, and not only for tidiness: this site sat two lines above a coded refusal, and
+        // scanRefusalThrowSites reads a `code:`-style property from an EIGHT-LINE window, so it
+        // was being reported under the neighbour's code `capture-after-restore`. One code with two
+        // sites credits neither (am-ksl3), so the fix is for this refusal to carry its own.
+        if (!report)
+          throw new InvestigationRefusalError(
+            "capture-before-prediction",
+            "Record your prediction and starting reading first.",
+          );
         if (state.restored)
-          throw new InvestigationRefusal(
+          throw new InvestigationRefusalError(
             "capture-after-restore",
             "This investigation was restored from an earlier visit, so its readings came from a laboratory session that has ended. Your prediction, readings and explanation are kept; start another investigation to capture new readings.",
           );
