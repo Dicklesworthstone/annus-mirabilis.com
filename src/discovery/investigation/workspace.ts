@@ -71,7 +71,7 @@ export function mountInvestigationWorkspace(
   root.setAttribute("aria-labelledby", title.id);
   const privacy = node(
     "p",
-    "This work stays in this page until you download it. Nothing is uploaded. Captures are model calculations, not observations or a correctness certificate; results elsewhere on this page are not hidden from you.",
+    "This work is kept on this device, in this browser, and nowhere else: nothing is uploaded, and you can export or clear it under your data on this device. Captures are model calculations, not observations or a correctness certificate; results elsewhere on this page are not hidden from you.",
   );
   privacy.className = "fine";
   const availability = node("p");
@@ -144,7 +144,7 @@ export function mountInvestigationWorkspace(
   const saveExplanation = button("Keep my explanation", () =>
     show(
       store.explain(explanation.value),
-      "Explanation kept in this page. Download the investigation to keep it after leaving.",
+      "Explanation saved. It is kept on this device with the rest of this investigation; download it to take it elsewhere.",
     ),
   );
   const reflection = node("div");
@@ -163,7 +163,7 @@ export function mountInvestigationWorkspace(
   confirmation.append(
     node(
       "p",
-      "Download first to keep this prediction and its captured readings. Starting another replaces only this investigation in the page; it does not reset the laboratory.",
+      "Download first to take this prediction and its captured readings elsewhere. Starting another replaces this investigation here AND the copy kept on this device; it does not reset the laboratory.",
     ),
   );
   const confirm = button("Replace this investigation", () => {
@@ -173,7 +173,8 @@ export function mountInvestigationWorkspace(
     confirmation.hidden = true;
     store.restartConfirmed();
     error.textContent = "";
-    feedback.textContent = "New investigation. The laboratory itself is unchanged.";
+    feedback.textContent =
+      "New investigation. The copy kept on this device is cleared; the laboratory itself is unchanged.";
     prediction.focus();
   });
   confirmation.append(
