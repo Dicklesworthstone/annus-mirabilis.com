@@ -41,7 +41,13 @@
  * and a gate that refuses the rule it audits is worse than no gate.
  *
  * MEASURED ON THE BUILD OF 2026-10-10: 1,107 scrollable containers across 719 routes at 320px,
- * 0 unreachable.
+ * 0 unreachable. RE-MEASURED 2026-10-27 WITH THE LABORATORY RESULTS IN THE POPULATION FOR THE
+ * FIRST TIME: 1,148 containers across 764 routes, 83 prediction prompts skipped, still 0
+ * unreachable. The population grew by only 41 against the 2026-10-10 figure and by 20 against the
+ * same build measured without the reveal, which is worth saying because it is smaller than it
+ * sounds and the reason is the predicate: a revealed table that FITS is laid out but not
+ * scrollable, so it is correctly outside this population. What the reveal added is the twenty
+ * laboratory regions that really do overflow, and every one of them already had a tab stop.
  * The family is clean, which is the moment to put the guard on it rather than after the next
  * repair trades an overflow for a trap.
  *
@@ -72,6 +78,13 @@ const CONCURRENCY = 6;
  * Is For Reporting, Not For Asserting").
  */
 const MIN_SCROLLABLE_CONTAINERS = 800;
+/**
+ * The floor on prediction prompts skipped, so the reveal cannot fail silently. 83 were skipped on
+ * the build of 2026-10-27, across the laboratory routes; the floor sits well below that, with room
+ * for a laboratory to gain or lose a prompt, for the same reason the two floors above do: the
+ * number that matters is "the reveal still happened", not an equality that breaks on correct work.
+ */
+const MIN_PROMPTS_REVEALED = 60;
 const MIN_ROUTES = 500;
 
 const CONTENT_TYPES: Readonly<Record<string, string>> = {
@@ -139,6 +152,47 @@ async function settleFonts(page: import("playwright").Page): Promise<void> {
 const SETTLE_FLOOR_MS = 1400;
 const SETTLE_POLLS = 12;
 const SETTLE_INTERVAL_MS = 150;
+
+/**
+ * REVEALS THE LABORATORY RESULTS, WITHOUT WHICH THIS SWEEP CANNOT SEE ONE OF THEM (am-14at).
+ *
+ * `PredictGate.tsx` spreads `gate.response` onto every element that shows a result, giving it
+ * `data-predict-response="awaiting"`, and the server renders `awaiting` for every laboratory
+ * because `open` is computed after mount. So a page that is merely LOADED hides every telemetry
+ * table, plot and value panel behind `display: none`, and a hidden box reports
+ * `scrollWidth === clientWidth === 0`. The predicate above skips it at the first line.
+ *
+ * Measured 2026-10-27 on /lab/lq-08/ at 320px, same build, same predicate: `.table-scroll`
+ * "Values at these settings" reads `0/0 laid=false` as loaded and `254/254 laid=true` once the
+ * prompt is answered. Seven of the sixteen regions in `RECORDED_NON_OVERFLOWING` are lab tables
+ * and not one was in this sweep's population before this function existed. The previous census --
+ * "1128 scrollable container(s) across 764 route(s); 0 not keyboard reachable" -- was a true
+ * statement about a population that excluded every laboratory result.
+ *
+ * That is the direction that matters: a hidden region reads as ABSENT, not as clean, so nothing in
+ * the output said the population had a hole in it. AGENTS.md states the general case ("a vacuous
+ * run is indistinguishable from a clean one"); this is it applied to a subset.
+ *
+ * Skipping is the right control of the three the panel offers. "I have one in mind" also reveals;
+ * choosing a candidate would record a prediction into the reader's own storage port and change
+ * what the panel then says. `PredictGate.skip` reveals the result and is the documented escape
+ * ("Skipping always shows the result").
+ *
+ * A TWIN OF THIS EXISTS in `scripts/e2e/recordedRegionsFit.e2e.test.ts`, deliberately duplicated:
+ * this repository extracts a helper on the THIRD use, and there are two. If a third appears, the
+ * three go into one module.
+ */
+async function dismissPredictMode(page: import("playwright").Page): Promise<number> {
+  const selector = 'button[aria-label^="Skip prediction"]';
+  const total = await page.locator(selector).count();
+  for (let index = 0; index < total; index += 1) {
+    // Each click re-renders the panel, so the first button is re-resolved rather than held.
+    const next = page.locator(selector).first();
+    if ((await next.count()) === 0) break;
+    await next.click({ timeout: 5000 });
+  }
+  return total;
+}
 
 async function readAtRest(
   page: import("playwright").Page,
@@ -257,6 +311,7 @@ test("every region that scrolls at 320px is reachable by keyboard", async (t) =>
   const { server, origin } = await startStaticServer(OUT_DIR);
   const browser = await chromium.launch();
   let examined = 0;
+  let revealed = 0;
   const unreachable: string[] = [];
   const loadFailures: string[] = [];
   try {
@@ -319,6 +374,12 @@ test("every region that scrolls at 320px is reachable by keyboard", async (t) =>
             continue;
           }
           await settleFonts(page);
+          // NOT `revealed += await dismissPredictMode(page)`. In `a += expr`, `a` is read BEFORE
+          // expr is evaluated, so an await on the right loses updates across the six concurrent
+          // workers: two would read the same old total and the second write would discard the
+          // first. The same reason `examined` is accumulated from an already-resolved value below.
+          const skipped = await dismissPredictMode(page);
+          revealed += skipped;
           const found = await readAtRest(page, route);
           examined += found.examined;
           for (const el of found.unreachable) unreachable.push(`${route} ${el}`);
@@ -334,12 +395,23 @@ test("every region that scrolls at 320px is reachable by keyboard", async (t) =>
 
   t.diagnostic(
     `[unreachable scroll regions] examined ${examined} scrollable container(s) across ` +
-      `${routes.length} route(s) at ${WIDTH}px; ${unreachable.length} not keyboard reachable`,
+      `${routes.length} route(s) at ${WIDTH}px; ${unreachable.length} not keyboard reachable; ` +
+      `${revealed} prediction prompt(s) skipped to reveal the laboratory results`,
   );
 
   // A load failure is not a skip: a page that never rendered reports no scroll regions, and so
   // does a page that is fine.
   assert.deepEqual(loadFailures, [], "Every route must load before its regions can be judged.");
+  // The reveal is ASSERTED, not merely printed. If the panel's control is ever renamed, this
+  // function silently clicks nothing, the laboratory results drop out of the population again, and
+  // the census reads lower without saying why -- which is the exact regression this change repairs,
+  // reappearing as a quiet one. A report cannot catch that; a floor can.
+  assert.ok(
+    revealed >= MIN_PROMPTS_REVEALED,
+    `Only ${revealed} prediction prompt(s) were skipped, against ${MIN_PROMPTS_REVEALED} measured ` +
+      "on 2026-10-27. A sweep that revealed none cannot see any laboratory result, and would report " +
+      "a smaller population as though the site had got simpler.",
+  );
   assert.ok(
     examined >= MIN_SCROLLABLE_CONTAINERS,
     `Only ${examined} scrollable containers found, against ${MIN_SCROLLABLE_CONTAINERS} measured ` +
