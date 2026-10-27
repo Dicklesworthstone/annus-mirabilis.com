@@ -4032,14 +4032,22 @@ const OWNERS: OwnerRecord[] = [
    * `naiveExpectationWithoutDrift` is exposed so a single record can state that the drift moved the naive
    * estimate and left the variance and covariance alone.
    *
-   * FOUR OF BM-08'S NINE PRESETS ARE NOT REACHABLE FROM HERE, and the reason is structural rather than
-   * missing work. bm-08-cve, bm-08-pairs-exact-coverage, bm-08-pairs-estimated-coverage and
-   * bm-08-overlap-refusal are about the ESTIMATORS and the coverage machinery, which come from
-   * `measureBm08` in src/workers/operations/bm08.ts - an `async` function - while `OwnerFn` is
-   * `(ctx: OwnerContext) => OwnerResult`, synchronous, and `runLoadedScenarios` is synchronous too.
-   * Nothing is stochastic about them: `recordCameraPath` is seeded and reproducible. They need either a
+   * FOUR OF BM-08'S NINE PRESETS WERE NOT REACHABLE FROM HERE, AND NOW ARE. Re-measured 2026-10-27:
+   * `[acceptance] 0 dangling of 184 refs`, so bm-08-cve, bm-08-pairs-exact-coverage,
+   * bm-08-pairs-estimated-coverage and bm-08-overlap-refusal all resolve, and
+   * `src/testing/acceptanceCasesBaseline.json` records why in its own note: "the camera loop grew a
+   * synchronous driver". The debt was paid under am-jzk1 (f2c5bf67, dbbaae26) and the baseline is a
+   * floor of zero.
+   *
+   * THE PARAGRAPH THIS REPLACES SAID THEY WERE STRUCTURALLY UNREACHABLE, and kept saying it after the
+   * repair: that `measureBm08` is `async` while `OwnerFn` is synchronous, that they "need either a
    * synchronous measurement path or an async owner contract, which is a change to a shared gate and
-   * belongs to its owner. The four refs stay in acceptanceCasesBaseline.json naming that.
+   * belongs to its owner", and that "the four refs stay in acceptanceCasesBaseline.json naming that".
+   * The refs had already left that file. It is recorded here rather than deleted because the stale
+   * version was the more persuasive of the two readings -- it named a real asymmetry in the contract
+   * and attributed the blockage to someone else's gate, which is exactly the shape of a reason that
+   * outlives its measurement (am-jzk1's own subject was whether that `async` was load bearing; it was
+   * not, and the only `await` in the camera path was a `setTimeout(0)` yield).
    *
    * A NOTE ON WHICH SETTINGS THESE ARE. bm-08's nine declared presets are reachable from NO page: the
    * laboratory's four buttons set sigma 0.4e-6, exposure = dt and stageDrift 0.5e-6, which match none of
