@@ -632,6 +632,22 @@ function findFiles(dir: string, ext: string): string[] {
  * without a file, nothing is exempt - which is the safe default, and what the older call sites
  * that pass only a source string get.
  */
+/**
+ * The literal accessible name on ONE element's own attribute text, or undefined.
+ *
+ * Literal only, and it fails closed: `aria-label={label}` yields undefined, so an element whose
+ * name is computed cannot be exempted by a record. That is the right direction -- a name this
+ * cannot read is a name a reviewer cannot check against the record either.
+ *
+ * `attrs` arrives from `elementsWithClasses` with JSX comments already blanked, so a name written
+ * inside `{/* aria-label="x" *\/}` is not read. That matters for the same reason the CSS reader
+ * blanks comments: the densest prose about an attribute sits next to the attribute.
+ */
+export function accessibleNameInAttrs(attrs: string): string | undefined {
+  const match = /\baria-label\s*=\s*"([^"]*)"/.exec(attrs);
+  return match === null ? undefined : (match[1] as string);
+}
+
 export function countUnreachableScrollRegions(
   source: string,
   file?: string,
@@ -643,8 +659,28 @@ export function countUnreachableScrollRegions(
       if (classes.includes(cls)) {
         const hasTabIndex = /tabIndex|tabindex/i.test(attrs);
         if (!hasTabIndex) {
-          // The documented escape, now actually read.
-          if (file !== undefined && recorded.has(recordKey(file, cls))) continue;
+          // The documented escape, now actually read -- in BOTH of its forms.
+          //
+          // THE NAMED FORM WAS UNREADABLE HERE UNTIL am-14at, which made the discriminator
+          // decorative in the one consumer that decides anything. `recordKey` has taken an
+          // accessible name since am-afam, precisely so that a file holding two elements of one
+          // class can record the fitting one without excusing the overflowing one, and
+          // RodSimultaneityLab.tsx is the file it was introduced for. But this lookup asked only
+          // `recordKey(file, cls)`, so the named record matched nothing and the element it covers
+          // still counted as unreachable. The visible consequence was that dropping that
+          // element's phantom tab stop -- the thing its record exists to license -- turned this
+          // ratchet red, and the cheap way out would have been to raise BASELINE to 1: a budget,
+          // which the section of AGENTS.md on baselines forbids.
+          //
+          // The name is read from the ELEMENT'S OWN attributes, which is stricter than the
+          // staleness check it complements: a name belonging to a different element of the same
+          // class in the same file cannot exempt this one (am-afam's rule, enforced here by
+          // construction rather than by a second pass).
+          if (file !== undefined) {
+            if (recorded.has(recordKey(file, cls))) continue;
+            const name = accessibleNameInAttrs(attrs);
+            if (name !== undefined && recorded.has(recordKey(file, cls, name))) continue;
+          }
           count++;
         }
       }
@@ -858,6 +894,54 @@ describe("scrollable regions accessibility ratchet (am-bc6s)", () => {
     // "table-scroll" is recorded for TrajectoryInspection and for IonizationLab. A class-level
     // exemption would have excused every other use of it in the repository at once.
     assert.equal(countUnreachableScrollRegions(unreachable, "src/components/lab/WalkLab.tsx"), 1);
+  });
+
+  test("am-14at: a NAMED record exempts the element it names, and only that element", () => {
+    // The named escape, which this counter could not read until am-14at. RodSimultaneityLab.tsx
+    // holds two `table-scroll` elements: the values table fits and is recorded by name, the
+    // spacetime table overflows and keeps its tabIndex. Both halves are asserted, because a
+    // lookup that exempted the whole class would pass the first and fail nothing.
+    const ROD = "src/components/lab/RodSimultaneityLab.tsx";
+    const named =
+      '<section className="table-scroll" aria-label="Values at these settings">v</section>';
+    assert.equal(countUnreachableScrollRegions(named, ROD), 0, "the named record is honoured");
+
+    // A sibling of the same class in the same file, with a different name and no tabIndex, is
+    // NOT excused by that record. This is am-afam's rule enforced at the counter.
+    const sibling =
+      '<section className="table-scroll" aria-label="Spacetime event coordinates and invariant interval table">s</section>';
+    assert.equal(countUnreachableScrollRegions(sibling, ROD), 1, "a sibling name is not exempt");
+
+    // Both together: one exempt, one counted. The file's real markup keeps a tabIndex on the
+    // second, which is why its committed count is 0 rather than 1.
+    assert.equal(countUnreachableScrollRegions(named + sibling, ROD), 1);
+
+    // A computed name cannot be checked, so it cannot exempt.
+    assert.equal(
+      countUnreachableScrollRegions(
+        '<section className="table-scroll" aria-label={name}>v</section>',
+        ROD,
+      ),
+      1,
+    );
+
+    // And the name alone is not enough: the same markup in a file with no record still counts.
+    assert.equal(countUnreachableScrollRegions(named, "src/components/lab/WalkLab.tsx"), 1);
+  });
+
+  test("am-14at: accessibleNameInAttrs reads the attribute, not the prose beside it", () => {
+    assert.equal(
+      accessibleNameInAttrs(' className="x" aria-label="Values at these settings"'),
+      "Values at these settings",
+    );
+    assert.equal(accessibleNameInAttrs(' className="x"'), undefined);
+    assert.equal(accessibleNameInAttrs(" aria-label={label}"), undefined);
+    // elementsWithClasses blanks JSX comments before this sees them; with them blanked, a name
+    // mentioned in a comment yields nothing, which is the behaviour the counter relies on.
+    assert.equal(
+      accessibleNameInAttrs(blankTagComments(' {/* aria-label="not real" */} className="x"')),
+      undefined,
+    );
   });
 
   test("am-uj6w: a STALE record fails - measurements that themselves show overflow", () => {

@@ -246,7 +246,7 @@ describe("formatter exclusions for pinned kernel sources (am-inst-show-the-code-
       "src/components/lab/RodSimultaneityLab.tsx": {
         group: "a11y",
         rule: "noNoninteractiveTabindex",
-        why: "The spacetime coordinates table at :688 measures 325/216 at 320px - 109 pixels hidden - driven by its Simultaneity column, 105 of the 325, holding the unbreakable words Simultaneous and Ordered (-). SAID OUT LOUD SO THIS IS NEVER READ AS COVERING THE FILE: the telemetry table at :749 in the same file FITS, at 216/216, and keeps its tabIndex only because dropping it would need a RECORDED_NON_OVERFLOWING entry keyed by file and class, which would also cover :688, which does not fit.",
+        why: "The spacetime coordinates table measures 366/217 at 320px - 149 pixels hidden - driven by its Simultaneity column, holding the unbreakable words Simultaneous and Ordered (-); rodSimultaneityLab.css records the measured decision to let it scroll rather than wrap, because the unscoped wrap shattered 67 of 79 numeric cells elsewhere. SAID OUT LOUD SO THIS IS NEVER READ AS COVERING THE FILE: the telemetry table lower in the same file FITS, at 254/254 and 704/704, and its tabIndex is now GONE (am-14at) - the two are separated by a RECORDED_NON_OVERFLOWING entry keyed by accessible name, which this clause used to say was impossible. The override survives on the spacetime table alone. Re-measured 2026-10-27 at both widths and in both script states by scripts/e2e/recordedRegionsFit.e2e.test.ts; the figures this replaced were 325/216 and 216/216.",
       },
       "src/equations/missingStep/MissingStepPanel.tsx": {
         group: "a11y",
