@@ -1,13 +1,67 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useDiscoveryInvestigation } from "./context.tsx";
+import { type ReactNode, useEffect, useRef, useState } from "react";
+import {
+  type InvestigationKeepStatus,
+  useDiscoveryInvestigation,
+  useInvestigationKeepStatus,
+} from "./context.tsx";
 import type { InvestigationTask } from "./core.ts";
 import "./investigation.css";
+
+/**
+ * What became of the reader's copy on this device, said plainly. The one thing none of these may
+ * do is imply the work is kept when it is not: three of the six say it is not, and each says what
+ * to do instead.
+ */
+function keepNotice(status: InvestigationKeepStatus): ReactNode {
+  switch (status) {
+    case "restored":
+      return (
+        <>
+          Opened the investigation you kept on this device. Your explanation can still change; new
+          readings belong to a new investigation, because this one's readings came from a laboratory
+          session that has ended.
+        </>
+      );
+    case "kept":
+      return (
+        <>
+          Kept on this device, in this browser. Nothing was uploaded. You can export or clear it
+          under <a href="/your-data/">your data on this device</a>.
+        </>
+      );
+    case "unavailable":
+      return (
+        <>
+          This browser is not keeping the investigation, so it will not be here after you leave.
+          Storage is blocked or unavailable. The work stays on this page; download it to keep it.
+        </>
+      );
+    case "quota":
+      return (
+        <>
+          This investigation is too large to keep on this device. It stays complete on this page;
+          download it to keep it.
+        </>
+      );
+    case "unreadable":
+      return (
+        <>
+          An investigation saved on this device could not be read, so it was set aside under{" "}
+          <a href="/your-data/">your data on this device</a> rather than discarded. Nothing here was
+          overwritten.
+        </>
+      );
+    default:
+      return null;
+  }
+}
 
 /** Load the optional workspace only when requested; the authored task stays readable without it. */
 export function InvestigationWorkspace({ task }: { task: InvestigationTask }) {
   const store = useDiscoveryInvestigation();
+  const keep = useInvestigationKeepStatus();
   const host = useRef<HTMLDivElement>(null);
   const [requested, setRequested] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -48,6 +102,9 @@ export function InvestigationWorkspace({ task }: { task: InvestigationTask }) {
           The task above works on paper. Automatic capture of accepted readings needs JavaScript.
         </p>
       </noscript>
+      <p className="fine" role="status" aria-live="polite" data-investigation-keep={keep}>
+        {keepNotice(keep)}
+      </p>
       <div ref={host} />
       {failed && (
         <p role="alert">

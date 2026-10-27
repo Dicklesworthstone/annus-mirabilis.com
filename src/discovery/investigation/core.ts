@@ -59,8 +59,36 @@ export type InvestigationState = Readonly<{
   current: Reading | null;
   availability: string;
   report: InvestigationReport | null;
+  /**
+   * True when this report was read back from the reader's own device rather than pinned in this
+   * session. It changes what `capture` may do, so it is state rather than presentation.
+   */
+  restored: boolean;
 }>;
-export type InvestigationChange = Readonly<{ ok: true } | { ok: false; message: string }>;
+export type InvestigationRefusalCode =
+  | "report-not-a-record"
+  | "report-format-unknown"
+  | "report-unknown-field"
+  | "report-observation-limit"
+  | "restore-would-replace"
+  | "restore-task-mismatch"
+  | "capture-after-restore";
+/**
+ * A refusal a caller can name. The reader is shown `message` and never a code (AGENTS.md: "Status
+ * names never leak to readers as cryptic warnings"), and the tests assert on `code`, so the
+ * reader-facing wording can be rewritten without silently deleting a tested refusal.
+ */
+export class InvestigationRefusal extends Error {
+  readonly code: InvestigationRefusalCode;
+  constructor(code: InvestigationRefusalCode, message: string) {
+    super(message);
+    this.name = "InvestigationRefusal";
+    this.code = code;
+  }
+}
+export type InvestigationChange = Readonly<
+  { ok: true } | { ok: false; message: string; code?: InvestigationRefusalCode }
+>;
 /** The existing session is the owner. Its view is read afresh at every explicit capture. */
 export type InvestigationSource = Readonly<{
   getSnapshot(): unknown;
@@ -68,7 +96,8 @@ export type InvestigationSource = Readonly<{
   subscribe(listener: () => void): () => void;
 }>;
 const ok = Object.freeze({ ok: true as const });
-const refused = (message: string): InvestigationChange => ({ ok: false, message });
+const refused = (message: string, code?: InvestigationRefusalCode): InvestigationChange =>
+  code === undefined ? { ok: false, message } : { ok: false, message, code };
 const REVISION_KEYS = ["input", "observer", "measurement", "estimator"] as const;
 const STATUSES = new Set([
   "value",
@@ -261,6 +290,161 @@ export function readInvestigationEvidence(
     };
   }
 }
+const REPORT_FIELDS = [
+  "format",
+  "version",
+  "paper",
+  "experimentId",
+  "promptId",
+  "sourceHref",
+  "task",
+  "prediction",
+  "baseline",
+  "observations",
+  "explanation",
+] as const;
+const TASK_FIELDS = ["promptId", "task", "perturbPrompt", "explainPrompt"] as const;
+const OBSERVATION_FIELDS = ["label", "reading"] as const;
+const READING_FIELDS = [
+  "experimentId",
+  "instanceId",
+  "runId",
+  "actionIndex",
+  "snapshotVersion",
+  "stepIndex",
+  "simulationTime",
+  "revisions",
+  "parameters",
+  "sourceDigest",
+  "origin",
+  "outputs",
+] as const;
+/** A closed field list: a saved report carrying a name this edition does not define is refused. */
+function closed(
+  record: Record<string, unknown>,
+  fields: readonly string[],
+  what: string,
+): Record<string, unknown> {
+  for (const key of Object.keys(record))
+    if (!fields.includes(key))
+      throw new InvestigationRefusal(
+        "report-unknown-field",
+        `The saved investigation describes ${what} with a field this edition does not define. It was not loaded, and nothing was overwritten.`,
+      );
+  return record;
+}
+function storedReading(value: unknown): Reading {
+  const record = closed(object(value), READING_FIELDS, "a reading");
+  if (record.origin !== "prepared-worked-example" && record.origin !== "accepted-laboratory-result")
+    throw new InvestigationRefusal(
+      "report-format-unknown",
+      "A saved reading does not say whether it came from a prepared example or an accepted calculation.",
+    );
+  if (!Array.isArray(record.outputs))
+    throw new InvestigationRefusal(
+      "report-format-unknown",
+      "A saved reading carries no list of selected readings.",
+    );
+  // Results are deliberately NOT closed-field: a result carries its owner's own metadata (a
+  // reason, an expression, an uncertainty), and the live path admits whatever the owner published.
+  // `copyJson` bounds depth, node count and string length, which is what makes that safe.
+  const outputs = record.outputs.map((candidate) => {
+    const result = object(candidate);
+    text(result.quantityId, 160);
+    if (!STATUSES.has(String(result.status)))
+      throw new InvestigationRefusal(
+        "report-format-unknown",
+        `A saved reading's status "${String(result.status)}" is not one this edition defines.`,
+      );
+    text(result.ownerId);
+    text(result.unit);
+    text(result.semanticKind);
+    if (result.status === "value") finite(result.value);
+    return copyJson(result) as Readonly<Record<string, Json>>;
+  });
+  return Object.freeze({
+    experimentId: text(record.experimentId, 160),
+    instanceId: text(record.instanceId),
+    runId: text(record.runId),
+    actionIndex: integer(record.actionIndex),
+    snapshotVersion: integer(record.snapshotVersion),
+    stepIndex: integer(record.stepIndex),
+    simulationTime: finite(record.simulationTime),
+    revisions: revisions(record.revisions),
+    parameters: parameters(record.parameters),
+    sourceDigest: text(record.sourceDigest, 256),
+    origin: record.origin,
+    outputs: Object.freeze(outputs),
+  });
+}
+function storedObservation(value: unknown): Observation {
+  const record = closed(object(value), OBSERVATION_FIELDS, "a captured reading");
+  return Object.freeze({
+    label: text(record.label, INVESTIGATION_LIMITS.label),
+    reading: storedReading(record.reading),
+  });
+}
+/**
+ * Admits a report written by this edition and kept on the reader's device, or handed back by one.
+ *
+ * A reader note is untrusted input (AGENTS.md Security: "imported text, bibliographic data, URL
+ * state, and reader notes are untrusted input. Use a closed content schema"), so this is a closed
+ * schema over the same primitives the live laboratory path uses rather than a `JSON.parse` into the
+ * store. `exportInvestigationJson` wrote these bytes and nothing read one back until this existed.
+ *
+ * It does NOT decide whether the report belongs to a given task; `restore` does, because only the
+ * store knows its spec.
+ */
+export function parseInvestigationReport(value: unknown): InvestigationReport {
+  let record: Record<string, unknown>;
+  try {
+    record = object(value);
+  } catch {
+    throw new InvestigationRefusal(
+      "report-not-a-record",
+      "The saved investigation is not a record this edition can read.",
+    );
+  }
+  closed(record, REPORT_FIELDS, "the investigation");
+  if (record.format !== "annus-discovery-investigation" || record.version !== 1)
+    throw new InvestigationRefusal(
+      "report-format-unknown",
+      "The saved investigation was not written by this edition's investigation workspace.",
+    );
+  const task = closed(object(record.task), TASK_FIELDS, "the task");
+  const observationList = Array.isArray(record.observations) ? record.observations : undefined;
+  if (!observationList)
+    throw new InvestigationRefusal(
+      "report-format-unknown",
+      "The saved investigation carries no list of captured readings.",
+    );
+  if (observationList.length > INVESTIGATION_LIMITS.observations)
+    throw new InvestigationRefusal(
+      "report-observation-limit",
+      `The saved investigation holds more than ${INVESTIGATION_LIMITS.observations} comparison readings.`,
+    );
+  const report: InvestigationReport = Object.freeze({
+    format: "annus-discovery-investigation",
+    version: 1,
+    paper: text(record.paper, 160),
+    experimentId: text(record.experimentId, 160),
+    promptId: text(record.promptId, 160),
+    sourceHref: text(record.sourceHref, 2048),
+    task: Object.freeze({
+      promptId: text(task.promptId, 160),
+      task: text(task.task, 12000),
+      perturbPrompt: text(task.perturbPrompt, 12000),
+      explainPrompt: text(task.explainPrompt, 12000),
+    }),
+    prediction: text(record.prediction, INVESTIGATION_LIMITS.prediction),
+    baseline: storedObservation(record.baseline),
+    observations: Object.freeze(observationList.map(storedObservation)),
+    explanation: text(record.explanation, INVESTIGATION_LIMITS.explanation, true),
+  });
+  byteBound(report);
+  return report;
+}
+
 /** Exactly which accepted settings changed, including measurement and presentation choices. */
 export function changedInvestigationParameters(a: Reading, b: Reading): readonly string[] {
   return [...new Set([...Object.keys(a.parameters), ...Object.keys(b.parameters)])]
@@ -291,6 +475,7 @@ export function createInvestigationStore(spec: InvestigationSpec) {
     current: null,
     availability: "The task's laboratory has not connected yet.",
     report: null,
+    restored: false,
   });
   function publish(next: InvestigationState) {
     state = Object.freeze(next);
@@ -325,6 +510,7 @@ export function createInvestigationStore(spec: InvestigationSpec) {
     } catch (error) {
       return refused(
         error instanceof Error ? error.message : "The investigation could not be changed.",
+        error instanceof InvestigationRefusal ? error.code : undefined,
       );
     }
   }
@@ -398,10 +584,45 @@ export function createInvestigationStore(spec: InvestigationSpec) {
         replaceReport(report);
       });
     },
+    /**
+     * Puts back an investigation this reader kept on their own device. The caller owns storage;
+     * this path knows only the parsed report (`parseInvestigationReport` admitted it).
+     *
+     * A restored report cannot take new captures, and that is forced rather than chosen: after a
+     * reload the laboratory is a NEW instance, and `capture` refuses to mix instances in one
+     * comparison. `explain` has no instance guard, so what a returning reader can do is read their
+     * pinned prediction and every captured reading, and finish or revise their explanation.
+     */
+    restore(report: InvestigationReport): InvestigationChange {
+      return change(() => {
+        if (state.report)
+          throw new InvestigationRefusal(
+            "restore-would-replace",
+            "An investigation is already open on this page. The saved one was left untouched.",
+          );
+        if (
+          report.promptId !== spec.promptId ||
+          report.paper !== spec.paper ||
+          report.experimentId !== spec.experimentId
+        )
+          throw new InvestigationRefusal(
+            "restore-task-mismatch",
+            "The saved investigation belongs to a different task, so it was not opened here.",
+          );
+        byteBound(report);
+        baselineSource = null;
+        publish({ ...state, report: Object.freeze(report), restored: true });
+      });
+    },
     capture(label: string): InvestigationChange {
       return change(() => {
         const report = state.report;
         if (!report) throw new TypeError("Record your prediction and starting reading first.");
+        if (state.restored)
+          throw new InvestigationRefusal(
+            "capture-after-restore",
+            "This investigation was restored from an earlier visit, so its readings came from a laboratory session that has ended. Your prediction, readings and explanation are kept; start another investigation to capture new readings.",
+          );
         if (report.observations.length >= INVESTIGATION_LIMITS.observations)
           throw new TypeError(
             "All six comparison slots are used. Export this investigation before starting another.",
@@ -451,7 +672,7 @@ export function createInvestigationStore(spec: InvestigationSpec) {
     /** Caller supplies an explicit in-page confirmation; no calculation or storage is cleared. */
     restartConfirmed() {
       baselineSource = null;
-      publish({ ...state, report: null });
+      publish({ ...state, report: null, restored: false });
     },
   });
 }

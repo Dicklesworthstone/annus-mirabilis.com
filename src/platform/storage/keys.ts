@@ -190,6 +190,22 @@ export const CAPSTONE_WORKSHEET_KEYS = Object.freeze({
   "special-relativity": "am:capstone-worksheet:v1:special-relativity",
   "mass-energy": "am:capstone-worksheet:v1:mass-energy",
 });
+/**
+ * One discovery investigation per paper: the reader's pinned prediction, the laboratory readings
+ * they captured beside it, and their explanation.
+ *
+ * NOT `am:journeys:v1`, for two reasons that are both arithmetic rather than taste. That key is
+ * registered at 64,000 bytes and `INVESTIGATION_LIMITS.bytes` bounds ONE investigation at 262,144,
+ * so it cannot hold one; and it is owned by `am-disc-journey-framework-umbg` for fork and stage
+ * choices, and a key has one owner here. `specs.ts` publishes exactly one investigation per paper,
+ * so the shape that fits is the one the two families above already use.
+ */
+export const INVESTIGATION_KEYS = Object.freeze({
+  "light-quanta": "am:investigations:v1:light-quanta",
+  "brownian-motion": "am:investigations:v1:brownian-motion",
+  "special-relativity": "am:investigations:v1:special-relativity",
+  "mass-energy": "am:investigations:v1:mass-energy",
+});
 /** Each paper by the name the rest of the site uses, for the label /your-data/ shows. */
 const DISCOVERY_PAPER_NAMES: Readonly<Record<keyof typeof DISCOVERY_NOTE_KEYS, string>> = {
   "light-quanta": "Light quanta",
@@ -320,6 +336,16 @@ export const SEED_ENTRIES: readonly KeyRegistration[] = [
         `Capstone worksheet: ${DISCOVERY_PAPER_NAMES[paper]}`,
         { maxBytes: 300_000 },
       ),
+  ),
+
+  ...(Object.keys(INVESTIGATION_KEYS) as (keyof typeof INVESTIGATION_KEYS)[]).map((paper) =>
+    document_(
+      INVESTIGATION_KEYS[paper],
+      "am-rc1001-bridge-plan-pcjk.27",
+      1,
+      `Discovery investigation: ${DISCOVERY_PAPER_NAMES[paper]}`,
+      { maxBytes: 300_000 },
+    ),
   ),
 
   // Documents.
