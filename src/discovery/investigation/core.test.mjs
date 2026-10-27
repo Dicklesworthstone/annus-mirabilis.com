@@ -6,6 +6,8 @@ import {
   exportInvestigationHtml,
   exportInvestigationJson,
   INVESTIGATION_LIMITS,
+  InvestigationRefusal,
+  parseInvestigationReport,
   readInvestigationEvidence,
 } from "./core.ts";
 import { INVESTIGATIONS } from "./specs.ts";
@@ -414,4 +416,191 @@ test("all four published tasks have nonempty, distinct scalar capture contracts"
     assert.match(s.sourceHref, /^\/papers\//);
     assert.match(s.laboratoryAnchor, /^investigation-/);
   }
+});
+
+// ──────────────────────────────────────────────────────────────────────────────────────────────
+// Reading a report back (am-rc1001-bridge-plan-pcjk.27). `exportInvestigationJson` has written
+// these bytes since this file existed and nothing parsed one back, so until now the format was
+// write-only and no refusal here had ever been exercised.
+// ──────────────────────────────────────────────────────────────────────────────────────────────
+
+/** A real report, produced by the store rather than typed out, with one captured comparison. */
+function exported() {
+  const h = setup();
+  start(h);
+  h.session.set(next(h.session.getSnapshot()));
+  assert.equal(h.store.capture("Double radius").ok, true);
+  assert.equal(h.store.explain("The spread fell by root two, not by half.").ok, true);
+  return { report: kept(h), json: exportInvestigationJson(kept(h)) };
+}
+const refusalCode = (work) => {
+  try {
+    work();
+  } catch (error) {
+    return error instanceof InvestigationRefusal ? error.code : `${error.name}: not a refusal`;
+  }
+  return "no refusal at all";
+};
+
+test("an exported investigation parses back to the identical bytes, uncertainty and signed zero included", () => {
+  const { json } = exported();
+  const parsed = parseInvestigationReport(JSON.parse(json));
+  assert.equal(exportInvestigationJson(parsed), json);
+  assert.equal(parsed.observations.length, 1);
+  assert.equal(parsed.observations[0].reading.outputs[0].value, 5.65685424949238e-7);
+  assert.equal(parsed.observations[0].reading.outputs[0].uncertainty.lower, 7e-7);
+  assert.equal(parsed.observations[0].reading.outputs[1].uncertainty.upper, 7e-6);
+  assert.equal(parsed.observations[0].reading.parameters.seed, "18446744073709551615");
+  assert.ok(Object.isFrozen(parsed.baseline.reading.outputs[0]));
+  // A signed negative zero survives both directions. JSON.parse keeps it and `exactJson` writes
+  // "-0" for it, so a parser using plain assignment would be the only place it could be lost.
+  const signed = JSON.parse(json);
+  signed.baseline.reading.outputs[0].value = -0;
+  const admitted = parseInvestigationReport(signed);
+  assert.ok(Object.is(admitted.baseline.reading.outputs[0].value, -0));
+  assert.match(exportInvestigationJson(admitted), /"value": -0,/);
+});
+
+test("restore opens a kept investigation and says it came from the device, not from this session", () => {
+  const { report } = exported();
+  const store = createInvestigationStore(spec);
+  assert.equal(store.getSnapshot().restored, false);
+  assert.equal(store.restore(report).ok, true);
+  assert.equal(store.getSnapshot().restored, true);
+  assert.equal(store.getSnapshot().report.prediction, "It will be smaller, but not half.");
+  assert.equal(store.getSnapshot().report.observations.length, 1);
+});
+
+test("restore-would-replace: an investigation open in the page is never overwritten by a kept one", () => {
+  const { report } = exported();
+  const h = setup();
+  start(h);
+  const result = h.store.restore(report);
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "restore-would-replace");
+  assert.equal(kept(h).explanation, "");
+});
+
+test("restore-task-mismatch: a report belonging to another paper's task is refused", () => {
+  const { report } = exported();
+  const store = createInvestigationStore(INVESTIGATIONS["mass-energy"]);
+  const result = store.restore(report);
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "restore-task-mismatch");
+  assert.equal(store.getSnapshot().report, null);
+});
+
+test("capture-after-restore refuses in plain words, because the readings' laboratory session ended", () => {
+  const { report } = exported();
+  const session = source();
+  const store = createInvestigationStore(spec);
+  const detach = store.connect(session, "fixture-source-v1");
+  assert.equal(store.restore(report).ok, true);
+  const result = store.capture("Another radius");
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "capture-after-restore");
+  assert.match(result.message, /restored from an earlier visit/);
+  assert.doesNotMatch(result.message, /placement changed/);
+  // The whole point of keeping it: the explanation is still the reader's to finish.
+  assert.equal(store.explain("On reflection, the root-two step is the one I missed.").ok, true);
+  assert.equal(store.getSnapshot().report.observations.length, 1);
+  detach();
+});
+
+test("restarting clears the restored flag, so the next investigation is this session's own", () => {
+  const { report } = exported();
+  const h = setup();
+  assert.equal(h.store.restore(report).ok, true);
+  h.store.restartConfirmed();
+  assert.equal(h.store.getSnapshot().restored, false);
+  assert.equal(h.store.getSnapshot().report, null);
+  start(h);
+  assert.equal(h.store.getSnapshot().restored, false);
+  assert.equal(h.store.capture("Double radius").ok, false); // no new accepted publication yet
+});
+
+test("the parser refuses every shape a tampered or foreign saved investigation can take", () => {
+  const { json } = exported();
+  const clone = () => JSON.parse(json);
+  assert.equal(refusalCode(() => parseInvestigationReport("[]")), "report-not-a-record");
+  assert.equal(refusalCode(() => parseInvestigationReport(null)), "report-not-a-record");
+  assert.equal(refusalCode(() => parseInvestigationReport([])), "report-not-a-record");
+  assert.equal(
+    refusalCode(() => {
+      const r = clone();
+      r.score = 10;
+      return parseInvestigationReport(r);
+    }),
+    "report-unknown-field",
+  );
+  assert.equal(
+    refusalCode(() => {
+      const r = clone();
+      r.baseline.reading.cheated = true;
+      return parseInvestigationReport(r);
+    }),
+    "report-unknown-field",
+  );
+  assert.equal(
+    refusalCode(() => {
+      const r = clone();
+      r.format = "some-other-tool";
+      return parseInvestigationReport(r);
+    }),
+    "report-format-unknown",
+  );
+  assert.equal(
+    refusalCode(() => {
+      const r = clone();
+      r.version = 2;
+      return parseInvestigationReport(r);
+    }),
+    "report-format-unknown",
+  );
+  assert.equal(
+    refusalCode(() => {
+      const r = clone();
+      r.baseline.reading.origin = "measured-in-a-laboratory";
+      return parseInvestigationReport(r);
+    }),
+    "report-format-unknown",
+  );
+  assert.equal(
+    refusalCode(() => {
+      const r = clone();
+      r.baseline.reading.outputs[0].status = "measured";
+      return parseInvestigationReport(r);
+    }),
+    "report-format-unknown",
+  );
+  assert.equal(
+    refusalCode(() => {
+      const r = clone();
+      r.observations = Array.from({ length: INVESTIGATION_LIMITS.observations + 1 }, () =>
+        structuredClone(r.observations[0]),
+      );
+      return parseInvestigationReport(r);
+    }),
+    "report-observation-limit",
+  );
+  // The primitives the live laboratory path uses are reached, and they throw their own TypeError
+  // rather than a refusal code: this asserts the parser did not quietly re-admit what they reject.
+  assert.equal(
+    refusalCode(() => {
+      const r = clone();
+      r.prediction = "a control character\u0007";
+      return parseInvestigationReport(r);
+    }),
+    "TypeError: not a refusal",
+  );
+  assert.equal(
+    refusalCode(() => {
+      const r = clone();
+      r.baseline.reading.simulationTime = "soon";
+      return parseInvestigationReport(r);
+    }),
+    "TypeError: not a refusal",
+  );
+  // And the positive control: with nothing tampered, the same path admits it.
+  assert.equal(parseInvestigationReport(clone()).prediction, "It will be smaller, but not half.");
 });

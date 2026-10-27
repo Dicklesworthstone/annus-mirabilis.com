@@ -290,12 +290,15 @@ export function readInvestigationEvidence(
     };
   }
 }
+// In the order `begin` inserts them. `exactJson` writes keys in insertion order, so a parser that
+// rebuilds a report in a different order produces different BYTES from the same investigation, and
+// the round-trip assertion in core.test.mjs is what caught that rather than a review.
 const REPORT_FIELDS = [
   "format",
   "version",
   "paper",
-  "experimentId",
   "promptId",
+  "experimentId",
   "sourceHref",
   "task",
   "prediction",
@@ -427,8 +430,8 @@ export function parseInvestigationReport(value: unknown): InvestigationReport {
     format: "annus-discovery-investigation",
     version: 1,
     paper: text(record.paper, 160),
-    experimentId: text(record.experimentId, 160),
     promptId: text(record.promptId, 160),
+    experimentId: text(record.experimentId, 160),
     sourceHref: text(record.sourceHref, 2048),
     task: Object.freeze({
       promptId: text(task.promptId, 160),
