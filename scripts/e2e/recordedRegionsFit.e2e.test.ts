@@ -178,33 +178,16 @@ const UNDECIDABLE_IN_A_BROWSER: ReadonlyMap<string, string> = new Map([
  *
  * A debt, not a budget: repairing one means striking its lines out, and the comparison is
  * two-sided, so it cannot be left behind.
+ *
+ * EMPTY AS OF 2026-10-27, and the three it held were paid the same day rather than waived. Each of
+ * sr-12, lq-05 and lq-07 now AUTHORS the `tabIndex={0}` that `initFormulaOverflow` was supplying at
+ * runtime, so their records are gone (a region that overflows may not hold a
+ * RECORDED_NON_OVERFLOWING entry; the ratchet refuses one whose own numbers show an overflow) and
+ * the keyboard route no longer depends on a script having run. Whether those three tables should
+ * instead be made to FIT at 320px is open on am-14at and is the better outcome; a tab stop is the
+ * floor, not the repair.
  */
-const RECORDS_FALSIFIED: ReadonlyMap<string, string> = new Map([
-  [
-    "src/components/lab/sr12/ChargeCurrentLab.tsx::table-scroll@320px@script",
-    '354px/252px against a recorded 252px/252px. Named "Charge and current density telemetry across frames" by the runtime script.',
-  ],
-  [
-    "src/components/lab/sr12/ChargeCurrentLab.tsx::table-scroll@320px@no-script",
-    "354px/252px against a recorded 252px/252px, and here with no tab stop at all.",
-  ],
-  [
-    "src/components/lab/lq05/IndependentConfigurationsLab.tsx::table-scroll@320px@script",
-    '342px/254px against a recorded 190px/190px. Named "Calculated microstate and entropy outputs table" by the runtime script.',
-  ],
-  [
-    "src/components/lab/lq05/IndependentConfigurationsLab.tsx::table-scroll@320px@no-script",
-    "342px/254px against a recorded 190px/190px, and here with no tab stop at all.",
-  ],
-  [
-    "src/components/lab/lq07/FluorescenceLab.tsx::table-scroll@320px@script",
-    '302px/254px against a recorded 190px/190px. Named "Calculated energy ledger and transition quantities table" by the runtime script.',
-  ],
-  [
-    "src/components/lab/lq07/FluorescenceLab.tsx::table-scroll@320px@no-script",
-    "302px/254px against a recorded 190px/190px, and here with no tab stop at all.",
-  ],
-]);
+const RECORDS_FALSIFIED: ReadonlyMap<string, string> = new Map([]);
 
 const NO_SCRIPT_OVERFLOWING: ReadonlyMap<string, string> = new Map([
   [

@@ -81,15 +81,6 @@ export const RECORDED_NON_OVERFLOWING: ReadonlyMap<string, NonOverflowingRecord>
         measuredBy: "am-6iz4",
       },
       {
-        file: "src/components/lab/sr12/ChargeCurrentLab.tsx",
-        className: "table-scroll",
-        url: "/lab/sr-12/",
-        measurements: "320px: 252px/252px (diff 0); 1280px: 1148px/1148px (diff 0)",
-        reason:
-          "Was 400px/252px, then 274px/252px once the identifier columns could wrap, then fitting once its forty-eight cells read --table-cell-x instead of an inline 0.5rem shorthand. The 1280px figure is unchanged, which is the evidence the desktop rendering did not move. This file carries exactly one element of this class.",
-        measuredBy: "am-6iz4",
-      },
-      {
         file: "src/components/lab/WaveDescriptionLab.tsx",
         className: "table-scroll",
         url: "/lab/lq-01/",
@@ -99,30 +90,12 @@ export const RECORDED_NON_OVERFLOWING: ReadonlyMap<string, NonOverflowingRecord>
         measuredBy: "am-6iz4",
       },
       {
-        file: "src/components/lab/lq05/IndependentConfigurationsLab.tsx",
-        className: "table-scroll",
-        url: "/lab/lq-05/",
-        measurements: "320px: 190px/190px (diff 0); 1280px: 926px/926px (diff 0)",
-        reason:
-          "Was 254px/190px. Its twenty cells set padding inline, which no stylesheet rule can reach, so twelve pixels a side across four columns spent ninety-six of a one-hundred-and-ninety-pixel box. They now read the horizontal half from --table-cell-x, unchanged at 0.75rem on a desktop and 0.25rem below 480px, so the 1280px measurement is identical to before. This file carries exactly one element of this class.",
-        measuredBy: "am-6iz4",
-      },
-      {
         file: "src/components/lab/lq06/CoefficientMatchLab.tsx",
         className: "table-scroll",
         url: "/lab/lq-06/",
         measurements: "320px: 286px/286px (diff 0); 1280px: 529px/529px (diff 0)",
         reason:
           "Measured against the built site after d9bc02aa let the dotted identifier columns wrap below 480px. This file carries exactly one element of this class, so the record covers precisely what was measured. The table was also driven to every control extreme before the wrap landed and its width did not move, so it is not input-dependent.",
-        measuredBy: "am-6iz4",
-      },
-      {
-        file: "src/components/lab/lq07/FluorescenceLab.tsx",
-        className: "table-scroll",
-        url: "/lab/lq-07/",
-        measurements: "320px: 190px/190px (diff 0); 1280px: 926px/926px (diff 0)",
-        reason:
-          "Measured against the built site after d9bc02aa let the dotted identifier columns wrap below 480px; it was 303px/190px before. This file carries exactly one element of this class, so the record covers precisely what was measured.",
         measuredBy: "am-6iz4",
       },
       {
