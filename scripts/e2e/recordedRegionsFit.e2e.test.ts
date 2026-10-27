@@ -129,35 +129,87 @@ const UNDECIDABLE_IN_A_BROWSER: ReadonlyMap<string, string> = new Map([
 /**
  * THE SAME REGIONS, MEASURED WITHOUT SCRIPTS, where four of them do NOT fit.
  *
- * Every record in `RECORDED_NON_OVERFLOWING` was measured with scripts running, and the markup does
- * not vary: an element that fits hydrated and overflows un-hydrated carries no tab stop in EITHER
- * state, so for a no-script keyboard reader its hidden pixels have no route at all. That is a real
- * gap and it is a different one from the records being wrong, so it is tracked separately rather
- * than blamed on them.
+ * CORRECTED 2026-10-27, after the prompt-skipping above made the script state visible for the first
+ * time. This docblock said "the markup does not vary: an element that fits hydrated and overflows
+ * un-hydrated carries no tab stop in EITHER state". Both halves were wrong, and the run that
+ * disproved them is this file's own:
+ *
+ *   sr-12 `.table-scroll`  354px/252px  (script)     tabindex=0  "Charge and current density ..."
+ *   sr-12 `.table-scroll`  354px/252px  (no-script)  no tabindex
+ *
+ * IDENTICAL GEOMETRY, DIFFERENT TAB STOP. So these regions do not "fit hydrated" at all -- they
+ * overflow in both states -- and what varies is not the markup but whether a script has run.
+ * `initFormulaOverflow` in `src/components/edition/formulaOverflow.inline.ts` walks
+ * `querySelectorAll("*")`, by its own comment "every region that can scroll, not only formulas",
+ * and gives each overflowing scroll region a `tabindex="0"` and a derived name at runtime.
+ *
+ * That is one mechanism for all four entries rather than a special case for `formula`, and it has a
+ * consequence larger than this list: `unreachableScrollRegions.e2e.test.ts` reports 0 unreachable
+ * regions across 764 routes BECAUSE that script repairs them all, so its result is a statement
+ * about the scripted reader. Nothing adds a tab stop for the reader without JavaScript, and
+ * AGENTS.md's sixth product outcome is that the reading experience works without it. Measured on
+ * am-14at rather than silently carried here.
  *
  * Measured on the build of 2026-10-27 at 320px, with every prompt skipped and every disclosure
- * open. `formula`'s case is the mechanism in one line: with scripts,
- * `formulaOverflow.inline.ts` gives it `tabindex=0` and the name "Formula, scrolls sideways" at
- * runtime, so the script state is reachable and the no-script state is the same box with no stop.
+ * open.
  *
  * This list is a debt, not a budget (AGENTS.md). Repairing one means striking its line out.
  */
+/**
+ * RECORDS WHOSE OWN NUMBER NO LONGER HOLDS, each attributed to exactly one element.
+ *
+ * These are not no-script quirks and not ambiguous attributions: on each of these three routes the
+ * recorded class matches ONE element, it overflows at 320px in BOTH script states, and the record
+ * says it fits. So the licence each record grants -- drop the tab stop, this box scrolls nothing --
+ * rests on a measurement that is no longer true.
+ *
+ * WHY NOBODY NOTICED, and it is the reason this arm exists. `initFormulaOverflow` walks
+ * `querySelectorAll("*")` and gives every overflowing scroll region a `tabindex="0"` and a derived
+ * name at runtime. A recorded region that comes to overflow therefore ACQUIRES a tab stop, the
+ * scrollable-regions ratchet counts it as reachable, `unreachableScrollRegions` reports 0
+ * unreachable, and this file's own first draft exempted it for having one. Four green signals over
+ * a stale record. The runtime repair is good for the reader with scripts and it is not evidence
+ * about the record.
+ *
+ * All three were repaired under am-6iz4 by letting identifier columns wrap below 480px and
+ * replacing inline cell padding with `--table-cell-x`, and measured fitting then. Whether they
+ * regressed since or were measured in a state this file cannot reproduce is NOT established here;
+ * the figures are, and they are on am-14at.
+ *
+ * A debt, not a budget: repairing one means striking its lines out, and the comparison is
+ * two-sided, so it cannot be left behind.
+ */
+const RECORDS_FALSIFIED: ReadonlyMap<string, string> = new Map([
+  [
+    "src/components/lab/sr12/ChargeCurrentLab.tsx::table-scroll@320px@script",
+    '354px/252px against a recorded 252px/252px. Named "Charge and current density telemetry across frames" by the runtime script.',
+  ],
+  [
+    "src/components/lab/sr12/ChargeCurrentLab.tsx::table-scroll@320px@no-script",
+    "354px/252px against a recorded 252px/252px, and here with no tab stop at all.",
+  ],
+  [
+    "src/components/lab/lq05/IndependentConfigurationsLab.tsx::table-scroll@320px@script",
+    '342px/254px against a recorded 190px/190px. Named "Calculated microstate and entropy outputs table" by the runtime script.',
+  ],
+  [
+    "src/components/lab/lq05/IndependentConfigurationsLab.tsx::table-scroll@320px@no-script",
+    "342px/254px against a recorded 190px/190px, and here with no tab stop at all.",
+  ],
+  [
+    "src/components/lab/lq07/FluorescenceLab.tsx::table-scroll@320px@script",
+    '302px/254px against a recorded 190px/190px. Named "Calculated energy ledger and transition quantities table" by the runtime script.',
+  ],
+  [
+    "src/components/lab/lq07/FluorescenceLab.tsx::table-scroll@320px@no-script",
+    "302px/254px against a recorded 190px/190px, and here with no tab stop at all.",
+  ],
+]);
+
 const NO_SCRIPT_OVERFLOWING: ReadonlyMap<string, string> = new Map([
   [
-    "src/components/lab/sr12/ChargeCurrentLab.tsx::table-scroll@320px",
-    "354px/252px, 102px hidden. Recorded as 252px/252px with scripts.",
-  ],
-  [
-    "src/components/lab/lq05/IndependentConfigurationsLab.tsx::table-scroll@320px",
-    "342px/254px, 88px hidden. Recorded as 190px/190px with scripts.",
-  ],
-  [
-    "src/components/lab/lq07/FluorescenceLab.tsx::table-scroll@320px",
-    "302px/254px, 48px hidden. Recorded as 190px/190px with scripts.",
-  ],
-  [
     "src/reader/entrances/BrownianFirstEncounter.tsx::formula@320px",
-    "309px/288px, 21px hidden. The same element has tabindex=0 with scripts, added by formulaOverflow.inline.ts.",
+    '309px/288px, 21px hidden. Same element, same geometry with scripts, where initFormulaOverflow gives it tabindex=0 and the name "Formula, scrolls sideways".',
   ],
 ]);
 
@@ -236,6 +288,19 @@ export interface RecordVerdict {
   /** Laid out and overflowing WITH a tab stop: correct markup, and the other gate's subject. */
   readonly tabStopped: readonly Reading[];
   readonly laidOutCount: number;
+  /** Exactly one element matched in every reading, so the record's OWN number is checkable. */
+  readonly unambiguous: boolean;
+  /**
+   * An unambiguously attributed element that overflows, whatever its tabindex.
+   *
+   * THE TAB-STOP EXEMPTION BELONGS TO THE PAGE-LEVEL CLAIM AND NOT TO THIS ONE, and keeping it
+   * here cost this file a false green on its first real run. A record says "this element does not
+   * overflow, so it needs no tab stop". `initFormulaOverflow` walks `querySelectorAll("*")` and
+   * gives EVERY overflowing scroll region a tabindex at runtime, so a recorded region that has
+   * come to overflow acquires one automatically -- and the exemption then read that rescue as
+   * evidence the record was still true. Three records are falsified exactly that way.
+   */
+  readonly falsified: readonly Reading[];
 }
 
 /**
@@ -254,7 +319,33 @@ export function verdict(readings: readonly Reading[]): RecordVerdict {
     violations: overflowing.filter((r) => r.tabindex === null),
     tabStopped: overflowing.filter((r) => r.tabindex !== null),
     laidOutCount: laidOut.length,
+    unambiguous: isUnambiguous(readings),
+    falsified: isUnambiguous(readings) ? overflowing : [],
   };
+}
+
+/**
+ * Does every state-and-width reading of this record see exactly ONE element?
+ *
+ * This decides whether the record can be held to ITS OWN NUMBER or only to the weaker page-level
+ * claim, and the distinction is load-bearing rather than tidy. A record names a file, a class and
+ * sometimes an accessible name; the built page offers no file, so when several elements of the
+ * class are on the route there is no way to say which one the record measured. On
+ * /papers/brownian-motion/ the class `formula` matches thirty-three elements per reading, and
+ * asserting any of their widths against this record's "288px/288px" would be asserting about
+ * elements it never claimed anything about.
+ *
+ * Where exactly one matches, the attribution is certain and the record's number is checkable.
+ */
+export function isUnambiguous(readings: readonly Reading[]): boolean {
+  const perReading = new Map<string, number>();
+  for (const r of readings) {
+    if (!r.laidOut) continue;
+    const slot = `${r.state}@${r.width}`;
+    perReading.set(slot, (perReading.get(slot) ?? 0) + 1);
+  }
+  if (perReading.size === 0) return false;
+  return [...perReading.values()].every((count) => count === 1);
 }
 
 export function recordSelector(record: NonOverflowingRecord): string {
@@ -450,6 +541,8 @@ test("every region recorded as non-overflowing still fits, measured in a browser
   const scriptViolations: string[] = [];
   const noScriptViolations: string[] = [];
   const noScriptIdentities: string[] = [];
+  const falsifiedIdentities: string[] = [];
+  const falsifiedDetail: string[] = [];
   const tabStopped: string[] = [];
   const undecided: string[] = [];
   let laidOutTotal = 0;
@@ -465,6 +558,18 @@ test("every region recorded as non-overflowing still fits, measured in a browser
         ` state(s)=${states.length === 0 ? "none" : states.join("+")} recorded="${record.measurements}"`,
     );
     if (!v.decided) undecided.push(key);
+    for (const r of v.falsified) {
+      // The record's own number, held to the one element it can only be about.
+      falsifiedIdentities.push(`${key}@${r.width}px@${r.state}`);
+      falsifiedDetail.push(
+        `${key}: ${r.scrollWidth}px/${r.clientWidth}px at ${r.width}px (${r.state})` +
+          ` hides ${r.scrollWidth - r.clientWidth}px, while the record says "${record.measurements}"` +
+          `${r.tabindex === null ? " and no tab stop" : ` (tabindex=${r.tabindex}, which initFormulaOverflow adds at runtime to any overflowing region)`}.`,
+      );
+    }
+    // The weaker page-level arms apply ONLY where attribution is impossible; an unambiguous record
+    // is judged above, on its own number, and must not also be judged by the looser rule.
+    if (v.unambiguous) continue;
     for (const r of v.violations) {
       const described =
         `${key}: ${r.scrollWidth}px/${r.clientWidth}px at ${r.width}px (${r.state})` +
@@ -516,6 +621,19 @@ test("every region recorded as non-overflowing still fits, measured in a browser
     `a recorded non-overflowing region overflows WITH SCRIPTS, which is the state its own measurement names:\n${scriptViolations.join("\n")}`,
   );
 
+  // The record's own number, where exactly one element can be meant by it. This is the arm that
+  // actually checks what a record claims; the two below are the weaker page-level property, kept
+  // for the records no browser can attribute.
+  assert.deepEqual(
+    falsifiedIdentities.sort(),
+    [...RECORDS_FALSIFIED.keys()].sort(),
+    "the set of records whose own measurement no longer holds is not the recorded set. A new " +
+      "member means a recorded region has come to overflow and its licence to drop the tab stop " +
+      "has lapsed; a member that now fits must be struck off.\n" +
+      `  measured: ${falsifiedIdentities.join(", ") || "(none)"}\n` +
+      `  declared: ${[...RECORDS_FALSIFIED.keys()].join(", ")}\n${falsifiedDetail.join("\n")}`,
+  );
+
   // Without scripts it does not hold yet, so it is held to the measured set BY IDENTITY and
   // two-sided, exactly as phoneOverflow holds its own: a new member is a regression that names the
   // record and the width, and a member that now fits must be struck off, so repairing one lowers
@@ -538,7 +656,7 @@ test("every region recorded as non-overflowing still fits, measured in a browser
   );
 });
 
-test("the predicate fires, in all four directions", () => {
+test("the predicate fires, in every direction it can be wrong in", () => {
   const base = { state: "script" as ScriptState, width: 320, laidOut: true, name: null };
 
   // A region that fits is clean.
@@ -547,6 +665,8 @@ test("the predicate fires, in all four directions", () => {
     violations: [],
     tabStopped: [],
     laidOutCount: 1,
+    unambiguous: true,
+    falsified: [],
   });
 
   // The defect: overflowing, laid out, no tab stop. This is what a record licenses and must not be.
@@ -554,11 +674,37 @@ test("the predicate fires, in all four directions", () => {
   const caught = verdict([overflowing]);
   assert.equal(caught.violations.length, 1);
   assert.equal(caught.tabStopped.length, 0);
+  assert.equal(caught.falsified.length, 1);
 
-  // The same geometry WITH a tab stop is the other gate's subject, reported rather than failed.
-  const reachable = verdict([{ ...overflowing, tabindex: "0" }]);
-  assert.deepEqual(reachable.violations, []);
-  assert.equal(reachable.tabStopped.length, 1);
+  // THE ARM THIS FILE GOT WRONG FIRST TIME. One element, overflowing, WITH a tab stop. The
+  // page-level arm exempts it, because a reachable scrolling region is the other gate's subject --
+  // and the record's own arm must NOT, because `initFormulaOverflow` hands out that tab stop at
+  // runtime to anything that overflows, so treating it as evidence would read the rescue as proof
+  // the record was still true. Three real records were being passed over exactly here.
+  const rescued = verdict([{ ...overflowing, tabindex: "0" }]);
+  assert.deepEqual(rescued.violations, []);
+  assert.equal(rescued.tabStopped.length, 1);
+  assert.equal(rescued.falsified.length, 1, "a runtime tab stop does not make a record true");
+
+  // And the other side of that arm: where TWO elements answer one reading, the record cannot be
+  // attributed, so its own number is not checkable and only the page-level arm applies.
+  const ambiguous = verdict([
+    { ...overflowing, tabindex: "0" },
+    { ...base, scrollWidth: 254, clientWidth: 254, tabindex: null },
+  ]);
+  assert.equal(ambiguous.unambiguous, false);
+  assert.deepEqual(ambiguous.falsified, []);
+  assert.equal(ambiguous.tabStopped.length, 1);
+
+  // Two readings of one element each is still unambiguous: the count is per state and width, not
+  // per record, or measuring a second width would silently stop checking the number.
+  assert.equal(
+    verdict([
+      { ...overflowing, tabindex: "0" },
+      { ...overflowing, width: 1280, tabindex: "0" },
+    ]).falsified.length,
+    2,
+  );
 
   // Not laid out decides nothing, and must not read as clean: an element inside a closed predict
   // gate reports 0/0, which passes every width comparison there is.
@@ -567,6 +713,8 @@ test("the predicate fires, in all four directions", () => {
   ]);
   assert.equal(hidden.decided, false);
   assert.deepEqual(hidden.violations, []);
+  assert.deepEqual(hidden.falsified, []);
+  assert.equal(hidden.unambiguous, false, "nothing laid out cannot be unambiguously attributed");
   assert.equal(verdict([]).decided, false);
 });
 
