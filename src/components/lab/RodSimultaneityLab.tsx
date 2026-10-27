@@ -774,7 +774,11 @@ export function RodSimultaneityLab({
       {/* The accepted values, in words. */}
       <div className="lab-values" data-view-id="sr-03-data-table" {...gate.response}>
         <h3>Values at these settings</h3>
-        <section className="table-scroll" tabIndex={0} aria-label="Values at these settings">
+        {/* No tabIndex: this table fits, so a stop here scrolls nothing. 254/254 at 320px and
+            704/704 at 1280px, in both script states (scripts/e2e/recordedRegionsFit.e2e.test.ts).
+            Its RECORDED_NON_OVERFLOWING entry is keyed by this accessible name, which is what lets
+            the stop go here while the spacetime table above keeps its own: that table overflows. */}
+        <section className="table-scroll" aria-label="Values at these settings">
           <table className="data-table">
             <thead>
               <tr>
