@@ -37,6 +37,7 @@ import {
   INVESTIGATION_KEYS,
   storageKeyRegistry,
 } from "./keys.ts";
+import { RESERVED_KEY_NOTES } from "./reservedKeys.ts";
 
 const ROOT = fileURLToPath(new URL("../../../", import.meta.url));
 const WRITE = /\b(writeRaw|writeDocument|writeSetting|removeRaw|quarantine)\s*\(|\.setItem\s*\(/;
@@ -55,36 +56,16 @@ const FAMILY: ReadonlyMap<string, string> = new Map([
 ]);
 
 /**
- * Keys with no reachable writer today, each with what is actually missing. A reason naming the
- * owning bead is the point: this list is where an unmet promise is recorded, not hidden.
+ * The keys allowed to have no reachable writer, read from the one list `/your-data/` renders
+ * (`reservedKeys.ts`). It is deliberately NOT declared here: a sentence a reader is shown and an
+ * exception a gate permits are two statements of one rule, and AGENTS.md records what happens when
+ * those live in two places. Each note there carries the owning bead and what is missing.
  */
-const DECLARED_RESERVED: ReadonlyMap<string, string> = new Map([
-  [
-    "am:tours:v1",
-    "am-oj0e: the guided-tour design keeps no progress record and says so to the reader " +
-      "(ActiveTourGuide.tsx); a reading position lives in ?tour=&tourStop=&tourRevision=. Either " +
-      "the entry goes or /your-data/ says why it is reserved, and that is am-tours-infra-g518's call.",
-  ],
-  [
-    "am:journeys:v1",
-    "am-disc-journey-framework-umbg: journeyStorage.ts can write it and has no importer, because " +
-      "Fork.tsx and Branch.tsx show every branch side by side with no reader choice to keep.",
-  ],
-  [
-    "am:clarity:v1",
-    "D-2026-10-02-withdraw-clarity-signal: the owner withdrew the clarity control, so nothing will " +
-      "ever write this. /your-data/ already carries a sentence saying so.",
-  ],
-  ...Object.values(DISCOVERY_NOTE_KEYS).map(
-    (key) =>
-      [
-        key,
-        "am-read-notebook-tde: storedNotebook.ts can write it and has no importer, because " +
-          "noteManifest(journey) reads journey.stages and all four real journeys declare stages: [] " +
-          "(am-4k0m), so there is nothing to attach a note to.",
-      ] as const,
+const DECLARED_RESERVED: ReadonlyMap<string, string> = new Map(
+  RESERVED_KEY_NOTES.flatMap((note) =>
+    note.keys.map((key) => [key, note.engineeringReason] as const),
   ),
-]);
+);
 
 function blank(source: string): string {
   return source

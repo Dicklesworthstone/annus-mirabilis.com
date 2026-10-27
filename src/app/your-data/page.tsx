@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DataPanel } from "../../platform/storage/DataPanel.tsx";
 import { SEED_ENTRIES } from "../../platform/storage/keys.ts";
+import { RESERVED_KEY_NOTES } from "../../platform/storage/reservedKeys.ts";
 import "../../platform/storage/dataPanel.css";
 
 /**
@@ -13,11 +14,13 @@ import "../../platform/storage/dataPanel.css";
  */
 const SETTINGS = SEED_ENTRIES.filter((entry) => entry.kind === "setting");
 const DOCUMENTS = SEED_ENTRIES.filter((entry) => entry.kind === "document");
+/** Spelled from the list rather than typed, so the sentence cannot outlive the list. */
+const RESERVED_KEYS_COUNT = RESERVED_KEY_NOTES.reduce((n, note) => n + note.keys.length, 0);
 
 export const metadata: Metadata = {
   title: "Your data on this device",
   description:
-    "Review, export, or clear the reading preferences, notes, predictions, and tour progress stored locally on your device.",
+    "Review, export, or clear the reading preferences, notes and predictions stored locally on your device.",
 };
 
 export default function YourDataPage() {
@@ -30,8 +33,8 @@ export default function YourDataPage() {
         <h1>Your data stays on your device.</h1>
         <p className="lead">
           Annus Mirabilis has no accounts, no logins, no advertising and no tracking cookies. Your
-          reading preferences, notes, predictions and tour progress are kept in this browser&rsquo;s
-          own storage, and nowhere else.
+          reading preferences, notes and predictions are kept in this browser&rsquo;s own storage,
+          and nowhere else.
         </p>
       </header>
 
@@ -110,15 +113,36 @@ export default function YourDataPage() {
         </p>
       </section>
 
+      {/*
+        RENDERED FROM `RESERVED_KEY_NOTES`, NOT TYPED HERE, for the reason the key list above is
+        read from the registry: `promisedKeys.test.ts` permits exactly these keys to have no
+        writer, so the sentence a reader is shown and the exception a gate allows come from one
+        source and cannot drift. This section explained one of the seven until am-oj0e measured
+        the rest.
+      */}
       <section className="reading" aria-labelledby="not-built">
-        <h2 id="not-built">One of these was withdrawn</h2>
+        <h2 id="not-built">Some of these are never written</h2>
         <p>
-          <code>am:clarity:v1</code> was reserved for a one-click &ldquo;this was clear / this was
-          not&rdquo; answer under a paragraph. That feature was withdrawn on 2 October 2026 and will
-          not be built, so nothing writes to the key, nothing ever did, and there is nothing in it
-          to export. The site collects no answers of any kind. The key is named here anyway, because
-          a list that quietly left it out would be a list you could not check.
+          The list above names every key this site reserves, and {RESERVED_KEYS_COUNT} of them hold
+          nothing and will stay empty. They are named anyway, because a list that quietly left them
+          out would be a list you could not check.
         </p>
+        <ul className="storage-key-list">
+          {RESERVED_KEY_NOTES.map((note) => (
+            <li key={note.keys.join(" ")}>
+              <span>{note.readerLabel}</span>
+              <p>{note.readerReason}</p>
+              <p className="fine">
+                {note.keys.map((key, index) => (
+                  <span key={key}>
+                    {index > 0 ? ", " : ""}
+                    <code>{key}</code>
+                  </span>
+                ))}
+              </p>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section className="reading" aria-labelledby="where-next">

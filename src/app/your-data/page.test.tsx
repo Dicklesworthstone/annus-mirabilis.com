@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
+import { RESERVED_KEY_NOTES, RESERVED_KEYS } from "../../platform/storage/reservedKeys.ts";
 import { containsHeading } from "../../testing/headingText.ts";
 import { getLogger } from "../../testing/log/logger.ts";
 import YourDataPage, { metadata } from "./page.tsx";
@@ -36,6 +37,32 @@ describe("YourDataPage", () => {
       outcome: "passed",
       message:
         "YourDataPage serves complete privacy explanation and noscript notice in static HTML",
+    });
+  });
+
+  test("every reserved key is named on the page, with the reason it is never written", () => {
+    // The drift guard for am-oj0e. The page renders RESERVED_KEY_NOTES, so this cannot fail by
+    // one of them being forgotten in the prose; what it CAN catch is the section being deleted or
+    // the list being filtered, which would leave the gate permitting a key the page no longer
+    // explains. The count is read from the list rather than typed, so paying the debt down is not
+    // a test failure.
+    const html = renderToStaticMarkup(<YourDataPage />);
+    expect(containsHeading(html, "Some of these are never written")).toBe(true);
+    expect(RESERVED_KEYS.length).toBeGreaterThan(0);
+    for (const key of RESERVED_KEYS) expect(html).toContain(key);
+    for (const note of RESERVED_KEY_NOTES) {
+      expect(html).toContain(note.readerLabel);
+      // The reader is never shown the engineering reason, which names beads and module paths.
+      expect(html).not.toContain(note.engineeringReason);
+    }
+    // The site's voice forbids an em dash in anything a reader sees.
+    for (const note of RESERVED_KEY_NOTES) expect(note.readerReason).not.toContain("\u2014");
+
+    logger.log({
+      testId: "your-data-reserved-keys-explained",
+      beadId: "am-oj0e",
+      outcome: "passed",
+      message: `${RESERVED_KEYS.length} reserved key(s) named on /your-data/ with a reader-facing reason`,
     });
   });
 
