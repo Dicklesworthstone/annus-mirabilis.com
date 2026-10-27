@@ -13,6 +13,8 @@ import type { RouteSlug } from "../src/content/ids.ts";
 import { loadTeachingTapes } from "../src/content/teachingTapes.ts";
 import { requireTour, tourIds } from "../src/content/tours/tours.ts";
 import { capstoneExists, loadCapstone } from "../src/discovery/capstone/loadCapstone.ts";
+import { formatEventDateLine } from "../src/discovery/cards/CardDetail.tsx";
+import { JOURNEY_SHELVES } from "../src/discovery/cards/journeyCards.ts";
 import { ROUTE_INDEX } from "../src/discovery/routeIndex.ts";
 import { GUIDED_TOURS } from "../src/discovery/tours/catalogue.ts";
 import {
@@ -56,6 +58,7 @@ import {
   englishTranslationDocuments,
   explainedEquationDocuments,
   germanSourceDocuments,
+  knowledgeCardDocuments,
   marginNoteDocuments,
   notationAliases,
   notationDocuments,
@@ -63,6 +66,7 @@ import {
   type SearchConnectionThread,
   type SearchEnglishParagraph,
   type SearchExplainedEquation,
+  type SearchKnowledgeCard,
   type SearchMarginNote,
   type SearchProfile,
   type SearchWrongTurn,
@@ -260,6 +264,7 @@ export async function loadSearchCorpus(
   const wrongTurns: SearchWrongTurn[] = [];
   const capstones: SearchCapstone[] = [];
   const marginNotes: SearchMarginNote[] = [];
+  const knowledgeCards: SearchKnowledgeCard[] = [];
   // The five connections among the papers, which belong to no single paper and so are built
   // outside the per-paper loop.
   const connections: SearchConnectionThread[] = loadConnections().map((connection) => ({
@@ -319,6 +324,29 @@ export async function loadSearchCorpus(
         text: [capstone.question, ...capstone.claims.map((claim) => claim.text)].join(" "),
       });
     }
+    // The journey's shelf and its later evidence, from JOURNEY_SHELVES: the one list the build's
+    // publication check, verify-content's shelf audit and scripts/audit-shelf.ts already share, so
+    // this index cannot judge a different population from the three gates. `formatEventDateLine`
+    // is the card view's own function, so the date a result shows is the date its page prints.
+    for (const shelf of JOURNEY_SHELVES.filter((entry) => entry.journey === paper.id)) {
+      for (const [onShelf, cards] of [
+        [true, shelf.shelf],
+        [false, shelf.laterEvidence],
+      ] as const) {
+        for (const card of cards) {
+          knowledgeCards.push({
+            id: card.id,
+            paper: paper.id,
+            paperTitle: paper.title,
+            proposition: card.proposition,
+            status: card.status,
+            dateLine: formatEventDateLine(card.date),
+            limits: card.limits ?? "",
+            onShelf,
+          });
+        }
+      }
+    }
     // mass-energy prints no numbered sections and its whole argument is s0, so its displays are
     // cited by number alone rather than under a section that does not exist (labelOf, above).
     for (const row of equationCatalogue(paper.id)) {
@@ -339,6 +367,7 @@ export async function loadSearchCorpus(
     ...wrongTurnDocuments(wrongTurns, profile),
     ...capstoneDocuments(capstones, profile),
     ...marginNoteDocuments(marginNotes, profile),
+    ...knowledgeCardDocuments(knowledgeCards, profile),
     ...connectionDocuments(connections, profile),
     ...walkthroughDocuments(walkthroughs, profile),
     ...discoveryDocuments(ROUTE_INDEX, profile),

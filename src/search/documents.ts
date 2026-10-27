@@ -835,6 +835,104 @@ export function connectionDocuments(
     .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 }
 
+/** One card from a journey's 1904 shelf, or the later evidence beside its check. Rows injected. */
+export type SearchKnowledgeCard = Readonly<{
+  /** The card's own id, which is also its element id on the page as `card-<id>`. */
+  id: string;
+  /** The journey slug, which is the paper slug. */
+  paper: string;
+  paperTitle: string;
+  /** The card's one-line statement. This is the heading its own summary renders, verbatim. */
+  proposition: string;
+  /** `available`, `parallel-work` or `later`: what the 1904 shelf says about it. */
+  status: string;
+  /** The line the card's own view prints, from `formatEventDateLine`: "Published 1851". */
+  dateLine: string;
+  /** The card's limits sentence: what it does not establish. */
+  limits: string;
+  /** On the shelf, or later evidence that may never be a premise. */
+  onShelf: boolean;
+}>;
+
+/**
+ * A NAME AND A YEAR A READER MIGHT TYPE, TAKEN FROM THE CARD'S OWN ID.
+ *
+ * The ids are authored as `<surname(s)>-<year>-<subject>`, so the leading segments before a
+ * four-digit one are a person's name: `michelson-morley-1887-no-drift` gives "michelson morley",
+ * `de-sitter-1913-double-stars` gives "de sitter". That is mechanical rather than editorial, which
+ * matters because 12 of the 40 shelf cards do NOT name their own author anywhere in their
+ * proposition or limits, so without this a reader who knows the result by its author's name finds
+ * nothing. Measured over the 46: 45 ids yield a name and a year, and one does not -- the concept
+ * card `equipartition-mean-resonator-energy`, which gets no name term and should not.
+ *
+ * `einstein` is excluded deliberately. `terms` is the heaviest field in the index (12, against 8
+ * for the title), and this corpus is four Einstein papers: a term match would float one admitted
+ * import above the papers themselves for the commonest query the site has. That is not a guess --
+ * `connectionDocuments` above records the same effect measured on live for "relativity", and
+ * `queryQuality.test.ts` is what holds it.
+ */
+export function knowledgeCardTerms(id: string): readonly string[] {
+  const segments = id.split("-");
+  const yearAt = segments.findIndex((segment) => /^\d{4}$/.test(segment));
+  if (yearAt < 1) return [];
+  const name = segments.slice(0, yearAt).join(" ");
+  const year = segments[yearAt] as string;
+  return name === "einstein" ? [year] : [name, year];
+}
+
+/**
+ * THE 1904 SHELF AS SEARCH DOCUMENTS.
+ *
+ * `knowledge-card` was one of the declared search types with zero documents, and the reason given
+ * for it -- "records exist, no page of their own yet" -- is true of a dedicated route and not of
+ * reachability: all 46 cards render on the four `/discover/<paper>/` pages, and all 46 carry
+ * `id="card-<id>"` in the built HTML (counted per page: 12, 14, 11, 9). So the destination was
+ * settled and only the builder was missing, which is the same shape as the margin notes and the
+ * connections above.
+ *
+ * The TITLE is the proposition, in full and unshortened, because that is exactly what the card's
+ * `<summary>` renders as its heading (`KnowledgeCard.tsx`), and its own comment says the id "stays
+ * as its anchor, not as text a reader must read". The propositions are long -- median 265
+ * characters over the 40 shelf cards -- and shortening one here would make the result read
+ * differently from the thing a reader lands on. The `text` is the limits sentence, which every one
+ * of the 46 carries, because what a card does NOT establish is the half a reader most needs.
+ *
+ * Scaffold profile only, for the reason `notationDocuments` gives below: 46 of 46 carry no complete
+ * verification record (`bun scripts/check-shelf-publication.ts`), so they are searchable where the
+ * explanations are and nowhere stricter.
+ */
+export function knowledgeCardDocuments(
+  cards: readonly SearchKnowledgeCard[],
+  profile: SearchProfile,
+): readonly SearchDocument[] {
+  searchProfile(profile);
+  if (profile !== "scaffold") return [];
+  return cards
+    .map((card) =>
+      validateSearchDocument({
+        id: `knowledge-card:${card.id}`,
+        type: "knowledge-card",
+        paper: card.paper,
+        section: "",
+        lang: "en",
+        route: `/discover/${card.paper}/`,
+        // KnowledgeCardView puts `card-${card.id}` on its <details>; searchAnchorsResolve holds
+        // this spelling to the built page rather than to an agreement between two files.
+        anchor: `card-${card.id}`,
+        face: "",
+        title: card.proposition,
+        text: card.limits,
+        terms: knowledgeCardTerms(card.id),
+        scopeLabel: `${card.paperTitle} · ${
+          card.onShelf
+            ? `on the 1904 shelf, ${card.dateLine.toLowerCase()}`
+            : `later evidence, never a premise, ${card.dateLine.toLowerCase()}`
+        }`,
+      }),
+    )
+    .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+}
+
 export function notationDocuments(
   glyphs: readonly SearchNotationGlyph[],
   profile: SearchProfile,
