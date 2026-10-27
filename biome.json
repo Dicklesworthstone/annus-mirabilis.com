@@ -180,6 +180,36 @@
           }
         }
       }
+    },
+    {
+      "includes": ["src/components/lab/sr12/ChargeCurrentLab.tsx"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noNoninteractiveTabindex": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/components/lab/lq05/IndependentConfigurationsLab.tsx"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noNoninteractiveTabindex": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/components/lab/lq07/FluorescenceLab.tsx"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noNoninteractiveTabindex": "off"
+          }
+        }
+      }
     }
   ]
 }

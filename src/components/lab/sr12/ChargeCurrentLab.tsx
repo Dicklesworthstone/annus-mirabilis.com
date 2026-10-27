@@ -571,9 +571,15 @@ export function ChargeCurrentLab({
       <LabTapeLink link={withPredictions(tapeLink, gate)} />
 
       {/* Telemetry Output Table */}
+      {/* tabIndex IS THE KEYBOARD'S ONLY ROUTE INTO THIS TABLE WITHOUT A SCRIPT. It measures
+          354px/252px at 320px, so 102 pixels are off screen, and WCAG 2.1.1 wants a focusable
+          container. With scripts, initFormulaOverflow already adds this attribute at runtime; this
+          authored one changes nothing for that reader and gives the no-script reader the same
+          route. Measured by scripts/e2e/recordedRegionsFit.e2e.test.ts in both script states. */}
       <section
         {...gate.response}
         className="table-scroll"
+        tabIndex={0}
         aria-label="Charge and current density telemetry across frames"
         style={{
           overflowX: "auto",

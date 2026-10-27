@@ -525,8 +525,12 @@ export function FluorescenceLab({
       >
         <h3 style={{ marginBottom: "1rem" }}>Calculated energy ledger and transition quantities</h3>
 
+        {/* tabIndex: 302px/254px at 320px, 48 pixels off screen, so the container must be
+            focusable (WCAG 2.1.1). initFormulaOverflow adds this at runtime for a reader with
+            scripts; authored, it reaches the reader without them too. */}
         <section
           className="table-scroll lq07-ledger"
+          tabIndex={0}
           aria-label="Calculated energy ledger and transition quantities table"
         >
           <table>

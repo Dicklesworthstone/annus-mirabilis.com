@@ -453,8 +453,12 @@ export function IndependentConfigurationsLab({
           Calculated microstate and entropy outputs
         </h3>
 
+        {/* tabIndex: 342px/254px at 320px, 88 pixels off screen, so the container must be
+            focusable (WCAG 2.1.1). initFormulaOverflow adds this at runtime for a reader with
+            scripts; authored, it reaches the reader without them too. */}
         <section
           className="table-scroll"
+          tabIndex={0}
           aria-label="Calculated microstate and entropy outputs table"
         >
           <table

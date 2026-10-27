@@ -248,6 +248,28 @@ describe("formatter exclusions for pinned kernel sources (am-inst-show-the-code-
         rule: "noNoninteractiveTabindex",
         why: "The spacetime coordinates table measures 366/217 at 320px - 149 pixels hidden - driven by its Simultaneity column, holding the unbreakable words Simultaneous and Ordered (-); rodSimultaneityLab.css records the measured decision to let it scroll rather than wrap, because the unscoped wrap shattered 67 of 79 numeric cells elsewhere. SAID OUT LOUD SO THIS IS NEVER READ AS COVERING THE FILE: the telemetry table lower in the same file FITS, at 254/254 and 704/704, and its tabIndex is now GONE (am-14at) - the two are separated by a RECORDED_NON_OVERFLOWING entry keyed by accessible name, which this clause used to say was impossible. The override survives on the spacetime table alone. Re-measured 2026-10-27 at both widths and in both script states by scripts/e2e/recordedRegionsFit.e2e.test.ts; the figures this replaced were 325/216 and 216/216.",
       },
+      // The three added on 2026-10-27 under am-14at. Each table was RECORDED as fitting and does
+      // not: measured in a browser at 320px, in both script states, by
+      // scripts/e2e/recordedRegionsFit.e2e.test.ts. Their tabIndex was being supplied at runtime by
+      // initFormulaOverflow, which walks querySelectorAll("*"), so a reader with scripts already
+      // had the stop and a reader without one had no route into the hidden pixels at all. Authoring
+      // it is the floor WCAG 2.1.1 asks for; making the tables FIT is the better outcome and is
+      // open on am-14at.
+      "src/components/lab/sr12/ChargeCurrentLab.tsx": {
+        group: "a11y",
+        rule: "noNoninteractiveTabindex",
+        why: "The telemetry table measures 354/252 at 320px - 102 pixels hidden - against a record that said 252/252. The container width is unchanged between the two measurements and the content is 102px wider, so this is the one of the three whose figures are directly comparable. Fits at 1280px.",
+      },
+      "src/components/lab/lq05/IndependentConfigurationsLab.tsx": {
+        group: "a11y",
+        rule: "noNoninteractiveTabindex",
+        why: "The microstate and entropy outputs table measures 342/254 at 320px - 88 pixels hidden - against a record that said 190/190. The recorded CONTAINER was 190px against today's 254px, so the record describes a narrower ancestor than the page now has and the two scrollWidths are not comparable; what is established is that it overflows now.",
+      },
+      "src/components/lab/lq07/FluorescenceLab.tsx": {
+        group: "a11y",
+        rule: "noNoninteractiveTabindex",
+        why: "The energy ledger table measures 302/254 at 320px - 48 pixels hidden - against a record that said 190/190, with the same container caveat as lq-05. Its am-6iz4 repair was the CSS wrap rule rather than cell padding, and the rule is still in place.",
+      },
       "src/equations/missingStep/MissingStepPanel.tsx": {
         group: "a11y",
         rule: "noNoninteractiveTabindex",
