@@ -326,15 +326,21 @@ The repository holds a live application, its content records, the plans that spe
   (`src/equations/printed/catalogue.ts`), so nothing here is authored twice. **Do not conclude from
   the absence of a catalogue COMPONENT that the catalogue data is absent**, which is the mistake
   that left this unbuilt: `everyExplanationRoute()` and `fullExplanation()` already returned all 279
-  rows with an authored sentence each. The search index is 1,231 documents
-  (`bun scripts/build-search-index.ts` prints the count), of which 200 are printed displays routed
-  at their explanation page, 29 are common wrong turns titled by the reader's own false belief, and
-  4 are capstones. **Eight of the 22 declared search types had zero documents when that was
-  measured**; two were built and the rest are on am-ahgo with the reason for each, so a type with no
-  documents is a builder that was never written at least as often as it is content that is absent.
+  rows with an authored sentence each. **The search index is 1,311 documents, re-measured
+  2026-10-27** (`bun scripts/build-search-index.ts` prints the count; it was 1,231 when this clause
+  was written), of which 306 are equations, 46 are 1904 knowledge cards, 29 are common wrong turns
+  titled by the reader's own false belief, 29 are historical notes and 4 are capstones. **Eight of
+  the 21 declared search types had zero documents on 2026-10-22, and THREE do now**: `timeline`,
+  `person` and `essay`, and all three have no records at all, so nothing is unbuilt behind them.
+  The last type that had records and no builder was `knowledge-card`, built on 2026-10-27, and its
+  recorded reason is worth reading as a warning rather than as history: "records exist, no page of
+  their own yet" was true of a DEDICATED ROUTE and false of reachability, since all 46 cards render
+  on the four `/discover/<paper>/` pages with `id="card-<id>"` in the built HTML. So a type with no
+  documents is a builder that was never written at least as often as it is content that is absent,
+  and a reason naming a missing page is not a reason the records are unreachable.
   `src/testing/searchAnchorsResolve.test.ts` holds every document's route and anchor to the built
   `out/`, which none of the three link gates can do because a search document is not a link in any
-  page.
+  page; at 1,311 documents it reports `987 carry an anchor; 334 distinct route(s)` and passes.
 - **Explanations:** 48 argument passages with R0-R3 across the four papers, all with review `draft` (`content/arguments/*/arg-*.json`). Every printed paragraph is bound to one or more passages and has its own r0 overview (`content/bindings/<paper>.yaml`, D-2026-09-24-explanation-grain). Brownian §3's passage is arg-bm-diffusivity, which declares `section: "s3"`.
 - **Instruments:** all 33 core labs are live (`ls -d src/app/lab/*/` lists 41 directories, including the shelf labs). Every number is a labelled host calculation.
 - **FrankenSim, measured on live 2026-09-26 (GreenOx, mail 40852): one lab's results are computed by it.** BM-01, after "Apply trial settings", fetches `/wasm/fs-annus-diffusion/80a1f8fda6f69003/fs_annus_diffusion_bg.wasm` (92,751 bytes, sha256 equal to `public/wasm/manifest.json`, FrankenSim 01824653) in a dedicated worker and shows "Ideal model, computed with FrankenSim"; with the request blocked it shows "Ideal model, host calculation". On arrival every lab shows its static worked example and fetches no WASM (0 in 1,497 requests across 38 lab pages), by design. **The last sentence of this clause said `diffusion1d_frames` and `philox_normals` were "bound to no lab yet"; re-measured in code 2026-10-03, all THREE capabilities are bound.** Each has a host worker that loads the pinned bundle, and each worker is reached from a reader-facing lab through `src/experiments/<id>/browser.ts`: `brownian_frames` by BM-01 (`TracerLab.tsx`, also `BrownianComparisonLab`, and the Brownian discovery views), `philox_normals` by BM-05 (`WalkLab.tsx`, via `frankensimWalkNormals`), and `diffusion1d_frames` by BM-06 (`BrownianLab.tsx`, via `frankensimGridStepper`). Corroborated against the deployment rather than only the tree: the candidate check `accepted-wasm-result-per-capability` PASSED in the newest release record (20261002T203425Z-3ef5ac64), which is a check per capability against the served assets. No `.tsx` imports the loader directly, by design, so `rg -l "workers/wasm" src --glob '*.tsx'` still returns only the planted guard fixture; that grep measures the architecture rule, not whether a reader gets a FrankenSim number. The per-lab live behaviour above (the "Apply trial settings" fetch, the blocked-request fallback) was measured on 2026-09-26 for BM-01 only and has NOT been re-measured for BM-05 and BM-06; their binding is verified in code and by the capability check, not by a browser session. am-frankensim-repin-and-bind-jvhg is the owning bead.
@@ -410,7 +416,7 @@ Anyone who wants to understand: readers with no algebra, rusty or strong mathema
 6. **Content.** Declarative records (JSON or YAML, plus constrained Markdown for long prose) under `content/`, validated and joined by a build-time compiler into route-local payloads. Executable MDX, functions, runtime objects, and untrusted JavaScript never live in content files.
 7. **Tooling.** Bun for tests and scripts, Biome for lint and format, `tsc --noEmit` for types, `ubs` for bug scanning.
 8. **Hosting.** Vercel through the verified prebuilt candidate-then-promote release script; Cloudflare as registrar and authoritative DNS with DNS-only records at launch. `vercel.json` keeps `{"git": {"deploymentEnabled": false}}`.
-9. **Privacy.** No accounts, no third-party scripts, no fingerprinting, no advertising, no hosted model. Reading progress, notes, tours, and predictions stay in local storage. No analytics: the cookieless clarity signal the plan specified was withdrawn by the owner (docs/DECISIONS.md D-2026-10-02-withdraw-clarity-signal).
+9. **Privacy.** No accounts, no third-party scripts, no fingerprinting, no advertising, no hosted model. Reading progress, notes, predictions and discovery investigations stay in local storage. **A guided TOUR keeps no local record and never has**, re-measured 2026-10-27: nothing in the tree writes `am:tours:v1`, and `ActiveTourGuide.tsx` tells the reader so in those words, keeping the position in the link instead. The key stays registered with its reason in `src/platform/storage/reservedKeys.ts`, which `/your-data/` renders and `promisedKeys.test.ts` reads (am-oj0e). No analytics: the cookieless clarity signal the plan specified was withdrawn by the owner (docs/DECISIONS.md D-2026-10-02-withdraw-clarity-signal).
 10. **iPhone app.** A native SwiftUI shell in `ios/` hosting the same static edition, bundled and rendered by WKWebView from a local first-party origin, offline, built from the same commit and release as the website. See the iPhone app chapter below and the app plan.
 
 ---
@@ -1080,7 +1086,7 @@ Imported text, bibliographic data, URL state, and reader notes are untrusted inp
 
 ### Privacy
 
-No third-party scripts, fingerprinting, advertising, accounts, or cookie banner. Local reading progress, tours, notes, and predictions stay in `localStorage`, exportable and clearable, and reading continues when storage is blocked or full. The site runs **no analytics**. The plan's clarity signal (a one-click "this was clear / this was not" control under each paragraph) was withdrawn by the owner on 2026-10-02 (docs/DECISIONS.md D-2026-10-02-withdraw-clarity-signal); do not build it. Free-text answers are never sent anywhere.
+No third-party scripts, fingerprinting, advertising, accounts, or cookie banner. Local reading progress, notes, predictions and discovery investigations stay in `localStorage`, exportable and clearable, and reading continues when storage is blocked or full. A guided tour keeps nothing locally; see the Privacy item under Product Shape for the measurement and for the four other registered keys nothing writes. The site runs **no analytics**. The plan's clarity signal (a one-click "this was clear / this was not" control under each paragraph) was withdrawn by the owner on 2026-10-02 (docs/DECISIONS.md D-2026-10-02-withdraw-clarity-signal); do not build it. Free-text answers are never sent anywhere.
 
 ---
 
