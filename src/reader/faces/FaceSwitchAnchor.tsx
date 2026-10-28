@@ -320,6 +320,62 @@ function currentFace(pathname: string): string {
   return /\/view\/([a-z-]+)\/?$/.exec(pathname)?.[1] ?? "";
 }
 
+/**
+ * WHERE A STRANDED ANCHOR'S OWN SECTION IS PRINTED, when this page does not print it (am-read-
+ * anchors-navigation-a6o).
+ *
+ * THE GLOSS FACE IS PAGINATED BY SECTION AND THE READING FACES ARE NOT, which is a recorded
+ * decision rather than an oversight: `glossSections.ts` says relativity's whole-paper gloss was
+ * "11.8 MB raw and 643 KB with brotli", so `/papers/<p>/view/gloss/` prints the first section in
+ * full and NAMES EVERY SECTION AS A REAL LINK. The reading faces stay whole-paper because
+ * find-in-page must reach the whole paper there.
+ *
+ * The consequence was measured from the reader's side, on the build of 2026-10-28, by switching
+ * faces from the whole-paper German view at a deep anchor:
+ *
+ *     #s0-p1-s1   German scrollY   692  ->  gloss scrollY 535   (the gloss prints s0 in full)
+ *     #s3-p2-s1   German scrollY 11716  ->  gloss scrollY   0
+ *     #s7-p1-s1   German scrollY 43538  ->  gloss scrollY   0
+ *     #s10-p4-s1  German scrollY 63456  ->  gloss scrollY   0
+ *
+ * So a reader anywhere past the introduction who asks for the gloss is dropped at the top of a page
+ * that does not contain their sentence, while the URL still carries the anchor. Their section's
+ * gloss page does contain it: `/papers/special-relativity/s3/view/gloss/` prints 44 sentences
+ * including `s3-p2-s1`.
+ *
+ * `mapToFace` IS NOT THE ANSWER HERE, although its ancestor walk is the obvious candidate and is
+ * recorded as unwired for this reason. It would walk `s3-p2-s1` to `s3-p2` to `s3` and return
+ * undefined, because the whole-paper gloss page publishes no `s3` of any kind -- its 14 structural
+ * ids are all `s0`. The ancestor is not on this page; it is on another page, and what resolves that
+ * is the link the page already prints.
+ *
+ * Returns null rather than guessing: when the anchor names no section, when this is not a face
+ * page, when no such link is printed, and -- the one that would otherwise loop -- when the link
+ * names the page already being viewed, which is exactly the case on a section page.
+ */
+export function sectionPageForStrandedAnchor(
+  anchorId: string,
+  pathname: string,
+  hrefs: readonly string[],
+): string | null {
+  // The source-unit grammar only: `s3`, `s3-p2`, `s3-p2-s1`, `s3-fn1`. A closing block, a part
+  // heading and an equation anchor are deliberately not handled, because this is the live case and
+  // a wider match would be a guess about pages nobody has measured.
+  const section = /^(s\d+)(?:-|$)/.exec(anchorId)?.[1];
+  if (section === undefined) return null;
+  const face = currentFace(pathname);
+  if (face === "") return null;
+  const here = pathname.replace(/\/$/, "");
+  for (const href of hrefs) {
+    const path = href.split("#")[0] ?? "";
+    if (!path.endsWith(`/${section}/view/${face}/`) && !path.endsWith(`/${section}/view/${face}`))
+      continue;
+    if (path.replace(/\/$/, "") === here) return null;
+    return path;
+  }
+  return null;
+}
+
 export function FaceSwitchAnchor() {
   /** The anchor's place the last time it was at least half visible. */
   const placeRef = useRef<PlaceKeeperSnapshot | undefined>(undefined);
@@ -352,7 +408,27 @@ export function FaceSwitchAnchor() {
           }),
         ),
       );
-    if (resolved === null || resolved === requested) return;
+    if (resolved === null) {
+      /*
+       * Nothing on this page carries the anchor and nothing in its grammar resolves. Before
+       * leaving the reader at the top, ask whether this face prints their section on a page of its
+       * own and link to it. Today's behaviour without this is a silent return, so this only ever
+       * acts where the reader is already stranded.
+       *
+       * `location.replace`, not `assign`: Back must still go where the reader came from, which is
+       * the same discipline the hash rewrite below follows.
+       */
+      const sectionPage = sectionPageForStrandedAnchor(
+        requested,
+        window.location.pathname,
+        [...document.querySelectorAll<HTMLAnchorElement>("a[href]")].map(
+          (a) => a.getAttribute("href") ?? "",
+        ),
+      );
+      if (sectionPage !== null) window.location.replace(`${sectionPage}#${requested}`);
+      return;
+    }
+    if (resolved === requested) return;
     const element = document.getElementById(resolved);
     if (element === null) return;
     // Default behaviour is instant, which is what reduced motion wants; an explicit smooth scroll

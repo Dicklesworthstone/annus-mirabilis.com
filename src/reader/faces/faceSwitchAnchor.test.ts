@@ -15,6 +15,7 @@ import {
   isPlaceKeepingUnit,
   resolvedFaceAnchor,
   resultsAnchorForSource,
+  sectionPageForStrandedAnchor,
 } from "./FaceSwitchAnchor.tsx";
 
 describe("resolvedFaceAnchor maps an absent id to one this face publishes", () => {
@@ -236,5 +237,81 @@ describe("resultsAnchorForSource: a source sentence finds its section's results 
 
   test("no cards at all returns null rather than throwing", () => {
     expect(resultsAnchorForSource("s4-p3-s1", [])).toBeNull();
+  });
+});
+
+/*
+ * am-read-anchors-navigation-a6o. The gloss face is paginated by section and the reading faces are
+ * not, so a reader switching to the gloss from a deep anchor on a whole-paper face lands on a page
+ * that does not carry their sentence. Measured before this existed: #s3-p2-s1 went from German
+ * scrollY 11716 to gloss scrollY 0, with the anchor still in the URL. Their section's gloss page
+ * does carry it.
+ */
+describe("sectionPageForStrandedAnchor", () => {
+  const PAPER = "/papers/special-relativity";
+  // The eleven links the whole-paper gloss page prints, as the built page prints them.
+  const GLOSS_LINKS = Array.from({ length: 11 }, (_, i) => `${PAPER}/s${i}/view/gloss/`);
+
+  test("a stranded sentence anchor resolves to its own section's page on the same face", () => {
+    expect(sectionPageForStrandedAnchor("s3-p2-s1", `${PAPER}/view/gloss/`, GLOSS_LINKS)).toBe(
+      `${PAPER}/s3/view/gloss/`,
+    );
+    // A paragraph and a bare section anchor take the same route, and a footnote does too.
+    expect(sectionPageForStrandedAnchor("s7-p1", `${PAPER}/view/gloss/`, GLOSS_LINKS)).toBe(
+      `${PAPER}/s7/view/gloss/`,
+    );
+    expect(sectionPageForStrandedAnchor("s10", `${PAPER}/view/gloss/`, GLOSS_LINKS)).toBe(
+      `${PAPER}/s10/view/gloss/`,
+    );
+    expect(sectionPageForStrandedAnchor("s4-fn1", `${PAPER}/view/gloss/`, GLOSS_LINKS)).toBe(
+      `${PAPER}/s4/view/gloss/`,
+    );
+  });
+
+  test("s10 is not matched by s1, which a prefix comparison would do", () => {
+    // The ordering of the links puts s1 before s10, so a `startsWith` would answer s1 here.
+    expect(sectionPageForStrandedAnchor("s10-p4-s1", `${PAPER}/view/gloss/`, GLOSS_LINKS)).toBe(
+      `${PAPER}/s10/view/gloss/`,
+    );
+    expect(sectionPageForStrandedAnchor("s1-p4-s1", `${PAPER}/view/gloss/`, GLOSS_LINKS)).toBe(
+      `${PAPER}/s1/view/gloss/`,
+    );
+  });
+
+  test("THE LOOP GUARD: the link naming the page already being viewed is refused", () => {
+    // On the section page itself the anchor is normally present, so this arm is not reached; if it
+    // ever were, following the link would navigate to the current page and do it again.
+    expect(
+      sectionPageForStrandedAnchor("s3-p2-s1", `${PAPER}/s3/view/gloss/`, GLOSS_LINKS),
+    ).toBeNull();
+    // With or without the trailing slash, which the two spellings of a route both produce.
+    expect(
+      sectionPageForStrandedAnchor("s3-p2-s1", `${PAPER}/s3/view/gloss`, GLOSS_LINKS),
+    ).toBeNull();
+  });
+
+  test("it refuses rather than guessing, in every other case", () => {
+    // No link to that section on this page.
+    expect(
+      sectionPageForStrandedAnchor("s3-p2-s1", `${PAPER}/view/gloss/`, [`${PAPER}/s0/view/gloss/`]),
+    ).toBeNull();
+    // Not a face page, so there is no face to stay on.
+    expect(sectionPageForStrandedAnchor("s3-p2-s1", `${PAPER}/`, GLOSS_LINKS)).toBeNull();
+    // An anchor that names no section: a closing block, a part heading, an equation, a lab.
+    for (const id of ["closing-ack", "closing-dateline", "part-1", "eq-s3-1", "lab-bm-01"]) {
+      expect(sectionPageForStrandedAnchor(id, `${PAPER}/view/gloss/`, GLOSS_LINKS)).toBeNull();
+    }
+    // A link to the right section on the WRONG face is not followed: the reader asked for this one.
+    expect(
+      sectionPageForStrandedAnchor("s3-p2-s1", `${PAPER}/view/gloss/`, [
+        `${PAPER}/s3/view/german/`,
+      ]),
+    ).toBeNull();
+    // A fragment already on the href does not confuse the match.
+    expect(
+      sectionPageForStrandedAnchor("s3-p2-s1", `${PAPER}/view/gloss/`, [
+        `${PAPER}/s3/view/gloss/#s3-p1-s1`,
+      ]),
+    ).toBe(`${PAPER}/s3/view/gloss/`);
   });
 });
