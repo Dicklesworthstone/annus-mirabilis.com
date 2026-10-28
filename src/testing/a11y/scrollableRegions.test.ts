@@ -655,6 +655,17 @@ export const NOT_YET_AUDITED = new Map<string, number>([
   // with scripts on and off while the tab stop was not: `initFormulaOverflow` supplied one and a
   // reader without JavaScript had no route to those 19px.
   //
+  // THE AUTHORED STOP IS UNCONDITIONAL AND THE RUNTIME ONE WAS NOT, which is a real consequence
+  // and is stated rather than left for someone to find. `initFormulaOverflow` adds a stop only
+  // where the box overflows, so bm-04's table had none at 1280px; the authored attribute is there
+  // at every width, including the one where it fits exactly. A static attribute cannot be
+  // viewport-conditional, the element DOES overflow at a supported viewport, and this repository
+  // has already taken that trade in writing: construction-table-wrap's note records that
+  // functions-graphs "fits and was repaired anyway, since a declared-scrolling container scrolls
+  // on its data and type size, not on the viewport alone". A table of every spatial cell, with the
+  // reader's own type size, is that case. sr-08's wrapper is different in the way that matters: it
+  // overflows at NO sampled viewport, which is what the phantom-stop warning is about.
+  //
   // The third element is DriftDiffusionLab.tsx:271, the comparison table, which renders only after
   // a second run with a changed force. It is UNMEASURED for that reason and not because it fits.
   ["table-wrapper", 2],
