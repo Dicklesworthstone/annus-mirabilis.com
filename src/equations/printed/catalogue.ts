@@ -213,6 +213,89 @@ export function equationLocator(
 }
 
 /**
+ * The camelCase paper markers the route-equation ids carry, longest first within each paper.
+ *
+ * These are a CLOSED set per paper and the paper is always known at the call site, which is what
+ * makes stripping one safe. The margin notes could not do the equivalent -- their ids carry a
+ * single letter that is sometimes a sequence marker and sometimes the subject, so
+ * `note-bm-g-exner-measured-the-wrong-quantity` wants the g dropped and `note-bm-k-is-viscosity`
+ * wants it kept, and no rule can tell. Here there is nothing to guess: `journey-bmMeanSquare` on
+ * the Brownian paper begins with that paper's own marker, and a marker from another paper would
+ * not match at all.
+ */
+const ROUTE_ID_PAPER_MARKERS: Readonly<Record<string, readonly string[]>> = {
+  "light-quanta": ["lqi", "lq"],
+  "brownian-motion": ["bmi", "bm"],
+  "special-relativity": ["sri", "sr"],
+  "mass-energy": ["mei", "me"],
+};
+
+/** A hyphenated or camelCase slug as a sentence: "light-postulate" and "meanSquare" both work. */
+function slugAsTitle(slug: string): string {
+  const spaced = slug
+    .replace(/-+/g, " ")
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .trim();
+  return spaced.length === 0 ? "" : spaced.charAt(0).toUpperCase() + spaced.slice(1).toLowerCase();
+}
+
+/**
+ * WHAT TITLES AN EXPLAINED EQUATION THAT IS NOT A PRINTED DISPLAY: the name its own id carries.
+ *
+ * The 200 printed displays are titled by `equationLocator`, because the anchor grammar locates
+ * them. The other 44 explained equations had no title and were therefore absent from the search
+ * index entirely -- 36 on a discovery route and 8 behind a laboratory, each with an authored
+ * explanation on a page of its own that no query could reach (am-ahgo item 3).
+ *
+ * BOTH REASONS RECORDED FOR LEAVING THEM OUT TURN OUT TO BE ANSWERABLE, which is why this exists
+ * rather than a content decision:
+ *
+ *   "a title humanised from the first reads 'Bm mean square'" -- true of the id alone, and the
+ *   paper is known at the call site, so the paper's own marker comes off first and it reads
+ *   "Mean square".
+ *
+ *   "two of the eight are sr-03's and would share it" -- true of `labName`, which is the
+ *   laboratory's heading, and false of the ids: they are `lab-sr-03-contraction-ratio` and
+ *   `lab-sr-03-minkowski-interval`. The slug is the discriminator the laboratory's name lacks.
+ *
+ * Measured over all 44 before it was written: every one derives, and no two share a title within
+ * a paper. The laboratory qualifier is load-bearing rather than decorative -- without it
+ * `journey-lqQuantumSize` and `lab-lq-06-quantum-size` would both read "Quantum size".
+ *
+ * `undefined` for an id neither shape recognises, so the caller omits the document rather than
+ * titling it with something invented. That is the opposite choice from `equationLocator`, which
+ * falls back to the id itself, and deliberately: a catalogue ROW reading "eq-whatever" is visible
+ * and gets fixed, while a search RESULT titled "journey-whatever" is noise a reader cannot act on.
+ */
+export function explainedEquationTitle(
+  paper: string,
+  display: string,
+  kind: CatalogueKind,
+): string | undefined {
+  if (kind === "route") {
+    const investigate = new RegExp(`^journey-discover-${paper}-investigate-(.+)$`).exec(display);
+    if (investigate?.[1]) return slugAsTitle(investigate[1]) || undefined;
+    const bare = /^journey-(.+)$/.exec(display);
+    if (!bare?.[1]) return undefined;
+    let rest = bare[1];
+    for (const marker of ROUTE_ID_PAPER_MARKERS[paper] ?? []) {
+      if (rest.startsWith(marker) && rest.length > marker.length) {
+        rest = rest.slice(marker.length);
+        break;
+      }
+    }
+    return slugAsTitle(rest) || undefined;
+  }
+  if (kind === "instrument") {
+    const lab = /^lab-([a-z]{2}-\d{2})-(.+)$/.exec(display);
+    if (!lab?.[1] || !lab[2]) return undefined;
+    const title = slugAsTitle(lab[2]);
+    return title.length === 0 ? undefined : `${lab[1].toUpperCase()}: ${title}`;
+  }
+  return undefined;
+}
+
+/**
  * WHERE A MARGIN NOTE ATTACHES, as a reader would cite it: "§3, paragraph 2", "§1, footnote 1",
  * "The closing acknowledgment". Reads the sentence-id grammar of docs/CONTENT_IDS.md off the
  * note's own `affectedIds[0]`, with the section's short label supplied by the caller exactly as

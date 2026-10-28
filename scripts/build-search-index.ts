@@ -20,6 +20,7 @@ import { GUIDED_TOURS } from "../src/discovery/tours/catalogue.ts";
 import {
   equationCatalogue,
   equationLocator,
+  explainedEquationTitle,
   marginNoteLocator,
   sectionShortLabel,
 } from "../src/equations/printed/catalogue.ts";
@@ -247,6 +248,8 @@ export async function loadSearchCorpus(
    * rather than in documents.ts: `papers` holds the compiled records.
    */
   const explainedEquations: SearchExplainedEquation[] = [];
+  /** Route or laboratory ids whose name this build could not derive; reported in the census. */
+  const untitledEquations: string[] = [];
   /*
    * Driven by the COMPILED papers rather than by the catalogue's own list, so the two populations
    * cannot disagree at build time: a paper with no explanations contributes no rows, and a paper
@@ -349,13 +352,39 @@ export async function loadSearchCorpus(
     }
     // mass-energy prints no numbered sections and its whole argument is s0, so its displays are
     // cited by number alone rather than under a section that does not exist (labelOf, above).
+    /*
+     * THREE OF THE CATALOGUE'S FIVE KINDS ARE INDEXED, and the two that are not are declared here
+     * rather than filtered silently (am-ahgo item 3). Until this loop read more than `printed`,
+     * 44 explained equations had a page each and no document, so no query reached them.
+     *
+     *   printed      200  titled by the locator the anchor grammar supplies
+     *   route         36  titled by the name its own id carries
+     *   instrument     8  the same, qualified by the laboratory
+     *   step          35  OUT: already indexed as equation:eq-model-* at its argument anchor, so a
+     *                     second document would list one equation twice under two addresses
+     *   elsewhere      0  OUT: no such row exists today. A kind of explanation whose way back the
+     *                     catalogue has not met would appear here with no title and be skipped
+     *                     below, which is visible in the census rather than silent.
+     */
     for (const row of equationCatalogue(paper.id)) {
-      if (row.kind !== "printed") continue;
+      if (row.kind === "step" || row.kind === "elsewhere") continue;
+      const title =
+        row.kind === "printed"
+          ? equationLocator(row.display, labelOf)
+          : explainedEquationTitle(paper.id, row.display, row.kind);
+      if (title === undefined) {
+        // A route or laboratory id neither shape recognises. Counted and named, never titled with
+        // something invented: a search result reading "journey-whatever" is noise a reader cannot
+        // act on, where a skipped one is a gap the census below reports.
+        untitledEquations.push(`${paper.id}/${row.display} (${row.kind})`);
+        continue;
+      }
       explainedEquations.push({
         display: row.display,
         paper: paper.id,
         paperTitle: paper.title,
-        locator: equationLocator(row.display, labelOf),
+        title,
+        kind: row.kind,
         words: row.words,
         spoken: row.spoken,
       });
@@ -376,6 +405,24 @@ export async function loadSearchCorpus(
     ...german,
     ...english,
   ];
+  /*
+   * THE EXPLAINED-EQUATION CENSUS, printed because a count of 0 and a count of 44 read the same in
+   * a total of 1,300 (am-ahgo item 3). It also names any id whose title could not be derived: that
+   * is the one way this builder can drop a page silently, so it says so rather than subtracting it
+   * from a number nobody compares.
+   */
+  const byKind = new Map<string, number>();
+  for (const row of explainedEquations) byKind.set(row.kind, (byKind.get(row.kind) ?? 0) + 1);
+  console.log(
+    `[search] explained equations: ${explainedEquations.length} document(s) ` +
+      `(${[...byKind]
+        .sort()
+        .map(([k, n]) => `${k} ${n}`)
+        .join(", ")})` +
+      (untitledEquations.length > 0
+        ? `; ${untitledEquations.length} NOT TITLED and therefore absent: ${untitledEquations.join(", ")}`
+        : "; 0 untitled"),
+  );
   return {
     documents,
     aliases: [...aliasesForDocuments(documents), ...notationAliases(glyphs, documents)],

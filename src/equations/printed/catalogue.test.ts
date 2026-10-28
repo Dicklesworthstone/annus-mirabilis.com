@@ -18,6 +18,7 @@ import {
   cataloguePapers,
   equationCatalogue,
   equationLocator,
+  explainedEquationTitle,
   marginNoteLocator,
   sectionShortLabel,
 } from "./catalogue.ts";
@@ -232,5 +233,81 @@ describe("the equations catalogue", () => {
     expect(massEnergy).toContain("eq-s0-d1");
     expect(printedDisplayOrder("special-relativity")).not.toContain("eq-s0-d1");
     expect(printedDisplayOrder("not-a-paper")).toEqual([]);
+  });
+
+  /*
+   * am-ahgo item 3. The 44 explained equations that are not printed displays had no title and so
+   * no search document: 36 on a discovery route, 8 behind a laboratory, each with an authored
+   * explanation on a page of its own that no query could reach. These are the two directions of
+   * the derivation that gives them one.
+   */
+  test("am-ahgo: every route and laboratory equation derives a title, and no two share one", () => {
+    const seen = new Map<string, string[]>();
+    let derived = 0;
+    let rows = 0;
+    for (const paper of cataloguePapers()) {
+      for (const row of equationCatalogue(paper.paper)) {
+        if (row.kind !== "route" && row.kind !== "instrument") continue;
+        rows += 1;
+        const title = explainedEquationTitle(paper.paper, row.display, row.kind);
+        // Undefined means the document is omitted, which is the state this bead exists to end.
+        expect(title, `${row.display} derives no title`).toBeTruthy();
+        derived += 1;
+        const key = `${paper.paper}|${title}`;
+        seen.set(key, [...(seen.get(key) ?? []), row.display]);
+      }
+    }
+    // The denominator beside the verdict: 44 when this landed, asserted as a floor rather than an
+    // equality so that authoring a new route equation does not turn this red for being authored.
+    expect(rows).toBeGreaterThanOrEqual(44);
+    expect(derived).toBe(rows);
+    const collisions = [...seen].filter(([, ids]) => ids.length > 1);
+    expect(collisions.map(([key, ids]) => `${key} <- ${ids.join(", ")}`)).toEqual([]);
+  });
+
+  test("am-ahgo: the title is the id's own name, with the paper marker and the laboratory handled", () => {
+    // The `-investigate-` shape: the slug is already an English phrase.
+    expect(
+      explainedEquationTitle(
+        "special-relativity",
+        "journey-discover-special-relativity-investigate-light-postulate",
+        "route",
+      ),
+    ).toBe("Light postulate");
+
+    // The camelCase shape, which reads "Bm mean square" if the paper marker is left on. The paper
+    // is known here, and that is what makes stripping it safe rather than a guess.
+    expect(explainedEquationTitle("brownian-motion", "journey-bmMeanSquare", "route")).toBe(
+      "Mean square",
+    );
+    expect(explainedEquationTitle("light-quanta", "journey-lqiCounting", "route")).toBe("Counting");
+
+    // A marker belonging to ANOTHER paper does not match, so nothing is stripped by accident.
+    expect(explainedEquationTitle("mass-energy", "journey-bmMeanSquare", "route")).toBe(
+      "Bm mean square",
+    );
+
+    // The two sr-03 laboratory formulas, which `labName` would have made identical. The slug is
+    // the discriminator the laboratory's name lacks.
+    expect(
+      explainedEquationTitle("special-relativity", "lab-sr-03-contraction-ratio", "instrument"),
+    ).toBe("SR-03: Contraction ratio");
+    expect(
+      explainedEquationTitle("special-relativity", "lab-sr-03-minkowski-interval", "instrument"),
+    ).toBe("SR-03: Minkowski interval");
+
+    // Without the laboratory qualifier this would collide with journey-lqQuantumSize below.
+    expect(explainedEquationTitle("light-quanta", "lab-lq-06-quantum-size", "instrument")).toBe(
+      "LQ-06: Quantum size",
+    );
+    expect(explainedEquationTitle("light-quanta", "journey-lqQuantumSize", "route")).toBe(
+      "Quantum size",
+    );
+
+    // And the refusals: an unrecognised shape, and the kinds this does not title.
+    expect(explainedEquationTitle("brownian-motion", "something-else", "route")).toBeUndefined();
+    expect(explainedEquationTitle("brownian-motion", "lab-bm-05", "instrument")).toBeUndefined();
+    expect(explainedEquationTitle("brownian-motion", "eq-s4-d2", "printed")).toBeUndefined();
+    expect(explainedEquationTitle("brownian-motion", "eq-model-whatever", "step")).toBeUndefined();
   });
 });

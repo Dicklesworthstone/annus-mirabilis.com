@@ -21,7 +21,8 @@ const ROW: SearchExplainedEquation = Object.freeze({
   display: "eq-s1-d2",
   paper: "special-relativity",
   paperTitle: "Special relativity",
-  locator: "§1, display 2",
+  title: "§1, display 2",
+  kind: "printed",
   words:
     "Twice the distance between A and B, divided by the time at which the ray returns to A less the time at which it left A, equals the velocity of light in empty space, a universal constant.",
   spoken: "two A B over t prime A minus t A equals V.",
@@ -40,6 +41,55 @@ describe("explainedEquationDocuments", () => {
     );
     expect(document?.text).toBe(`${ROW.words} ${ROW.spoken}`);
     expect(document?.scopeLabel).toBe("Special relativity · printed display, with its explanation");
+  });
+
+  test("am-ahgo: a route and a laboratory equation each become a document, with their own scope line", () => {
+    /*
+     * Until am-ahgo this builder read only `printed`, so 44 explained equations had a page each
+     * and no document: 36 on a discovery route and 8 behind a laboratory. The rows below are the
+     * real shapes, with the titles explainedEquationTitle derives for them.
+     */
+    const route: SearchExplainedEquation = {
+      ...ROW,
+      display: "journey-discover-special-relativity-investigate-light-postulate",
+      title: "Light postulate",
+      kind: "route",
+    };
+    const lab: SearchExplainedEquation = {
+      ...ROW,
+      display: "lab-sr-03-minkowski-interval",
+      title: "SR-03: Minkowski interval",
+      kind: "instrument",
+    };
+    const documents = explainedEquationDocuments([route, lab], "scaffold");
+    expect(documents.length).toBe(2);
+
+    const byId = new Map(documents.map((d) => [d.id, d]));
+    const routeDoc = byId.get(
+      "equation-explained:special-relativity:journey-discover-special-relativity-investigate-light-postulate",
+    );
+    const labDoc = byId.get("equation-explained:special-relativity:lab-sr-03-minkowski-interval");
+    expect(routeDoc?.title).toBe("Light postulate");
+    expect(labDoc?.title).toBe("SR-03: Minkowski interval");
+
+    // Each reaches its own explanation page, which is what made these worth indexing.
+    expect(routeDoc?.route).toBe(
+      "/equations/special-relativity/journey-discover-special-relativity-investigate-light-postulate/",
+    );
+    expect(labDoc?.route).toBe("/equations/special-relativity/lab-sr-03-minkowski-interval/");
+
+    // THE SCOPE LINE DISTINGUISHES THEM, so a reader can tell a printed display from a step on a
+    // route they are being offered and from a number a laboratory computes. Three kinds, three
+    // phrases; flattening them would make the index say all 244 are the paper's own equations.
+    expect(routeDoc?.scopeLabel).toBe(
+      "Special relativity · an equation on a discovery route, with its explanation",
+    );
+    expect(labDoc?.scopeLabel).toBe(
+      "Special relativity · a laboratory's formula, with its explanation",
+    );
+    expect(explainedEquationDocuments([ROW], "scaffold")[0]?.scopeLabel).toBe(
+      "Special relativity · printed display, with its explanation",
+    );
   });
 
   test("the title is the locator, and the longest spoken form in the corpus is accepted", () => {

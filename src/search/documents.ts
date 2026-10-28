@@ -519,8 +519,19 @@ export type SearchExplainedEquation = Readonly<{
   display: string;
   paper: string;
   paperTitle: string;
-  /** Where the equation sits, as a reader would cite it: "§3, display 7" (equationLocator). */
-  locator: string;
+  /**
+   * What titles the document. For a printed display it is the locator a reader would cite,
+   * "§3, display 7" (equationLocator); for the other two it is the name the id carries,
+   * "Light postulate" or "SR-03: Minkowski interval" (explainedEquationTitle).
+   */
+  title: string;
+  /**
+   * Which of the catalogue's three explained-equation groups this is, so the scope line beside a
+   * hit says so. A printed display, a step on a discovery route and a laboratory's formula are
+   * three different kinds of claim on the reader's attention, and the index should not flatten
+   * them into one phrase.
+   */
+  kind: "printed" | "route" | "instrument";
   /** The equation in ordinary language: the explanation's own `inWords`. */
   words: string;
   /** The authored spoken form, a search TERM rather than the title; see below. */
@@ -549,18 +560,37 @@ export type SearchExplainedEquation = Readonly<{
  * refusing the document rather than by reading the limit: a refusal in this builder would have
  * taken one page out of the index while every count stayed plausible.
  *
- * WHAT IS LEFT OUT, with the reason, because 200 of 279 is not all of them:
- *   35 derivation steps  already indexed, as `equation:eq-model-*` at their argument anchor; a
- *                        second document for the same equation would put one thing in the list
- *                        twice under two addresses
- *   36 route equations   no authored short name. Their ids are two shapes, `journey-bmMeanSquare`
- *                        and `journey-discover-mass-energy-investigate-opposite-pulses`, and a
- *                        title humanised from the first reads "Bm mean square"
- *    8 lab formulas      `labName` gives the laboratory's own heading, but two of the eight are
- *                        sr-03's and would share it, so the title would not tell them apart
- * Both of the last two want a `title` on the record rather than a derivation here, which is
- * content work; the 200 need no such decision because the anchor grammar already locates them.
+ * ALL 279 ARE NOW HERE EXCEPT THE 35 DERIVATION STEPS, which stay out for a reason that has not
+ * changed: they are already indexed as `equation:eq-model-*` at their argument anchor, and a second
+ * document for the same equation would put one thing in the list twice under two addresses.
+ *
+ * THE 44 ROUTE AND LABORATORY EQUATIONS ARRIVED WITH am-ahgo, and both reasons recorded here for
+ * leaving them out turned out to be answerable rather than content decisions:
+ *   36 route equations   "a title humanised from the first reads 'Bm mean square'" -- true of the
+ *                        id alone. The paper is known at the call site, so its own camelCase
+ *                        marker comes off and it reads "Mean square".
+ *    8 lab formulas      "two of the eight are sr-03's and would share it" -- true of `labName`,
+ *                        false of the ids: `lab-sr-03-contraction-ratio` and
+ *                        `lab-sr-03-minkowski-interval`. The slug is the discriminator.
+ * `explainedEquationTitle` does both, with every one of the 44 measured to derive and no two
+ * sharing a title within a paper (catalogue.test.ts). An authored `title` on each record would
+ * still be better than a derived one, exactly as it would be for the margin notes; what this
+ * removes is 44 pages that no query could reach at all.
  */
+/**
+ * What the scope line calls each kind, in the catalogue's own terms (CATALOGUE_GROUPS).
+ *
+ * The first was the only one until am-ahgo, because the other 44 explained equations had no
+ * documents at all. Written out rather than derived from the heading, because the headings read as
+ * section titles ("On a discovery route", "What an instrument computes") and a scope line is a
+ * phrase in apposition to the paper's name.
+ */
+const EXPLAINED_EQUATION_SCOPE: Readonly<Record<"printed" | "route" | "instrument", string>> = {
+  printed: "printed display, with its explanation",
+  route: "an equation on a discovery route, with its explanation",
+  instrument: "a laboratory's formula, with its explanation",
+};
+
 export function explainedEquationDocuments(
   equations: readonly SearchExplainedEquation[],
   profile: SearchProfile,
@@ -580,7 +610,7 @@ export function explainedEquationDocuments(
         route: `/equations/${equation.paper}/${equation.display}/`,
         anchor: "",
         face: "",
-        title: equation.locator,
+        title: equation.title,
         /*
          * The words AND the spoken form, both searchable, because a term may not exceed 1,000
          * characters (SEARCH_LIMITS, enforced by validateSearchDocument) and the longest authored
@@ -590,7 +620,7 @@ export function explainedEquationDocuments(
          */
         text: [equation.words, equation.spoken].filter(Boolean).join(" "),
         terms: [equation.display],
-        scopeLabel: `${equation.paperTitle} · printed display, with its explanation`,
+        scopeLabel: `${equation.paperTitle} · ${EXPLAINED_EQUATION_SCOPE[equation.kind]}`,
       }),
     )
     .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
