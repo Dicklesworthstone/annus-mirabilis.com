@@ -64,8 +64,7 @@ import { contentIdVariants, isSentenceContentId } from "../weave/contentIds.ts";
  *
  * EXCLUDED, each for a measured reason rather than caution:
  *
- *   - `paragraph`: German publishes 111 and English publishes ZERO, so it is German-only and a
- *     carried paragraph id would land nowhere going the other way.
+ *   - (`paragraph` WAS EXCLUDED HERE AND NO LONGER IS; see below.)
  *   - `argument`, `lab`, `entry`, `result`: on neither source face; they live on the reading face.
  *     Not hypothetical: `scripts/test-reader-browser.mjs:316` navigates to
  *     `?view=german#arg-bm-observable` and then asserts the German link's href ENDS at
@@ -75,9 +74,39 @@ import { contentIdVariants, isSentenceContentId } from "../weave/contentIds.ts";
  * Anything that is not a content anchor at all -- quantity ids like `acceleratingPotential`,
  * React's `_R_`, `reader-root` -- is refused by `parseAnchor` itself, so the grammar answers that
  * half and this list only says which content kinds cross.
+ *
+ * PARAGRAPH IS NOW CARRIED, and the reason it was excluded was true of ONE target face and applied
+ * to all of them. The exclusion read: "German publishes 111 and English publishes ZERO, so it is
+ * German-only and a carried paragraph id would land nowhere going the other way." The first half is
+ * still exactly right. What it missed is that english is not the only destination:
+ *
+ *     face        sections  paragraphs  sentences      (built relativity pages, 2026-10-28)
+ *     german            10         111        223
+ *     english           10           0        285
+ *     parallel          10          94        285
+ *     facsimile         11          94        223
+ *
+ * Measured from the reader's side, switching from the whole-paper German face before this change:
+ *
+ *     #s3-p2  -> english    german scrollY 11709  ->  0,  hash dropped, id absent, SECTION present
+ *     #s3-p2  -> parallel   german scrollY 11709  ->  0,  hash dropped, ID PRESENT
+ *     #s7-p1  -> parallel   german scrollY 43543  ->  0,  hash dropped, ID PRESENT
+ *
+ * The parallel rows are the argument: the destination publishes the very id the reader is at, and
+ * they were still put at the top of a 69,149px document, because the kind was excluded globally for
+ * a property of a different face. And the english row no longer lands nowhere either, because
+ * `resolvedFaceAnchor` now takes the ancestor step to the section, which english does publish.
+ *
+ * This does NOT touch the href in the document, so the exact-href locator named above is unaffected:
+ * `faceHrefWithFragment` computes a destination for the click handler and the DOM `href` is never
+ * mutated. Checked rather than assumed -- `scripts/e2e/journeys/steps.ts:70` carries a
+ * `sentenceId` and the only anchor the journeys use is `#s0-p1-s1`, a sentence.
  */
 const CROSS_FACE_KINDS: ReadonlySet<AnchorKind> = new Set<AnchorKind>([
   "sentence",
+  // Carried since 2026-10-28; the note above has the per-face id counts and the reader-side
+  // measurement that the old exclusion was decided on one face and applied to all of them.
+  "paragraph",
   "equation",
   "section",
   "footnote",
@@ -143,10 +172,35 @@ export function resolvedFaceAnchor(
 ): string | null {
   if (!requestedId) return null;
   if (present(requestedId)) return requestedId;
-  if (!isSentenceContentId(requestedId)) return null;
-  for (const variant of contentIdVariants(requestedId)) {
-    if (variant !== requestedId && present(variant)) return variant;
+  if (isSentenceContentId(requestedId)) {
+    for (const variant of contentIdVariants(requestedId)) {
+      if (variant !== requestedId && present(variant)) return variant;
+    }
   }
+  /*
+   * THE ANCESTOR STEP: the reader's section, when their exact unit is not on this face.
+   *
+   * This is the arm `mapToFace`'s nearest-ancestor walk exists for, and `unwiredAnchorModules.
+   * test.ts` records why that module has no caller: it needs a `StructureIndex` carrying
+   * `parentId` and nothing builds one. For the step to a SECTION no index is needed -- every
+   * source id carries its section as a leading `s<n>` and `sectionAnchorOf` already owns reading
+   * it, which is how `resultsAnchorForSource` beside this gets a section today. The finer steps of
+   * that walk (sentence -> paragraph) still want the index, so the entry there stays.
+   *
+   * Measured per face in the built relativity pages, 2026-10-28, as published ids:
+   *
+   *     face        sections  paragraphs  sentences
+   *     german            10         111        223
+   *     english           10           0        285
+   *     parallel          10          94        285
+   *     facsimile         11          94        223
+   *
+   * So a paragraph anchor has a section to fall back to on every one of them, and before this a
+   * reader carrying one landed at the top of the document: #s3-p2 from German went to scrollY 0 on
+   * both english AND parallel, the second of which publishes the id itself.
+   */
+  const section = sectionAnchorOf(requestedId);
+  if (section !== null && section !== requestedId && present(section)) return section;
   return null;
 }
 

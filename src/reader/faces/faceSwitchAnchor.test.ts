@@ -83,9 +83,28 @@ describe("crossesFaces: only the kinds both source faces publish are carried out
     }
   });
 
-  test("a PARAGRAPH id is not carried, because English publishes none", () => {
-    // German publishes 111 and English zero, so carrying one the other way lands nowhere.
-    expect(crossesFaces("s1-p10")).toBe(false);
+  test("a PARAGRAPH id IS carried, and the reason it was not is kept here", () => {
+    /*
+     * THIS TEST ASSERTED THE OPPOSITE until 2026-10-28, on a reason that was true of one face and
+     * applied to all of them: "German publishes 111 and English zero, so carrying one the other way
+     * lands nowhere." The first clause is still exactly right. Measured per face in the built
+     * relativity pages:
+     *
+     *     german 111 paragraph ids, english 0, parallel 94, facsimile 94
+     *
+     * So english was the only destination the reason held for, and the cost fell on the others.
+     * From the reader's side, before the change: #s3-p2 carried from the whole-paper German face
+     * put the reader at scrollY 0 on BOTH english and parallel -- and parallel publishes the very
+     * id they were at. The hash was dropped entirely.
+     *
+     * The english case no longer lands nowhere either: `resolvedFaceAnchor` takes the ancestor step
+     * to the section, which english does publish (10 of them).
+     */
+    expect(crossesFaces("s1-p10")).toBe(true);
+    // And the kinds that genuinely publish on NEITHER source face are still refused, so this is a
+    // narrowing of one exclusion rather than the removal of the list's purpose.
+    expect(crossesFaces("arg-bm-observable")).toBe(false);
+    expect(crossesFaces("result-mass-energy-equivalence")).toBe(false);
   });
 
   test("an ARGUMENT id is not carried, which is the defect a peer's assertion caught", () => {
@@ -106,6 +125,50 @@ describe("crossesFaces: only the kinds both source faces publish are carried out
   });
 });
 
+describe("resolvedFaceAnchor: the ancestor step to a section", () => {
+  /*
+   * The arm `mapToFace`'s nearest-ancestor walk exists for, implemented where the live caller is.
+   * Only the step to a SECTION is here: every source id carries its section as a leading `s<n>` and
+   * `sectionAnchorOf` owns reading it, so no StructureIndex is needed for this one. The finer steps
+   * (sentence -> paragraph) still want the index that nothing builds, which is why
+   * unwiredAnchorModules.test.ts keeps its entry.
+   */
+  const only =
+    (...ids: readonly string[]) =>
+    (id: string) =>
+      ids.includes(id);
+
+  test("a paragraph absent from the face lands on its section, which english publishes", () => {
+    // The live case: english publishes 10 sections and 0 paragraphs.
+    expect(resolvedFaceAnchor("s3-p2", only("s3"))).toBe("s3");
+    expect(resolvedFaceAnchor("s7-p1", only("s7", "s3"))).toBe("s7");
+  });
+
+  test("the exact id still wins, and a sentence variant still beats the section", () => {
+    expect(resolvedFaceAnchor("s3-p2", only("s3-p2", "s3"))).toBe("s3-p2");
+    // A split half present: the variant is finer than the section and must be preferred.
+    expect(resolvedFaceAnchor("s1-p10-s1", only("s1-p10-s1a", "s1"))).toBe("s1-p10-s1a");
+  });
+
+  test("it returns null rather than inventing a landing", () => {
+    // The gloss face is the measured case: it publishes NO section ids for relativity, so there is
+    // no ancestor on the page and the stranded-section redirect is what handles it.
+    expect(resolvedFaceAnchor("s3-p2-s1", only("s0-p1-s1"))).toBeNull();
+    expect(resolvedFaceAnchor("s3-p2", only())).toBeNull();
+    // An id with no section in its grammar has no ancestor to step to.
+    expect(resolvedFaceAnchor("closing-ack", only("s1"))).toBeNull();
+    expect(resolvedFaceAnchor("arg-bm-observable", only("s1"))).toBeNull();
+    expect(resolvedFaceAnchor("", only("s1"))).toBeNull();
+  });
+
+  test("a SECTION id does not resolve to itself through the ancestor step", () => {
+    // sectionAnchorOf("s3") is "s3", so without the guard this would claim a landing on a page
+    // that does not publish it.
+    expect(resolvedFaceAnchor("s3", only())).toBeNull();
+    expect(resolvedFaceAnchor("s3", only("s3"))).toBe("s3");
+  });
+});
+
 describe("faceHrefWithFragment: the href is the input, never mutated in the document", () => {
   test("a sentence fragment is carried onto a bare face path", () => {
     expect(faceHrefWithFragment("/papers/special-relativity/view/german/", "#s1-p10-s1a")).toBe(
@@ -117,12 +180,14 @@ describe("faceHrefWithFragment: the href is the input, never mutated in the docu
     expect(faceHrefWithFragment("?view=results", "#s3-p2-s1")).toBe("?view=results#s3-p2-s1");
   });
 
-  test("an argument or paragraph fragment leaves the href EXACTLY as it was", () => {
+  test("an ARGUMENT fragment leaves the href EXACTLY as it was, and a paragraph now does not", () => {
     // Returning the input unchanged is what lets the caller compare and do nothing, so no
-    // navigation is intercepted that should not be.
+    // navigation is intercepted that should not be. An argument id lives on the reading face and
+    // on neither source face, so it is still refused.
     const href = "/papers/brownian-motion/view/german/";
     expect(faceHrefWithFragment(href, "#arg-bm-observable")).toBe(href);
-    expect(faceHrefWithFragment(href, "#s1-p10")).toBe(href);
+    // The paragraph is carried since 2026-10-28; the crossesFaces test above has the measurement.
+    expect(faceHrefWithFragment(href, "#s1-p10")).toBe(`${href}#s1-p10`);
   });
 
   test("no fragment, a bare hash, a malformed escape and an existing fragment all change nothing", () => {
