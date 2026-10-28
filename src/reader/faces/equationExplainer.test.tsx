@@ -130,5 +130,16 @@ describe("the equation explainer on the reading faces", () => {
       }
     }
     expect(checked).toBeGreaterThan(0);
-  });
+    /*
+     * A BUDGET, NOT A PERFORMANCE GATE. This test was RED on main purely on the clock: bun's
+     * default is 5s and the run needs about 14, because the corpus it walks has grown to 20,644
+     * assertions over four papers and four faces. Measured 2026-10-28: 5s -> timed out with 19,854
+     * assertions done; 60s -> 1 pass, 0 fail, 20,644 assertions, 14.0s. Every assertion was already
+     * running, so nothing here is relaxed -- what changes is that the suite is allowed to finish.
+     *
+     * 60s rather than the 240s a sibling heavy test uses (sectionScope.test.tsx:89), because this
+     * budget only has to stop a hang: four times the measured cost still fails on a real blow-up,
+     * where 240s would hide one. The perf budgets are where a slowdown belongs.
+     */
+  }, 60_000);
 });
