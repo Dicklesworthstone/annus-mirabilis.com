@@ -208,11 +208,40 @@ const GERMAN = "/papers/special-relativity/view/german/";
  * THROWS, naming the readings, so "the page never settled" is what fails instead of a number that
  * looks like a layout defect. The net is strictly stricter: the case that used to pass through
  * silently is the case that now fails.
+ *
+ * THE CAUSE, FOUND 2026-10-28, AND NEITHER EARLIER GUESS WAS RIGHT. `src/app/globals.css:160` sets
+ * `html { scroll-behavior: smooth }`, so a fragment navigation ANIMATES. This helper accepts three
+ * consecutive equal readings as "settled", and a smooth scroll under CPU contention stalls for
+ * longer than the 750ms that takes -- so the plateau partway was read as the final position.
+ *
+ * Reproduced deterministically instead of waited for: the test passes 10 of 10 run alone, with
+ * byte-identical readings, and FAILS 6 of 6 when six copies run at once. The first reading of each
+ * failing run is the evidence, and it is mid-flight rather than wrong:
+ *
+ *     six concurrent copies, first poll at 250ms:  2533, 0, 999, 1248, 312, 453
+ *     the same six with reduced motion:            3379, 3379, 3379, 3379, 3379, 3379
+ *
+ * THE FONT HYPOTHESIS IS REFUTED, and it was the standing one -- the bead's own comment proposed a
+ * cold webfont reflow and suggested warming the context. Every failing run reported
+ * `document.fonts.status === "loaded"` AT the first reading, and awaiting `document.fonts.ready`
+ * before re-reading changed `window.scrollY` by zero in every copy. A warm-up would have made the
+ * flake rarer by shortening the animation's competition for CPU, which is how a wrong fix earns a
+ * green suite.
+ *
+ * THE REPAIR IS `reducedMotion: "reduce"`, which is not a workaround: this stylesheet already
+ * honours it at globals.css:1643 with `scroll-behavior: auto`, so the context asks the page for the
+ * behaviour the page already offers, and the landing POSITION under test is identical either way.
+ * AGENTS.md's browser matrix carries a reduced-motion lane for the same reason. The tolerance is
+ * untouched at 40px: the bead's comment said not to raise it and raising it was never the issue,
+ * since the failures were 46px and a stalled animation can stop anywhere.
  */
 const SETTLE_POLLS = 80;
 const SETTLE_INTERVAL_MS = 250;
 
-async function settled(page: import("playwright").Page): Promise<void> {
+async function settled(
+  page: import("playwright").Page,
+  options: { instant?: boolean } = {},
+): Promise<void> {
   await page.waitForLoadState("load");
   let last = Number.NaN;
   let stable = 0;
@@ -223,7 +252,28 @@ async function settled(page: import("playwright").Page): Promise<void> {
     seen.push(now);
     if (now === last) {
       stable += 1;
-      if (stable >= 3) return;
+      if (stable >= 3) {
+        /*
+         * THE GUARD THAT KEEPS THE REPAIR HONEST. With reduced motion the engine's fragment scroll
+         * is instantaneous, so the FIRST reading is already final; if it is not, this measurement
+         * watched an animation and the plateau it settled on may be anywhere along it. That is
+         * exactly the flake above, and it passed silently for three weeks.
+         *
+         * So a caller that asked for an instant scroll refuses here instead of returning a
+         * mid-flight value. Removing `reducedMotion: "reduce"` from the context now fails with
+         * this message rather than failing one run in six with a position comparison.
+         */
+        if (options.instant === true && seen[0] !== now) {
+          throw new Error(
+            `The scroll was still moving when this measurement began: first reading ${seen[0]}, ` +
+              `settled at ${now} (readings: ${seen.join(", ")}). With reduced motion a fragment ` +
+              "scroll is instantaneous, so a first reading that differs means the context did not " +
+              'ask for it -- `reducedMotion: "reduce"` -- or `scroll-behavior: smooth` is being ' +
+              "applied anyway. A plateau partway through an animation is not a landing position.",
+          );
+        }
+        return;
+      }
     } else {
       stable = 0;
       last = now;
@@ -247,18 +297,21 @@ test("criterion 5: a retired id lands on its successor's location with NO JavaSc
   try {
     const context = await browser.newContext({
       javaScriptEnabled: false,
+      // The page's own stylesheet turns its smooth scroll off under this, so the landing is
+      // measured rather than the animation towards it. See the settle docblock above.
+      reducedMotion: "reduce",
       viewport: { width: 1280, height: 900 },
     });
     const page = await context.newPage();
 
     // The retired id, with no script to rewrite it. The static alias span is all there is.
     await page.goto(`${origin}${GERMAN}#${RETIRED}`, { waitUntil: "load" });
-    await settled(page);
+    await settled(page, { instant: true });
     const retiredLanding = await page.evaluate(() => Math.round(window.scrollY));
 
     // The successor directly, as the reference.
     await page.goto(`${origin}${GERMAN}#${SUCCESSOR}`, { waitUntil: "load" });
-    await settled(page);
+    await settled(page, { instant: true });
     const successorLanding = await page.evaluate(() => Math.round(window.scrollY));
 
     ctx.diagnostic(
@@ -341,7 +394,10 @@ test("criterion 5: with JavaScript the hash is rewritten BY REPLACEMENT, adding 
   const executablePath = process.env.CHROMIUM_EXECUTABLE_PATH;
   const browser = await chromium.launch(executablePath ? { executablePath } : {});
   try {
-    const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+    const page = await browser.newPage({
+      reducedMotion: "reduce",
+      viewport: { width: 1280, height: 900 },
+    });
 
     await page.goto(`${origin}${GERMAN}#${RETIRED}`, { waitUntil: "load" });
     await settled(page);
