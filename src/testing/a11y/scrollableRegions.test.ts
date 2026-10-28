@@ -45,7 +45,11 @@ export const DIALOG_CONTAINER_SELECTORS = new Set([
   "search-results",
   "reader-bottom-sheet",
   "reader-sticky-lab",
-  "countermodel-scroll",
+  // countermodel-scroll was here and is now AUDITED instead (am-a14x). It is not a dialog and
+  // never was: `src/reasoning/countermodel/render.ts` emits it as a <div> around a <table>,
+  // with no focusable child, so nothing about it manages modal focus. Listing it here excused
+  // it from the coverage question this set exists to answer, and a class cannot both need a
+  // tab stop and be excused from needing one.
 ]);
 
 /**
@@ -210,18 +214,85 @@ function classesInBraceExpression(expr: string): string[] {
   return [...new Set(out)];
 }
 
-function* elementsWithClasses(source: string): Generator<{ attrs: string; classes: string[] }> {
+/**
+ * `class="a b"` in an HTML STRING, which is the other way this repository emits a scroll region.
+ *
+ * The lookbehind keeps `data-class=` and any other hyphenated attribute out; `className=` cannot
+ * match it in the first place, since `class` there is followed by `N` rather than by `=`.
+ */
+const HTML_CLASS_ATTR = /(?<![\w-])class\s*=\s*(?:"([^"]*)"|'([^']*)')/;
+
+/**
+ * Every element in a source that carries a class, in EITHER form (am-a14x).
+ *
+ * This read only JSX `className=`, and five elements of `table-scroll` -- a class on
+ * AUDITED_SCROLL_CLASSES -- were outside the population because their markup is emitted as text:
+ * `inferenceView.ts` (3), `offline/chapter.ts` (1) and `infer/render.ts` (1), plus a `math.formula`
+ * in the offline chapter and two `countermodel-scroll` divs. NINE such elements exist, measured by
+ * running this scan over `src/**\/*.ts` against the classes the CSS actually declares.
+ *
+ * So the incompleteness this bead describes has a second floor below the one it names: the class
+ * list was a fifth of its subject, AND the element population excluded every region this codebase
+ * writes as a string, including regions of classes it already claimed to audit. All nine are
+ * currently correct, which is why this is a floor rather than a repair -- and is also why it was
+ * invisible, since nothing goes red while the markup happens to be right.
+ */
+/**
+ * Comment bodies blanked, memoised on the source string itself.
+ *
+ * THE TAG SCAN READ ITS OWN DOCUMENTATION AS MARKUP, and widening the population to `.ts` is what
+ * exposed it: `formulaOverflow.inline.ts:81` explains the attribute it adds by quoting
+ * `<section className="show-the-code-scroll">` in a line comment, and the walk counted that comment
+ * as an element of an audited class with no tab stop. The gate went red on a file whose only
+ * mention of the construct is the prose describing it, which is the failure AGENTS.md records under
+ * "a gate that forbids a construct must read code, not text" -- and `blankTagComments` below could
+ * not prevent it, because it blanks comments INSIDE a matched tag and this tag was inside a comment.
+ *
+ * The cache matters for cost rather than correctness. The unaudited census asks 42 classes of 1,876
+ * files, so the blanker would otherwise run 78,792 times over the same text; keyed by the source
+ * string, each file is blanked once, since the walks read a file once and pass the same string.
+ */
+const blankedSources = new Map<string, string>();
+function withoutComments(source: string): string {
+  const cached = blankedSources.get(source);
+  if (cached !== undefined) return cached;
+  const blanked = blankComments(source);
+  blankedSources.set(source, blanked);
+  return blanked;
+}
+
+function* elementsWithClasses(raw: string): Generator<{ attrs: string; classes: string[] }> {
+  const source = withoutComments(raw);
   for (const match of source.matchAll(/<([a-zA-Z0-9_-]+)\b([^>]*?)>/gs)) {
     const attrs = blankTagComments(match[2] ?? "");
     const classAttrMatch = attrs.match(CLASS_ATTR);
-    if (!classAttrMatch) continue;
-    const brace = classAttrMatch[3];
-    const classes =
-      brace === undefined
-        ? classTokens(classAttrMatch[1] ?? classAttrMatch[2] ?? "")
-        : classesInBraceExpression(brace);
-    yield { attrs, classes };
+    if (classAttrMatch) {
+      const brace = classAttrMatch[3];
+      yield {
+        attrs,
+        classes:
+          brace === undefined
+            ? classTokens(classAttrMatch[1] ?? classAttrMatch[2] ?? "")
+            : classesInBraceExpression(brace),
+      };
+      continue;
+    }
+    const htmlMatch = attrs.match(HTML_CLASS_ATTR);
+    if (htmlMatch) {
+      yield { attrs, classes: classTokens(htmlMatch[1] ?? htmlMatch[2] ?? "") };
+    }
   }
+}
+
+/**
+ * The source files whose markup this gate reads: components AND the modules that emit HTML as text.
+ *
+ * `.test.` files are excluded by findFiles, which matters more than it looks: this file's own
+ * fixtures contain exactly the markup it refuses, so including them would make the gate fail on
+ * its own tests.
+ */
+function findMarkupSources(): string[] {
+  return [...findFiles(join(ROOT, "src"), ".tsx"), ...findFiles(join(ROOT, "src"), ".ts")];
 }
 
 /**
@@ -369,6 +440,17 @@ export const AUDITED_SCROLL_CLASSES = [
   // aria-label "Accepted observations, residuals and row selection"; the focus ring is the global
   // :focus-visible outline.
   "photo-data-table",
+  // countermodel-scroll: overflow-x: auto on the two tables the countermodel workbench emits as
+  // HTML TEXT (src/reasoning/countermodel/render.ts), the accepted-readout table and the fixed
+  // event inputs behind a <details>. Promoted under am-a14x, and the promotion is what the
+  // widening bought: until the element half read `class="..."` as well as `className=`, the
+  // counter could not reach either of them, so listing this class would have been the vacuous
+  // audit this file's header warns about. Both carry tabindex="0", role="region" and an
+  // aria-label where they are built. Verified non-vacuous the way tableWrap and
+  // construction-table-wrap were: removing one tabindex takes countUnreachableScrollRegions from
+  // 0 to 1 for that file. It also left DIALOG_CONTAINER_SELECTORS, where it had been excused as a
+  // dialog it is not.
+  "countermodel-scroll",
   // missing-step-math: overflow-x: auto on the Before and After of each Brownian missing step.
   // Promoted from NOT_YET_AUDITED under am-14at: all 16 instances fit at 320px and 1280px, so the
   // element needs no tabIndex, and without one it is exempt only through its
@@ -437,7 +519,6 @@ export const NOT_YET_AUDITED = new Map<string, number>([
   // that subject is AUDITED. The 2 is CameraControlledComparison.tsx and BrownianComparisonLab.tsx,
   // two wrappers that correctly carry no tab stop. Recorded 1 until am-a14x read the numbers.
   ["controlled-comparison", 2],
-  ["countermodel-scroll", 0],
   // Paid down to 1 (DataPanel.tsx) by whoever repaired the other; the entry still said 2.
   ["data-panel-table-wrap", 1],
   ["encounter-table", 2],
@@ -487,7 +568,13 @@ export const NOT_YET_AUDITED = new Map<string, number>([
   // tree, and EquationExplainer's two are written `className={step.coloured ? "eq-step-formula
   // inline-math" : "eq-step-formula"}`, which the element scanner could not read at all.
   ["inline-math", 9],
-  ["inference-workbench", 0],
+  // An ANCESTOR emitted as an HTML string: `<div class="inference-workbench"
+  // data-infer-workbench ...>` in src/reasoning/infer/render.ts, whose scrolling subject is
+  // `.inference-workbench .table-scroll` (workbench.css:61) -- and that table IS audited and
+  // DOES carry tabindex, role and a name where it is emitted. So the 1 is a wrapper that must
+  // not acquire a stop, and it reads 1 rather than 0 only because this gate can now see HTML
+  // strings at all (am-a14x).
+  ["inference-workbench", 1],
   ["kitchen-guide", 1],
   ["kitchen-lab", 1],
   ["latex-block-wrapper", 1],
@@ -604,11 +691,6 @@ export const NOT_YET_AUDITED = new Map<string, number>([
  * makes its declaration fail rather than silently excusing a real element.
  */
 export const APPLIED_OUTSIDE_JSX_CLASSNAME: ReadonlyMap<string, string> = new Map([
-  // `<div class="countermodel-scroll" role="region" aria-label="..." tabindex="0">`, twice.
-  ["countermodel-scroll", "src/reasoning/countermodel/render.ts"],
-  // `<div class="inference-workbench" data-infer-workbench ...>`. An ancestor: the subject is
-  // `.inference-workbench .table-scroll` (workbench.css:61), and table-scroll is AUDITED.
-  ["inference-workbench", "src/reasoning/infer/render.ts"],
   // `container.className = dialog ? "notebook-dialog" : "notebook-inline"` on a <dialog>.
   ["notebook-dialog", "src/reader/notebook/panel.ts"],
   // `root.className = "notebook-replay"` on a <section>. An ancestor: the subject is
@@ -936,11 +1018,11 @@ export function countClassElements(
 
 describe("scrollable regions accessibility ratchet (am-bc6s)", () => {
   test("no file exceeds its recorded baseline, and no new file introduces unreachable scrolling regions", () => {
-    const tsxFiles = findFiles(join(ROOT, "src"), ".tsx");
+    const markupFiles = findMarkupSources();
     const regressions: string[] = [];
     const improvements: string[] = [];
 
-    for (const file of tsxFiles) {
+    for (const file of markupFiles) {
       const rel = relative(ROOT, file);
       const count = countUnreachableScrollRegions(readFileSync(file, "utf8"), rel);
       const allowed = BASELINE.get(rel) ?? 0;
@@ -1028,11 +1110,14 @@ describe("scrollable regions accessibility ratchet (am-bc6s)", () => {
    * ceiling rather than leaving headroom.
    */
   test("every NOT_YET_AUDITED count is the number measured today (am-a14x)", () => {
-    const sources = findFiles(join(ROOT, "src"), ".tsx").map((file) => ({
+    const sources = findMarkupSources().map((file) => ({
       rel: relative(ROOT, file),
       text: readFileSync(file, "utf8"),
     }));
-    assert.ok(sources.length > 100, `only ${sources.length} .tsx files found; the walk is broken`);
+    assert.ok(
+      sources.length > 500,
+      `only ${sources.length} markup sources found; the walk is broken`,
+    );
 
     const grown: string[] = [];
     const slack: string[] = [];
@@ -1079,7 +1164,7 @@ describe("scrollable regions accessibility ratchet (am-bc6s)", () => {
         : `${lines.length} ${label} (${lines.map((line) => line.split(":")[0]).join(", ")})`;
     console.info(
       `[unaudited scroll classes] ${NOT_YET_AUDITED.size} recorded class(es); ` +
-        `${elementsExamined} element(s) carrying one of them across ${sources.length} .tsx file(s); ` +
+        `${elementsExamined} element(s) carrying one of them across ${sources.length} source file(s); ` +
         `${named("grown", grown)}; ${named("slack", slack)}; ${named("invisible", invisible)}`,
     );
     assert.ok(
@@ -1114,7 +1199,7 @@ describe("scrollable regions accessibility ratchet (am-bc6s)", () => {
   });
 
   test("every class declared as applied outside JSX still is, and is still invisible here (am-a14x)", () => {
-    const sources = findFiles(join(ROOT, "src"), ".tsx").map((file) => readFileSync(file, "utf8"));
+    const sources = findMarkupSources().map((file) => readFileSync(file, "utf8"));
     const derived = deriveScrollClassesFromCss(ROOT);
     const problems: string[] = [];
 
@@ -1154,6 +1239,45 @@ describe("scrollable regions accessibility ratchet (am-bc6s)", () => {
       "nothing declared: this test examined nothing",
     );
     assert.deepEqual(problems, [], `Declarations that no longer hold:\n${problems.join("\n")}`);
+  });
+
+  test("am-a14x: an element written as an HTML string is an element, and a comment is not", () => {
+    // The real form from src/reasoning/countermodel/render.ts, which the element half could not see
+    // until the population included `class="..."`: five elements of the AUDITED class table-scroll
+    // were outside it, in inferenceView.ts, offline/chapter.ts and infer/render.ts.
+    const withStop = '<div class="countermodel-scroll" role="region" aria-label="x" tabindex="0">';
+    assert.deepEqual(countClassElements(withStop, "countermodel-scroll"), {
+      elements: 1,
+      withoutTabIndex: 0,
+    });
+    const withoutStop = '<div class="table-scroll" role="region">';
+    assert.deepEqual(countClassElements(withoutStop, "table-scroll"), {
+      elements: 1,
+      withoutTabIndex: 1,
+    });
+
+    // A hyphenated attribute that ENDS in "class" is not the class attribute.
+    assert.deepEqual(countClassElements('<div data-class="table-scroll">', "table-scroll"), {
+      elements: 0,
+      withoutTabIndex: 0,
+    });
+
+    // And the case that turned this gate red on correct work: formulaOverflow.inline.ts explains
+    // the attribute it adds by quoting a tag, and a quoted tag is prose, not markup.
+    // Assembled so this line carries no literal double slash, for the reason the block comment
+    // above the earlier fixture gives: comments.test.ts cannot tell one inside a string from a
+    // comment its blanker missed, and softening that check was measured to hide a real failure.
+    const slashSlash = `${"/"}/`;
+    const inComment = `${slashSlash} adds the stop, as on <section className="show-the-code-scroll">\n`;
+    assert.deepEqual(countClassElements(inComment, "show-the-code-scroll"), {
+      elements: 0,
+      withoutTabIndex: 0,
+    });
+    const inBlockComment = '/* <div class="table-scroll"> is what this wraps */\n';
+    assert.deepEqual(countClassElements(inBlockComment, "table-scroll"), {
+      elements: 0,
+      withoutTabIndex: 0,
+    });
   });
 
   test("am-a14x: appliesClassName reads an applied class, not a longer name containing it", () => {
