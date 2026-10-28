@@ -124,11 +124,21 @@ const UNWIRED_DEBT: Readonly<Record<string, string>> = {
  */
 const UNWIRED_EXPORTS: Readonly<Record<string, string>> = {
   "mapToFace.ts#mapToFace":
-    "am-to1q: the nearest-ancestor walk (sentence -> paragraph -> section) has no caller. " +
-    "FaceSwitchAnchor's own resolvedFaceAnchor handles the split-sentence arm and stops there, so " +
-    "a reader switching to a face that publishes neither the sentence nor its paragraph gets no " +
-    "scroll rather than its section. The gloss face is the live case: 11 sentence ids and 3 " +
-    "paragraph ids for relativity against the German face's 223.",
+    "am-to1q: the nearest-ancestor walk has no caller. WHAT REMAINS IS THE MIDDLE STEP ONLY, and " +
+    "this reason is narrower than it was on 2026-10-28, because the harm it described has been " +
+    "repaired by other means and a stale reason on a debt record is worse than none. It read: 'a " +
+    "reader switching to a face that publishes neither the sentence nor its paragraph gets no " +
+    "scroll rather than its section. The gloss face is the live case.' Both halves are now " +
+    "addressed. resolvedFaceAnchor takes the step to the SECTION, which needs no StructureIndex " +
+    "because every source id carries its section as a leading s<n> and sectionAnchorOf owns " +
+    "reading it; and the gloss face, which publishes no section ids at all, is handled by " +
+    "sectionPageForStrandedAnchor following the section link that page prints. So the step that " +
+    "still has no caller is sentence -> PARAGRAPH, and it is the one that genuinely needs the " +
+    "index: a paragraph is not derivable from a sentence id wherever paragraphs have been merged, " +
+    "which content/aliases/brownian-motion.yaml records four of (am-mg6d). Its live cost is " +
+    "smaller than the old reason implied: a reader lands on their section rather than their " +
+    "paragraph on a face that publishes sections but not paragraphs, which is english (10 " +
+    "sections, 0 paragraphs for relativity).",
   "mapToFace.ts#mapToFacsimilePage":
     "am-to1q, SETTLED BY THE OWNER 2026-10-08: this one is to STAY unwired. The live owner is " +
     "resolveFacsimileTarget, and the ruling was that mapToFacsimilePage is not to be given a " +
