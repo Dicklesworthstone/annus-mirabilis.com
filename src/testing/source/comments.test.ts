@@ -179,6 +179,20 @@ describe("a newline closes a quoted string, which is what makes the scanner usab
       const blanked = blankComments(source);
       expect(blanked.length, rel).toBe(source.length);
       // Every `//` comment body is blank: no line retains text after its first unquoted double slash.
+      //
+      // THIS SCAN CANNOT TELL A MISSED COMMENT FROM A DOUBLE SLASH INSIDE A STRING, and that is a
+      // constraint on the two files above rather than a defect to be softened here (am-a14x). A
+      // fixture whose string is the text of a line comment - the natural way to assert that prose
+      // naming a construct does not satisfy a gate - fails this check although the blanker was
+      // right. Write such a fixture as a BLOCK comment; `scrollableRegions.test.ts` says so where
+      // it does.
+      //
+      // The obvious discriminator does not work, and a plant is what showed it: judging a leak by
+      // whether the text ALSO survives `blankCommentsAndStrings` suppresses the real failure. When a
+      // regex literal containing a backtick desynchronises the scanner, the comments that follow
+      // survive here and are blanked there - the second blanker reads them as a template literal's
+      // body - so the one shape this test exists to catch would have become invisible. Both blankers
+      // share the scanner, so neither can be the other's control.
       const leaked: string[] = [];
       blanked.split("\n").forEach((line, i) => {
         const at = line.indexOf("//");

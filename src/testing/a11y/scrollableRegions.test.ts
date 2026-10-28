@@ -53,6 +53,7 @@ export const DIALOG_CONTAINER_SELECTORS = new Set([
  * lane can read the same list (am-14at). What stays here is everything that reads them against
  * the SOURCE; what moved is the data and the two pure helpers over it.
  */
+import { blankComments } from "../source/comments.ts";
 import {
   type NonOverflowingRecord,
   type ParsedMeasurement,
@@ -136,16 +137,90 @@ function blankTagComments(attrs: string): string {
     );
 }
 
+/**
+ * The classes a JSX brace expression can contribute: every string literal in it, plus every
+ * `styles.x` reference (am-a14x).
+ *
+ * A BRACE WAS ONLY READ WHEN IT MENTIONED `styles`, so a conditional className was invisible.
+ * `EquationExplainer.tsx` writes `className={step.coloured ? "eq-step-formula inline-math" :
+ * "eq-step-formula"}`, and the element half of this gate found no element of `eq-step-formula`
+ * anywhere while the coverage half had it listed with a recorded count of 1. A class can therefore
+ * be in both of this file's lists and still be watched by nothing, which is the bead's complaint
+ * one level in.
+ *
+ * Only the literals are read, never the identifiers. Tokenising the whole expression would
+ * contribute `step` and `coloured` as class names - the same phantom-class failure the CSS reader
+ * was measured to have, arriving from the other side.
+ */
+/**
+ * The backtick below is produced rather than typed, and that is not fussiness.
+ *
+ * A BACKTICK INSIDE A REGULAR-EXPRESSION LITERAL DESYNCHRONISES `blankComments` FOR THE REST OF THE
+ * FILE: its scanner reads it as opening a template literal and swallows everything to the next one,
+ * so every comment after this point stops being blanked. `src/testing/source/comments.ts` says in
+ * its own docblock that a regex literal is the one case it cannot decide; what that costs was not
+ * recorded until this line was written literally and `overflowClasses.test.ts` went red on
+ * `tabindex="0"` and `role="region"` -- two strings inside a COMMENT in AUDITED_SCROLL_CLASSES,
+ * eighty lines away, read as audited class names. Measured in isolation: of five regex literals
+ * differing only in which quote they match, the backtick one alone leaves a following comment
+ * unblanked. `comments.test.ts` now pins that in both directions.
+ */
+const BACKTICK = String.fromCharCode(96);
+const QUOTED_LITERAL = new RegExp(
+  `"([^"]*)"|'([^']*)'|${BACKTICK}([^${BACKTICK}]*)${BACKTICK}`,
+  "g",
+);
+
+/**
+ * `className="a b"`, `className='a b'`, or `className={<expression>}`.
+ *
+ * The brace alternative admits a backtick span whole, so a template literal's own `${...}` braces
+ * do not end it; outside backticks it stays brace-free, so a nested object such as
+ * `dangerouslySetInnerHTML={{ ... }}` on the same tag cannot be mistaken for the class value.
+ * Built from a string for the reason given above BACKTICK.
+ */
+const CLASS_ATTR = new RegExp(
+  `className\\s*=\\s*(?:"([^"]+)"|'([^']+)'|\\{((?:[^{}${BACKTICK}]|${BACKTICK}[^${BACKTICK}]*${BACKTICK})*)\\})`,
+  "s",
+);
+
+/**
+ * `aria-label` in its four written forms, built from a string for the same reason as CLASS_ATTR.
+ *
+ * This one was a regex LITERAL carrying backticks until am-a14x, and it is where the desync in
+ * this file began: at HEAD the first comment `blankComments` failed to blank was the docblock
+ * seven lines below it. The file was readable by the gates that parse its lists only by the
+ * accident of a later backtick resynchronising the scanner before AUDITED_SCROLL_CLASSES, which
+ * is why adding a function here turned a sibling gate red while changing nothing it measures.
+ */
+const ARIA_LABEL_ATTR = new RegExp(
+  `aria-label\\s*=\\s*(?:\\{${BACKTICK}([^${BACKTICK}]*)${BACKTICK}\\}|\\{"([^"]*)"\\}|"([^"]*)"|'([^']*)')`,
+  "s",
+);
+
+function classesInBraceExpression(expr: string): string[] {
+  const out: string[] = [];
+  for (const literal of expr.matchAll(QUOTED_LITERAL)) {
+    out.push(...classTokens(literal[1] ?? literal[2] ?? literal[3] ?? ""));
+  }
+  for (const reference of expr.matchAll(CSS_MODULE_CLASS_REFERENCE)) {
+    const name = reference[1] ?? reference[2];
+    if (name !== undefined) out.push(name);
+  }
+  return [...new Set(out)];
+}
+
 function* elementsWithClasses(source: string): Generator<{ attrs: string; classes: string[] }> {
   for (const match of source.matchAll(/<([a-zA-Z0-9_-]+)\b([^>]*?)>/gs)) {
     const attrs = blankTagComments(match[2] ?? "");
-    const classAttrMatch = attrs.match(
-      /className\s*=\s*(?:\{`([^`]+)`\}|"([^"]+)"|'([^']+)'|\{([^{}]*\bstyles\s*[.[][^{}]*)\})/s,
-    );
+    const classAttrMatch = attrs.match(CLASS_ATTR);
     if (!classAttrMatch) continue;
-    const classStr =
-      classAttrMatch[1] ?? classAttrMatch[2] ?? classAttrMatch[3] ?? classAttrMatch[4] ?? "";
-    yield { attrs, classes: classTokens(classStr) };
+    const brace = classAttrMatch[3];
+    const classes =
+      brace === undefined
+        ? classTokens(classAttrMatch[1] ?? classAttrMatch[2] ?? "")
+        : classesInBraceExpression(brace);
+    yield { attrs, classes };
   }
 }
 
@@ -165,9 +240,7 @@ export function accessibleNamesForClass(source: string, className: string): stri
   const names: string[] = [];
   for (const { attrs, classes } of elementsWithClasses(source)) {
     if (!classes.includes(className)) continue;
-    const labelMatch = attrs.match(
-      /aria-label\s*=\s*(?:\{`([^`]*)`\}|\{"([^"]*)"\}|"([^"]*)"|'([^']*)')/s,
-    );
+    const labelMatch = attrs.match(ARIA_LABEL_ATTR);
     const label = labelMatch?.[1] ?? labelMatch?.[2] ?? labelMatch?.[3] ?? labelMatch?.[4];
     if (label !== undefined) names.push(label);
   }
@@ -318,6 +391,15 @@ export const AUDITED_SCROLL_CLASSES = [
  * The number beside each class is the count of elements carrying it with no tabIndex TODAY. It is
  * the size of the shortfall, recorded so the gap is stated rather than discovered. An entry that
  * reaches 0 is reported as stale, because a clean class belongs in AUDITED_SCROLL_CLASSES.
+ *
+ * THE POPULATION IS THE JSX SOURCE, counted by `countClassElements` over `src/**\/*.tsx`, and the
+ * test "every NOT_YET_AUDITED count is the number measured today" holds every entry to it in both
+ * directions (am-a14x). Both sentences above described that check for weeks before it existed, and
+ * two entries had drifted into counting something else: capstone-math said 13, which its own
+ * comment explains is opening tags in four BUILT pages, where the source carries 5. A number
+ * measured against a different population is not wrong by a little, it is about something else -
+ * and nothing could tell, because nothing read it. Count in the source. If what you measured was
+ * a rendered page, say so in the comment and record the source count beside it.
  */
 export const NOT_YET_AUDITED = new Map<string, number>([
   ["camera-results", 4],
@@ -334,9 +416,13 @@ export const NOT_YET_AUDITED = new Map<string, number>([
   // 288. At 1280px none does, every one 760 against 760. No page scrolls sideways at either width,
   // which is what the overflow is there to prevent.
   //
-  // The count is 13 and not 26. Raw occurrences of the class in a built page are double, because a
-  // Next page embeds its own RSC payload and the className appears again inside that escaped JSON;
-  // this number counts opening tags.
+  // THE 13 COUNTS A BUILT PAGE AND THIS LIST COUNTS THE SOURCE (am-a14x). Both numbers are real
+  // and they answer different questions: 13 is the rendered elements across the four capstone
+  // pages, 5 is the JSX elements that produce them - one per capstone page plus
+  // CapstoneWorksheet.tsx. The recorded number is now the source count, which is the population
+  // the list's own contract names and the only one a source scan can check. (The 13 was also not
+  // 26: raw occurrences of the class in a built page are double, because a Next page embeds its
+  // own RSC payload and the className appears again inside that escaped JSON.)
   //
   // Recorded rather than audited, and the debt is precisely this: the one element that overflows
   // gets its stop at runtime, so a reader with scripting off and a 320px column cannot reach the
@@ -344,13 +430,24 @@ export const NOT_YET_AUDITED = new Map<string, number>([
   // directly below it, which is on the page for every display either way. The wrapper stopped being
   // aria-hidden in c5a2c325, because a focusable element hidden from assistive technology is worse
   // than either state alone.
-  ["capstone-math", 13],
+  ["capstone-math", 5],
   ["clarification-dialog", 2],
-  ["controlled-comparison", 1],
+  // An ANCESTOR, like sr-investigation-page below: the only rule that scrolls is
+  // `.controlled-comparison .comparison-scroll` (src/experiments/compare/comparison.css:19), and
+  // that subject is AUDITED. The 2 is CameraControlledComparison.tsx and BrownianComparisonLab.tsx,
+  // two wrappers that correctly carry no tab stop. Recorded 1 until am-a14x read the numbers.
+  ["controlled-comparison", 2],
   ["countermodel-scroll", 0],
-  ["data-panel-table-wrap", 2],
+  // Paid down to 1 (DataPanel.tsx) by whoever repaired the other; the entry still said 2.
+  ["data-panel-table-wrap", 1],
   ["encounter-table", 2],
-  ["equation-body", 2],
+  // A SUBJECT (`overflow-x: auto`, src/reader/reader.css:1763), on the English display of a
+  // translated paragraph. The 3 is TranslationUnit.tsx, SourceBlock.tsx and
+  // TranslationParagraphs.tsx; it was recorded as 2 before the third arrived, and nothing said so.
+  // Like inline-display and inline-math, whether the box overflows depends on the formula inside
+  // it, so the tab stop and the name come at runtime from formulaOverflow.inline.ts and only where
+  // it does. An authored tabIndex here would be a phantom stop on every display that fits.
+  ["equation-body", 3],
   ["facsimile-canvas-container", 1],
   ["facsimile-stage", 1],
   ["genealogy-graph-wrapper", 1],
@@ -377,12 +474,19 @@ export const NOT_YET_AUDITED = new Map<string, number>([
   ["equation-explanation-formula", 1],
   // A formula inside a line of text (inlines.tsx, GlossPair.tsx, NotationEntryCard.tsx), made an
   // inline-flex box that scrolls in its line by 300f81ec, so Brownian's s2-p4-s1 formula (309 to
-  // 345px) no longer widens the English, parallel and gloss faces at 320. Three JSX elements, with
+  // 345px) no longer widens the English, parallel and gloss faces at 320. NINE JSX elements, with
   // no tabIndex in the TSX: like inline-display, the tab stop and name come at runtime from
   // formulaOverflow.inline.ts, only when the formula overflows. Measured on live Brownian at 320
   // with 300f81ec's rule injected (Chromium and WebKit alike): 8 of 536 formulas scroll across the
   // three faces, 8 of 8 get tabindex="0" and a name, and 0 that fit get a tab stop.
-  ["inline-math", 3],
+  //
+  // The 9 is where the class is used now, against the 3 recorded when it was added: InlineMathText,
+  // inlines, EquationExplainer (2), GlossPair, /sources/, NotationEntryCard, ScopedFormula and
+  // LessonMathText. SIX of those nine were invisible to this gate until am-a14x, and for two
+  // different reasons - three arrived after the number was written and nothing compared it with the
+  // tree, and EquationExplainer's two are written `className={step.coloured ? "eq-step-formula
+  // inline-math" : "eq-step-formula"}`, which the element scanner could not read at all.
+  ["inline-math", 9],
   ["inference-workbench", 0],
   ["kitchen-guide", 1],
   ["kitchen-lab", 1],
@@ -410,7 +514,8 @@ export const NOT_YET_AUDITED = new Map<string, number>([
   // overflows (3 of Brownian's 87 unglossed sentences at 390, 15 at 320), so one that fits
   // carries none.
   ["sentence-german-unadorned", 1],
-  ["show-the-code", 4],
+  // An ANCESTOR, and down to 2 (ClockSyncLab.tsx, ShowTheCode.tsx) from the 4 recorded here.
+  ["show-the-code", 2],
   /*
     sr-investigation-page is an ANCESTOR, not a scrolling element. It reaches this list because
     deriveScrollClassesFromCss takes every class in a selector, and the only rule that scrolls is
@@ -440,13 +545,68 @@ export const NOT_YET_AUDITED = new Map<string, number>([
     tabIndex, which is correct for a wrapper that does not scroll.
   */
   ["sources-section", 12],
-  ["source-equation", 1],
+  // A SUBJECT (`overflow-x: auto`, src/reader/reader.css:1738). The 2 is sourceMarkup.tsx and
+  // SourceBlock.tsx, and the runtime-stop reasoning is equation-body's.
+  ["source-equation", 2],
   ["sr07-components", 1],
   ["sr07-equation", 1],
   ["table-scroll-container", 1],
-  ["table-wrapper", 2],
+  // A SUBJECT (`overflow-x: auto`, src/app/globals.css:1830), and the one entry here whose
+  // content is FIXED: a data table's width does not depend on a formula, so unlike the display
+  // classes above these three can be measured at 320px and either made to fit or given an
+  // authored tab stop. The 3 is FieldFrameChangeLab.tsx (1) and DriftDiffusionLab.tsx (2), and
+  // the 2 recorded before am-a14x was already short of the tree.
+  ["table-wrapper", 3],
   ["trajectory-table-scroll", 1],
   ["video-observation-scroll", 1],
+]);
+
+/**
+ * CLASSES THIS GATE'S ELEMENT HALF CANNOT SEE, each with the module that applies it (am-a14x).
+ *
+ * The coverage half reads the CSS, so a class that scrolls is always in the population. The element
+ * half reads JSX `className=` in `.tsx`, so a class applied any other way is listed, counted at
+ * whatever number someone wrote, and watched by nothing. Seven classes are in that state, and the
+ * count check below found them by asking for the first time whether a recorded number describes any
+ * element at all: all seven report zero, and zero reads exactly like clean.
+ *
+ * Two application forms account for all seven, and NEITHER is a defect in the markup:
+ *
+ *   imperative DOM        `region.className = "replay-table"` - the notebook and the search palette
+ *                         build their own trees in `.ts` modules.
+ *   an HTML string        `<div class="countermodel-scroll" ... tabindex="0">` - the reasoning
+ *                         workbenches emit markup as text.
+ *
+ * Each was read rather than assumed, and what the reading found is the point: every one of the
+ * seven is already correct. Three are the subject of an overflow rule and carry a tab stop, a role
+ * and a name where they are built (countermodel-scroll, replay-table) or are a dialog that manages
+ * its own focus (notebook-dialog, search-dialog, search-results, all three already in
+ * DIALOG_CONTAINER_SELECTORS). Two are ancestors whose scrolling subject is a descendant and must
+ * NOT acquire a stop (inference-workbench, notebook-replay). So the debt here is not an
+ * accessibility defect: it is that nothing would notice if one appeared.
+ *
+ * The entry is checked, not merely written down. The test asserts the named module still applies
+ * the class AND that the JSX scanner still finds nothing - so moving one of these into a component
+ * makes its declaration fail rather than silently excusing a real element.
+ */
+export const APPLIED_OUTSIDE_JSX_CLASSNAME: ReadonlyMap<string, string> = new Map([
+  // `<div class="countermodel-scroll" role="region" aria-label="..." tabindex="0">`, twice.
+  ["countermodel-scroll", "src/reasoning/countermodel/render.ts"],
+  // `<div class="inference-workbench" data-infer-workbench ...>`. An ancestor: the subject is
+  // `.inference-workbench .table-scroll` (workbench.css:61), and table-scroll is AUDITED.
+  ["inference-workbench", "src/reasoning/infer/render.ts"],
+  // `container.className = dialog ? "notebook-dialog" : "notebook-inline"` on a <dialog>.
+  ["notebook-dialog", "src/reader/notebook/panel.ts"],
+  // `root.className = "notebook-replay"` on a <section>. An ancestor: the subject is
+  // `.notebook-replay .replay-table` (notebook.css:268).
+  ["notebook-replay", "src/reader/notebook/replayView.ts"],
+  // `region.className = "replay-table"` followed by role="region", aria-label and tabIndex = 0.
+  ["replay-table", "src/reader/notebook/replayView.ts"],
+  // `element("dialog", undefined, "search-dialog")`. CommandPalette.tsx sets the matching data
+  // attribute but never this class, so the .tsx beside it is not a second home for it.
+  ["search-dialog", "src/search/CommandPalette.ts"],
+  // `element("div", undefined, "search-results")`, the list inside that dialog.
+  ["search-results", "src/search/CommandPalette.ts"],
 ]);
 
 /**
@@ -710,6 +870,56 @@ export function parseRecordedMeasurements(
   }));
 }
 
+/**
+ * Every element carrying one class, and how many of them carry no tab stop (am-a14x).
+ *
+ * `countUnreachableScrollRegions` asks this question of the AUDITED classes only. The same
+ * question has to be askable of an UNAUDITED one, because NOT_YET_AUDITED records a number per
+ * class and nothing read it: see the test below for what that number was worth.
+ *
+ * `elements` is reported beside `withoutTabIndex` because the two zeros mean opposite things. A
+ * class whose every element has a tab stop is clean and belongs in AUDITED_SCROLL_CLASSES; a class
+ * the scanner finds no element of at all is INVISIBLE, and promoting it would be the vacuous audit
+ * the header above warns about - the counter would report 0 whatever the markup said.
+ */
+/**
+ * Whether a module APPLIES a class name, rather than merely containing those characters (am-a14x).
+ *
+ * `includes(cls)` was the first version and a plant killed it. Repointing the `search-dialog`
+ * declaration at `CommandPalette.tsx`, which applies no such class, left the test GREEN: that file
+ * writes `data-search-dialog="true"`, and "data-search-dialog" contains "search-dialog". The
+ * declaration would have outlived its module without a word.
+ *
+ * `\b` is the wrong anchor for the same reason - a hyphen is already a word boundary, so
+ * `\bsearch-dialog\b` matches inside `data-search-dialog` too. The boundary that distinguishes a
+ * class name from a longer attribute name is a QUOTE OR WHITESPACE on both sides, which is what a
+ * class value is delimited by in every form this declares: `className = "x"`, `element(_, _, "x")`
+ * and `class="x y"` inside an HTML string. Comments are blanked first, so prose naming the class
+ * does not satisfy it either.
+ *
+ * Class names here match `[A-Za-z_-][\w-]*`, which holds no regular-expression metacharacter, so
+ * the name is interpolated without escaping. A class grammar that ever admitted one would need it.
+ */
+export function appliesClassName(source: string, cls: string): boolean {
+  return new RegExp(`(?<=["'\\s])${cls}(?=["'\\s])`).test(blankComments(source));
+}
+
+export function countClassElements(
+  source: string,
+  cls: string,
+): { elements: number; withoutTabIndex: number } {
+  let elements = 0;
+  let withoutTabIndex = 0;
+  for (const { attrs, classes } of elementsWithClasses(source)) {
+    if (!classes.includes(cls)) continue;
+    elements += 1;
+    // `attrs` has its comments blanked by elementsWithClasses, so the biome-ignore naming
+    // "noNoninteractiveTabindex" cannot satisfy this the way it once satisfied the counter.
+    if (!/tabIndex|tabindex/i.test(attrs)) withoutTabIndex += 1;
+  }
+  return { elements, withoutTabIndex };
+}
+
 describe("scrollable regions accessibility ratchet (am-bc6s)", () => {
   test("no file exceeds its recorded baseline, and no new file introduces unreachable scrolling regions", () => {
     const tsxFiles = findFiles(join(ROOT, "src"), ".tsx");
@@ -784,6 +994,216 @@ describe("scrollable regions accessibility ratchet (am-bc6s)", () => {
       [],
       `These NOT_YET_AUDITED entries no longer describe a gap: ${stale.join(", ")}. Delete them.`,
     );
+  });
+
+  /**
+   * THE NUMBER IN NOT_YET_AUDITED WAS READ BY NOTHING (am-a14x, acceptance criterion 3).
+   *
+   * Its own docblock says the number "is the count of elements carrying it with no tabIndex TODAY"
+   * and that "an entry that reaches 0 is reported as stale". Both sentences described a check that
+   * did not exist: the coverage test above asks only whether a class is LISTED, so the fifty-odd
+   * numbers beside those classes could say anything. A new unreachable region in a listed class
+   * was therefore invisible in exactly the way the bead complains about one level up - the class
+   * was "covered" by being named, and the naming was inert.
+   *
+   * That is the same defect as the one `parseRecordedMeasurements` was written for, in the same
+   * file, found the same way: a recorded number nobody parses is not evidence.
+   *
+   * So this is the ratchet's pawl applied to the unaudited half, in both directions, for the
+   * reason AGENTS.md gives: a debt that grows is refused, and a debt paid down lowers its own
+   * ceiling rather than leaving headroom.
+   */
+  test("every NOT_YET_AUDITED count is the number measured today (am-a14x)", () => {
+    const sources = findFiles(join(ROOT, "src"), ".tsx").map((file) => ({
+      rel: relative(ROOT, file),
+      text: readFileSync(file, "utf8"),
+    }));
+    assert.ok(sources.length > 100, `only ${sources.length} .tsx files found; the walk is broken`);
+
+    const grown: string[] = [];
+    const slack: string[] = [];
+    const invisible: string[] = [];
+    let elementsExamined = 0;
+
+    for (const [cls, recorded] of NOT_YET_AUDITED) {
+      let elements = 0;
+      let withoutTabIndex = 0;
+      // The files are named in the refusal, because a class name alone does not tell a fixer
+      // where to look and this gate's whole subject is regions nobody has looked at.
+      const where: string[] = [];
+      for (const source of sources) {
+        const counted = countClassElements(source.text, cls);
+        if (counted.elements === 0) continue;
+        elements += counted.elements;
+        withoutTabIndex += counted.withoutTabIndex;
+        where.push(`${source.rel} (${counted.withoutTabIndex}/${counted.elements})`);
+      }
+      elementsExamined += elements;
+
+      if (elements === 0) {
+        // A declared class is still counted as describing nothing when its number is not 0: the
+        // declaration says the scanner cannot see the elements, so any other figure is a claim
+        // about a population nothing here measures.
+        const declared = APPLIED_OUTSIDE_JSX_CLASSNAME.get(cls);
+        if (declared !== undefined && recorded === 0) continue;
+        invisible.push(
+          `${cls}: recorded ${recorded}, and the scanner sees no element of it at all` +
+            (declared === undefined ? "" : ` (declared as applied in ${declared}, so record 0)`),
+        );
+        continue;
+      }
+      const measured = `${cls}: recorded ${recorded}, measured ${withoutTabIndex} of ${elements} element(s) with no tab stop in ${where.join(", ")}`;
+      if (withoutTabIndex > recorded) grown.push(measured);
+      else if (withoutTabIndex < recorded) slack.push(measured);
+    }
+
+    // Names rather than totals, because a count alone cannot be checked against anything and this
+    // census exists to be read when one of the three assertions below fires.
+    const named = (label: string, lines: readonly string[]): string =>
+      lines.length === 0
+        ? `0 ${label}`
+        : `${lines.length} ${label} (${lines.map((line) => line.split(":")[0]).join(", ")})`;
+    console.info(
+      `[unaudited scroll classes] ${NOT_YET_AUDITED.size} recorded class(es); ` +
+        `${elementsExamined} element(s) carrying one of them across ${sources.length} .tsx file(s); ` +
+        `${named("grown", grown)}; ${named("slack", slack)}; ${named("invisible", invisible)}`,
+    );
+    assert.ok(
+      elementsExamined > 0,
+      "no element of any recorded class was found: the scan examined nothing",
+    );
+
+    // ONE assertion over the three buckets, so a single run names every mismatch. Asserting them
+    // in sequence aborts on the first, which is the shape AGENTS.md records under "a brittle count
+    // does not merely fail; it hides what it was standing in front of".
+    const mismatches = [
+      ...grown.map((line) => `grown     ${line}`),
+      ...slack.map((line) => `slack     ${line}`),
+      ...invisible.map((line) => `invisible ${line}`),
+    ];
+    assert.deepEqual(
+      mismatches,
+      [],
+      `NOT_YET_AUDITED no longer describes the tree:\n${mismatches.join("\n")}\n\n` +
+        "grown: an element with no tab stop arrived. Give it tabIndex={0} with an accessible " +
+        "name, or record the higher number WITH the measurement that justifies it - where the " +
+        "class is a wrapper, or its stop is added at runtime only when the box overflows, the " +
+        "number is a census of that mechanism rather than a debt anyone should pay.\n" +
+        "slack: recorded above the measured count. Lower it in this same commit. A class measured " +
+        "at 0 is clean, so promote it to AUDITED_SCROLL_CLASSES - but only after checking the " +
+        "scanner can see its elements, or the audit is vacuous.\n" +
+        "invisible: the scanner finds no element at all, so the number describes nothing. Either " +
+        "the class is applied somewhere this cannot follow - declare it in " +
+        "APPLIED_OUTSIDE_JSX_CLASSNAME with the module that applies it - or no component carries " +
+        "it any more and the entry is dead.",
+    );
+  });
+
+  test("every class declared as applied outside JSX still is, and is still invisible here (am-a14x)", () => {
+    const sources = findFiles(join(ROOT, "src"), ".tsx").map((file) => readFileSync(file, "utf8"));
+    const derived = deriveScrollClassesFromCss(ROOT);
+    const problems: string[] = [];
+
+    for (const [cls, file] of APPLIED_OUTSIDE_JSX_CLASSNAME) {
+      const path = join(ROOT, file);
+      if (!existsSync(path)) {
+        problems.push(`${cls}: ${file} does not exist`);
+        continue;
+      }
+      if (!appliesClassName(readFileSync(path, "utf8"), cls)) {
+        problems.push(`${cls}: ${file} no longer applies it, so the declaration names nothing`);
+      }
+      if (!derived.has(cls)) {
+        problems.push(
+          `${cls}: no stylesheet puts it in a scrolling rule, so it is not this gate's`,
+        );
+      }
+      // The half that makes the declaration an admission rather than an exemption: the moment a
+      // component carries the class, the scanner CAN see it and the entry must go, or a real
+      // element with no tab stop sits behind a note saying nothing here can be seen.
+      const inJsx = sources.reduce(
+        (total, src) => total + countClassElements(src, cls).elements,
+        0,
+      );
+      if (inJsx > 0) {
+        problems.push(
+          `${cls}: ${inJsx} JSX element(s) now carry it, so it is visible and the declaration is stale`,
+        );
+      }
+    }
+
+    console.info(
+      `[classes applied outside JSX] ${APPLIED_OUTSIDE_JSX_CLASSNAME.size} declared, each read in its module`,
+    );
+    assert.ok(
+      APPLIED_OUTSIDE_JSX_CLASSNAME.size > 0,
+      "nothing declared: this test examined nothing",
+    );
+    assert.deepEqual(problems, [], `Declarations that no longer hold:\n${problems.join("\n")}`);
+  });
+
+  test("am-a14x: appliesClassName reads an applied class, not a longer name containing it", () => {
+    // The three forms the declarations above name.
+    assert.ok(appliesClassName('element("dialog", undefined, "search-dialog")', "search-dialog"));
+    assert.ok(appliesClassName('region.className = "replay-table";', "replay-table"));
+    assert.ok(
+      appliesClassName('`<div class="countermodel-scroll" role="region">`', "countermodel-scroll"),
+    );
+
+    // The plant that caught `includes`: this attribute is not that class.
+    assert.ok(
+      !appliesClassName('<div data-search-dialog="true">', "search-dialog"),
+      "data-search-dialog contains search-dialog and applies no such class",
+    );
+    // And the standing rule in this file: prose about a construct is not the construct.
+    //
+    // A BLOCK comment, deliberately. `comments.test.ts` asserts that no line of this file survives
+    // its blanker with text after a double slash, and that scan cannot tell a missed comment from a
+    // double slash inside a string - so writing this fixture as a line comment turns that gate red
+    // while nothing is wrong. Its own note records why it is not softened to allow one.
+    assert.ok(
+      !appliesClassName("/* the search-dialog is built in CommandPalette.ts */", "search-dialog"),
+      "a comment naming the class must not satisfy the declaration",
+    );
+  });
+
+  test("am-a14x: a conditional className is read, and its identifiers are not read as classes", () => {
+    // The real form from EquationExplainer.tsx, which was invisible before classesInBraceExpression.
+    const conditional = `<span className={step.coloured ? "eq-step-formula inline-math" : "eq-step-formula"} />`;
+    assert.deepEqual(countClassElements(conditional, "eq-step-formula"), {
+      elements: 1,
+      withoutTabIndex: 1,
+    });
+    assert.deepEqual(countClassElements(conditional, "inline-math"), {
+      elements: 1,
+      withoutTabIndex: 1,
+    });
+
+    // The other half, and the one that would make this change harmful rather than merely useless:
+    // an identifier in the expression must not become a class. `step` and `coloured` are not ones.
+    for (const identifier of ["step", "coloured"]) {
+      assert.deepEqual(
+        countClassElements(conditional, identifier),
+        { elements: 0, withoutTabIndex: 0 },
+        `"${identifier}" is an identifier in the expression, not a class name`,
+      );
+    }
+
+    // A nested object on the same tag is not the class value: this element's className is the
+    // string, and dangerouslySetInnerHTML's braces must not be read in its place.
+    const withNested = `<span className="source-equation" dangerouslySetInnerHTML={{ __html: x }} />`;
+    assert.deepEqual(countClassElements(withNested, "source-equation"), {
+      elements: 1,
+      withoutTabIndex: 1,
+    });
+
+    // And a tab stop is still seen through a brace expression, so widening the reader did not
+    // widen the debt: this element has one.
+    const stopped = `<section className={wide ? "table-wrapper" : "table-wrapper tight"} tabIndex={0} aria-label="t" />`;
+    assert.deepEqual(countClassElements(stopped, "table-wrapper"), {
+      elements: 1,
+      withoutTabIndex: 0,
+    });
   });
 
   test("every scrolling rule whose target carries no class is placed on purpose (am-unaudited-scroll-regions-r4jx)", () => {
