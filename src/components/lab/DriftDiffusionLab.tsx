@@ -481,7 +481,24 @@ export function DriftDiffusionLab({
         )}
         <details>
           <summary>Full cell dataset ({cells} rows)</summary>
-          <div className="table-wrapper">
+          {/*
+            Measured at 320px with the disclosure open, on the build of 2026-10-27 (am-a14x):
+            scrollWidth 273 against clientWidth 254, so 19px of this table is off-screen, and at
+            1280px it fits exactly (1150/1150). The overflow is identical with scripts on and off.
+            What differs is the keyboard route: with scripts, formulaOverflow.inline.ts gives this
+            box tabindex="0" and the derived name "Scrollable table: ..."; without them nothing
+            does, so a reader with no JavaScript had no way to reach those 19px. Authoring the stop
+            is what makes the two readers equal, which is the sixth product outcome in AGENTS.md.
+            The sibling wrapper in sr08/FieldFrameChangeLab.tsx is measured to FIT at both widths
+            in both states and must keep no tabIndex: a stop on a box that does not scroll is the
+            harm the ratchet's own header warns about.
+          */}
+          <section
+            className="table-wrapper"
+            aria-label="Full cell dataset, scroll horizontally if needed"
+            // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable (WCAG 2.1.1); see the comment above.
+            tabIndex={0}
+          >
             <table className="data-table">
               <caption>
                 Accepted numerical density and thermodynamic reference, including every spatial cell
@@ -508,7 +525,7 @@ export function DriftDiffusionLab({
                 })}
               </tbody>
             </table>
-          </div>
+          </section>
         </details>
       </section>
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct

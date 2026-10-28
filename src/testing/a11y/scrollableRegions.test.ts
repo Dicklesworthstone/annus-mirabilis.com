@@ -551,12 +551,26 @@ export const NOT_YET_AUDITED = new Map<string, number>([
   ["sr07-components", 1],
   ["sr07-equation", 1],
   ["table-scroll-container", 1],
-  // A SUBJECT (`overflow-x: auto`, src/app/globals.css:1830), and the one entry here whose
-  // content is FIXED: a data table's width does not depend on a formula, so unlike the display
-  // classes above these three can be measured at 320px and either made to fit or given an
-  // authored tab stop. The 3 is FieldFrameChangeLab.tsx (1) and DriftDiffusionLab.tsx (2), and
-  // the 2 recorded before am-a14x was already short of the tree.
-  ["table-wrapper", 3],
+  // A SUBJECT (`overflow-x: auto`, src/app/globals.css:1830), and the one entry here whose content
+  // is FIXED: a data table's width does not depend on a formula, so unlike the display classes
+  // above these can be measured at 320px and either made to fit or given an authored tab stop.
+  //
+  // MEASURED, which is why this is 2 and not 3 (am-a14x). Both rendered wrappers were read in a
+  // browser at 320px and 1280px, with scripts on (predictions skipped) and off, every <details>
+  // opened, past formulaOverflow.inline.ts's last scheduled pass:
+  //
+  //   /lab/sr-08/  FieldFrameChangeLab "Transformation ledger"   254/254 and 421/421   FITS
+  //   /lab/bm-04/  DriftDiffusionLab   "Full cell dataset"       273/254 and 1150/1150 OVERFLOWS 19px
+  //
+  // The sr-08 wrapper fits at both widths in both script states and must therefore keep NO
+  // tabIndex; a stop on a box that does not scroll is the harm this file's header warns about.
+  // The bm-04 wrapper now authors `tabIndex={0}` and a name, because the overflow is identical
+  // with scripts on and off while the tab stop was not: `initFormulaOverflow` supplied one and a
+  // reader without JavaScript had no route to those 19px.
+  //
+  // The third element is DriftDiffusionLab.tsx:271, the comparison table, which renders only after
+  // a second run with a changed force. It is UNMEASURED for that reason and not because it fits.
+  ["table-wrapper", 2],
   ["trajectory-table-scroll", 1],
   ["video-observation-scroll", 1],
 ]);
