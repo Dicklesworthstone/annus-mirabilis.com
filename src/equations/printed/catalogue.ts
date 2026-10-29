@@ -178,6 +178,65 @@ export function sectionShortLabel(title: string): string {
 }
 
 /**
+ * The section labeller that `equationLocator` and `marginNoteLocator` take, with the one-section
+ * rule in it rather than beside it.
+ *
+ * `null` for a paper with one section, because mass-energy prints no numbered sections and its
+ * whole argument is `s0`: "§0, display 1" would cite something that does not exist. That rule was
+ * written twice -- once in `scripts/build-search-index.ts` and once nowhere, which is why
+ * `/equations/<paper>/<display>/` titled itself with a raw content id while the search document
+ * pointing AT that page carried "§3, display 7". One function now, so the page and the index cannot
+ * disagree about what an equation is called.
+ */
+export function sectionLabeller(
+  sections: readonly Readonly<{ id: string; title: string }>[],
+): (section: string) => string | null {
+  const labels = new Map(sections.map((s) => [s.id, sectionShortLabel(s.title)]));
+  const hasSections = sections.length > 1;
+  return (section) => (hasSections ? (labels.get(section) ?? null) : null);
+}
+
+/**
+ * The paper's name without its editorial subtitle: "Brownian motion: from wandering to a measurable
+ * law" gives "Brownian motion".
+ *
+ * The subtitle is why this is not simply `paper.title`. On `/equations/<paper>/<display>/` the full
+ * title plus the equation's locator plus the root layout's " · Annus Mirabilis" runs past a hundred
+ * characters, and a search result or a narrow tab truncates from the END -- which is where the
+ * locator is, the only part that distinguishes one of 279 pages from the next.
+ *
+ * All four papers' titles are `<name>: <subtitle>`, which `equationPageTitle.test.ts` asserts rather
+ * than assumes. A title with no ": " is returned whole, so the companion dissertation or any later
+ * paper cannot be silently truncated to nothing, and a leading colon is not a boundary.
+ */
+export function shortPaperName(title: string): string {
+  const cut = title.indexOf(": ");
+  return cut > 0 ? title.slice(0, cut) : title;
+}
+
+/**
+ * WHAT AN EXPLAINED EQUATION IS CALLED, for a reader: the locator a reader would cite for a printed
+ * display ("§3, display 7"), and the name its own id carries for a discovery route or a laboratory
+ * ("Light postulate", "SR-03: Minkowski interval").
+ *
+ * `undefined` for a derivation step, for which neither shape applies, and for a route or laboratory
+ * id that neither shape recognises. The caller decides what to do with that: the search index counts
+ * it in a census of untitled equations and skips the document rather than inventing a title, and the
+ * explanation page falls back to the display id, which is the equation's address and is what the
+ * catalogue shows beside every row.
+ */
+export function explainedEquationLabel(
+  paper: string,
+  display: string,
+  kind: CatalogueKind,
+  sectionLabelOf: (section: string) => string | null,
+): string | undefined {
+  return kind === "printed"
+    ? equationLocator(display, sectionLabelOf)
+    : explainedEquationTitle(paper, display, kind);
+}
+
+/**
  * WHERE A PRINTED DISPLAY SITS, as a reader would cite it: "§3, display 7", "§3, equation (1)",
  * "Equation (2)". Derived from the anchor grammar in docs/CONTENT_IDS.md and from the paper's own
  * section titles, never authored here.

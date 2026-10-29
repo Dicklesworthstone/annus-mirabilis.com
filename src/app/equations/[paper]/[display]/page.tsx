@@ -1,4 +1,11 @@
 import { notFound } from "next/navigation";
+import { loadPaper } from "../../../../content/server.ts";
+import {
+  equationCatalogue,
+  explainedEquationLabel,
+  sectionLabeller,
+  shortPaperName,
+} from "../../../../equations/printed/catalogue.ts";
 import {
   everyExplanationRoute,
   fullExplanation,
@@ -44,8 +51,50 @@ export async function generateMetadata({
   const explanation = fullExplanation(paper, display);
   if (!explanation) return {};
   const words = explanation.inWords.map((phrase) => phrase.text).join("");
-  return { title: `${display}: the equation explained`, description: words.slice(0, 160) };
+  const record = await loadPaper(paper);
+  const row = equationCatalogue(paper).find((r) => r.display === display);
+  const label = row
+    ? explainedEquationLabel(paper, display, row.kind, sectionLabeller(record.paper.sections))
+    : undefined;
+  return {
+    title: `${shortPaperName(record.paper.title)} · ${label ?? display} explained`,
+    description: words.slice(0, 160),
+  };
 }
+
+/**
+ * THE TITLE NAMED THE DISPLAY AND NOT THE PAPER, SO 117 OF THESE 279 PAGES WERE AMBIGUOUS -- AND
+ * THE NAME IT SHOULD HAVE USED WAS ALREADY BUILT, FOR THE SEARCH DOCUMENT POINTING AT THIS PAGE.
+ *
+ * It was `` `${display}: the equation explained` ``. Display ids repeat across papers -- `eq-s1-d1`
+ * exists in brownian-motion, light-quanta AND special-relativity -- so three different pages carried
+ * byte-identical titles. Measured over the 764 built pages on 2026-10-28: 692 distinct titles, 49
+ * shared by more than one route, and **47 of those 49 were these pages, covering 117 routes**. The
+ * only two others are `/instruments/` against one more route, and the home title against one more.
+ *
+ * A reader with three tabs, three bookmarks or three search results could not tell which paper's
+ * equation they had. Worse, `src/search/documents.ts` already describes the right name and
+ * `scripts/build-search-index.ts` already computed it: "For a printed display it is the locator a
+ * reader would cite, '§3, display 7' (equationLocator); for the other two it is the name the id
+ * carries, 'Light postulate' or 'SR-03: Minkowski interval' (explainedEquationTitle)." So a reader
+ * searching found a well-named result and landed on a page titled with the raw id.
+ *
+ * Both now call one function, `explainedEquationLabel`, with one labeller, `sectionLabeller`, whose
+ * docblock holds the one-section rule that was previously written in the index builder alone. A
+ * derivation step has neither shape, so those 35 fall back to the display id -- the equation's
+ * address, which is what the catalogue shows beside every row for the same reason.
+ *
+ * WHAT THIS DOES NOT FIX, measured and recorded on am-bzsk so nobody re-derives it: there is no
+ * short authored NAME for an equation anywhere in the data. `inWords` is a paragraph (median 187
+ * characters, max 521), `source.label` has four distinct values across all 279, and `printed.spoken`
+ * is the formula read aloud (median 84, max 1,672). I wrote a capped-sentence title, measured 261 of
+ * 279 ending in an ellipsis, and withdrew it.
+ *
+ * `shortPaperName` lives in `catalogue.ts` with the other title derivations rather than here,
+ * because a Next page module may export only the route's own exports -- `tsc` refuses any other
+ * export with TS2344 against `{ [x: string]: never }`, which is how that constraint announces
+ * itself.
+ */
 
 export default async function Page({
   params,

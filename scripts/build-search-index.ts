@@ -19,10 +19,9 @@ import { ROUTE_INDEX } from "../src/discovery/routeIndex.ts";
 import { GUIDED_TOURS } from "../src/discovery/tours/catalogue.ts";
 import {
   equationCatalogue,
-  equationLocator,
-  explainedEquationTitle,
+  explainedEquationLabel,
   marginNoteLocator,
-  sectionShortLabel,
+  sectionLabeller,
 } from "../src/equations/printed/catalogue.ts";
 import { recordLatex } from "../src/equations/recordLatex.ts";
 import {
@@ -279,10 +278,9 @@ export async function loadSearchCorpus(
   }));
   for (const { paper } of papers) {
     const margins = loadPaperMargins(paper.id);
-    const sectionLabels = new Map(paper.sections.map((s) => [s.id, sectionShortLabel(s.title)]));
-    const hasSections = paper.sections.length > 1;
-    const labelOf = (section: string) =>
-      hasSections ? (sectionLabels.get(section) ?? null) : null;
+    // The one-section rule lives in `sectionLabeller` now, so the explanation page can use the same
+    // labeller and title an equation the way this index titles it.
+    const labelOf = sectionLabeller(paper.sections);
     for (const note of margins.notes) {
       const locator = marginNoteLocator(note.affectedIds[0], labelOf);
       marginNotes.push({
@@ -368,10 +366,7 @@ export async function loadSearchCorpus(
      */
     for (const row of equationCatalogue(paper.id)) {
       if (row.kind === "step" || row.kind === "elsewhere") continue;
-      const title =
-        row.kind === "printed"
-          ? equationLocator(row.display, labelOf)
-          : explainedEquationTitle(paper.id, row.display, row.kind);
+      const title = explainedEquationLabel(paper.id, row.display, row.kind, labelOf);
       if (title === undefined) {
         // A route or laboratory id neither shape recognises. Counted and named, never titled with
         // something invented: a search result reading "journey-whatever" is noise a reader cannot
