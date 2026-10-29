@@ -1,7 +1,15 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
+import {
+  clearAnnouncement,
+  getAnnouncementCount,
+  getLastAnnouncement,
+} from "../a11y/announce.ts";
 import lqEquations from "../generated/light-quanta-equations.json";
 import meEquations from "../generated/mass-energy-equations.json";
 import srEquations from "../generated/special-relativity-equations.json";
@@ -125,17 +133,58 @@ function handlers(el: Element | null | undefined): Handlers {
 }
 
 describe("the reading formula's inspector opens on a pin, never on a pointer move", () => {
-  test("without JavaScript there is no inspector, and the live region is present and empty", () => {
+  test("without JavaScript there is no inspector, and the block carries NO live region of its own", () => {
+    /*
+     * THIS ASSERTED THE OPPOSITE until 2026-10-28, and the mechanism it asserted was the defect.
+     * It read:
+     *
+     *     expect(html).toContain('<p class="visually-hidden" role="status" aria-live="polite"');
+     *     expect(/role="status"[^>]*><\/p>/.test(html)).toBe(true);
+     *
+     * "the live region is present and empty" was the right requirement and the wrong place for it.
+     * A reading page holds one of these blocks per printed formula, so the region came with it:
+     * measured in a browser, 24 concurrent polite live regions on relativity's reading page, TWENTY
+     * of them this one, 22 on light quanta, 15 on mass-energy. `BlockTermChips`'s own `announce`
+     * docblock warned about exactly that and the explanation face was never passed `false`.
+     *
+     * The requirement now holds once, in the root layout, and the pin announces through
+     * `src/a11y/announce.ts`. The old shape is kept here as an explicit negative so it cannot creep
+     * back under a passing suite.
+     */
     const html = renderToStaticMarkup(<ColouredFormula equations={[lorentz]} />);
     expect(html).not.toContain("term-inspector");
-    expect(html).toContain('<p class="visually-hidden" role="status" aria-live="polite"');
-    expect(/role="status"[^>]*><\/p>/.test(html)).toBe(true);
+    expect(html).not.toContain('role="status"');
+    expect(html).not.toContain("aria-live");
+  });
+
+  test("the one live region is rendered by the layout, present and empty before any announcement", () => {
+    /*
+     * The half of the old assertion that was right, asserted where it is now true. A region created
+     * in the same tick as the text it carries is the shape a screen reader can miss, which is why
+     * `announce()` looks this element up by id and only creates one when it is absent.
+     *
+     * Read from the layout's SOURCE rather than by rendering it: the root layout is a server
+     * component with four pre-paint scripts and the whole chrome in it, and this suite has no
+     * business mounting that to ask one question about one element.
+     */
+    const layout = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "../app/layout.tsx"),
+      "utf8",
+    );
+    expect(layout).toContain('id="a11y-live-region"');
+    expect(layout).toContain('aria-live="polite"');
+    expect(layout).toContain('aria-atomic="true"');
+    // Empty: no children, so nothing is announced at load.
+    expect(/id="a11y-live-region"[^>]*\/>/.test(layout)).toBe(true);
   });
 
   let container: HTMLElement;
   let root: Root;
   beforeEach(async () => {
     await installDom();
+    // The announcer is module state shared across tests, so each one starts from silence or the
+    // count below would carry a previous test's announcement.
+    clearAnnouncement();
     container = createContainer();
     root = createRoot(container);
   });
@@ -152,11 +201,14 @@ describe("the reading formula's inspector opens on a pin, never on a pointer mov
       [...container.querySelectorAll(".term-chip")].find(
         (c) => c.getAttribute("data-quantity-id") === id,
       );
-    const live = () => container.querySelector('[role="status"]')?.textContent ?? null;
+    // The announcement is read from the SHARED channel, not from markup inside the block: the block
+    // renders no region of its own since 2026-10-28, and the channel is what a reader hears.
+    const live = () => getLastAnnouncement();
     const inspector = () => container.querySelector(".term-inspector");
     expect(chip("lorentzFactor")?.hasAttribute("disabled")).toBe(false);
     expect(inspector()).toBeNull();
     expect(live()).toBe("");
+    expect(container.querySelector('[role="status"]')).toBeNull();
 
     await act(async () => handlers(block).onClick?.({ target: chip("lorentzFactor") }));
     expect(inspector()?.getAttribute("aria-label")).toBe("About Lorentz factor");
@@ -165,17 +217,32 @@ describe("the reading formula's inspector opens on a pin, never on a pointer mov
       expect(text).toContain(part);
     const announced = live();
     expect(announced?.startsWith("Lorentz factor. ")).toBe(true);
+    const spokenOnce = getAnnouncementCount();
 
-    // A pointer crossing another quantity lights it, and says nothing new.
+    // A pointer crossing another quantity lights it, and says nothing new. The COUNT is what makes
+    // that assertion mean something: unchanged text cannot tell a silence from the same sentence
+    // announced a second time, and a shared region re-announces identical text.
     expect(chip("frameSpeed")).toBeDefined();
     await act(async () => handlers(block).onPointerOver?.({ target: chip("frameSpeed") }));
     expect(block?.getAttribute("data-active-quantity-id")).toBe("frameSpeed");
     expect(inspector()?.getAttribute("aria-label")).toBe("About Lorentz factor");
     expect(live()).toBe(announced);
+    expect(getAnnouncementCount()).toBe(spokenOnce);
 
     await act(async () => handlers(block).onKeyDown?.({ key: "Escape" }));
     expect(inspector()).toBeNull();
-    expect(live()).toBe("");
+    /*
+     * THIS ASSERTED `live()` WAS BLANKED, and blanking is no longer the right thing to want.
+     * The per-block region's text went to "" on unpin, which announced nothing: setting a live
+     * region to the empty string gives a reader no content. So the assertion was about the
+     * element's state and not about what anyone hears.
+     *
+     * The channel is now shared, and blanking it would silence an announcement another component
+     * had just made. So unpinning says nothing NEW, which is the same thing a reader experienced
+     * before, and the count is what states it.
+     */
+    expect(getAnnouncementCount()).toBe(spokenOnce);
+    expect(container.querySelector('[role="status"]')).toBeNull();
   });
 
   test("the explorer's term inspector names the laboratory that computes a bound quantity", async () => {

@@ -1,5 +1,6 @@
 "use client";
-import { type CSSProperties, useContext } from "react";
+import { type CSSProperties, useContext, useEffect } from "react";
+import { announce as announceToReader } from "../a11y/announce.ts";
 import { TermHighlightContext } from "./TermHighlight.tsx";
 import { SymbolicValue, TermInspector } from "./TermInspector.tsx";
 import type { TermFacts } from "./termFacts.ts";
@@ -159,16 +160,38 @@ export function BlockTermChips({
   /** Phrasing content only (TermChips): for a formula set inside a paragraph. */
   inline?: boolean | undefined;
   /**
-   * False where a page holds many such blocks (a reading face's printed displays, dispatch 224):
-   * one live region each would put seven on mass-energy's English face and fifty-two on light
-   * quanta's German face. The pressed chip still says so itself, as a toggle button does, and the
-   * inspector follows the chips in reading order.
+   * Whether pinning a term is announced at all. It used to mean "render a live region of my own",
+   * and was passed false where a page holds many such blocks (a reading face's printed displays,
+   * dispatch 224) because "one live region each would put seven on mass-energy's English face and
+   * fifty-two on light quanta's German face".
+   *
+   * THAT REASON IS GONE, because the announcement now goes through the site's one shared region
+   * (src/a11y/announce.ts) instead of a region per block. Measured in a browser on 2026-10-28,
+   * before the change: 24 concurrent live regions on relativity's reading page, TWENTY of them this
+   * one, 22 on light quanta and 15 on mass-energy. The explanation face was never passed false, and
+   * the default is true, so the page the docblock warns about had exactly the defect it describes.
+   *
+   * The prop stays because a caller may still want no announcement; it no longer costs a region.
    */
   announce?: boolean | undefined;
 }) {
   const block = useContext(TermHighlightContext);
   const pinned = block?.pinned ?? null;
   const item = pinned === null ? undefined : items.find((i) => i.quantityId === pinned);
+  /*
+   * ONE SHARED REGION, NOT ONE PER BLOCK. `announce()` writes into `#a11y-live-region`, which the
+   * root layout renders empty and server-side so the region exists before the first update rather
+   * than being created in the same tick as the text it carries -- which is the shape a screen
+   * reader can miss, and which this utility had to fall back to while nothing rendered the element.
+   *
+   * Keyed on the STRING, so a re-render that recomputes the same sentence announces nothing. An
+   * empty string is not an announcement: `announce()` returns early, which is the behaviour the
+   * rendered region had when a pin was cleared.
+   */
+  const spoken = announce && item ? announcement(item) : "";
+  useEffect(() => {
+    if (spoken !== "") announceToReader(spoken);
+  }, [spoken]);
   return (
     <>
       <TermChips
@@ -190,15 +213,6 @@ export function BlockTermChips({
           value={<SymbolicValue lab={item.facts.lab} />}
         />
       ) : null}
-      {!announce ? null : inline ? (
-        <span className="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
-          {item ? announcement(item) : ""}
-        </span>
-      ) : (
-        <p className="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
-          {item ? announcement(item) : ""}
-        </p>
-      )}
     </>
   );
 }

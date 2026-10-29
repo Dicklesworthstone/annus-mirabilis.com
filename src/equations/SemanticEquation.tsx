@@ -9,6 +9,7 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import { announce as announceToReader } from "../a11y/announce.ts";
 import { EquationExplainer } from "../reader/faces/EquationExplainer.tsx";
 import { exponentialParts } from "../units/scientific.ts";
 import { useEquationScope } from "./EquationScope.tsx";
@@ -92,6 +93,17 @@ export function SemanticEquation({
   useEffect(() => {
     setReady(true);
   }, []);
+  /*
+   * THE SELECTED NODE'S NOTE, THROUGH THE SITE'S ONE SHARED LIVE REGION rather than a region of
+   * this card's own. It was `<p className="equation-mathml" role="status" aria-live="polite">` here,
+   * so a page with three equation cards carried three concurrent polite regions -- measured on
+   * /lab/bm-01/ on 2026-10-28, three of its nine. Keyed on the sentence, so a re-render that
+   * recomputes the same text announces nothing, and an empty selection announces nothing at all.
+   */
+  const spokenNote = note ? `${note.title}. ${note.explanation}` : "";
+  useEffect(() => {
+    if (spokenNote !== "") announceToReader(spokenNote);
+  }, [spokenNote]);
   // TERMS AS TARGETS (dispatch 144): pointing at or focusing anything that names a quantity lights
   // every instance of that exact quantity in this card; a click still selects, as before.
   /**
@@ -356,9 +368,6 @@ export function SemanticEquation({
           It sits inside this card, so a phrase of the equation in words lights the term in the
           formula and the reverse: the card lights by quantity id across everything it holds. */}
       {equation.explainer ? <EquationExplainer explanation={equation.explainer} /> : null}
-      <p className="equation-mathml" role="status" aria-live="polite" aria-atomic="true">
-        {note ? `${note.title}. ${note.explanation}` : ""}
-      </p>
       <div className="equation-tools">
         <button
           type="button"

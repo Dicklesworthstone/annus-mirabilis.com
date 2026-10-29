@@ -166,6 +166,23 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             1905 pages are scans of the Bell &amp; Howell / UMI microfilm, via the Internet Archive.
           </p>
         </footer>
+        {/*
+          THE SITE'S ONE LIVE REGION, rendered empty and server-side so it exists before the first
+          announcement rather than being created in the same tick as the text it carries, which is
+          the shape a screen reader can miss. `src/a11y/announce.ts` looks this element up by id and
+          only creates one when it is absent, so every caller now writes into a region that was
+          present at first paint.
+
+          WHY IT IS HERE AT ALL, measured in a browser on 2026-10-28 (am-xpgx): components were
+          each rendering a live region of their own, so relativity's reading page carried 24
+          concurrent polite regions, light quanta 22, mass-energy 15 and /lab/bm-01/ nine. Twenty of
+          relativity's 24 were one per printed formula, from a prop whose own docblock warned about
+          exactly that. They now announce through this one.
+
+          One region, not two: `aria-live` and `aria-atomic` are set here to the utility's own
+          defaults, and it overwrites them per call when a caller asks for assertive.
+        */}
+        <div id="a11y-live-region" className="sr-only" aria-live="polite" aria-atomic="true" />
       </body>
     </html>
   );
