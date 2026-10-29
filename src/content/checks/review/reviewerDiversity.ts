@@ -97,7 +97,23 @@ export function measureReviewerDiversity(root: string): ReviewerDiversityCensus 
   return { units, rounds, crossFamily, sameFamilyOnly, undeclaredModel, modelIds };
 }
 
-/** The census line, in the wording am-rc1001-bridge-plan-pcjk.17 asks for. */
+/**
+ * The census line, in the wording am-rc1001-bridge-plan-pcjk.17 asks for.
+ *
+ * ITS CLOSING SENTENCE SAID "decision D-B is the owner's" UNTIL 2026-10-28, AND THE OWNER HAD
+ * DECIDED IT. `docs/DECISIONS.md` D-2026-10-02-agent-review-beyond-english records the choice
+ * verbatim -- "Extend, model-diverse (Recommended)" -- requires "at least one by a reviewer whose
+ * model family differs from the author's" for the ledgers, the physics review and R2, says under
+ * what does not change that "the author's own model family can never supply the round that makes a
+ * layer final", and names this bead in its own Applied-by list: ".17: the review guard compares
+ * model families".
+ *
+ * So the census is no longer reporting into an open question; it is reporting a corpus that does
+ * not yet meet a decided one. What has NOT changed is that it refuses nothing, and the reason is
+ * better than "awaiting a decision": the cross-model rounds are am-rc1001-bridge-plan-pcjk.49, and
+ * a guard that refused before they existed would turn 821 final units non-final in one commit. The
+ * line now says which decision, in whose words, and what it is waiting for.
+ */
 export function formatReviewerDiversity(census: ReviewerDiversityCensus): string {
   const ids = [...census.modelIds]
     .sort((a, b) => b[1] - a[1])
@@ -110,8 +126,11 @@ export function formatReviewerDiversity(census: ReviewerDiversityCensus): string
     `${census.undeclaredModel} with an undeclared model id. Model ids: ${ids}.` +
     (census.crossFamily === 0 && census.units > 0
       ? " 0 cross-family: every reviewer is the translator's own model, which satisfies" +
-        " D-2026-09-25 (a different reviewer ID) and not the stronger reading of" +
-        " independence. Report only; decision D-B is the owner's."
+        " D-2026-09-25 (a different reviewer ID) and NOT D-2026-10-02-agent-review-beyond-english," +
+        " whose words are \"the author's own model family can never supply the round that makes a" +
+        ' layer final". Still report only, because the rounds themselves are' +
+        " am-rc1001-bridge-plan-pcjk.49 and refusing before they exist would turn every final unit" +
+        " non-final in one commit."
       : "")
   );
 }

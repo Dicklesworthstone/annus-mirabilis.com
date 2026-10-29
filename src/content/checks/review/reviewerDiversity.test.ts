@@ -4,9 +4,16 @@
  * D-2026-09-25-agent-reviewed-translations makes a unit final after two rounds by "agents other
  * than its translator", and `validateAgentReview` enforces exactly that: a different reviewer ID.
  * Measured over the committed corpus, every reviewer ID differs and every reviewer MODEL does
- * not. This counts that, and refuses nothing: whether English units must carry a cross-family
- * round is decision D-B, which is the owner's, and enforcing it unasked would turn 821 final
- * units non-final in one commit.
+ * not. This counts that, and refuses nothing.
+ *
+ * THE REASON IT REFUSES NOTHING CHANGED ON 2026-10-28, AND THIS DOCBLOCK SAID THE OLD ONE. It read:
+ * "whether English units must carry a cross-family round is decision D-B, which is the owner's, and
+ * enforcing it unasked would turn 821 final units non-final in one commit." The first clause is no
+ * longer true: `docs/DECISIONS.md` D-2026-10-02-agent-review-beyond-english decided it, verbatim
+ * "Extend, model-diverse (Recommended)", and says "the author's own model family can never supply
+ * the round that makes a layer final". The second clause is still exactly why nothing refuses yet --
+ * the rounds are am-rc1001-bridge-plan-pcjk.49 -- so the conclusion survives its own premise being
+ * replaced, which is worth noticing rather than quietly rewriting.
  *
  * The census is asserted against the real corpus AND the arithmetic is asserted as a partition,
  * because a count that does not add up to its denominator is a count of something else.
@@ -61,7 +68,17 @@ describe("reviewer model diversity across the translation corpus", () => {
     expect(line).toContain("examined 821 units");
     expect(line).toContain("with a different-family reviewer");
     expect(line).toContain("same-family only");
-    // The sentence that keeps a reader from mistaking a report for a verdict.
-    expect(line).toContain("Report only; decision D-B is the owner's");
+    /*
+     * The sentence that keeps a reader from mistaking a report for a verdict. It asserted
+     * "Report only; decision D-B is the owner's" until 2026-10-28, and the decision had been made:
+     * the line now names it, quotes it, and says what the report is waiting for instead.
+     */
+    expect(line).toContain("D-2026-10-02-agent-review-beyond-english");
+    expect(line).toContain("can never supply the round that makes a layer final");
+    expect(line).toContain("Still report only");
+    expect(line).toContain("am-rc1001-bridge-plan-pcjk.49");
+    // And the superseded wording must not come back: a reader who sees "D-B is the owner's" would
+    // conclude the question is open, which is the error this change fixes.
+    expect(line).not.toContain("decision D-B is the owner's");
   });
 });
