@@ -254,9 +254,25 @@ test("light-thread: changing the observer moves the moving-frame readings and no
           `${engine.name}: these moving-frame readings did not follow beta from 0.6 to 0.2: ${stuckThatShouldMove.join(", ")}`,
         );
 
-        // Scoped to the laboratory: the page carries five polite live regions, four
-        // of them global chrome (the search launcher, the notebook, the theme group
-        // and one more), so an unscoped [role="status"] is ambiguous by five.
+        /*
+         * Scoped to the laboratory, because an unscoped `[role="status"]` is ambiguous on this page.
+         *
+         * THE CENSUS THIS COMMENT CARRIED WAS STALE AND ITS ATTRIBUTION WAS WRONG. It read: "the
+         * page carries five polite live regions, four of them global chrome (the search launcher,
+         * the notebook, the theme group and one more)". Re-measured in a browser on 2026-10-28,
+         * after hydration, this page carries FOUR and the notebook and theme-group regions are not
+         * among them -- they are on `/` and `/notebook/`, not here:
+         *
+         *     chrome  span.search-launch-status   role=status, no aria-live
+         *     LAB     p                          role=status aria-live=polite   <- what this reads
+         *     chrome  p.visually-hidden           aria-live=polite, in the lab detail control
+         *     chrome  div.sr-only#a11y-live-region  the site's one shared region
+         *
+         * The last of those is new (am-xpgx): components were each rendering a region of their own,
+         * 24 of them on relativity's reading page, and they now announce through one. So the
+         * scoping is still necessary and the number it was justified by has changed twice; it is
+         * written down here with the date because a census in a comment goes stale silently.
+         */
         const status = await page
           .locator("section.laboratory [role='status']")
           .first()
