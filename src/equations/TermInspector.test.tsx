@@ -5,11 +5,7 @@ import { fileURLToPath } from "node:url";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
-import {
-  clearAnnouncement,
-  getAnnouncementCount,
-  getLastAnnouncement,
-} from "../a11y/announce.ts";
+import { clearAnnouncement, getAnnouncementCount, getLastAnnouncement } from "../a11y/announce.ts";
 import lqEquations from "../generated/light-quanta-equations.json";
 import meEquations from "../generated/mass-energy-equations.json";
 import srEquations from "../generated/special-relativity-equations.json";
