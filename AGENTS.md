@@ -326,10 +326,18 @@ The repository holds a live application, its content records, the plans that spe
   (`src/equations/printed/catalogue.ts`), so nothing here is authored twice. **Do not conclude from
   the absence of a catalogue COMPONENT that the catalogue data is absent**, which is the mistake
   that left this unbuilt: `everyExplanationRoute()` and `fullExplanation()` already returned all 279
-  rows with an authored sentence each. **The search index is 1,311 documents, re-measured
-  2026-10-27** (`bun scripts/build-search-index.ts` prints the count; it was 1,231 when this clause
-  was written), of which 306 are equations, 46 are 1904 knowledge cards, 29 are common wrong turns
-  titled by the reader's own false belief, 29 are historical notes and 4 are capstones. **Eight of
+  rows with an authored sentence each. **The search index is 1,355 documents, re-measured
+  2026-10-28** (`bun scripts/build-search-index.ts` prints the count, and a build prints
+  `{"event":"search-index-built","documents":1355}`; it was 1,231 when this clause was written and
+  1,311 on 2026-10-27), of which **350 are equations**, 46 are 1904 knowledge cards, 29 are common
+  wrong turns titled by the reader's own false belief, 29 are historical notes and 4 are capstones.
+  The 44 that arrived between those two measurements are the explained equations of 26c5714b6, which
+  gave each of the 44 titled explanations a search document and its own route: 306 to 350 equations
+  and 334 to 378 distinct routes are the same 44 counted twice over, and this clause was not updated
+  in that commit. The breakdown is read off the built shards (`out/search/s-*.json`), which also hold
+  234 `sentence-en`, 234 `sentence-de`, 180 `glossary`, 48 `argument`, 48 `result`, 45 `foundation`,
+  37 `instrument`, 28 `section`, 22 `walkthrough`, 8 `tour`, 5 `connection-thread`, and 4 each of
+  `discovery` and `paper`. **Eight of
   the 21 declared search types had zero documents on 2026-10-22, and THREE do now**: `timeline`,
   `person` and `essay`, and all three have no records at all, so nothing is unbuilt behind them.
   The last type that had records and no builder was `knowledge-card`, built on 2026-10-27, and its
@@ -340,7 +348,9 @@ The repository holds a live application, its content records, the plans that spe
   and a reason naming a missing page is not a reason the records are unreachable.
   `src/testing/searchAnchorsResolve.test.ts` holds every document's route and anchor to the built
   `out/`, which none of the three link gates can do because a search document is not a link in any
-  page; at 1,311 documents it reports `987 carry an anchor; 334 distinct route(s)` and passes.
+  page; at 1,355 documents it reports `[search-anchors] 1355 document(s); 987 carry an anchor; 378
+  distinct route(s)` and passes, 5 tests 0 fail. The anchor count did not move with the 44: an
+  explained equation's document addresses a route rather than an anchor within one.
 - **Explanations:** 48 argument passages with R0-R3 across the four papers, all with review `draft` (`content/arguments/*/arg-*.json`). Every printed paragraph is bound to one or more passages and has its own r0 overview (`content/bindings/<paper>.yaml`, D-2026-09-24-explanation-grain). Brownian §3's passage is arg-bm-diffusivity, which declares `section: "s3"`.
 - **Instruments:** all 33 core labs are live (`ls -d src/app/lab/*/` lists 41 directories, including the shelf labs). Every number is a labelled host calculation.
 - **FrankenSim, measured on live 2026-09-26 (GreenOx, mail 40852): one lab's results are computed by it.** BM-01, after "Apply trial settings", fetches `/wasm/fs-annus-diffusion/80a1f8fda6f69003/fs_annus_diffusion_bg.wasm` (92,751 bytes, sha256 equal to `public/wasm/manifest.json`, FrankenSim 01824653) in a dedicated worker and shows "Ideal model, computed with FrankenSim"; with the request blocked it shows "Ideal model, host calculation". On arrival every lab shows its static worked example and fetches no WASM (0 in 1,497 requests across 38 lab pages), by design. **The last sentence of this clause said `diffusion1d_frames` and `philox_normals` were "bound to no lab yet"; re-measured in code 2026-10-03, all THREE capabilities are bound.** Each has a host worker that loads the pinned bundle, and each worker is reached from a reader-facing lab through `src/experiments/<id>/browser.ts`: `brownian_frames` by BM-01 (`TracerLab.tsx`, also `BrownianComparisonLab`, and the Brownian discovery views), `philox_normals` by BM-05 (`WalkLab.tsx`, via `frankensimWalkNormals`), and `diffusion1d_frames` by BM-06 (`BrownianLab.tsx`, via `frankensimGridStepper`). Corroborated against the deployment rather than only the tree: the candidate check `accepted-wasm-result-per-capability` PASSED in the newest release record (20261002T203425Z-3ef5ac64), which is a check per capability against the served assets. No `.tsx` imports the loader directly, by design, so `rg -l "workers/wasm" src --glob '*.tsx'` still returns only the planted guard fixture; that grep measures the architecture rule, not whether a reader gets a FrankenSim number. **ALL THREE now have the live per-lab measurement, taken in a browser on 2026-10-28 over the 765-page build, and the clause here said for a month that two of them did not.** The sentence it replaces read: the behaviour "was measured on 2026-09-26 for BM-01 only and has NOT been re-measured for BM-05 and BM-06; their binding is verified in code and by the capability check, not by a browser session." Measured by driving each laboratory to the state where the label is possible, then reading the label text, with the `.wasm` request allowed and then aborted:
