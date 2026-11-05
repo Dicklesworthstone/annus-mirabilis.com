@@ -1,6 +1,6 @@
 /**
  * THE READER'S INVESTIGATION SURVIVES A RELOAD, AGAINST THE BUILT SITE
- * (am-rc1001-bridge-plan-pcjk.27, acceptance clauses 1 and 3).
+ * (am-rc1001-bridge-plan-pcjk.27, reload, notebook, export and clear acceptance).
  *
  * The unit tests prove the parser, the store and the provider's effect; `persistence.test.ts` runs
  * the storage layer against an injected `Storage`, and `context.test.tsx` mounts the provider
@@ -18,7 +18,7 @@
  *   AM_BASE_URL=http://127.0.0.1:3000 node scripts/e2e/investigationPersistence.mjs
  */
 import assert from "node:assert/strict";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { chromium } from "playwright";
 
@@ -31,6 +31,7 @@ const PROMPT = "bm-predict-perturb-explain-radius";
 const KEY = "am:investigations:v1:brownian-motion";
 /** Distinctive enough that finding it in a request URL or body is unambiguous. */
 const PREDICTION = "Sentinel prediction qx7: the spread falls by root two, not by half.";
+const EXPLANATION = "Sentinel explanation qx7: the model predicts a smaller spread.";
 
 const browser = await chromium.launch({ headless: true });
 const checks = [];
@@ -51,7 +52,7 @@ try {
   page = await context.newPage();
   page.setDefaultTimeout(20000);
   page.on("pageerror", (error) => errors.push(String(error)));
-  page.on("request", (request) => {
+  context.on("request", (request) => {
     requests.push({
       method: request.method(),
       url: request.url(),
@@ -119,6 +120,15 @@ try {
   assert.equal(await notice.getAttribute("data-investigation-keep"), "kept");
   record("pinning writes the report to this device, under the registered key");
 
+  await workspace.locator("textarea").nth(1).fill(EXPLANATION);
+  await workspace.getByRole("button", { name: "Keep my explanation", exact: true }).click();
+  await page.waitForFunction(
+    ({ key, explanation }) =>
+      JSON.parse(window.localStorage.getItem(key) ?? "null")?.report?.explanation === explanation,
+    { key: KEY, explanation: EXPLANATION },
+  );
+  record("the explanation is kept with the pinned prediction");
+
   // ── 4. Reload. This is the clause: the reader comes back and the work is there.
   await page.reload({ waitUntil: "load" });
   const taskAfter = page.locator(`section[data-ppe-task-id="${PROMPT}"]`);
@@ -170,32 +180,50 @@ try {
   );
   record("a restored investigation refuses a new reading and says why");
 
-  // ── 7. Nothing was uploaded, read off the request log.
-  const leaked = requests.filter(
-    (request) =>
-      request.url.includes("qx7") ||
-      request.url.includes(encodeURIComponent("Sentinel prediction")) ||
-      request.body.includes("qx7"),
+  // The reading notebook opens the SAME record, including its complete local exports.
+  await page.goto(new URL("/notebook/", base).href, { waitUntil: "load" });
+  const keptInvestigation = page.locator('[data-kept-investigation="brownian-motion"]');
+  await keptInvestigation.waitFor();
+  assert.equal(await keptInvestigation.locator("[data-kept-prediction]").textContent(), PREDICTION);
+  assert.equal(
+    await keptInvestigation.locator("[data-kept-explanation]").textContent(),
+    EXPLANATION,
   );
-  assert.deepEqual(
-    leaked.map((request) => `${request.method} ${request.url}`),
-    [],
-    "a request carried the reader's prediction",
+  const keptReport = JSON.parse(
+    await page.evaluate((key) => window.localStorage.getItem(key), KEY),
+  ).report;
+  const jsonReady = page.waitForEvent("download");
+  await keptInvestigation
+    .getByRole("button", { name: "Download investigation JSON", exact: true })
+    .click();
+  const jsonDownload = await jsonReady;
+  const jsonPath = resolve(output, "brownian-motion-investigation.json");
+  await jsonDownload.saveAs(jsonPath);
+  assert.deepEqual(JSON.parse(await readFile(jsonPath, "utf8")), keptReport);
+  const htmlReady = page.waitForEvent("download");
+  await keptInvestigation
+    .getByRole("button", { name: "Download printable investigation", exact: true })
+    .click();
+  const htmlDownload = await htmlReady;
+  const htmlPath = resolve(output, "brownian-motion-investigation.html");
+  await htmlDownload.saveAs(htmlPath);
+  const html = await readFile(htmlPath, "utf8");
+  assert.ok(html.includes(PREDICTION));
+  assert.ok(html.includes(EXPLANATION));
+  assert.ok(html.includes("Content-Security-Policy"));
+  record("the notebook shows the saved prediction and explanation and exports the complete record");
+
+  await keptInvestigation.getByRole("link", { name: "Reopen this investigation" }).click();
+  await page.waitForFunction(
+    () =>
+      document
+        .querySelector("p[data-investigation-keep]")
+        ?.getAttribute("data-investigation-keep") === "restored",
   );
-  const offOrigin = requests.filter((request) => !request.url.startsWith(base));
-  assert.deepEqual(
-    offOrigin.map((request) => request.url),
-    [],
-    "a request left this origin during a private investigation",
-  );
-  const posts = requests.filter((request) => request.method !== "GET");
-  assert.deepEqual(
-    posts.map((request) => `${request.method} ${request.url}`),
-    [],
-    "the investigation path sent a non-GET request",
-  );
+  assert.equal(new URL(page.url()).pathname, ROUTE);
+  assert.equal(new URL(page.url()).hash, `#${PROMPT}`);
   record(
-    `no request carried the prediction (${requests.length} request(s) recorded, 0 off-origin, 0 non-GET)`,
+    "reopening from the notebook returns to the original task with the investigation restored",
   );
 
   // ── 8. THE CONTROL: with the stored bytes gone, the same page restores nothing.
@@ -203,8 +231,26 @@ try {
   // Without this, every assertion above is satisfied by a page that somehow shows a pinned
   // prediction for another reason, and "restored" would be a word rather than a mechanism. Clearing
   // one key and reloading the same URL is the smallest intervention that isolates it.
-  await page.evaluate((key) => window.localStorage.removeItem(key), KEY);
-  await page.reload({ waitUntil: "load" });
+  await page.goto(new URL("/notebook/", base).href, { waitUntil: "load" });
+  await page.locator('[data-kept-investigation="brownian-motion"]').waitFor();
+  const dataPage = await context.newPage();
+  dataPage.on("pageerror", (error) => errors.push(String(error)));
+  await dataPage.goto(new URL("/your-data/", base).href, { waitUntil: "load" });
+  await dataPage.getByTestId(`clear-btn-${KEY}`).click();
+  await dataPage.getByTestId("clear-confirmation").waitFor();
+  assert.notEqual(
+    await page.evaluate((key) => window.localStorage.getItem(key), KEY),
+    null,
+    "the investigation was cleared before the reader confirmed",
+  );
+  await dataPage.getByTestId("confirm-clear-btn").click();
+  await page.waitForFunction(
+    () => document.querySelector('[data-kept-investigation="brownian-motion"]') === null,
+  );
+  assert.equal(await page.evaluate((key) => window.localStorage.getItem(key), KEY), null);
+  record("an explicitly confirmed clear removes the saved investigation and updates the other tab");
+  await dataPage.close();
+  await page.goto(new URL(ROUTE, base).href, { waitUntil: "load" });
   const taskCleared = page.locator(`section[data-ppe-task-id="${PROMPT}"]`);
   await taskCleared.waitFor();
   const noticeCleared = taskCleared.locator("p[data-investigation-keep]");
@@ -226,12 +272,56 @@ try {
   );
   record("control: with the stored bytes removed, the same page restores nothing");
 
+  // ── 7. Nothing was uploaded, read off the request log.
+  const leaked = requests.filter(
+    (request) =>
+      request.url.includes("qx7") ||
+      request.url.includes(encodeURIComponent("Sentinel prediction")) ||
+      request.body.includes("qx7"),
+  );
+  assert.deepEqual(
+    leaked.map((request) => `${request.method} ${request.url}`),
+    [],
+    "a request carried the reader's prediction",
+  );
+  const offOrigin = requests.filter(
+    (request) => new URL(request.url).origin !== new URL(base).origin,
+  );
+  assert.deepEqual(
+    offOrigin.map((request) => request.url),
+    [],
+    "a request left this origin during a private investigation",
+  );
+  const posts = requests.filter((request) => request.method !== "GET");
+  assert.deepEqual(
+    posts.map((request) => `${request.method} ${request.url}`),
+    [],
+    "the investigation path sent a non-GET request",
+  );
+  record(
+    `no request carried the prediction (${requests.length} request(s) recorded, 0 off-origin, 0 non-GET)`,
+  );
+
   assert.deepEqual(errors, [], `page errors during the investigation flow: ${errors.join(" | ")}`);
   record("no page error during the whole flow");
 
   await writeFile(
     resolve(output, "requests.json"),
     `${JSON.stringify({ route: ROUTE, recorded: requests.length, requests }, null, 2)}\n`,
+  );
+
+  await writeFile(
+    resolve(output, "checks.jsonl"),
+    `${checks
+      .map((name) =>
+        JSON.stringify({
+          suite: "investigation-persistence",
+          case: name,
+          jsEnabled: true,
+          outcome: "pass",
+        }),
+      )
+      .join("\n")}\n`,
   );
 } catch (error) {
   if (page) {

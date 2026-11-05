@@ -269,6 +269,22 @@ describe("bytes this edition cannot read are set aside, never discarded", () => 
     expect(listQuarantine(ctx)[0]?.reason).toBe("investigation-invalid-json");
   });
 
+  test("a failed quarantine write leaves the durable original available on a later visit", () => {
+    const storage = new InMemoryStorage({ throwOnSet: quotaExceededError() });
+    const bytes = JSON.stringify({ schemaVersion: 99, report: {} });
+    storage.rawSet(KEY, bytes);
+    const ctx = context(storage);
+
+    expect(readStoredInvestigation(PAPER, ctx).status).toBe("unreadable");
+    expect(listQuarantine(ctx)[0]?.rawValue).toBe(bytes);
+    expect(storage.rawGet(QUARANTINE_KEY)).toBeUndefined();
+    expect(storage.rawGet(KEY)).toBe(bytes);
+
+    // A new context has no session fallback. The reader's only durable copy must still exist.
+    expect(readStoredInvestigation(PAPER, context(storage)).status).toBe("unreadable");
+    expect(storage.rawGet(KEY)).toBe(bytes);
+  });
+
   test("when quarantine is full the unreadable bytes stay exactly where they are", () => {
     const storage = new InMemoryStorage();
     const ctx = context(storage);

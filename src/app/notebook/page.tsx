@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { KeptInvestigations } from "../../discovery/investigation/KeptInvestigations.tsx";
 
 export const metadata: Metadata = {
   title: "Your private reading notebook",
@@ -36,6 +37,7 @@ export default function NotebookPage() {
             and outlines read without it.
           </p>
         </noscript>
+        <KeptInvestigations />
         {/* What goes in it, how it stays private, and how to keep a copy: three short blocks a
           reader can scan, where four paragraphs of equal weight used to run on. Every fact from
           those paragraphs is kept. */}
@@ -59,14 +61,20 @@ export default function NotebookPage() {
                 here to look again, or run it again on purpose. If the model or the passage changes
                 later, the old record stays, labelled as old.
               </li>
+              <li>
+                In a discovery journey, pin a prediction, capture changed laboratory readings and
+                keep your explanation. The saved investigation appears here with a link back to its
+                task and downloads of the complete record.
+              </li>
             </ul>
           </section>
           <section aria-labelledby="notebook-private">
             <h2 id="notebook-private">Only on this device</h2>
             <p>
               Nothing in the notebook is uploaded or used to assess you. Your questions and notes
-              never go into a passage link you share. Saved comparisons and their predictions stay
-              in this notebook; notes from the discovery pages keep their own storage.
+              never go into a passage link you share. Saved comparisons and discovery investigations
+              appear here alongside your reading notes. The investigation shown here is the same
+              saved work you open on its discovery page.
             </p>
           </section>
           <section aria-labelledby="notebook-copy">

@@ -63,6 +63,7 @@ function reachable(starts: readonly string[]): string[] {
 
 const STARTS = [
   "src/discovery/investigation/context.tsx",
+  "src/discovery/investigation/KeptInvestigations.tsx",
   "src/discovery/investigation/workspace.ts",
   "src/discovery/investigation/persistence.ts",
 ];

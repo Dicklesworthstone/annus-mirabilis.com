@@ -20,7 +20,7 @@ import {
   migrateDocument,
   UnmigratableVersionError,
 } from "../../platform/storage/migrations.ts";
-import { quarantine } from "../../platform/storage/quarantine.ts";
+import { QUARANTINE_KEY, quarantine } from "../../platform/storage/quarantine.ts";
 import {
   createStorageContext,
   readRaw,
@@ -81,7 +81,10 @@ export function readStoredInvestigation(
   if (raw.status !== "ok" || raw.value === undefined)
     return { status: raw.status === "missing" ? "missing" : "unavailable" };
   const setAside = (reason: string): InvestigationRead => {
-    if (quarantine(ctx, key, raw.value as string, reason).quarantined) removeRaw(ctx, key);
+    const result = quarantine(ctx, key, raw.value as string, reason);
+    // A failed quarantine write can keep its copy only in the session fallback. Do not remove
+    // the durable original until the replacement has actually reached browser storage.
+    if (result.quarantined && !ctx.fallback.has(QUARANTINE_KEY)) removeRaw(ctx, key);
     return { status: "unreadable" };
   };
   let document: StoredInvestigationDocument;
