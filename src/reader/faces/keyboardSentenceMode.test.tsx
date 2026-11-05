@@ -186,8 +186,8 @@ describe("keyboard sentence mode and alignment interactions", () => {
       );
     });
 
-    const showSourceBtn = container.querySelector<HTMLButtonElement>(
-      'button[data-action="show-aligned-source"][data-unit-id="tr-bm-s4-p1-u1"]',
+    const showSourceBtn = container.querySelector<HTMLAnchorElement>(
+      'a[data-action="show-aligned-source"][data-unit-id="tr-bm-s4-p1-u1"]',
     );
     expect(showSourceBtn).not.toBeNull();
 

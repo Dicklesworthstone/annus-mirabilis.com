@@ -235,3 +235,61 @@ describe("AlignmentController highlights what the alignment index says, and noth
     });
   });
 });
+
+describe("source links navigate unless the complete German passage is present", () => {
+  function sourceLink(): HTMLAnchorElement {
+    const link = document.createElement("a");
+    link.href = "/papers/mass-energy/view/german/#s1-p1-s1";
+    link.dataset.action = "show-aligned-source";
+    link.dataset.unitId = "u1";
+    link.textContent = "Show the German source";
+    readerRoot.querySelector('[data-translation-unit-id="u1"]')?.appendChild(link);
+    return link;
+  }
+
+  async function clickSource(link: HTMLAnchorElement, ctrlKey = false): Promise<MouseEvent> {
+    const event = new window.MouseEvent("click", {
+      bubbles: true,
+      cancelable: true,
+      ctrlKey,
+    });
+    await act(() => {
+      link.dispatchEvent(event);
+    });
+    return event;
+  }
+
+  test("standalone English keeps native navigation and never announces internal source ids", async () => {
+    readerRoot.querySelector('[data-block-id="s1-p1"]')?.remove();
+    const link = sourceLink();
+    const event = await clickSource(link);
+    expect(event.defaultPrevented).toBe(false);
+    expect(link.getAttribute("href")).toBe("/papers/mass-energy/view/german/#s1-p1-s1");
+    expect(container.textContent).not.toContain("German source:");
+    await fire(readerRoot.querySelector('[data-translation-unit-id="u1"]') as Element, "mouseover");
+    await key("Enter");
+    expect(container.textContent).not.toContain("s1-p1");
+  });
+
+  test("parallel English highlights and announces each source sentence once", async () => {
+    const event = await clickSource(sourceLink());
+    expect(event.defaultPrevented).toBe(true);
+    expect(activeIds(readerRoot)).toEqual(["u1"]);
+    expect(partnerIds(readerRoot)).toEqual(["s1-p1", "s1-p1-s1"]);
+    expect(container.textContent).toBe("German source: Erstens.");
+    expect(container.textContent).not.toContain("Zweitens.");
+  });
+
+  test("an incomplete local passage falls back to the link", async () => {
+    readerRoot.querySelector('[data-sentence-id="s1-p1-s1"]')?.remove();
+    const event = await clickSource(sourceLink());
+    expect(event.defaultPrevented).toBe(false);
+    expect(container.textContent).not.toContain("German source:");
+  });
+
+  test("modified clicks preserve open-in-new-tab behavior even in the parallel face", async () => {
+    const event = await clickSource(sourceLink(), true);
+    expect(event.defaultPrevented).toBe(false);
+    expect(container.textContent).not.toContain("German source:");
+  });
+});

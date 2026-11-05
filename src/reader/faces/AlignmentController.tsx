@@ -98,19 +98,30 @@ export function AlignmentController({
         return;
       }
 
-      // 2. "Show the German source of this sentence"
-      const showSourceBtn = target.closest<HTMLElement>('[data-action="show-aligned-source"]');
-      if (showSourceBtn) {
-        const uid = showSourceBtn.getAttribute("data-unit-id");
-        if (uid) {
-          const sources = getAlignedSources(index, uid);
-          const texts = sources.map((sid) => {
-            const el = root.querySelector(`[data-sentence-id="${sid}"]`);
-            return el?.textContent?.replace(/Show English translation/g, "").trim() || sid;
-          });
-          applyHighlights(uid, "target");
-          setAnnouncement(`German source: ${texts.join(" ")}`);
-        }
+      // A real link works on the standalone English face and without JavaScript.
+      // Enhance it only when this page contains the complete aligned German passage.
+      const showSourceLink = target.closest<HTMLElement>('[data-action="show-aligned-source"]');
+      if (showSourceLink) {
+        if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
+          return;
+        const uid = showSourceLink.getAttribute("data-unit-id");
+        if (!uid) return;
+        const sources = getAlignedSources(index, uid).map(sourceElement);
+        if (sources.length === 0 || sources.some((el) => el === null)) return;
+        // The index also names each sentence's containing block for highlighting. Read each
+        // passage once, without repeating the whole paragraph after its individual sentences.
+        const passages = sources.filter(
+          (el): el is HTMLElement =>
+            el instanceof HTMLElement &&
+            !sources.some((other) => other !== null && other !== el && el.contains(other)),
+        );
+        if (passages.length === 0) return;
+        e.preventDefault();
+        const texts = passages.map((el) =>
+          el.textContent?.replace(/Show English translation/g, "").trim(),
+        );
+        applyHighlights(uid, "target");
+        setAnnouncement(`German source: ${texts.filter(Boolean).join(" ")}`);
         return;
       }
 
@@ -224,11 +235,18 @@ export function AlignmentController({
             setAnnouncement(`English translation: ${texts.join(" ")}`);
           }
         } else if (currentUid) {
-          const sources = getAlignedSources(index, currentUid);
-          const texts = sources.map((sid) => {
-            const el = root.querySelector(`[data-sentence-id="${sid}"]`);
-            return el?.textContent?.replace(/Show English translation/g, "").trim() || sid;
-          });
+          // Enter on the source link is handled by its native click, including navigation.
+          const focused = e.target as HTMLElement | null;
+          if (focused?.closest?.('[data-action="show-aligned-source"]')) return;
+          const sources = getAlignedSources(index, currentUid).map(sourceElement);
+          const texts = sources
+            .filter(
+              (el): el is Element =>
+                el !== null &&
+                !sources.some((other) => other !== null && other !== el && el.contains(other)),
+            )
+            .map((el) => el.textContent?.replace(/Show English translation/g, "").trim())
+            .filter(Boolean);
           if (texts.length > 0) {
             setAnnouncement(`German source: ${texts.join(" ")}`);
           }

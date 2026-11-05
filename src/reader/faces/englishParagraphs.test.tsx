@@ -140,11 +140,14 @@ describe("the English face reads as paragraphs", () => {
 
   test("every unit keeps its id and its own keyboard-reachable 'Show the German source'", () => {
     for (const u of UNITS) expect(html).toContain(` id="${u.id}"`);
-    const buttons = [...html.matchAll(/<button[^>]*data-action="show-aligned-source"[^>]*>/g)].map(
+    const links = [...html.matchAll(/<a[^>]*data-action="show-aligned-source"[^>]*>/g)].map(
       (m) => m[0],
     );
-    expect(buttons.length).toBe(UNITS.length);
-    for (const b of buttons) expect(b).not.toContain('tabindex="-1"');
+    expect(links.length).toBe(UNITS.length);
+    for (const link of links) {
+      expect(link).not.toContain('tabindex="-1"');
+      expect(link).toContain('href="/papers/mass-energy/view/german/#');
+    }
   });
 
   test("no review banner or chip, and no static content is a live region", () => {

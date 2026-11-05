@@ -12,7 +12,7 @@
  *   containedIn, or, with no blocks to ask, the paragraph it follows. Footnotes, closing lines and
  *   an unclaimed display stand alone, in the order the units come.
  * - Every unit keeps its id on an inline element, so #s0-p6-s1 still lands, and keeps its
- *   "Show the German source" action, which is a real button and so reachable by keyboard.
+ *   "Show the German source" link, which also works without JavaScript.
  * - No review state is shown: no banner, no chip, no "Alternative translations" disclosure
  *   (D-2026-09-25-no-review-status-banners, D-2026-09-25-one-best-translation). Each unit's text is
  *   the best reading, and its record keeps who made and checked it.
@@ -32,6 +32,7 @@ import type {
 } from "../../content/schemas/source.ts";
 import { printedDisplay } from "../../equations/printed/printedDisplays.ts";
 import { splitSourceSentenceId } from "../anchors/emitAnchor.ts";
+import { buildAlignmentIndex, getAlignedSources } from "./alignment.ts";
 import { EditorialNoteMarker } from "./EditorialNoteMarker.tsx";
 import { renderInlines, unitTerms } from "./inlines.tsx";
 import { PageTurnMark } from "./PageTurnMark.tsx";
@@ -166,17 +167,25 @@ export function TranslationParagraphs({
     return target ? `${anchorPrefix}${target}` : undefined;
   };
 
-  const showSource = (u: TranslationUnit) => (
-    <button
-      type="button"
-      className="show-aligned-action visually-hidden-focusable"
-      data-action="show-aligned-source"
-      data-unit-id={u.id}
-      aria-label="Show the German source of this sentence"
-    >
-      Show the German source
-    </button>
-  );
+  const sourceIndex = buildAlignmentIndex(alignment, undefined, units);
+  const showSource = (u: TranslationUnit) => {
+    // Alignment owns the address, including a sentence translated as several English units.
+    // The unit's explicit source reference also supports editions without an alignment file.
+    const sourceId = getAlignedSources(sourceIndex, u.id)[0] ?? u.sourceRefs[0]?.id;
+    const paper = alignment?.paper ?? u.sourceRefs[0]?.paper;
+    if (!sourceId || !paper) return null;
+    return (
+      <a
+        href={`/papers/${paper}/view/german/#${encodeURIComponent(sourceId)}`}
+        className="show-aligned-action visually-hidden-focusable"
+        data-action="show-aligned-source"
+        data-unit-id={u.id}
+        aria-label="Show the German source of this sentence"
+      >
+        Show the German source
+      </a>
+    );
+  };
   const unitAttributes = (u: TranslationUnit) => ({
     id: `${anchorPrefix}${u.id}`,
     "data-translation-unit-id": u.id,
