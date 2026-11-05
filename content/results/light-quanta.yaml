@@ -14,6 +14,9 @@ paper: light-quanta
 review: draft
 cards:
   - id: lq-classical-difficulty
+    support:
+      kind: "no-checked-proof"
+      reason: "The classical radiation argument is explained in the linked passages; no checked derivation record covers the mode-counting and energy assumptions."
     title: "The equilibrium the classical picture requires, and its infinite total"
     section: s1
     arguments: [arg-lq-classical-allocation, arg-lq-equilibrium-assumptions]
@@ -53,6 +56,9 @@ cards:
     selectionReason: "It is the difficulty the paper starts from: in the picture of its day, no definite distribution of energy between ether and matter."
 
   - id: lq-planck-constants
+    support:
+      kind: "no-checked-proof"
+      reason: "The comparison of radiation constants is explained in the linked passages; no checked derivation record covers this inference."
     title: "Planck's constants and the number of molecules"
     section: s2
     arguments: [arg-lq-planck-constants]
@@ -90,6 +96,9 @@ cards:
     selectionReason: "It is the paper's one number drawn from radiation theory, and it separates the value of Planck's constants from Planck's derivation."
 
   - id: lq-entropy-temperature
+    support:
+      kind: "no-checked-proof"
+      reason: "The entropy-temperature relation is introduced with its thermodynamic premises; no checked derivation record covers this step."
     title: "The entropy of radiation and its temperature"
     section: s3
     arguments: [arg-lq-entropy-temperature]
@@ -123,6 +132,9 @@ cards:
     selectionReason: "It is the tool the next section uses to turn Wien's law into an entropy."
 
   - id: lq-radiation-entropy-volume
+    support:
+      kind: "no-checked-proof"
+      reason: "The Wien-law inversion and entropy integration are explained in the linked passages; no checked derivation record covers their boundary condition and volume comparison."
     title: "How the entropy of monochromatic radiation depends on its volume"
     section: s4
     arguments: [arg-lq-fixed-band-volume, arg-lq-wien-integration]
@@ -175,6 +187,9 @@ cards:
     selectionReason: "It is the property of radiation that § 6 compares with a gas."
 
   - id: lq-boltzmann-principle
+    support:
+      kind: "no-checked-proof"
+      reason: "The statistical principle and independent-particle example are explained in the linked passages; no checked derivation record covers this result."
     title: "Boltzmann's principle and the entropy of independent points"
     section: s5
     arguments: [arg-lq-statistical-probability, arg-lq-independent-configurations]
@@ -218,6 +233,9 @@ cards:
     selectionReason: "It gives the gas side of the comparison § 6 makes."
 
   - id: lq-energy-quanta
+    support:
+      kind: "no-checked-proof"
+      reason: "The coefficient correspondence is a heuristic inference under the stated radiation regime; no checked derivation record establishes this comparison."
     title: "Radiation that behaves as if it consisted of energy quanta"
     section: s6
     arguments: [arg-lq-entropy-correspondence]
@@ -258,6 +276,9 @@ cards:
     selectionReason: "It is the paper's heuristic point of view, stated as a result, and §§ 7 to 9 apply it."
 
   - id: lq-stokes-rule
+    support:
+      kind: "no-checked-proof"
+      reason: "This conditional consequence uses the light-quantum hypothesis; no checked derivation record covers the energy budget."
     title: "Stokes's rule"
     section: s7
     arguments: [arg-lq-fluorescence-budget]
@@ -296,6 +317,9 @@ cards:
     selectionReason: "It is the first law of the generation and transformation of light that the paper derives from the energy quanta."
 
   - id: lq-photoelectric-energy
+    support:
+      kind: "no-checked-proof"
+      reason: "The photoelectric energy balance is explained with its one-quantum premise; no checked derivation record covers this result."
     title: "The energy of the electrons that light sets free"
     section: s8
     arguments: [arg-lq-photoelectric-energy, arg-lq-stopping-and-losses]
@@ -344,6 +368,9 @@ cards:
     selectionReason: "It is the paper's quantitative prediction for the photoelectric effect."
 
   - id: lq-ionization
+    support:
+      kind: "no-checked-proof"
+      reason: "The ionization bounds are conditional on the stated energy-transfer model; no checked derivation record covers them."
     title: "Ionisation of gases by ultraviolet light"
     section: s9
     arguments: [arg-lq-ionization-and-counts]

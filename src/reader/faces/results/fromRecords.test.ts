@@ -49,6 +49,7 @@ describe("fromRecords refuses a card layer it cannot own", () => {
       meanings: {},
       selectionReason: "A fixture.",
       arguments: ["arg-not-a-passage"],
+      support: { kind: "no-checked-proof", reason: "This fixture tests a missing passage." },
       // Both required by ResultCardRecord. This fixture omitted them and passed only because the
       // projection used to read usedLater solely when a connections record was supplied; a
       // margin-backed claim must not depend on that, so the omission became a TypeError instead of
@@ -88,6 +89,7 @@ describe("a later use claimed by a margin record", () => {
     meanings: {},
     selectionReason: "A fixture.",
     arguments: [],
+    support: { kind: "no-checked-proof", reason: "This fixture tests a later-use link." },
     usedLater: [],
     usedLaterText: {},
   };

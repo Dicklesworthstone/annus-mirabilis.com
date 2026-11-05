@@ -23,6 +23,9 @@ paper: special-relativity
 review: draft
 cards:
   - id: sr-two-postulates
+    support:
+      kind: "no-checked-proof"
+      reason: "The two postulates are entry assumptions of the argument, not conclusions established by a derivation."
     title: "The principle of relativity and the constancy of the velocity of light"
     section: s0
     arguments: [arg-sr-magnet-conductor]
@@ -63,6 +66,9 @@ cards:
     selectionReason: "Every section of the paper rests on these two presuppositions, and § 3 returns to show that they agree."
 
   - id: sr-synchronous-clocks
+    support:
+      kind: "no-checked-proof"
+      reason: "The clock-synchronization procedure is defined and explained in the linked passages; no checked derivation record covers its consequences."
     title: "Synchronous clocks and the time of a distant event"
     section: s1
     arguments: [arg-sr-synchronization]
@@ -116,6 +122,9 @@ cards:
     selectionReason: "Every later section rests on it: it defines the time of a distant event, and with it what simultaneous means."
 
   - id: sr-relativity-of-simultaneity
+    support:
+      kind: "no-checked-proof"
+      reason: "The synchronization comparison is explained in the linked passages; no checked derivation record covers this result."
     title: "The relativity of simultaneity"
     section: s2
     arguments: [arg-sr-rod-events]
@@ -158,6 +167,9 @@ cards:
     selectionReason: "It is the conclusion § 2 draws in its own words: the concept of simultaneity has no absolute meaning."
 
   - id: sr-principles-compatible
+    support:
+      kind: "no-checked-proof"
+      reason: "The compatibility argument is explained in the linked passages; no checked derivation record covers this result."
     title: "The two principles are compatible"
     section: s3
     arguments: [arg-sr-lorentz-map]
@@ -196,6 +208,9 @@ cards:
     selectionReason: "The introduction calls the two postulates only apparently irreconcilable; this is where § 3 shows they agree."
 
   - id: sr-transformation-equations
+    support:
+      kind: "no-checked-proof"
+      reason: "The transformation is explained from synchronization and the stated symmetry premises; no checked source-order derivation record covers all components."
     title: "The transformation equations"
     section: s3
     arguments: [arg-sr-lorentz-map, arg-sr-transverse-and-inverse]
@@ -236,6 +251,9 @@ cards:
     selectionReason: "Every later section of the paper applies these equations: to rods and clocks, to velocities, to the fields and to light."
 
   - id: sr-moving-rigid-body
+    support:
+      kind: "no-checked-proof"
+      reason: "The simultaneous measurement of a moving body is explained in the linked passages; no checked derivation record covers this result."
     title: "A moving sphere measured as an ellipsoid"
     section: s4
     arguments: [arg-sr-clock-and-length]
@@ -275,6 +293,9 @@ cards:
     selectionReason: "It is the first physical consequence § 4 draws from the transformation: lengths along the motion depend on the system that measures them."
 
   - id: sr-moving-clock
+    support:
+      kind: "no-checked-proof"
+      reason: "The comparison of clock readings is explained in the linked passages; no checked derivation record covers this result."
     title: "A moving clock falls behind"
     section: s4
     arguments: [arg-sr-clock-and-length, arg-sr-transported-clock]
@@ -322,6 +343,9 @@ cards:
     selectionReason: "It is the consequence § 4 calls peculiar: two clocks that were synchronous no longer are after one of them has moved."
 
   - id: sr-velocity-addition
+    support:
+      kind: "no-checked-proof"
+      reason: "The coordinate transformation and velocity composition are explained in the linked passages; no checked derivation record covers this result."
     title: "The addition theorem of velocities"
     section: s5
     arguments: [arg-sr-velocity-composition]
@@ -376,6 +400,9 @@ cards:
     selectionReason: "It is the theorem § 5 is named for, and it shows that velocities smaller than light's never compose to one that reaches it."
 
   - id: sr-field-transformation
+    support:
+      kind: "no-checked-proof"
+      reason: "The field-component transformation is explained in the linked passages; no checked source-order derivation record covers all components."
     title: "The electric and magnetic forces in the moving system"
     section: s6
     arguments: [arg-sr-field-derivatives, arg-sr-field-components]
@@ -426,6 +453,9 @@ cards:
     selectionReason: "It removes the asymmetry of magnet and conductor with which the introduction opens, as § 6 says in its own words."
 
   - id: sr-doppler-aberration
+    support:
+      kind: "no-checked-proof"
+      reason: "The transformed wave phase and ray direction are explained in the linked passages; no checked derivation record covers both results."
     title: "Doppler's principle and aberration for any velocity"
     section: s7
     arguments: [arg-sr-doppler-aberration]
@@ -476,6 +506,9 @@ cards:
     selectionReason: "It is the first consequence § 7 draws for light, and it names it in its own words: Doppler's principle for arbitrary velocities, and the law of aberration in its most general form."
 
   - id: sr-light-complex-energy
+    support:
+      kind: "no-checked-proof"
+      reason: "The field-density and light-complex volume factors are explained separately in the linked passages; no checked derivation record combines them."
     title: "The energy of a light complex in the moving system"
     section: s8
     arguments: [arg-sr-light-complex]
@@ -531,6 +564,9 @@ cards:
     selectionReason: "It is § 8's first result, and the paper calls it remarkable that the energy and the frequency of a light complex change by the same law. The mass-energy paper of September 1905 starts from it, citing § 8."
 
   - id: sr-moving-mirror
+    support:
+      kind: "no-checked-proof"
+      reason: "The incident and reflected energy accounts are explained in the linked passages; no checked derivation record covers this moving-boundary result."
     title: "Light reflected by a moving mirror, and its pressure"
     section: s8
     arguments: [arg-sr-moving-mirror]
@@ -584,6 +620,9 @@ cards:
     selectionReason: "It is the problem § 8 sets itself, and it is solved by the method the section's last paragraph offers for every problem in the optics of moving bodies: transform the light to a system in which the body is at rest."
 
   - id: sr-convection-current
+    support:
+      kind: "no-checked-proof"
+      reason: "The charge and current transformation is explained in the linked passages; no checked derivation record covers this result."
     title: "The Maxwell-Hertz equations with convection current keep their form"
     section: s9
     arguments: [arg-sr-charge-current]
@@ -632,6 +671,9 @@ cards:
     selectionReason: "It is § 9's conclusion in the paper's own words: on its kinematic principles, the electrodynamic basis of Lorentz's theory of the electrodynamics of moving bodies conforms to the principle of relativity."
 
   - id: sr-electron-masses
+    support:
+      kind: "no-checked-proof"
+      reason: "The two force conventions and their inertia coefficients are explained in the linked passages; no checked derivation record covers their comparison."
     title: "The longitudinal and transverse masses of the electron"
     section: s10
     arguments: [arg-sr-electron-conventions]
@@ -679,6 +721,9 @@ cards:
     selectionReason: "It is the question § 10 asks in the usual terms, with the paper's own warning beside it: the numbers depend on how force and acceleration are defined."
 
   - id: sr-electron-kinetic-energy
+    support:
+      kind: "no-checked-proof"
+      reason: "The work integral is explained with its force and speed assumptions; no checked derivation record covers this result."
     title: "The kinetic energy of the electron"
     section: s10
     arguments: [arg-sr-electron-work]
@@ -721,6 +766,9 @@ cards:
     selectionReason: "It is the energy § 10 derives, with the limit the paper draws from it: the energy grows without bound as the speed approaches that of light."
 
   - id: sr-electron-laws
+    support:
+      kind: "no-checked-proof"
+      reason: "The electron's measurable relations are explained in the linked passages; no checked derivation record covers these combined consequences."
     title: "Three relations for experiment on the electron"
     section: s10
     arguments: [arg-sr-electron-work]

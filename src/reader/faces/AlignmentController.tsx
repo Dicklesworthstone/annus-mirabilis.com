@@ -102,7 +102,14 @@ export function AlignmentController({
       // Enhance it only when this page contains the complete aligned German passage.
       const showSourceLink = target.closest<HTMLElement>('[data-action="show-aligned-source"]');
       if (showSourceLink) {
-        if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
+        if (
+          e.defaultPrevented ||
+          e.button !== 0 ||
+          e.metaKey ||
+          e.ctrlKey ||
+          e.shiftKey ||
+          e.altKey
+        )
           return;
         const uid = showSourceLink.getAttribute("data-unit-id");
         if (!uid) return;

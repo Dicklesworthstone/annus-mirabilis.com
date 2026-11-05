@@ -23,6 +23,9 @@ paper: brownian-motion
 review: draft
 cards:
   - id: bm-osmotic-pressure
+    support:
+      kind: "no-checked-proof"
+      reason: "The osmotic-pressure argument is explained in the linked passages; no checked derivation record covers this result."
     title: "The osmotic pressure of suspended particles"
     section: s1
     arguments: [arg-bm-osmotic-suspended, arg-bm-kinetic-justification]
@@ -64,6 +67,9 @@ cards:
     selectionReason: "The rest of the paper stands on it: once suspended particles have an osmotic pressure, §3 can balance it against a force to find how fast they diffuse."
 
   - id: bm-diffusion-coefficient
+    support:
+      kind: "no-checked-proof"
+      reason: "The balance of osmotic force and viscous drag is explained in the linked passage; it has no checked derivation record."
     title: "The diffusion coefficient of suspended spheres"
     section: s3
     arguments: [arg-bm-diffusivity]
@@ -103,6 +109,9 @@ cards:
     selectionReason: "It joins the paper's two halves: the osmotic pressure of §§1 to 3 and the irregular motion of §4 meet in \\(D\\)."
 
   - id: bm-diffusion-equation
+    support:
+      kind: "no-checked-proof"
+      reason: "The paper's step-distribution argument has no checked source-order chain. The variance-of-a-sum bridge establishes a separate pedagogical result."
     title: "The diffusion equation, and its solution from a point"
     section: s4
     arguments: [arg-bm-diffusion-equation, arg-bm-gaussian]
@@ -154,6 +163,9 @@ cards:
     selectionReason: "It turns the irregular motion of single particles into a law for how many of them spread, and its solution is where §5's numbers come from."
 
   - id: bm-displacement-law
+    support:
+      kind: "no-checked-proof"
+      reason: "The Gaussian solution and its mean-square integral are explained in the linked passages; no checked derivation record joins those steps."
     title: "The displacement grows as the square root of the time"
     section: s4
     arguments: [arg-bm-gaussian, arg-bm-observable]
@@ -192,6 +204,9 @@ cards:
     selectionReason: "It is the quantity the paper offers to observation: a length one can measure under the microscope between two times."
 
   - id: bm-predicted-displacement
+    support:
+      kind: "no-checked-proof"
+      reason: "This card provides a historical numerical reproduction. No checked proof record derives the displacement law it uses."
     title: "How far a particle moves in a second"
     section: s5
     arguments: [arg-bm-diffusivity, arg-bm-inference]
@@ -242,6 +257,9 @@ cards:
     selectionReason: "It tells an observer what to look for: less than a micron in a second."
 
   - id: bm-molecular-number
+    support:
+      kind: "no-checked-proof"
+      reason: "The inference uses a measured displacement and an independently supplied particle radius; no checked derivation record covers this inversion."
     title: "Determining N from the displacement"
     section: s5
     arguments: [arg-bm-inference]

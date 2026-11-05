@@ -12,6 +12,8 @@
  * points at a dated citation with no internal result id to reference, not only at another card.
  */
 
+import type { CheckedResultSupport } from "../../../content/results/supportDeclarations.ts";
+
 export type SourceRef = Readonly<{
   paper: string;
   anchor: string;
@@ -109,6 +111,7 @@ export type VerificationState =
   | Readonly<{ status: "authored-unverified"; reviewRecordId?: string | undefined }>;
 
 export type SupportLayer = Readonly<{
+  kind?: "derivation-chain" | undefined;
   proofRouteId: string;
   chainId: string;
   routeKind: string;
@@ -182,8 +185,8 @@ export type ResultCard = Readonly<{
   sources: readonly SourceRef[];
   selectionReason: string;
 
-  /** Absent when no derivation-chain registry covers the result; the card then shows no route. */
-  support?: SupportLayer | undefined;
+  /** A resolved proof or derivation chain. Recorded absences produce no reader-facing placeholder. */
+  support?: SupportLayer | CheckedResultSupport | undefined;
   /** One per argument passage the result rests on, each that passage's own limitations. */
   limitations: readonly LimitationLayer[];
   /** Empty means "nothing later addressed this result directly" -- a card renders no reception

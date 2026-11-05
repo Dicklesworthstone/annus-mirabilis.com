@@ -29,6 +29,7 @@ import {
   sentencePages,
   sourceBlockFace,
 } from "./sourceBlockFace.ts";
+import { checkSupportDeclaration, type ResultSupportDeclaration } from "./supportDeclarations.ts";
 
 /** How a card labels a statement that is not the result itself. */
 export const QUALIFICATION_KINDS = [
@@ -66,6 +67,7 @@ export type ResultCardRecord = Readonly<{
   paper: string;
   section: string;
   arguments: readonly string[];
+  support: ResultSupportDeclaration;
   printed: readonly PrintedExcerpt[];
   equations: readonly string[];
   oneSentence: string;
@@ -377,6 +379,13 @@ export function checkResultCards(
       if (!context.equations.has(e))
         problems.push(`${at}: ${e} is not a ${context.paper} equation`);
 
+    const { support, problems: supportProblems } = checkSupportDeclaration(c.support);
+    for (const problem of supportProblems) problems.push(`${at}: ${problem}`);
+    if (support?.kind === "checked-proof" && !context.equations.has(support.conclusion))
+      problems.push(
+        `${at}: support conclusion ${support.conclusion} is not a ${context.paper} equation`,
+      );
+
     const oneSentence = str(c.oneSentence);
     if (!oneSentence) problems.push(`${at}: has no one-sentence reading`);
     const decoder = list(c.decoder).map((d) => {
@@ -491,13 +500,14 @@ export function checkResultCards(
     if (authored.some((t) => EMC2.test(t)))
       problems.push(`${at}: shows E = mc², which the paper does not print`);
 
-    if (problems.length > before) continue;
+    if (problems.length > before || !support) continue;
     cards.push({
       id,
       title,
       paper: context.paper,
       section,
       arguments: args,
+      support,
       printed,
       equations,
       oneSentence,

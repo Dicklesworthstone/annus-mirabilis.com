@@ -311,7 +311,31 @@ export function ResultCard({
         </section>
       )}
 
-      {card.support ? (
+      {card.support?.kind === "checked-proof" ? (
+        <section
+          className="result-support"
+          aria-label="Support"
+          data-result-layer="support"
+          data-proof-id={card.support.proofId}
+          data-conclusion-equation={card.support.conclusion.equationId}
+        >
+          <h4>Why should I believe this step?</h4>
+          <p>
+            <a href={card.support.href}>{card.support.title}</a>
+          </p>
+          <p>{card.support.scope}</p>
+          <details>
+            <summary>What this route uses</summary>
+            <ul>
+              {card.support.assumptions.map((assumption) => (
+                <li key={assumption.id} data-proof-assumption={assumption.id}>
+                  <strong>{assumption.label}.</strong> {assumption.explanation}
+                </li>
+              ))}
+            </ul>
+          </details>
+        </section>
+      ) : card.support ? (
         <section className="result-support" aria-label="Support">
           <h4>Why should I believe this step?</h4>
           <ul>

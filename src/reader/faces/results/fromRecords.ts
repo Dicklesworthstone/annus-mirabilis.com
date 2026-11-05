@@ -7,9 +7,11 @@
  * with a problem fails the page rather than rendering half-resolved.
  */
 import { type Connection, loadConnections } from "../../../content/connections/connections.ts";
+import { checkedSupportFor } from "../../../content/results/checkedSupport.ts";
 import { printedCheckFor, ResultCardsError } from "../../../content/results/printedChecks.ts";
 import { loadResultCards, type ResultCardRecord } from "../../../content/results/resultCards.ts";
 import { loadPaper } from "../../../content/server.ts";
+import type { EquationRecord } from "../../../equations/record.ts";
 import { loadPaperMargins } from "../../marginRecords.ts";
 import { projectLimitation, projectPrintedCheck } from "./resultsProjection.ts";
 import type { PrintedCheck, ResultCard } from "./types.ts";
@@ -47,8 +49,11 @@ export function toCard(
   claims?: ReadonlyMap<string, string>,
   /** The connections among the papers, for the card's later uses (dispatch 253). */
   connections?: readonly Connection[],
+  /** Canonical records, checked by the proof owner before a support layer may be shown. */
+  equations: readonly EquationRecord[] = [],
 ): ResultCard {
   const printedCheck = record.printedCheck ? projectedCheck(root, record.printedCheck) : null;
+  const support = checkedSupportFor(record, equations);
   return {
     resultId: record.id,
     paper: record.paper,
@@ -115,6 +120,7 @@ export function toCard(
     meanings: record.meanings,
     sources: record.printed.map((p) => ({ paper: record.paper, anchor: p.anchor })),
     selectionReason: record.selectionReason,
+    ...(support ? { support } : {}),
     limitations: record.arguments.map((id) => {
       const passage = passages.get(id);
       if (!passage)
@@ -144,5 +150,7 @@ export async function resultCardsFor(
     loadPaperMargins(paperId, root).misconceptions.map((m) => [m.id, m.temptingClaims[0] ?? m.id]),
   );
   const connections = loadConnections(root);
-  return loaded.cards.map((record) => toCard(root, record, passages, claims, connections));
+  return loaded.cards.map((record) =>
+    toCard(root, record, passages, claims, connections, payload.equations),
+  );
 }
