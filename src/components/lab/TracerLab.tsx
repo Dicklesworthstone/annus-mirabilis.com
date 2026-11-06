@@ -91,8 +91,8 @@ export function TracerLab({
    */
   session?: ReturnType<typeof createBm01Session> | undefined;
   /**
-   * Whether this laboratory reads a shared ?tape= link and offers one. The page's optional second
-   * ensemble is independent of the link, so it does neither.
+   * Whether this laboratory reads shared tape or legacy settings links and offers a tape link.
+   * Reader clarifications and the page's optional second ensemble keep an independent setup.
    */
   linked?: boolean;
 }) {
@@ -125,16 +125,18 @@ export function TracerLab({
   const gate = usePredictGate("bm-01", BM01_PROMPTS);
   useEffect(() => {
     setReady(true);
-    const shared = decodeBm01Settings(window.location.search);
-    if (shared.kind === "settings") {
-      setDraft(toTracerDraft(shared.parameters));
-      setDirty(true);
-      setNote(
-        "Shared settings are loaded as a draft. The worked example remains displayed until you apply them.",
-      );
-    } else if (shared.kind === "invalid") setNote(shared.message);
+    if (linked) {
+      const shared = decodeBm01Settings(window.location.search);
+      if (shared.kind === "settings") {
+        setDraft(toTracerDraft(shared.parameters));
+        setDirty(true);
+        setNote(
+          "Shared settings are loaded as a draft. The worked example remains displayed until you apply them.",
+        );
+      } else if (shared.kind === "invalid") setNote(shared.message);
+    }
     return () => session.disconnect();
-  }, [session]);
+  }, [linked, session]);
   function apply(settings: Bm01Parameters) {
     const r = session.apply(settings);
     // THE REFUSAL IS KEPT, NOT FLATTENED (am-ig23). This read the requirements string or the message and

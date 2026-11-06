@@ -16,14 +16,20 @@
  */
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { act } from "react";
-import { createRoot } from "react-dom/client";
+import { createRoot, type Root } from "react-dom/client";
 import type { ViewLoaders } from "../experiments/dispatch.tsx";
 import { READER_VIEW_LOADERS } from "../experiments/views/readerViewLoaders.ts";
 import { getClarificationKind } from "../reader/stack/kinds.ts";
 import { installDom, uninstallDom } from "./reactDom.ts";
 
 beforeEach(installDom);
-afterEach(uninstallDom);
+const mounted: Root[] = [];
+afterEach(async () => {
+  await act(async () => {
+    for (const root of mounted.splice(0)) root.unmount();
+  });
+  await uninstallDom();
+});
 
 const INJECTED: ViewLoaders = { "sr-01": () => import("../experiments/views/sr01View.tsx") };
 
@@ -35,6 +41,7 @@ async function renderOpen(rawId: string, viewLoaders?: ViewLoaders): Promise<str
   const container = document.createElement("div");
   document.body.appendChild(container);
   const root = createRoot(container);
+  mounted.push(root);
   await act(async () => {
     root.render(
       definition.render?.({
@@ -62,7 +69,7 @@ describe("the reader stack's view loaders", () => {
     // component ./lazyClarificationViews.tsx has already made lazy, which is the boundary that
     // keeps the laboratory's chunk out of every paper route's initial JavaScript; the budget
     // measurement for that is in the commit, and this is the half a test can hold.
-    expect(Object.keys(READER_VIEW_LOADERS)).toEqual(["sr-01"]);
+    expect(READER_VIEW_LOADERS["sr-01"]).toBeDefined();
     const html = await renderOpen("sr-01");
     expect(html).not.toContain('data-testid="in-preparation-notice"');
     expect(html).toContain('class="laboratory-shell"');
@@ -80,7 +87,8 @@ describe("the reader stack's view loaders", () => {
     // true of a chunk that failed to load into nothing.
     expect(html).toContain('class="laboratory-shell"');
     expect(html).toContain('aria-label="Clock synchronization with the event ledger"');
-    expect(html).toMatch(/data-run-id="sr01-[^"]+\/run\/1"/);
+    expect(html).toContain('data-instance-id="sr-01:test"');
+    expect(html).toContain('data-run-id="sr-01:test/run/1"');
   });
 
   test("an unknown id still refuses explicitly, in the same run", async () => {
@@ -104,6 +112,7 @@ describe("the reader stack's view loaders", () => {
     const container = document.createElement("div");
     document.body.appendChild(container);
     const root = createRoot(container);
+    mounted.push(root);
     let workers = 0;
     const previousWorker = (globalThis as { Worker?: unknown }).Worker;
     (globalThis as { Worker?: unknown }).Worker = class {
@@ -156,7 +165,7 @@ describe("the reader stack's view loaders", () => {
     // With the production map empty this is every registered instrument, all 37 of them. A reader
     // opening one of those gets the same surface as before, which is why the map's size is
     // reported rather than left to be inferred.
-    const html = await renderOpen("bm-01");
+    const html = await renderOpen("bm-02");
     expect(html).toContain('data-testid="in-preparation-notice"');
   });
 });

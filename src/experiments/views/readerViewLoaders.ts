@@ -7,28 +7,30 @@
  * Measured on the live site 2026-09-28 (dispatch 374): `?open=instrument-view:bm-01` mounted
  * `in-preparation-notice` for a REGISTERED instrument. This map is what the reader stack passes.
  *
- * ONE ENTRY, ON PURPOSE. 37 of the catalogue's 38 instruments are registered and every one of them
- * renders that placeholder through the stack today. The other 36 need an adapter each, because a
- * laboratory's props are its own and the dispatcher's contract is `ExperimentViewProps`; sr-01 is
- * the one whose component asks for least, and establishing the shape on one is worth more than
- * thirty-seven at once.
+ * Each entry adapts a working laboratory to `ExperimentViewProps`. Prepared examples and
+ * numerical owners are the same ones used by the standalone laboratory; the parent paper's
+ * query string must never be interpreted as a laboratory setup or tape.
  *
- * EVERY ENTRY IS A `() => import()`, never a static import, and that is a budget constraint rather
- * than a style. src/reader/stack/kinds.ts is reached from every paper route, so anything this
- * module imports statically lands in the initial JavaScript of every page in the edition. The
- * laboratory must stay a chunk that is fetched when a reader opens it and not before.
+ * Each laboratory stays behind a module-scope React.lazy() in a client boundary. This map
+ * imports only the plain wrappers from that boundary, so the laboratory's code and styles
+ * remain in a chunk fetched when the reader opens it.
  *
  * The embed route has its own populated map (src/experiments/embed/adapters.tsx), and this is
  * deliberately not it: that one is an async function returning prepared JSX for `/embed/lab/`,
  * keyed on the same ids but answering a different call shape. Two maps over one id space is the
- * shape that has cost this repository several defects, so when a second instrument lands here the
- * question of a single shared map is worth asking then, with two real entries to compare.
+ * shape that has cost this repository several defects. These adapters keep the reader's instance
+ * identity and disable parent-URL restoration, which the embed route does not request.
  */
 import type { ViewLoaders } from "../dispatch.tsx";
-import { Sr01ClarificationView } from "./lazyClarificationViews.tsx";
+import {
+  Bm01ClarificationView,
+  Lq08ClarificationView,
+  Me01ClarificationView,
+  Sr01ClarificationView,
+} from "./lazyClarificationViews.tsx";
 
 /**
- * ONE ENTRY, THROUGH A BOUNDARY (dispatch 385). 9d6b6d4d held `() => import("./sr01View.tsx")`
+ * THROUGH A BOUNDARY (dispatch 385). 9d6b6d4d held `() => import("./sr01View.tsx")`
  * here and it cost the reading route its budget: 169,840 bytes of initial JavaScript became
  * 342,297 against 204,800, and the Performance Budgets Gate refused a deploy. 0116e261 withdrew it.
  *
@@ -40,5 +42,8 @@ import { Sr01ClarificationView } from "./lazyClarificationViews.tsx";
  * measurement is in this commit's message; the reasoning is in that module's docblock.
  */
 export const READER_VIEW_LOADERS: ViewLoaders = Object.freeze({
+  "bm-01": () => Promise.resolve({ default: Bm01ClarificationView }),
+  "lq-08": () => Promise.resolve({ default: Lq08ClarificationView }),
+  "me-01": () => Promise.resolve({ default: Me01ClarificationView }),
   "sr-01": () => Promise.resolve({ default: Sr01ClarificationView }),
 });

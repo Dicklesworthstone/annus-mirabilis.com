@@ -61,14 +61,18 @@ const ME01_PREDICT_PROMPTS = PREDICT_PROMPTS["me-01"] ?? [];
 
 export function TwoLedgersLab({
   example,
+  instanceId,
+  restoreFromLocation = true,
   title = "Two ledgers and opposite pulses",
 }: {
   example?: PreparedMe01Example | undefined;
+  instanceId?: string | undefined;
+  restoreFromLocation?: boolean;
   title?: string | undefined;
 }) {
   const id = useId();
   const [session] = useState(() =>
-    createMe01Session(`me01-${id}`, example?.parameters ?? ME01_DEFAULTS),
+    createMe01Session(instanceId ?? `me01-${id}`, example?.parameters ?? ME01_DEFAULTS),
   );
 
   const view = useInstrumentView(session);
@@ -120,6 +124,7 @@ export function TwoLedgersLab({
       : `a body emits ${sentenceNumber(p.emittedEnergyRestFrame)} L of light in its rest frame; seen from a frame moving at ${sentenceNumber(p.frameSpeed)}c the two pulses carry ${sentenceNumber(pulseSum)} L together${kineticLoss === null ? "" : `, and the body's kinetic energy falls by ${sentenceNumber(kineticLoss)} L`}.`;
 
   useEffect(() => {
+    if (!restoreFromLocation) return;
     const shared = decodeMe01Settings(window.location.search);
     if (shared.kind === "settings") {
       setDraft(toMe01Draft(shared.parameters));
@@ -130,7 +135,7 @@ export function TwoLedgersLab({
     } else if (shared.kind === "invalid") {
       setLinkNote(shared.message);
     }
-  }, []);
+  }, [restoreFromLocation]);
 
   function apply(parameters: Me01Parameters) {
     const outcome = session.apply(parameters);
@@ -229,7 +234,7 @@ export function TwoLedgersLab({
 
   function share() {
     const query = encodeMe01Settings(p);
-    const url = `${window.location.origin}${window.location.pathname}${query}`;
+    const url = `${window.location.origin}/lab/me-01/${query}`;
     setSharedUrl(url);
     if (navigator.clipboard) {
       navigator.clipboard.writeText(url).catch(() => {});
@@ -396,6 +401,11 @@ export function TwoLedgersLab({
             />
           </ExperimentSettings>
 
+          {sharedUrl && (
+            <p className="notice">
+              Configuration link: <code>{sharedUrl}</code>
+            </p>
+          )}
           {error && (
             <p className="notice error" role="alert" data-refusal-code={refusalCode ?? undefined}>
               {error} {KEPT_RESULT}

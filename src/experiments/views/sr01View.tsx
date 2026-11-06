@@ -34,9 +34,12 @@
  * one here would have nowhere to arrive.
  */
 import { ClockSyncLab } from "../../components/lab/sr01/ClockSyncLab.tsx";
+import labDigests from "../../generated/lab-source-digests.json";
 import type { ExperimentViewProps } from "../dispatch.tsx";
 import { DEFAULT_PREPARED_EXAMPLE } from "../sr01/session.ts";
 
-export default function Sr01ClarificationView(_props: ExperimentViewProps) {
-  return <ClockSyncLab example={DEFAULT_PREPARED_EXAMPLE} />;
+const example = { ...DEFAULT_PREPARED_EXAMPLE, sourceDigest: labDigests["sr-01"] };
+
+export default function Sr01ClarificationView({ instanceId }: ExperimentViewProps) {
+  return <ClockSyncLab example={example} instanceId={instanceId} />;
 }

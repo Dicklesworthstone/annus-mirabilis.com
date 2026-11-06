@@ -62,16 +62,18 @@ const SR01_PREDICT_PROMPTS = PREDICT_PROMPTS["sr-01"] ?? [];
 
 export function ClockSyncLab({
   example,
+  instanceId,
   restoreFromLocation = false,
   title = "Clock synchronization with the event ledger",
 }: {
   example?: PreparedSr01Example | undefined;
+  instanceId?: string | undefined;
   restoreFromLocation?: boolean;
   title?: string | undefined;
 }) {
   const id = useId();
   const [session] = useState(() =>
-    createSr01Session(`sr01-${id}`, example?.parameters ?? SR01_DEFAULTS),
+    createSr01Session(instanceId ?? `sr01-${id}`, example?.parameters ?? SR01_DEFAULTS),
   );
 
   const view = useInstrumentView(session);
@@ -216,7 +218,7 @@ export function ClockSyncLab({
 
   function share() {
     const query = encodeSr01Settings(p);
-    const url = `${window.location.origin}${window.location.pathname}${query}`;
+    const url = `${window.location.origin}/lab/sr-01/${query}`;
     setSharedUrl(url);
     if (typeof navigator !== "undefined" && navigator.clipboard) {
       navigator.clipboard.writeText(url).catch(() => {});
@@ -450,7 +452,7 @@ export function ClockSyncLab({
         )}
         {sharedUrl && (
           <div className="notice">
-            Link copied to clipboard: <code>{sharedUrl}</code>
+            Configuration link: <code>{sharedUrl}</code>
           </div>
         )}
       </form>

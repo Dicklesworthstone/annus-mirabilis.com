@@ -34,6 +34,9 @@ import { lazy } from "react";
 import type { ExperimentViewProps } from "../dispatch.tsx";
 
 const Sr01Chunk = lazy(() => import("./sr01View.tsx"));
+const Bm01Chunk = lazy(() => import("./bm01View.tsx"));
+const Lq08Chunk = lazy(() => import("./lq08View.tsx"));
+const Me01Chunk = lazy(() => import("./me01View.tsx"));
 
 /**
  * A PLAIN COMPONENT AROUND THE LAZY ONE, not the lazy one itself. The dispatcher applies its own
@@ -44,4 +47,16 @@ const Sr01Chunk = lazy(() => import("./sr01View.tsx"));
  */
 export function Sr01ClarificationView(props: ExperimentViewProps) {
   return <Sr01Chunk {...props} />;
+}
+
+export function Bm01ClarificationView(props: ExperimentViewProps) {
+  return <Bm01Chunk {...props} />;
+}
+
+export function Lq08ClarificationView(props: ExperimentViewProps) {
+  return <Lq08Chunk {...props} />;
+}
+
+export function Me01ClarificationView(props: ExperimentViewProps) {
+  return <Me01Chunk {...props} />;
 }
