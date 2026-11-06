@@ -73,6 +73,10 @@ export default function DiscoverIndex() {
           A route is one way to reach the argument from what was known at the time. Each says at its
           start that it is a reconstruction, and none claims to be how Einstein thought.
         </p>
+        <p>
+          <a href="/1904/">Begin at the 1904 desk</a> to explore five objects, compare their open
+          questions, and try the historical experiments before choosing a route.
+        </p>
       </header>
 
       <ol className="paper-index route-index">

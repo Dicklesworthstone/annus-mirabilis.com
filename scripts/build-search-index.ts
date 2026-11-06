@@ -15,6 +15,7 @@ import { requireTour, tourIds } from "../src/content/tours/tours.ts";
 import { capstoneExists, loadCapstone } from "../src/discovery/capstone/loadCapstone.ts";
 import { formatEventDateLine } from "../src/discovery/cards/CardDetail.tsx";
 import { JOURNEY_SHELVES } from "../src/discovery/cards/journeyCards.ts";
+import { loadDesk } from "../src/discovery/desk/records.ts";
 import { ROUTE_INDEX } from "../src/discovery/routeIndex.ts";
 import { loadTimeline } from "../src/discovery/timeline/records.ts";
 import { GUIDED_TOURS } from "../src/discovery/tours/catalogue.ts";
@@ -48,6 +49,7 @@ import { paperSourceFaces } from "../src/reader/paperSourceFaces.ts";
 import { tapePath } from "../src/reader/sitePaths.ts";
 import { packageSearchIndex } from "../src/search/build.ts";
 import type { SearchAlias, SearchDocument } from "../src/search/core.ts";
+import { deskDocuments } from "../src/search/deskDocuments.ts";
 import {
   aliasesForDocuments,
   assertSearchCoverage,
@@ -389,6 +391,8 @@ export async function loadSearchCorpus(
   }
   const timelineEntries = loadTimeline(root).entries;
   const chronology = timelineDocuments(timelineEntries, profile);
+  const deskObjects = loadDesk(root).objects;
+  const desk = deskDocuments(deskObjects, profile);
   const documents = [
     ...documentsFromCompiled(papers, foundations, instruments, profile, equationTerms),
     ...explainedEquationDocuments(explainedEquations, profile),
@@ -397,6 +401,7 @@ export async function loadSearchCorpus(
     ...marginNoteDocuments(marginNotes, profile),
     ...knowledgeCardDocuments(knowledgeCards, profile),
     ...chronology,
+    ...desk,
     ...connectionDocuments(connections, profile),
     ...walkthroughDocuments(walkthroughs, profile),
     ...discoveryDocuments(ROUTE_INDEX, profile),
@@ -407,6 +412,9 @@ export async function loadSearchCorpus(
   ];
   console.log(
     `[search] timeline: ${timelineEntries.length} dated entries examined; ${chronology.length} documents for ${profile}`,
+  );
+  console.log(
+    `[search] 1904 desk: ${deskObjects.length} objects examined; ${desk.length} documents for ${profile}`,
   );
   /*
    * THE EXPLAINED-EQUATION CENSUS, printed because a count of 0 and a count of 44 read the same in

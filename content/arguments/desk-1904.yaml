@@ -1,0 +1,177 @@
+schemaVersion: 1
+reconstruction: "This desk is a reconstruction for learning. It does not reproduce Einstein's desk, schedule, or thoughts."
+objects:
+  - id: object-spectrum
+    title: A radiation spectrum
+    question: How is the energy shared among the colors?
+    description: >-
+      A hot cavity offers a spectrum to measure. Wave optics and electromagnetic theory
+      have earned their place, yet sharing thermal energy equally among an unlimited
+      set of oscillations creates a problem. Light acting on matter adds a different
+      set of observations to explain.
+    unresolved: >-
+      What limits the energy assigned to high frequencies? What do the constants in
+      the radiation law mean? Why does changing a light source's intensity fail to
+      change the emitted electrons' speed in the way a simple accumulation picture suggests?
+    responses:
+      - >-
+        Compare energy in narrow frequency bands at controlled temperatures. For light
+        falling on a surface, distinguish the amount of charge emitted from the energy
+        needed to stop it. A brighter source and a different frequency are different changes.
+      - >-
+        A wave description has strong support from interference and diffraction. It is
+        reasonable to try to keep that success while changing how matter exchanges energy.
+        A failure of equal energy sharing does not by itself decide how light propagates.
+      - >-
+        Test one allocation against the spectrum over a wider frequency range, then ask
+        whether the same assumptions account for emission and fluorescence. Agreement
+        in one band leaves other bands and other kinds of measurement open.
+    cardIds:
+      - fresnel-1826-diffraction
+      - maxwell-1873-electromagnetic-light
+      - equipartition-mean-resonator-energy
+      - boltzmann-1877-entropy-probability
+      - wien-1896-radiation-law
+      - planck-1901-energy-elements
+      - stokes-1852-refrangibility
+      - lenard-1902-photoelectric
+      - rayleigh-1900-radiation-law
+      - rubens-1901-long-wave-radiation
+      - boltzmann-1896-gas-volume-entropy
+      - hertz-1887-ultraviolet-spark
+      - thomson-1899-photoelectric-carrier
+    foundations: [functions-graphs, exponentials, logarithms, integration, entropy-multiplicity, entropy-temperature]
+    experiments: [lq-02]
+    journey: light-quanta
+  - id: object-microscope
+    title: A microscope observation
+    question: What should count as the amount of motion?
+    description: >-
+      Suspended particles move irregularly. Before choosing a cause, decide what the
+      microscope can record and how several signed displacements should be compared.
+      Motion that averages to zero can still have a nonzero spread.
+    unresolved: >-
+      Is the motion molecular in origin? Which statistic can be measured repeatably,
+      and how can currents, changes of temperature, and the act of observing be separated
+      from the motion one hopes to explain?
+    responses:
+      - >-
+        Record positions at stated times, with a length calibration and a direction
+        convention. Compare signed displacement, distance from the starting point,
+        and squared displacement. A path between two recorded positions remains unobserved.
+      - >-
+        Molecular agitation is a plausible interpretation, but visible motion alone
+        does not establish it. Currents or uneven heating can also move particles.
+        Opposite displacements cancelling in an average is a property of the arithmetic,
+        not evidence that every particle stood still.
+      - >-
+        Repeat observations while controlling particle size, liquid, temperature and
+        elapsed time. Ask for a quantitative relation that competing explanations
+        do not all predict. The four marks below only compare statistics; they do not
+        supply that physical relation or a molecular-number measurement.
+    cardIds:
+      - brown-1828-microscopical-observations
+      - stokes-1851-sphere-drag
+      - fick-1855-diffusion-equation
+      - maxwell-1860-equipartition
+      - gouy-1888-brownian-motion
+      - exner-1900-particle-speeds
+      - siedentopf-1903-ultramicroscope
+      - sutherland-1904-dunedin
+      - sutherland-1905-phil-mag
+      - naegeli-1879-single-impacts
+      - vant-hoff-1887-osmotic-gas-law
+      - planck-1901-energy-elements
+    foundations: [mean-variance-rms, random-walks, viscosity-stokes-drag, free-energy-osmotic-pressure]
+    experiments: [signed-displacement]
+    journey: brownian-motion
+  - id: object-clocks
+    title: A pair of clocks
+    question: What would make distant clocks agree?
+    description: >-
+      A clock reading at one place is directly comparable with another reading at that
+      place. Comparing distant readings requires a procedure. Keep that procedure
+      separate from the coordinate rule used to describe moving objects.
+    unresolved: >-
+      What does “at the same time” mean at separated places? Can a preferred state of
+      rest be detected? Lorentz's 1904 transformation and Poincaré's 1904 principle
+      are available, without settling how their time coordinates should be interpreted.
+    responses:
+      - >-
+        Compare clocks when they are together, and record the sending and arrival of
+        signals. A claim about two distant events also needs a rule for comparing
+        the clocks at their locations; the two local dial readings alone do not state that rule.
+      - >-
+        Newton's common time and a preferred ether frame make an ordinary velocity
+        subtraction natural. On that account, the two directions of light can have
+        different speeds in moving coordinates. An unsuccessful drift search does
+        not, by itself, identify which supporting assumption should change.
+      - >-
+        State the clock-comparison procedure and the transformation assumptions
+        separately. Compare their consequences with null drift observations and with
+        Poincaré's principle. Look for an observable difference between the candidate
+        accounts rather than treating a change of symbols as a measurement.
+    cardIds: [newton-1687-absolute-time, lorentz-1904-corresponding-states, poincare-1904-principle-of-relativity, michelson-morley-1887-no-drift]
+    foundations: [frames-events]
+    experiments: [sr-04]
+    journey: special-relativity
+  - id: object-conductor-magnet
+    title: A conductor and a magnet
+    question: Why does motion through an ether remain elusive?
+    description: >-
+      Electromagnetic fields, optical interference and moving media put different
+      kinds of motion in the same discussion. Compare the consequences of the
+      competing models before deciding what the agreement means.
+    unresolved: >-
+      Can one account relate the descriptions associated with a moving conductor and
+      a moving magnet? Why do ether-drift searches fail to reveal the expected motion,
+      and what can moving-water interference distinguish?
+    responses:
+      - >-
+        Read a current, a fringe displacement, or the position of a star. Record the
+        apparatus and the operation being compared: rotating arms, reversing water
+        flow, and changing coordinates are not the same experiment.
+      - >-
+        An ether with partial drag, a contraction of moving bodies, and a transformation
+        of field coordinates are serious attempts to reconcile successful optics with
+        difficult observations. The same null result may fit more than one account.
+      - >-
+        Compare several experiments using the same assumptions. Moving water separates
+        drag hypotheses; arm rotation examines an ether-drift prediction; substituting
+        coordinates checks the form of a wave equation. Algebraic agreement in the last
+        exercise does not establish the physical interpretation of time.
+    cardIds: [maxwell-1873-field-equations, maxwell-1873-electromagnetic-light, bradley-1729-stellar-aberration, fizeau-1851-light-in-moving-water, michelson-morley-1887-no-drift, lorentz-1904-corresponding-states]
+    foundations: [electromagnetism-charges, fields-waves, vectors-components]
+    experiments: [shelf-michelson-morley, shelf-fizeau, shelf-maxwell-galilean]
+    journey: special-relativity
+  - id: object-energy-ledger
+    title: An energy ledger
+    question: Does a push from light establish a change of inertia?
+    description: >-
+      Conservation of energy, radiation pressure and energy flow provide entries for
+      a ledger. They do not yet answer every question about the inertia of a body
+      that gives off radiation. Keep the system boundary and the kind of energy explicit.
+    unresolved: >-
+      Does emitted radiation change a body's inertia, and under which assumptions?
+      What can calculations for electromagnetic systems or a radiation-filled cavity
+      establish about an arbitrary body?
+    responses:
+      - >-
+        Compare incident radiant energy with the force on an absorbing surface, while
+        controlling thermal and mechanical effects. Separately measure changes in a
+        body's motion or energy. A pressure measurement and an inertia measurement
+        answer different questions.
+      - >-
+        A field that transports energy and exerts pressure belongs in the physical
+        accounting. Electromagnetic models of inertia are therefore reasonable to
+        investigate. Their assumptions about charges, stresses or a cavity still
+        matter; success for one system does not automatically generalize to all matter.
+      - >-
+        Account for energy crossing the chosen boundary and ask what additional
+        transformation or dynamical argument connects that transfer to inertia.
+        The pressure example below establishes a push within the stated field model,
+        leaving the question about an emitting body's inertia open.
+    cardIds: [helmholtz-1847-conservation-of-energy, thomson-tait-1867-kinetic-energy, maxwell-1873-radiation-pressure, poynting-1884-energy-flux, lebedev-1901-radiation-pressure-measured, thomson-1881-electromagnetic-mass, poincare-1900-fictitious-fluid, hasenoehrl-1904-cavity-radiation]
+    foundations: [work-energy, momentum-energy-light]
+    experiments: []
+    journey: mass-energy

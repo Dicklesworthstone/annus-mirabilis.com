@@ -548,9 +548,9 @@ export const LIGHT_QUANTA_SHELF_CARDS: readonly KnowledgeCard[] = [
 
 /**
  * Later evidence: never on the 1904 shelf (cardRules.ts, card-later-on-shelf), shown beside the
- * route's check against the world. Cited, not plotted: the edition's digitised table of Millikan's
- * points is withdrawn (141c8c0b), so no point of his is drawn anywhere on the route. The locator
- * was compared with Crossref (doi:10.1103/PhysRev.7.355).
+ * route's check against the world. Its admitted revision of the Millikan digitization is now
+ * compared through LQ-08; the withdrawn first revision remains unavailable. Source potentials
+ * and the declared fit subset retain their own labels and limitations.
  */
 export const LIGHT_QUANTA_LATER_EVIDENCE: readonly KnowledgeCard[] = [
   {
@@ -573,7 +573,7 @@ export const LIGHT_QUANTA_LATER_EVIDENCE: readonly KnowledgeCard[] = [
       eventKind: "published",
     },
     limits:
-      "Later evidence, not on the 1904 shelf, eleven years after the paper. In the same paper Millikan still judged the hypothesis that produced the equation untenable: a relation can be confirmed without confirming the reason given for it. The edition's digitised table of his points is withdrawn, so none is plotted here.",
+      "Later evidence, not on the 1904 shelf, eleven years after the paper. In the same paper Millikan still judged the hypothesis that produced the equation untenable: a relation can be confirmed without confirming the reason given for it. The route compares the admitted digitization with the model, retaining the source's signed potentials, its declared fit subset, and the dataset's limitations.",
     sourceChecks: [
       {
         source: 0,

@@ -12,6 +12,7 @@ import { usePathname } from "next/navigation";
 const DESTINATIONS: readonly { href: string; label: string; alsoUnder?: readonly string[] }[] = [
   { href: "/papers/", label: "Papers" },
   { href: "/discover/", label: "Discover" },
+  { href: "/1904/", label: "1904 desk" },
   // A laboratory is an instrument, so /lab/* counts as being under Instruments.
   { href: "/instruments/", label: "Instruments", alsoUnder: ["/lab/"] },
   { href: "/connections/", label: "Connections" },

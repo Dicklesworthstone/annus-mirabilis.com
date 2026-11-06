@@ -1,0 +1,264 @@
+.desk-page {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.desk-reconstruction {
+  max-width: 70ch;
+  border-left: 3px solid var(--line);
+  padding-left: 1rem;
+  font-size: var(--type-small);
+}
+
+.desk-object-nav {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.desk-object-nav a {
+  display: grid;
+  align-content: start;
+  gap: 0.65rem;
+  border: 1px solid var(--line);
+  padding: 1rem;
+  background: var(--panel);
+  font-family: var(--font-sans);
+  text-decoration: none;
+}
+
+.desk-object-nav a:hover {
+  background: var(--wash);
+}
+
+.desk-object-nav strong {
+  font-family: var(--font-serif);
+  font-size: var(--type-lead);
+  line-height: 1.25;
+}
+
+.desk-object-nav span,
+.desk-catalogue-jump,
+.desk-card-date,
+.desk-card-links,
+.desk-onward {
+  font-size: var(--type-small);
+}
+
+.desk-object-number {
+  font-family: var(--font-mono);
+  color: var(--muted);
+}
+
+.desk-page a:focus-visible,
+.desk-page summary:focus-visible,
+.desk-page button:focus-visible,
+.desk-page input:focus-visible,
+.desk-page select:focus-visible {
+  outline: 3px solid var(--ink) !important;
+  outline-offset: 3px;
+}
+
+.desk-object,
+.desk-catalogue {
+  border-top: 1px solid var(--line);
+  margin-top: 3rem;
+  padding-top: 2rem;
+  scroll-margin-top: 6rem;
+}
+
+.desk-page [id^="card-"],
+.desk-page [data-desk-entry] {
+  scroll-margin-top: 6rem;
+}
+
+.desk-object > p,
+.desk-object-heading,
+.desk-open-question,
+.desk-questions,
+.desk-established,
+.desk-tools,
+.desk-catalogue header {
+  max-width: 76ch;
+}
+
+.desk-open-question {
+  background: var(--wash);
+  padding: 1rem 1.25rem;
+  border-left: 3px solid var(--line);
+  margin: 1.5rem 0;
+}
+
+.desk-open-question h3 {
+  margin-top: 0;
+}
+
+.desk-open-question p {
+  margin-bottom: 0;
+}
+
+.desk-questions summary,
+.desk-established summary,
+.desk-worked-case > summary {
+  cursor: pointer;
+  min-height: 44px;
+  align-content: center;
+}
+
+.desk-tools ul,
+.desk-card-links,
+.desk-experiment-actions,
+.desk-filter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+
+.desk-tools ul {
+  list-style: none;
+  padding: 0;
+}
+
+.desk-tools a,
+.desk-card-links a,
+.desk-experiment-actions a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.desk-experiment,
+.desk-pressure-example {
+  margin: 2rem 0;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  min-width: 0;
+}
+
+.desk-experiment > h3,
+.desk-pressure-example > h3 {
+  margin-top: 0;
+}
+
+.desk-experiment-actions[hidden],
+.desk-catalogue-filters[hidden],
+.desk-catalogue-list > [hidden] {
+  display: none;
+}
+
+.desk-worked-case {
+  margin-bottom: 0;
+}
+
+.desk-accepted-settings {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: 0.75rem;
+  font-size: var(--type-small);
+}
+
+.desk-accepted-settings dt {
+  color: var(--muted);
+}
+
+.desk-accepted-settings dd {
+  margin: 0.25rem 0 0;
+}
+
+.desk-catalogue-filters fieldset {
+  margin: 1.5rem 0;
+  border: 1px solid var(--line);
+  padding: 1rem;
+}
+
+.desk-filter-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.desk-filter-field {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+  font-family: var(--font-sans);
+  font-size: var(--type-small);
+}
+
+.desk-filter-fields input,
+.desk-filter-fields select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  box-sizing: border-box;
+}
+
+.desk-catalogue-list {
+  list-style: none;
+  padding: 0;
+}
+
+.desk-catalogue-list > li {
+  margin: 1.5rem 0;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.desk-card-date {
+  font-family: var(--font-sans);
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+}
+
+.desk-card-links {
+  margin-top: 0.5rem;
+  font-family: var(--font-sans);
+}
+
+@media (max-width: 640px) {
+  .desk-filter-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .desk-experiment,
+  .desk-pressure-example {
+    padding: 0.75rem;
+  }
+  .desk-page table {
+    font-size: var(--type-small);
+  }
+}
+
+@media print {
+  .desk-object-nav,
+  .desk-catalogue-jump,
+  .desk-experiment-actions,
+  .desk-catalogue-filters,
+  .desk-live,
+  .desk-onward {
+    display: none !important;
+  }
+  .desk-catalogue-list > [hidden] {
+    display: list-item !important;
+  }
+  .desk-page details::details-content {
+    display: block !important;
+    content-visibility: visible !important;
+    height: auto !important;
+  }
+  .desk-page details:not([open]) > :not(summary) {
+    display: block !important;
+  }
+  .desk-object,
+  .desk-catalogue {
+    margin-top: 1rem;
+    padding-top: 1rem;
+  }
+  .desk-object-heading,
+  .desk-experiment > h3,
+  .desk-card-date {
+    break-after: avoid;
+  }
+}

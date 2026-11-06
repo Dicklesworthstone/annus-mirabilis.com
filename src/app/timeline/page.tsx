@@ -173,6 +173,10 @@ export default function TimelinePage() {
                   entries below are later work, labelled with the role they play in the discovery
                   routes. Availability alone does not establish what Einstein knew.
                 </p>
+                <p>
+                  <a href="/1904/">Explore the 1904 desk</a> to work with the observations and open
+                  questions on this side of the boundary.
+                </p>
               </section>
               <div id="timeline-post-1904">
                 <EventList entries={track.entries.filter((entry) => !entry.beforeBoundary)} />
