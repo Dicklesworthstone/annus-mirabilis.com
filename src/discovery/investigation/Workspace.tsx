@@ -11,8 +11,8 @@ import "./investigation.css";
 
 /**
  * What became of the reader's copy on this device, said plainly. The one thing none of these may
- * do is imply the work is kept when it is not: three of the six say it is not, and each says what
- * to do instead.
+ * do is imply the work is kept when it is not. A failed save always names a way to retain the
+ * complete report without overwriting a saved original.
  */
 function keepNotice(status: InvestigationKeepStatus): ReactNode {
   switch (status) {
@@ -51,6 +51,23 @@ function keepNotice(status: InvestigationKeepStatus): ReactNode {
           An investigation saved on this device could not be read, so it was set aside under{" "}
           <a href="/your-data/">your data on this device</a> rather than discarded. Nothing here was
           overwritten.
+        </>
+      );
+    case "protected":
+      return (
+        <>
+          The saved investigation could not be opened safely, so its original is still preserved
+          under <a href="/your-data/">your data on this device</a>. New work stays on this page;
+          download it to keep it. The saved original has not been replaced.
+        </>
+      );
+    case "conflict":
+      return (
+        <>
+          The saved investigation changed in another tab or was cleared. This tab's work stays here
+          without overwriting that change. Download this investigation before reloading to open the
+          saved version. <a href="/notebook/">Your notebook</a> shows what is currently saved on
+          this device.
         </>
       );
     default:

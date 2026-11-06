@@ -71,7 +71,7 @@ export function mountInvestigationWorkspace(
   root.setAttribute("aria-labelledby", title.id);
   const privacy = node(
     "p",
-    "This work is kept on this device, in this browser, and nowhere else: nothing is uploaded, and you can export or clear it under your data on this device. Captures are model calculations, not observations or a correctness certificate; results elsewhere on this page are not hidden from you.",
+    "Nothing is uploaded. The saving notice above shows whether this browser is keeping a copy on this device. Download the investigation before leaving if it is not being saved. Captures are model calculations, not observations or a correctness certificate; results elsewhere on this page are not hidden from you.",
   );
   privacy.className = "fine";
   const availability = node("p");
@@ -144,7 +144,7 @@ export function mountInvestigationWorkspace(
   const saveExplanation = button("Keep my explanation", () =>
     show(
       store.explain(explanation.value),
-      "Explanation saved. It is kept on this device with the rest of this investigation; download it to take it elsewhere.",
+      "Explanation added to this investigation. Download it to keep a copy.",
     ),
   );
   const reflection = node("div");
@@ -163,17 +163,22 @@ export function mountInvestigationWorkspace(
   confirmation.append(
     node(
       "p",
-      "Download first to take this prediction and its captured readings elsewhere. Starting another replaces this investigation here AND the copy kept on this device; it does not reset the laboratory.",
+      "Download first to take this prediction and its captured readings elsewhere. Starting another replaces this investigation on this page and clears its saved copy when storage is available. It does not reset the laboratory.",
     ),
   );
   const confirm = button("Replace this investigation", () => {
+    const result = store.restartConfirmed();
+    if (!result.ok) {
+      show(result, "");
+      return;
+    }
     prediction.value = "";
     explanation.value = "";
     name.value = "";
     confirmation.hidden = true;
-    store.restartConfirmed();
     error.textContent = "";
     feedback.textContent =
+      result.message ??
       "New investigation. The copy kept on this device is cleared; the laboratory itself is unchanged.";
     prediction.focus();
   });

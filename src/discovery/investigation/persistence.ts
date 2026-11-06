@@ -51,6 +51,32 @@ export type InvestigationRead = Readonly<{
 }>;
 export type InvestigationSaveStatus = "saved" | "unavailable" | "quota" | "unregistered";
 
+type DurableInvestigation =
+  | Readonly<{ status: "ok"; raw: string | null }>
+  | Readonly<{ status: "unavailable" }>;
+type InvestigationOpening = Readonly<{
+  read: InvestigationRead;
+  /** undefined means storage could not be read, not that the saved copy was absent. */
+  raw: string | null | undefined;
+  protected: boolean;
+}>;
+export type InvestigationWriteGuard = "current" | "conflict" | "protected" | "unavailable";
+export type InvestigationKeepResult = InvestigationSaveStatus | "conflict" | "protected";
+export type InvestigationClearResult =
+  | Exclude<InvestigationKeepResult, "saved" | "quota">
+  | "cleared"
+  | "session-only";
+
+/** Compare durable bytes, never writeRaw's session fallback after a failed save. */
+function readDurableInvestigation(ctx: StorageContext, key: string): DurableInvestigation {
+  const storage = ctx.backend();
+  try {
+    return storage ? { status: "ok", raw: storage.getItem(key) } : { status: "unavailable" };
+  } catch {
+    return { status: "unavailable" };
+  }
+}
+
 /**
  * The registered key for a paper, or `undefined`. The owner check is not ceremony: it is what
  * makes a key family moved to another bead fail here rather than write into someone else's
@@ -75,17 +101,34 @@ export function readStoredInvestigation(
   paper: string,
   ctx: StorageContext = createStorageContext(),
 ): InvestigationRead {
+  return openInvestigation(paper, ctx).read;
+}
+
+function openInvestigation(paper: string, ctx: StorageContext): InvestigationOpening {
   const key = investigationKey(paper, ctx);
-  if (!key) return { status: "unavailable" };
+  if (!key) return { read: { status: "unavailable" }, raw: undefined, protected: false };
   const raw = readRaw(ctx, key);
   if (raw.status !== "ok" || raw.value === undefined)
-    return { status: raw.status === "missing" ? "missing" : "unavailable" };
-  const setAside = (reason: string): InvestigationRead => {
+    return {
+      read: { status: raw.status === "missing" ? "missing" : "unavailable" },
+      raw: raw.status === "missing" ? null : undefined,
+      protected: false,
+    };
+  const setAside = (reason: string): InvestigationOpening => {
     const result = quarantine(ctx, key, raw.value as string, reason);
     // A failed quarantine write can keep its copy only in the session fallback. Do not remove
-    // the durable original until the replacement has actually reached browser storage.
-    if (result.quarantined && !ctx.fallback.has(QUARANTINE_KEY)) removeRaw(ctx, key);
-    return { status: "unreadable" };
+    // the durable original until the replacement has actually reached browser storage, and do
+    // not remove a newer report another tab wrote while the old bytes were being preserved.
+    if (result.quarantined && !ctx.fallback.has(QUARANTINE_KEY)) {
+      const saved = readDurableInvestigation(ctx, key);
+      if (saved.status === "ok" && saved.raw === raw.value) {
+        removeRaw(ctx, key);
+        const after = readDurableInvestigation(ctx, key);
+        if (after.status === "ok" && after.raw === null)
+          return { read: { status: "unreadable" }, raw: null, protected: false };
+      }
+    }
+    return { read: { status: "unreadable" }, raw: raw.value, protected: true };
   };
   let document: StoredInvestigationDocument;
   try {
@@ -99,7 +142,11 @@ export function readStoredInvestigation(
     );
   }
   try {
-    return { status: "ok", report: parseInvestigationReport(document.report) };
+    return {
+      read: { status: "ok", report: parseInvestigationReport(document.report) },
+      raw: raw.value,
+      protected: false,
+    };
   } catch (error) {
     return setAside(
       error instanceof InvestigationRefusalError ? error.code : "investigation-report-unreadable",
@@ -110,7 +157,8 @@ export function readStoredInvestigation(
 /**
  * Keeps the investigation. A report larger than the key's registered budget is refused as `quota`
  * rather than written and truncated, because the reader's copy in the page and the download are
- * still whole and the workspace says so.
+ * still whole and the workspace says so. Live writers use createInvestigationPersistence to
+ * compare the saved copy before calling this write primitive.
  */
 export function saveStoredInvestigation(
   paper: string,
@@ -130,11 +178,83 @@ export function saveStoredInvestigation(
     : "unavailable";
 }
 
-/** Forgets the kept investigation, for the reader's own explicit "start another". */
+/** Clear primitive; the mounted writer compares saved bytes before the explicit "start another". */
 export function clearStoredInvestigation(
   paper: string,
   ctx: StorageContext = createStorageContext(),
-): void {
+): "cleared" | "unavailable" | "unregistered" {
   const key = investigationKey(paper, ctx);
-  if (key) removeRaw(ctx, key);
+  if (!key) return "unregistered";
+  removeRaw(ctx, key);
+  const after = readDurableInvestigation(ctx, key);
+  return after.status === "ok" && after.raw === null ? "cleared" : "unavailable";
+}
+
+/**
+ * One writer for one mounted investigation. Each mutation compares the saved bytes with the
+ * copy this writer opened or last saved. A conflict keeps both versions: the other tab's durable
+ * report and this tab's report in the pure store, which remains downloadable. A failed save
+ * never advances the comparison, and unreadable originals stay protected if quarantine failed.
+ *
+ * This is an optimistic comparison, not an atomic cross-tab transaction. It also runs at the
+ * action itself, since a storage event may not have reached a background tab yet.
+ */
+export function createInvestigationPersistence(
+  paper: string,
+  ctx: StorageContext = createStorageContext(),
+) {
+  const opened = openInvestigation(paper, ctx);
+  const key = investigationKey(paper, ctx);
+  let expectedRaw = opened.raw;
+  let protectedOriginal = opened.protected;
+  let conflict = false;
+
+  function check(): InvestigationWriteGuard {
+    if (protectedOriginal) return "protected";
+    if (conflict) return "conflict";
+    if (!key) return "unavailable";
+    const saved = readDurableInvestigation(ctx, key);
+    if (saved.status !== "ok") return "unavailable";
+    // If storage was blocked on arrival, an empty store is safe to populate. Existing data is
+    // not ours to overwrite merely because we could not see it when this page opened.
+    if (saved.raw !== expectedRaw && !(expectedRaw === undefined && saved.raw === null)) {
+      conflict = true;
+      return "conflict";
+    }
+    return "current";
+  }
+
+  return Object.freeze({
+    key,
+    initial: opened.read,
+    check,
+    /** A valid report for a different task must not be overwritten after restore refuses it. */
+    protectOriginal() {
+      protectedOriginal = true;
+    },
+    save(report: InvestigationReport): InvestigationKeepResult {
+      const guard = check();
+      if (guard !== "current") return guard;
+      const outcome = saveStoredInvestigation(paper, report, ctx);
+      if (outcome === "saved")
+        expectedRaw = JSON.stringify({
+          schemaVersion: 1,
+          report,
+        } satisfies StoredInvestigationDocument);
+      return outcome;
+    },
+    clear(): InvestigationClearResult {
+      const guard = check();
+      if (guard === "unavailable" && expectedRaw === undefined && key) {
+        // Nothing has ever been kept by this writer. The reader can explicitly start another
+        // local investigation while storage stays blocked, without touching an unseen original.
+        ctx.fallback.delete(key);
+        return "session-only";
+      }
+      if (guard !== "current") return guard;
+      const outcome = clearStoredInvestigation(paper, ctx);
+      if (outcome === "cleared") expectedRaw = null;
+      return outcome;
+    },
+  });
 }

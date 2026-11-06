@@ -23,6 +23,7 @@ import {
 } from "./core.ts";
 import {
   clearStoredInvestigation,
+  createInvestigationPersistence,
   INVESTIGATION_KEY_OWNER,
   readStoredInvestigation,
   saveStoredInvestigation,
@@ -81,6 +82,13 @@ function pinned(reason = ""): InvestigationReport {
   const report = store.getSnapshot().report;
   if (!report) throw new Error("fixture produced no report");
   return report;
+}
+
+function explained(report: InvestigationReport, words: string): InvestigationReport {
+  const store = createInvestigationStore(spec);
+  if (!store.restore(report).ok || !store.explain(words).ok)
+    throw new Error("fixture could not explain the restored investigation");
+  return store.getSnapshot().report as InvestigationReport;
 }
 
 function registryWith(maxBytes: number) {
@@ -306,5 +314,199 @@ describe("bytes this edition cannot read are set aside, never discarded", () => 
     expect(readStoredInvestigation(PAPER, ctx).status).toBe("unreadable");
     expect(storage.rawGet(KEY)).toBe(bytes);
     expect(listQuarantine(ctx)).toHaveLength(50);
+  });
+});
+
+describe("independent investigation writers preserve each other's work", () => {
+  test("a stale edit and a stale clear cannot replace the report saved by another tab", () => {
+    const storage = new InMemoryStorage();
+    const original = pinned();
+    saveStoredInvestigation(PAPER, original, context(storage));
+    const first = createInvestigationPersistence(PAPER, context(storage));
+    const second = createInvestigationPersistence(PAPER, context(storage));
+    const newer = explained(original, "A newer explanation from the first tab.");
+    const local = explained(original, "The second tab's independent explanation.");
+
+    expect(first.save(newer)).toBe("saved");
+    const durable = storage.rawGet(KEY);
+    expect(second.save(local)).toBe("conflict");
+    expect(second.clear()).toBe("conflict");
+    expect(storage.rawGet(KEY)).toBe(durable);
+    expect(readStoredInvestigation(PAPER, context(storage)).report?.explanation).toBe(
+      newer.explanation,
+    );
+    expect(JSON.parse(exportInvestigationJson(local)).explanation).toBe(local.explanation);
+  });
+
+  test("a tab opened before the first save cannot overwrite a newly created report", () => {
+    const storage = new InMemoryStorage();
+    const first = createInvestigationPersistence(PAPER, context(storage));
+    const second = createInvestigationPersistence(PAPER, context(storage));
+    const report = pinned();
+    expect(first.save(report)).toBe("saved");
+    const durable = storage.rawGet(KEY);
+    expect(second.save(explained(report, "An unrelated new investigation."))).toBe("conflict");
+    expect(second.clear()).toBe("conflict");
+    expect(storage.rawGet(KEY)).toBe(durable);
+  });
+
+  test("another tab's deletion stays deleted, and a conflict does not silently rebase", () => {
+    const storage = new InMemoryStorage();
+    const original = pinned();
+    saveStoredInvestigation(PAPER, original, context(storage));
+    const durable = storage.rawGet(KEY) as string;
+    const first = createInvestigationPersistence(PAPER, context(storage));
+    const second = createInvestigationPersistence(PAPER, context(storage));
+    expect(first.clear()).toBe("cleared");
+    expect(second.save(explained(original, "An edit after deletion."))).toBe("conflict");
+    expect(storage.rawGet(KEY)).toBeUndefined();
+    storage.rawSet(KEY, durable);
+    expect(second.save(original)).toBe("conflict");
+    expect(second.clear()).toBe("conflict");
+    expect(storage.rawGet(KEY)).toBe(durable);
+  });
+
+  test("one writer can save successive changes, clear its copy, and start again", () => {
+    const storage = new InMemoryStorage();
+    const writer = createInvestigationPersistence(PAPER, context(storage));
+    const original = pinned();
+    expect(writer.save(original)).toBe("saved");
+    expect(writer.save(explained(original, "A revised explanation."))).toBe("saved");
+    expect(writer.clear()).toBe("cleared");
+    expect(storage.rawGet(KEY)).toBeUndefined();
+    expect(writer.save(original)).toBe("saved");
+    expect(readStoredInvestigation(PAPER, context(storage)).report?.prediction).toBe(
+      original.prediction,
+    );
+  });
+
+  test("a failed save does not advance the durable comparison and can be retried", () => {
+    const failures: { throwOnSet?: Error } = {};
+    const storage = new InMemoryStorage(failures);
+    const writer = createInvestigationPersistence(PAPER, context(storage));
+    const original = pinned();
+    expect(writer.save(original)).toBe("saved");
+    const newer = explained(original, "The complete report after a quota failure.");
+    failures.throwOnSet = quotaExceededError();
+    expect(writer.save(newer)).toBe("quota");
+    delete failures.throwOnSet;
+    expect(writer.save(newer)).toBe("saved");
+    expect(readStoredInvestigation(PAPER, context(storage)).report?.explanation).toBe(
+      newer.explanation,
+    );
+  });
+
+  test("a failed save's fallback cannot hide a later durable edit from another tab", () => {
+    const failures: { throwOnSet?: Error } = {};
+    const storage = new InMemoryStorage(failures);
+    const original = pinned();
+    saveStoredInvestigation(PAPER, original, context(storage));
+    const firstContext = context(storage);
+    const first = createInvestigationPersistence(PAPER, firstContext);
+    const second = createInvestigationPersistence(PAPER, context(storage));
+    const local = explained(original, "The first tab's unsaved explanation.");
+    failures.throwOnSet = quotaExceededError();
+    expect(first.save(local)).toBe("quota");
+    expect(firstContext.fallback.has(KEY)).toBe(true);
+    delete failures.throwOnSet;
+    expect(second.save(explained(original, "A durable change in the other tab."))).toBe("saved");
+    const durable = storage.rawGet(KEY);
+    expect(first.save(local)).toBe("conflict");
+    expect(first.clear()).toBe("conflict");
+    expect(storage.rawGet(KEY)).toBe(durable);
+  });
+
+  test("storage becoming readable does not make a previously unseen report ours to overwrite", () => {
+    const failures: { throwOnGet?: Error } = { throwOnGet: new Error("blocked") };
+    const storage = new InMemoryStorage(failures);
+    const original = pinned();
+    const bytes = JSON.stringify({ schemaVersion: 1, report: original });
+    storage.rawSet(KEY, bytes);
+    const writer = createInvestigationPersistence(PAPER, context(storage));
+    expect(writer.initial.status).toBe("unavailable");
+    expect(writer.save(original)).toBe("unavailable");
+    delete failures.throwOnGet;
+    expect(writer.save(explained(original, "A report made while storage was blocked."))).toBe(
+      "conflict",
+    );
+    expect(storage.rawGet(KEY)).toBe(bytes);
+  });
+
+  test("storage can recover from being blocked when there is no saved original to replace", () => {
+    const failures: { throwOnGet?: Error } = { throwOnGet: new Error("blocked") };
+    const storage = new InMemoryStorage(failures);
+    const writer = createInvestigationPersistence(PAPER, context(storage));
+    expect(writer.save(pinned())).toBe("unavailable");
+    delete failures.throwOnGet;
+    expect(writer.save(pinned())).toBe("saved");
+    expect(writer.clear()).toBe("cleared");
+  });
+
+  test("an explicit local restart while storage was blocked from arrival never touches unseen data", () => {
+    const storage = new InMemoryStorage({ throwOnGet: new Error("blocked") });
+    const bytes = JSON.stringify({ schemaVersion: 1, report: pinned() });
+    storage.rawSet(KEY, bytes);
+    const writer = createInvestigationPersistence(PAPER, context(storage));
+    expect(writer.initial.status).toBe("unavailable");
+    expect(writer.clear()).toBe("session-only");
+    expect(storage.rawGet(KEY)).toBe(bytes);
+  });
+
+  test("a previously saved investigation is retained when storage later becomes unreadable", () => {
+    const failures: { throwOnGet?: Error } = {};
+    const storage = new InMemoryStorage(failures);
+    const writer = createInvestigationPersistence(PAPER, context(storage));
+    expect(writer.save(pinned())).toBe("saved");
+    const bytes = storage.rawGet(KEY);
+    failures.throwOnGet = new Error("blocked");
+    expect(writer.clear()).toBe("unavailable");
+    expect(storage.rawGet(KEY)).toBe(bytes);
+  });
+
+  test("a failed quarantine keeps its original protected even when storage recovers", () => {
+    const failures: { throwOnSet?: Error } = { throwOnSet: quotaExceededError() };
+    const storage = new InMemoryStorage(failures);
+    const bytes = JSON.stringify({ schemaVersion: 99, report: {} });
+    storage.rawSet(KEY, bytes);
+    const ctx = context(storage);
+    const writer = createInvestigationPersistence(PAPER, ctx);
+    expect(writer.initial.status).toBe("unreadable");
+    expect(storage.rawGet(QUARANTINE_KEY)).toBeUndefined();
+    expect(listQuarantine(ctx)[0]?.rawValue).toBe(bytes);
+    delete failures.throwOnSet;
+    expect(writer.save(pinned())).toBe("protected");
+    expect(writer.clear()).toBe("protected");
+    expect(storage.rawGet(KEY)).toBe(bytes);
+  });
+
+  test("a durable quarantine permits new work without losing the unreadable original", () => {
+    const storage = new InMemoryStorage();
+    const ctx = context(storage);
+    const bytes = JSON.stringify({ schemaVersion: 99, report: {} });
+    storage.rawSet(KEY, bytes);
+    const writer = createInvestigationPersistence(PAPER, ctx);
+    expect(writer.initial.status).toBe("unreadable");
+    expect(writer.save(pinned())).toBe("saved");
+    expect(listQuarantine(context(storage))[0]?.rawValue).toBe(bytes);
+    expect(readStoredInvestigation(PAPER, context(storage)).status).toBe("ok");
+  });
+
+  test("quarantining old bytes cannot remove a newer report written during preservation", () => {
+    const newer = JSON.stringify({ schemaVersion: 1, report: pinned() });
+    class ContendedStorage extends InMemoryStorage {
+      override setItem(key: string, value: string) {
+        super.setItem(key, value);
+        if (key === QUARANTINE_KEY) this.rawSet(KEY, newer);
+      }
+    }
+    const storage = new ContendedStorage();
+    const bytes = JSON.stringify({ schemaVersion: 99, report: {} });
+    storage.rawSet(KEY, bytes);
+    const writer = createInvestigationPersistence(PAPER, context(storage));
+    expect(writer.initial.status).toBe("unreadable");
+    expect(writer.save(pinned())).toBe("protected");
+    expect(writer.clear()).toBe("protected");
+    expect(storage.rawGet(KEY)).toBe(newer);
+    expect(listQuarantine(context(storage))[0]?.rawValue).toBe(bytes);
   });
 });

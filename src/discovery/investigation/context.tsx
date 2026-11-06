@@ -1,18 +1,14 @@
 "use client";
 
-import { createContext, type ReactNode, useContext, useEffect, useState } from "react";
-import { createStorageContext } from "../../platform/storage/store.ts";
+import { createContext, type ReactNode, useContext, useEffect, useRef, useState } from "react";
 import {
   createInvestigationStore,
+  type InvestigationChange,
   type InvestigationSource,
   type InvestigationSpec,
   type InvestigationStore,
 } from "./core.ts";
-import {
-  clearStoredInvestigation,
-  readStoredInvestigation,
-  saveStoredInvestigation,
-} from "./persistence.ts";
+import { createInvestigationPersistence, type InvestigationKeepResult } from "./persistence.ts";
 
 const InvestigationContext = createContext<InvestigationStore | null>(null);
 
@@ -23,9 +19,15 @@ export type InvestigationKeepStatus =
   | "restored"
   | "unavailable"
   | "quota"
-  | "unreadable";
+  | "unreadable"
+  | "protected"
+  | "conflict";
 
 const KeepStatusContext = createContext<InvestigationKeepStatus>("idle");
+
+function keepStatus(result: InvestigationKeepResult): InvestigationKeepStatus {
+  return result === "saved" ? "kept" : result === "unregistered" ? "unavailable" : result;
+}
 
 /** One private teaching lifetime per route. Children remain the existing server-rendered edition. */
 export function DiscoveryInvestigationProvider({
@@ -35,8 +37,42 @@ export function DiscoveryInvestigationProvider({
   spec: InvestigationSpec;
   children: ReactNode;
 }) {
-  const [store] = useState(() => createInvestigationStore(spec));
+  const [core] = useState(() => createInvestigationStore(spec));
   const [keep, setKeep] = useState<InvestigationKeepStatus>("idle");
+  const persistence = useRef<ReturnType<typeof createInvestigationPersistence> | null>(null);
+  const [store] = useState<InvestigationStore>(() =>
+    Object.freeze({
+      ...core,
+      restartConfirmed(): InvestigationChange {
+        // Check before core clears the report. Checking from its subscriber would be too late
+        // to preserve this tab's readings and download when the saved copy changed elsewhere.
+        const cleared = persistence.current?.clear() ?? "unavailable";
+        if (cleared === "session-only") {
+          const restarted = core.restartConfirmed();
+          if (!restarted.ok) return restarted;
+          setKeep("unavailable");
+          return {
+            ok: true,
+            message:
+              "New investigation on this page. Storage is unavailable, so no saved copy was cleared. The laboratory itself is unchanged.",
+          };
+        }
+        if (cleared !== "cleared") {
+          setKeep(keepStatus(cleared));
+          return {
+            ok: false,
+            message:
+              cleared === "conflict"
+                ? "The saved investigation changed in another tab or was cleared. This investigation and your typed explanation remain here. Download this tab before reloading to open the saved version."
+                : cleared === "protected"
+                  ? "The saved original is protected because it could not be opened safely. This investigation and your typed explanation remain here; download them before leaving."
+                  : "The saved investigation could not be cleared because storage is unavailable. This investigation and your typed explanation remain here; download them before leaving.",
+          };
+        }
+        return core.restartConfirmed();
+      },
+    }),
+  );
   /**
    * Storage is touched here and nowhere on the store's path, which is what keeps `core.ts` free of
    * it. The effect, never render: a static export prerenders this component, and `readRaw` reads
@@ -46,28 +82,41 @@ export function DiscoveryInvestigationProvider({
    * back does not immediately write it out again.
    */
   useEffect(() => {
-    const context = createStorageContext();
-    const read = readStoredInvestigation(spec.paper, context);
+    if (!persistence.current) persistence.current = createInvestigationPersistence(spec.paper);
+    const saved = persistence.current;
+    const read = saved.initial;
     let last = store.getSnapshot().report;
-    if (read.status === "ok" && read.report) {
+    if (read.status === "ok" && read.report && !last) {
       if (store.restore(read.report).ok) {
         last = store.getSnapshot().report;
         setKeep("restored");
+      } else {
+        saved.protectOriginal();
+        setKeep("protected");
       }
-    } else if (read.status === "unreadable") setKeep("unreadable");
+    } else if (read.status === "unreadable")
+      setKeep(saved.check() === "protected" ? "protected" : "unreadable");
     else if (read.status === "unavailable") setKeep("unavailable");
-    return store.subscribe(() => {
+    const unsubscribe = store.subscribe(() => {
       const report = store.getSnapshot().report;
       if (report === last) return;
       last = report;
       if (!report) {
-        clearStoredInvestigation(spec.paper, context);
         setKeep("idle");
         return;
       }
-      const status = saveStoredInvestigation(spec.paper, report, context);
-      setKeep(status === "saved" ? "kept" : status === "quota" ? "quota" : "unavailable");
+      setKeep(keepStatus(saved.save(report)));
     });
+    function changed(event: StorageEvent) {
+      if (event.key !== null && event.key !== saved.key) return;
+      const status = saved.check();
+      if (status !== "current") setKeep(status);
+    }
+    window.addEventListener("storage", changed);
+    return () => {
+      unsubscribe();
+      window.removeEventListener("storage", changed);
+    };
   }, [store, spec.paper]);
   return (
     <InvestigationContext.Provider value={store}>

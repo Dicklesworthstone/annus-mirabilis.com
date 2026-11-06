@@ -103,7 +103,7 @@ export class InvestigationRefusalError extends Error {
   }
 }
 export type InvestigationChange = Readonly<
-  { ok: true } | { ok: false; message: string; code?: InvestigationRefusalCode }
+  { ok: true; message?: string } | { ok: false; message: string; code?: InvestigationRefusalCode }
 >;
 /** The existing session is the owner. Its view is read afresh at every explicit capture. */
 export type InvestigationSource = Readonly<{
@@ -697,9 +697,10 @@ export function createInvestigationStore(spec: InvestigationSpec) {
       });
     },
     /** Caller supplies an explicit in-page confirmation; no calculation or storage is cleared. */
-    restartConfirmed() {
+    restartConfirmed(): InvestigationChange {
       baselineSource = null;
       publish({ ...state, report: null, restored: false });
+      return ok;
     },
   });
 }
