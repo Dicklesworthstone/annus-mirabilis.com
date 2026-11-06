@@ -44,6 +44,8 @@ import { PpeTask } from "../../../discovery/PpeTask.tsx";
 import { RouteMap } from "../../../discovery/RouteMap.tsx";
 import { SourceJump } from "../../../discovery/SourceJump.tsx";
 import { StepDoor, StepDoors } from "../../../discovery/StepDoor.tsx";
+import type { MillikanOverlayResult } from "../../../experiments/lq08/millikan.ts";
+import millikan from "../../../generated/lq08-millikan-overlay.json";
 
 export const metadata: Metadata = {
   title: "Waves explain the light you see. What about the moment it is made?",
@@ -379,12 +381,8 @@ export default function LightQuantaRoute() {
           check={WORLD_CHECK}
           printedVolts={PRINTED_STOPPING_CHECK.volts}
           laterEvidence={LIGHT_QUANTA_LATER_EVIDENCE}
+          millikan={millikan as MillikanOverlayResult}
         />
-        <p>
-          The later card tested the straight line itself, in 1916. It is evidence the paper did not
-          have, and it is cited here rather than plotted: this edition&rsquo;s table of
-          Millikan&rsquo;s points is withdrawn.
-        </p>
         <StepDoors>
           <StepDoor href="/papers/light-quanta/s8/#arg-lq-stopping-and-losses">
             Go straight to the explanation: the stopping voltage, and the paper&rsquo;s 4.3-volt

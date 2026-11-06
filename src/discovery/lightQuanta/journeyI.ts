@@ -176,8 +176,8 @@ export const FORK_ONE_LUMP: Fork = {
 /**
  * Check it against the world (plan §9.1 item 7). The prediction is LQ-08's own stopping potential,
  * read from the accepted snapshot of the laboratory embedded beside it; the static reference is the
- * paper's §8 figure from its own constants (worldCheck.ts). Millikan 1916 is later evidence and is
- * cited, not plotted.
+ * paper's §8 figure from its own constants (worldCheck.ts). The route separately compares the
+ * admitted Millikan 1916 measurements with the model slope, labelled as later evidence.
  */
 export const WORLD_CHECK: WorldCheck = {
   id: "lq-world-check-stopping-potential",

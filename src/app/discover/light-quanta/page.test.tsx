@@ -150,8 +150,13 @@ describe("the route carries the discovery skeleton", () => {
     expect(step).toContain('id="card-millikan-1916-photoelectric-h"');
     const shelf = html.slice(at('id="shelf"'), at('id="nagging-fact"'));
     expect(shelf).not.toContain("millikan");
-    // Cited, not plotted: the withdrawn dataset draws no point on the route.
-    expect(step).not.toContain("millikan-1916-sodium");
+    // The admitted revision reaches the route; its empirical comparison remains separate from
+    // the paper's own prediction and from the pre-1905 shelf.
+    expect(step).toContain('data-testid="millikan-fig6-panel"');
+    expect(step).toContain('data-historical-dataset="millikan-1916-sodium"');
+    expect(step).toContain('data-comparison-kind="measured-fact"');
+    expect(step).toContain('data-comparison-kind="printed-prediction"');
+    expect(text(step)).not.toContain("Millikan’s points is withdrawn");
   });
 
   test("Fork A keeps Planck's account weaker, not refuted, and names him", () => {
