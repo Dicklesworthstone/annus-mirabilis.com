@@ -2,12 +2,11 @@
 #
 # Scope note (WildCrane, 2026-09-16): built against the real kinematics owner
 # (src/physics/reference/kinematics.ts + kinematics/constraints.ts, am-ref-kinematics-tjq),
-# which landed this session with the exact construction-constraint engine (solveCandidateFamily,
-# checkCandidateMap) this bead is centered on. FULL MODE ONLY: the sr-04:1904 ExperimentMode
-# (Galilean-only, anachronism-lint-checked, mode-locked-host framing) is NOT declared here --
-# it depends on am-cm-anachronism-lint-dl2 (no rules file or matcher exists yet) and
-# am-ref-kinematics-tjq's withMode1904Guard wiring being exercised end to end, both a
-# substantially separate undertaking from the full-mode construction engine. See BATCH_PENDING
+# which supplies the construction-constraint engine (solveCandidateFamily, checkCandidateMap).
+# The sr-04:1904 mode now exposes only galileanVelocity through a guarded historical adapter,
+# with symbolic light-speed fractions, typed settings and a complete static worked example.
+# Its settings links reject other modes and never enable later construction controls.
+# See BATCH_PENDING
 # for the full list of what else is deferred (derivation-chain step rendering, the
 # ExpressionActionPicker/CoefficientEditor primitives, predict mode, show-the-code, tapes,
 # permalink, weave, captions R0-R3).
@@ -299,6 +298,12 @@ tapeModel:
   modelVersion: 1
 teachingTapes: []
 presets:
+  - presetId: sr-04-galilean-1904
+    label: "The Galilean comparison in the 1904 workspace"
+    parameterValues:
+      vOverC: 0.6
+      observerSpeed: 30
+      objectSpeed: 10
   - presetId: sr-04-galilean-shelf
     label: "The Galilean shelf: slow case and light rays at 0.6c"
     parameterValues:
@@ -314,6 +319,13 @@ presets:
     parameterValues:
       vOverC: 0.6
 probes: []
+modes:
+  - id: sr-04:1904
+    label: "Galilean comparison at the end of 1904"
+    historicalStatus: historical-precursor
+    notModeledAdditions:
+      - "Only Galilean velocity subtraction; the later construction and comparison views are absent"
+      - "Light speeds are declared dimensionless ratios, with no numeric light-speed constant"
 weavePredicates: []
 historicalOverlays: []
 realRate:

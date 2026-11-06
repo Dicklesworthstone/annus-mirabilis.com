@@ -15,6 +15,50 @@ argumentIds:
   - arg-lq-classical-allocation
   - arg-lq-planck-constants
 schemaVersion: 1
+modes:
+  - id: lq-02:1904
+    label: "Classical energy sharing: 1904 reconstruction"
+    historicalStatus: historical-precursor
+    notModeledAdditions:
+      - "Absolute classical energies retain an unspecified coefficient; only ratios and shares are numerical."
+      - "The molecular-number readout is Planck's printed 1901 estimate, not the later matching calculation."
+    parameterOverrides:
+      constantSetId: planck-1900-1901-printed
+    outputOverrides:
+      energyUpToCutoff:
+        allowedStatuses: [symbolic]
+      relativeEnergy:
+        quantityId: classicalEnergyRatio
+        allowedStatuses: [value, outside-domain]
+      tenfoldGrowth:
+        quantityId: classicalEnergyRatio
+        allowedStatuses: [value, outside-domain]
+      avogadroFromPlanck:
+        source: "Planck 1901, Ann. Phys. (4) 4, p. 565"
+        constantSetId: planck-1900-1901-printed
+    ownerOverride:
+      kind: reference-evaluator
+      kernelFunctions:
+        - displayRole: reference-implementation
+          language: ts
+          module: "src/physics/reference/radiation/classical.ts"
+          exportName: "classicalModeAllocation"
+        - displayRole: reference-implementation
+          language: ts
+          module: "src/physics/reference/radiation/classical.ts"
+          exportName: "classicalTotalEnergy"
+        - displayRole: reference-implementation
+          language: ts
+          module: "src/physics/reference/radiation/classicalRelative.ts"
+          exportName: "classicalRelativeEnergy"
+        - displayRole: reference-implementation
+          language: ts
+          module: "src/physics/reference/radiation/classicalRelative.ts"
+          exportName: "classicalCutoffGrowth"
+        - displayRole: reference-implementation
+          language: ts
+          module: "src/physics/reference/radiation/classicalRelative.ts"
+          exportName: "classicalShareAboveProbe"
 parameters:
   - id: T
     label: "Temperature (K)"
@@ -244,7 +288,14 @@ tapeModel:
   modelId: lq-02
   modelVersion: 1
 teachingTapes: []
-presets: []
+presets:
+  - presetId: lq-02-classical-1904
+    label: "Classical allocation with an unspecified coefficient (1904)"
+    parameterValues:
+      T: 1500
+      nuCutoff: 1.0e+14
+      probeFrequency: 1.0e+13
+      constantSetId: planck-1900-1901-printed
 # The relationships the lab puts to the test: the cube law under a tenfold widening, the share of
 # the energy above the probe, and the refusal of the total.
 probes:

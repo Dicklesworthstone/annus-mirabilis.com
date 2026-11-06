@@ -41,17 +41,30 @@ describe("sr04.manifest: SR-04 manifest registration (am-sr-04-lorentz-map-px1k)
     }
   });
 
-  test("no sr-04:1904 mode is declared in this pass (a real, named gap, not a silent omission)", () => {
+  test("the historical mode declares the bounded Galilean comparison and its exclusions", () => {
     const exp = validateExperiment(loadRawManifest());
-    expect(exp.modes ?? []).toEqual([]);
+    expect(exp.modes?.map((mode) => mode.id)).toEqual(["sr-04:1904"]);
+    const mode = exp.modes?.[0];
+    expect(mode?.historicalStatus).toBe("historical-precursor");
+    expect(mode?.notModeledAdditions).toContain(
+      "Only Galilean velocity subtraction; the later construction and comparison views are absent",
+    );
+    expect(mode?.notModeledAdditions).toContain(
+      "Light speeds are declared dimensionless ratios, with no numeric light-speed constant",
+    );
   });
 
-  test("the three named presets parse under the preset grammar and name declared parameters", () => {
+  test("the four named presets parse under the preset grammar and name declared parameters", () => {
     const exp = validateExperiment(loadRawManifest());
     const declaredParamIds = new Set(exp.parameters.map((p) => p.id));
     const ids = exp.presets.map((p) => p.presetId).sort();
     expect(ids).toEqual(
-      ["sr-04-galilean-shelf", "sr-04-construct-0.6c", "sr-04-later-aids-0.6c"].sort(),
+      [
+        "sr-04-galilean-1904",
+        "sr-04-galilean-shelf",
+        "sr-04-construct-0.6c",
+        "sr-04-later-aids-0.6c",
+      ].sort(),
     );
     for (const preset of exp.presets) {
       for (const paramId of Object.keys(preset.parameterValues)) {

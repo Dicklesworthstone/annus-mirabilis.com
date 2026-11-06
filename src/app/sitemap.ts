@@ -84,6 +84,8 @@ export const NOT_IN_SITEMAP: ReadonlyMap<string, Exemption> = new Map<string, Ex
   ["/lab/shelf-fizeau/1904/", { kind: "noindex" }],
   ["/lab/shelf-maxwell-galilean/1904/", { kind: "noindex" }],
   ["/lab/shelf-michelson-morley/1904/", { kind: "noindex" }],
+  ["/lab/lq-02/1904/", { kind: "noindex" }],
+  ["/lab/sr-04/1904/", { kind: "noindex" }],
   [
     "/notebook/",
     {
