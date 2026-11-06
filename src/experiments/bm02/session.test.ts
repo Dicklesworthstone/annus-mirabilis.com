@@ -1,5 +1,85 @@
 import { describe, expect, test } from "bun:test";
+import { withHistoricalGuard } from "../../physics/reference/constants.ts";
+import { validateBm02Parameters } from "./parameters.ts";
 import { computeBm02Snapshot, DEFAULT_BM02_INPUTS, PHI_MAX, SUGAR_0P01M_INPUTS } from "./session";
+
+describe("BM-02: historical constants at the same settings", () => {
+  const historicalInputs = {
+    ...DEFAULT_BM02_INPUTS,
+    constantSetId: "einstein-1905-brownian-printed" as const,
+  };
+
+  test("uses printed N and editorial R without reading modern thermal constants", () => {
+    const historical = withHistoricalGuard(() => computeBm02Snapshot(historicalInputs));
+    expect(historical.inputs.constantSetId).toBe("einstein-1905-brownian-printed");
+    expect(historical.thermalConstant.setId).toBe(historical.inputs.constantSetId);
+    expect(historical.thermalConstant.value).toBe(1.385e-23);
+    expect(value(historical.osmoticPressure.result) / 4.0601275e-6).toBeCloseTo(1, 14);
+    expect(value(historical.partitionForce.result) / 4.0601275e-14).toBeCloseTo(1, 14);
+  });
+
+  test("changing constants preserves the chamber and scales pressure, force, and head together", () => {
+    const modern = computeBm02Snapshot(DEFAULT_BM02_INPUTS);
+    const historical = computeBm02Snapshot(historicalInputs);
+    expect(historical.numberDensity).toEqual(modern.numberDensity);
+    expect(historical.volumeFraction).toEqual(modern.volumeFraction);
+    expect(historical.domain).toEqual(modern.domain);
+    const ratio = value(historical.osmoticPressure.result) / value(modern.osmoticPressure.result);
+    expect(ratio).toBeGreaterThan(1.003);
+    expect(ratio).toBeLessThan(1.004);
+    expect(
+      value(historical.partitionForce.result) / value(modern.partitionForce.result),
+    ).toBeCloseTo(ratio, 14);
+    expect(
+      value(historical.hydrostaticHead.result) / value(modern.hydrostaticHead.result),
+    ).toBeCloseTo(ratio, 14);
+  });
+
+  test("historical constants preserve the classical alternative and dilute-domain refusal", () => {
+    const classical = withHistoricalGuard(() =>
+      computeBm02Snapshot({
+        ...historicalInputs,
+        model: "classical-thermodynamics-suspended-bodies",
+      }),
+    );
+    expect(value(classical.osmoticPressure.result)).toBe(0);
+    expect(value(classical.partitionForce.result)).toBe(0);
+    expect(value(classical.hydrostaticHead.result)).toBe(0);
+    const crowded = computeBm02Snapshot({ ...historicalInputs, Np: 19_099 });
+    expect(crowded.osmoticPressure.result.status).toBe("outside-domain");
+    expect(crowded.partitionForce.result.status).toBe("outside-domain");
+    expect(crowded.hydrostaticHead.result.status).toBe("outside-domain");
+  });
+
+  test("accepts both supported sets and refuses unrelated or unknown constant identities", () => {
+    expect(validateBm02Parameters(DEFAULT_BM02_INPUTS).kind).toBe("accepted");
+    expect(validateBm02Parameters(historicalInputs).kind).toBe("accepted");
+    for (const constantSetId of [
+      "",
+      "invented-set",
+      "einstein-1905-light-quanta-printed",
+      "modern-codata-2022",
+    ]) {
+      const checked = validateBm02Parameters({ ...historicalInputs, constantSetId });
+      expect(checked.kind).toBe("refused");
+      if (checked.kind === "refused")
+        expect(checked.refusal.affected.parameterIds).toContain("constantSetId");
+    }
+  });
+
+  test("the sugar preset retains the modern definition of a mole when constants are compared", () => {
+    expect(SUGAR_0P01M_INPUTS.constantSetId).toBe("modern-si-2019");
+    const modern = computeBm02Snapshot(SUGAR_0P01M_INPUTS);
+    const historical = computeBm02Snapshot({
+      ...SUGAR_0P01M_INPUTS,
+      constantSetId: historicalInputs.constantSetId,
+    });
+    expect(value(historical.numberDensity)).toBe(value(modern.numberDensity));
+    expect(value(historical.osmoticPressure.result)).toBeGreaterThan(
+      value(modern.osmoticPressure.result),
+    );
+  });
+});
 
 function value(result: { status: string; value?: unknown }): number {
   if (result.status !== "value") throw new Error(`expected a value result, got ${result.status}`);

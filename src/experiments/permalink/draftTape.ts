@@ -31,7 +31,30 @@ export type DraftTapeBinding = Readonly<{
   defaults: Readonly<Record<string, unknown>>;
   /** The laboratory's own parameter validator. */
   validate(input: unknown): Checked;
+  /**
+   * A laboratory with selectable constants derives its identity from accepted settings. Called
+   * only after validate accepts, with its returned data when present, never with an unchecked
+   * tape header. Bindings without this resolver keep their fixed environment identity.
+   */
+  constantSetIdForSettings?(settings: Readonly<Record<string, unknown>>): string;
 }>;
+
+function acceptedSettings(
+  checked: Checked,
+  settings: Readonly<Record<string, unknown>>,
+): Readonly<Record<string, unknown>> {
+  const data = checked.data;
+  return data && typeof data === "object" ? (data as Record<string, unknown>) : settings;
+}
+
+function environmentForSettings(
+  binding: DraftTapeBinding,
+  settings: Readonly<Record<string, unknown>>,
+): ExperimentEnvironment {
+  return binding.constantSetIdForSettings
+    ? { ...binding.environment, constantSetId: binding.constantSetIdForSettings(settings) }
+    : binding.environment;
+}
 
 /**
  * The tape for a set of accepted settings. Its checkpoint is the digest of those settings, at action
@@ -41,12 +64,13 @@ export type DraftTapeBinding = Readonly<{
 export function draftTapeForSettings(binding: DraftTapeBinding, params: object): TapeV2 | null {
   const state = tapeStateOf(params);
   if (!state) return null;
-  const checked = binding.validate({
+  const settings = {
     ...binding.defaults,
     ...settingsFromTape(state, binding.defaults),
-  });
+  };
+  const checked = binding.validate(settings);
   if (checked.kind !== "accepted") return null;
-  const env = binding.environment;
+  const env = environmentForSettings(binding, acceptedSettings(checked, settings));
   const tape: TapeV2 = {
     tapeVersion: 2,
     experimentId: env.experimentId,
@@ -85,9 +109,11 @@ export function loadDraftTape(binding: DraftTapeBinding, tape: TapeV2): DraftTap
       notice: `This shared state could not be restored: it was recorded in another laboratory, ${tape.experimentId}.`,
     };
   }
-  const compatible = checkTapeCompatibility(tape, env);
-  if (!compatible.compatible) {
-    return { kind: "not-restored", notice: `${compatible.notice} ${compatible.repair}` };
+  if (!binding.constantSetIdForSettings) {
+    const compatible = checkTapeCompatibility(tape, env);
+    if (!compatible.compatible) {
+      return { kind: "not-restored", notice: `${compatible.notice} ${compatible.repair}` };
+    }
   }
   if (tape.events.length > 0) {
     return {
@@ -115,10 +141,16 @@ export function loadDraftTape(binding: DraftTapeBinding, tape: TapeV2): DraftTap
       notice: `This shared state could not be restored. ${requirementsOf(checked) || "Its settings are not ones this laboratory accepts."}`,
     };
   }
-  const data = checked.data;
+  const accepted = acceptedSettings(checked, settings);
+  if (binding.constantSetIdForSettings) {
+    const compatible = checkTapeCompatibility(tape, environmentForSettings(binding, accepted));
+    if (!compatible.compatible) {
+      return { kind: "not-restored", notice: `${compatible.notice} ${compatible.repair}` };
+    }
+  }
   return {
     kind: "loaded",
-    settings: data && typeof data === "object" ? (data as Record<string, unknown>) : settings,
+    settings: accepted,
   };
 }
 

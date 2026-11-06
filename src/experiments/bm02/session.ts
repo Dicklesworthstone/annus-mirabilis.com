@@ -4,15 +4,16 @@
  * src/physics/reference/diffusion.ts into one accepted snapshot; it never
  * recomputes a physical law itself. A view renders this snapshot only.
  *
- * Historical constant-set support (`einstein-1905-brownian-printed`) is
- * NOT implemented here: that set is reserved but not yet built
- * (src/physics/reference/constants.ts explicitly throws
- * `constant-set-not-registered` for it, owned by am-ref-constants-xik).
- * This session only accepts `modern-si-2019`; the historical comparison
- * from this bead's acceptance criteria is deferred, not faked.
+ * The historical comparison uses the registered printed Brownian set:
+ * Einstein's N and the explicitly editorial R. The thermal-constant
+ * owner selects R/N for that set; it never substitutes modern k_B.
  */
 
-import { getConstantSet } from "../../physics/reference/constants";
+import {
+  type ConstantValue,
+  getConstantSet,
+  thermalConstant,
+} from "../../physics/reference/constants";
 import { osmoticPressure } from "../../physics/reference/diffusion/distributions";
 import {
   CLASSICAL_SUSPENDED_BODIES,
@@ -34,6 +35,9 @@ export const PHI_MAX_JUSTIFICATION =
 
 export type OsmoticModel = "molecular-kinetic" | "classical-thermodynamics-suspended-bodies";
 
+export const BM02_CONSTANT_SETS = ["modern-si-2019", "einstein-1905-brownian-printed"] as const;
+export type Bm02ConstantSetId = (typeof BM02_CONSTANT_SETS)[number];
+
 export type Bm02Inputs = Readonly<{
   Np: number;
   /** Accessible volume, in cubic micrometres (μm^3). */
@@ -45,7 +49,7 @@ export type Bm02Inputs = Readonly<{
   /** Partition area, in square micrometres (μm^2). */
   A_um2: number;
   model: OsmoticModel;
-  constantSetId: "modern-si-2019";
+  constantSetId: Bm02ConstantSetId;
 }>;
 
 export const DEFAULT_BM02_INPUTS: Bm02Inputs = Object.freeze({
@@ -81,6 +85,7 @@ const UM_TO_M = 1e-6;
 
 export type Bm02Snapshot = Readonly<{
   inputs: Bm02Inputs;
+  thermalConstant: ConstantValue;
   numberDensity: ScientificResult;
   volumeFraction: ScientificResult;
   domain: DiluteDomain | RouteAEvaluation;
@@ -219,6 +224,7 @@ export function computeBm02Snapshot(inputs: Bm02Inputs): Bm02Snapshot {
 
   return Object.freeze({
     inputs,
+    thermalConstant: thermalConstant(set),
     numberDensity: n,
     volumeFraction: phiEval.result,
     domain,

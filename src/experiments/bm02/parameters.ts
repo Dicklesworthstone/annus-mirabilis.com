@@ -1,7 +1,7 @@
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
 import { type DomainDisplay, withinDeclaredDomain } from "../controls/declaredDomain.ts";
 import { makeRefusal } from "../results/refusals.ts";
-import { type Bm02Inputs, DEFAULT_BM02_INPUTS } from "./session.ts";
+import { BM02_CONSTANT_SETS, type Bm02Inputs, DEFAULT_BM02_INPUTS } from "./session.ts";
 
 /**
  * BM-02's validator, taken out of OsmoticPartitionLab.apply so the laboratory and the domain sweep
@@ -65,8 +65,11 @@ function validateBm02Fields(input: unknown): Computation<Bm02Inputs> {
     );
   if (!MODELS.includes(p.model))
     return refused(["model"], "Choose the molecular-kinetic or the classical model.");
-  if (p.constantSetId !== "modern-si-2019")
-    return refused(["constantSetId"], "Use the modern SI constant set.");
+  if (!BM02_CONSTANT_SETS.includes(p.constantSetId))
+    return refused(
+      ["constantSetId"],
+      "Choose modern SI constants or Einstein's printed Brownian constants with editorial R.",
+    );
   return { kind: "accepted", data: Object.freeze({ ...p }) };
 }
 

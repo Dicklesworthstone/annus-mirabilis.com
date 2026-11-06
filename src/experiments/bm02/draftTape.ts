@@ -20,6 +20,7 @@
  */
 import type { DraftTapeBinding } from "../permalink/draftTape.ts";
 import { BM02_DEFAULTS, validateBm02Parameters } from "./parameters.ts";
+import type { Bm02Inputs } from "./session.ts";
 
 export const BM02_DRAFT_TAPE: DraftTapeBinding = Object.freeze({
   environment: Object.freeze({
@@ -33,4 +34,8 @@ export const BM02_DRAFT_TAPE: DraftTapeBinding = Object.freeze({
   }),
   defaults: BM02_DEFAULTS,
   validate: validateBm02Parameters,
+  // The validator admits only BM-02's two constant sets. The tape header must name the same
+  // set as its accepted settings, including when loading a historical comparison.
+  constantSetIdForSettings: (settings: Readonly<Record<string, unknown>>) =>
+    (settings as Bm02Inputs).constantSetId,
 });
