@@ -7,6 +7,8 @@ import { computeHighlights, nextSentenceId, prevSentenceId } from "./alignmentHi
 export interface AlignmentControllerProps {
   readonly index: AlignmentIndex;
   readonly containerSelector?: string | undefined;
+  /** A split reader keeps sentence keys inside its source pane, away from the other face. */
+  readonly keyboardScope?: "page" | "container" | undefined;
 }
 
 /**
@@ -17,6 +19,7 @@ export interface AlignmentControllerProps {
 export function AlignmentController({
   index,
   containerSelector = "[data-reader-root]",
+  keyboardScope = "page",
 }: AlignmentControllerProps) {
   const [announcement, setAnnouncement] = useState("");
   const pinnedIdRef = useRef<string | null>(null);
@@ -273,16 +276,17 @@ export function AlignmentController({
     root.addEventListener("mouseover", handleMouseOver as EventListener);
     root.addEventListener("mouseout", handleMouseOut as EventListener);
     root.addEventListener("focusin", handleFocusIn as EventListener);
-    window.addEventListener("keydown", handleKeyDown);
+    const keyboardTarget = keyboardScope === "container" ? root : window;
+    keyboardTarget.addEventListener("keydown", handleKeyDown as EventListener);
 
     return () => {
       root.removeEventListener("click", handleClick as EventListener);
       root.removeEventListener("mouseover", handleMouseOver as EventListener);
       root.removeEventListener("mouseout", handleMouseOut as EventListener);
       root.removeEventListener("focusin", handleFocusIn as EventListener);
-      window.removeEventListener("keydown", handleKeyDown);
+      keyboardTarget.removeEventListener("keydown", handleKeyDown as EventListener);
     };
-  }, [index, containerSelector]);
+  }, [index, containerSelector, keyboardScope]);
 
   return (
     <div

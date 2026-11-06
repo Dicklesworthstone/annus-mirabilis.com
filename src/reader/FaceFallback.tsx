@@ -12,8 +12,9 @@ import { FacsimilePanel } from "./facsimile/FacsimilePanel.tsx";
 import { loadFacsimileDocument } from "./facsimile/server.ts";
 import { ledgerGaps, pageRanges } from "./ledgerGaps.ts";
 import { paperEquations } from "./paperEquations.ts";
-import { FACE_FALLBACK_IDS, type FaceFallbackId, faceLinkHref, paperPath } from "./paperRoutes.ts";
+import { type FaceFallbackId, faceLinkHref, paperPath } from "./paperRoutes.ts";
 import { ROOT_ARMING_SOURCE } from "./rootArming.inline.ts";
+import { SplitReadingView } from "./split/SplitReadingView.tsx";
 import "./reader.css";
 
 const SOURCE_FACES = new Set<FaceId>(["german", "english", "gloss", "parallel", "facsimile"]);
@@ -76,6 +77,9 @@ export async function FaceFallback(
       ? { facsimile: facsimile.kind === "available" ? ("available" as const) : ("empty" as const) }
       : {}),
   });
+  if (face === "split") {
+    return SplitReadingView({ payload, edition, section, availability });
+  }
   // Which printed pages the German text lacks, read from the ledger itself (ledgerGaps.ts), and
   // the facsimile that has every page: the notice alone never said which were missing.
   const gaps =
@@ -124,42 +128,6 @@ export async function FaceFallback(
           section={section}
         />
       )}
-      {face === "split" ? (
-        <div className="reader-split" data-split="">
-          <div
-            className="reader-split-tabs"
-            data-split-tabs=""
-            role="tablist"
-            aria-label="Split reading faces"
-          >
-            <a role="tab" href={faceLinkHref(paperId, "parallel", section)} aria-selected="true">
-              Parallel bilingual
-            </a>
-            <a role="tab" href={faceLinkHref(paperId, "reading", section)} aria-selected="false">
-              Explanation
-            </a>
-          </div>
-          <div className="reader-split-panes">
-            <section data-split-pane="parallel" data-face-source>
-              <h2>Parallel bilingual</h2>
-              {/* It said "The reviewed German, aligned English, and gloss for this paper are not
-                  yet available": false once the parallel face was, and review copy besides
-                  (D-2026-09-25-no-review-status-banners). */}
-              <p>
-                <a href={faceLinkHref(paperId, "parallel", section)}>
-                  Open the parallel German and English →
-                </a>
-              </p>
-            </section>
-            <section data-split-pane="reading" data-face-reading>
-              <h2>Explanation</h2>
-              <p>
-                <a href={paperPath(paperId, section)}>Open the explanation face →</a>
-              </p>
-            </section>
-          </div>
-        </div>
-      ) : null}
       {/*
         THE RESULTS FACE IS AN OUTLINE OF THE ARGUMENT. It was one display-size heading and one
         recap per passage, run the full 1,320px frame: on BUILD 22 light quanta's twelve recaps
