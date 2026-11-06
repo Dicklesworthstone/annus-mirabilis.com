@@ -124,7 +124,11 @@ describe("checkJourney over the real journeys, not the fixture", () => {
     for (const { journey } of findingsByPaper) {
       expect(journey.completeness).toBe("partial");
       const declared = (journey.pendingElements ?? []).map((p) => p.element);
-      expect(declared).toContain("stages");
+      if (journey.stages.length === 0) {
+        expect(declared, `${journey.paper} has no stages`).toContain("stages");
+      } else {
+        expect(declared, `${journey.paper} has authored stages`).not.toContain("stages");
+      }
       /*
        * `exercises.instrumented` IS NO LONGER UNIVERSAL, and asserting it of every journey is
        * what this line used to do. The exercises are composed now, so the declaration is derived:

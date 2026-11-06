@@ -50,7 +50,7 @@ export const MASS_ENERGY_SHELF_CARDS: readonly KnowledgeCard[] = [
         ],
       },
     ],
-    admittedStages: ["stage-01", "stage-03"],
+    admittedStages: ["step-01", "step-02", "step-03", "step-04"],
   },
   {
     id: "thomson-tait-1867-kinetic-energy",
@@ -88,7 +88,7 @@ export const MASS_ENERGY_SHELF_CARDS: readonly KnowledgeCard[] = [
         ],
       },
     ],
-    admittedStages: ["stage-05"],
+    admittedStages: ["step-05"],
   },
   {
     id: "maxwell-1873-radiation-pressure",
@@ -125,7 +125,7 @@ export const MASS_ENERGY_SHELF_CARDS: readonly KnowledgeCard[] = [
         ],
       },
     ],
-    admittedStages: ["stage-02"],
+    admittedStages: ["step-01", "step-02"],
   },
   {
     id: "poynting-1884-energy-flux",
@@ -168,7 +168,7 @@ export const MASS_ENERGY_SHELF_CARDS: readonly KnowledgeCard[] = [
           'Royal Society scan of Phil. Trans. 175. p. 343: "XV. On the Transfer of Energy in the Electromagnetic Field. By J. H. Poynting ... Received December 17, 1883,—Read January 10, 1884." p. 344: "The aim of this paper is to prove that there is a general law for the transfer of energy, according to which it moves at any point perpendicularly to the plane containing the lines of electric force and magnetic force, and that the amount crossing unit of area per second of this plane is equal to the product of the intensities of the two forces multiplied by the sine of the angle between them divided by 4π".',
       },
     ],
-    admittedStages: ["stage-01"],
+    admittedStages: ["step-01"],
   },
   {
     id: "lebedev-1901-radiation-pressure-measured",
@@ -202,7 +202,7 @@ export const MASS_ENERGY_SHELF_CARDS: readonly KnowledgeCard[] = [
           "Untersuchungen über die Druckkräfte des Lichtes, Peter Lebedew, Annalen der Physik 311 (series 4, volume 6), pp. 433-458, 1901. The article's text was not read: archive.org's scan of the issue (sim_annalen-der-physik_1901_6_2) has a blank leaf for p. 433, its next issue serves no files, HathiTrust's catalog refused the request, the publisher's page answered with a challenge, the Biodiversity Heritage Library answered with a challenge, Gallica returned a web page instead of its catalog, and no other archive.org scan of the volume was found. The proposition is not yet checked against the text.",
       },
     ],
-    admittedStages: ["stage-02"],
+    admittedStages: ["step-02"],
   },
   {
     id: "einstein-1905-light-complex-transformation",
@@ -252,7 +252,7 @@ export const MASS_ENERGY_SHELF_CARDS: readonly KnowledgeCard[] = [
         ],
       },
     ],
-    admittedStages: ["stage-03"],
+    admittedStages: ["step-03", "step-04", "step-05"],
   },
   {
     id: "thomson-1881-electromagnetic-mass",
@@ -295,7 +295,7 @@ export const MASS_ENERGY_SHELF_CARDS: readonly KnowledgeCard[] = [
     ],
     limits:
       "An electromagnetic addition to the inertia of a charged body. It says nothing about uncharged matter, or about energy leaving a body.",
-    admittedStages: ["stage-05"],
+    admittedStages: ["step-02", "step-05"],
   },
   {
     id: "poincare-1900-fictitious-fluid",
@@ -329,7 +329,7 @@ export const MASS_ENERGY_SHELF_CARDS: readonly KnowledgeCard[] = [
     ],
     limits:
       "The fluid is bookkeeping for the field, which Poincaré himself calls fictitious. It is not a claim that emitting light changes the inertia of the body that emits it.",
-    admittedStages: ["stage-05"],
+    admittedStages: ["step-05"],
   },
   {
     id: "hasenoehrl-1904-cavity-radiation",
@@ -372,7 +372,7 @@ export const MASS_ENERGY_SHELF_CARDS: readonly KnowledgeCard[] = [
     ],
     limits:
       "Derived for radiation shut in a cavity, not for a body's own energy, and with a numerical factor he corrected in 1905 that differs from the later result.",
-    admittedStages: ["stage-05"],
+    admittedStages: ["step-05"],
   },
 ];
 

@@ -25,28 +25,42 @@ import { JOURNEY_LINEAGE, REAL_JOURNEYS } from "../src/discovery/journeys/realJo
 const ROOT = process.cwd();
 const DIR = join(ROOT, "content/journeys");
 
-const HEADER = (paper: string): string =>
-  [
-    `# The discovery journey for ${paper}, as a record the compiler can read (am-4k0m).`,
-    "#",
-    "# EMITTED, NOT TYPED. Every sentence here was copied out of the paper's own journey module by",
-    "# scripts/emit-journey-records.ts, which serialises the Journey that src/discovery/journeys/",
-    "# realJourneys.ts composes by reference. Nobody retyped a word, and realJourneys.test.ts asserts",
-    "# this file parses back to exactly that object, so the record is proven faithful rather than",
-    "# assumed. Regenerate with: bun scripts/emit-journey-records.ts",
-    "#",
-    "# `completeness: partial` is the honest value, and pendingElements says which elements and why,",
-    "# because composing them would be authoring content rather than moving it. A journey claiming",
-    "# complete with elements missing is the defect am-4k0m is about. The list is NOT the same for",
-    "# all four: `stages` and `exercises.instrumented` are pending everywhere, and",
-    "# `move.derivationChain` is pending on the three papers whose move is marked in no derivation",
-    "# chain a reader can open -- brownian-motion's is, in content/equations/derivations/. Count the",
-    "# entries below rather than trusting this sentence.",
-    "#",
-    "# The page still renders from the module. Pointing it here is the next step, and the equality test",
-    "# is what makes that step safe.",
-    "",
-  ].join("\n");
+const HEADER = (paper: string, hasAuthoredStages: boolean): string =>
+  hasAuthoredStages
+    ? [
+        `# The discovery journey for ${paper}, as a record the compiler can read (am-4k0m).`,
+        "#",
+        "# Emitted from the journey's typed source records by scripts/emit-journey-records.ts.",
+        "# The page renders the same authored stages, including the existing narrative, their",
+        "# shelf premises, worked comparisons and qualifications. realJourneys.test.ts verifies",
+        "# that this YAML and the composed journey carry exactly the same content.",
+        "#",
+        "# pendingElements names the remaining gaps. Recording the stages does not claim that",
+        "# the separate derivation-chain or editorial review work is complete.",
+        "# Regenerate with: bun scripts/emit-journey-records.ts",
+        "",
+      ].join("\n")
+    : [
+        `# The discovery journey for ${paper}, as a record the compiler can read (am-4k0m).`,
+        "#",
+        "# EMITTED, NOT TYPED. Every sentence here was copied out of the paper's own journey module by",
+        "# scripts/emit-journey-records.ts, which serialises the Journey that src/discovery/journeys/",
+        "# realJourneys.ts composes by reference. Nobody retyped a word, and realJourneys.test.ts asserts",
+        "# this file parses back to exactly that object, so the record is proven faithful rather than",
+        "# assumed. Regenerate with: bun scripts/emit-journey-records.ts",
+        "#",
+        "# `completeness: partial` is the honest value, and pendingElements says which elements and why,",
+        "# because composing them would be authoring content rather than moving it. A journey claiming",
+        "# complete with elements missing is the defect am-4k0m is about. The list is NOT the same for",
+        "# all four: `stages` and `exercises.instrumented` are pending everywhere, and",
+        "# `move.derivationChain` is pending on the three papers whose move is marked in no derivation",
+        "# chain a reader can open -- brownian-motion's is, in content/equations/derivations/. Count the",
+        "# entries below rather than trusting this sentence.",
+        "#",
+        "# The page still renders from the module. Pointing it here is the next step, and the equality test",
+        "# is what makes that step safe.",
+        "",
+      ].join("\n");
 
 function main(): void {
   mkdirSync(DIR, { recursive: true });
@@ -80,7 +94,7 @@ function main(): void {
       sortKeys: false,
       noRefs: true,
     });
-    const next = `${HEADER(journey.paper)}${body}`;
+    const next = `${HEADER(journey.paper, journey.stages.length > 0)}${body}`;
     const unchanged = existsSync(path) && readFileSync(path, "utf8") === next;
     if (!unchanged) writeFileSync(path, next);
     written.push(

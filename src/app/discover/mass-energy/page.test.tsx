@@ -16,6 +16,7 @@ import {
   SOURCE_JUMPS,
   WORLD_CHECK,
 } from "../../../discovery/massEnergy/journeyIV.ts";
+import { MASS_ENERGY_STAGES } from "../../../discovery/massEnergy/stages.ts";
 import type { LowSpeedProofView } from "../../../equations/derivations/lowSpeedView.ts";
 import { ELIMINATION_STEPS } from "../../../equations/derivations/massEnergyElimination.ts";
 import lowSpeed from "../../../generated/mass-energy-low-speed.json";
@@ -28,6 +29,7 @@ import MassEnergyEncounter from "./page";
  * page's lead says the paper "answers with a number", and this is where a reader computes one.
  */
 const html = renderToStaticMarkup(<MassEnergyEncounter />);
+const renderedText = (value: string) => renderToStaticMarkup(value);
 const text = (markup: string) =>
   markup
     .replace(/<[^>]+>/g, " ")
@@ -40,6 +42,34 @@ function stepFive(): string {
   expect(start).toBeGreaterThan(-1);
   return html.slice(start, html.indexOf("</section>", start));
 }
+
+test("the route renders its recorded argument stages and reachable premises in order", () => {
+  const positions: number[] = [];
+  for (const stage of MASS_ENERGY_STAGES) {
+    const start = html.indexOf(`<section id="${stage.id}" data-stage-id="${stage.id}"`);
+    expect(start).toBeGreaterThan(-1);
+    positions.push(start);
+    const next = html.indexOf('<section id="step-', start + 1);
+    const section = html.slice(start, next === -1 ? undefined : next);
+    expect(section).toContain(renderedText(stage.question));
+    for (const paragraph of stage.support.explanation.split("\n\n")) {
+      expect(section).toContain(renderedText(paragraph));
+    }
+    expect(section).toContain(renderedText(stage.computeFromShelf));
+    expect(section).toContain(renderedText(stage.support.transferCase?.explanation ?? ""));
+    expect(section).toContain(renderedText(stage.support.workedExample.result));
+    for (const reference of stage.premiseRefs) {
+      expect(section).toContain(`href="#card-${reference.cardId}"`);
+      expect(html).toContain(`id="card-${reference.cardId}"`);
+    }
+    if (stage.instrument) {
+      expect(section).toContain(`href="/lab/${stage.instrument.instrumentId}/"`);
+    }
+  }
+  expect(positions).toEqual([...positions].sort((a, b) => a - b));
+  expect(html).toContain('data-exercise-part="me-mass-given-up-formula"');
+  expect(html).toContain('data-exercise-part="me-sealed-lamp-year"');
+});
 
 describe("step 05 puts the coefficient to a number", () => {
   test("after the slow-speed disclosure, the sealed-lamp exercise with kilograms and grams", () => {

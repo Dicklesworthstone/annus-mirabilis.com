@@ -68,7 +68,7 @@ const PAPER_NAMES: Readonly<Record<string, string>> = {
  * Ids that do not have that form are shown as they are.
  */
 export function stepsLine(stages: readonly string[]): string {
-  const steps = stages.map((stage) => /^stage-(\d+)$/.exec(stage)?.[1]);
+  const steps = stages.map((stage) => /^(?:stage|step)-(\d+)$/.exec(stage)?.[1]);
   if (steps.some((step) => step === undefined)) return stages.join(", ");
   const numbers = steps.map(Number);
   if (numbers.length === 1) return `Step ${numbers[0]} of this route`;

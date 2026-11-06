@@ -390,6 +390,7 @@ describe("am-disc-knowledge-cards-iw8j: KnowledgeCard and CardDetail rendering",
 
   test("stepsLine reads a route's stage ids as its numbered steps, and leaves other ids alone", () => {
     expect(stepsLine(["stage-03"])).toBe("Step 3 of this route");
+    expect(stepsLine(["step-03", "step-04", "step-05"])).toBe("Steps 3, 4 and 5 of this route");
     expect(stepsLine(["stage-03", "stage-06"])).toBe("Steps 3 and 6 of this route");
     expect(stepsLine(["stage-01", "stage-02", "stage-07"])).toBe("Steps 1, 2 and 7 of this route");
     // One id of another form and the line is shown as recorded, not half translated.

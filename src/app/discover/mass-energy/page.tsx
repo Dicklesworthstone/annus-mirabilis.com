@@ -26,6 +26,7 @@ import {
   SOURCE_JUMPS,
   WORLD_CHECK,
 } from "../../../discovery/massEnergy/journeyIV.ts";
+import { MassEnergyStage } from "../../../discovery/massEnergy/MassEnergyStage.tsx";
 import {
   EQUAL_AND_OPPOSITE_EXPLANATION,
   MASS_GIVEN_UP_EXERCISE,
@@ -36,6 +37,13 @@ import {
   PROXY_AT_SIX_TENTHS,
   SEALED_LAMP_YEAR,
 } from "../../../discovery/massEnergy/numericExercises.ts";
+import {
+  COEFFICIENT_STAGE,
+  PREDICTION_STAGE,
+  SUBTRACTION_STAGE,
+  SYMMETRIC_EMISSION_STAGE,
+  TWO_LEDGERS_STAGE,
+} from "../../../discovery/massEnergy/stages.ts";
 import { PpeTask } from "../../../discovery/PpeTask.tsx";
 import { RouteMap } from "../../../discovery/RouteMap.tsx";
 import { SourceJump } from "../../../discovery/SourceJump.tsx";
@@ -121,96 +129,24 @@ export default function MassEnergyRoute() {
         <p className="lead">{FIRST_HONEST_QUESTION}</p>
       </section>
 
-      <section id="step-01">
-        <p className="step-number">01 / Start with a body that does nothing</p>
-        <h2>Where can the energy have gone?</h2>
-        <p>
-          Put a body at rest in front of you and let it give off light: two equal flashes, one to
-          the left and one to the right, at the same moment. Because the flashes are equal and
-          opposite, whatever push one gives the body the other takes away. The body does not recoil.
-          It sits exactly where it sat, at rest, before and after.
-        </p>
-        <p>
-          Energy is conserved, so the energy carried off by the flashes came out of the body. But
-          the body has not slowed down, because it was not moving, and it has not moved. Nothing you
-          can see about it has changed. A quantity has left and no visible property has altered to
-          account for it.
-        </p>
-        <details>
-          <summary>Why insist on two flashes rather than one?</summary>
-          <p>
-            One flash would push the body the other way, and then some of the bookkeeping would be
-            about the recoil rather than about the body itself. The symmetric pair is a device for
-            keeping the speed fixed so that only one unknown is left. It is a choice made to isolate
-            a question, not a fact about how bodies emit light.
-          </p>
-        </details>
+      <MassEnergyStage stage={SYMMETRIC_EMISSION_STAGE}>
         <StepDoors>
           <StepDoor href="/papers/mass-energy/#arg-me-symmetric-emission">
             Go straight to the explanation: why the light leaves in two equal, opposite flashes
           </StepDoor>
         </StepDoors>
-      </section>
+      </MassEnergyStage>
 
-      <section id="step-02">
-        <p className="step-number">02 / Make a prediction</p>
-        <h2>Is the body lighter, or is that a category error?</h2>
-        <p>
-          Before going on, commit to an answer. After the flashes have left, is the body&rsquo;s
-          mass the same as before, smaller, or is the question malformed because mass is not the
-          sort of thing energy can be taken out of? There is a respectable case for each in 1904,
-          and the argument below only decides between them under premises you will be able to see.
-        </p>
-        <details>
-          <summary>The case for &ldquo;the question is malformed&rdquo;</summary>
-          <p>
-            Mass in 1904 is the measure of how hard a body is to accelerate, fixed by the body and
-            not by its history. Energy is a quantity of account that bodies exchange. On that
-            reading, asking whether emitting light changes the mass is like asking whether paying a
-            bill changes your height. There is a serious case for it, and nothing in the argument
-            that follows refutes it directly. What the argument does is produce a number where that
-            position predicts none.
-          </p>
-        </details>
+      <MassEnergyStage stage={PREDICTION_STAGE}>
         <StepDoors>
           <StepDoor href="/papers/mass-energy/#arg-me-mass-change">
             Go straight to the explanation: what the argument identifies, and which way the change
             points
           </StepDoor>
         </StepDoors>
-      </section>
+      </MassEnergyStage>
 
-      <section id="step-03">
-        <p className="step-number">03 / Describe the same event twice</p>
-        <h2>Two accounts of one emission</h2>
-        <p>
-          Describe the same emission a second time, from a frame gliding steadily past at speed{" "}
-          <em>v</em>. Nothing about the body changes; you have changed only where you are standing.
-          Write down the body&rsquo;s energy before and after in each account, four quantities in
-          all.
-        </p>
-        <p>
-          You cannot evaluate any of the four, because each contains the body&rsquo;s absolute
-          energy content, which no one knows, in 1904 or now. That is why the second account earns
-          its place: the quantity you cannot supply appears in both accounts, so a subtraction
-          removes it.
-        </p>
-        <p>
-          The two accounts do not agree about the light, though. A given pair of flashes is measured
-          to carry different total energy depending on the frame it is measured in, and by how much
-          is fixed by the speed and the direction. <strong>That is the imported step.</strong> It
-          comes from section 8 of the relativity paper, received in June of the same year, and it is
-          the one thing in this route that a reader standing at the end of 1904 could not reach for.
-          It is on the shelf below, marked as an import, with where it came from.
-        </p>
-        <details>
-          <summary>Why the import is declared rather than absorbed</summary>
-          <p>
-            A reconstruction that quietly used a 1905 result while claiming to start from 1904 would
-            be telling you the argument is cheaper than it is. The September paper openly rests on
-            the June one. Naming the debt is the difference between a route and a conjuring trick.
-          </p>
-        </details>
+      <MassEnergyStage stage={TWO_LEDGERS_STAGE}>
         <StepDoors>
           <StepDoor href="/papers/mass-energy/#arg-me-two-ledgers">
             Go straight to the explanation: two accounts of the same loss
@@ -219,34 +155,9 @@ export default function MassEnergyRoute() {
             Transform a finite light complex and watch its energy change
           </StepDoor>
         </StepDoors>
-      </section>
+      </MassEnergyStage>
 
-      <section id="step-04">
-        <p className="step-number">04 / Subtract</p>
-        <h2>What survives when the unknowns cancel</h2>
-        <p>
-          Take the difference between the two accounts before the emission, take it again after, and
-          subtract one from the other. Every absolute body energy disappears, because each appears
-          once in each account. What is left on one side is a difference of differences, and on the
-          other side the light energy multiplied by a factor that depends only on the speed.
-        </p>
-        <p>
-          The quantity that survives is the difference between what the moving observer and the
-          resting observer say the body&rsquo;s energy is, and how that difference changed when the
-          light left. For a body whose speed never changed, that is its energy of motion, plus
-          whatever fixed offset separates the two accounts.
-        </p>
-        <details>
-          <summary>The premise hiding in &ldquo;whatever fixed offset&rdquo;</summary>
-          <p>
-            Identifying the surviving quantity as a change in energy of motion requires that the
-            offset is the same before and after. Nothing so far forces that. If the offset shifted
-            when the light left, the subtraction still holds but it no longer isolates the energy of
-            motion, and the route stops here with a constraint rather than a result. This is the
-            premise worth arguing about, and the workbench below lets you remove it and see what
-            survives.
-          </p>
-        </details>
+      <MassEnergyStage stage={SUBTRACTION_STAGE}>
         <StepDoors>
           <StepDoor href="/papers/mass-energy/#arg-me-subtraction">
             Go straight to the explanation: which difference survives the subtraction
@@ -255,35 +166,12 @@ export default function MassEnergyRoute() {
             Assemble the argument yourself and take that premise out
           </StepDoor>
         </StepDoors>
-      </section>
+      </MassEnergyStage>
 
-      <section id="step-05">
-        <p className="step-number">05 / Read the coefficient</p>
-        <h2>A number where a category error predicted none</h2>
-        <p>
-          Let the second observer glide past slowly and the speed factor simplifies. The paper
-          prints the result on its last page, in the notation it was set in, where <em>L</em> is the
-          energy given off and <em>V</em> is the speed of light:
-        </p>
-        <JourneyFormula {...PAGE_FORMULAS.meKineticDrop} />
-        <p>
-          Now put that beside the energy of motion you already had on the shelf, one half of the
-          mass times the speed squared. The two expressions have the same shape, and in the place
-          where a mass belongs stands the energy given off divided by the square of the speed of
-          light. The body behaves, for every purpose that mass is measured by, as though it lost
-          that much of it.
-        </p>
-        <details>
-          <summary>Why the slow-speed limit and not the exact factor</summary>
-          <p>
-            At a finite speed you get a coefficient that depends on the speed, which is a proxy and
-            not an identification: you would be reading a mass off a quantity that still remembers
-            how fast you happened to be gliding. The identification is made in the limit as the
-            speed goes to zero, which is where the comparison with one half m v squared is exact.
-            Running the instrument at zero speed instead gives zero on both sides and settles
-            nothing, which is a different thing from taking the limit.
-          </p>
-        </details>
+      <MassEnergyStage
+        stage={COEFFICIENT_STAGE}
+        afterFirstParagraph={<JourneyFormula {...PAGE_FORMULAS.meKineticDrop} />}
+      >
         <p>First write the result as the paper prints it, in its own letters.</p>
         <ExercisePart part={MASS_GIVEN_UP_EXERCISE} />
         <p>
@@ -299,7 +187,7 @@ export default function MassEnergyRoute() {
             Compare the finite-speed proxy with the limit that identifies the mass
           </StepDoor>
         </StepDoors>
-      </section>
+      </MassEnergyStage>
       <MoveMarker move={MOVE} href={MOVE_HREF} />
       <Fork fork={FORK_POINCARE} />
       <Fork fork={FORK_FIELD_MASS} />

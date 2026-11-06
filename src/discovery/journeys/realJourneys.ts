@@ -8,29 +8,25 @@
  * the journeys a reader actually reaches were hand-authored JSX. The bead's own words: "The gates
  * would pass on this population. That is the point: nobody knows that, because they never ran on it."
  *
- * THIS MODULE MAKES THE POPULATION REAL WITHOUT MOVING A LINE OF PROSE. Each journey's skeleton is
+ * THIS MODULE MAKES THE POPULATION REAL FROM ITS SHARED CONTENT. Each journey's skeleton is
  * already typed data in its own module -- journeyI.ts to journeyIV.ts export NAGGING_FACT, MOVE,
  * SOURCE_JUMPS, DOORS and the forks against the journey schema's own types -- so a `Journey` can be
  * composed from them by reference. Nothing here retypes a sentence: every string below arrives through
  * an import, which is what makes "no reader-facing text lost" true by construction rather than by
  * diffing.
  *
- * WHY THIS IS NOT YET THE RECORD FILE am-4k0m ASKS FOR. The first acceptance item wants each journey in
- * `content/journeys/<paper>.yaml` with the JSX rendering from it. That is where this is going, and
- * doing it in this order matters: with the gates already running on the real content, the move to YAML
- * becomes a refactor the gates guard, rather than a 1,637-line prose migration with nothing watching.
+ * scripts/emit-journey-records.ts emits these records to `content/journeys/<paper>.yaml`, and the
+ * parity test checks their equality. Mass-energy's five argument stages are authored data shared
+ * with its page. The other three staged chains remain in their pages and declare that gap.
  *
- * TWO ELEMENTS ARE DECLARED PENDING RATHER THAN INVENTED, through the schema's own `pendingElements`:
+ * REMAINING ELEMENTS ARE DECLARED PENDING, through the schema's own `pendingElements`:
  *
- *   stages     The staged chain is the page's JSX structure, not data. Composing a plausible stage
- *              list here would be authoring content, and a journey's stages carry premise references
- *              the shelf audit reads -- inventing them would make that audit pass over my prose.
- *   exercises  The exercise parts are typed, machine-checked objects in each paper's own exercise
- *              module, keyed to components rather than to journey-level `ExerciseRef`s. Mapping them
- *              is real work and is part of the migration, not of making the gates run.
+ *   stages     The three unrecorded staged chains need authored premise references and reasoning.
+ *   exercises  Light-quanta and Brownian motion still need a second instrumented exercise.
+ *   move       Three journeys still need their move marked in an openable derivation chain.
  *
  * So every journey here is `completeness: "partial"`, which is the honest value, and says why in the
- * record rather than in a comment. A journey that claimed `complete` while two elements were missing
+ * record rather than in a comment. A journey that claimed `complete` while elements were missing
  * would be the exact shape of defect this bead is about.
  */
 
@@ -43,6 +39,7 @@ import * as lightQuantaExercises from "../lightQuanta/journeyExercises.ts";
 import * as lightQuanta from "../lightQuanta/journeyI.ts";
 import * as massEnergy from "../massEnergy/journeyIV.ts";
 import * as massEnergyExercises from "../massEnergy/massExercise.ts";
+import { MASS_ENERGY_STAGES } from "../massEnergy/stages.ts";
 import * as relativityClock from "../relativity/clockExercise.ts";
 import * as relativityExercises from "../relativity/journeyExercises.ts";
 import * as relativity from "../relativity/journeyIII.ts";
@@ -53,7 +50,7 @@ import {
   SPECIAL_RELATIVITY_SHELF_CARDS,
 } from "./shelves.ts";
 
-/** The two elements no journey records yet, declared the way the schema provides for. */
+/** A stage gap is declared only by a journey whose argument stages are still unrecorded. */
 const PENDING: readonly PendingElement[] = Object.freeze([
   Object.freeze({
     element: "stages",
@@ -284,10 +281,9 @@ function admittedImportsOf(paper: string, shelf: readonly ShelfCard[]): readonly
 /**
  * Each journey record's own revision, bumped when ITS content changes rather than all four together.
  *
- * mass-energy is at 2 because its record gained the `admittedImports` declaration its own card had
- * carried alone -- a substantive change to what the record claims, which is why `check-revisions`
- * refused the emitted file at revision 1. The other three are untouched and stay at 1: raising them
- * would assert a change that did not happen.
+ * mass-energy is at 4 after gaining authored stages. The lineage records its earlier import and
+ * pending-element changes. The other journeys retain their revisions because their content is
+ * unchanged.
  */
 const REVISIONS: Readonly<Record<string, number>> = Object.freeze({
   // Raised on 2026-10-09 for the three papers that gained the `move.derivationChain` pending
@@ -298,7 +294,7 @@ const REVISIONS: Readonly<Record<string, number>> = Object.freeze({
   "light-quanta": 2,
   "brownian-motion": 1,
   "special-relativity": 2,
-  "mass-energy": 3,
+  "mass-energy": 4,
 });
 
 /**
@@ -327,6 +323,12 @@ export const JOURNEY_LINEAGE: Readonly<Record<string, readonly RevisionLineageEn
           "Gained the move.derivationChain pending declaration: this journey's move is named in the record and marked in no derivation chain a reader can open, and am-4k0m's fourth drift item allows a written declaration where the fix is physics authoring. The gap had been reported only as a count in a test log, which is a measurement and not a record (am-4k0m).",
         date: "2026-10-09",
       }),
+      Object.freeze({
+        revision: 3,
+        reason:
+          "Authored the five argument stages with the page's existing narrative, explicit shelf premises, worked comparisons and qualifications. The page and emitted record now share these stages, so stages is no longer pending; the separate move.derivationChain declaration remains.",
+        date: "2026-11-06",
+      }),
     ]),
     "light-quanta": Object.freeze([
       Object.freeze({
@@ -350,16 +352,17 @@ function compose(
   paper: string,
   module: SkeletonModule & Record<string, unknown>,
   shelf: readonly ShelfCard[],
+  stages: Journey["stages"] = Object.freeze([]),
 ): Journey {
   const admittedImports = admittedImportsOf(paper, shelf);
   return Object.freeze({
     id: paper,
     paper,
     revision: REVISIONS[paper] ?? 1,
-    // Partial, and the pending list says which two elements and why. The honest value.
+    // Partial, and the pending list names each journey's remaining gaps.
     completeness: "partial" as const,
     pendingElements: Object.freeze([
-      ...PENDING,
+      ...(stages.length === 0 ? PENDING : []),
       ...instrumentedPending(EXERCISES[paper] ?? Object.freeze([])),
       ...(MOVE_CHAIN_MISSING.has(paper) ? [PENDING_MOVE_CHAIN] : []),
     ]),
@@ -369,7 +372,7 @@ function compose(
     ...(admittedImports.length > 0 ? { admittedImports } : {}),
     naggingFact: module.NAGGING_FACT,
     firstHonestQuestion: module.FIRST_HONEST_QUESTION,
-    stages: Object.freeze([]),
+    stages,
     forks: forksOf(module),
     move: module.MOVE,
     worldChecks: Object.freeze([module.WORLD_CHECK]),
@@ -385,5 +388,5 @@ export const REAL_JOURNEYS: readonly Journey[] = Object.freeze([
   compose("light-quanta", lightQuanta as never, LIGHT_QUANTA_SHELF_CARDS),
   compose("brownian-motion", brownian as never, BROWNIAN_SHELF_CARDS),
   compose("special-relativity", relativity as never, SPECIAL_RELATIVITY_SHELF_CARDS),
-  compose("mass-energy", massEnergy as never, MASS_ENERGY_SHELF_CARDS),
+  compose("mass-energy", massEnergy as never, MASS_ENERGY_SHELF_CARDS, MASS_ENERGY_STAGES),
 ]);
