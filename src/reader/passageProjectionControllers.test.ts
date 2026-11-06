@@ -120,9 +120,8 @@ describe("projection navigation with the existing source-face owner", () => {
     expect(window.history.state.relativeOffset).toBe(0.1);
   });
 
-  test.each(["projection-first", "source-first"] as const)(
-    "%s restoration holds only the captured passage and keeps later source writes consistent",
-    async (order) => {
+  for (const order of ["projection-first", "source-first"] as const) {
+    test(`${order} restoration holds only the captured passage and keeps later source writes consistent`, async () => {
       const { root, departure, link, grow } = sourceFixture();
       if (order === "projection-first") stopProjection = mountPassageProjectionNavigation(root);
       await mountSource(root);
@@ -143,8 +142,8 @@ describe("projection navigation with the existing source-face owner", () => {
       await new Promise((resolve) => setTimeout(resolve, 350));
       expect(window.history.state.anchor).toBe("s0-p7");
       expect(window.history.state.relativeOffset).toBe(0.1);
-    },
-  );
+    });
+  }
 });
 
 describe("projection navigation with the existing reading controller", () => {

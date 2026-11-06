@@ -150,9 +150,8 @@ describe("passage projections: exact authored relationships", () => {
     expect(hrefs(index.bySourceBlock["eq-one"], "english")).toEqual([english("english-equation")]);
   });
 
-  test.each(["missing", "foreign", "nonparagraph"] as const)(
-    "a translated display with a %s containment parent keeps its own exact targets",
-    (caseName) => {
+  for (const caseName of ["missing", "foreign", "nonparagraph"] as const) {
+    test(`a translated display with a ${caseName} containment parent keeps its own exact targets`, () => {
       const parent =
         caseName === "foreign"
           ? { ...block("parent"), paper: "mass-energy" }
@@ -173,8 +172,8 @@ describe("passage projections: exact authored relationships", () => {
         english("english-equation"),
       ]);
       expect(hrefs(index.byTranslationUnit["english-equation"], "explanation")).toEqual([]);
-    },
-  );
+    });
+  }
 
   test("without alignment, only exact block or owned sentence references establish translation", () => {
     const index = buildPassageProjections(
