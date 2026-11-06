@@ -32,6 +32,11 @@ import type {
 } from "../../content/schemas/source.ts";
 import { printedDisplay } from "../../equations/printed/printedDisplays.ts";
 import { splitSourceSentenceId } from "../anchors/emitAnchor.ts";
+import { PassageProjections, projectionParagraphLabel } from "../PassageProjections.tsx";
+import {
+  mergePassageProjections,
+  type PassageProjection,
+} from "../projections/passageProjections.ts";
 import { buildAlignmentIndex, getAlignedSources } from "./alignment.ts";
 import { EditorialNoteMarker } from "./EditorialNoteMarker.tsx";
 import { renderInlines, unitTerms } from "./inlines.tsx";
@@ -115,6 +120,7 @@ export function groupTranslationUnits(
 }
 
 export interface TranslationParagraphsProps {
+  readonly projectionsByUnit?: Readonly<Record<string, PassageProjection>> | undefined;
   /** The units to set, in reading order. */
   readonly units: readonly TranslationUnit[];
   readonly alignment?: Alignment | undefined;
@@ -143,6 +149,7 @@ export function TranslationParagraphs({
   anchorPrefix = "",
   footnoteUnits,
   groups,
+  projectionsByUnit,
 }: TranslationParagraphsProps) {
   const records = new Map<string, ReviewRecord>();
   for (const r of reviewRecords) for (const s of r.scope) records.set(s.recordId, r);
@@ -275,6 +282,17 @@ export function TranslationParagraphs({
         : [];
     });
 
+  const projectionsFor = (group: Group): ReactNode => {
+    if (!projectionsByUnit || !group.units[0]) return null;
+    return (
+      <PassageProjections
+        projection={mergePassageProjections(group.units.map((unit) => projectionsByUnit[unit.id]))}
+        anchor={`${anchorPrefix}${group.units[0].id}`}
+        label={group.kind === "footnote" ? "source footnote" : projectionParagraphLabel(group.key)}
+      />
+    );
+  };
+
   return (
     <>
       {(groups ?? groupTranslationUnits(units, alignment, blocks)).map((group) => {
@@ -289,6 +307,7 @@ export function TranslationParagraphs({
                 {group.units.map(renderUnit)}
               </aside>
               {apparatus(group)}
+              {projectionsFor(group)}
             </Fragment>
           );
         }
@@ -326,6 +345,7 @@ export function TranslationParagraphs({
               {group.units.map(renderUnit)}
             </p>
             {apparatus(group)}
+            {group.kind === "paragraph" && projectionsFor(group)}
           </Fragment>
         );
       })}

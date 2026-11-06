@@ -8,7 +8,10 @@ import type {
 import { FaceChooser } from "../FaceChooser.tsx";
 import type { FaceAvailability } from "../faceAvailability.ts";
 import { pageRanges } from "../ledgerGaps.ts";
+import { PassageProjectionNavigation } from "../PassageProjectionNavigation.tsx";
+import { PassageProjections, projectionParagraphLabel } from "../PassageProjections.tsx";
 import { FACE_FALLBACK_IDS, faceLinkHref } from "../paperRoutes.ts";
+import type { PassageProjection } from "../projections/passageProjections.ts";
 import { ROOT_ARMING_SOURCE } from "../rootArming.inline.ts";
 import { AliasHashRewrite } from "./AliasHashRewrite.tsx";
 import { AlignmentController } from "./AlignmentController.tsx";
@@ -25,6 +28,7 @@ import { ExplainerFragments } from "./ExplainerFragments.tsx";
 import { InlineTerms } from "./InlineTerms.tsx";
 
 export interface GermanFaceProps {
+  readonly projections?: Readonly<Record<string, PassageProjection>> | undefined;
   readonly paper: Paper;
   readonly blocks: readonly SourceBlockData[];
   readonly alignment?: Alignment | undefined;
@@ -73,6 +77,7 @@ export function GermanFace({
   plate,
   aliases = {},
   availability,
+  projections,
 }: GermanFaceProps) {
   const filteredBlocks = sectionId
     ? blocks.filter((b) => b.section === sectionId || !b.section)
@@ -139,6 +144,7 @@ export function GermanFace({
     >
       {/* biome-ignore lint/security/noDangerouslySetInnerHtml: harness data-ready contract; source from a tested pure function. */}
       <script dangerouslySetInnerHTML={{ __html: ROOT_ARMING_SOURCE }} />
+      <PassageProjectionNavigation />
       {/* Inline formulas as targets, on a paper drawn in colour (dispatch 272). */}
       <InlineTerms paper={paper.slug} />
       {/* The panels' levels, fetched when a reader first opens one (dispatch 292). */}
@@ -225,6 +231,13 @@ export function GermanFace({
                 {aliasesOf(block)}
                 <SourceBlock block={block} paperSlug={paper.slug} editorialNotes={editorialNotes} />
                 {explained(block.id)}
+                {block.kind === "paragraph" && (
+                  <PassageProjections
+                    projection={projections?.[block.id]}
+                    anchor={block.id}
+                    label={projectionParagraphLabel(block.id)}
+                  />
+                )}
               </Fragment>
             ))}
           </div>
@@ -235,7 +248,16 @@ export function GermanFace({
             footnotes={footnoteBlocks}
             heading="Fußnoten"
             anchored
-            after={(footnote) => explained(footnote.id)}
+            after={(footnote) => (
+              <>
+                {explained(footnote.id)}
+                <PassageProjections
+                  projection={projections?.[footnote.id]}
+                  anchor={footnote.id}
+                  label="source footnote"
+                />
+              </>
+            )}
           />
         </div>
         {plate && opening !== undefined && plate.pages.length > 0 ? (

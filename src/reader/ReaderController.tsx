@@ -34,6 +34,7 @@ import {
   type ReaderState,
   restoreReaderState,
 } from "./navigation/state";
+import { mountPassageProjectionNavigation } from "./passageProjectionNavigation.ts";
 import { loadStepsBody, unmountStepsConstructions } from "./stepsBody.ts";
 import "./actions/kindRegistration.ts";
 import "../equations/missingStep/register.ts";
@@ -639,6 +640,16 @@ export function ReaderController(props: Props) {
     if (named && root.querySelector('details[data-reading="2"][open] > [data-steps-body]')) {
       placeHold.hold(landingPlace(named));
     }
+    // One scroll owner: a projection return supersedes the initial fragment landing, then the
+    // same hold follows any steps loaded above it. A second holder would fight this one's offset.
+    const stopProjectionNavigation = mountPassageProjectionNavigation(root, window, {
+      hold: placeHold,
+      onDeparture(anchor) {
+        if (!registry.anchors.includes(anchor)) return;
+        state = { ...state, anchor };
+        urlNamesPassage = true;
+      },
+    });
     queueMicrotask(() => openFromSearch(document, openSearchOnMount));
     /*
       THE OUTLINE SAYS WHERE THE READER IS. Each section of the outline is a group whose first
@@ -694,6 +705,7 @@ export function ReaderController(props: Props) {
       unmountLessonConstructions();
       unmountStepsConstructions();
       placeApply(null);
+      stopProjectionNavigation();
       placeHold.release();
     };
   }, [navigation]);

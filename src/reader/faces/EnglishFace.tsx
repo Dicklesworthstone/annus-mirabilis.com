@@ -8,6 +8,8 @@ import type {
 } from "../../content/schemas/source.ts";
 import { FaceChooser } from "../FaceChooser.tsx";
 import type { FaceAvailability } from "../faceAvailability.ts";
+import { PassageProjectionNavigation } from "../PassageProjectionNavigation.tsx";
+import type { PassageProjection } from "../projections/passageProjections.ts";
 import { ROOT_ARMING_SOURCE } from "../rootArming.inline.ts";
 import { AlignmentController } from "./AlignmentController.tsx";
 import { buildAlignmentIndex } from "./alignment.ts";
@@ -23,6 +25,7 @@ import { ExplainerFragments } from "./ExplainerFragments.tsx";
 import { InlineTerms } from "./InlineTerms.tsx";
 
 export interface EnglishFaceProps {
+  readonly projectionsByUnit?: Readonly<Record<string, PassageProjection>> | undefined;
   /** Which faces have content, derived by PaperPage from the same counts it dispatches on. */
   readonly availability?: Readonly<Partial<Record<FaceId, FaceAvailability>>> | undefined;
   readonly paper: Paper;
@@ -47,6 +50,7 @@ export function EnglishFace({
   availability,
   blocks,
   untranslatedSections = [],
+  projectionsByUnit,
 }: EnglishFaceProps) {
   const alignmentIndex = buildAlignmentIndex(alignment, undefined, units);
   // A footnote mark links to the unit that translates the footnote, which this face does render.
@@ -83,6 +87,7 @@ export function EnglishFace({
     >
       {/* biome-ignore lint/security/noDangerouslySetInnerHtml: harness data-ready contract; source from a tested pure function. */}
       <script dangerouslySetInnerHTML={{ __html: ROOT_ARMING_SOURCE }} />
+      <PassageProjectionNavigation />
       {/* Inline formulas as targets, on a paper drawn in colour (dispatch 272). */}
       <InlineTerms paper={paper.slug} />
       {/* The panels' levels, fetched when a reader first opens one (dispatch 292). */}
@@ -145,6 +150,7 @@ export function EnglishFace({
           reviewRecords={reviewRecords}
           editorialNotes={editorialNotes}
           footnoteUnits={footnoteUnits}
+          projectionsByUnit={projectionsByUnit}
         />
       </div>
 

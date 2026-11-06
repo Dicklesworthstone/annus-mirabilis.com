@@ -9,6 +9,8 @@ import {
 } from "../../content/schemas/source.ts";
 import { FaceChooser } from "../FaceChooser.tsx";
 import type { FaceAvailability } from "../faceAvailability.ts";
+import { PassageProjectionNavigation } from "../PassageProjectionNavigation.tsx";
+import type { PassageProjection } from "../projections/passageProjections.ts";
 import { ROOT_ARMING_SOURCE } from "../rootArming.inline.ts";
 import { AlignmentController } from "./AlignmentController.tsx";
 import { buildAlignmentIndex } from "./alignment.ts";
@@ -34,6 +36,7 @@ import { InlineTerms } from "./InlineTerms.tsx";
 export const ENGLISH_ANCHOR_PREFIX = "en-";
 
 export interface ParallelFaceProps {
+  readonly projectionsByUnit?: Readonly<Record<string, PassageProjection>> | undefined;
   /** Which faces have content, derived by PaperPage from the same counts it dispatches on. */
   readonly availability?: Readonly<Partial<Record<FaceId, FaceAvailability>>> | undefined;
   readonly paper: Paper;
@@ -59,6 +62,7 @@ export function ParallelFace({
   layout = "side-by-side",
   untranslatedSections = [],
   availability,
+  projectionsByUnit,
 }: ParallelFaceProps) {
   // Neither column carries a review banner, chip or draft label
   // (D-2026-09-25-no-review-status-banners); the records keep who made and checked each unit.
@@ -116,6 +120,7 @@ export function ParallelFace({
           editorialNotes={editorialNotes}
           anchorPrefix={ENGLISH_ANCHOR_PREFIX}
           footnoteUnits={footnoteUnits}
+          projectionsByUnit={projectionsByUnit}
         />
       </div>
     );
@@ -140,6 +145,7 @@ export function ParallelFace({
       </noscript>
       {/* biome-ignore lint/security/noDangerouslySetInnerHtml: harness data-ready contract; source from a tested pure function. */}
       <script dangerouslySetInnerHTML={{ __html: ROOT_ARMING_SOURCE }} />
+      <PassageProjectionNavigation />
       {/* Inline formulas as targets, on a paper drawn in colour (dispatch 272). */}
       <InlineTerms paper={paper.slug} />
       {/* The panels' levels, fetched when a reader first opens one (dispatch 292). */}

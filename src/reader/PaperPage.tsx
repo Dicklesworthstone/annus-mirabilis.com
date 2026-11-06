@@ -80,6 +80,8 @@ import { outlineOrder, paperParts, unexplainedParts } from "./unexplainedParts.t
 import "./reader.css";
 import "./paperLayout.css";
 import { PaperDiscovery } from "./PaperDiscovery.tsx";
+import { PassageProjections } from "./PassageProjections.tsx";
+import { loadPassageProjections } from "./projections/passageProjections.ts";
 import { SectionTapes } from "./SectionTapes.tsx";
 
 export interface PaperPageOptions {
@@ -141,6 +143,10 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
             // explanation, as the draft face does: arriving a section at a time, it must not read
             // as the whole paper (dispatch 192).
             const paperRecord = await loadPaper(resolved.paperId);
+            const projections = await loadPassageProjections(resolved.paperId, {
+              edition,
+              payload: paperRecord,
+            });
             const { explainedBy, notExplained } = passageLinks(
               resolved.paperId,
               paperRecord.arguments,
@@ -210,6 +216,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                 plate={plate}
                 aliases={aliases}
                 availability={availability}
+                projections={projections.bySourceBlock}
               />
             );
           }
@@ -290,6 +297,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
         );
         const untranslated = untranslatedSections(sectionIds, edition.blocks, edition.units);
         if (resolved.face === "english" && englishFaceHasContent(edition.units.length)) {
+          const projections = await loadPassageProjections(resolved.paperId, { edition });
           return (
             <EnglishFace
               availability={availability}
@@ -301,6 +309,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
               reviewRecords={edition.reviewRecords}
               sectionId={resolved.section}
               untranslatedSections={untranslated}
+              projectionsByUnit={projections.byTranslationUnit}
             />
           );
         }
@@ -308,6 +317,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
           resolved.face === "parallel" &&
           parallelFaceHasContent(edition.blocks.length, edition.units.length)
         ) {
+          const projections = await loadPassageProjections(resolved.paperId, { edition });
           return (
             <ParallelFace
               availability={availability}
@@ -325,6 +335,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
               reviewRecords={edition.reviewRecords}
               sectionId={resolved.section}
               untranslatedSections={untranslated}
+              projectionsByUnit={projections.byTranslationUnit}
             />
           );
         }
@@ -363,6 +374,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
   }
   const payload = await loadPaper(resolved.paperId);
   const { paper, foundations } = payload;
+  const projections = await loadPassageProjections(paper.id, { payload });
   const equationsById = paperEquations(paper.id);
   const sectionId = resolved.section;
   const sections = sectionId ? paper.sections.filter((s) => s.id === sectionId) : paper.sections;
@@ -585,6 +597,11 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                     <p className="passage-kind">{passageKind(a.meaning)}</p>
                     <h3>{a.title}</h3>
                     <p className="passage-question">{a.question}</p>
+                    <PassageProjections
+                      projection={projections.byArgument[a.id]}
+                      anchor={a.id}
+                      label={a.title}
+                    />
                     {firstUses.get(a.id)?.map((entry) => (
                       <FirstUseCallout key={entry.id} entry={entry} />
                     ))}

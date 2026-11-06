@@ -9,6 +9,10 @@ import {
   restoreRelativeDelta,
   setManualScrollRestoration,
 } from "../anchors/scrollRestore.ts";
+import {
+  passageProjectionTarget,
+  pendingPassageProjectionReturn,
+} from "../passageProjectionNavigation.ts";
 import { contentIdVariants, isSentenceContentId } from "../weave/contentIds.ts";
 
 /**
@@ -718,8 +722,18 @@ export function FaceSwitchAnchor() {
     if (!face) return;
     setManualScrollRestoration(window.history);
 
+    const root = document.querySelector<HTMLElement>("[data-reader-root]");
+    const projectionOwnsReturn = () => {
+      if (!root || !pendingPassageProjectionReturn(root)) return false;
+      // A source face's cached sentence can predate the clicked paragraph. Neither its trailing
+      // write nor a competing history restore may replace that explicit departure passage.
+      placeRef.current = undefined;
+      return true;
+    };
+
     let lastWritten = "";
     const write = (): void => {
+      if (projectionOwnsReturn()) return;
       const place = placeRef.current;
       if (place === undefined) return;
       const record = {
@@ -744,10 +758,12 @@ export function FaceSwitchAnchor() {
 
     let stopHold: (() => void) | undefined;
     const onPopState = (): void => {
+      stopHold?.();
+      stopHold = undefined;
+      if (projectionOwnsReturn()) return;
       // A face switch that carried its own place has already restored it, and it is the more
       // specific intent: the reader clicked a link rather than pressing Back.
       if (carriedRef.current) return;
-      stopHold?.();
       const record = parseScrollRestoreRecord(window.history.state);
       if (record === null || record.face !== currentFace(window.location.pathname)) return;
       const present = (id: string) => document.getElementById(id) !== null;
@@ -755,8 +771,13 @@ export function FaceSwitchAnchor() {
       if (landed === null) return;
       const element = document.getElementById(landed);
       if (element === null) return;
+      // If the projection island consumed its marker first, it has already replaced the shared
+      // fields with its exact return. Drop an older cached sentence before another delayed write.
+      placeRef.current = isPlaceKeepingUnit(landed)
+        ? { anchorId: landed, relativeOffset: record.relativeOffset }
+        : undefined;
       stopHold = holdAt(
-        element,
+        root ? (passageProjectionTarget(root, landed) ?? element) : element,
         -restoreRelativeDelta(0, record.relativeOffset, window.innerHeight),
       );
     };

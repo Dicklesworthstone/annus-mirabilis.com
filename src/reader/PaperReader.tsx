@@ -49,6 +49,8 @@ import {
 } from "./unexplainedParts.ts";
 import "./reader.css";
 import { PaperDiscovery } from "./PaperDiscovery.tsx";
+import { PassageProjections } from "./PassageProjections.tsx";
+import { loadPassageProjections } from "./projections/passageProjections.ts";
 import { SectionTapes } from "./SectionTapes.tsx";
 
 /** The Brownian first encounter's id (BrownianFirstEncounter.tsx), a return anchor like a passage. */
@@ -72,6 +74,7 @@ export async function PaperReader({
   const companionKind = companionKindFromQuery(companion);
   const payload = await loadPaper("brownian-motion"),
     { paper, foundations } = payload;
+  const projections = await loadPassageProjections(paper.id, { payload });
   // "Read the original" opens the German face at the passage's section (paperSourceFaces.ts).
   const sources = await paperSourceFaces(paper.id);
   // The English for the whole paper, offered beside the German wherever it exists.
@@ -352,6 +355,11 @@ export async function PaperReader({
                     <p className="passage-kind">{passageKind(a.meaning)}</p>
                     <h3>{a.title}</h3>
                     <p className="passage-question">{a.question}</p>
+                    <PassageProjections
+                      projection={projections.byArgument[a.id]}
+                      anchor={a.id}
+                      label={a.title}
+                    />
                     {firstUses.get(a.id)?.map((entry) => (
                       <FirstUseCallout key={entry.id} entry={entry} />
                     ))}
