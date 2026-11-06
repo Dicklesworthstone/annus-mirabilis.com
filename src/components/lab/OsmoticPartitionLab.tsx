@@ -6,6 +6,7 @@ import { BM02_CAPTION } from "../../experiments/bm02/definition.ts";
 import { BM02_DRAFT_TAPE } from "../../experiments/bm02/draftTape.ts";
 import { validateBm02Parameters } from "../../experiments/bm02/parameters.ts";
 import {
+  type Bm02ConstantSetId,
   type Bm02Inputs,
   computeBm02Snapshot,
   DEFAULT_BM02_INPUTS,
@@ -48,6 +49,8 @@ type Draft = Readonly<{
   T: string;
   a_um: string;
   A_um2: string;
+  model: OsmoticModel;
+  constantSetId: Bm02ConstantSetId;
 }>;
 
 function toDraft(inputs: Bm02Inputs): Draft {
@@ -57,10 +60,12 @@ function toDraft(inputs: Bm02Inputs): Draft {
     T: String(inputs.T),
     a_um: String(inputs.a_um),
     A_um2: String(inputs.A_um2),
+    model: inputs.model,
+    constantSetId: inputs.constantSetId,
   };
 }
 
-function fromDraft(draft: Draft, model: OsmoticModel): Bm02Inputs {
+function fromDraft(draft: Draft): Bm02Inputs {
   return {
     // Number("") is 0: a cleared count was 0 particles, accepted without a word. A blank or
     // partial field now reaches the validator as NaN and is refused by name (dispatch 184).
@@ -69,8 +74,8 @@ function fromDraft(draft: Draft, model: OsmoticModel): Bm02Inputs {
     T: typedOrNaN(draft.T),
     a_um: typedOrNaN(draft.a_um),
     A_um2: typedOrNaN(draft.A_um2),
-    model,
-    constantSetId: "modern-si-2019",
+    model: draft.model,
+    constantSetId: draft.constantSetId,
   };
 }
 
@@ -206,14 +211,18 @@ export function OsmoticPartitionLab({
   const force = valueIn(snapshot.partitionForce.result);
   const head = valueIn(snapshot.hydrostaticHead.result);
   const density = valueIn(snapshot.numberDensity);
+  const historical = accepted.constantSetId === "einstein-1905-brownian-printed";
+  const constantWords = historical
+    ? "Einstein's printed N with editorial R"
+    : "modern SI constants";
   const modelWords =
     accepted.model === "molecular-kinetic"
       ? "on the molecular-kinetic model"
       : "on the classical expectation for suspended bodies";
   const statusSummary =
     pressure === null || force === null || head === null || density === null
-      ? `${modelWords}, the pressure on the partition is not computed at these settings.`
-      : `${modelWords}, ${sentenceNumber(density)} particles per cubic metre press on the partition with ${sentenceNumber(pressure)} Pa, a force of ${sentenceNumber(force)} N, as much as a ${sentenceNumber(head)} m column of water.`;
+      ? `${modelWords}, using ${constantWords}, the pressure on the partition is not computed at these settings.`
+      : `${modelWords}, using ${constantWords}, ${sentenceNumber(density)} particles per cubic metre press on the partition with ${sentenceNumber(pressure)} Pa, a force of ${sentenceNumber(force)} N, as much as a ${sentenceNumber(head)} m column of water.`;
   const admitted = "admitted" in snapshot.domain ? snapshot.domain.admitted : false;
 
   function apply(next: Bm02Inputs) {
@@ -231,12 +240,13 @@ export function OsmoticPartitionLab({
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    apply(fromDraft(draft, accepted.model));
+    apply(fromDraft(draft));
   }
 
   function setModel(model: OsmoticModel) {
-    const next = { ...accepted, model };
-    setAccepted(next);
+    const next = { ...draft, model };
+    setDraft(next);
+    apply(fromDraft(next));
   }
 
   function loadSugarComparison() {
@@ -262,6 +272,7 @@ export function OsmoticPartitionLab({
       data-pending="false"
       {...executionLabelAttributes(executionKind)}
       data-model={accepted.model}
+      data-constant-set={accepted.constantSetId}
     >
       <header className="lab-heading">
         <p className="eyebrow">The osmotic partition</p>
@@ -280,9 +291,8 @@ export function OsmoticPartitionLab({
 
       <noscript>
         <p className="notice">
-          JavaScript is off. The table below shows the complete worked example for the default
-          settings and, for comparison, for a 0.01 mol/L sugar solution: both calculated when the
-          site was built. Changing settings requires JavaScript.
+          JavaScript is off. The table below shows the complete worked example for the displayed
+          settings, calculated when the site was built. Changing settings requires JavaScript.
         </p>
       </noscript>
 
@@ -299,8 +309,8 @@ export function OsmoticPartitionLab({
               <div className="actions">
                 <button
                   type="button"
-                  className={accepted.model === "molecular-kinetic" ? "primary" : "secondary"}
-                  aria-pressed={accepted.model === "molecular-kinetic"}
+                  className={draft.model === "molecular-kinetic" ? "primary" : "secondary"}
+                  aria-pressed={draft.model === "molecular-kinetic"}
                   onClick={() => setModel("molecular-kinetic")}
                 >
                   Molecular-kinetic (Einstein §§1–2)
@@ -308,11 +318,11 @@ export function OsmoticPartitionLab({
                 <button
                   type="button"
                   className={
-                    accepted.model === "classical-thermodynamics-suspended-bodies"
+                    draft.model === "classical-thermodynamics-suspended-bodies"
                       ? "primary"
                       : "secondary"
                   }
-                  aria-pressed={accepted.model === "classical-thermodynamics-suspended-bodies"}
+                  aria-pressed={draft.model === "classical-thermodynamics-suspended-bodies"}
                   onClick={() => setModel("classical-thermodynamics-suspended-bodies")}
                 >
                   Classical expectation for suspended bodies
@@ -327,8 +337,29 @@ export function OsmoticPartitionLab({
                 Back to the default suspension
               </button>
             </div>
-            <ExperimentSettings contents="particle count, volume, temperature, radius, partition area">
+            <ExperimentSettings contents="particle count, volume, temperature, radius, partition area, constants">
               <div className="input-grid">
+                <div className="input-field">
+                  <label htmlFor={`${id}-constants`}>Constants for the calculation</label>
+                  <select
+                    id={`${id}-constants`}
+                    name="constantSetId"
+                    value={draft.constantSetId}
+                    onChange={(e) =>
+                      setDraft({ ...draft, constantSetId: e.target.value as Bm02ConstantSetId })
+                    }
+                    aria-describedby={`${id}-constants-help`}
+                  >
+                    <option value="modern-si-2019">Modern SI (2019)</option>
+                    <option value="einstein-1905-brownian-printed">
+                      Einstein's printed N (1905), with editorial R
+                    </option>
+                  </select>
+                  <p className="fine" id={`${id}-constants-help`}>
+                    Apply settings to compare constants at the same particle count and temperature.
+                    The sugar preset starts with the modern SI definition of a mole.
+                  </p>
+                </div>
                 <div className="input-field">
                   <label htmlFor={`${id}-Np`}>
                     Particle count N<sub>p</sub> <span>(count, whole number)</span>
@@ -420,9 +451,29 @@ export function OsmoticPartitionLab({
         <div className="lab-results">
           <ChamberIllustration count={accepted.Np} admitted={admitted} />
 
+          <p className="fine" data-accepted-constants={accepted.constantSetId} {...gate.response}>
+            Accepted constants: {constantWords}.{" "}
+            {historical ? (
+              <>
+                The thermal constant is R/N ={" "}
+                <Sci value={snapshot.thermalConstant.value} digits={6} /> J/K. N = 6 × 10
+                <sup>23</sup> mol⁻¹ is Einstein's printed estimate; R = 8.31 J/(mol K) is an
+                editorial input, not a number printed in this paper. Your temperature and chamber
+                settings remain the inputs shown above. Water density and gravity for the equivalent
+                column are modern comparison values. Read{" "}
+                <a href="/papers/brownian-motion/#s5">the printed estimate in §5</a>.
+              </>
+            ) : (
+              <>
+                The exact SI Boltzmann constant is k<sub>B</sub> ={" "}
+                <Sci value={snapshot.thermalConstant.value} digits={7} /> J/K.
+              </>
+            )}
+          </p>
+
           <div className="table-scroll" {...gate.response}>
             <table>
-              <caption>One accepted calculation, in explicit units</caption>
+              <caption>One accepted calculation, in explicit units, using {constantWords}</caption>
               <tbody>
                 <tr>
                   <th scope="row">Number density n</th>
@@ -456,8 +507,7 @@ export function OsmoticPartitionLab({
             </table>
           </div>
 
-          {/* The three counts share a letter and are easy to confuse, so each is named at every
-              reading: the one the reader sets, the one the law uses, and the one it does not. */}
+          {/* The three counts share a letter, so distinguish them for the accepted constant set. */}
           {/* It says "The pressure is Π = nkT", the prompt's answer, so it waits too. */}
           <section
             {...gate.response}
@@ -490,10 +540,19 @@ export function OsmoticPartitionLab({
                     N<sub>A</sub>
                   </th>
                   <td>
-                    Avogadro&apos;s number, the molecules in one mole: 6.022 × 10<sup>23</sup>,
-                    exact in the 2019 SI. Einstein writes it N. It enters when the pressure is
-                    written with the gas constant, R = N<sub>A</sub>k, and this laboratory does not
-                    use it.
+                    {historical ? (
+                      <>
+                        Einstein writes it N and uses 6 × 10<sup>23</sup> molecules per mole as an
+                        estimate. Here it enters the pressure through R/N; it is separate from the
+                        count of suspended particles in the chamber.
+                      </>
+                    ) : (
+                      <>
+                        The modern Avogadro constant is exactly 6.02214076 × 10<sup>23</sup> mol⁻¹.
+                        This calculation uses the exact SI k<sub>B</sub> directly; the sugar preset
+                        uses N<sub>A</sub> to convert 0.01 mol/L to a particle count.
+                      </>
+                    )}
                   </td>
                 </tr>
               </tbody>
@@ -545,6 +604,7 @@ export function OsmoticPartitionLab({
       </details>
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
           children of the lab root, which labShell.css's detail rules select. */}
+      <p className="fine">The worked numerical examples below use modern SI constants.</p>
       <p data-detail="0">
         <noscript>
           <b className="reading-label">In one breath</b>

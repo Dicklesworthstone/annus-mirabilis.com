@@ -31,7 +31,7 @@ export default function OsmoticPartitionPage() {
         <h2>From here</h2>
         <ul>
           <li>
-            <a href="/papers/brownian-motion/#arg-bm-observable">
+            <a href="/papers/brownian-motion/#arg-bm-osmotic-suspended">
               Read the argument and open its missing steps
             </a>
           </li>
@@ -64,10 +64,12 @@ export default function OsmoticPartitionPage() {
           sedimentation-equilibrium measurements of 1908–1909.
         </p>
         <p className="fine">
-          This instrument uses the modern, exact SI constant set. The 1905 printed historical
-          constant set (with Einstein's printed Avogadro number and an editorial value for the gas
-          constant) is not yet available; that comparison depends on a separate, unbuilt constant
-          set and is not faked here.
+          Choose modern SI constants or Einstein's 1905 printed estimate N = 6 × 10<sup>23</sup>{" "}
+          mol⁻¹ with the editorial gas constant R = 8.31 J/(mol K). The historical comparison uses
+          R/N in place of the modern k<sub>B</sub>, while keeping your particle count, volume and
+          temperature fixed. R is an editorial input, not a value printed in this paper; the
+          equivalent water column still uses modern water density and gravity. See{" "}
+          <a href="/papers/brownian-motion/#s5">Einstein's numerical example in §5</a>.
         </p>
         <div className="actions">
           <a className="button" href="/lab/bm-01/">

@@ -142,7 +142,7 @@ outputs:
 assumptions:
   - "A dilute suspension: volume fraction at most 0.01, where the ideal law is within about 4 percent for hard spheres."
   - "An ideal semipermeable partition: the liquid passes, the particles do not."
-  - "Modern SI constants."
+  - "Choose modern SI constants or Einstein's printed Brownian N with an explicitly editorial R; water density and gravity for the equivalent column remain modern comparison inputs."
 admittedDomain: "A whole particle count, zero or more, with a volume fraction of at most 0.01; positive volume, temperature, radius and partition area. Outside the dilute domain the pressure, force and head are refused, not extrapolated."
 notModeled:
   - "Particle interactions and excluded volume above the dilute domain"

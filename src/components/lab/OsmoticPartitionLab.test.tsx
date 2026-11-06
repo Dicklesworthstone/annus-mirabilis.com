@@ -98,6 +98,24 @@ describe("OsmoticPartitionLab: dilute-domain refusal rendering", () => {
   });
 });
 
+describe("OsmoticPartitionLab: historical comparison rendering", () => {
+  test("the selected set, accepted numbers, provenance and static explanation agree", () => {
+    const html = renderToStaticMarkup(
+      <OsmoticPartitionLab
+        example={{ ...DEFAULT_BM02_INPUTS, constantSetId: "einstein-1905-brownian-printed" }}
+      />,
+    );
+    expect(html).toContain('data-constant-set="einstein-1905-brownian-printed"');
+    expect(html).toContain('value="einstein-1905-brownian-printed" selected=""');
+    expect(html).toContain('aria-label="4.060128 times 10 to the power minus 6"');
+    expect(html).toContain("editorial input, not a number printed in this paper");
+    expect(html).toContain("Water density and gravity");
+    expect(html).toContain("The worked numerical examples below use modern SI constants");
+    expect(html).not.toContain("this laboratory does not use it");
+    expect(html).not.toContain("not yet available");
+  });
+});
+
 describe("OsmoticPartitionLab: classical-model rendering", () => {
   test("the classical model renders the fair-hearing note with the deciding evidence named", () => {
     const html = renderToStaticMarkup(
