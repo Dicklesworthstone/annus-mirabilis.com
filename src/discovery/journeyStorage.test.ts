@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { storageKeyRegistry } from "../platform/storage/keys.ts";
 import { createStorageContext } from "../platform/storage/store.ts";
 import {
+  clearJourneyChoice,
   DEFAULT_JOURNEY_STATE,
   getJourneyChoice,
   JOURNEY_STORAGE_NAMESPACE,
@@ -49,6 +50,76 @@ describe("journeyStorage", () => {
     const state = readJourneyState(ctx);
     expect(state.status).toBe("ok");
     expect(state.value?.choices["arg-bm-observable"]).toBe("choice-double");
+    const nextVisit = createStorageContext({ getStorage: () => storage });
+    expect(getJourneyChoice(nextVisit, "arg-bm-observable")).toBe("choice-double");
+  });
+
+  test("changing and clearing one fork preserves choices at the other forks", () => {
+    const storage = createMemoryStorage();
+    const ctx = createStorageContext({ getStorage: () => storage });
+    saveJourneyChoice(ctx, "fork-first", "branch-a");
+    saveJourneyChoice(ctx, "fork-second", "branch-b");
+    saveJourneyChoice(ctx, "fork-first", "branch-c");
+    expect(getJourneyChoice(ctx, "fork-first")).toBe("branch-c");
+    expect(getJourneyChoice(ctx, "fork-second")).toBe("branch-b");
+    expect(clearJourneyChoice(ctx, "fork-first").status).toBe("ok");
+    const nextVisit = createStorageContext({ getStorage: () => storage });
+    expect(getJourneyChoice(nextVisit, "fork-first")).toBeUndefined();
+    expect(getJourneyChoice(nextVisit, "fork-second")).toBe("branch-b");
+    expect(getJourneyChoice(nextVisit, "toString")).toBeUndefined();
+  });
+
+  test("a quota failure cannot resurrect an older choice or overwrite another fork", () => {
+    const storage = createMemoryStorage();
+    const original = JSON.stringify({
+      schemaVersion: 1,
+      choices: { "fork-first": "branch-old", "fork-second": "branch-other" },
+    });
+    storage.setItem(JOURNEY_STORAGE_NAMESPACE, original);
+    const full: Storage = {
+      ...storage,
+      setItem: () => {
+        throw new DOMException("Full", "QuotaExceededError");
+      },
+    };
+    const ctx = createStorageContext({ getStorage: () => full });
+    expect(saveJourneyChoice(ctx, "fork-first", "branch-new").status).toBe("quota");
+    expect(getJourneyChoice(ctx, "fork-first")).toBe("branch-new");
+    expect(clearJourneyChoice(ctx, "fork-first").status).toBe("quota");
+    expect(getJourneyChoice(ctx, "fork-first")).toBeUndefined();
+    expect(getJourneyChoice(ctx, "fork-second")).toBe("branch-other");
+    expect(storage.getItem(JOURNEY_STORAGE_NAMESPACE)).toBe(original);
+  });
+
+  for (const choices of [null, [], "not-a-map", { fork: 4 }, { fork: "" }]) {
+    test(`an unreadable choices map is preserved instead of trusted: ${JSON.stringify(choices)}`, () => {
+      const storage = createMemoryStorage();
+      const raw = JSON.stringify({ schemaVersion: 1, choices });
+      storage.setItem(JOURNEY_STORAGE_NAMESPACE, raw);
+      const ctx = createStorageContext({ getStorage: () => storage });
+      expect(readJourneyState(ctx)).toEqual({ status: "corrupt", value: DEFAULT_JOURNEY_STATE });
+      const held = JSON.parse(storage.getItem("am:quarantine:v1") as string);
+      expect(held.entries.some((entry: { rawValue: string }) => entry.rawValue === raw)).toBe(true);
+      expect(saveJourneyChoice(ctx, "fork", "branch").status).toBe("ok");
+      expect(getJourneyChoice(ctx, "fork")).toBe("branch");
+    });
+  }
+
+  test("a full quarantine keeps the durable original and new choices work only in memory", () => {
+    const storage = createMemoryStorage();
+    const original = JSON.stringify({ schemaVersion: 99, choices: { fork: "future" } });
+    storage.setItem(JOURNEY_STORAGE_NAMESPACE, original);
+    storage.setItem(
+      "am:quarantine:v1",
+      JSON.stringify({ schemaVersion: 1, entries: Array.from({ length: 50 }, () => ({})) }),
+    );
+    const ctx = createStorageContext({ getStorage: () => storage });
+    expect(saveJourneyChoice(ctx, "fork", "new").status).toBe("unavailable");
+    expect(getJourneyChoice(ctx, "fork")).toBe("new");
+    expect(storage.getItem(JOURNEY_STORAGE_NAMESPACE)).toBe(original);
+    expect(clearJourneyChoice(ctx, "fork").status).toBe("unavailable");
+    expect(getJourneyChoice(ctx, "fork")).toBeUndefined();
+    expect(storage.getItem(JOURNEY_STORAGE_NAMESPACE)).toBe(original);
   });
 
   test("blocked or unavailable backend degrades gracefully to in-memory fallback", () => {

@@ -2,30 +2,25 @@
  * Storage adapter for Discovery Journey local choices under `am:journeys:v1`.
  * Specification: am-disc-journey-framework-umbg, am-plat-local-storage-km8f
  *
- * NO PRODUCTION MODULE IMPORTS THIS, AND THE KEY IT OWNS IS PROMISED TO A READER (am-50bk,
- * triaged 2026-10-24). This is the only module in the tree that can write `am:journeys:v1`.
- * Nothing calls it: `Fork.tsx` and `Branch.tsx` hold no state at all, and no page under
- * `src/app/discover/` persists anything. So the key is never written.
- *
- * The consequence is visible to a reader rather than only to this file.
- * `src/platform/storage/keys.ts` registers `am:journeys:v1` as exportable and clearable and
- * describes it as "Your choices and progress in Discover", and `/your-data` renders that registry
- * through `DataPanel.tsx`. A reader is therefore offered a category of their own data that is
- * always empty, and `readerData.test.ts` already asserts the key is absent from the stored set
- * while present in the registry, which is the condition written down from the other side.
- *
- * The repair is to make the journeys persist a fork choice, which is a feature of
- * am-disc-journey-framework-umbg, the bead the key itself names as owner, and not a wiring change
- * that belongs here. Until then this module is the capability and the promise is unmet.
+ * The optional ForkChoice island uses this document on all four discovery journeys. Reads
+ * validate imported data; writes change one choice without replacing the other forks' choices.
+ * Choices are written only after an explicit selection or clear; unreadable data is preserved
+ * through the storage layer's quarantine.
  */
 
-import { createMigrationChain, type MigrationChain } from "../platform/storage/migrations.ts";
+import {
+  createMigrationChain,
+  type MigrationChain,
+  migrateDocument,
+} from "../platform/storage/migrations.ts";
+import { QUARANTINE_KEY, quarantine } from "../platform/storage/quarantine.ts";
 import {
   type ReadResult,
-  readDocument,
+  readRaw,
+  removeRaw,
   type StorageContext,
   type WriteResult,
-  writeDocument,
+  writeRaw,
 } from "../platform/storage/store.ts";
 
 export const JOURNEY_STORAGE_NAMESPACE = "am:journeys:v1";
@@ -42,22 +37,88 @@ export const DEFAULT_JOURNEY_STATE: JourneyStateDocument = {
   choices: {},
 };
 
+// If quarantine itself cannot be saved, keep the unreadable durable original. A new choice
+// still works in memory, but must not overwrite the only retained copy of the earlier data.
+const preserveOriginal = new WeakSet<StorageContext>();
+
+function isJourneyState(value: unknown): value is JourneyStateDocument {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const document = value as Record<string, unknown>;
+  const choices = document.choices;
+  return (
+    document.schemaVersion === 1 &&
+    choices !== null &&
+    typeof choices === "object" &&
+    !Array.isArray(choices) &&
+    Object.entries(choices).every(
+      ([id, choice]) =>
+        id.length > 0 &&
+        id.length <= 256 &&
+        typeof choice === "string" &&
+        choice.length > 0 &&
+        choice.length <= 256,
+    )
+  );
+}
+
 /**
  * Reads the journey state document, returning the stored document or a clean default state.
  */
 export function readJourneyState(ctx: StorageContext): ReadResult<JourneyStateDocument> {
-  const result = readDocument<JourneyStateDocument>(
+  // A quota failure can leave older bytes on disk. The current page must keep the most recent
+  // choice, including a clear, rather than resurrecting that older document on its next read.
+  const temporary = ctx.fallback.get(JOURNEY_STORAGE_NAMESPACE);
+  const result =
+    temporary === undefined
+      ? readRaw(ctx, JOURNEY_STORAGE_NAMESPACE)
+      : { status: "ok" as const, value: temporary };
+  if (result.status !== "ok" || result.value === undefined) {
+    if (result.status === "missing") preserveOriginal.delete(ctx);
+    return { status: result.status, value: DEFAULT_JOURNEY_STATE };
+  }
+  try {
+    const document: unknown = migrateDocument(JOURNEY_MIGRATION_CHAIN, JSON.parse(result.value));
+    if (isJourneyState(document)) {
+      if (temporary === undefined) preserveOriginal.delete(ctx);
+      return { status: "ok", value: document };
+    }
+  } catch {
+    // Invalid JSON and versions this edition cannot read are preserved by the same path below.
+  }
+  const held = quarantine(
     ctx,
     JOURNEY_STORAGE_NAMESPACE,
-    JOURNEY_MIGRATION_CHAIN,
+    result.value,
+    "journey-choices-unreadable",
   );
-  if (result.status === "ok" && result.value) {
-    return result;
+  if (held.quarantined && !ctx.fallback.has(QUARANTINE_KEY)) {
+    removeRaw(ctx, JOURNEY_STORAGE_NAMESPACE);
+    preserveOriginal.delete(ctx);
+  } else {
+    preserveOriginal.add(ctx);
   }
-  return {
-    status: result.status,
-    value: DEFAULT_JOURNEY_STATE,
-  };
+  return { status: "corrupt", value: DEFAULT_JOURNEY_STATE };
+}
+
+function writeJourneyState(ctx: StorageContext, document: JourneyStateDocument): WriteResult {
+  const registration = ctx.registry.get(JOURNEY_STORAGE_NAMESPACE);
+  if (
+    registration?.kind !== "document" ||
+    registration.ownerBeadId !== "am-disc-journey-framework-umbg"
+  ) {
+    return { status: "unregistered" };
+  }
+  const raw = JSON.stringify(document);
+  if (preserveOriginal.has(ctx)) {
+    ctx.fallback.set(JOURNEY_STORAGE_NAMESPACE, raw);
+    return { status: "unavailable" };
+  }
+  // The same UTF-16 accounting as the registered storage layer's size display.
+  if ((JOURNEY_STORAGE_NAMESPACE.length + raw.length) * 2 > registration.maxBytes) {
+    ctx.fallback.set(JOURNEY_STORAGE_NAMESPACE, raw);
+    return { status: "quota" };
+  }
+  return writeRaw(ctx, JOURNEY_STORAGE_NAMESPACE, raw);
 }
 
 /**
@@ -76,7 +137,15 @@ export function saveJourneyChoice(
       [elementId]: choiceId,
     },
   };
-  return writeDocument(ctx, JOURNEY_STORAGE_NAMESPACE, updated);
+  return writeJourneyState(ctx, updated);
+}
+
+/** Clears only this stage or fork. A failed save keeps that clear in this page's memory. */
+export function clearJourneyChoice(ctx: StorageContext, elementId: string): WriteResult {
+  const current = readJourneyState(ctx).value ?? DEFAULT_JOURNEY_STATE;
+  const choices = { ...current.choices };
+  delete choices[elementId];
+  return writeJourneyState(ctx, { schemaVersion: 1, choices });
 }
 
 /**
@@ -84,5 +153,5 @@ export function saveJourneyChoice(
  */
 export function getJourneyChoice(ctx: StorageContext, elementId: string): string | undefined {
   const state = readJourneyState(ctx).value;
-  return state?.choices[elementId];
+  return state && Object.hasOwn(state.choices, elementId) ? state.choices[elementId] : undefined;
 }

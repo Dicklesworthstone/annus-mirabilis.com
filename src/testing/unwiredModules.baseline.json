@@ -21,7 +21,6 @@
   "src/design/semanticColor/classNames.ts",
   "src/design/spectralMapping.ts",
   "src/discovery/cards/sourceChecks.ts",
-  "src/discovery/journeyStorage.ts",
   "src/discovery/links.ts",
   "src/discovery/tours/syllabus.ts",
   "src/equations/derivations/logger.ts",

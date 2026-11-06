@@ -1,5 +1,6 @@
 import { FORK_VARIES_EXPLANATIONS, type Fork as ForkType } from "../content/schemas/journey.ts";
 import { Branch } from "./Branch.tsx";
+import { ForkChoice } from "./ForkChoice.tsx";
 import "./journeySkeleton.css";
 
 export interface ForkProps {
@@ -29,6 +30,11 @@ export function Fork({ fork }: ForkProps) {
       <p className="eyebrow">{WAYS[branches.length] ?? `${branches.length} ways on`}</p>
       <h3>{question}</h3>
       <p className="fine">{variesExplanation}</p>
+      <ForkChoice
+        forkId={id}
+        question={question}
+        choices={branches.map(({ id: branchId, label }) => ({ id: branchId, label }))}
+      />
       <div className="journey-branches">
         {branches.map((branch) => (
           <Branch key={branch.id} branch={branch} variesKind={varies} />
