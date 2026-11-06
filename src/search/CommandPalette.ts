@@ -8,6 +8,7 @@ import {
 } from "./core.ts";
 import { type LoadedSearch, searchIndexLoader } from "./loadIndex.ts";
 import { searchResultsHref } from "./searchLocation.ts";
+import { announceSearchNavigation } from "./searchNavigation.ts";
 import { TYPE_LABELS } from "./typeLabels.ts";
 
 let sequence = 0;
@@ -225,6 +226,7 @@ export function openCommandPalette(
   function openResult(hit: SearchHit) {
     const href = searchResultHref(hit.document);
     close();
+    announceSearchNavigation(href);
     navigate(href);
   }
   function search() {

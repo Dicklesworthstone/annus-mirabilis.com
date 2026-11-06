@@ -29,6 +29,7 @@ export const FIXED_PAGES = [
   "/kitchen/",
   "/notation/",
   "/connections/",
+  "/timeline/",
   // The capstones are listed rather than exempted: each is a page at a fixed address with its own
   // text, reachable by a reader who never passes through the discovery route, and nothing about it
   // is per-device or a duplicate of another canonical. All four are written: mass-energy

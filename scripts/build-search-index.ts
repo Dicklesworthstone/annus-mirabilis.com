@@ -16,6 +16,7 @@ import { capstoneExists, loadCapstone } from "../src/discovery/capstone/loadCaps
 import { formatEventDateLine } from "../src/discovery/cards/CardDetail.tsx";
 import { JOURNEY_SHELVES } from "../src/discovery/cards/journeyCards.ts";
 import { ROUTE_INDEX } from "../src/discovery/routeIndex.ts";
+import { loadTimeline } from "../src/discovery/timeline/records.ts";
 import { GUIDED_TOURS } from "../src/discovery/tours/catalogue.ts";
 import {
   equationCatalogue,
@@ -76,6 +77,7 @@ import {
   walkthroughDocuments,
   wrongTurnDocuments,
 } from "../src/search/documents.ts";
+import { timelineDocuments } from "../src/search/timelineDocuments.ts";
 
 /**
  * Everything the index holds, as the build publishes it. Compiled, digest-checked projections for
@@ -385,6 +387,8 @@ export async function loadSearchCorpus(
       });
     }
   }
+  const timelineEntries = loadTimeline(root).entries;
+  const chronology = timelineDocuments(timelineEntries, profile);
   const documents = [
     ...documentsFromCompiled(papers, foundations, instruments, profile, equationTerms),
     ...explainedEquationDocuments(explainedEquations, profile),
@@ -392,6 +396,7 @@ export async function loadSearchCorpus(
     ...capstoneDocuments(capstones, profile),
     ...marginNoteDocuments(marginNotes, profile),
     ...knowledgeCardDocuments(knowledgeCards, profile),
+    ...chronology,
     ...connectionDocuments(connections, profile),
     ...walkthroughDocuments(walkthroughs, profile),
     ...discoveryDocuments(ROUTE_INDEX, profile),
@@ -400,6 +405,9 @@ export async function loadSearchCorpus(
     ...german,
     ...english,
   ];
+  console.log(
+    `[search] timeline: ${timelineEntries.length} dated entries examined; ${chronology.length} documents for ${profile}`,
+  );
   /*
    * THE EXPLAINED-EQUATION CENSUS, printed because a count of 0 and a count of 44 read the same in
    * a total of 1,300 (am-ahgo item 3). It also names any id whose title could not be derived: that

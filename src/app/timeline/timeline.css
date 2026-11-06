@@ -1,0 +1,246 @@
+.timeline-page {
+  min-width: 0;
+}
+
+.timeline-track-nav {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  gap: 1rem;
+  margin: 1.5rem 0 0;
+}
+
+.timeline-track-nav a {
+  display: grid;
+  align-content: start;
+  padding: 1rem 0;
+  gap: 0.35rem;
+  font-family: var(--font-sans);
+  font-size: var(--type-small);
+}
+
+.timeline-track-nav a span + span {
+  font-size: var(--type-fine);
+  color: var(--muted);
+}
+
+.timeline-boundary-link {
+  font-family: var(--font-sans);
+  font-size: var(--type-small);
+}
+
+.timeline-filters {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  font-family: var(--font-sans);
+  font-size: var(--type-small);
+}
+
+.timeline-filters[hidden] {
+  display: none;
+}
+
+.timeline-filters legend {
+  padding: 0 0.35rem;
+}
+
+.timeline-filters label {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.timeline-filters input {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.timeline-filters p {
+  margin-bottom: 0;
+  font-size: var(--type-fine);
+}
+
+.timeline-track,
+.timeline-boundary,
+.timeline-event article {
+  scroll-margin-top: 6rem;
+}
+
+.timeline-track {
+  margin-top: 3rem;
+}
+
+.timeline-track-intro {
+  max-width: 72ch;
+}
+
+.timeline-span {
+  font-family: var(--font-sans);
+  font-size: var(--type-small);
+  color: var(--muted);
+}
+
+.timeline-events {
+  margin: 1.5rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.timeline-event {
+  border-top: 1px solid var(--line);
+  padding: 1.5rem 0;
+}
+
+.timeline-event article {
+  display: grid;
+  grid-template-columns: minmax(0, 11rem) minmax(0, 1fr);
+  gap: 1.5rem;
+}
+
+.timeline-event-date {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-family: var(--font-sans);
+  font-size: var(--type-small);
+}
+
+.timeline-event-date time {
+  font-weight: 600;
+}
+
+.timeline-precision {
+  color: var(--muted);
+  font-size: var(--type-fine);
+}
+
+.timeline-event-body {
+  max-width: 72ch;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.timeline-event-body > .eyebrow {
+  margin-top: 0;
+}
+
+.timeline-event-body h3 {
+  margin-top: 0.35rem;
+  font-size: var(--type-lead);
+  line-height: 1.3;
+}
+
+.timeline-limits,
+.timeline-prior-event,
+.timeline-date-line {
+  font-size: var(--type-small);
+}
+
+.timeline-limits {
+  padding-left: 0.85rem;
+  border-left: 2px solid var(--line);
+}
+
+.timeline-sources {
+  font-size: var(--type-small);
+}
+
+.timeline-sources h4 {
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  margin-bottom: 0.35rem;
+}
+
+.timeline-sources ul {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.timeline-entry-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 1rem;
+  margin-top: 0.75rem;
+  font-family: var(--font-sans);
+  font-size: var(--type-small);
+}
+
+.timeline-entry-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.timeline-boundary {
+  padding: 1rem;
+  border-top: 3px double var(--ink);
+  border-bottom: 3px double var(--ink);
+  background: var(--wash);
+}
+
+.timeline-boundary h3 {
+  margin-top: 0;
+}
+
+.timeline-boundary p {
+  max-width: 72ch;
+  margin-bottom: 0;
+}
+
+.timeline-onward {
+  border-top: 1px solid var(--line);
+  margin-top: 2rem;
+  padding-top: 1rem;
+}
+
+@media (max-width: 640px) {
+  .timeline-track-nav,
+  .timeline-event article {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+
+  .timeline-track-nav a {
+    padding: 0.75rem 0;
+  }
+
+  .timeline-event-date {
+    gap: 0.2rem;
+  }
+}
+
+@media print {
+  .timeline-filters,
+  .timeline-track-nav,
+  .timeline-boundary-link {
+    display: none !important;
+  }
+
+  #timeline-post-1904[hidden],
+  #timeline-later-confirmations[hidden] {
+    display: block !important;
+  }
+
+  .timeline-event article {
+    display: block;
+  }
+
+  .timeline-event-date,
+  .timeline-event-body h3 {
+    break-after: avoid;
+  }
+
+  .timeline-entry-links {
+    display: none;
+  }
+
+  .timeline-boundary {
+    break-inside: avoid;
+  }
+}

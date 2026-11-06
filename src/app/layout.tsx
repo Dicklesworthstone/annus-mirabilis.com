@@ -131,8 +131,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <p className="site-footer-name">Annus Mirabilis</p>
             <p>
               A critical edition of the four papers Einstein sent to the Annalen der Physik in 1905,
-              in preparation. Every number an instrument shows is worked out by that instrument and
-              labelled as a calculation; none of them is a measurement of nature.
+              in preparation. Instrument calculations are labelled separately from sourced
+              historical measurements.
             </p>
           </div>
           {/* The four papers again at the foot, because the end of a long paper is where a reader
@@ -150,6 +150,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <a href="/papers/mass-energy/">Mass and energy</a>
             <a href="/tours/">Guided reading paths</a>
             <a href="/tapes/">Recorded walkthroughs</a>
+            <a href="/timeline/">The papers in time</a>
           </nav>
           <nav aria-label="About this site">
             <a href="/about/">About this edition</a>

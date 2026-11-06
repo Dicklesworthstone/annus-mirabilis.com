@@ -3,11 +3,11 @@
 import { usePathname } from "next/navigation";
 
 /*
- * The four destinations in the header, with the current one marked. `usePathname` runs during the
+ * The destinations in the header, with the current one marked. `usePathname` runs during the
  * static export too, so aria-current is in each page's HTML and the mark works without JavaScript.
  *
- * Short labels so the six header items fit two rows on a 320px phone at full size: "Discover" is
- * the edition's name for the activity, "Connections" is the page's own title.
+ * Short labels keep the wrapping phone navigation compact. "Discover" is the edition's name
+ * for the activity; "Timeline" leads to the dated sources behind the four journeys.
  */
 const DESTINATIONS: readonly { href: string; label: string; alsoUnder?: readonly string[] }[] = [
   { href: "/papers/", label: "Papers" },
@@ -15,6 +15,7 @@ const DESTINATIONS: readonly { href: string; label: string; alsoUnder?: readonly
   // A laboratory is an instrument, so /lab/* counts as being under Instruments.
   { href: "/instruments/", label: "Instruments", alsoUnder: ["/lab/"] },
   { href: "/connections/", label: "Connections" },
+  { href: "/timeline/", label: "Timeline" },
 ];
 
 function withSlash(path: string): string {

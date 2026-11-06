@@ -16,6 +16,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { announceSearchNavigation } from "./searchNavigation.ts";
 
 function SearchIcon({ style }: { readonly style?: React.CSSProperties }) {
   return (
@@ -199,6 +200,7 @@ export function CommandPalette({
       if (event.key === "Enter" && results[selectedIndex]) {
         event.preventDefault();
         const selected = results[selectedIndex];
+        announceSearchNavigation(selected.url);
         if (onSelectResult) {
           onSelectResult(selected);
         } else if (typeof window !== "undefined") {
@@ -371,6 +373,7 @@ export function CommandPalette({
                   role="option"
                   aria-selected={isSelected}
                   onClick={() => {
+                    announceSearchNavigation(item.url);
                     if (onSelectResult) onSelectResult(item);
                     else if (typeof window !== "undefined") window.location.href = item.url;
                     handleClose();
