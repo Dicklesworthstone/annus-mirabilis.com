@@ -9,7 +9,9 @@ import { TestLogger } from "../../testing/log/logger.ts";
 import { installDom, uninstallDom } from "../../testing/reactDom.ts";
 import { LQ07_DEFAULTS } from "../lq07/definition.ts";
 import { createLq08Session } from "../lq08/session.ts";
+import { LQ08_TAPE } from "../lq08/tape.ts";
 import { instrumentRootAttributes } from "./identityAttributes.ts";
+import { createReaderCheckpointBinding } from "./readerCheckpoint.ts";
 import { RetainedSessionProvider, useRetainedSession } from "./retainedSession.tsx";
 import { createSessionRetention, type SessionRetention } from "./sessionRetention.ts";
 import { useInstrumentView } from "./useExperimentSnapshot.ts";
@@ -50,9 +52,11 @@ const report = (reference: LabReference) => {
 function Probe({
   sourceDigest = example.sourceDigest,
   suspend = false,
+  archive = false,
 }: {
   sourceDigest?: string;
   suspend?: boolean;
+  archive?: boolean;
 }) {
   const session = useRetainedSession(
     { experimentId: "lq-08", instanceId: "probe", sourceDigest },
@@ -75,6 +79,7 @@ function Probe({
         },
       };
     },
+    archive ? createReaderCheckpointBinding(LQ08_TAPE) : undefined,
   );
   const view = useInstrumentView(session);
   if (suspend) throw never;
@@ -87,7 +92,7 @@ function Probe({
     </section>
   );
 }
-async function render(sourceDigest = example.sourceDigest, suspend = false) {
+async function render(sourceDigest = example.sourceDigest, suspend = false, archive = false) {
   await act(async () => {
     root.render(
       <StrictMode>
@@ -99,7 +104,7 @@ async function render(sourceDigest = example.sourceDigest, suspend = false) {
           onReference={report}
         >
           <Suspense fallback={<p>Loading laboratory</p>}>
-            <Probe sourceDigest={sourceDigest} suspend={suspend} />
+            <Probe sourceDigest={sourceDigest} suspend={suspend} archive={archive} />
           </Suspense>
         </RetainedSessionProvider>
       </StrictMode>,
@@ -113,6 +118,27 @@ async function close() {
 }
 
 describe("committed React retention lifecycle", () => {
+  test("a bounded history checkpoint rehydrates the exact accepted owner after idle eviction", async () => {
+    cache.dispose();
+    cache = createSessionRetention({ maxIdleSessions: 0 });
+    await render(example.sourceDigest, false, true);
+    await act(async () => {
+      container.querySelector("button")?.click();
+    });
+    const accepted = { ...container.querySelector<HTMLElement>("section")?.dataset };
+    const initialCreations = creations;
+    expect(lastReference?.compactTape.length).toBeGreaterThan(0);
+    await close();
+    expect(cache.size()).toBe(0);
+    expect(subscriptions).toBe(0);
+    await render(example.sourceDigest, false, true);
+    expect(creations).toBe(initialCreations + 1);
+    expect({ ...container.querySelector<HTMLElement>("section")?.dataset }).toEqual(accepted);
+    expect(container.querySelector("output")?.textContent).toBe("900000000000000");
+    expect(container.querySelector("[data-lab-return-notice]")?.textContent).toContain(
+      "Restored the recorded accepted experiment",
+    );
+  });
   test("StrictMode keeps one committed owner and reopening reads the current accepted snapshot", async () => {
     await render();
     expect(cache.size()).toBe(1);

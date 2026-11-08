@@ -119,6 +119,7 @@ export class FixtureRunner implements ReplayRunner {
   private state: Record<string, number | string> = {};
   private currentActionIndex = 0;
   private inputRevision = 0;
+  private runNumber = 0;
   private seed: string;
   private plantedDigestMismatch: string | null = null;
 
@@ -139,6 +140,15 @@ export class FixtureRunner implements ReplayRunner {
     this.state = { ...conditions };
     this.currentActionIndex = 0;
     this.inputRevision = 0;
+  }
+
+  startNewRun(conditions: Record<string, number | string>): void {
+    this.runNumber++;
+    this.applyInitialConditions(conditions);
+  }
+
+  getAcceptedRunId(): string {
+    return `fixture/run/${this.runNumber}`;
   }
 
   applyEvent(event: TapeControlEvent): void {

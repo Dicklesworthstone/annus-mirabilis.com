@@ -158,9 +158,9 @@ describe("reader close and history returns", () => {
         instanceId: accepted.instanceId,
         runId: accepted.runId,
         experimentId: instrument,
-        checkpointDigest: "",
-        compactTape: "",
       });
+      expect(frame?.openedLab?.checkpointDigest).toMatch(/^host:[a-f0-9]{16}$/);
+      expect(frame?.openedLab?.compactTape.length).toBeGreaterThan(0);
       expect(frame?.lab).toBeNull();
       await close();
       expect(document.querySelector("[data-instrument-id]")).toBeNull();
@@ -216,7 +216,7 @@ describe("reader close and history returns", () => {
     expect(capture(await open("sr-05", "a"))).toEqual(first);
   });
 
-  test("ending the reader route releases its owners and labels a later return as a fresh experiment", async () => {
+  test("ending the reader route releases its owners and restores the exact accepted experiment from validated history", async () => {
     await readingPage("sr-05");
     await open("sr-05");
     await change("sr-05");
@@ -243,10 +243,50 @@ describe("reader close and history returns", () => {
       );
     });
     await until(() => document.querySelector('[data-instrument-id="sr-05"]') !== null);
+    expect(capture(laboratory("sr-05"))).toEqual(previous);
+    expect(document.querySelector("[data-lab-return-notice]")?.textContent).toContain(
+      "Restored the recorded accepted experiment",
+    );
+  });
+
+  test("a corrupted archived point produces an explicitly new experiment after route teardown", async () => {
+    await readingPage("sr-05");
+    await open("sr-05");
+    await change("sr-05");
+    const previous = capture(laboratory("sr-05"));
+    const saved = structuredClone(history.state);
+    saved.annusClarification.stack.frames[0].openedLab.checkpointDigest = "host:0000000000000000";
+    await act(async () => {
+      controller?.unmount();
+    });
+    controller = undefined;
+    history.replaceState(saved, "");
+    const host = document.createElement("div");
+    document.body.append(host);
+    controller = createRoot(host);
+    await act(async () => {
+      controller?.render(
+        <ReaderController
+          registry={{
+            paperId: "light-quanta",
+            anchors: ["passage-a", "passage-b"],
+            foundations: [],
+          }}
+          titles={{}}
+          questions={{}}
+        />,
+      );
+    });
+    await until(
+      () => document.querySelector('[data-instrument-id="sr-05"][data-instance-id]') !== null,
+    );
     const fresh = capture(laboratory("sr-05"));
     expect(fresh.instanceId).not.toBe(previous.instanceId);
     expect(fresh.runId).not.toBe(previous.runId);
     expect(fresh.readings).not.toEqual(previous.readings);
+    expect(document.querySelector("[data-lab-return-notice]")?.textContent).toContain(
+      "could not be restored",
+    );
     expect(document.querySelector("[data-lab-return-notice]")?.textContent).toContain(
       "starts a new experiment",
     );

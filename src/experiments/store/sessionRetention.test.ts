@@ -182,4 +182,28 @@ describe("retained actual laboratory owners (am-read-return-stack-oxa)", () => {
     expect(cache.size()).toBe(0);
     expect(cache.prepare("active", identity, create).reused).toBe(false);
   });
+
+  test("an archive cannot copy another retained placement's instance identity", () => {
+    const cache = createSessionRetention();
+    const first = cache.prepare("passage-a", identity, create);
+    const release = cache.retain(first);
+    let discarded = 0;
+    const second = cache.prepare("passage-b", identity, create, first.instanceId, () => ({
+      kind: "restored",
+      instanceId: first.instanceId,
+      session: {
+        ...create(first.instanceId),
+        disconnect: () => {
+          discarded++;
+        },
+      },
+    }));
+    expect(second.restoredFromArchive).toBe(false);
+    expect(second.instanceId).not.toBe(first.instanceId);
+    expect(second.restoreNotice).toContain("another retained laboratory placement");
+    expect(discarded).toBe(1);
+    expect(cache.prepare("passage-a", identity, create).session).toBe(first.session);
+    release();
+    cache.dispose();
+  });
 });

@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import {
+  MAX_READER_CHECKPOINT_BYTES,
+  MAX_STACK_CHECKPOINT_BYTES,
+} from "../experiments/store/checkpointLimits.ts";
+import {
   deserializeStackState,
   MAX_OPEN_PARAM_LENGTH,
   openClarification,
@@ -29,6 +33,50 @@ function frame(overrides: Partial<StackFrame> = {}): StackFrame {
     ...overrides,
   };
 }
+
+test("history keeps a bounded archive budget without dropping interrupted positions or claiming truncated checkpoints", () => {
+  const reference = {
+    instanceId: "instrument-view:lq-08/retained-1-1",
+    experimentId: "lq-08",
+    modelIdentity: "model",
+    runId: "run",
+    checkpointDigest: "host:0123456789abcdef",
+    compactTape: "x".repeat(MAX_READER_CHECKPOINT_BYTES - 16),
+  };
+  const state = {
+    frames: Array.from({ length: 12 }, (_, index) =>
+      frame({ anchor: `passage-${index}`, lab: reference, openedLab: reference }),
+    ),
+  };
+  const serialized = serializeStackState(state);
+  expect(new TextEncoder().encode(JSON.stringify(serialized)).length).toBeLessThanOrEqual(
+    MAX_STACK_CHECKPOINT_BYTES,
+  );
+  expect(serialized.frames.map((item) => item.anchor)).toEqual(
+    state.frames.map((item) => item.anchor),
+  );
+  expect(serialized.frames.at(-1)?.openedLab?.compactTape).toBe(reference.compactTape);
+  expect(serialized.frames[0]?.openedLab).toMatchObject({
+    instanceId: reference.instanceId,
+    runId: reference.runId,
+    compactTape: "",
+    checkpointDigest: "",
+  });
+  expect(state.frames[0]?.openedLab?.compactTape).toBe(reference.compactTape);
+  const oversized = deserializeStackState({
+    frames: [
+      frame({
+        openedLab: { ...reference, compactTape: "x".repeat(MAX_READER_CHECKPOINT_BYTES + 1) },
+      }),
+    ],
+  });
+  expect(oversized?.frames[0]?.openedLab).toMatchObject({
+    instanceId: reference.instanceId,
+    compactTape: "",
+    checkpointDigest: "",
+  });
+  expect(deserializeStackState({ frames: [...state.frames, frame()] })).toBeNull();
+});
 
 test("history preserves a target's actual owner separately from its interrupted lab and rejects malformed references", () => {
   const openedLab = {

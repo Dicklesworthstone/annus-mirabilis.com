@@ -256,7 +256,7 @@ test("light-thread session: :90, :121 and :134 cannot fire across the admitted e
  * run left standing is the re-entrant one, because the refusal alone would also be satisfied
  * by a session that threw and corrupted the snapshot on the way out.
  */
-test("(session.ts:134) a subscriber re-entering apply() supersedes the outer token, which refuses", () => {
+test("(session.ts:130) a subscriber re-entering apply() supersedes the outer token, which refuses", () => {
   const session = createLightThreadSession("reentrant-apply");
   const OUTER = -0.6;
   const NESTED = 0.3;

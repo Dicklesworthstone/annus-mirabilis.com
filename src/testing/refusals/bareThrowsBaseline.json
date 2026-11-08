@@ -347,7 +347,7 @@
   "src/workers/host/bm08Host.ts": 2,
   "src/workers/host/lq01Host.ts": 2,
   "src/workers/host/sr03Host.ts": 2,
-  "src/workers/operations/bm01.ts": 10,
+  "src/workers/operations/bm01.ts": 9,
   "src/workers/operations/bm04.ts": 2,
   "src/workers/operations/bm05.ts": 7,
   "src/workers/operations/bm06.ts": 3,

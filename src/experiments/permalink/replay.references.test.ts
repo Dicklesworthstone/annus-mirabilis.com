@@ -47,6 +47,7 @@ function tape(selected: readonly TapeControlEvent[] = events): TapeV2 {
 function observedRunner(resolve?: ReplayRunner["resolveTeachingTape"]) {
   let state: Record<string, number | string> = { untouched: 1 };
   let action = 0;
+  let runNumber = 0;
   const applied: string[] = [];
   const runner: ReplayRunner = {
     environment,
@@ -56,6 +57,11 @@ function observedRunner(resolve?: ReplayRunner["resolveTeachingTape"]) {
       state = { ...conditions };
       action = 0;
     },
+    startNewRun(conditions) {
+      runNumber++;
+      runner.applyInitialConditions(conditions);
+    },
+    getAcceptedRunId: () => `reference-fixture/run/${runNumber}`,
     applyEvent(event) {
       applied.push(`event:${event.actionIndex}`);
       state[event.paramId] = event.value;
@@ -222,13 +228,18 @@ test("checkpoint read errors are reported instead of escaping into the reader's 
 
 test("an explicitly new run still executes all requested events and reports that it is new", () => {
   const { runner, applied } = observedRunner(() => ({ ...tape(), constantSetId: "other" }));
+  const previousRun = runner.getAcceptedRunId?.();
   const result = replayTape(
     { ...reference(), acceptedCheckpoint: tape([]).acceptedCheckpoint },
     runner,
     { forceNewRun: true },
   );
   assert.equal(result.kind, "success");
-  if (result.kind === "success") assert.equal(result.isNewRun, true);
+  if (result.kind === "success") {
+    assert.equal(result.isNewRun, true);
+    assert.equal(result.runId, runner.getAcceptedRunId?.());
+    assert.notEqual(result.runId, previousRun);
+  }
   assert.deepEqual(applied, ["initial", "event:2", "event:5"]);
 });
 

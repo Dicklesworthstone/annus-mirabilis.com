@@ -190,11 +190,15 @@ describe("BM-02 keeps its selected constants with the accepted calculation", () 
         expect(element<HTMLInputElement>(container, 'input[name="T"]').value).toBe("310");
         expect(lab.getAttribute("data-constant-set")).toBe(MODERN);
         expect(lab.getAttribute("data-model")).toBe("molecular-kinetic");
-        expect(lab.getAttribute("data-accepted-input-revision")).toBe("0");
+        // The real owner publishes the initial worked example as its first setup. Loading the
+        // link must leave that publication untouched until the reader applies the draft.
+        expect(lab.getAttribute("data-accepted-input-revision")).toBe("1");
+        expect(lab.getAttribute("data-accepted-action-index")).toBe("1");
         expect(lab.getAttribute("data-execution-label")).toBe("static");
         expect(pressure(container)).toBe("4.047373 times 10 to the power minus 6");
 
         await apply(container);
+        expect(lab.getAttribute("data-accepted-input-revision")).toBe("2");
         expect(lab.getAttribute("data-constant-set")).toBe(HISTORICAL);
         expect(lab.getAttribute("data-model")).toBe(CLASSICAL);
         expect(lab.getAttribute("data-execution-label")).toBe("host");

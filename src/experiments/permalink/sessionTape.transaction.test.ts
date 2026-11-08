@@ -27,17 +27,37 @@ function validate(input: unknown) {
 }
 function session(start = defaults) {
   let parameters = { ...start };
-  let snapshot = { accepted: { revisions: { input: 0 } } };
-  const applied: unknown[] = [];
-  const live: TapeSession = {
-    apply(input) {
-      applied.push(input);
-      const outcome = validate(input);
-      if (outcome.kind !== "accepted") return outcome;
-      parameters = { ...(input as typeof defaults) };
-      snapshot = { accepted: { revisions: { input: snapshot.accepted.revisions.input + 1 } } };
-      return outcome;
+  let runNumber = 0;
+  let snapshot = {
+    pending: false,
+    accepted: {
+      revisions: { input: 0 },
+      runId: `transaction-fixture/run/${runNumber}`,
+      final: true,
+      parameters,
     },
+  };
+  const applied: unknown[] = [];
+  function apply(input: unknown, newRun = false) {
+    applied.push(input);
+    const outcome = validate(input);
+    if (outcome.kind !== "accepted") return outcome;
+    if (newRun) runNumber++;
+    parameters = { ...(input as typeof defaults) };
+    snapshot = {
+      pending: false,
+      accepted: {
+        revisions: { input: snapshot.accepted.revisions.input + 1 },
+        runId: `transaction-fixture/run/${runNumber}`,
+        final: true,
+        parameters,
+      },
+    };
+    return outcome;
+  }
+  const live: TapeSession = {
+    apply: (input) => apply(input),
+    startNewRun: (input) => apply(input, true),
     acceptedParameters: () => parameters,
     getSnapshot: () => snapshot,
   };
@@ -225,6 +245,7 @@ test("failure to recover a live session is not disguised as an ordinary refused 
 
 test("an explicitly new run bypasses recorded identity and digest but remains marked new", () => {
   const { live } = session();
+  const previousRun = live.getSnapshot().accepted?.runId;
   const result = replayTapeOnSession(
     binding,
     live,
@@ -236,7 +257,11 @@ test("an explicitly new run bypasses recorded identity and digest but remains ma
     { forceNewRun: true },
   );
   assert.equal(result.kind, "success");
-  if (result.kind === "success") assert.equal(result.isNewRun, true);
+  if (result.kind === "success") {
+    assert.equal(result.isNewRun, true);
+    assert.equal(result.runId, live.getSnapshot().accepted?.runId);
+    assert.notEqual(result.runId, previousRun);
+  }
   assert.deepEqual(live.acceptedParameters(), { x: 3, y: 2, visible: true });
 });
 

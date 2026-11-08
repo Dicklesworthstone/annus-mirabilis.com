@@ -113,7 +113,7 @@ describe("the-two-pulses replays in ME-01", () => {
     if (two.result.kind === "success") expect(two.result.state.emissionAngle).toBe(90);
   });
 
-  test("a replay consumes no new randomness, and its seed comes from the tape", () => {
+  test("a replay consumes no new randomness and reports the accepting owner's run identity", () => {
     const original = Math.random;
     let draws = 0;
     Math.random = () => {
@@ -124,10 +124,11 @@ describe("the-two-pulses replays in ME-01", () => {
       const first = replayToCheckpoint(1);
       const second = replayToCheckpoint(1);
       expect(first.result.kind).toBe("success");
+      expect(second.result.kind).toBe("success");
       if (first.result.kind === "success" && second.result.kind === "success") {
-        // The run identity is a function of the TAPE's seed, so two replays of one tape are one run.
-        expect(first.result.runId).toBe(second.result.runId);
-        expect(first.result.runId).toContain(String(openingTape().seed));
+        expect(first.result.runId).toBe(first.session.getSnapshot().accepted?.runId);
+        expect(second.result.runId).toBe(second.session.getSnapshot().accepted?.runId);
+        expect(first.result.runId).toContain("me-01-replay-1/run/");
         expect(first.result.isNewRun).toBe(false);
       }
       // The observable the clause turns on: a replay draws nothing.
