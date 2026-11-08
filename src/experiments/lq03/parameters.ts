@@ -44,11 +44,8 @@ function validateLq03Fields(input: unknown): Computation<Lq03Parameters> {
     return bad("Parameter fields must be complete, known data fields.");
   const p = input as Lq03Parameters;
 
-  // The bead's own numeric domain is 500-10000 K. Enforcing it here also protects every value
-  // reachable through this instrument from a real defect found in the owner: planckBandEnergyDensity's
-  // adaptive quadrature (src/physics/reference/radiation/bandIntegration.ts, am-ref-radiation-15c)
-  // becomes visibly slow (~1s) at T=10000K with the default 400-600 THz band and does not
-  // terminate by T=1e5K -- reported to BoldHarbor, not patched here (not this bead's file).
+  // The instrument's declared teaching domain is 500-10000 K. The radiation owner separately
+  // bounds its quadrature work; this input range is not a substitute for numerical convergence.
   if (!Number.isFinite(p.T) || p.T < 500 || p.T > 10000)
     return bad("Enter a temperature from 500 to 10 000 K.");
   if (!(COORDINATES as readonly string[]).includes(p.coordinate))

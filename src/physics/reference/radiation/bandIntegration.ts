@@ -5,8 +5,11 @@
 
 import { withinTolerance } from "../../../units/tolerance.ts";
 import { type ConstantSet, constantValue, thermalConstant } from "../constants.ts";
+import { isLinearRepresentable } from "./representability.ts";
 import {
   planckFrequencyEnergyDensity,
+  planckPeakFrequency,
+  planckPeakWavelength,
   planckWavelengthEnergyDensity,
   wienFrequencyEnergyDensity,
 } from "./spectra.ts";
@@ -96,6 +99,61 @@ function bandIntegrationFailure(): RadiationResult<number> {
   };
 }
 
+function bandRepresentationFailure(): RadiationResult<number> {
+  return {
+    status: "outside-domain",
+    quantityId: "bandEnergy",
+    unit: "J/m^3",
+    condition: "band-energy-not-representable",
+    domainKind: "numerical",
+    reason:
+      "The band energy is positive, but falls outside the reliable floating-point range. This is a numerical representation limit, not zero energy or a physical prohibition. Change the band or temperature.",
+    boundary: { alternativeModel: "Choose a different band or temperature." },
+  };
+}
+
+/**
+ * Integrate a positive, unimodal spectrum using its existing log representation.
+ * A density below the linear range can still have a representable band integral;
+ * replacing those samples with zero loses energy and breaks coordinate agreement.
+ */
+function integrateSpectrumBand(
+  density: (coordinate: number) => RadiationResult<number>,
+  low: number,
+  high: number,
+  peak: number,
+): RadiationResult<number> {
+  const logDensity = (coordinate: number): number => {
+    const result = density(coordinate);
+    return result.status === "value"
+      ? (result.logFrequencyEnergyDensity ?? result.logWavelengthEnergyDensity ?? Number.NaN)
+      : Number.NaN;
+  };
+  // The density's maximum on this band supplies a numerical scale, not a change
+  // to either requested bound. Integrating on [0, 1] also removes coordinate units
+  // from the quadrature's absolute tolerance.
+  const logScale = logDensity(Math.min(high, Math.max(low, peak)));
+  if (!Number.isFinite(logScale)) return bandRepresentationFailure();
+  const width = high - low;
+  const scaledIntegral = adaptiveQuadrature(
+    (fraction) => Math.exp(logDensity(low + fraction * width) - logScale),
+    0,
+    1,
+  );
+  if (scaledIntegral === null || !(scaledIntegral > 0) || !Number.isFinite(scaledIntegral))
+    return bandIntegrationFailure();
+
+  const logEnergy = logScale + Math.log(width) + Math.log(scaledIntegral);
+  if (!isLinearRepresentable(logEnergy)) return bandRepresentationFailure();
+  return {
+    status: "value",
+    quantityId: "bandEnergy",
+    unit: "J/m^3",
+    value: Math.exp(logEnergy),
+    linearRepresentable: true,
+  };
+}
+
 /** Total Planck radiation energy density a * T^4 (J m^-3). */
 export function planckTotalEnergyDensity(T: number, set: ConstantSet): RadiationResult<number> {
   const quantityId = "radiationEnergy";
@@ -168,20 +226,14 @@ export function planckBandEnergyDensity(
     };
   }
 
-  const f = (nu: number) => {
-    const res = planckFrequencyEnergyDensity(nu, T, set);
-    return res.status === "value" && res.linearRepresentable ? res.value : 0;
-  };
-
-  const total = adaptiveQuadrature(f, nuMin, nuMax);
-  if (total === null) return bandIntegrationFailure();
-  return {
-    status: "value",
-    quantityId,
-    unit,
-    value: total,
-    linearRepresentable: true,
-  };
+  const peak = planckPeakFrequency(T, set);
+  const bandEnergy = integrateSpectrumBand(
+    (nu) => planckFrequencyEnergyDensity(nu, T, set),
+    nuMin,
+    nuMax,
+    peak.status === "value" ? peak.value : Number.NaN,
+  );
+  return bandEnergy;
 }
 
 /** Integral of Wien spectrum over frequency band [nuMin, nuMax]. */
@@ -224,20 +276,14 @@ export function wienBandEnergyDensity(
     };
   }
 
-  const f = (nu: number) => {
-    const res = wienFrequencyEnergyDensity(nu, T, set);
-    return res.status === "value" && res.linearRepresentable ? res.value : 0;
-  };
-
-  const total = adaptiveQuadrature(f, nuMin, nuMax);
-  if (total === null) return bandIntegrationFailure();
-  return {
-    status: "value",
-    quantityId,
-    unit,
-    value: total,
-    linearRepresentable: true,
-  };
+  // d(log u_nu)/d(nu) = 3/nu - h/(k_B T), so Wien peaks at h*nu/(k_B T) = 3.
+  const peak = (3 * thermalConstant(set).value * T) / constantValue(set, "planckConstant").value;
+  return integrateSpectrumBand(
+    (nu) => wienFrequencyEnergyDensity(nu, T, set),
+    nuMin,
+    nuMax,
+    peak,
+  );
 }
 
 /** Integral of Planck spectrum over wavelength band [lambdaMin, lambdaMax]. */
@@ -285,18 +331,11 @@ export function planckWavelengthBandEnergyDensity(
     };
   }
 
-  const f = (lambda: number) => {
-    const res = planckWavelengthEnergyDensity(lambda, T, set);
-    return res.status === "value" && res.linearRepresentable ? res.value : 0;
-  };
-
-  const total = adaptiveQuadrature(f, lambdaMin, lambdaMax);
-  if (total === null) return bandIntegrationFailure();
-  return {
-    status: "value",
-    quantityId,
-    unit,
-    value: total,
-    linearRepresentable: true,
-  };
+  const peak = planckPeakWavelength(T, set);
+  return integrateSpectrumBand(
+    (lambda) => planckWavelengthEnergyDensity(lambda, T, set),
+    lambdaMin,
+    lambdaMax,
+    peak.status === "value" ? peak.value : Number.NaN,
+  );
 }

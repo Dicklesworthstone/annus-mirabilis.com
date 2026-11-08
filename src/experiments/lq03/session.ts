@@ -46,8 +46,9 @@ export type Lq03Evaluation = Readonly<{
   coordinateTransform: Readonly<{
     lambdaAtProbe: number;
     jacobian: number;
-    correctWavelengthDensity: number;
-    naiveWavelengthDensity: number;
+    /** Null means the positive density needs the logarithmic representation in `planck`. */
+    correctWavelengthDensity: number | null;
+    naiveWavelengthDensity: number | null;
   }>;
   bandEnergyFromFrequency: RadiationResult<number>;
   bandEnergyFromWavelength: RadiationResult<number>;
@@ -67,14 +68,15 @@ export function evaluateLq03(p: Lq03Parameters): Lq03Evaluation {
   const lambdaAtProbe = c / p.probeNu;
 
   const planckAtProbe = planckFrequencyEnergyDensity(p.probeNu, p.T, set);
+  const planckAtWavelength = planckWavelengthEnergyDensity(lambdaAtProbe, p.T, set);
   const naiveWavelengthDensity =
     planckAtProbe.status === "value" && planckAtProbe.linearRepresentable
       ? planckAtProbe.value
-      : Number.NaN;
+      : null;
   const transform =
     planckAtProbe.status === "value" && planckAtProbe.linearRepresentable
       ? spectralDensityCoordinateTransform(planckAtProbe.value, p.probeNu, set)
-      : { wavelength: lambdaAtProbe, jacobian: (p.probeNu * p.probeNu) / c, uLambda: Number.NaN };
+      : null;
 
   const peakFrequency = planckPeakFrequency(p.T, set);
   const peakWavelength = planckPeakWavelength(p.T, set);
@@ -83,8 +85,8 @@ export function evaluateLq03(p: Lq03Parameters): Lq03Evaluation {
   return Object.freeze({
     probeX: (6.62607015e-34 * p.probeNu) / (1.380649e-23 * p.T),
     planck: Object.freeze({
-      frequency: planckFrequencyEnergyDensity(p.probeNu, p.T, set),
-      wavelength: planckWavelengthEnergyDensity(lambdaAtProbe, p.T, set),
+      frequency: planckAtProbe,
+      wavelength: planckAtWavelength,
     }),
     wien: Object.freeze({
       frequency: wienFrequencyEnergyDensity(p.probeNu, p.T, set),
@@ -96,8 +98,13 @@ export function evaluateLq03(p: Lq03Parameters): Lq03Evaluation {
     }),
     coordinateTransform: Object.freeze({
       lambdaAtProbe,
-      jacobian: transform.jacobian,
-      correctWavelengthDensity: transform.uLambda,
+      jacobian: transform?.jacobian ?? (p.probeNu * p.probeNu) / c,
+      // The Jacobian can bring a wavelength density into range even when the frequency density
+      // is too small to store. The owner's direct wavelength calculation retains that case.
+      correctWavelengthDensity:
+        planckAtWavelength.status === "value" && planckAtWavelength.linearRepresentable
+          ? (transform?.uLambda ?? planckAtWavelength.value)
+          : null,
       naiveWavelengthDensity,
     }),
     bandEnergyFromFrequency: planckBandEnergyDensity(p.nu1, p.nu2, p.T, set),
@@ -128,15 +135,31 @@ function toPublished(
   result: RadiationResult<number>,
 ): PublishedResult {
   if (result.status === "value") {
+    // A logarithm is a representation of this density, not a density in the same units.
+    // At 500 K and 10^16 Hz the old fallback published a negative log as J/(m^3 Hz).
+    // Keep the positive power-of-ten display in the evaluation, and explicitly distinguish
+    // the unavailable linear value for tapes, comparisons and every other snapshot consumer.
+    if (!result.linearRepresentable || !Number.isFinite(result.value)) {
+      return {
+        quantityId: id,
+        unit,
+        semanticKind,
+        ownerId,
+        status: "outside-domain",
+        condition: "linear-representation-unavailable",
+        domainKind: "numerical",
+        reason:
+          "This positive density is outside the range of an ordinary numeric value. Read its power-of-ten representation in the spectrum table.",
+        boundary: { alternativeModel: "Use the logarithmic density representation." },
+      };
+    }
     return {
       quantityId: id,
       unit,
       semanticKind,
       ownerId,
       status: "value",
-      value: result.linearRepresentable
-        ? result.value
-        : (result.logFrequencyEnergyDensity ?? result.logWavelengthEnergyDensity ?? 0),
+      value: result.value,
     };
   }
   return {
@@ -149,7 +172,9 @@ function toPublished(
     domainKind: result.status === "outside-domain" ? result.domainKind : "numerical",
     reason:
       result.status === "outside-domain" ? result.reason : "This result is not a finite value.",
-    boundary: { alternativeModel: "Choose inputs within the stated domain." },
+    boundary: (result.status === "outside-domain" && result.boundary) || {
+      alternativeModel: "Choose inputs within the stated domain.",
+    },
   };
 }
 

@@ -99,17 +99,8 @@ describe("LQ-03 session against the bead's own worked numbers (am-lq-03-spectrum
   });
 
   test("stability: x=1e-8 returns a finite, linearly representable density", () => {
-    // Calls the owner's density function directly at a small x, rather than through
-    // evaluateLq03 (which also computes a band-energy integral over the default 400-600 THz
-    // band regardless of the probe point): DEFECT FOUND (reported to BoldHarbor, not fixed
-    // here -- src/physics/reference/radiation/bandIntegration.ts is am-ref-radiation-15c's
-    // file, not this bead's) -- planckBandEnergyDensity's adaptive quadrature hangs when the
-    // band's dimensionless x-range is small (deep Rayleigh-Jeans regime, large T relative to
-    // the band), already visibly slow (~1s) at T=10000K (the top of this bead's own suggested
-    // teaching range) and non-terminating by T=1e5K with the default band. This bead's own
-    // parameter validation now refuses T outside [500, 10000] K for exactly this reason (see
-    // parameters.test.ts), which keeps every value reachable through this instrument's UI
-    // clear of the defect without patching another bead's file.
+    // This small-x case exercises the density owner beyond the laboratory's probe range.
+    // Band convergence has independent series and work-budget checks in bandIntegration.test.ts.
     const T = 5000;
     const kB = 1.380649e-23;
     const h = 6.62607015e-34;
@@ -203,6 +194,9 @@ describe("LQ-03 session against the bead's own worked numbers (am-lq-03-spectrum
     const evaluation = evaluateLq03({ ...LQ03_DEFAULTS, T: 5000, probeNu: 600e12 });
     const { correctWavelengthDensity, naiveWavelengthDensity } = evaluation.coordinateTransform;
     expect(Number.isFinite(correctWavelengthDensity)).toBe(true);
+    expect(correctWavelengthDensity).not.toBeNull();
+    expect(naiveWavelengthDensity).not.toBeNull();
+    if (correctWavelengthDensity === null || naiveWavelengthDensity === null) return;
     expect(rel(correctWavelengthDensity, naiveWavelengthDensity)).toBe(false);
   });
 

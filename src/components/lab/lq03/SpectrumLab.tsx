@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  type FormEvent,
-  type ReactNode,
-  useEffect,
-  useId,
-  useState,
-  useSyncExternalStore,
-} from "react";
+import { type FormEvent, type ReactNode, useEffect, useId, useMemo, useState } from "react";
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { typedOrNaN } from "../../../experiments/controls/typedNumber.ts";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
@@ -147,13 +140,18 @@ function scalarText(
 export function SpectrumLab({
   example,
   title = "The radiation spectrum and regime comparison",
+  instanceId,
+  restoreFromLocation = true,
 }: {
   example?: PreparedLq03Example | undefined;
   title?: string | undefined;
+  instanceId?: string | undefined;
+  restoreFromLocation?: boolean | undefined;
 }) {
   const id = useId();
+  const labInstanceId = instanceId ?? `lq03-${id}`;
   const [session] = useState(() =>
-    createLq03Session(`lq03-${id}`, example?.parameters ?? LQ03_DEFAULTS),
+    createLq03Session(labInstanceId, example?.parameters ?? LQ03_DEFAULTS),
   );
   const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
@@ -161,13 +159,13 @@ export function SpectrumLab({
     LQ03_TAPE,
     session,
     session.acceptedParameters(),
-    true,
+    restoreFromLocation,
     (restored) => setDraft(toDraft(restored)),
   );
 
   const fallback =
     session.getServerSnapshot().accepted ??
-    buildLq03Snapshot(`lq03-${id}`, "lq03-init", LQ03_DEFAULTS, 0, 0);
+    buildLq03Snapshot(labInstanceId, "lq03-init", LQ03_DEFAULTS, 0, 0);
   const snapshot = view.accepted ?? fallback;
   const p = snapshot.parameters as Lq03Parameters;
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
@@ -184,8 +182,10 @@ export function SpectrumLab({
   const [ready, setReady] = useState(false);
   const [failure, setFailure] = useState<ApplyFailure | null>(null);
 
-  const evaluation = evaluateLq03(p);
-  const spectrum = evaluateLq03Spectrum(p);
+  // Typing a draft or opening a disclosure does not change the accepted experiment. In
+  // particular, those renders must not repeat the two adaptive band integrations.
+  const evaluation = useMemo(() => evaluateLq03(p), [p]);
+  const spectrum = useMemo(() => evaluateLq03Spectrum(p), [p]);
 
   useEffect(() => {
     setReady(true);

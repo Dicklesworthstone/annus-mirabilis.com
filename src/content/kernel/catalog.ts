@@ -1419,15 +1419,15 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
     kernel: tsRef("src/physics/reference/radiation/bandIntegration.ts", "planckBandEnergyDensity"),
     words: {
       r0: "The energy the Planck spectrum puts between two frequencies, integrated numerically rather than looked up.",
-      r1: "It integrates the Planck density from one frequency bound to the other with adaptive Gauss-Kronrod quadrature: fifteen points per interval, and each interval split in two whenever the fifteen-point and seven-point estimates disagree by more than a relative 10^-12. At 5800 K the band from 400 to 790 THz comes back as 0.376 J/m^3, which is 43.9 per cent of everything the spectrum holds. Three refusals come first: a bound at or below zero, a range whose upper bound is not above its lower, and a nonpositive temperature.",
-      r2: "The check worth knowing is that the quadrature was not compared against itself. Taking the band from 10^9 to 10^17 Hz at 5800 K, this function returns 0.8561759005957852 J/m^3 where the closed form a T^4 in the same file returns 0.8561759006386072, an agreement to eleven significant figures by two routes that share no arithmetic. The one place to be careful is the integrand: where the density is not linearly representable it contributes zero rather than refusing, which is right for a tail that has underflowed and would be silently wrong for a band that lies entirely out of range, since the answer would then be a confident zero.",
+      r1: "It integrates the Planck density between the requested frequency bounds with adaptive Gauss-Kronrod quadrature. The density is scaled by its maximum within that band, and the integration coordinate runs from zero to one. Fifteen-point and seven-point estimates must agree within the normalized tolerance, with a strict limit on the work. Invalid bounds or temperature are refused before integration. A failure to converge is reported as a numerical limit, never as a computed band energy.",
+      r2: "The quadrature is checked against an independent Planck-series integral and the closed form a T^4. Scaling from the density's logarithm preserves positive tails whose individual density samples are too small for reliable linear representation, even when the band energy itself is representable. The frequency and wavelength integrations must agree after changing coordinates. If the final energy is outside the reliable floating-point range, the result says so explicitly instead of presenting a false zero or infinity.",
     },
     liveTerms: ["frequency", "temperature", "bandEnergy"],
     identifierBindings: [
       bind("planckBandEnergyDensity", "nuMin", "frequency"),
       bind("planckBandEnergyDensity", "nuMax", "frequency"),
       bind("planckBandEnergyDensity", "T", "temperature"),
-      bind("planckBandEnergyDensity", "total", "bandEnergy"),
+      bind("planckBandEnergyDensity", "bandEnergy", "bandEnergy"),
     ],
     independentReferences: [],
   },

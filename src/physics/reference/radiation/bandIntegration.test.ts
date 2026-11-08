@@ -11,6 +11,7 @@ import {
   planckWavelengthBandEnergyDensity,
   wienBandEnergyDensity,
 } from "./bandIntegration.ts";
+import { planckFrequencyEnergyDensity } from "./spectra.ts";
 import type { RadiationResult } from "./types.ts";
 
 const SET = getConstantSet("modern-si-2019");
@@ -83,22 +84,77 @@ describe("bounded radiation band integration", () => {
     logger.log({ testId: "full-selectable-bands", beadId: BEAD, outcome: "passed" });
   });
 
-  test("an unrepresentable integral is a numerical refusal, never an unconverged value", () => {
-    // Each sampled density is representable, but its integral over this finite
-    // band overflows. A depth-only algorithm recursively subdivides this range
-    // before returning infinity; the numerical limit must instead be explicit.
+  for (const low of [7.14e15, 7.16e15]) {
+    test(`a 500 K band beginning at ${low} Hz recovers energy from log-only densities`, () => {
+      // One band crosses the density representability boundary; the other lies
+      // wholly below it. Both integrals are normal, positive binary64 numbers.
+      const high = 7.2e15;
+      const lowerDensity = planckFrequencyEnergyDensity(low, 500, SET);
+      const upperDensity = planckFrequencyEnergyDensity(high, 500, SET);
+      expect(lowerDensity.status).toBe("value");
+      expect(upperDensity.status).toBe("value");
+      if (lowerDensity.status !== "value" || upperDensity.status !== "value")
+        throw new Error("Expected valid positive-temperature spectra.");
+      expect(lowerDensity.linearRepresentable).toBe(low === 7.14e15);
+      expect(upperDensity.linearRepresentable).toBe(false);
+      expect(Number.isFinite(upperDensity.logFrequencyEnergyDensity)).toBe(true);
+
+      const frequency = value(planckBandEnergyDensity(low, high, 500, SET));
+      const wavelength = value(planckWavelengthBandEnergyDensity(C / high, C / low, 500, SET));
+      const reference = planckFrequencyBandSeries(low, high, 500, SET);
+      matches(frequency, reference);
+      matches(wavelength, reference);
+      matches(wavelength, frequency);
+      matches(
+        value(wienBandEnergyDensity(low, high, 500, SET)),
+        wienFrequencyBandSeries(low, high, 500, SET),
+      );
+      logger.log({
+        testId: `log-density-recovery-${low}`,
+        beadId: BEAD,
+        instrumentId: "lq-03",
+        expected: reference,
+        actual: frequency,
+        comparisonKind: "tolerance",
+        tolerance: { relative: 1e-12 },
+        outcome: "passed",
+      });
+    });
+  }
+
+  test("a band energy above the numeric range is an explicit numerical refusal", () => {
+    // Frequency densities are representable, but their integral over this finite
+    // band overflows. Wavelength densities themselves also need log representation.
     for (const result of [
       planckBandEnergyDensity(1e110, 2e110, 1e120, SET),
       wienBandEnergyDensity(1e110, 2e110, 1e120, SET),
+      planckWavelengthBandEnergyDensity(C / 2e110, C / 1e110, 1e120, SET),
     ]) {
       expect(result.status).toBe("outside-domain");
       if (result.status !== "outside-domain") throw new Error(JSON.stringify(result));
       expect(result.domainKind).toBe("numerical");
-      expect(result.condition).toBe("band-integration-not-converged");
-      expect(result.reason).toContain("not a zero energy or a physical prohibition");
+      expect(result.condition).toBe("band-energy-not-representable");
+      expect(result.reason).toContain("not zero energy or a physical prohibition");
       expect("value" in result).toBe(false);
     }
     logger.log({ testId: "unrepresentable-integral", beadId: BEAD, outcome: "passed" });
+  });
+
+  test("a selectable band below the numeric range is never published as zero energy", () => {
+    for (const result of [
+      planckBandEnergyDensity(8e15, 9e15, 500, SET),
+      wienBandEnergyDensity(8e15, 9e15, 500, SET),
+      planckWavelengthBandEnergyDensity(C / 9e15, C / 8e15, 500, SET),
+    ]) {
+      expect(result.status).toBe("outside-domain");
+      if (result.status !== "outside-domain") throw new Error(JSON.stringify(result));
+      expect(result.domainKind).toBe("numerical");
+      expect(result.condition).toBe("band-energy-not-representable");
+      expect(result.reason).toContain("band energy is positive");
+      expect(result.boundary).toBeDefined();
+      expect("value" in result).toBe(false);
+    }
+    logger.log({ testId: "positive-band-underflow", beadId: BEAD, outcome: "passed" });
   });
 
   test("invalid or reversed bounds still refuse before numerical integration", () => {
