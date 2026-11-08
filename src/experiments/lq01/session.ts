@@ -56,31 +56,37 @@ export function createLq01Session(
   }
   const serverSnapshot = store.getSnapshot();
   let scheduler: ReturnType<typeof createLq01Scheduler> | null = null;
+  function apply(input: unknown, newRun = false) {
+    const validated = validateLq01Parameters(input);
+    if (validated.kind !== "accepted") return validated;
+    const parameters = validated.data;
+    const previous = store.getSnapshot().requested?.parameters ?? example.parameters;
+    const setup: Record<string, number | string | boolean> = {};
+    const intervention: Record<string, number | string | boolean> = {};
+    for (const key of Object.keys(parameters) as (keyof Lq01Parameters)[]) {
+      if (Object.is(parameters[key], previous[key])) continue;
+      if (key === "delta" || key === "P" || key === "r") intervention[key] = parameters[key];
+      else setup[key] = parameters[key];
+    }
+    let request = newRun ? store.issue("setup-change", parameters) : null;
+    if (!newRun) {
+      if (Object.keys(intervention).length) {
+        request = store.issue("physical-intervention", intervention, { atSimulatedTime: 0 });
+      }
+      if (Object.keys(setup).length) request = store.issue("setup-change", setup);
+    }
+    request ??= store.issue("continue");
+    scheduler ??= createLq01Scheduler(store, workerFactory, example.sourceDigest);
+    scheduler.request(request);
+    return { kind: "accepted" as const, data: request };
+  }
   return Object.freeze({
     getSnapshot: store.getSnapshot,
     getServerSnapshot: () => serverSnapshot,
     subscribe: store.subscribe,
-    apply(input: unknown) {
-      const validated = validateLq01Parameters(input);
-      if (validated.kind !== "accepted") return validated;
-      const parameters = validated.data;
-      const previous = store.getSnapshot().requested?.parameters ?? example.parameters;
-      const setup: Record<string, number | string | boolean> = {};
-      const intervention: Record<string, number | string | boolean> = {};
-      for (const key of Object.keys(parameters) as (keyof Lq01Parameters)[]) {
-        if (Object.is(parameters[key], previous[key])) continue;
-        if (key === "delta" || key === "P" || key === "r") intervention[key] = parameters[key];
-        else setup[key] = parameters[key];
-      }
-      let request = Object.keys(intervention).length
-        ? store.issue("physical-intervention", intervention, { atSimulatedTime: 0 })
-        : null;
-      if (Object.keys(setup).length) request = store.issue("setup-change", setup);
-      request ??= store.issue("continue");
-      scheduler ??= createLq01Scheduler(store, workerFactory, example.sourceDigest);
-      scheduler.request(request);
-      return { kind: "accepted" as const, data: request };
-    },
+    apply: (input: unknown) => apply(input),
+    /** An explicit new calculation keeps its own identity even when only the phase changes. */
+    startNewRun: (input: unknown) => apply(input, true),
     stop() {
       scheduler?.cancel();
     },

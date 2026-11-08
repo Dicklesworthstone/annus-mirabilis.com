@@ -36,6 +36,8 @@ export function decodeLq01Settings(search: string): Lq01SettingsLink {
   });
   if (search.length > 4096) return invalid();
   const q = new URLSearchParams(search);
+  // Walkthrough and reader addresses are owned by their own URL handlers.
+  if (!q.has("lq")) return { kind: "absent" };
   if (
     q.get("lq") !== "1" ||
     q.size !== keys.length + 1 ||

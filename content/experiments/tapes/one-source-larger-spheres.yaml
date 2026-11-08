@@ -1,0 +1,112 @@
+tapeVersion: 2
+tapeId: one-source-larger-spheres
+experimentId: lq-01
+mode: "lq-01:default"
+title: "One source, larger spheres"
+description: "Follow one watt from an isotropic point source across larger spheres: local intensity falls while the total power crossing each sphere stays the same."
+isTeachingSequence: true
+modelIdentity:
+  modelId: lq-01
+  modelVersion: "1"
+  artifactDigest: "host:sha256:cb0b28abe90211f39b6052019e8610d28f3ee03f94f7fe7873330e6f21032d78"
+constantSetId: modern-si-2019
+seed: "0"
+streamVersion: 1
+allocationId: deterministic
+initialConditions:
+  A1: 1
+  A2: 1
+  delta: 0
+  wavelength: 1
+  separation: 3
+  screenDistance: 100
+  readout: time-average
+  t: 0
+  P: 1
+  r: 1
+  mode: spreading
+  screenPosition: center
+events:
+  - kind: control
+    actionIndex: 1
+    commandClass: physical-intervention
+    commandId: double-the-observation-radius
+    parameterId: r
+    previousValue: 1
+    value: 2
+    atSimulatedTime: 0
+  - kind: control
+    actionIndex: 2
+    commandClass: physical-intervention
+    commandId: double-the-observation-radius-again
+    parameterId: r
+    previousValue: 2
+    value: 4
+    atSimulatedTime: 0
+checkpoints:
+  - actionIndex: 0
+    stepIndex: 0
+    simulatedTime: 0
+    digest: "host:2e15639c0a41a204"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: "One watt across the sphere at one metre"
+    teachingNote: "An isotropic point source distributes its power equally in every direction. With no absorption, its one watt crosses every surrounding sphere. At radius 1 m, I = P/(4πr²) is about 0.07958 W/m². The total power through the sphere remains 1 W."
+    expectedDisplayValues:
+      - label: "Intensity at one metre"
+        outputId: pointSourceIntensity
+        value: 0.07957747154594767
+        unit: "W/m2"
+        constantSetId: modern-si-2019
+      - label: "Power through the sphere"
+        outputId: shellPower
+        value: 1
+        unit: "W"
+        constantSetId: modern-si-2019
+  - actionIndex: 1
+    stepIndex: 0
+    simulatedTime: 0
+    digest: "host:9184e9b6b8878cdc"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: "Twice as far, one quarter the intensity"
+    teachingNote: "Doubling the radius gives the same power four times as much spherical area to cross. Each square metre receives a quarter of the intensity, about 0.01989 W/m². Multiplying by the whole sphere's area still gives 1 W."
+    expectedDisplayValues:
+      - label: "Intensity at two metres"
+        outputId: pointSourceIntensity
+        value: 0.019894367886486918
+        unit: "W/m2"
+        constantSetId: modern-si-2019
+      - label: "Power through the sphere"
+        outputId: shellPower
+        value: 1
+        unit: "W"
+        constantSetId: modern-si-2019
+  - actionIndex: 2
+    stepIndex: 0
+    simulatedTime: 0
+    digest: "host:1d4a836bdc7bbb27"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: "Four times as far, one sixteenth the intensity"
+    teachingNote: "Double the radius again. The intensity quarters again, reaching one sixteenth of its value at 1 m. The power through the complete sphere remains 1 W: geometric spreading changes the local intensity without consuming energy."
+    expectedDisplayValues:
+      - label: "Intensity at four metres"
+        outputId: pointSourceIntensity
+        value: 0.0049735919716217296
+        unit: "W/m2"
+        constantSetId: modern-si-2019
+      - label: "Power through the sphere"
+        outputId: shellPower
+        value: 1
+        unit: "W"
+        constantSetId: modern-si-2019

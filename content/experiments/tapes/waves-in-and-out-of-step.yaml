@@ -1,0 +1,111 @@
+tapeVersion: 2
+tapeId: waves-in-and-out-of-step
+experimentId: lq-01
+mode: "lq-01:default"
+title: "Waves in and out of step"
+description: "Add two coherent fields before squaring: compare equal waves in step, equal waves half a cycle apart, and unequal waves."
+isTeachingSequence: true
+modelIdentity:
+  modelId: lq-01
+  modelVersion: "1"
+  artifactDigest: "host:sha256:cb0b28abe90211f39b6052019e8610d28f3ee03f94f7fe7873330e6f21032d78"
+constantSetId: modern-si-2019
+seed: "0"
+streamVersion: 1
+allocationId: deterministic
+initialConditions:
+  A1: 1
+  A2: 1
+  delta: 0
+  wavelength: 1
+  separation: 3
+  screenDistance: 100
+  readout: time-average
+  t: 0
+  P: 1
+  r: 1
+  mode: interference
+  screenPosition: center
+events:
+  - kind: control
+    actionIndex: 1
+    commandClass: physical-intervention
+    commandId: shift-one-wave-by-half-a-cycle
+    parameterId: delta
+    previousValue: 0
+    value: 3.141592653589793
+    atSimulatedTime: 0
+  - kind: control
+    actionIndex: 2
+    commandClass: setup-change
+    commandId: make-the-second-wave-half-as-strong
+    parameterId: A2
+    previousValue: 1
+    value: 0.5
+checkpoints:
+  - actionIndex: 0
+    stepIndex: 0
+    simulatedTime: 0
+    digest: "host:31bf417132cbce2f"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: "Equal waves in step"
+    teachingNote: "At the centre the two fields add to twice one field, so their time-averaged intensity is four times that of one wave alone. These intensities use a single wave of amplitude 1 as the unit. This continuous-field model shows a successful wave description; it makes no claim about how energy is emitted or absorbed."
+    expectedDisplayValues:
+      - label: "Centre intensity"
+        outputId: centerIntensity
+        value: 4
+        unit: "1"
+        constantSetId: modern-si-2019
+      - label: "Fringe visibility"
+        outputId: fringeVisibility
+        value: 1
+        unit: "1"
+        constantSetId: modern-si-2019
+  - actionIndex: 1
+    stepIndex: 0
+    simulatedTime: 0
+    digest: "host:06a7ec4887c9ebfb"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: "Equal waves half a cycle apart"
+    teachingNote: "A half-cycle phase shift reverses one field at the centre. Equal opposite fields cancel there, so the centre is dark. Look across the screen: interference redistributes intensity into bright and dark fringes; a dark point does not mean that energy has vanished."
+    expectedDisplayValues:
+      - label: "Centre intensity"
+        outputId: centerIntensity
+        value: 0
+        unit: "1"
+        constantSetId: modern-si-2019
+      - label: "Fringe visibility"
+        outputId: fringeVisibility
+        value: 1
+        unit: "1"
+        constantSetId: modern-si-2019
+  - actionIndex: 2
+    stepIndex: 0
+    simulatedTime: 0
+    digest: "host:128ef223f2da4784"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: "Unequal waves cannot cancel completely"
+    teachingNote: "Keep the half-cycle shift but halve the second field's amplitude. The remaining centre field has amplitude 1 − 0.5, giving intensity (1 − 0.5)² = 0.25. The fringe visibility falls to 0.8: unequal waves cannot cancel completely."
+    expectedDisplayValues:
+      - label: "Centre intensity"
+        outputId: centerIntensity
+        value: 0.25
+        unit: "1"
+        constantSetId: modern-si-2019
+      - label: "Fringe visibility"
+        outputId: fringeVisibility
+        value: 0.8
+        unit: "1"
+        constantSetId: modern-si-2019

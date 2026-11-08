@@ -592,3 +592,8 @@ defaultScenario: waves-lq01
 tapeModel:
   modelId: lq-01
   modelVersion: 1
+teachingTapes:
+  - tapeId: waves-in-and-out-of-step
+    title: "Waves in and out of step"
+  - tapeId: one-source-larger-spheres
+    title: "One source, larger spheres"

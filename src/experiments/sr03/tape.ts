@@ -1,12 +1,7 @@
 import type { WorkerChannel } from "../../workers/scheduler/sr03Scheduler.ts";
-import { requirementsOf, settingsFromTape } from "../permalink/sessionTape.ts";
 import type { WorkerWalkthroughTarget } from "../permalink/walkthroughActions.ts";
-import {
-  applyWorkerSettings,
-  restoreWorkerTape,
-  type WorkerTapeBinding,
-  type WorkerTapeSession,
-} from "../permalink/workerSessionTape.ts";
+import type { WorkerTapeBinding, WorkerTapeSession } from "../permalink/workerSessionTape.ts";
+import { createWorkerWalkthroughTarget } from "../permalink/workerWalkthrough.ts";
 import type { Sr03Parameters } from "./definition.ts";
 import { SR03_DRAFT_TAPE } from "./draftTape.ts";
 import { createSr03Session, type PreparedSr03Example } from "./session.ts";
@@ -36,36 +31,5 @@ export function createSr03WalkthroughTarget(
   onAccepted: (parameters: Sr03Parameters) => void,
   onStarting?: () => void,
 ): WorkerWalkthroughTarget {
-  return {
-    kind: "worker",
-    experimentId: binding.environment.experimentId,
-    async restore(tape, signal) {
-      onStarting?.();
-      const outcome = await restoreWorkerTape(binding, session, tape, { signal });
-      if (outcome.kind === "restored" && !signal?.aborted) {
-        onAccepted(session.acceptedParameters() as Sr03Parameters);
-      }
-      return outcome;
-    },
-    async calculate(recorded, signal) {
-      onStarting?.();
-      const checked = binding.validate({
-        ...binding.defaults,
-        ...settingsFromTape(recorded, binding.defaults),
-      });
-      if (checked.kind !== "accepted") {
-        return {
-          kind: "not-restored",
-          notice: requirementsOf(checked) || "The laboratory refuses these recorded settings.",
-        };
-      }
-      const outcome = await applyWorkerSettings(session, checked.data as object, {
-        signal,
-        newRun: true,
-      });
-      if (outcome.kind !== "restored") return outcome;
-      if (!signal?.aborted) onAccepted(session.acceptedParameters() as Sr03Parameters);
-      return { kind: "calculated" };
-    },
-  };
+  return createWorkerWalkthroughTarget(binding, session, onAccepted, onStarting);
 }

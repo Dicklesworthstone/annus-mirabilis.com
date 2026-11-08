@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { type FormEvent, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../experiments/labels/executionLabelFor.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
@@ -12,9 +12,9 @@ import {
   LQ01_PRESETS,
   type Lq01Parameters,
 } from "../../experiments/lq01/definition.ts";
-import { LQ01_DRAFT_TAPE } from "../../experiments/lq01/draftTape.ts";
 import { decodeLq01Settings } from "../../experiments/lq01/permalink.ts";
 import { createLq01Session, type PreparedLq01Example } from "../../experiments/lq01/session.ts";
+import { createLq01TapeBinding, createLq01WalkthroughTarget } from "../../experiments/lq01/tape.ts";
 import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import {
@@ -140,6 +140,7 @@ export function WaveDescriptionLab({
   const [session] = useState(() =>
     createLq01Session(instanceId ?? `lq01-${id}`, example, createLq01BrowserChannel),
   );
+  const [workerTape] = useState(() => createLq01TapeBinding(example, createLq01BrowserChannel));
   const view = useInstrumentView(session);
   const snapshot =
     view.accepted ??
@@ -147,13 +148,43 @@ export function WaveDescriptionLab({
     (session.getSnapshot().accepted as NonNullable<typeof view.accepted>);
   const p = snapshot.parameters as unknown as Lq01Parameters;
 
-  const [draft, setDraft] = useState(() => toLq01Draft(example.parameters));
+  const [draft, setDraftState] = useState(() => toLq01Draft(session.acceptedParameters()));
+  const draftRevision = useRef(0);
+  const walkthroughDraftRevision = useRef(0);
+  const setDraft = useCallback((next: Lq01Draft) => {
+    draftRevision.current++;
+    setDraftState(next);
+  }, []);
   const [ready, setReady] = useState(false);
   const [failure, setFailure] = useState<ApplyFailure | null>(null);
   const [linkNote, setLinkNote] = useState("");
   // A shared ?tape= link puts its settings in the form and starts nothing; Apply calculates them.
-  const tapeLink = useDraftTapeLink(LQ01_DRAFT_TAPE, p, restoreFromLocation, (settings) =>
+  const tapeLink = useDraftTapeLink(workerTape, p, restoreFromLocation, (settings) =>
     setDraft(toLq01Draft(settings as unknown as Lq01Parameters)),
+  );
+  const workerWalkthrough = useMemo(
+    () =>
+      createLq01WalkthroughTarget(
+        workerTape,
+        session,
+        (parameters) => {
+          // Typing a number does not issue a request until commit. Retain a newer unapplied
+          // draft rather than replacing it when this asynchronous checkpoint finishes.
+          if (draftRevision.current !== walkthroughDraftRevision.current) {
+            setLinkNote(
+              "The checkpoint result is ready. Your newer entries are still in the form; apply them when ready.",
+            );
+            return;
+          }
+          setDraftState(toLq01Draft(parameters));
+          setFailure(null);
+          setLinkNote("");
+        },
+        () => {
+          walkthroughDraftRevision.current = draftRevision.current;
+        },
+      ),
+    [workerTape, session],
   );
 
   useEffect(() => {
@@ -168,7 +199,7 @@ export function WaveDescriptionLab({
       setLinkNote(shared.message);
     }
     return () => session.disconnect();
-  }, [session, restoreFromLocation]);
+  }, [session, restoreFromLocation, setDraft]);
 
   function apply(parameters: Lq01Parameters) {
     const outcome = session.apply(parameters);
@@ -516,7 +547,7 @@ export function WaveDescriptionLab({
           summary={statusSummary}
           response={gate.response}
         />
-        <LabTapeLink link={withPredictions(tapeLink, gate)} />
+        <LabTapeLink link={withPredictions(tapeLink, gate)} workerWalkthrough={workerWalkthrough} />
 
         <div className="lab-results">
           {interference ? (
