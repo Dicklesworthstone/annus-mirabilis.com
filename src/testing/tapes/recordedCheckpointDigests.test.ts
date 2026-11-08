@@ -15,26 +15,50 @@
  * mentions. So the only honest check is to replay and compare, and a check that merely asserted the
  * field matches a regex would have passed all five of the fabricated digests below.
  *
- * THE POPULATION IS DERIVED, NEVER LISTED. A tape is judged when `src/experiments/<lab>/tape.ts`
- * exports a `_TAPE` binding, because that is exactly the condition under which a host replay can
- * reach an accepted state. The five tapes whose laboratories export only a `DraftTapeBinding` --
- * camera-bias, coin-to-bell, einstein-0-8-micron, perrins-count, the-boost-to-0.6c -- are EXCLUDED
- * and NAMED, with the count asserted so the exclusion cannot quietly grow. That is a deliberate
- * architecture rather than an oversight: a worker laboratory's shared link "loads settings only;
- * they never start a calculation" (src/experiments/permalink/draftTape.ts), so no host session
- * stands behind a digest for them. Each of those five currently carries 64 repeated hex digits,
- * which satisfies the schema's digest pattern exactly, and that is reported here rather than
- * asserted, because whether such a record should convert at all is the bead owner's call.
+ * THE POPULATION FOLLOWS THE LABORATORY'S REPLAY CAPABILITY. A tape is judged when its laboratory
+ * exports either a synchronous `_TAPE` binding or a worker `create...TapeBinding` factory. Worker
+ * factories need an actual owner and source-hashed prepared example; the adapters below supply
+ * those without changing generated artifacts. An exported factory with no adapter fails explicitly
+ * instead of silently enlarging the excluded population. Each worker request must reach its own
+ * final accepted publication before the digest is read, and every audit instance is disconnected.
+ *
+ * A draft-only shared link still starts no calculation. That does not exclude a laboratory whose
+ * explicit walkthrough player can calculate: SR-03 and LQ-01 support both contracts. The remaining
+ * draft-only records are named, and the existing exclusion ceiling is retained.
  */
 
-import { describe, expect, test } from "bun:test";
+import { afterAll, describe, expect, test } from "bun:test";
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
+import { evaluatorSources as sr03Sources } from "../../../scripts/generate-sr03.mjs";
+import { evaluatorSources as lq01Sources } from "../../../scripts/generate-wave-description.mjs";
 import { parseYaml } from "../../content/provenance/yaml.ts";
+import { LQ01_DEFAULTS } from "../../experiments/lq01/definition.ts";
+import { createLq01TapeBinding } from "../../experiments/lq01/tape.ts";
 import {
   createSessionReplayRunner,
   type LabTapeBinding,
+  settingsFromTape,
+  tapeStateDigestV2,
+  tapeStateOf,
 } from "../../experiments/permalink/sessionTape.ts";
+import {
+  applyWorkerSettings,
+  type WorkerTapeBinding,
+} from "../../experiments/permalink/workerSessionTape.ts";
+import { encodeResult } from "../../experiments/results/codec.ts";
+import { SR03_DEFAULTS } from "../../experiments/sr03/definition.ts";
+import { createSr03TapeBinding } from "../../experiments/sr03/tape.ts";
+import { createLq01Host } from "../../workers/host/lq01Host.ts";
+import { createSr03Host } from "../../workers/host/sr03Host.ts";
+import { evaluateLq01 } from "../../workers/operations/lq01.ts";
+import { evaluateSr03 } from "../../workers/operations/sr03.ts";
+import { TestLogger } from "../log/logger.ts";
+
+const logger = new TestLogger("recorded-checkpoint-digests");
+afterAll(() => logger.flush());
 
 const ROOT = resolve(new URL("../../../", import.meta.url).pathname);
 const DIR = join(ROOT, "content", "experiments", "tapes");
@@ -42,6 +66,7 @@ const DIR = join(ROOT, "content", "experiments", "tapes");
 type TapeRecord = Readonly<{
   tapeId: string;
   experimentId: string;
+  modelIdentity?: Readonly<{ artifactDigest: string }>;
   initialConditions?: Readonly<Record<string, number | string>>;
   events?: readonly { actionIndex: number; parameterId?: string; value?: number | string }[];
   checkpoints?: readonly { actionIndex: number; digest: string; label?: string }[];
@@ -55,23 +80,164 @@ const records: readonly TapeRecord[] = readdirSync(DIR)
 /** `sr-12` -> `sr12`, the directory a laboratory's modules live in. */
 const dirOf = (experimentId: string) => experimentId.replace("-", "");
 
-/** The `_TAPE` binding, when the laboratory has one. A `_DRAFT_TAPE` is deliberately not one. */
-async function labTapeBinding(experimentId: string): Promise<LabTapeBinding | undefined> {
+type DrivenBinding =
+  | Readonly<{ kind: "host"; binding: LabTapeBinding }>
+  | Readonly<{ kind: "worker"; binding: WorkerTapeBinding }>;
+
+type Host = Readonly<{
+  hello(): void;
+  receive(message: unknown): Promise<void>;
+  dispose(): void;
+}>;
+
+/** Only the transport runs in-process; every request executes the production worker host. */
+function hostTransport(
+  createHost: (send: (message: unknown) => void, sourceDigest: string) => Host,
+  sourceDigest: string,
+) {
+  return () => {
+    let listener: ((message: unknown) => void) | null = null;
+    const host = createHost((message) => listener?.(structuredClone(message)), sourceDigest);
+    return {
+      send(message: unknown) {
+        void host.receive(structuredClone(message));
+      },
+      listen(onMessage: (message: unknown) => void) {
+        listener = onMessage;
+        queueMicrotask(() => host.hello());
+        return () => {
+          listener = null;
+        };
+      },
+      dispose() {
+        listener = null;
+        host.dispose();
+      },
+    };
+  };
+}
+
+function sourceIdentity(sources: readonly (readonly string[])[]): string {
+  const hash = createHash("sha256");
+  for (const [path, source] of sources) {
+    assert.ok(typeof path === "string" && typeof source === "string");
+    hash.update(`${path}\0${Buffer.byteLength(source)}\0`).update(source);
+  }
+  return `source:sha256:${hash.digest("hex")}`;
+}
+
+const workerAdapters: Readonly<Record<string, () => Promise<WorkerTapeBinding>>> = {
+  async createLq01TapeBinding() {
+    const sourceDigest = sourceIdentity(await lq01Sources());
+    const evaluated = await evaluateLq01(LQ01_DEFAULTS);
+    assert.ok(evaluated.kind === "accepted");
+    return createLq01TapeBinding(
+      {
+        sourceDigest,
+        parameters: LQ01_DEFAULTS,
+        stepIndex: evaluated.data.stepIndex,
+        simulationTime: evaluated.data.simulationTime,
+        results: evaluated.data.outputs.map(encodeResult),
+      },
+      hostTransport(createLq01Host, sourceDigest),
+    );
+  },
+  async createSr03TapeBinding() {
+    const sourceDigest = sourceIdentity(await sr03Sources());
+    const evaluated = await evaluateSr03(SR03_DEFAULTS);
+    assert.ok(evaluated.kind === "accepted");
+    return createSr03TapeBinding(
+      {
+        sourceDigest,
+        parameters: SR03_DEFAULTS,
+        stepIndex: evaluated.data.stepIndex,
+        simulationTime: evaluated.data.simulationTime,
+        results: evaluated.data.outputs.map(encodeResult),
+      },
+      hostTransport(createSr03Host, sourceDigest),
+    );
+  },
+};
+
+async function discoverBinding(experimentId: string): Promise<DrivenBinding | undefined> {
   const path = join(ROOT, "src", "experiments", dirOf(experimentId), "tape.ts");
   if (!existsSync(path)) return undefined;
   const module = (await import(path)) as Record<string, unknown>;
   const entry = Object.entries(module).find(
     ([name]) => name.endsWith("_TAPE") && !name.endsWith("_DRAFT_TAPE"),
   );
-  return entry?.[1] as LabTapeBinding | undefined;
+  if (entry) return { kind: "host", binding: entry[1] as LabTapeBinding };
+  const factory = Object.entries(module).find(
+    ([name, value]) => /^create.+TapeBinding$/.test(name) && typeof value === "function",
+  );
+  if (!factory) return undefined;
+  const prepare = workerAdapters[factory[0]];
+  assert.ok(prepare, `${experimentId} exports ${factory[0]} but has no real worker audit adapter.`);
+  const binding = await prepare();
+  assert.equal(binding.environment.experimentId, experimentId);
+  return { kind: "worker", binding };
+}
+
+const bindings = new Map<string, Promise<DrivenBinding | undefined>>();
+function labTapeBinding(experimentId: string): Promise<DrivenBinding | undefined> {
+  const existing = bindings.get(experimentId);
+  if (existing) return existing;
+  const discovered = discoverBinding(experimentId);
+  bindings.set(experimentId, discovered);
+  return discovered;
+}
+
+async function replayedWorkerDigest(
+  binding: WorkerTapeBinding,
+  record: TapeRecord,
+  upTo: number,
+): Promise<string> {
+  assert.match(binding.environment.artifactDigest ?? "", /^host:sha256:[0-9a-f]{64}$/);
+  assert.equal(
+    record.modelIdentity?.artifactDigest,
+    binding.environment.artifactDigest,
+    "The recorded worker source must match the actual owner closure.",
+  );
+  const session = binding.createSession(`${record.experimentId}-digest-check`);
+  const apply = async (parameters: object) => {
+    const result = await applyWorkerSettings(session, parameters);
+    assert.ok(result.kind === "restored", result.kind === "not-restored" ? result.notice : "");
+    const view = session.getSnapshot();
+    assert.ok(!view.pending && view.accepted?.final);
+    assert.equal(view.accepted.actionIndex, view.requested?.actionIndex);
+    assert.equal(view.accepted.runId, view.requested?.runId);
+  };
+  try {
+    await apply({
+      ...binding.defaults,
+      ...settingsFromTape(record.initialConditions ?? {}, binding.defaults),
+    });
+    let actionIndex = 0;
+    for (const event of [...(record.events ?? [])].sort((a, b) => a.actionIndex - b.actionIndex)) {
+      if (event.actionIndex > upTo) break;
+      if (event.parameterId === undefined || event.value === undefined) continue;
+      await apply({
+        ...session.acceptedParameters(),
+        ...settingsFromTape({ [event.parameterId]: event.value }, binding.defaults),
+      });
+      actionIndex = event.actionIndex;
+    }
+    const state = tapeStateOf(session.acceptedParameters());
+    assert.ok(state);
+    return tapeStateDigestV2(state, actionIndex);
+  } finally {
+    session.disconnect();
+  }
 }
 
 /** The digest a fresh laboratory reaches after this record's conditions and events up to `upTo`. */
 async function replayedDigest(
-  binding: LabTapeBinding,
+  selected: DrivenBinding,
   record: TapeRecord,
   upTo: number,
 ): Promise<string> {
+  if (selected.kind === "worker") return replayedWorkerDigest(selected.binding, record, upTo);
+  const binding = selected.binding;
   const runner = createSessionReplayRunner(
     binding,
     binding.createSession(`${record.experimentId}-digest-check`),
@@ -119,6 +285,14 @@ async function auditDigests(
         continue;
       }
       checked++;
+      logger.info("A recorded checkpoint was evaluated through its laboratory owner.", {
+        testId: `${record.tapeId}@${checkpoint.actionIndex}`,
+        tapeId: record.tapeId,
+        actionIndex: checkpoint.actionIndex,
+        bindingKind: binding.kind,
+        recordedDigest: checkpoint.digest,
+        replayedDigest: replayed,
+      });
       if (replayed !== checkpoint.digest) {
         mismatches.push(
           `${record.tapeId} @${checkpoint.actionIndex} (${record.experimentId}): record ${checkpoint.digest}, replay ${replayed}`,
@@ -133,12 +307,12 @@ describe("recorded checkpoint digests", () => {
   test("the corpus is non-vacuous, and the two populations are named", () => {
     // Denominators, reported. A pass over zero drivable tapes is what this test exists to refuse.
     console.log(
-      `[census] teaching tapes: ${records.length} record(s); ${drivable.length} with a lab _TAPE binding, ` +
+      `[census] teaching tapes: ${records.length} record(s); ${drivable.length} with a laboratory replay binding, ` +
         `${notDrivable.length} with only a draft binding (${notDrivable.map((r) => r.tapeId).join(", ")})`,
     );
     expect(records.length).toBeGreaterThanOrEqual(22);
     expect(drivable.length).toBeGreaterThanOrEqual(17);
-    // The exclusion cannot quietly grow: five worker laboratories, by the architecture above.
+    // Preserve the existing exclusion ceiling as laboratories gain explicit replay owners.
     expect(notDrivable.length).toBeLessThanOrEqual(5);
   });
 
@@ -151,6 +325,33 @@ describe("recorded checkpoint digests", () => {
     // binding that stopped importing would otherwise take this to zero checked and still pass.
     expect(checked).toBeGreaterThanOrEqual(26);
     expect(mismatches, mismatches.join("\n")).toEqual([]);
+  });
+
+  test("worker factory records remain audited and detect a corrupted accepted-state digest", async () => {
+    for (const experimentId of ["lq-01", "sr-03"]) {
+      const binding = await labTapeBinding(experimentId);
+      expect(binding?.kind).toBe("worker");
+      const subject = drivable.find((record) => record.experimentId === experimentId);
+      assert.ok(subject, `${experimentId}'s factory must put its tapes in the audited population.`);
+      expect(notDrivable.some((record) => record.experimentId === experimentId)).toBe(false);
+      const first = subject.checkpoints?.[0];
+      assert.ok(first);
+      const flipped = `${first.digest.slice(0, -1)}${first.digest.endsWith("0") ? "1" : "0"}`;
+      const planted: TapeRecord = {
+        ...subject,
+        checkpoints: (subject.checkpoints ?? []).map((entry, index) =>
+          index === 0 ? { ...entry, digest: flipped } : entry,
+        ),
+      };
+      expect(planted.checkpoints?.[0]?.digest).toBe(flipped);
+      const corrupted = await auditDigests([planted]);
+      expect(corrupted.checked).toBeGreaterThan(0);
+      expect(corrupted.mismatches.some((finding) => finding.includes(flipped))).toBe(true);
+      expect(corrupted.mismatches.some((finding) => finding.includes(first.digest))).toBe(true);
+      const clean = await auditDigests([subject]);
+      expect(clean.checked).toBeGreaterThan(0);
+      expect(clean.mismatches).toEqual([]);
+    }
   });
 
   test("PLANTED: a corrupted digest on a real record is caught, and the finding names it", async () => {
@@ -211,7 +412,7 @@ describe("recorded checkpoint digests", () => {
           `${digests.filter((d) => CONSTANT_RUN.test(d)).length} a run of one repeated digit`,
       );
       // The one thing asserted: such a record still declares checkpoints, so the day its lab gains
-      // a `_TAPE` binding the test above picks it up rather than finding nothing to judge.
+      // a replay binding the test above picks it up rather than finding nothing to judge.
       expect(digests.length, `${record.tapeId} declares no checkpoint`).toBeGreaterThan(0);
     }
   });

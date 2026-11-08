@@ -30,6 +30,8 @@
  * unverified, and a reader is looking at them.
  */
 import { describe, expect, test } from "bun:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { BM07_DEFAULTS, type Bm07Parameters } from "../experiments/bm07/definition.ts";
 import { LQ06_DEFAULTS } from "../experiments/lq06/definition.ts";
 import { evaluateLq06 } from "../experiments/lq06/session.ts";
@@ -40,6 +42,8 @@ import { evaluateLq09 } from "../experiments/lq09/session.ts";
 import { ME01_DEFAULTS } from "../experiments/me01/definition.ts";
 import { ME02_DEFAULTS } from "../experiments/me02/definition.ts";
 import { ME03_DEFAULTS } from "../experiments/me03/definition.ts";
+import type { ScientificResult } from "../experiments/results/types.ts";
+import { validateControlTape } from "../experiments/tapes/schema.ts";
 import { getConstantSet } from "../physics/reference/constants.ts";
 import { cameraMoments } from "../physics/reference/inference/observation.ts";
 import {
@@ -50,6 +54,7 @@ import {
 } from "../physics/reference/massEnergy.ts";
 import { withinTolerance } from "../units/tolerance.ts";
 import { createBm07Recording, measureBm07 } from "../workers/operations/bm07.ts";
+import { parseYaml } from "./provenance/yaml.ts";
 import { loadTeachingTapes, type TeachingTape } from "./teachingTapes.ts";
 
 /** One entry of BM-07's accepted snapshot, as the tape's labels address it. */
@@ -283,39 +288,75 @@ describe("a recorded number agrees with the parameters in force where it was rec
     expect(shares.length).toBeGreaterThan(2);
   });
 
-  test("where the energy went: the two zeros are a cancellation, not a stuck zero", () => {
+  test("where the energy went: every boundary closes the same energy account", () => {
     const t = tape("where-the-energy-went");
-    const step = t.steps.find((s) => s.expected.length > 0);
-    expect(step).toBeDefined();
-    if (!step) return;
-    const snapshot = evaluateMe03({
-      ...ME03_DEFAULTS,
-      ...inForce(t, step.actionIndex),
-    }) as never as Record<string, { status?: string; value?: number } | undefined>;
-    const named: Record<string, string> = {
-      "system energy change": "systemEnergyChange",
-      "system mass change": "systemMassChange",
+    // Read the authored output ids: the reader's shaped rows retain prose labels, which cannot
+    // identify a numerical owner. Every checkpoint is checked, including the nonzero accounts.
+    const authored = validateControlTape(
+      parseYaml(
+        readFileSync(
+          new URL("../../content/experiments/tapes/where-the-energy-went.yaml", import.meta.url),
+          "utf8",
+        ),
+      ),
+    );
+    const first = authored.checkpoints[0];
+    assert.ok(first);
+    const emitted = inForce(t, first.actionIndex).emittedEnergy;
+    assert.ok(typeof emitted === "number" && emitted > 0);
+    const boundaries = new Map<string, ReturnType<typeof evaluateMe03>>();
+    const scalar = (result: ScientificResult): number => {
+      assert.ok(result.status === "value" && typeof result.value === "number");
+      return result.value;
     };
     let compared = 0;
-    for (const recorded of step.expected) {
-      const field = named[recorded.label];
-      expect(field, `${recorded.label} has no ME-03 output named for it`).toBeDefined();
-      const output = snapshot[field as string];
-      expect(output?.status, recorded.label).toBe("value");
-      expect(output?.value, recorded.label).toBe(recorded.value);
-      compared += 1;
+    for (const checkpoint of authored.checkpoints) {
+      const parameters = { ...ME03_DEFAULTS, ...inForce(t, checkpoint.actionIndex) };
+      expect(parameters.emittedEnergy).toBe(emitted);
+      expect(parameters.inputEnergy).toBe(0);
+      expect(parameters.disposition).toBe("retained");
+      const snapshot = evaluateMe03(parameters);
+      boundaries.set(parameters.boundary, snapshot);
+      const outputs: Readonly<Record<string, ScientificResult>> = {
+        energyChange: snapshot.energyChange,
+        massChange: snapshot.massChange,
+        radiationEnergyChange: snapshot.radiationEnergyChange,
+        radiationMassChange: snapshot.radiationMassChange,
+        systemEnergyChange: snapshot.systemEnergyChange,
+        systemMassChange: snapshot.systemMassChange,
+      };
+      const expected = checkpoint.expectedDisplayValues ?? [];
+      expect(expected.some((entry) => entry.outputId === "energyChange")).toBe(true);
+      for (const recorded of expected) {
+        assert.ok(recorded.outputId, `${recorded.label} must name its owner output.`);
+        const result = outputs[recorded.outputId];
+        assert.ok(result, `${recorded.outputId} must be an ME-03 output.`);
+        expect(result.unit).toBe(recorded.unit);
+        expect(recorded.constantSetId).toBe(authored.constantSetId);
+        const actual = scalar(result);
+        if (recorded.value === 0) expect(actual).toBe(0);
+        else expect(withinTolerance(actual, recorded.value, { relative: 1e-12 }).ok).toBe(true);
+        compared += 1;
+      }
     }
-    expect(compared).toBe(2);
-    // NON-VACUITY, and it is the whole reason a recorded zero needs checking: an evaluator that
-    // returned zero for everything would satisfy the two assertions above. At this same state the
-    // BODY's own ledger is not zero, and it is not zero by the paper's own amount: the body loses
-    // the energy it emitted, and mass E/c^2 with it. The system zero is those two cancelling.
-    const emitted = inForce(t, step.actionIndex).emittedEnergy;
-    expect(emitted).toBeGreaterThan(0);
-    expect(snapshot.energyChange?.value).toBe(-(emitted as number));
-    const c = (snapshot.speedOfLight as unknown as number) ?? 0;
-    expect(c).toBeGreaterThan(1e8);
-    expect(snapshot.massChange?.value).toBeCloseTo(-(emitted as number) / (c * c), 30);
+    expect(compared).toBeGreaterThan(0);
+    const body = boundaries.get("body-alone");
+    const radiation = boundaries.get("radiation");
+    const combined = boundaries.get("combined-isolated-system");
+    assert.ok(body && radiation && combined);
+    expect(scalar(body.energyChange)).toBe(-emitted);
+    expect(scalar(radiation.energyChange)).toBe(emitted);
+    expect(scalar(combined.energyChange)).toBe(
+      scalar(body.energyChange) + scalar(radiation.energyChange),
+    );
+    expect(scalar(combined.massChange)).toBe(0);
+    expect(radiation.massChange.status).toBe("not-applicable");
+    expect("value" in radiation.massChange).toBe(false);
+    expect(
+      withinTolerance(scalar(body.massChange), -emitted / body.speedOfLight ** 2, {
+        relative: 1e-12,
+      }).ok,
+    ).toBe(true);
   });
 
   test("the 1906 box: the centre of mass stays put only because the light carries mass", () => {
