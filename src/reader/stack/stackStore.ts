@@ -49,6 +49,9 @@ export type StackFrame = Readonly<{
   /** Scroll offset of the trigger relative to the anchor, as a fraction of viewport height. */
   scrollFraction: number;
   lab: LabReference | null;
+  /** The laboratory opened by this frame, distinct from a laboratory interrupted to reach it.
+   * Empty compactTape/checkpointDigest fields identify a retained owner without an archived tape. */
+  openedLab?: LabReference | null;
 }>;
 
 export type StackState = Readonly<{ frames: readonly StackFrame[] }>;

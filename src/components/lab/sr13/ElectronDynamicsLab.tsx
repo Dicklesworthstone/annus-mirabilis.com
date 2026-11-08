@@ -25,6 +25,7 @@ import type {
   AcceptedSnapshot,
   PublishedResult,
 } from "../../../experiments/store/instanceStore.ts";
+import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
@@ -97,7 +98,14 @@ export function ElectronDynamicsLab({
   title?: string;
 }) {
   const id = useId();
-  const [session] = useState(() => createSr13Session(instanceId ?? `sr13-${id}`, example));
+  const session = useRetainedSession(
+    {
+      experimentId: "sr-13",
+      instanceId: instanceId ?? `sr13-${id}`,
+      sourceDigest: example?.sourceDigest,
+    },
+    (retainedId) => createSr13Session(retainedId, example),
+  );
   const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
   const tapeLink = useLabTapeLink(
@@ -120,8 +128,8 @@ export function ElectronDynamicsLab({
   const gate = usePredictGate("sr-13", SR13_PROMPTS);
   const snapshot = (view.accepted ?? session.getServerSnapshot().accepted) as AcceptedSnapshot;
   const p = snapshot.parameters as Sr13Parameters;
-  const [draft, setDraft] = useState(() => ({ ...example.parameters }));
-  const [typed, setTyped] = useState<Sr13Typed>(() => typedFrom(example.parameters));
+  const [draft, setDraft] = useState(() => ({ ...session.acceptedParameters() }));
+  const [typed, setTyped] = useState<Sr13Typed>(() => typedFrom(session.acceptedParameters()));
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
   /**

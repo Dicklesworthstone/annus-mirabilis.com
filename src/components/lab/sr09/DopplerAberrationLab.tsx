@@ -25,6 +25,7 @@ import type {
   AcceptedSnapshot,
   PublishedResult,
 } from "../../../experiments/store/instanceStore.ts";
+import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
@@ -86,7 +87,14 @@ export function DopplerAberrationLab({
   title?: string;
 }) {
   const id = useId();
-  const [session] = useState(() => createSr09Session(instanceId ?? `sr09-${id}`, example));
+  const session = useRetainedSession(
+    {
+      experimentId: "sr-09",
+      instanceId: instanceId ?? `sr09-${id}`,
+      sourceDigest: example?.sourceDigest,
+    },
+    (retainedId) => createSr09Session(retainedId, example),
+  );
   const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
   const tapeLink = useLabTapeLink(
@@ -103,10 +111,10 @@ export function DopplerAberrationLab({
   const gate = usePredictGate("sr-09", SR09_PROMPTS);
   const snapshot = (view.accepted ?? session.getServerSnapshot().accepted) as AcceptedSnapshot;
   const p = snapshot.parameters as Sr09Parameters;
-  const [draft, setDraft] = useState(() => ({ ...example.parameters }));
+  const [draft, setDraft] = useState(() => ({ ...session.acceptedParameters() }));
   // A number field hands "" for a cleared field or for "abc"; stored as Number(value) that was 0,
   // applied as β = 0 or θ = 0 without a word. The text is read on Apply instead.
-  const [typed, setTyped] = useState(() => typedFrom(example.parameters));
+  const [typed, setTyped] = useState(() => typedFrom(session.acceptedParameters()));
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
   /**

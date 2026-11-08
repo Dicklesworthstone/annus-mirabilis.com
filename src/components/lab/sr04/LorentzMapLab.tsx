@@ -35,6 +35,7 @@ import {
 } from "../../../experiments/sr04/session.ts";
 import { SR04_TAPE } from "../../../experiments/sr04/tape.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
+import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
@@ -124,8 +125,13 @@ export function LorentzMapLab({
   title?: string | undefined;
 }) {
   const id = useId();
-  const [session] = useState(() =>
-    createSr04Session(instanceId ?? `sr04-${id}`, example?.parameters ?? SR04_DEFAULTS),
+  const session = useRetainedSession(
+    {
+      experimentId: "sr-04",
+      instanceId: instanceId ?? `sr04-${id}`,
+      sourceDigest: example?.sourceDigest,
+    },
+    (retainedId) => createSr04Session(retainedId, example?.parameters ?? SR04_DEFAULTS),
   );
   const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).

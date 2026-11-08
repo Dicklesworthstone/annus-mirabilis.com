@@ -27,6 +27,7 @@ import { createSr12Session, type PreparedSr12Example } from "../../../experiment
 import { SR12_TAPE } from "../../../experiments/sr12/tape.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
+import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { display, fixed, identity, result, sentenceNumber } from "../presentation.ts";
@@ -96,7 +97,14 @@ export function ChargeCurrentLab({
   title?: string;
 }) {
   const id = useId();
-  const [session] = useState(() => createSr12Session(instanceId ?? `sr12-${id}`, example));
+  const session = useRetainedSession(
+    {
+      experimentId: "sr-12",
+      instanceId: instanceId ?? `sr12-${id}`,
+      sourceDigest: example?.sourceDigest,
+    },
+    (retainedId) => createSr12Session(retainedId, example),
+  );
   const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
   const tapeLink = useLabTapeLink(
@@ -117,8 +125,8 @@ export function ChargeCurrentLab({
   );
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("sr-12", SR12_PROMPTS);
-  const [draft, setDraft] = useState<Sr12Parameters>(() => ({ ...example.parameters }));
-  const [typed, setTyped] = useState<Sr12Typed>(() => typedFrom(example.parameters));
+  const [draft, setDraft] = useState<Sr12Parameters>(() => ({ ...session.acceptedParameters() }));
+  const [typed, setTyped] = useState<Sr12Typed>(() => typedFrom(session.acceptedParameters()));
   const [error, setError] = useState("");
   /**
    * The refusal OBJECT beside the sentence, so the chrome can mark the readouts stale (am-m79c).

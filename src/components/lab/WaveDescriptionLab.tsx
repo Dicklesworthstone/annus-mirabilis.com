@@ -25,6 +25,7 @@ import {
 } from "../../experiments/results/applyFailure.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
+import { useRetainedSession } from "../../experiments/store/retainedSession.tsx";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
@@ -137,10 +138,18 @@ export function WaveDescriptionLab({
   title = "Wave description and energy spreading laboratory",
 }: WaveDescriptionLabProps) {
   const id = useId();
-  const [session] = useState(() =>
-    createLq01Session(instanceId ?? `lq01-${id}`, example, createLq01BrowserChannel),
+  const session = useRetainedSession(
+    {
+      experimentId: "lq-01",
+      instanceId: instanceId ?? `lq01-${id}`,
+      sourceDigest: example.sourceDigest,
+    },
+    (retainedId) => createLq01Session(retainedId, example, createLq01BrowserChannel),
   );
-  const [workerTape] = useState(() => createLq01TapeBinding(example, createLq01BrowserChannel));
+  const workerTape = useMemo(
+    () => createLq01TapeBinding(example, createLq01BrowserChannel),
+    [example],
+  );
   const view = useInstrumentView(session);
   const snapshot =
     view.accepted ??

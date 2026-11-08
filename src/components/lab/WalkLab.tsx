@@ -28,6 +28,7 @@ import {
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
+import { useRetainedSession } from "../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
@@ -87,10 +88,15 @@ export function WalkLab({
   /** False for the optional second laboratory, so the page carries the caption readings once. */
   readings?: boolean;
 }) {
-  const id = useId(),
-    [session] = useState(() =>
-      createBm05Session(instanceId ?? `bm05-${id}`, example, createBm05BrowserChannel),
-    );
+  const id = useId();
+  const session = useRetainedSession(
+    {
+      experimentId: "bm-05",
+      instanceId: instanceId ?? `bm05-${id}`,
+      sourceDigest: example?.sourceDigest,
+    },
+    (retainedId) => createBm05Session(retainedId, example, createBm05BrowserChannel),
+  );
   const serverAccepted = session.getServerSnapshot().accepted;
   if (!serverAccepted) {
     throw new Error("Missing accepted walk snapshot");
@@ -110,7 +116,7 @@ export function WalkLab({
     hostKind === "host-accepted" &&
     walkExecutionKind(snapshot.outputs, false) === "frankensim-accepted";
   const executionKind = drawnByFrankenSim ? "frankensim-accepted" : hostKind;
-  const [draft, setDraft] = useState(() => toWalkDraft(example.parameters)),
+  const [draft, setDraft] = useState(() => toWalkDraft(session.acceptedParameters())),
     [ready, setReady] = useState(false),
     [dirty, setDirty] = useState(false),
     /**

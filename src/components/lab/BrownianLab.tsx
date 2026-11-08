@@ -32,6 +32,7 @@ import {
   failureFromThrown,
 } from "../../experiments/results/applyFailure.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
+import { useRetainedSession } from "../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { SessionResultWeave } from "../../reader/weave/SessionResultWeave.tsx";
 import { BM06_READER_WEAVE } from "../../reader/weave/spreadingPassages.ts";
@@ -77,8 +78,13 @@ export function BrownianLab({
   externalDiffusivitySource?: ExternalDiffusivitySource;
 }) {
   const id = useId();
-  const [session] = useState(() =>
-    createBm06Session(instanceId ?? `bm06-${id}`, example, createBm06BrowserChannel),
+  const session = useRetainedSession(
+    {
+      experimentId: "bm-06",
+      instanceId: instanceId ?? `bm06-${id}`,
+      sourceDigest: example?.sourceDigest,
+    },
+    (retainedId) => createBm06Session(retainedId, example, createBm06BrowserChannel),
   );
   const serverAccepted = session.getServerSnapshot().accepted;
   if (!serverAccepted) {
@@ -97,7 +103,7 @@ export function BrownianLab({
   const gridKind = gridExecutionKind(snapshot.outputs, snapshot === serverAccepted);
   const gridByFrankenSim = gridKind === "frankensim-accepted";
   const p = snapshot.parameters as Bm06Parameters;
-  const [draft, setDraft] = useState(() => toDraft(example.parameters));
+  const [draft, setDraft] = useState(() => toDraft(session.acceptedParameters()));
   const [ready, setReady] = useState(false),
     [dirty, setDirty] = useState(false);
   const [failure, setFailure] = useState<ApplyFailure | null>(null),

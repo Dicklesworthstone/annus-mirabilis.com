@@ -30,6 +30,7 @@ import {
 } from "../../../experiments/results/applyFailure.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
+import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
@@ -104,9 +105,9 @@ export function IonizationLab({
 }: IonizationLabProps) {
   const uid = useId();
   const labInstanceId = instanceId ?? `lq09-${uid}`;
-  const session = useMemo(
-    () => createLq09Session(labInstanceId, example),
-    [example, labInstanceId],
+  const session = useRetainedSession(
+    { experimentId: "lq-09", instanceId: labInstanceId, sourceDigest: example?.sourceDigest },
+    (retainedId) => createLq09Session(retainedId, example),
   );
   /**
    * A shared ?tape= link restores through this laboratory's own session (dispatch 335). No draft needs

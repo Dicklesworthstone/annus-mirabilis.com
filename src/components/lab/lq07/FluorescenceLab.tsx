@@ -28,6 +28,7 @@ import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabT
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { refusalSentence } from "../../../experiments/results/refusalSentence.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
+import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
@@ -58,8 +59,13 @@ export function FluorescenceLab({
   title?: string | undefined;
 }) {
   const id = useId();
-  const [session] = useState(() =>
-    createLq07Session(instanceId ?? `lq07-${id}`, example?.parameters ?? LQ07_DEFAULTS),
+  const session = useRetainedSession(
+    {
+      experimentId: "lq-07",
+      instanceId: instanceId ?? `lq07-${id}`,
+      sourceDigest: example?.sourceDigest,
+    },
+    (retainedId) => createLq07Session(retainedId, example?.parameters ?? LQ07_DEFAULTS),
   );
 
   const view = useInstrumentView(session);

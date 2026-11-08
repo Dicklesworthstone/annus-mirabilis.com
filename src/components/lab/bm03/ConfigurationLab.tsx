@@ -28,6 +28,7 @@ import {
   failureCode,
   failureFromThrown,
 } from "../../../experiments/results/applyFailure.ts";
+import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
 import { fixed, identity, numberText, readablePowers, sentenceNumber } from "../presentation.ts";
@@ -70,8 +71,13 @@ export function ConfigurationLab({
   readings?: boolean;
 }) {
   const id = useId();
-  const [session] = useState(() =>
-    createBm03Session(instanceId ?? `bm03-${id}`, example?.parameters ?? BM03_DEFAULTS),
+  const session = useRetainedSession(
+    {
+      experimentId: "bm-03",
+      instanceId: instanceId ?? `bm03-${id}`,
+      sourceDigest: example?.sourceDigest,
+    },
+    (retainedId) => createBm03Session(retainedId, example?.parameters ?? BM03_DEFAULTS),
   );
 
   const view = useInstrumentView(session);

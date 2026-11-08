@@ -39,7 +39,12 @@ import { loadStepsBody, unmountStepsConstructions } from "./stepsBody.ts";
 import "./actions/kindRegistration.ts";
 import "../equations/missingStep/register.ts";
 import { resolveOpenParam } from "./stack/history.ts";
-import { closeDirectOpenDialog, openFromSearch, openFromTrigger } from "./stack/mountDirectOpen.ts";
+import {
+  closeDirectOpenDialog,
+  openFromSearch,
+  openFromTrigger,
+  retainReaderLabSessions,
+} from "./stack/mountDirectOpen.ts";
 
 type Props = {
   registry: ReaderRegistry;
@@ -88,6 +93,7 @@ export function ReaderController(props: Props) {
     const dialogEl = root.querySelector<HTMLDialogElement>("[data-clarification-dialog]");
     const announcementEl = root.querySelector<HTMLElement>("[data-reader-announcement]");
     if (!dialogEl || !announcementEl) return;
+    const releaseLabSessions = retainReaderLabSessions(document);
     const dialog = dialogEl;
     const announcement = announcementEl;
     const detailControls = [...root.querySelectorAll<HTMLSelectElement>("[data-detail-control]")];
@@ -702,6 +708,7 @@ export function ReaderController(props: Props) {
       root.removeEventListener("toggle", toggleSteps, true);
       dismissal.abort();
       closeDirectOpenDialog(document);
+      releaseLabSessions();
       unmountLessonConstructions();
       unmountStepsConstructions();
       placeApply(null);

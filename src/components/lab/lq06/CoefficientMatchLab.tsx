@@ -27,6 +27,7 @@ import {
 } from "../../../experiments/results/applyFailure.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
+import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { fixed, identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
@@ -137,9 +138,9 @@ export function CoefficientMatchLab({
 }: CoefficientMatchLabProps) {
   const uid = useId();
   const labInstanceId = instanceId ?? `lq06-${uid}`;
-  const session = useMemo(
-    () => createLq06Session(labInstanceId, example),
-    [example, labInstanceId],
+  const session = useRetainedSession(
+    { experimentId: "lq-06", instanceId: labInstanceId, sourceDigest: example?.sourceDigest },
+    (retainedId) => createLq06Session(retainedId, example),
   );
 
   const snapshot = useInstrumentView(session);

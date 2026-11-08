@@ -33,6 +33,7 @@ import {
 } from "../../../experiments/results/applyFailure.ts";
 import { statusMessage } from "../../../experiments/results/explanations.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
+import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
@@ -150,8 +151,9 @@ export function SpectrumLab({
 }) {
   const id = useId();
   const labInstanceId = instanceId ?? `lq03-${id}`;
-  const [session] = useState(() =>
-    createLq03Session(labInstanceId, example?.parameters ?? LQ03_DEFAULTS),
+  const session = useRetainedSession(
+    { experimentId: "lq-03", instanceId: labInstanceId, sourceDigest: example?.sourceDigest },
+    (retainedId) => createLq03Session(retainedId, example?.parameters ?? LQ03_DEFAULTS),
   );
   const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).

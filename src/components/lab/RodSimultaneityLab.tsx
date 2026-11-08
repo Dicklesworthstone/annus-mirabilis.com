@@ -19,6 +19,7 @@ import { decodeSr03Settings } from "../../experiments/sr03/permalink.ts";
 import { sr03ReadingsView } from "../../experiments/sr03/readings.ts";
 import { createSr03Session, type PreparedSr03Example } from "../../experiments/sr03/session.ts";
 import { createSr03TapeBinding, createSr03WalkthroughTarget } from "../../experiments/sr03/tape.ts";
+import { useRetainedSession } from "../../experiments/store/retainedSession.tsx";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
@@ -109,10 +110,18 @@ export function RodSimultaneityLab({
   restoreFromLocation = true,
 }: RodSimultaneityLabProps) {
   const id = useId();
-  const [session] = useState(() =>
-    createSr03Session(instanceId ?? `sr03-${id}`, example, createSr03BrowserChannel),
+  const session = useRetainedSession(
+    {
+      experimentId: "sr-03",
+      instanceId: instanceId ?? `sr03-${id}`,
+      sourceDigest: example?.sourceDigest,
+    },
+    (retainedId) => createSr03Session(retainedId, example, createSr03BrowserChannel),
   );
-  const [workerTape] = useState(() => createSr03TapeBinding(example, createSr03BrowserChannel));
+  const workerTape = useMemo(
+    () => createSr03TapeBinding(example, createSr03BrowserChannel),
+    [example],
+  );
   const view = useInstrumentView(session);
   const snapshot =
     view.accepted ??
@@ -120,7 +129,9 @@ export function RodSimultaneityLab({
     (session.getSnapshot().accepted as NonNullable<typeof view.accepted>);
   const p = (snapshot.parameters ?? example.parameters) as unknown as Sr03Parameters;
 
-  const [draft, setDraftState] = useState<Sr03Draft>(() => toSr03Draft(example.parameters));
+  const [draft, setDraftState] = useState<Sr03Draft>(() =>
+    toSr03Draft(session.acceptedParameters()),
+  );
   const draftRevision = useRef(0);
   const walkthroughDraftRevision = useRef(0);
   const setDraft = useCallback((next: Sr03Draft) => {

@@ -29,6 +29,7 @@ import {
 import { SR08_TAPE } from "../../../experiments/sr08/tape.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
+import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { display, fixed, identity, result, sentenceNumber } from "../presentation.ts";
@@ -114,7 +115,14 @@ export function FieldFrameChangeLab({
   title?: string;
 }) {
   const id = useId();
-  const [session] = useState(() => createSr08Session(instanceId ?? `sr08-${id}`, example));
+  const session = useRetainedSession(
+    {
+      experimentId: "sr-08",
+      instanceId: instanceId ?? `sr08-${id}`,
+      sourceDigest: example?.sourceDigest,
+    },
+    (retainedId) => createSr08Session(retainedId, example),
+  );
   const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
   const tapeLink = useLabTapeLink(
@@ -135,10 +143,10 @@ export function FieldFrameChangeLab({
   );
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("sr-08", SR08_PROMPTS);
-  const [draft, setDraft] = useState<Sr08Parameters>(() => ({ ...example.parameters }));
+  const [draft, setDraft] = useState<Sr08Parameters>(() => ({ ...session.acceptedParameters() }));
   // The three typed fields keep the reader's text and are read on Apply, so a cleared field is
   // refused by name rather than becoming 0 (dispatch 165).
-  const [typed, setTyped] = useState<Sr08Typed>(() => typedFrom(example.parameters));
+  const [typed, setTyped] = useState<Sr08Typed>(() => typedFrom(session.acceptedParameters()));
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
   /**

@@ -48,6 +48,7 @@ import type {
   AcceptedSnapshot,
   PublishedResult,
 } from "../../../experiments/store/instanceStore.ts";
+import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
@@ -128,8 +129,13 @@ export function EntropyWorkbenchLab({
   title = "The radiation entropy workbench",
 }: EntropyWorkbenchLabProps) {
   const id = useId();
-  const [session] = useState(() =>
-    createLq04Session(instanceId ?? `lq04-${id}`, example?.parameters ?? LQ04_DEFAULTS),
+  const session = useRetainedSession(
+    {
+      experimentId: "lq-04",
+      instanceId: instanceId ?? `lq04-${id}`,
+      sourceDigest: example?.sourceDigest,
+    },
+    (retainedId) => createLq04Session(retainedId, example?.parameters ?? LQ04_DEFAULTS),
   );
   const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).

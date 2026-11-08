@@ -23,6 +23,7 @@ import type {
   AcceptedSnapshot,
   PublishedResult,
 } from "../../../experiments/store/instanceStore.ts";
+import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
@@ -95,7 +96,14 @@ export function MovingMirrorLab({
   title?: string;
 }) {
   const id = useId();
-  const [session] = useState(() => createSr11Session(instanceId ?? `sr11-${id}`, example));
+  const session = useRetainedSession(
+    {
+      experimentId: "sr-11",
+      instanceId: instanceId ?? `sr11-${id}`,
+      sourceDigest: example?.sourceDigest,
+    },
+    (retainedId) => createSr11Session(retainedId, example),
+  );
   const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
   const tapeLink = useLabTapeLink(

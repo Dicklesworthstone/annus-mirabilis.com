@@ -3,6 +3,8 @@ import { createElement } from "react";
 import { flushSync } from "react-dom";
 import { createRoot, type Root } from "react-dom/client";
 import { createModalCloseButton, makeDismissible } from "../../a11y/modal/dismiss.ts";
+import { RetainedSessionProvider } from "../../experiments/store/retainedSession.tsx";
+import { createSessionRetention } from "../../experiments/store/sessionRetention.ts";
 import { Compass } from "./Compass.tsx";
 import { returnToInterruptedSentence } from "./focus.ts";
 import {
@@ -11,7 +13,7 @@ import {
   resolveOpenParam,
   serializeStackState,
 } from "./history.ts";
-import { EMPTY_STACK_STATE, type StackFrame, topFrame } from "./stackStore.ts";
+import { EMPTY_STACK_STATE, type LabReference, type StackFrame, topFrame } from "./stackStore.ts";
 
 const DIALOG_ATTR = "data-instrument-clarification-dialog";
 const MOUNT_ATTR = "data-instrument-clarification-mount";
@@ -24,7 +26,55 @@ type Mounted = {
   dismissal: AbortController;
 };
 const mounted = new WeakMap<Document, Mounted>();
+const triggerLabs = new WeakMap<HTMLElement, LabReference>();
+type SessionScope = {
+  path: string;
+  cache: ReturnType<typeof createSessionRetention>;
+  owners: number;
+  releaseTicket: number;
+  dispose(): void;
+};
+const sessionScopes = new WeakMap<Document, SessionScope>();
 let triggerNumber = 0;
+
+function sessionScope(doc: Document): SessionScope {
+  const path = doc.defaultView?.location.pathname ?? "";
+  const existing = sessionScopes.get(doc);
+  if (existing?.path === path) return existing;
+  existing?.dispose();
+  const cache = createSessionRetention();
+  const scope: SessionScope = {
+    path,
+    cache,
+    owners: 0,
+    releaseTicket: 0,
+    dispose() {
+      cache.dispose();
+      doc.defaultView?.removeEventListener("pagehide", scope.dispose);
+      if (sessionScopes.get(doc) === scope) sessionScopes.delete(doc);
+    },
+  };
+  sessionScopes.set(doc, scope);
+  doc.defaultView?.addEventListener("pagehide", scope.dispose);
+  return scope;
+}
+
+/** A real reader-route owner, with deferred teardown so StrictMode probes retain the scope. */
+export function retainReaderLabSessions(doc: Document): () => void {
+  const scope = sessionScope(doc);
+  scope.owners++;
+  scope.releaseTicket++;
+  let released = false;
+  return () => {
+    if (released) return;
+    released = true;
+    scope.owners--;
+    const ticket = ++scope.releaseTicket;
+    queueMicrotask(() => {
+      if (scope.owners === 0 && scope.releaseTicket === ticket) scope.dispose();
+    });
+  };
+}
 
 function ensureDialog(doc: Document) {
   let dialog = doc.querySelector<HTMLDialogElement>(`[${DIALOG_ATTR}]`);
@@ -89,6 +139,7 @@ export function openFromTrigger(doc: Document, trigger: HTMLElement, raw: string
       question:
         trigger.closest(".reader-passage")?.querySelector(".passage-question")?.textContent ??
         "Why does this step follow?",
+      openedLab: triggerLabs.get(trigger) ?? null,
       returnTo: {
         anchor,
         face: reader?.dataset.view ?? "reading",
@@ -100,7 +151,7 @@ export function openFromTrigger(doc: Document, trigger: HTMLElement, raw: string
         formId: null,
         triggerId: trigger.id,
         scrollFraction: trigger.getBoundingClientRect().top / Math.max(1, win.innerHeight),
-        lab: null,
+        lab: mounted.get(doc)?.dialog.open ? (mounted.get(doc)?.frame.openedLab ?? null) : null,
       },
     },
   );
@@ -161,6 +212,7 @@ export function openFromSearch(doc: Document, search: string): boolean {
           triggerId: "",
           scrollFraction: 0.15,
           lab: null,
+          openedLab: null,
         };
   const { dialog, mount } = ensureDialog(doc);
   dialog.setAttribute("aria-label", frame.title);
@@ -198,14 +250,83 @@ export function openFromSearch(doc: Document, search: string): boolean {
     closeButton: dialog.querySelector<HTMLButtonElement>("[data-clarification-close]"),
     onDismiss: () => onReturn(),
   });
-  mounted.set(doc, { root, dialog, frame, onCancel, dismissal });
+  const opening = { root, dialog, frame, onCancel, dismissal };
+  mounted.set(doc, opening);
   dialog.addEventListener("cancel", onCancel);
+  const instanceId = `${resolved.kind}:${resolved.rawId}`;
   const child = renderKind({
     parsed: resolved.parsedId,
-    instanceId: `${resolved.kind}:${resolved.rawId}`,
+    instanceId,
   });
+  const scope = sessionScope(doc);
+  const placementKey = JSON.stringify([
+    scope.path,
+    resolved.kind,
+    resolved.rawId,
+    frame.anchor,
+    frame.triggerId,
+  ]);
+  const onReference = (reference: LabReference) => {
+    if (mounted.get(doc) !== opening) return;
+    opening.frame = { ...opening.frame, openedLab: reference };
+    const trigger = frame.triggerId ? doc.getElementById(frame.triggerId) : null;
+    if (trigger) triggerLabs.set(trigger, reference);
+    const current = deserializeStackState(win.history.state?.annusClarification?.stack);
+    const top = current && topFrame(current);
+    if (
+      top &&
+      top.clarification.kind === resolved.kind &&
+      top.clarification.id === resolved.rawId &&
+      top.triggerId === frame.triggerId
+    ) {
+      win.history.replaceState(
+        {
+          ...win.history.state,
+          annusClarification: {
+            ...win.history.state?.annusClarification,
+            stack: serializeStackState({
+              frames: [...current.frames.slice(0, -1), { ...top, openedLab: reference }],
+            }),
+          },
+        },
+        "",
+      );
+    } else if (
+      new URLSearchParams(win.location.search).get("open") === `${resolved.kind}:${resolved.rawId}`
+    ) {
+      // A direct link has no pushed frame yet. Record its owner without adding a history entry.
+      win.history.replaceState(
+        {
+          ...win.history.state,
+          annusClarification: {
+            stack: serializeStackState({ frames: [opening.frame] }),
+            pushed: false,
+          },
+        },
+        "",
+      );
+    }
+  };
   flushSync(() =>
-    root.render(createElement("div", null, createElement(Compass, { frame, onReturn }), child)),
+    root.render(
+      createElement(
+        "div",
+        null,
+        createElement(Compass, { frame, onReturn }),
+        createElement(
+          RetainedSessionProvider,
+          {
+            key: placementKey,
+            cache: scope.cache,
+            placementKey,
+            instanceId,
+            previous: frame.openedLab ?? null,
+            onReference,
+          },
+          child,
+        ),
+      ),
+    ),
   );
   if (!dialog.open) dialog.showModal();
   mount.querySelector<HTMLElement>("[data-clarification-heading]")?.focus({ preventScroll: true });

@@ -29,6 +29,7 @@ import { createSr02Session, type PreparedSr02Example } from "../../experiments/s
 import { SR02_TAPE } from "../../experiments/sr02/tape.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot, PublishedResult } from "../../experiments/store/instanceStore.ts";
+import { useRetainedSession } from "../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
@@ -112,7 +113,14 @@ export function MagnetConductorLab({
   title?: string;
 }) {
   const id = useId();
-  const [session] = useState(() => createSr02Session(instanceId ?? `sr02-${id}`, example));
+  const session = useRetainedSession(
+    {
+      experimentId: "sr-02",
+      instanceId: instanceId ?? `sr02-${id}`,
+      sourceDigest: example?.sourceDigest,
+    },
+    (retainedId) => createSr02Session(retainedId, example),
+  );
   const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
   const tapeLink = useLabTapeLink(
@@ -141,10 +149,10 @@ export function MagnetConductorLab({
     forceMagnet === null || forceConductor === null || fieldConductor === null
       ? "the two descriptions' forces are not computed at these settings."
       : `with the conductor moving at ${sentenceNumber(p.speed)} m/s, described from the magnet's rest frame the charge feels a magnetic force of ${sentenceNumber(forceMagnet)} N; described from the conductor's rest frame an electric field of ${sentenceNumber(fieldConductor)} V/m gives it ${sentenceNumber(forceConductor)} N.`;
-  const [draft, setDraft] = useState(() => ({ ...example.parameters }));
+  const [draft, setDraft] = useState(() => ({ ...session.acceptedParameters() }));
   // A number field hands "" for a cleared field or for "abc"; stored as Number(value) that was 0,
   // applied as a speed of 0 m/s without a word. The text is read on Apply instead.
-  const [typed, setTyped] = useState(() => typedFrom(example.parameters));
+  const [typed, setTyped] = useState(() => typedFrom(session.acceptedParameters()));
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
   /**

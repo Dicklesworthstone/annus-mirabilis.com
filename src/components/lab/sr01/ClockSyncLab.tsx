@@ -25,6 +25,7 @@ import {
 } from "../../../experiments/sr01/session.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
+import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { withScripts } from "../subscripts.tsx";
 import "../labControls.css";
@@ -72,8 +73,13 @@ export function ClockSyncLab({
   title?: string | undefined;
 }) {
   const id = useId();
-  const [session] = useState(() =>
-    createSr01Session(instanceId ?? `sr01-${id}`, example?.parameters ?? SR01_DEFAULTS),
+  const session = useRetainedSession(
+    {
+      experimentId: "sr-01",
+      instanceId: instanceId ?? `sr01-${id}`,
+      sourceDigest: example?.sourceDigest,
+    },
+    (retainedId) => createSr01Session(retainedId, example?.parameters ?? SR01_DEFAULTS),
   );
 
   const view = useInstrumentView(session);

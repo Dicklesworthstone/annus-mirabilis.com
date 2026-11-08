@@ -27,6 +27,7 @@ import type { RequestRefusal } from "../../experiments/results/refusals.ts";
 import type { ScientificResult } from "../../experiments/results/types.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot, PublishedResult } from "../../experiments/store/instanceStore.ts";
+import { useRetainedSession } from "../../experiments/store/retainedSession.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { KEPT_RESULT } from "./keptResult.ts";
 import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
@@ -206,7 +207,14 @@ export function CoefficientLab({
   restoreSettings?: boolean;
 }) {
   const id = useId();
-  const [session] = useState(() => createMe02Session(instanceId ?? `me02-${id}`, example));
+  const session = useRetainedSession(
+    {
+      experimentId: "me-02",
+      instanceId: instanceId ?? `me02-${id}`,
+      sourceDigest: example?.sourceDigest,
+    },
+    (retainedId) => createMe02Session(retainedId, example),
+  );
   const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
   const tapeLink = useLabTapeLink(
@@ -225,10 +233,10 @@ export function CoefficientLab({
   }
   const snapshot = accepted;
   const p = snapshot.parameters as Me02Parameters;
-  const [draft, setDraft] = useState(() => ({ ...example.parameters }));
+  const [draft, setDraft] = useState(() => ({ ...session.acceptedParameters() }));
   // A number field hands "" for a cleared field or for "abc"; stored as Number(value) that was 0,
   // applied as v/c = 0 without a word. The text is read on Apply instead.
-  const [typed, setTyped] = useState(() => typedFrom(example.parameters));
+  const [typed, setTyped] = useState(() => typedFrom(session.acceptedParameters()));
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
   /**

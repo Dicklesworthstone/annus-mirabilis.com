@@ -30,6 +30,24 @@ function frame(overrides: Partial<StackFrame> = {}): StackFrame {
   };
 }
 
+test("history preserves a target's actual owner separately from its interrupted lab and rejects malformed references", () => {
+  const openedLab = {
+    instanceId: "instrument-view:lq-08/retained-1-1",
+    experimentId: "lq-08",
+    modelIdentity: `source:sha256:${"a".repeat(64)}`,
+    runId: "instrument-view:lq-08/retained-1-1/run/2",
+    checkpointDigest: "",
+    compactTape: "",
+  };
+  const state = { frames: [frame({ openedLab })] };
+  expect(deserializeStackState(serializeStackState(state))).toEqual(state);
+  expect(deserializeStackState({ frames: [frame({ openedLab: null })] })).not.toBeNull();
+  expect(deserializeStackState({ frames: [frame()] })).not.toBeNull();
+  expect(
+    deserializeStackState({ frames: [{ ...frame(), openedLab: { ...openedLab, runId: 3 } }] }),
+  ).toBeNull();
+});
+
 describe("parseOpenParam: kind:id, first colon, 200-character bound", () => {
   test("splits on the first colon", () => {
     expect(parseOpenParam("foundation:mean-variance-rms")).toEqual({

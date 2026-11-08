@@ -70,6 +70,7 @@ export type OpenClarificationInput = Readonly<{
   id: string;
   question: string;
   returnTo: ReturnToContext;
+  openedLab?: LabReference | null;
 }>;
 
 export type OpenClarificationOutcome =
@@ -125,6 +126,7 @@ export function openClarification(
     triggerId: input.returnTo.triggerId,
     scrollFraction: input.returnTo.scrollFraction,
     lab: input.returnTo.lab,
+    ...(input.openedLab === undefined ? {} : { openedLab: input.openedLab }),
   };
   const { state, replacedDeepest } = pushFrame(stack, frame);
   return {
@@ -185,7 +187,8 @@ function isStackFrame(value: unknown): value is StackFrame {
     typeof value.triggerId === "string" &&
     typeof value.scrollFraction === "number" &&
     Number.isFinite(value.scrollFraction) &&
-    (value.lab === null || isLabReference(value.lab))
+    (value.lab === null || isLabReference(value.lab)) &&
+    (value.openedLab === undefined || value.openedLab === null || isLabReference(value.openedLab))
   );
 }
 

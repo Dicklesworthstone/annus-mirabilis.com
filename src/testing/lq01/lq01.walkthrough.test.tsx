@@ -1,5 +1,5 @@
 import { afterAll, afterEach, beforeEach, expect, test } from "bun:test";
-import { act } from "react";
+import { act, type ReactNode } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { WaveDescriptionLab } from "../../components/lab/WaveDescriptionLab.tsx";
 import { LQ01_DEFAULTS } from "../../experiments/lq01/definition.ts";
@@ -7,6 +7,11 @@ import type { PreparedLq01Example } from "../../experiments/lq01/session.ts";
 import { createLq01TapeBinding } from "../../experiments/lq01/tape.ts";
 import { encodeTapePermalink } from "../../experiments/permalink/codec.ts";
 import { draftTapeForSettings } from "../../experiments/permalink/draftTape.ts";
+import { RetainedSessionProvider } from "../../experiments/store/retainedSession.tsx";
+import {
+  createSessionRetention,
+  type SessionRetention,
+} from "../../experiments/store/sessionRetention.ts";
 import rawExample from "../../generated/lq01-example.json";
 import { createLq01Host } from "../../workers/host/lq01Host.ts";
 import { TestLogger } from "../log/logger.ts";
@@ -19,6 +24,7 @@ let root: Root | null = null;
 let workerDescriptor: PropertyDescriptor | undefined;
 let workers: HostWorker[];
 let holdLive: boolean;
+let caches: SessionRetention[];
 
 /** Browser transport substitute only: the production host validates and calculates every result. */
 class HostWorker {
@@ -70,6 +76,7 @@ beforeEach(async () => {
   await installDom();
   workers = [];
   holdLive = false;
+  caches = [];
   workerDescriptor = Object.getOwnPropertyDescriptor(globalThis, "Worker");
   Object.defineProperty(globalThis, "Worker", {
     configurable: true,
@@ -81,17 +88,48 @@ afterEach(async () => {
   await act(async () => root?.unmount());
   root = null;
   for (const worker of workers) worker.terminate();
+  for (const cache of caches) cache.dispose();
   if (workerDescriptor) Object.defineProperty(globalThis, "Worker", workerDescriptor);
   else Reflect.deleteProperty(globalThis, "Worker");
   await uninstallDom();
 });
 
-async function mount(search: string) {
+async function mount(
+  search: string,
+  element: ReactNode = <WaveDescriptionLab example={example} />,
+) {
   window.history.replaceState({}, "", `/lab/lq-01/${search}`);
   const host = document.createElement("div");
   document.body.append(host);
   root = createRoot(host);
-  await act(async () => root?.render(<WaveDescriptionLab example={example} />));
+  await act(async () => root?.render(element));
+}
+
+function retainedLab(cache: SessionRetention, restoreFromLocation = false) {
+  return (
+    <RetainedSessionProvider
+      cache={cache}
+      placementKey="lq01-s0-wave-success"
+      instanceId="wave-reader-return"
+      previous={null}
+      onReference={() => {}}
+    >
+      <WaveDescriptionLab
+        instanceId="wave-reader-return"
+        example={example}
+        restoreFromLocation={restoreFromLocation}
+      />
+    </RetainedSessionProvider>
+  );
+}
+
+function acceptedIdentity() {
+  return [
+    "data-instance-id",
+    "data-run-id",
+    "data-snapshot-version",
+    "data-accepted-action-index",
+  ].map((name) => [name, lab()?.getAttribute(name)]);
 }
 
 async function until(check: () => boolean) {
@@ -193,6 +231,75 @@ test("a valid walkthrough waits for explicit replay and keeps newer typed entrie
   expect(document.body.textContent).not.toContain("Your newer entries are still in the form");
   logger.log({
     testId: "late-acceptance-retains-newer-draft",
+    instrumentId: "lq-01",
+    outcome: "passed",
+  });
+});
+
+test("returning to a retained wave laboratory preserves its accepted result, identity, and form without a worker", async () => {
+  const cache = createSessionRetention();
+  caches.push(cache);
+  await mount("", retainedLab(cache));
+  await click("Delay one wave by half a wave");
+  await until(() => document.querySelector('[data-output="centerIntensity"]')?.textContent === "0");
+  const accepted = acceptedIdentity();
+  expect(input("delta").value).toBe(String(Math.PI));
+  expect(workers).toHaveLength(1);
+
+  await act(async () => root?.render(null));
+  expect(workers[0]?.disposed).toBe(true);
+  expect(cache.idleSize()).toBe(1);
+  await act(async () => root?.render(retainedLab(cache)));
+  expect(acceptedIdentity()).toEqual(accepted);
+  expect(document.querySelector('[data-output="centerIntensity"]')?.textContent).toBe("0");
+  expect(input("delta").value).toBe(String(Math.PI));
+  expect(lab()?.getAttribute("data-pending")).toBe("false");
+  expect(workers).toHaveLength(1);
+
+  // The stopped owner can calculate again after returning; the old worker stays terminated.
+  await click("Both waves equal and in step");
+  await until(() => document.querySelector('[data-output="centerIntensity"]')?.textContent === "4");
+  expect(workers).toHaveLength(2);
+  expect(workers[0]?.disposed).toBe(true);
+  expect(workers[1]?.disposed).toBe(false);
+  logger.log({
+    testId: "accepted-owner-survives-return",
+    instrumentId: "lq-01",
+    outcome: "passed",
+  });
+});
+
+test("closing during a held checkpoint stops the worker and returns to the prior accepted result", async () => {
+  const cache = createSessionRetention();
+  caches.push(cache);
+  holdLive = true;
+  await mount("?walkthrough=waves-in-and-out-of-step&stop=2", retainedLab(cache, true));
+  await until(
+    () =>
+      document
+        .querySelector("[data-walkthrough-checkpoint]")
+        ?.getAttribute("data-walkthrough-checkpoint") === "2",
+  );
+  const accepted = acceptedIdentity();
+  await click("Restore checkpoint");
+  await until(() => workers[1]?.hasResult === true);
+  expect(lab()?.getAttribute("data-pending")).toBe("true");
+  expect(outcome()).toBeUndefined();
+
+  await act(async () => root?.render(null));
+  expect(workers[0]?.disposed).toBe(true);
+  expect(workers[1]?.disposed).toBe(true);
+  await act(async () => workers[1]?.release());
+  await act(async () => root?.render(retainedLab(cache)));
+  expect(acceptedIdentity()).toEqual(accepted);
+  expect(document.querySelector('[data-output="centerIntensity"]')?.textContent).toBe("4");
+  expect(input("delta").value).toBe("0");
+  expect(input("a2").value).toBe("1");
+  expect(lab()?.getAttribute("data-pending")).toBe("false");
+  expect(workers).toHaveLength(2);
+  expect(outcome()).toBeUndefined();
+  logger.log({
+    testId: "pending-return-keeps-accepted-result",
     instrumentId: "lq-01",
     outcome: "passed",
   });

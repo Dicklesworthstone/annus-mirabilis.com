@@ -33,6 +33,7 @@ import {
 } from "../../experiments/results/applyFailure.ts";
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
+import { useRetainedSession } from "../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import {
@@ -72,10 +73,15 @@ export function InferenceLab({
   /** False for the optional second laboratory, so the page carries the caption readings once. */
   readings?: boolean;
 }) {
-  const id = useId(),
-    [session] = useState(() =>
-      createBm07Session(instanceId ?? `bm07-${id}`, example, createBm07BrowserChannel),
-    );
+  const id = useId();
+  const session = useRetainedSession(
+    {
+      experimentId: "bm-07",
+      instanceId: instanceId ?? `bm07-${id}`,
+      sourceDigest: example?.sourceDigest,
+    },
+    (retainedId) => createBm07Session(retainedId, example, createBm07BrowserChannel),
+  );
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("bm-07", BM07_PROMPTS);
   const serverAccepted = session.getServerSnapshot().accepted;
@@ -85,7 +91,7 @@ export function InferenceLab({
   const view = useInstrumentView(session),
     snapshot = view.accepted ?? serverAccepted,
     p = snapshot.parameters as Bm07Parameters;
-  const [draft, setDraft] = useState(() => toInferenceDraft(example.parameters));
+  const [draft, setDraft] = useState(() => toInferenceDraft(session.acceptedParameters()));
   const [ready, setReady] = useState(false),
     [dirty, setDirty] = useState(false),
     /** The typed failure of the last apply, not a string (am-ig23). See applyFailure.ts. */

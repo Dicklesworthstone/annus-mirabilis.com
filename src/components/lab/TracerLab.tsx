@@ -110,7 +110,7 @@ export function TracerLab({
   const view = useInstrumentView(session),
     snapshot = view.accepted ?? serverAccepted,
     p = snapshot.parameters as Bm01Parameters;
-  const [draft, setDraft] = useState(() => toTracerDraft(example.parameters)),
+  const [draft, setDraft] = useState(() => toTracerDraft(session.acceptedParameters())),
     [ready, setReady] = useState(false),
     [dirty, setDirty] = useState(false),
     [failure, setFailure] = useState<ApplyFailure | null>(null),

@@ -1,17 +1,21 @@
-import { useState } from "react";
 import { PhotoelectricLab } from "../../components/lab/lq08/PhotoelectricLab.tsx";
 import example from "../../generated/lq08-example.json";
 import millikan from "../../generated/lq08-millikan-overlay.json";
 import type { ExperimentViewProps } from "../dispatch.tsx";
 import type { MillikanOverlayResult } from "../lq08/millikan.ts";
 import { createLq08Session } from "../lq08/session.ts";
+import { useRetainedSession } from "../store/retainedSession.tsx";
 
 import "./clarificationLabStyles.ts";
 
 export default function Lq08ClarificationView({ instanceId }: ExperimentViewProps) {
-  const [session] = useState(() => createLq08Session(instanceId, example));
+  const session = useRetainedSession(
+    { experimentId: "lq-08", instanceId, sourceDigest: example.sourceDigest },
+    (id) => createLq08Session(id, example),
+  );
   return (
     <PhotoelectricLab
+      key={session.getSnapshot().accepted?.instanceId ?? instanceId}
       example={example}
       millikan={millikan as MillikanOverlayResult}
       session={session}
