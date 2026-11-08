@@ -59,7 +59,7 @@ export function createSessionWeave(
   session: WeaveSession,
   options: Readonly<{
     instrumentId: string;
-    constantSetId: string;
+    constantSetId: string | ((accepted: AcceptedSnapshot) => string);
     predicates: readonly WeavePredicate[];
   }>,
 ) {
@@ -113,7 +113,10 @@ export function createSessionWeave(
       derived = evaluator.evaluate({
         runId: accepted.runId,
         snapshotVersion: accepted.snapshotVersion,
-        constantSetId: options.constantSetId,
+        constantSetId:
+          typeof options.constantSetId === "function"
+            ? options.constantSetId(accepted)
+            : options.constantSetId,
         outputs: weaveOutputs(accepted),
         refused: false,
       });

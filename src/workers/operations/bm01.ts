@@ -12,7 +12,7 @@ import { executionOutcomeRegistry } from "../../experiments/results/outcomes.ts"
 import { makeRefusal } from "../../experiments/results/refusals.ts";
 import type { ScientificResult } from "../../experiments/results/types.ts";
 import { ownerAdmitted } from "../../experiments/store/instanceStore.ts";
-import { getConstantSet } from "../../physics/reference/constants.ts";
+import { getConstantSet, thermalConstant } from "../../physics/reference/constants.ts";
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
 import { ensembleMomentBands } from "../../physics/reference/diffusion/statistics.ts";
 import {
@@ -104,7 +104,7 @@ export async function createBm01Recording(
 ): Promise<Computation<TracerRecording>> {
   const p = validateBm01Parameters(input);
   if (p.kind !== "accepted") return p;
-  const D = stokesEinsteinD(p.data, getConstantSet("modern-si-2019")).result;
+  const D = stokesEinsteinD(p.data, getConstantSet(p.data.constantSetId)).result;
   if (D.status !== "value" || typeof D.value !== "number")
     return {
       kind: "refused",
@@ -141,6 +141,7 @@ export function measureBm01(
 ): Computation<Bm01Evaluation> {
   const checked = validateBm01Parameters(p);
   if (checked.kind !== "accepted") return checked;
+  p = checked.data;
   const positionsContract = BM01_OUTPUTS.tracerPositions;
   if (!positionsContract || !ownerAdmitted(positionsContract, recordedBy)) return failed();
   const selected = observationGridCheck(p.interval, p.h, recording.setup.steps);
@@ -152,7 +153,7 @@ export function measureBm01(
       p.seed !== recording.setup.seed ||
       p.h !== recording.setup.h ||
       Math.round(p.H / p.h) !== recording.setup.steps ||
-      value(stokesEinsteinD(p, getConstantSet("modern-si-2019")).result) !== D
+      value(stokesEinsteinD(p, getConstantSet(p.constantSetId)).result) !== D
     )
       return failed();
     const step = selected.data,
@@ -165,15 +166,20 @@ export function measureBm01(
     if (!axis) throw new RangeError(`Invalid axis: ${p.axis}`);
     const sigma = value(rmsDisplacement(D, p.interval).result),
       model = moments(p.d, D, p.interval);
-    const constantSet = getConstantSet("modern-si-2019");
-    const kbEntry = constantSet.entries.find((e) => e.quantityId === "boltzmannConstant");
-    if (!kbEntry) throw new RangeError("Missing boltzmannConstant in constant set");
+    const constantSet = getConstantSet(p.constantSetId);
+    const thermal = thermalConstant(constantSet);
     const outputs: ScientificResult[] = [
       number("temperature", p.T),
       number("viscosity", p.eta),
       number("particleRadius", p.a),
       number("observationInterval", p.interval),
-      number("boltzmannConstant", kbEntry.value),
+      number(
+        "boltzmannConstant",
+        thermal.value,
+        p.constantSetId === "modern-si-2019"
+          ? "constants.modernSI2019"
+          : "constants.einstein1905Brownian",
+      ),
       number("diffusionCoefficient", D),
       number("rmsDisplacement1d", sigma),
       number("modelSecondMoment", value(model.total.result)),

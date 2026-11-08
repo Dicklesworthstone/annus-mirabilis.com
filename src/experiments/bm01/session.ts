@@ -1,4 +1,5 @@
 import { BM01_PROTOCOL, decodeLabHello, decodeLabResponse } from "../../workers/protocol/bm01.ts";
+import { LabProtocolError } from "../../workers/protocol/bm06.ts";
 import { createHostScheduler, type WorkerChannel } from "../../workers/scheduler/hostScheduler.ts";
 import { parseResult } from "../results/codec.ts";
 import { createInstanceStore, type ParameterClass } from "../store/instanceStore.ts";
@@ -23,10 +24,13 @@ export function createBm01Session(
   example: PreparedBm01Example,
   workerFactory: () => WorkerChannel,
 ) {
+  const initial = validateBm01Parameters(example.parameters);
+  if (initial.kind !== "accepted")
+    throw new LabProtocolError("malformed-response", "Invalid prepared tracer settings.");
   const store = createInstanceStore({
     experimentId: "bm-01",
     instanceId,
-    initialParameters: example.parameters,
+    initialParameters: initial.data,
     parameterClasses: BM01_CLASSES,
     outputs: BM01_OUTPUTS,
     allowPartial: true,

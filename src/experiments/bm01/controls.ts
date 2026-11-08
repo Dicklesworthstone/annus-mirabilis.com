@@ -12,6 +12,7 @@ export const BM01_FIELDS = [
 ] as const;
 export function toTracerDraft(p: Bm01Parameters): TracerDraft {
   return {
+    constantSetId: p.constantSetId,
     T: String(p.T),
     eta: formatScaledDecimal(p.eta, 3),
     a: formatScaledDecimal(p.a, 6),
@@ -27,6 +28,7 @@ export function toTracerDraft(p: Bm01Parameters): TracerDraft {
 }
 export function fromTracerDraft(d: TracerDraft): Bm01Parameters {
   return {
+    constantSetId: d.constantSetId,
     T: parseScaledDecimal(d.T, 0),
     eta: parseScaledDecimal(d.eta, 3),
     a: parseScaledDecimal(d.a, 6),

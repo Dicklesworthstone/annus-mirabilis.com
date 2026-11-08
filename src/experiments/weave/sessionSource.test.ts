@@ -225,6 +225,58 @@ test("server snapshot stays the prepared one after a live calculation", () => {
   assert.ok(live.kind === "ready" && !live.prepared);
   assert.equal(f.source.getServerSnapshot(), served);
 });
+test("a selectable constant set follows accepted results and never a pending request", () => {
+  const initial = view(accepted(12, { parameters: { constantSetId: "modern-si-2019" } }));
+  let current = initial;
+  const source = createSessionWeave(
+    {
+      getSnapshot: () => current,
+      getServerSnapshot: () => initial,
+      subscribe: () => () => {},
+    },
+    {
+      instrumentId: "bm-01",
+      constantSetId: (snapshot) => String(snapshot.parameters.constantSetId),
+      predicates: [
+        {
+          ...predicate,
+          conditions: [
+            { kind: "regime", on: "constantSet", equals: "einstein-1905-brownian-printed" },
+          ],
+        },
+      ],
+    },
+  );
+  const modern = source.getSnapshot();
+  assert.ok(modern.kind === "ready");
+  assert.equal(modern.derived.flags[predicate.id]?.lit, false);
+  const historical = accepted(12, {
+    runId: "run-two",
+    snapshotVersion: 2,
+    parameters: { constantSetId: "einstein-1905-brownian-printed" },
+  });
+  current = view(initial.accepted ?? accepted(), {
+    requested: historical,
+    status: "pending",
+    pending: true,
+  });
+  assert.deepEqual(source.getSnapshot(), { kind: "inactive", reason: "pending" });
+  current = view(historical);
+  const shown = source.getSnapshot();
+  assert.ok(shown.kind === "ready");
+  assert.equal(shown.derived.flags[predicate.id]?.lit, true);
+  assert.equal(shown.accepted, historical);
+  current = view(
+    accepted(12, {
+      runId: "run-three",
+      snapshotVersion: 3,
+      parameters: { constantSetId: "modern-si-2019" },
+    }),
+  );
+  const restored = source.getSnapshot();
+  assert.ok(restored.kind === "ready");
+  assert.equal(restored.derived.flags[predicate.id]?.lit, false);
+});
 test("one session subscription serves all listeners and closes after the last subscriber", () => {
   const f = fixture();
   const a = f.source.subscribe(() => {});

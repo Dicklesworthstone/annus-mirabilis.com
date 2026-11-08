@@ -1,5 +1,5 @@
 "use client";
-import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { type FormEvent, useEffect, useId, useState } from "react";
 import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { EquationScope } from "../../equations/EquationScope.tsx";
 import { SemanticEquation } from "../../equations/SemanticEquation.tsx";
@@ -201,11 +201,7 @@ export function TracerLab({
       : isFrankenSim
         ? "frankensim-accepted"
         : "host-accepted";
-  const isEinsteinHistorical =
-    Math.abs(p.T - 290.15) < 1e-4 &&
-    Math.abs(p.eta - 0.00135) < 1e-6 &&
-    Math.abs(p.a - 0.5e-6) < 1e-9;
-  const constantSetId = isEinsteinHistorical ? "einstein-1905-brownian-printed" : "modern-si-2019";
+  const constantSetId = p.constantSetId;
   const constantSetLabel =
     constantSetId === "einstein-1905-brownian-printed"
       ? "Einstein 1905 (Annalen der Physik)"
@@ -317,11 +313,28 @@ export function TracerLab({
             <p className="fine">
               Same-seed viscosity comparisons use common random numbers, not independent trials.
             </p>
-            <ExperimentSettings contents="temperature, viscosity, radius, tracers, timing, seed">
+            <ExperimentSettings contents="constants, temperature, viscosity, radius, tracers, timing, seed">
               <form onSubmit={submit} noValidate>
                 <fieldset disabled={!ready}>
                   <legend>Record and observe</legend>
                   <div className="input-grid">
+                    <div className="input-field">
+                      <label htmlFor={`${id}-constantSetId`}>Constant set</label>
+                      <select
+                        id={`${id}-constantSetId`}
+                        name="constantSetId"
+                        value={draft.constantSetId}
+                        onChange={(e) => {
+                          setDraft({ ...draft, constantSetId: e.target.value });
+                          setDirty(true);
+                        }}
+                      >
+                        <option value="modern-si-2019">Modern SI 2019</option>
+                        <option value="einstein-1905-brownian-printed">
+                          Einstein's 1905 values
+                        </option>
+                      </select>
+                    </div>
                     {BM01_FIELDS.map(([key, label, unit]) => (
                       <div className="input-field" key={key}>
                         <label htmlFor={`${id}-${key}`}>

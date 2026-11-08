@@ -11,9 +11,8 @@
 # vs. T=290.15 K / eta=1.35e-3 Pa s specified here) -- that reconciliation is not done in this
 # change and is named as a gap in the bead comment.
 #
-# "Constant set" is listed in the bead's Controls table but is NOT YET a switchable runtime
-# parameter (BM01_MODEL.constantSetId is a fixed literal in definition.ts); it is declared here
-# as a derived/informational parameter, not as an independent control, until that wiring exists.
+# The constant set is an explicit setup control. The ordinary worked example uses modern SI;
+# the Einstein walkthrough chooses the historical R/N before recording its trajectories.
 id: bm-01
 title: "BM-01: Tracer Ensemble and Observable Selection"
 explanatoryQuestion: "When individual tracers wander unpredictably, which statistic of their displacements stays stable and grows lawfully with the observation interval?"
@@ -31,6 +30,23 @@ argumentIds:
   - arg-bm-inference
 schemaVersion: 1
 parameters:
+  - id: constantSetId
+    label: "Constant set"
+    accessibleName: "Constant set for the tracer calculation"
+    accessibleDescription: "Choose the modern Boltzmann constant or Einstein's historical R/N; changing it starts a new run."
+    quantityId: boltzmannConstant
+    displayUnit: "J/K"
+    modelDomain:
+      enumerated: ["modern-si-2019", "einstein-1905-brownian-printed"]
+      reason: "The numerical owner uses the explicitly selected thermal constant."
+    visualRange:
+      min: 0
+      max: 1
+    default: "modern-si-2019"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
   - id: seed
     label: "Seed"
     accessibleName: "Random stream seed"
@@ -507,6 +523,7 @@ presets:
   - presetId: bm-01-velocity-trap
     label: "The velocity trap (Exner's mistake)"
     parameterValues:
+      constantSetId: einstein-1905-brownian-printed
       T: 290.15
       eta: 0.00135
       a: 5e-7
@@ -516,6 +533,7 @@ presets:
   - presetId: bm-01-radius-probe
     label: "The radius probe"
     parameterValues:
+      constantSetId: einstein-1905-brownian-printed
       T: 290.15
       eta: 0.00135
       a: 1e-6
@@ -524,6 +542,7 @@ presets:
   - presetId: bm-01-viscosity-comparison
     label: "The viscosity comparison (common random numbers)"
     parameterValues:
+      constantSetId: einstein-1905-brownian-printed
       T: 290.15
       eta: 0.0027
       a: 5e-7

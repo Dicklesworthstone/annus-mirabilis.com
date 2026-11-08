@@ -1,6 +1,7 @@
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
 import type { WeavePredicate } from "../weave/types.ts";
 export type Bm01Parameters = Readonly<{
+  constantSetId: string;
   T: number;
   eta: number;
   a: number;
@@ -14,6 +15,7 @@ export type Bm01Parameters = Readonly<{
   statistic: string;
 }>;
 export const BM01_DEFAULTS: Bm01Parameters = Object.freeze({
+  constantSetId: "modern-si-2019",
   T: 293.15,
   eta: 0.001,
   a: 0.5e-6,
@@ -27,6 +29,7 @@ export const BM01_DEFAULTS: Bm01Parameters = Object.freeze({
   statistic: "rms",
 });
 export const BM01_CLASSES: Readonly<Record<keyof Bm01Parameters, ParameterClass>> = Object.freeze({
+  constantSetId: "input",
   T: "input",
   eta: "input",
   a: "input",
@@ -82,7 +85,13 @@ export const BM01_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
   viscosity: c("Pa s", "dynamic-viscosity", "bm01.acceptedInputs"),
   particleRadius: c("m", "sphere-radius", "bm01.acceptedInputs"),
   observationInterval: c("s", "observation-interval", "bm01.acceptedInputs"),
-  boltzmannConstant: c("J/K", "boltzmann-constant", "constants.modernSI2019"),
+  boltzmannConstant: c(
+    "J/K",
+    "boltzmann-constant",
+    "constants.modernSI2019",
+    ["value"],
+    ["constants.einstein1905Brownian"],
+  ),
   diffusionCoefficient: c("m2/s", "latent-diffusivity", "diffusion.stokesEinsteinD"),
   rmsDisplacement1d: c("m", "latent-coordinate-rms", "diffusion.rmsDisplacement"),
   modelSecondMoment: c("m2", "latent-vector-second-moment", "diffusion.moments"),

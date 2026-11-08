@@ -4,14 +4,16 @@ import { resolve } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TracerLab } from "../components/lab/TracerLab.tsx";
-import { BM01_OUTPUTS } from "../experiments/bm01/definition.ts";
+import { BM01_DEFAULTS, BM01_OUTPUTS } from "../experiments/bm01/definition.ts";
 import { ExecutionChrome } from "../experiments/labels/ExecutionChrome.tsx";
 import { modelNoteFromView } from "../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../experiments/labels/resultAttributes.ts";
+import { encodeResult } from "../experiments/results/codec.ts";
 import { refusalCodeRegistry } from "../experiments/results/refusalCodes.ts";
 import example from "../generated/bm01-example.json";
 import { getConstantSet } from "../physics/reference/constants.ts";
 import { rmsDisplacement, stokesEinsteinD } from "../physics/reference/diffusion.ts";
+import { createBm01Recording, measureBm01 } from "../workers/operations/bm01.ts";
 
 /**
  * Prohibited claims and constant set tests for BM-01 (am-bm-01-tracer-ensemble-hdly AC10):
@@ -30,22 +32,26 @@ describe("bm01.prohibitedClaims: Constant-Set Labelling & Prohibited Claims (AC1
     expect(html).toContain('data-quantity-id="rmsDisplacement1d"');
   });
 
-  test("TracerLab displays name the historical constant set beside displacements under Einstein 1905 preset", () => {
+  test("TracerLab displays name the historical constant set beside displacements under Einstein 1905 preset", async () => {
+    const parameters = {
+      ...BM01_DEFAULTS,
+      constantSetId: "einstein-1905-brownian-printed",
+      T: 290.15,
+      eta: 0.00135,
+      a: 0.5e-6,
+      M: 4,
+      H: 60,
+    };
+    const recording = await createBm01Recording(parameters, { yieldControl: async () => {} });
+    if (recording.kind !== "accepted") throw new Error("The historical fixture must record.");
+    const measured = measureBm01(recording.data, parameters, false);
+    if (measured.kind !== "accepted") throw new Error("The historical fixture must measure.");
     const historicalExample = {
       ...example,
-      parameters: {
-        ...example.parameters,
-        T: 290.15,
-        eta: 0.00135,
-        a: 0.5e-6,
-      },
-      results: example.results.map((r) => {
-        const obj = JSON.parse(r);
-        if (obj.quantityId === "temperature") obj.value = 290.15;
-        if (obj.quantityId === "viscosity") obj.value = 0.00135;
-        if (obj.quantityId === "particleRadius") obj.value = 0.5e-6;
-        return JSON.stringify(obj);
-      }),
+      parameters,
+      stepIndex: measured.data.stepIndex,
+      simulationTime: measured.data.simulationTime,
+      results: measured.data.outputs.map(encodeResult),
     };
     const html = renderToStaticMarkup(createElement(TracerLab, { example: historicalExample }));
     expect(html).toContain('data-constant-set-id="einstein-1905-brownian-printed"');

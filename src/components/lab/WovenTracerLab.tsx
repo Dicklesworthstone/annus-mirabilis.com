@@ -30,7 +30,10 @@ export function WovenTracerLab({
     () =>
       createSessionWeave(session, {
         instrumentId: "bm-01",
-        constantSetId: BM01_MODEL.constantSetId,
+        constantSetId: (accepted) =>
+          typeof accepted.parameters.constantSetId === "string"
+            ? accepted.parameters.constantSetId
+            : BM01_MODEL.constantSetId,
         predicates,
       }),
     [session],

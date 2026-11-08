@@ -224,6 +224,14 @@ export function decodeLabResponse(
             fail("Output buffer does not match its declared layout.");
         }
         const p = token.parameters as Bm01Parameters;
+        if (
+          output.quantityId === "boltzmannConstant" &&
+          output.ownerId !==
+            (p.constantSetId === "einstein-1905-brownian-printed"
+              ? "constants.einstein1905Brownian"
+              : "constants.modernSI2019")
+        )
+          fail("The thermal constant's owner disagrees with the selected constant set.");
         const inputKey = (
           {
             temperature: "T",
@@ -252,11 +260,12 @@ export function decodeLabResponse(
         )
           fail("Apparent speed is undefined at the starting point.");
       }
-      // Outputs that more than one owner may produce are read from one recording, so they name
-      // one producer between them.
+      // These outputs share one recording; thermal constants have their own selected owner.
       const recordingOwners = new Set(
         outputs
-          .filter((o) => (BM01_OUTPUTS[o.quantityId]?.admittedOwnerIds?.length ?? 0) > 0)
+          .filter((o) =>
+            ["tracerPositions", "traceCoordinates", "recordingDraws"].includes(o.quantityId),
+          )
           .map((o) => o.ownerId),
       );
       if (recordingOwners.size > 1)

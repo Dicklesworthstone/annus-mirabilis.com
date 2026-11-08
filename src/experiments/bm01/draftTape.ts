@@ -3,8 +3,7 @@
  * content/experiments/bm-01.yaml's tapeModel (brownian-motion-reference, version 1). A shared link
  * puts its settings in the form, the seed among them, and starts nothing; the reader applies them.
  * The header names the stream the tracers draw from, bm-01.latent.v1 at stream version 1
- * (experiments/streams/allocation.ts), and the modern constant set; the laboratory itself reads the
- * printed 1905 set when the settings are Einstein's own inputs.
+ * (experiments/streams/allocation.ts), and the explicitly selected constant set.
  */
 import type { DraftTapeBinding } from "../permalink/draftTape.ts";
 import { BM01_ALLOCATION } from "../streams/allocation.ts";
@@ -23,4 +22,5 @@ export const BM01_DRAFT_TAPE: DraftTapeBinding = Object.freeze({
   }),
   defaults: BM01_DEFAULTS,
   validate: validateBm01Parameters,
+  constantSetIdForSettings: (settings) => String(settings.constantSetId),
 });

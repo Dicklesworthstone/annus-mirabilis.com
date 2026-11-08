@@ -12,6 +12,7 @@ export type PreparedBm01Comparison = Readonly<{
   allocationId: string;
 }>;
 const fields: Readonly<Record<keyof Bm01Parameters, readonly [string, string, number]>> = {
+  constantSetId: ["Constant set", "", 1],
   T: ["Temperature", "K", 1],
   eta: ["Viscosity", "mPa·s", 1000],
   a: ["Particle radius", "μm", 1e6],
@@ -88,12 +89,14 @@ export const BM01_COMPARISON: ComparisonContract = Object.freeze({
 export function bm01ComparisonIdentity(example: PreparedBm01Comparison): ComparisonIdentity {
   if (
     example.schemaVersion !== 1 ||
-    example.baseline.sourceDigest !== example.doubledRadius.sourceDigest
+    example.baseline.sourceDigest !== example.doubledRadius.sourceDigest ||
+    (example.baseline.parameters.constantSetId ?? BM01_MODEL.constantSetId) !==
+      (example.doubledRadius.parameters.constantSetId ?? BM01_MODEL.constantSetId)
   )
-    throw new TypeError("The worked comparison must use one evaluator build.");
+    throw new TypeError("The worked comparison must use one evaluator build and constant set.");
   return Object.freeze({
     modelVersion: BM01_MODEL.id,
-    constantSetId: BM01_MODEL.constantSetId,
+    constantSetId: example.baseline.parameters.constantSetId ?? BM01_MODEL.constantSetId,
     sourceDigest: example.baseline.sourceDigest,
     artifactDigest: null,
     streamVersion: example.streamVersion,

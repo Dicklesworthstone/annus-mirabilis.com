@@ -45,13 +45,22 @@ export function validateBm01Parameters(input: unknown): Computation<Bm01Paramete
   )
     return bad("Use a complete parameter record.");
   const keys = Object.keys(BM01_DEFAULTS);
+  const supplied = Reflect.ownKeys(input);
+  // Earlier settings links had no constant-set field and always used the modern constant.
+  const legacy = !Object.hasOwn(input, "constantSetId");
   if (
-    Reflect.ownKeys(input).length !== keys.length ||
-    Reflect.ownKeys(input).some((k) => typeof k !== "string" || !keys.includes(k)) ||
-    keys.some((k) => !Object.hasOwn(Object.getOwnPropertyDescriptor(input, k) ?? {}, "value"))
+    supplied.length !== keys.length - (legacy ? 1 : 0) ||
+    supplied.some((k) => typeof k !== "string" || !keys.includes(k)) ||
+    keys.some(
+      (k) =>
+        !(legacy && k === "constantSetId") &&
+        !Object.hasOwn(Object.getOwnPropertyDescriptor(input, k) ?? {}, "value"),
+    )
   )
     return bad("Parameter fields must be complete, known data fields.");
-  const p = input as Bm01Parameters;
+  const p = { constantSetId: BM01_DEFAULTS.constantSetId, ...input } as Bm01Parameters;
+  if (!["modern-si-2019", "einstein-1905-brownian-printed"].includes(p.constantSetId))
+    return bad("Choose modern SI constants or Einstein's 1905 Brownian values.");
   try {
     if (typeof p.seed !== "string") throw new Error();
     parseU64(p.seed);
@@ -59,7 +68,7 @@ export function validateBm01Parameters(input: unknown): Computation<Bm01Paramete
     return { kind: "refused", refusal: makeRefusal("invalid-seed", { parameterIds: ["seed"] }) };
   }
   // One sentence per control, named as the page labels it and in the unit it is entered in.
-  for (const k of keys.filter((k) => k !== "seed" && k !== "statistic")) {
+  for (const k of keys.filter((k) => !["seed", "statistic", "constantSetId"].includes(k))) {
     const v = p[k as keyof Bm01Parameters];
     if (typeof v !== "number" || !Number.isFinite(v))
       return bad(`Enter ${BM01_FIELD_NAMES[k] ?? "this value"} as a number.`);
