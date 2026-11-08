@@ -2,20 +2,31 @@ tapeVersion: 2
 tapeId: where-the-energy-went
 experimentId: me-03
 mode: "me-03:default"
-title: "where the energy went"
-description: "Teaching tape demonstrating boundary energy balances: body alone loses mass, radiation carries energy, and the combined isolated system conserves total mass and energy."
+title: "Where the energy went"
+description: "Follow one idealized 2 J emission through three boundaries: the emitting body, its radiation, and the isolated enclosure containing both. Changing the boundary changes the account, while the emitted energy stays fixed."
 isTeachingSequence: true
 modelIdentity:
   modelId: me-03-box-1906-v1
   modelVersion: "1"
-  artifactDigest: "host:sha256:me03-boundary-evaluateMe03"
+  artifactDigest: "host:sha256:03017892a07c89ca14716c772525ae56e03332b2dcd71609cce059c1cd37b91b"
 constantSetId: modern-si-2019
 seed: "0"
 streamVersion: 1
 allocationId: deterministic
 initialConditions:
+  boundary: body-alone
+  disposition: retained
   emittedEnergy: 1.0
   inputEnergy: 0.0
+  cardId: me-03-sealed-lamp-and-mirror
+  mode: "1905"
+  pulseSystem: two-opposite
+  notation: printed
+  boxMass: 1.0
+  boxLength: 1.0
+  pulseEnergy: 1.0
+  assignLightMass: "true"
+  magnification: 100000000000000000
 events:
   - kind: control
     actionIndex: 1
@@ -23,19 +34,83 @@ events:
     commandId: set-emitted-energy
     parameterId: emittedEnergy
     value: 2.0
+    previousValue: 1.0
+  - kind: control
+    actionIndex: 2
+    commandClass: measurement-change
+    commandId: include-only-the-radiation
+    parameterId: boundary
+    value: radiation
+    previousValue: body-alone
+  - kind: control
+    actionIndex: 3
+    commandClass: measurement-change
+    commandId: include-the-body-and-radiation
+    parameterId: boundary
+    value: combined-isolated-system
+    previousValue: radiation
 checkpoints:
-  - actionIndex: 3
+  - actionIndex: 1
     stepIndex: 0
     simulatedTime: 0
-    digest: "host:e0811c0f26ef9d0d"
+    digest: "host:19643a79cbc73c87"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1
     seed: "0"
     streamPositions: []
-    label: "The whole enclosure, with nothing crossing its boundary"
-    teachingNote: Inside a combined isolated enclosure, radiation absorption leaves total system mass unchanged.
+    label: "The emitting body alone"
+    teachingNote: "The body gives off 2 J as radiation and receives no outside energy. Its energy falls by 2 J and its mass falls by 2/c² kg. The radiation remains inside the larger enclosure; the energy has left the body, not disappeared."
     expectedDisplayValues:
+      - label: energy change inside the chosen boundary
+        value: -2
+        outputId: energyChange
+        unit: "J"
+        constantSetId: modern-si-2019
+      - label: mass change of the emitting body
+        value: -2.225300112107237e-17
+        outputId: massChange
+        unit: "kg"
+        constantSetId: modern-si-2019
+  - actionIndex: 2
+    stepIndex: 0
+    simulatedTime: 0
+    digest: "host:f17605865a9a12a3"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: "The emitted radiation alone"
+    teachingNote: "Keep the same emission and move the boundary around its radiation. This account gains the 2 J lost by the body. The 1905 account does not assign free radiation a rest mass, so that mass entry is not applicable, not a measured zero."
+    expectedDisplayValues:
+      - label: energy change inside the chosen boundary
+        value: 2
+        outputId: energyChange
+        unit: "J"
+        constantSetId: modern-si-2019
+  - actionIndex: 3
+    stepIndex: 0
+    simulatedTime: 0
+    digest: "host:81e6d83318bacbf4"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: "The body and its radiation together"
+    teachingNote: "Expand the boundary to include both the body and its radiation. The loss of 2 J by the body and the gain of 2 J by the radiation cancel. No energy enters or leaves the isolated enclosure, so its total energy and mass are unchanged."
+    expectedDisplayValues:
+      - label: energy change inside the chosen boundary
+        value: 0
+        outputId: energyChange
+        unit: "J"
+        constantSetId: modern-si-2019
+      - label: mass change inside the chosen boundary
+        value: 0
+        outputId: massChange
+        unit: "kg"
+        constantSetId: modern-si-2019
       - label: system energy change
         value: 0
         outputId: systemEnergyChange

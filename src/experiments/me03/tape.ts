@@ -3,6 +3,7 @@
  * (me-03-box-1906-v1, version 1), restored and shared through the general runner in permalink/sessionTape.ts.
  * The laboratory draws no random numbers, so its seed is 0 and it has no stream or allocation.
  */
+import labDigests from "../../generated/lab-source-digests.json";
 import type { LabTapeBinding } from "../permalink/sessionTape.ts";
 import { ME03_DEFAULTS } from "./definition.ts";
 import { validateMe03Parameters } from "./parameters.ts";
@@ -14,6 +15,7 @@ export const ME03_TAPE: LabTapeBinding = Object.freeze({
     mode: "me-03:default",
     modelId: "me-03-box-1906-v1",
     modelVersion: 1,
+    artifactDigest: labDigests["me-03"].replace(/^source:/, "host:"),
     constantSetId: "modern-si-2019",
     streamVersion: "deterministic",
     allocationId: "deterministic",

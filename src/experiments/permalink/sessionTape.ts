@@ -223,7 +223,11 @@ export function tapeForSettings(binding: LabTapeBinding, params: object): TapeV2
     tapeVersion: 2,
     experimentId: env.experimentId,
     mode: env.mode,
-    modelIdentity: { modelId: env.modelId, modelVersion: env.modelVersion },
+    modelIdentity: {
+      modelId: env.modelId,
+      modelVersion: env.modelVersion,
+      ...(env.artifactDigest === undefined ? {} : { artifactDigest: env.artifactDigest }),
+    },
     constantSetId: env.constantSetId,
     seed: "0" as U64String,
     streamVersion: env.streamVersion,
