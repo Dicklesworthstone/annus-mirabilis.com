@@ -33,6 +33,9 @@ export const PINNED_ARTIFACT = Object.freeze({
 /** Where the site serves the pinned module. */
 export const PINNED_WASM_URL = `/wasm/${PINNED_ARTIFACT.bundleId}/${PINNED_ARTIFACT.hashPrefix}/${PINNED_ARTIFACT.wasmFile}`;
 
+/** Normal transform implemented by this pinned artifact's Brownian and Gaussian owners. */
+export const FRANKENSIM_NORMAL_VERSION = "fs-rand-box-muller-det-v1";
+
 /**
  * The model note's sentence for an output the pinned module computed. It names the transport
  * crate, the FrankenSim revision and the artifact digest, the same identity the loader checked

@@ -1,4 +1,8 @@
 import { BM01_CLASSES, type Bm01Parameters } from "../../experiments/bm01/definition.ts";
+import {
+  type Bm01RecordingCheckpoint,
+  createBm01RecordingCheckpoint,
+} from "../../experiments/bm01/recordingCheckpoint.ts";
 import { executionOutcomeRegistry } from "../../experiments/results/outcomes.ts";
 import type { TracerRecording } from "../../physics/reference/diffusion/tracers.ts";
 import {
@@ -30,8 +34,12 @@ export function createBm01Host(
     stopped = false,
     cancelled = false,
     instanceId: string | null = null;
-  let cache: { runId: string; parameters: Bm01Parameters; recording: TracerRecording } | null =
-    null;
+  let cache: {
+    runId: string;
+    parameters: Bm01Parameters;
+    recording: TracerRecording;
+    checkpoint: Bm01RecordingCheckpoint;
+  } | null = null;
   async function receive(input: unknown): Promise<void> {
     const message = decodeLabRequest(input, sourceDigest);
     if (stopped) return;
@@ -66,8 +74,20 @@ export function createBm01Host(
       if (recording.kind !== "accepted") result = recording;
       else {
         result = measureBm01(recording.data, p, reused, recorder.ownerId);
-        if (result.kind === "accepted" && !cancelled && !stopped)
-          cache = { runId: message.token.runId, parameters: p, recording: recording.data };
+        if (result.kind === "accepted" && !cancelled && !stopped) {
+          const checkpoint =
+            reused && activeCache !== null
+              ? activeCache.checkpoint
+              : await createBm01RecordingCheckpoint(recording.data, recorder.ownerId, sourceDigest);
+          result = { kind: "accepted", data: { ...result.data, recordingCheckpoint: checkpoint } };
+          if (!cancelled && !stopped)
+            cache = {
+              runId: message.token.runId,
+              parameters: p,
+              recording: recording.data,
+              checkpoint,
+            };
+        }
       }
       if (cancelled)
         result = {

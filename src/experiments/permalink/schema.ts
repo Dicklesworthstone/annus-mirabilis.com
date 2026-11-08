@@ -4,7 +4,7 @@
  */
 
 import { COMMAND_CLASSES, type CommandClass } from "../../content/schemas/experiment.ts";
-import { parseU64, U64ValidationError } from "../identity/u64.ts";
+import { parseU64, U64_MAX_BIGINT, U64ValidationError } from "../identity/u64.ts";
 import type {
   PredictionCandidatePayload,
   PredictionForm,
@@ -16,6 +16,7 @@ import type {
   TapeModelIdentity,
   TapePredictionEvent,
   TapeReplayGrid,
+  TapeScientificCheckpoint,
   TapeTeachingRef,
   TapeV2,
 } from "./types.ts";
@@ -23,6 +24,7 @@ import type {
 export const MAX_PERMALINK_TAPE_EVENTS = 256;
 export const MAX_PREDICTION_SKETCH_POINTS = 256;
 export const MAX_PREDICTION_VALUES_COUNT = 64;
+export const MAX_SCIENTIFIC_STREAM_POSITIONS = 30_000;
 
 export class TapeValidationError extends Error {
   readonly code: string;
@@ -446,6 +448,14 @@ export function validateTapeV2(raw: unknown, path = "tape"): TapeV2 {
     acceptedActionIndex: ac.acceptedActionIndex,
     acceptedInputRevision: ac.acceptedInputRevision,
     digest: ac.digest,
+    ...(ac.scientificState === undefined
+      ? {}
+      : {
+          scientificState: validateScientificCheckpoint(
+            ac.scientificState,
+            `${path}.acceptedCheckpoint.scientificState`,
+          ),
+        }),
   };
 
   return {
@@ -467,6 +477,101 @@ export function validateTapeV2(raw: unknown, path = "tape"): TapeV2 {
     ...(typeof o.title === "string" ? { title: o.title } : {}),
     ...(typeof o.description === "string" ? { description: o.description } : {}),
   };
+}
+
+function validateScientificCheckpoint(raw: unknown, path: string): TapeScientificCheckpoint {
+  const fail = (message: string): never => {
+    throw new TapeValidationError("tape-invalid-scientific-checkpoint", message, path);
+  };
+  if (!raw || typeof raw !== "object" || Array.isArray(raw))
+    return fail("Scientific checkpoint metadata must be an object.");
+  const value = raw as Record<string, unknown>;
+  const ranged = Object.hasOwn(value, "streamPositionRanges");
+  const positionsKey = ranged ? "streamPositionRanges" : "streamPositions";
+  const keys = [
+    "checkpointVersion",
+    "streamSemanticsVersion",
+    "stepIndex",
+    "simulatedTime",
+    "seed",
+    positionsKey,
+  ];
+  if (
+    Object.keys(value).length !== keys.length ||
+    Object.keys(value).some((key) => !keys.includes(key))
+  )
+    return fail("Scientific checkpoint metadata has missing or unknown fields.");
+  for (const key of ["checkpointVersion", "streamSemanticsVersion", "stepIndex"])
+    if (!Number.isSafeInteger(value[key]) || (value[key] as number) < (key === "stepIndex" ? 0 : 1))
+      return fail(`${key} must be a bounded logical counter.`);
+  if (
+    typeof value.simulatedTime !== "number" ||
+    !Number.isFinite(value.simulatedTime) ||
+    value.simulatedTime < 0
+  )
+    return fail("simulatedTime must be a finite, nonnegative recording time.");
+  const entries = value[positionsKey];
+  if (!Array.isArray(entries) || entries.length > MAX_SCIENTIFIC_STREAM_POSITIONS)
+    return fail("Scientific checkpoints may name at most 30,000 stream positions.");
+  const streams: TapeScientificCheckpoint["streamPositions"][number][] = [];
+  const seen = new Set<string>();
+  for (const rawPosition of entries) {
+    if (!rawPosition || typeof rawPosition !== "object" || Array.isArray(rawPosition))
+      return fail("A stream position must be an object.");
+    const position = rawPosition as Record<string, unknown>;
+    const fields = ranged
+      ? ["allocationId", "streamKernelId", "firstTile", "count", "index"]
+      : ["allocationId", "streamKernelId", "tile", "index"];
+    if (
+      Object.keys(position).length !== fields.length ||
+      Object.keys(position).some((key) => !fields.includes(key))
+    )
+      return fail("A stream position has missing or unknown fields.");
+    for (const key of ["allocationId", "streamKernelId"])
+      if (
+        typeof position[key] !== "string" ||
+        !(position[key] as string).trim() ||
+        (position[key] as string).length > 256
+      )
+        return fail(`${key} must name a bounded stream identity.`);
+    const firstTile = parseU64(
+      position[ranged ? "firstTile" : "tile"],
+      `${path}.${positionsKey}.tile`,
+    );
+    const index = parseU64(position.index, `${path}.${positionsKey}.index`);
+    const count = ranged ? position.count : 1;
+    if (
+      typeof count !== "number" ||
+      !Number.isSafeInteger(count) ||
+      count < 1 ||
+      count > MAX_SCIENTIFIC_STREAM_POSITIONS - streams.length
+    )
+      return fail("A stream range must expand to a positive, bounded number of positions.");
+    if (BigInt(firstTile) + BigInt(count - 1) > U64_MAX_BIGINT)
+      return fail("A stream range extends beyond unsigned 64-bit tile identities.");
+    for (let offset = 0; offset < count; offset++) {
+      const tile = parseU64((BigInt(firstTile) + BigInt(offset)).toString());
+      const identity = JSON.stringify([position.allocationId, position.streamKernelId, tile]);
+      if (seen.has(identity)) return fail("A scientific checkpoint names a stream more than once.");
+      seen.add(identity);
+      streams.push(
+        Object.freeze({
+          allocationId: position.allocationId as string,
+          streamKernelId: position.streamKernelId as string,
+          tile,
+          index,
+        }),
+      );
+    }
+  }
+  return Object.freeze({
+    checkpointVersion: value.checkpointVersion as number,
+    streamSemanticsVersion: value.streamSemanticsVersion as number,
+    stepIndex: value.stepIndex as number,
+    simulatedTime: value.simulatedTime,
+    seed: parseU64(value.seed, `${path}.seed`),
+    streamPositions: Object.freeze(streams),
+  });
 }
 
 function validatePredictionPayload(

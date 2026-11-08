@@ -1,15 +1,20 @@
 "use client";
-import { type FormEvent, useEffect, useId, useState } from "react";
+import { type FormEvent, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { EquationScope } from "../../equations/EquationScope.tsx";
 import { SemanticEquation } from "../../equations/SemanticEquation.tsx";
 import type { CompiledEquation } from "../../equations/viewTypes.ts";
 import { createBm01BrowserChannel } from "../../experiments/bm01/browser.ts";
-import { BM01_FIELDS, fromTracerDraft, toTracerDraft } from "../../experiments/bm01/controls.ts";
+import {
+  BM01_FIELDS,
+  fromTracerDraft,
+  type TracerDraft,
+  toTracerDraft,
+} from "../../experiments/bm01/controls.ts";
 import { BM01_CAPTION, type Bm01Parameters } from "../../experiments/bm01/definition.ts";
-import { BM01_DRAFT_TAPE } from "../../experiments/bm01/draftTape.ts";
 import { decodeBm01Settings } from "../../experiments/bm01/permalink.ts";
 import { createBm01Session, type PreparedBm01Example } from "../../experiments/bm01/session.ts";
+import { createBm01TapeBinding, createBm01WalkthroughTarget } from "../../experiments/bm01/tape.ts";
 import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
@@ -28,6 +33,7 @@ import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot
 import equationPayload from "../../generated/bm01-equations.json";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { TimeLegend } from "../../visuals/kit/TimeLegend.tsx";
+import type { WorkerChannel } from "../../workers/scheduler/hostScheduler.ts";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { KEPT_RESULT } from "./keptResult.ts";
 import { LabMargin } from "./LabMargin.tsx";
@@ -78,6 +84,7 @@ export function TracerLab({
   equationScopeLabel,
   session: sharedSession,
   linked = true,
+  workerFactory = createBm01BrowserChannel,
 }: {
   example: PreparedBm01Example;
   instanceId?: string | undefined;
@@ -95,13 +102,14 @@ export function TracerLab({
    * Reader clarifications and the page's optional second ensemble keep an independent setup.
    */
   linked?: boolean;
+  workerFactory?: (() => WorkerChannel) | undefined;
 }) {
   const generatedId = useId();
   const id = explicitInstanceId ?? generatedId;
   const [session] = useState(
     () =>
       sharedSession ??
-      createBm01Session(explicitInstanceId ?? `bm01-${id}`, example, createBm01BrowserChannel),
+      createBm01Session(explicitInstanceId ?? `bm01-${id}`, example, workerFactory),
   );
   const serverAccepted = session.getServerSnapshot().accepted;
   if (!serverAccepted) {
@@ -110,17 +118,50 @@ export function TracerLab({
   const view = useInstrumentView(session),
     snapshot = view.accepted ?? serverAccepted,
     p = snapshot.parameters as Bm01Parameters;
-  const [draft, setDraft] = useState(() => toTracerDraft(session.acceptedParameters())),
+  const [draft, setDraftState] = useState(() => toTracerDraft(session.acceptedParameters())),
     [ready, setReady] = useState(false),
     [dirty, setDirty] = useState(false),
     [failure, setFailure] = useState<ApplyFailure | null>(null),
     [note, setNote] = useState(""),
     [zoom, setZoom] = useState(1);
+  const draftRevision = useRef(0);
+  const walkthroughDraftRevision = useRef(0);
+  const setDraft = useCallback((next: TracerDraft) => {
+    draftRevision.current++;
+    setDraftState(next);
+  }, []);
+  const workerTape = useMemo(
+    () => createBm01TapeBinding(example, workerFactory),
+    [example, workerFactory],
+  );
   // A shared ?tape= link puts its settings in the form and starts no worker; Apply runs them.
-  const tapeLink = useDraftTapeLink(BM01_DRAFT_TAPE, p, linked, (settings) => {
+  const tapeLink = useDraftTapeLink(workerTape, p, linked, (settings) => {
     setDraft(toTracerDraft(settings as unknown as Bm01Parameters));
     setDirty(true);
   });
+  const workerWalkthrough = useMemo(
+    () =>
+      createBm01WalkthroughTarget(
+        workerTape,
+        session,
+        (parameters) => {
+          if (draftRevision.current !== walkthroughDraftRevision.current) {
+            setNote(
+              "The checkpoint result is ready. Your newer entries are still in the form; apply them when ready.",
+            );
+            return;
+          }
+          setDraftState(toTracerDraft(parameters));
+          setDirty(false);
+          setFailure(null);
+          setNote("");
+        },
+        () => {
+          walkthroughDraftRevision.current = draftRevision.current;
+        },
+      ),
+    [workerTape, session],
+  );
   // The tracer paths and the controls come first; the spread the prompts ask about waits.
   const gate = usePredictGate("bm-01", BM01_PROMPTS);
   useEffect(() => {
@@ -136,7 +177,7 @@ export function TracerLab({
       } else if (shared.kind === "invalid") setNote(shared.message);
     }
     return () => session.disconnect();
-  }, [linked, session]);
+  }, [linked, session, setDraft]);
   function apply(settings: Bm01Parameters) {
     const r = session.apply(settings);
     // THE REFUSAL IS KEPT, NOT FLATTENED (am-ig23). This read the requirements string or the message and
@@ -859,7 +900,12 @@ export function TracerLab({
           </table>
         </details>
         {note && <p className="notice">{note}</p>}
-        {linked && <LabTapeLink link={withPredictions(tapeLink, gate)} />}
+        {linked && (
+          <LabTapeLink
+            link={withPredictions(tapeLink, gate)}
+            workerWalkthrough={workerWalkthrough}
+          />
+        )}
       </section>
     </EquationScope>
   );

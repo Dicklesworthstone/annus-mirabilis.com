@@ -109,12 +109,17 @@ function encodeValue(value: DigestValue): Uint8Array {
   }
   if (value instanceof Float64Array) {
     // Float64Array is host-endian in memory; re-encode each element explicitly as LE so the
-    // digest never depends on host byte order.
-    const le = concatBytes(Array.from(value, float64LeBytes));
+    // digest never depends on host byte order. One allocation keeps full trajectory checkpoints
+    // linear in memory; allocating a tiny buffer per coordinate overwhelms large recordings.
+    const le = new Uint8Array(value.length * Float64Array.BYTES_PER_ELEMENT);
+    const view = new DataView(le.buffer);
+    for (let i = 0; i < value.length; i++) view.setFloat64(i * 8, value[i] as number, true);
     return concatBytes([Uint8Array.of(TAG.float64Array), typedArrayBytes(1, [value.length], le)]);
   }
   if (value instanceof Uint32Array) {
-    const le = concatBytes(Array.from(value, u32LeBytes));
+    const le = new Uint8Array(value.length * Uint32Array.BYTES_PER_ELEMENT);
+    const view = new DataView(le.buffer);
+    for (let i = 0; i < value.length; i++) view.setUint32(i * 4, value[i] as number, true);
     return concatBytes([Uint8Array.of(TAG.uint32Array), typedArrayBytes(2, [value.length], le)]);
   }
   if (Array.isArray(value)) {

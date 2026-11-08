@@ -1,5 +1,10 @@
+import type {
+  PublicationVerifier,
+  VerifiablePublication,
+} from "../../workers/scheduler/verifiedChannel.ts";
 import type { ExperimentView, RequestToken } from "../store/instanceStore.ts";
-import type { DraftTapeBinding } from "./draftTape.ts";
+import { checkTapeCompatibility } from "./compatibility.ts";
+import { type DraftTapeBinding, environmentForSettings } from "./draftTape.ts";
 import { replayTape } from "./replay.ts";
 import { validateTapeV2 } from "./schema.ts";
 import {
@@ -14,6 +19,11 @@ import type { TapeV2 } from "./types.ts";
 /** A worker accepting a request has not yet accepted a result. */
 export type WorkerTapeSession = Readonly<{
   apply(input: unknown): Readonly<{ kind: string; data?: unknown }>;
+  /** A scientific replay must check the worker result before it can replace accepted state. */
+  applyVerified?(
+    input: unknown,
+    verify: PublicationVerifier,
+  ): Readonly<{ kind: string; data?: unknown }>;
   startNewRun?(input: unknown): Readonly<{ kind: string; data?: unknown }>;
   getSnapshot(): ExperimentView;
   subscribe(listener: () => void): () => void;
@@ -23,7 +33,13 @@ export type WorkerTapeSession = Readonly<{
 }>;
 
 export type WorkerTapeBinding = DraftTapeBinding &
-  Readonly<{ createSession(instanceId: string): WorkerTapeSession }>;
+  Readonly<{
+    createSession(instanceId: string): WorkerTapeSession;
+    scientificReplay?: Readonly<{
+      validate(tape: TapeV2, states: readonly Readonly<Record<string, unknown>>[]): string | null;
+      verify(tape: TapeV2, publication: VerifiablePublication): Promise<string | null>;
+    }>;
+  }>;
 
 export type WorkerTapeRestore =
   | Readonly<{ kind: "restored" }>
@@ -35,7 +51,11 @@ export type WorkerReplayOptions = Readonly<{
   timeoutMs?: number | undefined;
 }>;
 
-type WorkerCalculationOptions = WorkerReplayOptions & Readonly<{ newRun?: boolean }>;
+type WorkerCalculationOptions = WorkerReplayOptions &
+  Readonly<{
+    newRun?: boolean;
+    verifyPublication?: PublicationVerifier;
+  }>;
 
 const refuse = (notice: string): WorkerTapeRestore => ({ kind: "not-restored", notice });
 
@@ -47,6 +67,56 @@ function sameSettings(left: object, right: object): boolean {
       ([key, value]) => Object.hasOwn(other, key) && Object.is(value, other[key]),
     )
   );
+}
+
+/** Structural planning only: a scientific digest is checked against the eventual owner result. */
+function scientificReplayPlan(binding: WorkerTapeBinding, tape: TapeV2) {
+  const states: Readonly<Record<string, unknown>>[] = [];
+  const invalid = (notice: string) => ({ kind: "not-restored" as const, notice });
+  if (
+    tape.experimentId !== binding.environment.experimentId ||
+    tape.mode !== binding.environment.mode
+  )
+    return invalid("This checkpoint belongs to another laboratory or model mode.");
+  let settings: Readonly<Record<string, unknown>> = binding.defaults;
+  const apply = (input: object) => {
+    const checked = binding.validate(input);
+    if (checked.kind !== "accepted")
+      return requirementsOf(checked) || "The laboratory refuses a recorded intermediate setting.";
+    settings =
+      checked.data && typeof checked.data === "object" ? { ...checked.data } : { ...input };
+    states.push(settings);
+    return null;
+  };
+  const initialError = apply({
+    ...binding.defaults,
+    ...settingsFromTape(tape.initialConditions, binding.defaults),
+  });
+  if (initialError) return invalid(initialError);
+  const compatibility = checkTapeCompatibility(tape, environmentForSettings(binding, settings));
+  if (!compatibility.compatible) return invalid(`${compatibility.notice} ${compatibility.repair}`);
+  let lastAction = 0;
+  for (const event of tape.events) {
+    if (event.actionIndex <= 0 || event.actionIndex > tape.acceptedCheckpoint.acceptedActionIndex)
+      return invalid("The checkpoint does not identify a complete recorded event prefix.");
+    if (!Object.hasOwn(binding.defaults, event.paramId))
+      return invalid(`The checkpoint names an unknown setting: ${event.paramId}.`);
+    if (
+      event.previousValue !== undefined &&
+      !Object.is(event.previousValue, settings[event.paramId])
+    )
+      return invalid("A recorded change does not begin at its stated previous value.");
+    const error = apply({
+      ...settings,
+      ...settingsFromTape({ [event.paramId]: event.value }, binding.defaults),
+    });
+    if (error) return invalid(error);
+    lastAction = event.actionIndex;
+  }
+  if (lastAction !== tape.acceptedCheckpoint.acceptedActionIndex)
+    return invalid("The checkpoint's action was not reached by its recorded controls.");
+  const error = binding.scientificReplay?.validate(tape, states);
+  return error ? invalid(error) : { kind: "planned" as const, states };
 }
 
 /** Resolve and verify settings without changing either a live session or a worker. */
@@ -146,9 +216,11 @@ export function applyWorkerSettings(
             : refuse("The accepted calculation does not contain the recorded settings."),
         );
       } else if (!view.pending) {
+        const checkpointNotice = view.outcome?.details?.checkpointNotice;
         finish(
           refuse(
-            view.refusal?.message ??
+            (typeof checkpointNotice === "string" ? checkpointNotice : undefined) ??
+              view.refusal?.message ??
               view.outcome?.message ??
               "The calculation stopped before accepting the checkpoint.",
           ),
@@ -169,9 +241,19 @@ export function applyWorkerSettings(
         options.timeoutMs ?? 15_000,
       );
       const previous = session.getSnapshot().requested;
-      const outcome = options.newRun ? session.startNewRun?.(settings) : session.apply(settings);
+      const outcome = options.newRun
+        ? session.startNewRun?.(settings)
+        : options.verifyPublication
+          ? session.applyVerified?.(settings, options.verifyPublication)
+          : session.apply(settings);
       if (!outcome) {
-        finish(refuse("This laboratory cannot begin an explicitly new run."));
+        finish(
+          refuse(
+            options.verifyPublication
+              ? "This laboratory cannot verify a scientific checkpoint before publication."
+              : "This laboratory cannot begin an explicitly new run.",
+          ),
+        );
         return;
       }
       if (outcome.kind !== "accepted") {
@@ -181,6 +263,12 @@ export function applyWorkerSettings(
         return;
       }
       requested = outcome.data as RequestToken | null;
+      // Store subscribers may synchronously cancel while apply() is still issuing this token.
+      // The abort handler cannot stop an unassigned token; close it now, but never a newer edit.
+      if (settled || options.signal?.aborted) {
+        if (requested && session.getSnapshot().requested === requested) session.stop();
+        return;
+      }
       if (!requested || requested === previous) {
         finish(refuse("The laboratory did not issue a calculation for this checkpoint."));
         return;
@@ -206,8 +294,9 @@ let preflightNumber = 0;
  * Thus an incompatible record, invalid intermediate step or failed preflight preserves the live
  * snapshot AND run identity. A live worker failure preserves its last accepted snapshot as usual.
  *
- * These are settings checkpoints, not recorded numerical observations or stochastic trajectory
- * states. The worker owns every displayed result and its execution label; no tape lends a label.
+ * Deterministic bindings retain their settings checks. Stochastic bindings must supply a scientific
+ * owner policy and a guarded publication seam; both the isolated result and the live result are
+ * verified before acceptance. A settings checksum never stands in for a trajectory digest.
  */
 export async function restoreWorkerTape(
   binding: WorkerTapeBinding,
@@ -219,8 +308,9 @@ export async function restoreWorkerTape(
     return refuse("Another checkpoint restoration is still running.");
   if (options.signal?.aborted) return refuse("The checkpoint restoration was cancelled.");
   if (
-    binding.environment.allocationId !== "deterministic" ||
-    binding.environment.streamVersion !== "deterministic"
+    !binding.scientificReplay &&
+    (binding.environment.allocationId !== "deterministic" ||
+      binding.environment.streamVersion !== "deterministic")
   ) {
     return refuse(
       "This player restores deterministic settings checkpoints. This laboratory requires its random-stream replay owner.",
@@ -233,6 +323,36 @@ export async function restoreWorkerTape(
   let trial: WorkerTapeSession | undefined;
   try {
     const checked = validateTapeV2(tape);
+    const scientific = binding.scientificReplay;
+    if (scientific) {
+      const plan = scientificReplayPlan(binding, checked);
+      if (plan.kind !== "planned") return plan;
+      if (!session.applyVerified)
+        return refuse("This laboratory cannot verify a scientific checkpoint before publication.");
+      trial = binding.createSession(
+        `${binding.environment.experimentId}-replay-${++preflightNumber}`,
+      );
+      const verifyPublication: PublicationVerifier = (publication) =>
+        scientific.verify(checked, publication);
+      for (let i = 0; i < plan.states.length; i++) {
+        const settings = plan.states[i];
+        if (!settings) continue;
+        const outcome = await applyWorkerSettings(trial, settings, {
+          ...options,
+          ...(i === plan.states.length - 1 ? { verifyPublication } : {}),
+        });
+        if (outcome.kind !== "restored") return outcome;
+      }
+      if (session.getSnapshot() !== before)
+        return refuse(
+          "The laboratory changed while the checkpoint was checked. Your newer work has been kept; restore again if intended.",
+        );
+      if (options.signal?.aborted) return refuse("The checkpoint restoration was cancelled.");
+      return await applyWorkerSettings(session, trial.acceptedParameters(), {
+        ...options,
+        verifyPublication,
+      });
+    }
     const plan = replayPlan(binding, checked);
     if (plan.result.kind !== "success") return refuse(plan.result.notice);
     trial = binding.createSession(

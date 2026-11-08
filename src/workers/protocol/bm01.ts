@@ -1,4 +1,5 @@
 import {
+  BM01_FRANKENSIM_RECORDER_OWNER,
   BM01_MODEL,
   BM01_OUTPUTS,
   type Bm01Parameters,
@@ -6,12 +7,18 @@ import {
 } from "../../experiments/bm01/definition.ts";
 import { validateBm01Parameters } from "../../experiments/bm01/parameters.ts";
 import {
+  FRANKENSIM_NORMAL_VERSION,
+  PINNED_ARTIFACT,
+} from "../../experiments/provenance/pinnedFrankenSim.ts";
+import {
   decodeOutcome,
   decodeRefusal,
   decodeResultBatch,
 } from "../../experiments/results/codec.ts";
 import { ownerAdmitted, type RequestToken } from "../../experiments/store/instanceStore.ts";
+import { BM01_ALLOCATION } from "../../experiments/streams/allocation.ts";
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
+import { HOST_NORMAL_VERSION } from "../../physics/reference/philox.ts";
 import type { Bm01Evaluation } from "../operations/bm01.ts";
 
 /** Deliberately scoped version: not an assertion that the full WASM protocol is implemented. */
@@ -174,7 +181,15 @@ export function decodeLabResponse(
     const r = o.result as Record<string, unknown>;
     if (r?.kind === "accepted") {
       record(r, ["kind", "data"]);
-      const data = record(r.data, ["outputs", "stepIndex", "simulationTime"]);
+      const hasCheckpoint = Boolean(
+        r.data && typeof r.data === "object" && Object.hasOwn(r.data, "recordingCheckpoint"),
+      );
+      const data = record(r.data, [
+        "outputs",
+        "stepIndex",
+        "simulationTime",
+        ...(hasCheckpoint ? ["recordingCheckpoint"] : []),
+      ]);
       count(data.stepIndex);
       const requiredSteps = Math.round(Number(token.parameters.H) / Number(token.parameters.h));
       if (data.stepIndex !== requiredSteps || data.simulationTime !== token.parameters.H)
@@ -270,6 +285,45 @@ export function decodeLabResponse(
       );
       if (recordingOwners.size > 1)
         fail("Outputs read from one recording name different producers.");
+      if (hasCheckpoint) {
+        const checkpoint = record(data.recordingCheckpoint, [
+          "checkpointVersion",
+          "sourceDigest",
+          "ownerId",
+          "normalVersion",
+          "artifactDigest",
+          "allocationId",
+          "seed",
+          "tracers",
+          "steps",
+          "baseSpacing",
+          "diffusionCoefficient",
+          "draws",
+          "digest",
+        ]);
+        const p = token.parameters as Bm01Parameters;
+        const diffusion = outputs.find((output) => output.quantityId === "diffusionCoefficient");
+        const wasm = checkpoint.ownerId === BM01_FRANKENSIM_RECORDER_OWNER;
+        if (
+          checkpoint.checkpointVersion !== 1 ||
+          checkpoint.sourceDigest !== expectedDigest ||
+          !recordingOwners.has(String(checkpoint.ownerId)) ||
+          checkpoint.normalVersion !== (wasm ? FRANKENSIM_NORMAL_VERSION : HOST_NORMAL_VERSION) ||
+          checkpoint.artifactDigest !==
+            (wasm ? `sha256:${PINNED_ARTIFACT.wasmDigest}` : expectedDigest) ||
+          checkpoint.allocationId !== BM01_ALLOCATION.allocationId ||
+          checkpoint.seed !== p.seed ||
+          checkpoint.tracers !== p.M ||
+          checkpoint.steps !== requiredSteps ||
+          checkpoint.baseSpacing !== p.h ||
+          diffusion?.status !== "value" ||
+          checkpoint.diffusionCoefficient !== diffusion.value ||
+          checkpoint.draws !== p.M * 3 * requiredSteps * BM01_ALLOCATION.drawsPerStep ||
+          typeof checkpoint.digest !== "string" ||
+          !/^host:sha256:[a-f0-9]{64}$/.test(checkpoint.digest)
+        )
+          fail("The complete recording checkpoint disagrees with the accepted calculation.");
+      }
     } else if (r?.kind === "refused") {
       record(r, ["kind", "refusal"]);
       decodeRefusal(r.refusal);

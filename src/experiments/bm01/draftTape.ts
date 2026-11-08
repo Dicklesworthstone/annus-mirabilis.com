@@ -5,6 +5,8 @@
  * The header names the stream the tracers draw from, bm-01.latent.v1 at stream version 1
  * (experiments/streams/allocation.ts), and the explicitly selected constant set.
  */
+
+import { parseU64 } from "../identity/u64.ts";
 import type { DraftTapeBinding } from "../permalink/draftTape.ts";
 import { BM01_ALLOCATION } from "../streams/allocation.ts";
 import { BM01_DEFAULTS } from "./definition.ts";
@@ -23,4 +25,9 @@ export const BM01_DRAFT_TAPE: DraftTapeBinding = Object.freeze({
   defaults: BM01_DEFAULTS,
   validate: validateBm01Parameters,
   constantSetIdForSettings: (settings) => String(settings.constantSetId),
+  seedForSettings: (settings) => parseU64(settings.seed),
+  replayGridForSettings: (settings) => ({
+    baseSpacing: Number(settings.h),
+    horizon: Number(settings.H),
+  }),
 });

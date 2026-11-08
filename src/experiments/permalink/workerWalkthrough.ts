@@ -8,7 +8,7 @@ import {
 } from "./workerSessionTape.ts";
 
 /**
- * Connect a deterministic worker's validated settings to the shared checkpoint player. A request
+ * Connect a worker's validated settings and checkpoint policy to the shared player. A request
  * being accepted is not a completed calculation: both paths wait for this request's final result.
  * Each instrument supplies its binding and the typed form update at this boundary.
  */

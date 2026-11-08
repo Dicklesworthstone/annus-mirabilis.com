@@ -1,8 +1,17 @@
 import { BM01_PROTOCOL, decodeLabHello, decodeLabResponse } from "../../workers/protocol/bm01.ts";
 import { LabProtocolError } from "../../workers/protocol/bm06.ts";
 import { createHostScheduler, type WorkerChannel } from "../../workers/scheduler/hostScheduler.ts";
+import {
+  createVerifiedWorkerChannel,
+  type PublicationVerifier,
+} from "../../workers/scheduler/verifiedChannel.ts";
 import { parseResult } from "../results/codec.ts";
-import { createInstanceStore, type ParameterClass } from "../store/instanceStore.ts";
+import { executionOutcomeRegistry } from "../results/outcomes.ts";
+import {
+  createInstanceStore,
+  type ParameterClass,
+  type RequestToken,
+} from "../store/instanceStore.ts";
 import { BM01_CLASSES, BM01_OUTPUTS, type Bm01Parameters } from "./definition.ts";
 import { validateBm01Parameters } from "./parameters.ts";
 export type PreparedBm01Example = Readonly<{
@@ -61,50 +70,89 @@ export function createBm01Session(
     throw new Error("Invalid prepared tracer example.");
   const serverSnapshot = store.getSnapshot();
   let scheduler: ReturnType<typeof createHostScheduler> | null = null;
+  const verifiers = new WeakMap<RequestToken, PublicationVerifier>();
+  const ownerProtocol = {
+    version: BM01_PROTOCOL,
+    decodeHello: decodeLabHello,
+    decodeResponse: decodeLabResponse,
+  };
+  function apply(input: unknown, newRun = false, verify?: PublicationVerifier) {
+    const checked = validateBm01Parameters(input);
+    if (checked.kind !== "accepted") return checked;
+    const snapshot = store.getSnapshot();
+    const previous = snapshot.requested?.parameters;
+    if (!previous) {
+      throw new Error("Missing requested parameters in snapshot.");
+    }
+    const p = checked.data;
+    const groups: Record<ParameterClass, Record<string, number | string>> = {
+      input: {},
+      observer: {},
+      measurement: {},
+      estimator: {},
+      presentation: {},
+    };
+    for (const key of Object.keys(p) as (keyof Bm01Parameters)[]) {
+      if ((newRun && BM01_CLASSES[key] === "input") || !Object.is(p[key], previous[key])) {
+        const cls = BM01_CLASSES[key];
+        groups[cls][key] = p[key];
+      }
+    }
+    const superseded = () => ({
+      kind: "outcome" as const,
+      outcome: { outcome: "superseded" as const, ...executionOutcomeRegistry.superseded },
+    });
+    let request = newRun ? store.issue("setup-change", groups.input) : null;
+    if (request && store.getSnapshot().requested !== request) return superseded();
+    for (const [group, command] of [
+      ["input", "setup-change"],
+      ["measurement", "measurement-change"],
+      ["estimator", "estimator-change"],
+    ] as const) {
+      if (newRun && group === "input") continue;
+      const payload = groups[group];
+      if (Object.keys(payload).length) {
+        request = store.issue(command, payload);
+        // A subscriber may apply a newer complete setup during issue(). Never attach remaining
+        // measurement/estimator changes to that newer run or dispatch the stale outer request.
+        if (store.getSnapshot().requested !== request) return superseded();
+      }
+    }
+    request ??= store.issue("continue");
+    if (store.getSnapshot().requested !== request) return superseded();
+    if (verify) verifiers.set(request, verify);
+    scheduler ??= createHostScheduler(
+      store,
+      () =>
+        createVerifiedWorkerChannel(workerFactory(), ownerProtocol, example.sourceDigest, (token) =>
+          verifiers.get(token),
+        ),
+      example.sourceDigest,
+      {
+        ...ownerProtocol,
+        decodeResponse(message, token, digest) {
+          const response = decodeLabResponse(message, token, digest);
+          if (response.result.kind !== "accepted") return response;
+          const { outputs, stepIndex, simulationTime } = response.result.data;
+          // The recording checksum is checked at the channel seam; the result store owns only
+          // its declared scientific outputs, so transport metadata never enters publication.
+          return {
+            ...response,
+            result: { kind: "accepted", data: { outputs, stepIndex, simulationTime } },
+          };
+        },
+      },
+    );
+    scheduler.request(request);
+    return { kind: "accepted" as const, data: request };
+  }
   return Object.freeze({
     getSnapshot: store.getSnapshot,
     getServerSnapshot: () => serverSnapshot,
     subscribe: store.subscribe,
-    apply(input: unknown) {
-      const checked = validateBm01Parameters(input);
-      if (checked.kind !== "accepted") return checked;
-      const snapshot = store.getSnapshot();
-      const previous = snapshot.requested?.parameters;
-      if (!previous) {
-        throw new Error("Missing requested parameters in snapshot.");
-      }
-      const p = checked.data;
-      const groups: Record<ParameterClass, Record<string, number | string>> = {
-        input: {},
-        observer: {},
-        measurement: {},
-        estimator: {},
-        presentation: {},
-      };
-      for (const key of Object.keys(p) as (keyof Bm01Parameters)[]) {
-        if (!Object.is(p[key], previous[key])) {
-          const cls = BM01_CLASSES[key];
-          groups[cls][key] = p[key];
-        }
-      }
-      let request = null;
-      for (const [group, command] of [
-        ["input", "setup-change"],
-        ["measurement", "measurement-change"],
-        ["estimator", "estimator-change"],
-      ] as const) {
-        const payload = groups[group];
-        if (Object.keys(payload).length) request = store.issue(command, payload);
-      }
-      request ??= store.issue("continue");
-      scheduler ??= createHostScheduler(store, workerFactory, example.sourceDigest, {
-        version: BM01_PROTOCOL,
-        decodeHello: decodeLabHello,
-        decodeResponse: decodeLabResponse,
-      });
-      scheduler.request(request);
-      return { kind: "accepted" as const, data: request };
-    },
+    apply: (input: unknown) => apply(input),
+    applyVerified: (input: unknown, verify: PublicationVerifier) => apply(input, false, verify),
+    startNewRun: (input: unknown) => apply(input, true),
     stop() {
       scheduler?.cancel();
     },

@@ -8,6 +8,7 @@ import {
   TRACE_POINTS,
 } from "../../experiments/bm01/definition.ts";
 import { validateBm01Parameters } from "../../experiments/bm01/parameters.ts";
+import type { Bm01RecordingCheckpoint } from "../../experiments/bm01/recordingCheckpoint.ts";
 import { executionOutcomeRegistry } from "../../experiments/results/outcomes.ts";
 import { makeRefusal } from "../../experiments/results/refusals.ts";
 import type { ScientificResult } from "../../experiments/results/types.ts";
@@ -36,6 +37,8 @@ export type Bm01Evaluation = Readonly<{
   outputs: readonly ScientificResult[];
   stepIndex: number;
   simulationTime: number;
+  /** Worker-only identity of the complete retained trajectory, verified before replay publication. */
+  recordingCheckpoint?: Bm01RecordingCheckpoint;
 }>;
 /**
  * Who records the tracer ensemble. The host reference is the default. The worker may hand in

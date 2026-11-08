@@ -9,7 +9,7 @@
  * Apply runs them. The synchronous laboratories replay a tape instead (sessionTape.ts), since
  * applying a setting there costs nothing.
  */
-import type { U64String } from "../identity/u64.ts";
+import { parseU64, type U64String } from "../identity/u64.ts";
 import { decodeTapePermalinkInBrowser } from "./browserCodec.ts";
 import { checkTapeCompatibility } from "./compatibility.ts";
 import {
@@ -20,7 +20,7 @@ import {
   tapeStateDigestV2,
   tapeStateOf,
 } from "./sessionTape.ts";
-import type { ExperimentEnvironment, TapeV2 } from "./types.ts";
+import type { ExperimentEnvironment, TapeReplayGrid, TapeV2 } from "./types.ts";
 
 type Checked = Readonly<{ kind: string; data?: unknown }>;
 
@@ -37,6 +37,8 @@ export type DraftTapeBinding = Readonly<{
    * tape header. Bindings without this resolver keep their fixed environment identity.
    */
   constantSetIdForSettings?(settings: Readonly<Record<string, unknown>>): string;
+  seedForSettings?(settings: Readonly<Record<string, unknown>>): U64String;
+  replayGridForSettings?(settings: Readonly<Record<string, unknown>>): TapeReplayGrid;
 }>;
 
 function acceptedSettings(
@@ -47,13 +49,19 @@ function acceptedSettings(
   return data && typeof data === "object" ? (data as Record<string, unknown>) : settings;
 }
 
-function environmentForSettings(
+export function environmentForSettings(
   binding: DraftTapeBinding,
   settings: Readonly<Record<string, unknown>>,
 ): ExperimentEnvironment {
-  return binding.constantSetIdForSettings
-    ? { ...binding.environment, constantSetId: binding.constantSetIdForSettings(settings) }
-    : binding.environment;
+  return {
+    ...binding.environment,
+    ...(binding.constantSetIdForSettings
+      ? { constantSetId: binding.constantSetIdForSettings(settings) }
+      : {}),
+    ...(binding.replayGridForSettings
+      ? { replayGrid: binding.replayGridForSettings(settings) }
+      : {}),
+  };
 }
 
 /**
@@ -70,7 +78,8 @@ export function draftTapeForSettings(binding: DraftTapeBinding, params: object):
   };
   const checked = binding.validate(settings);
   if (checked.kind !== "accepted") return null;
-  const env = environmentForSettings(binding, acceptedSettings(checked, settings));
+  const accepted = acceptedSettings(checked, settings);
+  const env = environmentForSettings(binding, accepted);
   const tape: TapeV2 = {
     tapeVersion: 2,
     experimentId: env.experimentId,
@@ -81,9 +90,12 @@ export function draftTapeForSettings(binding: DraftTapeBinding, params: object):
       ...(env.artifactDigest === undefined ? {} : { artifactDigest: env.artifactDigest }),
     },
     constantSetId: env.constantSetId,
-    seed: "0" as U64String,
+    seed: binding.seedForSettings
+      ? parseU64(binding.seedForSettings(accepted))
+      : ("0" as U64String),
     streamVersion: env.streamVersion,
     allocationId: env.allocationId,
+    ...(env.replayGrid === undefined ? {} : { replayGrid: env.replayGrid }),
     initialConditions: state,
     events: [],
     acceptedCheckpoint: {
@@ -113,7 +125,7 @@ export function loadDraftTape(binding: DraftTapeBinding, tape: TapeV2): DraftTap
       notice: `This shared state could not be restored: it was recorded in another laboratory, ${tape.experimentId}.`,
     };
   }
-  if (!binding.constantSetIdForSettings) {
+  if (!binding.constantSetIdForSettings && !binding.replayGridForSettings) {
     const compatible = checkTapeCompatibility(tape, env);
     if (!compatible.compatible) {
       return { kind: "not-restored", notice: `${compatible.notice} ${compatible.repair}` };
@@ -146,12 +158,18 @@ export function loadDraftTape(binding: DraftTapeBinding, tape: TapeV2): DraftTap
     };
   }
   const accepted = acceptedSettings(checked, settings);
-  if (binding.constantSetIdForSettings) {
+  if (binding.constantSetIdForSettings || binding.replayGridForSettings) {
     const compatible = checkTapeCompatibility(tape, environmentForSettings(binding, accepted));
     if (!compatible.compatible) {
       return { kind: "not-restored", notice: `${compatible.notice} ${compatible.repair}` };
     }
   }
+  if (binding.seedForSettings && tape.seed !== binding.seedForSettings(accepted))
+    return {
+      kind: "not-restored",
+      notice:
+        "This shared state's seed identity differs from its settings. Load a link with the original complete seed.",
+    };
   return {
     kind: "loaded",
     settings: accepted,

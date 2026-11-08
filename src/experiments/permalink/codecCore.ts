@@ -7,7 +7,7 @@
  * one writes the other reads, and a refusal says the same thing in either.
  */
 import { TapeValidationError, validateTapeV2 } from "./schema.ts";
-import type { TapeDecodeResult, TapeV2 } from "./types.ts";
+import type { TapeDecodeResult, TapeScientificCheckpoint, TapeV2 } from "./types.ts";
 
 export const MAX_PERMALINK_URL_LENGTH = 2048;
 
@@ -130,7 +130,12 @@ export function tapePayloadBytes(tape: TapeV2, options?: EncodeTapeOptions): Uin
     ...(validated.presetId ? { presetId: validated.presetId } : {}),
     events: validated.events,
     ...(validated.teachingTapeRef ? { teachingTapeRef: validated.teachingTapeRef } : {}),
-    acceptedCheckpoint: validated.acceptedCheckpoint,
+    acceptedCheckpoint: {
+      ...validated.acceptedCheckpoint,
+      ...(validated.acceptedCheckpoint.scientificState
+        ? { scientificState: compactScientificState(validated.acceptedCheckpoint.scientificState) }
+        : {}),
+    },
     ...(validated.title ? { title: validated.title } : {}),
     ...(validated.description ? { description: validated.description } : {}),
   };
@@ -144,6 +149,39 @@ export function tapePayloadBytes(tape: TapeV2, options?: EncodeTapeOptions): Uin
   }
 
   return new TextEncoder().encode(JSON.stringify(payload));
+}
+
+/** Lossless ranges keep a complete ensemble checkpoint inside the existing URL/byte budgets. */
+function compactScientificState(state: TapeScientificCheckpoint): object {
+  const ranges: {
+    allocationId: string;
+    streamKernelId: string;
+    firstTile: string;
+    count: number;
+    index: string;
+  }[] = [];
+  for (const position of state.streamPositions) {
+    const previous = ranges.at(-1);
+    if (
+      previous &&
+      previous.allocationId === position.allocationId &&
+      previous.streamKernelId === position.streamKernelId &&
+      previous.index === position.index &&
+      BigInt(previous.firstTile) + BigInt(previous.count) === BigInt(position.tile)
+    ) {
+      previous.count++;
+    } else
+      ranges.push({
+        allocationId: position.allocationId,
+        streamKernelId: position.streamKernelId,
+        firstTile: position.tile,
+        count: 1,
+        index: position.index,
+      });
+  }
+  if (JSON.stringify(ranges).length >= JSON.stringify(state.streamPositions).length) return state;
+  const { streamPositions: _positions, ...identity } = state;
+  return { ...identity, streamPositionRanges: ranges };
 }
 
 /**

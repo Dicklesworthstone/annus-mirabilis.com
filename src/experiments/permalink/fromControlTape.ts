@@ -163,6 +163,18 @@ export function permalinkTapeFromControlTape(record: ControlTapeV2): ControlTape
       // Compatibility never reads it; it names which accepted state a restore is resuming.
       acceptedInputRevision: 0,
       digest: checkpoint.digest,
+      ...(record.allocationId.trim() === NO_STREAM
+        ? {}
+        : {
+            scientificState: {
+              checkpointVersion: checkpoint.checkpointVersion,
+              streamSemanticsVersion: checkpoint.streamSemanticsVersion,
+              stepIndex: checkpoint.stepIndex,
+              simulatedTime: checkpoint.simulatedTime,
+              seed: checkpoint.seed,
+              streamPositions: checkpoint.streamPositions,
+            },
+          }),
     },
     ...(record.title === undefined ? {} : { title: record.title }),
     ...(record.description === undefined ? {} : { description: record.description }),

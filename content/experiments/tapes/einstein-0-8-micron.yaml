@@ -1,25 +1,9 @@
-# Teaching tape "Einstein's 0.8 micron particle" (am-bm-01-tracer-ensemble-hdly, requirement 10).
-#
-# Scope note (WildCrane, 2026-09-16): the bead's teaching-tape script walks through THREE
-# constant sets (einstein-1905-brownian-printed, modern-si-2019, scenario-modern-water-17c).
-# The tape schema's constantSetId is a single tape-wide field (src/experiments/tapes/schema.ts,
-# am-rt-control-tapes-0gc), not a per-event value -- a control tape cannot currently record a
-# mid-recording switch of constant set as a setup-change event, because TapeControlEvent.value
-# is numeric only and a constant-set id is a string. This tape therefore records ONLY the first
-# scenario (the historical constant set), which is fully representable: two measurement-change
-# events change the observation interval and reproduce Einstein's printed "0,8 Mikron" and
-# "ca. 6 Mikron". The modern-si-2019 and scenario-modern-water-17c comparisons are closed-form
-# recomputations on the SAME accepted inputs under a different constant set (a display-level
-# comparison, not a new recorded run) and are not tape events here; representing a constant-set
-# switch as a recordable event would need a schema change to am-rt-control-tapes-0gc, which is
-# named as a gap rather than worked around with a fabricated numeric encoding.
-#
-# `einstein-1905-brownian-printed` is not yet a registered constant set in
-# src/physics/reference/constants.ts (owned by am-ref-constants-xik, still open); it is named
-# here as a content-level string id, matching the bead's own requirement, but cannot yet be
-# evaluated live through getConstantSet. The two expectedDisplayValues below were verified
-# independently (desk inference: plain arithmetic reproducing D = R*T/(6*pi*eta*a*N_A) and
-# lambda_x = sqrt(2*D*t) from the bead's stated printed inputs), not through a live run.
+# Historical Brownian displacement, recorded through the actual pinned FrankenSim owner.
+# A single 100-tracer, 60-second recording uses 7,202,400 bytes, within the 8 MiB budget.
+# Both stops read that same recording; observing at a new interval consumes no random draws.
+# Checkpoints bind the complete latent trajectory and accepted scientific outputs, not settings alone.
+# Host fallback normal transforms differ; playback refuses that engine and offers a new calculation.
+
 tapeVersion: 2
 tapeId: einstein-0-8-micron
 experimentId: bm-01
@@ -27,15 +11,27 @@ mode: "bm-01:default"
 modelIdentity:
   modelId: brownian-motion-reference
   modelVersion: "1"
-  artifactDigest: "host:sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  artifactDigest: "host:sha256:8875fcfa1114b15be4a647b565831fd90ade7a15fc5a4706f187efe6a5d58586"
 constantSetId: einstein-1905-brownian-printed
 seed: "1905"
 streamVersion: 1
 allocationId: bm-01.latent.v1
+replayGrid:
+  baseSpacing: 0.02
+  horizon: 60
 initialConditions:
+  constantSetId: "einstein-1905-brownian-printed"
   T: 290.15
   eta: 0.00135
-  a: 5e-7
+  a: 5e-07
+  seed: "1905"
+  M: 100
+  h: 0.02
+  H: 60
+  interval: 0
+  d: 1
+  axis: 0
+  statistic: "rms"
 events:
   - kind: control
     actionIndex: 1
@@ -43,45 +39,2459 @@ events:
     commandId: observe-1s
     parameterId: interval
     value: 1
+    previousValue: 0
   - kind: control
     actionIndex: 2
     commandClass: measurement-change
     commandId: observe-60s
     parameterId: interval
     value: 60
+    previousValue: 1
 checkpoints:
   - actionIndex: 1
-    stepIndex: 50
-    simulatedTime: 1
-    digest: "host:sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    stepIndex: 3000
+    simulatedTime: 60
+    digest: "host:sha256:208cfcc8f1c77f50e585853dc45e09e1e01c9d26baf1ac2e5aed3d0a0b32137e"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1
     seed: "1905"
-    streamPositions: []
+    streamPositions:
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "0"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "1"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "2"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "3"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "4"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "5"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "6"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "7"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "8"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "9"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "10"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "11"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "12"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "13"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "14"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "15"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "16"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "17"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "18"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "19"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "20"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "21"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "22"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "23"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "24"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "25"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "26"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "27"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "28"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "29"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "30"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "31"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "32"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "33"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "34"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "35"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "36"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "37"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "38"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "39"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "40"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "41"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "42"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "43"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "44"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "45"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "46"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "47"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "48"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "49"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "50"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "51"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "52"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "53"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "54"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "55"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "56"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "57"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "58"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "59"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "60"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "61"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "62"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "63"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "64"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "65"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "66"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "67"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "68"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "69"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "70"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "71"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "72"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "73"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "74"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "75"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "76"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "77"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "78"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "79"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "80"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "81"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "82"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "83"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "84"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "85"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "86"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "87"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "88"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "89"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "90"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "91"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "92"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "93"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "94"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "95"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "96"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "97"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "98"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "99"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "100"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "101"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "102"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "103"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "104"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "105"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "106"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "107"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "108"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "109"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "110"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "111"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "112"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "113"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "114"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "115"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "116"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "117"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "118"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "119"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "120"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "121"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "122"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "123"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "124"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "125"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "126"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "127"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "128"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "129"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "130"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "131"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "132"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "133"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "134"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "135"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "136"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "137"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "138"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "139"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "140"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "141"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "142"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "143"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "144"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "145"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "146"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "147"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "148"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "149"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "150"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "151"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "152"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "153"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "154"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "155"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "156"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "157"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "158"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "159"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "160"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "161"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "162"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "163"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "164"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "165"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "166"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "167"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "168"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "169"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "170"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "171"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "172"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "173"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "174"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "175"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "176"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "177"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "178"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "179"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "180"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "181"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "182"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "183"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "184"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "185"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "186"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "187"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "188"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "189"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "190"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "191"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "192"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "193"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "194"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "195"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "196"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "197"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "198"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "199"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "200"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "201"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "202"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "203"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "204"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "205"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "206"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "207"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "208"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "209"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "210"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "211"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "212"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "213"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "214"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "215"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "216"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "217"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "218"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "219"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "220"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "221"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "222"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "223"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "224"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "225"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "226"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "227"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "228"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "229"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "230"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "231"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "232"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "233"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "234"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "235"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "236"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "237"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "238"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "239"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "240"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "241"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "242"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "243"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "244"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "245"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "246"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "247"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "248"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "249"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "250"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "251"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "252"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "253"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "254"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "255"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "256"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "257"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "258"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "259"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "260"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "261"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "262"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "263"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "264"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "265"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "266"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "267"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "268"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "269"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "270"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "271"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "272"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "273"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "274"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "275"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "276"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "277"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "278"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "279"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "280"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "281"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "282"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "283"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "284"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "285"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "286"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "287"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "288"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "289"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "290"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "291"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "292"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "293"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "294"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "295"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "296"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "297"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "298"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "299"
+        index: "6000"
     label: "Einstein's printed 1-second interval"
-    teachingNote: "Einstein printed lambda_x = 8e-5 cm = 0,8 Mikron for 1 s."
+    teachingNote: "The 0.5 micrometre radius sphere has a model coordinate RMS displacement of about 0.8 micrometres after 1 second. This uses R/N from the historical constant set. The 100 plotted synthetic tracers are a finite sample; their RMS is a separate result. The complete recording already extends to 60 seconds."
     expectedDisplayValues:
-      - label: "lambda_x at 1 s"
-        value: 0.7947833
-        unit: "um"
+      - label: "Model coordinate RMS at 1 s"
+        outputId: rmsDisplacement1d
+        value: 7.947832833416785e-07
+        unit: "m"
+        constantSetId: einstein-1905-brownian-printed
+      - label: "Seeded sample coordinate RMS at 1 s"
+        outputId: sampleRms
+        value: 8.098854833070931e-07
+        unit: "m"
         constantSetId: einstein-1905-brownian-printed
   - actionIndex: 2
     stepIndex: 3000
     simulatedTime: 60
-    digest: "host:sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    digest: "host:sha256:1cd33e22533d2d24171ccd060c1054c74078ad5890595697c3256fd5870e8fdd"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1
     seed: "1905"
-    streamPositions: []
+    streamPositions:
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "0"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "1"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "2"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "3"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "4"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "5"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "6"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "7"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "8"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "9"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "10"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "11"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "12"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "13"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "14"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "15"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "16"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "17"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "18"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "19"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "20"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "21"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "22"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "23"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "24"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "25"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "26"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "27"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "28"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "29"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "30"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "31"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "32"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "33"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "34"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "35"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "36"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "37"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "38"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "39"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "40"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "41"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "42"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "43"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "44"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "45"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "46"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "47"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "48"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "49"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "50"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "51"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "52"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "53"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "54"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "55"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "56"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "57"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "58"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "59"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "60"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "61"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "62"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "63"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "64"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "65"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "66"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "67"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "68"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "69"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "70"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "71"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "72"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "73"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "74"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "75"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "76"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "77"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "78"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "79"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "80"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "81"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "82"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "83"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "84"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "85"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "86"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "87"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "88"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "89"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "90"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "91"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "92"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "93"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "94"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "95"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "96"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "97"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "98"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "99"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "100"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "101"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "102"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "103"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "104"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "105"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "106"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "107"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "108"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "109"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "110"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "111"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "112"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "113"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "114"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "115"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "116"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "117"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "118"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "119"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "120"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "121"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "122"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "123"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "124"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "125"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "126"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "127"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "128"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "129"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "130"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "131"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "132"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "133"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "134"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "135"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "136"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "137"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "138"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "139"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "140"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "141"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "142"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "143"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "144"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "145"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "146"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "147"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "148"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "149"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "150"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "151"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "152"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "153"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "154"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "155"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "156"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "157"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "158"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "159"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "160"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "161"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "162"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "163"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "164"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "165"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "166"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "167"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "168"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "169"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "170"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "171"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "172"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "173"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "174"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "175"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "176"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "177"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "178"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "179"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "180"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "181"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "182"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "183"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "184"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "185"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "186"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "187"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "188"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "189"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "190"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "191"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "192"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "193"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "194"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "195"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "196"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "197"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "198"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "199"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "200"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "201"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "202"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "203"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "204"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "205"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "206"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "207"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "208"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "209"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "210"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "211"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "212"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "213"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "214"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "215"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "216"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "217"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "218"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "219"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "220"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "221"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "222"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "223"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "224"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "225"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "226"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "227"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "228"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "229"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "230"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "231"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "232"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "233"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "234"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "235"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "236"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "237"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "238"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "239"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "240"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "241"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "242"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "243"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "244"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "245"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "246"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "247"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "248"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "249"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "250"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "251"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "252"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "253"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "254"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "255"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "256"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "257"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "258"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "259"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "260"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "261"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "262"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "263"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "264"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "265"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "266"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "267"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "268"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "269"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "270"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "271"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "272"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "273"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "274"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "275"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "276"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "277"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "278"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "279"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "280"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "281"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "282"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "283"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "284"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "285"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "286"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "287"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "288"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "289"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "290"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "291"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "292"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "293"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "294"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "295"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "296"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "297"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "298"
+        index: "6000"
+      - allocationId: bm-01.latent.v1
+        streamKernelId: "0x19050001"
+        tile: "299"
+        index: "6000"
     label: "Einstein's printed 60-second interval"
-    teachingNote: "Einstein printed ca. 6 Mikron for 1 min."
+    teachingNote: "After 60 seconds the model coordinate RMS displacement is 6.156 micrometres, about sqrt(60) times the 1-second result. This is the same seeded recording and the same 1,800,000 logical uniform draws. Changing when it is observed has drawn no new path; the sample RMS is not the exact model RMS."
     expectedDisplayValues:
-      - label: "lambda_x at 60 s"
-        value: 6.156365
-        unit: "um"
+      - label: "Model coordinate RMS at 60 s"
+        outputId: rmsDisplacement1d
+        value: 6.156364840452743e-06
+        unit: "m"
         constantSetId: einstein-1905-brownian-printed
-title: "Einstein's 0.8 micron particle"
-description: "Scrub the observation interval and see the printed displacement figures reproduced under the historical constant set."
+      - label: "Seeded sample coordinate RMS at 60 s"
+        outputId: sampleRms
+        value: 6.70030088666959e-06
+        unit: "m"
+        constantSetId: einstein-1905-brownian-printed
+title: "Einstein's 0.8 micron displacement"
+description: "Observe the same seeded ensemble after 1 and 60 seconds under Einstein's historical constants. Compare each sampled displacement with the model's printed prediction."
 isTeachingSequence: true

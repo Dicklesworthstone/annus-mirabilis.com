@@ -19,6 +19,7 @@
  */
 
 import { BM01_FRANKENSIM_RECORDER_OWNER } from "../../experiments/bm01/definition.ts";
+import { FRANKENSIM_NORMAL_VERSION } from "../../experiments/provenance/pinnedFrankenSim.ts";
 import { executionOutcomeRegistry } from "../../experiments/results/outcomes.ts";
 import { BM01_ALLOCATION } from "../../experiments/streams/allocation.ts";
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
@@ -32,7 +33,7 @@ import { parseU64 } from "../../physics/reference/philox.ts";
 import type { Bm01Recorder } from "../operations/bm01.ts";
 import { callBrownianFrames, type FrankenSimExports } from "./frankensimCalls.ts";
 
-export const FRANKENSIM_NORMAL_VERSION = "fs-rand-box-muller-det-v1";
+export { FRANKENSIM_NORMAL_VERSION };
 
 /** True when recordTracers would refuse this setup before sampling. */
 function hostRefuses(p: TracerSetup): boolean {
