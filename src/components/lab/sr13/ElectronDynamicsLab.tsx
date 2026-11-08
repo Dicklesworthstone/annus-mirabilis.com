@@ -86,21 +86,25 @@ function typedFrom(p: Sr13Parameters): Sr13Typed {
 }
 
 export function ElectronDynamicsLab({
+  instanceId,
+  restoreFromLocation = true,
   example,
   title = "Dynamics of the slowly accelerated electron",
 }: {
   example: PreparedSr13Example;
+  instanceId?: string | undefined;
+  restoreFromLocation?: boolean | undefined;
   title?: string;
 }) {
   const id = useId();
-  const [session] = useState(() => createSr13Session(`sr13-${id}`, example));
+  const [session] = useState(() => createSr13Session(instanceId ?? `sr13-${id}`, example));
   const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
   const tapeLink = useLabTapeLink(
     SR13_TAPE,
     session,
     session.acceptedParameters(),
-    true,
+    restoreFromLocation,
     /*
      * BOTH halves of the form, as this laboratory's own apply handler does. `typed` holds the TEXT
      * in the number inputs, so updating `draft` alone left a reader who opened a shared link

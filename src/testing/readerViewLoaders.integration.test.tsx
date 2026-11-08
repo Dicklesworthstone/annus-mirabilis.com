@@ -15,6 +15,8 @@
  * surface and fail, which is the negative the fixture version cannot provide.
  */
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import type { ViewLoaders } from "../experiments/dispatch.tsx";
@@ -32,6 +34,19 @@ afterEach(async () => {
 });
 
 const INJECTED: ViewLoaders = { "sr-01": () => import("../experiments/views/sr01View.tsx") };
+const argumentDirectory = new URL("../../content/arguments/", import.meta.url);
+const firstInstruments = [
+  ...new Set(
+    readdirSync(argumentDirectory, { recursive: true })
+      .filter((path) => typeof path === "string" && path.endsWith(".json"))
+      .flatMap((path) => {
+        const argument = JSON.parse(
+          readFileSync(join(argumentDirectory.pathname, String(path)), "utf8"),
+        ) as { experiments?: string[] };
+        return argument.experiments?.slice(0, 1) ?? [];
+      }),
+  ),
+].sort();
 
 async function renderOpen(rawId: string, viewLoaders?: ViewLoaders): Promise<string> {
   const definition = getClarificationKind("instrument-view");
@@ -54,9 +69,9 @@ async function renderOpen(rawId: string, viewLoaders?: ViewLoaders): Promise<str
   // The dispatcher's Suspense fallback IS InPreparationNotice, so a chunk that has not resolved
   // looks exactly like an instrument with no loader. Ticks until the lazy import settles, or the
   // assertion below would be about the fallback rather than about the wiring.
-  for (let tick = 0; tick < 20; tick += 1) {
+  for (let tick = 0; tick < 100; tick += 1) {
     await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 10));
     });
     if (!container.innerHTML.includes('data-testid="in-preparation-notice"')) break;
   }
@@ -64,6 +79,43 @@ async function renderOpen(rawId: string, viewLoaders?: ViewLoaders): Promise<str
 }
 
 describe("the reader stack's view loaders", () => {
+  for (const id of firstInstruments) {
+    test(`the real Try it target ${id} mounts its own laboratory without interpreting the paper URL`, async () => {
+      history.replaceState(null, "", "/papers/light-quanta/?tape=not-a-lab-tape&mode=not-a-mode");
+      let workers = 0;
+      const previousWorker = (globalThis as { Worker?: unknown }).Worker;
+      (globalThis as { Worker?: unknown }).Worker = class {
+        constructor() {
+          workers += 1;
+        }
+        terminate() {}
+        postMessage() {}
+        addEventListener() {}
+      };
+      try {
+        const html = await renderOpen(id);
+        const inspected = document.createElement("div");
+        inspected.innerHTML = html;
+        expect(
+          inspected.querySelector(`[data-instrument-id="${id}"][data-instance-id="${id}:test"]`),
+          `${id} should mount its own scoped laboratory: ${html.slice(0, 1800)}`,
+        ).not.toBeNull();
+        expect(inspected.querySelector("[data-tape-notice]")).toBeNull();
+        expect(html).not.toContain('data-testid="in-preparation-notice"');
+        expect(workers).toBe(0);
+      } finally {
+        (globalThis as { Worker?: unknown }).Worker = previousWorker;
+      }
+    });
+  }
+
+  test("the declared magnet-and-conductor apparatus mode mounts the apparatus", async () => {
+    const html = await renderOpen("sr-02:apparatus");
+    expect(html).toContain('data-instrument-id="sr-02:apparatus"');
+    expect(html).toContain('data-instance-id="sr-02:apparatus:test"');
+    expect(html).not.toContain('data-testid="in-preparation-notice"');
+  });
+
   test("the production map carries sr-01 and mounts it through the lazy boundary", async () => {
     // The re-landing of dispatch 385, asserted rather than described. The entry hands out a
     // component ./lazyClarificationViews.tsx has already made lazy, which is the boundary that
@@ -162,10 +214,8 @@ describe("the reader stack's view loaders", () => {
   });
 
   test("an instrument with no entry in the map still shows the placeholder, and says so", async () => {
-    // With the production map empty this is every registered instrument, all 37 of them. A reader
-    // opening one of those gets the same surface as before, which is why the map's size is
-    // reported rather than left to be inferred.
-    const html = await renderOpen("bm-02");
+    // An explicitly empty map tests the refusal independently of production coverage.
+    const html = await renderOpen("bm-02", {});
     expect(html).toContain('data-testid="in-preparation-notice"');
   });
 });

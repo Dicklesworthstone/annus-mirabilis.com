@@ -4,11 +4,11 @@ import { closeDirectOpenDialog, openFromSearch } from "../reader/stack/mountDire
 import { installDom, uninstallDom } from "./reactDom.ts";
 
 beforeEach(installDom);
-afterEach(() => {
-  act(() => {
+afterEach(async () => {
+  await act(async () => {
     closeDirectOpenDialog(document);
   });
-  uninstallDom();
+  await uninstallDom();
 });
 
 describe("openFromSearch: the direct-link acceptance criterion", () => {

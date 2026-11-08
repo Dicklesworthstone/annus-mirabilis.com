@@ -113,15 +113,19 @@ function fractionText(
 }
 
 export function LorentzMapLab({
+  instanceId,
+  restoreFromLocation = true,
   example,
   title = "Construct the Lorentz map",
 }: {
   example?: PreparedSr04Example | undefined;
+  instanceId?: string | undefined;
+  restoreFromLocation?: boolean | undefined;
   title?: string | undefined;
 }) {
   const id = useId();
   const [session] = useState(() =>
-    createSr04Session(`sr04-${id}`, example?.parameters ?? SR04_DEFAULTS),
+    createSr04Session(instanceId ?? `sr04-${id}`, example?.parameters ?? SR04_DEFAULTS),
   );
   const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
@@ -129,13 +133,13 @@ export function LorentzMapLab({
     SR04_TAPE,
     session,
     session.acceptedParameters(),
-    true,
+    restoreFromLocation,
     (restored) => setDraft(toDraft(restored)),
   );
 
   const fallback =
     session.getServerSnapshot().accepted ??
-    buildSr04Snapshot(`sr04-${id}`, "sr04-init", SR04_DEFAULTS, 0, 0);
+    buildSr04Snapshot(instanceId ?? `sr04-${id}`, "sr04-init", SR04_DEFAULTS, 0, 0);
   const snapshot = view.accepted ?? fallback;
   const p = snapshot.parameters as Sr04Parameters;
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked

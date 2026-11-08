@@ -47,15 +47,19 @@ import { ShowTheCode } from "../ShowTheCode.tsx";
 const LQ07_PROMPTS = PREDICT_PROMPTS["lq-07"] ?? [];
 
 export function FluorescenceLab({
+  instanceId,
+  restoreFromLocation = true,
   example,
   title = "Fluorescence energy budget and Stokes's rule",
 }: {
   example?: PreparedLq07Example | undefined;
+  instanceId?: string | undefined;
+  restoreFromLocation?: boolean | undefined;
   title?: string | undefined;
 }) {
   const id = useId();
   const [session] = useState(() =>
-    createLq07Session(`lq07-${id}`, example?.parameters ?? LQ07_DEFAULTS),
+    createLq07Session(instanceId ?? `lq07-${id}`, example?.parameters ?? LQ07_DEFAULTS),
   );
 
   const view = useInstrumentView(session);
@@ -64,13 +68,13 @@ export function FluorescenceLab({
     LQ07_TAPE,
     session,
     session.acceptedParameters(),
-    true,
+    restoreFromLocation,
     (restored) => setDraft(toLq07Draft(restored)),
   );
 
   const fallback =
     session.getServerSnapshot().accepted ??
-    buildLq07Snapshot(`lq07-${id}`, "lq07-init", null, LQ07_DEFAULTS, 0, 0);
+    buildLq07Snapshot(instanceId ?? `lq07-${id}`, "lq07-init", null, LQ07_DEFAULTS, 0, 0);
   const snapshot = view.accepted ?? fallback;
   const p = snapshot.parameters as Lq07Parameters;
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
@@ -97,7 +101,7 @@ export function FluorescenceLab({
   const statusSummary = `${fixed(p.nu1, 1)} THz in, ${fixed(p.nu2, 1)} THz out. ${evaluation.budget.verdictReason}${emitted > 0 ? ` ${sentenceNumber(emitted)} quanta leave each second.` : ""}`;
 
   useEffect(() => {
-    const shared = decodeLq07Settings(window.location.search);
+    const shared = decodeLq07Settings(restoreFromLocation ? window.location.search : "");
     if (shared.kind === "settings") {
       setDraft(toLq07Draft(shared.parameters));
       setDirty(true);
@@ -107,7 +111,7 @@ export function FluorescenceLab({
     } else if (shared.kind === "invalid") {
       setLinkNote(shared.message);
     }
-  }, []);
+  }, [restoreFromLocation]);
 
   function apply(next: Lq07Parameters) {
     const outcome = session.apply(next);

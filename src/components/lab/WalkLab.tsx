@@ -74,17 +74,23 @@ function Reading({
 const BM05_PROMPTS = PREDICT_PROMPTS["bm-05"] ?? [];
 
 export function WalkLab({
+  instanceId,
+  restoreFromLocation = true,
   example,
   title = "From random steps to diffusion",
   readings = true,
 }: {
   example: PreparedBm05Example;
+  instanceId?: string | undefined;
+  restoreFromLocation?: boolean | undefined;
   title?: string;
   /** False for the optional second laboratory, so the page carries the caption readings once. */
   readings?: boolean;
 }) {
   const id = useId(),
-    [session] = useState(() => createBm05Session(`bm05-${id}`, example, createBm05BrowserChannel));
+    [session] = useState(() =>
+      createBm05Session(instanceId ?? `bm05-${id}`, example, createBm05BrowserChannel),
+    );
   const serverAccepted = session.getServerSnapshot().accepted;
   if (!serverAccepted) {
     throw new Error("Missing accepted walk snapshot");
@@ -120,13 +126,13 @@ export function WalkLab({
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("bm-05", BM05_PROMPTS);
   // A shared ?tape= link puts its settings in the form and starts no worker; Apply runs them.
-  const tapeLink = useDraftTapeLink(BM05_DRAFT_TAPE, p, true, (settings) => {
+  const tapeLink = useDraftTapeLink(BM05_DRAFT_TAPE, p, restoreFromLocation, (settings) => {
     setDraft(toWalkDraft(settings as unknown as Bm05Parameters));
     setDirty(true);
   });
   useEffect(() => {
     setReady(true);
-    const shared = decodeBm05Settings(window.location.search);
+    const shared = decodeBm05Settings(restoreFromLocation ? window.location.search : "");
     if (shared.kind === "settings") {
       setDraft(toWalkDraft(shared.parameters));
       setDirty(true);
@@ -135,7 +141,7 @@ export function WalkLab({
       );
     } else if (shared.kind === "invalid") setNote(shared.message);
     return () => session.disconnect();
-  }, [session]);
+  }, [session, restoreFromLocation]);
   function apply(settings: Bm05Parameters) {
     const r = session.apply(settings);
     const failed = applyFailure(r);

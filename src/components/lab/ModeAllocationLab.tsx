@@ -77,10 +77,14 @@ function formatValue(result: RadiationResult<number>, unit: string, digits = 6):
 }
 
 export function ModeAllocationLab({
+  instanceId,
+  restoreFromLocation = true,
   example = DEFAULT_LQ02_INPUTS,
   title = "Classical mode-energy allocation",
 }: {
   example?: Lq02Inputs;
+  instanceId?: string | undefined;
+  restoreFromLocation?: boolean | undefined;
   title?: string;
 }) {
   const id = useId();
@@ -113,7 +117,7 @@ export function ModeAllocationLab({
   const gate = usePredictGate("lq-02", LQ02_PROMPTS);
   // A shared ?tape= link puts its settings in the FORM and calculates nothing; Apply runs them.
   // The draft is set rather than the accepted inputs, so a reader sees what arrived and chooses.
-  const tapeLink = useDraftTapeLink(LQ02_DRAFT_TAPE, accepted, true, (settings) => {
+  const tapeLink = useDraftTapeLink(LQ02_DRAFT_TAPE, accepted, restoreFromLocation, (settings) => {
     setDraft(toDraft(settings as unknown as Lq02Inputs));
   });
 
@@ -162,7 +166,7 @@ export function ModeAllocationLab({
       className="laboratory"
       aria-labelledby={`${id}-title`}
       data-instrument-id="lq-02"
-      data-instance-id={id}
+      data-instance-id={instanceId ?? id}
       data-run-id={`${id}-${revision}`}
       data-snapshot-version={revision}
       data-input-revision={revision}

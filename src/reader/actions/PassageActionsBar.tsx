@@ -55,6 +55,11 @@ export function PassageActionsBar({
     actions.tryIt?.kind === "instrument"
       ? (actions.tryIt.label ?? LAB_NAMES[actions.tryIt.instrumentId] ?? actions.tryIt.instrumentId)
       : undefined;
+  const tryItMode =
+    actions.tryIt?.kind === "instrument" &&
+    actions.tryIt.presetOrModeId?.startsWith(`${actions.tryIt.instrumentId}:`)
+      ? actions.tryIt.presetOrModeId.slice(actions.tryIt.instrumentId.length + 1)
+      : null;
 
   return (
     <>
@@ -69,7 +74,11 @@ export function PassageActionsBar({
           />
         ))}
         {actions.tryIt?.kind === "instrument" ? (
-          <a href={`/lab/${actions.tryIt.instrumentId}/`} aria-label={`Try it: ${tryItLabel}`}>
+          <a
+            href={`/lab/${actions.tryIt.instrumentId}/${tryItMode ? `?mode=${encodeURIComponent(tryItMode)}` : ""}`}
+            data-clarification-open={`instrument-view:${actions.tryIt.instrumentId}${tryItMode ? `:${tryItMode}` : ""}`}
+            aria-label={`Try it: ${tryItLabel}`}
+          >
             Try it
           </a>
         ) : null}

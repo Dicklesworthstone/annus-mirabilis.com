@@ -4,6 +4,7 @@ import { LabFormula, LabInlineFormula } from "../../../components/lab/LabFormula
 import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { BM03_DEFAULTS } from "../../../experiments/bm03/definition.ts";
 import { evaluateBm03 } from "../../../experiments/bm03/session.ts";
+import labDigests from "../../../generated/lab-source-digests.json";
 
 export const metadata: Metadata = {
   title: "The configuration integral and free energy",
@@ -15,7 +16,7 @@ export default function ConfigurationPage() {
   const example = {
     parameters: BM03_DEFAULTS,
     evaluation: evaluateBm03(BM03_DEFAULTS),
-    sourceDigest: "src/physics/reference/diffusion/routeA.ts",
+    sourceDigest: labDigests["bm-03"],
   };
 
   return (

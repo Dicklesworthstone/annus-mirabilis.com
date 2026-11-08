@@ -47,15 +47,19 @@ import { ShowTheCode } from "../ShowTheCode.tsx";
 const LQ05_PROMPTS = PREDICT_PROMPTS["lq-05"] ?? [];
 
 export function IndependentConfigurationsLab({
+  instanceId,
+  restoreFromLocation = true,
   example,
   title = "Independent configurations and Boltzmann entropy",
 }: {
   example?: PreparedLq05Example | undefined;
+  instanceId?: string | undefined;
+  restoreFromLocation?: boolean | undefined;
   title?: string | undefined;
 }) {
   const id = useId();
   const [session] = useState(() =>
-    createLq05Session(`lq05-${id}`, example?.parameters ?? LQ05_DEFAULTS),
+    createLq05Session(instanceId ?? `lq05-${id}`, example?.parameters ?? LQ05_DEFAULTS),
   );
 
   const view = useInstrumentView(session);
@@ -64,13 +68,13 @@ export function IndependentConfigurationsLab({
     LQ05_TAPE,
     session,
     session.acceptedParameters(),
-    true,
+    restoreFromLocation,
     (restored) => setDraft(toLq05Draft(restored)),
   );
 
   const fallback =
     session.getServerSnapshot().accepted ??
-    buildLq05Snapshot(`lq05-${id}`, "lq05-init", null, LQ05_DEFAULTS, 0, 0);
+    buildLq05Snapshot(instanceId ?? `lq05-${id}`, "lq05-init", null, LQ05_DEFAULTS, 0, 0);
   const snapshot = view.accepted ?? fallback;
   const p = snapshot.parameters as Lq05Parameters;
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
@@ -102,7 +106,7 @@ export function IndependentConfigurationsLab({
     : `${p.n} independent points all sit in a fraction ${fixed(p.f, 4)} of the volume with probability ${fixed(p.f, 4)} to the power ${p.n}, ${chance}.`;
 
   useEffect(() => {
-    const shared = decodeLq05Settings(window.location.search);
+    const shared = decodeLq05Settings(restoreFromLocation ? window.location.search : "");
     if (shared.kind === "settings") {
       setDraft(toLq05Draft(shared.parameters));
       setDirty(true);
@@ -112,7 +116,7 @@ export function IndependentConfigurationsLab({
     } else if (shared.kind === "invalid") {
       setLinkNote(shared.message);
     }
-  }, []);
+  }, [restoreFromLocation]);
 
   function apply(next: Lq05Parameters) {
     const outcome = session.apply(next);

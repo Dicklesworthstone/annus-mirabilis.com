@@ -164,10 +164,14 @@ function ChamberIllustration({ count, admitted }: { count: number; admitted: boo
 }
 
 export function OsmoticPartitionLab({
+  instanceId,
+  restoreFromLocation = true,
   example = DEFAULT_BM02_INPUTS,
   title = "The osmotic partition",
 }: {
   example?: Bm02Inputs;
+  instanceId?: string | undefined;
+  restoreFromLocation?: boolean | undefined;
   title?: string;
 }) {
   const id = useId();
@@ -199,7 +203,7 @@ export function OsmoticPartitionLab({
   const gate = usePredictGate("bm-02", BM02_PROMPTS);
   // A shared ?tape= link puts its settings in the FORM and calculates nothing; Apply runs them.
   // The draft is set rather than the accepted inputs, so a reader sees what arrived and chooses.
-  const tapeLink = useDraftTapeLink(BM02_DRAFT_TAPE, accepted, true, (settings) => {
+  const tapeLink = useDraftTapeLink(BM02_DRAFT_TAPE, accepted, restoreFromLocation, (settings) => {
     setDraft(toDraft(settings as unknown as Bm02Inputs));
   });
 
@@ -264,7 +268,7 @@ export function OsmoticPartitionLab({
       className="laboratory"
       aria-labelledby={`${id}-title`}
       data-instrument-id="bm-02"
-      data-instance-id={id}
+      data-instance-id={instanceId ?? id}
       data-run-id={`${id}-${revision}`}
       data-snapshot-version={revision}
       data-input-revision={revision}

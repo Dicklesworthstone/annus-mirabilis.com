@@ -338,7 +338,7 @@
  * the 27 at 390px, SR-04's four constraint labels were 23px; with the rule, 0 of 505 targets are under
  * 24px.
  */
-:is(.lab-route, .embedded-laboratory)
+:is(.lab-route, .embedded-laboratory, [data-instrument-clarification-dialog])
   fieldset
   label:not([class]):has(> input:is([type="radio"], [type="checkbox"])) {
   display: block;
@@ -346,7 +346,7 @@
   padding-block: 0.6rem;
 }
 
-:is(.lab-route, .embedded-laboratory)
+:is(.lab-route, .embedded-laboratory, [data-instrument-clarification-dialog])
   fieldset
   label:not([class])
   > input:is([type="radio"], [type="checkbox"]) {
@@ -409,16 +409,22 @@
  * overflow-wrap: anywhere for everything inside it: across the 27 embeds at 390px, 46 -> 7, 0 page
  * overflow before and after, 0 -> 4 regions that scroll.
  */
-:is(.lab-route, .embedded-laboratory) table :is(th, td) {
+:is(.lab-route, .embedded-laboratory, [data-instrument-clarification-dialog]) table :is(th, td) {
   overflow-wrap: normal;
 }
 
 /* Outranks the phone-width outer-column rule in globals.css, (0, 2, 1). */
-:is(.lab-route, .embedded-laboratory) .table-scroll table :is(th, td) {
+:is(.lab-route, .embedded-laboratory, [data-instrument-clarification-dialog])
+  .table-scroll
+  table
+  :is(th, td) {
   overflow-wrap: normal;
 }
 
-:is(.lab-route, .embedded-laboratory) tbody tr:has(> td + td) > th {
+:is(.lab-route, .embedded-laboratory, [data-instrument-clarification-dialog])
+  tbody
+  tr:has(> td + td)
+  > th {
   width: auto;
 }
 
@@ -578,7 +584,7 @@ html[data-detail="2"] :is(.laboratory, .laboratory-shell, .lab-readings) > p[dat
    yellow stood at 1.35:1, orange at 2.29:1 and green at 2.95:1 on the wash; on the dark theme's
    paper its ultraviolet purple stood at 1.97:1. The other four bands use the reference's value
    unchanged in both themes. */
-:is(.lab-route, .embedded-laboratory) {
+:is(.lab-route, .embedded-laboratory, [data-instrument-clarification-dialog]) {
   --spectral-ultraviolet: #7b1fa2;
   --spectral-violet: #5c6bc0;
   --spectral-blue: #1e88e5;
@@ -588,7 +594,8 @@ html[data-detail="2"] :is(.laboratory, .laboratory-shell, .lab-readings) > p[dat
   --spectral-red: #e53935;
   --spectral-infrared: #8d6e63;
 }
-:root[data-theme="kramgasse-night"] :is(.lab-route, .embedded-laboratory) {
+:root[data-theme="kramgasse-night"]
+  :is(.lab-route, .embedded-laboratory, [data-instrument-clarification-dialog]) {
   --spectral-ultraviolet: #af46dc;
   --spectral-green: #43a047;
   --spectral-yellow: #fdd835;
@@ -596,7 +603,8 @@ html[data-detail="2"] :is(.laboratory, .laboratory-shell, .lab-readings) > p[dat
 }
 /* Without JavaScript the pre-paint script never sets data-theme; this repeats the block above. */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) :is(.lab-route, .embedded-laboratory) {
+  :root:not([data-theme])
+    :is(.lab-route, .embedded-laboratory, [data-instrument-clarification-dialog]) {
     --spectral-ultraviolet: #af46dc;
     --spectral-green: #43a047;
     --spectral-yellow: #fdd835;

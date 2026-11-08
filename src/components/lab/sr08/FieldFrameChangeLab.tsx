@@ -103,21 +103,25 @@ const BOOST_TOO_LARGE = BOOST_DOMAIN
   : "Enter a boost speed below the speed of light.";
 
 export function FieldFrameChangeLab({
+  instanceId,
+  restoreFromLocation = true,
   example,
   title = "Electric and magnetic frame change",
 }: {
   example: PreparedSr08Example;
+  instanceId?: string | undefined;
+  restoreFromLocation?: boolean | undefined;
   title?: string;
 }) {
   const id = useId();
-  const [session] = useState(() => createSr08Session(`sr08-${id}`, example));
+  const [session] = useState(() => createSr08Session(instanceId ?? `sr08-${id}`, example));
   const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
   const tapeLink = useLabTapeLink(
     SR08_TAPE,
     session,
     session.acceptedParameters(),
-    true,
+    restoreFromLocation,
     /*
      * BOTH halves of the form, as this laboratory's own apply handler does. `typed` holds the TEXT
      * in the number inputs, so updating `draft` alone left a reader who opened a shared link

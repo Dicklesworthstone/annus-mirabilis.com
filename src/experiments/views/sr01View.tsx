@@ -40,6 +40,8 @@ import { DEFAULT_PREPARED_EXAMPLE } from "../sr01/session.ts";
 
 const example = { ...DEFAULT_PREPARED_EXAMPLE, sourceDigest: labDigests["sr-01"] };
 
+import "./clarificationLabStyles.ts";
+
 export default function Sr01ClarificationView({ instanceId }: ExperimentViewProps) {
   return <ClockSyncLab example={example} instanceId={instanceId} />;
 }

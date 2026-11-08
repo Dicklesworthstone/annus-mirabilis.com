@@ -57,12 +57,16 @@ export type ExternalDiffusivitySource = Readonly<{
   value: number;
 }>;
 export function BrownianLab({
+  instanceId,
+  restoreFromLocation = true,
   example,
   title = "The spreading laboratory",
   externalDiffusivitySource,
   readings = false,
 }: {
   example: PreparedBm06Example;
+  instanceId?: string | undefined;
+  restoreFromLocation?: boolean | undefined;
   title?: string;
   /** The caption readings, shown by the /lab/bm-06/ page's first laboratory only: the Discover
    * investigation embeds this lab inside its own guided prose, and a second laboratory would
@@ -74,7 +78,7 @@ export function BrownianLab({
 }) {
   const id = useId();
   const [session] = useState(() =>
-    createBm06Session(`bm06-${id}`, example, createBm06BrowserChannel),
+    createBm06Session(instanceId ?? `bm06-${id}`, example, createBm06BrowserChannel),
   );
   const serverAccepted = session.getServerSnapshot().accepted;
   if (!serverAccepted) {
@@ -101,7 +105,7 @@ export function BrownianLab({
   const [sharedUrl, setSharedUrl] = useState("");
   useEffect(() => {
     setReady(true);
-    const shared = decodeBm06Settings(window.location.search);
+    const shared = decodeBm06Settings(restoreFromLocation ? window.location.search : "");
     if (shared.kind === "settings") {
       setDraft(toDraft(shared.parameters));
       setDirty(true);
@@ -110,7 +114,7 @@ export function BrownianLab({
       );
     } else if (shared.kind === "invalid") setLinkNote(shared.message);
     return () => session.disconnect();
-  }, [session]);
+  }, [session, restoreFromLocation]);
   function reflectRequest(outcome: ReturnType<typeof session.apply>) {
     // THE REFUSAL IS KEPT (am-ig23). Flattening it here cost the code, the ranked repairs and the
     // staleness marking, while this same file's worker-refusal surface carried all three - two paths
@@ -162,7 +166,7 @@ export function BrownianLab({
     });
   }
   async function share() {
-    const url = new URL(window.location.pathname, window.location.origin);
+    const url = new URL("/lab/bm-06/", window.location.origin);
     url.search = encodeBm06Settings(session.acceptedParameters());
     setSharedUrl(url.href);
     try {

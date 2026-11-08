@@ -191,25 +191,29 @@ function typedFrom(q: Me02Parameters): Me02Typed {
 }
 
 export function CoefficientLab({
+  instanceId,
+  restoreFromLocation = true,
   example,
   title = "Inertia from the small-speed coefficient",
   equations = [],
   restoreSettings = false,
 }: {
   example: PreparedMe02Example;
+  instanceId?: string | undefined;
+  restoreFromLocation?: boolean | undefined;
   title?: string;
   equations?: readonly CompiledEquation[];
   restoreSettings?: boolean;
 }) {
   const id = useId();
-  const [session] = useState(() => createMe02Session(`me02-${id}`, example));
+  const [session] = useState(() => createMe02Session(instanceId ?? `me02-${id}`, example));
   const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
   const tapeLink = useLabTapeLink(
     ME02_TAPE,
     session,
     session.acceptedParameters(),
-    true,
+    restoreFromLocation,
     (restored) => {
       setDraft({ ...restored });
       setTyped(typedFrom(restored));
@@ -250,7 +254,8 @@ export function CoefficientLab({
   useEffect(() => {
     if (linkLoaded.current) return;
     linkLoaded.current = true;
-    const linked = restoreSettings ? decodeMe02Settings(window.location.search) : null;
+    const linked =
+      restoreSettings && restoreFromLocation ? decodeMe02Settings(window.location.search) : null;
     if (linked?.kind === "invalid")
       setError(`${linked.message} The prepared example is unchanged.`);
     if (linked?.kind === "settings") {
@@ -267,7 +272,7 @@ export function CoefficientLab({
       }
     }
     setReady(true);
-  }, [session, restoreSettings]);
+  }, [session, restoreSettings, restoreFromLocation]);
   function apply(parameters: Me02Parameters) {
     const outcome = session.apply(parameters);
     if (outcome.kind === "refused") {
@@ -625,7 +630,7 @@ export function CoefficientLab({
             </p>
           )}
           <EquationScope
-            scope={`me02-${id}`}
+            scope={instanceId ?? `me02-${id}`}
             slots={[{ slot: "primary", experimentId: "me-02", view, execution }]}
           >
             {boundEquations.map((equation) => (

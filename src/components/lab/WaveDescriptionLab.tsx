@@ -48,6 +48,8 @@ import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot
 import { LabMargin } from "./LabMargin.tsx";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 export type WaveDescriptionLabProps = Readonly<{
+  instanceId?: string | undefined;
+  restoreFromLocation?: boolean | undefined;
   example: PreparedLq01Example;
   title?: string;
 }>;
@@ -129,12 +131,14 @@ function ValueCell({ snapshot, id }: { snapshot: AcceptedSnapshot; id: string })
 }
 
 export function WaveDescriptionLab({
+  instanceId,
+  restoreFromLocation = true,
   example,
   title = "Wave description and energy spreading laboratory",
 }: WaveDescriptionLabProps) {
   const id = useId();
   const [session] = useState(() =>
-    createLq01Session(`lq01-${id}`, example, createLq01BrowserChannel),
+    createLq01Session(instanceId ?? `lq01-${id}`, example, createLq01BrowserChannel),
   );
   const view = useInstrumentView(session);
   const snapshot =
@@ -148,13 +152,13 @@ export function WaveDescriptionLab({
   const [failure, setFailure] = useState<ApplyFailure | null>(null);
   const [linkNote, setLinkNote] = useState("");
   // A shared ?tape= link puts its settings in the form and starts nothing; Apply calculates them.
-  const tapeLink = useDraftTapeLink(LQ01_DRAFT_TAPE, p, true, (settings) =>
+  const tapeLink = useDraftTapeLink(LQ01_DRAFT_TAPE, p, restoreFromLocation, (settings) =>
     setDraft(toLq01Draft(settings as unknown as Lq01Parameters)),
   );
 
   useEffect(() => {
     setReady(true);
-    const shared = decodeLq01Settings(window.location.search);
+    const shared = decodeLq01Settings(restoreFromLocation ? window.location.search : "");
     if (shared.kind === "settings") {
       setDraft(toLq01Draft(shared.parameters));
       setLinkNote(
@@ -164,7 +168,7 @@ export function WaveDescriptionLab({
       setLinkNote(shared.message);
     }
     return () => session.disconnect();
-  }, [session]);
+  }, [session, restoreFromLocation]);
 
   function apply(parameters: Lq01Parameters) {
     const outcome = session.apply(parameters);

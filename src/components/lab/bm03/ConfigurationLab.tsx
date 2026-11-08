@@ -56,25 +56,29 @@ const STEPS: readonly { id: Bm03Step; label: string; number: number }[] = [
 ];
 
 export function ConfigurationLab({
+  instanceId,
+  restoreFromLocation = true,
   example,
   title = "The configuration integral laboratory",
   readings = true,
 }: {
   example?: PreparedBm03Example | undefined;
+  instanceId?: string | undefined;
+  restoreFromLocation?: boolean | undefined;
   title?: string | undefined;
   /** False for the optional second laboratory, so the page carries the caption readings once. */
   readings?: boolean;
 }) {
   const id = useId();
   const [session] = useState(() =>
-    createBm03Session(`bm03-${id}`, example?.parameters ?? BM03_DEFAULTS),
+    createBm03Session(instanceId ?? `bm03-${id}`, example?.parameters ?? BM03_DEFAULTS),
   );
 
   const view = useInstrumentView(session);
 
   const fallback =
     session.getServerSnapshot().accepted ??
-    buildBm03Snapshot(`bm03-${id}`, "bm03-init", BM03_DEFAULTS, 0, 0);
+    buildBm03Snapshot(instanceId ?? `bm03-${id}`, "bm03-init", BM03_DEFAULTS, 0, 0);
   const snapshot = view.accepted ?? fallback;
   // Earned per snapshot, as CameraLab's is: the build's worked example until a reader's settings
   // are accepted, a host calculation after. It was a fixed "host" and read "host calculation" on
@@ -107,7 +111,7 @@ export function ConfigurationLab({
 
   useEffect(() => {
     setReady(true);
-    const shared = decodeBm03Settings(window.location.search);
+    const shared = decodeBm03Settings(restoreFromLocation ? window.location.search : "");
     if (shared.kind === "settings") {
       setDraft(toBm03Draft(shared.parameters));
       setDirty(true);
@@ -118,7 +122,7 @@ export function ConfigurationLab({
       setLinkNote(shared.message);
     }
     return () => session.disconnect();
-  }, [session]);
+  }, [session, restoreFromLocation]);
 
   function apply(parameters: Bm03Parameters) {
     const outcome = session.apply(parameters);
@@ -170,7 +174,7 @@ export function ConfigurationLab({
   }
 
   async function share() {
-    const url = new URL(window.location.pathname, window.location.origin);
+    const url = new URL("/lab/bm-03/", window.location.origin);
     url.search = encodeBm03Settings(session.acceptedParameters());
     setSharedUrl(url.href);
     try {

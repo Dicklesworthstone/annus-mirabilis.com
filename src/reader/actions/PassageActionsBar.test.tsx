@@ -53,6 +53,7 @@ describe("PassageActionsBar", () => {
     expect(html).toContain("Show me one example first");
     expect(html).toContain("/foundations/random-walks/");
     expect(html).toContain("/lab/bm-01/");
+    expect(html).toContain('data-clarification-open="instrument-view:bm-01"');
     expect(html).toContain("Read the original");
     expect(html).toContain("/papers/brownian-motion/view/german/");
     expect(html).toContain('data-copy-passage="arg-bm-observable"');
@@ -96,6 +97,36 @@ describe("PassageActionsBar", () => {
       />,
     );
     expect(html).toContain('aria-label="Try it: Molecular-number inference"');
+    expect(html).toContain('data-clarification-open="instrument-view:bm-07"');
+  });
+
+  test("an authored mode reaches the same mode in the dialog and the standalone fallback", () => {
+    const html = renderToStaticMarkup(
+      <PassageActionsBar
+        paperId="special-relativity"
+        passageId="arg-sr-magnet-conductor"
+        passageLabel="Magnet and conductor"
+        actions={validatePassageActions({
+          hard: false,
+          tryIt: { instrumentId: "sr-02", presetOrModeId: "sr-02:apparatus" },
+        })}
+      />,
+    );
+    expect(html).toContain('href="/lab/sr-02/?mode=apparatus"');
+    expect(html).toContain('data-clarification-open="instrument-view:sr-02:apparatus"');
+  });
+
+  test("a static worked example stays an ordinary passage anchor", () => {
+    const html = renderToStaticMarkup(
+      <PassageActionsBar
+        paperId="brownian-motion"
+        passageId="arg-bm-observable"
+        passageLabel="Zero average is not no movement"
+        actions={validatePassageActions({ hard: false, tryIt: { staticExampleId: "bm-example" } })}
+      />,
+    );
+    expect(html).toContain('href="#bm-example"');
+    expect(html).not.toContain("data-clarification-open");
   });
 
   test("two passages offering the same action types never receive identical accessible names (AC4)", () => {

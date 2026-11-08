@@ -44,6 +44,8 @@ import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGa
 import { ShowTheCode } from "../ShowTheCode.tsx";
 export type CoefficientMatchLabProps = Readonly<{
   example?: PreparedLq06Example | undefined;
+  instanceId?: string | undefined;
+  restoreFromLocation?: boolean | undefined;
 }>;
 
 // The manifest's prompts (scripts/generate-predict-prompts.mjs), one stable array for the gate. They
@@ -128,13 +130,26 @@ function formatOutput(out: PublishedResult | undefined, unit: string) {
   return <>Not determined</>;
 }
 
-export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
-  const session = useMemo(() => createLq06Session("lq06-interactive-session", example), [example]);
+export function CoefficientMatchLab({
+  example,
+  instanceId,
+  restoreFromLocation = true,
+}: CoefficientMatchLabProps) {
   const uid = useId();
+  const labInstanceId = instanceId ?? `lq06-${uid}`;
+  const session = useMemo(
+    () => createLq06Session(labInstanceId, example),
+    [example, labInstanceId],
+  );
 
   const snapshot = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
-  const tapeLink = useLabTapeLink(LQ06_TAPE, session, session.acceptedParameters());
+  const tapeLink = useLabTapeLink(
+    LQ06_TAPE,
+    session,
+    session.acceptedParameters(),
+    restoreFromLocation,
+  );
 
   const accepted = snapshot.accepted;
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked

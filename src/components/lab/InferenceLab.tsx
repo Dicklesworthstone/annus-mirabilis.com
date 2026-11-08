@@ -59,17 +59,23 @@ const estimatorNames = {
 const BM07_PROMPTS = PREDICT_PROMPTS["bm-07"] ?? [];
 
 export function InferenceLab({
+  instanceId,
+  restoreFromLocation = true,
   example,
   title = "What can wandering reveal?",
   readings = true,
 }: {
   example: PreparedBm07Example;
+  instanceId?: string | undefined;
+  restoreFromLocation?: boolean | undefined;
   title?: string;
   /** False for the optional second laboratory, so the page carries the caption readings once. */
   readings?: boolean;
 }) {
   const id = useId(),
-    [session] = useState(() => createBm07Session(`bm07-${id}`, example, createBm07BrowserChannel));
+    [session] = useState(() =>
+      createBm07Session(instanceId ?? `bm07-${id}`, example, createBm07BrowserChannel),
+    );
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("bm-07", BM07_PROMPTS);
   const serverAccepted = session.getServerSnapshot().accepted;
@@ -97,13 +103,13 @@ export function InferenceLab({
   // A shared ?tape= link puts its settings in the form and starts no worker; Apply runs them. It
   // carries no coverage experiments, as the older link did not: a reader runs those deliberately.
   const shareable = useMemo(() => ({ ...p, coverageTrials: 0 }), [p]);
-  const tapeLink = useDraftTapeLink(BM07_DRAFT_TAPE, shareable, true, (settings) => {
+  const tapeLink = useDraftTapeLink(BM07_DRAFT_TAPE, shareable, restoreFromLocation, (settings) => {
     setDraft(toInferenceDraft(settings as unknown as Bm07Parameters));
     setDirty(true);
   });
   useEffect(() => {
     setReady(true);
-    const shared = decodeBm07Settings(window.location.search);
+    const shared = decodeBm07Settings(restoreFromLocation ? window.location.search : "");
     if (shared.kind === "settings") {
       setDraft(toInferenceDraft(shared.parameters));
       setDirty(true);
@@ -112,7 +118,7 @@ export function InferenceLab({
       );
     } else if (shared.kind === "invalid") setNote(shared.message);
     return () => session.disconnect();
-  }, [session]);
+  }, [session, restoreFromLocation]);
   function edit(key: keyof InferenceDraft, value: string) {
     setDraft((d) => ({ ...d, [key]: value }));
     setDirty(true);

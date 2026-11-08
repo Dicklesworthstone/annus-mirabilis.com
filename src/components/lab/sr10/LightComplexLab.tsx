@@ -93,21 +93,25 @@ function typedFrom(q: Sr10Parameters): Sr10Typed {
 }
 
 export function LightComplexLab({
+  instanceId,
+  restoreFromLocation = true,
   example,
   title = "The finite light complex",
 }: {
   example: PreparedSr10Example;
+  instanceId?: string | undefined;
+  restoreFromLocation?: boolean | undefined;
   title?: string;
 }) {
   const id = useId();
-  const [session] = useState(() => createSr10Session(`sr10-${id}`, example));
+  const [session] = useState(() => createSr10Session(instanceId ?? `sr10-${id}`, example));
   const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
   const tapeLink = useLabTapeLink(
     SR10_TAPE,
     session,
     session.acceptedParameters(),
-    true,
+    restoreFromLocation,
     (restored) => {
       setDraft({ ...restored });
       setTyped(typedFrom(restored));

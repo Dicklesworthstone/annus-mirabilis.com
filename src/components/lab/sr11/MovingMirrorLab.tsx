@@ -84,17 +84,26 @@ const FIELD_LABELS: Readonly<Record<NumericKey, string>> = {
 const SR11_PROMPTS = PREDICT_PROMPTS["sr-11"] ?? [];
 
 export function MovingMirrorLab({
+  instanceId,
+  restoreFromLocation = true,
   example,
   title = "Moving mirror reflection and radiation pressure",
 }: {
   example: PreparedSr11Example;
+  instanceId?: string | undefined;
+  restoreFromLocation?: boolean | undefined;
   title?: string;
 }) {
   const id = useId();
-  const [session] = useState(() => createSr11Session(`sr11-${id}`, example));
+  const [session] = useState(() => createSr11Session(instanceId ?? `sr11-${id}`, example));
   const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
-  const tapeLink = useLabTapeLink(SR11_TAPE, session, session.acceptedParameters());
+  const tapeLink = useLabTapeLink(
+    SR11_TAPE,
+    session,
+    session.acceptedParameters(),
+    restoreFromLocation,
+  );
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("sr-11", SR11_PROMPTS);
   const [drafts, setDrafts] = useState<Partial<Record<NumericKey, string>>>({});

@@ -71,11 +71,15 @@ const ME03_BOX_PROMPTS = (PREDICT_PROMPTS["me-03"] ?? []).filter(
 );
 
 export function BoundaryLedgerLab({
+  instanceId,
+  restoreFromLocation = true,
   example,
   title = "System-boundary energy ledger with cited energy-source cards",
   session: sharedSession,
 }: {
   example?: PreparedMe03Example | undefined;
+  instanceId?: string | undefined;
+  restoreFromLocation?: boolean | undefined;
   title?: string | undefined;
   /**
    * A session owned by the component that embeds the lab, so that something beside it reads the
@@ -86,7 +90,9 @@ export function BoundaryLedgerLab({
 }) {
   const id = useId();
   const [session] = useState(
-    () => sharedSession ?? createMe03Session(`me03-${id}`, example?.parameters ?? ME03_DEFAULTS),
+    () =>
+      sharedSession ??
+      createMe03Session(instanceId ?? `me03-${id}`, example?.parameters ?? ME03_DEFAULTS),
   );
 
   const view = useInstrumentView(session);
@@ -95,7 +101,7 @@ export function BoundaryLedgerLab({
     ME03_TAPE,
     session,
     session.acceptedParameters(),
-    !sharedSession,
+    restoreFromLocation && !sharedSession,
     (restored) => setDraft(toMe03Draft(restored)),
   );
 
@@ -167,7 +173,7 @@ export function BoundaryLedgerLab({
     : `${card.label}, with the boundary around ${boundaryWords}: the radiation ${facts.radiation.disposition === "partly-retained" ? "is partly retained" : facts.radiation.disposition === "retained" ? "is retained" : "escapes"}, and the energy figure is ${numberText(facts.energyFigure.value)} ${facts.energyFigure.unit}.`;
 
   useEffect(() => {
-    const shared = decodeMe03Settings(window.location.search);
+    const shared = decodeMe03Settings(restoreFromLocation ? window.location.search : "");
     if (shared.kind === "settings") {
       setDraft(toMe03Draft(shared.parameters));
       setLinkPending(true);
@@ -177,7 +183,7 @@ export function BoundaryLedgerLab({
     } else if (shared.kind === "invalid") {
       setLinkNote(shared.message);
     }
-  }, []);
+  }, [restoreFromLocation]);
 
   function apply(parameters: Me03Parameters) {
     const outcome = session.apply(parameters);

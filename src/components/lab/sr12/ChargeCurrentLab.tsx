@@ -85,21 +85,25 @@ const BOOST_TOO_LARGE = BOOST_DOMAIN
   : "Enter a boost speed below the speed of light.";
 
 export function ChargeCurrentLab({
+  instanceId,
+  restoreFromLocation = true,
   example,
   title = "Charge and current density in moving frames",
 }: {
   example: PreparedSr12Example;
+  instanceId?: string | undefined;
+  restoreFromLocation?: boolean | undefined;
   title?: string;
 }) {
   const id = useId();
-  const [session] = useState(() => createSr12Session(`sr12-${id}`, example));
+  const [session] = useState(() => createSr12Session(instanceId ?? `sr12-${id}`, example));
   const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
   const tapeLink = useLabTapeLink(
     SR12_TAPE,
     session,
     session.acceptedParameters(),
-    true,
+    restoreFromLocation,
     /*
      * BOTH halves of the form, as this laboratory's own apply handler does. `typed` holds the TEXT
      * in the number inputs, so updating `draft` alone left a reader who opened a shared link

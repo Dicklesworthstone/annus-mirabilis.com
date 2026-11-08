@@ -33,10 +33,37 @@
 import { lazy } from "react";
 import type { ExperimentViewProps } from "../dispatch.tsx";
 
-const Sr01Chunk = lazy(() => import("./sr01View.tsx"));
 const Bm01Chunk = lazy(() => import("./bm01View.tsx"));
+const Bm02Chunk = lazy(() => import("./bm02View.tsx"));
+const Bm03Chunk = lazy(() => import("./bm03View.tsx"));
+const Bm05Chunk = lazy(() => import("./bm05View.tsx"));
+const Bm06Chunk = lazy(() => import("./bm06View.tsx"));
+const Bm07Chunk = lazy(() => import("./bm07View.tsx"));
+const Lq01Chunk = lazy(() => import("./lq01View.tsx"));
+const Lq02Chunk = lazy(() => import("./lq02View.tsx"));
+const Lq03Chunk = lazy(() => import("./lq03View.tsx"));
+const Lq04Chunk = lazy(() => import("./lq04View.tsx"));
+const Lq05Chunk = lazy(() => import("./lq05View.tsx"));
+const Lq06Chunk = lazy(() => import("./lq06View.tsx"));
+const Lq07Chunk = lazy(() => import("./lq07View.tsx"));
 const Lq08Chunk = lazy(() => import("./lq08View.tsx"));
+const Lq09Chunk = lazy(() => import("./lq09View.tsx"));
 const Me01Chunk = lazy(() => import("./me01View.tsx"));
+const Me02Chunk = lazy(() => import("./me02View.tsx"));
+const Me03Chunk = lazy(() => import("./me03View.tsx"));
+const Sr01Chunk = lazy(() => import("./sr01View.tsx"));
+const Sr02Chunk = lazy(() => import("./sr02View.tsx"));
+const Sr03Chunk = lazy(() => import("./sr03View.tsx"));
+const Sr04Chunk = lazy(() => import("./sr04View.tsx"));
+const Sr05Chunk = lazy(() => import("./sr05View.tsx"));
+const Sr06Chunk = lazy(() => import("./sr06View.tsx"));
+const Sr07Chunk = lazy(() => import("./sr07View.tsx"));
+const Sr08Chunk = lazy(() => import("./sr08View.tsx"));
+const Sr09Chunk = lazy(() => import("./sr09View.tsx"));
+const Sr10Chunk = lazy(() => import("./sr10View.tsx"));
+const Sr11Chunk = lazy(() => import("./sr11View.tsx"));
+const Sr12Chunk = lazy(() => import("./sr12View.tsx"));
+const Sr13Chunk = lazy(() => import("./sr13View.tsx"));
 
 /**
  * A PLAIN COMPONENT AROUND THE LAZY ONE, not the lazy one itself. The dispatcher applies its own
@@ -45,18 +72,126 @@ const Me01Chunk = lazy(() => import("./me01View.tsx"));
  * wrapper, the dispatcher's lazy resolves it immediately, and the chunk behind `Sr01Chunk`
  * suspends to the Suspense boundary the dispatcher already provides.
  */
-export function Sr01ClarificationView(props: ExperimentViewProps) {
-  return <Sr01Chunk {...props} />;
-}
-
 export function Bm01ClarificationView(props: ExperimentViewProps) {
   return <Bm01Chunk {...props} />;
+}
+
+export function Bm02ClarificationView(props: ExperimentViewProps) {
+  return <Bm02Chunk {...props} />;
+}
+
+export function Bm03ClarificationView(props: ExperimentViewProps) {
+  return <Bm03Chunk {...props} />;
+}
+
+export function Bm05ClarificationView(props: ExperimentViewProps) {
+  return <Bm05Chunk {...props} />;
+}
+
+export function Bm06ClarificationView(props: ExperimentViewProps) {
+  return <Bm06Chunk {...props} />;
+}
+
+export function Bm07ClarificationView(props: ExperimentViewProps) {
+  return <Bm07Chunk {...props} />;
+}
+
+export function Lq01ClarificationView(props: ExperimentViewProps) {
+  return <Lq01Chunk {...props} />;
+}
+
+export function Lq02ClarificationView(props: ExperimentViewProps) {
+  return <Lq02Chunk {...props} />;
+}
+
+export function Lq03ClarificationView(props: ExperimentViewProps) {
+  return <Lq03Chunk {...props} />;
+}
+
+export function Lq04ClarificationView(props: ExperimentViewProps) {
+  return <Lq04Chunk {...props} />;
+}
+
+export function Lq05ClarificationView(props: ExperimentViewProps) {
+  return <Lq05Chunk {...props} />;
+}
+
+export function Lq06ClarificationView(props: ExperimentViewProps) {
+  return <Lq06Chunk {...props} />;
+}
+
+export function Lq07ClarificationView(props: ExperimentViewProps) {
+  return <Lq07Chunk {...props} />;
 }
 
 export function Lq08ClarificationView(props: ExperimentViewProps) {
   return <Lq08Chunk {...props} />;
 }
 
+export function Lq09ClarificationView(props: ExperimentViewProps) {
+  return <Lq09Chunk {...props} />;
+}
+
 export function Me01ClarificationView(props: ExperimentViewProps) {
   return <Me01Chunk {...props} />;
+}
+
+export function Me02ClarificationView(props: ExperimentViewProps) {
+  return <Me02Chunk {...props} />;
+}
+
+export function Me03ClarificationView(props: ExperimentViewProps) {
+  return <Me03Chunk {...props} />;
+}
+
+export function Sr01ClarificationView(props: ExperimentViewProps) {
+  return <Sr01Chunk {...props} />;
+}
+
+export function Sr02ClarificationView(props: ExperimentViewProps) {
+  return <Sr02Chunk {...props} />;
+}
+
+export function Sr03ClarificationView(props: ExperimentViewProps) {
+  return <Sr03Chunk {...props} />;
+}
+
+export function Sr04ClarificationView(props: ExperimentViewProps) {
+  return <Sr04Chunk {...props} />;
+}
+
+export function Sr05ClarificationView(props: ExperimentViewProps) {
+  return <Sr05Chunk {...props} />;
+}
+
+export function Sr06ClarificationView(props: ExperimentViewProps) {
+  return <Sr06Chunk {...props} />;
+}
+
+export function Sr07ClarificationView(props: ExperimentViewProps) {
+  return <Sr07Chunk {...props} />;
+}
+
+export function Sr08ClarificationView(props: ExperimentViewProps) {
+  return <Sr08Chunk {...props} />;
+}
+
+export function Sr09ClarificationView(props: ExperimentViewProps) {
+  return <Sr09Chunk {...props} />;
+}
+
+export function Sr10ClarificationView(props: ExperimentViewProps) {
+  return <Sr10Chunk {...props} />;
+}
+
+export function Sr11ClarificationView(props: ExperimentViewProps) {
+  return <Sr11Chunk {...props} />;
+}
+
+export function Sr12ClarificationView(props: ExperimentViewProps) {
+  return <Sr12Chunk {...props} />;
+}
+
+export function Sr13ClarificationView(props: ExperimentViewProps) {
+  return <Sr13Chunk {...props} />;
 }

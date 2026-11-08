@@ -48,6 +48,7 @@ import { PredictGatePanels, usePredictGate } from "../PredictGate.tsx";
 import { ShowTheCode } from "../ShowTheCode.tsx";
 export type IonizationLabProps = Readonly<{
   example?: PreparedLq09Example | undefined;
+  instanceId?: string | undefined;
   /**
    * Only the standalone route opts into URL state, as SR-01's and SR-05's do: an embedded instrument
    * keeps the setup its page gave it rather than taking one from an address it does not own.
@@ -96,9 +97,17 @@ function notDetermined(out: PublishedResult | undefined): string {
   return "Not determined";
 }
 
-export function IonizationLab({ example, restoreFromLocation = false }: IonizationLabProps) {
-  const session = useMemo(() => createLq09Session("lq09-interactive-session", example), [example]);
+export function IonizationLab({
+  example,
+  instanceId,
+  restoreFromLocation = false,
+}: IonizationLabProps) {
   const uid = useId();
+  const labInstanceId = instanceId ?? `lq09-${uid}`;
+  const session = useMemo(
+    () => createLq09Session(labInstanceId, example),
+    [example, labInstanceId],
+  );
   /**
    * A shared ?tape= link restores through this laboratory's own session (dispatch 335). No draft needs
    * setting: every field reads `drafts[key] ?? shown(key)`, and `shown` comes from the accepted

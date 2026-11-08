@@ -115,17 +115,21 @@ function valueText(snapshot: AcceptedSnapshot, id: string, unit: string, digits 
 }
 
 export type EntropyWorkbenchLabProps = Readonly<{
+  instanceId?: string | undefined;
+  restoreFromLocation?: boolean | undefined;
   example?: PreparedLq04Example | undefined;
   title?: string | undefined;
 }>;
 
 export function EntropyWorkbenchLab({
+  instanceId,
+  restoreFromLocation = true,
   example,
   title = "The radiation entropy workbench",
 }: EntropyWorkbenchLabProps) {
   const id = useId();
   const [session] = useState(() =>
-    createLq04Session(`lq04-${id}`, example?.parameters ?? LQ04_DEFAULTS),
+    createLq04Session(instanceId ?? `lq04-${id}`, example?.parameters ?? LQ04_DEFAULTS),
   );
   const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
@@ -133,13 +137,13 @@ export function EntropyWorkbenchLab({
     LQ04_TAPE,
     session,
     session.acceptedParameters(),
-    true,
+    restoreFromLocation,
     (restored) => setDraft(toDraft(restored)),
   );
 
   const fallback =
     session.getServerSnapshot().accepted ??
-    buildLq04Snapshot(`lq04-${id}`, "lq04-init", LQ04_DEFAULTS, 0, 0);
+    buildLq04Snapshot(instanceId ?? `lq04-${id}`, "lq04-init", LQ04_DEFAULTS, 0, 0);
   const snapshot = view.accepted ?? fallback;
   const p = snapshot.parameters as Lq04Parameters;
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked

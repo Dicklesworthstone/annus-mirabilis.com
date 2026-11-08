@@ -6,6 +6,8 @@ import type { ExperimentViewProps } from "../dispatch.tsx";
 import type { MillikanOverlayResult } from "../lq08/millikan.ts";
 import { createLq08Session } from "../lq08/session.ts";
 
+import "./clarificationLabStyles.ts";
+
 export default function Lq08ClarificationView({ instanceId }: ExperimentViewProps) {
   const [session] = useState(() => createLq08Session(instanceId, example));
   return (

@@ -101,21 +101,25 @@ function typedFrom(q: Sr02Parameters): Sr02Typed {
 }
 
 export function MagnetConductorLab({
+  instanceId,
+  restoreFromLocation = true,
   example,
   title = "Magnet and conductor",
 }: {
   example: PreparedSr02Example;
+  instanceId?: string | undefined;
+  restoreFromLocation?: boolean | undefined;
   title?: string;
 }) {
   const id = useId();
-  const [session] = useState(() => createSr02Session(`sr02-${id}`, example));
+  const [session] = useState(() => createSr02Session(instanceId ?? `sr02-${id}`, example));
   const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
   const tapeLink = useLabTapeLink(
     SR02_TAPE,
     session,
     session.acceptedParameters(),
-    true,
+    restoreFromLocation,
     (restored) => {
       setDraft({ ...restored });
       setTyped(typedFrom(restored));
@@ -172,6 +176,7 @@ export function MagnetConductorLab({
   //
   // biome-ignore lint/correctness/useExhaustiveDependencies: the URL is read once, at mount. Listing `apply` would re-run this on every render and re-apply the link over whatever the reader has since changed; listing `example.parameters` would do the same whenever the parent hands a new object. The component already takes `example` as a mount-time input twice above, in the session and the draft initializers, and this is the third.
   useEffect(() => {
+    if (!restoreFromLocation) return;
     const search = window.location.search;
     if (new URLSearchParams(search).has("tape")) {
       if (new URLSearchParams(search).has("mode"))
@@ -183,7 +188,7 @@ export function MagnetConductorLab({
       apply(shared.parameters);
       setLinkNote("");
     } else if (shared.kind === "invalid") setLinkNote(shared.message);
-  }, []);
+  }, [restoreFromLocation]);
   function apply(parameters: Sr02Parameters) {
     const outcome = session.apply(parameters);
     if (outcome.kind === "refused") {

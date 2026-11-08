@@ -73,21 +73,27 @@ const SR06_MODE_LABELS: Readonly<Record<Sr06Mode, string>> = {
 const SR06_PROMPTS = PREDICT_PROMPTS["sr-06"] ?? [];
 
 export function VelocityCompositionLab({
+  instanceId,
+  restoreFromLocation = true,
   example,
   title = "Why speeds do not simply add",
 }: {
   example: PreparedSr06Example;
+  instanceId?: string | undefined;
+  restoreFromLocation?: boolean | undefined;
   title?: string;
 }) {
   const id = useId();
-  const [session] = useState(() => createSr06Session(`sr06-${id}`, example.parameters));
+  const [session] = useState(() =>
+    createSr06Session(instanceId ?? `sr06-${id}`, example.parameters),
+  );
   const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
   const tapeLink = useLabTapeLink(
     SR06_TAPE,
     session,
     session.acceptedParameters(),
-    true,
+    restoreFromLocation,
     (restored) => setDraft(toSr06Draft(restored)),
   );
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
@@ -121,14 +127,14 @@ export function VelocityCompositionLab({
       : `composing ${fixed(p.frameBeta, 4)}c with ${fixed(p.movingSpeed, 4)}c at ${fixed(p.alphaDeg, 1)}° gives ${fixed(composed, 4)}c${galilean === null ? "" : `, where Galileo's addition gives ${fixed(galilean, 4)}c`}.`;
 
   useEffect(() => {
-    const shared = decodeSr06Settings(window.location.search);
+    const shared = decodeSr06Settings(restoreFromLocation ? window.location.search : "");
     if (shared.kind === "settings") {
       setDraft(toSr06Draft(shared.parameters));
       setNote(
         "Shared settings are loaded as a draft. The worked example stays until you apply them.",
       );
     } else if (shared.kind === "invalid") setNote(shared.message);
-  }, []);
+  }, [restoreFromLocation]);
 
   function apply(next: Sr06Parameters) {
     const r = session.apply(next);

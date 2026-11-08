@@ -75,21 +75,25 @@ function typedFrom(q: Sr09Parameters): Sr09Typed {
 const SR09_PROMPTS = PREDICT_PROMPTS["sr-09"] ?? [];
 
 export function DopplerAberrationLab({
+  instanceId,
+  restoreFromLocation = true,
   example,
   title = "Doppler principle and aberration",
 }: {
   example: PreparedSr09Example;
+  instanceId?: string | undefined;
+  restoreFromLocation?: boolean | undefined;
   title?: string;
 }) {
   const id = useId();
-  const [session] = useState(() => createSr09Session(`sr09-${id}`, example));
+  const [session] = useState(() => createSr09Session(instanceId ?? `sr09-${id}`, example));
   const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
   const tapeLink = useLabTapeLink(
     SR09_TAPE,
     session,
     session.acceptedParameters(),
-    true,
+    restoreFromLocation,
     (restored) => {
       setDraft({ ...restored });
       setTyped(typedFrom(restored));

@@ -86,7 +86,7 @@ describe("instrument-view: real dispatcher, fixture instrument", () => {
     document.body.appendChild(container);
     const root = createRoot(container);
     await act(async () => {
-      root.render(def.render?.({ parsed, instanceId: "bm-01:test" }));
+      root.render(def.render?.({ parsed, instanceId: "bm-01:test", viewLoaders: {} }));
     });
     expect(container.querySelector('[data-testid="in-preparation-notice"]')).not.toBeNull();
     act(() => {

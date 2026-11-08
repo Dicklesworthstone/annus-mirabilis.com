@@ -99,17 +99,28 @@ const WAVES: readonly Sr07Wave[] = ["plus-x", "minus-x", "plus-y", "oblique"];
 const POLS: readonly Sr07Polarization[] = ["primary", "secondary"];
 
 export function FieldEquationsLab({
+  instanceId,
+  restoreFromLocation = true,
   example,
   title = "The field equations keep their form",
 }: {
   example: PreparedSr07Example;
+  instanceId?: string | undefined;
+  restoreFromLocation?: boolean | undefined;
   title?: string;
 }) {
   const id = useId();
-  const [session] = useState(() => createSr07Session(`sr07-${id}`, example.parameters));
+  const [session] = useState(() =>
+    createSr07Session(instanceId ?? `sr07-${id}`, example.parameters),
+  );
   const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
-  const tapeLink = useLabTapeLink(SR07_TAPE, session, session.acceptedParameters());
+  const tapeLink = useLabTapeLink(
+    SR07_TAPE,
+    session,
+    session.acceptedParameters(),
+    restoreFromLocation,
+  );
   const snapshot = view.accepted;
   const p = (snapshot?.parameters ?? example.parameters) as Sr07Parameters;
   /**
@@ -127,7 +138,7 @@ export function FieldEquationsLab({
 
   useEffect(() => {
     setReady(true);
-    const shared = decodeSr07Settings(window.location.search);
+    const shared = decodeSr07Settings(restoreFromLocation ? window.location.search : "");
     if (shared.kind !== "settings") return;
     const r = session.apply(shared.parameters);
     const failed = applyFailure(r);
@@ -138,7 +149,7 @@ export function FieldEquationsLab({
     }
     setFailure(null);
     setError("");
-  }, [session]);
+  }, [session, restoreFromLocation]);
 
   useEffect(() => {
     setBetaDraft(String(p.boostBeta));
