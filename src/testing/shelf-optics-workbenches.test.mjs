@@ -367,7 +367,7 @@ test("shelf session: :74, :330 and :371 fire for no valid PARAMETER anywhere in 
  * contract forbids in those words. So the surviving value is asserted too, because the throw
  * alone would also be satisfied by a session that corrupted the snapshot on the way out.
  */
-test("shelf session: (session.ts:330) a re-entrant subscriber supersedes the token, which refuses", () => {
+test("shelf session: (session.ts:331) a re-entrant subscriber supersedes the token, which refuses", () => {
   const d = shelfDefaults(MM, "full");
   const NESTED = d.windSpeed * 1.1;
   const OUTER = d.windSpeed * 1.25;

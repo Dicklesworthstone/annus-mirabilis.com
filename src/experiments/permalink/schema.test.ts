@@ -23,7 +23,7 @@ function cloneTape(tape: TapeV2 = FIXTURE_TEACHING_TAPE_EINSTEIN_08): Record<str
 
 describe("Tape Schema V2 Validation (schema.ts)", () => {
   // 1. Top-Level Tape Structure
-  test("tape-not-object: rejects non-object raw payload (schema.ts:44)", () => {
+  test("tape-not-object: rejects non-object raw payload (schema.ts:46)", () => {
     assert.throws(
       () => validateTapeV2(null),
       (err: unknown) => {
@@ -55,7 +55,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(valid.tapeVersion, 2);
   });
 
-  test("tape-version-unsupported: rejects non-v2 tapeVersion (schema.ts:51)", () => {
+  test("tape-version-unsupported: rejects non-v2 tapeVersion (schema.ts:53)", () => {
     const raw = cloneTape();
     raw.tapeVersion = 1;
     assert.throws(
@@ -74,7 +74,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(valid.tapeVersion, 2);
   });
 
-  test("tape-missing-experiment-id: rejects missing or empty experimentId (schema.ts:60)", () => {
+  test("tape-missing-experiment-id: rejects missing or empty experimentId (schema.ts:62)", () => {
     const raw = cloneTape();
     raw.experimentId = "";
     assert.throws(
@@ -100,7 +100,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).experimentId, "bm-01");
   });
 
-  test("tape-missing-mode: rejects missing or empty mode (schema.ts:69)", () => {
+  test("tape-missing-mode: rejects missing or empty mode (schema.ts:71)", () => {
     const raw = cloneTape();
     raw.mode = "";
     assert.throws(
@@ -117,7 +117,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).mode, "bm-01:default");
   });
 
-  test("tape-mode-is-preset-id: rejects preset id passed as mode (schema.ts:80)", () => {
+  test("tape-mode-is-preset-id: rejects preset id passed as mode (schema.ts:82)", () => {
     const raw = cloneTape();
     raw.mode = "bm-01-cold-preset";
     assert.throws(
@@ -145,7 +145,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
   });
 
   // 2. Model Identity
-  test("tape-missing-model-identity: rejects non-object modelIdentity (schema.ts:89)", () => {
+  test("tape-missing-model-identity: rejects non-object modelIdentity (schema.ts:91)", () => {
     const raw = cloneTape();
     raw.modelIdentity = null;
     assert.throws(
@@ -171,7 +171,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).modelIdentity.modelId, "m1");
   });
 
-  test("tape-missing-model-id: rejects missing or empty modelId (schema.ts:97)", () => {
+  test("tape-missing-model-id: rejects missing or empty modelId (schema.ts:99)", () => {
     const raw = cloneTape();
     raw.modelIdentity = { modelId: "  ", modelVersion: 1 };
     assert.throws(
@@ -188,7 +188,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).modelIdentity.modelId, "diffusion-v1");
   });
 
-  test("tape-missing-model-version: rejects non-finite modelVersion (schema.ts:104)", () => {
+  test("tape-missing-model-version: rejects non-finite modelVersion (schema.ts:106)", () => {
     const raw = cloneTape();
     raw.modelIdentity = { modelId: "m1", modelVersion: NaN };
     assert.throws(
@@ -215,7 +215,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
   });
 
   // 3. Constants & Seeds
-  test("tape-missing-constant-set-id: rejects missing constantSetId (schema.ts:121)", () => {
+  test("tape-missing-constant-set-id: rejects missing constantSetId (schema.ts:123)", () => {
     const raw = cloneTape();
     raw.constantSetId = "";
     assert.throws(
@@ -232,7 +232,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).constantSetId, "cs-1905");
   });
 
-  test("u64-invalid-format: rejects malformed seed format via U64ValidationError (schema.ts:134)", () => {
+  test("u64-invalid-format: rejects malformed seed format via U64ValidationError (schema.ts:136)", () => {
     const raw = cloneTape();
     raw.seed = "not-a-number";
     assert.throws(
@@ -249,7 +249,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).seed, "1905");
   });
 
-  test("u64-invalid-format: rejects non-string seed via generic catch (schema.ts:136)", () => {
+  test("u64-invalid-format: rejects non-string seed via generic catch (schema.ts:138)", () => {
     const raw = cloneTape();
     raw.seed = 1905;
     assert.throws(
@@ -267,7 +267,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
   });
 
   // 4. Stream Version & Allocation ID
-  test("tape-missing-stream-version: rejects missing streamVersion (schema.ts:141)", () => {
+  test("tape-missing-stream-version: rejects missing streamVersion (schema.ts:143)", () => {
     const raw = cloneTape();
     raw.streamVersion = null;
     assert.throws(
@@ -286,7 +286,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).streamVersion, "v1");
   });
 
-  test("tape-missing-allocation-id: rejects missing allocationId (schema.ts:148)", () => {
+  test("tape-missing-allocation-id: rejects missing allocationId (schema.ts:150)", () => {
     const raw = cloneTape();
     raw.allocationId = "  ";
     assert.throws(
@@ -304,7 +304,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
   });
 
   // 5. Replay Grid
-  test("tape-invalid-replay-grid: rejects non-object replayGrid (schema.ts:159)", () => {
+  test("tape-invalid-replay-grid: rejects non-object replayGrid (schema.ts:161)", () => {
     const raw = cloneTape();
     raw.replayGrid = "not-an-object";
     assert.throws(
@@ -322,7 +322,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).replayGrid, undefined);
   });
 
-  test("tape-invalid-replay-grid: rejects non-positive baseSpacing (schema.ts:171)", () => {
+  test("tape-invalid-replay-grid: rejects non-positive baseSpacing (schema.ts:173)", () => {
     const raw = cloneTape();
     raw.replayGrid = { baseSpacing: 0, horizon: 10 };
     assert.throws(
@@ -349,7 +349,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).replayGrid?.baseSpacing, 0.05);
   });
 
-  test("tape-invalid-replay-grid: rejects non-positive horizon (schema.ts:178)", () => {
+  test("tape-invalid-replay-grid: rejects non-positive horizon (schema.ts:180)", () => {
     const raw = cloneTape();
     raw.replayGrid = { baseSpacing: 0.01, horizon: 0 };
     assert.throws(
@@ -368,7 +368,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
   });
 
   // 6. Initial Conditions
-  test("tape-missing-initial-conditions: rejects non-object initialConditions (schema.ts:196)", () => {
+  test("tape-missing-initial-conditions: rejects non-object initialConditions (schema.ts:198)", () => {
     const raw = cloneTape();
     raw.initialConditions = null;
     assert.throws(
@@ -394,7 +394,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).initialConditions.temperatureK, 300);
   });
 
-  test("tape-invalid-initial-condition: rejects non-number/non-string values (schema.ts:205)", () => {
+  test("tape-invalid-initial-condition: rejects non-number/non-string values (schema.ts:207)", () => {
     const raw = cloneTape();
     raw.initialConditions = { invalidVal: [1, 2, 3] };
     assert.throws(
@@ -414,7 +414,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(valid.initialConditions.stateNum, 293);
   });
 
-  test("tape-invalid-initial-condition: rejects non-finite number values (schema.ts:212)", () => {
+  test("tape-invalid-initial-condition: rejects non-finite number values (schema.ts:214)", () => {
     const raw = cloneTape();
     raw.initialConditions = { infVal: Infinity };
     assert.throws(
@@ -433,7 +433,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
   });
 
   // 7. Preset ID
-  test("tape-invalid-preset-id: rejects empty presetId when provided (schema.ts:225)", () => {
+  test("tape-invalid-preset-id: rejects empty presetId when provided (schema.ts:227)", () => {
     const raw = cloneTape();
     raw.presetId = "   ";
     assert.throws(
@@ -453,7 +453,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
   });
 
   // 8. Events Array & Items
-  test("tape-missing-events: rejects non-array events (schema.ts:236)", () => {
+  test("tape-missing-events: rejects non-array events (schema.ts:238)", () => {
     const raw = cloneTape();
     raw.events = null;
     assert.throws(
@@ -470,7 +470,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.deepEqual(validateTapeV2(raw).events, []);
   });
 
-  test("tape-events-exceeded: rejects events array exceeding MAX_PERMALINK_TAPE_EVENTS (schema.ts:243)", () => {
+  test("tape-events-exceeded: rejects events array exceeding MAX_PERMALINK_TAPE_EVENTS (schema.ts:245)", () => {
     const raw = cloneTape();
     const eventTemplate: TapeControlEvent = {
       actionIndex: 0,
@@ -500,7 +500,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).events.length, MAX_PERMALINK_TAPE_EVENTS);
   });
 
-  test("tape-invalid-event: rejects non-object event item (schema.ts:256)", () => {
+  test("tape-invalid-event: rejects non-object event item (schema.ts:258)", () => {
     const raw = cloneTape();
     raw.events = [null];
     assert.throws(
@@ -524,7 +524,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).events.length, 1);
   });
 
-  test("tape-invalid-action-index: rejects negative or non-integer actionIndex (schema.ts:265)", () => {
+  test("tape-invalid-action-index: rejects negative or non-integer actionIndex (schema.ts:267)", () => {
     const raw = cloneTape();
     raw.events = [
       {
@@ -555,7 +555,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).events[0]?.actionIndex, 0);
   });
 
-  test("tape-events-out-of-order: rejects events with decreasing actionIndex (schema.ts:272)", () => {
+  test("tape-events-out-of-order: rejects events with decreasing actionIndex (schema.ts:274)", () => {
     const raw = cloneTape();
     raw.events = [
       {
@@ -599,7 +599,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).events.length, 2);
   });
 
-  test("tape-missing-param-id: rejects missing paramId in event (schema.ts:281)", () => {
+  test("tape-missing-param-id: rejects missing paramId in event (schema.ts:283)", () => {
     const raw = cloneTape();
     raw.events = [
       {
@@ -630,7 +630,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).events[0]?.paramId, "param-1");
   });
 
-  test("tape-invalid-command-class: rejects unknown commandClass in event (schema.ts:289)", () => {
+  test("tape-invalid-command-class: rejects unknown commandClass in event (schema.ts:291)", () => {
     const raw = cloneTape();
     raw.events = [
       {
@@ -661,7 +661,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).events[0]?.commandClass, "physical-intervention");
   });
 
-  test("tape-invalid-event-value: rejects non-number/non-string event values (schema.ts:297)", () => {
+  test("tape-invalid-event-value: rejects non-number/non-string event values (schema.ts:299)", () => {
     const raw = cloneTape();
     raw.events = [
       {
@@ -693,7 +693,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).events[0]?.value, "active");
   });
 
-  test("tape-invalid-event-value: rejects non-finite event values (schema.ts:304)", () => {
+  test("tape-invalid-event-value: rejects non-finite event values (schema.ts:306)", () => {
     const raw = cloneTape();
     raw.events = [
       {
@@ -726,7 +726,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
   });
 
   // 9. Predictions
-  test("tape-invalid-predictions: rejects non-array predictions when present (schema.ts:326)", () => {
+  test("tape-invalid-predictions: rejects non-array predictions when present (schema.ts:328)", () => {
     const raw = cloneTape();
     raw.predictions = "not-an-array";
     assert.throws(
@@ -743,7 +743,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).predictions, undefined);
   });
 
-  test("tape-invalid-prediction: rejects non-object prediction item (schema.ts:337)", () => {
+  test("tape-invalid-prediction: rejects non-object prediction item (schema.ts:339)", () => {
     const raw = cloneTape();
     raw.predictions = [null];
     assert.throws(
@@ -766,7 +766,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).predictions?.length, 1);
   });
 
-  test("tape-missing-prompt-id: rejects missing promptId in prediction (schema.ts:346)", () => {
+  test("tape-missing-prompt-id: rejects missing promptId in prediction (schema.ts:348)", () => {
     const raw = cloneTape();
     raw.predictions = [
       {
@@ -795,7 +795,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).predictions?.[0]?.promptId, "prompt-valid");
   });
 
-  test("tape-invalid-prediction-form: rejects unsupported prediction form (schema.ts:354)", () => {
+  test("tape-invalid-prediction-form: rejects unsupported prediction form (schema.ts:356)", () => {
     const raw = cloneTape();
     raw.predictions = [
       {
@@ -826,7 +826,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
   });
 
   // 10. Teaching Tape Ref
-  test("tape-invalid-teaching-ref: rejects non-object teachingTapeRef (schema.ts:376)", () => {
+  test("tape-invalid-teaching-ref: rejects non-object teachingTapeRef (schema.ts:378)", () => {
     const raw = cloneTape();
     raw.teachingTapeRef = null;
     assert.throws(
@@ -844,7 +844,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).teachingTapeRef, undefined);
   });
 
-  test("tape-invalid-teaching-ref: rejects empty tapeId in teachingTapeRef (schema.ts:384)", () => {
+  test("tape-invalid-teaching-ref: rejects empty tapeId in teachingTapeRef (schema.ts:386)", () => {
     const raw = cloneTape();
     raw.teachingTapeRef = { tapeId: "   ", stepIndex: 0 };
     assert.throws(
@@ -862,7 +862,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).teachingTapeRef?.tapeId, "tape-teach-1");
   });
 
-  test("tape-invalid-teaching-ref: rejects negative stepIndex in teachingTapeRef (schema.ts:391)", () => {
+  test("tape-invalid-teaching-ref: rejects negative stepIndex in teachingTapeRef (schema.ts:393)", () => {
     const raw = cloneTape();
     raw.teachingTapeRef = { tapeId: "tape-teach-1", stepIndex: -1 };
     assert.throws(
@@ -881,7 +881,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
   });
 
   // 11. Accepted Checkpoint
-  test("tape-missing-accepted-checkpoint: rejects missing acceptedCheckpoint (schema.ts:409)", () => {
+  test("tape-missing-accepted-checkpoint: rejects missing acceptedCheckpoint (schema.ts:411)", () => {
     const raw = cloneTape();
     delete raw.acceptedCheckpoint;
     assert.throws(
@@ -902,7 +902,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).acceptedCheckpoint.acceptedActionIndex, 0);
   });
 
-  test("tape-invalid-accepted-action-index: rejects invalid acceptedActionIndex (schema.ts:421)", () => {
+  test("tape-invalid-accepted-action-index: rejects invalid acceptedActionIndex (schema.ts:423)", () => {
     const raw = cloneTape();
     const ac = raw.acceptedCheckpoint as Record<string, unknown>;
     ac.acceptedActionIndex = -1;
@@ -920,7 +920,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).acceptedCheckpoint.acceptedActionIndex, 5);
   });
 
-  test("tape-invalid-accepted-input-revision: rejects invalid acceptedInputRevision (schema.ts:432)", () => {
+  test("tape-invalid-accepted-input-revision: rejects invalid acceptedInputRevision (schema.ts:434)", () => {
     const raw = cloneTape();
     const ac = raw.acceptedCheckpoint as Record<string, unknown>;
     ac.acceptedInputRevision = -2;
@@ -938,7 +938,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).acceptedCheckpoint.acceptedInputRevision, 3);
   });
 
-  test("tape-invalid-checkpoint-digest: rejects malformed checkpoint digest (schema.ts:439)", () => {
+  test("tape-invalid-checkpoint-digest: rejects malformed checkpoint digest (schema.ts:441)", () => {
     const raw = cloneTape();
     const ac = raw.acceptedCheckpoint as Record<string, unknown>;
     ac.digest = "sha256-invalid-no-prefix";
@@ -958,7 +958,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
   });
 
   // 12. Prediction Payloads Validation
-  test("prediction-payload-not-object: rejects non-object prediction payload (schema.ts:482)", () => {
+  test("prediction-payload-not-object: rejects non-object prediction payload (schema.ts:587)", () => {
     const raw = cloneTape();
     raw.predictions = [
       {
@@ -987,7 +987,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).predictions?.length, 1);
   });
 
-  test("prediction-free-text-forbidden: rejects free-text fields in prediction payload (schema.ts:492)", () => {
+  test("prediction-free-text-forbidden: rejects free-text fields in prediction payload (schema.ts:597)", () => {
     const raw = cloneTape();
     raw.predictions = [
       {
@@ -1031,7 +1031,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).predictions?.length, 1);
   });
 
-  test("prediction-missing-candidate-id: rejects missing candidateId in candidate payload (schema.ts:502)", () => {
+  test("prediction-missing-candidate-id: rejects missing candidateId in candidate payload (schema.ts:607)", () => {
     const raw = cloneTape();
     raw.predictions = [
       {
@@ -1060,7 +1060,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).predictions?.length, 1);
   });
 
-  test("prediction-missing-sketch-points: rejects non-array sketch points (schema.ts:512)", () => {
+  test("prediction-missing-sketch-points: rejects non-array sketch points (schema.ts:617)", () => {
     const raw = cloneTape();
     raw.predictions = [
       {
@@ -1089,7 +1089,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).predictions?.length, 1);
   });
 
-  test("prediction-sketch-points-exceeded: rejects sketch points exceeding MAX_PREDICTION_SKETCH_POINTS (schema.ts:519)", () => {
+  test("prediction-sketch-points-exceeded: rejects sketch points exceeding MAX_PREDICTION_SKETCH_POINTS (schema.ts:624)", () => {
     const raw = cloneTape();
     const excessivePoints = Array.from(
       { length: MAX_PREDICTION_SKETCH_POINTS + 1 },
@@ -1126,7 +1126,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).predictions?.length, 1);
   });
 
-  test("prediction-invalid-sketch-point: rejects non-tuple or non-finite sketch point (schema.ts:536)", () => {
+  test("prediction-invalid-sketch-point: rejects non-tuple or non-finite sketch point (schema.ts:641)", () => {
     const raw = cloneTape();
     raw.predictions = [
       {
@@ -1175,7 +1175,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).predictions?.length, 1);
   });
 
-  test("prediction-invalid-verbal-choice: rejects negative or non-integer choiceIndex (schema.ts:552)", () => {
+  test("prediction-invalid-verbal-choice: rejects negative or non-integer choiceIndex (schema.ts:657)", () => {
     const raw = cloneTape();
     raw.predictions = [
       {
@@ -1204,7 +1204,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).predictions?.length, 1);
   });
 
-  test("prediction-missing-values: rejects non-array values (schema.ts:565)", () => {
+  test("prediction-missing-values: rejects non-array values (schema.ts:670)", () => {
     const raw = cloneTape();
     raw.predictions = [
       {
@@ -1233,7 +1233,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).predictions?.length, 1);
   });
 
-  test("prediction-values-count-exceeded: rejects values exceeding MAX_PREDICTION_VALUES_COUNT (schema.ts:572)", () => {
+  test("prediction-values-count-exceeded: rejects values exceeding MAX_PREDICTION_VALUES_COUNT (schema.ts:677)", () => {
     const raw = cloneTape();
     const excessiveValues = Array.from(
       { length: MAX_PREDICTION_VALUES_COUNT + 1 },
@@ -1270,7 +1270,7 @@ describe("Tape Schema V2 Validation (schema.ts)", () => {
     assert.equal(validateTapeV2(raw).predictions?.length, 1);
   });
 
-  test("prediction-invalid-value-item: rejects non-tuple or non-finite value item (schema.ts:589)", () => {
+  test("prediction-invalid-value-item: rejects non-tuple or non-finite value item (schema.ts:694)", () => {
     const raw = cloneTape();
     raw.predictions = [
       {

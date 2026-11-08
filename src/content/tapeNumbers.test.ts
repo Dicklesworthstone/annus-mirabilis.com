@@ -42,6 +42,8 @@ import { evaluateLq09 } from "../experiments/lq09/session.ts";
 import { ME01_DEFAULTS } from "../experiments/me01/definition.ts";
 import { ME02_DEFAULTS } from "../experiments/me02/definition.ts";
 import { ME03_DEFAULTS } from "../experiments/me03/definition.ts";
+import { permalinkTapeFromControlTape } from "../experiments/permalink/fromControlTape.ts";
+import { restoreWorkerTape } from "../experiments/permalink/workerSessionTape.ts";
 import type { ScientificResult } from "../experiments/results/types.ts";
 import { validateControlTape } from "../experiments/tapes/schema.ts";
 import { getConstantSet } from "../physics/reference/constants.ts";
@@ -52,6 +54,7 @@ import {
   evaluateMe03,
   evaluatePhotonBox,
 } from "../physics/reference/massEnergy.ts";
+import { bm01Laboratory, bm01ReplayFixture } from "../testing/bm01ReplayHarness.ts";
 import { withinTolerance } from "../units/tolerance.ts";
 import { createBm07Recording, measureBm07 } from "../workers/operations/bm07.ts";
 import { parseYaml } from "./provenance/yaml.ts";
@@ -149,26 +152,18 @@ describe("the numbers on a teaching tape's page, recomputed from its own inputs"
     expect(got.get("W (independent)")).toBeLessThan(got.get("W (locked)") ?? 0);
   });
 
-  test("Einstein's 0.8 micron: the recorded numbers are the registered 1905 set's own", () => {
+  test("Einstein's 0.8 micron: historical model and seeded sample expectations agree in canonical SI", async () => {
     const t = tape("einstein-0-8-micron");
-    const got = expectations(t);
-    const oneSecond = got.get("lambda_x at 1 s");
-    const sixtySeconds = got.get("lambda_x at 60 s");
-    expect(oneSecond).toBeDefined();
-    expect(sixtySeconds).toBeDefined();
-    if (oneSecond === undefined || sixtySeconds === undefined) return;
-
-    // CONSTANT-FREE: whatever D is, sqrt(2Dt) scales as sqrt(t). This catches a wrong second number
-    // without agreeing about any constant, and it is the relation the paper rests on.
-    expect(sixtySeconds / oneSecond).toBeCloseTo(Math.sqrt(60), 6);
-
-    // THE SET IS REGISTERED, so read it rather than hard-coding anything. An earlier version of
-    // this test carried R = 8.31 as a literal and said in its docblock that
-    // einstein-1905-brownian-printed "is not registered in constants.ts, so the site cannot
-    // evaluate it". That was false. I took it from the tape's own comment of 2026-09-16, which said
-    // the set was not yet registered and named the bead that would register it, and I did not check
-    // whether it still held. getConstantSet resolves it: era 1905, six entries, each sourced to
-    // Ann. Phys. (4) 17 (1905), p. 559, §5.
+    // Read the authored output ids before the reader's shaping layer removes them. The numerical
+    // model is independently recomputed below; the seeded sample needs the actual pinned owner.
+    const authored = validateControlTape(
+      parseYaml(
+        readFileSync(
+          new URL("../../content/experiments/tapes/einstein-0-8-micron.yaml", import.meta.url),
+          "utf8",
+        ),
+      ),
+    );
     const set = getConstantSet("einstein-1905-brownian-printed");
     const value = (quantityId: string): number => {
       const entry = set.entries.find((e) => e.quantityId === quantityId);
@@ -181,16 +176,78 @@ describe("the numbers on a teaching tape's page, recomputed from its own inputs"
     expect(t.initialConditions.eta).toBeCloseTo(value("viscosity"), 15);
     expect(t.initialConditions.a).toBeCloseTo(value("particleRadius"), 18);
 
-    // And the recorded displacement is the set's own printed figure, to the metre it states.
-    expect(oneSecond * 1e-6).toBeCloseTo(value("rmsDisplacement1d"), 15);
-
-    // Finally the relation itself, computed from the set: D = RT / (6 pi eta a N), lambda = sqrt(2Dt).
+    // Independent historical arithmetic: D = RT / (6 pi eta a N), lambda = sqrt(2Dt), in metres.
     const D =
       (value("molarGasConstant") * value("temperature")) /
       (6 * Math.PI * value("viscosity") * value("particleRadius") * value("avogadroConstant"));
-    const lambda = Math.sqrt(2 * D * 1) * 1e6; // micrometres, at t = 1 s
-    expect(lambda).toBeCloseTo(oneSecond, 6);
-    expect(Math.sqrt(2 * D * 60) * 1e6).toBeCloseTo(sixtySeconds, 5);
+    const lab = bm01Laboratory(await bm01ReplayFixture());
+    const modelAt = new Map<number, number>();
+    let compared = 0;
+    try {
+      for (const checkpoint of authored.checkpoints) {
+        const events = authored.events.filter(
+          (event) => event.actionIndex <= checkpoint.actionIndex,
+        );
+        const converted = permalinkTapeFromControlTape({
+          ...authored,
+          events,
+          checkpoints: [checkpoint],
+        });
+        assert.ok(converted.kind === "converted");
+        expect(await restoreWorkerTape(lab.binding, lab.session, converted.tape)).toEqual({
+          kind: "restored",
+        });
+        const accepted = lab.session.getSnapshot().accepted;
+        assert.ok(accepted?.final);
+        const settings = { ...authored.initialConditions };
+        for (const event of events)
+          if (event.kind === "control") settings[event.parameterId] = event.value;
+        expect(accepted.parameters).toEqual(settings);
+        const interval = settings.interval;
+        assert.ok(typeof interval === "number" && interval > 0);
+        const expected = checkpoint.expectedDisplayValues ?? [];
+        expect(expected.some((entry) => entry.outputId === "rmsDisplacement1d")).toBe(true);
+        expect(expected.some((entry) => entry.outputId === "sampleRms")).toBe(true);
+        const page = t.steps.find((step) => step.actionIndex === checkpoint.actionIndex);
+        expect(page?.expected.length).toBe(expected.length);
+        for (const recorded of expected) {
+          assert.ok(
+            recorded.outputId === "rmsDisplacement1d" || recorded.outputId === "sampleRms",
+            `${recorded.label} needs its numerical owner checked.`,
+          );
+          expect(recorded.unit).toBe("m");
+          expect(recorded.constantSetId).toBe(set.id);
+          expect(page?.expected.find((entry) => entry.label === recorded.label)).toMatchObject({
+            value: recorded.value,
+            unit: recorded.unit,
+            constantSetId: recorded.constantSetId,
+          });
+          const output = accepted.outputs.find((entry) => entry.quantityId === recorded.outputId);
+          assert.ok(output?.status === "value" && typeof output.value === "number");
+          expect(output.unit).toBe(recorded.unit);
+          expect(output.value).toBe(recorded.value);
+          if (recorded.outputId === "rmsDisplacement1d") {
+            expect(
+              withinTolerance(recorded.value, Math.sqrt(2 * D * interval), { relative: 1e-12 }).ok,
+            ).toBe(true);
+            modelAt.set(interval, recorded.value);
+          }
+          compared++;
+        }
+      }
+    } finally {
+      lab.session.disconnect();
+    }
+    const oneSecond = modelAt.get(1);
+    const sixtySeconds = modelAt.get(60);
+    assert.ok(oneSecond !== undefined && sixtySeconds !== undefined);
+    // The exact model scales as sqrt(t); a finite seeded sample is checked separately above.
+    expect(sixtySeconds / oneSecond).toBeCloseTo(Math.sqrt(60), 12);
+    // The registered historical display rounds its metre value to seven significant digits.
+    expect(withinTolerance(oneSecond, value("rmsDisplacement1d"), { relative: 1e-7 }).ok).toBe(
+      true,
+    );
+    expect(compared).toBe(t.steps.reduce((count, step) => count + step.expected.length, 0));
   });
 
   test("the file says how much of the reader-facing set it leaves unchecked", () => {

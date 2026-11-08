@@ -6,6 +6,7 @@
  * through validate-then-convert-then-compatibility, which is the path a replay would take.
  */
 import { describe, expect, test } from "bun:test";
+import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { strictParse } from "../../content/schemas/strictParse.ts";
@@ -35,6 +36,7 @@ function environmentAsRecorded(tape: TapeV2): ExperimentEnvironment {
     constantSetId: tape.constantSetId,
     streamVersion: tape.streamVersion,
     allocationId: tape.allocationId,
+    ...(tape.replayGrid === undefined ? {} : { replayGrid: tape.replayGrid }),
   };
 }
 
@@ -181,6 +183,24 @@ describe("the join: validate, convert, then compatibility", () => {
     // And the conversion does not make a difference disappear: a tape converted from a record
     // declaring version "1" must NOT match an environment declaring 2.
     expect(tape.modelIdentity.modelVersion).toBe(1);
+  });
+
+  test("a real stochastic record retains its fixed grid and refuses a missing or different one", () => {
+    const record = RECORDS.find((entry) => entry.tapeId === "einstein-0-8-micron");
+    assert.ok(record?.replayGrid, "The authored Brownian record declares its actual grid.");
+    const tape = convert(record);
+    expect(tape.replayGrid).toEqual(record.replayGrid);
+    const environment = environmentAsRecorded(tape);
+    expect(checkTapeCompatibility(tape, environment)).toEqual({ compatible: true });
+    for (const replayGrid of [
+      undefined,
+      { ...record.replayGrid, baseSpacing: record.replayGrid.baseSpacing * 2 },
+      { ...record.replayGrid, horizon: record.replayGrid.horizon / 2 },
+    ]) {
+      const result = checkTapeCompatibility(tape, { ...environment, replayGrid });
+      expect(result.compatible).toBe(false);
+      if (!result.compatible) expect(result.refusalCode).toBe("tape-grid-mismatch");
+    }
   });
 });
 

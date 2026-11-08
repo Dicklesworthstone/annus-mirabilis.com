@@ -22,8 +22,12 @@
  * instead of silently enlarging the excluded population. Each worker request must reach its own
  * final accepted publication before the digest is read, and every audit instance is disconnected.
  *
+ * BM-01's stochastic checkpoints additionally bind the complete trajectory and scientific outputs.
+ * Its adapter loads the pinned WASM owner, and its production publication verifier must accept the
+ * result before this audit reads it. A settings checksum cannot satisfy that scientific contract.
+ *
  * A draft-only shared link still starts no calculation. That does not exclude a laboratory whose
- * explicit walkthrough player can calculate: SR-03 and LQ-01 support both contracts. The remaining
+ * explicit walkthrough player can calculate: BM-01, SR-03 and LQ-01 support both contracts. The remaining
  * draft-only records are named, and the existing exclusion ceiling is retained.
  */
 
@@ -33,10 +37,15 @@ import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { evaluatorSources as sr03Sources } from "../../../scripts/generate-sr03.mjs";
+import { evaluatorSources as bm01Sources } from "../../../scripts/generate-tracers.mjs";
 import { evaluatorSources as lq01Sources } from "../../../scripts/generate-wave-description.mjs";
 import { parseYaml } from "../../content/provenance/yaml.ts";
+import { validateBm01Parameters } from "../../experiments/bm01/parameters.ts";
+import { createBm01TapeBinding } from "../../experiments/bm01/tape.ts";
+import { bm01CheckpointDigest } from "../../experiments/bm01/tapeCheckpoint.ts";
 import { LQ01_DEFAULTS } from "../../experiments/lq01/definition.ts";
 import { createLq01TapeBinding } from "../../experiments/lq01/tape.ts";
+import { permalinkTapeFromControlTape } from "../../experiments/permalink/fromControlTape.ts";
 import {
   createSessionReplayRunner,
   type LabTapeBinding,
@@ -46,15 +55,22 @@ import {
 } from "../../experiments/permalink/sessionTape.ts";
 import {
   applyWorkerSettings,
+  restoreWorkerTape,
   type WorkerTapeBinding,
 } from "../../experiments/permalink/workerSessionTape.ts";
 import { encodeResult } from "../../experiments/results/codec.ts";
 import { SR03_DEFAULTS } from "../../experiments/sr03/definition.ts";
 import { createSr03TapeBinding } from "../../experiments/sr03/tape.ts";
+import type { PublishedResult } from "../../experiments/store/instanceStore.ts";
+import { validateControlTape } from "../../experiments/tapes/schema.ts";
+import bm01Example from "../../generated/bm01-example.json";
+import { createBm01Host } from "../../workers/host/bm01Host.ts";
 import { createLq01Host } from "../../workers/host/lq01Host.ts";
 import { createSr03Host } from "../../workers/host/sr03Host.ts";
 import { evaluateLq01 } from "../../workers/operations/lq01.ts";
 import { evaluateSr03 } from "../../workers/operations/sr03.ts";
+import type { VerifiablePublication } from "../../workers/scheduler/verifiedChannel.ts";
+import { loadPinnedFrankenSimRecorder } from "../bm01FrankenSimRecorder.ts";
 import { TestLogger } from "../log/logger.ts";
 
 const logger = new TestLogger("recorded-checkpoint-digests");
@@ -127,6 +143,18 @@ function sourceIdentity(sources: readonly (readonly string[])[]): string {
 }
 
 const workerAdapters: Readonly<Record<string, () => Promise<WorkerTapeBinding>>> = {
+  async createBm01TapeBinding() {
+    const sourceDigest = sourceIdentity(await bm01Sources());
+    assert.equal(bm01Example.sourceDigest, sourceDigest);
+    const checked = validateBm01Parameters(bm01Example.parameters);
+    assert.ok(checked.kind === "accepted");
+    const recorder = await loadPinnedFrankenSimRecorder();
+    assert.ok(typeof recorder !== "string", String(recorder));
+    return createBm01TapeBinding(
+      { ...bm01Example, parameters: checked.data },
+      hostTransport((send, source) => createBm01Host(send, source, recorder), sourceDigest),
+    );
+  },
   async createLq01TapeBinding() {
     const sourceDigest = sourceIdentity(await lq01Sources());
     const evaluated = await evaluateLq01(LQ01_DEFAULTS);
@@ -187,6 +215,76 @@ function labTapeBinding(experimentId: string): Promise<DrivenBinding | undefined
   return discovered;
 }
 
+async function replayedScientificWorkerDigest(
+  binding: WorkerTapeBinding,
+  record: TapeRecord,
+  upTo: number,
+): Promise<string> {
+  assert.equal(binding.environment.experimentId, "bm-01", "A scientific audit needs its owner.");
+  const scientific = binding.scientificReplay;
+  assert.ok(scientific);
+  const authored = validateControlTape(record);
+  const checkpoint = authored.checkpoints.find((entry) => entry.actionIndex === upTo);
+  assert.ok(checkpoint);
+  const converted = permalinkTapeFromControlTape({
+    ...authored,
+    events: authored.events.filter((event) => event.actionIndex <= upTo),
+    checkpoints: [checkpoint],
+  });
+  assert.ok(
+    converted.kind === "converted",
+    converted.kind === "unconvertible" ? converted.reason : "",
+  );
+  let measured: Readonly<{ digest: string; publication: VerifiablePublication }> | undefined;
+  const verifiedBinding: WorkerTapeBinding = {
+    ...binding,
+    scientificReplay: {
+      ...scientific,
+      async verify(tape, publication) {
+        const calculated = await bm01CheckpointDigest(
+          publication,
+          bm01Example.sourceDigest,
+          tape.acceptedCheckpoint.acceptedActionIndex,
+        );
+        if (calculated.kind !== "digest") return calculated.notice;
+        measured = { digest: calculated.digest, publication };
+        return scientific.verify(tape, publication);
+      },
+    },
+  };
+  const session = binding.createSession(`${record.experimentId}-digest-check`);
+  try {
+    const result = await restoreWorkerTape(verifiedBinding, session, converted.tape);
+    assert.ok(
+      result.kind === "restored",
+      `record ${checkpoint.digest}, replay ${measured?.digest ?? "unavailable"}: ${result.kind === "not-restored" ? result.notice : ""}`,
+    );
+    assert.ok(measured, "The final result must pass the actual scientific publication verifier.");
+    const view = session.getSnapshot();
+    const accepted = view.accepted;
+    assert.ok(!view.pending && accepted?.final);
+    assert.equal(accepted.actionIndex, view.requested?.actionIndex);
+    assert.equal(accepted.runId, view.requested?.runId);
+    assert.equal(accepted.instanceId, measured.publication.instanceId);
+    assert.equal(accepted.runId, measured.publication.runId);
+    assert.equal(accepted.actionIndex, measured.publication.actionIndex);
+    assert.deepEqual(accepted.parameters, measured.publication.parameters);
+    for (const expected of checkpoint.expectedDisplayValues ?? []) {
+      assert.ok(expected.outputId);
+      const output: PublishedResult | undefined = accepted.outputs.find(
+        (entry) => entry.quantityId === expected.outputId,
+      );
+      assert.ok(output?.status === "value" && typeof output.value === "number");
+      assert.equal(output.value, expected.value);
+      assert.equal(output.unit, expected.unit);
+      assert.equal(accepted.parameters.constantSetId, expected.constantSetId);
+    }
+    return measured.digest;
+  } finally {
+    session.disconnect();
+  }
+}
+
 async function replayedWorkerDigest(
   binding: WorkerTapeBinding,
   record: TapeRecord,
@@ -198,6 +296,7 @@ async function replayedWorkerDigest(
     binding.environment.artifactDigest,
     "The recorded worker source must match the actual owner closure.",
   );
+  if (binding.scientificReplay) return replayedScientificWorkerDigest(binding, record, upTo);
   const session = binding.createSession(`${record.experimentId}-digest-check`);
   const apply = async (parameters: object) => {
     const result = await applyWorkerSettings(session, parameters);
@@ -280,7 +379,7 @@ async function auditDigests(
         replayed = await replayedDigest(binding, record, checkpoint.actionIndex);
       } catch (error) {
         mismatches.push(
-          `${record.tapeId} @${checkpoint.actionIndex}: replay refused: ${String(error).slice(0, 120)}`,
+          `${record.tapeId} @${checkpoint.actionIndex}: replay refused: ${String(error).slice(0, 512)}`,
         );
         continue;
       }
@@ -328,7 +427,7 @@ describe("recorded checkpoint digests", () => {
   });
 
   test("worker factory records remain audited and detect a corrupted accepted-state digest", async () => {
-    for (const experimentId of ["lq-01", "sr-03"]) {
+    for (const experimentId of ["bm-01", "lq-01", "sr-03"]) {
       const binding = await labTapeBinding(experimentId);
       expect(binding?.kind).toBe("worker");
       const subject = drivable.find((record) => record.experimentId === experimentId);
