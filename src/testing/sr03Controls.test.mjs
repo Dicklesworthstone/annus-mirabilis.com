@@ -49,10 +49,21 @@ test("permalink decoding rejects invalid or corrupt strings", () => {
   }
 });
 
+test("a walkthrough selection does not produce a false legacy settings-link warning", () => {
+  assert.equal(decodeSr03Settings("?walkthrough=the-boost-to-0.6c&stop=0").kind, "absent");
+  assert.equal(decodeSr03Settings("?sr=3&walkthrough=the-boost-to-0.6c&stop=0").kind, "invalid");
+});
+
 test("draft conversion refuses non-numeric strings for numbers", () => {
   const draft = toSr03Draft(SR03_DEFAULTS);
   draft.v = "not-a-number";
   assert.throws(() => fromSr03Draft(draft));
+});
+
+test("unfinished custom entries do not prevent returning to a named event pair", () => {
+  const draft = { ...toSr03Draft(SR03_DEFAULTS), customT1: "", customX2: "unfinished" };
+  assert.deepEqual(fromSr03Draft(draft), SR03_DEFAULTS);
+  assert.throws(() => fromSr03Draft({ ...draft, endpointPairId: "custom" }));
 });
 
 test("validator enforces domain bounds (|v| <= 0.95c, L0 > 0, R > 0)", () => {

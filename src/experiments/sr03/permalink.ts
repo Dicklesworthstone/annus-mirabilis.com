@@ -36,6 +36,8 @@ export function decodeSr03Settings(search: string): Sr03SettingsLink {
   });
   if (search.length > 4096) return invalid();
   const q = new URLSearchParams(search.startsWith("?") ? search.slice(1) : search);
+  // A walkthrough selection is handled by its player, not a malformed legacy settings link.
+  if (!q.has("sr")) return { kind: "absent" };
   if (q.get("sr") !== "3") return invalid();
 
   const allAllowed = ["sr", ...requiredKeys, "customT1", "customX1", "customT2", "customX2"];

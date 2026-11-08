@@ -1,7 +1,12 @@
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
 import { powerOfTenText } from "../../units/scientific.ts";
 import { makeRefusal } from "../results/refusals.ts";
-import type { EndpointPairChoice, FrameId, Sr03Parameters } from "./definition.ts";
+import {
+  type EndpointPairChoice,
+  type FrameId,
+  SR03_CUSTOM_DEFAULTS,
+  type Sr03Parameters,
+} from "./definition.ts";
 
 const requiredKeys = ["rodRestFrame", "v", "L0", "measuringFrame", "endpointPairId", "R"] as const;
 const optionalKeys = ["customT1", "customX1", "customT2", "customX2"] as const;
@@ -111,16 +116,19 @@ export function validateSr03Parameters(input: unknown): Computation<Sr03Paramete
     return refused(["endpointPairId"], `Unknown endpoint pair id '${endpointPairId}'.`);
   }
 
-  let customT1: number | undefined;
-  let customX1: number | undefined;
-  let customT2: number | undefined;
-  let customX2: number | undefined;
+  // Keep a complete canonical shape: the store applies parameter patches and cannot remove a
+  // key when the reader leaves custom mode. Presets always use these inactive defaults, so a
+  // previous pair of custom events cannot alter a preset's identity or checkpoint digest.
+  let { customT1, customX1, customT2, customX2 } = SR03_CUSTOM_DEFAULTS;
 
   if (endpointPairId === "custom") {
-    customT1 = typeof raw.customT1 === "number" ? raw.customT1 : 0;
-    customX1 = typeof raw.customX1 === "number" ? raw.customX1 : 0;
-    customT2 = typeof raw.customT2 === "number" ? raw.customT2 : 0;
-    customX2 = typeof raw.customX2 === "number" ? raw.customX2 : 10;
+    if (optionalKeys.some((key) => raw[key] !== undefined && typeof raw[key] !== "number")) {
+      return refused(optionalKeys, "Enter custom event times and positions as numbers.");
+    }
+    customT1 = typeof raw.customT1 === "number" ? raw.customT1 : customT1;
+    customX1 = typeof raw.customX1 === "number" ? raw.customX1 : customX1;
+    customT2 = typeof raw.customT2 === "number" ? raw.customT2 : customT2;
+    customX2 = typeof raw.customX2 === "number" ? raw.customX2 : customX2;
 
     if (![customT1, customX1, customT2, customX2].every(Number.isFinite)) {
       return {
@@ -139,14 +147,6 @@ export function validateSr03Parameters(input: unknown): Computation<Sr03Paramete
     }
   }
 
-  const customParams =
-    customT1 !== undefined &&
-    customX1 !== undefined &&
-    customT2 !== undefined &&
-    customX2 !== undefined
-      ? { customT1, customX1, customT2, customX2 }
-      : {};
-
   const resultData: Sr03Parameters = {
     rodRestFrame,
     v: vRaw,
@@ -154,7 +154,10 @@ export function validateSr03Parameters(input: unknown): Computation<Sr03Paramete
     measuringFrame,
     endpointPairId,
     R: RRaw,
-    ...customParams,
+    customT1,
+    customX1,
+    customT2,
+    customX2,
   };
 
   return {

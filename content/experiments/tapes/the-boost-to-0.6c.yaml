@@ -8,15 +8,22 @@ isTeachingSequence: true
 modelIdentity:
   modelId: sr-03
   modelVersion: "1"
-  artifactDigest: "host:sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  artifactDigest: "host:sha256:97375ddfcd84bbf3ff560207d4d276698c43c37785f44b9960de1fd82f1335b2"
 constantSetId: modern-si-2019
 seed: "1905"
 streamVersion: 1
 allocationId: deterministic
 initialConditions:
+  rodRestFrame: k
   v: 0.6
   L0: 10
+  measuringFrame: K
+  endpointPairId: platform-simultaneous
   R: 1.0
+  customT1: 0
+  customX1: 0
+  customT2: 0
+  customX2: 10
 events:
   - kind: prediction
     actionIndex: 1
@@ -27,44 +34,47 @@ events:
       candidateId: earlier-trailing
   - kind: control
     actionIndex: 2
-    commandClass: setup-change
-    commandId: set-boost-v
-    parameterId: v
-    value: 0.6
+    commandClass: measurement-change
+    commandId: select-the-rods-endpoints
+    parameterId: endpointPairId
+    value: frame-simultaneous
 checkpoints:
-  - actionIndex: 1
+  - actionIndex: 0
     stepIndex: 1
     simulatedTime: 0
-    digest: "host:sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    digest: "host:da27e285149305f3"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1
     seed: "1905"
     streamPositions: []
     label: "Signature platform-simultaneous pair at v = 0.6c"
-    teachingNote: "A pair simultaneous in K (dt = 0, dx = 10 ls) is not simultaneous in k (dt' = -7.5 s, dx' = 12.5 ls)."
+    teachingNote: "Two platform marks 10 ls apart are read at one time in K. Their readings are not simultaneous in k (dt' = -7.5 s, dx' = 12.5 ls). These marks are not the moving rod's two ends: this distance is not its length."
     expectedDisplayValues:
       - label: "dtK"
+        outputId: temporalSeparationK
         value: 0
         unit: "s"
         constantSetId: modern-si-2019
       - label: "dtk"
+        outputId: temporalSeparationKPrime
         value: -7.5
         unit: "s"
         constantSetId: modern-si-2019
   - actionIndex: 2
-    stepIndex: 2
+    stepIndex: 1
     simulatedTime: 0
-    digest: "host:sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    digest: "host:e8aeabcf7aafdead"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1
     seed: "1905"
     streamPositions: []
     label: "Valid frame-simultaneous measurement in K"
-    teachingNote: "Endpoints simultaneous in measuring frame K give measured contracted length L = 8 ls = L0 / gamma."
+    teachingNote: "Now select the actual rod ends at one time of measuring frame K. Their separation is L = 8 ls = L0 / gamma; both readings lie on the rod. These end readings have dt' = -6 s in the rod's frame k, so they do not measure its proper length at one time of k."
     expectedDisplayValues:
       - label: "measuredLength"
+        outputId: measuredLength
         value: 8.0
         unit: "ls"
         constantSetId: modern-si-2019

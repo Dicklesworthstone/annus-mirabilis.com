@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { tapePath } from "../../reader/sitePaths.ts";
 import {
-  applyWalkthroughCheckpoint,
-  calculateWalkthroughCheckpoint,
+  applyWalkthroughCheckpointAsync,
+  calculateWalkthroughCheckpointAsync,
   type WalkthroughAction,
-  type WalkthroughTarget,
+  type WalkthroughPlayerTarget,
 } from "./walkthroughActions.ts";
 import { checkpointAt, type WalkthroughCatalogue } from "./walkthroughCheckpoints.ts";
 import {
@@ -30,7 +30,7 @@ export function WalkthroughPlayer({
   target,
   load = loadCatalogue,
 }: Readonly<{
-  target: WalkthroughTarget;
+  target: WalkthroughPlayerTarget;
   load?: (() => Promise<WalkthroughCatalogue>) | undefined;
 }>) {
   const id = useId();
@@ -42,12 +42,34 @@ export function WalkthroughPlayer({
   const [tapeId, setTapeId] = useState("");
   const [manualIndex, setIndex] = useState(0);
   const [result, setResult] = useState<WalkthroughAction | null>(null);
+  const [working, setWorking] = useState(false);
+  const pendingAction = useRef<AbortController | null>(null);
   const [location, setLocation] = useState<WalkthroughLocation>({ kind: "absent" });
   const experimentId = target.experimentId;
+
+  useEffect(() => () => pendingAction.current?.abort(), []);
+
+  async function run(action: (signal: AbortSignal) => Promise<WalkthroughAction>) {
+    if (pendingAction.current) return;
+    const controller = new AbortController();
+    pendingAction.current = controller;
+    setWorking(true);
+    setResult(null);
+    try {
+      const outcome = await action(controller.signal);
+      if (!controller.signal.aborted) setResult(outcome);
+    } finally {
+      if (pendingAction.current === controller) pendingAction.current = null;
+      if (!controller.signal.aborted) setWorking(false);
+    }
+  }
 
   useEffect(
     () =>
       observeWalkthroughLocation(window, (next) => {
+        pendingAction.current?.abort();
+        pendingAction.current = null;
+        setWorking(false);
         setLocation(next);
         setResult(null);
         if (next.kind !== "absent") setOpen(true);
@@ -160,7 +182,7 @@ export function WalkthroughPlayer({
         </p>
       )}
       {walkthrough && (
-        <fieldset style={{ minWidth: 0, maxWidth: "100%" }}>
+        <fieldset disabled={working} aria-busy={working} style={{ minWidth: 0, maxWidth: "100%" }}>
           <legend>Recorded checkpoints</legend>
           <label htmlFor={`${id}-tape`}>Walkthrough</label>{" "}
           <select
@@ -228,18 +250,24 @@ export function WalkthroughPlayer({
                 <button
                   type="button"
                   disabled={!checkpoint || (!formOnly && !checkpoint.tape)}
-                  onClick={() => setResult(applyWalkthroughCheckpoint(target, walkthrough, index))}
+                  onClick={() =>
+                    void run((signal) =>
+                      applyWalkthroughCheckpointAsync(target, walkthrough, index, signal),
+                    )
+                  }
                 >
                   {formOnly ? "Load checkpoint settings" : "Restore checkpoint"}
                 </button>
               </div>
-              {target.kind === "session" && target.calculate && checkpoint && (
+              {target.kind !== "form" && target.calculate && checkpoint && (
                 <p>
                   <button
                     type="button"
                     style={{ whiteSpace: "normal", maxWidth: "100%" }}
                     onClick={() =>
-                      setResult(calculateWalkthroughCheckpoint(target, walkthrough, index))
+                      void run((signal) =>
+                        calculateWalkthroughCheckpointAsync(target, walkthrough, index, signal),
+                      )
                     }
                   >
                     Calculate these settings as a new run
@@ -248,6 +276,11 @@ export function WalkthroughPlayer({
                 </p>
               )}
             </>
+          )}
+          {working && (
+            <p role="status">
+              Checking the recorded settings and waiting for the laboratory's accepted result…
+            </p>
           )}
           {result && (
             <p

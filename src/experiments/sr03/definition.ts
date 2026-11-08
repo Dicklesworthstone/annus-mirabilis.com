@@ -23,6 +23,18 @@ export interface Sr03Parameters {
   readonly customX2?: number;
 }
 
+export const SR03_CUSTOM_DEFAULTS: Readonly<{
+  customT1: number;
+  customX1: number;
+  customT2: number;
+  customX2: number;
+}> = Object.freeze({
+  customT1: 0,
+  customX1: 0,
+  customT2: 0,
+  customX2: 10,
+});
+
 export const SR03_DEFAULTS: Sr03Parameters = Object.freeze({
   rodRestFrame: "k",
   v: 0.6,
@@ -30,6 +42,7 @@ export const SR03_DEFAULTS: Sr03Parameters = Object.freeze({
   measuringFrame: "K",
   endpointPairId: "platform-simultaneous",
   R: 1.0,
+  ...SR03_CUSTOM_DEFAULTS,
 });
 
 export const SR03_PARAMETER_CLASSES: Readonly<Record<string, ParameterClass>> = Object.freeze({
@@ -39,6 +52,10 @@ export const SR03_PARAMETER_CLASSES: Readonly<Record<string, ParameterClass>> = 
   measuringFrame: "observer",
   endpointPairId: "measurement",
   R: "input",
+  customT1: "measurement",
+  customX1: "measurement",
+  customT2: "measurement",
+  customX2: "measurement",
 });
 export const SR03_CLASSES = SR03_PARAMETER_CLASSES;
 
@@ -132,6 +149,7 @@ export const SR03_PRESETS: Readonly<Record<string, PresetItem>> = Object.freeze(
     description:
       "Signature pair: 10 ls platform-simultaneous pair transforms to dt' = -7.5 s, dx' = 12.5 ls.",
     parameters: {
+      ...SR03_CUSTOM_DEFAULTS,
       rodRestFrame: "k",
       v: 0.6,
       L0: 10,
@@ -144,6 +162,7 @@ export const SR03_PRESETS: Readonly<Record<string, PresetItem>> = Object.freeze(
     label: "A frame-simultaneous pair",
     description: "Endpoints simultaneous in measuring frame K give measured length L = 8 ls.",
     parameters: {
+      ...SR03_CUSTOM_DEFAULTS,
       rodRestFrame: "k",
       v: 0.6,
       L0: 10,
@@ -156,6 +175,7 @@ export const SR03_PRESETS: Readonly<Record<string, PresetItem>> = Object.freeze(
     label: "Reciprocal measurement",
     description: "Rod at rest in K measured from k gives contracted length 8 ls.",
     parameters: {
+      ...SR03_CUSTOM_DEFAULTS,
       rodRestFrame: "K",
       v: 0.6,
       L0: 10,
@@ -168,6 +188,7 @@ export const SR03_PRESETS: Readonly<Record<string, PresetItem>> = Object.freeze(
     label: "The moving sphere as an ellipsoid",
     description: "Sphere of radius 1 ls measured as ellipsoid with axes 0.8 ls, 1.0 ls, 1.0 ls.",
     parameters: {
+      ...SR03_CUSTOM_DEFAULTS,
       rodRestFrame: "k",
       v: 0.6,
       L0: 10,
@@ -180,6 +201,7 @@ export const SR03_PRESETS: Readonly<Record<string, PresetItem>> = Object.freeze(
     label: "A timelike pair",
     description: "dt = 10 s, dx = 5 ls, s^2 = -75 ls^2. Timelike separation with invariant order.",
     parameters: {
+      ...SR03_CUSTOM_DEFAULTS,
       rodRestFrame: "k",
       v: 0.6,
       L0: 10,
@@ -192,6 +214,7 @@ export const SR03_PRESETS: Readonly<Record<string, PresetItem>> = Object.freeze(
     label: "A lightlike pair",
     description: "dt = 10 s, dx = 10 ls, s^2 = 0 ls^2. Null connection with invariant order.",
     parameters: {
+      ...SR03_CUSTOM_DEFAULTS,
       rodRestFrame: "k",
       v: 0.6,
       L0: 10,
@@ -204,6 +227,7 @@ export const SR03_PRESETS: Readonly<Record<string, PresetItem>> = Object.freeze(
     label: "Causal threshold (reversal)",
     description: "dt = 2 s, dx = 10 ls, s^2 = +96 ls^2. Spacelike order reverses across v = 0.2c.",
     parameters: {
+      ...SR03_CUSTOM_DEFAULTS,
       rodRestFrame: "k",
       v: 0.2,
       L0: 10,

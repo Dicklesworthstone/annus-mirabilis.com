@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { type FormEvent, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { ExecutionLabel } from "../../experiments/labels/ExecutionLabel.tsx";
 import { executionStateKindFromHostLabel } from "../../experiments/labels/executionLabelFor.ts";
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
@@ -18,6 +18,7 @@ import { SR03_DRAFT_TAPE } from "../../experiments/sr03/draftTape.ts";
 import { decodeSr03Settings } from "../../experiments/sr03/permalink.ts";
 import { sr03ReadingsView } from "../../experiments/sr03/readings.ts";
 import { createSr03Session, type PreparedSr03Example } from "../../experiments/sr03/session.ts";
+import { createSr03TapeBinding, createSr03WalkthroughTarget } from "../../experiments/sr03/tape.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
@@ -47,6 +48,8 @@ import { ShowTheCode } from "./ShowTheCode.tsx";
 export type RodSimultaneityLabProps = Readonly<{
   example: PreparedSr03Example;
   title?: string;
+  instanceId?: string | undefined;
+  restoreFromLocation?: boolean | undefined;
 }>;
 
 /** The values table's row names, in the reader's words. */
@@ -102,11 +105,14 @@ function capitalized(word: string | undefined): string {
 export function RodSimultaneityLab({
   example,
   title = "Rod measurement, simultaneity, and causal order laboratory",
+  instanceId,
+  restoreFromLocation = true,
 }: RodSimultaneityLabProps) {
   const id = useId();
   const [session] = useState(() =>
-    createSr03Session(`sr03-${id}`, example, createSr03BrowserChannel),
+    createSr03Session(instanceId ?? `sr03-${id}`, example, createSr03BrowserChannel),
   );
+  const [workerTape] = useState(() => createSr03TapeBinding(example, createSr03BrowserChannel));
   const view = useInstrumentView(session);
   const snapshot =
     view.accepted ??
@@ -114,7 +120,13 @@ export function RodSimultaneityLab({
     (session.getSnapshot().accepted as NonNullable<typeof view.accepted>);
   const p = (snapshot.parameters ?? example.parameters) as unknown as Sr03Parameters;
 
-  const [draft, setDraft] = useState<Sr03Draft>(() => toSr03Draft(example.parameters));
+  const [draft, setDraftState] = useState<Sr03Draft>(() => toSr03Draft(example.parameters));
+  const draftRevision = useRef(0);
+  const walkthroughDraftRevision = useRef(0);
+  const setDraft = useCallback((next: Sr03Draft) => {
+    draftRevision.current++;
+    setDraftState(next);
+  }, []);
   const [ready, setReady] = useState(false);
   /** The typed failure of the last apply, not a string (am-ig23). See applyFailure.ts. */
   const [failure, setFailure] = useState<ApplyFailure | null>(null);
@@ -124,23 +136,49 @@ export function RodSimultaneityLab({
   // The drawings and the controls come first; dt′, the interval ledger and the values wait.
   const gate = usePredictGate("sr-03", SR03_GATE_PROMPTS);
   // A shared ?tape= link puts its settings in the form and starts no worker; Apply runs them.
-  const tapeLink = useDraftTapeLink(SR03_DRAFT_TAPE, p, true, (settings) =>
+  const tapeLink = useDraftTapeLink(SR03_DRAFT_TAPE, p, restoreFromLocation, (settings) =>
     setDraft(toSr03Draft(settings as unknown as Sr03Parameters)),
+  );
+  const workerWalkthrough = useMemo(
+    () =>
+      createSr03WalkthroughTarget(
+        workerTape,
+        session,
+        (parameters) => {
+          // A custom event can be edited without Apply, so the accepted store alone cannot
+          // detect newer work in the form while this asynchronous calculation was running.
+          if (draftRevision.current !== walkthroughDraftRevision.current) {
+            setLinkNote(
+              "The checkpoint result is ready. Your newer entries are still in the form; apply them when ready.",
+            );
+            return;
+          }
+          setDraftState(toSr03Draft(parameters));
+          setFailure(null);
+          setLinkNote("");
+        },
+        () => {
+          walkthroughDraftRevision.current = draftRevision.current;
+        },
+      ),
+    [workerTape, session],
   );
 
   useEffect(() => {
     setReady(true);
-    const shared = decodeSr03Settings(window.location.search);
-    if (shared.kind === "settings") {
-      setDraft(toSr03Draft(shared.parameters));
-      setLinkNote(
-        "Shared settings are loaded. Choose Apply settings to calculate them; the worked example is still displayed.",
-      );
-    } else if (shared.kind === "invalid") {
-      setLinkNote(shared.message);
+    if (restoreFromLocation) {
+      const shared = decodeSr03Settings(window.location.search);
+      if (shared.kind === "settings") {
+        setDraft(toSr03Draft(shared.parameters));
+        setLinkNote(
+          "Shared settings are loaded. Choose Apply settings to calculate them; the worked example is still displayed.",
+        );
+      } else if (shared.kind === "invalid") {
+        setLinkNote(shared.message);
+      }
     }
     return () => session.disconnect();
-  }, [session]);
+  }, [session, restoreFromLocation, setDraft]);
 
   function apply(parameters: Sr03Parameters) {
     const outcome = session.apply(parameters);
@@ -691,7 +729,7 @@ export function RodSimultaneityLab({
           summary={statusSummary}
           response={gate.response}
         />
-        <LabTapeLink link={withPredictions(tapeLink, gate)} />
+        <LabTapeLink link={withPredictions(tapeLink, gate)} workerWalkthrough={workerWalkthrough} />
       </div>
 
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct

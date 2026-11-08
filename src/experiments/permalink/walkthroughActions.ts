@@ -31,6 +31,89 @@ export type WalkthroughAction = Readonly<{
   notice: string;
 }>;
 
+/** A worker request must finish before the player reports a restored checkpoint. */
+export type WorkerWalkthroughTarget = Readonly<{
+  kind: "worker";
+  experimentId: string;
+  restore(
+    tape: TapeV2,
+    signal?: AbortSignal,
+  ): Promise<Readonly<{ kind: "restored" }> | Readonly<{ kind: "not-restored"; notice: string }>>;
+  calculate?(
+    settings: Readonly<Record<string, number | string>>,
+    signal?: AbortSignal,
+  ): Promise<Readonly<{ kind: "calculated" }> | Readonly<{ kind: "not-restored"; notice: string }>>;
+}>;
+
+export type WalkthroughPlayerTarget = WalkthroughTarget | WorkerWalkthroughTarget;
+
+/** Retain synchronous form/session actions while awaiting worker publication in the same player. */
+export async function applyWalkthroughCheckpointAsync(
+  target: WalkthroughPlayerTarget,
+  walkthrough: CheckpointWalkthrough,
+  index: number,
+  signal?: AbortSignal,
+): Promise<WalkthroughAction> {
+  if (target.kind !== "worker") return applyWalkthroughCheckpoint(target, walkthrough, index);
+  if (target.experimentId !== walkthrough.experimentId)
+    return {
+      kind: "refused",
+      notice: `This walkthrough belongs to ${walkthrough.experimentId}, not ${target.experimentId}.`,
+    };
+  const checkpoint = checkpointAt(walkthrough, index);
+  if (!checkpoint?.tape)
+    return {
+      kind: "refused",
+      notice: checkpoint?.unavailable || "This stop has no replayable recorded checkpoint.",
+    };
+  try {
+    const restored = await target.restore(checkpoint.tape, signal);
+    return applyWalkthroughCheckpoint(
+      { kind: "session", experimentId: target.experimentId, restore: () => restored },
+      walkthrough,
+      index,
+    );
+  } catch (error) {
+    return {
+      kind: "refused",
+      notice: `The checkpoint action could not complete: ${String(error)}`,
+    };
+  }
+}
+
+/** A new worker calculation is explicit, and is never the fallback after a refused replay. */
+export async function calculateWalkthroughCheckpointAsync(
+  target: WalkthroughPlayerTarget,
+  walkthrough: CheckpointWalkthrough,
+  index: number,
+  signal?: AbortSignal,
+): Promise<WalkthroughAction> {
+  if (target.kind !== "worker") return calculateWalkthroughCheckpoint(target, walkthrough, index);
+  if (target.experimentId !== walkthrough.experimentId)
+    return {
+      kind: "refused",
+      notice: `This walkthrough belongs to ${walkthrough.experimentId}, not ${target.experimentId}.`,
+    };
+  const checkpoint = checkpointAt(walkthrough, index);
+  if (!checkpoint || !target.calculate)
+    return { kind: "refused", notice: "Choose an available checkpoint calculation." };
+  try {
+    const calculated = await target.calculate(checkpoint.settings, signal);
+    return calculateWalkthroughCheckpoint(
+      {
+        kind: "session",
+        experimentId: target.experimentId,
+        restore: () => ({ kind: "not-restored", notice: "No replay was requested." }),
+        calculate: () => calculated,
+      },
+      walkthrough,
+      index,
+    );
+  } catch (error) {
+    return { kind: "refused", notice: `The new calculation could not complete: ${String(error)}` };
+  }
+}
+
 /** Execute a selected stop. Merely choosing a walkthrough or a stop never calls this function. */
 export function applyWalkthroughCheckpoint(
   target: WalkthroughTarget,

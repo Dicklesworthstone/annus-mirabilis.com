@@ -43,7 +43,8 @@ export function fromSr03Draft(d: Sr03Draft): Sr03Parameters {
   const L0 = read(d.L0, "the proper length L₀");
   const R = read(d.R, "the sphere radius R");
 
-  const custom = d.customT1 !== undefined;
+  // Hidden, unfinished custom entries must not prevent returning to a named event pair.
+  const custom = d.endpointPairId === "custom";
   const customT1 = custom ? read(d.customT1 ?? "", "the time of the first event") : undefined;
   const customX1 = custom ? read(d.customX1 ?? "", "the place of the first event") : undefined;
   const customT2 = custom ? read(d.customT2 ?? "", "the time of the second event") : undefined;

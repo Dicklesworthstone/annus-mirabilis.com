@@ -55,40 +55,43 @@ export function createSr03Session(
   }
   const serverSnapshot = store.getSnapshot();
   let scheduler: ReturnType<typeof createSr03Scheduler> | null = null;
+  function apply(input: unknown, newRun = false) {
+    const validated = validateSr03Parameters(input);
+    if (validated.kind !== "accepted") return validated;
+    const parameters = validated.data;
+    const previous = store.getSnapshot().requested?.parameters ?? example.parameters;
+    const setup: Record<string, number | string | boolean> = {};
+    const observer: Record<string, number | string | boolean> = {};
+    const measurement: Record<string, number | string | boolean> = {};
+
+    for (const key of Object.keys(parameters) as (keyof Sr03Parameters)[]) {
+      if (Object.is(parameters[key], previous[key])) continue;
+      const val = parameters[key];
+      if (val === undefined) continue;
+      const cls = SR03_PARAMETER_CLASSES[key];
+      if (cls === "observer") observer[key] = val;
+      else if (cls === "measurement") measurement[key] = val;
+      else setup[key] = val;
+    }
+
+    let request = Object.keys(measurement).length
+      ? store.issue("measurement-change", measurement)
+      : null;
+    if (Object.keys(observer).length) request = store.issue("observer-change", observer);
+    if (newRun || Object.keys(setup).length) request = store.issue("setup-change", setup);
+    request ??= store.issue("continue");
+
+    scheduler ??= createSr03Scheduler(store, workerFactory, example.sourceDigest);
+    scheduler.request(request);
+    return { kind: "accepted" as const, data: request };
+  }
   return Object.freeze({
     getSnapshot: store.getSnapshot,
     getServerSnapshot: () => serverSnapshot,
     subscribe: store.subscribe,
-    apply(input: unknown) {
-      const validated = validateSr03Parameters(input);
-      if (validated.kind !== "accepted") return validated;
-      const parameters = validated.data;
-      const previous = store.getSnapshot().requested?.parameters ?? example.parameters;
-      const setup: Record<string, number | string | boolean> = {};
-      const observer: Record<string, number | string | boolean> = {};
-      const measurement: Record<string, number | string | boolean> = {};
-
-      for (const key of Object.keys(parameters) as (keyof Sr03Parameters)[]) {
-        if (Object.is(parameters[key], previous[key])) continue;
-        const val = parameters[key];
-        if (val === undefined) continue;
-        const cls = SR03_PARAMETER_CLASSES[key];
-        if (cls === "observer") observer[key] = val;
-        else if (cls === "measurement") measurement[key] = val;
-        else setup[key] = val;
-      }
-
-      let request = Object.keys(measurement).length
-        ? store.issue("measurement-change", measurement)
-        : null;
-      if (Object.keys(observer).length) request = store.issue("observer-change", observer);
-      if (Object.keys(setup).length) request = store.issue("setup-change", setup);
-      request ??= store.issue("continue");
-
-      scheduler ??= createSr03Scheduler(store, workerFactory, example.sourceDigest);
-      scheduler.request(request);
-      return { kind: "accepted" as const, data: request };
-    },
+    apply: (input: unknown) => apply(input),
+    /** An explicitly new calculation has a fresh run identity even at unchanged settings. */
+    startNewRun: (input: unknown) => apply(input, true),
     stop() {
       scheduler?.cancel();
     },

@@ -2,8 +2,13 @@ import { afterEach, beforeEach, expect, test } from "bun:test";
 import { act, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { installDom, uninstallDom } from "../../testing/reactDom.ts";
+import type { TapeV2 } from "./types.ts";
 import { WalkthroughPlayer } from "./WalkthroughPlayer.tsx";
-import type { WalkthroughTarget } from "./walkthroughActions.ts";
+import type {
+  WalkthroughPlayerTarget,
+  WalkthroughTarget,
+  WorkerWalkthroughTarget,
+} from "./walkthroughActions.ts";
 import type { WalkthroughCatalogue } from "./walkthroughCheckpoints.ts";
 
 const catalogue: WalkthroughCatalogue = {
@@ -59,12 +64,15 @@ async function mount(
     loads++;
     return catalogue;
   },
+  selectedTarget: WalkthroughPlayerTarget = target,
 ) {
   window.history.replaceState({}, "", `/lab/sr-03/${search}`);
   const host = document.createElement("div");
   document.body.append(host);
   root = createRoot(host);
-  await act(async () => root?.render(createElement(WalkthroughPlayer, { target, load })));
+  await act(async () =>
+    root?.render(createElement(WalkthroughPlayer, { target: selectedTarget, load })),
+  );
 }
 async function click(text: string) {
   const button = [...document.querySelectorAll("button")].find(
@@ -139,4 +147,61 @@ test("a failed catalogue load can retry and retains the requested stop", async (
   expect(stop()).toBe("7");
   expect(calculated).toEqual([]);
   expect(restored).toEqual([]);
+});
+
+test("the player stays busy until the worker action resolves and aborts an action when navigation replaces its stop", async () => {
+  // This controls the player's async action boundary only. Real worker acceptance, publication,
+  // cancellation, and both authored scientific results are exercised in workerSessionTape.test.ts.
+  let finish!: (outcome: { kind: "restored" }) => void;
+  let signal: AbortSignal | undefined;
+  let calls = 0;
+  const worker: WorkerWalkthroughTarget = {
+    kind: "worker",
+    experimentId: "sr-03",
+    restore(_tape, abort) {
+      calls++;
+      signal = abort;
+      return new Promise((resolve) => {
+        finish = resolve;
+      });
+    },
+  };
+  const tape = { tapeVersion: 2 } as TapeV2;
+  const load = async (): Promise<WalkthroughCatalogue> => ({
+    walkthroughs: [
+      {
+        tapeId: "worker",
+        experimentId: "sr-03",
+        title: "Worker walkthrough",
+        checkpoints: [
+          { actionIndex: 0, label: "First stop", settings: {}, tape },
+          { actionIndex: 1, label: "Second stop", settings: {}, tape },
+        ],
+      },
+    ],
+    problems: [],
+  });
+  await mount("?walkthrough=worker&stop=0", load, worker);
+  await click("Restore checkpoint");
+  expect(document.querySelector("fieldset")?.disabled).toBe(true);
+  expect(document.querySelector("[data-walkthrough-outcome]")).toBeNull();
+  expect(document.querySelector("[role=status]")?.textContent).toContain("waiting");
+  await click("Restore checkpoint");
+  expect(calls).toBe(1);
+  await act(async () => finish({ kind: "restored" }));
+  expect(document.querySelector("fieldset")?.disabled).toBe(false);
+  expect(
+    document.querySelector("[data-walkthrough-outcome]")?.getAttribute("data-walkthrough-outcome"),
+  ).toBe("replayed");
+
+  await click("Restore checkpoint");
+  await act(async () => {
+    window.history.pushState({}, "", "/lab/sr-03/?walkthrough=worker&stop=1");
+    window.dispatchEvent(new Event("popstate"));
+  });
+  expect(signal?.aborted).toBe(true);
+  expect(stop()).toBe("1");
+  expect(document.querySelector("fieldset")?.disabled).toBe(false);
+  await act(async () => finish({ kind: "restored" }));
+  expect(document.querySelector("[data-walkthrough-outcome]")).toBeNull();
 });

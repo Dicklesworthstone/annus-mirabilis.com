@@ -19,6 +19,7 @@ import {
   type RetainedWalkthroughTape,
   retainedWalkthroughTape,
   type WalkthroughTarget,
+  type WorkerWalkthroughTarget,
 } from "./walkthroughActions.ts";
 
 export type LabTapeLinkState = Readonly<{
@@ -212,7 +213,14 @@ export function useDraftTapeLink(
  * "No-JavaScript readers get real links, never hydration-dependent buttons"). Drawn in the server
  * markup, its field sat ahead of the "controls need JavaScript" notice on five lab pages.
  */
-export function LabTapeLink({ link }: Readonly<{ link: LabTapeLinkState }>) {
+export function LabTapeLink({
+  link,
+  workerWalkthrough,
+}: Readonly<{
+  link: LabTapeLinkState;
+  /** Explicit worker playback; the recorder and ordinary incoming links can remain form-only. */
+  workerWalkthrough?: WorkerWalkthroughTarget | undefined;
+}>) {
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => setHydrated(true), []);
   return (
@@ -233,7 +241,10 @@ export function LabTapeLink({ link }: Readonly<{ link: LabTapeLinkState }>) {
         </p>
       )}
       {hydrated && link.walkthrough && (
-        <WalkthroughPlayer key={link.walkthrough.experimentId} target={link.walkthrough} />
+        <WalkthroughPlayer
+          key={link.walkthrough.experimentId}
+          target={workerWalkthrough ?? link.walkthrough}
+        />
       )}
       {hydrated && link.walkthrough && (
         <ExperimentRecorder
