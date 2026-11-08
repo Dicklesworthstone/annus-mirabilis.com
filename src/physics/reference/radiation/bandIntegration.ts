@@ -12,19 +12,27 @@ import {
 } from "./spectra.ts";
 import type { CyclicFrequency, RadiationResult, Wavelength } from "./types.ts";
 
-/** 15-point Gauss-Kronrod quadrature nodes and weights on [-1, 1]. */
+/** 15-point Gauss-Kronrod quadrature nodes and weights on [-1, 1].
+ * QUADPACK dqk15: https://jacobwilliams.github.io/quadpack/proc/dqk15.html
+ * The weight at x = 0.4058451513773972 must retain its binary64 precision: an error
+ * of 5e-11 made the two rules disagree even on a constant, preventing convergence.
+ */
 const GK15_X = [
   0.0, 0.2077849550078985, 0.4058451513773972, 0.5860872354676911, 0.7415311855993943,
   0.8648644233597691, 0.9491079123427585, 0.9914553711208126,
 ];
 const GK15_W_KRONROD = [
-  0.2094821410847278, 0.2044329400752989, 0.1903505780147726, 0.1690047266392679,
+  0.2094821410847278, 0.2044329400752989, 0.1903505780647854, 0.1690047266392679,
   0.1406532597155259, 0.1047900103222502, 0.06309209262997854, 0.02293532201052922,
 ];
 const GK15_W_GAUSS = [
   0.4179591836734694, 0.0, 0.3818300505051189, 0.0, 0.2797053914892767, 0.0, 0.1294849661688697,
   0.0,
 ];
+
+// The spectrum runs synchronously. A depth limit alone permits billions of panels;
+// this bound admits the teaching bands while keeping failure finite on every call.
+const MAX_QUADRATURE_PANELS = 1023;
 
 function adaptiveQuadrature(
   f: (x: number) => number,
@@ -33,9 +41,11 @@ function adaptiveQuadrature(
   tolRel = 1e-12,
   tolAbs = 1e-15,
   maxDepth = 30,
-): number {
-  function step(left: number, right: number, depth: number): number {
-    const mid = 0.5 * (left + right);
+): number | null {
+  let panels = 0;
+  function step(left: number, right: number, depth: number): number | null {
+    if (++panels > MAX_QUADRATURE_PANELS) return null;
+    const mid = left + 0.5 * (right - left);
     const half = 0.5 * (right - left);
     let kronrodSum = (GK15_W_KRONROD[0] ?? 0) * f(mid);
     let gaussSum = (GK15_W_GAUSS[0] ?? 0) * f(mid);
@@ -57,17 +67,33 @@ function adaptiveQuadrature(
     const kronrod = kronrodSum * half;
     const gauss = gaussSum * half;
 
-    if (
-      depth >= maxDepth ||
-      withinTolerance(kronrod, gauss, { relative: tolRel, absolute: tolAbs }).ok
-    ) {
+    if (withinTolerance(kronrod, gauss, { relative: tolRel, absolute: tolAbs }).ok) {
       return kronrod;
     }
 
-    return step(left, mid, depth + 1) + step(mid, right, depth + 1);
+    // Do not report an unconverged partial sum as a computed band energy.
+    if (!Number.isFinite(kronrod) || depth >= maxDepth || mid === left || mid === right)
+      return null;
+    const lower = step(left, mid, depth + 1);
+    if (lower === null) return null;
+    const upper = step(mid, right, depth + 1);
+    return upper === null ? null : lower + upper;
   }
 
   return step(a, b, 0);
+}
+
+function bandIntegrationFailure(): RadiationResult<number> {
+  return {
+    status: "outside-domain",
+    quantityId: "bandEnergy",
+    unit: "J/m^3",
+    condition: "band-integration-not-converged",
+    domainKind: "numerical",
+    reason:
+      "The band integral did not converge within the numerical work limit. This is a calculation limit, not a zero energy or a physical prohibition. Choose a narrower band.",
+    boundary: { alternativeModel: "Choose a narrower frequency or wavelength band." },
+  };
 }
 
 /** Total Planck radiation energy density a * T^4 (J m^-3). */
@@ -148,6 +174,7 @@ export function planckBandEnergyDensity(
   };
 
   const total = adaptiveQuadrature(f, nuMin, nuMax);
+  if (total === null) return bandIntegrationFailure();
   return {
     status: "value",
     quantityId,
@@ -203,6 +230,7 @@ export function wienBandEnergyDensity(
   };
 
   const total = adaptiveQuadrature(f, nuMin, nuMax);
+  if (total === null) return bandIntegrationFailure();
   return {
     status: "value",
     quantityId,
@@ -263,6 +291,7 @@ export function planckWavelengthBandEnergyDensity(
   };
 
   const total = adaptiveQuadrature(f, lambdaMin, lambdaMax);
+  if (total === null) return bandIntegrationFailure();
   return {
     status: "value",
     quantityId,
