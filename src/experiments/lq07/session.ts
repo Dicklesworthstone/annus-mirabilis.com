@@ -380,6 +380,71 @@ export function createLq07Session(
   };
 
   const serverView = view;
+  function apply(nextParams: unknown, newRun = false) {
+    actionIndex++;
+    const computation = validateLq07Parameters(nextParams);
+    if (computation.kind !== "accepted") {
+      if (computation.kind === "refused") {
+        view = {
+          ...view,
+          status: "refused",
+          pending: false,
+          refusal: computation.refusal,
+          outcome: null,
+        };
+      }
+      notify();
+      return computation;
+    }
+
+    const validated = computation.data;
+    const isSetup =
+      validated.nu1 !== currentParams.nu1 ||
+      validated.nu2 !== currentParams.nu2 ||
+      validated.regime !== currentParams.regime ||
+      validated.multiQuantumK !== currentParams.multiQuantumK ||
+      validated.sourceTemperatureK !== currentParams.sourceTemperatureK ||
+      validated.bodyTemperatureK !== currentParams.bodyTemperatureK ||
+      validated.absorbedPowerMicrowatts !== currentParams.absorbedPowerMicrowatts ||
+      validated.quantumYield !== currentParams.quantumYield ||
+      validated.channels !== currentParams.channels;
+
+    if (newRun || isSetup) {
+      parentRunId = currentRunId;
+      inputRevision++;
+      currentRunId = `${instanceId}/run/${inputRevision}`;
+    }
+
+    currentParams = { ...validated };
+    acceptedSnapshot = buildLq07Snapshot(
+      instanceId,
+      currentRunId,
+      parentRunId,
+      currentParams,
+      inputRevision,
+      actionIndex,
+    );
+
+    view = {
+      status: "accepted",
+      pending: false,
+      requested: {
+        experimentId: "lq-07",
+        instanceId,
+        runId: currentRunId,
+        parentRunId,
+        actionIndex,
+        revisions: { input: inputRevision, observer: 0, measurement: 0, estimator: 0 },
+        parameters: currentParams,
+      },
+      accepted: acceptedSnapshot,
+      refusal: null,
+      outcome: null,
+    };
+    notify();
+    return computation;
+  }
+
   return {
     instanceId,
     subscribe(callback: () => void) {
@@ -399,69 +464,7 @@ export function createLq07Session(
     acceptedParameters(): Lq07Parameters {
       return (view.accepted?.parameters ?? currentParams) as Lq07Parameters;
     },
-    apply(nextParams: unknown) {
-      actionIndex++;
-      const computation = validateLq07Parameters(nextParams);
-      if (computation.kind !== "accepted") {
-        if (computation.kind === "refused") {
-          view = {
-            ...view,
-            status: "refused",
-            pending: false,
-            refusal: computation.refusal,
-            outcome: null,
-          };
-        }
-        notify();
-        return computation;
-      }
-
-      const validated = computation.data;
-      const isSetup =
-        validated.nu1 !== currentParams.nu1 ||
-        validated.nu2 !== currentParams.nu2 ||
-        validated.regime !== currentParams.regime ||
-        validated.multiQuantumK !== currentParams.multiQuantumK ||
-        validated.sourceTemperatureK !== currentParams.sourceTemperatureK ||
-        validated.bodyTemperatureK !== currentParams.bodyTemperatureK ||
-        validated.absorbedPowerMicrowatts !== currentParams.absorbedPowerMicrowatts ||
-        validated.quantumYield !== currentParams.quantumYield ||
-        validated.channels !== currentParams.channels;
-
-      if (isSetup) {
-        parentRunId = currentRunId;
-        inputRevision++;
-        currentRunId = `${instanceId}/run/${inputRevision}`;
-      }
-
-      currentParams = { ...validated };
-      acceptedSnapshot = buildLq07Snapshot(
-        instanceId,
-        currentRunId,
-        parentRunId,
-        currentParams,
-        inputRevision,
-        actionIndex,
-      );
-
-      view = {
-        status: "accepted",
-        pending: false,
-        requested: {
-          experimentId: "lq-07",
-          instanceId,
-          runId: currentRunId,
-          parentRunId,
-          actionIndex,
-          revisions: { input: inputRevision, observer: 0, measurement: 0, estimator: 0 },
-          parameters: currentParams,
-        },
-        accepted: acceptedSnapshot,
-        refusal: null,
-        outcome: null,
-      };
-      notify();
-      return computation;
-    },
+    apply: (input: unknown) => apply(input),
+    startNewRun: (input: unknown) => apply(input, true),
   };
 }

@@ -15,7 +15,8 @@ export { MAX_CLARIFICATION_DEPTH };
 
 /** A reference to a mounted or previously-mounted laboratory instance, sufficient to reuse it if
  * still mounted or attempt a validated restore from its last checkpoint if not. Opaque tape
- * bytes, never interpreted by this module -- restoreLab.ts and am-rt-control-tapes-0gc own that. */
+ * bytes, never interpreted by this module -- readerCheckpoint.ts validates the live archive
+ * before the same dispatcher constructs its owner. Legacy restoreLab.ts remains a pure v1 decision. */
 export type LabReference = Readonly<{
   instanceId: string;
   experimentId: string;

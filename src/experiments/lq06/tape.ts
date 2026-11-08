@@ -20,5 +20,6 @@ export const LQ06_TAPE: LabTapeBinding = Object.freeze({
   }),
   defaults: LQ06_DEFAULTS,
   validate: validateLq06Parameters,
+  constantSetIdForSettings: (settings) => String(settings.constantSetId),
   createSession: (instanceId: string) => createLq06Session(instanceId),
 });

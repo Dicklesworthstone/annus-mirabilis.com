@@ -90,6 +90,17 @@ function deriveShareAboveProbe(
       reason: "The probe frequency must be at or below the cutoff frequency.",
     });
   }
+  if (cutoff.value === 0) {
+    return Object.freeze({
+      status: "outside-domain",
+      quantityId,
+      unit,
+      condition: "cutoff-energy-underflow",
+      domainKind: "numerical",
+      reason:
+        "The cutoff energy is below the representable range, so its energy share cannot be divided by that value.",
+    });
+  }
   return Object.freeze({
     status: "value",
     quantityId,

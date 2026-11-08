@@ -23,8 +23,10 @@ import {
   createSr01Session,
   type PreparedSr01Example,
 } from "../../../experiments/sr01/session.ts";
+import { SR01_TAPE } from "../../../experiments/sr01/tape.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
+import { createReaderCheckpointBinding } from "../../../experiments/store/readerCheckpoint.ts";
 import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { withScripts } from "../subscripts.tsx";
@@ -80,6 +82,7 @@ export function ClockSyncLab({
       sourceDigest: example?.sourceDigest,
     },
     (retainedId) => createSr01Session(retainedId, example?.parameters ?? SR01_DEFAULTS),
+    createReaderCheckpointBinding(SR01_TAPE),
   );
 
   const view = useInstrumentView(session);

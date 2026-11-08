@@ -4,23 +4,30 @@ import { type FormEvent, type ReactNode, useId, useState } from "react";
 import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { typedOrNaN } from "../../experiments/controls/typedNumber.ts";
 import { CurrencyForView } from "../../experiments/labels/CurrencyForView.tsx";
-import { executionLabelFor } from "../../experiments/labels/executionLabelFor.ts";
+import {
+  executionLabelFor,
+  executionStateKindFromHostLabel,
+} from "../../experiments/labels/executionLabelFor.ts";
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { LQ02_CAPTION } from "../../experiments/lq02/definition.ts";
 import { LQ02_DRAFT_TAPE } from "../../experiments/lq02/draftTape.ts";
-import { validateLq02Parameters } from "../../experiments/lq02/parameters.ts";
+import { createLq02Session, LQ02_OUTPUTS } from "../../experiments/lq02/owner.ts";
 import {
-  computeLq02Snapshot,
   DEFAULT_LQ02_INPUTS,
   type Lq02Inputs,
-  type Lq02Snapshot,
   type RadiationResult,
-  removeUpperLimit,
 } from "../../experiments/lq02/session";
+import { LQ02_TAPE } from "../../experiments/lq02/tape.ts";
 import { notModeledFor } from "../../experiments/notModeled.ts";
 import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
+import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import type { RequestRefusal } from "../../experiments/results/refusals.ts";
+import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
+import { createReaderCheckpointBinding } from "../../experiments/store/readerCheckpoint.ts";
+import { useRetainedSession } from "../../experiments/store/retainedSession.tsx";
+import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
+import sourceDigests from "../../generated/lab-source-digests.json";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
@@ -88,20 +95,24 @@ export function ModeAllocationLab({
   title?: string;
 }) {
   const id = useId();
-  const [accepted, setAcceptedInputs] = useState<Lq02Inputs>(example);
-  // The harness DOM contract's runtime identity. With no instance store, evaluation is synchronous on
-  // an accepted apply: nothing is ever pending, and the requested input is the accepted one. The
-  // revision counts accepted applies, the convention ShelfOpticsLab already uses.
-  const [revision, setRevision] = useState(0);
-  function setAccepted(next: Lq02Inputs) {
-    setAcceptedInputs(next);
-    setRevision((r) => r + 1);
-  }
-  // Earned per state (am-inst-execution-labels-5ywv): the build's worked example until a reader's
-  // settings are accepted, a host calculation after. There is no instance store here, so the test is
-  // identity with the state the lab started from, as in the reasoning workbenches (12a926b9).
-  const executionKind = accepted === example ? "static-example" : "host-accepted";
-  const [draft, setDraft] = useState<Draft>(() => toDraft(example));
+  const sourceDigest = sourceDigests["lq-02"];
+  const session = useRetainedSession(
+    { experimentId: "lq-02", instanceId: instanceId ?? id, sourceDigest },
+    (ownerId) => createLq02Session(ownerId, example),
+    createReaderCheckpointBinding(LQ02_TAPE),
+  );
+  const view = useInstrumentView(session);
+  const accepted = session.acceptedParameters();
+  const snapshot = session.getCalculation();
+  const executionKind = executionStateKindFromHostLabel(
+    deriveHostExecution(
+      view,
+      LQ02_OUTPUTS,
+      sourceDigest,
+      view.accepted === session.getServerSnapshot().accepted,
+    ).label,
+  );
+  const [draft, setDraft] = useState<Draft>(() => toDraft(accepted));
   const [error, setError] = useState("");
   /**
    * The refusal OBJECT beside the sentence, so the readouts can be marked stale (am-m79c).
@@ -121,7 +132,6 @@ export function ModeAllocationLab({
     setDraft(toDraft(settings as unknown as Lq02Inputs));
   });
 
-  const snapshot: Lq02Snapshot = computeLq02Snapshot(accepted);
   // One sentence for the status line: the energy the classical allocation holds up to the cutoff,
   // and what widening the cutoff tenfold does to it.
   const cutoffAndTemperature = `with resonators up to ${sentenceNumber(accepted.nuCutoff)} Hz at ${sentenceNumber(accepted.T)} K`;
@@ -134,13 +144,14 @@ export function ModeAllocationLab({
     // Each field is a positive quantity. A zero or negative value used to reach the kernel, and the
     // table printed its outside-domain reason in every row: "Not modeled here: Cutoff frequency must
     // be positive and finite (got -1e+300)." One validator now serves the page and the domain sweep.
-    const checked = validateLq02Parameters(next);
+    const checked = session.apply(next);
     if (checked.kind !== "accepted") {
-      setError(checked.kind === "refused" ? refusalSentence(checked.refusal) : "");
+      setError(
+        checked.kind === "refused" ? refusalSentence(checked.refusal) : checked.outcome.message,
+      );
       setRefusal(checked.kind === "refused" ? checked.refusal : null);
       return;
     }
-    setAccepted(checked.data);
     setDivergence(null);
     setError("");
     setRefusal(null);
@@ -158,7 +169,7 @@ export function ModeAllocationLab({
   }
 
   function handleRemoveUpperLimit() {
-    setDivergence(removeUpperLimit(accepted));
+    setDivergence(session.removeUpperLimit());
   }
 
   return (
@@ -166,26 +177,14 @@ export function ModeAllocationLab({
       className="laboratory"
       aria-labelledby={`${id}-title`}
       data-instrument-id="lq-02"
-      data-instance-id={instanceId ?? id}
-      data-run-id={`${id}-${revision}`}
-      data-snapshot-version={revision}
-      data-input-revision={revision}
-      data-accepted-input-revision={revision}
-      data-pending="false"
+      {...instrumentRootAttributes(view)}
       {...executionLabelAttributes(executionKind)}
     >
       <header className="lab-heading">
         <p className="eyebrow">Classical mode-energy allocation</p>
         <h2 id={`${id}-title`}>{title}</h2>
         <span className="badge">{executionLabelFor(executionKind).text}</span>
-        {/*
-         * Beside the hand-written execution label rather than inside an ExecutionChrome, the choice
-         * CurrencyForView's docblock records. No `view`: this lab has no instance store, so its only
-         * currency news is a refused form, and nothing renders until there is one.
-         *
-         * In the heading, so outside every predict-gated region.
-         */}
-        <CurrencyForView validationRefusal={refusal} />
+        <CurrencyForView view={view} validationRefusal={refusal} />
       </header>
 
       <noscript>

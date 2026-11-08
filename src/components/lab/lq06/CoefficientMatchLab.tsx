@@ -27,6 +27,7 @@ import {
 } from "../../../experiments/results/applyFailure.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
+import { createReaderCheckpointBinding } from "../../../experiments/store/readerCheckpoint.ts";
 import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { fixed, identity } from "../presentation.ts";
@@ -141,6 +142,7 @@ export function CoefficientMatchLab({
   const session = useRetainedSession(
     { experimentId: "lq-06", instanceId: labInstanceId, sourceDigest: example?.sourceDigest },
     (retainedId) => createLq06Session(retainedId, example),
+    createReaderCheckpointBinding(LQ06_TAPE),
   );
 
   const snapshot = useInstrumentView(session);

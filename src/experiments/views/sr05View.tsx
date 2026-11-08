@@ -3,6 +3,8 @@ import example from "../../generated/sr05-example.json";
 import type { ExperimentViewProps } from "../dispatch.tsx";
 import { validateSr05Parameters } from "../sr05/parameters.ts";
 import { createSr05Session } from "../sr05/session.ts";
+import { SR05_TAPE } from "../sr05/tape.ts";
+import { createReaderCheckpointBinding } from "../store/readerCheckpoint.ts";
 import { useRetainedSession } from "../store/retainedSession.tsx";
 import { PreparedExampleNotice } from "./PreparedExampleNotice.tsx";
 import "./clarificationLabStyles.ts";
@@ -20,6 +22,7 @@ function PreparedView({
   const session = useRetainedSession(
     { experimentId: "sr-05", instanceId, sourceDigest: example.sourceDigest },
     (id) => createSr05Session(id, example),
+    createReaderCheckpointBinding(SR05_TAPE),
   );
   return (
     <MovingClocksLab

@@ -205,6 +205,7 @@ export function buildLq04Snapshot(
   parameters: Lq04Parameters,
   inputRevision = 1,
   actionIndex = 0,
+  parentRunId: string | null = null,
 ): AcceptedSnapshot {
   const evaluation = evaluateLq04(parameters);
   let outputs: PublishedResult[];
@@ -367,7 +368,7 @@ export function buildLq04Snapshot(
     experimentId: "lq-04",
     instanceId,
     runId,
-    parentRunId: null,
+    parentRunId,
     actionIndex,
     revisions: { input: inputRevision, observer: 0, measurement: 0, estimator: 0 },
     parameters: Object.freeze({ ...parameters }),
@@ -384,7 +385,8 @@ export function createLq04Session(
   initialParameters: Lq04Parameters = LQ04_DEFAULTS,
 ) {
   let currentParams = { ...initialParameters };
-  let currentRunId = `run-${Date.now()}`;
+  let currentRunId = `${instanceId}/run/1`;
+  let parentRunId: string | null = null;
   let inputRevision = 1;
   let actionIndex = 0;
   let acceptedSnapshot = buildLq04Snapshot(
@@ -393,6 +395,7 @@ export function createLq04Session(
     currentParams,
     inputRevision,
     actionIndex,
+    parentRunId,
   );
 
   const listeners = new Set<() => void>();
@@ -407,7 +410,7 @@ export function createLq04Session(
       experimentId: "lq-04",
       instanceId,
       runId: currentRunId,
-      parentRunId: null,
+      parentRunId,
       actionIndex,
       revisions: { input: inputRevision, observer: 0, measurement: 0, estimator: 0 },
       parameters: currentParams,
@@ -418,6 +421,89 @@ export function createLq04Session(
   };
 
   const serverView = view;
+  function apply(parameters: unknown, newRun = false) {
+    const validated = validateLq04Parameters(parameters);
+    if (validated.kind !== "accepted") {
+      if (validated.kind === "refused") {
+        view = { ...view, status: "refused", refusal: validated.refusal };
+        notify();
+      }
+      return validated;
+    }
+
+    const evaluation = evaluateLq04(validated.data);
+
+    actionIndex++;
+    const isSetupChange =
+      currentParams.frequency !== validated.data.frequency ||
+      currentParams.bandwidth !== validated.data.bandwidth ||
+      currentParams.referenceVolume !== validated.data.referenceVolume ||
+      currentParams.referenceTemperature !== validated.data.referenceTemperature;
+    if (newRun || isSetupChange) {
+      parentRunId = currentRunId;
+      inputRevision++;
+      currentRunId = `${instanceId}/run/${inputRevision}`;
+    }
+    currentParams = { ...validated.data };
+
+    if (evaluation.status === "outside-domain") {
+      // The last accepted snapshot stays visible and marked: a refusal never overwrites it.
+      acceptedSnapshot = buildLq04Snapshot(
+        instanceId,
+        currentRunId,
+        currentParams,
+        inputRevision,
+        actionIndex,
+        parentRunId,
+      );
+      view = {
+        status: "accepted",
+        pending: false,
+        requested: {
+          experimentId: "lq-04",
+          instanceId,
+          runId: currentRunId,
+          parentRunId,
+          actionIndex,
+          revisions: { input: inputRevision, observer: 0, measurement: 0, estimator: 0 },
+          parameters: currentParams,
+        } as RequestToken,
+        accepted: acceptedSnapshot,
+        refusal: null,
+        outcome: null,
+      };
+      notify();
+      return { kind: "accepted" as const, data: currentParams };
+    }
+
+    acceptedSnapshot = buildLq04Snapshot(
+      instanceId,
+      currentRunId,
+      currentParams,
+      inputRevision,
+      actionIndex,
+      parentRunId,
+    );
+    view = {
+      status: "accepted",
+      pending: false,
+      requested: {
+        experimentId: "lq-04",
+        instanceId,
+        runId: currentRunId,
+        parentRunId,
+        actionIndex,
+        revisions: { input: inputRevision, observer: 0, measurement: 0, estimator: 0 },
+        parameters: currentParams,
+      } as RequestToken,
+      accepted: acceptedSnapshot,
+      refusal: null,
+      outcome: null,
+    };
+    notify();
+    return { kind: "accepted" as const, data: currentParams };
+  }
+
   return {
     subscribe(callback: () => void) {
       listeners.add(callback);
@@ -439,85 +525,8 @@ export function createLq04Session(
     evaluate(params: Lq04Parameters) {
       return evaluateLq04(params);
     },
-    apply(parameters: unknown) {
-      const validated = validateLq04Parameters(parameters);
-      if (validated.kind !== "accepted") {
-        if (validated.kind === "refused") {
-          view = { ...view, status: "refused", refusal: validated.refusal };
-          notify();
-        }
-        return validated;
-      }
-
-      const evaluation = evaluateLq04(validated.data);
-
-      actionIndex++;
-      const isSetupChange =
-        currentParams.frequency !== validated.data.frequency ||
-        currentParams.bandwidth !== validated.data.bandwidth ||
-        currentParams.referenceVolume !== validated.data.referenceVolume ||
-        currentParams.referenceTemperature !== validated.data.referenceTemperature;
-      if (isSetupChange) {
-        inputRevision++;
-        currentRunId = `run-${Date.now()}-${actionIndex}`;
-      }
-      currentParams = { ...validated.data };
-
-      if (evaluation.status === "outside-domain") {
-        // The last accepted snapshot stays visible and marked: a refusal never overwrites it.
-        acceptedSnapshot = buildLq04Snapshot(
-          instanceId,
-          currentRunId,
-          currentParams,
-          inputRevision,
-          actionIndex,
-        );
-        view = {
-          status: "accepted",
-          pending: false,
-          requested: {
-            experimentId: "lq-04",
-            instanceId,
-            runId: currentRunId,
-            parentRunId: null,
-            actionIndex,
-            revisions: { input: inputRevision, observer: 0, measurement: 0, estimator: 0 },
-            parameters: currentParams,
-          } as RequestToken,
-          accepted: acceptedSnapshot,
-          refusal: null,
-          outcome: null,
-        };
-        notify();
-        return { kind: "accepted" as const, data: currentParams };
-      }
-
-      acceptedSnapshot = buildLq04Snapshot(
-        instanceId,
-        currentRunId,
-        currentParams,
-        inputRevision,
-        actionIndex,
-      );
-      view = {
-        status: "accepted",
-        pending: false,
-        requested: {
-          experimentId: "lq-04",
-          instanceId,
-          runId: currentRunId,
-          parentRunId: null,
-          actionIndex,
-          revisions: { input: inputRevision, observer: 0, measurement: 0, estimator: 0 },
-          parameters: currentParams,
-        } as RequestToken,
-        accepted: acceptedSnapshot,
-        refusal: null,
-        outcome: null,
-      };
-      notify();
-      return { kind: "accepted" as const, data: currentParams };
-    },
+    apply: (input: unknown) => apply(input),
+    startNewRun: (input: unknown) => apply(input, true),
     stop() {
       // Synchronous calculation, no-op.
     },

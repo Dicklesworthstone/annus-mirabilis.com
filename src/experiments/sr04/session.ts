@@ -137,6 +137,7 @@ export function buildSr04Snapshot(
   parameters: Sr04Parameters,
   inputRevision = 1,
   actionIndex = 0,
+  parentRunId: string | null = null,
 ): AcceptedSnapshot {
   const evaluation = evaluateSr04(parameters);
   const outputs: PublishedResult[] = [
@@ -180,7 +181,7 @@ export function buildSr04Snapshot(
     experimentId: "sr-04",
     instanceId,
     runId,
-    parentRunId: null,
+    parentRunId,
     actionIndex,
     revisions: { input: inputRevision, observer: 0, measurement: 0, estimator: 0 },
     parameters: Object.freeze({ ...parameters }),
@@ -197,7 +198,8 @@ export function createSr04Session(
   initialParameters: Sr04Parameters = SR04_DEFAULTS,
 ) {
   let currentParams = { ...initialParameters };
-  let currentRunId = `run-${Date.now()}`;
+  let currentRunId = `${instanceId}/run/1`;
+  let parentRunId: string | null = null;
   let inputRevision = 1;
   let actionIndex = 0;
   let acceptedSnapshot = buildSr04Snapshot(
@@ -206,6 +208,7 @@ export function createSr04Session(
     currentParams,
     inputRevision,
     actionIndex,
+    parentRunId,
   );
 
   const listeners = new Set<() => void>();
@@ -220,7 +223,7 @@ export function createSr04Session(
       experimentId: "sr-04",
       instanceId,
       runId: currentRunId,
-      parentRunId: null,
+      parentRunId,
       actionIndex,
       revisions: { input: inputRevision, observer: 0, measurement: 0, estimator: 0 },
       parameters: currentParams,
@@ -231,6 +234,55 @@ export function createSr04Session(
   };
 
   const serverView = view;
+  function apply(parameters: unknown, newRun = false) {
+    const validated = validateSr04Parameters(parameters);
+    if (validated.kind !== "accepted") {
+      if (validated.kind === "refused") {
+        view = { ...view, status: "refused", refusal: validated.refusal };
+        notify();
+      }
+      return validated;
+    }
+    actionIndex++;
+    const isSetupChange =
+      currentParams.vOverC !== validated.data.vOverC ||
+      currentParams.candidateA !== validated.data.candidateA ||
+      currentParams.candidateB !== validated.data.candidateB ||
+      currentParams.candidateD !== validated.data.candidateD;
+    if (newRun || isSetupChange) {
+      parentRunId = currentRunId;
+      inputRevision++;
+      currentRunId = `${instanceId}/run/${inputRevision}`;
+    }
+    currentParams = { ...validated.data };
+    acceptedSnapshot = buildSr04Snapshot(
+      instanceId,
+      currentRunId,
+      currentParams,
+      inputRevision,
+      actionIndex,
+      parentRunId,
+    );
+    view = {
+      status: "accepted",
+      pending: false,
+      requested: {
+        experimentId: "sr-04",
+        instanceId,
+        runId: currentRunId,
+        parentRunId,
+        actionIndex,
+        revisions: { input: inputRevision, observer: 0, measurement: 0, estimator: 0 },
+        parameters: currentParams,
+      } as RequestToken,
+      accepted: acceptedSnapshot,
+      refusal: null,
+      outcome: null,
+    };
+    notify();
+    return { kind: "accepted" as const, data: currentParams };
+  }
+
   return {
     subscribe(callback: () => void) {
       listeners.add(callback);
@@ -249,52 +301,8 @@ export function createSr04Session(
     acceptedParameters(): Sr04Parameters {
       return currentParams;
     },
-    apply(parameters: unknown) {
-      const validated = validateSr04Parameters(parameters);
-      if (validated.kind !== "accepted") {
-        if (validated.kind === "refused") {
-          view = { ...view, status: "refused", refusal: validated.refusal };
-          notify();
-        }
-        return validated;
-      }
-      actionIndex++;
-      const isSetupChange =
-        currentParams.vOverC !== validated.data.vOverC ||
-        currentParams.candidateA !== validated.data.candidateA ||
-        currentParams.candidateB !== validated.data.candidateB ||
-        currentParams.candidateD !== validated.data.candidateD;
-      if (isSetupChange) {
-        inputRevision++;
-        currentRunId = `run-${Date.now()}-${actionIndex}`;
-      }
-      currentParams = { ...validated.data };
-      acceptedSnapshot = buildSr04Snapshot(
-        instanceId,
-        currentRunId,
-        currentParams,
-        inputRevision,
-        actionIndex,
-      );
-      view = {
-        status: "accepted",
-        pending: false,
-        requested: {
-          experimentId: "sr-04",
-          instanceId,
-          runId: currentRunId,
-          parentRunId: null,
-          actionIndex,
-          revisions: { input: inputRevision, observer: 0, measurement: 0, estimator: 0 },
-          parameters: currentParams,
-        } as RequestToken,
-        accepted: acceptedSnapshot,
-        refusal: null,
-        outcome: null,
-      };
-      notify();
-      return { kind: "accepted" as const, data: currentParams };
-    },
+    apply: (input: unknown) => apply(input),
+    startNewRun: (input: unknown) => apply(input, true),
     stop() {
       // Synchronous calculation, no-op.
     },

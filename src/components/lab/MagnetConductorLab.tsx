@@ -29,6 +29,7 @@ import { createSr02Session, type PreparedSr02Example } from "../../experiments/s
 import { SR02_TAPE } from "../../experiments/sr02/tape.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot, PublishedResult } from "../../experiments/store/instanceStore.ts";
+import { createReaderCheckpointBinding } from "../../experiments/store/readerCheckpoint.ts";
 import { useRetainedSession } from "../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
@@ -120,6 +121,7 @@ export function MagnetConductorLab({
       sourceDigest: example?.sourceDigest,
     },
     (retainedId) => createSr02Session(retainedId, example),
+    createReaderCheckpointBinding(SR02_TAPE),
   );
   const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).

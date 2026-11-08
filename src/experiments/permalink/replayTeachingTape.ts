@@ -21,7 +21,7 @@ export type TeachingTapeReplay =
       kind: "replayed";
       tapeId: string;
       experimentId: string;
-      runId: string;
+      runId: string | null;
       isNewRun: boolean;
       executedEventCount: number;
       acceptedCheckpoint: TapeAcceptedCheckpoint;

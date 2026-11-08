@@ -93,66 +93,71 @@ export function createSr08Session(
     throw new Error(`Invalid prepared SR-08 publication: ${published.reason}`);
   const serverSnapshot = store.getSnapshot();
 
+  function apply(input: unknown, newRun = false) {
+    const checked = validateSr08Parameters(input);
+    if (checked.kind !== "accepted") return checked;
+    const next = checked.data;
+    const outputs = snapshotOutputs(next);
+    const failure = computationFailure(outputs);
+    // Refuse BEFORE issuing a command: an invalid draft does not change
+    // revisions, run identity, or the last accepted physics.
+    if (failure)
+      return {
+        kind: "refused" as const,
+        refusal: {
+          ...makeRefusal("invalid-parameter", { parameterIds: ["boost", "testCharge"] }),
+          message: `${failure} The last accepted calculation is unchanged.`,
+        },
+      };
+    const acceptedSnap = store.getSnapshot().accepted;
+    if (!acceptedSnap) throw new Error("SR-08 session has no accepted snapshot.");
+    const previous = acceptedSnap.parameters as unknown as Sr08Parameters;
+    const setup: Record<string, number | string | boolean> = {};
+    const observer: Record<string, number | string | boolean> = {};
+    const presentation: Record<string, number | string | boolean> = {};
+    for (const key of Object.keys(next) as (keyof Sr08Parameters)[]) {
+      if (Object.is(next[key], previous[key])) continue;
+      const target =
+        SR08_CLASSES[key] === "observer"
+          ? observer
+          : SR08_CLASSES[key] === "presentation"
+            ? presentation
+            : setup;
+      target[key] = next[key];
+    }
+    if (!newRun && ![setup, observer, presentation].some((patch) => Object.keys(patch).length)) {
+      const req = store.getSnapshot().requested;
+      if (!req) throw new Error("SR-08 session has no requested snapshot.");
+      return { kind: "accepted" as const, data: req };
+    }
+    let request = newRun || Object.keys(setup).length ? store.issue("setup-change", setup) : null;
+    if (Object.keys(observer).length) request = store.issue("observer-change", observer);
+    if (Object.keys(presentation).length)
+      request = store.issue("presentation-change", presentation);
+    if (!request) throw new Error("SR-08 changed parameters without a command.");
+    const decision = store.publish({
+      ...request,
+      stepIndex: 0,
+      simulationTime: 0,
+      final: true,
+      outputs,
+    });
+    if (!decision.accepted) throw new Error(`SR-08 publication refused: ${decision.reason}`);
+    return { kind: "accepted" as const, data: request };
+  }
+
   return Object.freeze({
     getSnapshot: store.getSnapshot,
     getServerSnapshot: () => serverSnapshot,
     subscribe: store.subscribe,
+    exportCheckpoint: store.exportCheckpoint,
+    restoreCheckpoint: store.restoreCheckpoint,
     evaluate: evaluateSr08,
     acceptedParameters(): Sr08Parameters {
       return (store.getSnapshot().accepted?.parameters ??
         initial.data) as unknown as Sr08Parameters;
     },
-    apply(input: unknown) {
-      const checked = validateSr08Parameters(input);
-      if (checked.kind !== "accepted") return checked;
-      const next = checked.data;
-      const outputs = snapshotOutputs(next);
-      const failure = computationFailure(outputs);
-      // Refuse BEFORE issuing a command: an invalid draft does not change
-      // revisions, run identity, or the last accepted physics.
-      if (failure)
-        return {
-          kind: "refused" as const,
-          refusal: {
-            ...makeRefusal("invalid-parameter", { parameterIds: ["boost", "testCharge"] }),
-            message: `${failure} The last accepted calculation is unchanged.`,
-          },
-        };
-      const acceptedSnap = store.getSnapshot().accepted;
-      if (!acceptedSnap) throw new Error("SR-08 session has no accepted snapshot.");
-      const previous = acceptedSnap.parameters as unknown as Sr08Parameters;
-      const setup: Record<string, number | string | boolean> = {};
-      const observer: Record<string, number | string | boolean> = {};
-      const presentation: Record<string, number | string | boolean> = {};
-      for (const key of Object.keys(next) as (keyof Sr08Parameters)[]) {
-        if (Object.is(next[key], previous[key])) continue;
-        const target =
-          SR08_CLASSES[key] === "observer"
-            ? observer
-            : SR08_CLASSES[key] === "presentation"
-              ? presentation
-              : setup;
-        target[key] = next[key];
-      }
-      if (![setup, observer, presentation].some((patch) => Object.keys(patch).length)) {
-        const req = store.getSnapshot().requested;
-        if (!req) throw new Error("SR-08 session has no requested snapshot.");
-        return { kind: "accepted" as const, data: req };
-      }
-      let request = Object.keys(setup).length ? store.issue("setup-change", setup) : null;
-      if (Object.keys(observer).length) request = store.issue("observer-change", observer);
-      if (Object.keys(presentation).length)
-        request = store.issue("presentation-change", presentation);
-      if (!request) throw new Error("SR-08 changed parameters without a command.");
-      const decision = store.publish({
-        ...request,
-        stepIndex: 0,
-        simulationTime: 0,
-        final: true,
-        outputs,
-      });
-      if (!decision.accepted) throw new Error(`SR-08 publication refused: ${decision.reason}`);
-      return { kind: "accepted" as const, data: request };
-    },
+    apply: (input: unknown) => apply(input),
+    startNewRun: (input: unknown) => apply(input, true),
   });
 }

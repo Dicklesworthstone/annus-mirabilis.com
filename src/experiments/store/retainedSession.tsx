@@ -11,6 +11,7 @@ import {
   useState,
 } from "react";
 import type { LabReference } from "../../reader/stack/stackStore.ts";
+import type { ReaderCheckpointBinding } from "./readerCheckpoint.ts";
 import type {
   PreparedRetainedSession,
   RetainedSession,
@@ -23,7 +24,11 @@ type RetentionContextValue = Readonly<{
   placementKey: string;
   primaryInstanceId: string;
   previous: LabReference | null;
-  report(prepared: PreparedRetainedSession, identity: SessionRetentionIdentity): void;
+  report(
+    prepared: PreparedRetainedSession,
+    identity: SessionRetentionIdentity,
+    checkpoint?: ReaderCheckpointBinding | undefined,
+  ): void;
 }>;
 
 const RetentionContext = createContext<RetentionContextValue | null>(null);
@@ -53,14 +58,23 @@ export function RetainedSessionProvider({
       placementKey,
       primaryInstanceId: instanceId,
       previous,
-      report(prepared, identity) {
+      report(prepared, identity, checkpoint) {
         if (identity.instanceId !== instanceId) return;
         if (prepared.sourceChanged) {
-          setNotice("The laboratory model has changed. This visit starts a new experiment.");
-          // The hook adopted this replacement owner before reporting. Remount its presentation
-          // against that owner so every private form/draft starts from the new accepted state.
-          // A source key stays stable even if a conflicting active placement cannot be cached.
+          // The replacement owner was adopted before reporting; its presentation may now remount
+          // from accepted state without constructing another owner or retaining an old form.
           setChildKey(identity.sourceDigest ?? "unknown-source");
+        }
+        if (!prepared.reused && prepared.restoredFromArchive) {
+          setNotice(
+            "Restored the recorded accepted experiment. Its run, settings and results have been verified.",
+          );
+        } else if (!prepared.reused && prepared.restoreNotice) {
+          setNotice(
+            `The earlier experiment could not be restored. ${prepared.restoreNotice} This visit starts a new experiment.`,
+          );
+        } else if (prepared.sourceChanged) {
+          setNotice("The laboratory model has changed. This visit starts a new experiment.");
         } else if (previous && previous.instanceId !== prepared.instanceId) {
           setNotice(
             (current) =>
@@ -72,14 +86,15 @@ export function RetainedSessionProvider({
         }
         const accepted = prepared.session.getSnapshot().accepted;
         if (!accepted) return;
+        const archive = checkpoint?.capture(prepared.session, identity, placementKey);
         const reference: LabReference = {
           instanceId: accepted.instanceId,
           experimentId: identity.experimentId,
           modelIdentity: identity.sourceDigest ?? "",
           runId: accepted.runId,
-          // This is an in-memory owner reference, not a claim to hold an archived checkpoint.
-          checkpointDigest: "",
-          compactTape: "",
+          // Unsupported or oversized owners stay honest in-memory references without an archive.
+          checkpointDigest: archive?.checkpointDigest ?? "",
+          compactTape: archive?.compactTape ?? "",
         };
         const serialized = JSON.stringify(reference);
         if (serialized !== latestReference.current) {
@@ -110,6 +125,7 @@ export function RetainedSessionProvider({
 export function useRetainedSession<T extends RetainedSession>(
   identity: SessionRetentionIdentity,
   create: (instanceId: string) => T,
+  checkpoint?: ReaderCheckpointBinding,
 ): T {
   const context = useContext(RetentionContext);
   const { experimentId, instanceId, sourceDigest } = identity;
@@ -138,6 +154,17 @@ export function useRetainedSession<T extends RetainedSession>(
             identity.instanceId === context.primaryInstanceId
               ? context.previous?.instanceId
               : undefined,
+            checkpoint &&
+              identity.instanceId === context.primaryInstanceId &&
+              context.previous?.compactTape
+              ? () =>
+                  checkpoint.restore(
+                    context.previous as LabReference,
+                    identity,
+                    context.placementKey,
+                    create,
+                  )
+              : undefined,
           )
         : {
             session: create(identity.instanceId),
@@ -145,6 +172,8 @@ export function useRetainedSession<T extends RetainedSession>(
             sourceDigest: identity.sourceDigest,
             reused: false,
             sourceChanged: false,
+            restoredFromArchive: false,
+            restoreNotice: null,
           },
     };
   }
@@ -152,13 +181,14 @@ export function useRetainedSession<T extends RetainedSession>(
   useEffect(() => {
     if (!context) return;
     const release = context.cache.retain(prepared);
-    const report = () => context.report(prepared, { experimentId, instanceId, sourceDigest });
+    const report = () =>
+      context.report(prepared, { experimentId, instanceId, sourceDigest }, checkpoint);
     report();
     const unsubscribe = prepared.session.subscribe?.(report);
     return () => {
       unsubscribe?.();
       release();
     };
-  }, [context, prepared, experimentId, instanceId, sourceDigest]);
+  }, [context, prepared, experimentId, instanceId, sourceDigest, checkpoint]);
   return prepared.session;
 }

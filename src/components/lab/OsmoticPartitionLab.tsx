@@ -4,24 +4,33 @@ import { type FormEvent, type ReactNode, useId, useState } from "react";
 import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { BM02_CAPTION } from "../../experiments/bm02/definition.ts";
 import { BM02_DRAFT_TAPE } from "../../experiments/bm02/draftTape.ts";
-import { validateBm02Parameters } from "../../experiments/bm02/parameters.ts";
+import { BM02_OUTPUTS, createBm02Session } from "../../experiments/bm02/owner.ts";
 import {
   type Bm02ConstantSetId,
   type Bm02Inputs,
-  computeBm02Snapshot,
   DEFAULT_BM02_INPUTS,
   type OsmoticModel,
   PHI_MAX,
   SUGAR_0P01M_INPUTS,
 } from "../../experiments/bm02/session";
+import { BM02_TAPE } from "../../experiments/bm02/tape.ts";
 import { typedOrNaN } from "../../experiments/controls/typedNumber.ts";
 import { CurrencyForView } from "../../experiments/labels/CurrencyForView.tsx";
-import { executionLabelFor } from "../../experiments/labels/executionLabelFor.ts";
+import {
+  executionLabelFor,
+  executionStateKindFromHostLabel,
+} from "../../experiments/labels/executionLabelFor.ts";
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { notModeledFor } from "../../experiments/notModeled.ts";
 import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
+import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import type { RequestRefusal } from "../../experiments/results/refusals.ts";
+import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
+import { createReaderCheckpointBinding } from "../../experiments/store/readerCheckpoint.ts";
+import { useRetainedSession } from "../../experiments/store/retainedSession.tsx";
+import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
+import sourceDigests from "../../generated/lab-source-digests.json";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
@@ -175,20 +184,24 @@ export function OsmoticPartitionLab({
   title?: string;
 }) {
   const id = useId();
-  const [accepted, setAcceptedInputs] = useState<Bm02Inputs>(example);
-  // The harness DOM contract's runtime identity. With no instance store, evaluation is synchronous on
-  // an accepted apply: nothing is ever pending, and the requested input is the accepted one. The
-  // revision counts accepted applies, the convention ShelfOpticsLab already uses.
-  const [revision, setRevision] = useState(0);
-  function setAccepted(next: Bm02Inputs) {
-    setAcceptedInputs(next);
-    setRevision((r) => r + 1);
-  }
-  // Earned per state (am-inst-execution-labels-5ywv): the build's worked example until a reader's
-  // settings are accepted, a host calculation after. There is no instance store here, so the test is
-  // identity with the state the lab started from, as in the reasoning workbenches (12a926b9).
-  const executionKind = accepted === example ? "static-example" : "host-accepted";
-  const [draft, setDraft] = useState<Draft>(() => toDraft(example));
+  const sourceDigest = sourceDigests["bm-02"];
+  const session = useRetainedSession(
+    { experimentId: "bm-02", instanceId: instanceId ?? id, sourceDigest },
+    (ownerId) => createBm02Session(ownerId, example),
+    createReaderCheckpointBinding(BM02_TAPE),
+  );
+  const view = useInstrumentView(session);
+  const accepted = session.acceptedParameters();
+  const snapshot = session.getCalculation();
+  const executionKind = executionStateKindFromHostLabel(
+    deriveHostExecution(
+      view,
+      BM02_OUTPUTS,
+      sourceDigest,
+      view.accepted === session.getServerSnapshot().accepted,
+    ).label,
+  );
+  const [draft, setDraft] = useState<Draft>(() => toDraft(accepted));
   const [error, setError] = useState("");
   /**
    * The refusal OBJECT beside the sentence, so the readouts can be marked stale (am-m79c).
@@ -207,7 +220,6 @@ export function OsmoticPartitionLab({
     setDraft(toDraft(settings as unknown as Bm02Inputs));
   });
 
-  const snapshot = computeBm02Snapshot(accepted);
   // One sentence for the status line: the pressure on the partition, its force and its water column.
   const valueIn = (item: { status: string; value?: unknown }) =>
     item.status === "value" && typeof item.value === "number" ? item.value : null;
@@ -231,13 +243,14 @@ export function OsmoticPartitionLab({
 
   function apply(next: Bm02Inputs) {
     // One rule for the page and the domain sweep: every field by name, then the declared ranges.
-    const checked = validateBm02Parameters(next);
+    const checked = session.apply(next);
     if (checked.kind !== "accepted") {
-      setError(checked.kind === "refused" ? refusalSentence(checked.refusal) : "");
+      setError(
+        checked.kind === "refused" ? refusalSentence(checked.refusal) : checked.outcome.message,
+      );
       setRefusal(checked.kind === "refused" ? checked.refusal : null);
       return;
     }
-    setAccepted(checked.data);
     setError("");
     setRefusal(null);
   }
@@ -268,12 +281,7 @@ export function OsmoticPartitionLab({
       className="laboratory"
       aria-labelledby={`${id}-title`}
       data-instrument-id="bm-02"
-      data-instance-id={instanceId ?? id}
-      data-run-id={`${id}-${revision}`}
-      data-snapshot-version={revision}
-      data-input-revision={revision}
-      data-accepted-input-revision={revision}
-      data-pending="false"
+      {...instrumentRootAttributes(view)}
       {...executionLabelAttributes(executionKind)}
       data-model={accepted.model}
       data-constant-set={accepted.constantSetId}
@@ -282,15 +290,7 @@ export function OsmoticPartitionLab({
         <p className="eyebrow">The osmotic partition</p>
         <h2 id={`${id}-title`}>{title}</h2>
         <span className="badge">{executionLabelFor(executionKind).text}</span>
-        {/*
-         * Beside the hand-written execution label rather than inside an ExecutionChrome, which is
-         * the choice CurrencyForView's docblock records and which bm-03, bm-07 and sr-03 already
-         * take. No `view`: this lab has no instance store, so its only currency news is a refused
-         * form, and the indicator renders nothing at all until there is one.
-         *
-         * In the heading, so outside every predict-gated region.
-         */}
-        <CurrencyForView validationRefusal={refusal} />
+        <CurrencyForView view={view} validationRefusal={refusal} />
       </header>
 
       <noscript>

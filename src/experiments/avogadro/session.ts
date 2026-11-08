@@ -190,6 +190,7 @@ export function createAvogadroSession(
   const initial = evaluateAvogadro(initialParameters);
   if (initial.kind !== "accepted")
     throw new ExperimentRuntimeError("parameters-rejected", initial.reason, "avogadro");
+  const acceptedInitialParameters = initial.parameters;
   const classes: Record<string, ParameterClass> = Object.fromEntries(
     Object.keys(AVOGADRO_DEFAULTS).map((key) => [key, "input"]),
   );
@@ -221,38 +222,43 @@ export function createAvogadroSession(
   });
   publishedOrRefused(first);
   const serverSnapshot = store.getSnapshot();
+  function apply(input: unknown, newRun = false) {
+    // A refused draft never relabels old numbers or leaves a pending revision.
+    const evaluated = evaluateAvogadro(input);
+    if (evaluated.kind !== "accepted") return evaluated;
+    // The diff below reads keys from Object.entries, so they arrive typed as `string`. Both sides
+    // of this union are object types with no index signature, and indexing them with a string is
+    // what TS7053 refuses. Annotating the binding as a read-only bag says what the diff actually
+    // does - compare values by identity, key by key - without asserting which keys exist, which a
+    // cast at the index site would have done silently.
+    const previous: Readonly<Record<string, unknown>> =
+      store.getSnapshot().accepted?.parameters ?? acceptedInitialParameters;
+    const changed = Object.fromEntries(
+      Object.entries(evaluated.parameters).filter(
+        ([key, value]) => !Object.is(previous[key], value),
+      ),
+    );
+    if (newRun || Object.keys(changed).length) {
+      const decision = store.publish({
+        ...store.issue("setup-change", changed),
+        stepIndex: 0,
+        simulationTime: 0,
+        final: true,
+        outputs: evaluated.outputs,
+      });
+      publishedOrRefused(decision);
+    }
+    return Object.freeze({ kind: "accepted" as const, parameters: evaluated.parameters });
+  }
+
   return Object.freeze({
     getSnapshot: store.getSnapshot,
     getServerSnapshot: () => serverSnapshot,
     subscribe: store.subscribe,
-    apply(input: unknown) {
-      // A refused draft never relabels old numbers or leaves a pending revision.
-      const evaluated = evaluateAvogadro(input);
-      if (evaluated.kind !== "accepted") return evaluated;
-      // The diff below reads keys from Object.entries, so they arrive typed as `string`. Both sides
-      // of this union are object types with no index signature, and indexing them with a string is
-      // what TS7053 refuses. Annotating the binding as a read-only bag says what the diff actually
-      // does - compare values by identity, key by key - without asserting which keys exist, which a
-      // cast at the index site would have done silently.
-      const previous: Readonly<Record<string, unknown>> =
-        store.getSnapshot().accepted?.parameters ?? initial.parameters;
-      const changed = Object.fromEntries(
-        Object.entries(evaluated.parameters).filter(
-          ([key, value]) => !Object.is(previous[key], value),
-        ),
-      );
-      if (Object.keys(changed).length) {
-        const decision = store.publish({
-          ...store.issue("setup-change", changed),
-          stepIndex: 0,
-          simulationTime: 0,
-          final: true,
-          outputs: evaluated.outputs,
-        });
-        publishedOrRefused(decision);
-      }
-      return Object.freeze({ kind: "accepted" as const, parameters: evaluated.parameters });
-    },
+    exportCheckpoint: store.exportCheckpoint,
+    restoreCheckpoint: store.restoreCheckpoint,
+    apply: (input: unknown) => apply(input),
+    startNewRun: (input: unknown) => apply(input, true),
     /** The contract this store enforces, for deriving the execution label (am-inst-execution-labels-5ywv). */
     outputContracts: outputs,
   });

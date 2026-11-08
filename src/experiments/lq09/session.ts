@@ -324,40 +324,46 @@ export function createLq09Session(instanceId: string, example?: PreparedLq09Exam
 
   const serverSnapshot = store.getSnapshot();
 
+  function apply(input: unknown, newRun = false) {
+    const current = (store.getSnapshot().accepted?.parameters ??
+      initialParams) as Parameters as Lq09Parameters;
+    const merged = input && typeof input === "object" ? { ...current, ...input } : input;
+    const validated = validateLq09Parameters(merged);
+    if (validated.kind !== "accepted") return validated;
+    const parameters = validated.data;
+    const previous = (store.getSnapshot().requested?.parameters ??
+      initialParams) as Parameters as Lq09Parameters;
+    const setup: Record<string, unknown> = {};
+    for (const key of Object.keys(parameters) as (keyof Lq09Parameters)[]) {
+      if (Object.is(parameters[key], previous[key])) continue;
+      setup[key] = parameters[key];
+    }
+
+    const request =
+      newRun || Object.keys(setup).length
+        ? store.issue("setup-change", setup as Record<string, number>)
+        : store.issue("continue");
+
+    const computedOutputs = evaluateLq09(parameters);
+    store.publish({
+      ...request,
+      outputs: computedOutputs,
+      stepIndex: (store.getSnapshot().accepted?.stepIndex ?? 0) + 1,
+      simulationTime: 0,
+      final: true,
+    });
+
+    return { kind: "accepted" as const, data: request };
+  }
+
   return Object.freeze({
     getSnapshot: store.getSnapshot,
     getServerSnapshot: () => serverSnapshot,
     subscribe: store.subscribe,
-    apply(input: unknown) {
-      const current = (store.getSnapshot().accepted?.parameters ??
-        initialParams) as Parameters as Lq09Parameters;
-      const merged = input && typeof input === "object" ? { ...current, ...input } : input;
-      const validated = validateLq09Parameters(merged);
-      if (validated.kind !== "accepted") return validated;
-      const parameters = validated.data;
-      const previous = (store.getSnapshot().requested?.parameters ??
-        initialParams) as Parameters as Lq09Parameters;
-      const setup: Record<string, unknown> = {};
-      for (const key of Object.keys(parameters) as (keyof Lq09Parameters)[]) {
-        if (Object.is(parameters[key], previous[key])) continue;
-        setup[key] = parameters[key];
-      }
-
-      const request = Object.keys(setup).length
-        ? store.issue("setup-change", setup as Record<string, number>)
-        : store.issue("continue");
-
-      const computedOutputs = evaluateLq09(parameters);
-      store.publish({
-        ...request,
-        outputs: computedOutputs,
-        stepIndex: (store.getSnapshot().accepted?.stepIndex ?? 0) + 1,
-        simulationTime: 0,
-        final: true,
-      });
-
-      return { kind: "accepted" as const, data: request };
-    },
+    exportCheckpoint: store.exportCheckpoint,
+    restoreCheckpoint: store.restoreCheckpoint,
+    apply: (input: unknown) => apply(input),
+    startNewRun: (input: unknown) => apply(input, true),
     stop() {
       // Synchronous host evaluator has no background workers to stop
     },

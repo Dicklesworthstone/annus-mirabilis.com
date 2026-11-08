@@ -29,6 +29,7 @@ import {
 import { SR08_TAPE } from "../../../experiments/sr08/tape.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
+import { createReaderCheckpointBinding } from "../../../experiments/store/readerCheckpoint.ts";
 import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
@@ -122,6 +123,7 @@ export function FieldFrameChangeLab({
       sourceDigest: example?.sourceDigest,
     },
     (retainedId) => createSr08Session(retainedId, example),
+    createReaderCheckpointBinding(SR08_TAPE),
   );
   const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).

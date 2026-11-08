@@ -226,48 +226,53 @@ export function createLq08Session(instanceId: string, example?: PreparedLq08Exam
 
   const serverSnapshot = store.getSnapshot();
 
+  function apply(input: unknown, newRun = false) {
+    const current = (store.getSnapshot().accepted?.parameters ??
+      initialParams) as Parameters as Lq08Parameters;
+    const merged = input && typeof input === "object" ? { ...current, ...input } : input;
+    const validated = validateLq08Parameters(merged);
+    if (validated.kind !== "accepted") return validated;
+    const parameters = validated.data;
+    const previous = (store.getSnapshot().requested?.parameters ??
+      initialParams) as Parameters as Lq08Parameters;
+    const setup: Record<string, number> = {};
+    const measurement: Record<string, number> = {};
+
+    for (const key of Object.keys(parameters) as (keyof Lq08Parameters)[]) {
+      if (Object.is(parameters[key], previous[key])) continue;
+      if (key === "collectorPotential") {
+        measurement[key] = parameters[key];
+      } else {
+        setup[key] = parameters[key];
+      }
+    }
+
+    let request = newRun || Object.keys(setup).length ? store.issue("setup-change", setup) : null;
+    if (Object.keys(measurement).length) {
+      request = store.issue("measurement-change", measurement);
+    }
+    request ??= store.issue("continue");
+
+    const computedOutputs = evaluateLq08(parameters);
+    store.publish({
+      ...request,
+      outputs: computedOutputs,
+      stepIndex: (store.getSnapshot().accepted?.stepIndex ?? 0) + 1,
+      simulationTime: 0,
+      final: true,
+    });
+
+    return { kind: "accepted" as const, data: request };
+  }
+
   return Object.freeze({
     getSnapshot: store.getSnapshot,
     getServerSnapshot: () => serverSnapshot,
     subscribe: store.subscribe,
-    apply(input: unknown) {
-      const current = (store.getSnapshot().accepted?.parameters ??
-        initialParams) as Parameters as Lq08Parameters;
-      const merged = input && typeof input === "object" ? { ...current, ...input } : input;
-      const validated = validateLq08Parameters(merged);
-      if (validated.kind !== "accepted") return validated;
-      const parameters = validated.data;
-      const previous = (store.getSnapshot().requested?.parameters ??
-        initialParams) as Parameters as Lq08Parameters;
-      const setup: Record<string, number> = {};
-      const measurement: Record<string, number> = {};
-
-      for (const key of Object.keys(parameters) as (keyof Lq08Parameters)[]) {
-        if (Object.is(parameters[key], previous[key])) continue;
-        if (key === "collectorPotential") {
-          measurement[key] = parameters[key];
-        } else {
-          setup[key] = parameters[key];
-        }
-      }
-
-      let request = Object.keys(setup).length ? store.issue("setup-change", setup) : null;
-      if (Object.keys(measurement).length) {
-        request = store.issue("measurement-change", measurement);
-      }
-      request ??= store.issue("continue");
-
-      const computedOutputs = evaluateLq08(parameters);
-      store.publish({
-        ...request,
-        outputs: computedOutputs,
-        stepIndex: (store.getSnapshot().accepted?.stepIndex ?? 0) + 1,
-        simulationTime: 0,
-        final: true,
-      });
-
-      return { kind: "accepted" as const, data: request };
-    },
+    exportCheckpoint: store.exportCheckpoint,
+    restoreCheckpoint: store.restoreCheckpoint,
+    apply: (input: unknown) => apply(input),
+    startNewRun: (input: unknown) => apply(input, true),
     stop() {
       // Synchronous host evaluator has no background workers to stop
     },

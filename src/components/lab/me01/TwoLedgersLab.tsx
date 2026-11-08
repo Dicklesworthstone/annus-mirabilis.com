@@ -29,6 +29,7 @@ import { ME01_TAPE } from "../../../experiments/me01/tape.ts";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import type { RequestRefusal } from "../../../experiments/results/refusals.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
+import { createReaderCheckpointBinding } from "../../../experiments/store/readerCheckpoint.ts";
 import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
@@ -79,6 +80,7 @@ export function TwoLedgersLab({
       sourceDigest: example?.sourceDigest,
     },
     (retainedId) => createMe01Session(retainedId, example?.parameters ?? ME01_DEFAULTS),
+    createReaderCheckpointBinding(ME01_TAPE),
   );
 
   const view = useInstrumentView(session);

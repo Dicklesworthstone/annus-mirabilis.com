@@ -14,17 +14,27 @@ import { type ReplayOptions, type ReplayRunner, replayTape } from "./replay.ts";
 import type {
   ExperimentEnvironment,
   TapeAcceptedCheckpoint,
+  TapeControlEvent,
   TapeReplayResult,
   TapeV2,
 } from "./types.ts";
+import { sameWalkthroughSettings } from "./walkthroughActions.ts";
 
-type ApplyOutcome = Readonly<{ kind: string }>;
+type ApplyOutcome = Readonly<{ kind: string; data?: unknown }>;
 
 /** What a laboratory session must offer to be replayed. */
 export type TapeSession = Readonly<{
   apply(input: unknown): ApplyOutcome;
+  /** Begin a fresh accepted run in this same owner, including when all settings are unchanged. */
+  startNewRun?(input: unknown): ApplyOutcome;
   getSnapshot(): Readonly<{
-    accepted: Readonly<{ revisions: Readonly<{ input: number }> }> | null;
+    pending?: boolean | undefined;
+    accepted: Readonly<{
+      revisions: Readonly<{ input: number }>;
+      runId?: string | undefined;
+      final?: boolean | undefined;
+      parameters?: object | undefined;
+    }> | null;
   }>;
   acceptedParameters(): object;
 }>;
@@ -35,6 +45,8 @@ export type LabTapeBinding = Readonly<{
   defaults: Readonly<Record<string, unknown>>;
   /** The laboratory's own parameter validator. */
   validate(input: unknown): ApplyOutcome;
+  /** Derive selected constants from validated settings, never from a shared tape's header. */
+  constantSetIdForSettings?(settings: Readonly<Record<string, unknown>>): string;
   /** A fresh session with the defaults, used to compute the checkpoint a reader will reach. */
   createSession(instanceId: string): TapeSession;
 }>;
@@ -46,6 +58,33 @@ export function requirementsOf(outcome: ApplyOutcome): string {
   const refusal = (outcome as { refusal?: { details?: { requirements?: unknown } } }).refusal;
   const requirements = refusal?.details?.requirements;
   return typeof requirements === "string" ? requirements : "";
+}
+
+function validatedSettings(
+  binding: LabTapeBinding,
+  settings: Readonly<Record<string, unknown>>,
+): Readonly<Record<string, unknown>> {
+  const checked = binding.validate(settings);
+  if (checked.kind !== "accepted")
+    throw new ExperimentRuntimeError(
+      "parameters-rejected",
+      requirementsOf(checked) || "The shared settings could not be applied.",
+      binding.environment.experimentId,
+    );
+  return checked.data && typeof checked.data === "object" && !Array.isArray(checked.data)
+    ? (checked.data as Readonly<Record<string, unknown>>)
+    : settings;
+}
+
+function environmentForSettings(binding: LabTapeBinding, settings: object): ExperimentEnvironment {
+  return binding.constantSetIdForSettings
+    ? {
+        ...binding.environment,
+        constantSetId: binding.constantSetIdForSettings(
+          settings as Readonly<Record<string, unknown>>,
+        ),
+      }
+    : binding.environment;
 }
 
 /**
@@ -163,28 +202,86 @@ export function createSessionReplayRunner(
   binding: LabTapeBinding,
   session: TapeSession,
   form: TapeDigestForm = "fnv1a64",
-): ReplayRunner & Readonly<{ refusalSentence(): string }> {
+): ReplayRunner & Readonly<{ refusalSentence(): string; hasApplied(): boolean }> {
   let actionIndex = 0;
   let refusal = "";
+  let applied = false;
   const current = () => tapeStateOf(session.acceptedParameters()) ?? {};
-  const apply = (patch: Record<string, unknown>, base: object = session.acceptedParameters()) => {
-    const outcome = session.apply({ ...base, ...patch });
-    if (outcome.kind === "accepted") return;
-    refusal = requirementsOf(outcome) || "The shared settings could not be applied.";
-    throw new ExperimentRuntimeError(
-      "parameters-rejected",
-      refusal,
-      binding.environment.experimentId,
-    );
+  const apply = (
+    patch: Record<string, unknown>,
+    base: object = session.acceptedParameters(),
+    newRun = false,
+  ) => {
+    const settings = { ...base, ...patch };
+    const expected = newRun ? validatedSettings(binding, settings) : settings;
+    applied = true;
+    const outcome = newRun ? session.startNewRun?.(expected) : session.apply(expected);
+    if (outcome?.kind !== "accepted") {
+      refusal = (outcome && requirementsOf(outcome)) || "The shared settings could not be applied.";
+      throw new ExperimentRuntimeError(
+        "parameters-rejected",
+        refusal,
+        binding.environment.experimentId,
+      );
+    }
+    if (newRun) {
+      const view = session.getSnapshot();
+      if (
+        view.pending ||
+        view.accepted?.final !== true ||
+        !view.accepted.parameters ||
+        !sameWalkthroughSettings(view.accepted.parameters, expected) ||
+        !sameWalkthroughSettings(session.acceptedParameters(), expected)
+      ) {
+        refusal = "The new run did not accept the complete recorded settings.";
+        throw new ExperimentRuntimeError(
+          "new-run-not-accepted",
+          refusal,
+          binding.environment.experimentId,
+        );
+      }
+    }
   };
   return {
     refusalSentence: () => refusal,
-    environment: binding.environment,
+    hasApplied: () => applied,
+    get environment() {
+      return environmentForSettings(binding, session.acceptedParameters());
+    },
+    ...(binding.constantSetIdForSettings
+      ? {
+          environmentForReplay(
+            conditions: Readonly<Record<string, number | string>>,
+            events: readonly TapeControlEvent[],
+          ) {
+            let settings = validatedSettings(binding, {
+              ...binding.defaults,
+              ...settingsFromTape(conditions, binding.defaults),
+            });
+            for (const event of events) {
+              settings = validatedSettings(binding, {
+                ...settings,
+                ...settingsFromTape({ [event.paramId]: event.value }, binding.defaults),
+              });
+            }
+            return environmentForSettings(binding, settings);
+          },
+        }
+      : {}),
+    getAcceptedRunId: () => session.getSnapshot().accepted?.runId ?? null,
     applyInitialConditions(conditions) {
       // Omitted settings mean the laboratory defaults, never this reader's previous experiment.
       apply(settingsFromTape(conditions, binding.defaults), binding.defaults);
       actionIndex = 0;
     },
+    ...(session.startNewRun
+      ? {
+          startNewRun(conditions: Record<string, number | string>) {
+            apply(settingsFromTape(conditions, binding.defaults), binding.defaults, true);
+            actionIndex = 0;
+          },
+        }
+      : {}),
     applyEvent(event) {
       apply(settingsFromTape({ [event.paramId]: event.value }, binding.defaults));
       actionIndex = event.actionIndex;
@@ -209,13 +306,14 @@ export function createSessionReplayRunner(
 export function tapeForSettings(binding: LabTapeBinding, params: object): TapeV2 | null {
   const state = tapeStateOf(params);
   if (!state) return null;
-  const env = binding.environment;
   const runner = createSessionReplayRunner(
     binding,
-    binding.createSession(`${env.experimentId}-tape-checkpoint`),
+    binding.createSession(`${binding.environment.experimentId}-tape-checkpoint`),
   );
+  let env: ExperimentEnvironment;
   try {
     runner.applyInitialConditions(state);
+    env = runner.environment;
   } catch {
     return null;
   }
@@ -283,6 +381,7 @@ export function replayTapeOnSession(
   const runner = createSessionReplayRunner(binding, session, form);
   const result = replayTape(prepared.tape, runner, { forceNewRun: prepared.isNewRun });
   if (result.kind === "success") return result;
+  if (!runner.hasApplied()) return result;
   // A live-session failure after a successful rehearsal is unexpected. Keep the failure visible,
   // and attempt to recover the previous settings rather than leaving a half-applied walkthrough.
   try {
@@ -305,6 +404,39 @@ export function replayTapeOnSession(
   return result.kind === "invalid" && sentence
     ? { ...result, notice: `This shared state could not be restored. ${sentence}` }
     : result;
+}
+
+/** A current-model calculation must create and accept a new run in the existing live owner. */
+export function calculateNewRun(
+  binding: LabTapeBinding,
+  session: TapeSession,
+  parameters: object,
+):
+  | Readonly<{ kind: "calculated"; runId: string }>
+  | Readonly<{ kind: "not-restored"; notice: string }> {
+  if (!session.startNewRun)
+    return {
+      kind: "not-restored",
+      notice: "This laboratory cannot begin an explicitly new identified run.",
+    };
+  const tape = tapeForSettings(binding, parameters);
+  if (!tape)
+    return {
+      kind: "not-restored",
+      notice:
+        requirementsOf(binding.validate(parameters)) ||
+        "This laboratory does not accept the recorded settings.",
+    };
+  const result = replayTapeOnSession(binding, session, tape, { forceNewRun: true });
+  if (result.kind === "success" && result.isNewRun && result.runId)
+    return { kind: "calculated", runId: result.runId };
+  return {
+    kind: "not-restored",
+    notice:
+      result.kind === "success"
+        ? "The laboratory did not accept a new identified run."
+        : result.notice,
+  };
 }
 
 /** Restore a decoded tape; a resolver is required only when it references an authored walkthrough. */

@@ -337,49 +337,53 @@ export function createSr01Session(
   if (!published.accepted) throw new Error("Invalid prepared SR-01 example.");
   const serverSnapshot = store.getSnapshot();
 
+  function apply(input: unknown, newRun = false) {
+    const checked = validateSr01Parameters(input);
+    if (checked.kind !== "accepted") return checked;
+    const snap = store.getSnapshot();
+    const previous = (snap.requested?.parameters ??
+      snap.accepted?.parameters ??
+      initialParameters) as Sr01Parameters;
+    const next = checked.data;
+
+    const setup: Record<string, unknown> = {};
+    const observer: Record<string, unknown> = {};
+
+    (Object.keys(next) as (keyof Sr01Parameters)[]).forEach((key) => {
+      if (Object.is(next[key], previous[key])) return;
+      if (SR01_CLASSES[key] === "observer") observer[key] = next[key];
+      else setup[key] = next[key];
+    });
+
+    let request =
+      newRun || Object.keys(setup).length ? store.issue("setup-change", setup as Parameters) : null;
+    if (Object.keys(observer).length)
+      request = store.issue("observer-change", observer as Parameters);
+    request ??= store.issue("continue");
+
+    const outputs = snapshotOutputs(request.parameters as unknown as Sr01Parameters);
+    const decision = store.publish({
+      ...request,
+      stepIndex: store.getSnapshot().accepted?.stepIndex ?? 0,
+      simulationTime: 0,
+      final: true,
+      outputs,
+    });
+    if (!decision.accepted) throw new Error(`SR-01 publication refused: ${decision.reason}`);
+    return { kind: "accepted" as const, data: request };
+  }
+
   return Object.freeze({
     getSnapshot: store.getSnapshot,
     getServerSnapshot: () => serverSnapshot,
     subscribe: store.subscribe,
+    exportCheckpoint: store.exportCheckpoint,
+    restoreCheckpoint: store.restoreCheckpoint,
     acceptedParameters(): Sr01Parameters {
       const accepted = store.getSnapshot().accepted;
       return (accepted?.parameters ?? initialParameters) as Sr01Parameters;
     },
-    apply(input: unknown) {
-      const checked = validateSr01Parameters(input);
-      if (checked.kind !== "accepted") return checked;
-      const snap = store.getSnapshot();
-      const previous = (snap.requested?.parameters ??
-        snap.accepted?.parameters ??
-        initialParameters) as Sr01Parameters;
-      const next = checked.data;
-
-      const setup: Record<string, unknown> = {};
-      const observer: Record<string, unknown> = {};
-
-      (Object.keys(next) as (keyof Sr01Parameters)[]).forEach((key) => {
-        if (Object.is(next[key], previous[key])) return;
-        if (SR01_CLASSES[key] === "observer") observer[key] = next[key];
-        else setup[key] = next[key];
-      });
-
-      let request = Object.keys(setup).length
-        ? store.issue("setup-change", setup as Parameters)
-        : null;
-      if (Object.keys(observer).length)
-        request = store.issue("observer-change", observer as Parameters);
-      request ??= store.issue("continue");
-
-      const outputs = snapshotOutputs(request.parameters as unknown as Sr01Parameters);
-      const decision = store.publish({
-        ...request,
-        stepIndex: store.getSnapshot().accepted?.stepIndex ?? 0,
-        simulationTime: 0,
-        final: true,
-        outputs,
-      });
-      if (!decision.accepted) throw new Error(`SR-01 publication refused: ${decision.reason}`);
-      return { kind: "accepted" as const, data: request };
-    },
+    apply: (input: unknown) => apply(input),
+    startNewRun: (input: unknown) => apply(input, true),
   });
 }

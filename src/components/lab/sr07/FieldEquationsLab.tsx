@@ -39,6 +39,7 @@ import { decodeSr07Settings } from "../../../experiments/sr07/permalink.ts";
 import { createSr07Session, type PreparedSr07Example } from "../../../experiments/sr07/session.ts";
 import { SR07_TAPE } from "../../../experiments/sr07/tape.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
+import { createReaderCheckpointBinding } from "../../../experiments/store/readerCheckpoint.ts";
 import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
@@ -118,6 +119,7 @@ export function FieldEquationsLab({
       sourceDigest: example?.sourceDigest,
     },
     (retainedId) => createSr07Session(retainedId, example.parameters),
+    createReaderCheckpointBinding(SR07_TAPE),
   );
   const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).

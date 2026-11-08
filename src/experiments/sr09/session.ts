@@ -65,61 +65,66 @@ export function createSr09Session(
 
   const serverSnapshot = store.getSnapshot();
 
+  function apply(input: unknown, newRun = false) {
+    const checked = validateSr09Parameters(input);
+    if (checked.kind !== "accepted") return checked;
+    const previous = (store.getSnapshot().accepted?.parameters ??
+      example.parameters) as unknown as Sr09Parameters;
+    const next = checked.data;
+
+    const setup: Record<string, number | string | boolean> = {};
+    const observer: Record<string, number | string | boolean> = {};
+    const presentation: Record<string, number | string | boolean> = {};
+
+    (Object.keys(next) as (keyof Sr09Parameters)[]).forEach((key) => {
+      if (Object.is(next[key], previous[key])) return;
+      const cls = SR09_CLASSES[key];
+      if (cls === "observer") {
+        observer[key] = next[key];
+      } else if (cls === "presentation") {
+        presentation[key] = next[key];
+      } else {
+        setup[key] = next[key];
+      }
+    });
+
+    let request = newRun || Object.keys(setup).length ? store.issue("setup-change", setup) : null;
+    if (Object.keys(observer).length) {
+      request = store.issue("observer-change", observer);
+    }
+    if (Object.keys(presentation).length) {
+      request = store.issue("presentation-change", presentation);
+    }
+    request ??= store.issue("continue");
+
+    const outputs = snapshotOutputs(next);
+    const decision = store.publish({
+      ...request,
+      stepIndex: store.getSnapshot().accepted?.stepIndex ?? 0,
+      simulationTime: 0,
+      final: true,
+      outputs,
+    });
+
+    if (!decision.accepted) {
+      throw new Error(`SR-09 publication refused: ${decision.reason}`);
+    }
+
+    return { kind: "accepted" as const, data: request };
+  }
+
   return Object.freeze({
     getSnapshot: store.getSnapshot,
     getServerSnapshot: () => serverSnapshot,
     subscribe: store.subscribe,
+    exportCheckpoint: store.exportCheckpoint,
+    restoreCheckpoint: store.restoreCheckpoint,
     evaluate: evaluateSr09,
     acceptedParameters(): Sr09Parameters {
       return (store.getSnapshot().accepted?.parameters ??
         example.parameters) as unknown as Sr09Parameters;
     },
-    apply(input: unknown) {
-      const checked = validateSr09Parameters(input);
-      if (checked.kind !== "accepted") return checked;
-      const previous = (store.getSnapshot().accepted?.parameters ??
-        example.parameters) as unknown as Sr09Parameters;
-      const next = checked.data;
-
-      const setup: Record<string, number | string | boolean> = {};
-      const observer: Record<string, number | string | boolean> = {};
-      const presentation: Record<string, number | string | boolean> = {};
-
-      (Object.keys(next) as (keyof Sr09Parameters)[]).forEach((key) => {
-        if (Object.is(next[key], previous[key])) return;
-        const cls = SR09_CLASSES[key];
-        if (cls === "observer") {
-          observer[key] = next[key];
-        } else if (cls === "presentation") {
-          presentation[key] = next[key];
-        } else {
-          setup[key] = next[key];
-        }
-      });
-
-      let request = Object.keys(setup).length ? store.issue("setup-change", setup) : null;
-      if (Object.keys(observer).length) {
-        request = store.issue("observer-change", observer);
-      }
-      if (Object.keys(presentation).length) {
-        request = store.issue("presentation-change", presentation);
-      }
-      request ??= store.issue("continue");
-
-      const outputs = snapshotOutputs(next);
-      const decision = store.publish({
-        ...request,
-        stepIndex: store.getSnapshot().accepted?.stepIndex ?? 0,
-        simulationTime: 0,
-        final: true,
-        outputs,
-      });
-
-      if (!decision.accepted) {
-        throw new Error(`SR-09 publication refused: ${decision.reason}`);
-      }
-
-      return { kind: "accepted" as const, data: request };
-    },
+    apply: (input: unknown) => apply(input),
+    startNewRun: (input: unknown) => apply(input, true),
   });
 }

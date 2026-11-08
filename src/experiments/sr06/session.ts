@@ -235,38 +235,43 @@ export function createSr06Session(
   });
   if (!published.accepted) throw new Error("Invalid prepared SR-06 example.");
   const serverSnapshot = store.getSnapshot();
+  function apply(input: unknown, newRun = false) {
+    const checked = validateSr06Parameters(input);
+    if (checked.kind !== "accepted") return checked;
+    const previous = store.getSnapshot().accepted!.parameters as Sr06Parameters;
+    const next = checked.data;
+    const setup: Record<string, number | string | boolean> = {};
+    const presentation: Record<string, number | string | boolean> = {};
+    for (const key of Object.keys(next) as (keyof Sr06Parameters)[]) {
+      if (Object.is(next[key], previous[key])) continue;
+      if (SR06_CLASSES[key] === "presentation") presentation[key] = next[key];
+      else setup[key] = next[key];
+    }
+    let request = newRun || Object.keys(setup).length ? store.issue("setup-change", setup) : null;
+    if (Object.keys(presentation).length)
+      request = store.issue("presentation-change", presentation);
+    request ??= store.issue("continue");
+    const decision = store.publish({
+      ...request,
+      stepIndex: 0,
+      simulationTime: 0,
+      final: true,
+      outputs: evaluateSr06(next),
+    });
+    if (!decision.accepted) throw new Error(`SR-06 publication refused: ${decision.reason}`);
+    return { kind: "accepted" as const, data: request };
+  }
+
   return Object.freeze({
     getSnapshot: store.getSnapshot,
     getServerSnapshot: () => serverSnapshot,
     subscribe: store.subscribe,
+    exportCheckpoint: store.exportCheckpoint,
+    restoreCheckpoint: store.restoreCheckpoint,
     acceptedParameters(): Sr06Parameters {
       return (store.getSnapshot().accepted?.parameters ?? initialParameters) as Sr06Parameters;
     },
-    apply(input: unknown) {
-      const checked = validateSr06Parameters(input);
-      if (checked.kind !== "accepted") return checked;
-      const previous = store.getSnapshot().accepted!.parameters as Sr06Parameters;
-      const next = checked.data;
-      const setup: Record<string, number | string | boolean> = {};
-      const presentation: Record<string, number | string | boolean> = {};
-      for (const key of Object.keys(next) as (keyof Sr06Parameters)[]) {
-        if (Object.is(next[key], previous[key])) continue;
-        if (SR06_CLASSES[key] === "presentation") presentation[key] = next[key];
-        else setup[key] = next[key];
-      }
-      let request = Object.keys(setup).length ? store.issue("setup-change", setup) : null;
-      if (Object.keys(presentation).length)
-        request = store.issue("presentation-change", presentation);
-      request ??= store.issue("continue");
-      const decision = store.publish({
-        ...request,
-        stepIndex: 0,
-        simulationTime: 0,
-        final: true,
-        outputs: evaluateSr06(next),
-      });
-      if (!decision.accepted) throw new Error(`SR-06 publication refused: ${decision.reason}`);
-      return { kind: "accepted" as const, data: request };
-    },
+    apply: (input: unknown) => apply(input),
+    startNewRun: (input: unknown) => apply(input, true),
   });
 }

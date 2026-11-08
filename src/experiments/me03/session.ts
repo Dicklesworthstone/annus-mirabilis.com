@@ -116,56 +116,60 @@ export function createMe03Session(
   if (!published.accepted) throw new Error("Invalid prepared ME-03 example.");
   const serverSnapshot = store.getSnapshot();
 
+  function apply(input: unknown, newRun = false) {
+    const checked = validateMe03Parameters(input);
+    if (checked.kind !== "accepted") return checked;
+    const snap = store.getSnapshot();
+    const previous = (snap.requested?.parameters ??
+      snap.accepted?.parameters ??
+      initialParameters) as Me03Parameters;
+    const next = checked.data;
+
+    const setup: Record<string, unknown> = {};
+    const measurement: Record<string, unknown> = {};
+    const presentation: Record<string, unknown> = {};
+
+    (Object.keys(next) as (keyof Me03Parameters)[]).forEach((key) => {
+      if (Object.is(next[key], previous[key])) return;
+      if (ME03_CLASSES[key] === "input") setup[key] = next[key];
+      else if (ME03_CLASSES[key] === "measurement") measurement[key] = next[key];
+      else presentation[key] = next[key];
+    });
+
+    let request =
+      newRun || Object.keys(setup).length ? store.issue("setup-change", setup as Parameters) : null;
+    if (Object.keys(measurement).length)
+      request = store.issue("measurement-change", measurement as Parameters);
+    if (Object.keys(presentation).length)
+      request = store.issue("presentation-change", presentation as Parameters);
+    request ??= store.issue("continue");
+
+    const outputs = snapshotOutputs(request.parameters as Me03Parameters);
+    const decision = store.publish({
+      ...request,
+      stepIndex: store.getSnapshot().accepted?.stepIndex ?? 0,
+      simulationTime: 0,
+      final: true,
+      outputs,
+    });
+
+    if (!decision.accepted) throw new Error(`ME-03 publication refused: ${decision.reason}`);
+    return { kind: "accepted" as const, data: request };
+  }
+
   return Object.freeze({
     getSnapshot: store.getSnapshot,
     getServerSnapshot: () => serverSnapshot,
     subscribe: store.subscribe,
+    exportCheckpoint: store.exportCheckpoint,
+    restoreCheckpoint: store.restoreCheckpoint,
     evaluate: evaluateMe03OrBox,
     acceptedParameters(): Me03Parameters {
       const accepted = store.getSnapshot().accepted;
       return (accepted?.parameters ?? initialParameters) as Me03Parameters;
     },
-    apply(input: unknown) {
-      const checked = validateMe03Parameters(input);
-      if (checked.kind !== "accepted") return checked;
-      const snap = store.getSnapshot();
-      const previous = (snap.requested?.parameters ??
-        snap.accepted?.parameters ??
-        initialParameters) as Me03Parameters;
-      const next = checked.data;
-
-      const setup: Record<string, unknown> = {};
-      const measurement: Record<string, unknown> = {};
-      const presentation: Record<string, unknown> = {};
-
-      (Object.keys(next) as (keyof Me03Parameters)[]).forEach((key) => {
-        if (Object.is(next[key], previous[key])) return;
-        if (ME03_CLASSES[key] === "input") setup[key] = next[key];
-        else if (ME03_CLASSES[key] === "measurement") measurement[key] = next[key];
-        else presentation[key] = next[key];
-      });
-
-      let request = Object.keys(setup).length
-        ? store.issue("setup-change", setup as Parameters)
-        : null;
-      if (Object.keys(measurement).length)
-        request = store.issue("measurement-change", measurement as Parameters);
-      if (Object.keys(presentation).length)
-        request = store.issue("presentation-change", presentation as Parameters);
-      request ??= store.issue("continue");
-
-      const outputs = snapshotOutputs(request.parameters as Me03Parameters);
-      const decision = store.publish({
-        ...request,
-        stepIndex: store.getSnapshot().accepted?.stepIndex ?? 0,
-        simulationTime: 0,
-        final: true,
-        outputs,
-      });
-
-      if (!decision.accepted) throw new Error(`ME-03 publication refused: ${decision.reason}`);
-      return { kind: "accepted" as const, data: request };
-    },
+    apply: (input: unknown) => apply(input),
+    startNewRun: (input: unknown) => apply(input, true),
   });
 }
 

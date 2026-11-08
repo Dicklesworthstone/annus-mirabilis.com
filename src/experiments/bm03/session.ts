@@ -192,6 +192,7 @@ export function buildBm03Snapshot(
   parameters: Bm03Parameters,
   inputRevision = 1,
   actionIndex = 0,
+  parentRunId: string | null = null,
 ): AcceptedSnapshot {
   const evaluation = evaluateBm03(parameters);
 
@@ -222,7 +223,7 @@ export function buildBm03Snapshot(
     experimentId: "bm-03",
     instanceId,
     runId,
-    parentRunId: null,
+    parentRunId,
     actionIndex,
     revisions: {
       input: inputRevision,
@@ -244,7 +245,8 @@ export function createBm03Session(
   initialParameters: Bm03Parameters = BM03_DEFAULTS,
 ) {
   let currentParams = { ...initialParameters };
-  let currentRunId = `run-${Date.now()}`;
+  let currentRunId = `${instanceId}/run/1`;
+  let parentRunId: string | null = null;
   let inputRevision = 1;
   let actionIndex = 0;
   let acceptedSnapshot = buildBm03Snapshot(
@@ -253,6 +255,7 @@ export function createBm03Session(
     currentParams,
     inputRevision,
     actionIndex,
+    parentRunId,
   );
 
   const listeners = new Set<() => void>();
@@ -268,7 +271,7 @@ export function createBm03Session(
       experimentId: "bm-03",
       instanceId,
       runId: currentRunId,
-      parentRunId: null,
+      parentRunId,
       actionIndex,
       revisions: { input: inputRevision, observer: 0, measurement: 0, estimator: 0 },
       parameters: currentParams,
@@ -279,6 +282,67 @@ export function createBm03Session(
   };
 
   const serverView = view;
+
+  function apply(input: unknown, newRun = false) {
+    const validated = validateBm03Parameters(input);
+    if (validated.kind === "refused") {
+      view = {
+        ...view,
+        status: "refused",
+        refusal: validated.refusal,
+      };
+      notify();
+      return validated;
+    }
+
+    if (validated.kind !== "accepted") return validated;
+    const parameters = validated.data;
+    actionIndex++;
+    const isSetupChange =
+      currentParams.Np !== parameters.Np ||
+      currentParams.volumeRatio !== parameters.volumeRatio ||
+      currentParams.V0 !== parameters.V0 ||
+      currentParams.T !== parameters.T ||
+      currentParams.model !== parameters.model;
+
+    if (newRun || isSetupChange) {
+      parentRunId = currentRunId;
+      inputRevision++;
+      currentRunId = `${instanceId}/run/${inputRevision}`;
+    }
+
+    currentParams = { ...parameters };
+    acceptedSnapshot = buildBm03Snapshot(
+      instanceId,
+      currentRunId,
+      currentParams,
+      inputRevision,
+      actionIndex,
+      parentRunId,
+    );
+
+    const requestedToken: RequestToken = {
+      experimentId: "bm-03",
+      instanceId,
+      runId: currentRunId,
+      parentRunId,
+      actionIndex,
+      revisions: { input: inputRevision, observer: 0, measurement: 0, estimator: 0 },
+      parameters: currentParams,
+    };
+
+    view = {
+      status: "accepted",
+      pending: false,
+      requested: requestedToken,
+      accepted: acceptedSnapshot,
+      refusal: null,
+      outcome: null,
+    };
+
+    notify();
+    return { kind: "accepted" as const, data: currentParams };
+  }
 
   return {
     subscribe(callback: () => void) {
@@ -301,62 +365,8 @@ export function createBm03Session(
     evaluate(params: Bm03Parameters) {
       return evaluateBm03(params);
     },
-    apply(parameters: Bm03Parameters) {
-      const validated = validateBm03Parameters(parameters);
-      if (validated.kind === "refused") {
-        view = {
-          ...view,
-          status: "refused",
-          refusal: validated.refusal,
-        };
-        notify();
-        return validated;
-      }
-
-      actionIndex++;
-      const isSetupChange =
-        currentParams.Np !== parameters.Np ||
-        currentParams.volumeRatio !== parameters.volumeRatio ||
-        currentParams.V0 !== parameters.V0 ||
-        currentParams.T !== parameters.T ||
-        currentParams.model !== parameters.model;
-
-      if (isSetupChange) {
-        inputRevision++;
-        currentRunId = `run-${Date.now()}-${actionIndex}`;
-      }
-
-      currentParams = { ...parameters };
-      acceptedSnapshot = buildBm03Snapshot(
-        instanceId,
-        currentRunId,
-        currentParams,
-        inputRevision,
-        actionIndex,
-      );
-
-      const requestedToken: RequestToken = {
-        experimentId: "bm-03",
-        instanceId,
-        runId: currentRunId,
-        parentRunId: null,
-        actionIndex,
-        revisions: { input: inputRevision, observer: 0, measurement: 0, estimator: 0 },
-        parameters: currentParams,
-      };
-
-      view = {
-        status: "accepted",
-        pending: false,
-        requested: requestedToken,
-        accepted: acceptedSnapshot,
-        refusal: null,
-        outcome: null,
-      };
-
-      notify();
-      return { kind: "accepted" as const, data: currentParams };
-    },
+    apply: (input: unknown) => apply(input),
+    startNewRun: (input: unknown) => apply(input, true),
     stop() {
       // Synchronous calculation, no-op
     },

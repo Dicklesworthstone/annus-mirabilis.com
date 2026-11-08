@@ -27,6 +27,7 @@ import type { RequestRefusal } from "../../experiments/results/refusals.ts";
 import type { ScientificResult } from "../../experiments/results/types.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot, PublishedResult } from "../../experiments/store/instanceStore.ts";
+import { createReaderCheckpointBinding } from "../../experiments/store/readerCheckpoint.ts";
 import { useRetainedSession } from "../../experiments/store/retainedSession.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { KEPT_RESULT } from "./keptResult.ts";
@@ -214,6 +215,7 @@ export function CoefficientLab({
       sourceDigest: example?.sourceDigest,
     },
     (retainedId) => createMe02Session(retainedId, example),
+    createReaderCheckpointBinding(ME02_TAPE),
   );
   const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).

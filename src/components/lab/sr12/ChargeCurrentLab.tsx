@@ -27,6 +27,7 @@ import { createSr12Session, type PreparedSr12Example } from "../../../experiment
 import { SR12_TAPE } from "../../../experiments/sr12/tape.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
+import { createReaderCheckpointBinding } from "../../../experiments/store/readerCheckpoint.ts";
 import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
@@ -104,6 +105,7 @@ export function ChargeCurrentLab({
       sourceDigest: example?.sourceDigest,
     },
     (retainedId) => createSr12Session(retainedId, example),
+    createReaderCheckpointBinding(SR12_TAPE),
   );
   const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).

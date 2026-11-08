@@ -210,6 +210,67 @@ export function createLq05Session(
   };
 
   const serverView = view;
+  function apply(nextParams: unknown, newRun = false) {
+    actionIndex++;
+    const computation = validateLq05Parameters(nextParams);
+    if (computation.kind !== "accepted") {
+      if (computation.kind === "refused") {
+        view = {
+          ...view,
+          status: "refused",
+          pending: false,
+          refusal: computation.refusal,
+          outcome: null,
+        };
+      }
+      notify();
+      return computation;
+    }
+
+    const validated = computation.data;
+    const isSetup =
+      validated.n !== currentParams.n ||
+      validated.locked !== currentParams.locked ||
+      validated.seed !== currentParams.seed ||
+      validated.trials !== currentParams.trials;
+
+    if (newRun || isSetup) {
+      parentRunId = currentRunId;
+      inputRevision++;
+      currentRunId = `${instanceId}/run/${inputRevision}`;
+    }
+
+    currentParams = { ...validated };
+    acceptedSnapshot = buildLq05Snapshot(
+      instanceId,
+      currentRunId,
+      parentRunId,
+      currentParams,
+      inputRevision,
+      actionIndex,
+    );
+
+    view = {
+      status: "accepted",
+      pending: false,
+      requested: {
+        experimentId: "lq-05",
+        instanceId,
+        runId: currentRunId,
+        parentRunId,
+        actionIndex,
+        revisions: { input: inputRevision, observer: 0, measurement: 0, estimator: 0 },
+        parameters: currentParams,
+      },
+      accepted: acceptedSnapshot,
+      refusal: null,
+      outcome: null,
+    };
+
+    notify();
+    return computation;
+  }
+
   return {
     instanceId,
     subscribe(callback: () => void) {
@@ -229,65 +290,7 @@ export function createLq05Session(
     acceptedParameters(): Lq05Parameters {
       return (view.accepted?.parameters ?? currentParams) as Lq05Parameters;
     },
-    apply(nextParams: unknown) {
-      actionIndex++;
-      const computation = validateLq05Parameters(nextParams);
-      if (computation.kind !== "accepted") {
-        if (computation.kind === "refused") {
-          view = {
-            ...view,
-            status: "refused",
-            pending: false,
-            refusal: computation.refusal,
-            outcome: null,
-          };
-        }
-        notify();
-        return computation;
-      }
-
-      const validated = computation.data;
-      const isSetup =
-        validated.n !== currentParams.n ||
-        validated.locked !== currentParams.locked ||
-        validated.seed !== currentParams.seed ||
-        validated.trials !== currentParams.trials;
-
-      if (isSetup) {
-        parentRunId = currentRunId;
-        inputRevision++;
-        currentRunId = `${instanceId}/run/${inputRevision}`;
-      }
-
-      currentParams = { ...validated };
-      acceptedSnapshot = buildLq05Snapshot(
-        instanceId,
-        currentRunId,
-        parentRunId,
-        currentParams,
-        inputRevision,
-        actionIndex,
-      );
-
-      view = {
-        status: "accepted",
-        pending: false,
-        requested: {
-          experimentId: "lq-05",
-          instanceId,
-          runId: currentRunId,
-          parentRunId,
-          actionIndex,
-          revisions: { input: inputRevision, observer: 0, measurement: 0, estimator: 0 },
-          parameters: currentParams,
-        },
-        accepted: acceptedSnapshot,
-        refusal: null,
-        outcome: null,
-      };
-
-      notify();
-      return computation;
-    },
+    apply: (input: unknown) => apply(input),
+    startNewRun: (input: unknown) => apply(input, true),
   };
 }

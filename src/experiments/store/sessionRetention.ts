@@ -20,7 +20,13 @@ export type PreparedRetainedSession<T extends RetainedSession = RetainedSession>
   sourceDigest: string | undefined;
   reused: boolean;
   sourceChanged: boolean;
+  restoredFromArchive: boolean;
+  restoreNotice: string | null;
 }>;
+
+type RestoredOwner<T extends RetainedSession> =
+  | Readonly<{ kind: "restored"; session: T; instanceId: string }>
+  | Readonly<{ kind: "not-restored"; notice: string }>;
 
 type Entry = {
   key: string;
@@ -32,6 +38,8 @@ type Entry = {
   releaseTicket: number;
   lastUsed: number;
   disconnected: boolean;
+  restoredFromArchive: boolean;
+  restoreNotice: string | null;
 };
 
 export const MAX_IDLE_RETAINED_SESSIONS = 12;
@@ -48,7 +56,9 @@ export function createSessionRetention(options: { maxIdleSessions?: number } = {
   const limit = Number.isFinite(requestedLimit)
     ? Math.max(0, Math.min(64, Math.floor(requestedLimit)))
     : MAX_IDLE_RETAINED_SESSIONS;
-  const scopeId = ++scopeNumber;
+  // This is an administrative lifetime identity, never a scientific seed or stream input.
+  // A new document must not mint identities already present in its restored browser history.
+  const scopeId = `${globalThis.crypto?.randomUUID?.() ?? Date.now().toString(36)}-${++scopeNumber}`;
   let nextInstance = 0;
   let clock = 0;
   let disposed = false;
@@ -81,6 +91,7 @@ export function createSessionRetention(options: { maxIdleSessions?: number } = {
     identity: SessionRetentionIdentity,
     create: (instanceId: string) => T,
     previousInstanceId?: string,
+    restore?: () => RestoredOwner<T>,
   ): PreparedRetainedSession<T> {
     const key = JSON.stringify([placementKey, identity.experimentId, identity.instanceId]);
     const existing = disposed ? undefined : entries.get(key);
@@ -89,14 +100,51 @@ export function createSessionRetention(options: { maxIdleSessions?: number } = {
       cacheable && existing !== undefined && existing.sourceDigest === identity.sourceDigest;
     let entry = reused ? existing : undefined;
     if (!entry) {
+      let restoration: RestoredOwner<T> | undefined;
+      if (restore) {
+        try {
+          restoration = restore();
+        } catch (error) {
+          restoration = {
+            kind: "not-restored",
+            notice: error instanceof Error ? error.message : String(error),
+          };
+        }
+      }
+      const restoredInstanceId =
+        restoration?.kind === "restored" ? restoration.instanceId : undefined;
+      if (
+        restoration?.kind === "restored" &&
+        [...owned].some(
+          (candidate) => candidate.key !== key && candidate.instanceId === restoredInstanceId,
+        )
+      ) {
+        if (restoration.session.disconnect) restoration.session.disconnect();
+        else restoration.session.stop?.();
+        restoration = {
+          kind: "not-restored",
+          notice:
+            "The recorded instance identity belongs to another retained laboratory placement.",
+        };
+      }
       // A recreated document/cache must not accidentally imitate the identity in old history.
       let instanceId: string;
-      do {
-        instanceId = `${identity.instanceId}/retained-${scopeId}-${++nextInstance}`;
-      } while (instanceId === previousInstanceId);
+      if (restoration?.kind === "restored") {
+        instanceId = restoration.instanceId;
+        // A reloaded module can start with the same scope counter as the archived document.
+        // Reserve that incarnation so another placement cannot mint its identity again.
+        const prefix = `${identity.instanceId}/retained-${scopeId}-`;
+        const suffix = instanceId.startsWith(prefix) ? instanceId.slice(prefix.length) : "";
+        if (/^[1-9][0-9]*$/.test(suffix) && Number.isSafeInteger(Number(suffix)))
+          nextInstance = Math.max(nextInstance, Number(suffix));
+      } else {
+        do {
+          instanceId = `${identity.instanceId}/retained-${scopeId}-${++nextInstance}`;
+        } while (instanceId === previousInstanceId);
+      }
       entry = {
         key,
-        session: create(instanceId),
+        session: restoration?.kind === "restored" ? restoration.session : create(instanceId),
         instanceId,
         sourceDigest: identity.sourceDigest,
         cacheable,
@@ -104,6 +152,8 @@ export function createSessionRetention(options: { maxIdleSessions?: number } = {
         releaseTicket: 0,
         lastUsed: 0,
         disconnected: false,
+        restoredFromArchive: restoration?.kind === "restored",
+        restoreNotice: restoration?.kind === "not-restored" ? restoration.notice : null,
       };
     }
     const prepared: PreparedRetainedSession<T> = Object.freeze({
@@ -112,6 +162,8 @@ export function createSessionRetention(options: { maxIdleSessions?: number } = {
       sourceDigest: entry.sourceDigest,
       reused,
       sourceChanged: existing !== undefined && existing.sourceDigest !== identity.sourceDigest,
+      restoredFromArchive: entry.restoredFromArchive,
+      restoreNotice: entry.restoreNotice,
     });
     preparations.set(prepared, entry);
     return prepared;

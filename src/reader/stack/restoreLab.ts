@@ -3,19 +3,12 @@
  * restore an unmounted one from a validated checkpoint, or fall back to a visibly new run.
  * "Returning must never restart an experiment" -- but never block reading on it either.
  *
- * SCOPE NOTE, stated plainly rather than silently assumed: `decideLabRestore` below implements
- * the eligibility decision this bead owns -- reuse vs. restore vs. new-run, validated against
- * am-rt-control-tapes-0gc's `validateTapeCompatibility` plus this frame's own checkpoint digest
- * and seed. It does NOT, and as of this commit cannot, seed a freshly re-mounted instance store's
- * live simulation state from that checkpoint: `createInstanceStore`
- * (src/experiments/store/instanceStore.ts, am-rt-snapshot-store-aft) exposes no option to
- * construct a store already at a prior run's accepted output -- every new store starts at
- * `status: "idle"`, `runNumber: 0`. A "restore" decision here is therefore the validated
- * authorization to attempt a restore and the checkpoint to restore from, not a guarantee that the
- * mounted view will show mid-run state; wiring an actual seeding hook into the snapshot store is
- * real follow-up work outside this bead's reserved files. Reuse (the instance is still mounted)
- * is fully real: it costs nothing beyond calling the instance registry's own `acquire` again,
- * which already reattaches to a live entry by placement key.
+ * This is the legacy numeric-seed ControlTape eligibility decision, retained for its callers.
+ * The live reader uses experiments/store/readerCheckpoint.ts: a bounded v2 tape and accepted
+ * point are verified against source/model/constant/stream identities, recomputed on an isolated
+ * synchronous owner, then transactionally imported into a fresh instance through the same
+ * dispatcher. This older decision alone is not evidence that an owner was restored. Worker
+ * trajectories require their replay owner and are never started automatically by navigation.
  */
 import type { ControlTape, ControlTapeCheckpoint } from "../../experiments/tape/controlTape.ts";
 import { validateTapeCompatibility } from "../../experiments/tape/controlTape.ts";

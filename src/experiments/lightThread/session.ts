@@ -71,6 +71,7 @@ export function createLightThreadSession(
   const initial = evaluateLightThread(initialParameters, LIGHT_THREAD_OWNERS);
   if (initial.kind !== "accepted")
     throw new ExperimentRuntimeError("parameters-rejected", initial.reason, "light-thread");
+  const initialSnapshot = initial.snapshot;
   const store = createInstanceStore({
     experimentId: "light-thread",
     instanceId,
@@ -94,49 +95,53 @@ export function createLightThreadSession(
     );
   const serverSnapshot = store.getSnapshot();
 
+  function apply(input: unknown, newRun = false) {
+    // Calculate before issuing any command: a rejected input cannot disturb the last state.
+    const evaluated = evaluateLightThread(input, LIGHT_THREAD_OWNERS);
+    if (evaluated.kind !== "accepted") return evaluated;
+    const next = evaluated.snapshot.parameters;
+    const previous = store.getSnapshot().accepted?.parameters ?? initialSnapshot.parameters;
+    const setup: Record<string, number> = {};
+    const observer: Record<string, number> = {};
+    for (const key of Object.keys(classes) as (keyof LightThreadParameters)[]) {
+      if (Object.is(next[key], previous[key])) continue;
+      (classes[key] === "observer" ? observer : setup)[key] = next[key];
+    }
+    if (!newRun && !Object.keys(setup).length && !Object.keys(observer).length) {
+      return Object.freeze({ kind: "accepted" as const, parameters: next });
+    }
+    let token =
+      newRun || Object.keys(setup).length ? store.issue("setup-change", setup as Parameters) : null;
+    if (Object.keys(observer).length) token = store.issue("observer-change", observer);
+    if (!token)
+      throw new ExperimentRuntimeError(
+        "no-command-for-change",
+        "Changed light-thread settings produced no command.",
+        "light-thread",
+      );
+    const decision = store.publish({
+      ...token,
+      stepIndex: 0,
+      simulationTime: 0,
+      final: true,
+      outputs: scientificResults(evaluated.snapshot),
+    });
+    if (!decision.accepted)
+      throw new ExperimentRuntimeError(
+        "publication-refused",
+        `Light-thread publication refused: ${decision.reason}`,
+        "light-thread",
+      );
+    return Object.freeze({ kind: "accepted" as const, parameters: next });
+  }
+
   return Object.freeze({
     getSnapshot: store.getSnapshot,
     getServerSnapshot: () => serverSnapshot,
     subscribe: store.subscribe,
-    apply(input: unknown) {
-      // Calculate before issuing any command: a rejected input cannot disturb the last state.
-      const evaluated = evaluateLightThread(input, LIGHT_THREAD_OWNERS);
-      if (evaluated.kind !== "accepted") return evaluated;
-      const next = evaluated.snapshot.parameters;
-      const previous = store.getSnapshot().accepted?.parameters ?? initial.snapshot.parameters;
-      const setup: Record<string, number> = {};
-      const observer: Record<string, number> = {};
-      for (const key of Object.keys(classes) as (keyof LightThreadParameters)[]) {
-        if (Object.is(next[key], previous[key])) continue;
-        (classes[key] === "observer" ? observer : setup)[key] = next[key];
-      }
-      if (!Object.keys(setup).length && !Object.keys(observer).length) {
-        return Object.freeze({ kind: "accepted" as const, parameters: next });
-      }
-      let token = Object.keys(setup).length
-        ? store.issue("setup-change", setup as Parameters)
-        : null;
-      if (Object.keys(observer).length) token = store.issue("observer-change", observer);
-      if (!token)
-        throw new ExperimentRuntimeError(
-          "no-command-for-change",
-          "Changed light-thread settings produced no command.",
-          "light-thread",
-        );
-      const decision = store.publish({
-        ...token,
-        stepIndex: 0,
-        simulationTime: 0,
-        final: true,
-        outputs: scientificResults(evaluated.snapshot),
-      });
-      if (!decision.accepted)
-        throw new ExperimentRuntimeError(
-          "publication-refused",
-          `Light-thread publication refused: ${decision.reason}`,
-          "light-thread",
-        );
-      return Object.freeze({ kind: "accepted" as const, parameters: next });
-    },
+    exportCheckpoint: store.exportCheckpoint,
+    restoreCheckpoint: store.restoreCheckpoint,
+    apply: (input: unknown) => apply(input),
+    startNewRun: (input: unknown) => apply(input, true),
   });
 }

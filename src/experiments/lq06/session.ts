@@ -152,66 +152,74 @@ export function createLq06Session(instanceId: string, example?: PreparedLq06Exam
     );
   const serverSnapshot = store.getSnapshot();
 
+  function apply(input: unknown, newRun = false) {
+    const current = (store.getSnapshot().accepted?.parameters ??
+      initialParams) as Parameters as Lq06Parameters;
+    const validated = mergeLq06Parameters(current, input);
+    if (validated.kind !== "accepted") return validated;
+    const parameters = validated.data;
+    let outputs: ScientificResult[];
+    try {
+      // A failed calculation cannot advance the request or damage the last accepted state.
+      outputs = evaluateLq06(parameters);
+    } catch (error) {
+      return {
+        kind: "refused" as const,
+        refusal: makeRefusal(
+          "invalid-parameter",
+          { capabilityId: "lq06.evaluation" },
+          {
+            // The reader's sentence, never the error's own text, which is written for developers
+            // ("[experiment] The quantumEnergy calculation is ... (outside-numeric-range)").
+            details: {
+              requirements:
+                error instanceof ExperimentRuntimeError && error.code === "outside-numeric-range"
+                  ? "These settings take the calculation beyond the numbers it can represent."
+                  : "These settings could not be calculated.",
+            },
+          },
+        ),
+      };
+    }
+    const previous = (store.getSnapshot().requested?.parameters ??
+      initialParams) as Parameters as Lq06Parameters;
+    const stepIndex = (store.getSnapshot().accepted?.stepIndex ?? 0) + 1;
+    let request: RequestToken | null = null;
+    const changes = lq06Changes(previous, parameters);
+    if (newRun && !changes.some((change) => change.command === "setup-change"))
+      request = store.issue("setup-change");
+    for (const change of changes) {
+      request = store.issue(change.command, change.patch);
+    }
+    request ??= store.issue("continue");
+    const publication = store.publish({
+      ...request,
+      outputs,
+      stepIndex,
+      simulationTime: 0,
+      final: true,
+    });
+    if (!publication.accepted) {
+      const outcome = {
+        outcome: "invariant-violation" as const,
+        message: "The calculation did not satisfy its required consistency checks.",
+        retry: "new-run" as const,
+        details: { reason: publication.reason },
+      };
+      store.fail(request, outcome);
+      return { kind: "outcome" as const, outcome };
+    }
+    return { kind: "accepted" as const, data: request };
+  }
+
   return Object.freeze({
     getSnapshot: store.getSnapshot,
     getServerSnapshot: () => serverSnapshot,
     subscribe: store.subscribe,
-    apply(input: unknown) {
-      const current = (store.getSnapshot().accepted?.parameters ??
-        initialParams) as Parameters as Lq06Parameters;
-      const validated = mergeLq06Parameters(current, input);
-      if (validated.kind !== "accepted") return validated;
-      const parameters = validated.data;
-      let outputs: ScientificResult[];
-      try {
-        // A failed calculation cannot advance the request or damage the last accepted state.
-        outputs = evaluateLq06(parameters);
-      } catch (error) {
-        return {
-          kind: "refused" as const,
-          refusal: makeRefusal(
-            "invalid-parameter",
-            { capabilityId: "lq06.evaluation" },
-            {
-              // The reader's sentence, never the error's own text, which is written for developers
-              // ("[experiment] The quantumEnergy calculation is ... (outside-numeric-range)").
-              details: {
-                requirements:
-                  error instanceof ExperimentRuntimeError && error.code === "outside-numeric-range"
-                    ? "These settings take the calculation beyond the numbers it can represent."
-                    : "These settings could not be calculated.",
-              },
-            },
-          ),
-        };
-      }
-      const previous = (store.getSnapshot().requested?.parameters ??
-        initialParams) as Parameters as Lq06Parameters;
-      const stepIndex = (store.getSnapshot().accepted?.stepIndex ?? 0) + 1;
-      let request: RequestToken | null = null;
-      for (const change of lq06Changes(previous, parameters)) {
-        request = store.issue(change.command, change.patch);
-      }
-      request ??= store.issue("continue");
-      const publication = store.publish({
-        ...request,
-        outputs,
-        stepIndex,
-        simulationTime: 0,
-        final: true,
-      });
-      if (!publication.accepted) {
-        const outcome = {
-          outcome: "invariant-violation" as const,
-          message: "The calculation did not satisfy its required consistency checks.",
-          retry: "new-run" as const,
-          details: { reason: publication.reason },
-        };
-        store.fail(request, outcome);
-        return { kind: "outcome" as const, outcome };
-      }
-      return { kind: "accepted" as const, data: request };
-    },
+    exportCheckpoint: store.exportCheckpoint,
+    restoreCheckpoint: store.restoreCheckpoint,
+    apply: (input: unknown) => apply(input),
+    startNewRun: (input: unknown) => apply(input, true),
     stop() {
       // Synchronous host evaluator has no background workers.
     },

@@ -7,6 +7,12 @@ import {
 import type { ExecutionOutcome } from "../results/outcomes.ts";
 import type { RequestRefusal } from "../results/refusals.ts";
 import type { OutputStatus, ScientificResult } from "../results/types.ts";
+import {
+  decodeInstanceCheckpoint,
+  encodeInstanceCheckpoint,
+  type InstanceCheckpoint,
+  type InstanceCheckpointRestore,
+} from "./instanceCheckpoint.ts";
 
 export type ParameterClass = "input" | "observer" | "measurement" | "estimator" | "presentation";
 export type Parameters = Readonly<Record<string, number | string | boolean>>;
@@ -252,6 +258,7 @@ export function createInstanceStore(options: {
     runNumber = 0,
     snapshotVersion = 0;
   let completed = false;
+  let checkpointImported = false;
   const runs: RunRecord[] = [];
   let view: ExperimentView = freeze({
     status: "idle",
@@ -512,19 +519,132 @@ export function createInstanceStore(options: {
       return unattributed(error, "fail");
     }
   }
+
+  /**
+   * The last completed accepted point, with the identity counters needed to continue it. A
+   * pending/refused later command cannot be serialized as though its inputs produced this result.
+   */
+  function exportCheckpoint(): InstanceCheckpoint | null {
+    const accepted = view.accepted;
+    if (
+      !accepted?.final ||
+      view.pending ||
+      view.requested?.runId !== accepted.runId ||
+      view.requested.actionIndex !== accepted.actionIndex
+    )
+      return null;
+    const run = runs.find((candidate) => candidate.runId === accepted.runId);
+    return run ? encodeInstanceCheckpoint(accepted, run) : null;
+  }
+
+  /**
+   * Import only after the caller has verified model/source/stream compatibility and rehearsed the
+   * scientific result with its owner. This boundary independently validates all store fields and
+   * output contracts before changing anything. The reader uses a fresh, still-unsubscribed owner.
+   */
+  function restoreCheckpoint(input: unknown): InstanceCheckpointRestore {
+    const refused = (notice: string): InstanceCheckpointRestore => ({
+      kind: "not-restored",
+      notice,
+    });
+    if (view.pending)
+      return refused("A calculation is still pending; its accepted result has been kept.");
+    const initialOwner = actionIndex === 0 && runNumber === 0 && snapshotVersion === 0;
+    const initialExample =
+      actionIndex === 1 &&
+      runNumber === 1 &&
+      snapshotVersion === 1 &&
+      view.accepted?.final === true;
+    if (checkpointImported || !(initialOwner || initialExample))
+      return refused(
+        "An accepted checkpoint can initialize only a fresh laboratory owner; this experiment has been kept.",
+      );
+    try {
+      const decoded = decodeInstanceCheckpoint(input);
+      const message = decoded.publication;
+      if (message.instanceId !== instanceId || message.experimentId !== experimentId)
+        return refused("The checkpoint belongs to a different laboratory instance.");
+      const restoredParameters = parameterCopy(message.parameters);
+      if (
+        Object.keys(restoredParameters).length !== Object.keys(classes).length ||
+        Object.keys(restoredParameters).some((key) => !Object.hasOwn(classes, key))
+      )
+        return refused("The checkpoint's parameters do not match this laboratory's schema.");
+      const activeStatuses = allowPartial
+        ? Object.fromEntries(
+            message.outputs.map((output) => [output.quantityId, statuses[output.quantityId] ?? []]),
+          )
+        : statuses;
+      const batch = decodeResultBatch(
+        { revisions: message.revisions, outputs: message.outputs },
+        { expectedRevisions: message.revisions, statuses: activeStatuses, allowPartial },
+      );
+      for (const output of batch.outputs) {
+        const contract = contracts[output.quantityId];
+        if (
+          !contract ||
+          output.unit !== contract.unit ||
+          output.semanticKind !== contract.semanticKind ||
+          !ownerAdmitted(contract, output.ownerId)
+        )
+          return refused("A checkpoint output does not match its declared scientific contract.");
+      }
+      const {
+        outputs: _outputs,
+        stepIndex: _step,
+        simulationTime: _time,
+        final: _final,
+        ...identity
+      } = message;
+      const requested: RequestToken = freeze({ ...identity, parameters: restoredParameters });
+      const accepted: AcceptedSnapshot = freeze({
+        ...requested,
+        stepIndex: message.stepIndex,
+        simulationTime: message.simulationTime,
+        final: true,
+        snapshotVersion: decoded.snapshotVersion,
+        outputs: batch.outputs.map(published),
+      });
+      // Every operation that can reject the record has completed. Commit the entire point once.
+      parameters = restoredParameters;
+      revisions = requested.revisions;
+      actionIndex = requested.actionIndex;
+      runNumber = decoded.runNumber;
+      snapshotVersion = decoded.snapshotVersion;
+      completed = true;
+      checkpointImported = true;
+      runs.length = 0;
+      runs.push(freeze({ ...decoded.checkpoint.run }));
+      emit({
+        status: "accepted",
+        pending: false,
+        requested,
+        accepted,
+        refusal: null,
+        outcome: null,
+      });
+      return { kind: "restored" };
+    } catch (error) {
+      return refused(
+        `The accepted checkpoint could not be restored: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
   return Object.freeze({
     issue,
     publish,
     refuse,
     fail,
+    exportCheckpoint,
+    restoreCheckpoint,
     getSnapshot: () => view,
     getServerSnapshot: () => serverSnapshot,
     /** The old run stays identifiable after a setup-change or a backdated physical-intervention
      * forks a new one (am-rt-command-classes-dzp requirement 3): looked up by id, not just the
      * current run. Returns undefined for a runId this instance never created. */
     getRun: (runId: string): RunRecord | undefined => runs.find((r) => r.runId === runId),
-    /** Every run this instance has ever forked, oldest first. Identity only -- accepted
-     * snapshots per run belong to am-rt-snapshot-store-aft, not here. */
+    /** Known run records, oldest first. A bounded checkpoint retains its current run and parent
+     * identity, not an unbounded list of earlier records. New forks append normally after restore. */
     listRuns: (): readonly RunRecord[] => runs.slice(),
     subscribe(listener: () => void) {
       listeners.add(listener);

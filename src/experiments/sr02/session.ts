@@ -91,50 +91,55 @@ export function createSr02Session(
     throw new Error(`Invalid prepared SR-02 example: ${published.reason}`);
   }
   const serverSnapshot = store.getSnapshot();
+  function apply(input: unknown, newRun = false) {
+    const checked = validateSr02Parameters(input);
+    if (checked.kind !== "accepted") return checked;
+    const snapshot = store.getSnapshot();
+    const previous = (snapshot.requested?.parameters ??
+      snapshot.accepted?.parameters ??
+      example.parameters) as Sr02Parameters;
+    const next = checked.data;
+    const setup: Record<string, number | string | boolean> = {};
+    const observer: Record<string, number | string | boolean> = {};
+    const measurement: Record<string, number | string | boolean> = {};
+    const presentation: Record<string, number | string | boolean> = {};
+    (Object.keys(next) as (keyof Sr02Parameters)[]).forEach((key) => {
+      if (Object.is(next[key], previous[key])) return;
+      if (SR02_CLASSES[key] === "input") setup[key] = next[key];
+      else if (SR02_CLASSES[key] === "observer") observer[key] = next[key];
+      else if (SR02_CLASSES[key] === "measurement") measurement[key] = next[key];
+      else presentation[key] = next[key];
+    });
+    let request = newRun || Object.keys(setup).length ? store.issue("setup-change", setup) : null;
+    if (Object.keys(observer).length) request = store.issue("observer-change", observer);
+    if (Object.keys(measurement).length) request = store.issue("measurement-change", measurement);
+    if (Object.keys(presentation).length) {
+      request = store.issue("presentation-change", presentation);
+    }
+    request ??= store.issue("continue");
+    const outputs = snapshotOutputs(request.parameters as Sr02Parameters);
+    const decision = store.publish({
+      ...request,
+      stepIndex: store.getSnapshot().accepted?.stepIndex ?? 0,
+      simulationTime: 0,
+      final: true,
+      outputs,
+    });
+    if (!decision.accepted) throw new Error(`SR-02 publication refused: ${decision.reason}`);
+    return { kind: "accepted" as const, data: request };
+  }
+
   return Object.freeze({
     getSnapshot: store.getSnapshot,
     getServerSnapshot: () => serverSnapshot,
     subscribe: store.subscribe,
+    exportCheckpoint: store.exportCheckpoint,
+    restoreCheckpoint: store.restoreCheckpoint,
     evaluate: evaluateSr02,
     acceptedParameters(): Sr02Parameters {
       return (store.getSnapshot().accepted?.parameters ?? example.parameters) as Sr02Parameters;
     },
-    apply(input: unknown) {
-      const checked = validateSr02Parameters(input);
-      if (checked.kind !== "accepted") return checked;
-      const snapshot = store.getSnapshot();
-      const previous = (snapshot.requested?.parameters ??
-        snapshot.accepted?.parameters ??
-        example.parameters) as Sr02Parameters;
-      const next = checked.data;
-      const setup: Record<string, number | string | boolean> = {};
-      const observer: Record<string, number | string | boolean> = {};
-      const measurement: Record<string, number | string | boolean> = {};
-      const presentation: Record<string, number | string | boolean> = {};
-      (Object.keys(next) as (keyof Sr02Parameters)[]).forEach((key) => {
-        if (Object.is(next[key], previous[key])) return;
-        if (SR02_CLASSES[key] === "input") setup[key] = next[key];
-        else if (SR02_CLASSES[key] === "observer") observer[key] = next[key];
-        else if (SR02_CLASSES[key] === "measurement") measurement[key] = next[key];
-        else presentation[key] = next[key];
-      });
-      let request = Object.keys(setup).length ? store.issue("setup-change", setup) : null;
-      if (Object.keys(observer).length) request = store.issue("observer-change", observer);
-      if (Object.keys(measurement).length) request = store.issue("measurement-change", measurement);
-      if (Object.keys(presentation).length) {
-        request = store.issue("presentation-change", presentation);
-      }
-      request ??= store.issue("continue");
-      const outputs = snapshotOutputs(request.parameters as Sr02Parameters);
-      const decision = store.publish({
-        ...request,
-        stepIndex: store.getSnapshot().accepted?.stepIndex ?? 0,
-        simulationTime: 0,
-        final: true,
-        outputs,
-      });
-      if (!decision.accepted) throw new Error(`SR-02 publication refused: ${decision.reason}`);
-      return { kind: "accepted" as const, data: request };
-    },
+    apply: (input: unknown) => apply(input),
+    startNewRun: (input: unknown) => apply(input, true),
   });
 }

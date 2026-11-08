@@ -293,6 +293,7 @@ export function createShelfSession(
   const checked = validateShelfInput(id, mode, initialParameters);
   if (checked.kind !== "accepted")
     throw new ExperimentRuntimeError("parameters-rejected", checked.message, "shelf");
+  const acceptedInitialParameters = checked.parameters;
   const initial = evaluateShelf(id, mode, checked.parameters);
   const classes: Readonly<Record<string, ParameterClass>> = Object.freeze(
     Object.fromEntries(shelfFields(id, mode).map((field) => [field.id, field.parameterClass])),
@@ -335,46 +336,50 @@ export function createShelfSession(
   };
   publish(store.issue("setup-change"), initial.outputs);
   const serverSnapshot = store.getSnapshot();
+  function apply(input: unknown, newRun = false) {
+    const validation = validateShelfInput(id, mode, input);
+    if (validation.kind !== "accepted") return validation;
+    const next = validation.parameters;
+    const previous = store.getSnapshot().accepted?.parameters ?? acceptedInitialParameters;
+    const setup: Record<string, number | string | boolean> = {};
+    const observer: Record<string, number | string | boolean> = {};
+    const presentation: Record<string, number | string | boolean> = {};
+    for (const [key, value] of Object.entries(next)) {
+      if (Object.is(value, previous[key])) continue;
+      const target =
+        classes[key] === "presentation"
+          ? presentation
+          : classes[key] === "observer"
+            ? observer
+            : setup;
+      target[key] = value;
+    }
+    if (!newRun && ![setup, observer, presentation].some((patch) => Object.keys(patch).length))
+      return validation;
+    // Evaluate BEFORE issuing requests. Exceptions cannot leave a pending partial update.
+    const computed = evaluateShelf(id, mode, next);
+    let token: RequestToken | null = null;
+    if (newRun || Object.keys(setup).length) token = store.issue("setup-change", setup);
+    if (Object.keys(observer).length) token = store.issue("observer-change", observer);
+    if (Object.keys(presentation).length) token = store.issue("presentation-change", presentation);
+    if (!token)
+      throw new ExperimentRuntimeError(
+        "no-command-for-change",
+        "Changed shelf settings produced no command.",
+        "shelf",
+      );
+    publish(token, computed.outputs);
+    return validation;
+  }
+
   return Object.freeze({
     readings: initial.readings,
     getSnapshot: store.getSnapshot,
     getServerSnapshot: () => serverSnapshot,
     subscribe: store.subscribe,
-    apply(input: unknown) {
-      const validation = validateShelfInput(id, mode, input);
-      if (validation.kind !== "accepted") return validation;
-      const next = validation.parameters;
-      const previous = store.getSnapshot().accepted?.parameters ?? checked.parameters;
-      const setup: Record<string, number | string | boolean> = {};
-      const observer: Record<string, number | string | boolean> = {};
-      const presentation: Record<string, number | string | boolean> = {};
-      for (const [key, value] of Object.entries(next)) {
-        if (Object.is(value, previous[key])) continue;
-        const target =
-          classes[key] === "presentation"
-            ? presentation
-            : classes[key] === "observer"
-              ? observer
-              : setup;
-        target[key] = value;
-      }
-      if (![setup, observer, presentation].some((patch) => Object.keys(patch).length))
-        return validation;
-      // Evaluate BEFORE issuing requests. Exceptions cannot leave a pending partial update.
-      const computed = evaluateShelf(id, mode, next);
-      let token: RequestToken | null = null;
-      if (Object.keys(setup).length) token = store.issue("setup-change", setup);
-      if (Object.keys(observer).length) token = store.issue("observer-change", observer);
-      if (Object.keys(presentation).length)
-        token = store.issue("presentation-change", presentation);
-      if (!token)
-        throw new ExperimentRuntimeError(
-          "no-command-for-change",
-          "Changed shelf settings produced no command.",
-          "shelf",
-        );
-      publish(token, computed.outputs);
-      return validation;
-    },
+    exportCheckpoint: store.exportCheckpoint,
+    restoreCheckpoint: store.restoreCheckpoint,
+    apply: (input: unknown) => apply(input),
+    startNewRun: (input: unknown) => apply(input, true),
   });
 }

@@ -30,6 +30,7 @@ import {
 } from "../../../experiments/results/applyFailure.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
+import { createReaderCheckpointBinding } from "../../../experiments/store/readerCheckpoint.ts";
 import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
@@ -108,6 +109,7 @@ export function IonizationLab({
   const session = useRetainedSession(
     { experimentId: "lq-09", instanceId: labInstanceId, sourceDigest: example?.sourceDigest },
     (retainedId) => createLq09Session(retainedId, example),
+    createReaderCheckpointBinding(LQ09_TAPE),
   );
   /**
    * A shared ?tape= link restores through this laboratory's own session (dispatch 335). No draft needs

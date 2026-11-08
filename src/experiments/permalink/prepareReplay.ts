@@ -26,6 +26,17 @@ export function prepareTapeReplay(
     tape,
     {
       environment: trial.environment,
+      ...(trial.environmentForReplay
+        ? {
+            environmentForReplay: (
+              conditions: Readonly<Record<string, number | string>>,
+              events: readonly TapeControlEvent[],
+            ) => trial.environmentForReplay?.(conditions, events) ?? trial.environment,
+          }
+        : {}),
+      ...(trial.getAcceptedRunId
+        ? { getAcceptedRunId: () => trial.getAcceptedRunId?.() ?? null }
+        : {}),
       ...(trial.resolveTeachingTape
         ? { resolveTeachingTape: (id: string) => trial.resolveTeachingTape?.(id) ?? null }
         : {}),
@@ -33,6 +44,14 @@ export function prepareTapeReplay(
         initialConditions = { ...conditions };
         trial.applyInitialConditions({ ...conditions });
       },
+      ...(trial.startNewRun
+        ? {
+            startNewRun(conditions: Record<string, number | string>) {
+              initialConditions = { ...conditions };
+              trial.startNewRun?.({ ...conditions });
+            },
+          }
+        : {}),
       applyEvent(event) {
         const captured = Object.freeze({ ...event });
         events.push(captured);

@@ -184,6 +184,7 @@ export function buildLq03Snapshot(
   parameters: Lq03Parameters,
   inputRevision = 1,
   actionIndex = 0,
+  parentRunId: string | null = null,
 ): AcceptedSnapshot {
   const evaluation = evaluateLq03(parameters);
   const outputs: PublishedResult[] = [
@@ -220,7 +221,7 @@ export function buildLq03Snapshot(
     experimentId: "lq-03",
     instanceId,
     runId,
-    parentRunId: null,
+    parentRunId,
     actionIndex,
     revisions: { input: inputRevision, observer: 0, measurement: 0, estimator: 0 },
     parameters: Object.freeze({ ...parameters }),
@@ -237,7 +238,8 @@ export function createLq03Session(
   initialParameters: Lq03Parameters = LQ03_DEFAULTS,
 ) {
   let currentParams = { ...initialParameters };
-  let currentRunId = `run-${Date.now()}`;
+  let currentRunId = `${instanceId}/run/1`;
+  let parentRunId: string | null = null;
   let inputRevision = 1;
   let actionIndex = 0;
   let acceptedSnapshot = buildLq03Snapshot(
@@ -246,6 +248,7 @@ export function createLq03Session(
     currentParams,
     inputRevision,
     actionIndex,
+    parentRunId,
   );
 
   const listeners = new Set<() => void>();
@@ -260,7 +263,7 @@ export function createLq03Session(
       experimentId: "lq-03",
       instanceId,
       runId: currentRunId,
-      parentRunId: null,
+      parentRunId,
       actionIndex,
       revisions: { input: inputRevision, observer: 0, measurement: 0, estimator: 0 },
       parameters: currentParams,
@@ -271,6 +274,51 @@ export function createLq03Session(
   };
 
   const serverView = view;
+  function apply(parameters: unknown, newRun = false) {
+    const validated = validateLq03Parameters(parameters);
+    if (validated.kind !== "accepted") {
+      if (validated.kind === "refused") {
+        view = { ...view, status: "refused", refusal: validated.refusal };
+        notify();
+      }
+      return validated;
+    }
+    actionIndex++;
+    const isSetupChange = currentParams.T !== validated.data.T;
+    if (newRun || isSetupChange) {
+      parentRunId = currentRunId;
+      inputRevision++;
+      currentRunId = `${instanceId}/run/${inputRevision}`;
+    }
+    currentParams = { ...validated.data };
+    acceptedSnapshot = buildLq03Snapshot(
+      instanceId,
+      currentRunId,
+      currentParams,
+      inputRevision,
+      actionIndex,
+      parentRunId,
+    );
+    view = {
+      status: "accepted",
+      pending: false,
+      requested: {
+        experimentId: "lq-03",
+        instanceId,
+        runId: currentRunId,
+        parentRunId,
+        actionIndex,
+        revisions: { input: inputRevision, observer: 0, measurement: 0, estimator: 0 },
+        parameters: currentParams,
+      } as RequestToken,
+      accepted: acceptedSnapshot,
+      refusal: null,
+      outcome: null,
+    };
+    notify();
+    return { kind: "accepted" as const, data: currentParams };
+  }
+
   return {
     subscribe(callback: () => void) {
       listeners.add(callback);
@@ -292,48 +340,8 @@ export function createLq03Session(
     evaluate(params: Lq03Parameters) {
       return evaluateLq03(params);
     },
-    apply(parameters: unknown) {
-      const validated = validateLq03Parameters(parameters);
-      if (validated.kind !== "accepted") {
-        if (validated.kind === "refused") {
-          view = { ...view, status: "refused", refusal: validated.refusal };
-          notify();
-        }
-        return validated;
-      }
-      actionIndex++;
-      const isSetupChange = currentParams.T !== validated.data.T;
-      if (isSetupChange) {
-        inputRevision++;
-        currentRunId = `run-${Date.now()}-${actionIndex}`;
-      }
-      currentParams = { ...validated.data };
-      acceptedSnapshot = buildLq03Snapshot(
-        instanceId,
-        currentRunId,
-        currentParams,
-        inputRevision,
-        actionIndex,
-      );
-      view = {
-        status: "accepted",
-        pending: false,
-        requested: {
-          experimentId: "lq-03",
-          instanceId,
-          runId: currentRunId,
-          parentRunId: null,
-          actionIndex,
-          revisions: { input: inputRevision, observer: 0, measurement: 0, estimator: 0 },
-          parameters: currentParams,
-        } as RequestToken,
-        accepted: acceptedSnapshot,
-        refusal: null,
-        outcome: null,
-      };
-      notify();
-      return { kind: "accepted" as const, data: currentParams };
-    },
+    apply: (input: unknown) => apply(input),
+    startNewRun: (input: unknown) => apply(input, true),
     stop() {
       // Synchronous calculation, no-op.
     },

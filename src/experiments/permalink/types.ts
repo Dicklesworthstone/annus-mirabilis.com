@@ -76,6 +76,22 @@ export type TapeAcceptedCheckpoint = Readonly<{
   acceptedActionIndex: number;
   acceptedInputRevision: number;
   digest: string;
+  /** Stochastic checkpoints retain the authored recording and random-stream position. */
+  scientificState?: TapeScientificCheckpoint | undefined;
+}>;
+
+export type TapeScientificCheckpoint = Readonly<{
+  checkpointVersion: number;
+  streamSemanticsVersion: number;
+  stepIndex: number;
+  simulatedTime: number;
+  seed: U64String;
+  streamPositions: readonly Readonly<{
+    allocationId: string;
+    streamKernelId: string;
+    tile: U64String;
+    index: U64String;
+  }>[];
 }>;
 
 export type TapeV2 = Readonly<{
@@ -125,7 +141,8 @@ export type TapeDecodeResult =
 export type TapeReplayResult =
   | Readonly<{
       kind: "success";
-      runId: string;
+      /** The accepting owner's identity; null for a settings-only planning runner. */
+      runId: string | null;
       acceptedCheckpoint: TapeAcceptedCheckpoint;
       state: Readonly<Record<string, number | string>>;
       isNewRun: boolean;

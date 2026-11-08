@@ -8,7 +8,7 @@ isTeachingSequence: true
 modelIdentity:
   modelId: me-03-box-1906-v1
   modelVersion: "1"
-  artifactDigest: "host:sha256:03017892a07c89ca14716c772525ae56e03332b2dcd71609cce059c1cd37b91b"
+  artifactDigest: "host:sha256:6454fe5acadb73d6806fbc3df970587a251b039a1ce2796ab2982d38c988c269"
 constantSetId: modern-si-2019
 seed: "0"
 streamVersion: 1

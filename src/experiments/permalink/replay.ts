@@ -14,7 +14,16 @@ import type {
 
 export interface ReplayRunner {
   readonly environment: ExperimentEnvironment;
+  /** Resolve settings-dependent identities without applying any controls to the live owner. */
+  environmentForReplay?(
+    conditions: Readonly<Record<string, number | string>>,
+    events: readonly TapeControlEvent[],
+  ): ExperimentEnvironment;
   applyInitialConditions(conditions: Record<string, number | string>): void;
+  /** Explicitly fork the real owner; ordinary replay must never call this. */
+  startNewRun?(conditions: Record<string, number | string>): void;
+  /** Null when this is only a settings planner and has no accepted scientific owner. */
+  getAcceptedRunId?(): string | null;
   applyEvent(event: TapeControlEvent): void;
   getAcceptedCheckpoint(): TapeAcceptedCheckpoint;
   getCurrentState(): Record<string, number | string>;
@@ -35,6 +44,7 @@ export function replayTape(
   options?: ReplayOptions,
 ): TapeReplayResult {
   const isForceNewRun = Boolean(options?.forceNewRun);
+  const resolvesEnvironment = Boolean(runner.environmentForReplay);
   const invalid = (reason: string, notice: string): TapeReplayResult => ({
     kind: "invalid",
     reason,
@@ -53,14 +63,15 @@ export function replayTape(
         "This tape was recorded in a different laboratory mode.",
       );
     }
-    const comp = checkTapeCompatibility(tape, runner.environment);
-    if (!comp.compatible) {
-      return { ...comp, kind: "refusal" };
+    if (!resolvesEnvironment) {
+      const comp = checkTapeCompatibility(tape, runner.environment);
+      if (!comp.compatible) return { ...comp, kind: "refusal" };
     }
   }
 
   let eventsToReplay = tape.events;
   let initialConditionsToApply = tape.initialConditions;
+  let resolvedTeachingTape: TapeV2 | null = null;
   const ref = tape.teachingTapeRef;
   if (ref) {
     if (!Number.isSafeInteger(ref.stepIndex) || ref.stepIndex < 0) {
@@ -103,8 +114,10 @@ export function replayTape(
           "The walkthrough and shared link name different laboratory modes.",
         );
       }
-      const comp = checkTapeCompatibility(teachingTape, runner.environment);
-      if (!comp.compatible) return { ...comp, kind: "refusal" };
+      if (!resolvesEnvironment) {
+        const comp = checkTapeCompatibility(teachingTape, runner.environment);
+        if (!comp.compatible) return { ...comp, kind: "refusal" };
+      }
       if (teachingTape.seed !== tape.seed) {
         return invalid(
           "teaching-tape-seed-mismatch",
@@ -121,6 +134,7 @@ export function replayTape(
     }
     initialConditionsToApply = teachingTape.initialConditions;
     eventsToReplay = teachingTape.events.slice(0, ref.stepIndex + 1);
+    resolvedTeachingTape = teachingTape;
   }
 
   let previousAction = -1;
@@ -157,13 +171,62 @@ export function replayTape(
     }
   }
 
+  if (runner.environmentForReplay) {
+    let environment: ExperimentEnvironment;
+    try {
+      environment = runner.environmentForReplay(initialConditionsToApply, eventsToReplay);
+    } catch (error) {
+      return invalid(
+        "replay-settings-invalid",
+        `The recorded settings could not be checked: ${String(error)}`,
+      );
+    }
+    if (!isForceNewRun) {
+      for (const recorded of resolvedTeachingTape ? [tape, resolvedTeachingTape] : [tape]) {
+        const compatible = checkTapeCompatibility(recorded, environment);
+        if (!compatible.compatible) return { ...compatible, kind: "refusal" };
+      }
+    }
+  }
+
+  const startNewRun = runner.startNewRun?.bind(runner);
+  const acceptedRunId = runner.getAcceptedRunId?.bind(runner);
+  if (isForceNewRun && (!startNewRun || !acceptedRunId)) {
+    return invalid(
+      "new-run-unsupported",
+      "This laboratory cannot begin an explicitly new identified run.",
+    );
+  }
+  let previousRunId: string | null = null;
+  if (isForceNewRun && acceptedRunId) {
+    try {
+      previousRunId = acceptedRunId();
+    } catch (error) {
+      return invalid(
+        "run-identity-read-failed",
+        `The current run could not be read: ${String(error)}`,
+      );
+    }
+  }
+
   try {
-    runner.applyInitialConditions(initialConditionsToApply);
+    if (isForceNewRun && startNewRun) startNewRun(initialConditionsToApply);
+    else runner.applyInitialConditions(initialConditionsToApply);
   } catch (err: unknown) {
     return invalid(
       "initial-conditions-failed",
       `Failed to apply initial conditions: ${String(err)}`,
     );
+  }
+
+  if (isForceNewRun && acceptedRunId) {
+    try {
+      const started = acceptedRunId();
+      if (!started?.trim() || started === previousRunId)
+        return invalid("new-run-not-created", "The laboratory did not begin a new identified run.");
+    } catch (error) {
+      return invalid("run-identity-read-failed", `The new run could not be read: ${String(error)}`);
+    }
   }
 
   let executedCount = 0;
@@ -181,9 +244,11 @@ export function replayTape(
 
   let replayedCheckpoint: TapeAcceptedCheckpoint;
   let state: Record<string, number | string>;
+  let runId: string | null;
   try {
     replayedCheckpoint = runner.getAcceptedCheckpoint();
     state = runner.getCurrentState();
+    runId = acceptedRunId?.() ?? null;
   } catch (err: unknown) {
     return invalid(
       "checkpoint-read-failed",
@@ -203,9 +268,12 @@ export function replayTape(
     };
   }
 
-  const runId = isForceNewRun
-    ? `run-${runner.environment.experimentId}-new-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
-    : `run-${runner.environment.experimentId}-${tape.seed}`;
+  if (isForceNewRun && (!runId?.trim() || runId === previousRunId)) {
+    return invalid(
+      "new-run-not-created",
+      "The laboratory did not accept a new identified run. The recorded result has not been reproduced.",
+    );
+  }
 
   return {
     kind: "success",

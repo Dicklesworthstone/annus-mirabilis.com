@@ -27,6 +27,7 @@ import { createSr06Session, type PreparedSr06Example } from "../../../experiment
 import { SR06_TAPE } from "../../../experiments/sr06/tape.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../../experiments/store/instanceStore.ts";
+import { createReaderCheckpointBinding } from "../../../experiments/store/readerCheckpoint.ts";
 import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
@@ -92,6 +93,7 @@ export function VelocityCompositionLab({
       sourceDigest: example?.sourceDigest,
     },
     (retainedId) => createSr06Session(retainedId, example.parameters),
+    createReaderCheckpointBinding(SR06_TAPE),
   );
   const view = useInstrumentView(session);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).

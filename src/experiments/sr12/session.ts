@@ -95,73 +95,79 @@ export function createSr12Session(
 
   const serverSnapshot = store.getSnapshot();
 
+  function apply(input: unknown, newRun = false) {
+    const previous = (store.getSnapshot().accepted?.parameters ??
+      example.parameters) as unknown as Sr12Parameters;
+    const merged =
+      typeof input === "object" && input !== null
+        ? { ...previous, ...(input as Record<string, unknown>) }
+        : input;
+    const checked = validateSr12Parameters(merged);
+    if (checked.kind !== "accepted") return checked;
+    const next = checked.data;
+
+    const setup: Record<string, number | string | boolean | object> = {};
+    const observer: Record<string, number | string | boolean | object> = {};
+    const presentation: Record<string, number | string | boolean | object> = {};
+
+    (Object.keys(next) as (keyof Sr12Parameters)[]).forEach((key) => {
+      if (Object.is(next[key], previous[key])) return;
+      const cls = SR12_CLASSES[key];
+      if (cls === "observer") {
+        observer[key] = next[key];
+      } else if (cls === "presentation") {
+        presentation[key] = next[key];
+      } else {
+        setup[key] = next[key];
+      }
+    });
+
+    let request =
+      newRun || Object.keys(setup).length
+        ? store.issue("setup-change", setup as Record<string, number | string | boolean>)
+        : null;
+    if (Object.keys(observer).length) {
+      request = store.issue(
+        "observer-change",
+        observer as Record<string, number | string | boolean>,
+      );
+    }
+    if (Object.keys(presentation).length) {
+      request = store.issue(
+        "presentation-change",
+        presentation as Record<string, number | string | boolean>,
+      );
+    }
+    request ??= store.issue("continue");
+
+    const outputs = snapshotOutputs(next);
+    const decision = store.publish({
+      ...request,
+      stepIndex: store.getSnapshot().accepted?.stepIndex ?? 0,
+      simulationTime: 0,
+      final: true,
+      outputs,
+    });
+
+    if (!decision.accepted) {
+      throw new Error(`SR-12 publication refused: ${decision.reason}`);
+    }
+
+    return { kind: "accepted" as const, data: request };
+  }
+
   return Object.freeze({
     getSnapshot: store.getSnapshot,
     getServerSnapshot: () => serverSnapshot,
     subscribe: store.subscribe,
+    exportCheckpoint: store.exportCheckpoint,
+    restoreCheckpoint: store.restoreCheckpoint,
     evaluate: evaluateSr12,
     acceptedParameters(): Sr12Parameters {
       return (store.getSnapshot().accepted?.parameters ??
         example.parameters) as unknown as Sr12Parameters;
     },
-    apply(input: unknown) {
-      const previous = (store.getSnapshot().accepted?.parameters ??
-        example.parameters) as unknown as Sr12Parameters;
-      const merged =
-        typeof input === "object" && input !== null
-          ? { ...previous, ...(input as Record<string, unknown>) }
-          : input;
-      const checked = validateSr12Parameters(merged);
-      if (checked.kind !== "accepted") return checked;
-      const next = checked.data;
-
-      const setup: Record<string, number | string | boolean | object> = {};
-      const observer: Record<string, number | string | boolean | object> = {};
-      const presentation: Record<string, number | string | boolean | object> = {};
-
-      (Object.keys(next) as (keyof Sr12Parameters)[]).forEach((key) => {
-        if (Object.is(next[key], previous[key])) return;
-        const cls = SR12_CLASSES[key];
-        if (cls === "observer") {
-          observer[key] = next[key];
-        } else if (cls === "presentation") {
-          presentation[key] = next[key];
-        } else {
-          setup[key] = next[key];
-        }
-      });
-
-      let request = Object.keys(setup).length
-        ? store.issue("setup-change", setup as Record<string, number | string | boolean>)
-        : null;
-      if (Object.keys(observer).length) {
-        request = store.issue(
-          "observer-change",
-          observer as Record<string, number | string | boolean>,
-        );
-      }
-      if (Object.keys(presentation).length) {
-        request = store.issue(
-          "presentation-change",
-          presentation as Record<string, number | string | boolean>,
-        );
-      }
-      request ??= store.issue("continue");
-
-      const outputs = snapshotOutputs(next);
-      const decision = store.publish({
-        ...request,
-        stepIndex: store.getSnapshot().accepted?.stepIndex ?? 0,
-        simulationTime: 0,
-        final: true,
-        outputs,
-      });
-
-      if (!decision.accepted) {
-        throw new Error(`SR-12 publication refused: ${decision.reason}`);
-      }
-
-      return { kind: "accepted" as const, data: request };
-    },
+    apply: (input: unknown) => apply(input),
+    startNewRun: (input: unknown) => apply(input, true),
   });
 }

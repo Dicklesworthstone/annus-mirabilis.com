@@ -21,8 +21,10 @@ const self = "scripts/generate-lab-digests.mjs";
 /** Laboratory id to the session module whose closure computes its prepared example. */
 export const LAB_SESSIONS = Object.freeze({
   "avogadro-lab": "src/experiments/avogadro/session.ts",
+  "bm-02": "src/experiments/bm02/owner.ts",
   "bm-03": "src/experiments/bm03/session.ts",
   "light-thread": "src/experiments/lightThread/session.ts",
+  "lq-02": "src/experiments/lq02/owner.ts",
   "lq-03": "src/experiments/lq03/session.ts",
   "lq-05": "src/experiments/lq05/session.ts",
   "lq-07": "src/experiments/lq07/session.ts",

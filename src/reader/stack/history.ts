@@ -4,8 +4,19 @@
  * Perspective, notation, unit-layer, selection, forms, lab references) never enter the canonical
  * URL: only `?open=` does, and only one level deep, which is why deeper stacks are not linkable.
  */
+
+import {
+  MAX_READER_CHECKPOINT_BYTES,
+  MAX_STACK_CHECKPOINT_BYTES,
+} from "../../experiments/store/checkpointLimits.ts";
 import { type ClarificationKindDefinition, getClarificationKind } from "./kinds.ts";
-import { type LabReference, pushFrame, type StackFrame, type StackState } from "./stackStore.ts";
+import {
+  type LabReference,
+  MAX_CLARIFICATION_DEPTH,
+  pushFrame,
+  type StackFrame,
+  type StackState,
+} from "./stackStore.ts";
 
 export const MAX_OPEN_PARAM_LENGTH = 200;
 
@@ -148,7 +159,43 @@ export function openClarification(
 export type SerializedStackState = Readonly<{ frames: readonly StackFrame[] }>;
 
 export function serializeStackState(state: StackState): SerializedStackState {
-  return Object.freeze({ frames: state.frames });
+  const withoutArchive = (reference: LabReference | null): LabReference | null =>
+    reference ? { ...reference, compactTape: "", checkpointDigest: "" } : null;
+  const source = state.frames.slice(-MAX_CLARIFICATION_DEPTH);
+  const frames: StackFrame[] = source.map((frame) => ({
+    ...frame,
+    lab: withoutArchive(frame.lab),
+    ...(frame.openedLab === undefined ? {} : { openedLab: withoutArchive(frame.openedLab) }),
+  }));
+  const bytes = (value: unknown) => new TextEncoder().encode(JSON.stringify(value)).length;
+  let remaining = MAX_STACK_CHECKPOINT_BYTES - bytes({ frames });
+  // Even malformed history must remain bounded; ordinary authored navigation is much smaller.
+  if (remaining < 0) return Object.freeze({ frames: Object.freeze([]) });
+  const retainArchive = (reference: LabReference | null): LabReference | null => {
+    if (!reference) return null;
+    if (
+      reference.compactTape.length > MAX_READER_CHECKPOINT_BYTES ||
+      new TextEncoder().encode(reference.compactTape).length > MAX_READER_CHECKPOINT_BYTES
+    )
+      return withoutArchive(reference);
+    const additionalBytes = bytes(reference) - bytes(withoutArchive(reference));
+    if (additionalBytes > remaining) return withoutArchive(reference);
+    remaining -= additionalBytes;
+    return Object.freeze({ ...reference });
+  };
+  // Give the open frame and its interrupted owner priority over older archived points.
+  for (let index = frames.length - 1; index >= 0; index--) {
+    const original = source[index];
+    if (!original) continue;
+    const openedLab =
+      original.openedLab === undefined ? undefined : retainArchive(original.openedLab);
+    frames[index] = Object.freeze({
+      ...original,
+      ...(openedLab === undefined ? {} : { openedLab }),
+      lab: retainArchive(original.lab),
+    });
+  }
+  return Object.freeze({ frames: Object.freeze(frames) });
 }
 
 function isPlainRecord(value: unknown): value is Record<string, unknown> {
@@ -159,10 +206,15 @@ function isLabReference(value: unknown): value is LabReference {
   if (!isPlainRecord(value)) return false;
   return (
     typeof value.instanceId === "string" &&
+    value.instanceId.length <= 512 &&
     typeof value.experimentId === "string" &&
+    value.experimentId.length <= 64 &&
     typeof value.modelIdentity === "string" &&
+    value.modelIdentity.length <= 256 &&
     typeof value.runId === "string" &&
+    value.runId.length <= 768 &&
     typeof value.checkpointDigest === "string" &&
+    value.checkpointDigest.length <= 128 &&
     typeof value.compactTape === "string"
   );
 }
@@ -199,6 +251,7 @@ function isStackFrame(value: unknown): value is StackFrame {
  */
 export function deserializeStackState(input: unknown): StackState | null {
   if (!isPlainRecord(input) || !Array.isArray(input.frames)) return null;
+  if (input.frames.length > MAX_CLARIFICATION_DEPTH) return null;
   if (!input.frames.every(isStackFrame)) return null;
-  return Object.freeze({ frames: Object.freeze(input.frames.map((f) => Object.freeze({ ...f }))) });
+  return serializeStackState({ frames: input.frames });
 }

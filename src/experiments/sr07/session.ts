@@ -99,42 +99,47 @@ export function createSr07Session(
   });
   if (!published.accepted) throw new Error("Invalid prepared SR-07 example.");
   const serverSnapshot = store.getSnapshot();
+  function apply(input: unknown, newRun = false) {
+    const checked = validateSr07Parameters(input);
+    if (checked.kind !== "accepted") return checked;
+    const previous = store.getSnapshot().accepted?.parameters as Sr07Parameters;
+    const next = checked.data;
+    const setup: Record<string, number | string | boolean> = {};
+    const observer: Record<string, number | string | boolean> = {};
+    const presentation: Record<string, number | string | boolean> = {};
+    for (const key of Object.keys(next) as (keyof Sr07Parameters)[]) {
+      if (Object.is(next[key], previous[key])) continue;
+      const cls = SR07_CLASSES[key];
+      if (cls === "input") setup[key] = next[key];
+      else if (cls === "observer") observer[key] = next[key];
+      else presentation[key] = next[key];
+    }
+    let request = newRun || Object.keys(setup).length ? store.issue("setup-change", setup) : null;
+    if (Object.keys(observer).length) request = store.issue("observer-change", observer);
+    if (Object.keys(presentation).length)
+      request = store.issue("presentation-change", presentation);
+    request ??= store.issue("continue");
+    const decision = store.publish({
+      ...request,
+      stepIndex: next.stepIndex,
+      simulationTime: 0,
+      final: true,
+      outputs: evaluateSr07(next),
+    });
+    if (!decision.accepted) throw new Error(`SR-07 publication refused: ${decision.reason}`);
+    return { kind: "accepted" as const, data: request };
+  }
+
   return Object.freeze({
     getSnapshot: store.getSnapshot,
     getServerSnapshot: () => serverSnapshot,
     subscribe: store.subscribe,
+    exportCheckpoint: store.exportCheckpoint,
+    restoreCheckpoint: store.restoreCheckpoint,
     acceptedParameters(): Sr07Parameters {
       return (store.getSnapshot().accepted?.parameters ?? initialParameters) as Sr07Parameters;
     },
-    apply(input: unknown) {
-      const checked = validateSr07Parameters(input);
-      if (checked.kind !== "accepted") return checked;
-      const previous = store.getSnapshot().accepted?.parameters as Sr07Parameters;
-      const next = checked.data;
-      const setup: Record<string, number | string | boolean> = {};
-      const observer: Record<string, number | string | boolean> = {};
-      const presentation: Record<string, number | string | boolean> = {};
-      for (const key of Object.keys(next) as (keyof Sr07Parameters)[]) {
-        if (Object.is(next[key], previous[key])) continue;
-        const cls = SR07_CLASSES[key];
-        if (cls === "input") setup[key] = next[key];
-        else if (cls === "observer") observer[key] = next[key];
-        else presentation[key] = next[key];
-      }
-      let request = Object.keys(setup).length ? store.issue("setup-change", setup) : null;
-      if (Object.keys(observer).length) request = store.issue("observer-change", observer);
-      if (Object.keys(presentation).length)
-        request = store.issue("presentation-change", presentation);
-      request ??= store.issue("continue");
-      const decision = store.publish({
-        ...request,
-        stepIndex: next.stepIndex,
-        simulationTime: 0,
-        final: true,
-        outputs: evaluateSr07(next),
-      });
-      if (!decision.accepted) throw new Error(`SR-07 publication refused: ${decision.reason}`);
-      return { kind: "accepted" as const, data: request };
-    },
+    apply: (input: unknown) => apply(input),
+    startNewRun: (input: unknown) => apply(input, true),
   });
 }

@@ -75,61 +75,66 @@ export function createSr13Session(
 
   const serverSnapshot = store.getSnapshot();
 
+  function apply(input: unknown, newRun = false) {
+    const checked = validateSr13Parameters(input);
+    if (checked.kind !== "accepted") return checked;
+    const previous = (store.getSnapshot().accepted?.parameters ??
+      example.parameters) as unknown as Sr13Parameters;
+    const next = checked.data;
+
+    const setup: Record<string, number | string | boolean> = {};
+    const observer: Record<string, number | string | boolean> = {};
+    const presentation: Record<string, number | string | boolean> = {};
+
+    (Object.keys(next) as (keyof Sr13Parameters)[]).forEach((key) => {
+      if (Object.is(next[key], previous[key])) return;
+      const cls = SR13_CLASSES[key];
+      if (cls === "observer") {
+        observer[key] = next[key] as number | string | boolean;
+      } else if (cls === "presentation") {
+        presentation[key] = next[key] as number | string | boolean;
+      } else {
+        setup[key] = next[key] as number | string | boolean;
+      }
+    });
+
+    let request = newRun || Object.keys(setup).length ? store.issue("setup-change", setup) : null;
+    if (Object.keys(observer).length) {
+      request = store.issue("observer-change", observer);
+    }
+    if (Object.keys(presentation).length) {
+      request = store.issue("presentation-change", presentation);
+    }
+    request ??= store.issue("continue");
+
+    const outputs = snapshotOutputs(next);
+    const decision = store.publish({
+      ...request,
+      stepIndex: store.getSnapshot().accepted?.stepIndex ?? 0,
+      simulationTime: 0,
+      final: true,
+      outputs,
+    });
+
+    if (!decision.accepted) {
+      throw new Error(`SR-13 publication refused: ${decision.reason}`);
+    }
+
+    return { kind: "accepted" as const, data: request };
+  }
+
   return Object.freeze({
     getSnapshot: store.getSnapshot,
     getServerSnapshot: () => serverSnapshot,
     subscribe: store.subscribe,
+    exportCheckpoint: store.exportCheckpoint,
+    restoreCheckpoint: store.restoreCheckpoint,
     evaluate: evaluateSr13,
     acceptedParameters(): Sr13Parameters {
       return (store.getSnapshot().accepted?.parameters ??
         example.parameters) as unknown as Sr13Parameters;
     },
-    apply(input: unknown) {
-      const checked = validateSr13Parameters(input);
-      if (checked.kind !== "accepted") return checked;
-      const previous = (store.getSnapshot().accepted?.parameters ??
-        example.parameters) as unknown as Sr13Parameters;
-      const next = checked.data;
-
-      const setup: Record<string, number | string | boolean> = {};
-      const observer: Record<string, number | string | boolean> = {};
-      const presentation: Record<string, number | string | boolean> = {};
-
-      (Object.keys(next) as (keyof Sr13Parameters)[]).forEach((key) => {
-        if (Object.is(next[key], previous[key])) return;
-        const cls = SR13_CLASSES[key];
-        if (cls === "observer") {
-          observer[key] = next[key] as number | string | boolean;
-        } else if (cls === "presentation") {
-          presentation[key] = next[key] as number | string | boolean;
-        } else {
-          setup[key] = next[key] as number | string | boolean;
-        }
-      });
-
-      let request = Object.keys(setup).length ? store.issue("setup-change", setup) : null;
-      if (Object.keys(observer).length) {
-        request = store.issue("observer-change", observer);
-      }
-      if (Object.keys(presentation).length) {
-        request = store.issue("presentation-change", presentation);
-      }
-      request ??= store.issue("continue");
-
-      const outputs = snapshotOutputs(next);
-      const decision = store.publish({
-        ...request,
-        stepIndex: store.getSnapshot().accepted?.stepIndex ?? 0,
-        simulationTime: 0,
-        final: true,
-        outputs,
-      });
-
-      if (!decision.accepted) {
-        throw new Error(`SR-13 publication refused: ${decision.reason}`);
-      }
-
-      return { kind: "accepted" as const, data: request };
-    },
+    apply: (input: unknown) => apply(input),
+    startNewRun: (input: unknown) => apply(input, true),
   });
 }

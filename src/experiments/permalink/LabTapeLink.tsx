@@ -5,6 +5,7 @@ import { type DraftTapeBinding, draftTapeForSettings, loadDraftTapeFromUrl } fro
 import { ExperimentRecorder } from "./ExperimentRecorder.tsx";
 import { ShareControl } from "./ShareControl.tsx";
 import {
+  calculateNewRun,
   type LabTapeBinding,
   requirementsOf,
   restoreTape,
@@ -107,27 +108,12 @@ export function useLabTapeLink<P extends object>(
                 ...binding.defaults,
                 ...settingsFromTape(recorded, binding.defaults),
               };
-              const tape = tapeForSettings(binding, settings);
-              if (!tape)
-                return {
-                  kind: "not-restored",
-                  notice:
-                    requirementsOf(binding.validate(settings)) ||
-                    "This laboratory does not accept the recorded settings.",
-                };
-              const restored = restoreTape(binding, session, tape);
-              if (restored.kind !== "restored")
-                return {
-                  kind: "not-restored",
-                  notice:
-                    restored.kind === "not-restored"
-                      ? restored.notice
-                      : "The new calculation could not be applied.",
-                };
+              const calculated = calculateNewRun(binding, session, settings);
+              if (calculated.kind !== "calculated") return calculated;
               setCheckpointShare(null);
               setNotice("");
               restoredRef.current?.(session.acceptedParameters());
-              return { kind: "calculated" };
+              return calculated;
             },
           }
         : undefined,
