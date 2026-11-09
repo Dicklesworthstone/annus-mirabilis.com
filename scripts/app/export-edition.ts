@@ -45,6 +45,7 @@ import {
   type NativeCatalog,
   nativeCatalogRoutes,
 } from "./native-catalog.ts";
+import { inspectNativeSearch } from "./native-search.ts";
 import { editionPageFor, pageAssetReferences, sitemapRoutes } from "./site-routes.ts";
 
 export const EDITION_SCHEMA_VERSION = "annus-mirabilis-app-edition.v1";
@@ -68,7 +69,8 @@ export type AppExportErrorCode =
   | "release-unbound"
   | "release-commit-mismatch"
   // am-rc1001-bridge-plan-pcjk.41: the edition shipped the 154-byte placeholder WASM.
-  | "edition-wasm-unpinned";
+  | "edition-wasm-unpinned"
+  | "native-search-invalid";
 
 /** A refusal of the export, with a code a caller or a test can branch on. */
 export class AppExportError extends Error {
@@ -869,6 +871,9 @@ export function exportEdition(options: {
     }
   }
 
+  const search = inspectNativeSearch(outDir, files);
+  if (!search.ok) throw new AppExportError("native-search-invalid", search.message);
+
   const totalBytes = files.reduce((sum, file) => sum + file.size, 0);
   const untyped = files
     .filter((file) => file.contentType === OCTET_STREAM)
@@ -957,6 +962,8 @@ export function exportEdition(options: {
     settings: { typeSizes: SITE_TYPE_SIZES },
     // The site's registry, so the app lists and exports the reader's data with /your-data/'s labels.
     readerData: readerDataManifest(),
+    // The same bounded query owner and index the web build serves, pinned in files below.
+    nativeSearch: search.descriptor,
     // The library, outlines, Discover routes and lab catalogue the native screens show.
     nativeCatalog: {
       file: NATIVE_CATALOG_FILE,

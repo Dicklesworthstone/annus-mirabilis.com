@@ -1,4 +1,5 @@
 import Foundation
+import Observation
 
 /// The page the reader was on, kept on the device so the app reopens there
 /// (App plan §1.3, "Continue reading"). Only the route, the query (the face
@@ -90,5 +91,133 @@ struct PageThemeStore {
 
     func load() -> String? {
         defaults.string(forKey: Self.key)
+    }
+}
+
+/// Searches the reader explicitly submitted or used to open a result, kept only on this device.
+/// Typing never writes a query. The dedicated namespace is not mirrored to a web page, put into
+/// Handoff, logged, or submitted to Spotlight. Clear affects this list and nothing else.
+@MainActor
+struct NativeSearchRecents {
+    static let key = "am:app:recent-searches:v1"
+    static let maximum = 10
+    let defaults: UserDefaults
+
+    func load() -> [String] {
+        guard let stored = defaults.stringArray(forKey: Self.key) else { return [] }
+        var seen = Set<String>()
+        return Array(
+            stored.compactMap(Self.validQuery)
+                .filter { seen.insert($0).inserted }
+                .prefix(Self.maximum))
+    }
+
+    func record(_ query: String) {
+        guard let value = Self.validQuery(query) else { return }
+        let previous = load().filter { $0 != value }
+        defaults.set(Array(([value] + previous).prefix(Self.maximum)), forKey: Self.key)
+    }
+
+    func clear() {
+        defaults.removeObject(forKey: Self.key)
+    }
+
+    private static func validQuery(_ query: String) -> String? {
+        let value = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !value.isEmpty, value.utf16.count <= 256,
+            !value.unicodeScalars.contains(where: {
+                ($0.value < 32 && $0.value != 9 && $0.value != 10 && $0.value != 13) || $0.value == 127
+            })
+        else { return nil }
+        return value
+    }
+}
+
+// MARK: - Native search state
+
+/// Search state is separate from the sheet's lifetime. A cancelled or superseded request never
+/// replaces a newer result, even if JavaScriptCore finished its synchronous work after cancellation.
+@MainActor
+@Observable
+final class NativeSearchModel {
+    enum Phase: Equatable {
+        case idle
+        case loading
+        case results
+        case failed(String)
+    }
+
+    struct Group: Identifiable {
+        let id: Int
+        let type: String
+        var hits: [NativeSearchHit]
+    }
+
+    private(set) var metadata: NativeSearchMetadata?
+    private(set) var hits: [NativeSearchHit] = []
+    private(set) var phase: Phase = .idle
+    private(set) var recentQueries: [String]
+    @ObservationIgnored private let engine: any NativeSearchQuerying
+    @ObservationIgnored private let recents: NativeSearchRecents
+    @ObservationIgnored private var generation = 0
+
+    init(engine: any NativeSearchQuerying, recents: NativeSearchRecents) {
+        self.engine = engine
+        self.recents = recents
+        self.recentQueries = recents.load()
+    }
+
+    /// Contiguous sections keep the query engine's complete ranking unchanged. Grouping every
+    /// result of a kind together would move lower-ranked hits ahead of higher-ranked neighbours.
+    var groups: [Group] {
+        var groups: [Group] = []
+        for (index, hit) in hits.enumerated() {
+            if groups.last?.type == hit.type {
+                groups[groups.count - 1].hits.append(hit)
+            } else {
+                groups.append(Group(id: index, type: hit.type, hits: [hit]))
+            }
+        }
+        return groups
+    }
+
+    func update(query: String, paper: String = "", type: String = "", debounce: Bool = true) async {
+        generation += 1
+        let request = generation
+        hits = []
+        phase = .loading
+        do {
+            let empty = query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            if debounce && !empty { try await Task.sleep(for: .milliseconds(180)) }
+            try Task.checkCancellation()
+            let loaded = try await engine.load()
+            guard request == generation else { return }
+            try Task.checkCancellation()
+            metadata = loaded
+            if empty {
+                phase = .idle
+                return
+            }
+            let found = try await engine.search(query, paper: paper, type: type)
+            guard request == generation else { return }
+            try Task.checkCancellation()
+            hits = found
+            phase = .results
+        } catch is CancellationError {
+            if request == generation { phase = .idle }
+        } catch {
+            guard request == generation, !Task.isCancelled else { return }
+            phase = .failed(error.localizedDescription)
+        }
+    }
+
+    func remember(_ query: String) {
+        recents.record(query)
+        recentQueries = recents.load()
+    }
+
+    func clearRecents() {
+        recents.clear()
+        recentQueries = []
     }
 }

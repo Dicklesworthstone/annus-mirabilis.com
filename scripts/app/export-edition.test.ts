@@ -19,6 +19,7 @@ import {
 } from "../../src/platform/app-bridge/settingsSnapshot.ts";
 import { TEST_CONSOLE_USER_SCRIPT_SOURCE } from "../../src/platform/app-bridge/testConsole.ts";
 import { BRIDGE_USER_SCRIPT_SOURCE } from "../../src/platform/app-bridge/userScripts.ts";
+import { packageSearchIndex } from "../../src/search/build.ts";
 import { newRunIdentity, TestLogger } from "../../src/testing/log/logger.ts";
 import { parseLogLine } from "../../src/testing/log/schema.ts";
 import { spawnObserved } from "../spawnObserved.ts";
@@ -49,6 +50,7 @@ import {
   NATIVE_CATALOG_SCHEMA,
   type NativeCatalog,
 } from "./native-catalog.ts";
+import { NATIVE_SEARCH_MANIFEST_PATH, NATIVE_SEARCH_SCRIPT_FILE } from "./native-search.ts";
 
 const LIVE = "a".repeat(64);
 const STALE = "b".repeat(64);
@@ -765,6 +767,100 @@ describe("siteBinding", () => {
         siteBinding({ head: "x", clean, headCommittedAt: committed, outBuiltAt: built }).commit,
         null,
       );
+    }
+  });
+});
+
+describe("native search in the app export", () => {
+  function searchFiles(): Record<string, string> {
+    const packaged = packageSearchIndex(
+      [
+        {
+          id: "native-search-fixture",
+          type: "paper",
+          paper: "light-quanta",
+          section: "",
+          lang: "en",
+          title: "Light quanta",
+          text: "Quantum energy",
+          terms: [],
+          route: "/papers/",
+          anchor: "",
+          face: "reading",
+          scopeLabel: "Authored explanatory preview",
+        },
+      ],
+      [],
+      LIVE,
+      "preview",
+    );
+    return {
+      [NATIVE_SEARCH_SCRIPT_FILE]: "globalThis.fixtureNativeSearch = true;",
+      [NATIVE_SEARCH_MANIFEST_PATH]: packaged.manifestText,
+      ...Object.fromEntries(
+        packaged.files.map((file) => [file.descriptor.path.slice(1), file.text]),
+      ),
+    };
+  }
+
+  it("pins the query script and shared index in the existing copy and checksum lists", () => {
+    const search = searchFiles();
+    const out = fixture({ ...SITE, ...search });
+    const dest = mkdtempSync(join(tmpdir(), "app-native-search-dest-"));
+    exportEdition({ repo: dirname(out), outDir: out, dest, catalog: CATALOG });
+    const manifest = JSON.parse(readFileSync(join(dest, "edition-manifest.json"), "utf8"));
+    assert.deepEqual(manifest.nativeSearch, {
+      schemaVersion: "annus-mirabilis-native-search.v1",
+      queryScript: {
+        file: NATIVE_SEARCH_SCRIPT_FILE,
+        sha256: createHash("sha256")
+          .update(search[NATIVE_SEARCH_SCRIPT_FILE] ?? "")
+          .digest("hex"),
+        bytes: Buffer.byteLength(search[NATIVE_SEARCH_SCRIPT_FILE] ?? ""),
+      },
+      manifestPath: NATIVE_SEARCH_MANIFEST_PATH,
+      buildDigest: LIVE,
+      totalDocuments: 1,
+    });
+    const listed = readFileSync(join(dest, "edition-files.txt"), "utf8").trim().split("\n");
+    const outputs = readFileSync(join(dest, "edition-outputs.xcfilelist"), "utf8");
+    for (const path of Object.keys(search)) {
+      assert.ok(listed.includes(path), path);
+      assert.ok(outputs.includes("/Edition/" + path), path);
+      assert.ok(
+        manifest.files.some((file: { path: string }) => file.path === path),
+        path,
+      );
+    }
+  });
+
+  it("leaves an explicit unavailable state in an older export with no search assets", () => {
+    const out = fixture(SITE);
+    const dest = mkdtempSync(join(tmpdir(), "app-native-search-absent-"));
+    exportEdition({ repo: dirname(out), outDir: out, dest, catalog: CATALOG });
+    const manifest = JSON.parse(readFileSync(join(dest, "edition-manifest.json"), "utf8"));
+    assert.equal(manifest.nativeSearch, null);
+  });
+
+  it("refuses a partial search bundle or shard that disagrees with its own manifest", () => {
+    for (const partial of ["script", "index", "shard"]) {
+      const search = searchFiles();
+      if (partial === "script") delete search[NATIVE_SEARCH_SCRIPT_FILE];
+      if (partial === "index") delete search[NATIVE_SEARCH_MANIFEST_PATH];
+      if (partial === "shard") {
+        const shard = Object.keys(search).find((path) => path.startsWith("search/s-"));
+        assert.ok(shard);
+        search[shard] += " ";
+      }
+      const out = fixture({ ...SITE, ...search });
+      const dest = mkdtempSync(join(tmpdir(), "app-native-search-partial-"));
+      assert.throws(
+        () => exportEdition({ repo: dirname(out), outDir: out, dest, catalog: CATALOG }),
+        (error: unknown) =>
+          error instanceof AppExportError && error.code === "native-search-invalid",
+        partial,
+      );
+      assert.equal(existsSync(join(dest, "edition-manifest.json")), false);
     }
   });
 });

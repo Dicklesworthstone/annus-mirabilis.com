@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import UIKit
 import WebKit
 
 @testable import AnnusMirabilis
@@ -155,5 +156,138 @@ struct PageThemePrepaintTests {
         session.didReceiveTheme("system")
         #expect(session.pageColorScheme == nil)
         #expect(themes.load() == "system")
+    }
+}
+
+@Suite("Private recent searches")
+@MainActor
+struct NativeSearchRecentsTests {
+    @Test("typing writes nothing; explicit searches deduplicate, bound and clear only their own namespace")
+    func storage() {
+        let defaults = UserDefaults(suiteName: "native-search-recents-\(UUID().uuidString)")!
+        let store = NativeSearchRecents(defaults: defaults)
+        defaults.set("keep this", forKey: "reader-note")
+        #expect(store.load().isEmpty)
+        #expect(defaults.object(forKey: NativeSearchRecents.key) == nil)
+        for index in 0..<12 { store.record("query \(index)") }
+        #expect(store.load().count == 10)
+        #expect(store.load().first == "query 11")
+        store.record("  query 5  ")
+        #expect(store.load().first == "query 5")
+        #expect(store.load().filter { $0 == "query 5" }.count == 1)
+        store.record(String(repeating: "x", count: 257))
+        store.record("\u{0000}")
+        #expect(store.load().count == 10)
+        store.clear()
+        #expect(store.load().isEmpty)
+        #expect(defaults.string(forKey: "reader-note") == "keep this")
+    }
+}
+
+@Suite("Native search presentation")
+@MainActor
+struct NativeSearchModelTests {
+    @Test("a slow superseded result cannot overwrite the next query, and typing stores no recent query")
+    func superseded() async {
+        let engine = ControlledNativeSearch()
+        let defaults = UserDefaults(suiteName: "native-search-model-\(UUID().uuidString)")!
+        let recents = NativeSearchRecents(defaults: defaults)
+        let model = NativeSearchModel(engine: engine, recents: recents)
+        let first = Task { await model.update(query: "first", debounce: false) }
+        await engine.waitForFirst()
+        await model.update(query: "second", debounce: false)
+        #expect(model.hits.map(\.id) == ["second"])
+        await engine.releaseFirst()
+        await first.value
+        #expect(model.hits.map(\.id) == ["second"])
+        #expect(model.phase == .results)
+        #expect(recents.load().isEmpty)
+        model.remember("second")
+        #expect(recents.load() == ["second"])
+        model.clearRecents()
+        #expect(model.recentQueries.isEmpty)
+    }
+
+    @Test("cancellation discards an in-flight result")
+    func cancelled() async {
+        let engine = ControlledNativeSearch()
+        let model = NativeSearchModel(
+            engine: engine,
+            recents: NativeSearchRecents(
+                defaults: UserDefaults(suiteName: "native-search-cancel-\(UUID().uuidString)")!))
+        let task = Task { await model.update(query: "first", debounce: false) }
+        await engine.waitForFirst()
+        task.cancel()
+        await engine.releaseFirst()
+        await task.value
+        #expect(model.hits.isEmpty)
+        #expect(model.phase == .idle)
+    }
+
+    @Test("group headings never change the engine's ranked order")
+    func rankedGroups() async {
+        let model = NativeSearchModel(
+            engine: ControlledNativeSearch(),
+            recents: NativeSearchRecents(
+                defaults: UserDefaults(suiteName: "native-search-groups-\(UUID().uuidString)")!))
+        await model.update(query: "groups", debounce: false)
+        #expect(model.hits.map(\.id) == ["one", "two", "three"])
+        #expect(model.groups.flatMap(\.hits).map(\.id) == ["one", "two", "three"])
+        #expect(model.groups.map(\.type) == ["argument", "person", "argument"])
+    }
+
+    @Test("Command-K on the reader opens the native search presentation")
+    func keyboardCommand() throws {
+        let fixture = try NativeSearchFixture.make()
+        let session = EditionSession(
+            catalog: fixture.catalog,
+            store: ReaderLocationStore(defaults: UserDefaults(suiteName: "native-search-key-\(UUID().uuidString)")!))
+        let command = try #require(session.webView.keyCommands?.last {
+            $0.input == "k" && $0.modifierFlags.contains(.command)
+        })
+        #expect(command.wantsPriorityOverSystemBehavior)
+        #expect(UIApplication.shared.sendAction(command.action, to: session.webView, from: command, for: nil))
+        #expect(session.showingSearch)
+    }
+}
+
+/// A delayed response, only for presentation races; engine tests above always run the shipped JS.
+private actor ControlledNativeSearch: NativeSearchQuerying {
+    private var firstStarted = false
+    private var started: CheckedContinuation<Void, Never>?
+    private var pending: CheckedContinuation<Void, Never>?
+
+    func load() -> NativeSearchMetadata {
+        NativeSearchMetadata(
+            schemaVersion: NativeSearchEngine.schemaVersion, buildDigest: String(repeating: "a", count: 64),
+            profile: "scaffold", documentCount: 3, papers: ["special-relativity"],
+            typeLabels: ["argument": "Arguments", "person": "People"], limits: .init(queryCharacters: 256, results: 30))
+    }
+
+    func search(_ query: String, paper: String, type: String) async -> [NativeSearchHit] {
+        if query == "first" {
+            firstStarted = true
+            started?.resume()
+            started = nil
+            await withCheckedContinuation { pending = $0 }
+        }
+        if query == "groups" {
+            return [
+                NativeSearchFixture.hit("one"),
+                NativeSearchFixture.hit("two", type: "person"),
+                NativeSearchFixture.hit("three"),
+            ]
+        }
+        return [NativeSearchFixture.hit(query)]
+    }
+
+    func waitForFirst() async {
+        if firstStarted { return }
+        await withCheckedContinuation { started = $0 }
+    }
+
+    func releaseFirst() {
+        pending?.resume()
+        pending = nil
     }
 }

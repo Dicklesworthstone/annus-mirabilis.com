@@ -80,6 +80,7 @@ import {
   wrongTurnDocuments,
 } from "../src/search/documents.ts";
 import { timelineDocuments } from "../src/search/timelineDocuments.ts";
+import { buildNativeSearchScript } from "./app/native-search.ts";
 
 /**
  * Everything the index holds, as the build publishes it. Compiled, digest-checked projections for
@@ -461,7 +462,10 @@ export async function buildSearchIndex(
         throw new Error("An existing content-addressed search shard has different bytes.");
     }
   }
-  // Publish only after every shard exists. Older shards remain outside public/ and cannot
+  // The app executes this same query owner in JavaScriptCore over these exact shards.
+  // Next copies the generated script as a static asset, so the existing edition file table pins it.
+  buildNativeSearchScript(root);
+  // Publish only after every shard and the native query script exist. Older shards remain outside public/ and cannot
   // be exported or served unless this manifest enumerates them. No cleanup deletes files.
   await writeFile(resolve(directory, "index-manifest.json"), bundle.manifestText);
   return bundle.manifest;

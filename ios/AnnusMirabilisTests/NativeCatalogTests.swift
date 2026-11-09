@@ -148,3 +148,223 @@ struct NativeCatalogTests {
         return try JSONDecoder().decode(NativeCatalog.self, from: Data(json.utf8))
     }
 }
+
+// MARK: - The bundled web search engine in JavaScriptCore
+
+@Suite("Native search uses the edition's query engine")
+struct NativeSearchEngineTests {
+    @Test("the shipping module loads its pinned index once and an empty query has no results")
+    func bundledSearch() async throws {
+        let catalog = try EditionCatalog.load()
+        let entry = try #require(catalog.nativeSearch)
+        let engine = NativeSearchEngine(catalog: catalog)
+        let metadata = try await engine.load()
+        #expect(metadata.buildDigest == entry.buildDigest)
+        #expect(metadata.documentCount == entry.totalDocuments)
+        #expect(metadata.typeLabels["instrument"] == "Laboratories")
+        #expect(try await engine.search("").isEmpty)
+        let firstDuration = await engine.coldLoadDuration
+        #expect(firstDuration != nil)
+        #expect(try await engine.load() == metadata)
+        #expect(await engine.coldLoadDuration == firstDuration)
+    }
+
+    @Test("ordinary language, Unicode units, a person and German all query the actual shipped module")
+    func fixtureQueries() async throws {
+        let fixture = try NativeSearchFixture.make()
+        let engine = NativeSearchEngine(catalog: fixture.catalog)
+        let queries = [
+            ("clocks disagree", "clocks"),
+            ("0.8 μ", "brownian"),
+            ("Besso", "besso"),
+            ("die Gleichzeitigkeit", "german"),
+        ]
+        for (query, expected) in queries {
+            let hits = try await engine.search(query)
+            #expect(hits.first?.id == expected, "fixture query \(query)")
+        }
+        #expect(try await engine.search("Besso", paper: "brownian-motion").isEmpty)
+        #expect(try await engine.search("Besso", type: "instrument").isEmpty)
+        let hit = try #require(try await engine.search("clocks disagree").first)
+        #expect(hit.href == "/papers/special-relativity/?view=english#clocks")
+        #expect(hit.destination(in: fixture.catalog)?.absoluteString
+            == "am-edition://edition/papers/special-relativity/?view=english#clocks")
+    }
+
+    @Test("query text is passed as a value and cannot execute JavaScript")
+    func queryIsData() async throws {
+        let engine = NativeSearchEngine(catalog: try NativeSearchFixture.make().catalog)
+        _ = try await engine.search("'); throw new Error('injected'); ('")
+        #expect(try await engine.search("Besso").first?.id == "besso")
+        do {
+            _ = try await engine.search(String(repeating: "🕰", count: 129))
+            Issue.record("a query beyond the web engine's UTF-16 limit was accepted")
+        } catch let error as NativeSearchError {
+            #expect(error == .queryTooLong(256))
+        }
+    }
+
+    @Test("a missing search entry and a damaged script or shard cannot start a partial index")
+    func refusedFiles() async throws {
+        let fixture = try NativeSearchFixture.make()
+        var oldManifest = fixture.manifest
+        oldManifest.nativeSearch = nil
+        let old = try EditionCatalog(root: fixture.catalog.root, manifest: oldManifest)
+        do {
+            _ = try await NativeSearchEngine(catalog: old).load()
+            Issue.record("an edition with no native search entry started search")
+        } catch let error as NativeSearchError {
+            #expect(error == .notIncluded)
+        }
+
+        for path in [fixture.scriptPath, fixture.shardPath] {
+            let damaged = try NativeSearchFixture.make()
+            let target = path == fixture.scriptPath ? damaged.scriptPath : damaged.shardPath
+            try Data("changed after export".utf8).write(
+                to: damaged.catalog.root.appendingPathComponent(target), options: .atomic)
+            let engine = NativeSearchEngine(catalog: damaged.catalog)
+            do {
+                _ = try await engine.load()
+                Issue.record("search loaded bytes that do not match the pinned \(target)")
+            } catch let error as NativeSearchError {
+                #expect(error == .damagedFile(target))
+            }
+            #expect(await engine.coldLoadDuration == nil)
+        }
+    }
+
+    @Test("valid checksums cannot admit a record refused by the shared web schema")
+    func invalidIndexEnvelope() async throws {
+        let fixture = try NativeSearchFixture.make(invalidDocument: true)
+        let engine = NativeSearchEngine(catalog: fixture.catalog)
+        do {
+            _ = try await engine.load()
+            Issue.record("the shared schema accepted an external document route")
+        } catch let error as NativeSearchError {
+            #expect(error == .invalidManifest)
+        }
+        #expect(await engine.coldLoadDuration == nil)
+    }
+
+    @Test("search destinations preserve query and anchor but never open an outside or non-HTML URL")
+    func destinations() throws {
+        let catalog = try NativeSearchFixture.make().catalog
+        let valid = NativeSearchFixture.hit(
+            "english", href: "/papers/special-relativity/?view=english&detail=2#s1-p2")
+        #expect(valid.destination(in: catalog)?.absoluteString
+            == "am-edition://edition/papers/special-relativity/?view=english&detail=2#s1-p2")
+        for href in [
+            "https://annus-mirabilis.com/papers/special-relativity/",
+            "//example.com/papers/special-relativity/",
+            "javascript:alert(1)", "/search/index-manifest.json", "/missing/",
+            "/papers/%2e%2e/native/search-query.js", "/papers/%2fspecial-relativity/",
+        ] {
+            #expect(NativeSearchFixture.hit("bad", href: href).destination(in: catalog) == nil, "\(href)")
+        }
+    }
+}
+
+/// A small explicit corpus passed to the REAL bundled query script, not a second ranking function.
+/// These files are test inputs; they are never represented as the shipping edition's contents.
+struct NativeSearchFixture {
+    let catalog: EditionCatalog
+    let manifest: EditionManifest
+    let scriptPath: String
+    let shardPath: String
+
+    static func make(invalidDocument: Bool = false) throws -> NativeSearchFixture {
+        let shipping = try EditionCatalog.load()
+        let script = try #require(shipping.nativeSearch?.queryScript)
+        let scriptData = try Data(contentsOf: shipping.root.appendingPathComponent(script.file))
+        #expect(scriptData.count == script.bytes)
+        #expect(BridgeScript.sha256Hex(scriptData) == script.sha256)
+
+        var documents: [[String: Any]] = [
+            document("clocks", title: "Clocks disagree", text: "Distant clocks disagree.", face: "english"),
+            document("besso", title: "Michele Besso", text: "Michele Besso", type: "person"),
+            document(
+                "german", title: "Gleichzeitigkeit", text: "Wir wollen die Gleichzeitigkeit bestimmen.",
+                type: "sentence-de", language: "de", face: "german"),
+            document(
+                "brownian", title: "Brownian displacement", text: "The particle radius is 0.8 micrometre.",
+                paper: "brownian-motion"),
+        ]
+        if invalidDocument { documents[0]["route"] = "https://example.com/" }
+        let shard = try JSONSerialization.data(
+            withJSONObject: ["schemaVersion": 1, "documents": documents, "aliases": []],
+            options: [.sortedKeys])
+        let shardDigest = BridgeScript.sha256Hex(shard)
+        let shardPath = "search/s-\(shardDigest).json"
+        let buildDigest = String(repeating: "a", count: 64)
+        let index = try JSONSerialization.data(
+            withJSONObject: [
+                "schemaVersion": 1, "buildDigest": buildDigest, "profile": "scaffold",
+                "totalDocuments": documents.count,
+                "shards": [[
+                    "path": "/" + shardPath, "sha256": shardDigest, "bytes": shard.count,
+                    "gzipBytes": 1, "documents": documents.count,
+                ]],
+            ], options: [.sortedKeys])
+        return try write(
+            payloads: [
+                script.file: scriptData, "search/index-manifest.json": index, shardPath: shard,
+                "index.html": Data("<p>Fixture</p>".utf8),
+                "papers/special-relativity/index.html": Data("<p>Fixture</p>".utf8),
+                "papers/brownian-motion/index.html": Data("<p>Fixture</p>".utf8),
+            ],
+            script: script, shardPath: shardPath, buildDigest: buildDigest, count: documents.count)
+    }
+
+    private static func write(
+        payloads: [String: Data], script: EditionManifest.NativeSearchScript,
+        shardPath: String, buildDigest: String, count: Int
+    ) throws -> NativeSearchFixture {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("native-search-\(UUID().uuidString)/Edition", isDirectory: true)
+        var files: [EditionManifest.File] = []
+        for (path, data) in payloads {
+            let url = root.appendingPathComponent(path)
+            try FileManager.default.createDirectory(
+                at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try data.write(to: url, options: .atomic)
+            let contentType: String
+            if path.hasSuffix(".html") {
+                contentType = "text/html"
+            } else if path.hasSuffix(".js") {
+                contentType = "text/javascript"
+            } else {
+                contentType = "application/json"
+            }
+            files.append(
+                .init(path: path, sha256: BridgeScript.sha256Hex(data), size: data.count, contentType: contentType))
+        }
+        var manifest = EditionManifest(
+            schemaVersion: EditionCatalog.schemaVersion, editionDigest: "fixture", files: files)
+        manifest.nativeSearch = .init(
+            schemaVersion: NativeSearchEngine.schemaVersion, queryScript: script,
+            manifestPath: "search/index-manifest.json", buildDigest: buildDigest, totalDocuments: count)
+        return NativeSearchFixture(
+            catalog: try EditionCatalog(root: root, manifest: manifest), manifest: manifest,
+            scriptPath: script.file, shardPath: shardPath)
+    }
+
+    private static func document(
+        _ id: String, title: String, text: String, type: String = "argument",
+        paper: String = "special-relativity", language: String = "en", face: String = ""
+    ) -> [String: Any] {
+        [
+            "id": id, "type": type, "paper": paper, "section": "s1", "lang": language,
+            "title": title, "text": text, "terms": [], "route": "/papers/\(paper)/",
+            "anchor": id, "face": face, "scopeLabel": "Test fixture",
+        ]
+    }
+
+    static func hit(_ id: String, type: String = "argument", href: String = "/papers/special-relativity/#s1")
+        -> NativeSearchHit
+    {
+        NativeSearchHit(
+            id: id, type: type, paper: "special-relativity", section: "s1", lang: "en",
+            title: id, route: "/papers/special-relativity/", anchor: "s1", face: "",
+            scopeLabel: "Test fixture", score: 1, snippet: id, aliasLabel: nil, href: href)
+    }
+}

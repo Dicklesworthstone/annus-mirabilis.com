@@ -34,6 +34,22 @@ struct EditionManifest: Decodable, Sendable {
         let sha256: String
     }
 
+    /// The edition's own DOM-free search query module and the index it was built with.
+    /// Both the script and the index are also ordinary entries in files, under Edition/.
+    struct NativeSearchScript: Decodable, Sendable, Equatable {
+        let file: String
+        let sha256: String
+        let bytes: Int
+    }
+
+    struct NativeSearch: Decodable, Sendable, Equatable {
+        let schemaVersion: String
+        let queryScript: NativeSearchScript
+        let manifestPath: String
+        let buildDigest: String
+        let totalDocuments: Int
+    }
+
     let schemaVersion: String
     let editionDigest: String
     let files: [File]
@@ -42,6 +58,7 @@ struct EditionManifest: Decodable, Sendable {
     var readerData: ReaderDataManifest?
     var settings: Settings?
     var nativeCatalog: CatalogFile?
+    var nativeSearch: NativeSearch?
 }
 
 enum EditionCatalogError: Error, Equatable {
@@ -69,6 +86,8 @@ struct EditionCatalog: Sendable {
     let typeSizes: [Int]
     /// The native catalogue's manifest entry, when the export recorded one.
     let nativeCatalogFile: EditionManifest.CatalogFile?
+    /// Search is optional so an older export can still open its reader and Contents.
+    let nativeSearch: EditionManifest.NativeSearch?
     private let files: [String: EditionManifest.File]
 
     init(root: URL, manifest: EditionManifest) throws(EditionCatalogError) {
@@ -84,6 +103,7 @@ struct EditionCatalog: Sendable {
         self.testConsoleScript = manifest.userScripts?.first { $0.id == "test-console" }
         self.typeSizes = manifest.settings?.typeSizes ?? []
         self.nativeCatalogFile = manifest.nativeCatalog
+        self.nativeSearch = manifest.nativeSearch
     }
 
     static func load(from bundle: Bundle = .main) throws(EditionCatalogError) -> EditionCatalog {

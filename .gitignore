@@ -120,3 +120,6 @@ public/equation-explanations/
 
 # The deploy script writes the live build identity here before vercel build (am-rc1001-bridge-plan-pcjk.3).
 /public/release.json
+
+# Generated JavaScriptCore query asset, built with the shared web search index.
+/public/native/search-query.js

@@ -211,3 +211,87 @@ enum CatalogProblem {
         return text.isEmpty ? "the file" : text
     }
 }
+
+// MARK: - Search over the edition's own query module (App plan §8.3)
+
+/// The labels, limits and provenance returned by the site's query module, never a second
+/// native search catalogue. The actor keeps its JavaScript values private.
+struct NativeSearchMetadata: Decodable, Sendable, Equatable {
+    struct Limits: Decodable, Sendable, Equatable {
+        let queryCharacters: Int
+        let results: Int
+    }
+
+    let schemaVersion: String
+    let buildDigest: String
+    let profile: String
+    let documentCount: Int
+    let papers: [String]
+    let typeLabels: [String: String]
+    let limits: Limits
+}
+
+/// Display fields and the exact link returned by searchResultHref. In particular, an English
+/// sentence's link chooses the English face; Swift does not reconstruct it from route and anchor.
+struct NativeSearchHit: Decodable, Sendable, Equatable, Identifiable {
+    let id: String
+    let type: String
+    let paper: String
+    let section: String
+    let lang: String
+    let title: String
+    let route: String
+    let anchor: String
+    let face: String
+    let scopeLabel: String
+    let score: Double
+    let snippet: String
+    let aliasLabel: String?
+    let href: String
+
+    func destination(in catalog: EditionCatalog) -> URL? {
+        guard href.hasPrefix("/"), !href.hasPrefix("//"), !href.contains("\\"),
+            href.utf8.count <= 4096,
+            !href.unicodeScalars.contains(where: { $0.value < 32 || $0.value == 127 }),
+            var components = URLComponents(string: href),
+            components.scheme == nil, components.host == nil,
+            components.user == nil, components.password == nil, components.port == nil
+        else { return nil }
+        components.scheme = EditionCatalog.scheme
+        components.host = EditionCatalog.host
+        guard let url = components.url,
+            let location = ReaderLocation(editionURL: url, catalog: catalog)
+        else { return nil }
+        return location.url(in: catalog)
+    }
+}
+
+enum NativeSearchError: Error, Equatable, LocalizedError {
+    case notIncluded
+    case invalidManifest
+    case damagedFile(String)
+    case runtimeUnavailable
+    case invalidResponse
+    case queryTooLong(Int)
+    case queryFailed
+
+    var errorDescription: String? {
+        switch self {
+        case .notIncluded:
+            "Search is not included in this edition. You can still open pages from Contents."
+        case .invalidManifest, .damagedFile:
+            "This edition's search files could not be read. The reader and Contents are still available."
+        case .runtimeUnavailable, .invalidResponse:
+            "Search could not be started. Please try again."
+        case .queryTooLong(let limit):
+            "Keep your search to \(limit) characters."
+        case .queryFailed:
+            "This search could not be completed. Try fewer words or a different phrase."
+        }
+    }
+}
+
+protocol NativeSearchQuerying: Sendable {
+    func load() async throws -> NativeSearchMetadata
+    func search(_ query: String, paper: String, type: String) async throws -> [NativeSearchHit]
+}

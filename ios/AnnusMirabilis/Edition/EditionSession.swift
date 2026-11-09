@@ -35,6 +35,8 @@ final class EditionSession {
     private(set) var webProcessTerminations = 0
     /// The page that could not be loaded, which the reader can try again; nil while pages load.
     var loadFailure: URL?
+    /// Shared by the native search button and Command-K while the web view has keyboard focus.
+    var showingSearch = false
     /// The page the app last asked the web view for: the one to retry when WebKit names none.
     @ObservationIgnored var lastRequestedURL: URL?
     /// DEBUG UI tests only: the lifecycle events sent to the page, newest last.
@@ -51,6 +53,8 @@ final class EditionSession {
     @ObservationIgnored private let settingsSnapshot: SettingsSnapshot?
     /// The papers, outlines, Discover routes and instruments the native screens list.
     @ObservationIgnored let nativeCatalog: NativeCatalog?
+    @ObservationIgnored let searchEngine: NativeSearchEngine
+    @ObservationIgnored let recentSearches: NativeSearchRecents
     @ObservationIgnored private var contentSizeObserver: (any NSObjectProtocol)?
     @ObservationIgnored var lifecycleObservers: [any NSObjectProtocol] = []
     #if DEBUG
@@ -86,6 +90,8 @@ final class EditionSession {
         self.bridgeSource = bridgeSource
         self.settingsSnapshot = catalog.verifiedSettingsSnapshot()
         self.nativeCatalog = catalog.verifiedNativeCatalog()
+        self.searchEngine = NativeSearchEngine(catalog: catalog)
+        self.recentSearches = NativeSearchRecents(defaults: store.defaults)
         self.bridgeInstalled = bridgeSource != nil
         self.typeSize = EditionTypeSize.percent(for: contentSize, steps: catalog.typeSizes)
         self.webView = EditionSession.makeWebView(
@@ -120,6 +126,9 @@ final class EditionSession {
 
     /// What the page, the navigator and the system tell the session.
     private func wireCallbacks() {
+        (webView as? EditionReaderWebView)?.onSearch = { [weak self] in
+            self?.showingSearch = true
+        }
         router.onShare = { [weak self] url in
             self?.presentShareSheet(for: url)
         }
@@ -306,7 +315,7 @@ final class EditionSession {
         configuration.dataDetectorTypes = []
         configuration.preferences.javaScriptCanOpenWindowsAutomatically = false
 
-        let webView = WKWebView(frame: .zero, configuration: configuration)
+        let webView = EditionReaderWebView(frame: .zero, configuration: configuration)
         webView.navigationDelegate = navigator
         webView.uiDelegate = navigator
         webView.allowsBackForwardNavigationGestures = true

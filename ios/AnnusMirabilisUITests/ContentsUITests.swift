@@ -76,4 +76,52 @@ final class ContentsUITests: XCTestCase {
         instrument.tap()
         waitForRoute("/lab/bm-01/", in: app)
     }
+
+    @MainActor
+    func testNativeSearchOpensAnInstrumentAndClearsPrivateRecents() throws {
+        let app = XCUIApplication()
+        let suite = "uitest-search-\(UUID().uuidString)"
+        app.launchArguments = ["-AMUITest", "-AMStateSuite", suite, "-AMOpenRoute", "/"]
+        app.launch(for: self)
+        waitForRoute("/", in: app)
+
+        let search = app.buttons["native-search"]
+        XCTAssertTrue(search.waitForExistence(timeout: 10))
+        search.tap()
+        let field = app.searchFields.firstMatch
+        XCTAssertTrue(field.waitForExistence(timeout: 10), "native search has no searchable field")
+        field.tap()
+        field.typeText("Tracer ensemble")
+        let tracer = app.buttons.matching(
+            NSPredicate(
+                format: "identifier BEGINSWITH %@ AND label BEGINSWITH %@",
+                "native-search-result-", "Tracer ensemble")).firstMatch
+        XCTAssertTrue(tracer.waitForExistence(timeout: 20), "the native index has no Tracer ensemble result")
+        XCTAssertEqual(tracer.value as? String, "/lab/bm-01/")
+        keep(app, "native-search-results")
+        tracer.tap()
+        waitForRoute("/lab/bm-01/", in: app)
+
+        app.buttons["native-search"].tap()
+        let recent = app.buttons.matching(
+            NSPredicate(
+                format: "identifier == %@ AND label CONTAINS %@",
+                "native-search-recent", "Tracer ensemble")).firstMatch
+        XCTAssertTrue(recent.waitForExistence(timeout: 10), "opening a result did not remember the explicit search")
+        let clear = app.buttons["native-search-clear-recents"]
+        XCTAssertTrue(clear.waitForExistence(timeout: 10))
+        clear.tap()
+        XCTAssertFalse(recent.exists)
+        keep(app, "native-search-recents-cleared")
+        app.buttons["native-search-done"].tap()
+
+        // A second launch proves Clear changed the device record, not only this sheet's rows.
+        app.terminate()
+        app.launch(for: self)
+        waitForRoute("/", in: app)
+        app.buttons["native-search"].tap()
+        XCTAssertTrue(app.searchFields.firstMatch.waitForExistence(timeout: 10))
+        XCTAssertFalse(app.buttons["native-search-clear-recents"].exists)
+    }
+
 }
