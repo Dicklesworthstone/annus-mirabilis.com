@@ -3,10 +3,12 @@ import { GlobalRegistrator } from "@happy-dom/global-registrator";
 type TestIntersectionObserver = IntersectionObserver & { readonly targets: Set<Element> };
 let intersectionObservers: Set<TestIntersectionObserver> | null = null;
 
-export class TestIntersectionStateError extends DOMException {
-  readonly refusalCode: "test-intersection-not-installed";
+type TestIntersectionRefusalCode = "test-intersection-not-installed";
 
-  constructor(refusalCode: "test-intersection-not-installed") {
+export class TestIntersectionStateError extends DOMException {
+  readonly refusalCode: TestIntersectionRefusalCode;
+
+  constructor(refusalCode: TestIntersectionRefusalCode) {
     super("Install the DOM with explicit intersections first.", "InvalidStateError");
     this.refusalCode = refusalCode;
   }
