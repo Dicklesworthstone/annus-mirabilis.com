@@ -55,6 +55,7 @@ export function createSr03Session(
   }
   const serverSnapshot = store.getSnapshot();
   let scheduler: ReturnType<typeof createSr03Scheduler> | null = null;
+  let schedulingPaused = false;
   function apply(input: unknown, newRun = false) {
     const validated = validateSr03Parameters(input);
     if (validated.kind !== "accepted") return validated;
@@ -82,6 +83,7 @@ export function createSr03Session(
     request ??= store.issue("continue");
 
     scheduler ??= createSr03Scheduler(store, workerFactory, example.sourceDigest);
+    scheduler.setSchedulingPaused(schedulingPaused);
     scheduler.request(request);
     return { kind: "accepted" as const, data: request };
   }
@@ -92,6 +94,10 @@ export function createSr03Session(
     apply: (input: unknown) => apply(input),
     /** An explicitly new calculation has a fresh run identity even at unchanged settings. */
     startNewRun: (input: unknown) => apply(input, true),
+    setSchedulingPaused(paused: boolean) {
+      schedulingPaused = paused;
+      scheduler?.setSchedulingPaused(paused);
+    },
     stop() {
       scheduler?.cancel();
     },

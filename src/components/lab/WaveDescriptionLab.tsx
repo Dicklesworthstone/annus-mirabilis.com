@@ -4,6 +4,7 @@ import { type FormEvent, useCallback, useEffect, useId, useMemo, useRef, useStat
 import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../experiments/labels/executionLabelFor.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
+import { useLaboratoryVisibility } from "../../experiments/lifecycle/useLaboratoryVisibility.ts";
 import { createLq01BrowserChannel } from "../../experiments/lq01/browser.ts";
 import { fromLq01Draft, type Lq01Draft, toLq01Draft } from "../../experiments/lq01/controls.ts";
 import {
@@ -146,6 +147,7 @@ export function WaveDescriptionLab({
     },
     (retainedId) => createLq01Session(retainedId, example, createLq01BrowserChannel),
   );
+  const region = useLaboratoryVisibility(session);
   const workerTape = useMemo(
     () => createLq01TapeBinding(example, createLq01BrowserChannel),
     [example],
@@ -288,6 +290,7 @@ export function WaveDescriptionLab({
   );
   return (
     <section
+      ref={region}
       className="laboratory lq01"
       aria-labelledby={`${id}-title`}
       data-instrument-id="lq-01"

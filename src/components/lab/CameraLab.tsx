@@ -1,5 +1,5 @@
 "use client";
-import { type FormEvent, useEffect, useId, useMemo, useState, useSyncExternalStore } from "react";
+import { type FormEvent, useEffect, useId, useMemo, useState } from "react";
 import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { createBm08BrowserChannel } from "../../experiments/bm08/browser.ts";
 import {
@@ -15,6 +15,7 @@ import { createBm08Session, type PreparedBm08Example } from "../../experiments/b
 import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
+import { useLaboratoryVisibility } from "../../experiments/lifecycle/useLaboratoryVisibility.ts";
 import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import {
   type ApplyFailure,
@@ -64,6 +65,7 @@ export function CameraLab({
     },
     (retainedId) => createBm08Session(retainedId, example, createBm08BrowserChannel),
   );
+  const region = useLaboratoryVisibility(session);
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("bm-08", BM08_PROMPTS);
   const view = useInstrumentView(session);
@@ -235,6 +237,7 @@ export function CameraLab({
   }));
   return (
     <section
+      ref={region}
       className="laboratory camera-lab"
       aria-labelledby={`${id}-title`}
       data-instrument-id="bm-08"

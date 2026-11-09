@@ -1,5 +1,5 @@
 "use client";
-import { type FormEvent, useEffect, useId, useMemo, useState, useSyncExternalStore } from "react";
+import { type FormEvent, useEffect, useId, useMemo, useState } from "react";
 import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { createBm07BrowserChannel } from "../../experiments/bm07/browser.ts";
 import {
@@ -23,6 +23,7 @@ import {
   executionStateKindFromHostLabel,
 } from "../../experiments/labels/executionLabelFor.ts";
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
+import { useLaboratoryVisibility } from "../../experiments/lifecycle/useLaboratoryVisibility.ts";
 import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import {
@@ -82,6 +83,7 @@ export function InferenceLab({
     },
     (retainedId) => createBm07Session(retainedId, example, createBm07BrowserChannel),
   );
+  const region = useLaboratoryVisibility(session);
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("bm-07", BM07_PROMPTS);
   const serverAccepted = session.getServerSnapshot().accepted;
@@ -218,6 +220,7 @@ export function InferenceLab({
     increments = array(snapshot, "observationIncrements");
   return (
     <section
+      ref={region}
       className="laboratory inference-lab"
       aria-labelledby={`${id}-title`}
       data-instrument-id="bm-07"

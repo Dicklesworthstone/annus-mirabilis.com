@@ -16,7 +16,7 @@ export function createBm08ComparisonSession(
   const session = createBm08Session(instanceId, example, workerFactory);
   const baseline = requireBm08ComparisonExample(session.getServerSnapshot().accepted);
   const model = BM08_DRAFT_TAPE.environment;
-  return createControlledComparison(session, {
+  const comparison = createControlledComparison(session, {
     contract: BM08_COMPARISON,
     identity: Object.freeze({
       modelVersion: `${model.modelId}@${model.modelVersion}`,
@@ -30,5 +30,9 @@ export function createBm08ComparisonSession(
     baseline,
     variant: baseline,
     verifyAccepted: verifyBm08Comparison,
+  });
+  return Object.freeze({
+    ...comparison,
+    setSchedulingPaused: session.setSchedulingPaused,
   });
 }

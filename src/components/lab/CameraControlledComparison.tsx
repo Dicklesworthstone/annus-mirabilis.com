@@ -16,6 +16,7 @@ import {
   comparisonDisplay,
   comparisonStatement,
 } from "../../experiments/compare/comparisonStatement.ts";
+import { useLaboratoryVisibility } from "../../experiments/lifecycle/useLaboratoryVisibility.ts";
 import { CameraComparisonReadouts } from "./CameraComparisonReadouts.tsx";
 
 const help: Readonly<Record<Bm08ComparisonInput, string>> = {
@@ -41,6 +42,7 @@ export function CameraControlledComparison({ example }: { example: PreparedBm08E
   const [controller] = useState(() =>
     createBm08ComparisonSession(`camera-compare-${uid}`, example, createBm08BrowserChannel),
   );
+  const region = useLaboratoryVisibility(controller);
   const state = useSyncExternalStore(
     controller.subscribe,
     controller.getSnapshot,
@@ -84,6 +86,7 @@ export function CameraControlledComparison({ example }: { example: PreparedBm08E
   );
   return (
     <section
+      ref={region}
       className="laboratory controlled-comparison camera-controlled-comparison"
       aria-labelledby={`${uid}-title`}
       data-controlled-camera-comparison

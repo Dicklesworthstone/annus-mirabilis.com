@@ -56,6 +56,7 @@ export function createLq01Session(
   }
   const serverSnapshot = store.getSnapshot();
   let scheduler: ReturnType<typeof createLq01Scheduler> | null = null;
+  let schedulingPaused = false;
   function apply(input: unknown, newRun = false) {
     const validated = validateLq01Parameters(input);
     if (validated.kind !== "accepted") return validated;
@@ -77,6 +78,7 @@ export function createLq01Session(
     }
     request ??= store.issue("continue");
     scheduler ??= createLq01Scheduler(store, workerFactory, example.sourceDigest);
+    scheduler.setSchedulingPaused(schedulingPaused);
     scheduler.request(request);
     return { kind: "accepted" as const, data: request };
   }
@@ -87,6 +89,10 @@ export function createLq01Session(
     apply: (input: unknown) => apply(input),
     /** An explicit new calculation keeps its own identity even when only the phase changes. */
     startNewRun: (input: unknown) => apply(input, true),
+    setSchedulingPaused(paused: boolean) {
+      schedulingPaused = paused;
+      scheduler?.setSchedulingPaused(paused);
+    },
     stop() {
       scheduler?.cancel();
     },

@@ -54,6 +54,7 @@ export function createBm04Session(
   }
   const serverSnapshot = store.getSnapshot();
   let scheduler: ReturnType<typeof createBm04Scheduler> | null = null;
+  let schedulingPaused = false;
   return Object.freeze({
     getSnapshot: store.getSnapshot,
     getServerSnapshot: () => serverSnapshot,
@@ -76,8 +77,13 @@ export function createBm04Session(
       if (Object.keys(setup).length) request = store.issue("setup-change", setup);
       request ??= store.issue("continue");
       scheduler ??= createBm04Scheduler(store, workerFactory, example.sourceDigest);
+      scheduler.setSchedulingPaused(schedulingPaused);
       scheduler.request(request);
       return { kind: "accepted" as const, data: request };
+    },
+    setSchedulingPaused(paused: boolean) {
+      schedulingPaused = paused;
+      scheduler?.setSchedulingPaused(paused);
     },
     stop() {
       scheduler?.cancel();

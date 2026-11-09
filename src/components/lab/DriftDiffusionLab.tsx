@@ -1,5 +1,5 @@
 "use client";
-import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { type FormEvent, useEffect, useId, useState } from "react";
 import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { createBm04BrowserChannel } from "../../experiments/bm04/browser.ts";
 import { BM04_FIELDS, fromBm04Draft, toBm04Draft } from "../../experiments/bm04/controls.ts";
@@ -16,6 +16,7 @@ import { createBm04Session, type PreparedBm04Example } from "../../experiments/b
 import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../experiments/labels/executionLabelFor.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
+import { useLaboratoryVisibility } from "../../experiments/lifecycle/useLaboratoryVisibility.ts";
 import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import {
@@ -72,6 +73,7 @@ export function DriftDiffusionLab({
     },
     (retainedId) => createBm04Session(retainedId, example, createBm04BrowserChannel),
   );
+  const region = useLaboratoryVisibility(session);
   const view = useInstrumentView(session);
   const snapshot =
     view.accepted ??
@@ -219,6 +221,7 @@ export function DriftDiffusionLab({
   );
   return (
     <section
+      ref={region}
       className="laboratory"
       aria-labelledby={`${id}-title`}
       data-instrument-id="bm-04"

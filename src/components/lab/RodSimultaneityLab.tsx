@@ -4,6 +4,7 @@ import { type FormEvent, useCallback, useEffect, useId, useMemo, useRef, useStat
 import { ExecutionLabel } from "../../experiments/labels/ExecutionLabel.tsx";
 import { executionStateKindFromHostLabel } from "../../experiments/labels/executionLabelFor.ts";
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
+import { useLaboratoryVisibility } from "../../experiments/lifecycle/useLaboratoryVisibility.ts";
 import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { createSr03BrowserChannel } from "../../experiments/sr03/browser.ts";
@@ -118,6 +119,7 @@ export function RodSimultaneityLab({
     },
     (retainedId) => createSr03Session(retainedId, example, createSr03BrowserChannel),
   );
+  const region = useLaboratoryVisibility(session);
   const workerTape = useMemo(
     () => createSr03TapeBinding(example, createSr03BrowserChannel),
     [example],
@@ -300,6 +302,7 @@ export function RodSimultaneityLab({
   );
   return (
     <section
+      ref={region}
       className="laboratory"
       aria-labelledby={`${id}-title`}
       data-instrument-id="sr-03"

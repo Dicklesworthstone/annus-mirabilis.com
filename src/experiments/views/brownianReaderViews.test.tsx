@@ -168,7 +168,6 @@ function field(scenario: Scenario): HTMLInputElement {
 }
 type Handlers = {
   onChange?: (event: { target: HTMLInputElement; currentTarget: HTMLInputElement }) => void;
-  onSubmit?: (event: { preventDefault(): void }) => void;
 };
 function handlers(element: Element): Handlers {
   const key = Object.keys(element).find((name) => name.startsWith("__reactProps$"));
@@ -190,9 +189,9 @@ async function submit(scenario: Scenario) {
   const form = field(scenario).closest("form");
   assert.ok(form);
   await act(async () => {
-    const apply = handlers(form).onSubmit;
-    assert.ok(apply);
-    apply({ preventDefault() {} });
+    const event = new Event("submit", { bubbles: true, cancelable: true });
+    form.dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(true);
   });
 }
 async function render(scenario: Scenario, place = placement) {
@@ -216,7 +215,8 @@ async function render(scenario: Scenario, place = placement) {
     ),
   );
   await until(
-    () => container.querySelector(`section.laboratory[data-instrument-id="${scenario.id}"]`) !== null,
+    () =>
+      container.querySelector(`section.laboratory[data-instrument-id="${scenario.id}"]`) !== null,
   );
 }
 function identity(scenario: Scenario) {
@@ -230,7 +230,10 @@ for (const scenario of scenarios) {
   test(`${scenario.id}: the lazy reader loader opens real controls without interpreting the paper URL`, async () => {
     const held = retainLaboratory(scenario);
     try {
-      for (const query of [scenario.parentSettings, "?view=german&detail=2&tape=invalid-parent-tape"]) {
+      for (const query of [
+        scenario.parentSettings,
+        "?view=german&detail=2&tape=invalid-parent-tape",
+      ]) {
         window.history.replaceState(null, "", `/papers/brownian-motion/s3/${query}`);
         await render(scenario);
         expect(field(scenario).value).toBe(scenario.initial);
