@@ -15,6 +15,7 @@ import {
 } from "../../../experiments/bm07/kitchen/kitchenStorage.ts";
 import { KITCHEN_LIMITS, type KitchenDocument } from "../../../experiments/bm07/kitchen/schema.ts";
 import { createKitchenSession } from "../../../experiments/bm07/kitchen/session.ts";
+import { useLaboratoryVisibility } from "../../../experiments/lifecycle/useLaboratoryVisibility.ts";
 import { createStorageContext } from "../../../platform/storage/store.ts";
 import { identity } from "../presentation.ts";
 import {
@@ -37,6 +38,7 @@ export function KitchenLab({
     [session] = useState(() =>
       createKitchenSession(`kitchen-${id}`, createKitchenBrowserChannel, practice.sourceDigest),
     );
+  const region = useLaboratoryVisibility(session);
   const state = useSyncExternalStore(
       session.subscribe,
       session.getSnapshot,
@@ -194,6 +196,7 @@ export function KitchenLab({
         : "Analysis accepted. Plots, tables and exports describe the same observations and inputs.");
   return (
     <section
+      ref={region}
       className="laboratory kitchen-lab"
       data-instrument-id="bm-07-kitchen"
       {...(accepted ? identity(accepted.snapshot) : { "data-instance-id": `kitchen-${id}` })}

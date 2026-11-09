@@ -74,6 +74,7 @@ export function createKitchenSession(
     active: KitchenRequest | null = null,
     queued: KitchenRequest | null = null;
   let deadline: ReturnType<typeof setTimeout> | null = null;
+  let schedulingPaused = false;
   const listeners = new Set<() => void>();
   let state: KitchenView = Object.freeze({
     view: store.getSnapshot(),
@@ -134,6 +135,12 @@ export function createKitchenSession(
       );
     }
   }
+  function dispatchQueued() {
+    if (schedulingPaused || active || !queued || state.preparing) return;
+    const request = queued;
+    queued = null;
+    send(request);
+  }
   function receive(input: unknown) {
     const job = active;
     if (!job) return;
@@ -188,11 +195,7 @@ export function createKitchenSession(
         return;
       }
     }
-    if (queued) {
-      const next = queued;
-      queued = null;
-      send(next);
-    }
+    dispatchQueued();
   }
   async function submit(csv: string, options: KitchenOptions = KITCHEN_OPTIONS, newSource = true) {
     const ticket = ++generation;
@@ -228,9 +231,9 @@ export function createKitchenSession(
         token = store.issue("estimator-change", estimator);
       token ??= store.issue("continue");
       const request: KitchenRequest = { version: KITCHEN_PROTOCOL, sourceDigest, token, csv };
+      queued = request;
       emit();
-      if (active) queued = request;
-      else send(request);
+      dispatchQueued();
       return true;
     } catch (e) {
       emit(e instanceof Error ? e.message : "The local file could not be prepared.");
@@ -247,6 +250,10 @@ export function createKitchenSession(
       };
     },
     submit,
+    setSchedulingPaused(paused: boolean) {
+      schedulingPaused = paused;
+      if (!paused) dispatchQueued();
+    },
     reanalyze(options: KitchenOptions) {
       if (!accepted) throw new Error("Import observations first.");
       return submit(accepted.csv, options, false);
