@@ -17,6 +17,7 @@ import {
   comparisonDisplay,
   comparisonStatement,
 } from "../../experiments/compare/comparisonStatement.ts";
+import { useLaboratoryVisibility } from "../../experiments/lifecycle/useLaboratoryVisibility.ts";
 import "../../experiments/compare/comparison.css";
 import {
   type ComparisonPredictionIntent,
@@ -42,6 +43,7 @@ export function BrownianComparisonLab({
   const [controller] = useState(() =>
     createBm01ComparisonSession(`comparison-${uid}`, example, createBm01BrowserChannel),
   );
+  const region = useLaboratoryVisibility(controller);
   const state = useSyncExternalStore(
     controller.subscribe,
     controller.getSnapshot,
@@ -97,6 +99,7 @@ export function BrownianComparisonLab({
   );
   return (
     <section
+      ref={region}
       className="laboratory controlled-comparison"
       aria-labelledby={`${uid}-title`}
       data-controlled-comparison

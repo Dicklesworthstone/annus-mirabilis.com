@@ -24,11 +24,12 @@ export function createBm01ComparisonSession(
   const baseline = session.getServerSnapshot().accepted;
   const variant = staticVariant.getServerSnapshot().accepted;
   if (!baseline || !variant) throw new Error("Completed worked comparisons are required.");
-  return createControlledComparison(session, {
+  const comparison = createControlledComparison(session, {
     contract: BM01_COMPARISON,
     identity: bm01ComparisonIdentity(example),
     baseline,
     variant,
     verifyAccepted: verifyBm01Comparison,
   });
+  return Object.freeze({ ...comparison, setSchedulingPaused: session.setSchedulingPaused });
 }

@@ -6,7 +6,7 @@ import { CameraControlledComparison } from "../../components/lab/CameraControlle
 import { validateBm08Parameters } from "../../experiments/bm08/parameters.ts";
 import prepared from "../../generated/bm08-example.json";
 import catalogue from "../../generated/notebook-replay.json";
-import { installDom, uninstallDom } from "../../testing/reactDom.ts";
+import { installDom, observedTestIntersections, uninstallDom } from "../../testing/reactDom.ts";
 import { createBm08Host } from "../../workers/host/bm08Host.ts";
 import { getNotebookStore } from "./browserStore.ts";
 import { replayEnvironment } from "./replayCurrent.ts";
@@ -49,12 +49,35 @@ test("a reader predicts, runs, saves camera evidence, inspects it without runnin
   const previousWorker = Object.getOwnPropertyDescriptor(globalThis, "Worker");
   let creations = 0,
     disposals = 0;
+  let nativeVisibility = "hidden";
+  let pauseReplayBaseline = true;
+  const requests: unknown[] = [];
+  Object.defineProperty(window, "__AM_APP__", {
+    configurable: true,
+    value: {
+      get visibility() {
+        return nativeVisibility;
+      },
+    },
+  });
+  function nativeVisible(visible: boolean) {
+    nativeVisibility = visible ? "visible" : "hidden";
+    window.dispatchEvent(
+      new CustomEvent("am-app:lifecycle.visibility", {
+        detail: { state: nativeVisibility },
+      }),
+    );
+  }
   let holdVariant = true;
   let releaseVariant: (() => void) | undefined;
   const failures: unknown[] = [];
   class CameraWorker extends EventTarget {
     private closed = false;
     private readonly host = createBm08Host((message) => {
+      if (pauseReplayBaseline && creations === 2 && message.messageKind === "result") {
+        pauseReplayBaseline = false;
+        nativeVisible(false);
+      }
       const deliver = () => {
         if (!this.closed)
           this.dispatchEvent(new MessageEvent("message", { data: structuredClone(message) }));
@@ -75,6 +98,7 @@ test("a reader predicts, runs, saves camera evidence, inspects it without runnin
       });
     }
     postMessage(message: unknown) {
+      if ((message as { messageKind: string }).messageKind === "request") requests.push(message);
       void this.host.receive(structuredClone(message)).catch((error) => {
         failures.push(error);
         this.dispatchEvent(new Event("error"));
@@ -118,6 +142,9 @@ test("a reader predicts, runs, saves camera evidence, inspects it without runnin
       return found;
     };
     await act(async () => button("Start controlled camera comparison").click());
+    expect(region.dataset.pending).toBe("true");
+    expect(creations).toBe(0);
+    await act(async () => nativeVisible(true));
     await until(() => region.dataset.pending === "false");
     const form = host.querySelector<HTMLFormElement>(
       'form[aria-label="Controlled camera comparison settings"]',
@@ -172,7 +199,23 @@ test("a reader predicts, runs, saves camera evidence, inspects it without runnin
     expect(notebook.textContent).toContain("naive diffusion estimate will be larger");
     expect(notebook.textContent).not.toContain("coordinate RMS");
     expect(notebook.querySelector("script")).toBeNull();
+    await act(async () => nativeVisible(false));
     await act(async () => again.click());
+    await until(
+      () =>
+        notebook.querySelector<HTMLElement>("[data-fresh-replay]")?.dataset.phase === "baseline",
+    );
+    expect(creations).toBe(1);
+    const beforeReplayRequests = requests.length;
+    await act(async () => nativeVisible(true));
+    await until(
+      () => notebook.querySelector<HTMLElement>("[data-fresh-replay]")?.dataset.phase === "variant",
+    );
+    expect(creations).toBe(2);
+    expect(requests.length).toBe(beforeReplayRequests + 1);
+    expect(notebook.querySelectorAll("table")).toHaveLength(1);
+    expect(notebook.querySelector("[data-fresh-replay]")?.textContent).toBe("");
+    await act(async () => nativeVisible(true));
     await until(
       () =>
         notebook.querySelector<HTMLElement>("[data-fresh-replay]")?.dataset.phase === "complete",
@@ -183,6 +226,26 @@ test("a reader predicts, runs, saves camera evidence, inspects it without runnin
     expect(store.getSnapshot().document.entries.find((item) => item.id === entry.id)).toEqual(
       entry,
     );
+    const replayRegion = notebook.querySelector<HTMLElement>("[data-replay-entry]");
+    assert.ok(replayRegion);
+    expect(observedTestIntersections()).toContain(replayRegion);
+    await act(async () => nativeVisible(false));
+    await act(async () => again.click());
+    await until(
+      () =>
+        notebook.querySelector<HTMLElement>("[data-fresh-replay]")?.dataset.phase === "baseline",
+    );
+    expect(creations).toBe(2);
+    const stop = [...notebook.querySelectorAll("button")].find(
+      (control) => control.textContent === "Stop",
+    );
+    assert.ok(stop);
+    await act(async () => stop.click());
+    inspection.dispose();
+    inspection = undefined;
+    expect(observedTestIntersections()).not.toContain(replayRegion);
+    await act(async () => nativeVisible(true));
+    expect(creations).toBe(2);
     expect(failures).toEqual([]);
   } finally {
     inspection?.dispose();

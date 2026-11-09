@@ -1,5 +1,6 @@
 import { decodeLabResponse, SR03_PROTOCOL } from "../../workers/protocol/sr03.ts";
 import { createSr03Scheduler, type WorkerChannel } from "../../workers/scheduler/sr03Scheduler.ts";
+import { createSchedulingPause } from "../lifecycle/schedulingPause.ts";
 import { parseResult } from "../results/codec.ts";
 import { createInstanceStore, type Parameters } from "../store/instanceStore.ts";
 import { SR03_OUTPUTS, SR03_PARAMETER_CLASSES, type Sr03Parameters } from "./definition.ts";
@@ -55,7 +56,7 @@ export function createSr03Session(
   }
   const serverSnapshot = store.getSnapshot();
   let scheduler: ReturnType<typeof createSr03Scheduler> | null = null;
-  let schedulingPaused = false;
+  const schedulingPause = createSchedulingPause((paused) => scheduler?.setSchedulingPaused(paused));
   function apply(input: unknown, newRun = false) {
     const validated = validateSr03Parameters(input);
     if (validated.kind !== "accepted") return validated;
@@ -83,7 +84,7 @@ export function createSr03Session(
     request ??= store.issue("continue");
 
     scheduler ??= createSr03Scheduler(store, workerFactory, example.sourceDigest);
-    scheduler.setSchedulingPaused(schedulingPaused);
+    scheduler.setSchedulingPaused(schedulingPause.getSchedulingPaused());
     scheduler.request(request);
     return { kind: "accepted" as const, data: request };
   }
@@ -94,10 +95,7 @@ export function createSr03Session(
     apply: (input: unknown) => apply(input),
     /** An explicitly new calculation has a fresh run identity even at unchanged settings. */
     startNewRun: (input: unknown) => apply(input, true),
-    setSchedulingPaused(paused: boolean) {
-      schedulingPaused = paused;
-      scheduler?.setSchedulingPaused(paused);
-    },
+    ...schedulingPause,
     stop() {
       scheduler?.cancel();
     },

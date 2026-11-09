@@ -1,5 +1,6 @@
 import { decodeLabResponse, LQ01_PROTOCOL } from "../../workers/protocol/lq01.ts";
 import { createLq01Scheduler, type WorkerChannel } from "../../workers/scheduler/lq01Scheduler.ts";
+import { createSchedulingPause } from "../lifecycle/schedulingPause.ts";
 import { parseResult } from "../results/codec.ts";
 import { createInstanceStore } from "../store/instanceStore.ts";
 import { LQ01_OUTPUTS, LQ01_PARAMETER_CLASSES, type Lq01Parameters } from "./definition.ts";
@@ -56,7 +57,7 @@ export function createLq01Session(
   }
   const serverSnapshot = store.getSnapshot();
   let scheduler: ReturnType<typeof createLq01Scheduler> | null = null;
-  let schedulingPaused = false;
+  const schedulingPause = createSchedulingPause((paused) => scheduler?.setSchedulingPaused(paused));
   function apply(input: unknown, newRun = false) {
     const validated = validateLq01Parameters(input);
     if (validated.kind !== "accepted") return validated;
@@ -78,7 +79,7 @@ export function createLq01Session(
     }
     request ??= store.issue("continue");
     scheduler ??= createLq01Scheduler(store, workerFactory, example.sourceDigest);
-    scheduler.setSchedulingPaused(schedulingPaused);
+    scheduler.setSchedulingPaused(schedulingPause.getSchedulingPaused());
     scheduler.request(request);
     return { kind: "accepted" as const, data: request };
   }
@@ -89,10 +90,7 @@ export function createLq01Session(
     apply: (input: unknown) => apply(input),
     /** An explicit new calculation keeps its own identity even when only the phase changes. */
     startNewRun: (input: unknown) => apply(input, true),
-    setSchedulingPaused(paused: boolean) {
-      schedulingPaused = paused;
-      scheduler?.setSchedulingPaused(paused);
-    },
+    ...schedulingPause,
     stop() {
       scheduler?.cancel();
     },

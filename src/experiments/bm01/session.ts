@@ -5,6 +5,7 @@ import {
   createVerifiedWorkerChannel,
   type PublicationVerifier,
 } from "../../workers/scheduler/verifiedChannel.ts";
+import { createSchedulingPause } from "../lifecycle/schedulingPause.ts";
 import { parseResult } from "../results/codec.ts";
 import { executionOutcomeRegistry } from "../results/outcomes.ts";
 import {
@@ -70,7 +71,7 @@ export function createBm01Session(
     throw new Error("Invalid prepared tracer example.");
   const serverSnapshot = store.getSnapshot();
   let scheduler: ReturnType<typeof createHostScheduler> | null = null;
-  let schedulingPaused = false;
+  const schedulingPause = createSchedulingPause((paused) => scheduler?.setSchedulingPaused(paused));
   const verifiers = new WeakMap<RequestToken, PublicationVerifier>();
   const ownerProtocol = {
     version: BM01_PROTOCOL,
@@ -144,7 +145,7 @@ export function createBm01Session(
         },
       },
     );
-    scheduler.setSchedulingPaused(schedulingPaused);
+    scheduler.setSchedulingPaused(schedulingPause.getSchedulingPaused());
     scheduler.request(request);
     return { kind: "accepted" as const, data: request };
   }
@@ -155,10 +156,7 @@ export function createBm01Session(
     apply: (input: unknown) => apply(input),
     applyVerified: (input: unknown, verify: PublicationVerifier) => apply(input, false, verify),
     startNewRun: (input: unknown) => apply(input, true),
-    setSchedulingPaused(paused: boolean) {
-      schedulingPaused = paused;
-      scheduler?.setSchedulingPaused(paused);
-    },
+    ...schedulingPause,
     stop() {
       scheduler?.cancel();
     },

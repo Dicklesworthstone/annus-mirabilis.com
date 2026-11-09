@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { type FormEvent, useEffect, useId, useState } from "react";
 import {
   captureTracerEvidence,
   compareTracerEvidence,
@@ -19,6 +19,7 @@ import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
+import { useLaboratoryVisibility } from "../../experiments/lifecycle/useLaboratoryVisibility.ts";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import {
   type ApplyFailure,
@@ -64,6 +65,7 @@ export function BrownianInvestigation({
   const [session] = useState(() =>
     createBm01Session(`investigation-${id}`, tracerExample, createBm01BrowserChannel),
   );
+  const region = useLaboratoryVisibility(session);
   const view = useInstrumentView(session);
   const accepted = view.accepted ?? session.getServerSnapshot().accepted;
   if (!accepted) {
@@ -204,7 +206,7 @@ export function BrownianInvestigation({
   }
 
   return (
-    <>
+    <article ref={region} data-brownian-investigation>
       <section
         className="laboratory"
         aria-labelledby={`${id}-title`}
@@ -540,6 +542,6 @@ export function BrownianInvestigation({
           ))}
         </ol>
       </section>
-    </>
+    </article>
   );
 }

@@ -23,6 +23,8 @@ import type { WorkerChannel } from "../../workers/scheduler/hostScheduler.ts";
 export type ReplayInstrumentId = "bm-01" | "bm-08";
 export type ComparisonReplayKind = "bm01-comparison" | "bm08-comparison";
 export type ComparisonReplayPrediction = "smaller" | "same" | "larger";
+export type ComparisonReplaySession = ComparisonPort &
+  Readonly<{ setSchedulingPaused(paused: boolean): void }>;
 export type ComparisonReplayOwner = Readonly<{
   identity: ComparisonIdentity;
   workerFactory: () => WorkerChannel;
@@ -60,7 +62,7 @@ export type ComparisonReplayAdapter = Readonly<{
     variant: ComparisonSnapshot,
     result: ComparisonResult,
   ): string | null;
-  createSession(instanceId: string, owner: ComparisonReplayOwner): Promise<ComparisonPort>;
+  createSession(instanceId: string, owner: ComparisonReplayOwner): Promise<ComparisonReplaySession>;
   loadCurrentOwner(): Promise<ComparisonReplayOwner>;
 }>;
 

@@ -2,6 +2,10 @@ import type {
   PublicationVerifier,
   VerifiablePublication,
 } from "../../workers/scheduler/verifiedChannel.ts";
+import {
+  inheritSchedulingPause,
+  type SchedulingPauseSource,
+} from "../lifecycle/schedulingPause.ts";
 import type { ExperimentView, RequestToken } from "../store/instanceStore.ts";
 import { checkTapeCompatibility } from "./compatibility.ts";
 import { type DraftTapeBinding, environmentForSettings } from "./draftTape.ts";
@@ -17,20 +21,21 @@ import {
 import type { TapeV2 } from "./types.ts";
 
 /** A worker accepting a request has not yet accepted a result. */
-export type WorkerTapeSession = Readonly<{
-  apply(input: unknown): Readonly<{ kind: string; data?: unknown }>;
-  /** A scientific replay must check the worker result before it can replace accepted state. */
-  applyVerified?(
-    input: unknown,
-    verify: PublicationVerifier,
-  ): Readonly<{ kind: string; data?: unknown }>;
-  startNewRun?(input: unknown): Readonly<{ kind: string; data?: unknown }>;
-  getSnapshot(): ExperimentView;
-  subscribe(listener: () => void): () => void;
-  acceptedParameters(): object;
-  stop(): void;
-  disconnect(): void;
-}>;
+export type WorkerTapeSession = SchedulingPauseSource &
+  Readonly<{
+    apply(input: unknown): Readonly<{ kind: string; data?: unknown }>;
+    /** A scientific replay must check the worker result before it can replace accepted state. */
+    applyVerified?(
+      input: unknown,
+      verify: PublicationVerifier,
+    ): Readonly<{ kind: string; data?: unknown }>;
+    startNewRun?(input: unknown): Readonly<{ kind: string; data?: unknown }>;
+    getSnapshot(): ExperimentView;
+    subscribe(listener: () => void): () => void;
+    acceptedParameters(): object;
+    stop(): void;
+    disconnect(): void;
+  }>;
 
 export type WorkerTapeBinding = DraftTapeBinding &
   Readonly<{
@@ -47,7 +52,7 @@ export type WorkerTapeRestore =
 
 export type WorkerReplayOptions = Readonly<{
   signal?: AbortSignal | undefined;
-  /** A stalled worker must not leave the player permanently busy. */
+  /** Active scheduling budget; hidden time cannot turn a paused checkpoint into a failure. */
   timeoutMs?: number | undefined;
 }>;
 
@@ -184,17 +189,43 @@ export function applyWorkerSettings(
     let requested: RequestToken | null = null;
     let settled = false;
     let unsubscribe = () => {};
+    let unsubscribePause = () => {};
     let timer: ReturnType<typeof setTimeout> | undefined;
+    let remaining = options.timeoutMs ?? 15_000;
+    let activeSince: number | null = null;
+    const suspendTimer = () => {
+      if (timer !== undefined) clearTimeout(timer);
+      timer = undefined;
+      if (activeSince !== null)
+        remaining = Math.max(0, remaining - (performance.now() - activeSince));
+      activeSince = null;
+    };
     const finish = (outcome: WorkerTapeRestore, stop = false) => {
       if (settled) return;
       settled = true;
       unsubscribe();
-      if (timer !== undefined) clearTimeout(timer);
+      unsubscribePause();
+      suspendTimer();
       options.signal?.removeEventListener("abort", abort);
       if (stop && requested && session.getSnapshot().requested === requested) session.stop();
       resolve(outcome);
     };
     const abort = () => finish(refuse("The checkpoint restoration was cancelled."), true);
+    const updateTimer = () => {
+      suspendTimer();
+      if (settled || session.getSchedulingPaused()) return;
+      activeSince = performance.now();
+      timer = setTimeout(
+        () =>
+          finish(
+            refuse(
+              "The calculation took too long. The previous accepted result is still available; retry the checkpoint.",
+            ),
+            true,
+          ),
+        remaining,
+      );
+    };
     const inspect = () => {
       if (!requested || settled) return;
       const view = session.getSnapshot();
@@ -230,16 +261,8 @@ export function applyWorkerSettings(
     try {
       unsubscribe = session.subscribe(inspect);
       options.signal?.addEventListener("abort", abort, { once: true });
-      timer = setTimeout(
-        () =>
-          finish(
-            refuse(
-              "The calculation took too long. The previous accepted result is still available; retry the checkpoint.",
-            ),
-            true,
-          ),
-        options.timeoutMs ?? 15_000,
-      );
+      unsubscribePause = session.subscribeSchedulingPause(updateTimer);
+      updateTimer();
       const previous = session.getSnapshot().requested;
       const outcome = options.newRun
         ? session.startNewRun?.(settings)
@@ -321,6 +344,7 @@ export async function restoreWorkerTape(
     return refuse("Wait for the current calculation before restoring a checkpoint.");
   activeRestores.add(session);
   let trial: WorkerTapeSession | undefined;
+  let detachPause = () => {};
   try {
     const checked = validateTapeV2(tape);
     const scientific = binding.scientificReplay;
@@ -332,6 +356,7 @@ export async function restoreWorkerTape(
       trial = binding.createSession(
         `${binding.environment.experimentId}-replay-${++preflightNumber}`,
       );
+      detachPause = inheritSchedulingPause(session, trial);
       const verifyPublication: PublicationVerifier = (publication) =>
         scientific.verify(checked, publication);
       for (let i = 0; i < plan.states.length; i++) {
@@ -358,6 +383,7 @@ export async function restoreWorkerTape(
     trial = binding.createSession(
       `${binding.environment.experimentId}-replay-${++preflightNumber}`,
     );
+    detachPause = inheritSchedulingPause(session, trial);
     for (const settings of plan.states) {
       const outcome = await applyWorkerSettings(trial, settings, options);
       if (outcome.kind !== "restored") return outcome;
@@ -380,6 +406,7 @@ export async function restoreWorkerTape(
   } catch (error) {
     return refuse(`The recorded checkpoint could not be checked: ${String(error)}`);
   } finally {
+    detachPause();
     trial?.disconnect();
     activeRestores.delete(session);
   }

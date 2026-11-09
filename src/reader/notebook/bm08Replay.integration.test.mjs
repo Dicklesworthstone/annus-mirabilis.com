@@ -229,6 +229,90 @@ test("an estimator replay reuses the same observed camera frames and calibration
   run.dispose();
 });
 
+test("a notebook replay hidden before its asynchronous owner exists waits without starting a worker", async () => {
+  const io = transport(),
+    run = runner(cameraEntry.replay, io);
+  run.setSchedulingPaused(true);
+  try {
+    await run.start();
+    assert.equal(run.getSnapshot().phase, "baseline");
+    assert.equal(run.getSnapshot().baseline, null);
+    assert.equal(io.metrics.created, 0);
+    run.setSchedulingPaused(false);
+    await until(() => run.getSnapshot().phase === "complete");
+    assert.equal(run.getSnapshot().reproduction, "matching-scalars");
+    assert.equal(io.metrics.created, 1);
+    assert.equal(io.metrics.disposed, 1);
+    assert.equal(run.getSnapshot().baseline.runId, run.getSnapshot().variant.runId);
+  } finally {
+    run.dispose();
+  }
+});
+
+test("hiding between the notebook baseline and variant queues the same camera run until it is visible", async () => {
+  const io = transport(),
+    run = runner(cameraEntry.replay, io);
+  const off = run.subscribe(() => {
+    const state = run.getSnapshot();
+    if (state.phase === "baseline" && state.baseline) run.setSchedulingPaused(true);
+  });
+  try {
+    await run.start();
+    await until(() => run.getSnapshot().phase === "variant");
+    const baseline = run.getSnapshot().baseline;
+    assert.ok(baseline);
+    assert.equal(run.getSnapshot().variant, null);
+    assert.equal(run.getSnapshot().result, null);
+    assert.equal(io.metrics.requests.filter((m) => m.messageKind === "request").length, 1);
+    run.setSchedulingPaused(false);
+    await until(() => run.getSnapshot().phase === "complete");
+    assert.equal(run.getSnapshot().baseline, baseline);
+    assert.equal(run.getSnapshot().variant.runId, baseline.runId);
+    assert.equal(run.getSnapshot().reproduction, "matching-scalars");
+    const variant = io.metrics.replies.filter((m) => m.messageKind === "result").at(-1);
+    assert.equal(scalar(variant, "reusedRecording"), 1);
+    assert.equal(scalar(variant, "requestDraws"), 0);
+    assert.equal(io.metrics.created, 1);
+    assert.equal(io.metrics.disposed, 1);
+  } finally {
+    off();
+    run.dispose();
+  }
+});
+
+for (const betweenPhases of [false, true]) {
+  test(`cancelling a hidden notebook replay ${betweenPhases ? "between phases" : "before start"} cannot resume or publish a partial comparison`, async () => {
+    const io = transport(),
+      run = runner(cameraEntry.replay, io);
+    const off = run.subscribe(() => {
+      const state = run.getSnapshot();
+      if (betweenPhases && state.phase === "baseline" && state.baseline)
+        run.setSchedulingPaused(true);
+    });
+    if (!betweenPhases) run.setSchedulingPaused(true);
+    try {
+      await run.start();
+      if (betweenPhases) await until(() => run.getSnapshot().phase === "variant");
+      run.stop();
+      const stopped = run.getSnapshot();
+      assert.equal(stopped.phase, "stopped");
+      assert.equal(stopped.baseline, null);
+      assert.equal(stopped.variant, null);
+      assert.equal(stopped.result, null);
+      const requests = io.metrics.requests.length;
+      run.setSchedulingPaused(false);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      assert.equal(run.getSnapshot(), stopped);
+      assert.equal(io.metrics.requests.length, requests);
+      assert.equal(io.metrics.created, betweenPhases ? 1 : 0);
+      assert.equal(io.metrics.disposed, io.metrics.created);
+    } finally {
+      off();
+      run.dispose();
+    }
+  });
+}
+
 test("camera JSON and readable exports retain instrument labels, private words and full precision without code or URL leakage", () => {
   const document = { ...emptyNotebook(), entries: [cameraEntry] };
   const exported = JSON.parse(exportNotebookJson(document));
@@ -267,7 +351,7 @@ test("unknown adapters and a wrong owner are explicitly refused before any worke
   assert.equal(io.metrics.created, 0);
 });
 
-test("(comparisonAdapters.ts:112) tracer session accepts its own prepared example and refuses a camera owner", async () => {
+test("(comparisonAdapters.ts:114) tracer session accepts its own prepared example and refuses a camera owner", async () => {
   const adapter = comparisonReplayAdapter("bm-01"),
     io = transport();
   await assert.rejects(
@@ -293,7 +377,7 @@ test("(comparisonAdapters.ts:112) tracer session accepts its own prepared exampl
   session.disconnect();
 });
 
-test("(comparisonAdapters.ts:158) camera session accepts its own prepared example and refuses a tracer owner", async () => {
+test("(comparisonAdapters.ts:160) camera session accepts its own prepared example and refuses a tracer owner", async () => {
   const adapter = comparisonReplayAdapter("bm-08"),
     io = transport();
   await assert.rejects(
@@ -353,7 +437,7 @@ test("camera recipe parsing refuses a second changed input, physical-path change
   }
 });
 
-test("(comparisonAdapters.ts:70) camera parameters admit one recording and refuse additional hypothetical experiments", () => {
+test("(comparisonAdapters.ts:72) camera parameters admit one recording and refuse additional hypothetical experiments", () => {
   assert.deepEqual(comparisonReplayAdapter("bm-08").parameters(parameters), parameters);
   assert.throws(
     () => comparisonReplayAdapter("bm-08").parameters({ ...parameters, coverageTrials: 1 }),
@@ -361,7 +445,7 @@ test("(comparisonAdapters.ts:70) camera parameters admit one recording and refus
   );
 });
 
-test("(comparisonAdapters.ts:99) tracer parameters admit their canonical settings and refuse camera settings", () => {
+test("(comparisonAdapters.ts:101) tracer parameters admit their canonical settings and refuse camera settings", () => {
   assert.deepEqual(comparisonReplayAdapter("bm-01").parameters(BM01_DEFAULTS), BM01_DEFAULTS);
   assert.throws(() => comparisonReplayAdapter("bm-01").parameters(parameters), {
     code: "invalid-replay-parameters",

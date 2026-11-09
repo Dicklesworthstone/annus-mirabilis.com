@@ -1,5 +1,6 @@
 import type { Baseline } from "../../experiments/compare/Baseline.ts";
 import { comparisonDisplay } from "../../experiments/compare/comparisonStatement.ts";
+import { bindLaboratoryVisibility } from "../../experiments/lifecycle/bindLaboratoryVisibility.ts";
 import { comparisonReplayAdapter } from "./comparisonAdapters.ts";
 import type { NotebookStore } from "./notebookStore.ts";
 import { type ReplayCatalogue, replayCompatibility } from "./replayCompatibility.ts";
@@ -169,6 +170,7 @@ export function mountReplayView(
     changedModel = false,
     runner: Runner | null = null,
     off: (() => void) | null = null;
+  let schedulingPaused = true;
   function clearRunner() {
     generation++;
     off?.();
@@ -211,6 +213,7 @@ export function mountReplayView(
           return;
         }
         runner = created;
+        runner.setSchedulingPaused(schedulingPaused);
         off = runner.subscribe(renderFresh);
         void runner.start(changedModel);
         renderFresh();
@@ -235,6 +238,12 @@ export function mountReplayView(
   controls.append(start, stop);
   root.append(compatibility, passage, controls, runStatus, error, fresh);
   host.append(root);
+  const unbindVisibility = bindLaboratoryVisibility(root, {
+    setSchedulingPaused(paused) {
+      schedulingPaused = paused;
+      runner?.setSchedulingPaused(paused);
+    },
+  });
   void environment
     .loadCatalogue()
     .then((catalogue) => {
@@ -259,6 +268,7 @@ export function mountReplayView(
   return Object.freeze({
     dispose() {
       disposed = true;
+      unbindVisibility();
       clearRunner();
       root.remove();
     },

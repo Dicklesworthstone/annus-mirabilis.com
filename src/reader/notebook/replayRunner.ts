@@ -9,11 +9,11 @@ import {
   type ComparisonResult,
   compareBaselines,
 } from "../../experiments/compare/compatibility.ts";
-import type { ComparisonPort } from "../../experiments/compare/controlledComparison.ts";
 import { compareBitwise, withinTolerance } from "../../units/tolerance.ts";
 import {
   ComparisonReplayAdapterError,
   type ComparisonReplayOwner,
+  type ComparisonReplaySession,
   comparisonReplayAdapter,
 } from "./comparisonAdapters.ts";
 import {
@@ -65,7 +65,8 @@ export function createComparisonReplayRunner(
     result: null,
     reproduction: "not-checked",
   });
-  let session: ComparisonPort | null = null;
+  let session: ComparisonReplaySession | null = null;
+  let schedulingPaused = false;
   let unsubscribe: (() => void) | null = null;
   let baselineSnapshot: ComparisonSnapshot | null = null;
   let expected: number | null = null;
@@ -204,6 +205,10 @@ export function createComparisonReplayRunner(
         listeners.delete(listener);
       };
     },
+    setSchedulingPaused(paused: boolean) {
+      schedulingPaused = paused;
+      session?.setSchedulingPaused(paused);
+    },
     async start(allowChangedModel = false) {
       const thisRun = ++generation;
       disconnect();
@@ -253,6 +258,7 @@ export function createComparisonReplayRunner(
           created.disconnect();
           return;
         }
+        created.setSchedulingPaused(schedulingPaused);
         session = created;
         unsubscribe = session.subscribe(() => {
           if (generation === thisRun && session === created) refresh();
