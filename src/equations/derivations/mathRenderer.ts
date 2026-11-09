@@ -142,6 +142,9 @@ export function expressionToDerivationLatex(
         }
         break;
       }
+      case "partialOperator":
+        s = `\\frac{\\partial}{\\partial ${render(n.variable)}}`;
+        break;
       case "integral": {
         const limits = n.lower && n.upper ? `_{${render(n.lower)}}^{${render(n.upper)}}` : "";
         s = `\\int${limits} ${render(n.expression)}\\,\\mathrm{d}${render(n.variable)}`;
