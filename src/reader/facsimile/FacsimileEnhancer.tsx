@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { mountFacsimileReader } from "./controller.ts";
 import type { FacsimileDocument } from "./document.ts";
+import { mountNativeFacsimileDownload } from "./nativeDownloads.ts";
 
 export function FacsimileEnhancer({
   rootId,
@@ -19,10 +20,16 @@ export function FacsimileEnhancer({
 }) {
   useEffect(() => {
     const root = document.getElementById(rootId);
-    if (root)
-      return mountFacsimileReader(root, source, initialPdfPage, faceHref, {
+    if (root) {
+      const unmountDownload = mountNativeFacsimileDownload(root, source);
+      const unmountReader = mountFacsimileReader(root, source, initialPdfPage, faceHref, {
         preserveReaderHistory: inline,
       });
+      return () => {
+        unmountReader();
+        unmountDownload();
+      };
+    }
   }, [rootId, source, initialPdfPage, faceHref, inline]);
   return null;
 }

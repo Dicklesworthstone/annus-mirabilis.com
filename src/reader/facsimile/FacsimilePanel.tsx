@@ -69,6 +69,19 @@ export function FacsimilePanel({
       />
       <h2>Read the original scanned pages</h2>
       <p>These are the pinned journal scans, not a newly typeset transcription or a translation.</p>
+      <section data-native-facsimile hidden aria-label="Original PDF on this device">
+        <p data-native-facsimile-status role="status" aria-live="polite" aria-atomic="true" />
+        <progress
+          data-native-facsimile-progress
+          max={1}
+          value={0}
+          hidden
+          aria-label="PDF download progress"
+        />
+        <button type="button" className="secondary" data-native-facsimile-request>
+          Download original PDF
+        </button>
+      </section>
       {section && (
         <p className="notice" data-facsimile-section={section}>
           {scope.length > 0
@@ -183,7 +196,7 @@ export function FacsimilePanel({
           Open printed page {initial.printedPage} in the original PDF
         </a>
         {" · "}
-        <a href={document.pdfUrl} download>
+        <a href={document.pdfUrl} download data-facsimile-download>
           Download the complete pinned PDF
         </a>
         {" · "}

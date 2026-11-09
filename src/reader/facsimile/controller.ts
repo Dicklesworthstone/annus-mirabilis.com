@@ -53,7 +53,11 @@ export function mountFacsimileReader(
     if (!page) return;
     selected = page.pdfPage;
     const href = facsimilePdfHref(document, page.pdfPage);
-    if (frame) {
+    if (
+      frame &&
+      (root.dataset.nativeFacsimileState === undefined ||
+        root.dataset.nativeFacsimileState === "verified")
+    ) {
       if (frame.getAttribute("src") !== href) frame.setAttribute("src", href);
       frame.title = `Original scan: printed page ${page.printedPage}, PDF page ${page.pdfPage} of ${document.pages.length}`;
     }

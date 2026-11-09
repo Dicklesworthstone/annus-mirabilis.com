@@ -71,6 +71,7 @@ export const BRIDGE_CAPABILITIES: readonly string[] = [
   "storage",
   "print",
   "find",
+  "facsimile",
 ];
 
 export function installBridge(
