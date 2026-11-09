@@ -59,6 +59,8 @@ struct EditionManifest: Decodable, Sendable {
     var settings: Settings?
     var nativeCatalog: CatalogFile?
     var nativeSearch: NativeSearch?
+    /// Optional in older exports; a malformed individual record cannot authorize a download.
+    var sourceAssets: [CatalogRecord<FacsimileAsset>]?
 }
 
 enum EditionCatalogError: Error, Equatable {
@@ -88,6 +90,7 @@ struct EditionCatalog: Sendable {
     let nativeCatalogFile: EditionManifest.CatalogFile?
     /// Search is optional so an older export can still open its reader and Contents.
     let nativeSearch: EditionManifest.NativeSearch?
+    let sourceAssets: [CatalogRecord<FacsimileAsset>]?
     private let files: [String: EditionManifest.File]
 
     init(root: URL, manifest: EditionManifest) throws(EditionCatalogError) {
@@ -104,6 +107,7 @@ struct EditionCatalog: Sendable {
         self.typeSizes = manifest.settings?.typeSizes ?? []
         self.nativeCatalogFile = manifest.nativeCatalog
         self.nativeSearch = manifest.nativeSearch
+        self.sourceAssets = manifest.sourceAssets
     }
 
     static func load(from bundle: Bundle = .main) throws(EditionCatalogError) -> EditionCatalog {

@@ -55,6 +55,8 @@ final class EditionSession {
     @ObservationIgnored let nativeCatalog: NativeCatalog?
     @ObservationIgnored let searchEngine: NativeSearchEngine
     @ObservationIgnored let recentSearches: NativeSearchRecents
+    @ObservationIgnored let facsimiles: FacsimileStore?
+    @ObservationIgnored private var facsimileUpdates: Task<Void, Never>?
     @ObservationIgnored private var contentSizeObserver: (any NSObjectProtocol)?
     @ObservationIgnored var lifecycleObservers: [any NSObjectProtocol] = []
     #if DEBUG
@@ -75,7 +77,7 @@ final class EditionSession {
     init(
         catalog: EditionCatalog, store: ReaderLocationStore, exposesRouteForTests: Bool = false,
         ephemeralWebStorage: Bool = false, readerData: ReaderDataStore? = nil, themeStore: PageThemeStore? = nil,
-        contentSize: UIContentSizeCategory = .large
+        contentSize: UIContentSizeCategory = .large, facsimileStore: FacsimileStore? = nil
     ) {
         self.catalog = catalog
         self.store = store
@@ -84,6 +86,9 @@ final class EditionSession {
         let router = BridgeRouter()
         router.store = readerData
         router.readerData = catalog.readerData
+        let facsimiles = facsimileStore ?? Self.makeFacsimileStore(catalog, isolated: ephemeralWebStorage)
+        self.facsimiles = facsimiles
+        router.facsimiles = facsimiles
         self.router = router
         self.themeStore = themeStore
         let bridgeSource = catalog.verifiedBridgeScript()
@@ -96,7 +101,7 @@ final class EditionSession {
         self.typeSize = EditionTypeSize.percent(for: contentSize, steps: catalog.typeSizes)
         self.webView = EditionSession.makeWebView(
             catalog: catalog, navigator: navigator, router: router, bridgeSource: bridgeSource,
-            ephemeralWebStorage: ephemeralWebStorage)
+            ephemeralWebStorage: ephemeralWebStorage, facsimiles: facsimiles)
         self.handoff = NSUserActivity(activityType: NSUserActivityTypeBrowsingWeb)
         handoff.isEligibleForHandoff = true
         handoff.isEligibleForSearch = false
@@ -107,6 +112,14 @@ final class EditionSession {
         #endif
         installUserScripts()
         wireCallbacks()
+        if let facsimiles {
+            facsimileUpdates = Task { [weak self] in
+                for await snapshot in await facsimiles.updates() {
+                    guard !Task.isCancelled, let self else { return }
+                    await dispatchToPage("facsimile.updated", snapshot.bridgeValue)
+                }
+            }
+        }
 
         observations.append(
             webView.observe(\.url, options: [.initial, .new]) { [weak self] webView, _ in
@@ -122,6 +135,20 @@ final class EditionSession {
             })
         // The reader's last theme, painted before the page loads, so a dark choice never starts light.
         if let saved = themeStore?.load() { applyTheme(saved) }
+    }
+
+    deinit { facsimileUpdates?.cancel() }
+
+    private static func makeFacsimileStore(_ catalog: EditionCatalog, isolated: Bool) -> FacsimileStore? {
+        guard let records = catalog.sourceAssets else { return nil }
+        var directories = FacsimileDirectories.application()
+        if isolated {
+            let root = FileManager.default.temporaryDirectory.appendingPathComponent("facsimile-session-\(UUID())")
+            directories = FacsimileDirectories(
+                cache: root.appendingPathComponent("Caches"), receipts: root.appendingPathComponent("Receipts"))
+        }
+        guard let directories else { return nil }
+        return FacsimileStore(assets: records.compactMap(\.value), cache: FacsimileCache(directories: directories))
     }
 
     /// What the page, the navigator and the system tell the session.
@@ -299,7 +326,7 @@ final class EditionSession {
 
     private static func makeWebView(
         catalog: EditionCatalog, navigator: EditionNavigator, router: BridgeRouter, bridgeSource: String?,
-        ephemeralWebStorage: Bool
+        ephemeralWebStorage: Bool, facsimiles: FacsimileStore?
     ) -> WKWebView {
         let configuration = WKWebViewConfiguration()
         // The bridge exists only when its script matched the recorded digest (App plan §7).
@@ -308,7 +335,8 @@ final class EditionSession {
             configuration.userContentController.addScriptMessageHandler(
                 router, contentWorld: .page, name: BridgeProtocol.handlerName)
         }
-        configuration.setURLSchemeHandler(EditionSchemeHandler(catalog: catalog), forURLScheme: EditionCatalog.scheme)
+        configuration.setURLSchemeHandler(
+            EditionSchemeHandler(catalog: catalog, facsimiles: facsimiles), forURLScheme: EditionCatalog.scheme)
         configuration.websiteDataStore = ephemeralWebStorage ? .nonPersistent() : .default()
         configuration.mediaTypesRequiringUserActionForPlayback = .all
         configuration.allowsInlineMediaPlayback = true

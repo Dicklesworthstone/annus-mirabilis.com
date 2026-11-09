@@ -14,6 +14,8 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
     var store: ReaderDataStore?
     /// The site's registry, for `storage.list` and `storage.export`; nil answers unavailable.
     var readerData: ReaderDataManifest?
+    /// Optional for editions exported before source download pins were recorded.
+    var facsimiles: FacsimileStore?
     /// The export's timestamp; tests fix it.
     var now: () -> Date = { Date() }
     /// Called for an accepted `share.request`; the schema has already checked the URL is a page of the website.
@@ -37,7 +39,7 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
     private let capabilities: [String]
 
     /// The same list, in the same order, as BRIDGE_CAPABILITIES in src/platform/app-bridge/userScripts.ts.
-    init(capabilities: [String] = ["route", "theme", "share", "storage", "print", "find"]) {
+    init(capabilities: [String] = ["route", "theme", "share", "storage", "print", "find", "facsimile"]) {
         self.capabilities = capabilities
     }
 
@@ -78,7 +80,7 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
             #endif
             return (["status": "rejected", "reason": reason.rawValue], nil)
         case .accepted(let accepted):
-            return (serve(accepted), nil)
+            return (await serveAsync(accepted), nil)
         }
     }
 
@@ -89,6 +91,29 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
         #if DEBUG
             let namespace = message.type.hasPrefix("storage.") ? Self.string(message.body, "namespace") : nil
             onMessage?(message.type, reply["status"] as? String ?? "", namespace)
+        #endif
+        return reply
+    }
+
+    /// Source downloads live on their own actor; no network or digest work blocks the reader.
+    func serveAsync(_ message: BridgeMessage) async -> [String: Any] {
+        guard message.type == "facsimile.status" || message.type == "facsimile.request" else {
+            return serve(message)
+        }
+        let reply: [String: Any]
+        if let facsimiles, let key = Self.string(message.body, "key") {
+            let snapshot: FacsimileStatus?
+            if message.type == "facsimile.request" {
+                snapshot = await facsimiles.request(key)
+            } else {
+                snapshot = await facsimiles.status(key)
+            }
+            reply = snapshot.map { ["status": "ok", "value": $0.bridgeValue] } ?? ["status": "missing"]
+        } else {
+            reply = Self.unavailable
+        }
+        #if DEBUG
+            onMessage?(message.type, reply["status"] as? String ?? "", nil)
         #endif
         return reply
     }

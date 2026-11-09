@@ -45,6 +45,7 @@ import {
   type NativeCatalog,
   nativeCatalogRoutes,
 } from "./native-catalog.ts";
+import { buildNativeFacsimiles } from "./native-facsimiles.ts";
 import { inspectNativeSearch } from "./native-search.ts";
 import { editionPageFor, pageAssetReferences, sitemapRoutes } from "./site-routes.ts";
 
@@ -70,7 +71,8 @@ export type AppExportErrorCode =
   | "release-commit-mismatch"
   // am-rc1001-bridge-plan-pcjk.41: the edition shipped the 154-byte placeholder WASM.
   | "edition-wasm-unpinned"
-  | "native-search-invalid";
+  | "native-search-invalid"
+  | "facsimile-source-invalid";
 
 /** A refusal of the export, with a code a caller or a test can branch on. */
 export class AppExportError extends Error {
@@ -873,6 +875,24 @@ export function exportEdition(options: {
 
   const search = inspectNativeSearch(outDir, files);
   if (!search.ok) throw new AppExportError("native-search-invalid", search.message);
+  let sourceAssets: ReturnType<typeof buildNativeFacsimiles>;
+  try {
+    sourceAssets = buildNativeFacsimiles(repo, outDir);
+  } catch (error) {
+    throw new AppExportError(
+      "facsimile-source-invalid",
+      `The app's source downloads could not be pinned: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+  for (const asset of sourceAssets) {
+    const route = asset.receiptHref.split("#")[0];
+    if (!route || !pages.has(`${route.slice(1)}index.html`)) {
+      throw new AppExportError(
+        "facsimile-source-invalid",
+        `${asset.key}: the source receipt is absent from the edition.`,
+      );
+    }
+  }
 
   const totalBytes = files.reduce((sum, file) => sum + file.size, 0);
   const untyped = files
@@ -964,6 +984,8 @@ export function exportEdition(options: {
     readerData: readerDataManifest(),
     // The same bounded query owner and index the web build serves, pinned in files below.
     nativeSearch: search.descriptor,
+    // Download pins come from checked source receipts and actual exported PDF bytes. PDFs stay excluded.
+    sourceAssets,
     // The library, outlines, Discover routes and lab catalogue the native screens show.
     nativeCatalog: {
       file: NATIVE_CATALOG_FILE,

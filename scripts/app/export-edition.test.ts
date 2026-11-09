@@ -6,7 +6,14 @@
 
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { describe, it } from "node:test";
@@ -287,6 +294,7 @@ describe("exportEdition", () => {
     const manifest = JSON.parse(readFileSync(join(dest, "edition-manifest.json"), "utf8"));
 
     assert.equal(manifest.files.length, result.fileCount);
+    assert.deepEqual(manifest.sourceAssets, [], "older exports do not invent source download pins");
     assert.ok(result.fileCount > 0);
     for (const file of manifest.files) {
       const bytes = readFileSync(join(out, file.path));
@@ -862,5 +870,71 @@ describe("native search in the app export", () => {
       );
       assert.equal(existsSync(join(dest, "edition-manifest.json")), false);
     }
+  });
+});
+
+describe("source downloads in the app export", () => {
+  function sourceFixture(includeReceiptPage = true) {
+    const root = mkdtempSync(join(tmpdir(), "app-facsimile-repo-"));
+    const out = fixture({
+      ...SITE,
+      ...(includeReceiptPage ? { "sources/mass-energy/index.html": "Source receipt" } : {}),
+    });
+    const repo = join(dirname(fileURLToPath(import.meta.url)), "../..");
+    for (const path of [
+      "docs/provenance/ap-18-639.md",
+      "scripts/sources/facsimile-sources/ap-18-639.yaml",
+    ]) {
+      mkdirSync(dirname(join(root, path)), { recursive: true });
+      copyFileSync(join(repo, path), join(root, path));
+    }
+    const pdf = join(out, "papers/pdfs/ap-18-639.pdf");
+    mkdirSync(dirname(pdf), { recursive: true });
+    copyFileSync(join(repo, "public/papers/pdfs/ap-18-639.pdf"), pdf);
+    const dest = mkdtempSync(join(tmpdir(), "app-facsimile-export-"));
+    return { root, out, pdf, dest };
+  }
+
+  it("carries checked download pins while leaving PDF bytes out of the bundle and copy list", () => {
+    const { root, out, pdf, dest } = sourceFixture();
+    exportEdition({ repo: root, outDir: out, dest, catalog: CATALOG });
+    const manifest = JSON.parse(readFileSync(join(dest, "edition-manifest.json"), "utf8"));
+    const data = readFileSync(pdf);
+    assert.deepEqual(
+      manifest.sourceAssets.map((entry: { key: string }) => entry.key),
+      ["ap-18-639"],
+    );
+    const asset = manifest.sourceAssets[0];
+    assert.equal(asset.path, "/papers/pdfs/ap-18-639.pdf");
+    assert.equal(asset.bytes, data.length);
+    assert.equal(asset.sha256, createHash("sha256").update(data).digest("hex"));
+    assert.equal(asset.receiptHref, "/sources/mass-energy/");
+    assert.equal(asset.redistributable, true);
+    assert.ok(!manifest.files.some((entry: { path: string }) => entry.path.endsWith(".pdf")));
+    assert.ok(!readFileSync(join(dest, "edition-files.txt"), "utf8").includes("papers/pdfs/"));
+  });
+
+  it("refuses an exported PDF that changed from its receipt before writing a manifest", () => {
+    // facsimile-source-invalid: wrap the failed source pin (export-edition.ts:882).
+    const { root, out, pdf, dest } = sourceFixture();
+    writeFileSync(pdf, "%PDF-1.7\nchanged file\n");
+    assert.throws(
+      () => exportEdition({ repo: root, outDir: out, dest, catalog: CATALOG }),
+      (error: unknown) =>
+        error instanceof AppExportError && error.code === "facsimile-source-invalid",
+    );
+    assert.equal(existsSync(join(dest, "edition-manifest.json")), false);
+  });
+
+  it("refuses a download list whose source receipt cannot be opened in the edition", () => {
+    // facsimile-source-invalid: require the receipt route in this edition (export-edition.ts:890).
+    const { root, out, dest } = sourceFixture(false);
+    assert.throws(
+      () => exportEdition({ repo: root, outDir: out, dest, catalog: CATALOG }),
+      (error: unknown) =>
+        error instanceof AppExportError &&
+        error.code === "facsimile-source-invalid" &&
+        error.message.includes("receipt is absent"),
+    );
   });
 });

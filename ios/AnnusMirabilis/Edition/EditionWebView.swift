@@ -41,6 +41,7 @@ struct PageActionsButton: View {
     @Bindable var session: EditionSession
     @State private var showingReaderData = false
     @State private var showingContents = false
+    @State private var showingFacsimiles = false
     /// 44 points at the default text size, growing with the reader's up to 64. It floats over
     /// the reading column, so past that it would cover the page it serves: at 88 points it hid
     /// the Detail control's chevron. At accessibility sizes a long press shows the Large Content
@@ -114,6 +115,7 @@ struct PageActionsButton: View {
                 Label("Find on this page", systemImage: "text.magnifyingglass")
             }
             Divider()
+            Button("Facsimile downloads", systemImage: "arrow.down.document") { showingFacsimiles = true }
             Button {
                 showingReaderData = true
             } label: {
@@ -132,11 +134,17 @@ struct PageActionsButton: View {
             Label("Page actions", systemImage: "ellipsis")
         }
         .accessibilityLabel("Page actions")
-        .accessibilityHint("Back, contents, share, print, or find on this page, or see your data on this device")
+        .accessibilityHint("Back, contents, share, print, find, facsimile downloads, or your data on this device")
         .accessibilityIdentifier("page-actions")
         // A sheet is its own presentation: without this it follows the device, not the reader's theme.
         .sheet(isPresented: $showingReaderData) {
             ReaderDataView(session: session)
+                .preferredColorScheme(session.pageColorScheme)
+                .presentationBackground(Color("LaunchBackground"))
+                .pageSizedSheet()
+        }
+        .sheet(isPresented: $showingFacsimiles) {
+            FacsimileManagerView(session: session)
                 .preferredColorScheme(session.pageColorScheme)
                 .presentationBackground(Color("LaunchBackground"))
                 .pageSizedSheet()
