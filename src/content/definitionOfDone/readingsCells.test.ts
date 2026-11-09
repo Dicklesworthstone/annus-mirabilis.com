@@ -100,15 +100,15 @@ describe("the real captions and derivation-step records are owned and the audit 
     expect(READINGS_RECORD_VOCABULARY.inRecords).not.toBe(READINGS_RECORD_VOCABULARY.inAuditType);
   });
 
-  test("the 63 caption targets and 35 derivation steps have separate real denominators", () => {
+  test("the 63 caption targets and 142 derivation steps have separate real denominators", () => {
     const captions = loaded.input.targets.filter(
       (target) => target.targetKind === "instrument-caption",
     );
     const steps = loaded.input.targets.filter((target) => target.targetKind === "derivation-step");
     expect(captions.length).toBe(63);
-    expect(steps.length).toBe(35);
+    expect(steps.length).toBe(142);
     expect(steps.filter((target) => target.paper === "light-quanta").length).toBe(15);
-    expect(steps.filter((target) => target.paper === "special-relativity").length).toBe(5);
+    expect(steps.filter((target) => target.paper === "special-relativity").length).toBe(112);
     expect(steps.filter((target) => target.paper === "brownian-motion").length).toBe(15);
     expect(loaded.input.targets.length).toBe(captions.length + steps.length);
   });

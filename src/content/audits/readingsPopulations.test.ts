@@ -28,7 +28,7 @@
  * `auditReadings` is the bead's item 1 and needs its CLI and `verify-content` to share one
  * implementation first, which is am-unwired-audits-uwot's half.
  *
- * The LQ §§4/6, SR §8 and Brownian §§3/4 chains now add 35 owned derivation-step readings. Keep those separate
+ * The LQ §§4/6, SR §§3/6/8/10 and Brownian §§3/4 chains now add 142 owned derivation-step readings. Keep those separate
  * from the original 63 captions: counting every owner target as a caption would disguise which
  * population the audit actually reached. This census still adds no population to the validator.
  */
@@ -135,7 +135,7 @@ describe("the readings audit reads captions and authored derivation steps", () =
     expect(total).toBeGreaterThanOrEqual(550);
     // The audited population is the one with no shortfall, which is the finding.
     expect(captions).toBe(63);
-    expect(derivationSteps).toBe(35);
+    expect(derivationSteps).toBe(142);
     expect(ownedTargets.length).toBe(audited);
     // Floors on what exists, so a population cannot vanish unnoticed.
     expect(paragraphs).toBeGreaterThanOrEqual(210);

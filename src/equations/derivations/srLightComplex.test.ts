@@ -35,7 +35,10 @@ describe("SR §8 light-complex derivation", () => {
       ),
     ) as { ownerBeadId: string; targets: { kind: string; id: string; readings: unknown }[] };
     expect(owner.ownerBeadId).toBe("am-sre-equations-2g3h");
-    expect(owner.targets).toHaveLength(chain.steps.length);
+    const lightComplexTargets = owner.targets.filter((target) =>
+      target.id.startsWith("sr-light-complex-"),
+    );
+    expect(lightComplexTargets).toHaveLength(chain.steps.length);
     for (const step of chain.steps) {
       const target = owner.targets.find((candidate) => candidate.id === step.id);
       expect(target?.kind).toBe("derivation-step");
