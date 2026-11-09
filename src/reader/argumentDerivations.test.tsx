@@ -54,6 +54,13 @@ const cases = [
     id: "sr-electron-work-derivation",
     steps: 5,
   },
+  {
+    paperId: "special-relativity",
+    section: "s6",
+    argument: "arg-sr-field-components",
+    id: "sr-field-derivation",
+    steps: 24,
+  },
 ] as const;
 
 let domInstalled = false;

@@ -56,6 +56,7 @@ import {
   LazyLightQuantaFirstEncounter,
   LazyMassEnergyFirstEncounter,
   LazySRElectronDerivation,
+  LazySRFieldDerivation,
   LazySRLightComplexDerivation,
 } from "./lazyIslands.tsx";
 import { ledgerGaps } from "./ledgerGaps.ts";
@@ -759,6 +760,17 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                           <p className="fine">
                             <a href="/papers/special-relativity/s10/#sr-electron-work-derivation">
                               Follow the longitudinal force through the work integral
+                            </a>
+                          </p>
+                        ))}
+                      {paper.id === "special-relativity" &&
+                        a.id === "arg-sr-field-components" &&
+                        (sectionId ? (
+                          <LazySRFieldDerivation />
+                        ) : (
+                          <p className="fine">
+                            <a href="/papers/special-relativity/s6/#sr-field-derivation">
+                              Follow the derivative operators and all six field transformations
                             </a>
                           </p>
                         ))}

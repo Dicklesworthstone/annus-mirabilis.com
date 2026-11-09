@@ -4,14 +4,24 @@ targetKinds:
   - 'derivation-step'
 scope:
   sections:
-    - 's8'
     - 's10'
+    - 's6'
+    - 's8'
   chainIds:
     - 'chain-sr-light-complex'
     - 'chain-sr-electron-longitudinal'
     - 'chain-sr-electron-transverse-source'
     - 'chain-sr-electron-transverse-laboratory'
     - 'chain-sr-electron-work'
+    - 'chain-sr-field-time-operator'
+    - 'chain-sr-field-space-operator'
+    - 'chain-sr-field-x-component'
+    - 'chain-sr-field-y-component'
+    - 'chain-sr-field-z-component'
+    - 'chain-sr-field-l-component'
+    - 'chain-sr-field-m-component'
+    - 'chain-sr-field-n-component'
+    - 'chain-sr-field-normalization'
 targets:
   - kind: 'derivation-step'
     id: 'sr-light-complex-separate-density-volume'
@@ -65,7 +75,7 @@ targets:
       r1: 'In the momentary rest frame k, F′_x = m a′_x. The coordinate transformation makes a′_x = γ³ a_x at the selected event. The acceleration a_x is measured in the laboratory K, while the force still belongs to k.'
       r2: 'Hold the inertial boost v fixed while differentiating u′_x = (u_x − v)/(1 − vu_x/c²). At the event u_x = v, ∂u′_x/∂u_x = 1/(1 − v²/c²) = γ², and dt′/dt = γ(1 − vu_x/c²) = 1/γ. Thus du′_x/dt′ = γ² (du_x/dt) γ = γ³ a_x. Substitute this into the admitted slow-motion rest-frame law F′_x = m a′_x. The primed frame is an inertial frame tangent to the motion at this event, not a single frame following the electron throughout acceleration.'
       r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
-      r3Citations: &ref_0
+      r3Citations:
         - 'Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §10, pp. 917–921.'
   - kind: 'derivation-step'
     id: 'sr-electron-longitudinal-force'
@@ -74,7 +84,8 @@ targets:
       r1: 'Section 6 gives X′ = X. At the electron''s momentary rest event, F′_x = εX′ = εX = F_x. Replace the primed force by the laboratory longitudinal force.'
       r2: 'The velocity in K is (v, 0, 0), so the magnetic part of the Lorentz force has no x component. The charge ε is the same in this comparison, and the source''s longitudinal electric component is unchanged. Hence F′_x = F_x while a′_x and a_x remain different. This equality is for the component parallel to the instantaneous velocity; it is not a claim that all force components agree between frames.'
       r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
-      r3Citations: *ref_0
+      r3Citations:
+        - 'Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §10, pp. 917–921.'
   - kind: 'derivation-step'
     id: 'sr-electron-longitudinal-ratio'
     readings:
@@ -82,7 +93,8 @@ targets:
       r1: 'For a nonzero longitudinal acceleration, divide both sides by a_x. This names a force-to-acceleration coefficient, not a new rest mass.'
       r2: 'From F_x = mγ³a_x, division by a_x gives F_x/a_x = (mγ³a_x)/a_x. The numerical ratio requires a_x ≠ 0. At zero acceleration the quotient 0/0 does not define a mass; mγ³ is instead the response coefficient obtained by a nonzero probe or its limit.'
       r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
-      r3Citations: *ref_0
+      r3Citations:
+        - 'Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §10, pp. 917–921.'
   - kind: 'derivation-step'
     id: 'sr-electron-longitudinal-coefficient'
     readings:
@@ -90,7 +102,8 @@ targets:
       r1: 'Cancel the same nonzero acceleration. Along the motion, the source''s convention and the all-laboratory convention both give mγ³.'
       r2: 'The cancellation yields F_x/a_x = mγ³, the canonical longitudinal equation. In the paper''s symbols this is μβ³. Here m denotes the mass determined in slow motion, γ is the paper''s β, and c is its V. No new assumption about the body''s rest energy enters this coefficient.'
       r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
-      r3Citations: *ref_0
+      r3Citations:
+        - 'Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §10, pp. 917–921.'
   - kind: 'derivation-step'
     id: 'sr-electron-transverse-acceleration'
     readings:
@@ -98,7 +111,8 @@ targets:
       r1: 'The rest-frame law is F′_y = m a′_y. At the selected event, the transverse velocity transformation and the time conversion give a′_y = γ² a_y, so F′_y = mγ²a_y.'
       r2: 'Use u′_y = u_y/[γ(1 − vu_x/c²)] with a fixed boost v. At u_x = v and u_y = 0, differentiating the numerator gives du′_y/dt = γa_y; the denominator derivative multiplies u_y = 0 and vanishes at this event. Dividing by dt′/dt = 1/γ gives a′_y = γ²a_y. Substitution into F′_y = m a′_y leaves a force measured in k and an acceleration measured in K. The z component follows by the same transverse calculation.'
       r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
-      r3Citations: *ref_0
+      r3Citations:
+        - 'Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §10, pp. 917–921.'
   - kind: 'derivation-step'
     id: 'sr-electron-transverse-ratio'
     readings:
@@ -106,7 +120,8 @@ targets:
       r1: 'Einstein''s force is measured by a balance at rest with the electron at that moment. Divide F′_y by a_y, the acceleration in the original frame, keeping both labels visible.'
       r2: 'The source explicitly chooses force components measured in the instantaneously comoving system and acceleration components measured in K. With a_y ≠ 0, F′_y/a_y = (mγ²a_y)/a_y. This is a mixed-frame response coefficient by definition. If a_y = 0, use the linear response law instead of interpreting 0/0 as a measured ratio.'
       r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
-      r3Citations: *ref_0
+      r3Citations:
+        - 'Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §10, pp. 917–921.'
   - kind: 'derivation-step'
     id: 'sr-electron-transverse-coefficient'
     readings:
@@ -114,7 +129,8 @@ targets:
       r1: 'Cancel a_y to obtain F′_y/a_y = mγ². At v = 0.6c this is 1.5625m. The primed force is essential to what this number means.'
       r2: 'After cancellation the canonical source-convention equation is F′_y/a_y = mγ², or μβ² in Einstein''s notation. The paper warns that changing the definitions of force and acceleration changes the mass coefficients. The later all-laboratory comparison below changes the force definition explicitly; it does not replace or correct this printed result.'
       r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
-      r3Citations: *ref_0
+      r3Citations:
+        - 'Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §10, pp. 917–921.'
   - kind: 'derivation-step'
     id: 'sr-electron-change-force-frame'
     readings:
@@ -122,7 +138,8 @@ targets:
       r1: 'For this event, the rest-frame transverse force is γ times the laboratory transverse force: F′_y = γF_y. Substitute that relation into the printed coefficient before comparing the numbers.'
       r2: 'The source gives Y′ = γ(Y − vN/c), so F′_y = εY′ = γ ε(Y − vN/c) = γF_y, using the Gaussian Lorentz force at u = (v, 0, 0). The same relation in SI is F′_y = γq(E_y − vB_z). This is an explicit change from the source''s mixed-frame ratio to force and acceleration both in K. The later momentum convention F = dp/dt supplies this all-laboratory interpretation; it is not a new value of m.'
       r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
-      r3Citations: *ref_0
+      r3Citations:
+        - 'Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §10, pp. 917–921.'
   - kind: 'derivation-step'
     id: 'sr-electron-laboratory-divide-factor'
     readings:
@@ -130,7 +147,8 @@ targets:
       r1: 'The left side is γF_y/a_y. Divide both sides by γ, which is positive for a subluminal electron.'
       r2: 'For |v| < c, γ = (1 − v²/c²)^(−1/2) is finite and strictly positive. Dividing γF_y/a_y = mγ² by γ is valid. The acceleration is still the same a_y in K; only the force convention has changed.'
       r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
-      r3Citations: *ref_0
+      r3Citations:
+        - 'Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §10, pp. 917–921.'
   - kind: 'derivation-step'
     id: 'sr-electron-laboratory-coefficient'
     readings:
@@ -138,7 +156,8 @@ targets:
       r1: 'One factor cancels: F_y/a_y = mγ. At 0.6c it is 1.25m, while the source''s mixed-frame coefficient remains 1.5625m.'
       r2: 'Collecting the quotient gives the canonical all-laboratory equation F_y/a_y = mγ. At γ = 1.25 the two ratios differ by precisely γ. Both describe the same acceleration and trajectory when their forces are transformed consistently. Neither coefficient is a competing scalar rest mass, and neither changes the work or deflection observed in a fixed frame.'
       r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
-      r3Citations: *ref_0
+      r3Citations:
+        - 'Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §10, pp. 917–921.'
   - kind: 'derivation-step'
     id: 'sr-electron-work-change-variable'
     readings:
@@ -146,7 +165,8 @@ targets:
       r1: 'Use laboratory force and laboratory displacement: dW = F_x dx. With F_x = mγ(u)³ du/dt and dx = u dt, the time increment cancels. The integral runs over speed from 0 to v.'
       r2: 'For straight acceleration from rest, write F_x dx = mγ(u)³(du/dt) u dt = mγ(u)³u du. Thus W = ∫₀ᵛ mγ(u)³u du, with γ(u) = (1 − u²/c²)^(−1/2). The initial kinetic energy is fixed to zero; this is work supplied during the acceleration, not an assumption that the body''s rest energy equals mc². Radiation, self-fields and radiation reaction are excluded by the prescribed-field point-particle model.'
       r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
-      r3Citations: *ref_0
+      r3Citations:
+        - 'Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §10, pp. 917–921.'
   - kind: 'derivation-step'
     id: 'sr-electron-work-recognize-derivative'
     readings:
@@ -154,7 +174,8 @@ targets:
       r1: 'Differentiate γ(u): dγ/du = γ(u)³u/c². The integrand mγ(u)³u is therefore mc² times that derivative.'
       r2: 'The chain rule gives d(1 − u²/c²)^(−1/2)/du = (−1/2)(1 − u²/c²)^(−3/2)(−2u/c²) = γ(u)³u/c². Multiplication by mc² reproduces the force-work integrand exactly for |u| < c. This is the step that turns the accumulated work into an endpoint change of γ, with no low-speed approximation.'
       r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
-      r3Citations: *ref_0
+      r3Citations:
+        - 'Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §10, pp. 917–921.'
   - kind: 'derivation-step'
     id: 'sr-electron-work-evaluate-endpoints'
     readings:
@@ -162,7 +183,8 @@ targets:
       r1: 'The integral of the derivative is γ(v) − γ(0). Keep the lower endpoint until the rest condition is applied.'
       r2: 'Mass m and light speed c are fixed in the integral. The fundamental theorem gives W = mc²[γ(v) − γ(0)]. Both endpoints remain visible, so an arbitrary integration constant cannot silently become a rest-energy claim. We abbreviate the final γ(v) as γ; it belongs to the final laboratory speed v.'
       r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
-      r3Citations: *ref_0
+      r3Citations:
+        - 'Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §10, pp. 917–921.'
   - kind: 'derivation-step'
     id: 'sr-electron-work-rest-boundary'
     readings:
@@ -170,7 +192,8 @@ targets:
       r1: 'Use γ(0) = 1. The subtraction is fixed by starting from rest, so W vanishes at v = 0.'
       r2: 'The definition gives γ(0) = (1 − 0²/c²)^(−1/2) = 1. Substitute it only after evaluating both endpoints. For an initial speed u₀ instead, the work would be mc²[γ(v) − γ(u₀)]; the subtraction of 1 is specific to the rest boundary condition.'
       r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
-      r3Citations: *ref_0
+      r3Citations:
+        - 'Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §10, pp. 917–921.'
   - kind: 'derivation-step'
     id: 'sr-electron-work-result'
     readings:
@@ -178,4 +201,221 @@ targets:
       r1: 'Collect the terms to get W = mc²(γ − 1), printed as μV²(β − 1). For slow motion its leading term is ½mv².'
       r2: 'This is the canonical kinetic-energy result for the stated model. Expanding γ = 1 + ½(v/c)² + ⅜(v/c)⁴ + … gives W = ½mv² + ⅜mv⁴/c² + … for |v| ≪ c. At v = 0.6c, W = 0.25mc² whereas the leading classical term is 0.18mc². The displayed exact formula uses no series truncation and does not determine an additive rest energy.'
       r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
-      r3Citations: *ref_0
+      r3Citations:
+        - 'Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §10, pp. 917–921.'
+  - kind: 'derivation-step'
+    id: 'sr-field-time-coefficient'
+    readings:
+      r0: 'Changing the stationary clock changes the moving clock at rate β.'
+      r1: 'A field is a function of the same event expressed in either coordinate system. At fixed x, y and z, differentiating τ = β(t − vx/V²) gives ∂τ/∂t = β. The chain rule still has a spatial term because ξ changes with t.'
+      r2: 'Hold x, y and z fixed and keep the frame speed v constant. Then β and vx/V² are constant with respect to t, so the partial derivative of τ is β. In the operator identity ∂t = (∂τ/∂t)∂τ + (∂ξ/∂t)∂ξ, replace only the first coefficient. The η and ζ coefficients vanish because η = y and ζ = z. Here τ is a moving coordinate time, not proper time along a particle trajectory.'
+      r3: 'Einstein''s §6 first rewrites the six vacuum Maxwell–Hertz curl equations using the coordinate transformation of §3. It next compares the regrouped functions with the fields measured in the moving system, introduces a common factor, and fixes it by an inverse transformation and a spatial-symmetry example. This reconstruction exposes the derivative algebra, the vacuum divergence conditions and the continuity choice for the sign. The identification of fields is a physical step; equal differential form by itself is not a uniqueness theorem. The source''s V and β mean the speed of light and Lorentz factor. SI component equations shown separately are a modern unit mapping, not an added historical premise.'
+      r3Citations:
+        - 'Einstein, Zur Elektrodynamik bewegter Körper (1905), §6, pp. 907–910; coordinate transformation in §3, pp. 899–902.'
+  - kind: 'derivation-step'
+    id: 'sr-field-time-spatial-mixing'
+    readings:
+      r0: 'A fixed place in K moves through k, so the time derivative also samples a spatial change.'
+      r1: 'Differentiate ξ = β(x − vt) while x is fixed: ∂ξ/∂t = −βv. Therefore ∂t = β∂τ − βv∂ξ. Omitting this second term would treat a fixed point of K as if it were also a fixed point of k.'
+      r2: 'The derivative of x − vt with respect to t, at fixed x, is −v. Multiplying by the constant β gives −βv. Substitute that coefficient into the second chain-rule term. Both terms have units of inverse time: v multiplies an inverse-length derivative. The minus sign follows from the stated convention that k moves with velocity +v along x relative to K.'
+      r3: 'Einstein''s §6 first rewrites the six vacuum Maxwell–Hertz curl equations using the coordinate transformation of §3. It next compares the regrouped functions with the fields measured in the moving system, introduces a common factor, and fixes it by an inverse transformation and a spatial-symmetry example. This reconstruction exposes the derivative algebra, the vacuum divergence conditions and the continuity choice for the sign. The identification of fields is a physical step; equal differential form by itself is not a uniqueness theorem. The source''s V and β mean the speed of light and Lorentz factor. SI component equations shown separately are a modern unit mapping, not an added historical premise.'
+      r3Citations:
+        - 'Einstein, Zur Elektrodynamik bewegter Körper (1905), §6, pp. 907–910; coordinate transformation in §3, pp. 899–902.'
+  - kind: 'derivation-step'
+    id: 'sr-field-space-time-mixing'
+    readings:
+      r0: 'Comparing nearby places at one K time also compares different k times.'
+      r1: 'At fixed t, y and z, the moving time changes with x at rate −βv/V². This is the relativity-of-simultaneity term in the spatial derivative, and it is essential to the field-component cancellations.'
+      r2: 'Take the x derivative of τ = β(t − vx/V²). The derivative of t is zero on this slice and the derivative of −vx/V² is −v/V². Thus the first coefficient in ∂x = (∂τ/∂x)∂τ + (∂ξ/∂x)∂ξ is −βv/V². Its units are time per length, which convert ∂τ into an inverse-length operator.'
+      r3: 'Einstein''s §6 first rewrites the six vacuum Maxwell–Hertz curl equations using the coordinate transformation of §3. It next compares the regrouped functions with the fields measured in the moving system, introduces a common factor, and fixes it by an inverse transformation and a spatial-symmetry example. This reconstruction exposes the derivative algebra, the vacuum divergence conditions and the continuity choice for the sign. The identification of fields is a physical step; equal differential form by itself is not a uniqueness theorem. The source''s V and β mean the speed of light and Lorentz factor. SI component equations shown separately are a modern unit mapping, not an added historical premise.'
+      r3Citations:
+        - 'Einstein, Zur Elektrodynamik bewegter Körper (1905), §6, pp. 907–910; coordinate transformation in §3, pp. 899–902.'
+  - kind: 'derivation-step'
+    id: 'sr-field-space-coefficient'
+    readings:
+      r0: 'The spatial derivative combines a moving-space derivative with the moving-time term.'
+      r1: 'The remaining coefficient is ∂ξ/∂x = β. Hence ∂x = β∂ξ − βv∂τ/V², while ∂y = ∂η and ∂z = ∂ζ. These are operator identities acting on fields, not equations of motion for a charge.'
+      r2: 'At fixed t the derivative of x − vt with respect to x is one, leaving β. Insert it into the second term. Together the two completed operator identities tell us how to replace every t and x derivative in the six Maxwell–Hertz equations. The perpendicular coordinates remain η = y and ζ = z, as already established in §3; no new field assumption determines that normalization here.'
+      r3: 'Einstein''s §6 first rewrites the six vacuum Maxwell–Hertz curl equations using the coordinate transformation of §3. It next compares the regrouped functions with the fields measured in the moving system, introduces a common factor, and fixes it by an inverse transformation and a spatial-symmetry example. This reconstruction exposes the derivative algebra, the vacuum divergence conditions and the continuity choice for the sign. The identification of fields is a physical step; equal differential form by itself is not a uniqueness theorem. The source''s V and β mean the speed of light and Lorentz factor. SI component equations shown separately are a modern unit mapping, not an added historical premise.'
+      r3Citations:
+        - 'Einstein, Zur Elektrodynamik bewegter Körper (1905), §6, pp. 907–910; coordinate transformation in §3, pp. 899–902.'
+  - kind: 'derivation-step'
+    id: 'sr-field-x-change-variables'
+    readings:
+      r0: 'Write the X component equation using the moving coordinates, keeping the same fields.'
+      r1: 'Start with the X row of the printed Maxwell–Hertz system. Replace time and x derivatives by their two-term chain rules, and replace y,z by η,ζ. At this point X still denotes a field component described in K; changing coordinates has not yet identified the moving observer''s fields.'
+      r2: 'Apply ∂t = β(∂τ − v∂ξ), ∂x = β(∂ξ − v∂τ/V²), ∂y = ∂η and ∂z = ∂ζ to every derivative in this X row. The boost is constant, so no derivative of v or β appears. Preserve both terms and every sign before regrouping. These replacements act on the fields at the same event, not on values at unrelated simultaneous positions in the two frames.'
+      r3: 'Einstein''s §6 first rewrites the six vacuum Maxwell–Hertz curl equations using the coordinate transformation of §3. It next compares the regrouped functions with the fields measured in the moving system, introduces a common factor, and fixes it by an inverse transformation and a spatial-symmetry example. This reconstruction exposes the derivative algebra, the vacuum divergence conditions and the continuity choice for the sign. The identification of fields is a physical step; equal differential form by itself is not a uniqueness theorem. The source''s V and β mean the speed of light and Lorentz factor. SI component equations shown separately are a modern unit mapping, not an added historical premise.'
+      r3Citations:
+        - 'Einstein, Zur Elektrodynamik bewegter Körper (1905), §6, pp. 907–910; coordinate transformation in §3, pp. 899–902.'
+  - kind: 'derivation-step'
+    id: 'sr-field-x-group-components'
+    readings:
+      r0: 'Group the derivatives into the X row of a Maxwell–Hertz system in k.'
+      r1: 'Collect the combinations X, β(Y − vN/V), β(Z + vM/V), L, β(M + vZ/V) and β(N − vY/V). The X row then has the same differential form in τ, ξ, η and ζ. These combinations are candidates for the moving fields; their physical identification is the next argument.'
+      r2: 'The residual of the grouped X row is β times the original X residual plus β(v/V)(∂xX + ∂yY + ∂zZ). The original curl equation and the charge-free divergence condition therefore make it zero. The six printed curl rows alone do not supply the divergence condition for arbitrary fields.'
+      r3: 'Einstein''s §6 first rewrites the six vacuum Maxwell–Hertz curl equations using the coordinate transformation of §3. It next compares the regrouped functions with the fields measured in the moving system, introduces a common factor, and fixes it by an inverse transformation and a spatial-symmetry example. This reconstruction exposes the derivative algebra, the vacuum divergence conditions and the continuity choice for the sign. The identification of fields is a physical step; equal differential form by itself is not a uniqueness theorem. The source''s V and β mean the speed of light and Lorentz factor. SI component equations shown separately are a modern unit mapping, not an added historical premise.'
+      r3Citations:
+        - 'Einstein, Zur Elektrodynamik bewegter Körper (1905), §6, pp. 907–910; coordinate transformation in §3, pp. 899–902.'
+  - kind: 'derivation-step'
+    id: 'sr-field-y-change-variables'
+    readings:
+      r0: 'Write the Y component equation using the moving coordinates, keeping the same fields.'
+      r1: 'Start with the Y row of the printed Maxwell–Hertz system. Replace time and x derivatives by their two-term chain rules, and replace y,z by η,ζ. At this point Y still denotes a field component described in K; changing coordinates has not yet identified the moving observer''s fields.'
+      r2: 'Apply ∂t = β(∂τ − v∂ξ), ∂x = β(∂ξ − v∂τ/V²), ∂y = ∂η and ∂z = ∂ζ to every derivative in this Y row. The boost is constant, so no derivative of v or β appears. Preserve both terms and every sign before regrouping. These replacements act on the fields at the same event, not on values at unrelated simultaneous positions in the two frames.'
+      r3: 'Einstein''s §6 first rewrites the six vacuum Maxwell–Hertz curl equations using the coordinate transformation of §3. It next compares the regrouped functions with the fields measured in the moving system, introduces a common factor, and fixes it by an inverse transformation and a spatial-symmetry example. This reconstruction exposes the derivative algebra, the vacuum divergence conditions and the continuity choice for the sign. The identification of fields is a physical step; equal differential form by itself is not a uniqueness theorem. The source''s V and β mean the speed of light and Lorentz factor. SI component equations shown separately are a modern unit mapping, not an added historical premise.'
+      r3Citations:
+        - 'Einstein, Zur Elektrodynamik bewegter Körper (1905), §6, pp. 907–910; coordinate transformation in §3, pp. 899–902.'
+  - kind: 'derivation-step'
+    id: 'sr-field-y-group-components'
+    readings:
+      r0: 'Group the derivatives into the Y row of a Maxwell–Hertz system in k.'
+      r1: 'Collect the combinations X, β(Y − vN/V), β(Z + vM/V), L, β(M + vZ/V) and β(N − vY/V). The Y row then has the same differential form in τ, ξ, η and ζ. These combinations are candidates for the moving fields; their physical identification is the next argument.'
+      r2: 'Expand ∂τ[β(Y − vN/V)]/V + ∂ξ[β(N − vY/V)] − ∂ζL. With ∂τ = β(∂t + v∂x) and ∂ξ = β(∂x + v∂t/V²), the mixed derivatives cancel. The remaining factor β²(1 − v²/V²) is one, leaving ∂tY/V + ∂xN − ∂zL, the original Y residual.'
+      r3: 'Einstein''s §6 first rewrites the six vacuum Maxwell–Hertz curl equations using the coordinate transformation of §3. It next compares the regrouped functions with the fields measured in the moving system, introduces a common factor, and fixes it by an inverse transformation and a spatial-symmetry example. This reconstruction exposes the derivative algebra, the vacuum divergence conditions and the continuity choice for the sign. The identification of fields is a physical step; equal differential form by itself is not a uniqueness theorem. The source''s V and β mean the speed of light and Lorentz factor. SI component equations shown separately are a modern unit mapping, not an added historical premise.'
+      r3Citations:
+        - 'Einstein, Zur Elektrodynamik bewegter Körper (1905), §6, pp. 907–910; coordinate transformation in §3, pp. 899–902.'
+  - kind: 'derivation-step'
+    id: 'sr-field-z-change-variables'
+    readings:
+      r0: 'Write the Z component equation using the moving coordinates, keeping the same fields.'
+      r1: 'Start with the Z row of the printed Maxwell–Hertz system. Replace time and x derivatives by their two-term chain rules, and replace y,z by η,ζ. At this point Z still denotes a field component described in K; changing coordinates has not yet identified the moving observer''s fields.'
+      r2: 'Apply ∂t = β(∂τ − v∂ξ), ∂x = β(∂ξ − v∂τ/V²), ∂y = ∂η and ∂z = ∂ζ to every derivative in this Z row. The boost is constant, so no derivative of v or β appears. Preserve both terms and every sign before regrouping. These replacements act on the fields at the same event, not on values at unrelated simultaneous positions in the two frames.'
+      r3: 'Einstein''s §6 first rewrites the six vacuum Maxwell–Hertz curl equations using the coordinate transformation of §3. It next compares the regrouped functions with the fields measured in the moving system, introduces a common factor, and fixes it by an inverse transformation and a spatial-symmetry example. This reconstruction exposes the derivative algebra, the vacuum divergence conditions and the continuity choice for the sign. The identification of fields is a physical step; equal differential form by itself is not a uniqueness theorem. The source''s V and β mean the speed of light and Lorentz factor. SI component equations shown separately are a modern unit mapping, not an added historical premise.'
+      r3Citations:
+        - 'Einstein, Zur Elektrodynamik bewegter Körper (1905), §6, pp. 907–910; coordinate transformation in §3, pp. 899–902.'
+  - kind: 'derivation-step'
+    id: 'sr-field-z-group-components'
+    readings:
+      r0: 'Group the derivatives into the Z row of a Maxwell–Hertz system in k.'
+      r1: 'Collect the combinations X, β(Y − vN/V), β(Z + vM/V), L, β(M + vZ/V) and β(N − vY/V). The Z row then has the same differential form in τ, ξ, η and ζ. These combinations are candidates for the moving fields; their physical identification is the next argument.'
+      r2: 'Expand ∂τ[β(Z + vM/V)]/V − ∂ξ[β(M + vZ/V)] + ∂ηL. The mixed Z and M derivatives cancel under the inverse chain rule. The factor β²(1 − v²/V²) reduces the remaining terms to ∂tZ/V − ∂xM + ∂yL, the original Z residual. The plus signs in both mixed field combinations are required.'
+      r3: 'Einstein''s §6 first rewrites the six vacuum Maxwell–Hertz curl equations using the coordinate transformation of §3. It next compares the regrouped functions with the fields measured in the moving system, introduces a common factor, and fixes it by an inverse transformation and a spatial-symmetry example. This reconstruction exposes the derivative algebra, the vacuum divergence conditions and the continuity choice for the sign. The identification of fields is a physical step; equal differential form by itself is not a uniqueness theorem. The source''s V and β mean the speed of light and Lorentz factor. SI component equations shown separately are a modern unit mapping, not an added historical premise.'
+      r3Citations:
+        - 'Einstein, Zur Elektrodynamik bewegter Körper (1905), §6, pp. 907–910; coordinate transformation in §3, pp. 899–902.'
+  - kind: 'derivation-step'
+    id: 'sr-field-l-change-variables'
+    readings:
+      r0: 'Write the L component equation using the moving coordinates, keeping the same fields.'
+      r1: 'Start with the L row of the printed Maxwell–Hertz system. Replace time and x derivatives by their two-term chain rules, and replace y,z by η,ζ. At this point L still denotes a field component described in K; changing coordinates has not yet identified the moving observer''s fields.'
+      r2: 'Apply ∂t = β(∂τ − v∂ξ), ∂x = β(∂ξ − v∂τ/V²), ∂y = ∂η and ∂z = ∂ζ to every derivative in this L row. The boost is constant, so no derivative of v or β appears. Preserve both terms and every sign before regrouping. These replacements act on the fields at the same event, not on values at unrelated simultaneous positions in the two frames.'
+      r3: 'Einstein''s §6 first rewrites the six vacuum Maxwell–Hertz curl equations using the coordinate transformation of §3. It next compares the regrouped functions with the fields measured in the moving system, introduces a common factor, and fixes it by an inverse transformation and a spatial-symmetry example. This reconstruction exposes the derivative algebra, the vacuum divergence conditions and the continuity choice for the sign. The identification of fields is a physical step; equal differential form by itself is not a uniqueness theorem. The source''s V and β mean the speed of light and Lorentz factor. SI component equations shown separately are a modern unit mapping, not an added historical premise.'
+      r3Citations:
+        - 'Einstein, Zur Elektrodynamik bewegter Körper (1905), §6, pp. 907–910; coordinate transformation in §3, pp. 899–902.'
+  - kind: 'derivation-step'
+    id: 'sr-field-l-group-components'
+    readings:
+      r0: 'Group the derivatives into the L row of a Maxwell–Hertz system in k.'
+      r1: 'Collect the combinations X, β(Y − vN/V), β(Z + vM/V), L, β(M + vZ/V) and β(N − vY/V). The L row then has the same differential form in τ, ξ, η and ζ. These combinations are candidates for the moving fields; their physical identification is the next argument.'
+      r2: 'The residual of the grouped L row is β times the original L residual plus β(v/V)(∂xL + ∂yM + ∂zN). The original curl equation and the zero magnetic-divergence condition make it vanish. This is the magnetic counterpart of the X row, with its own divergence premise stated rather than hidden.'
+      r3: 'Einstein''s §6 first rewrites the six vacuum Maxwell–Hertz curl equations using the coordinate transformation of §3. It next compares the regrouped functions with the fields measured in the moving system, introduces a common factor, and fixes it by an inverse transformation and a spatial-symmetry example. This reconstruction exposes the derivative algebra, the vacuum divergence conditions and the continuity choice for the sign. The identification of fields is a physical step; equal differential form by itself is not a uniqueness theorem. The source''s V and β mean the speed of light and Lorentz factor. SI component equations shown separately are a modern unit mapping, not an added historical premise.'
+      r3Citations:
+        - 'Einstein, Zur Elektrodynamik bewegter Körper (1905), §6, pp. 907–910; coordinate transformation in §3, pp. 899–902.'
+  - kind: 'derivation-step'
+    id: 'sr-field-m-change-variables'
+    readings:
+      r0: 'Write the M component equation using the moving coordinates, keeping the same fields.'
+      r1: 'Start with the M row of the printed Maxwell–Hertz system. Replace time and x derivatives by their two-term chain rules, and replace y,z by η,ζ. At this point M still denotes a field component described in K; changing coordinates has not yet identified the moving observer''s fields.'
+      r2: 'Apply ∂t = β(∂τ − v∂ξ), ∂x = β(∂ξ − v∂τ/V²), ∂y = ∂η and ∂z = ∂ζ to every derivative in this M row. The boost is constant, so no derivative of v or β appears. Preserve both terms and every sign before regrouping. These replacements act on the fields at the same event, not on values at unrelated simultaneous positions in the two frames.'
+      r3: 'Einstein''s §6 first rewrites the six vacuum Maxwell–Hertz curl equations using the coordinate transformation of §3. It next compares the regrouped functions with the fields measured in the moving system, introduces a common factor, and fixes it by an inverse transformation and a spatial-symmetry example. This reconstruction exposes the derivative algebra, the vacuum divergence conditions and the continuity choice for the sign. The identification of fields is a physical step; equal differential form by itself is not a uniqueness theorem. The source''s V and β mean the speed of light and Lorentz factor. SI component equations shown separately are a modern unit mapping, not an added historical premise.'
+      r3Citations:
+        - 'Einstein, Zur Elektrodynamik bewegter Körper (1905), §6, pp. 907–910; coordinate transformation in §3, pp. 899–902.'
+  - kind: 'derivation-step'
+    id: 'sr-field-m-group-components'
+    readings:
+      r0: 'Group the derivatives into the M row of a Maxwell–Hertz system in k.'
+      r1: 'Collect the combinations X, β(Y − vN/V), β(Z + vM/V), L, β(M + vZ/V) and β(N − vY/V). The M row then has the same differential form in τ, ξ, η and ζ. These combinations are candidates for the moving fields; their physical identification is the next argument.'
+      r2: 'Expand ∂τ[β(M + vZ/V)]/V − ∂ξ[β(Z + vM/V)] + ∂ζX. The mixed time and x derivatives cancel, and β²(1 − v²/V²) = 1 leaves ∂tM/V − ∂xZ + ∂zX, the original M residual. The magnetic and electric components have matching Gaussian units here.'
+      r3: 'Einstein''s §6 first rewrites the six vacuum Maxwell–Hertz curl equations using the coordinate transformation of §3. It next compares the regrouped functions with the fields measured in the moving system, introduces a common factor, and fixes it by an inverse transformation and a spatial-symmetry example. This reconstruction exposes the derivative algebra, the vacuum divergence conditions and the continuity choice for the sign. The identification of fields is a physical step; equal differential form by itself is not a uniqueness theorem. The source''s V and β mean the speed of light and Lorentz factor. SI component equations shown separately are a modern unit mapping, not an added historical premise.'
+      r3Citations:
+        - 'Einstein, Zur Elektrodynamik bewegter Körper (1905), §6, pp. 907–910; coordinate transformation in §3, pp. 899–902.'
+  - kind: 'derivation-step'
+    id: 'sr-field-n-change-variables'
+    readings:
+      r0: 'Write the N component equation using the moving coordinates, keeping the same fields.'
+      r1: 'Start with the N row of the printed Maxwell–Hertz system. Replace time and x derivatives by their two-term chain rules, and replace y,z by η,ζ. At this point N still denotes a field component described in K; changing coordinates has not yet identified the moving observer''s fields.'
+      r2: 'Apply ∂t = β(∂τ − v∂ξ), ∂x = β(∂ξ − v∂τ/V²), ∂y = ∂η and ∂z = ∂ζ to every derivative in this N row. The boost is constant, so no derivative of v or β appears. Preserve both terms and every sign before regrouping. These replacements act on the fields at the same event, not on values at unrelated simultaneous positions in the two frames.'
+      r3: 'Einstein''s §6 first rewrites the six vacuum Maxwell–Hertz curl equations using the coordinate transformation of §3. It next compares the regrouped functions with the fields measured in the moving system, introduces a common factor, and fixes it by an inverse transformation and a spatial-symmetry example. This reconstruction exposes the derivative algebra, the vacuum divergence conditions and the continuity choice for the sign. The identification of fields is a physical step; equal differential form by itself is not a uniqueness theorem. The source''s V and β mean the speed of light and Lorentz factor. SI component equations shown separately are a modern unit mapping, not an added historical premise.'
+      r3Citations:
+        - 'Einstein, Zur Elektrodynamik bewegter Körper (1905), §6, pp. 907–910; coordinate transformation in §3, pp. 899–902.'
+  - kind: 'derivation-step'
+    id: 'sr-field-n-group-components'
+    readings:
+      r0: 'Group the derivatives into the N row of a Maxwell–Hertz system in k.'
+      r1: 'Collect the combinations X, β(Y − vN/V), β(Z + vM/V), L, β(M + vZ/V) and β(N − vY/V). The N row then has the same differential form in τ, ξ, η and ζ. These combinations are candidates for the moving fields; their physical identification is the next argument.'
+      r2: 'Expand ∂τ[β(N − vY/V)]/V + ∂ξ[β(Y − vN/V)] − ∂ηX. The mixed terms cancel, and β²(1 − v²/V²) = 1 leaves ∂tN/V + ∂xY − ∂yX, the original N residual. Reversing only one minus sign would fail this component equation even if another special field still happened to work.'
+      r3: 'Einstein''s §6 first rewrites the six vacuum Maxwell–Hertz curl equations using the coordinate transformation of §3. It next compares the regrouped functions with the fields measured in the moving system, introduces a common factor, and fixes it by an inverse transformation and a spatial-symmetry example. This reconstruction exposes the derivative algebra, the vacuum divergence conditions and the continuity choice for the sign. The identification of fields is a physical step; equal differential form by itself is not a uniqueness theorem. The source''s V and β mean the speed of light and Lorentz factor. SI component equations shown separately are a modern unit mapping, not an added historical premise.'
+      r3Citations:
+        - 'Einstein, Zur Elektrodynamik bewegter Körper (1905), §6, pp. 907–910; coordinate transformation in §3, pp. 899–902.'
+  - kind: 'derivation-step'
+    id: 'sr-field-identify-common-scale'
+    readings:
+      r0: 'Identify the same physical fields up to one factor, then follow a field out and back.'
+      r1: 'Einstein identifies the six grouped functions with X′, Y′, Z′, L′, M′ and N′ up to one factor ψ(v), independent of position and time. Apply the inverse boost to the parallel electric component and substitute X′ = ψ(v)X. This identification is an additional physical ansatz; sharing a differential form alone does not prove uniqueness.'
+      r2: 'The six homogeneous field equations permit a common constant multiplier, so comparing their form leaves ψ(v) undetermined. The argument identifies the same electromagnetic field through a local linear transformation with the stated axis convention and one common scalar factor. It does not classify every mathematical map between solutions, such as duality rotations. In the inverse boost, X″ = ψ(−v)X′. Substituting the forward ansatz gives X″ = ψ(−v)ψ(v)X. A position-dependent multiplier would add derivatives of ψ and is outside this ansatz.'
+      r3: 'Einstein''s §6 first rewrites the six vacuum Maxwell–Hertz curl equations using the coordinate transformation of §3. It next compares the regrouped functions with the fields measured in the moving system, introduces a common factor, and fixes it by an inverse transformation and a spatial-symmetry example. This reconstruction exposes the derivative algebra, the vacuum divergence conditions and the continuity choice for the sign. The identification of fields is a physical step; equal differential form by itself is not a uniqueness theorem. The source''s V and β mean the speed of light and Lorentz factor. SI component equations shown separately are a modern unit mapping, not an added historical premise.'
+      r3Citations:
+        - 'Einstein, Zur Elektrodynamik bewegter Körper (1905), §6, pp. 907–910; coordinate transformation in §3, pp. 899–902.'
+  - kind: 'derivation-step'
+    id: 'sr-field-return-to-original-frame'
+    readings:
+      r0: 'An inverse boost returns to the original field measurement.'
+      r1: 'The return to K must recover X itself. Replace X″ by X, giving X = ψ(−v)ψ(v)X. A round trip may not rescale a physical field measured in the original units.'
+      r2: 'Use the same physical definition and units for the field before and after the inverse coordinate transformation. Since the two boosts compose to the identity, the left side becomes the original X. This is an inverse-transformation premise, independent of the differential equations being homogeneous. The resulting identity must hold for every admissible field, including a nonzero constant field parallel to the boost.'
+      r3: 'Einstein''s §6 first rewrites the six vacuum Maxwell–Hertz curl equations using the coordinate transformation of §3. It next compares the regrouped functions with the fields measured in the moving system, introduces a common factor, and fixes it by an inverse transformation and a spatial-symmetry example. This reconstruction exposes the derivative algebra, the vacuum divergence conditions and the continuity choice for the sign. The identification of fields is a physical step; equal differential form by itself is not a uniqueness theorem. The source''s V and β mean the speed of light and Lorentz factor. SI component equations shown separately are a modern unit mapping, not an added historical premise.'
+      r3Citations:
+        - 'Einstein, Zur Elektrodynamik bewegter Körper (1905), §6, pp. 907–910; coordinate transformation in §3, pp. 899–902.'
+  - kind: 'derivation-step'
+    id: 'sr-field-inverse-reciprocity'
+    readings:
+      r0: 'A nonzero test field leaves ψ(v)ψ(−v) = 1.'
+      r1: 'Choose a nonzero constant parallel electric field and divide by X. The forward and backward scale factors must be reciprocals. A zero field would instead give 0 = 0 and would determine no factor.'
+      r2: 'The common scale is assumed to depend only on v. We can therefore determine it using any admissible nonzero test field, without assuming that every possible field has X ≠ 0. Divide X = ψ(−v)ψ(v)X by that nonzero X and simplify to 1 = ψ(−v)ψ(v). This condition alone still admits functions such as exp(av/V), whose inverse-speed value is its reciprocal; the symmetry condition has not yet been used.'
+      r3: 'Einstein''s §6 first rewrites the six vacuum Maxwell–Hertz curl equations using the coordinate transformation of §3. It next compares the regrouped functions with the fields measured in the moving system, introduces a common factor, and fixes it by an inverse transformation and a spatial-symmetry example. This reconstruction exposes the derivative algebra, the vacuum divergence conditions and the continuity choice for the sign. The identification of fields is a physical step; equal differential form by itself is not a uniqueness theorem. The source''s V and β mean the speed of light and Lorentz factor. SI component equations shown separately are a modern unit mapping, not an added historical premise.'
+      r3Citations:
+        - 'Einstein, Zur Elektrodynamik bewegter Körper (1905), §6, pp. 907–910; coordinate transformation in §3, pp. 899–902.'
+  - kind: 'derivation-step'
+    id: 'sr-field-even-scale'
+    readings:
+      r0: 'Reversing the motion cannot change the magnitude of the common factor.'
+      r1: 'Use the source''s pure magnetic example: only N is nonzero. Then Y′ = −ψ(v)βvN/V. Spatial symmetry makes Y′ change sign with v while retaining its magnitude, so ψ(−v) = ψ(v). Combine this with the reciprocal condition.'
+      r2: 'For X = Y = Z = L = M = 0 and N ≠ 0, the ansatz gives Y′(v) = −ψ(v)β(v)vN/V. The footnote''s symmetry requirement is Y′(−v) = −Y′(v). Since β is even and v is nonzero in this comparison, cancellation gives ψ(−v) = ψ(v). Continuity includes v = 0. Substituting this equality into the reciprocal condition produces 1 = ψ(v)ψ(v). This extra premise excludes the reciprocal but direction-dependent exponential family.'
+      r3: 'Einstein''s §6 first rewrites the six vacuum Maxwell–Hertz curl equations using the coordinate transformation of §3. It next compares the regrouped functions with the fields measured in the moving system, introduces a common factor, and fixes it by an inverse transformation and a spatial-symmetry example. This reconstruction exposes the derivative algebra, the vacuum divergence conditions and the continuity choice for the sign. The identification of fields is a physical step; equal differential form by itself is not a uniqueness theorem. The source''s V and β mean the speed of light and Lorentz factor. SI component equations shown separately are a modern unit mapping, not an added historical premise.'
+      r3Citations:
+        - 'Einstein, Zur Elektrodynamik bewegter Körper (1905), §6, pp. 907–910; coordinate transformation in §3, pp. 899–902.'
+  - kind: 'derivation-step'
+    id: 'sr-field-square-scale'
+    readings:
+      r0: 'Inverse consistency and symmetry fix the square of the factor.'
+      r1: 'The two equal factors combine to ψ(v)² = 1. Both +1 and −1 satisfy this algebraic equation; selecting the physical sign needs the normalization at zero speed.'
+      r2: 'Rewrite the product of ψ(v) with itself as its square. This is a collection of equal scalar factors, not a new physical law. The reciprocal and evenness conditions establish a magnitude of one but do not alone distinguish a transformation connected to the identity from an overall sign reversal. The next step states the continuity and identity normalization that choose the branch.'
+      r3: 'Einstein''s §6 first rewrites the six vacuum Maxwell–Hertz curl equations using the coordinate transformation of §3. It next compares the regrouped functions with the fields measured in the moving system, introduces a common factor, and fixes it by an inverse transformation and a spatial-symmetry example. This reconstruction exposes the derivative algebra, the vacuum divergence conditions and the continuity choice for the sign. The identification of fields is a physical step; equal differential form by itself is not a uniqueness theorem. The source''s V and β mean the speed of light and Lorentz factor. SI component equations shown separately are a modern unit mapping, not an added historical premise.'
+      r3Citations:
+        - 'Einstein, Zur Elektrodynamik bewegter Körper (1905), §6, pp. 907–910; coordinate transformation in §3, pp. 899–902.'
+  - kind: 'derivation-step'
+    id: 'sr-field-positive-branch'
+    readings:
+      r0: 'Use the branch continuously connected to no change at zero speed.'
+      r1: 'At v = 0 the two frames coincide, so ψ(0) = 1. Continuity and invertibility prevent this nonzero factor from jumping to −1. Apply the positive square root with that condition stated.'
+      r2: 'The interval −V < v < V is connected. A continuous real ψ that is one at zero and never vanishes cannot change sign there. Invertibility follows already from ψ(v)ψ(−v) = 1. Thus √(ψ²) = |ψ| = ψ on this branch. This explicit reconstruction supplies the sign selection behind the source''s transition to a unit factor; taking a square root without its domain and branch would leave an unproved choice.'
+      r3: 'Einstein''s §6 first rewrites the six vacuum Maxwell–Hertz curl equations using the coordinate transformation of §3. It next compares the regrouped functions with the fields measured in the moving system, introduces a common factor, and fixes it by an inverse transformation and a spatial-symmetry example. This reconstruction exposes the derivative algebra, the vacuum divergence conditions and the continuity choice for the sign. The identification of fields is a physical step; equal differential form by itself is not a uniqueness theorem. The source''s V and β mean the speed of light and Lorentz factor. SI component equations shown separately are a modern unit mapping, not an added historical premise.'
+      r3Citations:
+        - 'Einstein, Zur Elektrodynamik bewegter Körper (1905), §6, pp. 907–910; coordinate transformation in §3, pp. 899–902.'
+  - kind: 'derivation-step'
+    id: 'sr-field-select-connected-sign'
+    readings:
+      r0: 'The positive square root of the squared factor is the factor itself.'
+      r1: 'Use ψ(v) > 0 to replace √(ψ(v)²) by ψ(v). The left side is still √1, so no negative branch has been silently discarded.'
+      r2: 'For an arbitrary real number, √(ψ²) is |ψ|. The preceding continuity argument established positivity throughout the allowed speed interval. That is the specific reason absolute value can be removed here. The physical identity normalization, not the vacuum equations alone, selects the sign.'
+      r3: 'Einstein''s §6 first rewrites the six vacuum Maxwell–Hertz curl equations using the coordinate transformation of §3. It next compares the regrouped functions with the fields measured in the moving system, introduces a common factor, and fixes it by an inverse transformation and a spatial-symmetry example. This reconstruction exposes the derivative algebra, the vacuum divergence conditions and the continuity choice for the sign. The identification of fields is a physical step; equal differential form by itself is not a uniqueness theorem. The source''s V and β mean the speed of light and Lorentz factor. SI component equations shown separately are a modern unit mapping, not an added historical premise.'
+      r3Citations:
+        - 'Einstein, Zur Elektrodynamik bewegter Körper (1905), §6, pp. 907–910; coordinate transformation in §3, pp. 899–902.'
+  - kind: 'derivation-step'
+    id: 'sr-field-unit-scale'
+    readings:
+      r0: 'The common factor is one, leaving all six printed field transformations.'
+      r1: 'Simplify √1 to obtain 1 = ψ(v). Put that value into all six field-identification equations. Components parallel to the motion remain X′ = X and L′ = L; the other four mix electric and magnetic fields with β and v/V.'
+      r2: 'The normalization is now complete within the local linear common-factor ansatz. Its ingredients were the six vacuum equations, the §3 coordinate map, physical identification of the fields, inverse consistency, spatial symmetry, and continuity at the identity. No electromagnetic field tensor or invariant was used as a historical premise. The modern SI versions below require a unit conversion as well as the notational changes V to c and β to γ.'
+      r3: 'Einstein''s §6 first rewrites the six vacuum Maxwell–Hertz curl equations using the coordinate transformation of §3. It next compares the regrouped functions with the fields measured in the moving system, introduces a common factor, and fixes it by an inverse transformation and a spatial-symmetry example. This reconstruction exposes the derivative algebra, the vacuum divergence conditions and the continuity choice for the sign. The identification of fields is a physical step; equal differential form by itself is not a uniqueness theorem. The source''s V and β mean the speed of light and Lorentz factor. SI component equations shown separately are a modern unit mapping, not an added historical premise.'
+      r3Citations:
+        - 'Einstein, Zur Elektrodynamik bewegter Körper (1905), §6, pp. 907–910; coordinate transformation in §3, pp. 899–902.'
