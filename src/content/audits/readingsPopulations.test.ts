@@ -27,6 +27,10 @@
  * This file measures and does not extend the audit. Wiring the other five populations into
  * `auditReadings` is the bead's item 1 and needs its CLI and `verify-content` to share one
  * implementation first, which is am-unwired-audits-uwot's half.
+ *
+ * The LQ §§4/6 and SR §8 chains now add 20 owned derivation-step readings. Keep those separate
+ * from the original 63 captions: counting every owner target as a caption would disguise which
+ * population the audit actually reached. This census still adds no population to the validator.
  */
 
 import { describe, expect, test } from "bun:test";
@@ -60,12 +64,20 @@ const read = (f: string): Record<string, unknown> =>
     ? (JSON.parse(readFileSync(f, "utf8")) as Record<string, unknown>)
     : (loadYaml(readFileSync(f, "utf8")) as Record<string, unknown>);
 
-describe("the readings audit reads one population of six", () => {
+describe("the readings audit reads captions and authored derivation steps", () => {
   test("the census, with every population named", () => {
-    const captions = filesUnder(join(ROOT, "content/editorial/readings-owners")).reduce(
-      (n, f) => n + ((read(f).targets as unknown[] | undefined)?.length ?? 0),
-      0,
+    const ownedTargets = filesUnder(join(ROOT, "content/editorial/readings-owners")).flatMap(
+      (file) => (read(file).targets as { kind?: string; captions?: unknown }[] | undefined) ?? [],
     );
+    const captions = ownedTargets.filter(
+      (target) =>
+        target.kind === "caption" ||
+        target.kind === "instrument-caption" ||
+        target.captions !== undefined,
+    ).length;
+    const derivationSteps = ownedTargets.filter(
+      (target) => target.kind === "derivation-step",
+    ).length;
 
     let paragraphs = 0;
     for (const paper of PAPERS) {
@@ -106,13 +118,14 @@ describe("the readings audit reads one population of six", () => {
       }
     }
 
-    const total = captions + paragraphs + passages.length + displays.length + headings + closings;
+    const audited = captions + derivationSteps;
+    const total = audited + paragraphs + passages.length + displays.length + headings + closings;
     console.log(
       `[census] readings populations: ${total} reading-bearing targets; the audit reads ` +
-        `${captions} captions and none of the other ${total - captions}`,
+        `${captions} captions and ${derivationSteps} derivation steps, and none of the other ${total - audited}`,
     );
     console.log(
-      `[census]   captions ${captions} | paragraphs ${paragraphs} | passages ${passages.length} | ` +
+      `[census]   captions ${captions} | derivation steps ${derivationSteps} | paragraphs ${paragraphs} | passages ${passages.length} | ` +
         `displays ${displays.length} | headings ${headings} | closings ${closings}`,
     );
     console.log(
@@ -122,6 +135,8 @@ describe("the readings audit reads one population of six", () => {
     expect(total).toBeGreaterThanOrEqual(550);
     // The audited population is the one with no shortfall, which is the finding.
     expect(captions).toBe(63);
+    expect(derivationSteps).toBe(20);
+    expect(ownedTargets.length).toBe(audited);
     // Floors on what exists, so a population cannot vanish unnoticed.
     expect(paragraphs).toBeGreaterThanOrEqual(210);
     expect(passages.length).toBeGreaterThanOrEqual(48);

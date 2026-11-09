@@ -58,7 +58,7 @@ function fixtureRoot(kindOnTarget: string, kindOnOwner: string): string {
   return root;
 }
 
-describe("the real records: 63 targets, all of them owned, and the audit is clean", () => {
+describe("the real captions and derivation-step records are owned and the audit is clean", () => {
   const loaded = loadLiveReadings(REAL_ROOT);
 
   test("the loader reads the records rather than reporting an empty corpus", () => {
@@ -81,12 +81,35 @@ describe("the real records: 63 targets, all of them owned, and the audit is clea
     // Re-read from the loaded input, not from READINGS_RECORD_VOCABULARY, so the constant cannot
     // drift away from what it describes.
     const targetKinds = new Set(loaded.input.targets.map((t) => t.targetKind));
-    expect([...targetKinds]).toEqual([READINGS_RECORD_VOCABULARY.inAuditType]);
+    expect([...targetKinds].sort()).toEqual([
+      "derivation-step",
+      READINGS_RECORD_VOCABULARY.inAuditType,
+    ]);
     // And the records really do write the OTHER spelling: the translation is doing work, so a
     // loader that stopped translating would turn this red instead of silently going unowned.
     const onDisk = new Set(loaded.input.owners.flatMap((o) => [...o.targetKinds]));
-    expect([...onDisk]).toEqual([READINGS_RECORD_VOCABULARY.inAuditType]);
+    expect([...onDisk].sort()).toEqual(["derivation-step", READINGS_RECORD_VOCABULARY.inAuditType]);
+    for (const target of loaded.input.targets) {
+      const owners = loaded.input.owners.filter(
+        (owner) =>
+          owner.targetKinds.includes(target.targetKind) &&
+          owner.targetIds.includes(target.targetId),
+      );
+      expect(owners.length, target.targetId).toBe(1);
+    }
     expect(READINGS_RECORD_VOCABULARY.inRecords).not.toBe(READINGS_RECORD_VOCABULARY.inAuditType);
+  });
+
+  test("the 63 caption targets and 20 new derivation steps have separate real denominators", () => {
+    const captions = loaded.input.targets.filter(
+      (target) => target.targetKind === "instrument-caption",
+    );
+    const steps = loaded.input.targets.filter((target) => target.targetKind === "derivation-step");
+    expect(captions.length).toBe(63);
+    expect(steps.length).toBe(20);
+    expect(steps.filter((target) => target.paper === "light-quanta").length).toBe(15);
+    expect(steps.filter((target) => target.paper === "special-relativity").length).toBe(5);
+    expect(loaded.input.targets.length).toBe(captions.length + steps.length);
   });
 
   test("so both cells MEASURE, over a real denominator", () => {
