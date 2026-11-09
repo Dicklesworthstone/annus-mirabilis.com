@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { auditReadings } from "../../content/audits/readings.ts";
 import { parseYaml } from "../../content/provenance/yaml.ts";
 import {
   C_SI,
@@ -219,6 +220,39 @@ test("the SR owner contains the exact source-field step readings rendered by the
     assert.equal(target.kind, "derivation-step");
     assert.deepEqual(target.readings, srFieldTransformReadingSet(step));
   }
+});
+
+test("every field reading has literal authored copy and R2 supplies the required additional explanation", () => {
+  const steps = srFieldTransformDerivations.flatMap((chain) => chain.steps);
+  const source = readFileSync(new URL("./srFieldTransforms.ts", import.meta.url), "utf8");
+  for (const step of steps) {
+    const readings = srFieldTransformReadingSet(step);
+    for (const level of ["r0", "r1", "r2", "r3"] as const) {
+      assert.ok(
+        source.includes(readings[level]),
+        `${step.id}:${level} lacks its literal rendered copy`,
+      );
+    }
+  }
+  const report = auditReadings({
+    targets: steps.map((step) => ({
+      targetId: step.id,
+      targetKind: "derivation-step",
+      paper: "special-relativity",
+      readings: srFieldTransformReadingSet(step),
+    })),
+    owners: [
+      {
+        ownerBeadId: "am-sre-equations-2g3h",
+        fileName: "am-sre-equations-2g3h.yaml",
+        paper: "special-relativity",
+        targetKinds: ["derivation-step"],
+        targetIds: steps.map((step) => step.id),
+      },
+    ],
+  });
+  assert.deepEqual(report.findings, []);
+  assert.equal(report.ok, true);
 });
 
 test("the field authoring substitution refuses an unaddressable target with its stable code", () => {
