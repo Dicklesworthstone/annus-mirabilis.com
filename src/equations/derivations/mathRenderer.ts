@@ -50,7 +50,7 @@ export function expressionToDerivationLatex(
         break;
       }
       case "constant":
-        s = "\\pi";
+        s = n.name === "infinity" ? "\\infty" : "\\pi";
         break;
       case "symbol": {
         const name = n.termId || n.quantityId;
@@ -142,9 +142,11 @@ export function expressionToDerivationLatex(
         }
         break;
       }
-      case "integral":
-        s = `\\int ${render(n.expression)}\\,\\mathrm{d}${render(n.variable)}`;
+      case "integral": {
+        const limits = n.lower && n.upper ? `_{${render(n.lower)}}^{${render(n.upper)}}` : "";
+        s = `\\int${limits} ${render(n.expression)}\\,\\mathrm{d}${render(n.variable)}`;
         break;
+      }
       case "indexedSum":
         s = `\\sum_{${n.index}=${render(n.from)}}^{${render(n.to)}} \\left(${render(n.expression)}\\right)`;
         break;
