@@ -3,6 +3,21 @@ import { GlobalRegistrator } from "@happy-dom/global-registrator";
 type TestIntersectionObserver = IntersectionObserver & { readonly targets: Set<Element> };
 let intersectionObservers: Set<TestIntersectionObserver> | null = null;
 
+export class TestIntersectionStateError extends DOMException {
+  readonly refusalCode: "test-intersection-not-installed";
+
+  constructor(refusalCode: "test-intersection-not-installed") {
+    super("Install the DOM with explicit intersections first.", "InvalidStateError");
+    this.refusalCode = refusalCode;
+  }
+}
+
+function requireIntersectionState(): Set<TestIntersectionObserver> {
+  if (!intersectionObservers)
+    throw new TestIntersectionStateError("test-intersection-not-installed");
+  return intersectionObservers;
+}
+
 export interface TestDomOptions {
   /** happy-dom has no layout engine: opt in to measured entries instead of its inert observer. */
   readonly intersections?: "visible" | "manual";
@@ -25,13 +40,9 @@ const intersectionCallbacks = new WeakMap<IntersectionObserver, IntersectionObse
 
 /** Emit only to observers of this actual element, so a wrongly attached ref cannot pass a test. */
 export function emitTestIntersection(target: Element, isIntersecting: boolean): number {
-  if (!intersectionObservers)
-    throw new DOMException(
-      "Install the DOM with explicit intersections first.",
-      "InvalidStateError",
-    );
+  const observers = requireIntersectionState();
   let delivered = 0;
-  for (const observer of intersectionObservers) {
+  for (const observer of observers) {
     if (!observer.targets.has(target)) continue;
     intersectionCallbacks.get(observer)?.([intersectionEntry(target, isIntersecting)], observer);
     delivered++;
@@ -40,12 +51,8 @@ export function emitTestIntersection(target: Element, isIntersecting: boolean): 
 }
 
 export function observedTestIntersections(): readonly Element[] {
-  if (!intersectionObservers)
-    throw new DOMException(
-      "Install the DOM with explicit intersections first.",
-      "InvalidStateError",
-    );
-  return [...new Set([...intersectionObservers].flatMap((observer) => [...observer.targets]))];
+  const observers = requireIntersectionState();
+  return [...new Set([...observers].flatMap((observer) => [...observer.targets]))];
 }
 
 function installTestIntersections(mode: "visible" | "manual") {

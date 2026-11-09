@@ -1,8 +1,10 @@
 import { afterEach, expect, test } from "bun:test";
+import assert from "node:assert/strict";
 import {
   emitTestIntersection,
   installDom,
   observedTestIntersections,
+  TestIntersectionStateError,
   uninstallDom,
 } from "./reactDom.ts";
 
@@ -47,7 +49,20 @@ test("visible intersections deliver the initial entry asynchronously and honor u
   expect(observedTestIntersections()).toEqual([]);
 });
 
-test("ordinary DOM installation keeps deterministic intersections opt in", async () => {
+test("both intersection helpers refuse unconfigured state with a stable InvalidStateError code", async () => {
   await installDom();
-  expect(() => observedTestIntersections()).toThrow("explicit intersections");
+  const target = document.createElement("section");
+  for (const operation of [
+    () => observedTestIntersections(),
+    () => emitTestIntersection(target, true),
+  ]) {
+    assert.throws(operation, (error: unknown) => {
+      assert.ok(error instanceof TestIntersectionStateError);
+      expect(error.refusalCode).toBe("test-intersection-not-installed");
+      expect(error.name).toBe("InvalidStateError");
+      expect(error.message).toBe("Install the DOM with explicit intersections first.");
+      expect(error.code).toBe(11);
+      return true;
+    });
+  }
 });

@@ -22,6 +22,21 @@ import {
   type PremiseRef,
 } from "./types.ts";
 
+export type SRLightComplexRefusalCode =
+  | "sr-light-complex-missing-glyph"
+  | "sr-light-complex-relation-required"
+  | "sr-light-complex-unaddressable-target";
+
+/** Keep the schema error's path and message while exposing a stable authoring refusal code. */
+export class SRLightComplexError extends DerivationSchemaError {
+  readonly code: SRLightComplexRefusalCode;
+
+  constructor(code: SRLightComplexRefusalCode, message: string, path: string) {
+    super(message, path);
+    this.code = code;
+  }
+}
+
 const glyphs: Readonly<Record<string, string>> = {
   lightComplexEnergyMoving: "E'",
   lightComplexEnergyStationary: "E",
@@ -45,14 +60,19 @@ export function projectSRLightComplexRelation(record: {
   const projected = projectDerivationSymbols(record.tree as Expression, (symbol) => {
     const glyph = glyphs[symbol.quantityId];
     if (!glyph)
-      throw new DerivationSchemaError(
+      throw new SRLightComplexError(
+        "sr-light-complex-missing-glyph",
         `No derivation glyph for ${symbol.quantityId}.`,
         `${record.id}.tree`,
       );
     return glyph;
   });
   if (projected.kind !== "relation")
-    throw new DerivationSchemaError("Expected a relation.", `${record.id}.tree`);
+    throw new SRLightComplexError(
+      "sr-light-complex-relation-required",
+      "Expected a relation.",
+      `${record.id}.tree`,
+    );
   return projected;
 }
 
@@ -97,7 +117,8 @@ export function createSRLightComplexSubstitution(
 ): Pick<DerivationStep, "from" | "to" | "changedSubexpressionIds" | "rule"> {
   const targetId = nodeId(target);
   if (!targetId)
-    throw new DerivationSchemaError(
+    throw new SRLightComplexError(
+      "sr-light-complex-unaddressable-target",
       "SR §8 substitution needs an addressable expression.",
       "sr-light-complex.substitution.target",
     );
