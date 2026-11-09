@@ -113,7 +113,7 @@ export function InvestigationWorkspace({ task }: { task: InvestigationTask }) {
         if (event.currentTarget.open) setRequested(true);
       }}
     >
-      <summary>Record a prediction and compare the laboratory readings</summary>
+      <summary>Record a prediction, compare readings or open a saved investigation</summary>
       <noscript>
         <p>
           The task above works on paper. Automatic capture of accepted readings needs JavaScript.

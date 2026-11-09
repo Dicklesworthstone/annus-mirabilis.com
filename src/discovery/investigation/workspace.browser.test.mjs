@@ -10,7 +10,7 @@ let browser;
 const compiled = {};
 let css = "";
 before(async () => {
-  for (const file of ["core.ts", "specs.ts", "workspace.ts"]) {
+  for (const file of ["core.ts", "specs.ts", "import.ts", "workspace.ts"]) {
     const source = await readFile(new URL(file, import.meta.url), "utf8");
     const built = ts.transpileModule(source, {
       compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS },
@@ -459,6 +459,214 @@ test("pinning by keyboard moves focus out of the now-hidden prediction controls"
       "Go to this task's laboratory on this page",
     );
     assert.equal(await page.evaluate(() => window.submitCount), 0);
+  } finally {
+    await page.close();
+  }
+});
+
+async function chooseInvestigation(page, text) {
+  const transfer = page.locator("[data-investigation-import]");
+  await transfer.evaluate((node) => {
+    node.open = true;
+  });
+  await page.getByLabel("Investigation JSON file", { exact: true }).setInputFiles({
+    name: "saved-investigation.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(text),
+  });
+}
+
+for (const paper of ["brownian-motion", "light-quanta", "special-relativity", "mass-energy"]) {
+  test(`${paper}: a downloaded investigation opens after explicit review, survives export, and cannot mix new readings`, async () => {
+    const source = await pageFor(paper);
+    const destination = await pageFor(paper, 320);
+    try {
+      await start(source.page);
+      await source.page.evaluate(() => fixture.update());
+      await source.page
+        .getByRole("button", { name: "Capture changed reading", exact: true })
+        .click();
+      await source.page
+        .getByLabel("Explain what changed, what stayed fixed, and what this model cannot establish")
+        .fill("My saved explanation <script>never execute this</script>.");
+      const firstDownload = source.page.waitForEvent("download");
+      await source.page
+        .getByRole("button", { name: "Download investigation JSON", exact: true })
+        .click();
+      const text = await downloadText(await firstDownload);
+      const requests = [];
+      destination.page.on("request", (request) => requests.push(request.url()));
+      await chooseInvestigation(destination.page, text);
+      await destination.page
+        .getByRole("button", { name: "Open this investigation", exact: true })
+        .waitFor({ state: "visible" });
+      assert.equal(await destination.page.evaluate(() => fixture.store.getSnapshot().report), null);
+      assert.equal(
+        await destination.page.locator("[data-investigation-import-preview] script").count(),
+        0,
+      );
+      await destination.page.keyboard.press("Enter");
+      const state = await destination.page.evaluate(() => fixture.store.getSnapshot());
+      assert.equal(state.restored, true);
+      assert.equal(state.report.baseline.reading.parameters.seed, "18446744073709551615");
+      assert.equal(state.report.observations.length, 1);
+      assert.equal(state.report.explanation, JSON.parse(text).explanation);
+      assert.equal(
+        await destination.page
+          .getByRole("button", { name: "Capture changed reading", exact: true })
+          .isDisabled(),
+        true,
+      );
+      const lastDownload = destination.page.waitForEvent("download");
+      await destination.page
+        .getByRole("button", { name: "Download investigation JSON", exact: true })
+        .click();
+      assert.equal(await downloadText(await lastDownload), text);
+      assert.equal(await destination.page.evaluate(() => window.storageReads), 0);
+      assert.equal(await destination.page.evaluate(() => window.submitCount), 0);
+      assert.deepEqual(
+        requests.filter((url) => !url.startsWith("blob:")),
+        [],
+      );
+      assert.deepEqual(destination.errors, []);
+      const widths = await destination.page.evaluate(() => ({
+        width: innerWidth,
+        page: document.documentElement.scrollWidth,
+      }));
+      assert.ok(widths.page <= widths.width, JSON.stringify(widths));
+    } finally {
+      await source.page.close();
+      await destination.page.close();
+    }
+  });
+}
+
+test("review, cancellation and explicit replacement preserve current work until the final action", async () => {
+  const { page, errors } = await pageFor();
+  try {
+    await start(page);
+    const old = await page.evaluate(() => fixture.store.getSnapshot().report);
+    const imported = {
+      ...old,
+      prediction: "A different saved prediction.",
+      explanation: "An older explanation.",
+    };
+    const explanation = page.getByLabel(
+      "Explain what changed, what stayed fixed, and what this model cannot establish",
+    );
+    await explanation.fill("My unsaved explanation must survive cancellation.");
+    await chooseInvestigation(page, JSON.stringify(imported));
+    const replace = page.getByRole("button", {
+      name: "Replace with this investigation",
+      exact: true,
+    });
+    await replace.waitFor({ state: "visible" });
+    assert.deepEqual(await page.evaluate(() => fixture.store.getSnapshot().report), old);
+    await page.getByRole("button", { name: "Keep my current work", exact: true }).click();
+    assert.equal(
+      await explanation.inputValue(),
+      "My unsaved explanation must survive cancellation.",
+    );
+    assert.deepEqual(await page.evaluate(() => fixture.store.getSnapshot().report), old);
+    await chooseInvestigation(page, JSON.stringify(imported));
+    await replace.waitFor({ state: "visible" });
+    const backup = page.waitForEvent("download");
+    await page.getByRole("button", { name: "Download investigation JSON", exact: true }).click();
+    assert.equal(
+      JSON.parse(await downloadText(await backup)).explanation,
+      "My unsaved explanation must survive cancellation.",
+    );
+    await replace.click();
+    assert.equal(
+      await page.evaluate(() => fixture.store.getSnapshot().report.prediction),
+      imported.prediction,
+    );
+    assert.equal(await explanation.inputValue(), imported.explanation);
+    assert.deepEqual(errors, []);
+  } finally {
+    await page.close();
+  }
+});
+
+test("work changed during import review requires a new review instead of replacing the new draft", async () => {
+  const { page } = await pageFor();
+  try {
+    await start(page);
+    const old = await page.evaluate(() => fixture.store.getSnapshot().report);
+    await chooseInvestigation(page, JSON.stringify({ ...old, prediction: "Another file." }));
+    await page
+      .getByRole("button", { name: "Replace with this investigation", exact: true })
+      .waitFor({ state: "visible" });
+    const explanation = page.getByLabel(
+      "Explain what changed, what stayed fixed, and what this model cannot establish",
+    );
+    await explanation.fill("New work typed after review.");
+    await page
+      .getByRole("button", { name: "Replace with this investigation", exact: true })
+      .click();
+    assert.match(
+      await page.getByRole("alert").innerText(),
+      /work changed while you were reviewing/,
+    );
+    assert.equal(await explanation.inputValue(), "New work typed after review.");
+    assert.deepEqual(await page.evaluate(() => fixture.store.getSnapshot().report), old);
+  } finally {
+    await page.close();
+  }
+});
+
+test("wrong journeys, future versions, malformed files and oversize files do not replace a report", async () => {
+  const { page } = await pageFor();
+  const other = await pageFor("light-quanta");
+  try {
+    await start(page);
+    await start(other.page);
+    const old = await page.evaluate(() => fixture.store.getSnapshot().report);
+    const different = await other.page.evaluate(() => fixture.store.getSnapshot().report);
+    await chooseInvestigation(
+      page,
+      JSON.stringify({ ...different, sourceHref: "javascript:alert(1)" }),
+    );
+    await page
+      .getByRole("link", { name: "Open the discovery journey for this file" })
+      .waitFor({ state: "visible" });
+    assert.equal(
+      await page
+        .getByRole("link", { name: "Open the discovery journey for this file" })
+        .getAttribute("href"),
+      `/discover/light-quanta/#${different.promptId}`,
+    );
+    for (const text of ["not json", JSON.stringify({ ...old, version: 99 }), "x".repeat(262146)]) {
+      await chooseInvestigation(page, text);
+      await page.waitForFunction(
+        () => document.querySelector('[role="alert"]').textContent.length > 0,
+      );
+      assert.equal(await page.locator("[data-investigation-import-preview]").isHidden(), true);
+      assert.deepEqual(await page.evaluate(() => fixture.store.getSnapshot().report), old);
+    }
+    assert.equal(await page.locator('a[href^="javascript:"]').count(), 0);
+  } finally {
+    await page.close();
+    await other.page.close();
+  }
+});
+
+test("reimporting the already open report does not clear it or discard a typed explanation", async () => {
+  const { page } = await pageFor();
+  try {
+    await start(page);
+    const old = await page.evaluate(() => fixture.store.getSnapshot().report);
+    const explanation = page.getByLabel(
+      "Explain what changed, what stayed fixed, and what this model cannot establish",
+    );
+    await explanation.fill("Keep this unsaved draft as well.");
+    await chooseInvestigation(page, JSON.stringify(old));
+    await page
+      .getByRole("button", { name: "Replace with this investigation", exact: true })
+      .click();
+    assert.equal(await explanation.inputValue(), "Keep this unsaved draft as well.");
+    assert.deepEqual(await page.evaluate(() => fixture.store.getSnapshot().report), old);
+    assert.match(await page.locator("[data-investigation]").innerText(), /already open/);
   } finally {
     await page.close();
   }

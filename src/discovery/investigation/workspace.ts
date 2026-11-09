@@ -4,11 +4,13 @@ import {
   exportInvestigationJson,
   INVESTIGATION_LIMITS,
   type InvestigationChange,
+  type InvestigationReport,
   type InvestigationStore,
   type InvestigationTask,
   type Observation,
   type Reading,
 } from "./core.ts";
+import { readInvestigationImport } from "./import.ts";
 
 let sequence = 0;
 const STATUS_WORDS: Readonly<Record<string, string>> = {
@@ -77,10 +79,18 @@ export function mountInvestigationWorkspace(
   const availability = node("p");
   availability.setAttribute("role", "status");
   availability.setAttribute("aria-live", "polite");
+  const restoredNotice = node(
+    "p",
+    "These saved readings belong to an earlier laboratory session. You can revise the explanation; start another investigation to capture readings from the current laboratory.",
+  );
+  restoredNotice.className = "fine";
+  restoredNotice.dataset.investigationRestored = "";
   const error = node("p");
   error.setAttribute("role", "alert");
   const feedback = node("p");
   feedback.setAttribute("role", "status");
+  const importHelp = node("p");
+  importHelp.hidden = true;
   const predictionLabel = node("label", "What do you predict, and why?");
   const prediction = node("textarea");
   prediction.id = `${prefix}-prediction`;
@@ -189,6 +199,152 @@ export function mountInvestigationWorkspace(
       restart.focus();
     }),
   );
+  const transfer = node("details");
+  transfer.dataset.investigationImport = "";
+  transfer.append(node("summary", "Open an investigation JSON file"));
+  transfer.append(
+    node(
+      "p",
+      "Choose an investigation you downloaded from this journey, up to 256 KiB. The file is read only on this device. Review it before opening; your current work stays here until you choose to replace it.",
+    ),
+  );
+  const fileLabel = node("label", "Investigation JSON file");
+  const fileInput = node("input");
+  fileInput.type = "file";
+  fileInput.accept = ".json,application/json";
+  fileInput.id = `${prefix}-import`;
+  fileLabel.htmlFor = fileInput.id;
+  const importPreview = node("div");
+  importPreview.hidden = true;
+  importPreview.dataset.investigationImportPreview = "";
+  const importedTask = node("p");
+  const importedPrediction = node("p");
+  importedPrediction.className = "investigation-words";
+  const importedExplanation = node("p");
+  importedExplanation.className = "investigation-words";
+  const importWarning = node("p");
+  let importSequence = 0;
+  let pendingImport: {
+    report: InvestigationReport;
+    reviewedReport: InvestigationReport | null;
+    prediction: string;
+    explanation: string;
+    observationLabel: string;
+  } | null = null;
+  function cancelImport() {
+    importSequence++;
+    pendingImport = null;
+    fileInput.value = "";
+    importPreview.hidden = true;
+    importHelp.hidden = true;
+  }
+  const openImport = button("Open this investigation", () => {
+    const pending = pendingImport;
+    if (!pending) return;
+    if (
+      store.getSnapshot().report !== pending.reviewedReport ||
+      prediction.value !== pending.prediction ||
+      explanation.value !== pending.explanation ||
+      name.value !== pending.observationLabel
+    ) {
+      error.textContent =
+        "Your work changed while you were reviewing this file. Choose the file again to review it against your current work. Nothing here was replaced.";
+      cancelImport();
+      return;
+    }
+    const current = store.getSnapshot().report;
+    if (current && exportInvestigationJson(current) === exportInvestigationJson(pending.report)) {
+      feedback.textContent =
+        "This investigation is already open. Your typed explanation and saved copy are unchanged.";
+      error.textContent = "";
+      cancelImport();
+      return;
+    }
+    if (current) {
+      const cleared = store.restartConfirmed();
+      if (!cleared.ok) {
+        show(cleared, "");
+        return;
+      }
+    }
+    const opened = store.restore(pending.report);
+    if (!opened.ok) {
+      show(opened, "");
+      return;
+    }
+    prediction.value = "";
+    name.value = "";
+    explanation.value = pending.report.explanation;
+    confirmation.hidden = true;
+    show(
+      opened,
+      "Investigation opened. These are saved model readings, not results from this laboratory session. You can finish your explanation and download it. Start another investigation to capture new readings.",
+    );
+    cancelImport();
+    explanation.focus();
+  });
+  const cancel = button("Keep my current work", () => {
+    cancelImport();
+    feedback.textContent = "File import cancelled. Your work is unchanged.";
+    error.textContent = "";
+    fileInput.focus();
+  });
+  importPreview.append(
+    node("h5", "Review the saved investigation"),
+    importedTask,
+    importedPrediction,
+    importedExplanation,
+    importWarning,
+    openImport,
+    cancel,
+  );
+  transfer.append(fileLabel, fileInput, importPreview, importHelp);
+  fileInput.addEventListener(
+    "change",
+    async () => {
+      const file = fileInput.files?.[0];
+      cancelImport();
+      if (!file) return;
+      const request = importSequence;
+      error.textContent = "";
+      feedback.textContent = "Reading the investigation file on this device.";
+      const result = await readInvestigationImport(file, spec);
+      if (disposed || request !== importSequence) return;
+      feedback.textContent = "";
+      if (!result.ok) {
+        error.textContent = result.message;
+        if (result.journeyHref) {
+          const link = node("a", "Open the discovery journey for this file");
+          link.href = result.journeyHref;
+          importHelp.replaceChildren(link);
+          importHelp.hidden = false;
+        }
+        return;
+      }
+      pendingImport = {
+        report: result.report,
+        reviewedReport: store.getSnapshot().report,
+        prediction: prediction.value,
+        explanation: explanation.value,
+        observationLabel: name.value,
+      };
+      importedTask.textContent = `Saved task: ${result.report.task.task}`;
+      importedPrediction.textContent = `Pinned prediction: ${result.report.prediction}`;
+      importedExplanation.textContent = `Saved explanation: ${result.report.explanation || "No explanation saved yet."}`;
+      importWarning.textContent =
+        `This file holds a starting reading and ${result.report.observations.length} changed readings. ` +
+        (pendingImport.reviewedReport
+          ? "Replacing will remove the investigation currently open here, including any typed explanation or comparison name. Download your current investigation first if you want to keep both."
+          : "Opening will replace any prediction you have typed here. It does not run or change the laboratory.");
+      openImport.textContent = pendingImport.reviewedReport
+        ? "Replace with this investigation"
+        : "Open this investigation";
+      importPreview.hidden = false;
+      feedback.textContent = "The file is ready to review. Nothing has been replaced.";
+      openImport.focus();
+    },
+    { signal: events.signal },
+  );
   const sourceLine = node("p");
   const sourceLink = node("a", "Return to the source argument");
   sourceLink.href = spec.sourceHref;
@@ -199,6 +355,7 @@ export function mountInvestigationWorkspace(
     starting,
     committed,
     availability,
+    restoredNotice,
     labLine,
     live,
     captureTools,
@@ -206,6 +363,7 @@ export function mountInvestigationWorkspace(
     reflection,
     controls,
     confirmation,
+    transfer,
     error,
     feedback,
     sourceLine,
@@ -309,13 +467,17 @@ export function mountInvestigationWorkspace(
     const report = state.report;
     if (availability.textContent !== state.availability)
       availability.textContent = state.availability;
+    restoredNotice.hidden = !state.restored;
     starting.hidden = report !== null;
     committed.hidden = report === null;
     committed.textContent = report ? `Your pinned prediction: ${report.prediction}` : "";
     begin.disabled = state.current === null;
     captureTools.hidden = report === null;
     capture.disabled =
-      !state.current || !report || report.observations.length >= INVESTIGATION_LIMITS.observations;
+      state.restored ||
+      !state.current ||
+      !report ||
+      report.observations.length >= INVESTIGATION_LIMITS.observations;
     reflection.hidden = !report;
     controls.hidden = !report;
     if (report && document.activeElement !== explanation && !explanation.value)
@@ -351,6 +513,13 @@ export function mountInvestigationWorkspace(
     }
   }
   function download(printable: boolean) {
+    // Downloading the draft just reviewed is the recommended way to keep both investigations.
+    // Its save changes the report object, but must not invalidate that unchanged review.
+    const reviewed =
+      pendingImport?.reviewedReport === store.getSnapshot().report &&
+      pendingImport?.explanation === explanation.value &&
+      pendingImport?.prediction === prediction.value &&
+      pendingImport?.observationLabel === name.value;
     // Typed reflection is included deliberately; an invalid draft must not produce an older export.
     const saved = store.explain(explanation.value);
     if (!saved.ok) {
@@ -359,6 +528,7 @@ export function mountInvestigationWorkspace(
     }
     const report = store.getSnapshot().report;
     if (!report) return;
+    if (reviewed && pendingImport) pendingImport.reviewedReport = report;
     let url: string | undefined;
     try {
       const text = printable ? exportInvestigationHtml(report) : exportInvestigationJson(report);

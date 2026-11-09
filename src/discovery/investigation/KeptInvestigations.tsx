@@ -128,6 +128,23 @@ export function KeptInvestigations() {
         Return to a prediction you pinned beside a discovery laboratory, compare its saved readings,
         and finish your explanation. These investigations stay in this browser.
       </p>
+      <details data-investigation-import-help="">
+        <summary>Open a downloaded investigation on this device</summary>
+        <p>
+          Choose its discovery journey below, open the prediction and comparison controls, then
+          choose <strong>Open an investigation JSON file</strong>. You can review the file before
+          opening it. Existing work is kept until you explicitly choose to replace it.
+        </p>
+        <ul>
+          {PAPERS.map((paper) => (
+            <li key={paper}>
+              <a href={`/discover/${paper}/#${INVESTIGATIONS[paper].promptId}`}>
+                {PAPER_NAMES[paper]}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </details>
       {entries?.some((entry) => entry.status === "unavailable") && (
         <p className="notice">
           Saved investigations are unavailable because browser storage is blocked or unavailable.

@@ -146,6 +146,13 @@ describe("discovery investigations in the reading notebook", () => {
     expect(container.querySelectorAll("[data-kept-investigation]")).toHaveLength(0);
     expect(container.textContent).toContain("No discovery investigations are kept");
     expect(container.querySelector('a[href="/discover/brownian-motion/"]')).not.toBeNull();
+    for (const paper of Object.keys(INVESTIGATIONS) as Paper[]) {
+      expect(
+        container.querySelector(
+          `[data-investigation-import-help] a[href="/discover/${paper}/#${INVESTIGATIONS[paper].promptId}"]`,
+        ),
+      ).not.toBeNull();
+    }
   });
 
   test("all four published investigations reuse their saved records and canonical return links", async () => {
