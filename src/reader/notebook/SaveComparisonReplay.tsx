@@ -1,12 +1,8 @@
 "use client";
 import { useEffect, useId, useRef, useState } from "react";
 import type { ControlledComparisonState } from "../../experiments/compare/controlledComparison.ts";
-import {
-  REPLAY_LIMITS,
-  REPLAY_PREDICTIONS,
-  type ReplayPassage,
-  type ReplayPrediction,
-} from "./replayEntry.ts";
+import { comparisonReplayAdapter } from "./comparisonAdapters.ts";
+import { REPLAY_LIMITS, type ReplayPassage, type ReplayPrediction } from "./replayEntry.ts";
 import "./replaySave.css";
 
 /** The save boundary is explicit and local. No note is included in props sent by the server. */
@@ -22,6 +18,7 @@ export function SaveComparisonReplay({
   ready: boolean;
 }>) {
   const id = useId();
+  const adapter = comparisonReplayAdapter(state.baseline.experimentId);
   const [before, setBefore] = useState(""),
     [after, setAfter] = useState(""),
     [notes, setNotes] = useState("");
@@ -76,9 +73,10 @@ export function SaveComparisonReplay({
         explanation. Your words are not analyzed or assessed, and the notebook stays on this device
         unless you export it.
       </p>
+      <p>{adapter.saveDescription}</p>
       <p>
         {prediction
-          ? `Your prediction, made before you ran it: ${REPLAY_PREDICTIONS[prediction]}.`
+          ? `Your prediction, made before you ran it: ${adapter.predictions[prediction]}.`
           : "You made no prediction before running it. You can still save the comparison and your explanation."}
       </p>
       <fieldset disabled={!ready || saving}>

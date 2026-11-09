@@ -1,8 +1,25 @@
-import type { ComparisonSnapshot } from "../compare/Baseline.ts";
+import type { ComparisonIdentity, ComparisonSnapshot } from "../compare/Baseline.ts";
 import type { ComparisonResult } from "../compare/compatibility.ts";
 import type { ComparisonContract, ComparisonInput } from "../compare/singleVariationLock.ts";
 import { ExperimentRuntimeError } from "../refusal.ts";
 import { BM08_CLASSES, BM08_OUTPUTS, type Bm08Parameters, bm08Layout } from "./definition.ts";
+import { BM08_DRAFT_TAPE } from "./draftTape.ts";
+
+/** Comparison and notebook replay identify the same canonical camera evaluator. */
+export function bm08ComparisonIdentity(
+  example: Readonly<{ sourceDigest: string }>,
+): ComparisonIdentity {
+  const model = BM08_DRAFT_TAPE.environment;
+  return Object.freeze({
+    modelVersion: `${model.modelId}@${model.modelVersion}`,
+    constantSetId: model.constantSetId,
+    streamVersion: String(model.streamVersion),
+    allocationId: model.allocationId,
+    sourceDigest: example.sourceDigest,
+    artifactDigest: null,
+    executionLabel: "host-calculation",
+  });
+}
 
 /** Hold the world and all random identities fixed; vary how it is observed or estimated. */
 export const BM08_COMPARABLE_INPUTS = [

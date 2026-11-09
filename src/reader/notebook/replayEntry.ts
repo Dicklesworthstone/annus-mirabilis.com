@@ -1,6 +1,4 @@
 /** Private accepted evidence. This is a bounded scalar checkpoint, not a trajectory archive. */
-import { BM01_COMPARISON } from "../../experiments/bm01/comparison.ts";
-import { validateBm01Parameters } from "../../experiments/bm01/parameters.ts";
 import { type Baseline, pinBaseline } from "../../experiments/compare/Baseline.ts";
 import { comparisonStatement } from "../../experiments/compare/comparisonStatement.ts";
 import { compareBaselines } from "../../experiments/compare/compatibility.ts";
@@ -9,6 +7,13 @@ import { scientificDigest } from "../../experiments/digest/scientificDigest.ts";
 import { validateTapeV2 } from "../../experiments/permalink/schema.ts";
 import type { TapeV2 } from "../../experiments/permalink/types.ts";
 import { decodeResult } from "../../experiments/results/codec.ts";
+import {
+  type ComparisonReplayAdapter,
+  type ComparisonReplayKind,
+  type ComparisonReplayPrediction,
+  comparisonReplayAdapter,
+  comparisonReplayAdapterForKind,
+} from "./comparisonAdapters.ts";
 
 /**
  * True when the text carries a C0 control character other than tab, newline or
@@ -69,19 +74,16 @@ export class ReplayRecipeError extends TypeError {
 }
 
 export const REPLAY_LIMITS = Object.freeze({ bytes: 65536, text: 10000, tapeBytes: 1400 });
-export const REPLAY_PREDICTIONS = Object.freeze({
-  smaller: "The coordinate RMS will be smaller",
-  same: "The coordinate RMS will stay the same",
-  larger: "The coordinate RMS will be larger",
-});
-export type ReplayPrediction = keyof typeof REPLAY_PREDICTIONS;
+/** Existing BM-01 callers retain their prediction labels and serialized candidate IDs. */
+export const REPLAY_PREDICTIONS = comparisonReplayAdapter("bm-01").predictions;
+export type ReplayPrediction = ComparisonReplayPrediction;
 export type ReplayPassage = Readonly<{
   contentRevision: string | null;
   translationRevision: string | null;
 }>;
 export type ComparisonReplay = Readonly<{
   schemaVersion: 1;
-  kind: "bm01-comparison";
+  kind: ComparisonReplayKind;
   checkpointScope: "saved-scalar-comparison";
   baseline: Baseline;
   variant: Baseline;
@@ -118,7 +120,12 @@ function record(
     typeof value !== "object" ||
     ![Object.prototype, null].includes(Object.getPrototypeOf(value)) ||
     own.length < keys.length ||
-    own.some((key) => typeof key !== "string" || !allowed.has(key)) ||
+    own.some(
+      (key) =>
+        typeof key !== "string" ||
+        !allowed.has(key) ||
+        !Object.hasOwn(Object.getOwnPropertyDescriptor(value, key) ?? {}, "value"),
+    ) ||
     keys.some((key) => !Object.hasOwn(Object.getOwnPropertyDescriptor(value, key) ?? {}, "value"))
   )
     throw new TypeError("Unsupported replay fields. Keep the original export.");
@@ -131,7 +138,7 @@ export function replayText(value: unknown, max: number = REPLAY_LIMITS.text): st
     );
   return value;
 }
-function baseline(value: unknown): Baseline {
+function baseline(value: unknown, adapter: ComparisonReplayAdapter): Baseline {
   const b = record(value, [
     "experimentId",
     "instanceId",
@@ -154,12 +161,12 @@ function baseline(value: unknown): Baseline {
     "artifactDigest",
     "executionLabel",
   ]);
-  const checked = validateBm01Parameters(b.parameters);
-  if (checked.kind !== "accepted" || b.experimentId !== "bm-01")
+  const parameters = adapter.parameters(b.parameters);
+  if (b.experimentId !== adapter.instrumentId)
     throw new TypeError("Unsupported replay parameters.");
   const outputs = record(
     b.outputs,
-    BM01_COMPARISON.outputs.map((output) => output.id),
+    adapter.contract.outputs.map((output) => output.id),
   );
   const integer = (v: unknown): number => {
     if (typeof v !== "number" || !Number.isSafeInteger(v) || v < 0)
@@ -180,7 +187,7 @@ function baseline(value: unknown): Baseline {
         measurement: integer(rev.measurement),
         estimator: integer(rev.estimator),
       },
-      parameters: checked.data,
+      parameters,
       final: true,
       outputs: Object.entries(outputs).map(([quantityId, raw]) => {
         const output = record(
@@ -244,7 +251,7 @@ function baseline(value: unknown): Baseline {
       }),
     },
     identity as Baseline["identity"],
-    BM01_COMPARISON.outputs.map((o) => o.id),
+    adapter.contract.outputs.map((o) => o.id),
   );
   if (b.acceptedInputRevision !== parsed.acceptedInputRevision)
     throw new TypeError("Mixed accepted input revisions.");
@@ -258,24 +265,27 @@ function revision(value: unknown): string | null {
     throw new TypeError("Invalid passage revision.");
   return value;
 }
-function cloneTape(raw: unknown): TapeV2 {
-  const t = record(raw, [
-    "tapeVersion",
-    "experimentId",
-    "mode",
-    "modelIdentity",
-    "constantSetId",
-    "seed",
-    "streamVersion",
-    "allocationId",
-    "replayGrid",
-    "initialConditions",
-    "events",
-    "predictions",
-    "acceptedCheckpoint",
-  ]);
+function cloneTape(raw: unknown, adapter: ComparisonReplayAdapter): TapeV2 {
+  const t = record(
+    raw,
+    [
+      "tapeVersion",
+      "experimentId",
+      "mode",
+      "modelIdentity",
+      "constantSetId",
+      "seed",
+      "streamVersion",
+      "allocationId",
+      "initialConditions",
+      "events",
+      "predictions",
+      "acceptedCheckpoint",
+    ],
+    ["replayGrid"],
+  );
   record(t.modelIdentity, ["modelId", "modelVersion", "evaluatorSourceHash"]);
-  record(t.replayGrid, ["baseSpacing", "horizon"]);
+  if (t.replayGrid !== undefined) record(t.replayGrid, ["baseSpacing", "horizon"]);
   record(t.acceptedCheckpoint, ["acceptedActionIndex", "acceptedInputRevision", "digest"]);
   if (
     !Array.isArray(t.events) ||
@@ -290,16 +300,16 @@ function cloneTape(raw: unknown): TapeV2 {
     const prediction = record(p, ["promptId", "form", "payload"]);
     const payload = record(prediction.payload, ["candidateId"]);
     if (
-      prediction.promptId !== "bm-01-predict-comparison-rms" ||
+      prediction.promptId !== adapter.predictionPromptId ||
       prediction.form !== "candidate" ||
-      !Object.hasOwn(REPLAY_PREDICTIONS, String(payload.candidateId))
+      !Object.hasOwn(adapter.predictions, String(payload.candidateId))
     )
       throw new TypeError("Unsupported replay prediction.");
   }
   const tape = validateTapeV2(raw);
   if (
-    tape.experimentId !== "bm-01" ||
-    tape.mode !== "bm-01:default" ||
+    tape.experimentId !== adapter.instrumentId ||
+    tape.mode !== adapter.mode ||
     tape.modelIdentity.modelVersion !== 1
   )
     throw new ReplayRecipeError("unsupported-replay-recipe-version", UNSUPPORTED_RECIPE);
@@ -334,7 +344,6 @@ export function parseComparisonReplay(value: unknown): ComparisonReplay {
   ]);
   if (
     r.schemaVersion !== 1 ||
-    r.kind !== "bm01-comparison" ||
     r.checkpointScope !== "saved-scalar-comparison" ||
     !Number.isInteger(r.displaySignificantDigits) ||
     Number(r.displaySignificantDigits) < 1 ||
@@ -343,13 +352,15 @@ export function parseComparisonReplay(value: unknown): ComparisonReplay {
     throw new TypeError(
       "Unsupported replay version or display precision. The original is preserved.",
     );
-  const a = baseline(r.baseline),
-    b = baseline(r.variant),
-    result = compareBaselines(a, b, BM01_COMPARISON);
+  const adapter = comparisonReplayAdapterForKind(r.kind);
+  const a = baseline(r.baseline, adapter),
+    b = baseline(r.variant, adapter),
+    result = compareBaselines(a, b, adapter.contract);
   if (result.kind !== "accepted") throw new TypeError(result.message);
   const statement = replayText(r.statement, 10000);
-  const tape = cloneTape(r.tape);
+  const tape = cloneTape(r.tape, adapter);
   const mid = tape.modelIdentity;
+  const grid = adapter.replayGrid(a.parameters);
   if (
     mid.modelId !== a.identity.modelVersion ||
     mid.evaluatorSourceHash !== a.identity.sourceDigest ||
@@ -357,17 +368,12 @@ export function parseComparisonReplay(value: unknown): ComparisonReplay {
     tape.constantSetId !== a.identity.constantSetId ||
     tape.allocationId !== a.identity.allocationId ||
     tape.seed !== a.parameters.seed ||
-    tape.replayGrid?.baseSpacing !== a.parameters.h ||
-    tape.replayGrid?.horizon !== a.parameters.H
+    tape.replayGrid?.baseSpacing !== grid?.baseSpacing ||
+    tape.replayGrid?.horizon !== grid?.horizon
   )
     throw new TypeError("Replay tape identity differs from its saved evidence.");
-  const params = validateBm01Parameters(tape.initialConditions);
-  if (
-    params.kind !== "accepted" ||
-    Object.keys(a.parameters).some(
-      (key) => !Object.is(a.parameters[key], params.data[key as keyof typeof params.data]),
-    )
-  )
+  const params = adapter.parameters(tape.initialConditions);
+  if (Object.keys(a.parameters).some((key) => !Object.is(a.parameters[key], params[key])))
     throw new TypeError("Replay tape does not start at the saved baseline.");
   const changed = result.variation.changedInput,
     event = tape.events[0];
@@ -390,7 +396,7 @@ export function parseComparisonReplay(value: unknown): ComparisonReplay {
   const passage = record(r.passage, ["contentRevision", "translationRevision"]);
   const output: ComparisonReplay = Object.freeze({
     schemaVersion: 1,
-    kind: "bm01-comparison",
+    kind: adapter.kind,
     checkpointScope: "saved-scalar-comparison",
     baseline: a,
     variant: b,
@@ -442,18 +448,35 @@ export async function captureComparisonReplay(
     !state.variantSnapshot.final
   )
     throw new TypeError("Wait for a completed accepted comparison before saving its evidence.");
-  const ids = BM01_COMPARISON.outputs.map((o) => o.id);
+  const adapter = comparisonReplayAdapter(state.baseline.experimentId);
+  const ids = adapter.contract.outputs.map((o) => o.id);
   const a = pinBaseline(state.baselineSnapshot, state.baseline.identity, ids);
   const b = pinBaseline(state.variantSnapshot, state.variant.identity, ids);
-  const comparison = compareBaselines(a, b, BM01_COMPARISON);
+  if (
+    JSON.stringify(a) !== JSON.stringify(state.baseline) ||
+    JSON.stringify(b) !== JSON.stringify(state.variant)
+  )
+    throw new ReplayRecipeError(
+      "stale-replay-comparison",
+      "The displayed comparison and its accepted evidence differ. Wait for the completed pair before saving.",
+    );
+  const comparison = compareBaselines(a, b, adapter.contract);
+  const evidenceError = adapter.verifyAccepted(
+    state.baselineSnapshot,
+    state.variantSnapshot,
+    comparison,
+  );
+  if (evidenceError)
+    throw new ReplayRecipeError("invalid-replay-comparison-evidence", evidenceError);
   if (comparison.kind !== "accepted") throw new TypeError(comparison.message);
-  if (prediction !== null && !Object.hasOwn(REPLAY_PREDICTIONS, prediction))
+  if (prediction !== null && !Object.hasOwn(adapter.predictions, prediction))
     throw new TypeError("Unknown prediction.");
   const key = comparison.variation.changedInput;
+  const grid = adapter.replayGrid(a.parameters);
   const tape = {
     tapeVersion: 2,
-    experimentId: "bm-01",
-    mode: "bm-01:default",
+    experimentId: adapter.instrumentId,
+    mode: adapter.mode,
     modelIdentity: {
       modelId: a.identity.modelVersion,
       modelVersion: 1,
@@ -463,7 +486,7 @@ export async function captureComparisonReplay(
     seed: a.parameters.seed,
     streamVersion: a.identity.streamVersion,
     allocationId: a.identity.allocationId,
-    replayGrid: { baseSpacing: a.parameters.h, horizon: a.parameters.H },
+    ...(grid ? { replayGrid: grid } : {}),
     initialConditions: a.parameters,
     events:
       key === null
@@ -482,7 +505,7 @@ export async function captureComparisonReplay(
         ? []
         : [
             {
-              promptId: "bm-01-predict-comparison-rms",
+              promptId: adapter.predictionPromptId,
               form: "candidate",
               payload: { candidateId: prediction },
             },
@@ -495,11 +518,11 @@ export async function captureComparisonReplay(
   };
   return parseComparisonReplay({
     schemaVersion: 1,
-    kind: "bm01-comparison",
+    kind: adapter.kind,
     checkpointScope: "saved-scalar-comparison",
     baseline: a,
     variant: b,
-    statement: comparisonStatement(a, b, BM01_COMPARISON, comparison),
+    statement: comparisonStatement(a, b, adapter.contract, comparison),
     displaySignificantDigits: 5,
     tape,
     passage,

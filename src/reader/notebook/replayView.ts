@@ -1,9 +1,9 @@
-import { BM01_COMPARISON } from "../../experiments/bm01/comparison.ts";
 import type { Baseline } from "../../experiments/compare/Baseline.ts";
 import { comparisonDisplay } from "../../experiments/compare/comparisonStatement.ts";
+import { comparisonReplayAdapter } from "./comparisonAdapters.ts";
 import type { NotebookStore } from "./notebookStore.ts";
 import { type ReplayCatalogue, replayCompatibility } from "./replayCompatibility.ts";
-import { REPLAY_LIMITS, REPLAY_PREDICTIONS } from "./replayEntry.ts";
+import { REPLAY_LIMITS } from "./replayEntry.ts";
 import type { createComparisonReplayRunner } from "./replayRunner.ts";
 import { type NotebookReplayEntry, notebookFrameHref } from "./schema.ts";
 
@@ -42,7 +42,7 @@ function comparison(a: Baseline, b: Baseline, caption: string) {
   head.append(headings);
   table.append(head);
   const body = node("tbody");
-  for (const spec of BM01_COMPARISON.outputs) {
+  for (const spec of comparisonReplayAdapter(a.experimentId).contract.outputs) {
     const row = node("tr"),
       th = node("th", spec.label);
     th.scope = "row";
@@ -81,15 +81,13 @@ export function mountReplayView(
   root.className = "notebook-replay";
   root.dataset.replayEntry = entry.id;
   const saved = entry.replay;
+  const adapter = comparisonReplayAdapter(saved.baseline.experimentId);
   root.append(
     node(
       "h5",
       `What you saw on ${entry.createdAt}, with version ${saved.baseline.identity.modelVersion} of the model`,
     ),
-    node(
-      "p",
-      "These are the numbers you saw, from simulated particles. They are not recomputed, and the particles' paths were not kept.",
-    ),
+    node("p", adapter.evidenceDescription),
   );
   const prediction = saved.tape.predictions?.[0];
   const candidate =
@@ -99,7 +97,7 @@ export function mountReplayView(
   root.append(
     node(
       "p",
-      `Your prediction: ${Object.hasOwn(REPLAY_PREDICTIONS, candidate) ? REPLAY_PREDICTIONS[candidate as keyof typeof REPLAY_PREDICTIONS] : "none made before you ran it"}`,
+      `Your prediction: ${Object.hasOwn(adapter.predictions, candidate) ? adapter.predictions[candidate as keyof typeof adapter.predictions] : "none made before you ran it"}`,
     ),
     node("p", saved.statement),
     comparison(saved.baseline, saved.variant, "The comparison you saved"),

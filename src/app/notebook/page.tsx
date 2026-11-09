@@ -55,7 +55,8 @@ export default function NotebookPage() {
                 reopens its lesson beside the passage it came from.
               </li>
               <li>
-                In the <a href="/lab/bm-01/compare/">controlled Brownian comparison</a>,{" "}
+                In the <a href="/lab/bm-01/compare/">controlled Brownian comparison</a> or the{" "}
+                <a href="/lab/bm-08/compare/">controlled camera comparison</a>,{" "}
                 <strong>Save this comparison and my explanation</strong> keeps the results, the
                 exact seeds, the one change you made and your before-and-after explanation. Open it
                 here to look again, or run it again on purpose. If the model or the passage changes

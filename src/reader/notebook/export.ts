@@ -1,7 +1,6 @@
-import { BM01_COMPARISON } from "../../experiments/bm01/comparison.ts";
 import { comparisonDisplay } from "../../experiments/compare/comparisonStatement.ts";
 import { capstoneCaptureHref, capstoneCaptureText } from "./capstoneEntry.ts";
-import { REPLAY_PREDICTIONS } from "./replayEntry.ts";
+import { comparisonReplayAdapter } from "./comparisonAdapters.ts";
 import {
   type NotebookDocument,
   type NotebookReplayEntry,
@@ -23,11 +22,12 @@ function escapeHtml(value: string): string {
 function replayHtml(entry: NotebookReplayEntry): string {
   const replay = entry.replay,
     prediction = replay.tape.predictions?.[0];
+  const adapter = comparisonReplayAdapter(replay.baseline.experimentId);
   const candidate =
     prediction?.form === "candidate" && "candidateId" in prediction.payload
       ? prediction.payload.candidateId
       : "";
-  const rows = BM01_COMPARISON.outputs
+  const rows = adapter.contract.outputs
     .map((spec) => {
       const a = replay.baseline.outputs[spec.id],
         b = replay.variant.outputs[spec.id];
@@ -40,8 +40,8 @@ function replayHtml(entry: NotebookReplayEntry): string {
     })
     .join("");
   return `<section><h3>What you saw on ${escapeHtml(entry.createdAt)}, with version ${escapeHtml(replay.baseline.identity.modelVersion)} of the model</h3>
-<p>These are the numbers you saw, from simulated particles, as they were when you saved them. They are not recomputed, and the particles' paths were not kept. The table shows five significant figures; the page showed ${replay.displaySignificantDigits}. The full values are below.</p>
-<p>Your prediction: ${escapeHtml(Object.hasOwn(REPLAY_PREDICTIONS, candidate) ? REPLAY_PREDICTIONS[candidate as keyof typeof REPLAY_PREDICTIONS] : "none made before you ran it")}</p>
+<p>${escapeHtml(adapter.evidenceDescription)} The table shows five significant figures; the page showed ${replay.displaySignificantDigits}. The full values are below.</p>
+<p>Your prediction: ${escapeHtml(Object.hasOwn(adapter.predictions, candidate) ? adapter.predictions[candidate as keyof typeof adapter.predictions] : "none made before you ran it")}</p>
 <p>${escapeHtml(replay.statement)}</p><table><caption>The comparison you saved</caption><thead><tr><th scope="col">Quantity</th><th scope="col">Unit</th><th scope="col">Baseline</th><th scope="col">Variant</th></tr></thead><tbody>${rows}</tbody></table>
 <h3>Your explanation before</h3><pre>${escapeHtml(replay.explanationBefore)}</pre>
 <h3>Your explanation after</h3><pre>${escapeHtml(replay.explanationAfter)}</pre>

@@ -3,6 +3,7 @@ import { CameraControlledComparison } from "../../../../components/lab/CameraCon
 import { validateBm08Parameters } from "../../../../experiments/bm08/parameters.ts";
 import { ExperimentRuntimeError } from "../../../../experiments/refusal.ts";
 import example from "../../../../generated/bm08-example.json";
+import replayCatalogue from "../../../../generated/notebook-replay.json";
 import "../../../../experiments/compare/comparison.css";
 import "./cameraComparison.css";
 
@@ -31,7 +32,10 @@ export default function CameraComparisonPage() {
           what each estimate and confidence set actually says.
         </p>
       </header>
-      <CameraControlledComparison example={{ ...example, parameters: checked.data }} />
+      <CameraControlledComparison
+        example={{ ...example, parameters: checked.data }}
+        passage={replayCatalogue.passages["arg-bm-inference"]}
+      />
       <nav className="lab-onward" aria-label="From this comparison">
         <h2>From here</h2>
         <ul>

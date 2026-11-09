@@ -1,4 +1,5 @@
 import type { ControlledComparisonState } from "../../experiments/compare/controlledComparison.ts";
+import { comparisonReplayAdapter } from "./comparisonAdapters.ts";
 import type { NotebookStore } from "./notebookStore.ts";
 import {
   captureComparisonReplay,
@@ -25,15 +26,16 @@ export async function makeReplayEntry(
     { before: input.before, after: input.after },
     input.prediction ?? null,
   );
+  const adapter = comparisonReplayAdapter(replay.baseline.experimentId);
   return parseNotebookEntry({
     id,
     createdAt,
     kind: "replay",
-    title: "My controlled Brownian comparison",
+    title: adapter.title,
     text: input.notes,
     frame: {
-      paper: "brownian-motion",
-      anchor: "arg-bm-observable",
+      paper: adapter.paper,
+      anchor: adapter.anchor,
       view: "reading",
       detail: 1,
       lens: "paper",

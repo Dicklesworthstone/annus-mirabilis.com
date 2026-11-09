@@ -1,8 +1,7 @@
-import { BM01_COMPARISON, verifyBm01Comparison } from "../../experiments/bm01/comparison.ts";
-import { createBm01Session, type PreparedBm01Example } from "../../experiments/bm01/session.ts";
 import {
   type Baseline,
   type ComparisonIdentity,
+  type ComparisonParameters,
   type ComparisonSnapshot,
   pinBaseline,
 } from "../../experiments/compare/Baseline.ts";
@@ -10,7 +9,13 @@ import {
   type ComparisonResult,
   compareBaselines,
 } from "../../experiments/compare/compatibility.ts";
+import type { ComparisonPort } from "../../experiments/compare/controlledComparison.ts";
 import { compareBitwise, withinTolerance } from "../../units/tolerance.ts";
+import {
+  ComparisonReplayAdapterError,
+  type ComparisonReplayOwner,
+  comparisonReplayAdapter,
+} from "./comparisonAdapters.ts";
 import {
   type ComparisonReplay,
   parseComparisonReplay,
@@ -40,17 +45,18 @@ function sameScalars(saved: Baseline, current: Baseline): boolean {
   });
 }
 
-/** Restores validated inputs through BM-01's real scheduler/store/owner. Construction never runs. */
+/** Restores validated inputs through the registered instrument's scheduler/store/owner. */
 export function createComparisonReplayRunner(
   input: ComparisonReplay,
-  options: Readonly<{
-    example: PreparedBm01Example;
-    identity: ComparisonIdentity;
-    workerFactory: Parameters<typeof createBm01Session>[2];
-    newInstanceId?: () => string;
-  }>,
+  options: ComparisonReplayOwner & Readonly<{ newInstanceId?: () => string }>,
 ) {
   const replay = parseComparisonReplay(input);
+  const adapter = comparisonReplayAdapter(options.instrumentId ?? "bm-01");
+  if (adapter.instrumentId !== replay.baseline.experimentId)
+    throw new ComparisonReplayAdapterError(
+      "replay-owner-mismatch",
+      "The saved comparison and the selected replay instrument differ. Nothing was run.",
+    );
   let state: ReplayRunState = Object.freeze({
     phase: "idle",
     message: "Only what you saved is shown. Nothing has been run again.",
@@ -59,10 +65,11 @@ export function createComparisonReplayRunner(
     result: null,
     reproduction: "not-checked",
   });
-  let session: ReturnType<typeof createBm01Session> | null = null;
+  let session: ComparisonPort | null = null;
   let unsubscribe: (() => void) | null = null;
   let baselineSnapshot: ComparisonSnapshot | null = null;
   let expected: number | null = null;
+  let expectedParameters: ComparisonParameters | null = null;
   let generation = 0;
   const listeners = new Set<() => void>();
   const emit = (patch: Partial<ReplayRunState>) => {
@@ -77,6 +84,7 @@ export function createComparisonReplayRunner(
   };
   function disconnect() {
     expected = null;
+    expectedParameters = null;
     unsubscribe?.();
     unsubscribe = null;
     session?.disconnect();
@@ -84,16 +92,23 @@ export function createComparisonReplayRunner(
   }
   function fail(message: string) {
     disconnect();
-    emit({ phase: "failed", message });
+    emit({ phase: "failed", message, baseline: null, variant: null, result: null });
   }
   function refresh() {
-    if (!session || expected === null) return;
+    if (!session || expected === null || !expectedParameters) return;
+    const thisRun = generation;
+    const activeSession = session;
     const view = session.getSnapshot();
     if (view.pending || view.requested?.actionIndex !== expected) return;
     if (
       view.status !== "accepted" ||
       !view.accepted?.final ||
-      view.accepted.actionIndex !== expected
+      view.accepted.actionIndex !== expected ||
+      view.accepted.experimentId !== adapter.instrumentId ||
+      Object.keys(view.accepted.parameters).length !== Object.keys(expectedParameters).length ||
+      Object.entries(expectedParameters).some(
+        ([key, value]) => !Object.is(view.accepted?.parameters[key], value),
+      )
     ) {
       fail(
         view.refusal?.message ??
@@ -107,17 +122,19 @@ export function createComparisonReplayRunner(
       const accepted = pinBaseline(
         snapshot,
         options.identity,
-        BM01_COMPARISON.outputs.map((o) => o.id),
+        adapter.contract.outputs.map((o) => o.id),
       );
       if (state.phase === "baseline") {
         baselineSnapshot = snapshot;
         emit({ baseline: accepted });
+        if (generation !== thisRun || session !== activeSession) return;
         const event = replay.tape.events[0];
         if (event) {
           emit({
             phase: "variant",
             message: "The baseline is rebuilt. Now running the one change you made.",
           });
+          if (generation !== thisRun || session !== activeSession) return;
           issue({ ...snapshot.parameters, [event.paramId]: event.value });
           return;
         }
@@ -127,8 +144,8 @@ export function createComparisonReplayRunner(
         fail("The baseline did not finish, so the change cannot be run.");
         return;
       }
-      const result = compareBaselines(a, accepted, BM01_COMPARISON);
-      const error = verifyBm01Comparison(baselineSnapshot, snapshot, result);
+      const result = compareBaselines(a, accepted, adapter.contract);
+      const error = adapter.verifyAccepted(baselineSnapshot, snapshot, result);
       if (result.kind !== "accepted" || error) {
         fail(
           error ??
@@ -167,9 +184,10 @@ export function createComparisonReplayRunner(
       );
     }
   }
-  function issue(parameters: Parameters<ReturnType<typeof createBm01Session>["apply"]>[0]) {
+  function issue(parameters: ComparisonParameters) {
     if (!session) return;
     expected = null;
+    expectedParameters = Object.freeze({ ...parameters });
     const request = session.apply(parameters);
     if (request.kind !== "accepted") {
       fail(request.kind === "refused" ? request.refusal.message : request.outcome.message);
@@ -229,8 +247,16 @@ export function createComparisonReplayRunner(
           fail("Running it again needs a fresh copy of the instrument.");
           return;
         }
-        session = createBm01Session(id, options.example, options.workerFactory);
-        unsubscribe = session.subscribe(refresh);
+        adapter.parameters(options.example.parameters);
+        const created = await adapter.createSession(id, options);
+        if (generation !== thisRun) {
+          created.disconnect();
+          return;
+        }
+        session = created;
+        unsubscribe = session.subscribe(() => {
+          if (generation === thisRun && session === created) refresh();
+        });
         emit({
           phase: "baseline",
           message: "Rebuilding the saved baseline with the current calculation.",
@@ -244,7 +270,13 @@ export function createComparisonReplayRunner(
     stop() {
       generation++;
       disconnect();
-      emit({ phase: "stopped", message: "Stopped. What you saved is unchanged." });
+      emit({
+        phase: "stopped",
+        message: "Stopped. What you saved is unchanged.",
+        baseline: null,
+        variant: null,
+        result: null,
+      });
     },
     dispose() {
       generation++;

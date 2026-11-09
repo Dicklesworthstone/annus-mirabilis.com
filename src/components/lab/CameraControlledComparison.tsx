@@ -17,6 +17,14 @@ import {
   comparisonStatement,
 } from "../../experiments/compare/comparisonStatement.ts";
 import { useLaboratoryVisibility } from "../../experiments/lifecycle/useLaboratoryVisibility.ts";
+import { comparisonReplayAdapter } from "../../reader/notebook/comparisonAdapters.ts";
+import {
+  type ComparisonPredictionIntent,
+  predictionForAccepted,
+  predictionIntent,
+} from "../../reader/notebook/predictionIntent.ts";
+import type { ReplayPassage, ReplayPrediction } from "../../reader/notebook/replayEntry.ts";
+import { SaveComparisonReplay } from "../../reader/notebook/SaveComparisonReplay.tsx";
 import { CameraComparisonReadouts } from "./CameraComparisonReadouts.tsx";
 
 const help: Readonly<Record<Bm08ComparisonInput, string>> = {
@@ -37,7 +45,15 @@ const help: Readonly<Record<Bm08ComparisonInput, string>> = {
     "Choose a target from 50 to 99.9 percent. Only the interval procedure changes; the observed data do not.",
 };
 
-export function CameraControlledComparison({ example }: { example: PreparedBm08Example }) {
+const replayAdapter = comparisonReplayAdapter("bm-08");
+
+export function CameraControlledComparison({
+  example,
+  passage = { contentRevision: null, translationRevision: null },
+}: {
+  example: PreparedBm08Example;
+  passage?: ReplayPassage;
+}) {
   const uid = useId();
   const [controller] = useState(() =>
     createBm08ComparisonSession(`camera-compare-${uid}`, example, createBm08BrowserChannel),
@@ -49,6 +65,8 @@ export function CameraControlledComparison({ example }: { example: PreparedBm08E
     controller.getServerSnapshot,
   );
   const [ready, setReady] = useState(false);
+  const [nextPrediction, setNextPrediction] = useState<ReplayPrediction | null>(null);
+  const [issuedPrediction, setIssuedPrediction] = useState<ComparisonPredictionIntent | null>(null);
   const [selected, setSelected] = useState<Bm08ComparisonInput>("sigma");
   const [draft, setDraft] = useState(toCameraDraft(example.parameters).sigma);
   const [error, setError] = useState("");
@@ -69,7 +87,9 @@ export function CameraControlledComparison({ example }: { example: PreparedBm08E
       const form = toCameraDraft(state.variant.parameters as Bm08Parameters);
       form[selected] = draft;
       // The existing form parser owns decimal scaling, finite checks and model admission.
-      controller.apply(fromCameraDraft(form));
+      const requested = fromCameraDraft(form);
+      const intent = predictionIntent(nextPrediction, state, requested);
+      if (controller.apply(requested)) setIssuedPrediction(intent);
     } catch (failure) {
       setError(
         failure instanceof Error
@@ -117,6 +137,7 @@ export function CameraControlledComparison({ example }: { example: PreparedBm08E
           disabled={!ready || state.pending}
           onClick={() => {
             setError("");
+            setIssuedPrediction(null);
             controller.start();
           }}
         >
@@ -129,6 +150,7 @@ export function CameraControlledComparison({ example }: { example: PreparedBm08E
           disabled={!enabled}
           onClick={() => {
             setError("");
+            setIssuedPrediction(null);
             controller.pinCurrent();
           }}
         >
@@ -147,6 +169,32 @@ export function CameraControlledComparison({ example }: { example: PreparedBm08E
       <form onSubmit={submit} noValidate aria-label="Controlled camera comparison settings">
         <fieldset disabled={!enabled}>
           <legend>What will you change?</legend>
+          <label htmlFor={`${uid}-prediction`}>
+            Optional prediction for the next request: naive diffusion estimate
+          </label>
+          <select
+            id={`${uid}-prediction`}
+            value={nextPrediction ?? ""}
+            onChange={(event) => {
+              const value = event.target.value;
+              setNextPrediction(
+                Object.hasOwn(replayAdapter.predictions, value)
+                  ? (value as ReplayPrediction)
+                  : null,
+              );
+            }}
+          >
+            <option value="">No prediction</option>
+            {Object.entries(replayAdapter.predictions).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+          <p className="fine">
+            Your prediction is attached when you apply the change. Choosing another answer later
+            does not rewrite the prediction for a completed comparison.
+          </p>
           <div className="comparison-controls">
             <div>
               <label htmlFor={`${uid}-input`}>Camera or estimator setting</label>
@@ -270,6 +318,12 @@ export function CameraControlledComparison({ example }: { example: PreparedBm08E
           <a href="/lab/bm-08/#camera-model">Read the observation model and its assumptions</a>
         </p>
       </details>
+      <SaveComparisonReplay
+        state={state}
+        passage={passage}
+        ready={ready}
+        prediction={predictionForAccepted(issuedPrediction, state)}
+      />
     </section>
   );
 }
