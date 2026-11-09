@@ -51,6 +51,7 @@ import type { ClockFirstEncounter } from "./entrances/ClockFirstEncounter.tsx";
 import type { LightQuantaFirstEncounter } from "./entrances/LightQuantaFirstEncounter.tsx";
 import type { MassEnergyFirstEncounter } from "./entrances/MassEnergyFirstEncounter.tsx";
 import type { LightQuantaDerivation } from "./LightQuantaDerivation.tsx";
+import type { SRCoordinateDerivation } from "./SRCoordinateDerivation.tsx";
 import type { SRElectronDerivation } from "./SRElectronDerivation.tsx";
 import type { SRFieldDerivation } from "./SRFieldDerivation.tsx";
 import type { SRLightComplexDerivation } from "./SRLightComplexDerivation.tsx";
@@ -151,4 +152,11 @@ const SRFieldSteps = lazy(() =>
 );
 export function LazySRFieldDerivation(props: ComponentProps<typeof SRFieldDerivation>) {
   return <SRFieldSteps {...props} />;
+}
+
+const SRCoordinateSteps = lazy(() =>
+  import("./SRCoordinateDerivation.tsx").then((m) => ({ default: m.SRCoordinateDerivation })),
+);
+export function LazySRCoordinateDerivation(props: ComponentProps<typeof SRCoordinateDerivation>) {
+  return <SRCoordinateSteps {...props} />;
 }

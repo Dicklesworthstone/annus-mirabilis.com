@@ -55,6 +55,7 @@ function symbolName(expr: Extract<Expression, { kind: "symbol" }>): string {
   if (name === "Delta_i") return "Delta i";
   if (name === "lambda_x") return "lambda x";
   if (name === "k_B") return "k sub B";
+  if (name === "a_perp") return "a perpendicular";
   if (name.includes("_")) {
     const [base, sub] = name.split("_");
     return `${base} sub ${sub}`;

@@ -55,6 +55,7 @@ import {
   LazyLightQuantaDerivation,
   LazyLightQuantaFirstEncounter,
   LazyMassEnergyFirstEncounter,
+  LazySRCoordinateDerivation,
   LazySRElectronDerivation,
   LazySRFieldDerivation,
   LazySRLightComplexDerivation,
@@ -771,6 +772,17 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                           <p className="fine">
                             <a href="/papers/special-relativity/s6/#sr-field-derivation">
                               Follow the derivative operators and all six field transformations
+                            </a>
+                          </p>
+                        ))}
+                      {paper.id === "special-relativity" &&
+                        a.id === "arg-sr-lorentz-map" &&
+                        (sectionId ? (
+                          <LazySRCoordinateDerivation />
+                        ) : (
+                          <p className="fine">
+                            <a href="/papers/special-relativity/s3/#sr-coordinate-derivation">
+                              Construct the coordinate transformation by both derivation routes
                             </a>
                           </p>
                         ))}

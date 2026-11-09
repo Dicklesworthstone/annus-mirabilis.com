@@ -64,6 +64,8 @@ export function expressionToDerivationLatex(
           s = "\\lambda_x";
         } else if (name === "k_B") {
           s = "k_B";
+        } else if (name === "a_perp") {
+          s = "a_{\\perp}";
         } else if (name.startsWith("\\")) {
           s = name;
         } else if (name.includes("_")) {

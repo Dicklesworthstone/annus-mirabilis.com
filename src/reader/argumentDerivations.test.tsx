@@ -61,6 +61,13 @@ const cases = [
     id: "sr-field-derivation",
     steps: 24,
   },
+  {
+    paperId: "special-relativity",
+    section: "s3",
+    argument: "arg-sr-lorentz-map",
+    id: "sr-coordinate-derivation",
+    steps: 68,
+  },
 ] as const;
 
 let domInstalled = false;
