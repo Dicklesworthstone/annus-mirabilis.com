@@ -36,9 +36,11 @@ import type { ExperimentViewProps } from "../dispatch.tsx";
 const Bm01Chunk = lazy(() => import("./bm01View.tsx"));
 const Bm02Chunk = lazy(() => import("./bm02View.tsx"));
 const Bm03Chunk = lazy(() => import("./bm03View.tsx"));
+const Bm04Chunk = lazy(() => import("./bm04View.tsx"));
 const Bm05Chunk = lazy(() => import("./bm05View.tsx"));
 const Bm06Chunk = lazy(() => import("./bm06View.tsx"));
 const Bm07Chunk = lazy(() => import("./bm07View.tsx"));
+const Bm08Chunk = lazy(() => import("./bm08View.tsx"));
 const Lq01Chunk = lazy(() => import("./lq01View.tsx"));
 const Lq02Chunk = lazy(() => import("./lq02View.tsx"));
 const Lq03Chunk = lazy(() => import("./lq03View.tsx"));
@@ -84,6 +86,10 @@ export function Bm03ClarificationView(props: ExperimentViewProps) {
   return <Bm03Chunk {...props} />;
 }
 
+export function Bm04ClarificationView(props: ExperimentViewProps) {
+  return <Bm04Chunk {...props} />;
+}
+
 export function Bm05ClarificationView(props: ExperimentViewProps) {
   return <Bm05Chunk {...props} />;
 }
@@ -94,6 +100,10 @@ export function Bm06ClarificationView(props: ExperimentViewProps) {
 
 export function Bm07ClarificationView(props: ExperimentViewProps) {
   return <Bm07Chunk {...props} />;
+}
+
+export function Bm08ClarificationView(props: ExperimentViewProps) {
+  return <Bm08Chunk {...props} />;
 }
 
 export function Lq01ClarificationView(props: ExperimentViewProps) {

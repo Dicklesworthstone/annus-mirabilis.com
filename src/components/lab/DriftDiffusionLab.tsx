@@ -25,6 +25,7 @@ import {
   failureFromThrown,
 } from "../../experiments/results/applyFailure.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
+import { useRetainedSession } from "../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import {
@@ -54,13 +55,22 @@ const BM04_PROMPTS = PREDICT_PROMPTS["bm-04"] ?? [];
 export function DriftDiffusionLab({
   example,
   title = "The drift-diffusion balance laboratory",
+  instanceId,
+  restoreFromLocation = true,
 }: {
   example: PreparedBm04Example;
   title?: string;
+  instanceId?: string | undefined;
+  restoreFromLocation?: boolean | undefined;
 }) {
   const id = useId();
-  const [session] = useState(() =>
-    createBm04Session(`bm04-${id}`, example, createBm04BrowserChannel),
+  const session = useRetainedSession(
+    {
+      experimentId: "bm-04",
+      instanceId: instanceId ?? `bm04-${id}`,
+      sourceDigest: example.sourceDigest,
+    },
+    (retainedId) => createBm04Session(retainedId, example, createBm04BrowserChannel),
   );
   const view = useInstrumentView(session);
   const snapshot =
@@ -69,7 +79,7 @@ export function DriftDiffusionLab({
     (session.getSnapshot().accepted as NonNullable<typeof view.accepted>);
   const p = snapshot.parameters as unknown as Bm04Parameters;
 
-  const [draft, setDraft] = useState(() => toBm04Draft(example.parameters));
+  const [draft, setDraft] = useState(() => toBm04Draft(session.acceptedParameters()));
   const [ready, setReady] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [failure, setFailure] = useState<ApplyFailure | null>(null);
@@ -80,13 +90,13 @@ export function DriftDiffusionLab({
   const [exportNote, setExportNote] = useState("");
 
   // A shared ?tape= link puts its settings in the form and starts no worker; Apply runs them.
-  const tapeLink = useDraftTapeLink(BM04_DRAFT_TAPE, p, true, (settings) => {
+  const tapeLink = useDraftTapeLink(BM04_DRAFT_TAPE, p, restoreFromLocation, (settings) => {
     setDraft(toBm04Draft(settings as unknown as Bm04Parameters));
     setDirty(true);
   });
   useEffect(() => {
     setReady(true);
-    const shared = decodeBm04Settings(window.location.search);
+    const shared = decodeBm04Settings(restoreFromLocation ? window.location.search : "");
     if (shared.kind === "settings") {
       setDraft(toBm04Draft(shared.parameters));
       setDirty(true);
@@ -97,7 +107,7 @@ export function DriftDiffusionLab({
       setLinkNote(shared.message);
     }
     return () => session.disconnect();
-  }, [session]);
+  }, [session, restoreFromLocation]);
 
   function apply(parameters: Bm04Parameters) {
     const outcome = session.apply(parameters);

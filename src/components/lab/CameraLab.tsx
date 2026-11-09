@@ -24,6 +24,7 @@ import {
 } from "../../experiments/results/applyFailure.ts";
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
+import { useRetainedSession } from "../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { CameraMomentTable } from "./CameraMomentTable.tsx";
@@ -44,18 +45,29 @@ export function CameraLab({
   example,
   title = "What did the camera change?",
   readings = true,
+  instanceId,
+  restoreFromLocation = true,
 }: {
   example: PreparedBm08Example;
   title?: string;
+  instanceId?: string | undefined;
+  restoreFromLocation?: boolean | undefined;
   /** False for the optional second laboratory, so the page carries the caption readings once. */
   readings?: boolean;
 }) {
-  const id = useId(),
-    [session] = useState(() => createBm08Session(`bm08-${id}`, example, createBm08BrowserChannel));
+  const id = useId();
+  const session = useRetainedSession(
+    {
+      experimentId: "bm-08",
+      instanceId: instanceId ?? `bm08-${id}`,
+      sourceDigest: example.sourceDigest,
+    },
+    (retainedId) => createBm08Session(retainedId, example, createBm08BrowserChannel),
+  );
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("bm-08", BM08_PROMPTS);
   const view = useInstrumentView(session);
-  const [draft, setDraft] = useState(() => toCameraDraft(example.parameters)),
+  const [draft, setDraft] = useState(() => toCameraDraft(session.acceptedParameters())),
     [ready, setReady] = useState(false),
     [dirty, setDirty] = useState(false),
     /**
@@ -76,13 +88,13 @@ export function CameraLab({
     () => (acceptedParameters ? { ...acceptedParameters, coverageTrials: 0 } : undefined),
     [acceptedParameters],
   );
-  const tapeLink = useDraftTapeLink(BM08_DRAFT_TAPE, shareable, true, (settings) => {
+  const tapeLink = useDraftTapeLink(BM08_DRAFT_TAPE, shareable, restoreFromLocation, (settings) => {
     setDraft(toCameraDraft(settings as unknown as Bm08Parameters));
     setDirty(true);
   });
   useEffect(() => {
     setReady(true);
-    const link = decodeBm08Settings(window.location.search);
+    const link = decodeBm08Settings(restoreFromLocation ? window.location.search : "");
     if (link.kind === "settings") {
       setDraft(toCameraDraft(link.parameters));
       setDirty(true);
@@ -91,7 +103,7 @@ export function CameraLab({
       );
     } else if (link.kind === "invalid") setNote(link.message);
     return () => session.disconnect();
-  }, [session]);
+  }, [session, restoreFromLocation]);
   const serverAccepted = session.getServerSnapshot().accepted;
   const snapshot = view.accepted ?? serverAccepted;
   if (!snapshot) return null;
