@@ -7,6 +7,7 @@
 import type { Expression } from "../../ast.ts";
 import { nodeId } from "../../ast.ts";
 import { structurallyEqual } from "../treeUtils.ts";
+import { checkLogExpInverse } from "./logExpInverse.ts";
 import type { RuleCheckArgs, RuleCheckResult, RuleDefinition } from "./types.ts";
 
 export const REGISTERED_IDENTITY_IDS = [
@@ -17,6 +18,7 @@ export const REGISTERED_IDENTITY_IDS = [
   "linearity-of-average",
   "spatial-isotropy",
   "velocity-addition",
+  "log-exp-inverse",
 ] as const;
 
 export type RegisteredIdentityId = (typeof REGISTERED_IDENTITY_IDS)[number];
@@ -261,6 +263,8 @@ function check({ from, to, params, changed }: RuleCheckArgs): RuleCheckResult {
   }
 
   switch (p.identityId) {
+    case "log-exp-inverse":
+      return checkLogExpInverse({ from, to, params, changed });
     case "independent-zero-mean-product-vanishes": {
       // If eliminating terms from a sum, vanishingTermIds is strictly required
       if (from.kind === "sum" && to.kind !== "number") {

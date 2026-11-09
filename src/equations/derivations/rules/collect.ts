@@ -26,17 +26,40 @@ function check({ from, to, params }: RuleCheckArgs): RuleCheckResult {
     };
   }
 
-  const termIds = Array.from(new Set([...collectTermIds(from), ...collectTermIds(to)]));
+  // Collecting within an equation preserves each side separately. A relation has no single
+  // numeric value, so sending the entire equality to the arithmetic sampler cannot check it.
+  if (
+    (from.kind === "relation" || to.kind === "relation") &&
+    (from.kind !== "relation" || to.kind !== "relation" || from.operator !== to.operator)
+  ) {
+    return { outcome: "fail", reason: "collect must preserve the relation and its operator." };
+  }
+  const pairs =
+    from.kind === "relation" && to.kind === "relation"
+      ? ([
+          [from.left, to.left],
+          [from.right, to.right],
+        ] as const)
+      : ([[from, to]] as const);
   const baseSeed = p.seed ?? 314159n;
 
-  for (let i = 0; i < 5; i++) {
-    const seed = baseSeed + BigInt(i * 997);
-    const result = spotCheckEquivalence(from, to, termIds, seed, DEFAULT_SPOT_CHECK_TOLERANCE);
-    if (!result.ok) {
-      return {
-        outcome: "fail",
-        reason: `collect verification failed at seed ${result.seed}: evaluated difference ${result.diff} exceeds allowed ${result.allowed}.`,
-      };
+  for (const [before, after] of pairs) {
+    const termIds = Array.from(new Set([...collectTermIds(before), ...collectTermIds(after)]));
+    for (let i = 0; i < 5; i++) {
+      const seed = baseSeed + BigInt(i * 997);
+      const result = spotCheckEquivalence(
+        before,
+        after,
+        termIds,
+        seed,
+        DEFAULT_SPOT_CHECK_TOLERANCE,
+      );
+      if (!result.ok) {
+        return {
+          outcome: "fail",
+          reason: `collect verification failed at seed ${result.seed}: evaluated difference ${result.diff} exceeds allowed ${result.allowed}.`,
+        };
+      }
     }
   }
 

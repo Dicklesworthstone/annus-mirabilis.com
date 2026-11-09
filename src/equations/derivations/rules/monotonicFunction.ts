@@ -9,7 +9,7 @@ import type { Expression } from "../../ast.ts";
 import { structurallyEqual } from "../treeUtils.ts";
 import type { RuleCheckArgs, RuleCheckResult, RuleDefinition } from "./types.ts";
 
-export type MonotonicFunctionName = "square-root" | "square";
+export type MonotonicFunctionName = "square-root" | "square" | "ln";
 
 export interface MonotonicFunctionParams {
   readonly function: MonotonicFunctionName;
@@ -17,6 +17,8 @@ export interface MonotonicFunctionParams {
   /** Required when the function is not globally invertible (a square root has two roots). */
   readonly branch?: "positive" | "negative";
   readonly branchCondition?: string;
+  /** Each logarithm argument is strictly positive, with the reason stated separately. */
+  readonly positiveArguments?: Readonly<{ left: string; right: string }>;
 }
 
 function applyForward(
@@ -25,14 +27,27 @@ function applyForward(
   branch: "positive" | "negative" | undefined,
 ): Expression {
   if (fn === "square") return { kind: "power", base: side, exponent: { num: 2, den: 1 } };
+  if (fn === "ln") return { kind: "function", name: "ln", argument: side };
   const root: Expression = { kind: "root", radicand: side, degree: 2 };
   return branch === "negative" ? { kind: "negate", argument: root } : root;
 }
 
 function check({ from, to, params }: RuleCheckArgs): RuleCheckResult {
   const p = params as unknown as MonotonicFunctionParams;
+  if (!["square-root", "square", "ln"].includes(p.function)) {
+    return { outcome: "fail", reason: "monotonic-function requires a supported function." };
+  }
   if (!p.domain?.trim()) {
     return { outcome: "fail", reason: "monotonic-function requires a domain." };
+  }
+  if (
+    p.function === "ln" &&
+    (!p.positiveArguments?.left?.trim() || !p.positiveArguments?.right?.trim())
+  ) {
+    return {
+      outcome: "fail",
+      reason: "a logarithm requires a strictly positive argument on each side, with both reasons.",
+    };
   }
   if (p.function === "square-root" && !p.branch) {
     return {

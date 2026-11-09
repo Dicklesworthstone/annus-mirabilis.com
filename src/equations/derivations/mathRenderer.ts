@@ -8,6 +8,23 @@ import { renderToString } from "katex";
 import type { Expression } from "../ast.ts";
 import { nodeId } from "../ast.ts";
 
+/** Parsed indices are one or two letters/digits; code-built trees still render a literal label. */
+function literalIndex(index: string): string {
+  const escaped: Readonly<Record<string, string>> = {
+    "\\": "\\backslash ",
+    "{": "\\{",
+    "}": "\\}",
+    $: "\\$",
+    "&": "\\&",
+    "#": "\\#",
+    "%": "\\%",
+    _: "\\_",
+    "^": "\\hat{}",
+    "~": "\\sim ",
+  };
+  return Array.from(index, (character) => escaped[character] ?? character).join("");
+}
+
 /**
  * Converts a symbolic Expression tree to a formatted LaTeX string. With `layout` "terms", a
  * top-level sum is set one term per row (an authored break, types.ts StepLayout); a highlight on
@@ -56,6 +73,11 @@ export function expressionToDerivationLatex(
           s = name;
         }
 
+        if (n.index !== undefined) {
+          s = `${s.includes("_") ? `{${s}}` : s}_{\\mathrm{${literalIndex(n.index)}}}`;
+        }
+        if (n.at) s += `\\left(${render(n.at)}\\right)`;
+        if (n.args?.length) s += `\\left(${n.args.map(render).join(", ")}\\right)`;
         if (n.scale && (n.scale.num !== 1 || n.scale.den !== 1)) {
           s = `\\frac{${n.scale.num}}{${n.scale.den}}\\left(${s}\\right)`;
         }
@@ -115,6 +137,9 @@ export function expressionToDerivationLatex(
         const d = n.partial ? "\\partial" : "\\mathrm{d}";
         const p = n.order === 1 ? "" : `^{${n.order}}`;
         s = `\\frac{${d}${p}\\left(${render(n.expression)}\\right)}{${d}${render(n.variable)}${p}}`;
+        if (n.heldFixed?.length) {
+          s = `\\left(${s}\\right)_{${n.heldFixed.map(render).join(", ")}}`;
+        }
         break;
       }
       case "integral":
