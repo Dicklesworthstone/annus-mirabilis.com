@@ -40,6 +40,20 @@ const cases = [
     id: "sr-light-complex-derivation",
     steps: 5,
   },
+  {
+    paperId: "special-relativity",
+    section: "s10",
+    argument: "arg-sr-electron-conventions",
+    id: "sr-electron-conventions-derivation",
+    steps: 10,
+  },
+  {
+    paperId: "special-relativity",
+    section: "s10",
+    argument: "arg-sr-electron-work",
+    id: "sr-electron-work-derivation",
+    steps: 5,
+  },
 ] as const;
 
 let domInstalled = false;

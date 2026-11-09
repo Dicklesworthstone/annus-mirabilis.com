@@ -5,8 +5,13 @@ targetKinds:
 scope:
   sections:
     - 's8'
+    - 's10'
   chainIds:
     - 'chain-sr-light-complex'
+    - 'chain-sr-electron-longitudinal'
+    - 'chain-sr-electron-transverse-source'
+    - 'chain-sr-electron-transverse-laboratory'
+    - 'chain-sr-electron-work'
 targets:
   - kind: 'derivation-step'
     id: 'sr-light-complex-separate-density-volume'
@@ -53,3 +58,124 @@ targets:
       r3: 'Section 7 transforms the frequency and the squared field amplitude. Section 8 then follows a spherical boundary moving with the light, measures its ellipsoid on a simultaneous slice of the moving frame, and multiplies the transformed density by that volume. The paper writes the speed of light as V, the Lorentz factor as β, and the volumes as S and S′. This reconstruction introduces q and uses γ and c to keep the three factors visible. The observation that energy and frequency follow the same transformation law is Einstein’s; no light-quantum hypothesis or body mass-energy formula is a premise of this argument.'
       r3Citations:
         - 'Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §§7–8, pp. 910–913.'
+  - kind: 'derivation-step'
+    id: 'sr-electron-longitudinal-acceleration'
+    readings:
+      r0: 'Apply ordinary mechanics in the frame where the electron is momentarily at rest, then transform its acceleration.'
+      r1: 'In the momentary rest frame k, F′_x = m a′_x. The coordinate transformation makes a′_x = γ³ a_x at the selected event. The acceleration a_x is measured in the laboratory K, while the force still belongs to k.'
+      r2: 'Hold the inertial boost v fixed while differentiating u′_x = (u_x − v)/(1 − vu_x/c²). At the event u_x = v, ∂u′_x/∂u_x = 1/(1 − v²/c²) = γ², and dt′/dt = γ(1 − vu_x/c²) = 1/γ. Thus du′_x/dt′ = γ² (du_x/dt) γ = γ³ a_x. Substitute this into the admitted slow-motion rest-frame law F′_x = m a′_x. The primed frame is an inertial frame tangent to the motion at this event, not a single frame following the electron throughout acceleration.'
+      r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
+      r3Citations: &ref_0
+        - 'Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §10, pp. 917–921.'
+  - kind: 'derivation-step'
+    id: 'sr-electron-longitudinal-force'
+    readings:
+      r0: 'Along the instantaneous motion, the force has the same component in these two frames.'
+      r1: 'Section 6 gives X′ = X. At the electron''s momentary rest event, F′_x = εX′ = εX = F_x. Replace the primed force by the laboratory longitudinal force.'
+      r2: 'The velocity in K is (v, 0, 0), so the magnetic part of the Lorentz force has no x component. The charge ε is the same in this comparison, and the source''s longitudinal electric component is unchanged. Hence F′_x = F_x while a′_x and a_x remain different. This equality is for the component parallel to the instantaneous velocity; it is not a claim that all force components agree between frames.'
+      r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
+      r3Citations: *ref_0
+  - kind: 'derivation-step'
+    id: 'sr-electron-longitudinal-ratio'
+    readings:
+      r0: 'Divide by the laboratory acceleration to ask for the longitudinal response coefficient.'
+      r1: 'For a nonzero longitudinal acceleration, divide both sides by a_x. This names a force-to-acceleration coefficient, not a new rest mass.'
+      r2: 'From F_x = mγ³a_x, division by a_x gives F_x/a_x = (mγ³a_x)/a_x. The numerical ratio requires a_x ≠ 0. At zero acceleration the quotient 0/0 does not define a mass; mγ³ is instead the response coefficient obtained by a nonzero probe or its limit.'
+      r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
+      r3Citations: *ref_0
+  - kind: 'derivation-step'
+    id: 'sr-electron-longitudinal-coefficient'
+    readings:
+      r0: 'The longitudinal coefficient is mγ³.'
+      r1: 'Cancel the same nonzero acceleration. Along the motion, the source''s convention and the all-laboratory convention both give mγ³.'
+      r2: 'The cancellation yields F_x/a_x = mγ³, the canonical longitudinal equation. In the paper''s symbols this is μβ³. Here m denotes the mass determined in slow motion, γ is the paper''s β, and c is its V. No new assumption about the body''s rest energy enters this coefficient.'
+      r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
+      r3Citations: *ref_0
+  - kind: 'derivation-step'
+    id: 'sr-electron-transverse-acceleration'
+    readings:
+      r0: 'Across the motion, transforming the acceleration supplies two factors of γ.'
+      r1: 'The rest-frame law is F′_y = m a′_y. At the selected event, the transverse velocity transformation and the time conversion give a′_y = γ² a_y, so F′_y = mγ²a_y.'
+      r2: 'Use u′_y = u_y/[γ(1 − vu_x/c²)] with a fixed boost v. At u_x = v and u_y = 0, differentiating the numerator gives du′_y/dt = γa_y; the denominator derivative multiplies u_y = 0 and vanishes at this event. Dividing by dt′/dt = 1/γ gives a′_y = γ²a_y. Substitution into F′_y = m a′_y leaves a force measured in k and an acceleration measured in K. The z component follows by the same transverse calculation.'
+      r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
+      r3Citations: *ref_0
+  - kind: 'derivation-step'
+    id: 'sr-electron-transverse-ratio'
+    readings:
+      r0: 'Use the paper''s chosen force and divide by the laboratory acceleration.'
+      r1: 'Einstein''s force is measured by a balance at rest with the electron at that moment. Divide F′_y by a_y, the acceleration in the original frame, keeping both labels visible.'
+      r2: 'The source explicitly chooses force components measured in the instantaneously comoving system and acceleration components measured in K. With a_y ≠ 0, F′_y/a_y = (mγ²a_y)/a_y. This is a mixed-frame response coefficient by definition. If a_y = 0, use the linear response law instead of interpreting 0/0 as a measured ratio.'
+      r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
+      r3Citations: *ref_0
+  - kind: 'derivation-step'
+    id: 'sr-electron-transverse-coefficient'
+    readings:
+      r0: 'The printed transverse coefficient is mγ².'
+      r1: 'Cancel a_y to obtain F′_y/a_y = mγ². At v = 0.6c this is 1.5625m. The primed force is essential to what this number means.'
+      r2: 'After cancellation the canonical source-convention equation is F′_y/a_y = mγ², or μβ² in Einstein''s notation. The paper warns that changing the definitions of force and acceleration changes the mass coefficients. The later all-laboratory comparison below changes the force definition explicitly; it does not replace or correct this printed result.'
+      r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
+      r3Citations: *ref_0
+  - kind: 'derivation-step'
+    id: 'sr-electron-change-force-frame'
+    readings:
+      r0: 'Now change the question: measure the sideways force in the laboratory too.'
+      r1: 'For this event, the rest-frame transverse force is γ times the laboratory transverse force: F′_y = γF_y. Substitute that relation into the printed coefficient before comparing the numbers.'
+      r2: 'The source gives Y′ = γ(Y − vN/c), so F′_y = εY′ = γ ε(Y − vN/c) = γF_y, using the Gaussian Lorentz force at u = (v, 0, 0). The same relation in SI is F′_y = γq(E_y − vB_z). This is an explicit change from the source''s mixed-frame ratio to force and acceleration both in K. The later momentum convention F = dp/dt supplies this all-laboratory interpretation; it is not a new value of m.'
+      r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
+      r3Citations: *ref_0
+  - kind: 'derivation-step'
+    id: 'sr-electron-laboratory-divide-factor'
+    readings:
+      r0: 'Divide by the extra factor supplied by the change of force frame.'
+      r1: 'The left side is γF_y/a_y. Divide both sides by γ, which is positive for a subluminal electron.'
+      r2: 'For |v| < c, γ = (1 − v²/c²)^(−1/2) is finite and strictly positive. Dividing γF_y/a_y = mγ² by γ is valid. The acceleration is still the same a_y in K; only the force convention has changed.'
+      r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
+      r3Citations: *ref_0
+  - kind: 'derivation-step'
+    id: 'sr-electron-laboratory-coefficient'
+    readings:
+      r0: 'The all-laboratory transverse coefficient is mγ.'
+      r1: 'One factor cancels: F_y/a_y = mγ. At 0.6c it is 1.25m, while the source''s mixed-frame coefficient remains 1.5625m.'
+      r2: 'Collecting the quotient gives the canonical all-laboratory equation F_y/a_y = mγ. At γ = 1.25 the two ratios differ by precisely γ. Both describe the same acceleration and trajectory when their forces are transformed consistently. Neither coefficient is a competing scalar rest mass, and neither changes the work or deflection observed in a fixed frame.'
+      r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
+      r3Citations: *ref_0
+  - kind: 'derivation-step'
+    id: 'sr-electron-work-change-variable'
+    readings:
+      r0: 'Compute work from the force over the electron''s path, starting at rest.'
+      r1: 'Use laboratory force and laboratory displacement: dW = F_x dx. With F_x = mγ(u)³ du/dt and dx = u dt, the time increment cancels. The integral runs over speed from 0 to v.'
+      r2: 'For straight acceleration from rest, write F_x dx = mγ(u)³(du/dt) u dt = mγ(u)³u du. Thus W = ∫₀ᵛ mγ(u)³u du, with γ(u) = (1 − u²/c²)^(−1/2). The initial kinetic energy is fixed to zero; this is work supplied during the acceleration, not an assumption that the body''s rest energy equals mc². Radiation, self-fields and radiation reaction are excluded by the prescribed-field point-particle model.'
+      r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
+      r3Citations: *ref_0
+  - kind: 'derivation-step'
+    id: 'sr-electron-work-recognize-derivative'
+    readings:
+      r0: 'Recognize the integrand as the derivative of the Lorentz factor.'
+      r1: 'Differentiate γ(u): dγ/du = γ(u)³u/c². The integrand mγ(u)³u is therefore mc² times that derivative.'
+      r2: 'The chain rule gives d(1 − u²/c²)^(−1/2)/du = (−1/2)(1 − u²/c²)^(−3/2)(−2u/c²) = γ(u)³u/c². Multiplication by mc² reproduces the force-work integrand exactly for |u| < c. This is the step that turns the accumulated work into an endpoint change of γ, with no low-speed approximation.'
+      r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
+      r3Citations: *ref_0
+  - kind: 'derivation-step'
+    id: 'sr-electron-work-evaluate-endpoints'
+    readings:
+      r0: 'Evaluate the change between the final speed and rest.'
+      r1: 'The integral of the derivative is γ(v) − γ(0). Keep the lower endpoint until the rest condition is applied.'
+      r2: 'Mass m and light speed c are fixed in the integral. The fundamental theorem gives W = mc²[γ(v) − γ(0)]. Both endpoints remain visible, so an arbitrary integration constant cannot silently become a rest-energy claim. We abbreviate the final γ(v) as γ; it belongs to the final laboratory speed v.'
+      r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
+      r3Citations: *ref_0
+  - kind: 'derivation-step'
+    id: 'sr-electron-work-rest-boundary'
+    readings:
+      r0: 'At rest, the Lorentz factor is one and the accumulated work is zero.'
+      r1: 'Use γ(0) = 1. The subtraction is fixed by starting from rest, so W vanishes at v = 0.'
+      r2: 'The definition gives γ(0) = (1 − 0²/c²)^(−1/2) = 1. Substitute it only after evaluating both endpoints. For an initial speed u₀ instead, the work would be mc²[γ(v) − γ(u₀)]; the subtraction of 1 is specific to the rest boundary condition.'
+      r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
+      r3Citations: *ref_0
+  - kind: 'derivation-step'
+    id: 'sr-electron-work-result'
+    readings:
+      r0: 'The work from rest is mc²(γ − 1).'
+      r1: 'Collect the terms to get W = mc²(γ − 1), printed as μV²(β − 1). For slow motion its leading term is ½mv².'
+      r2: 'This is the canonical kinetic-energy result for the stated model. Expanding γ = 1 + ½(v/c)² + ⅜(v/c)⁴ + … gives W = ½mv² + ⅜mv⁴/c² + … for |v| ≪ c. At v = 0.6c, W = 0.25mc² whereas the leading classical term is 0.18mc². The displayed exact formula uses no series truncation and does not determine an additive rest energy.'
+      r3: 'Section 10 first assumes ordinary mechanics for a slowly moving electron, applies that law in its momentary rest frame, and transforms back. Einstein''s force is measured in the comoving frame, while the acceleration used for the longitudinal and transverse mass coefficients is measured in the original frame. He explicitly warns that other definitions would give different coefficients. The all-laboratory transverse ratio is presented here as a later comparison. The work calculation in §10 integrates the longitudinal force from rest and fixes only the kinetic-energy difference. This reconstruction writes m, γ and c for the paper''s μ, β and V; it does not use the September mass–energy argument as a premise.'
+      r3Citations: *ref_0

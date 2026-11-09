@@ -55,6 +55,7 @@ import {
   LazyLightQuantaDerivation,
   LazyLightQuantaFirstEncounter,
   LazyMassEnergyFirstEncounter,
+  LazySRElectronDerivation,
   LazySRLightComplexDerivation,
 } from "./lazyIslands.tsx";
 import { ledgerGaps } from "./ledgerGaps.ts";
@@ -736,6 +737,28 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                           <p className="fine">
                             <a href="/papers/special-relativity/s8/#sr-light-complex-derivation">
                               Follow the density, volume, and total energy of the light complex
+                            </a>
+                          </p>
+                        ))}
+                      {paper.id === "special-relativity" &&
+                        a.id === "arg-sr-electron-conventions" &&
+                        (sectionId ? (
+                          <LazySRElectronDerivation part="conventions" />
+                        ) : (
+                          <p className="fine">
+                            <a href="/papers/special-relativity/s10/#sr-electron-conventions-derivation">
+                              Follow the longitudinal and transverse force conventions step by step
+                            </a>
+                          </p>
+                        ))}
+                      {paper.id === "special-relativity" &&
+                        a.id === "arg-sr-electron-work" &&
+                        (sectionId ? (
+                          <LazySRElectronDerivation part="work" />
+                        ) : (
+                          <p className="fine">
+                            <a href="/papers/special-relativity/s10/#sr-electron-work-derivation">
+                              Follow the longitudinal force through the work integral
                             </a>
                           </p>
                         ))}

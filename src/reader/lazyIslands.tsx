@@ -51,6 +51,7 @@ import type { ClockFirstEncounter } from "./entrances/ClockFirstEncounter.tsx";
 import type { LightQuantaFirstEncounter } from "./entrances/LightQuantaFirstEncounter.tsx";
 import type { MassEnergyFirstEncounter } from "./entrances/MassEnergyFirstEncounter.tsx";
 import type { LightQuantaDerivation } from "./LightQuantaDerivation.tsx";
+import type { SRElectronDerivation } from "./SRElectronDerivation.tsx";
 import type { SRLightComplexDerivation } from "./SRLightComplexDerivation.tsx";
 import "./entrances/countingEntrance.css";
 import "./entrances/massEnergyEntrance.css";
@@ -135,4 +136,11 @@ export function LazySRLightComplexDerivation(
 
 export function LazyBrownianDerivation(props: ComponentProps<typeof BrownianDerivation>) {
   return <BrownianSteps {...props} />;
+}
+
+const SRElectronSteps = lazy(() =>
+  import("./SRElectronDerivation.tsx").then((m) => ({ default: m.SRElectronDerivation })),
+);
+export function LazySRElectronDerivation(props: ComponentProps<typeof SRElectronDerivation>) {
+  return <SRElectronSteps {...props} />;
 }
