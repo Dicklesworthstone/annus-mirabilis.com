@@ -1,0 +1,72 @@
+# Draft step readings; kept in sync with brownianSource.ts by its focused test.
+paper: "brownian-motion"
+ownerBeadId: "am-bm-equations-s1-s3-u6j7"
+targetKinds:
+  - "derivation-step"
+scope:
+  derivationChainIds:
+    - "chain-bm-source-equilibrium"
+targets:
+  - kind: "derivation-step"
+    id: "chain-bm-source-equilibrium/bm-equilibrium-read-pressure-balance"
+    readings:
+      r0: "At fixed temperature, the external force density balances the gradient of osmotic pressure."
+      r1: "Einstein's equilibrium condition is −nK + (RT/N) ∂n/∂x = 0. Move nK to the other side. The osmotic law Π = nRT/N makes the right side the pressure gradient when temperature is fixed."
+      r2: "For a dilute suspension in isothermal equilibrium, the paper obtains −nK + (RT/N) ∂n/∂x = 0 from the vanishing first variation of free energy. The same condition says that the external force density nK balances the osmotic-pressure gradient. Add nK to both sides to get nK = (RT/N) ∂n/∂x. Since R, T and N do not vary along x, differentiating Π = nRT/N leaves only the density derivative. The thermodynamic equilibrium construction is an admitted premise here; conservation of particles alone would not supply the osmotic law."
+      r3: "Section 3 of Einstein's 1905 Brownian paper derives the equilibrium condition by varying energy and entropy in a column of unit cross-section, then equates drift and diffusive particle flows. The paper writes ν for number density, k for viscosity, P for radius and μ for particle mass. This chain follows that order with n, η and a, and introduces b only as a name for the Stokes mobility. It retains R/N, preserving the distinction between the gas constant and the molecular number that later observations can constrain."
+      r3Citations:
+        - "Einstein, A. (1905). Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen. Annalen der Physik 17, 549–560 (§3, pp. 554–555)."
+  - kind: "derivation-step"
+    id: "chain-bm-source-equilibrium/bm-equilibrium-multiply-by-mobility"
+    readings:
+      r0: "Multiply the force balance by mobility to turn a force into a mean drift."
+      r1: "Let b be mobility, so a weak force K produces steady drift bK. Multiply both sides of the pressure balance by b. The left now contains n times that drift speed, which is a particle flux."
+      r2: "Mobility is the ratio of steady drift velocity to the weak applied force: v = bK. Multiplying nK = (RT/N) ∂n/∂x by the same b on both sides gives (nK)b = [(RT/N) ∂n/∂x]b. The left has particles per volume times distance per time, so it counts particles crossing unit area per time. This steady response is the drift under an imposed force, not an instantaneous Brownian velocity inferred from a jagged trajectory."
+      r3: "Section 3 of Einstein's 1905 Brownian paper derives the equilibrium condition by varying energy and entropy in a column of unit cross-section, then equates drift and diffusive particle flows. The paper writes ν for number density, k for viscosity, P for radius and μ for particle mass. This chain follows that order with n, η and a, and introduces b only as a name for the Stokes mobility. It retains R/N, preserving the distinction between the gas constant and the molecular number that later observations can constrain."
+      r3Citations:
+        - "Einstein, A. (1905). Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen. Annalen der Physik 17, 549–560 (§3, pp. 554–555)."
+  - kind: "derivation-step"
+    id: "chain-bm-source-equilibrium/bm-equilibrium-name-drift-flux"
+    readings:
+      r0: "Name the flow carried by the mean drift, counting particles rather than their mass."
+      r1: "Write the left-hand product as J_drift = nbK. This is the number of particles carried across unit area per second. It will be compared with Fick's particle flux in the same direction."
+      r2: "A slab of thickness bK in unit time carries n times that thickness particles across unit area, with its sign set by K. This defines J_drift = nbK. Einstein first writes a diffusive mass flow using the particle mass μ and then divides by that mass to compare particle counts. Our J_drift is already a particle flux, so it must be paired with −D ∂n/∂x, not with a mass flux. The density, mobility and force in this product are the same quantities as in the preceding equilibrium equation."
+      r3: "Section 3 of Einstein's 1905 Brownian paper derives the equilibrium condition by varying energy and entropy in a column of unit cross-section, then equates drift and diffusive particle flows. The paper writes ν for number density, k for viscosity, P for radius and μ for particle mass. This chain follows that order with n, η and a, and introduces b only as a name for the Stokes mobility. It retains R/N, preserving the distinction between the gas constant and the molecular number that later observations can constrain."
+      r3Citations:
+        - "Einstein, A. (1905). Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen. Annalen der Physik 17, 549–560 (§3, pp. 554–555)."
+  - kind: "derivation-step"
+    id: "chain-bm-source-equilibrium/bm-equilibrium-match-opposing-fluxes"
+    readings:
+      r0: "Describe the same equilibrium as two opposing particle flows whose sum is zero."
+      r1: "Fick's diffusive flux is −D ∂n/∂x. At equilibrium it cancels the drift flux, so J_drift = D ∂n/∂x. Match this kinetic description to the osmotic balance already found."
+      r2: "Use Fick's law with its sign: J_diff = −D ∂n/∂x, so diffusion runs down the density gradient. In the equilibrium used by the thermodynamic argument, J_drift + J_diff = 0. Therefore J_drift = D ∂n/∂x. Substitute this value into the previous equality. Both sides now multiply the same density gradient, but one coefficient comes from diffusion and the other from mobility and osmotic pressure. Relating these two descriptions of the same state is the step that determines D without solving individual molecular collisions."
+      r3: "Section 3 of Einstein's 1905 Brownian paper derives the equilibrium condition by varying energy and entropy in a column of unit cross-section, then equates drift and diffusive particle flows. The paper writes ν for number density, k for viscosity, P for radius and μ for particle mass. This chain follows that order with n, η and a, and introduces b only as a name for the Stokes mobility. It retains R/N, preserving the distinction between the gas constant and the molecular number that later observations can constrain."
+      r3Citations:
+        - "Einstein, A. (1905). Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen. Annalen der Physik 17, 549–560 (§3, pp. 554–555)."
+  - kind: "derivation-step"
+    id: "chain-bm-source-equilibrium/bm-equilibrium-cancel-nonzero-gradient"
+    readings:
+      r0: "Compare a state with a nonzero gradient, which cancels and leaves a force-independent diffusivity."
+      r1: "Divide by the common nonzero density gradient to obtain D = bRT/N. A uniform zero-force state gives 0 = 0 and does not determine D by division; the relation comes from the nontrivial equilibrium family."
+      r2: "The matched equation is D ∂n/∂x = b(RT/N) ∂n/∂x. Where the gradient is nonzero, divide both sides by it and collect the remaining factors: D = bRT/N. The magnitude and sign of the auxiliary force have disappeared. If K and the gradient both vanish, every D satisfies the zero-flux equation, so a formal 0/0 calculation would establish nothing. One determines the coefficient from nontrivial weak-force equilibria and then uses the resulting material relation in the zero-force limit."
+      r3: "Section 3 of Einstein's 1905 Brownian paper derives the equilibrium condition by varying energy and entropy in a column of unit cross-section, then equates drift and diffusive particle flows. The paper writes ν for number density, k for viscosity, P for radius and μ for particle mass. This chain follows that order with n, η and a, and introduces b only as a name for the Stokes mobility. It retains R/N, preserving the distinction between the gas constant and the molecular number that later observations can constrain."
+      r3Citations:
+        - "Einstein, A. (1905). Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen. Annalen der Physik 17, 549–560 (§3, pp. 554–555)."
+  - kind: "derivation-step"
+    id: "chain-bm-source-equilibrium/bm-equilibrium-insert-stokes-mobility"
+    readings:
+      r0: "Use Stokes's mobility for a small sphere in a viscous liquid."
+      r1: "For steady slow drift of a sphere, K = 6πηav, so b = 1/(6πηa). Substitute this independently supplied fluid law into D = bRT/N."
+      r2: "Stokes's drag on a sphere of radius a moving slowly through a Newtonian liquid of dynamic viscosity η is 6πηav. In steady forced drift this balances K, giving v/K = 1/(6πηa). Replace b by that expression. This step assumes the dilute, approximately spherical, low-Reynolds regime with the stated no-slip drag model; it does not infer those conditions from a rendered Brownian path. Particle inertia, nearby walls, interactions and slip corrections would require additional modeling."
+      r3: "Section 3 of Einstein's 1905 Brownian paper derives the equilibrium condition by varying energy and entropy in a column of unit cross-section, then equates drift and diffusive particle flows. The paper writes ν for number density, k for viscosity, P for radius and μ for particle mass. This chain follows that order with n, η and a, and introduces b only as a name for the Stokes mobility. It retains R/N, preserving the distinction between the gas constant and the molecular number that later observations can constrain."
+      r3Citations:
+        - "Einstein, A. (1905). Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen. Annalen der Physik 17, 549–560 (§3, pp. 554–555)."
+  - kind: "derivation-step"
+    id: "chain-bm-source-equilibrium/bm-equilibrium-collect-diffusivity"
+    readings:
+      r0: "The final diffusivity rises with temperature and falls with viscosity and particle radius."
+      r1: "Combine the two fractions to obtain D = RT/(6πηaN). The result contains no applied force. Doubling viscosity halves D, while the later RMS displacement changes by the square root of that factor."
+      r2: "Multiply 1/(6πηa) by RT/N and collect the denominator to obtain RT/(6πηaN), the canonical modern form of the paper's D = (RT/N)/(6πkP). Here η is Einstein's k and a is his P; his k is viscosity, not Boltzmann's constant. R/N has units of energy per temperature, so multiplying by T and dividing by a drag coefficient yields length squared per time. Keeping R and N separate also preserves the historical inference problem: a modern k_B value derived from the desired N must not be used as independent evidence for it."
+      r3: "Section 3 of Einstein's 1905 Brownian paper derives the equilibrium condition by varying energy and entropy in a column of unit cross-section, then equates drift and diffusive particle flows. The paper writes ν for number density, k for viscosity, P for radius and μ for particle mass. This chain follows that order with n, η and a, and introduces b only as a name for the Stokes mobility. It retains R/N, preserving the distinction between the gas constant and the molecular number that later observations can constrain."
+      r3Citations:
+        - "Einstein, A. (1905). Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen. Annalen der Physik 17, 549–560 (§3, pp. 554–555)."

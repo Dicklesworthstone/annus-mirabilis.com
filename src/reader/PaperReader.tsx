@@ -16,7 +16,7 @@ import { Companion } from "./layout/Companion.tsx";
 import { type CompanionKind, resolveCompanionKind } from "./layout/companionKind.ts";
 import { ReaderLayout } from "./layout/ReaderLayout.tsx";
 import { StickyLabRegion } from "./layout/StickyLabRegion.tsx";
-import { LazyBrownianFirstEncounter } from "./lazyIslands.tsx";
+import { LazyBrownianDerivation, LazyBrownianFirstEncounter } from "./lazyIslands.tsx";
 import { loadPaperMargins } from "./marginRecords.ts";
 import { PaperMargins } from "./PaperMargins.tsx";
 import "./actions/kindRegistration.ts";
@@ -456,6 +456,26 @@ export async function PaperReader({
                         sectionHref={`/papers/${paper.id}/${a.section}/#${a.id}`}
                         title={a.title}
                       />
+                      {(a.id === "arg-bm-diffusivity" || a.id === "arg-bm-diffusion-equation") &&
+                        (section ? (
+                          <LazyBrownianDerivation
+                            section={a.id === "arg-bm-diffusivity" ? "s3" : "s4"}
+                          />
+                        ) : (
+                          <p className="fine">
+                            <a
+                              href={
+                                a.id === "arg-bm-diffusivity"
+                                  ? "/papers/brownian-motion/s3/#bm-equilibrium-derivation"
+                                  : "/papers/brownian-motion/s4/#bm-source-diffusion-derivation"
+                              }
+                            >
+                              {a.id === "arg-bm-diffusivity"
+                                ? "Follow the steps from osmotic balance to diffusivity"
+                                : "Follow the steps from random displacements to the diffusion equation"}
+                            </a>
+                          </p>
+                        ))}
                       {/* R3, THE HISTORIAN'S MARGIN, IS A DISCLOSURE (am-read-shell-routes-3ua). It was
                           an aside marked hidden that only the modern lens showed, and the lens is set
                           by script, so with JavaScript off nothing reached it. Now it is closed and

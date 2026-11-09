@@ -136,7 +136,7 @@ export function expressionToDerivationLatex(
       case "derivative": {
         const d = n.partial ? "\\partial" : "\\mathrm{d}";
         const p = n.order === 1 ? "" : `^{${n.order}}`;
-        s = `\\frac{${d}${p}\\left(${render(n.expression)}\\right)}{${d}${render(n.variable)}${p}}`;
+        s = `\\frac{${d}${p}\\left(${render(n.expression)}\\right)}{${d} ${render(n.variable)}${p}}`;
         if (n.heldFixed?.length) {
           s = `\\left(${s}\\right)_{${n.heldFixed.map(render).join(", ")}}`;
         }

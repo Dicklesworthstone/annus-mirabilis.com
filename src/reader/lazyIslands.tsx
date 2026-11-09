@@ -45,6 +45,7 @@
 import { type ComponentProps, lazy } from "react";
 import type { LinearProofExplorer } from "../equations/derivations/LinearProofExplorer.tsx";
 import type { LowSpeedExplorer } from "../equations/derivations/LowSpeedExplorer.tsx";
+import type { BrownianDerivation } from "./BrownianDerivation.tsx";
 import type { BrownianFirstEncounter } from "./entrances/BrownianFirstEncounter.tsx";
 import type { ClockFirstEncounter } from "./entrances/ClockFirstEncounter.tsx";
 import type { LightQuantaFirstEncounter } from "./entrances/LightQuantaFirstEncounter.tsx";
@@ -83,6 +84,9 @@ const LinearProof = lazy(() =>
   import("../equations/derivations/LinearProofExplorer.tsx").then((m) => ({
     default: m.LinearProofExplorer,
   })),
+);
+const BrownianSteps = lazy(() =>
+  import("./BrownianDerivation.tsx").then((m) => ({ default: m.BrownianDerivation })),
 );
 const LightQuantaSteps = lazy(() =>
   import("./LightQuantaDerivation.tsx").then((m) => ({ default: m.LightQuantaDerivation })),
@@ -127,4 +131,8 @@ export function LazySRLightComplexDerivation(
   props: ComponentProps<typeof SRLightComplexDerivation>,
 ) {
   return <SRLightComplexSteps {...props} />;
+}
+
+export function LazyBrownianDerivation(props: ComponentProps<typeof BrownianDerivation>) {
+  return <BrownianSteps {...props} />;
 }

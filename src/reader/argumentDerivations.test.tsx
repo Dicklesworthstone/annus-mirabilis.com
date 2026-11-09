@@ -2,8 +2,23 @@ import { afterEach, expect, test } from "bun:test";
 import { exportMarkup } from "../testing/exportMarkup.ts";
 import { installDom, uninstallDom } from "../testing/reactDom.ts";
 import { PaperPage } from "./PaperPage.tsx";
+import { PaperReader } from "./PaperReader.tsx";
 
 const cases = [
+  {
+    paperId: "brownian-motion",
+    section: "s3",
+    argument: "arg-bm-diffusivity",
+    id: "bm-equilibrium-derivation",
+    steps: 7,
+  },
+  {
+    paperId: "brownian-motion",
+    section: "s4",
+    argument: "arg-bm-diffusion-equation",
+    id: "bm-source-diffusion-derivation",
+    steps: 8,
+  },
   {
     paperId: "light-quanta",
     section: "s4",
@@ -37,7 +52,11 @@ afterEach(async () => {
 for (const entry of cases) {
   test(`${entry.paperId} ${entry.section} exposes the complete derivation within its argument`, async () => {
     // Render before installing a DOM: this exercises the same server path as a static export.
-    const html = await exportMarkup(await PaperPage(entry));
+    const page =
+      entry.paperId === "brownian-motion"
+        ? await PaperReader({ section: entry.section })
+        : await PaperPage(entry);
+    const html = await exportMarkup(page);
     await installDom();
     domInstalled = true;
     const doc = new DOMParser().parseFromString(html, "text/html");
@@ -70,7 +89,8 @@ for (const entry of cases) {
 
 for (const paperId of new Set(cases.map((entry) => entry.paperId))) {
   test(`${paperId} introduction links to section chains without duplicating their payload`, async () => {
-    const html = await exportMarkup(await PaperPage({ paperId }));
+    const page = paperId === "brownian-motion" ? await PaperReader() : await PaperPage({ paperId });
+    const html = await exportMarkup(page);
     await installDom();
     domInstalled = true;
     const doc = new DOMParser().parseFromString(html, "text/html");

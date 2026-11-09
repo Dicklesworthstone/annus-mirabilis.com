@@ -47,3 +47,26 @@ test("indefinite integrals and pi retain their original meaning", () => {
   assert.equal(expressionToDerivationLatex({ kind: "constant", name: "pi" }), "\\pi");
   assert.equal(expressionToDerivationLatex({ kind: "constant", name: "infinity" }), "\\infty");
 });
+
+test("partial derivative commands stay separate from ASCII variable names", () => {
+  const density: Expression = { kind: "symbol", termId: "p", quantityId: "probabilityDensity" };
+  const time: Expression = { kind: "symbol", termId: "t", quantityId: "fieldTimeCoordinate" };
+  for (const variable of [x, time]) {
+    for (const order of [1, 2]) {
+      const tree: Expression = {
+        kind: "derivative",
+        expression: density,
+        variable,
+        order,
+        partial: true,
+      };
+      const latex = expressionToDerivationLatex(tree);
+      assert.ok(latex.includes("\\partial "));
+      assert.ok(!latex.includes("\\partialt") && !latex.includes("\\partialx"));
+      const html = renderExpressionMarkup(tree).html;
+      assert.ok(html.includes("<math"));
+      assert.ok(!html.includes("katex-error"), latex);
+      assert.match(expressionToSpokenText(tree), /partial derivative of p with respect to/);
+    }
+  }
+});

@@ -1,0 +1,81 @@
+# Draft step readings; kept in sync with brownianSource.ts by its focused test.
+paper: "brownian-motion"
+ownerBeadId: "am-bm-equations-s4-s5-6r81"
+targetKinds:
+  - "derivation-step"
+scope:
+  derivationChainIds:
+    - "chain-bm-source-kernel"
+targets:
+  - kind: "derivation-step"
+    id: "chain-bm-source-kernel/bm-kernel-expand-time"
+    readings:
+      r0: "Over a short observation interval, retain the current density and its first change in time."
+      r1: "Expand p(x,t+τ) at fixed x as p(x,t) + τ ∂p/∂t, dropping the second and higher time terms. The interval must still be long enough for successive coarse steps to be treated as independent."
+      r2: "Begin with the transition average in the printed plus-sign convention: p(x,t+τ) = ∫p(x+Δ,t)φ(Δ)dΔ over the whole line. At fixed x, Taylor expansion gives p(x,t+τ) = p(x,t) + τ ∂p/∂t + O(τ²), provided the density changes smoothly on this time scale. The displayed approximation retains only the first two terms. Einstein requires τ to be short compared with observation times yet long enough that successive displacements can be treated as independent; this is not a claim that microscopic motion is independent at arbitrarily short times."
+      r3: "Section 4 first gives the normalized symmetric displacement law, then the transition integral, the time and spatial Taylor expansions, the moment cancellation and the definition of D. Einstein prints f(x+Δ) in the integral; the modern p(x−Δ) convention gives the same result for a symmetric kernel by changing the integration variable. This chain normalizes the particle distribution to p and keeps approximation signs visible until the continuum statement. The finite-moment remainder conditions are explanatory modern qualifications of the paper's small-displacement argument."
+      r3Citations:
+        - "Einstein, A. (1905). Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen. Annalen der Physik 17, 549–560 (§4, pp. 556–559)."
+  - kind: "derivation-step"
+    id: "chain-bm-source-kernel/bm-kernel-expand-space-and-average"
+    readings:
+      r0: "Expand in the small displacement, then average value, slope and curvature over the jump law."
+      r1: "At fixed t, write p(x+Δ,t) as p + Δ ∂p/∂x + (Δ²/2) ∂²p/∂x². Integrating each term against φ turns its displacement factor into a moment of the kernel."
+      r2: "The source prints the spatial Taylor series continuing indefinitely. Here its retained terms are displayed: p(x+Δ,t) = p(x,t) + Δ ∂p/∂x + (Δ²/2) ∂²p/∂x² plus higher orders. Insert them into the transition integral and use linearity. The density and its derivatives are evaluated at the fixed point (x,t), so they can be taken outside the Δ integrals. The three coefficients are ∫φ, ∫Δφ and ∫Δ²φ. This exchange needs a smooth density on the jump scale and controlled moments; a finite variance by itself does not bound every Taylor remainder."
+      r3: "Section 4 first gives the normalized symmetric displacement law, then the transition integral, the time and spatial Taylor expansions, the moment cancellation and the definition of D. Einstein prints f(x+Δ) in the integral; the modern p(x−Δ) convention gives the same result for a symmetric kernel by changing the integration variable. This chain normalizes the particle distribution to p and keeps approximation signs visible until the continuum statement. The finite-moment remainder conditions are explanatory modern qualifications of the paper's small-displacement argument."
+      r3Citations:
+        - "Einstein, A. (1905). Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen. Annalen der Physik 17, 549–560 (§4, pp. 556–559)."
+  - kind: "derivation-step"
+    id: "chain-bm-source-kernel/bm-kernel-use-normalization"
+    readings:
+      r0: "Some displacement must occur, so the total weight of the kernel is one."
+      r1: "Normalization gives ∫φ(Δ)dΔ = 1. Replace only the zeroth moment by one, leaving the first and second moments visible. This preserves the present density term that will cancel from both sides."
+      r2: "The transition density is a probability density per unit displacement, so φ(Δ)dΔ is a probability and its integral over every possible Δ is one. The first term on the right is therefore p(x,t) times one. Substitute this normalization only into that integral; neither the signed first moment nor the squared second moment is fixed by normalization. Keeping those integrals separate distinguishes conservation of probability from absence of drift and from the strength of spreading."
+      r3: "Section 4 first gives the normalized symmetric displacement law, then the transition integral, the time and spatial Taylor expansions, the moment cancellation and the definition of D. Einstein prints f(x+Δ) in the integral; the modern p(x−Δ) convention gives the same result for a symmetric kernel by changing the integration variable. This chain normalizes the particle distribution to p and keeps approximation signs visible until the continuum statement. The finite-moment remainder conditions are explanatory modern qualifications of the paper's small-displacement argument."
+      r3Citations:
+        - "Einstein, A. (1905). Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen. Annalen der Physik 17, 549–560 (§4, pp. 556–559)."
+  - kind: "derivation-step"
+    id: "chain-bm-source-kernel/bm-kernel-remove-odd-moment"
+    readings:
+      r0: "Equal left and right weights cancel the signed first moment, while the squared moment remains."
+      r1: "For φ(Δ) = φ(−Δ), each contribution Δφ(Δ) has an equal opposite partner. Its integral is zero. Squaring removes the sign, so symmetry does not cancel ∫Δ²φ."
+      r2: "Assume the first moment exists; the controlled-moment hypotheses supply that condition here. Pair Δ and −Δ in ∫Δφ(Δ)dΔ. Symmetry gives the same kernel weight, while the displacement changes sign, so the pair sums to zero. Replace the first-moment integral by zero and retain the second-moment term. If the kernel were biased, this first moment would survive and create a transport term; normalization alone would not remove it. For Δ² the two partners have the same sign, so the second moment measures spreading even though the mean step vanishes."
+      r3: "Section 4 first gives the normalized symmetric displacement law, then the transition integral, the time and spatial Taylor expansions, the moment cancellation and the definition of D. Einstein prints f(x+Δ) in the integral; the modern p(x−Δ) convention gives the same result for a symmetric kernel by changing the integration variable. This chain normalizes the particle distribution to p and keeps approximation signs visible until the continuum statement. The finite-moment remainder conditions are explanatory modern qualifications of the paper's small-displacement argument."
+      r3Citations:
+        - "Einstein, A. (1905). Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen. Annalen der Physik 17, 549–560 (§4, pp. 556–559)."
+  - kind: "derivation-step"
+    id: "chain-bm-source-kernel/bm-kernel-cancel-current-density"
+    readings:
+      r0: "Cancel the same current density on both sides, leaving the change in time and the spreading term."
+      r1: "The normalized zeroth term is p and the odd-moment term is zero. Subtract p from both sides. The remaining relation is τ ∂p/∂t ≈ (1/2)(∂²p/∂x²)∫Δ²φ."
+      r2: "After the preceding identities, the equation reads p + τ ∂p/∂t ≈ p·1 + (∂p/∂x)·0 + (1/2)(∂²p/∂x²)∫Δ²φ. Multiplication by one leaves p, and multiplication by zero removes the first-derivative contribution. Subtract the same p(x,t) from both sides to isolate the retained time change. Normalization made this cancellation possible. The approximation sign remains because cancelling common terms does not restore the time and spatial terms dropped earlier."
+      r3: "Section 4 first gives the normalized symmetric displacement law, then the transition integral, the time and spatial Taylor expansions, the moment cancellation and the definition of D. Einstein prints f(x+Δ) in the integral; the modern p(x−Δ) convention gives the same result for a symmetric kernel by changing the integration variable. This chain normalizes the particle distribution to p and keeps approximation signs visible until the continuum statement. The finite-moment remainder conditions are explanatory modern qualifications of the paper's small-displacement argument."
+      r3Citations:
+        - "Einstein, A. (1905). Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen. Annalen der Physik 17, 549–560 (§4, pp. 556–559)."
+  - kind: "derivation-step"
+    id: "chain-bm-source-kernel/bm-kernel-divide-by-interval"
+    readings:
+      r0: "Divide by the positive interval to turn the retained change into a rate."
+      r1: "Divide both sides by τ > 0. The coefficient of curvature becomes the mean-square displacement in one interval divided by 2τ, with dimensions of length squared per time."
+      r2: "Dividing τ ∂p/∂t ≈ (1/2)(∂²p/∂x²)∫Δ²φ by the positive interval τ gives the displayed coefficient [1/(2τ)]∫Δ²φ. All factors in that coefficient belong to the same transition interval; changing the interval while keeping an unrelated jump law would change the model. The integral has units of length squared because φ is a density per displacement. Dividing by time therefore produces the dimensions required for a diffusivity."
+      r3: "Section 4 first gives the normalized symmetric displacement law, then the transition integral, the time and spatial Taylor expansions, the moment cancellation and the definition of D. Einstein prints f(x+Δ) in the integral; the modern p(x−Δ) convention gives the same result for a symmetric kernel by changing the integration variable. This chain normalizes the particle distribution to p and keeps approximation signs visible until the continuum statement. The finite-moment remainder conditions are explanatory modern qualifications of the paper's small-displacement argument."
+      r3Citations:
+        - "Einstein, A. (1905). Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen. Annalen der Physik 17, 549–560 (§4, pp. 556–559)."
+  - kind: "derivation-step"
+    id: "chain-bm-source-kernel/bm-kernel-name-diffusivity"
+    readings:
+      r0: "Name the surviving second-moment coefficient D, linking random steps to the diffusion law."
+      r1: "Define D = ⟨Δ²⟩/(2τ). Substituting that coefficient gives ∂p/∂t ≈ D ∂²p/∂x² at the retained order, connecting the transition law to the diffusivity found in §3."
+      r2: "The normalized kernel gives ⟨Δ²⟩ = ∫Δ²φ(Δ)dΔ. Einstein names its half-per-interval coefficient D. Replace only that complete coefficient, leaving the curvature and time derivative intact. A homogeneous stationary jump law makes this D independent of x and t. This is the same coefficient that appears in the diffusion equation and in the drift–diffusion balance of §3, but naming it does not make a finite-step Taylor approximation exact. The remaining approximation is addressed in the next step."
+      r3: "Section 4 first gives the normalized symmetric displacement law, then the transition integral, the time and spatial Taylor expansions, the moment cancellation and the definition of D. Einstein prints f(x+Δ) in the integral; the modern p(x−Δ) convention gives the same result for a symmetric kernel by changing the integration variable. This chain normalizes the particle distribution to p and keeps approximation signs visible until the continuum statement. The finite-moment remainder conditions are explanatory modern qualifications of the paper's small-displacement argument."
+      r3Citations:
+        - "Einstein, A. (1905). Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen. Annalen der Physik 17, 549–560 (§4, pp. 556–559)."
+  - kind: "derivation-step"
+    id: "chain-bm-source-kernel/bm-kernel-identify-continuum-equation"
+    readings:
+      r0: "The diffusion equation is the continuum law for the retained large-scale behavior, not a model of individual collisions."
+      r1: "In a controlled small-jump limit, keep ⟨Δ²⟩/(2τ) finite while the omitted terms vanish. The approximate retained relation becomes the diffusion equation. For physical tracers its use still requires time scales above the correlation time."
+      r2: "Einstein prints the equality after retaining the leading contributions. A modern justification considers a family with τ approaching zero, ⟨Δ²⟩/(2τ) approaching finite D, and ⟨Δ⁴⟩/τ approaching zero, with the relevant density derivatives bounded. After division by τ, the time remainder is of order τ and the symmetric spatial remainder is controlled by ⟨Δ⁴⟩/τ, so both vanish. The limiting equation is ∂p/∂t = D ∂²p/∂x². This mathematical limit identifies the continuum model; it does not assert that a liquid loses all microscopic time correlations. The physical application remains coarse grained."
+      r3: "Section 4 first gives the normalized symmetric displacement law, then the transition integral, the time and spatial Taylor expansions, the moment cancellation and the definition of D. Einstein prints f(x+Δ) in the integral; the modern p(x−Δ) convention gives the same result for a symmetric kernel by changing the integration variable. This chain normalizes the particle distribution to p and keeps approximation signs visible until the continuum statement. The finite-moment remainder conditions are explanatory modern qualifications of the paper's small-displacement argument."
+      r3Citations:
+        - "Einstein, A. (1905). Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen. Annalen der Physik 17, 549–560 (§4, pp. 556–559)."
