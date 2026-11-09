@@ -76,7 +76,7 @@ async function labelAfterTrial(recorder: Bm01Recorder | undefined, id: string) {
 }
 
 describe("BM-01's execution label follows the snapshot's producer", () => {
-  beforeEach(installDom);
+  beforeEach(() => installDom({ intersections: "visible" }));
   afterEach(uninstallDom);
 
   test("a snapshot the pinned FrankenSim module recorded is labelled computed with FrankenSim, with the artifact identity", async () => {

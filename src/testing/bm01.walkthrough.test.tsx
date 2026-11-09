@@ -16,7 +16,7 @@ afterAll(() => logger.flush());
 let root: Root | null = null;
 let labs: ReturnType<typeof bm01Laboratory>[];
 beforeEach(async () => {
-  await installDom();
+  await installDom({ intersections: "visible" });
   labs = [];
 });
 afterEach(async () => {
