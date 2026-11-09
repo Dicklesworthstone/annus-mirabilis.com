@@ -23,6 +23,7 @@ import { ExecutionLabel } from "../../experiments/labels/ExecutionLabel.tsx";
 import { executionStateKindFromHostLabel } from "../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
+import { useLaboratoryVisibility } from "../../experiments/lifecycle/useLaboratoryVisibility.ts";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { FRANKENSIM_DIFFUSION_ENGINE_SENTENCE } from "../../experiments/provenance/pinnedFrankenSim.ts";
 import {
@@ -86,6 +87,7 @@ export function BrownianLab({
     },
     (retainedId) => createBm06Session(retainedId, example, createBm06BrowserChannel),
   );
+  const laboratoryRegion = useLaboratoryVisibility(session);
   const serverAccepted = session.getServerSnapshot().accepted;
   if (!serverAccepted) {
     throw new Error("Missing accepted Brownian motion snapshot");
@@ -197,6 +199,7 @@ export function BrownianLab({
     spreads = array(snapshot, "comparisonRms");
   return (
     <section
+      ref={laboratoryRegion}
       className="laboratory"
       aria-labelledby={`${id}-title`}
       data-instrument-id="bm-06"

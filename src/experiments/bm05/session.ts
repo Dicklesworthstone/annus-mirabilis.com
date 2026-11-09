@@ -57,6 +57,7 @@ export function createBm05Session(
     throw new Error("Invalid prepared walk example.");
   const serverSnapshot = store.getSnapshot();
   let scheduler: ReturnType<typeof createHostScheduler> | null = null;
+  let schedulingPaused = false;
   return Object.freeze({
     getSnapshot: store.getSnapshot,
     getServerSnapshot: () => serverSnapshot,
@@ -98,8 +99,13 @@ export function createBm05Session(
         decodeHello: decodeLabHello,
         decodeResponse: decodeLabResponse,
       });
+      scheduler.setSchedulingPaused(schedulingPaused);
       scheduler.request(request);
       return { kind: "accepted" as const, data: request };
+    },
+    setSchedulingPaused(paused: boolean) {
+      schedulingPaused = paused;
+      scheduler?.setSchedulingPaused(paused);
     },
     stop() {
       scheduler?.cancel();

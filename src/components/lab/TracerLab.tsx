@@ -1,5 +1,14 @@
 "use client";
-import { type FormEvent, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import {
+  type FormEvent,
+  type RefObject,
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { EquationScope } from "../../equations/EquationScope.tsx";
 import { SemanticEquation } from "../../equations/SemanticEquation.tsx";
@@ -18,6 +27,7 @@ import { createBm01TapeBinding, createBm01WalkthroughTarget } from "../../experi
 import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
+import { useLaboratoryVisibility } from "../../experiments/lifecycle/useLaboratoryVisibility.ts";
 import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import type { ExecutionStateKind } from "../../experiments/provenance/executionState.ts";
 import { FRANKENSIM_BROWNIAN_ENGINE_SENTENCE } from "../../experiments/provenance/pinnedFrankenSim.ts";
@@ -83,6 +93,7 @@ export function TracerLab({
   equationScope,
   equationScopeLabel,
   session: sharedSession,
+  visibilityRegion,
   linked = true,
   workerFactory = createBm01BrowserChannel,
 }: {
@@ -97,6 +108,8 @@ export function TracerLab({
    * owns its own, as on /lab/bm-01/. Either way there is one owner per instance.
    */
   session?: ReturnType<typeof createBm01Session> | undefined;
+  /** A shared owner's full control region, including controls beside the laboratory. */
+  visibilityRegion?: RefObject<HTMLElement | null>;
   /**
    * Whether this laboratory reads shared tape or legacy settings links and offers a tape link.
    * Reader clarifications and the page's optional second ensemble keep an independent setup.
@@ -124,6 +137,7 @@ export function TracerLab({
     [failure, setFailure] = useState<ApplyFailure | null>(null),
     [note, setNote] = useState(""),
     [zoom, setZoom] = useState(1);
+  const laboratoryRegion = useLaboratoryVisibility(session, visibilityRegion);
   const draftRevision = useRef(0);
   const walkthroughDraftRevision = useRef(0);
   const setDraft = useCallback((next: TracerDraft) => {
@@ -283,6 +297,7 @@ export function TracerLab({
       lessonTitles={equationPayload.foundationTitles}
     >
       <section
+        ref={laboratoryRegion}
         className="laboratory"
         aria-labelledby={`${id}-title`}
         data-instrument-id="bm-01"

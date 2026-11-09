@@ -78,6 +78,7 @@ export interface DedicatedSchedulerOptions {
 
 export interface DedicatedScheduler {
   request(token: RequestToken, commandClass?: CommandClass): void;
+  setSchedulingPaused(paused: boolean): void;
   cancel(): void;
   dispose(): void;
   getWorkerMessageCount(): number;
@@ -93,6 +94,7 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
   let pending: RequestToken | null = null;
   let ready = false;
   let disposed = false;
+  let schedulingPaused = false;
   let cancelSent = false;
   let epoch = 0;
   let failures = 0;
@@ -142,7 +144,7 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
   }
 
   function dispatch(): void {
-    if (!ready || !channel || active || !pending || disposed) return;
+    if (!ready || !channel || active || !pending || disposed || schedulingPaused) return;
     active = pending;
     pending = null;
     cancelSent = false;
@@ -162,7 +164,7 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
   }
 
   function connect(): void {
-    if (channel || disposed) return;
+    if (channel || disposed || schedulingPaused) return;
     if (failures >= maxRestarts) {
       fail("environment-unsupported");
       return;
@@ -288,7 +290,7 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
       pending = token;
       connect();
 
-      if (hadActive && active && !cancelSent && channel) {
+      if (hadActive && active && !cancelSent && channel && !schedulingPaused) {
         try {
           channel.send({
             messageKind: "cancel",
@@ -303,6 +305,16 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
       }
 
       dispatch();
+    },
+
+    /** Keep the worker, accepted state and newest queued token while an in-flight call finishes. */
+    setSchedulingPaused(paused: boolean): void {
+      if (disposed || schedulingPaused === paused) return;
+      schedulingPaused = paused;
+      if (!paused && pending) {
+        connect();
+        dispatch();
+      }
     },
 
     cancel(): void {

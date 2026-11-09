@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState, useSyncExternalStore } from "react";
+import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import type { WorldCheck as WorldCheckType } from "../../content/schemas/journey.ts";
 import { EINSTEIN_TRACER_INPUTS } from "../../discovery/brownian/journeyII.ts";
 import { KnowledgeCardView } from "../../discovery/cards/KnowledgeCard.tsx";
@@ -46,6 +46,7 @@ export function BrownianWorldCheck({
   session?: ReturnType<typeof createBm01Session> | undefined;
 }) {
   const id = useId();
+  const visibilityRegion = useRef<HTMLDivElement>(null);
   const [session] = useState(
     () =>
       sharedSession ?? createBm01Session(`world-check-${id}`, example, createBm01BrowserChannel),
@@ -105,14 +106,17 @@ export function BrownianWorldCheck({
   return (
     <>
       <InvestigationLabLink experimentId="bm-01" />
-      <TracerLab
-        example={example}
-        session={session}
-        title="The tracer ensemble, for the check"
-        equationScope="world-check"
-        equationScopeLabel="check against the world"
-      />
-      <WorldCheck check={check} live={live} />
+      <div ref={visibilityRegion}>
+        <TracerLab
+          example={example}
+          session={session}
+          visibilityRegion={visibilityRegion}
+          title="The tracer ensemble, for the check"
+          equationScope="world-check"
+          equationScopeLabel="check against the world"
+        />
+        <WorldCheck check={check} live={live} />
+      </div>
       <section data-world-check-later aria-labelledby={`${id}-later`}>
         <h3 id={`${id}-later`}>Later evidence, not on the 1904 shelf</h3>
         {laterEvidence.map((card) => (

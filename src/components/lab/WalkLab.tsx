@@ -16,6 +16,7 @@ import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
+import { useLaboratoryVisibility } from "../../experiments/lifecycle/useLaboratoryVisibility.ts";
 import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { FRANKENSIM_NORMALS_ENGINE_SENTENCE } from "../../experiments/provenance/pinnedFrankenSim.ts";
@@ -97,6 +98,7 @@ export function WalkLab({
     },
     (retainedId) => createBm05Session(retainedId, example, createBm05BrowserChannel),
   );
+  const laboratoryRegion = useLaboratoryVisibility(session);
   const serverAccepted = session.getServerSnapshot().accepted;
   if (!serverAccepted) {
     throw new Error("Missing accepted walk snapshot");
@@ -203,6 +205,7 @@ export function WalkLab({
     ratios = array(snapshot, "fixedRatioCoefficients");
   return (
     <section
+      ref={laboratoryRegion}
       className="laboratory"
       aria-labelledby={`${id}-title`}
       data-instrument-id="bm-05"

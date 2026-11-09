@@ -70,6 +70,7 @@ export function createBm01Session(
     throw new Error("Invalid prepared tracer example.");
   const serverSnapshot = store.getSnapshot();
   let scheduler: ReturnType<typeof createHostScheduler> | null = null;
+  let schedulingPaused = false;
   const verifiers = new WeakMap<RequestToken, PublicationVerifier>();
   const ownerProtocol = {
     version: BM01_PROTOCOL,
@@ -143,6 +144,7 @@ export function createBm01Session(
         },
       },
     );
+    scheduler.setSchedulingPaused(schedulingPaused);
     scheduler.request(request);
     return { kind: "accepted" as const, data: request };
   }
@@ -153,6 +155,10 @@ export function createBm01Session(
     apply: (input: unknown) => apply(input),
     applyVerified: (input: unknown, verify: PublicationVerifier) => apply(input, false, verify),
     startNewRun: (input: unknown) => apply(input, true),
+    setSchedulingPaused(paused: boolean) {
+      schedulingPaused = paused;
+      scheduler?.setSchedulingPaused(paused);
+    },
     stop() {
       scheduler?.cancel();
     },

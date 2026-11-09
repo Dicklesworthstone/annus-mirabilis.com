@@ -59,6 +59,7 @@ export function createBm06Session(
     throw new Error("Invalid prepared laboratory example.");
   const serverSnapshot = store.getSnapshot();
   let scheduler: ReturnType<typeof createBm06Scheduler> | null = null;
+  let schedulingPaused = false;
   return Object.freeze({
     getSnapshot: store.getSnapshot,
     getServerSnapshot: () => serverSnapshot,
@@ -81,6 +82,7 @@ export function createBm06Session(
       if (Object.keys(measurement).length) request = store.issue("measurement-change", measurement);
       request ??= store.issue("continue");
       scheduler ??= createBm06Scheduler(store, workerFactory, example.sourceDigest);
+      scheduler.setSchedulingPaused(schedulingPaused);
       scheduler.request(request);
       return { kind: "accepted" as const, data: request };
     },
@@ -104,6 +106,10 @@ export function createBm06Session(
         copiedDiffusivitySnapshotVersion: source.snapshotVersion,
         copiedDiffusivityValue: source.value,
       });
+    },
+    setSchedulingPaused(paused: boolean) {
+      schedulingPaused = paused;
+      scheduler?.setSchedulingPaused(paused);
     },
     stop() {
       scheduler?.cancel();
