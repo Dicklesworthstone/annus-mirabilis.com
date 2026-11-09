@@ -1,0 +1,45 @@
+# Draft step readings; kept in sync with lightQuantaEntropy.ts by its focused test.
+paper: "light-quanta"
+ownerBeadId: "am-lq-equations-s5-s9-3cjh"
+targetKinds:
+  - "derivation-step"
+scope:
+  derivationChainIds:
+    - "chain-lq-entropy-correspondence"
+targets:
+  - kind: "derivation-step"
+    id: "chain-lq-entropy-correspondence/lq-correspondence-match-coefficients"
+    readings:
+      r0: "The shared entropy law suggests an independent-element model for dilute light; it does not prove that picture."
+      r1: "For independent gas points, the coefficient is (R/N)n; for dilute radiation it is E/(Bν). Ask what effective n makes their volume dependence agree, and cancel the common logarithm for V/V₀ ≠ 1."
+      r2: "Section 5 obtains ΔS = (R/N)n ln(V/V₀) because n independently placed points give a configuration factor (V/V₀)ⁿ. Section 4 gives ΔS = [E/(Bν)] ln(V/V₀) for dilute radiation. Matching these volume-dependence families is the heuristic move: it proposes a model that shares this thermodynamic property. For positive V/V₀ other than one, divide by the nonzero common logarithm to compare coefficients. At V = V₀ both changes are zero and this observation identifies no count. Correlated points need not have exponent n, so independence is essential."
+      r3: "In §6, pp. 142–143, Einstein rewrites the radiation entropy through Boltzmann's principle and compares its configuration exponent with the independent molecular points of §5. He concludes that dilute monochromatic radiation behaves thermodynamically as if it consisted of independent energy quanta of magnitude Rβν/N. The coefficient comparison here unpacks that heuristic argument; h is only a subsequent modern identification."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§§5–6, pp. 140–143)."
+  - kind: "derivation-step"
+    id: "chain-lq-entropy-correspondence/lq-correspondence-solve-effective-count"
+    readings:
+      r0: "Solve for the effective count that reproduces radiation's entropy coefficient."
+      r1: "Divide the coefficient equality by R/N and put n on the left. This gives n = NE/(RBν), a model's effective count rather than a measured or rounded number of particles."
+      r2: "Start with E/(Bν) = (R/N)n. R and N are positive, so multiplying both sides by N/R is valid. The result is NE/(RBν) = n; exchange the equal sides to put the effective count first. E/(Bν) and R/N both have entropy units, so their ratio is dimensionless. This algebra only identifies the count within the proposed independent-element description; it neither measures individual elements nor requires rounding a continuous thermodynamic ratio to an integer."
+      r3: "In §6, pp. 142–143, Einstein rewrites the radiation entropy through Boltzmann's principle and compares its configuration exponent with the independent molecular points of §5. He concludes that dilute monochromatic radiation behaves thermodynamically as if it consisted of independent energy quanta of magnitude Rβν/N. The coefficient comparison here unpacks that heuristic argument; h is only a subsequent modern identification."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§§5–6, pp. 140–143)."
+  - kind: "derivation-step"
+    id: "chain-lq-entropy-correspondence/lq-correspondence-substitute-effective-count"
+    readings:
+      r0: "Divide the total energy by that effective count to find the proposed energy per element."
+      r1: "The energy per independent element is E/n in this model. Substitute the effective count just found, keeping the nested fraction visible before simplifying it."
+      r2: "The candidate description assigns the total energy E to n independent energy elements, so its energy per element is E/n. Replace n in this quotient by NE/(RBν), using the immediately preceding result. E, N, R, B and ν are positive in the stated domain, which makes the denominator positive. The displayed nested fraction records exactly this substitution; it introduces no Planck constant and assumes no photon energy law in advance."
+      r3: "In §6, pp. 142–143, Einstein rewrites the radiation entropy through Boltzmann's principle and compares its configuration exponent with the independent molecular points of §5. He concludes that dilute monochromatic radiation behaves thermodynamically as if it consisted of independent energy quanta of magnitude Rβν/N. The coefficient comparison here unpacks that heuristic argument; h is only a subsequent modern identification."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§§5–6, pp. 140–143)."
+  - kind: "derivation-step"
+    id: "chain-lq-entropy-correspondence/lq-correspondence-energy-per-element"
+    readings:
+      r0: "The proposed energy per element is proportional to frequency, with coefficient RB/N."
+      r1: "Dividing by NE/(RBν) multiplies by RBν/(NE). The positive total energy cancels, leaving E/n = RBν/N. The heuristic comparison fixes this energy scale, not the full nature of light."
+      r2: "Invert the positive denominator: E/[NE/(RBν)] = E·RBν/(NE). Cancel E, which is nonzero for the radiation under discussion, to obtain RBν/N. Thus the inferred energy per element is proportional to frequency and independent of the total amount of radiation. Only afterward may modern notation identify RB/N with h and write hν. That identification is not a premise of the entropy comparison, and agreement of one entropy law does not establish every property of independent particles."
+      r3: "In §6, pp. 142–143, Einstein rewrites the radiation entropy through Boltzmann's principle and compares its configuration exponent with the independent molecular points of §5. He concludes that dilute monochromatic radiation behaves thermodynamically as if it consisted of independent energy quanta of magnitude Rβν/N. The coefficient comparison here unpacks that heuristic argument; h is only a subsequent modern identification."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§§5–6, pp. 140–143)."

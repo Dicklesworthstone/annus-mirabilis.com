@@ -1,0 +1,55 @@
+ownerBeadId: 'am-sre-equations-2g3h'
+paper: 'special-relativity'
+targetKinds:
+  - 'derivation-step'
+scope:
+  sections:
+    - 's8'
+  chainIds:
+    - 'chain-sr-light-complex'
+targets:
+  - kind: 'derivation-step'
+    id: 'sr-light-complex-separate-density-volume'
+    readings:
+      r0: 'The whole packet''s energy is its energy per unit volume times its volume. Compare both factors between the two frames.'
+      r1: 'Write E = u S in K and E′ = u′ S′ in k. The ratio E′/E therefore separates into the energy-density ratio u′/u and the packet-volume ratio S′/S. A change in density alone does not give the change in total energy.'
+      r2: 'For the plane-wave light complex, the energy density is uniform (or cycle averaged) over each frame''s simultaneous volume. Thus E′/E = (u′ S′)/(u S) = (u′/u)(S′/S). In the printed Gaussian notation u = A²/(8π); the common unit-system factor cancels. S and S′ refer to the same moving boundary, each measured at one time in its own frame.'
+      r3: 'Section 7 transforms the frequency and the squared field amplitude. Section 8 then follows a spherical boundary moving with the light, measures its ellipsoid on a simultaneous slice of the moving frame, and multiplies the transformed density by that volume. The paper writes the speed of light as V, the Lorentz factor as β, and the volumes as S and S′. This reconstruction introduces q and uses γ and c to keep the three factors visible. The observation that energy and frequency follow the same transformation law is Einstein’s; no light-quantum hypothesis or body mass-energy formula is a premise of this argument.'
+      r3Citations:
+        - 'Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §§7–8, pp. 910–913.'
+  - kind: 'derivation-step'
+    id: 'sr-light-complex-density-factor'
+    readings:
+      r0: 'The wave''s amplitude changes by q. Energy density depends on amplitude squared, so its factor is q².'
+      r1: 'Section 7 gives A′/A = q for this light''s direction. Since the electromagnetic energy density is proportional to A² in each frame, u′/u = (A′/A)² = q². Leave the volume factor visible: it still has to be found.'
+      r2: 'The plane-wave field transformation supplies A′²/A² = γ²[1 − (v/c) cos φ]². With q = γ[1 − (v/c) cos φ] and the same field-energy coefficient in each frame, u′/u = q². The angle φ is measured in K; substituting the angle measured in k into this formula would change the premise.'
+      r3: 'Section 7 transforms the frequency and the squared field amplitude. Section 8 then follows a spherical boundary moving with the light, measures its ellipsoid on a simultaneous slice of the moving frame, and multiplies the transformed density by that volume. The paper writes the speed of light as V, the Lorentz factor as β, and the volumes as S and S′. This reconstruction introduces q and uses γ and c to keep the three factors visible. The observation that energy and frequency follow the same transformation law is Einstein’s; no light-quantum hypothesis or body mass-energy formula is a premise of this argument.'
+      r3Citations:
+        - 'Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §§7–8, pp. 910–913.'
+  - kind: 'derivation-step'
+    id: 'sr-light-complex-moving-volume'
+    readings:
+      r0: 'Follow the same piece of light. Measuring its moving boundary at one instant of the other frame gives a volume factor 1/q.'
+      r1: 'Einstein surrounds the light with a sphere whose surface travels with it. At one time in k, that same moving boundary is an ellipsoid with volume S′ = S/q. A material body''s contraction factor 1/γ answers a different boundary question; the light''s direction is essential here.'
+      r2: 'Let a = cos φ and let a, b, d be the direction cosines in K. Transform the moving sphere (x − ca t)² + (y − cb t)² + (z − cd t)² = R² and set t′ = 0. With x = γx′ and t = γv x′/c², its ellipsoid is [γ(1 − av/c)x′]² + [y′ − bγ(v/c)x′]² + [z′ − dγ(v/c)x′]² = R². The map from these primed coordinates back to the sphere has diagonal factors q, 1, 1 and two shears; its determinant is q. Hence q S′ = S. This is a change of simultaneous slices of the same moving light complex, not a rest volume of light.'
+      r3: 'Section 7 transforms the frequency and the squared field amplitude. Section 8 then follows a spherical boundary moving with the light, measures its ellipsoid on a simultaneous slice of the moving frame, and multiplies the transformed density by that volume. The paper writes the speed of light as V, the Lorentz factor as β, and the volumes as S and S′. This reconstruction introduces q and uses γ and c to keep the three factors visible. The observation that energy and frequency follow the same transformation law is Einstein’s; no light-quantum hypothesis or body mass-energy formula is a premise of this argument.'
+      r3Citations:
+        - 'Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §§7–8, pp. 910–913.'
+  - kind: 'derivation-step'
+    id: 'sr-light-complex-combine-factors'
+    readings:
+      r0: 'Two factors of q from density and one inverse factor from volume leave one factor of q for total energy.'
+      r1: 'Multiply the two different changes: E′/E = q² × (1/q) = q. At q = 0.5, the density is one quarter and the volume doubles, so the energy is one half.'
+      r2: 'For |v| < c and a physical propagation angle, γ > 0 and 1 − (v/c) cos φ > 0, so q is positive and division is valid. Cancel one q in q²/q to obtain E′/E = q. No small-speed expansion is used: this is exact within the plane-wave, moving-boundary model.'
+      r3: 'Section 7 transforms the frequency and the squared field amplitude. Section 8 then follows a spherical boundary moving with the light, measures its ellipsoid on a simultaneous slice of the moving frame, and multiplies the transformed density by that volume. The paper writes the speed of light as V, the Lorentz factor as β, and the volumes as S and S′. This reconstruction introduces q and uses γ and c to keep the three factors visible. The observation that energy and frequency follow the same transformation law is Einstein’s; no light-quantum hypothesis or body mass-energy formula is a premise of this argument.'
+      r3Citations:
+        - 'Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §§7–8, pp. 910–913.'
+  - kind: 'derivation-step'
+    id: 'sr-light-complex-same-frequency-factor'
+    readings:
+      r0: 'The packet''s total energy and the light''s frequency change by the same factor.'
+      r1: 'Section 7 already identified q = ν′/ν from the wave''s phase. Section 8 has now obtained E′/E = q from fields and volume, so E′/E = ν′/ν. These are two independently accounted-for changes with the same factor.'
+      r2: 'The shared factor is γ[1 − (v/c) cos φ], with φ measured in K. Substituting the earlier Doppler definition into the result gives E′/E = ν′/ν. This conclusion is about comparing one light complex between frames; it does not introduce a photon energy hν or a body''s mass-energy formula. The September paper may subsequently import the light-energy law.'
+      r3: 'Section 7 transforms the frequency and the squared field amplitude. Section 8 then follows a spherical boundary moving with the light, measures its ellipsoid on a simultaneous slice of the moving frame, and multiplies the transformed density by that volume. The paper writes the speed of light as V, the Lorentz factor as β, and the volumes as S and S′. This reconstruction introduces q and uses γ and c to keep the three factors visible. The observation that energy and frequency follow the same transformation law is Einstein’s; no light-quantum hypothesis or body mass-energy formula is a premise of this argument.'
+      r3Citations:
+        - 'Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §§7–8, pp. 910–913.'

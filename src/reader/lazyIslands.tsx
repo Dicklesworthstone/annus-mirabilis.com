@@ -49,9 +49,12 @@ import type { BrownianFirstEncounter } from "./entrances/BrownianFirstEncounter.
 import type { ClockFirstEncounter } from "./entrances/ClockFirstEncounter.tsx";
 import type { LightQuantaFirstEncounter } from "./entrances/LightQuantaFirstEncounter.tsx";
 import type { MassEnergyFirstEncounter } from "./entrances/MassEnergyFirstEncounter.tsx";
+import type { LightQuantaDerivation } from "./LightQuantaDerivation.tsx";
+import type { SRLightComplexDerivation } from "./SRLightComplexDerivation.tsx";
 import "./entrances/countingEntrance.css";
 import "./entrances/massEnergyEntrance.css";
 import "../equations/derivations/linearProof.css";
+import "../equations/derivations/derivation.css";
 
 const Brownian = lazy(() =>
   import("./entrances/BrownianFirstEncounter.tsx").then((m) => ({
@@ -81,6 +84,12 @@ const LinearProof = lazy(() =>
     default: m.LinearProofExplorer,
   })),
 );
+const LightQuantaSteps = lazy(() =>
+  import("./LightQuantaDerivation.tsx").then((m) => ({ default: m.LightQuantaDerivation })),
+);
+const SRLightComplexSteps = lazy(() =>
+  import("./SRLightComplexDerivation.tsx").then((m) => ({ default: m.SRLightComplexDerivation })),
+);
 
 export function LazyBrownianFirstEncounter(props: ComponentProps<typeof BrownianFirstEncounter>) {
   return <Brownian {...props} />;
@@ -108,4 +117,14 @@ export function LazyLowSpeedExplorer(props: ComponentProps<typeof LowSpeedExplor
 
 export function LazyLinearProofExplorer(props: ComponentProps<typeof LinearProofExplorer>) {
   return <LinearProof {...props} />;
+}
+
+export function LazyLightQuantaDerivation(props: ComponentProps<typeof LightQuantaDerivation>) {
+  return <LightQuantaSteps {...props} />;
+}
+
+export function LazySRLightComplexDerivation(
+  props: ComponentProps<typeof SRLightComplexDerivation>,
+) {
+  return <SRLightComplexSteps {...props} />;
 }

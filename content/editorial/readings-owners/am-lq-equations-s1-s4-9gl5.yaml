@@ -1,0 +1,108 @@
+# Draft step readings; kept in sync with lightQuantaEntropy.ts by its focused test.
+paper: "light-quanta"
+ownerBeadId: "am-lq-equations-s1-s4-9gl5"
+targetKinds:
+  - "derivation-step"
+scope:
+  derivationChainIds:
+    - "chain-lq-wien-entropy"
+targets:
+  - kind: "derivation-step"
+    id: "chain-lq-wien-entropy/lq-wien-normalize-spectrum"
+    readings:
+      r0: "Within Wien's dilute regime, divide out the positive spectral prefactor to isolate the exponential."
+      r1: "Wien's law is the starting empirical approximation. Divide both sides by Aν³, which is positive, so the left is the dimensionless ratio ρν/(Aν³) and the right is the exponential alone."
+      r2: "Take positive A, B, ν and T and a positive spectral density ρν. Divide ρν = Aν³ exp(−Bν/T) by the same nonzero Aν³ on each side; the matching prefactor on the right cancels. The ratio ρν/(Aν³) has no units and lies between zero and one. In the dilute Wien range it is much smaller than one. This rearrangement preserves the approximation's domain; it does not extend Wien's law to dense radiation."
+      r3: "Einstein's §3, p. 139, explicitly sets the entropy density to zero at zero radiation density. Section 4 then uses Wien's approximate law to derive the entropy-volume relation. This reconstruction writes A, B, sν and V for the paper's α, β, φ and v, and Δν for its narrow interval dν. The printed argument carries the integration constant implicitly through its stated zero-density boundary condition."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§§3–4, pp. 138–140)."
+  - kind: "derivation-step"
+    id: "chain-lq-wien-entropy/lq-wien-take-logarithms"
+    readings:
+      r0: "Both sides are positive, so their natural logarithms can be compared."
+      r1: "Apply the natural logarithm to both sides. The density ratio is positive and an exponential is positive, so neither logarithm crosses a forbidden zero or negative argument."
+      r2: "The logarithm is one-to-one on the positive real numbers. On the left, ρν > 0 and Aν³ > 0 make the quotient positive. On the right, exp(−Bν/T) is positive for finite real Bν/T. Thus applying ln to both sides preserves the equality. The logarithm acts on the entire dimensionless density ratio, not on a dimensional density by itself; the endpoint ρν = 0 is reserved for a later limit."
+      r3: "Einstein's §3, p. 139, explicitly sets the entropy density to zero at zero radiation density. Section 4 then uses Wien's approximate law to derive the entropy-volume relation. This reconstruction writes A, B, sν and V for the paper's α, β, φ and v, and Δν for its narrow interval dν. The printed argument carries the integration constant implicitly through its stated zero-density boundary condition."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§§3–4, pp. 138–140)."
+  - kind: "derivation-step"
+    id: "chain-lq-wien-entropy/lq-wien-invert-exponential"
+    readings:
+      r0: "The logarithm undoes the exponential, exposing the temperature in its exponent."
+      r1: "Use ln(exp(x)) = x with x = −Bν/T. The right-hand side becomes −Bν/T, while the logarithm of the density ratio stays unchanged."
+      r2: "Set x = −Bν/T, which is finite for the positive finite parameters under discussion. Since natural logarithm and exponential are inverse functions, ln(exp(x)) = x exactly. Replace just that nested pair on the right by −Bν/T. No sign changes and no logarithm of the left-hand ratio is removed. The remaining equality now contains 1/T linearly, ready for division by −Bν."
+      r3: "Einstein's §3, p. 139, explicitly sets the entropy density to zero at zero radiation density. Section 4 then uses Wien's approximate law to derive the entropy-volume relation. This reconstruction writes A, B, sν and V for the paper's α, β, φ and v, and Δν for its narrow interval dν. The printed argument carries the integration constant implicitly through its stated zero-density boundary condition."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§§3–4, pp. 138–140)."
+  - kind: "derivation-step"
+    id: "chain-lq-wien-entropy/lq-wien-isolate-inverse-temperature"
+    readings:
+      r0: "Divide by the negative spectral factor to find one over the temperature."
+      r1: "Divide both sides by −Bν and write 1/T on the left. The negative logarithm divided by Bν is positive because the Wien density ratio is below one."
+      r2: "From ln[ρν/(Aν³)] = −Bν/T, divide both sides by −Bν, which is nonzero because B and ν are positive. The right becomes 1/T and the left becomes −ln[ρν/(Aν³)]/(Bν); exchange the equal sides to reach the displayed form. Its sign checks the result: the ratio is below one, its logarithm is negative, and the leading minus sign gives the required positive inverse temperature."
+      r3: "Einstein's §3, p. 139, explicitly sets the entropy density to zero at zero radiation density. Section 4 then uses Wien's approximate law to derive the entropy-volume relation. This reconstruction writes A, B, sν and V for the paper's α, β, φ and v, and Δν for its narrow interval dν. The printed argument carries the integration constant implicitly through its stated zero-density boundary condition."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§§3–4, pp. 138–140)."
+  - kind: "derivation-step"
+    id: "chain-lq-wien-entropy/lq-wien-use-entropy-slope"
+    readings:
+      r0: "Thermodynamics turns inverse temperature into the slope of entropy as energy density changes."
+      r1: "Section 3 supplies (∂sν/∂ρν)ν = 1/T. Replace 1/T by this derivative, keeping frequency fixed, so the spectral law becomes a differential equation for entropy density."
+      r2: "The thermodynamic identity dS/dE = 1/T and the equilibrium argument of §3 give (∂sν/∂ρν)ν = 1/T at each frequency. Substitute this derivative for the single inverse-temperature term on the left. The subscript ν matters: it says to vary energy density while holding the frequency fixed, rather than differentiate the spectrum along its frequency axis. The right-hand side is now the function of ρν that must be integrated."
+      r3: "Einstein's §3, p. 139, explicitly sets the entropy density to zero at zero radiation density. Section 4 then uses Wien's approximate law to derive the entropy-volume relation. This reconstruction writes A, B, sν and V for the paper's α, β, φ and v, and Δν for its narrow interval dν. The printed argument carries the integration constant implicitly through its stated zero-density boundary condition."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§§3–4, pp. 138–140)."
+  - kind: "derivation-step"
+    id: "chain-lq-wien-entropy/lq-wien-integrate-with-constant"
+    readings:
+      r0: "Integrate at fixed frequency and keep the undetermined entropy-density constant visible."
+      r1: "Integrate with respect to ρν while ν stays fixed. The antiderivative of ln(ρν/a) is ρν[ln(ρν/a) − 1], and the integration constant may still depend on ν."
+      r2: "Write a = Aν³, a constant in this integration. Integration by parts gives ∫ln(ρν/a)dρν = ρν ln(ρν/a) − ∫1 dρν = ρν[ln(ρν/a) − 1]. Multiplying by −1/(Bν) gives the displayed entropy density. Add C(ν), because differentiation with respect to ρν cannot determine any term depending only on the fixed frequency. Omitting that term before using a boundary condition would leave the later volume comparison unjustified."
+      r3: "Einstein's §3, p. 139, explicitly sets the entropy density to zero at zero radiation density. Section 4 then uses Wien's approximate law to derive the entropy-volume relation. This reconstruction writes A, B, sν and V for the paper's α, β, φ and v, and Δν for its narrow interval dν. The printed argument carries the integration constant implicitly through its stated zero-density boundary condition."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§§3–4, pp. 138–140)."
+  - kind: "derivation-step"
+    id: "chain-lq-wien-entropy/lq-wien-fix-zero-density-boundary"
+    readings:
+      r0: "The paper sets entropy density to zero when radiation vanishes, fixing C(ν) to zero."
+      r1: "At zero density, the logarithmic term tends to zero: ρν ln ρν → 0. The paper's boundary condition sν(0) = 0 therefore forces C(ν) = 0 at each fixed frequency."
+      r2: "Approach ρν = 0 from positive densities; do not substitute zero inside the logarithm. For fixed positive A and ν, ρν ln[ρν/(Aν³)] = ρν ln ρν − ρν ln(Aν³) tends to zero, as does the remaining term proportional to ρν. Thus the limit of the integrated expression is C(ν). The end of §3, p. 139, explicitly requires the entropy density to vanish there. This boundary condition, rather than a later cancellation, fixes C(ν) = 0."
+      r3: "Einstein's §3, p. 139, explicitly sets the entropy density to zero at zero radiation density. Section 4 then uses Wien's approximate law to derive the entropy-volume relation. This reconstruction writes A, B, sν and V for the paper's α, β, φ and v, and Δν for its narrow interval dν. The printed argument carries the integration constant implicitly through its stated zero-density boundary condition."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§§3–4, pp. 138–140)."
+  - kind: "derivation-step"
+    id: "chain-lq-wien-entropy/lq-wien-remove-fixed-constant"
+    readings:
+      r0: "Remove the now-fixed zero term to obtain the entropy density used in the paper."
+      r1: "The boundary condition has set the additive term to zero, so it can now be removed. The remaining expression is the entropy density printed in §4."
+      r2: "The preceding step supplied C(ν) = 0 independently at each frequency. Adding that zero changes no value, so collect the right-hand side into the single logarithmic entropy-density term. This is precisely where the freedom in the antiderivative ends. It would be incorrect to justify this omission by saying that every integration constant cancels in entropy differences: C(ν) is a density, and the total entropy contains the additional volume factor."
+      r3: "Einstein's §3, p. 139, explicitly sets the entropy density to zero at zero radiation density. Section 4 then uses Wien's approximate law to derive the entropy-volume relation. This reconstruction writes A, B, sν and V for the paper's α, β, φ and v, and Δν for its narrow interval dν. The printed argument carries the integration constant implicitly through its stated zero-density boundary condition."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§§3–4, pp. 138–140)."
+  - kind: "derivation-step"
+    id: "chain-lq-wien-entropy/lq-wien-hold-energy-and-band"
+    readings:
+      r0: "Compare the same energy in the same narrow frequency band, so a larger volume means a smaller density."
+      r1: "Hold E, ν and Δν fixed. Then ρν = E/(VΔν) and total entropy is S(V) = VΔν sν. Substituting and multiplying removes VΔν from the prefactor but leaves V inside the logarithm."
+      r2: "For a narrow band whose density is represented by its value at ν, E = VΔνρν and S(V) = VΔνsν. Substitute ρν = E/(VΔν) into the boundary-fixed entropy density, then multiply by VΔν. The prefactor VΔνρν becomes E; the logarithm becomes ln[E/(VΔνAν³)]. Compare equilibrium states with the same E, ν and Δν, and require both states to remain dilute. A moving reflecting wall changes energy and frequency, so its compression process does not keep these constraints."
+      r3: "Einstein's §3, p. 139, explicitly sets the entropy density to zero at zero radiation density. Section 4 then uses Wien's approximate law to derive the entropy-volume relation. This reconstruction writes A, B, sν and V for the paper's α, β, φ and v, and Δν for its narrow interval dν. The printed argument carries the integration constant implicitly through its stated zero-density boundary condition."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§§3–4, pp. 138–140)."
+  - kind: "derivation-step"
+    id: "chain-lq-wien-entropy/lq-wien-subtract-reference-volume"
+    readings:
+      r0: "Subtract the entropy of a reference volume with the same energy and frequency band."
+      r1: "Evaluate the same total-entropy formula at V₀, with E, ν and Δν unchanged. Subtract S(V₀) from S(V) so only their dependence on volume can remain."
+      r2: "Use S(V₀) = −E/(Bν){ln[E/(V₀ΔνAν³)] − 1}, obtained from the preceding formula by evaluating it at the reference volume V₀. Subtract this value from both sides of S(V)'s equation. The two states must satisfy the same fixed-energy, fixed-band constraints and each must be in Wien's dilute regime. The prefactor E/(Bν) is common, and the two constant terms proportional to 1 will cancel in the next collection."
+      r3: "Einstein's §3, p. 139, explicitly sets the entropy density to zero at zero radiation density. Section 4 then uses Wien's approximate law to derive the entropy-volume relation. This reconstruction writes A, B, sν and V for the paper's α, β, φ and v, and Δν for its narrow interval dν. The printed argument carries the integration constant implicitly through its stated zero-density boundary condition."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§§3–4, pp. 138–140)."
+  - kind: "derivation-step"
+    id: "chain-lq-wien-entropy/lq-wien-collect-volume-ratio"
+    readings:
+      r0: "The shared terms cancel, leaving a logarithm of the volume ratio."
+      r1: "The constant terms cancel and the logarithms combine into ln(V/V₀). The entropy change is E/(Bν) times this logarithm: positive for expansion, negative for compression and zero at equal volumes."
+      r2: "Factor E/(Bν). The remaining difference is ln[E/(V₀ΔνAν³)] − ln[E/(VΔνAν³)], since the two minus-one terms cancel. Both logarithm arguments are positive. Their quotient is V/V₀, so the logarithm difference is ln(V/V₀). No division by ln(V/V₀) is used here, so V = V₀ is allowed and gives zero. Had C(ν) remained unfixed, the difference would also contain Δν C(ν)(V − V₀), which generally does not vanish."
+      r3: "Einstein's §3, p. 139, explicitly sets the entropy density to zero at zero radiation density. Section 4 then uses Wien's approximate law to derive the entropy-volume relation. This reconstruction writes A, B, sν and V for the paper's α, β, φ and v, and Δν for its narrow interval dν. The printed argument carries the integration constant implicitly through its stated zero-density boundary condition."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§§3–4, pp. 138–140)."

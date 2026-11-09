@@ -106,19 +106,19 @@ export function DerivationStepComponent({
 
       {/* Reasons at Reader's Detail */}
       <div className="step-reasons">
-        <p className="step-reason" data-detail="0" hidden={activeDetail !== "0"}>
+        <p className="step-reason" data-reading="0" data-detail="0" hidden={activeDetail !== "0"}>
           <noscript>
             <b className="reading-label">In one breath</b>
           </noscript>
           {step.reasons.r0}
         </p>
-        <p className="step-reason" data-detail="1" hidden={activeDetail !== "1"}>
+        <p className="step-reason" data-reading="1" data-detail="1" hidden={activeDetail !== "1"}>
           <noscript>
             <b className="reading-label">Full explanation</b>
           </noscript>
           {step.reasons.r1}
         </p>
-        <p className="step-reason" data-detail="2" hidden={activeDetail !== "2"}>
+        <p className="step-reason" data-reading="2" data-detail="2" hidden={activeDetail !== "2"}>
           <noscript>
             <b className="reading-label">Every step</b>
           </noscript>

@@ -52,8 +52,10 @@ import { ParallelFace } from "./faces/ParallelFace.tsx";
 import { firstUseCallouts } from "./firstUse.ts";
 import {
   LazyClockFirstEncounter,
+  LazyLightQuantaDerivation,
   LazyLightQuantaFirstEncounter,
   LazyMassEnergyFirstEncounter,
+  LazySRLightComplexDerivation,
 } from "./lazyIslands.tsx";
 import { ledgerGaps } from "./ledgerGaps.ts";
 import { MassEnergyDerivation } from "./MassEnergyDerivation.tsx";
@@ -704,6 +706,39 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                       {paper.id === "mass-energy" && a.id === "arg-me-constant-premise" && (
                         <MassEnergyDerivation />
                       )}
+                      {paper.id === "light-quanta" &&
+                        a.id === "arg-lq-fixed-band-volume" &&
+                        (sectionId ? (
+                          <LazyLightQuantaDerivation section="s4" />
+                        ) : (
+                          <p className="fine">
+                            <a href="/papers/light-quanta/s4/#lq-wien-entropy-derivation">
+                              Follow the Wien-law inversion and entropy integration step by step
+                            </a>
+                          </p>
+                        ))}
+                      {paper.id === "light-quanta" &&
+                        a.id === "arg-lq-entropy-correspondence" &&
+                        (sectionId ? (
+                          <LazyLightQuantaDerivation section="s6" />
+                        ) : (
+                          <p className="fine">
+                            <a href="/papers/light-quanta/s6/#lq-entropy-correspondence-derivation">
+                              Follow the entropy comparison and energy per quantum step by step
+                            </a>
+                          </p>
+                        ))}
+                      {paper.id === "special-relativity" &&
+                        a.id === "arg-sr-light-complex" &&
+                        (sectionId ? (
+                          <LazySRLightComplexDerivation />
+                        ) : (
+                          <p className="fine">
+                            <a href="/papers/special-relativity/s8/#sr-light-complex-derivation">
+                              Follow the density, volume, and total energy of the light complex
+                            </a>
+                          </p>
+                        ))}
                       {/* R3, THE HISTORIAN'S MARGIN, IS A DISCLOSURE (am-read-shell-routes-3ua). It was
                           an aside marked hidden that only the modern lens showed, and the lens is set
                           by script, so with JavaScript off nothing reached it. Now it is closed and
