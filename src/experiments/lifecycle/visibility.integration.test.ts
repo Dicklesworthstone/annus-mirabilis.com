@@ -106,10 +106,11 @@ function laboratory(spec: Case, hold = false) {
   };
 }
 
-function visibility(session: Session) {
+function visibility(session: Session, initialNativeState?: "visible" | "hidden") {
   let emit: ((intersecting: boolean) => void) | undefined;
   let disconnected = false;
   let state = "visible";
+  let nativeState = initialNativeState;
   const bounds: DOMRectReadOnly = {
     x: 0,
     y: 0,
@@ -151,6 +152,15 @@ function visibility(session: Session) {
       }
     },
   });
+  if (initialNativeState !== undefined) {
+    Object.assign(view, {
+      __AM_APP__: {
+        get visibility() {
+          return nativeState;
+        },
+      },
+    });
+  }
   Object.defineProperty(document, "visibilityState", { get: () => state });
   Object.assign(document, { defaultView: view });
   const element = { ownerDocument: document, dataset: {} } as unknown as HTMLElement;
@@ -162,6 +172,12 @@ function visibility(session: Session) {
     documentVisible(value: boolean) {
       state = value ? "visible" : "hidden";
       document.dispatchEvent(new Event("visibilitychange"));
+    },
+    nativeVisible(value: boolean) {
+      nativeState = value ? "visible" : "hidden";
+      view.dispatchEvent(
+        new CustomEvent("am-app:lifecycle.visibility", { detail: { state: nativeState } }),
+      );
     },
     page: (event: "pagehide" | "pageshow") => view.dispatchEvent(new Event(event)),
     get disconnected() {
@@ -195,6 +211,37 @@ function apply(session: Session, input: unknown) {
 }
 
 for (const spec of cases) {
+  test(`${spec.id}: a native hide before mount blocks work, and native show cannot override a hidden document`, async () => {
+    const lab = laboratory(spec);
+    const visible = visibility(lab.session, "hidden");
+    try {
+      visible.intersect(true);
+      apply(lab.session, spec.parameters);
+      expect(lab.creations).toBe(0);
+      expect(lab.session.getSnapshot().pending).toBe(true);
+      visible.nativeVisible(true);
+      await until(() => !lab.session.getSnapshot().pending);
+      expect(lab.creations).toBe(1);
+      const before = accepted(lab.session);
+      const sent = lab.messages.length;
+      visible.nativeVisible(false);
+      for (const measurement of spec.measurements)
+        apply(lab.session, { ...spec.parameters, ...measurement });
+      expect(lab.messages.length).toBe(sent);
+      expect(accepted(lab.session)).toBe(before);
+      visible.documentVisible(false);
+      visible.nativeVisible(true);
+      expect(lab.messages.length).toBe(sent);
+      visible.documentVisible(true);
+      await until(() => !lab.session.getSnapshot().pending);
+      expect(accepted(lab.session).runId).toBe(before.runId);
+      expect(lab.disposals).toBe(0);
+    } finally {
+      visible.cleanup();
+      lab.session.disconnect();
+    }
+  });
+
   test(`${spec.id}: visible work dispatches; hidden requests coalesce and resume the same scientific run`, async () => {
     const lab = laboratory(spec);
     const control = laboratory(spec);

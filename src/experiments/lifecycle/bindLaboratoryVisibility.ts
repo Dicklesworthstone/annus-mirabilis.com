@@ -17,9 +17,11 @@ export function bindLaboratoryVisibility(
   const document = element.ownerDocument;
   const view = document.defaultView;
   if (!view) return () => {};
+  const app = (view as Window & { __AM_APP__?: { readonly visibility?: unknown } }).__AM_APP__;
+  let nativeVisible = app?.visibility !== "hidden";
   const hasObserver = typeof view.IntersectionObserver === "function";
   const coordinator = new VisibilityCoordinator({
-    initialDocumentVisible: document.visibilityState !== "hidden",
+    initialDocumentVisible: document.visibilityState !== "hidden" && nativeVisible,
     // Wait for the first measured intersection before starting work. Browsers without the
     // observer retain their manual controls and still pause for background tabs and pagehide.
     initialIntersecting: !hasObserver,
@@ -31,8 +33,16 @@ export function bindLaboratoryVisibility(
     element.dataset.labVisibility = coordinator.pauseReason ?? "visible";
   };
   const visibility = () => {
-    coordinator.setDocumentVisibility(document.visibilityState !== "hidden");
+    coordinator.setDocumentVisibility(document.visibilityState !== "hidden" && nativeVisible);
     update();
+  };
+  const nativeVisibility = (event: Event) => {
+    if (!app) return;
+    const detail: unknown = (event as CustomEvent<unknown>).detail;
+    if (detail === null || typeof detail !== "object" || !("state" in detail)) return;
+    if (detail.state !== "visible" && detail.state !== "hidden") return;
+    nativeVisible = detail.state === "visible";
+    visibility();
   };
   const hide = () => {
     coordinator.setPageHide(true);
@@ -51,6 +61,7 @@ export function bindLaboratoryVisibility(
       })
     : null;
   document.addEventListener("visibilitychange", visibility);
+  view.addEventListener("am-app:lifecycle.visibility", nativeVisibility);
   view.addEventListener("pagehide", hide);
   view.addEventListener("pageshow", show);
   update();
@@ -59,6 +70,7 @@ export function bindLaboratoryVisibility(
     disposed = true;
     observer?.disconnect();
     document.removeEventListener("visibilitychange", visibility);
+    view.removeEventListener("am-app:lifecycle.visibility", nativeVisibility);
     view.removeEventListener("pagehide", hide);
     view.removeEventListener("pageshow", show);
     // Unmount's owner cleanup decides whether to disconnect. Never dispatch queued work here.

@@ -312,6 +312,42 @@ describe("the bridge user script", () => {
     assert.doesNotThrow(() => page.run());
     assert.equal(page.window.__AM_APP__, first);
   });
+
+  it("retains native visibility before subscribers mount and updates it before emitting", () => {
+    const page = sandbox({ inApp: true, readyState: "loading" });
+    page.run();
+    const app = page.window.__AM_APP__ as {
+      readonly visibility: "visible" | "hidden" | null;
+      dispatch(name: string, payload: unknown): boolean;
+    };
+    assert.equal(app.visibility, null);
+    assert.equal(app.dispatch("lifecycle.visibility", { state: "hidden" }), true);
+    assert.equal(app.visibility, "hidden", "a later subscriber can observe the earlier hide");
+    const seen: unknown[] = [];
+    (page.window.addEventListener as (type: string, listener: Listener) => void)(
+      "am-app:lifecycle.visibility",
+      () => seen.push(app.visibility),
+    );
+    app.dispatch("lifecycle.visibility", { state: "visible" });
+    assert.deepEqual(seen, ["visible"]);
+    assert.equal(Object.isFrozen(app), true);
+  });
+
+  it("malformed native visibility cannot wake a hidden reader or emit a misleading event", () => {
+    const page = sandbox({ inApp: true });
+    page.run();
+    const app = page.window.__AM_APP__ as {
+      readonly visibility: string | null;
+      dispatch(name: string, payload: unknown): boolean;
+    };
+    app.dispatch("lifecycle.visibility", { state: "hidden" });
+    const emitted = page.dispatched.length;
+    for (const invalid of [null, true, "visible", {}, { state: true }, { state: "background" }]) {
+      assert.equal(app.dispatch("lifecycle.visibility", invalid), false);
+      assert.equal(app.visibility, "hidden");
+    }
+    assert.equal(page.dispatched.length, emitted);
+  });
 });
 
 describe("theme", () => {

@@ -112,9 +112,19 @@ export function installBridge(
       return Promise.resolve(undefined);
     }
   };
+  // Native can cover the reader before React mounts. Retain that state for late subscribers.
+  let nativeVisibility: "visible" | "hidden" | null = null;
   const dispatch = (name: string, payload: unknown): boolean => {
     if (eventNames.indexOf(name) === -1) {
       return false;
+    }
+    if (name === "lifecycle.visibility") {
+      const state =
+        payload !== null && typeof payload === "object" && "state" in payload
+          ? payload.state
+          : undefined;
+      if (state !== "visible" && state !== "hidden") return false;
+      nativeVisibility = state;
     }
     try {
       window.dispatchEvent(new CustomEvent(`am-app:${name}`, { detail: payload }));
@@ -128,6 +138,9 @@ export function installBridge(
       bridgeVersion: version,
       capabilities: Object.freeze(capabilities.slice()),
       settings: w.__AM_APP_SETTINGS__ ?? Object.freeze({}),
+      get visibility() {
+        return nativeVisibility;
+      },
       dispatch,
     }),
     writable: false,
