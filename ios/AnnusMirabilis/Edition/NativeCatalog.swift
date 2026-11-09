@@ -28,7 +28,20 @@ struct NativeCatalog: Sendable, Equatable {
         let description: String
         let route: String
         let sections: [CatalogRecord<Section>]
+        var workingTitle: String?
+        var locator: String?
+        var pageCount: Int?
+        var firstPage: Int?
+        var lastPage: Int?
+        var availabilityNotice: String?
         var id: String { slug }
+    }
+
+    struct Portrait: Decodable, Sendable, Equatable {
+        let path: String
+        let alt: String
+        let credit: String
+        let recordURL: String
     }
 
     struct DiscoverRoute: Decodable, Sendable, Equatable, Identifiable {
@@ -57,6 +70,7 @@ struct NativeCatalog: Sendable, Equatable {
     let papers: CatalogList<Paper>
     let discover: CatalogList<DiscoverRoute>
     let labs: CatalogList<LabGroup>
+    var portrait: CatalogRecord<Portrait>?
 
     /// Every page the catalogue opens, with its anchor when it has one. Unavailable records open none.
     var destinations: [(route: String, anchor: String?)] {
@@ -79,6 +93,7 @@ struct NativeCatalog: Sendable, Equatable {
         var problems: [String] = papers.problems
         problems += discover.problems
         problems += labs.problems
+        if let problem = portrait?.problem { problems.append(problem) }
         for paper in papers.available {
             problems += paper.sections.compactMap(\.problem)
         }
@@ -112,7 +127,7 @@ struct NativeCatalog: Sendable, Equatable {
 
 extension NativeCatalog: Decodable {
     private enum CodingKeys: String, CodingKey {
-        case schemaVersion, papers, discover, labs
+        case schemaVersion, papers, discover, labs, portrait
     }
 
     init(from decoder: any Decoder) throws {
@@ -126,6 +141,8 @@ extension NativeCatalog: Decodable {
         papers = CatalogList(container, .papers)
         discover = CatalogList(container, .discover)
         labs = CatalogList(container, .labs)
+        // An invalid optional image is isolated just like an invalid paper or section.
+        portrait = try container.decodeIfPresent(CatalogRecord<Portrait>.self, forKey: .portrait)
     }
 }
 

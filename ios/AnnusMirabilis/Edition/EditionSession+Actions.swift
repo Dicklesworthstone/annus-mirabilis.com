@@ -56,7 +56,8 @@ extension EditionSession {
     }
 
     /// Loads a page of the edition, remembering it as the page to retry if it fails.
-    func load(_ url: URL) {
+    func load(_ url: URL, revealReader: Bool = true) {
+        if revealReader { self.revealReader(url) }
         lastRequestedURL = url
         webView.load(URLRequest(url: url))
     }

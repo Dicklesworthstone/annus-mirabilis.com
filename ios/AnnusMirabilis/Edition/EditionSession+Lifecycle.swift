@@ -35,7 +35,16 @@ extension EditionSession {
 
     /// The scene came to the foreground or went to the background.
     func sceneDidChange(_ phase: ScenePhase) {
-        if let event = LifecycleEvent.visibility(for: phase) { send(event) }
+        guard let event = LifecycleEvent.visibility(for: phase), case .visibility(let visible) = event else { return }
+        sceneInForeground = visible
+        if visible { refreshPaperPositions() }
+        sendReaderVisibility()
+    }
+
+    /// Native catalogues cover a still-mounted WebKit view. System visibility alone cannot see
+    /// that, so the shell uses the same lifecycle event the runtime already understands.
+    func sendReaderVisibility() {
+        send(.visibility(visible: readerIsVisible))
     }
 
     /// The device's thermal state and Low Power Mode, as one event.

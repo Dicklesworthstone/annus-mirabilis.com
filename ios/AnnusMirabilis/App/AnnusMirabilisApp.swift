@@ -18,7 +18,9 @@ enum EditionStore {
     /// A new reader session, opened where the reader left off. Nil when the
     /// installed copy has lost its edition.
     @MainActor
-    static func makeSession(arguments: [String] = ProcessInfo.processInfo.arguments) -> EditionSession? {
+    static func makeSession(
+        arguments: [String] = ProcessInfo.processInfo.arguments, shellState: String? = nil
+    ) -> EditionSession? {
         guard case .success(let catalog) = catalog else { return nil }
         var defaults = UserDefaults.standard
         var exposesRoute = false
@@ -43,21 +45,23 @@ enum EditionStore {
             }
         #endif
         let store = ReaderLocationStore(defaults: defaults)
-        let start = startURL(launchURL: launchURL, saved: store.load(), catalog: catalog)
+        let restored = EditionShellState.restored(
+            from: ephemeral ? nil : shellState, fallback: store.load(), in: catalog)
+        let start = startURL(launchURL: launchURL, saved: restored.location ?? store.load(), catalog: catalog)
         let session = EditionSession(
             catalog: catalog, store: store, exposesRouteForTests: exposesRoute, ephemeralWebStorage: ephemeral,
             readerData: readerData, themeStore: PageThemeStore(defaults: defaults),
-            contentSize: UIApplication.shared.preferredContentSizeCategory)
+            contentSize: UIApplication.shared.preferredContentSizeCategory, shellState: shellState)
         #if DEBUG
             if let debugLaunch { session.apply(debugLaunch) }
         #endif
         if holdLoad {
             Task { @MainActor in
                 try? await Task.sleep(for: .seconds(3))
-                session.load(start)
+                session.load(start, revealReader: launchURL != nil)
             }
         } else {
-            session.load(start)
+            session.load(start, revealReader: launchURL != nil)
         }
         if let siteLink { session.openSiteLink(siteLink) }
         return session
@@ -92,47 +96,53 @@ struct RootView: View {
     @State private var unavailable = false
     /// A website link that arrived before the session existed (a universal link at launch).
     @State private var pendingSiteLink: URL?
+    @SceneStorage("annus-mirabilis.app.shell.v1") private var shellState = ""
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         Group {
             if let session {
-                EditionWebView(session: session)
-                    .ignoresSafeArea()
-                    .preferredColorScheme(session.pageColorScheme)
-                    // Under the page actions, so Contents still reaches every other page.
-                    .overlay {
-                        if session.loadFailure != nil {
-                            LoadFailureView { session.retryLoad() }
-                        }
-                    }
-                    .overlay(alignment: .bottomTrailing) {
-                        PageActionsButton(session: session)
-                            .padding(.trailing, 16)
-                            .padding(.bottom, 12)
-                    }
-                    .overlay(alignment: .topLeading) {
-                        #if DEBUG
-                            if session.exposesRouteForTests {
-                                DebugPasteboardProbe()
-                                DebugProbe(text: session.pageTypeSize.map(String.init) ?? "none", id: "debug-type-size")
-                                DebugProbe(
-                                    text: session.lastSafariLink?.absoluteString ?? "none", id: "debug-safari-link")
-                                DebugProbe(text: String(session.webProcessTerminations), id: "debug-web-terminations")
-                                DebugProbe(text: session.mirroredKeys.joined(separator: ","), id: "debug-mirror")
-                                // WebKit's own address for the page, which follows pushState steps
-                                // that the bridge's route does not (ReturnStackUITests).
-                                DebugProbe(text: session.currentURL?.absoluteString ?? "none", id: "debug-url")
-                                DebugProbe(
-                                    text: session.deliveredLifecycleEvents.joined(separator: ", "),
-                                    id: "debug-lifecycle")
+                EditionShellView(session: session) {
+                    EditionWebView(session: session)
+                        .preferredColorScheme(session.pageColorScheme)
+                        // Under the page actions, so Contents still reaches every other page.
+                        .overlay {
+                            if session.loadFailure != nil {
+                                LoadFailureView { session.retryLoad() }
                             }
-                        #endif
-                    }
-                    .onChange(of: scenePhase, initial: true) { _, phase in
-                        if phase == .active { session.handoff.becomeCurrent() }
-                        session.sceneDidChange(phase)
-                    }
+                        }
+                        .overlay(alignment: .bottomTrailing) {
+                            PageActionsButton(session: session, embeddedInShell: true)
+                                .padding(.trailing, 16)
+                                .padding(.bottom, 12)
+                        }
+                        .overlay(alignment: .topLeading) {
+                            #if DEBUG
+                                if session.exposesRouteForTests {
+                                    DebugPasteboardProbe()
+                                    DebugProbe(text: session.pageTypeSize.map(String.init) ?? "none", id: "debug-type-size")
+                                    DebugProbe(
+                                        text: session.lastSafariLink?.absoluteString ?? "none", id: "debug-safari-link")
+                                    DebugProbe(text: String(session.webProcessTerminations), id: "debug-web-terminations")
+                                    DebugProbe(text: session.mirroredKeys.joined(separator: ","), id: "debug-mirror")
+                                    // WebKit's own address for the page, which follows pushState steps
+                                    // that the bridge's route does not (ReturnStackUITests).
+                                    DebugProbe(text: session.currentURL?.absoluteString ?? "none", id: "debug-url")
+                                    DebugProbe(
+                                        text: session.deliveredLifecycleEvents.joined(separator: ", "),
+                                        id: "debug-lifecycle")
+                                }
+                            #endif
+                        }
+                }
+                .preferredColorScheme(session.pageColorScheme)
+                .onChange(of: session.shell, initial: true) { _, state in
+                    if session.savesSceneState { shellState = state.serialized }
+                }
+                .onChange(of: scenePhase, initial: true) { _, phase in
+                    if phase == .active { session.handoff.becomeCurrent() }
+                    session.sceneDidChange(phase)
+                }
             } else if unavailable {
                 EditionUnavailableView()
             } else {
@@ -142,7 +152,7 @@ struct RootView: View {
         }
         .onAppear {
             guard session == nil, !unavailable else { return }
-            session = EditionStore.makeSession()
+            session = EditionStore.makeSession(shellState: shellState)
             unavailable = session == nil
             if let session, let link = pendingSiteLink {
                 pendingSiteLink = nil

@@ -11,7 +11,7 @@ final class LaunchUITests: XCTestCase {
     @MainActor
     func testLaunchShowsTheBundledHomePage() throws {
         let app = XCUIApplication()
-        app.launchArguments = ["-AMUITest"]
+        app.launchArguments = ["-AMUITest", "-AMStateSuite", "home-\(UUID().uuidString)", "-AMOpenRoute", "/"]
         app.launch(for: self)
 
         let edition = app.webViews["edition-web-view"]

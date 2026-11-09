@@ -19,6 +19,11 @@ import { join } from "node:path";
 import { ROUTE_INDEX } from "../../src/discovery/routeIndex.ts";
 import { CATALOGUE_IDS, CATALOGUE_STATUS } from "../../src/experiments/catalogue.ts";
 import { labName } from "../../src/reader/actions/labNames.ts";
+import {
+  buildNativeLibrary,
+  type NativeLibraryPaper,
+  type NativeLibraryPortrait,
+} from "./native-library.ts";
 
 export const NATIVE_CATALOG_FILE = "native-catalog.json";
 export const NATIVE_CATALOG_SCHEMA = "annus-mirabilis-native-catalog.v1";
@@ -30,7 +35,7 @@ export interface NativeCatalogSection {
   readonly anchor: string;
 }
 
-export interface NativeCatalogPaper {
+export interface NativeCatalogPaper extends NativeLibraryPaper {
   readonly slug: string;
   /** The short name /papers/ and the home page use ("Brownian motion"). */
   readonly name: string;
@@ -63,6 +68,7 @@ export interface NativeCatalogLabGroup {
 
 export interface NativeCatalog {
   readonly schemaVersion: typeof NATIVE_CATALOG_SCHEMA;
+  readonly portrait?: NativeLibraryPortrait;
   readonly papers: readonly NativeCatalogPaper[];
   readonly discover: readonly NativeCatalogRoute[];
   readonly labs: readonly NativeCatalogLabGroup[];
@@ -89,6 +95,7 @@ const LAB_PREFIXES: readonly (readonly [prefix: string, paper: string])[] = [
 ];
 
 export function buildNativeCatalog(contentDir: string): NativeCatalog {
+  const library = buildNativeLibrary(contentDir);
   const papers = ROUTE_INDEX.map((entry): NativeCatalogPaper => {
     const record = JSON.parse(
       readFileSync(join(contentDir, "papers", `${entry.slug}.json`), "utf8"),
@@ -101,6 +108,7 @@ export function buildNativeCatalog(contentDir: string): NativeCatalog {
       germanTitle: record.germanTitle,
       description: record.description,
       route,
+      ...library.papers.get(entry.slug),
       sections: record.sections.map((section) => ({
         id: section.id,
         title: section.title,
@@ -131,7 +139,13 @@ export function buildNativeCatalog(contentDir: string): NativeCatalog {
         .map((id) => ({ id, name: labName(id), route: `/lab/${id}/` })),
     }),
   ).filter((group) => group.instruments.length > 0);
-  return { schemaVersion: NATIVE_CATALOG_SCHEMA, papers, discover, labs };
+  return {
+    schemaVersion: NATIVE_CATALOG_SCHEMA,
+    papers,
+    discover,
+    labs,
+    ...(library.portrait ? { portrait: library.portrait } : {}),
+  };
 }
 
 /** Registered instruments no paper claims; the catalogue leaves them out, and says so here. */

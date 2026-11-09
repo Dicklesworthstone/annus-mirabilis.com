@@ -3,9 +3,10 @@ import { firstPagePlate, loadFirstPages } from "../../components/home/firstPages
 import "../../components/home/firstPages.css";
 import "./papersIndex.css";
 import "../../components/home/wideProse.css";
-import { type GermanTextState, germanTextState } from "../../content/germanTextState.ts";
+import { germanTextState } from "../../content/germanTextState.ts";
 import type { RouteSlug } from "../../content/ids.ts";
-import { type PaperTranslation, translationState } from "../../content/translationState.ts";
+import { missingReadingLayers } from "../../content/paperAvailability.ts";
+import { translationState } from "../../content/translationState.ts";
 import { FACE_REGISTRY } from "../../reader/faces/registry.ts";
 import { paperFacts, readableDate } from "./paperFacts.ts";
 
@@ -15,17 +16,6 @@ import { paperFacts, readableDate } from "./paperFacts.ts";
  * · English translation checked by AI agents"), at the owner's word
  * (D-2026-09-25-no-review-status-banners).
  */
-function missingLayers(
-  german: GermanTextState,
-  translation: PaperTranslation | undefined,
-): string | null {
-  const missing = [
-    ...(german === "not-started" ? ["the German text"] : []),
-    ...(translation === undefined || translation.units === 0 ? ["the English translation"] : []),
-  ];
-  return missing.length === 0 ? null : `Not yet available: ${missing.join(" and ")}.`;
-}
-
 export const metadata: Metadata = {
   title: "The four papers",
   description:
@@ -104,7 +94,7 @@ export default function Papers() {
   const factsOf = (slug: string) => facts.find((f) => f.slug === slug);
   const translations = translationState(process.cwd());
   const missingOf = (slug: string) =>
-    missingLayers(
+    missingReadingLayers(
       germanTextState(slug as RouteSlug),
       translations.find((t) => t.slug === slug),
     );

@@ -39,6 +39,7 @@ final class EditionReaderWebView: WKWebView {
 @MainActor
 struct PageActionsButton: View {
     @Bindable var session: EditionSession
+    var embeddedInShell = false
     @State private var showingReaderData = false
     @State private var showingContents = false
     @State private var showingFacsimiles = false
@@ -51,7 +52,7 @@ struct PageActionsButton: View {
     var body: some View {
         HStack(spacing: 8) {
             Button {
-                session.showingSearch = true
+                if embeddedInShell { session.selectShellSection(.search) } else { session.showingSearch = true }
             } label: {
                 Image(systemName: "magnifyingglass")
                     .font(.body.weight(.semibold))
@@ -69,8 +70,12 @@ struct PageActionsButton: View {
             }
             pageActions
         }
-        .sheet(isPresented: $session.showingSearch) {
+        .sheet(isPresented: Binding(
+            get: { !embeddedInShell && session.showingSearch },
+            set: { session.showingSearch = $0 }))
+        {
             EditionSearchView(session: session)
+                .pausesEditionReader(session)
                 .preferredColorScheme(session.pageColorScheme)
                 .presentationBackground(Color("LaunchBackground"))
                 .pageSizedSheet()
@@ -139,21 +144,24 @@ struct PageActionsButton: View {
         // A sheet is its own presentation: without this it follows the device, not the reader's theme.
         .sheet(isPresented: $showingReaderData) {
             ReaderDataView(session: session)
+                .pausesEditionReader(session)
                 .preferredColorScheme(session.pageColorScheme)
                 .presentationBackground(Color("LaunchBackground"))
                 .pageSizedSheet()
         }
         .sheet(isPresented: $showingFacsimiles) {
             FacsimileManagerView(session: session)
+                .pausesEditionReader(session)
                 .preferredColorScheme(session.pageColorScheme)
                 .presentationBackground(Color("LaunchBackground"))
                 .pageSizedSheet()
         }
         .sheet(isPresented: $showingContents) {
             if let catalog = session.nativeCatalog {
-                EditionContentsView(catalog: catalog) { route, anchor in
+                EditionContentsView(catalog: catalog, open: { route, anchor in
                     session.open(route: route, anchor: anchor)
-                }
+                }, session: session)
+                .pausesEditionReader(session)
                 .preferredColorScheme(session.pageColorScheme)
                 .presentationBackground(Color("LaunchBackground"))
                 .pageSizedSheet()
@@ -187,12 +195,13 @@ private struct FloatingSurface: ViewModifier {
 @MainActor
 struct EditionSearchView: View {
     let session: EditionSession
+    let embedded: Bool
     @State private var model: NativeSearchModel
     @State private var query = ""
     @State private var paper = ""
     @State private var type = ""
     @State private var retry = 0
-    @State private var isSearching = true
+    @State private var isSearching: Bool
     @Environment(\.dismiss) private var dismiss
 
     private struct Request: Equatable {
@@ -202,8 +211,10 @@ struct EditionSearchView: View {
         let retry: Int
     }
 
-    init(session: EditionSession) {
+    init(session: EditionSession, embedded: Bool = false) {
         self.session = session
+        self.embedded = embedded
+        _isSearching = State(initialValue: !embedded || (session.shell.section == .search && !session.shell.showingReader))
         _model = State(
             initialValue: NativeSearchModel(engine: session.searchEngine, recents: session.recentSearches))
     }
@@ -226,14 +237,23 @@ struct EditionSearchView: View {
             .scrollDismissesKeyboard(.interactively)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) { filters }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
-                        .tint(Color("PageInk"))
-                        .accessibilityIdentifier("native-search-done")
+                if !embedded {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Done") { dismiss() }
+                            .tint(Color("PageInk"))
+                            .accessibilityIdentifier("native-search-done")
+                    }
+                } else {
+                    ToolbarItem(placement: .confirmationAction) {
+                        EditionReturnToReader(session: session, identifier: "native-search-done")
+                    }
                 }
             }
             .task(id: Request(query: query, paper: paper, type: type, retry: retry)) {
                 await model.update(query: query, paper: paper, type: type)
+            }
+            .onChange(of: session.shell.section == .search && !session.shell.showingReader) { _, active in
+                if embedded { isSearching = active }
             }
         }
     }
@@ -356,7 +376,7 @@ struct EditionSearchView: View {
             guard let destination else { return }
             model.remember(query)
             session.load(destination)
-            dismiss()
+            if !embedded { dismiss() }
         } label: {
             VStack(alignment: .leading, spacing: 5) {
                 Text(hit.title).font(.headline).foregroundStyle(Color("PageInk"))

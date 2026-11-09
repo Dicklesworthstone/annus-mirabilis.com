@@ -103,6 +103,14 @@ final class ContentsUITests: XCTestCase {
         waitForRoute("/lab/bm-01/", in: app)
 
         app.buttons["native-search"].tap()
+        XCTAssertTrue(field.waitForExistence(timeout: 10))
+        // A retained native tab still has its query. Emptying it exposes the same private recents
+        // that a freshly reconstructed sidebar destination shows immediately.
+        if field.value as? String == "Tracer ensemble" {
+            let erase = field.buttons["Clear text"]
+            XCTAssertTrue(erase.waitForExistence(timeout: 10))
+            erase.tap()
+        }
         let recent = app.buttons.matching(
             NSPredicate(
                 format: "identifier == %@ AND label CONTAINS %@",

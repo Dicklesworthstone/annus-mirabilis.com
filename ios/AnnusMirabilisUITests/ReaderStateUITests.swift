@@ -50,9 +50,47 @@ final class ReaderStateUITests: XCTestCase {
     }
 
     @MainActor
-    func testAFreshInstallOpensTheHomePage() throws {
+    func testAFreshInstallOpensTheNativeLibraryAndCanReturnToTheEdition() throws {
         let app = launch(suite: "uitest-\(UUID().uuidString)")
+        let paper = app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Brownian motion'")).firstMatch
+        XCTAssertTrue(paper.waitForExistence(timeout: 30), "a fresh reader never reached the native library")
+        XCTAssertFalse(app.webViews["edition-web-view"].isHittable, "the parked page covers the native library")
+        let reader = app.buttons["return-to-reader"]
+        XCTAssertTrue(reader.waitForExistence(timeout: 10))
+        reader.tap()
         waitForRoute("/", in: app)
+    }
+
+    @MainActor
+    func testNativeEntrancesKeepTheParkedPassageAndContinueReading() throws {
+        let app = launch(
+            suite: "uitest-shell-\(UUID().uuidString)",
+            ["-AMOpenRoute", "/papers/brownian-motion/", "-AMOpenAnchor", "s4"])
+        waitForRoute("/papers/brownian-motion/#s4", in: app)
+        let back = app.buttons["reader-back-to-contents"]
+        XCTAssertTrue(back.waitForExistence(timeout: 10), "the reader has no way back to native navigation")
+        back.tap()
+
+        let continued = app.buttons["continue-reading-brownian-motion"]
+        for _ in 0..<6 where !continued.isHittable { app.swipeUp() }
+        XCTAssertTrue(continued.waitForExistence(timeout: 10), "the exact paper has no remembered passage")
+        continued.tap()
+        waitForRoute("/papers/brownian-motion/#s4", in: app)
+
+        // The same actions work through the iPhone's tabs or the iPad's persistent sidebar.
+        for section in ["Discover", "Lab", "More", "Read"] {
+            let tab = app.tabBars.buttons[section]
+            let sidebar = app.descendants(matching: .any).matching(
+                identifier: "shell-section-\(section.lowercased())").firstMatch
+            let control = tab.exists ? tab : sidebar
+            XCTAssertTrue(control.waitForExistence(timeout: 10), "no native \(section) entrance")
+            control.tap()
+            let resume = app.buttons["return-to-reader"]
+            XCTAssertTrue(resume.waitForExistence(timeout: 10), "\(section) strands the parked reader")
+            resume.tap()
+            waitForRoute("/papers/brownian-motion/#s4", in: app)
+        }
+        keep(app, "native-shell-preserved-passage")
     }
 
     @MainActor

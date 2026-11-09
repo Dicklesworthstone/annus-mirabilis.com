@@ -36,7 +36,12 @@ struct ReaderLocation: Codable, Equatable, Sendable {
     /// The page in this edition, or nil when this edition no longer has it,
     /// which happens after an update removes or renames a page.
     func url(in catalog: EditionCatalog) -> URL? {
-        guard version == Self.currentVersion, path.hasPrefix("/") else { return nil }
+        guard version == Self.currentVersion, path.hasPrefix("/"),
+            Self.isEncoded(path, allowed: .urlPathAllowed),
+            query.map({ Self.isEncoded($0, allowed: .urlQueryAllowed) }) ?? true,
+            anchor.map({ Self.isEncoded($0, allowed: .urlFragmentAllowed) }) ?? true,
+            display.utf8.count <= 8192
+        else { return nil }
         var components = URLComponents()
         components.scheme = EditionCatalog.scheme
         components.host = EditionCatalog.host
@@ -49,6 +54,34 @@ struct ReaderLocation: Codable, Equatable, Sendable {
         return url
     }
 
+    /// URLComponents' percentEncoded setters require well-formed escapes. Stored data can be
+    /// corrupt, so reject it before those setters instead of letting Foundation raise an exception.
+    private static func isEncoded(_ value: String, allowed: CharacterSet) -> Bool {
+        let bytes = Array(value.utf8)
+        var index = 0
+        while index < bytes.count {
+            if bytes[index] == 37 {
+                guard index + 2 < bytes.count,
+                    bytes[(index + 1)...(index + 2)].allSatisfy({
+                        (48...57).contains($0) || (65...70).contains($0) || (97...102).contains($0)
+                    })
+                else { return false }
+                index += 3
+            } else {
+                guard bytes[index] < 128, allowed.contains(UnicodeScalar(bytes[index])) else { return false }
+                index += 1
+            }
+        }
+        return true
+    }
+
+    /// The exact paper segment, not a substring match (brownian-motion-extra is another paper).
+    func paperSlug(admitted: Set<String>) -> String? {
+        let parts = path.split(separator: "/", omittingEmptySubsequences: true)
+        guard parts.count >= 2, parts[0] == "papers", admitted.contains(String(parts[1])) else { return nil }
+        return String(parts[1])
+    }
+
     /// The route as the address bar would show it, for tests and logs.
     var display: String {
         path + (query.map { "?\($0)" } ?? "") + (anchor.map { "#\($0)" } ?? "")
@@ -59,6 +92,12 @@ struct ReaderLocation: Codable, Equatable, Sendable {
 /// older-version record reads as nothing, and the app opens the home page.
 struct ReaderLocationStore {
     static let key = "annus-mirabilis.app.reader-location.v1"
+    static let positionsKey = "am:app:positions:v1"
+
+    private struct PaperPositions: Codable {
+        var version = 1
+        var locations: [String: ReaderLocation]
+    }
 
     let defaults: UserDefaults
 
@@ -73,6 +112,32 @@ struct ReaderLocationStore {
             location.version == ReaderLocation.currentVersion
         else { return nil }
         return location
+    }
+
+    /// Public passage addresses, kept privately on this device. No note text enters this namespace.
+    func paperPositions(in catalog: EditionCatalog, admitted: Set<String>) -> [String: ReaderLocation] {
+        guard let bytes = defaults.data(forKey: Self.positionsKey), bytes.count <= 65_536,
+            let record = try? JSONDecoder().decode(PaperPositions.self, from: bytes), record.version == 1
+        else { return [:] }
+        return record.locations.filter { slug, location in
+            location.paperSlug(admitted: admitted) == slug && location.url(in: catalog) != nil
+        }
+    }
+
+    func savePaperPosition(_ location: ReaderLocation, in catalog: EditionCatalog, admitted: Set<String>) {
+        guard location.url(in: catalog) != nil, let slug = location.paperSlug(admitted: admitted) else { return }
+        var locations = paperPositions(in: catalog, admitted: admitted)
+        locations[slug] = location
+        guard let bytes = try? JSONEncoder().encode(PaperPositions(locations: locations)), bytes.count <= 65_536 else {
+            return
+        }
+        defaults.set(bytes, forKey: Self.positionsKey)
+    }
+
+    /// A reader action in Your data; it affects only native reading positions, not notes or settings.
+    func clearReadingPositions() {
+        defaults.removeObject(forKey: Self.positionsKey)
+        defaults.removeObject(forKey: Self.key)
     }
 }
 

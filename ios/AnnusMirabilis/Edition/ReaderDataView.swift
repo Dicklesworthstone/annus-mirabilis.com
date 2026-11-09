@@ -7,6 +7,7 @@ struct ReaderDataView: View {
     let session: EditionSession
     @Environment(\.dismiss) private var dismiss
     @State private var loaded: ReaderData.LoadResult?
+    @State private var confirmingPositionsClear = false
 
     private static let footnote = """
         The app keeps its own copy of what the edition saves, so it survives if the web view's \
@@ -15,43 +16,62 @@ struct ReaderDataView: View {
 
     var body: some View {
         NavigationStack {
-            content
-                .navigationTitle("Your data on this device")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("Done") { dismiss() }
-                            .tint(Color("PageInk"))
-                    }
+            List {
+                content
+                readingPositions
+            }
+            .onEditionPaper()
+            .accessibilityIdentifier("reader-data-list")
+            .navigationTitle("Your data on this device")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") { dismiss() }
+                        .tint(Color("PageInk"))
                 }
+            }
         }
         .onAppear { loaded = session.loadReaderData() }
+        .confirmationDialog(
+            "Forget saved reading places?", isPresented: $confirmingPositionsClear, titleVisibility: .visible
+        ) {
+            Button("Forget reading places", role: .destructive) { session.clearReadingPositions() }
+        } message: {
+            Text("This clears the app's saved passage addresses. Your notes, searches, settings and downloads stay here.")
+        }
+    }
+
+    private var readingPositions: some View {
+        Section("Saved reading places") {
+            Text("Continue reading remembers one passage per paper on this device.")
+                .font(.footnote).foregroundStyle(Color("MutedInk"))
+            Button("Forget reading places", role: .destructive) { confirmingPositionsClear = true }
+                .disabled(session.paperPositions.isEmpty && session.shell.location == nil)
+                .accessibilityIdentifier("reader-data-clear-positions")
+        }
+        .editionPaperRow()
     }
 
     @ViewBuilder private var content: some View {
         switch loaded {
         case .data(let data) where !data.held().isEmpty:
-            List {
-                Section {
-                    ForEach(data.held(), id: \.key) { entry in
-                        row(entry, in: data)
-                    }
-                } footer: {
-                    Text(Self.footnote)
+            Section {
+                ForEach(data.held(), id: \.key) { entry in
+                    row(entry, in: data)
                 }
-                .editionPaperRow()
-                Section {
-                    Button {
-                        session.share(data.export(at: Date()))
-                    } label: {
-                        Label("Export all of it (JSON)", systemImage: "square.and.arrow.up")
-                    }
-                    .accessibilityIdentifier("reader-data-export-all")
-                }
-                .editionPaperRow()
+            } footer: {
+                Text(Self.footnote)
             }
-            .onEditionPaper()
-            .accessibilityIdentifier("reader-data-list")
+            .editionPaperRow()
+            Section {
+                Button {
+                    session.share(data.export(at: Date()))
+                } label: {
+                    Label("Export all of it (JSON)", systemImage: "square.and.arrow.up")
+                }
+                .accessibilityIdentifier("reader-data-export-all")
+            }
+            .editionPaperRow()
         case .data:
             ContentUnavailableView(
                 "Nothing saved yet", systemImage: "tray",

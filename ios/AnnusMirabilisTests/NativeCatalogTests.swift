@@ -92,6 +92,47 @@ struct NativeCatalogTests {
         #expect(reason.hasPrefix("discover:"), "\(reason)")
     }
 
+    @Test("older catalogues keep their paper rows without optional library metadata")
+    func olderLibrary() throws {
+        let catalog = try Self.decode(papers: [Self.paper("mass-energy", sections: [Self.section("s0")])])
+        let paper = try #require(catalog.papers.available.first)
+        #expect(paper.workingTitle == nil && paper.locator == nil && paper.pageCount == nil)
+        #expect(paper.firstPage == nil && paper.lastPage == nil && paper.availabilityNotice == nil)
+        #expect(catalog.portrait == nil && catalog.problems.isEmpty)
+    }
+
+    @Test("library metadata decodes from the export while a damaged portrait leaves paper navigation available")
+    func libraryMetadata() throws {
+        let paper = #"""
+            {"slug":"mass-energy","name":"Mass and energy","title":"A title","germanTitle":"Ein Titel",
+             "description":"A paper","route":"/papers/mass-energy/","sections":[],
+             "workingTitle":"Working translation","locator":"Annalen der Physik (4) 18, 639–641 (1905)",
+             "pageCount":3,"firstPage":639,"lastPage":641,"availabilityNotice":"Not yet available: the English translation."}
+            """#
+        let portrait = #"""
+            {"path":"/figures/photographs/einstein-patent-office-480.webp","alt":"Portrait",
+             "credit":"Archive credit","recordURL":"https://doi.org/10.3932/ethz-a-000495740"}
+            """#
+        func decode(_ image: String) throws -> NativeCatalog {
+            let json = #"{"schemaVersion":"annus-mirabilis-native-catalog.v1","papers":[\#(paper)],"discover":[],"labs":[],"portrait":\#(image)}"#
+            return try JSONDecoder().decode(NativeCatalog.self, from: Data(json.utf8))
+        }
+        let catalog = try decode(portrait)
+        let row = try #require(catalog.papers.available.first)
+        #expect(row.workingTitle == "Working translation")
+        #expect(row.locator == "Annalen der Physik (4) 18, 639–641 (1905)")
+        #expect(row.pageCount == 3 && row.firstPage == 639 && row.lastPage == 641)
+        #expect(row.availabilityNotice == "Not yet available: the English translation.")
+        #expect(catalog.portrait?.value?.credit == "Archive credit")
+        #expect(catalog.problems.isEmpty)
+
+        let damaged = try decode(#"{"path":7}"#)
+        #expect(damaged.papers.available == catalog.papers.available)
+        #expect(damaged.portrait?.value == nil)
+        #expect(damaged.problems.count == 1)
+        #expect(damaged.problems.first?.hasPrefix("portrait.path:") == true)
+    }
+
     @Test("bytes that fail the recorded digest or name another schema fail every screen; no entry, no screens")
     func refused() throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("catalog-\(UUID().uuidString)")

@@ -21,6 +21,8 @@ final class EditionSession {
     private(set) var title: String?
     /// Whether the digest-checked bridge script was injected into this web view.
     let bridgeInstalled: Bool
+    /// Isolated test sessions do not read or overwrite another window's scene restoration.
+    let savesSceneState: Bool
     /// The last route the page itself reported through the bridge: its readiness signal.
     private(set) var bridgeRoute: String?
     /// The page's own theme, as the page reports it; nil until it does.
@@ -37,6 +39,11 @@ final class EditionSession {
     var loadFailure: URL?
     /// Shared by the native search button and Command-K while the web view has keyboard focus.
     var showingSearch = false
+    /// One scene's native entrances and its still-mounted reader.
+    private(set) var shell = EditionShellState()
+    private(set) var paperPositions: [String: ReaderLocation] = [:]
+    @ObservationIgnored var sceneInForeground = false
+    @ObservationIgnored private var readerCovers: Set<UUID> = []
     /// The page the app last asked the web view for: the one to retry when WebKit names none.
     @ObservationIgnored var lastRequestedURL: URL?
     /// DEBUG UI tests only: the lifecycle events sent to the page, newest last.
@@ -77,10 +84,14 @@ final class EditionSession {
     init(
         catalog: EditionCatalog, store: ReaderLocationStore, exposesRouteForTests: Bool = false,
         ephemeralWebStorage: Bool = false, readerData: ReaderDataStore? = nil, themeStore: PageThemeStore? = nil,
-        contentSize: UIContentSizeCategory = .large, facsimileStore: FacsimileStore? = nil
+        contentSize: UIContentSizeCategory = .large, facsimileStore: FacsimileStore? = nil,
+        shellState: String? = nil
     ) {
         self.catalog = catalog
         self.store = store
+        self.savesSceneState = !ephemeralWebStorage
+        self.shell = EditionShellState.restored(
+            from: ephemeralWebStorage ? nil : shellState, fallback: store.load(), in: catalog)
         self.exposesRouteForTests = exposesRouteForTests
         self.navigator = EditionNavigator(catalog: catalog)
         let router = BridgeRouter()
@@ -94,7 +105,10 @@ final class EditionSession {
         let bridgeSource = catalog.verifiedBridgeScript()
         self.bridgeSource = bridgeSource
         self.settingsSnapshot = catalog.verifiedSettingsSnapshot()
-        self.nativeCatalog = catalog.verifiedNativeCatalog()
+        let nativeCatalog = catalog.verifiedNativeCatalog()
+        self.nativeCatalog = nativeCatalog
+        self.paperPositions = store.paperPositions(
+            in: catalog, admitted: Set(nativeCatalog?.papers.available.map(\.slug) ?? []))
         self.searchEngine = NativeSearchEngine(catalog: catalog)
         self.recentSearches = NativeSearchRecents(defaults: store.defaults)
         self.bridgeInstalled = bridgeSource != nil
@@ -213,8 +227,13 @@ final class EditionSession {
         bridgeRoute = nil
         announcedRoute = nil
         if exposesRouteForTests { webView.accessibilityValue = nil }
-        if let passage = store.load()?.url(in: catalog) {
-            load(passage)
+        // Another window can update the shared legacy record while this one is reading. Recovery
+        // belongs to this scene, including a passage parked underneath its native catalogue.
+        let passage = shell.location?.url(in: catalog)
+            ?? currentURL.flatMap { ReaderLocation(editionURL: $0, catalog: catalog)?.url(in: catalog) }
+            ?? store.load()?.url(in: catalog)
+        if let passage {
+            load(passage, revealReader: false)
         } else {
             webView.reload()
         }
@@ -264,7 +283,64 @@ final class EditionSession {
         handoff.title = title
         handoff.needsSave = true
         guard let url, let location = ReaderLocation(editionURL: url, catalog: catalog) else { return }
+        remember(location)
+    }
+
+    private func remember(_ location: ReaderLocation) {
         store.save(location)
+        let admitted = Set(nativeCatalog?.papers.available.map(\.slug) ?? [])
+        store.savePaperPosition(location, in: catalog, admitted: admitted)
+        refreshPaperPositions()
+        shell.remember(location, in: catalog)
+    }
+
+    /// Other windows share saved positions. Refresh at native entry and foreground boundaries
+    /// so their advances or explicit clearing are reflected without observing every defaults key.
+    func refreshPaperPositions() {
+        let admitted = Set(nativeCatalog?.papers.available.map(\.slug) ?? [])
+        paperPositions = store.paperPositions(in: catalog, admitted: admitted)
+    }
+
+    func selectShellSection(_ section: EditionShellSection) {
+        shell.select(section)
+        if section == .read { refreshPaperPositions() }
+        sendReaderVisibility()
+    }
+
+    func showShellContents() {
+        shell.showContents()
+        if shell.section == .read { refreshPaperPositions() }
+        sendReaderVisibility()
+    }
+
+    func revealReader(_ url: URL) {
+        if shell.reveal(url, in: catalog) {
+            showingSearch = false
+            sendReaderVisibility()
+        }
+    }
+
+    /// Sheets can overlap during dismissal/presentation. Each owns its cover until it disappears.
+    func setReaderCover(_ id: UUID, presented: Bool) {
+        if presented { readerCovers.insert(id) } else { readerCovers.remove(id) }
+        sendReaderVisibility()
+    }
+
+    var readerIsVisible: Bool {
+        shell.readerIsVisible(sceneInForeground: sceneInForeground, coveredByNativePresentation: !readerCovers.isEmpty)
+    }
+
+    var parkedReaderURL: URL? {
+        let url = currentURL ?? lastRequestedURL
+        guard let url, EditionShellSection.destination(for: url) != nil else { return nil }
+        return url
+    }
+
+    /// Clear is deliberately scoped to native passage addresses; the visible page is left open.
+    func clearReadingPositions() {
+        store.clearReadingPositions()
+        paperPositions = [:]
+        shell.forgetLocation()
     }
 
     /// The page's theme (App plan §8.7). While the reader has not chosen one, the
@@ -298,13 +374,26 @@ final class EditionSession {
     func didReceiveRoute(route: String, anchor: String?, title: String) {
         bridgeRoute = route + (anchor.map { "#\($0)" } ?? "")
         if !title.isEmpty { self.title = title }
+        if var parts = URLComponents(string: route), route.hasPrefix("/"), !route.hasPrefix("//"),
+            parts.scheme == nil, parts.host == nil
+        {
+            parts.scheme = EditionCatalog.scheme
+            parts.host = EditionCatalog.host
+            parts.fragment = anchor
+            if let url = parts.url, let location = ReaderLocation(editionURL: url, catalog: catalog) {
+                remember(location)
+            }
+        }
+        // The initial visibility event may have preceded the page's bridge. Replay after readiness,
+        // including hidden, so a lab loaded underneath a native screen receives the same pause path.
+        sendReaderVisibility()
         if exposesRouteForTests {
             webView.accessibilityValue = bridgeRoute
         }
         // A new page is a new screen to VoiceOver, as a page load is in Safari, so its focus moves
         // into the page rather than staying on the control that opened it. A jump to an anchor on
         // the same page is the page's own to handle.
-        if route != announcedRoute {
+        if readerIsVisible, route != announcedRoute {
             announcedRoute = route
             if UIAccessibility.isVoiceOverRunning {
                 UIAccessibility.post(notification: .screenChanged, argument: webView)

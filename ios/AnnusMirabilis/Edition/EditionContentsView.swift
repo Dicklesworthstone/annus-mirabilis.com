@@ -6,8 +6,13 @@ import SwiftUI
 struct EditionContentsView: View {
     let catalog: NativeCatalog
     let open: (_ route: String, _ anchor: String?) -> Void
+    /// A fixed part makes this a shell destination; nil retains the existing Contents sheet.
+    var fixedPart: Part?
+    var session: EditionSession?
     @Environment(\.dismiss) private var dismiss
     @State private var part: Part = .papers
+
+    private var selectedPart: Part { fixedPart ?? part }
 
     /// The sheet's three lists, chosen with a segmented control at the top. A tab bar floated its
     /// glass over the end of each long list, and the accessibility audit measured the text
@@ -22,34 +27,41 @@ struct EditionContentsView: View {
     var body: some View {
         NavigationStack {
             Group {
-                switch part {
+                switch selectedPart {
                 case .papers: papers
                 case .discover: discover
                 case .instruments: instruments
                 }
             }
-            .navigationTitle(part.rawValue)
+            .navigationTitle(fixedPart == .papers ? "Read" : selectedPart.rawValue)
             .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Picker("Contents", selection: $part) {
-                        ForEach(Part.allCases) { Text($0.rawValue).tag($0) }
+                if fixedPart == nil {
+                    ToolbarItem(placement: .principal) {
+                        Picker("Contents", selection: $part) {
+                            ForEach(Part.allCases) { Text($0.rawValue).tag($0) }
+                        }
+                        .pickerStyle(.segmented)
                     }
-                    .pickerStyle(.segmented)
                 }
                 done
+                if fixedPart != nil, let session {
+                    ToolbarItem(placement: .topBarTrailing) { EditionReturnToReader(session: session) }
+                }
             }
         }
     }
 
     private func go(_ route: String, _ anchor: String? = nil) {
         open(route, anchor)
-        dismiss()
+        if fixedPart == nil { dismiss() }
     }
 
-    private var done: some ToolbarContent {
-        ToolbarItem(placement: .confirmationAction) {
-            Button("Done") { dismiss() }
-                .tint(Color("PageInk"))
+    @ToolbarContentBuilder private var done: some ToolbarContent {
+        if fixedPart == nil {
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Done") { dismiss() }
+                    .tint(Color("PageInk"))
+            }
         }
     }
 
@@ -58,17 +70,45 @@ struct EditionContentsView: View {
     private var papers: some View {
         CatalogScreen(list: catalog.papers) { records in
             List {
-                CatalogRecords(records: records) { paper in
-                    NavigationLink {
-                        outline(paper)
-                    } label: {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(paper.name).font(.headline)
-                            Text(paper.title).font(.subheadline)
-                            Text(Self.german(paper.germanTitle)).font(.footnote).italic().foregroundStyle(
-                                Color("MutedInk"))
+                if let session, let portrait = catalog.portrait?.value {
+                    Section {
+                        EditionPortraitView(portrait: portrait, catalog: session.catalog) {
+                            session.open(route: "/about/", anchor: nil)
+                            if fixedPart == nil { dismiss() }
                         }
-                        .padding(.vertical, 4)
+                    }
+                    .editionPaperRow()
+                }
+                CatalogRecords(records: records) { paper in
+                    Section {
+                        NavigationLink {
+                            outline(paper)
+                        } label: {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(paper.name).font(.headline)
+                                Text(paper.workingTitle ?? paper.title).font(.subheadline)
+                                Text(Self.german(paper.germanTitle)).font(.footnote).italic().foregroundStyle(
+                                    Color("MutedInk"))
+                                if let locator = paper.locator { Text(locator).font(.caption) }
+                                if let pages = paper.pageCount { Text("\(pages) pages").font(.caption) }
+                                if let notice = paper.availabilityNotice {
+                                    Text(notice).font(.footnote).foregroundStyle(Color("MutedInk"))
+                                }
+                            }
+                            .padding(.vertical, 4)
+                        }
+                        if let session, let location = session.paperPositions[paper.slug],
+                            let url = location.url(in: session.catalog)
+                        {
+                            Button {
+                                if session.currentURL == url { session.revealReader(url) } else { session.load(url) }
+                                if fixedPart == nil { dismiss() }
+                            } label: {
+                                Label("Continue reading", systemImage: "bookmark")
+                            }
+                            .accessibilityLabel("Continue reading \(paper.name)")
+                            .accessibilityIdentifier("continue-reading-\(paper.slug)")
+                        }
                     }
                 }
                 .editionPaperRow()
@@ -83,7 +123,7 @@ struct EditionContentsView: View {
                     go(paper.route)
                 } label: {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(paper.title).font(.headline).foregroundStyle(Color("PageInk"))
+                        Text(paper.workingTitle ?? paper.title).font(.headline).foregroundStyle(Color("PageInk"))
                         Text(paper.description).font(.footnote).foregroundStyle(Color("MutedInk"))
                     }
                 }
