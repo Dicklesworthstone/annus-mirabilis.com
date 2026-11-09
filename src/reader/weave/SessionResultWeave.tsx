@@ -22,6 +22,7 @@ export function SessionResultWeave({
   binding,
   suspended = false,
   announcementsEnabled = true,
+  highlightPaper = false,
 }: Readonly<{
   session: WeaveSession;
   binding: ReaderWeaveBinding;
@@ -29,6 +30,8 @@ export function SessionResultWeave({
   suspended?: boolean;
   /** Prediction gates can hide this result without announcing it through another channel. */
   announcementsEnabled?: boolean;
+  /** Reader placements may point into the current paper while the disclosure is open. */
+  highlightPaper?: boolean;
 }>) {
   const source = useMemo(() => createSessionWeave(session, binding), [session, binding]);
   return (
@@ -40,6 +43,7 @@ export function SessionResultWeave({
       contextFields={binding.contextFields}
       suspended={suspended}
       announcementsEnabled={announcementsEnabled}
+      highlightPaper={highlightPaper}
     />
   );
 }

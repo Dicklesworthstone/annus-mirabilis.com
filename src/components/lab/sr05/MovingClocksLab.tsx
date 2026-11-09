@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo, useSyncExternalStore } from "react";
+import { useId, useMemo } from "react";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
 import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
@@ -15,6 +15,8 @@ import {
 import { createSr05Session, type PreparedSr05Example } from "../../../experiments/sr05/session.ts";
 import { SR05_TAPE } from "../../../experiments/sr05/tape.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
+import { SR05_READER_WEAVE } from "../../../reader/weave/clockPassages.ts";
+import { SessionResultWeave } from "../../../reader/weave/SessionResultWeave.tsx";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { readablePowers } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
@@ -37,6 +39,7 @@ export type MovingClocksLabProps = Readonly<{
    * setup its page gave it rather than taking one from an address it does not own (dispatch 335).
    */
   restoreFromLocation?: boolean | undefined;
+  highlightPaper?: boolean | undefined;
 }>;
 
 function numberOf(
@@ -83,6 +86,7 @@ export function MovingClocksLab({
   example,
   session: sharedSession,
   restoreFromLocation = false,
+  highlightPaper = false,
 }: MovingClocksLabProps) {
   const instanceId = useId();
   const session = useMemo(
@@ -338,6 +342,12 @@ export function MovingClocksLab({
           </p>
         </section>
       </div>
+
+      <SessionResultWeave
+        session={session}
+        binding={SR05_READER_WEAVE}
+        highlightPaper={highlightPaper}
+      />
 
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
           children of the lab root, which labShell.css's detail rules select. */}

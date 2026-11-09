@@ -89,6 +89,8 @@ export const LQ03_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
   peakFrequency: c("Hz", "spectral-peak-frequency", "radiation.spectra"),
   peakWavelength: c("m", "spectral-peak-wavelength", "radiation.spectra"),
   regimeReport: c("1", "wien-classical-regime-report", "radiation.spectra"),
+  wienRegimeAdmitted: c("1", "wien-regime-membership", "radiation.spectra"),
+  classicalRegimeAdmitted: c("1", "classical-regime-membership", "radiation.spectra"),
 });
 
 /**

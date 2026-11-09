@@ -13,5 +13,12 @@ const example = {
 };
 
 export default function Lq03ClarificationView({ instanceId }: ExperimentViewProps) {
-  return <SpectrumLab example={example} instanceId={instanceId} restoreFromLocation={false} />;
+  return (
+    <SpectrumLab
+      example={example}
+      instanceId={instanceId}
+      restoreFromLocation={false}
+      highlightPaper
+    />
+  );
 }

@@ -30,6 +30,7 @@ function PreparedView({
       example={example}
       session={session}
       restoreFromLocation={false}
+      highlightPaper
     />
   );
 }

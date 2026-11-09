@@ -35,6 +35,8 @@ import { statusMessage } from "../../../experiments/results/explanations.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
+import { SessionResultWeave } from "../../../reader/weave/SessionResultWeave.tsx";
+import { LQ03_READER_WEAVE } from "../../../reader/weave/spectrumPassages.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
 import { LabMargin } from "../LabMargin.tsx";
@@ -143,11 +145,13 @@ export function SpectrumLab({
   title = "The radiation spectrum and regime comparison",
   instanceId,
   restoreFromLocation = true,
+  highlightPaper = false,
 }: {
   example?: PreparedLq03Example | undefined;
   title?: string | undefined;
   instanceId?: string | undefined;
   restoreFromLocation?: boolean | undefined;
+  highlightPaper?: boolean | undefined;
 }) {
   const id = useId();
   const labInstanceId = instanceId ?? `lq03-${id}`;
@@ -613,6 +617,13 @@ export function SpectrumLab({
       {/* The permalink to these settings, after the instrument it links to (dispatch 263). In
           the status row it made that line 267px tall at 1440. */}
       <LabTapeLink link={tapeLink} />
+
+      <SessionResultWeave
+        session={session}
+        binding={LQ03_READER_WEAVE}
+        suspended={failure !== null}
+        highlightPaper={highlightPaper}
+      />
 
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
           children of the lab root, which labShell.css's detail rules select. */}

@@ -216,6 +216,25 @@ export function buildLq03Snapshot(
       "radiation.spectra",
       evaluation.peakWavelength,
     ),
+    // Publish the owner's classifications as finite scalar flags. Snapshot consumers cannot
+    // borrow a mutable form or rerun the laws to infer the accepted probe's regime. A spectrum
+    // too small for a linear density can still have a valid, logarithmically evaluated regime.
+    {
+      quantityId: "wienRegimeAdmitted",
+      unit: "1",
+      semanticKind: "wien-regime-membership",
+      ownerId: "radiation.spectra",
+      status: "value",
+      value: Number(evaluation.regime.wienAdmitted),
+    },
+    {
+      quantityId: "classicalRegimeAdmitted",
+      unit: "1",
+      semanticKind: "classical-regime-membership",
+      ownerId: "radiation.spectra",
+      status: "value",
+      value: Number(evaluation.regime.rayleighJeansAdmitted),
+    },
   ];
   return Object.freeze({
     experimentId: "lq-03",
