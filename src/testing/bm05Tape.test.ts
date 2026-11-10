@@ -12,10 +12,9 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 /**
  * am-bm-05-random-steps-ntzl: the "coin to bell" teaching tape registered in this bead's manifest
- * requirements. Proves schema conformance only (validateControlTape is the real validator this
- * bead's own test plan names) -- it does NOT prove the tape replays through BM-05's session,
- * because that integration (am-inst-permalink-tape-s677) is an open blocker this bead's own
- * dependency list carries. See the file's header comment for the full caveat.
+ * requirements. Covers schema and the teaching control order. Real worker replay, scientific
+ * integrity and lifecycle behavior are exercised in experiments/bm05/tape.test.ts and the exact
+ * authored checkpoint replay in experiments/bm05/tape.node.test.ts.
  */
 describe("BM-05 teaching tape: coin to bell (schema conformance only)", () => {
   function loadTape() {

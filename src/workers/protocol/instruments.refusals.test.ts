@@ -249,7 +249,7 @@ describe("Instrument worker protocol refusal throw sites (am-muyh)", () => {
     modelId: BM07_MODEL.id,
   };
 
-  test("site (bm07.ts:53) malformed-response: rejects null or non-plain record, accepts valid hello", () => {
+  test("site (bm07.ts:55) malformed-response: rejects null or non-plain record, accepts valid hello", () => {
     assert.equal(decodeBm07Hello(validBm07Hello, VALID_DIGEST).modelId, BM07_MODEL.id);
 
     assert.throws(
@@ -262,7 +262,7 @@ describe("Instrument worker protocol refusal throw sites (am-muyh)", () => {
     );
   });
 
-  test("site (bm07.ts:85) protocol-mismatch: rejects unsupported protocol version, accepts BM07_PROTOCOL", () => {
+  test("site (bm07.ts:87) protocol-mismatch: rejects unsupported protocol version, accepts BM07_PROTOCOL", () => {
     assert.equal(decodeBm07Hello(validBm07Hello, VALID_DIGEST).protocolVersion, BM07_PROTOCOL);
 
     assert.throws(
@@ -275,7 +275,7 @@ describe("Instrument worker protocol refusal throw sites (am-muyh)", () => {
     );
   });
 
-  test("site (bm07.ts:95) artifact-mismatch: rejects mismatched source digest, accepts expected digest", () => {
+  test("site (bm07.ts:97) artifact-mismatch: rejects mismatched source digest, accepts expected digest", () => {
     assert.equal(decodeBm07Hello(validBm07Hello, VALID_DIGEST).sourceDigest, VALID_DIGEST);
 
     assert.throws(
@@ -299,7 +299,7 @@ describe("Instrument worker protocol refusal throw sites (am-muyh)", () => {
     modelId: BM08_MODEL.id,
   };
 
-  test("site (bm08.ts:49) malformed-response: rejects null or non-plain record, accepts valid hello", () => {
+  test("site (bm08.ts:50) malformed-response: rejects null or non-plain record, accepts valid hello", () => {
     assert.equal(decodeBm08Hello(validBm08Hello, VALID_DIGEST).modelId, BM08_MODEL.id);
 
     assert.throws(
@@ -312,7 +312,7 @@ describe("Instrument worker protocol refusal throw sites (am-muyh)", () => {
     );
   });
 
-  test("site (bm08.ts:81) protocol-mismatch: rejects unsupported protocol version, accepts BM08_PROTOCOL", () => {
+  test("site (bm08.ts:82) protocol-mismatch: rejects unsupported protocol version, accepts BM08_PROTOCOL", () => {
     assert.equal(decodeBm08Hello(validBm08Hello, VALID_DIGEST).protocolVersion, BM08_PROTOCOL);
 
     assert.throws(
@@ -325,7 +325,7 @@ describe("Instrument worker protocol refusal throw sites (am-muyh)", () => {
     );
   });
 
-  test("site (bm08.ts:91) artifact-mismatch: rejects mismatched source digest, accepts expected digest", () => {
+  test("site (bm08.ts:92) artifact-mismatch: rejects mismatched source digest, accepts expected digest", () => {
     assert.equal(decodeBm08Hello(validBm08Hello, VALID_DIGEST).sourceDigest, VALID_DIGEST);
 
     assert.throws(

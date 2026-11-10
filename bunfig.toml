@@ -6,6 +6,14 @@
 # Node still runs this list via scripts/run-node-only-tests.ts (`bun run test:node`).
 [test]
 pathIgnorePatterns = [
+  # BM05 authored scientific checkpoints pin exact V8 results. Bun independently tests honest
+  # refusal of different-engine results plus replay lifecycle using real local worker fixtures.
+  "src/experiments/bm05/tape.node.test.ts",
+  # BM07 authored checkpoints likewise retain the exact pinned Node evaluator results.
+  # Its Bun suite records real local trials and verifies replay, corruption and lifecycle handling.
+  "src/testing/bm07AuthoredTape.node.test.mjs",
+  # BM08 uses the same exact authored-checkpoint policy; lifecycle cases also run in Bun.
+  "src/experiments/bm08/tape.node.test.ts",
   "scripts/e2e",
   "**/*.e2e.test.ts",
   "scripts/quality-gates.test.ts",

@@ -447,41 +447,85 @@ describe("a recorded number agrees with the parameters in force where it was rec
     expect(withoutMass.centerOfMassShift?.value).toBe(withMass.boxDisplacement?.value);
   });
 
-  test("camera bias: the naive expectation is what the camera model gives, and it is not D", () => {
-    // THIS RECORD WAS WRONG ON THE LIVE SITE until 2026-09-28: it recorded the input D itself,
-    // 0.42944e-12, as the naive estimator's expectation, which says the estimator recovers D
-    // exactly and is the opposite of what BM-08 exists to show. cameraMoments gives
-    // 3.9786666666666666e-13 at these settings.
+  test("camera bias: ideal observations recover D, exposure lowers the expectation and noise raises it", () => {
     const t = tape("camera-bias");
-    const step = t.steps.find((s) => s.expected.some((e) => e.label === "naive expectation"));
-    expect(step).toBeDefined();
-    if (!step) return;
-    const at = inForce(t, step.actionIndex);
-    const model = {
-      D: at.D as number,
-      dt: at.dt as number,
-      exposure: at.exposure as number,
-      sigma: at.sigma as number,
-      drift: (at.stageDrift as number) ?? 0,
-      d: at.d as number,
-    };
-    // `Computation` is {kind, data}, not {status, value}: my first probe accepted either
-    // shape through a `??` chain and so told me the number without telling me the contract.
-    const moments = cameraMoments(model) as {
-      kind: string;
-      data?: { naiveExpectation: number };
-    };
-    expect(moments.kind).toBe("accepted");
-    const recorded = step.expected.find((e) => e.label === "naive expectation");
-    expect(moments.data?.naiveExpectation).toBe(recorded?.value);
-    // THE NON-VACUITY IS THE TEACHING POINT: the expectation must NOT be the true D, and the gap
-    // must be the exposure blur minus what the localization noise adds, each read from the model's
-    // own parameters rather than written here.
-    expect(moments.data?.naiveExpectation).not.toBe(model.D);
-    const blur = (model.D * model.exposure) / (3 * model.dt);
-    const noise = model.sigma ** 2 / model.dt;
-    expect(blur).toBeGreaterThan(noise);
-    expect(moments.data?.naiveExpectation).toBeCloseTo(model.D - blur + noise, 20);
+    const authored = validateControlTape(
+      parseYaml(
+        readFileSync(
+          new URL("../../content/experiments/tapes/camera-bias.yaml", import.meta.url),
+          "utf8",
+        ),
+      ),
+    );
+    const models = new Map<
+      number,
+      { D: number; blur: number; noise: number; expectation: number }
+    >();
+    let compared = 0;
+    for (const checkpoint of authored.checkpoints) {
+      const at = inForce(t, checkpoint.actionIndex);
+      const model = {
+        D: at.D as number,
+        dt: at.dt as number,
+        exposure: at.exposure as number,
+        sigma: at.sigma as number,
+        drift: ((at.flowDrift as number) ?? 0) + ((at.stageDrift as number) ?? 0),
+        d: at.d as number,
+      };
+      const moments = cameraMoments(model);
+      assert.ok(
+        moments.kind === "accepted",
+        `Camera model refused action ${checkpoint.actionIndex}`,
+      );
+      const expected = checkpoint.expectedDisplayValues ?? [];
+      expect(expected.map((entry) => entry.outputId)).toEqual(["naiveExpectation"]);
+      const page = t.steps.find((step) => step.actionIndex === checkpoint.actionIndex);
+      expect(page?.expected.length).toBe(expected.length);
+      for (const recorded of expected) {
+        expect(recorded.unit).toBe("m2/s");
+        expect(recorded.constantSetId).toBe(authored.constantSetId);
+        expect(
+          moments.data.naiveExpectation,
+          `Camera expectation at action ${checkpoint.actionIndex}`,
+        ).toBe(recorded.value);
+        expect(page?.expected.find((entry) => entry.label === recorded.label)).toMatchObject({
+          value: recorded.value,
+          unit: recorded.unit,
+          constantSetId: recorded.constantSetId,
+        });
+        compared++;
+      }
+      const blur = (model.D * model.exposure) / (3 * model.dt);
+      const noise = model.sigma ** 2 / model.dt;
+      expect(model.drift).toBe(0);
+      expect(moments.data.naiveExpectation).toBeCloseTo(model.D - blur + noise, 20);
+      models.set(checkpoint.actionIndex, {
+        D: model.D,
+        blur,
+        noise,
+        expectation: moments.data.naiveExpectation,
+      });
+    }
+    expect([...models.keys()]).toEqual([0, 1, 2]);
+    expect(compared).toBe(t.steps.reduce((count, step) => count + step.expected.length, 0));
+    const ideal = models.get(0),
+      blurred = models.get(1),
+      noisy = models.get(2);
+    assert.ok(ideal && blurred && noisy);
+    expect(ideal.blur).toBe(0);
+    expect(ideal.noise).toBe(0);
+    expect(ideal.expectation).toBe(ideal.D);
+    expect(blurred.D).toBe(ideal.D);
+    expect(blurred.blur).toBeGreaterThan(0);
+    expect(blurred.noise).toBe(0);
+    expect(blurred.expectation).toBeLessThan(ideal.expectation);
+    expect(noisy.D).toBe(ideal.D);
+    expect(noisy.blur).toBe(blurred.blur);
+    expect(noisy.noise).toBeGreaterThan(0);
+    expect(noisy.expectation).toBeGreaterThan(blurred.expectation);
+    // This record's noise does not cancel its blur: the final expectation still differs from D.
+    expect(noisy.blur).toBeGreaterThan(noisy.noise);
+    expect(noisy.expectation).toBeLessThan(noisy.D);
   });
 
   test("toward low speed: the limiting mass decrease is exactly L over c squared", () => {
@@ -621,6 +665,14 @@ describe("a recorded number agrees with the parameters in force where it was rec
    */
   test("Perrin's count: the number is identifiable only once the radius is declared", async () => {
     const t = tape("perrins-count");
+    const authored = validateControlTape(
+      parseYaml(
+        readFileSync(
+          new URL("../../content/experiments/tapes/perrins-count.yaml", import.meta.url),
+          "utf8",
+        ),
+      ),
+    );
     const coerce = (v: unknown) => (v === "true" ? true : v === "false" ? false : v);
     const settings = (through: number) => {
       const held: Record<string, unknown> = { ...t.initialConditions };
@@ -659,28 +711,56 @@ describe("a recorded number agrees with the parameters in force where it was rec
     // Undeclared: the count is a typed refusal to answer, and the product is what the data fix.
     expect(before.get("avogadroNumberEstimate")?.status).toBe("underdetermined");
     expect(before.get("radiusNumberProduct")?.status).toBe("value");
+    expect(after.get("avogadroNumberEstimate")?.status).toBe("value");
 
     // An estimator-change moves no observation: the diffusion estimate is untouched by the step.
     expect(after.get("diffusionCoefficientEstimate")?.value).toBe(
       before.get("diffusionCoefficientEstimate")?.value,
     );
 
-    // Declared: every number the page shows, redone from the tape's own settings.
+    // Read stable authored output ids rather than prose labels, and compare each checkpoint
+    // against the state in force there. The opening checkpoint now has its own two display rows.
+    expect(authored.checkpoints.map((checkpoint) => checkpoint.actionIndex)).toEqual([0, 1]);
     let compared = 0;
-    for (const step of t.steps) {
-      for (const recorded of step.expected) {
-        const output = after.get(recorded.label);
-        expect(output, `${recorded.label} is not a BM-07 output`).toBeDefined();
-        expect(output?.status, `${recorded.label} at action ${step.actionIndex}`).toBe("value");
+    for (const checkpoint of authored.checkpoints) {
+      const outputs = checkpoint.actionIndex === 0 ? before : after;
+      const expected = checkpoint.expectedDisplayValues ?? [];
+      expect(expected.map((entry) => entry.outputId)).toEqual(
+        checkpoint.actionIndex === 0
+          ? ["diffusionCoefficientEstimate", "radiusNumberProduct"]
+          : [
+              "diffusionCoefficientEstimate",
+              "radiusNumberProduct",
+              "avogadroNumberEstimate",
+              "generatorMolecularNumber",
+            ],
+      );
+      const page = t.steps.find((step) => step.actionIndex === checkpoint.actionIndex);
+      expect(page?.expected.length).toBe(expected.length);
+      for (const recorded of expected) {
+        assert.ok(recorded.outputId, `${recorded.label} needs a stable BM-07 output id`);
+        const output = outputs.get(recorded.outputId);
+        expect(output, `${recorded.outputId} is not a BM-07 output`).toBeDefined();
+        expect(output?.status, `${recorded.label} at action ${checkpoint.actionIndex}`).toBe(
+          "value",
+        );
         expect(output?.unit, `${recorded.label}'s unit`).toBe(recorded.unit);
-        expect(output?.value, `${recorded.label} at action ${step.actionIndex}`).toBeCloseTo(
+        expect(recorded.constantSetId).toBe(settings(checkpoint.actionIndex).constantSetId);
+        expect(output?.value, `${recorded.label} at action ${checkpoint.actionIndex}`).toBeCloseTo(
           recorded.value,
           12,
         );
+        expect(page?.expected.find((entry) => entry.label === recorded.label)).toMatchObject({
+          value: recorded.value,
+          unit: recorded.unit,
+          constantSetId: recorded.constantSetId,
+        });
         compared += 1;
       }
     }
-    expect(compared, "the page shows four numbers").toBe(4);
+    expect(compared, "every number on both checkpoint pages is checked").toBe(
+      t.steps.reduce((count, step) => count + step.expected.length, 0),
+    );
 
     // The exercise is a labelled synthetic inversion, so it is worth saying it inverts: the
     // estimate recovers the generator's hidden number to better than 10 per cent. Recovery, not
