@@ -5,6 +5,7 @@ import {
   bm07Layout,
 } from "../../experiments/bm07/definition.ts";
 import { validateBm07Parameters } from "../../experiments/bm07/parameters.ts";
+import type { Bm07RecordingCheckpoint } from "../../experiments/bm07/recordingCheckpoint.ts";
 import {
   decodeOutcome,
   decodeRefusal,
@@ -16,6 +17,7 @@ import {
   INFERENCE_GRID_DT,
   INFERENCE_GRID_STEPS,
 } from "../../physics/reference/inference/synthetic.ts";
+import { HOST_NORMAL_VERSION } from "../../physics/reference/philox.ts";
 import type { Bm07Evaluation } from "../operations/bm07.ts";
 
 /** Deliberately scoped version: not an assertion that the full WASM protocol is implemented. */
@@ -37,7 +39,7 @@ export type LabResponse = Readonly<{
   protocolVersion: typeof BM07_PROTOCOL;
   sourceDigest: string;
   token: RequestToken;
-  result: Computation<Bm07Evaluation>;
+  result: Computation<Bm07Evaluation & Readonly<{ recordingCheckpoint?: Bm07RecordingCheckpoint }>>;
 }>;
 export type LabHello = Readonly<{
   messageKind: "hello";
@@ -179,7 +181,15 @@ export function decodeLabResponse(
     const r = o.result as Record<string, unknown>;
     if (r?.kind === "accepted") {
       record(r, ["kind", "data"]);
-      const data = record(r.data, ["outputs", "stepIndex", "simulationTime"]);
+      const hasCheckpoint = Boolean(
+        r.data && typeof r.data === "object" && Object.hasOwn(r.data, "recordingCheckpoint"),
+      );
+      const data = record(r.data, [
+        "outputs",
+        "stepIndex",
+        "simulationTime",
+        ...(hasCheckpoint ? ["recordingCheckpoint"] : []),
+      ]);
       count(data.stepIndex);
       const requiredSteps = INFERENCE_GRID_STEPS;
       if (
@@ -241,6 +251,58 @@ export function decodeLabResponse(
           if (!times.every((t, i) => t === i * p.dt))
             fail("The observation times do not match the accepted measurement.");
         }
+      }
+      if (hasCheckpoint) {
+        const checkpoint = record(data.recordingCheckpoint, [
+          "checkpointVersion",
+          "sourceDigest",
+          "ownerId",
+          "normalVersion",
+          "allocationId",
+          "seed",
+          "generatorT",
+          "generatorEta",
+          "generatorRadius",
+          "hiddenNumber",
+          "diffusionCoefficient",
+          "replicate",
+          "steps",
+          "baseSpacing",
+          "draws",
+          "digest",
+        ]);
+        const p = token.parameters as Bm07Parameters;
+        const hiddenNumber = outputs.find(
+          (output) => output.quantityId === "generatorMolecularNumber",
+        );
+        const diffusion = outputs.find(
+          (output) => output.quantityId === "generatorDiffusionCoefficient",
+        );
+        const draws = outputs.find((output) => output.quantityId === "recordingDraws");
+        if (
+          checkpoint.checkpointVersion !== 1 ||
+          checkpoint.sourceDigest !== expectedDigest ||
+          checkpoint.ownerId !== "inference.bm07" ||
+          checkpoint.normalVersion !== HOST_NORMAL_VERSION ||
+          checkpoint.allocationId !== "bm-07.synthetic-latent.v1" ||
+          checkpoint.seed !== p.seed ||
+          checkpoint.generatorT !== p.generatorT ||
+          checkpoint.generatorEta !== p.generatorEta ||
+          checkpoint.generatorRadius !== p.generatorRadius ||
+          hiddenNumber?.status !== "value" ||
+          checkpoint.hiddenNumber !== hiddenNumber.value ||
+          diffusion?.status !== "value" ||
+          checkpoint.diffusionCoefficient !== diffusion.value ||
+          checkpoint.replicate !== 0 ||
+          checkpoint.steps !== requiredSteps ||
+          checkpoint.baseSpacing !== INFERENCE_GRID_DT ||
+          draws?.status !== "value" ||
+          checkpoint.draws !== draws.value ||
+          checkpoint.draws !== 1 + 4 * requiredSteps ||
+          typeof checkpoint.digest !== "string" ||
+          !/^host:sha256:[a-f0-9]{64}$/.test(checkpoint.digest)
+        )
+          fail("The complete recording checkpoint disagrees with the accepted inference.");
       }
     } else if (r?.kind === "refused") {
       record(r, ["kind", "refusal"]);

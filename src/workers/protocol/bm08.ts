@@ -4,6 +4,7 @@ import {
   type Bm08Parameters,
   bm08Layout,
 } from "../../experiments/bm08/definition.ts";
+import type { Bm08RecordingCheckpoint } from "../../experiments/bm08/recordingCheckpoint.ts";
 import {
   decodeOutcome,
   decodeRefusal,
@@ -33,7 +34,7 @@ export type LabResponse = Readonly<{
   protocolVersion: typeof BM08_PROTOCOL;
   sourceDigest: string;
   token: RequestToken;
-  result: Computation<Bm08Evaluation>;
+  result: Computation<Bm08Evaluation & Readonly<{ recordingCheckpoint?: Bm08RecordingCheckpoint }>>;
 }>;
 export type LabHello = Readonly<{
   messageKind: "hello";
@@ -179,7 +180,15 @@ export function decodeLabResponse(
     const r = o.result as Record<string, unknown>;
     if (r?.kind === "accepted") {
       record(r, ["kind", "data"]);
-      const data = record(r.data, ["outputs", "stepIndex", "simulationTime"]);
+      const hasCheckpoint = Boolean(
+        r.data && typeof r.data === "object" && Object.hasOwn(r.data, "recordingCheckpoint"),
+      );
+      const data = record(r.data, [
+        "outputs",
+        "stepIndex",
+        "simulationTime",
+        ...(hasCheckpoint ? ["recordingCheckpoint"] : []),
+      ]);
       count(data.stepIndex);
       const requiredSteps = CAMERA_GRID_STEPS;
       if (
@@ -249,6 +258,35 @@ export function decodeLabResponse(
           output.status !== "not-applicable"
         )
           fail("An invalid centered interval was admitted.");
+      }
+      if (hasCheckpoint) {
+        const checkpoint = record(data.recordingCheckpoint, [
+          "checkpointVersion",
+          "sourceDigest",
+          "ownerId",
+          "seed",
+          "diffusion",
+          "flowDrift",
+          "steps",
+          "baseSpacing",
+          "draws",
+          "digest",
+        ]);
+        const p = token.parameters as Bm08Parameters;
+        if (
+          checkpoint.checkpointVersion !== 1 ||
+          checkpoint.sourceDigest !== expectedDigest ||
+          checkpoint.ownerId !== "inference.bm08" ||
+          checkpoint.seed !== p.seed ||
+          checkpoint.diffusion !== p.D ||
+          checkpoint.flowDrift !== p.flowDrift ||
+          checkpoint.steps !== CAMERA_GRID_STEPS ||
+          checkpoint.baseSpacing !== CAMERA_GRID_DT ||
+          checkpoint.draws !== CAMERA_GRID_STEPS * 8 ||
+          typeof checkpoint.digest !== "string" ||
+          !/^host:sha256:[a-f0-9]{64}$/.test(checkpoint.digest)
+        )
+          fail("The camera recording checkpoint does not match the accepted physical path.");
       }
     } else if (r?.kind === "refused") {
       record(r, ["kind", "refusal"]);

@@ -310,9 +310,12 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
             let decision: PublicationDecision;
 
             if (response.result.kind === "accepted") {
+              const { outputs, stepIndex, simulationTime } = response.result.data;
               decision = store.publish({
                 ...response.token,
-                ...response.result.data,
+                outputs,
+                stepIndex,
+                simulationTime,
                 final: true,
               });
               if (decision.accepted) {
