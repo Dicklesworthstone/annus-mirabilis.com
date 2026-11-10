@@ -4,7 +4,13 @@ import {
   TRACE_COUNT,
   TRACE_POINTS,
 } from "../../experiments/bm01/definition.ts";
+import {
+  type RecordingPlayback,
+  recordedSampleIndex,
+  recordingScale,
+} from "../../experiments/playback/recordingClock.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
+import { convertValue } from "../../units/adapters.ts";
 import { ScaleBar } from "../../visuals/kit/ScaleBar.tsx";
 import type { RepresentationScale } from "../../visuals/kit/types.ts";
 import {
@@ -15,20 +21,42 @@ import {
 } from "./predictPlaceholder.tsx";
 import { array, display, identity, scalar } from "./presentation.ts";
 
-export function TracerPaths({ snapshot, zoom }: { snapshot: AcceptedSnapshot; zoom: number }) {
+export function TracerPaths({
+  snapshot,
+  zoom,
+  replay,
+  scaleBar = { length: 1e-6, unit: "m" },
+}: {
+  snapshot: AcceptedSnapshot;
+  zoom: number;
+  replay?: RecordingPlayback;
+  /** BM-01's physical scale declaration, passed from its validated manifest. */
+  scaleBar?: Readonly<{ length: number; unit: string }>;
+}) {
   const id = useId(),
     p = snapshot.parameters as Bm01Parameters,
     trace = array(snapshot, "traceCoordinates"),
-    positions = array(snapshot, "tracerPositions");
+    positions = array(snapshot, "tracerPositions"),
+    times = array(snapshot, "traceTimes");
+  const sampleIndex = replay ? recordedSampleIndex(times, replay.position) : TRACE_POINTS - 1;
+  const traceCount = Math.min(TRACE_COUNT, p.M);
+  // A tracer's recorded identity stays the same at every replay time, including at the common
+  // origin where all path strings are identical. These are identities, not positions in a list.
+  const tracerIds = Array.from({ length: traceCount }, (_, i) => i);
+  const sampleTime = times.at(sampleIndex);
   const halfWidth = 5e-6 / zoom,
     coord = (x: number) => 150 + (x / halfWidth) * 125;
-  const representationScale: RepresentationScale = {
+  const staticScale: RepresentationScale = {
     spatialMagnification: { appliesTo: "scene", factor: zoom },
     simulatedElapsedTime: { quantityId: "elapsedTime", value: p.interval, unit: "s" },
     playbackMultiplier: 1,
     glyphSize: { drawnPx: 3, represents: "none" },
     quantityNormalization: { kind: "none" },
   };
+  const representationScale = replay ? recordingScale(staticScale, replay) : staticScale;
+  // This view's coordinates are in metres. Its manifest uses metres too; the conversion here is
+  // only the displayed unit, never a new physical calibration or a fixed one-micron assumption.
+  const scaleLength = convertValue(scaleBar.length, scaleBar.unit, "um");
   let outside = 0;
   for (let i = 0; i < p.M; i++)
     if (Math.abs(positions.at(i * 3)) > halfWidth || Math.abs(positions.at(i * 3 + 1)) > halfWidth)
@@ -38,12 +66,15 @@ export function TracerPaths({ snapshot, zoom }: { snapshot: AcceptedSnapshot; zo
       className="plot"
       {...identity(snapshot)}
       data-result-status="value"
-      data-scale-bar="1um"
+      data-scale-bar={`${scaleLength}um`}
+      data-playback-time={replay?.position}
+      data-recorded-time={sampleTime}
+      data-playback-multiplier={replay?.playbackMultiplier}
     >
       <svg
         viewBox="0 0 300 300"
         role="img"
-        aria-label={`Displacement traces of ${Math.min(TRACE_COUNT, p.M)} synthetic tracers. ${outside} of ${p.M} endpoints are outside the viewport; all remain in the statistics.`}
+        aria-label={`Displacement traces of ${traceCount} synthetic tracers, through ${display(sampleTime)} seconds. The ensemble statistics describe the accepted observation at ${display(p.interval)} seconds.`}
       >
         <defs>
           <clipPath id={`${id}-clip`}>
@@ -53,20 +84,37 @@ export function TracerPaths({ snapshot, zoom }: { snapshot: AcceptedSnapshot; zo
         <rect x="25" y="25" width="250" height="250" fill="none" className="axis" />
         <path d="M25 150H275M150 25V275" className="axis" />
         <g clipPath={`url(#${id}-clip)`}>
-          {Array.from({ length: Math.min(TRACE_COUNT, p.M) }, (_, i) => {
+          {tracerIds.map((i) => {
             const path = Array.from(
-              { length: TRACE_POINTS },
+              { length: sampleIndex + 1 },
               (_, k) =>
                 `${k ? "L" : "M"}${coord(trace.at((i * TRACE_POINTS + k) * 2))},${300 - coord(trace.at((i * TRACE_POINTS + k) * 2 + 1))}`,
             ).join(" ");
-            return <path key={path} d={path} className="curve tracer-path" />;
+            const x = trace.at((i * TRACE_POINTS + sampleIndex) * 2);
+            const y = trace.at((i * TRACE_POINTS + sampleIndex) * 2 + 1);
+            return (
+              <g key={`tracer-${i}`}>
+                <path d={path} className="curve tracer-path" />
+                {replay && (
+                  <circle
+                    cx={coord(x)}
+                    cy={300 - coord(y)}
+                    r="3"
+                    fill="var(--ink)"
+                    data-tracer-index={i}
+                    data-x-metres={x}
+                    data-y-metres={y}
+                  />
+                )}
+              </g>
+            );
           })}
         </g>
         {/* The common release point. Unfilled, it took SVG's default black: 1.30:1 on the dark paper. */}
         <circle cx="150" cy="150" r="3" fill="var(--ink)" />
         <ScaleBar
           scale={representationScale}
-          physicalLength={1}
+          physicalLength={scaleLength}
           unit="μm"
           basePixelsPerUnit={25}
           x={35}
@@ -84,9 +132,40 @@ export function TracerPaths({ snapshot, zoom }: { snapshot: AcceptedSnapshot; zo
       </svg>
       <figcaption>
         Displacements from a common origin, not a literal microscope image. Lines connect recorded
-        positions and do not supply an instantaneous velocity. {outside} / {p.M} endpoints lie
-        outside this view; none are removed from the ensemble.
+        positions and do not supply an instantaneous velocity. At the accepted observation time,{" "}
+        {outside} / {p.M} endpoints lie outside this view; none are removed from the ensemble.
+        {replay && (
+          <>
+            {" "}
+            The moving markers hold the last recorded position, at {display(sampleTime)} s; no
+            motion between recorded samples is inferred.
+          </>
+        )}
       </figcaption>
+      {replay && (
+        <details>
+          <summary>Read the displayed positions as a table</summary>
+          <table>
+            <caption>Displayed traces at {display(sampleTime)} s; coordinates in μm</caption>
+            <thead>
+              <tr>
+                <th scope="col">Tracer</th>
+                <th scope="col">x</th>
+                <th scope="col">y</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tracerIds.map((i) => (
+                <tr key={`position-${i}`}>
+                  <th scope="row">{i + 1}</th>
+                  <td>{display(trace.at((i * TRACE_POINTS + sampleIndex) * 2), 1e6)}</td>
+                  <td>{display(trace.at((i * TRACE_POINTS + sampleIndex) * 2 + 1), 1e6)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </details>
+      )}
     </figure>
   );
 }

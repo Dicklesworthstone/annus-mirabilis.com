@@ -1,0 +1,35 @@
+.tracer-playback {
+  min-width: 0;
+}
+
+.tracer-playback-views {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: 1rem;
+}
+
+.tracer-playback-views > div {
+  min-width: 0;
+}
+
+.tracer-playback-controls fieldset {
+  min-width: 0;
+}
+
+.tracer-playback-scrub {
+  display: block;
+  width: 100%;
+  margin-block: 0.5rem 1rem;
+}
+
+.tracer-playback-compare {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@media print {
+  .tracer-playback-controls {
+    display: none;
+  }
+}

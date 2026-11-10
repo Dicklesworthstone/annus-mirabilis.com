@@ -41,8 +41,8 @@ import { instrumentRootAttributes } from "../../experiments/store/identityAttrib
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import equationPayload from "../../generated/bm01-equations.json";
+import { PLAYBACK_MANIFESTS } from "../../generated/playback.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
-import { TimeLegend } from "../../visuals/kit/TimeLegend.tsx";
 import type { WorkerChannel } from "../../workers/scheduler/hostScheduler.ts";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { KEPT_RESULT } from "./keptResult.ts";
@@ -52,7 +52,8 @@ import { array, display, identity, result, scalar } from "./presentation.ts";
 import { SeedHelp } from "./SeedHelp.tsx";
 import { equationsByListing, ShowTheCode } from "./ShowTheCode.tsx";
 import { withScripts } from "./subscripts.tsx";
-import { PLOT_KINDS, TracerHistogram, TracerPaths, TracerScaling } from "./TracerPlots.tsx";
+import { TracerPlayback } from "./TracerPlayback.tsx";
+import { PLOT_KINDS, TracerHistogram, TracerScaling } from "./TracerPlots.tsx";
 
 const BM01_PROMPTS = PREDICT_PROMPTS["bm-01"] ?? [];
 /** The sample moments' engine sentence: host arithmetic over the tracer positions, whichever engine drew them. */
@@ -588,7 +589,11 @@ export function TracerLab({
                 })}
               </div>
             )}
-            <TracerPaths snapshot={snapshot} zoom={zoom} />
+            <TracerPlayback
+              snapshot={snapshot}
+              zoom={zoom}
+              manifest={PLAYBACK_MANIFESTS["bm-01"]}
+            />
             <div className="lab-status-row">
               <ExecutionChrome
                 state={executionKind}
@@ -641,26 +646,14 @@ export function TracerLab({
             </p>
             <div className="real-rate-card" data-real-rate-card="true">
               <div className="rate-indicators">
-                <TimeLegend
-                  scale={{
-                    spatialMagnification: { appliesTo: "scene", factor: zoom },
-                    simulatedElapsedTime: { quantityId: "interval", value: p.interval, unit: "s" },
-                    playbackMultiplier: 1,
-                    glyphSize: { drawnPx: 3, represents: "none" },
-                    quantityNormalization: { kind: "none" },
-                  }}
-                />
                 {/* From this trial's accepted snapshot, not a fixed figure: the line used to read
                     "~0.8 μm per second" at every setting, Einstein's printed value for water at
                     1.35 mPa·s, while this lab's own default gives 0.93 μm in 1 s. A displacement
                     grows as the square root of time, so it is stated for an interval, not per second. */}
                 <span className="rate-annotation" data-rate-mode="natural" {...gate.response}>
-                  At the natural rate a tracer moves about{" "}
+                  In the accepted observation a tracer's typical displacement is{" "}
                   {display(Number(scalar(snapshot, "rmsDisplacement1d").toPrecision(2)), 1e6)} μm
-                  along one axis in {display(p.interval)} s (root mean square; scale bar: 1 μm)
-                </span>
-                <span className="rate-comparison fine" data-rate-mode="sped-up">
-                  Simulation view: accelerated snapshot across {p.H} s
+                  along one axis in {display(p.interval)} s (root mean square; {constantSetLabel}).
                 </span>
               </div>
             </div>
