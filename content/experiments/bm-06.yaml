@@ -671,6 +671,54 @@ embeddable: true
 predictMode:
   enabled: true
   prompts:
+    - promptId: bm-06-predict-density-shape
+      supportedCandidateId: symmetric-peak
+      controlId: t
+      question: "After a positive waiting time, what shape do you expect for the density of signed displacement? Sketch it or enter its heights before revealing the accepted curve."
+      explanation: "Equal leftward and rightward displacements have equal density. The density is highest at the starting position and falls smoothly on either side. The height is a density, not the probability of one exact position: an interval gets its probability from the area beneath the curve. Here distance is measured in RMS displacements, so changing the time or diffusivity stretches the physical distance scale without changing this normalized shape. At zero time there is a point distribution, so this finite curve is unavailable."
+      candidates:
+        - id: symmetric-peak
+          label: "A smooth peak at zero, falling on both sides"
+          description: "Small signed displacements have higher density than large ones, with no preferred direction."
+          separatingAssumption: "Independent unbiased steps lead to the Gaussian displacement model in §4. Equal positive and negative positions have equal density, with the largest density at zero."
+        - id: uniform-spread
+          label: "The same height across the displayed interval"
+          description: "Every displayed position is assigned the same density."
+          separatingAssumption: "A uniform density describes equal probability per unit length inside a bounded interval. The point-start diffusion model instead has a central peak and tails outside every finite interval."
+        - id: two-peaks
+          label: "Two peaks away from zero, with a dip at the start"
+          description: "Tracers that move left and right are expected to collect at two typical positions."
+          separatingAssumption: "Two fixed opposite velocities would create separated groups. Unbiased diffusing tracers can also end close to the start, so signed displacement has one central peak. The density of radial distance is a different question."
+      curvePrediction:
+        x:
+          label: "Signed displacement"
+          min: -4
+          max: 4
+          unit: "RMS distances"
+        y:
+          label: "Density"
+          min: 0
+          max: 0.5
+          unit: "per RMS distance"
+        valueTargets:
+          - targetId: at-zero
+            label: "At the start (0 RMS distances)"
+            x: 0
+            unit: "per RMS distance"
+            min: 0
+            max: 0.5
+          - targetId: at-one
+            label: "At 1 RMS distance"
+            x: 1
+            unit: "per RMS distance"
+            min: 0
+            max: 0.5
+          - targetId: at-two
+            label: "At 2 RMS distances"
+            x: 2
+            unit: "per RMS distance"
+            min: 0
+            max: 0.5
     - promptId: bm-06-predict-within-one-typical-distance
       supportedCandidateId: about-two-in-three
       controlId: upper

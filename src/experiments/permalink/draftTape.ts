@@ -20,7 +20,12 @@ import {
   tapeStateDigestV2,
   tapeStateOf,
 } from "./sessionTape.ts";
-import type { ExperimentEnvironment, TapeReplayGrid, TapeV2 } from "./types.ts";
+import type {
+  ExperimentEnvironment,
+  TapePredictionEvent,
+  TapeReplayGrid,
+  TapeV2,
+} from "./types.ts";
 
 type Checked = Readonly<{ kind: string; data?: unknown }>;
 
@@ -109,7 +114,11 @@ export function draftTapeForSettings(binding: DraftTapeBinding, params: object):
 
 export type DraftTapeLoad =
   | Readonly<{ kind: "absent" }>
-  | Readonly<{ kind: "loaded"; settings: Readonly<Record<string, unknown>> }>
+  | Readonly<{
+      kind: "loaded";
+      settings: Readonly<Record<string, unknown>>;
+      predictions?: readonly TapePredictionEvent[];
+    }>
   | Readonly<{ kind: "not-restored"; notice: string }>;
 
 /**
@@ -173,6 +182,7 @@ export function loadDraftTape(binding: DraftTapeBinding, tape: TapeV2): DraftTap
   return {
     kind: "loaded",
     settings: accepted,
+    ...(tape.predictions ? { predictions: tape.predictions } : {}),
   };
 }
 

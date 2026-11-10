@@ -34,12 +34,12 @@ describe("predictVoice (am-inst-predict-mode-ti7m)", () => {
     test("adjudication statements contain no scoring language", () => {
       const statements = [
         "This prediction cannot be scored here: nothing was recorded to compare.",
-        "This prediction cannot be scored here: a freehand sketch is not compared with the model.",
+        "No automatic score is assigned to a freehand sketch. Compare its recorded shape with the displayed model result.",
         "This prediction cannot be scored here: the model does not name a supported candidate for this prompt.",
         "This is the relation the model supports.",
         "This is not the relation the model supports.",
         "This prediction cannot be scored here: no supported direction and shape are named for this prompt.",
-        "This prediction cannot be scored here: no named values are given to compare.",
+        "No automatic score is assigned to these values. Compare the recorded values with the displayed model result.",
         "The typed values match the model's values.",
         "The typed values are close to the model's values.",
         "The typed values are not close to the model's values.",

@@ -1,12 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { LabTapeLinkState } from "../../experiments/permalink/LabTapeLink.tsx";
 import type { TapePredictionEvent } from "../../experiments/permalink/types.ts";
+import {
+  checkedPredictionChoice,
+  predictionForLink,
+  predictionFromLink,
+} from "../../experiments/predict/authoredChoice.ts";
 import { predictPersistence } from "../../experiments/predict/predictPersistence.ts";
 import {
   amendAfterReveal,
   beginPrompt,
+  clearPrompt,
   keepToSelf,
   type PredictionChoice,
   type PredictPromptRecord,
@@ -15,7 +21,7 @@ import {
   submitPrediction,
 } from "../../experiments/predict/predictState.ts";
 import type { GeneratedPredictPrompt } from "../../generated/predict-prompts.ts";
-import { PredictPanel } from "./PredictPanel.tsx";
+import { type PredictionFormTab, PredictPanel } from "./PredictPanel.tsx";
 
 /**
  * Predict mode for a laboratory, drawn from its manifest's prompts (am-inst-predict-mode-ti7m).
@@ -41,6 +47,8 @@ export type PredictGateState = Readonly<{
   keep(promptId: string): void;
   skip(promptId: string): void;
   amend(promptId: string, choice: PredictionChoice): void;
+  clear(promptId: string): void;
+  restore(predictions: readonly TapePredictionEvent[]): void;
 }>;
 
 export function usePredictGate(
@@ -50,18 +58,31 @@ export function usePredictGate(
   const [records, setRecords] = useState<ReadonlyMap<string, PredictPromptRecord>>(
     () => new Map(prompts.map((p) => [p.promptId, beginPrompt(p.promptId)])),
   );
+  // An imported comparison is a view of someone else's recorded choice. Clearing that view must
+  // not delete a different private original that this reader had already saved for the prompt.
+  const importedPrompts = useRef(new Set<string>());
   // Read after mount: the server markup, and the first client render that hydrates it, both ask.
   // The reader's stored answers come through the persistence port, which an embed leaves at
   // "remembers nothing" (src/experiments/predict/predictPersistence.ts).
   const [notAsked, setNotAsked] = useState(false);
   useEffect(() => {
-    if (
-      !predictPersistence().asks(
-        labId,
-        prompts.map((p) => p.promptId),
-      )
-    )
-      setNotAsked(true);
+    const asks = predictPersistence().asks(
+      labId,
+      prompts.map((prompt) => prompt.promptId),
+    );
+    setRecords((current) => {
+      const next = new Map(current);
+      for (const prompt of prompts) {
+        const saved = predictPersistence().read?.(labId, prompt.promptId);
+        const choice = saved && checkedPredictionChoice(saved, prompt);
+        if (choice && next.get(prompt.promptId)?.state === "hidden")
+          next.set(prompt.promptId, reveal(submitPrediction(beginPrompt(prompt.promptId), choice)));
+        else if (!asks && next.get(prompt.promptId)?.state === "hidden")
+          next.set(prompt.promptId, skipPrediction(beginPrompt(prompt.promptId)));
+      }
+      return next;
+    });
+    if (!asks) setNotAsked(true);
   }, [labId, prompts]);
 
   const change = (promptId: string, transform: (r: PredictPromptRecord) => PredictPromptRecord) =>
@@ -75,12 +96,8 @@ export function usePredictGate(
     notAsked || prompts.length === 0 || [...records.values()].some((r) => r.state !== "hidden");
   const predictions: TapePredictionEvent[] = [];
   for (const r of records.values()) {
-    if (r.state === "revealed" && r.choice?.form === "candidate")
-      predictions.push({
-        promptId: r.promptId,
-        form: "candidate",
-        payload: { candidateId: r.choice.candidateId },
-      });
+    if (r.state === "revealed" && r.choice)
+      predictions.push(predictionForLink(r.promptId, r.choice));
   }
 
   return {
@@ -93,8 +110,12 @@ export function usePredictGate(
     // The result the prompt asks about is already the accepted one, so a stated prediction is
     // compared with it at once rather than after a further change.
     record(promptId, choice) {
-      change(promptId, (r) => reveal(submitPrediction(r, choice)));
-      predictPersistence().record(labId, promptId, choice);
+      const prompt = prompts.find((entry) => entry.promptId === promptId);
+      const checked = prompt && checkedPredictionChoice(choice, prompt);
+      if (!checked) return;
+      importedPrompts.current.delete(promptId);
+      change(promptId, (r) => reveal(submitPrediction(r, checked)));
+      predictPersistence().record(labId, promptId, checked);
     },
     keep(promptId) {
       change(promptId, keepToSelf);
@@ -106,6 +127,26 @@ export function usePredictGate(
     },
     amend(promptId, choice) {
       change(promptId, (r) => amendAfterReveal(r, choice));
+    },
+    clear(promptId) {
+      change(promptId, clearPrompt);
+      if (!importedPrompts.current.has(promptId)) predictPersistence().clear?.(labId, promptId);
+      importedPrompts.current.delete(promptId);
+    },
+    restore(incoming) {
+      const restored = prompts.flatMap((prompt) => {
+        const event = incoming.find((entry) => entry.promptId === prompt.promptId);
+        const choice = event && predictionFromLink(event, prompt);
+        return choice ? [{ promptId: prompt.promptId, choice }] : [];
+      });
+      for (const { promptId } of restored) importedPrompts.current.add(promptId);
+      setRecords((current) => {
+        const next = new Map(current);
+        for (const { promptId, choice } of restored) {
+          next.set(promptId, reveal(submitPrediction(beginPrompt(promptId), choice)));
+        }
+        return next;
+      });
     },
   };
 }
@@ -132,6 +173,19 @@ export function presentedOrder(prompt: GeneratedPredictPrompt): GeneratedPredict
   return { ...prompt, candidates };
 }
 
+export function offeredPredictionForms(
+  prompt: GeneratedPredictPrompt,
+): readonly PredictionFormTab[] {
+  return prompt.curvePrediction
+    ? [
+        "candidate",
+        "sketch",
+        ...(prompt.curvePrediction.verbalChoices ? ["verbal" as const] : []),
+        "values",
+      ]
+    : ["candidate"];
+}
+
 /** The laboratory's predict panels. Shown only with JavaScript; see predict.css. */
 export function PredictGatePanels({
   gate,
@@ -143,9 +197,18 @@ export function PredictGatePanels({
       {gate.prompts.map((prompt) => (
         <PredictPanel
           key={prompt.promptId}
-          prompt={presentedOrder(prompt)}
+          prompt={{
+            ...presentedOrder(prompt),
+            ...(prompt.curvePrediction
+              ? {
+                  sketchAxes: { x: prompt.curvePrediction.x, y: prompt.curvePrediction.y },
+                  valueTargets: prompt.curvePrediction.valueTargets,
+                  verbalChoices: prompt.curvePrediction.verbalChoices,
+                }
+              : {}),
+          }}
           record={gate.records.get(prompt.promptId) ?? beginPrompt(prompt.promptId)}
-          forms={["candidate"]}
+          forms={offeredPredictionForms(prompt)}
           resultShown
           describeCandidates={false}
           {...(reasoningHref ? { reasoningHref } : {})}

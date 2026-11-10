@@ -10,7 +10,9 @@ import { createStorageContext } from "../../platform/storage/store.ts";
 import { resolveEffectivePredictEntry } from "./predictEntry.ts";
 import type { PredictPersistence } from "./predictPersistence.ts";
 import {
+  clearPrediction,
   getEntryOverride,
+  getStoredPrompt,
   hasVisited,
   markVisited,
   type PredictionsDocumentV1,
@@ -49,5 +51,12 @@ export const LOCAL_PREDICT_PERSISTENCE: PredictPersistence = Object.freeze({
     persist((doc) =>
       recordUnrecordedStatus(markVisited(doc, labId, promptId), labId, promptId, "skipped"),
     );
+  },
+  read(labId, promptId) {
+    return getStoredPrompt(readPredictionsDocument(createStorageContext()), labId, promptId)
+      ?.prediction;
+  },
+  clear(labId, promptId) {
+    persist((doc) => clearPrediction(doc, labId, promptId));
   },
 });

@@ -11,6 +11,8 @@
 
 .predict-overlay-header {
   display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 0.75rem;
@@ -89,6 +91,9 @@
 }
 
 .predict-sketch-canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
   touch-action: none;
   border: 1px solid var(--line);
   background: var(--wash);
@@ -118,6 +123,13 @@
   color: var(--ink);
   border-radius: 3px;
   width: 6rem;
+  max-width: 100%;
+}
+
+.predict-target-field {
+  display: grid;
+  gap: 0.25rem;
+  margin-block: 0.75rem;
 }
 
 /* Export Preview */

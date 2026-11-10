@@ -31,7 +31,7 @@ const UNDETERMINED_NO_RECORD: PredictAdjudication = Object.freeze({
 const UNDETERMINED_SKETCH: PredictAdjudication = Object.freeze({
   status: "undetermined",
   statement:
-    "This prediction cannot be scored here: a freehand sketch is not compared with the model.",
+    "No automatic score is assigned to a freehand sketch. Compare its recorded shape with the displayed model result.",
 });
 
 const UNDETERMINED_NO_SUPPORT: PredictAdjudication = Object.freeze({
@@ -82,7 +82,8 @@ export function adjudicatePrediction(spec: AdjudicationSpec): PredictAdjudicatio
   if (!expected || expected.length === 0) {
     return Object.freeze({
       status: "undetermined",
-      statement: "This prediction cannot be scored here: no named values are given to compare.",
+      statement:
+        "No automatic score is assigned to these values. Compare the recorded values with the displayed model result.",
     });
   }
   const closeRelative = spec.closeRelative ?? 0.05;

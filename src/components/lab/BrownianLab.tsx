@@ -1,5 +1,5 @@
 "use client";
-import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { type FormEvent, useEffect, useId, useState } from "react";
 import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { createBm06BrowserChannel } from "../../experiments/bm06/browser.ts";
 import {
@@ -15,13 +15,15 @@ import {
   BM06_RADIAL_EXPLANATIONS,
   type Bm06Parameters,
 } from "../../experiments/bm06/definition.ts";
+import { BM06_DRAFT_TAPE } from "../../experiments/bm06/draftTape.ts";
 import { gridExecutionKind } from "../../experiments/bm06/gridExecution.ts";
 import {
   BM06_GRID_PROFILES,
   BM06_STEP_COMPARISON_NOTE,
   isBm06GridProfile,
 } from "../../experiments/bm06/gridProfiles.ts";
-import { decodeBm06Settings, encodeBm06Settings } from "../../experiments/bm06/permalink.ts";
+import { decodeBm06Settings } from "../../experiments/bm06/permalink.ts";
+import { BM06_CURVE_PROMPT, bm06PredictionCurve } from "../../experiments/bm06/prediction.ts";
 import { createBm06Session, type PreparedBm06Example } from "../../experiments/bm06/session.ts";
 import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
 import { ExecutionLabel } from "../../experiments/labels/ExecutionLabel.tsx";
@@ -29,6 +31,7 @@ import { executionStateKindFromHostLabel } from "../../experiments/labels/execut
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { useLaboratoryVisibility } from "../../experiments/lifecycle/useLaboratoryVisibility.ts";
+import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { FRANKENSIM_DIFFUSION_ENGINE_SENTENCE } from "../../experiments/provenance/pinnedFrankenSim.ts";
 import {
@@ -40,6 +43,7 @@ import {
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import { useRetainedSession } from "../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
+import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { SessionResultWeave } from "../../reader/weave/SessionResultWeave.tsx";
 import { BM06_READER_WEAVE } from "../../reader/weave/spreadingPassages.ts";
 import { DistributionPlot, GridComparison } from "./DistributionPlot.tsx";
@@ -47,6 +51,8 @@ import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { gridRefusalSentences } from "./gridRefusalWords.ts";
 import { KEPT_RESULT } from "./keptResult.ts";
 import { LabMargin } from "./LabMargin.tsx";
+import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
+import { PredictOverlay } from "./PredictOverlay.tsx";
 import { array, display, identity, scalar } from "./presentation.ts";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 import { withScripts } from "./subscripts.tsx";
@@ -54,6 +60,11 @@ import { withScripts } from "./subscripts.tsx";
 /** The page asks "how likely is a tracer to finish inside this interval", so the interval
  * stays in view; the physical settings and the numerical grid go in the drawer. */
 const INTERVAL_KEYS = new Set(["lower", "upper"]);
+// This question concerns the accepted point-start density shown here. The other authored prompts
+// concern changes to elapsed time and the numerical grid, not this first-look comparison.
+const BM06_CURVE_PROMPTS = (PREDICT_PROMPTS["bm-06"] ?? []).filter(
+  (prompt) => prompt.promptId === BM06_CURVE_PROMPT,
+);
 
 export type ExternalDiffusivitySource = Readonly<{
   /** How the copy button names the source to a reader. Never an instance or run id. */
@@ -115,7 +126,21 @@ export function BrownianLab({
     [dirty, setDirty] = useState(false);
   const [failure, setFailure] = useState<ApplyFailure | null>(null),
     [linkNote, setLinkNote] = useState("");
-  const [sharedUrl, setSharedUrl] = useState("");
+  const gate = usePredictGate("bm-06", BM06_CURVE_PROMPTS);
+  const tapeLink = useDraftTapeLink(
+    BM06_DRAFT_TAPE,
+    p,
+    restoreFromLocation,
+    (settings, predictions) => {
+      setDraft(toDraft(settings as Bm06Parameters));
+      setDirty(true);
+      if (predictions) gate.restore(predictions);
+    },
+  );
+  const curvePrompt = BM06_CURVE_PROMPTS[0];
+  const curveRecord = gate.records.get(BM06_CURVE_PROMPT);
+  const curveChoice = curveRecord?.state === "revealed" ? curveRecord.choice : null;
+  const predictionCurve = bm06PredictionCurve(snapshot);
   useEffect(() => {
     setReady(true);
     const shared = decodeBm06Settings(restoreFromLocation ? window.location.search : "");
@@ -178,17 +203,6 @@ export function BrownianLab({
       copiedDiffusivityValue: 0,
     });
   }
-  async function share() {
-    const url = new URL("/lab/bm-06/", window.location.origin);
-    url.search = encodeBm06Settings(session.acceptedParameters());
-    setSharedUrl(url.href);
-    try {
-      await navigator.clipboard.writeText(url.href);
-      setLinkNote("Link to the accepted settings copied.");
-    } catch {
-      setLinkNote("Copy the accepted-settings link from the field below.");
-    }
-  }
   const probability = scalar(snapshot, "intervalProbability");
   const rms = scalar(snapshot, "rmsDisplacement1d");
   const announcement = view.pending
@@ -202,6 +216,11 @@ export function BrownianLab({
           : `Accepted point-start result: RMS displacement ${display(rms, 1e6)} micrometres; selected interval probability ${display(probability, 100)} percent.${p.gridEnabled ? ` Numerical grid: ${BM06_GRID_PROFILES[p.gridProfile].label}.` : ""}`;
   const times = array(snapshot, "comparisonTimes"),
     spreads = array(snapshot, "comparisonRms");
+  const requestFeedback =
+    view.pending ||
+    view.status === "refused" ||
+    view.status === "unavailable" ||
+    view.status === "paused";
   return (
     <section
       ref={laboratoryRegion}
@@ -240,6 +259,10 @@ export function BrownianLab({
         Changing a field only edits a request. The plot and table change together after you apply
         valid settings.
       </p>
+      <PredictGatePanels
+        gate={gate}
+        reasoningHref="/papers/brownian-motion/s4/#arg-bm-diffusion-equation"
+      />
       <div className="lab-columns">
         <form
           onSubmit={submit}
@@ -513,10 +536,46 @@ export function BrownianLab({
               ))}
             </div>
           )}
-          <DistributionPlot
-            snapshot={snapshot}
-            clipId={`plot-${id.replace(/[^a-zA-Z0-9]/g, "")}`}
-          />
+          <div {...gate.response}>
+            <DistributionPlot
+              snapshot={snapshot}
+              clipId={`plot-${id.replace(/[^a-zA-Z0-9]/g, "")}`}
+            />
+            {curveChoice && curvePrompt?.curvePrediction && (
+              <div {...identity(snapshot)} data-prediction-comparison="bm-06">
+                {predictionCurve.kind === "curve" ? (
+                  <PredictOverlay
+                    choice={curveChoice}
+                    predictionLabel="Recorded prediction"
+                    resultPoints={predictionCurve.points}
+                    resultLabel="Accepted point-start density"
+                    valueTargets={curvePrompt.curvePrediction.valueTargets}
+                    xRange={[curvePrompt.curvePrediction.x.min, curvePrompt.curvePrediction.x.max]}
+                    yRange={[curvePrompt.curvePrediction.y.min, curvePrompt.curvePrediction.y.max]}
+                    xLabel="Displacement / RMS distance"
+                    yLabel="Density × RMS distance"
+                    onClear={() => gate.clear(BM06_CURVE_PROMPT)}
+                  />
+                ) : (
+                  <div className="notice">
+                    <p>{predictionCurve.reason} Your recorded prediction is unchanged.</p>
+                    <button
+                      type="button"
+                      className="secondary"
+                      onClick={() => gate.clear(BM06_CURVE_PROMPT)}
+                    >
+                      Clear comparison
+                    </button>
+                  </div>
+                )}
+                <p className="fine">
+                  These are samples from the accepted density above, expressed in RMS distances.
+                  Changing these axes does not run another model. The original prediction stays
+                  until you clear it; later settings change only the accepted result.
+                </p>
+              </div>
+            )}
+          </div>
           <div className="lab-status-row">
             <ExecutionChrome
               state={executionKind}
@@ -528,81 +587,91 @@ export function BrownianLab({
               })}
             />
           </div>
-          <p role="status" aria-live="polite" aria-atomic="true" className="status-line">
+          <p
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            className="status-line"
+            data-predict-response={
+              requestFeedback ? "shown" : gate.response["data-predict-response"]
+            }
+          >
             {announcement}
           </p>
-          <div className="accepted-caption">
-            <strong>Accepted settings</strong>
-            <br />
-            {display(p.T)} K · {display(p.eta, 1000)} mPa·s · radius {display(p.a, 1e6)} μm ·
-            elapsed {display(p.t)} s<br />
-            Constants: modern SI (2019). Viscosity is a declared input, not inferred from
-            temperature.{" "}
-            {p.copiedDiffusivityValue > 0
-              ? "D is the explicitly copied value, not a calculation from these physical inputs."
-              : "D is calculated from these physical inputs."}
+          <div {...gate.response}>
+            <div className="accepted-caption">
+              <strong>Accepted settings</strong>
+              <br />
+              {display(p.T)} K · {display(p.eta, 1000)} mPa·s · radius {display(p.a, 1e6)} μm ·
+              elapsed {display(p.t)} s<br />
+              Constants: modern SI (2019). Viscosity is a declared input, not inferred from
+              temperature.{" "}
+              {p.copiedDiffusivityValue > 0
+                ? "D is the explicitly copied value, not a calculation from these physical inputs."
+                : "D is calculated from these physical inputs."}
+            </div>
+            {/*
+             * THE NATURAL RATE, WHICH THIS LAB'S MANIFEST DECLARES AND A READER WAS NOT GIVEN
+             * (am-inst-real-rate-mode-gtez).
+             *
+             * content/experiments/bm-06.yaml declares `realRate.natural: true`, `quantity:
+             * displacement1d` and a `scaleBar` of 1e-6 m. bm-01 serves exactly that, in a
+             * `real-rate-card` whose figure comes from the trial's own snapshot; measured in the built
+             * output, bm-06's page carried no "natural rate", no "scale bar" and no "true rate" at
+             * all. Two instruments declare a natural rate and one of them said so.
+             *
+             * The figure is read from this snapshot, never pinned: the bead's background quotes
+             * Einstein's printed 0.8 micron for water at 1.35 mPa.s, and stating that at every setting
+             * is the mistake bm-01's own comment records making.
+             *
+             * NO SPED-UP COMPARISON, unlike bm-01, because there is nothing to compare with: this lab
+             * animates nothing. It draws the distribution at one elapsed time, so the honest content
+             * is the physical scale of that spread and the bar it is measured against. A reader can
+             * then tell whether the spread on screen is a micron or a millimetre of real water.
+             *
+             * Stated for the elapsed interval rather than per second, because a diffusive displacement
+             * grows as the square root of time and "per second" would invite multiplying it.
+             */}
+            <p className="rate-annotation" data-rate-mode="natural">
+              At the natural rate a tracer moves about {display(Number(rms.toPrecision(2)), 1e6)} μm
+              along one axis in {display(p.t)} s (root mean square; scale bar: 1 μm)
+            </p>
+            <div className="table-scroll">
+              <table {...identity(snapshot)}>
+                <caption>One accepted calculation, in explicit units</caption>
+                <tbody>
+                  <tr>
+                    <th scope="row">Diffusion coefficient</th>
+                    <td data-output="diffusionCoefficient">
+                      {display(scalar(snapshot, "diffusionCoefficient"), 1e12)} μm²/s
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">RMS displacement</th>
+                    <td data-output="rmsDisplacement1d">{display(rms, 1e6)} μm</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Mean square displacement</th>
+                    <td>{display(scalar(snapshot, "meanSquareDisplacement1d"), 1e12)} μm²</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Selected closed interval</th>
+                    <td>
+                      [{display(p.lower, 1e6)}, {display(p.upper, 1e6)}] μm
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Probability inside that interval</th>
+                    <td data-output="intervalProbability">{display(probability, 100)}%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p className="fine">
+              Density is measured per unit length; probability is a dimensionless area. A taller
+              curve is not a larger total probability.
+            </p>
           </div>
-          {/*
-           * THE NATURAL RATE, WHICH THIS LAB'S MANIFEST DECLARES AND A READER WAS NOT GIVEN
-           * (am-inst-real-rate-mode-gtez).
-           *
-           * content/experiments/bm-06.yaml declares `realRate.natural: true`, `quantity:
-           * displacement1d` and a `scaleBar` of 1e-6 m. bm-01 serves exactly that, in a
-           * `real-rate-card` whose figure comes from the trial's own snapshot; measured in the built
-           * output, bm-06's page carried no "natural rate", no "scale bar" and no "true rate" at
-           * all. Two instruments declare a natural rate and one of them said so.
-           *
-           * The figure is read from this snapshot, never pinned: the bead's background quotes
-           * Einstein's printed 0.8 micron for water at 1.35 mPa.s, and stating that at every setting
-           * is the mistake bm-01's own comment records making.
-           *
-           * NO SPED-UP COMPARISON, unlike bm-01, because there is nothing to compare with: this lab
-           * animates nothing. It draws the distribution at one elapsed time, so the honest content
-           * is the physical scale of that spread and the bar it is measured against. A reader can
-           * then tell whether the spread on screen is a micron or a millimetre of real water.
-           *
-           * Stated for the elapsed interval rather than per second, because a diffusive displacement
-           * grows as the square root of time and "per second" would invite multiplying it.
-           */}
-          <p className="rate-annotation" data-rate-mode="natural">
-            At the natural rate a tracer moves about {display(Number(rms.toPrecision(2)), 1e6)} μm
-            along one axis in {display(p.t)} s (root mean square; scale bar: 1 μm)
-          </p>
-          <div className="table-scroll">
-            <table {...identity(snapshot)}>
-              <caption>One accepted calculation, in explicit units</caption>
-              <tbody>
-                <tr>
-                  <th scope="row">Diffusion coefficient</th>
-                  <td data-output="diffusionCoefficient">
-                    {display(scalar(snapshot, "diffusionCoefficient"), 1e12)} μm²/s
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">RMS displacement</th>
-                  <td data-output="rmsDisplacement1d">{display(rms, 1e6)} μm</td>
-                </tr>
-                <tr>
-                  <th scope="row">Mean square displacement</th>
-                  <td>{display(scalar(snapshot, "meanSquareDisplacement1d"), 1e12)} μm²</td>
-                </tr>
-                <tr>
-                  <th scope="row">Selected closed interval</th>
-                  <td>
-                    [{display(p.lower, 1e6)}, {display(p.upper, 1e6)}] μm
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">Probability inside that interval</th>
-                  <td data-output="intervalProbability">{display(probability, 100)}%</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <p className="fine">
-            Density is measured per unit length; probability is a dimensionless area. A taller curve
-            is not a larger total probability.
-          </p>
         </div>
       </div>
       {p.gridEnabled && (
@@ -611,6 +680,7 @@ export function BrownianLab({
           {...identity(snapshot)}
           data-grid-execution={gridKind ?? undefined}
           data-grid-profile={p.gridProfile}
+          {...gate.response}
         >
           {gridKind && <ExecutionLabel state={gridKind} />}
           {gridByFrankenSim && <p className="fine">{FRANKENSIM_DIFFUSION_ENGINE_SENTENCE}</p>}
@@ -643,37 +713,41 @@ export function BrownianLab({
           <GridComparison snapshot={snapshot} />
         </div>
       )}
-      <SessionResultWeave
-        session={session}
-        binding={BM06_READER_WEAVE}
-        suspended={Boolean(failure)}
-      />
+      <div {...gate.response}>
+        <SessionResultWeave
+          session={session}
+          binding={BM06_READER_WEAVE}
+          suspended={Boolean(failure)}
+        />
+      </div>
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
           children of the lab root, which labShell.css's detail rules select. */}
       {readings && (
         <>
-          <p data-detail="0">
+          <p data-detail="0" {...gate.response}>
             <noscript>
               <b className="reading-label">In one breath</b>
             </noscript>
             {withScripts(BM06_CAPTION.r0)}
           </p>
-          <p data-detail="1">
+          <p data-detail="1" {...gate.response}>
             <noscript>
               <b className="reading-label">Full explanation</b>
             </noscript>
             {withScripts(BM06_CAPTION.r1)}
           </p>
-          <p data-detail="2" hidden>
+          <p data-detail="2" hidden {...gate.response}>
             <noscript>
               <b className="reading-label">Every step</b>
             </noscript>
             {withScripts(BM06_CAPTION.r2)}
           </p>
-          <LabMargin>{withScripts(BM06_CAPTION.r3)}</LabMargin>
+          <LabMargin>
+            <div {...gate.response}>{withScripts(BM06_CAPTION.r3)}</div>
+          </LabMargin>
         </>
       )}
-      <div className="lab-bottom">
+      <div className="lab-bottom" {...gate.response}>
         <section {...identity(snapshot)}>
           <h3>One setup, three observation times</h3>
           <table>
@@ -799,30 +873,7 @@ export function BrownianLab({
           uid={`stc-${id}`}
         />
       </details>
-      <div className="actions">
-        <button
-          type="button"
-          className="secondary"
-          disabled={!ready}
-          onClick={() => {
-            void share();
-          }}
-        >
-          Copy accepted-settings link
-        </button>
-      </div>
-      {sharedUrl && (
-        <div className="share-field">
-          <label htmlFor={`${id}-shared-url`}>Accepted-settings link</label>
-          <input
-            id={`${id}-shared-url`}
-            type="text"
-            readOnly
-            value={sharedUrl}
-            onFocus={(event) => event.target.select()}
-          />
-        </div>
-      )}
+      <LabTapeLink link={withPredictions(tapeLink, gate)} />
       {linkNote && <p className="notice">{linkNote}</p>}
     </section>
   );
@@ -848,7 +899,13 @@ export function BrownianComparison({ example }: { example: PreparedBm06Example }
           worker and accepted results.
         </p>
       </div>
-      {second && <BrownianLab example={example} title="An independent comparison" />}
+      {second && (
+        <BrownianLab
+          example={example}
+          title="An independent comparison"
+          restoreFromLocation={false}
+        />
+      )}
     </>
   );
 }

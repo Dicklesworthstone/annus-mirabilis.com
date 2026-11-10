@@ -1,11 +1,14 @@
 "use client";
 
+import { useId } from "react";
 import type { SketchPoint } from "../../experiments/predict/predictSketch.ts";
 import type { PredictionChoice } from "../../experiments/predict/predictState.ts";
 import "./predict.css";
 
 export interface PredictOverlayProps {
   readonly choice: PredictionChoice | null;
+  readonly predictionLabel?: string;
+  readonly valueTargets?: readonly Readonly<{ targetId: string; label: string; x: number }>[];
   readonly resultPoints?: readonly SketchPoint[];
   readonly resultLabel?: string;
   readonly xRange?: readonly [number, number];
@@ -18,36 +21,15 @@ export interface PredictOverlayProps {
 }
 
 /**
- * NO CALLER, AND NOTHING YET TO OVERLAY (am-50bk triage, 2026-10-24).
- *
- * Predict mode itself is live: `PredictGate.tsx` is mounted by many laboratories, `LocalPredictions`
- * sits in `src/app/lab/layout.tsx`, and a reader's choice is persisted through
- * `predict/predictStorage.ts` and carried into a shared `?tape=` link by `withPredictions`.
- *
- * This component is the other half AGENTS.md describes -- "The accepted snapshot then draws the
- * real curve over the prediction" -- and it needs a prediction that HAS a curve. It takes
- * `resultPoints` and a `SketchPoint` choice. Measured 2026-10-24: all 44 authored prompts in
- * `src/generated/predict-prompts.ts` are candidate choices among named alternatives, and
- * `GeneratedPredictPrompt` has no `form` field, so no prompt in the corpus yields a sketch to draw.
- * Mounted today it would have nothing to put on the axes.
- *
- * So the dashed-versus-solid, square-versus-round, legend-and-table machinery below is correct and
- * waiting on an authored sketch prompt, not on an import. Its companions in the same state are
- * `src/experiments/predict/predictTape.ts` (which would serialize such a prediction) and
- * `predictSketch.ts`. Owner: am-inst-predict-mode-ti7m. Kept under RULE 1.
- *
- * ---- as authored ----
- *
- * PredictOverlay (am-inst-predict-mode-ti7m):
- * Visually distinguishes the reader's prediction from the computed model result
- * WITHOUT relying on color alone:
- * - Prediction: DASHED line pattern (---), SQUARE markers (■), labeled legend.
- * - Result: SOLID line pattern (───), ROUND markers (●), labeled legend.
- * - Screen-reader accessible figure description and table.
- * - Both remain until the reader clears them via `onClear`.
+ * Compare a recorded prediction with supplied samples from an accepted result. This view never
+ * evaluates a model or invents positions for named targets: their x coordinates must be authored.
+ * Dashed lines and squares distinguish predictions from the result's solid lines and circles.
+ * The disclosure preserves the original prediction values and exact accepted samples as text.
  */
 export function PredictOverlay({
   choice,
+  predictionLabel = "Your prediction",
+  valueTargets = [],
   resultPoints = [],
   resultLabel = "Model result",
   xRange = [0, 1],
@@ -55,9 +37,10 @@ export function PredictOverlay({
   xLabel = "x",
   yLabel = "y",
   onClear,
-  width = 500,
-  height = 300,
+  width = 340,
+  height = 260,
 }: PredictOverlayProps) {
+  const clipId = useId();
   if (!choice && resultPoints.length === 0) {
     return null;
   }
@@ -73,21 +56,37 @@ export function PredictOverlay({
 
   const toSvgX = (x: number) => padding + ((x - xMin) / xSpan) * plotWidth;
   const toSvgY = (y: number) => height - padding - ((y - yMin) / ySpan) * plotHeight;
+  const inPlot = (x: number, y: number) => x >= xMin && x <= xMax && y >= yMin && y <= yMax;
 
-  // Render prediction points if sketch or values
-  let predPoints: readonly SketchPoint[] = [];
+  // Point numbers identify positions in the original recorded sequence, including duplicates.
+  let predictionRows: readonly Readonly<{
+    id: string;
+    label: string;
+    x: number | undefined;
+    y: number;
+  }>[] = [];
   let predDescription = "";
 
   if (choice) {
     if (choice.form === "sketch") {
-      predPoints = choice.points;
+      predictionRows = choice.points.map(([x, y], index) => ({
+        id: `point-${index}`,
+        label: `Point ${index + 1}`,
+        x,
+        y,
+      }));
       predDescription = `Freehand sketch with ${choice.points.length} points`;
     } else if (choice.form === "values") {
-      predPoints = choice.targets.map((t, idx) => [
-        xMin + (idx / Math.max(1, choice.targets.length - 1)) * xSpan,
-        t.value,
-      ]);
-      predDescription = `Target values: ${choice.targets.map((t) => `${t.targetId}=${t.value}`).join(", ")}`;
+      predictionRows = choice.targets.map((target) => {
+        const authored = valueTargets.find((entry) => entry.targetId === target.targetId);
+        return {
+          id: target.targetId,
+          label: authored?.label ?? target.targetId,
+          x: authored?.x,
+          y: target.value,
+        };
+      });
+      predDescription = `Target values: ${predictionRows.map(({ label, y }) => `${label}=${y}`).join(", ")}`;
     } else if (choice.form === "candidate") {
       predDescription = `Candidate: ${choice.candidateId}`;
     } else if (choice.form === "verbal") {
@@ -95,9 +94,30 @@ export function PredictOverlay({
     }
   }
 
+  const predPoints = predictionRows.flatMap(({ id, x, y }) =>
+    x === undefined ? [] : [{ id, x, y }],
+  );
+  if (choice?.form === "values") predPoints.sort((left, right) => left.x - right.x);
+  const resultSamples = resultPoints.map((point, index) => ({
+    id: `sample-${index}`,
+    index,
+    point,
+  }));
+
+  // Select existing rows, never interpolated values, and retain both accepted endpoints.
+  const resultRowCount = Math.min(resultPoints.length, 17);
+  const resultRows = Array.from({ length: resultRowCount }, (_, row) => {
+    const index =
+      resultRowCount < 2 ? 0 : Math.round((row * (resultPoints.length - 1)) / (resultRowCount - 1));
+    return { index, point: resultPoints[index] };
+  });
+  const missingCoordinates = predictionRows.some(({ x }) => x === undefined);
+
   const predPathD =
     predPoints.length > 1
-      ? predPoints.map(([x, y], i) => `${i === 0 ? "M" : "L"} ${toSvgX(x)} ${toSvgY(y)}`).join(" ")
+      ? predPoints
+          .map(({ x, y }, i) => `${i === 0 ? "M" : "L"} ${toSvgX(x)} ${toSvgY(y)}`)
+          .join(" ")
       : "";
 
   const resultPathD =
@@ -159,7 +179,7 @@ export function PredictOverlay({
             [■ - - -]
           </span>
           <span className="legend-label">
-            <strong>Your prediction</strong>
+            <strong>{predictionLabel}</strong>
             {predDescription ? ` (${predDescription})` : ""}
           </span>
         </div>
@@ -198,8 +218,13 @@ export function PredictOverlay({
         viewBox={`0 0 ${width} ${height}`}
         className="predict-overlay-svg"
         role="img"
-        aria-label={`Overlay plot comparing your prediction (${predDescription || "none"}) with the ${resultLabel}. Prediction uses dashed lines and square markers; model uses solid lines and round markers.`}
+        aria-label={`Overlay plot comparing ${predictionLabel} (${predDescription || "none"}) with ${resultLabel}. Prediction uses dashed lines and square markers; model uses solid lines and round markers. The values are also available in the table below.`}
       >
+        <defs>
+          <clipPath id={clipId}>
+            <rect x={padding} y={padding} width={plotWidth} height={plotHeight} />
+          </clipPath>
+        </defs>
         {/* Axes */}
         <line
           x1={padding}
@@ -222,6 +247,37 @@ export function PredictOverlay({
         <text x={width / 2} y={height - 10} textAnchor="middle" fontSize="12" fill="currentColor">
           {xLabel}
         </text>
+
+        <text
+          x={padding}
+          y={height - padding + 14}
+          textAnchor="middle"
+          fontSize="10"
+          fill="currentColor"
+        >
+          {xMin}
+        </text>
+        <text
+          x={width - padding}
+          y={height - padding + 14}
+          textAnchor="middle"
+          fontSize="10"
+          fill="currentColor"
+        >
+          {xMax}
+        </text>
+        <text
+          x={padding - 6}
+          y={height - padding}
+          textAnchor="end"
+          fontSize="10"
+          fill="currentColor"
+        >
+          {yMin}
+        </text>
+        <text x={padding - 6} y={padding + 4} textAnchor="end" fontSize="10" fill="currentColor">
+          {yMax}
+        </text>
         <text
           x={15}
           y={height / 2}
@@ -233,55 +289,145 @@ export function PredictOverlay({
           {yLabel}
         </text>
 
-        {/* Model Result Path (SOLID + ROUND MARKERS) */}
-        {resultPathD ? (
-          <path
-            d={resultPathD}
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            data-overlay-curve="result"
-          />
-        ) : null}
-        {resultPoints.map(([rx, ry]) => (
-          <circle
-            key={`res-pt-${rx}-${ry}`}
-            cx={toSvgX(rx)}
-            cy={toSvgY(ry)}
-            r="4"
-            fill="currentColor"
-            data-overlay-marker="result-round"
-          />
-        ))}
+        <g clipPath={`url(#${clipId})`}>
+          {/* Model Result Path (SOLID + ROUND MARKERS) */}
+          {resultPathD ? (
+            <path
+              d={resultPathD}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              data-overlay-curve="result"
+            />
+          ) : null}
+          {resultSamples.map(({ id, point: [rx, ry] }) => (
+            <circle
+              key={id}
+              cx={toSvgX(rx)}
+              cy={toSvgY(ry)}
+              r="4"
+              fill="currentColor"
+              data-overlay-marker="result-round"
+            />
+          ))}
 
-        {/* Prediction Path (DASHED + SQUARE MARKERS) */}
-        {predPathD ? (
-          <path
-            d={predPathD}
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeDasharray="6 4"
-            data-overlay-curve="prediction"
-          />
-        ) : null}
-        {predPoints.map(([px, py]) => (
-          <rect
-            key={`pred-pt-${px}-${py}`}
-            x={toSvgX(px) - 4}
-            y={toSvgY(py) - 4}
-            width="8"
-            height="8"
-            fill="currentColor"
-            data-overlay-marker="prediction-square"
-          />
-        ))}
+          {/* Prediction Path (DASHED + SQUARE MARKERS) */}
+          {predPathD ? (
+            <path
+              d={predPathD}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeDasharray="6 4"
+              data-overlay-curve="prediction"
+            />
+          ) : null}
+          {predPoints.map(({ id, x: px, y: py }) => (
+            <rect
+              key={id}
+              x={toSvgX(px) - 4}
+              y={toSvgY(py) - 4}
+              width="8"
+              height="8"
+              fill="currentColor"
+              data-overlay-marker="prediction-square"
+            />
+          ))}
+        </g>
       </svg>
 
       <figcaption className="sr-only">
         Comparison showing prediction ({predDescription}) versus {resultLabel}. Distinguished by
         pattern: prediction is dashed with square markers; result is solid with circular markers.
       </figcaption>
+
+      {missingCoordinates && (
+        <p className="fine">
+          Some prediction targets have no authored x coordinate. Their stated values are kept in the
+          table; no plot position is assigned to them.
+        </p>
+      )}
+      <details>
+        <summary>Read prediction and result values</summary>
+        <p className="fine">
+          The tables preserve the supplied values. Lines in the plot connect supplied points.
+        </p>
+        {predictionRows.length > 0 ? (
+          <section
+            className="table-scroll"
+            // biome-ignore lint/a11y/noNoninteractiveTabindex: keyboard readers need to scroll this table's off-screen columns.
+            tabIndex={0}
+            aria-label={`${predictionLabel} values`}
+          >
+            <table data-overlay-table="prediction">
+              <caption>{predictionLabel}: all original points and values</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Point or target</th>
+                  <th scope="col">{xLabel}</th>
+                  <th scope="col">{yLabel}</th>
+                  <th scope="col">Plot window</th>
+                </tr>
+              </thead>
+              <tbody>
+                {predictionRows.map(({ id, label, x, y }) => (
+                  <tr key={id}>
+                    <th scope="row">{label}</th>
+                    <td>{x ?? "No authored x coordinate"}</td>
+                    <td>{y}</td>
+                    <td>{x === undefined ? "Not placed" : inPlot(x, y) ? "Inside" : "Outside"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </section>
+        ) : choice ? (
+          <p>
+            {predictionLabel}: {predDescription}
+          </p>
+        ) : (
+          <p>No prediction was recorded.</p>
+        )}
+        {resultPoints.length > 0 ? (
+          <section
+            className="table-scroll"
+            // biome-ignore lint/a11y/noNoninteractiveTabindex: keyboard readers need to scroll this table's off-screen columns.
+            tabIndex={0}
+            aria-label={`${resultLabel} values`}
+          >
+            <table data-overlay-table="result">
+              <caption>
+                {resultLabel}:{" "}
+                {resultRows.length < resultPoints.length
+                  ? `${resultRows.length} of ${resultPoints.length} accepted samples, evenly spaced by sample index and including both endpoints`
+                  : `all ${resultPoints.length} accepted samples`}
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Sample</th>
+                  <th scope="col">{xLabel}</th>
+                  <th scope="col">{yLabel}</th>
+                  <th scope="col">Plot window</th>
+                </tr>
+              </thead>
+              <tbody>
+                {resultRows.map(({ index, point }) =>
+                  point ? (
+                    <tr key={`result-row-${index}`} data-sample-index={index}>
+                      <th scope="row">{index + 1}</th>
+                      <td>{point[0]}</td>
+                      <td>{point[1]}</td>
+                      <td>{inPlot(point[0], point[1]) ? "Inside" : "Outside"}</td>
+                    </tr>
+                  ) : null,
+                )}
+              </tbody>
+            </table>
+          </section>
+        ) : (
+          <p>No accepted result samples are available.</p>
+        )}
+      </details>
     </figure>
   );
 }

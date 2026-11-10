@@ -22,6 +22,9 @@ export type PredictPersistence = Readonly<{
   keep(labId: string, promptId: string): void;
   /** The reader skipped the prompt. */
   skip(labId: string, promptId: string): void;
+  /** Returning readers can compare the original recorded choice again. Embeds read nothing. */
+  read?(labId: string, promptId: string): PredictionChoice | undefined;
+  clear?(labId: string, promptId: string): void;
 }>;
 
 /** The default: asks every time and keeps nothing. */

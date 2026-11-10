@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { adjudicatePrediction } from "../../experiments/predict/predictAdjudication.ts";
 import {
   type AxisRange,
@@ -104,6 +104,8 @@ export function PredictPanel({
    */
   describeCandidates?: boolean;
 }) {
+  const instanceId = useId();
+  const controlId = `${prompt.promptId}-${instanceId}`;
   const [activeTab, setActiveTab] = useState<PredictionFormTab>(forms[0] ?? "candidate");
   const offers = (tab: PredictionFormTab) => forms.includes(tab);
 
@@ -118,6 +120,19 @@ export function PredictPanel({
   // Values state
   const targets = prompt.valueTargets ?? [];
   const [valueInputs, setValueInputs] = useState<Record<string, string>>({});
+  const validValues =
+    targets.length > 0 &&
+    targets.every((target) => {
+      const text = valueInputs[target.targetId]?.trim() ?? "";
+      const value = Number(text);
+      return (
+        text !== "" &&
+        Number.isFinite(value) &&
+        (target.min === undefined || value >= target.min) &&
+        (target.max === undefined || value <= target.max)
+      );
+    });
+  const availableForms = forms.filter((form) => form !== "values" || targets.length > 0);
 
   // Sketch state
   const xRange: AxisRange = prompt.sketchAxes
@@ -153,6 +168,8 @@ export function PredictPanel({
   const handleSvgPointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
     if (record.state !== "hidden") return;
     const rect = e.currentTarget.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return;
+    e.currentTarget.setPointerCapture?.(e.pointerId);
     const px = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     const py = Math.max(0, Math.min(1, 1 - (e.clientY - rect.top) / rect.height));
     const xVal = xRange[0] + px * (xRange[1] - xRange[0]);
@@ -162,13 +179,17 @@ export function PredictPanel({
     setSketchState((prev) => ({
       ...prev,
       cursor: [xVal, yVal],
-      points: [...prev.points, [xVal, yVal]],
+      points:
+        prev.points.length < 256
+          ? [...prev.points, [xVal, yVal]]
+          : [...processSketchPoints(prev.points, { xRange, yRange }), [xVal, yVal]],
     }));
   };
 
   const handleSvgPointerMove = (e: React.PointerEvent<SVGSVGElement>) => {
     if (!isDrawing || record.state !== "hidden") return;
     const rect = e.currentTarget.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return;
     const px = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     const py = Math.max(0, Math.min(1, 1 - (e.clientY - rect.top) / rect.height));
     const xVal = xRange[0] + px * (xRange[1] - xRange[0]);
@@ -177,7 +198,10 @@ export function PredictPanel({
     setSketchState((prev) => ({
       ...prev,
       cursor: [xVal, yVal],
-      points: [...prev.points, [xVal, yVal]],
+      points:
+        prev.points.length < 256
+          ? [...prev.points, [xVal, yVal]]
+          : [...processSketchPoints(prev.points, { xRange, yRange }), [xVal, yVal]],
     }));
   };
 
@@ -199,9 +223,10 @@ export function PredictPanel({
   };
 
   const handleCommitValues = () => {
+    if (!validValues) return;
     const list = targets.map((t) => ({
       targetId: t.targetId,
-      value: parseFloat(valueInputs[t.targetId] || "0"),
+      value: Number(valueInputs[t.targetId]),
     }));
     onRecord({ form: "values", targets: list });
   };
@@ -220,11 +245,37 @@ export function PredictPanel({
         // The chosen format is drawn as an action button and the others as secondary, from the same
         // test as aria-selected. They used an "active" class no stylesheet declares, so every tab
         // drew in the same ink and the choice showed only to a screen reader (live /lab/me-02/).
-        <div className="predict-mode-tabs" role="tablist" aria-label="Prediction format">
+        <div
+          className="predict-mode-tabs"
+          role="tablist"
+          aria-label={`Prediction format for ${prompt.question}`}
+          onKeyDown={(event) => {
+            const current = availableForms.indexOf(activeTab);
+            const next =
+              event.key === "Home"
+                ? 0
+                : event.key === "End"
+                  ? availableForms.length - 1
+                  : event.key === "ArrowRight"
+                    ? (current + 1) % availableForms.length
+                    : event.key === "ArrowLeft"
+                      ? (current + availableForms.length - 1) % availableForms.length
+                      : -1;
+            const form = availableForms[next];
+            if (form) {
+              event.preventDefault();
+              setActiveTab(form);
+              document.getElementById(`${controlId}-format-${form}`)?.focus();
+            }
+          }}
+        >
           {offers("candidate") && (
             <button
               type="button"
               role="tab"
+              id={`${controlId}-format-candidate`}
+              aria-controls={`${controlId}-format-panel`}
+              tabIndex={activeTab === "candidate" ? 0 : -1}
               aria-selected={activeTab === "candidate"}
               className={activeTab === "candidate" ? undefined : "secondary"}
               onClick={() => setActiveTab("candidate")}
@@ -236,6 +287,9 @@ export function PredictPanel({
             <button
               type="button"
               role="tab"
+              id={`${controlId}-format-sketch`}
+              aria-controls={`${controlId}-format-panel`}
+              tabIndex={activeTab === "sketch" ? 0 : -1}
               aria-selected={activeTab === "sketch"}
               className={activeTab === "sketch" ? undefined : "secondary"}
               onClick={() => setActiveTab("sketch")}
@@ -247,6 +301,9 @@ export function PredictPanel({
             <button
               type="button"
               role="tab"
+              id={`${controlId}-format-verbal`}
+              aria-controls={`${controlId}-format-panel`}
+              tabIndex={activeTab === "verbal" ? 0 : -1}
               aria-selected={activeTab === "verbal"}
               className={activeTab === "verbal" ? undefined : "secondary"}
               onClick={() => setActiveTab("verbal")}
@@ -258,6 +315,9 @@ export function PredictPanel({
             <button
               type="button"
               role="tab"
+              id={`${controlId}-format-values`}
+              aria-controls={`${controlId}-format-panel`}
+              tabIndex={activeTab === "values" ? 0 : -1}
               aria-selected={activeTab === "values"}
               className={activeTab === "values" ? undefined : "secondary"}
               onClick={() => setActiveTab("values")}
@@ -268,277 +328,317 @@ export function PredictPanel({
         </div>
       )}
 
-      {pending && activeTab === "candidate" && (
-        <fieldset>
-          <legend>Three relations the model could have</legend>
-          {prompt.candidates.map((candidate) => (
-            <label key={candidate.id} className="check">
-              <input
-                type="radio"
-                name={`${prompt.promptId}-candidate`}
-                value={candidate.id}
-                disabled={record.state !== "hidden"}
-                checked={chosenId === candidate.id}
-                onChange={() => onRecord({ form: "candidate", candidateId: candidate.id })}
-              />{" "}
-              {describeCandidates
-                ? `${candidate.label}: ${candidate.description}`
-                : withScripts(candidate.label)}
-            </label>
-          ))}
-        </fieldset>
-      )}
+      <div
+        id={`${controlId}-format-panel`}
+        role="tabpanel"
+        aria-label={pending && availableForms.length > 1 ? undefined : prompt.question}
+        aria-labelledby={
+          pending && availableForms.length > 1 ? `${controlId}-format-${activeTab}` : undefined
+        }
+      >
+        {pending && activeTab === "candidate" && (
+          <fieldset>
+            <legend>Three relations the model could have</legend>
+            {prompt.candidates.map((candidate) => (
+              <label key={candidate.id} className="check">
+                <input
+                  type="radio"
+                  name={`${controlId}-candidate`}
+                  value={candidate.id}
+                  disabled={record.state !== "hidden"}
+                  checked={chosenId === candidate.id}
+                  onChange={() => onRecord({ form: "candidate", candidateId: candidate.id })}
+                />{" "}
+                {describeCandidates
+                  ? `${candidate.label}: ${candidate.description}`
+                  : withScripts(candidate.label)}
+              </label>
+            ))}
+          </fieldset>
+        )}
 
-      {pending && activeTab === "sketch" && (
-        <div className="predict-sketch-pane" data-predict-sketch="">
-          <h4>Sketch what you expect to see</h4>
-          <p id={`${prompt.promptId}-sketch-instructions`}>
-            Draw on the canvas or use arrow keys to navigate and Space/Enter to place points. Max 64
-            points.
-          </p>
-
-          <div role="status" aria-live="polite" className="sr-only" data-sketch-announcement="">
-            {sketchAnnouncement}
-          </div>
-
-          <svg
-            width={320}
-            height={200}
-            viewBox="0 0 320 200"
-            className="predict-sketch-canvas"
-            tabIndex={record.state === "hidden" ? 0 : -1}
-            role="application"
-            aria-label={`Sketch input area for ${prompt.question}.`}
-            aria-describedby={`${prompt.promptId}-sketch-instructions`}
-            onPointerDown={handleSvgPointerDown}
-            onPointerMove={handleSvgPointerMove}
-            onPointerUp={handleSvgPointerUp}
-            onKeyDown={(e) => {
-              if (record.state !== "hidden") return;
-              if (e.key === "ArrowLeft") {
-                e.preventDefault();
-                setSketchState((s) => {
-                  const n = moveSketchCursor(s, -1, 0);
-                  setSketchAnnouncement(getSketchStatusAnnouncement(n, "move"));
-                  return n;
-                });
-              } else if (e.key === "ArrowRight") {
-                e.preventDefault();
-                setSketchState((s) => {
-                  const n = moveSketchCursor(s, 1, 0);
-                  setSketchAnnouncement(getSketchStatusAnnouncement(n, "move"));
-                  return n;
-                });
-              } else if (e.key === "ArrowUp") {
-                e.preventDefault();
-                setSketchState((s) => {
-                  const n = moveSketchCursor(s, 0, 1);
-                  setSketchAnnouncement(getSketchStatusAnnouncement(n, "move"));
-                  return n;
-                });
-              } else if (e.key === "ArrowDown") {
-                e.preventDefault();
-                setSketchState((s) => {
-                  const n = moveSketchCursor(s, 0, -1);
-                  setSketchAnnouncement(getSketchStatusAnnouncement(n, "move"));
-                  return n;
-                });
-              } else if (e.key === " " || e.key === "Enter") {
-                e.preventDefault();
-                setSketchState((s) => {
-                  const n = placeSketchPoint(s);
-                  setSketchAnnouncement(getSketchStatusAnnouncement(n, "add"));
-                  return n;
-                });
-              } else if (e.key === "Backspace" || e.key === "u") {
-                e.preventDefault();
-                setSketchState((s) => {
-                  const n = undoSketchPoint(s);
-                  setSketchAnnouncement(getSketchStatusAnnouncement(n, "undo"));
-                  return n;
-                });
-              }
-            }}
-            style={{ border: "1px solid var(--line)", touchAction: "none", cursor: "crosshair" }}
-          >
-            {/* Draw polyline */}
-            {sketchState.points.length > 1 && (
-              <polyline
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeDasharray="4 2"
-                points={sketchState.points
-                  .map(([x, y]) => {
-                    const sx = ((x - xRange[0]) / (xRange[1] - xRange[0])) * 320;
-                    const sy = (1 - (y - yRange[0]) / (yRange[1] - yRange[0])) * 200;
-                    return `${sx},${sy}`;
-                  })
-                  .join(" ")}
-              />
+        {pending && activeTab === "sketch" && (
+          <div className="predict-sketch-pane" data-predict-sketch="">
+            <h4>Sketch what you expect to see</h4>
+            <p id={`${controlId}-sketch-instructions`}>
+              Draw a curve, or use arrow keys to move and Space or Enter to place a point. The saved
+              sketch keeps at most 64 points.
+            </p>
+            {prompt.sketchAxes && (
+              <p className="fine" id={`${controlId}-sketch-axes`}>
+                Horizontal: {prompt.sketchAxes.x.label}, {xRange[0]} to {xRange[1]}
+                {prompt.sketchAxes.x.unit ? ` (${prompt.sketchAxes.x.unit})` : ""}. Vertical:{" "}
+                {prompt.sketchAxes.y.label}, {yRange[0]} to {yRange[1]}
+                {prompt.sketchAxes.y.unit ? ` (${prompt.sketchAxes.y.unit})` : ""}.
+              </p>
             )}
-            {/* Draw points */}
-            {sketchState.points.map(([x, y]) => {
-              const sx = ((x - xRange[0]) / (xRange[1] - xRange[0])) * 320;
-              const sy = (1 - (y - yRange[0]) / (yRange[1] - yRange[0])) * 200;
-              return (
-                <rect
-                  key={`pt-${x}-${y}`}
-                  x={sx - 3}
-                  y={sy - 3}
-                  width={6}
-                  height={6}
-                  fill="currentColor"
-                />
-              );
-            })}
-            {/* Draw active cursor crosshair */}
-            {(() => {
-              const cx = ((sketchState.cursor[0] - xRange[0]) / (xRange[1] - xRange[0])) * 320;
-              const cy = (1 - (sketchState.cursor[1] - yRange[0]) / (yRange[1] - yRange[0])) * 200;
-              return (
-                <circle cx={cx} cy={cy} r="4" fill="none" stroke="currentColor" strokeWidth="1.5" />
-              );
-            })()}
-          </svg>
 
-          {record.state === "hidden" && (
-            <div
-              className="sketch-controls"
-              style={{ display: "flex", gap: "0.5rem", marginTop: "0.5rem" }}
-            >
-              <button
-                type="button"
-                className="secondary"
-                onClick={() =>
+            <div role="status" aria-live="polite" className="sr-only" data-sketch-announcement="">
+              {sketchAnnouncement}
+            </div>
+
+            <svg
+              width={320}
+              height={200}
+              viewBox="0 0 320 200"
+              className="predict-sketch-canvas"
+              tabIndex={record.state === "hidden" ? 0 : -1}
+              role="application"
+              aria-label={`Sketch input area for ${prompt.question}.`}
+              aria-describedby={`${controlId}-sketch-instructions${prompt.sketchAxes ? ` ${controlId}-sketch-axes` : ""}`}
+              onPointerDown={handleSvgPointerDown}
+              onPointerMove={handleSvgPointerMove}
+              onPointerUp={handleSvgPointerUp}
+              onPointerCancel={handleSvgPointerUp}
+              onLostPointerCapture={handleSvgPointerUp}
+              onKeyDown={(e) => {
+                if (record.state !== "hidden") return;
+                if (e.key === "ArrowLeft") {
+                  e.preventDefault();
+                  setSketchState((s) => {
+                    const n = moveSketchCursor(s, -1, 0);
+                    setSketchAnnouncement(getSketchStatusAnnouncement(n, "move"));
+                    return n;
+                  });
+                } else if (e.key === "ArrowRight") {
+                  e.preventDefault();
+                  setSketchState((s) => {
+                    const n = moveSketchCursor(s, 1, 0);
+                    setSketchAnnouncement(getSketchStatusAnnouncement(n, "move"));
+                    return n;
+                  });
+                } else if (e.key === "ArrowUp") {
+                  e.preventDefault();
+                  setSketchState((s) => {
+                    const n = moveSketchCursor(s, 0, 1);
+                    setSketchAnnouncement(getSketchStatusAnnouncement(n, "move"));
+                    return n;
+                  });
+                } else if (e.key === "ArrowDown") {
+                  e.preventDefault();
+                  setSketchState((s) => {
+                    const n = moveSketchCursor(s, 0, -1);
+                    setSketchAnnouncement(getSketchStatusAnnouncement(n, "move"));
+                    return n;
+                  });
+                } else if (e.key === " " || e.key === "Enter") {
+                  e.preventDefault();
                   setSketchState((s) => {
                     const n = placeSketchPoint(s);
                     setSketchAnnouncement(getSketchStatusAnnouncement(n, "add"));
                     return n;
-                  })
-                }
-              >
-                Place point
-              </button>
-              <button
-                type="button"
-                className="secondary"
-                disabled={sketchState.points.length === 0}
-                onClick={() =>
+                  });
+                } else if (e.key === "Backspace" || e.key === "u") {
+                  e.preventDefault();
                   setSketchState((s) => {
                     const n = undoSketchPoint(s);
                     setSketchAnnouncement(getSketchStatusAnnouncement(n, "undo"));
                     return n;
-                  })
+                  });
                 }
-              >
-                Undo point
-              </button>
-              <button
-                type="button"
-                className="secondary"
-                disabled={sketchState.points.length === 0}
-                onClick={() =>
-                  setSketchState((s) => {
-                    const n = clearSketchPoints(s);
-                    setSketchAnnouncement(getSketchStatusAnnouncement(n, "clear"));
-                    return n;
-                  })
-                }
-              >
-                Clear
-              </button>
-              <button
-                type="button"
-                disabled={sketchState.points.length === 0}
-                onClick={handleCommitSketch}
-              >
-                Record sketch ({sketchState.points.length} pts)
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {pending && activeTab === "verbal" && (
-        <fieldset data-predict-verbal="">
-          <legend>State the expected direction and shape</legend>
-          <div className="verbal-direction-options">
-            <strong>Direction:</strong>
-            {directions.map((d) => (
-              <label key={d.id} className="check">
-                <input
-                  type="radio"
-                  name={`${prompt.promptId}-verbal-direction`}
-                  value={d.id}
-                  disabled={record.state !== "hidden"}
-                  checked={selectedDirection === d.id}
-                  onChange={() => setSelectedDirection(d.id)}
-                />{" "}
-                {d.label}
-              </label>
-            ))}
-          </div>
-          <div className="verbal-shape-options" style={{ marginTop: "0.5rem" }}>
-            <strong>Curve shape:</strong>
-            {shapes.map((s) => (
-              <label key={s.id} className="check">
-                <input
-                  type="radio"
-                  name={`${prompt.promptId}-verbal-shape`}
-                  value={s.id}
-                  disabled={record.state !== "hidden"}
-                  checked={selectedShape === s.id}
-                  onChange={() => setSelectedShape(s.id)}
-                />{" "}
-                {s.label}
-              </label>
-            ))}
-          </div>
-          {record.state === "hidden" && (
-            <button
-              type="button"
-              style={{ marginTop: "0.5rem" }}
-              disabled={!selectedDirection || !selectedShape}
-              onClick={handleCommitVerbal}
+              }}
+              style={{ border: "1px solid var(--line)", touchAction: "none", cursor: "crosshair" }}
             >
-              Record verbal prediction
-            </button>
-          )}
-        </fieldset>
-      )}
-
-      {pending && activeTab === "values" && targets.length > 0 && (
-        <fieldset data-predict-values="">
-          <legend>Enter predicted numerical values</legend>
-          {targets.map((t) => (
-            <div
-              key={t.targetId}
-              className="predict-target-input"
-              style={{ marginBottom: "0.5rem" }}
-            >
-              <label htmlFor={`${prompt.promptId}-val-${t.targetId}`}>
-                {t.label} {t.unit ? `(${t.unit})` : ""}:
-              </label>
-              <input
-                id={`${prompt.promptId}-val-${t.targetId}`}
-                type="number"
-                step="any"
-                disabled={record.state !== "hidden"}
-                value={valueInputs[t.targetId] ?? ""}
-                onChange={(e) =>
-                  setValueInputs((prev) => ({ ...prev, [t.targetId]: e.target.value }))
-                }
+              <path
+                d="M0,199 H320 M1,0 V200 M160,0 V200 M0,100 H320"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="0.5"
+                strokeDasharray="2 4"
               />
+              {/* Draw polyline */}
+              {sketchState.points.length > 1 && (
+                <polyline
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeDasharray="4 2"
+                  points={sketchState.points
+                    .map(([x, y]) => {
+                      const sx = ((x - xRange[0]) / (xRange[1] - xRange[0])) * 320;
+                      const sy = (1 - (y - yRange[0]) / (yRange[1] - yRange[0])) * 200;
+                      return `${sx},${sy}`;
+                    })
+                    .join(" ")}
+                />
+              )}
+              {/* Draw points */}
+              {Array.from(
+                new Map(sketchState.points.map((point) => [point.join(","), point])).values(),
+              ).map(([x, y]) => {
+                const sx = ((x - xRange[0]) / (xRange[1] - xRange[0])) * 320;
+                const sy = (1 - (y - yRange[0]) / (yRange[1] - yRange[0])) * 200;
+                return (
+                  <rect
+                    key={`pt-${x}-${y}`}
+                    x={sx - 3}
+                    y={sy - 3}
+                    width={6}
+                    height={6}
+                    fill="currentColor"
+                  />
+                );
+              })}
+              {/* Draw active cursor crosshair */}
+              {(() => {
+                const cx = ((sketchState.cursor[0] - xRange[0]) / (xRange[1] - xRange[0])) * 320;
+                const cy =
+                  (1 - (sketchState.cursor[1] - yRange[0]) / (yRange[1] - yRange[0])) * 200;
+                return (
+                  <circle
+                    cx={cx}
+                    cy={cy}
+                    r="4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  />
+                );
+              })()}
+            </svg>
+
+            {record.state === "hidden" && (
+              <div
+                className="sketch-controls"
+                style={{ display: "flex", gap: "0.5rem", marginTop: "0.5rem" }}
+              >
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() =>
+                    setSketchState((s) => {
+                      const n = placeSketchPoint(s);
+                      setSketchAnnouncement(getSketchStatusAnnouncement(n, "add"));
+                      return n;
+                    })
+                  }
+                >
+                  Place point
+                </button>
+                <button
+                  type="button"
+                  className="secondary"
+                  disabled={sketchState.points.length === 0}
+                  onClick={() =>
+                    setSketchState((s) => {
+                      const n = undoSketchPoint(s);
+                      setSketchAnnouncement(getSketchStatusAnnouncement(n, "undo"));
+                      return n;
+                    })
+                  }
+                >
+                  Undo point
+                </button>
+                <button
+                  type="button"
+                  className="secondary"
+                  disabled={sketchState.points.length === 0}
+                  onClick={() =>
+                    setSketchState((s) => {
+                      const n = clearSketchPoints(s);
+                      setSketchAnnouncement(getSketchStatusAnnouncement(n, "clear"));
+                      return n;
+                    })
+                  }
+                >
+                  Clear
+                </button>
+                <button
+                  type="button"
+                  disabled={sketchState.points.length === 0}
+                  onClick={handleCommitSketch}
+                >
+                  Record sketch ({sketchState.points.length} pts)
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {pending && activeTab === "verbal" && (
+          <fieldset data-predict-verbal="">
+            <legend>State the expected direction and shape</legend>
+            <div className="verbal-direction-options">
+              <strong>Direction:</strong>
+              {directions.map((d) => (
+                <label key={d.id} className="check">
+                  <input
+                    type="radio"
+                    name={`${controlId}-verbal-direction`}
+                    value={d.id}
+                    disabled={record.state !== "hidden"}
+                    checked={selectedDirection === d.id}
+                    onChange={() => setSelectedDirection(d.id)}
+                  />{" "}
+                  {d.label}
+                </label>
+              ))}
             </div>
-          ))}
-          {record.state === "hidden" && (
-            <button type="button" onClick={handleCommitValues}>
-              Record values
-            </button>
-          )}
-        </fieldset>
-      )}
+            <div className="verbal-shape-options" style={{ marginTop: "0.5rem" }}>
+              <strong>Curve shape:</strong>
+              {shapes.map((s) => (
+                <label key={s.id} className="check">
+                  <input
+                    type="radio"
+                    name={`${controlId}-verbal-shape`}
+                    value={s.id}
+                    disabled={record.state !== "hidden"}
+                    checked={selectedShape === s.id}
+                    onChange={() => setSelectedShape(s.id)}
+                  />{" "}
+                  {s.label}
+                </label>
+              ))}
+            </div>
+            {record.state === "hidden" && (
+              <button
+                type="button"
+                style={{ marginTop: "0.5rem" }}
+                disabled={!selectedDirection || !selectedShape}
+                onClick={handleCommitVerbal}
+              >
+                Record verbal prediction
+              </button>
+            )}
+          </fieldset>
+        )}
+
+        {pending && activeTab === "values" && targets.length > 0 && (
+          <fieldset data-predict-values="">
+            <legend>Enter predicted numerical values</legend>
+            {targets.map((t) => (
+              <div
+                key={t.targetId}
+                className="predict-target-field"
+                style={{ marginBottom: "0.5rem" }}
+              >
+                <label htmlFor={`${controlId}-val-${t.targetId}`}>
+                  {t.label} {t.unit ? `(${t.unit})` : ""}:
+                </label>
+                <input
+                  id={`${controlId}-val-${t.targetId}`}
+                  className="predict-target-input"
+                  type="number"
+                  step="any"
+                  required
+                  min={t.min}
+                  max={t.max}
+                  disabled={record.state !== "hidden"}
+                  value={valueInputs[t.targetId] ?? ""}
+                  onChange={(e) =>
+                    setValueInputs((prev) => ({ ...prev, [t.targetId]: e.target.value }))
+                  }
+                />
+              </div>
+            ))}
+            {record.state === "hidden" && (
+              <button type="button" disabled={!validValues} onClick={handleCommitValues}>
+                Record values
+              </button>
+            )}
+          </fieldset>
+        )}
+      </div>
 
       {record.state === "hidden" ? (
         <div className="preset-list" style={{ marginTop: "1rem" }}>
@@ -587,6 +687,13 @@ export function PredictPanel({
         </p>
       ) : null}
 
+      {record.state === "cleared" ? (
+        <p role="status">
+          Prediction cleared. The accepted result remains available, and this prediction is no
+          longer included in a shared link.
+        </p>
+      ) : null}
+
       {adjudication ? (
         <div data-predict-adjudication={adjudication.status}>
           <p>{adjudication.statement}</p>
@@ -604,7 +711,12 @@ export function PredictPanel({
           {record.choice?.form === "values" ? (
             <p data-predict-original="">
               Recorded prediction:{" "}
-              {record.choice.targets.map((t) => `${t.targetId}=${t.value}`).join(", ")}
+              {record.choice.targets
+                .map(
+                  (t) =>
+                    `${targets.find((target) => target.targetId === t.targetId)?.label ?? t.targetId}: ${t.value}`,
+                )
+                .join(", ")}
             </p>
           ) : null}
           {record.choice?.form === "sketch" ? (
@@ -626,7 +738,7 @@ export function PredictPanel({
             <label key={`amend-${candidate.id}`} className="check">
               <input
                 type="radio"
-                name={`${prompt.promptId}-amendment`}
+                name={`${controlId}-amendment`}
                 value={candidate.id}
                 checked={
                   record.amendment?.choice.form === "candidate" &&

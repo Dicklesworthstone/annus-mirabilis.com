@@ -14,7 +14,7 @@ import {
   type TapeSession,
   tapeForSettings,
 } from "./sessionTape.ts";
-import type { TapeV2 } from "./types.ts";
+import type { TapePredictionEvent, TapeV2 } from "./types.ts";
 import { WalkthroughPlayer } from "./WalkthroughPlayer.tsx";
 import {
   type RetainedWalkthroughTape,
@@ -131,7 +131,10 @@ export function useDraftTapeLink(
   binding: DraftTapeBinding,
   acceptedParameters: object | null | undefined,
   enabled: boolean,
-  onLoaded: (settings: Readonly<Record<string, unknown>>) => void,
+  onLoaded: (
+    settings: Readonly<Record<string, unknown>>,
+    predictions?: readonly TapePredictionEvent[],
+  ) => void,
 ): LabTapeLinkState {
   const [notice, setNotice] = useState("");
   const [note, setNote] = useState("");
@@ -144,7 +147,7 @@ export function useDraftTapeLink(
       if (!live) return;
       if (loaded.kind === "not-restored") setNotice(loaded.notice);
       else if (loaded.kind === "loaded") {
-        loadedRef.current(loaded.settings);
+        loadedRef.current(loaded.settings, loaded.predictions);
         setNote("The shared link's settings are in the form. Apply them to calculate.");
       }
     });

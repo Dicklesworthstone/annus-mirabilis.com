@@ -8,6 +8,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import type { PreparedBm01Example } from "../../experiments/bm01/session.ts";
 import type { PreparedBm04Example } from "../../experiments/bm04/session.ts";
 import type { PreparedBm05Example } from "../../experiments/bm05/session.ts";
+import type { PreparedBm06Example } from "../../experiments/bm06/session.ts";
 import type { PreparedBm07Example } from "../../experiments/bm07/session.ts";
 import type { PreparedBm08Example } from "../../experiments/bm08/session.ts";
 import type { PreparedLq01Example } from "../../experiments/lq01/session.ts";
@@ -39,6 +40,7 @@ import { DEFAULT_PREPARED_EXAMPLE as SR13_EXAMPLE } from "../../experiments/sr13
 import rawBm01Example from "../../generated/bm01-example.json";
 import rawBm04Example from "../../generated/bm04-example.json";
 import rawBm05Example from "../../generated/bm05-example.json";
+import rawBm06Example from "../../generated/bm06-example.json";
 import rawBm07Example from "../../generated/bm07-example.json";
 import rawBm08Example from "../../generated/bm08-example.json";
 import rawLq01Example from "../../generated/lq01-example.json";
@@ -60,6 +62,7 @@ import {
   removeContainer,
   uninstallDom,
 } from "../../testing/reactDom.ts";
+import { BrownianLab } from "./BrownianLab.tsx";
 import { ConfigurationLab } from "./bm03/ConfigurationLab.tsx";
 import { CameraLab } from "./CameraLab.tsx";
 import { CoefficientLab } from "./CoefficientLab.tsx";
@@ -152,6 +155,14 @@ const LABS: readonly GatedLab[] = [
     element: () =>
       createElement(WalkLab, { example: rawBm05Example as unknown as PreparedBm05Example }),
     result: "Step law and whole-ensemble spread",
+    sharesTape: true,
+    statusLine: true,
+  },
+  {
+    lab: "bm-06",
+    element: () =>
+      createElement(BrownianLab, { example: rawBm06Example as unknown as PreparedBm06Example }),
+    result: "One accepted calculation, in explicit units",
     sharesTape: true,
     statusLine: true,
   },
@@ -400,7 +411,8 @@ describe("with JavaScript, a first-time reader answers before the result shows",
         expect(container.querySelector("[data-predict-waiting]")).not.toBeNull();
         expect(container.textContent).toContain(shownText(prompt?.question ?? "missing"));
         expect(
-          container.querySelectorAll(`input[name="${prompt?.promptId}-candidate"]`).length,
+          container.querySelectorAll(`input[name^="${prompt?.promptId}-"][name$="-candidate"]`)
+            .length,
         ).toBe(prompt?.candidates.length ?? -1);
       });
     });
@@ -418,7 +430,7 @@ describe("with JavaScript, a first-time reader answers before the result shows",
     test(`${lab}: choosing the supported candidate shows the result, says so, records it, and a shared link carries it`, async () => {
       await mounted(element(), async (container) => {
         const radio = container.querySelector(
-          `input[name="${prompt?.promptId}-candidate"][value="${supported?.id}"]`,
+          `input[name^="${prompt?.promptId}-"][name$="-candidate"][value="${supported?.id}"]`,
         );
         await act(async () => {
           handlers(radio).onChange?.();
@@ -471,7 +483,7 @@ describe("with JavaScript, a first-time reader answers before the result shows",
     test(`${lab}: another candidate shows the result with that candidate's assumption, in no words of judgement`, async () => {
       await mounted(element(), async (container) => {
         const radio = container.querySelector(
-          `input[name="${prompt?.promptId}-candidate"][value="${other?.id}"]`,
+          `input[name^="${prompt?.promptId}-"][name$="-candidate"][value="${other?.id}"]`,
         );
         await act(async () => {
           handlers(radio).onChange?.();

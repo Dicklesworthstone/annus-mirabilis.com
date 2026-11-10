@@ -34,7 +34,8 @@ test("a sketch is undetermined, never a generous pass", () => {
     supportedCandidateId: "larger",
   });
   assert.equal(result.status, "undetermined");
-  assert.match(result.statement, /cannot be scored here/);
+  assert.match(result.statement, /No automatic score/);
+  assert.match(result.statement, /Compare its recorded shape/);
 });
 
 test("a keep-to-self (null choice) is undetermined", () => {
@@ -73,4 +74,6 @@ test("values without expected targets are undetermined", () => {
     choice: { form: "values", targets: [{ targetId: "t1", value: 1 }] },
   });
   assert.equal(result.status, "undetermined");
+  assert.match(result.statement, /No automatic score/);
+  assert.match(result.statement, /Compare the recorded values/);
 });
