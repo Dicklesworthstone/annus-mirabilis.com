@@ -133,9 +133,13 @@ const gridKeys = [
   "stabilityRatio",
   "gridTimeStep",
 ] as const;
-function notApplicable(quantityId: string, reason: string): ScientificResult {
+function outputContract(quantityId: string) {
   const c = BM06_OUTPUTS[quantityId];
   if (!c) throw new TypeError(`Undeclared output ${quantityId}`);
+  return c;
+}
+function notApplicable(quantityId: string, reason: string): ScientificResult {
+  const c = outputContract(quantityId);
   return {
     quantityId,
     unit: c.unit,
@@ -159,8 +163,7 @@ function value(
   value: number | Float64Array,
   ownerId?: string,
 ): ScientificResult {
-  const c = BM06_OUTPUTS[quantityId];
-  if (!c) throw new TypeError(`Undeclared output ${quantityId}`);
+  const c = outputContract(quantityId);
   return decodeResult({
     quantityId,
     unit: c.unit,

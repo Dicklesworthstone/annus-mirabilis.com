@@ -207,7 +207,7 @@ test("prepared output tampering is refused instead of becoming SSR scientific co
     }),
   );
 });
-test("a prepared JSON profile is validated before it can become an accepted snapshot", () => {
+test("a prepared JSON profile is validated before it can become an accepted snapshot (session.ts:31)", () => {
   for (const gridProfile of ["unknown", "0", 0, undefined]) {
     const altered = { ...example, parameters: { ...example.parameters, gridProfile } };
     assert.throws(
@@ -215,7 +215,11 @@ test("a prepared JSON profile is validated before it can become an accepted snap
         createBm06Session("invalid-profile", altered, () => {
           throw new Error("must never start a worker");
         }),
-      /Invalid prepared laboratory settings/,
+      {
+        name: "LabProtocolError",
+        code: "malformed-response",
+        message: "Invalid prepared laboratory settings.",
+      },
     );
   }
 });

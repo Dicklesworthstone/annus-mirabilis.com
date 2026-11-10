@@ -166,12 +166,12 @@ test("unknown positions cannot produce navigation destinations", () => {
 });
 
 // One test per refusal site: each names its code, so the refusal scanner can see it tested.
-test("tour-position-unknown: tourPosition refuses a stop that is not in its tour (navigation.ts:51)", () => {
+test("tour-position-unknown: tourPosition refuses a stop that is not in its tour (navigation.ts:59)", () => {
   const stray = { ...tour.stops[0], id: "not-a-stop" };
   assert.throws(() => tourPosition(tour, stray), { code: "tour-position-unknown" });
 });
 
-test("tour-position-unknown: tourDestination refuses a position the catalogue does not hold (navigation.ts:81)", () => {
+test("tour-position-unknown: tourDestination refuses a position the catalogue does not hold (navigation.ts:92)", () => {
   const unknown = { tourId: "no-such-tour", stopId: "no-such-stop", revision: 1 };
   assert.throws(() => tourDestination(unknown), { code: "tour-position-unknown" });
 });

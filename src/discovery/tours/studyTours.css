@@ -22,7 +22,8 @@
   overflow-wrap: anywhere;
 }
 
-.study-syllabus-session {
+.study-syllabus-session,
+.study-preparation {
   margin-block: 2rem;
   border-block-start: 1px solid var(--rule, currentColor);
   padding-block-start: 1rem;

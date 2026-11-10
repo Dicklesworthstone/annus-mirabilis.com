@@ -1,4 +1,4 @@
-import { BM06_PROTOCOL, decodeLabResponse } from "../../workers/protocol/bm06.ts";
+import { BM06_PROTOCOL, decodeLabResponse, LabProtocolError } from "../../workers/protocol/bm06.ts";
 import { createBm06Scheduler, type WorkerChannel } from "../../workers/scheduler/bm06Scheduler.ts";
 import { parseResult } from "../results/codec.ts";
 import { createInstanceStore, type Parameters } from "../store/instanceStore.ts";
@@ -27,7 +27,8 @@ export function createBm06Session(
   workerFactory: () => WorkerChannel,
 ) {
   const prepared = validateBm06Parameters(example.parameters);
-  if (prepared.kind !== "accepted") throw new TypeError("Invalid prepared laboratory settings.");
+  if (prepared.kind !== "accepted")
+    throw new LabProtocolError("malformed-response", "Invalid prepared laboratory settings.");
   const initialParameters = prepared.data;
   const store = createInstanceStore({
     experimentId: "bm-06",
