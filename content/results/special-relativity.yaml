@@ -507,8 +507,10 @@ cards:
 
   - id: sr-light-complex-energy
     support:
-      kind: "no-checked-proof"
-      reason: "The field-density and light-complex volume factors are explained separately in the linked passages; no checked derivation record combines them."
+      kind: "checked-proof"
+      proofId: "sr-light-complex-energy"
+      conclusion: "eq-model-sr-light-energy"
+      scope: "The calculation combines the admitted density and moving-boundary volume factors for the same plane-wave light packet. Its energy then changes by the same factor as its frequency. The field and boundary transformations are premises of this calculation; no light-quantum hypothesis or body rest-energy formula enters it."
     title: "The energy of a light complex in the moving system"
     section: s8
     arguments: [arg-sr-light-complex]
@@ -672,8 +674,10 @@ cards:
 
   - id: sr-electron-masses
     support:
-      kind: "no-checked-proof"
-      reason: "The two force conventions and their inertia coefficients are explained in the linked passages; no checked derivation record covers their comparison."
+      kind: "checked-proof"
+      proofId: "sr-electron-force-conventions"
+      conclusion: "eq-model-sr-transverse-mass-printed"
+      scope: "Starting from the momentary rest-frame force law and the admitted acceleration and force transformations, the calculation obtains the longitudinal and printed transverse coefficients. It then changes the force frame explicitly to obtain the later all-laboratory transverse coefficient. These are conditional response ratios, with a nonzero acceleration for division, rather than competing values of the electron's rest mass."
     title: "The longitudinal and transverse masses of the electron"
     section: s10
     arguments: [arg-sr-electron-conventions]
@@ -722,8 +726,10 @@ cards:
 
   - id: sr-electron-kinetic-energy
     support:
-      kind: "no-checked-proof"
-      reason: "The work integral is explained with its force and speed assumptions; no checked derivation record covers this result."
+      kind: "checked-proof"
+      proofId: "sr-electron-work"
+      conclusion: "eq-model-sr-electron-work-result"
+      scope: "The calculation uses the longitudinal force law and the stated calculus identities to obtain work supplied from rest, with zero initial kinetic energy and speed below that of light. It excludes self-fields and radiation reaction. This determines the kinetic-energy change within that model; it does not determine an additive rest energy or establish the paper's proposed extension to every body."
     title: "The kinetic energy of the electron"
     section: s10
     arguments: [arg-sr-electron-work]

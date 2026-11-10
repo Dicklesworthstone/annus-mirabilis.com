@@ -1,5 +1,11 @@
 /** A result names its supporting calculation, or records why no checked proof is available. */
-export const RESULT_PROOF_IDS = ["me-ledger-elimination", "me-low-speed-coefficient"] as const;
+export const RESULT_PROOF_IDS = [
+  "me-ledger-elimination",
+  "me-low-speed-coefficient",
+  "sr-light-complex-energy",
+  "sr-electron-force-conventions",
+  "sr-electron-work",
+] as const;
 export type ResultProofId = (typeof RESULT_PROOF_IDS)[number];
 
 export type ResultSupportDeclaration =
