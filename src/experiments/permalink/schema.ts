@@ -479,7 +479,7 @@ export function validateTapeV2(raw: unknown, path = "tape"): TapeV2 {
   };
 }
 
-function validateScientificCheckpoint(raw: unknown, path: string): TapeScientificCheckpoint {
+export function validateScientificCheckpoint(raw: unknown, path: string): TapeScientificCheckpoint {
   const fail = (message: string): never => {
     throw new TapeValidationError("tape-invalid-scientific-checkpoint", message, path);
   };

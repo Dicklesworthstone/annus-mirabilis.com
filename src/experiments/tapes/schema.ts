@@ -9,6 +9,7 @@
 import { COMMAND_CLASSES, type CommandClass } from "../commands/types.ts";
 import type { U64String } from "../identity/u64.ts";
 import { parseU64 } from "../identity/u64.ts";
+import { validateScientificCheckpoint } from "../permalink/schema.ts";
 
 export const TAPE_VERSION = 2;
 
@@ -574,11 +575,27 @@ function validateCheckpoint(raw: unknown, path: string): TapeCheckpoint {
     throw new TapeValidationError("streamSemanticsVersion must be a positive integer.", path);
   }
   const seed = parseU64(o.seed, `${path}.seed`);
-  if (!Array.isArray(o.streamPositions))
+  if (!Object.hasOwn(o, "streamPositionRanges") && !Array.isArray(o.streamPositions))
     throw new TapeValidationError("streamPositions must be an array.", path);
-  const streamPositions = o.streamPositions.map((s, i) =>
-    validateStreamPosition(s, `${path}.streamPositions[${i}]`),
-  );
+  // Authored ensemble tapes use the same lossless, bounded ranges as shared links. Expand at
+  // this boundary so every consumer still sees all exact uint64 stream identities. Passing both
+  // spellings through the wire validator deliberately refuses ambiguous records.
+  const streamPositions = Object.hasOwn(o, "streamPositionRanges")
+    ? validateScientificCheckpoint(
+        {
+          checkpointVersion: o.checkpointVersion,
+          streamSemanticsVersion: o.streamSemanticsVersion,
+          stepIndex: o.stepIndex,
+          simulatedTime: o.simulatedTime,
+          seed,
+          streamPositionRanges: o.streamPositionRanges,
+          ...(Object.hasOwn(o, "streamPositions") ? { streamPositions: o.streamPositions } : {}),
+        },
+        path,
+      ).streamPositions
+    : (o.streamPositions as unknown[]).map((s, i) =>
+        validateStreamPosition(s, `${path}.streamPositions[${i}]`),
+      );
   const expectedDisplayValues =
     o.expectedDisplayValues === undefined
       ? undefined
