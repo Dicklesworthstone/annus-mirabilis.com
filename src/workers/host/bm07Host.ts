@@ -1,4 +1,8 @@
 import { BM07_CLASSES, type Bm07Parameters } from "../../experiments/bm07/definition.ts";
+import {
+  type Bm07RecordingCheckpoint,
+  createBm07RecordingCheckpoint,
+} from "../../experiments/bm07/recordingCheckpoint.ts";
 import { executionOutcomeRegistry } from "../../experiments/results/outcomes.ts";
 import type { InferenceRecording } from "../../physics/reference/inference/synthetic.ts";
 import { createBm07Recording, measureBm07 } from "../operations/bm07.ts";
@@ -18,8 +22,12 @@ export function createBm07Host(
     stopped = false,
     cancelled = false,
     instanceId: string | null = null;
-  let cache: { runId: string; parameters: Bm07Parameters; recording: InferenceRecording } | null =
-    null;
+  let cache: {
+    runId: string;
+    parameters: Bm07Parameters;
+    recording: InferenceRecording;
+    checkpoint: Bm07RecordingCheckpoint;
+  } | null = null;
   async function receive(input: unknown): Promise<void> {
     const message = decodeLabRequest(input, sourceDigest);
     if (stopped) return;
@@ -55,8 +63,20 @@ export function createBm07Host(
       if (recording.kind !== "accepted") result = recording;
       else {
         result = await measureBm07(recording.data, p, reused, options);
-        if (result.kind === "accepted" && !cancelled && !stopped)
-          cache = { runId: message.token.runId, parameters: p, recording: recording.data };
+        if (result.kind === "accepted" && !cancelled && !stopped) {
+          const checkpoint =
+            reused && activeCache !== null
+              ? activeCache.checkpoint
+              : await createBm07RecordingCheckpoint(recording.data, sourceDigest);
+          result = { kind: "accepted", data: { ...result.data, recordingCheckpoint: checkpoint } };
+          if (!cancelled && !stopped)
+            cache = {
+              runId: message.token.runId,
+              parameters: p,
+              recording: recording.data,
+              checkpoint,
+            };
+        }
       }
       if (cancelled)
         result = {

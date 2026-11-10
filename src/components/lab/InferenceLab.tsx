@@ -1,5 +1,5 @@
 "use client";
-import { type FormEvent, useEffect, useId, useMemo, useState } from "react";
+import { type FormEvent, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { createBm07BrowserChannel } from "../../experiments/bm07/browser.ts";
 import {
@@ -13,10 +13,10 @@ import {
   BM07_SEMANTIC_KIND_TEXT,
   type Bm07Parameters,
 } from "../../experiments/bm07/definition.ts";
-import { BM07_DRAFT_TAPE } from "../../experiments/bm07/draftTape.ts";
 import { inferenceObservationCsv } from "../../experiments/bm07/export.ts";
 import { decodeBm07Settings } from "../../experiments/bm07/permalink.ts";
 import { createBm07Session, type PreparedBm07Example } from "../../experiments/bm07/session.ts";
+import { createBm07TapeBinding, createBm07WalkthroughTarget } from "../../experiments/bm07/tape.ts";
 import { CurrencyForView } from "../../experiments/labels/CurrencyForView.tsx";
 import {
   executionLabelFor,
@@ -93,13 +93,23 @@ export function InferenceLab({
   const view = useInstrumentView(session),
     snapshot = view.accepted ?? serverAccepted,
     p = snapshot.parameters as Bm07Parameters;
-  const [draft, setDraft] = useState(() => toInferenceDraft(session.acceptedParameters()));
+  const [draft, setDraftState] = useState(() => toInferenceDraft(session.acceptedParameters()));
   const [ready, setReady] = useState(false),
     [dirty, setDirty] = useState(false),
     /** The typed failure of the last apply, not a string (am-ig23). See applyFailure.ts. */
     [failure, setFailure] = useState<ApplyFailure | null>(null),
     [note, setNote] = useState(""),
     [revealedRun, setRevealedRun] = useState<string | null>(null);
+  const draftRevision = useRef(0);
+  const walkthroughDraftRevision = useRef(0);
+  const setDraft = useCallback((next: InferenceDraft) => {
+    draftRevision.current++;
+    setDraftState(next);
+  }, []);
+  const workerTape = useMemo(
+    () => createBm07TapeBinding(example, createBm07BrowserChannel),
+    [example],
+  );
   const revealed = revealedRun === snapshot.runId,
     isStatic = snapshot === session.getServerSnapshot().accepted;
   // Earned per snapshot (am-inst-execution-labels-5ywv), and checked against the output contracts
@@ -111,10 +121,33 @@ export function InferenceLab({
   // A shared ?tape= link puts its settings in the form and starts no worker; Apply runs them. It
   // carries no coverage experiments, as the older link did not: a reader runs those deliberately.
   const shareable = useMemo(() => ({ ...p, coverageTrials: 0 }), [p]);
-  const tapeLink = useDraftTapeLink(BM07_DRAFT_TAPE, shareable, restoreFromLocation, (settings) => {
+  const tapeLink = useDraftTapeLink(workerTape, shareable, restoreFromLocation, (settings) => {
     setDraft(toInferenceDraft(settings as unknown as Bm07Parameters));
     setDirty(true);
   });
+  const workerWalkthrough = useMemo(
+    () =>
+      createBm07WalkthroughTarget(
+        workerTape,
+        session,
+        (parameters) => {
+          if (draftRevision.current !== walkthroughDraftRevision.current) {
+            setNote(
+              "The checkpoint result is ready. Your newer entries are still in the form; apply them when ready.",
+            );
+            return;
+          }
+          setDraftState(toInferenceDraft(parameters));
+          setDirty(false);
+          setFailure(null);
+          setNote("");
+        },
+        () => {
+          walkthroughDraftRevision.current = draftRevision.current;
+        },
+      ),
+    [workerTape, session],
+  );
   useEffect(() => {
     setReady(true);
     const shared = decodeBm07Settings(restoreFromLocation ? window.location.search : "");
@@ -126,9 +159,10 @@ export function InferenceLab({
       );
     } else if (shared.kind === "invalid") setNote(shared.message);
     return () => session.disconnect();
-  }, [session, restoreFromLocation]);
+  }, [session, restoreFromLocation, setDraft]);
   function edit(key: keyof InferenceDraft, value: string) {
-    setDraft((d) => ({ ...d, [key]: value }));
+    draftRevision.current++;
+    setDraftState((d) => ({ ...d, [key]: value }));
     setDirty(true);
   }
   function apply(settings: Bm07Parameters) {
@@ -518,7 +552,10 @@ export function InferenceLab({
             </button>
           </div>
           {note && <p className="notice">{note}</p>}
-          <LabTapeLink link={withPredictions(tapeLink, gate)} />
+          <LabTapeLink
+            link={withPredictions(tapeLink, gate)}
+            workerWalkthrough={workerWalkthrough}
+          />
           <p className="fine">
             The CSV contains every selected position and displacement in SI units with generator
             metadata. It contains synthetic data, not observations of a real suspension. Opening a

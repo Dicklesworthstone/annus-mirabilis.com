@@ -108,7 +108,10 @@ function scientificReplayPlan(binding: WorkerTapeBinding, tape: TapeV2) {
       return invalid(`The checkpoint names an unknown setting: ${event.paramId}.`);
     if (
       event.previousValue !== undefined &&
-      !Object.is(event.previousValue, settings[event.paramId])
+      !Object.is(
+        settingsFromTape({ [event.paramId]: event.previousValue }, binding.defaults)[event.paramId],
+        settings[event.paramId],
+      )
     )
       return invalid("A recorded change does not begin at its stated previous value.");
     const error = apply({

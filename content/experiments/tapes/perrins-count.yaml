@@ -1,37 +1,48 @@
-# Teaching tape "Perrin's count" (am-bm-07-infer-molecular-number-frf9).
-# Constant set is the measured-gas-constant scenario, never modern-si-2019.
-# Table cells from Perrin 1909 are not invented; checkpoints record the host
-# identity until am-data-perrin-1909-p7ku admits the HistoricalDataset.
+# Recorded through the production BM07 host on Node 22.13.1 / V8.
+# This is a synthetic recovery exercise about Perrin's inference question, not his data.
+# Both checkpoints bind all 4096 latent substeps and the hidden parameter's actual draw.
+# Host normal arithmetic is checked exactly; another engine may require a new calculation.
 tapeVersion: 2
 tapeId: perrins-count
 experimentId: bm-07
-mode: "bm-07"
-title: "Perrin's count"
+mode: "bm-07:default"
+title: "Perrin's count: a synthetic inference exercise"
+description: "See why displacements identify a radius–molecular-number product, and how declaring a radius makes the hidden number identifiable. These observations are synthetic, not a transcription of Perrin's measurements."
 isTeachingSequence: true
 modelIdentity:
   modelId: inference-bm07-host
   modelVersion: "1"
-  artifactDigest: "host:sha256:0000000000000000000000000000000000000000000000000000000000000000"
-constantSetId: scenario-gas-constant-measured
+  artifactDigest: "host:sha256:18a8051007c1185c85711ae674aa0e0a2752244fd67d5a154de801f8af485c50"
+constantSetId: scenario-bm07-hidden-number
 seed: "1909"
 streamVersion: 1
 allocationId: bm-07.synthetic-latent.v1
+replayGrid:
+  baseSpacing: 0.25
+  horizon: 1024
 initialConditions:
-  T: 293.15
-  eta: 0.001
-  a: 5.0e-7
+  seed: "1909"
+  generatorT: 293.15
+  generatorEta: 0.001
+  generatorRadius: 5.0e-7
   M: 50
   d: 2
   dt: 1
+  T: 293.15
+  eta: 0.001
+  a: 5.0e-7
+  radiusKnown: "false"
+  estimator: independent-increment-known-zero-drift
   coverage: 0.95
-# radiusKnown is NOT listed above, and the omission is deliberate. BM-07's default is the boolean
-# false, which is the state this walkthrough opens in and the state the teaching note describes.
-# Writing it here as "false" would be a STRING: a tape's initialConditions are number | string, the
-# link generator hands them to validateBm07Parameters unconverted, and that validator takes only a
-# boolean, so the tape silently loses its "open with these settings" link. Measured: 21 links
-# became 20, with the cause reported as "These inputs do not meet the calculation's stated
-# requirements." The event below still declares the radius, because the event's value never reaches
-# that validator.
+  intervalKind: conditional
+  temperatureError: 0.005
+  viscosityError: 0.02
+  radiusError: 0.1
+  inputCoverage: 0.99
+  coverageTrials: 0
+  observationSet: synthetic
+  constantSetId: scenario-bm07-hidden-number
+  calibrationScale: 1
 events:
   - kind: control
     actionIndex: 1
@@ -41,52 +52,78 @@ events:
     value: "true"
     previousValue: "false"
 checkpoints:
-  # WHERE IT STARTS (dispatch 404). This record's own note below describes the state before the
-  # declaration and no step showed it, so the walkthrough opened on its own conclusion. A
-  # checkpoint with no event at index 0 is how the projection carries a starting state
-  # (src/content/teachingTapes.ts, stepsOf), and the page renders it as "Where it starts".
-  #
-  # stepIndex and simulatedTime are the SAME as index 1 on purpose: an estimator change alters
-  # neither the world nor the clock, so the observations here are the very ones the next step
-  # re-reads. That is the point the note makes. The digest is a legible placeholder, as every
-  # digest in this file is; no expectedDisplayValues, because the result here is the typed state
-  # `underdetermined` rather than a number, and a typed state is not a display value.
+  # Declaring a radius changes only the estimator: the full path and stream positions stay put.
   - actionIndex: 0
     stepIndex: 4096
     simulatedTime: 1024
-    digest: "host:sha256:5555555555555555555555555555555555555555555555555555555555555555"
+    digest: "host:sha256:f83d9d7f2f6bbef8b5c4d90288b4cca26d3e97824d032b14f551704beb262510"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1
     seed: "1909"
-    streamPositions: []
-    label: "The displacements alone, with the radius not yet declared"
-    teachingNote: "Perrin's displacements are already in hand, and on their own they do not pick out a molecular number: they fix only the product of the radius and that number, so any count you like can be had by choosing a radius to match. The instrument says so rather than returning a figure, which is the honest answer to the question as posed and not a failure of the calculation. Open it at these settings to see which outputs it will and will not give you, then read the next step, where declaring the radius is what makes one count identifiable."
+    streamPositionRanges:
+      - allocationId: bm-07.generator-parameter.v1
+        streamKernelId: "0x19050007"
+        firstTile: "0"
+        count: 1
+        index: "1"
+      - allocationId: bm-07.synthetic-latent.v1
+        streamKernelId: "0x19050003"
+        firstTile: "0"
+        count: 4096
+        index: "4"
+    label: "Synthetic displacements, radius not yet declared"
+    teachingNote: "Fifty synthetic displacements in two coordinates estimate the diffusion coefficient, but the inversion fixes only the product of radius and molecular number. The molecular number is underdetermined until a radius is supplied. This illustrates the identifiability problem behind Perrin's experiment; these are not Perrin's observations. The gas constant is a chosen instructional input, so recovering the hidden generator number tests the inference method rather than providing independent evidence about molecules."
+    expectedDisplayValues:
+      - label: "Estimated diffusion coefficient"
+        outputId: diffusionCoefficientEstimate
+        value: 3.3053971770408627e-13
+        unit: "m2/s"
+        constantSetId: scenario-bm07-hidden-number
+      - label: "Radius–molecular-number product"
+        outputId: radiusNumberProduct
+        value: 391200811014655300
+        unit: "m/mol"
+        constantSetId: scenario-bm07-hidden-number
   - actionIndex: 1
     stepIndex: 4096
     simulatedTime: 1024
-    digest: "host:sha256:3333333333333333333333333333333333333333333333333333333333333333"
+    digest: "host:sha256:0a7c1891a666b5a5a596daa18225032bf80e1eb9f602572b599dc17d7e6916fb"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1
     seed: "1909"
-    streamPositions: []
-    label: "Declared radius, historical gas-constant set"
-    teachingNote: "Before this step the radius is not declared, and the displacements alone fix only the product of radius and molecular number: Avogadro's number comes back underdetermined, which is the honest answer rather than a failure. Declaring the radius independently is what makes the count identifiable, and it is a change of estimator, not of the world: the observations are the same ones. Replay uses the dataset record's own constants. Modern exact k_B is not read."
+    streamPositionRanges:
+      - allocationId: bm-07.generator-parameter.v1
+        streamKernelId: "0x19050007"
+        firstTile: "0"
+        count: 1
+        index: "1"
+      - allocationId: bm-07.synthetic-latent.v1
+        streamKernelId: "0x19050003"
+        firstTile: "0"
+        count: 4096
+        index: "4"
+    label: "Declare the radius; identify the hidden number"
+    teachingNote: "Declare a radius of 0.5 micrometres and the same displacements now give a molecular-number estimate of 7.824 × 10^23 per mole. No new trajectory is drawn: this is an estimator change on the same observations. Reveal the hidden generator number, 7.228 × 10^23 per mole, to check recovery and the statistical interval. In a physical experiment the radius and other inputs would need independent measurement; the chosen constants and synthetic observations here do not supply that evidence."
     expectedDisplayValues:
-      - label: "diffusionCoefficientEstimate"
+      - label: "Estimated diffusion coefficient"
+        outputId: diffusionCoefficientEstimate
         value: 3.3053971770408627e-13
         unit: "m2/s"
-        constantSetId: scenario-gas-constant-measured
-      - label: "radiusNumberProduct"
+        constantSetId: scenario-bm07-hidden-number
+      - label: "Radius–molecular-number product"
+        outputId: radiusNumberProduct
         value: 391200811014655300
         unit: "m/mol"
-        constantSetId: scenario-gas-constant-measured
-      - label: "avogadroNumberEstimate"
+        constantSetId: scenario-bm07-hidden-number
+      - label: "Recovered molecular number"
+        outputId: avogadroNumberEstimate
         value: 7.824016220293107e+23
         unit: "1/mol"
-        constantSetId: scenario-gas-constant-measured
-      - label: "generatorMolecularNumber"
+        constantSetId: scenario-bm07-hidden-number
+      - label: "Hidden generator molecular number"
+        outputId: generatorMolecularNumber
         value: 7.227892697865063e+23
         unit: "1/mol"
-        constantSetId: scenario-gas-constant-measured
+        constantSetId: scenario-bm07-hidden-number

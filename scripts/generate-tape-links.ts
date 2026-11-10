@@ -60,6 +60,7 @@ import {
 import {
   type LabTapeBinding,
   requirementsOf,
+  settingsFromTape,
   tapeForSettings,
 } from "../src/experiments/permalink/sessionTape.ts";
 
@@ -178,7 +179,7 @@ export function buildTapeLinks(): TapeLinks {
     const binding = session ?? draft;
     if (!binding) continue;
     const settings = tape.initialConditions;
-    const merged = { ...binding.defaults, ...settings };
+    const merged = { ...binding.defaults, ...settingsFromTape(settings, binding.defaults) };
     // The laboratory's own sentence for a refusal, so the gap names the cause rather than the fact.
     const checked = binding.validate(merged);
     if (checked.kind !== "accepted") {
