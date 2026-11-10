@@ -38,3 +38,62 @@ export function enumerateSignedSteps(count: number, dependence: StepDependence =
     meanAbsolute: rows.reduce((a, row) => a + Math.abs(row.displacement), 0) / outcomes,
   });
 }
+
+export class StepChanceError extends RangeError {
+  constructor(
+    readonly code: "invalid-step-chance",
+    message: string,
+  ) {
+    super(message);
+    this.name = "StepChanceError";
+  }
+}
+
+/**
+ * The same two-step paths with an adjustable chance of a rightward first step. Independent
+ * second steps use that same chance; matching and opposite steps follow the first. Integer
+ * weights over 10,000 keep exact zero covariance and variance free of cancellation residue.
+ */
+export function enumerateBiasedTwoSteps(
+  rightPercent: number,
+  dependence: StepDependence = "independent",
+) {
+  if (!Number.isInteger(rightPercent) || rightPercent < 0 || rightPercent > 100)
+    throw new StepChanceError(
+      "invalid-step-chance",
+      "Use a whole percentage from zero to one hundred.",
+    );
+  const base = enumerateSignedSteps(2, dependence);
+  const denominator = 10_000;
+  const rows = base.rows.map((row) => {
+    // The existing enumerator guarantees two entries for this bounded construction.
+    const steps = row.steps as readonly [number, number];
+    const firstWeight = steps[0] === 1 ? rightPercent : 100 - rightPercent;
+    const secondWeight = steps[1] === 1 ? rightPercent : 100 - rightPercent;
+    const weight = firstWeight * (dependence === "independent" ? secondWeight : 100);
+    return Object.freeze({ ...row, steps, weight, probability: weight / denominator });
+  });
+  const weighted = (value: (row: (typeof rows)[number]) => number) =>
+    rows.reduce((sum, row) => sum + row.weight * value(row), 0);
+  const first = weighted((row) => row.steps[0]);
+  const second = weighted((row) => row.steps[1]);
+  const product = weighted((row) => row.crossTerm / 2);
+  const mean = first + second;
+  const square = weighted((row) => row.square);
+  return Object.freeze({
+    ...base,
+    rightPercent,
+    denominator,
+    rows: Object.freeze(rows),
+    firstMean: first / denominator,
+    secondMean: second / denominator,
+    mean: mean / denominator,
+    meanSquare: square / denominator,
+    meanCrossTerm: (2 * product) / denominator,
+    meanAbsolute: weighted((row) => Math.abs(row.displacement)) / denominator,
+    variance: (square * denominator - mean * mean) / denominator ** 2,
+    covariance: (product * denominator - first * second) / denominator ** 2,
+    // Constant steps are statistically independent even if the chosen rule copies or reverses.
+    independent: dependence === "independent" || rightPercent === 0 || rightPercent === 100,
+  });
+}

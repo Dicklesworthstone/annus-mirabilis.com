@@ -98,6 +98,85 @@ describe("the probability foundation is a working comparison in the real dispatc
       true,
     );
   });
+
+  test("drift changes the weighted paths and distinguishes mean square from variance", async () => {
+    await act(async () =>
+      root.render(<FoundationConstruction foundationId="probability-independence" />),
+    );
+    const drift = [...container.querySelectorAll("button")].find((button) =>
+      button.textContent?.includes("75%:"),
+    );
+    expect(drift).toBeDefined();
+    await act(async () => drift?.click());
+    expect(values(container)).toEqual({
+      "Average end position": "+1 m",
+      "Average squared end position": "2.5 m²",
+      "Average product of the two steps": "+0.25 m²",
+      "Twice that product: the mixed term": "+0.5 m²",
+    });
+    expect(container.querySelector('[role="status"]')?.textContent).toContain(
+      "Independence alone does not remove the mixed term",
+    );
+    expect(container.querySelector("tbody")?.textContent).toContain("Chance: 56.25%");
+    expect(container.querySelector("details")?.textContent).toContain("is 1.5 m²");
+    expect(container.querySelector("details")?.textContent).toContain(
+      "covariance of the two steps is 0 m²",
+    );
+    expect(container.querySelector("svg")?.getAttribute("aria-label")).not.toContain(
+      "equally likely",
+    );
+    await act(async () =>
+      container.querySelector<HTMLInputElement>('input[value="opposite-direction"]')?.click(),
+    );
+    expect(values(container)["Average squared end position"]).toBe("0 m²");
+    expect(container.textContent).toContain("second has a 25% chance of going right");
+    expect(container.textContent).toContain("chance of going right next is 0%");
+  });
+
+  test("typed chance survives a rule change and invalid input keeps the last accepted values", async () => {
+    await act(async () =>
+      root.render(<FoundationConstruction foundationId="probability-independence" />),
+    );
+    const input = container.querySelector<HTMLInputElement>('input[type="number"]');
+    const form = container.querySelector("form");
+    expect(input).not.toBeNull();
+    expect(form).not.toBeNull();
+    if (!input || !form) throw new Error("The chance form must be present.");
+    expect(input.labels?.[0]?.textContent).toContain("Chance of a rightward first step");
+    await act(async () => {
+      input.value = "25";
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    expect(values(container)["Average squared end position"]).toBe("2 m²");
+    expect(container.textContent).toContain("comparison still uses 50%");
+    await act(async () =>
+      container.querySelector<HTMLInputElement>('input[value="same-direction"]')?.click(),
+    );
+    expect(input.value).toBe("25");
+    await act(async () =>
+      form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true })),
+    );
+    expect(values(container)["Average end position"]).toBe("−1 m");
+    const accepted = values(container);
+    await act(async () => {
+      input.value = "101";
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    await act(async () =>
+      form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true })),
+    );
+    expect(values(container)).toEqual(accepted);
+    expect(input.getAttribute("aria-invalid")).toBe("true");
+    expect(container.querySelector('[role="alert"]')?.textContent).toContain(
+      "whole percentage from 0 to 100",
+    );
+    const balanced = [...container.querySelectorAll("button")].find((button) =>
+      button.textContent?.includes("50%:"),
+    );
+    await act(async () => balanced?.click());
+    expect(input.value).toBe("50");
+    expect(container.querySelector('[role="alert"]')).toBeNull();
+  });
 });
 
 test("static reading keeps the complete comparison and its source links without JavaScript", () => {
@@ -109,6 +188,7 @@ test("static reading keeps the complete comparison and its source links without 
   expect(html).toContain("What it shows, in words");
   expect(html).toContain("squared ends average 4");
   expect(html).toContain("squared ends average 0");
+  expect(html).toContain("squared ends average 2.5 m²");
   expect(html).toContain('href="/papers/brownian-motion/s4/#arg-bm-independent-steps"');
   expect(html).toContain('href="/lab/bm-05/"');
   expect(html).not.toContain("katex");

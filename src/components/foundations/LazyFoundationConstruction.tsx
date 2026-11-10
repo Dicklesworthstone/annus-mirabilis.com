@@ -16,6 +16,7 @@
 import { type ComponentProps, lazy } from "react";
 import type { FoundationConstruction } from "./FoundationConstruction.tsx";
 import "./foundations.css";
+import "./independentSteps.css";
 import "../lab/sci.css";
 
 const Construction = lazy(() =>
