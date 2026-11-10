@@ -10,6 +10,7 @@ import { toCard } from "../../reader/faces/results/fromRecords.ts";
 import { ResultCard } from "../../reader/faces/results/ResultCard.tsx";
 import { PaperPage } from "../../reader/PaperPage.tsx";
 import { exportMarkup } from "../../testing/exportMarkup.ts";
+import { checkedSupportFor } from "./checkedSupport.ts";
 import { ResultCardsError } from "./printedChecks.ts";
 import { loadResultCards, type ResultCardRecord } from "./resultCards.ts";
 import type { ResultSupportDeclaration } from "./supportDeclarations.ts";
@@ -87,7 +88,9 @@ describe("special-relativity results reach their executable teaching derivations
   test("the three real results name their conclusions and retain the admitted assumptions", () => {
     expect(records?.problems).toEqual([]);
     for (const entry of cases) {
-      const support = project(card(entry.card)).support;
+      const record = card(entry.card);
+      const support = project(record).support;
+      expect(support).toEqual(checkedSupportFor(record, equations));
       expect(support?.kind).toBe("checked-proof");
       if (support?.kind !== "checked-proof") throw new Error("No checked support.");
       expect(support.proofId).toBe(entry.proof);
@@ -143,8 +146,12 @@ describe("special-relativity results reach their executable teaching derivations
     for (const changed of [
       withProof(control, { proofId: "sr-electron-work" }),
       withProof(control, { conclusion: "eq-model-sr-light-density" }),
-    ])
+    ]) {
+      expect(rule(() => checkedSupportFor(changed, equations))).toBe(
+        "result-support-derivation-conclusion-missing",
+      );
       expect(rule(() => project(changed))).toBe("result-support-derivation-conclusion-missing");
+    }
   });
 
   test("missing and repeated input equations refuse support before rendering", () => {
@@ -154,10 +161,14 @@ describe("special-relativity results reach their executable teaching derivations
     for (const source of [
       equations.filter((equation) => equation.id !== density.id),
       [...equations, density],
-    ])
+    ]) {
+      expect(rule(() => checkedSupportFor(control, source))).toBe(
+        "result-support-derivation-record-mismatch",
+      );
       expect(rule(() => project(control, source))).toBe(
         "result-support-derivation-record-mismatch",
       );
+    }
   });
 
   test.each([
@@ -192,6 +203,9 @@ describe("special-relativity results reach their executable teaching derivations
     expect(project(control).support).toBeDefined();
     try {
       steps[index] = { ...original, to: { kind: "number", value: "2" } };
+      expect(rule(() => checkedSupportFor(control, equations))).toBe(
+        "result-support-derivation-not-checked",
+      );
       expect(rule(() => project(control))).toBe("result-support-derivation-not-checked");
     } finally {
       steps[index] = original;

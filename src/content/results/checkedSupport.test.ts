@@ -3,6 +3,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { type EquationRecord, parseEquationRecord } from "../../equations/record.ts";
 import { toCard } from "../../reader/faces/results/fromRecords.ts";
+import { checkedSupportFor } from "./checkedSupport.ts";
 import { ResultCardsError } from "./printedChecks.ts";
 import { loadResultCards, type ResultCardRecord } from "./resultCards.ts";
 import type { ResultSupportDeclaration } from "./supportDeclarations.ts";
@@ -74,15 +75,45 @@ describe("result support reaches the actual proof owners through toCard", () => 
     expect(project(card("me-closing-remarks")).support).toBeUndefined();
   });
 
-  test("result-support-conclusion-mismatch refuses a different argument or paper", () => {
+  test("result-support-conclusion-mismatch refuses a different argument or paper (checkedSupport.ts:164)", () => {
     const control = card("me-kinetic-energy-drop");
     expect(project(control).support).toBeDefined();
     const changed = withProof(control, { conclusion: "eq-model-me-quadratic-drop" });
+    expect(rule(() => checkedSupportFor(changed, equations))).toBe(
+      "result-support-conclusion-mismatch",
+    );
     expect(rule(() => project(changed))).toBe("result-support-conclusion-mismatch");
     expect(rule(() => project({ ...control, paper: "brownian-motion" }))).toBe(
       "result-support-conclusion-mismatch",
     );
     expect(rule(() => project(control, []))).toBe("result-support-conclusion-mismatch");
+  });
+
+  test("result-support-conclusion-mismatch refuses a mass-energy owner for an SR result (checkedSupport.ts:178)", () => {
+    const control = loadResultCards(ROOT, "special-relativity")?.cards.find(
+      (record) => record.id === "sr-light-complex-energy",
+    );
+    if (!control) throw new Error("Missing special-relativity result control.");
+    const srDirectory = join(ROOT, "content/equations/special-relativity");
+    const source = readdirSync(srDirectory)
+      .filter((name) => name.endsWith(".json"))
+      .sort()
+      .map((name) =>
+        parseEquationRecord(JSON.parse(readFileSync(join(srDirectory, name), "utf8")), name),
+      );
+    expect(checkedSupportFor(control, source)?.proofId).toBe("sr-light-complex-energy");
+    const changed = withProof(control, { proofId: "me-ledger-elimination" });
+    // Its conclusion still belongs to the card's paper and argument, so the earlier guard accepts
+    // these inputs. Only the selected owner's paper restriction refuses this declaration.
+    const conclusion = source.find((equation) => equation.id === "eq-model-sr-light-energy");
+    expect(conclusion?.paper).toBe(control.paper);
+    expect(control.arguments).toContain(conclusion?.argument);
+    expect(rule(() => checkedSupportFor(changed, source))).toBe(
+      "result-support-conclusion-mismatch",
+    );
+    expect(rule(() => toCard(ROOT, changed, new Map(), undefined, undefined, source))).toBe(
+      "result-support-conclusion-mismatch",
+    );
   });
 
   test("result-support-elimination-conclusion-missing refuses a premise cited as a conclusion", () => {
