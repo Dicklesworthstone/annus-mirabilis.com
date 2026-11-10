@@ -2,6 +2,8 @@ import { describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { dump } from "js-yaml";
+import type { CurvePredictionMetadata } from "../src/content/schemas/curvePrediction.ts";
 import { strictParse } from "../src/content/schemas/strictParse.ts";
 import { predictPromptsFrom, predictPromptsModule } from "./generate-predict-prompts.mjs";
 
@@ -21,6 +23,7 @@ type ManifestPrompt = {
   question: string;
   supportedCandidateId?: string;
   explanation?: string;
+  curvePrediction?: CurvePredictionMetadata;
   candidates: { id: string }[];
 };
 type Manifest = {
@@ -33,6 +36,7 @@ type Generated = {
   question: string;
   supportedCandidateId: string;
   explanation?: string;
+  curvePrediction?: CurvePredictionMetadata;
   candidates: { id: string }[];
 };
 
@@ -73,6 +77,7 @@ describe("generate-predict-prompts reads every manifest's prompts", () => {
         expect(p.candidates.map((c) => c.id)).toEqual(source?.candidates.map((c) => c.id) ?? []);
         expect(p.supportedCandidateId).toBe(source?.supportedCandidateId ?? "");
         expect(p.explanation).toBe(source?.explanation);
+        expect(p.curvePrediction).toEqual(source?.curvePrediction);
         expect(p.candidates.map((c) => c.id)).toContain(p.supportedCandidateId);
       }
     }
@@ -97,5 +102,36 @@ describe("generate-predict-prompts reads every manifest's prompts", () => {
     expect(text).toContain(`export const PREDICT_PROMPTS`);
     expect(text).toContain(JSON.stringify(prompts, null, 2));
     expect(text).toContain(JSON.stringify(exempt, null, 2));
+  });
+
+  test("curve authoring survives the generator with positions, ranges and choice metadata intact", () => {
+    const target = files.find((file) => file.file === "sr-10.yaml");
+    expect(target).toBeDefined();
+    if (!target) return;
+    const manifest = strictParse(target.text, "yaml") as Manifest;
+    const prompt = manifest.predictMode.prompts?.[0];
+    expect(prompt).toBeDefined();
+    if (!prompt) return;
+    const curve: CurvePredictionMetadata = {
+      x: { label: "Position", min: -1, max: 1, unit: "m" },
+      y: { label: "Density", min: 0, max: 1 },
+      valueTargets: [{ targetId: "centre", label: "At the centre", x: 0, min: 0, max: 1 }],
+      verbalChoices: {
+        directionChoices: [{ id: "symmetric", label: "Symmetric" }],
+        shapeChoices: [{ id: "bell", label: "Bell shaped" }],
+      },
+    };
+    prompt.curvePrediction = curve;
+    const { prompts } = predictPromptsFrom([
+      { file: target.file, text: dump(manifest, { lineWidth: -1 }) },
+    ]) as unknown as {
+      prompts: Record<string, Generated[]>;
+    };
+    expect(prompts[manifest.id]?.[0]?.curvePrediction).toEqual(curve);
+    // Invalid authored metadata stops generation instead of silently publishing a candidate-only UI.
+    prompt.curvePrediction = { ...curve, x: { ...curve.x, max: -2 } };
+    expect(() =>
+      predictPromptsFrom([{ file: target.file, text: dump(manifest, { lineWidth: -1 }) }]),
+    ).toThrow(/invalid-curve-prediction/);
   });
 });

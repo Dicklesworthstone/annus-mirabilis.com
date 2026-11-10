@@ -16,6 +16,7 @@ import {
   parsePresetId,
 } from "../ids.ts";
 import type { SourceAssetRights } from "../provenance/receiptToSourceAsset.ts";
+import { type CurvePredictionMetadata, curvePredictionFields } from "./curvePrediction.ts";
 import { type PaperDate, validatePaperDate } from "./dates.ts";
 import type { BibEntry } from "./source.ts";
 import { validateU64String } from "./u64String.ts";
@@ -35,7 +36,6 @@ export class ExperimentValidationError extends Error {
 }
 
 export const EXPERIMENT_SCHEMA_VERSION = 1;
-
 // ============================================================================
 // 1. EXPERIMENT MANIFEST
 // ============================================================================
@@ -568,11 +568,11 @@ export type PredictPromptFields = Readonly<{
   actionId?: string | undefined;
   question: string;
   candidates: readonly PredictCandidate[];
+  curvePrediction?: CurvePredictionMetadata | undefined;
   sketchAxes?: Readonly<{ x: string; y: string }> | undefined;
   verbalChoices?: readonly string[] | undefined;
   valueTargets?: readonly number[] | undefined;
 }>;
-
 export type PredictMode =
   | Readonly<{ exempt: true; reason: string }>
   | Readonly<{ enabled: true; prompts: readonly PredictPrompt[] }>;
@@ -1452,13 +1452,13 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
           sketchAxes = Object.freeze({ x: sa.x, y: sa.y });
         }
       }
-
       prompts.push({
         promptId: pr.promptId,
         controlId: (pr.controlId as string) || undefined,
         actionId: (pr.actionId as string) || undefined,
         question: (pr.question as string) || "",
         ...promptCandidates(pr, candidates, prPath),
+        ...curvePredictionFields(pr, prPath),
         sketchAxes,
         verbalChoices: Array.isArray(pr.verbalChoices) ? (pr.verbalChoices as string[]) : undefined,
         valueTargets: Array.isArray(pr.valueTargets) ? (pr.valueTargets as number[]) : undefined,

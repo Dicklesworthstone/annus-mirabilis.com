@@ -6,6 +6,7 @@
 import { COMMAND_CLASSES, type CommandClass } from "../../content/schemas/experiment.ts";
 import { parseU64, U64_MAX_BIGINT, U64ValidationError } from "../identity/u64.ts";
 import type {
+  NamedPredictionPayload,
   PredictionCandidatePayload,
   PredictionForm,
   PredictionSketchPayload,
@@ -582,7 +583,8 @@ function validatePredictionPayload(
   | PredictionCandidatePayload
   | PredictionSketchPayload
   | PredictionVerbalPayload
-  | PredictionValuesPayload {
+  | PredictionValuesPayload
+  | NamedPredictionPayload {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
     throw new TapeValidationError(
       "prediction-payload-not-object",
@@ -649,6 +651,7 @@ function validatePredictionPayload(
       return { points };
     }
     case "verbal": {
+      if ("directionId" in p || "shapeId" in p) return validateNamedPrediction(p, form, path);
       if (
         typeof p.choiceIndex !== "number" ||
         !Number.isInteger(p.choiceIndex) ||
@@ -666,6 +669,7 @@ function validatePredictionPayload(
       };
     }
     case "values": {
+      if ("targets" in p) return validateNamedPrediction(p, form, path);
       if (!Array.isArray(p.values)) {
         throw new TapeValidationError(
           "prediction-missing-values",
@@ -702,4 +706,43 @@ function validatePredictionPayload(
       return { values };
     }
   }
+}
+
+/** Old indexed links still decode; newly recorded predictions keep their prompt's named fields. */
+function validateNamedPrediction(
+  payload: Record<string, unknown>,
+  form: "verbal" | "values",
+  path: string,
+): NamedPredictionPayload {
+  const fail = (message: string): never => {
+    throw new TapeValidationError("prediction-invalid-named-payload", message, path);
+  };
+  const id = (value: unknown): value is string =>
+    typeof value === "string" && value.trim().length > 0 && value.length <= 64;
+  const keys = form === "verbal" ? ["directionId", "shapeId"] : ["targets"];
+  if (Object.keys(payload).some((key) => !keys.includes(key)))
+    return fail("Named predictions may carry only their authored choice or target fields.");
+  if (form === "verbal") {
+    if (!id(payload.directionId) || !id(payload.shapeId))
+      return fail("A verbal prediction needs bounded direction and shape ids.");
+    return { directionId: payload.directionId, shapeId: payload.shapeId };
+  }
+  if (!Array.isArray(payload.targets) || payload.targets.length === 0 || payload.targets.length > 16)
+    return fail("A named values prediction needs between one and sixteen targets.");
+  const seen = new Set<string>();
+  const targets: { targetId: string; value: number }[] = [];
+  for (const raw of payload.targets) {
+    if (!raw || typeof raw !== "object" || Array.isArray(raw))
+      return fail("Each named prediction target must be an object.");
+    const target = raw as Record<string, unknown>;
+    if (Object.keys(target).some((key) => key !== "targetId" && key !== "value"))
+      return fail("Prediction targets may carry only a target id and a finite value.");
+    if (!id(target.targetId) || seen.has(target.targetId))
+      return fail("Prediction target ids must be bounded, nonempty, and unique.");
+    if (typeof target.value !== "number" || !Number.isFinite(target.value))
+      return fail("Each prediction target needs a finite numeric value.");
+    seen.add(target.targetId);
+    targets.push({ targetId: target.targetId, value: target.value });
+  }
+  return { targets };
 }

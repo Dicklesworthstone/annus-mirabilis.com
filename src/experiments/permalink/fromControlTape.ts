@@ -111,10 +111,7 @@ export function permalinkTapeFromControlTape(record: ControlTapeV2): ControlTape
   for (const e of record.events) {
     if (e.kind !== "prediction") continue;
     const p = e.payload;
-    // `candidate` and `sketch` carry the same information on both sides. `verbal` and `values` do
-    // not: the record names a direction and a shape, or a list of target ids, where the link wants
-    // a choice index and a list of number pairs. There is no faithful map, so this refuses rather
-    // than inventing an index the author never chose.
+    // Named forms retain the exact authored ids. Older indexed links remain readable separately.
     if (p.form === "candidate")
       predictions.push({
         promptId: e.promptId,
@@ -123,12 +120,10 @@ export function permalinkTapeFromControlTape(record: ControlTapeV2): ControlTape
       });
     else if (p.form === "sketch")
       predictions.push({ promptId: e.promptId, form: "sketch", payload: { points: p.points } });
+    else if (p.form === "verbal")
+      predictions.push({ promptId: e.promptId, form: "verbal", payload: { directionId: p.directionId, shapeId: p.shapeId } });
     else
-      return unconvertible(
-        `events[${e.actionIndex}].payload`,
-        `A ${p.form} prediction names its answer in terms a shared link does not carry: the record identifies it by name, and the link carries an index.`,
-        "Record this prediction as a candidate or a sketch, or extend the permalink prediction payload to carry the named form.",
-      );
+      predictions.push({ promptId: e.promptId, form: "values", payload: { targets: p.targets } });
   }
 
   const events: TapeControlEvent[] = record.events.filter(isControl).map((e) => ({

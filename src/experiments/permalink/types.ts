@@ -50,11 +50,17 @@ export type PredictionValuesPayload = Readonly<{
   values: readonly (readonly [number, number])[];
 }>;
 
+/** Named forms preserve the same authored identities as the prediction panel and control tape. */
+export type NamedPredictionPayload =
+  | Readonly<{ directionId: string; shapeId: string }>
+  | Readonly<{ targets: readonly Readonly<{ targetId: string; value: number }>[] }>;
+
 export type TapePredictionPayload =
   | PredictionCandidatePayload
   | PredictionSketchPayload
   | PredictionVerbalPayload
-  | PredictionValuesPayload;
+  | PredictionValuesPayload
+  | NamedPredictionPayload;
 
 export type TapePredictionEvent = Readonly<{
   promptId: string;

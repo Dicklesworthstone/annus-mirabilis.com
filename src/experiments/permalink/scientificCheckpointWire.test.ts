@@ -75,7 +75,7 @@ test("range expansion preserves tile, draw index and seed integers above 2^53 an
   passed("range-exact-u64-identities");
 });
 
-test("tape-invalid-scientific-checkpoint: malformed, ambiguous, duplicate or oversized metadata is refused (schema.ts:484)", () => {
+test("tape-invalid-scientific-checkpoint: malformed, ambiguous, duplicate or oversized metadata is refused (schema.ts:485)", () => {
   const { seed: _seed, ...missingSeed } = compact;
   const invalid: unknown[] = [
     null,
