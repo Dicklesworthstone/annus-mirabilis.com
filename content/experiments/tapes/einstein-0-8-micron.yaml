@@ -3,6 +3,9 @@
 # Both stops read that same recording; observing at a new interval consumes no random draws.
 # Checkpoints bind the complete latent trajectory and accepted scientific outputs, not settings alone.
 # Host fallback normal transforms differ; playback refuses that engine and offers a new calculation.
+# Re-recorded through the pinned WASM owner under Bun 1.4.0 (JavaScriptCore).
+# The latent path agrees in Node 22.13.1, but histogram-model probabilities differ at binary64 precision;
+# strict checkpoint replay refuses that mismatch and preserves the previous accepted result.
 
 tapeVersion: 2
 tapeId: einstein-0-8-micron
@@ -11,7 +14,7 @@ mode: "bm-01:default"
 modelIdentity:
   modelId: brownian-motion-reference
   modelVersion: "1"
-  artifactDigest: "host:sha256:8875fcfa1114b15be4a647b565831fd90ade7a15fc5a4706f187efe6a5d58586"
+  artifactDigest: "host:sha256:151a80c5cdefe324c13ea03023a320f74449e0ea588604a9b252903a39dee176"
 constantSetId: einstein-1905-brownian-printed
 seed: "1905"
 streamVersion: 1
@@ -51,7 +54,7 @@ checkpoints:
   - actionIndex: 1
     stepIndex: 3000
     simulatedTime: 60
-    digest: "host:sha256:208cfcc8f1c77f50e585853dc45e09e1e01c9d26baf1ac2e5aed3d0a0b32137e"
+    digest: "host:sha256:b76f03a31f7eefe07420a80a742ddeba73a3f9db3b216291a301ff82aa1a6450"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1
@@ -1273,7 +1276,7 @@ checkpoints:
   - actionIndex: 2
     stepIndex: 3000
     simulatedTime: 60
-    digest: "host:sha256:1cd33e22533d2d24171ccd060c1054c74078ad5890595697c3256fd5870e8fdd"
+    digest: "host:sha256:3fe22175af70e0e98c873a61f45d83f6784bbbf8e9f053dba6cef2ec7d43c27b"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1
