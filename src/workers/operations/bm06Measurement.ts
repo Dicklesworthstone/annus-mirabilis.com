@@ -22,7 +22,7 @@ export function remeasureBm06(
     return null;
   const checked = validateBm06Parameters(requested);
   if (checked.kind !== "accepted") return checked;
-  const diffusivity = data.outputs.find((o) => o.quantityId === "diffusionCoefficient");
+  const diffusivity = data.outputs.find((o) => o.quantityId === "activeDiffusionCoefficient");
   if (diffusivity?.status !== "value" || typeof diffusivity.value !== "number") return null;
   const probability = intervalProbability(
     requested.lower,

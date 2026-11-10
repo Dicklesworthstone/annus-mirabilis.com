@@ -132,13 +132,71 @@ test("versioned SI settings links roundtrip and reject duplicates, unknown field
   for (const bad of [
     `${link}&T=300`,
     `${link}&rogue=1`,
-    link.replace("bm=1", "bm=2"),
+    link.replace("bm=2", "bm=3"),
     link.replace("T=293.15", "T=Infinity"),
     link.replace("T=293.15", "T=1e400"),
     link.replace("gridEnabled=0", "gridEnabled=false"),
     `?${"a".repeat(2100)}`,
   ])
     assert.equal(decodeBm06Settings(bad).kind, "invalid");
+});
+test("changing the initial distribution creates a new run; refused settings preserve and share the accepted profile", async () => {
+  const { app } = session();
+  const two = { ...BM06_DEFAULTS, gridEnabled: true, gridProfile: "two-spikes" };
+  app.apply(two);
+  await settled(app);
+  const first = app.getSnapshot().accepted;
+  assert.equal(first.parameters.gridProfile, "two-spikes");
+  app.apply({ ...two, gridProfile: "step" });
+  await settled(app);
+  const step = app.getSnapshot().accepted;
+  assert.notEqual(step.runId, first.runId);
+  assert.equal(step.parameters.gridProfile, "step");
+  assert.equal(
+    step.outputs.find((o) => o.quantityId === "cellProbabilities").status,
+    "not-applicable",
+  );
+  app.apply({ ...two, steps: 1 });
+  await settled(app);
+  assert.equal(app.getSnapshot().status, "refused");
+  assert.equal(app.getSnapshot().accepted, step);
+  assert.equal(app.acceptedParameters().gridProfile, "step");
+  const shared = decodeBm06Settings(encodeBm06Settings(app.acceptedParameters()));
+  assert.equal(shared.kind, "settings");
+  assert.equal(shared.parameters.gridProfile, "step");
+  const beforeInvalid = app.getSnapshot();
+  assert.equal(app.apply({ ...two, gridProfile: "unknown" }).kind, "refused");
+  assert.equal(app.getSnapshot(), beforeInvalid);
+  app.disconnect();
+});
+test("a copied diffusivity stays active when the worker remeasures an interval", async () => {
+  const { app } = session();
+  app.copyDiffusivityFrom({
+    instanceId: "bm01-copy",
+    runId: "source-run",
+    snapshotVersion: 1,
+    value: 8e-13,
+  });
+  await settled(app);
+  const copied = app.acceptedParameters();
+  app.apply({ ...copied, lower: 0, upper: 0.5e-6 });
+  await settled(app);
+  const remeasured = app.getSnapshot().accepted;
+  const probability = remeasured.outputs.find((o) => o.quantityId === "intervalProbability").value;
+  // A fresh session cannot use the host's interval cache; it must produce the same probability.
+  const fresh = session().app;
+  fresh.apply({ ...copied, lower: 0, upper: 0.5e-6 });
+  await settled(fresh);
+  assert.equal(
+    probability,
+    fresh.getSnapshot().accepted.outputs.find((o) => o.quantityId === "intervalProbability").value,
+  );
+  assert.equal(
+    remeasured.outputs.find((o) => o.quantityId === "activeDiffusionCoefficient").value,
+    8e-13,
+  );
+  app.disconnect();
+  fresh.disconnect();
 });
 test("prepared output tampering is refused instead of becoming SSR scientific content", () => {
   const altered = structuredClone(example);
@@ -148,6 +206,18 @@ test("prepared output tampering is refused instead of becoming SSR scientific co
       throw new Error("must never run");
     }),
   );
+});
+test("a prepared JSON profile is validated before it can become an accepted snapshot", () => {
+  for (const gridProfile of ["unknown", "0", 0, undefined]) {
+    const altered = { ...example, parameters: { ...example.parameters, gridProfile } };
+    assert.throws(
+      () =>
+        createBm06Session("invalid-profile", altered, () => {
+          throw new Error("must never start a worker");
+        }),
+      /Invalid prepared laboratory settings/,
+    );
+  }
 });
 test("static example and provenance generation are reproducible", async () => {
   const before = await readFile(new URL("../generated/bm06-example.json", import.meta.url), "utf8");

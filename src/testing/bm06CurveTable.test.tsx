@@ -77,3 +77,63 @@ describe("BM-06 reads its density curve as numbers", () => {
     expect(pointHtml).not.toContain("<caption>The accepted density at the plotted points");
   });
 });
+
+describe("BM-06 reads each accepted numerical initial distribution as numbers", () => {
+  test("a step has a complete numerical table and no fictitious analytic column", async () => {
+    const parameters = {
+      ...BM06_DEFAULTS,
+      gridEnabled: true,
+      gridProfile: "step" as const,
+      n: 6,
+      t: 0,
+    };
+    const evaluated = await evaluateBm06(parameters, { yieldControl: async () => {} });
+    if (evaluated.kind !== "accepted") throw new Error("The step was not accepted.");
+    const html = renderToStaticMarkup(
+      <BrownianLab
+        example={{
+          ...example,
+          parameters,
+          stepIndex: evaluated.data.stepIndex,
+          simulationTime: evaluated.data.simulationTime,
+          results: evaluated.data.outputs.map(encodeResult),
+        }}
+      />,
+    );
+    expect(html).toContain('name="gridProfile"');
+    expect(html).toContain('data-grid-profile="step"');
+    expect(html).toContain("Accepted numerical probabilities in the reflecting box");
+    expect(html).toContain("no unbounded analytic comparison");
+    expect(html).not.toContain("Unbounded analytic</th>");
+    const tableStart = html.indexOf("<caption>Accepted numerical probabilities");
+    const table = html.slice(tableStart, html.indexOf("</table>", tableStart));
+    expect([...table.matchAll(/<th scope="row">/g)]).toHaveLength(parameters.n);
+    expect(table).toContain("0.33333");
+  });
+
+  test("the accepted two-spike description names its actual source cells", async () => {
+    const parameters = {
+      ...BM06_DEFAULTS,
+      gridEnabled: true,
+      gridProfile: "two-spikes" as const,
+      n: 6,
+      t: 0,
+    };
+    const evaluated = await evaluateBm06(parameters, { yieldControl: async () => {} });
+    if (evaluated.kind !== "accepted") throw new Error("The two-spike run was not accepted.");
+    const html = renderToStaticMarkup(
+      <BrownianLab
+        example={{
+          ...example,
+          parameters,
+          stepIndex: evaluated.data.stepIndex,
+          simulationTime: evaluated.data.simulationTime,
+          results: evaluated.data.outputs.map(encodeResult),
+        }}
+      />,
+    );
+    expect(html).toContain('data-grid-profile="two-spikes"');
+    expect(html).toMatch(/cells 1 and 4/);
+    expect(html).toContain("Unbounded analytic</th>");
+  });
+});

@@ -138,7 +138,16 @@ async function readerSession(stepper: Bm06GridStepper) {
 
 describe("positive control: the grid's FrankenSim label follows an accepted module call", () => {
   test("the module steps the same field as the host reference, bitwise, and names itself", async () => {
-    const settings: Bm06Parameters[] = [GRID, { ...GRID, t: 0 }, { ...GRID, t: 60, steps: 30000 }];
+    const settings: Bm06Parameters[] = [
+      GRID,
+      { ...GRID, t: 0 },
+      { ...GRID, t: 60, steps: 30000 },
+      { ...GRID, gridProfile: "step" },
+      { ...GRID, gridProfile: "step", t: 0 },
+      { ...GRID, gridProfile: "two-spikes" },
+      { ...GRID, gridProfile: "two-spikes", t: 0 },
+      { ...GRID, gridProfile: "two-spikes", n: 6 },
+    ];
     let cells = 0;
     for (const p of settings) {
       const before = moduleCalls;
@@ -149,6 +158,17 @@ describe("positive control: the grid's FrankenSim label follows an accepted modu
       const b = field(frank.outputs);
       expect(b.length).toBe(p.n);
       expect([...b]).toEqual([...a]);
+      for (const id of [
+        "cellMasses",
+        "cellProbabilities",
+        "maxCellMassDifference",
+        "wallContact",
+      ]) {
+        const actual = output(frank.outputs, id);
+        const expected = output(host.outputs, id);
+        expect(actual.status).toBe(expected.status);
+        expect(actual.value).toEqual(expected.value);
+      }
       cells += b.length;
       expect(output(frank.outputs, "stabilityRatio").value).toBe(
         output(host.outputs, "stabilityRatio").value,

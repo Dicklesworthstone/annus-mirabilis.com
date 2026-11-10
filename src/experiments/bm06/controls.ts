@@ -6,6 +6,7 @@ import type { Bm06Parameters } from "./definition.ts";
 export type NumericKey = Exclude<
   keyof Bm06Parameters,
   | "gridEnabled"
+  | "gridProfile"
   | "copiedDiffusivityInstanceId"
   | "copiedDiffusivityRunId"
   | "copiedDiffusivitySnapshotVersion"
@@ -29,6 +30,7 @@ export const BM06_FIELDS: readonly {
 ];
 export type Bm06Draft = Record<NumericKey, string> & {
   gridEnabled: boolean;
+  gridProfile: Bm06Parameters["gridProfile"];
   copiedDiffusivityInstanceId: string;
   copiedDiffusivityRunId: string;
   copiedDiffusivitySnapshotVersion: number;
@@ -41,6 +43,7 @@ export function toBm06Draft(p: Bm06Parameters): Bm06Draft {
   return {
     ...values,
     gridEnabled: p.gridEnabled,
+    gridProfile: p.gridProfile,
     copiedDiffusivityInstanceId: p.copiedDiffusivityInstanceId,
     copiedDiffusivityRunId: p.copiedDiffusivityRunId,
     copiedDiffusivitySnapshotVersion: p.copiedDiffusivitySnapshotVersion,
@@ -58,6 +61,7 @@ export function fromBm06Draft(draft: Bm06Draft): Bm06Parameters {
   return {
     ...Object.fromEntries(entries),
     gridEnabled: draft.gridEnabled,
+    gridProfile: draft.gridProfile,
     copiedDiffusivityInstanceId: draft.copiedDiffusivityInstanceId,
     copiedDiffusivityRunId: draft.copiedDiffusivityRunId,
     copiedDiffusivitySnapshotVersion: draft.copiedDiffusivitySnapshotVersion,

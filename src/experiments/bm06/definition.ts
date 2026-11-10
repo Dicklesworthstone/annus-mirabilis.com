@@ -1,4 +1,5 @@
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
+import type { Bm06GridProfile } from "./gridProfiles.ts";
 
 /** BM-06's executable host-reference subset. No physics is evaluated by this manifest. */
 export type Bm06Parameters = Readonly<{
@@ -9,6 +10,7 @@ export type Bm06Parameters = Readonly<{
   lower: number;
   upper: number;
   gridEnabled: boolean;
+  gridProfile: Bm06GridProfile;
   n: number;
   dx: number;
   steps: number;
@@ -30,6 +32,7 @@ export const BM06_DEFAULTS: Bm06Parameters = Object.freeze({
   lower: -1e-6,
   upper: 1e-6,
   gridEnabled: false,
+  gridProfile: "spike",
   n: 101,
   dx: 1e-7,
   steps: 250,
@@ -47,6 +50,7 @@ export const BM06_PARAMETER_CLASSES: Readonly<Record<keyof Bm06Parameters, Param
     lower: "measurement",
     upper: "measurement",
     gridEnabled: "input",
+    gridProfile: "input",
     n: "input",
     dx: "input",
     steps: "input",
@@ -112,7 +116,7 @@ export const BM06_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
     ["value", "not-applicable"],
     [BM06_FRANKENSIM_GRID_OWNER],
   ),
-  cellMasses: contract("1", "finite-box-cell-probability", "diffusion.ftcsAnalyticComparison", [
+  cellMasses: contract("1", "finite-box-cell-probability", "diffusion.ftcsCellMasses", [
     "value",
     "not-applicable",
   ]),
@@ -225,6 +229,22 @@ export const BM06_PRESETS = Object.freeze({
   "grid-comparison": Object.freeze({
     label: "Compare with a numerical grid",
     parameters: Object.freeze({ ...BM06_DEFAULTS, gridEnabled: true }),
+  }),
+  "grid-step": Object.freeze({
+    label: "Spread from the left half",
+    parameters: Object.freeze({
+      ...BM06_DEFAULTS,
+      gridEnabled: true,
+      gridProfile: "step" as const,
+    }),
+  }),
+  "grid-two-spikes": Object.freeze({
+    label: "Spread from two starting points",
+    parameters: Object.freeze({
+      ...BM06_DEFAULTS,
+      gridEnabled: true,
+      gridProfile: "two-spikes" as const,
+    }),
   }),
   "unstable-grid": Object.freeze({
     label: "Try a step that is too large",

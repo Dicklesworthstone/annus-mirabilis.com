@@ -4,6 +4,10 @@ import {
   BM06_OUTPUTS,
 } from "../../experiments/bm06/definition.ts";
 import {
+  BM06_GRID_PROFILES,
+  BM06_STEP_COMPARISON_NOTE,
+} from "../../experiments/bm06/gridProfiles.ts";
+import {
   declaredDomains,
   insideDeclaredDomain,
 } from "../../experiments/controls/declaredDomain.ts";
@@ -29,6 +33,7 @@ import {
   ftcs1d,
   ftcsAdvance,
   ftcsAnalyticComparison,
+  ftcsCellMasses,
 } from "../../physics/reference/diffusion/ftcs.ts";
 
 export type Bm06Evaluation = Readonly<{
@@ -50,8 +55,15 @@ export { validateBm06Parameters } from "../../experiments/bm06/parameters.ts";
 /** The cell widths BM-06's manifest admits (content/experiments/bm-06.yaml), for its repairs. */
 const dxDomain = declaredDomains("bm-06").dx;
 
-/** One stepping of the optional grid: `steps` explicit steps of width `dt` from the centred spike. */
-export type GridRun = Readonly<{ n: number; D: number; dx: number; dt: number; steps: number }>;
+/** One stepping from the pinned owner's declared initial profile. Older direct callers use 0. */
+export type GridRun = Readonly<{
+  n: number;
+  D: number;
+  dx: number;
+  dt: number;
+  steps: number;
+  profile?: 0 | 1 | 2;
+}>;
 /**
  * The stepped field and its diffusion number, with the owner that actually produced them. The
  * owner travels with the result, not with the stepper, so a stepper that hands a request to the
@@ -87,7 +99,7 @@ export const HOST_GRID_STEPPER: Bm06GridStepper = Object.freeze({
       D: run.D,
       dx: run.dx,
       dt: run.dt,
-      profile: 0,
+      profile: run.profile ?? 0,
     });
     if (initial.kind !== "accepted") return initial;
     let field = initial.data.values;
@@ -118,6 +130,18 @@ const gridKeys = [
   "stabilityRatio",
   "gridTimeStep",
 ] as const;
+function notApplicable(quantityId: string, reason: string): ScientificResult {
+  const c = BM06_OUTPUTS[quantityId];
+  if (!c) throw new TypeError(`Undeclared output ${quantityId}`);
+  return {
+    quantityId,
+    unit: c.unit,
+    semanticKind: c.semanticKind,
+    ownerId: c.ownerId,
+    status: "not-applicable",
+    reason,
+  };
+}
 function outcome(id: Exclude<ExecutionOutcomeId, "budget-exhausted">): Computation<never> {
   return { kind: "outcome", outcome: { outcome: id, ...executionOutcomeRegistry[id] } };
 }
@@ -240,8 +264,9 @@ export async function evaluateBm06(
     if (p.gridEnabled) {
       const dt = p.t === 0 ? (0.25 * p.dx * p.dx) / D : p.t / p.steps;
       const totalSteps = p.t === 0 ? 0 : p.steps;
+      const profile = BM06_GRID_PROFILES[p.gridProfile].code;
       const stepped = await stepper.step(
-        { n: p.n, D, dx: p.dx, dt, steps: totalSteps },
+        { n: p.n, D, dx: p.dx, dt, steps: totalSteps, profile },
         { cancelled, yieldControl, chunkSteps },
       );
       if (stepped.kind !== "accepted") {
@@ -287,41 +312,52 @@ export async function evaluateBm06(
         }
         return stepped;
       }
-      const { field, stabilityRatio, ownerId: gridOwner } = stepped.data;
+      const { field: rawField, stabilityRatio, ownerId: gridOwner } = stepped.data;
+      // Profile 1 has unit density in floor(n/2) cells in BOTH pinned owners. Its initial
+      // integral is therefore floor(n/2)*dx. Scale by that FIXED initial mass, not by the
+      // observed final integral: linear diffusion preserves the scaling and any numerical
+      // mass drift stays visible. Point profiles already have total probability one.
+      const field =
+        profile === 1
+          ? Float64Array.from(rawField, (density) => density / (Math.floor(p.n / 2) * p.dx))
+          : rawField;
       const gridContract = BM06_OUTPUTS.gridDensity;
       if (field.length !== p.n || !gridContract || !ownerAdmitted(gridContract, gridOwner))
         return outcome("invariant-violation");
       stepIndex = totalSteps;
       if (cancelled()) return outcome("cancelled");
-      const comparison = ftcsAnalyticComparison({
-        field,
-        dx: p.dx,
-        t: p.t,
-        D,
-        startCell: Math.floor(p.n / 2),
-      });
-      if (comparison.kind !== "accepted") return comparison;
+      const masses = ftcsCellMasses(field, p.dx);
+      if (masses.kind !== "accepted") return masses;
       outputs.push(
         value("gridDensity", field, gridOwner),
-        value("cellMasses", comparison.data.cellMasses),
-        value("cellProbabilities", comparison.data.cellProbabilities),
-        comparison.data.maxCellMassDifference,
-        value("wallContact", Number(comparison.data.wallContact)),
+        value("cellMasses", masses.data),
         value("stabilityRatio", p.t === 0 ? 0 : stabilityRatio, gridOwner),
         value("gridTimeStep", p.t === 0 ? 0 : dt),
       );
+      if (profile === 1) {
+        for (const quantityId of ["cellProbabilities", "maxCellMassDifference", "wallContact"])
+          outputs.push(notApplicable(quantityId, BM06_STEP_COMPARISON_NOTE));
+      } else {
+        const comparison = ftcsAnalyticComparison({
+          field,
+          dx: p.dx,
+          t: p.t,
+          D,
+          startCell: profile === 2 ? Math.floor(p.n / 4) : Math.floor(p.n / 2),
+          ...(profile === 2 ? { secondStartCell: Math.floor((3 * p.n) / 4) } : {}),
+        });
+        if (comparison.kind !== "accepted") return comparison;
+        outputs.push(
+          value("cellProbabilities", comparison.data.cellProbabilities),
+          comparison.data.maxCellMassDifference,
+          value("wallContact", Number(comparison.data.wallContact)),
+        );
+      }
     } else
       for (const quantityId of gridKeys) {
         const c = BM06_OUTPUTS[quantityId];
         if (!c) continue;
-        outputs.push({
-          quantityId,
-          unit: c.unit,
-          semanticKind: c.semanticKind,
-          ownerId: c.ownerId,
-          status: "not-applicable",
-          reason: "The optional numerical grid is switched off.",
-        });
+        outputs.push(notApplicable(quantityId, "The optional numerical grid is switched off."));
       }
     for (const result of outputs) decodeResult(result);
     return { kind: "accepted", data: { outputs, stepIndex, simulationTime: p.t } };

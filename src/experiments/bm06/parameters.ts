@@ -2,6 +2,7 @@ import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
 import { type DomainDisplay, withinDeclaredDomain } from "../controls/declaredDomain.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import { BM06_DEFAULTS, type Bm06Parameters } from "./definition.ts";
+import { isBm06GridProfile } from "./gridProfiles.ts";
 
 const keys = Object.keys(BM06_DEFAULTS);
 /** What each numeric control is called on the page (bm06/controls.ts BM06_FIELDS), with its unit. */
@@ -46,6 +47,12 @@ function validateBm06Fields(input: unknown): Computation<Bm06Parameters> {
     if (key === "gridEnabled") {
       if (typeof record[key] !== "boolean")
         return refused([key], "The grid switch must be true or false.");
+    } else if (key === "gridProfile") {
+      if (!isBm06GridProfile(record[key]))
+        return refused(
+          [key],
+          "Choose one central spike, a uniform left half, or two equal spikes.",
+        );
     } else if (stringKeys.has(key)) {
       if (typeof record[key] !== "string") return refused([key], "This setting must be text.");
     } else if (typeof record[key] !== "number" || !Number.isFinite(record[key]))

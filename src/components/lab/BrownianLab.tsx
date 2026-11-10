@@ -16,6 +16,11 @@ import {
   type Bm06Parameters,
 } from "../../experiments/bm06/definition.ts";
 import { gridExecutionKind } from "../../experiments/bm06/gridExecution.ts";
+import {
+  BM06_GRID_PROFILES,
+  BM06_STEP_COMPARISON_NOTE,
+  isBm06GridProfile,
+} from "../../experiments/bm06/gridProfiles.ts";
 import { decodeBm06Settings, encodeBm06Settings } from "../../experiments/bm06/permalink.ts";
 import { createBm06Session, type PreparedBm06Example } from "../../experiments/bm06/session.ts";
 import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
@@ -194,7 +199,7 @@ export function BrownianLab({
         ? `${view.outcome?.message ?? "Calculation unavailable."} The worked result remains readable.`
         : view.status === "paused"
           ? "Calculation stopped. The last accepted result is unchanged."
-          : `Accepted result: RMS displacement ${display(rms, 1e6)} micrometres; selected interval probability ${display(probability, 100)} percent.`;
+          : `Accepted point-start result: RMS displacement ${display(rms, 1e6)} micrometres; selected interval probability ${display(probability, 100)} percent.${p.gridEnabled ? ` Numerical grid: ${BM06_GRID_PROFILES[p.gridProfile].label}.` : ""}`;
   const times = array(snapshot, "comparisonTimes"),
     spreads = array(snapshot, "comparisonRms");
   return (
@@ -231,8 +236,9 @@ export function BrownianLab({
         </p>
       </noscript>
       <p>
-        Choose an interval and ask how likely a tracer is to finish inside it. Changing a field only
-        edits a request. The plot and table change together after you apply valid settings.
+        Choose an interval and ask how likely a tracer starting at zero is to finish inside it.
+        Changing a field only edits a request. The plot and table change together after you apply
+        valid settings.
       </p>
       <div className="lab-columns">
         <form
@@ -314,6 +320,31 @@ export function BrownianLab({
               </label>
               {draft.gridEnabled && (
                 <div className="input-grid">
+                  <div className="input-field">
+                    <label htmlFor={`${id}-gridProfile`}>Grid initial distribution</label>
+                    <select
+                      id={`${id}-gridProfile`}
+                      name="gridProfile"
+                      value={draft.gridProfile}
+                      onChange={(event) => {
+                        const profile = event.target.value;
+                        if (!isBm06GridProfile(profile)) return;
+                        setDraft({ ...draft, gridProfile: profile });
+                        setDirty(true);
+                      }}
+                    >
+                      {Object.entries(BM06_GRID_PROFILES).map(([key, profile]) => (
+                        <option key={key} value={key}>
+                          {profile.label}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="fine">
+                      This initial distribution belongs to the numerical grid. The unbounded
+                      density, interval probability and radial moments describe a separate tracer
+                      starting at zero.
+                    </p>
+                  </div>
                   {fields.slice(6).map((field) => (
                     <div className="input-field" key={field.key}>
                       <label htmlFor={`${id}-${field.key}`}>
@@ -579,20 +610,35 @@ export function BrownianLab({
           className="grid-result"
           {...identity(snapshot)}
           data-grid-execution={gridKind ?? undefined}
+          data-grid-profile={p.gridProfile}
         >
           {gridKind && <ExecutionLabel state={gridKind} />}
           {gridByFrankenSim && <p className="fine">{FRANKENSIM_DIFFUSION_ENGINE_SENTENCE}</p>}
+          <h3>Numerical spread: {BM06_GRID_PROFILES[p.gridProfile].label}</h3>
+          <p>
+            {p.gridProfile === "two-spikes"
+              ? `At the start, cells ${Math.floor(p.n / 4)} and ${Math.floor((3 * p.n) / 4)} each hold half the probability. The analytic comparison uses those exact cell centers as its two starting points.`
+              : p.gridProfile === "step"
+                ? `At the start, cells 0 through ${Math.floor(p.n / 2) - 1} share probability one equally. The other cells start empty. The initial normalization is fixed throughout the calculation.`
+                : `At the start, cell ${Math.floor(p.n / 2)} holds all the probability. The analytic comparison starts at the same cell center.`}
+          </p>
           <p>
             Accepted grid: {String(p.n)} cells of width {display(p.dx, 1e6)} μm;{" "}
             {snapshot.stepIndex} steps. Time step: {display(scalar(snapshot, "gridTimeStep"))} s.
             Diffusion number: {display(scalar(snapshot, "stabilityRatio"))}.
           </p>
           <p className="notice">
-            {scalar(snapshot, "wallContact") === 1
-              ? "The spread has reached the reflecting walls. Differences from the unbounded curve now include different boundary models; they are not solely numerical error."
-              : "No wall contact is detected at the declared threshold. The grid and analytic calculation still have different boundary models."}{" "}
-            Maximum cell-probability difference:{" "}
-            {display(scalar(snapshot, "maxCellMassDifference"))}.
+            {p.gridProfile === "step" ? (
+              BM06_STEP_COMPARISON_NOTE
+            ) : (
+              <>
+                {scalar(snapshot, "wallContact") === 1
+                  ? "The spread has reached the reflecting walls. Differences from the unbounded curve now include different boundary models; they are not solely numerical error."
+                  : "No wall contact is detected at the declared threshold. The grid and analytic calculation still have different boundary models."}{" "}
+                Maximum cell-probability difference:{" "}
+                {display(scalar(snapshot, "maxCellMassDifference"))}.
+              </>
+            )}
           </p>
           <GridComparison snapshot={snapshot} />
         </div>

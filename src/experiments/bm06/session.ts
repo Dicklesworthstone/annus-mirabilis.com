@@ -14,7 +14,8 @@ export type PreparedBm06Example = Readonly<{
    */
   snapshotFunctionName: string;
   snapshotFunctionHash: string;
-  parameters: Bm06Parameters;
+  /** JSON widens a profile alias to string; the session validates it before accepting anything. */
+  parameters: Readonly<Omit<Bm06Parameters, "gridProfile"> & { gridProfile: string }>;
   results: readonly string[];
   stepIndex: number;
   simulationTime: number;
@@ -25,10 +26,13 @@ export function createBm06Session(
   example: PreparedBm06Example,
   workerFactory: () => WorkerChannel,
 ) {
+  const prepared = validateBm06Parameters(example.parameters);
+  if (prepared.kind !== "accepted") throw new TypeError("Invalid prepared laboratory settings.");
+  const initialParameters = prepared.data;
   const store = createInstanceStore({
     experimentId: "bm-06",
     instanceId,
-    initialParameters: example.parameters,
+    initialParameters,
     parameterClasses: BM06_PARAMETER_CLASSES,
     outputs: BM06_OUTPUTS,
     allowPartial: true,
@@ -70,7 +74,7 @@ export function createBm06Session(
       const parameters = validated.data;
       const snapshot = store.getSnapshot();
       const previous =
-        snapshot.requested?.parameters ?? snapshot.accepted?.parameters ?? example.parameters;
+        snapshot.requested?.parameters ?? snapshot.accepted?.parameters ?? initialParameters;
       const setup: Record<string, number | boolean | string> = {},
         measurement: Record<string, number> = {};
       for (const key of Object.keys(parameters) as (keyof Bm06Parameters)[]) {
@@ -98,7 +102,7 @@ export function createBm06Session(
       }>,
     ) {
       const current = (store.getSnapshot().accepted?.parameters ??
-        example.parameters) as Parameters as Bm06Parameters;
+        initialParameters) as Parameters as Bm06Parameters;
       return this.apply({
         ...current,
         copiedDiffusivityInstanceId: source.instanceId,
@@ -121,6 +125,6 @@ export function createBm06Session(
     },
     acceptedParameters: () =>
       (store.getSnapshot().accepted?.parameters ??
-        example.parameters) as Parameters as Bm06Parameters,
+        initialParameters) as Parameters as Bm06Parameters,
   });
 }

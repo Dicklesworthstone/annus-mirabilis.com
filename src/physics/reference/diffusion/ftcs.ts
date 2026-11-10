@@ -276,6 +276,24 @@ export function ftcs1d(p: FtcsParameters, budget = REFERENCE_FTCS_BUDGET): Compu
     }),
   };
 }
+/** Integrate each cell's constant density once, preserving any accumulated mass error. */
+export function ftcsCellMasses(field: Float64Array, dx: number): Computation<Float64Array> {
+  if (
+    !(field instanceof Float64Array) ||
+    !(field.buffer instanceof ArrayBuffer) ||
+    field.length < 3 ||
+    !Number.isFinite(dx) ||
+    dx <= 0 ||
+    !field.every((density) => Number.isFinite(density) && density >= 0)
+  )
+    return invalid(["field", "dx"], "Use finite nonnegative densities and a positive cell width.");
+  const limited = budgetCheck(field.length, field.length * 8, REFERENCE_FTCS_BUDGET);
+  if (limited) return limited;
+  const masses = Float64Array.from(field, (density) => density * dx);
+  if (!masses.every(Number.isFinite)) return numerical("A cell mass is outside binary64 range.");
+  return { kind: "accepted", data: masses };
+}
+
 export type FtcsComparison = Readonly<{
   cellProbabilities: Float64Array;
   cellMasses: Float64Array;
@@ -283,7 +301,7 @@ export type FtcsComparison = Readonly<{
   analyticMassInsideBox: number;
   wallContact: boolean;
   gridModel: "zero-flux finite box";
-  analyticModel: "unbounded point-source Gaussian";
+  analyticModel: "unbounded point-source Gaussian" | "unbounded equal point-source mixture";
 }>;
 /** 2^-1022, the smallest normal binary64 number. */
 const SMALLEST_NORMAL = 2.2250738585072014e-308;
@@ -317,6 +335,7 @@ export function ftcsAnalyticComparison({
   t,
   D,
   startCell,
+  secondStartCell,
   wallTolerance = 1e-6,
 }: {
   field: Float64Array;
@@ -324,6 +343,8 @@ export function ftcsAnalyticComparison({
   t: number;
   D: number;
   startCell: number;
+  /** A second source shares the total probability equally with the first. */
+  secondStartCell?: number;
   wallTolerance?: number;
 }): Computation<FtcsComparison> {
   if (
@@ -331,11 +352,13 @@ export function ftcsAnalyticComparison({
     !(field.buffer instanceof ArrayBuffer) ||
     field.length < 3 ||
     !integer(startCell) ||
-    startCell >= field.length
+    startCell >= field.length ||
+    (secondStartCell !== undefined &&
+      (!integer(secondStartCell) || secondStartCell >= field.length))
   )
     return invalid(
-      ["field", "startCell"],
-      "Use at least three cells and an in-range starting cell.",
+      ["field", "startCell", "secondStartCell"],
+      "Use at least three cells and in-range starting cells.",
     );
   if (
     ![dx, t, D, wallTolerance].every(Number.isFinite) ||
@@ -354,26 +377,27 @@ export function ftcsAnalyticComparison({
   if (!field.every((v) => Number.isFinite(v) && v >= 0))
     return invalid(["field"], "Cell densities must be finite and nonnegative.");
   const probabilities = new Float64Array(field.length);
-  const masses = new Float64Array(field.length);
+  const integrated = ftcsCellMasses(field, dx);
+  if (integrated.kind !== "accepted") return integrated;
+  const masses = integrated.data;
+  const sources = secondStartCell === undefined ? [startCell] : [startCell, secondStartCell];
   let maxDifference = 0;
   let massInBox = 0;
   let compensation = 0;
   for (let i = 0; i < field.length; i++) {
-    const lowerEdge = (i - startCell - 0.5) * dx;
-    const upperEdge = (i - startCell + 0.5) * dx;
-    const probability = intervalProbability(lowerEdge, upperEdge, t, D).result;
-    if (probability.status === "value" && typeof probability.value === "number")
-      probabilities[i] = probability.value;
-    else if (farTailBound(lowerEdge, upperEdge, t, D) < SMALLEST_NORMAL) probabilities[i] = 0;
-    else
-      return numerical(
-        `Cell ${i}'s analytic probability is not representable; no fabricated zero was substituted.`,
-      );
-    const cellDensity = field[i];
-    if (cellDensity === undefined) return numerical("A cell density is missing from the field.");
-    const cellMass = cellDensity * dx;
-    masses[i] = cellMass;
-    if (!Number.isFinite(cellMass)) return numerical("A cell mass is outside binary64 range.");
+    let cellProbability = 0;
+    for (const source of sources) {
+      const lowerEdge = (i - source - 0.5) * dx;
+      const upperEdge = (i - source + 0.5) * dx;
+      const probability = intervalProbability(lowerEdge, upperEdge, t, D).result;
+      if (probability.status === "value" && typeof probability.value === "number")
+        cellProbability += probability.value / sources.length;
+      else if (!(farTailBound(lowerEdge, upperEdge, t, D) < SMALLEST_NORMAL))
+        return numerical(
+          `Cell ${i}'s analytic probability is not representable; no fabricated zero was substituted.`,
+        );
+    }
+    probabilities[i] = cellProbability;
     const storedMass = masses[i];
     const storedProb = probabilities[i];
     if (storedMass === undefined || storedProb === undefined)
@@ -406,7 +430,10 @@ export function ftcsAnalyticComparison({
         ownerId: "diffusion.ftcsAnalyticComparison",
       }),
       gridModel: "zero-flux finite box",
-      analyticModel: "unbounded point-source Gaussian",
+      analyticModel:
+        secondStartCell === undefined
+          ? "unbounded point-source Gaussian"
+          : "unbounded equal point-source mixture",
     }),
   };
 }

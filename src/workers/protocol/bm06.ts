@@ -229,7 +229,14 @@ export function decodeLabResponse(
             "stabilityRatio",
             "gridTimeStep",
           ].includes(output.quantityId) &&
-          (output.status === "value") !== token.parameters.gridEnabled
+          (output.status === "value") !==
+            (token.parameters.gridEnabled &&
+              !(
+                token.parameters.gridProfile === "step" &&
+                ["cellProbabilities", "maxCellMassDifference", "wallContact"].includes(
+                  output.quantityId,
+                )
+              ))
         )
           fail("Grid output does not match the requested mode.");
       }

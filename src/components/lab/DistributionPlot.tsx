@@ -189,10 +189,11 @@ export function DistributionPlot({
 }
 export function GridComparison({ snapshot }: { snapshot: AcceptedSnapshot }) {
   if (result(snapshot, "cellMasses").status !== "value") return null;
-  const grid = array(snapshot, "cellMasses"),
-    analytic = array(snapshot, "cellProbabilities");
+  const grid = array(snapshot, "cellMasses");
+  const comparison = result(snapshot, "cellProbabilities");
+  const analytic = comparison.status === "value" ? array(snapshot, "cellProbabilities") : null;
   let peak = 0;
-  for (let i = 0; i < grid.length; i++) peak = Math.max(peak, grid.at(i), analytic.at(i));
+  for (let i = 0; i < grid.length; i++) peak = Math.max(peak, grid.at(i), analytic?.at(i) ?? 0);
   const points = (values: typeof grid) =>
     Array.from(
       { length: values.length },
@@ -204,20 +205,26 @@ export function GridComparison({ snapshot }: { snapshot: AcceptedSnapshot }) {
       className="grid-comparison"
       aria-label="Numerical grid comparison"
     >
-      <h3>Compare probabilities, not heights</h3>
+      <h3>
+        {analytic ? "Compare probabilities, not heights" : "Probability in the numerical grid"}
+      </h3>
       <p>
-        The solid line is the numerical probability in each cell. The dashed line is the unbounded
-        model’s probability over the same cell. The grid has reflecting walls; the analytic model
-        does not.
+        {analytic
+          ? "The solid line is the numerical probability in each cell. The dashed line is the matching unbounded model's probability over the same cell. The grid has reflecting walls; the analytic model does not."
+          : "The solid line is the numerical probability in each cell of the reflecting box. An analytic comparison is not available for this initial distribution."}
       </p>
       <svg
         viewBox="0 0 300 250"
         role="img"
-        aria-label="Numerical and analytic cell probabilities; exact values follow in the cell table."
+        aria-label={
+          analytic
+            ? "Numerical and analytic cell probabilities; exact values follow in the cell table."
+            : "Numerical cell probabilities; exact values follow in the cell table."
+        }
       >
         <line className="axis" x1="38" x2="278" y1="210" y2="210" />
         <polyline className="curve" points={points(grid)} />
-        <polyline className="comparison-curve" points={points(analytic)} />
+        {analytic && <polyline className="comparison-curve" points={points(analytic)} />}
         <text x="38" y="20">
           Probability in each cell
         </text>
@@ -232,12 +239,16 @@ export function GridComparison({ snapshot }: { snapshot: AcceptedSnapshot }) {
         <summary>Read all {grid.length} cell probabilities</summary>
         <div className="table-scroll">
           <table>
-            <caption>Accepted numerical and analytic probabilities for the same cells</caption>
+            <caption>
+              {analytic
+                ? "Accepted numerical and analytic probabilities for the same cells"
+                : "Accepted numerical probabilities in the reflecting box"}
+            </caption>
             <thead>
               <tr>
                 <th scope="col">Cell</th>
                 <th scope="col">Numerical</th>
-                <th scope="col">Unbounded analytic</th>
+                {analytic && <th scope="col">Unbounded analytic</th>}
               </tr>
             </thead>
             <tbody>
@@ -245,21 +256,23 @@ export function GridComparison({ snapshot }: { snapshot: AcceptedSnapshot }) {
                 id: `cell-row-${i}`,
                 cell: i,
                 numerical: display(grid.at(i)),
-                analyticProb: display(analytic.at(i)),
+                analyticProb: analytic ? display(analytic.at(i)) : null,
               })).map((row) => (
                 <tr key={row.id}>
                   <th scope="row">{row.cell}</th>
                   <td>{row.numerical}</td>
-                  <td>{row.analyticProb}</td>
+                  {analytic && <td>{row.analyticProb}</td>}
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <p className="fine">
-          A cell far enough from the start that its unbounded probability is below 2.2 × 10⁻³⁰⁸, the
-          smallest ordinary number the calculation can hold, shows 0.
-        </p>
+        {analytic && (
+          <p className="fine">
+            A cell far enough from a starting point that its unbounded probability is below 2.2 ×
+            10⁻³⁰⁸, the smallest ordinary number the calculation can hold, shows 0.
+          </p>
+        )}
       </details>
     </section>
   );

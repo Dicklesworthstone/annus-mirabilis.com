@@ -4,10 +4,10 @@
  *
  * The host reference (ftcs1d and ftcsAdvance, src/physics/reference/diffusion/ftcs.ts) and the
  * module step the same explicit scheme on the same grid: n cells of width dx, zero-flux walls,
- * a spike of height 1/dx in cell floor(n/2), and r = (D * dt) / (dx * dx) in that operation
+ * the requested spike, step or two-spike profile, and r = (D * dt) / (dx * dx) in that operation
  * order. One call with frames = 2 and steps_per_frame = steps returns the spike and the field
  * after every step, and the second frame is the field. With no steps (t = 0), frames = 1 returns
- * the spike alone. The call is one synchronous chunk: the site's budget holds a run to 4,000,000
+ * the initial profile alone. The call is one synchronous chunk: the site's budget holds a run to 4,000,000
  * cell updates, a few milliseconds of module time, and cancellation is checked either side of it.
  *
  * Admission is the site's, not the engine's, as for BM-01's recorder:
@@ -55,6 +55,7 @@ function malformed(reason: string): Computation<never> {
 /** True when the host reference would refuse this run for a reason other than stability. */
 function hostRefusesFirst(run: GridRun): boolean {
   const { n, D, dx, dt } = run;
+  if (![0, 1, 2].includes(run.profile ?? 0)) return true;
   if (!Number.isSafeInteger(n) || n < 3 || !Number.isSafeInteger(run.steps) || run.steps < 0)
     return true;
   if (![D, dx, dt].every(Number.isFinite) || D <= 0 || dx <= 0 || dt <= 0) return true;
@@ -154,7 +155,7 @@ export function frankensimGridStepper(exports: FrankenSimExports): Bm06GridStepp
         diffusion: run.D,
         dx: run.dx,
         dt: run.dt,
-        profile: 0,
+        profile: run.profile ?? 0,
       });
       if (call.kind === "outcome") return { kind: "outcome", outcome: call.outcome };
       if (call.kind === "refused") {

@@ -117,11 +117,11 @@
   },
   "closures": {
     "src/physics/reference/diffusion/distributions.ts": "source:sha256:1eb5b457e215116537778a643fdb94b42da696cd79689396720e6c289b7aa5fa",
-    "src/physics/reference/diffusion/tracers.ts": "source:sha256:f23c96896d92f817216b28ee7c2bf1b153aec36057b3e055e0493f5abe069cf4",
-    "src/physics/reference/diffusion/walkLaws.ts": "source:sha256:74f22e496cce90c6c80d808e3ffb90322469cef3582923d744ac37ab2760546a",
-    "src/physics/reference/diffusion/walks.ts": "source:sha256:8f0ba3c9a1c2e938fc21f0a5b0378c8260814ee1092bbd1538c4a80826f0a10b",
+    "src/physics/reference/diffusion/tracers.ts": "source:sha256:4ef26d75c91e4ad219cf53c5bc9963ddf7b52519c7a7c50d0d0d77502200eb84",
+    "src/physics/reference/diffusion/walkLaws.ts": "source:sha256:2eff7cf96bcf49c3e53a8ba1e24496d388f61bfae2a6f663071694d0f884d665",
+    "src/physics/reference/diffusion/walks.ts": "source:sha256:aaba2040ca4231c1611ec08ff64482557e83ae1470fb1fb384ec6b2e34b91784",
     "src/physics/reference/special/erf.ts": "source:sha256:36da87a989cc4d16571414b99849aa31ea544bb30878fd80fb9c19ffa9e11f62",
-    "src/physics/reference/diffusion/ftcs.ts": "source:sha256:78631b3a586b67a5df64acf5f6cdab373612148d057eaa29eb93e689dac56ffb",
+    "src/physics/reference/diffusion/ftcs.ts": "source:sha256:109d4b7b45ed44a3af8058d7b589831bcd9a6b09b6f90dbdcdf37f150b310598",
     "src/physics/reference/massEnergy.ts": "source:sha256:a441f6d58cdc8873bdb34aab7d1934e97d367196cbb75933f73609d03077cb2f",
     "src/physics/reference/kinematics.ts": "source:sha256:643f0321be8661c699a38279edac01ee819d00c347b0cb90a33c7cd04c6700dd",
     "src/physics/reference/kinematics/constraints.ts": "source:sha256:a6a76fc7af65a4ba191a8b685de34896750e07af517152d3aff13e6d52d30656",
@@ -139,9 +139,9 @@
     "src/physics/reference/radiation/bandIntegration.ts": "source:sha256:11f843a0e0357a247c0949b68a3669956d8657b5366117a6f07175b1a0adc8f0",
     "src/physics/reference/radiation/entropy.ts": "source:sha256:fde068fefdd3cf518e4bb114960bf60160e3dc81e5f4b32dbfac26cf60ac7524",
     "src/physics/reference/diffusion/routeA.ts": "source:sha256:46c1f6ca0c5cf360c7295d50136f8f7c733e714883b7ba1304ee6f317006d3ba",
-    "src/physics/reference/diffusion/driftDiffusion.ts": "source:sha256:814df5b58e46dc4ab4174450bce7994858f17094990d8de0ac8d7b47df1fe3b5",
-    "src/physics/reference/inference.ts": "source:sha256:c62bbed0bfd1bcb55d6d9dccd25162c787c4eea787cae64cb9fff8c1fa2d4594",
-    "src/physics/reference/inference/observation.ts": "source:sha256:c62bbed0bfd1bcb55d6d9dccd25162c787c4eea787cae64cb9fff8c1fa2d4594",
+    "src/physics/reference/diffusion/driftDiffusion.ts": "source:sha256:0df82718a03cfe8075c1f9e437d8f6aae38b20aa4bcde15b04ee89a3ab7cb5e5",
+    "src/physics/reference/inference.ts": "source:sha256:68b9eb54dbf9042a5ab5fed8cb52f8b82e2de715566af322cbc23267911a0f7f",
+    "src/physics/reference/inference/observation.ts": "source:sha256:68b9eb54dbf9042a5ab5fed8cb52f8b82e2de715566af322cbc23267911a0f7f",
     "src/physics/reference/electron.ts": "source:sha256:645cc163b231cbd8368f4e0591347176a93e456e48e274c10b74e0e158fa0869"
   }
 }

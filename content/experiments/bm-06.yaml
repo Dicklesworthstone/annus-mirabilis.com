@@ -22,8 +22,9 @@
 #     rmsRadius3d), and a view chooses which to display. No parameter named "dimension" exists.
 #   - The bead lists "FTCS time step dt" as a direct control. The runtime derives it:
 #     dt = t / steps (src/workers/operations/bm06.ts), not an independent parameter.
-#   - The bead lists "FTCS profile" (spike, step, two spikes) as a control. The runtime always
-#     calls ftcs1d with profile: 0 (spike); step and two-spikes are not wired.
+#   - FTCS profile is now selectable: spike, normalized left-half step, or two equal spikes.
+#     Both steppers use the pinned profile codes. The step uses its known initial normalization,
+#     never its measured final mass; only the point profiles have an unbounded analytic comparison.
 #   - The bead's Einstein presets use constant set id "einstein-1905-brownian-printed". The only
 #     registered id for this historical constant set is "scenario-einstein-1905-brownian-printed"
 #     (src/physics/reference/constants.ts's resolveSet fallback, same one BM-01's manifest and
@@ -206,6 +207,23 @@ parameters:
       kind: linear
     role: independent
     commandClass: setup-change
+  - id: gridProfile
+    label: "Grid initial distribution"
+    accessibleName: "Initial probability distribution in the numerical grid"
+    accessibleDescription: "Choose one central spike, a uniform left half, or two equal spikes. The unbounded point-start model remains separate."
+    quantityId: probabilityDensity
+    displayUnit: ""
+    modelDomain:
+      enumerated: ["spike", "step", "two-spikes"]
+      reason: "The three initial profiles supported by both registered diffusion steppers"
+    visualRange:
+      min: 0
+      max: 2
+    default: "spike"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
   - id: n
     label: "Grid cells"
     accessibleName: "Number of cells in the FTCS grid"
@@ -354,6 +372,7 @@ outputs:
 assumptions:
   - "Free isotropic diffusion from a localized start on an unbounded domain, for the analytic curves"
   - "A bounded box with reflecting (zero-flux) boundaries, for the FTCS grid, always labeled distinct from the unbounded line"
+  - "The grid begins with unit probability in one central cell, two equally weighted cells, or a uniform left half; the step profile is normalized once by its known initial mass"
   - "No drift, no walls other than the labeled FTCS box, and constant, position-independent D"
 admittedDomain: "Free, isotropic diffusion of a point-started tracer on an unbounded line (or its 2D/3D radial projections), at any nonnegative elapsed time including exactly zero; the FTCS grid comparison additionally assumes a bounded box with reflecting boundaries and the von Neumann stability limit D*dt/dx^2 <= 0.5 of the explicit scheme."
 notModeled:
@@ -364,7 +383,7 @@ notModeled:
   - "The ballistic regime"
   - "Interactions"
   - "Measurement noise"
-  - "Non-point initial conditions for the analytic curve"
+  - "An unbounded analytic comparison for the uniform left-half grid profile"
 owner:
   kind: reference-evaluator
   kernelFunctions:
@@ -519,11 +538,28 @@ actions:
     visualAffordance: "Radial rings and a table of the five radial statistics"
     equivalentAffordance: "Read the five radial statistics in a table with their explanations"
     announcement: "Radial statistics available"
+  - actionId: bm-06-select-grid-profile
+    family: probability-diffusion
+    question: "How does the starting distribution change the spread in the same reflecting box?"
+    inputs:
+      - gridProfile
+    commandClass: setup-change
+    acceptedResult:
+      outputs:
+        - cellMasses
+        - cellProbabilities
+      allowedStatuses:
+        - value
+        - not-applicable
+    visualAffordance: "Choose a named initial distribution and inspect its numerical probability curve"
+    equivalentAffordance: "Choose the distribution with a keyboard and read every cell probability in the table"
+    announcement: "Numerical grid initial distribution updated"
   - actionId: bm-06-enable-ftcs-grid
     family: probability-diffusion
     question: "Does a numerically stepped grid solution agree with the exact bin probabilities of the analytic curve, and when does the explicit scheme refuse to run?"
     inputs:
       - gridEnabled
+      - gridProfile
       - dx
       - steps
     commandClass: setup-change
