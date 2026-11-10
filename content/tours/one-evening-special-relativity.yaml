@@ -1,0 +1,66 @@
+schemaVersion: 1
+id: one-evening-special-relativity
+revision: 1
+budget: one-evening
+requiresEquations: true
+paper: special-relativity
+title: Two evenings with special relativity
+introduction: Give the electrodynamic half as much attention as the clocks and rods. Follow the introduction and all ten sections, with every relativity instrument beside the argument it examines.
+sessions:
+  - id: relativity-kinematics
+    title: 'Evening 1: clocks, rods and the coordinate map'
+    summary: Follow the introduction and §§1–5 from operational simultaneity through velocity composition.
+    sections:
+      - s0
+      - s1
+      - s2
+      - s3
+      - s4
+      - s5
+  - id: relativity-electrodynamics
+    title: 'Evening 2: fields, light, current and electron dynamics'
+    summary: Follow §§6–10, then return to the assumptions and historical qualifications of the full argument.
+    sections:
+      - s6
+      - s7
+      - s8
+      - s9
+      - s10
+laboratories:
+  - id: sr-02
+    afterArgument: arg-sr-magnet-conductor
+  - id: sr-01
+    afterArgument: arg-sr-synchronization
+  - id: sr-03
+    afterArgument: arg-sr-rod-events
+  - id: sr-04
+    afterArgument: arg-sr-transverse-and-inverse
+  - id: sr-05
+    afterArgument: arg-sr-transported-clock
+  - id: sr-06
+    afterArgument: arg-sr-velocity-composition
+  - id: sr-07
+    afterArgument: arg-sr-field-derivatives
+  - id: sr-08
+    afterArgument: arg-sr-field-components
+  - id: sr-09
+    afterArgument: arg-sr-doppler-aberration
+  - id: sr-10
+    afterArgument: arg-sr-light-complex
+  - id: sr-11
+    afterArgument: arg-sr-moving-mirror
+  - id: sr-12
+    afterArgument: arg-sr-charge-current
+  - id: sr-13
+    afterArgument: arg-sr-electron-work
+margins:
+  - id: note-sr-transverse-mass-depends-on-the-force-convention
+    title: The transverse coefficient depends on the force convention
+    question: Which force definition produces the historical transverse coefficient, and what changes in the later convention?
+  - id: note-sr-f-the-equator-clock-remark
+    title: The equator clock qualification
+    question: What does the geoid qualification change about the clock comparison?
+  - id: note-sr-what-the-footnotes-concede
+    title: Read the qualifications with the result
+    question: What limitations do the paper's footnotes attach to the argument?
+inPreparation: []

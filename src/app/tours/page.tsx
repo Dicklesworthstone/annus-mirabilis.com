@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { requireTour, tourIds } from "../../content/tours/tours.ts";
 import { GUIDED_TOURS } from "../../discovery/tours/catalogue.ts";
+import { loadStudyTours } from "../../discovery/tours/studyTours.ts";
 import { tourFacts } from "./tourFacts.ts";
 import "../../discovery/tours/tours.css";
 
@@ -11,10 +12,9 @@ export const metadata: Metadata = {
   alternates: { canonical: "/tours/" },
 };
 
-export default function GuidedToursIndex() {
-  // Counted from both sources rather than written: one content record under content/tours and the
-  // four entries of the GUIDED_TOURS catalogue. The two are not merged; they are added up.
-  const TOUR_COUNT = tourIds(process.cwd()).length + GUIDED_TOURS.length;
+export default async function GuidedToursIndex() {
+  const studyTours = await loadStudyTours(process.cwd());
+  const TOUR_COUNT = tourIds(process.cwd()).length + GUIDED_TOURS.length + studyTours.length;
   return (
     <article className="guided-tour-page guided-tour-index">
       <header className="page-intro">
@@ -32,6 +32,40 @@ export default function GuidedToursIndex() {
         <p className="notice">Each page a path reaches says what it shows and where it stops.</p>
       </header>
       <div className="guided-tour-catalogue">
+        {studyTours.map((tour) => (
+          <section key={tour.id} aria-labelledby={`study-${tour.id}`}>
+            <p className="eyebrow">
+              {tour.budget === "full-course" ? "A course through the edition" : "A whole paper"}
+            </p>
+            <h2 id={`study-${tour.id}`}>
+              <a href={`/tours/${tour.id}/`}>{tour.title}</a>
+            </h2>
+            <p>{tour.introduction}</p>
+            <p>
+              {tour.sessions.length}{" "}
+              {tour.budget === "full-course"
+                ? "sessions"
+                : tour.sessions.length === 1
+                  ? "evening"
+                  : "evenings"}
+              {" · About "}
+              {tour.totalMinutes} minutes · Equations included
+            </p>
+            {tour.budget === "full-course" && (
+              <p>
+                {tour.preparation.lessonCount} published foundation lessons, placed before the
+                readings that call for them. The outline names the companion and essays still in
+                preparation.
+              </p>
+            )}
+            <div className="guided-tour-actions">
+              <a href={`/tours/${tour.id}/`}>Open this study route</a>
+              {tour.budget === "full-course" && (
+                <a href="/tours/full-course/syllabus/">Print the syllabus</a>
+              )}
+            </div>
+          </section>
+        ))}
         {tourIds(process.cwd()).flatMap((id) => {
           const tour = requireTour(process.cwd(), id, process.env.AM_RELEASE_PROFILE ?? "scaffold");
           return tour
@@ -90,13 +124,10 @@ export default function GuidedToursIndex() {
           placeholder for a path that has not been written.
         </p>
         <p>
-          Two others are described in this project&rsquo;s own specification and have not been
-          written: a one-evening path and a full course, both of which would link the capstones
-          rather than the papers. Until they exist the capstone of each paper is reached from that
-          paper, and this page does not list them as though they were here.
-        </p>
-        <p>
-          <a href="/capstones/mass-energy/">A capstone, to see what such a path would join</a>
+          The evening routes include complete explanatory readings, all of each paper&rsquo;s core
+          instruments and its capstone. The course adds the published foundation library, every
+          discovery door, the exercises and the connections among the papers. Its syllabus lists the
+          material still being prepared separately from the available sessions.
         </p>
       </section>
 

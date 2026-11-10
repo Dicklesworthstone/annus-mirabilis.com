@@ -1,0 +1,22 @@
+schemaVersion: 1
+id: full-course
+revision: 1
+budget: full-course
+requiresEquations: true
+paper: all
+title: A course through the four papers
+introduction: Work through every published foundation lesson, the complete explanatory readings, all core instruments, the discovery routes and their exercises. Sessions place the foundations before the arguments that call on them and finish with the connections among the papers.
+sequence:
+  - one-evening-brownian-motion
+  - one-evening-mass-energy
+  - one-evening-special-relativity
+  - one-evening-light-quanta
+essaysInPreparation:
+  - What a measurement means
+  - Change what you hold fixed
+  - Make two routes meet
+  - The useful part of an analogy
+  - Subtract what you do not know
+  - Ask what must stay unchanged
+  - Take a limit without losing the claim
+  - Where a model stops working

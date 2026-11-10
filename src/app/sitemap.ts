@@ -6,6 +6,7 @@ import { loadTeachingTapes } from "../content/teachingTapes.ts";
 import { tourIds } from "../content/tours/tours.ts";
 import { ROUTE_INDEX } from "../discovery/routeIndex.ts";
 import { GUIDED_TOURS } from "../discovery/tours/catalogue.ts";
+import { loadStudyTours } from "../discovery/tours/studyTours.ts";
 import { cataloguePapers } from "../equations/printed/catalogue.ts";
 import { isSitemapExemptUrl } from "../experiments/permalink/canonical.ts";
 import { absoluteUrl, readerSitemapEntries } from "../reader/paperRoutes.ts";
@@ -43,6 +44,7 @@ export const FIXED_PAGES = [
   "/capstones/mass-energy/",
   "/capstones/special-relativity/",
   "/tours/",
+  "/tours/full-course/syllabus/",
   "/tapes/",
   "/search/",
   "/sources/",
@@ -161,15 +163,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...loadTeachingTapes()
       .tapes.map((tape) => tapePath(tape.tapeId))
       .sort(),
-    // EVERY GUIDED READING PATH, FROM BOTH SOURCES. Measured on the live sitemap 2026-09-28: /tours/
-    // appeared ONCE, the index, while all five path pages answered 200. A page absent from the
-    // sitemap is a page a search engine is not told about, and these are the routes the site
-    // recommends.
-    //
-    // Both sources, because /tours/ renders both and listing one would cover four of five: the YAML
-    // records through tourIds, and the GUIDED_TOURS catalogue in code. Indexing the catalogue alone
-    // is the error this repository has now made in four places.
-    ...[...tourIds(process.cwd()), ...GUIDED_TOURS.map((tour) => tour.id)]
+    // Every reading path uses the same sources as /tours/: short YAML records, the guided
+    // catalogue, and validated evening/course records. Include each outline's canonical URL;
+    // the transient tour/step query state on a reading page is not a separate sitemap entry.
+    ...[
+      ...tourIds(process.cwd()),
+      ...GUIDED_TOURS.map((tour) => tour.id),
+      ...(await loadStudyTours(process.cwd())).map((tour) => tour.id),
+    ]
       .map((id) => `/tours/${id}/`)
       .sort(),
   ];

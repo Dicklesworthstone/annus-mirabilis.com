@@ -1,0 +1,32 @@
+schemaVersion: 1
+id: one-evening-mass-energy
+revision: 1
+budget: one-evening
+requiresEquations: true
+paper: mass-energy
+title: One evening with mass and energy
+introduction: Read all of the September argument, compare its two energy accounts, and test the slow-speed step before asking how far the conclusion reaches.
+sessions:
+  - id: mass-energy-evening
+    title: Two accounts and the assumptions behind their subtraction
+    summary: The paper has no numbered sections. These stops follow its explanatory arguments in their published order.
+    sections:
+      - s0
+laboratories:
+  - id: me-01
+    afterArgument: arg-me-two-ledgers
+  - id: me-02
+    afterArgument: arg-me-small-speed
+  - id: me-03
+    afterArgument: arg-me-scope
+margins:
+  - id: note-me-a-formula-absent
+    title: What the paper actually prints
+    question: What relation between a change in energy and a change in mass does the paper state?
+  - id: note-me-b-additive-constant
+    title: The additive constant and the low-speed premise
+    question: Why must the energy difference and Newtonian kinetic-energy premise be stated before reading off a mass change?
+  - id: note-me-boundary-later-derivations
+    title: Later derivations and the system boundary
+    question: Which extensions require premises beyond the September paper?
+inPreparation: []

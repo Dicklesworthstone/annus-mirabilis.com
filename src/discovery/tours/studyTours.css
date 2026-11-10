@@ -1,0 +1,74 @@
+.study-session-index {
+  padding-block: 1rem;
+  border-block: 1px solid var(--rule, currentColor);
+}
+
+.study-session-index li,
+.study-syllabus-stops li {
+  margin-block: 0.5rem;
+  overflow-wrap: anywhere;
+}
+
+.study-source-notices {
+  margin-block: 1.5rem;
+}
+
+.study-session {
+  margin-block: 3rem;
+}
+
+.study-tour-page :is(h2, h3, p, a),
+.study-syllabus :is(h2, h3, p, a) {
+  overflow-wrap: anywhere;
+}
+
+.study-syllabus-session {
+  margin-block: 2rem;
+  border-block-start: 1px solid var(--rule, currentColor);
+  padding-block-start: 1rem;
+}
+
+.study-revisit {
+  color: var(--muted);
+}
+
+.study-print-address {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: auto;
+    margin: 14mm;
+  }
+
+  .study-syllabus {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .study-syllabus h2,
+  .study-syllabus h3 {
+    break-after: avoid;
+  }
+
+  .study-syllabus-stops li {
+    break-inside: avoid;
+  }
+
+  .study-print-address {
+    display: block;
+    font-size: var(--type-small);
+    overflow-wrap: anywhere;
+  }
+
+  .study-syllabus a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .study-syllabus a::after {
+    content: none;
+  }
+}

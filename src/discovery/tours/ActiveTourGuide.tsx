@@ -11,6 +11,7 @@ import {
   tourOutline,
   tourPosition,
 } from "./navigation.ts";
+import { getAnyGuidedTour } from "./studyGuideCatalogue.ts";
 import "./tours.css";
 
 /** Navigation only: no simulation state, answer collection, storage, timer or network service. */
@@ -26,7 +27,7 @@ export default function ActiveTourGuide({
   const id = useId();
   const [notice, setNotice] = useState("");
   const [dismissed, setDismissed] = useState(false);
-  const decoded = decodeTourPosition(search);
+  const decoded = decodeTourPosition(search, getAnyGuidedTour);
   if (dismissed || decoded.kind === "absent") return null;
 
   function leave() {
@@ -61,12 +62,12 @@ export default function ActiveTourGuide({
   }
 
   const position = decoded.position;
-  const selected = resolveTourPosition(position);
+  const selected = resolveTourPosition(position, getAnyGuidedTour);
   if (!selected) return null;
   const { tour, stop, index } = selected;
-  const destination = tourDestination(position);
+  const destination = tourDestination(position, getAnyGuidedTour);
 
-  if (!tourMatchesPath(position, pathname)) {
+  if (!tourMatchesPath(position, pathname, getAnyGuidedTour)) {
     if (compact) return null;
     return (
       <aside
@@ -77,7 +78,7 @@ export default function ActiveTourGuide({
         <p>This page is not the bookmarked stop, “{stop.title}”. The guide has not advanced.</p>
         <div className="guided-tour-actions">
           <a href={destination}>Return to {stop.title}</a>
-          <a href={tourOutline(position)}>Open the route outline</a>
+          <a href={tourOutline(position, getAnyGuidedTour)}>Open the route outline</a>
           <button type="button" onClick={leave}>
             Leave the guided route
           </button>
@@ -86,8 +87,8 @@ export default function ActiveTourGuide({
     );
   }
 
-  const previous = adjacentTourPosition(position, -1);
-  const next = adjacentTourPosition(position, 1);
+  const previous = adjacentTourPosition(position, -1, getAnyGuidedTour);
+  const next = adjacentTourPosition(position, 1, getAnyGuidedTour);
   const first = tour.stops[0];
 
   if (compact) {
@@ -99,13 +100,13 @@ export default function ActiveTourGuide({
         <span>
           Stop {index + 1} of {tour.stops.length}: {stop.title}
         </span>
-        {previous && <a href={tourDestination(previous)}>Previous stop</a>}
+        {previous && <a href={tourDestination(previous, getAnyGuidedTour)}>Previous stop</a>}
         {next ? (
-          <a href={tourDestination(next)}>Next stop</a>
+          <a href={tourDestination(next, getAnyGuidedTour)}>Next stop</a>
         ) : (
           <a href={`/tours/${tour.id}/#tour-finish`}>Finish this route</a>
         )}
-        <a href={tourOutline(position)}>Return to the route outline</a>
+        <a href={tourOutline(position, getAnyGuidedTour)}>Return to the route outline</a>
       </nav>
     );
   }
@@ -149,13 +150,13 @@ export default function ActiveTourGuide({
         <p>{stop.explanation}</p>
       </details>
       <nav className="guided-tour-actions" aria-label="Guided reading navigation">
-        {previous && <a href={tourDestination(previous)}>Previous stop</a>}
+        {previous && <a href={tourDestination(previous, getAnyGuidedTour)}>Previous stop</a>}
         {next ? (
-          <a href={tourDestination(next)}>Next stop</a>
+          <a href={tourDestination(next, getAnyGuidedTour)}>Next stop</a>
         ) : (
           <a href={`/tours/${tour.id}/#tour-finish`}>Finish this route</a>
         )}
-        <a href={tourOutline(position)}>All stops: {tour.title}</a>
+        <a href={tourOutline(position, getAnyGuidedTour)}>All stops: {tour.title}</a>
         <a href="#main">Continue with the paper or experiment</a>
       </nav>
       <details>
@@ -171,7 +172,11 @@ export default function ActiveTourGuide({
             Copy reading-position link
           </button>
           {first && (
-            <a href={tourDestination(tourPosition(tour, first))}>Restart from the first stop</a>
+            <a
+              href={tourDestination(tourPosition(tour, first, getAnyGuidedTour), getAnyGuidedTour)}
+            >
+              Restart from the first stop
+            </a>
           )}
           <button type="button" onClick={leave}>
             Leave tour, keep this page

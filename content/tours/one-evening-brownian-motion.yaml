@@ -1,0 +1,47 @@
+schemaVersion: 1
+id: one-evening-brownian-motion
+revision: 1
+budget: one-evening
+requiresEquations: true
+paper: brownian-motion
+title: One evening with Brownian motion
+introduction: Follow the paper from osmotic pressure to a measurable displacement. Use every Brownian instrument, then separate the molecular inference from the assumptions that make it possible.
+sessions:
+  - id: brownian-evening
+    title: From osmotic pressure to a molecular number
+    summary: Read the introduction and all five sections in order, trying the relevant instrument after each argument.
+    sections:
+      - s0
+      - s1
+      - s2
+      - s3
+      - s4
+      - s5
+laboratories:
+  - id: bm-01
+    afterArgument: arg-bm-observable
+  - id: bm-02
+    afterArgument: arg-bm-osmotic-suspended
+  - id: bm-03
+    afterArgument: arg-bm-kinetic-justification
+  - id: bm-04
+    afterArgument: arg-bm-diffusivity
+  - id: bm-05
+    afterArgument: arg-bm-independent-steps
+  - id: bm-06
+    afterArgument: arg-bm-gaussian
+  - id: bm-07
+    afterArgument: arg-bm-inference
+  - id: bm-08
+    afterArgument: arg-bm-inference
+margins:
+  - id: note-bm-velocity-warning-absent-from-1905
+    title: The warning belongs to 1906
+    question: Which statements are in the 1905 paper, and which belong to Einstein's later warning about velocity?
+  - id: note-bm-d-tau-and-the-ballistic-regime
+    title: Intervals, relaxation and ballistic motion
+    question: How does the observation interval compare with the relaxation time assumed by diffusion?
+  - id: note-bm-g-exner-measured-the-wrong-quantity
+    title: What Exner measured
+    question: What changes when displacement divided by an interval is treated as a particle's velocity?
+inPreparation: []

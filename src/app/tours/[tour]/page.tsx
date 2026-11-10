@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { requireTour, tourIds } from "../../../content/tours/tours.ts";
 import { GUIDED_TOURS, getGuidedTour } from "../../../discovery/tours/catalogue.ts";
 import { tourDestination, tourPosition } from "../../../discovery/tours/navigation.ts";
+import { StudyTourPage } from "../../../discovery/tours/StudyTourPage.tsx";
+import { loadStudyTour, studyTourIds } from "../../../discovery/tours/studyTours.ts";
 import { TimedTour } from "../../../discovery/tours/TimedTour.tsx";
 import "../../../discovery/tours/tours.css";
 
@@ -18,13 +20,8 @@ import "../../../discovery/tours/tours.css";
  * `src/app/capstones/reachability.test.tsx` asserts each title here equals `capstone.title` in
  * content/arguments/capstones/<paper>.yaml, so the copy cannot drift from the record.
  *
- * THE BEAD NAMES THE ONE-EVENING AND FULL-COURSE TOURS, WHICH DO NOT EXIST. `TOUR_BUDGETS` in
- * src/content/schemas/experiment.ts declares `fifteen-minutes`, `one-evening` and `full-course`,
- * and content/tours holds ONE record, at `fifteen-minutes`. The four guided tours in the catalogue
- * here are the tours a reader can walk today, one per paper, so they carry the link. The timed
- * fifteen-minute tour returns early below and deliberately does not: it is the shortest path and
- * the equations-free one, the bead's clause names the two longer budgets rather than that one, and
- * an optional reconstruction is not what a reader who chose fifteen minutes asked for.
+ * The longer study routes resolve their capstone titles from the content records themselves.
+ * Timed, equation-free tours keep their shorter scope and return before this optional addition.
  */
 const CAPSTONE_TITLE: Readonly<Record<string, string | undefined>> = {
   "brownian-motion": "Rebuild the argument for the spread",
@@ -42,6 +39,7 @@ export function generateStaticParams() {
     ...GUIDED_TOURS.map((tour) => ({ tour: tour.id })),
     // Timed tours without equations, from content/tours (am-tour-15min-mass-energy-nqz1).
     ...tourIds(process.cwd()).map((tour) => ({ tour })),
+    ...studyTourIds(process.cwd()).map((tour) => ({ tour })),
   ];
 }
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -52,6 +50,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: timed.title,
       description: timed.introduction,
       alternates: { canonical: `/tours/${timed.id}/` },
+    };
+  const study = await loadStudyTour(process.cwd(), id);
+  if (study)
+    return {
+      title: study.title,
+      description: study.introduction,
+      alternates: { canonical: `/tours/${study.id}/` },
     };
   const tour = getGuidedTour(id);
   return tour
@@ -69,6 +74,8 @@ export default async function GuidedTourPage({ params }: Props) {
   // A timed tour renders every step in place; a tour with a problem fails the page (tours.ts).
   const timed = requireTour(process.cwd(), id, PROFILE);
   if (timed) return <TimedTour tour={timed} />;
+  const study = await loadStudyTour(process.cwd(), id);
+  if (study) return <StudyTourPage tour={study} />;
   const tour = getGuidedTour(id);
   if (!tour) notFound();
   const first = tour.stops[0];

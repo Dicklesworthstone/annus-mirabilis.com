@@ -19,6 +19,7 @@ import { loadDesk } from "../src/discovery/desk/records.ts";
 import { ROUTE_INDEX } from "../src/discovery/routeIndex.ts";
 import { loadTimeline } from "../src/discovery/timeline/records.ts";
 import { GUIDED_TOURS } from "../src/discovery/tours/catalogue.ts";
+import { loadStudyTours } from "../src/discovery/tours/studyTours.ts";
 import {
   equationCatalogue,
   explainedEquationLabel,
@@ -131,10 +132,20 @@ export async function loadSearchCorpus(
     instrumentId: tape.instrument?.id ?? tape.experimentId,
     sectionTitles: tape.passages.map((passage) => passage.sectionTitle),
   }));
-  // BOTH tour sources, merged here rather than in the builder, because /tours/ renders both and
-  // indexing one would cover four of the five paths a reader can see: the YAML records through
-  // tourIds/requireTour, and the GUIDED_TOURS catalogue in code.
+  // Use the same validated records as the tour pages, including evening paths and course
+  // sessions. A search for a session or investigation should reach the path that contains it.
+  const studyTours = await loadStudyTours(root);
   const guidedTours = [
+    ...studyTours.map((tour) => ({
+      id: tour.id,
+      title: tour.title,
+      paper: tour.paper === "all" ? "cross-paper" : tour.paper,
+      introduction: tour.introduction,
+      stopTitles: tour.sessions.flatMap((session) => [
+        session.title,
+        ...session.steps.map((step) => step.title),
+      ]),
+    })),
     ...tourIds(root).flatMap((id) => {
       const tour = requireTour(root, id);
       return tour
@@ -437,7 +448,21 @@ export async function loadSearchCorpus(
   );
   return {
     documents,
-    aliases: [...aliasesForDocuments(documents), ...notationAliases(glyphs, documents)],
+    aliases: [
+      ...aliasesForDocuments(documents),
+      ...notationAliases(glyphs, documents),
+      // Readers know these paths by their budget as well as their authored title. An alias
+      // reaches only a published document and still obeys the engine's paper/type filters.
+      ...studyTours
+        .filter((tour) => documents.some((document) => document.id === `tour:${tour.id}`))
+        .map(
+          (tour): SearchAlias => ({
+            phrase: tour.budget.replaceAll("-", " "),
+            target: `tour:${tour.id}`,
+            label: "search aid",
+          }),
+        ),
+    ],
     buildDigest: index.buildDigest,
   };
 }

@@ -26,13 +26,14 @@ import { MOVE as BROWNIAN_MOVE } from "../../discovery/brownian/journeyII.ts";
 import { MOVE as LIGHT_QUANTA_MOVE } from "../../discovery/lightQuanta/journeyI.ts";
 import { MOVE as MASS_ENERGY_MOVE } from "../../discovery/massEnergy/journeyIV.ts";
 import { MOVE as RELATIVITY_MOVE } from "../../discovery/relativity/journeyIII.ts";
+import { readingMinutes } from "../../discovery/tours/readingTime.ts";
+import { isStudyBudget } from "../../discovery/tours/studyTypes.ts";
 import { REGISTERED_IDS } from "../../experiments/catalogue.ts";
 import { parseYaml } from "../provenance/yaml.ts";
 
 /** Minutes each budget allows. */
 export const TOUR_BUDGETS: Readonly<Record<string, number>> = { "fifteen-minutes": 15 };
-/** Reading pace for the honest-time lower bound. */
-export const WORDS_PER_MINUTE = 200;
+export { readingMinutes, WORDS_PER_MINUTE } from "../../discovery/tours/readingTime.ts";
 /** Fixed lower bounds for the steps a reader works through rather than reads. */
 export const LOWER_BOUND_MINUTES = { "first-encounter": 3, instrument: 2 } as const;
 
@@ -126,12 +127,6 @@ export type Tour = Readonly<{
   totalMinutes: number;
 }>;
 
-/** The honest reading time of some visible words, rounded up to the next half minute. */
-export function readingMinutes(text: string): number {
-  const words = text.split(/\s+/).filter(Boolean).length;
-  return Math.max(0.5, Math.ceil((words / WORDS_PER_MINUTE) * 2) / 2);
-}
-
 /**
  * A fraction bar between letters standing for quantities: `v/V`, `R/N`, `RT/N`, `vw/V`. The
  * fifteen-minute tours promise a reader no equations, and their beads put it as "No step shows a
@@ -199,6 +194,8 @@ export function loadTour(
 ): Readonly<{ tour: Tour; problems: readonly string[] }> | null {
   const raw = readYaml<Record<string, unknown>>(join(root, "content", "tours", `${id}.yaml`));
   if (!raw) return null;
+  // These two budgets have their own checked loader. Unknown budgets still reach checkTour.
+  if (isStudyBudget(raw.budget)) return null;
   return checkTour(root, raw, profile);
 }
 
@@ -467,13 +464,16 @@ export class TourError extends Error {
   }
 }
 
-/** The ids of the tour records in content/tours. */
+/** Timed records only. Known study budgets are checked by studyTours; unknown budgets still fail. */
 export function tourIds(root: string): readonly string[] {
   const dir = join(root, "content", "tours");
   if (!existsSync(dir)) return [];
   return readdirSync(dir)
     .filter((n) => n.endsWith(".yaml"))
     .map((n) => n.replace(/\.yaml$/, ""))
+    .filter(
+      (id) => !isStudyBudget(readYaml<Record<string, unknown>>(join(dir, `${id}.yaml`))?.budget),
+    )
     .sort();
 }
 

@@ -1,0 +1,54 @@
+schemaVersion: 1
+id: one-evening-light-quanta
+revision: 1
+budget: one-evening
+requiresEquations: true
+paper: light-quanta
+title: One evening with light quanta
+introduction: Follow the nine sections from classical radiation to the entropy comparison and its applications. Keep the Wien-regime premise visible while testing the consequences of the heuristic.
+sessions:
+  - id: light-quanta-evening
+    title: From a radiation law to a conditional energy account
+    summary: Read the introduction and §§1–9, with all nine light instruments placed after their corresponding arguments.
+    sections:
+      - s0
+      - s1
+      - s2
+      - s3
+      - s4
+      - s5
+      - s6
+      - s7
+      - s8
+      - s9
+laboratories:
+  - id: lq-01
+    afterArgument: arg-lq-wave-and-transfer
+  - id: lq-02
+    afterArgument: arg-lq-classical-allocation
+  - id: lq-03
+    afterArgument: arg-lq-planck-constants
+  - id: lq-04
+    afterArgument: arg-lq-fixed-band-volume
+  - id: lq-05
+    afterArgument: arg-lq-independent-configurations
+  - id: lq-06
+    afterArgument: arg-lq-entropy-correspondence
+  - id: lq-07
+    afterArgument: arg-lq-fluorescence-budget
+  - id: lq-08
+    afterArgument: arg-lq-stopping-and-losses
+  - id: lq-09
+    afterArgument: arg-lq-ionization-and-counts
+margins:
+  - id: note-lq-b-millikan-verified-and-rejected
+    title: Testing an equation and accepting its interpretation
+    question: What did agreement with the photoelectric equation establish, and what did it leave open?
+  - id: note-lq-e-equipartition-predates-jeans
+    title: Equipartition and the historical sequence
+    question: Which parts of the classical argument predate Jeans's later work?
+  - id: note-lq-ultraviolet-catastrophe-is-ehrenfests
+    title: A name supplied later
+    question: Why should a later label not be put into the 1905 author's voice?
+inPreparation:
+  - The separate historian's note on why the photoelectric equation alone does not establish the photon hypothesis is still in preparation. The existing note on Millikan and the paper's own limits are included.
