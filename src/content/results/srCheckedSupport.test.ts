@@ -171,7 +171,12 @@ describe("special-relativity results reach their executable teaching derivations
     }
   });
 
-  test.each([
+  const corruptions: readonly (readonly [
+    cardId: string,
+    equationId: string,
+    original: string,
+    replacement: string,
+  ])[] = [
     ["sr-light-complex-energy", "eq-model-sr-light-density", '"num":2', '"num":3'],
     ["sr-light-complex-energy", "eq-model-sr-light-volume", '"value":"1"', '"value":"2"'],
     ["sr-electron-masses", "eq-model-sr-transverse-mass-printed", '"num":2', '"num":1'],
@@ -181,18 +186,22 @@ describe("special-relativity results reach their executable teaching derivations
       '"value":"-1"',
       '"value":"-2"',
     ],
-  ])("%s refuses a schema-valid corrupted %s", (cardId, equationId, original, replacement) => {
-    const source = equations.find((equation) => equation.id === equationId);
-    if (!source) throw new Error(`Missing equation ${equationId}`);
-    const serialized = JSON.stringify(source);
-    const changed = serialized.replace(original, replacement);
-    expect(changed).not.toBe(serialized);
-    const corrupted = parseEquationRecord(JSON.parse(changed), "corrupted SR equation");
-    const inputs = equations.map((equation) => (equation.id === source.id ? corrupted : equation));
-    expect(rule(() => project(card(cardId), inputs))).toBe(
-      "result-support-derivation-record-mismatch",
-    );
-  });
+  ];
+  for (const [cardId, equationId, original, replacement] of corruptions)
+    test(`${cardId} refuses a schema-valid corrupted ${equationId}`, () => {
+      const source = equations.find((equation) => equation.id === equationId);
+      if (!source) throw new Error(`Missing equation ${equationId}`);
+      const serialized = JSON.stringify(source);
+      const changed = serialized.replace(original, replacement);
+      expect(changed).not.toBe(serialized);
+      const corrupted = parseEquationRecord(JSON.parse(changed), "corrupted SR equation");
+      const inputs = equations.map((equation) =>
+        equation.id === source.id ? corrupted : equation,
+      );
+      expect(rule(() => project(card(cardId), inputs))).toBe(
+        "result-support-derivation-record-mismatch",
+      );
+    });
 
   test("projection runs the actual chain checker instead of trusting a registered owner name", () => {
     const control = card("sr-light-complex-energy");
