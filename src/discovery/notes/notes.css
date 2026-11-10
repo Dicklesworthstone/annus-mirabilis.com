@@ -1,0 +1,53 @@
+.discovery-stage-notes,
+.discovery-notebook-controls {
+  margin-block: 1.25rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  background: var(--wash);
+}
+
+.discovery-stage-notes summary {
+  cursor: pointer;
+}
+
+.discovery-stage-notes textarea,
+.discovery-notebook-controls textarea {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  resize: vertical;
+  margin-block: 0.5rem 0.75rem;
+}
+
+.discovery-stage-notes fieldset,
+.discovery-notebook-controls fieldset {
+  min-width: 0;
+  margin-block: 1rem;
+}
+
+.discovery-stage-notes label,
+.discovery-notebook-controls label {
+  display: block;
+}
+
+.discovery-notes-hint {
+  font-size: var(--type-fine);
+  color: var(--muted);
+}
+
+.discovery-note-attempt {
+  border-top: 1px solid var(--line);
+  margin-top: 1rem;
+  padding-top: 0.5rem;
+}
+
+.discovery-note-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.discovery-notes-kept {
+  margin-block: 2rem;
+}

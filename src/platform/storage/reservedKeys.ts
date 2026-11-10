@@ -59,20 +59,6 @@ export const RESERVED_KEY_NOTES: readonly ReservedKeyNote[] = Object.freeze([
     engineeringReason:
       "am-disc-journey-framework-umbg: journeyStorage.ts can write it and no page imports it, because Fork.tsx and Branch.tsx render every branch with no reader selection.",
   }),
-  Object.freeze({
-    keys: Object.freeze([
-      "am:discovery-notes:v1:light-quanta",
-      "am:discovery-notes:v1:brownian-motion",
-      "am:discovery-notes:v1:special-relativity",
-      "am:discovery-notes:v1:mass-energy",
-    ]),
-    kind: "not-built" as const,
-    readerLabel: "Discovery notes, one key per paper",
-    readerReason:
-      "The journeys have no notebook of their own yet. A prediction you record in a journey's investigation is kept under its own key, listed above. Nothing is written to these four.",
-    engineeringReason:
-      "am-read-notebook-tde: storedNotebook.ts can write them and no page imports it, because noteManifest(journey) reads journey.stages and all four real journeys declare stages: [] (am-4k0m).",
-  }),
 ]);
 
 /** Every reserved key, flattened, for the gate that permits exactly these to have no writer. */

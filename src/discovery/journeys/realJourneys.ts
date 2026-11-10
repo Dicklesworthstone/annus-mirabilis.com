@@ -16,18 +16,17 @@
  * diffing.
  *
  * scripts/emit-journey-records.ts emits these records to `content/journeys/<paper>.yaml`, and the
- * parity test checks their equality. Mass-energy's five argument stages are authored data shared
- * with its page. The other three staged chains remain in their pages and declare that gap.
+ * parity test checks their equality. Mass-energy and Brownian motion share their authored stages
+ * with their pages. The other two staged chains remain in their pages and declare that gap.
  *
  * REMAINING ELEMENTS ARE DECLARED PENDING, through the schema's own `pendingElements`:
  *
- *   stages     The three unrecorded staged chains need authored premise references and reasoning.
+ *   stages     The two unrecorded staged chains need authored premise references and reasoning.
  *   exercises  Each journey now carries at least two expression exercises, checked numerically.
  *   move       Three journeys still need their move marked in an openable derivation chain.
  *
- * So every journey here is `completeness: "partial"`, which is the honest value, and says why in the
- * record rather than in a comment. A journey that claimed `complete` while elements were missing
- * would be the exact shape of defect this bead is about.
+ * Completeness follows those structural gaps. It does not claim editorial review. A journey that
+ * claimed `complete` while elements were missing would be the defect this bead is about.
  */
 
 import type { RevisionLineageEntry } from "../../content/revisions.ts";
@@ -35,6 +34,7 @@ import type { AdmittedImport, Journey, PendingElement } from "../../content/sche
 import * as brownianExercises from "../brownian/journeyExercises.ts";
 import * as brownian from "../brownian/journeyII.ts";
 import { MOLECULAR_NUMBER_EXERCISE } from "../brownian/molecularNumberExercise.ts";
+import { BROWNIAN_STAGES } from "../brownian/stages.ts";
 import * as lightQuantaElectron from "../lightQuanta/electronExercise.ts";
 import { ENTROPY_COUNT_EXERCISE } from "../lightQuanta/entropyExercise.ts";
 import * as lightQuantaExercises from "../lightQuanta/journeyExercises.ts";
@@ -264,7 +264,7 @@ function admittedImportsOf(paper: string, shelf: readonly ShelfCard[]): readonly
  */
 const REVISIONS: Readonly<Record<string, number>> = Object.freeze({
   "light-quanta": 3,
-  "brownian-motion": 2,
+  "brownian-motion": 3,
   "special-relativity": 2,
   "mass-energy": 4,
 });
@@ -323,6 +323,12 @@ export const JOURNEY_LINEAGE: Readonly<Record<string, readonly RevisionLineageEn
           "Added the inverse molecular-number exercise shared with the discovery page, with independent-radius, calibration and finite-sample qualifications. The exercise-count gap is no longer declared; the staged-record gap remains.",
         date: "2026-11-10",
       }),
+      Object.freeze({
+        revision: 2,
+        reason:
+          "Authored the six argument stages with explicit shelf premises, worked examples, partial comparisons and transfer cases. The discovery page and compiler record now share the original narrative and its guidance; no stage element remains pending.",
+        date: "2026-11-10",
+      }),
     ]),
     "special-relativity": Object.freeze([
       Object.freeze({
@@ -341,17 +347,18 @@ function compose(
   stages: Journey["stages"] = Object.freeze([]),
 ): Journey {
   const admittedImports = admittedImportsOf(paper, shelf);
+  const pendingElements = Object.freeze([
+    ...(stages.length === 0 ? PENDING : []),
+    ...instrumentedPending(EXERCISES[paper] ?? Object.freeze([])),
+    ...(MOVE_CHAIN_MISSING.has(paper) ? [PENDING_MOVE_CHAIN] : []),
+  ]);
   return Object.freeze({
     id: paper,
     paper,
     revision: REVISIONS[paper] ?? 1,
-    // Partial, and the pending list names each journey's remaining gaps.
-    completeness: "partial" as const,
-    pendingElements: Object.freeze([
-      ...(stages.length === 0 ? PENDING : []),
-      ...instrumentedPending(EXERCISES[paper] ?? Object.freeze([])),
-      ...(MOVE_CHAIN_MISSING.has(paper) ? [PENDING_MOVE_CHAIN] : []),
-    ]),
+    // This describes the authored skeleton, not a historical or scientific review verdict.
+    completeness: pendingElements.length === 0 ? "complete" : "partial",
+    pendingElements,
     shelf: Object.freeze(shelf.map((card) => card.id)),
     // Empty for three of the four journeys, which is the honest value: only mass-energy imports a
     // 1905 result, and the schema omits an empty array rather than recording one.
@@ -372,7 +379,7 @@ function compose(
 /** The four, in the order the papers were received. */
 export const REAL_JOURNEYS: readonly Journey[] = Object.freeze([
   compose("light-quanta", lightQuanta as never, LIGHT_QUANTA_SHELF_CARDS),
-  compose("brownian-motion", brownian as never, BROWNIAN_SHELF_CARDS),
+  compose("brownian-motion", brownian as never, BROWNIAN_SHELF_CARDS, BROWNIAN_STAGES),
   compose("special-relativity", relativity as never, SPECIAL_RELATIVITY_SHELF_CARDS),
   compose("mass-energy", massEnergy as never, MASS_ENERGY_SHELF_CARDS, MASS_ENERGY_STAGES),
 ]);

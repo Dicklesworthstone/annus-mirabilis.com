@@ -33,8 +33,8 @@
 import { describe, expect, it } from "bun:test";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { load as loadYaml } from "js-yaml";
 import { validateJourney } from "../../content/schemas/journey.ts";
+import { strictParse } from "../../content/schemas/strictParse.ts";
 import { checkJourney } from "../checks/journeyChecks.ts";
 import { REAL_JOURNEYS } from "./realJourneys.ts";
 import { SHELF_CARD_CONTEXT } from "./shelves.ts";
@@ -122,8 +122,8 @@ describe("checkJourney over the real journeys, not the fixture", () => {
     // element while the pending list sat right there. A declaration spelled differently from the thing
     // it declares is no declaration.
     for (const { journey } of findingsByPaper) {
-      expect(journey.completeness).toBe("partial");
       const declared = (journey.pendingElements ?? []).map((p) => p.element);
+      expect(journey.completeness).toBe(declared.length > 0 ? "partial" : "complete");
       if (journey.stages.length === 0) {
         expect(declared, `${journey.paper} has no stages`).toContain("stages");
       } else {
@@ -263,7 +263,12 @@ describe("checkJourney over the real journeys, not the fixture", () => {
         continue;
       }
       compared += 1;
-      const parsed = loadYaml(readFileSync(path, "utf8")) as Record<string, unknown>;
+      // The compiler uses this restricted parser. A permissive YAML round trip masked `|-`
+      // paragraphs that made the real Brownian and mass-energy records unreadable.
+      const parsed = strictParse(readFileSync(path, "utf8"), "yaml", path) as Record<
+        string,
+        unknown
+      >;
       // `lineage` is EXCLUDED, and only `lineage`. It is revision metadata the emitter adds -- a fact
       // about how the file reached its revision, not part of what the journey claims -- which is the
       // separation AGENTS.md asks for and the same exclusion `computeCanonicalRecordHash` already
@@ -296,7 +301,7 @@ describe("checkJourney over the real journeys, not the fixture", () => {
     // throws on the first violation, so this is the same contract checkJourney applies.
     for (const journey of REAL_JOURNEYS) {
       const path = resolve(ROOT, `content/journeys/${journey.paper}.yaml`);
-      const parsed = loadYaml(readFileSync(path, "utf8"));
+      const parsed = strictParse(readFileSync(path, "utf8"), "yaml", path);
       // All four validate since the Exner outcome was repaired. brownian-motion was asserted to
       // THROW missing-constraint-ref here, which is what a declared debt looks like in a test and is
       // the assertion that had to be inverted when the debt was paid.

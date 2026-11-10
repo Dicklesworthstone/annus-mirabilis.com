@@ -39,7 +39,7 @@ export const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
       latest: "1827-08",
       precision: "range",
     },
-    admittedStages: ["stage-01", "stage-02"],
+    admittedStages: ["step-01", "step-02"],
     sourceChecks: [
       {
         source: 0,
@@ -83,7 +83,7 @@ export const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
       latest: "1850-12-09",
       precision: "day",
     },
-    admittedStages: ["stage-03"],
+    admittedStages: ["step-03", "step-07"],
     sourceChecks: [
       {
         source: 0,
@@ -117,7 +117,7 @@ export const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
       latestYear: 1855,
       eventKind: "published",
     },
-    admittedStages: ["stage-03"],
+    admittedStages: ["step-03", "step-04", "step-05", "step-07"],
     sourceChecks: [
       {
         source: 0,
@@ -162,7 +162,7 @@ export const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
       latest: "1859-09-21",
       precision: "day",
     },
-    admittedStages: ["stage-01", "stage-02"],
+    admittedStages: ["step-01", "step-02"],
     sourceChecks: [
       {
         source: 0,
@@ -200,7 +200,7 @@ export const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
       latestYear: 1888,
       eventKind: "published",
     },
-    admittedStages: ["stage-01"],
+    admittedStages: ["step-01"],
     sourceChecks: [
       {
         source: 0,
@@ -238,7 +238,7 @@ export const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
       latestYear: 1900,
       eventKind: "published",
     },
-    admittedStages: ["stage-01"],
+    admittedStages: ["step-01"],
     sourceChecks: [
       {
         source: 0,
@@ -277,7 +277,7 @@ export const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
       latestYear: 1902,
       eventKind: "published",
     },
-    admittedStages: ["stage-01"],
+    admittedStages: ["step-01"],
     sourceChecks: [
       {
         source: 0,
@@ -317,7 +317,7 @@ export const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
       eventKind: "presented",
     },
     relatedCardId: "sutherland-1905-phil-mag",
-    admittedStages: ["stage-03"],
+    admittedStages: ["step-03"],
     sourceChecks: [
       {
         source: 0,
@@ -359,7 +359,7 @@ export const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
       eventKind: "published",
     },
     relatedCardId: "sutherland-1904-dunedin",
-    admittedStages: ["stage-03"],
+    admittedStages: ["step-03"],
     sourceChecks: [
       {
         source: 0,
@@ -402,7 +402,7 @@ export const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
     },
     limits:
       "He could not calculate the effect of a water molecule, whose speed was unknown, so he used a water-vapour molecule in air as an upper bound. He did consider the very many impacts, more than a trillion a second, and held that, coming from every side, they cancel completely; he does not estimate how large their chance imbalance over a short interval would be, which is where the route turns. For the cause he points instead to attracting and repelling forces between molecules, perhaps electric, and calls that only a possibility.",
-    admittedStages: ["stage-02"],
+    admittedStages: ["step-02"],
     sourceChecks: [
       {
         source: 0,
@@ -440,7 +440,7 @@ export const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
     },
     limits:
       "Only when the solution is dilute enough that the dissolved particles' interaction and volume can be neglected, the restriction that holds for gases too. In water most salts and the strong acids and bases give a larger pressure, i times the expected value, which he ascribes, on Arrhenius's suggestion, to splitting into ions. Whether the law holds for particles large enough to see is the question the route asks, not something the law says.",
-    admittedStages: ["stage-02", "stage-03"],
+    admittedStages: ["step-02", "step-03", "step-07"],
     sourceChecks: [
       {
         source: 0,

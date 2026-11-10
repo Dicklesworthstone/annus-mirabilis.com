@@ -220,8 +220,8 @@
       "of": 40
     },
     "journey-skeleton-parts": {
-      "state": "short",
-      "met": 11,
+      "state": "met",
+      "met": 13,
       "of": 13
     },
     "reviews-recorded-with-names": {

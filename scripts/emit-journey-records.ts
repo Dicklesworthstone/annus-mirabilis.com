@@ -19,7 +19,10 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { isDeepStrictEqual } from "node:util";
 import yaml from "js-yaml";
+import { type Journey, validateJourney } from "../src/content/schemas/journey.ts";
+import { strictParse } from "../src/content/schemas/strictParse.ts";
 import { JOURNEY_LINEAGE, REAL_JOURNEYS } from "../src/discovery/journeys/realJourneys.ts";
 
 const ROOT = process.cwd();
@@ -60,39 +63,90 @@ const HEADER = (paper: string, hasAuthoredStages: boolean): string =>
         "",
       ].join("\n");
 
+/** Keep ordinary YAML readable while spelling multiline strings in the compiler's subset. */
+function serializeRecord(record: Record<string, unknown>): string {
+  // The canonical parser accepts Unicode escapes, but not js-yaml's `|-` or `\n` spellings.
+  // Replace only multiline values during emission. The prefix cannot occur anywhere in the
+  // source record, so replacing its temporary scalars cannot rewrite an authored sentence/key.
+  const source = JSON.stringify(record);
+  let prefix = "__journey_multiline__";
+  while (source.includes(prefix)) prefix += "_";
+  const replacements = new Map<string, string>();
+  const controlEscapes: Readonly<Record<string, string>> = {
+    "\\b": "\\u0008",
+    "\\f": "\\u000c",
+    "\\n": "\\u000a",
+    "\\r": "\\u000d",
+    "\\t": "\\u0009",
+  };
+  let body = yaml.dump(record, {
+    indent: 2,
+    lineWidth: -1,
+    sortKeys: false,
+    noRefs: true,
+    replacer: (_key, value) => {
+      if (typeof value !== "string" || !/[\n\r]/.test(value)) return value;
+      const token = `${prefix}${replacements.size}__`;
+      // Match escaped backslashes too, so literal backslash-n remains literal backslash-n.
+      const quoted = JSON.stringify(value).replace(
+        /\\[\\bfnrt]/g,
+        (sequence) => controlEscapes[sequence] ?? sequence,
+      );
+      replacements.set(token, quoted);
+      return token;
+    },
+  });
+  for (const [token, quoted] of replacements) body = body.replaceAll(token, () => quoted);
+  return body;
+}
+
+export class JourneySerializationError extends Error {
+  readonly code = "journey-serialization-changed-data";
+
+  constructor(paper: string) {
+    super(`Journey serialization changed authored data: ${paper}`);
+    this.name = "JourneySerializationError";
+  }
+}
+
+/** Prepare a faithful compiler-readable record; no output is written until this succeeds. */
+export function serializeJourneyRecord(journey: Journey): string {
+  const path = join(DIR, `${journey.paper}.yaml`);
+  /**
+   * THE RECORD IS THE JOURNEY PLUS ITS REVISION METADATA (am-4k0m).
+   *
+   * `lineage` is added here rather than carried on the `Journey`, because it is a fact about how the
+   * FILE reached this revision and not part of what the journey claims. AGENTS.md asks for exactly
+   * that separation ("keep contentRevision, sourceAssetDigest, translationRevision ... separate"),
+   * and `computeCanonicalRecordHash` already excludes revision metadata from a record's content hash
+   * for the same reason. `check-revisions.ts` reads this key from the YAML by name and requires it of
+   * any record past revision 1; mass-energy went to 2 when its record gained the admittedImports
+   * declaration its own card had been carrying alone.
+   *
+   * The faithfulness test compares the record against the composed journey with this key excluded, so
+   * adding it here does not weaken "no reader-facing text lost": a lineage entry is not reader-facing
+   * text, and nothing else in the file comes from anywhere but the modules.
+   */
+  const lineage = JOURNEY_LINEAGE[journey.paper];
+  const record = {
+    ...JSON.parse(JSON.stringify(journey)),
+    ...(lineage === undefined ? {} : { lineage }),
+  };
+  const body = serializeRecord(record);
+  const next = `${HEADER(journey.paper, journey.stages.length > 0)}${body}`;
+  // Exercise the real compiler boundary before writing, not the emitter's permissive parser.
+  const parsed = strictParse(next, "yaml", path);
+  validateJourney(parsed);
+  if (!isDeepStrictEqual(parsed, record)) throw new JourneySerializationError(journey.paper);
+  return next;
+}
+
 function main(): void {
   mkdirSync(DIR, { recursive: true });
   const written: string[] = [];
   for (const journey of REAL_JOURNEYS) {
     const path = join(DIR, `${journey.paper}.yaml`);
-    /**
-     * THE RECORD IS THE JOURNEY PLUS ITS REVISION METADATA (am-4k0m).
-     *
-     * `lineage` is added here rather than carried on the `Journey`, because it is a fact about how the
-     * FILE reached this revision and not part of what the journey claims. AGENTS.md asks for exactly
-     * that separation ("keep contentRevision, sourceAssetDigest, translationRevision ... separate"),
-     * and `computeCanonicalRecordHash` already excludes revision metadata from a record's content hash
-     * for the same reason. `check-revisions.ts` reads this key from the YAML by name and requires it of
-     * any record past revision 1; mass-energy went to 2 when its record gained the admittedImports
-     * declaration its own card had been carrying alone.
-     *
-     * The faithfulness test compares the record against the composed journey with this key excluded, so
-     * adding it here does not weaken "no reader-facing text lost": a lineage entry is not reader-facing
-     * text, and nothing else in the file comes from anywhere but the modules.
-     */
-    const lineage = JOURNEY_LINEAGE[journey.paper];
-    const record = {
-      ...JSON.parse(JSON.stringify(journey)),
-      ...(lineage === undefined ? {} : { lineage }),
-    };
-    // `sortKeys: false` keeps the schema's own order, which reads as the skeleton does.
-    const body = yaml.dump(record, {
-      indent: 2,
-      lineWidth: -1,
-      sortKeys: false,
-      noRefs: true,
-    });
-    const next = `${HEADER(journey.paper, journey.stages.length > 0)}${body}`;
+    const next = serializeJourneyRecord(journey);
     const unchanged = existsSync(path) && readFileSync(path, "utf8") === next;
     if (!unchanged) writeFileSync(path, next);
     written.push(
@@ -103,4 +157,4 @@ function main(): void {
   for (const line of written) console.log(`  ${line}`);
 }
 
-main();
+if ((import.meta as ImportMeta & { main?: boolean }).main) main();

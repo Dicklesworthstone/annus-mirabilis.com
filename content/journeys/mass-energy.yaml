@@ -65,10 +65,7 @@ stages:
         given: The flashes carry equal energy in opposite directions. The body stays at rest.
         toComplete: 'Which quantity is known: the body’s initial energy, its final energy, or their difference?'
         explanation: Only the difference is fixed by the emitted energy. Keeping the speed unchanged does not assign a value to either unknown body energy.
-      explanation: |-
-        Put a body at rest in front of you and let it give off light: two equal flashes, one to the left and one to the right, at the same moment. Because the flashes are equal and opposite, whatever push one gives the body the other takes away. The body does not recoil. It sits exactly where it sat, at rest, before and after.
-
-        Energy is conserved, so the energy carried off by the flashes came out of the body. But the body has not slowed down, because it was not moving, and it has not moved. Nothing you can see about it has changed. A quantity has left and no visible property has altered to account for it.
+      explanation: "Put a body at rest in front of you and let it give off light: two equal flashes, one to the left and one to the right, at the same moment. Because the flashes are equal and opposite, whatever push one gives the body the other takes away. The body does not recoil. It sits exactly where it sat, at rest, before and after.\u000a\u000aEnergy is conserved, so the energy carried off by the flashes came out of the body. But the body has not slowed down, because it was not moving, and it has not moved. Nothing you can see about it has changed. A quantity has left and no visible property has altered to account for it."
       transferCase:
         condition: Why insist on two flashes rather than one?
         explanation: One flash would push the body the other way, and then some of the bookkeeping would be about the recoil rather than about the body itself. The symmetric pair is a device for keeping the speed fixed so that only one unknown is left. It is a choice made to isolate a question, not a fact about how bodies emit light.
@@ -155,12 +152,7 @@ stages:
         given: The rest account loses ten joules and the moving account loses 12.5 joules.
         toComplete: Does the difference mean that one account failed to conserve energy?
         explanation: No. Conservation compares before with after in one frame. It does not require two frames to assign the same energy.
-      explanation: |-
-        Describe the same emission a second time, from a frame gliding steadily past at speed v. Nothing about the body changes; you have changed only where you are standing. Write down the body’s energy before and after in each account, four quantities in all.
-
-        You cannot evaluate any of the four, because each contains the body’s absolute energy content, which no one knows, in 1904 or now. That is why the second account earns its place: the quantity you cannot supply appears in both accounts, so a subtraction removes it.
-
-        The two accounts do not agree about the light, though. A given pair of flashes is measured to carry different total energy depending on the frame it is measured in, and by how much is fixed by the speed and the direction. That is the imported step. It comes from section 8 of the relativity paper, received in June of the same year, and it is the one thing in this route that a reader standing at the end of 1904 could not reach for. It is on the shelf below, marked as an import, with where it came from.
+      explanation: "Describe the same emission a second time, from a frame gliding steadily past at speed v. Nothing about the body changes; you have changed only where you are standing. Write down the body’s energy before and after in each account, four quantities in all.\u000a\u000aYou cannot evaluate any of the four, because each contains the body’s absolute energy content, which no one knows, in 1904 or now. That is why the second account earns its place: the quantity you cannot supply appears in both accounts, so a subtraction removes it.\u000a\u000aThe two accounts do not agree about the light, though. A given pair of flashes is measured to carry different total energy depending on the frame it is measured in, and by how much is fixed by the speed and the direction. That is the imported step. It comes from section 8 of the relativity paper, received in June of the same year, and it is the one thing in this route that a reader standing at the end of 1904 could not reach for. It is on the shelf below, marked as an import, with where it came from."
       transferCase:
         condition: Why the import is declared rather than absorbed
         explanation: A reconstruction that quietly used a 1905 result while claiming to start from 1904 would be telling you the argument is cheaper than it is. The September paper openly rests on the June one. Naming the debt is the difference between a route and a conjuring trick.
@@ -203,10 +195,7 @@ stages:
         given: The difference between the two losses is 2.5 joules, but the offset may change during emission.
         toComplete: Can you still identify the entire 2.5 joules as a kinetic-energy decrease?
         explanation: No. The subtraction remains correct, but it now constrains the kinetic-energy change together with an unknown offset change.
-      explanation: |-
-        Take the difference between the two accounts before the emission, take it again after, and subtract one from the other. Every absolute body energy disappears, because each appears once in each account. What is left on one side is a difference of differences, and on the other side the light energy multiplied by a factor that depends only on the speed.
-
-        The quantity that survives is the difference between what the moving observer and the resting observer say the body’s energy is, and how that difference changed when the light left. For a body whose speed never changed, that is its energy of motion, plus whatever fixed offset separates the two accounts.
+      explanation: "Take the difference between the two accounts before the emission, take it again after, and subtract one from the other. Every absolute body energy disappears, because each appears once in each account. What is left on one side is a difference of differences, and on the other side the light energy multiplied by a factor that depends only on the speed.\u000a\u000aThe quantity that survives is the difference between what the moving observer and the resting observer say the body’s energy is, and how that difference changed when the light left. For a body whose speed never changed, that is its energy of motion, plus whatever fixed offset separates the two accounts."
       transferCase:
         condition: The premise hiding in “whatever fixed offset”
         explanation: Identifying the surviving quantity as a change in energy of motion requires that the offset is the same before and after. Nothing so far forces that. If the offset shifted when the light left, the subtraction still holds but it no longer isolates the energy of motion, and the route stops here with a constraint rather than a result. This is the premise worth arguing about, and the workbench below lets you remove it and see what survives.
@@ -249,10 +238,7 @@ stages:
         given: At exactly zero relative speed both kinetic-energy changes are zero.
         toComplete: Does dividing those zero values identify the mass decrease?
         explanation: No. The identification uses the coefficient approached as the speed tends to zero, not a quotient evaluated at zero.
-      explanation: |-
-        Let the second observer glide past slowly and the speed factor simplifies. The paper prints the result on its last page, in the notation it was set in, where L is the energy given off and V is the speed of light:
-
-        Now put that beside the energy of motion you already had on the shelf, one half of the mass times the speed squared. The two expressions have the same shape, and in the place where a mass belongs stands the energy given off divided by the square of the speed of light. The body behaves, for every purpose that mass is measured by, as though it lost that much of it.
+      explanation: "Let the second observer glide past slowly and the speed factor simplifies. The paper prints the result on its last page, in the notation it was set in, where L is the energy given off and V is the speed of light:\u000a\u000aNow put that beside the energy of motion you already had on the shelf, one half of the mass times the speed squared. The two expressions have the same shape, and in the place where a mass belongs stands the energy given off divided by the square of the speed of light. The body behaves, for every purpose that mass is measured by, as though it lost that much of it."
       transferCase:
         condition: Why the slow-speed limit and not the exact factor
         explanation: 'At a finite speed you get a coefficient that depends on the speed, which is a proxy and not an identification: you would be reading a mass off a quantity that still remembers how fast you happened to be gliding. The identification is made in the limit as the speed goes to zero, which is where the comparison with one half m v squared is exact. Running the instrument at zero speed instead gives zero on both sides and settles nothing, which is a different thing from taking the limit.'

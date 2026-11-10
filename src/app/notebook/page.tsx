@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { KeptInvestigations } from "../../discovery/investigation/KeptInvestigations.tsx";
+import { JOURNEY_NOTE_MANIFESTS } from "../../discovery/journeys/JourneyNotebook.tsx";
+import { KeptStageNotes } from "../../discovery/notes/KeptStageNotes.tsx";
 
 export const metadata: Metadata = {
   title: "Your private reading notebook",
@@ -38,6 +40,7 @@ export default function NotebookPage() {
           </p>
         </noscript>
         <KeptInvestigations />
+        <KeptStageNotes manifests={JOURNEY_NOTE_MANIFESTS} />
         {/* What goes in it, how it stays private, and how to keep a copy: three short blocks a
           reader can scan, where four paragraphs of equal weight used to run on. Every fact from
           those paragraphs is kept. */}
@@ -66,6 +69,13 @@ export default function NotebookPage() {
                 In a discovery journey, pin a prediction, capture changed laboratory readings and
                 keep your explanation. The saved investigation appears here with a link back to its
                 task and downloads of the complete record.
+              </li>
+              <li>
+                In the <a href="/discover/brownian-motion/">Brownian motion</a> and{" "}
+                <a href="/discover/mass-energy/">mass and energy</a> guides, record a prediction at
+                each step, then add what you noticed. Earlier predictions stay as you wrote them.
+                These notes appear here with a return link, downloads and an option to reopen a
+                saved file.
               </li>
             </ul>
           </section>
