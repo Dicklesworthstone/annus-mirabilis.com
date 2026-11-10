@@ -1,4 +1,8 @@
 import { BM08_CLASSES, type Bm08Parameters } from "../../experiments/bm08/definition.ts";
+import {
+  type Bm08RecordingCheckpoint,
+  createBm08RecordingCheckpoint,
+} from "../../experiments/bm08/recordingCheckpoint.ts";
 import { executionOutcomeRegistry } from "../../experiments/results/outcomes.ts";
 import {
   type CameraFrames,
@@ -27,6 +31,7 @@ export function createBm08Host(
     parameters: Bm08Parameters;
     recording: CameraRecording;
     frames: CameraFrames;
+    checkpoint: Bm08RecordingCheckpoint;
   } | null = null;
   async function receive(input: unknown): Promise<void> {
     const message = decodeLabRequest(input, sourceDigest);
@@ -81,13 +86,21 @@ export function createBm08Host(
                   ? { ...o, value: Number(reobserved) }
                   : o,
             );
-            result = { kind: "accepted" as const, data: { ...result.data, outputs } };
+            const checkpoint =
+              reused && activeCache
+                ? activeCache.checkpoint
+                : await createBm08RecordingCheckpoint(recording.data, sourceDigest);
+            result = {
+              kind: "accepted" as const,
+              data: { ...result.data, outputs, recordingCheckpoint: checkpoint },
+            };
             if (!cancelled && !stopped)
               cache = {
                 runId: message.token.runId,
                 parameters: p,
                 recording: recording.data,
                 frames: frames.data,
+                checkpoint,
               };
           }
         }

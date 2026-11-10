@@ -1,5 +1,14 @@
 "use client";
-import { type FormEvent, useEffect, useId, useMemo, useState } from "react";
+import {
+  type FormEvent,
+  type SetStateAction,
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { createBm08BrowserChannel } from "../../experiments/bm08/browser.ts";
 import {
@@ -8,10 +17,10 @@ import {
   toCameraDraft,
 } from "../../experiments/bm08/controls.ts";
 import { BM08_CAPTION, type Bm08Parameters } from "../../experiments/bm08/definition.ts";
-import { BM08_DRAFT_TAPE } from "../../experiments/bm08/draftTape.ts";
 import { cameraObservationCsv } from "../../experiments/bm08/export.ts";
 import { decodeBm08Settings } from "../../experiments/bm08/permalink.ts";
 import { createBm08Session, type PreparedBm08Example } from "../../experiments/bm08/session.ts";
+import { createBm08TapeBinding, createBm08WalkthroughTarget } from "../../experiments/bm08/tape.ts";
 import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
@@ -69,7 +78,7 @@ export function CameraLab({
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("bm-08", BM08_PROMPTS);
   const view = useInstrumentView(session);
-  const [draft, setDraft] = useState(() => toCameraDraft(session.acceptedParameters())),
+  const [draft, setDraftState] = useState(() => toCameraDraft(session.acceptedParameters())),
     [ready, setReady] = useState(false),
     [dirty, setDirty] = useState(false),
     /**
@@ -82,6 +91,39 @@ export function CameraLab({
      */
     [failure, setFailure] = useState<ApplyFailure | null>(null),
     [note, setNote] = useState("");
+  const draftRevision = useRef(0);
+  const walkthroughDraftRevision = useRef(0);
+  const setDraft = useCallback((next: SetStateAction<CameraDraft>) => {
+    draftRevision.current++;
+    setDraftState(next);
+  }, []);
+  const workerTape = useMemo(
+    () => createBm08TapeBinding(example, createBm08BrowserChannel),
+    [example],
+  );
+  const workerWalkthrough = useMemo(
+    () =>
+      createBm08WalkthroughTarget(
+        workerTape,
+        session,
+        (parameters) => {
+          if (draftRevision.current !== walkthroughDraftRevision.current) {
+            setNote(
+              "The checkpoint result is ready. Your newer entries are still in the form; apply them when ready.",
+            );
+            return;
+          }
+          setDraftState(toCameraDraft(parameters));
+          setDirty(false);
+          setFailure(null);
+          setNote("");
+        },
+        () => {
+          walkthroughDraftRevision.current = draftRevision.current;
+        },
+      ),
+    [workerTape, session],
+  );
   // A shared ?tape= link puts its settings in the form and starts no worker; Apply runs them.
   // Read here, above the early return below, from the accepted snapshot itself. It carries no
   // coverage experiments, as the older link did not: a reader runs those deliberately.
@@ -90,7 +132,7 @@ export function CameraLab({
     () => (acceptedParameters ? { ...acceptedParameters, coverageTrials: 0 } : undefined),
     [acceptedParameters],
   );
-  const tapeLink = useDraftTapeLink(BM08_DRAFT_TAPE, shareable, restoreFromLocation, (settings) => {
+  const tapeLink = useDraftTapeLink(workerTape, shareable, restoreFromLocation, (settings) => {
     setDraft(toCameraDraft(settings as unknown as Bm08Parameters));
     setDirty(true);
   });
@@ -105,7 +147,7 @@ export function CameraLab({
       );
     } else if (link.kind === "invalid") setNote(link.message);
     return () => session.disconnect();
-  }, [session, restoreFromLocation]);
+  }, [session, restoreFromLocation, setDraft]);
   const serverAccepted = session.getServerSnapshot().accepted;
   const snapshot = view.accepted ?? serverAccepted;
   if (!snapshot) return null;
@@ -461,7 +503,10 @@ export function CameraLab({
             </button>
           </div>
           {note && <p className="notice">{note}</p>}
-          <LabTapeLink link={withPredictions(tapeLink, gate)} />
+          <LabTapeLink
+            link={withPredictions(tapeLink, gate)}
+            workerWalkthrough={workerWalkthrough}
+          />
         </div>
         {/*
             OUTSIDE THE PREDICT GATE, BECAUSE A HIDDEN LABEL IS NOT A LABEL (am-ig23).

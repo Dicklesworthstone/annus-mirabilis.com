@@ -1,59 +1,148 @@
-# Teaching tape "Camera noise and exposure bias" (am-bm-08-measurement-bias-h1ye).
-#
-# THE RECORDED NAIVE EXPECTATION WAS THE INPUT D (0.42944e-12), corrected 2026-09-28 to what
-# BM-08's own evaluator gives at these settings. cameraMoments in
-# src/physics/reference/inference/observation.ts computes
-#   variance = 2 D (dt - exposure/3) + 2 sigma^2,  naiveExpectation = variance / (2 dt)
-# which at D = 4.2944e-13, dt = 1, exposure = 0.5, sigma = 2e-7 is 3.9786666666666666e-13. The old
-# value said the naive estimator recovers D exactly, which is the opposite of what this instrument
-# is for. src/content/tapeNumbers.test.ts recomputes it.
+# Recorded from the real BM08 host under Node 22.13.1 (V8), not a settings checksum.
+# Synthetic observations; exact mismatches preserve the accepted result and offer a new run.
 tapeVersion: 2
-tapeId: camera-bias
-experimentId: bm-08
-mode: "bm-08"
+tapeId: "camera-bias"
+experimentId: "bm-08"
+mode: "bm-08:default"
 title: "Camera noise and exposure bias"
+description: "Measure one synthetic path three ways: ideal observations, exposure blur, then localization noise. Exact checkpoint replay verifies the complete recording and observations; another calculation engine may require an explicit new run."
 isTeachingSequence: true
 modelIdentity:
-  modelId: inference-bm08-host
+  modelId: "inference-bm08-host"
   modelVersion: "1"
-  artifactDigest: "host:sha256:0000000000000000000000000000000000000000000000000000000000000000"
-constantSetId: modern-si-2019
+  artifactDigest: "host:sha256:c8551c24175d3499e72da7ba6cc00050c6ebc26b665c963f64e35393a6b80519"
+constantSetId: "modern-si-2019"
 seed: "1905"
 streamVersion: 1
-allocationId: bm-08.camera-latent.v1
+allocationId: "bm-08.latent.v1"
+replayGrid:
+  baseSpacing: 0.25
+  horizon: 1028
 initialConditions:
-  D: 0.42944e-12
+  seed: "1905"
+  D: 4.2944e-13
   flowDrift: 0
+  noiseSeed: "1905"
+  clickSeed: "1926"
   M: 100
   d: 2
   dt: 1
-  exposure: 0.5
-  sigma: 0.2e-6
+  exposure: 0
+  sigma: 0
   stageDrift: 0
   clicks: 30
+  noiseMethod: "stationary"
   coverage: 0.95
   coverageTrials: 0
 events:
-  - kind: control
+  - kind: "control"
     actionIndex: 1
-    commandClass: measurement-change
-    commandId: set-localization-noise
-    parameterId: sigma
-    value: 0.2e-6
+    commandClass: "measurement-change"
+    commandId: "set-exposure"
+    parameterId: "exposure"
+    value: 0.5
+    previousValue: 0
+  - kind: "control"
+    actionIndex: 2
+    commandClass: "measurement-change"
+    commandId: "set-localization-noise"
+    parameterId: "sigma"
+    value: 2.0e-7
+    previousValue: 0
 checkpoints:
-  - actionIndex: 1
+  - actionIndex: 0
     stepIndex: 4112
     simulatedTime: 1028
-    digest: "host:sha256:8888888888888888888888888888888888888888888888888888888888888888"
-    digestKind: host
+    digest: "host:sha256:55aac6a7864978de4d9b0a1a3e35ae511abe1820856ae56dcb9d9115ce2acd25"
+    digestKind: "host"
     checkpointVersion: 1
     streamSemanticsVersion: 1
     seed: "1905"
-    streamPositions: []
-    label: "Noisy, exposure-blurred camera observations"
-    teachingNote: "Camera noise adds 2*sigma^2 variance and negative lag-1 covariance, and the two do not cancel: at these settings the exposure blur takes 7.157e-14 m2/s off the estimate while the localization noise puts 4e-14 back, so the naive estimator reads 3.9787e-13 where the true D is 4.2944e-13, 7.3 per cent low. Reading the naive number as D is the mistake this instrument exists to show."
+    streamPositionRanges:
+      - allocationId: "bm-08.latent.v1"
+        streamKernelId: "0x19050001"
+        firstTile: "0"
+        count: 2
+        index: "16448"
+      - allocationId: "bm-08.localization.v1"
+        streamKernelId: "0x19050002"
+        firstTile: "0"
+        count: 1
+        index: "1604"
+      - allocationId: "bm-08.stationary-feature.v1"
+        streamKernelId: "0x19050008"
+        firstTile: "0"
+        count: 30
+        index: "4"
+    label: "Ideal instantaneous observations"
+    teachingNote: "With zero exposure and zero localization noise, the naive expectation equals the model diffusion coefficient. These are synthetic observations of a fixed recorded path."
     expectedDisplayValues:
       - label: "naive expectation"
+        outputId: "naiveExpectation"
+        value: 4.2944e-13
+        unit: "m2/s"
+        constantSetId: "modern-si-2019"
+  - actionIndex: 1
+    stepIndex: 4112
+    simulatedTime: 1028
+    digest: "host:sha256:a654f7a8399eea5ff8b6f20a32a4dd0600b6031ddd09f98c6f9ba7c8cf1879e1"
+    digestKind: "host"
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "1905"
+    streamPositionRanges:
+      - allocationId: "bm-08.latent.v1"
+        streamKernelId: "0x19050001"
+        firstTile: "0"
+        count: 2
+        index: "16448"
+      - allocationId: "bm-08.localization.v1"
+        streamKernelId: "0x19050002"
+        firstTile: "0"
+        count: 1
+        index: "1604"
+      - allocationId: "bm-08.stationary-feature.v1"
+        streamKernelId: "0x19050008"
+        firstTile: "0"
+        count: 30
+        index: "4"
+    label: "Exposure blur on the same physical path"
+    teachingNote: "A half-second exposure averages positions and lowers the naive expectation. The physical path and its complete recording checkpoint are unchanged."
+    expectedDisplayValues:
+      - label: "naive expectation"
+        outputId: "naiveExpectation"
+        value: 3.578666666666667e-13
+        unit: "m2/s"
+        constantSetId: "modern-si-2019"
+  - actionIndex: 2
+    stepIndex: 4112
+    simulatedTime: 1028
+    digest: "host:sha256:048aa99ce79a0827a9f369842a5670486d3d0f0d0de85f9ea68f1875a6489fe3"
+    digestKind: "host"
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "1905"
+    streamPositionRanges:
+      - allocationId: "bm-08.latent.v1"
+        streamKernelId: "0x19050001"
+        firstTile: "0"
+        count: 2
+        index: "16448"
+      - allocationId: "bm-08.localization.v1"
+        streamKernelId: "0x19050002"
+        firstTile: "0"
+        count: 1
+        index: "1604"
+      - allocationId: "bm-08.stationary-feature.v1"
+        streamKernelId: "0x19050008"
+        firstTile: "0"
+        count: 30
+        index: "4"
+    label: "Localization noise on the same physical path"
+    teachingNote: "Localization noise raises the naive expectation, but does not cancel exposure blur. Here the expected estimate is 3.9787e-13 m2/s, about 7.3 percent below the true 4.2944e-13 m2/s. Compare the corrected estimate on the same synthetic path."
+    expectedDisplayValues:
+      - label: "naive expectation"
+        outputId: "naiveExpectation"
         value: 3.9786666666666666e-13
         unit: "m2/s"
-        constantSetId: modern-si-2019
+        constantSetId: "modern-si-2019"
