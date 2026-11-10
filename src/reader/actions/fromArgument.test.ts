@@ -1,9 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import type { Argument } from "../../content/schemas/reading.ts";
 import { loadPaper } from "../../content/server";
 import { passageActionsFromArgument } from "./fromArgument.ts";
+import { ObstacleMenu } from "./ObstacleMenu.tsx";
 import { OBSTACLE_KIND_IDS } from "./passageActions.schema.ts";
 
 const ARG: Argument = {
@@ -86,13 +89,20 @@ describe("every hard passage, in every paper", () => {
         }
       }
     }
-    // Not vacuous, and every paper has one (am-ep-reader-k0z): the four passages by name.
-    expect(hard.sort()).toEqual([
+    // Keep the original four and the difficult derivations reachable without freezing the
+    // number of passages for which editors may subsequently author help.
+    for (const id of [
       "arg-bm-observable",
+      "arg-bm-inference",
       "arg-lq-independent-configurations",
+      "arg-lq-entropy-temperature",
+      "arg-lq-wien-integration",
       "arg-me-subtraction",
+      "arg-sr-lorentz-map",
       "arg-sr-velocity-composition",
-    ]);
+    ]) {
+      expect(hard).toContain(id);
+    }
   });
 
   test("each worked example says the passage's own numbers", async () => {
@@ -105,4 +115,44 @@ describe("every hard passage, in every paper", () => {
     expect(await example("special-relativity", "arg-sr-velocity-composition")).toContain("15c/17");
     expect(await example("mass-energy", "arg-me-subtraction")).toContain("10 × (1.25 − 1)");
   });
+});
+
+describe("derivation help is usable in the static reader", () => {
+  const passages = [
+    ["light-quanta", "arg-lq-entropy-temperature"],
+    ["light-quanta", "arg-lq-wien-integration"],
+    ["special-relativity", "arg-sr-lorentz-map"],
+    ["brownian-motion", "arg-bm-inference"],
+  ] as const;
+
+  for (const [paper, id] of passages) {
+    test(`${id}: every answer is in the HTML with its own disclosure and a real returnable lesson`, async () => {
+      const argument = (await loadPaper(paper)).arguments.find((item) => item.id === id);
+      expect(argument).toBeDefined();
+      const actions = passageActionsFromArgument(argument as Argument);
+      expect(actions.hard).toBe(true);
+      const html = renderToStaticMarkup(
+        createElement(ObstacleMenu, {
+          passageId: id,
+          passageLabel: (argument as Argument).title,
+          hard: actions.hard,
+          responses: actions.obstacleResponses,
+        }),
+      );
+      // A missing record must not silently become an unavailable answer or a hidden menu.
+      expect(html).toContain("data-obstacle-menu");
+      expect(html).not.toContain("data-obstacle-unavailable");
+      for (const kind of OBSTACLE_KIND_IDS) {
+        const answer = actions.obstacleResponses?.[kind];
+        expect(answer).toBeDefined();
+        expect(html).toContain(`id="${id}-obstacle-${kind}"`);
+        expect(html).toContain(renderToStaticMarkup(createElement("p", null, answer?.explanation)));
+        const link = answer?.foundationLinks?.[0];
+        expect(html).toContain(`href="/foundations/${link?.foundationId}/"`);
+        expect(link?.callingAnchor).toBe(id);
+        expect(link?.returnCaption).toMatch(/^Return to .{20,}/);
+        expect(html).toContain("data-return-caption=");
+      }
+    });
+  }
 });

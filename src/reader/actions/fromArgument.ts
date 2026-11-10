@@ -233,11 +233,186 @@ const ARG_ME_SUBTRACTION_OBSTACLES: ObstacleResponses = {
   },
 };
 
+/**
+ * Light quanta §3: the two-band variation in the passage explains why the entropy
+ * derivatives agree. Thermodynamics identifies their value; it does not supply a
+ * microscopic picture of radiation or the integration constant used in §4.
+ */
+const entropyTemperatureLink = (foundationId: string) => [
+  {
+    foundationId,
+    callingAnchor: "arg-lq-entropy-temperature",
+    returnCaption: "Return to the entropy gained per added energy, at fixed volume and frequency.",
+  },
+];
+const ARG_LQ_ENTROPY_TEMPERATURE_OBSTACLES: ObstacleResponses = {
+  unfamiliarWordOrSymbol: {
+    explanation:
+      "ρν is energy per unit volume and per unit frequency interval; sν is entropy measured in the same way. The derivative ∂sν/∂ρν asks how much the entropy density changes when a little energy density is added at this fixed frequency and volume. T is absolute temperature, so 1/T has units of inverse kelvins.",
+    foundationLinks: entropyTemperatureLink("partial-derivatives"),
+  },
+  physicalReason: {
+    explanation:
+      "At equilibrium the radiation has the greatest entropy compatible with its total energy and volume. Imagine moving a tiny amount of energy between two frequency bands. If one band gained more entropy per added energy than the other lost, this transfer would increase the total entropy. That would contradict equilibrium. The slopes must therefore agree; reversible heating identifies their common value as 1/T.",
+    foundationLinks: entropyTemperatureLink("entropy-temperature"),
+  },
+  connectionToPicture: {
+    explanation:
+      "Picture two frequency bands as two columns in an energy table. Take a tiny energy amount q from the first column and add the same q to the second, keeping the total fixed. Next to each column put its entropy change per added energy. The entropy changes are −q times the first slope and +q times the second. Equal slopes make these first-order changes cancel.",
+    foundationLinks: entropyTemperatureLink("functions-graphs"),
+  },
+  tooMuchAtOnce: {
+    explanation:
+      "Start with the passage's two-band check. A tiny energy amount q leaves band 1 and enters band 2. At equilibrium, each has entropy slope 1/T: one loses q/T and the other gains q/T, so the total change is zero to first order. This explains the equal slopes. Integrating them to find entropy itself still needs a boundary condition.",
+    foundationLinks: entropyTemperatureLink("entropy-temperature"),
+  },
+  algebraicMove: {
+    explanation:
+      "Call the two entropy slopes m₁ and m₂. Transferring a small energy q gives ΔS ≈ −m₁q + m₂q = q(m₂ − m₁). The transfer can go either way. Unless m₂ − m₁ is zero, one direction raises entropy, so an equilibrium maximum requires m₁ = m₂. This first-order argument gives a necessary condition for equilibrium, rather than proving that every equal-slope state is a maximum.",
+    foundationLinks: entropyTemperatureLink("derivatives"),
+  },
+  purposeOfCalculation: {
+    explanation:
+      "A spectrum tells how radiation's energy density depends on temperature. This step makes that information useful for entropy: invert an admitted spectrum to obtain T at a chosen density and frequency, then use 1/T as the entropy derivative. No light particles have been assumed. The next passage integrates that derivative and separately fixes its constant.",
+    foundationLinks: entropyTemperatureLink("entropy-temperature"),
+  },
+};
+
+/** Light quanta §4: keep the dimensionless logarithm, fixed frequency and boundary condition. */
+const wienIntegrationLink = (foundationId: string) => [
+  {
+    foundationId,
+    callingAnchor: "arg-lq-wien-integration",
+    returnCaption:
+      "Return to integrating Wien's entropy derivative and fixing its zero-density constant.",
+  },
+];
+const ARG_LQ_WIEN_INTEGRATION_OBSTACLES: ObstacleResponses = {
+  unfamiliarWordOrSymbol: {
+    explanation:
+      "ν is the frequency, held fixed throughout this integration. A and B are the constants in Wien's spectral law; Aν³ has the same units as the spectral energy density ρν. Their ratio ρν/(Aν³) has no units, so its logarithm is defined without choosing a unit system. C(ν) is an unknown entropy-density offset that can depend on frequency, but not on ρν.",
+    foundationLinks: wienIntegrationLink("logarithms"),
+  },
+  physicalReason: {
+    explanation:
+      "The calculation adopts Wien's law in its admitted regime and the thermodynamic entropy derivative from §3. It also needs the paper's condition that radiation entropy vanishes when radiation density vanishes. Integration alone cannot determine this zero. A positive temperature obtained by inversion does not, by itself, establish that the Wien approximation is accurate for that state.",
+    foundationLinks: wienIntegrationLink("entropy-temperature"),
+  },
+  connectionToPicture: {
+    explanation:
+      "Draw entropy density against energy density at one frequency. The known derivative fixes the slope of the curve at each density, but moving the whole curve up or down leaves every slope unchanged. C(ν) names that shift. Requiring the curve to approach zero entropy at zero radiation selects one curve. The logarithm diverges there, but the density multiplying it tends to zero faster.",
+    foundationLinks: wienIntegrationLink("functions-graphs"),
+  },
+  tooMuchAtOnce: {
+    explanation:
+      "Use the passage's dimensionless ratio r = ρν/(Aν³). At r = 0.001, r ln r is about −0.0069; at r = 0.000001, it is about −0.0000138. The product approaches zero even though ln r becomes more negative. In the entropy formula the other density term also vanishes, leaving only C(ν). The stated zero-radiation condition makes that constant zero.",
+    foundationLinks: wienIntegrationLink("logarithms"),
+  },
+  algebraicMove: {
+    explanation:
+      "At fixed frequency, set a = Aν³ just for this calculation. Differentiate ρ ln(ρ/a) − ρ: the product rule gives ln(ρ/a) + 1 − 1, leaving the required logarithm. Its antiderivative is therefore ρ ln(ρ/a) − ρ. Multiplying by −1/(Bν) gives the entropy expression, with C(ν) still to be fixed by the boundary condition.",
+    foundationLinks: wienIntegrationLink("integration"),
+  },
+  purposeOfCalculation: {
+    explanation:
+      "The next step compares the entropy of the same radiation energy in two volumes. A constant added to entropy density contributes C(ν) times volume times the frequency-band width to total entropy, so it does not cancel when volume changes. Fixing C(ν) before that comparison is what lets the later volume dependence follow from the stated premises. It does not turn Wien's approximation into a general radiation law.",
+    foundationLinks: wienIntegrationLink("entropy-multiplicity"),
+  },
+};
+
+/** Relativity §3: the shortened two-direction proof retains its unfixed scale and its extra premises. */
+const lorentzMapLink = (foundationId: string) => [
+  {
+    foundationId,
+    callingAnchor: "arg-sr-lorentz-map",
+    returnCaption:
+      "Return to the light constraints, the remaining scale, and the round-trip check.",
+  },
+];
+const ARG_SR_LORENTZ_MAP_OBSTACLES: ObstacleResponses = {
+  unfamiliarWordOrSymbol: {
+    explanation:
+      "x and t label an event in the original frame; x′ and t′ label that same event in the moving frame in this explanation. v is their relative speed and a(v) is a scale factor still to be found. The source calls the moving coordinates ξ and τ, and uses x′ = x − vt as a separate helper coordinate. Its β is the factor called γ here, not the speed ratio v/c.",
+    foundationLinks: lorentzMapLink("frames-events"),
+  },
+  physicalReason: {
+    explanation:
+      "The moving origin follows x = vt, so its new position must be zero wherever x − vt is zero. With a linear coordinate map, light travelling in either direction must still have speed c in the moving frame. Those two requirements make the new time depend on position as well as old time. They leave a common scale undetermined; reversing the change of frame and spatial symmetry supply further constraints.",
+    foundationLinks: lorentzMapLink("frames-events"),
+  },
+  connectionToPicture: {
+    explanation:
+      "Follow two light rays from the common origin: one has x = ct and one x = −ct. The transformed event coordinates must put them on x′ = ct′ and x′ = −ct′. Multiplying both new coordinates by the same positive factor leaves those slopes unchanged, which is why the light-ray picture alone cannot choose a(v). The picture is a coordinate comparison, not what a camera receives.",
+    foundationLinks: lorentzMapLink("functions-graphs"),
+  },
+  tooMuchAtOnce: {
+    explanation:
+      "Use the passage's speed v = 0.6c. Going to the moving frame and back requires a² × (1 − 0.6²) = 1 once spatial symmetry makes the factors equal. Thus a² × 0.64 = 1, and the positive factor is a = 1/0.8 = 1.25. Check it: 1.25 × 1.25 × 0.64 = 1. Continuity from a(0) = 1 selects this positive root.",
+    foundationLinks: lorentzMapLink("bridge-squaring-square-roots"),
+  },
+  algebraicMove: {
+    explanation:
+      "Write t′ = Pt + Qx. The right-going ray gives a(c − v) = c(P + Qc); the left-going ray gives a(c + v) = c(P − Qc). Add them: 2ac = 2cP, so P = a. Subtract the second from the first: −2av = 2Qc², so Q = −av/c². Hence t′ = a(t − vx/c²), still with the same unknown scale as x′.",
+    foundationLinks: lorentzMapLink("matrices-linear-maps"),
+  },
+  purposeOfCalculation: {
+    explanation:
+      "The calculation constructs a map between synchronized coordinate systems for the same events. Light in both directions fixes the mixing of position and time; going there and back, spatial symmetry and continuity fix the remaining scale for speeds below c. This is the passage's shorter reconstruction. Einstein's own route follows out-and-back clock signals. The spacetime interval can check the result later, but is not a premise of this derivation.",
+    foundationLinks: lorentzMapLink("conservation-symmetry"),
+  },
+};
+
+/** Brownian §5: an algebraic inversion is conditional on independent measurements and model assumptions. */
+const inferenceLink = (foundationId: string) => [
+  {
+    foundationId,
+    callingAnchor: "arg-bm-inference",
+    returnCaption:
+      "Return to the independently measured radius needed to infer N from diffusivity.",
+  },
+];
+const ARG_BM_INFERENCE_OBSTACLES: ObstacleResponses = {
+  unfamiliarWordOrSymbol: {
+    explanation:
+      "D is diffusivity, inferred here from mean-square displacement along one axis over time t. N is the number of molecules in a mole; a is the tracer's radius, η the liquid's viscosity, T its absolute temperature and R the molar gas constant. In the printed paper radius is P and viscosity is k. That k is not Boltzmann's constant.",
+    foundationLinks: inferenceLink("unit-system-1905"),
+  },
+  physicalReason: {
+    explanation:
+      "The relation combines ideal osmotic pressure with Stokes drag for dilute small spheres in a liquid. In that model D = RT/(6πηaN). Measured displacement can constrain D, but a and N enter only through their product. Temperature, viscosity, the gas constant and especially the radius need independent information before an estimate of N is possible. Noise, drift and finite observation time also need their own treatment.",
+    foundationLinks: inferenceLink("error-and-inference"),
+  },
+  connectionToPicture: {
+    explanation:
+      "Picture mean-square displacement on the vertical axis and elapsed time on the horizontal one. In the admitted diffusion model the straight line's slope is 2D. One measured slope therefore fixes D. Beside that plot, list pairs of radius and molecular number: halving a and doubling N leaves aN, D and the predicted line unchanged. A radius measurement is what separates those possibilities.",
+    foundationLinks: inferenceLink("two-measurements-two-unknowns"),
+  },
+  tooMuchAtOnce: {
+    explanation:
+      "The passage's worked case pairs a radius of 0.5 μm with N = 6 × 10²³ per mole. The same diffusivity would pair a radius of 1 μm with N = 3 × 10²³ per mole: the radius doubles and N halves. Displacement alone cannot choose between them. These are model calculations using an assumed N, not an independent measurement of molecules.",
+    foundationLinks: inferenceLink("two-measurements-two-unknowns"),
+  },
+  algebraicMove: {
+    explanation:
+      "From ⟨x²⟩ = 2Dt, divide by 2t for positive t to obtain D. Rearrange D = RT/(6πηaN) to N = RT/(6πηaD). Replacing D by ⟨x²⟩/(2t) multiplies the numerator by 2t; the factor 2 cancels against 6 to leave N = RTt/(3πηa⟨x²⟩). ⟨x²⟩ is the mean of squared displacements, not the square of their signed mean.",
+    foundationLinks: inferenceLink("mean-variance-rms"),
+  },
+  purposeOfCalculation: {
+    explanation:
+      "The inversion shows how an independently observed spread could estimate N under the model's assumptions. Feeding it a spread generated from an assumed N checks the arithmetic and returns that assumption; it supplies no independent evidence for N in nature. With real observations, uncertainties in the displacement and the separately measured inputs remain part of the estimate. Rearranging the formula does not remove them.",
+    foundationLinks: inferenceLink("error-and-inference"),
+  },
+};
+
 /** The passages marked hard, each with an authored answer for all six obstacles. */
 const OBSTACLES: Readonly<Record<string, ObstacleResponses>> = {
   "arg-bm-observable": ARG_BM_OBSERVABLE_OBSTACLES,
+  "arg-bm-inference": ARG_BM_INFERENCE_OBSTACLES,
   "arg-lq-independent-configurations": ARG_LQ_INDEPENDENT_CONFIGURATIONS_OBSTACLES,
+  "arg-lq-entropy-temperature": ARG_LQ_ENTROPY_TEMPERATURE_OBSTACLES,
+  "arg-lq-wien-integration": ARG_LQ_WIEN_INTEGRATION_OBSTACLES,
   "arg-sr-velocity-composition": ARG_SR_VELOCITY_COMPOSITION_OBSTACLES,
+  "arg-sr-lorentz-map": ARG_SR_LORENTZ_MAP_OBSTACLES,
   "arg-me-subtraction": ARG_ME_SUBTRACTION_OBSTACLES,
 };
 
