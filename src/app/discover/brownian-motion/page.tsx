@@ -20,6 +20,7 @@ import {
   SOURCE_JUMPS,
   WORLD_CHECK,
 } from "../../../discovery/brownian/journeyII.ts";
+import { MOLECULAR_NUMBER_EXERCISE } from "../../../discovery/brownian/molecularNumberExercise.ts";
 import { EINSTEIN_ONE_SECOND } from "../../../discovery/brownian/numericExercises.ts";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
 import { Doors } from "../../../discovery/Doors.tsx";
@@ -307,6 +308,7 @@ export default function BrownianEncounter() {
           measurement, estimate the number, and run it again and again to see how often the range
           you quote misses the true number.
         </p>
+        <ExercisePart part={MOLECULAR_NUMBER_EXERCISE} />
         <StepDoors>
           <StepDoor href="/papers/brownian-motion/s5/#arg-bm-inference">
             Go straight to the explanation: what would let us count molecules

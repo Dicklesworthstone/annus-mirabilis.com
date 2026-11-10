@@ -59,6 +59,25 @@ describe("step 04 asks the reader to put the square-root argument in words", () 
     expect(section("step-08")).toContain('data-exercise-part="bm-displacement-scale-rewrite"');
   });
 
+  test("step 07 lets the reader invert the measured spread before opening the inference lab", () => {
+    const step = section("step-07");
+    const start = step.indexOf('data-exercise-part="bm-molecular-number-from-spread"');
+    expect(start).toBeGreaterThan(step.indexOf("What can a finite sample tell you?"));
+    expect(start).toBeLessThan(step.indexOf('href="/lab/bm-07/"'));
+    const part = step.slice(start, step.indexOf("</details>", start));
+    const words = text(part);
+    expect(words).toContain("measured independently of these displacements");
+    expect(words).toContain("N = R*T/(6*pi*eta*a*D) = R*T*t/(3*pi*eta*a*m2)");
+    expect(words).toContain(
+      "inverting an unbiased diffusion estimate does not make the estimate of N unbiased",
+    );
+    expect(part).toContain("Show a worked explanation");
+    expect(part).toContain("The worked explanation below still works.");
+    expect(
+      checkVoice(words, { context: "prose" }).filter((finding) => finding.severity === "error"),
+    ).toEqual([]);
+  });
+
   test("step 08 lets the reader arrive at Einstein's number, as the page's lead promises", () => {
     const step = section("step-08");
     expect(text(html)).toContain("You can arrive at the same number here");

@@ -31,6 +31,25 @@ const text = (markup: string) =>
     .replace(/\s+/g, " ")
     .trim();
 
+test("step 06 asks for the entropy coefficient in source notation, with an unconditional worked explanation", () => {
+  const sectionStart = html.indexOf('<section id="step-06"');
+  const step = html.slice(sectionStart, html.indexOf("</section>", sectionStart));
+  const start = step.indexOf('data-exercise-part="lq-count-from-entropy"');
+  expect(start).toBeGreaterThan(step.indexOf("molecules in a gram-molecule"));
+  expect(start).toBeLessThan(step.indexOf("What has and has not been established"));
+  const part = step.slice(start, step.indexOf("</details>", start));
+  const words = text(part);
+  expect(words).toContain("both in the dilute Wien regime");
+  expect(words).toContain("n = N*E/(R*beta*nu)");
+  expect(words).toContain("This effective count need not be an integer");
+  expect(words).toContain("does not establish a microscopic mechanism");
+  expect(part).toContain("Show a worked explanation");
+  expect(part).toContain("The worked explanation below still works.");
+  expect(
+    checkVoice(words, { context: "prose" }).filter((finding) => finding.severity === "error"),
+  ).toEqual([]);
+});
+
 function stepSeven(): string {
   const start = html.indexOf('<section id="step-07"');
   expect(start).toBeGreaterThan(-1);

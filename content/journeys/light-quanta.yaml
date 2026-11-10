@@ -9,23 +9,18 @@
 # `completeness: partial` is the honest value, and pendingElements says which elements and why,
 # because composing them would be authoring content rather than moving it. A journey claiming
 # complete with elements missing is the defect am-4k0m is about. The list is NOT the same for
-# all four: `stages` and `exercises.instrumented` are pending everywhere, and
-# `move.derivationChain` is pending on the three papers whose move is marked in no derivation
-# chain a reader can open -- brownian-motion's is, in content/equations/derivations/. Count the
-# entries below rather than trusting this sentence.
+# all four. Read the current pendingElements below for the remaining gaps; exercise counts
+# and authored stages change as the corresponding reader-facing work lands.
 #
 # The page still renders from the module. Pointing it here is the next step, and the equality test
 # is what makes that step safe.
 id: light-quanta
 paper: light-quanta
-revision: 2
+revision: 3
 completeness: partial
 pendingElements:
   - element: stages
     reason: The staged chain is the discover page's JSX structure rather than data. Composing a stage list here would be authoring content, and a stage carries premise references the shelf audit reads, so invented stages would make that audit pass over prose nobody reviewed.
-    ownerBead: am-4k0m
-  - element: exercises.instrumented
-    reason: This journey has 1 instrumented exercise(s) and the skeleton asks for two to five. The exercises it has are composed from the parts its page renders; a second one is new physics authoring -- a reference expression with declared names, domains, dimensions and a tolerance, checked against the owner -- rather than a record migration.
     ownerBead: am-4k0m
   - element: move.derivationChain
     reason: 'The move is named in this record and marked in no derivation chain a reader can open: content/equations/derivations/ holds one chain, for brownian-motion. Authoring one here means a semantic expression tree per step with registry-bound quantity ids, a registered identity per rule and a worked case, which is physics authoring rather than moving this journey''s prose into a record.'
@@ -157,6 +152,9 @@ sourceJumps:
     targetAnchor: arg-lq-ionization-and-counts
     pointer: If one quantum ionizes one molecule, the energy of a quantum of the ionizing light cannot be less than the energy needed to ionize it. The paper compares the bound with Stark's measurement and names what it does not settle.
 exercises:
+  - id: lq-count-from-entropy
+    role: instrumented
+    prompt: Compare two constrained states with the same total radiation energy E and narrow frequency band ν, both in the dilute Wien regime. Write f = V/V0, with f positive and different from 1. The gas entropy change is (R/N)*n*ln(f); the radiation entropy change is (E/(beta*nu))*ln(f). Which expression plays the part of n when the coefficients match? Use E, R, N, beta and nu. R is the molar gas constant, N the number per mole and beta Wien's constant, in SI units. Do not round the result to an integer.
   - id: lq-greatest-energy-formula
     role: instrumented
     prompt: Light of frequency ν falls on a surface from which an electron needs an energy P to escape; P is the paper’s own letter. Taking up one whole quantum hν, what is the greatest energy an electron can leave with? Write it using h, ν and P, typing ν as nu.
@@ -193,3 +191,6 @@ lineage:
   - revision: 1
     reason: 'Gained the move.derivationChain pending declaration: this journey''s move is named in the record and marked in no derivation chain a reader can open, and am-4k0m''s fourth drift item allows a written declaration where the fix is physics authoring. The gap had been reported only as a count in a test log, which is a measurement and not a record (am-4k0m).'
     date: '2026-10-09'
+  - revision: 2
+    reason: Added the source-notation entropy-coefficient exercise shared with the discovery page. Its dimensional and numerical checks preserve the Wien-regime and heuristic qualifications; the exercise-count gap is no longer declared.
+    date: '2026-11-10'

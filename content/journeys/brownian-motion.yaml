@@ -9,23 +9,18 @@
 # `completeness: partial` is the honest value, and pendingElements says which elements and why,
 # because composing them would be authoring content rather than moving it. A journey claiming
 # complete with elements missing is the defect am-4k0m is about. The list is NOT the same for
-# all four: `stages` and `exercises.instrumented` are pending everywhere, and
-# `move.derivationChain` is pending on the three papers whose move is marked in no derivation
-# chain a reader can open -- brownian-motion's is, in content/equations/derivations/. Count the
-# entries below rather than trusting this sentence.
+# all four. Read the current pendingElements below for the remaining gaps; exercise counts
+# and authored stages change as the corresponding reader-facing work lands.
 #
 # The page still renders from the module. Pointing it here is the next step, and the equality test
 # is what makes that step safe.
 id: brownian-motion
 paper: brownian-motion
-revision: 1
+revision: 2
 completeness: partial
 pendingElements:
   - element: stages
     reason: The staged chain is the discover page's JSX structure rather than data. Composing a stage list here would be authoring content, and a stage carries premise references the shelf audit reads, so invented stages would make that audit pass over prose nobody reviewed.
-    ownerBead: am-4k0m
-  - element: exercises.instrumented
-    reason: This journey has 1 instrumented exercise(s) and the skeleton asks for two to five. The exercises it has are composed from the parts its page renders; a second one is new physics authoring -- a reference expression with declared names, domains, dimensions and a tolerance, checked against the owner -- rather than a record migration.
     ownerBead: am-4k0m
 shelf:
   - brown-1828-microscopical-observations
@@ -141,6 +136,9 @@ sourceJumps:
     targetAnchor: arg-bm-inference
     pointer: 'The paper closes §5 by turning the relation around: measure the displacement, and the one unknown left is the number of molecules.'
 exercises:
+  - id: bm-molecular-number-from-spread
+    role: instrumented
+    prompt: Turn the measurement into a molecular-number estimate. Let m2 be the average squared displacement along one axis over an interval t, with no drift and negligible measurement error. The model gives m2 = 2*D*t and D = R*T/(6*pi*eta*a*N). Here R is the molar gas constant, T the absolute temperature, eta the viscosity and a the particle radius, measured independently of these displacements. Solve for N using R, T, t, eta, a and m2. Use SI units and pi for π.
   - id: bm-displacement-scale-rewrite
     role: instrumented
     prompt: Along one axis the mean square displacement is 2·D·t. Watch the same particle in the plane, moving along x and y independently. What is its root mean square distance from the start?
@@ -167,3 +165,7 @@ doors:
       arrivesAtLabel: the diffusion coefficient of a suspended sphere, D = RT/(6πηaN), the paper's relation in today's letters
       href: /lab/bm-05/
       summary: 'Write the loop instead: many short independent steps, each as likely to go one way as the other. The mean square of the total grows in proportion to the time, and the coefficient of that growth is the same D the balance fixes, which is why the spreading a microscope can watch measures the quantity the thermodynamic argument computes.'
+lineage:
+  - revision: 1
+    reason: Added the inverse molecular-number exercise shared with the discovery page, with independent-radius, calibration and finite-sample qualifications. The exercise-count gap is no longer declared; the staged-record gap remains.
+    date: '2026-11-10'

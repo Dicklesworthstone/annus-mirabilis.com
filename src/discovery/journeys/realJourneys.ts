@@ -22,7 +22,7 @@
  * REMAINING ELEMENTS ARE DECLARED PENDING, through the schema's own `pendingElements`:
  *
  *   stages     The three unrecorded staged chains need authored premise references and reasoning.
- *   exercises  Light-quanta and Brownian motion still need a second instrumented exercise.
+ *   exercises  Each journey now carries at least two expression exercises, checked numerically.
  *   move       Three journeys still need their move marked in an openable derivation chain.
  *
  * So every journey here is `completeness: "partial"`, which is the honest value, and says why in the
@@ -34,7 +34,9 @@ import type { RevisionLineageEntry } from "../../content/revisions.ts";
 import type { AdmittedImport, Journey, PendingElement } from "../../content/schemas/journey.ts";
 import * as brownianExercises from "../brownian/journeyExercises.ts";
 import * as brownian from "../brownian/journeyII.ts";
+import { MOLECULAR_NUMBER_EXERCISE } from "../brownian/molecularNumberExercise.ts";
 import * as lightQuantaElectron from "../lightQuanta/electronExercise.ts";
+import { ENTROPY_COUNT_EXERCISE } from "../lightQuanta/entropyExercise.ts";
 import * as lightQuantaExercises from "../lightQuanta/journeyExercises.ts";
 import * as lightQuanta from "../lightQuanta/journeyI.ts";
 import * as massEnergy from "../massEnergy/journeyIV.ts";
@@ -58,38 +60,14 @@ const PENDING: readonly PendingElement[] = Object.freeze([
       "The staged chain is the discover page's JSX structure rather than data. Composing a stage list here would be authoring content, and a stage carries premise references the shelf audit reads, so invented stages would make that audit pass over prose nobody reviewed.",
     ownerBead: "am-4k0m",
   }),
-  // The `exercises.instrumented` pending moved out of this shared list and is now derived per
-  // paper, below, because its reason changed when the exercises landed. See PENDING_INSTRUMENTED.
+  // Exercise gaps are derived per paper below, never shared across journeys.
 ]);
 
 /**
- * `exercises.instrumented`, DECLARED ONLY BY THE PAPERS THAT STILL NEED IT, AND FOR THE TRUE
- * REASON.
- *
- * The old declaration read "Mapping them is part of the record migration". That stopped being
- * true when the exercises above were composed, and `journey-pending-element-already-present`
- * caught it immediately on special-relativity and mass-energy -- a declaration refusing to
- * outlive its reason, which is the right way round.
- *
- * What the declaration was also doing, which its wording did not say, is exempt the journey from
- * rule 3 of the exercise bounds: `journey-instrumented-exercise-count` wants between 2 and 5
- * instrumented exercises and skips the finding while this element is pending. With the exercises
- * present the rule reaches a real population for the first time, and two papers are under it:
- *
- *     light-quanta       1 instrumented   (lq-greatest-energy-formula)
- *     brownian-motion    1 instrumented   (bm-displacement-scale-rewrite)
- *     special-relativity 3 instrumented
- *     mass-energy        2 instrumented
- *
- * AGENTS.md asks a journey for "Two to five problems checked by the kernel or by numerical
- * equivalence ... plus a predict-perturb-explain task", so the shortfall is real and authoring a
- * second instrumented exercise for those two is physics authoring: a reference expression, its
- * declared names, domains, dimensions and tolerance, checked against the owner. That is content
- * work and it is not mine to improvise, so it is declared with its count and its owner.
- *
- * DERIVED, not hardcoded: the moment someone authors a second instrumented exercise for either
- * paper the declaration disappears by itself, and `journey-pending-element-already-present` is
- * what would refuse it if it did not.
+ * Derive the exercise gap from the composed parts. All four journeys now have at least two
+ * instrumented exercises; the Brownian inverse problem and Wien coefficient comparison fill
+ * the last two gaps. The declaration must not survive that work, because it exempts the journey
+ * from the lower exercise-count bound. The gate also rejects declaring an already present part.
  */
 function instrumentedPending(exercises: Journey["exercises"]): readonly PendingElement[] {
   const instrumented = exercises.filter((e) => e.role === "instrumented").length;
@@ -209,7 +187,7 @@ function exercisesOf(
  */
 const EXERCISES: Readonly<Record<string, Journey["exercises"]>> = Object.freeze({
   "light-quanta": exercisesOf(
-    [lightQuantaElectron.GREATEST_ENERGY_EXERCISE],
+    [ENTROPY_COUNT_EXERCISE, lightQuantaElectron.GREATEST_ENERGY_EXERCISE],
     [
       lightQuantaExercises.INTENSITY_EXPLANATION,
       lightQuantaExercises.LOCKED_POSITIONS_EXPLANATION,
@@ -217,7 +195,7 @@ const EXERCISES: Readonly<Record<string, Journey["exercises"]>> = Object.freeze(
     ],
   ),
   "brownian-motion": exercisesOf(
-    [brownianExercises.DISPLACEMENT_SCALE_EXERCISE],
+    [MOLECULAR_NUMBER_EXERCISE, brownianExercises.DISPLACEMENT_SCALE_EXERCISE],
     [brownianExercises.SQUARE_ROOT_IN_WORDS],
   ),
   "special-relativity": exercisesOf(
@@ -281,18 +259,12 @@ function admittedImportsOf(paper: string, shelf: readonly ShelfCard[]): readonly
 /**
  * Each journey record's own revision, bumped when ITS content changes rather than all four together.
  *
- * mass-energy is at 4 after gaining authored stages. The lineage records its earlier import and
- * pending-element changes. The other journeys retain their revisions because their content is
- * unchanged.
+ * The lineage records authored stages, new exercises and pending-element changes separately for
+ * the papers whose records changed.
  */
 const REVISIONS: Readonly<Record<string, number>> = Object.freeze({
-  // Raised on 2026-10-09 for the three papers that gained the `move.derivationChain` pending
-  // declaration: a new entry in pendingElements changes what the record claims, and
-  // `check-revisions` refused the emitted files at their old revision. brownian-motion stays where
-  // it is, because it gained nothing -- its move IS in an openable chain, so it declares nothing
-  // new and raising it would assert a change that did not happen.
-  "light-quanta": 2,
-  "brownian-motion": 1,
+  "light-quanta": 3,
+  "brownian-motion": 2,
   "special-relativity": 2,
   "mass-energy": 4,
 });
@@ -336,6 +308,20 @@ export const JOURNEY_LINEAGE: Readonly<Record<string, readonly RevisionLineageEn
         reason:
           "Gained the move.derivationChain pending declaration: this journey's move is named in the record and marked in no derivation chain a reader can open, and am-4k0m's fourth drift item allows a written declaration where the fix is physics authoring. The gap had been reported only as a count in a test log, which is a measurement and not a record (am-4k0m).",
         date: "2026-10-09",
+      }),
+      Object.freeze({
+        revision: 2,
+        reason:
+          "Added the source-notation entropy-coefficient exercise shared with the discovery page. Its dimensional and numerical checks preserve the Wien-regime and heuristic qualifications; the exercise-count gap is no longer declared.",
+        date: "2026-11-10",
+      }),
+    ]),
+    "brownian-motion": Object.freeze([
+      Object.freeze({
+        revision: 1,
+        reason:
+          "Added the inverse molecular-number exercise shared with the discovery page, with independent-radius, calibration and finite-sample qualifications. The exercise-count gap is no longer declared; the staged-record gap remains.",
+        date: "2026-11-10",
       }),
     ]),
     "special-relativity": Object.freeze([

@@ -13,6 +13,7 @@ import { Fork } from "../../../discovery/Fork.tsx";
 import { JourneyFormula } from "../../../discovery/JourneyFormula.tsx";
 import { PAGE_FORMULAS } from "../../../discovery/journeyFormulaList.ts";
 import { GREATEST_ENERGY_EXERCISE } from "../../../discovery/lightQuanta/electronExercise.ts";
+import { ENTROPY_COUNT_EXERCISE } from "../../../discovery/lightQuanta/entropyExercise.ts";
 import {
   H_FROM_STOPPING_LINE,
   INTENSITY_EXPLANATION,
@@ -295,6 +296,7 @@ export default function LightQuantaRoute() {
           molecules in a gram-molecule; <em>β</em> here is Wien&rsquo;s constant. The relativity
           paper uses the same letter for 1/√(1 − <em>v</em>²/<em>V</em>²), a different quantity.
         </p>
+        <ExercisePart part={ENTROPY_COUNT_EXERCISE} />
         <details>
           <summary>What has and has not been established</summary>
           <p>
