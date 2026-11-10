@@ -37,6 +37,10 @@ const definitions = {
     retry: "none",
   },
   "worker-crashed": { message: "The calculation worker stopped unexpectedly.", retry: "new-run" },
+  "worker-timeout": {
+    message: "The calculation worker took too long to respond. The last accepted result is preserved.",
+    retry: "retry-same-request",
+  },
   "context-lost": {
     message: "The graphics context was lost; the accepted calculation is preserved.",
     retry: "retry-same-request",

@@ -11,6 +11,7 @@ import {
   BM06_PROTOCOL,
   decodeLabRequest,
   type LabHello,
+  type LabProgress,
   type LabRequest,
   type LabResponse,
   labHello,
@@ -23,7 +24,7 @@ import {
  * never switches engines part-way.
  */
 export function createBm06Host(
-  send: (message: LabResponse | LabHello) => void,
+  send: (message: LabResponse | LabHello | LabProgress) => void,
   sourceDigest: string,
   stepper: Bm06GridStepper = HOST_GRID_STEPPER,
 ) {
@@ -50,6 +51,7 @@ export function createBm06Host(
     active = message;
     cancelled = false;
     const parameters = message.token.parameters as Bm06Parameters;
+    let reportedSteps = 0;
     let result: LabResponse["result"];
     try {
       const reused =
@@ -58,7 +60,30 @@ export function createBm06Host(
           : null;
       result =
         reused ??
-        (await evaluateBm06(parameters, { cancelled: () => cancelled || stopped }, stepper));
+        (await evaluateBm06(
+          parameters,
+          {
+            cancelled: () => cancelled || stopped,
+            onProgress(completedSteps) {
+              // Bound traffic by completed scientific work, without changing chunking or draws.
+              if (
+                cancelled ||
+                stopped ||
+                (completedSteps - reportedSteps < 4096 && completedSteps !== parameters.steps)
+              )
+                return;
+              reportedSteps = completedSteps;
+              send({
+                messageKind: "progress",
+                protocolVersion: BM06_PROTOCOL,
+                sourceDigest,
+                token: message.token,
+                completedSteps,
+              });
+            },
+          },
+          stepper,
+        ));
       if (result.kind === "accepted" && !cancelled && !stopped)
         cache = { runId: message.token.runId, parameters, data: result.data };
     } catch {

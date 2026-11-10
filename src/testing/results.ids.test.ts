@@ -32,7 +32,7 @@ describe("results.ids: Frozen ID Exports & Registry Reflection", () => {
     assert.deepEqual(outputStatusIds, Object.keys(outputStatusRegistry).sort());
   });
 
-  it("executionOutcomeIds equals the twelve execution outcomes", () => {
+  it("executionOutcomeIds equals the thirteen execution outcomes", () => {
     const expected = [
       "artifact-mismatch",
       "budget-exhausted",
@@ -46,9 +46,10 @@ describe("results.ids: Frozen ID Exports & Registry Reflection", () => {
       "superseded",
       "transport-error",
       "worker-crashed",
+      "worker-timeout",
     ];
     assert.deepEqual(executionOutcomeIds, expected);
-    assert.equal(executionOutcomeIds.length, 12);
+    assert.equal(executionOutcomeIds.length, 13);
     assert.deepEqual(executionOutcomeIds, Object.keys(executionOutcomeRegistry).sort());
   });
 

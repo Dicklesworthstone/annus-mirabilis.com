@@ -23,6 +23,7 @@
 
 import type { CommandClass } from "../../content/schemas/experiment.ts";
 import {
+  type ExecutionOutcome,
   type ExecutionOutcomeId,
   executionOutcomeRegistry,
 } from "../../experiments/results/outcomes.ts";
@@ -44,6 +45,12 @@ export type WorkerChannel = Readonly<{
 export type HostProtocol = Readonly<{
   version: string;
   decodeHello(message: unknown, digest: string): unknown;
+  /** Validated, request-bound progress; stale packets never renew a deadline. */
+  decodeProgress?(
+    message: unknown,
+    token: RequestToken,
+    digest: string,
+  ): Readonly<{ current: boolean; completed: number }> | null;
   decodeResponse(
     message: unknown,
     token: RequestToken,
@@ -74,6 +81,14 @@ export interface DedicatedSchedulerOptions {
   readonly protocol: HostProtocol;
   readonly report?: ((event: SchedulerEvent) => void) | undefined;
   readonly maxRestarts?: number | undefined;
+  /** Visible, unpaused time allowed to load and validate a worker. */
+  readonly handshakeTimeoutMs?: number | undefined;
+  /** Visible, unpaused inactivity allowed between validated progress or a final response. */
+  readonly responseTimeoutMs?: number | undefined;
+}
+
+export class SchedulerConfigurationError extends RangeError {
+  readonly code = "invalid-worker-deadline";
 }
 
 export interface DedicatedScheduler {
@@ -86,7 +101,22 @@ export interface DedicatedScheduler {
 }
 
 export function createDedicatedScheduler(options: DedicatedSchedulerOptions): DedicatedScheduler {
-  const { store, factory, sourceDigest, protocol, report = () => {}, maxRestarts = 3 } = options;
+  const {
+    store,
+    factory,
+    sourceDigest,
+    protocol,
+    report = () => {},
+    maxRestarts = 3,
+    handshakeTimeoutMs = 30_000,
+    responseTimeoutMs = 30_000,
+  } = options;
+  for (const timeout of [handshakeTimeoutMs, responseTimeoutMs]) {
+    if (!Number.isFinite(timeout) || timeout <= 0 || timeout > 2_147_483_647)
+      throw new SchedulerConfigurationError(
+        "Worker deadlines must be positive, finite timer durations.",
+      );
+  }
 
   let channel: WorkerChannel | null = null;
   let unsubscribe: (() => void) | null = null;
@@ -99,6 +129,15 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
   let epoch = 0;
   let failures = 0;
   let workerMessageCount = 0;
+  let activeProgress = 0;
+  let deadline: {
+    phase: "handshake" | "response";
+    timeoutMs: number;
+    remainingMs: number;
+    startedAt: number;
+    generation: number;
+    timer: ReturnType<typeof setTimeout> | null;
+  } | null = null;
 
   function notify(
     kind: SchedulerEvent["kind"],
@@ -117,49 +156,117 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
     }
   }
 
-  function close(): void {
-    epoch++;
-    if (unsubscribe) {
-      unsubscribe();
-      unsubscribe = null;
-    }
-    if (channel) {
-      channel.dispose();
-      channel = null;
-    }
-    active = null;
-    ready = false;
-    cancelSent = false;
+  function clearDeadline(): void {
+    if (deadline && deadline.timer !== null) clearTimeout(deadline.timer);
+    deadline = null;
   }
 
-  function fail(id: Exclude<ExecutionOutcomeId, "budget-exhausted">): void {
+  function pauseDeadline(): void {
+    if (!deadline || deadline.timer === null) return;
+    clearTimeout(deadline.timer);
+    deadline.timer = null;
+    deadline.remainingMs = Math.max(
+      0,
+      deadline.remainingMs - (performance.now() - deadline.startedAt),
+    );
+  }
+
+  function resumeDeadline(): void {
+    const waiting = deadline;
+    if (!waiting || waiting.timer !== null || schedulingPaused || disposed) return;
+    waiting.startedAt = performance.now();
+    const timer = setTimeout(() => {
+      if (
+        deadline !== waiting ||
+        waiting.timer !== timer ||
+        waiting.generation !== epoch ||
+        schedulingPaused ||
+        disposed
+      )
+        return;
+      fail("worker-timeout", { phase: waiting.phase, timeoutMs: waiting.timeoutMs });
+    }, waiting.remainingMs);
+    waiting.timer = timer;
+    // Node-side consumers must not be kept alive solely by an idle worker watchdog.
+    timer.unref?.();
+  }
+
+  function startDeadline(phase: "handshake" | "response", timeoutMs: number): void {
+    clearDeadline();
+    deadline = {
+      phase,
+      timeoutMs,
+      remainingMs: timeoutMs,
+      startedAt: 0,
+      generation: epoch,
+      timer: null,
+    };
+    resumeDeadline();
+  }
+
+  function close(): void {
+    epoch++;
+    clearDeadline();
+    const previousUnsubscribe = unsubscribe;
+    const previousChannel = channel;
+    unsubscribe = null;
+    channel = null;
+    active = null;
+    activeProgress = 0;
+    ready = false;
+    cancelSent = false;
+    try {
+      previousUnsubscribe?.();
+    } catch {
+      /* A failed listener teardown cannot retain ownership of this request. */
+    }
+    try {
+      previousChannel?.dispose();
+    } catch {
+      /* Late events are already fenced by the connection generation. */
+    }
+  }
+
+  function fail(
+    id: Exclude<ExecutionOutcomeId, "budget-exhausted">,
+    details?: ExecutionOutcome["details"],
+  ): void {
     const token = pending ?? active;
     pending = null;
+    failures++;
+    // Release the old worker before publication: a store subscriber may immediately retry.
+    close();
     if (token) {
-      store.fail(token, { outcome: id, ...executionOutcomeRegistry[id] });
+      store.fail(token, {
+        outcome: id,
+        ...executionOutcomeRegistry[id],
+        ...(details ? { details } : {}),
+      });
       notify("failed", token);
     }
-    failures++;
-    close();
   }
 
   function dispatch(): void {
     if (!ready || !channel || active || !pending || disposed || schedulingPaused) return;
-    active = pending;
+    const token = pending;
+    const generation = epoch;
+    active = token;
+    activeProgress = 0;
     pending = null;
     cancelSent = false;
+    startDeadline("response", responseTimeoutMs);
 
     try {
       channel.send({
         messageKind: "request",
         protocolVersion: protocol.version,
         sourceDigest,
-        token: active,
+        token,
       });
       workerMessageCount++;
-      notify("dispatched", active);
+      notify("dispatched", token);
     } catch {
-      fail("transport-error");
+      if (generation === epoch && active === token) fail("transport-error");
     }
   }
 
@@ -170,23 +277,36 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
       return;
     }
 
+    const generation = ++epoch;
     try {
-      channel = factory();
-      const generation = ++epoch;
-      unsubscribe = channel.listen(
+      const connected = factory();
+      channel = connected;
+      startDeadline("handshake", handshakeTimeoutMs);
+      const stopListening = connected.listen(
         (message) => {
           if (generation !== epoch || disposed) return;
           try {
             if (!ready) {
               protocol.decodeHello(message, sourceDigest);
+              clearDeadline();
               ready = true;
               dispatch();
               return;
             }
 
             if (!active) return;
-            const response = protocol.decodeResponse(message, active, sourceDigest);
             const token = active;
+            const progress = protocol.decodeProgress?.(message, token, sourceDigest);
+            if (progress) {
+              if (progress.current && progress.completed > activeProgress) {
+                activeProgress = progress.completed;
+                startDeadline("response", responseTimeoutMs);
+              }
+              return;
+            }
+            const response = protocol.decodeResponse(message, token, sourceDigest);
+            clearDeadline();
+            active = null;
             let decision: PublicationDecision;
 
             if (response.result.kind === "accepted") {
@@ -207,8 +327,7 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
             }
 
             notify(decision.accepted ? "completed" : "stale", response.token ?? token);
-            active = null;
-            dispatch();
+            if (generation === epoch) dispatch();
           } catch (err: unknown) {
             const code =
               err &&
@@ -234,8 +353,10 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
           }
         },
       );
+      if (generation === epoch && !disposed) unsubscribe = stopListening;
+      else stopListening();
     } catch {
-      fail("environment-unsupported");
+      if (generation === epoch && !disposed) fail("environment-unsupported");
     }
   }
 
@@ -311,24 +432,28 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
     setSchedulingPaused(paused: boolean): void {
       if (disposed || schedulingPaused === paused) return;
       schedulingPaused = paused;
-      if (!paused && pending) {
-        connect();
-        dispatch();
+      if (paused) pauseDeadline();
+      else {
+        resumeDeadline();
+        if (pending) {
+          connect();
+          dispatch();
+        }
       }
     },
 
     cancel(): void {
       pending = null;
-      store.pause();
       close();
+      store.pause();
     },
 
     dispose(): void {
       if (disposed) return;
       disposed = true;
       pending = null;
-      store.pause();
       close();
+      store.pause();
     },
 
     getWorkerMessageCount(): number {

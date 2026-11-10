@@ -1,5 +1,10 @@
 import type { createInstanceStore } from "../../experiments/store/instanceStore.ts";
-import { BM06_PROTOCOL, decodeLabHello, decodeLabResponse } from "../protocol/bm06.ts";
+import {
+  BM06_PROTOCOL,
+  decodeLabHello,
+  decodeLabProgress,
+  decodeLabResponse,
+} from "../protocol/bm06.ts";
 import { createHostScheduler, type SchedulerEvent, type WorkerChannel } from "./hostScheduler.ts";
 
 export type { SchedulerEvent, WorkerChannel } from "./hostScheduler.ts";
@@ -13,7 +18,12 @@ export function createBm06Scheduler(
     store,
     factory,
     sourceDigest,
-    { version: BM06_PROTOCOL, decodeHello: decodeLabHello, decodeResponse: decodeLabResponse },
+    {
+      version: BM06_PROTOCOL,
+      decodeHello: decodeLabHello,
+      decodeProgress: decodeLabProgress,
+      decodeResponse: decodeLabResponse,
+    },
     report,
   );
 }

@@ -46,6 +46,7 @@ export type EvaluationControl = Readonly<{
   yieldControl?: () => Promise<void>;
   /** Deterministic scientific steps per chunk, not a time budget. */
   chunkSteps?: number;
+  onProgress?: ((completedSteps: number) => void) | undefined;
 }>;
 
 import { validateBm06Parameters } from "../../experiments/bm06/parameters.ts";
@@ -74,6 +75,7 @@ export type GridControl = Readonly<{
   cancelled: () => boolean;
   yieldControl: () => Promise<void>;
   chunkSteps: number;
+  onProgress?: ((completedSteps: number) => void) | undefined;
 }>;
 /**
  * Who steps the grid. The host reference by default; FrankenSim's compiled diffusion1d_frames
@@ -111,6 +113,7 @@ export const HOST_GRID_STEPPER: Bm06GridStepper = Object.freeze({
       if (advanced.kind !== "accepted") return advanced;
       field = advanced.data;
       stepIndex += count;
+      control.onProgress?.(stepIndex);
       // Yield to real worker messages; no skipped simulation steps or time-based chunk sizes.
       await control.yieldControl();
     }
@@ -267,7 +270,7 @@ export async function evaluateBm06(
       const profile = BM06_GRID_PROFILES[p.gridProfile].code;
       const stepped = await stepper.step(
         { n: p.n, D, dx: p.dx, dt, steps: totalSteps, profile },
-        { cancelled, yieldControl, chunkSteps },
+        { cancelled, yieldControl, chunkSteps, onProgress: control.onProgress },
       );
       if (stepped.kind !== "accepted") {
         // Whichever engine refused, the reader is offered a number of time steps, which is what

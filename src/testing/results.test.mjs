@@ -259,7 +259,7 @@ test("manifest admission, completeness, and partial results are enforced", () =>
 });
 test("IDs derive from registries and are immutable", () => {
   assert.equal(outputStatusIds.length, 7);
-  assert.equal(executionOutcomeIds.length, 12);
+  assert.equal(executionOutcomeIds.length, 13);
   assert.ok(statusEnumIds.includes("divergent"));
   assert.throws(() => outputStatusIds.push("error"));
   const registry = defineRefusalRegistry({

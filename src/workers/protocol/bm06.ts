@@ -1,4 +1,4 @@
-import { BM06_MODEL, BM06_OUTPUTS } from "../../experiments/bm06/definition.ts";
+import { BM06_BUDGET, BM06_MODEL, BM06_OUTPUTS } from "../../experiments/bm06/definition.ts";
 import { validateBm06Parameters } from "../../experiments/bm06/parameters.ts";
 import {
   decodeOutcome,
@@ -29,6 +29,13 @@ export type LabResponse = Readonly<{
   sourceDigest: string;
   token: RequestToken;
   result: Computation<Bm06Evaluation>;
+}>;
+export type LabProgress = Readonly<{
+  messageKind: "progress";
+  protocolVersion: typeof BM06_PROTOCOL;
+  sourceDigest: string;
+  token: RequestToken;
+  completedSteps: number;
 }>;
 export type LabHello = Readonly<{
   messageKind: "hello";
@@ -157,6 +164,41 @@ function sameToken(a: RequestToken, b: RequestToken): boolean {
     ) &&
     Object.keys(a.parameters).every((k) => Object.is(a.parameters[k], b.parameters[k]))
   );
+}
+/** Progress records completed work only; it never carries scientific values for publication. */
+export function decodeLabProgress(
+  input: unknown,
+  expected: RequestToken,
+  expectedDigest: string,
+): Readonly<{ current: boolean; completed: number }> | null {
+  if (
+    !input ||
+    typeof input !== "object" ||
+    Object.getOwnPropertyDescriptor(input, "messageKind")?.value !== "progress"
+  )
+    return null;
+  const o = record(input, [
+    "messageKind",
+    "protocolVersion",
+    "sourceDigest",
+    "token",
+    "completedSteps",
+  ]);
+  version(o.protocolVersion);
+  digest(o.sourceDigest, expectedDigest);
+  const token = decodeLabToken(o.token);
+  count(o.completedSteps, 1);
+  const totalSteps =
+    token.parameters.gridEnabled && token.parameters.t !== 0 ? Number(token.parameters.steps) : 0;
+  if (
+    o.completedSteps > totalSteps ||
+    totalSteps * Number(token.parameters.n) > BM06_BUDGET.workUnits
+  )
+    fail("Progress exceeds this request's admitted scientific work.");
+  return {
+    current: sameToken(token, expected) && token.parentRunId === expected.parentRunId,
+    completed: o.completedSteps,
+  };
 }
 /** Validate identity, provenance, every scientific output and every buffer shape before publication. */
 export function decodeLabResponse(

@@ -199,7 +199,7 @@ describe("Instrument worker protocol refusal throw sites (am-muyh)", () => {
     modelId: BM06_MODEL.id,
   };
 
-  test("site (bm06.ts:49) malformed-response: rejects null or non-plain record, accepts valid hello", () => {
+  test("site (bm06.ts:56) malformed-response: rejects null or non-plain record, accepts valid hello", () => {
     assert.equal(decodeBm06Hello(validBm06Hello, VALID_DIGEST).modelId, BM06_MODEL.id);
 
     assert.throws(
@@ -212,7 +212,7 @@ describe("Instrument worker protocol refusal throw sites (am-muyh)", () => {
     );
   });
 
-  test("site (bm06.ts:81) protocol-mismatch: rejects unsupported protocol version, accepts BM06_PROTOCOL", () => {
+  test("site (bm06.ts:88) protocol-mismatch: rejects unsupported protocol version, accepts BM06_PROTOCOL", () => {
     assert.equal(decodeBm06Hello(validBm06Hello, VALID_DIGEST).protocolVersion, BM06_PROTOCOL);
 
     assert.throws(
@@ -225,7 +225,7 @@ describe("Instrument worker protocol refusal throw sites (am-muyh)", () => {
     );
   });
 
-  test("site (bm06.ts:91) artifact-mismatch: rejects mismatched source digest, accepts expected digest", () => {
+  test("site (bm06.ts:98) artifact-mismatch: rejects mismatched source digest, accepts expected digest", () => {
     assert.equal(decodeBm06Hello(validBm06Hello, VALID_DIGEST).sourceDigest, VALID_DIGEST);
 
     assert.throws(
