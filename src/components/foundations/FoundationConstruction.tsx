@@ -20,6 +20,7 @@ import { FourOutcomes } from "./FourOutcomes.tsx";
 import { HeightIsNotProbability } from "./HeightIsNotProbability.tsx";
 import { HeldFixedToggle } from "./HeldFixedToggle.tsx";
 import type { HeadingLevel } from "./headingLevel.ts";
+import { IndependentSteps } from "./IndependentSteps.tsx";
 import { LogarithmProductTable } from "./LogarithmProductTable.tsx";
 import { MagnitudeScale } from "./MagnitudeScale.tsx";
 import { NudgeSensitivityDemo } from "./NudgeSensitivityDemo.tsx";
@@ -190,5 +191,7 @@ function constructionFor(id: FoundationConstructionId, headingLevel: HeadingLeve
       return <ThreeAverages headingLevel={headingLevel} />;
     case "momentum-energy-light":
       return <PushOfLight headingLevel={headingLevel} />;
+    case "probability-independence":
+      return <IndependentSteps headingLevel={headingLevel} />;
   }
 }

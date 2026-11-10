@@ -60,6 +60,7 @@ export const FOUNDATION_CONSTRUCTION_IDS = [
   "frames-events",
   "mean-variance-rms",
   "momentum-energy-light",
+  "probability-independence",
 ] as const;
 
 export type FoundationConstructionId = (typeof FOUNDATION_CONSTRUCTION_IDS)[number];
@@ -92,6 +93,7 @@ export const CONSTRUCTIONS_WITH_CONTROLS: readonly FoundationConstructionId[] = 
   "temperature-thermal-energy",
   // A reader sets a power and a surface and the push answers (dispatch 468).
   "momentum-energy-light",
+  "probability-independence",
 ];
 
 /** The construction id for a foundation, with or without its `foundation:` prefix, or null. */
