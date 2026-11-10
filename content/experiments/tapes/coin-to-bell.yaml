@@ -1,107 +1,265 @@
-# Teaching tape "coin to bell" (am-bm-05-random-steps-ntzl). Steps a coin-kernel walk through
-# n = 4, 16, 64, 400, then switches to the uniform and Gaussian kernels at the same seed and step
-# count -- a common-random-numbers comparison, labeled as such by this comment and by the bead's
-# own reveal text, never presented as three independent trials. Reaching n = 400 on the coin
-# kernel is what settles the registered predict prompt bm-05-predict-step-shape (its
-# step-distribution control is exactly what this tape's kernel-switch events change), per the
-# bead's own "the tape commands the step-distribution control that bm-05-predict-step-shape is
-# attached to, its reveal settles that prompt" rule.
-#
-# `kernel` is not a number in Bm05Parameters: it is "coin" | "uniform" | "gaussian", and this tape
-# now writes those names. It used to write 0, 1 and 3, the canonical numeric encoding from
-# WALK_KERNELS, because the tape schema required every initialConditions and control-event value
-# to be a finite number. That cost more than it looked: BM-05 refuses `kernel: 0` with "This step
-# distribution is not registered for this calculation", so this was the one walkthrough of 22
-# that could not open its own instrument, and its page told a reader to set a control to a value
-# the control does not offer. The schema admits the name of an enumerated setting since am-3xdx,
-# and the permalink tape type had always allowed it.
-#
-# This file is validated for schema conformance only (src/testing/bm05Tape.test.ts, using the
-# real validateControlTape). It has not been replayed end to end through BM-05's session: the
-# tape-to-session integration is am-inst-permalink-tape-s677, which this bead's own dependency
-# list carries as an open blocker. Do not read a passing schema-conformance test as proof this
-# tape replays correctly in the browser.
+# Coin to bell: six checkpoints recorded through BM-05's real worker session.
+# The first four observe one fixed coin trial; kernel changes retain the seed and variance
+# for a common-random-numbers comparison. Gaussian draws use the pinned FrankenSim engine.
+# Each SHA-256 digest covers the accepted scientific outputs, including every observed walker
+# coordinate, sampled path, histogram and exact stream position. Execution cache counters are
+# excluded. Restore verifies the isolated replay and the live publication before replacing a result.
+# Stream-position ranges are lossless: one registered Philox tile per walker, 0 through 1999.
 tapeVersion: 2
-tapeId: coin-to-bell
-experimentId: bm-05
-mode: "bm-05"
+tapeId: "coin-to-bell"
+experimentId: "bm-05"
+mode: "bm-05:default"
 title: "coin to bell"
 isTeachingSequence: true
 modelIdentity:
-  modelId: bm05-host-preview-v1
+  modelId: "bm05-host-preview-v1"
   modelVersion: "1"
-  artifactDigest: "host:sha256:0000000000000000000000000000000000000000000000000000000000000000"
-constantSetId: not-applicable
+  artifactDigest: "host:sha256:c9a0ac4a3271dbf1ebf561337121c939f3ab151ff3f81608376af1ad406352a1"
+constantSetId: "not-applicable"
 seed: "1905"
 streamVersion: 1
-allocationId: bm-05.walk.v1
+allocationId: "bm-05.walk.v1"
 initialConditions:
   stepRms: 5.0e-7
   tau: 0.1
   walkers: 2000
   runSteps: 400
-  n: 0
+  "n": 0
   bias: 0.6
   kernel: "coin"
+  seed: "1905"
 events:
-  - kind: control
+  - kind: "control"
     actionIndex: 1
-    commandClass: measurement-change
-    commandId: advance-steps-shown
-    parameterId: n
+    commandClass: "measurement-change"
+    commandId: "advance-steps-shown"
+    parameterId: "n"
     value: 4
-  - kind: control
+  - kind: "control"
     actionIndex: 2
-    commandClass: measurement-change
-    commandId: advance-steps-shown
-    parameterId: n
+    commandClass: "measurement-change"
+    commandId: "advance-steps-shown"
+    parameterId: "n"
     value: 16
-  - kind: control
+  - kind: "control"
     actionIndex: 3
-    commandClass: measurement-change
-    commandId: advance-steps-shown
-    parameterId: n
+    commandClass: "measurement-change"
+    commandId: "advance-steps-shown"
+    parameterId: "n"
     value: 64
-  - kind: control
+  - kind: "control"
     actionIndex: 4
-    commandClass: measurement-change
-    commandId: advance-steps-shown
-    parameterId: n
+    commandClass: "measurement-change"
+    commandId: "advance-steps-shown"
+    parameterId: "n"
     value: 400
-  - kind: control
+  - kind: "control"
     actionIndex: 5
-    commandClass: setup-change
-    commandId: select-kernel
-    parameterId: kernel
+    commandClass: "setup-change"
+    commandId: "select-kernel"
+    parameterId: "kernel"
     value: "uniform"
     previousValue: "coin"
-  - kind: control
+  - kind: "control"
     actionIndex: 6
-    commandClass: setup-change
-    commandId: select-kernel
-    parameterId: kernel
+    commandClass: "setup-change"
+    commandId: "select-kernel"
+    parameterId: "kernel"
     value: "gaussian"
     previousValue: "uniform"
 checkpoints:
+  - actionIndex: 1
+    stepIndex: 400
+    simulatedTime: 40
+    digest: "host:sha256:da2317c6b0c1e975ec7ccccd66eb864ab40c9970ab8b829e978b6406e128795e"
+    digestKind: "host"
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "1905"
+    streamPositionRanges:
+      - allocationId: "bm-05.walk.v1"
+        streamKernelId: "0x19050001"
+        firstTile: "0"
+        count: 2000
+        index: "400"
+    label: "Coin steps: four jumps retain the step law"
+    teachingNote: "Read the accepted histogram and exact binomial law after four jumps. The discreteness is visible, while the predicted spread is already fixed by the step variance."
+    expectedDisplayValues:
+      - label: "Model RMS displacement"
+        outputId: "modelRms"
+        value: 0.000001
+        unit: "m"
+        constantSetId: "not-applicable"
+      - label: "Measured RMS displacement"
+        outputId: "sampleRms"
+        value: 9.932270636667127e-7
+        unit: "m"
+        constantSetId: "not-applicable"
+      - label: "Distance to Gaussian"
+        outputId: "kolmogorovDistance"
+        value: 0.192
+        unit: "1"
+        constantSetId: "not-applicable"
+  - actionIndex: 2
+    stepIndex: 400
+    simulatedTime: 40
+    digest: "host:sha256:4bae15163aa3957d8147b05d03b273aa90a53ce6cfdd5faec066c2720023b399"
+    digestKind: "host"
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "1905"
+    streamPositionRanges:
+      - allocationId: "bm-05.walk.v1"
+        streamKernelId: "0x19050001"
+        firstTile: "0"
+        count: 2000
+        index: "400"
+    label: "Coin steps: sixteen jumps begin to fill the bell"
+    teachingNote: "Observe the same recorded coin walkers later. Their random streams are unchanged; only the selected step advances."
+    expectedDisplayValues:
+      - label: "Model RMS displacement"
+        outputId: "modelRms"
+        value: 0.000002
+        unit: "m"
+        constantSetId: "not-applicable"
+      - label: "Measured RMS displacement"
+        outputId: "sampleRms"
+        value: 0.000001999249859322241
+        unit: "m"
+        constantSetId: "not-applicable"
+      - label: "Distance to Gaussian"
+        outputId: "kolmogorovDistance"
+        value: 0.10399999999999993
+        unit: "1"
+        constantSetId: "not-applicable"
+  - actionIndex: 3
+    stepIndex: 400
+    simulatedTime: 40
+    digest: "host:sha256:fa77c1f0489bbeebdc4dcd90caf7a7cc4e55ef41d0ba3e3affc8d5e20f394b80"
+    digestKind: "host"
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "1905"
+    streamPositionRanges:
+      - allocationId: "bm-05.walk.v1"
+        streamKernelId: "0x19050001"
+        firstTile: "0"
+        count: 2000
+        index: "400"
+    label: "Coin steps: sixty-four jumps narrow the shape difference"
+    teachingNote: "Observe the same trial after sixty-four jumps. Compare the measured distance to the Gaussian with the declared shape and sampling bounds."
+    expectedDisplayValues:
+      - label: "Model RMS displacement"
+        outputId: "modelRms"
+        value: 0.000004
+        unit: "m"
+        constantSetId: "not-applicable"
+      - label: "Measured RMS displacement"
+        outputId: "sampleRms"
+        value: 0.0000040026241392366585
+        unit: "m"
+        constantSetId: "not-applicable"
+      - label: "Distance to Gaussian"
+        outputId: "kolmogorovDistance"
+        value: 0.051462461274012994
+        unit: "1"
+        constantSetId: "not-applicable"
   - actionIndex: 4
     stepIndex: 400
     simulatedTime: 40
-    digest: "host:sha256:1111111111111111111111111111111111111111111111111111111111111111"
-    digestKind: host
+    digest: "host:sha256:788fb623efbfde01d79c5de2b2285b1bc8f6abdf19eaa04c9e6ff586e2369814"
+    digestKind: "host"
     checkpointVersion: 1
     streamSemanticsVersion: 1
     seed: "1905"
-    streamPositions: []
-    label: "Coin kernel, 400 steps: the predict prompt settles here"
-    teachingNote: "The histogram at 400 coin steps is the state that settles bm-05-predict-step-shape (same-bell-shape), read from this accepted snapshot's histogram and second-moment outputs, never from stored text."
+    streamPositionRanges:
+      - allocationId: "bm-05.walk.v1"
+        streamKernelId: "0x19050001"
+        firstTile: "0"
+        count: 2000
+        index: "400"
+    label: "Coin steps: four hundred jumps settle the prediction"
+    teachingNote: "This accepted histogram and second moment settle bm-05-predict-step-shape (same-bell-shape). The recorded trial, rather than stored explanatory text, supplies the result."
+    expectedDisplayValues:
+      - label: "Model RMS displacement"
+        outputId: "modelRms"
+        value: 0.000009999999999999999
+        unit: "m"
+        constantSetId: "not-applicable"
+      - label: "Measured RMS displacement"
+        outputId: "sampleRms"
+        value: 0.000009881927949545067
+        unit: "m"
+        constantSetId: "not-applicable"
+      - label: "Distance to Gaussian"
+        outputId: "kolmogorovDistance"
+        value: 0.03841142218895255
+        unit: "1"
+        constantSetId: "not-applicable"
+  - actionIndex: 5
+    stepIndex: 400
+    simulatedTime: 40
+    digest: "host:sha256:3c7090a4a54f63614ded90fd67d618a7fb2cc69ed38dd99cb518c8ef76c50e87"
+    digestKind: "host"
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "1905"
+    streamPositionRanges:
+      - allocationId: "bm-05.walk.v1"
+        streamKernelId: "0x19050001"
+        firstTile: "0"
+        count: 2000
+        index: "400"
+    label: "Uniform steps: the same variance and number of steps"
+    teachingNote: "Common random numbers: retain the seed and per-step variance, then calculate a fresh uniform-step trial. Its broad shape approaches the same bell; this is not an independent trial."
+    expectedDisplayValues:
+      - label: "Model RMS displacement"
+        outputId: "modelRms"
+        value: 0.000009999999999999999
+        unit: "m"
+        constantSetId: "not-applicable"
+      - label: "Measured RMS displacement"
+        outputId: "sampleRms"
+        value: 0.000009813596088757777
+        unit: "m"
+        constantSetId: "not-applicable"
+      - label: "Distance to Gaussian"
+        outputId: "kolmogorovDistance"
+        value: 0.02264109419358229
+        unit: "1"
+        constantSetId: "not-applicable"
   - actionIndex: 6
     stepIndex: 400
     simulatedTime: 40
-    digest: "host:sha256:2222222222222222222222222222222222222222222222222222222222222222"
-    digestKind: host
+    digest: "host:sha256:467bcf74993abee1df83564a03dcaf70710ed5a08d175fde1c8fda36c65c53e6"
+    digestKind: "host"
     checkpointVersion: 1
     streamSemanticsVersion: 1
     seed: "1905"
-    streamPositions: []
-    label: "Gaussian kernel, same seed and step count: the same bell"
-    teachingNote: "Common random numbers: same seed, same step count, a different kernel. The second moment and histogram width agree with the coin-kernel checkpoint within the declared statistical band; the shapes differ at small n and agree at n = 400."
+    streamPositionRanges:
+      - allocationId: "bm-05.walk.v1"
+        streamKernelId: "0x19050001"
+        firstTile: "0"
+        count: 2000
+        index: "800"
+    label: "Gaussian steps: compare the same variance and number of steps"
+    teachingNote: "Retain the seed and per-step variance with the pinned Gaussian normal engine. The recorded stream uses two Philox draws per step; the measured spread and histogram are verified before the checkpoint is shown."
+    expectedDisplayValues:
+      - label: "Model RMS displacement"
+        outputId: "modelRms"
+        value: 0.000009999999999999999
+        unit: "m"
+        constantSetId: "not-applicable"
+      - label: "Measured RMS displacement"
+        outputId: "sampleRms"
+        value: 0.000010133860388685759
+        unit: "m"
+        constantSetId: "not-applicable"
+      - label: "Distance to Gaussian"
+        outputId: "kolmogorovDistance"
+        value: 0.018816427876406472
+        unit: "1"
+        constantSetId: "not-applicable"
+replayGrid:
+  baseSpacing: 0.1
+  horizon: 40

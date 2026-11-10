@@ -1,16 +1,21 @@
 "use client";
-import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { type FormEvent, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { createBm05BrowserChannel } from "../../experiments/bm05/browser.ts";
-import { BM05_FIELDS, fromWalkDraft, toWalkDraft } from "../../experiments/bm05/controls.ts";
+import {
+  BM05_FIELDS,
+  fromWalkDraft,
+  toWalkDraft,
+  type WalkDraft,
+} from "../../experiments/bm05/controls.ts";
 import {
   BM05_CAPTION,
   BM05_OUTPUTS,
   type Bm05Parameters,
 } from "../../experiments/bm05/definition.ts";
-import { BM05_DRAFT_TAPE } from "../../experiments/bm05/draftTape.ts";
 import { decodeBm05Settings } from "../../experiments/bm05/permalink.ts";
 import { createBm05Session, type PreparedBm05Example } from "../../experiments/bm05/session.ts";
+import { createBm05TapeBinding, createBm05WalkthroughTarget } from "../../experiments/bm05/tape.ts";
 import { walkExecutionKind } from "../../experiments/bm05/walkExecution.ts";
 import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../experiments/labels/executionLabelFor.ts";
@@ -32,6 +37,7 @@ import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts"
 import { useRetainedSession } from "../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
+import type { WorkerChannel } from "../../workers/scheduler/hostScheduler.ts";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { KEPT_RESULT } from "./keptResult.ts";
 import { LabMargin } from "./LabMargin.tsx";
@@ -79,10 +85,12 @@ export function WalkLab({
   instanceId,
   restoreFromLocation = true,
   example,
+  workerFactory = createBm05BrowserChannel,
   title = "From random steps to diffusion",
   readings = true,
 }: {
   example: PreparedBm05Example;
+  workerFactory?: (() => WorkerChannel) | undefined;
   instanceId?: string | undefined;
   restoreFromLocation?: boolean | undefined;
   title?: string;
@@ -96,7 +104,7 @@ export function WalkLab({
       instanceId: instanceId ?? `bm05-${id}`,
       sourceDigest: example?.sourceDigest,
     },
-    (retainedId) => createBm05Session(retainedId, example, createBm05BrowserChannel),
+    (retainedId) => createBm05Session(retainedId, example, workerFactory),
   );
   const laboratoryRegion = useLaboratoryVisibility(session);
   const serverAccepted = session.getServerSnapshot().accepted;
@@ -118,7 +126,7 @@ export function WalkLab({
     hostKind === "host-accepted" &&
     walkExecutionKind(snapshot.outputs, false) === "frankensim-accepted";
   const executionKind = drawnByFrankenSim ? "frankensim-accepted" : hostKind;
-  const [draft, setDraft] = useState(() => toWalkDraft(session.acceptedParameters())),
+  const [draft, setDraftState] = useState(() => toWalkDraft(session.acceptedParameters())),
     [ready, setReady] = useState(false),
     [dirty, setDirty] = useState(false),
     /**
@@ -131,13 +139,46 @@ export function WalkLab({
      */
     [failure, setFailure] = useState<ApplyFailure | null>(null),
     [note, setNote] = useState("");
+  const draftRevision = useRef(0);
+  const walkthroughDraftRevision = useRef(0);
+  const setDraft = useCallback((next: WalkDraft) => {
+    draftRevision.current++;
+    setDraftState(next);
+  }, []);
+  const workerTape = useMemo(
+    () => createBm05TapeBinding(example, workerFactory),
+    [example, workerFactory],
+  );
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("bm-05", BM05_PROMPTS);
   // A shared ?tape= link puts its settings in the form and starts no worker; Apply runs them.
-  const tapeLink = useDraftTapeLink(BM05_DRAFT_TAPE, p, restoreFromLocation, (settings) => {
+  const tapeLink = useDraftTapeLink(workerTape, p, restoreFromLocation, (settings) => {
     setDraft(toWalkDraft(settings as unknown as Bm05Parameters));
     setDirty(true);
   });
+  const workerWalkthrough = useMemo(
+    () =>
+      createBm05WalkthroughTarget(
+        workerTape,
+        session,
+        (parameters) => {
+          if (draftRevision.current !== walkthroughDraftRevision.current) {
+            setNote(
+              "The checkpoint result is ready. Your newer entries are still in the form; apply them when ready.",
+            );
+            return;
+          }
+          setDraftState(toWalkDraft(parameters));
+          setDirty(false);
+          setFailure(null);
+          setNote("");
+        },
+        () => {
+          walkthroughDraftRevision.current = draftRevision.current;
+        },
+      ),
+    [workerTape, session],
+  );
   useEffect(() => {
     setReady(true);
     const shared = decodeBm05Settings(restoreFromLocation ? window.location.search : "");
@@ -149,7 +190,7 @@ export function WalkLab({
       );
     } else if (shared.kind === "invalid") setNote(shared.message);
     return () => session.disconnect();
-  }, [session, restoreFromLocation]);
+  }, [session, restoreFromLocation, setDraft]);
   function apply(settings: Bm05Parameters) {
     const r = session.apply(settings);
     const failed = applyFailure(r);
@@ -408,7 +449,10 @@ export function WalkLab({
             </button>
           </div>
           {note && <p className="notice">{note}</p>}
-          <LabTapeLink link={withPredictions(tapeLink, gate)} />
+          <LabTapeLink
+            link={withPredictions(tapeLink, gate)}
+            workerWalkthrough={workerWalkthrough}
+          />
           <p className="fine">
             Keeping a seed across step-law changes is a reproducible comparison, not a claim of
             independent trials. Shared links load settings only; they never start a calculation.
