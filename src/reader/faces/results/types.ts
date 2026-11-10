@@ -142,6 +142,10 @@ export type ReceptionEntry = Readonly<{
   statement: string;
   date: string;
   precision: "year" | "month" | "day" | "range";
+  citation?: string | undefined;
+  sourceLocator?: string | undefined;
+  sourceHref?: string | undefined;
+  openQuestion?: string | undefined;
 }>;
 
 export type FourKindsOfMeaning = Readonly<{

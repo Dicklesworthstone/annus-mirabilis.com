@@ -148,7 +148,7 @@ describe("ResultCard.render: the Brownian lambda_x fixture, static markup", () =
 
   test("renders the reception section when entries are present", () => {
     const html = renderToStaticMarkup(<ResultCard card={brownianFixture} />);
-    expect(html).toContain("Later evidence (1908-1909)");
+    expect(html).toContain("Later evidence (published 1908-1909)");
   });
 
   test("renders no reception section at all when the list is empty -- silence, not a placeholder", () => {

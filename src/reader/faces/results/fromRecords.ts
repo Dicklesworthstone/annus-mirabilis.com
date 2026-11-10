@@ -9,11 +9,13 @@
 import { type Connection, loadConnections } from "../../../content/connections/connections.ts";
 import { checkedSupportFor } from "../../../content/results/checkedSupport.ts";
 import { printedCheckFor, ResultCardsError } from "../../../content/results/printedChecks.ts";
+import { loadReceptionDatasets, receptionPublication } from "../../../content/results/reception.ts";
 import { loadResultCards, type ResultCardRecord } from "../../../content/results/resultCards.ts";
+import type { HistoricalDataset } from "../../../content/schemas/experiment.ts";
 import { loadPaper } from "../../../content/server.ts";
 import type { EquationRecord } from "../../../equations/record.ts";
 import { loadPaperMargins } from "../../marginRecords.ts";
-import { projectLimitation, projectPrintedCheck } from "./resultsProjection.ts";
+import { projectLimitation, projectPrintedCheck, projectReception } from "./resultsProjection.ts";
 import type { PrintedCheck, ResultCard } from "./types.ts";
 
 /**
@@ -51,6 +53,8 @@ export function toCard(
   connections?: readonly Connection[],
   /** Canonical records, checked by the proof owner before a support layer may be shown. */
   equations: readonly EquationRecord[] = [],
+  /** Admitted historical or modern measurements, loaded once for the results page. */
+  datasets: readonly HistoricalDataset[] = [],
 ): ResultCard {
   const printedCheck = record.printedCheck ? projectedCheck(root, record.printedCheck) : null;
   const support = checkedSupportFor(record, equations);
@@ -127,7 +131,9 @@ export function toCard(
         throw new ResultCardsError("result-passage-missing", `${record.id} names ${id}.`);
       return projectLimitation(id, passage);
     }),
-    reception: [],
+    reception: projectReception(record.id, datasets, (dataset) =>
+      receptionPublication(dataset, root),
+    ),
   };
 }
 
@@ -150,7 +156,8 @@ export async function resultCardsFor(
     loadPaperMargins(paperId, root).misconceptions.map((m) => [m.id, m.temptingClaims[0] ?? m.id]),
   );
   const connections = loadConnections(root);
+  const datasets = loadReceptionDatasets(root);
   return loaded.cards.map((record) =>
-    toCard(root, record, passages, claims, connections, payload.equations),
+    toCard(root, record, passages, claims, connections, payload.equations, datasets),
   );
 }

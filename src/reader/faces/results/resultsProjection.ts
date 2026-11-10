@@ -223,7 +223,7 @@ export function projectReception(
   datasets: readonly HistoricalDataset[],
   dateOf: (
     dataset: HistoricalDataset,
-  ) => Readonly<{ date: string; precision: ReceptionEntry["precision"] }>,
+  ) => Pick<ReceptionEntry, "date" | "precision" | "citation" | "sourceLocator" | "sourceHref">,
 ): readonly ReceptionEntry[] {
   const entries: ReceptionEntry[] = [];
   for (const dataset of datasets) {
@@ -232,13 +232,13 @@ export function projectReception(
     const addresses = dataset.addressesResults ?? [];
     for (const entry of addresses) {
       if (entry.resultId !== resultId) continue;
-      const { date, precision } = dateOf(dataset);
+      const publication = dateOf(dataset);
       entries.push({
         datasetId: dataset.id,
         relation: entry.relation,
         statement: entry.statement,
-        date,
-        precision,
+        ...publication,
+        ...(entry.openQuestion ? { openQuestion: entry.openQuestion } : {}),
       });
     }
   }

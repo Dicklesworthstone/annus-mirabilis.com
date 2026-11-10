@@ -390,12 +390,35 @@ export function ResultCard({
       ))}
 
       {card.reception.length > 0 && (
-        <section className="result-reception" aria-label="Reception">
+        <section
+          className="result-reception"
+          aria-label="Later evidence"
+          data-result-layer="reception"
+        >
           <h4>Later evidence</h4>
           <ul>
             {card.reception.map((entry) => (
-              <li key={entry.datasetId}>
-                Later evidence ({entry.date}): {entry.statement}
+              <li
+                key={entry.datasetId}
+                data-historical-dataset={entry.datasetId}
+                data-evidence-relation={entry.relation}
+                data-date-precision={entry.precision}
+              >
+                <p>
+                  Later evidence (published {entry.date}): {entry.statement}
+                </p>
+                {entry.openQuestion && <p>{entry.openQuestion}</p>}
+                {entry.citation && (
+                  <p>
+                    {entry.citation}. {entry.sourceLocator}.
+                    {entry.sourceHref && (
+                      <>
+                        {" "}
+                        <a href={entry.sourceHref}>Read the source</a>.
+                      </>
+                    )}
+                  </p>
+                )}
               </li>
             ))}
           </ul>

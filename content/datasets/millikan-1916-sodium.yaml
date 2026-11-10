@@ -144,6 +144,7 @@ fits:
         source: imported
         sourceCitation: "Physical Review 7, p. 375: 'the mean of 4.124 and 4.131, namely 4.128 × 10⁻¹⁵'"
 addressesResults:
-  - resultId: result-lq-08-linear-stopping
+  - resultId: lq-photoelectric-energy
     relation: tested-a-prediction
     statement: "Millikan's sodium intercepts lie on one straight line in frequency, no point off it by more than about a hundredth of a volt by his account (p. 374), and its slope gives h/e; he took h = 6.569 × 10⁻²⁷ erg s."
+    openQuestion: "The signed intercepts include the contact potential between sodium and the collector, so compare the slope, not their absolute values, with the model's stopping potential. This later experiment tests the predicted relation; it was not a premise available to Einstein in 1905 and does not by itself establish every claim about light quanta."
