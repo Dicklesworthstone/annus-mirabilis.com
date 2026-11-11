@@ -1,8 +1,12 @@
 import { describe, expect, test } from "bun:test";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { createElement, type ReactNode } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import BrownianRoute from "../app/discover/brownian-motion/page.tsx";
+import LightQuantaRoute from "../app/discover/light-quanta/page.tsx";
+import MassEnergyRoute from "../app/discover/mass-energy/page.tsx";
+import RelativityRoute from "../app/discover/special-relativity/page.tsx";
 import { loadFirstPages } from "../components/home/firstPages.ts";
-import { DISCOVERY_PAPER_SLUGS } from "./journeyRegistry.ts";
+import { DISCOVERY_PAPER_SLUGS, type DiscoveryPaperSlug } from "./journeyRegistry.ts";
 import { ROUTE_INDEX } from "./routeIndex.ts";
 
 /**
@@ -10,22 +14,25 @@ import { ROUTE_INDEX } from "./routeIndex.ts";
  * pages, so these tests hold the copy to its source: the index must never show a reader a step
  * the route does not have, or miss one it does.
  *
- * The journey pages are read as source, matching the exact JSX element that prints a step
- * (`<p className="step-number">01 / Label</p>`). A comment quoting that element would be
- * miscounted; none does, and the sequential-numbering check below would catch a stray match.
+ * Read the rendered page, including labels emitted by the shared authored-stage renderer.
+ * Scanning the route's JSX skips those steps and cannot measure the sequence a reader gets.
  */
-const STEP = /<p className="step-number">(\d{2}) \/ ([^<]+)<\/p>/g;
+const STEP = /<p class="step-number">(\d{2}) \/ ([^<]+)<\/p>/g;
+
+const PAGES = {
+  "brownian-motion": BrownianRoute,
+  "light-quanta": LightQuantaRoute,
+  "mass-energy": MassEnergyRoute,
+  "special-relativity": RelativityRoute,
+} satisfies Record<DiscoveryPaperSlug, () => ReactNode>;
 
 function decode(text: string): string {
   return text.replaceAll("&rsquo;", "’").replaceAll("&amp;", "&").trim();
 }
 
-function journeySteps(slug: string): { numbers: number[]; labels: string[] } {
-  const source = readFileSync(
-    resolve(import.meta.dirname, "../app/discover", slug, "page.tsx"),
-    "utf8",
-  );
-  const found = [...source.matchAll(STEP)];
+function journeySteps(slug: DiscoveryPaperSlug): { numbers: number[]; labels: string[] } {
+  const html = renderToStaticMarkup(createElement(PAGES[slug]));
+  const found = [...html.matchAll(STEP)];
   return {
     numbers: found.map((m) => Number(m[1])),
     labels: found.map((m) => decode(m[2] ?? "")),

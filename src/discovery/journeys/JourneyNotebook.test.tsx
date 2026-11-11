@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import BrownianEncounter from "../../app/discover/brownian-motion/page.tsx";
 import MassEnergyRoute from "../../app/discover/mass-energy/page.tsx";
 import NotebookPage from "../../app/notebook/page.tsx";
+import type { DiscoveryPaper } from "../../content/schemas/discovery.ts";
 import { DiscoveryNotebookControls } from "../notes/NotebookControls.tsx";
 import { JOURNEY_NOTE_MANIFESTS, JourneyNotebook } from "./JourneyNotebook.tsx";
 import { REAL_JOURNEYS } from "./realJourneys.ts";
@@ -10,11 +11,23 @@ import { REAL_JOURNEYS } from "./realJourneys.ts";
 describe("private stage notes on the published discovery routes", () => {
   test("minimal manifests use the real guide revisions and exactly the authored stage identities", () => {
     expect(JOURNEY_NOTE_MANIFESTS.map((manifest) => manifest.paper)).toEqual([
+      "light-quanta",
       "brownian-motion",
+      "special-relativity",
       "mass-energy",
     ]);
     const expected = {
+      "light-quanta": ["step-01", "step-02", "step-03", "step-04", "step-05", "step-06", "step-07"],
       "brownian-motion": ["step-01", "step-02", "step-03", "step-04", "step-05", "step-07"],
+      "special-relativity": [
+        "step-01",
+        "step-02",
+        "step-03",
+        "step-04",
+        "step-05",
+        "step-06",
+        "step-07",
+      ],
       "mass-energy": ["step-01", "step-02", "step-03", "step-04", "step-05"],
     };
     for (const manifest of JOURNEY_NOTE_MANIFESTS) {
@@ -65,10 +78,12 @@ describe("private stage notes on the published discovery routes", () => {
     });
   }
 
-  test("the notebook page offers the same two guides and their current notes controls", () => {
+  test("the notebook page offers every authored guide and its current notes controls", () => {
     const html = renderToStaticMarkup(<NotebookPage />);
     expect(html).toContain('id="discovery-notes"');
-    expect([...html.matchAll(/class="discovery-notebook-controls"/g)].length).toBe(2);
+    expect([...html.matchAll(/class="discovery-notebook-controls"/g)].length).toBe(
+      JOURNEY_NOTE_MANIFESTS.length,
+    );
     for (const manifest of JOURNEY_NOTE_MANIFESTS) {
       expect(html).toContain(`id="discovery-notes-${manifest.paper}"`);
       expect(html).toContain(`href="/discover/${manifest.paper}/"`);
@@ -76,9 +91,10 @@ describe("private stage notes on the published discovery routes", () => {
     expect(html).toContain("Earlier predictions stay as you wrote them.");
   });
 
-  test("a guide without authored stages keeps its reading and acquires no empty notebook", () => {
+  test("an unsupported paper keeps its reading and acquires no empty notebook", () => {
     const html = renderToStaticMarkup(
-      <JourneyNotebook paper="light-quanta">
+      // Deliberately bypass the typed caller to exercise the missing-manifest guard.
+      <JourneyNotebook paper={"unsupported-paper" as DiscoveryPaper}>
         <p>The guide remains readable.</p>
         <DiscoveryNotebookControls />
       </JourneyNotebook>,
