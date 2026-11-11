@@ -35,6 +35,11 @@ jobs:
         with:
           bun-version: "1.4.0"
       - run: bun install --frozen-lockfile --ignore-scripts
+      - name: Verify architecture rules and tracked checkout completeness independently
+        run: >-
+          node --experimental-strip-types --test
+          scripts/app-router-architecture.test.ts
+          scripts/architecturePopulation.test.ts
       - run: bun run test:reference
       - name: Verify the reference owners under Node as well
         shell: bash

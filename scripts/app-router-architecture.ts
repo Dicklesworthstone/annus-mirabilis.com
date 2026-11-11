@@ -333,11 +333,14 @@ export function collectRepoEntries(
     });
   }
 
-  const dirsToWalk = ["src", "content", "public", "docs", "scripts", "perf", "ios", "pages", "app"];
+  const dirsToWalk = ARCHITECTURE_SCAN_ROOTS;
+  const rootDirectories = new Set(
+    rootItems.filter((item) => item.isDirectory()).map((item) => item.name),
+  );
 
   for (const dirName of dirsToWalk) {
     const fullDir = join(rootDir, dirName);
-    if (!existsSync(fullDir)) {
+    if (!rootDirectories.has(dirName)) {
       continue;
     }
     if (dirName === "sources") {
@@ -353,7 +356,7 @@ export function collectRepoEntries(
 function walkDirectoryRecursive(dir: string, rootDir: string, entries: RepoEntry[]): void {
   const items = readdirSync(dir, { withFileTypes: true });
   for (const item of items) {
-    if (item.name === ".git" || item.name === "node_modules" || item.name === ".next") {
+    if (ARCHITECTURE_WALK_EXCLUSIONS.has(item.name)) {
       continue;
     }
     const fullPath = join(dir, item.name);
@@ -502,6 +505,7 @@ export function writeGateLog(
   logRunId: string,
   entries: readonly RepoEntry[],
   violations: readonly ArchitectureViolation[],
+  population?: ArchitecturePopulation,
 ): { logPath: string; evidenceDir?: string | undefined } {
   const logDir = join(artifactsDir, "test-logs", "architecture");
   mkdirSync(logDir, { recursive: true });
@@ -527,16 +531,32 @@ export function writeGateLog(
     timestamp,
     suite: "architecture",
     logRunId,
-    outcome: violations.length === 0 ? "passed" : "failed",
+    outcome: violations.length === 0 && (population?.complete ?? true) ? "passed" : "failed",
     violations: violations.length,
     entriesScanned: entries.length,
   };
-  lines.push(JSON.stringify(summary));
+  if (population) {
+    lines.push(
+      JSON.stringify({
+        timestamp,
+        suite: "architecture",
+        logRunId,
+        population: {
+          examined: population.examined,
+          expected: population.expected.length,
+          missing: population.missing,
+          problems: population.problems,
+          complete: population.complete,
+        },
+      }),
+    );
+  }
 
+  lines.push(JSON.stringify(summary));
   writeFileSync(logPath, `${lines.join("\n")}\n`, "utf8");
 
   let evidenceDir: string | undefined;
-  if (violations.length > 0) {
+  if (violations.length > 0 || population?.complete === false) {
     evidenceDir = join(logDir, logRunId, "evidence");
     mkdirSync(evidenceDir, { recursive: true });
     writeFileSync(
@@ -552,6 +572,165 @@ export function writeGateLog(
   }
 
   return { logPath, evidenceDir };
+}
+
+/**
+ * Filesystem scope shared by the walker and the independent tracked-file census.
+ * Root entries are always examined; these directories are also walked recursively.
+ */
+export const ARCHITECTURE_SCAN_ROOTS: readonly string[] = [
+  "src",
+  "content",
+  "public",
+  "docs",
+  "scripts",
+  "perf",
+  "ios",
+  "pages",
+  "app",
+];
+const ARCHITECTURE_WALK_EXCLUSIONS = new Set([".git", "node_modules", ".next"]);
+
+export interface ArchitectureManifestRead {
+  readonly status: number | null;
+  readonly stdout: string;
+  readonly stderr: string;
+  readonly failure: string | null;
+}
+
+export interface ArchitecturePopulation {
+  readonly expected: readonly RepoEntry[];
+  readonly examined: number;
+  readonly missing: readonly RepoEntry[];
+  readonly problems: readonly string[];
+  readonly complete: boolean;
+}
+
+/** A failed Git read must never become an empty, apparently complete scan. */
+export function readArchitectureManifest(
+  rootDir: string = process.cwd(),
+): ArchitectureManifestRead {
+  try {
+    const result = spawnSync("git", ["ls-files", "--cached", "-z"], {
+      cwd: rootDir,
+      encoding: "utf8",
+      maxBuffer: 16 * 1024 * 1024,
+    });
+    return {
+      status: result.status,
+      stdout: result.stdout ?? "",
+      stderr: result.stderr ?? "",
+      failure: result.error?.message ?? null,
+    };
+  } catch (error) {
+    return {
+      status: null,
+      stdout: "",
+      stderr: "",
+      failure: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
+/**
+ * Count only tracked identities that the filesystem walker actually examined.
+ * Generated files cannot replace a missing tracked file, even when their total is larger.
+ * Git keeps sparse-checkout paths in its index, so an incomplete checkout is refused.
+ */
+export function inspectArchitecturePopulation(
+  entries: readonly RepoEntry[],
+  manifest: ArchitectureManifestRead,
+): ArchitecturePopulation {
+  const problems: string[] = [];
+  const refused = (): ArchitecturePopulation => ({
+    expected: [],
+    examined: 0,
+    missing: [],
+    problems,
+    complete: false,
+  });
+  if (manifest.status !== 0 || manifest.failure !== null) {
+    problems.push(
+      `Cannot read Git's tracked manifest: ${
+        manifest.failure || manifest.stderr.trim() || `exit ${manifest.status}`
+      }`,
+    );
+    return refused();
+  }
+  if (manifest.stdout.length === 0) {
+    problems.push("Git returned an empty tracked manifest.");
+    return refused();
+  }
+  if (!manifest.stdout.endsWith("\0")) {
+    problems.push("Git's tracked manifest is not NUL-terminated.");
+    return refused();
+  }
+  const paths = manifest.stdout.slice(0, -1).split("\0");
+  const seen = new Set<string>();
+  for (const path of paths) {
+    const parts = path.split("/");
+    if (
+      path.length === 0 ||
+      path.includes("\\") ||
+      parts.some((part) => part === "" || part === "." || part === "..")
+    ) {
+      problems.push(`Invalid tracked repository path: ${JSON.stringify(path)}.`);
+    }
+    if (seen.has(path)) {
+      problems.push(`Duplicate tracked repository path: ${JSON.stringify(path)}.`);
+    }
+    seen.add(path);
+  }
+  for (const path of paths) {
+    let slash = path.indexOf("/");
+    while (slash !== -1) {
+      const ancestor = path.slice(0, slash);
+      if (seen.has(ancestor)) {
+        problems.push(`Tracked path is both file and directory: ${JSON.stringify(ancestor)}.`);
+        break;
+      }
+      slash = path.indexOf("/", slash + 1);
+    }
+  }
+  if (problems.length > 0) return refused();
+
+  const expectedByPath = new Map<string, RepoEntry>();
+  const representedRoots = new Set<string>();
+  for (const path of paths) {
+    const parts = path.split("/");
+    const root = parts[0];
+    if (root === undefined || root === ".git") continue;
+    if (parts.length === 1) {
+      expectedByPath.set(path, { path, kind: "file" });
+      continue;
+    }
+    expectedByPath.set(root, { path: root, kind: "directory" });
+    if (!ARCHITECTURE_SCAN_ROOTS.includes(root)) continue;
+    for (let i = 1; i < parts.length; i++) {
+      const part = parts[i];
+      if (part === undefined || ARCHITECTURE_WALK_EXCLUSIONS.has(part)) break;
+      const entryPath = parts.slice(0, i + 1).join("/");
+      const kind = i === parts.length - 1 ? "file" : "directory";
+      expectedByPath.set(entryPath, { path: entryPath, kind });
+      if (kind === "file") representedRoots.add(root);
+    }
+  }
+  for (const root of ARCHITECTURE_SCAN_ROOTS) {
+    if (root !== "pages" && root !== "app" && !representedRoots.has(root)) {
+      problems.push(`Git's tracked manifest has no in-scope files under ${root}/.`);
+    }
+  }
+
+  const expected = [...expectedByPath.values()].sort((a, b) => a.path.localeCompare(b.path));
+  const observed = new Set(entries.map((entry) => `${entry.kind}\0${entry.path}`));
+  const missing = expected.filter((entry) => !observed.has(`${entry.kind}\0${entry.path}`));
+  return {
+    expected,
+    examined: expected.length - missing.length,
+    missing,
+    problems,
+    complete: expected.length > 0 && missing.length === 0 && problems.length === 0,
+  };
 }
 
 /**
@@ -572,22 +751,27 @@ export function runArchitectureGateCli(rootDir: string = process.cwd()): number 
   const logRunId = generateLogRunId();
   const artifactsDir = join(rootDir, "artifacts");
 
-  writeGateLog(artifactsDir, logRunId, entries, violations);
+  const population = inspectArchitecturePopulation(entries, readArchitectureManifest(rootDir));
+  writeGateLog(artifactsDir, logRunId, entries, violations, population);
 
-  // The census line, on EVERY path including the failing one, so the population can be read from a red
-  // run as well as a green one (am-rc1001-bridge-plan-pcjk.9). The minimum is about a third of the
-  // 32489 entries measured on 2026-10-06.
+  // The denominator comes from Git, independently of the filesystem walk. Requiring every
+  // tracked identity catches a missing subtree even when generated artifacts inflate the total.
   const censusVacuous = reportPopulation({
     gate: "architecture",
-    examined: entries.length,
-    noun: "repository entries",
-    minimum: 10000,
+    examined: population.examined,
+    noun: "tracked repository entries",
+    minimum: Math.max(1, population.expected.length),
   });
-  if (censusVacuous) {
+  if (censusVacuous || !population.complete) {
     console.error(
-      `\n🚨 Architecture Gate Refused: ${entries.length} entries is below the declared minimum, so ` +
-        "no verdict about the App Router root can rest on it.\n",
+      `\n🚨 Architecture Gate Refused: examined ${population.examined} of ` +
+        `${population.expected.length} tracked repository entries.\n`,
     );
+    for (const problem of population.problems) console.error(`  ${problem}`);
+    for (const entry of population.missing.slice(0, 20)) {
+      console.error(`  Missing tracked ${entry.kind}: ${entry.path}`);
+    }
+    console.error(`Evidence logged to: artifacts/test-logs/architecture/${logRunId}.jsonl\n`);
     return 1;
   }
 

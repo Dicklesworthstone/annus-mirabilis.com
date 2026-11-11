@@ -497,13 +497,30 @@ export const CENSUS_RECORDS: readonly CensusRecord[] = [
   },
   {
     gate: "architecture",
-    noun: "repository entries",
+    noun: "tracked repository entries",
     howRead:
-      "collectRepoEntries(rootDir, isIgnored) over the whole repository minus gitignored paths; the " +
-      "count is entries.length, the same number the pass line has always printed.",
+      "Git's NUL-delimited tracked manifest supplies file identities and ancestor directories in " +
+      "the declared scan scope. Each must occur with its kind in collectRepoEntries; generated " +
+      "files cannot replace a missing tracked path, and Git failures refuse the scan.",
     gateRefusesVacuous: true,
     plants: [
-      minimumPlant("architecture", "scripts/app-router-architecture.ts", 10000, "Gate Refused"),
+      computedMinimumPlant(
+        "architecture",
+        "scripts/app-router-architecture.ts",
+        "Math.max(1, population.expected.length)",
+        "Gate Refused",
+      ),
+      {
+        id: "architecture-missing-tracked-identity",
+        file: "scripts/app-router-architecture.ts",
+        find: "const observed = new Set(entries.map((entry) =>",
+        replace:
+          'const observed = new Set(entries.filter((entry) => entry.path !== "src/app/layout.tsx").map((entry) =>',
+        expectFailureNaming: "Missing tracked file: src/app/layout.tsx",
+        why:
+          "Omit one tracked source from the observed identities without changing the walked-entry " +
+          "count. The real manifest must expose that hole even when generated entries are present.",
+      },
     ],
   },
   {
