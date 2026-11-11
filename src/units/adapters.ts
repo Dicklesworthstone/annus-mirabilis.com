@@ -88,6 +88,10 @@ const UNITS: readonly UnitDefinition[] = Object.freeze([
   // A count per second: quanta, electrons or events. Kept apart from Hz, which the SI reserves
   // for periodic phenomena, so a rate of quanta is never offered in hertz.
   def("1/s", "countRate", 1n, 1n, "exact"),
+
+  // Ratios and molecular numbers have different meanings and are never interchangeable.
+  def("1", "ratio", 1n, 1n, "exact"),
+  def("1/mol", "inverseAmount", 1n, 1n, "exact"),
 ]);
 
 const BY_UNIT = new Map(UNITS.map((u) => [u.unit, u]));

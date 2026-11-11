@@ -1,0 +1,7 @@
+/* The existing answer parts draw their own cards; the fieldset supplies their accessible group. */
+.connection-exercise {
+  min-inline-size: 0;
+  margin: 0;
+  border: 0;
+  padding: 0;
+}

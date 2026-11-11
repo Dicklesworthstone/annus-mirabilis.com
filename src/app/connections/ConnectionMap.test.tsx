@@ -6,12 +6,13 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadConnections } from "../../content/connections/connections.ts";
+import { CONNECTION_EXERCISE_LINKS } from "../../discovery/connections/links.ts";
 import { ConnectionMap } from "./ConnectionMap.tsx";
 import ConnectionsPage from "./page.tsx";
 
 const connections = loadConnections();
 const map = renderToStaticMarkup(<ConnectionMap />);
-const page = renderToStaticMarkup(<ConnectionsPage />);
+const page = renderToStaticMarkup(await ConnectionsPage());
 
 /** Text as React writes it into markup. */
 const markup = (text: string) =>
@@ -33,5 +34,14 @@ describe("the connections map", () => {
 
   test("every row's link lands on a section of the page", () => {
     for (const c of connections) expect(page).toContain(`id="${c.id}"`);
+  });
+
+  test("the published page mounts all four transfer exercises below the map", () => {
+    expect(page.match(/data-connection-exercise=/g)).toHaveLength(4);
+    for (const exercise of CONNECTION_EXERCISE_LINKS) {
+      expect(page).toContain(`id="${exercise.id}"`);
+      expect(page).toContain(`data-connection-exercise="${exercise.id}"`);
+      expect(page).toContain(`href="#${exercise.id}"`);
+    }
   });
 });

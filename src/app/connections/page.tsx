@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import { contentIndex } from "../../content/server.ts";
+import { ConnectionExercises } from "../../discovery/connections/ConnectionExercises.tsx";
+import { buildConnectionExercises } from "../../discovery/connections/records.ts";
 import { ConnectionMap } from "./ConnectionMap.tsx";
 
 export const metadata: Metadata = {
@@ -8,7 +11,15 @@ export const metadata: Metadata = {
   alternates: { canonical: "/connections/" },
 };
 
-export default function ConnectionsPage() {
+export default async function ConnectionsPage() {
+  const index = await contentIndex();
+  const exercises = buildConnectionExercises({
+    companionPresent: index.payloads.some(
+      (entry) => entry.kind === "paper" && entry.id === "molecular-dimensions",
+    ),
+    // The implemented /lab/avogadro-lab/ preview is available independently of the companion.
+    avogadroLabPresent: true,
+  });
   return (
     <>
       <header className="page-intro">
@@ -120,20 +131,17 @@ export default function ConnectionsPage() {
         </p>
         <p>
           Compare beside the source:{" "}
-          <a href="/papers/light-quanta/?open=instrument-view:light-thread#s6">
-            light quanta, §6
-          </a>
+          <a href="/papers/light-quanta/?open=instrument-view:light-thread#s6">light quanta, §6</a>
           {" · "}
           <a href="/papers/special-relativity/?open=instrument-view:light-thread#s8">
             relativity, §8
           </a>
           {" · "}
-          <a href="/papers/mass-energy/?open=instrument-view:light-thread">
-            the mass–energy paper
-          </a>
+          <a href="/papers/mass-energy/?open=instrument-view:light-thread">the mass–energy paper</a>
           . These links open the same later comparison within the reader.
         </p>
       </section>
+      <ConnectionExercises exercises={exercises} />
       <section className="reading page-flush">
         <h2>Keep the direction of inference visible</h2>
         <p>
