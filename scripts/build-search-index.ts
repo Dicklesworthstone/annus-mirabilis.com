@@ -16,6 +16,7 @@ import { capstoneExists, loadCapstone } from "../src/discovery/capstone/loadCaps
 import { formatEventDateLine } from "../src/discovery/cards/CardDetail.tsx";
 import { JOURNEY_SHELVES } from "../src/discovery/cards/journeyCards.ts";
 import { loadDesk } from "../src/discovery/desk/records.ts";
+import { REAL_JOURNEYS } from "../src/discovery/journeys/realJourneys.ts";
 import { ROUTE_INDEX } from "../src/discovery/routeIndex.ts";
 import { loadTimeline } from "../src/discovery/timeline/records.ts";
 import { GUIDED_TOURS } from "../src/discovery/tours/catalogue.ts";
@@ -80,6 +81,7 @@ import {
   walkthroughDocuments,
   wrongTurnDocuments,
 } from "../src/search/documents.ts";
+import { journeyStageDocuments } from "../src/search/journeyStageDocuments.ts";
 import { timelineDocuments } from "../src/search/timelineDocuments.ts";
 import { buildNativeSearchScript } from "./app/native-search.ts";
 
@@ -405,6 +407,7 @@ export async function loadSearchCorpus(
   const chronology = timelineDocuments(timelineEntries, profile);
   const deskObjects = loadDesk(root).objects;
   const desk = deskDocuments(deskObjects, profile);
+  const journeyStages = journeyStageDocuments(REAL_JOURNEYS, ROUTE_INDEX, profile);
   const documents = [
     ...documentsFromCompiled(papers, foundations, instruments, profile, equationTerms),
     ...explainedEquationDocuments(explainedEquations, profile),
@@ -417,6 +420,7 @@ export async function loadSearchCorpus(
     ...connectionDocuments(connections, profile),
     ...walkthroughDocuments(walkthroughs, profile),
     ...discoveryDocuments(ROUTE_INDEX, profile),
+    ...journeyStages,
     ...tourDocuments(guidedTours, profile),
     ...notation,
     ...german,
@@ -427,6 +431,9 @@ export async function loadSearchCorpus(
   );
   console.log(
     `[search] 1904 desk: ${deskObjects.length} objects examined; ${desk.length} documents for ${profile}`,
+  );
+  console.log(
+    `[search] discovery stages: ${REAL_JOURNEYS.reduce((count, journey) => count + journey.stages.length, 0)} authored stages examined; ${journeyStages.length} documents for ${profile}`,
   );
   /*
    * THE EXPLAINED-EQUATION CENSUS, printed because a count of 0 and a count of 44 read the same in
