@@ -22,6 +22,7 @@ import longitudinalRecord from "../../../content/equations/special-relativity/eq
 import laboratoryRecord from "../../../content/equations/special-relativity/eq-model-sr-transverse-mass-laboratory.json";
 import printedRecord from "../../../content/equations/special-relativity/eq-model-sr-transverse-mass-printed.json";
 import type { Expression } from "../../equations/ast.ts";
+import { verifyBrownianEquilibrium } from "../../equations/derivations/brownianEquilibriumProof.ts";
 import { brownianEquilibriumDerivation } from "../../equations/derivations/brownianSource.ts";
 import { verifyLqCoefficientCorrespondence } from "../../equations/derivations/lightQuantaCoefficientProof.ts";
 import { lqCoefficientCorrespondence } from "../../equations/derivations/lightQuantaEntropy.ts";
@@ -75,6 +76,7 @@ const DERIVATION_PROOFS: Readonly<Record<DerivationProofId, DerivationProof>> = 
     href: "/papers/brownian-motion/s3/#bm-equilibrium-derivation",
     records: [brownianMolarRecord],
     chains: [brownianEquilibriumDerivation],
+    verify: verifyBrownianEquilibrium,
     premises: [
       {
         id: "arg-bm-osmotic-suspended",

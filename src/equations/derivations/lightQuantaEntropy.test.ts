@@ -411,3 +411,16 @@ test("the coefficient owner requires every producer and its actual consumer", ()
   };
   assert.equal(verifyLqCoefficientCorrespondence(missingLink).passed, false);
 });
+
+test("the coefficient owner refuses collection without an exact check", () => {
+  const chain = lqCoefficientCorrespondence;
+  const sampledCollection: DerivationChain = {
+    ...chain,
+    steps: chain.steps.map((entry) =>
+      entry.id === chain.targetStepId
+        ? { ...entry, rule: { ...entry.rule, params: { ...entry.rule.params, exact: false } } }
+        : entry,
+    ),
+  };
+  assert.equal(verifyLqCoefficientCorrespondence(sampledCollection).passed, false);
+});

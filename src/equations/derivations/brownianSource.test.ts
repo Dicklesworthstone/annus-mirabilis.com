@@ -17,6 +17,7 @@ import {
   stokesMobility,
 } from "../../physics/reference/diffusion/routeA.ts";
 import { type Expression, walk } from "../ast.ts";
+import { verifyBrownianEquilibrium } from "./brownianEquilibriumProof.ts";
 import {
   brownianDerivationMetadata,
   brownianDisplayChain,
@@ -82,7 +83,10 @@ test("equilibrium algebra is checked while diffusion-limit calculus stays draft"
     [7, 8],
   );
   for (const chain of chains) {
-    const report = verifyChain(chain);
+    const report =
+      chain === brownianEquilibriumDerivation
+        ? verifyBrownianEquilibrium(chain)
+        : verifyChain(chain);
     assert.equal(report.passed, true, JSON.stringify(report));
     const checkedEquilibrium = chain === brownianEquilibriumDerivation;
     assert.equal(report.isPublicationReady, checkedEquilibrium);
@@ -351,7 +355,7 @@ test("all 15 Brownian source steps have synchronized owned R0–R3 readings", ()
 
 test("equilibrium support rejects altered operations, premises and result coefficients", () => {
   const chain = brownianEquilibriumDerivation;
-  assert.equal(verifyChain(chain, { isPublicationGate: true }).passed, true);
+  assert.equal(verifyBrownianEquilibrium(chain).passed, true);
   const changed = (id: string, replace: (step: DerivationStep) => DerivationStep) => ({
     ...chain,
     steps: chain.steps.map((step) => (step.id === id ? replace(step) : step)),
@@ -363,7 +367,7 @@ test("equilibrium support rejects altered operations, premises and result coeffi
       params: { ...step.rule.params, quantity: { kind: "number", value: "0" } },
     },
   }));
-  assert.equal(verifyChain(changedOperation, { isPublicationGate: true }).passed, false);
+  assert.equal(verifyBrownianEquilibrium(changedOperation).passed, false);
 
   const wrongSix = (tree: unknown): Expression => {
     const before = JSON.stringify(tree);
@@ -378,10 +382,48 @@ test("equilibrium support rejects altered operations, premises and result coeffi
       params: { ...step.rule.params, replacement: wrongSix(step.rule.params.replacement) },
     },
   }));
-  assert.equal(verifyChain(changedPremise, { isPublicationGate: true }).passed, false);
+  assert.equal(verifyBrownianEquilibrium(changedPremise).passed, false);
   const changedResult = changed("bm-equilibrium-collect-diffusivity", (step) => ({
     ...step,
     to: wrongSix(step.to),
   }));
-  assert.equal(verifyChain(changedResult, { isPublicationGate: true }).passed, false);
+  assert.equal(verifyBrownianEquilibrium(changedResult).passed, false);
+});
+
+test("the equilibrium owner refuses deleted stages and detached valid substitutions", () => {
+  const chain = brownianEquilibriumDerivation;
+  assert.equal(verifyBrownianEquilibrium(chain).passed, true);
+  for (const removed of chain.steps) {
+    const changed = { ...chain, steps: chain.steps.filter((entry) => entry.id !== removed.id) };
+    assert.equal(verifyBrownianEquilibrium(changed).passed, false, removed.id);
+  }
+  const doubleSides = (tree: Expression): Expression => {
+    const equation = relation(tree);
+    const twice = (value: Expression): Expression => ({
+      kind: "product",
+      args: [{ kind: "number", value: "2" }, value],
+    });
+    return { ...equation, left: twice(equation.left), right: twice(equation.right) };
+  };
+  const detached: DerivationChain = {
+    ...chain,
+    steps: chain.steps.map((entry) =>
+      entry.id === "bm-equilibrium-name-drift-flux"
+        ? { ...entry, from: doubleSides(entry.from), to: doubleSides(entry.to) }
+        : entry,
+    ),
+  };
+  // The isolated substitution still works; its input and output no longer join its neighbors.
+  assert.equal(verifyChain(detached, { isPublicationGate: true }).passed, true);
+  assert.equal(verifyBrownianEquilibrium(detached).passed, false);
+
+  const sampledCollection: DerivationChain = {
+    ...chain,
+    steps: chain.steps.map((entry) =>
+      entry.id === chain.targetStepId
+        ? { ...entry, rule: { ...entry.rule, params: { ...entry.rule.params, exact: false } } }
+        : entry,
+    ),
+  };
+  assert.equal(verifyBrownianEquilibrium(sampledCollection).passed, false);
 });

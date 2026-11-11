@@ -41,6 +41,12 @@ function dependencyProblem(chain: DerivationChain): string | undefined {
     collect.rule.kind !== "collect"
   )
     return "The coefficient proof must retain its declared rules and canonical molar conclusion.";
+  if (
+    comparison.rule.params.simplify !== true ||
+    solve.rule.params.simplify !== true ||
+    collect.rule.params.exact !== true
+  )
+    return "The coefficient algebra requires exact arithmetic and collection checks.";
   if (!structurallyEqual(comparison.from, lqCoefficientComparisonInput))
     return "The coefficient comparison must start from the admitted canonical entropy laws.";
   if (!structurallyEqual(solve.from, comparison.to))

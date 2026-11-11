@@ -137,6 +137,9 @@ const matchedFluxes = relation(product(D, densityGradient), driftBalance.right, 
 const mobilityDiffusion = relation(D, product(mobility, thermal), "mobility-diffusion");
 const withStokes = substituteNode(mobilityDiffusion, mobility.termId, stokesMobility) as Relation;
 
+export const brownianEquilibriumInput = localBalance;
+export const brownianEquilibriumResult = molar;
+
 export const brownianEquilibriumDerivation: DerivationChain = {
   id: "chain-bm-source-equilibrium",
   proofRouteId: "route-bm-source-equilibrium",

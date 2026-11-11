@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { verifyBrownianEquilibrium } from "../../equations/derivations/brownianEquilibriumProof.ts";
 import {
   brownianEquilibriumDerivation,
   brownianKernelDerivation,
@@ -63,7 +64,7 @@ function replaceConclusion(changed: EquationRecord): readonly EquationRecord[] {
 describe("Brownian diffusivity support reaches the checked conditional equilibrium chain", () => {
   test("the actual result projection retains every admitted model and domain premise", () => {
     expect(records?.problems).toEqual([]);
-    const report = verifyChain(brownianEquilibriumDerivation, { isPublicationGate: true });
+    const report = verifyBrownianEquilibrium(brownianEquilibriumDerivation);
     expect(report.passed).toBe(true);
     expect(report.isPublicationReady).toBe(true);
     expect(report.stepReports).toHaveLength(7);
@@ -87,6 +88,16 @@ describe("Brownian diffusivity support reaches the checked conditional equilibri
     );
     expect(comparison?.explanation).toContain("0 = 0");
     expect(comparison?.explanation).toContain("does not determine D");
+  });
+
+  test("the support owner requires every equilibrium stage", () => {
+    for (const removed of brownianEquilibriumDerivation.steps) {
+      const changed = {
+        ...brownianEquilibriumDerivation,
+        steps: brownianEquilibriumDerivation.steps.filter((step) => step.id !== removed.id),
+      };
+      expect(verifyBrownianEquilibrium(changed).passed).toBe(false);
+    }
   });
 
   test("coefficient support leaves the jump-law calculus and displacement law unverified", () => {
