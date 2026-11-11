@@ -60,6 +60,16 @@ jobs:
           bun test --isolate --timeout 60000
           src/testing/readerViewLoaders.integration.test.tsx
           src/testing/readerLabRetention.integration.test.tsx
+          src/reader/weave/brownianBindings.test.ts
+          src/equations/derivations/directStep.test.tsx
+          src/equations/derivations/DerivationChain.render.test.tsx
+          src/discovery/MoveMarker.test.tsx
+          src/app/discover/light-quanta/page.test.tsx
+          src/discovery/massEnergy/stages.test.tsx
+          src/discovery/checks/journeySkeletonCensus.test.ts
+          src/discovery/journeys/realJourneys.test.ts
+          src/experiments/bm01/perrin.test.ts
+          src/components/discover/BrownianWorldCheck.test.tsx
           src/equations/derivations/rationalSimplification.test.ts
           src/equations/derivations/rules/addSubtractMultiplyDivide.test.ts
           src/equations/derivations/rules/collectExact.test.ts
