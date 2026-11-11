@@ -71,11 +71,13 @@ export default function NotebookPage() {
                 task and downloads of the complete record.
               </li>
               <li>
-                In the <a href="/discover/brownian-motion/">Brownian motion</a> and{" "}
+                In the <a href="/discover/brownian-motion/">Brownian motion</a>,{" "}
+                <a href="/discover/light-quanta/">light quanta</a>,{" "}
+                <a href="/discover/special-relativity/">special relativity</a> and{" "}
                 <a href="/discover/mass-energy/">mass and energy</a> guides, record a prediction at
-                each step, then add what you noticed. Earlier predictions stay as you wrote them.
-                These notes appear here with a return link, downloads and an option to reopen a
-                saved file.
+                each argument step, then add what you noticed. Earlier predictions stay as you wrote
+                them. These notes appear here with a return link, downloads and an option to reopen
+                a saved file.
               </li>
             </ul>
           </section>

@@ -7,12 +7,15 @@ import { DiscoveryStageNotes } from "./notes/StageNotes.tsx";
 export function AuthoredJourneyStage({
   stage,
   shelf,
+  explanation,
   afterExplanation,
   afterFirstParagraph,
   children,
 }: Readonly<{
   stage: Stage;
   shelf: readonly KnowledgeCard[];
+  /** Keep an existing rich explanation intact while its authored guidance uses the shared stage. */
+  explanation?: ReactNode;
   /** Existing rich content can stay in its original place before the added guidance. */
   afterExplanation?: ReactNode;
   /** The printed formula belongs between the coefficient stage's two original paragraphs. */
@@ -31,12 +34,13 @@ export function AuthoredJourneyStage({
         stageId={stage.id}
         prompt={support.prediction?.prompt ?? stage.question}
       />
-      {support.explanation.split("\n\n").map((paragraph, index) => (
-        <Fragment key={paragraph}>
-          <p data-stage-prose="">{paragraph}</p>
-          {index === 0 ? afterFirstParagraph : null}
-        </Fragment>
-      ))}
+      {explanation ??
+        support.explanation.split("\n\n").map((paragraph, index) => (
+          <Fragment key={paragraph}>
+            <p data-stage-prose="">{paragraph}</p>
+            {index === 0 ? afterFirstParagraph : null}
+          </Fragment>
+        ))}
       {afterExplanation}
       {support.transferCase && (
         <details>
