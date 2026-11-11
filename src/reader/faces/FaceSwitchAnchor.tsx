@@ -331,6 +331,7 @@ function holdAt(element: HTMLElement, wanted: number): () => void {
   //
   // The magnitude cap is kept as it was and merely mirrored: a value beyond 80% of the viewport in
   // either direction is not a place a reader left, so it is still refused.
+  const address = window.location.href;
   const clamped = holdMargin(wanted, window.innerHeight);
   element.style.scrollMarginTop = `${clamped}px`;
   element.scrollIntoView();
@@ -345,7 +346,8 @@ function holdAt(element: HTMLElement, wanted: number): () => void {
     if (frame !== 0) window.cancelAnimationFrame(frame);
     window.removeEventListener("scroll", onTick);
     window.removeEventListener("resize", onTick);
-    for (const kind of ["wheel", "touchstart", "keydown"] as const) {
+    window.removeEventListener("hashchange", onHashChange);
+    for (const kind of ["wheel", "touchstart", "keydown", "pagehide", "popstate"] as const) {
       window.removeEventListener(kind, stop);
     }
   };
@@ -369,9 +371,14 @@ function holdAt(element: HTMLElement, wanted: number): () => void {
   function onTick(): void {
     if (frame === 0) frame = window.requestAnimationFrame(correct);
   }
+  function onHashChange(): void {
+    // Back can emit hashchange after popstate has already started the correct new hold.
+    if (window.location.href !== address) stop();
+  }
+  window.addEventListener("hashchange", onHashChange);
   window.addEventListener("scroll", onTick, { passive: true });
   window.addEventListener("resize", onTick, { passive: true });
-  for (const kind of ["wheel", "touchstart", "keydown"] as const) {
+  for (const kind of ["wheel", "touchstart", "keydown", "pagehide", "popstate"] as const) {
     window.addEventListener(kind, stop, { passive: true, once: true });
   }
   onTick();
@@ -442,8 +449,10 @@ export function sectionPageForStrandedAnchor(
 export function FaceSwitchAnchor() {
   /** The anchor's place the last time it was at least half visible. */
   const placeRef = useRef<PlaceKeeperSnapshot | undefined>(undefined);
-  /** Set when a face switch carried a place, so the history restore does not also fire. */
+  /** The initial face transfer owns the place until a later history traversal. */
   const carriedRef = useRef(false);
+  /** A later history restore must release the transferred hold before taking its place. */
+  const carriedHoldRef = useRef<(() => void) | undefined>(undefined);
 
   useEffect(() => {
     const raw = window.location.hash.startsWith("#")
@@ -561,7 +570,12 @@ export function FaceSwitchAnchor() {
     // The offset the snapshot asks for, as a distance from the viewport top: restoreDelta with a
     // current top of 0 is exactly `-relativeOffset * viewportHeight`.
     carriedRef.current = true;
-    return holdAt(element, -restoreDelta(0, snapshot, window.innerHeight));
+    const stop = holdAt(element, -restoreDelta(0, snapshot, window.innerHeight));
+    carriedHoldRef.current = stop;
+    return () => {
+      stop();
+      if (carriedHoldRef.current === stop) carriedHoldRef.current = undefined;
+    };
   }, []);
 
   /*
@@ -770,13 +784,15 @@ export function FaceSwitchAnchor() {
     };
 
     let stopHold: (() => void) | undefined;
-    const onPopState = (): void => {
+    const onPopState = (event?: Event): void => {
       stopHold?.();
       stopHold = undefined;
       if (projectionOwnsReturn()) return;
-      // A face switch that carried its own place has already restored it, and it is the more
-      // specific intent: the reader clicked a link rather than pressing Back.
-      if (carriedRef.current) return;
+      // The initial load yields to the transfer, including pageshow if it follows these effects.
+      // A real traversal ends that precedence and restores its own entry, including from bfcache.
+      const initialShow = event?.type === "pageshow" && !(event as PageTransitionEvent).persisted;
+      if (carriedRef.current && (event === undefined || initialShow)) return;
+      carriedRef.current = false;
       const record = parseScrollRestoreRecord(window.history.state);
       if (record === null || record.face !== currentFace(window.location.pathname)) return;
       const present = (id: string) => document.getElementById(id) !== null;
@@ -790,6 +806,8 @@ export function FaceSwitchAnchor() {
         return;
       const element = document.getElementById(landed);
       if (element === null) return;
+      carriedHoldRef.current?.();
+      carriedHoldRef.current = undefined;
       // If the projection island consumed its marker first, it has already replaced the shared
       // fields with its exact return. Drop an older cached sentence before another delayed write.
       placeRef.current = isPlaceKeepingUnit(landed)

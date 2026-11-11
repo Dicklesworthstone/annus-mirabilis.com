@@ -211,3 +211,93 @@ describe("face-switch place ownership", () => {
     expect(sessionStorage.getItem(PLACE_KEY)).toBeNull();
   });
 });
+
+async function transferredReader() {
+  const view = fixture("english");
+  sessionStorage.setItem(
+    PLACE_KEY,
+    JSON.stringify({ anchorId: SENTENCE, relativeOffset: 0.1, path: `${PAPER}/view/english/` }),
+  );
+  await mount(view.root);
+  return view;
+}
+
+describe("transferred and history scroll holds share a lifecycle", () => {
+  test("the transfer wins over an older history record on the initial mount", async () => {
+    const { root } = fixture("english");
+    window.history.replaceState({ face: "english", anchor: SENTENCE, relativeOffset: 0.3 }, "");
+    sessionStorage.setItem(
+      PLACE_KEY,
+      JSON.stringify({ anchorId: SENTENCE, relativeOffset: 0.1, path: `${PAPER}/view/english/` }),
+    );
+    await mount(root);
+    expect(document.getElementById(SENTENCE)?.style.scrollMarginTop).toBe("90px");
+    const importedFrames = [...frames.keys()];
+    const shown = new Event("pageshow");
+    Object.defineProperty(shown, "persisted", { value: false });
+    window.dispatchEvent(shown);
+    expect(document.getElementById(SENTENCE)?.style.scrollMarginTop).toBe("90px");
+    for (const id of importedFrames) expect(frames.has(id)).toBe(true);
+    expect(scrolled).toEqual([SENTENCE]);
+  });
+
+  test("a later popstate replaces the transfer and survives its paired hashchange", async () => {
+    await transferredReader();
+    const previousFrames = [...frames.keys()];
+    expect(previousFrames.length).toBeGreaterThan(0);
+    window.history.replaceState(
+      { face: "english", anchor: NEXT_SENTENCE, relativeOffset: 0.3 },
+      "",
+      `${PAPER}/view/english/#${NEXT_SENTENCE}`,
+    );
+    window.dispatchEvent(new Event("popstate"));
+    expect(scrolled.at(-1)).toBe(NEXT_SENTENCE);
+    expect(document.getElementById(NEXT_SENTENCE)?.style.scrollMarginTop).toBe("270px");
+    for (const id of previousFrames) expect(frames.has(id)).toBe(false);
+    const restoredFrames = [...frames.keys()];
+    expect(restoredFrames.length).toBeGreaterThan(0);
+    // Native fragment Back emits hashchange after popstate has restored the new address.
+    window.dispatchEvent(new Event("hashchange"));
+    for (const id of restoredFrames) expect(frames.has(id)).toBe(true);
+  });
+
+  test("pagehide stops each hold and persisted pageshow restores the current entry", async () => {
+    await transferredReader();
+    expect(frames.size).toBeGreaterThan(0);
+    window.history.replaceState({ face: "english", anchor: SENTENCE, relativeOffset: 0.25 }, "");
+    window.dispatchEvent(new Event("pagehide"));
+    expect(frames.size).toBe(0);
+    const shown = new Event("pageshow");
+    Object.defineProperty(shown, "persisted", { value: true });
+    window.dispatchEvent(shown);
+    expect(document.getElementById(SENTENCE)?.style.scrollMarginTop).toBe("225px");
+    expect(scrolled).toEqual([SENTENCE, SENTENCE]);
+    expect(frames.size).toBeGreaterThan(0);
+    window.dispatchEvent(new Event("pagehide"));
+    expect(frames.size).toBe(0);
+  });
+
+  test("a new fragment stops the old transfer without replaying stale history", async () => {
+    await transferredReader();
+    window.history.replaceState(
+      { face: "english", anchor: SENTENCE, relativeOffset: 0.1 },
+      "",
+      `${PAPER}/view/english/#s7`,
+    );
+    window.dispatchEvent(new Event("popstate"));
+    window.dispatchEvent(new Event("pageshow"));
+    expect(window.location.hash).toBe("#s7");
+    expect(scrolled).toEqual([SENTENCE]);
+    expect(frames.size).toBe(0);
+  });
+
+  test("hashchange alone releases the hold from the previous address", async () => {
+    await transferredReader();
+    expect(frames.size).toBeGreaterThan(0);
+    window.history.replaceState(window.history.state, "", `${PAPER}/view/english/#s7`);
+    window.dispatchEvent(new Event("hashchange"));
+    expect(frames.size).toBe(0);
+    expect(scrolled).toEqual([SENTENCE]);
+    expect(window.location.hash).toBe("#s7");
+  });
+});
