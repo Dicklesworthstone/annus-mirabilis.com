@@ -11,12 +11,10 @@
  * So this reads the built pages. Measured 2026-10-07: all four resolve, each anchor appearing
  * exactly once on its target page. That is the state this file freezes.
  *
- * IT ALSO PINS THE GAP am-4k0m'S FOURTH DRIFT ITEM NAMES, which is NOT a broken link and should not
- * be confused with one. Only brownian-motion's href carries `?open=derivation-step:`, the form that
- * opens the marked step itself; the other three land on the argument passage with the move not
- * openable as a step. `content/equations/derivations/` holds one chain, `bm-variance.yaml`, with one
- * `isMove: true`. The three named below are a tightening pawl: author a chain for one of them and
- * this file goes red until its name is removed, so the ceiling comes down with the work.
+ * THE DESTINATION MUST BE THE DECLARED MOVE. Brownian motion opens its record-backed dialog;
+ * Light Quanta and Mass-energy address marked steps rendered by their code-built proof owners.
+ * Special Relativity still links the section 1 definition: the section 3 coordinate derivation
+ * assumes that definition and cannot substitute for the journey's named move.
  *
  * Node lane, because it reads `out/`. bunfig excludes `scripts/e2e` and the e2e glob from `bun test`
  * and the node lane derives its list from those same patterns, so membership here is the filename.
@@ -41,7 +39,7 @@ const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
  * drift from what a reader clicks.
  */
 const MOVE_HREFS: Readonly<Record<string, string>> = {
-  "light-quanta": "/papers/light-quanta/s6/#arg-lq-entropy-correspondence",
+  "light-quanta": "/papers/light-quanta/s6/#lq-correspondence-match-coefficients",
   "brownian-motion":
     "/papers/brownian-motion/s4/?open=derivation-step:bm-variance-cross#arg-bm-independent-steps",
   "special-relativity": "/papers/special-relativity/s1/#arg-sr-synchronization",
@@ -52,11 +50,7 @@ const MOVE_HREFS: Readonly<Record<string, string>> = {
  * The papers whose move is NOT yet openable as a derivation step, with the bead that owns it.
  * Remove a name when its chain lands; the test below fails until you do.
  */
-const MOVE_NOT_OPENABLE_AS_A_STEP: readonly string[] = Object.freeze([
-  "light-quanta",
-  "special-relativity",
-  "mass-energy",
-]);
+const MOVE_NOT_OPENABLE_AS_A_STEP: readonly string[] = Object.freeze(["special-relativity"]);
 
 /** The module that declares each paper's skeleton, and the record emitted from it. */
 const JOURNEY_MODULES: Readonly<Record<string, string>> = {
@@ -127,7 +121,7 @@ test("every move link lands on an element that exists, exactly once, on the page
     const file = builtFileFor(path);
     assert.ok(existsSync(file), `${paper}: ${path} is built (looked for ${file})`);
     const html = readFileSync(file, "utf8");
-    const count = html.split(`id="${anchor}"`).length - 1;
+    const count = html.split(` id="${anchor}"`).length - 1;
     // Exactly one: zero is a link into nothing, and two is an ambiguous target where the browser
     // picks the first and an editor cannot tell which was meant.
     assert.equal(count, 1, `${paper}: id="${anchor}" appears ${count} times in ${path}`);
@@ -138,9 +132,56 @@ test("every move link lands on an element that exists, exactly once, on the page
   console.log(`[journey moves] 4 move links checked; ${landed.length} land on a unique element`);
 });
 
-test("only brownian-motion's move opens the marked derivation step, and the other three are named", () => {
+/**
+ * Native fragments count only when the built target is the actual marked step. This checks the
+ * reader markup and the declared owner, so a generic argument anchor cannot earn move coverage.
+ */
+function opensMarkedStep(paper: string, href: string): boolean {
+  const { path, anchor, openParam } = parseHref(href);
+  const move = moveOf(paper);
+  if (openParam?.startsWith("derivation-step:")) {
+    assert.equal(openParam.slice("derivation-step:".length), move.stepId);
+    return true; // The record-backed Brownian step is checked independently below.
+  }
+  const file = builtFileFor(path);
+  assert.ok(existsSync(file), `${paper}: ${path} is built`);
+  const html = readFileSync(file, "utf8");
+  const tags = (html.match(/<li\b[^>]*>/g) ?? []).filter((tag) =>
+    tag.includes(` id="${anchor}"`),
+  );
+  if (tags.length === 0) return false;
+  assert.equal(tags.length, 1, `${paper}: the move resolves to one step`);
+  const tag = tags[0] ?? "";
+  if (tag.includes('data-is-move="true"')) {
+    assert.equal(anchor, move.stepId, `${paper}: fragment and declared step agree`);
+    assert.ok(tag.includes(`data-step-id="${move.stepId}"`));
+    assert.ok(html.includes(`data-derivation-chain="${move.chainId}"`));
+    return true;
+  }
+  if (tag.includes("data-move-step")) {
+    assert.equal(paper, "mass-energy", "the coefficient proof owns this move marker");
+    const proof = JSON.parse(
+      readFileSync(join(REPO_ROOT, "src/generated/mass-energy-low-speed.json"), "utf8"),
+    ) as { certificate: { id: string; requirements: { step: string; premises: string[] }[] } };
+    assert.equal(move.chainId, proof.certificate.id);
+    const requirement = proof.certificate.requirements.find((entry) => entry.step === move.stepId);
+    assert.ok(requirement?.premises.includes("inertia"), "the identification keeps its premise");
+    const start = html.indexOf(tag);
+    const end = html.indexOf("</li>", start);
+    assert.ok(end > start);
+    assert.ok(
+      html.slice(start, end).includes(`data-low-speed-step="${move.stepId}"`),
+      "the published move contains the declared certificate step",
+    );
+    return true;
+  }
+  return false;
+}
+
+test("three journey moves open their published marked steps and the remaining definition is named", () => {
+  assertOutFreshness("out", REPO_ROOT);
   const openable = Object.entries(MOVE_HREFS)
-    .filter(([, href]) => parseHref(href).openParam?.startsWith("derivation-step:"))
+    .filter(([paper, href]) => opensMarkedStep(paper, href))
     .map(([paper]) => paper)
     .sort();
   const notOpenable = Object.keys(MOVE_HREFS)
@@ -153,10 +194,10 @@ test("only brownian-motion's move opens the marked derivation step, and the othe
   // The pawl. Authoring a chain for one of these and pointing its href at the step fails here until
   // the name comes out, which is what stops a declared gap outliving its reason.
   assert.deepEqual(notOpenable, [...MOVE_NOT_OPENABLE_AS_A_STEP].sort());
-  assert.deepEqual(openable, ["brownian-motion"]);
+  assert.deepEqual(openable, ["brownian-motion", "light-quanta", "mass-energy"]);
 });
 
-test("the one openable move names a chain step that exists and is marked as the move", () => {
+test("the Brownian dialog move names a record-backed step that exists and is marked", () => {
   const { openParam } = parseHref(MOVE_HREFS["brownian-motion"] as string);
   const stepId = (openParam ?? "").slice("derivation-step:".length);
   assert.equal(stepId, "bm-variance-cross");

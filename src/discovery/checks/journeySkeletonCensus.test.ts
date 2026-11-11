@@ -23,14 +23,21 @@
  *   - brownian-motion was said to have no DOORS. journeyII.ts exports DOORS.
  *   - 9 of 40 shelf cards were said to carry no `limits`. All 46 cards now do, the nine named among
  *     them, and the shelf has grown by six.
- *   - the fourth stands: the move is openable in a derivation chain for 1 of 4 journeys.
- *     content/equations/derivations/ holds one chain with `isMove: true`, bm-variance.yaml, and the
- *     other marked moves are in src/equations/derivations/fixtures.ts, which no page renders.
+ *   - move coverage includes record-backed chains and the code-built owners the reader renders.
+ *     A chain counts only when its marked step matches the journey's declared move and link.
+ *     Special Relativity's section 1 definition remains distinct from its section 3 derivation.
  */
 
 import { describe, expect, it } from "bun:test";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { LowSpeedExplorer } from "../../equations/derivations/LowSpeedExplorer.tsx";
+import { lqCoefficientCorrespondence } from "../../equations/derivations/lightQuantaEntropy.ts";
+import type { LowSpeedProofView } from "../../equations/derivations/lowSpeedView.ts";
+import generatedLowSpeed from "../../generated/mass-energy-low-speed.json";
+import { LightQuantaDerivation } from "../../reader/LightQuantaDerivation.tsx";
 import { REAL_JOURNEYS } from "../journeys/realJourneys.ts";
 
 const ROOT = process.cwd();
@@ -98,6 +105,67 @@ function shelfCards(rel: string): readonly { id: string; hasLimits: boolean }[] 
     cards.push({ id, hasLimits: /^\s+limits:/m.test(block) });
   }
   return cards;
+}
+
+/** Resolve the exact link the discover page exports, including native fragment targets. */
+function moveHref(paper: string): URL {
+  const module = JOURNEYS.find((journey) => journey.paper === paper);
+  expect(module, `known journey ${paper}`).toBeDefined();
+  const source = readFileSync(join(ROOT, module!.module), "utf8");
+  const href = /export const MOVE_HREF\s*=\s*"([^"]+)"/.exec(source)?.[1];
+  expect(href, `${paper} exports its move link`).toBeTruthy();
+  return new URL(href!, "https://annus-mirabilis.com");
+}
+
+function markedListItem(markup: string, id: string): string {
+  const targets = (markup.match(/<li\b[^>]*>/g) ?? []).filter((tag) =>
+    tag.includes(` id="${id}"`),
+  );
+  expect(targets, `${id} appears on exactly one rendered step`).toHaveLength(1);
+  return targets[0] ?? "";
+}
+
+/** These are the actual renderer and proof owners, never fixture chains or duplicate YAML. */
+function papersWithCodeBuiltMove(): readonly string[] {
+  const lightQuanta = REAL_JOURNEYS.find((journey) => journey.paper === "light-quanta")!;
+  const lightHref = moveHref(lightQuanta.paper);
+  expect(lightQuanta.move.chainId).toBe(lqCoefficientCorrespondence.id);
+  const lightStep = lqCoefficientCorrespondence.steps.find(
+    (step) => step.id === lightQuanta.move.stepId,
+  );
+  expect(lightStep?.isMove).toBe(true);
+  expect(lightStep?.moveLabel).toBeTruthy();
+  expect(lightHref.pathname).toBe("/papers/light-quanta/s6/");
+  expect(lightHref.hash).toBe(`#${lightQuanta.move.stepId}`);
+  const lightMarkup = renderToStaticMarkup(createElement(LightQuantaDerivation, { section: "s6" }));
+  expect(markedListItem(lightMarkup, lightQuanta.move.stepId)).toContain('data-is-move="true"');
+  expect(lightMarkup).toContain(`data-derivation-chain="${lightQuanta.move.chainId}"`);
+
+  const massEnergy = REAL_JOURNEYS.find((journey) => journey.paper === "mass-energy")!;
+  const massHref = moveHref(massEnergy.paper);
+  const proof = generatedLowSpeed as LowSpeedProofView;
+  expect(massEnergy.move.chainId).toBe(proof.certificate.id);
+  const requirement = proof.certificate.requirements.find(
+    (entry) => entry.step === massEnergy.move.stepId,
+  );
+  expect(requirement?.premises).toContain("inertia");
+  expect(massHref.pathname).toBe("/papers/mass-energy/");
+  const moveAnchor = massHref.hash.slice(1);
+  expect(moveAnchor).toBeTruthy();
+  const wrapper = readFileSync(join(ROOT, "src/reader/MassEnergyLowSpeed.tsx"), "utf8");
+  expect(wrapper).toContain(`moveAnchor="${moveAnchor}"`);
+  const massMarkup = renderToStaticMarkup(
+    createElement(LowSpeedExplorer, { proof, moveAnchor, restoreSettings: false }),
+  );
+  const massTag = markedListItem(massMarkup, moveAnchor);
+  expect(massTag).toContain("data-move-step");
+  const start = massMarkup.indexOf(massTag);
+  const end = massMarkup.indexOf("</li>", start);
+  expect(end).toBeGreaterThan(start);
+  expect(massMarkup.slice(start, end)).toContain(
+    `data-low-speed-step="${massEnergy.move.stepId}"`,
+  );
+  return [lightQuanta.paper, massEnergy.paper];
 }
 
 describe("the four journeys' skeleton, measured from what declares it", () => {
@@ -168,6 +236,7 @@ describe("the four journeys' skeleton, measured from what declares it", () => {
       expect(paper, `chain ${file} marks a move but names no paper`).toBeDefined();
       if (paper !== undefined) papers.add(paper);
     }
+    for (const paper of papersWithCodeBuiltMove()) papers.add(paper);
     return { papers, files: chains.length };
   }
 
@@ -177,12 +246,11 @@ describe("the four journeys' skeleton, measured from what declares it", () => {
     const bare = JOURNEYS.filter((j) => !papers.has(j.paper)).map((j) => j.paper);
     console.log(
       `[journey move chains] ${covered.length} of ${JOURNEYS.length} journeys have their move in a derivation chain a reader can open; ` +
-        `${files} chain file(s) on disk | openable: ${covered.join(", ") || "none"} | prose only: ${bare.join(", ") || "none"}`,
+        `${files} chain file(s) plus code-built reader owners | openable: ${covered.join(", ") || "none"} | prose only: ${bare.join(", ") || "none"}`,
     );
-    // Floors, not equalities: freezing this at 1 of 4 would turn correct work red, and asserting
-    // 4 of 4 would assert the fix rather than measure the state.
+    // Keep the record-backed owner and all three delivered moves in the measured population.
     expect(files).toBeGreaterThan(0);
-    expect(covered.length).toBeGreaterThanOrEqual(1);
+    expect(covered.length).toBeGreaterThanOrEqual(3);
     // Every chain's paper is one of the four, so a typo in a chain cannot inflate the coverage.
     expect([...papers].filter((p) => !JOURNEYS.some((j) => j.paper === p))).toEqual([]);
   });
@@ -190,8 +258,8 @@ describe("the four journeys' skeleton, measured from what declares it", () => {
   it("a journey without an openable move DECLARES it, and one with an openable move does not", () => {
     // This is what makes the hardcoded MOVE_CHAIN_MISSING set in realJourneys.ts safe. That module
     // cannot read the filesystem -- it is reachable from the discover pages, where a node: import
-    // is the defect am-t84m gates against -- so the agreement between the set and the chains on
-    // disk is checked here instead. Author a chain and this test names the paper to remove.
+    // is the defect am-t84m gates against -- so the agreement with record-backed and code-built
+    // production owners is checked here. Deliver a matching move and the pending entry must go.
     const { papers } = papersWithOpenableMove();
     const wrong: string[] = [];
     for (const journey of REAL_JOURNEYS) {

@@ -17,9 +17,15 @@ import {
   PPE_TASK,
   SOURCE_JUMPS,
 } from "../../../discovery/lightQuanta/journeyI.ts";
+import {
+  lightQuantaDerivationMetadata,
+  lqCoefficientCorrespondence,
+  lqEffectiveCountResult,
+} from "../../../equations/derivations/lightQuantaEntropy.ts";
 import { LQ05_PRESETS } from "../../../experiments/lq05/definition.ts";
 import { decodeLq05Settings } from "../../../experiments/lq05/permalink.ts";
 import lqEquations from "../../../generated/light-quanta-equations.json";
+import { LightQuantaDerivation } from "../../../reader/LightQuantaDerivation.tsx";
 import LightQuantaEncounter from "./page";
 
 /** /discover/light-quanta/: the numeric exercise in step 07 (am-disc-exercise-checker-i4h2). */
@@ -202,17 +208,19 @@ describe("the route carries the discovery skeleton", () => {
     const marker = html.slice(start, html.indexOf("</aside>", start));
     expect(text(marker)).toContain("The move");
     expect(marker).toContain(`href="${MOVE_HREF}"`);
-    // The ids resolve: the chain is the §6 argument record, and the step is an equation record
-    // that belongs to it.
-    const root = process.cwd();
-    const argument = join(root, "content/arguments/light-quanta", `${MOVE.chainId}.json`);
-    expect(existsSync(argument)).toBe(true);
-    expect(JSON.parse(readFileSync(argument, "utf8")).section).toBe("s6");
-    const equation = JSON.parse(
-      readFileSync(join(root, "content/equations/light-quanta", `${MOVE.stepId}.json`), "utf8"),
+    // Resolve to the production derivation's marked step, rather than an argument/equation pair.
+    expect(MOVE.chainId).toBe(lqCoefficientCorrespondence.id);
+    const step = lqCoefficientCorrespondence.steps.find((candidate) => candidate.id === MOVE.stepId);
+    expect(step?.isMove).toBe(true);
+    expect(step?.moveLabel).toBeTruthy();
+    expect(MOVE_HREF).toBe(`/papers/light-quanta/s6/#${MOVE.stepId}`);
+    const derivation = renderToStaticMarkup(<LightQuantaDerivation section="s6" />);
+    expect(derivation.split(` id="${MOVE.stepId}"`)).toHaveLength(2);
+    const target = derivation.match(/<li\b[^>]*>/g)?.find((tag) =>
+      tag.includes(` id="${MOVE.stepId}"`),
     );
-    expect(equation.argument).toBe(MOVE.chainId);
-    expect(MOVE_HREF).toBe(`/papers/light-quanta/s6/#${MOVE.chainId}`);
+    expect(target).toContain('data-is-move="true"');
+    expect(derivation).toContain(`data-derivation-chain="${MOVE.chainId}"`);
   });
 
   test("the move's summary keeps its heuristic status and passes the guard", () => {
@@ -290,12 +298,17 @@ describe("what Einstein actually wrote, and two doors to the same place", () => 
     }
   });
 
-  test("both doors arrive at the effective count of §6, the record the move marks", () => {
+  test("both doors arrive at the effective count established after the marked comparison", () => {
     const record = (lqEquations.equations as { id: string; argument: string }[]).find(
       (e) => e.id === DOORS.frontDoor.arrivesAtEquationId,
     );
-    expect(record?.argument).toBe(MOVE.chainId);
-    expect(DOORS.frontDoor.arrivesAtEquationId).toBe(MOVE.stepId);
+    expect(record?.argument).toBe(lightQuantaDerivationMetadata.s6.argument);
+    expect(DOORS.frontDoor.arrivesAtEquationId).toBe("eq-model-lq-effective-count");
+    expect(
+      lqCoefficientCorrespondence.steps.find(
+        (step) => step.id === "lq-correspondence-solve-effective-count",
+      )?.to,
+    ).toEqual(lqEffectiveCountResult);
     expect(DOORS.sideDoors.length).toBe(1);
     for (const door of DOORS.sideDoors)
       expect(door.arrivesAtEquationId).toBe(DOORS.frontDoor.arrivesAtEquationId);

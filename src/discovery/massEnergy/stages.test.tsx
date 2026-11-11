@@ -26,12 +26,12 @@ const journey = REAL_JOURNEYS.find((record) => record.paper === "mass-energy");
 const ARGUMENT_ANCHORS = ["step-01", "step-02", "step-03", "step-04", "step-05"];
 
 describe("mass-energy's authored discovery stages (am-4k0m)", () => {
-  test("the real journey carries the published argument in order and declares only its remaining gap", () => {
+  test("the real journey carries the published argument in order and completes its authored skeleton", () => {
     expect(journey).toBeDefined();
     const parsed = validateJourney(journey);
     expect(parsed.stages.map((stage) => stage.id)).toEqual(ARGUMENT_ANCHORS);
-    expect(parsed.completeness).toBe("partial");
-    expect(parsed.pendingElements?.map((item) => item.element)).toEqual(["move.derivationChain"]);
+    expect(parsed.completeness).toBe("complete");
+    expect(parsed.pendingElements ?? []).toEqual([]);
     const findings = checkJourney(parsed, { cards: SHELF_CARD_CONTEXT });
     expect(findings.filter((finding) => finding.severity === "error")).toEqual([]);
     console.log(
