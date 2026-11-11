@@ -1,19 +1,23 @@
 /**
  * Collect like terms in a sum or algebraic expression.
- * Verifies algebraic equivalence against sample points using withinTolerance.
+ * Exact rational simplification is opt-in; other authored routes retain their existing spot checks.
  */
 
+import { checkRationalSimplification } from "../rationalSimplification.ts";
 import { DEFAULT_SPOT_CHECK_TOLERANCE, spotCheckEquivalence } from "../spotCheck.ts";
 import { collectTermIds, structurallyEqual } from "../treeUtils.ts";
 import type { RuleCheckArgs, RuleCheckResult, RuleDefinition } from "./types.ts";
 
 export interface CollectParams {
   readonly variable?: string;
+  readonly exact?: boolean;
   readonly seed?: bigint;
 }
 
 function check({ from, to, params }: RuleCheckArgs): RuleCheckResult {
   const p = params as unknown as CollectParams;
+  if (p.exact !== undefined && typeof p.exact !== "boolean")
+    return { outcome: "fail", reason: "collect exact must be an explicit boolean." };
   // The same gap `expand` had, in the same code (am-1lds, repaired there on 2026-10-14): an
   // equivalence spot check cannot tell a real collection from a step that changed nothing, because
   // the input is equivalent to itself at every seed. Equivalence is necessary for this rule and
@@ -41,6 +45,20 @@ function check({ from, to, params }: RuleCheckArgs): RuleCheckResult {
           [from.right, to.right],
         ] as const)
       : ([[from, to]] as const);
+  if (p.exact === true) {
+    const results = pairs.map(([before, after]) => checkRationalSimplification(before, after));
+    const failure = results.find((result) =>
+      ["different", "undefined", "domain-change"].includes(result.outcome),
+    );
+    if (failure)
+      return {
+        outcome: "fail",
+        reason: failure.reason ?? "The collected result is not exactly equal on the input domain.",
+      };
+    const unsupported = results.find((result) => result.outcome === "unsupported");
+    if (unsupported) return { outcome: "unverifiable", reason: unsupported.reason };
+    return { outcome: "pass" };
+  }
   const baseSeed = p.seed ?? 314159n;
 
   for (const [before, after] of pairs) {

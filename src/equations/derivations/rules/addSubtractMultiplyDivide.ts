@@ -1,8 +1,10 @@
 /**
- * Add, subtract, multiply, or divide both sides of a relation, recording nonzero conditions for division.
+ * Apply one arithmetic operation to both sides. Exact simplification is opt-in so an authored
+ * draft gains a machine check only when its owner requests the bounded rational vocabulary.
+ * Division retains its stated nonzero condition; a side exchange is explicit.
  */
-
 import type { Expression } from "../../ast.ts";
+import { checkRationalSimplification } from "../rationalSimplification.ts";
 import { structurallyEqual } from "../treeUtils.ts";
 import type { RuleCheckArgs, RuleCheckResult, RuleDefinition } from "./types.ts";
 
@@ -12,6 +14,8 @@ export interface AddSubtractMultiplyDivideParams {
   readonly operation: ArithmeticOperation;
   readonly quantity: Expression;
   readonly nonzeroCondition?: string;
+  readonly simplify?: boolean;
+  readonly swapSides?: boolean;
 }
 
 function applyOperation(
@@ -33,8 +37,11 @@ function applyOperation(
 
 function check({ from, to, params }: RuleCheckArgs): RuleCheckResult {
   const p = params as unknown as AddSubtractMultiplyDivideParams;
-  if (!p.operation) {
-    return { outcome: "fail", reason: "add-subtract-multiply-divide requires an operation." };
+  if (!["add", "subtract", "multiply", "divide"].includes(p.operation)) {
+    return {
+      outcome: "fail",
+      reason: "add-subtract-multiply-divide requires a supported operation.",
+    };
   }
   if (!p.quantity) {
     return {
@@ -42,8 +49,14 @@ function check({ from, to, params }: RuleCheckArgs): RuleCheckResult {
       reason: "add-subtract-multiply-divide requires a quantity to apply.",
     };
   }
-  if (p.operation === "divide" && !p.nonzeroCondition?.trim()) {
-    return { outcome: "fail", reason: "division requires a nonzeroCondition for the divisor." };
+  if (
+    p.operation === "divide" &&
+    (typeof p.nonzeroCondition !== "string" || !p.nonzeroCondition.trim())
+  ) {
+    return {
+      outcome: "fail",
+      reason: "division requires a nonzeroCondition for the divisor.",
+    };
   }
   if (from.kind !== "relation" || to.kind !== "relation") {
     return {
@@ -51,45 +64,84 @@ function check({ from, to, params }: RuleCheckArgs): RuleCheckResult {
       reason: "add-subtract-multiply-divide requires both from and to to be relations.",
     };
   }
-
-  const expected: Expression = {
-    kind: "relation",
-    operator: from.operator,
-    left: applyOperation(from.left, p.operation, p.quantity),
-    right: applyOperation(from.right, p.operation, p.quantity),
-  };
-
-  if (!structurallyEqual(to, expected)) {
-    /*
-      THIS RETURNED `pass`, AND ITS OWN COMMENT SAID IT SHOULD NOT.
-      The line read `return { outcome: "pass" }` under the comment "If not literally matching the
-      unsimplified wrap, return unverifiable with spot check requirement", so BOTH branches passed
-      and the rule read nothing. Measured 2026-10-16 by planting three results against a
-      precondition-satisfying call of `a = b` divided by `t`: utter nonsense (`zzz = qqq`) passed,
-      a `to` identical to `from` passed, and only a bare number failed -- on the relation
-      precondition above, never on the transformation.
-
-      It was invisible because blindToAWrongResult.test.ts drives the rule SITES the 19 chains
-      contain, and 0 of their 41 steps use this rule, so the one blind check in the library was
-      the one nothing exercised. The companion case in that file now drives every rule in the
-      LIBRARY for exactly this reason.
-
-      `unverifiable` is the honest outcome rather than `fail`, because an author legitimately
-      writes the SIMPLIFIED result: dividing lambda = sqrt(2Dt) by t gives sqrt(2Dt)/t, which a
-      reader should see as sqrt(2D/t). verifyChain treats unverifiable as "not machine-checked",
-      and refuses a step that declares `verified` on it, so a simplified result now needs a spot
-      check and review instead of being certified by a checker that never looked.
-    */
+  if (from.operator !== to.operator) {
+    return {
+      outcome: "fail",
+      reason: "Arithmetic must preserve the relation's operator.",
+    };
+  }
+  if (p.simplify !== undefined && typeof p.simplify !== "boolean") {
+    return {
+      outcome: "fail",
+      reason: "simplify must be an explicit boolean.",
+    };
+  }
+  if (p.swapSides !== undefined && typeof p.swapSides !== "boolean") {
+    return {
+      outcome: "fail",
+      reason: "swapSides must be an explicit boolean.",
+    };
+  }
+  if (p.swapSides && from.operator !== "=") {
+    return {
+      outcome: "fail",
+      reason: "Only an exact equality may exchange its sides.",
+    };
+  }
+  if (structurallyEqual(from, to)) {
+    return {
+      outcome: "fail",
+      reason: "Arithmetic returned its own input without a changed step.",
+    };
+  }
+  if (
+    (from.operator === "le" || from.operator === "ge") &&
+    (p.operation === "multiply" || p.operation === "divide")
+  ) {
     return {
       outcome: "unverifiable",
-      reason:
-        `applying ${p.operation} to both sides of "from" gives a result this check cannot match ` +
-        "structurally, which is expected when the author writes the simplified form; it needs a " +
-        "spot check and review rather than a machine verdict.",
+      reason: "Multiplication or division of a bound needs a checked sign condition.",
     };
   }
 
-  return { outcome: "pass" };
+  const left = applyOperation(from.left, p.operation, p.quantity);
+  const right = applyOperation(from.right, p.operation, p.quantity);
+  const expected: Expression = {
+    kind: "relation",
+    operator: from.operator,
+    left: p.swapSides ? right : left,
+    right: p.swapSides ? left : right,
+  };
+  if (p.simplify !== true) {
+    if (structurallyEqual(to, expected)) return { outcome: "pass" };
+    return {
+      outcome: "unverifiable",
+      reason:
+        "The result is not the literal operation; exact simplification requires simplify: true.",
+    };
+  }
+
+  const comparisons = [
+    checkRationalSimplification(expected.left, to.left),
+    checkRationalSimplification(expected.right, to.right),
+  ];
+  const refusal = comparisons.find((result) =>
+    ["different", "undefined", "domain-change"].includes(result.outcome),
+  );
+  if (refusal) {
+    return {
+      outcome: "fail",
+      reason:
+        refusal.reason ?? "The stated arithmetic operation does not produce the proposed result.",
+    };
+  }
+  if (comparisons.every((result) => result.outcome === "equal")) return { outcome: "pass" };
+  return {
+    outcome: "unverifiable",
+    reason:
+      comparisons.find((result) => result.outcome === "unsupported")?.reason ??
+      "The proposed simplification is outside bounded exact rational arithmetic.",
+  };
 }
 
 export const addSubtractMultiplyDivideRule: RuleDefinition = {
