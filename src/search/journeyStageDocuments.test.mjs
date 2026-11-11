@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { BROWNIAN_STAGES } from "../discovery/brownian/stages.ts";
+import { LIGHT_QUANTA_STAGES } from "../discovery/lightQuanta/stages.ts";
 import { MASS_ENERGY_STAGES } from "../discovery/massEnergy/stages.ts";
 import { ROUTE_INDEX } from "../discovery/routeIndex.ts";
 import { createSearchEngine, searchResultHref, validateSearchDocument } from "./core.ts";
@@ -9,7 +10,7 @@ import { JourneyStageSearchError, journeyStageDocuments } from "./journeyStageDo
 // These are the same authored stage records rendered by the discovery pages.
 // Empty paper fixtures verify that unrecorded stages do not invent search results.
 const JOURNEYS = [
-  { paper: "light-quanta", stages: [] },
+  { paper: "light-quanta", stages: LIGHT_QUANTA_STAGES },
   { paper: "brownian-motion", stages: BROWNIAN_STAGES },
   { paper: "special-relativity", stages: [] },
   { paper: "mass-energy", stages: MASS_ENERGY_STAGES },
@@ -64,6 +65,8 @@ test("worked explanations and transfer questions are searchable beyond generic s
     ["What if the particles lock into permanent pairs?", "brownian-motion", "step-02"],
     ["What if the second step always follows the first?", "brownian-motion", "step-04"],
     ["Why the import is declared rather than absorbed", "mass-energy", "step-03"],
+    ["What if one elementary event can absorb two quanta at once?", "light-quanta", "step-07"],
+    ["The unbounded classical allocation has no finite total energy.", "light-quanta", "step-03"],
     ["The premise hiding in “whatever fixed offset”", "mass-energy", "step-04"],
   ]) {
     const hits = engine.search(query, { paper, type: "discovery" });

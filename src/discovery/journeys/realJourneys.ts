@@ -39,6 +39,7 @@ import * as lightQuantaElectron from "../lightQuanta/electronExercise.ts";
 import { ENTROPY_COUNT_EXERCISE } from "../lightQuanta/entropyExercise.ts";
 import * as lightQuantaExercises from "../lightQuanta/journeyExercises.ts";
 import * as lightQuanta from "../lightQuanta/journeyI.ts";
+import { LIGHT_QUANTA_STAGES } from "../lightQuanta/stages.ts";
 import * as massEnergy from "../massEnergy/journeyIV.ts";
 import * as massEnergyExercises from "../massEnergy/massExercise.ts";
 import { MASS_ENERGY_STAGES } from "../massEnergy/stages.ts";
@@ -263,7 +264,7 @@ function admittedImportsOf(paper: string, shelf: readonly ShelfCard[]): readonly
  * the papers whose records changed.
  */
 const REVISIONS: Readonly<Record<string, number>> = Object.freeze({
-  "light-quanta": 3,
+  "light-quanta": 4,
   "brownian-motion": 3,
   "special-relativity": 2,
   "mass-energy": 4,
@@ -314,6 +315,12 @@ export const JOURNEY_LINEAGE: Readonly<Record<string, readonly RevisionLineageEn
         reason:
           "Added the source-notation entropy-coefficient exercise shared with the discovery page. Its dimensional and numerical checks preserve the Wien-regime and heuristic qualifications; the exercise-count gap is no longer declared.",
         date: "2026-11-10",
+      }),
+      Object.freeze({
+        revision: 3,
+        reason:
+          "Recorded the seven existing discovery stages with explicit shelf premises, reasoning tools, worked comparisons and transfer cases. The compiler and local search can now inspect the Light Quanta argument chain; stages is no longer a pending element.",
+        date: "2026-11-11",
       }),
     ]),
     "brownian-motion": Object.freeze([
@@ -378,7 +385,7 @@ function compose(
 
 /** The four, in the order the papers were received. */
 export const REAL_JOURNEYS: readonly Journey[] = Object.freeze([
-  compose("light-quanta", lightQuanta as never, LIGHT_QUANTA_SHELF_CARDS),
+  compose("light-quanta", lightQuanta as never, LIGHT_QUANTA_SHELF_CARDS, LIGHT_QUANTA_STAGES),
   compose("brownian-motion", brownian as never, BROWNIAN_SHELF_CARDS, BROWNIAN_STAGES),
   compose("special-relativity", relativity as never, SPECIAL_RELATIVITY_SHELF_CARDS),
   compose("mass-energy", massEnergy as never, MASS_ENERGY_SHELF_CARDS, MASS_ENERGY_STAGES),
