@@ -40,11 +40,11 @@ export function enumerateSignedSteps(count: number, dependence: StepDependence =
 }
 
 export class StepChanceError extends RangeError {
-  constructor(
-    readonly code: "invalid-step-chance",
-    message: string,
-  ) {
+  readonly code: "invalid-step-chance";
+
+  constructor(code: "invalid-step-chance", message: string) {
     super(message);
+    this.code = code;
     this.name = "StepChanceError";
   }
 }

@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { enumerateSignedSteps } from "./stepEnumeration.ts";
+import {
+  enumerateBiasedTwoSteps,
+  enumerateSignedSteps,
+  StepChanceError,
+} from "./stepEnumeration.ts";
 
 test("two independent signed steps enumerate all four outcomes", () => {
   const e = enumerateSignedSteps(2);
@@ -41,4 +45,25 @@ test("results are immutable and unbounded enumerations are refused", () => {
   for (const n of [1, 9, NaN, 2.5]) assert.throws(() => enumerateSignedSteps(n));
   assert.throws(() => enumerateSignedSteps(3, "same-direction"));
   assert.throws(() => enumerateSignedSteps(2, "magic"));
+});
+
+test("biased-step admission keeps its typed RangeError in the Node-compatible source", () => {
+  const error = new StepChanceError("invalid-step-chance", "Invalid step chance.");
+  assert.ok(error instanceof RangeError);
+  assert.equal(error.name, "StepChanceError");
+  assert.equal(error.code, "invalid-step-chance");
+  assert.equal(error.message, "Invalid step chance.");
+  for (const percent of [NaN, Infinity, -1, 101, 25.5]) {
+    assert.throws(
+      () => enumerateBiasedTwoSteps(percent),
+      (failure) =>
+        failure instanceof StepChanceError &&
+        failure instanceof RangeError &&
+        failure.code === "invalid-step-chance" &&
+        failure.message === "Use a whole percentage from zero to one hundred.",
+    );
+  }
+  for (const percent of [0, 25, 50, 100]) {
+    assert.equal(enumerateBiasedTwoSteps(percent).rightPercent, percent);
+  }
 });
