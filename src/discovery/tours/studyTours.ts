@@ -15,6 +15,7 @@ import { validateJourney } from "../../content/schemas/journey.ts";
 import type { Argument, Block, Foundation } from "../../content/schemas/reading.ts";
 import { REGISTERED_IDS } from "../../experiments/catalogue.ts";
 import { loadPaperMargins } from "../../reader/marginRecords.ts";
+import { CONNECTION_EXERCISE_LINKS } from "../connections/links.ts";
 import { localTourUrl } from "./navigation.ts";
 import { readingMinutes } from "./readingTime.ts";
 import { isStudyBudget, type StudySession, type StudyStep, type StudyTour } from "./studyTypes.ts";
@@ -507,17 +508,26 @@ function connections(): StudySession {
   return session(
     "course-connections",
     "Connect the arguments without merging their premises",
-    "Compare the four papers and the available molecular-dimensions preview.",
-    rows.map((row) =>
-      step({
-        ...row,
-        kind: "connection",
-        activity: "reconstruct",
-        task: "Follow the comparison and write down the inputs each route assumes. Keep an imported result separate from a resemblance noticed afterward.",
-        explanation:
-          "The comparison names which relation is being transferred and which assumptions stay with its original derivation. The molecular-dimensions instrument is a companion preview; illustrative settings are not historical observations.",
-      }),
-    ),
+    "Compare the four papers, then try the transfer exercises or read their worked explanations.",
+    [
+      ...rows.map((row) =>
+        step({
+          ...row,
+          kind: "connection",
+          activity: "reconstruct",
+          task: "Follow the comparison and write down the inputs each route assumes. Keep an imported result separate from a resemblance noticed afterward.",
+          explanation:
+            "The comparison names which relation is being transferred and which assumptions stay with its original derivation. The molecular-dimensions instrument is a companion preview; illustrative settings are not historical observations.",
+        }),
+      ),
+      ...CONNECTION_EXERCISE_LINKS.map((exercise) =>
+        step({
+          ...exercise,
+          kind: "exercise",
+          activity: "reconstruct",
+        }),
+      ),
+    ],
   );
 }
 

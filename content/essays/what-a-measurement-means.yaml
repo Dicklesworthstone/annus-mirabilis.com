@@ -68,7 +68,7 @@ transferExamples:
     id: "what-a-measurement-means-engineering-calibration"
     domain: "Engineering: calibration"
     example: "A sensor's output voltage becomes a reported temperature through a calibration relation established by comparison with reference measurements. The reading, the calibration relation and its applicable range are different parts of the account."
-    sharedMove: "Write down the comparison chain connecting the recorded signal to the reported quantity. This makes it possible to ask which part would need checking if two instruments disagreed."
+    sharedMove: "Write down the comparison chain connecting the recorded signal to the reported quantity. This makes it possible to ask which part would need checking if a sensor's reading disagreed with the reference measurement."
     whereItStops: "Traceability describes how a result relates to stated references. It does not establish that the sensor model remains appropriate outside its calibration conditions, or that a whole engineering model is correct."
 limits:
   - "This is a contemporary reading of the arguments. It does not reconstruct a checklist that Einstein followed."

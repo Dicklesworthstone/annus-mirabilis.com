@@ -16,6 +16,7 @@ import { requireTour, tourIds } from "../src/content/tours/tours.ts";
 import { capstoneExists, loadCapstone } from "../src/discovery/capstone/loadCapstone.ts";
 import { formatEventDateLine } from "../src/discovery/cards/CardDetail.tsx";
 import { JOURNEY_SHELVES } from "../src/discovery/cards/journeyCards.ts";
+import { CROSS_JOURNEY_EXERCISES } from "../src/discovery/connections/records.ts";
 import { loadDesk } from "../src/discovery/desk/records.ts";
 import { REAL_JOURNEYS } from "../src/discovery/journeys/realJourneys.ts";
 import { ROUTE_INDEX } from "../src/discovery/routeIndex.ts";
@@ -51,6 +52,7 @@ import { parseWhatIsTrue } from "../src/reader/misconceptions/types.ts";
 import { paperSourceFaces } from "../src/reader/paperSourceFaces.ts";
 import { tapePath } from "../src/reader/sitePaths.ts";
 import { packageSearchIndex } from "../src/search/build.ts";
+import { connectionExerciseDocuments } from "../src/search/connectionExerciseDocuments.ts";
 import type { SearchAlias, SearchDocument } from "../src/search/core.ts";
 import { deskDocuments } from "../src/search/deskDocuments.ts";
 import { essayDocuments } from "../src/search/essayDocuments.ts";
@@ -410,6 +412,7 @@ export async function loadSearchCorpus(
   const deskObjects = loadDesk(root).objects;
   const desk = deskDocuments(deskObjects, profile);
   const journeyStages = journeyStageDocuments(REAL_JOURNEYS, ROUTE_INDEX, profile);
+  const transferExercises = connectionExerciseDocuments(CROSS_JOURNEY_EXERCISES, profile);
   const documents = [
     ...documentsFromCompiled(papers, foundations, instruments, profile, equationTerms),
     ...explainedEquationDocuments(explainedEquations, profile),
@@ -421,6 +424,7 @@ export async function loadSearchCorpus(
     ...desk,
     ...essayDocuments(loadEssays(root), profile),
     ...connectionDocuments(connections, profile),
+    ...transferExercises,
     ...walkthroughDocuments(walkthroughs, profile),
     ...discoveryDocuments(ROUTE_INDEX, profile),
     ...journeyStages,
@@ -437,6 +441,9 @@ export async function loadSearchCorpus(
   );
   console.log(
     `[search] discovery stages: ${REAL_JOURNEYS.reduce((count, journey) => count + journey.stages.length, 0)} authored stages examined; ${journeyStages.length} documents for ${profile}`,
+  );
+  console.log(
+    `[search] transfer exercises: ${CROSS_JOURNEY_EXERCISES.length} authored exercises examined; ${transferExercises.length} documents for ${profile}`,
   );
   /*
    * THE EXPLAINED-EQUATION CENSUS, printed because a count of 0 and a count of 44 read the same in
