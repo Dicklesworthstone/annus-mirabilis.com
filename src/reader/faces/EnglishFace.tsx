@@ -6,11 +6,13 @@ import type {
   SourceBlock,
   TranslationUnit,
 } from "../../content/schemas/source.ts";
+import type { SourceAliasMap } from "../anchors/sourceAliases.ts";
 import { FaceChooser } from "../FaceChooser.tsx";
 import type { FaceAvailability } from "../faceAvailability.ts";
 import { PassageProjectionNavigation } from "../PassageProjectionNavigation.tsx";
 import type { PassageProjection } from "../projections/passageProjections.ts";
 import { ROOT_ARMING_SOURCE } from "../rootArming.inline.ts";
+import { AliasHashRewrite } from "./AliasHashRewrite.tsx";
 import { AlignmentController } from "./AlignmentController.tsx";
 import { buildAlignmentIndex } from "./alignment.ts";
 import { sectionsLabel } from "./editionCoverage.ts";
@@ -25,6 +27,7 @@ import { ExplainerFragments } from "./ExplainerFragments.tsx";
 import { InlineTerms } from "./InlineTerms.tsx";
 
 export interface EnglishFaceProps {
+  readonly aliases?: SourceAliasMap | undefined;
   readonly projectionsByUnit?: Readonly<Record<string, PassageProjection>> | undefined;
   /** Which faces have content, derived by PaperPage from the same counts it dispatches on. */
   readonly availability?: Readonly<Partial<Record<FaceId, FaceAvailability>>> | undefined;
@@ -51,6 +54,7 @@ export function EnglishFace({
   blocks,
   untranslatedSections = [],
   projectionsByUnit,
+  aliases = {},
 }: EnglishFaceProps) {
   const alignmentIndex = buildAlignmentIndex(alignment, undefined, units);
   // A footnote mark links to the unit that translates the footnote, which this face does render.
@@ -144,6 +148,7 @@ export function EnglishFace({
           beside a German face at 666px and 22.8px (dispatch 210). */}
       <div className="translation-units-list reading-column" data-translation-body>
         <TranslationParagraphs
+          aliases={aliases}
           units={bodyUnits}
           alignment={alignment}
           blocks={blocks}
@@ -155,6 +160,7 @@ export function EnglishFace({
       </div>
 
       <AlignmentController index={alignmentIndex} />
+      <AliasHashRewrite aliases={aliases} />
     </div>
   );
 }

@@ -32,6 +32,7 @@ import type {
 } from "../../content/schemas/source.ts";
 import { printedDisplay } from "../../equations/printed/printedDisplays.ts";
 import { splitSourceSentenceId } from "../anchors/emitAnchor.ts";
+import type { SourceAliasMap } from "../anchors/sourceAliases.ts";
 import { PassageProjections, projectionParagraphLabel } from "../PassageProjections.tsx";
 import {
   mergePassageProjections,
@@ -44,6 +45,7 @@ import { PageTurnMark } from "./PageTurnMark.tsx";
 import { PrintedDisplayTerms } from "./PrintedDisplayTerms.tsx";
 import { unitsWithTurns } from "./pageTurnPlaces.ts";
 import { evaluateUnitReviewState } from "./reviewState.ts";
+import { SourceAliasAnchors } from "./SourceAliases.tsx";
 
 type GroupKind = "paragraph" | "display" | "footnote" | "other";
 /** Units set together: one source paragraph, display, footnote or other block, by its id (`key`). */
@@ -120,6 +122,7 @@ export function groupTranslationUnits(
 }
 
 export interface TranslationParagraphsProps {
+  readonly aliases?: SourceAliasMap | undefined;
   readonly projectionsByUnit?: Readonly<Record<string, PassageProjection>> | undefined;
   /** The units to set, in reading order. */
   readonly units: readonly TranslationUnit[];
@@ -150,6 +153,7 @@ export function TranslationParagraphs({
   footnoteUnits,
   groups,
   projectionsByUnit,
+  aliases = {},
 }: TranslationParagraphsProps) {
   const records = new Map<string, ReviewRecord>();
   for (const r of reviewRecords) for (const s of r.scope) records.set(s.recordId, r);
@@ -247,6 +251,11 @@ export function TranslationParagraphs({
     const splitBaseId = splitSourceSentenceId(u.id);
     return (
       <Fragment key={u.id}>
+        <SourceAliasAnchors
+          aliases={aliases}
+          targets={splitBaseId === null ? [u.id] : [u.id, splitBaseId]}
+          prefix={anchorPrefix}
+        />
         {/* The German sentence's own id, on the first English sentence that renders it. An element
             cannot carry two ids, so the base is an empty anchor beside the unit -- the same device the
             German face uses for a retired id at a page join. See splitSourceSentenceId. */}
@@ -293,6 +302,8 @@ export function TranslationParagraphs({
     );
   };
 
+  const emittedParagraphs = new Set<string>();
+  const unitIds = new Set(units.map((unit) => unit.id));
   return (
     <>
       {(groups ?? groupTranslationUnits(units, alignment, blocks)).map((group) => {
@@ -335,9 +346,20 @@ export function TranslationParagraphs({
             </Fragment>
           );
         }
+        // The paragraph is a source address too. Keep one anchor even if its English is split
+        // into several groups, and do not duplicate an id a translation unit already publishes.
+        const paragraphId =
+          group.kind === "paragraph" && !unitIds.has(group.key) && !emittedParagraphs.has(group.key)
+            ? `${anchorPrefix}${group.key}`
+            : undefined;
+        if (paragraphId) emittedParagraphs.add(group.key);
         return (
           <Fragment key={key}>
+            {paragraphId && (
+              <SourceAliasAnchors aliases={aliases} targets={[group.key]} prefix={anchorPrefix} />
+            )}
             <p
+              id={paragraphId}
               className="translation-paragraph"
               data-source-paragraph={group.kind === "paragraph" ? group.key : undefined}
               data-source-block={group.key}

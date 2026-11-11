@@ -1,4 +1,7 @@
+import type { SourceAliasMap } from "../anchors/sourceAliases.ts";
+import { AliasHashRewrite } from "./AliasHashRewrite.tsx";
 import { GlossReasoningToggle } from "./GlossReasoningToggle.tsx";
+import { SourceAliasAnchors } from "./SourceAliases.tsx";
 import "./glossReasoning.css";
 import { Fragment } from "react";
 import { plainText } from "../../content/schemas/inlines.ts";
@@ -41,6 +44,7 @@ export interface GlossEntryLink {
 }
 
 export interface GlossFaceProps {
+  readonly aliases?: SourceAliasMap | undefined;
   /** Which faces have content, derived by PaperPage from the same counts it dispatches on. */
   readonly availability?: Readonly<Partial<Record<FaceId, FaceAvailability>>> | undefined;
   readonly paper: Paper;
@@ -96,6 +100,7 @@ export function GlossFace({
   availability,
   unglossedSections = [],
   section,
+  aliases = {},
 }: GlossFaceProps) {
   // If no source blocks exist for the paper, render an honest fallback
   if (!blocks || blocks.length === 0) {
@@ -335,7 +340,16 @@ export function GlossFace({
             if (block.sentenceSpans && block.sentenceSpans.length > 0) {
               const placed = new Set<string>();
               return (
-                <div key={block.id} className="gloss-block-wrapper" data-block-id={block.id}>
+                <div
+                  key={block.id}
+                  id={block.id}
+                  className="gloss-block-wrapper"
+                  data-block-id={block.id}
+                >
+                  <SourceAliasAnchors
+                    aliases={aliases}
+                    targets={[block.id, ...block.sentenceSpans.map((span) => span.id)]}
+                  />
                   {locators}
                   {block.sentenceSpans.map((sp) => (
                     <Fragment key={sp.id}>
@@ -409,6 +423,7 @@ export function GlossFace({
       )}
 
       {alignmentIndex && <AlignmentController index={alignmentIndex} />}
+      <AliasHashRewrite aliases={aliases} />
     </article>
   );
 }

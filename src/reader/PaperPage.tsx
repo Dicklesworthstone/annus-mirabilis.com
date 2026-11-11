@@ -10,7 +10,6 @@ import { citationTitleClose } from "../content/citationTitle.ts";
 import { loadGermanSourceFace, printedUnits } from "../content/editions/germanSourceFace.ts";
 import { validateEntranceRecord } from "../content/entrances/entranceRecord.ts";
 import type { RouteSlug } from "../content/ids.ts";
-import { aliasTargets } from "../content/notation/anchorCoversPage.ts";
 import { loadConcordanceForPaper } from "../content/notation/loader.ts";
 import { hasResultCards } from "../content/results/resultCards.ts";
 import { getModalityClasses } from "../content/schemas/glossConventions.ts";
@@ -22,6 +21,7 @@ import missingSteps from "../generated/missing-steps.json";
 import { ArgumentEquations } from "./ArgumentEquations.tsx";
 import { passageActionsFromArgument } from "./actions/fromArgument.ts";
 import { PassageActionsBar } from "./actions/PassageActionsBar.tsx";
+import { loadSourceAliases } from "./anchors/sourceAliases.ts";
 import { ReadingBlocks } from "./Blocks.tsx";
 import { ExplanationInlineTerms } from "./ExplanationInlineTerms.tsx";
 import type { MassEnergyEntranceScenario } from "./entrances/massEnergyExample.ts";
@@ -118,6 +118,19 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
             ? await options.editionLoader(resolved.paperId)
             : await loadBilingualEdition(resolved.paperId);
 
+      // One validated alias-chain projection serves every edition face. Section renderers only
+      // emit aliases beside content they actually print, so an old link never names a dead target.
+      const aliases = loadSourceAliases(
+        process.cwd(),
+        resolved.paperId,
+        new Set(
+          (edition?.blocks ?? []).flatMap((block) => [
+            block.id,
+            ...block.sentenceSpans.map((span) => span.id),
+          ]),
+        ),
+      );
+
       // GERMAN IS GATED BY THE SHARED PREDICATE, then dispatched to a renderer.
       //
       // An earlier version of this left the two conditions inline and asserted in a
@@ -180,20 +193,6 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                     scanHref: `/${pdf}`,
                   }
                 : undefined;
-            // Retired manifest ids, each to the published id that absorbed it (content/aliases),
-            // where the face publishes that id: a block or a sentence. A reference occurrence
-            // (s2-p2-s1-r3) is no anchor, so an alias to it would lead nowhere.
-            const published = new Set(
-              blocks.flatMap((b) => [b.id, ...b.sentenceSpans.map((span) => span.id)]),
-            );
-            const aliases = Object.fromEntries(
-              [...aliasTargets(process.cwd(), resolved.paperId)].flatMap(([retired, targets]) => {
-                const target = targets[0];
-                return target && published.has(target) && !published.has(retired)
-                  ? [[retired, target]]
-                  : [];
-              }),
-            );
             const availability = faceAvailability({
               blocks: editionBlocks,
               units: edition.units.length,
@@ -305,6 +304,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
           const projections = await loadPassageProjections(resolved.paperId, { edition });
           return (
             <EnglishFace
+              aliases={aliases}
               availability={availability}
               blocks={edition.blocks}
               paper={edition.paper}
@@ -325,6 +325,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
           const projections = await loadPassageProjections(resolved.paperId, { edition });
           return (
             <ParallelFace
+              aliases={aliases}
               availability={availability}
               paper={edition.paper}
               blocks={edition.blocks}
@@ -354,6 +355,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
         ) {
           return (
             <GlossFace
+              aliases={aliases}
               availability={availability}
               paper={edition.paper}
               blocks={edition.blocks}

@@ -3,37 +3,9 @@
 import { useEffect } from "react";
 
 /**
- * The JavaScript half of am-read-anchors-navigation-a6o's alias criterion: "A retired id from the
- * alias fixture lands on its new location with JavaScript disabled, AND is rewritten by replacement
- * with JavaScript enabled, without adding a history entry."
- *
- * The no-script half already worked and still does the real work. `GermanFace.tsx` emits
- * `<span id={retired} data-alias-of={target} />` for every retired id whose successor this face
- * publishes, so the browser's own fragment navigation lands the reader in the right place with no
- * script at all. Measured in the built site on 2026-10-07: 33 of the 37 declared records ship as
- * such anchors, the four absent ones pointing at reference occurrences that are anchors on no face.
- *
- * So this island changes nothing about WHERE the reader lands. It corrects the address bar, which
- * matters for one reason worth stating plainly: a reader who copies the URL after following an old
- * link would otherwise pass the retired id on again.
- *
- * `history.replaceState` is the whole point of the criterion's last clause. It rewrites the current
- * entry rather than pushing one, so Back still goes where the reader came from rather than to the
- * same page under its old spelling.
- *
- * WHY THE FLAT MAP AND NOT `rewrittenHashFor`. `src/reader/anchors/aliases.ts` exports
- * `rewrittenHashFor`, which computes exactly this and is the validated owner's wrapper. It takes
- * `AliasRecord[]`, and `resolveAlias` runs every record through `validateAliasRecord`, which
- * requires `reason`, `date` and `editor`. The reasons are long -- several are over 200 characters
- * of editorial justification citing page images -- so using it here means serialising all of that
- * prose to the browser to rewrite a fragment. Against a measured ~33 KB of brotli headroom on this
- * route (171,494 of 204,800), that is a poor trade for an address-bar correction.
- *
- * The map `GermanFace` already holds is the server-resolved answer, and
- * `src/content/notation/aliasReadersAgree.test.ts` holds that reader to the owner: it asserts, over
- * the real corpus, that the flat first target equals `resolveAlias`'s resolved first target, and a
- * planted chain in `content/aliases/mass-energy.yaml` reddens it. That gate is what licenses this
- * shortcut, and if it ever goes red this island is wrong too.
+ * Static alias spans do the navigation, including without JavaScript. This island keeps copied
+ * links current by replacing the address rather than pushing a second history entry. The server
+ * resolves alias chains once and sends only the destination map; provenance stays in the records.
  */
 
 /**
@@ -73,14 +45,19 @@ export function AliasHashRewrite({
   readonly aliases: Readonly<Record<string, string>>;
 }) {
   useEffect(() => {
-    const next = rewrittenAliasHash(window.location.hash, aliases);
-    if (next === null) return;
-    // Only rewrite to something this document actually carries. The map is filtered server-side to
-    // published targets, so this is defence in depth rather than the primary guard; without it a
-    // stale map would move the address bar to a fragment that leads nowhere, which is worse than
-    // leaving the retired spelling in place.
-    if (document.getElementById(next.slice(1)) === null) return;
-    window.history.replaceState(window.history.state, "", next);
+    const rewrite = () => {
+      const next = rewrittenAliasHash(window.location.hash, aliases);
+      if (next === null) return;
+      // A whole-paper map may be shared with a section view. Only a statically rendered alias
+      // and its actual successor may change this page's address; never canonicalise an absent id.
+      const target = document.getElementById(next.slice(1));
+      const alias = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
+      if (target === null || alias?.getAttribute("data-alias-of") !== next.slice(1)) return;
+      window.history.replaceState(window.history.state, "", next);
+    };
+    rewrite();
+    window.addEventListener("hashchange", rewrite);
+    return () => window.removeEventListener("hashchange", rewrite);
   }, [aliases]);
   return null;
 }

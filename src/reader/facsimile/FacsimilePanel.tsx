@@ -1,4 +1,6 @@
 import { useId } from "react";
+import { parseAnchor } from "../../content/anchors.ts";
+import { AliasHashRewrite } from "../faces/AliasHashRewrite.tsx";
 import {
   type FacsimileDocument,
   facsimilePageAnchor,
@@ -44,6 +46,16 @@ export function FacsimilePanel({
     (value): value is string => value !== null && !sourceIds.has(value),
   );
   const extraAnchors = [...new Set([...aliases, ...sections])];
+  // Inventory aliases can be build-record ids. Only reader addresses are canonicalised, and
+  // only on the standalone face: an inline panel deliberately prefixes all of its DOM ids.
+  const sourceAliases = Object.fromEntries(
+    aliases.flatMap((alias) => {
+      const first = document.units
+        .filter((unit) => unit.aliases.includes(alias))
+        .sort((a, b) => (a.pdfPages[0] ?? 0) - (b.pdfPages[0] ?? 0))[0];
+      return parseAnchor(alias).ok && first ? [[alias, first.id]] : [];
+    }),
+  );
 
   // In a sectioned paper s0 is the introduction; mass-energy has no sections.
   // Inventories name a section heading "section-heading" or, in Brownian's, "heading".
@@ -60,6 +72,7 @@ export function FacsimilePanel({
       data-facsimile-pdf-page={initial.pdfPage}
       aria-label={`${title}: original scanned pages`}
     >
+      {!inline && <AliasHashRewrite aliases={sourceAliases} />}
       <FacsimileEnhancer
         rootId={id}
         document={document}
@@ -297,7 +310,14 @@ export function FacsimilePanel({
             {extraAnchors
               .filter((anchor) => resolveFacsimileTarget(document, anchor) === page.pdfPage)
               .map((anchor) => (
-                <span key={anchor} id={anchorId(anchor)} className="facsimile-reader-anchor" />
+                <span
+                  key={anchor}
+                  id={anchorId(anchor)}
+                  data-alias-of={
+                    sourceAliases[anchor] ? anchorId(sourceAliases[anchor]) : undefined
+                  }
+                  className="facsimile-reader-anchor"
+                />
               ))}
             <h3>
               Printed page {page.printedPage}{" "}

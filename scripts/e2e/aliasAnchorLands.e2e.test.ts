@@ -386,6 +386,79 @@ test("criterion 5: a retired id lands on its successor's location with NO JavaSc
   }
 });
 
+test("retired source addresses land across reading faces with NO JavaScript", {
+  timeout: 180_000,
+}, async (ctx) => {
+  assertOutFreshness("out", REPO_ROOT);
+  const { server, origin } = await startStaticServer(OUT_DIR);
+  const executablePath = process.env.CHROMIUM_EXECUTABLE_PATH;
+  const browser = await chromium.launch(executablePath ? { executablePath } : {});
+  try {
+    const context = await browser.newContext({
+      javaScriptEnabled: false,
+      reducedMotion: "reduce",
+      viewport: { width: 1280, height: 900 },
+    });
+    const page = await context.newPage();
+    for (const [name, path] of [
+      ["english", "/papers/special-relativity/view/english/"],
+      ["parallel", "/papers/special-relativity/view/parallel/"],
+      ["gloss", "/papers/special-relativity/s1/view/gloss/"],
+      ["facsimile", "/papers/special-relativity/view/facsimile/"],
+    ] as const) {
+      await page.goto(`${origin}${path}#${RETIRED}`, { waitUntil: "load" });
+      await settled(page, { instant: true });
+      const arrival = await page.evaluate(
+        ({ retired, successor }) => {
+          const alias = document.getElementById(retired);
+          const target = document.getElementById(successor);
+          const scanPage = target?.closest(".facsimile-reader-page");
+          return {
+            scrollY: Math.round(window.scrollY),
+            hash: location.hash,
+            aliases: document.querySelectorAll(`[id="${retired}"]`).length,
+            targets: document.querySelectorAll(`[id="${successor}"]`).length,
+            successor: alias?.getAttribute("data-alias-of"),
+            boxes: alias?.getClientRects().length ?? 0,
+            display: alias ? getComputedStyle(alias).display : null,
+            scanPage: scanPage?.id,
+            sameScanPage: scanPage?.contains(alias),
+          };
+        },
+        { retired: RETIRED, successor: SUCCESSOR },
+      );
+      assert.equal(arrival.hash, `#${RETIRED}`, `${name}: JavaScript changed a no-script link`);
+      assert.equal(arrival.aliases, 1, `${name}: retired address must be unique`);
+      assert.equal(arrival.targets, 1, `${name}: successor address must be unique`);
+      assert.equal(arrival.successor, SUCCESSOR, `${name}: alias names the wrong successor`);
+      assert.ok(arrival.boxes > 0, `${name}: alias has no layout box for fragment navigation`);
+      assert.notEqual(arrival.display, "none", `${name}: alias is hidden by the stylesheet`);
+      assert.ok(arrival.scrollY > 300, `${name}: retired address stayed near the page top`);
+
+      // A scan face links to the original page containing the paragraph. The other faces print
+      // the paragraph itself. Compare each alias with the content its face promises to show.
+      if (name === "facsimile")
+        assert.equal(arrival.sameScanPage, true, "facsimile: alias landed on another printed page");
+      const destination = name === "facsimile" ? arrival.scanPage : SUCCESSOR;
+      assert.ok(destination, `${name}: the alias has no live destination`);
+      await page.goto(`${origin}${path}#${destination}`, { waitUntil: "load" });
+      await settled(page, { instant: true });
+      const direct = await page.evaluate(() => Math.round(window.scrollY));
+      assert.ok(direct > 300, `${name}: direct destination cannot prove a deep-page landing`);
+      assert.ok(
+        Math.abs(arrival.scrollY - direct) <= 40,
+        `${name}: retired address landed ${Math.abs(arrival.scrollY - direct)}px from its destination`,
+      );
+      ctx.diagnostic(
+        `${name} no-JS: #${RETIRED} -> ${arrival.scrollY}; #${destination} -> ${direct}; alias boxes=${arrival.boxes}`,
+      );
+    }
+  } finally {
+    await browser.close();
+    await new Promise<void>((done) => server.close(() => done()));
+  }
+});
+
 test("criterion 5: with JavaScript the hash is rewritten BY REPLACEMENT, adding no history entry", {
   timeout: 180_000,
 }, async (ctx) => {

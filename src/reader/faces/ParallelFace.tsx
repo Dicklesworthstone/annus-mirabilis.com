@@ -7,11 +7,13 @@ import {
   type SourceBlock,
   type TranslationUnit,
 } from "../../content/schemas/source.ts";
+import type { SourceAliasMap } from "../anchors/sourceAliases.ts";
 import { FaceChooser } from "../FaceChooser.tsx";
 import type { FaceAvailability } from "../faceAvailability.ts";
 import { PassageProjectionNavigation } from "../PassageProjectionNavigation.tsx";
 import type { PassageProjection } from "../projections/passageProjections.ts";
 import { ROOT_ARMING_SOURCE } from "../rootArming.inline.ts";
+import { AliasHashRewrite } from "./AliasHashRewrite.tsx";
 import { AlignmentController } from "./AlignmentController.tsx";
 import { buildAlignmentIndex } from "./alignment.ts";
 import { withoutClaimedDisplays } from "./displayClaims.ts";
@@ -19,6 +21,7 @@ import { sectionsLabel } from "./editionCoverage.ts";
 import { FootnoteItem } from "./Footnote.tsx";
 import { type ParallelRow, parallelRows } from "./parallelRows.ts";
 import type { FaceId } from "./registry.ts";
+import { SourceAliasAnchors } from "./SourceAliases.tsx";
 import { SourceBlock as SourceBlockItem } from "./SourceBlock.tsx";
 import { groupTranslationUnits, TranslationParagraphs } from "./TranslationParagraphs.tsx";
 import { unitsBySourceRef } from "./TranslationUnit.tsx";
@@ -36,6 +39,7 @@ import { InlineTerms } from "./InlineTerms.tsx";
 export const ENGLISH_ANCHOR_PREFIX = "en-";
 
 export interface ParallelFaceProps {
+  readonly aliases?: SourceAliasMap | undefined;
   readonly projectionsByUnit?: Readonly<Record<string, PassageProjection>> | undefined;
   /** Which faces have content, derived by PaperPage from the same counts it dispatches on. */
   readonly availability?: Readonly<Partial<Record<FaceId, FaceAvailability>>> | undefined;
@@ -63,6 +67,7 @@ export function ParallelFace({
   untranslatedSections = [],
   availability,
   projectionsByUnit,
+  aliases = {},
 }: ParallelFaceProps) {
   // Neither column carries a review banner, chip or draft label
   // (D-2026-09-25-no-review-status-banners); the records keep who made and checked each unit.
@@ -233,6 +238,10 @@ export function ParallelFace({
                 lang="de"
               >
                 <p className="parallel-half-label">Deutsch</p>
+                <SourceAliasAnchors
+                  aliases={aliases}
+                  targets={[row.block.id, ...row.block.sentenceSpans.map((span) => span.id)]}
+                />
                 <SourceBlockItem
                   block={row.block}
                   paperSlug={paper.slug}
@@ -284,6 +293,7 @@ export function ParallelFace({
       </div>
 
       <AlignmentController index={alignmentIndex} />
+      <AliasHashRewrite aliases={aliases} />
     </div>
   );
 }

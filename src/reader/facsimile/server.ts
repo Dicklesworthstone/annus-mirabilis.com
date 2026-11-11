@@ -6,6 +6,7 @@ import { createReadStream } from "node:fs";
 import { readFile, realpath, stat } from "node:fs/promises";
 import { join, sep } from "node:path";
 import { parseYaml } from "../../content/provenance/yaml.ts";
+import { loadSourceAliases } from "../anchors/sourceAliases.ts";
 import { FacsimileDataError, projectFacsimileDocument } from "./document.ts";
 
 import type { FacsimileAvailability } from "./wire.ts";
@@ -156,6 +157,31 @@ export async function loadFacsimileDocument(
         "This source has no scan admitted for public display.",
       );
     }
+    // Retired reading addresses must turn the scan to the same source unit as every other face.
+    // Keep these beside the inventory's edition-block aliases so one resolver owns page selection.
+    const sourceAliases = loadSourceAliases(
+      rootDirectory,
+      paperId,
+      new Set(document.units.map((unit) => unit.id)),
+    );
+    document = Object.freeze({
+      ...document,
+      units: Object.freeze(
+        document.units.map((unit) =>
+          Object.freeze({
+            ...unit,
+            aliases: Object.freeze([
+              ...new Set([
+                ...unit.aliases,
+                ...Object.entries(sourceAliases)
+                  .filter(([, target]) => target === unit.id)
+                  .map(([retired]) => retired),
+              ]),
+            ]),
+          }),
+        ),
+      ),
+    });
     const pdfDirectory = join(rootDirectory, "public/papers/pdfs");
     await verifyFacsimilePdf(join(pdfDirectory, `${key}.pdf`), document.sha256, pdfDirectory);
     // A phone browser has no dependable inline PDF viewer, so where generate-page-plates.ts has
