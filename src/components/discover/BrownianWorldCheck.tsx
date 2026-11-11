@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type { WorldCheck as WorldCheckType } from "../../content/schemas/journey.ts";
 import { EINSTEIN_TRACER_INPUTS } from "../../discovery/brownian/journeyII.ts";
 import { KnowledgeCardView } from "../../discovery/cards/KnowledgeCard.tsx";
@@ -12,11 +12,13 @@ import {
 import { WorldCheck } from "../../discovery/WorldCheck.tsx";
 import { createBm01BrowserChannel } from "../../experiments/bm01/browser.ts";
 import type { Bm01Parameters } from "../../experiments/bm01/definition.ts";
+import { PERRIN_TRACER_INPUTS, type PerrinRecord } from "../../experiments/bm01/perrin.ts";
 import { createBm01Session, type PreparedBm01Example } from "../../experiments/bm01/session.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { fixed, result, sentenceNumber } from "../lab/presentation.ts";
 import { TracerLab } from "../lab/TracerLab.tsx";
+import { PerrinComparison } from "./PerrinComparison.tsx";
 
 /** One output of the accepted snapshot, in micrometres, to the precision the model supports. */
 function micrometres(snapshot: AcceptedSnapshot, id: string): string {
@@ -37,11 +39,13 @@ export function BrownianWorldCheck({
   example,
   check,
   laterEvidence,
+  perrin,
   session: sharedSession,
 }: {
   example: PreparedBm01Example;
   check: WorldCheckType;
   laterEvidence: readonly KnowledgeCard[];
+  perrin: PerrinRecord;
   /** A session owned by whoever embeds the check, as TracerLab takes one. Omitted, it owns its own. */
   session?: ReturnType<typeof createBm01Session> | undefined;
 }) {
@@ -68,6 +72,15 @@ export function BrownianWorldCheck({
       outcome.kind === "accepted"
         ? ""
         : "The tracer ensemble did not accept Einstein's inputs. Its settings are unchanged.",
+    );
+  }
+
+  function applyPerrinInputs() {
+    const outcome = session.apply({ ...p, ...PERRIN_TRACER_INPUTS });
+    setNote(
+      outcome.kind === "accepted"
+        ? ""
+        : "The tracer ensemble did not accept Perrin's source conditions. Its settings are unchanged.",
     );
   }
 
@@ -119,6 +132,12 @@ export function BrownianWorldCheck({
       </div>
       <section data-world-check-later aria-labelledby={`${id}-later`}>
         <h3 id={`${id}-later`}>Later evidence, not on the 1904 shelf</h3>
+        <PerrinComparison
+          record={perrin}
+          snapshot={snapshot}
+          view={view}
+          onUseSourceConditions={ready ? applyPerrinInputs : undefined}
+        />
         {laterEvidence.map((card) => (
           <KnowledgeCardView key={card.id} card={card} />
         ))}

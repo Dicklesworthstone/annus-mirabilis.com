@@ -3,9 +3,13 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { BROWNIAN_LATER_EVIDENCE } from "../../content/brownianShelf.ts";
 import { WORLD_CHECK } from "../../discovery/brownian/journeyII.ts";
 import { createBm01BrowserChannel } from "../../experiments/bm01/browser.ts";
+import { loadPerrinRecord } from "../../experiments/bm01/perrinRecord.ts";
 import { createBm01Session } from "../../experiments/bm01/session.ts";
 import example from "../../generated/bm01-example.json";
 import { BrownianWorldCheck } from "./BrownianWorldCheck.tsx";
+import { PerrinComparison } from "./PerrinComparison.tsx";
+
+const perrin = loadPerrinRecord();
 
 const render = (tracer: typeof example) =>
   renderToStaticMarkup(
@@ -13,6 +17,7 @@ const render = (tracer: typeof example) =>
       example={tracer}
       check={WORLD_CHECK}
       laterEvidence={BROWNIAN_LATER_EVIDENCE}
+      perrin={perrin}
     />,
   );
 const quantity = (html: string, id: string) =>
@@ -87,6 +92,7 @@ describe("with no accepted snapshot the check refuses", () => {
           example={example}
           check={WORLD_CHECK}
           laterEvidence={BROWNIAN_LATER_EVIDENCE}
+          perrin={perrin}
           session={session}
         />,
       ),
@@ -98,9 +104,79 @@ describe("with no accepted snapshot the check refuses", () => {
           example={example}
           check={WORLD_CHECK}
           laterEvidence={BROWNIAN_LATER_EVIDENCE}
+          perrin={perrin}
           session={real}
         />,
       ),
     ).toContain('data-world-check-quantity="lambdaX1s"');
+  });
+});
+
+describe("the later measurement stays distinct from the accepted model", () => {
+  test("the server page includes the four printed observations, their date and source", () => {
+    const html = render(example);
+    expect(html).toContain('data-historical-dataset="perrin-1909-displacements"');
+    expect(html).toContain('data-comparison-kind="measured-fact"');
+    expect(html).toContain("later evidence, published 1909");
+    expect(html).toContain("First series, p. 77");
+    expect(html.match(/data-perrin-observed/g)).toHaveLength(4);
+    expect(html).toContain("50.2");
+    expect(html).toContain("113.5");
+    expect(html).toContain("printed rounding");
+    expect(html).toContain('data-perrin-conditions="different"');
+    expect(html).not.toContain("Use Perrin’s source conditions");
+  });
+
+  test("changing the accepted diffusivity changes the model but not the observed numbers", () => {
+    const altered = {
+      ...example,
+      results: example.results.map((encoded) => {
+        const output = JSON.parse(encoded) as { quantityId: string; value: number };
+        return output.quantityId === "diffusionCoefficient"
+          ? JSON.stringify({ ...output, value: output.value * 2 })
+          : encoded;
+      }),
+    };
+    const before = render(example);
+    const after = render(altered);
+    const values = (html: string, attribute: string) =>
+      [...html.matchAll(new RegExp(`${attribute}="[^"]*">([^<]+)<`, "g"))].map((match) => match[1]);
+    expect(values(after, "data-perrin-observed")).toEqual(values(before, "data-perrin-observed"));
+    expect(values(after, "data-perrin-model")).not.toEqual(values(before, "data-perrin-model"));
+  });
+});
+
+describe("the measurement comparison identifies retained results", () => {
+  test("pending, refused and unavailable views never present the old prediction as a new result", () => {
+    const view = createBm01Session(
+      "perrin-currency",
+      example,
+      createBm01BrowserChannel,
+    ).getServerSnapshot();
+    const snapshot = view.accepted;
+    expect(snapshot).not.toBeNull();
+    if (!snapshot) return;
+    for (const status of ["pending", "refused", "unavailable"] as const) {
+      const html = renderToStaticMarkup(
+        <PerrinComparison
+          record={perrin}
+          snapshot={snapshot}
+          view={{ ...view, status, pending: status === "pending" }}
+          onUseSourceConditions={() => {}}
+        />,
+      );
+      expect(html).toContain("Accepted model");
+      expect(html.match(/data-perrin-observed/g)).toHaveLength(4);
+      if (status === "pending") {
+        expect(html).toContain('data-currency-state="running"');
+        expect(html).toContain("previous accepted inputs");
+        expect(html).toContain('disabled=""');
+      } else if (status === "refused") {
+        expect(html).toContain('data-currency-state="refused"');
+        expect(html).toContain("last accepted inputs");
+      } else {
+        expect(html).toContain("retains the last accepted result");
+      }
+    }
   });
 });

@@ -43,6 +43,7 @@ import { PpeTask } from "../../../discovery/PpeTask.tsx";
 import { RouteMap } from "../../../discovery/RouteMap.tsx";
 import { SourceJump } from "../../../discovery/SourceJump.tsx";
 import { StepDoor, type StepDoorHref, StepDoors } from "../../../discovery/StepDoor.tsx";
+import { loadPerrinRecord } from "../../../experiments/bm01/perrinRecord.ts";
 import { BM04_PRESETS } from "../../../experiments/bm04/definition.ts";
 import { encodeBm04Settings } from "../../../experiments/bm04/permalink.ts";
 import tracerExample from "../../../generated/bm01-example.json";
@@ -236,12 +237,13 @@ export default function BrownianEncounter() {
             example={tracerExample}
             check={WORLD_CHECK}
             laterEvidence={BROWNIAN_LATER_EVIDENCE}
+            perrin={loadPerrinRecord()}
           />
           <p>
-            The later evidence is not a displacement for these particles. Perrin measured
-            suspensions of his own, and what he reported was the number of molecules that makes the
-            formulas fit them. It came out close to the 6 × 10<sup>23</sup> Einstein took from gas
-            theory, and that number is what sets the size of the displacements he printed.
+            Perrin's suspensions had their own measured radius, temperature and viscosity. Those
+            conditions let us compare the displacement scale directly. Turning the relation around
+            asks a further question: what molecular number do the observations imply, and how much
+            does that answer depend on the measurements of radius and viscosity?
           </p>
         </section>
         <BrownianStage stage={INFERENCE_STAGE}>
@@ -275,8 +277,8 @@ export default function BrownianEncounter() {
           <p>
             Agreement between a numerical grid and an analytic curve checks their calculation under
             stated assumptions. It does not establish that real tracers obey those assumptions.
-            Measurements, their uncertainty and their provenance are a separate part of the planned
-            edition.
+            Perrin's measured displacements above carry their own source and precision limits;
+            they can test the prediction without becoming premises of the 1905 argument.
           </p>
         </aside>
         <section id="in-the-paper">

@@ -1,0 +1,93 @@
+# Visually transcribed from Perrin's printed first-series table, p. 77.
+# Receipt: docs/provenance/datasets/perrin-1909-displacements.md.
+id: perrin-1909-displacements
+title: "Perrin (1909), Brownian displacements: Chaudesaigues's first series"
+evidenceStatus: historical-measurement
+publications:
+  - id: perrin-1909-annales
+    citation: cit-perrin-1909-realite-moleculaire
+    locator:
+      kind: unnumbered-table
+      page: 77
+      caption: "Première série"
+    publicationDate:
+      type: issue-publication
+      text: "September 1909"
+      earliest: "1909-09-01"
+      latest: "1909-09-30"
+      precision: month
+      source: "Annales de chimie et de physique (8) 18, 5-114"
+      verifiedAt: "2026-11-11"
+primaryPublicationId: perrin-1909-annales
+series:
+  - id: chaudesaigues-first
+    publicationId: perrin-1909-annales
+    description: "Fifty gamboge grains of radius 0.212 micrometre, each followed at 30-second intervals for two minutes. Water at 17 degrees Celsius, with the printed viscosity 0.011 poise (0.0011 Pa s)."
+digitizer:
+  name: "agent:ChatGPT-product-priorities"
+  method: "Visual transcription of the first table on printed p. 77, rendered from PDF page 75 at 300 dpi with pdftoppm. Printed p. 76 (PDF page 74) was read visually for the definition: half the mean squared horizontal segment length estimates the mean square along one axis. No OCR or PDF text layer was read. Decimal commas were converted to decimal points and the printed 10^-8 square-centimetre values to square metres."
+  date: "2026-11-11"
+  sourcePageImage: "https://liphy-annuaire.univ-grenoble-alpes.fr/pages_personnelles/bahram_houchmandzadeh/Phys_Stat/Biblio/Perrin_1909_brownian.pdf#page=75"
+  digitizationRevision: 1
+columns:
+  - name: "Observation interval, as printed"
+    quantityId: elapsedTime
+    unit: "s"
+    role: controlled
+  - name: "Mean square displacement along one axis, as printed"
+    quantityId: meanSquareDisplacement1d
+    unit: "m2"
+    role: observed
+rows:
+  - seriesId: chaudesaigues-first
+    cells:
+      - kind: number
+        value: 30
+        originalToken: "30"
+      - kind: number
+        value: 5.02e-11
+        originalToken: "50,2"
+  - seriesId: chaudesaigues-first
+    cells:
+      - kind: number
+        value: 60
+        originalToken: "60"
+      - kind: number
+        value: 1.135e-10
+        originalToken: "113,5"
+  - seriesId: chaudesaigues-first
+    cells:
+      - kind: number
+        value: 90
+        originalToken: "90"
+      - kind: number
+        value: 1.28e-10
+        originalToken: "128"
+  - seriesId: chaudesaigues-first
+    cells:
+      - kind: number
+        value: 120
+        originalToken: "120"
+      - kind: number
+        value: 1.44e-10
+        originalToken: "144"
+uncertainty:
+  type: printed-rounding-only
+  value: 5.0e-13
+  description: "Half the last printed place is 0.05 square micrometres for 50.2 and 113.5, and 0.5 square micrometres for 128 and 144. The stored value is the larger rounding allowance, in square metres. These are transcription precision limits, not experimental error bars or confidence intervals. Perrin gives no uncertainty for each row here; pp. 78-79 discuss finite sampling and position-reading error, which biases mean squares upward."
+notes: "Only the first series is transcribed, because p. 77 states its temperature and viscosity together. The second series has a different viscosity and is not pooled with it. Page 76 defines the observed statistic from squared horizontal displacements; the values here are those printed in the mean-square column, not values recovered from Perrin's inferred molecular number or from Einstein's equation. The four intervals use the same fifty grains and are not four independent experiments. The source lists 0.212 micrometre as the radius, not the diameter. The model comparison uses the separately accepted laboratory diffusivity and today's constants when the source preset is applied. It makes no fit and does not certify the model's assumptions."
+rights:
+  status: public-domain-text
+  statement: "Published in France in 1909. The BnF scan is cited through a university-hosted copy; no scan is redistributed by this record. Gallica's published reuse terms require attribution for noncommercial reuse; the source and terms are recorded in the receipt."
+  source: "https://gallica.bnf.fr/ark:/12148/bpt6k349481"
+  recordedAt: "2026-11-11"
+  reuseTerms: source-terms
+  credit: "Source gallica.bnf.fr / Bibliothèque nationale de France"
+allowedInferenceModelIds: []
+calibrationIds: []
+sharedInputIds: []
+addressesResults:
+  - resultId: bm-displacement-law
+    relation: tested-a-prediction
+    statement: "The table reports measured mean-square displacements at four intervals, which can be compared with the predicted proportionality to elapsed time at independently stated temperature, viscosity and radius."
+    openQuestion: "The sample has finite scatter, overlapping observations and position-reading error; the table alone supplies neither independent uncertainties for each row nor a test of every assumption of free isotropic diffusion."
