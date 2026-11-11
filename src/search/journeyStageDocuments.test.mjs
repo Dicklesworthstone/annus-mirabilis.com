@@ -3,6 +3,7 @@ import test from "node:test";
 import { BROWNIAN_STAGES } from "../discovery/brownian/stages.ts";
 import { LIGHT_QUANTA_STAGES } from "../discovery/lightQuanta/stages.ts";
 import { MASS_ENERGY_STAGES } from "../discovery/massEnergy/stages.ts";
+import { SPECIAL_RELATIVITY_STAGES } from "../discovery/relativity/stages.ts";
 import { ROUTE_INDEX } from "../discovery/routeIndex.ts";
 import { createSearchEngine, searchResultHref, validateSearchDocument } from "./core.ts";
 import { JourneyStageSearchError, journeyStageDocuments } from "./journeyStageDocuments.ts";
@@ -12,7 +13,7 @@ import { JourneyStageSearchError, journeyStageDocuments } from "./journeyStageDo
 const JOURNEYS = [
   { paper: "light-quanta", stages: LIGHT_QUANTA_STAGES },
   { paper: "brownian-motion", stages: BROWNIAN_STAGES },
-  { paper: "special-relativity", stages: [] },
+  { paper: "special-relativity", stages: SPECIAL_RELATIVITY_STAGES },
   { paper: "mass-energy", stages: MASS_ENERGY_STAGES },
 ];
 const documents = journeyStageDocuments(JOURNEYS, ROUTE_INDEX, "scaffold");
@@ -68,6 +69,8 @@ test("worked explanations and transfer questions are searchable beyond generic s
     ["What if one elementary event can absorb two quanta at once?", "light-quanta", "step-07"],
     ["The unbounded classical allocation has no finite total energy.", "light-quanta", "step-03"],
     ["The premise hiding in “whatever fixed offset”", "mass-energy", "step-04"],
+    ["Economy can motivate a preference, but it is not a measurement", "special-relativity", "step-07"],
+    ["A distant comparison still requires an explicit operational rule.", "special-relativity", "step-04"],
   ]) {
     const hits = engine.search(query, { paper, type: "discovery" });
     assert.ok(hits.some((hit) => hit.document.anchor === anchor), query);

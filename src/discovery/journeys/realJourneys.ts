@@ -46,6 +46,7 @@ import { MASS_ENERGY_STAGES } from "../massEnergy/stages.ts";
 import * as relativityClock from "../relativity/clockExercise.ts";
 import * as relativityExercises from "../relativity/journeyExercises.ts";
 import * as relativity from "../relativity/journeyIII.ts";
+import { SPECIAL_RELATIVITY_STAGES } from "../relativity/stages.ts";
 import {
   BROWNIAN_SHELF_CARDS,
   LIGHT_QUANTA_SHELF_CARDS,
@@ -266,7 +267,7 @@ function admittedImportsOf(paper: string, shelf: readonly ShelfCard[]): readonly
 const REVISIONS: Readonly<Record<string, number>> = Object.freeze({
   "light-quanta": 4,
   "brownian-motion": 3,
-  "special-relativity": 2,
+  "special-relativity": 3,
   "mass-energy": 4,
 });
 
@@ -344,6 +345,12 @@ export const JOURNEY_LINEAGE: Readonly<Record<string, readonly RevisionLineageEn
           "Gained the move.derivationChain pending declaration: this journey's move is named in the record and marked in no derivation chain a reader can open, and am-4k0m's fourth drift item allows a written declaration where the fix is physics authoring. The gap had been reported only as a count in a test log, which is a measurement and not a record (am-4k0m).",
         date: "2026-10-09",
       }),
+      Object.freeze({
+        revision: 2,
+        reason:
+          "Recorded the seven existing discovery argument stages with explicit 1904 shelf premises, reasoning tools, worked comparisons, predictions and transfer cases. Compiler checks and local search can now inspect the Special Relativity argument chain; stages is no longer pending.",
+        date: "2026-11-11",
+      }),
     ]),
   });
 
@@ -387,6 +394,6 @@ function compose(
 export const REAL_JOURNEYS: readonly Journey[] = Object.freeze([
   compose("light-quanta", lightQuanta as never, LIGHT_QUANTA_SHELF_CARDS, LIGHT_QUANTA_STAGES),
   compose("brownian-motion", brownian as never, BROWNIAN_SHELF_CARDS, BROWNIAN_STAGES),
-  compose("special-relativity", relativity as never, SPECIAL_RELATIVITY_SHELF_CARDS),
+  compose("special-relativity", relativity as never, SPECIAL_RELATIVITY_SHELF_CARDS, SPECIAL_RELATIVITY_STAGES),
   compose("mass-energy", massEnergy as never, MASS_ENERGY_SHELF_CARDS, MASS_ENERGY_STAGES),
 ]);
