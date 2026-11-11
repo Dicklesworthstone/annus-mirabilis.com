@@ -76,7 +76,7 @@ function gaussian(x: number, time: number, D: number): number {
   return numeric(gaussianPropagator(x, time, D));
 }
 
-test("both Brownian source chains retain ordered draft derivations with one marked move", () => {
+test("equilibrium algebra is checked while diffusion-limit calculus stays draft", () => {
   assert.deepEqual(
     chains.map((chain) => chain.steps.length),
     [7, 8],
@@ -84,8 +84,11 @@ test("both Brownian source chains retain ordered draft derivations with one mark
   for (const chain of chains) {
     const report = verifyChain(chain);
     assert.equal(report.passed, true, JSON.stringify(report));
-    assert.equal(report.isPublicationReady, false);
-    assert.equal(verifyChain(chain, { isPublicationGate: true }).passed, false);
+    const checkedEquilibrium = chain === brownianEquilibriumDerivation;
+    assert.equal(report.isPublicationReady, checkedEquilibrium);
+    assert.equal(verifyChain(chain, { isPublicationGate: true }).passed, checkedEquilibrium);
+    if (checkedEquilibrium)
+      assert.ok(report.stepReports.every((step) => step.verificationStatus === "verified"));
     assert.equal(chain.steps.at(-1)?.id, chain.targetStepId);
     assert.equal(chain.steps.filter((step) => step.isMove).length, 1);
     for (const [index, step] of chain.steps.entries()) {
@@ -344,4 +347,41 @@ test("all 15 Brownian source steps have synchronized owned R0–R3 readings", ()
       assert.deepEqual(target.readings, brownianReadingSet(step, section));
     }
   }
+});
+
+test("equilibrium support rejects altered operations, premises and result coefficients", () => {
+  const chain = brownianEquilibriumDerivation;
+  assert.equal(verifyChain(chain, { isPublicationGate: true }).passed, true);
+  const changed = (id: string, replace: (step: DerivationStep) => DerivationStep) => ({
+    ...chain,
+    steps: chain.steps.map((step) => (step.id === id ? replace(step) : step)),
+  });
+  const changedOperation = changed("bm-equilibrium-read-pressure-balance", (step) => ({
+    ...step,
+    rule: {
+      ...step.rule,
+      params: { ...step.rule.params, quantity: { kind: "number", value: "0" } },
+    },
+  }));
+  assert.equal(verifyChain(changedOperation, { isPublicationGate: true }).passed, false);
+
+  const wrongSix = (tree: unknown): Expression => {
+    const before = JSON.stringify(tree);
+    const after = before.replace('"value":"6"', '"value":"12"');
+    assert.notEqual(after, before, "The wrong coefficient must change the control.");
+    return JSON.parse(after) as Expression;
+  };
+  const changedPremise = changed("bm-equilibrium-insert-stokes-mobility", (step) => ({
+    ...step,
+    rule: {
+      ...step.rule,
+      params: { ...step.rule.params, replacement: wrongSix(step.rule.params.replacement) },
+    },
+  }));
+  assert.equal(verifyChain(changedPremise, { isPublicationGate: true }).passed, false);
+  const changedResult = changed("bm-equilibrium-collect-diffusivity", (step) => ({
+    ...step,
+    to: wrongSix(step.to),
+  }));
+  assert.equal(verifyChain(changedResult, { isPublicationGate: true }).passed, false);
 });

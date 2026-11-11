@@ -7,6 +7,7 @@
  * source-order graph projection: the checks establish conditional algebra and limits,
  * never the physical premises or historical fidelity.
  */
+import brownianMolarRecord from "../../../content/equations/brownian-motion/eq-model-bm-diffusivity-molar.json";
 import dopplerRecord from "../../../content/equations/special-relativity/eq-model-sr-doppler-factor.json";
 import frequencyRecord from "../../../content/equations/special-relativity/eq-model-sr-doppler-ratio.json";
 import workIntegralRecord from "../../../content/equations/special-relativity/eq-model-sr-electron-work-integral.json";
@@ -18,6 +19,7 @@ import longitudinalRecord from "../../../content/equations/special-relativity/eq
 import laboratoryRecord from "../../../content/equations/special-relativity/eq-model-sr-transverse-mass-laboratory.json";
 import printedRecord from "../../../content/equations/special-relativity/eq-model-sr-transverse-mass-printed.json";
 import type { Expression } from "../../equations/ast.ts";
+import { brownianEquilibriumDerivation } from "../../equations/derivations/brownianSource.ts";
 import { buildMassEnergyElimination } from "../../equations/derivations/massEnergyElimination.ts";
 import { buildMassEnergyLowSpeed } from "../../equations/derivations/massEnergyLowSpeed.ts";
 import {
@@ -35,19 +37,22 @@ import { ResultCardsError } from "./printedChecks.ts";
 import type { ResultCardRecord } from "./resultCards.ts";
 import type { CheckedResultSupport, ResultProofId } from "./supportDeclarations.ts";
 
-type SRProofId = Extract<ResultProofId, `sr-${string}`>;
+type DerivationProofId = Extract<ResultProofId, `sr-${string}` | `bm-${string}`>;
 type ProofRecord = Readonly<{
   id: string;
   paper: string;
   argument: string;
   tree: unknown;
+  assumptions: readonly string[];
 }>;
-type SRProof = Readonly<{
+type DerivationProof = Readonly<{
+  paper: string;
   conclusion: string;
   title: string;
   href: string;
   records: readonly ProofRecord[];
   chains: readonly DerivationChain[];
+  premises?: CheckedResultSupport["assumptions"];
 }>;
 
 /**
@@ -56,8 +61,61 @@ type SRProof = Readonly<{
  * Only routes whose every transformation is executable belong here. A passing preview report
  * for authored, unchecked calculus is not a checked proof.
  */
-const SR_PROOFS: Readonly<Record<SRProofId, SRProof>> = {
+const DERIVATION_PROOFS: Readonly<Record<DerivationProofId, DerivationProof>> = {
+  "bm-equilibrium-diffusivity": {
+    paper: "brownian-motion",
+    conclusion: brownianMolarRecord.id,
+    title: "Follow the equilibrium balance to the diffusion coefficient",
+    href: "/papers/brownian-motion/s3/#bm-equilibrium-derivation",
+    records: [brownianMolarRecord],
+    chains: [brownianEquilibriumDerivation],
+    premises: [
+      {
+        id: "arg-bm-osmotic-suspended",
+        label: "Dilute osmotic law",
+        explanation:
+          "The suspension is dilute and its particles are independent. The admitted osmotic " +
+          "law is Π = nRT/N, with uniform positive absolute temperature.",
+      },
+      {
+        id: "bm-isothermal-osmotic-equilibrium",
+        label: "The same equilibrium in both descriptions",
+        explanation:
+          "The isothermal force balance and zero total particle flux describe the same " +
+          "weak-force equilibrium. The thermodynamic construction of that state remains a premise.",
+      },
+      {
+        id: "bm-drift-particle-flux",
+        label: "Drift counts particles",
+        explanation:
+          "The drift particle flux is J_drift = nbK. It is compared with a particle flux, " +
+          "rather than a mass flux or a velocity inferred from an irregular trajectory.",
+      },
+      {
+        id: "bm-fick-flux",
+        label: "Fick's diffusive flux",
+        explanation:
+          "The admitted transport law is J_diff = −D ∂n/∂x. At equilibrium it cancels the drift.",
+      },
+      {
+        id: "bm-stokes-drag-dilute-spheres",
+        label: "Stokes mobility and its domain",
+        explanation:
+          "The independently supplied mobility is b = 1/(6πηa), for dilute spheres in a " +
+          "Newtonian liquid with slow no-slip drift. Viscosity, radius and N are positive.",
+      },
+      {
+        id: "bm-nonzero-gradient-comparison",
+        label: "A nonzero comparison gradient",
+        explanation:
+          "Cancelling ∂n/∂x requires a nonzero gradient in the selected weak-force equilibrium. " +
+          "A uniform zero-force state gives 0 = 0 and does not determine D. Applying the " +
+          "coefficient in that limit retains the linear-response model assumption.",
+      },
+    ],
+  },
   "sr-light-complex-energy": {
+    paper: "special-relativity",
     conclusion: energyRecord.id,
     title: "Follow the energy of the whole light packet",
     href: "/papers/special-relativity/s8/#sr-light-complex-derivation",
@@ -65,6 +123,7 @@ const SR_PROOFS: Readonly<Record<SRProofId, SRProof>> = {
     chains: [srLightComplexDerivation],
   },
   "sr-electron-force-conventions": {
+    paper: "special-relativity",
     conclusion: printedRecord.id,
     title: "Follow each force and acceleration back to its frame",
     href: "/papers/special-relativity/s10/#sr-electron-conventions-derivation",
@@ -72,6 +131,7 @@ const SR_PROOFS: Readonly<Record<SRProofId, SRProof>> = {
     chains: [srElectronLongitudinal, srElectronTransverse, srElectronLaboratory],
   },
   "sr-electron-work": {
+    paper: "special-relativity",
     conclusion: workResultRecord.id,
     title: "Follow the force through the work integral",
     href: "/papers/special-relativity/s10/#sr-electron-work-derivation",
@@ -80,14 +140,14 @@ const SR_PROOFS: Readonly<Record<SRProofId, SRProof>> = {
   },
 };
 
-function checkedSRSupport(
+function checkedDerivationSupport(
   cardId: string,
-  declaration: Readonly<{ proofId: SRProofId; conclusion: string; scope: string }>,
+  declaration: Readonly<{ proofId: DerivationProofId; conclusion: string; scope: string }>,
   conclusion: EquationRecord,
   equations: readonly EquationRecord[],
 ): CheckedResultSupport {
-  const proof = SR_PROOFS[declaration.proofId];
-  if (conclusion.paper !== "special-relativity" || declaration.conclusion !== proof.conclusion)
+  const proof = DERIVATION_PROOFS[declaration.proofId];
+  if (conclusion.paper !== proof.paper || declaration.conclusion !== proof.conclusion)
     throw new ResultCardsError(
       "result-support-derivation-conclusion-missing",
       `${cardId}: ${declaration.proofId} does not establish ${declaration.conclusion}.`,
@@ -101,11 +161,12 @@ function checkedSRSupport(
       !actual ||
       actual.paper !== expected.paper ||
       actual.argument !== expected.argument ||
-      !structurallyEqual(actual.tree, expected.tree as Expression)
+      !structurallyEqual(actual.tree, expected.tree as Expression) ||
+      JSON.stringify(actual.assumptions) !== JSON.stringify(expected.assumptions)
     )
       throw new ResultCardsError(
         "result-support-derivation-record-mismatch",
-        `${cardId}: ${expected.id} is missing, repeated, or differs from the derivation's canonical equation.`,
+        `${cardId}: ${expected.id} is missing, repeated, or differs from the derivation's canonical equation or premises.`,
       );
     return actual;
   });
@@ -145,7 +206,7 @@ function checkedSRSupport(
     href: proof.href,
     conclusion: { equationId: conclusion.id, title: conclusion.title },
     scope: declaration.scope,
-    assumptions,
+    assumptions: [...(proof.premises ?? []), ...assumptions],
   };
 }
 
@@ -166,10 +227,10 @@ export function checkedSupportFor(
       `${card.id}: ${declaration.conclusion} is not an equation of this card's argument.`,
     );
 
-  if (Object.hasOwn(SR_PROOFS, declaration.proofId))
-    return checkedSRSupport(
+  if (Object.hasOwn(DERIVATION_PROOFS, declaration.proofId))
+    return checkedDerivationSupport(
       card.id,
-      { ...declaration, proofId: declaration.proofId as SRProofId },
+      { ...declaration, proofId: declaration.proofId as DerivationProofId },
       conclusion,
       equations,
     );

@@ -68,8 +68,10 @@ cards:
 
   - id: bm-diffusion-coefficient
     support:
-      kind: "no-checked-proof"
-      reason: "The balance of osmotic force and viscous drag is explained in the linked passage; it has no checked derivation record."
+      kind: "checked-proof"
+      proofId: "bm-equilibrium-diffusivity"
+      conclusion: "eq-model-bm-diffusivity-molar"
+      scope: "The checked algebra gives the diffusivity under isothermal osmotic equilibrium, zero net flux, Fick's law and Stokes mobility, using a nonzero comparison gradient. These physical premises and the extension to zero applied force remain assumptions."
     title: "The diffusion coefficient of suspended spheres"
     section: s3
     arguments: [arg-bm-diffusivity]

@@ -1,7 +1,8 @@
 /**
  * Brownian §§3–4 in source order: equilibrium fixes D, then a symmetric jump law yields
  * the diffusion equation. The canonical equation records own the reusable mathematics.
- * Thermodynamic/model premises and the modern remainder qualification remain authored drafts.
+ * The equilibrium route checks conditional algebra; thermodynamic/model premises remain admitted.
+ * The jump-law calculus and its modern remainder qualification remain authored drafts.
  */
 
 import diffusionRecord from "../../../content/equations/brownian-motion/eq-model-bm-diffusion-equation.json";
@@ -159,7 +160,12 @@ export const brownianEquilibriumDerivation: DerivationChain = {
       changedSubexpressionIds: [n.termId, force.termId, "bm-source.op.number-gradient"],
       rule: {
         kind: "add-subtract-multiply-divide",
-        params: { operation: "add", quantity: product(n, force) },
+        params: {
+          operation: "add",
+          quantity: product(n, force),
+          simplify: true,
+          swapSides: true,
+        },
       },
       reasonKind: "physical-premise",
       reasons: {
@@ -183,7 +189,7 @@ export const brownianEquilibriumDerivation: DerivationChain = {
       changedSubexpressionIds: [mobility.termId],
       rule: {
         kind: "add-subtract-multiply-divide",
-        params: { operation: "multiply", quantity: mobility },
+        params: { operation: "multiply", quantity: mobility, simplify: true },
       },
       reasonKind: "algebra",
       reasons: {
@@ -261,6 +267,7 @@ export const brownianEquilibriumDerivation: DerivationChain = {
         params: {
           operation: "divide",
           quantity: densityGradient,
+          simplify: true,
           nonzeroCondition:
             "Use a nonzero density gradient in the weak-force equilibrium construction.",
         },
@@ -308,7 +315,7 @@ export const brownianEquilibriumDerivation: DerivationChain = {
       from: withStokes,
       to: molar,
       changedSubexpressionIds: [molarRecord.id + ".op.quotient"],
-      rule: { kind: "collect", params: {} },
+      rule: { kind: "collect", params: { exact: true } },
       reasonKind: "algebra",
       reasons: {
         r0: "The final diffusivity rises with temperature and falls with viscosity and particle radius.",
