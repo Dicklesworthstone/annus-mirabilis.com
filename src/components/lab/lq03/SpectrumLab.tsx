@@ -13,6 +13,7 @@ import {
   LQ03_NOT_MODELED,
   LQ03_OUTPUTS,
   LQ03_QUESTION,
+  type Lq03ConstantSet,
   type Lq03Parameters,
 } from "../../../experiments/lq03/definition.ts";
 import {
@@ -48,6 +49,7 @@ import { withScripts } from "../subscripts.tsx";
 import { SpectrumPlot } from "./SpectrumPlot.tsx";
 
 type Draft = Readonly<{
+  constantSetId: Lq03ConstantSet;
   T: string;
   nu1: string;
   nu2: string;
@@ -63,6 +65,7 @@ type Draft = Readonly<{
 
 function toDraft(p: Lq03Parameters): Draft {
   return {
+    constantSetId: p.constantSetId ?? "modern-si-2019",
     T: String(p.T),
     nu1: String(p.nu1),
     nu2: String(p.nu2),
@@ -79,6 +82,7 @@ function toDraft(p: Lq03Parameters): Draft {
 
 function fromDraft(d: Draft): unknown {
   return {
+    ...(d.constantSetId === "modern-si-2019" ? {} : { constantSetId: d.constantSetId }),
     // Number("") is 0: a cleared field was read as 0 and refused with a range, or, for ε, as 0%.
     // A blank or partial field now reaches the validator as NaN and is refused as not a number.
     T: typedOrNaN(d.T),
@@ -192,6 +196,10 @@ export function SpectrumLab({
   // particular, those renders must not repeat the two adaptive band integrations.
   const evaluation = useMemo(() => evaluateLq03(p), [p]);
   const spectrum = useMemo(() => evaluateLq03Spectrum(p), [p]);
+  const weaveBinding = useMemo(
+    () => ({ ...LQ03_READER_WEAVE, constantSetId: p.constantSetId ?? "modern-si-2019" }),
+    [p.constantSetId],
+  );
 
   useEffect(() => {
     setReady(true);
@@ -222,6 +230,7 @@ export function SpectrumLab({
     apply(fromDraft(next));
   }
 
+  const historical = p.constantSetId === "einstein-1905-light-quanta-printed";
   const regime = evaluation.regime;
   const verdict =
     regime.regime === "wien"
@@ -235,6 +244,7 @@ export function SpectrumLab({
       className="laboratory"
       aria-labelledby={`${id}-title`}
       data-instrument-id="lq-03"
+      data-constant-set={p.constantSetId ?? "modern-si-2019"}
       {...identity(snapshot)}
       data-input-revision={view.requested?.revisions.input}
       data-accepted-input-revision={snapshot.revisions.input}
@@ -325,7 +335,23 @@ export function SpectrumLab({
                 </select>
               </div>
             </div>
-            <ExperimentSettings contents="axis scale, which laws are drawn, the band, the probe frequency, the regime tolerance">
+            <ExperimentSettings contents="constant set, axis scale, which laws are drawn, the band, the probe frequency, the regime tolerance">
+              <div className="input-field">
+                <label htmlFor={`${id}-constantSetId`}>Constants for this calculation</label>
+                <select
+                  id={`${id}-constantSetId`}
+                  name="constantSetId"
+                  value={draft.constantSetId}
+                  onChange={(e) =>
+                    applyDraft({ ...draft, constantSetId: e.target.value as Lq03ConstantSet })
+                  }
+                >
+                  <option value="modern-si-2019">Modern SI constants</option>
+                  <option value="einstein-1905-light-quanta-printed">
+                    Light paper, 1905 (corrected alpha)
+                  </option>
+                </select>
+              </div>
               <div className="input-grid">
                 <div className="input-field">
                   <label htmlFor={`${id}-axisScale`}>Axis scale</label>
@@ -465,6 +491,22 @@ export function SpectrumLab({
         </form>
 
         <div className="results lab-results">
+          <p className="fine" data-accepted-constants={p.constantSetId ?? "modern-si-2019"}>
+            {historical ? (
+              <>
+                These results use the light paper’s α = 6.10 × 10<sup>−57</sup> erg s⁴/cm³ (the
+                corrected exponent), β = 4.866 × 10<sup>−11</sup> s K, and the editorial light speed
+                3 × 10<sup>8</sup> m/s. All three curves share these spectral coefficients: the
+                Planck comparison uses the same empirical calibration, and the classical curve
+                uses its low-frequency limit α/β. No modern h or Boltzmann constant enters this
+                calculation. All densities are converted to SI.{" "}
+                <a href="/papers/light-quanta/#s2">Read §2</a>.
+              </>
+            ) : (
+              "These results use the modern SI values of h, the Boltzmann constant and light speed."
+            )}{" "}
+            The worked numbers in the explanations below use modern SI constants.
+          </p>
           <SpectrumPlot
             spectrum={spectrum}
             shown={{ planck: p.showPlanck, wien: p.showWien, classical: p.showClassical }}
@@ -493,7 +535,9 @@ export function SpectrumLab({
                 {p.showPlanck && (
                   <tr>
                     <td>Planck 1900</td>
-                    <td>{densityText(evaluation.planck.frequency, "J/(m³ Hz)")}</td>
+                    <td data-output="frequencyEnergyDensity">
+                      {densityText(evaluation.planck.frequency, "J/(m³ Hz)")}
+                    </td>
                     <td>{densityText(evaluation.planck.wavelength, "J/(m³ m)")}</td>
                   </tr>
                 )}
@@ -570,8 +614,15 @@ export function SpectrumLab({
 
             <h3>Wien and classical regime verdict</h3>
             <p>
-              At this temperature and probe frequency, x = h&nu;/(k<sub>B</sub>T) ={" "}
-              {xText(regime.x)}. Wien's law's relative error here is{" "}
+              At this temperature and probe frequency, x ={" "}
+              {historical ? (
+                "βν/T"
+              ) : (
+                <>
+                  h&nu;/(k<sub>B</sub>T)
+                </>
+              )}{" "}
+              = {xText(regime.x)}. Wien's law's relative error here is{" "}
               <Sci value={regime.wienRelativeError} digits={4} />;{" "}
               {Number.isFinite(regime.rayleighJeansRelativeError) ? (
                 <>
@@ -620,7 +671,7 @@ export function SpectrumLab({
 
       <SessionResultWeave
         session={session}
-        binding={LQ03_READER_WEAVE}
+        binding={weaveBinding}
         suspended={failure !== null}
         highlightPaper={highlightPaper}
       />

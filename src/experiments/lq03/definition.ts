@@ -3,8 +3,11 @@ import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
 export type Lq03Coordinate = "frequency" | "wavelength";
 export type Lq03AxisScale = "linear" | "logarithmic";
 export type Lq03Convention = "per-hz" | "per-m" | "per-log" | "per-decade";
+export type Lq03ConstantSet = "modern-si-2019" | "einstein-1905-light-quanta-printed";
 
 export type Lq03Parameters = Readonly<{
+  /** Older recordings default to modern SI without changing their settings digest. */
+  constantSetId?: Lq03ConstantSet;
   T: number;
   coordinate: Lq03Coordinate;
   axisScale: Lq03AxisScale;
@@ -33,6 +36,7 @@ export const LQ03_DEFAULTS: Lq03Parameters = Object.freeze({
 });
 
 export const LQ03_CLASSES: Readonly<Record<keyof Lq03Parameters, ParameterClass>> = Object.freeze({
+  constantSetId: "input",
   T: "input",
   coordinate: "presentation",
   axisScale: "presentation",

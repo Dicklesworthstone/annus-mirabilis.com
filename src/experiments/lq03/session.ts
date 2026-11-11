@@ -21,6 +21,7 @@ import {
   wienFrequencyEnergyDensity,
   wienWavelengthEnergyDensity,
 } from "../../physics/reference/radiation.ts";
+import { spectralConstantsSI } from "../../physics/reference/radiation/spectralConstants.ts";
 import type {
   AcceptedSnapshot,
   ExperimentView,
@@ -61,10 +62,8 @@ export type Lq03Evaluation = Readonly<{
 }>;
 
 export function evaluateLq03(p: Lq03Parameters): Lq03Evaluation {
-  // modern-si-2019 only, per this pass's scope: historical evaluation under
-  // einstein-1905-light-quanta-printed is not implemented here (see BATCH_PENDING).
-  const set = getConstantSet("modern-si-2019");
-  const c = 299792458;
+  const set = getConstantSet(p.constantSetId ?? "modern-si-2019");
+  const { B, c } = spectralConstantsSI(set);
   const lambdaAtProbe = c / p.probeNu;
 
   const planckAtProbe = planckFrequencyEnergyDensity(p.probeNu, p.T, set);
@@ -83,7 +82,7 @@ export function evaluateLq03(p: Lq03Parameters): Lq03Evaluation {
   const peakLogInterval = planckPeakLogInterval(p.T, set);
 
   return Object.freeze({
-    probeX: (6.62607015e-34 * p.probeNu) / (1.380649e-23 * p.T),
+    probeX: (B * p.probeNu) / p.T,
     planck: Object.freeze({
       frequency: planckAtProbe,
       wavelength: planckAtWavelength,
@@ -303,7 +302,10 @@ export function createLq03Session(
       return validated;
     }
     actionIndex++;
-    const isSetupChange = currentParams.T !== validated.data.T;
+    const isSetupChange =
+      currentParams.T !== validated.data.T ||
+      (currentParams.constantSetId ?? "modern-si-2019") !==
+        (validated.data.constantSetId ?? "modern-si-2019");
     if (newRun || isSetupChange) {
       parentRunId = currentRunId;
       inputRevision++;
@@ -414,8 +416,8 @@ function log10Of(result: RadiationResult<number>): number | null {
  * own u_λ at λ = c/ν, so the Jacobian is the owner's, never a relabelled axis.
  */
 export function evaluateLq03Spectrum(p: Lq03Parameters): Lq03Spectrum {
-  const set = getConstantSet("modern-si-2019");
-  const c = 299792458;
+  const set = getConstantSet(p.constantSetId ?? "modern-si-2019");
+  const { c } = spectralConstantsSI(set);
   const frequencyDensity = {
     planck: planckFrequencyEnergyDensity,
     wien: wienFrequencyEnergyDensity,

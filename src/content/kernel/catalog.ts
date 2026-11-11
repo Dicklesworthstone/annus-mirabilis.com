@@ -34,7 +34,7 @@ const TRANSFORM_SI_WORDS = {
 
 const REGIME_ERROR_WORDS = {
   r0: "How far Wien's law and the classical law each sit from Planck's at this frequency and temperature, and which of the two is admitted here.",
-  r1: "Everything turns on one dimensionless number, x = h nu / (k_B T). Wien's relative error is e to the minus x, so Wien is good where x is large, which is high frequency or low temperature. The classical error is (e^x - 1)/x - 1, which vanishes where x is small. The function returns both errors, the regime they put you in, and the value of x at which each error reaches its tolerance, one per cent by default. Measured at 600 THz and 5800 K: x = 4.96, Wien runs 0.70 per cent below Planck, and the classical law is 27.7 times too large.",
+  r1: "Everything turns on one dimensionless number, x = B nu / T. B is h/k_B for modern SI and the printed beta for the light paper's historical set. Wien's relative error is e to the minus x, so Wien is good where x is large, which is high frequency or low temperature. The classical error is (e^x - 1)/x - 1, which vanishes where x is small. The function returns both errors, the regime they put you in, and the value of x at which each error reaches its tolerance, one per cent by default. With modern SI at 600 THz and 5800 K: x = 4.96, Wien runs 0.70 per cent below Planck, and the classical law is 27.7 times too large.",
   r2: "The classical error is measured against Planck, the same denominator Wien's error uses, and the comment above it records that it was not always. It was computed as 1 - x/(e^x - 1), which divides the difference by the classical value instead of by Planck's. The two agree to first order at small x, which is exactly where the classical law is used, so the error was invisible wherever anyone looked; at x = 5.76 it read 0.98 while the classical law is about 55 times Planck's value, and it put the one per cent boundary at x = 0.020067 where the owning bead specifies 0.0198678. That boundary is now found by Newton's method on e^x - 1 = (1 + epsilon) x and comes out at 0.019867768. Past x = 700 the exponential leaves binary64 and the classical error is returned as Infinity, which a caller has to put into words rather than print.",
 } as const;
 export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
@@ -1328,8 +1328,7 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
     identifierBindings: [
       bind("regimeRelativeErrors", "nu", "frequency"),
       bind("regimeRelativeErrors", "T", "temperature"),
-      bind("regimeRelativeErrors", "h", "planckConstant"),
-      bind("regimeRelativeErrors", "kB", "boltzmannConstant"),
+      bind("regimeRelativeErrors", "B", "wienConstantBeta"),
     ],
     independentReferences: [],
   },
@@ -1338,8 +1337,8 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
     kernel: tsRef("src/physics/reference/radiation/spectra.ts", "planckFrequencyEnergyDensity"),
     words: {
       r0: "Planck's spectrum at one frequency and temperature: the classical mode count multiplied by an average energy that falls away at high frequency.",
-      r1: "u_nu = (8 pi h nu^3 / c^3) divided by (e^x - 1), with x = h nu / (k_B T). The first factor is the same mode count the classical law uses; everything that distinguishes Planck from Rayleigh and Jeans is in the second. Measured at 600 THz and 5800 K it returns 9.383671111056491 times 10^-16 J per cubic metre per hertz, where the classical law gives 2.689 times 10^-14 and Wien's gives 9.318 times 10^-16.",
-      r2: "Nothing here is computed as a product. The prefactor and the factor are both taken to logarithms, added, and handed to packLogRepresentation, which returns the plain value when a double can hold it and otherwise reports the logarithm and marks the value not linearly representable. That matters because this quantity ranges over hundreds of orders of magnitude across the axes this laboratory offers, and a product of 8 pi h with nu cubed underflows long before the physics stops being interesting. The x > 50 branch is there for the same reason in the other direction: -x - log1p(-e^-x) is algebraically the same as -log(e^x - 1) and stays finite past x = 709, where e^x does not. The two branches below it are the same expression written twice, so the x below 10^-4 case is a distinction the code does not currently make.",
+      r1: "u_nu = A nu^3 divided by (e^x - 1), with x = B nu / T. Modern SI gives A = 8 pi h / c^3 and B = h/k_B. The historical set instead supplies the light paper's corrected alpha and printed beta directly, converted to SI; the comparison therefore shares their empirical calibration with the Wien and classical curves. With modern SI at 600 THz and 5800 K it returns 9.383671111056491 times 10^-16 J per cubic metre per hertz, where the classical law gives 2.689 times 10^-14 and Wien's gives 9.318 times 10^-16.",
+      r2: "The spectral prefactor and exponential factor are evaluated as logarithms, added, and handed to packLogRepresentation, which returns the plain value when a double can hold it and otherwise reports the logarithm and marks the value not linearly representable. That matters because this quantity ranges over hundreds of orders of magnitude across the axes this laboratory offers. The x > 50 branch uses -x - log1p(-e^-x), algebraically the same as -log(e^x - 1), to stay finite past x = 709, where e^x does not. The two branches below it are the same expression written twice, so the x below 10^-4 case is a distinction the code does not currently make. The constants adapter reads only the selected set; a historical curve does not borrow modern h or k_B.",
     },
     equationId: "eq-model-lq-planck-low-frequency",
     liveTerms: ["frequency", "temperature", "frequencyEnergyDensity"],
@@ -1350,9 +1349,8 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
       bind("planckFrequencyEnergyDensity", "T", "temperature", [
         "eq-model-lq-planck-low-frequency.t.temperature",
       ]),
-      bind("planckFrequencyEnergyDensity", "h", "planckConstant"),
-      bind("planckFrequencyEnergyDensity", "c", "speedOfLight"),
-      bind("planckFrequencyEnergyDensity", "kB", "boltzmannConstant"),
+      bind("planckFrequencyEnergyDensity", "A", "wienConstantAlpha"),
+      bind("planckFrequencyEnergyDensity", "B", "wienConstantBeta"),
       bind("planckFrequencyEnergyDensity", "value", "frequencyEnergyDensity"),
     ],
     independentReferences: [],
@@ -1363,7 +1361,7 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
     // One sentence is the whole truth: it is the Planck expression with the minus one removed, and
     // what that costs is measured by regimeRelativeErrors rather than stated here.
     words: words(
-      "Wien's spectrum, (8 pi h nu^3 / c^3) times e to the minus x, with x = h nu / (k_B T). It is Planck's expression with the minus one dropped from the denominator, which is why the two agree wherever the exponential is large, and it is computed in logarithms for the same reason Planck's is.",
+      "Wien's spectrum, A nu^3 times e to the minus x, with x = B nu / T. Modern SI gives A = 8 pi h / c^3 and B = h/k_B; the historical set supplies the corrected printed alpha and printed beta. It is Planck's expression with the minus one dropped from the denominator, which is why the two agree wherever the exponential is large, and it is computed in logarithms for the same reason Planck's is.",
     ),
     equationId: "eq-model-lq-wien-spectrum",
     liveTerms: ["frequency", "temperature", "frequencyEnergyDensity"],
@@ -1374,9 +1372,8 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
       bind("wienFrequencyEnergyDensity", "T", "temperature", [
         "eq-model-lq-wien-spectrum.t.temperature",
       ]),
-      bind("wienFrequencyEnergyDensity", "h", "planckConstant"),
-      bind("wienFrequencyEnergyDensity", "c", "speedOfLight"),
-      bind("wienFrequencyEnergyDensity", "kB", "boltzmannConstant"),
+      bind("wienFrequencyEnergyDensity", "A", "wienConstantAlpha"),
+      bind("wienFrequencyEnergyDensity", "B", "wienConstantBeta"),
       bind("wienFrequencyEnergyDensity", "value", "frequencyEnergyDensity", [
         "eq-model-lq-wien-spectrum.t.density",
       ]),
@@ -1389,9 +1386,8 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
       "src/physics/reference/radiation/spectra.ts",
       "rayleighJeansFrequencyEnergyDensity",
     ),
-    // One sentence is the whole truth: mode count times k_B T, and no Planck constant anywhere in it.
     words: words(
-      "The classical spectrum, (8 pi nu^2 / c^3) times k_B T: the number of modes at this frequency multiplied by the equipartition energy of each. The Planck constant does not appear, which is the point of showing it beside the other two.",
+      "The classical low-frequency limit is (A/B) nu^2 T. With modern SI, A/B = 8 pi k_B / c^3, giving the mode count times the equipartition energy. With the historical set, A/B is the corrected printed alpha divided by printed beta. This curve shares the other two curves' empirical calibration; it does not substitute the separately rounded R/N for their coefficient.",
     ),
     equationId: "eq-model-lq-classical-density",
     liveTerms: ["frequency", "temperature", "frequencyEnergyDensity"],
@@ -1402,12 +1398,8 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
       bind("rayleighJeansFrequencyEnergyDensity", "T", "temperature", [
         "eq-model-lq-classical-density.t.temperature",
       ]),
-      bind("rayleighJeansFrequencyEnergyDensity", "c", "speedOfLight", [
-        "eq-model-lq-classical-density.t.light",
-      ]),
-      bind("rayleighJeansFrequencyEnergyDensity", "kB", "boltzmannConstant", [
-        "eq-model-lq-classical-density.t.boltzmann",
-      ]),
+      bind("rayleighJeansFrequencyEnergyDensity", "A", "wienConstantAlpha"),
+      bind("rayleighJeansFrequencyEnergyDensity", "B", "wienConstantBeta"),
       bind("rayleighJeansFrequencyEnergyDensity", "value", "frequencyEnergyDensity", [
         "eq-model-lq-classical-density.t.density",
       ]),
@@ -1439,8 +1431,7 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
     identifierBindings: [
       bind("regimeRelativeErrors", "nu", "frequency"),
       bind("regimeRelativeErrors", "T", "temperature"),
-      bind("regimeRelativeErrors", "h", "planckConstant"),
-      bind("regimeRelativeErrors", "kB", "boltzmannConstant"),
+      bind("regimeRelativeErrors", "B", "wienConstantBeta"),
     ],
     independentReferences: [],
   },
@@ -1593,8 +1584,7 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
     identifierBindings: [
       bind("regimeRelativeErrors", "nu", "frequency"),
       bind("regimeRelativeErrors", "T", "temperature"),
-      bind("regimeRelativeErrors", "h", "planckConstant"),
-      bind("regimeRelativeErrors", "kB", "boltzmannConstant"),
+      bind("regimeRelativeErrors", "B", "wienConstantBeta"),
     ],
     independentReferences: [],
   },

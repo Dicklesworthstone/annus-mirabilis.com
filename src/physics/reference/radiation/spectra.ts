@@ -3,8 +3,9 @@
  * Specification: am-ref-radiation-15c.
  */
 
-import { type ConstantSet, constantValue, thermalConstant } from "../constants.ts";
+import type { ConstantSet } from "../constants.ts";
 import { packLogRepresentation } from "./representability.ts";
+import { spectralConstantsSI, spectralSpeedOfLightSI } from "./spectralConstants.ts";
 import type {
   CyclicFrequency,
   RadiationOutsideDomain,
@@ -16,17 +17,6 @@ import type {
 export const X_PEAK_FREQUENCY = 2.821439372127099; // root of x = 3(1 - e^-x)
 export const X_PEAK_WAVELENGTH = 4.965114231744276; // root of x = 5(1 - e^-x)
 export const X_PEAK_LOG_INTERVAL = 3.920690394872886; // root of x = 4(1 - e^-x)
-
-function getBasePhysicsConstants(set: ConstantSet): {
-  h: number;
-  c: number;
-  kB: number;
-} {
-  const c = constantValue(set, "speedOfLight").value;
-  const kB = thermalConstant(set).value;
-  const h = constantValue(set, "planckConstant").value;
-  return { h, c, kB };
-}
 
 function refuseNonpositive(
   paramName: string,
@@ -58,11 +48,11 @@ export function planckFrequencyEnergyDensity(
   if (!Number.isFinite(nu) || nu <= 0) return refuseNonpositive("frequency", nu, quantityId, unit);
   if (!Number.isFinite(T) || T <= 0) return refuseNonpositive("temperature", T, quantityId, unit);
 
-  const { h, c, kB } = getBasePhysicsConstants(set);
-  const x = (h * nu) / (kB * T);
+  const { A, B } = spectralConstantsSI(set);
+  const x = (B * nu) / T;
 
   // u_nu = (8 * pi * h * nu^3 / c^3) * (1 / (e^x - 1))
-  const lnPrefactor = Math.log(8 * Math.PI * h) + 3 * Math.log(nu) - 3 * Math.log(c);
+  const lnPrefactor = Math.log(A) + 3 * Math.log(nu);
   let lnFactor: number;
   if (x > 50) {
     lnFactor = -x - Math.log1p(-Math.exp(-x));
@@ -97,11 +87,11 @@ export function planckWavelengthEnergyDensity(
     return refuseNonpositive("wavelength", lambda, quantityId, unit);
   if (!Number.isFinite(T) || T <= 0) return refuseNonpositive("temperature", T, quantityId, unit);
 
-  const { h, c, kB } = getBasePhysicsConstants(set);
-  const x = (h * c) / (lambda * kB * T);
+  const { A, B, c } = spectralConstantsSI(set);
+  const x = (B * c) / (lambda * T);
 
   // u_lambda = (8 * pi * h * c / lambda^5) * (1 / (e^x - 1))
-  const lnPrefactor = Math.log(8 * Math.PI * h * c) - 5 * Math.log(lambda);
+  const lnPrefactor = Math.log(A) + 4 * Math.log(c) - 5 * Math.log(lambda);
   let lnFactor: number;
   if (x > 50) {
     lnFactor = -x - Math.log1p(-Math.exp(-x));
@@ -133,11 +123,11 @@ export function wienFrequencyEnergyDensity(
   if (!Number.isFinite(nu) || nu <= 0) return refuseNonpositive("frequency", nu, quantityId, unit);
   if (!Number.isFinite(T) || T <= 0) return refuseNonpositive("temperature", T, quantityId, unit);
 
-  const { h, c, kB } = getBasePhysicsConstants(set);
-  const x = (h * nu) / (kB * T);
+  const { A, B } = spectralConstantsSI(set);
+  const x = (B * nu) / T;
 
   // u_nu = (8 * pi * h * nu^3 / c^3) * e^-x
-  const lnU = Math.log(8 * Math.PI * h) + 3 * Math.log(nu) - 3 * Math.log(c) - x;
+  const lnU = Math.log(A) + 3 * Math.log(nu) - x;
   const packed = packLogRepresentation(lnU, "frequency");
 
   return {
@@ -162,11 +152,11 @@ export function wienWavelengthEnergyDensity(
     return refuseNonpositive("wavelength", lambda, quantityId, unit);
   if (!Number.isFinite(T) || T <= 0) return refuseNonpositive("temperature", T, quantityId, unit);
 
-  const { h, c, kB } = getBasePhysicsConstants(set);
-  const x = (h * c) / (lambda * kB * T);
+  const { A, B, c } = spectralConstantsSI(set);
+  const x = (B * c) / (lambda * T);
 
   // u_lambda = (8 * pi * h * c / lambda^5) * e^-x
-  const lnU = Math.log(8 * Math.PI * h * c) - 5 * Math.log(lambda) - x;
+  const lnU = Math.log(A) + 4 * Math.log(c) - 5 * Math.log(lambda) - x;
   const packed = packLogRepresentation(lnU, "wavelength");
 
   return {
@@ -190,10 +180,10 @@ export function rayleighJeansFrequencyEnergyDensity(
   if (!Number.isFinite(nu) || nu <= 0) return refuseNonpositive("frequency", nu, quantityId, unit);
   if (!Number.isFinite(T) || T <= 0) return refuseNonpositive("temperature", T, quantityId, unit);
 
-  const { c, kB } = getBasePhysicsConstants(set);
+  const { A, B } = spectralConstantsSI(set);
 
   // u_nu = (8 * pi * nu^2 / c^3) * k_B * T
-  const lnU = Math.log(8 * Math.PI * kB * T) + 2 * Math.log(nu) - 3 * Math.log(c);
+  const lnU = Math.log(A / B) + Math.log(T) + 2 * Math.log(nu);
   const packed = packLogRepresentation(lnU, "frequency");
 
   return {
@@ -218,10 +208,10 @@ export function rayleighJeansWavelengthEnergyDensity(
     return refuseNonpositive("wavelength", lambda, quantityId, unit);
   if (!Number.isFinite(T) || T <= 0) return refuseNonpositive("temperature", T, quantityId, unit);
 
-  const { kB } = getBasePhysicsConstants(set);
+  const { A, B, c } = spectralConstantsSI(set);
 
   // u_lambda = (8 * pi * k_B * T) / lambda^4
-  const lnU = Math.log(8 * Math.PI * kB * T) - 4 * Math.log(lambda);
+  const lnU = Math.log(A / B) + 3 * Math.log(c) + Math.log(T) - 4 * Math.log(lambda);
   const packed = packLogRepresentation(lnU, "wavelength");
 
   return {
@@ -292,7 +282,7 @@ export function spectralDensityCoordinateTransform(
   jacobian: number;
   uLambda: number;
 } {
-  const c = constantValue(set, "speedOfLight").value;
+  const c = spectralSpeedOfLightSI(set);
   const lambda = c / nu;
   const jacobian = (nu * nu) / c; // |d_nu / d_lambda|
   const uLambda = uNu * jacobian;
@@ -308,8 +298,10 @@ export function planckPeakFrequency(T: number, set: ConstantSet): RadiationResul
   const quantityId = "peakFrequency";
   const unit = "Hz";
   if (!Number.isFinite(T) || T <= 0) return refuseNonpositive("temperature", T, quantityId, unit);
-  const { h, kB } = getBasePhysicsConstants(set);
-  const nuPeak = (X_PEAK_FREQUENCY * kB * T) / h;
+  const { B, actionAndThermal } = spectralConstantsSI(set);
+  const nuPeak = actionAndThermal
+    ? (X_PEAK_FREQUENCY * actionAndThermal.kB * T) / actionAndThermal.h
+    : (X_PEAK_FREQUENCY * T) / B;
   return {
     status: "value",
     quantityId,
@@ -324,8 +316,10 @@ export function planckPeakWavelength(T: number, set: ConstantSet): RadiationResu
   const quantityId = "peakWavelength";
   const unit = "m";
   if (!Number.isFinite(T) || T <= 0) return refuseNonpositive("temperature", T, quantityId, unit);
-  const { h, c, kB } = getBasePhysicsConstants(set);
-  const lambdaPeak = (h * c) / (X_PEAK_WAVELENGTH * kB * T);
+  const { B, c, actionAndThermal } = spectralConstantsSI(set);
+  const lambdaPeak = actionAndThermal
+    ? (actionAndThermal.h * c) / (X_PEAK_WAVELENGTH * actionAndThermal.kB * T)
+    : (B * c) / (X_PEAK_WAVELENGTH * T);
   return {
     status: "value",
     quantityId,
@@ -344,8 +338,10 @@ export function planckPeakLogInterval(
   peakFrequency: number;
   peakWavelength: number;
 } {
-  const { h, c, kB } = getBasePhysicsConstants(set);
-  const nuPeak = (X_PEAK_LOG_INTERVAL * kB * T) / h;
+  const { B, c, actionAndThermal } = spectralConstantsSI(set);
+  const nuPeak = actionAndThermal
+    ? (X_PEAK_LOG_INTERVAL * actionAndThermal.kB * T) / actionAndThermal.h
+    : (X_PEAK_LOG_INTERVAL * T) / B;
   const lambdaPeak = c / nuPeak;
   return {
     x: X_PEAK_LOG_INTERVAL,
@@ -363,11 +359,11 @@ export function regimeRelativeErrors(
   set: ConstantSet,
   options: { epsilonW?: number; epsilonRJ?: number } = {},
 ): RegimeReport {
-  const { h, kB } = getBasePhysicsConstants(set);
+  const { B } = spectralConstantsSI(set);
   const epsilonW = options.epsilonW ?? 0.01;
   const epsilonRJ = options.epsilonRJ ?? 0.01;
 
-  const x = (h * nu) / (kB * T);
+  const x = (B * nu) / T;
   const wienRelativeError = Math.exp(-x);
 
   // The classical (Rayleigh-Jeans) relative error, measured against Planck like Wien's above:

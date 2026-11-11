@@ -38,11 +38,19 @@ function validateLq03Fields(input: unknown): Computation<Lq03Parameters> {
     return bad("Use a complete parameter record.");
   const keys = Object.keys(LQ03_DEFAULTS);
   if (
-    Reflect.ownKeys(input).length !== keys.length ||
-    Reflect.ownKeys(input).some((k) => typeof k !== "string" || !keys.includes(k))
+    keys.some((k) => !Object.hasOwn(input, k)) ||
+    Reflect.ownKeys(input).some(
+      (k) => typeof k !== "string" || (!keys.includes(k) && k !== "constantSetId"),
+    )
   )
     return bad("Parameter fields must be complete, known data fields.");
   const p = input as Lq03Parameters;
+  if (
+    Object.hasOwn(p, "constantSetId") &&
+    p.constantSetId !== "modern-si-2019" &&
+    p.constantSetId !== "einstein-1905-light-quanta-printed"
+  )
+    return bad("Choose modern SI or the light paper’s historical constants.");
 
   // The instrument's declared teaching domain is 500-10000 K. The radiation owner separately
   // bounds its quadrature work; this input range is not a substitute for numerical convergence.

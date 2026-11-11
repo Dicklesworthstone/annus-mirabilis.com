@@ -4,7 +4,7 @@
  */
 
 import { withinTolerance } from "../../../units/tolerance.ts";
-import { type ConstantSet, constantValue, thermalConstant } from "../constants.ts";
+import type { ConstantSet } from "../constants.ts";
 import { isLinearRepresentable } from "./representability.ts";
 import {
   planckFrequencyEnergyDensity,
@@ -13,6 +13,7 @@ import {
   planckWavelengthEnergyDensity,
   wienFrequencyEnergyDensity,
 } from "./spectra.ts";
+import { spectralConstantsSI } from "./spectralConstants.ts";
 import type { CyclicFrequency, RadiationResult, Wavelength } from "./types.ts";
 
 /** 15-point Gauss-Kronrod quadrature nodes and weights on [-1, 1].
@@ -169,12 +170,10 @@ export function planckTotalEnergyDensity(T: number, set: ConstantSet): Radiation
     };
   }
 
-  const c = constantValue(set, "speedOfLight").value;
-  const kB = thermalConstant(set).value;
-  const h = constantValue(set, "planckConstant").value;
+  const { A, B } = spectralConstantsSI(set);
 
-  // a = 8 * pi^5 * k_B^4 / (15 * c^3 * h^3)
-  const a = (8 * Math.PI ** 5 * kB ** 4) / (15 * c ** 3 * h ** 3);
+  // Integral of x^3/(exp(x)-1) is pi^4/15; nu = x T/B.
+  const a = (A * Math.PI ** 4) / (15 * B ** 4);
   const uTotal = a * T ** 4;
 
   return {
@@ -277,7 +276,7 @@ export function wienBandEnergyDensity(
   }
 
   // d(log u_nu)/d(nu) = 3/nu - h/(k_B T), so Wien peaks at h*nu/(k_B T) = 3.
-  const peak = (3 * thermalConstant(set).value * T) / constantValue(set, "planckConstant").value;
+  const peak = (3 * T) / spectralConstantsSI(set).B;
   return integrateSpectrumBand(
     (nu) => wienFrequencyEnergyDensity(nu, T, set),
     nuMin,

@@ -21,6 +21,23 @@ argumentIds:
   - arg-lq-fixed-band-volume
 schemaVersion: 1
 parameters:
+  - id: constantSetId
+    label: "Constant set"
+    accessibleName: "Constants for this calculation"
+    accessibleDescription: "Choose modern SI or the light paper's corrected alpha and printed beta; changing them starts a new run."
+    quantityId: wienConstantBeta
+    displayUnit: "s K"
+    modelDomain:
+      enumerated: ["modern-si-2019", "einstein-1905-light-quanta-printed"]
+      reason: "Use one declared set consistently for spectra, peaks, regimes and coordinate transformations."
+    visualRange:
+      min: 0
+      max: 1
+    default: "modern-si-2019"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
   - id: T
     label: "Temperature"
     accessibleName: "Cavity radiation temperature"

@@ -20,5 +20,6 @@ export const LQ03_TAPE: LabTapeBinding = Object.freeze({
   }),
   defaults: LQ03_DEFAULTS,
   validate: validateLq03Parameters,
+  constantSetIdForSettings: (settings) => String(settings.constantSetId ?? "modern-si-2019"),
   createSession: (instanceId: string) => createLq03Session(instanceId),
 });
