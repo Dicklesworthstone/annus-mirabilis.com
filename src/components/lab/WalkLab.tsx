@@ -37,6 +37,8 @@ import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts"
 import { useRetainedSession } from "../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
+import { SessionResultWeave } from "../../reader/weave/SessionResultWeave.tsx";
+import { BM05_READER_WEAVE } from "../../reader/weave/walkPassages.ts";
 import type { WorkerChannel } from "../../workers/scheduler/hostScheduler.ts";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { KEPT_RESULT } from "./keptResult.ts";
@@ -88,6 +90,7 @@ export function WalkLab({
   workerFactory = createBm05BrowserChannel,
   title = "From random steps to diffusion",
   readings = true,
+  highlightPaper = false,
 }: {
   example: PreparedBm05Example;
   workerFactory?: (() => WorkerChannel) | undefined;
@@ -96,6 +99,7 @@ export function WalkLab({
   title?: string;
   /** False for the optional second laboratory, so the page carries the caption readings once. */
   readings?: boolean;
+  highlightPaper?: boolean;
 }) {
   const id = useId();
   const session = useRetainedSession(
@@ -708,6 +712,15 @@ export function WalkLab({
           <WalkPaths snapshot={snapshot} />
           <WalkConvergence snapshot={snapshot} />
         </div>
+      </div>
+      <div {...gate.response}>
+        <SessionResultWeave
+          session={session}
+          binding={BM05_READER_WEAVE}
+          suspended={Boolean(failure)}
+          announcementsEnabled={gate.open}
+          highlightPaper={highlightPaper}
+        />
       </div>
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
           children of the lab root, which labShell.css's detail rules select. */}

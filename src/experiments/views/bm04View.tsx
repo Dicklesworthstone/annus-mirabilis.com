@@ -14,6 +14,7 @@ export default function Bm04ClarificationView({ instanceId }: ExperimentViewProp
       example={{ ...example, parameters: checked.data }}
       instanceId={instanceId}
       restoreFromLocation={false}
+      highlightPaper
     />
   );
 }

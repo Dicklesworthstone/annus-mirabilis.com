@@ -29,6 +29,8 @@ import { instrumentRootAttributes } from "../../experiments/store/identityAttrib
 import { useRetainedSession } from "../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
+import { BM04_READER_WEAVE } from "../../reader/weave/driftPassages.ts";
+import { SessionResultWeave } from "../../reader/weave/SessionResultWeave.tsx";
 import {
   DensityProfilePlot,
   FluxBalancePlot,
@@ -58,11 +60,13 @@ export function DriftDiffusionLab({
   title = "The drift-diffusion balance laboratory",
   instanceId,
   restoreFromLocation = true,
+  highlightPaper = false,
 }: {
   example: PreparedBm04Example;
   title?: string;
   instanceId?: string | undefined;
   restoreFromLocation?: boolean | undefined;
+  highlightPaper?: boolean;
 }) {
   const id = useId();
   const session = useRetainedSession(
@@ -541,6 +545,15 @@ export function DriftDiffusionLab({
           </section>
         </details>
       </section>
+      <div {...gate.response}>
+        <SessionResultWeave
+          session={session}
+          binding={BM04_READER_WEAVE}
+          suspended={Boolean(failure)}
+          announcementsEnabled={gate.open}
+          highlightPaper={highlightPaper}
+        />
+      </div>
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
           children of the lab root, which labShell.css's detail rules select. */}
       <p data-detail="0">

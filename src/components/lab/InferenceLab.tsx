@@ -37,6 +37,8 @@ import { instrumentRootAttributes } from "../../experiments/store/identityAttrib
 import { useRetainedSession } from "../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
+import { BM07_READER_WEAVE } from "../../reader/weave/inferencePassages.ts";
+import { SessionResultWeave } from "../../reader/weave/SessionResultWeave.tsx";
 import {
   InferenceCoverage,
   InferenceFamily,
@@ -66,6 +68,7 @@ export function InferenceLab({
   example,
   title = "What can wandering reveal?",
   readings = true,
+  highlightPaper = false,
 }: {
   example: PreparedBm07Example;
   instanceId?: string | undefined;
@@ -73,6 +76,7 @@ export function InferenceLab({
   title?: string;
   /** False for the optional second laboratory, so the page carries the caption readings once. */
   readings?: boolean;
+  highlightPaper?: boolean;
 }) {
   const id = useId();
   const session = useRetainedSession(
@@ -877,6 +881,15 @@ export function InferenceLab({
           </div>
         </div>
       </section>
+      <div {...gate.response}>
+        <SessionResultWeave
+          session={session}
+          binding={BM07_READER_WEAVE}
+          suspended={Boolean(failure)}
+          announcementsEnabled={gate.open}
+          highlightPaper={highlightPaper}
+        />
+      </div>
       <section className="action-contract">
         <h3>Same scientific action without the plot</h3>
         <p>
