@@ -2,6 +2,11 @@
 
 import { useEffect, useRef } from "react";
 import { type AnchorKind, parseAnchor, sectionAnchorOf } from "../../content/anchors.ts";
+import {
+  anchorFromFaceHash,
+  faceSwitchPlaceForHash,
+  parseFaceSwitchTransfer,
+} from "../anchors/faceSwitchPlace.ts";
 import { mapToResultsFace } from "../anchors/mapToFace.ts";
 import { capturePlace, type PlaceKeeperSnapshot, restoreDelta } from "../anchors/placeKeeper.ts";
 import {
@@ -537,25 +542,21 @@ export function FaceSwitchAnchor() {
       return;
     }
     if (raw === null) return;
-    let snapshot: { anchorId: string; relativeOffset: number };
+    let parsed: unknown;
     try {
-      const parsed: unknown = JSON.parse(raw);
-      if (
-        typeof parsed !== "object" ||
-        parsed === null ||
-        typeof (parsed as { anchorId?: unknown }).anchorId !== "string" ||
-        typeof (parsed as { relativeOffset?: unknown }).relativeOffset !== "number" ||
-        !Number.isFinite((parsed as { relativeOffset: number }).relativeOffset)
-      )
-        return;
-      snapshot = parsed as { anchorId: string; relativeOffset: number };
+      parsed = JSON.parse(raw);
     } catch {
       return;
     }
     const present = (id: string) => document.getElementById(id) !== null;
-    const landed = resolvedFaceAnchor(snapshot.anchorId, present);
-    if (landed === null) return;
-    const element = document.getElementById(landed);
+    const snapshot = parseFaceSwitchTransfer(
+      parsed,
+      window.location.pathname + window.location.search,
+      window.location.hash,
+      (id) => resolvedFaceAnchor(id, present),
+    );
+    if (snapshot === null) return;
+    const element = document.getElementById(snapshot.anchorId);
     if (element === null) return;
     // The offset the snapshot asks for, as a distance from the viewport top: restoreDelta with a
     // current top of 0 is exactly `-relativeOffset * viewportHeight`.
@@ -583,16 +584,23 @@ export function FaceSwitchAnchor() {
     const record = () => {
       frame = 0;
       const place = placeOfHash();
-      if (place !== undefined) placeRef.current = place;
+      // Keep an off-screen sentence's last position only while it remains the current address.
+      placeRef.current = place ?? faceSwitchPlaceForHash(placeRef.current, window.location.hash);
     };
     const onScroll = () => {
       if (frame === 0) frame = window.requestAnimationFrame(record);
     };
+    const onHashChange = () => {
+      if (frame !== 0) window.cancelAnimationFrame(frame);
+      record();
+    };
     record();
+    window.addEventListener("hashchange", onHashChange);
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll, { passive: true });
     return () => {
       if (frame !== 0) window.cancelAnimationFrame(frame);
+      window.removeEventListener("hashchange", onHashChange);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
@@ -672,18 +680,23 @@ export function FaceSwitchAnchor() {
       // least half visible, so what is carried is where the sentence sat when the reader last had
       // it in front of them. A live reading is still preferred when there is one.
       const live = placeOfHash();
-      const place = live ?? placeRef.current;
+      const place = live ?? faceSwitchPlaceForHash(placeRef.current, window.location.hash);
       const next = faceHrefWithFragment(href, window.location.hash);
       if (next === href) return;
       event.preventDefault();
-      if (place) {
-        // Best effort, and the switch must happen whether or not it lands: reading continues when
-        // storage is blocked or full.
-        try {
-          window.sessionStorage.setItem(PLACE_KEY, JSON.stringify(place));
-        } catch {
-          /* no storage: the fragment alone still puts the reader on the right sentence */
+      // A cancelled earlier navigation must not leave a transfer for this one. Binding the new
+      // transfer to its destination also prevents a sentence id shared by two papers crossing over.
+      try {
+        window.sessionStorage.removeItem(PLACE_KEY);
+        if (place) {
+          const destination = new URL(next, window.location.href);
+          window.sessionStorage.setItem(
+            PLACE_KEY,
+            JSON.stringify({ ...place, path: destination.pathname + destination.search }),
+          );
         }
+      } catch {
+        /* no storage: the fragment alone still puts the reader on the right sentence */
       }
       window.location.assign(next);
     };
@@ -734,7 +747,7 @@ export function FaceSwitchAnchor() {
     let lastWritten = "";
     const write = (): void => {
       if (projectionOwnsReturn()) return;
-      const place = placeRef.current;
+      const place = faceSwitchPlaceForHash(placeRef.current, window.location.hash);
       if (place === undefined) return;
       const record = {
         face,
@@ -767,8 +780,14 @@ export function FaceSwitchAnchor() {
       const record = parseScrollRestoreRecord(window.history.state);
       if (record === null || record.face !== currentFace(window.location.pathname)) return;
       const present = (id: string) => document.getElementById(id) !== null;
+      const requested = anchorFromFaceHash(window.location.hash);
       const landed = resolvedFaceAnchor(record.anchor, present);
-      if (landed === null) return;
+      if (
+        landed === null ||
+        requested === null ||
+        resolvedFaceAnchor(requested, present) !== landed
+      )
+        return;
       const element = document.getElementById(landed);
       if (element === null) return;
       // If the projection island consumed its marker first, it has already replaced the shared
