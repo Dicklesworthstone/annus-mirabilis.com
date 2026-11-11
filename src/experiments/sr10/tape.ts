@@ -3,6 +3,7 @@
  * (light-complex-host, version 1), restored and shared through the general runner in permalink/sessionTape.ts.
  * The laboratory draws no random numbers, so its seed is 0 and it has no stream or allocation.
  */
+import example from "../../generated/sr10-example.json";
 import type { LabTapeBinding } from "../permalink/sessionTape.ts";
 import { SR10_DEFAULTS } from "./definition.ts";
 import { validateSr10Parameters } from "./parameters.ts";
@@ -14,6 +15,7 @@ export const SR10_TAPE: LabTapeBinding = Object.freeze({
     mode: "sr-10:default",
     modelId: "light-complex-host",
     modelVersion: 1,
+    artifactDigest: example.sourceDigest.replace(/^source:/, "host:"),
     constantSetId: "modern-si-2019",
     streamVersion: "deterministic",
     allocationId: "deterministic",

@@ -5,7 +5,7 @@ mode: "lq-05:default"
 modelIdentity:
   modelId: lq05-independent-configurations-v1
   modelVersion: "1"
-  artifactDigest: "host:sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  artifactDigest: "host:sha256:b1e7451fa3787a1b51e5cb50d2d91aef1996707ee4390e89644c7f255094ad64"
 constantSetId: modern-si-2019
 seed: "12345"
 streamVersion: 1

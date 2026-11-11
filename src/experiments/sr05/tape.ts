@@ -11,6 +11,7 @@
  * makes the generic restore the honest fit: the settings arrive in the session and the whole lab
  * redraws from them, with nothing to keep in step.
  */
+import example from "../../generated/sr05-example.json";
 import type { LabTapeBinding } from "../permalink/sessionTape.ts";
 import { SR05_DEFAULTS } from "./definition.ts";
 import { validateSr05Parameters } from "./parameters.ts";
@@ -22,6 +23,7 @@ export const SR05_TAPE: LabTapeBinding = Object.freeze({
     mode: "sr-05:default",
     modelId: "sr05-moving-clocks-reference-v1",
     modelVersion: 1,
+    artifactDigest: example.sourceDigest.replace(/^source:/, "host:"),
     constantSetId: "modern-si-2019",
     streamVersion: "deterministic",
     allocationId: "deterministic",

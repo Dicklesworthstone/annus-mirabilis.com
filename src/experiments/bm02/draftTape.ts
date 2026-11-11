@@ -18,6 +18,7 @@
  * inputs and `Bm02Inputs` carries no seed -- so the deterministic stream and allocation below are
  * the honest values rather than placeholders, as in SR-05's binding.
  */
+import labDigests from "../../generated/lab-source-digests.json";
 import type { DraftTapeBinding } from "../permalink/draftTape.ts";
 import { BM02_DEFAULTS, validateBm02Parameters } from "./parameters.ts";
 import type { Bm02Inputs } from "./session.ts";
@@ -28,6 +29,7 @@ export const BM02_DRAFT_TAPE: DraftTapeBinding = Object.freeze({
     mode: "bm-02:default",
     modelId: "bm-02",
     modelVersion: 1,
+    artifactDigest: labDigests["bm-02"].replace(/^source:/, "host:"),
     constantSetId: "modern-si-2019",
     streamVersion: "deterministic",
     allocationId: "deterministic",

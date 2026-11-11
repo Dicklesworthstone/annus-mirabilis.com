@@ -325,6 +325,9 @@ export function tapeForSettings(binding: LabTapeBinding, params: object): TapeV2
       modelId: env.modelId,
       modelVersion: env.modelVersion,
       ...(env.artifactDigest === undefined ? {} : { artifactDigest: env.artifactDigest }),
+      ...(env.evaluatorSourceHash === undefined
+        ? {}
+        : { evaluatorSourceHash: env.evaluatorSourceHash }),
     },
     constantSetId: env.constantSetId,
     seed: "0" as U64String,
@@ -340,7 +343,17 @@ export function tapeForSettings(binding: LabTapeBinding, params: object): TapeV2
 export type LabTapeRestore =
   | Readonly<{ kind: "absent" }>
   | Readonly<{ kind: "restored" }>
-  | Readonly<{ kind: "not-restored"; notice: string }>;
+  | Readonly<{
+      kind: "not-restored";
+      notice: string;
+      /** The original identity remains intact; only an explicit action may calculate a new run. */
+      newRun?: TapeNewRunRequest;
+    }>;
+
+export type TapeNewRunRequest = Readonly<{
+  tape: TapeV2;
+  resolve?: ReplayRunner["resolveTeachingTape"];
+}>;
 
 /**
  * Verify on a fresh session, then apply the exact verified controls to the live one. Expected
@@ -439,6 +452,30 @@ export function calculateNewRun(
   };
 }
 
+/** Calculate a refused shared checkpoint under today's model without verifying its old result. */
+export function calculateTapeAsNewRun(
+  binding: LabTapeBinding,
+  session: TapeSession,
+  request: TapeNewRunRequest,
+): ReturnType<typeof calculateNewRun> {
+  const result = replayTapeOnSession(
+    binding,
+    session,
+    request.tape,
+    { forceNewRun: true, stopAtCheckpoint: true },
+    request.resolve,
+  );
+  if (result.kind === "success" && result.isNewRun && result.runId)
+    return { kind: "calculated", runId: result.runId };
+  return {
+    kind: "not-restored",
+    notice:
+      result.kind === "success"
+        ? "The laboratory did not accept a new identified run."
+        : result.notice,
+  };
+}
+
 /** Restore a decoded tape; a resolver is required only when it references an authored walkthrough. */
 export function restoreTape(
   binding: LabTapeBinding,
@@ -457,6 +494,7 @@ export function restoreTape(
   return {
     kind: "not-restored",
     notice: replayed.kind === "refusal" ? `${replayed.notice} ${replayed.repair}` : replayed.notice,
+    ...(replayed.kind === "refusal" ? { newRun: { tape, ...(resolve ? { resolve } : {}) } } : {}),
   };
 }
 

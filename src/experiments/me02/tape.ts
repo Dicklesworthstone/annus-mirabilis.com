@@ -3,6 +3,7 @@
  * (mass-energy-coefficient-host, version 1), restored and shared through the general runner in permalink/sessionTape.ts.
  * The laboratory draws no random numbers, so its seed is 0 and it has no stream or allocation.
  */
+import example from "../../generated/me02-example.json";
 import type { LabTapeBinding } from "../permalink/sessionTape.ts";
 import { ME02_DEFAULTS } from "./definition.ts";
 import { validateMe02Parameters } from "./parameters.ts";
@@ -14,6 +15,7 @@ export const ME02_TAPE: LabTapeBinding = Object.freeze({
     mode: "me-02:default",
     modelId: "mass-energy-coefficient-host",
     modelVersion: 1,
+    artifactDigest: example.sourceDigest.replace(/^source:/, "host:"),
     constantSetId: "modern-si-2019",
     streamVersion: "deterministic",
     allocationId: "deterministic",

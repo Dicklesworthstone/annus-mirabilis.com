@@ -93,6 +93,9 @@ export function draftTapeForSettings(binding: DraftTapeBinding, params: object):
       modelId: env.modelId,
       modelVersion: env.modelVersion,
       ...(env.artifactDigest === undefined ? {} : { artifactDigest: env.artifactDigest }),
+      ...(env.evaluatorSourceHash === undefined
+        ? {}
+        : { evaluatorSourceHash: env.evaluatorSourceHash }),
     },
     constantSetId: env.constantSetId,
     seed: binding.seedForSettings
@@ -119,7 +122,12 @@ export type DraftTapeLoad =
       settings: Readonly<Record<string, unknown>>;
       predictions?: readonly TapePredictionEvent[];
     }>
-  | Readonly<{ kind: "not-restored"; notice: string }>;
+  | Readonly<{
+      kind: "not-restored";
+      notice: string;
+      /** Offer only an explicit copy into the form; keep the recorded source identity untouched. */
+      newSettings?: TapeV2;
+    }>;
 
 /**
  * A decoded tape's settings, for the form, when the tape describes this laboratory and model, holds
@@ -127,6 +135,22 @@ export type DraftTapeLoad =
  * refused in a sentence, and the form keeps what it had.
  */
 export function loadDraftTape(binding: DraftTapeBinding, tape: TapeV2): DraftTapeLoad {
+  return readDraftTape(binding, tape, false);
+}
+
+/** Explicitly copy a legacy record's validated settings; Apply still owns the new calculation. */
+export function loadDraftTapeAsCurrentSettings(
+  binding: DraftTapeBinding,
+  tape: TapeV2,
+): DraftTapeLoad {
+  return readDraftTape(binding, tape, true);
+}
+
+function readDraftTape(
+  binding: DraftTapeBinding,
+  tape: TapeV2,
+  asCurrentSettings: boolean,
+): DraftTapeLoad {
   const env = binding.environment;
   if (tape.experimentId !== env.experimentId) {
     return {
@@ -134,13 +158,17 @@ export function loadDraftTape(binding: DraftTapeBinding, tape: TapeV2): DraftTap
       notice: `This shared state could not be restored: it was recorded in another laboratory, ${tape.experimentId}.`,
     };
   }
-  if (!binding.constantSetIdForSettings && !binding.replayGridForSettings) {
+  if (!asCurrentSettings && !binding.constantSetIdForSettings && !binding.replayGridForSettings) {
     const compatible = checkTapeCompatibility(tape, env);
     if (!compatible.compatible) {
-      return { kind: "not-restored", notice: `${compatible.notice} ${compatible.repair}` };
+      return {
+        kind: "not-restored",
+        notice: `${compatible.notice} ${compatible.repair}`,
+        newSettings: tape,
+      };
     }
   }
-  if (tape.events.length > 0) {
+  if (tape.events.length > 0 || tape.teachingTapeRef) {
     return {
       kind: "not-restored",
       notice:
@@ -167,10 +195,14 @@ export function loadDraftTape(binding: DraftTapeBinding, tape: TapeV2): DraftTap
     };
   }
   const accepted = acceptedSettings(checked, settings);
-  if (binding.constantSetIdForSettings || binding.replayGridForSettings) {
+  if (!asCurrentSettings && (binding.constantSetIdForSettings || binding.replayGridForSettings)) {
     const compatible = checkTapeCompatibility(tape, environmentForSettings(binding, accepted));
     if (!compatible.compatible) {
-      return { kind: "not-restored", notice: `${compatible.notice} ${compatible.repair}` };
+      return {
+        kind: "not-restored",
+        notice: `${compatible.notice} ${compatible.repair}`,
+        newSettings: tape,
+      };
     }
   }
   if (binding.seedForSettings && tape.seed !== binding.seedForSettings(accepted))

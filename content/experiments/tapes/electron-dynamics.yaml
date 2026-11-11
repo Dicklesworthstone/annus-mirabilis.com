@@ -8,7 +8,7 @@ isTeachingSequence: true
 modelIdentity:
   modelId: electron-dynamics-host
   modelVersion: "1"
-  artifactDigest: "host:sha256:sr13-electronDynamics"
+  artifactDigest: "host:sha256:581cb1a153db4de96b535a6a4fc05dd5558ad9ff17be4baed76cd07edea7cee0"
 constantSetId: modern-si-2019
 seed: "0"
 streamVersion: 1

@@ -43,6 +43,32 @@ const COMPATIBILITY_MISMATCH_CASES: readonly {
     }),
   },
   {
+    name: "recorded artifact cannot be verified by this runtime",
+    expectedRefusal: "tape-artifact-mismatch",
+    modifyEnv: (e) => ({ ...e, artifactDigest: undefined }),
+  },
+  {
+    name: "old record carries no artifact evidence",
+    expectedRefusal: "tape-artifact-mismatch",
+    modifyTape: (t) => ({ ...t, modelIdentity: { ...t.modelIdentity, artifactDigest: undefined } }),
+  },
+  {
+    name: "runtime declares evaluator source absent from the tape",
+    expectedRefusal: "tape-artifact-mismatch",
+    modifyEnv: (e) => ({ ...e, evaluatorSourceHash: `source:sha256:${"a".repeat(64)}` }),
+  },
+  {
+    name: "tape declares evaluator source absent from the runtime",
+    expectedRefusal: "tape-artifact-mismatch",
+    modifyTape: (t) => ({
+      ...t,
+      modelIdentity: {
+        ...t.modelIdentity,
+        evaluatorSourceHash: `source:sha256:${"a".repeat(64)}`,
+      },
+    }),
+  },
+  {
     name: "constant set mismatch",
     expectedRefusal: "tape-constant-set-mismatch",
     modifyEnv: (e) => ({ ...e, constantSetId: "2026-codata-constants" }),
@@ -72,6 +98,23 @@ test("permalink.compatibility: accept identical tape and environment", () => {
   const check = checkTapeCompatibility(FIXTURE_TEACHING_TAPE_EINSTEIN_08, FIXTURE_ENVIRONMENT);
   assert.equal(check.compatible, true);
 });
+
+for (const mismatch of COMPATIBILITY_MISMATCH_CASES) {
+  test(`permalink.compatibility: ${mismatch.name}`, () => {
+    const tape =
+      mismatch.modifyTape?.(FIXTURE_TEACHING_TAPE_EINSTEIN_08) ?? FIXTURE_TEACHING_TAPE_EINSTEIN_08;
+    const environment = mismatch.modifyEnv?.(FIXTURE_ENVIRONMENT) ?? FIXTURE_ENVIRONMENT;
+    const result = checkTapeCompatibility(tape, environment);
+    assert.equal(result.compatible, false);
+    if (result.compatible) return;
+    assert.equal(result.refusalCode, mismatch.expectedRefusal);
+    assert.equal(result.offerNewRun, true);
+    const runner = new FixtureRunner(environment);
+    const before = runner.getAcceptedCheckpoint();
+    assert.equal(replayTape(tape, runner).kind, "refusal");
+    assert.deepEqual(runner.getAcceptedCheckpoint(), before);
+  });
+}
 
 // am-w3g8: a refusal must not name two values that print the same and leave it there.
 test("permalink.compatibility: a stream version that prints the same says what differs", () => {

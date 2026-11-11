@@ -3,6 +3,7 @@
  * (sr-06, version 1), restored and shared through the general runner in permalink/sessionTape.ts.
  * The laboratory draws no random numbers, so its seed is 0 and it has no stream or allocation.
  */
+import labDigests from "../../generated/lab-source-digests.json";
 import type { LabTapeBinding } from "../permalink/sessionTape.ts";
 import { SR06_DEFAULTS } from "./definition.ts";
 import { validateSr06Parameters } from "./parameters.ts";
@@ -14,6 +15,7 @@ export const SR06_TAPE: LabTapeBinding = Object.freeze({
     mode: "sr-06:default",
     modelId: "sr-06",
     modelVersion: 1,
+    artifactDigest: labDigests["sr-06"].replace(/^source:/, "host:"),
     constantSetId: "modern-si-2019",
     streamVersion: "deterministic",
     allocationId: "deterministic",

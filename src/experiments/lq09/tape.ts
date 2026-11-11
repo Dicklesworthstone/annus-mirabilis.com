@@ -16,6 +16,7 @@
  * to decide, and `carriesTapeLink` inside its decoder shows it was written to stand aside for exactly
  * this mechanism.
  */
+import example from "../../generated/lq09-example.json";
 import type { LabTapeBinding } from "../permalink/sessionTape.ts";
 import { LQ09_DEFAULTS } from "./definition.ts";
 import { validateLq09Parameters } from "./parameters.ts";
@@ -27,6 +28,7 @@ export const LQ09_TAPE: LabTapeBinding = Object.freeze({
     mode: "lq-09:default",
     modelId: "lq09-ionization-reference-v1",
     modelVersion: 1,
+    artifactDigest: example.sourceDigest.replace(/^source:/, "host:"),
     constantSetId: "modern-si-2019",
     streamVersion: "deterministic",
     allocationId: "deterministic",

@@ -12,6 +12,7 @@
  * and no seed: the allocation is a deterministic sum over modes rather than a sampled one, so the
  * deterministic stream and allocation below are the honest values rather than placeholders.
  */
+import labDigests from "../../generated/lab-source-digests.json";
 import type { DraftTapeBinding } from "../permalink/draftTape.ts";
 import { LQ02_DEFAULTS, validateLq02Parameters } from "./parameters.ts";
 
@@ -21,6 +22,7 @@ export const LQ02_DRAFT_TAPE: DraftTapeBinding = Object.freeze({
     mode: "lq-02:default",
     modelId: "lq-02",
     modelVersion: 1,
+    artifactDigest: labDigests["lq-02"].replace(/^source:/, "host:"),
     constantSetId: "modern-si-2019",
     streamVersion: "deterministic",
     allocationId: "deterministic",

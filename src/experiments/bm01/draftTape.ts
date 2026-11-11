@@ -6,6 +6,7 @@
  * (experiments/streams/allocation.ts), and the explicitly selected constant set.
  */
 
+import { BM01_SOURCE_DIGEST } from "../../generated/bm01-provenance.ts";
 import { parseU64 } from "../identity/u64.ts";
 import type { DraftTapeBinding } from "../permalink/draftTape.ts";
 import { BM01_ALLOCATION } from "../streams/allocation.ts";
@@ -18,6 +19,7 @@ export const BM01_DRAFT_TAPE: DraftTapeBinding = Object.freeze({
     mode: "bm-01:default",
     modelId: "brownian-motion-reference",
     modelVersion: 1,
+    artifactDigest: BM01_SOURCE_DIGEST.replace(/^source:/, "host:"),
     constantSetId: "modern-si-2019",
     streamVersion: BM01_ALLOCATION.streamVersion,
     allocationId: BM01_ALLOCATION.allocationId,

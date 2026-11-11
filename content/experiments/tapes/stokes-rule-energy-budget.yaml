@@ -5,7 +5,7 @@ mode: "lq-07:default"
 modelIdentity:
   modelId: fluorescence-budget-reference
   modelVersion: "1"
-  artifactDigest: "host:sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  artifactDigest: "host:sha256:0c5288e9f3302196e2aab351a8f3d8ce9136209a0bc7cf6aa46b396957dcd455"
 constantSetId: modern-si-2019
 seed: "0"
 streamVersion: 1

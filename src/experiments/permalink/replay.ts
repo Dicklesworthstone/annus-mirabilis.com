@@ -32,6 +32,8 @@ export interface ReplayRunner {
 
 export type ReplayOptions = Readonly<{
   forceNewRun?: boolean | undefined;
+  /** A new calculation of a shared checkpoint still stops at that checkpoint's controls. */
+  stopAtCheckpoint?: boolean | undefined;
 }>;
 
 /**
@@ -151,7 +153,7 @@ export function replayTape(
     }
     previousAction = event.actionIndex;
   }
-  if (!isForceNewRun) {
+  if (!isForceNewRun || options?.stopAtCheckpoint) {
     const accepted = tape.acceptedCheckpoint.acceptedActionIndex;
     if (!Number.isSafeInteger(accepted) || accepted < 0) {
       return invalid(

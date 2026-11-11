@@ -11,7 +11,7 @@ mode: "lq-09:default"
 modelIdentity:
   modelId: lq09-ionization-reference-v1
   modelVersion: "1"
-  artifactDigest: "host:sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  artifactDigest: "host:sha256:680d49efcf87bfdd3cb50a421ce5c5383d2c0e289f543d276f689390d533e759"
 constantSetId: modern-si-2019
 seed: "0"
 streamVersion: 1

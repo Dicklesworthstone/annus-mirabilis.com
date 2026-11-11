@@ -5,6 +5,7 @@
  * (experiments/streams/allocation.ts); the independent physical, localization and stationary-click
  * seeds all travel in the settings.
  */
+import { BM08_SOURCE_DIGEST } from "../../generated/bm08-provenance.ts";
 import { CAMERA_GRID_DT, CAMERA_GRID_STEPS } from "../../physics/reference/inference/camera.ts";
 import { parseU64 } from "../identity/u64.ts";
 import type { DraftTapeBinding } from "../permalink/draftTape.ts";
@@ -21,6 +22,7 @@ export const BM08_DRAFT_TAPE: DraftTapeBinding = Object.freeze({
     mode: "bm-08:default",
     modelId: "inference-bm08-host",
     modelVersion: 1,
+    artifactDigest: BM08_SOURCE_DIGEST.replace(/^source:/, "host:"),
     constantSetId: "modern-si-2019",
     streamVersion: LATENT.streamVersion,
     allocationId: LATENT.allocationId,

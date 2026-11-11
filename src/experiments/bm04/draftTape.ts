@@ -3,6 +3,7 @@
  * content/experiments/bm-04.yaml's tapeModel (brownian-motion-drift-diffusion, version 1). A shared link puts its settings in
  * the form and starts nothing; the reader applies them. The drift-diffusion stepper draws no random numbers, so the tape carries no stream.
  */
+import { BM04_SOURCE_DIGEST } from "../../generated/bm04-provenance.ts";
 import type { DraftTapeBinding } from "../permalink/draftTape.ts";
 import { BM04_DEFAULTS } from "./definition.ts";
 import { validateBm04Parameters } from "./parameters.ts";
@@ -13,6 +14,7 @@ export const BM04_DRAFT_TAPE: DraftTapeBinding = Object.freeze({
     mode: "bm-04:default",
     modelId: "brownian-motion-drift-diffusion",
     modelVersion: 1,
+    artifactDigest: BM04_SOURCE_DIGEST.replace(/^source:/, "host:"),
     constantSetId: "modern-si-2019",
     streamVersion: "deterministic",
     allocationId: "deterministic",

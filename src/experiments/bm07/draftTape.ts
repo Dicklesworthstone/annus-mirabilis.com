@@ -4,6 +4,7 @@
  * the form and starts nothing; the reader applies them. The header names the synthetic latent path's stream, bm-07.synthetic-latent.v1
  * (experiments/streams/allocation.ts); the hidden generator parameter uses the same full seed.
  */
+import { BM07_SOURCE_DIGEST } from "../../generated/bm07-provenance.ts";
 import {
   INFERENCE_GRID_DT,
   INFERENCE_GRID_STEPS,
@@ -23,6 +24,7 @@ export const BM07_DRAFT_TAPE: DraftTapeBinding = Object.freeze({
     mode: "bm-07:default",
     modelId: "inference-bm07-host",
     modelVersion: 1,
+    artifactDigest: BM07_SOURCE_DIGEST.replace(/^source:/, "host:"),
     constantSetId: BM07_DEFAULTS.constantSetId,
     streamVersion: LATENT.streamVersion,
     allocationId: LATENT.allocationId,

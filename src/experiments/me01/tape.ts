@@ -7,6 +7,7 @@
  * binding: "the two pulses" is this laboratory, "opposite pulses and two ledgers". The
  * transformation draws no random numbers, so the seed is 0 and there is no stream or allocation.
  */
+import labDigests from "../../generated/lab-source-digests.json";
 import type { LabTapeBinding } from "../permalink/sessionTape.ts";
 import { ME01_DEFAULTS } from "./definition.ts";
 import { validateMe01Parameters } from "./parameters.ts";
@@ -18,6 +19,7 @@ export const ME01_TAPE: LabTapeBinding = Object.freeze({
     mode: "me-01:default",
     modelId: "mass-energy-two-ledgers-host",
     modelVersion: 1,
+    artifactDigest: labDigests["me-01"].replace(/^source:/, "host:"),
     constantSetId: "modern-si-2019",
     streamVersion: "deterministic",
     allocationId: "deterministic",

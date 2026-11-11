@@ -1,3 +1,4 @@
+import labDigests from "../../generated/lab-source-digests.json";
 import type { LabTapeBinding } from "../permalink/sessionTape.ts";
 import { SR01_DEFAULTS } from "./definition.ts";
 import { validateSr01Parameters } from "./parameters.ts";
@@ -10,6 +11,7 @@ export const SR01_TAPE: LabTapeBinding = Object.freeze({
     mode: "sr-01:default",
     modelId: "sr-01-clock-sync-host",
     modelVersion: 1,
+    artifactDigest: labDigests["sr-01"].replace(/^source:/, "host:"),
     constantSetId: "modern-si-2019",
     streamVersion: "deterministic",
     allocationId: "deterministic",

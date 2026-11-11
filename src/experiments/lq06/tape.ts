@@ -3,6 +3,7 @@
  * (lq-06-coefficient-match, version 1), restored and shared through the general runner in permalink/sessionTape.ts.
  * The laboratory draws no random numbers, so its seed is 0 and it has no stream or allocation.
  */
+import example from "../../generated/lq06-example.json";
 import type { LabTapeBinding } from "../permalink/sessionTape.ts";
 import { LQ06_DEFAULTS } from "./definition.ts";
 import { validateLq06Parameters } from "./parameters.ts";
@@ -14,6 +15,7 @@ export const LQ06_TAPE: LabTapeBinding = Object.freeze({
     mode: "lq-06:default",
     modelId: "lq-06-coefficient-match",
     modelVersion: 1,
+    artifactDigest: example.sourceDigest.replace(/^source:/, "host:"),
     constantSetId: "modern-si-2019",
     streamVersion: "deterministic",
     allocationId: "deterministic",

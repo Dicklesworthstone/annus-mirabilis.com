@@ -4,6 +4,7 @@
  * the form and starts nothing; the reader applies them. The model is deterministic, so the tape
  * carries no seed, stream or allocation.
  */
+import { LQ01_SOURCE_DIGEST } from "../../generated/lq01-provenance.ts";
 import type { DraftTapeBinding } from "../permalink/draftTape.ts";
 import { LQ01_DEFAULTS } from "./definition.ts";
 import { validateLq01Parameters } from "./parameters.ts";
@@ -14,6 +15,7 @@ export const LQ01_DRAFT_TAPE: DraftTapeBinding = Object.freeze({
     mode: "lq-01:default",
     modelId: "lq-01",
     modelVersion: 1,
+    artifactDigest: LQ01_SOURCE_DIGEST.replace(/^source:/, "host:"),
     constantSetId: "modern-si-2019",
     streamVersion: "deterministic",
     allocationId: "deterministic",

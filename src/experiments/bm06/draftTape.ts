@@ -1,4 +1,5 @@
 /** Share the accepted spreading settings and optional predictions without starting a worker. */
+import { BM06_SOURCE_DIGEST } from "../../generated/bm06-provenance.ts";
 import type { DraftTapeBinding } from "../permalink/draftTape.ts";
 import { BM06_DEFAULTS, BM06_MODEL } from "./definition.ts";
 import { validateBm06Parameters } from "./parameters.ts";
@@ -9,6 +10,7 @@ export const BM06_DRAFT_TAPE: DraftTapeBinding = Object.freeze({
     mode: "bm-06:default",
     modelId: BM06_MODEL.id,
     modelVersion: 1,
+    artifactDigest: BM06_SOURCE_DIGEST.replace(/^source:/, "host:"),
     constantSetId: BM06_MODEL.constantSetId,
     streamVersion: "deterministic",
     allocationId: "deterministic",

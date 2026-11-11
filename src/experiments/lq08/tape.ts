@@ -2,6 +2,7 @@
  * LQ-08's ?tape= binding (am-inst-permalink-tape-s677). LQ-08 was the first laboratory to read a
  * tape (ee4de75c); its runner and restore are now the general ones in permalink/sessionTape.ts.
  */
+import example from "../../generated/lq08-example.json";
 import {
   createSessionReplayRunner,
   type LabTapeBinding,
@@ -24,6 +25,7 @@ export const LQ08_TAPE_ENVIRONMENT: ExperimentEnvironment = Object.freeze({
   mode: "lq-08:default",
   modelId: "lq-08",
   modelVersion: 1,
+  artifactDigest: example.sourceDigest.replace(/^source:/, "host:"),
   constantSetId: LQ08_MODEL.constantSetId,
   streamVersion: "deterministic",
   allocationId: "deterministic",

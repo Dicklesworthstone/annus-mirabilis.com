@@ -4,6 +4,7 @@
  * the form and starts nothing; the reader applies them. The transformation draws no random numbers,
  * so the tape carries no stream.
  */
+import { SR03_SOURCE_DIGEST } from "../../generated/sr03-provenance.ts";
 import type { DraftTapeBinding } from "../permalink/draftTape.ts";
 import { SR03_DEFAULTS } from "./definition.ts";
 import { validateSr03Parameters } from "./parameters.ts";
@@ -14,6 +15,7 @@ export const SR03_DRAFT_TAPE: DraftTapeBinding = Object.freeze({
     mode: "sr-03:default",
     modelId: "sr-03",
     modelVersion: 1,
+    artifactDigest: SR03_SOURCE_DIGEST.replace(/^source:/, "host:"),
     constantSetId: "modern-si-2019",
     streamVersion: "deterministic",
     allocationId: "deterministic",

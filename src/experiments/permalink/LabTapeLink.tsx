@@ -1,16 +1,23 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { type DraftTapeBinding, draftTapeForSettings, loadDraftTapeFromUrl } from "./draftTape.ts";
+import {
+  type DraftTapeBinding,
+  draftTapeForSettings,
+  loadDraftTapeAsCurrentSettings,
+  loadDraftTapeFromUrl,
+} from "./draftTape.ts";
 import { ExperimentRecorder } from "./ExperimentRecorder.tsx";
 import { ShareControl } from "./ShareControl.tsx";
 import {
   calculateNewRun,
+  calculateTapeAsNewRun,
   type LabTapeBinding,
   requirementsOf,
   restoreTape,
   restoreTapeFromUrl,
   settingsFromTape,
+  type TapeNewRunRequest,
   type TapeSession,
   tapeForSettings,
 } from "./sessionTape.ts";
@@ -31,6 +38,8 @@ export type LabTapeLinkState = Readonly<{
   /** A link read without fault, said plainly rather than as an error (a worker lab's loaded form). */
   note?: string | undefined;
   walkthrough?: WalkthroughTarget | undefined;
+  /** A refused historical record can be reused only through the reader's explicit choice. */
+  recovery?: Readonly<{ label: string; explanation: string; run(): void }> | undefined;
 }>;
 
 /**
@@ -52,17 +61,28 @@ export function useLabTapeLink<P extends object>(
   onRestored?: (parameters: P) => void,
 ): LabTapeLinkState {
   const [notice, setNotice] = useState("");
+  const [note, setNote] = useState("");
+  const [pendingNewRun, setPendingNewRun] = useState<Readonly<{
+    binding: LabTapeBinding;
+    session: TapeSession;
+    request: TapeNewRunRequest;
+  }> | null>(null);
   const [checkpointShare, setCheckpointShare] = useState<RetainedWalkthroughTape | null>(null);
   // The latest callback, so a new closure on each render neither re-runs the restore nor goes stale.
   const restoredRef = useRef(onRestored);
   restoredRef.current = onRestored;
   useEffect(() => {
+    setPendingNewRun(null);
+    setNote("");
+    setNotice("");
     if (!enabled) return;
     let live = true;
     void restoreTapeFromUrl(binding, session, window.location.href).then((restored) => {
       if (!live) return;
-      if (restored.kind === "not-restored") setNotice(restored.notice);
-      else if (restored.kind === "restored") restoredRef.current?.(session.acceptedParameters());
+      if (restored.kind === "not-restored") {
+        setNotice(restored.notice);
+        if (restored.newRun) setPendingNewRun({ binding, session, request: restored.newRun });
+      } else if (restored.kind === "restored") restoredRef.current?.(session.acceptedParameters());
     });
     return () => {
       live = false;
@@ -80,6 +100,31 @@ export function useLabTapeLink<P extends object>(
     [binding, acceptedParameters, enabled],
   );
   const shareTape = sharedCheckpoint ?? recordingTape;
+  const recovery = useMemo<LabTapeLinkState["recovery"]>(
+    () =>
+      enabled && pendingNewRun?.binding === binding && pendingNewRun.session === session
+        ? {
+            label: "Calculate this checkpoint as a new run",
+            explanation:
+              "The recorded result could not be verified. You can calculate its controls with the current model as a separate run; the original record keeps its identity.",
+            run() {
+              const calculated = calculateTapeAsNewRun(binding, session, pendingNewRun.request);
+              if (calculated.kind !== "calculated") {
+                setNotice(calculated.notice);
+                return;
+              }
+              setPendingNewRun(null);
+              setCheckpointShare(null);
+              setNotice("");
+              setNote(
+                "Calculated the shared checkpoint as a new run with the current model. The recorded result has not been verified.",
+              );
+              restoredRef.current?.(session.acceptedParameters());
+            },
+          }
+        : undefined,
+    [binding, session, enabled, pendingNewRun],
+  );
   const walkthrough = useMemo<WalkthroughTarget | undefined>(
     () =>
       enabled
@@ -89,6 +134,8 @@ export function useLabTapeLink<P extends object>(
             restore(tape) {
               const restored = restoreTape(binding, session, tape);
               if (restored.kind === "restored") {
+                setPendingNewRun(null);
+                setNote("");
                 setNotice("");
                 const parameters = session.acceptedParameters();
                 setCheckpointShare({ binding, session, parameters: { ...parameters }, tape });
@@ -110,6 +157,8 @@ export function useLabTapeLink<P extends object>(
               };
               const calculated = calculateNewRun(binding, session, settings);
               if (calculated.kind !== "calculated") return calculated;
+              setPendingNewRun(null);
+              setNote("");
               setCheckpointShare(null);
               setNotice("");
               restoredRef.current?.(session.acceptedParameters());
@@ -119,7 +168,7 @@ export function useLabTapeLink<P extends object>(
         : undefined,
     [binding, session, enabled],
   );
-  return { notice, shareTape, recordingTape, walkthrough };
+  return { notice, shareTape, recordingTape, note, recovery, walkthrough };
 }
 
 /**
@@ -138,15 +187,24 @@ export function useDraftTapeLink(
 ): LabTapeLinkState {
   const [notice, setNotice] = useState("");
   const [note, setNote] = useState("");
+  const [pendingSettings, setPendingSettings] = useState<Readonly<{
+    binding: DraftTapeBinding;
+    tape: TapeV2;
+  }> | null>(null);
   const loadedRef = useRef(onLoaded);
   loadedRef.current = onLoaded;
   useEffect(() => {
+    setPendingSettings(null);
+    setNote("");
+    setNotice("");
     if (!enabled) return;
     let live = true;
     void loadDraftTapeFromUrl(binding, window.location.href).then((loaded) => {
       if (!live) return;
-      if (loaded.kind === "not-restored") setNotice(loaded.notice);
-      else if (loaded.kind === "loaded") {
+      if (loaded.kind === "not-restored") {
+        setNotice(loaded.notice);
+        if (loaded.newSettings) setPendingSettings({ binding, tape: loaded.newSettings });
+      } else if (loaded.kind === "loaded") {
         loadedRef.current(loaded.settings, loaded.predictions);
         setNote("The shared link's settings are in the form. Apply them to calculate.");
       }
@@ -159,6 +217,30 @@ export function useDraftTapeLink(
     () =>
       enabled && acceptedParameters ? draftTapeForSettings(binding, acceptedParameters) : null,
     [binding, acceptedParameters, enabled],
+  );
+  const recovery = useMemo<LabTapeLinkState["recovery"]>(
+    () =>
+      enabled && pendingSettings?.binding === binding
+        ? {
+            label: "Copy these settings for a new calculation",
+            explanation:
+              "The recorded result could not be verified. Copy its validated settings into the form, then Apply to calculate with the current model.",
+            run() {
+              const loaded = loadDraftTapeAsCurrentSettings(binding, pendingSettings.tape);
+              if (loaded.kind !== "loaded") {
+                if (loaded.kind === "not-restored") setNotice(loaded.notice);
+                return;
+              }
+              loadedRef.current(loaded.settings, loaded.predictions);
+              setPendingSettings(null);
+              setNotice("");
+              setNote(
+                "Settings copied for a new calculation. Apply them to calculate with the current model. The recorded result has not been verified.",
+              );
+            },
+          }
+        : undefined,
+    [binding, enabled, pendingSettings],
   );
   const walkthrough = useMemo<WalkthroughTarget | undefined>(
     () =>
@@ -183,6 +265,7 @@ export function useDraftTapeLink(
               loadedRef.current(
                 data && typeof data === "object" ? (data as Record<string, unknown>) : settings,
               );
+              setPendingSettings(null);
               setNotice("");
               setNote("");
               return { kind: "loaded" };
@@ -191,7 +274,7 @@ export function useDraftTapeLink(
         : undefined,
     [binding, enabled],
   );
-  return { notice, shareTape, recordingTape: shareTape, note, walkthrough };
+  return { notice, shareTape, recordingTape: shareTape, note, recovery, walkthrough };
 }
 
 /**
@@ -218,6 +301,14 @@ export function LabTapeLink({
         <p role="alert" className="notice error" data-tape-notice="">
           {link.notice}
         </p>
+      )}
+      {hydrated && link.recovery && (
+        <div className="notice" data-tape-recovery="">
+          <p>{link.recovery.explanation}</p>
+          <button type="button" onClick={link.recovery.run}>
+            {link.recovery.label}
+          </button>
+        </div>
       )}
       {link.note && (
         <p role="status" className="notice" data-tape-loaded="">

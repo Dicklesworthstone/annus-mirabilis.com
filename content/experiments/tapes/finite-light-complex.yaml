@@ -8,7 +8,7 @@ isTeachingSequence: true
 modelIdentity:
   modelId: light-complex-host
   modelVersion: "1"
-  artifactDigest: "host:sha256:sr10-evaluateSr10"
+  artifactDigest: "host:sha256:c8e7bd1cb1a3100ea3a457b03c30c589be2a0576b45d71a0733b7a173de6d78f"
 constantSetId: modern-si-2019
 seed: "0"
 streamVersion: 1

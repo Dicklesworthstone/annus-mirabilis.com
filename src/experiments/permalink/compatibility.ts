@@ -60,20 +60,20 @@ export function checkTapeCompatibility(
     };
   }
 
-  // 3. Artifact digest
+  // 3. Every declared source identity must agree, including when one side omitted it.
   if (
-    tape.modelIdentity.artifactDigest &&
-    env.artifactDigest &&
-    tape.modelIdentity.artifactDigest !== env.artifactDigest
+    tape.modelIdentity.artifactDigest !== env.artifactDigest ||
+    // Source-only recordings carry the same promise as compiled artifacts.
+    tape.modelIdentity.evaluatorSourceHash !== env.evaluatorSourceHash
   ) {
     const def = refusalCodeRegistry["tape-artifact-mismatch"];
     return {
       compatible: false,
       refusalCode: "tape-artifact-mismatch",
-      notice: `${def.message} Recorded under artifact "${tape.modelIdentity.artifactDigest}"; current is "${env.artifactDigest}".`,
+      notice: sourceMismatchNotice(def.message, tape.modelIdentity, env),
       repair: def.repair,
-      tapeIdentity: { artifactDigest: tape.modelIdentity.artifactDigest },
-      currentIdentity: { artifactDigest: env.artifactDigest },
+      tapeIdentity: sourceIdentity(tape.modelIdentity),
+      currentIdentity: sourceIdentity(env),
       offerNewRun: true,
     };
   }
@@ -204,4 +204,26 @@ function streamVersionMismatchNotice(
     `${message} Recorded with stream generator version ${recorded}; current is ${current}.` +
     sameOnPaper(recorded, current)
   );
+}
+
+type SourceIdentity = Pick<ExperimentEnvironment, "artifactDigest" | "evaluatorSourceHash">;
+
+function sourceIdentity(value: SourceIdentity): SourceIdentity {
+  return { artifactDigest: value.artifactDigest, evaluatorSourceHash: value.evaluatorSourceHash };
+}
+
+function sourceMismatchNotice(
+  message: string,
+  recorded: SourceIdentity,
+  current: SourceIdentity,
+): string {
+  const changes = (["artifactDigest", "evaluatorSourceHash"] as const)
+    .filter((key) => recorded[key] !== current[key])
+    .map((key) => {
+      const label = key === "artifactDigest" ? "artifact" : "evaluator source";
+      const before = recorded[key] === undefined ? "not recorded" : `"${recorded[key]}"`;
+      const now = current[key] === undefined ? "not available" : `"${current[key]}"`;
+      return `Recorded ${label}: ${before}; current ${label}: ${now}.`;
+    });
+  return `${message} ${changes.join(" ")}`;
 }

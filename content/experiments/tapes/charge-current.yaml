@@ -8,7 +8,7 @@ isTeachingSequence: true
 modelIdentity:
   modelId: charge-current-host
   modelVersion: "1"
-  artifactDigest: "host:sha256:sr12-evaluateSr12"
+  artifactDigest: "host:sha256:6a00da89b680e0320e490b5c7922758c8836915dd4de9216d8a5e390885287bc"
 constantSetId: modern-si-2019
 seed: "0"
 streamVersion: 1

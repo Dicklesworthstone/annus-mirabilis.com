@@ -8,7 +8,7 @@ isTeachingSequence: true
 modelIdentity:
   modelId: moving-mirror-host
   modelVersion: "1"
-  artifactDigest: "host:sha256:sr11-movingMirror"
+  artifactDigest: "host:sha256:ae3b9f7473d21bf9c7b0609411d281f76c6417ad902a4bbed7a2fea6a0a54708"
 constantSetId: modern-si-2019
 seed: "0"
 streamVersion: 1

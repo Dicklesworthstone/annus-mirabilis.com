@@ -3,6 +3,7 @@
  * (fluorescence-budget-reference, version 1), restored and shared through the general runner in permalink/sessionTape.ts.
  * The laboratory draws no random numbers, so its seed is 0 and it has no stream or allocation.
  */
+import labDigests from "../../generated/lab-source-digests.json";
 import type { LabTapeBinding } from "../permalink/sessionTape.ts";
 import { LQ07_DEFAULTS } from "./definition.ts";
 import { validateLq07Parameters } from "./parameters.ts";
@@ -14,6 +15,7 @@ export const LQ07_TAPE: LabTapeBinding = Object.freeze({
     mode: "lq-07:default",
     modelId: "fluorescence-budget-reference",
     modelVersion: 1,
+    artifactDigest: labDigests["lq-07"].replace(/^source:/, "host:"),
     constantSetId: "modern-si-2019",
     streamVersion: "deterministic",
     allocationId: "deterministic",
