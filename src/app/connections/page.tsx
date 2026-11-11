@@ -118,6 +118,21 @@ export default function ConnectionsPage() {
             Open the light-thread laboratory
           </a>
         </p>
+        <p>
+          Compare beside the source:{" "}
+          <a href="/papers/light-quanta/?open=instrument-view:light-thread#s6">
+            light quanta, §6
+          </a>
+          {" · "}
+          <a href="/papers/special-relativity/?open=instrument-view:light-thread#s8">
+            relativity, §8
+          </a>
+          {" · "}
+          <a href="/papers/mass-energy/?open=instrument-view:light-thread">
+            the mass–energy paper
+          </a>
+          . These links open the same later comparison within the reader.
+        </p>
       </section>
       <section className="reading page-flush">
         <h2>Keep the direction of inference visible</h2>

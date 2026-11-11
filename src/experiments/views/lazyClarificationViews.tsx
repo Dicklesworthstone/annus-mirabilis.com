@@ -50,6 +50,7 @@ const Lq06Chunk = lazy(() => import("./lq06View.tsx"));
 const Lq07Chunk = lazy(() => import("./lq07View.tsx"));
 const Lq08Chunk = lazy(() => import("./lq08View.tsx"));
 const Lq09Chunk = lazy(() => import("./lq09View.tsx"));
+const LightThreadChunk = lazy(() => import("./lightThreadView.tsx"));
 const Me01Chunk = lazy(() => import("./me01View.tsx"));
 const Me02Chunk = lazy(() => import("./me02View.tsx"));
 const Me03Chunk = lazy(() => import("./me03View.tsx"));
@@ -140,6 +141,10 @@ export function Lq08ClarificationView(props: ExperimentViewProps) {
 
 export function Lq09ClarificationView(props: ExperimentViewProps) {
   return <Lq09Chunk {...props} />;
+}
+
+export function LightThreadClarificationView(props: ExperimentViewProps) {
+  return <LightThreadChunk {...props} />;
 }
 
 export function Me01ClarificationView(props: ExperimentViewProps) {

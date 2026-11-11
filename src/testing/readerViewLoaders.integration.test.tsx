@@ -36,6 +36,7 @@ afterEach(async () => {
 const INJECTED: ViewLoaders = { "sr-01": () => import("../experiments/views/sr01View.tsx") };
 const argumentDirectory = new URL("../../content/arguments/", import.meta.url);
 const firstInstruments = [
+  "light-thread",
   ...new Set(
     readdirSync(argumentDirectory, { recursive: true })
       .filter((path) => typeof path === "string" && path.endsWith(".json"))

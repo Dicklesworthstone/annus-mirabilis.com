@@ -2,6 +2,7 @@
 import { afterAll, afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { act, StrictMode } from "react";
 import { createRoot, type Root } from "react-dom/client";
+import { LIGHT_THREAD_DEFAULTS } from "../experiments/lightThread/definition.ts";
 import { ReaderController } from "../reader/ReaderController.tsx";
 import { deserializeStackState } from "../reader/stack/history.ts";
 import { closeDirectOpenDialog, openFromTrigger } from "../reader/stack/mountDirectOpen.ts";
@@ -42,7 +43,7 @@ async function until(done: () => boolean): Promise<void> {
   throw new Error("Reader laboratory did not settle.");
 }
 
-async function readingPage(instrument: "lq-08" | "sr-05") {
+async function readingPage(instrument: "lq-08" | "sr-05" | "light-thread") {
   history.replaceState({ unrelated: "preserved" }, "", "/papers/light-quanta/?detail=2#passage-a");
   const page = document.createElement("div");
   page.dataset.readerRoot = "";
@@ -144,6 +145,53 @@ async function change(instrument: string) {
 }
 
 describe("reader close and history returns", () => {
+  test("the light thread keeps its accepted pulse and observer across reader returns", async () => {
+    await readingPage("light-thread");
+    const read = (lab: HTMLElement) => ({
+      instanceId: lab.dataset.instanceId,
+      runId: lab.dataset.runId,
+      snapshotVersion: lab.dataset.snapshotVersion,
+      beta: lab.querySelector<HTMLInputElement>('input[name="beta"]')?.value,
+      readings: [...lab.querySelectorAll("span[data-quantity-id]")].map(
+        (output) => output.textContent,
+      ),
+    });
+    const first = await open("light-thread");
+    const initial = read(first);
+    expect(initial.beta).toBe(String(LIGHT_THREAD_DEFAULTS.beta));
+    expect(initial.readings.length).toBeGreaterThan(0);
+    expect(first.querySelector('[role="alert"]')).toBeNull();
+    const sourceObserver = [...first.querySelectorAll<HTMLButtonElement>("button")].find(
+      (button) => button.textContent === "Same pulse, source observer",
+    );
+    expect(sourceObserver).toBeDefined();
+    await click(sourceObserver as HTMLButtonElement);
+    const accepted = read(laboratory("light-thread"));
+    expect(accepted.beta).toBe("0");
+    expect(accepted.runId).toBe(initial.runId);
+    expect(accepted.snapshotVersion).not.toBe(initial.snapshotVersion);
+    expect(accepted.readings).not.toEqual(initial.readings);
+    const frame = deserializeStackState(history.state.annusClarification.stack)?.frames[0];
+    expect(frame?.openedLab).toMatchObject({
+      experimentId: "light-thread",
+      instanceId: accepted.instanceId,
+      runId: accepted.runId,
+    });
+
+    await close();
+    expect(document.querySelector('[data-instrument-id="light-thread"]')).toBeNull();
+    const restored = await open("light-thread");
+    expect(read(restored)).toEqual(accepted);
+    expect(restored.querySelector('[role="alert"]')).toBeNull();
+
+    await close();
+    const other = read(await open("light-thread", "b"));
+    expect(other.instanceId).not.toBe(accepted.instanceId);
+    expect(other.beta).toBe(initial.beta);
+    await close();
+    expect(read(await open("light-thread"))).toEqual(accepted);
+  });
+
   for (const instrument of ["lq-08", "sr-05"] as const) {
     test(`${instrument}: close/reopen restores parameters, action, revisions and accepted snapshot without a hidden root`, async () => {
       await readingPage(instrument);

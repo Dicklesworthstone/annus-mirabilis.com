@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { type FormEvent, useEffect, useId, useState } from "react";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
 import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
@@ -22,6 +22,7 @@ import { deriveHostExecution } from "../../../experiments/provenance/executionSt
 import { ExperimentRuntimeError } from "../../../experiments/refusal.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../../experiments/store/instanceStore.ts";
+import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { LabMargin } from "../LabMargin.tsx";
@@ -98,11 +99,27 @@ function QuantityTable({
   );
 }
 
-export function LightThreadLab({ sourceDigest = "" }: { sourceDigest?: string } = {}) {
+export function LightThreadLab({
+  sourceDigest = "",
+  instanceId,
+  restoreFromLocation = true,
+}: {
+  sourceDigest?: string;
+  instanceId?: string;
+  restoreFromLocation?: boolean;
+} = {}) {
   const id = useId();
-  const [session] = useState(() => createLightThreadSession(`light-thread-${id}`));
+  const session = useRetainedSession(
+    { experimentId: "light-thread", instanceId: instanceId ?? `light-thread-${id}`, sourceDigest },
+    (retainedId) => createLightThreadSession(retainedId),
+  );
   const view = useInstrumentView(session);
-  const [draft, setDraft] = useState(() => draftOf(LIGHT_THREAD_DEFAULTS));
+  const [draft, setDraft] = useState(() =>
+    draftOf(
+      (session.getSnapshot().accepted?.parameters as LightThreadParameters | undefined) ??
+        LIGHT_THREAD_DEFAULTS,
+    ),
+  );
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
   const [announcement, setAnnouncement] = useState("");
@@ -116,6 +133,10 @@ export function LightThreadLab({ sourceDigest = "" }: { sourceDigest?: string } 
   const accepted = snapshot.parameters as LightThreadParameters;
 
   useEffect(() => {
+    setReady(true);
+    // A clarification belongs to the reader's URL. Its retained owner already holds the
+    // accepted experiment; applying the paper's query or the defaults would restart it.
+    if (!restoreFromLocation) return;
     function restore() {
       const query = window.location.search;
       const state = query
@@ -134,10 +155,9 @@ export function LightThreadLab({ sourceDigest = "" }: { sourceDigest?: string } 
       setError("");
     }
     restore();
-    setReady(true);
     window.addEventListener("popstate", restore);
     return () => window.removeEventListener("popstate", restore);
-  }, [session]);
+  }, [session, restoreFromLocation]);
 
   function apply(parameters: LightThreadParameters) {
     const outcome = session.apply(parameters);
