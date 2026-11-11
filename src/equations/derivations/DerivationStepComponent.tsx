@@ -20,7 +20,7 @@ export interface DerivationStepComponentProps {
   readonly isLocallyExpanded?: boolean | undefined;
   readonly isFocused?: boolean | undefined;
   readonly isProduction?: boolean | undefined;
-  readonly onToggleLocalExpand?: () => void;
+  readonly onToggleLocalExpand?: (open: boolean) => void;
   readonly onStepFocus?: () => void;
 }
 
@@ -127,7 +127,11 @@ export function DerivationStepComponent({
       </div>
 
       {/* Per-Step Local "Show every step" Expansion */}
-      <details className="step-local-steps" open={isLocallyExpanded} onToggle={onToggleLocalExpand}>
+      <details
+        className="step-local-steps"
+        open={isLocallyExpanded}
+        onToggle={(event) => onToggleLocalExpand?.(event.currentTarget.open)}
+      >
         <summary>Show every step here</summary>
         <div className="step-r2-content">{step.reasons.r2}</div>
       </details>

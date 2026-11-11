@@ -32,23 +32,23 @@ export const FIRST_HONEST_QUESTION =
  * The one non-obvious step (am-disc-journey-i-chain-n1lh, Stage F): reading the radiation entropy's
  * multiplier of log(V/V₀) as a count of independent things, in the way the gas law's multiplier
  * counts molecules. Its logical role is a heuristic inference, and the summary says so. It points
- * at the paper's §6 argument and the record for the effective count there.
+ * at the marked coefficient-comparison step in the paper's published §6 derivation.
  *
  * The summary is the bead's authored sentence, recorded as a draft: only a named physics reviewer
  * may set it reviewed.
  */
 export const MOVE: JourneyMove = {
   label: "Read the multiplier as a count of independent quanta",
-  chainId: "arg-lq-entropy-correspondence",
-  stepId: "eq-model-lq-effective-count",
+  chainId: "chain-lq-entropy-correspondence",
+  stepId: "lq-correspondence-match-coefficients",
   r0Summary: {
     text: "When light of low density and a single frequency is given more room, its entropy, the quantity that measures how many ways its energy can be arranged, changes in the same way as that of a gas of independent particles, which suggests, as a heuristic step rather than a proof, treating the light's energy as if it came in independent parts whose size is set by the frequency.",
     reviewState: "draft",
   },
 };
 
-/** Where the marked step opens in the reading face: the paper's §6 argument. */
-export const MOVE_HREF = "/papers/light-quanta/s6/#arg-lq-entropy-correspondence";
+/** The published coefficient-comparison step opens with its full reasoning and keyboard focus. */
+export const MOVE_HREF = "/papers/light-quanta/s6/#lq-correspondence-match-coefficients";
 
 /**
  * Fork A (the bead's Fork A): which account to give of the volume logarithm both sides accept.

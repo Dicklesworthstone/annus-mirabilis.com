@@ -1,27 +1,18 @@
 # The discovery journey for light-quanta, as a record the compiler can read (am-4k0m).
 #
-# EMITTED, NOT TYPED. Every sentence here was copied out of the paper's own journey module by
-# scripts/emit-journey-records.ts, which serialises the Journey that src/discovery/journeys/
-# realJourneys.ts composes by reference. Nobody retyped a word, and realJourneys.test.ts asserts
-# this file parses back to exactly that object, so the record is proven faithful rather than
-# assumed. Regenerate with: bun scripts/emit-journey-records.ts
+# Emitted from the journey's typed source records by scripts/emit-journey-records.ts.
+# The page renders the same authored stages, including the existing narrative, their
+# shelf premises, worked comparisons and qualifications. realJourneys.test.ts verifies
+# that this YAML and the composed journey carry exactly the same content.
 #
-# `completeness: partial` is the honest value, and pendingElements says which elements and why,
-# because composing them would be authoring content rather than moving it. A journey claiming
-# complete with elements missing is the defect am-4k0m is about. The list is NOT the same for
-# all four. Read the current pendingElements below for the remaining gaps; exercise counts
-# and authored stages change as the corresponding reader-facing work lands.
-#
-# The page still renders from the module. Pointing it here is the next step, and the equality test
-# is what makes that step safe.
+# pendingElements names the remaining gaps. Recording the stages does not claim that
+# the separate derivation-chain or editorial review work is complete.
+# Regenerate with: bun scripts/emit-journey-records.ts
 id: light-quanta
 paper: light-quanta
-revision: 4
-completeness: partial
-pendingElements:
-  - element: move.derivationChain
-    reason: 'The move is named in this record and marked in no derivation chain a reader can open: content/equations/derivations/ holds one chain, for brownian-motion. Authoring one here means a semantic expression tree per step with registry-bound quantity ids, a registered identity per rule and a worked case, which is physics authoring rather than moving this journey''s prose into a record.'
-    ownerBead: am-4k0m
+revision: 5
+completeness: complete
+pendingElements: []
 shelf:
   - fresnel-1826-diffraction
   - maxwell-1873-electromagnetic-light
@@ -428,8 +419,8 @@ forks:
           plainLanguage: This is the paper's route in §8, and the paper keeps it a heuristic. It predicts a stopping potential that rises in a straight line with the frequency and stays the same with the brightness, which Millikan measured in 1916.
 move:
   label: Read the multiplier as a count of independent quanta
-  chainId: arg-lq-entropy-correspondence
-  stepId: eq-model-lq-effective-count
+  chainId: chain-lq-entropy-correspondence
+  stepId: lq-correspondence-match-coefficients
   r0Summary:
     text: When light of low density and a single frequency is given more room, its entropy, the quantity that measures how many ways its energy can be arranged, changes in the same way as that of a gas of independent particles, which suggests, as a heuristic step rather than a proof, treating the light's energy as if it came in independent parts whose size is set by the frequency.
     reviewState: draft
@@ -521,4 +512,7 @@ lineage:
     date: '2026-11-10'
   - revision: 3
     reason: "Recorded the seven existing discovery stages with explicit shelf premises, reasoning tools, worked comparisons and transfer cases. The compiler and local search can now inspect the Light Quanta argument chain; stages is no longer a pending element."
+    date: "2026-11-11"
+  - revision: 4
+    reason: "Linked the discovery move to the published section 6 coefficient-comparison step, with direct opening of its reasoning. The existing derivation preserves the heuristic and independence qualifications; move.derivationChain is no longer pending."
     date: "2026-11-11"

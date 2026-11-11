@@ -10,12 +10,9 @@
 # Regenerate with: bun scripts/emit-journey-records.ts
 id: mass-energy
 paper: mass-energy
-revision: 4
-completeness: partial
-pendingElements:
-  - element: move.derivationChain
-    reason: 'The move is named in this record and marked in no derivation chain a reader can open: content/equations/derivations/ holds one chain, for brownian-motion. Authoring one here means a semantic expression tree per step with registry-bound quantity ids, a registered identity per rule and a worked case, which is physics authoring rather than moving this journey''s prose into a record.'
-    ownerBead: am-4k0m
+revision: 5
+completeness: complete
+pendingElements: []
 shelf:
   - helmholtz-1847-conservation-of-energy
   - thomson-tait-1867-kinetic-energy
@@ -399,3 +396,6 @@ lineage:
   - revision: 3
     reason: Authored the five argument stages with the page's existing narrative, explicit shelf premises, worked comparisons and qualifications. The page and emitted record now share these stages, so stages is no longer pending; the separate move.derivationChain declaration remains.
     date: '2026-11-06'
+  - revision: 4
+    reason: "Recognized the published low-speed coefficient chain as the journey's existing move owner. The move fragment now opens its disclosure and focuses the conditional mass-identification step while preserving selected premises; move.derivationChain is no longer pending."
+    date: "2026-11-11"

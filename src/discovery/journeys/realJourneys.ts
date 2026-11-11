@@ -16,14 +16,13 @@
  * diffing.
  *
  * scripts/emit-journey-records.ts emits these records to `content/journeys/<paper>.yaml`, and the
- * parity test checks their equality. Mass-energy and Brownian motion share their authored stages
- * with their pages. The other two staged chains remain in their pages and declare that gap.
+ * parity test checks their equality. All four journeys share their authored stages with their pages.
  *
  * REMAINING ELEMENTS ARE DECLARED PENDING, through the schema's own `pendingElements`:
  *
- *   stages     The two unrecorded staged chains need authored premise references and reasoning.
+ *   stages     A journey declares a gap only when its argument stages are still unrecorded.
  *   exercises  Each journey now carries at least two expression exercises, checked numerically.
- *   move       Three journeys still need their move marked in an openable derivation chain.
+ *   move       Special Relativity still needs its section 1 definition marked in a derivation chain.
  *
  * Completeness follows those structural gaps. It does not claim editorial review. A journey that
  * claimed `complete` while elements were missing would be the defect this bead is about.
@@ -88,38 +87,24 @@ function instrumentedPending(exercises: Journey["exercises"]): readonly PendingE
 }
 
 /**
- * THE THIRD PENDING ELEMENT, AND THE ONE THAT IS NOT SHARED BY ALL FOUR.
- *
- * AGENTS.md's discovery skeleton says of the move: "the one non-obvious step, named as such and
- * marked in the derivation chain." A journey's `move` record names it, and every journey has one.
- * What three of the four lack is a chain a reader can OPEN at that step: `content/equations/
- * derivations/` holds one file, bm-variance.yaml, whose `bm-variance-cross` step carries
- * `isMove: true`. So brownian-motion's move is openable and the other three moves are prose.
- *
- * am-4k0m lists this as the fourth of its four drift items and allows either of two resolutions,
- * fixed or "declared with a written reason in the record". It was neither: the census printed
- * "1 of 4" with a floor under it, which reports a gap without declaring one, and a figure in a
- * test log is not a record. Authoring the three missing chains is not a migration -- bm-variance
- * is a full semantic expression tree per step with registry-bound quantity ids, registered
- * identities and a worked case -- so it is declared here and owned where derivation chains are.
+ * Brownian motion, Light Quanta and Mass-energy link their actual published marked steps.
+ * Special Relativity's journey names the section 1 definition, not the later coordinate step
+ * that assumes it. Keep that scientific distinction explicit rather than crediting any chain.
  */
 const PENDING_MOVE_CHAIN: PendingElement = Object.freeze({
   element: "move.derivationChain",
   reason:
-    "The move is named in this record and marked in no derivation chain a reader can open: content/equations/derivations/ holds one chain, for brownian-motion. Authoring one here means a semantic expression tree per step with registry-bound quantity ids, a registered identity per rule and a worked case, which is physics authoring rather than moving this journey's prose into a record.",
+    "The Special Relativity journey's move is the midpoint convention that defines distant simultaneity in section 1. Its source passage is linked, but no published derivation chain marks that definition as a step. The existing section 3 coordinate chain uses the convention to constrain the time function; substituting that later step would change the move this journey names.",
   ownerBead: "am-4k0m",
 });
 
 /**
- * The papers whose move is not in an openable chain. Hardcoded because this module is composed by
- * reference and must not read the filesystem -- it is reachable from the discover pages, and a
- * node: import there is the defect am-t84m gates against. The list cannot go stale in silence:
- * journeySkeletonCensus.test.ts reads the chain files on disk and refuses any journey that has a
- * chain while declaring one pending, or lacks one while declaring nothing. Author a chain and that
- * census tells you to delete the paper from this set.
+ * This module reaches discover pages, so it does not inspect the filesystem. The skeleton census
+ * checks both content records and code-built production owners against these pending declarations;
+ * the built-page check also verifies that each link reaches its marked step.
  */
 const MOVE_CHAIN_MISSING: ReadonlySet<string> = Object.freeze(
-  new Set(["light-quanta", "special-relativity", "mass-energy"]),
+  new Set(["special-relativity"]),
 ) as ReadonlySet<string>;
 
 /** Only the card fields this module reads; the cards themselves stay in their own files. */
@@ -265,10 +250,10 @@ function admittedImportsOf(paper: string, shelf: readonly ShelfCard[]): readonly
  * the papers whose records changed.
  */
 const REVISIONS: Readonly<Record<string, number>> = Object.freeze({
-  "light-quanta": 4,
+  "light-quanta": 5,
   "brownian-motion": 3,
-  "special-relativity": 3,
-  "mass-energy": 4,
+  "special-relativity": 4,
+  "mass-energy": 5,
 });
 
 /**
@@ -303,6 +288,12 @@ export const JOURNEY_LINEAGE: Readonly<Record<string, readonly RevisionLineageEn
           "Authored the five argument stages with the page's existing narrative, explicit shelf premises, worked comparisons and qualifications. The page and emitted record now share these stages, so stages is no longer pending; the separate move.derivationChain declaration remains.",
         date: "2026-11-06",
       }),
+      Object.freeze({
+        revision: 4,
+        reason:
+          "Recognized the published low-speed coefficient chain as the journey's existing move owner. The move fragment now opens its disclosure and focuses the conditional mass-identification step while preserving selected premises; move.derivationChain is no longer pending.",
+        date: "2026-11-11",
+      }),
     ]),
     "light-quanta": Object.freeze([
       Object.freeze({
@@ -321,6 +312,12 @@ export const JOURNEY_LINEAGE: Readonly<Record<string, readonly RevisionLineageEn
         revision: 3,
         reason:
           "Recorded the seven existing discovery stages with explicit shelf premises, reasoning tools, worked comparisons and transfer cases. The compiler and local search can now inspect the Light Quanta argument chain; stages is no longer a pending element.",
+        date: "2026-11-11",
+      }),
+      Object.freeze({
+        revision: 4,
+        reason:
+          "Linked the discovery move to the published section 6 coefficient-comparison step, with direct opening of its reasoning. The existing derivation preserves the heuristic and independence qualifications; move.derivationChain is no longer pending.",
         date: "2026-11-11",
       }),
     ]),
@@ -349,6 +346,12 @@ export const JOURNEY_LINEAGE: Readonly<Record<string, readonly RevisionLineageEn
         revision: 2,
         reason:
           "Recorded the seven existing discovery argument stages with explicit 1904 shelf premises, reasoning tools, worked comparisons, predictions and transfer cases. Compiler checks and local search can now inspect the Special Relativity argument chain; stages is no longer pending.",
+        date: "2026-11-11",
+      }),
+      Object.freeze({
+        revision: 3,
+        reason:
+          "Clarified that the remaining move gap concerns the section 1 synchronization definition. The published section 3 coordinate chain assumes that convention and cannot replace it; the discovery link accurately names the source passage.",
         date: "2026-11-11",
       }),
     ]),

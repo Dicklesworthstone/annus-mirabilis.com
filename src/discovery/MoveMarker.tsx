@@ -9,6 +9,8 @@ export interface MoveMarkerProps {
    * names none.
    */
   readonly href?: string | undefined;
+  /** Describe the actual destination when the paper supplies a source passage instead of a step. */
+  readonly linkLabel?: string | undefined;
 }
 
 /**
@@ -18,7 +20,7 @@ export interface MoveMarkerProps {
  * construction, a quiet field with a rule on its leading edge (journeySkeleton.css), not an accent
  * box: the accent marks where a reader is, and a box drawn in it reads as an error.
  */
-export function MoveMarker({ move, href }: MoveMarkerProps) {
+export function MoveMarker({ move, href, linkLabel }: MoveMarkerProps) {
   const { label, r0Summary } = move;
   return (
     <aside data-move-marker className="move-marker" aria-label={`The move: ${label}`}>
@@ -27,7 +29,7 @@ export function MoveMarker({ move, href }: MoveMarkerProps) {
       <p>{r0Summary.text}</p>
       {href ? (
         <p className="fine">
-          <a href={href}>Open this step in the derivation</a>
+          <a href={href}>{linkLabel ?? "Open this step in the derivation"}</a>
         </p>
       ) : null}
     </aside>

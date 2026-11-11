@@ -11,6 +11,7 @@ import { useEffect, useRef, useState } from "react";
 import { DerivationStepComponent } from "./DerivationStepComponent.tsx";
 import { filterRoutesForPerspective, getRouteLabel, selectRoute } from "./routeChooser.ts";
 import { announceStepExpanded, handleStepKeyDown, parseDerivationStepParam } from "./stepFocus.ts";
+import { derivationStepFromHash, revealDerivationStep } from "./stepFragment.ts";
 import type { DerivationChain } from "./types.ts";
 import "./derivation.css";
 
@@ -52,17 +53,41 @@ export function DerivationChainComponent({
     }
   }, [activeRouteId]);
 
-  // Handle direct link to a step
+  // Both the reader's open parameter and a native fragment can address a published step.
   useEffect(() => {
-    if (initialOpenStepId) {
-      const parsed = parseDerivationStepParam(initialOpenStepId);
-      const stepId = parsed ? parsed.stepId : initialOpenStepId;
-      const targetIndex = currentChain.steps.findIndex((s) => s.id === stepId);
-      if (targetIndex >= 0) {
-        setFocusedStepIndex(targetIndex);
-        setExpandedSteps((prev) => new Set([...prev, stepId]));
+    function openStep(stepId: string, focus: boolean) {
+      const targetIndex = currentChain.steps.findIndex((step) => step.id === stepId);
+      if (targetIndex < 0) return;
+      setFocusedStepIndex(targetIndex);
+      setExpandedSteps((previous) =>
+        previous.has(stepId) ? previous : new Set([...previous, stepId]),
+      );
+      if (focus) {
+        const target = containerRef.current?.querySelector<HTMLElement>(
+          `[data-step-id="${stepId}"]`,
+        );
+        if (target) revealDerivationStep(target);
       }
     }
+
+    if (initialOpenStepId) {
+      const parsed = parseDerivationStepParam(initialOpenStepId);
+      if (!parsed || parsed.chainId === currentChain.id) {
+        openStep(parsed ? parsed.stepId : initialOpenStepId, false);
+      }
+    }
+
+    function followFragment() {
+      const stepId = derivationStepFromHash(window.location.hash);
+      if (stepId) openStep(stepId, true);
+    }
+    followFragment();
+    window.addEventListener("hashchange", followFragment);
+    window.addEventListener("popstate", followFragment);
+    return () => {
+      window.removeEventListener("hashchange", followFragment);
+      window.removeEventListener("popstate", followFragment);
+    };
   }, [initialOpenStepId, currentChain]);
 
   function handleRouteTabClick(routeId: string) {
@@ -71,9 +96,9 @@ export function DerivationChainComponent({
     onRouteSelect?.(routeId);
   }
 
-  function toggleLocalExpand(stepId: string, index: number) {
+  function setLocalExpansion(stepId: string, index: number, isNowExpanded: boolean) {
+    if (isNowExpanded === expandedSteps.has(stepId)) return;
     const step = currentChain.steps[index];
-    const isNowExpanded = !expandedSteps.has(stepId);
 
     setExpandedSteps((prev) => {
       const next = new Set(prev);
@@ -103,7 +128,7 @@ export function DerivationChainComponent({
       },
       onToggleExpand: (index) => {
         const step = currentChain.steps[index];
-        if (step) toggleLocalExpand(step.id, index);
+        if (step) setLocalExpansion(step.id, index, !expandedSteps.has(step.id));
       },
       onExitFocusMode: () => {
         setFocusedStepIndex(-1);
@@ -161,7 +186,7 @@ export function DerivationChainComponent({
               isLocallyExpanded={expandedSteps.has(step.id)}
               isFocused={focusedStepIndex === index}
               isProduction={isProduction}
-              onToggleLocalExpand={() => toggleLocalExpand(step.id, index)}
+              onToggleLocalExpand={(open) => setLocalExpansion(step.id, index, open)}
               onStepFocus={() => setFocusedStepIndex(index)}
             />
           ))}

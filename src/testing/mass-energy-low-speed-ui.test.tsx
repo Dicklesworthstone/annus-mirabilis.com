@@ -155,3 +155,40 @@ test("an ambiguous shared order displays a notice without inventing a selected s
     expect(container.textContent).toContain("unsupported or ambiguous");
   });
 });
+
+test("the published move fragment opens the complete low-speed derivation and focuses its move", async () => {
+  window.history.replaceState({}, "", "/papers/mass-energy/#me-the-move");
+  await mounted(<MassEnergyLowSpeed />, async (container) => {
+    const disclosure = container.querySelector<HTMLDetailsElement>("[data-low-speed-disclosure]")!;
+    const move = container.querySelector<HTMLElement>("#me-the-move")!;
+    expect(disclosure.open).toBe(true);
+    expect(document.activeElement).toBe(move);
+    expect(move.tabIndex).toBe(-1);
+    expect(move.textContent).toContain("Without that Newtonian premise");
+    expect(states(container)).toEqual(Array(5).fill("supported"));
+  });
+});
+
+test("returning to the move through history preserves the reader's premise selection", async () => {
+  window.history.replaceState({}, "", "/papers/mass-energy/");
+  await mounted(<MassEnergyLowSpeed />, async (container) => {
+    const disclosure = container.querySelector<HTMLDetailsElement>("[data-low-speed-disclosure]")!;
+    expect(disclosure.open).toBe(false);
+    disclosure.open = true;
+    await toggle(container, "inertia");
+    disclosure.open = false;
+    await act(async () => {
+      window.history.replaceState({}, "", "/papers/mass-energy/#me-the-move");
+      window.dispatchEvent(new Event("popstate"));
+    });
+    expect(disclosure.open).toBe(true);
+    expect(document.activeElement).toBe(container.querySelector("#me-the-move"));
+    expect(states(container)).toEqual([
+      "supported",
+      "supported",
+      "supported",
+      "supported",
+      "blocked",
+    ]);
+  });
+});

@@ -8,6 +8,7 @@ import {
   lowSpeedHref,
 } from "./lowSpeedState.ts";
 import type { LowSpeedFormula, LowSpeedProofView } from "./lowSpeedView.ts";
+import { derivationStepFromHash, revealDerivationStep } from "./stepFragment.ts";
 import "./linearProof.css";
 
 function MathBlock({ value }: { value: LowSpeedFormula }) {
@@ -43,6 +44,21 @@ export function LowSpeedExplorer({
   const [ready, setReady] = useState(false),
     [message, setMessage] = useState("");
   const container = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!moveAnchor) return;
+    function followMove() {
+      if (derivationStepFromHash(window.location.hash) !== moveAnchor) return;
+      const target = container.current?.querySelector<HTMLElement>("[data-move-step]");
+      if (target) revealDerivationStep(target);
+    }
+    followMove();
+    window.addEventListener("hashchange", followMove);
+    window.addEventListener("popstate", followMove);
+    return () => {
+      window.removeEventListener("hashchange", followMove);
+      window.removeEventListener("popstate", followMove);
+    };
+  }, [moveAnchor]);
   useEffect(() => {
     if (restoreSettings) {
       const setup = decodeLowSpeedSetup(proof.certificate, window.location.search);
@@ -277,7 +293,7 @@ export function LowSpeedExplorer({
         </li>
         {/* The move (plan §9.1 item 6, §11 ME-02): the one step the paper asks the reader to accept
             rather than check, named as such. Journey IV's marker links here by its anchor. */}
-        <li id={moveAnchor} data-move-step>
+        <li id={moveAnchor} data-move-step tabIndex={-1}>
           <h4>The move: read the coefficient as a lost mass</h4>
           {status("identify")}
           {equation("mass-decrease")}

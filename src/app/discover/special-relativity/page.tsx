@@ -219,7 +219,11 @@ export default function SpecialRelativityRoute() {
         </StepDoors>
       </section>
 
-      <MoveMarker move={MOVE} href={MOVE_HREF} />
+      <MoveMarker
+        move={MOVE}
+        href={MOVE_HREF}
+        linkLabel="Read the synchronization definition in the paper"
+      />
 
       <section id="step-05">
         <p className="step-number">05 / Build the map</p>
