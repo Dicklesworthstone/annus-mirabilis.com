@@ -76,7 +76,7 @@ describe("the timeline's static reading experience", () => {
   });
 
   test("every local jump published by the timeline reaches a real static element", () => {
-    const jumps = [...document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]')];
+    const jumps = [...document.querySelectorAll('a[href^="#"]')];
     expect(jumps.length).toBeGreaterThan(0);
     for (const link of jumps)
       expect(document.getElementById(link.getAttribute("href")?.slice(1) ?? "")).not.toBeNull();

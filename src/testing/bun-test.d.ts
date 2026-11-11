@@ -22,7 +22,11 @@ declare module "bun:test" {
   export const describe: DescribeFn;
   export const test: TestFn;
   export const it: TestFn;
-  export function expect(actual: unknown, message?: string): any;
+  export interface ExpectFn {
+    (actual: unknown, message?: string): any;
+    objectContaining(expected: object): unknown;
+  }
+  export const expect: ExpectFn;
   export function beforeEach(fn: () => void | Promise<void>): void;
   export function afterEach(fn: () => void | Promise<void>): void;
   export function beforeAll(fn: () => void | Promise<void>): void;

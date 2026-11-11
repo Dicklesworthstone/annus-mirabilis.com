@@ -55,6 +55,25 @@ jobs:
         run: bun test --isolate src/reader/facsimile/FacsimilePanel.test.tsx src/reader/facsimile/FaceFallback.integration.test.tsx
       - name: Exercise the connected light-quanta investigation and static reading
         run: bun test --isolate src/testing/light-quanta-investigation-ui.test.tsx
+      - name: Exercise retained reader laboratories, exact derivations and methodological essays
+        run: >-
+          bun test --isolate --timeout 60000
+          src/testing/readerViewLoaders.integration.test.tsx
+          src/testing/readerLabRetention.integration.test.tsx
+          src/equations/derivations/rationalSimplification.test.ts
+          src/equations/derivations/rules/addSubtractMultiplyDivide.test.ts
+          src/equations/derivations/rules/collectExact.test.ts
+          src/equations/derivations/brownianSource.test.ts
+          src/reader/BrownianDerivation.test.tsx
+          src/equations/derivations/lightQuantaEntropy.test.ts
+          src/content/results/checked*Support.test.ts
+          src/content/results/srCheckedSupport.test.ts
+          src/content/essays/essays.test.ts
+          src/content/essays/values.test.ts
+          src/components/essays/EssayReading.test.tsx
+          src/search/essayDocuments.test.ts
+          src/discovery/tours/studyTours.test.ts
+          src/testing/scenario-registry/coreNumericOwners.test.ts
       - run: bun run typecheck
       - name: Build the complete production preview
         shell: bash

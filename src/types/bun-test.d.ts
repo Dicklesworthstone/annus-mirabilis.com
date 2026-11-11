@@ -5,6 +5,7 @@
 declare module "bun:test" {
   export interface BunMock {
     module: (name: string, factory: () => unknown) => void;
+    restore: () => void;
   }
   export const mock: BunMock;
 
