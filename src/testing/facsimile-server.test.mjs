@@ -134,7 +134,7 @@ test("a stale same-length PDF fails the pinned digest without exposing a usable 
   assert.equal(result.code, "facsimile-digest-mismatch");
   assert.equal("document" in result, false);
 });
-test("correctly hashed non-PDF bytes and too-small files are rejected (server.ts:51)", async () => {
+test("correctly hashed non-PDF bytes and too-small files are rejected (server.ts:52)", async () => {
   const html = Buffer.from("<html>Not an original scan</html>");
   const hash = createHash("sha256").update(html).digest("hex");
   assert.equal(

@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import assert from "node:assert/strict";
 import type { AliasRecord } from "../../content/aliases.ts";
 import { resolvedSourceAliases, SourceAliasError } from "./sourceAliases.ts";
 
@@ -36,21 +37,40 @@ describe("source aliases shared by reading faces", () => {
   });
 
   test("source-alias-collection-invalid: malformed collections cannot silently drop old links", () => {
-    expect(() => resolvedSourceAliases({}, new Set())).toThrow(SourceAliasError);
+    assert.throws(
+      () => resolvedSourceAliases({}, new Set()),
+      (error: unknown) => {
+        expect(error).toBeInstanceOf(SourceAliasError);
+        expect((error as SourceAliasError).rule).toBe("source-alias-collection-invalid");
+        return true;
+      },
+    );
   });
 
   test("source-alias-record-invalid: malformed records fail through the existing validator", () => {
-    expect(() => resolvedSourceAliases([{ retiredId: "s1-p3" }], new Set())).toThrow(
-      SourceAliasError,
+    assert.throws(
+      () => resolvedSourceAliases([{ retiredId: "s1-p3" }], new Set()),
+      (error: unknown) => {
+        expect(error).toBeInstanceOf(SourceAliasError);
+        expect((error as SourceAliasError).rule).toBe("source-alias-record-invalid");
+        return true;
+      },
     );
   });
 
   test("source-alias-resolution-failed: an alias cycle cannot publish an apparently working address", () => {
-    expect(() =>
-      resolvedSourceAliases(
-        [alias("s1-p3", ["s1-p4"]), alias("s1-p4", ["s1-p3"])],
-        new Set(["s1-p2"]),
-      ),
-    ).toThrow("cycle");
+    assert.throws(
+      () =>
+        resolvedSourceAliases(
+          [alias("s1-p3", ["s1-p4"]), alias("s1-p4", ["s1-p3"])],
+          new Set(["s1-p2"]),
+        ),
+      (error: unknown) => {
+        expect(error).toBeInstanceOf(SourceAliasError);
+        expect((error as SourceAliasError).rule).toBe("source-alias-resolution-failed");
+        expect((error as SourceAliasError).message).toContain("cycle");
+        return true;
+      },
+    );
   });
 });
