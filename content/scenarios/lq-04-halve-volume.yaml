@@ -44,6 +44,12 @@ inputs:
     unit: "K"
 expected:
   outputs:
+    - outputId: energy
+      value: 9.055615274270186e-9
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The existing workbench computes band energy from the reference spectral density, bandwidth and volume. Publishing that same output lets the essay verify its rounded 9.06 nJ example."
     - outputId: initialTemperature
       value: 2999.999999999998
       comparisonKind: tolerance

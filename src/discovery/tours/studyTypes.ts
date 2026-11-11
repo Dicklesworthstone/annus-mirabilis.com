@@ -21,7 +21,8 @@ export type StudyStep = TourStop &
       | "misconceptions"
       | "capstone"
       | "orientation"
-      | "connection";
+      | "connection"
+      | "essay";
     minutes: number;
     paper?: string;
     section?: string;

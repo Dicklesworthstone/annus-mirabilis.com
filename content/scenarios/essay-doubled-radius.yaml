@@ -1,0 +1,37 @@
+# Same modern inputs as diffusion-modern-golden, with only the particle radius doubled.
+# The radius comparison in the essay uses the two executed and separately checked scenarios.
+id: "essay-doubled-radius"
+kind: "modern-golden"
+title: "Double the radius at fixed temperature, viscosity and time"
+description: "A modern model comparison with diffusion-modern-golden. Doubling the radius halves the diffusion coefficient and multiplies the root-mean-square coordinate displacement by one over the square root of two. The viscosity is a declared illustrative input, not a measurement attributed to water."
+constantSetId: "modern-si-2019"
+owner: "diffusion.stokesEinsteinRms"
+inputs:
+  temperature:
+    value: 293.15
+    unit: "K"
+  viscosity:
+    value: 1.0e-3
+    unit: "Pa s"
+  particleRadius:
+    value: 1.0e-6
+    unit: "m"
+  elapsedTime:
+    value: 1
+    unit: "s"
+expected:
+  outputs:
+    - outputId: diffusionCoefficient
+      value: 2.1471978227748074e-13
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "The same modern Stokes-Einstein relation as the baseline, at twice its radius; only floating-point rounding is admitted."
+    - outputId: rmsDisplacement1d
+      value: 6.553163850804903e-7
+      comparisonKind: tolerance
+      tolerance:
+        relative: 1.0e-12
+        rationale: "sqrt(2 D t) at the smaller diffusion coefficient and the same one-second interval."
+modelVersion: 1
+schemaVersion: 1

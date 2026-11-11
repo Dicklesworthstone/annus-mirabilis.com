@@ -8,6 +8,7 @@ import {
   loadPaperPayload,
 } from "../src/content/compiler/serverLoaders.ts";
 import { loadConnections } from "../src/content/connections/connections.ts";
+import { loadEssays } from "../src/content/essays/load.ts";
 import { loadGermanSourceFace } from "../src/content/editions/germanSourceFace.ts";
 import type { RouteSlug } from "../src/content/ids.ts";
 import { loadTeachingTapes } from "../src/content/teachingTapes.ts";
@@ -52,6 +53,7 @@ import { tapePath } from "../src/reader/sitePaths.ts";
 import { packageSearchIndex } from "../src/search/build.ts";
 import type { SearchAlias, SearchDocument } from "../src/search/core.ts";
 import { deskDocuments } from "../src/search/deskDocuments.ts";
+import { essayDocuments } from "../src/search/essayDocuments.ts";
 import {
   aliasesForDocuments,
   assertSearchCoverage,
@@ -417,6 +419,7 @@ export async function loadSearchCorpus(
     ...knowledgeCardDocuments(knowledgeCards, profile),
     ...chronology,
     ...desk,
+    ...essayDocuments(loadEssays(root), profile),
     ...connectionDocuments(connections, profile),
     ...walkthroughDocuments(walkthroughs, profile),
     ...discoveryDocuments(ROUTE_INDEX, profile),

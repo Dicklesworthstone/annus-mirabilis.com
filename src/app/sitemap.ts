@@ -2,6 +2,7 @@ import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import type { MetadataRoute } from "next";
 import { contentIndex } from "../content/server.ts";
+import { loadEssays } from "../content/essays/load.ts";
 import { loadTeachingTapes } from "../content/teachingTapes.ts";
 import { tourIds } from "../content/tours/tours.ts";
 import { ROUTE_INDEX } from "../discovery/routeIndex.ts";
@@ -30,6 +31,7 @@ export const FIXED_PAGES = [
   "/kitchen/",
   "/notation/",
   "/connections/",
+  "/essays/",
   "/timeline/",
   "/1904/",
   // The capstones are listed rather than exempted: each is a page at a fixed address with its own
@@ -152,6 +154,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...FIXED_PAGES,
     ...ROUTE_INDEX.map((route) => `/discover/${route.slug}/`),
     ...lessons,
+    ...loadEssays().map((essay) => "/essays/" + essay.slug + "/"),
     // One catalogue per paper that has explained equations (am-9p8v). They sit under a dynamic
     // segment, so sitemap.test.ts's fixed-address walk cannot see them: left out here they would
     // be four pages a crawler is never told about, each listing between 40 and 122 explanations.

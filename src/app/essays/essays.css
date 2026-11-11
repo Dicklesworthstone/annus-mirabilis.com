@@ -1,0 +1,217 @@
+.essays-page,
+.essay-reading {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.essay-label {
+  max-width: 76ch;
+  border-left: 3px solid var(--line);
+  padding-left: 1rem;
+  font-size: var(--type-small);
+}
+
+.essay-catalogue {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+  gap: 1.5rem;
+}
+
+.essay-catalogue > li {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 1.25rem;
+}
+
+.essay-catalogue h2 {
+  margin-top: 0.5rem;
+}
+
+.essay-series-note,
+.essay-body,
+.essay-references,
+.essay-transfers,
+.essay-limits,
+.essay-citations {
+  max-width: 76ch;
+}
+
+.essay-toc {
+  margin: 2rem 0;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--line);
+  background: var(--wash);
+}
+
+.essay-toc h2 {
+  margin-top: 0;
+  font-size: var(--type-lead);
+}
+
+.essay-toc ul {
+  columns: 2 20rem;
+  padding-left: 1.25rem;
+}
+
+.essay-toc li {
+  break-inside: avoid;
+  margin-bottom: 0.5rem;
+}
+
+.essay-reading [id] {
+  scroll-margin-top: 6rem;
+}
+
+.essay-body h2,
+.essay-references,
+.essay-transfers,
+.essay-limits,
+.essay-citations,
+.essay-reading > .essay-related {
+  margin-top: 3rem;
+}
+
+.essay-equation {
+  margin: 1.5rem 0;
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.essay-equation-visual {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.essay-equation-mathml {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.essay-equation figcaption {
+  font-size: var(--type-small);
+  margin-top: 0.75rem;
+}
+
+.essay-value {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.essay-references ul {
+  list-style: none;
+  padding: 0;
+}
+
+.essay-references li {
+  border-top: 1px solid var(--line);
+  padding: 1rem 0;
+}
+
+.essay-references li p {
+  margin: 0.5rem 0;
+}
+
+.essay-return,
+.essay-permalink,
+.essay-citations,
+.essay-series-note {
+  font-size: var(--type-small);
+}
+
+.essay-return {
+  display: inline-block;
+  margin-right: 1rem;
+}
+
+.essay-transfers > section {
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem;
+  border-left: 3px solid var(--line);
+  background: var(--wash);
+}
+
+.essay-transfers h3 {
+  margin-top: 0;
+}
+
+.essay-transfers h4 {
+  font-size: var(--type-body);
+  margin-bottom: 0;
+}
+
+.essay-transfers h4 + p {
+  margin-top: 0.35rem;
+}
+
+.essay-related {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+}
+
+.essay-reading > .essay-related {
+  display: block;
+}
+
+.essay-related a,
+.essay-catalogue > li > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.essays-page a:focus-visible,
+.essay-reading a:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+  .essay-toc,
+  .essay-equation,
+  .essay-catalogue > li,
+  .essay-transfers > section {
+    padding: 0.75rem;
+  }
+}
+
+@media print {
+  .essay-toc,
+  .essay-return,
+  .essay-permalink,
+  .essay-related {
+    display: none;
+  }
+
+  .essay-body h2,
+  .essay-references,
+  .essay-transfers,
+  .essay-limits,
+  .essay-citations {
+    margin-top: 1.5rem;
+  }
+
+  .essay-reading h2,
+  .essay-reading h3,
+  .essay-reading h4 {
+    break-after: avoid;
+  }
+
+  .essay-equation {
+    break-inside: avoid;
+  }
+
+  .essay-equation-visual {
+    overflow: visible;
+  }
+}

@@ -183,7 +183,13 @@ describe("the authored study routes", () => {
     }
     expect(steps.some((stop) => stop.href === "/lab/avogadro-lab/")).toBe(true);
     expect(steps.some((stop) => stop.href === "/lab/light-thread/")).toBe(true);
-    expect(steps.some((stop) => stop.href.startsWith("/essays/"))).toBe(false);
+    expect(steps.filter((stop) => stop.kind === "essay").map((stop) => stop.href)).toEqual([
+      "/essays/what-a-measurement-means/",
+      "/essays/change-what-you-hold-fixed/",
+    ]);
+    expect(steps.filter((stop) => stop.kind === "essay").every((stop) => stop.minutes > 0)).toBe(true);
+    expect(course.inPreparation.some((item) => item.includes("What a measurement means"))).toBe(false);
+    expect(course.inPreparation.some((item) => item.includes("Change what you hold fixed"))).toBe(false);
     expect(course.inPreparation.some((item) => item.includes("Reasoning essay:"))).toBe(true);
   });
 

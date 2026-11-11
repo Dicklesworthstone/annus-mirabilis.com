@@ -1,0 +1,161 @@
+schemaVersion: 1
+kind: "essay"
+slug: "change-what-you-hold-fixed"
+number: 2
+title: "Change what you hold fixed"
+label: "A contemporary methodological reading, not Einstein's method."
+r0Summary: "A comparison is defined by what changes and what stays fixed. Radiation entropy and Brownian spreading show how stating those constraints changes the question, the calculation and the conclusion."
+body: "change-what-you-hold-fixed.md"
+anchors:
+  -
+    anchorId: "light-quanta/eq-s4-d5"
+    kind: "source"
+    role: "The fixed-energy radiation entropy comparison in the paper's printed notation."
+  -
+    anchorId: "light-quanta/s4-p5"
+    kind: "source"
+    role: "The restriction to radiation of sufficiently small density and the gas analogy."
+  -
+    anchorId: "brownian-motion/s4-p11"
+    kind: "source"
+    role: "The ensemble displacement statistic at a specified elapsed time."
+  -
+    anchorId: "brownian-motion/s5-p1"
+    kind: "source"
+    role: "How temperature, viscosity and particle size enter the displacement law."
+  -
+    anchorId: "lq-04"
+    kind: "instrument"
+    role: "Change the volume ratio while keeping the radiation energy and frequency band fixed."
+  -
+    anchorId: "bm-01"
+    kind: "instrument"
+    role: "Change the radius while holding temperature, viscosity and elapsed time fixed."
+  -
+    anchorId: "bm-06"
+    kind: "instrument"
+    role: "Compare distributions at the same elapsed time before changing the diffusion coefficient."
+equations:
+  -
+    paper: "light-quanta"
+    equationId: "eq-model-lq-volume-entropy"
+  -
+    paper: "brownian-motion"
+    equationId: "eq-model-bm-diffusivity"
+  -
+    paper: "brownian-motion"
+    equationId: "eq-model-bm-rms"
+quotedValues:
+  -
+    id: "band-frequency"
+    source: "input"
+    scenarioId: "lq-04-halve-volume"
+    outputId: "frequency"
+    displayedAs: "600 THz"
+    significantFigures: 3
+    notation: "standard"
+    scale: 1e-12
+    unit: "THz"
+  -
+    id: "bandwidth"
+    source: "input"
+    scenarioId: "lq-04-halve-volume"
+    outputId: "bandwidth"
+    displayedAs: "1 THz"
+    significantFigures: 1
+    notation: "standard"
+    scale: 1e-12
+    unit: "THz"
+  -
+    id: "band-energy"
+    source: "output"
+    scenarioId: "lq-04-halve-volume"
+    outputId: "energy"
+    displayedAs: "9.06 nJ"
+    significantFigures: 3
+    notation: "standard"
+    scale: 1000000000
+    unit: "nJ"
+  -
+    id: "entropy-change"
+    source: "output"
+    scenarioId: "lq-04-halve-volume"
+    outputId: "radiationEntropy"
+    displayedAs: "-2.18 × 10^-13 J/K"
+    significantFigures: 3
+    notation: "scientific"
+    scale: 1
+    unit: "J/K"
+  -
+    id: "effective-count"
+    source: "output"
+    scenarioId: "lq-04-halve-volume"
+    outputId: "effectiveIndependentCount"
+    displayedAs: "2.28 × 10^10"
+    significantFigures: 3
+    notation: "scientific"
+    scale: 1
+    unit: ""
+  -
+    id: "initial-x"
+    source: "output"
+    scenarioId: "lq-04-halve-volume"
+    outputId: "initialX"
+    displayedAs: "9.60"
+    significantFigures: 3
+    notation: "standard"
+    scale: 1
+    unit: ""
+  -
+    id: "final-x"
+    source: "output"
+    scenarioId: "lq-04-halve-volume"
+    outputId: "finalX"
+    displayedAs: "8.91"
+    significantFigures: 3
+    notation: "standard"
+    scale: 1
+    unit: ""
+  -
+    id: "rms-ratio"
+    source: "output"
+    scenarioId: "essay-doubled-radius"
+    outputId: "rmsDisplacement1d"
+    ratioTo:
+      scenarioId: "diffusion-modern-golden"
+      outputId: "rmsDisplacement1d"
+    displayedAs: "0.7071"
+    significantFigures: 4
+    notation: "standard"
+    scale: 1
+    unit: ""
+transferExamples:
+  -
+    id: "change-what-you-hold-fixed-partial-derivatives"
+    domain: "Mathematics: name the held variable"
+    example: "The change of entropy with volume at fixed energy is a different derivative from the change of entropy with volume at fixed temperature. The subscript specifying the held variable is part of the question, even if the numerator and denominator look the same."
+    sharedMove: "Identify the allowed family of neighbouring states before calculating a rate of change. With several variables linked by a relation, a change in one variable generally needs a statement about the others."
+    whereItStops: "Writing a derivative does not establish that a laboratory can realise its constraints. A mathematically defined comparison and a physically achievable process require separate arguments."
+  -
+    id: "change-what-you-hold-fixed-single-variable-ablation"
+    domain: "Software: compare one change"
+    example: "Compare a program with and without one optimisation on a declared workload, while recording the build, input and execution conditions. A difference in runtime answers a question about those two configurations under those conditions."
+    sharedMove: "State the factor changed, the quantities held fixed and the output compared. This prevents a result from one workload or configuration being silently transferred to another."
+    whereItStops: "Caches, scheduling, data layout and timing variation can couple apparently separate factors. Repeated trials and an adequate comparison design are still needed; naming one changed variable does not prove that every other influence stayed fixed."
+  -
+    id: "change-what-you-hold-fixed-one-load-at-a-time"
+    domain: "Engineering: vary one load"
+    example: "A model can vary a mechanical load while holding geometry and material properties fixed. The resulting comparison isolates a relation inside that model and gives a clear question to bring to an experiment."
+    sharedMove: "Separate the declared controlled quantities from quantities derived by the model. Record when a physical change would also alter something the calculation held constant."
+    whereItStops: "A real change in temperature may also change viscosity, geometry or other material properties. Keeping viscosity fixed while varying temperature can be a useful model comparison, but its physical accuracy needs independent support."
+limits:
+  - "This is a contemporary reading of the arguments. It does not reconstruct a checklist that Einstein followed."
+  - "These examples do not claim that scientific discovery has one algorithm."
+  - "The radiation comparison fixes energy, frequency and bandwidth and requires both states to remain within the dilute Wien regime. It is not the trajectory of light compressed by a moving reflecting wall."
+  - "The Brownian radius comparison uses dilute suspended spheres, the Stokes drag model and the same observation interval. Its declared viscosity is a model input, not a measured value assigned to water."
+citations:
+  - "ap-17-132"
+  - "ap-17-549"
+reviewRecordIds: []
+related:
+  - "what-a-measurement-means"

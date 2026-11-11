@@ -16,6 +16,7 @@ const DESTINATIONS: readonly { href: string; label: string; alsoUnder?: readonly
   // A laboratory is an instrument, so /lab/* counts as being under Instruments.
   { href: "/instruments/", label: "Instruments", alsoUnder: ["/lab/"] },
   { href: "/connections/", label: "Connections" },
+  { href: "/essays/", label: "Essays" },
   { href: "/timeline/", label: "Timeline" },
 ];
 

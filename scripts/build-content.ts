@@ -12,6 +12,8 @@ import { compileContent } from "../src/content/compiler/compile.ts";
 import type { CompilerDiagnostic } from "../src/content/compiler/compiler.ts";
 import { emitPayloads } from "../src/content/compiler/emitter.ts";
 import { getLogger } from "../src/testing/log/logger.ts";
+import { essaySourceFiles, loadEssays } from "../src/content/essays/load.ts";
+import { EssayError } from "../src/content/schemas/essay.ts";
 
 export const CONTENT_COMPILER_FILES = [
   "scripts/build-content.ts",
@@ -26,6 +28,13 @@ export const CONTENT_COMPILER_FILES = [
   "src/content/compiler/serverLoaders.ts",
   "src/content/compiler/checks/registry.ts",
   "src/content/schemas/reading.ts",
+  "src/content/schemas/essay.ts",
+  "src/content/essays/load.ts",
+  "src/content/essays/markdown.ts",
+  "src/content/essays/values.ts",
+  "src/testing/scenario-registry/coreNumericOwners.ts",
+  "src/units/format.ts",
+  "src/units/tolerance.ts",
   "src/content/dimensions/rational.ts",
   "src/equations/ast.ts",
   "src/equations/missingStep/contentCheck.ts",
@@ -158,7 +167,40 @@ export async function buildContent(
   const files = await loadReadingFiles(root, corpusDir);
 
   const compiled = await compileContent(files);
-  const bindingProblems = paragraphBindingDiagnostics(root, BINDINGS_REQUIRED);
+  const essayProblems: CompilerDiagnostic[] = [];
+  let essayFiles: readonly Readonly<{ path: string; text: string }>[] = [];
+  if (corpusDir === "content") {
+    try {
+      const essays = loadEssays(root);
+      const dependencies = new Set(essays.flatMap((essay) => [
+        ...essay.quotedValues.flatMap((value) => [
+          "scenarios/" + value.scenarioId + ".yaml",
+          ...(value.ratioTo ? ["scenarios/" + value.ratioTo.scenarioId + ".yaml"] : []),
+        ]),
+        ...essay.anchors.flatMap((anchor) => anchor.kind === "source"
+          ? ["source-blocks/" + anchor.anchorId + ".yaml"]
+          : anchor.kind === "result"
+            ? ["results/" + anchor.anchorId.split("/")[0] + ".yaml"]
+            : []),
+      ]));
+      essayFiles = [
+        ...essaySourceFiles(root),
+        ...await Promise.all([...dependencies].sort().map(async (path) => ({
+          path, text: await readFile(resolve(root, "content", path), "utf8"),
+        }))),
+      ];
+    } catch (error) {
+      essayProblems.push({
+        severity: "error",
+        code: error instanceof EssayError ? error.code : "essay-compilation",
+        path: error instanceof EssayError ? error.path : "content/essays",
+        message: error instanceof Error ? error.message : String(error),
+        rule: "essay-content",
+        beadId: "am-disc-essays-measurement-fixed-cb1i",
+      });
+    }
+  }
+  const bindingProblems = [...paragraphBindingDiagnostics(root, BINDINGS_REQUIRED), ...essayProblems];
   const result =
     bindingProblems.length === 0
       ? compiled
@@ -188,7 +230,7 @@ export async function buildContent(
 
   // Calculate hashes and digests
   const inputDigest = digest(
-    files.map((f) => `${f.path}\0${Buffer.byteLength(f.text)}\0${f.text}`).join(""),
+    [...files, ...essayFiles].sort((a, b) => a.path.localeCompare(b.path)).map((f) => `${f.path}\0${Buffer.byteLength(f.text)}\0${f.text}`).join(""),
   );
   const compilerFiles = CONTENT_COMPILER_FILES;
   const compilerDigest = digest(

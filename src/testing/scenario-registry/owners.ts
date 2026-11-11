@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { CORE_NUMERIC_OWNERS, num, printedBrownianSet } from "./coreNumericOwners.ts";
 import { fileURLToPath } from "node:url";
 import { load as parseYaml } from "js-yaml";
 import { computeBm02Snapshot, DEFAULT_BM02_INPUTS } from "../../experiments/bm02/session.ts";
@@ -11,8 +12,6 @@ import {
   refuseOutsideDeclaredDomain,
 } from "../../experiments/controls/declaredDomain.ts";
 import { computeLq02Snapshot } from "../../experiments/lq02/session.ts";
-import { LQ04_DEFAULTS } from "../../experiments/lq04/definition.ts";
-import { evaluateLq04 } from "../../experiments/lq04/session.ts";
 import { LQ05_DEFAULTS } from "../../experiments/lq05/definition.ts";
 import { evaluateLq05 } from "../../experiments/lq05/session.ts";
 import { LQ06_DEFAULTS } from "../../experiments/lq06/definition.ts";
@@ -59,7 +58,6 @@ import { snapshotOutputs as sr13SnapshotOutputs } from "../../experiments/sr13/s
 import bm08Example from "../../generated/bm08-example.json";
 import { MODEL_DOMAINS } from "../../generated/model-domains.ts";
 import {
-  createDeclaredConstantSet,
   getConstantSet,
   thermalConstant,
 } from "../../physics/reference/constants.ts";
@@ -509,48 +507,7 @@ function refuseUnknownInputs(
       );
 }
 
-function num(inputs: Record<string, number>, key: string): number {
-  const value = inputs[key];
-  if (typeof value !== "number" || !Number.isFinite(value)) {
-    throw new Error(`Owner input "${key}" is missing or nonfinite.`);
-  }
-  return value;
-}
 
-function printedBrownianSet() {
-  return createDeclaredConstantSet({
-    id: "scenario-einstein-1905-brownian-printed",
-    era: 1905,
-    provenance:
-      "Declared editorial inputs matching Einstein 1905 printed R and N. Reserved historical set einstein-1905-brownian-printed is not registered (am-ref-constants-xik).",
-    precisionNote: "Printed-era declared inputs, not 2019 SI definitions.",
-    gasConstantProvenance: "measured-without-counting-molecules",
-    entries: [
-      {
-        quantityId: "molarGasConstant",
-        value: 8.31,
-        exactDecimal: "8.31",
-        unit: "J/(mol K)",
-        kind: "declared-scenario",
-        evidentialRole: "measured-observation",
-        provenance: "Paper 2 does not print R; editorial input 8.31 J mol^-1 K^-1.",
-        dependsOn: [],
-        uncertainty: 0.005,
-      },
-      {
-        quantityId: "avogadroConstant",
-        value: 6e23,
-        exactDecimal: "6e23",
-        unit: "1/mol",
-        kind: "declared-scenario",
-        evidentialRole: "measured-observation",
-        provenance: "Paper 2 printed N = 6e23 mol^-1.",
-        dependsOn: [],
-        uncertainty: 1e22,
-      },
-    ],
-  });
-}
 
 /**
  * am-bm-05-random-steps-ntzl: a symmetric, unbiased step kernel (coin, uniform, or Gaussian),
@@ -871,35 +828,6 @@ function bm02Partition(ctx: OwnerContext): OwnerResult {
   return numbers;
 }
 
-function diffusionRms(ctx: OwnerContext): OwnerResult {
-  const set =
-    ctx.constantSetId === "modern-si-2019"
-      ? getConstantSet("modern-si-2019")
-      : printedBrownianSet();
-  const D = stokesEinsteinD(
-    {
-      T: num(ctx.inputs, "temperature"),
-      eta: num(ctx.inputs, "viscosity"),
-      a: num(ctx.inputs, "particleRadius"),
-    },
-    set,
-  );
-  if (D.result.status !== "value" || typeof D.result.value !== "number") {
-    // The model refused, and the code it refused with is the thing an acceptance case is for.
-    return {
-      refused: {
-        outputId: "diffusionCoefficient",
-        status: D.result.status,
-        reasonCode: "condition" in D.result ? String(D.result.condition) : D.result.status,
-      },
-    };
-  }
-  const rms = rmsDisplacement(D.result.value, num(ctx.inputs, "elapsedTime"));
-  if (rms.result.status !== "value" || typeof rms.result.value !== "number") {
-    throw new Error("rmsDisplacement did not return a value.");
-  }
-  return { diffusionCoefficient: D.result.value, rmsDisplacement1d: rms.result.value };
-}
 
 const OWNERS: OwnerRecord[] = [
   {
@@ -977,11 +905,7 @@ const OWNERS: OwnerRecord[] = [
       increment: relativisticDraggedIncrement(num(ctx.inputs, "n"), num(ctx.inputs, "flow"), C),
     }),
   },
-  {
-    id: "diffusion.stokesEinsteinRms",
-    sourcePath: diffusionPath,
-    fn: diffusionRms,
-  },
+  ...CORE_NUMERIC_OWNERS,
   /**
    * THE OSMOTIC PARTITION, WHOLE (am-nxbq, item 1).
    *
@@ -1471,41 +1395,6 @@ const OWNERS: OwnerRecord[] = [
    * radiation.wienSpectralEntropyDensity declines one density, and this declines the workbench. Both are
    * worth pinning, and lq-04-dense-state-leaves-the-wien-regime pins the first.
    */
-  {
-    id: "lq04.workbench",
-    sourcePath: fileURLToPath(new URL("../../experiments/lq04/session.ts", import.meta.url)),
-    fn: (ctx) => {
-      const evaluated = evaluateLq04({
-        ...LQ04_DEFAULTS,
-        ...ctx.inputs,
-      } as never) as unknown as Record<string, unknown>;
-      if (evaluated.status !== "value")
-        return {
-          refused: {
-            outputId: "radiationEntropy",
-            status: String(evaluated.status),
-            reasonCode:
-              typeof evaluated.condition === "string"
-                ? evaluated.condition
-                : String(evaluated.status),
-          },
-        };
-      const numbers: Record<string, number> = {};
-      for (const key of [
-        "initialTemperature",
-        "finalTemperature",
-        "initialX",
-        "finalX",
-        "radiationEntropy",
-        "entropyVolumeCoefficient",
-        "effectiveIndependentCount",
-      ]) {
-        const held = evaluated[key];
-        if (typeof held === "number") numbers[key] = held;
-      }
-      return numbers;
-    },
-  },
   /**
    * VELOCITY COMPOSITION IN ITS THREE MODES (am-nxbq, item 1).
    *

@@ -9,6 +9,7 @@ import {
   loadPaperPayload,
 } from "../../content/compiler/serverLoaders.ts";
 import { loadRegistry } from "../../content/foundations/registry.ts";
+import { loadEssays } from "../../content/essays/load.ts";
 import { parseYaml } from "../../content/provenance/yaml.ts";
 import { validateJourney } from "../../content/schemas/journey.ts";
 import type { Argument, Block, Foundation } from "../../content/schemas/reading.ts";
@@ -622,6 +623,20 @@ async function course(
         ),
       ]
     : [];
+  const publishedEssays = loadEssays(root);
+  const essaySlugs = strings(raw.essays ?? [], "full-course.essays");
+  const essaySteps = essaySlugs.map((slug) => {
+    const essay = publishedEssays.find((item) => item.slug === slug);
+    if (!essay) return invalid("full-course: missing published essay " + slug + ".");
+    return step({
+      id: "essay-" + essay.slug, kind: "essay", activity: "read", title: essay.title,
+      href: "/essays/" + essay.slug + "/",
+      minutes: readingMinutes(essay.searchText) + 5,
+      task: "Read the paper examples, try one linked instrument, then examine a transfer and its stated limit.",
+      question: "Which part of the reasoning transfers, and which assumptions remain specific to its source?",
+      explanation: essay.r0Summary,
+    });
+  });
   const planned = [
     entry,
     bridges,
@@ -629,6 +644,7 @@ async function course(
     ...companionSessions,
     remaining,
     connections(),
+    ...(essaySteps.length ? [session("course-essays", "Read the reasoning across the papers", "Contemporary methodological readings with source passages, instruments and bounded examples from other fields.", essaySteps)] : []),
   ];
   const roots = planned.map((part) => {
     if (part.id === bridges.id)

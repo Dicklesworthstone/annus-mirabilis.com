@@ -1,6 +1,6 @@
 schemaVersion: 1
 id: full-course
-revision: 1
+revision: 2
 budget: full-course
 requiresEquations: true
 paper: all
@@ -11,9 +11,10 @@ sequence:
   - one-evening-mass-energy
   - one-evening-special-relativity
   - one-evening-light-quanta
+essays:
+  - what-a-measurement-means
+  - change-what-you-hold-fixed
 essaysInPreparation:
-  - What a measurement means
-  - Change what you hold fixed
   - Make two routes meet
   - The useful part of an analogy
   - Subtract what you do not know
