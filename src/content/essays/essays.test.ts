@@ -1,9 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { checkVoice } from "../checks/voice/index.ts";
 import { ESSAY_LABEL, validateEssay } from "../schemas/essay.ts";
 import { strictParse } from "../schemas/strictParse.ts";
-import { loadEssays, resolveEssayAnchor } from "./load.ts";
+import { loadEssays, resolveEssayAnchor, validateEssayProse } from "./load.ts";
 import { parseEssayMarkdown } from "./markdown.ts";
 
 const root = process.cwd();
@@ -35,6 +36,41 @@ describe("methodological essay content", () => {
     expect(essays[1]?.values.get("entropy-change")?.text).toBe("-2.18 × 10^-13 J/K");
     expect(essays[1]?.values.get("rms-ratio")?.text).toBe("0.7071");
   });
+
+  test("informational independence vocabulary does not prevent an essay from loading", () => {
+    const passage = "Successive motions are treated as independent.";
+    const findings = checkVoice(passage, { context: "prose" });
+    expect(findings).toHaveLength(1);
+    expect(findings[0]?.rule).toBe("independence-claim");
+    expect(findings[0]?.severity).toBe("info");
+    expect(() => validateEssayProse([passage], "voice-fixture")).not.toThrow();
+  });
+
+  for (const fixture of [
+    {
+      severity: "flag",
+      rule: "unverified-count",
+      text: "Independent observations guide six laboratories and a reading path.",
+    },
+    {
+      severity: "error",
+      rule: "hype-word",
+      text: "Independent observations make this revolutionary.",
+    },
+  ] as const) {
+    test(`a blocking ${fixture.severity} still rejects prose with informational findings`, () => {
+      const findings = checkVoice(fixture.text, { context: "prose" });
+      expect(findings.some((finding) => finding.severity === "info")).toBe(true);
+      expect(findings.some((finding) =>
+        finding.rule === fixture.rule && finding.severity === fixture.severity)).toBe(true);
+      expect(() => validateEssayProse([
+        "Successive motions are treated as independent.",
+        fixture.text,
+      ], "voice-fixture")).toThrow(
+        `voice-fixture:prose-1: Shared voice check: ${fixture.rule}`,
+      );
+    });
+  }
 
   test("required interpretation label, summary, limits and stable transfer identities cannot disappear", () => {
     const raw = metadata();

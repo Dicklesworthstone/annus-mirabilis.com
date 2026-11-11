@@ -133,6 +133,21 @@ function prose(essay: Essay, blocks: readonly EssayBlock[], values: ReadonlyMap<
   ];
 }
 
+/** Informational vocabulary remains visible to its owner without blocking publication. */
+export function validateEssayProse(passages: readonly string[], path: string): void {
+  for (const [index, passage] of passages.entries()) {
+    const findings = checkVoice(passage, { context: "prose" }).filter(
+      (finding) => finding.severity !== "info",
+    );
+    if (findings.length) {
+      essayFailure(
+        path + ":prose-" + index,
+        "Shared voice check: " + findings.map((finding) => finding.rule).join(", "),
+      );
+    }
+  }
+}
+
 /** A fresh load reflects edited source; no generated or module-level cache becomes a second truth. */
 export function loadEssays(root = process.cwd()): readonly CompiledEssay[] {
   const files = essaySourceFiles(root);
@@ -216,11 +231,7 @@ export function loadEssays(root = process.cwd()): readonly CompiledEssay[] {
       return citation;
     });
     const text = prose(essay, blocks, new Map([...values].map(([id, value]) => [id, value.text])));
-    for (const [index, passage] of text.entries()) {
-      const findings = checkVoice(passage, { context: "prose" });
-      if (findings.length) essayFailure(path + ":prose-" + index,
-        "Shared voice check: " + findings.map((finding) => finding.rule).join(", "));
-    }
+    validateEssayProse(text, path);
     return { ...essay, blocks, links, values, renderedEquations, bibliography,
       searchText: text.join(" ") };
   });
