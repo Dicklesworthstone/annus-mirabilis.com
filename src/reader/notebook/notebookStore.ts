@@ -312,16 +312,50 @@ export function createNotebookStore(storage: NotebookStorage) {
       if (state.persistence === "conflict") return { ok: false, message: CONFLICT_MESSAGE };
       return commit(emptyNotebook(), true);
     },
-    /** Explicit replacement of this tab's view, not an automatic response to a storage event. */
-    reloadConfirmed() {
+    /** Replace this tab's view only after the saved replacement can be read and admitted. */
+    reloadConfirmed(): NotebookChange {
+      open();
+      const saved = readSaved();
+      if (
+        (saved.raw.status !== "ok" && saved.raw.status !== "missing") ||
+        (saved.raw.status === "ok" && saved.text === null)
+      )
+        return {
+          ok: false,
+          message:
+            "The saved notebook could not be read. This tab's work is unchanged; export it or retry when storage is available.",
+        };
+      if (saved.text !== null && estimateBytes(NOTEBOOK_KEY, saved.text) > storage.maxBytes)
+        return {
+          ok: false,
+          message:
+            "The saved notebook exceeds this version's byte limit. This tab's work and the saved original are unchanged; keep both exports.",
+        };
+      let document: NotebookDocument;
+      try {
+        document =
+          saved.text === null ? emptyNotebook() : parseNotebookDocument(storage.decode(saved.text));
+      } catch {
+        return {
+          ok: false,
+          message:
+            "The saved notebook could not be read by this version. This tab's work and the saved original are unchanged; keep both exports.",
+        };
+      }
+      // A missing key is a real external clear. Consent to load it may replace this tab with an
+      // empty notebook; an unavailable or invalid key above may never do so.
       storage.discardFallback();
-      state = Object.freeze({
-        document: emptyNotebook(),
-        persistence: "unopened",
-        message: "",
+      baseRaw = saved.text;
+      publish({
+        document,
+        persistence: "saved",
+        message:
+          saved.text === null
+            ? "The saved notebook was cleared. This tab now shows an empty notebook."
+            : "Loaded the saved notebook. Export important notes as a backup.",
         recoveryRaw: null,
       });
-      open();
+      return { ok: true };
     },
     checkForExternalChange() {
       if (state.persistence === "unopened") return;

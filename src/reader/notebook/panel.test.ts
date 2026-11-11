@@ -117,4 +117,57 @@ describe("the notebook's controls follow what it holds", () => {
     expect(shown("Export readable notebook")).toBe(false);
     panel.dispose();
   });
+
+  test("failed saved reload keeps an open note draft, then a successful retry replaces it", () => {
+    const io = backend({ ...emptyNotebook(), entries: [entry] });
+    const read = io.read;
+    let blocked = false;
+    io.read = () => (blocked ? { status: "unavailable" } : read());
+    const store = createNotebookStore(io);
+    store.open();
+    const host = document.createElement("div");
+    document.body.append(host);
+    const panel = mountNotebookPanel(host, store, () => {}, { inline: true });
+    const click = (name: string) => {
+      const control = [...host.querySelectorAll("button")].find((b) => b.textContent === name);
+      expect(control).toBeDefined();
+      control?.click();
+    };
+    try {
+      const replacement = {
+        ...emptyNotebook(),
+        entries: [{ ...entry, id: "other", text: "Saved in another tab" }],
+      };
+      io.write(replacement);
+      store.checkForExternalChange();
+      expect(store.getSnapshot().persistence).toBe("conflict");
+      const before = store.getSnapshot();
+      const saved = read();
+      click("Edit note");
+      const textarea = host.querySelector("textarea");
+      const form = host.querySelector("form");
+      if (!textarea || !form) throw new Error("The notebook editor is missing.");
+      textarea.value = "An unfinished draft that must survive a failed load";
+      click("Load saved notebook");
+      blocked = true;
+      click("Confirm");
+
+      expect(store.getSnapshot()).toBe(before);
+      expect(read()).toEqual(saved);
+      expect(host.querySelector('[role="alert"]')?.textContent).toContain("unchanged");
+      expect(textarea.value).toBe("An unfinished draft that must survive a failed load");
+      expect(form.hidden).toBe(false);
+
+      blocked = false;
+      click("Load saved notebook");
+      click("Confirm");
+      expect(store.getSnapshot().document).toEqual(replacement);
+      expect(store.getSnapshot().persistence).toBe("saved");
+      expect(host.querySelector('[role="alert"]')?.textContent).toBe("");
+      expect(textarea.value).toBe("");
+      expect(form.hidden).toBe(true);
+    } finally {
+      panel.dispose();
+    }
+  });
 });

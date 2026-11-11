@@ -258,3 +258,110 @@ test("(notebookStore.ts:196) notebook-merge-saved-too-large: a saved notebook ov
   assert.match(result.message, /exceeds this version's byte limit/);
   assert.match(result.message, /nothing was merged/);
 });
+
+test("failed reload keeps unsaved work and fallback until a valid replacement is available", () => {
+  const io = backend(JSON.stringify({ ...emptyNotebook(), entries: [entry()], lastPlace: place }));
+  let discarded = 0;
+  io.discardFallback = () => {
+    discarded++;
+  };
+  const store = createNotebookStore(io);
+  store.open();
+  const replacement = { ...emptyNotebook(), entries: [entry("other", "Saved in another tab")] };
+  io.replace(JSON.stringify(replacement));
+  store.updateText("n1", "Unsaved work in this tab");
+  assert.equal(store.getSnapshot().persistence, "conflict");
+  const before = store.getSnapshot();
+  const saved = io.raw();
+  const writes = io.writes;
+  io.mode = "blocked";
+
+  const failed = store.reloadConfirmed();
+  assert.equal(failed.ok, false);
+  assert.match(failed.message, /could not be read/);
+  assert.match(failed.message, /unchanged/);
+  assert.equal(store.getSnapshot(), before);
+  assert.equal(io.raw(), saved);
+  assert.equal(io.writes, writes);
+  assert.equal(discarded, 0);
+
+  io.mode = "ok";
+  assert.equal(store.reloadConfirmed().ok, true);
+  assert.deepEqual(store.getSnapshot().document, replacement);
+  assert.equal(store.getSnapshot().persistence, "saved");
+  assert.equal(discarded, 1);
+  assert.equal(io.writes, writes);
+  assert.equal(io.raw(), saved);
+  // The successful reload becomes the base for the next ordinary edit.
+  assert.equal(store.updateText("other", "Continued after loading").ok, true);
+  assert.equal(store.getSnapshot().persistence, "saved");
+  assert.equal(JSON.parse(io.raw()).entries[0].text, "Continued after loading");
+});
+
+for (const [label, raw, message] of [
+  ["malformed", "{broken", /could not be read by this version/],
+  [
+    "unsupported",
+    JSON.stringify({ ...emptyNotebook(), schemaVersion: 9 }),
+    /could not be read by this version/,
+  ],
+  [
+    "oversized",
+    JSON.stringify({ ...emptyNotebook(), entries: [entry("other", "x".repeat(33000))] }),
+    /byte limit/,
+  ],
+])
+  test(`a ${label} saved reload never discards this tab's notes or remembered place`, () => {
+    const io = backend(
+      JSON.stringify({ ...emptyNotebook(), entries: [entry()], lastPlace: place }),
+    );
+    let discarded = 0;
+    io.discardFallback = () => {
+      discarded++;
+    };
+    const store = createNotebookStore(io);
+    store.open();
+    io.replace(raw);
+    store.updateText("n1", "Only retained in this tab");
+    const before = store.getSnapshot();
+    assert.equal(before.persistence, "conflict");
+
+    const result = store.reloadConfirmed();
+    assert.equal(result.ok, false);
+    assert.match(result.message, message);
+    assert.match(result.message, /unchanged/);
+    assert.equal(store.getSnapshot(), before);
+    assert.equal(io.raw(), raw);
+    assert.equal(io.writes, 0);
+    assert.equal(discarded, 0);
+  });
+
+for (const status of ["corrupt", "ok"])
+  test(`saved reload refuses ${status} storage without readable bytes`, () => {
+    const io = backend(JSON.stringify({ ...emptyNotebook(), entries: [entry()] }));
+    const store = createNotebookStore(io);
+    store.open();
+    const before = store.getSnapshot();
+    io.read = () => ({ status });
+    assert.equal(store.reloadConfirmed().ok, false);
+    assert.equal(store.getSnapshot(), before);
+    assert.equal(io.writes, 0);
+  });
+
+test("explicitly loading a genuinely cleared saved notebook clears only this tab's view", () => {
+  const io = backend(JSON.stringify({ ...emptyNotebook(), entries: [entry()], lastPlace: place }));
+  const store = createNotebookStore(io);
+  store.open();
+  io.replace(null);
+  store.checkForExternalChange();
+  assert.equal(store.getSnapshot().persistence, "conflict");
+
+  assert.equal(store.reloadConfirmed().ok, true);
+  assert.deepEqual(store.getSnapshot().document, emptyNotebook());
+  assert.equal(store.getSnapshot().persistence, "saved");
+  assert.equal(io.raw(), null);
+  assert.equal(io.writes, 0);
+  assert.equal(store.add(entry("new")).ok, true);
+  assert.equal(store.getSnapshot().persistence, "saved");
+  assert.deepEqual(JSON.parse(io.raw()).entries.map((item) => item.id), ["new"]);
+});

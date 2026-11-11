@@ -118,7 +118,9 @@ export function mountNotebookPanel(
     confirm(
       "Export any notes from this tab first. Loading the saved notebook replaces this tab's unsaved work.",
       () => {
-        store.reloadConfirmed();
+        const result = store.reloadConfirmed();
+        report(result);
+        if (!result.ok) return;
         textarea.value = "";
         form.hidden = true;
         draft = null;
