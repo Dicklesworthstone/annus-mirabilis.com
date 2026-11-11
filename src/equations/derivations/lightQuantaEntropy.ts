@@ -1,10 +1,12 @@
 /**
  * Paper 1 §§4 and 6, reconstructed from the reader's canonical equation records.
  * Bindings distinguish V from V₀ and S(V) from S(V₀); only the render projection uses glyphs.
- * Calculus and the physical correspondence remain authored drafts pending scientific review.
+ * The coefficient algebra is checked conditionally. Calculus and the physical correspondence
+ * remain authored drafts pending scientific review.
  */
 import constantsRecord from "../../../content/equations/light-quanta/eq-model-lq-avogadro-from-spectrum.json";
 import countRecord from "../../../content/equations/light-quanta/eq-model-lq-effective-count.json";
+import molarEnergyRecord from "../../../content/equations/light-quanta/eq-model-lq-energy-per-point-molar.json";
 import temperatureRecord from "../../../content/equations/light-quanta/eq-model-lq-entropy-temperature.json";
 import gasRecord from "../../../content/equations/light-quanta/eq-model-lq-gas-entropy-change.json";
 import unfixedRecord from "../../../content/equations/light-quanta/eq-model-lq-unfixed-constant.json";
@@ -46,6 +48,7 @@ const importedTrees = [
   canonical(constantsRecord),
   canonical(countRecord),
   canonical(gasRecord),
+  canonical(molarEnergyRecord),
 ];
 type Binding =
   | "frequencyEnergyDensity"
@@ -421,9 +424,20 @@ export const lqWienEntropyDerivation: DerivationChain = {
 const volumeLog = log(quotient(V, V0), "comparison-volume-log");
 const radiationCoefficient = quotient(E, betaNu);
 const gasCoefficient = product(quotient(R, N), n);
-const matchingVolumeLaws = relation(
-  product(radiationCoefficient, volumeLog),
-  product(gasCoefficient, volumeLog),
+// The admitted laws are the canonical records, with the gas notation expressed as R/N and V/V₀.
+// These substitutions name the proposed correspondence; they do not import a photon-energy law.
+const gasEntropyForComparison = substituteNode(
+  substituteNode(
+    substituteNode(canonical(gasRecord).right, "independentPointCount", n),
+    "boltzmannConstant",
+    quotient(R, N),
+  ),
+  "volumeRatio",
+  quotient(V, V0),
+);
+export const lqCoefficientComparisonInput = relation(
+  lqVolumeEntropyResult.right,
+  gasEntropyForComparison,
   "matching-volume-laws",
 );
 const matchingCoefficients = relation(
@@ -438,7 +452,8 @@ export const lqEffectiveCountResult = relation(
 );
 const energyPerPoint = quotient(E, n);
 const withEffectiveCount = substituteNode(energyPerPoint, n.termId, lqEffectiveCountResult.right);
-export const lqEnergyPerElementResult = quotient(product(R, B, nu), N);
+export const lqEnergyPerElementEquation = canonical(molarEnergyRecord);
+export const lqEnergyPerElementResult = lqEnergyPerElementEquation.right;
 export const lqIndependentGasLaw = relation(
   symbols.gasEntropyChange,
   product(product(quotient(R, N), symbols.independentPointCount), volumeLog),
@@ -456,14 +471,14 @@ export const lqCoefficientCorrespondence: DerivationChain = {
     teaching("lq-heuristic-independent-energy-elements"),
     teaching("lq-nontrivial-volume-ratio"),
   ],
-  target: "lq-energy-per-independent-element",
+  target: molarEnergyRecord.id,
   targetStepId: "lq-correspondence-energy-per-element",
   essentialForPrint: true,
   steps: [
     {
       ...draft,
       id: "lq-correspondence-match-coefficients",
-      from: matchingVolumeLaws,
+      from: lqCoefficientComparisonInput,
       to: matchingCoefficients,
       changedSubexpressionIds: ["lq-entropy.op.comparison-volume-log"],
       rule: {
@@ -471,6 +486,7 @@ export const lqCoefficientCorrespondence: DerivationChain = {
         params: {
           operation: "divide",
           quantity: volumeLog,
+          simplify: true,
           nonzeroCondition: "V/V₀ > 0 and V/V₀ ≠ 1 give ln(V/V₀) ≠ 0.",
         },
       },
@@ -502,6 +518,8 @@ export const lqCoefficientCorrespondence: DerivationChain = {
         params: {
           operation: "divide",
           quantity: quotient(R, N),
+          simplify: true,
+          swapSides: true,
           nonzeroCondition: "R > 0 and N > 0.",
         },
       },
@@ -542,10 +560,10 @@ export const lqCoefficientCorrespondence: DerivationChain = {
     {
       ...draft,
       id: "lq-correspondence-energy-per-element",
-      from: withEffectiveCount,
-      to: lqEnergyPerElementResult,
+      from: relation(energyPerPoint, withEffectiveCount, "energy-per-element-substituted"),
+      to: lqEnergyPerElementEquation,
       changedSubexpressionIds: [E.termId, R.termId, B.termId, nu.termId, N.termId],
-      rule: { kind: "collect", params: {} },
+      rule: { kind: "collect", params: { exact: true } },
       reasonKind: "algebra",
       reasons: {
         r0: "The proposed energy per element is proportional to frequency, with coefficient RB/N.",
@@ -554,6 +572,7 @@ export const lqCoefficientCorrespondence: DerivationChain = {
       },
       tool: "foundation:bridge-fractions-ratios",
       premiseRefs: [
+        teaching("lq-correspondence-substitute-effective-count"),
         teaching("lq-heuristic-independent-energy-elements"),
         premise("lq-positive-wien-domain"),
       ],

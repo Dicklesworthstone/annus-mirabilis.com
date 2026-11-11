@@ -234,8 +234,10 @@ cards:
 
   - id: lq-energy-quanta
     support:
-      kind: "no-checked-proof"
-      reason: "The coefficient correspondence is a heuristic inference under the stated radiation regime; no checked derivation record establishes this comparison."
+      kind: "checked-proof"
+      proofId: "lq-entropy-energy-scale"
+      conclusion: "eq-model-lq-energy-per-point-molar"
+      scope: "The checked coefficient algebra gives the conditional energy scale RBν/N from the admitted radiation and independent-point entropy laws. The Wien-law integration and the independent-element interpretation remain premises; the correspondence is heuristic. The modern identification with hν is a separate step."
     title: "Radiation that behaves as if it consisted of energy quanta"
     section: s6
     arguments: [arg-lq-entropy-correspondence]
@@ -247,6 +249,7 @@ cards:
       - eq-model-lq-radiation-entropy-change
       - eq-model-lq-gas-entropy-change
       - eq-model-lq-effective-count
+      - eq-model-lq-energy-per-point-molar
       - eq-model-lq-energy-per-point
     oneSentence: "Read with Boltzmann's principle, the entropy of monochromatic radiation gives the probability that all its energy is found in a part \\(v\\) of the volume \\(v_0\\), and that probability has the form it has for independent points; so radiation of low density, where Wien's formula holds, behaves in thermal respects as if it consisted of mutually independent energy quanta of magnitude \\(R\\beta\\nu/N\\)."
     decoder:

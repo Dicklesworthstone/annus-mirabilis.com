@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import yaml from "js-yaml";
+import molarEnergyRecord from "../../../content/equations/light-quanta/eq-model-lq-energy-per-point-molar.json";
 import { auditReadings } from "../../content/audits/readings.ts";
 import { loadLiveReadingsInput } from "../../content/audits/readingsLive.ts";
 import {
@@ -11,16 +12,20 @@ import {
   wienTemperatureFromDensity,
 } from "../../physics/reference/radiation/entropy.ts";
 import { type Expression, walk } from "../ast.ts";
+import { parseEquationRecord } from "../record.ts";
 import {
   lightQuantaDerivationMetadata,
   lightQuantaDisplayChain,
+  lightQuantaDisplayExpression,
   lightQuantaReadingSet,
   lqCoefficientCorrespondence,
   lqEffectiveCountResult,
+  lqEnergyPerElementEquation,
   lqEnergyPerElementResult,
   lqUnfixedConstantResult,
   lqWienEntropyDerivation,
 } from "./lightQuantaEntropy.ts";
+import { verifyLqCoefficientCorrespondence } from "./lightQuantaCoefficientProof.ts";
 import { evaluateExpression } from "./spotCheck.ts";
 import type { DerivationChain, DerivationStep } from "./types.ts";
 import { verifyChain } from "./verifyChain.ts";
@@ -42,12 +47,18 @@ function near(actual: number, expected: number, relative = 1e-10) {
   );
 }
 
-test("both LQ chains pass ordered rule checks while calculus and model claims remain drafts", () => {
+test("LQ coefficient algebra is checked while calculus and model claims remain drafts", () => {
   for (const chain of chains) {
-    const report = verifyChain(chain);
+    const report =
+      chain === lqCoefficientCorrespondence
+        ? verifyLqCoefficientCorrespondence(chain)
+        : verifyChain(chain);
     assert.equal(report.passed, true, JSON.stringify(report));
-    assert.equal(report.isPublicationReady, false);
-    assert.equal(verifyChain(chain, { isPublicationGate: true }).passed, false);
+    const checkedCoefficients = chain === lqCoefficientCorrespondence;
+    assert.equal(report.isPublicationReady, checkedCoefficients);
+    assert.equal(verifyChain(chain, { isPublicationGate: true }).passed, checkedCoefficients);
+    if (checkedCoefficients)
+      assert.ok(report.stepReports.every((entry) => entry.verificationStatus === "verified"));
     assert.equal(chain.steps.at(-1)?.id, chain.targetStepId);
     assert.equal(chain.steps.filter((entry) => entry.isMove).length, 1);
     for (const entry of chain.steps) {
@@ -274,4 +285,129 @@ test("every displayed LQ step has synchronized owned R0–R3 readings that pass 
       assert.deepEqual(target.readings, lightQuantaReadingSet(entry, section));
     }
   }
+});
+
+test("the checked molar conclusion passes the actual equation and dimension parser", () => {
+  const record = parseEquationRecord(molarEnergyRecord, "conditional molar energy scale");
+  assert.equal(record.argument, "arg-lq-entropy-correspondence");
+  assert.equal(lqCoefficientCorrespondence.target, record.id);
+  assert.deepEqual(
+    lightQuantaDisplayExpression(lqCoefficientCorrespondence.steps.at(-1)!.to),
+    lightQuantaDisplayExpression(record.tree),
+  );
+  assert.deepEqual(lqCoefficientCorrespondence.steps.at(-1)?.to, lqEnergyPerElementEquation);
+  const quantities = walk(record.tree)
+    .filter((node) => node.kind === "symbol")
+    .map((node) => node.quantityId);
+  assert.ok(quantities.includes("molarGasConstant"));
+  assert.ok(quantities.includes("avogadroConstant"));
+  assert.ok(!quantities.includes("planckConstant"));
+  assert.ok(!quantities.includes("boltzmannConstant"));
+});
+
+test("checked correspondence refuses lost domain conditions and altered coefficients", () => {
+  const chain = lqCoefficientCorrespondence;
+  assert.equal(verifyLqCoefficientCorrespondence(chain).passed, true);
+  for (const id of [
+    "lq-correspondence-match-coefficients",
+    "lq-correspondence-solve-effective-count",
+  ]) {
+    const changed: DerivationChain = {
+      ...chain,
+      steps: chain.steps.map((entry) =>
+        entry.id === id
+          ? {
+              ...entry,
+              rule: { ...entry.rule, params: { ...entry.rule.params, nonzeroCondition: "" } },
+            }
+          : entry,
+      ),
+    };
+    assert.equal(verifyLqCoefficientCorrespondence(changed).passed, false);
+  }
+  const wrongCoefficient: DerivationChain = {
+    ...chain,
+    steps: chain.steps.map((entry): DerivationStep =>
+      entry.id === chain.targetStepId
+        ? {
+            ...entry,
+            to: {
+              ...lqEnergyPerElementEquation,
+              right: {
+                kind: "product",
+                args: [{ kind: "number", value: "2" }, lqEnergyPerElementResult],
+              },
+            },
+          }
+        : entry,
+    ),
+  };
+  assert.equal(verifyLqCoefficientCorrespondence(wrongCoefficient).passed, false);
+});
+
+test("altering either admitted entropy law breaks the coefficient correspondence", () => {
+  const chain = lqCoefficientCorrespondence;
+  const first = chain.steps[0];
+  assert.ok(first);
+  const from = relation(first.from);
+  for (const side of ["left", "right"] as const) {
+    const changed: DerivationChain = {
+      ...chain,
+      steps: chain.steps.map((entry): DerivationStep =>
+        entry.id === first.id
+          ? {
+              ...entry,
+              from: {
+                ...from,
+                [side]: {
+                  kind: "product",
+                  args: [{ kind: "number", value: "2" }, from[side]],
+                },
+              },
+            }
+          : entry,
+      ),
+    };
+    assert.equal(verifyLqCoefficientCorrespondence(changed).passed, false);
+  }
+});
+
+test("the coefficient owner requires every producer and its actual consumer", () => {
+  const chain = lqCoefficientCorrespondence;
+  assert.equal(verifyLqCoefficientCorrespondence(chain).passed, true);
+  for (const removed of chain.steps) {
+    const changed = { ...chain, steps: chain.steps.filter((entry) => entry.id !== removed.id) };
+    assert.equal(verifyLqCoefficientCorrespondence(changed).passed, false, removed.id);
+  }
+
+  const substitution = step("lq-correspondence-substitute-effective-count");
+  const zero: Expression = { kind: "number", value: "0" };
+  const unrelated: DerivationChain = {
+    ...chain,
+    steps: chain.steps.map((entry): DerivationStep =>
+      entry.id === substitution.id
+        ? {
+            ...entry,
+            from: { kind: "product", args: [zero, entry.from] },
+            to: { kind: "product", args: [zero, entry.to] },
+          }
+        : entry,
+    ),
+  };
+  // Each local rewrite still passes, but this substitution no longer supplies the final equality.
+  assert.equal(verifyChain(unrelated, { isPublicationGate: true }).passed, true);
+  assert.equal(verifyLqCoefficientCorrespondence(unrelated).passed, false);
+
+  const missingLink: DerivationChain = {
+    ...chain,
+    steps: chain.steps.map((entry) =>
+      entry.id === chain.targetStepId
+        ? {
+            ...entry,
+            premiseRefs: entry.premiseRefs.filter((premise) => premise.ref !== substitution.id),
+          }
+        : entry,
+    ),
+  };
+  assert.equal(verifyLqCoefficientCorrespondence(missingLink).passed, false);
 });

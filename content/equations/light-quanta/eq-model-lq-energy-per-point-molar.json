@@ -1,0 +1,180 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-lq-energy-per-point-molar",
+  "paper": "light-quanta",
+  "argument": "arg-lq-entropy-correspondence",
+  "title": "The inferred energy per element, keeping R and N explicit",
+  "spoken": "The radiation energy divided by the effective count equals R times B times the frequency divided by N.",
+  "explanation": "The admitted radiation and independent-point entropy laws fix the effective count and hence this conditional energy scale. The calculation retains the molar constants and does not assume a modern photon-energy formula.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "Dilute radiation of fixed positive energy in a fixed narrow frequency band obeys the Wien-regime entropy law; deriving that law and its boundary condition remains a separate calculus argument.",
+    "The gas comparison assumes independent points with entropy coefficient (R/N)n. Interpreting the shared volume dependence as independent energy elements is a heuristic premise.",
+    "R, N, B, frequency and both volumes are positive. The comparison uses unequal volumes so that the common logarithm is nonzero; equal volumes cannot identify the effective count.",
+    "The effective count is positive and is not rounded to an integer. The equation establishes a scale within the assumed model, not every property of light.",
+    "These are modern teaching equations in SI notation, with B for the paper's beta. The relation h = RB/N is not a premise or conclusion of this check."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-lq-energy-per-point-molar.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "quotient",
+      "opId": "eq-model-lq-energy-per-point-molar.op.meanEnergy",
+      "numerator": {
+        "kind": "symbol",
+        "termId": "eq-model-lq-energy-per-point-molar.t.energy",
+        "quantityId": "radiationEnergy"
+      },
+      "denominator": {
+        "kind": "symbol",
+        "termId": "eq-model-lq-energy-per-point-molar.t.count",
+        "quantityId": "effectiveIndependentCount"
+      }
+    },
+    "right": {
+      "kind": "quotient",
+      "opId": "eq-model-lq-energy-per-point-molar.op.energyScale",
+      "numerator": {
+        "kind": "product",
+        "opId": "eq-model-lq-energy-per-point-molar.op.numerator",
+        "args": [
+          {
+            "kind": "symbol",
+            "termId": "eq-model-lq-energy-per-point-molar.t.gas",
+            "quantityId": "molarGasConstant"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-lq-energy-per-point-molar.t.beta",
+            "quantityId": "wienConstantBeta"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-lq-energy-per-point-molar.t.frequency",
+            "quantityId": "frequency"
+          }
+        ]
+      },
+      "denominator": {
+        "kind": "symbol",
+        "termId": "eq-model-lq-energy-per-point-molar.t.avogadro",
+        "quantityId": "avogadroConstant"
+      }
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-lq-energy-per-point-molar.op.relation",
+      "title": "A conditional energy scale",
+      "explanation": "Matching the admitted entropy laws determines this scale within the proposed independent-element description.",
+      "foundation": "probability-independence"
+    },
+    {
+      "nodeId": "eq-model-lq-energy-per-point-molar.op.meanEnergy",
+      "title": "Total energy per effective element",
+      "explanation": "Divide the positive radiation energy by the effective count inferred from the entropy coefficient.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-lq-energy-per-point-molar.t.energy",
+      "title": "Energy in the band",
+      "explanation": "The positive total radiation energy in the fixed narrow frequency band.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-lq-energy-per-point-molar.t.count",
+      "title": "Effective count",
+      "explanation": "The count that matches the entropy coefficient. It is not rounded and is not a count of individually observed packets.",
+      "foundation": "probability-independence"
+    },
+    {
+      "nodeId": "eq-model-lq-energy-per-point-molar.op.energyScale",
+      "title": "Energy scale with molar constants",
+      "explanation": "The checked coefficient algebra leaves RBν/N, keeping R and N separate.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-lq-energy-per-point-molar.op.numerator",
+      "title": "Gas constant times the spectral scale",
+      "explanation": "The gas constant multiplies Wien's B and the frequency before division by N.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-lq-energy-per-point-molar.t.gas",
+      "title": "Molar gas constant",
+      "explanation": "R is the gas constant per mole; division by N supplies the per-element coefficient.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-energy-per-point-molar.t.beta",
+      "title": "Wien's spectral constant",
+      "explanation": "B is the paper's beta in the admitted Wien-regime entropy law.",
+      "foundation": "exponentials"
+    },
+    {
+      "nodeId": "eq-model-lq-energy-per-point-molar.t.frequency",
+      "title": "Fixed frequency",
+      "explanation": "The narrow band is centered at this positive frequency throughout the volume comparison.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-lq-energy-per-point-molar.t.avogadro",
+      "title": "Molecular number per mole",
+      "explanation": "N is positive. It remains explicit instead of being replaced by a modern named constant.",
+      "foundation": "bridge-scientific-notation-units"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The total radiation energy",
+      "nodeId": "eq-model-lq-energy-per-point-molar.t.energy"
+    },
+    {
+      "text": " divided by "
+    },
+    {
+      "text": "the effective count",
+      "nodeId": "eq-model-lq-energy-per-point-molar.t.count"
+    },
+    {
+      "text": " equals "
+    },
+    {
+      "text": "the molar gas constant",
+      "nodeId": "eq-model-lq-energy-per-point-molar.t.gas"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "Wien's B",
+      "nodeId": "eq-model-lq-energy-per-point-molar.t.beta"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "the frequency",
+      "nodeId": "eq-model-lq-energy-per-point-molar.t.frequency"
+    },
+    {
+      "text": ", divided by "
+    },
+    {
+      "text": "N",
+      "nodeId": "eq-model-lq-energy-per-point-molar.t.avogadro"
+    },
+    {
+      "text": "."
+    }
+  ],
+  "printedGlyphs": {
+    "avogadroConstant": "N"
+  }
+}

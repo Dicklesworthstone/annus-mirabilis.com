@@ -8,6 +8,9 @@
  * never the physical premises or historical fidelity.
  */
 import brownianMolarRecord from "../../../content/equations/brownian-motion/eq-model-bm-diffusivity-molar.json";
+import lqMolarEnergyRecord from "../../../content/equations/light-quanta/eq-model-lq-energy-per-point-molar.json";
+import lqGasRecord from "../../../content/equations/light-quanta/eq-model-lq-gas-entropy-change.json";
+import lqVolumeRecord from "../../../content/equations/light-quanta/eq-model-lq-volume-entropy.json";
 import dopplerRecord from "../../../content/equations/special-relativity/eq-model-sr-doppler-factor.json";
 import frequencyRecord from "../../../content/equations/special-relativity/eq-model-sr-doppler-ratio.json";
 import workIntegralRecord from "../../../content/equations/special-relativity/eq-model-sr-electron-work-integral.json";
@@ -20,6 +23,8 @@ import laboratoryRecord from "../../../content/equations/special-relativity/eq-m
 import printedRecord from "../../../content/equations/special-relativity/eq-model-sr-transverse-mass-printed.json";
 import type { Expression } from "../../equations/ast.ts";
 import { brownianEquilibriumDerivation } from "../../equations/derivations/brownianSource.ts";
+import { verifyLqCoefficientCorrespondence } from "../../equations/derivations/lightQuantaCoefficientProof.ts";
+import { lqCoefficientCorrespondence } from "../../equations/derivations/lightQuantaEntropy.ts";
 import { buildMassEnergyElimination } from "../../equations/derivations/massEnergyElimination.ts";
 import { buildMassEnergyLowSpeed } from "../../equations/derivations/massEnergyLowSpeed.ts";
 import {
@@ -31,13 +36,13 @@ import {
 import { srLightComplexDerivation } from "../../equations/derivations/srLightComplex.ts";
 import { structurallyEqual } from "../../equations/derivations/treeUtils.ts";
 import type { DerivationChain } from "../../equations/derivations/types.ts";
-import { verifyChain } from "../../equations/derivations/verifyChain.ts";
+import { type ChainVerificationReport, verifyChain } from "../../equations/derivations/verifyChain.ts";
 import type { EquationRecord } from "../../equations/record.ts";
 import { ResultCardsError } from "./printedChecks.ts";
 import type { ResultCardRecord } from "./resultCards.ts";
 import type { CheckedResultSupport, ResultProofId } from "./supportDeclarations.ts";
 
-type DerivationProofId = Extract<ResultProofId, `sr-${string}` | `bm-${string}`>;
+type DerivationProofId = Extract<ResultProofId, `sr-${string}` | `bm-${string}` | `lq-${string}`>;
 type ProofRecord = Readonly<{
   id: string;
   paper: string;
@@ -53,6 +58,7 @@ type DerivationProof = Readonly<{
   records: readonly ProofRecord[];
   chains: readonly DerivationChain[];
   premises?: CheckedResultSupport["assumptions"];
+  verify?: (chain: DerivationChain) => ChainVerificationReport;
 }>;
 
 /**
@@ -114,6 +120,53 @@ const DERIVATION_PROOFS: Readonly<Record<DerivationProofId, DerivationProof>> = 
       },
     ],
   },
+  "lq-entropy-energy-scale": {
+    paper: "light-quanta",
+    conclusion: lqMolarEnergyRecord.id,
+    title: "Follow the conditional entropy comparison to its energy scale",
+    href: "/papers/light-quanta/s6/#lq-entropy-correspondence-derivation",
+    records: [lqVolumeRecord, lqGasRecord, lqMolarEnergyRecord],
+    chains: [lqCoefficientCorrespondence],
+    verify: verifyLqCoefficientCorrespondence,
+    premises: [
+      {
+        id: "arg-lq-fixed-band-volume",
+        label: "The admitted radiation entropy law",
+        explanation:
+          "Use ΔS = [E/(Bν)] ln(V/V₀) for dilute radiation at fixed energy and frequency band. " +
+          "The Wien-law integration and zero-density entropy boundary are separate premises.",
+      },
+      {
+        id: "arg-lq-independent-configurations",
+        label: "Independent points and the molar entropy coefficient",
+        explanation:
+          "The comparison gas has independently placed points and coefficient (R/N)n. " +
+          "Its modern kB notation denotes R/N; the comparison uses no photon-energy law.",
+      },
+      {
+        id: "lq-positive-wien-domain",
+        label: "Positive quantities in the dilute regime",
+        explanation:
+          "E, R, N, B, ν and both volumes are positive. The effective count inferred from them " +
+          "is positive, so the energy per element and every cancelled denominator are defined.",
+      },
+      {
+        id: "lq-heuristic-independent-energy-elements",
+        label: "A heuristic independent-element description",
+        explanation:
+          "Matching one entropy-volume law proposes a model of independent energy elements. " +
+          "Taking E/n as its energy per element is conditional on that model; the match alone " +
+          "does not establish every property of light or individual emission and absorption.",
+      },
+      {
+        id: "lq-nontrivial-volume-ratio",
+        label: "Unequal comparison volumes",
+        explanation:
+          "V/V₀ is positive and different from one, so ln(V/V₀) is nonzero. Equal volumes " +
+          "give zero entropy change on both sides and cannot identify an effective count.",
+      },
+    ],
+  },
   "sr-light-complex-energy": {
     paper: "special-relativity",
     conclusion: energyRecord.id,
@@ -172,7 +225,9 @@ function checkedDerivationSupport(
   });
 
   for (const chain of proof.chains) {
-    const report = verifyChain(chain, { isPublicationGate: true });
+    const report = proof.verify
+      ? proof.verify(chain)
+      : verifyChain(chain, { isPublicationGate: true });
     if (
       !report.passed ||
       !report.isPublicationReady ||
