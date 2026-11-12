@@ -6,6 +6,8 @@ export const NOTE_FILE_LIMIT = 128_000;
 export type NoteManifest = Readonly<{
   paper: DiscoveryPaper;
   revision: string;
+  /** Earlier guide revisions with an independently verified, unchanged stage contract. */
+  compatibleRevisions?: readonly string[];
   stages: readonly Readonly<{
     id: string;
     title: string;
@@ -125,8 +127,12 @@ export function validateNotebook(input: unknown, manifest: NoteManifest): Discov
   if (r.kind !== "discovery-notes" || r.schemaVersion !== 1)
     fail("This is not a supported discovery-notes file.");
   if (r.paper !== manifest.paper) fail("These notes belong to a different paper.");
-  if (r.journeyRevision !== manifest.revision)
-    fail(
+  if (
+    typeof r.journeyRevision !== "string" ||
+    (r.journeyRevision !== manifest.revision &&
+      !manifest.compatibleRevisions?.includes(r.journeyRevision))
+  )
+    return fail(
       "These notes use a different guide revision. Export them before replacing them; they were not relabeled.",
     );
   const seen = new Set<string>();
@@ -160,6 +166,8 @@ export function validateNotebook(input: unknown, manifest: NoteManifest): Discov
   );
   const result: DiscoveryNotebook = Object.freeze({
     ...emptyNotebook(manifest),
+    // A compatible guide may open this notebook, but never relabel its originating revision.
+    journeyRevision: r.journeyRevision,
     entries: Object.freeze(entries),
   });
   if (new TextEncoder().encode(JSON.stringify(result)).byteLength > NOTE_FILE_LIMIT)

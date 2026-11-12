@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { DISCOVERY_PAPERS } from "../../content/schemas/discovery.ts";
 import type { NoteManifest } from "../notebook.ts";
 import { DiscoveryNotebookProvider } from "../notes/context.tsx";
-import { stageNoteManifest } from "../notes/manifest.ts";
+import { journeyNoteManifest } from "./noteCompatibility.ts";
 import { REAL_JOURNEYS } from "./realJourneys.ts";
 
 /**
@@ -13,7 +13,7 @@ export const JOURNEY_NOTE_MANIFESTS: readonly NoteManifest[] = Object.freeze(
   DISCOVERY_PAPERS.flatMap((paper) => {
     const journey = REAL_JOURNEYS.find((item) => item.paper === paper);
     return journey && journey.stages.length > 0
-      ? [stageNoteManifest(paper, journey.revision, journey.stages)]
+      ? [journeyNoteManifest(paper, journey.revision, journey.stages)]
       : [];
   }),
 );

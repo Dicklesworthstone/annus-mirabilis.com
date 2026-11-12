@@ -16,6 +16,10 @@ function escapeHtml(value: string): string {
 export function notebookHtml(document: DiscoveryNotebook, manifest: NoteManifest): string {
   const accepted = validateNotebook(document, manifest);
   const title = `${NOTE_PAPER_TITLES[manifest.paper]}: my discovery notes`;
+  const revision =
+    accepted.journeyRevision === manifest.revision
+      ? `Guide revision: ${escapeHtml(accepted.journeyRevision)}.`
+      : `Original guide revision: ${escapeHtml(accepted.journeyRevision)}. Compatible current guide revision: ${escapeHtml(manifest.revision)}.`;
   // Validation already requires every entry to belong to the manifest. Walk its published
   // stages in order, omitting only those on which the reader has not recorded a prediction.
   const entries = manifest.stages
@@ -31,5 +35,5 @@ export function notebookHtml(document: DiscoveryNotebook, manifest: NoteManifest
         .join("")}</section>`;
     })
     .join("");
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)}</title><style>body{max-width:48rem;margin:2rem auto;padding:0 1rem;font:1rem/1.6 system-ui,sans-serif}section{border-top:1px solid;padding-top:1rem}p{white-space:pre-wrap;overflow-wrap:anywhere}article{margin-bottom:2rem}@media print{body{margin:0;max-width:none}article{break-inside:avoid}}</style></head><body><h1>${escapeHtml(title)}</h1><p>Private recorded predictions and observations. Draft fields are not included. Guide revision: ${escapeHtml(manifest.revision)}.</p>${entries || "<p>No predictions recorded.</p>"}</body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)}</title><style>body{max-width:48rem;margin:2rem auto;padding:0 1rem;font:1rem/1.6 system-ui,sans-serif}section{border-top:1px solid;padding-top:1rem}p{white-space:pre-wrap;overflow-wrap:anywhere}article{margin-bottom:2rem}@media print{body{margin:0;max-width:none}article{break-inside:avoid}}</style></head><body><h1>${escapeHtml(title)}</h1><p>Private recorded predictions and observations. Draft fields are not included. ${revision}</p>${entries || "<p>No predictions recorded.</p>"}</body></html>`;
 }

@@ -178,6 +178,13 @@ function NotebookControls({
       aria-label={`${NOTE_PAPER_TITLES[manifest.paper]} notes controls`}
     >
       <p>{view.message}</p>
+      {view.ready && !view.blocked && view.document.journeyRevision !== manifest.revision && (
+        <p data-notes-compatible-revision="">
+          These notes began with guide revision {view.document.journeyRevision}. The questions and
+          choices are unchanged in revision {manifest.revision}, so you can keep using them. Their
+          original revision stays in saved and downloaded copies.
+        </p>
+      )}
       <details>
         <summary ref={heading}>Save, open or clear this guide’s private notes</summary>
         <p>
@@ -231,8 +238,8 @@ function NotebookControls({
         <details>
           <summary>Open a notes JSON file</summary>
           <p>
-            The file must belong to this paper and guide revision. Checking it leaves your notes
-            unchanged.
+            The file must belong to this paper. Earlier guide revisions are accepted only when their
+            questions and choices are unchanged. Checking a file leaves your notes unchanged.
           </p>
           <fieldset disabled={!view.ready || view.blocked}>
             <legend>Check a file before replacing these notes</legend>
