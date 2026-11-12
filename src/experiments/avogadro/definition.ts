@@ -1,6 +1,7 @@
 /** Bounded, versioned state for the three-method comparison. No notes enter URLs. */
 import { powerOfTenText } from "../../units/scientific.ts";
 import { ExperimentRuntimeError } from "../refusal.ts";
+import { makeRefusal, type RequestRefusal } from "../results/refusals.ts";
 export const AVOGADRO_DEFAULTS = Object.freeze({
   alphaScale: 1,
   meanSquareUm2: 0.86,
@@ -8,6 +9,10 @@ export const AVOGADRO_DEFAULTS = Object.freeze({
   coordinateCount: 100,
   radiusUm: 0.5,
   radiusKnown: 1,
+  radiusInterval: 0,
+  radiusLowerUm: 0.45,
+  radiusUpperUm: 0.55,
+  radiusCoveragePercent: 97.5,
   independentModel: 1,
   temperature: 293.15,
   viscosityMpaS: 1,
@@ -36,6 +41,10 @@ export const AVOGADRO_FIELDS: Readonly<
   coordinateCount: { label: "Independent coordinate increments", min: 1, max: 10000 },
   radiusUm: { label: "Independently declared tracer radius (µm)", min: 0.001, max: 100 },
   radiusKnown: { label: "Independent radius supplied: 1 yes, 0 no", min: 0, max: 1 },
+  radiusInterval: { label: "Radius uncertainty", min: 0, max: 1 },
+  radiusLowerUm: { label: "Declared radius interval: lower bound (µm)", min: 0.001, max: 100 },
+  radiusUpperUm: { label: "Declared radius interval: upper bound (µm)", min: 0.001, max: 100 },
+  radiusCoveragePercent: { label: "Declared radius coverage (%)", min: 0.001, max: 100 },
   independentModel: {
     label: "Independent, error-free increments admitted: 1 yes, 0 no",
     min: 0,
@@ -52,11 +61,35 @@ export const AVOGADRO_FIELDS: Readonly<
   specificViscosity: { label: "Specific viscosity: solution / solvent − 1", min: 0, max: 1 },
   coefficient: { label: "Viscosity coefficient: 1 original, 2.5 corrected", min: 1, max: 2.5 },
 });
+export type AvogadroRefusal = Readonly<{
+  kind: "refused";
+  reason: string;
+  refusal: RequestRefusal;
+}>;
 export type Validation =
   | Readonly<{ kind: "accepted"; parameters: AvogadroParameters }>
-  | Readonly<{ kind: "refused"; reason: string }>;
-const refused = (reason: string): Validation => Object.freeze({ kind: "refused", reason });
+  | AvogadroRefusal;
+export function refuseAvogadro(reason: string, refusal?: RequestRefusal): AvogadroRefusal {
+  return Object.freeze({
+    kind: "refused",
+    reason,
+    refusal:
+      refusal ??
+      makeRefusal(
+        "invalid-parameter",
+        { parameterIds: Object.keys(AVOGADRO_FIELDS) },
+        { details: { requirements: reason } },
+      ),
+  });
+}
+const refused = refuseAvogadro;
 const keys = Object.keys(AVOGADRO_FIELDS) as AvogadroKey[];
+const radiusIntervalKeys: readonly AvogadroKey[] = [
+  "radiusInterval",
+  "radiusLowerUm",
+  "radiusUpperUm",
+  "radiusCoveragePercent",
+];
 
 export function validateAvogadroParameters(input: unknown): Validation {
   if (typeof input !== "object" || input === null || Array.isArray(input))
@@ -93,6 +126,17 @@ export function validateAvogadroParameters(input: unknown): Validation {
     return refused("The independent coordinate count must be an integer.");
   if (![0, 1].includes(parameters.radiusKnown) || ![0, 1].includes(parameters.independentModel))
     return refused("Choose yes or no for the radius and observation assumptions.");
+  if (![0, 1].includes(parameters.radiusInterval))
+    return refused("Choose an exact radius or a declared radius interval.");
+  if (
+    parameters.radiusKnown === 1 &&
+    parameters.radiusInterval === 1 &&
+    (parameters.radiusLowerUm > parameters.radiusUm ||
+      parameters.radiusUpperUm < parameters.radiusUm)
+  )
+    return refused(
+      "The positive radius interval must contain the independently declared point radius.",
+    );
   if (![0, 1].includes(parameters.constantBasis))
     return refused("Choose modern SI or the historical gas measurement.");
   if (![1, 2.5].includes(parameters.coefficient))
@@ -118,7 +162,7 @@ export function encodeAvogadroParameters(input: AvogadroParameters): string {
   const checked = validateAvogadroParameters(input);
   if (checked.kind !== "accepted")
     throw new ExperimentRuntimeError("parameters-rejected", checked.reason, "avogadro");
-  const params = new URLSearchParams({ av: "2" });
+  const params = new URLSearchParams({ av: "3" });
   for (const key of keys) params.set(key, String(checked.parameters[key]));
   return params.toString();
 }
@@ -130,13 +174,20 @@ export function decodeAvogadroParameters(search: string): Validation {
   if (!query.has("av") && !keys.some((key) => query.has(key)))
     return validateAvogadroParameters(AVOGADRO_DEFAULTS);
   const version = query.get("av");
-  if (query.getAll("av").length !== 1 || !["1", "2"].includes(version ?? ""))
+  if (query.getAll("av").length !== 1 || !["1", "2", "3"].includes(version ?? ""))
     return refused("This comparison bookmark has an unsupported or ambiguous version.");
   // Version 1 always meant modern SI for the diffusion routes. Do not reinterpret old links.
   if (version === "1" && query.has("constantBasis"))
     return refused("A version 1 bookmark cannot select a different gas-constant basis.");
+  // Earlier bookmarks held the radius exact. New fields cannot silently change that meaning.
+  if (version !== "3" && radiusIntervalKeys.some((key) => query.has(key)))
+    return refused("A legacy bookmark cannot select radius uncertainty; use a version 3 bookmark.");
   const draft = {} as Record<AvogadroKey, string>;
   for (const key of keys) {
+    if (version !== "3" && radiusIntervalKeys.includes(key)) {
+      draft[key] = String(AVOGADRO_DEFAULTS[key]);
+      continue;
+    }
     if (key === "constantBasis" && version === "1") {
       draft[key] = "0";
       continue;

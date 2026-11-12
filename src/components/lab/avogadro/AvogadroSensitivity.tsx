@@ -12,6 +12,7 @@ import {
   AVOGADRO_STUDY_ROUTES,
   type AvogadroSensitivityStudy,
   parseSensitivityValues,
+  type SensitivityDecision,
   type SensitivityPoint,
   studyAvogadroSensitivity,
 } from "../../../experiments/avogadro/sensitivity.ts";
@@ -33,10 +34,12 @@ const referenceOwner = (parameters: AvogadroParameters) => {
 function inputReading(key: AvogadroKey, value: number) {
   if (key === "constantBasis") return avogadroBasis({ constantBasis: value }).label;
   if (key === "radiusKnown" || key === "independentModel") return value === 1 ? "Yes" : "No";
+  if (key === "radiusInterval") return value === 1 ? "Declared radius interval" : "Exact radius";
   return display(value);
 }
 function suggestedValues(key: AvogadroKey, parameters: AvogadroParameters): string {
-  if (["constantBasis", "radiusKnown", "independentModel"].includes(key)) return "0, 1";
+  if (["constantBasis", "radiusKnown", "independentModel", "radiusInterval"].includes(key))
+    return "0, 1";
   if (key === "coefficient") return "1, 2.5";
   const value = parameters[key];
   const field = AVOGADRO_FIELDS[key];
@@ -77,8 +80,10 @@ function StudyRow({
               {display(result.value)} {unitText(result.unit)}
               {result.uncertainty?.kind === "statistical-interval" && (
                 <p className="fine">
-                  Conditional {100 * result.uncertainty.coverage}% interval:{" "}
-                  {display(result.uncertainty.lower)} to {display(result.uncertainty.upper)}{" "}
+                  {result.quantityId === "brownianNumber" && point.parameters.radiusInterval === 1
+                    ? `At least ${display(100 * result.uncertainty.coverage)}% coverage (Bonferroni)`
+                    : `Conditional ${display(100 * result.uncertainty.coverage)}% interval`}
+                  : {display(result.uncertainty.lower)} to {display(result.uncertainty.upper)}{" "}
                   {unitText(result.unit)}.
                 </p>
               )}
@@ -114,21 +119,21 @@ export function AvogadroSensitivity({
     sourceRevision: number;
   }> | null>(null);
   const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState<Exclude<SensitivityDecision, { kind: "accepted" }> | null>(null);
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const parsed = parseSensitivityValues(values);
     if (parsed.kind !== "accepted") {
-      setError(parsed.reason);
+      setError(parsed);
       return;
     }
     const decision = studyAvogadroSensitivity(parameters, parameter, parsed.values, referenceOwner);
     if (decision.kind !== "accepted") {
-      setError(decision.reason);
+      setError(decision);
       return;
     }
     setAccepted(Object.freeze({ study: decision.study, sourceRevision: snapshotVersion }));
-    setError("");
+    setError(null);
     setMessage(
       `Calculated ${decision.study.points.length} trial settings across three routes. Only the selected input changed; the main laboratory settings are unchanged.`,
     );
@@ -192,8 +197,13 @@ export function AvogadroSensitivity({
         </p>
       </noscript>
       {error && (
-        <p className="notice" role="alert">
-          {withScripts(error)} The previous completed study is unchanged.
+        <p
+          className="notice"
+          role="alert"
+          data-execution-outcome={error.kind === "outcome" ? error.outcome.outcome : undefined}
+        >
+          {withScripts(error.kind === "outcome" ? error.outcome.message : error.reason)} The previous
+          completed study is unchanged.
         </p>
       )}
       <p role="status">{message}</p>
@@ -241,9 +251,11 @@ export function AvogadroSensitivity({
             </table>
           </section>
           <p className="fine">
-            The Brownian intervals remain conditional on exact auxiliary inputs. Ratios have no
-            invented uncertainty intervals. The three routes share assumptions; their agreement is
-            not a statistical test of independence.
+            Each Brownian interval uses its row's accepted radius assumption: an exact-radius
+            chi-square interval or the conservative Bonferroni interval with declared radius bounds.
+            Temperature, viscosity, timing, calibration and the gas constant remain exact. Ratios
+            have no invented uncertainty intervals. The three routes share assumptions; their
+            agreement is not a statistical test of independence.
           </p>
           <details>
             <summary>Inspect the inputs held fixed</summary>

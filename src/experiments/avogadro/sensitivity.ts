@@ -1,3 +1,4 @@
+import type { ExecutionOutcome } from "../results/outcomes.ts";
 import type { ScientificResult } from "../results/types.ts";
 import {
   AVOGADRO_FIELDS,
@@ -16,6 +17,7 @@ export const MAX_SENSITIVITY_POINTS = 7;
 type Calculation = Readonly<
   | { kind: "accepted"; parameters: AvogadroParameters; outputs: readonly ScientificResult[] }
   | { kind: "refused"; reason: string }
+  | { kind: "outcome"; outcome: ExecutionOutcome }
 >;
 export type AvogadroStudyOwner = (parameters: AvogadroParameters) => Calculation;
 export type SensitivityReading = Readonly<{
@@ -34,7 +36,9 @@ export type AvogadroSensitivityStudy = Readonly<{
   points: readonly SensitivityPoint[];
 }>;
 export type SensitivityDecision = Readonly<
-  { kind: "accepted"; study: AvogadroSensitivityStudy } | { kind: "refused"; reason: string }
+  | { kind: "accepted"; study: AvogadroSensitivityStudy }
+  | { kind: "refused"; reason: string }
+  | { kind: "outcome"; outcome: ExecutionOutcome }
 >;
 const refuse = (reason: string): SensitivityDecision => Object.freeze({ kind: "refused", reason });
 const sameParameters = (a: AvogadroParameters, b: AvogadroParameters) =>

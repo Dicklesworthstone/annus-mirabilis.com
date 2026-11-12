@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { type FormEvent, useEffect, useId, useState } from "react";
 import { avogadroBasis } from "../../../experiments/avogadro/basis.ts";
 import {
   AVOGADRO_CAPTION,
@@ -18,6 +18,11 @@ import { executionStateKindFromHostLabel } from "../../../experiments/labels/exe
 import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { ExperimentRuntimeError } from "../../../experiments/refusal.ts";
+import {
+  type ApplyFailure,
+  applyFailure,
+  failureCode,
+} from "../../../experiments/results/applyFailure.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../../experiments/store/instanceStore.ts";
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
@@ -44,8 +49,10 @@ function Reading({ snapshot, quantity }: { snapshot: AcceptedSnapshot; quantity:
           <>
             <br />
             <small>
-              Conditional {100 * r.uncertainty.coverage}% interval: {display(r.uncertainty.lower)}{" "}
-              to {display(r.uncertainty.upper)} {unitText(r.unit)}
+              {quantity === "brownianNumber" && snapshot.parameters.radiusInterval === 1
+                ? `At least ${display(100 * r.uncertainty.coverage)}% coverage (Bonferroni)`
+                : `Conditional ${display(100 * r.uncertainty.coverage)}% interval`}
+              : {display(r.uncertainty.lower)} to {display(r.uncertainty.upper)} {unitText(r.unit)}
             </small>
           </>
         )}
@@ -72,7 +79,7 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
   const view = useInstrumentView(session);
   const [draft, setDraft] = useState(() => draftOf(AVOGADRO_DEFAULTS));
   const [ready, setReady] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<ApplyFailure | null>(null);
   const [announcement, setAnnouncement] = useState("");
   const snapshot = view.accepted;
   if (!snapshot)
@@ -88,16 +95,16 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
     function restore() {
       const decoded = decodeAvogadroParameters(window.location.search);
       if (decoded.kind !== "accepted") {
-        setError(`${decoded.reason} The last accepted example remains displayed.`);
+        setError(applyFailure(decoded));
         return;
       }
       const outcome = session.apply(decoded.parameters);
       if (outcome.kind !== "accepted") {
-        setError(outcome.reason);
+        setError(applyFailure(outcome));
         return;
       }
       setDraft(draftOf(outcome.parameters));
-      setError("");
+      setError(null);
     }
     restore();
     setReady(true);
@@ -108,11 +115,11 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
   function apply(p: AvogadroParameters) {
     const outcome = session.apply(p);
     if (outcome.kind !== "accepted") {
-      setError(`${outcome.reason} The accepted readings have not changed.`);
+      setError(applyFailure(outcome));
       return;
     }
     setDraft(draftOf(outcome.parameters));
-    setError("");
+    setError(null);
     setAnnouncement(
       "All three methods now show the same accepted revision. These illustrative calculations are not new measurements.",
     );
@@ -121,7 +128,7 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
     event.preventDefault();
     const parsed = parseAvogadroDraft(draft);
     if (parsed.kind !== "accepted") {
-      setError(`${parsed.reason} The accepted readings have not changed.`);
+      setError(applyFailure(parsed));
       return;
     }
     apply(parsed.parameters);
@@ -139,12 +146,17 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
               ["1", "Original: 1"],
               ["2.5", "Corrected: 2.5"],
             ]
-          : key === "radiusKnown" || key === "independentModel"
+          : key === "radiusInterval"
             ? [
-                ["1", "Yes"],
-                ["0", "No"],
+                ["0", "Hold radius exact"],
+                ["1", "Use a declared radius interval"],
               ]
-            : null;
+            : key === "radiusKnown" || key === "independentModel"
+              ? [
+                  ["1", "Yes"],
+                  ["0", "No"],
+                ]
+              : null;
     return (
       <div className="input-field" key={key}>
         <label htmlFor={`${id}-${key}`}>{field.label}</label>
@@ -265,9 +277,28 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
                       "coordinateCount",
                       "radiusUm",
                       "radiusKnown",
+                      "radiusInterval",
                       "independentModel",
                     ] as const
                   ).map(control)}
+                  {draft.radiusInterval === "1" && (
+                    <fieldset disabled={draft.radiusKnown !== "1"}>
+                      <legend>Independent radius interval</legend>
+                      {control("radiusLowerUm")}
+                      {control("radiusUpperUm")}
+                      {control("radiusCoveragePercent")}
+                      <p>
+                        Bounds must contain the point radius. For the 95% joint target, the
+                        diffusion interval uses 97.5% coverage and the declared radius interval
+                        needs at least 97.5%. A 95% radius interval cannot be relabeled as 97.5%.
+                      </p>
+                      <p>
+                        The radius must be established separately from these displacements. Coverage
+                        is a declaration, not a verified calibration. Bonferroni does not require
+                        statistical independence between the two intervals.
+                      </p>
+                    </fieldset>
+                  )}
                   <p>
                     The interval requires independent Gaussian coordinate increments, known zero
                     drift, exact timing and calibration, and no localization noise, exposure blur,
@@ -295,8 +326,14 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
             </ExperimentSettings>
           </fieldset>
           {error && (
-            <p className="notice" role="alert">
-              {withScripts(error)}
+            <p
+              className="notice"
+              role="alert"
+              data-apply-failure={error.kind}
+              data-refusal-code={failureCode(error)}
+              data-execution-outcome={error.kind === "unavailable" ? error.outcome.outcome : undefined}
+            >
+              {withScripts(error.text)} The last accepted example remains displayed.
             </p>
           )}
         </form>
@@ -343,8 +380,20 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
                   </td>
                   <td>
                     <strong>{basis.label}.</strong> {basis.interpretation} Conditional on an
-                    independent radius and the admitted observation model. The interval holds the
-                    selected gas constant and all auxiliary inputs exact.
+                    independent radius and the admitted observation model. The selected gas
+                    constant, temperature, viscosity, timing and spatial calibration are held exact.{" "}
+                    {accepted.radiusKnown === 1 &&
+                      (accepted.radiusInterval === 1 ? (
+                        <span data-accepted-radius-interval>
+                          Accepted radius: {display(accepted.radiusUm)} µm, with declared bounds{" "}
+                          {display(accepted.radiusLowerUm)} to {display(accepted.radiusUpperUm)} µm
+                          at {display(accepted.radiusCoveragePercent)}% marginal coverage. The
+                          molecular-number interval is conservative, conditional on that
+                          declaration.
+                        </span>
+                      ) : (
+                        "The radius is also held exact."
+                      ))}
                   </td>
                 </tr>
                 <tr>
@@ -410,9 +459,10 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
         </p>
         <p>
           Remove the independent radius above to reveal the family instead of a spurious unique
-          answer. Radius, viscosity, temperature and calibration uncertainty are held exact in the
-          displayed conditional interval. The detailed inference lab supports additional measurement
-          models.
+          answer. Choose a declared radius interval to propagate its bounds together with the
+          Brownian sampling uncertainty. Temperature, viscosity, timing, spatial calibration and the
+          selected gas constant remain exact within this model. The detailed inference lab supports
+          additional measurement models.
         </p>
         <p>
           <a href="/papers/brownian-motion/#s5">Read Brownian motion §5</a> ·{" "}
@@ -446,7 +496,7 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
       </p>
       <p className="fine">
         Not modeled: solvation, molecular shape, concentrated-solution interactions, measurement
-        error and historical data fitting.
+        error beyond the declared Brownian and radius intervals, and historical data fitting.
       </p>
       <details>
         <summary>Assumptions, provenance and the code behind the numbers</summary>

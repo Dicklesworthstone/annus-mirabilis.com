@@ -1,4 +1,5 @@
 import { constantValue, getConstantSet } from "../../physics/reference/constants.ts";
+import { conditionalMolecularNumberInterval } from "../../physics/reference/inference/identifiability.ts";
 import {
   estimateSummaryStatistics,
   identifiabilityFamily,
@@ -11,6 +12,7 @@ import {
   MODERN_AVOGADRO,
 } from "../../physics/reference/radiation/avogadro.ts";
 import { ExperimentRuntimeError } from "../refusal.ts";
+import { throwApplyFailure } from "../results/applyFailure.ts";
 import type { ResultPayload, ScientificResult } from "../results/types.ts";
 import {
   createInstanceStore,
@@ -21,6 +23,7 @@ import { avogadroBasis } from "./basis.ts";
 import {
   AVOGADRO_DEFAULTS,
   type AvogadroParameters,
+  refuseAvogadro,
   validateAvogadroParameters,
 } from "./definition.ts";
 
@@ -120,21 +123,67 @@ export function evaluateAvogadro(input: unknown) {
           },
           constants,
         );
-        if (inverse.kind === "accepted")
+        if (inverse.kind === "accepted") {
+          let molecularInterval = inverse.data.interval;
+          if (p.radiusInterval === 1) {
+            const combined = conditionalMolecularNumberInterval(
+              {
+                // For the admitted known-zero-drift model, the summary mean square gives the
+                // unbiased D estimate and the independent coordinate count gives q. No raw
+                // trajectory, fitted drift, latent generating radius or extra sample is invented.
+                estimate: {
+                  unbiasedDHat: summary.data.dHat,
+                  q: p.coordinateCount,
+                  estimatorId: "summary-statistic",
+                },
+                T: p.temperature,
+                eta: p.viscosityMpaS * 1e-3,
+                alpha: 0.05,
+                synthetic: false,
+                radiusProvenance: "independently-declared",
+                radius: {
+                  value: p.radiusUm * 1e-6,
+                  interval: {
+                    lower: p.radiusLowerUm * 1e-6,
+                    upper: p.radiusUpperUm * 1e-6,
+                    coverage: p.radiusCoveragePercent / 100,
+                  },
+                  provenance:
+                    "Reader-declared interval for an illustrative tracer radius; no measured calibration dataset is asserted.",
+                },
+              },
+              constants,
+            );
+            // A requested confidence procedure that the owner cannot admit must leave every
+            // previously accepted route intact. In particular, never relabel 95% radius coverage
+            // as the 97.5% marginal coverage required for this two-interval Bonferroni allocation.
+            if (combined.kind === "no-value") return refuseAvogadro(combined.reason);
+            if (combined.kind === "outcome") return combined;
+            if (combined.kind === "refused") {
+              const requirements = combined.refusal.details?.requirements;
+              return refuseAvogadro(
+                typeof requirements === "string" ? requirements : combined.refusal.message,
+                combined.refusal,
+              );
+            }
+            molecularInterval = combined.data;
+          }
           brownian = {
             status: "value",
             value: inverse.data.estimate,
             uncertainty: Object.freeze({
               kind: "statistical-interval",
-              lower: inverse.data.interval.lower,
-              upper: inverse.data.interval.upper,
-              coverage: inverse.data.interval.coverage,
+              lower: molecularInterval.lower,
+              upper: molecularInterval.upper,
+              coverage: molecularInterval.coverage,
               sampleSize: p.coordinateCount,
               method:
-                "Independent Gaussian coordinate increments, known zero drift; exact auxiliary inputs; conditional 95% chi-square interval.",
+                p.radiusInterval === 1
+                  ? "Independent Gaussian coordinate increments, known zero drift; Bonferroni union bound across diffusion and the declared radius interval. Coverage is conditional on the declared marginal coverage; temperature, viscosity, selected gas constant, timing and calibration are held exact."
+                  : "Independent Gaussian coordinate increments, known zero drift; exact auxiliary inputs; conditional 95% chi-square interval.",
             }),
           };
-        else if (inverse.kind === "no-value") brownian = outside(inverse.reason);
+        } else if (inverse.kind === "no-value") brownian = outside(inverse.reason);
       }
     }
   }
@@ -188,6 +237,7 @@ export function createAvogadroSession(
   initialParameters: AvogadroParameters = AVOGADRO_DEFAULTS,
 ) {
   const initial = evaluateAvogadro(initialParameters);
+  if (initial.kind === "outcome") throwApplyFailure(initial);
   if (initial.kind !== "accepted")
     throw new ExperimentRuntimeError("parameters-rejected", initial.reason, "avogadro");
   const acceptedInitialParameters = initial.parameters;

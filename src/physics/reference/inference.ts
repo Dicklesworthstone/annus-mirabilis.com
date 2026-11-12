@@ -32,6 +32,12 @@ export type Estimate = Readonly<{
   drift: Float64Array;
   estimatorId: EstimatorId;
 }>;
+/** The interval owner consumes sufficient statistics, not an invented displacement record. */
+export type DiffusionIntervalEstimate = Readonly<{
+  unbiasedDHat: number;
+  q: number;
+  estimatorId: EstimatorId | "summary-statistic";
+}>;
 export type StatisticalInterval = Readonly<{
   lower: number;
   upper: number;
@@ -241,7 +247,7 @@ export function chiSquareInterval({
   };
 }
 export function estimatorInterval(
-  estimate: Estimate,
+  estimate: DiffusionIntervalEstimate,
   alpha: number,
 ): Computation<StatisticalInterval> {
   return chiSquareInterval({
@@ -415,7 +421,7 @@ export function invertToMolecularNumber(
  * statistical independence. Calibration is held exact in this BM-07 slice. */
 export function combinedMolecularNumberInterval(
   input: Conditions & {
-    estimate: Estimate;
+    estimate: DiffusionIntervalEstimate;
     alphaD: number;
     inputs: Partial<Record<"T" | "eta" | "a", DeclaredInterval>>;
     synthetic: boolean;

@@ -8,6 +8,7 @@ import {
   type Assessment,
   combinedMolecularNumberInterval,
   type DeclaredInterval,
+  type DiffusionIntervalEstimate,
   type Estimate,
   estimatorInterval,
   identifiabilityFamily,
@@ -74,7 +75,7 @@ export type IndependentMeasurement = Readonly<{
  */
 export function conditionalMolecularNumberInterval(
   input: {
-    estimate: Estimate;
+    estimate: DiffusionIntervalEstimate;
     T: number;
     eta: number;
     alpha: number;

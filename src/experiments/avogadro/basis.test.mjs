@@ -14,7 +14,7 @@ for (const constantBasis of [0, 1]) {
   test(`basis ${constantBasis} round-trips every parameter and has a registered identity`, () => {
     const p = { ...AVOGADRO_DEFAULTS, constantBasis };
     const encoded = encodeAvogadroParameters(p);
-    assert.equal(new URLSearchParams(encoded).get("av"), "2");
+    assert.equal(new URLSearchParams(encoded).get("av"), "3");
     const got = decodeAvogadroParameters(encoded);
     assert.equal(got.kind, "accepted");
     assert.deepEqual(got.parameters, p);
@@ -28,6 +28,8 @@ test("version 1 links retain modern SI semantics, never migrate into historical 
   );
   query.set("av", "1");
   query.delete("constantBasis");
+  for (const key of ["radiusInterval", "radiusLowerUm", "radiusUpperUm", "radiusCoveragePercent"])
+    query.delete(key);
   const got = decodeAvogadroParameters(query.toString());
   assert.equal(got.kind, "accepted");
   assert.equal(got.parameters.constantBasis, 0);
@@ -38,11 +40,11 @@ test("ambiguous versions, duplicates and basis-smuggling into legacy links are r
   const valid = encodeAvogadroParameters(AVOGADRO_DEFAULTS);
   for (const query of [
     valid + "&constantBasis=1",
-    valid + "&av=2",
-    valid.replace("av=2", "av=1"),
-    valid.replace("av=2", "av=3"),
+    valid + "&av=3",
+    valid.replace("av=3", "av=1"),
+    valid.replace("av=3", "av=4"),
     valid.replace("constantBasis=0&", ""),
-    valid.replace("av=2&", ""),
+    valid.replace("av=3&", ""),
     "?constantBasis=1",
     "x".repeat(4097),
   ])
@@ -52,6 +54,8 @@ test("legacy links still require every original field exactly once", () => {
   const query = new URLSearchParams(encodeAvogadroParameters(AVOGADRO_DEFAULTS));
   query.set("av", "1");
   query.delete("constantBasis");
+  for (const key of ["radiusInterval", "radiusLowerUm", "radiusUpperUm", "radiusCoveragePercent"])
+    query.delete(key);
   query.delete("radiusKnown");
   assert.equal(decodeAvogadroParameters(query.toString()).kind, "refused");
 });
