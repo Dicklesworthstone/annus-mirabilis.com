@@ -7,6 +7,7 @@ import {
   loadFoundationPayload,
   loadPaperPayload,
 } from "../../content/compiler/serverLoaders.ts";
+import { loadEssays } from "../../content/essays/load.ts";
 import { validateJourney } from "../../content/schemas/journey.ts";
 import { REGISTERED_IDS } from "../../experiments/catalogue.ts";
 import {
@@ -183,14 +184,15 @@ describe("the authored study routes", () => {
     }
     expect(steps.some((stop) => stop.href === "/lab/avogadro-lab/")).toBe(true);
     expect(steps.some((stop) => stop.href === "/lab/light-thread/")).toBe(true);
-    expect(steps.filter((stop) => stop.kind === "essay").map((stop) => stop.href)).toEqual([
-      "/essays/what-a-measurement-means/",
-      "/essays/change-what-you-hold-fixed/",
-    ]);
-    expect(steps.filter((stop) => stop.kind === "essay").every((stop) => stop.minutes > 0)).toBe(true);
-    expect(course.inPreparation.some((item) => item.includes("What a measurement means"))).toBe(false);
-    expect(course.inPreparation.some((item) => item.includes("Change what you hold fixed"))).toBe(false);
-    expect(course.inPreparation.some((item) => item.includes("Reasoning essay:"))).toBe(true);
+    const essays = loadEssays(root);
+    const essaySteps = steps.filter((stop) => stop.kind === "essay");
+    expect(essays.length).toBeGreaterThan(0);
+    expect(essaySteps.map((stop) => stop.href)).toEqual(
+      essays.map((essay) => "/essays/" + essay.slug + "/"),
+    );
+    expect(essaySteps.every((stop) => stop.minutes > 0)).toBe(true);
+    for (const essay of essays)
+      expect(course.inPreparation).not.toContain("Reasoning essay: " + essay.title + ".");
   });
 
   test("the lazy guide is the exact checked outline and every bookmark round trips", () => {

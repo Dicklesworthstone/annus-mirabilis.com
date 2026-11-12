@@ -3,16 +3,19 @@ import { renderToStaticMarkup } from "react-dom/server";
 import EssayPage, { generateStaticParams } from "../../app/essays/[essay]/page.tsx";
 import EssaysPage from "../../app/essays/page.tsx";
 import { loadEssays } from "../../content/essays/load.ts";
-import { ESSAY_LABEL } from "../../content/schemas/essay.ts";
+import { ESSAY_LABEL, ESSAY_SERIES } from "../../content/schemas/essay.ts";
 import { EssayReading } from "./EssayReading.tsx";
 
 describe("static essay reading", () => {
   test("the index and static route parameters list only the authored essays", () => {
     const essays = loadEssays();
     const html = renderToStaticMarkup(<EssaysPage />);
+    expect(essays.length).toBeGreaterThan(0);
     expect(generateStaticParams()).toEqual(essays.map((essay) => ({ essay: essay.slug })));
     for (const essay of essays) expect(html).toContain("/essays/" + essay.slug + "/");
-    expect(html).not.toContain('href="/essays/make-two-routes-meet/"');
+    const publishedSlugs = new Set(essays.map((essay) => essay.slug));
+    for (const chapter of ESSAY_SERIES.filter((entry) => !publishedSlugs.has(entry.slug)))
+      expect(html).not.toContain('href="/essays/' + chapter.slug + '/"');
   });
 
   test("all content, model math and transfer deep links exist before hydration", () => {

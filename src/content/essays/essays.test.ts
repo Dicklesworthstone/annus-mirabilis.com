@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { checkVoice } from "../checks/voice/index.ts";
-import { ESSAY_LABEL, validateEssay } from "../schemas/essay.ts";
+import { ESSAY_LABEL, ESSAY_SERIES, validateEssay } from "../schemas/essay.ts";
 import { strictParse } from "../schemas/strictParse.ts";
 import { loadEssays, resolveEssayAnchor, validateEssayProse } from "./load.ts";
 import { parseEssayMarkdown } from "./markdown.ts";
@@ -14,27 +14,38 @@ function metadata(slug = "what-a-measurement-means"): Record<string, unknown> {
 }
 
 describe("methodological essay content", () => {
-  test("two complete readings resolve their sources, instruments, equations, values and transfer IDs", () => {
+  test("published readings resolve their sources, instruments, equations, values and transfer IDs", () => {
     const essays = loadEssays(root);
-    expect(essays.map((essay) => essay.slug)).toEqual(["what-a-measurement-means",
-      "change-what-you-hold-fixed"]);
+    expect(essays.length).toBeGreaterThan(0);
+    const publishedSlugs = new Set(essays.map((essay) => essay.slug));
+    expect(publishedSlugs.size).toBe(essays.length);
+    expect(publishedSlugs.has("what-a-measurement-means")).toBe(true);
+    expect(publishedSlugs.has("change-what-you-hold-fixed")).toBe(true);
+    expect(essays.map((essay) => essay.slug)).toEqual(
+      ESSAY_SERIES.filter((chapter) => publishedSlugs.has(chapter.slug)).map((chapter) => chapter.slug),
+    );
     const transferIds = essays.flatMap((essay) => essay.transferExamples.map((example) => example.id));
-    expect(new Set(transferIds).size).toBe(6);
+    expect(transferIds.length).toBeGreaterThan(0);
+    expect(new Set(transferIds).size).toBe(transferIds.length);
     for (const essay of essays) {
       expect(essay.label).toBe(ESSAY_LABEL);
       expect(essay.reviewRecordIds).toEqual([]);
       expect(essay.blocks.filter((block) => block.kind === "paragraph").length).toBeGreaterThan(8);
       expect(essay.bibliography.length).toBeGreaterThan(0);
       expect([...essay.links.values()].some((link) => link.kind === "instrument")).toBe(true);
-      expect([...essay.links.values()].filter((link) => link.kind === "source").every((link) =>
-        link.source?.id && link.href.includes("/view/german/#") && link.usedAt.length > 0))
-          .toBe(true);
+      const sources = [...essay.links.values()].filter((link) => link.kind === "source");
+      expect(sources.length).toBeGreaterThan(0);
+      expect(sources.every((link) =>
+        link.source?.id && link.href.includes("/view/german/#") && link.usedAt.length > 0)).toBe(true);
+      expect(essay.renderedEquations.size).toBeGreaterThan(0);
       expect([...essay.renderedEquations.values()].every((equation) =>
         equation.html.includes("katex") && equation.mathml.includes("<math"))).toBe(true);
     }
-    expect(essays[1]?.values.get("band-energy")?.text).toBe("9.06 nJ");
-    expect(essays[1]?.values.get("entropy-change")?.text).toBe("-2.18 × 10^-13 J/K");
-    expect(essays[1]?.values.get("rms-ratio")?.text).toBe("0.7071");
+    const fixedVariables = essays.find((essay) => essay.slug === "change-what-you-hold-fixed");
+    expect(fixedVariables).toBeDefined();
+    expect(fixedVariables?.values.get("band-energy")?.text).toBe("9.06 nJ");
+    expect(fixedVariables?.values.get("entropy-change")?.text).toBe("-2.18 × 10^-13 J/K");
+    expect(fixedVariables?.values.get("rms-ratio")?.text).toBe("0.7071");
   });
 
   test("informational independence vocabulary does not prevent an essay from loading", () => {

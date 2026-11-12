@@ -6,7 +6,12 @@ describe("essay search projection", () => {
   test("every essay and transfer resolves to its own stable rendered anchor", () => {
     const essays = loadEssays();
     const docs = essayDocuments(essays, "scaffold");
-    expect(docs.length).toBe(8);
+    expect(essays.length).toBeGreaterThan(0);
+    const expectedIds = essays.flatMap((essay) => [
+      "essay:" + essay.slug,
+      ...essay.transferExamples.map((transfer) => "essay-transfer:" + transfer.id),
+    ]);
+    expect(docs.map((doc) => doc.id).sort()).toEqual(expectedIds.sort());
     expect(new Set(docs.map((doc) => doc.id)).size).toBe(docs.length);
     for (const essay of essays) {
       const main = docs.find((doc) => doc.id === "essay:" + essay.slug);
