@@ -1,0 +1,99 @@
+schemaVersion: 1
+kind: "essay"
+slug: "subtract-what-you-do-not-know"
+number: 5
+title: "Subtract what you do not know"
+label: "A contemporary methodological reading, not Einstein's method."
+r0Summary: "A difference can be determined even when the quantities being compared remain unknown. The light-emission argument uses this possibility, but identifying the difference as a change in kinetic energy still requires an unchanged-offset premise."
+body: "subtract-what-you-do-not-know.md"
+anchors:
+  -
+    anchorId: "mass-energy/s0-p7"
+    kind: "source"
+    role: "The opposite pulses, both conservation equations, their subtraction and the unchanged additive constant in the printed argument."
+  -
+    anchorId: "mass-energy/s0-p11"
+    kind: "source"
+    role: "The source explicitly neglects terms of fourth and higher order before identifying the small-speed coefficient."
+  -
+    anchorId: "mass-energy/arg-me-import"
+    kind: "argument"
+    role: "The transformation of light energy is an admitted result from the relativity paper, not a consequence of the subtraction."
+  -
+    anchorId: "mass-energy/arg-me-constant-premise"
+    kind: "argument"
+    role: "The explanation distinguishes the unchanged-offset premise from what conservation alone establishes."
+  -
+    anchorId: "me-01"
+    kind: "instrument"
+    role: "Compare the light-energy accounts, rotate the emission axis and relax the unchanged-offset premise."
+  -
+    anchorId: "me-02"
+    kind: "instrument"
+    role: "Compare the exact energy difference with its quadratic approximation and limiting coefficient."
+  -
+    anchorId: "work-energy"
+    kind: "foundation"
+    role: "Connect energy of motion, work and the low-speed kinetic-energy expression."
+equations:
+  -
+    paper: "mass-energy"
+    equationId: "eq-model-me-symmetric-sum"
+  -
+    paper: "mass-energy"
+    equationId: "eq-model-me-rest-ledger"
+  -
+    paper: "mass-energy"
+    equationId: "eq-model-me-moving-ledger"
+  -
+    paper: "mass-energy"
+    equationId: "eq-model-me-ledger-subtraction"
+  -
+    paper: "mass-energy"
+    equationId: "eq-model-me-offset-before"
+  -
+    paper: "mass-energy"
+    equationId: "eq-model-me-offset-after"
+  -
+    paper: "mass-energy"
+    equationId: "eq-model-me-kinetic-drop-difference"
+  -
+    paper: "mass-energy"
+    equationId: "eq-model-me-kinetic-drop-low-speed"
+quotedValues: []
+transferExamples:
+  -
+    id: "subtract-what-you-do-not-know-common-sensor-offset"
+    domain: "Measurement: a common sensor offset"
+    example: "Suppose a sensor adds the same unknown offset to two readings of a changing quantity. Subtracting the first reading from the second cancels that offset and leaves the change, even though neither absolute value is known."
+    sharedMove: "Keep the unknown term in both accounts until the subtraction shows which part disappears. With two sensors, equal offsets need an additional reason; matching model numbers do not establish that their offsets are identical."
+    whereItStops: "Drift between readings or different offsets between sensors survive as an error in the difference. Subtraction also leaves random measurement noise, so cancelling a common offset does not remove every source of uncertainty."
+  -
+    id: "subtract-what-you-do-not-know-relative-timing"
+    domain: "Timing: compare arrivals on a shared clock"
+    example: "Two receivers record arrivals using one shared clock with an unknown time origin. Their arrival-time difference can be known without knowing that origin."
+    sharedMove: "The same additive time offset appears in both timestamps and cancels. The conclusion is about a difference of arrival times, not either absolute arrival time."
+    whereItStops: "Receivers using separate clocks do not automatically share an offset. Clock drift, changing transmission delays or an unknown difference between the clocks remains in the result; a second subtraction does not remove a term that is not common."
+  -
+    id: "subtract-what-you-do-not-know-matched-baseline"
+    domain: "Data analysis: subtract a matched baseline"
+    example: "Measure an instrument's background under stated conditions, then compare a signal measurement made under those same conditions. Removing the background can isolate a change hidden in a larger total."
+    sharedMove: "Write the signal-plus-background and background accounts before subtracting. Ask which terms are justified as common, rather than treating the label baseline as a guarantee."
+    whereItStops: "If the treatment changes the background, the subtraction combines the signal with that background change. A baseline measured under different conditions cannot repair this missing information merely by being subtracted."
+limits:
+  - "This is a contemporary reading of the arguments. It does not reconstruct a checklist that Einstein followed."
+  - "These examples do not claim that scientific discovery has one algorithm."
+  - "The body's absolute energies remain symbolic. The argument does not insert a mass-energy relation as an initial value."
+  - "The light-energy transformation and conservation in both inertial frames are admitted premises. Interpreting the subtraction as a kinetic-energy change separately assumes that the additive offset remains unchanged."
+  - "The mass comparison uses the low-speed coefficient. A finite-speed quadratic approximation is not the exact energy difference."
+  - "The account of the Ives and Stachel–Torretti disagreement follows the edition's sourced historical note and the abstracts it records. It does not adjudicate their full arguments."
+citations:
+  - "ap-18-639"
+  - "ap-17-891"
+  - "cit-ives-1952"
+  - "cit-stachel-torretti-1982"
+reviewRecordIds: []
+related:
+  - "ask-what-must-stay-unchanged"
+  - "what-a-measurement-means"
+  - "change-what-you-hold-fixed"

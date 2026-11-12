@@ -1,0 +1,101 @@
+schemaVersion: 1
+kind: "essay"
+slug: "ask-what-must-stay-unchanged"
+number: 6
+title: "Ask what must stay unchanged"
+label: "A contemporary methodological reading, not Einstein's method."
+r0Summary: "Changing an observer changes coordinates and measured quantities while preserving the physical event being described. Requiring the same light-propagation law in both frames constrains the coordinate map, and keeping the same wave phase connects frequency change with aberration."
+body: "ask-what-must-stay-unchanged.md"
+anchors:
+  -
+    anchorId: "special-relativity/s3-p4"
+    kind: "source"
+    role: "The source asks for the coordinate and time relations describing the same event in the moving system."
+  -
+    anchorId: "special-relativity/s3-p5"
+    kind: "source"
+    role: "The paper invokes the homogeneity of space and time when stating that the transformation must be linear."
+  -
+    anchorId: "special-relativity/s7-p2"
+    kind: "source"
+    role: "Transforming the same wave supplies both its changed frequency and its changed propagation direction."
+  -
+    anchorId: "special-relativity/arg-sr-lorentz-map"
+    kind: "argument"
+    role: "Follow the shorter two-light-direction construction beside the account of the paper's own derivation."
+  -
+    anchorId: "special-relativity/arg-sr-rod-events"
+    kind: "argument"
+    role: "Distinguish transformed endpoint events from the simultaneous endpoint selection needed to measure a rod."
+  -
+    anchorId: "sr-04"
+    kind: "instrument"
+    role: "Add light constraints, reciprocity, isotropy, the identity branch and the transverse condition one at a time."
+  -
+    anchorId: "sr-03"
+    kind: "instrument"
+    role: "Transform a fixed pair of events and inspect which events a length measurement actually requires."
+  -
+    anchorId: "sr-09"
+    kind: "instrument"
+    role: "Change the inertial description of one wave and inspect Doppler factor and aberration together."
+  -
+    anchorId: "frames-events"
+    kind: "foundation"
+    role: "Separate a physical event from its time and position coordinates."
+equations:
+  -
+    paper: "special-relativity"
+    equationId: "eq-model-sr-map-ansatz-position"
+  -
+    paper: "special-relativity"
+    equationId: "eq-model-sr-map-ansatz-time"
+  -
+    paper: "special-relativity"
+    equationId: "eq-model-sr-lorentz-factor"
+  -
+    paper: "special-relativity"
+    equationId: "eq-model-sr-map-position"
+  -
+    paper: "special-relativity"
+    equationId: "eq-model-sr-map-time"
+  -
+    paper: "special-relativity"
+    equationId: "eq-model-sr-doppler-factor"
+  -
+    paper: "special-relativity"
+    equationId: "eq-model-sr-aberration"
+quotedValues: []
+transferExamples:
+  -
+    id: "ask-what-must-stay-unchanged-loop-invariant"
+    domain: "Programming: a loop invariant"
+    example: "A program can maintain a stated relation between processed input, remaining input and accumulated output as a loop proceeds. Checking that relation at each step can reveal an incorrect update before the final answer is produced."
+    sharedMove: "Name the property that should survive a permitted change, then check the change against it. A proof also needs an initial state satisfying the property and a termination argument connecting it with the required result."
+    whereItStops: "Passing tests of an invariant establishes behaviour only for the tested cases. Even a proof about a program's model does not establish that the model represents a physical system or that its input assumptions hold."
+  -
+    id: "ask-what-must-stay-unchanged-conservation-check"
+    domain: "Simulation: account for conserved energy"
+    example: "For a model of an isolated system, compare its total energy before and after a numerical step. If the boundary admits energy flow or external work, include that transfer in the balance instead of expecting the internal total to stay fixed."
+    sharedMove: "Preserve the quantity required by the model while changing its numerical description. A failure points to a numerical or accounting problem, provided the conservation claim and system boundary were appropriate."
+    whereItStops: "An algorithm can conserve total energy while producing inaccurate trajectories or phase evolution. Conservation is one check, not a proof of accuracy, and conserving a quantity the model does not conserve would be the wrong requirement."
+  -
+    id: "ask-what-must-stay-unchanged-dimensional-analysis"
+    domain: "Modelling: change the units"
+    example: "Re-express the same physical relation using different units of length, mass and time. Its physical predictions should remain the same even though the numerical values change."
+    sharedMove: "Require the terms in a relation to transform consistently under a change of units. This can rule out proposed expressions whose dimensions cannot agree."
+    whereItStops: "Dimensional consistency leaves dimensionless coefficients and functions of dimensionless groups undetermined. A dimensionally consistent relation can still be physically wrong or outside its domain."
+limits:
+  - "This is a contemporary reading of the arguments. It does not reconstruct a checklist that Einstein followed."
+  - "These examples do not claim that scientific discovery has one algorithm."
+  - "The coordinate construction is a pedagogical reconstruction using the stated light constraints, inertial assumptions and symmetries. It is not a claim about Einstein's private sequence of discovery."
+  - "The light-speed postulate and the principle of relativity are assumptions of the construction. Checking the derived transformation against them does not independently establish their empirical truth."
+  - "The longitudinal construction requires reciprocity, spatial isotropy and the branch continuous with the identity; light along the motion alone leaves a scale undetermined."
+  - "The discussion concerns inertial frames in the stated flat-space model. It does not extend the same coordinate formulas to arbitrary acceleration or gravitation."
+citations:
+  - "ap-17-891"
+reviewRecordIds: []
+related:
+  - "subtract-what-you-do-not-know"
+  - "what-a-measurement-means"
+  - "change-what-you-hold-fixed"
