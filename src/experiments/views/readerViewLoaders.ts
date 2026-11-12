@@ -44,6 +44,9 @@ import {
   Me01ClarificationView,
   Me02ClarificationView,
   Me03ClarificationView,
+  ShelfFizeauClarificationView,
+  ShelfMaxwellGalileanClarificationView,
+  ShelfMichelsonMorleyClarificationView,
   Sr01ClarificationView,
   Sr02ClarificationView,
   Sr03ClarificationView,
@@ -93,6 +96,11 @@ export const READER_VIEW_LOADERS: ViewLoaders = Object.freeze({
   "me-01": () => Promise.resolve({ default: Me01ClarificationView }),
   "me-02": () => Promise.resolve({ default: Me02ClarificationView }),
   "me-03": () => Promise.resolve({ default: Me03ClarificationView }),
+  "shelf-fizeau": () => Promise.resolve({ default: ShelfFizeauClarificationView }),
+  "shelf-maxwell-galilean": () =>
+    Promise.resolve({ default: ShelfMaxwellGalileanClarificationView }),
+  "shelf-michelson-morley": () =>
+    Promise.resolve({ default: ShelfMichelsonMorleyClarificationView }),
   "sr-01": () => Promise.resolve({ default: Sr01ClarificationView }),
   "sr-02": () => Promise.resolve({ default: Sr02ClarificationView }),
   "sr-03": () => Promise.resolve({ default: Sr03ClarificationView }),

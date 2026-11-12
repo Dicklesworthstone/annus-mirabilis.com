@@ -92,10 +92,12 @@ function frequencyInput() {
   // installed by SliderField, as the existing laboratory integration tests do.
   const key = Object.keys(input).find((candidate) => candidate.startsWith("__reactProps$"));
   const props = key
-    ? (input as unknown as Record<
-        string,
-        { onChange(event: unknown): void; onBlur(event: unknown): void }
-      >)[key]
+    ? (
+        input as unknown as Record<
+          string,
+          { onChange(event: unknown): void; onBlur(event: unknown): void }
+        >
+      )[key]
     : undefined;
   assert.ok(props);
   return { input, props };

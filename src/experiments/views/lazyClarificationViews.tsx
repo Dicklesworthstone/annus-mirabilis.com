@@ -54,6 +54,15 @@ const LightThreadChunk = lazy(() => import("./lightThreadView.tsx"));
 const Me01Chunk = lazy(() => import("./me01View.tsx"));
 const Me02Chunk = lazy(() => import("./me02View.tsx"));
 const Me03Chunk = lazy(() => import("./me03View.tsx"));
+const ShelfMichelsonMorleyChunk = lazy(() =>
+  import("./shelfViews.tsx").then((views) => ({ default: views.ShelfMichelsonMorleyView })),
+);
+const ShelfFizeauChunk = lazy(() =>
+  import("./shelfViews.tsx").then((views) => ({ default: views.ShelfFizeauView })),
+);
+const ShelfMaxwellGalileanChunk = lazy(() =>
+  import("./shelfViews.tsx").then((views) => ({ default: views.ShelfMaxwellGalileanView })),
+);
 const Sr01Chunk = lazy(() => import("./sr01View.tsx"));
 const Sr02Chunk = lazy(() => import("./sr02View.tsx"));
 const Sr03Chunk = lazy(() => import("./sr03View.tsx"));
@@ -209,4 +218,16 @@ export function Sr12ClarificationView(props: ExperimentViewProps) {
 
 export function Sr13ClarificationView(props: ExperimentViewProps) {
   return <Sr13Chunk {...props} />;
+}
+
+export function ShelfMichelsonMorleyClarificationView(props: ExperimentViewProps) {
+  return <ShelfMichelsonMorleyChunk {...props} />;
+}
+
+export function ShelfFizeauClarificationView(props: ExperimentViewProps) {
+  return <ShelfFizeauChunk {...props} />;
+}
+
+export function ShelfMaxwellGalileanClarificationView(props: ExperimentViewProps) {
+  return <ShelfMaxwellGalileanChunk {...props} />;
 }

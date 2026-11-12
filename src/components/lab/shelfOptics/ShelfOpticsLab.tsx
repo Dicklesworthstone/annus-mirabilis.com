@@ -10,17 +10,16 @@ import {
   type ShelfId,
   shelfDraft,
 } from "../../../experiments/shelfOptics/definition.ts";
-import { evaluateShelfOptics } from "../../../experiments/shelfOptics/evaluation.ts";
 import {
   type FizeauRecord,
   fizeauSourceParameters,
 } from "../../../experiments/shelfOptics/fizeau.ts";
-import {
-  applyShelfParameters,
-  primaryShelfMetrics,
-  type ShelfReport,
-  shelfSnapshot,
-} from "../../../experiments/shelfOptics/state.ts";
+import { createShelfOpticsSession } from "../../../experiments/shelfOptics/session.ts";
+import { primaryShelfMetrics, type ShelfReport } from "../../../experiments/shelfOptics/state.ts";
+import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
+import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
+import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
+import labDigests from "../../../generated/lab-source-digests.json";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { LabMargin } from "../LabMargin.tsx";
 import { readablePowers } from "../presentation.ts";
@@ -156,10 +155,12 @@ const PRIMARY_FIELDS: Readonly<Record<ShelfId, readonly string[]>> = {
 };
 
 export function ShelfOpticsLab({
+  instanceId,
   example,
   laterEquation,
   fizeau,
 }: {
+  instanceId?: string | undefined;
   example: ShelfReport;
   laterEquation?: ReactNode;
   fizeau?: FizeauRecord | undefined;
@@ -167,13 +168,20 @@ export function ShelfOpticsLab({
   const instance = useId();
   const definition = SHELF_DEFINITIONS[example.parameters.instrumentId];
   const caption = SHELF_CAPTIONS[example.parameters.instrumentId];
-  const [initial] = useState(() => shelfSnapshot(example));
-  const [accepted, setAccepted] = useState(initial);
-  // Earned per state (am-inst-execution-labels-5ywv): the build's worked example until a reader's
-  // settings are accepted, a host calculation after. There is no instance store here, so the test is
-  // identity with the snapshot the lab started from, as in the reasoning workbenches (12a926b9).
-  const executionKind = accepted === initial ? "static-example" : "host-accepted";
-  const [draft, setDraft] = useState<ShelfDraft>(() => shelfDraft(example.parameters));
+  const session = useRetainedSession(
+    {
+      experimentId: example.parameters.instrumentId,
+      instanceId: instanceId ?? `shelf-${instance}`,
+      sourceDigest: labDigests[example.parameters.instrumentId],
+    },
+    (retainedId) => createShelfOpticsSession(retainedId, example),
+  );
+  const view = useInstrumentView(session);
+  const accepted = view.comparison;
+  const executionKind = accepted.revision === 0 ? "static-example" : "host-accepted";
+  const [draft, setDraft] = useState<ShelfDraft>(() =>
+    shelfDraft(session.getSnapshot().comparison.report.parameters),
+  );
   const [ready, setReady] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [error, setError] = useState("");
@@ -192,7 +200,7 @@ export function ShelfOpticsLab({
   }
 
   function apply(raw: unknown) {
-    const result = applyShelfParameters(accepted, raw, evaluateShelfOptics);
+    const result = session.apply(raw);
     if (result.kind === "refused") {
       setError(result.message);
       return;
@@ -208,7 +216,6 @@ export function ShelfOpticsLab({
         : null,
     );
     setPrediction("");
-    setAccepted(result.snapshot);
     setDraft(shelfDraft(result.snapshot.report.parameters));
     setDirty(false);
     setError("");
@@ -236,6 +243,7 @@ export function ShelfOpticsLab({
         </label>
         <input
           id={`${instance}-${field.key}`}
+          name={field.key}
           type="text"
           inputMode="text"
           maxLength={80}
@@ -259,13 +267,7 @@ export function ShelfOpticsLab({
       className="shelf-lab laboratory"
       aria-labelledby={`${instance}-title`}
       data-instrument-id={report.parameters.instrumentId}
-      data-instance-id={instance}
-      data-run-id={`${instance}-${accepted.revision}`}
-      data-snapshot-version={accepted.revision}
-      data-input-revision={accepted.revision}
-      data-accepted-input-revision={accepted.revision}
-      // Evaluated synchronously on an accepted apply, so nothing is ever pending.
-      data-pending="false"
+      {...instrumentRootAttributes(view)}
       {...executionLabelAttributes(executionKind)}
       data-calibration="modern-si-2019"
       data-ready={String(ready)}
@@ -320,6 +322,7 @@ export function ShelfOpticsLab({
                 <label className="shelf-switch" key={field.key}>
                   <input
                     type="checkbox"
+                    name={field.key}
                     checked={draft[field.key] === true}
                     onChange={(event) => edit(field.key, event.currentTarget.checked)}
                   />

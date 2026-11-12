@@ -192,10 +192,10 @@ export function useExperimentView<T = ExperimentView>(
  * and the typechecker is what decides whether a given store belongs here. A store whose snapshot
  * is not an `ExperimentView` is refused at the call site instead of being adapted.
  */
-export type InstrumentViewSource = Readonly<{
+export type InstrumentViewSource<T extends ExperimentView = ExperimentView> = Readonly<{
   subscribe: (onStoreChange: () => void) => () => void;
-  getSnapshot: () => ExperimentView;
-  getServerSnapshot: () => ExperimentView;
+  getSnapshot: () => T;
+  getServerSnapshot: () => T;
 }>;
 
 /**
@@ -225,7 +225,7 @@ export type InstrumentViewSource = Readonly<{
  * so none of them can paint one. `noDirectInstrumentSubscription.test.ts` lists all seven by name
  * with that reason and refuses an eighth.
  */
-export function useInstrumentView(source: InstrumentViewSource): ExperimentView {
+export function useInstrumentView<T extends ExperimentView>(source: InstrumentViewSource<T>): T {
   const view = useSyncExternalStore(source.subscribe, source.getSnapshot, source.getServerSnapshot);
   usePaintedMark(view);
   return view;
