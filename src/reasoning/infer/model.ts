@@ -286,6 +286,13 @@ export function evaluateCamera(
   );
   let estimate: { D: number; sigma2: number; physical: boolean } | null = null;
   if (method === "second-interval") {
+    if (
+      evidence.increments.length < 6 * evidence.d ||
+      evidence.increments.length % (2 * evidence.d) !== 0
+    )
+      return inferenceRefusal(
+        "A second-spacing comparison needs an even count of at least six increments. No observations have been removed or replaced.",
+      );
     // Pair adjacent increments from the SAME positions. No regeneration and no new random draw.
     const coarse = new Float64Array(evidence.increments.length / 2);
     for (let i = 0; i < coarse.length / evidence.d; i++)

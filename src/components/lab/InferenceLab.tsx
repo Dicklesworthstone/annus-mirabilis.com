@@ -39,6 +39,7 @@ import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { BM07_READER_WEAVE } from "../../reader/weave/inferencePassages.ts";
 import { SessionResultWeave } from "../../reader/weave/SessionResultWeave.tsx";
+import { AcceptedEvidenceWorkbench } from "../../reasoning/infer/AcceptedEvidenceWorkbench.tsx";
 import {
   InferenceCoverage,
   InferenceFamily,
@@ -900,6 +901,11 @@ export function InferenceLab({
         </div>
       </section>
       <div {...gate.response}>
+        <AcceptedEvidenceWorkbench
+          snapshot={snapshot}
+          sourceDigest={example.sourceDigest}
+          ready={ready && gate.open}
+        />
         <SessionResultWeave
           session={session}
           binding={BM07_READER_WEAVE}

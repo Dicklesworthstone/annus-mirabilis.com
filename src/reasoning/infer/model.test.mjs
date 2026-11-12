@@ -58,7 +58,7 @@ test("full unsigned 64-bit seeds stay exact and malformed projections are reject
     { schemaVersion: 2 },
     { dt: 0 },
     { d: 3 },
-    { increments: [1, 2] },
+    { increments: [] },
     { increments: [...ideal.increments, 1] },
     { increments: [NaN, ...ideal.increments.slice(1)] },
     { exposure: 0.1 },

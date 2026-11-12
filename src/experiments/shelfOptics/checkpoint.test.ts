@@ -4,10 +4,7 @@ import type { LabReference } from "../../reader/stack/stackStore.ts";
 import { decodeTapePermalink, encodeTapePermalink } from "../permalink/codec.ts";
 import { restoreTape, tapeForSettings } from "../permalink/sessionTape.ts";
 import { checkpointJson } from "../store/instanceCheckpoint.ts";
-import {
-  readerCheckpointDigest,
-  type ReaderCheckpointArchive,
-} from "../store/readerCheckpoint.ts";
+import { type ReaderCheckpointArchive, readerCheckpointDigest } from "../store/readerCheckpoint.ts";
 import { SHELF_DEFINITIONS, SHELF_IDS, type ShelfId, type ShelfParameters } from "./definition.ts";
 import { evaluateShelfOptics } from "./evaluation.ts";
 import { createShelfOpticsSession } from "./session.ts";

@@ -81,6 +81,7 @@ export function createShelfOpticsSession(
   };
   const modelIds = comparison.report.rows.map((row) => row.modelId);
   const primaryMetric = comparison.report.primaryMetric;
+  const primaryQuantityId = initialOutput.quantityId;
   const store = createInstanceStore({
     experimentId: comparison.report.parameters.instrumentId,
     instanceId,
@@ -88,7 +89,7 @@ export function createShelfOpticsSession(
     parameterClasses: Object.fromEntries(
       Object.keys(comparison.report.parameters).map((key) => [key, "input" as ParameterClass]),
     ),
-    outputs: { [initialOutput.quantityId]: contract },
+    outputs: { [primaryQuantityId]: contract },
   });
   let cachedStoreView: ExperimentView | undefined;
   let cachedView: ShelfView | undefined;
@@ -133,7 +134,7 @@ export function createShelfOpticsSession(
     const output = comparisonOutput(report);
     return output &&
       report.primaryMetric === primaryMetric &&
-      output.quantityId === initialOutput.quantityId &&
+      output.quantityId === primaryQuantityId &&
       output.unit === contract.unit &&
       output.ownerId === contract.ownerId &&
       report.rows.length === modelIds.length &&

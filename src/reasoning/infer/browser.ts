@@ -1,71 +1,70 @@
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
+import type { InferenceEvidence } from "./evidence.ts";
 import { RADIUS_DEFAULTS, RADIUS_EXAMPLE } from "./model.ts";
 import { type InferenceExample, renderCameraResults, renderRadiusResults } from "./render.ts";
 import { createCameraInferenceSession, createRadiusSession } from "./session.ts";
 
-/** Scoped enhancement. No observation regeneration, persistence, URL writes or requests. */
-export function mountInferenceWorkbench(
-  root: HTMLElement,
-  example: InferenceExample,
-  uid: string,
-): () => void {
-  const radius = createRadiusSession(`${uid}-radius`, example.ideal);
-  const camera = createCameraInferenceSession(`${uid}-camera`, example.camera);
-  function required<T extends Element>(selector: string): T {
-    const element = root.querySelector<T>(selector);
-    if (!element) throw new TypeError(`Missing inference control: ${selector}.`);
-    return element;
+function required<T extends Element>(root: HTMLElement, selector: string): T {
+  const element = root.querySelector<T>(selector);
+  if (!element) throw new TypeError(`Missing inference control: ${selector}.`);
+  return element;
+}
+function enableFields(root: HTMLElement) {
+  const fieldsets = [...root.querySelectorAll<HTMLFieldSetElement>("fieldset")];
+  fieldsets.forEach((fieldset) => {
+    fieldset.disabled = false;
+  });
+  return () => {
+    fieldsets.forEach((fieldset) => {
+      fieldset.disabled = true;
+    });
+  };
+}
+function announce(section: HTMLElement, message: string, error = false) {
+  const node = section.querySelector<HTMLElement>(
+    error ? "[data-infer-error]" : "[data-infer-status]",
+  );
+  if (node) {
+    node.textContent = message;
+    if (error) node.hidden = !message;
   }
-  const radiusRoot = required<HTMLElement>('[data-infer-case="radius"]');
-  const cameraRoot = required<HTMLElement>('[data-infer-case="camera"]');
-  const form = required<HTMLFormElement>("[data-radius-form]");
+}
+function refresh(section: HTMLElement, snapshot: AcceptedSnapshot, html: string) {
+  const results = section.querySelector<HTMLElement>("[data-infer-results]");
+  if (!results) throw new TypeError("Missing inference result panel.");
+  const open = [
+    ...results.querySelectorAll<HTMLDetailsElement>("details[open][data-preserve-detail]"),
+  ].map((node) => node.dataset.preserveDetail);
+  results.innerHTML = html;
+  results.querySelectorAll<HTMLDetailsElement>("[data-preserve-detail]").forEach((node) => {
+    node.open = open.includes(node.dataset.preserveDetail);
+  });
+  section.dataset.executionLabel = "host";
+  section.dataset.runId = snapshot.runId;
+  section.dataset.snapshotVersion = String(snapshot.snapshotVersion);
+  section.dataset.inputRevision = String(snapshot.revisions.input);
+  section.dataset.acceptedInputRevision = String(snapshot.revisions.input);
+  section.dataset.estimatorRevision = String(snapshot.revisions.estimator);
+  const label = section.querySelector<HTMLElement>("[data-infer-label]");
+  if (label) label.textContent = "Accepted inference · host calculation";
+  announce(section, "", true);
+}
+
+function mountRadiusCase(radiusRoot: HTMLElement, evidence: InferenceEvidence, uid: string) {
+  const radius = createRadiusSession(`${uid}-radius`, evidence);
+  const form = required<HTMLFormElement>(radiusRoot, "[data-radius-form]");
   const fields = new Map(
     [...form.querySelectorAll<HTMLInputElement>("[data-radius-field]")].map((input) => [
       input.name,
       input,
     ]),
   );
-  const draft = required<HTMLElement>("[data-radius-draft]");
-  const worked = required<HTMLButtonElement>("[data-radius-worked]");
-  const remove = required<HTMLButtonElement>("[data-radius-remove]");
-  const radios = [...root.querySelectorAll<HTMLInputElement>("[data-camera-information]")];
-  const fieldsets = [...root.querySelectorAll<HTMLFieldSetElement>("fieldset")];
-  if (fields.size !== 5 || radios.length !== 3)
-    throw new TypeError("Incomplete inference controls.");
-  fieldsets.forEach((fieldset) => {
-    fieldset.disabled = false;
-  });
-  root.dataset.ready = "true";
-  function announce(section: HTMLElement, message: string, error = false) {
-    const node = section.querySelector<HTMLElement>(
-      error ? "[data-infer-error]" : "[data-infer-status]",
-    );
-    if (node) {
-      node.textContent = message;
-      if (error) node.hidden = !message;
-    }
-  }
-  function refresh(section: HTMLElement, snapshot: AcceptedSnapshot, html: string) {
-    const results = section.querySelector<HTMLElement>("[data-infer-results]");
-    if (!results) throw new TypeError("Missing inference result panel.");
-    const open = [
-      ...results.querySelectorAll<HTMLDetailsElement>("details[open][data-preserve-detail]"),
-    ].map((node) => node.dataset.preserveDetail);
-    results.innerHTML = html;
-    results.querySelectorAll<HTMLDetailsElement>("[data-preserve-detail]").forEach((node) => {
-      node.open = open.includes(node.dataset.preserveDetail);
-    });
-    section.dataset.executionLabel = "host";
-    section.dataset.runId = snapshot.runId;
-    section.dataset.snapshotVersion = String(snapshot.snapshotVersion);
-    section.dataset.inputRevision = String(snapshot.revisions.input);
-    section.dataset.acceptedInputRevision = String(snapshot.revisions.input);
-    section.dataset.estimatorRevision = String(snapshot.revisions.estimator);
-    const label = section.querySelector<HTMLElement>("[data-infer-label]");
-    if (label) label.textContent = "Accepted inference · host calculation";
-    announce(section, "", true);
-  }
+  const draft = required<HTMLElement>(radiusRoot, "[data-radius-draft]");
+  const worked = required<HTMLButtonElement>(radiusRoot, "[data-radius-worked]");
+  const remove = required<HTMLButtonElement>(radiusRoot, "[data-radius-remove]");
+  if (fields.size !== 5) throw new TypeError("Incomplete inference controls.");
+  const disableFields = enableFields(radiusRoot);
   function numeric(name: string, factor: number) {
     const text = fields.get(name)?.value.trim() ?? "";
     return /^[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/u.test(text) ? Number(text) * factor : NaN;
@@ -149,6 +148,23 @@ export function mountInferenceWorkbench(
   const edit = () => {
     draft.hidden = false;
   };
+  form.addEventListener("submit", submit);
+  form.addEventListener("input", edit);
+  worked.addEventListener("click", useWorked);
+  remove.addEventListener("click", removeRadius);
+  return () => {
+    form.removeEventListener("submit", submit);
+    form.removeEventListener("input", edit);
+    worked.removeEventListener("click", useWorked);
+    remove.removeEventListener("click", removeRadius);
+    disableFields();
+  };
+}
+function mountCameraCase(cameraRoot: HTMLElement, evidence: InferenceEvidence, uid: string) {
+  const camera = createCameraInferenceSession(`${uid}-camera`, evidence);
+  const radios = [...cameraRoot.querySelectorAll<HTMLInputElement>("[data-camera-information]")];
+  if (radios.length !== 3) throw new TypeError("Incomplete inference controls.");
+  const disableFields = enableFields(cameraRoot);
   const change = (event: Event) => {
     const target = event.currentTarget;
     if (!(target instanceof HTMLInputElement)) return;
@@ -175,24 +191,52 @@ export function mountInferenceWorkbench(
         : `${target.value === "covariance" ? "Neighboring covariance" : "A second spacing"} admitted. Point estimates updated without a confidence interval; observations are unchanged.`,
     );
   };
-  form.addEventListener("submit", submit);
-  form.addEventListener("input", edit);
-  worked.addEventListener("click", useWorked);
-  remove.addEventListener("click", removeRadius);
   radios.forEach((radio) => {
     radio.addEventListener("change", change);
   });
   return () => {
-    form.removeEventListener("submit", submit);
-    form.removeEventListener("input", edit);
-    worked.removeEventListener("click", useWorked);
-    remove.removeEventListener("click", removeRadius);
     radios.forEach((radio) => {
       radio.removeEventListener("change", change);
     });
-    fieldsets.forEach((fieldset) => {
-      fieldset.disabled = true;
-    });
+    disableFields();
+  };
+}
+
+/** Scoped enhancement. No observation regeneration, persistence, URL writes or requests. */
+export function mountInferenceWorkbench(
+  root: HTMLElement,
+  example: InferenceExample,
+  uid: string,
+): () => void {
+  const disposeRadius = mountRadiusCase(
+    required(root, '[data-infer-case="radius"]'),
+    example.ideal,
+    uid,
+  );
+  const disposeCamera = mountCameraCase(
+    required(root, '[data-infer-case="camera"]'),
+    example.camera,
+    uid,
+  );
+  root.dataset.ready = "true";
+  return () => {
+    disposeRadius();
+    disposeCamera();
+    root.dataset.ready = "false";
+  };
+}
+export function mountInferenceCase(
+  root: HTMLElement,
+  evidence: InferenceEvidence,
+  uid: string,
+): () => void {
+  const dispose =
+    evidence.kind === "ideal"
+      ? mountRadiusCase(required(root, '[data-infer-case="radius"]'), evidence, uid)
+      : mountCameraCase(required(root, '[data-infer-case="camera"]'), evidence, uid);
+  root.dataset.ready = "true";
+  return () => {
+    dispose();
     root.dataset.ready = "false";
   };
 }

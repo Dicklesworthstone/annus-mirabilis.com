@@ -1,7 +1,7 @@
 import { parseResult } from "../../experiments/results/codec.ts";
 import { parseU64 } from "../../physics/reference/philox.ts";
 
-/** A bounded projection of BUILT-IN observations. Generator truth is not an inverse input. */
+/** A bounded projection of synthetic observations, prepared or explicitly pinned. Generator truth is not an inverse input. */
 export type InferenceEvidence = Readonly<{
   schemaVersion: 1;
   kind: "ideal" | "camera";
@@ -73,15 +73,15 @@ export function parseInferenceEvidence(input: unknown): InferenceEvidence {
     data.exposure < 0 ||
     data.exposure > (data.dt as number) ||
     !Array.isArray(data.increments) ||
-    data.increments.length < 6 * data.d ||
+    data.increments.length < (data.kind === "camera" ? 3 : 1) * data.d ||
     data.increments.length > 6000 ||
-    data.increments.length % (2 * data.d) !== 0 ||
+    data.increments.length % data.d !== 0 ||
     Array.from(data.increments).some(
       (value) => typeof value !== "number" || !Number.isFinite(value),
     )
   )
     throw new TypeError(
-      "Evidence requires bounded, paired, finite observations on a declared camera grid.",
+      "Evidence requires bounded, finite observations on a declared camera grid.",
     );
   if (data.kind === "ideal" && (data.exposure !== 0 || data.knownDrift !== 0))
     throw new TypeError("The ideal inverse case requires unblurred, known-zero-drift increments.");

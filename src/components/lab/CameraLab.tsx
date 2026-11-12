@@ -37,6 +37,7 @@ import { instrumentRootAttributes } from "../../experiments/store/identityAttrib
 import { useRetainedSession } from "../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
+import { AcceptedEvidenceWorkbench } from "../../reasoning/infer/AcceptedEvidenceWorkbench.tsx";
 import { CameraMomentTable } from "./CameraMomentTable.tsx";
 import { CameraCoverage, CameraPath, CameraSpeed } from "./CameraPlots.tsx";
 import { InferenceInterval as Interval, InferenceValue as Value } from "./InferencePlots.tsx";
@@ -670,6 +671,13 @@ export function CameraLab({
         </div>
       </div>
       {/* The how-to follows the instrument; above it, it came between a phone's heading and the result. */}
+      <div {...gate.response}>
+        <AcceptedEvidenceWorkbench
+          snapshot={snapshot}
+          sourceDigest={example.sourceDigest}
+          ready={ready && gate.open}
+        />
+      </div>
       <p>
         A noisy image is not a new physical trajectory. Keep one wandering particle and change how
         it is observed. Then compare the estimates that ignore camera error with a procedure that

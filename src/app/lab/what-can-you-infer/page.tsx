@@ -83,9 +83,11 @@ export default function InferenceWorkbenchPage() {
         {/* This paragraph opened the page, 168px between a phone's heading and the first case; the
             lead now says the data are synthetic, and the detail is here. */}
         <p>
-          The two datasets are built in: ideal displacements and camera observations. This workbench
-          does not import your current laboratory state. Changing an information choice neither
-          resamples the observations nor changes the physical model.
+          The two datasets on this page are built in: ideal displacements and camera observations.
+          To explore your current synthetic record, use “Explore accepted observations” in the ideal
+          inference or camera laboratory. It opens this same workbench beside the laboratory and
+          pins the complete accepted record until you explicitly replace it. Changing an information
+          choice neither resamples the observations nor changes the physical model.
         </p>
         <p>
           The first case assumes independent Gaussian increments and known zero drift. Its
