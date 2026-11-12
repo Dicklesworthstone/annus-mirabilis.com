@@ -8,7 +8,7 @@ isTeachingSequence: true
 modelIdentity:
   modelId: sr-03
   modelVersion: "1"
-  artifactDigest: "host:sha256:bdda642ab70491ecff64bb23ae64be81001e4e45d4a0bdf8079d4bad8a9604d1"
+  artifactDigest: "host:sha256:65825ef842ad9097043627254a893c42ade986114ee03788c8f23806afa5f43b"
 constantSetId: modern-si-2019
 seed: "1905"
 streamVersion: 1
