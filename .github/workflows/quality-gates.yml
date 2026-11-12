@@ -62,7 +62,7 @@ jobs:
         id: laboratory-types
         run: bun run check:types
 
-      - name: Run laboratory and reader regression tests
+      - name: Run laboratory, reader and essay regression tests
         if: success() || steps.laboratory-types.outcome == 'failure'
         run: >-
           bun test --isolate --timeout 60000
@@ -71,6 +71,10 @@ jobs:
           src/testing/readerViewLoaders.integration.test.tsx
           src/experiments/shelfOptics
           src/reader/weave
+          src/content/essays/essays.test.ts
+          src/search/essayDocuments.test.ts
+          src/components/essays/EssayReading.test.tsx
+          src/discovery/tours/studyTours.test.ts
 
       - name: Run node-only subprocess tests
         run: bun run test:node
