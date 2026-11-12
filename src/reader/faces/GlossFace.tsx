@@ -16,6 +16,9 @@ import type {
 } from "../../content/schemas/source.ts";
 import { FaceChooser } from "../FaceChooser.tsx";
 import type { FaceAvailability } from "../faceAvailability.ts";
+import { PassageProjectionNavigation } from "../PassageProjectionNavigation.tsx";
+import { PassageProjections, projectionParagraphLabel } from "../PassageProjections.tsx";
+import type { PassageProjection } from "../projections/passageProjections.ts";
 import { AlignmentController } from "./AlignmentController.tsx";
 import { buildAlignmentIndex } from "./alignment.ts";
 import { claimedDisplayIds } from "./displayClaims.ts";
@@ -45,6 +48,7 @@ export interface GlossEntryLink {
 
 export interface GlossFaceProps {
   readonly aliases?: SourceAliasMap | undefined;
+  readonly projections?: Readonly<Record<string, PassageProjection>> | undefined;
   /** Which faces have content, derived by PaperPage from the same counts it dispatches on. */
   readonly availability?: Readonly<Partial<Record<FaceId, FaceAvailability>>> | undefined;
   readonly paper: Paper;
@@ -101,6 +105,7 @@ export function GlossFace({
   unglossedSections = [],
   section,
   aliases = {},
+  projections,
 }: GlossFaceProps) {
   // If no source blocks exist for the paper, render an honest fallback
   if (!blocks || blocks.length === 0) {
@@ -254,6 +259,7 @@ export function GlossFace({
 
       {/* The chooser every face uses, with this face the current tab (FaceChooser.tsx). */}
       <FaceChooser paperId={paper.slug} current="gloss" availability={availability} />
+      <PassageProjectionNavigation />
 
       {/* The gloss a section at a time (dispatch 254): real links, so it works without JavaScript. */}
       {section === undefined ? (
@@ -357,18 +363,29 @@ export function GlossFace({
                       {displaysIn(block, sp.span, placed).map(renderEquation)}
                     </Fragment>
                   ))}
+                  <PassageProjections
+                    projection={projections?.[block.id]}
+                    anchor={block.id}
+                    label={projectionParagraphLabel(block.id)}
+                  />
                 </div>
               );
             }
 
             // Paragraph without sentence spans: fallback to SourceBlock
             return (
-              <SourceBlockComponent
-                key={block.id}
-                block={block}
-                paperSlug={paper.slug}
-                editorialNotes={editorialNotes}
-              />
+              <Fragment key={block.id}>
+                <SourceBlockComponent
+                  block={block}
+                  paperSlug={paper.slug}
+                  editorialNotes={editorialNotes}
+                />
+                <PassageProjections
+                  projection={projections?.[block.id]}
+                  anchor={block.id}
+                  label={projectionParagraphLabel(block.id)}
+                />
+              </Fragment>
             );
           }
 
@@ -415,6 +432,11 @@ export function GlossFace({
                       )}
                     </span>
                   )}
+                  <PassageProjections
+                    projection={projections?.[fn.id]}
+                    anchor={sp && glossMap.has(sp.id) ? sp.id : `footnote-${fn.id}`}
+                    label="source footnote"
+                  />
                 </li>
               );
             })}

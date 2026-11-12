@@ -32,6 +32,39 @@ describe("GlossFace component rendering and interactions", () => {
     expect(html).toContain("Show the reasoning words");
   });
 
+  test("gloss paragraphs expose their authored explanation and source projections without JavaScript", () => {
+    const block = FIXTURE_MASS_ENERGY_SOURCE_BLOCKS.find((item) => item.kind === "paragraph");
+    expect(block).toBeDefined();
+    if (!block) return;
+    const html = renderToStaticMarkup(
+      <GlossFace
+        {...defaultProps}
+        projections={{
+          [block.id]: {
+            german: [
+              {
+                href: `/papers/mass-energy/view/german/#${block.id}`,
+                label: "The source paragraph",
+              },
+            ],
+            english: [],
+            explanation: [
+              {
+                href: "/papers/mass-energy/#arg-me-import",
+                label: "The imported light-energy result",
+              },
+            ],
+            instrument: [],
+            journey: [],
+          },
+        }}
+      />,
+    );
+    expect(html).toContain(`data-passage-projections="${block.id}"`);
+    expect(html).toContain('href="/papers/mass-energy/#arg-me-import"');
+    expect(html).toContain("The imported light-energy result");
+  });
+
   test("entry-link slot: empty slot renders nothing, configured slot renders real link with return caption", () => {
     // Empty slot
     const htmlEmpty = renderToStaticMarkup(<GlossFace {...defaultProps} entryLink={undefined} />);

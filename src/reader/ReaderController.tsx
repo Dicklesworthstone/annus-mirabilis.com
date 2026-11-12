@@ -34,7 +34,10 @@ import {
   type ReaderState,
   restoreReaderState,
 } from "./navigation/state";
-import { mountPassageProjectionNavigation } from "./passageProjectionNavigation.ts";
+import {
+  discardSupersededPassageProjectionReturn,
+  mountPassageProjectionNavigation,
+} from "./passageProjectionNavigation.ts";
 import { loadStepsBody, unmountStepsConstructions } from "./stepsBody.ts";
 import "./actions/kindRegistration.ts";
 import "../equations/missingStep/register.ts";
@@ -105,9 +108,16 @@ export function ReaderController(props: Props) {
     } catch {
       /* Reading works without storage. */
     }
-    let state =
-      restoreReaderState(history.state?.annusReader?.state, registry) ??
-      parseReaderLocation(location.search, location.hash, registry, stored);
+    const arrivalPath = location.pathname + location.search;
+    const stateAtLocation = (storedDetail: string | null = null) => {
+      // An aborted departure may leave a saved reader state for the previous fragment. Reject
+      // that return before save() can normalize the newer address back to the old argument.
+      const superseded = discardSupersededPassageProjectionReturn(root);
+      const saved = restoreReaderState(history.state?.annusReader?.state, registry);
+      const current = parseReaderLocation(location.search, location.hash, registry, storedDetail);
+      return saved && superseded ? { ...saved, anchor: current.anchor } : (saved ?? current);
+    };
+    let state = stateAtLocation(stored);
     let index = Number.isSafeInteger(history.state?.annusReader?.index)
       ? (history.state.annusReader.index as number)
       : 0;
@@ -580,9 +590,7 @@ export function ReaderController(props: Props) {
       // Capture the navigation target before normalizing the reader-owned settings.
       const openSearchAtPop = location.search;
       const previous = state,
-        restored =
-          restoreReaderState(history.state?.annusReader?.state, registry) ??
-          parseReaderLocation(location.search, location.hash, registry);
+        restored = stateAtLocation();
       state = { ...restored, detail: state.detail };
       index = Number.isSafeInteger(history.state?.annusReader?.index)
         ? history.state.annusReader.index
@@ -650,10 +658,17 @@ export function ReaderController(props: Props) {
     // same hold follows any steps loaded above it. A second holder would fight this one's offset.
     const stopProjectionNavigation = mountPassageProjectionNavigation(root, window, {
       hold: placeHold,
+      arrivalPath,
       onDeparture(anchor) {
         if (!registry.anchors.includes(anchor)) return;
         state = { ...state, anchor };
         urlNamesPassage = true;
+      },
+      onLocationChange(anchor) {
+        if (!registry.anchors.includes(anchor)) return;
+        state = { ...state, anchor };
+        urlNamesPassage = true;
+        save();
       },
     });
     queueMicrotask(() => openFromSearch(document, openSearchOnMount));
@@ -785,6 +800,7 @@ export function ReaderController(props: Props) {
                 <a
                   key={id}
                   href={`/papers/${props.registry.paperId}/view/${id}/`}
+                  data-reader-face-link={id}
                   data-face-state={props.availability?.[id] ?? undefined}
                 >
                   {FACE_REGISTRY[id].label}

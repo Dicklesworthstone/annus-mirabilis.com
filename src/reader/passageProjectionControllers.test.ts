@@ -4,7 +4,10 @@ import { act, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { installDom, uninstallDom } from "../testing/reactDom.ts";
 import { FaceSwitchAnchor } from "./faces/FaceSwitchAnchor.tsx";
-import { mountPassageProjectionNavigation } from "./passageProjectionNavigation.ts";
+import {
+  mountPassageProjectionNavigation,
+  pendingPassageProjectionReturn,
+} from "./passageProjectionNavigation.ts";
 import { ReaderController } from "./ReaderController.tsx";
 
 let reactRoot: Root | null = null;
@@ -92,6 +95,26 @@ async function mountSource(root: HTMLElement) {
 }
 
 describe("projection navigation with the existing source-face owner", () => {
+  test("a cancelled departure loses its return ownership when the reader follows a newer fragment", async () => {
+    const { root, link, grow } = sourceFixture();
+    await mountSource(root);
+    stopProjection = mountPassageProjectionNavigation(root);
+    follow(link); // Test navigation is cancelled after the real departure has been recorded.
+    expect(pendingPassageProjectionReturn(root)?.anchor).toBe("s0-p7");
+    window.history.replaceState(window.history.state, "", "#s0-p1-s1");
+    expect(pendingPassageProjectionReturn(root)).toBeNull();
+    window.dispatchEvent(new Event("hashchange"));
+    expect(window.history.state.passageProjectionReturn).toBeUndefined();
+    window.dispatchEvent(new Event("scroll"));
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    expect(window.history.state.anchor).toBe("s0-p1-s1");
+    grow();
+    window.dispatchEvent(new Event("pageshow"));
+    expect(scrolledAnchors).not.toContain("s0-p7");
+    expect(window.location.hash).toBe("#s0-p1-s1");
+    expect(window.history.state.passageProjectionReturn).toBeUndefined();
+  });
+
   test("a same-document projection leaves the source owner's subsequent history write enabled", async () => {
     const { root, link } = sourceFixture();
     link.href = `${window.location.pathname}${window.location.search}#s0-p7`;
@@ -147,6 +170,70 @@ describe("projection navigation with the existing source-face owner", () => {
 });
 
 describe("projection navigation with the existing reading controller", () => {
+  for (const arrival of ["hashchange", "popstate", "reload"] as const) {
+    test(`${arrival}: normalizing reader settings cannot revive a superseded departure`, async () => {
+      window.history.replaceState({}, "", "/papers/mass-energy/?detail=2#arg-old");
+      const root = document.createElement("div");
+      root.dataset.readerRoot = "";
+      root.dataset.view = "reading";
+      root.innerHTML =
+        "<dialog data-clarification-dialog></dialog><p data-reader-announcement></p>" +
+        '<article id="arg-old" data-unit="arg-old" class="reader-passage">Old argument.' +
+        '<details data-passage-projections="arg-old"><summary>Explore this passage</summary>' +
+        '<a data-passage-projection-link href="/lab/me-01/">Experiment</a></details></article>' +
+        '<article id="arg-new" data-unit="arg-new" class="reader-passage">New argument.</article>';
+      document.body.append(root);
+      const container = document.createElement("div");
+      root.prepend(container);
+      const render = async () => {
+        reactRoot = createRoot(container);
+        await act(async () =>
+          reactRoot?.render(
+            createElement(ReaderController, {
+              registry: {
+                paperId: "mass-energy",
+                anchors: ["arg-old", "arg-new"],
+                foundations: [],
+              },
+              titles: {},
+              questions: {},
+            }),
+          ),
+        );
+      };
+      await render();
+      follow(
+        root.querySelector<HTMLAnchorElement>(
+          "[data-passage-projection-link]",
+        ) as HTMLAnchorElement,
+      );
+      window.history.replaceState(
+        window.history.state,
+        "",
+        "/papers/mass-energy/?detail=2#arg-new",
+      );
+      if (arrival === "reload") {
+        await act(async () => reactRoot?.unmount());
+        reactRoot = null;
+        await render();
+      } else {
+        window.dispatchEvent(new Event(arrival));
+      }
+      expect(window.location.hash).toBe("#arg-new");
+      expect(window.history.state.annusReader.state.anchor).toBe("arg-new");
+      expect(window.history.state.passageProjectionReturn).toBeUndefined();
+      const detail = root.querySelector<HTMLSelectElement>(
+        "[data-detail-control]",
+      ) as HTMLSelectElement;
+      detail.value = "0";
+      detail.dispatchEvent(new Event("change", { bubbles: true }));
+      window.dispatchEvent(new Event("pageshow"));
+      expect(window.location.hash).toBe("#arg-new");
+      expect(window.history.state.annusReader.state.anchor).toBe("arg-new");
+      expect(window.history.state.passageProjectionReturn).toBeUndefined();
+    });
+  }
+
   test("the live departure anchor survives a later Detail save without losing lens or URL settings", async () => {
     window.history.replaceState(
       { unrelated: "kept" },

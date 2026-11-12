@@ -168,6 +168,7 @@ describe("returning from a passage projection", () => {
         },
       },
       "",
+      "#s0-p7",
     );
     unmount = mountPassageProjectionNavigation(root, window, { hold: shared });
     expect(observed).toHaveLength(1);
@@ -196,6 +197,7 @@ describe("returning from a passage projection", () => {
         },
       },
       "",
+      "#s0-p7",
     );
     unmount = mountPassageProjectionNavigation(root);
     expect(window.history.state).toEqual({

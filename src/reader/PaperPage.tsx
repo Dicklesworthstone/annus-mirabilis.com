@@ -354,6 +354,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
           edition.glossUnits &&
           glossFaceHasContent(edition.blocks.length, edition.glossUnits.length)
         ) {
+          const projections = await loadPassageProjections(resolved.paperId, { edition });
           return (
             <GlossFace
               aliases={aliases}
@@ -368,6 +369,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
               modalityClasses={getModalityClasses()}
               unglossedSections={unglossedSections(sectionIds, edition.blocks, edition.glossUnits)}
               section={resolved.section}
+              projections={projections.bySourceBlock}
             />
           );
         }

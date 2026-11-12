@@ -1,5 +1,8 @@
 import type { PlaceKeeperSnapshot } from "./placeKeeper.ts";
 
+/** One short-lived transfer, consumed by the destination face's existing place owner. */
+export const FACE_SWITCH_PLACE_KEY = "am:reader:v1:face-switch-place";
+
 /** A cached viewport position belongs to one address, not whichever passage is visited next. */
 export function anchorFromFaceHash(hash: string): string | null {
   const raw = hash.startsWith("#") ? hash.slice(1) : hash;

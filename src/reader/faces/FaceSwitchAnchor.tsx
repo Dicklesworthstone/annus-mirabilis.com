@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { type AnchorKind, parseAnchor, sectionAnchorOf } from "../../content/anchors.ts";
 import {
   anchorFromFaceHash,
+  FACE_SWITCH_PLACE_KEY,
   faceSwitchPlaceForHash,
   parseFaceSwitchTransfer,
 } from "../anchors/faceSwitchPlace.ts";
@@ -148,7 +149,7 @@ export function isPlaceKeepingUnit(id: string): boolean {
  * fraction is a viewport measurement, not an address, and putting it in the link would make a
  * copied URL carry one reader's scroll position.
  */
-const PLACE_KEY = "am:reader:v1:face-switch-place";
+const PLACE_KEY = FACE_SWITCH_PLACE_KEY;
 
 /** True when a fragment names a content anchor that both source faces publish. */
 export function crossesFaces(id: string): boolean {
@@ -654,6 +655,10 @@ export function FaceSwitchAnchor() {
         return;
       const link = event.target.closest<HTMLAnchorElement>("a[data-view-link]");
       if (link === null) return;
+      // An explanation has argument ids, not source sentence ids. The passage projection
+      // controller resolves its authored relation (or offers every valid explanation).
+      // With no relation the native link still opens the explanation's actual starting page.
+      if (link.dataset.viewLink === "reading") return;
       const href = link.getAttribute("href") ?? "";
 
       /*
