@@ -17,7 +17,7 @@ export type Lq06Parameters = Readonly<{
   frequency: number; // nu, Hz
   gasParticles: number; // n, count
   volumeRatio: number; // V / V0, dimensionless
-  temperature: number; // T, K (for mean energy comparison)
+  temperature: number; // Reference-state T, K; also the formal full-spectrum mean's temperature.
   selectedSubexpression: Lq06SubexpressionChoice;
   proposedEnergyElement: Lq06ProposedEnergy;
   forkAChoice: Lq06ForkAChoice;
@@ -35,6 +35,9 @@ export const LQ06_DEFAULTS: Lq06Parameters = Object.freeze({
   forkAChoice: "none",
   constantSetId: "modern-si-2019",
 });
+
+/** The same pointwise Wien-to-Planck error limit must hold before and after the volume change. */
+export const LQ06_WIEN_RELATIVE_TOLERANCE = 0.01;
 
 export const LQ06_CLASSES: Readonly<Record<keyof Lq06Parameters, ParameterClass>> = Object.freeze({
   radiationEnergy: "input",
@@ -55,7 +58,7 @@ export const LQ06_MODEL = Object.freeze({
   assumptions: Object.freeze([
     "Wien radiation law holds for monochromatic radiation of energy E in volume V_0.",
     "Ideal gas of n independent point particles in volume V_0 obeys Boltzmann's principle S - S_0 = (R/N) ln W.",
-    "Low radiation density regime (h*nu / k_B*T >> 1).",
+    "Wien's pointwise relative error against Planck's law is at most 1% at both the reference and changed volumes, at fixed radiation energy and frequency band.",
   ]),
   notModeled: Object.freeze([
     "Radiation outside the Wien regime (e.g. Rayleigh-Jeans low frequencies or high temperatures)",

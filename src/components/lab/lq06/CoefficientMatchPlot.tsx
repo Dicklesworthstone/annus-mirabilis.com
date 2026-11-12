@@ -8,10 +8,11 @@ export type CoefficientMatchPlotProps = Readonly<{
   frequencyHz: number;
   volumeRatio: number;
   gasParticles: number;
-  effectiveCount: number;
-  quantumEnergyEv: number;
-  radVolumeCoeff: number;
-  gasVolumeCoeff: number;
+  effectiveCount: number | null;
+  quantumEnergyEv: number | null;
+  radVolumeCoeff: number | null;
+  gasVolumeCoeff: number | null;
+  radiationUnavailableReason: string | null;
   isMatch: boolean;
   hasSelection: boolean;
   /** The expression the reader put in the bracket, as it is printed, or undefined before a choice. */
@@ -37,6 +38,7 @@ export function CoefficientMatchSideBySidePlot({
   quantumEnergyEv,
   radVolumeCoeff,
   gasVolumeCoeff,
+  radiationUnavailableReason,
   isMatch,
   hasSelection,
   selectedLabel,
@@ -59,13 +61,23 @@ export function CoefficientMatchSideBySidePlot({
             E = {energyNJ} nJ, ν = {freqTHz} THz
           </p>
           <p className="lq06-law-eq">S − S₀ = (E/βν) · ln(V/V₀)</p>
-          <p className="lq06-law-given">Written with Boltzmann’s constant, k = R/N:</p>
-          <p className="lq06-law-eq" data-bracket={hasSelection ? "chosen" : "empty"}>
-            {relation} (R/N) · [ <span className="lq06-law-bracket">{bracket}</span> ] · ln(V/V₀)
-          </p>
+          {radiationUnavailableReason ? (
+            <p className="lq06-law-given">
+              This is the formal Wien law. It does not supply a radiation entropy comparison at the
+              current settings.
+            </p>
+          ) : (
+            <>
+              <p className="lq06-law-given">Written with Boltzmann’s constant, k = R/N:</p>
+              <p className="lq06-law-eq" data-bracket={hasSelection ? "chosen" : "empty"}>
+                {relation} (R/N) · [ <span className="lq06-law-bracket">{bracket}</span> ] ·
+                ln(V/V₀)
+              </p>
+            </>
+          )}
         </section>
         <span className="lq06-laws-link" aria-hidden="true">
-          ≡
+          {radiationUnavailableReason ? "" : "≡"}
         </span>
         <section className="lq06-law lq06-law-gas" aria-label="Gas">
           <h4>Ideal gas / solute molecules (§5)</h4>
@@ -79,20 +91,32 @@ export function CoefficientMatchSideBySidePlot({
           </p>
         </section>
       </div>
-      <p className="lq06-laws-verdict" role="status">
-        {hasSelection && isMatch ? (
+      <p
+        className="lq06-laws-verdict"
+        role="status"
+        data-correspondence={radiationUnavailableReason ? "unavailable" : "admitted"}
+      >
+        {radiationUnavailableReason ? (
+          <>
+            {radiationUnavailableReason} The comparison gas and formal energy scales remain
+            available.{" "}
+            <a href="/lab/lq-03/">Compare the radiation laws in the spectrum laboratory.</a>
+          </>
+        ) : hasSelection && isMatch && effectiveCount !== null && quantumEnergyEv !== null ? (
           <>
             The laws match: n_eff = NE/(Rβν) = E/(hν) = <Sci value={effectiveCount} digits={4} />{" "}
             quanta, each carrying ε = hν = {fixed(quantumEnergyEv, 4)} eV.
           </>
-        ) : hasSelection ? (
+        ) : hasSelection && !isMatch ? (
           <>With this term the two laws differ: it is not the exponent n of the gas law.</>
-        ) : (
+        ) : !hasSelection && radVolumeCoeff !== null && gasVolumeCoeff !== null ? (
           <>
             Which expression goes in the bracket? Choose one in the controls. Coefficients of
             ln(V/V₀) now: radiation <Sci value={radVolumeCoeff} digits={3} /> J/K, gas{" "}
             <Sci value={gasVolumeCoeff} digits={3} /> J/K.
           </>
+        ) : (
+          <>The accepted radiation comparison is not reported at these settings.</>
         )}
       </p>
     </figure>
@@ -160,9 +184,11 @@ export function MeanEnergyStripPlot({
           marginBottom: "1rem",
         }}
       >
-        Integrating over a full Wien spectrum, the average energy of a light quantum is exactly
-        twice the average translational kinetic energy of a gas molecule (at 600 THz, monochromatic
-        h·ν is {ratioAt600THz.toFixed(2)}× this mean quantum energy):
+        Formally extending Wien’s law over all positive frequencies gives an average quantum energy
+        exactly twice the average translational kinetic energy of a gas molecule. This integral
+        includes frequencies outside the admitted Wien regime; it is not a full Planck spectrum
+        calculation or evidence that the selected monochromatic state is dilute. At 600 THz, h·ν is{" "}
+        {ratioAt600THz.toFixed(2)}× this formal mean quantum energy:
       </p>
 
       {/* Two bars and a ratio are HTML, not a drawing: in a 680-unit SVG every word shrank to 5.6px

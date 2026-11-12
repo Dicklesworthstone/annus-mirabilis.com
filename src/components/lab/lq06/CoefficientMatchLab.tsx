@@ -82,25 +82,25 @@ const FIELDS: Readonly<Record<FieldKey, { label: string; scale: number; digits: 
   frequency: { label: "Frequency ν", scale: 1e12, digits: 1 },
   volumeRatio: { label: "Volume ratio V/V₀", scale: 1, digits: 3 },
   gasParticles: { label: "Molecules in the comparison gas, n", scale: 1, digits: 0 },
-  temperature: { label: "Temperature T", scale: 1, digits: 0 },
+  temperature: { label: "Reference temperature T at V₀", scale: 1, digits: 0 },
 };
 
 /** The values table, in the reader's words. */
 const VALUE_ROWS: readonly { id: string; label: string; unit: string; scale?: number }[] = [
   {
     id: "effectiveIndependentCount",
-    label: "Number of independent quanta, n_{eff}",
+    label: "Effective independent count, n_{eff}",
     unit: "",
   },
-  { id: "quantumEnergy", label: "Energy of each, hν", unit: "J" },
-  { id: "quantumEnergyEv", label: "Energy of each, hν", unit: "eV" },
+  { id: "quantumEnergy", label: "Energy scale hν", unit: "J" },
+  { id: "quantumEnergyEv", label: "Energy scale hν", unit: "eV" },
   { id: "entropyVolumeCoefficient", label: "Radiation: coefficient of ln(V/V₀)", unit: "J/K" },
   { id: "gasEntropyVolumeCoefficient", label: "Gas: coefficient of ln(V/V₀)", unit: "J/K" },
   { id: "radiationEntropy", label: "Radiation: entropy change", unit: "J/K" },
   { id: "gasEntropy", label: "Gas: entropy change", unit: "J/K" },
   {
     id: "meanQuantumEnergyWienEv",
-    label: "Mean quantum energy over a Wien spectrum, 3k_{B}T",
+    label: "Formal full-Wien-spectrum mean quantum energy, 3k_{B}T",
     unit: "eV",
   },
   {
@@ -178,17 +178,25 @@ export function CoefficientMatchLab({
 
   const getOutputValue = (quantityId: string): number | null => {
     const out = getOutput(quantityId);
-    return out && out.status === "value" && typeof out.value === "number" ? out.value : null;
+    return out &&
+      out.status === "value" &&
+      typeof out.value === "number" &&
+      Number.isFinite(out.value)
+      ? out.value
+      : null;
   };
 
-  const effectiveCount = getOutputValue("effectiveIndependentCount") ?? 2.277774e10;
-  const quantumEnergyEv = getOutputValue("quantumEnergyEv") ?? 2.4814;
-  const radVolumeCoeff = getOutputValue("entropyVolumeCoefficient") ?? 3.1448e-13;
-  const gasVolumeCoeff = getOutputValue("gasEntropyVolumeCoefficient") ?? 1.3806e-22;
-  const meanQuantumEnergyEv = getOutputValue("meanQuantumEnergyWienEv") ?? 0.7756;
-  const moleculeKineticEnergyEv = getOutputValue("moleculeMeanKineticEnergyEv") ?? 0.3878;
-  const meanEnergyRatio = getOutputValue("meanEnergyRatio") ?? 2.0;
-  const ratioAt600THz = getOutputValue("ratioAt600THz") ?? 3.1995;
+  const effectiveCount = getOutputValue("effectiveIndependentCount");
+  const quantumEnergyEv = getOutputValue("quantumEnergyEv");
+  const radVolumeCoeff = getOutputValue("entropyVolumeCoefficient");
+  const gasVolumeCoeff = getOutputValue("gasEntropyVolumeCoefficient");
+  const meanQuantumEnergyEv = getOutputValue("meanQuantumEnergyWienEv");
+  const moleculeKineticEnergyEv = getOutputValue("moleculeMeanKineticEnergyEv");
+  const meanEnergyRatio = getOutputValue("meanEnergyRatio");
+  const ratioAt600THz = getOutputValue("ratioAt600THz");
+  const radiationEntropy = getOutput("radiationEntropy");
+  const radiationUnavailableReason =
+    radiationEntropy && "reason" in radiationEntropy ? radiationEntropy.reason : null;
   const correspondenceVerdict = getOutput("correspondenceVerdict");
   const isMatch = Boolean(
     correspondenceVerdict &&
@@ -353,7 +361,11 @@ export function CoefficientMatchLab({
             min={200}
             max={1200}
             step={10}
-            readout={`${(currentParams.frequency / 1e12).toFixed(1)} THz: each quantum carries ${fixed(quantumEnergyEv, 3)} eV`}
+            readout={
+              quantumEnergyEv === null
+                ? "The energy scale hν is not reported."
+                : `${(currentParams.frequency / 1e12).toFixed(1)} THz: energy scale hν = ${fixed(quantumEnergyEv, 3)} eV`
+            }
           />
 
           <fieldset className="lab-choice">
@@ -371,6 +383,12 @@ export function CoefficientMatchLab({
             <SliderField {...field("volumeRatio")} unit="ratio" min={0.05} max={2} step={0.05} />
             <SliderField {...field("gasParticles")} unit="count" min={1} max={100} step={1} />
             <SliderField {...field("temperature")} unit="K" min={500} max={6000} step={100} />
+            <p className="fine">
+              T specifies the radiation at V₀. At fixed energy and frequency band, compression
+              raises its density. The radiation comparison requires at most 1% Wien-to-Planck
+              relative error at both volumes. The full-spectrum mean below is a separate formal
+              calculation at T.
+            </p>
             {/* The recorded walkthrough, played into this session (dispatch 436). */}
             <WalkthroughControl
               binding={LQ06_TAPE}
@@ -428,19 +446,27 @@ export function CoefficientMatchLab({
               quantumEnergyEv={quantumEnergyEv}
               radVolumeCoeff={radVolumeCoeff}
               gasVolumeCoeff={gasVolumeCoeff}
+              radiationUnavailableReason={radiationUnavailableReason}
               isMatch={isMatch}
               hasSelection={hasSelection}
               selectedLabel={
                 SUBEXPRESSIONS.find((x) => x.id === currentParams.selectedSubexpression)?.label
               }
             />
-            <MeanEnergyStripPlot
-              meanQuantumEnergyEv={meanQuantumEnergyEv}
-              moleculeKineticEnergyEv={moleculeKineticEnergyEv}
-              temperatureK={currentParams.temperature}
-              ratio={meanEnergyRatio}
-              ratioAt600THz={ratioAt600THz}
-            />
+            {meanQuantumEnergyEv !== null &&
+            moleculeKineticEnergyEv !== null &&
+            meanEnergyRatio !== null &&
+            ratioAt600THz !== null ? (
+              <MeanEnergyStripPlot
+                meanQuantumEnergyEv={meanQuantumEnergyEv}
+                moleculeKineticEnergyEv={moleculeKineticEnergyEv}
+                temperatureK={currentParams.temperature}
+                ratio={meanEnergyRatio}
+                ratioAt600THz={ratioAt600THz}
+              />
+            ) : (
+              <p className="notice">The formal mean-energy comparison is not reported.</p>
+            )}
           </div>
         </div>
       </div>

@@ -22,8 +22,8 @@ const tsRef = (module: string, exportName: string) => ({
   exportName,
 });
 
-// regimeRelativeErrors is ONE function that three manifests declare (lq-02, lq-03, lq-04), so its
-// words are written once here rather than copied into three entries that would then drift apart.
+// regimeRelativeErrors is ONE function shared by several manifests, so its words are written
+// once here rather than copied into entries that would then drift apart.
 // transformSI is ONE function that two manifests declare (sr-02 and sr-08), so its words are written
 // once rather than copied into two entries that would then drift apart.
 const TRANSFORM_SI_WORDS = {
@@ -1149,6 +1149,18 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
         "eq-model-lq-effective-count.t.count",
       ]),
       bind("effectiveIndependentCount", "quantumEnergy", "quantumEnergy"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "lq-06",
+    kernel: tsRef("src/physics/reference/radiation/spectra.ts", "regimeRelativeErrors"),
+    words: REGIME_ERROR_WORDS,
+    liveTerms: ["frequency", "temperature"],
+    identifierBindings: [
+      bind("regimeRelativeErrors", "nu", "frequency"),
+      bind("regimeRelativeErrors", "T", "temperature"),
+      bind("regimeRelativeErrors", "B", "wienConstantBeta"),
     ],
     independentReferences: [],
   },

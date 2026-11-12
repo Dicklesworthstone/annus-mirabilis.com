@@ -91,8 +91,8 @@ parameters:
     commandClass: measurement-change
   - id: temperature
     label: "Equilibrium Temperature"
-    accessibleName: "Blackbody temperature for mean energy calculation"
-    accessibleDescription: "Sets the blackbody temperature in Kelvin for calculating the Wien spectrum mean quantum energy"
+    accessibleName: "Reference radiation temperature and formal mean-energy temperature"
+    accessibleDescription: "Sets the temperature in Kelvin at V0 for checking Wien admission, and for the separate formal full-spectrum mean-energy calculation"
     quantityId: temperature
     displayUnit: "K"
     modelDomain:
@@ -186,6 +186,7 @@ outputs:
     primary: true
 assumptions:
   - "Wien radiation entropy law Delta S = (E / beta*nu) ln(V/V0) holds in the dilute radiation regime."
+  - "At fixed radiation energy and frequency band, Wien's pointwise relative error against Planck's law must be at most 1% at both the reference and changed volumes."
   - "Boltzmann gas entropy principle Delta S = (R/N) n ln(V/V0) applies to n independent particles."
   - "The coefficient multiplying ln(V/V0) represents the same physical entropy capacity in both systems."
 admittedDomain: "Monochromatic Wien-regime radiation and ideal gas comparison in identical volume transformations"
@@ -205,6 +206,10 @@ owner:
       language: ts
       module: "src/physics/reference/radiation/quanta.ts"
       exportName: "meanQuantumEnergyWien"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/radiation/spectra.ts"
+      exportName: "regimeRelativeErrors"
   identifierBindings:
     - kernelFunction: "effectiveIndependentCount"
       identifier: "E"
@@ -221,6 +226,15 @@ owner:
     - kernelFunction: "meanQuantumEnergyWien"
       identifier: "kB"
       quantityId: "boltzmannConstant"
+    - kernelFunction: "regimeRelativeErrors"
+      identifier: "nu"
+      quantityId: "frequency"
+    - kernelFunction: "regimeRelativeErrors"
+      identifier: "T"
+      quantityId: "temperature"
+    - kernelFunction: "regimeRelativeErrors"
+      identifier: "B"
+      quantityId: "wienConstantBeta"
 views:
   - id: lq-06-side-by-side
     kind: svg

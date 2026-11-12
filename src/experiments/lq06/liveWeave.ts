@@ -1,7 +1,7 @@
 import type { WeavePredicate } from "../weave/types.ts";
 
-/** The correspondence and quantities come from LQ-06's accepted host calculation.
- * This lab assumes Wien's law; it does not certify a Planck/Wien tolerance at these settings. */
+/** The accepted owner checks Wien admission at both volume endpoints before publishing the
+ * correspondence. The full-spectrum mean remains a separately qualified formal comparison. */
 export const LQ06_LIVE_WEAVE_PREDICATES: readonly WeavePredicate[] = Object.freeze([
   Object.freeze({
     id: "lq06-s6-entropy-match",

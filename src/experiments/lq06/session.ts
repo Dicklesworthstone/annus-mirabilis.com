@@ -8,12 +8,19 @@ import {
   meanQuantumEnergyWien,
 } from "../../physics/reference/radiation/quanta.ts";
 import { thermalConstantSI } from "../../physics/reference/radiation/quantumConstants.ts";
+import { regimeRelativeErrors } from "../../physics/reference/radiation/spectra.ts";
 import { ExperimentRuntimeError } from "../refusal.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import type { ScientificResult } from "../results/types.ts";
 import { createInstanceStore, type Parameters, type RequestToken } from "../store/instanceStore.ts";
 import { lq06Changes } from "./changes.ts";
-import { LQ06_CLASSES, LQ06_DEFAULTS, LQ06_OUTPUTS, type Lq06Parameters } from "./definition.ts";
+import {
+  LQ06_CLASSES,
+  LQ06_DEFAULTS,
+  LQ06_OUTPUTS,
+  LQ06_WIEN_RELATIVE_TOLERANCE,
+  type Lq06Parameters,
+} from "./definition.ts";
 import { mergeLq06Parameters, validateLq06Parameters } from "./parameters.ts";
 
 export type PreparedLq06Example = Readonly<{
@@ -42,6 +49,20 @@ export function lq06Outputs(p: Lq06Parameters): ScientificResult[] {
   const eff = effectiveIndependentCount(p.radiationEnergy, p.frequency, constantSet);
   const mean = meanQuantumEnergyWien(p.temperature, constantSet);
   const logVolume = Math.log(p.volumeRatio);
+  // At fixed energy and frequency band, density scales as V0/V. Wien's relative error is
+  // rho/(A nu^3), so the reference error must meet epsilon * min(1, V/V0) to admit BOTH
+  // endpoints. Reuse the spectrum owner's regime test, including the printed beta, without
+  // constructing an arbitrary volume/bandwidth or underflowing a deep-Wien spectral density.
+  const regime = regimeRelativeErrors(p.frequency, p.temperature, constantSet, {
+    epsilonW: LQ06_WIEN_RELATIVE_TOLERANCE * Math.min(1, p.volumeRatio),
+  });
+  const domainReason =
+    "The radiation correspondence is admitted only in the Wien regime. At these settings, the reference or changed volume exceeds the 1% Wien-to-Planck relative-error limit. Increase the frequency, lower the reference temperature, or reduce the compression.";
+  const needsWien = new Set([
+    "effectiveIndependentCount",
+    "radiationEntropy",
+    "entropyVolumeCoefficient",
+  ]);
   const values: Record<string, number> = {
     radiationEnergy: p.radiationEnergy,
     frequency: p.frequency,
@@ -77,11 +98,23 @@ export function lq06Outputs(p: Lq06Parameters): ScientificResult[] {
         `Missing output contract: ${quantityId}.`,
         "lq-06",
       );
-    return {
+    const identity = {
       quantityId,
       unit: contract.unit,
       semanticKind: contract.semanticKind,
       ownerId: contract.ownerId,
+    };
+    if (!regime.wienAdmitted && needsWien.has(quantityId))
+      return {
+        ...identity,
+        status: "outside-domain",
+        condition: "outside-wien-regime",
+        domainKind: "model",
+        reason: domainReason,
+        boundary: { alternativeModel: "Compare Planck's law in the spectrum laboratory (LQ-03)." },
+      };
+    return {
+      ...identity,
       status: "value",
       value,
     };
@@ -93,13 +126,15 @@ export function lq06Outputs(p: Lq06Parameters): ScientificResult[] {
     ownerId: "lq06.correspondence",
   };
   outputs.push(
-    p.selectedSubexpression === "none"
-      ? { ...verdict, status: "not-applicable", reason: "No subexpression selected yet." }
-      : {
-          ...verdict,
-          status: "value",
-          value: p.selectedSubexpression === "N_E_over_R_beta_nu" ? 1 : 0,
-        },
+    !regime.wienAdmitted
+      ? { ...verdict, status: "not-applicable", reason: domainReason }
+      : p.selectedSubexpression === "none"
+        ? { ...verdict, status: "not-applicable", reason: "No subexpression selected yet." }
+        : {
+            ...verdict,
+            status: "value",
+            value: p.selectedSubexpression === "N_E_over_R_beta_nu" ? 1 : 0,
+          },
   );
   return outputs;
 }
@@ -122,18 +157,9 @@ export function createLq06Session(instanceId: string, example?: PreparedLq06Exam
     initialParameters: initialParams,
     parameterClasses: LQ06_CLASSES,
     outputs: LQ06_OUTPUTS,
-    // The manifest already admits a non-value here, and this declaration contradicted
-    // it. LQ06_OUTPUTS declares correspondenceVerdict as ["value", "not-applicable"]
-    // (definition.ts:110); allowPartial: false forbids a batch that MIXES value and
-    // non-value outputs (results/codec.ts:349). At the default parameters
-    // selectedSubexpression is "none", so the verdict is legitimately not-applicable
-    // while the other sixteen outputs are values - a mixed batch by construction, and
-    // impossible to publish. Both declarations arrived together in 70fe7616.
-    //
-    // This is not the store learning to accept whatever is emitted. The per-output
-    // status rule is untouched and still refuses any status the manifest does not
-    // list, and partialOutputs.test.mjs pins WHICH output may be non-value and why,
-    // so an unexpected partial still fails.
+    // No selection leaves the verdict undecided. Leaving Wien's domain also removes the
+    // radiation interpretation while the independent gas and formal energy results remain.
+    // Each result still has to satisfy its own declared status contract.
     allowPartial: true,
   });
   const initial = store.issue("setup-change");
