@@ -3,12 +3,14 @@
  * exists. The full scenario registry imports these same owner objects; no second physics owner
  * or hand-written formula is introduced for essay quotations.
  */
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, URL as NodeURL } from "node:url";
 import { LQ04_DEFAULTS } from "../../experiments/lq04/definition.ts";
 import { evaluateLq04 } from "../../experiments/lq04/session.ts";
 import { createDeclaredConstantSet, getConstantSet } from "../../physics/reference/constants.ts";
-import { rmsDisplacement,
-  stokesEinsteinD } from "../../physics/reference/diffusion/distributions.ts";
+import {
+  rmsDisplacement,
+  stokesEinsteinD,
+} from "../../physics/reference/diffusion/distributions.ts";
 import type { OwnerContext, OwnerRecord, OwnerResult } from "./owners.ts";
 
 export class ScenarioOwnerInputError extends Error {
@@ -23,8 +25,10 @@ export class ScenarioOwnerInputError extends Error {
 export function num(inputs: Record<string, number>, key: string): number {
   const value = inputs[key];
   if (typeof value !== "number" || !Number.isFinite(value)) {
-    throw new ScenarioOwnerInputError("scenario-owner-input",
-      `Owner input "${key}" is missing or nonfinite.`);
+    throw new ScenarioOwnerInputError(
+      "scenario-owner-input",
+      `Owner input "${key}" is missing or nonfinite.`,
+    );
   }
   return value;
 }
@@ -89,21 +93,24 @@ function diffusionRms(ctx: OwnerContext): OwnerResult {
   }
   const rms = rmsDisplacement(D.result.value, num(ctx.inputs, "elapsedTime"));
   if (rms.result.status !== "value" || typeof rms.result.value !== "number") {
-    throw new ScenarioOwnerInputError("scenario-owner-output",
-      "rmsDisplacement did not return a value.");
+    throw new ScenarioOwnerInputError(
+      "scenario-owner-output",
+      "rmsDisplacement did not return a value.",
+    );
   }
   return { diffusionCoefficient: D.result.value, rmsDisplacement1d: rms.result.value };
 }
 
 export const DIFFUSION_RMS_OWNER: OwnerRecord = {
   id: "diffusion.stokesEinsteinRms",
-  sourcePath: fileURLToPath(new URL("../../physics/reference/diffusion.ts", import.meta.url)),
+  // These are filesystem provenance paths, not assets for Webpack's browser URL rewrite.
+  sourcePath: fileURLToPath(new NodeURL("../../physics/reference/diffusion.ts", import.meta.url)),
   fn: diffusionRms,
 };
 
 export const LQ04_WORKBENCH_OWNER: OwnerRecord = {
   id: "lq04.workbench",
-  sourcePath: fileURLToPath(new URL("../../experiments/lq04/session.ts", import.meta.url)),
+  sourcePath: fileURLToPath(new NodeURL("../../experiments/lq04/session.ts", import.meta.url)),
   fn: (ctx) => {
     const evaluated = evaluateLq04({ ...LQ04_DEFAULTS, ...ctx.inputs });
     if (evaluated.status !== "value")
