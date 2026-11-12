@@ -10,6 +10,7 @@ import {
 } from "../../physics/reference/inference.ts";
 import { ExecutionOutcomeError } from "../results/applyFailure.ts";
 import { executionOutcomeRegistry } from "../results/outcomes.ts";
+import { makeRefusal } from "../results/refusals.ts";
 import { avogadroBasis } from "./basis.ts";
 import {
   AVOGADRO_DEFAULTS,
@@ -171,6 +172,50 @@ describe("Avogadro's declared radius uncertainty", () => {
       radiusCoveragePercent: 20,
     };
     expect(scalar(exact)).toEqual(scalar(AVOGADRO_DEFAULTS));
+  });
+
+  test("an owner refusal preserves its identity, repairs and cause alongside a readable reason", () => {
+    const session = createAvogadroSession("avogadro-radius-owner-refusal");
+    const before = session.getSnapshot();
+    let notifications = 0;
+    session.subscribe(() => notifications++);
+    const cause = Object.freeze({ diagnostic: "interval owner contract boundary" });
+    const repairs = Object.freeze([{ label: "Supply an independently measured radius." }]);
+    // Contract-boundary injection: a numerical owner can refuse without changing its caller's
+    // accepted comparison. A blank optional requirement must fall back to its registered message.
+    const owner = spyOn(intervalOwner, "conditionalMolecularNumberInterval");
+    try {
+      for (const requirements of ["The radius provenance needs independent evidence.", "  "]) {
+        const refusal = Object.freeze(
+          makeRefusal(
+            "circular-radius-from-displacement",
+            { capabilityId: "diffusion.inference" },
+            {
+              details: Object.freeze({ requirements, cause }),
+              rankedRepairs: repairs,
+            },
+          ),
+        );
+        const failure = Object.freeze({ kind: "refused" as const, refusal });
+        owner.mockImplementation(() => failure);
+        const result = session.apply({ ...withRadiusInterval, alphaScale: 2 });
+        expect(result.kind).toBe("refused");
+        if (result.kind !== "refused") throw new Error("The owner refusal lost its type.");
+        expect(result.refusal).toBe(refusal);
+        expect(result.refusal.code).toBe("circular-radius-from-displacement");
+        expect(result.refusal.affected).toBe(refusal.affected);
+        expect(result.refusal.details).toBe(refusal.details);
+        expect(result.refusal.details?.cause).toBe(cause);
+        expect(result.refusal.rankedRepairs).toBe(repairs);
+        expect(result.reason).toBe(requirements.trim() ? requirements : refusal.message);
+        expect(Object.isFrozen(result)).toBe(true);
+        expect(session.getSnapshot()).toBe(before);
+        expect(session.getSnapshot().pending).toBe(false);
+      }
+      expect(notifications).toBe(0);
+    } finally {
+      owner.mockRestore();
+    }
   });
 
   test("an owner execution outcome stays typed and cannot replace a complete accepted comparison or study", () => {

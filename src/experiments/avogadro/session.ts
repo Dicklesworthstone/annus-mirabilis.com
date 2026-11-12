@@ -13,6 +13,7 @@ import {
 } from "../../physics/reference/radiation/avogadro.ts";
 import { ExperimentRuntimeError } from "../refusal.ts";
 import { throwApplyFailure } from "../results/applyFailure.ts";
+import { refusalSentence } from "../results/refusalSentence.ts";
 import type { ResultPayload, ScientificResult } from "../results/types.ts";
 import {
   createInstanceStore,
@@ -159,13 +160,11 @@ export function evaluateAvogadro(input: unknown) {
             // as the 97.5% marginal coverage required for this two-interval Bonferroni allocation.
             if (combined.kind === "no-value") return refuseAvogadro(combined.reason);
             if (combined.kind === "outcome") return combined;
-            if (combined.kind === "refused") {
-              const requirements = combined.refusal.details?.requirements;
-              return refuseAvogadro(
-                typeof requirements === "string" ? requirements : combined.refusal.message,
-                combined.refusal,
-              );
-            }
+            if (combined.kind === "refused")
+              return Object.freeze({
+                ...combined,
+                reason: refusalSentence(combined.refusal),
+              });
             molecularInterval = combined.data;
           }
           brownian = {

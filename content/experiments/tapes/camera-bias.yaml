@@ -10,7 +10,7 @@ isTeachingSequence: true
 modelIdentity:
   modelId: "inference-bm08-host"
   modelVersion: "1"
-  artifactDigest: "host:sha256:c8551c24175d3499e72da7ba6cc00050c6ebc26b665c963f64e35393a6b80519"
+  artifactDigest: "host:sha256:67c072efcd184bb49210fadc23e8b2db954c8fd2a1a175419ac067f963c8e24b"
 constantSetId: "modern-si-2019"
 seed: "1905"
 streamVersion: 1
@@ -53,7 +53,7 @@ checkpoints:
   - actionIndex: 0
     stepIndex: 4112
     simulatedTime: 1028
-    digest: "host:sha256:55aac6a7864978de4d9b0a1a3e35ae511abe1820856ae56dcb9d9115ce2acd25"
+    digest: "host:sha256:c4ea209cba70de66d1da7aaa6a861144baed81422bcd0d008f5eb1fc1a157559"
     digestKind: "host"
     checkpointVersion: 1
     streamSemanticsVersion: 1
@@ -85,7 +85,7 @@ checkpoints:
   - actionIndex: 1
     stepIndex: 4112
     simulatedTime: 1028
-    digest: "host:sha256:a654f7a8399eea5ff8b6f20a32a4dd0600b6031ddd09f98c6f9ba7c8cf1879e1"
+    digest: "host:sha256:ac8fd5c57c3baf0241dc4c354b2d01ab3a286fc1539c366774047d24b73201eb"
     digestKind: "host"
     checkpointVersion: 1
     streamSemanticsVersion: 1
@@ -117,7 +117,7 @@ checkpoints:
   - actionIndex: 2
     stepIndex: 4112
     simulatedTime: 1028
-    digest: "host:sha256:048aa99ce79a0827a9f369842a5670486d3d0f0d0de85f9ea68f1875a6489fe3"
+    digest: "host:sha256:dd0dc4094b000c69a9a501591031da7dd7d9fcbc4fe29a206149b3ba25de94f8"
     digestKind: "host"
     checkpointVersion: 1
     streamSemanticsVersion: 1
