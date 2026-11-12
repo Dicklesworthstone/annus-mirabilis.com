@@ -202,8 +202,8 @@ export function WalkLab({
     } else if (shared.kind === "invalid") setNote(shared.message);
     return () => session.disconnect();
   }, [session, restoreFromLocation, setDraft]);
-  function apply(settings: Bm05Parameters) {
-    const r = session.apply(settings);
+  function apply(settings: Bm05Parameters, newRun = false) {
+    const r = newRun ? session.startNewRun(settings) : session.apply(settings);
     const failed = applyFailure(r);
     if (failed) {
       setFailure(failed);
@@ -238,6 +238,18 @@ export function WalkLab({
       );
     }
   }
+  function recoverRecording() {
+    try {
+      const settings = dirty
+        ? fromWalkDraft(draft)
+        : ((view.requested?.parameters ?? p) as Bm05Parameters);
+      apply(settings, true);
+    } catch (e) {
+      setFailure(failureFromThrown(e, "Check the settings before starting a new recording."));
+    }
+  }
+  const checkpointNotice =
+    view.status === "unavailable" ? view.outcome?.details?.checkpointNotice : null;
   const announcement = view.pending
     ? "Recording or re-observing the requested trial. Accepted results stay on screen until it is done."
     : view.status === "refused"
@@ -469,6 +481,25 @@ export function WalkLab({
             independent trials. Shared links load settings only; they never start a calculation.
           </p>
         </div>
+        {typeof checkpointNotice === "string" && (
+          <div className="notice error" data-recording-recovery>
+            <p role="status" aria-live="polite" aria-atomic="true">
+              {checkpointNotice}
+            </p>
+            <button
+              type="button"
+              className="secondary"
+              disabled={!ready}
+              onClick={recoverRecording}
+            >
+              Start a new recording with these settings
+            </button>
+            <p className="fine">
+              Uses your current entries, including the seed. The accepted result stays readable
+              until the new recording is ready.
+            </p>
+          </div>
+        )}
         {/*
             OUTSIDE THE PREDICT GATE, BECAUSE A HIDDEN LABEL IS NOT A LABEL (am-ig23).
             This block sat inside `div.lab-results`, which `html[data-detail] [data-predict-response="awaiting"]`
@@ -591,9 +622,11 @@ export function WalkLab({
               </tr>
             </tbody>
           </table>
-          <p className="status-line" role="status" aria-live="polite" aria-atomic="true">
-            {announcement}
-          </p>
+          {typeof checkpointNotice !== "string" && (
+            <p className="status-line" role="status" aria-live="polite" aria-atomic="true">
+              {announcement}
+            </p>
+          )}
           <p className="accepted-caption">
             Accepted trial: {names[p.kernel]}; seed {p.seed}; {p.walkers} walkers; step RMS{" "}
             {display(p.stepRms, 1e6)} μm; interval {display(p.tau)} s. Observed after {p.n} of{" "}

@@ -14,7 +14,7 @@ isTeachingSequence: true
 modelIdentity:
   modelId: "bm05-host-preview-v1"
   modelVersion: "1"
-  artifactDigest: "host:sha256:f455df3c93b3f3fb7807435d1793b07bfff1e3e329834840a1a48c7604ddc116"
+  artifactDigest: "host:sha256:dfbec92606e7019c3ab1854876f24f4ed4830442978187baba5317cb50a6c1d6"
 constantSetId: "not-applicable"
 seed: "1905"
 streamVersion: 1
@@ -71,7 +71,7 @@ checkpoints:
   - actionIndex: 1
     stepIndex: 400
     simulatedTime: 40
-    digest: "host:sha256:bd2fd874e3b1b2ecf4cb4af91a8a0e2922c9207b97db85c5ca29d3212c93103a"
+    digest: "host:sha256:34528d92e3d92a1d6b98d530c63aa014ca46d79ecfaf684a21c0edfadf91142a"
     digestKind: "host"
     checkpointVersion: 1
     streamSemanticsVersion: 1
@@ -103,7 +103,7 @@ checkpoints:
   - actionIndex: 2
     stepIndex: 400
     simulatedTime: 40
-    digest: "host:sha256:3db46b3c7a17bbe4d66c657fd14aaa76d7abd1f2a3df2682e1725af7e6e7bf5b"
+    digest: "host:sha256:6d9d1ca8dce927cc2ad49d7b6b619dac4fb2df4cd107aa8641d6b0020542546b"
     digestKind: "host"
     checkpointVersion: 1
     streamSemanticsVersion: 1
@@ -135,7 +135,7 @@ checkpoints:
   - actionIndex: 3
     stepIndex: 400
     simulatedTime: 40
-    digest: "host:sha256:f0f7bd9cff9386494c3b234753fb21eaaa5be04e436cc5ffd0edcc7a8e222dae"
+    digest: "host:sha256:21d1e5201ff293c1746dc8741aca8cbf4717709c6bc8978f202391cd9126809d"
     digestKind: "host"
     checkpointVersion: 1
     streamSemanticsVersion: 1
@@ -167,7 +167,7 @@ checkpoints:
   - actionIndex: 4
     stepIndex: 400
     simulatedTime: 40
-    digest: "host:sha256:1302a5708ae75cc498430484c80e5d184eec372a6d06d3d3f3087fa70ccfd61f"
+    digest: "host:sha256:f34012787e0ee2697ab60ddc7aba5bd752b01b746f7a9763e213cbbaab6910d0"
     digestKind: "host"
     checkpointVersion: 1
     streamSemanticsVersion: 1
@@ -199,7 +199,7 @@ checkpoints:
   - actionIndex: 5
     stepIndex: 400
     simulatedTime: 40
-    digest: "host:sha256:a67f1777b27592fa14440190d38cfc371a4ff396d20e89a5c90843d9cb37c591"
+    digest: "host:sha256:200e4f7d36edcd7d3b98d384ec2abb69f28de8bde895d25eaee345a8a2fb8f12"
     digestKind: "host"
     checkpointVersion: 1
     streamSemanticsVersion: 1
@@ -231,7 +231,7 @@ checkpoints:
   - actionIndex: 6
     stepIndex: 400
     simulatedTime: 40
-    digest: "host:sha256:1e720f77490fc6e9d5a973fbacecdc2167a4ea4580823ace6206da9a383c268e"
+    digest: "host:sha256:e43a56d6c8e92eed6cc688ec2de4f2b2c6f9aed077a6ddecd2c511f501d97f55"
     digestKind: "host"
     checkpointVersion: 1
     streamSemanticsVersion: 1

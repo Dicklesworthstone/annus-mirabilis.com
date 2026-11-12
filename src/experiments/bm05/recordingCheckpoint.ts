@@ -39,7 +39,7 @@ export async function createBm05RecordingCheckpoint(
   recording: WalkRecording,
   sourceDigest: string,
 ): Promise<Bm05RecordingCheckpoint> {
-  const identity = {
+  const identity: Omit<Bm05RecordingCheckpoint, "digest"> = {
     checkpointVersion: 1 as const,
     sourceDigest,
     modelId: BM05_MODEL.id,
