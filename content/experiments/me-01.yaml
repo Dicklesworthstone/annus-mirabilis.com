@@ -427,6 +427,10 @@ acceptanceCases:
 historicalOverlays: []
 realRate:
   natural: false
+weavePredicates:
+  - me01-two-energy-balances
+  - me01-unchanged-offset-premise
+  - me01-offset-underdetermined
 embeddable: true
 presets:
   - presetId: me-01-default

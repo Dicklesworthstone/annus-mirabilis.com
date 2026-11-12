@@ -84,6 +84,7 @@ export function TranslationUnitComponent({
     <article
       id={`${anchorPrefix}${unit.id}`}
       data-translation-unit-id={unit.id}
+      data-source-ids={unit.sourceRefs.map((ref) => ref.id).join(" ")}
       data-aligned-active={isActive ? "true" : undefined}
       data-aligned-partner={!isActive && isHighlighted ? "true" : undefined}
       data-review-state={unit.reviewState}

@@ -34,7 +34,10 @@ function flags(snapshot: AcceptedSnapshot, binding: ReaderWeaveBinding) {
   return createWeaveEvaluator(binding.predicates).evaluate({
     runId: snapshot.runId,
     snapshotVersion: snapshot.snapshotVersion,
-    constantSetId: binding.constantSetId,
+    constantSetId:
+      typeof binding.constantSetId === "function"
+        ? binding.constantSetId(snapshot)
+        : binding.constantSetId,
     outputs: weaveOutputs(snapshot),
     refused: false,
   }).flags;

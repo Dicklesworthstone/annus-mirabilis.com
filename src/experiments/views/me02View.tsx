@@ -17,6 +17,7 @@ export default function Me02ClarificationView({ instanceId }: ExperimentViewProp
       equations={equations.equations as readonly CompiledEquation[]}
       instanceId={instanceId}
       restoreFromLocation={false}
+      highlightPaper
     />
   );
 }

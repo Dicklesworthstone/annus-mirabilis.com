@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState, useSyncExternalStore } from "react";
+import { useEffect, useId, useState } from "react";
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
@@ -43,6 +43,8 @@ import "./me01.css";
 import "../showTheCode.css";
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
+import { ME01_READER_WEAVE } from "../../../reader/weave/ledgersPassages.ts";
+import { SessionResultWeave } from "../../../reader/weave/SessionResultWeave.tsx";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { LabMargin } from "../LabMargin.tsx";
 import { PredictGatePanels, usePredictGate } from "../PredictGate.tsx";
@@ -66,11 +68,13 @@ export function TwoLedgersLab({
   instanceId,
   restoreFromLocation = true,
   title = "Two ledgers and opposite pulses",
+  highlightPaper = false,
 }: {
   example?: PreparedMe01Example | undefined;
   instanceId?: string | undefined;
   restoreFromLocation?: boolean;
   title?: string | undefined;
+  highlightPaper?: boolean | undefined;
 }) {
   const id = useId();
   const session = useRetainedSession(
@@ -437,6 +441,13 @@ export function TwoLedgersLab({
         </div>
 
         <div className="lab-results" {...gate.response}>
+          <SessionResultWeave
+            session={session}
+            binding={ME01_READER_WEAVE}
+            suspended={Boolean(refusal || error)}
+            announcementsEnabled={gate.open}
+            highlightPaper={highlightPaper}
+          />
           <TwoLedgersPlot parameters={p} evaluation={evaluation} clipId={`plot-clip-${id}`} />
           <nav className="step-nav" aria-label="Derivation steps">
             {STEPS.map((s) => (

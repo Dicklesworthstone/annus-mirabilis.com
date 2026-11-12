@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import { createSessionWeave, type WeaveSession } from "../../experiments/weave/sessionSource.ts";
 import type { WeavePredicate } from "../../experiments/weave/types.ts";
 import type { WeavePassage } from "./brownianPassages.ts";
@@ -9,7 +10,7 @@ import { ResultWeavePanel } from "./ResultWeavePanel.tsx";
 
 export type ReaderWeaveBinding = Readonly<{
   instrumentId: string;
-  constantSetId: string;
+  constantSetId: string | ((accepted: AcceptedSnapshot) => string);
   paper: string;
   predicates: readonly WeavePredicate[];
   passages: Readonly<Record<string, WeavePassage>>;

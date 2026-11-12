@@ -200,6 +200,9 @@ export function TranslationParagraphs({
   const unitAttributes = (u: TranslationUnit) => ({
     id: `${anchorPrefix}${u.id}`,
     "data-translation-unit-id": u.id,
+    "data-source-ids": [
+      ...new Set([...getAlignedSources(sourceIndex, u.id), ...u.sourceRefs.map((ref) => ref.id)]),
+    ].join(" "),
     "data-review-state": u.reviewState,
     "data-is-reviewed": evaluateUnitReviewState(u, records.get(u.id)).isReviewed ? "true" : "false",
     tabIndex: -1,

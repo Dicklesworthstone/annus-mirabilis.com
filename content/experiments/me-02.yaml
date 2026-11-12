@@ -224,6 +224,7 @@ probes:
   - show-naive-evaluation
   - type-printed-erg
 weavePredicates:
+  - me02-limiting-coefficient
   - me02-coefficient-stabilized
   - me02-printed-factor
 historicalOverlays: []

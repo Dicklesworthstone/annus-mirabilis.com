@@ -1,5 +1,5 @@
 "use client";
-import { type FormEvent, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
+import { type FormEvent, useEffect, useId, useRef, useState } from "react";
 import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { EquationScope } from "../../equations/EquationScope.tsx";
 import { SemanticEquation } from "../../equations/SemanticEquation.tsx";
@@ -38,6 +38,8 @@ import "./coefficientLab.css";
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
+import { ME02_READER_WEAVE } from "../../reader/weave/massCoefficientPassages.ts";
+import { SessionResultWeave } from "../../reader/weave/SessionResultWeave.tsx";
 import { LabMargin } from "./LabMargin.tsx";
 import { display, identity, result } from "./presentation.ts";
 import { withScripts } from "./subscripts.tsx";
@@ -199,6 +201,7 @@ export function CoefficientLab({
   title = "Inertia from the small-speed coefficient",
   equations = [],
   restoreSettings = false,
+  highlightPaper = false,
 }: {
   example: PreparedMe02Example;
   instanceId?: string | undefined;
@@ -206,6 +209,7 @@ export function CoefficientLab({
   title?: string;
   equations?: readonly CompiledEquation[];
   restoreSettings?: boolean;
+  highlightPaper?: boolean;
 }) {
   const id = useId();
   const session = useRetainedSession(
@@ -490,6 +494,13 @@ export function CoefficientLab({
           </form>
         </div>
         <div className="lab-results" {...gate.response}>
+          <SessionResultWeave
+            session={session}
+            binding={ME02_READER_WEAVE}
+            suspended={Boolean(refusal || error)}
+            announcementsEnabled={gate.open}
+            highlightPaper={highlightPaper}
+          />
           <div data-response="">
             <div className="me02-bars">
               <CoefficientBars snapshot={snapshot} clipId={id} />

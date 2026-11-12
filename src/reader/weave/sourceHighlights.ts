@@ -49,7 +49,13 @@ export function connectSourceHighlights(
       const contentId =
         element.getAttribute("data-sentence-id") ??
         element.getAttribute("data-translation-unit-id");
-      const pointer = contentId === null ? undefined : pointers.get(contentId);
+      // A translation may split a source sentence into three or more units, or carry an
+      // editorial id. Its explicit source references own the correspondence; enumerating
+      // guessed a/b suffixes loses the last part of the light paper's central inference.
+      const sourceIds = (element.getAttribute("data-source-ids") ?? "").split(/\s+/);
+      const pointer =
+        (contentId === null ? undefined : pointers.get(contentId)) ??
+        sourceIds.map((id) => pointers.get(id)).find((candidate) => candidate !== undefined);
       if (!pointer || element.hasAttribute(OWNER)) continue;
       const descriptions = (element.getAttribute("aria-describedby") ?? "")
         .split(/\s+/)

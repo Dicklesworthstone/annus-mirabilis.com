@@ -19,6 +19,11 @@ import type { ReaderWeaveBinding } from "./SessionResultWeave.tsx";
 import { BM05_READER_WEAVE } from "./walkPassages.ts";
 
 function flags(binding: ReaderWeaveBinding, results: readonly ScientificResult[]) {
+  assert.equal(
+    typeof binding.constantSetId,
+    "string",
+    "These Brownian bindings use fixed constants",
+  );
   const outputs: Record<string, SnapshotOutput> = {};
   for (const result of results) {
     outputs[result.quantityId] = {
@@ -32,7 +37,7 @@ function flags(binding: ReaderWeaveBinding, results: readonly ScientificResult[]
   return createWeaveEvaluator(binding.predicates).evaluate({
     runId: "brownian-source-comparison",
     snapshotVersion: 1,
-    constantSetId: binding.constantSetId,
+    constantSetId: binding.constantSetId as string,
     outputs,
     refused: false,
   }).flags;
@@ -91,9 +96,9 @@ test("BM-04: changing force leaves thermal D unchanged; absent steady-state outp
   assert.equal(left.kind, "accepted");
   assert.equal(right.kind, "accepted");
   if (left.kind !== "accepted" || right.kind !== "accepted") return;
-  expect(
-    left.data.outputs.find(({ quantityId }) => quantityId === "diffusionCoefficient"),
-  ).toEqual(right.data.outputs.find(({ quantityId }) => quantityId === "diffusionCoefficient"));
+  expect(left.data.outputs.find(({ quantityId }) => quantityId === "diffusionCoefficient")).toEqual(
+    right.data.outputs.find(({ quantityId }) => quantityId === "diffusionCoefficient"),
+  );
   expect(flags(BM04_READER_WEAVE, right.data.outputs)["bm04-s3-diffusion-coefficient"]?.lit).toBe(
     true,
   );
@@ -118,9 +123,7 @@ test("BM-05: live finite-step shape and sample bounds decide the pointer", async
       expected,
     );
     const missing = result.data.outputs.filter(({ quantityId }) => quantityId !== "shapeTerm");
-    expect(flags(BM05_READER_WEAVE, missing)["bm05-s4-second-moment"]?.state).toBe(
-      "not-evaluable",
-    );
+    expect(flags(BM05_READER_WEAVE, missing)["bm05-s4-second-moment"]?.state).toBe("not-evaluable");
   }
 });
 
@@ -129,11 +132,7 @@ test("BM-07: measured spreading alone cannot identify molecular number without r
   assert.equal(recording.kind, "accepted");
   if (recording.kind !== "accepted") return;
   for (const radiusKnown of [false, true]) {
-    const result = await measureBm07(
-      recording.data,
-      { ...BM07_DEFAULTS, radiusKnown },
-      true,
-    );
+    const result = await measureBm07(recording.data, { ...BM07_DEFAULTS, radiusKnown }, true);
     assert.equal(result.kind, "accepted");
     if (result.kind !== "accepted") return;
     expect(

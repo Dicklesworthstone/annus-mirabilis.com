@@ -5,6 +5,11 @@ import "./clarificationLabStyles.ts";
 
 export default function Lq06ClarificationView({ instanceId }: ExperimentViewProps) {
   return (
-    <CoefficientMatchLab example={example} instanceId={instanceId} restoreFromLocation={false} />
+    <CoefficientMatchLab
+      example={example}
+      instanceId={instanceId}
+      restoreFromLocation={false}
+      highlightPaper
+    />
   );
 }

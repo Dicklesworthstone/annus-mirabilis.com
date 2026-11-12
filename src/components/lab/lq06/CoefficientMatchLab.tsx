@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo, useState, useSyncExternalStore } from "react";
+import { useId, useMemo, useState } from "react";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
@@ -40,6 +40,8 @@ import "./coefficientMatchLab.css";
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
+import { LQ06_READER_WEAVE } from "../../../reader/weave/coefficientMatchPassages.ts";
+import { SessionResultWeave } from "../../../reader/weave/SessionResultWeave.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
 import { LabMargin } from "../LabMargin.tsx";
 import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
@@ -48,6 +50,7 @@ export type CoefficientMatchLabProps = Readonly<{
   example?: PreparedLq06Example | undefined;
   instanceId?: string | undefined;
   restoreFromLocation?: boolean | undefined;
+  highlightPaper?: boolean | undefined;
 }>;
 
 // The manifest's prompts (scripts/generate-predict-prompts.mjs), one stable array for the gate. They
@@ -136,6 +139,7 @@ export function CoefficientMatchLab({
   example,
   instanceId,
   restoreFromLocation = true,
+  highlightPaper = false,
 }: CoefficientMatchLabProps) {
   const uid = useId();
   const labInstanceId = instanceId ?? `lq06-${uid}`;
@@ -475,6 +479,13 @@ export function CoefficientMatchLab({
 
       {/* n_eff and the two mean energies answer the prompts, so the table waits with the plots. */}
       <div className="lab-values" {...gate.response}>
+        <SessionResultWeave
+          session={session}
+          binding={LQ06_READER_WEAVE}
+          suspended={Boolean(failure || error)}
+          announcementsEnabled={gate.open}
+          highlightPaper={highlightPaper}
+        />
         <h3>Values at these settings</h3>
         <section className="table-scroll" aria-label="Values at these settings">
           <table className="data-table">
