@@ -5,7 +5,7 @@ import { ExecutionLabel } from "../../experiments/labels/ExecutionLabel.tsx";
 import { executionStateKindFromHostLabel } from "../../experiments/labels/executionLabelFor.ts";
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { useLaboratoryVisibility } from "../../experiments/lifecycle/useLaboratoryVisibility.ts";
-import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
+import { LabTapeLink, useWorkerTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { createSr03BrowserChannel } from "../../experiments/sr03/browser.ts";
 import { fromSr03Draft, type Sr03Draft, toSr03Draft } from "../../experiments/sr03/controls.ts";
@@ -15,7 +15,6 @@ import {
   SR03_PRESETS,
   type Sr03Parameters,
 } from "../../experiments/sr03/definition.ts";
-import { SR03_DRAFT_TAPE } from "../../experiments/sr03/draftTape.ts";
 import { decodeSr03Settings } from "../../experiments/sr03/permalink.ts";
 import { sr03ReadingsView } from "../../experiments/sr03/readings.ts";
 import { createSr03Session, type PreparedSr03Example } from "../../experiments/sr03/session.ts";
@@ -148,10 +147,6 @@ export function RodSimultaneityLab({
   // Predict mode state
   // The drawings and the controls come first; dt′, the interval ledger and the values wait.
   const gate = usePredictGate("sr-03", SR03_GATE_PROMPTS);
-  // A shared ?tape= link puts its settings in the form and starts no worker; Apply runs them.
-  const tapeLink = useDraftTapeLink(SR03_DRAFT_TAPE, p, restoreFromLocation, (settings) =>
-    setDraft(toSr03Draft(settings as unknown as Sr03Parameters)),
-  );
   const workerWalkthrough = useMemo(
     () =>
       createSr03WalkthroughTarget(
@@ -175,6 +170,15 @@ export function RodSimultaneityLab({
         },
       ),
     [workerTape, session],
+  );
+  // Ordinary settings links fill the form; recorded calculations wait for explicit restoration.
+  const tapeLink = useWorkerTapeLink(
+    workerTape,
+    session,
+    p,
+    restoreFromLocation,
+    (settings) => setDraft(toSr03Draft(settings as unknown as Sr03Parameters)),
+    workerWalkthrough,
   );
 
   useEffect(() => {

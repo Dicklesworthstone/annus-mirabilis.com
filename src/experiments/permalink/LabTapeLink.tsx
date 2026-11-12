@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import type { ExperimentView } from "../store/instanceStore.ts";
 import {
   type DraftTapeBinding,
   draftTapeForSettings,
@@ -29,6 +30,19 @@ import {
   type WalkthroughTarget,
   type WorkerWalkthroughTarget,
 } from "./walkthroughActions.ts";
+import { loadWorkerTapeFromUrl, type WorkerLinkCheckpoint } from "./workerLink.ts";
+import type { WorkerTapeBinding, WorkerTapeSession } from "./workerSessionTape.ts";
+
+type WorkerLinkPhase =
+  | "ready"
+  | "restoring"
+  | "not-restored"
+  | "restored"
+  | "calculating"
+  | "calculated";
+type WorkerLinkOwner = Readonly<{ session: WorkerTapeSession; target: WorkerWalkthroughTarget }>;
+const noWorkerSnapshot = () => null;
+const noWorkerSubscription = () => () => {};
 
 export type LabTapeLinkState = Readonly<{
   notice: string;
@@ -40,6 +54,17 @@ export type LabTapeLinkState = Readonly<{
   walkthrough?: WalkthroughTarget | undefined;
   /** A refused historical record can be reused only through the reader's explicit choice. */
   recovery?: Readonly<{ label: string; explanation: string; run(): void }> | undefined;
+  /** An incoming recorded calculation waits for an explicit, cancellable worker action. */
+  checkpoint?:
+    | Readonly<{
+        phase: WorkerLinkPhase;
+        canRestore: boolean;
+        canCalculate: boolean;
+        restore(): void;
+        calculate(): void;
+        cancel(): void;
+      }>
+    | undefined;
 }>;
 
 /**
@@ -184,6 +209,7 @@ export function useDraftTapeLink(
     settings: Readonly<Record<string, unknown>>,
     predictions?: readonly TapePredictionEvent[],
   ) => void,
+  worker?: WorkerLinkOwner,
 ): LabTapeLinkState {
   const [notice, setNotice] = useState("");
   const [note, setNote] = useState("");
@@ -191,33 +217,170 @@ export function useDraftTapeLink(
     binding: DraftTapeBinding;
     tape: TapeV2;
   }> | null>(null);
+  const [incoming, setIncoming] = useState<Readonly<{
+    binding: DraftTapeBinding;
+    owner: WorkerLinkOwner;
+    checkpoint: WorkerLinkCheckpoint;
+    phase: WorkerLinkPhase;
+  }> | null>(null);
+  const [verifiedShare, setVerifiedShare] = useState<Readonly<{
+    binding: DraftTapeBinding;
+    session: WorkerTapeSession;
+    accepted: NonNullable<ExperimentView["accepted"]>;
+    tape: TapeV2;
+  }> | null>(null);
+  const workerView = useSyncExternalStore<ExperimentView | null>(
+    worker?.session.subscribe ?? noWorkerSubscription,
+    worker?.session.getSnapshot ?? noWorkerSnapshot,
+    noWorkerSnapshot,
+  );
+  const operation = useRef<AbortController | null>(null);
+  const generation = useRef(0);
   const loadedRef = useRef(onLoaded);
   loadedRef.current = onLoaded;
   useEffect(() => {
+    const current = ++generation.current;
+    operation.current?.abort();
+    operation.current = null;
     setPendingSettings(null);
+    setIncoming(null);
+    setVerifiedShare(null);
     setNote("");
     setNotice("");
     if (!enabled) return;
     let live = true;
-    void loadDraftTapeFromUrl(binding, window.location.href).then((loaded) => {
-      if (!live) return;
+    const loading = worker
+      ? loadWorkerTapeFromUrl(binding, window.location.href)
+      : loadDraftTapeFromUrl(binding, window.location.href);
+    void loading.then((loaded) => {
+      if (!live || generation.current !== current) return;
       if (loaded.kind === "not-restored") {
         setNotice(loaded.notice);
         if (loaded.newSettings) setPendingSettings({ binding, tape: loaded.newSettings });
       } else if (loaded.kind === "loaded") {
         loadedRef.current(loaded.settings, loaded.predictions);
         setNote("The shared link's settings are in the form. Apply them to calculate.");
+      } else if (loaded.kind === "checkpoint" && worker) {
+        setIncoming({
+          binding,
+          owner: worker,
+          checkpoint: loaded,
+          phase: loaded.compatibilityNotice ? "not-restored" : "ready",
+        });
+        setNotice(loaded.compatibilityNotice ?? "");
       }
     });
     return () => {
       live = false;
+      generation.current++;
+      operation.current?.abort();
+      operation.current = null;
     };
-  }, [binding, enabled]);
-  const shareTape = useMemo(
+  }, [binding, enabled, worker]);
+  const recordingTape = useMemo(
     () =>
       enabled && acceptedParameters ? draftTapeForSettings(binding, acceptedParameters) : null,
     [binding, acceptedParameters, enabled],
   );
+  const retained =
+    enabled &&
+    verifiedShare?.binding === binding &&
+    verifiedShare.session === worker?.session &&
+    workerView !== null &&
+    verifiedShare.accepted === workerView.accepted &&
+    !workerView.pending &&
+    workerView.status === "accepted"
+      ? verifiedShare.tape
+      : null;
+  useEffect(() => {
+    if (!verifiedShare || retained) return;
+    setVerifiedShare(null);
+    setIncoming((previous) =>
+      previous?.phase === "restored" ? { ...previous, phase: "ready" } : previous,
+    );
+    setNote("");
+  }, [verifiedShare, retained]);
+
+  const checkpoint = useMemo<LabTapeLinkState["checkpoint"]>(() => {
+    if (
+      !enabled ||
+      incoming?.binding !== binding ||
+      incoming.owner.session !== worker?.session ||
+      incoming.owner.target !== worker?.target
+    )
+      return undefined;
+    const run = async (kind: "restore" | "calculate") => {
+      if (operation.current) return;
+      const controller = new AbortController();
+      operation.current = controller;
+      const current = generation.current;
+      setNotice("");
+      setNote("");
+      setVerifiedShare(null);
+      setIncoming({ ...incoming, phase: kind === "restore" ? "restoring" : "calculating" });
+      try {
+        const result =
+          kind === "restore"
+            ? await incoming.owner.target.restore(incoming.checkpoint.replay, controller.signal)
+            : await incoming.owner.target.calculate?.(
+                incoming.checkpoint.settings,
+                controller.signal,
+              );
+        if (generation.current !== current || operation.current !== controller) return;
+        if (controller.signal.aborted) {
+          setIncoming({
+            ...incoming,
+            phase: incoming.checkpoint.compatibilityNotice ? "not-restored" : "ready",
+          });
+          setNote("Calculation stopped. Accepted results remain available.");
+        } else if (result?.kind === "restored" || result?.kind === "calculated") {
+          setIncoming({ ...incoming, phase: result.kind });
+          if (result.kind === "restored") {
+            const accepted = incoming.owner.session.getSnapshot().accepted;
+            if (accepted)
+              setVerifiedShare({
+                binding,
+                session: incoming.owner.session,
+                accepted,
+                tape: incoming.checkpoint.tape,
+              });
+            setNote(
+              "The recorded calculation was verified by this laboratory. Its original checkpoint is ready to share.",
+            );
+          } else {
+            setNote(
+              "Calculated these controls as a new run with the current model. The recorded result has not been verified; its original record is unchanged.",
+            );
+          }
+        } else {
+          setIncoming({ ...incoming, phase: "not-restored" });
+          setNotice(result?.notice ?? "This laboratory could not start the recorded calculation.");
+        }
+      } catch {
+        if (generation.current === current && operation.current === controller) {
+          setIncoming({ ...incoming, phase: "not-restored" });
+          setNotice(
+            "The recorded calculation could not finish. Accepted results remain available.",
+          );
+        }
+      } finally {
+        if (operation.current === controller) operation.current = null;
+      }
+    };
+    return {
+      phase: incoming.phase,
+      canRestore: incoming.checkpoint.compatibilityNotice === null,
+      canCalculate:
+        incoming.phase === "not-restored" && incoming.owner.target.calculate !== undefined,
+      restore: () => {
+        void run("restore");
+      },
+      calculate: () => {
+        void run("calculate");
+      },
+      cancel: () => operation.current?.abort(),
+    };
+  }, [binding, enabled, incoming, worker?.session, worker?.target]);
   const recovery = useMemo<LabTapeLinkState["recovery"]>(
     () =>
       enabled && pendingSettings?.binding === binding
@@ -274,7 +437,31 @@ export function useDraftTapeLink(
         : undefined,
     [binding, enabled],
   );
-  return { notice, shareTape, recordingTape: shareTape, note, recovery, walkthrough };
+  return {
+    notice,
+    shareTape: retained ?? recordingTape,
+    recordingTape,
+    note,
+    recovery,
+    walkthrough,
+    checkpoint,
+  };
+}
+
+/** The same draft links, with explicit owner-backed replay for a recorded calculation. */
+export function useWorkerTapeLink(
+  binding: WorkerTapeBinding,
+  session: WorkerTapeSession,
+  acceptedParameters: object | null | undefined,
+  enabled: boolean,
+  onLoaded: (
+    settings: Readonly<Record<string, unknown>>,
+    predictions?: readonly TapePredictionEvent[],
+  ) => void,
+  target: WorkerWalkthroughTarget,
+): LabTapeLinkState {
+  const worker = useMemo(() => ({ session, target }), [session, target]);
+  return useDraftTapeLink(binding, acceptedParameters, enabled, onLoaded, worker);
 }
 
 /**
@@ -290,7 +477,7 @@ export function LabTapeLink({
   workerWalkthrough,
 }: Readonly<{
   link: LabTapeLinkState;
-  /** Explicit worker playback; the recorder and ordinary incoming links can remain form-only. */
+  /** Explicit worker playback; ordinary settings links and personal recordings remain form-only. */
   workerWalkthrough?: WorkerWalkthroughTarget | undefined;
 }>) {
   const [hydrated, setHydrated] = useState(false);
@@ -309,6 +496,54 @@ export function LabTapeLink({
             {link.recovery.label}
           </button>
         </div>
+      )}
+      {hydrated && link.checkpoint && (
+        <section
+          className="notice"
+          aria-label="Shared recorded calculation"
+          data-worker-tape-link=""
+          data-replay-state={link.checkpoint.phase}
+        >
+          <p role="status">
+            {link.checkpoint.phase === "restoring"
+              ? "Checking the recorded calculation and waiting for the laboratory's verified result."
+              : link.checkpoint.phase === "calculating"
+                ? "Calculating a separate run with the current model."
+                : link.checkpoint.phase === "restored"
+                  ? "This laboratory has reproduced the shared checkpoint."
+                  : link.checkpoint.phase === "calculated"
+                    ? "These controls have been calculated as a separate run with the current model."
+                    : link.checkpoint.canRestore
+                      ? "This link contains a recorded calculation. Restore it to check the result with this laboratory."
+                      : "This link contains a recorded calculation from a different model or recording setup."}
+          </p>
+          <div>
+            {link.checkpoint.phase === "restoring" || link.checkpoint.phase === "calculating" ? (
+              <button type="button" onClick={link.checkpoint.cancel}>
+                Cancel calculation
+              </button>
+            ) : (
+              <>
+                {link.checkpoint.canRestore && (
+                  <button type="button" onClick={link.checkpoint.restore}>
+                    Restore recorded calculation
+                  </button>
+                )}
+                {link.checkpoint.canCalculate && (
+                  <>
+                    <p>
+                      The recorded result could not be verified. You can use its validated controls
+                      for a separate calculation; this does not verify or change the old record.
+                    </p>
+                    <button type="button" onClick={link.checkpoint.calculate}>
+                      Calculate as a new run
+                    </button>
+                  </>
+                )}
+              </>
+            )}
+          </div>
+        </section>
       )}
       {link.note && (
         <p role="status" className="notice" data-tape-loaded="">

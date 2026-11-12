@@ -25,7 +25,7 @@ import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { useLaboratoryVisibility } from "../../experiments/lifecycle/useLaboratoryVisibility.ts";
-import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
+import { LabTapeLink, useWorkerTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import {
   type ApplyFailure,
   applyFailure,
@@ -132,10 +132,17 @@ export function CameraLab({
     () => (acceptedParameters ? { ...acceptedParameters, coverageTrials: 0 } : undefined),
     [acceptedParameters],
   );
-  const tapeLink = useDraftTapeLink(workerTape, shareable, restoreFromLocation, (settings) => {
-    setDraft(toCameraDraft(settings as unknown as Bm08Parameters));
-    setDirty(true);
-  });
+  const tapeLink = useWorkerTapeLink(
+    workerTape,
+    session,
+    shareable,
+    restoreFromLocation,
+    (settings) => {
+      setDraft(toCameraDraft(settings as unknown as Bm08Parameters));
+      setDirty(true);
+    },
+    workerWalkthrough,
+  );
   useEffect(() => {
     setReady(true);
     const link = decodeBm08Settings(restoreFromLocation ? window.location.search : "");

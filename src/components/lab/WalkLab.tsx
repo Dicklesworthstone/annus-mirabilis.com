@@ -22,7 +22,7 @@ import { executionStateKindFromHostLabel } from "../../experiments/labels/execut
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { useLaboratoryVisibility } from "../../experiments/lifecycle/useLaboratoryVisibility.ts";
-import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
+import { LabTapeLink, useWorkerTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { FRANKENSIM_NORMALS_ENGINE_SENTENCE } from "../../experiments/provenance/pinnedFrankenSim.ts";
 import {
@@ -155,11 +155,6 @@ export function WalkLab({
   );
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("bm-05", BM05_PROMPTS);
-  // A shared ?tape= link puts its settings in the form and starts no worker; Apply runs them.
-  const tapeLink = useDraftTapeLink(workerTape, p, restoreFromLocation, (settings) => {
-    setDraft(toWalkDraft(settings as unknown as Bm05Parameters));
-    setDirty(true);
-  });
   const workerWalkthrough = useMemo(
     () =>
       createBm05WalkthroughTarget(
@@ -182,6 +177,18 @@ export function WalkLab({
         },
       ),
     [workerTape, session],
+  );
+  // Ordinary settings links fill the form; recorded calculations wait for explicit restoration.
+  const tapeLink = useWorkerTapeLink(
+    workerTape,
+    session,
+    p,
+    restoreFromLocation,
+    (settings) => {
+      setDraft(toWalkDraft(settings as unknown as Bm05Parameters));
+      setDirty(true);
+    },
+    workerWalkthrough,
   );
   useEffect(() => {
     setReady(true);

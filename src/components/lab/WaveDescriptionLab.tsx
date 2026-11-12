@@ -16,7 +16,7 @@ import {
 import { decodeLq01Settings } from "../../experiments/lq01/permalink.ts";
 import { createLq01Session, type PreparedLq01Example } from "../../experiments/lq01/session.ts";
 import { createLq01TapeBinding, createLq01WalkthroughTarget } from "../../experiments/lq01/tape.ts";
-import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
+import { LabTapeLink, useWorkerTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import {
   type ApplyFailure,
@@ -169,10 +169,6 @@ export function WaveDescriptionLab({
   const [ready, setReady] = useState(false);
   const [failure, setFailure] = useState<ApplyFailure | null>(null);
   const [linkNote, setLinkNote] = useState("");
-  // A shared ?tape= link puts its settings in the form and starts nothing; Apply calculates them.
-  const tapeLink = useDraftTapeLink(workerTape, p, restoreFromLocation, (settings) =>
-    setDraft(toLq01Draft(settings as unknown as Lq01Parameters)),
-  );
   const workerWalkthrough = useMemo(
     () =>
       createLq01WalkthroughTarget(
@@ -196,6 +192,15 @@ export function WaveDescriptionLab({
         },
       ),
     [workerTape, session],
+  );
+  // Ordinary settings links fill the form; recorded calculations wait for explicit restoration.
+  const tapeLink = useWorkerTapeLink(
+    workerTape,
+    session,
+    p,
+    restoreFromLocation,
+    (settings) => setDraft(toLq01Draft(settings as unknown as Lq01Parameters)),
+    workerWalkthrough,
   );
 
   useEffect(() => {

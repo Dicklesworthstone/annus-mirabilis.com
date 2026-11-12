@@ -24,7 +24,7 @@ import {
 } from "../../experiments/labels/executionLabelFor.ts";
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { useLaboratoryVisibility } from "../../experiments/lifecycle/useLaboratoryVisibility.ts";
-import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
+import { LabTapeLink, useWorkerTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import {
   type ApplyFailure,
@@ -125,10 +125,6 @@ export function InferenceLab({
   // A shared ?tape= link puts its settings in the form and starts no worker; Apply runs them. It
   // carries no coverage experiments, as the older link did not: a reader runs those deliberately.
   const shareable = useMemo(() => ({ ...p, coverageTrials: 0 }), [p]);
-  const tapeLink = useDraftTapeLink(workerTape, shareable, restoreFromLocation, (settings) => {
-    setDraft(toInferenceDraft(settings as unknown as Bm07Parameters));
-    setDirty(true);
-  });
   const workerWalkthrough = useMemo(
     () =>
       createBm07WalkthroughTarget(
@@ -151,6 +147,17 @@ export function InferenceLab({
         },
       ),
     [workerTape, session],
+  );
+  const tapeLink = useWorkerTapeLink(
+    workerTape,
+    session,
+    shareable,
+    restoreFromLocation,
+    (settings) => {
+      setDraft(toInferenceDraft(settings as unknown as Bm07Parameters));
+      setDirty(true);
+    },
+    workerWalkthrough,
   );
   useEffect(() => {
     setReady(true);

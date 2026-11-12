@@ -28,7 +28,7 @@ import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { useLaboratoryVisibility } from "../../experiments/lifecycle/useLaboratoryVisibility.ts";
-import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
+import { LabTapeLink, useWorkerTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import type { ExecutionStateKind } from "../../experiments/provenance/executionState.ts";
 import { FRANKENSIM_BROWNIAN_ENGINE_SENTENCE } from "../../experiments/provenance/pinnedFrankenSim.ts";
 import {
@@ -149,11 +149,6 @@ export function TracerLab({
     () => createBm01TapeBinding(example, workerFactory),
     [example, workerFactory],
   );
-  // A shared ?tape= link puts its settings in the form and starts no worker; Apply runs them.
-  const tapeLink = useDraftTapeLink(workerTape, p, linked, (settings) => {
-    setDraft(toTracerDraft(settings as unknown as Bm01Parameters));
-    setDirty(true);
-  });
   const workerWalkthrough = useMemo(
     () =>
       createBm01WalkthroughTarget(
@@ -176,6 +171,18 @@ export function TracerLab({
         },
       ),
     [workerTape, session],
+  );
+  // Ordinary settings links fill the form; recorded calculations wait for explicit restoration.
+  const tapeLink = useWorkerTapeLink(
+    workerTape,
+    session,
+    p,
+    linked,
+    (settings) => {
+      setDraft(toTracerDraft(settings as unknown as Bm01Parameters));
+      setDirty(true);
+    },
+    workerWalkthrough,
   );
   // The tracer paths and the controls come first; the spread the prompts ask about waits.
   const gate = usePredictGate("bm-01", BM01_PROMPTS);

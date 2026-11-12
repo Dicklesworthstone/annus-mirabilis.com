@@ -18,36 +18,56 @@ export function createWorkerWalkthroughTarget<P extends object>(
   onAccepted: (parameters: P) => void,
   onStarting?: () => void,
 ): WorkerWalkthroughTarget {
+  // URL restoration and the catalogue player share this target. Refuse their overlap before
+  // onStarting captures a form revision; a refused second request must not rebase the first.
+  let working = false;
+  const busy = () => ({
+    kind: "not-restored" as const,
+    notice:
+      "Another checkpoint calculation is still running. Wait for it to finish or cancel it first.",
+  });
   return {
     kind: "worker",
     experimentId: binding.environment.experimentId,
     async restore(tape, signal) {
-      onStarting?.();
-      const outcome = await restoreWorkerTape(binding, session, tape, { signal });
-      if (outcome.kind === "restored" && !signal?.aborted) {
-        onAccepted(session.acceptedParameters() as P);
+      if (working) return busy();
+      working = true;
+      try {
+        onStarting?.();
+        const outcome = await restoreWorkerTape(binding, session, tape, { signal });
+        if (outcome.kind === "restored" && !signal?.aborted) {
+          onAccepted(session.acceptedParameters() as P);
+        }
+        return outcome;
+      } finally {
+        working = false;
       }
-      return outcome;
     },
     async calculate(recorded, signal) {
-      onStarting?.();
-      const checked = binding.validate({
-        ...binding.defaults,
-        ...settingsFromTape(recorded, binding.defaults),
-      });
-      if (checked.kind !== "accepted") {
-        return {
-          kind: "not-restored",
-          notice: requirementsOf(checked) || "The laboratory refuses these recorded settings.",
-        };
+      if (working) return busy();
+      working = true;
+      try {
+        onStarting?.();
+        const checked = binding.validate({
+          ...binding.defaults,
+          ...settingsFromTape(recorded, binding.defaults),
+        });
+        if (checked.kind !== "accepted") {
+          return {
+            kind: "not-restored",
+            notice: requirementsOf(checked) || "The laboratory refuses these recorded settings.",
+          };
+        }
+        const outcome = await applyWorkerSettings(session, checked.data as object, {
+          signal,
+          newRun: true,
+        });
+        if (outcome.kind !== "restored") return outcome;
+        if (!signal?.aborted) onAccepted(session.acceptedParameters() as P);
+        return { kind: "calculated" };
+      } finally {
+        working = false;
       }
-      const outcome = await applyWorkerSettings(session, checked.data as object, {
-        signal,
-        newRun: true,
-      });
-      if (outcome.kind !== "restored") return outcome;
-      if (!signal?.aborted) onAccepted(session.acceptedParameters() as P);
-      return { kind: "calculated" };
     },
   };
 }
