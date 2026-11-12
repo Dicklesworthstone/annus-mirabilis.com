@@ -187,8 +187,8 @@ describe("Avogadro's declared radius uncertainty", () => {
         details: { diagnostic: "interval owner contract test" },
       }),
     });
-    const owner = spyOn(intervalOwner, "conditionalMolecularNumberInterval").mockReturnValue(
-      unavailable,
+    const owner = spyOn(intervalOwner, "conditionalMolecularNumberInterval").mockImplementation(
+      () => unavailable,
     );
     try {
       expect(session.apply(withRadiusInterval)).toBe(unavailable);

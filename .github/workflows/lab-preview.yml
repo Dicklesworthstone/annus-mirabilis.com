@@ -43,7 +43,7 @@ jobs:
       - run: bun run test:reference
       - name: Verify the reference owners under Node as well
         shell: bash
-        run: node --experimental-strip-types --test src/testing/*.test.mjs 2>&1 | tee artifacts/browser/reference-tests.log
+        run: node --experimental-strip-types --test src/testing/*.test.mjs src/experiments/bm08/tape.node.test.ts 2>&1 | tee artifacts/browser/reference-tests.log
       - name: Exercise the no-algebra reader entrances
         run: bun test --isolate src/testing/light-quanta-entrance-ui.test.tsx src/testing/clock-entrance-ui.test.tsx
       - name: Exercise semantic equation integration and server-rendered gloss controls

@@ -224,7 +224,7 @@ test("the registered derived-temperature preset exercises the actual accepted de
     expect(expectedIds).toContain(`${state}EntropySlopeRelativeDiscrepancy`);
   }
   for (const expected of scenario.expected.outputs) {
-    const value = actual[expected.outputId];
+    const value: unknown = actual[expected.outputId];
     assert.equal(typeof value, "number", expected.outputId);
     expect(
       withinTolerance(value as number, expected.value, expected.tolerance).ok,

@@ -241,8 +241,8 @@ describe("declared radius uncertainty in the mounted comparison", () => {
         ...executionOutcomeRegistry["invariant-violation"],
       },
     };
-    const owner = spyOn(intervalOwner, "conditionalMolecularNumberInterval").mockReturnValue(
-      unavailable,
+    const owner = spyOn(intervalOwner, "conditionalMolecularNumberInterval").mockImplementation(
+      () => unavailable,
     );
     try {
       await change('[name="alphaScale"]', "2");
