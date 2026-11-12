@@ -129,7 +129,19 @@ export function createBm05Session(
           verifiers.get(token),
         ),
       example.sourceDigest,
-      ownerProtocol,
+      {
+        ...ownerProtocol,
+        decodeResponse(message, token, digest) {
+          const response = decodeLabResponse(message, token, digest);
+          if (response.result.kind !== "accepted") return response;
+          const { outputs, stepIndex, simulationTime } = response.result.data;
+          // Transport receipts are verified before the store publishes scientific outputs.
+          return {
+            ...response,
+            result: { kind: "accepted", data: { outputs, stepIndex, simulationTime } },
+          };
+        },
+      },
     );
     scheduler.setSchedulingPaused(schedulingPause.getSchedulingPaused());
     scheduler.request(request);

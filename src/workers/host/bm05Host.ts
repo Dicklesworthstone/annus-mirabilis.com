@@ -1,4 +1,8 @@
 import { BM05_CLASSES, type Bm05Parameters } from "../../experiments/bm05/definition.ts";
+import {
+  type Bm05RecordingCheckpoint,
+  createBm05RecordingCheckpoint,
+} from "../../experiments/bm05/recordingCheckpoint.ts";
 import { executionOutcomeRegistry } from "../../experiments/results/outcomes.ts";
 import type { WalkNormalSource, WalkRecording } from "../../physics/reference/diffusion/walks.ts";
 import { createBm05Recording, measureBm05 } from "../operations/bm05.ts";
@@ -25,7 +29,12 @@ export function createBm05Host(
     stopped = false,
     cancelled = false,
     instanceId: string | null = null;
-  let cache: { runId: string; parameters: Bm05Parameters; recording: WalkRecording } | null = null;
+  let cache: {
+    runId: string;
+    parameters: Bm05Parameters;
+    recording: WalkRecording;
+    checkpoint: Bm05RecordingCheckpoint;
+  } | null = null;
   async function receive(input: unknown): Promise<void> {
     const message = decodeLabRequest(input, sourceDigest);
     if (stopped) return;
@@ -61,8 +70,20 @@ export function createBm05Host(
       if (recording.kind !== "accepted") result = recording;
       else {
         result = await measureBm05(recording.data, p, reused, options);
-        if (result.kind === "accepted" && !cancelled && !stopped)
-          cache = { runId: message.token.runId, parameters: p, recording: recording.data };
+        if (result.kind === "accepted" && !cancelled && !stopped) {
+          const checkpoint =
+            reused && activeCache !== null
+              ? activeCache.checkpoint
+              : await createBm05RecordingCheckpoint(recording.data, sourceDigest);
+          result = { kind: "accepted", data: { ...result.data, recordingCheckpoint: checkpoint } };
+          if (!cancelled && !stopped)
+            cache = {
+              runId: message.token.runId,
+              parameters: p,
+              recording: recording.data,
+              checkpoint,
+            };
+        }
       }
       if (cancelled)
         result = {

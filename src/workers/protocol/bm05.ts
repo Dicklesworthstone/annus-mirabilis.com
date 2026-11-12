@@ -1,17 +1,30 @@
 import {
+  BM05_FRANKENSIM_DRAW_OWNER,
   BM05_MODEL,
   BM05_OUTPUTS,
   type Bm05Parameters,
   bm05Layout,
 } from "../../experiments/bm05/definition.ts";
 import { validateBm05Parameters } from "../../experiments/bm05/parameters.ts";
+import type { Bm05RecordingCheckpoint } from "../../experiments/bm05/recordingCheckpoint.ts";
+import {
+  FRANKENSIM_NORMAL_VERSION,
+  PINNED_ARTIFACT,
+} from "../../experiments/provenance/pinnedFrankenSim.ts";
 import {
   decodeOutcome,
   decodeRefusal,
   decodeResultBatch,
 } from "../../experiments/results/codec.ts";
 import { ownerAdmitted, type RequestToken } from "../../experiments/store/instanceStore.ts";
+import { BM05_ALLOCATION } from "../../experiments/streams/allocation.ts";
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
+import { WALK_KERNELS } from "../../physics/reference/diffusion/walkLaws.ts";
+import {
+  HOST_WALK_DRAW_OWNER,
+  WALK_TRAJECTORY_LAYOUT,
+} from "../../physics/reference/diffusion/walks.ts";
+import { HOST_NORMAL_VERSION } from "../../physics/reference/philox.ts";
 import type { Bm05Evaluation } from "../operations/bm05.ts";
 
 /** Deliberately scoped version: not an assertion that the full WASM protocol is implemented. */
@@ -33,7 +46,7 @@ export type LabResponse = Readonly<{
   protocolVersion: typeof BM05_PROTOCOL;
   sourceDigest: string;
   token: RequestToken;
-  result: Computation<Bm05Evaluation>;
+  result: Computation<Bm05Evaluation & Readonly<{ recordingCheckpoint?: Bm05RecordingCheckpoint }>>;
 }>;
 export type LabHello = Readonly<{
   messageKind: "hello";
@@ -150,6 +163,7 @@ function sameToken(a: RequestToken, b: RequestToken): boolean {
     a.experimentId === b.experimentId &&
     a.instanceId === b.instanceId &&
     a.runId === b.runId &&
+    a.parentRunId === b.parentRunId &&
     a.actionIndex === b.actionIndex &&
     Object.keys(a.revisions).every(
       (k) =>
@@ -174,7 +188,15 @@ export function decodeLabResponse(
     const r = o.result as Record<string, unknown>;
     if (r?.kind === "accepted") {
       record(r, ["kind", "data"]);
-      const data = record(r.data, ["outputs", "stepIndex", "simulationTime"]);
+      const hasCheckpoint = Boolean(
+        r.data && typeof r.data === "object" && Object.hasOwn(r.data, "recordingCheckpoint"),
+      );
+      const data = record(r.data, [
+        "outputs",
+        "stepIndex",
+        "simulationTime",
+        ...(hasCheckpoint ? ["recordingCheckpoint"] : []),
+      ]);
       count(data.stepIndex);
       const requiredSteps = Number(token.parameters.runSteps);
       if (
@@ -249,6 +271,66 @@ export function decodeLabResponse(
         fail("Outputs read from one set of draws name different producers.");
       if (byModule > 0 && (token.parameters as Bm05Parameters).kernel !== "gaussian")
         fail("FrankenSim draws normals, so it cannot have drawn a coin or uniform walk.");
+      if (hasCheckpoint) {
+        const checkpoint = record(data.recordingCheckpoint, [
+          "checkpointVersion",
+          "sourceDigest",
+          "modelId",
+          "ownerId",
+          "normalVersion",
+          "artifactDigest",
+          "allocationId",
+          "streamKernelId",
+          "streamVersion",
+          "seed",
+          "kernel",
+          "walkers",
+          "runSteps",
+          "stepRms",
+          "tau",
+          "draws",
+          "coordinateCount",
+          "trajectoryLayout",
+          "trajectoryDigest",
+          "digest",
+        ]);
+        const p = token.parameters as Bm05Parameters;
+        const positions = outputs.find((output) => output.quantityId === "walkPositions");
+        const draws = outputs.find((output) => output.quantityId === "recordingDraws");
+        const moduleDraws = positions?.ownerId === BM05_FRANKENSIM_DRAW_OWNER;
+        if (
+          checkpoint.checkpointVersion !== 1 ||
+          checkpoint.sourceDigest !== expectedDigest ||
+          checkpoint.modelId !== BM05_MODEL.id ||
+          positions?.status !== "value" ||
+          checkpoint.ownerId !== positions.ownerId ||
+          checkpoint.ownerId !==
+            (moduleDraws ? BM05_FRANKENSIM_DRAW_OWNER : HOST_WALK_DRAW_OWNER) ||
+          checkpoint.normalVersion !==
+            (moduleDraws ? FRANKENSIM_NORMAL_VERSION : HOST_NORMAL_VERSION) ||
+          checkpoint.artifactDigest !==
+            (moduleDraws ? `sha256:${PINNED_ARTIFACT.wasmDigest}` : expectedDigest) ||
+          checkpoint.allocationId !== BM05_ALLOCATION.allocationId ||
+          checkpoint.streamKernelId !== BM05_ALLOCATION.streamKernelId ||
+          checkpoint.streamVersion !== BM05_ALLOCATION.streamVersion ||
+          checkpoint.seed !== p.seed ||
+          checkpoint.kernel !== p.kernel ||
+          checkpoint.walkers !== p.walkers ||
+          checkpoint.runSteps !== p.runSteps ||
+          checkpoint.stepRms !== p.stepRms ||
+          checkpoint.tau !== p.tau ||
+          draws?.status !== "value" ||
+          checkpoint.draws !== draws.value ||
+          checkpoint.draws !== p.walkers * p.runSteps * WALK_KERNELS[p.kernel].drawsPerStep ||
+          checkpoint.coordinateCount !== p.walkers * (p.runSteps + 1) ||
+          checkpoint.trajectoryLayout !== WALK_TRAJECTORY_LAYOUT ||
+          typeof checkpoint.trajectoryDigest !== "string" ||
+          !/^host:sha256:[a-f0-9]{64}$/.test(checkpoint.trajectoryDigest) ||
+          typeof checkpoint.digest !== "string" ||
+          !/^host:sha256:[a-f0-9]{64}$/.test(checkpoint.digest)
+        )
+          fail("The complete trajectory checkpoint disagrees with the accepted walk.");
+      }
     } else if (r?.kind === "refused") {
       record(r, ["kind", "refusal"]);
       decodeRefusal(r.refusal);

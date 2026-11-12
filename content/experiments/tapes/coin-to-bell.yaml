@@ -1,9 +1,9 @@
 # Coin to bell: six checkpoints recorded through BM-05's real worker session.
 # The first four observe one fixed coin trial; kernel changes retain the seed and variance
 # for a common-random-numbers comparison. Gaussian draws use the pinned FrankenSim engine.
-# Each SHA-256 digest covers the accepted scientific outputs, including every observed walker
-# coordinate, sampled path, histogram and exact stream position. Execution cache counters are
-# excluded. Restore verifies the isolated replay and the live publication before replacing a result.
+# Each SHA-256 digest binds every position in every walk, including unplotted steps, to the
+# exact source, draw engine and stream allocation, plus the accepted scientific outputs.
+# Execution cache counters are excluded. Restore verifies both isolated and live publications.
 # Stream-position ranges are lossless: one registered Philox tile per walker, 0 through 1999.
 tapeVersion: 2
 tapeId: "coin-to-bell"
@@ -14,7 +14,7 @@ isTeachingSequence: true
 modelIdentity:
   modelId: "bm05-host-preview-v1"
   modelVersion: "1"
-  artifactDigest: "host:sha256:a50eb15634077ee524f03f98fdccdfbacb3577901216bc441d019c73db3bc21d"
+  artifactDigest: "host:sha256:f455df3c93b3f3fb7807435d1793b07bfff1e3e329834840a1a48c7604ddc116"
 constantSetId: "not-applicable"
 seed: "1905"
 streamVersion: 1
@@ -71,7 +71,7 @@ checkpoints:
   - actionIndex: 1
     stepIndex: 400
     simulatedTime: 40
-    digest: "host:sha256:d076a201259e2bf60ae7be9ac6b21e3bcf0738224c1e83929e97b0c79ea4605a"
+    digest: "host:sha256:bd2fd874e3b1b2ecf4cb4af91a8a0e2922c9207b97db85c5ca29d3212c93103a"
     digestKind: "host"
     checkpointVersion: 1
     streamSemanticsVersion: 1
@@ -103,7 +103,7 @@ checkpoints:
   - actionIndex: 2
     stepIndex: 400
     simulatedTime: 40
-    digest: "host:sha256:158d69d3f8126f642673b9d5db115c5635c504dfcb512803abf277ecf1b03b65"
+    digest: "host:sha256:3db46b3c7a17bbe4d66c657fd14aaa76d7abd1f2a3df2682e1725af7e6e7bf5b"
     digestKind: "host"
     checkpointVersion: 1
     streamSemanticsVersion: 1
@@ -135,7 +135,7 @@ checkpoints:
   - actionIndex: 3
     stepIndex: 400
     simulatedTime: 40
-    digest: "host:sha256:a35ab6d2fc2ef1c6089cd4a2ef570fced58614cc37bb836ec03c2649359dbab5"
+    digest: "host:sha256:f0f7bd9cff9386494c3b234753fb21eaaa5be04e436cc5ffd0edcc7a8e222dae"
     digestKind: "host"
     checkpointVersion: 1
     streamSemanticsVersion: 1
@@ -167,7 +167,7 @@ checkpoints:
   - actionIndex: 4
     stepIndex: 400
     simulatedTime: 40
-    digest: "host:sha256:9477d965dc9a53246317d11ea15a4a15e71ac5c0521c4acc5b71fd5fed7b6c54"
+    digest: "host:sha256:1302a5708ae75cc498430484c80e5d184eec372a6d06d3d3f3087fa70ccfd61f"
     digestKind: "host"
     checkpointVersion: 1
     streamSemanticsVersion: 1
@@ -199,7 +199,7 @@ checkpoints:
   - actionIndex: 5
     stepIndex: 400
     simulatedTime: 40
-    digest: "host:sha256:89a60a40aa5a5b6ac28de5409da3ef8e6c6d4464443596281aa3fcc5f723678d"
+    digest: "host:sha256:a67f1777b27592fa14440190d38cfc371a4ff396d20e89a5c90843d9cb37c591"
     digestKind: "host"
     checkpointVersion: 1
     streamSemanticsVersion: 1
@@ -231,7 +231,7 @@ checkpoints:
   - actionIndex: 6
     stepIndex: 400
     simulatedTime: 40
-    digest: "host:sha256:70119d58c20284b184e0c29dac9aeeb6bf6dbfa26facf861330bae3adf9353ad"
+    digest: "host:sha256:1e720f77490fc6e9d5a973fbacecdc2167a4ea4580823ace6206da9a383c268e"
     digestKind: "host"
     checkpointVersion: 1
     streamSemanticsVersion: 1

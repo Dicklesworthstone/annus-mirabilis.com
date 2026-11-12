@@ -1,5 +1,9 @@
 import { WALK_KERNELS } from "../../physics/reference/diffusion/walkLaws.ts";
-import { HOST_WALK_DRAW_OWNER } from "../../physics/reference/diffusion/walks.ts";
+import {
+  HOST_WALK_DRAW_OWNER,
+  WALK_TRAJECTORY_LAYOUT,
+} from "../../physics/reference/diffusion/walks.ts";
+import { HOST_NORMAL_VERSION } from "../../physics/reference/philox.ts";
 import type { VerifiablePublication } from "../../workers/scheduler/verifiedChannel.ts";
 import { type DigestFields, scientificDigest } from "../digest/scientificDigest.ts";
 import { parseU64 } from "../identity/u64.ts";
@@ -13,6 +17,7 @@ import {
   BM05_MODEL,
   type Bm05Parameters,
 } from "./definition.ts";
+import type { Bm05RecordingCheckpoint } from "./recordingCheckpoint.ts";
 
 /** Changing the observed step does not rewind the complete, already recorded walker streams. */
 export function bm05ScientificState(p: Bm05Parameters): TapeScientificCheckpoint {
@@ -103,7 +108,10 @@ const executionDiagnostics = new Set([
   "retainedBytes",
 ]);
 
-/** Bind every walker at the observed step, traces, distributions and scientific results to the run. */
+/**
+ * Bind the entire fixed recording as well as the selected observation and scientific results.
+ * The owner hashes every walker/step before plots or cached measurements select a subset.
+ */
 export async function bm05CheckpointDigest(
   publication: VerifiablePublication,
   sourceDigest: string,
@@ -135,6 +143,46 @@ export async function bm05CheckpointDigest(
           ? "This recorded Gaussian trial requires the pinned FrankenSim normal engine. The host fallback uses a different normal transform; calculate a new run to use it."
           : "The worker's walk results were produced by another random-step engine.",
     };
+  const recording = publication.recordingCheckpoint as Bm05RecordingCheckpoint | undefined;
+  if (!recording)
+    return {
+      kind: "not-restored",
+      notice: "The walk worker did not supply a complete-trajectory checkpoint.",
+    };
+  if (
+    recording.checkpointVersion !== 1 ||
+    recording.sourceDigest !== sourceDigest ||
+    recording.modelId !== BM05_MODEL.id ||
+    recording.ownerId !== drawOwner ||
+    recording.normalVersion !==
+      (p.kernel === "gaussian" ? FRANKENSIM_NORMAL_VERSION : HOST_NORMAL_VERSION) ||
+    recording.artifactDigest !==
+      (p.kernel === "gaussian" ? `sha256:${PINNED_ARTIFACT.wasmDigest}` : sourceDigest) ||
+    recording.allocationId !== BM05_ALLOCATION.allocationId ||
+    recording.streamKernelId !== BM05_ALLOCATION.streamKernelId ||
+    recording.streamVersion !== BM05_ALLOCATION.streamVersion ||
+    recording.seed !== p.seed ||
+    recording.kernel !== p.kernel ||
+    recording.walkers !== p.walkers ||
+    recording.runSteps !== p.runSteps ||
+    recording.stepRms !== p.stepRms ||
+    recording.tau !== p.tau ||
+    recording.draws !== p.walkers * p.runSteps * WALK_KERNELS[p.kernel].drawsPerStep ||
+    recording.coordinateCount !== p.walkers * (p.runSteps + 1) ||
+    recording.trajectoryLayout !== WALK_TRAJECTORY_LAYOUT ||
+    typeof recording.trajectoryDigest !== "string" ||
+    !/^host:sha256:[a-f0-9]{64}$/.test(recording.trajectoryDigest)
+  )
+    return {
+      kind: "not-restored",
+      notice: "The complete walk checkpoint belongs to another setup, evaluator or draw engine.",
+    };
+  const { digest: recordingDigest, ...recordingIdentity } = recording;
+  if ((await scientificDigest(recordingIdentity)).digest !== recordingDigest)
+    return {
+      kind: "not-restored",
+      notice: "The walk's complete-trajectory checkpoint is internally inconsistent.",
+    };
   const outputs = publication.outputs
     .filter((output) => !executionDiagnostics.has(output.quantityId))
     .sort((left, right) =>
@@ -150,7 +198,7 @@ export async function bm05CheckpointDigest(
         }) as DigestFields,
     );
   const { digest } = await scientificDigest({
-    format: "bm05-scientific-checkpoint-v1",
+    format: "bm05-scientific-checkpoint-v2",
     experimentId: "bm-05",
     modelId: BM05_MODEL.id,
     modelVersion: 1,
@@ -158,6 +206,7 @@ export async function bm05CheckpointDigest(
     actionIndex,
     parameters: p,
     scientificState: position,
+    recording,
     drawEngine: {
       ownerId: drawOwner,
       ...(p.kernel === "gaussian"
@@ -185,5 +234,5 @@ export async function verifyBm05ScientificCheckpoint(
   if (calculated.kind !== "digest") return calculated.notice;
   return calculated.digest === tape.acceptedCheckpoint.digest
     ? null
-    : "The worker's walks and scientific results do not match the recorded checkpoint exactly. This can reflect a different calculation engine. The previous accepted result has been kept; calculate a new run to use this engine.";
+    : "The worker's complete walks and scientific results do not match the recorded checkpoint exactly. This can reflect a different calculation engine. The previous accepted result has been kept; calculate a new run to use this engine.";
 }

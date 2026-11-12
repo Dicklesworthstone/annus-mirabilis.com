@@ -1,3 +1,4 @@
+import { scientificDigest } from "../../../experiments/digest/scientificDigest.ts";
 import { executionOutcomeRegistry } from "../../../experiments/results/outcomes.ts";
 import { makeRefusal } from "../../../experiments/results/refusals.ts";
 import { BM05_ALLOCATION, bm05Tile } from "../../../experiments/streams/allocation.ts";
@@ -11,6 +12,12 @@ export const WALK_BUDGET = Object.freeze({
 });
 export const WALK_TRACE_COUNT = 20;
 export const WALK_MILESTONES = Object.freeze([4, 16, 64, 400]);
+/** Fixed scientific blocks, unrelated to a worker's scheduling/yield budget. */
+export const WALK_TRAJECTORY_BLOCK_POSITIONS = 4096;
+export const WALK_TRAJECTORY_LAYOUT = "bm05-walker-step-f64-le-chain-v1";
+// The input block, canonical little-endian encoding, its concatenations and Web Crypto's
+// copy coexist transiently. Charge eight blocks plus framing, not only the retained hash.
+export const WALK_TRAJECTORY_SCRATCH_BYTES = WALK_TRAJECTORY_BLOCK_POSITIONS * 8 * 8 + 4096;
 export type WalkSetup = Readonly<{
   walkers: number;
   runSteps: number;
@@ -34,6 +41,8 @@ export type WalkRecording = Readonly<{
   protectedSteps: ReadonlySet<number>;
   allocationId: string;
   normalVersion: string;
+  /** Every walker's complete path, including unplotted positions between cached observations. */
+  trajectoryDigest: string;
   draws: number;
   retainedBytes: number;
 }>;
@@ -121,10 +130,13 @@ function validate(p: WalkSetup): Computation<WalkSetup> {
   )
     return failed("Step amplitude or elapsed time is not representable.");
   const workUnits = p.walkers * p.runSteps;
-  // The ceiling includes eight endpoint vectors and the full sampled traces, plus
-  // scratch reductions and one observation vector. No W*N path buffer is allocated.
+  // Include eight endpoint vectors, the sampled traces, reductions, Gaussian draw scratch,
+  // and canonical hashing scratch. No W*N path buffer is allocated.
   const allocationBytes =
-    (Math.min(WALK_TRACE_COUNT, p.walkers) * (p.runSteps + 1) + p.walkers * 12) * 8;
+    (Math.min(WALK_TRACE_COUNT, p.walkers) * (p.runSteps + 1) +
+      p.walkers * 12 +
+      (p.kernel === "gaussian" ? p.runSteps * 4 : 0)) * 8 +
+    WALK_TRAJECTORY_SCRATCH_BYTES;
   if (workUnits > WALK_BUDGET.workUnits || allocationBytes > WALK_BUDGET.allocationBytes)
     return {
       kind: "outcome",
@@ -151,6 +163,43 @@ function execution(options: WalkExecutionOptions) {
   };
 }
 type Sampler = Readonly<{ next: () => number; ownerId: string; normalVersion: string }>;
+/**
+ * A bounded receipt for the entire walker-major path. Each fixed block binds the previous
+ * digest, its coordinate offset and its exact float bits; the header fixes the full shape.
+ * Most appends are synchronous. Only a full block (or the final partial block) invokes crypto.
+ */
+async function trajectoryReceipt(p: WalkSetup) {
+  const block = new Float64Array(WALK_TRAJECTORY_BLOCK_POSITIONS);
+  let used = 0;
+  let offset = 0;
+  let previous = (await scientificDigest({
+    layout: WALK_TRAJECTORY_LAYOUT,
+    shape: [p.walkers, p.runSteps + 1],
+    blockPositions: WALK_TRAJECTORY_BLOCK_POSITIONS,
+  })).digest;
+  async function flush() {
+    if (used === 0) return;
+    previous = (await scientificDigest({
+      previous,
+      offset,
+      coordinates: block.subarray(0, used),
+    })).digest;
+    offset += used;
+    used = 0;
+  }
+  return {
+    append(value: number): Promise<void> | undefined {
+      block[used++] = value;
+      return used === block.length ? flush() : undefined;
+    },
+    async finish(): Promise<string> {
+      await flush();
+      if (offset !== p.walkers * (p.runSteps + 1))
+        throw new Error("A complete walk trajectory receipt requires every position.");
+      return previous;
+    },
+  };
+}
 /**
  * A walker's steps from `startStep`. A coin or uniform step reads this reference's stream; a
  * Gaussian step reads `count` normals from the given source, in one run.
@@ -221,20 +270,28 @@ export async function recordWalks(
       .map((n) => [n, new Float64Array(p.walkers)]),
   );
   const traceValues = new Float64Array(Math.min(WALK_TRACE_COUNT, p.walkers) * (p.runSteps + 1));
+  const trajectory = await trajectoryReceipt(p);
   const source = options.normals ?? HOST_WALK_NORMALS;
   let drawOwner: string | null = null;
-  let normalVersion = HOST_NORMAL_VERSION;
+  let normalVersion: string | null = null;
   let work = 0;
   for (let walker = 0; walker < p.walkers; walker++) {
     const drawn = sampler(p, walker, 0, p.runSteps, source);
     if (drawn.kind !== "accepted") return drawn;
     // One walk, one producer: every walker's draws must name the same owner.
-    if (drawOwner !== null && drawn.data.ownerId !== drawOwner)
-      return failed("The walkers' draws name different producers; no partial trial was accepted.");
+    if (
+      (drawOwner !== null && drawn.data.ownerId !== drawOwner) ||
+      (normalVersion !== null && drawn.data.normalVersion !== normalVersion)
+    )
+      return failed(
+        "The walkers' draws name different producers or normal versions; no partial trial was accepted.",
+      );
     drawOwner = drawn.data.ownerId;
     normalVersion = drawn.data.normalVersion;
     const next = drawn.data.next;
     let x = 0;
+    const initialBlock = trajectory.append(x);
+    if (initialBlock) await initialBlock;
     for (let n = 1; n <= p.runSteps; n++) {
       if (work % config.chunk === 0) {
         if (options.cancelled?.()) return cancelled();
@@ -247,11 +304,15 @@ export async function recordWalks(
         return failed(
           "A walk coordinate exceeded the representable range; no partial trial was accepted.",
         );
+      const completeBlock = trajectory.append(x);
+      if (completeBlock) await completeBlock;
       const checkpoint = checkpoints.get(n);
       if (checkpoint) checkpoint[walker] = x;
       if (walker < WALK_TRACE_COUNT) traceValues[walker * (p.runSteps + 1) + n] = x;
     }
   }
+  if (options.cancelled?.()) return cancelled();
+  const trajectoryDigest = await trajectory.finish();
   if (options.cancelled?.()) return cancelled();
   return {
     kind: "accepted",
@@ -263,7 +324,8 @@ export async function recordWalks(
       traceValues,
       protectedSteps,
       allocationId: BM05_ALLOCATION.allocationId,
-      normalVersion,
+      normalVersion: normalVersion ?? HOST_NORMAL_VERSION,
+      trajectoryDigest,
       draws: work * WALK_KERNELS[p.kernel].drawsPerStep,
       retainedBytes:
         traceValues.byteLength +
@@ -311,8 +373,13 @@ export async function observeWalks(
     // The replay draws through the recording's own engine, so it continues the same walk.
     const drawn = sampler(p, walker, start, n - start, recording.normals);
     if (drawn.kind !== "accepted") return drawn;
-    if (drawn.data.ownerId !== recording.drawOwner)
-      return failed("A replay's draws name a different producer than the recording's.");
+    if (
+      drawn.data.ownerId !== recording.drawOwner ||
+      drawn.data.normalVersion !== recording.normalVersion
+    )
+      return failed(
+        "A replay's draws name a different producer or normal version than the recording's.",
+      );
     const next = drawn.data.next;
     for (let step = start; step < n; step++) {
       if (work % config.chunk === 0) {
