@@ -1,8 +1,8 @@
 /**
  * /tours/fifteen-minutes-mass-energy as a reader gets it without JavaScript (am-tour-15min-mass-energy-nqz1):
  * every step rendered in place from the real record, no math and no symbol anywhere, each prediction
- * answerable through native disclosures, and the missing equation-free laboratory said plainly
- * rather than faked. Also the tours index, and the refusal that keeps a broken tour off the site.
+ * answerable through native disclosures, with real owner-backed worked tables in the tour.
+ * Also the tours index, and the refusal that keeps a broken tour off the site.
  */
 import { describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
@@ -51,7 +51,7 @@ describe("the fifteen-minute mass-energy tour, static", () => {
     expect(html).toContain("this leaves the equation-free path");
   });
 
-  test("each prediction offers its prompt's three candidates in disclosures, and says the laboratory is not in the tour", () => {
+  test("each prediction offers its authored candidates and an in-tour worked comparison", () => {
     const instruments = (tour?.steps ?? []).flatMap((s) => (s.kind === "instrument" ? [s] : []));
     expect(instruments.length).toBe(3);
     for (const s of instruments) {
@@ -60,11 +60,16 @@ describe("the fifteen-minute mass-energy tour, static", () => {
       const block = html.slice(at, html.indexOf("</li>", at));
       const shown = [...block.matchAll(/<details data-candidate-id="([^"]+)"/g)].map((m) => m[1]);
       expect(shown).toEqual(s.choices.map((c) => c.candidateId));
-      expect(block).toContain("is not built yet");
+      expect(block).toContain(`data-tour-worked-example="${s.instrumentId}"`);
+      expect(block).toContain("<table>");
+      expect(block).toContain("Static worked example");
+      expect(block).toContain(`data-instrument-id="${s.instrumentId}"`);
+      expect(block).not.toContain("is not built yet");
       expect(block).toContain(`href="/lab/${s.instrumentId}/"`);
     }
-    // No laboratory is mounted in the tour: the step never stands in for the instrument.
-    expect(html).not.toContain("data-instrument-id=");
+    // The static page has the complete comparison; live owners wait for hydration and the
+    // dispatcher's reading-only decision, rather than doing interactive work during export.
+    expect(html).not.toContain("data-tour-owner=");
   });
 
   // No draft label, whatever the summary's review state (D-2026-09-25-no-review-status-banners).

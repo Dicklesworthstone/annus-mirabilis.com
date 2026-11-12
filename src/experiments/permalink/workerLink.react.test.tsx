@@ -106,7 +106,9 @@ test("the reader explicitly restores a shared checkpoint, then a later calculati
   expect(lab.restored).toEqual([lab.session.acceptedParameters()]);
   expect(lab.channels).toHaveLength(2);
   expect(lab.current.link?.shareTape).toEqual(recorded);
+  await until(() => Boolean(lab.current.link?.recordingTape?.acceptedCheckpoint.scientificState));
   expect(lab.current.link?.recordingTape?.events).toEqual([]);
+  expect(lab.current.link?.recordingTape?.acceptedCheckpoint.acceptedActionIndex).toBe(0);
   expect(document.querySelector("[data-tape-loaded]")?.textContent).toContain(
     "original checkpoint is ready to share",
   );
@@ -115,16 +117,18 @@ test("the reader explicitly restores a shared checkpoint, then a later calculati
     lab.session.apply({ ...lab.session.acceptedParameters(), sigma: 0.4e-6 });
   });
   await until(() => lab.session.getSnapshot().status === "accepted");
+  await until(() => lab.current.link?.recordingTape?.initialConditions.sigma === 0.4e-6);
   expect(lab.current.link?.checkpoint?.phase).toBe("ready");
   expect(lab.current.link?.shareTape?.initialConditions.sigma).toBe(0.4e-6);
   expect(lab.current.link?.shareTape?.events).toEqual([]);
-  expect(lab.current.link?.shareTape?.acceptedCheckpoint.scientificState).toBeUndefined();
+  expect(lab.current.link?.shareTape?.acceptedCheckpoint.scientificState).toBeDefined();
   expect(document.querySelector("[data-tape-loaded]")).toBeNull();
   // Returning to the old controls does not revive a checkpoint that no longer owns this run.
   await act(async () => {
     lab.session.apply({ ...lab.session.acceptedParameters(), sigma: 0.2e-6 });
   });
   await until(() => lab.session.getSnapshot().status === "accepted");
+  await until(() => lab.current.link?.recordingTape?.initialConditions.sigma === 0.2e-6);
   expect(lab.current.link?.shareTape?.acceptedCheckpoint.digest).not.toBe(
     recorded.acceptedCheckpoint.digest,
   );
@@ -164,6 +168,7 @@ test("a source mismatch offers a clearly separate current-model run without clai
   expect(document.querySelector("[data-tape-notice]")?.textContent).toContain("Recorded artifact:");
   await click("Calculate as a new run");
   await until(() => lab.current.link?.checkpoint?.phase === "calculated");
+  await until(() => Boolean(lab.current.link?.recordingTape?.acceptedCheckpoint.scientificState));
   expect(lab.session.getSnapshot().accepted?.runId).not.toBe(lab.before.accepted?.runId);
   expect(lab.session.getSnapshot().accepted?.parentRunId).toBe(lab.before.accepted?.runId);
   expect(lab.channels).toHaveLength(1);
@@ -171,7 +176,11 @@ test("a source mismatch offers a clearly separate current-model run without clai
   expect(lab.current.link?.shareTape?.modelIdentity.artifactDigest).toBe(
     lab.binding.environment.artifactDigest,
   );
-  expect(lab.current.link?.shareTape?.acceptedCheckpoint.scientificState).toBeUndefined();
+  expect(lab.current.link?.shareTape?.acceptedCheckpoint.scientificState).toBeDefined();
+  expect(lab.current.link?.shareTape?.acceptedCheckpoint.acceptedActionIndex).toBe(0);
+  expect(lab.current.link?.shareTape?.acceptedCheckpoint.digest).not.toBe(
+    historical.acceptedCheckpoint.digest,
+  );
   expect(document.querySelector("[data-tape-loaded]")?.textContent).toContain(
     "recorded result has not been verified",
   );
@@ -235,7 +244,11 @@ test("newer manual work wins while a shared checkpoint is being checked", async 
   expect(document.querySelector("[data-tape-notice]")?.textContent).toContain(
     "Your newer work has been kept",
   );
-  expect(lab.current.link?.shareTape?.acceptedCheckpoint.scientificState).toBeUndefined();
+  await until(() => lab.current.link?.recordingTape?.initialConditions.sigma === 0.4e-6);
+  expect(lab.current.link?.shareTape?.acceptedCheckpoint.scientificState).toBeDefined();
+  expect(lab.current.link?.shareTape?.acceptedCheckpoint.digest).not.toBe(
+    recorded.acceptedCheckpoint.digest,
+  );
 });
 
 test("leaving the laboratory cancels an in-flight link restore without a late form update", async () => {
