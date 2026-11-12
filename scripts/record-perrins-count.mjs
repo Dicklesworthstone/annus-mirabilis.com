@@ -12,7 +12,6 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { evaluatorSources } from "./generate-inference.mjs";
 import { parseYaml } from "../src/content/provenance/yaml.ts";
 import { BM07_DEFAULTS } from "../src/experiments/bm07/definition.ts";
 import { createBm07TapeBinding } from "../src/experiments/bm07/tape.ts";
@@ -20,10 +19,7 @@ import {
   bm07CheckpointDigest,
   bm07ScientificState,
 } from "../src/experiments/bm07/tapeCheckpoint.ts";
-import {
-  decodeTapePermalink,
-  encodeTapePermalink,
-} from "../src/experiments/permalink/codec.ts";
+import { decodeTapePermalink, encodeTapePermalink } from "../src/experiments/permalink/codec.ts";
 import { permalinkTapeFromControlTape } from "../src/experiments/permalink/fromControlTape.ts";
 import { settingsFromTape } from "../src/experiments/permalink/sessionTape.ts";
 import { checkpointPrefixes } from "../src/experiments/permalink/walkthroughCheckpoints.ts";
@@ -35,6 +31,7 @@ import { encodeResult } from "../src/experiments/results/codec.ts";
 import { validateControlTape } from "../src/experiments/tapes/schema.ts";
 import { createBm07Host } from "../src/workers/host/bm07Host.ts";
 import { createBm07Recording, measureBm07 } from "../src/workers/operations/bm07.ts";
+import { evaluatorSources } from "./generate-inference.mjs";
 
 function expectedValues(snapshot, checkpoint) {
   return (checkpoint.expectedDisplayValues ?? []).map((expected) => {
@@ -79,8 +76,19 @@ export async function recordPerrinsCount(record) {
   assert.equal(record.mode, "bm-07:default");
   assert.equal(record.initialConditions.observationSet, "synthetic");
   assert.deepEqual(Object.keys(record.initialConditions).sort(), Object.keys(BM07_DEFAULTS).sort());
-  assert.deepEqual(record.checkpoints.map((checkpoint) => checkpoint.actionIndex), [0, 1]);
+  assert.deepEqual(
+    record.checkpoints.map((checkpoint) => checkpoint.actionIndex),
+    [0, 1],
+  );
   assert.equal(record.events.length, 1);
+  // The control-tape validator drops optional string previousValue annotations. Prove the
+  // actual starting state and each applied checkpoint state instead of relying on that annotation.
+  assert.equal(record.initialConditions.radiusKnown, "false");
+  const prefixes = checkpointPrefixes(record);
+  assert.deepEqual(
+    prefixes.map((prefix) => prefix.settings.radiusKnown),
+    ["false", "true"],
+  );
   assert.deepEqual(
     {
       kind: record.events[0].kind,
@@ -88,7 +96,6 @@ export async function recordPerrinsCount(record) {
       commandClass: record.events[0].commandClass,
       parameterId: record.events[0].parameterId,
       value: record.events[0].value,
-      previousValue: record.events[0].previousValue,
     },
     {
       kind: "control",
@@ -96,7 +103,6 @@ export async function recordPerrinsCount(record) {
       commandClass: "estimator-change",
       parameterId: "radiusKnown",
       value: "true",
-      previousValue: "false",
     },
   );
 
@@ -151,7 +157,7 @@ export async function recordPerrinsCount(record) {
   let firstObservationDigest;
   let firstRecordingDigest;
   try {
-    for (const prefix of checkpointPrefixes(record)) {
+    for (const prefix of prefixes) {
       const checkpoint = prefix.record.checkpoints[0];
       const parameters = {
         ...BM07_DEFAULTS,
