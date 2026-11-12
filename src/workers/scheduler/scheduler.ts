@@ -34,6 +34,11 @@ import type {
   RequestToken,
 } from "../../experiments/store/instanceStore.ts";
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
+import {
+  createWorkerAdmission,
+  sharedLaboratoryAdmission,
+  type WorkerAdmission,
+} from "./admission.ts";
 import { markAccepted, markInput } from "./marks.ts";
 
 export type WorkerChannel = Readonly<{
@@ -79,11 +84,13 @@ export interface DedicatedSchedulerOptions {
   readonly factory: () => WorkerChannel;
   readonly sourceDigest: string;
   readonly protocol: HostProtocol;
+  /** Share a budget among independent owners. createHostScheduler supplies the device-wide queue. */
+  readonly admission?: WorkerAdmission | undefined;
   readonly report?: ((event: SchedulerEvent) => void) | undefined;
   readonly maxRestarts?: number | undefined;
-  /** Visible, unpaused time allowed to load and validate a worker. */
+  /** Inactivity allowed to load and validate a worker. Shared reservations remain bounded while hidden. */
   readonly handshakeTimeoutMs?: number | undefined;
-  /** Visible, unpaused inactivity allowed between validated progress or a final response. */
+  /** Inactivity allowed between validated progress or a final response. */
   readonly responseTimeoutMs?: number | undefined;
 }
 
@@ -106,6 +113,7 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
     factory,
     sourceDigest,
     protocol,
+    admission = createWorkerAdmission(1),
     report = () => {},
     maxRestarts = 3,
     handshakeTimeoutMs = 30_000,
@@ -118,6 +126,9 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
       );
   }
 
+  // A hidden in-flight owner must not keep a shared slot forever. Standalone schedulers retain
+  // their visible-time clock; shared owners terminate stalled work and expose the same retry.
+  const boundHiddenWork = options.admission !== undefined;
   let channel: WorkerChannel | null = null;
   let unsubscribe: (() => void) | null = null;
   let active: RequestToken | null = null;
@@ -125,6 +136,8 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
   let ready = false;
   let disposed = false;
   let schedulingPaused = false;
+  let reservation: object | null = null;
+  let admitted = false;
   let cancelSent = false;
   let epoch = 0;
   let failures = 0;
@@ -162,7 +175,7 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
   }
 
   function pauseDeadline(): void {
-    if (!deadline || deadline.timer === null) return;
+    if (!deadline || deadline.timer === null || boundHiddenWork) return;
     clearTimeout(deadline.timer);
     deadline.timer = null;
     deadline.remainingMs = Math.max(
@@ -173,14 +186,15 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
 
   function resumeDeadline(): void {
     const waiting = deadline;
-    if (!waiting || waiting.timer !== null || schedulingPaused || disposed) return;
+    if (!waiting || waiting.timer !== null || (schedulingPaused && !boundHiddenWork) || disposed)
+      return;
     waiting.startedAt = performance.now();
     const timer = setTimeout(() => {
       if (
         deadline !== waiting ||
         waiting.timer !== timer ||
         waiting.generation !== epoch ||
-        schedulingPaused ||
+        (schedulingPaused && !boundHiddenWork) ||
         disposed
       )
         return;
@@ -204,11 +218,49 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
     resumeDeadline();
   }
 
+  function releaseAdmission(): void {
+    const previous = reservation;
+    reservation = null;
+    admitted = false;
+    if (previous) admission.release(previous);
+  }
+
+  function schedule(): void {
+    if (!pending || disposed || schedulingPaused) return;
+    if (admitted) {
+      connect();
+      dispatch();
+      return;
+    }
+    if (reservation) return;
+    const next = {};
+    reservation = next;
+    admission.acquire(
+      next,
+      () => {
+        if (reservation !== next) return;
+        admitted = true;
+        if (!pending || disposed || schedulingPaused) {
+          releaseAdmission();
+          return;
+        }
+        connect();
+        dispatch();
+      },
+      () => {
+        if (reservation === next) fail("environment-unsupported");
+      },
+    );
+  }
+
   function close(): void {
     epoch++;
     clearDeadline();
     const previousUnsubscribe = unsubscribe;
     const previousChannel = channel;
+    const previousReservation = reservation;
+    reservation = null;
+    admitted = false;
     unsubscribe = null;
     channel = null;
     active = null;
@@ -225,6 +277,8 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
     } catch {
       /* Late events are already fenced by the connection generation. */
     }
+    // Termination precedes admission: cancelling a packet alone cannot interrupt WASM.
+    if (previousReservation) admission.release(previousReservation);
   }
 
   function fail(
@@ -247,7 +301,8 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
   }
 
   function dispatch(): void {
-    if (!ready || !channel || active || !pending || disposed || schedulingPaused) return;
+    if (!admitted || !ready || !channel || active || !pending || disposed || schedulingPaused)
+      return;
     const token = pending;
     const generation = epoch;
     active = token;
@@ -271,7 +326,7 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
   }
 
   function connect(): void {
-    if (channel || disposed || schedulingPaused) return;
+    if (channel || !admitted || disposed || schedulingPaused) return;
     if (failures >= maxRestarts) {
       fail("environment-unsupported");
       return;
@@ -290,7 +345,8 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
               protocol.decodeHello(message, sourceDigest);
               clearDeadline();
               ready = true;
-              dispatch();
+              if (schedulingPaused || !pending) releaseAdmission();
+              else dispatch();
               return;
             }
 
@@ -307,6 +363,9 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
             const response = protocol.decodeResponse(message, token, sourceDigest);
             clearDeadline();
             active = null;
+            releaseAdmission();
+            // Starting a queued peer can synchronously cancel or dispose this owner.
+            if (generation !== epoch || disposed) return;
             let decision: PublicationDecision;
 
             if (response.result.kind === "accepted") {
@@ -330,7 +389,7 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
             }
 
             notify(decision.accepted ? "completed" : "stale", response.token ?? token);
-            if (generation === epoch) dispatch();
+            if (generation === epoch) schedule();
           } catch (err: unknown) {
             const code =
               err &&
@@ -412,7 +471,7 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
         notify("superseded", pending);
       }
       pending = token;
-      connect();
+      schedule();
 
       if (hadActive && active && !cancelSent && channel && !schedulingPaused) {
         try {
@@ -435,28 +494,31 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
     setSchedulingPaused(paused: boolean): void {
       if (disposed || schedulingPaused === paused) return;
       schedulingPaused = paused;
-      if (paused) pauseDeadline();
-      else {
+      if (paused) {
+        pauseDeadline();
+        // An in-flight call or handshake still owns its reservation until it finishes.
+        if (!active && (!channel || ready)) releaseAdmission();
+      } else {
         resumeDeadline();
-        if (pending) {
-          connect();
-          dispatch();
-        }
+        schedule();
       }
     },
 
     cancel(): void {
+      const cancelled = store.getSnapshot().requested;
       pending = null;
       close();
-      store.pause();
+      // Releasing capacity may start a peer whose subscriber issues a new request here.
+      if (store.getSnapshot().requested === cancelled) store.pause();
     },
 
     dispose(): void {
       if (disposed) return;
       disposed = true;
+      const cancelled = store.getSnapshot().requested;
       pending = null;
       close();
-      store.pause();
+      if (store.getSnapshot().requested === cancelled) store.pause();
     },
 
     getWorkerMessageCount(): number {
@@ -484,6 +546,7 @@ export function createHostScheduler(
     factory,
     sourceDigest,
     protocol,
+    admission: sharedLaboratoryAdmission(),
     report,
   });
 }
