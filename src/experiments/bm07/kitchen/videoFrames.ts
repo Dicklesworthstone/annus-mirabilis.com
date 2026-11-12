@@ -179,7 +179,13 @@ export function createVideoFrameReader(
           ),
         );
       const capture = (time: number, counter: number | null) => {
-        if (finished || ticket !== epoch || video.seeking || video.readyState < 2) return false;
+        if (finished || ticket !== epoch) return false;
+        // rVFC identifies a presented frame independently of media-event ordering. A paused
+        // seek can deliver its only new frame before seeking becomes false; discarding that
+        // callback would wait for another presentation that need not occur. Draw its pixels while
+        // metadata applies. Only the inferred-timing fallback waits for seek/data readiness.
+        // https://wicg.github.io/video-rvfc/
+        if (counter === null && (video.seeking || video.readyState < 2)) return false;
         const g = geometry();
         if (g.kind !== "ready") {
           finish(g);
@@ -190,6 +196,11 @@ export function createVideoFrameReader(
           finish(stamp);
           return true;
         }
+        // Metadata is validated before testing freshness, so malformed counters remain typed
+        // refusals. An old presentation cannot acquire a new requested time, even after seeked.
+        const previousCounter = accepted?.frame.stamp.presentedFrames ?? null;
+        if (counter !== null && previousCounter !== null && counter <= previousCounter)
+          return false;
         try {
           draw(g.value);
         } catch {

@@ -11,6 +11,7 @@ class Video {
   readyState = 0;
   seeking = false;
   _time = 0;
+  presentedTime = 0;
   next = 0;
   listeners = new Map();
   callbacks = new Map();
@@ -52,11 +53,15 @@ class Video {
   present(time, counter = 1) {
     this._time = time;
     this.seeking = false;
+    this.submitFrame(time, counter);
+    this.emit("seeked");
+  }
+  submitFrame(time, counter) {
+    this.presentedTime = time;
     this.readyState = 2;
     const q = [...this.callbacks.values()];
     this.callbacks.clear();
     for (const f of q) f(0, { mediaTime: time, presentedFrames: counter });
-    this.emit("seeked");
   }
   data() {
     this.readyState = 2;
@@ -80,7 +85,7 @@ function setup({ fallback = false, limits = {}, drawFailure = false } = {}) {
     30,
     (g) => {
       if (drawFailure) throw Error("no context");
-      draws.push([g, v.currentTime]);
+      draws.push([g, v.presentedTime]);
     },
     {
       limits: { ...KITCHEN_VIDEO_LIMITS, ...limits },
@@ -137,6 +142,60 @@ test("read requests retain adjusted mediaTime rather than the requested time", a
   assert.equal(r.value.frame.stamp.timingSource, "frame-callback-adjusted");
   assert.equal(r.value.reads, 2);
 });
+test("a paused frame callback before seek completion resolves without waiting for another frame", async () => {
+  const s = setup();
+  await s.open();
+  const p = s.reader.read(0.5);
+  assert.equal(s.v.seeking, true);
+  // Decode/presentation can precede the media-element seek completion. currentTime is the
+  // requested position, while the only new paused frame has its own presentation timestamp.
+  s.v.submitFrame(0.45, 2);
+  assert.equal(s.draws.length, 2, "pixels must be captured in their frame callback");
+  assert.equal(s.draws.at(-1)[1], 0.45);
+  s.v.seeking = false;
+  s.v.emit("seeked");
+  s.expire();
+  const r = await p;
+  assert.equal(r.kind, "ready");
+  assert.equal(r.value.frame.time, 0.45);
+  assert.equal(r.value.frame.stamp.requestedTime, 0.5);
+  assert.equal(r.value.frame.stamp.presentedFrames, 2);
+  assert.equal(r.value.frame.stamp.timingSource, "frame-callback-adjusted");
+  assert.equal(s.v.currentTime, 0.5);
+  assert.equal(s.draws.length, 2);
+  assert.equal(s.draws.at(-1)[1], r.value.frame.time);
+  assert.equal(s.timers.size, 0);
+  assert.equal(s.v.callbacks.size, 0);
+});
+test("already accepted presentation counters cannot relabel pixels after seek completion", async () => {
+  const s = setup();
+  await s.open();
+  const p = s.reader.read(1);
+  s.v.present(1, 3);
+  assert.equal((await p).kind, "ready");
+  const next = s.reader.read(2);
+  s.v.seeking = false;
+  s.v.submitFrame(1, 3);
+  s.v.submitFrame(0, 1);
+  assert.equal(s.draws.length, 2);
+  s.expire();
+  assert.equal((await next).outcome.outcome, "budget-exhausted");
+  assert.equal(s.draws.length, 2);
+  assert.equal(s.v.callbacks.size, 0);
+});
+for (const counter of [0, -1, 0.5, NaN])
+  test(`malformed callback counter ${counter} is refused, never mistaken for an old frame`, async () => {
+    const s = setup();
+    await s.open();
+    const p = s.reader.read(1);
+    s.v.submitFrame(1, counter);
+    const r = await p;
+    assert.equal(r.kind, "refused");
+    assert.match(r.message, /admissible frame time and identity/);
+    assert.equal(s.draws.length, 1);
+    assert.equal(s.v.callbacks.size, 0);
+    assert.equal(s.timers.size, 0);
+  });
 test("repeat clicks on one captured frame do not re-seek or invent a new timestamp", async () => {
   const s = setup();
   const first = await s.open();
