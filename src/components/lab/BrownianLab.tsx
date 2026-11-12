@@ -743,7 +743,7 @@ export function BrownianLab({
             {withScripts(BM06_CAPTION.r2)}
           </p>
           <LabMargin>
-            <div {...gate.response}>{withScripts(BM06_CAPTION.r3)}</div>
+            <span {...gate.response}>{withScripts(BM06_CAPTION.r3)}</span>
           </LabMargin>
         </>
       )}
