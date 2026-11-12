@@ -13,7 +13,7 @@ import {
   evaluateRadius,
   FAMILY_OUTPUTS,
   inferenceRefusal,
-  RADIUS_DEFAULTS,
+  radiusInformationFor,
 } from "./model.ts";
 
 /** One immutable observation set per placement. Only the admitted information changes.
@@ -77,7 +77,7 @@ function createSession(
 export function createRadiusSession(
   instanceId: string,
   evidence: InferenceEvidence,
-  initial: Parameters = RADIUS_DEFAULTS,
+  initial: Parameters = radiusInformationFor(evidence),
 ) {
   return createSession(instanceId, evidence, initial, FAMILY_OUTPUTS, evaluateRadius);
 }

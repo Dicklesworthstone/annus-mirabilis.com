@@ -1,7 +1,7 @@
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import type { InferenceEvidence } from "./evidence.ts";
-import { RADIUS_DEFAULTS, RADIUS_EXAMPLE } from "./model.ts";
+import { radiusInformationFor } from "./model.ts";
 import { type InferenceExample, renderCameraResults, renderRadiusResults } from "./render.ts";
 import { createCameraInferenceSession, createRadiusSession } from "./session.ts";
 
@@ -66,7 +66,12 @@ function mountRadiusCase(radiusRoot: HTMLElement, evidence: InferenceEvidence, u
   const draft = required<HTMLElement>(radiusRoot, "[data-radius-draft]");
   const worked = required<HTMLButtonElement>(radiusRoot, "[data-radius-worked]");
   const remove = required<HTMLButtonElement>(radiusRoot, "[data-radius-remove]");
-  requireControls(fields.size === 5);
+  const temperature = required<HTMLInputElement>(
+    radiusRoot,
+    '[data-radius-uncertain="temperature"]',
+  );
+  const viscosity = required<HTMLInputElement>(radiusRoot, '[data-radius-uncertain="viscosity"]');
+  requireControls(fields.size === 13);
   const disableFields = enableFields(radiusRoot);
   function numeric(name: string, factor: number) {
     const text = fields.get(name)?.value.trim() ?? "";
@@ -120,44 +125,85 @@ function mountRadiusCase(radiusRoot: HTMLElement, evidence: InferenceEvidence, u
         ? "Radius information removed. Molecular number is underdetermined; observations are unchanged."
         : interval?.status === "value"
           ? "Independent radius admitted. The conditional conservative interval is updated; observations are unchanged."
-          : "Radius information recorded, but its declared coverage does not support the requested combined interval. Observations are unchanged.",
+          : "Input information recorded, but the declared coverages do not support the requested combined interval. Observations are unchanged.",
     );
   }
   const submit = (event: Event) => {
     event.preventDefault();
+    const defaults = radiusInformationFor(evidence, true);
     applyRadius({
-      ...RADIUS_EXAMPLE,
+      ...defaults,
       radius: numeric("radius", 1e-6),
       radiusLower: numeric("radiusLower", 1e-6),
       radiusUpper: numeric("radiusUpper", 1e-6),
       radiusCoverage: numeric("radiusCoverage", 0.01),
       provenance: fields.get("provenance")?.value ?? "",
+      temperatureUncertain: temperature.checked,
+      temperatureLower: temperature.checked
+        ? numeric("temperatureLower", 1)
+        : defaults.temperatureLower,
+      temperatureUpper: temperature.checked
+        ? numeric("temperatureUpper", 1)
+        : defaults.temperatureUpper,
+      temperatureCoverage: temperature.checked
+        ? numeric("temperatureCoverage", 0.01)
+        : defaults.temperatureCoverage,
+      temperatureProvenance: temperature.checked
+        ? (fields.get("temperatureProvenance")?.value ?? "")
+        : "",
+      viscosityUncertain: viscosity.checked,
+      viscosityLower: viscosity.checked ? numeric("viscosityLower", 1e-3) : defaults.viscosityLower,
+      viscosityUpper: viscosity.checked ? numeric("viscosityUpper", 1e-3) : defaults.viscosityUpper,
+      viscosityCoverage: viscosity.checked
+        ? numeric("viscosityCoverage", 0.01)
+        : defaults.viscosityCoverage,
+      viscosityProvenance: viscosity.checked
+        ? (fields.get("viscosityProvenance")?.value ?? "")
+        : "",
     });
   };
   const useWorked = () => {
+    const example = radiusInformationFor(evidence, true);
     for (const [name, text] of Object.entries({
       radius: "0.5",
       radiusLower: "0.45",
       radiusUpper: "0.55",
       radiusCoverage: "97.5",
-      provenance: RADIUS_EXAMPLE.provenance,
+      provenance: example.provenance,
+      temperatureLower: String(example.temperatureLower),
+      temperatureUpper: String(example.temperatureUpper),
+      temperatureCoverage: String(example.temperatureCoverage * 100),
+      temperatureProvenance: "",
+      viscosityLower: String(example.viscosityLower * 1000),
+      viscosityUpper: String(example.viscosityUpper * 1000),
+      viscosityCoverage: String(example.viscosityCoverage * 100),
+      viscosityProvenance: "",
     })) {
       const field = fields.get(name);
       if (field) field.value = text;
     }
-    applyRadius(RADIUS_EXAMPLE);
+    temperature.checked = false;
+    viscosity.checked = false;
+    applyRadius(example);
   };
-  const removeRadius = () => applyRadius(RADIUS_DEFAULTS);
+  const removeRadius = () =>
+    applyRadius({
+      ...radius.getSnapshot().accepted?.parameters,
+      radiusKnown: false,
+      provenance: "",
+    });
   const edit = () => {
     draft.hidden = false;
   };
   form.addEventListener("submit", submit);
   form.addEventListener("input", edit);
+  form.addEventListener("change", edit);
   worked.addEventListener("click", useWorked);
   remove.addEventListener("click", removeRadius);
   return () => {
     form.removeEventListener("submit", submit);
     form.removeEventListener("input", edit);
+    form.removeEventListener("change", edit);
     worked.removeEventListener("click", useWorked);
     remove.removeEventListener("click", removeRadius);
     disableFields();

@@ -92,8 +92,9 @@ export default function InferenceWorkbenchPage() {
         <p>
           The first case assumes independent Gaussian increments and known zero drift. Its
           conservative molecular-number interval combines diffusion uncertainty with a separately
-          declared radius interval. Timing, spatial calibration, gas constant, temperature and
-          viscosity are treated as exact here.
+          declared radius interval. You can also include declared intervals for temperature and
+          viscosity; the numerical owner divides the error allowance across every uncertain input.
+          Timing, spatial calibration and the gas constant are treated as exact here.
         </p>
         <p>
           The camera case assumes equally spaced positions, known uniform exposure, known drift, and

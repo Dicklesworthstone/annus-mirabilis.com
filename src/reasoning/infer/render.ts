@@ -10,7 +10,7 @@ import {
 import { display, result } from "../../components/lab/presentation.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import type { InferenceEvidence } from "./evidence.ts";
-import { RADIUS_EXAMPLE } from "./model.ts";
+import { radiusInformationFor } from "./model.ts";
 import { createCameraInferenceSession, createRadiusSession } from "./session.ts";
 
 export type InferenceExample = Readonly<{
@@ -24,7 +24,19 @@ export function renderRadiusResults(snapshot: AcceptedSnapshot): string {
   const accepted = known
     ? `Radius ${display(Number(p.radius), 1e6)} μm; bounds ${display(Number(p.radiusLower), 1e6)} – ${display(Number(p.radiusUpper), 1e6)} μm; declared marginal coverage ${display(Number(p.radiusCoverage), 100)}%. Provenance: ${e(String(p.provenance))}`
     : "No independent radius has been admitted. The form below is an unapplied proposal.";
-  return `<div ${inferenceIdentity(snapshot)}><p data-accepted-radius><strong>Accepted radius information:</strong> ${accepted}</p><dl class="infer-readouts"><div><dt>Diffusion estimate (μm²/s)</dt><dd>${inferenceValue(snapshot, "diffusionCoefficientEstimate", 1e12)}</dd></div><div><dt>95% diffusion interval (μm²/s)</dt><dd>${inferenceInterval(snapshot, "diffusionInterval", 1e12)}</dd></div><div><dt>Identified radius × number product (m/mol)</dt><dd>${inferenceValue(snapshot, "radiusNumberProduct")}</dd></div><div><dt>Molecular-number estimate (mol⁻¹)</dt><dd>${inferenceValue(snapshot, "avogadroNumberEstimate")}</dd></div><div><dt>Conditional molecular-number interval (mol⁻¹)</dt><dd>${inferenceInterval(snapshot, "molecularInterval")}</dd></div><div><dt>Conservative simultaneous coverage lower bound (%)</dt><dd>${inferenceValue(snapshot, "simultaneousCoverage", 100)}</dd></div></dl>${renderInferenceFamily(snapshot, true)}</div>`;
+  const auxiliary = (
+    [
+      ["temperature", "Temperature", "K", 1],
+      ["viscosity", "Solvent viscosity", "mPa·s", 1000],
+    ] as const
+  )
+    .map(([name, label, unit, factor]) =>
+      p[`${name}Uncertain`]
+        ? `<li>${label}: ${display(Number(p[`${name}Lower`]), factor)} – ${display(Number(p[`${name}Upper`]), factor)} ${unit}; declared marginal coverage ${display(Number(p[`${name}Coverage`]), 100)}%. Provenance: ${e(String(p[`${name}Provenance`]))}</li>`
+        : `<li>${label}: held exact at this recording's declared nominal value.</li>`,
+    )
+    .join("");
+  return `<div ${inferenceIdentity(snapshot)}><p data-accepted-radius><strong>Accepted radius information:</strong> ${accepted}</p><div data-accepted-auxiliary><p><strong>Accepted physical-input assumptions:</strong></p><ul>${auxiliary}</ul><p class="fine">The radius–number product and family below are conditional on the nominal temperature and viscosity. The molecular-number interval additionally includes every declared input interval above. Timing, coordinate calibration and the selected gas constant remain exact.</p></div><dl class="infer-readouts"><div><dt>Diffusion estimate (μm²/s)</dt><dd>${inferenceValue(snapshot, "diffusionCoefficientEstimate", 1e12)}</dd></div><div><dt>95% diffusion interval (μm²/s)</dt><dd>${inferenceInterval(snapshot, "diffusionInterval", 1e12)}</dd></div><div><dt>Radius × number product at nominal conditions (m/mol)</dt><dd>${inferenceValue(snapshot, "radiusNumberProduct")}</dd></div><div><dt>Molecular-number estimate (mol⁻¹)</dt><dd>${inferenceValue(snapshot, "avogadroNumberEstimate")}</dd></div><div><dt>Conditional molecular-number interval (mol⁻¹)</dt><dd>${inferenceInterval(snapshot, "molecularInterval")}</dd></div><div><dt>Conservative simultaneous coverage lower bound (%)</dt><dd>${inferenceValue(snapshot, "simultaneousCoverage", 100)}</dd></div></dl>${renderInferenceFamily(snapshot, true)}</div>`;
 }
 export function renderCameraResults(snapshot: AcceptedSnapshot): string {
   const info = String(snapshot.parameters.information);
@@ -54,7 +66,11 @@ function renderRadiusCase(evidence: InferenceEvidence, uid: string, pinned = fal
     createRadiusSession(`${uid}-radius`, evidence).getSnapshot().accepted,
   );
   const radiusWorked = requireAccepted(
-    createRadiusSession(`${uid}-worked-radius`, evidence, RADIUS_EXAMPLE).getSnapshot().accepted,
+    createRadiusSession(
+      `${uid}-worked-radius`,
+      evidence,
+      radiusInformationFor(evidence, true),
+    ).getSnapshot().accepted,
   );
   const fields = [
     ["radius", "Radius point value", "μm", "0.5"],
@@ -68,8 +84,28 @@ function renderRadiusCase(evidence: InferenceEvidence, uid: string, pinned = fal
         `<div><label for="${uid}-${name}">${label} (${unit})</label><input type="text" inputmode="decimal" id="${uid}-${name}" name="${name}" value="${value}" data-radius-field="${name}"></div>`,
     )
     .join("");
+  const auxiliaryInputs = (
+    [
+      ["temperature", "Temperature", "K", evidence.T],
+      ["viscosity", "Solvent viscosity", "mPa·s", evidence.eta * 1000],
+    ] as const
+  )
+    .map(([name, label, unit, nominal]) => {
+      const numeric = [
+        [`${name}Lower`, `${label} lower bound`, unit, String(nominal)],
+        [`${name}Upper`, `${label} upper bound`, unit, String(nominal)],
+        [`${name}Coverage`, `Declared ${name} interval coverage`, "%", "99"],
+      ]
+        .map(
+          ([field, title, units, value]) =>
+            `<div><label for="${uid}-${field}">${title} (${units})</label><input type="text" inputmode="decimal" id="${uid}-${field}" name="${field}" value="${value}" data-radius-field="${field}"></div>`,
+        )
+        .join("");
+      return `<fieldset><legend>${label} uncertainty</legend><div class="infer-choices"><div><input type="checkbox" id="${uid}-${name}Uncertain" data-radius-uncertain="${name}"><label for="${uid}-${name}Uncertain">Include the declared ${name} interval</label></div></div><div class="infer-fields">${numeric}<div class="infer-wide"><label for="${uid}-${name}Provenance">${label} interval provenance</label><input type="text" id="${uid}-${name}Provenance" name="${name}Provenance" maxlength="512" value="" data-radius-field="${name}Provenance"></div></div><p class="fine">Bounds must contain the fixed nominal value, ${display(nominal)} ${unit}. No measurement is inferred from these draft bounds.</p></fieldset>`;
+    })
+    .join("");
   return `<section class="laboratory" data-infer-case="radius" data-instrument-id="infer-ideal" ${inferenceIdentity(radius)} data-observation-digest="${e(evidence.observationDigest)}" data-input-revision="${radius.revisions.input}" data-accepted-input-revision="${radius.revisions.input}" data-pending="false" data-execution-label="${pinned ? "host" : "static"}"><header class="lab-heading" data-case-heading><div><p class="eyebrow">One relation · two unknowns</p><h2>Can displacements tell radius and molecular number apart?</h2></div><p class="badge" data-infer-label>${pinned ? "Host calculation · pinned observations" : "Static worked example"}</p></header><p class="fine">Held fixed: ${evidence.increments.length / evidence.d} synthetic increments in ${evidence.d} coordinates, ${display(evidence.dt)} s apart, at ${display(evidence.T)} K and ${display(evidence.eta, 1000)} mPa·s.</p><div class="lab-columns"><div>
-<form data-radius-form aria-label="Independent radius information" novalidate><fieldset disabled><legend>Add an independent measurement</legend><div class="infer-fields">${inputs}<div class="infer-wide"><label for="${uid}-provenance">Radius provenance (how was this established independently?)</label><input type="text" id="${uid}-provenance" name="provenance" maxlength="512" data-radius-field="provenance" value=""></div></div><p class="fine">For at least 95% simultaneous coverage, this procedure uses a 97.5% diffusion interval and requires at least 97.5% radius coverage. Coverage is your declared assumption; entering a description does not verify the measurement. Timing, calibration, R, temperature and viscosity remain exact within this example.</p><div class="actions"><button type="submit">Apply independent radius</button><button type="button" class="secondary" data-radius-worked>Use the synthetic worked radius</button><button type="button" class="secondary" data-radius-remove>Remove radius information</button></div></fieldset></form><p class="notice" data-radius-draft hidden>Unapplied radius information. The results still use the accepted information above.</p><p role="alert" data-infer-error hidden></p><p role="status" aria-live="polite" aria-atomic="true" data-infer-status>Only displacement information has been admitted.</p></div>
+<form data-radius-form aria-label="Independent radius information" novalidate><fieldset disabled><legend>Add an independent measurement</legend><div class="infer-fields">${inputs}<div class="infer-wide"><label for="${uid}-provenance">Radius provenance (how was this established independently?)</label><input type="text" id="${uid}-provenance" name="provenance" maxlength="512" data-radius-field="provenance" value=""></div></div><details data-radius-auxiliary><summary>Include uncertainty in temperature or viscosity</summary>${auxiliaryInputs}</details><p class="fine">For at least 95% simultaneous coverage, the Bonferroni procedure divides the error allowance between diffusion and every declared input interval. Radius alone needs at least 97.5% marginal coverage; adding temperature or viscosity requires at least 98⅓% for each interval; adding both requires at least 98.75%. No coverage is increased automatically. A provenance description records your assumption; it does not verify the measurement. Dependence between interval errors does not invalidate this conservative bound. Timing, calibration and R remain exact.</p><div class="actions"><button type="submit">Apply independent radius</button><button type="button" class="secondary" data-radius-worked>Use the synthetic worked radius</button><button type="button" class="secondary" data-radius-remove>Remove radius information</button></div></fieldset></form><p class="notice" data-radius-draft hidden>Unapplied input information. The results still use the accepted information above.</p><p role="alert" data-infer-error hidden></p><p role="status" aria-live="polite" aria-atomic="true" data-infer-status>Only displacement information has been admitted.</p></div>
 <div class="lab-results" data-infer-results>${renderRadiusResults(radius)}</div></div>
 <p>In this synthetic recovery exercise, the gas constant is a declared scenario input. Neither modern exact k<sub>B</sub> nor modern exact N<sub>A</sub> supplies the unknown. This is not a historical molecular count.</p><details><summary>Why does another radius on the curve work equally well?</summary><p>The diffusion relation fixes the product of radius and molecular number. Doubling the radius and halving the number leaves that product unchanged. More displacements can narrow the product's uncertainty, but cannot separate its factors without another relation.</p><p>An independent radius interval restricts the family. Combining its error probability with the diffusion interval's error probability gives a conservative bound. This is not a posterior probability for a single realized interval, and a radius deduced by assuming the molecular number would only return that assumption.</p></details>
 <details data-static-radius><summary>${pinned ? "Worked solution" : "Static worked solution"}: admit the independent radius</summary><p>Suppose a separate synthetic calibration supplies 0.5 μm, with bounds 0.45–0.55 μm and declared 97.5% coverage. No measurement is claimed here. The owner's resulting conditional interval is ${inferenceInterval(radiusWorked, "molecularInterval")} mol⁻¹, with conservative coverage of at least ${inferenceValue(radiusWorked, "simultaneousCoverage", 100)}%.</p></details>${evidenceDetails(evidence, pinned)}<p><a href="/lab/bm-07/">Return to the full inference laboratory</a> · <a href="/papers/brownian-motion/#arg-bm-inference">Return to the inference argument</a></p></section>`;

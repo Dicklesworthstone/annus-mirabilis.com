@@ -59,6 +59,16 @@ export const RADIUS_EXAMPLE = Object.freeze({
   radiusProvenance: "independently-declared",
   provenance:
     "Synthetic independent-radius interval for the worked example; not an actual calibration.",
+  temperatureUncertain: false,
+  temperatureLower: 1,
+  temperatureUpper: 1,
+  temperatureCoverage: 0.99,
+  temperatureProvenance: "",
+  viscosityUncertain: false,
+  viscosityLower: 1,
+  viscosityUpper: 1,
+  viscosityCoverage: 0.99,
+  viscosityProvenance: "",
 });
 export const RADIUS_DEFAULTS = Object.freeze({
   ...RADIUS_EXAMPLE,
@@ -67,6 +77,16 @@ export const RADIUS_DEFAULTS = Object.freeze({
 });
 export const CAMERA_DEFAULTS = Object.freeze({ information: "variance" });
 export type RadiusParameters = { [K in keyof typeof RADIUS_DEFAULTS]: (typeof RADIUS_DEFAULTS)[K] };
+/** Bounds start at this record's nominal conditions. They are drafts, not a calibration. */
+export function radiusInformationFor(evidence: InferenceEvidence, worked = false) {
+  return Object.freeze({
+    ...(worked ? RADIUS_EXAMPLE : RADIUS_DEFAULTS),
+    temperatureLower: evidence.T,
+    temperatureUpper: evidence.T,
+    viscosityLower: evidence.eta,
+    viscosityUpper: evidence.eta,
+  });
+}
 function outputsFor(contracts: Readonly<Record<string, OutputContract>>) {
   function meta(id: string) {
     const c = contracts[id];
@@ -142,6 +162,27 @@ export function validateRadius(input: unknown): Assessment<Parameters> {
     );
   if (input.radiusKnown && !input.provenance.trim())
     return inferenceRefusal("State where the independent radius information came from.");
+  for (const name of ["temperature", "viscosity"] as const) {
+    const uncertain = input[`${name}Uncertain`];
+    const lower = input[`${name}Lower`];
+    const upper = input[`${name}Upper`];
+    const coverage = input[`${name}Coverage`];
+    const provenance = input[`${name}Provenance`];
+    if (
+      typeof uncertain !== "boolean" ||
+      typeof provenance !== "string" ||
+      provenance.length > 512 ||
+      (uncertain && !provenance.trim()) ||
+      ![lower, upper, coverage].every(
+        (value) => typeof value === "number" && Number.isFinite(value) && value > 0,
+      ) ||
+      Number(lower) > Number(upper) ||
+      Number(coverage) > 1
+    )
+      return inferenceRefusal(
+        `Declare positive ordered ${name} bounds, coverage no greater than one, and a provenance description when including its uncertainty.`,
+      );
+  }
   return { kind: "accepted", data: Object.freeze({ ...input }) };
 }
 export function evaluateRadius(
@@ -153,6 +194,17 @@ export function evaluateRadius(
   const valid = validateRadius(input);
   if (valid.kind !== "accepted") return valid;
   const p = valid.data;
+  for (const [name, nominal] of [
+    ["temperature", evidence.T],
+    ["viscosity", evidence.eta],
+  ] as const)
+    if (
+      p[`${name}Uncertain`] &&
+      (Number(p[`${name}Lower`]) > nominal || Number(p[`${name}Upper`]) < nominal)
+    )
+      return inferenceRefusal(
+        `The ${name} interval must contain this recording's declared nominal value. The fixed observations and conditions have not been replaced.`,
+      );
   const estimate = estimateIncrements(
     Float64Array.from(evidence.increments),
     evidence.dt,
@@ -202,6 +254,32 @@ export function evaluateRadius(
           }
         : null,
       radiusProvenance: p.radiusProvenance as "independently-declared" | "same-displacements",
+      ...(p.temperatureUncertain
+        ? {
+            temperature: {
+              value: evidence.T,
+              interval: {
+                lower: Number(p.temperatureLower),
+                upper: Number(p.temperatureUpper),
+                coverage: Number(p.temperatureCoverage),
+              },
+              provenance: String(p.temperatureProvenance),
+            },
+          }
+        : {}),
+      ...(p.viscosityUncertain
+        ? {
+            viscosity: {
+              value: evidence.eta,
+              interval: {
+                lower: Number(p.viscosityLower),
+                upper: Number(p.viscosityUpper),
+                coverage: Number(p.viscosityCoverage),
+              },
+              provenance: String(p.viscosityProvenance),
+            },
+          }
+        : {}),
     },
     INFERENCE_CONSTANTS,
   );

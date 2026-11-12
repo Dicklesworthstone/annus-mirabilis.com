@@ -41,7 +41,7 @@ test("both families and optional worked solutions are present before hydration",
 });
 test("labels are explicit siblings, not value-bearing control containers", () => {
   assert.ok(!/<label[^>]*>[^<]*<input/.test(html));
-  assert.equal((html.match(/data-radius-field=/g) || []).length, 5);
+  assert.equal((html.match(/data-radius-field=/g) || []).length, 13);
   assert.equal((html.match(/data-camera-information/g) || []).length, 3);
   for (const id of [
     "test-radius",
@@ -49,6 +49,16 @@ test("labels are explicit siblings, not value-bearing control containers", () =>
     "test-radiusUpper",
     "test-radiusCoverage",
     "test-provenance",
+    "test-temperatureUncertain",
+    "test-temperatureLower",
+    "test-temperatureUpper",
+    "test-temperatureCoverage",
+    "test-temperatureProvenance",
+    "test-viscosityUncertain",
+    "test-viscosityLower",
+    "test-viscosityUpper",
+    "test-viscosityCoverage",
+    "test-viscosityProvenance",
     "test-covariance",
   ])
     assert.ok(html.includes(`for="${id}"`));
