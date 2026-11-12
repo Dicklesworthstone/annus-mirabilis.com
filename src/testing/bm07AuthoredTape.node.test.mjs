@@ -30,6 +30,13 @@ const record = validateControlTape(
   ),
 );
 
+// A legitimate evaluator edit requires real Node/V8 receipts. Diagnose the stale authored
+// record without replacing it: both strict identity and replay tests below still use that record.
+if (record.modelIdentity.artifactDigest !== sourceDigest.replace(/^source:/, "host:")) {
+  const { recordPerrinsCount } = await import("../../scripts/record-perrins-count.mjs");
+  console.log(JSON.stringify(await recordPerrinsCount(record)));
+}
+
 test("Perrin's count identifies the actual synthetic model and complete current evaluator source", () => {
   assert.equal(record.modelIdentity.artifactDigest, sourceDigest.replace(/^source:/, "host:"));
   assert.equal(record.mode, "bm-07:default");
