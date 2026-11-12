@@ -75,6 +75,8 @@ jobs:
           src/search/essayDocuments.test.ts
           src/components/essays/EssayReading.test.tsx
           src/discovery/tours/studyTours.test.ts
+          src/experiments/bm07/kitchen/admission.test.ts
+          src/experiments/bm07/kitchen/visibility.test.ts
 
       - name: Run node-only subprocess tests
         run: bun run test:node
