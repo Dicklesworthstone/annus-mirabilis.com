@@ -1,5 +1,11 @@
 import { BM07_PROTOCOL, decodeLabHello, decodeLabResponse } from "../../workers/protocol/bm07.ts";
+import type { WorkerAdmission } from "../../workers/scheduler/admission.ts";
 import { createHostScheduler, type WorkerChannel } from "../../workers/scheduler/hostScheduler.ts";
+import { createRecordingContinuity } from "../../workers/scheduler/recordingContinuity.ts";
+import {
+  sharedLaboratoryRetention,
+  type WorkerRetention,
+} from "../../workers/scheduler/retention.ts";
 import {
   createVerifiedWorkerChannel,
   type PublicationVerifier,
@@ -21,6 +27,7 @@ export function createBm07Session(
   instanceId: string,
   example: PreparedBm07Example,
   workerFactory: () => WorkerChannel,
+  resources: Readonly<{ admission?: WorkerAdmission; retention?: WorkerRetention }> = {},
 ) {
   const store = createInstanceStore({
     experimentId: "bm-07",
@@ -58,6 +65,7 @@ export function createBm07Session(
   let scheduler: ReturnType<typeof createHostScheduler> | null = null;
   const schedulingPause = createSchedulingPause((paused) => scheduler?.setSchedulingPaused(paused));
   const verifiers = new WeakMap<RequestToken, PublicationVerifier>();
+  const continuity = createRecordingContinuity(store);
   const ownerProtocol = {
     version: BM07_PROTOCOL,
     decodeHello: decodeLabHello,
@@ -109,7 +117,7 @@ export function createBm07Session(
       store,
       () =>
         createVerifiedWorkerChannel(workerFactory(), ownerProtocol, example.sourceDigest, (token) =>
-          verifiers.get(token),
+          continuity.verifier(token, verifiers.get(token)),
         ),
       example.sourceDigest,
       {
@@ -124,6 +132,14 @@ export function createBm07Session(
             ...response,
             result: { kind: "accepted", data: { outputs, stepIndex, simulationTime } },
           };
+        },
+      },
+      undefined,
+      {
+        admission: resources.admission,
+        retention: {
+          pool: resources.retention ?? sharedLaboratoryRetention(),
+          canRetire: continuity.canRetire,
         },
       },
     );

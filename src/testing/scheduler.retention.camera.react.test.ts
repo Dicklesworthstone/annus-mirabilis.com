@@ -10,6 +10,11 @@ import {
   createSessionRetention,
   type SessionRetention,
 } from "../experiments/store/sessionRetention.ts";
+import {
+  installPredictPersistence,
+  predictPersistence,
+  REMEMBERS_NOTHING,
+} from "../experiments/predict/predictPersistence.ts";
 import prepared from "../generated/bm08-example.json";
 import { createBm08Host } from "../workers/host/bm08Host.ts";
 import { createWorkerAdmission } from "../workers/scheduler/admission.ts";
@@ -25,9 +30,13 @@ import {
 
 let container: HTMLElement;
 let root: Root;
+let previousPredictions: ReturnType<typeof predictPersistence>;
 const caches: SessionRetention[] = [];
 beforeEach(async () => {
+  previousPredictions = predictPersistence();
+  installPredictPersistence(REMEMBERS_NOTHING);
   await installDom({ intersections: "manual" });
+  document.documentElement.setAttribute("data-detail", "r1");
   container = createContainer();
   root = createRoot(container);
 });
@@ -36,6 +45,7 @@ afterEach(async () => {
   for (const cache of caches.splice(0)) cache.dispose();
   removeContainer(container);
   await uninstallDom();
+  installPredictPersistence(previousPredictions);
 });
 
 async function settled(session: ReturnType<typeof createBm08Session>) {
@@ -165,6 +175,18 @@ test("CameraLab keeps accepted frames readable and exportable and starts an expl
   expect(container.textContent).toContain("could not recover the same recording");
   expect(container.textContent).toContain("The previous accepted result is unchanged.");
   expect(container.textContent).toContain("Start a new independent trial to continue.");
+  expect(container.querySelector('[data-predict-response="awaiting"]') !== null).toBe(true);
+  const recovery = container.querySelector<HTMLElement>("[data-recording-recovery]");
+  assert.ok(recovery);
+  expect(recovery.closest('[data-predict-response="awaiting"]') === null).toBe(true);
+  expect(recovery.hidden).toBe(false);
+  expect(container.querySelectorAll("[data-recording-recovery]").length).toBe(1);
+  const recoveryAnnouncements = Array.from(
+    container.querySelectorAll('[aria-live], [role="status"], [role="alert"]'),
+  ).filter((element) =>
+    element.textContent?.includes("Start a new independent trial to continue."),
+  );
+  expect(recoveryAnnouncements.length).toBe(1);
   expect(cameraObservationCsv(accepted, example.sourceDigest)).toBe(exported);
   expect(Array.from(container.querySelectorAll("table")).map((table) => table.textContent)).toEqual(
     readings,
@@ -180,7 +202,9 @@ test("CameraLab keeps accepted frames readable and exportable and starts an expl
   assert.ok(download);
   assert.ok(restart);
   expect(download.disabled).toBe(false);
+  expect(download.closest('[data-predict-response="awaiting"]') === null).toBe(true);
   expect(restart.disabled).toBe(false);
+  expect(restart.closest('[data-predict-response="awaiting"]') === null).toBe(true);
   corrupt = false;
   await act(async () => restart.click());
   await settled(session);
@@ -188,6 +212,7 @@ test("CameraLab keeps accepted frames readable and exportable and starts an expl
   expect(session.getSnapshot().accepted?.runId).not.toBe(accepted.runId);
   expect(session.getSnapshot().accepted?.parameters.seed).not.toBe(accepted.parameters.seed);
   expect(container.textContent).not.toContain("Start a new independent trial to continue.");
+  expect(container.querySelector("[data-recording-recovery]") === null).toBe(true);
   expect(created).toBe(3);
   expect(retired).toBe(3);
 });

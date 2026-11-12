@@ -245,15 +245,14 @@ export function CameraLab({
       </div>
     );
   };
-  const checkpointNotice = view.outcome?.details?.checkpointNotice;
+  const checkpointNotice =
+    view.status === "unavailable" ? view.outcome?.details?.checkpointNotice : null;
   const status = view.pending
     ? "Calculating. Every displayed value still belongs to the accepted camera settings."
     : view.status === "refused"
       ? "Request refused. The accepted path, observations and estimates are unchanged."
       : view.status === "unavailable"
-        ? typeof checkpointNotice === "string"
-          ? checkpointNotice
-          : `${view.outcome?.message ?? "Execution unavailable."} Accepted observations remain readable.`
+        ? `${view.outcome?.message ?? "Execution unavailable."} Accepted observations remain readable.`
         : view.status === "paused"
           ? "Calculation stopped. Accepted observations are unchanged."
           : isStatic
@@ -528,6 +527,17 @@ export function CameraLab({
             reader who entered an inadmissible value saw nothing happen at all. A descendant cannot un-hide
             itself from an ancestor's display:none, so the structure has to change rather than the CSS.
           */}
+        {typeof checkpointNotice === "string" && (
+          <p
+            className="notice error"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            data-recording-recovery
+          >
+            {checkpointNotice}
+          </p>
+        )}
         {view.refusal && (
           <div className="notice error" aria-live="polite" data-refusal-code={view.refusal.code}>
             <p>{refusalSentence(view.refusal)}</p>
@@ -628,9 +638,11 @@ export function CameraLab({
               ))}
             </tbody>
           </table>
-          <p className="status-line" role="status" aria-live="polite" aria-atomic="true">
-            {status}
-          </p>
+          {typeof checkpointNotice !== "string" && (
+            <p className="status-line" role="status" aria-live="polite" aria-atomic="true">
+              {status}
+            </p>
+          )}
           <p className="accepted-caption">
             Accepted physical seed {p.seed}; D = {display(p.D, 1e12)} μm²/s; {p.M + 1} frames in{" "}
             {p.d} coordinate{p.d === 1 ? "" : "s"}; spacing {display(p.dt)} s; exposure{" "}

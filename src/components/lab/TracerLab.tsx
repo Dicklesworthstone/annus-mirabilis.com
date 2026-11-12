@@ -241,15 +241,14 @@ export function TracerLab({
       );
     }
   }
-  const checkpointNotice = view.outcome?.details?.checkpointNotice;
+  const checkpointNotice =
+    view.status === "unavailable" ? view.outcome?.details?.checkpointNotice : null;
   const announcement = view.pending
     ? "Recording or remeasuring the requested trial. The accepted result stays on screen until it is done."
     : view.status === "refused"
       ? `${view.refusal?.message ?? "Trial refused."} The accepted trial is unchanged.`
       : view.status === "unavailable"
-        ? typeof checkpointNotice === "string"
-          ? checkpointNotice
-          : `${view.outcome?.message ?? "Calculation unavailable."} The accepted example remains readable.`
+        ? `${view.outcome?.message ?? "Calculation unavailable."} The accepted example remains readable.`
         : view.status === "paused"
           ? "Calculation stopped. The accepted trial is unchanged."
           : `Accepted synthetic trial: ${p.M} tracers, ${display(p.interval)} ${p.interval === 1 ? "second" : "seconds"}, coordinate mean ${display(scalar(snapshot, "sampleMean"), 1e6)} micrometres and coordinate RMS ${display(scalar(snapshot, "sampleRms"), 1e6)} micrometres.`;
@@ -568,6 +567,17 @@ export function TracerLab({
             live-region stream" does not bite here; and the form error a few lines above already
             announces itself this way, as do SR-01, ME-01 and ME-03.
             */}
+            {typeof checkpointNotice === "string" && (
+              <p
+                className="notice error"
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+                data-recording-recovery
+              >
+                {checkpointNotice}
+              </p>
+            )}
             {view.refusal && (
               <div
                 className="notice error"
@@ -639,15 +649,17 @@ export function TracerLab({
                 })}
               />
             </div>
-            <p
-              className="status-line"
-              role="status"
-              aria-live="polite"
-              aria-atomic="true"
-              {...gate.response}
-            >
-              {announcement}
-            </p>
+            {typeof checkpointNotice !== "string" && (
+              <p
+                className="status-line"
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+                {...gate.response}
+              >
+                {announcement}
+              </p>
+            )}
             <p className="accepted-caption">
               Accepted trial: seed {p.seed}; {p.M} tracers; {display(p.T)} K; viscosity{" "}
               {display(p.eta, 1e3)} mPa·s; radius {display(p.a, 1e6)} μm. Observe at{" "}

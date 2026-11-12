@@ -250,6 +250,8 @@ export function InferenceLab({
     p.intervalKind === "conditional"
       ? "Conditional on exact input values"
       : "Combined declared input intervals · conservative";
+  const checkpointNotice =
+    view.status === "unavailable" ? view.outcome?.details?.checkpointNotice : null;
   const announcement = view.pending
     ? "Calculating the request. All displayed observations and estimates still belong to the accepted settings."
     : view.status === "refused"
@@ -594,6 +596,17 @@ export function InferenceLab({
             reader who entered an inadmissible value saw nothing happen at all. A descendant cannot un-hide
             itself from an ancestor's display:none, so the structure has to change rather than the CSS.
           */}
+        {typeof checkpointNotice === "string" && (
+          <p
+            className="notice error"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            data-recording-recovery
+          >
+            {checkpointNotice}
+          </p>
+        )}
         {view.refusal && (
           <div className="notice error" data-refusal-code={view.refusal.code}>
             {/* data-refusal-code, and refusalSentence in place of the hand-written
@@ -629,14 +642,16 @@ export function InferenceLab({
         )}
         <div className="lab-results inference-results" {...gate.response}>
           <InferencePath snapshot={snapshot} />
-          <p
-            className="status-line inference-status"
-            role="status"
-            aria-live="polite"
-            aria-atomic="true"
-          >
-            {announcement}
-          </p>
+          {typeof checkpointNotice !== "string" && (
+            <p
+              className="status-line inference-status"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              {announcement}
+            </p>
+          )}
           <p className="accepted-caption">
             Accepted seed {p.seed}; {p.M} non-overlapping displacements; {p.d} coordinate
             {p.d === 1 ? "" : "s"}; spacing {display(p.dt)} s. {estimatorNames[p.estimator]}.
