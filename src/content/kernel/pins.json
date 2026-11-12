@@ -77,6 +77,7 @@
     "planckBandEnergyDensity@src/physics/reference/radiation/bandIntegration.ts": "sha256:c9f7c37f4e9f3478d117b1ba598a62c264cafb4f0e53c04ddabbbea923487fd1",
     "wienTemperatureFromDensity@src/physics/reference/radiation/entropy.ts": "sha256:f6372988e97fa21e082ae1348d5457c2d231c2b5c5d6b821e0a953164448a4d0",
     "wienSpectralEntropyDensity@src/physics/reference/radiation/entropy.ts": "sha256:ae060f5f571edb75b002d62554511e795af409405e09c16441b29ab59964c00a",
+    "compareWienEntropySlope@src/physics/reference/radiation/entropy.ts": "sha256:ad9365b32bfd41e5ac54468aae36a3e37943d6b69199d66d4aa4f4ad8749d5da",
     "radiationEntropyVolumeChange@src/physics/reference/radiation/entropy.ts": "sha256:821c6127e12fddad3c4735dfa040ffea7a9c55b477e04b7b8ece97c9d01873b6",
     "entropyWithUnfixedConstant@src/physics/reference/radiation/entropy.ts": "sha256:a42ddd67d2512e13a098f27a5197b950ee973e796d7510b1a41621a9606ca5b7",
     "fluorescenceBudget@src/physics/reference/photoelectric.ts": "sha256:11d71dbe93a9da3598599f4cc6cea5d332f7f441988613168aa553ff6c379002",
@@ -97,7 +98,7 @@
     "estimateIncrements@src/physics/reference/inference.ts": "sha256:71f7841c5ec492581374173df9d328a3e208b2d1abb9cce82f455ea92f23389e",
     "inverseBias@src/physics/reference/inference.ts": "sha256:95caaf88d552be626b5d3c6b1371ef33c5b2934361ab493bafacdffa0cd0e058",
     "invertToMolecularNumber@src/physics/reference/inference.ts": "sha256:efce210ad84842a38f67ae1f5e8c952a02d58d7797d326bed27772f99bcf9b72",
-    "combinedMolecularNumberInterval@src/physics/reference/inference.ts": "sha256:3335f9e6c633a8147da58f7335e269c0996e3fa0b9b6b6cf2b59aab0f5ec0321",
+    "combinedMolecularNumberInterval@src/physics/reference/inference.ts": "sha256:6726dbc551ed323debe449df5c83f03777ca80c3937e01a08c29df2f115d0887",
     "identifiabilityFamily@src/physics/reference/inference.ts": "sha256:4d25196f7d987b1e967488ce3f9fcb932a4041addbefd7b5ced130539a9c2829",
     "cameraMoments@src/physics/reference/inference/observation.ts": "sha256:83cfd1186b1aa96f8d0dfdd59a89c84e241a51db1afd7a43d678d18f6070dc1b",
     "covarianceEstimator@src/physics/reference/inference/observation.ts": "sha256:c819dee82ba95281ed8aad5cd93dc656ca7b3acc11633efc7497f1a710882dab",
@@ -137,11 +138,11 @@
     "src/physics/reference/radiation/avogadro.ts": "source:sha256:bcda87cc6d5f83f61f0b5afa8a9bf486e56ac81e0ec9ae92091aee79a5458ad9",
     "src/physics/reference/radiation/spectra.ts": "source:sha256:e36b10e9e2d2bcb501177ee9ee876142df69593a569bc2bd82cee6f71b4ae08c",
     "src/physics/reference/radiation/bandIntegration.ts": "source:sha256:f24f08f7c74a40d0702dedb9b18a7770df4cdd16f936b0d79c388d374b710077",
-    "src/physics/reference/radiation/entropy.ts": "source:sha256:cd43332810db3298a9a078f9d7cbe55055868aeb3400fa91840c126539217b73",
+    "src/physics/reference/radiation/entropy.ts": "source:sha256:fca8be891fd4c1b9bc64e4a895df12a016302b9f236428009eeec898a3eedb7d",
     "src/physics/reference/diffusion/routeA.ts": "source:sha256:46c1f6ca0c5cf360c7295d50136f8f7c733e714883b7ba1304ee6f317006d3ba",
     "src/physics/reference/diffusion/driftDiffusion.ts": "source:sha256:4e573122ab0d8b46da42fdba7ea7db12b130a29ce803693b308328d261580556",
-    "src/physics/reference/inference.ts": "source:sha256:83ac578ad8add32113eb7766bdc27dcd699d0d0290d7ca5cb39d1711b587ee42",
-    "src/physics/reference/inference/observation.ts": "source:sha256:83ac578ad8add32113eb7766bdc27dcd699d0d0290d7ca5cb39d1711b587ee42",
+    "src/physics/reference/inference.ts": "source:sha256:80cd8aea92505755a362adf3f9252e08e8f41edb00ba9c5cdbf35b6fb07f2052",
+    "src/physics/reference/inference/observation.ts": "source:sha256:80cd8aea92505755a362adf3f9252e08e8f41edb00ba9c5cdbf35b6fb07f2052",
     "src/physics/reference/electron.ts": "source:sha256:645cc163b231cbd8368f4e0591347176a93e456e48e274c10b74e0e158fa0869"
   }
 }

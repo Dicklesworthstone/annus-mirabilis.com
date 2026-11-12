@@ -1495,6 +1495,31 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
   },
   {
     instrumentId: "lq-04",
+    kernel: tsRef("src/physics/reference/radiation/entropy.ts", "compareWienEntropySlope"),
+    words: {
+      r0: "Compare how quickly entropy density changes with energy density to the inverse temperature, at one fixed frequency.",
+      r1: "The function evaluates the entropy density on either side of one accepted density, holding frequency and volume fixed. It divides the entropy difference by the density difference to obtain a numerical slope, then compares that slope with 1/T from the separate temperature-inversion function. LQ-04 puts each probe 0.01 per cent from the central density and requires relative agreement within one part in a hundred million. This checks the numerical consistency of the Wien entropy formula at the selected state; it supplies no independent experimental evidence for the thermodynamic relation.",
+      r2: "Both probes must remain in the selected dilute regime. The higher-density probe is checked against the Wien threshold, which also admits the lower-density probe because both are positive. The subtraction uses the actual representable density span, and that span divided by two is the half-spacing shown in the table. Collapsed probes, nonfinite values and subnormal entropy densities make the comparison unavailable, as does a secant that cannot meet the declared tolerance. These are limits of this local numerical comparison: the session can retain a valid central-state volume result beside an unavailable slope. Adding an entropy-density constant would leave the slope unchanged, so this check does not determine that constant; the separate zero-density condition does.",
+    },
+    equationId: "eq-model-lq-entropy-temperature",
+    liveTerms: [
+      "frequencyEnergyDensity",
+      "frequency",
+      "spectralEntropyDensitySlope",
+      "inverseTemperature",
+      "entropySlopeRelativeDiscrepancy",
+    ],
+    identifierBindings: [
+      bind("compareWienEntropySlope", "rho", "frequencyEnergyDensity"),
+      bind("compareWienEntropySlope", "nu", "frequency"),
+      bind("compareWienEntropySlope", "slope", "spectralEntropyDensitySlope"),
+      bind("compareWienEntropySlope", "inverseTemperature", "inverseTemperature"),
+      bind("compareWienEntropySlope", "relativeDiscrepancy", "entropySlopeRelativeDiscrepancy"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "lq-04",
     kernel: tsRef("src/physics/reference/radiation/entropy.ts", "radiationEntropyVolumeChange"),
     words: {
       r0: "How the entropy of a narrow band of radiation changes when its volume changes at fixed energy: a coefficient times the logarithm of the volume ratio.",
