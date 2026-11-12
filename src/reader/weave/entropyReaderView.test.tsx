@@ -1,0 +1,186 @@
+import { afterEach, beforeEach, expect, test } from "bun:test";
+import assert from "node:assert/strict";
+import { act, type ReactNode } from "react";
+import { createRoot, type Root } from "react-dom/client";
+import { renderToStaticMarkup } from "react-dom/server";
+import { EntropyWorkbenchLab } from "../../components/lab/lq04/EntropyWorkbenchLab.tsx";
+import Lq04ClarificationView from "../../experiments/views/lq04View.tsx";
+import { installDom, uninstallDom } from "../../testing/reactDom.ts";
+
+const VOLUME = "lq04-s4-volume-law";
+const LIMIT = "lq04-s4-wien-validity-limit";
+let root: Root | null = null;
+let main: HTMLElement;
+let host: HTMLElement;
+
+beforeEach(async () => {
+  await installDom();
+  main = document.createElement("main");
+  host = document.createElement("div");
+  main.append(host);
+  document.body.append(main);
+  root = createRoot(host);
+  window.history.replaceState(null, "", "/papers/light-quanta/view/parallel/#s4-p5-s1");
+});
+
+afterEach(async () => {
+  await act(async () => root?.unmount());
+  root = null;
+  await uninstallDom();
+});
+
+function sentence(id: string, face: "german" | "english" = "german") {
+  const node = document.createElement("span");
+  node.className = face === "german" ? "source-sentence" : "translation-unit";
+  node.setAttribute(face === "german" ? "data-sentence-id" : "data-translation-unit-id", id);
+  node.setAttribute("aria-describedby", "existing-source-note");
+  node.textContent = `Unchanged ${face} sentence ${id}`;
+  main.prepend(node);
+  return node;
+}
+
+async function disclose(panel: HTMLDetailsElement, open: boolean) {
+  await act(async () => {
+    panel.open = open;
+    panel.dispatchEvent(new Event("toggle"));
+  });
+}
+
+async function mount(element: ReactNode) {
+  await act(async () => root?.render(element));
+  const panel = host.querySelector<HTMLDetailsElement>("[data-result-weave]");
+  assert.ok(panel, "The entropy workbench must expose its accepted session's source pointers");
+  await disclose(panel, true);
+  return panel;
+}
+
+function lit(id: string) {
+  return host.querySelector(`[data-weave-row="${id}"] [data-weave-lit="true"]`) !== null;
+}
+
+function expectCleared(nodes: readonly Element[]) {
+  for (const node of nodes) {
+    expect(node.hasAttribute("data-live-weave-owner")).toBe(false);
+    expect(node.hasAttribute("data-live-weave-meaning")).toBe(false);
+    expect(node.getAttribute("aria-describedby")).toBe("existing-source-note");
+  }
+}
+
+async function draftRatio(value: string) {
+  const input = host.querySelector<HTMLInputElement>('input[id$="-ratio"]');
+  assert.ok(input);
+  // Happy DOM does not dispatch React's synthetic input change. Use the installed handler,
+  // as the existing laboratory integration tests do, then submit the actual form below.
+  const key = Object.keys(input).find((candidate) => candidate.startsWith("__reactProps$"));
+  const props = key
+    ? (input as unknown as Record<string, { onChange(event: unknown): void }>)[key]
+    : undefined;
+  assert.ok(props);
+  await act(async () => {
+    input.value = value;
+    props.onChange({ target: input, currentTarget: input });
+  });
+}
+
+async function applyRatio() {
+  const form = host.querySelector("form");
+  assert.ok(form);
+  await act(async () =>
+    form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true })),
+  );
+}
+
+test("the real reader dialog follows accepted volume changes and identifies loss of validity", async () => {
+  const volume = [sentence("s4-p5-s1"), sentence("s4-p5-s1", "english")];
+  const limit = [sentence("s4-p1-s3"), sentence("s4-p1-s3", "english")];
+  const empirical = sentence("s4-p1-s2");
+  const nodes = [...volume, ...limit, empirical];
+  const originalText = nodes.map((node) => node.textContent);
+  // Production clarification dialogs are siblings of main, not children of the source article.
+  const dialog = document.createElement("dialog");
+  dialog.append(host);
+  document.body.append(dialog);
+  dialog.showModal();
+  const panel = await mount(
+    <Lq04ClarificationView
+      instanceId="entropy-reader-dialog"
+      mode={null}
+      presentation="standard"
+    />,
+  );
+  expect(panel.closest("main")).toBeNull();
+  expect(lit(VOLUME)).toBe(true);
+  expect(lit(LIMIT)).toBe(false);
+  for (const node of volume)
+    expect(node.getAttribute("data-live-weave-meaning")).toBe("quantity-compared");
+  expectCleared([...limit, empirical]);
+  expect(panel.querySelector('[role="status"]')?.textContent).toBe("");
+
+  await draftRatio("0.0001");
+  expect(lit(VOLUME)).toBe(true);
+  expect(host.querySelector('[data-weave-context="volumeRatio"]')?.textContent).toContain("1");
+  await applyRatio();
+  expect(lit(VOLUME)).toBe(false);
+  expect(lit(LIMIT)).toBe(true);
+  expectCleared([...volume, empirical]);
+  for (const node of limit)
+    expect(node.getAttribute("data-live-weave-meaning")).toBe("outside-selected-domain");
+  expect(panel.querySelector('[role="status"]')?.textContent).toContain("cannot give an entropy");
+  expect(host.querySelector('[data-weave-context="volumeRatio"]')?.textContent).toContain("0.0001");
+
+  await draftRatio("2");
+  await applyRatio();
+  expect(lit(VOLUME)).toBe(true);
+  expect(lit(LIMIT)).toBe(false);
+  expectCleared([...limit, empirical]);
+  expect(nodes.map((node) => node.textContent)).toEqual(originalText);
+  await disclose(panel, false);
+  expectCleared(nodes);
+  await disclose(panel, true);
+  expect(volume[0]?.hasAttribute("data-live-weave-owner")).toBe(true);
+  await act(async () => root?.unmount());
+  root = null;
+  expectCleared(nodes);
+  dialog.close();
+});
+
+test("invalid input hides old pointers and the reader never annotates an unrelated paper", async () => {
+  const volume = sentence("s4-p5-s1");
+  const limit = sentence("s4-p1-s3");
+  const panel = await mount(
+    <Lq04ClarificationView
+      instanceId="entropy-reader-refusal"
+      mode={null}
+      presentation="standard"
+    />,
+  );
+  await draftRatio("0");
+  await applyRatio();
+  expect(host.querySelector('[data-weave-inactive="refused"]')).not.toBeNull();
+  expect(host.querySelector('[data-weave-lit="true"]')).toBeNull();
+  expectCleared([volume, limit]);
+  await draftRatio("0.5");
+  await applyRatio();
+  expect(lit(VOLUME)).toBe(true);
+  expect(volume.getAttribute("data-live-weave-meaning")).toBe("quantity-compared");
+
+  await disclose(panel, false);
+  window.history.replaceState(null, "", "/papers/special-relativity/view/german/#s4-p5-s1");
+  await disclose(panel, true);
+  expect(lit(VOLUME)).toBe(true);
+  expectCleared([volume, limit]);
+});
+
+test("standalone and no-script entropy examples expose canonical source links without page marks", async () => {
+  const node = sentence("s4-p5-s1");
+  await mount(<EntropyWorkbenchLab instanceId="entropy-standalone" restoreFromLocation={false} />);
+  expect(lit(VOLUME)).toBe(true);
+  expectCleared([node]);
+  const html = renderToStaticMarkup(
+    <EntropyWorkbenchLab instanceId="entropy-static" restoreFromLocation={false} />,
+  );
+  for (const id of ["s4-p5-s1", "s4-p1-s3"])
+    for (const face of ["german", "english"])
+      expect(html).toContain(`/papers/light-quanta/view/${face}/#${id}`);
+  expect(html).not.toContain("lq04-s3-derivative-check");
+});

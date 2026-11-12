@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  type FormEvent,
-  type ReactNode,
-  useEffect,
-  useId,
-  useState,
-  useSyncExternalStore,
-} from "react";
+import { type FormEvent, type ReactNode, useEffect, useId, useState } from "react";
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
@@ -50,6 +43,8 @@ import type {
 } from "../../../experiments/store/instanceStore.ts";
 import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
+import { LQ04_READER_WEAVE } from "../../../reader/weave/entropyPassages.ts";
+import { SessionResultWeave } from "../../../reader/weave/SessionResultWeave.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
 import { LabMargin } from "../LabMargin.tsx";
@@ -120,6 +115,7 @@ export type EntropyWorkbenchLabProps = Readonly<{
   restoreFromLocation?: boolean | undefined;
   example?: PreparedLq04Example | undefined;
   title?: string | undefined;
+  highlightPaper?: boolean | undefined;
 }>;
 
 export function EntropyWorkbenchLab({
@@ -127,6 +123,7 @@ export function EntropyWorkbenchLab({
   restoreFromLocation = true,
   example,
   title = "The radiation entropy workbench",
+  highlightPaper = false,
 }: EntropyWorkbenchLabProps) {
   const id = useId();
   const session = useRetainedSession(
@@ -452,6 +449,12 @@ export function EntropyWorkbenchLab({
           </details>
         </div>
       </div>
+      <SessionResultWeave
+        session={session}
+        binding={LQ04_READER_WEAVE}
+        suspended={failure !== null}
+        highlightPaper={highlightPaper}
+      />
       {/* The permalink to these settings, after the instrument it links to (dispatch 263). In
           the status row it made that line 267px tall at 1440. */}
       <LabTapeLink link={tapeLink} />

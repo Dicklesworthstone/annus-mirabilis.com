@@ -5,6 +5,11 @@ import "./clarificationLabStyles.ts";
 
 export default function Lq04ClarificationView({ instanceId }: ExperimentViewProps) {
   return (
-    <EntropyWorkbenchLab example={example} instanceId={instanceId} restoreFromLocation={false} />
+    <EntropyWorkbenchLab
+      example={example}
+      instanceId={instanceId}
+      restoreFromLocation={false}
+      highlightPaper
+    />
   );
 }
