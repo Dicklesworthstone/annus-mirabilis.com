@@ -1,7 +1,7 @@
 import type { TapeV2 } from "./types.ts";
 import type { CheckpointWalkthrough } from "./walkthroughCheckpoints.ts";
 
-/** A reader-authored sequence of accepted settings, not a recording of animation or measurements. */
+/** Reader-authored accepted snapshots; a scientific checkpoint can also identify a computed trial. */
 export const RECORDING_FORMAT = "annus-mirabilis-experiment";
 export const RECORDING_LIMITS = Object.freeze({
   bytes: 1024 * 1024,
@@ -66,8 +66,8 @@ function freezeData<T>(value: T): T {
 /**
  * Import is all-or-nothing and NEVER applies a stop. Each stop carries its original model identity
  * and checkpoint. Compatibility and digest verification happen later in the laboratory's restore.
- * Version one holds independent settings snapshots: it cannot pretend to record timing, random
- * trajectories, or a sequence of control events that was never observed.
+ * Version one holds independent snapshots. A scientific state and digest can bind a computed
+ * trial, but the file never invents timing or a sequence of control events that was not observed.
  */
 export function readRecordedExperiment(
   source: string,
@@ -133,7 +133,7 @@ export function readRecordedExperiment(
         tape.teachingTapeRef ||
         tape.acceptedCheckpoint.acceptedActionIndex !== 0
       )
-        return refuse(`Saved stop ${index + 1} is not a self-contained settings snapshot.`);
+        return refuse(`Saved stop ${index + 1} is not a self-contained accepted snapshot.`);
       // An admission function may return nested references. Never retain an importer's mutable data.
       const detached: TapeV2 = JSON.parse(JSON.stringify(tape));
       if (!safeData(detached)) return refuse(`Saved stop ${index + 1} contains unsupported data.`);

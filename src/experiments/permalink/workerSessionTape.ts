@@ -6,7 +6,7 @@ import {
   inheritSchedulingPause,
   type SchedulingPauseSource,
 } from "../lifecycle/schedulingPause.ts";
-import type { ExperimentView, RequestToken } from "../store/instanceStore.ts";
+import type { AcceptedSnapshot, ExperimentView, RequestToken } from "../store/instanceStore.ts";
 import { checkTapeCompatibility } from "./compatibility.ts";
 import { type DraftTapeBinding, environmentForSettings } from "./draftTape.ts";
 import { replayTape } from "./replay.ts";
@@ -33,6 +33,8 @@ export type WorkerTapeSession = SchedulingPauseSource &
     getSnapshot(): ExperimentView;
     subscribe(listener: () => void): () => void;
     acceptedParameters(): object;
+    /** A copied, complete owner publication for the exact current accepted result, when retained. */
+    acceptedPublication?(): VerifiablePublication | null;
     stop(): void;
     disconnect(): void;
   }>;
@@ -40,11 +42,17 @@ export type WorkerTapeSession = SchedulingPauseSource &
 export type WorkerTapeBinding = DraftTapeBinding &
   Readonly<{
     createSession(instanceId: string): WorkerTapeSession;
+    /** Capture a verified scientific checkpoint without inventing the reader's event history. */
+    capture?(session: WorkerTapeSession, accepted: AcceptedSnapshot): Promise<WorkerTapeCapture>;
     scientificReplay?: Readonly<{
       validate(tape: TapeV2, states: readonly Readonly<Record<string, unknown>>[]): string | null;
       verify(tape: TapeV2, publication: VerifiablePublication): Promise<string | null>;
     }>;
   }>;
+
+export type WorkerTapeCapture =
+  | Readonly<{ kind: "captured"; tape: TapeV2 }>
+  | Readonly<{ kind: "unavailable"; notice: string }>;
 
 export type WorkerTapeRestore =
   | Readonly<{ kind: "restored" }>

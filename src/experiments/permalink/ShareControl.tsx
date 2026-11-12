@@ -29,47 +29,63 @@ export type ShareControlProps = {
  */
 export function ShareControl({ tape, baseUrl, onCopied }: ShareControlProps) {
   const [includePredictions, setIncludePredictions] = useState<boolean>(true);
-  const [copied, setCopied] = useState<boolean>(false);
-  const [shareUrl, setShareUrl] = useState<string>("");
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [encoded, setEncoded] = useState<Readonly<{ key: string; url: string }> | null>(null);
+  const [failedKey, setFailedKey] = useState<string | null>(null);
 
   const hasPredictions = Boolean(tape.predictions && tape.predictions.length > 0);
   const formSpec = SHARE_FORMS["experiment-preset"];
   // Keyed on the tape's content, so a caller that rebuilds an equal tape each render does not
   // re-encode, and a changed tape always does.
   const tapeKey = JSON.stringify(tape);
+  const encodingKey = JSON.stringify([
+    tapeKey,
+    baseUrl ?? null,
+    hasPredictions && includePredictions,
+  ]);
+  // A previous calculation's URL must become unavailable in the same render as the new tape.
+  const shareUrl = encoded?.key === encodingKey ? encoded.url : "";
+  const copied = copiedKey === encodingKey;
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: tapeKey stands for tape's content.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: encodingKey includes the tape content, base and prediction choice.
   useEffect(() => {
     let live = true;
     const base = baseUrl ?? `${window.location.origin}${window.location.pathname}`;
     void encodeTapePermalinkInBrowser(tape, {
       includePredictions: hasPredictions ? includePredictions : false,
-    }).then((encoded) => {
-      if (live) setShareUrl(`${base}?tape=${encoded}`);
-    });
+    }).then(
+      (value) => {
+        if (live) {
+          setEncoded({ key: encodingKey, url: `${base}?tape=${value}` });
+          setFailedKey(null);
+        }
+      },
+      () => {
+        if (live) setFailedKey(encodingKey);
+      },
+    );
     return () => {
       live = false;
     };
-  }, [tapeKey, baseUrl, hasPredictions, includePredictions]);
+  }, [encodingKey]);
 
   const handleCopy = async () => {
     if (!shareUrl) return;
+    const markCopied = () => {
+      setCopiedKey(encodingKey);
+      onCopied?.();
+      setTimeout(() => setCopiedKey((key) => (key === encodingKey ? null : key)), 3000);
+    };
     try {
       if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(shareUrl);
-        setCopied(true);
-        onCopied?.();
-        setTimeout(() => setCopied(false), 3000);
+        markCopied();
       } else {
-        setCopied(true);
-        onCopied?.();
-        setTimeout(() => setCopied(false), 3000);
+        markCopied();
       }
     } catch {
       // Fallback handles selection without throwing
-      setCopied(true);
-      onCopied?.();
-      setTimeout(() => setCopied(false), 3000);
+      markCopied();
     }
   };
 
@@ -84,6 +100,10 @@ export function ShareControl({ tape, baseUrl, onCopied }: ShareControlProps) {
           {formSpec.name}
         </span>
       </div>
+
+      {failedKey === encodingKey && (
+        <p role="alert">The link could not be prepared. Your accepted result remains available.</p>
+      )}
 
       {hasPredictions && (
         <div className="share-control-predictions-option">

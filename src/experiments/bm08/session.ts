@@ -3,6 +3,7 @@ import { createHostScheduler, type WorkerChannel } from "../../workers/scheduler
 import {
   createVerifiedWorkerChannel,
   type PublicationVerifier,
+  type VerifiablePublication,
 } from "../../workers/scheduler/verifiedChannel.ts";
 import { createSchedulingPause } from "../lifecycle/schedulingPause.ts";
 import { parseResult } from "../results/codec.ts";
@@ -15,6 +16,7 @@ import {
 } from "../store/instanceStore.ts";
 import { BM08_CLASSES, BM08_OUTPUTS, type Bm08Parameters } from "./definition.ts";
 import { validateBm08Parameters } from "./parameters.ts";
+import type { Bm08RecordingCheckpoint } from "./recordingCheckpoint.ts";
 export type PreparedBm08Example = Readonly<{
   sourceDigest: string;
   parameters: Bm08Parameters;
@@ -60,6 +62,14 @@ export function createBm08Session(
   )
     throw new Error("Invalid prepared camera example.");
   const serverSnapshot = store.getSnapshot();
+  // Keep the validated recording receipt, not a second copy of the worker's output buffers.
+  // The prepared example deliberately has no receipt: it cannot become a personal recording.
+  let recordingReceipt: Readonly<{
+    token: RequestToken;
+    stepIndex: number;
+    simulationTime: number;
+    recordingCheckpoint: Bm08RecordingCheckpoint;
+  }> | null = null;
   let scheduler: ReturnType<typeof createHostScheduler> | null = null;
   const schedulingPause = createSchedulingPause((paused) => scheduler?.setSchedulingPaused(paused));
   const verifiers = new WeakMap<RequestToken, PublicationVerifier>();
@@ -178,8 +188,18 @@ export function createBm08Session(
           decodeResponse(message, token, digest) {
             const response = decodeLabResponse(message, token, digest);
             if (response.result.kind !== "accepted") return response;
-            const { outputs, stepIndex, simulationTime } = response.result.data;
-            // Full recording metadata is checked before publication, outside the public store.
+            const { outputs, stepIndex, simulationTime, recordingCheckpoint } =
+              response.result.data;
+            // The protocol has validated this receipt against the exact worker request. The
+            // store still decides whether to accept the result; exposure below checks that too.
+            recordingReceipt = recordingCheckpoint
+              ? {
+                  token,
+                  stepIndex,
+                  simulationTime,
+                  recordingCheckpoint: { ...recordingCheckpoint },
+                }
+              : null;
             return {
               ...response,
               result: { kind: "accepted", data: { outputs, stepIndex, simulationTime } },
@@ -213,6 +233,57 @@ export function createBm08Session(
         throw new Error("Missing accepted parameters in snapshot.");
       }
       return accepted.parameters as Bm08Parameters;
+    },
+    acceptedPublication(): VerifiablePublication | null {
+      const view = store.getSnapshot();
+      const accepted = view.accepted;
+      const receipt = recordingReceipt;
+      if (
+        !accepted ||
+        !receipt ||
+        view.status !== "accepted" ||
+        view.pending ||
+        !accepted.final ||
+        accepted.parameters.coverageTrials !== 0 ||
+        view.requested !== receipt.token
+      )
+        return null;
+      const request = receipt.token;
+      if (
+        accepted.experimentId !== request.experimentId ||
+        accepted.instanceId !== request.instanceId ||
+        accepted.runId !== request.runId ||
+        accepted.parentRunId !== request.parentRunId ||
+        accepted.actionIndex !== request.actionIndex ||
+        accepted.stepIndex !== receipt.stepIndex ||
+        accepted.simulationTime !== receipt.simulationTime ||
+        Object.entries(request.revisions).some(
+          ([key, value]) => accepted.revisions[key as keyof typeof request.revisions] !== value,
+        ) ||
+        Object.keys(accepted.parameters).length !== Object.keys(request.parameters).length ||
+        Object.entries(request.parameters).some(
+          ([key, value]) => !Object.is(accepted.parameters[key], value),
+        )
+      )
+        return null;
+      const quantities = new Set(accepted.outputs.map((output) => output.quantityId));
+      if (Object.keys(BM08_OUTPUTS).some((id) => !quantities.has(id))) return null;
+      return {
+        ...request,
+        parameters: { ...accepted.parameters },
+        revisions: { ...accepted.revisions },
+        stepIndex: accepted.stepIndex,
+        simulationTime: accepted.simulationTime,
+        final: true,
+        outputs: accepted.outputs.map((output) => {
+          if (output.status !== "value") return structuredClone(output);
+          return structuredClone({
+            ...output,
+            value: typeof output.value === "number" ? output.value : output.value.copy(),
+          });
+        }),
+        recordingCheckpoint: { ...receipt.recordingCheckpoint },
+      };
     },
   });
 }

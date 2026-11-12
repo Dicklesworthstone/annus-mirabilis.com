@@ -147,7 +147,9 @@ export function applyWalkthroughCheckpoint(
     if (restored.kind !== "restored") return { kind: "refused", notice: restored.notice };
     return {
       kind: "replayed",
-      notice: `${checkpoint.label}: restored and matched the recorded settings checkpoint. The results below are computed by this laboratory.`,
+      notice: checkpoint.tape.acceptedCheckpoint.scientificState
+        ? `${checkpoint.label}: reproduced and verified the recorded scientific checkpoint. The results below are computed by this laboratory.`
+        : `${checkpoint.label}: restored and matched the recorded settings checkpoint. The results below are computed by this laboratory.`,
     };
   } catch (error) {
     // An unexpected application/callback error is not a successful replay and does not justify a

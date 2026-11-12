@@ -23,10 +23,12 @@ import {
   tapeForSettings,
 } from "./sessionTape.ts";
 import type { TapePredictionEvent, TapeV2 } from "./types.ts";
+import { useWorkerTapeCapture } from "./useWorkerTapeCapture.ts";
 import { WalkthroughPlayer } from "./WalkthroughPlayer.tsx";
 import {
   type RetainedWalkthroughTape,
   retainedWalkthroughTape,
+  type WalkthroughPlayerTarget,
   type WalkthroughTarget,
   type WorkerWalkthroughTarget,
 } from "./walkthroughActions.ts";
@@ -49,6 +51,8 @@ export type LabTapeLinkState = Readonly<{
   shareTape: TapeV2 | null;
   /** A fresh accepted-settings snapshot, separate from an authored checkpoint retained for sharing. */
   recordingTape?: TapeV2 | null | undefined;
+  recordingTarget?: WalkthroughPlayerTarget | undefined;
+  recordingNotice?: string | undefined;
   /** A link read without fault, said plainly rather than as an error (a worker lab's loaded form). */
   note?: string | undefined;
   walkthrough?: WalkthroughTarget | undefined;
@@ -461,7 +465,18 @@ export function useWorkerTapeLink(
   target: WorkerWalkthroughTarget,
 ): LabTapeLinkState {
   const worker = useMemo(() => ({ session, target }), [session, target]);
-  return useDraftTapeLink(binding, acceptedParameters, enabled, onLoaded, worker);
+  const link = useDraftTapeLink(binding, acceptedParameters, enabled, onLoaded, worker);
+  const captured = useWorkerTapeCapture(binding, session, enabled);
+  if (!binding.capture) return link;
+  return {
+    ...link,
+    // A verified incoming record keeps its original identity; a new capture is independent.
+    shareTape:
+      link.shareTape === link.recordingTape ? (captured.tape ?? link.shareTape) : link.shareTape,
+    recordingTape: captured.tape,
+    recordingTarget: target,
+    recordingNotice: captured.notice,
+  };
 }
 
 /**
@@ -564,8 +579,9 @@ export function LabTapeLink({
       {hydrated && link.walkthrough && (
         <ExperimentRecorder
           key={`recording-${link.walkthrough.experimentId}`}
-          target={link.walkthrough}
+          target={link.recordingTarget ?? link.walkthrough}
           tape={link.recordingTape ?? null}
+          captureNotice={link.recordingNotice}
         />
       )}
       {hydrated && link.shareTape && <ShareControl tape={link.shareTape} />}

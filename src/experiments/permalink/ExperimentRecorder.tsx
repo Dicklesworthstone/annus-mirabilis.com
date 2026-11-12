@@ -12,9 +12,10 @@ import {
 import { validateTapeV2 } from "./schema.ts";
 import type { TapeV2 } from "./types.ts";
 import {
-  applyWalkthroughCheckpoint,
+  applyWalkthroughCheckpointAsync,
+  calculateWalkthroughCheckpointAsync,
   type WalkthroughAction,
-  type WalkthroughTarget,
+  type WalkthroughPlayerTarget,
 } from "./walkthroughActions.ts";
 import "./recordedExperiments.css";
 
@@ -23,14 +24,16 @@ function preventMetadataSubmit(event: KeyboardEvent<HTMLInputElement>) {
   if (event.key === "Enter" && !event.nativeEvent.isComposing) event.preventDefault();
 }
 
-/** Explicit, instance-local capture of accepted settings. Import and selection never run a lab. */
+/** Explicit capture of accepted snapshots. Import and selection never run a laboratory. */
 export function ExperimentRecorder({
   target,
   tape,
+  captureNotice,
 }: Readonly<{
-  target: WalkthroughTarget;
-  /** A fresh settings-only tape, never a retained authored walkthrough or an unaccepted draft. */
+  target: WalkthroughPlayerTarget;
+  /** A fresh self-contained accepted tape, never an authored history or an unaccepted draft. */
   tape: TapeV2 | null;
+  captureNotice?: string | undefined;
 }>) {
   const id = useId();
   const [recording, setRecording] = useState<RecordedExperiment | null>(null);
@@ -42,15 +45,37 @@ export function ExperimentRecorder({
   const [message, setMessage] = useState<WalkthroughAction | null>(null);
   const [reading, setReading] = useState(false);
   const [confirmNew, setConfirmNew] = useState(false);
+  const [working, setWorking] = useState(false);
+  const pendingAction = useRef<AbortController | null>(null);
+  const actionTarget = useRef(target);
   const importGeneration = useRef(0);
   const formOnly = target.kind === "form";
+  const scientific = target.kind === "worker";
   const stop = recording?.stops[index];
+  const settingsOnlyWorkerStop =
+    scientific && stop && !stop.tape.acceptedCheckpoint.scientificState;
   useEffect(
     () => () => {
       ++importGeneration.current;
+      pendingAction.current?.abort();
+      pendingAction.current = null;
     },
     [],
   );
+  useEffect(() => {
+    if (actionTarget.current === target) return;
+    actionTarget.current = target;
+    pendingAction.current?.abort();
+    pendingAction.current = null;
+    setWorking(false);
+    setMessage(null);
+  }, [target]);
+
+  function cancelCalculation() {
+    pendingAction.current?.abort();
+    pendingAction.current = null;
+    setWorking(false);
+  }
 
   function cancelImport() {
     ++importGeneration.current;
@@ -58,7 +83,7 @@ export function ExperimentRecorder({
     setIncoming(null);
   }
   function capture() {
-    if (!tape) return;
+    if (!tape || pendingAction.current) return;
     if (tape.experimentId !== target.experimentId) {
       setMessage({
         kind: "refused",
@@ -85,14 +110,41 @@ export function ExperimentRecorder({
     setNote("");
     setMessage({
       kind: "loaded",
-      notice:
-        "Saved the laboratory's accepted settings, not unapplied edits in its form. Download the recording to keep it after leaving this page.",
+      notice: tape.acceptedCheckpoint.scientificState
+        ? "Saved the completed trial's scientific checkpoint with its exact seeds and settings. Download the recording to keep it after leaving this page."
+        : "Saved the laboratory's accepted settings, not unapplied edits in its form. Download the recording to keep it after leaving this page.",
     });
   }
-  function restore(next: number) {
-    if (!recording || !recording.stops[next]) return;
+  async function restore(next: number, calculate = false) {
+    if (!recording?.stops[next] || pendingAction.current) return;
+    const controller = new AbortController();
+    pendingAction.current = controller;
+    setWorking(true);
+    setMessage(null);
     setIndex(next);
-    setMessage(applyWalkthroughCheckpoint(target, recordedExperimentWalkthrough(recording), next));
+    const action = calculate
+      ? calculateWalkthroughCheckpointAsync
+      : applyWalkthroughCheckpointAsync;
+    try {
+      const outcome = await action(
+        target,
+        recordedExperimentWalkthrough(recording),
+        next,
+        controller.signal,
+      );
+      if (pendingAction.current === controller && !controller.signal.aborted) setMessage(outcome);
+    } catch {
+      if (pendingAction.current === controller && !controller.signal.aborted)
+        setMessage({
+          kind: "refused",
+          notice: "The saved-stop calculation could not finish. Your recording remains available.",
+        });
+    } finally {
+      if (pendingAction.current === controller) {
+        pendingAction.current = null;
+        setWorking(false);
+      }
+    }
   }
   async function importFile(file: File) {
     const ticket = ++importGeneration.current;
@@ -145,8 +197,9 @@ export function ExperimentRecorder({
       }
       setMessage({
         kind: "loaded",
-        notice:
-          "Recording file prepared. It includes every saved stop, the title, and your notes; it contains no animation or measured observations.",
+        notice: recording.stops.some((entry) => entry.tape.acceptedCheckpoint.scientificState)
+          ? "Recording file prepared with every saved checkpoint, title, and note. Restore a scientific stop to recompute and verify its trial."
+          : "Recording file prepared. It includes every saved stop, the title, and your notes; it contains no animation or measured observations.",
       });
     } catch {
       setMessage({
@@ -166,8 +219,9 @@ export function ExperimentRecorder({
     <details className="notice experiment-recorder" data-experiment-recorder={target.experimentId}>
       <summary>Save and replay your own experiment</summary>
       <p>
-        Save interesting accepted settings with a note, then revisit them or give the recording to
-        another reader. This saves settings checkpoints, not animation, timing, or observations.
+        {scientific
+          ? "Save a completed calculation with a note. Each scientific stop preserves the settings, exact seeds and checkpoint needed to reproduce its calculated trial."
+          : "Save interesting accepted settings with a note, then revisit them or give the recording to another reader. This saves settings checkpoints, not animation, timing, or observations."}{" "}
         Nothing is uploaded. The recording lives only in this open page until you download it.
       </p>
       <fieldset>
@@ -198,16 +252,24 @@ export function ExperimentRecorder({
         />
         <button
           type="button"
-          disabled={!tape || (recording?.stops.length ?? 0) >= RECORDING_LIMITS.stops}
+          disabled={working || !tape || (recording?.stops.length ?? 0) >= RECORDING_LIMITS.stops}
           onClick={capture}
         >
-          {recording ? "Save current accepted settings" : "Save starting point"}
+          {recording
+            ? scientific
+              ? "Save current scientific checkpoint"
+              : "Save current accepted settings"
+            : "Save starting point"}
         </button>
-        {!tape && (
+        {captureNotice ? (
+          <p role="status" data-recording-capture="">
+            {captureNotice}
+          </p>
+        ) : !tape ? (
           <p>
             No accepted settings can be recorded yet. Apply valid settings in the laboratory first.
           </p>
-        )}
+        ) : null}
       </fieldset>
       {recording && (
         <fieldset>
@@ -219,6 +281,7 @@ export function ExperimentRecorder({
             id={`${id}-stop`}
             value={index}
             onChange={(event) => {
+              cancelCalculation();
               setIndex(Number(event.currentTarget.value));
               setMessage(null);
             }}
@@ -240,22 +303,53 @@ export function ExperimentRecorder({
           <p>
             {formOnly
               ? "Loading a stop fills the form only. Use Apply to calculate; no recorded result has been verified."
-              : "Restore verifies the stop through this laboratory before changing its accepted settings. Matching a settings checkpoint is not experimental evidence."}
+              : scientific
+                ? settingsOnlyWorkerStop
+                  ? "This saved stop contains settings without a scientific checkpoint. Calculate them as a new run with the current model. Its original record stays unchanged."
+                  : "Restore recomputes the saved trial and verifies its scientific checkpoint before replacing the accepted result. You can cancel while it is being checked."
+                : "Restore verifies the stop through this laboratory before changing its accepted settings. Matching a settings checkpoint is not experimental evidence."}
           </p>
           <div className="recording-actions">
-            <button type="button" disabled={index === 0} onClick={() => restore(index - 1)}>
+            <button
+              type="button"
+              disabled={working || index === 0}
+              onClick={() => void restore(index - 1)}
+            >
               {formOnly ? "Load previous saved settings" : "Restore previous saved stop"}
             </button>
-            <button type="button" onClick={() => restore(index)}>
+            <button type="button" disabled={working} onClick={() => void restore(index)}>
               {formOnly ? "Load saved settings into form" : "Restore saved stop"}
             </button>
             <button
               type="button"
-              disabled={index >= recording.stops.length - 1}
-              onClick={() => restore(index + 1)}
+              disabled={working || index >= recording.stops.length - 1}
+              onClick={() => void restore(index + 1)}
             >
               {formOnly ? "Load next saved settings" : "Restore next saved stop"}
             </button>
+            {working && (
+              <button
+                type="button"
+                onClick={() => {
+                  cancelCalculation();
+                  setMessage({
+                    kind: "loaded",
+                    notice:
+                      "Calculation stopped. Saved stops and accepted results remain available.",
+                  });
+                }}
+              >
+                Cancel saved-stop calculation
+              </button>
+            )}
+            {!working &&
+              (message?.kind === "refused" || settingsOnlyWorkerStop) &&
+              target.kind !== "form" &&
+              target.calculate && (
+                <button type="button" onClick={() => void restore(index, true)}>
+                  Calculate saved settings as a new run
+                </button>
+              )}
             <button type="button" onClick={download}>
               Download recording JSON
             </button>
@@ -272,6 +366,7 @@ export function ExperimentRecorder({
               <button
                 type="button"
                 onClick={() => {
+                  cancelCalculation();
                   cancelImport();
                   setRecording(null);
                   setIndex(0);
@@ -313,6 +408,7 @@ export function ExperimentRecorder({
             type="button"
             onClick={() => {
               const next = incoming;
+              cancelCalculation();
               cancelImport();
               setRecording(next);
               setTitle(next.title);
@@ -334,6 +430,7 @@ export function ExperimentRecorder({
           </button>
         </div>
       )}
+      {working && <p role="status">Checking the saved stop with the laboratory…</p>}
       {message && (
         <p
           role={message.kind === "refused" ? "alert" : "status"}
