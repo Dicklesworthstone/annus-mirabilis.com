@@ -43,12 +43,6 @@ const NO_SOURCE_ANCHORS: Readonly<Record<string, string>> = {
     // is served by mapping the sentence to its section's card (FaceSwitchAnchor's
     // resultsAnchorForSource), not by the face republishing source ids.
     "Publishes result and argument anchors by design; source ids belong to the source faces.",
-  split: // am-read-anchors-navigation-a6o: the split view is a shell.
-    "The route builds a 55,797-byte page carrying a heading, an intro and THREE ids (_R_, main, " +
-    "site-nav) and no source content at all, on every paper. So criterion 1's 'and split views' " +
-    "clause cannot be satisfied by this face: a uniqueness check over it is a pass on an empty " +
-    "set. This is the same debt src/reader/anchors/paneIds.ts carries -- its pane-b-- prefix and " +
-    "data-anchor contract are unexercised outside tests because no split view is rendered.",
 };
 
 interface FacePage {

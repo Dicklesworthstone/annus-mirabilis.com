@@ -365,34 +365,20 @@ describe("the planted regressions", () => {
     expect(unbuilt.detail).toContain("bun run build");
   });
 
-  it("the journey skeleton counts thirteen elements, and a missing or invalid record is unmeasured", () => {
+  it("the complete journey accounts for all thirteen elements, and a missing or invalid record is unmeasured", () => {
     // This cell was `unmeasured` with the reason "the discovery journeys are hand-authored JSX
     // rather than records". The records exist now, so the reason was stale and a stale `unmeasured`
     // reads as "nobody could check" when somebody can.
     const root = fixtureRoot();
     const before = cellOf(paperDoneness(root, PAPER).cells, "journey-skeleton-parts");
     expect(before.of).toBe(13);
-    /*
-     * THE MET COUNT IS A FLOOR, NOT AN EQUALITY, and it was `11` until 2026-10-20. The exercises
-     * were composed from the parts the discover pages already render (228cee48b) and mass-energy
-     * went to 12 of 13, so the equality reported correct work as a regression -- the failure
-     * AGENTS.md records under "A test that asserts a debt breaks when it is paid".
-     *
-     * Measured that day across the four papers: light-quanta 11, brownian-motion 11,
-     * special-relativity 12, mass-energy 12. The two at 11 still lack
-     * `exercises.instrumented`, each having one instrumented exercise where the skeleton asks
-     * for two; the two at 12 have it.
-     *
-     * What is asserted as an identity is the element still absent on every paper, because
-     * naming `stages` is stable in a way counting is not.
-     */
-    expect(before.met, before.detail).toBeGreaterThanOrEqual(12);
-    expect(before.met).toBeLessThan(13);
-    expect(before.state).toBe("short");
-    // Absent BY DECLARATION, and the detail says both things, because a bare count is a number
-    // nobody can act on.
-    expect(before.detail).toContain("absent: stages");
-    expect(before.detail).toContain("declared pending: stages");
+    // The authored stages now ship, completing this contract. Protect the complete skeleton
+    // rather than asserting that a historical omission must remain. The plants below still prove
+    // that removing a real element, invalidating the record, and losing it produce distinct results.
+    expect(before.met, before.detail).toBe(before.of);
+    expect(before.state).toBe("met");
+    expect(before.detail).not.toContain("; absent:");
+    expect(before.detail).not.toContain("; declared pending:");
 
     // A plant on a real element, chosen so the record STAYS VALID. My first attempt emptied
     // naggingFact, and the schema refuses that, so the cell went unmeasured and the plant measured
