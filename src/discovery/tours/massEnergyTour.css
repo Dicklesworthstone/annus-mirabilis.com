@@ -1,0 +1,88 @@
+.mass-energy-tour-instrument {
+  min-width: 0;
+}
+
+.mass-energy-tour-instrument > details,
+.mass-energy-tour-live {
+  margin-block: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--rule, currentColor);
+}
+
+.mass-energy-tour-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-block: 1rem;
+}
+
+fieldset.mass-energy-tour-controls {
+  min-width: 0;
+  padding: 0.75rem;
+  border: 1px solid var(--rule, currentColor);
+}
+
+.mass-energy-tour-controls button,
+.mass-energy-tour-live button {
+  min-height: 44px;
+  max-width: 100%;
+  padding: 0.5rem 0.75rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.mass-energy-tour-controls button[aria-pressed="true"] {
+  background: var(--wash, transparent);
+  border: 2px solid currentColor;
+}
+
+.mass-energy-tour-prediction {
+  min-width: 0;
+  margin-block: 1rem;
+  padding: 0.75rem;
+  border: 1px solid var(--rule, currentColor);
+}
+
+.mass-energy-tour-table {
+  max-width: 100%;
+  overflow-x: auto;
+  margin-block: 1rem;
+}
+
+.mass-energy-tour-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.mass-energy-tour-table :is(th, td) {
+  padding: 0.65rem;
+  border-block-end: 1px solid var(--rule, currentColor);
+  text-align: start;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.mass-energy-tour-table caption {
+  text-align: start;
+  margin-block-end: 0.5rem;
+  font-weight: 600;
+}
+
+.mass-energy-tour-unit {
+  display: block;
+  font-weight: 400;
+  font-size: var(--type-small);
+  color: var(--muted);
+}
+
+.mass-energy-tour-instrument :is(button, summary, [tabindex]):focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+@media print {
+  .mass-energy-tour-controls,
+  .mass-energy-tour-prediction {
+    display: none;
+  }
+}
