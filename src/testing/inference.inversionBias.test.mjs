@@ -141,9 +141,11 @@ test("visitor text never calls a consistency check a count of molecules", () => 
   );
 });
 
-test("Perrin 1909 dataset status is underdetermined until the HistoricalDataset is admitted", () => {
+test("Perrin 1909 point diffusivities do not admit molecular inference without independent calibration", () => {
   const r = perrin1909DatasetStatus();
   assert.equal(r.status, "underdetermined");
   assert.match(r.reason, /am-data-perrin-1909-p7ku/);
+  assert.match(r.reason, /supports point diffusivities/);
+  assert.match(r.reason, /independent calibration/);
   assert.match(r.reason, /have been invented/);
 });

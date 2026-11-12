@@ -5,7 +5,9 @@ import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { LabTapes } from "../../../components/lab/LabTapes.tsx";
 import { LabWrongTurns } from "../../../components/lab/LabWrongTurns.tsx";
+import { PerrinSummary } from "../../../components/lab/PerrinSummary.tsx";
 import { validateBm07Parameters } from "../../../experiments/bm07/parameters.ts";
+import { loadPerrinSummaryRecord } from "../../../experiments/bm07/perrinSummaryRecord.ts";
 import example from "../../../generated/bm07-example.json";
 import { NotModeledLine } from "../NotModeledLine.tsx";
 export const metadata: Metadata = {
@@ -32,6 +34,7 @@ export default function InferencePage() {
       </header>
       <InferenceComparison example={{ ...example, parameters: checked.data }} />
       <NotModeledLine instrumentId="bm-07" />
+      <PerrinSummary record={loadPerrinSummaryRecord()} />
       <nav className="lab-onward" aria-label="From here">
         <h2>From here</h2>
         <ul>
@@ -135,9 +138,10 @@ export default function InferencePage() {
           constant. Recovering that number tests inference under the model; it does not measure a
           real suspension. With modern SI constants, the Avogadro constant is defined, so an
           observational inversion would be a consistency check rather than an independent
-          determination. Historical observations and independent gas-constant measurements are not
-          supplied here. This instrument uses ideal positions; the separate camera laboratory adds
-          an explicitly later measurement model.
+          determination. The Perrin section above uses published observations for summary point
+          estimates, with its independent count and calibration limits stated separately. This
+          synthetic exercise uses ideal positions; the separate camera laboratory adds an explicitly
+          later measurement model.
         </p>
         <p>
           <a href="https://www.itl.nist.gov/div898/handbook/eda/section3/eda358.htm">

@@ -1,6 +1,7 @@
 /**
- * Historical BM-07 path. Does not invent Perrin table numbers: the digitized
- * HistoricalDataset is owned by am-data-perrin-1909-p7ku and is not in this tree.
+ * Historical BM-07 inversion contracts. The admitted Perrin mean-square table is consumed by
+ * perrinSummary.ts for point diffusivities only. Molecular-number inference still needs admitted
+ * calibration records; an interval also needs an independent count (am-data-perrin-1909-p7ku).
  * Einstein's printed N = 6.17e23 is a light-paper regression of the inversion
  * owner, reconstructed from R measured without counting molecules, never from
  * a modern exact k_B.
@@ -175,6 +176,6 @@ export function perrin1909DatasetStatus(): Assessment<never> {
     kind: "no-value",
     status: "underdetermined",
     reason:
-      "The Perrin 1909 HistoricalDataset is not yet admitted (am-data-perrin-1909-p7ku). No table numbers have been invented.",
+      "Perrin's admitted 1909 mean-square table supports point diffusivities in the historical-summary workflow. Molecular-number inference still needs independent calibration records; an interval also needs an admitted independent displacement count (am-data-perrin-1909-p7ku). No table numbers have been invented.",
   };
 }

@@ -325,26 +325,37 @@ export function InferenceLab({
           <form className="inference-controls" onSubmit={submit} noValidate>
             <fieldset disabled={!ready}>
               <legend>Observation set</legend>
-              <div className="input-field">
-                <label htmlFor={`${id}-observationSet`}>Which displacements</label>
-                <select
-                  id={`${id}-observationSet`}
-                  name="observationSet"
-                  value={draft.observationSet}
-                  onChange={(e) => edit("observationSet", e.target.value)}
-                >
-                  <option value="synthetic">Synthetic inverse exercise (hidden N)</option>
-                  <option value="perrin-1909">Perrin 1909 historical dataset</option>
-                  <option value="kitchen">Kitchen classroom CSV (handed off)</option>
-                </select>
-              </div>
+              <p>
+                <strong>Synthetic inverse exercise with a hidden molecular number</strong>
+              </p>
+              {draft.observationSet !== "synthetic" && (
+                <p role="status">
+                  These saved settings name a different observation workflow. Open its link below,
+                  or{" "}
+                  <button type="button" onClick={() => edit("observationSet", "synthetic")}>
+                    return these settings to the synthetic exercise
+                  </button>
+                  .
+                </p>
+              )}
               <p className="fine">
                 The synthetic set checks inference machinery on data made with a hidden number. It
-                is not evidence that molecules exist. Perrin 1909 waits on the admitted
-                HistoricalDataset; this instrument will not invent table numbers. Kitchen CSV is
-                analyzed by the existing kitchen session; this laboratory consumes that session and
-                does not re-parse video.
+                is not evidence that molecules exist. Use the observation workflows below to work
+                with published measurements or your own calibrated records.
               </p>
+              <ul>
+                <li>
+                  <a href="/lab/bm-07/#perrin-1909">
+                    Perrin 1909: infer diffusivity from measured summaries
+                  </a>
+                </li>
+                <li>
+                  <a href="/lab/brownian-data/">Import a calibrated trajectory CSV</a>
+                </li>
+                <li>
+                  <a href="/lab/bm-07/kitchen/">Classroom CSV and local microscope video</a>
+                </li>
+              </ul>
             </fieldset>
             <fieldset disabled={!ready}>
               <legend>1 · Observe the same path</legend>
@@ -900,11 +911,10 @@ export function InferenceLab({
       <section className="action-contract">
         <h3>Same scientific action without the plot</h3>
         <p>
-          Choose the observation set, estimator, and interval kind from the lists. Type the
-          displacement count M and the inference temperature, viscosity, and radius. Read the table
-          of estimated D and its interval, then N and its interval with the wording above, the
-          inverse-bias note, and the identifiability family. The plots are a view of that same
-          accepted snapshot.
+          Choose the estimator and interval kind from the lists. Type the displacement count M and
+          the inference temperature, viscosity, and radius. Read the table of estimated D and its
+          interval, then N and its interval with the wording above, the inverse-bias note, and the
+          identifiability family. The plots are a view of that same accepted snapshot.
         </p>
       </section>
       {/* Not modeled: the manifest's list, printed by the page (src/app/lab/NotModeledLine.tsx). */}
@@ -923,9 +933,10 @@ export function InferenceLab({
           {scalar(snapshot, "reusedRecording") === 1 ? "yes" : "no"}.
         </p>
         <p className="fine">
-          Source identity: <code>{example.sourceDigest}</code>. This host preview has no historical
-          data importer or camera-noise fit. Browser arithmetic is not a claim of strict
-          cross-engine WASM replay.
+          Source identity: <code>{example.sourceDigest}</code>. This laboratory uses the synthetic
+          inverse exercise. The linked historical-summary and measured-data workflows retain their
+          own observations and assumptions. Browser arithmetic is not a claim of strict cross-engine
+          WASM replay.
         </p>
       </details>
 

@@ -83,7 +83,11 @@ rights:
   recordedAt: "2026-11-11"
   reuseTerms: source-terms
   credit: "Source gallica.bnf.fr / Bibliothèque nationale de France"
-allowedInferenceModelIds: []
+# Only the one-axis mean-square / (2 * interval) point estimate is admitted.
+# Unknown independent displacement counts prohibit intervals; molecular inversion
+# still awaits independent calibration records. Aggregate rows are not raw tracks.
+allowedInferenceModelIds:
+  - estimateSummaryStatistics
 calibrationIds: []
 sharedInputIds: []
 addressesResults:

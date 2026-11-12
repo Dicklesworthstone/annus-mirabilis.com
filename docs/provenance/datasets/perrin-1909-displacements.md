@@ -66,6 +66,16 @@ from BM-01's accepted snapshot. It does not reconstruct the measurements, fit a 
 a molecular constant. Its source preset uses the printed physical conditions with modern SI
 constants. A visible mismatch notice remains when the current instrument settings differ.
 
+BM-07 also admits `estimateSummaryStatistics` for an explicitly limited interpretation of each
+one-axis mean square: the reference owner divides it by twice its own observation interval to
+produce an apparent diffusivity. The four rows remain separate. This calculation assumes zero
+drift and does not correct position-reading error. It uses no radius, temperature, viscosity,
+gas constant or molecular number. The owner receives `independentCoordinateCount: null` for
+every row; its interval path consequently reports that no chi-square interval is applicable.
+The printed number of grains does not establish the required independent-coordinate count.
+No raw-increment model, interval procedure or molecular inversion is admitted by this change;
+the calibration list remains empty. The observation data and digitization revision are unchanged.
+
 ## Source terms
 
 Source gallica.bnf.fr / Bibliothèque nationale de France.

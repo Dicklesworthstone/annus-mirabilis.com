@@ -3,7 +3,10 @@ import { resolve } from "node:path";
 import { loadHistoricalDataset } from "../../content/datasets/loader.ts";
 import { datasetPlotVerdict } from "../../content/datasets/plotVerdict.ts";
 import { getDatasetShelfStatus } from "../../content/datasets/shelf.ts";
-import { type HistoricalDataset, validateHistoricalDataset } from "../../content/schemas/experiment.ts";
+import {
+  type HistoricalDataset,
+  validateHistoricalDataset,
+} from "../../content/schemas/experiment.ts";
 import example from "../../generated/bm01-example.json";
 import { getConstantSet } from "../../physics/reference/constants.ts";
 import { moments, stokesEinsteinD } from "../../physics/reference/diffusion.ts";
@@ -20,7 +23,9 @@ import { loadPerrinRecord } from "./perrinRecord.ts";
 import { createBm01Session } from "./session.ts";
 
 const dataset = () =>
-  loadHistoricalDataset(resolve(process.cwd(), "content/datasets", `${PERRIN_1909_DATASET_ID}.yaml`));
+  loadHistoricalDataset(
+    resolve(process.cwd(), "content/datasets", `${PERRIN_1909_DATASET_ID}.yaml`),
+  );
 const accepted = (): AcceptedSnapshot => {
   const snapshot = createBm01Session(
     "perrin-test",
@@ -47,7 +52,8 @@ describe("Perrin's visually transcribed first-series measurements", () => {
     expect(source.digitizer.digitizationRevision).toBe(1);
     expect(source.digitizer.sourcePageImage).toContain("#page=75");
     expect(source.uncertainty.type).toBe("printed-rounding-only");
-    expect(source.allowedInferenceModelIds).toEqual([]);
+    expect(source.allowedInferenceModelIds).toEqual(["estimateSummaryStatistics"]);
+    expect(source.calibrationIds).toEqual([]);
     expect(source.rows.map((row) => row.cells[1])).toEqual([
       { kind: "number", value: 5.02e-11, originalToken: "50,2" },
       { kind: "number", value: 1.135e-10, originalToken: "113,5" },
@@ -134,7 +140,9 @@ describe("the model uses the accepted diffusivity and the audited moment owner",
       ...snapshot,
       parameters: { ...snapshot.parameters, ...PERRIN_TRACER_INPUTS },
       outputs: snapshot.outputs.map((output) =>
-        output.quantityId === "diffusionCoefficient" ? { ...output, value: diffusionValue } : output,
+        output.quantityId === "diffusionCoefficient"
+          ? { ...output, value: diffusionValue }
+          : output,
       ),
     };
     const comparison = comparePerrin(loadPerrinRecord(), sourceSnapshot);
