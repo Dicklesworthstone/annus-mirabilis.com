@@ -1,6 +1,6 @@
 schemaVersion: 1
 id: full-course
-revision: 3
+revision: 4
 budget: full-course
 requiresEquations: true
 paper: all
@@ -14,9 +14,9 @@ sequence:
 essays:
   - what-a-measurement-means
   - change-what-you-hold-fixed
+  - make-two-routes-meet
+  - the-useful-part-of-an-analogy
 essaysInPreparation:
-  - Make two routes meet
-  - The useful part of an analogy
   - Subtract what you do not know
   - Ask what must stay unchanged
   - Take a limit without losing the claim

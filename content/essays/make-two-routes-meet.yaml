@@ -1,0 +1,117 @@
+schemaVersion: 1
+kind: "essay"
+slug: "make-two-routes-meet"
+number: 3
+title: "Make two routes meet"
+label: "A contemporary methodological reading, not Einstein's method."
+r0Summary: "The Brownian paper connects a diffusion coefficient found from equilibrium and drag with the coefficient governing a spreading distribution. Following what each route supplies shows how their meeting produces a measurable displacement law, and what further evidence a molecular-number inference needs."
+body: "make-two-routes-meet.md"
+anchors:
+  -
+    anchorId: "brownian-motion/s3-p1"
+    kind: "source"
+    role: "The auxiliary force and the equilibrium state used to determine the diffusion coefficient."
+  -
+    anchorId: "brownian-motion/s3-p2"
+    kind: "source"
+    role: "The thermodynamic condition relating force density to the osmotic-pressure gradient."
+  -
+    anchorId: "brownian-motion/s3-p6"
+    kind: "source"
+    role: "The Stokes drift of a sphere and the resulting particle flux."
+  -
+    anchorId: "brownian-motion/s3-p7"
+    kind: "source"
+    role: "The opposing diffusive flux and the condition of zero net particle flow."
+  -
+    anchorId: "brownian-motion/s3-p8"
+    kind: "source"
+    role: "The diffusion coefficient obtained by combining the two equilibrium conditions."
+  -
+    anchorId: "brownian-motion/s4-p3"
+    kind: "source"
+    role: "The time interval on which successive displacements may be treated as independent."
+  -
+    anchorId: "brownian-motion/eq-s4-d9"
+    kind: "source"
+    role: "The diffusion coefficient expressed as the second moment of a displacement law."
+  -
+    anchorId: "brownian-motion/s4-p9"
+    kind: "source"
+    role: "The identification of the distribution equation's coefficient with macroscopic diffusion."
+  -
+    anchorId: "brownian-motion/s4-p11"
+    kind: "source"
+    role: "The one-coordinate root mean square displacement derived from the distribution."
+  -
+    anchorId: "brownian-motion/s5-p3"
+    kind: "source"
+    role: "The paper's inversion of the displacement relation to determine the molecular number."
+  -
+    anchorId: "bm-04"
+    kind: "instrument"
+    role: "Inspect the balance between forced drift and diffusion, and the cancellation of the auxiliary force."
+  -
+    anchorId: "bm-05"
+    kind: "instrument"
+    role: "Compare step laws with the same variance and follow their accumulated displacement distributions."
+  -
+    anchorId: "bm-06"
+    kind: "instrument"
+    role: "Examine the distribution whose spreading coefficient connects the two routes."
+  -
+    anchorId: "bm-07"
+    kind: "instrument"
+    role: "Follow the conditional inversion from a finite displacement sample to a molecular-number estimate."
+equations:
+  -
+    paper: "brownian-motion"
+    equationId: "eq-model-bm-diffusivity-molar"
+  -
+    paper: "brownian-motion"
+    equationId: "eq-model-bm-jump-moment"
+  -
+    paper: "brownian-motion"
+    equationId: "eq-model-bm-diffusion-equation"
+  -
+    paper: "brownian-motion"
+    equationId: "eq-model-bm-rms"
+  -
+    paper: "brownian-motion"
+    equationId: "eq-model-bm-diffusivity-from-data"
+  -
+    paper: "brownian-motion"
+    equationId: "eq-model-bm-avogadro-inference"
+quotedValues: []
+transferExamples:
+  -
+    id: "make-two-routes-meet-count-the-same-incidences"
+    domain: "Mathematics: count the same incidences"
+    example: "For a finite undirected graph without loops, count the incidences between vertices and edges. Adding the degrees counts them vertex by vertex; counting the two endpoints of each edge counts the same set edge by edge. Equating the totals gives the degree-sum identity."
+    sharedMove: "Choose one quantity whose meaning survives both descriptions, then show exactly why both routes count it. The equality supplies a constraint that neither description makes as visible alone."
+    whereItStops: "The counts form a mathematical identity under the graph's definition. Their agreement supplies no empirical evidence about a physical network, and directed edges or loops require an explicit counting convention."
+  -
+    id: "make-two-routes-meet-compare-independent-computations"
+    domain: "Programming: compare computations with different dependencies"
+    example: "Suppose a geometric routine calculates a polygon's area by summing triangle areas, while a reference routine integrates its boundary coordinates. Compare the signed result on the same simple polygons, including reversed vertex order and translated coordinates."
+    sharedMove: "Make both routes report the same quantity under the same conventions while keeping their algorithms separate. A disagreement can expose an orientation, indexing or coordinate-origin mistake."
+    whereItStops: "Both routines can share an erroneous input parser or the same mistaken specification. Agreement narrows the possible faults; it does not establish every input case or replace checking the mathematical assumptions."
+  -
+    id: "make-two-routes-meet-balance-a-tank"
+    domain: "Engineering measurement: reconcile an inventory with its flows"
+    example: "Consider a tank with no leaks or reactions. One procedure obtains the change in stored mass from measurements at the beginning and end of an interval. Another integrates the measured incoming and outgoing mass flows over that same interval."
+    sharedMove: "Compare an accumulated quantity with a second route built from its rate of change. The interval, system boundary and units must agree before the two estimates can meet."
+    whereItStops: "Shared calibration errors can move both estimates together. Unmeasured leaks or evaporation add flows outside the stated balance; volume-based measurements also need an accurate conversion to mass. A discrepancy requires investigation of the model and the measurements."
+limits:
+  - "This is a contemporary reading of the arguments. It does not reconstruct a checklist that Einstein followed."
+  - "These examples do not claim that scientific discovery has one algorithm."
+  - "The Brownian routes use different descriptions within a shared molecular and statistical framework. Their agreement alone is not independent observational evidence for atoms."
+  - "The equilibrium calculation assumes a dilute suspension, fixed temperature, linear drift and the Stokes drag law for spheres."
+  - "The distribution calculation assumes an appropriate time interval, independent symmetric increments with finite variance, and a diffusion approximation at larger scales."
+  - "A molecular-number estimate remains conditional on independently supplied radius, temperature, viscosity and displacement calibration. Recovering a number used to generate synthetic data tests the inference procedure."
+citations:
+  - "ap-17-549"
+reviewRecordIds: []
+related:
+  - "what-a-measurement-means"
+  - "change-what-you-hold-fixed"

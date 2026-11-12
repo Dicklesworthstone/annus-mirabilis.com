@@ -1,0 +1,102 @@
+schemaVersion: 1
+kind: "essay"
+slug: "the-useful-part-of-an-analogy"
+number: 4
+title: "The useful part of an analogy"
+label: "A contemporary methodological reading, not Einstein's method."
+r0Summary: "Einstein compares the volume dependence of dilute radiation's entropy with the entropy of independent points. Following the shared logarithm, the role of independence and the matching coefficients shows what that analogy suggests about an energy scale, and where its claim ends."
+body: "the-useful-part-of-an-analogy.md"
+anchors:
+  -
+    anchorId: "light-quanta/s4-p1"
+    kind: "source"
+    role: "The stated restriction of the radiation calculation to the regime where Wien's law applies."
+  -
+    anchorId: "light-quanta/eq-s4-d5"
+    kind: "source"
+    role: "The radiation entropy difference at fixed energy and frequency, in the printed notation."
+  -
+    anchorId: "light-quanta/s5-p7"
+    kind: "source"
+    role: "The probability question for independently movable points occupying a subvolume."
+  -
+    anchorId: "light-quanta/s5-p8"
+    kind: "source"
+    role: "The independent-point probability and the resulting logarithmic gas entropy."
+  -
+    anchorId: "light-quanta/s6-p1"
+    kind: "source"
+    role: "The radiation entropy rewritten for comparison with Boltzmann's probability relation."
+  -
+    anchorId: "light-quanta/s6-p5"
+    kind: "source"
+    role: "The effective exponent in the probability that all the radiation energy occupies a subvolume."
+  -
+    anchorId: "light-quanta/s6-p6"
+    kind: "source"
+    role: "The paper's explicitly limited thermodynamic inference about independent energy elements."
+  -
+    anchorId: "light-quanta/s6-p4"
+    kind: "source"
+    role: "The subsequent question of whether light's production and transformation follow the proposed quantum picture."
+  -
+    anchorId: "lq-04"
+    kind: "instrument"
+    role: "Explore the radiation entropy difference while holding the energy and frequency band fixed."
+  -
+    anchorId: "lq-05"
+    kind: "instrument"
+    role: "Compare independent positions with locked positions to locate the assumption behind the probability exponent."
+  -
+    anchorId: "lq-06"
+    kind: "instrument"
+    role: "Follow the coefficient correspondence and the conditional energy per element."
+equations:
+  -
+    paper: "light-quanta"
+    equationId: "eq-model-lq-volume-entropy"
+  -
+    paper: "light-quanta"
+    equationId: "eq-model-lq-configuration-probability"
+  -
+    paper: "light-quanta"
+    equationId: "eq-model-lq-gas-entropy-change"
+  -
+    paper: "light-quanta"
+    equationId: "eq-model-lq-effective-count"
+  -
+    paper: "light-quanta"
+    equationId: "eq-model-lq-energy-per-point-molar"
+quotedValues: []
+transferExamples:
+  -
+    id: "the-useful-part-of-an-analogy-traverse-a-tree"
+    domain: "Programming: transfer a traversal"
+    example: "A nested expression and a directory hierarchy can both be represented as rooted trees. A procedure that visits each child before processing its parent transfers between those representations once the meaning of a node and its children is specified."
+    sharedMove: "Preserve the structure on which the procedure depends. The correspondence concerns parent-child relations and traversal order, so the objects stored in the nodes can differ."
+    whereItStops: "A filesystem with symbolic links can contain cycles or several paths to the same object. A tree traversal then needs additional rules for revisiting nodes; picturing the filesystem as a tree does not establish that it is one."
+  -
+    id: "the-useful-part-of-an-analogy-shared-calibration"
+    domain: "Measurement: distinguish repeated readings from separate information"
+    example: "Suppose every reading contains the quantity sought, one shared calibration offset and a separate zero-mean noise contribution. Averaging can reduce the separate noise contributions while leaving the shared offset in every average."
+    sharedMove: "As in the locked-position example, count the sources of variation before multiplying probabilities or treating labels as separate information. The dependence structure determines which uncertainty can shrink."
+    whereItStops: "The example assumes the stated error decomposition. Real instruments can have drift, changing noise or other correlations; the gas probability law is not itself an uncertainty model for those readings."
+  -
+    id: "the-useful-part-of-an-analogy-compare-relaxations"
+    domain: "Engineering: compare relaxation laws"
+    example: "Suppose a thermal model makes the rate of change of temperature excess proportional to its negative, while a circuit model gives the same form for a discharging capacitor's voltage. Expressing time in units of each model's decay time makes their exponential curves coincide."
+    sharedMove: "Match the equations, the initial condition and the dimensionless variables. A solved mathematical form can then describe another system with a different physical quantity."
+    whereItStops: "The matching curves do not identify heat with charge or thermal conductance with an electrical mechanism. Varying coefficients, additional storage, forcing or nonlinear behavior can break the correspondence."
+limits:
+  - "This is a contemporary reading of the arguments. It does not reconstruct a checklist that Einstein followed."
+  - "These examples do not claim that scientific discovery has one algorithm."
+  - "The radiation entropy law assumes fixed energy and a fixed narrow frequency band in the Wien regime. Its agreement with a gas volume law does not extend that regime."
+  - "The gas probability exponent requires independent uniformly distributed positions. Several labels attached to one shared position do not supply several independent factors."
+  - "The matched coefficient defines an effective count and an energy scale within a proposed description. It is not a direct count of observed quanta or a proof that the two systems have identical mechanisms."
+  - "Claims about the production and transformation of light require further physical hypotheses and comparisons beyond the volume dependence of entropy."
+citations:
+  - "ap-17-132"
+reviewRecordIds: []
+related:
+  - "change-what-you-hold-fixed"
+  - "make-two-routes-meet"
