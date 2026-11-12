@@ -477,6 +477,15 @@ describe("the plants: each epistemic gate, broken on purpose, on a real journey"
     const journey = real("light-quanta");
     const planted = {
       ...journey,
+      completeness: "partial" as const,
+      pendingElements: [
+        {
+          element: "stages",
+          reason:
+            "This plant declares stages absent while carrying one, so the gate must notice it.",
+          ownerBead: "am-4k0m",
+        },
+      ],
       stages: [
         {
           id: "plant-stage",
@@ -487,7 +496,7 @@ describe("the plants: each epistemic gate, broken on purpose, on a real journey"
       ],
     };
     console.log(
-      `[plant] light-quanta stages 0 -> 1, keys = ${Object.keys(planted.stages[0] ?? {}).join(",")}`,
+      `[plant] light-quanta stages ${journey.stages.length} -> 1 with stages declared pending, keys = ${Object.keys(planted.stages[0] ?? {}).join(",")}`,
     );
     // A verdict, not a throw. Which findings it reports is a separate question; that it REACHES a
     // verdict is this plant's whole point.

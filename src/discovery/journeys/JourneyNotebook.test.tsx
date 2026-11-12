@@ -40,7 +40,14 @@ describe("private stage notes on the published discovery routes", () => {
       expect(manifest.stages).toEqual(
         journey.stages.map(({ id, title }) => ({ id, title, alternatives: [] })),
       );
-      expect(Object.keys(manifest).sort()).toEqual(["paper", "revision", "stages"]);
+      const hasCompatibleRevision =
+        manifest.paper === "mass-energy" || manifest.paper === "special-relativity";
+      expect(Object.keys(manifest).sort()).toEqual(
+        hasCompatibleRevision
+          ? ["compatibleRevisions", "paper", "revision", "stages"]
+          : ["paper", "revision", "stages"],
+      );
+      expect(manifest.compatibleRevisions).toEqual(hasCompatibleRevision ? ["4"] : undefined);
       for (const stage of manifest.stages) {
         expect(Object.keys(stage).sort()).toEqual(["alternatives", "id", "title"]);
       }

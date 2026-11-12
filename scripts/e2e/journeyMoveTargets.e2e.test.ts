@@ -13,8 +13,8 @@
  *
  * THE DESTINATION MUST BE THE DECLARED MOVE. Brownian motion opens its record-backed dialog;
  * Light Quanta and Mass-energy address marked steps rendered by their code-built proof owners.
- * Special Relativity still links the section 1 definition: the section 3 coordinate derivation
- * assumes that definition and cannot substitute for the journey's named move.
+ * Special Relativity opens its section 1 synchronization definition and the conditional midpoint
+ * algebra, distinct from the section 3 coordinate derivation that assumes the convention.
  *
  * Node lane, because it reads `out/`. bunfig excludes `scripts/e2e` and the e2e glob from `bun test`
  * and the node lane derives its list from those same patterns, so membership here is the filename.
@@ -42,7 +42,7 @@ const MOVE_HREFS: Readonly<Record<string, string>> = {
   "light-quanta": "/papers/light-quanta/s6/#lq-correspondence-match-coefficients",
   "brownian-motion":
     "/papers/brownian-motion/s4/?open=derivation-step:bm-variance-cross#arg-bm-independent-steps",
-  "special-relativity": "/papers/special-relativity/s1/#arg-sr-synchronization",
+  "special-relativity": "/papers/special-relativity/s1/#sr-synchronization-define-equal-legs",
   "mass-energy": "/papers/mass-energy/#me-the-move",
 };
 
@@ -50,7 +50,7 @@ const MOVE_HREFS: Readonly<Record<string, string>> = {
  * The papers whose move is NOT yet openable as a derivation step, with the bead that owns it.
  * Remove a name when its chain lands; the test below fails until you do.
  */
-const MOVE_NOT_OPENABLE_AS_A_STEP: readonly string[] = Object.freeze(["special-relativity"]);
+const MOVE_NOT_OPENABLE_AS_A_STEP: readonly string[] = Object.freeze([]);
 
 /** The module that declares each paper's skeleton, and the record emitted from it. */
 const JOURNEY_MODULES: Readonly<Record<string, string>> = {
@@ -146,9 +146,7 @@ function opensMarkedStep(paper: string, href: string): boolean {
   const file = builtFileFor(path);
   assert.ok(existsSync(file), `${paper}: ${path} is built`);
   const html = readFileSync(file, "utf8");
-  const tags = (html.match(/<li\b[^>]*>/g) ?? []).filter((tag) =>
-    tag.includes(` id="${anchor}"`),
-  );
+  const tags = (html.match(/<li\b[^>]*>/g) ?? []).filter((tag) => tag.includes(` id="${anchor}"`));
   if (tags.length === 0) return false;
   assert.equal(tags.length, 1, `${paper}: the move resolves to one step`);
   const tag = tags[0] ?? "";
@@ -178,7 +176,7 @@ function opensMarkedStep(paper: string, href: string): boolean {
   return false;
 }
 
-test("three journey moves open their published marked steps and the remaining definition is named", () => {
+test("all four journey moves open their published marked steps", () => {
   assertOutFreshness("out", REPO_ROOT);
   const openable = Object.entries(MOVE_HREFS)
     .filter(([paper, href]) => opensMarkedStep(paper, href))
@@ -194,7 +192,12 @@ test("three journey moves open their published marked steps and the remaining de
   // The pawl. Authoring a chain for one of these and pointing its href at the step fails here until
   // the name comes out, which is what stops a declared gap outliving its reason.
   assert.deepEqual(notOpenable, [...MOVE_NOT_OPENABLE_AS_A_STEP].sort());
-  assert.deepEqual(openable, ["brownian-motion", "light-quanta", "mass-energy"]);
+  assert.deepEqual(openable, [
+    "brownian-motion",
+    "light-quanta",
+    "mass-energy",
+    "special-relativity",
+  ]);
 });
 
 test("the Brownian dialog move names a record-backed step that exists and is marked", () => {

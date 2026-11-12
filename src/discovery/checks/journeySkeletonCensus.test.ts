@@ -36,8 +36,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { LowSpeedExplorer } from "../../equations/derivations/LowSpeedExplorer.tsx";
 import { lqCoefficientCorrespondence } from "../../equations/derivations/lightQuantaEntropy.ts";
 import type { LowSpeedProofView } from "../../equations/derivations/lowSpeedView.ts";
+import { srSynchronizationChain } from "../../equations/derivations/srSynchronization.ts";
 import generatedLowSpeed from "../../generated/mass-energy-low-speed.json";
 import { LightQuantaDerivation } from "../../reader/LightQuantaDerivation.tsx";
+import { SRSynchronizationDerivation } from "../../reader/SRSynchronizationDerivation.tsx";
 import { REAL_JOURNEYS } from "../journeys/realJourneys.ts";
 
 const ROOT = process.cwd();
@@ -118,9 +120,7 @@ function moveHref(paper: string): URL {
 }
 
 function markedListItem(markup: string, id: string): string {
-  const targets = (markup.match(/<li\b[^>]*>/g) ?? []).filter((tag) =>
-    tag.includes(` id="${id}"`),
-  );
+  const targets = (markup.match(/<li\b[^>]*>/g) ?? []).filter((tag) => tag.includes(` id="${id}"`));
   expect(targets, `${id} appears on exactly one rendered step`).toHaveLength(1);
   return targets[0] ?? "";
 }
@@ -140,6 +140,21 @@ function papersWithCodeBuiltMove(): readonly string[] {
   const lightMarkup = renderToStaticMarkup(createElement(LightQuantaDerivation, { section: "s6" }));
   expect(markedListItem(lightMarkup, lightQuanta.move.stepId)).toContain('data-is-move="true"');
   expect(lightMarkup).toContain(`data-derivation-chain="${lightQuanta.move.chainId}"`);
+
+  const relativity = REAL_JOURNEYS.find((journey) => journey.paper === "special-relativity")!;
+  const relativityHref = moveHref(relativity.paper);
+  expect(relativity.move.chainId).toBe(srSynchronizationChain.id);
+  const definition = srSynchronizationChain.steps.find(
+    (step) => step.id === relativity.move.stepId,
+  );
+  expect(definition?.isMove).toBe(true);
+  expect(definition?.reasonKind).toBe("definition");
+  expect(definition?.moveLabel).toBeTruthy();
+  expect(relativityHref.pathname).toBe("/papers/special-relativity/s1/");
+  expect(relativityHref.hash).toBe(`#${relativity.move.stepId}`);
+  const relativityMarkup = renderToStaticMarkup(createElement(SRSynchronizationDerivation));
+  expect(markedListItem(relativityMarkup, relativity.move.stepId)).toContain('data-is-move="true"');
+  expect(relativityMarkup).toContain(`data-derivation-chain="${relativity.move.chainId}"`);
 
   const massEnergy = REAL_JOURNEYS.find((journey) => journey.paper === "mass-energy")!;
   const massHref = moveHref(massEnergy.paper);
@@ -162,10 +177,8 @@ function papersWithCodeBuiltMove(): readonly string[] {
   const start = massMarkup.indexOf(massTag);
   const end = massMarkup.indexOf("</li>", start);
   expect(end).toBeGreaterThan(start);
-  expect(massMarkup.slice(start, end)).toContain(
-    `data-low-speed-step="${massEnergy.move.stepId}"`,
-  );
-  return [lightQuanta.paper, massEnergy.paper];
+  expect(massMarkup.slice(start, end)).toContain(`data-low-speed-step="${massEnergy.move.stepId}"`);
+  return [lightQuanta.paper, relativity.paper, massEnergy.paper];
 }
 
 describe("the four journeys' skeleton, measured from what declares it", () => {
@@ -248,18 +261,16 @@ describe("the four journeys' skeleton, measured from what declares it", () => {
       `[journey move chains] ${covered.length} of ${JOURNEYS.length} journeys have their move in a derivation chain a reader can open; ` +
         `${files} chain file(s) plus code-built reader owners | openable: ${covered.join(", ") || "none"} | prose only: ${bare.join(", ") || "none"}`,
     );
-    // Keep the record-backed owner and all three delivered moves in the measured population.
+    // Keep the record-backed owner and all four delivered moves in the measured population.
     expect(files).toBeGreaterThan(0);
-    expect(covered.length).toBeGreaterThanOrEqual(3);
+    expect(covered.length).toBe(JOURNEYS.length);
     // Every chain's paper is one of the four, so a typo in a chain cannot inflate the coverage.
     expect([...papers].filter((p) => !JOURNEYS.some((j) => j.paper === p))).toEqual([]);
   });
 
   it("a journey without an openable move DECLARES it, and one with an openable move does not", () => {
-    // This is what makes the hardcoded MOVE_CHAIN_MISSING set in realJourneys.ts safe. That module
-    // cannot read the filesystem -- it is reachable from the discover pages, where a node: import
-    // is the defect am-t84m gates against -- so the agreement with record-backed and code-built
-    // production owners is checked here. Deliver a matching move and the pending entry must go.
+    // realJourneys.ts cannot inspect the filesystem: discover pages import it. Compare its
+    // declarations with the record-backed and code-built production owners here instead.
     const { papers } = papersWithOpenableMove();
     const wrong: string[] = [];
     for (const journey of REAL_JOURNEYS) {
@@ -275,8 +286,8 @@ describe("the four journeys' skeleton, measured from what declares it", () => {
       }
     }
     expect(wrong).toEqual([]);
-    // Non-vacuity in both directions: the corpus really does hold one of each case, so neither
-    // branch above is unreachable and a run that passes has exercised both.
+    // All four real moves are delivered. Assert the empty declaration list directly so the old
+    // exception cannot outlive its reason; the production-owner checks above hold the denominator.
     const declaring = REAL_JOURNEYS.filter((j) =>
       (j.pendingElements ?? []).some((pe) => pe.element === "move.derivationChain"),
     );
@@ -284,16 +295,7 @@ describe("the four journeys' skeleton, measured from what declares it", () => {
       `[journey move declarations] ${declaring.length} of ${REAL_JOURNEYS.length} declare move.derivationChain pending: ` +
         `${declaring.map((j) => j.paper).join(", ")}`,
     );
-    expect(declaring.length).toBeGreaterThan(0);
-    expect(declaring.length).toBeLessThan(REAL_JOURNEYS.length);
-    // And every declaration carries the two fields that make it a declaration rather than a label.
-    for (const journey of declaring) {
-      const entry = (journey.pendingElements ?? []).find(
-        (pe) => pe.element === "move.derivationChain",
-      );
-      expect(entry?.reason?.length ?? 0).toBeGreaterThan(80);
-      expect(entry?.ownerBead).toBeTruthy();
-    }
+    expect(declaring).toEqual([]);
   });
 
   it("the four records now exist, and the gates run on them", () => {

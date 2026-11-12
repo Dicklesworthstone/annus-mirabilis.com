@@ -37,6 +37,7 @@ import {
   srCoordinateSourceStages,
   srCoordinateSubstitution,
 } from "./srCoordinates.ts";
+import { srSynchronizationChain } from "./srSynchronization.ts";
 import { containsSubtree, structurallyEqual } from "./treeUtils.ts";
 import { DerivationSchemaError, type DerivationStep } from "./types.ts";
 import { verifyChain } from "./verifyChain.ts";
@@ -504,7 +505,9 @@ test("cross-route links, physical source anchors and owner readings resolve with
   assert.deepEqual(
     new Set(live.input.targets.map((target) => target.targetId)),
     new Set(
-      srCoordinateChains.flatMap((chain) => chain.steps.map((step) => `${chain.id}/${step.id}`)),
+      [...srCoordinateChains, srSynchronizationChain].flatMap((chain) =>
+        chain.steps.map((step) => `${chain.id}/${step.id}`),
+      ),
     ),
   );
   assert.deepEqual(auditReadings(live.input).findings, []);
