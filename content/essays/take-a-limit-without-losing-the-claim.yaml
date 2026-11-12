@@ -1,0 +1,122 @@
+schemaVersion: 1
+kind: "essay"
+slug: "take-a-limit-without-losing-the-claim"
+number: 7
+title: "Take a limit without losing the claim"
+label: "A contemporary methodological reading, not Einstein's method."
+r0Summary: "An approximation preserves some conclusions and discards others. The low-speed energy coefficient, the Wien regime and Brownian observation intervals show why the quantity being limited and the conditions of the comparison must remain explicit."
+body: "take-a-limit-without-losing-the-claim.md"
+anchors:
+  -
+    anchorId: "mass-energy/s0-p7"
+    kind: "source"
+    role: "The symmetric emission, the two energy accounts and the unchanged additive offset behind the exact kinetic-energy difference."
+  -
+    anchorId: "mass-energy/s0-p11"
+    kind: "source"
+    role: "The explicit omission of fourth and higher orders in the speed before reading the quadratic coefficient."
+  -
+    anchorId: "mass-energy/s0-p12"
+    kind: "source"
+    role: "The mass decrease inferred from the emitted energy after the low-speed step."
+  -
+    anchorId: "light-quanta/s4-p1"
+    kind: "source"
+    role: "The paper's stated restriction of Wien's law to large frequency divided by temperature."
+  -
+    anchorId: "light-quanta/s4-p2"
+    kind: "source"
+    role: "The entropy calculation at fixed radiation energy and frequency band."
+  -
+    anchorId: "light-quanta/s4-p5"
+    kind: "source"
+    role: "The low-density restriction on the radiation and gas entropy comparison."
+  -
+    anchorId: "brownian-motion/s4-p3"
+    kind: "source"
+    role: "An interval short relative to observation but long enough for successive displacements to be treated as independent."
+  -
+    anchorId: "brownian-motion/s4-p11"
+    kind: "source"
+    role: "The coordinate root mean square displacement, with the statistic stated explicitly."
+  -
+    anchorId: "me-02"
+    kind: "instrument"
+    role: "Compare the exact energy difference, its quadratic approximation and the finite-speed quotient while keeping emitted energy fixed."
+  -
+    anchorId: "lq-03"
+    kind: "instrument"
+    role: "Inspect the pointwise discrepancy of Wien's law from Planck's spectrum at the same frequency and temperature."
+  -
+    anchorId: "lq-04"
+    kind: "instrument"
+    role: "Follow the regime checks at both ends of a fixed-energy entropy comparison."
+  -
+    anchorId: "bm-01"
+    kind: "instrument"
+    role: "Compare coordinate displacement spread and apparent speed as the observation interval changes."
+  -
+    anchorId: "taylor-expansion"
+    kind: "foundation"
+    role: "Track retained powers and omitted terms in a local approximation."
+equations:
+  -
+    paper: "mass-energy"
+    equationId: "eq-model-me-exact-drop"
+  -
+    paper: "mass-energy"
+    equationId: "eq-model-me-quadratic-drop"
+  -
+    paper: "mass-energy"
+    equationId: "eq-model-me-finite-speed-proxy"
+  -
+    paper: "mass-energy"
+    equationId: "eq-model-me-low-speed-limit"
+  -
+    paper: "light-quanta"
+    equationId: "eq-model-lq-wien-spectrum"
+  -
+    paper: "light-quanta"
+    equationId: "eq-model-lq-volume-entropy"
+  -
+    paper: "brownian-motion"
+    equationId: "eq-model-bm-rms"
+  -
+    paper: "brownian-motion"
+    equationId: "eq-model-bm-apparent-speed"
+quotedValues: []
+transferExamples:
+  -
+    id: "take-a-limit-without-losing-the-claim-small-angle-response"
+    domain: "Engineering: keep the first response term"
+    example: "For an ideal pendulum the restoring torque contains sin θ. With θ measured in radians, replacing sin θ by θ preserves the leading response as the amplitude approaches zero; the first omitted term has cubic order in θ."
+    sharedMove: "Identify the dimensionless small quantity, state the retained order and compare the resulting prediction with the fuller model over the intended operating range."
+    whereItStops: "A small-angle limit supplies no universal acceptable amplitude. The permitted error depends on the quantity being predicted, and damping, driving and mechanical imperfections require additional assumptions."
+  -
+    id: "take-a-limit-without-losing-the-claim-asymptotic-work"
+    domain: "Software: separate eventual growth from a finite run"
+    example: "An operation count proportional to n log n eventually grows more slowly than one proportional to n² when their positive coefficients stay fixed. That comparison leaves the crossover size and the time of a particular run unspecified."
+    sharedMove: "State what tends to a limit, what remains fixed and which conclusion follows. An eventual ordering does not supply a measurement at the input size a user has."
+    whereItStops: "Operation counts require a declared cost model. Constants, data layout, memory traffic and different workloads can matter at practical sizes; an asymptotic argument does not replace measurements of an implementation."
+  -
+    id: "take-a-limit-without-losing-the-claim-difference-quotient"
+    domain: "Measurement: retain the quantity a quotient estimates"
+    example: "A difference quotient compares a change in an output with a change in its input. In a smooth mathematical model its limit can be a derivative even though the numerator and denominator both approach zero."
+    sharedMove: "Form the quantity of interest before taking the limit, and keep its units and held variables visible. The limit of a quotient cannot be recovered by replacing its numerator and denominator separately with zero."
+    whereItStops: "In measured or rounded data, smaller increments can make noise and cancellation dominate. A mathematical derivative does not promise that arbitrarily fine measurements improve an estimate."
+limits:
+  - "This is a contemporary reading of the arguments. It does not reconstruct a checklist that Einstein followed."
+  - "These examples do not claim that scientific discovery has one algorithm."
+  - "The exact mass-energy difference uses symmetric emission and the same additive energy offset before and after emission. The low-speed step identifies a coefficient under those premises; it does not establish the unchanged-offset premise."
+  - "The Wien comparison uses matched spectral constants. Its relative spectral discrepancy is pointwise and is not an error bound on an integrated entropy difference."
+  - "The radiation entropy comparison fixes energy, frequency and bandwidth, fixes the entropy-density integration constant by the zero-density condition, and requires both compared states to remain in the admitted Wien regime."
+  - "The diffusion limit describes the stated ideal model. Extrapolating its apparent-speed quotient to zero interval does not determine a physical particle's instantaneous velocity."
+citations:
+  - "ap-17-132"
+  - "ap-17-549"
+  - "ap-18-639"
+reviewRecordIds: []
+related:
+  - "what-a-measurement-means"
+  - "change-what-you-hold-fixed"
+  - "where-a-model-stops-working"

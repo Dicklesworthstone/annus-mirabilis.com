@@ -40,9 +40,8 @@ export default function EssaysPage() {
         </li>)}
       </ol>
       <p className="essay-series-note">
-        The series is being written. Only essays with a complete reading are listed here.
-        The current essays are drafts of contemporary interpretations; source passages and
-        model equations retain their own edition notices.
+        All readings in the planned series are available here as drafts of contemporary
+        interpretations. Source passages and model equations retain their own edition notices.
       </p>
       <nav className="essay-related" aria-label="Related reading">
         <a href="/connections/">Connections among the papers</a>

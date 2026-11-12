@@ -1,0 +1,111 @@
+schemaVersion: 1
+kind: "essay"
+slug: "where-a-model-stops-working"
+number: 8
+title: "Where a model stops working"
+label: "A contemporary methodological reading, not Einstein's method."
+r0Summary: "A model makes predictions for specified quantities under specified conditions. Brownian observation, photoelectric emission and reflection from a moving mirror show how to identify a failed extension while keeping the predictions supported within the model's domain."
+body: "where-a-model-stops-working.md"
+anchors:
+  -
+    anchorId: "brownian-motion/s4-p3"
+    kind: "source"
+    role: "The separation of time scales required for successive displacements to be treated as independent."
+  -
+    anchorId: "brownian-motion/s4-p11"
+    kind: "source"
+    role: "The displacement statistic predicted by the diffusion model."
+  -
+    anchorId: "light-quanta/s8-p2"
+    kind: "source"
+    role: "The assumed complete transfer of a light quantum to an electron, escape work and additional losses."
+  -
+    anchorId: "light-quanta/s8-p3"
+    kind: "source"
+    role: "The stopping-potential relation under the stated energy-transfer assumptions."
+  -
+    anchorId: "light-quanta/s8-p7"
+    kind: "source"
+    role: "The conditional distinction between electron energy and emission rate when light intensity changes."
+  -
+    anchorId: "light-quanta/s8-p9"
+    kind: "source"
+    role: "The source's replacement of the equality by an inequality when complete energy transfer is no longer assumed."
+  -
+    anchorId: "special-relativity/s8-p6"
+    kind: "source"
+    role: "A perfectly reflecting plane at rest in the moving coordinate system."
+  -
+    anchorId: "special-relativity/s8-p7"
+    kind: "source"
+    role: "Transforming to the mirror frame, reflecting, and transforming the light back."
+  -
+    anchorId: "special-relativity/s8-p10"
+    kind: "source"
+    role: "The incident and reflected energy fluxes and their difference as mechanical work."
+  -
+    anchorId: "bm-01"
+    kind: "instrument"
+    role: "Separate the ideal displacement statistic from a physical instantaneous velocity."
+  -
+    anchorId: "bm-08"
+    kind: "instrument"
+    role: "A later synthetic observation model that separates latent diffusion, finite exposure and localization error."
+  -
+    anchorId: "lq-08"
+    kind: "instrument"
+    role: "Explore the ideal one-quantum energy budget and read the material and detector effects excluded from it."
+  -
+    anchorId: "sr-11"
+    kind: "instrument"
+    role: "Explore reflection and work for a prescribed mirror speed, including cases where the incident light cannot reach the mirror."
+equations:
+  -
+    paper: "brownian-motion"
+    equationId: "eq-model-bm-rms"
+  -
+    paper: "light-quanta"
+    equationId: "eq-model-lq-photoelectric-maximum"
+  -
+    paper: "light-quanta"
+    equationId: "eq-model-lq-stopping-energy"
+  -
+    paper: "special-relativity"
+    equationId: "eq-model-sr-mirror-frequency"
+quotedValues: []
+transferExamples:
+  -
+    id: "where-a-model-stops-working-operating-envelope"
+    domain: "Engineering: declare an operating range"
+    example: "A linear calibration relates a sensor's signal to the measured quantity over a stated range and set of environmental conditions. Saturation beyond that range can invalidate an extrapolated reading while leaving the calibration useful inside its supported range."
+    sharedMove: "Attach the conditions of use to the prediction and identify what mechanism the extension would need to include."
+    whereItStops: "A declared range needs evidence and uncertainty. Naming a range after seeing inconvenient measurements does not establish that the model describes observations inside it."
+  -
+    id: "where-a-model-stops-working-bounded-software-model"
+    domain: "Software: distinguish a precondition from a result"
+    example: "A routine for a sorted sequence can use that ordering to avoid examining every element. Passing an unsorted sequence violates the premise of its search argument; returning an index does not show that the premise was satisfied."
+    sharedMove: "State which property the procedure assumes, which property it establishes and what happens when the required input condition is absent."
+    whereItStops: "Program preconditions are often exact and inspectable. Physical approximations usually need empirical tolerances, uncertain measurements and judgments about omitted mechanisms."
+  -
+    id: "where-a-model-stops-working-measurement-chain"
+    domain: "Measurement: model the instrument as well as the object"
+    example: "A measurement can average an evolving signal over an exposure and then add readout error. A model for the underlying signal and a model for the recorded data therefore make different predictions even when they describe the same experiment."
+    sharedMove: "Locate a discrepancy in the chain from physical process to observation to estimate before choosing which assumption to revise."
+    whereItStops: "A detailed observation model can also fail. Its noise independence, exposure profile and calibration must be checked; additional parameters do not establish that it describes a real instrument."
+limits:
+  - "This is a contemporary reading of the arguments. It does not reconstruct a checklist that Einstein followed."
+  - "These examples do not claim that scientific discovery has one algorithm."
+  - "The Brownian diffusion relation assumes an interval on which independent increments are an adequate description. This essay supplies no measured inertial crossover time or hydrodynamic correction."
+  - "The camera example is a later synthetic observation model with zero drift, zero exposure duration and independent position errors of equal variance. Its symbolic expectations are not measurements from the 1905 paper."
+  - "The photoelectric equality describes complete transfer of one quantum and the maximum kinetic energy under the declared escape-work model. It does not determine real-material yields or a universal current-voltage curve."
+  - "The mirror has a prescribed constant speed and ideal reflection. Its energy ledger includes mechanical work but does not calculate a finite mirror's acceleration or self-consistent recoil."
+  - "A scope condition must be stated and supported. Persistent disagreement within the declared domain remains a reason to investigate or revise a model."
+citations:
+  - "ap-17-132"
+  - "ap-17-549"
+  - "ap-17-891"
+reviewRecordIds: []
+related:
+  - "what-a-measurement-means"
+  - "change-what-you-hold-fixed"
+  - "take-a-limit-without-losing-the-claim"
