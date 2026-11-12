@@ -9,6 +9,7 @@ import {
   type WorkerTapeSession,
 } from "../permalink/workerSessionTape.ts";
 import { BM08_DEFAULTS } from "./definition.ts";
+import { cameraObservationCsv } from "./export.ts";
 import { bm08ScientificState, verifyBm08ScientificCheckpoint } from "./tapeCheckpoint.ts";
 
 const fixture = await bm08ReplayFixture();
@@ -122,12 +123,17 @@ test("a later result without a recording receipt cannot reuse an earlier trial's
     "restored",
   );
   expect(lab.session.acceptedPublication?.()).not.toBeNull();
+  const accepted = lab.session.getSnapshot().accepted;
+  assert.ok(accepted && lab.binding.capture);
+  const csv = cameraObservationCsv(accepted, fixture.sourceDigest);
   omitReceipt = true;
   expect(
     (await applyWorkerSettings(lab.session, { ...fixture.example.parameters, M: 12 })).kind,
-  ).toBe("restored");
-  const accepted = lab.session.getSnapshot().accepted;
-  assert.ok(accepted && lab.binding.capture);
+  ).toBe("not-restored");
+  expect(lab.session.getSnapshot().status).toBe("unavailable");
+  expect(lab.session.getSnapshot().outcome?.outcome).toBe("invariant-violation");
+  expect(lab.session.getSnapshot().accepted === accepted).toBe(true);
+  expect(cameraObservationCsv(accepted, fixture.sourceDigest)).toBe(csv);
   expect(lab.session.acceptedPublication?.()).toBeNull();
   expect((await lab.binding.capture(lab.session, accepted)).kind).toBe("unavailable");
 });

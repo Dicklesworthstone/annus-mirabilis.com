@@ -1,5 +1,11 @@
 import { BM08_PROTOCOL, decodeLabHello, decodeLabResponse } from "../../workers/protocol/bm08.ts";
+import type { WorkerAdmission } from "../../workers/scheduler/admission.ts";
 import { createHostScheduler, type WorkerChannel } from "../../workers/scheduler/hostScheduler.ts";
+import { createRecordingContinuity } from "../../workers/scheduler/recordingContinuity.ts";
+import {
+  sharedLaboratoryRetention,
+  type WorkerRetention,
+} from "../../workers/scheduler/retention.ts";
 import {
   createVerifiedWorkerChannel,
   type PublicationVerifier,
@@ -28,6 +34,11 @@ export function createBm08Session(
   instanceId: string,
   example: PreparedBm08Example,
   workerFactory?: () => WorkerChannel,
+  resources: Readonly<{
+    admission?: WorkerAdmission;
+    /** null pins owners whose comparison contract requires actual warm-cache reuse. */
+    retention?: WorkerRetention | null;
+  }> = {},
 ) {
   const store = createInstanceStore({
     experimentId: "bm-08",
@@ -73,6 +84,7 @@ export function createBm08Session(
   let scheduler: ReturnType<typeof createHostScheduler> | null = null;
   const schedulingPause = createSchedulingPause((paused) => scheduler?.setSchedulingPaused(paused));
   const verifiers = new WeakMap<RequestToken, PublicationVerifier>();
+  const continuity = createRecordingContinuity(store);
   const ownerProtocol = {
     version: BM08_PROTOCOL,
     decodeHello: decodeLabHello,
@@ -180,7 +192,7 @@ export function createBm08Session(
             workerFactory(),
             ownerProtocol,
             example.sourceDigest,
-            (token) => verifiers.get(token),
+            (token) => continuity.verifier(token, verifiers.get(token)),
           ),
         example.sourceDigest,
         {
@@ -205,6 +217,17 @@ export function createBm08Session(
               result: { kind: "accepted", data: { outputs, stepIndex, simulationTime } },
             };
           },
+        },
+        undefined,
+        {
+          admission: resources.admission,
+          retention:
+            resources.retention === null
+              ? undefined
+              : {
+                  pool: resources.retention ?? sharedLaboratoryRetention(),
+                  canRetire: continuity.canRetire,
+                },
         },
       );
       scheduler.setSchedulingPaused(schedulingPause.getSchedulingPaused());

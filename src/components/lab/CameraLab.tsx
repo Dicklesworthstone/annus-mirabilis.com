@@ -245,12 +245,15 @@ export function CameraLab({
       </div>
     );
   };
+  const checkpointNotice = view.outcome?.details?.checkpointNotice;
   const status = view.pending
     ? "Calculating. Every displayed value still belongs to the accepted camera settings."
     : view.status === "refused"
       ? "Request refused. The accepted path, observations and estimates are unchanged."
       : view.status === "unavailable"
-        ? `${view.outcome?.message ?? "Execution unavailable."} Accepted observations remain readable.`
+        ? typeof checkpointNotice === "string"
+          ? checkpointNotice
+          : `${view.outcome?.message ?? "Execution unavailable."} Accepted observations remain readable.`
         : view.status === "paused"
           ? "Calculation stopped. Accepted observations are unchanged."
           : isStatic

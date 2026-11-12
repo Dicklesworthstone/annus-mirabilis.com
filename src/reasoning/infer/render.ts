@@ -45,14 +45,17 @@ function validatePlacement(uid: string, sourceDigest: string) {
   )
     throw new TypeError("Invalid inference placement or evaluator identity.");
 }
+function requireAccepted(snapshot: AcceptedSnapshot | null): AcceptedSnapshot {
+  if (!snapshot) throw new TypeError("Missing accepted worked result.");
+  return snapshot;
+}
 function renderRadiusCase(evidence: InferenceEvidence, uid: string, pinned = false): string {
-  const radius = createRadiusSession(`${uid}-radius`, evidence).getSnapshot().accepted;
-  const radiusWorked = createRadiusSession(
-    `${uid}-worked-radius`,
-    evidence,
-    RADIUS_EXAMPLE,
-  ).getSnapshot().accepted;
-  if (!radius || !radiusWorked) throw new TypeError("Missing accepted worked result.");
+  const radius = requireAccepted(
+    createRadiusSession(`${uid}-radius`, evidence).getSnapshot().accepted,
+  );
+  const radiusWorked = requireAccepted(
+    createRadiusSession(`${uid}-worked-radius`, evidence, RADIUS_EXAMPLE).getSnapshot().accepted,
+  );
   const fields = [
     ["radius", "Radius point value", "μm", "0.5"],
     ["radiusLower", "Radius lower bound", "μm", "0.45"],
@@ -72,11 +75,14 @@ function renderRadiusCase(evidence: InferenceEvidence, uid: string, pinned = fal
 <details data-static-radius><summary>${pinned ? "Worked solution" : "Static worked solution"}: admit the independent radius</summary><p>Suppose a separate synthetic calibration supplies 0.5 μm, with bounds 0.45–0.55 μm and declared 97.5% coverage. No measurement is claimed here. The owner's resulting conditional interval is ${inferenceInterval(radiusWorked, "molecularInterval")} mol⁻¹, with conservative coverage of at least ${inferenceValue(radiusWorked, "simultaneousCoverage", 100)}%.</p></details>${evidenceDetails(evidence, pinned)}<p><a href="/lab/bm-07/">Return to the full inference laboratory</a> · <a href="/papers/brownian-motion/#arg-bm-inference">Return to the inference argument</a></p></section>`;
 }
 function renderCameraCase(evidence: InferenceEvidence, uid: string, pinned = false): string {
-  const camera = createCameraInferenceSession(`${uid}-camera`, evidence).getSnapshot().accepted;
-  const covarianceWorked = createCameraInferenceSession(`${uid}-worked-camera`, evidence, {
-    information: "covariance",
-  }).getSnapshot().accepted;
-  if (!camera || !covarianceWorked) throw new TypeError("Missing accepted worked result.");
+  const camera = requireAccepted(
+    createCameraInferenceSession(`${uid}-camera`, evidence).getSnapshot().accepted,
+  );
+  const covarianceWorked = requireAccepted(
+    createCameraInferenceSession(`${uid}-worked-camera`, evidence, {
+      information: "covariance",
+    }).getSnapshot().accepted,
+  );
   const paired =
     evidence.increments.length >= 6 * evidence.d &&
     evidence.increments.length % (2 * evidence.d) === 0;

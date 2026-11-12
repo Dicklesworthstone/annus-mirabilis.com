@@ -13,7 +13,11 @@ export function createBm01ComparisonSession(
   example: PreparedBm01Comparison,
   workerFactory: Parameters<typeof createBm01Session>[2],
 ) {
-  const session = createBm01Session(instanceId, example.baseline, workerFactory);
+  const session = createBm01Session(instanceId, example.baseline, workerFactory, {
+    // This instrument explicitly promises zero recomputation for a measurement comparison.
+    // Keep its warm recording; ordinary laboratories may reconstruct and verify idle recordings.
+    retention: null,
+  });
   const staticVariant = createBm01Session(
     `${instanceId}-worked-variant`,
     example.doubledRadius,

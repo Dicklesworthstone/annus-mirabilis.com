@@ -10,6 +10,9 @@ function required<T extends Element>(root: HTMLElement, selector: string): T {
   if (!element) throw new TypeError(`Missing inference control: ${selector}.`);
   return element;
 }
+function requireControls(complete: boolean): void {
+  if (!complete) throw new TypeError("Incomplete inference controls.");
+}
 function enableFields(root: HTMLElement) {
   const fieldsets = [...root.querySelectorAll<HTMLFieldSetElement>("fieldset")];
   fieldsets.forEach((fieldset) => {
@@ -63,7 +66,7 @@ function mountRadiusCase(radiusRoot: HTMLElement, evidence: InferenceEvidence, u
   const draft = required<HTMLElement>(radiusRoot, "[data-radius-draft]");
   const worked = required<HTMLButtonElement>(radiusRoot, "[data-radius-worked]");
   const remove = required<HTMLButtonElement>(radiusRoot, "[data-radius-remove]");
-  if (fields.size !== 5) throw new TypeError("Incomplete inference controls.");
+  requireControls(fields.size === 5);
   const disableFields = enableFields(radiusRoot);
   function numeric(name: string, factor: number) {
     const text = fields.get(name)?.value.trim() ?? "";
@@ -163,7 +166,7 @@ function mountRadiusCase(radiusRoot: HTMLElement, evidence: InferenceEvidence, u
 function mountCameraCase(cameraRoot: HTMLElement, evidence: InferenceEvidence, uid: string) {
   const camera = createCameraInferenceSession(`${uid}-camera`, evidence);
   const radios = [...cameraRoot.querySelectorAll<HTMLInputElement>("[data-camera-information]")];
-  if (radios.length !== 3) throw new TypeError("Incomplete inference controls.");
+  requireControls(radios.length === 3);
   const disableFields = enableFields(cameraRoot);
   const change = (event: Event) => {
     const target = event.currentTarget;

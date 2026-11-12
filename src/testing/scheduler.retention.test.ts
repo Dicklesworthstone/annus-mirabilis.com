@@ -414,7 +414,14 @@ test("retention touches and withdrawals preserve LRU order despite reentrant fai
   assert.deepEqual(retired, ["first", "second"]);
   assert.equal(pool.size, 1);
   for (const limit of [-1, 0.5, Number.NaN, Number.POSITIVE_INFINITY, Number.MAX_SAFE_INTEGER + 1])
-    assert.throws(() => createWorkerRetention(limit), WorkerRetentionConfigurationError);
+    assert.throws(
+      () => createWorkerRetention(limit),
+      (error: unknown) => {
+        assert.ok(error instanceof WorkerRetentionConfigurationError);
+        assert.equal(error.code, "invalid-worker-retention-limit");
+        return true;
+      },
+    );
 });
 
 test("duplicate accepted packets cannot replace the checkpoint belonging to the published result", async (t) => {

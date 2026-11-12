@@ -39,7 +39,11 @@ export function createBm01Session(
   instanceId: string,
   example: PreparedBm01Example,
   workerFactory: () => WorkerChannel,
-  resources: Readonly<{ admission?: WorkerAdmission; retention?: WorkerRetention }> = {},
+  resources: Readonly<{
+    admission?: WorkerAdmission;
+    /** null pins owners whose comparison contract requires actual warm-cache reuse. */
+    retention?: WorkerRetention | null;
+  }> = {},
 ) {
   const initial = validateBm01Parameters(example.parameters);
   if (initial.kind !== "accepted")
@@ -155,10 +159,13 @@ export function createBm01Session(
       undefined,
       {
         admission: resources.admission,
-        retention: {
-          pool: resources.retention ?? sharedLaboratoryRetention(),
-          canRetire: continuity.canRetire,
-        },
+        retention:
+          resources.retention === null
+            ? undefined
+            : {
+                pool: resources.retention ?? sharedLaboratoryRetention(),
+                canRetire: continuity.canRetire,
+              },
       },
     );
     scheduler.setSchedulingPaused(schedulingPause.getSchedulingPaused());

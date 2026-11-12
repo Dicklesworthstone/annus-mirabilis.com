@@ -1,10 +1,7 @@
 import { BM07_OUTPUTS } from "../../experiments/bm07/definition.ts";
 import { observationDigest } from "../../experiments/bm07/digest.ts";
 import { BM08_OUTPUTS } from "../../experiments/bm08/definition.ts";
-import {
-  ExecutionOutcomeError,
-  ParameterRefusalError,
-} from "../../experiments/results/applyFailure.ts";
+import { throwApplyFailure } from "../../experiments/results/applyFailure.ts";
 import { makeRefusal } from "../../experiments/results/refusals.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import { INFERENCE_CONSTANTS } from "../../physics/reference/inference/synthetic.ts";
@@ -29,13 +26,14 @@ export type PinnedInferenceEvidence = Readonly<{
 }>;
 
 function refuse(requirements: string): never {
-  throw new ParameterRefusalError(
-    makeRefusal(
+  throwApplyFailure({
+    kind: "refused",
+    refusal: makeRefusal(
       "invalid-parameter",
       { capabilityId: "diffusion.inference" },
       { details: { requirements } },
     ),
-  );
+  });
 }
 
 /** Copy one complete accepted record, never requested parameters, latent paths or generator truth.
@@ -121,8 +119,8 @@ export function evidenceFromAccepted(
         evaluateCamera(evidence, { information: "covariance" }),
       ];
   for (const evaluation of evaluations) {
-    if (evaluation.kind === "refused") throw new ParameterRefusalError(evaluation.refusal);
-    if (evaluation.kind === "outcome") throw new ExecutionOutcomeError(evaluation.outcome);
+    if (evaluation.kind === "refused" || evaluation.kind === "outcome")
+      throwApplyFailure(evaluation);
     if (evaluation.kind === "no-value") refuse(evaluation.reason);
   }
   return Object.freeze({

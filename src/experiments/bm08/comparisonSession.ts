@@ -13,7 +13,11 @@ export function createBm08ComparisonSession(
   example: PreparedBm08Example,
   workerFactory: Parameters<typeof createBm08Session>[2],
 ) {
-  const session = createBm08Session(instanceId, example, workerFactory);
+  const session = createBm08Session(instanceId, example, workerFactory, {
+    // This instrument explicitly promises zero recomputation for a measurement comparison.
+    // Keep its warm recording; ordinary laboratories may reconstruct and verify idle recordings.
+    retention: null,
+  });
   const baseline = requireBm08ComparisonExample(session.getServerSnapshot().accepted);
   const comparison = createControlledComparison(session, {
     contract: BM08_COMPARISON,
