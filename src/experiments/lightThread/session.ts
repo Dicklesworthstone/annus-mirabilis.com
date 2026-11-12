@@ -1,15 +1,22 @@
-import { constantValue, getConstantSet } from "../../physics/reference/constants.ts";
+import { constantValue, convert, getConstantSet } from "../../physics/reference/constants.ts";
 import {
   evaluateLightThread,
   LIGHT_THREAD_DEFAULTS,
   LIGHT_THREAD_QUANTITIES,
+  type LightThreadConstantSetId,
   type LightThreadOwners,
   type LightThreadParameters,
   type LightThreadSnapshot,
+  validateLightThreadParameters,
 } from "../../physics/reference/lightThread.ts";
+import { effectiveIndependentCount } from "../../physics/reference/radiation/quanta.ts";
 import { dopplerFactor, lightComplexFactors } from "../../physics/reference/waves.ts";
 import { ExperimentRuntimeError } from "../refusal.ts";
 import type { ScientificResult } from "../results/types.ts";
+import {
+  decodeInstanceCheckpoint,
+  type InstanceCheckpointRestore,
+} from "../store/instanceCheckpoint.ts";
 import {
   createInstanceStore,
   type OutputContract,
@@ -17,21 +24,48 @@ import {
   type Parameters,
 } from "../store/instanceStore.ts";
 
-const constants = getConstantSet("modern-si-2019");
-export const LIGHT_THREAD_OWNERS: LightThreadOwners = Object.freeze({
-  constantSetId: "modern-si-2019",
-  planckConstant: constantValue(constants, "planckConstant").value,
-  speedOfLight: constantValue(constants, "speedOfLight").value,
-  frequencyFactor: dopplerFactor,
-  energyFactor: (beta: number, thetaRad: number) =>
-    lightComplexFactors(beta, thetaRad).energyFactor,
-});
+/** Only adapters live here: the registered radiation owner derives the printed Rβ/N in SI. */
+export function lightThreadOwnersFor(constantSetId: LightThreadConstantSetId): LightThreadOwners {
+  const constants = getConstantSet(constantSetId);
+  const speed = constantValue(constants, "speedOfLight");
+  const speedUnit = constants.entries.find((entry) => entry.quantityId === "speedOfLight")?.unit;
+  const speedOfLight =
+    speedUnit === "m/s"
+      ? speed.value
+      : speedUnit === "cm/s"
+        ? convert(speed.value, "cm", "m")
+        : Number.NaN;
+  return Object.freeze({
+    constantSetId,
+    speedOfLight,
+    quantumComparison: (energyJ: number, frequencyHz: number) =>
+      effectiveIndependentCount(energyJ, frequencyHz, constants),
+    frequencyFactor: dopplerFactor,
+    energyFactor: (beta: number, thetaRad: number) => {
+      const factors = lightComplexFactors(beta, thetaRad);
+      return factors.energyDensityFactor * factors.volumeFactor;
+    },
+  });
+}
+
+export const LIGHT_THREAD_OWNERS = lightThreadOwnersFor("modern-si-2019");
+
+function evaluate(input: unknown) {
+  const checked = validateLightThreadParameters(input);
+  return checked.kind === "accepted"
+    ? evaluateLightThread(
+        checked.parameters,
+        lightThreadOwnersFor(checked.parameters.constantSetId),
+      )
+    : checked;
+}
 
 const classes: Readonly<Record<keyof LightThreadParameters, ParameterClass>> = Object.freeze({
   frequencyHz: "input",
   pulseEnergyJ: "input",
   beta: "observer",
   angleDeg: "input",
+  constantSetId: "input",
 });
 
 export const LIGHT_THREAD_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.freeze(
@@ -68,7 +102,7 @@ export function createLightThreadSession(
   instanceId = "light-thread-session",
   initialParameters: LightThreadParameters = LIGHT_THREAD_DEFAULTS,
 ) {
-  const initial = evaluateLightThread(initialParameters, LIGHT_THREAD_OWNERS);
+  const initial = evaluate(initialParameters);
   if (initial.kind !== "accepted")
     throw new ExperimentRuntimeError("parameters-rejected", initial.reason, "light-thread");
   const initialSnapshot = initial.snapshot;
@@ -97,12 +131,12 @@ export function createLightThreadSession(
 
   function apply(input: unknown, newRun = false) {
     // Calculate before issuing any command: a rejected input cannot disturb the last state.
-    const evaluated = evaluateLightThread(input, LIGHT_THREAD_OWNERS);
+    const evaluated = evaluate(input);
     if (evaluated.kind !== "accepted") return evaluated;
     const next = evaluated.snapshot.parameters;
     const previous = store.getSnapshot().accepted?.parameters ?? initialSnapshot.parameters;
-    const setup: Record<string, number> = {};
-    const observer: Record<string, number> = {};
+    const setup: Record<string, number | string> = {};
+    const observer: Record<string, number | string> = {};
     for (const key of Object.keys(classes) as (keyof LightThreadParameters)[]) {
       if (Object.is(next[key], previous[key])) continue;
       (classes[key] === "observer" ? observer : setup)[key] = next[key];
@@ -135,12 +169,41 @@ export function createLightThreadSession(
     return Object.freeze({ kind: "accepted" as const, parameters: next });
   }
 
+  /** Refuse a relabelled constant set before the retained owner can accept its old numbers. */
+  function restoreCheckpoint(input: unknown): InstanceCheckpointRestore {
+    try {
+      const { publication } = decodeInstanceCheckpoint(input);
+      const evaluated = evaluate(publication.parameters);
+      if (
+        evaluated.kind !== "accepted" ||
+        publication.outputs.length !== Object.keys(LIGHT_THREAD_QUANTITIES).length ||
+        publication.outputs.some(
+          (output) =>
+            output.status !== "value" ||
+            !Object.is(
+              output.value,
+              evaluated.snapshot.values[output.quantityId as keyof typeof LIGHT_THREAD_QUANTITIES],
+            ),
+        )
+      ) {
+        return {
+          kind: "not-restored",
+          notice:
+            "The recorded results do not match the declared light-thread settings and constants.",
+        };
+      }
+      return store.restoreCheckpoint(input);
+    } catch {
+      return { kind: "not-restored", notice: "The light-thread checkpoint is invalid." };
+    }
+  }
+
   return Object.freeze({
     getSnapshot: store.getSnapshot,
     getServerSnapshot: () => serverSnapshot,
     subscribe: store.subscribe,
     exportCheckpoint: store.exportCheckpoint,
-    restoreCheckpoint: store.restoreCheckpoint,
+    restoreCheckpoint,
     apply: (input: unknown) => apply(input),
     startNewRun: (input: unknown) => apply(input, true),
   });

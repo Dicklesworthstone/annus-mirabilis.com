@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   createLightThreadSession,
   LIGHT_THREAD_OWNERS,
+  lightThreadOwnersFor,
 } from "../experiments/lightThread/session.ts";
 import {
   evaluateLightThread,
@@ -86,6 +87,113 @@ test("refused, mixed, repeated and independent-instance updates cannot mix snaps
   );
 });
 
+test("historical constants use the printed action coefficient and the same set's speed of light", () => {
+  const constantSetId = "einstein-1905-light-quanta-printed";
+  // Independent printed-CGS oracle: R/N times Wien beta, then erg to joule.
+  const action = (8.31e7 / 6.17e23) * 4.866e-11 * 1e-7;
+  const parameters = { ...LIGHT_THREAD_DEFAULTS, constantSetId };
+  const session = createLightThreadSession("historical-light");
+  const modern = accepted(session);
+  assert.equal(session.apply(parameters).kind, "accepted");
+  const historical = accepted(session);
+  assert.notEqual(historical.runId, modern.runId);
+  assert.equal(historical.parentRunId, modern.runId);
+  assert.equal(historical.revisions.input, modern.revisions.input + 1);
+  assert.equal(historical.parameters.constantSetId, constantSetId);
+  close(value(historical, "quantumEnergyStationary"), action * parameters.frequencyHz);
+  close(
+    value(historical, "quantumRatioStationary"),
+    parameters.pulseEnergyJ / (action * parameters.frequencyHz),
+  );
+  close(value(historical, "bodyMassLoss"), (2 * parameters.pulseEnergyJ) / 3e8 ** 2);
+  assert.notEqual(value(historical, "bodyMassLoss"), value(modern, "bodyMassLoss"));
+  assert.notEqual(
+    value(historical, "quantumRatioStationary"),
+    value(modern, "quantumRatioStationary"),
+  );
+
+  for (const beta of [-0.999999, -0.6, 0, 0.6, 0.999999]) {
+    assert.equal(session.apply({ ...parameters, beta }).kind, "accepted");
+    const observer = accepted(session);
+    assert.equal(observer.runId, historical.runId);
+    assert.equal(observer.revisions.input, historical.revisions.input);
+    assert.equal(
+      value(observer, "quantumRatioStationary"),
+      value(historical, "quantumRatioStationary"),
+    );
+    close(value(observer, "quantumRatioMoving"), value(historical, "quantumRatioStationary"));
+  }
+  const retained = accepted(session);
+  assert.equal(session.apply({ ...parameters, constantSetId: "codata-2022" }).kind, "refused");
+  assert.equal(accepted(session), retained);
+  assert.equal(session.apply(LIGHT_THREAD_DEFAULTS).kind, "accepted");
+  assert.notEqual(accepted(session).runId, retained.runId);
+  assert.equal(
+    value(accepted(session), "quantumRatioStationary"),
+    value(modern, "quantumRatioStationary"),
+  );
+});
+
+test("both constant sets compose energy density and volume independently of wave-vector frequency", () => {
+  for (const constantSetId of ["modern-si-2019", "einstein-1905-light-quanta-printed"]) {
+    const dependencies = lightThreadOwnersFor(constantSetId);
+    for (const beta of [-0.8, -0.2, 0, 0.6, 0.95]) {
+      for (const angleDeg of [0, 35, 90, 180]) {
+        const parameters = { ...LIGHT_THREAD_DEFAULTS, constantSetId, beta, angleDeg };
+        const evaluated = evaluateLightThread(parameters, dependencies);
+        assert.equal(evaluated.kind, "accepted");
+        const theta = (angleDeg * Math.PI) / 180;
+        const factors = lightComplexFactors(beta, theta);
+        assert.equal(
+          evaluated.snapshot.values.energyFactor,
+          factors.energyDensityFactor * factors.volumeFactor,
+        );
+        close(evaluated.snapshot.values.frequencyFactor, dopplerFactor(beta, theta));
+        close(
+          evaluated.snapshot.values.quantumRatioMoving,
+          evaluated.snapshot.values.quantumRatioStationary,
+        );
+      }
+    }
+  }
+});
+
+test("historical checkpoints restore the exact accepted run and refuse relabelled or changed results", () => {
+  const session = createLightThreadSession("historical-restore");
+  assert.equal(
+    session.apply({
+      ...LIGHT_THREAD_DEFAULTS,
+      constantSetId: "einstein-1905-light-quanta-printed",
+      pulseEnergyJ: 2,
+      beta: -0.4,
+    }).kind,
+    "accepted",
+  );
+  const checkpoint = session.exportCheckpoint();
+  assert.ok(checkpoint);
+  const restored = createLightThreadSession("historical-restore");
+  assert.equal(restored.restoreCheckpoint(checkpoint).kind, "restored");
+  assert.deepEqual(accepted(restored), accepted(session));
+  const retainedRun = accepted(restored).runId;
+  assert.equal(restored.apply({ ...accepted(restored).parameters, beta: 0.3 }).kind, "accepted");
+  assert.equal(accepted(restored).runId, retainedRun);
+
+  for (const constantSetId of ["modern-si-2019", "codata-2022"]) {
+    const tampered = structuredClone(checkpoint);
+    tampered.accepted.parameters.constantSetId = constantSetId;
+    const target = createLightThreadSession("historical-restore");
+    const before = accepted(target);
+    assert.equal(target.restoreCheckpoint(tampered).kind, "not-restored");
+    assert.equal(accepted(target), before);
+  }
+  const altered = structuredClone(checkpoint);
+  const output = JSON.parse(altered.accepted.outputs[0]);
+  output.value *= 2;
+  altered.accepted.outputs[0] = JSON.stringify(output);
+  const target = createLightThreadSession("historical-restore");
+  assert.equal(target.restoreCheckpoint(altered).kind, "not-restored");
+});
+
 /**
  * Refusal sites in experiments/lightThread/session.ts (am-r3qt).
  *
@@ -133,9 +241,9 @@ test("the constructor refuses settings outside the admission bounds (session.ts:
   assert.equal(built.apply({ ...LIGHT_THREAD_DEFAULTS, beta: 1 }).kind, "refused");
 });
 
-test("every subset of the four settings publishes, so no change is left without a command", () => {
-  // The exhaustive half of the reachability claim above. Sixteen subsets: the empty one takes
-  // the early return, the other fifteen must each produce a command and an accepted
+test("every subset of the settings publishes, so no change is left without a command", () => {
+  // The exhaustive half of the reachability claim above. The empty subset takes
+  // the early return; every changed subset must produce a command and an accepted
   // publication. A future edit that adds a parameter class this branch does not map would
   // show up here as a throw rather than as a silently unpublished change.
   const alternatives = {
@@ -143,6 +251,7 @@ test("every subset of the four settings publishes, so no change is left without 
     pulseEnergyJ: 3,
     beta: -0.4,
     angleDeg: 45,
+    constantSetId: "einstein-1905-light-quanta-printed",
   };
   const keys = Object.keys(alternatives);
   for (let mask = 0; mask < 1 << keys.length; mask++) {
@@ -201,7 +310,7 @@ test("light-thread session: :90, :121 and :134 cannot fire across the admitted e
   const observed = new Set();
   let sessions = 0;
   let applies = 0;
-  const keys = Object.keys(LIGHT_THREAD_DEFAULTS);
+  const keys = Object.keys(LIGHT_THREAD_BOUNDS);
 
   // Three points per axis, taken from the declared admission bounds rather than invented.
   const samples = {};

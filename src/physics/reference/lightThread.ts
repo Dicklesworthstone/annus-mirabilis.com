@@ -5,11 +5,24 @@
  */
 import { ExperimentRuntimeError } from "../../experiments/refusal.ts";
 import { powerOfTenText } from "../../units/scientific.ts";
+
+export const LIGHT_THREAD_CONSTANT_SETS = Object.freeze([
+  "modern-si-2019",
+  "einstein-1905-light-quanta-printed",
+] as const);
+export type LightThreadConstantSetId = (typeof LIGHT_THREAD_CONSTANT_SETS)[number];
+export const LIGHT_THREAD_CONSTANT_LABELS: Readonly<Record<LightThreadConstantSetId, string>> =
+  Object.freeze({
+    "modern-si-2019": "Modern SI (2019)",
+    "einstein-1905-light-quanta-printed": "1905 light-paper constants",
+  });
+
 export type LightThreadParameters = Readonly<{
   frequencyHz: number;
   pulseEnergyJ: number;
   beta: number;
   angleDeg: number;
+  constantSetId: LightThreadConstantSetId;
 }>;
 
 export const LIGHT_THREAD_DEFAULTS: LightThreadParameters = Object.freeze({
@@ -17,6 +30,7 @@ export const LIGHT_THREAD_DEFAULTS: LightThreadParameters = Object.freeze({
   pulseEnergyJ: 1,
   beta: 0.6,
   angleDeg: 0,
+  constantSetId: "modern-si-2019",
 });
 
 /** These are interactive admission bounds, not boundaries of physical possibility. */
@@ -26,12 +40,13 @@ export const LIGHT_THREAD_BOUNDS = Object.freeze({
   beta: Object.freeze({ min: -0.999999, max: 0.999999 }),
   angleDeg: Object.freeze({ min: 0, max: 180 }),
 });
+export type LightThreadNumericParameterId = keyof typeof LIGHT_THREAD_BOUNDS;
 
 /* What a refusal calls each setting, and its unit. The reason used to name the parameter key and
    print the bounds as JavaScript writes them: "pulseEnergyJ must be a finite number between 1e-24 and
    1000000." Powers of ten are written 10^{n}, which the lab raises with withScripts. */
 const LIGHT_THREAD_READER_NAMES: Readonly<
-  Record<keyof LightThreadParameters, Readonly<{ name: string; unit: string }>>
+  Record<LightThreadNumericParameterId, Readonly<{ name: string; unit: string }>>
 > = Object.freeze({
   frequencyHz: Object.freeze({ name: "The source-frame frequency ν", unit: " Hz" }),
   pulseEnergyJ: Object.freeze({ name: "The pulse energy E", unit: " J" }),
@@ -52,18 +67,28 @@ export function validateLightThreadParameters(
     return Object.freeze({
       kind: "refused",
       parameterId: "parameters",
-      reason: "Supply all four numeric settings.",
+      reason: "Supply all four numeric settings and choose a registered constant set.",
     });
   }
   const record = input as Record<string, unknown>;
   for (const key of Object.keys(record)) {
-    if (!Object.hasOwn(LIGHT_THREAD_BOUNDS, key)) {
+    if (key !== "constantSetId" && !Object.hasOwn(LIGHT_THREAD_BOUNDS, key)) {
       return Object.freeze({
         kind: "refused",
         parameterId: key,
         reason: `Unknown light-thread setting: ${key}.`,
       });
     }
+  }
+  if (
+    !Object.hasOwn(record, "constantSetId") ||
+    !LIGHT_THREAD_CONSTANT_SETS.some((id) => id === record.constantSetId)
+  ) {
+    return Object.freeze({
+      kind: "refused",
+      parameterId: "constantSetId",
+      reason: "Choose Modern SI (2019) or the registered 1905 light-paper constants.",
+    });
   }
   for (const [key, bounds] of Object.entries(LIGHT_THREAD_BOUNDS)) {
     const value = record[key];
@@ -78,7 +103,7 @@ export function validateLightThreadParameters(
         kind: "refused",
         parameterId: key,
         reason: (() => {
-          const reader = LIGHT_THREAD_READER_NAMES[key as keyof LightThreadParameters];
+          const reader = LIGHT_THREAD_READER_NAMES[key as LightThreadNumericParameterId];
           return `${reader.name} must be between ${powerOfTenText(bounds.min)}${reader.unit} and ${powerOfTenText(bounds.max)}${reader.unit}. These are this instrument's admission bounds.`;
         })(),
       });
@@ -91,15 +116,19 @@ export function validateLightThreadParameters(
       pulseEnergyJ: record.pulseEnergyJ as number,
       beta: record.beta as number,
       angleDeg: record.angleDeg as number,
+      constantSetId: record.constantSetId as LightThreadConstantSetId,
     }),
   });
 }
 
 /** Explicit dependencies make the cross-paper join testable without an alternate wave law. */
 export type LightThreadOwners = Readonly<{
-  constantSetId: "modern-si-2019";
-  planckConstant: number;
+  constantSetId: LightThreadConstantSetId;
   speedOfLight: number;
+  quantumComparison: (
+    energyJ: number,
+    frequencyHz: number,
+  ) => Readonly<{ count: number; quantumEnergy: number }>;
   frequencyFactor: (beta: number, thetaRad: number) => number;
   energyFactor: (beta: number, thetaRad: number) => number;
 }>;
@@ -121,10 +150,26 @@ export const LIGHT_THREAD_QUANTITIES = Object.freeze({
     semanticKind: "energy",
   },
   energyMoving: { label: "Pulse energy in the moving frame", unit: "J", semanticKind: "energy" },
-  quantumEnergyStationary: { label: "hν in the source frame", unit: "J", semanticKind: "energy" },
-  quantumEnergyMoving: { label: "hν in the moving frame", unit: "J", semanticKind: "energy" },
-  quantumRatioStationary: { label: "E/(hν) in the source frame", unit: "1", semanticKind: "ratio" },
-  quantumRatioMoving: { label: "E′/(hν′) in the moving frame", unit: "1", semanticKind: "ratio" },
+  quantumEnergyStationary: {
+    label: "Selected quantum energy in the source frame",
+    unit: "J",
+    semanticKind: "energy",
+  },
+  quantumEnergyMoving: {
+    label: "Selected quantum energy in the moving frame",
+    unit: "J",
+    semanticKind: "energy",
+  },
+  quantumRatioStationary: {
+    label: "Pulse energy / selected quantum energy in the source frame",
+    unit: "1",
+    semanticKind: "ratio",
+  },
+  quantumRatioMoving: {
+    label: "Pulse energy / selected quantum energy in the moving frame",
+    unit: "1",
+    semanticKind: "ratio",
+  },
   frequencyFactor: { label: "Frequency transformation factor", unit: "1", semanticKind: "ratio" },
   energyFactor: { label: "Energy transformation factor", unit: "1", semanticKind: "ratio" },
   pulseEnergyEquivalent: {
@@ -164,7 +209,7 @@ for (const quantity of Object.values(LIGHT_THREAD_QUANTITIES)) Object.freeze(qua
 export type LightThreadQuantityId = keyof typeof LIGHT_THREAD_QUANTITIES;
 export type LightThreadSnapshot = Readonly<{
   parameters: LightThreadParameters;
-  constantSetId: "modern-si-2019";
+  constantSetId: LightThreadConstantSetId;
   ownerId: "light-thread";
   execution: "host-calculation";
   values: Readonly<Record<LightThreadQuantityId, number>>;
@@ -187,18 +232,12 @@ export function evaluateLightThread(
   const checked = validateLightThreadParameters(input);
   if (checked.kind !== "accepted") return checked;
   const p = checked.parameters;
-  const h = owners.planckConstant;
   const c = owners.speedOfLight;
-  if (
-    owners.constantSetId !== "modern-si-2019" ||
-    !Number.isFinite(h) ||
-    h <= 0 ||
-    !Number.isFinite(c) ||
-    c <= 0
-  ) {
+  if (owners.constantSetId !== p.constantSetId || !Number.isFinite(c) || c <= 0) {
     return Object.freeze({
       kind: "unavailable",
-      reason: "The light thread requires the registered modern SI constant set.",
+      reason:
+        "The light-thread calculation must use the accepted, registered constant set throughout.",
     });
   }
   const theta = (p.angleDeg / 180) * Math.PI;
@@ -213,8 +252,8 @@ export function evaluateLightThread(
   }
   const frequencyMoving = p.frequencyHz * qFrequency;
   const energyMoving = p.pulseEnergyJ * qEnergy;
-  const quantumEnergyStationary = h * p.frequencyHz;
-  const quantumEnergyMoving = h * frequencyMoving;
+  const quantumStationary = owners.quantumComparison(p.pulseEnergyJ, p.frequencyHz);
+  const quantumMoving = owners.quantumComparison(energyMoving, frequencyMoving);
   const pulseEnergyEquivalent = p.pulseEnergyJ / c / c;
   const pairEnergyStationary = 2 * p.pulseEnergyJ;
   const oppositePulseEnergyMoving = p.pulseEnergyJ * qOpposite;
@@ -223,10 +262,10 @@ export function evaluateLightThread(
     frequencyMoving,
     energyStationary: p.pulseEnergyJ,
     energyMoving,
-    quantumEnergyStationary,
-    quantumEnergyMoving,
-    quantumRatioStationary: p.pulseEnergyJ / quantumEnergyStationary,
-    quantumRatioMoving: energyMoving / quantumEnergyMoving,
+    quantumEnergyStationary: quantumStationary.quantumEnergy,
+    quantumEnergyMoving: quantumMoving.quantumEnergy,
+    quantumRatioStationary: quantumStationary.count,
+    quantumRatioMoving: quantumMoving.count,
     frequencyFactor: qFrequency,
     energyFactor: qEnergy,
     pulseEnergyEquivalent,
@@ -265,8 +304,9 @@ export function encodeLightThreadParameters(parameters: LightThreadParameters): 
   const checked = validateLightThreadParameters(parameters);
   if (checked.kind !== "accepted")
     throw new ExperimentRuntimeError("parameters-rejected", checked.reason, "light-thread");
-  const query = new URLSearchParams({ lt: "1" });
-  for (const [key, value] of Object.entries(checked.parameters)) query.set(key, String(value));
+  const query = new URLSearchParams({ lt: "2" });
+  for (const [key, value] of Object.entries(checked.parameters))
+    query.set(key, Object.is(value, -0) ? "-0" : String(value));
   return query.toString();
 }
 
@@ -277,14 +317,22 @@ export function decodeLightThreadParameters(
     Object.freeze({ kind: "refused", parameterId: "permalink", reason });
   if (query.length > 1024) return refuse("This light-thread bookmark is too long.");
   const search = new URLSearchParams(query);
-  if (search.getAll("lt").length !== 1 || search.get("lt") !== "1")
+  const version = search.get("lt");
+  if (search.getAll("lt").length !== 1 || (version !== "1" && version !== "2"))
     return refuse("This bookmark uses an unsupported light-thread version.");
   for (const key of search.keys()) {
-    if (key !== "lt" && !Object.hasOwn(LIGHT_THREAD_BOUNDS, key))
+    if (
+      key !== "lt" &&
+      !(version === "2" && key === "constantSetId") &&
+      !Object.hasOwn(LIGHT_THREAD_BOUNDS, key)
+    )
       return refuse(`Unknown bookmark setting: ${key}.`);
     if (search.getAll(key).length !== 1) return refuse(`Repeated bookmark setting: ${key}.`);
   }
-  const parameters: Record<string, number> = {};
+  // Version 1 predates the selector and always meant modern SI. Its interpretation is retained.
+  const parameters: Record<string, number | string | null> = {
+    constantSetId: version === "1" ? "modern-si-2019" : search.get("constantSetId"),
+  };
   for (const key of Object.keys(LIGHT_THREAD_BOUNDS)) {
     const raw = search.get(key);
     if (raw === null || !/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(raw))

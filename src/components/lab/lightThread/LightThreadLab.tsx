@@ -9,8 +9,11 @@ import {
   encodeLightThreadParameters,
   LIGHT_THREAD_BOUNDS,
   LIGHT_THREAD_CAPTION,
+  LIGHT_THREAD_CONSTANT_LABELS,
+  LIGHT_THREAD_CONSTANT_SETS,
   LIGHT_THREAD_DEFAULTS,
   LIGHT_THREAD_QUANTITIES,
+  type LightThreadNumericParameterId,
   type LightThreadParameters,
   type LightThreadQuantityId,
 } from "../../../experiments/lightThread/definition.ts";
@@ -18,6 +21,7 @@ import {
   createLightThreadSession,
   LIGHT_THREAD_OUTPUTS,
 } from "../../../experiments/lightThread/session.ts";
+import { exportLightThreadEvidence } from "../../../experiments/lightThread/transfer.ts";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { ExperimentRuntimeError } from "../../../experiments/refusal.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
@@ -30,7 +34,7 @@ import { display, identity, result } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
 import styles from "./LightThreadLab.module.css";
 
-const fields: Readonly<Record<keyof LightThreadParameters, string>> = Object.freeze({
+const fields: Readonly<Record<LightThreadNumericParameterId, string>> = Object.freeze({
   frequencyHz: "Source-frame frequency ν (Hz)",
   pulseEnergyJ: "Energy E of one pulse in the source frame (J)",
   beta: "Observer speed β = v/c along +x",
@@ -43,6 +47,7 @@ function draftOf(p: LightThreadParameters): Record<keyof LightThreadParameters, 
     pulseEnergyJ: String(p.pulseEnergyJ),
     beta: String(p.beta),
     angleDeg: String(p.angleDeg),
+    constantSetId: p.constantSetId,
   };
 }
 
@@ -174,7 +179,7 @@ export function LightThreadLab({
     return Object.fromEntries(
       Object.entries(draft).map(([key, value]) => [
         key,
-        value.trim() === "" ? Number.NaN : Number(value),
+        key === "constantSetId" ? value : value.trim() === "" ? Number.NaN : Number(value),
       ]),
     ) as LightThreadParameters;
   }
@@ -225,6 +230,7 @@ export function LightThreadLab({
     <section
       className="laboratory"
       data-instrument-id="light-thread"
+      data-constant-set={accepted.constantSetId}
       {...instrumentRootAttributes(view)}
       {...labelRootAttributes(executionKind, view, "frequencyMoving")}
       aria-labelledby={`${id}-title`}
@@ -303,7 +309,7 @@ export function LightThreadLab({
                   Reset worked example
                 </button>
               </div>
-              <ExperimentSettings contents="what was emitted: source frequency, pulse energy, source-frame angle">
+              <ExperimentSettings contents="source frequency, pulse energy, source-frame angle and constant set">
                 <div className="input-grid">
                   {(["frequencyHz", "pulseEnergyJ", "angleDeg"] as const).map((key) => (
                     <div className="input-field" key={key}>
@@ -324,6 +330,23 @@ export function LightThreadLab({
                       />
                     </div>
                   ))}
+                  <div className="input-field">
+                    <label htmlFor={`${id}-constantSetId`}>Constants for this comparison</label>
+                    <select
+                      id={`${id}-constantSetId`}
+                      name="constantSetId"
+                      value={draft.constantSetId}
+                      onChange={(event) =>
+                        setDraft((previous) => ({ ...previous, constantSetId: event.target.value }))
+                      }
+                    >
+                      {LIGHT_THREAD_CONSTANT_SETS.map((constantSetId) => (
+                        <option key={constantSetId} value={constantSetId}>
+                          {LIGHT_THREAD_CONSTANT_LABELS[constantSetId]}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
                 <p className="fine">Changes here apply with Apply settings.</p>
               </ExperimentSettings>
@@ -343,10 +366,41 @@ export function LightThreadLab({
             angle = {display(accepted.angleDeg)}°. Changing only β changes the observer, not the
             emitted pulse.
           </p>
+          <p className="fine" data-accepted-constants={accepted.constantSetId}>
+            Accepted constants:{" "}
+            <strong>{LIGHT_THREAD_CONSTANT_LABELS[accepted.constantSetId]}</strong>.
+            {accepted.constantSetId === "modern-si-2019" ? (
+              <>
+                {" "}
+                The SI definitions of h and c are exact; the calculations use rounded arithmetic.
+              </>
+            ) : (
+              <>
+                {" "}
+                The quantum scale uses the printed Wien coefficient β<sub>W</sub> and estimate N,
+                with the registry’s editorial 1905 value for R. Its speed of light is the same set’s
+                editorial value, converted from centimetres per second. These are rounded historical
+                inputs; R and c are not printed numerically in the paper’s §2.
+              </>
+            )}
+          </p>
           <p className="fine">
             <a href={`/lab/light-thread/?${encodeLightThreadParameters(accepted)}`}>
               Bookmark these accepted settings
             </a>
+            {/^source:sha256:[a-f0-9]{64}$/.test(sourceDigest) && (
+              <>
+                {" "}
+                ·{" "}
+                <a
+                  data-light-thread-export
+                  href={`data:application/json;charset=utf-8,${encodeURIComponent(exportLightThreadEvidence(snapshot, sourceDigest))}`}
+                  download={`light-thread-${accepted.constantSetId}.json`}
+                >
+                  Export accepted comparison as JSON
+                </a>
+              </>
+            )}
           </p>
         </div>
         <div className="lab-results">
@@ -355,9 +409,19 @@ export function LightThreadLab({
               1. Light quanta: an energy scale, not a proof of relativity
             </h3>
             <p>
-              In modern notation the quantum energy is hν. Total pulse energy E and frequency ν are
-              independent settings. E/(hν) is shown without rounding: an energy ratio is not an
-              independently measured integer photon count.
+              Einstein’s energy element is (R/N)β<sub>W</sub>ν; its modern counterpart is hν. Here β
+              <sub>W</sub> is the Wien constant, distinct from the observer’s speed β.
+              {accepted.constantSetId === "modern-si-2019"
+                ? " The tables use modern hν."
+                : " The tables use (R/N)βWν from the 1905 light-paper set, converted to joules."}{" "}
+              Total pulse energy E and frequency ν are independent settings. Their ratio to the
+              selected quantum energy is not rounded to an integer.
+            </p>
+            <p>
+              Paper 1’s heuristic concerns dilute radiation in the Wien regime: its entropy behaves
+              as if it came from independent elements of this size. This panel only expresses a
+              stipulated pulse’s energy in those units. It establishes neither a Wien-regime
+              temperature nor the pulse’s structure, and it does not measure a photon count.
             </p>
             <QuantityTable
               snapshot={snapshot}
@@ -378,8 +442,10 @@ export function LightThreadLab({
             <h3 id={`${id}-relativity`}>2. Relativity: energy and frequency change together</h3>
             <p>
               For the same pulse, the wave owners evaluate ν′/ν and E′/E. Both follow q = γ(1 − β
-              cos θ), so the modern comparison E′/(hν′) equals E/(hν), apart from numerical
-              rounding. This equality compares two computed consequences; it does not independently
+              cos θ), so the pulse-to-quantum energy ratio is unchanged under either selected
+              constant set, apart from numerical rounding. The frequency comes from the wave-vector
+              transformation; the energy comes from the separately returned density and volume
+              factors. This equality compares two computed consequences; it does not independently
               establish light quanta.
             </p>
             <QuantityTable
@@ -437,9 +503,9 @@ export function LightThreadLab({
       </div>
       {/* What these numbers are sits directly under them; above the instrument it came between a phone's heading and the result. */}
       <p>
-        This is a modern comparison using the exact modern SI definitions of h and c, not a
-        reconstruction of what was measured in 1905. A programmed consequence is not experimental
-        confirmation.
+        This is a modern comparison across the papers using the accepted constants declared above.
+        Selecting historical constants reconstructs a numerical energy scale; it does not supply a
+        historical observation. A programmed consequence is not experimental confirmation.
       </p>
 
       <p className="fine">
@@ -474,6 +540,10 @@ export function LightThreadLab({
 
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
           children of the lab root, which labShell.css's detail rules select. */}
+      <p className="fine">
+        The readings below work through the default modern SI example. The tables above follow your
+        accepted settings and constant set.
+      </p>
       <p data-detail="0">
         <noscript>
           <b className="reading-label">In one breath</b>

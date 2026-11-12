@@ -45,6 +45,8 @@ export const OUTPUT_LABELS: Readonly<Record<string, string>> = Object.freeze({
   relativeDifference: "Relative difference of the two powers",
   // LQ-03's regime report (radiation.spectra).
   regimeReport: "Where Wien's law and the classical law each hold",
+  wienRegimeAdmitted: "Whether Wien's law meets the selected tolerance",
+  classicalRegimeAdmitted: "Whether the classical law meets the selected tolerance",
   // LQ-04, the constrained-state comparison at the reference volume V₀ and the compared volume V.
   initialTemperature: "Temperature at the reference volume",
   finalTemperature: "Temperature at the compared volume",
@@ -418,10 +420,10 @@ export const OUTPUT_LABELS: Readonly<Record<string, string>> = Object.freeze({
   frequencyMoving: "Frequency in the moving frame",
   energyStationary: "Pulse energy in the source frame",
   energyMoving: "Pulse energy in the moving frame",
-  quantumEnergyStationary: "hν in the source frame",
-  quantumEnergyMoving: "hν in the moving frame",
-  quantumRatioStationary: "E/(hν) in the source frame",
-  quantumRatioMoving: "E′/(hν′) in the moving frame",
+  quantumEnergyStationary: "Selected quantum energy in the source frame",
+  quantumEnergyMoving: "Selected quantum energy in the moving frame",
+  quantumRatioStationary: "Pulse energy / selected quantum energy in the source frame",
+  quantumRatioMoving: "Pulse energy / selected quantum energy in the moving frame",
   energyFactor: "Energy transformation factor",
   pulseEnergyEquivalent: "Pulse energy divided by c² (not its rest mass)",
   pulseInvariantMass: "Invariant mass of a unidirectional light pulse",

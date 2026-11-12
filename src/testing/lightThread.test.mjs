@@ -6,6 +6,7 @@ import {
   encodeLightThreadParameters,
   evaluateLightThread,
   LIGHT_THREAD_BOUNDS,
+  LIGHT_THREAD_CONSTANT_SETS,
   validateLightThreadParameters,
 } from "../physics/reference/lightThread.ts";
 
@@ -13,8 +14,11 @@ import {
 const q = (beta, theta) => (1 - beta * Math.cos(theta)) / Math.sqrt((1 - beta) * (1 + beta));
 const owners = {
   constantSetId: "modern-si-2019",
-  planckConstant: 6.62607015e-34,
   speedOfLight: 299792458,
+  quantumComparison: (energy, frequency) => ({
+    count: energy / (6.62607015e-34 * frequency),
+    quantumEnergy: 6.62607015e-34 * frequency,
+  }),
   frequencyFactor: q,
   energyFactor: q,
 };
@@ -132,7 +136,7 @@ test("numeric admission boundaries stay finite without clamping", () => {
     ]) {
       for (const beta of [LIGHT_THREAD_BOUNDS.beta.min, LIGHT_THREAD_BOUNDS.beta.max]) {
         for (const angleDeg of [0, 90, 180]) {
-          const v = run({ frequencyHz, pulseEnergyJ, beta, angleDeg }).values;
+          const v = run({ ...defaults, frequencyHz, pulseEnergyJ, beta, angleDeg }).values;
           assert.ok(Object.values(v).every(Number.isFinite));
         }
       }
@@ -147,9 +151,42 @@ test("bad owner results are unavailable, not a fabricated scientific zero", () =
       "unavailable",
     );
   }
-  for (const planckConstant of [0, NaN, Infinity, Number.MIN_VALUE]) {
-    assert.equal(evaluateLightThread(defaults, { ...owners, planckConstant }).kind, "unavailable");
+  for (const value of [0, NaN, Infinity, -1]) {
+    for (const key of ["count", "quantumEnergy"]) {
+      assert.equal(
+        evaluateLightThread(defaults, {
+          ...owners,
+          quantumComparison: (energy, frequency) => ({
+            ...owners.quantumComparison(energy, frequency),
+            [key]: value,
+          }),
+        }).kind,
+        "unavailable",
+      );
+    }
   }
+});
+
+test("the accepted constant selection must match the numerical owners", () => {
+  const historical = { ...defaults, constantSetId: "einstein-1905-light-quanta-printed" };
+  assert.equal(evaluateLightThread(historical, owners).kind, "unavailable");
+  const printedAction = (8.31e7 / 6.17e23) * 4.866e-11 * 1e-7;
+  const historicalOwners = {
+    ...owners,
+    constantSetId: historical.constantSetId,
+    speedOfLight: 3e8,
+    quantumComparison: (energy, frequency) => ({
+      quantumEnergy: printedAction * frequency,
+      count: energy / (printedAction * frequency),
+    }),
+  };
+  const snapshot = run(historical, historicalOwners);
+  assert.equal(snapshot.constantSetId, historical.constantSetId);
+  assert.equal(snapshot.parameters.constantSetId, historical.constantSetId);
+  close(snapshot.values.quantumRatioStationary, 1 / (printedAction * defaults.frequencyHz));
+  close(snapshot.values.quantumRatioMoving, snapshot.values.quantumRatioStationary);
+  close(snapshot.values.bodyMassLoss, 2 / 3e8 ** 2);
+  assert.notEqual(snapshot.values.quantumEnergyStationary, run().values.quantumEnergyStationary);
 });
 
 test("bookmarks round-trip canonically and reject partial, duplicate, or hostile state", () => {
@@ -160,9 +197,11 @@ test("bookmarks round-trip canonically and reject partial, duplicate, or hostile
   assert.equal(encodeLightThreadParameters(decoded.parameters), encoded);
   const queries = [
     "",
-    "lt=2",
+    "lt=3",
     `${encoded}&beta=0`,
-    encoded.replace("lt=1", "lt=1&lt=1"),
+    encoded.replace("lt=2", "lt=2&lt=2"),
+    encoded.replace("constantSetId=modern-si-2019", "constantSetId=codata-2022"),
+    encoded.replace("&constantSetId=modern-si-2019", ""),
     `${encoded}&evil=1`,
     encoded.replace("frequencyHz=500000000000000", "frequencyHz="),
     encoded.replace("beta=0.6", "beta=0x1"),
@@ -199,5 +238,22 @@ test("bookmarks round-trip canonically and reject partial, duplicate, or hostile
       assert.match(error.message, /admission bounds/);
       return true;
     },
+  );
+});
+
+test("versioned bookmarks preserve each selected constant set and migrate old links to modern SI", () => {
+  for (const constantSetId of LIGHT_THREAD_CONSTANT_SETS) {
+    const parameters = { ...defaults, constantSetId, beta: -0, angleDeg: 135 };
+    const encoded = encodeLightThreadParameters(parameters);
+    const decoded = decodeLightThreadParameters(encoded);
+    assert.equal(decoded.kind, "accepted");
+    assert.deepEqual(decoded.parameters, parameters);
+    assert.equal(encodeLightThreadParameters(decoded.parameters), encoded);
+  }
+  const legacy = "lt=1&frequencyHz=500000000000000&pulseEnergyJ=1&beta=0.6&angleDeg=0";
+  assert.deepEqual(decodeLightThreadParameters(legacy), { kind: "accepted", parameters: defaults });
+  assert.equal(
+    decodeLightThreadParameters(`${legacy}&constantSetId=einstein-1905-light-quanta-printed`).kind,
+    "refused",
   );
 });

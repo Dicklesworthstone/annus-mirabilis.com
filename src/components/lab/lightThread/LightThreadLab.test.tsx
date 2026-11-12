@@ -28,7 +28,11 @@ test("SSR retains every quantity, the model boundaries, and the primary-source e
   assert.ok(html.includes("does not require quanta"));
   assert.ok(html.includes("<noscript>"));
   assert.ok(html.includes("<fieldset disabled="));
-  assert.ok(html.includes("lt=1"));
+  assert.ok(html.includes("lt=2"));
+  assert.ok(html.includes('name="constantSetId"'));
+  assert.ok(html.includes("1905 light-paper constants"));
+  assert.ok(html.includes("Wien regime"));
+  assert.ok(html.includes('data-accepted-constants="modern-si-2019"'));
   assert.ok(!html.includes("NaN"));
   assert.ok(!html.includes("Infinity"));
   assert.ok(!html.includes("<canvas"));
@@ -39,6 +43,7 @@ test("with the page's source digest, the build-time example earns the static lab
   assert.ok(html.includes('data-execution-label="static"'));
   assert.ok(html.includes("Static worked example"));
   assert.ok(!html.includes('data-execution-label="host"'));
+  assert.ok(html.includes("Export accepted comparison as JSON"));
 });
 
 test("the code behind the numbers is named by what it computes, not by an internal role", () => {
