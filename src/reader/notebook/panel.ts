@@ -4,6 +4,7 @@ import { appendCapstoneView } from "./capstoneView.ts";
 import { exportNotebookHtml, exportNotebookJson } from "./export.ts";
 import { mountNotebookMergePanel } from "./mergePanel.ts";
 import type { NotebookReviewResult } from "./mergeReview.ts";
+import { readNotebookDocument } from "./migrations/teachBack.ts";
 import type { NotebookChange, NotebookStore } from "./notebookStore.ts";
 import {
   NOTEBOOK_LIMITS,
@@ -11,8 +12,8 @@ import {
   type NotebookEntry,
   type NotebookFrame,
   notebookFrameHref,
-  parseNotebookDocument,
 } from "./schema.ts";
+import { teachBackHref } from "./teachBackEntry.ts";
 
 function node<K extends keyof HTMLElementTagNameMap>(tag: K, text = ""): HTMLElementTagNameMap[K] {
   const element = document.createElement(tag);
@@ -33,6 +34,7 @@ export const NOTEBOOK_KIND_LABELS = {
   note: "Note",
   replay: "Comparison replay",
   capstone: "Capstone reconstruction",
+  teachBack: "Teach-back explanation",
 } as const;
 export type NotebookDraft = Readonly<{ frame: NotebookFrame; title: string }>;
 /** The names the rest of the site uses (/papers/, the home plates), not the route slugs. */
@@ -255,7 +257,7 @@ export function mountNotebookPanel(
       .text()
       .then((text) => {
         if (disposed || generation !== importGeneration) return;
-        const imported = parseNotebookDocument(JSON.parse(text));
+        const imported = readNotebookDocument(JSON.parse(text));
         showMerge(store.previewImport(imported));
       })
       .catch(() => {
@@ -351,7 +353,9 @@ export function mountNotebookPanel(
         link.href =
           entry.kind === "capstone"
             ? capstoneCaptureHref(entry.capstone)
-            : notebookFrameHref(entry.frame);
+            : entry.kind === "teachBack"
+              ? teachBackHref(entry.frame.paper, entry.teachBack)
+              : notebookFrameHref(entry.frame);
         link.addEventListener("click", (event) => {
           if (
             event.button === 0 &&
@@ -383,7 +387,9 @@ export function mountNotebookPanel(
             report(store.remove(entry.id));
           }),
         );
-        article.append(node("h4", NOTEBOOK_KIND_LABELS[entry.kind]), link, body);
+        article.append(node("h4", NOTEBOOK_KIND_LABELS[entry.kind]), link);
+        if (entry.kind === "teachBack") article.append(node("p", entry.teachBack.prompt));
+        article.append(body);
         if (entry.kind === "replay") {
           const evidenceHost = node("div");
           const inspect = button("Open the saved comparison", () => {
@@ -411,6 +417,22 @@ export function mountNotebookPanel(
           });
           inspect.dataset.replayInspect = entry.id;
           article.append(inspect, evidenceHost);
+        } else if (entry.kind === "teachBack") {
+          article.append(
+            node(
+              "p",
+              `Saved ${entry.createdAt}, with guide revision ${entry.teachBack.guideRevision}. This question and explanation are kept as they were saved.`,
+            ),
+          );
+          const revise = node("a", "Return to this question to save another explanation");
+          revise.href = teachBackHref(entry.frame.paper, entry.teachBack);
+          const source = node("a", "Read the linked source passage");
+          source.href = notebookFrameHref(entry.frame);
+          const reviseLine = node("p");
+          const sourceLine = node("p");
+          reviseLine.append(revise);
+          sourceLine.append(source);
+          article.append(reviseLine, sourceLine);
         } else {
           if (entry.kind === "capstone") appendCapstoneView(article, entry, download);
           article.append(edit);
@@ -437,7 +459,7 @@ export function mountNotebookPanel(
     }
   });
   function add(
-    kind: Exclude<NotebookEntry["kind"], "replay" | "capstone">,
+    kind: Exclude<NotebookEntry["kind"], "replay" | "capstone" | "teachBack">,
     frame: NotebookFrame,
     title: string,
     text: string,

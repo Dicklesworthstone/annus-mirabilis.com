@@ -1,14 +1,13 @@
-import { createMigrationChain, migrateDocument } from "../../platform/storage/migrations.ts";
 import { quarantine } from "../../platform/storage/quarantine.ts";
 import {
   createStorageContext,
   type StorageContext,
   writeDocument,
 } from "../../platform/storage/store.ts";
+import { readNotebookDocument } from "./migrations/teachBack.ts";
 import type { NotebookStorage } from "./notebookStore.ts";
 import { NOTEBOOK_KEY } from "./schema.ts";
 
-const migrations = createMigrationChain(1);
 /** Reuse the site's key ownership, forward migrations, quarantine and session fallback. */
 export function createNotebookStorage(
   context: StorageContext = createStorageContext(),
@@ -35,7 +34,7 @@ export function createNotebookStorage(
       }
     },
     write: (document) => writeDocument(context, NOTEBOOK_KEY, document),
-    decode: (raw: string) => migrateDocument(migrations, JSON.parse(raw)),
+    decode: (raw: string) => readNotebookDocument(JSON.parse(raw)),
     preserve: (raw: string) => {
       quarantine(context, NOTEBOOK_KEY, raw, "invalid-notebook-document");
     },

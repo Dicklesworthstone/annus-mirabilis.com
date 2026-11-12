@@ -4,8 +4,9 @@
  * mentions, shown on request. The outcome is always "needs-human-reading".
  *
  * The guarantee is structural, not a promise: explanationOutcome takes no reader text, so no
- * outcome can depend on what the reader wrote, and ExplanationPart is a server component, so no
- * code in the page ever reads the text box. Nothing is graded, scored, detected or sent.
+ * outcome can depend on what the reader wrote. ExplanationPart keeps the worked comparison in
+ * server-rendered HTML; optional notebook saving handles the words as private text, never as an
+ * input to this outcome. Nothing is graded, scored, detected or sent.
  */
 
 export interface ExplanationExercisePart {

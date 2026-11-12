@@ -118,7 +118,7 @@ export function planNotebookMerge(
         "Choose whether to keep both versions or leave the incoming version out.",
       );
     }
-    const fields = ["kind", "title", "text", "createdAt", "frame", "replay"];
+    const fields = ["kind", "title", "text", "createdAt", "frame", "replay", "teachBack"];
     const left = existing as unknown as Record<string, unknown>;
     const right = entry as unknown as Record<string, unknown>;
     conflicts.push(

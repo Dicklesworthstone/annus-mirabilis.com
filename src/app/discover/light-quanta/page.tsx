@@ -469,14 +469,32 @@ export default function LightQuantaRoute() {
             Two to put in your own words: one from step 07, and one you can try first in the
             counting laboratory&rsquo;s <a href={LQ05_LOCKED_HREF}>locked counterexample</a>.
           </p>
-          <ExplanationPart part={INTENSITY_EXPLANATION} />
-          <ExplanationPart part={LOCKED_POSITIONS_EXPLANATION} />
+          <ExplanationPart
+            part={INTENSITY_EXPLANATION}
+            notebook={{
+              title: "Brightness and electron energy",
+              sourceAnchor: "arg-lq-photoelectric-energy",
+            }}
+          />
+          <ExplanationPart
+            part={LOCKED_POSITIONS_EXPLANATION}
+            notebook={{
+              title: "What independence changes in the count",
+              sourceAnchor: "arg-lq-independent-configurations",
+            }}
+          />
           <p>
             Last, a prediction to make before you change anything, in the laboratory at{" "}
             <a href="#step-08">step 08</a>.
           </p>
           <PpeTask task={PPE_TASK} />
-          <ExplanationPart part={PPE_EXPLANATION} />
+          <ExplanationPart
+            part={PPE_EXPLANATION}
+            notebook={{
+              title: "Light below and above the threshold",
+              sourceAnchor: "arg-lq-photoelectric-energy",
+            }}
+          />
         </section>
 
         <aside className="notice">

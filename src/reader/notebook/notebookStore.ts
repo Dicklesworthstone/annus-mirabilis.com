@@ -4,6 +4,7 @@ import {
   NotebookMergeError,
   type SavedNotebookLease,
 } from "./mergeReview.ts";
+import { readNotebookDocument } from "./migrations/teachBack.ts";
 import {
   emptyNotebook,
   type LastPlace,
@@ -175,7 +176,7 @@ export function createNotebookStore(storage: NotebookStorage) {
   }
   const merging = createNotebookMergeController({
     entryLimit: NOTEBOOK_LIMITS.entries,
-    admit: parseNotebookDocument,
+    admit: readNotebookDocument,
     current() {
       open();
       return state.document;
@@ -232,6 +233,12 @@ export function createNotebookStore(storage: NotebookStorage) {
       open();
       if (!state.document.entries.some((entry) => entry.id === id))
         return { ok: false, message: "That notebook entry no longer exists." };
+      if (state.document.entries.some((entry) => entry.id === id && entry.kind === "teachBack"))
+        return {
+          ok: false,
+          message:
+            "Return to this question to save another explanation. Your earlier explanation stays unchanged.",
+        };
       return commit({
         ...state.document,
         entries: state.document.entries.map((entry) =>

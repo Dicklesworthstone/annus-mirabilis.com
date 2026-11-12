@@ -15,6 +15,7 @@ const FIELD_NAMES: Readonly<Record<string, string>> = {
   frame: "reading location",
   replay: "saved comparison data",
   capstone: "saved reconstruction",
+  teachBack: "question and guide revision",
 };
 type MergeStore = Pick<
   NotebookStore,
@@ -78,7 +79,12 @@ export function mountNotebookMergePanel(
         `Created ${entry.createdAt}. ${entry.frame.paper}, ${entry.frame.anchor}; ${entry.frame.view} view, detail ${entry.frame.detail}, ${entry.frame.lens} perspective.`,
       ),
     );
-    if (entry.kind === "replay" || entry.kind === "capstone") {
+    if (entry.kind === "teachBack") {
+      section.append(
+        node("p", `Question when saved: ${entry.teachBack.prompt}`),
+        node("p", `Guide revision when saved: ${entry.teachBack.guideRevision}`),
+      );
+    } else if (entry.kind === "replay" || entry.kind === "capstone") {
       const details = node("details");
       details.append(
         node(

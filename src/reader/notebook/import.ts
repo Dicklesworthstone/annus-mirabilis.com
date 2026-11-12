@@ -1,3 +1,4 @@
+import { readNotebookDocument } from "./migrations/teachBack.ts";
 import { type NotebookDocument, parseNotebookDocument } from "./schema.ts";
 
 export type NotebookMerge = Readonly<{
@@ -12,7 +13,7 @@ export function mergeNotebook(
   importedInput: unknown,
 ): NotebookMerge {
   const current = parseNotebookDocument(currentInput);
-  const imported = parseNotebookDocument(importedInput);
+  const imported = readNotebookDocument(importedInput);
   const entries = [...current.entries];
   const byId = new Map(entries.map((entry) => [entry.id, entry]));
   let added = 0,

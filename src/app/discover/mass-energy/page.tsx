@@ -240,7 +240,13 @@ export default function MassEnergyRoute() {
           </p>
           <NumericPart part={PROXY_AT_SIX_TENTHS} />
           <p>Last, the choice the whole argument rests on, in your own words.</p>
-          <ExplanationPart part={EQUAL_AND_OPPOSITE_EXPLANATION} />
+          <ExplanationPart
+            part={EQUAL_AND_OPPOSITE_EXPLANATION}
+            notebook={{
+              title: "Why the two emissions are equal and opposite",
+              sourceAnchor: "arg-me-two-ledgers",
+            }}
+          />
           <PpeTask task={PPE_TASK} />
         </section>
 

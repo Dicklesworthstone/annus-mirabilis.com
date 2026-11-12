@@ -187,7 +187,13 @@ export default function BrownianEncounter() {
               one diffusion coefficient. It is not three independent measurements.
             </p>
           </details>
-          <ExplanationPart part={SQUARE_ROOT_IN_WORDS} />
+          <ExplanationPart
+            part={SQUARE_ROOT_IN_WORDS}
+            notebook={{
+              title: "Why the spread grows as the square root of time",
+              sourceAnchor: "arg-bm-gaussian",
+            }}
+          />
           <StepDoors>
             <StepDoor href="/papers/brownian-motion/s4/#arg-bm-gaussian">
               Go straight to the explanation: why the spread grows as the square root of time
@@ -277,8 +283,8 @@ export default function BrownianEncounter() {
           <p>
             Agreement between a numerical grid and an analytic curve checks their calculation under
             stated assumptions. It does not establish that real tracers obey those assumptions.
-            Perrin's measured displacements above carry their own source and precision limits;
-            they can test the prediction without becoming premises of the 1905 argument.
+            Perrin's measured displacements above carry their own source and precision limits; they
+            can test the prediction without becoming premises of the 1905 argument.
           </p>
         </aside>
         <section id="in-the-paper">

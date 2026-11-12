@@ -427,13 +427,25 @@ export default function SpecialRelativityRoute() {
           <p>Then the light clock, a later picture of the same factor.</p>
           <NumericPart part={LIGHT_CLOCK_PATH} />
           <p>One to put in your own words, from step 04.</p>
-          <ExplanationPart part={SIMULTANEITY_EXPLANATION} />
+          <ExplanationPart
+            part={SIMULTANEITY_EXPLANATION}
+            notebook={{
+              title: "What the clocks agree to measure",
+              sourceAnchor: "arg-sr-synchronization",
+            }}
+          />
           <p>
             Last, a prediction to make before you change anything, in the laboratory at{" "}
             <a href="#step-08">step 08</a>.
           </p>
           <PpeTask task={PPE_TASK} />
-          <ExplanationPart part={PPE_EXPLANATION} />
+          <ExplanationPart
+            part={PPE_EXPLANATION}
+            notebook={{
+              title: "Two light-clock paths and one reading",
+              sourceAnchor: "arg-sr-clock-and-length",
+            }}
+          />
         </section>
 
         <section id="shelf">

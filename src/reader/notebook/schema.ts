@@ -1,8 +1,10 @@
 import { type CapstoneCapture, parseCapstoneCapture } from "./capstoneEntry.ts";
 import { type ComparisonReplay, parseComparisonReplay, REPLAY_LIMITS } from "./replayEntry.ts";
+import { parseTeachBackCapture, type TeachBackCapture } from "./teachBackEntry.ts";
 /** Local reader work, never a publication record or an assessment of its author. */
 export const NOTEBOOK_KEY = "am:notebook:v1";
 export const NOTEBOOK_FORMAT = "annus-reading-notebook";
+export const NOTEBOOK_SCHEMA_VERSION = 2;
 export const NOTEBOOK_LIMITS = Object.freeze({ entries: 500, text: 4000, title: 240, recap: 2000 });
 export const NOTEBOOK_PAPERS = [
   "brownian-motion",
@@ -19,6 +21,7 @@ export const NOTEBOOK_KINDS = [
   "note",
   "replay",
   "capstone",
+  "teachBack",
 ] as const;
 export type NotebookKind = (typeof NOTEBOOK_KINDS)[number];
 export const NOTEBOOK_VIEWS = [
@@ -48,12 +51,18 @@ type NotebookEntryBase = Readonly<{
   createdAt: string;
 }>;
 export type NotebookTextEntry = NotebookEntryBase &
-  Readonly<{ kind: Exclude<NotebookKind, "replay" | "capstone"> }>;
+  Readonly<{ kind: Exclude<NotebookKind, "replay" | "capstone" | "teachBack"> }>;
 export type NotebookReplayEntry = NotebookEntryBase &
   Readonly<{ kind: "replay"; replay: ComparisonReplay }>;
 export type NotebookCapstoneEntry = NotebookEntryBase &
   Readonly<{ kind: "capstone"; capstone: CapstoneCapture }>;
-export type NotebookEntry = NotebookTextEntry | NotebookReplayEntry | NotebookCapstoneEntry;
+export type NotebookTeachBackEntry = NotebookEntryBase &
+  Readonly<{ kind: "teachBack"; teachBack: TeachBackCapture }>;
+export type NotebookEntry =
+  | NotebookTextEntry
+  | NotebookReplayEntry
+  | NotebookCapstoneEntry
+  | NotebookTeachBackEntry;
 export type LastPlace = Readonly<{
   frame: NotebookFrame;
   title: string;
@@ -62,7 +71,7 @@ export type LastPlace = Readonly<{
 }>;
 export type NotebookDocument = Readonly<{
   format: typeof NOTEBOOK_FORMAT;
-  schemaVersion: 1;
+  schemaVersion: typeof NOTEBOOK_SCHEMA_VERSION;
   entries: readonly NotebookEntry[];
   lastPlace: LastPlace | null;
 }>;
@@ -131,6 +140,7 @@ export function parseNotebookEntry(input: unknown): NotebookEntry {
       : undefined;
   const isReplay = kind === "replay";
   const isCapstone = kind === "capstone";
+  const isTeachBack = kind === "teachBack";
   const e = record(input, [
     "id",
     "kind",
@@ -138,7 +148,7 @@ export function parseNotebookEntry(input: unknown): NotebookEntry {
     "title",
     "text",
     "createdAt",
-    ...(isReplay ? ["replay"] : isCapstone ? ["capstone"] : []),
+    ...(isReplay ? ["replay"] : isCapstone ? ["capstone"] : isTeachBack ? ["teachBack"] : []),
   ]);
   const id = text(e.id, 80),
     createdAt = text(e.createdAt, 32);
@@ -169,7 +179,13 @@ export function parseNotebookEntry(input: unknown): NotebookEntry {
           kind: "capstone",
           capstone: parseCapstoneCapture(e.capstone, common.frame.paper),
         })
-      : Object.freeze({ ...common, kind: e.kind as NotebookTextEntry["kind"] });
+      : isTeachBack
+        ? Object.freeze({
+            ...common,
+            kind: "teachBack",
+            teachBack: parseTeachBackCapture(e.teachBack, common.frame.paper),
+          })
+        : Object.freeze({ ...common, kind: e.kind as NotebookTextEntry["kind"] });
   if (isReplay && new TextEncoder().encode(JSON.stringify(entry)).length > REPLAY_LIMITS.bytes)
     throw new TypeError("A complete replay entry must fit within 64 KiB. Nothing was truncated.");
   if (isReplay && common.frame.paper !== "brownian-motion")
@@ -189,7 +205,7 @@ export function parseLastPlace(input: unknown): LastPlace {
 }
 export function parseNotebookDocument(input: unknown): NotebookDocument {
   const d = record(input, ["format", "schemaVersion", "entries", "lastPlace"]);
-  if (d.format !== NOTEBOOK_FORMAT || d.schemaVersion !== 1)
+  if (d.format !== NOTEBOOK_FORMAT || d.schemaVersion !== NOTEBOOK_SCHEMA_VERSION)
     throw new TypeError("This notebook version is not supported. Its original is preserved.");
   if (!Array.isArray(d.entries) || d.entries.length > NOTEBOOK_LIMITS.entries)
     throw new TypeError(`A notebook can hold at most ${NOTEBOOK_LIMITS.entries} entries.`);
@@ -198,7 +214,7 @@ export function parseNotebookDocument(input: unknown): NotebookDocument {
     throw new TypeError("Notebook entry ids must be unique.");
   return Object.freeze({
     format: NOTEBOOK_FORMAT,
-    schemaVersion: 1,
+    schemaVersion: NOTEBOOK_SCHEMA_VERSION,
     entries: Object.freeze(entries),
     lastPlace: d.lastPlace === null ? null : parseLastPlace(d.lastPlace),
   });
@@ -206,7 +222,7 @@ export function parseNotebookDocument(input: unknown): NotebookDocument {
 export function emptyNotebook(): NotebookDocument {
   return Object.freeze({
     format: NOTEBOOK_FORMAT,
-    schemaVersion: 1,
+    schemaVersion: NOTEBOOK_SCHEMA_VERSION,
     entries: Object.freeze([]),
     lastPlace: null,
   });
