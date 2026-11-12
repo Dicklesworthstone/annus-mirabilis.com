@@ -8,6 +8,18 @@ export type TeachBackCapture = Readonly<{
   guideRevision: string;
 }>;
 
+export class TeachBackCaptureError extends TypeError {
+  readonly code:
+    | "notebook-teachback-shape"
+    | "notebook-teachback-accessor"
+    | "notebook-teachback-data";
+  constructor(code: TeachBackCaptureError["code"], message: string) {
+    super(message);
+    this.name = "TeachBackCaptureError";
+    this.code = code;
+  }
+}
+
 function boundedText(value: unknown, limit: number): value is string {
   if (typeof value !== "string" || !value.trim() || value.length > limit) return false;
   for (let index = 0; index < value.length; index++) {
@@ -28,10 +40,16 @@ export function parseTeachBackCapture(input: unknown, paper: string): TeachBackC
     ![Object.prototype, null].includes(Object.getPrototypeOf(input)) ||
     Reflect.ownKeys(input).length !== fields.length
   )
-    throw new TypeError("This saved explanation does not identify a supported guide and question.");
+    throw new TeachBackCaptureError(
+      "notebook-teachback-shape",
+      "This saved explanation does not identify a supported guide and question.",
+    );
   const descriptors = Object.getOwnPropertyDescriptors(input);
   if (fields.some((field) => !Object.hasOwn(descriptors[field] ?? {}, "value")))
-    throw new TypeError("Saved explanations must contain plain data, not accessors.");
+    throw new TeachBackCaptureError(
+      "notebook-teachback-accessor",
+      "Saved explanations must contain plain data, not accessors.",
+    );
   const value = input as Record<string, unknown>;
   if (
     value.schemaVersion !== 1 ||
@@ -41,7 +59,10 @@ export function parseTeachBackCapture(input: unknown, paper: string): TeachBackC
     !boundedText(value.guideRevision, 80) ||
     !/^[a-zA-Z0-9][a-zA-Z0-9._:-]*$/u.test(value.guideRevision)
   )
-    throw new TypeError("This saved explanation has unsupported question or revision data.");
+    throw new TeachBackCaptureError(
+      "notebook-teachback-data",
+      "This saved explanation has unsupported question or revision data.",
+    );
   return Object.freeze({
     schemaVersion: 1,
     promptId: value.promptId,

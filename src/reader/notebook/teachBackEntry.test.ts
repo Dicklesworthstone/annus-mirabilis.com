@@ -1,8 +1,9 @@
 import { describe, expect, test } from "bun:test";
+import assert from "node:assert/strict";
 import { createStorageContext } from "../../platform/storage/store.ts";
 import { exportNotebookHtml, exportNotebookJson } from "./export.ts";
 import { mergeNotebook } from "./import.ts";
-import { readNotebookDocument } from "./migrations/teachBack.ts";
+import { migrateTeachBackNotebook, readNotebookDocument } from "./migrations/teachBack.ts";
 import { createNotebookStore } from "./notebookStore.ts";
 import {
   emptyNotebook,
@@ -230,5 +231,115 @@ describe("saved teach-back explanations use the reading notebook", () => {
     expect(() =>
       readNotebookDocument({ ...emptyNotebook(), schemaVersion: 1, extra: "preserve" }),
     ).toThrow();
+  });
+});
+
+describe("typed saved-explanation refusals preserve the input", () => {
+  test("notebook-teachback-shape: a supported guide admits a complete capture and refuses unknown shape or guide", () => {
+    const saved = entry();
+    assert.deepEqual(parseTeachBackCapture(saved.teachBack, saved.frame.paper), saved.teachBack);
+    const original = JSON.stringify(saved.teachBack);
+    for (const [capture, paper] of [
+      [saved.teachBack, "molecular-dimensions"],
+      [{ ...saved.teachBack, extra: "preserve" }, saved.frame.paper],
+    ] as const)
+      assert.throws(() => parseTeachBackCapture(capture, paper), {
+        name: "TeachBackCaptureError",
+        code: "notebook-teachback-shape",
+      });
+    assert.equal(JSON.stringify(saved.teachBack), original);
+  });
+
+  test("notebook-teachback-accessor: plain wording is admitted and an accessor is refused without reading it", () => {
+    const saved = entry();
+    assert.deepEqual(parseTeachBackCapture(saved.teachBack, saved.frame.paper), saved.teachBack);
+    let reads = 0;
+    const accessor = {
+      ...saved.teachBack,
+      get prompt() {
+        reads++;
+        return "Do not evaluate stored accessors.";
+      },
+    };
+    assert.throws(() => parseTeachBackCapture(accessor, saved.frame.paper), {
+      name: "TeachBackCaptureError",
+      code: "notebook-teachback-accessor",
+    });
+    assert.equal(reads, 0);
+  });
+
+  test("notebook-teachback-data: current bounded question data is admitted and unsupported values are refused", () => {
+    const saved = entry();
+    assert.deepEqual(parseTeachBackCapture(saved.teachBack, saved.frame.paper), saved.teachBack);
+    for (const patch of [
+      { schemaVersion: 2 },
+      { promptId: "../question?answer=private" },
+      { prompt: "" },
+      { prompt: "x".repeat(4001) },
+      { prompt: "question\u0000" },
+      { guideRevision: "" },
+    ]) {
+      const input = { ...saved.teachBack, ...patch };
+      const original = JSON.stringify(input);
+      assert.throws(() => parseTeachBackCapture(input, saved.frame.paper), {
+        name: "TeachBackCaptureError",
+        code: "notebook-teachback-data",
+      });
+      assert.equal(JSON.stringify(input), original);
+    }
+  });
+
+  test("notebook-migration-envelope: complete plain documents are admitted and unknown fields or getters remain untouched", () => {
+    const current = emptyNotebook();
+    assert.deepEqual(readNotebookDocument(current), current);
+    const unknown = { ...current, extra: "preserve" };
+    const original = JSON.stringify(unknown);
+    assert.throws(() => readNotebookDocument(unknown), {
+      name: "NotebookMigrationError",
+      code: "notebook-migration-envelope",
+    });
+    assert.equal(JSON.stringify(unknown), original);
+    let reads = 0;
+    const accessor = {
+      ...current,
+      get entries() {
+        reads++;
+        return [];
+      },
+    };
+    assert.throws(() => readNotebookDocument(accessor), {
+      name: "NotebookMigrationError",
+      code: "notebook-migration-envelope",
+    });
+    assert.equal(reads, 0);
+  });
+
+  test("notebook-migration-version: only a version 1 notebook with an entry array enters this migration", () => {
+    const old = { ...emptyNotebook(), schemaVersion: 1 };
+    assert.deepEqual(migrateTeachBackNotebook(old), emptyNotebook());
+    for (const input of [emptyNotebook(), { ...old, entries: {} }]) {
+      const original = JSON.stringify(input);
+      assert.throws(() => migrateTeachBackNotebook(input), {
+        name: "NotebookMigrationError",
+        code: "notebook-migration-version",
+      });
+      assert.equal(JSON.stringify(input), original);
+    }
+  });
+
+  test("notebook-migration-entry: legacy notes are retained and fake version 1 teach-backs or sparse entries are refused", () => {
+    const { teachBack: _capture, ...saved } = entry();
+    const note = { ...saved, kind: "note" };
+    const old = { ...emptyNotebook(), schemaVersion: 1, entries: [note] };
+    assert.deepEqual(migrateTeachBackNotebook(old).entries, [note]);
+    for (const entries of [[entry()], Array(1)]) {
+      const input = { ...old, entries };
+      const original = JSON.stringify(input);
+      assert.throws(() => migrateTeachBackNotebook(input), {
+        name: "NotebookMigrationError",
+        code: "notebook-migration-entry",
+      });
+      assert.equal(JSON.stringify(input), original);
+    }
   });
 });

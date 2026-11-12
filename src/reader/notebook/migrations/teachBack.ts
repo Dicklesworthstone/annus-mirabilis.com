@@ -7,6 +7,18 @@ import {
 
 const fields = ["format", "schemaVersion", "entries", "lastPlace"];
 
+export class NotebookMigrationError extends TypeError {
+  readonly code:
+    | "notebook-migration-envelope"
+    | "notebook-migration-version"
+    | "notebook-migration-entry";
+  constructor(code: NotebookMigrationError["code"], message: string) {
+    super(message);
+    this.name = "NotebookMigrationError";
+    this.code = code;
+  }
+}
+
 function envelope(input: unknown): Readonly<Record<string, unknown>> {
   if (
     !input ||
@@ -17,7 +29,10 @@ function envelope(input: unknown): Readonly<Record<string, unknown>> {
       (field) => !Object.hasOwn(Object.getOwnPropertyDescriptor(input, field) ?? {}, "value"),
     )
   )
-    throw new TypeError("Unknown or missing notebook fields. The saved original is preserved.");
+    throw new NotebookMigrationError(
+      "notebook-migration-envelope",
+      "Unknown or missing notebook fields. The saved original is preserved.",
+    );
   return input as Readonly<Record<string, unknown>>;
 }
 
@@ -25,7 +40,10 @@ function envelope(input: unknown): Readonly<Record<string, unknown>> {
 export function migrateTeachBackNotebook(input: Readonly<Record<string, unknown>>) {
   const document = envelope(input);
   if (document.schemaVersion !== 1 || !Array.isArray(document.entries))
-    throw new TypeError("This is not a version 1 reading notebook.");
+    throw new NotebookMigrationError(
+      "notebook-migration-version",
+      "This is not a version 1 reading notebook.",
+    );
   for (let index = 0; index < document.entries.length; index++) {
     const item = Object.getOwnPropertyDescriptor(document.entries, index);
     if (
@@ -33,7 +51,10 @@ export function migrateTeachBackNotebook(input: Readonly<Record<string, unknown>
       !Object.hasOwn(item, "value") ||
       Object.getOwnPropertyDescriptor(item.value ?? {}, "kind")?.value === "teachBack"
     )
-      throw new TypeError("Version 1 notebooks cannot contain saved teach-back entries.");
+      throw new NotebookMigrationError(
+        "notebook-migration-entry",
+        "Version 1 notebooks cannot contain saved teach-back entries.",
+      );
   }
   return parseNotebookDocument({ ...document, schemaVersion: NOTEBOOK_SCHEMA_VERSION });
 }

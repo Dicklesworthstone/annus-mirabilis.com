@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   emptyNotebook,
   NOTEBOOK_LIMITS,
+  NOTEBOOK_SCHEMA_VERSION,
   notebookFrameHref,
   parseNotebookDocument,
   parseNotebookEntry,
@@ -50,7 +51,7 @@ for (const kind of ["question", "example", "nextStep", "note"]) {
 }
 test("future and unknown notebook fields are refused, not stripped", () => {
   for (const input of [
-    { ...document(), schemaVersion: 2 },
+    { ...document(), schemaVersion: NOTEBOOK_SCHEMA_VERSION + 1 },
     { ...document(), future: true },
     { schemaVersion: 1, entries: [] },
     { ...document(), format: "other-owner" },

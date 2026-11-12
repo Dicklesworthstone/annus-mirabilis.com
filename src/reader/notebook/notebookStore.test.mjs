@@ -235,11 +235,13 @@ test("notebook namespace is the already registered owner key", () => {
 // each site was disabled with `false &&` instead, and each reddened exactly the test that cites
 // it, 17 pass 1 fail. The ratchet's instruction says to rename the code; where the code is
 // unobservable, disabling the site is the same question asked the only way it can be.
-test("(notebookStore.ts:190) notebook-merge-saved-unavailable: a saved notebook that cannot be read refuses the merge and keeps both originals", () => {
+test("(notebookStore.ts:191) notebook-merge-saved-unavailable: a saved notebook that cannot be read refuses the merge and keeps both originals", () => {
   const storage = backend(JSON.stringify(emptyNotebook()));
   const store = createNotebookStore(storage);
   store.add(entry("n1", "Work in this tab"));
   const before = JSON.stringify(store.getSnapshot().document);
+  const savedBefore = storage.raw();
+  const writesBefore = storage.writes;
   storage.mode = "blocked";
   const result = store.previewSavedMerge();
   assert.equal(result.ok, false);
@@ -247,16 +249,22 @@ test("(notebookStore.ts:190) notebook-merge-saved-unavailable: a saved notebook 
   assert.match(result.message, /unchanged/);
   // The refusal is not a silent discard: this tab's work survives it.
   assert.equal(JSON.stringify(store.getSnapshot().document), before);
+  assert.equal(storage.raw(), savedBefore);
+  assert.equal(storage.writes, writesBefore);
 });
-test("(notebookStore.ts:196) notebook-merge-saved-too-large: a saved notebook over the byte limit refuses the merge and says to keep both exports", () => {
+test("(notebookStore.ts:197) notebook-merge-saved-too-large: a saved notebook over the byte limit refuses the merge and says to keep both exports", () => {
   const storage = backend(JSON.stringify(emptyNotebook()));
   storage.maxBytes = 32;
   const store = createNotebookStore(storage);
   storage.replace(JSON.stringify({ ...emptyNotebook(), entries: [entry("n1", "x".repeat(4000))] }));
+  const savedBefore = storage.raw();
+  const writesBefore = storage.writes;
   const result = store.previewSavedMerge();
   assert.equal(result.ok, false);
   assert.match(result.message, /exceeds this version's byte limit/);
   assert.match(result.message, /nothing was merged/);
+  assert.equal(storage.raw(), savedBefore);
+  assert.equal(storage.writes, writesBefore);
 });
 
 test("failed reload keeps unsaved work and fallback until a valid replacement is available", () => {
@@ -363,5 +371,8 @@ test("explicitly loading a genuinely cleared saved notebook clears only this tab
   assert.equal(io.writes, 0);
   assert.equal(store.add(entry("new")).ok, true);
   assert.equal(store.getSnapshot().persistence, "saved");
-  assert.deepEqual(JSON.parse(io.raw()).entries.map((item) => item.id), ["new"]);
+  assert.deepEqual(
+    JSON.parse(io.raw()).entries.map((item) => item.id),
+    ["new"],
+  );
 });

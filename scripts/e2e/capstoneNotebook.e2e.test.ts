@@ -13,7 +13,10 @@ import ts from "typescript";
 import type { Capstone } from "../../src/discovery/capstone/capstoneSchema.ts";
 import type { WorksheetState } from "../../src/discovery/capstone/worksheetState.ts";
 import type { NotebookState, NotebookStore } from "../../src/reader/notebook/notebookStore.ts";
-import type { NotebookCapstoneEntry } from "../../src/reader/notebook/schema.ts";
+import {
+  NOTEBOOK_SCHEMA_VERSION,
+  type NotebookCapstoneEntry,
+} from "../../src/reader/notebook/schema.ts";
 
 /** Compile only the production island and its dependency-light helpers; no replacement modules. */
 function browserModule(file: string, cache = new Map<string, string>()): string {
@@ -68,7 +71,8 @@ test("save, inspect, restore and export complete capstone attempts in Chromium",
     controls: browserModule("src/discovery/capstone/notebookControls.ts", cache),
     capture: browserModule("src/reader/notebook/capstoneEntry.ts", cache),
     view: browserModule("src/reader/notebook/capstoneView.ts", cache),
-  };
+    notebookSchemaVersion: NOTEBOOK_SCHEMA_VERSION,
+  } as const;
   const executablePath = process.env.CHROMIUM_EXECUTABLE_PATH;
   const browser = await chromium.launch(executablePath ? { executablePath } : {});
   const page = await browser.newPage({ viewport: { width: 375, height: 900 } });
@@ -132,7 +136,7 @@ test("save, inspect, restore and export complete capstone attempts in Chromium",
       let state: NotebookState = {
         document: {
           format: "annus-reading-notebook",
-          schemaVersion: 1,
+          schemaVersion: modules.notebookSchemaVersion,
           entries: [],
           lastPlace: null,
         },
