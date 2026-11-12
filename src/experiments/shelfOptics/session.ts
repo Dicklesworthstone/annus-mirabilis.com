@@ -1,11 +1,18 @@
 import { ExperimentRuntimeError } from "../refusal.ts";
+import { parseResult } from "../results/codec.ts";
 import type { ScientificResult } from "../results/types.ts";
+import {
+  checkpointJson,
+  decodeInstanceCheckpoint,
+  type InstanceCheckpointRestore,
+} from "../store/instanceCheckpoint.ts";
 import {
   createInstanceStore,
   type ExperimentView,
   type OutputContract,
   type ParameterClass,
 } from "../store/instanceStore.ts";
+import { parseShelfParameters } from "./definition.ts";
 import { evaluateShelfOptics } from "./evaluation.ts";
 import {
   applyShelfParameters,
@@ -122,45 +129,114 @@ export function createShelfOpticsSession(
   const initialView = getSnapshot();
   let applying = false;
 
+  function checkedOutput(report: ShelfReport): ComparisonOutput | null {
+    const output = comparisonOutput(report);
+    return output &&
+      report.primaryMetric === primaryMetric &&
+      output.quantityId === initialOutput.quantityId &&
+      output.unit === contract.unit &&
+      output.ownerId === contract.ownerId &&
+      report.rows.length === modelIds.length &&
+      report.rows.every((row, index) => row.modelId === modelIds[index])
+      ? output
+      : null;
+  }
+
+  function apply(raw: unknown): ShelfApply {
+    // Store notifications are synchronous. A subscriber must not supersede an unfinished
+    // publication and leave its accepted numeric vector paired with another report.
+    if (applying)
+      return {
+        kind: "refused",
+        message: "The current calculation is still being applied. Try again when it finishes.",
+      };
+    applying = true;
+    try {
+      const result = applyShelfParameters(comparison, raw, evaluate);
+      if (result.kind === "refused") return result;
+      const report = result.snapshot.report;
+      const output = checkedOutput(report);
+      if (!output) {
+        return {
+          kind: "refused",
+          message:
+            "The calculation did not preserve the comparison's observable and model rows. The previous calculation is unchanged.",
+        };
+      }
+      publish(result.snapshot, output);
+      return result;
+    } finally {
+      applying = false;
+    }
+  }
+
+  /** Rebuild every report metric with the current owner before importing an archived identity. */
+  function restoreCheckpoint(input: unknown): InstanceCheckpointRestore {
+    if (applying)
+      return { kind: "not-restored", notice: "A shelf calculation is already being applied." };
+    applying = true;
+    const previousComparison = comparison;
+    try {
+      const { checkpoint } = decodeInstanceCheckpoint(input);
+      const parameters = checkpoint.accepted.parameters;
+      const parsed = parseShelfParameters(example.parameters.instrumentId, parameters);
+      if (
+        parsed.kind !== "parameters" ||
+        checkpointJson(parsed.parameters) !== checkpointJson(parameters)
+      )
+        return { kind: "not-restored", notice: "The recorded shelf settings are incompatible." };
+      const result = applyShelfParameters(comparison, parsed.parameters, evaluate);
+      if (result.kind !== "accepted") return { kind: "not-restored", notice: result.message };
+      const output = checkedOutput(result.snapshot.report);
+      const recorded =
+        checkpoint.accepted.outputs.length === 1
+          ? parseResult(checkpoint.accepted.outputs[0] as string)
+          : null;
+      if (
+        !output ||
+        recorded?.status !== "value" ||
+        typeof output.value === "number" ||
+        typeof recorded.value === "number" ||
+        output.quantityId !== recorded.quantityId ||
+        output.unit !== recorded.unit ||
+        output.ownerId !== recorded.ownerId ||
+        output.semanticKind !== recorded.semanticKind ||
+        output.value.length !== recorded.value.length ||
+        !output.value.every((value, index) =>
+          Object.is(value, (recorded.value as Float64Array)[index]),
+        )
+      )
+        return {
+          kind: "not-restored",
+          notice: "The current optical owner does not reproduce the recorded comparison.",
+        };
+      // Every shelf command is one setup-change, including the initial worked example. The
+      // report revision follows that same sequence while the store restores its exact counters.
+      comparison = shelfSnapshot(result.snapshot.report, checkpoint.accepted.actionIndex - 1);
+      const restored = store.restoreCheckpoint(checkpoint);
+      if (restored.kind !== "restored") comparison = previousComparison;
+      return restored;
+    } catch (error) {
+      comparison = previousComparison;
+      return {
+        kind: "not-restored",
+        notice: `The shelf checkpoint could not be restored: ${error instanceof Error ? error.message : String(error)}`,
+      };
+    } finally {
+      applying = false;
+    }
+  }
+
   return Object.freeze({
     getSnapshot,
     getServerSnapshot: () => initialView,
     subscribe: store.subscribe,
-    apply(raw: unknown): ShelfApply {
-      // Store notifications are synchronous. A subscriber must not supersede an unfinished
-      // publication and leave its accepted numeric vector paired with another report.
-      if (applying)
-        return {
-          kind: "refused",
-          message: "The current calculation is still being applied. Try again when it finishes.",
-        };
-      applying = true;
-      try {
-        const result = applyShelfParameters(comparison, raw, evaluate);
-        if (result.kind === "refused") return result;
-        const report = result.snapshot.report;
-        const output = comparisonOutput(report);
-        if (
-          !output ||
-          report.primaryMetric !== primaryMetric ||
-          output.quantityId !== initialOutput.quantityId ||
-          output.unit !== contract.unit ||
-          output.ownerId !== contract.ownerId ||
-          report.rows.length !== modelIds.length ||
-          report.rows.some((row, index) => row.modelId !== modelIds[index])
-        ) {
-          return {
-            kind: "refused",
-            message:
-              "The calculation did not preserve the comparison's observable and model rows. The previous calculation is unchanged.",
-          };
-        }
-        publish(result.snapshot, output);
-        return result;
-      } finally {
-        applying = false;
-      }
-    },
+    exportCheckpoint: store.exportCheckpoint,
+    restoreCheckpoint,
+    acceptedParameters: () => comparison.report.parameters,
+    apply,
+    // Applying shelf controls always starts an explicitly identified setup-change run.
+    startNewRun: apply,
   });
 }
 

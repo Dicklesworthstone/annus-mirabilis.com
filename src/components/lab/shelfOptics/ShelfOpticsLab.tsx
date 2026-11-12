@@ -3,6 +3,7 @@
 import { type FormEvent, type ReactNode, useEffect, useId, useState } from "react";
 import { executionLabelFor } from "../../../experiments/labels/executionLabelFor.ts";
 import { executionLabelAttributes } from "../../../experiments/labels/resultAttributes.ts";
+import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import {
   SHELF_CAPTIONS,
   SHELF_DEFINITIONS,
@@ -16,6 +17,7 @@ import {
 } from "../../../experiments/shelfOptics/fizeau.ts";
 import { createShelfOpticsSession } from "../../../experiments/shelfOptics/session.ts";
 import { primaryShelfMetrics, type ShelfReport } from "../../../experiments/shelfOptics/state.ts";
+import { SHELF_READER_CHECKPOINTS, SHELF_TAPES } from "../../../experiments/shelfOptics/tape.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
@@ -159,11 +161,13 @@ export function ShelfOpticsLab({
   example,
   laterEquation,
   fizeau,
+  linked = true,
 }: {
   instanceId?: string | undefined;
   example: ShelfReport;
   laterEquation?: ReactNode;
   fizeau?: FizeauRecord | undefined;
+  linked?: boolean;
 }) {
   const instance = useId();
   const definition = SHELF_DEFINITIONS[example.parameters.instrumentId];
@@ -175,6 +179,7 @@ export function ShelfOpticsLab({
       sourceDigest: labDigests[example.parameters.instrumentId],
     },
     (retainedId) => createShelfOpticsSession(retainedId, example),
+    SHELF_READER_CHECKPOINTS[example.parameters.instrumentId],
   );
   const view = useInstrumentView(session);
   const accepted = view.comparison;
@@ -188,6 +193,19 @@ export function ShelfOpticsLab({
   const [prediction, setPrediction] = useState("");
   const [recordedPrediction, setRecordedPrediction] = useState<PredictionRecord | null>(null);
   const report = accepted.report;
+  const tapeLink = useLabTapeLink(
+    SHELF_TAPES[example.parameters.instrumentId],
+    session,
+    view.accepted?.parameters,
+    linked,
+    (parameters) => {
+      setDraft(shelfDraft(parameters));
+      setDirty(false);
+      setError("");
+      setPrediction("");
+      setRecordedPrediction(null);
+    },
+  );
 
   useEffect(() => {
     setReady(true);
@@ -440,6 +458,8 @@ export function ShelfOpticsLab({
           }}
         />
       )}
+
+      {linked && <LabTapeLink link={tapeLink} />}
 
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
           children of the lab root, which labShell.css's detail rules select. */}

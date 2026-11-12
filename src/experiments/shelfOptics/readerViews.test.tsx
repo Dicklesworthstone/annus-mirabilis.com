@@ -126,6 +126,54 @@ async function submit(): Promise<void> {
 
 describe("the real shelf instruments in the reader return stack", () => {
   for (const id of SHELF_IDS) {
+    test(`${id} reopens a verified accepted comparison after the retained cache is gone`, async () => {
+      history.replaceState(null, "", "/papers/special-relativity/?view=german&tape=foreign");
+      await open(id);
+      await until(() => container.querySelector("section.shelf-lab[data-ready=true]") !== null);
+      const field = id === "shelf-fizeau" ? "waterSpeed" : "beta";
+      await change(field, id === "shelf-fizeau" ? "-11" : "-0.23");
+      if (id === "shelf-fizeau") {
+        await change("reversal", true);
+        await change("showLater", true);
+      }
+      await submit();
+      const acceptedValues = values();
+      const identity = {
+        instance: lab(id).dataset.instanceId,
+        run: lab(id).dataset.runId,
+        version: lab(id).dataset.snapshotVersion,
+      };
+      const saved = references.at(-1);
+      expect(saved?.compactTape).toContain('"readerCheckpointVersion":1');
+      expect(saved?.checkpointDigest).not.toBe("");
+      await close();
+      cache.dispose();
+      cache = createSessionRetention();
+      await open(id);
+      await until(() => container.querySelector("section.shelf-lab[data-ready=true]") !== null);
+      expect(lab(id).dataset.instanceId).toBe(identity.instance);
+      expect(lab(id).dataset.runId).toBe(identity.run);
+      expect(lab(id).dataset.snapshotVersion).toBe(identity.version);
+      expect(values()).toEqual(acceptedValues);
+      expect(element<HTMLInputElement>(`input[name="${field}"]`).value).toBe(
+        id === "shelf-fizeau" ? "-11" : "-0.23",
+      );
+      expect(lab(id).dataset.executionLabel).toBe("host");
+      expect(element("[data-lab-return-notice]").textContent).toContain(
+        "Restored the recorded accepted experiment",
+      );
+      expect(container.querySelector("[data-tape-notice]")).toBeNull();
+      expect(container.querySelector("[data-share-form=experiment-preset]")).toBeNull();
+      if (id === "shelf-fizeau") {
+        expect(element<HTMLInputElement>("input[name=reversal]").checked).toBe(true);
+        expect(element<HTMLInputElement>("input[name=showLater]").checked).toBe(true);
+        expect(
+          container.querySelector("[data-historical-status=later-development]"),
+        ).not.toBeNull();
+      }
+      expect(workers).toBe(0);
+    });
+
     test(`${id} applies, refuses, returns to the same accepted owner and isolates placements`, async () => {
       history.replaceState(
         null,

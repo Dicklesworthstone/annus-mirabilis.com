@@ -28,7 +28,7 @@ function ShelfClarification({
   return (
     <>
       <p className="lead">{SHELF_DEFINITIONS[instrumentId].question}</p>
-      <ShelfOpticsLab example={examples[instrumentId]} instanceId={instanceId} />
+      <ShelfOpticsLab example={examples[instrumentId]} instanceId={instanceId} linked={false} />
       <p className="fine">
         These model comparisons use modern SI calibration and illustrative inputs.{" "}
         <a href={`/lab/${instrumentId}/`}>
