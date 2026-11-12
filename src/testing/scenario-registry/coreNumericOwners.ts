@@ -130,9 +130,35 @@ export const LQ04_WORKBENCH_OWNER: OwnerRecord = {
       radiationEntropy: evaluated.radiationEntropy,
       entropyVolumeCoefficient: evaluated.entropyVolumeCoefficient,
       effectiveIndependentCount: evaluated.effectiveIndependentCount,
+      ...lq04SlopeOutputs(evaluated),
     };
   },
 };
+
+/** Project optional accepted comparison outputs without inventing values for older owners or
+ * unavailable probes. A scenario expecting an absent field still fails its ordinary comparison. */
+function lq04SlopeOutputs(evaluation: object): Record<string, number> {
+  const outputs: Record<string, number> = {};
+  for (const state of ["initial", "final"] as const) {
+    const comparison: unknown = Reflect.get(evaluation, `${state}EntropySlopeComparison`);
+    if (
+      !comparison ||
+      typeof comparison !== "object" ||
+      Reflect.get(comparison, "status") !== "value"
+    )
+      continue;
+    for (const [field, suffix] of [
+      ["slope", "EntropyDensitySlope"],
+      ["inverseTemperature", "InverseTemperature"],
+      ["densityStep", "EntropySlopeDensityStep"],
+      ["relativeDiscrepancy", "EntropySlopeRelativeDiscrepancy"],
+    ] as const) {
+      const value: unknown = Reflect.get(comparison, field);
+      if (typeof value === "number" && Number.isFinite(value)) outputs[`${state}${suffix}`] = value;
+    }
+  }
+  return outputs;
+}
 
 export const CORE_NUMERIC_OWNERS: readonly OwnerRecord[] = [
   DIFFUSION_RMS_OWNER,

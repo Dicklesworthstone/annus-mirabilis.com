@@ -70,6 +70,14 @@ jobs:
           src/testing/concurrency.test.ts
           src/testing/readerViewLoaders.integration.test.tsx
           src/experiments/shelfOptics
+          src/experiments/bm01
+          src/experiments/bm08
+          src/experiments/avogadro
+          src/components/lab/avogadro
+          src/reasoning/infer
+          src/physics/reference/inference/identifiability.test.mjs
+          src/experiments/lq04
+          src/testing/radiation.entropy.test.ts
           src/reader/weave
           src/content/essays/essays.test.ts
           src/search/essayDocuments.test.ts
