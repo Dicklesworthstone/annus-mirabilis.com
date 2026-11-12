@@ -56,6 +56,22 @@ jobs:
       - name: Prepare content and lab artifacts
         run: bun run prepare:content && bun run prepare:lab
 
+      # Keep the live laboratory and reader checks ahead of the export-dependent node lane.
+      # That lane can fail before the fast gate chain reaches either types or these regressions.
+      - name: Check types and instrument registry
+        id: laboratory-types
+        run: bun run check:types
+
+      - name: Run laboratory and reader regression tests
+        if: success() || steps.laboratory-types.outcome == 'failure'
+        run: >-
+          bun test --isolate --timeout 60000
+          src/testing/scheduler*.test.ts
+          src/testing/concurrency.test.ts
+          src/testing/readerViewLoaders.integration.test.tsx
+          src/experiments/shelfOptics
+          src/reader/weave
+
       - name: Run node-only subprocess tests
         run: bun run test:node
 
