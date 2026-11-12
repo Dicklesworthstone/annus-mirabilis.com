@@ -184,6 +184,16 @@ export function BrownianLab({
       setFailure(failureFromThrown(e, "Check the entered settings."));
     }
   }
+  function startNewCalculation() {
+    try {
+      const requested = dirty
+        ? fromDraft(draft)
+        : ((view.requested?.parameters ?? session.acceptedParameters()) as Bm06Parameters);
+      reflectRequest(session.startNewRun(requested));
+    } catch (error) {
+      setFailure(failureFromThrown(error, "Check the entered settings."));
+    }
+  }
   function preset(parameters: Bm06Parameters) {
     setDraft(toDraft(parameters));
     setDirty(true);
@@ -205,12 +215,17 @@ export function BrownianLab({
   }
   const probability = scalar(snapshot, "intervalProbability");
   const rms = scalar(snapshot, "rmsDisplacement1d");
+  const checkpointNotice =
+    view.status === "unavailable" && typeof view.outcome?.details?.checkpointNotice === "string"
+      ? view.outcome.details.checkpointNotice
+      : null;
   const announcement = view.pending
     ? "Calculating the requested settings. The last accepted result stays on screen until it is done."
     : view.status === "refused"
       ? `${view.refusal?.message ?? "Calculation refused."} The last accepted result is unchanged.`
       : view.status === "unavailable"
-        ? `${view.outcome?.message ?? "Calculation unavailable."} The worked result remains readable.`
+        ? (checkpointNotice ??
+          `${view.outcome?.message ?? "Calculation unavailable."} The worked result remains readable.`)
         : view.status === "paused"
           ? "Calculation stopped. The last accepted result is unchanged."
           : `Accepted point-start result: RMS displacement ${display(rms, 1e6)} micrometres; selected interval probability ${display(probability, 100)} percent.${p.gridEnabled ? ` Numerical grid: ${BM06_GRID_PROFILES[p.gridProfile].label}.` : ""}`;
@@ -404,6 +419,16 @@ export function BrownianLab({
               >
                 Stop calculation
               </button>
+              {checkpointNotice && (
+                <button
+                  type="button"
+                  className="secondary"
+                  disabled={view.pending}
+                  onClick={startNewCalculation}
+                >
+                  Start a new calculation
+                </button>
+              )}
               {externalDiffusivitySource && (
                 <button
                   type="button"
@@ -591,7 +616,8 @@ export function BrownianLab({
             role="status"
             aria-live="polite"
             aria-atomic="true"
-            className="status-line"
+            className={checkpointNotice ? "notice error" : "status-line"}
+            data-calculation-recovery={checkpointNotice ? "" : undefined}
             data-predict-response={
               requestFeedback ? "shown" : gate.response["data-predict-response"]
             }
