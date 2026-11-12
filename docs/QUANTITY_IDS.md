@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 315 quantities, 45 rejected spellings, 0 reserved spellings.
+Total: 318 quantities, 45 rejected spellings, 0 reserved spellings.
 
 ## Registered quantities
 
@@ -117,6 +117,7 @@ Total: 315 quantities, 45 rejected spellings, 0 reserved spellings.
 | fieldScaleFactorUnknown | Unknown scale factor: psi(v) | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | fieldTimeCoordinate | Time coordinate (field) | 0,0,1,0,0,0 | not-applicable | scalar | — |
 | finiteSpeedMassProxy | Finite-speed mass proxy | 0,1,0,0,0,0 | not-applicable | scalar | — |
+| flowSpeed | Flow speed | 1,0,-1,0,0,0 | not-applicable | scalar | — |
 | fourierAmplitude | Fourier amplitude | 1,1,-3,0,-1,0 | not-applicable | scalar | — |
 | fourierPhase | Fourier phase | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | fourierValueProbability | Probability of the Fourier values | 0,0,0,0,0,0 | not-applicable | scalar | — |
@@ -294,6 +295,7 @@ Total: 315 quantities, 45 rejected spellings, 0 reserved spellings.
 | transverseForceLaboratory | Transverse force (laboratory) | 1,1,-2,0,0,0 | laboratory | vector | — |
 | transverseMassComoving | Transverse mass (comoving) | 0,1,0,0,0,0 | object-rest | scalar | massCoefficientTransverseComoving, transverseMassSource |
 | transverseMassLaboratory | Transverse mass (laboratory) | 0,1,0,0,0,0 | laboratory | scalar | transverseCoefficientLaboratory |
+| tubeLength | Tube length | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | universalEntropyConstant | Universal entropy constant | 2,1,-2,-1,0,0 | not-applicable | scalar | entropyCoefficient |
 | vacuumPermeability | Vacuum magnetic permeability (mu_0) | 1,1,-2,0,-2,0 | not-applicable | scalar | — |
 | vacuumPermittivity | Vacuum electric permittivity (epsilon_0) | -3,-1,4,0,2,0 | not-applicable | scalar | — |
@@ -309,6 +311,7 @@ Total: 315 quantities, 45 rejected spellings, 0 reserved spellings.
 | volumeFraction | Volume fraction | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | volumeRatio | Volume ratio | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | walkStepCount | Number of walk steps | 0,0,0,0,0,0 | not-applicable | scalar | — |
+| waterPathPerBeam | Moving-water path per beam | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | waveAmplitude | Wave amplitude | 1,1,-3,0,-1,0 | not-applicable | scalar | — |
 | waveAngularFrequencyMoving | Wave angular frequency (moving system) | 0,0,-1,0,0,0 | moving-system | scalar | — |
 | waveAngularFrequencyStationary | Wave angular frequency (stationary system) | 0,0,-1,0,0,0 | stationary-system | scalar | — |
