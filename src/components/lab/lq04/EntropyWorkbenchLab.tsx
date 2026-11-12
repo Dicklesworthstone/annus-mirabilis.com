@@ -9,6 +9,7 @@ import { labelRootAttributes } from "../../../experiments/labels/resultAttribute
 import {
   LQ04_CAPTION,
   LQ04_DEFAULTS,
+  LQ04_ENTROPY_SLOPE_COMPARISON,
   LQ04_NOT_MODELED,
   LQ04_OUTPUTS,
   LQ04_QUESTION,
@@ -108,6 +109,23 @@ function valueText(snapshot: AcceptedSnapshot, id: string, unit: string, digits 
   if (output.status === "outside-domain") return output.reason;
   if (output.status === "not-applicable") return output.reason;
   return statusMessage(output.status);
+}
+
+function slopeCell(
+  snapshot: AcceptedSnapshot,
+  state: "initial" | "final",
+  suffix: string,
+  unit: string,
+  first = false,
+): ReactNode {
+  const slope = findOutput(snapshot, `${state}EntropyDensitySlope`);
+  if (slope?.status === "outside-domain")
+    return first ? (
+      <td rowSpan={4} data-entropy-slope-unavailable={state}>
+        {slope.reason}
+      </td>
+    ) : null;
+  return <td>{valueText(snapshot, `${state}${suffix}`, unit)}</td>;
 }
 
 export type EntropyWorkbenchLabProps = Readonly<{
@@ -424,9 +442,48 @@ export function EntropyWorkbenchLab({
                   <td>{valueText(snapshot, "initialSpectralEntropyDensity", "J/(m³ Hz K)")}</td>
                   <td>{valueText(snapshot, "finalSpectralEntropyDensity", "J/(m³ Hz K)")}</td>
                 </tr>
+                {!refused ? (
+                  <>
+                    <tr>
+                      <th scope="row">Entropy density slope at fixed frequency (numerical)</th>
+                      {slopeCell(snapshot, "initial", "EntropyDensitySlope", "K⁻¹", true)}
+                      {slopeCell(snapshot, "final", "EntropyDensitySlope", "K⁻¹", true)}
+                    </tr>
+                    <tr>
+                      <th scope="row">Inverse temperature 1/T</th>
+                      {slopeCell(snapshot, "initial", "InverseTemperature", "K⁻¹")}
+                      {slopeCell(snapshot, "final", "InverseTemperature", "K⁻¹")}
+                    </tr>
+                    <tr>
+                      <th scope="row">Density half-spacing δρ for the slope comparison</th>
+                      {slopeCell(snapshot, "initial", "EntropySlopeDensityStep", "J/(m³ Hz)")}
+                      {slopeCell(snapshot, "final", "EntropySlopeDensityStep", "J/(m³ Hz)")}
+                    </tr>
+                    <tr>
+                      <th scope="row">Relative discrepancy from 1/T</th>
+                      {slopeCell(snapshot, "initial", "EntropySlopeRelativeDiscrepancy", "")}
+                      {slopeCell(snapshot, "final", "EntropySlopeRelativeDiscrepancy", "")}
+                    </tr>
+                  </>
+                ) : null}
               </tbody>
             </table>
           </section>
+
+          {!refused ? (
+            <p className="fine" data-entropy-slope-method>
+              At each accepted state, the slope comparison holds frequency and volume fixed and
+              probes the energy density at ρ ± δρ, with δρ/ρ ={" "}
+              <Sci value={LQ04_ENTROPY_SLOPE_COMPARISON.relativeDensityStep} digits={0} />.
+              It divides the change of entropy density by the change of energy density and
+              compares that numerical slope with 1/T, using a relative tolerance of{" "}
+              <Sci value={LQ04_ENTROPY_SLOPE_COMPARISON.relativeTolerance} digits={0} />.
+              The actual density half-spacing appears above. This checks the local numerical
+              consistency of the Wien entropy formula; the two-state volume comparison holds
+              energy fixed instead. It supplies no independent experimental evidence and does
+              not fix the entropy integration constant.
+            </p>
+          ) : null}
 
           {p.showUnfixedConstantPanel ? (
             <p className="notice">

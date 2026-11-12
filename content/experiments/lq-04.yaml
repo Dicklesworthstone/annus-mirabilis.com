@@ -224,6 +224,38 @@ outputs:
       - value
       - outside-domain
     primary: false
+  - id: initialEntropyDensitySlope
+    quantityId: spectralEntropyDensitySlope
+    allowedStatuses: [value, outside-domain]
+    primary: false
+  - id: finalEntropyDensitySlope
+    quantityId: spectralEntropyDensitySlope
+    allowedStatuses: [value, outside-domain]
+    primary: false
+  - id: initialInverseTemperature
+    quantityId: inverseTemperature
+    allowedStatuses: [value, outside-domain]
+    primary: false
+  - id: finalInverseTemperature
+    quantityId: inverseTemperature
+    allowedStatuses: [value, outside-domain]
+    primary: false
+  - id: initialEntropySlopeDensityStep
+    quantityId: frequencyEnergyDensity
+    allowedStatuses: [value, outside-domain]
+    primary: false
+  - id: finalEntropySlopeDensityStep
+    quantityId: frequencyEnergyDensity
+    allowedStatuses: [value, outside-domain]
+    primary: false
+  - id: initialEntropySlopeRelativeDiscrepancy
+    quantityId: entropySlopeRelativeDiscrepancy
+    allowedStatuses: [value, outside-domain]
+    primary: false
+  - id: finalEntropySlopeRelativeDiscrepancy
+    quantityId: entropySlopeRelativeDiscrepancy
+    allowedStatuses: [value, outside-domain]
+    primary: false
   - id: radiationEntropy
     quantityId: radiationEntropy
     allowedStatuses:
@@ -266,6 +298,7 @@ assumptions:
   - "Radiation in the admitted Wien approximation rho_nu = A nu^3 e^(-B nu / T)"
   - "The two compared states share the same fixed energy E, frequency nu, and narrow band dNu"
   - "The integration constant C(nu) is fixed to zero by the zero-density boundary condition, never assumed"
+  - "The local entropy-slope check holds frequency and volume fixed, samples densities at rho ± 0.0001 rho, and compares the secant with inverse temperature to relative tolerance 1e-8; both probes must stay dilute and numerically resolved"
 admittedDomain: "Monochromatic radiation in the Wien regime (pointwise Planck-Wien deviation at or below the chosen threshold at both compared states), narrow band (dNu/nu <= 1%), compared at fixed energy and band."
 notModeled:
   - "Radiation outside the Wien regime"
@@ -287,6 +320,10 @@ owner:
     - displayRole: reference-implementation
       language: ts
       module: "src/physics/reference/radiation/entropy.ts"
+      exportName: "compareWienEntropySlope"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/radiation/entropy.ts"
       exportName: "radiationEntropyVolumeChange"
       independentReferences:
         - experimentId: lq-04
@@ -300,6 +337,21 @@ owner:
       module: "src/physics/reference/radiation/spectra.ts"
       exportName: "regimeRelativeErrors"
   identifierBindings:
+    - kernelFunction: compareWienEntropySlope
+      identifier: "rho"
+      quantityId: frequencyEnergyDensity
+    - kernelFunction: compareWienEntropySlope
+      identifier: "nu"
+      quantityId: frequency
+    - kernelFunction: compareWienEntropySlope
+      identifier: "slope"
+      quantityId: spectralEntropyDensitySlope
+    - kernelFunction: compareWienEntropySlope
+      identifier: "inverseTemperature"
+      quantityId: inverseTemperature
+    - kernelFunction: compareWienEntropySlope
+      identifier: "relativeDiscrepancy"
+      quantityId: entropySlopeRelativeDiscrepancy
     - kernelFunction: radiationEntropyVolumeChange
       identifier: "E"
       quantityId: radiationEnergy
@@ -329,6 +381,14 @@ views:
       - finalX
       - initialSpectralEntropyDensity
       - finalSpectralEntropyDensity
+      - initialEntropyDensitySlope
+      - finalEntropyDensitySlope
+      - initialInverseTemperature
+      - finalInverseTemperature
+      - initialEntropySlopeDensityStep
+      - finalEntropySlopeDensityStep
+      - initialEntropySlopeRelativeDiscrepancy
+      - finalEntropySlopeRelativeDiscrepancy
       - radiationEntropy
       - radiationEntropyNumeric
       - entropyVolumeCoefficient

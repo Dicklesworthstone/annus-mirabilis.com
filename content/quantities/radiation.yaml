@@ -103,6 +103,41 @@
   spectralBasis: per-frequency
   colorRole: statistical
 
+- id: spectralEntropyDensitySlope
+  name: Spectral entropy density slope
+  description: >
+    The derivative of spectral entropy density with respect to spectral energy density at
+    fixed frequency and volume. Its inverse-temperature dimension follows from taking the
+    ratio of those two densities. A numerical secant is an approximation to this derivative,
+    with its spacing and numerical comparison tolerance declared separately.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, -1, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: inverseTemperature
+  name: Inverse temperature
+  description: The reciprocal of positive absolute thermodynamic temperature.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, -1, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: entropySlopeRelativeDiscrepancy
+  name: Relative discrepancy of the entropy slope
+  description: >
+    The absolute difference between a numerical spectral entropy density slope and inverse
+    temperature, divided by inverse temperature. This measures a declared numerical
+    consistency comparison, not observational uncertainty or the error of Wien's approximation.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
 - id: energyDensityBelowCutoff
   name: Energy density below a cutoff frequency
   description: >

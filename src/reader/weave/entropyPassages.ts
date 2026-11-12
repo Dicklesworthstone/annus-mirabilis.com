@@ -4,7 +4,7 @@ import type { WeavePassage } from "./brownianPassages.ts";
 import type { WeaveContextField } from "./context.ts";
 import type { ReaderWeaveBinding } from "./SessionResultWeave.tsx";
 
-/** Point to the volume conclusion and its qualification, never the historical observation. */
+/** Point to the volume conclusion, its qualification and the accepted local entropy-slope check. */
 export const LQ04_WEAVE_PASSAGES: Readonly<Record<string, WeavePassage>> = Object.freeze({
   "lq04-s4-volume-law": Object.freeze({
     title: "The entropy change at fixed energy and band",
@@ -15,6 +15,11 @@ export const LQ04_WEAVE_PASSAGES: Readonly<Record<string, WeavePassage>> = Objec
     title: "Limits of the Wien entropy calculation",
     sentenceId: "s4-p1-s3",
     pointerText: LQ04_LIVE_WEAVE_PREDICATES[1]?.pointerText ?? "",
+  }),
+  "lq04-s3-derivative-check": Object.freeze({
+    title: "Entropy slope and inverse temperature",
+    sentenceId: "s3-p4-s3",
+    pointerText: LQ04_LIVE_WEAVE_PREDICATES[2]?.pointerText ?? "",
   }),
 });
 

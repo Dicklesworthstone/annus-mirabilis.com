@@ -2,7 +2,11 @@ import { expect, test } from "bun:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { load } from "js-yaml";
-import { LQ04_DEFAULTS, LQ04_OUTPUTS } from "../../experiments/lq04/definition.ts";
+import {
+  LQ04_DEFAULTS,
+  LQ04_ENTROPY_SLOPE_COMPARISON,
+  LQ04_OUTPUTS,
+} from "../../experiments/lq04/definition.ts";
 import { createLq04Session } from "../../experiments/lq04/session.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import { createWeaveEvaluator } from "../../experiments/weave/evaluate.ts";
@@ -17,6 +21,7 @@ import { LQ04_READER_WEAVE } from "./entropyPassages.ts";
 
 const VOLUME = "lq04-s4-volume-law";
 const LIMIT = "lq04-s4-wien-validity-limit";
+const DERIVATIVE = "lq04-s3-derivative-check";
 
 function ready(state: SessionWeave) {
   assert.equal(state.kind, "ready");
@@ -33,7 +38,7 @@ function flags(snapshot: AcceptedSnapshot) {
   }).flags;
 }
 
-test("entropy pointers resolve to the volume conclusion and its qualification, not observations", () => {
+test("entropy pointers resolve to the volume law, its qualification and the source's entropy derivative", () => {
   const manifest = load(
     readFileSync(new URL("../../../content/experiments/lq-04.yaml", import.meta.url), "utf8"),
   ) as { weavePredicates: string[] };
@@ -62,8 +67,7 @@ test("entropy pointers resolve to the volume conclusion and its qualification, n
     expect(LQ04_READER_WEAVE.passages[predicate.id]?.sentenceId).toBe(predicate.targets[0]);
   }
   expect(LQ04_READER_WEAVE.passages[LIMIT]?.sentenceId).toBe("s4-p1-s3");
-  // Temperature readouts alone do not supply the manifest's promised derivative comparison.
-  expect(LQ04_READER_WEAVE.predicates.some((p) => p.id === "lq04-s3-derivative-check")).toBe(false);
+  expect(LQ04_READER_WEAVE.passages[DERIVATIVE]?.sentenceId).toBe("s3-p4-s3");
 });
 
 test("halving, preserving and doubling volume keep the pointer on the accepted entropy result", () => {
@@ -78,6 +82,8 @@ test("halving, preserving and doubling volume keep the pointer on the accepted e
     expect(state.derived.flags[VOLUME]?.lit).toBe(true);
     expect(state.derived.flags[VOLUME]?.meaning).toBe("quantity-compared");
     expect(state.derived.flags[LIMIT]?.lit).toBe(false);
+    expect(state.derived.flags[DERIVATIVE]?.lit).toBe(true);
+    expect(state.derived.flags[DERIVATIVE]?.meaning).toBe("agreement-within-stated-bound");
     expect(state.prepared).toBe(false);
     expect(source.getSnapshot()).toBe(state);
     expect(source.getServerSnapshot()).toBe(prepared);
@@ -99,10 +105,12 @@ test("a dense endpoint or wide band switches to the typed domain pointer and can
     expect(state.derived.flags[VOLUME]?.lit).toBe(false);
     expect(state.derived.flags[LIMIT]?.lit).toBe(true);
     expect(state.derived.flags[LIMIT]?.meaning).toBe("outside-selected-domain");
+    expect(state.derived.flags[DERIVATIVE]?.lit).toBe(false);
   }
   expect(session.apply(LQ04_DEFAULTS).kind).toBe("accepted");
   expect(ready(source.getSnapshot()).derived.flags[VOLUME]?.lit).toBe(true);
   expect(ready(source.getSnapshot()).derived.flags[LIMIT]?.lit).toBe(false);
+  expect(ready(source.getSnapshot()).derived.flags[DERIVATIVE]?.lit).toBe(true);
 });
 
 test("a validation refusal keeps its old snapshot but removes every scientific pointer", () => {
@@ -139,5 +147,55 @@ test("missing, duplicate, nonnumeric or nonfinite entropy evidence never lights 
     ]) {
       expect(flags({ ...snapshot, outputs })[VOLUME]?.state).toBe("not-evaluable");
     }
+  }
+});
+
+test("an unavailable local slope leaves the accepted volume pointer usable without asserting §3 agreement", () => {
+  const session = createLq04Session("entropy-local-boundary");
+  const source = createSessionWeave(session, LQ04_READER_WEAVE);
+  for (const parameters of [
+    { ...LQ04_DEFAULTS, diluteThresholdX: 9.59845, volumeRatio: 2 },
+    { ...LQ04_DEFAULTS, frequency: 1e16, referenceTemperature: 700, volumeRatio: 2 },
+  ]) {
+    expect(session.apply(parameters).kind).toBe("accepted");
+    const state = ready(source.getSnapshot());
+    expect(state.derived.flags[VOLUME]?.lit).toBe(true);
+    expect(state.derived.flags[LIMIT]?.lit).toBe(false);
+    expect(state.derived.flags[DERIVATIVE]?.lit).toBe(false);
+    expect(state.derived.flags[DERIVATIVE]?.state).toBe("not-evaluable");
+  }
+});
+
+test("temperature alone, incomplete probes and discrepancies outside the stated tolerance cannot light §3", () => {
+  const snapshot = createLq04Session("entropy-derivative-evidence").getSnapshot().accepted;
+  assert.ok(snapshot);
+  expect(flags(snapshot)[DERIVATIVE]?.lit).toBe(true);
+  for (const state of ["initial", "final"] as const)
+    for (const suffix of [
+      "EntropyDensitySlope",
+      "InverseTemperature",
+      "EntropySlopeDensityStep",
+      "EntropySlopeRelativeDiscrepancy",
+    ]) {
+      const id = `${state}${suffix}`;
+      const output = snapshot.outputs.find((entry) => entry.quantityId === id);
+      assert.ok(output);
+      for (const outputs of [
+        snapshot.outputs.filter((entry) => entry !== output),
+        [...snapshot.outputs, output],
+        snapshot.outputs.map((entry) =>
+          entry === output ? { ...output, value: Number.NaN } : entry,
+        ),
+        snapshot.outputs.map((entry) =>
+          entry === output ? { ...output, value: Number.POSITIVE_INFINITY } : entry,
+        ),
+      ])
+        expect(flags({ ...snapshot, outputs })[DERIVATIVE]?.lit).toBe(false);
+    }
+  for (const value of [-1e-12, 2 * LQ04_ENTROPY_SLOPE_COMPARISON.relativeTolerance]) {
+    const outputs = snapshot.outputs.map((entry) =>
+      entry.quantityId === "finalEntropySlopeRelativeDiscrepancy" ? { ...entry, value } : entry,
+    );
+    expect(flags({ ...snapshot, outputs })[DERIVATIVE]?.lit).toBe(false);
   }
 });

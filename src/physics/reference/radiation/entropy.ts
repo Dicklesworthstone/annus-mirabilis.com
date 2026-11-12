@@ -3,6 +3,7 @@
  * Specification: am-ref-radiation-15c.
  */
 
+import { withinTolerance } from "../../../units/tolerance.ts";
 import { type ConstantSet, constantValue, thermalConstant } from "../constants.ts";
 import type { CyclicFrequency, RadiationResult } from "./types.ts";
 
@@ -154,6 +155,124 @@ export function wienSpectralEntropyDensity(
     unit,
     value: sNu,
     linearRepresentable: true,
+  };
+}
+
+export type WienEntropySlopeComparison =
+  | Readonly<{
+      status: "value";
+      slope: number;
+      inverseTemperature: number;
+      densityStep: number;
+      relativeDiscrepancy: number;
+    }>
+  | Readonly<{
+      status: "outside-domain";
+      condition: string;
+      domainKind: "physical" | "model" | "numerical";
+      reason: string;
+    }>;
+
+/**
+ * A local numerical check of section 3, using two entropy-density evaluations at fixed nu.
+ * The secant comes from the entropy kernel, independently of the temperature inversion; it
+ * is not assigned 1/T. Both probes must remain in the selected Wien domain. An unavailable
+ * comparison says nothing about whether a separate, central-state volume law is available.
+ */
+export function compareWienEntropySlope(
+  rho: number,
+  nu: CyclicFrequency | number,
+  setOrCoeffs: ConstantSet | WienCoefficients,
+  options: Readonly<{
+    relativeDensityStep: number;
+    relativeTolerance: number;
+    epsilonW: number;
+  }>,
+): WienEntropySlopeComparison {
+  const unavailable = (
+    condition: string,
+    domainKind: "physical" | "model" | "numerical",
+    reason: string,
+  ): WienEntropySlopeComparison => ({ status: "outside-domain", condition, domainKind, reason });
+  const { relativeDensityStep, relativeTolerance, epsilonW } = options;
+  if (
+    ![rho, nu].every((value) => Number.isFinite(value) && value > 0) ||
+    ![relativeDensityStep, relativeTolerance, epsilonW].every(
+      (value) => Number.isFinite(value) && value > 0 && value < 1,
+    )
+  )
+    return unavailable(
+      "invalid-entropy-slope-comparison",
+      "physical",
+      "The slope comparison needs positive density and frequency, and relative spacing, tolerance and Wien threshold between zero and one.",
+    );
+
+  const { A, B } = resolveCoefficients(setOrCoeffs);
+  const prefactor = A * nu ** 3;
+  const step = rho * relativeDensityStep;
+  const lowerDensity = rho - step;
+  const upperDensity = rho + step;
+  const span = upperDensity - lowerDensity;
+  if (
+    ![A, B, prefactor, lowerDensity, upperDensity, span].every(
+      (value) => Number.isFinite(value) && value > 0,
+    ) ||
+    lowerDensity >= rho ||
+    upperDensity <= rho
+  )
+    return unavailable(
+      "entropy-slope-probes-not-representable",
+      "numerical",
+      "The two density probes cannot be represented separately at this spacing. Choose a less extreme density for the slope comparison.",
+    );
+  if (upperDensity / prefactor > epsilonW)
+    return unavailable(
+      "entropy-slope-probe-outside-wien-domain",
+      "model",
+      "The higher-density slope probe leaves the selected dilute regime. The volume result can still be available; choose a state farther inside the Wien regime to compare its local slope.",
+    );
+
+  const lowerEntropy = wienSpectralEntropyDensity(lowerDensity, nu, setOrCoeffs);
+  const upperEntropy = wienSpectralEntropyDensity(upperDensity, nu, setOrCoeffs);
+  const temperature = wienTemperatureFromDensity(rho, nu, setOrCoeffs);
+  // Conservatively decline subnormal probes: their absolute rounding spacing can overwhelm
+  // this subtraction even when the central entropy and closed volume law are finite.
+  const minimumNormal = 2 ** -1022;
+  if (
+    lowerEntropy.status !== "value" ||
+    upperEntropy.status !== "value" ||
+    temperature.status !== "value" ||
+    ![lowerDensity, upperDensity, lowerEntropy.value, upperEntropy.value, temperature.value].every(
+      (value) => Number.isFinite(value) && value >= minimumNormal,
+    )
+  )
+    return unavailable(
+      "entropy-slope-probes-unresolved",
+      "numerical",
+      "The entropy-density probes are too small or cannot be evaluated reliably at this spacing. Choose a less extreme frequency or temperature to compare the slope; the volume result is separate.",
+    );
+
+  const slope = (upperEntropy.value - lowerEntropy.value) / span;
+  const inverseTemperature = 1 / temperature.value;
+  const comparison = withinTolerance(slope, inverseTemperature, { relative: relativeTolerance });
+  const relativeDiscrepancy = comparison.diff / inverseTemperature;
+  if (
+    !comparison.ok ||
+    ![slope, inverseTemperature, relativeDiscrepancy].every(Number.isFinite) ||
+    slope <= 0 ||
+    inverseTemperature <= 0
+  )
+    return unavailable(
+      "entropy-slope-comparison-unresolved",
+      "numerical",
+      "The finite-difference slope does not resolve the inverse temperature within the declared relative tolerance at this spacing. Choose less extreme conditions for this numerical comparison.",
+    );
+  return {
+    status: "value",
+    slope,
+    inverseTemperature,
+    densityStep: span / 2,
+    relativeDiscrepancy,
   };
 }
 

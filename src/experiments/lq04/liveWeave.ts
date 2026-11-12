@@ -1,9 +1,10 @@
 import type { WeavePredicate } from "../weave/types.ts";
+import { LQ04_ENTROPY_SLOPE_COMPARISON } from "./definition.ts";
 
 /**
  * Read the entropy owner's accepted result, including its typed domain exit. A single volume
- * comparison is not evidence for the whole law. The declared derivative-check pointer remains
- * unavailable until the session publishes a derivative comparison; temperature alone is no check.
+ * comparison is not evidence for the whole law. The derivative pointer requires the accepted
+ * owner's two local entropy probes; temperature readouts alone cannot supply that witness.
  */
 export const LQ04_LIVE_WEAVE_PREDICATES: readonly WeavePredicate[] = Object.freeze([
   Object.freeze({
@@ -45,5 +46,41 @@ export const LQ04_LIVE_WEAVE_PREDICATES: readonly WeavePredicate[] = Object.free
         equals: "outside-domain" as const,
       }),
     ]),
+  }),
+  Object.freeze({
+    id: "lq04-s3-derivative-check",
+    instrumentId: "lq-04",
+    meaning: "agreement-within-stated-bound" as const,
+    targets: Object.freeze(["s3-p4-s3"]),
+    pointerText:
+      "At both accepted states, two entropy-density probes at fixed frequency and volume give a numerical slope agreeing with 1/T within a relative tolerance of 10⁻⁸. Each density probe is 0.01% from its central state and remains inside the selected Wien regime. This is a local numerical consistency check of the entropy formula, not independent experimental evidence or a determination of the integration constant.",
+    conditions: Object.freeze(
+      (["initial", "final"] as const).flatMap((state) => [
+        ...["EntropyDensitySlope", "InverseTemperature", "EntropySlopeDensityStep"].map(
+          (suffix) =>
+            Object.freeze({
+              kind: "threshold" as const,
+              quantityId: `${state}${suffix}`,
+              direction: "at-least" as const,
+              enter: Number.MIN_VALUE,
+              exit: Number.MIN_VALUE,
+            }),
+        ),
+        Object.freeze({
+          kind: "threshold" as const,
+          quantityId: `${state}EntropySlopeRelativeDiscrepancy`,
+          direction: "at-least" as const,
+          enter: 0,
+          exit: 0,
+        }),
+        Object.freeze({
+          kind: "threshold" as const,
+          quantityId: `${state}EntropySlopeRelativeDiscrepancy`,
+          direction: "at-most" as const,
+          enter: LQ04_ENTROPY_SLOPE_COMPARISON.relativeTolerance,
+          exit: LQ04_ENTROPY_SLOPE_COMPARISON.relativeTolerance,
+        }),
+      ]),
+    ),
   }),
 ]);

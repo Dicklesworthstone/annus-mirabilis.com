@@ -17,11 +17,13 @@
  */
 import { constantValue, getConstantSet } from "../../physics/reference/constants.ts";
 import {
+  compareWienEntropySlope,
   entropyWithUnfixedConstant,
   type RadiationEntropyVolumeChangeResult,
   radiationEntropyVolumeChange,
   regimeRelativeErrors,
   wienFrequencyEnergyDensity,
+  type WienEntropySlopeComparison,
   wienSpectralEntropyDensity,
 } from "../../physics/reference/radiation.ts";
 import type {
@@ -30,7 +32,7 @@ import type {
   PublishedResult,
   RequestToken,
 } from "../store/instanceStore.ts";
-import { LQ04_DEFAULTS, type Lq04Parameters } from "./definition.ts";
+import { LQ04_DEFAULTS, LQ04_ENTROPY_SLOPE_COMPARISON, type Lq04Parameters } from "./definition.ts";
 import { validateLq04Parameters } from "./parameters.ts";
 
 const MAX_DELTA_NU_RATIO = 0.01;
@@ -58,6 +60,8 @@ export type Lq04Evaluation =
       finalDilute: boolean;
       initialSpectralEntropyDensity: number;
       finalSpectralEntropyDensity: number;
+      initialEntropySlopeComparison: WienEntropySlopeComparison;
+      finalEntropySlopeComparison: WienEntropySlopeComparison;
       /** The owner's closed-form Delta S = (E / (B nu)) ln(V / V0). */
       radiationEntropy: number;
       /** Delta S recomputed as V dNu s(rho_final) - V0 dNu s(rho_initial); must agree with the
@@ -162,6 +166,16 @@ export function evaluateLq04(p: Lq04Parameters): Lq04Evaluation {
     finalDilute: finalRegime.wienAdmitted,
     initialSpectralEntropyDensity: s0.value,
     finalSpectralEntropyDensity: s1.value,
+    initialEntropySlopeComparison: compareWienEntropySlope(
+      energy / (p.referenceVolume * p.bandwidth),
+      p.frequency,
+      set,
+      { ...LQ04_ENTROPY_SLOPE_COMPARISON, epsilonW },
+    ),
+    finalEntropySlopeComparison: compareWienEntropySlope(rho1, p.frequency, set, {
+      ...LQ04_ENTROPY_SLOPE_COMPARISON,
+      epsilonW,
+    }),
     radiationEntropy: result.deltaS,
     radiationEntropyNumeric,
     entropyVolumeCoefficient: result.effectiveIndependentCount,
@@ -180,6 +194,7 @@ function outsideDomainOutput(
   semanticKind: string,
   ownerId: string,
   refusal: Lq04Refusal,
+  alternativeModel = "Choose a volume ratio inside the Wien-dilute domain.",
 ): PublishedResult {
   return {
     quantityId,
@@ -190,8 +205,50 @@ function outsideDomainOutput(
     condition: refusal.condition,
     domainKind: refusal.domainKind as "physical" | "model" | "numerical" | "input",
     reason: refusal.reason,
-    boundary: { alternativeModel: "Choose a volume ratio inside the Wien-dilute domain." },
+    boundary: { alternativeModel },
   };
+}
+
+function entropySlopeOutputs(
+  state: "initial" | "final",
+  comparison: WienEntropySlopeComparison,
+): PublishedResult[] {
+  const output = (
+    suffix: string,
+    unit: string,
+    semanticKind: string,
+    field: "slope" | "inverseTemperature" | "densityStep" | "relativeDiscrepancy",
+  ): PublishedResult => {
+    const quantityId = `${state}${suffix}`;
+    if (comparison.status === "outside-domain")
+      return outsideDomainOutput(
+        quantityId,
+        unit,
+        semanticKind,
+        "radiation.entropy",
+        comparison,
+        "Choose conditions whose two density probes are numerically resolved and stay inside the selected dilute regime.",
+      );
+    return {
+      quantityId,
+      unit,
+      semanticKind,
+      ownerId: "radiation.entropy",
+      status: "value",
+      value: comparison[field],
+    };
+  };
+  return [
+    output("EntropyDensitySlope", "1/K", "spectral-entropy-density-slope", "slope"),
+    output("InverseTemperature", "1/K", "inverse-temperature", "inverseTemperature"),
+    output("EntropySlopeDensityStep", "J/(m^3 Hz)", "entropy-slope-density-step", "densityStep"),
+    output(
+      "EntropySlopeRelativeDiscrepancy",
+      "1",
+      "relative-entropy-slope-discrepancy",
+      "relativeDiscrepancy",
+    ),
+  ];
 }
 
 export type PreparedLq04Example = Readonly<{
@@ -295,6 +352,8 @@ export function buildLq04Snapshot(
         status: "value",
         value: evaluation.finalSpectralEntropyDensity,
       },
+      ...entropySlopeOutputs("initial", evaluation.initialEntropySlopeComparison),
+      ...entropySlopeOutputs("final", evaluation.finalEntropySlopeComparison),
       {
         quantityId: "radiationEntropy",
         unit: "J/K",

@@ -9,6 +9,7 @@ import { installDom, uninstallDom } from "../../testing/reactDom.ts";
 
 const VOLUME = "lq04-s4-volume-law";
 const LIMIT = "lq04-s4-wien-validity-limit";
+const DERIVATIVE = "lq04-s3-derivative-check";
 let root: Root | null = null;
 let main: HTMLElement;
 let host: HTMLElement;
@@ -66,8 +67,8 @@ function expectCleared(nodes: readonly Element[]) {
   }
 }
 
-async function draftRatio(value: string) {
-  const input = host.querySelector<HTMLInputElement>('input[id$="-ratio"]');
+async function draftInput(suffix: string, value: string) {
+  const input = host.querySelector<HTMLInputElement>(`input[id$="-${suffix}"]`);
   assert.ok(input);
   // Happy DOM does not dispatch React's synthetic input change. Use the installed handler,
   // as the existing laboratory integration tests do, then submit the actual form below.
@@ -82,6 +83,10 @@ async function draftRatio(value: string) {
   });
 }
 
+async function draftRatio(value: string) {
+  await draftInput("ratio", value);
+}
+
 async function applyRatio() {
   const form = host.querySelector("form");
   assert.ok(form);
@@ -93,8 +98,9 @@ async function applyRatio() {
 test("the real reader dialog follows accepted volume changes and identifies loss of validity", async () => {
   const volume = [sentence("s4-p5-s1"), sentence("s4-p5-s1", "english")];
   const limit = [sentence("s4-p1-s3"), sentence("s4-p1-s3", "english")];
+  const derivative = [sentence("s3-p4-s3"), sentence("s3-p4-s3", "english")];
   const empirical = sentence("s4-p1-s2");
-  const nodes = [...volume, ...limit, empirical];
+  const nodes = [...volume, ...limit, ...derivative, empirical];
   const originalText = nodes.map((node) => node.textContent);
   // Production clarification dialogs are siblings of main, not children of the source article.
   const dialog = document.createElement("dialog");
@@ -111,18 +117,23 @@ test("the real reader dialog follows accepted volume changes and identifies loss
   expect(panel.closest("main")).toBeNull();
   expect(lit(VOLUME)).toBe(true);
   expect(lit(LIMIT)).toBe(false);
+  expect(lit(DERIVATIVE)).toBe(true);
   for (const node of volume)
     expect(node.getAttribute("data-live-weave-meaning")).toBe("quantity-compared");
+  for (const node of derivative)
+    expect(node.getAttribute("data-live-weave-meaning")).toBe("agreement-within-stated-bound");
   expectCleared([...limit, empirical]);
   expect(panel.querySelector('[role="status"]')?.textContent).toBe("");
 
   await draftRatio("0.0001");
   expect(lit(VOLUME)).toBe(true);
+  expect(lit(DERIVATIVE)).toBe(true);
   expect(host.querySelector('[data-weave-context="volumeRatio"]')?.textContent).toContain("1");
   await applyRatio();
   expect(lit(VOLUME)).toBe(false);
   expect(lit(LIMIT)).toBe(true);
-  expectCleared([...volume, empirical]);
+  expect(lit(DERIVATIVE)).toBe(false);
+  expectCleared([...volume, ...derivative, empirical]);
   for (const node of limit)
     expect(node.getAttribute("data-live-weave-meaning")).toBe("outside-selected-domain");
   expect(panel.querySelector('[role="status"]')?.textContent).toContain("cannot give an entropy");
@@ -132,6 +143,7 @@ test("the real reader dialog follows accepted volume changes and identifies loss
   await applyRatio();
   expect(lit(VOLUME)).toBe(true);
   expect(lit(LIMIT)).toBe(false);
+  expect(lit(DERIVATIVE)).toBe(true);
   expectCleared([...limit, empirical]);
   expect(nodes.map((node) => node.textContent)).toEqual(originalText);
   await disclose(panel, false);
@@ -147,6 +159,7 @@ test("the real reader dialog follows accepted volume changes and identifies loss
 test("invalid input hides old pointers and the reader never annotates an unrelated paper", async () => {
   const volume = sentence("s4-p5-s1");
   const limit = sentence("s4-p1-s3");
+  const derivative = sentence("s3-p4-s3");
   const panel = await mount(
     <Lq04ClarificationView
       instanceId="entropy-reader-refusal"
@@ -158,17 +171,18 @@ test("invalid input hides old pointers and the reader never annotates an unrelat
   await applyRatio();
   expect(host.querySelector('[data-weave-inactive="refused"]')).not.toBeNull();
   expect(host.querySelector('[data-weave-lit="true"]')).toBeNull();
-  expectCleared([volume, limit]);
+  expectCleared([volume, limit, derivative]);
   await draftRatio("0.5");
   await applyRatio();
   expect(lit(VOLUME)).toBe(true);
+  expect(lit(DERIVATIVE)).toBe(true);
   expect(volume.getAttribute("data-live-weave-meaning")).toBe("quantity-compared");
 
   await disclose(panel, false);
   window.history.replaceState(null, "", "/papers/special-relativity/view/german/#s4-p5-s1");
   await disclose(panel, true);
   expect(lit(VOLUME)).toBe(true);
-  expectCleared([volume, limit]);
+  expectCleared([volume, limit, derivative]);
 });
 
 test("standalone and no-script entropy examples expose canonical source links without page marks", async () => {
@@ -179,8 +193,42 @@ test("standalone and no-script entropy examples expose canonical source links wi
   const html = renderToStaticMarkup(
     <EntropyWorkbenchLab instanceId="entropy-static" restoreFromLocation={false} />,
   );
-  for (const id of ["s4-p5-s1", "s4-p1-s3"])
+  for (const id of ["s4-p5-s1", "s4-p1-s3", "s3-p4-s3"])
     for (const face of ["german", "english"])
       expect(html).toContain(`/papers/light-quanta/view/${face}/#${id}`);
-  expect(html).not.toContain("lq04-s3-derivative-check");
+  expect(html).toContain("lq04-s3-derivative-check");
+  expect(html).toContain("Entropy density slope at fixed frequency");
+  expect(html).toContain("Inverse temperature 1/T");
+});
+
+test("a local slope boundary keeps the volume result and explains which comparison is unavailable", async () => {
+  const volume = sentence("s4-p5-s1");
+  const derivative = sentence("s3-p4-s3");
+  await mount(
+    <Lq04ClarificationView
+      instanceId="entropy-reader-slope-boundary"
+      mode={null}
+      presentation="standard"
+    />,
+  );
+  await draftRatio("2");
+  await draftInput("xmin", "9.59845");
+  expect(lit(DERIVATIVE)).toBe(true);
+  await applyRatio();
+  expect(lit(VOLUME)).toBe(true);
+  expect(lit(LIMIT)).toBe(false);
+  expect(lit(DERIVATIVE)).toBe(false);
+  expect(volume.getAttribute("data-live-weave-meaning")).toBe("quantity-compared");
+  expectCleared([derivative]);
+  const unavailable = host.querySelector('[data-entropy-slope-unavailable="initial"]');
+  expect(unavailable?.textContent).toContain("higher-density slope probe");
+  expect(unavailable?.getAttribute("rowspan")).toBe("4");
+  expect(host.querySelector('[data-entropy-slope-unavailable="final"]')).toBeNull();
+  expect(host.querySelector("[data-entropy-slope-method]")?.textContent).toContain(
+    "holds frequency and volume fixed",
+  );
+  await draftInput("xmin", String(Math.log(100)));
+  await applyRatio();
+  expect(lit(DERIVATIVE)).toBe(true);
+  expect(host.querySelector("[data-entropy-slope-unavailable]")).toBeNull();
 });

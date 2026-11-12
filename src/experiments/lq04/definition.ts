@@ -48,6 +48,12 @@ export const LQ04_MODEL = Object.freeze({
   label: "Ideal model, host calculation",
 });
 
+/** Fixed numerical comparison settings, shared by the owner request and its explanation. */
+export const LQ04_ENTROPY_SLOPE_COMPARISON = Object.freeze({
+  relativeDensityStep: 1e-4,
+  relativeTolerance: 1e-8,
+});
+
 export const LQ04_QUESTION =
   "Within the regime where Wien's law holds, how does the entropy of monochromatic radiation depend on the volume it occupies, and what had to be fixed to get a definite answer?";
 
@@ -89,6 +95,34 @@ export const LQ04_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
   finalSpectralEntropyDensity: c(
     "J/(m^3 Hz K)",
     "spectral-entropy-density",
+    "radiation.entropy",
+    OUTSIDE,
+  ),
+  initialEntropyDensitySlope: c("1/K", "spectral-entropy-density-slope", "radiation.entropy", OUTSIDE),
+  finalEntropyDensitySlope: c("1/K", "spectral-entropy-density-slope", "radiation.entropy", OUTSIDE),
+  initialInverseTemperature: c("1/K", "inverse-temperature", "radiation.entropy", OUTSIDE),
+  finalInverseTemperature: c("1/K", "inverse-temperature", "radiation.entropy", OUTSIDE),
+  initialEntropySlopeDensityStep: c(
+    "J/(m^3 Hz)",
+    "entropy-slope-density-step",
+    "radiation.entropy",
+    OUTSIDE,
+  ),
+  finalEntropySlopeDensityStep: c(
+    "J/(m^3 Hz)",
+    "entropy-slope-density-step",
+    "radiation.entropy",
+    OUTSIDE,
+  ),
+  initialEntropySlopeRelativeDiscrepancy: c(
+    "1",
+    "relative-entropy-slope-discrepancy",
+    "radiation.entropy",
+    OUTSIDE,
+  ),
+  finalEntropySlopeRelativeDiscrepancy: c(
+    "1",
+    "relative-entropy-slope-discrepancy",
     "radiation.entropy",
     OUTSIDE,
   ),
