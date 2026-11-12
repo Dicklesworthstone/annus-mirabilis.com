@@ -26,6 +26,8 @@ import {
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
+import { LQ08_READER_WEAVE } from "../../../reader/weave/photoelectricPassages.ts";
+import { SessionResultWeave } from "../../../reader/weave/SessionResultWeave.tsx";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
@@ -62,6 +64,8 @@ export type PhotoelectricLabProps = Readonly<{
    * second laboratory is opened for a comparison, after the first has asked, so it does not.
    */
   predict?: boolean;
+  /** Only the primary reader placement may annotate the surrounding paper. */
+  highlightPaper?: boolean;
   /**
    * A session owned by the component that embeds the lab, so that something beside it reads the
    * same accepted snapshot (the light-quanta journey's check against the world). Omitted, the lab
@@ -162,6 +166,7 @@ export function PhotoelectricLab({
   readings = true,
   linked = true,
   predict = true,
+  highlightPaper = false,
   session: sharedSession,
 }: PhotoelectricLabProps) {
   const instanceId = useId();
@@ -503,6 +508,16 @@ export function PhotoelectricLab({
             </tbody>
           </table>
         </section>
+      </div>
+
+      <div {...gate.response}>
+        <SessionResultWeave
+          session={session}
+          binding={LQ08_READER_WEAVE}
+          suspended={failure !== null || error !== ""}
+          announcementsEnabled={gate.open}
+          highlightPaper={highlightPaper}
+        />
       </div>
 
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct

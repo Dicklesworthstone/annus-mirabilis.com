@@ -23,6 +23,7 @@ export default function Lq08ClarificationView({ instanceId }: ExperimentViewProp
       millikan={millikan as MillikanOverlayResult}
       session={session}
       linked={false}
+      highlightPaper
     />
   );
 }
