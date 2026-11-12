@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { COMPANION_KINDS, type CompanionKind } from "./companionKind.ts";
+import { PinnedEquationCompanion } from "./PinnedEquationCompanion.tsx";
 
 const LABELS: Record<CompanionKind, string> = {
   original: "Original",
@@ -60,7 +61,7 @@ export function Companion({
           })}
         </nav>
       ) : null}
-      {children}
+      <PinnedEquationCompanion slot={slot}>{children}</PinnedEquationCompanion>
     </div>
   );
 }

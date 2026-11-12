@@ -14,6 +14,7 @@
  * and the legend are exactly as before, and CSS alone marks the term under the pointer.
  */
 import { NotationNote } from "../equations/NotationNote.tsx";
+import { PinFormulaButton } from "../equations/PinFormulaButton.tsx";
 import { colourStyle, quantityLegend } from "../equations/quantityColourView.ts";
 import { BlockTermChips } from "../equations/TermChips.tsx";
 import { TermHighlight } from "../equations/TermHighlight.tsx";
@@ -93,6 +94,15 @@ export function ColouredFormula({ equations }: { equations: readonly CompiledEqu
                   />
                 </>
               ) : null}
+              <PinFormulaButton
+                reference={{
+                  paper: equation.paper,
+                  equationId: equation.id,
+                  argumentId: equation.argument,
+                  title: equation.title,
+                  printedAvailable: !!printed,
+                }}
+              />
             </div>
           );
         })}

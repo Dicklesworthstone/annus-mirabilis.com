@@ -1,0 +1,54 @@
+.pinned-equation-card {
+  min-width: 0;
+  max-width: 100%;
+}
+.formula-pin-control {
+  display: block;
+  margin-block: 0.25rem;
+  font-size: var(--type-fine);
+}
+.pinned-equation-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+.pinned-equation-card .semantic-equation {
+  margin-inline: 0;
+  max-width: 100%;
+}
+.pinned-equation-card .equation-formula {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.reader-bottom-sheet.reader-equation-dock {
+  display: block;
+  grid-column: 1 / -1;
+  min-width: 0;
+  max-width: 100%;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  max-height: min(40vh, 32rem);
+  overflow: auto;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: 0.75rem 1rem max(0.75rem, env(safe-area-inset-bottom, 0px));
+}
+.reader-equation-dock > summary {
+  min-height: 44px;
+  cursor: pointer;
+}
+.reader-equation-dock:not([open]) {
+  padding-block: 0 env(safe-area-inset-bottom, 0px);
+}
+.reader-root:has(.reader-equation-dock[open])
+  :is(a[href], button, summary, input, select, textarea, [tabindex]):not(.reader-equation-dock *) {
+  scroll-margin-bottom: calc(40vh + 1.5rem);
+}
+@media print {
+  .reader-bottom-sheet.reader-equation-dock,
+  .pinned-equation-card {
+    display: none;
+  }
+}

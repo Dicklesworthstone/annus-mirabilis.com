@@ -62,6 +62,8 @@ import {
   LazySRSynchronizationDerivation,
 } from "./lazyIslands.tsx";
 import { ledgerGaps } from "./ledgerGaps.ts";
+import { PinnedEquationDock } from "./layout/PinnedEquationCompanion.tsx";
+import { PinnedEquationProvider } from "./layout/PinnedEquationContext.tsx";
 import { MassEnergyDerivation } from "./MassEnergyDerivation.tsx";
 import { MassEnergyLowSpeed } from "./MassEnergyLowSpeed.tsx";
 import { loadPaperMargins } from "./marginRecords.ts";
@@ -495,7 +497,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
   if (lightEntrance) questions["entry-light-quanta"] = lightEntrance.question;
   if (clockEntrance) questions["entry-special-relativity"] = clockEntrance.question;
 
-  return (
+  const reader = (
     <div data-reader-root data-ready="true" data-view="reading" className="reader-root">
       {/* biome-ignore lint/security/noDangerouslySetInnerHtml: harness data-ready contract; source from a tested pure function. */}
       <script dangerouslySetInnerHTML={{ __html: ROOT_ARMING_SOURCE }} />
@@ -904,6 +906,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
             <SectionPager paperId={paper.id} sections={paper.sections} current={sectionId} />
           ) : null}
         </div>
+        <PinnedEquationDock />
       </div>
       {/* A paper's common wrong turns and historian's margin (dispatch 163), on the whole-paper
           page only, and only where the paper has records. */}
@@ -1030,6 +1033,11 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
         </nav>
       </dialog>
     </div>
+  );
+  return (
+    <PinnedEquationProvider key={`${paper.id}/${sectionId ?? "all"}`}>
+      {reader}
+    </PinnedEquationProvider>
   );
 }
 

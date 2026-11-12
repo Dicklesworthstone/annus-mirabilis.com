@@ -6,10 +6,10 @@ export {
   resolveCompanionKind,
 } from "./companionKind.ts";
 export {
-  getPinnedEquation,
-  pinEquation,
-  unpinEquation,
+  createPinnedEquationStore,
+  type PinnedEquation,
 } from "./pinnedEquationStore.ts";
+export { PinnedEquationProvider } from "./PinnedEquationContext.tsx";
 export { ReaderLayout } from "./ReaderLayout.tsx";
 export { OverflowRegion, SplitTabs } from "./SplitTabs.tsx";
 export { StickyLabRegion } from "./StickyLabRegion.tsx";

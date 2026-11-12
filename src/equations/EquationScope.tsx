@@ -3,7 +3,7 @@ import { createContext, type ReactNode, useContext, useState, useSyncExternalSto
 import type { LiveSlot } from "./live/values.ts";
 import { createSelectionStore } from "./selectionStore.ts";
 
-const Scope = createContext<Readonly<{
+export type EquationScopeValue = Readonly<{
   store: ReturnType<typeof createSelectionStore>;
   slots: readonly LiveSlot[];
   editQuantity: ((id: string) => void) | null;
@@ -11,7 +11,8 @@ const Scope = createContext<Readonly<{
   scopeLabel?: string | undefined;
   /** Lesson titles by foundation id, so a prerequisite link can say which lesson it opens. */
   lessonTitles?: Readonly<Record<string, string>> | undefined;
-}> | null>(null);
+}>;
+const Scope = createContext<EquationScopeValue | null>(null);
 export const useEquationScope = () => useContext(Scope);
 export function EquationScope({
   children,
@@ -20,6 +21,7 @@ export function EquationScope({
   scope,
   scopeLabel,
   lessonTitles,
+  selectionStore,
 }: {
   children: ReactNode;
   slots?: readonly LiveSlot[];
@@ -27,8 +29,11 @@ export function EquationScope({
   scope?: string | undefined;
   scopeLabel?: string | undefined;
   lessonTitles?: Readonly<Record<string, string>> | undefined;
+  /** A pinned copy shares the source card's selection, rather than creating another choice. */
+  selectionStore?: ReturnType<typeof createSelectionStore> | undefined;
 }) {
-  const [store] = useState(createSelectionStore),
+  const [local] = useState(createSelectionStore),
+    store = selectionStore ?? local,
     selected = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);
   return (
     <Scope.Provider value={{ store, slots, editQuantity, scope, scopeLabel, lessonTitles }}>

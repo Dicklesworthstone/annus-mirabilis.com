@@ -182,6 +182,7 @@ export async function PaperReader({
         </p>
       </noscript>
       <ReaderLayout
+        readerId={`${paper.id}/${section ?? "all"}`}
         outline={
           <>
             <h2>Follow the argument</h2>

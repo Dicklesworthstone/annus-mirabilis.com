@@ -3,7 +3,12 @@ import { type ReactNode, useEffect, useRef } from "react";
 import { makeDismissible } from "../../a11y/modal/dismiss.ts";
 import { ModalCloseButton } from "../../a11y/modal/ModalCloseButton.tsx";
 
-type SheetProps = { title: string; children: ReactNode };
+type SheetProps = {
+  title: string;
+  children: ReactNode;
+  className?: string | undefined;
+  returnFocus?: HTMLElement | null | undefined;
+};
 
 /**
  * The companion on the narrow tier. Implemented as details/summary so it works without
@@ -16,7 +21,7 @@ type SheetProps = { title: string; children: ReactNode };
  * and a tap outside or Escape closes it; focus goes back to its summary after the X or Escape,
  * and stays where the reader tapped after a tap outside.
  */
-export function BottomSheet({ title, children }: SheetProps) {
+export function BottomSheet({ title, children, className = "", returnFocus }: SheetProps) {
   const sheet = useRef<HTMLDetailsElement>(null);
   const close = useRef<HTMLButtonElement>(null);
   useEffect(() => {
@@ -28,13 +33,24 @@ export function BottomSheet({ title, children }: SheetProps) {
       closeButton: close.current,
       onDismiss: (reason) => {
         details.open = false;
-        if (reason !== "outside") details.querySelector("summary")?.focus();
+        if (reason !== "outside") {
+          if (returnFocus?.isConnected) {
+            for (
+              let ancestor = returnFocus.parentElement;
+              ancestor;
+              ancestor = ancestor.parentElement
+            ) {
+              if (ancestor instanceof HTMLDetailsElement) ancestor.open = true;
+            }
+            returnFocus.focus();
+          } else details.querySelector("summary")?.focus();
+        }
       },
     });
     return () => dismissal.abort();
-  }, []);
+  }, [returnFocus]);
   return (
-    <details ref={sheet} data-bottom-sheet="" className="reader-bottom-sheet">
+    <details ref={sheet} data-bottom-sheet="" className={`reader-bottom-sheet ${className}`.trim()}>
       <summary>{title}</summary>
       <ModalCloseButton ref={close} label={`Close ${title.toLowerCase()}`} />
       {children}

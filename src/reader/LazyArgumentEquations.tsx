@@ -19,12 +19,9 @@
 import { type ReactNode, type SyntheticEvent, useState } from "react";
 import { EquationScope } from "../equations/EquationScope.tsx";
 import { SemanticEquation } from "../equations/SemanticEquation.tsx";
+import { loadArgumentEquations } from "../equations/loadArgumentEquations.ts";
 import type { CompiledEquation } from "../equations/viewTypes.ts";
 
-type Payload = {
-  readonly equations: readonly unknown[];
-  readonly foundationTitles?: Readonly<Record<string, string>>;
-};
 /*
   ONE STEP'S EQUATIONS, NOT THE PAPER'S. This loaded the paper's whole payload and filtered it to
   the step: measured on live, 52 KB compressed to show two cards on special-relativity, from 710 KB
@@ -33,8 +30,6 @@ type Payload = {
   directory, so opening a step fetches that step (4.7 KB gzip for velocity composition).
 */
 const ARGUMENT_ID = /^arg-[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const loadArgumentEquations = (argumentId: string): Promise<Payload> =>
-  import(`../generated/argument-equations/${argumentId}.json`);
 
 export function LazyArgumentEquations({
   argumentId,

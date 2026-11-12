@@ -15,6 +15,7 @@ import { exponentialParts } from "../units/scientific.ts";
 import { useEquationScope } from "./EquationScope.tsx";
 import { readTermValue, resolveSlot, retainedState } from "./live/values.ts";
 import { NotationNote } from "./NotationNote.tsx";
+import { PinEquationButton } from "./PinEquationButton.tsx";
 import { navigate } from "./navigation.ts";
 import { createSelectionStore } from "./selectionStore.ts";
 import { TermChips } from "./TermChips.tsx";
@@ -58,10 +59,17 @@ export function SemanticEquation({
   equation,
   scope: propScope,
   scopeLabel: propScopeLabel,
+  pinAllowed = true,
+  fixedForm,
+  nodeIdPrefix,
 }: {
   equation: CompiledEquation;
   scope?: string | undefined;
   scopeLabel?: string | undefined;
+  pinAllowed?: boolean | undefined;
+  /** The companion keeps the form the reader pinned, independently of the page's toggle. */
+  fixedForm?: "printed" | "modern" | undefined;
+  nodeIdPrefix?: string | undefined;
 }) {
   const uid = useId(),
     scopeContext = useEquationScope(),
@@ -252,6 +260,7 @@ export function SemanticEquation({
       data-equation-digest={equation.treeDigest}
       data-selected-node-id={current ?? undefined}
       data-pattern={String(pattern)}
+      data-fixed-notation={fixedForm}
       onPointerOver={(e) => pointAt(e.target)}
       onPointerLeave={() => point(null)}
       onFocus={(e) => pointAt(e.target)}
@@ -260,7 +269,13 @@ export function SemanticEquation({
       <header>
         <p className="eyebrow">
           Explore the equation ·{" "}
-          {printedNotation ? (
+          {fixedForm ? (
+            fixedForm === "printed" ? (
+              "Einstein's letters"
+            ) : (
+              "Modern model notation"
+            )
+          ) : printedNotation ? (
             <>
               <span data-notation-form="modern">Modern model notation</span>
               <span data-notation-form="printed">Einstein's letters</span>
@@ -369,6 +384,20 @@ export function SemanticEquation({
           formula and the reverse: the card lights by quantity id across everything it holds. */}
       {equation.explainer ? <EquationExplainer explanation={equation.explainer} /> : null}
       <div className="equation-tools">
+        {pinAllowed ? (
+          <PinEquationButton
+            equation={equation}
+            ready={ready}
+            context={{
+              store,
+              slots: scopeContext?.slots ?? [],
+              editQuantity: scopeContext?.editQuantity ?? null,
+              scope: effectiveScope,
+              scopeLabel: effectiveScopeLabel,
+              lessonTitles: scopeContext?.lessonTitles,
+            }}
+          />
+        ) : null}
         <button
           type="button"
           className="secondary"
@@ -433,7 +462,7 @@ export function SemanticEquation({
                 }
                 key={n.id}
                 // The target of a worked trace row's link (ShowTheCode links each operation to #<id>).
-                id={n.id}
+                id={nodeIdPrefix ? `${nodeIdPrefix}-${n.id}` : n.id}
                 data-node-id={n.id}
                 data-quantity-id={n.quantityId ?? undefined}
                 data-selected={String(!!selectedNode(n.id))}
