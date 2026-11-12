@@ -1,6 +1,12 @@
 import { BM01_PROTOCOL, decodeLabHello, decodeLabResponse } from "../../workers/protocol/bm01.ts";
 import { LabProtocolError } from "../../workers/protocol/bm06.ts";
+import type { WorkerAdmission } from "../../workers/scheduler/admission.ts";
 import { createHostScheduler, type WorkerChannel } from "../../workers/scheduler/hostScheduler.ts";
+import { createRecordingContinuity } from "../../workers/scheduler/recordingContinuity.ts";
+import {
+  sharedLaboratoryRetention,
+  type WorkerRetention,
+} from "../../workers/scheduler/retention.ts";
 import {
   createVerifiedWorkerChannel,
   type PublicationVerifier,
@@ -33,6 +39,7 @@ export function createBm01Session(
   instanceId: string,
   example: PreparedBm01Example,
   workerFactory: () => WorkerChannel,
+  resources: Readonly<{ admission?: WorkerAdmission; retention?: WorkerRetention }> = {},
 ) {
   const initial = validateBm01Parameters(example.parameters);
   if (initial.kind !== "accepted")
@@ -73,6 +80,7 @@ export function createBm01Session(
   let scheduler: ReturnType<typeof createHostScheduler> | null = null;
   const schedulingPause = createSchedulingPause((paused) => scheduler?.setSchedulingPaused(paused));
   const verifiers = new WeakMap<RequestToken, PublicationVerifier>();
+  const continuity = createRecordingContinuity(store);
   const ownerProtocol = {
     version: BM01_PROTOCOL,
     decodeHello: decodeLabHello,
@@ -127,7 +135,7 @@ export function createBm01Session(
       store,
       () =>
         createVerifiedWorkerChannel(workerFactory(), ownerProtocol, example.sourceDigest, (token) =>
-          verifiers.get(token),
+          continuity.verifier(token, verifiers.get(token)),
         ),
       example.sourceDigest,
       {
@@ -142,6 +150,14 @@ export function createBm01Session(
             ...response,
             result: { kind: "accepted", data: { outputs, stepIndex, simulationTime } },
           };
+        },
+      },
+      undefined,
+      {
+        admission: resources.admission,
+        retention: {
+          pool: resources.retention ?? sharedLaboratoryRetention(),
+          canRetire: continuity.canRetire,
         },
       },
     );

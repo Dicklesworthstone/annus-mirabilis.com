@@ -20,6 +20,7 @@ export function createVerifiedWorkerChannel(
   let sent: RequestToken | undefined;
   let closed = false;
   let generation = 0;
+  const verifying = new WeakSet<RequestToken>();
   return {
     send(message) {
       if (
@@ -56,6 +57,10 @@ export function createVerifiedWorkerChannel(
           deliver(message);
           return;
         }
+        // One request has one final result. An overlapping duplicate must not replace the
+        // checkpoint candidate while the first valid publication is awaiting verification.
+        if (verifying.has(token)) return;
+        verifying.add(token);
         // Forward the same validated copy we hash, not a transport object that could be mutated
         // while the asynchronous verifier is running.
         const envelope = {

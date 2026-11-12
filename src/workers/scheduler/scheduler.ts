@@ -40,6 +40,7 @@ import {
   type WorkerAdmission,
 } from "./admission.ts";
 import { markAccepted, markInput } from "./marks.ts";
+import type { WorkerRetentionPolicy } from "./retention.ts";
 
 export type WorkerChannel = Readonly<{
   send(message: unknown): void;
@@ -86,6 +87,8 @@ export interface DedicatedSchedulerOptions {
   readonly protocol: HostProtocol;
   /** Share a budget among independent owners. createHostScheduler supplies the device-wide queue. */
   readonly admission?: WorkerAdmission | undefined;
+  /** Opt in only when a reconstructed recording is verified before any same-run publication. */
+  readonly retention?: WorkerRetentionPolicy | undefined;
   readonly report?: ((event: SchedulerEvent) => void) | undefined;
   readonly maxRestarts?: number | undefined;
   /** Inactivity allowed to load and validate a worker. Shared reservations remain bounded while hidden. */
@@ -114,6 +117,7 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
     sourceDigest,
     protocol,
     admission = createWorkerAdmission(1),
+    retention,
     report = () => {},
     maxRestarts = 3,
     handshakeTimeoutMs = 30_000,
@@ -138,6 +142,7 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
   let schedulingPaused = false;
   let reservation: object | null = null;
   let admitted = false;
+  const retentionOwner = {};
   let cancelSent = false;
   let epoch = 0;
   let failures = 0;
@@ -225,8 +230,35 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
     if (previous) admission.release(previous);
   }
 
+  function withdrawRetention(): void {
+    retention?.pool.release(retentionOwner);
+  }
+
+  function retireable(): boolean {
+    if (!retention || !channel || !ready || active || reservation || admitted || disposed)
+      return false;
+    try {
+      return retention.canRetire();
+    } catch {
+      // A failed memory-policy check leaves this worker pinned; it cannot fail an accepted result.
+      return false;
+    }
+  }
+
+  function retainIdleWorker(): void {
+    if (!retention || !retireable()) return;
+    const connection = channel;
+    const generation = epoch;
+    retention.pool.retain(retentionOwner, () => {
+      if (connection !== channel || generation !== epoch || !retireable()) return;
+      // No request is running. Keep the accepted store and any hidden pending token untouched.
+      close();
+    });
+  }
+
   function schedule(): void {
     if (!pending || disposed || schedulingPaused) return;
+    withdrawRetention();
     if (admitted) {
       connect();
       dispatch();
@@ -242,6 +274,7 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
         admitted = true;
         if (!pending || disposed || schedulingPaused) {
           releaseAdmission();
+          retainIdleWorker();
           return;
         }
         connect();
@@ -255,6 +288,7 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
 
   function close(): void {
     epoch++;
+    withdrawRetention();
     clearDeadline();
     const previousUnsubscribe = unsubscribe;
     const previousChannel = channel;
@@ -345,8 +379,10 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
               protocol.decodeHello(message, sourceDigest);
               clearDeadline();
               ready = true;
-              if (schedulingPaused || !pending) releaseAdmission();
-              else dispatch();
+              if (schedulingPaused || !pending) {
+                releaseAdmission();
+                retainIdleWorker();
+              } else dispatch();
               return;
             }
 
@@ -389,7 +425,10 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
             }
 
             notify(decision.accepted ? "completed" : "stale", response.token ?? token);
-            if (generation === epoch) schedule();
+            if (generation === epoch) {
+              schedule();
+              retainIdleWorker();
+            }
           } catch (err: unknown) {
             const code =
               err &&
@@ -497,7 +536,10 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
       if (paused) {
         pauseDeadline();
         // An in-flight call or handshake still owns its reservation until it finishes.
-        if (!active && (!channel || ready)) releaseAdmission();
+        if (!active && (!channel || ready)) {
+          releaseAdmission();
+          retainIdleWorker();
+        }
       } else {
         resumeDeadline();
         schedule();
@@ -540,13 +582,15 @@ export function createHostScheduler(
   sourceDigest: string,
   protocol: HostProtocol,
   report: (event: SchedulerEvent) => void = () => {},
+  resources: Pick<DedicatedSchedulerOptions, "admission" | "retention"> = {},
 ) {
   return createDedicatedScheduler({
     store,
     factory,
     sourceDigest,
     protocol,
-    admission: sharedLaboratoryAdmission(),
+    admission: resources.admission ?? sharedLaboratoryAdmission(),
+    retention: resources.retention,
     report,
   });
 }

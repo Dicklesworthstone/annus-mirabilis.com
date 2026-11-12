@@ -241,12 +241,15 @@ export function TracerLab({
       );
     }
   }
+  const checkpointNotice = view.outcome?.details?.checkpointNotice;
   const announcement = view.pending
     ? "Recording or remeasuring the requested trial. The accepted result stays on screen until it is done."
     : view.status === "refused"
       ? `${view.refusal?.message ?? "Trial refused."} The accepted trial is unchanged.`
       : view.status === "unavailable"
-        ? `${view.outcome?.message ?? "Calculation unavailable."} The accepted example remains readable.`
+        ? typeof checkpointNotice === "string"
+          ? checkpointNotice
+          : `${view.outcome?.message ?? "Calculation unavailable."} The accepted example remains readable.`
         : view.status === "paused"
           ? "Calculation stopped. The accepted trial is unchanged."
           : `Accepted synthetic trial: ${p.M} tracers, ${display(p.interval)} ${p.interval === 1 ? "second" : "seconds"}, coordinate mean ${display(scalar(snapshot, "sampleMean"), 1e6)} micrometres and coordinate RMS ${display(scalar(snapshot, "sampleRms"), 1e6)} micrometres.`;
