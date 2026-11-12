@@ -10,12 +10,9 @@
 # Regenerate with: bun scripts/emit-journey-records.ts
 id: special-relativity
 paper: special-relativity
-revision: 4
-completeness: partial
-pendingElements:
-  - element: move.derivationChain
-    reason: "The Special Relativity journey's move is the midpoint convention that defines distant simultaneity in section 1. Its source passage is linked, but no published derivation chain marks that definition as a step. The existing section 3 coordinate chain uses the convention to constrain the time function; substituting that later step would change the move this journey names."
-    ownerBead: am-4k0m
+revision: 5
+completeness: complete
+pendingElements: []
 shelf:
   - newton-1687-absolute-time
   - bradley-1729-stellar-aberration
@@ -57,7 +54,7 @@ stages:
         given: "Two descriptions give the same current for every measurement made on the apparatus."
         toComplete: "What would be needed to make their difference empirical?"
         explanation: "Some additional observable would have to distinguish the putative state of absolute motion. Without one, the difference remains in the description rather than in the measured current."
-      explanation: "Hold a coil of wire still and push a magnet into it: the needle deflects. Now hold the magnet still and move the coil over it instead, at the same relative speed: the needle deflects by the same amount. Every measurement you can make on the two arrangements agrees.\n\nThe accepted theory of 1904 does not describe them the same way. In the first case the moving magnet is said to produce an electric field; in the second the current is attributed to the wire moving through an unchanged field. Two mechanisms, one needle."
+      explanation: "Hold a coil of wire still and push a magnet into it: the needle deflects. Now hold the magnet still and move the coil over it instead, at the same relative speed: the needle deflects by the same amount. Every measurement you can make on the two arrangements agrees.\u000a\u000aThe accepted theory of 1904 does not describe them the same way. In the first case the moving magnet is said to produce an electric field; in the second the current is attributed to the wire moving through an unchanged field. Two mechanisms, one needle."
     meanings:
       logicalRole: "observation"
       historicalStatus: "pedagogical-reconstruction"
@@ -413,8 +410,8 @@ forks:
           plainLanguage: 'This is the paper''s route. It predicts the same null results as the branch before it, needs no medium at rest, and adds no contraction by hand: in § 4 the contraction comes out of the kinematics.'
 move:
   label: Treat simultaneity as something you define, not something you find
-  chainId: arg-sr-synchronization
-  stepId: eq-model-sr-sync-equal-legs
+  chainId: chain-sr-synchronization-midpoint
+  stepId: sr-synchronization-define-equal-legs
   r0Summary:
     text: 'Two clocks standing apart cannot be compared until someone says what comparing them means, so the rule is laid down rather than discovered: send a light signal from the first clock to the second and back, and call the reflection simultaneous with the reading halfway between sending and receiving, which turns the apparent quarrel between the two principles into a question about coordinates that the rest of the paper settles by algebra.'
     reviewState: draft
@@ -513,3 +510,6 @@ lineage:
   - revision: 3
     reason: "Clarified that the remaining move gap concerns the section 1 synchronization definition. The published section 3 coordinate chain assumes that convention and cannot replace it; the discovery link accurately names the source passage."
     date: "2026-11-11"
+  - revision: 4
+    reason: 'Delivered the section 1 synchronization chain: its marked definition adopts equal assigned light-travel times, then exact algebra reaches the midpoint reading. The move now opens that definition directly and move.derivationChain is no longer pending. Existing stages, prompts and exercises are unchanged; the chain remains an authored pedagogical draft.'
+    date: '2026-11-12'

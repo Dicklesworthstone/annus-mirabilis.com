@@ -20,6 +20,7 @@ export interface DerivationStepComponentProps {
   readonly isLocallyExpanded?: boolean | undefined;
   readonly isFocused?: boolean | undefined;
   readonly isProduction?: boolean | undefined;
+  readonly sourceLinkLabel?: string | undefined;
   readonly onToggleLocalExpand?: (open: boolean) => void;
   readonly onStepFocus?: () => void;
 }
@@ -32,6 +33,7 @@ export function DerivationStepComponent({
   isLocallyExpanded = false,
   isFocused = false,
   isProduction = true,
+  sourceLinkLabel = "Where Einstein does this",
   onToggleLocalExpand,
   onStepFocus,
 }: DerivationStepComponentProps) {
@@ -180,7 +182,7 @@ export function DerivationStepComponent({
               className="step-source-link"
               data-source-anchor={step.sourceAnchor}
             >
-              Where Einstein does this →
+              {sourceLinkLabel} →
             </a>
           )}
         </div>

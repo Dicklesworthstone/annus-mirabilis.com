@@ -49,8 +49,8 @@ export const FIRST_HONEST_QUESTION =
  */
 export const MOVE: JourneyMove = {
   label: "Treat simultaneity as something you define, not something you find",
-  chainId: "arg-sr-synchronization",
-  stepId: "eq-model-sr-sync-equal-legs",
+  chainId: "chain-sr-synchronization-midpoint",
+  stepId: "sr-synchronization-define-equal-legs",
   r0Summary: {
     text: "Two clocks standing apart cannot be compared until someone says what comparing them means, so the rule is laid down rather than discovered: send a light signal from the first clock to the second and back, and call the reflection simultaneous with the reading halfway between sending and receiving, which turns the apparent quarrel between the two principles into a question about coordinates that the rest of the paper settles by algebra.",
     reviewState: "draft",
@@ -58,7 +58,7 @@ export const MOVE: JourneyMove = {
 };
 
 /** Where the marked step opens in the reading face: the paper's section 1. */
-export const MOVE_HREF = "/papers/special-relativity/s1/#arg-sr-synchronization";
+export const MOVE_HREF = "/papers/special-relativity/s1/#sr-synchronization-define-equal-legs";
 
 /**
  * Where the paper makes each step this route has just made (the skeleton's eighth element). The

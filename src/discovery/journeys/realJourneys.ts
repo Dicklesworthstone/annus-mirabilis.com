@@ -22,7 +22,7 @@
  *
  *   stages     A journey declares a gap only when its argument stages are still unrecorded.
  *   exercises  Each journey now carries at least two expression exercises, checked numerically.
- *   move       Special Relativity still needs its section 1 definition marked in a derivation chain.
+ *   move       Each journey links its actual marked move in a reader-openable chain.
  *
  * Completeness follows those structural gaps. It does not claim editorial review. A journey that
  * claimed `complete` while elements were missing would be the defect this bead is about.
@@ -85,27 +85,6 @@ function instrumentedPending(exercises: Journey["exercises"]): readonly PendingE
     }),
   ];
 }
-
-/**
- * Brownian motion, Light Quanta and Mass-energy link their actual published marked steps.
- * Special Relativity's journey names the section 1 definition, not the later coordinate step
- * that assumes it. Keep that scientific distinction explicit rather than crediting any chain.
- */
-const PENDING_MOVE_CHAIN: PendingElement = Object.freeze({
-  element: "move.derivationChain",
-  reason:
-    "The Special Relativity journey's move is the midpoint convention that defines distant simultaneity in section 1. Its source passage is linked, but no published derivation chain marks that definition as a step. The existing section 3 coordinate chain uses the convention to constrain the time function; substituting that later step would change the move this journey names.",
-  ownerBead: "am-4k0m",
-});
-
-/**
- * This module reaches discover pages, so it does not inspect the filesystem. The skeleton census
- * checks both content records and code-built production owners against these pending declarations;
- * the built-page check also verifies that each link reaches its marked step.
- */
-const MOVE_CHAIN_MISSING: ReadonlySet<string> = Object.freeze(
-  new Set(["special-relativity"]),
-) as ReadonlySet<string>;
 
 /** Only the card fields this module reads; the cards themselves stay in their own files. */
 type ShelfCard = Readonly<{
@@ -252,7 +231,7 @@ function admittedImportsOf(paper: string, shelf: readonly ShelfCard[]): readonly
 const REVISIONS: Readonly<Record<string, number>> = Object.freeze({
   "light-quanta": 5,
   "brownian-motion": 3,
-  "special-relativity": 4,
+  "special-relativity": 5,
   "mass-energy": 5,
 });
 
@@ -354,6 +333,12 @@ export const JOURNEY_LINEAGE: Readonly<Record<string, readonly RevisionLineageEn
           "Clarified that the remaining move gap concerns the section 1 synchronization definition. The published section 3 coordinate chain assumes that convention and cannot replace it; the discovery link accurately names the source passage.",
         date: "2026-11-11",
       }),
+      Object.freeze({
+        revision: 4,
+        reason:
+          "Delivered the section 1 synchronization chain: its marked definition adopts equal assigned light-travel times, then exact algebra reaches the midpoint reading. The move now opens that definition directly and move.derivationChain is no longer pending. Existing stages, prompts and exercises are unchanged; the chain remains an authored pedagogical draft.",
+        date: "2026-11-12",
+      }),
     ]),
   });
 
@@ -367,7 +352,6 @@ function compose(
   const pendingElements = Object.freeze([
     ...(stages.length === 0 ? PENDING : []),
     ...instrumentedPending(EXERCISES[paper] ?? Object.freeze([])),
-    ...(MOVE_CHAIN_MISSING.has(paper) ? [PENDING_MOVE_CHAIN] : []),
   ]);
   return Object.freeze({
     id: paper,
@@ -397,6 +381,11 @@ function compose(
 export const REAL_JOURNEYS: readonly Journey[] = Object.freeze([
   compose("light-quanta", lightQuanta as never, LIGHT_QUANTA_SHELF_CARDS, LIGHT_QUANTA_STAGES),
   compose("brownian-motion", brownian as never, BROWNIAN_SHELF_CARDS, BROWNIAN_STAGES),
-  compose("special-relativity", relativity as never, SPECIAL_RELATIVITY_SHELF_CARDS, SPECIAL_RELATIVITY_STAGES),
+  compose(
+    "special-relativity",
+    relativity as never,
+    SPECIAL_RELATIVITY_SHELF_CARDS,
+    SPECIAL_RELATIVITY_STAGES,
+  ),
   compose("mass-energy", massEnergy as never, MASS_ENERGY_SHELF_CARDS, MASS_ENERGY_STAGES),
 ]);

@@ -4,8 +4,10 @@ targetKinds:
   - 'derivation-step'
 scope:
   sections:
+    - 's1'
     - 's3'
   chainIds:
+    - 'chain-sr-synchronization-midpoint'
     - 'chain-sr-coordinate-source-synchronization'
     - 'chain-sr-coordinate-source-clocks'
     - 'chain-sr-coordinate-source-rays'
@@ -631,3 +633,39 @@ targets:
       r3: 'Section 3 constructs the transformation by expressing moving-clock synchronization through light paths measured in the stationary system. The source uses x′ for the auxiliary x−vt, ξ for the moving longitudinal coordinate, τ for moving coordinate time, V for the speed of light, and β for the modern γ. It carries an unknown a before rewriting the map with a common φ(v); this reconstruction makes the relation φ=aβ explicit. The printed prose calls the earlier a an unknown φ(v), so the symbol’s bookkeeping changes between those stages rather than asserting a=φ for both formulas. The spherical-wave calculation is the paper’s own consistency check. The second route here is an explicitly modern pedagogical reconstruction, not an account of Einstein’s private thought process. These explanatory chains remain authored drafts and do not certify a historical or physics review.'
       r3Citations:
         - 'Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §3, pp. 897–902. Source anchors eq-s3-d1 through eq-s3-d26; notation concordance sr.xprime.auxiliaryGalileanCoordinate, sr.a.transformationCoefficientA, sr.varphi.scaleFactorUnknown.'
+  - kind: 'derivation-step'
+    id: 'chain-sr-synchronization-midpoint/sr-synchronization-define-equal-legs'
+    readings:
+      r0: 'Choose to assign equal time to the outward and return legs; the round-trip observation alone does not make that choice.'
+      r1: 'Both readings at A are local observations. To compare them with the distant reading at B, adopt the equal-leg definition: replace the return interval by the outward interval. This sets what synchronized means.'
+      r2: 'The first equality is bookkeeping: (t_B − t_A) + (t_return − t_B) = t_return − t_A for any proposed t_B, because its two appearances cancel. The replacement t_return − t_B ↦ t_B − t_A adds the synchronization convention printed in §1. It is not an algebraic identity valid for arbitrary t_B, nor a measurement of either one-way light time. Checking the substitution only checks its use of that explicitly adopted definition.'
+      r3: 'Einstein’s §1 explicitly defines the equality of the two assigned light-travel times before discussing its consistency for many clocks. This pedagogical reconstruction expands the algebraic consequence of that definition; it does not claim to reproduce unprinted intermediate work. The source writes A’s return reading with a prime. Here it is labelled return so that a prime is not mistaken for a moving-frame coordinate. A single round trip does not independently measure the two one-way durations, and the algebra does not establish the separate consistency assumptions for an entire clock network. These explanations remain authored drafts, without a historical or physics review certification.'
+      r3Citations:
+        - 'Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §1, pp. 893–895. Source anchors s1-p7, eq-s1-d1 and s1-p8; the midpoint form is reused explicitly in §3, eq-s3-d1.'
+  - kind: 'derivation-step'
+    id: 'chain-sr-synchronization-midpoint/sr-synchronization-count-equal-legs'
+    readings:
+      r0: 'Under the chosen definition, the round trip contains two copies of the same assigned interval.'
+      r1: 'Collect the two identical outward intervals. Their sum is twice t_B − t_A, so the full locally timed round trip equals two of those assigned intervals.'
+      r2: 'Write (t_B − t_A) + (t_B − t_A) = 2(t_B − t_A). The left side, t_return − t_A, is unchanged. This collection is exact arithmetic; its application to the two legs is conditional on the definition adopted in the preceding step. No distance, light speed, or moving-frame transformation enters this equality.'
+      r3: 'Einstein’s §1 explicitly defines the equality of the two assigned light-travel times before discussing its consistency for many clocks. This pedagogical reconstruction expands the algebraic consequence of that definition; it does not claim to reproduce unprinted intermediate work. The source writes A’s return reading with a prime. Here it is labelled return so that a prime is not mistaken for a moving-frame coordinate. A single round trip does not independently measure the two one-way durations, and the algebra does not establish the separate consistency assumptions for an entire clock network. These explanations remain authored drafts, without a historical or physics review certification.'
+      r3Citations:
+        - 'Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §1, pp. 893–895. Source anchors s1-p7, eq-s1-d1 and s1-p8; the midpoint form is reused explicitly in §3, eq-s3-d1.'
+  - kind: 'derivation-step'
+    id: 'chain-sr-synchronization-midpoint/sr-synchronization-halve-round-trip'
+    readings:
+      r0: 'Each assigned leg lasts half the locally measured round trip.'
+      r1: 'Divide both sides by two. This gives the elapsed time assigned between departure at A and reflection at B; it has not yet given the reflection clock reading.'
+      r2: 'Dividing t_return − t_A = 2(t_B − t_A) by the nonzero number 2 gives (t_return − t_A)/2 = t_B − t_A. Keep the departure reading visible: an elapsed interval and a clock reading are different quantities. A ten-second round trip has a five-second assigned outward interval even when the departure clock reads twenty seconds.'
+      r3: 'Einstein’s §1 explicitly defines the equality of the two assigned light-travel times before discussing its consistency for many clocks. This pedagogical reconstruction expands the algebraic consequence of that definition; it does not claim to reproduce unprinted intermediate work. The source writes A’s return reading with a prime. Here it is labelled return so that a prime is not mistaken for a moving-frame coordinate. A single round trip does not independently measure the two one-way durations, and the algebra does not establish the separate consistency assumptions for an entire clock network. These explanations remain authored drafts, without a historical or physics review certification.'
+      r3Citations:
+        - 'Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §1, pp. 893–895. Source anchors s1-p7, eq-s1-d1 and s1-p8; the midpoint form is reused explicitly in §3, eq-s3-d1.'
+  - kind: 'derivation-step'
+    id: 'chain-sr-synchronization-midpoint/sr-synchronization-midpoint-reading'
+    readings:
+      r0: 'Add the departure reading to that half interval to obtain the reading B should show at reflection.'
+      r1: 'Add t_A to both sides and put B’s reading on the left. The result is the midpoint of the departure and return readings, not always half the return reading.'
+      r2: 'The right side becomes t_B − t_A + t_A = t_B. The other side is (t_return − t_A)/2 + t_A = (t_return + t_A)/2, using the same nonzero denominator 2. Exchanging the two sides gives the canonical midpoint relation. Shifting both A readings by twenty seconds therefore shifts the assigned B reading by twenty seconds while leaving both elapsed legs unchanged.'
+      r3: 'Einstein’s §1 explicitly defines the equality of the two assigned light-travel times before discussing its consistency for many clocks. This pedagogical reconstruction expands the algebraic consequence of that definition; it does not claim to reproduce unprinted intermediate work. The source writes A’s return reading with a prime. Here it is labelled return so that a prime is not mistaken for a moving-frame coordinate. A single round trip does not independently measure the two one-way durations, and the algebra does not establish the separate consistency assumptions for an entire clock network. These explanations remain authored drafts, without a historical or physics review certification.'
+      r3Citations:
+        - 'Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §1, pp. 893–895. Source anchors s1-p7, eq-s1-d1 and s1-p8; the midpoint form is reused explicitly in §3, eq-s3-d1.'

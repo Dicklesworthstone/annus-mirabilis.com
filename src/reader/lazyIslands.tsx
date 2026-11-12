@@ -55,6 +55,7 @@ import type { SRCoordinateDerivation } from "./SRCoordinateDerivation.tsx";
 import type { SRElectronDerivation } from "./SRElectronDerivation.tsx";
 import type { SRFieldDerivation } from "./SRFieldDerivation.tsx";
 import type { SRLightComplexDerivation } from "./SRLightComplexDerivation.tsx";
+import type { SRSynchronizationDerivation } from "./SRSynchronizationDerivation.tsx";
 import "./entrances/countingEntrance.css";
 import "./entrances/massEnergyEntrance.css";
 import "../equations/derivations/linearProof.css";
@@ -159,4 +160,15 @@ const SRCoordinateSteps = lazy(() =>
 );
 export function LazySRCoordinateDerivation(props: ComponentProps<typeof SRCoordinateDerivation>) {
   return <SRCoordinateSteps {...props} />;
+}
+
+const SRSynchronizationSteps = lazy(() =>
+  import("./SRSynchronizationDerivation.tsx").then((m) => ({
+    default: m.SRSynchronizationDerivation,
+  })),
+);
+export function LazySRSynchronizationDerivation(
+  props: ComponentProps<typeof SRSynchronizationDerivation>,
+) {
+  return <SRSynchronizationSteps {...props} />;
 }

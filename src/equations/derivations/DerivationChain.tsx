@@ -22,6 +22,8 @@ export interface DerivationChainProps {
   readonly activeDetail?: "0" | "1" | "2" | undefined;
   readonly initialOpenStepId?: string | undefined;
   readonly isProduction?: boolean | undefined;
+  /** A reconstructed route can name its source without claiming its algebra appears there. */
+  readonly sourceLinkLabel?: string | undefined;
   readonly onRouteSelect?: (routeId: string) => void;
 }
 
@@ -32,6 +34,7 @@ export function DerivationChainComponent({
   activeDetail = "1",
   initialOpenStepId,
   isProduction = true,
+  sourceLinkLabel,
   onRouteSelect,
 }: DerivationChainProps) {
   const [selectedRouteId, setSelectedRouteId] = useState<string | undefined>(activeRouteId);
@@ -186,6 +189,7 @@ export function DerivationChainComponent({
               isLocallyExpanded={expandedSteps.has(step.id)}
               isFocused={focusedStepIndex === index}
               isProduction={isProduction}
+              sourceLinkLabel={sourceLinkLabel}
               onToggleLocalExpand={(open) => setLocalExpansion(step.id, index, open)}
               onStepFocus={() => setFocusedStepIndex(index)}
             />

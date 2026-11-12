@@ -254,7 +254,7 @@ export default function SpecialRelativityRoute() {
         <MoveMarker
           move={MOVE}
           href={MOVE_HREF}
-          linkLabel="Read the synchronization definition in the paper"
+          linkLabel="Open the synchronization step in the derivation"
         />
 
         <AuthoredJourneyStage
