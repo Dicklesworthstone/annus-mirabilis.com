@@ -95,12 +95,13 @@ test("frame URLs preserve supported reading and clarification state", () => {
   assert.equal(
     notebookFrameHref({
       ...frame,
+      anchor: "s4-p6-s7",
       view: "english",
       detail: 2,
       lens: "modern",
       open: "foundation:mean-square",
     }),
-    "/papers/brownian-motion/?view=english&detail=2&lens=modern&open=foundation%3Amean-square#arg-bm-observable",
+    "/papers/brownian-motion/s4/view/english/?detail=2&lens=modern&open=foundation%3Amean-square#s4-p6-s7",
   );
 });
 test("frame URL injection, private extra fields, and arbitrary routes are rejected", () => {
@@ -122,8 +123,8 @@ test("only the supported portable clarification is admitted", () => {
   );
   assert.throws(() => parseNotebookFrame({ ...frame, open: "run:123" }));
 });
-test("last-place records retain authored recap or labeled overview, not a fabricated summary", () => {
-  for (const recapKind of ["authored-recap", "overview"]) {
+test("last-place records distinguish an authored recap, overview and source excerpt", () => {
+  for (const recapKind of ["authored-recap", "overview", "source-excerpt"]) {
     const doc = parseNotebookDocument({
       ...document(),
       lastPlace: { frame, title: "The observable", recap: "An authored recap.", recapKind },

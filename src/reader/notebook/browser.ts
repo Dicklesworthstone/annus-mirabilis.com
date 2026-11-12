@@ -4,6 +4,11 @@ import { RECAP_PAGES } from "./mountTiming.ts";
 import type { NotebookStore } from "./notebookStore.ts";
 import { mountNotebookPanel } from "./panel.ts";
 import { type NotebookFrame, notebookFrameHref } from "./schema.ts";
+import {
+  SOURCE_NOTEBOOK_PASSAGES,
+  type SourceNotebookPassage,
+  sourceNotebookPassage,
+} from "./sourcePassage.ts";
 
 /**
  * Which saved place the reader dismissed the "Continue where you left off" line for. Registered in
@@ -75,7 +80,10 @@ export function mountReaderNotebook(
     disposed = false;
   let timer: ReturnType<typeof setTimeout> | null = null;
   /** Each enhanced passage and the one bookmark button added to it. */
-  const owned = new Map<HTMLElement, { controls: HTMLElement; toggle: HTMLButtonElement }>();
+  const owned = new Map<
+    HTMLElement,
+    { controls: HTMLElement; toggle: HTMLButtonElement; source: SourceNotebookPassage | null }
+  >();
   const initialPlace = store.getSnapshot().document.lastPlace;
   let recap: HTMLElement | null = null;
   /** The one open "Save to notebook" menu, if any. Its listeners live only while it is open. */
@@ -121,7 +129,9 @@ export function mountReaderNotebook(
     return button;
   }
   function passageTitle(passage: HTMLElement) {
-    return passage.querySelector("h3")?.textContent?.trim() ?? "";
+    return (
+      owned.get(passage)?.source?.title ?? passage.querySelector("h3")?.textContent?.trim() ?? ""
+    );
   }
   function closeMenu(returnFocus: boolean) {
     if (!menu) return;
@@ -143,15 +153,18 @@ export function mountReaderNotebook(
     if (same) return;
     const options = document.createElement("div");
     options.className = "notebook-save-menu";
-    options.id = `notebook-save-${passage.id}`;
+    options.id = `notebook-save-${owned.get(passage)?.source?.anchor ?? passage.id}`;
     options.setAttribute("role", "group");
     options.setAttribute("aria-label", "Save to notebook");
     const close = createModalCloseButton("Close save options");
     const heading = document.createElement("p");
     heading.className = "notebook-save-heading";
     heading.textContent = "Save to notebook";
+    const source = owned.get(passage)?.source;
     const actions = [
-      makeButton("Save question", () => save("question", passage)),
+      source
+        ? makeButton("Save passage", () => save("note", passage))
+        : makeButton("Save question", () => save("question", passage)),
       makeButton("Save next step", () => save("nextStep", passage)),
       makeButton("Add a note", () => {
         const frame = frameForPassage(passage, readingLocation(), passage),
@@ -201,7 +214,7 @@ export function mountReaderNotebook(
       const saved =
         frame !== null &&
         entries.some(
-          (entry) => entry.frame.paper === frame.paper && entry.frame.anchor === passage.id,
+          (entry) => entry.frame.paper === frame.paper && entry.frame.anchor === frame.anchor,
         );
       const title = passageTitle(passage);
       toggle.toggleAttribute("data-saved", saved);
@@ -211,10 +224,17 @@ export function mountReaderNotebook(
       );
     }
   }
-  function save(kind: "question" | "example" | "nextStep", passage: HTMLElement, open = "") {
+  function save(
+    kind: "question" | "example" | "nextStep" | "note",
+    passage: HTMLElement,
+    open = "",
+  ) {
     const frame = frameForPassage(passage, readingLocation(), passage);
     const title = passageTitle(passage);
-    const question = passage.querySelector(".passage-question")?.textContent?.trim() ?? "";
+    const question =
+      owned.get(passage)?.source?.excerpt ??
+      passage.querySelector(".passage-question")?.textContent?.trim() ??
+      "";
     if (!frame || !title || !question) {
       message("This passage cannot be saved yet: it has no fixed address to come back to.");
       return;
@@ -245,15 +265,21 @@ export function mountReaderNotebook(
       if (!passage.isConnected) {
         if (menu && controls.contains(menu.panel)) closeMenu(false);
         controls.remove();
+        passage.removeAttribute("data-notebook-source");
         owned.delete(passage);
       }
     }
     for (const passage of main.querySelectorAll<HTMLElement>(
-      "article.reader-passage[data-unit][id]",
+      `article.reader-passage[data-unit][id], ${SOURCE_NOTEBOOK_PASSAGES}`,
     )) {
-      if (owned.has(passage) || !frameForPassage(passage, readingLocation(), passage)) continue;
+      if (owned.has(passage)) continue;
+      const frame = frameForPassage(passage, readingLocation(), passage);
+      if (!frame) continue;
+      const source = sourceNotebookPassage(passage, frame.paper);
+      if (!source && !passage.matches("article.reader-passage[data-unit][id]")) continue;
       const controls = document.createElement("div");
       controls.className = "notebook-passage-actions";
+      controls.lang = "en";
       const toggle = document.createElement("button");
       toggle.type = "button";
       toggle.className = "notebook-save-toggle";
@@ -262,10 +288,16 @@ export function mountReaderNotebook(
       toggle.append(icon(BOOKMARK));
       toggle.addEventListener("click", () => openMenu(passage, controls, toggle));
       controls.append(toggle);
-      owned.set(passage, { controls, toggle });
+      owned.set(passage, { controls, toggle, source });
       // Beside the passage's heading, where a bookmark belongs, not under its last line.
       const heading = passage.querySelector(":scope > h3");
-      if (heading) heading.before(controls);
+      if (source) {
+        passage.dataset.notebookSource = source.anchor;
+        // Source paragraphs remain valid paragraphs. Their menu is a sibling, never a div
+        // inserted into a p or a translation span; gloss sections can contain the controls.
+        if (passage.tagName === "P") passage.before(controls);
+        else passage.prepend(controls);
+      } else if (heading) heading.before(controls);
       else passage.prepend(controls);
       added = true;
     }
@@ -305,9 +337,12 @@ export function mountReaderNotebook(
       const bounds = passage.getBoundingClientRect();
       return bounds.bottom > 0 && bounds.top < innerHeight && passage.getClientRects().length > 0;
     });
+    const active = document.activeElement;
     const focused =
-      document.activeElement instanceof Element
-        ? document.activeElement.closest<HTMLElement>("article.reader-passage[data-unit]")
+      active instanceof Element
+        ? passages.find(
+            (passage) => passage.contains(active) || owned.get(passage)?.controls.contains(active),
+          )
         : null;
     const passage =
       focused && passages.includes(focused)
@@ -424,7 +459,10 @@ export function mountReaderNotebook(
     panel.dispose();
     recap?.remove();
     announce.remove();
-    for (const { controls } of owned.values()) controls.remove();
+    for (const [passage, { controls }] of owned) {
+      controls.remove();
+      passage.removeAttribute("data-notebook-source");
+    }
     owned.clear();
   };
 }

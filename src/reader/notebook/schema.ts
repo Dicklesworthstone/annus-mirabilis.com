@@ -1,3 +1,4 @@
+import { sectionAnchorOf } from "../../content/anchors.ts";
 import { type CapstoneCapture, parseCapstoneCapture } from "./capstoneEntry.ts";
 import { type ComparisonReplay, parseComparisonReplay, REPLAY_LIMITS } from "./replayEntry.ts";
 import { parseTeachBackCapture, type TeachBackCapture } from "./teachBackEntry.ts";
@@ -67,7 +68,7 @@ export type LastPlace = Readonly<{
   frame: NotebookFrame;
   title: string;
   recap: string;
-  recapKind: "authored-recap" | "overview";
+  recapKind: "authored-recap" | "overview" | "source-excerpt";
 }>;
 export type NotebookDocument = Readonly<{
   format: typeof NOTEBOOK_FORMAT;
@@ -194,7 +195,11 @@ export function parseNotebookEntry(input: unknown): NotebookEntry {
 }
 export function parseLastPlace(input: unknown): LastPlace {
   const p = record(input, ["frame", "title", "recap", "recapKind"]);
-  if (p.recapKind !== "authored-recap" && p.recapKind !== "overview")
+  if (
+    p.recapKind !== "authored-recap" &&
+    p.recapKind !== "overview" &&
+    p.recapKind !== "source-excerpt"
+  )
     throw new TypeError("A recap must identify its authored source.");
   return Object.freeze({
     frame: parseNotebookFrame(p.frame),
@@ -232,9 +237,16 @@ export function emptyNotebook(): NotebookDocument {
 export function notebookFrameHref(input: NotebookFrame): string {
   const frame = parseNotebookFrame(input),
     query = new URLSearchParams();
-  if (frame.view !== "reading") query.set("view", frame.view);
+  const sourceFace = ["german", "english", "parallel", "gloss"].includes(frame.view);
+  if (frame.view !== "reading" && !sourceFace) query.set("view", frame.view);
   if (frame.detail !== 1) query.set("detail", String(frame.detail));
   if (frame.lens === "modern") query.set("lens", "modern");
   if (frame.open) query.set("open", frame.open);
-  return `/papers/${frame.paper}/${query.size ? `?${query}` : ""}#${frame.anchor}`;
+  // Gloss routes show one section at a time. Use the grammar owner, preserving the English
+  // half's actual fragment while finding its section from the unprefixed source address.
+  const section = sourceFace ? sectionAnchorOf(frame.anchor.replace(/^en-/u, "")) : null;
+  const path = sourceFace
+    ? `/papers/${frame.paper}/${section ? `${section}/` : ""}view/${frame.view}/`
+    : `/papers/${frame.paper}/`;
+  return `${path}${query.size ? `?${query}` : ""}#${frame.anchor}`;
 }

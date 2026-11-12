@@ -163,6 +163,9 @@ button.notebook-save-toggle[aria-expanded="true"] {
     opacity: 0;
   }
   .reader-passage:hover button.notebook-save-toggle,
+  [data-notebook-source]:hover button.notebook-save-toggle,
+  .notebook-passage-actions:has(+ [data-notebook-source]:hover) button.notebook-save-toggle,
+  .notebook-passage-actions:hover button.notebook-save-toggle,
   .notebook-passage-actions button.notebook-save-toggle:focus-visible {
     opacity: 1;
   }

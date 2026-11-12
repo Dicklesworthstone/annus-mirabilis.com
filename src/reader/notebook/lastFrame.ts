@@ -6,6 +6,7 @@ import {
   parseLastPlace,
   parseNotebookFrame,
 } from "./schema.ts";
+import { sourceNotebookAnchor, sourceNotebookPassage } from "./sourcePassage.ts";
 
 /** Read navigation metadata and authored prose from the existing reader, never from note text. */
 export function frameForPassage(
@@ -16,8 +17,13 @@ export function frameForPassage(
   const paper = /^\/papers\/([^/]+)(?:\/|$)/u.exec(location.pathname)?.[1];
   if (!NOTEBOOK_PAPERS.includes(paper as NotebookFrame["paper"])) return null;
   const query = new URLSearchParams(location.search);
+  const readerRoot = root.closest<HTMLElement>("[data-reader-root]");
   const view =
-    root.closest<HTMLElement>("[data-reader-root]")?.dataset.view ?? query.get("view") ?? "reading";
+    readerRoot?.dataset.view ??
+    readerRoot?.dataset.face ??
+    /\/view\/([^/]+)(?:\/|$)/u.exec(location.pathname)?.[1] ??
+    query.get("view") ??
+    "reading";
   const detailValue = document.documentElement.dataset.detail ?? query.get("detail") ?? "1";
   const detail =
     ({ overview: 0, full: 1, steps: 2 } as Record<string, number>)[detailValue] ??
@@ -25,7 +31,7 @@ export function frameForPassage(
   try {
     return parseNotebookFrame({
       paper,
-      anchor: passage.id,
+      anchor: sourceNotebookAnchor(passage) ?? passage.id,
       view: NOTEBOOK_VIEWS.includes(view as NotebookFrame["view"]) ? view : "reading",
       detail,
       lens:
@@ -40,6 +46,7 @@ export function frameForPassage(
 }
 
 export function authoredLastPlace(passage: HTMLElement, frame: NotebookFrame): LastPlace | null {
+  const source = sourceNotebookPassage(passage, frame.paper);
   const title = passage.querySelector("h3")?.textContent?.trim() ?? "";
   const recap = passage.querySelector("[data-face-results] > p")?.textContent?.trim() ?? "";
   const overview = [...passage.querySelectorAll('[data-reading="0"] > p')]
@@ -47,6 +54,13 @@ export function authoredLastPlace(passage: HTMLElement, frame: NotebookFrame): L
     .filter(Boolean)
     .join("\n\n");
   try {
+    if (source)
+      return parseLastPlace({
+        frame,
+        title: source.title,
+        recap: source.excerpt,
+        recapKind: "source-excerpt",
+      });
     return parseLastPlace({
       frame,
       title,
