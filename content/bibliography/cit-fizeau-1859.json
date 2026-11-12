@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "kind": "citation",
+  "id": "cit-fizeau-1859",
+  "title": "H. Fizeau, Sur les hypothèses relatives à l’éther lumineux",
+  "role": "primary",
+  "verification": {
+    "state": "agent",
+    "by": "agent:ChatGPT-major-gap-audit",
+    "date": "2026-11-12",
+    "note": "Visually read the original French scan, without OCR. Printed p. 385 gives the title, M. H. Fizeau, the presentation date 29 September 1851, and the footer Ann. de Chim. et de Phys., 3e série, t. LVII (Décembre 1859). The memoir ends on p. 404 before Lallemand's article. Table p. 392, geometry p. 394, wavelength p. 395. See the dataset provenance receipt for independent transcription review and scan digest."
+  },
+  "locator": "Annales de chimie et de physique (3) 57, 385–404 (December 1859); observations p. 392.",
+  "url": "https://ivanik3.narod.ru/ObschPhiz/ObschPhizJornal/Fizeau/FizeauAnnChim1859-57Fr.pdf"
+}

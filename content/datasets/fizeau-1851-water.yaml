@@ -1,0 +1,391 @@
+# Transcribed from the original French memoir's printed p. 392, not generated from a model.
+# Receipt: docs/provenance/datasets/fizeau-1851-water.md.
+id: fizeau-1851-water
+title: "Fizeau's moving-water experiment: 1851 experiment, 1859 published table"
+evidenceStatus: historical-measurement
+publications:
+  - id: fizeau-1859-annales
+    citation: cit-fizeau-1859
+    locator:
+      kind: unnumbered-table
+      page: 392
+      caption: "Valeurs du déplacement des franges"
+    publicationDate:
+      type: issue-publication
+      text: "December 1859"
+      earliest: "1859-12-01"
+      latest: "1859-12-31"
+      precision: month
+      source: "Printed p. 385 footer: Ann. de Chim. et de Phys., 3e série, t. LVII. (Décembre 1859.)"
+      verifiedAt: "2026-11-12"
+primaryPublicationId: fizeau-1859-annales
+series:
+  - id: water-reduced-to-common-speed
+    publicationId: fizeau-1859-annales
+    description: "Nineteen one-direction fringe displacements, reduced by Fizeau to a common bulk-flow speed of 7.059 m/s. Some observations used lower speeds; the original speeds are not assigned to individual rows. The memoir was presented on 29 September 1851, but this table was published in December 1859."
+digitizer:
+  name: "agent:ChatGPT-major-gap-audit"
+  method: "Manual visual reading of PDF page 8 (printed p. 392), rendered with Poppler, with no OCR or text-layer extraction. Geometry was read on p. 394 and wavelength on p. 395. A second agent, ChatGPT-root, independently re-read all nineteen values, the sum and mean, the speed, path geometry and wavelength on 2026-11-12. Decimal commas were converted to decimal points; millimetres were converted to metres. The derived path is two times the printed tube length."
+  date: "2026-11-12"
+  sourcePageImage: "https://ivanik3.narod.ru/ObschPhiz/ObschPhizJornal/Fizeau/FizeauAnnChim1859-57Fr.pdf#page=8"
+  digitizationRevision: 1
+columns:
+  - name: "Bulk-flow speed used by Fizeau to reduce the observations"
+    quantityId: flowSpeed
+    unit: "m/s"
+    role: controlled
+  - name: "Tube length used in the source calculation, p. 394"
+    quantityId: tubeLength
+    unit: "m"
+    role: controlled
+  - name: "Total water path per beam, two tube traversals"
+    quantityId: waterPathPerBeam
+    unit: "m"
+    role: derived
+  - name: "Solar E-line wavelength selected for the source calculation"
+    quantityId: wavelength
+    unit: "m"
+    role: controlled
+  - name: "One-direction fringe displacement, reduced as printed"
+    quantityId: fringeShift
+    unit: "1"
+    role: observed
+rows:
+  - seriesId: water-reduced-to-common-speed
+    cells:
+      - kind: number
+        value: 7.059
+        originalToken: "7m,059"
+      - kind: number
+        value: 1.4875
+        originalToken: "1m,4875"
+      - kind: number
+        value: 2.975
+        originalToken: "E est double de la longueur réelle des tubes"
+      - kind: number
+        value: 5.26e-7
+        originalToken: "0,000526"
+      - kind: number
+        value: 0.200
+        originalToken: "0,200"
+  - seriesId: water-reduced-to-common-speed
+    cells:
+      - kind: number
+        value: 7.059
+        originalToken: "7m,059"
+      - kind: number
+        value: 1.4875
+        originalToken: "1m,4875"
+      - kind: number
+        value: 2.975
+        originalToken: "E est double de la longueur réelle des tubes"
+      - kind: number
+        value: 5.26e-7
+        originalToken: "0,000526"
+      - kind: number
+        value: 0.220
+        originalToken: "0,220"
+  - seriesId: water-reduced-to-common-speed
+    cells:
+      - kind: number
+        value: 7.059
+        originalToken: "7m,059"
+      - kind: number
+        value: 1.4875
+        originalToken: "1m,4875"
+      - kind: number
+        value: 2.975
+        originalToken: "E est double de la longueur réelle des tubes"
+      - kind: number
+        value: 5.26e-7
+        originalToken: "0,000526"
+      - kind: number
+        value: 0.240
+        originalToken: "0,240"
+  - seriesId: water-reduced-to-common-speed
+    cells:
+      - kind: number
+        value: 7.059
+        originalToken: "7m,059"
+      - kind: number
+        value: 1.4875
+        originalToken: "1m,4875"
+      - kind: number
+        value: 2.975
+        originalToken: "E est double de la longueur réelle des tubes"
+      - kind: number
+        value: 5.26e-7
+        originalToken: "0,000526"
+      - kind: number
+        value: 0.167
+        originalToken: "0,167"
+  - seriesId: water-reduced-to-common-speed
+    cells:
+      - kind: number
+        value: 7.059
+        originalToken: "7m,059"
+      - kind: number
+        value: 1.4875
+        originalToken: "1m,4875"
+      - kind: number
+        value: 2.975
+        originalToken: "E est double de la longueur réelle des tubes"
+      - kind: number
+        value: 5.26e-7
+        originalToken: "0,000526"
+      - kind: number
+        value: 0.171
+        originalToken: "0,171"
+  - seriesId: water-reduced-to-common-speed
+    cells:
+      - kind: number
+        value: 7.059
+        originalToken: "7m,059"
+      - kind: number
+        value: 1.4875
+        originalToken: "1m,4875"
+      - kind: number
+        value: 2.975
+        originalToken: "E est double de la longueur réelle des tubes"
+      - kind: number
+        value: 5.26e-7
+        originalToken: "0,000526"
+      - kind: number
+        value: 0.225
+        originalToken: "0,225"
+  - seriesId: water-reduced-to-common-speed
+    cells:
+      - kind: number
+        value: 7.059
+        originalToken: "7m,059"
+      - kind: number
+        value: 1.4875
+        originalToken: "1m,4875"
+      - kind: number
+        value: 2.975
+        originalToken: "E est double de la longueur réelle des tubes"
+      - kind: number
+        value: 5.26e-7
+        originalToken: "0,000526"
+      - kind: number
+        value: 0.247
+        originalToken: "0,247"
+  - seriesId: water-reduced-to-common-speed
+    cells:
+      - kind: number
+        value: 7.059
+        originalToken: "7m,059"
+      - kind: number
+        value: 1.4875
+        originalToken: "1m,4875"
+      - kind: number
+        value: 2.975
+        originalToken: "E est double de la longueur réelle des tubes"
+      - kind: number
+        value: 5.26e-7
+        originalToken: "0,000526"
+      - kind: number
+        value: 0.225
+        originalToken: "0,225"
+  - seriesId: water-reduced-to-common-speed
+    cells:
+      - kind: number
+        value: 7.059
+        originalToken: "7m,059"
+      - kind: number
+        value: 1.4875
+        originalToken: "1m,4875"
+      - kind: number
+        value: 2.975
+        originalToken: "E est double de la longueur réelle des tubes"
+      - kind: number
+        value: 5.26e-7
+        originalToken: "0,000526"
+      - kind: number
+        value: 0.214
+        originalToken: "0,214"
+  - seriesId: water-reduced-to-common-speed
+    cells:
+      - kind: number
+        value: 7.059
+        originalToken: "7m,059"
+      - kind: number
+        value: 1.4875
+        originalToken: "1m,4875"
+      - kind: number
+        value: 2.975
+        originalToken: "E est double de la longueur réelle des tubes"
+      - kind: number
+        value: 5.26e-7
+        originalToken: "0,000526"
+      - kind: number
+        value: 0.230
+        originalToken: "0,230"
+  - seriesId: water-reduced-to-common-speed
+    cells:
+      - kind: number
+        value: 7.059
+        originalToken: "7m,059"
+      - kind: number
+        value: 1.4875
+        originalToken: "1m,4875"
+      - kind: number
+        value: 2.975
+        originalToken: "E est double de la longueur réelle des tubes"
+      - kind: number
+        value: 5.26e-7
+        originalToken: "0,000526"
+      - kind: number
+        value: 0.224
+        originalToken: "0,224"
+  - seriesId: water-reduced-to-common-speed
+    cells:
+      - kind: number
+        value: 7.059
+        originalToken: "7m,059"
+      - kind: number
+        value: 1.4875
+        originalToken: "1m,4875"
+      - kind: number
+        value: 2.975
+        originalToken: "E est double de la longueur réelle des tubes"
+      - kind: number
+        value: 5.26e-7
+        originalToken: "0,000526"
+      - kind: number
+        value: 0.247
+        originalToken: "0,247"
+  - seriesId: water-reduced-to-common-speed
+    cells:
+      - kind: number
+        value: 7.059
+        originalToken: "7m,059"
+      - kind: number
+        value: 1.4875
+        originalToken: "1m,4875"
+      - kind: number
+        value: 2.975
+        originalToken: "E est double de la longueur réelle des tubes"
+      - kind: number
+        value: 5.26e-7
+        originalToken: "0,000526"
+      - kind: number
+        value: 0.224
+        originalToken: "0,224"
+  - seriesId: water-reduced-to-common-speed
+    cells:
+      - kind: number
+        value: 7.059
+        originalToken: "7m,059"
+      - kind: number
+        value: 1.4875
+        originalToken: "1m,4875"
+      - kind: number
+        value: 2.975
+        originalToken: "E est double de la longueur réelle des tubes"
+      - kind: number
+        value: 5.26e-7
+        originalToken: "0,000526"
+      - kind: number
+        value: 0.307
+        originalToken: "0,307"
+  - seriesId: water-reduced-to-common-speed
+    cells:
+      - kind: number
+        value: 7.059
+        originalToken: "7m,059"
+      - kind: number
+        value: 1.4875
+        originalToken: "1m,4875"
+      - kind: number
+        value: 2.975
+        originalToken: "E est double de la longueur réelle des tubes"
+      - kind: number
+        value: 5.26e-7
+        originalToken: "0,000526"
+      - kind: number
+        value: 0.307
+        originalToken: "0,307"
+  - seriesId: water-reduced-to-common-speed
+    cells:
+      - kind: number
+        value: 7.059
+        originalToken: "7m,059"
+      - kind: number
+        value: 1.4875
+        originalToken: "1m,4875"
+      - kind: number
+        value: 2.975
+        originalToken: "E est double de la longueur réelle des tubes"
+      - kind: number
+        value: 5.26e-7
+        originalToken: "0,000526"
+      - kind: number
+        value: 0.256
+        originalToken: "0,256"
+  - seriesId: water-reduced-to-common-speed
+    cells:
+      - kind: number
+        value: 7.059
+        originalToken: "7m,059"
+      - kind: number
+        value: 1.4875
+        originalToken: "1m,4875"
+      - kind: number
+        value: 2.975
+        originalToken: "E est double de la longueur réelle des tubes"
+      - kind: number
+        value: 5.26e-7
+        originalToken: "0,000526"
+      - kind: number
+        value: 0.240
+        originalToken: "0,240"
+  - seriesId: water-reduced-to-common-speed
+    cells:
+      - kind: number
+        value: 7.059
+        originalToken: "7m,059"
+      - kind: number
+        value: 1.4875
+        originalToken: "1m,4875"
+      - kind: number
+        value: 2.975
+        originalToken: "E est double de la longueur réelle des tubes"
+      - kind: number
+        value: 5.26e-7
+        originalToken: "0,000526"
+      - kind: number
+        value: 0.240
+        originalToken: "0,240"
+  - seriesId: water-reduced-to-common-speed
+    cells:
+      - kind: number
+        value: 7.059
+        originalToken: "7m,059"
+      - kind: number
+        value: 1.4875
+        originalToken: "1m,4875"
+      - kind: number
+        value: 2.975
+        originalToken: "E est double de la longueur réelle des tubes"
+      - kind: number
+        value: 5.26e-7
+        originalToken: "0,000526"
+      - kind: number
+        value: 0.189
+        originalToken: "0,189"
+uncertainty:
+  type: printed-rounding-only
+  value: 0.0005
+  description: "Half the last printed place is 0.0005 fringe, a transcription rounding allowance only. The table reports no experimental uncertainty or confidence interval. Its differences from the mean are not error bars. Common apparatus and flow-normalization errors are not independent across the rows."
+notes: "Printed sum 4.373 and mean 0.23016 fringe. The source's approximately 0.46 reversal displacement doubles the one-direction mean; it is not a second independent observation. Page 388 gives the tube length rounded to 1.487 m, whereas the calculation on p. 394 explicitly uses 1.4875 m. Page 395 selects the 526 nm E line from sunlight, not monochromatic illumination. Numerical refractive index and light speed are not supplied on these calculation pages: the interactive comparison explicitly uses assumed n = 1.333 and modern SI c. The source's printed predictions, 0.4597 (full drag, p. 395) and 0.2022 (Fresnel, p. 398), remain separate. Pages 398-399 identify an unmeasured difference between bulk mean water speed and faster central water crossed by the rays; no correction is fitted here."
+rights:
+  status: public-domain-text
+  statement: "Original memoir published in France in 1859; Fizeau died in 1896. Numerical facts are transcribed with attribution. The linked scan bears a Bibliothèque nationale de France credit and is not redistributed; the mirror is not treated as a rights grant."
+  source: "https://ivanik3.narod.ru/ObschPhiz/ObschPhizJornal/Fizeau/FizeauAnnChim1859-57Fr.pdf"
+  recordedAt: "2026-11-12"
+  reuseTerms: source-terms
+  credit: "Source gallica.bnf.fr / Bibliothèque nationale de France"
+allowedInferenceModelIds: []
+calibrationIds: []
+sharedInputIds: []

@@ -1,0 +1,28 @@
+# Canonical physical quantities for the cited Fizeau apparatus.
+# Dimension order: [length, mass, time, temperature, current, amount].
+- id: flowSpeed
+  name: Flow speed
+  description: The speed of a material flow relative to the apparatus. Fizeau's published reduction uses the bulk mean water speed, which need not equal the speed in the central optical path.
+  dimensionStatus: declared
+  dimension: [1, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: tubeLength
+  name: Tube length
+  description: The physical length of one tube in a moving-medium interference apparatus, distinct from the total distance each beam travels through moving material.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: waterPathPerBeam
+  name: Moving-water path per beam
+  description: The total path length one interfering beam traverses in moving water. In Fizeau's two-traversal geometry this is twice one tube's length.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry

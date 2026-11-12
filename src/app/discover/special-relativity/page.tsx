@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ExercisePart } from "../../../components/discover/ExercisePart.tsx";
 import { ExplanationPart } from "../../../components/discover/ExplanationPart.tsx";
+import { FizeauWorldCheck } from "../../../components/discover/FizeauWorldCheck.tsx";
 import { NumericPart } from "../../../components/discover/NumericPart.tsx";
 import { RelativityWorldCheck } from "../../../components/discover/RelativityWorldCheck.tsx";
 import {
@@ -17,6 +18,7 @@ import { DiscoveryNotebookControls } from "../../../discovery/notes/NotebookCont
 import { PpeTask } from "../../../discovery/PpeTask.tsx";
 import { RouteMap } from "../../../discovery/RouteMap.tsx";
 import { MOVING_CLOCK_EXERCISE } from "../../../discovery/relativity/clockExercise.ts";
+import { prepareFizeauWorldCheck } from "../../../discovery/relativity/fizeauWorldCheck.ts";
 import {
   CLOCK_SPEED_EXERCISE,
   COMPOSITION_EXERCISE,
@@ -399,6 +401,7 @@ export default function SpecialRelativityRoute() {
               Watch electric and magnetic fields change into each other
             </StepDoor>
           </StepDoors>
+          <FizeauWorldCheck {...prepareFizeauWorldCheck()} />
           <p>
             Those were measured before the paper, and the new kinematics gives them. Section 4 adds
             a consequence nobody had measured: a clock that moves runs slow, by a factor the paper

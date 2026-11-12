@@ -4,6 +4,8 @@ import {
   type ShelfId,
 } from "../../../experiments/shelfOptics/definition.ts";
 import { evaluateShelfOptics } from "../../../experiments/shelfOptics/evaluation.ts";
+import { fizeauSourceParameters } from "../../../experiments/shelfOptics/fizeau.ts";
+import { loadFizeauRecord } from "../../../experiments/shelfOptics/fizeauRecord.ts";
 import { Formula } from "../../edition/Formula.tsx";
 import { ShelfOpticsLab } from "./ShelfOpticsLab.tsx";
 import "./shelfOptics.css";
@@ -11,7 +13,9 @@ import "./shelfOptics.css";
 /** Server-rendered calibration and mathematics; changing settings reuses the same owner. */
 export function ShelfOpticsPage({ instrumentId }: { instrumentId: ShelfId }) {
   const definition = SHELF_DEFINITIONS[instrumentId];
-  const example = evaluateShelfOptics(definition.defaults);
+  const fizeau = instrumentId === "shelf-fizeau" ? loadFizeauRecord() : undefined;
+  const parameters = fizeau ? fizeauSourceParameters(fizeau) : null;
+  const example = evaluateShelfOptics(parameters ?? definition.defaults);
   return (
     <article data-edition-status="explanatory-preview">
       <header className="page-intro">
@@ -22,14 +26,16 @@ export function ShelfOpticsPage({ instrumentId }: { instrumentId: ShelfId }) {
       <ShelfOpticsLab
         key={instrumentId}
         example={example}
+        fizeau={fizeau}
         laterEquation={<Formula latex={String.raw`u_{\mathrm{rel}}=\frac{c/n+v}{1+v/(nc)}`} />}
       />
       {/* After the lab rather than above it: the page opens on the comparison, and this is the
           first thing under it. It says what the numbers are before anything interprets them. */}
       <p className="notice">
-        These are host reference calculations with modern SI calibration and illustrative settings.
-        They are not historical measurements, a historical dataset, or publication of the strict
-        1904 shelf. No FrankenSim WASM calculation is claimed.
+        {instrumentId === "shelf-fizeau"
+          ? "The model rows are host reference calculations with modern SI calibration and an assumed refractive index. The separately labeled observations are Fizeau’s measurements, transcribed from his 1859 table. The two kinds of number remain distinct."
+          : "These are host reference calculations with modern SI calibration and illustrative settings. They are not historical measurements, a historical dataset, or publication of the strict 1904 shelf."}{" "}
+        No FrankenSim WASM calculation is claimed.
       </p>
       <section className="reading" aria-labelledby="shelf-model-scope">
         <h2 id="shelf-model-scope">What is being calculated?</h2>

@@ -114,3 +114,23 @@
   margin-block: 1.5rem;
   line-height: 1.6;
 }
+
+/* Transcribed observations keep a separate heading and column from the model calculations. */
+.shelf-measurement {
+  margin-block: 2rem;
+  padding-block-start: 1.5rem;
+  border-block-start: 2px solid currentColor;
+  min-width: 0;
+}
+.shelf-measurement table {
+  width: 100%;
+  table-layout: fixed;
+}
+.shelf-measurement :is(th, td) {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  padding: 0.45rem;
+}
+.shelf-measurement details {
+  margin-block: 1rem;
+}

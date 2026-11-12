@@ -12,6 +12,10 @@ import {
 } from "../../../experiments/shelfOptics/definition.ts";
 import { evaluateShelfOptics } from "../../../experiments/shelfOptics/evaluation.ts";
 import {
+  type FizeauRecord,
+  fizeauSourceParameters,
+} from "../../../experiments/shelfOptics/fizeau.ts";
+import {
   applyShelfParameters,
   primaryShelfMetrics,
   type ShelfReport,
@@ -21,6 +25,7 @@ import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { LabMargin } from "../LabMargin.tsx";
 import { readablePowers } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
+import { FizeauComparison } from "./FizeauComparison.tsx";
 
 /** Four significant figures: the models' inputs are given to about that, and ten figures showed
  * higher-order terms nobody can read ("0.400000005 fringes" for an ether shift of 0.4). */
@@ -153,9 +158,11 @@ const PRIMARY_FIELDS: Readonly<Record<ShelfId, readonly string[]>> = {
 export function ShelfOpticsLab({
   example,
   laterEquation,
+  fizeau,
 }: {
   example: ShelfReport;
   laterEquation?: ReactNode;
+  fizeau?: FizeauRecord | undefined;
 }) {
   const instance = useId();
   const definition = SHELF_DEFINITIONS[example.parameters.instrumentId];
@@ -413,6 +420,23 @@ export function ShelfOpticsLab({
           )}
         </div>
       </div>
+
+      {fizeau && report.parameters.instrumentId === "shelf-fizeau" && (
+        <FizeauComparison
+          record={fizeau}
+          snapshot={accepted}
+          ready={ready}
+          dirty={dirty}
+          refused={error.length > 0}
+          onUseSourceConditions={() => {
+            const parameters = fizeauSourceParameters(
+              fizeau,
+              report.parameters.instrumentId === "shelf-fizeau" && report.parameters.showLater,
+            );
+            if (parameters) apply(parameters);
+          }}
+        />
+      )}
 
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
           children of the lab root, which labShell.css's detail rules select. */}

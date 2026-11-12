@@ -17,6 +17,15 @@ export function HistoricalShelfPage({ instrumentId }: { instrumentId: ShelfId })
         <p className="lead">{definition.question}</p>
       </header>
       <HistoricalShelfLab instrumentId={instrumentId} title="Try the comparison" />
+      {instrumentId === "shelf-fizeau" && (
+        <p>
+          <a href="/lab/shelf-fizeau/#fizeau-measurements">
+            Compare with Fizeau’s nineteen printed observations
+          </a>{" "}
+          from the full memoir published in 1859. That companion comparison states its modern
+          light-speed calibration and assumed refractive index separately from the measurements.
+        </p>
+      )}
       <p>
         <a href="/1904/">Return to the 1904 desk</a> to compare the unresolved questions and the
         experiments that could distinguish competing explanations.
