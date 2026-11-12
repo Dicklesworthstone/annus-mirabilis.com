@@ -65,10 +65,15 @@ export function ResultWeavePanel({
   }, [state, open, announcementsEnabled]);
   useEffect(() => {
     if (!announcementsEnabled || !highlightPaper || !open || state.kind !== "ready") return;
-    const root = host.current?.closest("main");
+    const panel = host.current;
+    if (!panel) return;
+    const doc = panel.ownerDocument;
     const paperPath = `/papers/${paper}`;
-    const path = window.location.pathname;
-    if (!root || (path !== paperPath && !path.startsWith(`${paperPath}/`))) return;
+    const path = doc.defaultView?.location.pathname;
+    if (!path || (path !== paperPath && !path.startsWith(`${paperPath}/`))) return;
+    // Reader dialogs live beside main under body; inline placements keep their nearest main.
+    const root = panel.closest("main") ?? doc.querySelector("main");
+    if (!root) return;
     const pointers: SourceWeavePointer[] = [];
     for (const contentId of allLitContentIds(state.derived)) {
       const flag = primaryFlagForContentId(state.derived, contentId);

@@ -160,6 +160,42 @@ test("the real reader gates predictions and links source assumptions truthfully"
   expectCleared(nodes);
 });
 
+test("a reader dialog outside main points into its paper and clears on close and unmount", async () => {
+  const nodes = [sentence("s8-p6-s1"), sentence("s8-p6-s1", "english")];
+  // mountDirectOpen appends the instrument dialog to body, beside the paper's main.
+  const dialog = document.createElement("dialog");
+  dialog.setAttribute("data-instrument-clarification-dialog", "");
+  dialog.append(host);
+  document.body.append(dialog);
+  dialog.showModal();
+  const panel = await mount(
+    <Lq08ClarificationView instanceId="dialog-photoelectric" mode={null} presentation="standard" />,
+  );
+  expect(panel.closest("main")).toBeNull();
+  expectCleared(nodes);
+  await click("Skip prediction");
+  for (const node of nodes)
+    expect(node.getAttribute("data-live-weave-meaning")).toBe("quantity-compared");
+
+  await disclose(panel, false);
+  expectCleared(nodes);
+  // Matching sentence ids in a different paper must not acquire this lab's meaning.
+  window.history.replaceState(null, "", "/papers/special-relativity/view/german/#s8-p6-s1");
+  await disclose(panel, true);
+  expect(lit(LINE)).toBe(true);
+  expectCleared(nodes);
+
+  await disclose(panel, false);
+  window.history.replaceState(null, "", "/papers/light-quanta/view/parallel/#s8-p6-s1");
+  await disclose(panel, true);
+  for (const node of nodes)
+    expect(node.getAttribute("data-live-weave-meaning")).toBe("quantity-compared");
+  await act(async () => root?.unmount());
+  root = null;
+  expectCleared(nodes);
+  dialog.close();
+});
+
 test("drafts retain accepted evidence and refused settings withdraw it until recovery", async () => {
   const line = sentence("s8-p6-s1");
   const independence = sentence("s8-p7-s2");
