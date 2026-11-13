@@ -19,7 +19,7 @@ jobs:
   fast-gates:
     name: Fast Quality Gates
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 45
 
     steps:
       - name: Checkout repository
@@ -62,7 +62,7 @@ jobs:
         id: laboratory-types
         run: bun run check:types
 
-      - name: Run laboratory, reader and essay regression tests
+      - name: Run laboratory, reader, search and storage regression tests
         if: success() || steps.laboratory-types.outcome == 'failure'
         run: >-
           bun test --isolate --timeout 60000
@@ -85,6 +85,23 @@ jobs:
           src/discovery/tours/studyTours.test.ts
           src/experiments/bm07/kitchen/admission.test.ts
           src/experiments/bm07/kitchen/visibility.test.ts
+          src/testing/discovery-notebook.test.mjs
+          src/testing/discovery-session.test.mjs
+          src/testing/discovery-storage.test.mjs
+          src/platform/storage
+          src/testing/sr-05.test.ts
+          src/testing/sr05Lab.test.tsx
+          src/testing/sr05Controls.test.tsx
+          src/testing/labFormSweep.test.tsx
+          src/search/closingPassages.test.ts
+          src/search/languageFaces.test.ts
+          src/search/queryQuality.test.ts
+          src/testing/refusals
+
+      # Both the node lane and fast/browser gates inspect the static export. A fresh
+      # checkout has no out/; preparing generated inputs alone does not build it.
+      - name: Build the static site for export-dependent tests
+        run: bun run build
 
       - name: Run node-only subprocess tests
         run: bun run test:node

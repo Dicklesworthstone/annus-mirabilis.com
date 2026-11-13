@@ -477,10 +477,9 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
    *          swapping it would reprint sentence-initial field labels mid-sentence, so that is left
    *          to whoever owns the lab's wording.
    *
-   * THE ONE THAT MARKS NOTHING IS SR-05, and it is the honest kind of absence: it has no form
-   * refusal path at all -- zero `setError`, zero `refusalSentence`, and the sweep names it as the
-   * only lab with no typed field. There is nothing for a refusal to mark because no refusal can be
-   * raised. If sr-05 ever gains a form, this set is where that shows up.
+   * SR-05 now exposes typed clock settings and passes its validation refusal to ExecutionChrome.
+   * It joins the required set, so all 33 core labs must identify stale accepted readings when a
+   * form is refused. sr05Controls.test.tsx also drives this surface directly.
    */
   const RECORDED_STALENESS_MARKING = [
     "bm-01",
@@ -507,6 +506,7 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
     "sr-02",
     "sr-03",
     "sr-04",
+    "sr-05",
     "sr-06",
     "sr-07",
     "sr-08",
@@ -575,8 +575,8 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
     expect(typed).toBeGreaterThan(400);
     // The mark is found somewhere, so a pattern that could never match would not pass as a clean run.
     expect(marked).toBeGreaterThan(0);
-    // SR-05 is driven by buttons alone. Any other lab with nothing to type means the sweep lost it.
-    expect(untyped).toEqual(["sr-05"]);
+    // Every core lab exposes typed settings; no lab may disappear from this sweep.
+    expect(untyped).toEqual([]);
   });
 
   /**
@@ -630,6 +630,7 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
     "lq-09",
     "sr-03",
     "sr-04",
+    "sr-05",
     "sr-06",
     "sr-07",
   ];
