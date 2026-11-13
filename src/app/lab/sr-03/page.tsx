@@ -40,6 +40,9 @@ export default function RodSimultaneityPage() {
         <h2>From here</h2>
         <ul>
           <li>
+            <a href="/lab/sr-03/compare/">Keep the same events and compare two observers</a>
+          </li>
+          <li>
             <a href="/papers/special-relativity/#s2">
               {" "}
               Read §2 (On the Relativity of Lengths and Times) of Einstein’s 1905 paper{" "}
