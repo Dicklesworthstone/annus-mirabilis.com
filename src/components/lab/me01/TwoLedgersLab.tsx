@@ -19,13 +19,14 @@ import {
   type Me01Premise,
   type Me01Step,
 } from "../../../experiments/me01/definition.ts";
-import { decodeMe01Settings, encodeMe01Settings } from "../../../experiments/me01/permalink.ts";
+import { decodeMe01Settings } from "../../../experiments/me01/permalink.ts";
 import {
   createMe01Session,
   evaluateMe01,
   type PreparedMe01Example,
 } from "../../../experiments/me01/session.ts";
 import { ME01_TAPE } from "../../../experiments/me01/tape.ts";
+import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import type { RequestRefusal } from "../../../experiments/results/refusals.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
@@ -47,7 +48,7 @@ import { ME01_READER_WEAVE } from "../../../reader/weave/ledgersPassages.ts";
 import { SessionResultWeave } from "../../../reader/weave/SessionResultWeave.tsx";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { LabMargin } from "../LabMargin.tsx";
-import { PredictGatePanels, usePredictGate } from "../PredictGate.tsx";
+import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { sentenceNumber } from "../presentation.ts";
 
 const STEPS: readonly { id: Me01Step; label: string; number: number }[] = [
@@ -119,9 +120,28 @@ export function TwoLedgersLab({
   const [refusal, setRefusal] = useState<RequestRefusal | null>(null);
   const [linkNote, setLinkNote] = useState("");
   const [linkPending, setLinkPending] = useState(false);
-  const [sharedUrl, setSharedUrl] = useState("");
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("me-01", ME01_PREDICT_PROMPTS);
+  const tapeLink = useLabTapeLink(
+    ME01_TAPE,
+    session,
+    session.acceptedParameters(),
+    true,
+    (restored, predictions) => {
+      syncRestoredParameters(restored);
+      gate.restore(predictions ?? []);
+    },
+    { restoreFromLocation },
+  );
+
+  function syncRestoredParameters(parameters: Me01Parameters) {
+    setDraft(toMe01Draft(parameters));
+    setError("");
+    setRefusalCode(null);
+    setRefusal(null);
+    setLinkPending(false);
+    setLinkNote("");
+  }
 
   const evaluation = evaluateMe01(p);
   // One sentence for the status line: what the two pulses carry in the moving frame, and what the
@@ -244,15 +264,6 @@ export function TwoLedgersLab({
     apply(next);
   }
 
-  function share() {
-    const query = encodeMe01Settings(p);
-    const url = `${window.location.origin}/lab/me-01/${query}`;
-    setSharedUrl(url);
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(url).catch(() => {});
-    }
-  }
-
   return (
     <section
       className="laboratory-shell"
@@ -320,7 +331,7 @@ export function TwoLedgersLab({
             </div>
           </fieldset>
 
-          <ExperimentSettings contents="emitted energy, the premise, how internal energy is written, notation, a link to these settings">
+          <ExperimentSettings contents="emitted energy, the premise, how internal energy is written, notation, the recorded walkthrough">
             <SliderField
               {...field("emittedEnergyRestFrame")}
               label="Emitted energy L"
@@ -398,9 +409,6 @@ export function TwoLedgersLab({
                 </button>
               </fieldset>
             </div>
-            <button type="button" className="secondary" onClick={share}>
-              Copy a link to these settings
-            </button>
             {/*
               The recorded walkthrough, played into this session. Shared with the other four
               laboratories whose walkthroughs replay (dispatch 436); it was inline here from
@@ -409,15 +417,10 @@ export function TwoLedgersLab({
             <WalkthroughControl
               binding={ME01_TAPE}
               session={session}
-              onPlayed={(parameters) => setDraft(toMe01Draft(parameters as Me01Parameters))}
+              onPlayed={(parameters) => syncRestoredParameters(parameters as Me01Parameters)}
             />
           </ExperimentSettings>
 
-          {sharedUrl && (
-            <p className="notice">
-              Configuration link: <code>{sharedUrl}</code>
-            </p>
-          )}
           {error && (
             <p className="notice error" role="alert" data-refusal-code={refusalCode ?? undefined}>
               {error} {KEPT_RESULT}
@@ -428,6 +431,7 @@ export function TwoLedgersLab({
             summary={statusSummary}
             response={gate.response}
           />
+          <LabTapeLink link={withPredictions(tapeLink, gate)} sharePath="/lab/me-01/" />
           {linkNote && (
             <div className="notice">
               <p>{linkNote}</p>
