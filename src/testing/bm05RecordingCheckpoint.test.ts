@@ -175,8 +175,7 @@ test("a real pinned Gaussian owner attests its artifact and cannot be relabeled 
     ),
     readBytes: (path) => readFile(path),
   });
-  assert.equal(loaded.kind, "loaded");
-  if (loaded.kind !== "loaded") throw new Error(loaded.message);
+  assert.equal(loaded.kind, "loaded", loaded.kind === "refused" ? loaded.message : undefined);
   const normals = frankensimWalkNormals(loaded.exports);
   const p = { ...parameters, kernel: "gaussian" as const };
   const real = await publication(p, normals);

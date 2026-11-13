@@ -299,8 +299,7 @@ test("a real pinned grid reconstructs identically but may not silently switch to
     PINNED_ARTIFACT.wasmFile,
   );
   const loaded = await loadPinnedBundle({ wasmUrl: wasmPath, readBytes: (path) => readFile(path) });
-  assert.equal(loaded.kind, "loaded");
-  if (loaded.kind !== "loaded") throw new Error(loaded.message);
+  assert.equal(loaded.kind, "loaded", loaded.kind === "refused" ? loaded.message : undefined);
   let moduleCalls = 0;
   const real = loaded.exports;
   const stepper = frankensimGridStepper({

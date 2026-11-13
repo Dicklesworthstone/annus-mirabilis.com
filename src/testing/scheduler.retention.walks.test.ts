@@ -252,8 +252,7 @@ test("real pinned Gaussian recovery verifies the engine even when every position
     ),
     readBytes: (path) => readFile(path),
   });
-  assert.equal(loaded.kind, "loaded");
-  if (loaded.kind !== "loaded") throw new Error(loaded.message);
+  assert.equal(loaded.kind, "loaded", loaded.kind === "refused" ? loaded.message : undefined);
   const normals = frankensimWalkNormals(loaded.exports);
   const lab = laboratory(t, "walk-engine-change", createWorkerRetention(0));
   lab.control.normals = normals;
