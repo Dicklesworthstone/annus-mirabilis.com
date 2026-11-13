@@ -8,8 +8,8 @@ import {
   loadPaperPayload,
 } from "../src/content/compiler/serverLoaders.ts";
 import { loadConnections } from "../src/content/connections/connections.ts";
-import { loadEssays } from "../src/content/essays/load.ts";
 import { loadGermanSourceFace } from "../src/content/editions/germanSourceFace.ts";
+import { loadEssays } from "../src/content/essays/load.ts";
 import type { RouteSlug } from "../src/content/ids.ts";
 import { loadTeachingTapes } from "../src/content/teachingTapes.ts";
 import { requireTour, tourIds } from "../src/content/tours/tours.ts";
@@ -55,7 +55,6 @@ import { packageSearchIndex } from "../src/search/build.ts";
 import { connectionExerciseDocuments } from "../src/search/connectionExerciseDocuments.ts";
 import type { SearchAlias, SearchDocument } from "../src/search/core.ts";
 import { deskDocuments } from "../src/search/deskDocuments.ts";
-import { essayDocuments } from "../src/search/essayDocuments.ts";
 import {
   aliasesForDocuments,
   assertSearchCoverage,
@@ -85,6 +84,7 @@ import {
   walkthroughDocuments,
   wrongTurnDocuments,
 } from "../src/search/documents.ts";
+import { essayDocuments } from "../src/search/essayDocuments.ts";
 import { journeyStageDocuments } from "../src/search/journeyStageDocuments.ts";
 import { timelineDocuments } from "../src/search/timelineDocuments.ts";
 import { buildNativeSearchScript } from "./app/native-search.ts";

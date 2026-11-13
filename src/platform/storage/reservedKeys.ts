@@ -50,15 +50,6 @@ export const RESERVED_KEY_NOTES: readonly ReservedKeyNote[] = Object.freeze([
     engineeringReason:
       "am-oj0e: ActiveTourGuide is navigation only and tells the reader there is no automatic progress record; the position lives in ?tour=&tourStop=&tourRevision=. Whether this entry goes or stays with a note is am-tours-infra-g518's call.",
   }),
-  Object.freeze({
-    keys: Object.freeze(["am:journeys:v1"]),
-    kind: "not-built" as const,
-    readerLabel: "Your choices in Discover",
-    readerReason:
-      "Discover shows the branches of a fork beside one another instead of asking you to pick one, so there is no choice of yours to keep. Nothing is written here.",
-    engineeringReason:
-      "am-disc-journey-framework-umbg: journeyStorage.ts can write it and no page imports it, because Fork.tsx and Branch.tsx render every branch with no reader selection.",
-  }),
 ]);
 
 /** Every reserved key, flattened, for the gate that permits exactly these to have no writer. */

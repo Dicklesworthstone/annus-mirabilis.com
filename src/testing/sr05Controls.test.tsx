@@ -10,10 +10,7 @@ import { MovingClocksLab } from "../components/lab/sr05/MovingClocksLab.tsx";
 import { encodeTapePermalink } from "../experiments/permalink/codec.ts";
 import { tapeForSettings } from "../experiments/permalink/sessionTape.ts";
 import { SR05_DEFAULTS } from "../experiments/sr05/definition.ts";
-import {
-  createSr05Session,
-  type PreparedSr05Example,
-} from "../experiments/sr05/session.ts";
+import { createSr05Session, type PreparedSr05Example } from "../experiments/sr05/session.ts";
 import { SR05_TAPE } from "../experiments/sr05/tape.ts";
 import example from "../generated/sr05-example.json";
 import { installDom, uninstallDom } from "./reactDom.ts";
@@ -54,7 +51,11 @@ type Handlers = {
 
 /** Drive the mounted control's real handler, as labFormSweep does in happy-dom. */
 function handlers(target: Element): Handlers {
-  const key = Object.keys(target).find((name) => name.startsWith("__reactProps$"));
+  // Happy DOM's form and select proxies hide React's property from Object.keys. The input
+  // exposes the same renderer key, which still addresses the real handler on either proxy.
+  const key =
+    Object.keys(target).find((name) => name.startsWith("__reactProps$")) ??
+    Object.keys(field("speed")).find((name) => name.startsWith("__reactProps$"));
   if (!key) throw new Error("The mounted control has no React handlers.");
   const value = (target as unknown as Record<string, Handlers>)[key];
   if (!value) throw new Error("The mounted control has no handler record.");
@@ -167,13 +168,11 @@ describe("typed moving-clock investigation", () => {
       expect(field(name).value).toBe(value);
       expect(readout("properTime")).toBe("8 s");
       expect(readout("lightProperTick")).toBe("2 s");
+      expect(container.querySelector('[data-apply-failure="refused"]')?.textContent).toContain(
+        "last accepted",
+      );
       expect(
-        container.querySelector('[data-apply-failure="refused"]')?.textContent,
-      ).toContain("last accepted");
-      expect(
-        container
-          .querySelector("[data-apply-failure]")
-          ?.getAttribute("data-refusal-code"),
+        container.querySelector("[data-apply-failure]")?.getAttribute("data-refusal-code"),
       ).toBe("invalid-parameter");
       expect(container.querySelector('[data-currency-state="refused"]')).not.toBeNull();
       expect(container.textContent).not.toMatch(/\b(?:NaN|Infinity)\b/);
@@ -247,8 +246,8 @@ describe("typed moving-clock investigation", () => {
         const check = () => {
           const accepted = session.acceptedParameters();
           if (
-            !Object.entries(settings).every(
-              ([key, value]) => Object.is(accepted[key as keyof typeof settings], value),
+            !Object.entries(settings).every(([key, value]) =>
+              Object.is(accepted[key as keyof typeof settings], value),
             )
           )
             return;

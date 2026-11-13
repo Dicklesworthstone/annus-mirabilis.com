@@ -53,8 +53,8 @@ jobs:
         # "Executable doesn't exist at .../webkit-2336/pw_run.sh".
         run: bunx playwright install --with-deps chromium webkit
 
-      - name: Prepare content and lab artifacts
-        run: bun run prepare:content && bun run prepare:lab
+      - name: Prepare site artifacts
+        run: bun scripts/prepare-lane.ts
 
       # Keep the live laboratory and reader checks ahead of the export-dependent node lane.
       # That lane can fail before the fast gate chain reaches either types or these regressions.
