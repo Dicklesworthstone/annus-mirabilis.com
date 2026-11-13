@@ -7,10 +7,16 @@ import { printedUnits } from "../content/editions/germanSourceFace.ts";
 import { validateEntranceRecord } from "../content/entrances/entranceRecord.ts";
 import { loadConcordanceForPaper } from "../content/notation/loader.ts";
 import { loadPaper } from "../content/server";
+import { InvestigationLabLink } from "../discovery/investigation/context.tsx";
+import { INVESTIGATIONS } from "../discovery/investigation/specs.ts";
 import { ArgumentEquations } from "./ArgumentEquations.tsx";
 import { passageActionsFromArgument } from "./actions/fromArgument.ts";
 import { PassageActionsBar } from "./actions/PassageActionsBar.tsx";
 import { ReadingBlocks } from "./Blocks";
+import {
+  BrownianChapterPractice,
+  BrownianReaderInvestigation,
+} from "./BrownianReaderInvestigation.tsx";
 import { LazyInlineTracerLab } from "./LazyInlineTracerLab.tsx";
 import { Companion } from "./layout/Companion.tsx";
 import { type CompanionKind, resolveCompanionKind } from "./layout/companionKind.ts";
@@ -146,7 +152,7 @@ export async function PaperReader({
         [...equationsById.values()].filter((e) => args.some((a) => a.id === e.argument)),
       )
     : [];
-  return (
+  const reading = (
     <div data-reader-root data-ready="true" data-view="reading" className="reader-root">
       {/* biome-ignore lint/security/noDangerouslySetInnerHtml: the harness's data-ready contract requires this exact script as the root's first child, synchronous before any face content paints; its source is derived from a tested pure function, never hand-authored HTML. */}
       <script dangerouslySetInnerHTML={{ __html: ROOT_ARMING_SOURCE }} />
@@ -564,6 +570,7 @@ export async function PaperReader({
                     </p>
                   </article>
                 ))}
+              {s.id === "s5" && <BrownianChapterPractice />}
               {/* Where a walkthrough of this section exists, the way to it (am-2rl9). Renders
                   nothing on the sections that have none, which is most of them. */}
               <SectionTapes paperId={paper.id} sectionId={s.id} sectionTitle={s.title} />
@@ -581,7 +588,14 @@ export async function PaperReader({
               lesson. It runs a new trial only when you apply its settings; opening an explanation
               never starts one.
             </p>
-            <LazyInlineTracerLab />
+            <InvestigationLabLink experimentId="bm-01" />
+            <LazyInlineTracerLab
+              revealForAnchor={
+                sections.some((s) => s.id === "s5")
+                  ? INVESTIGATIONS["brownian-motion"].laboratoryAnchor
+                  : undefined
+              }
+            />
           </section>
         </StickyLabRegion>
       </ReaderLayout>
@@ -710,5 +724,10 @@ export async function PaperReader({
         </nav>
       </dialog>
     </div>
+  );
+  return (
+    <BrownianReaderInvestigation active={sections.some((s) => s.id === "s5")}>
+      {reading}
+    </BrownianReaderInvestigation>
   );
 }

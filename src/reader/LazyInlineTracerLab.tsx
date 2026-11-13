@@ -18,17 +18,60 @@
  * worked example are part of the served page. The static worked case stays in
  * StickyLabRegion either way.
  */
-import { lazy, Suspense, type SyntheticEvent, useState } from "react";
+import { lazy, Suspense, type SyntheticEvent, useEffect, useRef, useState } from "react";
 
 const InlineTracerLab = lazy(() => import("./InlineTracerLab.tsx"));
 
-export function LazyInlineTracerLab() {
+export function LazyInlineTracerLab({
+  revealForAnchor,
+}: {
+  revealForAnchor?: string | undefined;
+} = {}) {
   const [opened, setOpened] = useState(false);
+  const disclosure = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    if (!revealForAnchor) return;
+    const target = `#${revealForAnchor}`;
+    function reveal() {
+      if (!disclosure.current) return;
+      disclosure.current.open = true;
+      setOpened(true);
+    }
+    function followHash() {
+      if (window.location.hash === target) reveal();
+    }
+    function followLink(event: MouseEvent) {
+      if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+      )
+        return;
+      const link = event.target instanceof Element ? event.target.closest("a[href]") : null;
+      // A second click on the same hash does not emit hashchange. It should still reopen the lab.
+      if (link?.getAttribute("href") === target) reveal();
+    }
+    followHash();
+    window.addEventListener("hashchange", followHash);
+    document.addEventListener("click", followLink);
+    return () => {
+      window.removeEventListener("hashchange", followHash);
+      document.removeEventListener("click", followLink);
+    };
+  }, [revealForAnchor]);
   function mount(event: SyntheticEvent<HTMLDetailsElement>) {
     if (event.currentTarget.open) setOpened(true);
   }
   return (
-    <details data-inline-lab="bm-01" data-inline-lab-mounted={String(opened)} onToggle={mount}>
+    <details
+      ref={disclosure}
+      data-inline-lab="bm-01"
+      data-inline-lab-mounted={String(opened)}
+      onToggle={mount}
+    >
       <summary>Open the tracer ensemble in this reading</summary>
       {opened ? (
         <Suspense fallback={<p className="fine">Loading the tracer ensemble…</p>}>
