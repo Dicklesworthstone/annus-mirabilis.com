@@ -7,11 +7,16 @@
  * in-page confirmation (no window.confirm).
  */
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import "./dataPanel.css";
-import { clearNamespaces, type ExportDocument, exportNamespaces } from "./exportClear.ts";
+import {
+  clearNamespacesWithReport,
+  type ExportDocument,
+  exportNamespaces,
+  type UnreadableNamespace,
+} from "./exportClear.ts";
 import type { KeyRegistration } from "./keys.ts";
-import { clearQuarantine, listQuarantine } from "./quarantine.ts";
+import { listQuarantine, QUARANTINE_KEY } from "./quarantine.ts";
 import { estimateNamespaceSize } from "./size.ts";
 import { createStorageContext, type StorageContext } from "./store.ts";
 
@@ -32,6 +37,12 @@ interface ConfirmTarget {
   readonly label: string;
 }
 
+interface ExportCopy {
+  readonly json: string;
+  readonly unreadable: readonly UnreadableNamespace[];
+  readonly recovery: readonly UnreadableNamespace[];
+}
+
 export function formatBytes(bytes: number): string {
   if (bytes === 0) return "0 B";
   if (bytes < 1024) return `${bytes} B`;
@@ -40,10 +51,12 @@ export function formatBytes(bytes: number): string {
 
 export function DataPanel({ storageContext, onExport, onClear }: DataPanelProps) {
   const ctx = useMemo(() => storageContext ?? createStorageContext(), [storageContext]);
+  const instance = useId();
 
   const [refreshToken, setRefreshToken] = useState(0);
   const [confirmTarget, setConfirmTarget] = useState<ConfirmTarget | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [exportCopy, setExportCopy] = useState<ExportCopy | null>(null);
 
   const refresh = useCallback(() => {
     setRefreshToken((prev) => prev + 1);
@@ -88,46 +101,78 @@ export function DataPanel({ storageContext, onExport, onClear }: DataPanelProps)
 
   const handleExportAll = useCallback(() => {
     const doc = exportNamespaces(ctx);
-    if (onExport) {
-      onExport(doc);
-    }
-    if (typeof window !== "undefined" && typeof document !== "undefined") {
+    const json = JSON.stringify(doc, null, 2);
+    const unreadable = doc.unreadableNamespaces ?? [];
+    const recovery = doc.recoveryCopies ?? [];
+    setExportCopy({ json, unreadable, recovery });
+
+    let downloadRequested = false;
+    let url: string | undefined;
+    let anchor: HTMLAnchorElement | undefined;
+    try {
+      const blob = new Blob([json], { type: "application/json" });
+      url = URL.createObjectURL(blob);
+      anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `annus-mirabilis-data-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      downloadRequested = true;
+    } catch {
+      // The copyable export remains available when browser downloads are restricted.
+    } finally {
       try {
-        const json = JSON.stringify(doc, null, 2);
-        const blob = new Blob([json], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `annus-mirabilis-data-${new Date().toISOString().slice(0, 10)}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        anchor?.remove();
       } catch {
-        // In restricted environments, ignore DOM click failures
+        // Anchor cleanup must not prevent releasing the download URL.
+      }
+      try {
+        if (url) URL.revokeObjectURL(url);
+      } catch {
+        // Cleanup must not hide the copy or the outcome of the download request.
       }
     }
-    setStatusMessage("Downloaded a copy of everything this site keeps in your browser.");
+
+    const result = downloadRequested
+      ? "Asked your browser to download the JSON copy. The same copy is available below."
+      : "This browser could not start the download. Copy the JSON below to keep it.";
+    const incomplete =
+      unreadable.length > 0
+        ? " Some saved data could not be read, so this export may be incomplete. The affected data is listed below."
+        : "";
+    const recovered =
+      recovery.length > 0 ? " The export also keeps distinct in-tab recovery copies." : "";
+    setStatusMessage(result + incomplete + recovered);
+    onExport?.(doc);
   }, [ctx, onExport]);
 
   const handleConfirmClear = useCallback(() => {
     if (!confirmTarget) return;
+    const keys =
+      confirmTarget.key === "all"
+        ? undefined
+        : [confirmTarget.key === "quarantine" ? QUARANTINE_KEY : confirmTarget.key];
+    const report = clearNamespacesWithReport(ctx, keys);
 
-    if (confirmTarget.key === "all") {
-      const cleared = clearNamespaces(ctx);
-      if (onClear) onClear(cleared);
-      setStatusMessage("Cleared everything this site kept in your browser.");
-    } else if (confirmTarget.key === "quarantine") {
-      clearQuarantine(ctx);
-      setStatusMessage("Cleared the data this site could not read.");
+    if (report.failed.length > 0) {
+      const labels = report.failed.map(({ key }) => ctx.registry.get(key)?.label ?? key);
+      const partial = report.cleared.length > 0 ? "Clearing was only partly confirmed. " : "";
+      setStatusMessage(
+        `${partial}Could not confirm clearing ${labels.join(", ")}. You can retry or export the data still available below.`,
+      );
     } else {
-      const cleared = clearNamespaces(ctx, [confirmTarget.key]);
-      if (onClear) onClear(cleared);
-      setStatusMessage(`Cleared ${confirmTarget.label}.`);
+      setStatusMessage(
+        report.cleared.length === 0
+          ? "No clearable data was selected."
+          : confirmTarget.key === "all"
+            ? "Cleared the selected site data from this browser."
+            : `Cleared ${confirmTarget.label}.`,
+      );
+      setConfirmTarget(null);
     }
 
-    setConfirmTarget(null);
     refresh();
+    onClear?.(report.cleared);
   }, [confirmTarget, ctx, onClear, refresh]);
 
   const kindLabel = (kind: string) => (kind === "setting" ? "A setting" : "Saved work");
@@ -182,6 +227,51 @@ export function DataPanel({ storageContext, onExport, onClear }: DataPanelProps)
         >
           {statusMessage}
         </div>
+      )}
+
+      {exportCopy && (
+        <section aria-labelledby={`${instance}-export-heading`} data-testid="data-export-copy">
+          <h3 id={`${instance}-export-heading`}>Your data export</h3>
+          <p>
+            You can save the JSON below in a text file. It contains the data available when you
+            requested this copy.
+          </p>
+          {exportCopy.unreadable.length > 0 && (
+            <div data-testid="export-unreadable">
+              <p>
+                Saved data could not be read for these items. An available in-tab copy is included
+                where possible. Try exporting again when browser storage is available.
+              </p>
+              <ul>
+                {exportCopy.unreadable.map(({ key, label }) => (
+                  <li key={key}>{label}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {exportCopy.recovery.length > 0 && (
+            <div data-testid="export-recovery">
+              <p>
+                The JSON also includes in-tab recovery copies for these items alongside their saved
+                versions. Keep both copies until you choose which data to restore.
+              </p>
+              <ul>
+                {exportCopy.recovery.map(({ key, label }) => (
+                  <li key={key}>{label}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <label htmlFor={`${instance}-export-json`}>Copyable JSON</label>
+          <textarea
+            id={`${instance}-export-json`}
+            data-testid="export-json"
+            rows={12}
+            readOnly
+            value={exportCopy.json}
+            onFocus={(event) => event.currentTarget.select()}
+          />
+        </section>
       )}
 
       {/* An in-page confirmation, never window.confirm: it sits where the reader is looking. */}

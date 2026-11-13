@@ -11,9 +11,9 @@ import {
 } from "../../testing/reactDom.ts";
 import { DataPanel } from "./DataPanel.tsx";
 import type { ExportDocument, ExportedNamespace } from "./exportClear.ts";
-import { quarantine } from "./quarantine.ts";
+import { QUARANTINE_KEY, quarantine } from "./quarantine.ts";
 import { createStorageContext, type StorageContext, writeDocument, writeSetting } from "./store.ts";
-import { InMemoryStorage } from "./testSupport.ts";
+import { InMemoryStorage, quotaExceededError } from "./testSupport.ts";
 
 const logger = getLogger("platform-storage");
 const BEAD = "am-plat-local-storage-km8f";
@@ -304,6 +304,210 @@ describe("DataPanel component", () => {
       await act(async () => {
         root.unmount();
       });
+      removeContainer(container);
+    }
+  });
+
+  test("partial clearing stays retryable and reports only confirmed removals", async () => {
+    let allowNotebookRemoval = false;
+    class PartlyBlockedStorage extends InMemoryStorage {
+      override removeItem(key: string): void {
+        if (key === "am:notebook:v1" && !allowNotebookRemoval) {
+          throw new Error("Removal was blocked.");
+        }
+        super.removeItem(key);
+      }
+    }
+    const storage = new PartlyBlockedStorage();
+    const partialCtx = createStorageContext({ getStorage: () => storage });
+    writeSetting(partialCtx, "am:settings:v1:theme", "annalen");
+    writeDocument(partialCtx, "am:notebook:v1", { notes: ["Keep this observation"] });
+    partialCtx.fallback.set("am:notebook:v1", "an unsaved observation");
+    const reports: (readonly string[])[] = [];
+    const container = createContainer();
+    const root = createRoot(container);
+
+    try {
+      await act(async () => {
+        root.render(
+          createElement(DataPanel, {
+            storageContext: partialCtx,
+            onClear: (keys) => reports.push(keys),
+          }),
+        );
+      });
+      await act(async () => {
+        (container.querySelector('[data-testid="clear-all-btn"]') as HTMLButtonElement).click();
+      });
+      await act(async () => {
+        (container.querySelector('[data-testid="confirm-clear-btn"]') as HTMLButtonElement).click();
+      });
+
+      expect(storage.getItem("am:settings:v1:theme")).toBeNull();
+      expect(storage.getItem("am:notebook:v1")).toContain("Keep this observation");
+      expect(partialCtx.fallback.get("am:notebook:v1")).toBe("an unsaved observation");
+      expect(reports[0]).toContain("am:settings:v1:theme");
+      expect(reports[0]).not.toContain("am:notebook:v1");
+      expect(container.querySelector('[data-testid="status-message"]')?.textContent).toContain(
+        "Could not confirm clearing Notebook",
+      );
+      expect(container.querySelector('[data-testid="clear-confirmation"]')).not.toBeNull();
+
+      allowNotebookRemoval = true;
+      await act(async () => {
+        (container.querySelector('[data-testid="confirm-clear-btn"]') as HTMLButtonElement).click();
+      });
+      expect(storage.getItem("am:notebook:v1")).toBeNull();
+      expect(partialCtx.fallback.has("am:notebook:v1")).toBe(false);
+      expect(reports[1]).toContain("am:notebook:v1");
+      expect(container.querySelector('[data-testid="clear-confirmation"]')).toBeNull();
+    } finally {
+      await act(async () => root.unmount());
+      removeContainer(container);
+    }
+  });
+
+  test("a blocked download keeps saved and unsaved copies available after clearing", async () => {
+    const storage = new InMemoryStorage({ throwOnSet: quotaExceededError() });
+    const quotaCtx = createStorageContext({ getStorage: () => storage });
+    storage.rawSet("am:notebook:v1", JSON.stringify({ notes: ["Saved observation"] }));
+    expect(
+      writeDocument(quotaCtx, "am:notebook:v1", { notes: ["Unsaved observation"] }).status,
+    ).toBe("quota");
+    const originalCreateObjectURL = URL.createObjectURL;
+    URL.createObjectURL = () => {
+      throw new Error("Downloads are unavailable.");
+    };
+    const container = createContainer();
+    const root = createRoot(container);
+
+    try {
+      await act(async () => {
+        root.render(createElement(DataPanel, { storageContext: quotaCtx }));
+      });
+      await act(async () => {
+        (container.querySelector('[data-testid="export-all-btn"]') as HTMLButtonElement).click();
+      });
+
+      const copy = container.querySelector('[data-testid="export-json"]') as HTMLTextAreaElement;
+      expect(copy).not.toBeNull();
+      expect(copy.readOnly).toBe(true);
+      const exported = JSON.parse(copy.value) as ExportDocument;
+      expect(exported.namespaces.find((entry) => entry.key === "am:notebook:v1")?.value).toEqual({
+        notes: ["Saved observation"],
+      });
+      expect(exported.recoveryCopies).toEqual([
+        { key: "am:notebook:v1", label: "Notebook", value: { notes: ["Unsaved observation"] } },
+      ]);
+      expect(container.querySelector('[data-testid="export-recovery"]')?.textContent).toContain(
+        "Notebook",
+      );
+      const status = container.querySelector('[data-testid="status-message"]')?.textContent;
+      expect(status).toContain("could not start the download");
+      expect(status).not.toContain("Downloaded");
+
+      const beforeClear = copy.value;
+      await act(async () => {
+        (container.querySelector('[data-testid="clear-all-btn"]') as HTMLButtonElement).click();
+      });
+      await act(async () => {
+        (container.querySelector('[data-testid="confirm-clear-btn"]') as HTMLButtonElement).click();
+      });
+      expect(storage.getItem("am:notebook:v1")).toBeNull();
+      expect(quotaCtx.fallback.has("am:notebook:v1")).toBe(false);
+      expect(
+        (container.querySelector('[data-testid="export-json"]') as HTMLTextAreaElement).value,
+      ).toBe(beforeClear);
+    } finally {
+      URL.createObjectURL = originalCreateObjectURL;
+      await act(async () => root.unmount());
+      removeContainer(container);
+    }
+  });
+
+  test("partial exports identify the unreadable data in both JSON and the panel", async () => {
+    class PartlyUnreadableStorage extends InMemoryStorage {
+      override getItem(key: string): string | null {
+        if (key === "am:notebook:v1") throw new Error("Notebook storage is unavailable.");
+        return super.getItem(key);
+      }
+    }
+    const storage = new PartlyUnreadableStorage();
+    storage.rawSet("am:notebook:v1", '{"notes":["Not readable yet"]}');
+    storage.rawSet("am:settings:v1:theme", "annalen");
+    const partialCtx = createStorageContext({ getStorage: () => storage });
+    const container = createContainer();
+    const root = createRoot(container);
+
+    try {
+      await act(async () => {
+        root.render(createElement(DataPanel, { storageContext: partialCtx }));
+      });
+      await act(async () => {
+        (container.querySelector('[data-testid="export-all-btn"]') as HTMLButtonElement).click();
+      });
+
+      const copy = container.querySelector('[data-testid="export-json"]') as HTMLTextAreaElement;
+      const exported = JSON.parse(copy.value) as ExportDocument;
+      expect(exported.unreadableNamespaces).toEqual([{ key: "am:notebook:v1", label: "Notebook" }]);
+      expect(exported.namespaces.find((entry) => entry.key === "am:settings:v1:theme")?.value).toBe(
+        "annalen",
+      );
+      expect(container.querySelector('[data-testid="export-unreadable"]')?.textContent).toContain(
+        "Notebook",
+      );
+      expect(container.querySelector('[data-testid="status-message"]')?.textContent).toContain(
+        "this export may be incomplete",
+      );
+      expect(storage.rawGet("am:notebook:v1")).toContain("Not readable yet");
+    } finally {
+      await act(async () => root.unmount());
+      removeContainer(container);
+    }
+  });
+
+  test("quarantine can be cleared when the storage quota prevents writes", async () => {
+    const storage = new InMemoryStorage({ throwOnSet: quotaExceededError() });
+    storage.rawSet(
+      QUARANTINE_KEY,
+      JSON.stringify({
+        schemaVersion: 1,
+        entries: [
+          {
+            originalKey: "am:notebook:v1",
+            rawValue: "{damaged notes",
+            reason: "Invalid JSON",
+            quarantinedAt: "2026-11-13T00:00:00.000Z",
+          },
+        ],
+      }),
+    );
+    const fullCtx = createStorageContext({ getStorage: () => storage });
+    const container = createContainer();
+    const root = createRoot(container);
+
+    try {
+      await act(async () => {
+        root.render(createElement(DataPanel, { storageContext: fullCtx }));
+      });
+      expect(container.querySelector('[data-testid="quarantine-section"]')).not.toBeNull();
+      const clearButton = container.querySelector(
+        '[data-testid="clear-quarantine-btn"]',
+      ) as HTMLButtonElement;
+      await act(async () => {
+        clearButton.click();
+      });
+      await act(async () => {
+        (container.querySelector('[data-testid="confirm-clear-btn"]') as HTMLButtonElement).click();
+      });
+
+      expect(storage.getItem(QUARANTINE_KEY)).toBeNull();
+      expect(container.querySelector('[data-testid="quarantine-section"]')).toBeNull();
+      expect(container.querySelector('[data-testid="status-message"]')?.textContent).toContain(
+        "Cleared the data this site could not read",
+      );
+    } finally {
+      await act(async () => root.unmount());
       removeContainer(container);
     }
   });
