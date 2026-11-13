@@ -1,5 +1,6 @@
 import { sectionAnchorOf } from "../../content/anchors.ts";
 import { type CapstoneCapture, parseCapstoneCapture } from "./capstoneEntry.ts";
+import { comparisonReplayAdapter } from "./comparisonAdapters.ts";
 import { type ComparisonReplay, parseComparisonReplay, REPLAY_LIMITS } from "./replayEntry.ts";
 import { parseTeachBackCapture, type TeachBackCapture } from "./teachBackEntry.ts";
 /** Local reader work, never a publication record or an assessment of its author. */
@@ -189,8 +190,11 @@ export function parseNotebookEntry(input: unknown): NotebookEntry {
         : Object.freeze({ ...common, kind: e.kind as NotebookTextEntry["kind"] });
   if (isReplay && new TextEncoder().encode(JSON.stringify(entry)).length > REPLAY_LIMITS.bytes)
     throw new TypeError("A complete replay entry must fit within 64 KiB. Nothing was truncated.");
-  if (isReplay && common.frame.paper !== "brownian-motion")
-    throw new TypeError("This replay belongs to the Brownian motion paper.");
+  if (
+    entry.kind === "replay" &&
+    common.frame.paper !== comparisonReplayAdapter(entry.replay.baseline.experimentId).paper
+  )
+    throw new TypeError("This replay belongs to the paper declared by its instrument.");
   return entry;
 }
 export function parseLastPlace(input: unknown): LastPlace {

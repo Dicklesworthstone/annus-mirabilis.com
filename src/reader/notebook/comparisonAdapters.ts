@@ -10,6 +10,7 @@ import {
 import { validateBm08Parameters } from "../../experiments/bm08/parameters.ts";
 import type { PreparedBm08Example } from "../../experiments/bm08/session.ts";
 import type {
+  Baseline,
   ComparisonIdentity,
   ComparisonParameters,
   ComparisonSnapshot,
@@ -18,10 +19,19 @@ import type { ComparisonResult } from "../../experiments/compare/compatibility.t
 import type { ComparisonPort } from "../../experiments/compare/controlledComparison.ts";
 import type { ComparisonContract } from "../../experiments/compare/singleVariationLock.ts";
 import type { TapeReplayGrid } from "../../experiments/permalink/types.ts";
+import {
+  fixedSr03ComparisonParameters,
+  SR03_COMPARISON,
+  sr03ComparisonIdentity,
+  verifySr03Comparison,
+  verifySr03SavedComparison,
+} from "../../experiments/sr03/comparison.ts";
+import type { PreparedSr03Example } from "../../experiments/sr03/session.ts";
 import type { WorkerChannel } from "../../workers/scheduler/hostScheduler.ts";
+import type { ReplayCatalogue } from "./replayCompatibility.ts";
 
-export type ReplayInstrumentId = "bm-01" | "bm-08";
-export type ComparisonReplayKind = "bm01-comparison" | "bm08-comparison";
+export type ReplayInstrumentId = "bm-01" | "bm-08" | "sr-03";
+export type ComparisonReplayKind = "bm01-comparison" | "bm08-comparison" | "sr03-comparison";
 export type ComparisonReplayPrediction = "smaller" | "same" | "larger";
 export type ComparisonReplaySession = ComparisonPort &
   Readonly<{ setSchedulingPaused(paused: boolean): void }>;
@@ -32,6 +42,7 @@ export type ComparisonReplayOwner = Readonly<{
   (
     | Readonly<{ instrumentId?: "bm-01"; example: PreparedBm01Example }>
     | Readonly<{ instrumentId: "bm-08"; example: PreparedBm08Example }>
+    | Readonly<{ instrumentId: "sr-03"; example: PreparedSr03Example }>
   );
 
 export class ComparisonReplayAdapterError extends TypeError {
@@ -53,6 +64,11 @@ export type ComparisonReplayAdapter = Readonly<{
   anchor: string;
   saveDescription: string;
   evidenceDescription: string;
+  matchingScalarsMessage: string;
+  /** Only the registered owner decides whether a seed is a physical input or a wire identity. */
+  seedPolicy:
+    | Readonly<{ kind: "parameter"; parameterId: "seed" }>
+    | Readonly<{ kind: "deterministic"; value: "0" }>;
   predictionPromptId: string;
   predictions: Readonly<Record<ComparisonReplayPrediction, string>>;
   parameters(input: unknown): ComparisonParameters;
@@ -62,9 +78,30 @@ export type ComparisonReplayAdapter = Readonly<{
     variant: ComparisonSnapshot,
     result: ComparisonResult,
   ): string | null;
+  verifySaved?: (baseline: Baseline, variant: Baseline, result: ComparisonResult) => string | null;
   createSession(instanceId: string, owner: ComparisonReplayOwner): Promise<ComparisonReplaySession>;
   loadCurrentOwner(): Promise<ComparisonReplayOwner>;
+  /** Paper-specific revisions and aliases; a foreign paper's anchor must not appear resolved. */
+  loadCatalogue(): Promise<ReplayCatalogue>;
 }>;
+
+/** Called with the adapter's validated canonical parameters, never with an imported policy. */
+export function comparisonReplaySeed(
+  adapter: ComparisonReplayAdapter,
+  parameters: ComparisonParameters,
+): string {
+  return adapter.seedPolicy.kind === "deterministic"
+    ? adapter.seedPolicy.value
+    : (parameters[adapter.seedPolicy.parameterId] as string);
+}
+
+const stochasticMatchingMessage =
+  "Finished. The new numbers agree within relative tolerance 1e-12 of the saved ones, that is, to one part in a trillion. The particles' paths were not saved, so they were not compared.";
+
+async function loadBrownianCatalogue(): Promise<ReplayCatalogue> {
+  const { default: catalogue } = await import("../../generated/notebook-replay.json");
+  return catalogue as ReplayCatalogue;
+}
 
 function cameraParameters(input: unknown) {
   const checked = validateBm08Parameters(input);
@@ -89,6 +126,8 @@ const adapters: Readonly<Record<ReplayInstrumentId, ComparisonReplayAdapter>> = 
       "Keeps the scalar readouts and the recipe to run them again. The simulated particle paths are not stored.",
     evidenceDescription:
       "These are the numbers you saw, from simulated particles. They are not recomputed, and the particles' paths were not kept.",
+    matchingScalarsMessage: stochasticMatchingMessage,
+    seedPolicy: Object.freeze({ kind: "parameter", parameterId: "seed" }),
     predictionPromptId: "bm-01-predict-comparison-rms",
     predictions: Object.freeze({
       smaller: "The coordinate RMS will be smaller",
@@ -110,7 +149,7 @@ const adapters: Readonly<Record<ReplayInstrumentId, ComparisonReplayAdapter>> = 
     }),
     verifyAccepted: verifyBm01Comparison,
     async createSession(instanceId: string, owner: ComparisonReplayOwner) {
-      if (owner.instrumentId === "bm-08")
+      if (owner.instrumentId !== undefined && owner.instrumentId !== "bm-01")
         throw new ComparisonReplayAdapterError(
           "replay-owner-mismatch",
           "This saved comparison requires the tracer instrument.",
@@ -131,6 +170,7 @@ const adapters: Readonly<Record<ReplayInstrumentId, ComparisonReplayAdapter>> = 
         workerFactory: browser.createBm01BrowserChannel,
       };
     },
+    loadCatalogue: loadBrownianCatalogue,
   }),
   "bm-08": Object.freeze({
     instrumentId: "bm-08",
@@ -144,6 +184,8 @@ const adapters: Readonly<Record<ReplayInstrumentId, ComparisonReplayAdapter>> = 
       "Keeps the diffusion estimates and selected scalar readouts, with all three seeds. Particle paths, camera frames and confidence-set bounds are not stored. A replay reconstructs the comparison through the camera model.",
     evidenceDescription:
       "These are the diffusion estimates and selected scalar readouts you saved from a simulated camera. They are not recomputed. Particle paths, camera frames and confidence-set bounds were not kept; running again reconstructs a new comparison from the saved settings and all three seeds.",
+    matchingScalarsMessage: stochasticMatchingMessage,
+    seedPolicy: Object.freeze({ kind: "parameter", parameterId: "seed" }),
     predictionPromptId: "bm-08-predict-comparison-naive-diffusion",
     predictions: Object.freeze({
       smaller: "The naive diffusion estimate will be smaller",
@@ -175,6 +217,63 @@ const adapters: Readonly<Record<ReplayInstrumentId, ComparisonReplayAdapter>> = 
         identity: bm08ComparisonIdentity(prepared.default),
         workerFactory: browser.createBm08BrowserChannel,
       };
+    },
+    loadCatalogue: loadBrownianCatalogue,
+  }),
+  "sr-03": Object.freeze({
+    instrumentId: "sr-03",
+    kind: "sr03-comparison",
+    mode: "sr-03:default",
+    contract: SR03_COMPARISON,
+    title: "My controlled observer comparison",
+    paper: "special-relativity",
+    anchor: "arg-sr-rod-events",
+    saveDescription:
+      "Keeps both descriptions' scalar readouts, the fixed event-pair settings and the observer change. Replaying recalculates the same pair through the relativity model.",
+    evidenceDescription:
+      "These are the time and distance readouts you saved for one fixed event pair. They are not recomputed on opening. The settings identify the physical setup and event selection; an explicit replay uses the registered relativity model.",
+    matchingScalarsMessage:
+      "Finished. The saved readouts agree within relative tolerance 1e-12, that is, to one part in a trillion. Both descriptions use the same fixed event pair and physical setup.",
+    // SR-03 draws no random samples. Zero is the deterministic tape identity, not a new input.
+    seedPolicy: Object.freeze({ kind: "deterministic", value: "0" }),
+    predictionPromptId: "sr-03-predict-comparison-time-separation",
+    predictions: Object.freeze({
+      smaller: "The signed time separation will be smaller",
+      same: "The signed time separation will stay the same",
+      larger: "The signed time separation will be larger",
+    }),
+    // The validator returns the complete scalar shape; Sr03Parameters retains optional custom
+    // fields in its public type for the laboratory's older settings links.
+    parameters: (input: unknown) =>
+      fixedSr03ComparisonParameters(input) as unknown as ComparisonParameters,
+    replayGrid: () => undefined,
+    verifyAccepted: verifySr03Comparison,
+    verifySaved: verifySr03SavedComparison,
+    async createSession(instanceId: string, owner: ComparisonReplayOwner) {
+      if (owner.instrumentId !== "sr-03")
+        throw new ComparisonReplayAdapterError(
+          "replay-owner-mismatch",
+          "This saved comparison requires the rod and simultaneity instrument.",
+        );
+      const { createSr03Session } = await import("../../experiments/sr03/session.ts");
+      return createSr03Session(instanceId, owner.example, owner.workerFactory);
+    },
+    async loadCurrentOwner(): Promise<ComparisonReplayOwner> {
+      const [prepared, browser] = await Promise.all([
+        import("../../generated/sr03-notebook-replay.json"),
+        import("../../experiments/sr03/browser.ts"),
+      ]);
+      const example = prepared.default.example;
+      return {
+        instrumentId: "sr-03",
+        example: { ...example, parameters: fixedSr03ComparisonParameters(example.parameters) },
+        identity: sr03ComparisonIdentity(example),
+        workerFactory: browser.createSr03BrowserChannel,
+      };
+    },
+    async loadCatalogue(): Promise<ReplayCatalogue> {
+      const { default: catalogue } = await import("../../generated/sr03-notebook-replay.json");
+      return catalogue as ReplayCatalogue;
     },
   }),
 });

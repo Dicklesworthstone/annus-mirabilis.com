@@ -10,11 +10,8 @@ export function replayEnvironment(replay: ComparisonReplay): ReplayViewEnvironme
   const loadOwner = () => (owner ??= adapter.loadCurrentOwner());
   return {
     async loadCatalogue() {
-      const [module, current] = await Promise.all([
-        import("../../generated/notebook-replay.json"),
-        loadOwner(),
-      ]);
-      return { ...module.default, identity: current.identity } as ReplayCatalogue;
+      const [catalogue, current] = await Promise.all([adapter.loadCatalogue(), loadOwner()]);
+      return { ...catalogue, identity: current.identity } as ReplayCatalogue;
     },
     async createRunner() {
       const [{ createComparisonReplayRunner }, current] = await Promise.all([

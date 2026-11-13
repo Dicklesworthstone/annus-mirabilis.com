@@ -176,7 +176,7 @@ export function createComparisonReplayRunner(
         message: changed
           ? "The new run finished under the current model. What you saved was not replaced."
           : reproduction === "matching-scalars"
-            ? "Finished. The new numbers agree within relative tolerance 1e-12 of the saved ones, that is, to one part in a trillion. The particles' paths were not saved, so they were not compared."
+            ? adapter.matchingScalarsMessage
             : "Finished, but some numbers differ from the saved ones. Both sets are shown.",
       });
     } catch {

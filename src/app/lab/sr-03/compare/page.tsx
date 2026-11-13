@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ObserverControlledComparison } from "../../../../components/lab/ObserverControlledComparison.tsx";
 import { prepareSr03Comparisons } from "../../../../content/sr03Comparison.ts";
 import example from "../../../../generated/sr03-example.json";
+import catalogue from "../../../../generated/sr03-notebook-replay.json";
 import { NotModeledLine } from "../../NotModeledLine.tsx";
 import "../../../../experiments/compare/comparison.css";
 
@@ -25,7 +26,10 @@ export default async function ObserverComparisonPage() {
           length measurement.
         </p>
       </header>
-      <ObserverControlledComparison examples={examples} />
+      <ObserverControlledComparison
+        examples={examples}
+        passage={catalogue.passages["arg-sr-rod-events"]}
+      />
       <NotModeledLine instrumentId="sr-03" />
       <section className="reading">
         <h2>Changing observer and changing a measurement</h2>

@@ -1,4 +1,4 @@
-import type { ComparisonIdentity, ComparisonSnapshot } from "../compare/Baseline.ts";
+import type { Baseline, ComparisonIdentity, ComparisonSnapshot } from "../compare/Baseline.ts";
 import type { ComparisonResult } from "../compare/compatibility.ts";
 import {
   type ComparisonContract,
@@ -163,6 +163,69 @@ export function sr03ComparisonReadings(snapshot: ComparisonSnapshot) {
   return sr03ReadingsView(parameters, snapshot.outputs);
 }
 
+/** The same continuity witness governs live comparisons and their saved scalar evidence. */
+function verifyObserverContinuity(
+  baseline: Pick<ComparisonSnapshot, "instanceId" | "runId" | "revisions">,
+  variant: Pick<ComparisonSnapshot, "instanceId" | "runId" | "revisions">,
+  changedInput: string | null,
+): string | null {
+  if (
+    baseline.instanceId !== variant.instanceId ||
+    baseline.runId !== variant.runId ||
+    ["input", "measurement", "estimator"].some(
+      (key) =>
+        baseline.revisions[key as "input" | "measurement" | "estimator"] !==
+        variant.revisions[key as "input" | "measurement" | "estimator"],
+    )
+  )
+    return "Changing observer must preserve the physical run, selected event pair and measurement revision.";
+  if (variant.revisions.observer < baseline.revisions.observer)
+    return "The observer revision precedes the pinned description.";
+  if (changedInput !== null && variant.revisions.observer <= baseline.revisions.observer)
+    return "The changed observer needs its own accepted observer revision.";
+  return null;
+}
+
+/**
+ * A saved comparison keeps eight scalar readouts, not every live view flag. Validate that bounded
+ * projection against the owner's contracts, including its nonnumeric distance, before any replay.
+ * The scalar digest does not cover run/revision identities, so continuity is checked separately.
+ */
+export function verifySr03SavedComparison(
+  baseline: Baseline,
+  variant: Baseline,
+  result: ComparisonResult,
+): string | null {
+  if (result.kind !== "accepted") return result.message;
+  const continuity = verifyObserverContinuity(baseline, variant, result.variation.changedInput);
+  if (continuity) return continuity;
+  for (const { id } of SR03_COMPARISON.outputs) {
+    const contract = SR03_OUTPUTS[id];
+    const a = baseline.outputs[id],
+      b = variant.outputs[id];
+    for (const output of [a, b]) {
+      if (
+        !contract ||
+        !output ||
+        output.unit !== contract.unit ||
+        output.semanticKind !== contract.semanticKind ||
+        output.evidence?.ownerId !== contract.ownerId ||
+        (output.status !== "value" &&
+          !(id === "measuredLength" && output.status === "not-applicable")) ||
+        (output.status === "value" &&
+          (typeof output.value !== "number" || !Number.isFinite(output.value))) ||
+        (output.status === "not-applicable" && !output.reason.trim())
+      )
+        return `The saved observer result is missing or misidentifies ${id}.`;
+    }
+    // The owner reports both coordinate descriptions in each snapshot. An observer selection can
+    // change the applicability of a length measurement, but cannot change those fixed coordinates.
+    if (id !== "measuredLength" && !Object.is(a?.value, b?.value))
+      return "The saved coordinate descriptions do not identify the same fixed event pair.";
+  }
+  return null;
+}
+
 /**
  * The owner has no per-event ids. Its fixed pair parameters, physical run and both sets of
  * accepted coordinate differences are the witness here. A frame-simultaneous recipe cannot
@@ -179,22 +242,8 @@ export function verifySr03Comparison(
     sr03ComparisonReadings(variant);
     const variation = singleVariationLock(baseline.parameters, variant.parameters, SR03_COMPARISON);
     if (variation.kind !== "accepted") return variation.message;
-    if (
-      baseline.instanceId !== variant.instanceId ||
-      baseline.runId !== variant.runId ||
-      ["input", "measurement", "estimator"].some(
-        (key) =>
-          baseline.revisions[key as "input" | "measurement" | "estimator"] !==
-          variant.revisions[key as "input" | "measurement" | "estimator"],
-      )
-    ) {
-      return "Changing observer must preserve the physical run, selected event pair and measurement revision.";
-    }
-    if (
-      variation.changedInput !== null &&
-      variant.revisions.observer <= baseline.revisions.observer
-    )
-      return "The changed observer needs its own accepted observer revision.";
+    const continuity = verifyObserverContinuity(baseline, variant, variation.changedInput);
+    if (continuity) return continuity;
     for (const id of Object.keys(SR03_OUTPUTS)) {
       // Only the applicability of a same-time distance is observer-dependent. The owner always
       // publishes BOTH coordinate descriptions, so every other output must remain identical.

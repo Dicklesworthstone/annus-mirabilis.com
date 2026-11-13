@@ -5,22 +5,14 @@ import { fileURLToPath } from "node:url";
 import { validateAliasRecord } from "../src/content/aliases.ts";
 import { parseContentYaml } from "../src/content/compiler/loaders.ts";
 import { loadPaperPayload } from "../src/content/compiler/serverLoaders.ts";
+import { prepareSr03Comparisons } from "../src/content/sr03Comparison.ts";
 import { bm01ComparisonIdentity } from "../src/experiments/bm01/comparison.ts";
+import { sr03ComparisonIdentity } from "../src/experiments/sr03/comparison.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
-/** Small public revision catalogue only. Never read localStorage, notebook files or reader words. */
-export async function generateNotebookReplay(
-  root = ROOT,
-  outputDirectory = resolve(root, "src/generated"),
-) {
-  const example = JSON.parse(
-    await readFile(resolve(root, "src/generated/bm01-comparison.json"), "utf8"),
-  );
-  const identity = bm01ComparisonIdentity(example);
-  if (!/^source:sha256:[a-f0-9]{64}$/u.test(identity.sourceDigest))
-    throw new Error("Generate the current comparison example first.");
-  const paper = await loadPaperPayload("brownian-motion", root);
+async function paperCatalogue(root, paperId) {
+  const paper = await loadPaperPayload(paperId, root);
   const passages = Object.fromEntries(
     paper.arguments.map((argument) => [
       argument.id,
@@ -31,20 +23,60 @@ export async function generateNotebookReplay(
     ]),
   );
   const raw = parseContentYaml(
-    await readFile(resolve(root, "content/aliases/brownian-motion.yaml"), "utf8"),
+    await readFile(resolve(root, `content/aliases/${paperId}.yaml`), "utf8"),
   );
-  if (raw?.paper !== "brownian-motion" || !Array.isArray(raw.aliases))
-    throw new Error("Invalid Brownian alias collection.");
+  if (raw?.paper !== paperId || !Array.isArray(raw.aliases))
+    throw new Error(`Invalid ${paperId} alias collection.`);
   const aliases = raw.aliases.map((value) => {
     const checked = validateAliasRecord(value);
     if (!checked.ok) throw new Error(checked.error);
     return checked.value;
   });
-  const output = { identity, passages, aliases };
-  if (!Object.hasOwn(passages, "arg-bm-observable"))
-    throw new Error("The saved comparison passage must resolve to a compiled argument.");
+  return { passages, aliases };
+}
+
+/** Small public catalogues only. Never read localStorage, notebook files or reader words. */
+export async function generateNotebookReplay(
+  root = ROOT,
+  outputDirectory = resolve(root, "src/generated"),
+) {
+  const example = JSON.parse(
+    await readFile(resolve(root, "src/generated/bm01-comparison.json"), "utf8"),
+  );
+  const sr03 = JSON.parse(await readFile(resolve(root, "src/generated/sr03-example.json"), "utf8"));
+  const identity = bm01ComparisonIdentity(example);
+  if (
+    [identity.sourceDigest, sr03.sourceDigest].some(
+      (digest) => !/^source:sha256:[a-f0-9]{64}$/u.test(digest),
+    )
+  )
+    throw new Error("Generate the current comparison examples first.");
+  const [brownian, relativity, observerComparisons] = await Promise.all([
+    paperCatalogue(root, "brownian-motion"),
+    paperCatalogue(root, "special-relativity"),
+    prepareSr03Comparisons(sr03.sourceDigest),
+  ]);
+  const fixedPair = observerComparisons[0]?.baseline;
+  if (
+    !Object.hasOwn(brownian.passages, "arg-bm-observable") ||
+    !Object.hasOwn(relativity.passages, "arg-sr-rod-events") ||
+    !fixedPair
+  )
+    throw new Error("The saved comparisons need their compiled passages and fixed-pair example.");
+  // Preserve the existing Brownian payload and return value. Relativity has a separate catalogue
+  // so an anchor in another paper can never appear resolved under the saved paper's URL.
+  const output = { identity, ...brownian };
+  const observer = {
+    identity: sr03ComparisonIdentity(fixedPair),
+    ...relativity,
+    example: fixedPair,
+  };
   await mkdir(outputDirectory, { recursive: true });
   await writeFile(resolve(outputDirectory, "notebook-replay.json"), `${JSON.stringify(output)}\n`);
+  await writeFile(
+    resolve(outputDirectory, "sr03-notebook-replay.json"),
+    `${JSON.stringify(observer)}\n`,
+  );
   return output;
 }
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
@@ -52,6 +84,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   console.log(
     JSON.stringify({
       event: "notebook-replay-catalogue-generated",
+      papers: ["brownian-motion", "special-relativity"],
       passages: Object.keys(result.passages).length,
       sourceDigest: result.identity.sourceDigest,
     }),

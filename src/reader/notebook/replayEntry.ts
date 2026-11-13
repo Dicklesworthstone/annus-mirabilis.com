@@ -1,7 +1,10 @@
 /** Private accepted evidence. This is a bounded scalar checkpoint, not a trajectory archive. */
 import { type Baseline, pinBaseline } from "../../experiments/compare/Baseline.ts";
 import { comparisonStatement } from "../../experiments/compare/comparisonStatement.ts";
-import { compareBaselines } from "../../experiments/compare/compatibility.ts";
+import {
+  type ComparisonResult,
+  compareBaselines,
+} from "../../experiments/compare/compatibility.ts";
 import type { ControlledComparisonState } from "../../experiments/compare/controlledComparison.ts";
 import { scientificDigest } from "../../experiments/digest/scientificDigest.ts";
 import { validateTapeV2 } from "../../experiments/permalink/schema.ts";
@@ -13,6 +16,7 @@ import {
   type ComparisonReplayPrediction,
   comparisonReplayAdapter,
   comparisonReplayAdapterForKind,
+  comparisonReplaySeed,
 } from "./comparisonAdapters.ts";
 
 /**
@@ -327,6 +331,18 @@ function freeze(value: unknown): unknown {
   return value;
 }
 
+/** Validate an instrument's saved projection before any recipe can reach a live owner. */
+function verifySavedComparison(
+  adapter: ComparisonReplayAdapter,
+  a: Baseline,
+  b: Baseline,
+  result: ComparisonResult,
+): void {
+  const evidenceError = adapter.verifySaved?.(a, b, result);
+  if (evidenceError)
+    throw new ReplayRecipeError("invalid-replay-comparison-evidence", evidenceError);
+}
+
 /** Decode without executing anything. Reading an old entry must never start an owner. */
 export function parseComparisonReplay(value: unknown): ComparisonReplay {
   const r = record(value, [
@@ -357,6 +373,7 @@ export function parseComparisonReplay(value: unknown): ComparisonReplay {
     b = baseline(r.variant, adapter),
     result = compareBaselines(a, b, adapter.contract);
   if (result.kind !== "accepted") throw new TypeError(result.message);
+  verifySavedComparison(adapter, a, b, result);
   const statement = replayText(r.statement, 10000);
   const tape = cloneTape(r.tape, adapter);
   const mid = tape.modelIdentity;
@@ -367,7 +384,7 @@ export function parseComparisonReplay(value: unknown): ComparisonReplay {
     tape.streamVersion !== a.identity.streamVersion ||
     tape.constantSetId !== a.identity.constantSetId ||
     tape.allocationId !== a.identity.allocationId ||
-    tape.seed !== a.parameters.seed ||
+    tape.seed !== comparisonReplaySeed(adapter, a.parameters) ||
     tape.replayGrid?.baseSpacing !== grid?.baseSpacing ||
     tape.replayGrid?.horizon !== grid?.horizon
   )
@@ -483,7 +500,7 @@ export async function captureComparisonReplay(
       evaluatorSourceHash: a.identity.sourceDigest,
     },
     constantSetId: a.identity.constantSetId,
-    seed: a.parameters.seed,
+    seed: comparisonReplaySeed(adapter, a.parameters),
     streamVersion: a.identity.streamVersion,
     allocationId: a.identity.allocationId,
     ...(grid ? { replayGrid: grid } : {}),

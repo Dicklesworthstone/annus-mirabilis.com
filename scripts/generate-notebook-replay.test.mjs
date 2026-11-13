@@ -6,6 +6,7 @@ import { resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { loadPaperPayload } from "../src/content/compiler/serverLoaders.ts";
+import { fixedSr03ComparisonParameters } from "../src/experiments/sr03/comparison.ts";
 import { generateNotebookReplay } from "./generate-notebook-replay.mjs";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
@@ -14,9 +15,11 @@ const output = await mkdtemp(resolve(tmpdir(), "annus-replay-catalogue-"));
 test("replay catalogue hashes actual compiled arguments, retains aliases and generates deterministically", async () => {
   const a = await generateNotebookReplay(root, output),
     first = await readFile(resolve(output, "notebook-replay.json"), "utf8");
+  const observerFirst = await readFile(resolve(output, "sr03-notebook-replay.json"), "utf8");
   const b = await generateNotebookReplay(root, output);
   assert.deepEqual(a, b);
   assert.equal(await readFile(resolve(output, "notebook-replay.json"), "utf8"), first);
+  assert.equal(await readFile(resolve(output, "sr03-notebook-replay.json"), "utf8"), observerFirst);
   const paper = await loadPaperPayload("brownian-motion", root);
   for (const argument of paper.arguments)
     assert.equal(
@@ -30,4 +33,34 @@ test("replay catalogue hashes actual compiled arguments, retains aliases and gen
   assert.equal(a.identity.sourceDigest, prepared.sourceDigest);
   assert.ok(!first.includes("explanationBefore"));
   assert.ok(!first.includes("Private note"));
+  const observer = JSON.parse(observerFirst);
+  const relativity = await loadPaperPayload("special-relativity", root);
+  for (const argument of relativity.arguments)
+    assert.equal(
+      observer.passages[argument.id].contentRevision,
+      createHash("sha256").update(JSON.stringify(argument)).digest("hex"),
+    );
+  assert.ok(observer.passages["arg-sr-rod-events"]);
+  assert.equal(observer.passages["arg-bm-observable"], undefined);
+  assert.equal(a.passages["arg-sr-rod-events"], undefined);
+  assert.deepEqual(
+    fixedSr03ComparisonParameters(observer.example.parameters),
+    observer.example.parameters,
+  );
+  const sr03 = JSON.parse(await readFile(resolve(root, "src/generated/sr03-example.json"), "utf8"));
+  assert.equal(observer.identity.sourceDigest, sr03.sourceDigest);
+  assert.equal(observer.example.sourceDigest, sr03.sourceDigest);
+  assert.equal(observer.identity.streamVersion, "deterministic");
+  assert.ok(!observerFirst.includes("explanationBefore"));
+});
+
+test("fresh preparation produces both owner examples before generating notebook catalogues", async () => {
+  const config = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
+  const commands = config.scripts["prepare:lab"].split(/\s*&&\s*/u);
+  const notebook = commands.indexOf("bun scripts/generate-notebook-replay.mjs");
+  assert.ok(notebook >= 0);
+  for (const required of ["generate-brownian-comparison.mjs", "generate-sr03.mjs"]) {
+    const position = commands.indexOf(`bun scripts/${required}`);
+    assert.ok(position >= 0 && position < notebook, `${required} must precede notebook replay`);
+  }
 });

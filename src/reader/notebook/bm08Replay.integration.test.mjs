@@ -351,7 +351,7 @@ test("unknown adapters and a wrong owner are explicitly refused before any worke
   assert.equal(io.metrics.created, 0);
 });
 
-test("(comparisonAdapters.ts:114) tracer session accepts its own prepared example and refuses a camera owner", async () => {
+test("(comparisonAdapters.ts:153) tracer session accepts its own prepared example and refuses a camera owner", async () => {
   const adapter = comparisonReplayAdapter("bm-01"),
     io = transport();
   await assert.rejects(
@@ -377,7 +377,7 @@ test("(comparisonAdapters.ts:114) tracer session accepts its own prepared exampl
   session.disconnect();
 });
 
-test("(comparisonAdapters.ts:160) camera session accepts its own prepared example and refuses a tracer owner", async () => {
+test("(comparisonAdapters.ts:202) camera session accepts its own prepared example and refuses a tracer owner", async () => {
   const adapter = comparisonReplayAdapter("bm-08"),
     io = transport();
   await assert.rejects(
@@ -437,7 +437,7 @@ test("camera recipe parsing refuses a second changed input, physical-path change
   }
 });
 
-test("(comparisonAdapters.ts:72) camera parameters admit one recording and refuse additional hypothetical experiments", () => {
+test("(comparisonAdapters.ts:109) camera parameters admit one recording and refuse additional hypothetical experiments", () => {
   assert.deepEqual(comparisonReplayAdapter("bm-08").parameters(parameters), parameters);
   assert.throws(
     () => comparisonReplayAdapter("bm-08").parameters({ ...parameters, coverageTrials: 1 }),
@@ -445,14 +445,14 @@ test("(comparisonAdapters.ts:72) camera parameters admit one recording and refus
   );
 });
 
-test("(comparisonAdapters.ts:101) tracer parameters admit their canonical settings and refuse camera settings", () => {
+test("(comparisonAdapters.ts:140) tracer parameters admit their canonical settings and refuse camera settings", () => {
   assert.deepEqual(comparisonReplayAdapter("bm-01").parameters(BM01_DEFAULTS), BM01_DEFAULTS);
   assert.throws(() => comparisonReplayAdapter("bm-01").parameters(parameters), {
     code: "invalid-replay-parameters",
   });
 });
 
-test("(replayEntry.ts:459) and (replayEntry.ts:470) capture refuses pending, stale evidence and an unproven recording", async () => {
+test("(replayEntry.ts:476) and (replayEntry.ts:487) capture refuses pending, stale evidence and an unproven recording", async () => {
   await assert.rejects(
     captureComparisonReplay({ ...cameraState, pending: true }, passage, words),
     /completed/,

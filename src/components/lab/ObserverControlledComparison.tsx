@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import type { Baseline } from "../../experiments/compare/Baseline.ts";
 import { ComparisonPanel } from "../../experiments/compare/ComparisonPanel.tsx";
 import {
   comparisonDisplay,
@@ -15,8 +16,17 @@ import {
 } from "../../experiments/sr03/comparisonSession.ts";
 import type { FrameId } from "../../experiments/sr03/definition.ts";
 import type { Sr03ReadingsView } from "../../experiments/sr03/readings.ts";
+import { comparisonReplayAdapter } from "../../reader/notebook/comparisonAdapters.ts";
+import {
+  type ComparisonPredictionIntent,
+  predictionForAccepted,
+  predictionIntent,
+} from "../../reader/notebook/predictionIntent.ts";
+import type { ReplayPassage, ReplayPrediction } from "../../reader/notebook/replayEntry.ts";
+import { SaveComparisonReplay } from "../../reader/notebook/SaveComparisonReplay.tsx";
 import type { WorkerChannel } from "../../workers/scheduler/sr03Scheduler.ts";
 
+const replayAdapter = comparisonReplayAdapter("sr-03");
 const displayed = (value: number | null) =>
   value === null ? "Not available" : comparisonDisplay(value);
 
@@ -113,9 +123,11 @@ function ObserverComparisonPlot({
 function Comparison({
   example,
   workerFactory,
+  passage,
 }: {
   example: PreparedSr03Comparison;
   workerFactory: () => WorkerChannel;
+  passage: ReplayPassage;
 }) {
   const uid = useId();
   const [controller] = useState(() =>
@@ -129,6 +141,13 @@ function Comparison({
   );
   const [ready, setReady] = useState(false);
   const [frame, setFrame] = useState<FrameId>(example.variant.parameters.measuringFrame);
+  const [nextPrediction, setNextPrediction] = useState<ReplayPrediction | null>(null);
+  const [issuedPrediction, setIssuedPrediction] = useState<ComparisonPredictionIntent | null>(null);
+  const [acceptedPrediction, setAcceptedPrediction] = useState<Readonly<{
+    baseline: Baseline;
+    variant: Baseline;
+    candidate: ReplayPrediction;
+  }> | null>(null);
   useEffect(() => {
     controller.connect();
     setReady(true);
@@ -138,6 +157,23 @@ function Comparison({
     const acceptedFrame = state.variant.parameters.measuringFrame;
     if (acceptedFrame === "K" || acceptedFrame === "k") setFrame(acceptedFrame);
   }, [state.variant]);
+  useEffect(() => {
+    if (state.pending) return;
+    const candidate = predictionForAccepted(issuedPrediction, state);
+    setAcceptedPrediction((previous) => {
+      if (candidate) return { baseline: state.baseline, variant: state.variant, candidate };
+      // A cancelled request keeps the preceding accepted publication. A new publication, even
+      // with the same settings, must never inherit a prediction from a different request.
+      return previous?.baseline === state.baseline && previous.variant === state.variant
+        ? previous
+        : null;
+    });
+  }, [issuedPrediction, state]);
+  const prediction =
+    predictionForAccepted(issuedPrediction, state) ??
+    (acceptedPrediction?.baseline === state.baseline && acceptedPrediction.variant === state.variant
+      ? acceptedPrediction.candidate
+      : null);
   const a = sr03ComparisonReadings(state.baselineSnapshot);
   const b = sr03ComparisonReadings(state.variantSnapshot);
   const baselineFrame = String(state.baseline.parameters.measuringFrame);
@@ -145,7 +181,9 @@ function Comparison({
   const enabled = ready && state.phase === "live" && !state.pending;
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    controller.apply({ ...state.baseline.parameters, measuringFrame: frame });
+    const requested = { ...state.baseline.parameters, measuringFrame: frame };
+    const intent = predictionIntent(nextPrediction, state, requested);
+    if (controller.apply(requested)) setIssuedPrediction(intent);
   }
   return (
     <section
@@ -185,10 +223,24 @@ function Comparison({
         </p>
       )}
       <div className="actions">
-        <button type="button" disabled={!ready || state.pending} onClick={() => controller.start()}>
+        <button
+          type="button"
+          disabled={!ready || state.pending}
+          onClick={() => {
+            setIssuedPrediction(null);
+            controller.start();
+          }}
+        >
           {state.phase === "example" ? "Start live observer comparison" : "Rebuild pinned baseline"}
         </button>
-        <button type="button" disabled={!enabled} onClick={() => controller.pinCurrent()}>
+        <button
+          type="button"
+          disabled={!enabled}
+          onClick={() => {
+            setIssuedPrediction(null);
+            controller.pinCurrent();
+          }}
+        >
           Pin current observer as baseline
         </button>
         <button type="button" disabled={!state.pending} onClick={() => controller.stop()}>
@@ -203,6 +255,34 @@ function Comparison({
       <form onSubmit={submit} aria-label="Observer comparison settings">
         <fieldset disabled={!enabled}>
           <legend>Describe the same events</legend>
+          <label htmlFor={`${uid}-prediction`}>
+            Before comparing: what will happen to the signed time separation? (Optional)
+          </label>
+          <select
+            id={`${uid}-prediction`}
+            value={nextPrediction ?? ""}
+            onChange={(event) => {
+              const candidate = event.target.value;
+              setNextPrediction(
+                Object.hasOwn(replayAdapter.predictions, candidate)
+                  ? (candidate as ReplayPrediction)
+                  : null,
+              );
+            }}
+          >
+            <option value="">No prediction recorded</option>
+            {Object.entries(replayAdapter.predictions).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+          <p>
+            Compare the second event's time minus the first event's time with the pinned observer's
+            reading. Smaller includes more negative; larger includes more positive. The choice
+            belongs to the comparison you request next. Changing it after a result does not rewrite
+            the prediction saved with that result.
+          </p>
           <label htmlFor={`${uid}-frame`}>Observer for the requested comparison</label>
           <select
             id={`${uid}-frame`}
@@ -217,7 +297,12 @@ function Comparison({
           </select>
           <div className="actions">
             <button type="submit">Compare this observer</button>
-            <button type="button" onClick={() => controller.apply(state.baseline.parameters)}>
+            <button
+              type="button"
+              onClick={() => {
+                if (controller.apply(state.baseline.parameters)) setIssuedPrediction(null);
+              }}
+            >
               Return to pinned observer
             </button>
           </div>
@@ -303,6 +388,7 @@ function Comparison({
           result={state.result}
         />
       </details>
+      <SaveComparisonReplay state={state} passage={passage} prediction={prediction} ready={ready} />
     </section>
   );
 }
@@ -311,9 +397,11 @@ function Comparison({
 export function ObserverControlledComparison({
   examples,
   workerFactory = createSr03BrowserChannel,
+  passage = { contentRevision: null, translationRevision: null },
 }: {
   examples: readonly PreparedSr03Comparison[];
   workerFactory?: () => WorkerChannel;
+  passage?: ReplayPassage;
 }) {
   const uid = useId();
   const [selected, setSelected] = useState(examples[0]?.id ?? "");
@@ -354,7 +442,12 @@ export function ObserverControlledComparison({
           starts no worker.
         </p>
       </form>
-      <Comparison key={selected} example={example} workerFactory={workerFactory} />
+      <Comparison
+        key={selected}
+        example={example}
+        workerFactory={workerFactory}
+        passage={passage}
+      />
     </>
   );
 }
