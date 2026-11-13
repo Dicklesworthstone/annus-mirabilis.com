@@ -464,5 +464,23 @@ realRate:
   natural: false
 embeddable: true
 predictMode:
-  exempt: true
-  reason: "am-inst-predict-mode-ti7m is still open. The bead's own prompt (halving the volume at fixed energy and band changes the entropy by a fixed amount, an amount proportional to the energy, or nothing) is named in the bead text but not authored as manifest predictMode.prompts here, matching lq-03.yaml's precedent for the same reason."
+  enabled: true
+  prompts:
+    - promptId: lq-04-predict-halving-volume
+      supportedCandidateId: lq-04-predict-halving-volume-energy-proportional
+      controlId: volumeRatio
+      question: "Compare V₀ with V₀/2 at fixed energy, frequency and narrow bandwidth, with both states inside the Wien regime. Across such trials, how does the entropy decrease depend on the fixed energy E?"
+      explanation: "The volume law gives ΔS = (E/βν) ln(V/V₀). Halving the volume therefore gives ΔS = −(E/βν) ln 2: the entropy decreases by an amount proportional to E at fixed frequency. Here β is the constant in Wien's exponent, h/k_{B} in modern notation. Choose Half to compare these states. This is a comparison at fixed energy and band, not a model of adiabatic compression; both endpoints must remain within the selected Wien limit."
+      candidates:
+        - id: lq-04-predict-halving-volume-fixed-decrease
+          label: "The same decrease for every energy"
+          description: "Halving the volume subtracts an amount independent of how much radiation energy is present."
+          separatingAssumption: "Uses the volume ratio alone and drops the coefficient E/(βν). The logarithm is fixed by halving, but its coefficient grows with the fixed energy of each trial."
+        - id: lq-04-predict-halving-volume-energy-proportional
+          label: "A decrease proportional to the energy"
+          description: "Twice the fixed energy gives twice the entropy decrease, while both endpoint states remain admitted."
+          separatingAssumption: "Keeps frequency fixed and uses the coefficient E/(βν) multiplying ln(1/2), as the Wien-regime volume law requires."
+        - id: lq-04-predict-halving-volume-unchanged-entropy
+          label: "No decrease because energy is fixed"
+          description: "The entropy remains unchanged whenever the radiation energy is unchanged."
+          separatingAssumption: "Treats entropy as a function of energy alone. At fixed energy and band, changing the volume changes the radiation density and its entropy."

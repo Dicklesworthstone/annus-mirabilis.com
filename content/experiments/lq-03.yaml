@@ -344,5 +344,41 @@ realRate:
   natural: false
 embeddable: true
 predictMode:
-  exempt: true
-  reason: "Predict-mode candidate authoring and the tape event wiring belong to am-inst-predict-mode-ti7m (still open); the bead's two prompts (axis-switch peak location, band-energy invariance under axis switch) are named in the bead text but not authored as manifest predictMode.prompts here."
+  enabled: true
+  prompts:
+    - promptId: lq-03-predict-density-peak
+      supportedCandidateId: lq-03-predict-density-peak-different-frequency
+      controlId: convention
+      question: "At fixed temperature, change Planck's density from per hertz to per metre of wavelength, and plot it against wavelength. Does the peak identify the same radiation frequency as before?"
+      explanation: "Changing the density convention changes the peak: u_{λ} = u_{ν}(c/λ)c/λ², so the wavelength-density peak is not c divided by the frequency-density peak. At 5000 K with modern constants, the per-Hz peak is about 294 THz, while the per-metre peak is about 580 nm, corresponding to 517 THz. Change both Density per and Plot against to compare them. Changing only the horizontal coordinate, or its linear/logarithmic scale, preserves the physical peak of the same density."
+      candidates:
+        - id: lq-03-predict-density-peak-same-frequency
+          label: "The same radiation frequency"
+          description: "The peak wavelength is obtained by substituting λ = c/ν into the frequency-density peak."
+          separatingAssumption: "Treats a change of density convention as only a relabeling of the horizontal coordinate. That would preserve the physical peak of u_{ν}, but u_{λ} also includes the factor c/λ²."
+        - id: lq-03-predict-density-peak-different-frequency
+          label: "A different radiation frequency"
+          description: "The conversion changes the density as well as its horizontal coordinate."
+          separatingAssumption: "Uses energy per metre of wavelength rather than energy per hertz. The Jacobian changes the relative heights, so the maxima occur at different radiation frequencies."
+        - id: lq-03-predict-density-peak-no-peak
+          label: "No peak remains"
+          description: "Reversing frequency into wavelength removes the maximum."
+          separatingAssumption: "Treats reversing the horizontal coordinate as destroying a maximum. Planck's density still has a maximum in both conventions; the Jacobian changes where it occurs."
+    - promptId: lq-03-predict-band-energy
+      supportedCandidateId: lq-03-predict-band-energy-same-energy
+      controlId: coordinate
+      question: "Keep temperature, constants and the physical band fixed. Does the integrated energy per unit volume change when you calculate it in wavelength coordinates instead of frequency coordinates?"
+      explanation: "Both integrals describe the same band energy. The frequency interval ν₁ to ν₂ corresponds to the wavelength interval c/ν₂ to c/ν₁, and u_{λ} = u_{ν}(c/λ)c/λ² supplies the Jacobian. The two numerical integrals agree within their integration tolerance. At 5000 K with modern constants, 400–600 THz gives about 0.129 J/m³ either way. A density peak can move between conventions without changing this integral."
+      candidates:
+        - id: lq-03-predict-band-energy-same-energy
+          label: "The band energy stays the same"
+          description: "The two integrals add the same physical energy in different coordinates."
+          separatingAssumption: "Transforms both the density and the band edges, including the Jacobian, so each small interval carries the same energy."
+        - id: lq-03-predict-band-energy-changed-energy
+          label: "The band energy changes with the peak"
+          description: "Moving the density peak changes the energy assigned to the selected band."
+          separatingAssumption: "Confuses the height or location of a density peak with an integral over a fixed physical band. The density and interval width change together."
+        - id: lq-03-predict-band-energy-narrow-band-only
+          label: "They agree only for a very narrow band"
+          description: "Coordinate invariance requires the narrow-band approximation used in the entropy argument."
+          separatingAssumption: "Imports the narrow-band restriction from the Wien entropy argument. Changing variables in the Planck band integral does not require a narrow-band approximation."

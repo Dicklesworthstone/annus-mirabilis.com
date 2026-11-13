@@ -44,15 +44,19 @@ import type {
 } from "../../../experiments/store/instanceStore.ts";
 import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
+import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { LQ04_READER_WEAVE } from "../../../reader/weave/entropyPassages.ts";
 import { SessionResultWeave } from "../../../reader/weave/SessionResultWeave.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
 import { LabMargin } from "../LabMargin.tsx";
+import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 import { ShowTheCode } from "../ShowTheCode.tsx";
 import { withScripts } from "../subscripts.tsx";
+
+const LQ04_PROMPTS = PREDICT_PROMPTS["lq-04"] ?? [];
 
 type Draft = Readonly<{
   frequency: string;
@@ -153,13 +157,17 @@ export function EntropyWorkbenchLab({
     (retainedId) => createLq04Session(retainedId, example?.parameters ?? LQ04_DEFAULTS),
   );
   const view = useInstrumentView(session);
+  const gate = usePredictGate("lq-04", LQ04_PROMPTS);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
   const tapeLink = useLabTapeLink(
     LQ04_TAPE,
     session,
     session.acceptedParameters(),
     restoreFromLocation,
-    (restored) => setDraft(toDraft(restored)),
+    (restored, predictions) => {
+      setDraft(toDraft(restored));
+      gate.restore(predictions ?? []);
+    },
   );
 
   const fallback =
@@ -179,6 +187,14 @@ export function EntropyWorkbenchLab({
   );
   const [draft, setDraft] = useState(() => toDraft(p));
   const [failure, setFailure] = useState<ApplyFailure | null>(null);
+  // An unavailable calculation must explain itself even before the reader makes a prediction.
+  const scientificRefusals = [
+    ...new Set(
+      snapshot.outputs.flatMap((output) =>
+        output.status === "outside-domain" ? [output.reason] : [],
+      ),
+    ),
+  ];
 
   useEffect(() => {
     return () => session.disconnect();
@@ -239,6 +255,12 @@ export function EntropyWorkbenchLab({
       </div>
 
       <p className="lab-question">{LQ04_QUESTION}</p>
+      <PredictGatePanels gate={gate} />
+      {scientificRefusals.map((reason) => (
+        <p key={reason} className="notice" role="status" data-scientific-refusal>
+          {withScripts(reason)}
+        </p>
+      ))}
 
       <noscript>
         <p className="notice">
@@ -380,17 +402,13 @@ export function EntropyWorkbenchLab({
           )}
         </form>
 
-        <div className="lab-results">
+        <div className="lab-results" {...gate.response}>
           <p className="fine">
             Fixed energy E = {energyText} at ν = <Sci value={p.frequency} digits={2} /> Hz in a{" "}
             <Sci value={p.bandwidth} digits={2} /> Hz band.
           </p>
 
-          {refused && entropyOutput?.status === "outside-domain" ? (
-            <p role="status" className="notice">
-              {entropyOutput.reason}
-            </p>
-          ) : (
+          {!refused ? (
             <p role="status">
               ΔS = {valueText(snapshot, "radiationEntropy", "J/K")} (closed form);{" "}
               {valueText(snapshot, "radiationEntropyNumeric", "J/K")} (numerical S(V) − S(V₀));
@@ -398,7 +416,7 @@ export function EntropyWorkbenchLab({
               = {valueText(snapshot, "effectiveIndependentCount", "", 6)} (never a count of
               particles).
             </p>
-          )}
+          ) : null}
 
           {/* On a 320px phone this three-column table was 348px wide and pushed the whole page
               sideways; it now scrolls inside its own labelled region instead. */}
@@ -506,39 +524,46 @@ export function EntropyWorkbenchLab({
           </details>
         </div>
       </div>
-      <SessionResultWeave
-        session={session}
-        binding={LQ04_READER_WEAVE}
-        suspended={failure !== null}
-        highlightPaper={highlightPaper}
-      />
+      <div {...gate.response}>
+        <SessionResultWeave
+          session={session}
+          binding={LQ04_READER_WEAVE}
+          suspended={!gate.open || failure !== null}
+          announcementsEnabled={gate.open}
+          highlightPaper={highlightPaper}
+        />
+      </div>
       {/* The permalink to these settings, after the instrument it links to (dispatch 263). In
           the status row it made that line 267px tall at 1440. */}
-      <LabTapeLink link={tapeLink} />
+      <LabTapeLink link={withPredictions(tapeLink, gate)} />
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
           children of the lab root, which labShell.css's detail rules select. */}
-      <p data-detail="0">
+      <p data-detail="0" {...gate.response}>
         <noscript>
           <b className="reading-label">In one breath</b>
         </noscript>
         {withScripts(LQ04_CAPTION.r0)}
       </p>
-      <p data-detail="1">
+      <p data-detail="1" {...gate.response}>
         <noscript>
           <b className="reading-label">Full explanation</b>
         </noscript>
         {withScripts(LQ04_CAPTION.r1)}
       </p>
-      <p data-detail="2" hidden>
+      <p data-detail="2" hidden {...gate.response}>
         <noscript>
           <b className="reading-label">Every step</b>
         </noscript>
         {withScripts(LQ04_CAPTION.r2)}
       </p>
-      <LabMargin>{withScripts(LQ04_CAPTION.r3)}</LabMargin>
+      <LabMargin>
+        <span {...gate.response}>{withScripts(LQ04_CAPTION.r3)}</span>
+      </LabMargin>
 
       {/* The reader can read the evaluator that produced these numbers (am-f3e4). */}
-      <ShowTheCode instrumentId="lq-04" listings={getKernelListingsForInstrument("lq-04")} />
+      <div {...gate.response}>
+        <ShowTheCode instrumentId="lq-04" listings={getKernelListingsForInstrument("lq-04")} />
+      </div>
     </section>
   );
 }

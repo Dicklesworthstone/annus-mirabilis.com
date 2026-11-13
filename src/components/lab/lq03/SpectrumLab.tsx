@@ -36,17 +36,21 @@ import { statusMessage } from "../../../experiments/results/explanations.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
+import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { SessionResultWeave } from "../../../reader/weave/SessionResultWeave.tsx";
 import { LQ03_READER_WEAVE } from "../../../reader/weave/spectrumPassages.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
 import { LabMargin } from "../LabMargin.tsx";
+import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { fixed, identity } from "../presentation.ts";
 import { Sci, SciFromLn } from "../Sci.tsx";
 import { ShowTheCode } from "../ShowTheCode.tsx";
 import { SliderField } from "../SliderField.tsx";
 import { withScripts } from "../subscripts.tsx";
 import { SpectrumPlot } from "./SpectrumPlot.tsx";
+
+const LQ03_PROMPTS = PREDICT_PROMPTS["lq-03"] ?? [];
 
 type Draft = Readonly<{
   constantSetId: Lq03ConstantSet;
@@ -164,13 +168,17 @@ export function SpectrumLab({
     (retainedId) => createLq03Session(retainedId, example?.parameters ?? LQ03_DEFAULTS),
   );
   const view = useInstrumentView(session);
+  const gate = usePredictGate("lq-03", LQ03_PROMPTS);
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
   const tapeLink = useLabTapeLink(
     LQ03_TAPE,
     session,
     session.acceptedParameters(),
     restoreFromLocation,
-    (restored) => setDraft(toDraft(restored)),
+    (restored, predictions) => {
+      setDraft(toDraft(restored));
+      gate.restore(predictions ?? []);
+    },
   );
 
   const fallback =
@@ -191,6 +199,14 @@ export function SpectrumLab({
   const [draft, setDraft] = useState(() => toDraft(p));
   const [ready, setReady] = useState(false);
   const [failure, setFailure] = useState<ApplyFailure | null>(null);
+  // An unavailable calculation must explain itself even before the reader makes a prediction.
+  const scientificRefusals = [
+    ...new Set(
+      snapshot.outputs.flatMap((output) =>
+        output.status === "outside-domain" ? [output.reason] : [],
+      ),
+    ),
+  ];
 
   // Typing a draft or opening a disclosure does not change the accepted experiment. In
   // particular, those renders must not repeat the two adaptive band integrations.
@@ -268,6 +284,12 @@ export function SpectrumLab({
       </div>
 
       <p className="lab-question">{LQ03_QUESTION}</p>
+      <PredictGatePanels gate={gate} />
+      {scientificRefusals.map((reason) => (
+        <p key={reason} className="notice" role="status" data-scientific-refusal>
+          {withScripts(reason)}
+        </p>
+      ))}
 
       <noscript>
         <p className="notice">
@@ -490,7 +512,7 @@ export function SpectrumLab({
           )}
         </form>
 
-        <div className="results lab-results">
+        <div className="results lab-results" {...gate.response}>
           <p className="fine" data-accepted-constants={p.constantSetId ?? "modern-si-2019"}>
             {historical ? (
               <>
@@ -667,39 +689,46 @@ export function SpectrumLab({
       </div>
       {/* The permalink to these settings, after the instrument it links to (dispatch 263). In
           the status row it made that line 267px tall at 1440. */}
-      <LabTapeLink link={tapeLink} />
+      <LabTapeLink link={withPredictions(tapeLink, gate)} />
 
-      <SessionResultWeave
-        session={session}
-        binding={weaveBinding}
-        suspended={failure !== null}
-        highlightPaper={highlightPaper}
-      />
+      <div {...gate.response}>
+        <SessionResultWeave
+          session={session}
+          binding={weaveBinding}
+          suspended={!gate.open || failure !== null}
+          announcementsEnabled={gate.open}
+          highlightPaper={highlightPaper}
+        />
+      </div>
 
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
           children of the lab root, which labShell.css's detail rules select. */}
-      <p data-detail="0">
+      <p data-detail="0" {...gate.response}>
         <noscript>
           <b className="reading-label">In one breath</b>
         </noscript>
         {withScripts(LQ03_CAPTION.r0)}
       </p>
-      <p data-detail="1">
+      <p data-detail="1" {...gate.response}>
         <noscript>
           <b className="reading-label">Full explanation</b>
         </noscript>
         {withScripts(LQ03_CAPTION.r1)}
       </p>
-      <p data-detail="2" hidden>
+      <p data-detail="2" hidden {...gate.response}>
         <noscript>
           <b className="reading-label">Every step</b>
         </noscript>
         {withScripts(LQ03_CAPTION.r2)}
       </p>
-      <LabMargin>{withScripts(LQ03_CAPTION.r3)}</LabMargin>
+      <LabMargin>
+        <span {...gate.response}>{withScripts(LQ03_CAPTION.r3)}</span>
+      </LabMargin>
 
       {/* The reader can read the evaluator that produced these numbers (am-f3e4). */}
-      <ShowTheCode instrumentId="lq-03" listings={getKernelListingsForInstrument("lq-03")} />
+      <div {...gate.response}>
+        <ShowTheCode instrumentId="lq-03" listings={getKernelListingsForInstrument("lq-03")} />
+      </div>
     </section>
   );
 }
