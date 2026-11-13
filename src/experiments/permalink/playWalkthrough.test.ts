@@ -22,6 +22,7 @@ import type { TapeV2 } from "./types.ts";
  * see a record change. The browser resolves through the catalogue, which prepare:lab keeps current.
  */
 const RECORDS = loadWireTeachingTapes().tapes as ReadonlyMap<string, TapeV2>;
+const TAPE_ID = "me-01-two-pulses-2026-11-13";
 const resolve = (id: string): TapeV2 | null => RECORDS.get(id) ?? null;
 /*
  * TapeSession declares the MINIMUM a tape needs of a session, so `getServerSnapshot` is invisible
@@ -35,7 +36,7 @@ const session = (name: string) => ME01_TAPE.createSession(name) as LiveSession;
 
 describe("pressing play on ME-01's recorded walkthrough", () => {
   test("applies the three authored steps and reaches the state the record describes", () => {
-    const out = playWalkthrough(ME01_TAPE, session("play-1"), "the-two-pulses", { resolve });
+    const out = playWalkthrough(ME01_TAPE, session("play-1"), TAPE_ID, { resolve });
     expect(out.kind).toBe("played");
     if (out.kind !== "played") throw new Error("unreachable");
     expect(out.steps).toBe(3);
@@ -58,7 +59,7 @@ describe("pressing play on ME-01's recorded walkthrough", () => {
      * deliver. The gap is one React setter wide and it is named rather than implied.
      */
     const before = toMe01Draft(ME01_DEFAULTS);
-    const out = playWalkthrough(ME01_TAPE, session("play-fields"), "the-two-pulses", { resolve });
+    const out = playWalkthrough(ME01_TAPE, session("play-fields"), TAPE_ID, { resolve });
     if (out.kind !== "played") throw new Error("unreachable");
     const after = toMe01Draft(out.parameters as unknown as Parameters<typeof toMe01Draft>[0]);
     expect(after.emissionAngle).toBe("90");
@@ -69,8 +70,8 @@ describe("pressing play on ME-01's recorded walkthrough", () => {
   });
 
   test("two presses reach the same state, on separate sessions", () => {
-    const first = playWalkthrough(ME01_TAPE, session("play-a"), "the-two-pulses", { resolve });
-    const second = playWalkthrough(ME01_TAPE, session("play-b"), "the-two-pulses", { resolve });
+    const first = playWalkthrough(ME01_TAPE, session("play-a"), TAPE_ID, { resolve });
+    const second = playWalkthrough(ME01_TAPE, session("play-b"), TAPE_ID, { resolve });
     if (first.kind !== "played" || second.kind !== "played") throw new Error("unreachable");
     expect(second.parameters).toEqual(first.parameters);
     expect(second.steps).toBe(first.steps);
@@ -81,7 +82,7 @@ describe("pressing play on ME-01's recorded walkthrough", () => {
     const before = live.getSnapshot().accepted;
     const served = live.getServerSnapshot().accepted;
     expect(before).toBe(served);
-    const out = playWalkthrough(ME01_TAPE, live, "the-two-pulses", { resolve });
+    const out = playWalkthrough(ME01_TAPE, live, TAPE_ID, { resolve });
     expect(out.kind).toBe("played");
     const accepted = live.getSnapshot().accepted as unknown as
       | Readonly<{ runId: string; revisions: Readonly<{ input: number; observer: number }> }>
@@ -125,16 +126,18 @@ describe("the control as the page serves it", () => {
   const html = renderToStaticMarkup(LabPage());
 
   test("an enabled button carrying its own name, and a link that survives without JavaScript", () => {
-    const button = /<button\b[^>]*data-walkthrough="the-two-pulses"[^>]*>([^<]*)<\/button>/u.exec(
-      html,
-    );
+    const button =
+      /<button\b[^>]*data-walkthrough="me-01-two-pulses-2026-11-13"[^>]*>([^<]*)<\/button>/u.exec(
+        html,
+      );
     expect(button).not.toBeNull();
-    expect(button?.[1]).toBe("Play the recorded walkthrough");
+    expect(button?.[1]).toBe("Play: the two pulses (13 November 2026)");
     // Enabled, so the root layout's noscript rule (button:enabled{display:none}) hides it when
     // scripts do not run; no text sits inside it, because that rule hides what a button wraps.
     expect(/<button\b[^>]*data-walkthrough[^>]*\bdisabled\b/u.test(html)).toBe(false);
     // And the route a reader keeps in that case: the walkthrough's own page, server-rendered.
     expect(html).toContain('href="/tapes/the-two-pulses/"');
+    expect(html).toContain('href="/tapes/me-01-two-pulses-2026-11-13/"');
   });
 
   test("nothing about the walkthrough's result is served before it is pressed", () => {

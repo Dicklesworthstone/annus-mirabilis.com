@@ -344,12 +344,40 @@ describe("ME-01 verified links and personal recordings", () => {
     expect(required('[data-recording-outcome="replayed"]')).not.toBeNull();
   });
 
-  test("the existing two-pulses control keeps the current result when its historical artifact differs", async () => {
+  test("the first two-pulses choice replays the dated recording and clears refused draft controls", async () => {
     await mount();
     await edit("1.2", true);
     const before = snapshot();
     expect(container.querySelector('[role="alert"][data-refusal-code]')).not.toBeNull();
-    await click("Play the recorded walkthrough");
+    const first = required<HTMLButtonElement>("button[data-walkthrough]");
+    expect(first.getAttribute("data-walkthrough")).toBe("me-01-two-pulses-2026-11-13");
+    expect(first.textContent?.trim()).toBe("Play: the two pulses (13 November 2026)");
+    await act(async () => first.click());
+    expect(snapshot()).not.toBe(before);
+    expect(snapshot().accepted?.parameters).toEqual({
+      ...ME01_DEFAULTS,
+      frameSpeed: 0.1,
+      emissionAngle: 90,
+    });
+    expect(field("frameSpeed").value).toBe("0.1");
+    expect(field("emissionAngle").value).toBe("90");
+    expect(field("emittedEnergyRestFrame").value).toBe("1");
+    expect(required('[data-walkthrough-result="played"]').textContent).toContain("3 steps");
+    expect(
+      required<HTMLAnchorElement>('[data-walkthrough-result="played"] a').getAttribute("href"),
+    ).toBe("/tapes/me-01-two-pulses-2026-11-13/");
+    expect(container.querySelector('[role="alert"][data-refusal-code]')).toBeNull();
+    expect(required('[data-instrument-id="me-01"]').hasAttribute("data-refusal-code")).toBe(false);
+    await until(() => sharedTape()?.initialConditions.frameSpeed === 0.1);
+    expect(sharedTape()?.initialConditions.emissionAngle).toBe(90);
+  });
+
+  test("the historical two-pulses choice keeps the current result when its artifact differs", async () => {
+    await mount();
+    await edit("1.2", true);
+    const before = snapshot();
+    expect(container.querySelector('[role="alert"][data-refusal-code]')).not.toBeNull();
+    await click("Play: the two pulses");
     expect(
       required('[data-walkthrough-result="refused"]').getAttribute("data-walkthrough-code"),
     ).toBe("tape-artifact-mismatch");

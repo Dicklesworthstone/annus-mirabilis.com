@@ -489,6 +489,8 @@ tapeModel:
   modelId: mass-energy-two-ledgers-host
   modelVersion: 1
 teachingTapes:
+  - tapeId: me-01-two-pulses-2026-11-13
+    title: the two pulses (13 November 2026)
   - tapeId: the-two-pulses
     title: the two pulses
 predictMode:
