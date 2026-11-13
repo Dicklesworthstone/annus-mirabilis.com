@@ -537,6 +537,8 @@ test("stopping and restarting cannot mix an old camera result into the next repl
   io.metrics.listeners[0](structuredClone(held[0].message));
   assert.equal(run.getSnapshot(), current);
   held[1].deliver(held[1].message);
+  // The scheduler verifies the recording checkpoint asynchronously before publishing it.
+  await until(() => !["checking", "baseline", "variant"].includes(run.getSnapshot().phase));
   assert.equal(run.getSnapshot().phase, "complete");
   assert.equal(run.getSnapshot().reproduction, "matching-scalars");
   assert.notEqual(held[0].message.token.instanceId, run.getSnapshot().variant.instanceId);
