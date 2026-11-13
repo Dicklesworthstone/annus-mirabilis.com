@@ -19,6 +19,11 @@
  * (EquationExplainer.tsx).
  */
 import type { ReactNode } from "react";
+import {
+  EXPLAINER_LINK_TEXT,
+  explainerHref,
+  explainerLinkName,
+} from "../../equations/printed/explainerLinks.ts";
 import type { PrintedDisplayPayload } from "../../equations/printed/paperDisplays.ts";
 import { printedExplanation } from "../../equations/printed/printedExplanations.ts";
 import { colourStyle, paperQuantityColours } from "../../equations/quantityColourView.ts";
@@ -26,6 +31,7 @@ import { BlockTermChips } from "../../equations/TermChips.tsx";
 import { TermHighlight } from "../../equations/TermHighlight.tsx";
 import "../../equations/equations.css";
 import { EquationExplainer } from "./EquationExplainer.tsx";
+import { PrintedOperationExplorer } from "./PrintedOperationExplorer.tsx";
 
 export function PrintedDisplayTerms({
   display,
@@ -56,6 +62,18 @@ export function PrintedDisplayTerms({
         ]
       : [];
   });
+  const formula = (
+    <>
+      {children}
+      <BlockTermChips
+        inline={inline}
+        announce={false}
+        label="Quantities in this formula"
+        items={items}
+      />
+    </>
+  );
+  const semantics = display.semantics;
   return (
     <TermHighlight
       as={inline ? "span" : "div"}
@@ -65,13 +83,25 @@ export function PrintedDisplayTerms({
       role="group"
       aria-label={display.spoken}
     >
-      {children}
-      <BlockTermChips
-        inline={inline}
-        announce={false}
-        label="Quantities in this formula"
-        items={items}
-      />
+      {semantics ? (
+        <PrintedOperationExplorer
+          inline={inline}
+          reading={{
+            context: semantics.context,
+            premise: semantics.premise,
+            next: semantics.next,
+            operations: semantics.operations,
+            dimension: semantics.dimension,
+          }}
+          spoken={display.spoken}
+          href={`${explainerHref(display)}#operations`}
+          label={`Explore operations${explainerLinkName(display).slice(EXPLAINER_LINK_TEXT.length)}`}
+        >
+          {formula}
+        </PrintedOperationExplorer>
+      ) : (
+        formula
+      )}
       {explanation ? <EquationExplainer explanation={explanation} /> : null}
     </TermHighlight>
   );

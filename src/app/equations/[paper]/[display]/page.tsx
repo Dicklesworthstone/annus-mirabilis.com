@@ -10,8 +10,11 @@ import {
   everyExplanationRoute,
   fullExplanation,
 } from "../../../../equations/printed/fullExplanations.ts";
+import { printedDisplayById } from "../../../../equations/printed/printedDisplays.ts";
 import { ExplainerBody } from "../../../../reader/faces/EquationExplainer.tsx";
+import { PrintedOperationReference } from "../../../../reader/faces/PrintedOperationReference.tsx";
 import "../../../../reader/faces/equationExplainer.css";
+import "../../../../reader/faces/printedOperations.css";
 
 /**
  * ONE EQUATION'S EXPLANATION, IN FULL (dispatch 292). The reading faces carry a panel that fetches
@@ -104,6 +107,7 @@ export default async function Page({
   const { paper, display } = await params;
   const explanation = fullExplanation(paper, display);
   if (!explanation) notFound();
+  const sourceDisplay = printedDisplayById(paper, display);
   return (
     <main className="equation-explanation-page" data-paper={paper} data-explains={display}>
       <p className="eyebrow">{paper.replace(/-/g, " ")}</p>
@@ -121,6 +125,12 @@ export default async function Page({
       <div className="equation-explanation-levels">
         <ExplainerBody explanation={explanation} />
       </div>
+      {sourceDisplay?.semantics ? (
+        <PrintedOperationReference
+          reading={sourceDisplay.semantics}
+          spoken={sourceDisplay.spoken}
+        />
+      ) : null}
       {explanation.source ? (
         <p className="equation-explanation-source">
           <a href={explanation.source.href}>{explanation.source.label}</a>

@@ -26,6 +26,7 @@ import {
   loadDisplayTerms,
 } from "./displayTerms.ts";
 import { fallbackTermFacts, notationFor, notationLink } from "./fallbackFacts.ts";
+import { compilePrintedSourceSemantics, type PrintedSourceSemantics } from "./sourceSemantics.ts";
 
 /**
  * A compiled display with what the inspector says about each of its quantities, and where each
@@ -45,6 +46,7 @@ export type PrintedDisplayPayload = Omit<CompiledPrintedDisplay, "legend"> &
         row?: Readonly<{ name: string; description?: string }>;
       }>)[];
     facts: Readonly<Record<string, TermFacts>>;
+    semantics?: PrintedSourceSemantics | undefined;
   }>;
 
 /** The model equation records content/bindings/<paper>.yaml binds each display to. */
@@ -125,6 +127,7 @@ export async function printedDisplays(
     const concordance = loadConcordanceForPaper(paper).entries;
     for (const display of checked.displays) {
       const compiled = compilePrintedDisplay(display);
+      const source = compilePrintedSourceSemantics(display, compiled, registry);
       const records = (bound.get(display.display) ?? []).flatMap((id) => {
         const record = byId.get(id);
         return record ? [record] : [];
@@ -167,7 +170,7 @@ export async function printedDisplays(
           ...(row ? { row } : {}),
         };
       });
-      displays.push({ ...compiled, legend, facts });
+      displays.push({ ...compiled, ...source, legend, facts });
     }
   }
   return { displays, problems };

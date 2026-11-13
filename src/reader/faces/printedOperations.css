@@ -1,0 +1,70 @@
+.printed-operation-explorer,
+.printed-operation-panel,
+.printed-operation-context,
+.printed-operation-choice,
+.printed-operation-note,
+.printed-operation-note > span,
+.printed-operation-note > strong {
+  display: block;
+}
+
+.printed-operation-panel {
+  margin-block: 0.25rem 0.9rem;
+  text-align: start;
+}
+
+.printed-operation-toggle {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  font-family: var(--font-sans);
+  font-size: var(--type-small);
+  color: var(--muted);
+}
+
+.printed-operation-toggle:hover {
+  color: var(--ink);
+}
+
+.printed-operation-toggle:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.printed-operation-body {
+  display: block;
+  padding-inline-start: 0.9rem;
+  border-inline-start: 2px solid var(--rule);
+}
+
+.printed-operation-body[hidden] {
+  display: none;
+}
+
+.printed-operation-context,
+.printed-operation-choice,
+.printed-operation-note > span {
+  margin-block: 0.6rem;
+}
+
+.printed-operation-choice select {
+  display: block;
+  max-width: 100%;
+  min-height: 2.75rem;
+  margin-top: 0.3rem;
+}
+
+.printed-operation-explorer .katex [data-op] {
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.printed-operation-explorer .katex [data-operation-selected] {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: 0.15em;
+}
+
+.printed-operation-reference details {
+  margin-block: 0.8rem;
+}

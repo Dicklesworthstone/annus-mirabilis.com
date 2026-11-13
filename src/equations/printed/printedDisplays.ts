@@ -20,6 +20,17 @@ export function printedDisplay(
   return display === undefined ? undefined : BY_KEY.get(`${display}\u0000${latex}`);
 }
 
+/**
+ * The reference page's primary source form. Reading faces still require an exact LaTeX match;
+ * this lookup is only for the named display's permanent operation reference.
+ */
+export function printedDisplayById(
+  paper: string,
+  display: string,
+): PrintedDisplayPayload | undefined {
+  return DISPLAYS.find((item) => item.paper === paper && item.display === display);
+}
+
 const BY_PAPER_LATEX = new Map<string, PrintedDisplayPayload[]>();
 for (const d of DISPLAYS) {
   const key = `${d.paper}\u0000${d.latex}`;
