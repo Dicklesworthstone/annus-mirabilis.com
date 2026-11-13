@@ -143,11 +143,12 @@ export function MovingClocksLab({
     SR05_TAPE,
     session,
     session.acceptedParameters(),
-    restoreFromLocation,
+    true,
     (restored, predictions) => {
       setDraft(clockDraft(restored));
       gate.restore(predictions ?? []);
     },
+    { restoreFromLocation },
   );
 
   const accepted = view.accepted;
@@ -229,7 +230,7 @@ export function MovingClocksLab({
       <header className="lab-heading">
         <h2 id={`${instanceId}-title`}>Moving clocks</h2>
       </header>
-      <LabTapeLink link={withPredictions(tapeLink, gate)} />
+      <LabTapeLink link={withPredictions(tapeLink, gate)} sharePath="/lab/sr-05/" />
       <div className="lab-status-row">
         <ExecutionChrome
           state={executionKind}

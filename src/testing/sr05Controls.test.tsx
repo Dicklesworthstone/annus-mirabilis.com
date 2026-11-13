@@ -7,8 +7,8 @@ import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MovingClocksLab } from "../components/lab/sr05/MovingClocksLab.tsx";
-import { encodeTapePermalink } from "../experiments/permalink/codec.ts";
-import { tapeForSettings } from "../experiments/permalink/sessionTape.ts";
+import { decodeTapePermalink, encodeTapePermalink } from "../experiments/permalink/codec.ts";
+import { settingsFromTape, tapeForSettings } from "../experiments/permalink/sessionTape.ts";
 import { SR05_DEFAULTS } from "../experiments/sr05/definition.ts";
 import { createSr05Session, type PreparedSr05Example } from "../experiments/sr05/session.ts";
 import { SR05_TAPE } from "../experiments/sr05/tape.ts";
@@ -100,6 +100,20 @@ function readout(name: string): string {
   const target = container.querySelector(`[data-field="${name}"]`);
   if (!target) throw new Error(`Missing clock readout: ${name}.`);
   return target.textContent ?? "";
+}
+
+async function sharedTapeAt(speed: number) {
+  const deadline = Date.now() + 2000;
+  for (;;) {
+    const url = container.querySelector<HTMLInputElement>('[data-testid="selectable-url"]')?.value;
+    const decoded = decodeTapePermalink(url);
+    if (url && decoded.kind === "success" && decoded.tape.initialConditions.speed === speed)
+      return { url, tape: decoded.tape };
+    if (Date.now() >= deadline) throw new Error("The accepted clock settings were not shared.");
+    await act(async () => {
+      await new Promise<void>((resolve) => setTimeout(resolve, 5));
+    });
+  }
 }
 
 describe("typed moving-clock investigation", () => {
@@ -219,6 +233,76 @@ describe("typed moving-clock investigation", () => {
     expect(field("coordinateDuration").value).toBe("20");
     expect(readout("properTime")).toBe("12 s");
     expect(container.querySelector('[name="frameOfDescription"]')).toBeNull();
+  });
+
+  test("an inline clock keeps its supplied owner, shares the standalone lab and replays accepted stops", async () => {
+    const incoming = tapeForSettings(SR05_TAPE, {
+      ...SR05_DEFAULTS,
+      speed: 0.9,
+      coordinateDuration: 30,
+      worldlinePreset: "inertial",
+    });
+    if (!incoming) throw new Error("The real clock owner refused the incoming settings.");
+    window.history.replaceState(
+      {},
+      "",
+      `/papers/special-relativity/?tape=${encodeTapePermalink(incoming)}`,
+    );
+    const original = session.getSnapshot();
+    const originalSettings = session.acceptedParameters();
+    await mount();
+    const shared = await sharedTapeAt(originalSettings.speed);
+    expect(session.getSnapshot()).toBe(original);
+    expect(field("speed").value).toBe(String(originalSettings.speed));
+    expect(settingsFromTape(shared.tape.initialConditions, SR05_DEFAULTS)).toEqual(
+      originalSettings,
+    );
+    expect(new URL(shared.url).pathname).toBe("/lab/sr-05/");
+    expect(container.querySelector("[data-tape-notice]")).toBeNull();
+
+    await edit("speed", "0.35");
+    await click("Save starting point");
+    expect(session.getSnapshot()).toBe(original);
+    await edit("speed", "0.8");
+    await edit("coordinateDuration", "20");
+    await edit("lightClockArm", "2");
+    await edit("worldlinePreset", "circle");
+    await submit();
+    const secondSettings = session.acceptedParameters();
+    expect(secondSettings).toMatchObject({
+      speed: 0.8,
+      coordinateDuration: 20,
+      lightClockArm: 2,
+      worldlinePreset: "circle",
+    });
+    await click("Save current accepted settings");
+    const second = session.getSnapshot();
+    await edit("speed", "1.2");
+    await submit();
+    expect(session.getSnapshot()).toBe(second);
+    expect(container.querySelector('[data-apply-failure="refused"]')).not.toBeNull();
+    expect(
+      settingsFromTape((await sharedTapeAt(0.8)).tape.initialConditions, SR05_DEFAULTS),
+    ).toEqual(secondSettings);
+
+    await click("Restore previous saved stop");
+    expect(session.acceptedParameters()).toEqual(originalSettings);
+    expect(field("speed").value).toBe(String(originalSettings.speed));
+    expect(field("coordinateDuration").value).toBe("10");
+    expect(field("lightClockArm").value).toBe("1");
+    expect(field("worldlinePreset").value).toBe("out-and-back");
+    expect(readout("properTime")).toBe("8 s");
+    expect(container.querySelector("[data-apply-failure]")).toBeNull();
+    expect(container.querySelector('[data-currency-state="refused"]')).toBeNull();
+    await click("Restore next saved stop");
+    expect(session.acceptedParameters()).toEqual(secondSettings);
+    expect(field("speed").value).toBe("0.8");
+    expect(field("coordinateDuration").value).toBe("20");
+    expect(field("lightClockArm").value).toBe("2");
+    expect(field("worldlinePreset").value).toBe("circle");
+    expect(readout("properTime")).toBe("12 s");
+    expect(readout("reunionExactLag")).toBe("8 s");
+    expect(container.querySelector('[data-recording-outcome="replayed"]')).not.toBeNull();
   });
 
   test("a shared tape fills the form and Apply retains its settings instead of restoring defaults", async () => {
