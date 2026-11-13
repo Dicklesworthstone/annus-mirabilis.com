@@ -26,6 +26,7 @@ type Mounted = {
   dismissal: AbortController;
 };
 const mounted = new WeakMap<Document, Mounted>();
+const foundationLinkHandlers = new WeakMap<Document, (event: MouseEvent) => void>();
 const triggerLabs = new WeakMap<HTMLElement, LabReference>();
 type SessionScope = {
   path: string;
@@ -36,6 +37,34 @@ type SessionScope = {
 };
 const sessionScopes = new WeakMap<Document, SessionScope>();
 let triggerNumber = 0;
+
+/** The reader's foundation owner can nest a lesson without replacing this explanation's root. */
+export function activeDirectOpenDialog(doc: Document) {
+  const current = mounted.get(doc);
+  return current?.dialog.open
+    ? {
+        dialog: current.dialog,
+        frame: current.frame,
+        open: `${current.frame.clarification.kind}:${current.frame.clarification.id}`,
+        depth: Math.max(
+          1,
+          deserializeStackState(doc.defaultView?.history.state?.annusClarification?.stack)?.frames
+            .length ?? 0,
+        ),
+      }
+    : null;
+}
+
+/** Only the active registered dialog forwards its authored prerequisite links, never the document. */
+export function listenForDirectOpenFoundations(
+  doc: Document,
+  handler: (event: MouseEvent) => void,
+): () => void {
+  foundationLinkHandlers.set(doc, handler);
+  return () => {
+    if (foundationLinkHandlers.get(doc) === handler) foundationLinkHandlers.delete(doc);
+  };
+}
 
 function sessionScope(doc: Document): SessionScope {
   const path = doc.defaultView?.location.pathname ?? "";
@@ -88,6 +117,13 @@ function ensureDialog(doc: Document) {
     const mount = doc.createElement("div");
     mount.setAttribute(MOUNT_ATTR, "");
     dialog.appendChild(mount);
+    dialog.addEventListener("click", (event) => {
+      const active = activeDirectOpenDialog(doc);
+      const target = event.target;
+      if (!active || active.dialog !== event.currentTarget || !(target instanceof Element)) return;
+      const link = target.closest("a[data-foundation]");
+      if (link && active.dialog.contains(link)) foundationLinkHandlers.get(doc)?.(event);
+    });
     doc.body.appendChild(dialog);
   }
   const mount = dialog.querySelector<HTMLElement>(`[${MOUNT_ATTR}]`);

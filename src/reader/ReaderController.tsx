@@ -43,11 +43,24 @@ import "./actions/kindRegistration.ts";
 import "../equations/missingStep/register.ts";
 import { resolveOpenParam } from "./stack/history.ts";
 import {
+  activeDirectOpenDialog,
   closeDirectOpenDialog,
+  listenForDirectOpenFoundations,
   openFromSearch,
   openFromTrigger,
   retainReaderLabSessions,
 } from "./stack/mountDirectOpen.ts";
+
+type NestedFoundationReturn = Readonly<{
+  parentOpen: string;
+  parentAnchor: string;
+  parentTriggerId: string;
+  parentDepth: number;
+  baseIndex: number;
+  foundationId: string;
+  triggerId: string;
+  linkIndex: number;
+}>;
 
 type Props = {
   registry: ReaderRegistry;
@@ -121,6 +134,57 @@ export function ReaderController(props: Props) {
     let index = Number.isSafeInteger(history.state?.annusReader?.index)
       ? (history.state.annusReader.index as number)
       : 0;
+    function readNestedReturn(value: unknown): NestedFoundationReturn | null {
+      if (!value || typeof value !== "object") return null;
+      const origin = value as NestedFoundationReturn;
+      if (
+        typeof origin.parentOpen !== "string" ||
+        !resolveOpenParam(origin.parentOpen)?.definition.descends ||
+        typeof origin.parentAnchor !== "string" ||
+        origin.parentAnchor.length > 200 ||
+        (origin.parentAnchor !== "" && !registry.anchors.includes(origin.parentAnchor)) ||
+        typeof origin.parentTriggerId !== "string" ||
+        origin.parentTriggerId.length > 200 ||
+        typeof origin.triggerId !== "string" ||
+        !origin.triggerId ||
+        origin.triggerId.length > 200 ||
+        !registry.foundations.includes(origin.foundationId) ||
+        !Number.isSafeInteger(origin.baseIndex) ||
+        origin.baseIndex < 0 ||
+        !Number.isSafeInteger(origin.parentDepth) ||
+        origin.parentDepth < 1 ||
+        origin.parentDepth >= MAX_CLARIFICATION_DEPTH ||
+        index < origin.baseIndex ||
+        index - origin.baseIndex > MAX_CLARIFICATION_DEPTH - origin.parentDepth ||
+        !Number.isSafeInteger(origin.linkIndex) ||
+        origin.linkIndex < 0 ||
+        origin.linkIndex > 256
+      )
+        return null;
+      return origin;
+    }
+    let nestedFoundation = readNestedReturn(history.state?.annusReader?.nestedFoundation);
+    function retainedParent() {
+      const active = activeDirectOpenDialog(document);
+      return nestedFoundation &&
+        active?.open === nestedFoundation.parentOpen &&
+        active.frame.anchor === nestedFoundation.parentAnchor &&
+        active.frame.triggerId === nestedFoundation.parentTriggerId
+        ? active
+        : null;
+    }
+    function restoreParentTrigger() {
+      const parent = retainedParent();
+      if (!parent || !nestedFoundation) return;
+      // Back/Forward may reconstruct a parent after leaving it entirely. Rejoin only the same
+      // authored link in that same explanation; a changed lesson falls back to its passage.
+      const link =
+        parent.dialog.querySelectorAll<HTMLElement>("a[data-foundation]")[
+          nestedFoundation.linkIndex
+        ];
+      if (link?.dataset.foundation === nestedFoundation.foundationId && !link.id)
+        link.id = nestedFoundation.triggerId;
+    }
     /*
       WHETHER THE URL NAMES A PASSAGE, which is not the same as whether the reader has one.
       `state.anchor` always holds a passage - with no fragment it is the first one - and url()
@@ -223,7 +287,14 @@ export function ReaderController(props: Props) {
       return u.pathname + u.search + u.hash;
     }
     function save(push = false) {
-      const next = { ...history.state, annusReader: { state, index: push ? ++index : index } };
+      const next = {
+        ...history.state,
+        annusReader: {
+          state,
+          index: push ? ++index : index,
+          ...(nestedFoundation ? { nestedFoundation } : {}),
+        },
+      };
       if (push) history.pushState(next, "", url());
       else history.replaceState(next, "", url());
     }
@@ -240,7 +311,8 @@ export function ReaderController(props: Props) {
       const delta =
         target.getBoundingClientRect().top -
         (target === origin ? (frame?.relativeY ?? 0.15) : 0.15) * innerHeight;
-      if (dialog.open && dialog.contains(target)) dialog.scrollTop += delta;
+      const scrollOwner = target.closest<HTMLDialogElement>("dialog[open]");
+      if (scrollOwner) scrollOwner.scrollTop += delta;
       else window.scrollBy(0, delta);
       document.documentElement.style.scrollBehavior = behavior;
     }
@@ -355,11 +427,20 @@ export function ReaderController(props: Props) {
       else
         change({ ...state, frames: state.frames.slice(0, -1) }, false, "Returned to the argument.");
     }
+    function closeFoundations() {
+      if (!state.frames.length) return;
+      const distance = nestedFoundation ? index - nestedFoundation.baseIndex : 0;
+      if (distance > 0 && distance <= MAX_CLARIFICATION_DEPTH) {
+        // Traverse to the original parent entry. Replacing this entry with another parent would
+        // make the parent's next Return land on itself instead of the interrupted passage.
+        history.go(-distance);
+      } else change({ ...state, frames: [] }, false, "Returned to the exact step.");
+    }
     const cancel = (event: Event) => {
       event.preventDefault();
       closeOne();
     };
-    const click = (event: MouseEvent) => {
+    const click = (event: MouseEvent, fromRegisteredDialog = false) => {
       if (
         event.defaultPrevented ||
         event.button !== 0 ||
@@ -373,7 +454,11 @@ export function ReaderController(props: Props) {
       const control = event.target.closest<HTMLElement>(
         "[data-clarification-open],[data-foundation],[data-view-link],[data-reader-anchor],[data-reader-back],[data-reader-close],[data-copy-passage]",
       );
-      if (!control || !root.contains(control)) return;
+      if (!control) return;
+      const parent = fromRegisteredDialog ? activeDirectOpenDialog(document) : null;
+      const fromParent =
+        !!parent?.dialog.contains(control) && !dialog.open && control.matches("a[data-foundation]");
+      if (!root.contains(control) && !fromParent) return;
       if (control.dataset.clarificationOpen) {
         if (!resolveOpenParam(control.dataset.clarificationOpen)) return;
         const anchor = control.closest<HTMLElement>(".reader-passage")?.id ?? state.anchor;
@@ -386,6 +471,7 @@ export function ReaderController(props: Props) {
       } else if (control.hasAttribute("data-foundation")) {
         const id = control.dataset.foundation;
         if (!id || !registry.foundations.includes(id)) return;
+        if (fromParent && parent && parent.depth >= MAX_CLARIFICATION_DEPTH) return;
         event.preventDefault();
         // Outside every passage, the place to come back to is the nearest enclosing element the
         // page registers as an anchor: the Brownian first encounter, which is not a
@@ -394,8 +480,32 @@ export function ReaderController(props: Props) {
           control.closest<HTMLElement>(".reader-passage") ??
           enclosingAnchor(control, registry.anchors);
         const anchor = place?.id ?? state.anchor;
-        if (!control.id) control.id = `reader-trigger-${++trigger}`;
-        const base = { ...state, anchor };
+        if (!control.id) {
+          let id: string;
+          do {
+            id = `reader-trigger-${++trigger}`;
+          } while (document.getElementById(id));
+          control.id = id;
+        }
+        if (fromParent && parent) {
+          nestedFoundation = {
+            parentOpen: parent.open,
+            parentAnchor: parent.frame.anchor,
+            parentTriggerId: parent.frame.triggerId,
+            parentDepth: parent.depth,
+            baseIndex: index,
+            foundationId: id,
+            triggerId: control.id,
+            linkIndex: [...parent.dialog.querySelectorAll("a[data-foundation]")].indexOf(control),
+          };
+        } else if (!state.frames.length) nestedFoundation = null;
+        const maximumFoundations = MAX_CLARIFICATION_DEPTH - (nestedFoundation?.parentDepth ?? 0);
+        const replacing = state.frames.length >= maximumFoundations;
+        const base = {
+          ...state,
+          anchor,
+          frames: replacing ? state.frames.slice(0, maximumFoundations - 1) : state.frames,
+        };
         // The reader may have scrolled here without using the outline. Seal the actual return anchor.
         if (anchor !== state.anchor) {
           state = base;
@@ -411,8 +521,8 @@ export function ReaderController(props: Props) {
             },
             registry,
           ),
-          state.frames.length < MAX_CLARIFICATION_DEPTH,
-          state.frames.length === MAX_CLARIFICATION_DEPTH
+          !replacing,
+          replacing
             ? "The deepest explanation was replaced; return to the argument is still available."
             : `Opened ${titles[id]}.`,
         );
@@ -463,7 +573,7 @@ export function ReaderController(props: Props) {
         closeOne();
       } else if (control.hasAttribute("data-reader-close")) {
         event.preventDefault();
-        change({ ...state, frames: [] }, false, "Returned to the exact step.");
+        closeFoundations();
       } else if (
         control.dataset.copyPassage &&
         registry.anchors.includes(control.dataset.copyPassage)
@@ -595,6 +705,20 @@ export function ReaderController(props: Props) {
       index = Number.isSafeInteger(history.state?.annusReader?.index)
         ? history.state.annusReader.index
         : 0;
+      const openTarget = new URLSearchParams(openSearchAtPop).get("open");
+      nestedFoundation =
+        readNestedReturn(history.state?.annusReader?.nestedFoundation) ??
+        (openTarget === nestedFoundation?.parentOpen ? nestedFoundation : null);
+      if (
+        nestedFoundation &&
+        (index < nestedFoundation.baseIndex ||
+          index - nestedFoundation.baseIndex > MAX_CLARIFICATION_DEPTH)
+      )
+        nestedFoundation = null;
+      const keepParent =
+        !!retainedParent() &&
+        (state.frames.length > 0 || openTarget === nestedFoundation?.parentOpen);
+      restoreParentTrigger();
       urlNamesPassage = location.hash.length > 1;
       save();
       const lastFrame = state.frames.at(-1);
@@ -606,9 +730,37 @@ export function ReaderController(props: Props) {
       );
       // Foundation clarifications keep their existing owner. Registered kinds share this
       // separate root, mounted outside the current React commit to avoid nested flushSync.
-      closeDirectOpenDialog(document, true);
-      queueMicrotask(() => openFromSearch(document, openSearchAtPop));
+      if (!keepParent) {
+        closeDirectOpenDialog(document, true);
+        queueMicrotask(() => {
+          openRegisteredAtLocation(openSearchAtPop);
+          if (previous.frames.length > state.frames.length && retainedParent()) {
+            cancelReturn();
+            restoreFocus(previous);
+          }
+        });
+      }
     };
+    function openRegisteredAtLocation(search: string) {
+      if (nestedFoundation && state.frames.length) {
+        const parentSearch = new URLSearchParams(search);
+        parentSearch.set("open", nestedFoundation.parentOpen);
+        // On arrival/Forward into a child with no mounted parent, establish the parent first,
+        // then put the already-existing foundation dialog back on top of the native modal stack.
+        if (dialog.open) dialog.close();
+        openFromSearch(document, parentSearch.toString());
+        restoreParentTrigger();
+        dialog.showModal();
+        const id = state.frames.at(-1)?.foundationId;
+        root.querySelector<HTMLElement>(`[data-foundation-panel="${id}"] h2`)?.focus();
+      } else {
+        openFromSearch(document, search);
+        restoreParentTrigger();
+      }
+    }
+    const stopNestedFoundations = listenForDirectOpenFoundations(document, (event) =>
+      click(event, true),
+    );
     root.addEventListener("click", click);
     root.addEventListener("change", changeControl);
     dialog.addEventListener("cancel", cancel);
@@ -638,8 +790,7 @@ export function ReaderController(props: Props) {
       escape: false,
       closeButton: dialog.querySelector<HTMLButtonElement>("[data-clarification-close]"),
       onDismiss: () => {
-        if (state.frames.length)
-          change({ ...state, frames: [] }, false, "Returned to the exact step.");
+        closeFoundations();
       },
     });
     const openSearchOnMount = location.search;
@@ -671,7 +822,7 @@ export function ReaderController(props: Props) {
         save();
       },
     });
-    queueMicrotask(() => openFromSearch(document, openSearchOnMount));
+    queueMicrotask(() => openRegisteredAtLocation(openSearchOnMount));
     /*
       THE OUTLINE SAYS WHERE THE READER IS. Each section of the outline is a group whose first
       link names a .reader-section; the section crossing the upper part of the viewport is
@@ -717,6 +868,7 @@ export function ReaderController(props: Props) {
       if (outlineNav) delete outlineNav.dataset.spy;
       cancelReturn();
       root.removeEventListener("click", click);
+      stopNestedFoundations();
       root.removeEventListener("change", changeControl);
       dialog.removeEventListener("cancel", cancel);
       window.removeEventListener("popstate", pop);
