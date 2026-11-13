@@ -161,6 +161,96 @@ describe("adversarial: the naive form fails where the stable form passes", () =>
   });
 });
 
+describe("reunion lag retains small differences", () => {
+  test("beta = 1e-9 retains a 5e-18 s lag even when the two readings round to 10 s", () => {
+    const result = reunionComparison([
+      { beta: 1e-9, duration: 5 },
+      { beta: -1e-9, duration: 5 },
+    ]);
+    expect(result.status).toBe("value");
+    if (result.status !== "value") throw new Error("expected value");
+    expect(result.value.coordinateTime).toBe(10);
+    expect(result.value.travelingProperTime).toBe(10);
+    const subtracted = result.value.coordinateTime - result.value.travelingProperTime;
+    expect(subtracted).toBe(0);
+    // Independent leading term: 10 * beta^2 / 2 = 5e-18 s. The next term,
+    // 10 * beta^4 / 8, is only 2.5e-19 relative, below binary64 resolution.
+    // Do not use expectClose's 1e-15 absolute floor: it would let a zero lag pass.
+    const tolerance = { relative: 1e-12, absolute: 1e-32 };
+    expect(withinTolerance(subtracted, 5e-18, tolerance).ok).toBe(false);
+    expect(withinTolerance(result.value.exactLag, 5e-18, tolerance).ok).toBe(true);
+    expect(result.value.exactLag).toBeGreaterThan(0);
+  });
+
+  test("unequal slow legs accumulate their own durations and speeds", () => {
+    const result = reunionComparison([
+      { beta: 1e-9, duration: 4 },
+      { beta: -2e-9, duration: 2 },
+      { beta: 0, duration: 4 },
+    ]);
+    expect(result.status).toBe("value");
+    if (result.status !== "value") throw new Error("expected value");
+    // Closed path: 4 * 1e-9 = 2 * 2e-9. The leading lag is
+    // (4 * 1e-18 + 2 * 4e-18) / 2 = 6e-18 s; higher terms are below 1e-18 relative.
+    expect(result.value.coordinateTime).toBe(10);
+    expect(result.value.travelingProperTime).toBe(10);
+    expect(
+      withinTolerance(result.value.exactLag, 6e-18, { relative: 1e-12, absolute: 1e-32 }).ok,
+    ).toBe(true);
+  });
+
+  test("mixed relativistic and resting legs preserve the exact and printed comparisons", () => {
+    const result = reunionComparison([
+      { beta: 0.6, duration: 4 },
+      { beta: -0.8, duration: 3 },
+      { beta: 0, duration: 3 },
+    ]);
+    expect(result.status).toBe("value");
+    if (result.status !== "value") throw new Error("expected value");
+    // Closed path: 0.6 * 4 = 0.8 * 3. Proper time is 4 * 0.8 + 3 * 0.6 + 3 = 8 s;
+    // the printed second-order lag is (4 * 0.36 + 3 * 0.64) / 2 = 1.68 s.
+    expectClose(result.value.coordinateTime, 10);
+    expectClose(result.value.travelingProperTime, 8);
+    expectClose(result.value.exactLag, 2);
+    expectClose(result.value.printedApproxLag, 1.68);
+  });
+
+  test("rest stays exactly zero and both admitted speed boundaries retain a finite positive lag", () => {
+    const rest = reunionComparison([{ beta: 0, duration: 10 }]);
+    expect(rest.status).toBe("value");
+    if (rest.status !== "value") throw new Error("expected value");
+    expect(rest.value.exactLag).toBe(0);
+    expect(rest.value.printedApproxLag).toBe(0);
+    for (const beta of [-0.95, 0.95]) {
+      for (const duration of [1e-9, 1e9]) {
+        const result = reunionComparison([{ beta, duration }]);
+        expect(result.status).toBe("value");
+        if (result.status !== "value") throw new Error("expected value");
+        // At |beta| = 0.95 the exact fractional lag is 1 - sqrt(0.0975).
+        expectClose(result.value.exactLag / duration, 0.6877501000800801);
+        expect(Number.isFinite(result.value.exactLag)).toBe(true);
+        expect(result.value.exactLag).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  test("the laboratory evaluator publishes the small reunion lag from the owner", () => {
+    const outputs = evaluateSr05({
+      ...SR05_DEFAULTS,
+      worldlinePreset: "out-and-back",
+      speed: 1e-9,
+      coordinateDuration: 10,
+    });
+    const lag = outputs.find((output) => output.quantityId === "reunionExactLag");
+    expect(lag?.status).toBe("value");
+    if (lag?.status !== "value") throw new Error("expected value");
+    expect(lag.ownerId).toBe("sr05.worldline.reunionComparison");
+    expect(
+      withinTolerance(lag.value as number, 5e-18, { relative: 1e-12, absolute: 1e-32 }).ok,
+    ).toBe(true);
+  });
+});
+
 describe("reciprocity: symmetric rate, invariant reunion", () => {
   test("both frames report the same dilation factor for the other clock", () => {
     const beta = 0.6;
@@ -209,6 +299,28 @@ describe("no inertial observer at |v| >= c: a typed refusal, never a clamp", () 
   test("the worldline builder propagates the typed refusal, never silently clamping a leg's speed", () => {
     const result = properTimeAlongLegs([{ beta: 1.5, duration: 1 }]);
     expect(result.status).toBe("outside-domain");
+  });
+
+  test("reunion comparison preserves typed refusals for empty or invalid legs", () => {
+    const empty = reunionComparison([]);
+    expect(empty.status).toBe("outside-domain");
+    if (empty.status !== "outside-domain") throw new Error("expected outside-domain");
+    expect(empty.condition).toBe("empty-worldline");
+
+    for (const duration of [0, -1, Number.NaN, Number.POSITIVE_INFINITY]) {
+      const result = reunionComparison([{ beta: 0.6, duration }]);
+      expect(result.status).toBe("outside-domain");
+      if (result.status !== "outside-domain") throw new Error("expected outside-domain");
+      expect(result.condition).toBe("invalid-leg-duration");
+    }
+    for (const beta of [-1.5, -1, 1, 1.5, Number.NaN, Number.POSITIVE_INFINITY]) {
+      const result = reunionComparison([{ beta, duration: 1 }]);
+      expect(result.status).toBe("outside-domain");
+      if (result.status !== "outside-domain") throw new Error("expected outside-domain");
+      expect(result.condition).toBe(
+        Number.isFinite(beta) ? "superluminal-observer" : "nonfinite-beta",
+      );
+    }
   });
 
   test("evaluateSr05 propagates outside-domain through to the ScientificResult, never fabricating a value", () => {

@@ -78,14 +78,17 @@ export type ReunionSummary = Readonly<{
 /** Reunion comparison for a closed worldline: the traveling clock's proper time versus a
  * stationary clock's (= coordinate time), plus the exact lag beside the printed second-order
  * approximation sum(duration_i * (1/2) beta_i^2), labeled as an approximation and never
- * substituted for the exact value. */
+ * substituted for the exact value. Accumulate the stable per-second loss directly: subtracting
+ * the two accumulated clock readings loses a small lag when both round to the same value. */
 export function reunionComparison(legs: readonly WorldlineLeg[]): KinematicResult<ReunionSummary> {
   const worldline = properTimeAlongLegs(legs);
   if (worldline.status !== "value") return worldline;
+  let exactLag = 0;
   let printedApproxLag = 0;
   for (const leg of legs) {
     const loss = dilationLossPerSecond(leg.beta);
     if (loss.status !== "value") return loss;
+    exactLag += leg.duration * loss.value.exact;
     printedApproxLag += leg.duration * loss.value.printedSecondOrder;
   }
   const { properTime, coordinateTime } = worldline.value;
@@ -93,7 +96,7 @@ export function reunionComparison(legs: readonly WorldlineLeg[]): KinematicResul
     travelingProperTime: properTime,
     stationaryProperTime: coordinateTime,
     coordinateTime,
-    exactLag: coordinateTime - properTime,
+    exactLag,
     printedApproxLag,
   });
 }

@@ -1,11 +1,18 @@
 "use client";
 
-import { useId, useMemo } from "react";
+import { type FormEvent, useEffect, useId, useMemo, useState } from "react";
+import { typedOrNaN } from "../../../experiments/controls/typedNumber.ts";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
 import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
 import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
+import {
+  type ApplyFailure,
+  applyFailure,
+  failureCode,
+  failureFromThrown,
+} from "../../../experiments/results/applyFailure.ts";
 import {
   SR05_CAPTION,
   SR05_OUTPUTS,
@@ -18,6 +25,7 @@ import { instrumentRootAttributes } from "../../../experiments/store/identityAtt
 import { SR05_READER_WEAVE } from "../../../reader/weave/clockPassages.ts";
 import { SessionResultWeave } from "../../../reader/weave/SessionResultWeave.tsx";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
+import { KEPT_RESULT } from "../keptResult.ts";
 import { readablePowers } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
 import "./sr05.css";
@@ -82,6 +90,23 @@ const WORLDLINE_WORDS: Readonly<Record<string, string>> = {
   circle: "a circle at constant speed",
 };
 
+type ClockDraft = Readonly<{
+  speed: string;
+  worldlinePreset: string;
+  coordinateDuration: string;
+  lightClockArm: string;
+}>;
+
+/** Draft text is separate from the accepted scientific settings, including blank fields. */
+function clockDraft(parameters: Sr05Parameters): ClockDraft {
+  return {
+    speed: String(parameters.speed),
+    worldlinePreset: parameters.worldlinePreset,
+    coordinateDuration: String(parameters.coordinateDuration),
+    lightClockArm: String(parameters.lightClockArm),
+  };
+}
+
 export function MovingClocksLab({
   example,
   session: sharedSession,
@@ -94,12 +119,21 @@ export function MovingClocksLab({
     [sharedSession, instanceId, example],
   );
   const view = useInstrumentView(session);
+  const [draft, setDraft] = useState(() => clockDraft(session.acceptedParameters()));
+  const [failure, setFailure] = useState<ApplyFailure | null>(null);
+  const [ready, setReady] = useState(false);
+  const acceptedParameters = (view.accepted?.parameters ??
+    session.acceptedParameters()) as Sr05Parameters;
 
-  /**
-   * A shared ?tape= link restores through this laboratory's own session (dispatch 335). There is no
-   * form to put the settings into and none to keep in step: every reading below is drawn from the
-   * accepted snapshot, so a restored tape redraws the whole laboratory by itself.
-   */
+  useEffect(() => setReady(true), []);
+  // Presets, a shared session and restored tapes all publish through this same owner. Only an
+  // accepted change replaces the form; typing or a refusal never changes the displayed results.
+  useEffect(() => {
+    setDraft(clockDraft(acceptedParameters));
+    setFailure(null);
+  }, [acceptedParameters]);
+
+  /** A shared tape restores the owner; its accepted settings also synchronize the form above. */
   const tapeLink = useLabTapeLink(
     SR05_TAPE,
     session,
@@ -118,7 +152,7 @@ export function MovingClocksLab({
       accepted !== undefined && accepted === session.getServerSnapshot().accepted,
     ).label,
   );
-  const params = (accepted?.parameters ?? example?.parameters) as Sr05Parameters | undefined;
+  const params = acceptedParameters;
   const outputs = accepted?.outputs ?? [];
 
   const properTime = numberOf(outputs, "properTime");
@@ -148,6 +182,32 @@ export function MovingClocksLab({
       ? "no clock reading is available for these settings."
       : `a clock moving at ${fmt(params.speed)}c${route}: the platform clocks read ${fmt(coordinateTime)} s while it reads ${fmt(properTime)} s.`;
 
+  function apply(parameters: unknown) {
+    try {
+      const failed = applyFailure(session.apply(parameters));
+      setFailure(failed);
+      if (!failed) setDraft(clockDraft(session.acceptedParameters()));
+    } catch (error) {
+      setFailure(failureFromThrown(error, "These settings could not be calculated."));
+    }
+  }
+
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    apply({
+      ...session.acceptedParameters(),
+      speed: typedOrNaN(draft.speed),
+      worldlinePreset: draft.worldlinePreset,
+      coordinateDuration: typedOrNaN(draft.coordinateDuration),
+      lightClockArm: typedOrNaN(draft.lightClockArm),
+    });
+  }
+
+  function restoreAcceptedSettings() {
+    setDraft(clockDraft(session.acceptedParameters()));
+    setFailure(null);
+  }
+
   return (
     <section
       className="laboratory"
@@ -162,7 +222,11 @@ export function MovingClocksLab({
       </header>
       <LabTapeLink link={tapeLink} />
       <div className="lab-status-row">
-        <ExecutionChrome state={executionKind} view={view} />
+        <ExecutionChrome
+          state={executionKind}
+          view={view}
+          validationRefusal={failure?.kind === "refused" ? failure.refusal : null}
+        />
       </div>
 
       <noscript>
@@ -173,8 +237,99 @@ export function MovingClocksLab({
       </noscript>
       <div className="lab-columns">
         <div>
-          <fieldset className="lab-choice">
-            <legend>Choose a worldline</legend>
+          <form
+            onSubmit={submit}
+            noValidate
+            aria-label="Moving clock settings"
+            aria-describedby={failure ? `${instanceId}-error` : `${instanceId}-draft`}
+          >
+            <fieldset disabled={!ready}>
+              <legend>Set the trip and clock</legend>
+              <div className="input-grid">
+                <div className="input-field">
+                  <label htmlFor={`${instanceId}-worldline`}>Worldline</label>
+                  <select
+                    id={`${instanceId}-worldline`}
+                    name="worldlinePreset"
+                    value={draft.worldlinePreset}
+                    onChange={(event) =>
+                      setDraft({ ...draft, worldlinePreset: event.target.value })
+                    }
+                  >
+                    <option value="inertial">Straight line at constant speed</option>
+                    <option value="out-and-back">Out and back</option>
+                    <option value="circle">Circle at constant speed</option>
+                  </select>
+                </div>
+                <div className="input-field">
+                  <label htmlFor={`${instanceId}-speed`}>
+                    Clock speed v/c <span>(from −0.95 to 0.95)</span>
+                  </label>
+                  <input
+                    id={`${instanceId}-speed`}
+                    name="speed"
+                    type="text"
+                    inputMode="decimal"
+                    value={draft.speed}
+                    onChange={(event) => setDraft({ ...draft, speed: event.target.value })}
+                  />
+                </div>
+                <div className="input-field">
+                  <label htmlFor={`${instanceId}-duration`}>
+                    Platform time <span>(seconds, from 10⁻⁹ to 10⁹)</span>
+                  </label>
+                  <input
+                    id={`${instanceId}-duration`}
+                    name="coordinateDuration"
+                    type="text"
+                    inputMode="decimal"
+                    value={draft.coordinateDuration}
+                    onChange={(event) =>
+                      setDraft({ ...draft, coordinateDuration: event.target.value })
+                    }
+                  />
+                </div>
+                <div className="input-field">
+                  <label htmlFor={`${instanceId}-arm`}>
+                    Light-clock arm <span>(light-seconds, from 10⁻⁹ to 1000)</span>
+                  </label>
+                  <input
+                    id={`${instanceId}-arm`}
+                    name="lightClockArm"
+                    type="text"
+                    inputMode="decimal"
+                    value={draft.lightClockArm}
+                    onChange={(event) => setDraft({ ...draft, lightClockArm: event.target.value })}
+                  />
+                </div>
+              </div>
+              <p className="fine" id={`${instanceId}-draft`}>
+                These are draft settings until you apply them. The tables and plot keep the last
+                accepted calculation. The light-clock arm changes its tick period, not the trip.
+              </p>
+              <div className="actions">
+                <button type="submit">Apply clock settings</button>
+                <button type="button" className="secondary" onClick={restoreAcceptedSettings}>
+                  Use accepted settings
+                </button>
+              </div>
+            </fieldset>
+            {failure && (
+              <div
+                id={`${instanceId}-error`}
+                className="notice"
+                role="alert"
+                data-refusal-code={failureCode(failure)}
+                data-apply-failure={failure.kind}
+              >
+                <p>
+                  {failure.text} {KEPT_RESULT}
+                </p>
+              </div>
+            )}
+          </form>
+          <fieldset className="lab-choice" disabled={!ready}>
+            <legend>Try a worked case</legend>
             <div className="actions">
               {PRESET_ORDER.map((id) => {
                 const preset = SR05_PRESETS[id];
@@ -186,7 +341,7 @@ export function MovingClocksLab({
                     className="secondary"
                     data-preset-id={id}
                     aria-pressed={params !== undefined && paramsMatch(params, preset.parameters)}
-                    onClick={() => session.apply(preset.parameters)}
+                    onClick={() => apply(preset.parameters)}
                   >
                     {preset.label}
                   </button>
