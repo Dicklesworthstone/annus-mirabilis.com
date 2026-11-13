@@ -5,6 +5,7 @@ import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
 import { executionLabelAttributes } from "../../../experiments/labels/resultAttributes.ts";
+import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { refusalSentence } from "../../../experiments/results/refusalSentence.ts";
 import type { RequestRefusal } from "../../../experiments/results/refusals.ts";
@@ -17,7 +18,7 @@ import {
   SR01_PRESETS,
   type Sr01Parameters,
 } from "../../../experiments/sr01/definition.ts";
-import { decodeSr01Settings, encodeSr01Settings } from "../../../experiments/sr01/permalink.ts";
+import { decodeSr01Settings } from "../../../experiments/sr01/permalink.ts";
 import {
   computeSr01Ledger,
   createSr01Session,
@@ -38,7 +39,7 @@ import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
 import { LabMargin } from "../LabMargin.tsx";
-import { PredictGatePanels, usePredictGate } from "../PredictGate.tsx";
+import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { numberText, sentenceNumber } from "../presentation.ts";
 import { ShowTheCode } from "../ShowTheCode.tsx";
 
@@ -123,11 +124,29 @@ export function ClockSyncLab({
    * keeps the sentence and the code and marks nothing, which is honest -- no form was submitted.
    */
   const [refusal, setRefusal] = useState<RequestRefusal | null>(null);
-  const [sharedUrl, setSharedUrl] = useState("");
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("sr-01", SR01_PREDICT_PROMPTS);
   const [linkNote, setLinkNote] = useState("");
   const restored = useRef(false);
+  const tapeLink = useLabTapeLink(
+    SR01_TAPE,
+    session,
+    session.acceptedParameters(),
+    true,
+    (parameters, predictions) => {
+      setDraft(
+        Object.fromEntries(
+          Object.entries(parameters).map(([key, value]) => [key, String(value)]),
+        ) as Record<keyof Sr01Parameters, string>,
+      );
+      setError("");
+      setRefusalCode(null);
+      setRefusal(null);
+      setLinkNote("");
+      gate.restore(predictions ?? []);
+    },
+    { restoreFromLocation },
+  );
 
   // Only the standalone route opts into URL state. Embedded instruments keep their own setup.
   useEffect(() => {
@@ -223,15 +242,6 @@ export function ClockSyncLab({
       frameBeta: String(next.frameBeta),
     });
     apply(next);
-  }
-
-  function share() {
-    const query = encodeSr01Settings(p);
-    const url = `${window.location.origin}/lab/sr-01/${query}`;
-    setSharedUrl(url);
-    if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText(url).catch(() => {});
-    }
   }
 
   return (
@@ -449,9 +459,6 @@ export function ClockSyncLab({
           <button type="submit" className="button button-primary">
             Apply changes
           </button>
-          <button type="button" className="button" onClick={share}>
-            Share configuration link
-          </button>
         </div>
 
         {error && (
@@ -459,12 +466,8 @@ export function ClockSyncLab({
             {error} {KEPT_RESULT}
           </div>
         )}
-        {sharedUrl && (
-          <div className="notice">
-            Configuration link: <code>{sharedUrl}</code>
-          </div>
-        )}
       </form>
+      <LabTapeLink link={withPredictions(tapeLink, gate)} sharePath="/lab/sr-01/" />
       <AcceptedStatus
         worked={accepted === undefined || accepted === session.getServerSnapshot().accepted}
         summary={statusSummary}
