@@ -1,4 +1,5 @@
 import { type ReplayOptions, type ReplayRunner, replayTape } from "./replay.ts";
+import { validateTapeV2 } from "./schema.ts";
 import type { TapeControlEvent, TapeReplayResult, TapeV2 } from "./types.ts";
 
 export type PreparedReplay =
@@ -20,6 +21,20 @@ export function prepareTapeReplay(
   trial: ReplayRunner,
   options?: ReplayOptions,
 ): PreparedReplay {
+  let predictions: TapeV2["predictions"];
+  try {
+    // Walkthrough callers do not pass through the URL decoder. Validate and copy their
+    // predictions before any rehearsal or live apply can change the supplied record.
+    if (tape.predictions !== undefined) {
+      predictions = Object.freeze(validateTapeV2(tape).predictions ?? []);
+    }
+  } catch (error) {
+    return {
+      kind: "invalid",
+      reason: "tape-predictions-invalid",
+      notice: `The recorded predictions could not be read: ${String(error)}`,
+    };
+  }
   let initialConditions: Record<string, number | string> = {};
   const events: TapeControlEvent[] = [];
   const result = replayTape(
@@ -63,12 +78,13 @@ export function prepareTapeReplay(
     options,
   );
   if (result.kind !== "success") return result;
-  const { teachingTapeRef: _ref, ...inline } = tape;
+  const { teachingTapeRef: _ref, predictions: _predictions, ...inline } = tape;
   return {
     kind: "prepared",
     isNewRun: result.isNewRun,
     tape: Object.freeze({
       ...inline,
+      ...(predictions ? { predictions } : {}),
       modelIdentity: Object.freeze({ ...tape.modelIdentity }),
       ...(tape.replayGrid ? { replayGrid: Object.freeze({ ...tape.replayGrid }) } : {}),
       initialConditions: Object.freeze(initialConditions),

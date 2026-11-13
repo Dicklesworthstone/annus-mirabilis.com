@@ -22,7 +22,7 @@ import {
   tapeStateDigestV2,
   tapeStateOf,
 } from "./sessionTape.ts";
-import type { TapeV2 } from "./types.ts";
+import type { TapePredictionEvent, TapeV2 } from "./types.ts";
 
 let root: Root | null = null;
 beforeEach(async () => installDom());
@@ -83,10 +83,19 @@ describe("an incompatible shared link requires a reader's explicit new calculati
   for (const changed of [false, true]) {
     test(`${changed ? "changed" : "missing"} source identity preserves the accepted run until the button is pressed`, async () => {
       const owner = createMe03Session(`shared-source-recovery-${changed}`);
-      const recorded = legacy(checkpoint(), changed);
+      const recorded = legacy(
+        {
+          ...checkpoint(),
+          predictions: [
+            { promptId: "boundary-prediction", form: "candidate", payload: { candidateId: "old" } },
+          ],
+        },
+        changed,
+      );
       const originalRecord = JSON.stringify(recorded);
       const before = owner.getSnapshot();
       const restored: object[] = [];
+      const restoredPredictions: (readonly TapePredictionEvent[] | undefined)[] = [];
       let current: LabTapeLinkState | null = null;
       function Probe() {
         const view = useSyncExternalStore(
@@ -99,8 +108,9 @@ describe("an incompatible shared link requires a reader's explicit new calculati
           owner,
           view.accepted?.parameters,
           true,
-          (parameters) => {
+          (parameters, predictions) => {
             restored.push(parameters);
+            restoredPredictions.push(predictions);
           },
         );
         return <LabTapeLink link={{ ...current, walkthrough: undefined }} />;
@@ -109,6 +119,7 @@ describe("an incompatible shared link requires a reader's explicit new calculati
       await mount(<Probe />);
       expect(owner.getSnapshot()).toBe(before);
       expect(restored).toEqual([]);
+      expect(restoredPredictions).toEqual([]);
       expect(document.querySelector("[data-tape-notice]")?.textContent).toContain(
         "Recorded artifact:",
       );
@@ -120,6 +131,7 @@ describe("an incompatible shared link requires a reader's explicit new calculati
       expect(owner.getSnapshot().accepted?.parentRunId).toBe(before.accepted?.runId);
       expect(owner.acceptedParameters()).toEqual({ ...ME03_TAPE.defaults, boundary: "radiation" });
       expect(restored).toEqual([{ ...ME03_TAPE.defaults, boundary: "radiation" }]);
+      expect(restoredPredictions).toEqual([undefined]);
       // The later retained notation change is not the checkpoint the reader selected.
       expect(owner.acceptedParameters().notation).toBe(ME03_TAPE.defaults.notation);
       expect(document.querySelector("[data-tape-recovery]")).toBeNull();

@@ -342,7 +342,7 @@ export function tapeForSettings(binding: LabTapeBinding, params: object): TapeV2
 
 export type LabTapeRestore =
   | Readonly<{ kind: "absent" }>
-  | Readonly<{ kind: "restored" }>
+  | Readonly<{ kind: "restored"; predictions?: TapeV2["predictions"] }>
   | Readonly<{
       kind: "not-restored";
       notice: string;
@@ -366,7 +366,7 @@ export function replayTapeOnSession(
   tape: TapeV2,
   options?: ReplayOptions,
   resolve?: ReplayRunner["resolveTeachingTape"],
-): TapeReplayResult {
+): TapeReplayResult & Readonly<{ predictions?: TapeV2["predictions"] }> {
   let trial: ReturnType<typeof createSessionReplayRunner>;
   const form = digestFormOf(tape.acceptedCheckpoint.digest);
   try {
@@ -393,7 +393,10 @@ export function replayTapeOnSession(
   const before = { ...session.acceptedParameters() };
   const runner = createSessionReplayRunner(binding, session, form);
   const result = replayTape(prepared.tape, runner, { forceNewRun: prepared.isNewRun });
-  if (result.kind === "success") return result;
+  if (result.kind === "success") {
+    const predictions = result.isNewRun ? undefined : prepared.tape.predictions;
+    return predictions?.length ? { ...result, predictions } : result;
+  }
   if (!runner.hasApplied()) return result;
   // A live-session failure after a successful rehearsal is unexpected. Keep the failure visible,
   // and attempt to recover the previous settings rather than leaving a half-applied walkthrough.
@@ -490,7 +493,11 @@ export function restoreTape(
     };
   }
   const replayed = replayTapeOnSession(binding, session, tape, undefined, resolve);
-  if (replayed.kind === "success") return { kind: "restored" };
+  if (replayed.kind === "success")
+    return {
+      kind: "restored",
+      ...(replayed.predictions?.length ? { predictions: replayed.predictions } : {}),
+    };
   return {
     kind: "not-restored",
     notice: replayed.kind === "refusal" ? `${replayed.notice} ${replayed.repair}` : replayed.notice,

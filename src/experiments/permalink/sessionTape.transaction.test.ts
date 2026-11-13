@@ -276,3 +276,119 @@ test("ordinary page visits do not load a tape or change the experiment", async (
   }
   assert.deepEqual(applied, []);
 });
+
+test("restoration transports a prediction snapshot after live acceptance", () => {
+  const prediction = {
+    promptId: "transaction-prediction",
+    form: "values" as const,
+    payload: { targets: [{ targetId: "position", value: 3 }] },
+  };
+  const request: TapeV2 = { ...tape(), predictions: [prediction] };
+  const { live } = session();
+  const owner: TapeSession = {
+    ...live,
+    apply(input) {
+      const target = prediction.payload.targets[0];
+      assert.ok(target);
+      target.value = 99;
+      return live.apply(input);
+    },
+  };
+  const result = restoreTape(binding, owner, request);
+  assert.equal(result.kind, "restored");
+  if (result.kind !== "restored") return;
+  assert.deepEqual(result.predictions, [
+    {
+      promptId: "transaction-prediction",
+      form: "values",
+      payload: { targets: [{ targetId: "position", value: 3 }] },
+    },
+  ]);
+  assert.ok(Object.isFrozen(result.predictions));
+  assert.equal(prediction.payload.targets[0]?.value, 99);
+  assert.deepEqual(owner.acceptedParameters(), { x: 3, y: 2, visible: true });
+});
+
+test("malformed predictions leave the live accepted snapshot unchanged", () => {
+  const request = {
+    ...tape(),
+    predictions: [
+      {
+        promptId: "transaction-prediction",
+        form: "values",
+        payload: { targets: [{ targetId: "position", value: Number.NaN }] },
+      },
+    ],
+  } as TapeV2;
+  const result = assertUntouched(request);
+  assert.equal("predictions" in result, false);
+  if (result.kind === "not-restored") assert.match(result.notice, /recorded predictions/);
+});
+
+test("refused and failed replays never transport historical predictions", () => {
+  const request: TapeV2 = {
+    ...tape(),
+    predictions: [
+      { promptId: "transaction-prediction", form: "candidate", payload: { candidateId: "left" } },
+    ],
+  };
+  const refused = assertUntouched({ ...request, constantSetId: "historical" });
+  assert.equal("predictions" in refused, false);
+
+  const { live } = session({ x: 8, y: 9, visible: false });
+  const owner: TapeSession = {
+    ...live,
+    apply(input) {
+      if ((input as { x: number }).x === 3) return { kind: "refused" };
+      return live.apply(input);
+    },
+  };
+  const failed = restoreTape(binding, owner, request);
+  assert.equal(failed.kind, "not-restored");
+  assert.equal("predictions" in failed, false);
+  assert.deepEqual(live.acceptedParameters(), { x: 8, y: 9, visible: false });
+
+  const fresh = session().live;
+  const calculated = replayTapeOnSession(binding, fresh, request, { forceNewRun: true });
+  assert.equal(calculated.kind, "success");
+  if (calculated.kind === "success") assert.equal(calculated.isNewRun, true);
+  assert.equal("predictions" in calculated, false);
+});
+
+test("an authored reference retains only its envelope's personal predictions", () => {
+  const authored: TapeV2 = {
+    ...tape(),
+    predictions: [
+      { promptId: "authored-prediction", form: "candidate", payload: { candidateId: "author" } },
+    ],
+  };
+  const predictions = [
+    {
+      promptId: "personal-prediction",
+      form: "candidate" as const,
+      payload: { candidateId: "reader" },
+    },
+  ];
+  const request: TapeV2 = {
+    ...tape(),
+    events: [],
+    teachingTapeRef: { tapeId: "authored-fixture", stepIndex: 0 },
+    predictions,
+  };
+  let resolutions = 0;
+  const resolved = restoreTape(binding, session().live, request, () => {
+    resolutions++;
+    return authored;
+  });
+  assert.equal(resolved.kind, "restored");
+  if (resolved.kind === "restored") assert.deepEqual(resolved.predictions, predictions);
+  assert.equal(resolutions, 1);
+
+  const { predictions: _predictions, ...withoutPredictions } = request;
+  assert.deepEqual(restoreTape(binding, session().live, withoutPredictions, () => authored), {
+    kind: "restored",
+  });
+  assert.deepEqual(restoreTape(binding, session().live, { ...tape(), predictions: [] }), {
+    kind: "restored",
+  });
+});

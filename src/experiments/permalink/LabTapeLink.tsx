@@ -77,7 +77,8 @@ export type LabTapeLinkState = Readonly<{
  * `enabled` is false for a laboratory the link does not describe, such as a page's optional second
  * copy.
  *
- * `onRestored` receives the restored settings, for a laboratory whose form keeps its own draft.
+ * `onRestored` receives restored settings and, after a verified restore, recorded predictions.
+ * Explicit new calculations synchronize the form without adopting the historical answers.
  * Without it the form went on showing the defaults over the restored results, and pressing Apply put
  * the defaults back: 12 of 12 laboratories with an Apply button lost the shared settings that way,
  * measured in Chromium on a build of 4c0c2c7c.
@@ -87,7 +88,7 @@ export function useLabTapeLink<P extends object>(
   session: Omit<TapeSession, "acceptedParameters"> & Readonly<{ acceptedParameters(): P }>,
   acceptedParameters: object | null | undefined,
   enabled = true,
-  onRestored?: (parameters: P) => void,
+  onRestored?: (parameters: P, predictions?: readonly TapePredictionEvent[]) => void,
 ): LabTapeLinkState {
   const [notice, setNotice] = useState("");
   const [note, setNote] = useState("");
@@ -111,7 +112,8 @@ export function useLabTapeLink<P extends object>(
       if (restored.kind === "not-restored") {
         setNotice(restored.notice);
         if (restored.newRun) setPendingNewRun({ binding, session, request: restored.newRun });
-      } else if (restored.kind === "restored") restoredRef.current?.(session.acceptedParameters());
+      } else if (restored.kind === "restored")
+        restoredRef.current?.(session.acceptedParameters(), restored.predictions);
     });
     return () => {
       live = false;
@@ -168,7 +170,7 @@ export function useLabTapeLink<P extends object>(
                 setNotice("");
                 const parameters = session.acceptedParameters();
                 setCheckpointShare({ binding, session, parameters: { ...parameters }, tape });
-                restoredRef.current?.(parameters);
+                restoredRef.current?.(parameters, restored.predictions);
                 return { kind: "restored" };
               }
               return {

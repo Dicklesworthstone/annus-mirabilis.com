@@ -11,7 +11,7 @@ import {
   tapeStateDigestV2,
   tapeStateOf,
 } from "./sessionTape.ts";
-import type { TapeV2 } from "./types.ts";
+import type { TapePredictionEvent, TapeV2 } from "./types.ts";
 import { WalkthroughPlayer } from "./WalkthroughPlayer.tsx";
 import type { WalkthroughCatalogue } from "./walkthroughCheckpoints.ts";
 
@@ -45,8 +45,12 @@ for (const supportsNewRun of [true, false]) {
     const parameters = { ...ME03_TAPE.defaults, boundary: "radiation" };
     const settings = tapeStateOf(parameters);
     if (!opening || !settings) throw new Error("Expected an accepted real boundary checkpoint.");
+    const predictions: readonly TapePredictionEvent[] = [
+      { promptId: "boundary-prediction", form: "candidate", payload: { candidateId: "radiation" } },
+    ];
     const tape: TapeV2 = {
       ...opening,
+      predictions,
       events: [
         {
           actionIndex: 1,
@@ -74,6 +78,7 @@ for (const supportsNewRun of [true, false]) {
     };
     let link: LabTapeLinkState | null = null;
     const restored: object[] = [];
+    const restoredPredictions: (readonly TapePredictionEvent[] | undefined)[] = [];
     const load = async () => catalogue;
     function Probe() {
       const view = useSyncExternalStore(real.subscribe, real.getSnapshot, real.getServerSnapshot);
@@ -82,8 +87,9 @@ for (const supportsNewRun of [true, false]) {
         session,
         view.accepted?.parameters,
         true,
-        (value) => {
+        (value, answers) => {
           restored.push(value);
+          restoredPredictions.push(answers);
         },
       );
       link = current;
@@ -113,6 +119,7 @@ for (const supportsNewRun of [true, false]) {
     expect(currentLink().shareTape).toBe(tape);
     expect(real.acceptedParameters()).toEqual(parameters);
     expect(restored).toEqual([parameters]);
+    expect(restoredPredictions).toEqual([predictions]);
     const checkpoint = real.getSnapshot().accepted;
 
     await click("Calculate these settings as a new run");
@@ -125,6 +132,7 @@ for (const supportsNewRun of [true, false]) {
       expect(real.getSnapshot().accepted?.parentRunId).toBe(checkpoint?.runId);
       expect(real.acceptedParameters()).toEqual(parameters);
       expect(restored).toEqual([parameters, parameters]);
+      expect(restoredPredictions).toEqual([predictions, undefined]);
       expect(currentLink().shareTape).not.toBe(tape);
       expect(currentLink().shareTape?.acceptedCheckpoint.acceptedActionIndex).toBe(0);
       expect(currentLink().shareTape?.initialConditions).toEqual(settings);
@@ -133,6 +141,7 @@ for (const supportsNewRun of [true, false]) {
       expect(real.getSnapshot().accepted).toBe(checkpoint);
       expect(currentLink().shareTape).toBe(tape);
       expect(restored).toEqual([parameters]);
+      expect(restoredPredictions).toEqual([predictions]);
     }
   });
 }
