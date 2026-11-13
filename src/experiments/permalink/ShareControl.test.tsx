@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import assert from "node:assert/strict";
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -8,9 +9,11 @@ import {
   removeContainer,
   uninstallDom,
 } from "../../testing/reactDom.ts";
+import { ME01_TAPE } from "../me01/tape.ts";
 import { decodeTapePermalink } from "./codec.ts";
 import { FIXTURE_TEACHING_TAPE_EINSTEIN_08 } from "./fixture.ts";
 import { ShareControl } from "./ShareControl.tsx";
+import { tapeForSettings } from "./sessionTape.ts";
 import { SHARE_FORMS } from "./shareForms.ts";
 import type { TapeV2 } from "./types.ts";
 
@@ -77,6 +80,51 @@ describe("ShareControl (am-inst-permalink-tape-s677)", () => {
     });
     afterEach(async () => {
       await uninstallDom();
+    });
+
+    test("two independent controls label their own accepted experiment links", async () => {
+      const first = tapeForSettings(ME01_TAPE, { ...ME01_TAPE.defaults, frameSpeed: 0.2 });
+      const second = tapeForSettings(ME01_TAPE, { ...ME01_TAPE.defaults, frameSpeed: 0.7 });
+      assert.ok(first && second, "Both real laboratory states must be recordable.");
+      const container = createContainer();
+      const root = createRoot(container);
+      try {
+        await act(async () => {
+          root.render(
+            <>
+              <ShareControl tape={first} baseUrl="http://localhost/lab/me-01/" />
+              <ShareControl tape={second} baseUrl="http://localhost/lab/me-01/" />
+            </>,
+          );
+        });
+        const controls = [...container.querySelectorAll(".share-control")];
+        expect(controls).toHaveLength(2);
+        const inputs = controls.map((control) => {
+          const input = control.querySelector<HTMLInputElement>('[data-testid="selectable-url"]');
+          const label = control.querySelector<HTMLLabelElement>(".share-control-url-label");
+          assert.ok(input && label);
+          expect(label.htmlFor).toBe(input.id);
+          expect(document.getElementById(label.htmlFor)).toBe(input);
+          return input;
+        });
+        expect(new Set(inputs.map((input) => input.id)).size).toBe(2);
+        const deadline = Date.now() + 2000;
+        while (inputs.some((input) => !input.value)) {
+          assert.ok(Date.now() < deadline, "Both actual tape links must finish encoding.");
+          await act(async () => {
+            await new Promise<void>((resolve) => setTimeout(resolve, 5));
+          });
+        }
+        const tapes = inputs.map((input) => {
+          const decoded = decodeTapePermalink(input.value);
+          assert.ok(decoded.kind === "success");
+          return decoded.tape;
+        });
+        expect(tapes).toEqual([first, second]);
+      } finally {
+        await act(async () => root.unmount());
+        removeContainer(container);
+      }
     });
 
     test("the link it shows, once encoded, decodes to the tape it was given", async () => {

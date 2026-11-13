@@ -108,17 +108,19 @@ export function useLabTapeLink<P extends object>(
     setNote("");
     setNotice("");
     if (!restoreFromLocation) return;
-    let live = true;
-    void restoreTapeFromUrl(binding, session, window.location.href).then((restored) => {
-      if (!live) return;
-      if (restored.kind === "not-restored") {
-        setNotice(restored.notice);
-        if (restored.newRun) setPendingNewRun({ binding, session, request: restored.newRun });
-      } else if (restored.kind === "restored")
-        restoredRef.current?.(session.acceptedParameters(), restored.predictions);
-    });
+    const controller = new AbortController();
+    void restoreTapeFromUrl(binding, session, window.location.href, controller.signal).then(
+      (restored) => {
+        if (controller.signal.aborted) return;
+        if (restored.kind === "not-restored") {
+          setNotice(restored.notice);
+          if (restored.newRun) setPendingNewRun({ binding, session, request: restored.newRun });
+        } else if (restored.kind === "restored")
+          restoredRef.current?.(session.acceptedParameters(), restored.predictions);
+      },
+    );
     return () => {
-      live = false;
+      controller.abort();
     };
   }, [binding, session, restoreFromLocation]);
   const sharedCheckpoint =

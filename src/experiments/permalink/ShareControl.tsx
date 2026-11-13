@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { encodeTapePermalinkInBrowser } from "./browserCodec.ts";
 import "./permalink.css";
 import { SHARE_FORMS } from "./shareForms.ts";
@@ -28,6 +28,7 @@ export type ShareControlProps = {
  *    and the copy action waits for it.
  */
 export function ShareControl({ tape, baseUrl, onCopied }: ShareControlProps) {
+  const urlId = useId();
   const [includePredictions, setIncludePredictions] = useState<boolean>(true);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [encoded, setEncoded] = useState<Readonly<{ key: string; url: string }> | null>(null);
@@ -147,11 +148,11 @@ export function ShareControl({ tape, baseUrl, onCopied }: ShareControlProps) {
       </div>
 
       <div className="share-control-fallback">
-        <label htmlFor="share-permalink-url" className="share-control-url-label">
+        <label htmlFor={urlId} className="share-control-url-label">
           Shareable link (selectable):
         </label>
         <input
-          id="share-permalink-url"
+          id={urlId}
           type="text"
           readOnly
           value={shareUrl}

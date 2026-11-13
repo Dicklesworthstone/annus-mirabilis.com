@@ -505,11 +505,15 @@ export function restoreTape(
   };
 }
 
-/** Reads ?tape= from the page's address and restores it; "absent" when there is none. */
+/**
+ * Reads ?tape= from the page's address and restores it; "absent" when there is none.
+ * Cancellation prevents a finished asynchronous decode from mutating a departed live owner.
+ */
 export async function restoreTapeFromUrl(
   binding: LabTapeBinding,
   session: TapeSession,
   href: string,
+  signal?: AbortSignal,
 ): Promise<LabTapeRestore> {
   // A URL, not the string: a bare string with no "?" is read as a tape itself (extractTapeParam),
   // so every ordinary page load would report a link it could not restore.
@@ -520,16 +524,25 @@ export async function restoreTapeFromUrl(
     return { kind: "absent" };
   }
   if (!address.searchParams.has("tape")) return { kind: "absent" };
+  const canceled: LabTapeRestore = {
+    kind: "not-restored",
+    notice: "The shared state restore was canceled. Your experiment is unchanged.",
+  };
+  if (signal?.aborted) return canceled;
   // Ordinary laboratory visits need neither the codec nor the authored catalogue.
   try {
     const { decodeTapePermalinkInBrowser } = await import("./browserCodec.ts");
+    if (signal?.aborted) return canceled;
     const decoded = await decodeTapePermalinkInBrowser(address);
+    if (signal?.aborted) return canceled;
     if (decoded.kind === "absent") return { kind: "absent" };
     if (decoded.kind === "invalid") return { kind: "not-restored", notice: decoded.notice };
     if (!decoded.tape.teachingTapeRef) return restoreTape(binding, session, decoded.tape);
     const { resolveTeachingTape } = await import("./teachingTapeCatalogue.ts");
+    if (signal?.aborted) return canceled;
     return restoreTape(binding, session, decoded.tape, resolveTeachingTape);
   } catch (err: unknown) {
+    if (signal?.aborted) return canceled;
     return {
       kind: "not-restored",
       notice: `The shared state could not be loaded: ${String(err)}`,
