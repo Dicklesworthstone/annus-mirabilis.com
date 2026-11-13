@@ -10,6 +10,7 @@ import frames from "../../../content/foundations/frames-events.json";
 import logarithms from "../../../content/foundations/logarithms.json";
 import independence from "../../../content/foundations/probability-independence.json";
 import taylor from "../../../content/foundations/taylor-expansion.json";
+import historicalUnits from "../../../content/foundations/unit-system-1905.json";
 import energy from "../../../content/foundations/work-energy.json";
 import { checkDimensions } from "../../content/dimensions/check.ts";
 import type { QuantityDescriptor } from "../../content/dimensions/unitSystems.ts";
@@ -21,6 +22,10 @@ import type { Quantity, QuantityRegistry } from "../quantities.ts";
 import { dimensionText } from "../termFacts.ts";
 import { withQuantityIds } from "../termQuantities.ts";
 import { type CheckedDisplay, type CompiledPrintedDisplay, FACE_KATEX } from "./displayTerms.ts";
+import {
+  LIGHT_QUANTA_BUDGET_ARITHMETIC,
+  LIGHT_QUANTA_BUDGET_GUIDES,
+} from "./lightQuantaBudgetOperations.ts";
 import { LIGHT_QUANTA_ARITHMETIC, LIGHT_QUANTA_OPERATION_GUIDES } from "./lightQuantaOperations.ts";
 import {
   MASS_ENERGY_ARITHMETIC,
@@ -250,6 +255,7 @@ const FOUNDATION_TITLES = new Map(
     temperature,
     logarithms,
     independence,
+    historicalUnits,
   ].map(({ id, title }) => [id, title]),
 );
 
@@ -265,8 +271,10 @@ export function compilePrintedSourceSemantics(
 ): Readonly<{ html: string; semantics: PrintedSourceSemantics }> | undefined {
   const lightQuanta =
     display.paper === "light-quanta" ? LIGHT_QUANTA_OPERATION_GUIDES[display.display] : undefined;
-  if (display.paper !== "mass-energy" && !lightQuanta) return undefined;
-  const guide = lightQuanta ?? MASS_ENERGY_OPERATION_GUIDES[display.display];
+  const budget =
+    display.paper === "light-quanta" ? LIGHT_QUANTA_BUDGET_GUIDES[display.display] : undefined;
+  if (display.paper !== "mass-energy" && !lightQuanta && !budget) return undefined;
+  const guide = budget ?? lightQuanta ?? MASS_ENERGY_OPERATION_GUIDES[display.display];
   if (!guide)
     throw new SourceSemanticsError(
       "printed-source-operation",
@@ -275,6 +283,18 @@ export function compilePrintedSourceSemantics(
     );
   const indices = lightQuanta?.symbolIndices ?? {};
   const parsed = parseSourceExpression(display, indices);
+  const expectedOperator = budget ? budget.relationOperator : "=";
+  if (
+    parsed.rows.some(({ tree }) =>
+      tree.kind === "relation" ? tree.operator !== expectedOperator : expectedOperator !== null,
+    )
+  )
+    throw new SourceSemanticsError(
+      "printed-source-operation",
+      display.display,
+      "The source must retain the authored " +
+        (expectedOperator === null ? "standalone expression." : expectedOperator + " relation."),
+    );
   const nodes = sourceNodes(parsed);
   const printedTerms = nodes.flatMap(({ node }) =>
     node.tree.kind === "symbol" ? [node.tree] : [],
@@ -316,7 +336,9 @@ export function compilePrintedSourceSemantics(
   }
   const registry = sourceDimensionRegistry(quantities);
   function dimensions(tree: Expression): { dimension: string; dimensionExponents: string[] } {
-    const result = checkDimensions(tree, registry, { context: "gaussian-cgs" });
+    const result = checkDimensions(tree, registry, {
+      context: budget?.unitSystem ?? "gaussian-cgs",
+    });
     if (result.status !== "consistent")
       throw new SourceSemanticsError(
         "printed-source-dimension",
@@ -327,21 +349,32 @@ export function compilePrintedSourceSemantics(
     return { dimension: dimensionText(dimensionExponents), dimensionExponents };
   }
   const rowDimensions = parsed.rows.map(({ tree }) => dimensions(tree));
-  const expectedDimension = lightQuanta?.expectedDimension ?? ["2", "1", "-2", "0", "0", "0"];
+  const expectedDimension = (budget ?? lightQuanta)?.expectedDimension ?? [
+    "2",
+    "1",
+    "-2",
+    "0",
+    "0",
+    "0",
+  ];
   if (rowDimensions.some((d) => d.dimensionExponents.join(",") !== expectedDimension.join(",")))
     throw new SourceSemanticsError(
       "printed-source-dimension",
       display.display,
       "The authored display expects " +
-        (lightQuanta ? dimensionText(expectedDimension) : "energy") +
-        " in every equality.",
+        (lightQuanta || budget ? dimensionText(expectedDimension) : "energy") +
+        " in every complete expression or relation side.",
     );
   const operationMarks: SourceMark[] = [];
   const operations: PrintedOperation[] = nodes.flatMap(({ path, node }) => {
     if (!node.marker) return [];
     const id = nodeId(node.tree);
     const authored = guide.primary[path];
-    const arithmetic = lightQuanta ? LIGHT_QUANTA_ARITHMETIC : MASS_ENERGY_ARITHMETIC;
+    const arithmetic = budget
+      ? LIGHT_QUANTA_BUDGET_ARITHMETIC
+      : lightQuanta
+        ? LIGHT_QUANTA_ARITHMETIC
+        : MASS_ENERGY_ARITHMETIC;
     const reading = authored ?? arithmetic[node.tree.kind];
     const foundationTitle = reading ? FOUNDATION_TITLES.get(reading.foundation) : undefined;
     if (
@@ -350,7 +383,8 @@ export function compilePrintedSourceSemantics(
       !foundationTitle ||
       (node.tree.kind === "power" &&
         (node.tree.exponent.num !== 2 || node.tree.exponent.den !== 1)) ||
-      (node.tree.kind === "function" && node.tree.name !== (lightQuanta ? "ln" : "cos"))
+      (node.tree.kind === "function" &&
+        node.tree.name !== (lightQuanta ? "ln" : budget ? undefined : "cos"))
     )
       throw new SourceSemanticsError(
         "printed-source-operation",
@@ -415,7 +449,7 @@ export function compilePrintedSourceSemantics(
         reason:
           canonicalLatex === display.latex
             ? "The canonical AST renderer reproduces the printed display byte for byte."
-            : "The AST renderer normalizes spacing, delimiters, powers, function spelling, punctuation and aligned rows. The original source typography is retained with validated term and operation spans.",
+            : "The AST renderer normalizes spacing, delimiters, powers, function spelling, relation spelling, punctuation and aligned rows. The original source typography is retained with validated term and operation spans.",
       },
       dimensionStatus: "consistent",
       dimension: rowDimensions[0]!.dimension,

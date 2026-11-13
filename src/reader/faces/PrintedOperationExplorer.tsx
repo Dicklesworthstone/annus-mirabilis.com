@@ -146,8 +146,8 @@ export function PrintedOperationExplorer({
                 {spoken}
               </span>
               <span className="printed-operation-context">
-                Every equality has dimension {reading.dimension}. Unit consistency alone does not
-                establish the physical argument.
+                Dimensional check: {reading.dimension}. In a relation, this is the dimension on both
+                sides. Unit consistency alone does not establish the physical argument.
               </span>
               <a href={reading.next.href}>{reading.next.label} →</a>
               <span className="printed-operation-context">

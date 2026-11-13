@@ -129,19 +129,31 @@ class RowParser {
     const continuation = this.peek()?.value === "=";
     const left = continuation ? undefined : this.sum();
     if (this.peek()?.value === "&") this.take("&");
-    const sign = this.take("=");
+    const printed = this.peek()?.value;
+    const operator =
+      printed === "=" ? "=" : printed === "\\leqq" ? "le" : printed === "\\geqq" ? "ge" : undefined;
+    if (!operator) {
+      if (!left) this.fail("Expected an expression or relation.");
+      this.finish();
+      return { row: left, continuation: false };
+    }
+    const sign = this.take();
     if (!left && !previousLeft) this.fail("A continuation equality needs a preceding left side.");
     const right = this.sum();
-    if ([".", ",", ";"].includes(this.peek()?.value ?? "")) this.take();
-    if (this.peek()) this.fail(`Unsupported token ${this.peek()!.value}.`);
+    this.finish();
     const row = this.operation(
-      { kind: "relation", operator: "=", left: left?.tree ?? previousLeft!, right: right.tree },
+      { kind: "relation", operator, left: left?.tree ?? previousLeft!, right: right.tree },
       left?.start ?? sign.start,
       right.end,
       [...(left ? [{ name: "left", node: left }] : []), { name: "right", node: right }],
       sign,
     );
     return { row, continuation };
+  }
+
+  private finish(): void {
+    if ([".", ",", ";"].includes(this.peek()?.value ?? "")) this.take();
+    if (this.peek()) this.fail(`Unsupported token ${this.peek()!.value}.`);
   }
 
   private sum(): SourceExpressionNode {

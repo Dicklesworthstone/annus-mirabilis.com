@@ -46,8 +46,9 @@ export function PrintedOperationReference({
         <p>{spoken}</p>
       </details>
       <p>
-        Each equality has dimension {reading.dimension}. This checks unit consistency under the
-        paper's quantity bindings; it does not prove a physical premise or an approximation.
+        Dimensional check: {reading.dimension}. In a relation, this is the dimension on both sides.
+        This checks unit consistency under the paper's quantity bindings; it does not prove a
+        physical premise or an approximation.
       </p>
       {[...reading.operations]
         .sort((a, b) => Number(b.primary) - Number(a.primary))
