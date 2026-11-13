@@ -60,6 +60,21 @@ test("the Light Quanta discovery move names the actual published, qualified coef
   expect(target.textContent).toContain(markedStep.reasons.r1);
 });
 
+test("published derivation tools use reader return navigation and retain standalone links", () => {
+  const shell = document.createElement("div");
+  shell.innerHTML = renderToStaticMarkup(<LightQuantaDerivation section="s6" />);
+  const links = [...shell.querySelectorAll<HTMLAnchorElement>("a.step-tool-link")];
+  expect(links.length).toBeGreaterThan(0);
+  for (const link of links) {
+    const tool = link.getAttribute("data-tool-id");
+    expect(tool).toMatch(/^foundation:[a-z][a-z0-9-]*$/);
+    const slug = tool?.replace(/^foundation:/, "");
+    expect(link.dataset.foundation).toBe(slug);
+    expect(link.getAttribute("href")).toBe(`/foundations/${slug}/`);
+    expect(link.hasAttribute("data-open-foundation")).toBe(false);
+  }
+});
+
 test("a step fragment opens its enclosing disclosures and reasoning without toggle inversion", async () => {
   window.history.replaceState({}, "", moveHref);
   await act(async () => {

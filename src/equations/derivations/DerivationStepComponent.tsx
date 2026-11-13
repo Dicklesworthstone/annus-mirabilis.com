@@ -171,7 +171,7 @@ export function DerivationStepComponent({
               href={`/foundations/${step.tool.replace("foundation:", "")}/`}
               className="step-tool-link"
               data-tool-id={step.tool}
-              data-open-foundation={step.tool}
+              data-foundation={step.tool.replace(/^foundation:/, "")}
             >
               Foundation: {step.tool.replace("foundation:", "")} →
             </a>
