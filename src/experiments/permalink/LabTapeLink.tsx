@@ -74,8 +74,8 @@ export type LabTapeLinkState = Readonly<{
 /**
  * A laboratory's ?tape= link (am-inst-permalink-tape-s677): restores a shared link into the
  * laboratory's session once, on mount, and gives the tape for its accepted settings to share.
- * `enabled` is false for a laboratory the link does not describe, such as a page's optional second
- * copy.
+ * `enabled` disables the entire sharing and playback feature. An independent or inline laboratory
+ * can keep those controls while opting out of the page's incoming URL with `restoreFromLocation`.
  *
  * `onRestored` receives restored settings and, after a verified restore, recorded predictions.
  * Explicit new calculations synchronize the form without adopting the historical answers.
@@ -89,6 +89,7 @@ export function useLabTapeLink<P extends object>(
   acceptedParameters: object | null | undefined,
   enabled = true,
   onRestored?: (parameters: P, predictions?: readonly TapePredictionEvent[]) => void,
+  options: Readonly<{ restoreFromLocation?: boolean }> = {},
 ): LabTapeLinkState {
   const [notice, setNotice] = useState("");
   const [note, setNote] = useState("");
@@ -101,11 +102,12 @@ export function useLabTapeLink<P extends object>(
   // The latest callback, so a new closure on each render neither re-runs the restore nor goes stale.
   const restoredRef = useRef(onRestored);
   restoredRef.current = onRestored;
+  const restoreFromLocation = enabled && (options.restoreFromLocation ?? true);
   useEffect(() => {
     setPendingNewRun(null);
     setNote("");
     setNotice("");
-    if (!enabled) return;
+    if (!restoreFromLocation) return;
     let live = true;
     void restoreTapeFromUrl(binding, session, window.location.href).then((restored) => {
       if (!live) return;
@@ -118,7 +120,7 @@ export function useLabTapeLink<P extends object>(
     return () => {
       live = false;
     };
-  }, [binding, session, enabled]);
+  }, [binding, session, restoreFromLocation]);
   const sharedCheckpoint =
     enabled && acceptedParameters
       ? retainedWalkthroughTape(checkpointShare, binding, session, acceptedParameters)
@@ -491,14 +493,19 @@ export function useWorkerTapeLink(
  */
 export function LabTapeLink({
   link,
+  sharePath,
   workerWalkthrough,
 }: Readonly<{
   link: LabTapeLinkState;
+  /** Standalone laboratory path for controls mounted inside a reader or comparison. */
+  sharePath?: string | undefined;
   /** Explicit worker playback; ordinary settings links and personal recordings remain form-only. */
   workerWalkthrough?: WorkerWalkthroughTarget | undefined;
 }>) {
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => setHydrated(true), []);
+  const shareBase =
+    hydrated && sharePath ? new URL(sharePath, window.location.origin).href : undefined;
   return (
     <>
       {link.notice && (
@@ -586,7 +593,9 @@ export function LabTapeLink({
           captureNotice={link.recordingNotice}
         />
       )}
-      {hydrated && link.shareTape && <ShareControl tape={link.shareTape} />}
+      {hydrated && link.shareTape && (
+        <ShareControl tape={link.shareTape} {...(shareBase ? { baseUrl: shareBase } : {})} />
+      )}
     </>
   );
 }

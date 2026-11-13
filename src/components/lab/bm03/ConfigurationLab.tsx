@@ -13,15 +13,17 @@ import {
   type Bm03Parameters,
   type Bm03Step,
 } from "../../../experiments/bm03/definition.ts";
-import { decodeBm03Settings, encodeBm03Settings } from "../../../experiments/bm03/permalink.ts";
+import { decodeBm03Settings } from "../../../experiments/bm03/permalink.ts";
 import {
   buildBm03Snapshot,
   createBm03Session,
   evaluateBm03,
   type PreparedBm03Example,
 } from "../../../experiments/bm03/session.ts";
+import { BM03_TAPE } from "../../../experiments/bm03/tape.ts";
 import { executionLabelFor } from "../../../experiments/labels/executionLabelFor.ts";
 import { executionLabelAttributes } from "../../../experiments/labels/resultAttributes.ts";
+import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import {
   type ApplyFailure,
   applyFailure,
@@ -40,7 +42,7 @@ import { useInstrumentView } from "../../../experiments/store/useExperimentSnaps
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { LabMargin } from "../LabMargin.tsx";
-import { PredictGatePanels, usePredictGate } from "../PredictGate.tsx";
+import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { Sci } from "../Sci.tsx";
 import { ShowTheCode } from "../ShowTheCode.tsx";
 import { withScripts } from "../subscripts.tsx";
@@ -98,9 +100,22 @@ export function ConfigurationLab({
   const [dirty, setDirty] = useState(false);
   const [failure, setFailure] = useState<ApplyFailure | null>(null);
   const [linkNote, setLinkNote] = useState("");
-  const [sharedUrl, setSharedUrl] = useState("");
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("bm-03", BM03_PROMPTS);
+  const tapeLink = useLabTapeLink(
+    BM03_TAPE,
+    session,
+    session.acceptedParameters(),
+    true,
+    (parameters, predictions) => {
+      setDraft(toBm03Draft(parameters));
+      setDirty(false);
+      setFailure(null);
+      setLinkNote("");
+      gate.restore(predictions ?? []);
+    },
+    { restoreFromLocation },
+  );
 
   const evaluation = evaluateBm03(p);
   // One sentence for the status line: how many more arrangements the larger volume allows, and the
@@ -177,18 +192,6 @@ export function ConfigurationLab({
     const next = { ...p, notation };
     setDraft(toBm03Draft(next));
     apply(next);
-  }
-
-  async function share() {
-    const url = new URL("/lab/bm-03/", window.location.origin);
-    url.search = encodeBm03Settings(session.acceptedParameters());
-    setSharedUrl(url.href);
-    try {
-      await navigator.clipboard.writeText(url.href);
-      setLinkNote("Link to the accepted settings copied.");
-    } catch {
-      setLinkNote("Copy the accepted-settings link from the field below.");
-    }
   }
 
   const currentStepIdx = STEPS.findIndex((s) => s.id === p.step);
@@ -641,30 +644,7 @@ export function ConfigurationLab({
         </p>
       </details>
 
-      <div className="actions" style={{ marginTop: "1rem" }}>
-        <button
-          type="button"
-          className="secondary"
-          disabled={!ready}
-          onClick={() => {
-            void share();
-          }}
-        >
-          Copy accepted-settings link
-        </button>
-      </div>
-      {sharedUrl && (
-        <div className="share-field" style={{ marginTop: "0.5rem" }}>
-          <label htmlFor={`${id}-shared-url`}>Accepted-settings link</label>
-          <input
-            id={`${id}-shared-url`}
-            type="text"
-            readOnly
-            value={sharedUrl}
-            onFocus={(event) => event.target.select()}
-          />
-        </div>
-      )}
+      <LabTapeLink link={withPredictions(tapeLink, gate)} sharePath="/lab/bm-03/" />
       {linkNote && <p className="notice">{linkNote}</p>}
 
       {/* The reader can read the evaluator that produced these numbers (am-f3e4). */}
@@ -696,7 +676,12 @@ export function ConfigurationComparison({ example }: { example?: PreparedBm03Exa
         </p>
       </div>
       {second && (
-        <ConfigurationLab example={example} title="An independent comparison" readings={false} />
+        <ConfigurationLab
+          example={example}
+          title="An independent comparison"
+          readings={false}
+          restoreFromLocation={false}
+        />
       )}
     </>
   );
