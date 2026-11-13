@@ -115,7 +115,10 @@ function prompts(lab: LabId): readonly GeneratedPredictPrompt[] {
   const authored = PREDICT_PROMPTS[lab];
   assert.ok(authored?.length, `${lab} must have generated, authored prediction prompts.`);
   for (const id of PROMPT_IDS[lab])
-    assert.ok(authored.some((prompt) => prompt.promptId === id), `Missing prompt ${id}.`);
+    assert.ok(
+      authored.some((prompt) => prompt.promptId === id),
+      `Missing prompt ${id}.`,
+    );
   return authored;
 }
 
@@ -270,7 +273,8 @@ describe("light-quanta prediction gates", () => {
     });
 
     test(`${lab}: revealing and revisiting preserve the original prediction`, async () => {
-      await mount(lab);
+      window.history.replaceState({}, "", `/lab/${lab}/`);
+      await mount(lab, true);
       const prompt = firstPrompt(lab);
       const unsupported = prompt.candidates.find(
         (entry) => entry.id !== prompt.supportedCandidateId,
@@ -304,7 +308,7 @@ describe("light-quanta prediction gates", () => {
 
       await act(async () => root?.unmount());
       root = null;
-      await mount(lab);
+      await mount(lab, true);
       expect(required("[data-predict-gate]").getAttribute("data-predict-gate")).toBe("open");
       expect(required("[data-predict-original]", panel(prompt)).textContent).toContain(
         unsupported.label,
@@ -316,13 +320,15 @@ describe("light-quanta prediction gates", () => {
       ["I have one in mind", "predicted-unrecorded"],
     ] as const) {
       test(`${lab}: ${action} reveals without inventing or sharing a recorded answer`, async () => {
-        await mount(lab);
+        window.history.replaceState({}, "", `/lab/${lab}/`);
+        await mount(lab, true);
         const prompt = firstPrompt(lab);
         await click(action, panel(prompt));
         expect(required("[data-predict-gate]").getAttribute("data-predict-gate")).toBe("open");
         expect(required(".lab-results").getAttribute("data-predict-response")).toBe("shown");
         expect(original(lab, prompt)).toEqual({ status });
         expect(container.querySelector("[data-predict-original]")).toBeNull();
+        expect(required('[data-testid="selectable-url"]')).not.toBeNull();
         expect(container.querySelector('[data-testid="predictions-toggle"]')).toBeNull();
         expect(panel(prompt).querySelector("[data-predict-explanation]")).not.toBeNull();
       });

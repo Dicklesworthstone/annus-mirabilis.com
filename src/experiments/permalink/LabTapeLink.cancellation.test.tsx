@@ -75,7 +75,7 @@ function holdDecompression() {
       const native = new NativeDecompressionStream(format);
       this.writable = native.writable;
       this.readable = native.readable.pipeThrough(
-        new NativeTransformStream({
+        new NativeTransformStream<Uint8Array, Uint8Array>({
           async transform(chunk, controller) {
             entered.resolve();
             await released.promise;

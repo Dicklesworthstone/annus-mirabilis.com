@@ -92,6 +92,11 @@ jobs:
           src/testing/sr-05.test.ts
           src/testing/sr05Lab.test.tsx
           src/testing/sr05Controls.test.tsx
+          src/testing/bm03/bm03.tape.test.ts
+          src/testing/bm03/bm03.recording.test.tsx
+          src/testing/sr01Recording.test.tsx
+          src/testing/me01TapeLink.test.tsx
+          src/testing/lq09Recording.test.tsx
           src/testing/labFormSweep.test.tsx
           src/testing/lightQuantaPredictionGates.test.tsx
           src/testing/relativityPredictionGates.test.tsx
@@ -101,9 +106,14 @@ jobs:
           src/testing/lq03.manifest.test.ts
           src/components/lab/PredictGate.test.tsx
           src/experiments/permalink/sessionTape.transaction.test.ts
+          src/experiments/permalink/ShareControl.test.tsx
+          src/experiments/permalink/LabTapeLink.location.test.tsx
+          src/experiments/permalink/LabTapeLink.cancellation.test.tsx
           src/experiments/permalink/LabTapeLink.predictions.test.tsx
           src/experiments/permalink/LabTapeLink.newRun.test.tsx
           src/experiments/permalink/LabTapeLink.recovery.test.tsx
+          src/equations/printed/sourceSemantics.test.ts
+          src/reader/faces/printedOperations.test.tsx
           src/search/closingPassages.test.ts
           src/search/languageFaces.test.ts
           src/search/queryQuality.test.ts

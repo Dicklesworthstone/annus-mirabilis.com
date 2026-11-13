@@ -109,11 +109,9 @@ import { WaveDescriptionLab } from "./WaveDescriptionLab.tsx";
  */
 /**
  * The gated labs. `result` is text from each lab's result that the server markup must carry.
- * `sharesTape`: whether the lab offers a ?tape= link to carry a prediction. BM-03, LQ-09, ME-01 and
- * SR-01 have none yet, their bindings waiting in a worktree (dispatch 145). BM-02 and LQ-02 were
- * in that list until 3d715270a (2026-10-12) gave them a share link, which this table was not
- * updated with: the two entries said `false` while the pages offered the control, so this case
- * asserted the control's ABSENCE and was red in the full lane from then until 2026-10-14. `statusLine`: whether the lab has a status line; BM-04, LQ-06 and ME-02 have none.
+ * `sharesTape`: whether the lab offers a ?tape= link to carry a prediction. Every laboratory in
+ * this shared-gate census now carries its recorded choice through its actual share control.
+ * `statusLine`: whether the lab has a status line; BM-04, LQ-06 and ME-02 have none.
  */
 type GatedLab = Readonly<{
   lab: string;
@@ -143,7 +141,7 @@ const LABS: readonly GatedLab[] = [
     lab: "bm-03",
     element: () => createElement(ConfigurationLab, {}),
     result: "One accepted calculation",
-    sharesTape: false,
+    sharesTape: true,
     statusLine: true,
   },
   {
@@ -251,14 +249,14 @@ const LABS: readonly GatedLab[] = [
     lab: "lq-09",
     element: () => createElement(IonizationLab, {}),
     result: "Values at these settings",
-    sharesTape: false,
+    sharesTape: true,
     statusLine: true,
   },
   {
     lab: "me-01",
     element: () => createElement(TwoLedgersLab, { example: ME01_EXAMPLE }),
     result: "Derivation steps",
-    sharesTape: false,
+    sharesTape: true,
     statusLine: true,
   },
   {
@@ -279,7 +277,7 @@ const LABS: readonly GatedLab[] = [
     lab: "sr-01",
     element: () => createElement(ClockSyncLab, {}),
     result: "Event ledger",
-    sharesTape: false,
+    sharesTape: true,
     statusLine: true,
   },
   {
