@@ -1,9 +1,14 @@
-/** Build-time source algebra, exact dimensions and operation markup for the first complete paper. */
+/** Build-time source algebra, exact dimensions and operation markup for explicitly authored displays. */
 import { renderToString } from "katex";
+import equality from "../../../content/foundations/bridge-equals-sign-relationship.json";
 import fractions from "../../../content/foundations/bridge-fractions-ratios.json";
 import signs from "../../../content/foundations/bridge-negative-numbers-direction.json";
+import entropy from "../../../content/foundations/entropy-multiplicity.json";
+import temperature from "../../../content/foundations/entropy-temperature.json";
 import fields from "../../../content/foundations/fields-waves.json";
 import frames from "../../../content/foundations/frames-events.json";
+import logarithms from "../../../content/foundations/logarithms.json";
+import independence from "../../../content/foundations/probability-independence.json";
 import taylor from "../../../content/foundations/taylor-expansion.json";
 import energy from "../../../content/foundations/work-energy.json";
 import { checkDimensions } from "../../content/dimensions/check.ts";
@@ -16,6 +21,7 @@ import type { Quantity, QuantityRegistry } from "../quantities.ts";
 import { dimensionText } from "../termFacts.ts";
 import { withQuantityIds } from "../termQuantities.ts";
 import { type CheckedDisplay, type CompiledPrintedDisplay, FACE_KATEX } from "./displayTerms.ts";
+import { LIGHT_QUANTA_ARITHMETIC, LIGHT_QUANTA_OPERATION_GUIDES } from "./lightQuantaOperations.ts";
 import {
   MASS_ENERGY_ARITHMETIC,
   MASS_ENERGY_OPERATION_GUIDES,
@@ -99,25 +105,39 @@ export function sourceDimensionRegistry(
 
 /** Canonical AST output is measured BEFORE retaining source typography as an exception. */
 export function canonicalSourceLatex(display: CheckedDisplay, parsed: SourceExpression): string {
-  const registry: QuantityRegistry = Object.fromEntries(
-    display.terms.map(({ quantityId, glyph }) => {
-      const quantity: Quantity = {
-        id: quantityId,
-        name: quantityId,
-        glyph,
-        dimension: [],
-        unit: "",
-        displayUnit: "",
-        displayPower: 0,
-        semanticKind: "source-binding",
-        role: "input",
-        definition: "Glyph projection only; dimensions come from the canonical quantity registry.",
-      };
-      return [quantityId, quantity];
-    }),
+  const indices = new Map(
+    parsed.rows.flatMap(({ tree }) =>
+      walk(tree).flatMap((node) =>
+        node.kind === "symbol" ? [[node.termId, node.index] as const] : [],
+      ),
+    ),
   );
+  const components: Record<string, string> = {};
+  const entries = new Map<string, Quantity>();
+  for (const { termId, quantityId, glyph } of display.terms) {
+    const index = indices.get(termId);
+    if (index !== undefined) components[`${quantityId}#${index}`] = glyph;
+    // An indexed reference keeps its checked glyph, while the unindexed state keeps its own.
+    // A shared quantity id must not turn v/v0 into v0/v0 or duplicate a printed subscript.
+    const quantity: Quantity = {
+      id: quantityId,
+      name: quantityId,
+      glyph,
+      dimension: [],
+      unit: "",
+      displayUnit: "",
+      displayPower: 0,
+      semanticKind: "source-binding",
+      role: "input",
+      definition: "Glyph projection only; dimensions come from the canonical quantity registry.",
+    };
+    if (!entries.has(quantityId) || index === undefined) entries.set(quantityId, quantity);
+  }
+  const registry: QuantityRegistry = Object.fromEntries(entries);
   return parsed.rows
-    .map(({ tree }) => renderLatex(tree, { registry, strictConcordance: false }))
+    .map(({ tree }) =>
+      renderLatex(tree, { registry, componentGlyphs: components, strictConcordance: false }),
+    )
     .join(" \\\\ ");
 }
 
@@ -218,7 +238,19 @@ const quantitiesIn = (tree: Expression): readonly string[] =>
   [...new Set(walk(tree).flatMap((n) => (n.kind === "symbol" ? [n.quantityId] : [])))].sort();
 
 const FOUNDATION_TITLES = new Map(
-  [fractions, signs, fields, frames, taylor, energy].map(({ id, title }) => [id, title]),
+  [
+    fractions,
+    signs,
+    fields,
+    frames,
+    taylor,
+    energy,
+    equality,
+    entropy,
+    temperature,
+    logarithms,
+    independence,
+  ].map(({ id, title }) => [id, title]),
 );
 
 /**
@@ -231,15 +263,18 @@ export function compilePrintedSourceSemantics(
   original: CompiledPrintedDisplay,
   quantities: ReadonlyMap<string, RegisteredQuantity>,
 ): Readonly<{ html: string; semantics: PrintedSourceSemantics }> | undefined {
-  if (display.paper !== "mass-energy") return undefined;
-  const guide = MASS_ENERGY_OPERATION_GUIDES[display.display];
+  const lightQuanta =
+    display.paper === "light-quanta" ? LIGHT_QUANTA_OPERATION_GUIDES[display.display] : undefined;
+  if (display.paper !== "mass-energy" && !lightQuanta) return undefined;
+  const guide = lightQuanta ?? MASS_ENERGY_OPERATION_GUIDES[display.display];
   if (!guide)
     throw new SourceSemanticsError(
       "printed-source-operation",
       display.display,
       "This mass-energy display has no authored operation guide.",
     );
-  const parsed = parseSourceExpression(display);
+  const indices = lightQuanta?.symbolIndices ?? {};
+  const parsed = parseSourceExpression(display, indices);
   const nodes = sourceNodes(parsed);
   const printedTerms = nodes.flatMap(({ node }) =>
     node.tree.kind === "symbol" ? [node.tree] : [],
@@ -251,8 +286,14 @@ export function compilePrintedSourceSemantics(
       (term) =>
         !printedTerms.some(
           (parsedTerm) =>
-            parsedTerm.termId === term.termId && parsedTerm.quantityId === term.quantityId,
+            parsedTerm.termId === term.termId &&
+            parsedTerm.quantityId === term.quantityId &&
+            parsedTerm.index === indices[term.glyph],
         ),
+    ) ||
+    Object.entries(indices).some(
+      ([glyph, index]) =>
+        !/^[a-z0-9]{1,2}$/.test(index) || !display.terms.some((term) => term.glyph === glyph),
     )
   )
     throw new SourceSemanticsError(
@@ -286,24 +327,30 @@ export function compilePrintedSourceSemantics(
     return { dimension: dimensionText(dimensionExponents), dimensionExponents };
   }
   const rowDimensions = parsed.rows.map(({ tree }) => dimensions(tree));
-  if (rowDimensions.some((d) => d.dimensionExponents.join(",") !== "2,1,-2,0,0,0"))
+  const expectedDimension = lightQuanta?.expectedDimension ?? ["2", "1", "-2", "0", "0", "0"];
+  if (rowDimensions.some((d) => d.dimensionExponents.join(",") !== expectedDimension.join(",")))
     throw new SourceSemanticsError(
       "printed-source-dimension",
       display.display,
-      "The authored display expects energy in every equality.",
+      "The authored display expects " +
+        (lightQuanta ? dimensionText(expectedDimension) : "energy") +
+        " in every equality.",
     );
   const operationMarks: SourceMark[] = [];
   const operations: PrintedOperation[] = nodes.flatMap(({ path, node }) => {
     if (!node.marker) return [];
     const id = nodeId(node.tree);
     const authored = guide.primary[path];
-    const reading = authored ?? MASS_ENERGY_ARITHMETIC[node.tree.kind];
+    const arithmetic = lightQuanta ? LIGHT_QUANTA_ARITHMETIC : MASS_ENERGY_ARITHMETIC;
+    const reading = authored ?? arithmetic[node.tree.kind];
     const foundationTitle = reading ? FOUNDATION_TITLES.get(reading.foundation) : undefined;
     if (
       !id ||
       !reading ||
       !foundationTitle ||
-      (node.tree.kind === "power" && (node.tree.exponent.num !== 2 || node.tree.exponent.den !== 1))
+      (node.tree.kind === "power" &&
+        (node.tree.exponent.num !== 2 || node.tree.exponent.den !== 1)) ||
+      (node.tree.kind === "function" && node.tree.name !== (lightQuanta ? "ln" : "cos"))
     )
       throw new SourceSemanticsError(
         "printed-source-operation",
@@ -368,7 +415,7 @@ export function compilePrintedSourceSemantics(
         reason:
           canonicalLatex === display.latex
             ? "The canonical AST renderer reproduces the printed display byte for byte."
-            : "The AST renderer normalizes spacing, delimiters, powers, punctuation and aligned rows. The original source typography is retained with validated term and operation spans.",
+            : "The AST renderer normalizes spacing, delimiters, powers, function spelling, punctuation and aligned rows. The original source typography is retained with validated term and operation spans.",
       },
       dimensionStatus: "consistent",
       dimension: rowDimensions[0]!.dimension,

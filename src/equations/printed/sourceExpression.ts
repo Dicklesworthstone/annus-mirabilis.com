@@ -6,8 +6,8 @@
  * commands stop the parse; they never become dimensionless constants. Source offsets describe
  * where each operation is printed, while the expression tree describes what it does.
  *
- * The initial product owner is mass-energy's seven displays. Other displays may be measured with
- * this parser, but are not silently opted into a source-semantics contract.
+ * Product owners explicitly select their displays. Parsing another display does not silently
+ * opt it into a source-semantics contract or supply an authored explanation.
  */
 import type { Expression } from "../ast.ts";
 import { tokenizeLatex } from "../latex/tokenize.ts";
@@ -88,6 +88,7 @@ class RowParser {
   constructor(
     private readonly display: CheckedDisplay,
     private readonly items: readonly Lexeme[],
+    private readonly symbolIndices: Readonly<Record<string, string>>,
   ) {}
 
   private peek(): Lexeme | undefined {
@@ -131,7 +132,7 @@ class RowParser {
     const sign = this.take("=");
     if (!left && !previousLeft) this.fail("A continuation equality needs a preceding left side.");
     const right = this.sum();
-    if (this.peek()?.value === "." || this.peek()?.value === ",") this.take();
+    if ([".", ",", ";"].includes(this.peek()?.value ?? "")) this.take();
     if (this.peek()) this.fail(`Unsupported token ${this.peek()!.value}.`);
     const row = this.operation(
       { kind: "relation", operator: "=", left: left?.tree ?? previousLeft!, right: right.tree },
@@ -180,14 +181,17 @@ class RowParser {
       next &&
       (next.term ||
         /^[0-9]$/.test(next.value) ||
-        ["{", "(", "[", "\\left", "\\frac", "\\sqrt", "\\cos"].includes(next.value))
+        ["{", "(", "[", "\\left", "\\frac", "\\sqrt", "\\cos", "\\lg"].includes(next.value))
     );
   }
 
   private product(): SourceExpressionNode {
     const first = this.unary();
     const args = [first];
-    while (this.startsFactor()) args.push(this.unary());
+    while (this.startsFactor() || this.peek()?.value === "\\cdot") {
+      if (this.peek()?.value === "\\cdot") this.take();
+      args.push(this.unary());
+    }
     return args.length === 1
       ? first
       : this.operation(
@@ -213,24 +217,46 @@ class RowParser {
     let node = this.atom();
     if (this.peek()?.value === "^") {
       this.take("^");
-      const braced = this.peek()?.value === "{";
-      if (braced) this.take("{");
-      const exponent = this.take();
-      if (!/^[0-9]$/.test(exponent.value)) this.fail("Only an exact integer power is supported.");
-      let value = exponent.value;
-      if (braced)
-        while (this.peek() && /^[0-9]$/.test(this.peek()!.value)) value += this.take().value;
-      const end = braced ? this.take("}").end : exponent.end;
-      const num = Number(value);
-      if (!Number.isSafeInteger(num)) this.fail("The integer power exceeds the exact range.");
-      node = this.operation(
-        { kind: "power", base: node.tree, exponent: { num, den: 1 } },
-        node.start,
-        end,
-        [{ name: "base", node }],
-      );
+      const exponent = this.peek()?.value === "{" ? this.argument() : this.unbracedExponent();
+      if (exponent.node.tree.kind === "number") {
+        const num = Number(exponent.node.tree.value);
+        if (!Number.isSafeInteger(num)) this.fail("The integer power exceeds the exact range.");
+        node = this.operation(
+          { kind: "power", base: node.tree, exponent: { num, den: 1 } },
+          node.start,
+          exponent.end,
+          [{ name: "base", node }],
+        );
+      } else {
+        node = this.operation(
+          { kind: "symbolPower", base: node.tree, exponent: exponent.node.tree },
+          node.start,
+          exponent.end,
+          [
+            { name: "base", node },
+            { name: "exponent", node: exponent.node },
+          ],
+        );
+      }
     }
     return node;
+  }
+
+  /** TeX takes one unbraced exponent token; checked glyph spans retain their own decorations. */
+  private unbracedExponent(): { node: SourceExpressionNode; end: number } {
+    const token = this.peek();
+    if (token && /^[0-9]$/.test(token.value)) {
+      this.take();
+      const node: SourceExpressionNode = {
+        tree: { kind: "number", value: token.value },
+        start: token.start,
+        end: token.end,
+        parts: [],
+      };
+      return { node, end: node.end };
+    }
+    const node = this.atom();
+    return { node, end: node.end };
   }
 
   private argument(): { node: SourceExpressionNode; end: number } {
@@ -244,7 +270,14 @@ class RowParser {
     const token = this.take();
     if (token.term)
       return {
-        tree: { kind: "symbol", termId: token.term.termId, quantityId: token.term.quantityId },
+        tree: {
+          kind: "symbol",
+          termId: token.term.termId,
+          quantityId: token.term.quantityId,
+          ...(this.symbolIndices[token.term.glyph] !== undefined
+            ? { index: this.symbolIndices[token.term.glyph] }
+            : {}),
+        },
         start: token.start,
         end: token.end,
         parts: [],
@@ -281,10 +314,10 @@ class RowParser {
         [{ name: "radicand", node: radicand.node }],
       );
     }
-    if (token.value === "\\cos") {
+    if (token.value === "\\cos" || token.value === "\\lg") {
       const argument = this.unary();
       return this.operation(
-        { kind: "function", name: "cos", argument: argument.tree },
+        { kind: "function", name: token.value === "\\lg" ? "ln" : "cos", argument: argument.tree },
         token.start,
         argument.end,
         [{ name: "argument", node: argument }],
@@ -311,7 +344,10 @@ class RowParser {
 }
 
 /** Every input token must belong to the supported grammar, including every aligned row. */
-export function parseSourceExpression(display: CheckedDisplay): SourceExpression {
+export function parseSourceExpression(
+  display: CheckedDisplay,
+  symbolIndices: Readonly<Record<string, string>> = {},
+): SourceExpression {
   let items = lexemes(display);
   const aligned = items[0]?.value === "\\begin{aligned}";
   if (aligned) {
@@ -333,7 +369,7 @@ export function parseSourceExpression(display: CheckedDisplay): SourceExpression
   const continuationRows: number[] = [];
   for (const line of lines) {
     const previous = rows.at(-1)?.tree;
-    const parsed = new RowParser(display, line).parse(
+    const parsed = new RowParser(display, line, symbolIndices).parse(
       previous?.kind === "relation" ? previous.left : undefined,
     );
     if (parsed.continuation) continuationRows.push(rows.length);
