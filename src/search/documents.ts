@@ -2,6 +2,7 @@ import { parseInstrumentId } from "../content/ids.ts";
 import { inlineMathPlain } from "../content/inlineMath.ts";
 import type { Inline } from "../content/schemas/inlines.ts";
 import { labName } from "../reader/actions/labNames.ts";
+import { sourceUnitLabel } from "../reader/facsimile/sourceUnitLabel.ts";
 import {
   normalizeSearchText,
   type SearchAlias,
@@ -1048,7 +1049,7 @@ export function germanSourcePlain(text: string): string {
  * The German a reader can already open, so a German word finds the passage that prints it:
  * "Lichtquanten", "Relativitätsprinzip" and "Lichtgeschwindigkeit" found nothing, because the
  * index held only the English explanations and the German titles. One document per heading,
- * paragraph and footnote of the paper's German face, landing on that block's id there.
+ * paragraph, footnote and closing of the paper's German face, landing on that block's id there.
  *
  * The text is the transcription that face shows under its draft label, and each document's scope
  * line carries the same label, so a hit never reads as a reviewed edition. Titles are ours and
@@ -1066,14 +1067,19 @@ export function germanSourceDocuments(
   const ordinals = new Map<string, number>();
   const documents: SearchDocument[] = [];
   for (const block of face.blocks) {
-    if (!["heading", "paragraph", "footnote"].includes(block.kind)) continue;
+    // Edition records use "closing"; the ledger face keeps its three explicit closing kinds.
+    const closing = ["closing", "closing-ack", "closing-dateline", "closing-received"].includes(
+      block.kind,
+    );
+    if (!closing && !["heading", "paragraph", "footnote"].includes(block.kind)) continue;
     const section = /^(s\d+)/u.exec(block.id)?.[1] ?? "";
     const number = section.slice(1);
     const where = section === "s0" ? (sectioned ? "Introduction" : "") : `§ ${number}`;
     const text = germanSourcePlain(block.text);
     if (!text) continue;
     let title: string;
-    if (block.kind === "heading") title = text;
+    if (closing) title = sourceUnitLabel(block.id, block.kind, sectioned);
+    else if (block.kind === "heading") title = text;
     else if (block.kind === "footnote") {
       const footnote = /-fn(\d+)$/u.exec(block.id)?.[1] ?? "";
       title = where ? `${where}, footnote ${footnote}` : `Footnote ${footnote}`;
@@ -1110,8 +1116,10 @@ export function germanSourceDocuments(
  * never the translation.
  */
 export const SEARCH_LANGUAGE_FACES = Object.freeze({
-  german: "each heading, paragraph and footnote of the German face (germanSourceDocuments)",
-  english: "each heading, paragraph and footnote of the English face (englishTranslationDocuments)",
+  german:
+    "each heading, paragraph, footnote and closing of the German face (germanSourceDocuments)",
+  english:
+    "each heading, paragraph, footnote and closing of the English face (englishTranslationDocuments)",
 });
 export function assertSearchFaceCoverage(faces: readonly string[]): void {
   assertClassified(SEARCH_LANGUAGE_FACES, faces, "language face for search");
@@ -1149,11 +1157,11 @@ export function searchInlineText(inlines: readonly Inline[]): string {
     .join("");
 }
 
-/** One heading, paragraph or footnote of a paper's English face, as that face groups its units. */
+/** One text passage of a paper's English face, as that face groups its units. */
 export type SearchEnglishParagraph = Readonly<{
   /** The source block the English renders, which names the paragraph. */
   key: string;
-  kind: "heading" | "paragraph" | "footnote";
+  kind: "heading" | "paragraph" | "footnote" | "closing";
   section: string;
   /** The id of the paragraph's first unit, which the English face renders as an element id. */
   anchor: string;
@@ -1163,8 +1171,8 @@ export type SearchEnglishParagraph = Readonly<{
 /**
  * The English a reader can open, so an English phrase finds the translation that says it: the index
  * held the explanations and the German, and "principle of relativity", "light quanta" or "Brownian"
- * never reached the translation itself. One document per heading, paragraph and footnote of the
- * English face, grouped as that face sets them and landing on the first unit it renders there.
+ * never reached the translation itself. One document per heading, paragraph, footnote and closing
+ * of the English face, grouped as that face sets them and landing on the first unit it renders there.
  * Titles count as the German documents do ("§ 3, paragraph 2"), and the scope line carries the
  * face's label and its review state, so a hit never reads as a person's review.
  */
@@ -1185,7 +1193,9 @@ export function englishTranslationDocuments(
     const text = germanSourcePlain(paragraph.text);
     if (!text) continue;
     let title: string;
-    if (paragraph.kind === "heading") title = text;
+    if (paragraph.kind === "closing")
+      title = sourceUnitLabel(paragraph.key, paragraph.kind, sectioned);
+    else if (paragraph.kind === "heading") title = text;
     else if (paragraph.kind === "footnote") {
       const footnote = /-fn(\d+)$/u.exec(paragraph.key)?.[1] ?? "";
       title = where ? `${where}, footnote ${footnote}` : `Footnote ${footnote}`;

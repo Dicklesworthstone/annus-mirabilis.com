@@ -230,8 +230,8 @@ export async function loadSearchCorpus(
         const kind =
           group.kind === "paragraph" || group.kind === "footnote"
             ? group.kind
-            : block?.kind === "heading"
-              ? "heading"
+            : block?.kind === "heading" || block?.kind === "closing"
+              ? block.kind
               : null;
         const first = group.units[0];
         if (kind === null || first === undefined) continue;
