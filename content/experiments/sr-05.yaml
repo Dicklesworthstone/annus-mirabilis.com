@@ -315,5 +315,26 @@ realRate:
   natural: false
 embeddable: true
 predictMode:
-  exempt: true
-  reason: "SR-05 offers no predict affordance on its page today (measured on live, 2026-09-24). Building one belongs to am-inst-predict-mode-ti7m, which is open; no prompt is recorded here that the page does not ask."
+  enabled: true
+  prompts:
+    - promptId: sr-05-predict-return-reading
+      supportedCandidateId: eight-seconds
+      controlId: speed
+      question: "A clock goes out and back at 0.6c for 10 seconds of platform time. What does it read on return?"
+      explanation: "The moving clock records 10 × √(1 − 0.6²) = 8 seconds. At reunion the platform clock reads 10 seconds, so the exact lag is 2 seconds. The turn adds no separate penalty in this ideal-clock model; the elapsed proper time depends on the speed and duration along the path."
+      candidates:
+        - id: twelve-point-five-seconds
+          label: "12.5 seconds"
+          description: "Multiply the platform interval by the dilation factor γ = 1.25."
+          separatingAssumption: "Multiplying by γ converts an interval measured by the moving clock into platform time. Here the given 10 seconds is already platform time, so the moving clock's reading is found by dividing by γ."
+          relation: "10γ = 12.5 s"
+        - id: ten-seconds
+          label: "10 seconds"
+          description: "The two clocks accumulate the same elapsed time."
+          separatingAssumption: "Equal elapsed times would follow from a shared absolute time, or from a clock remaining at rest on the platform. The traveling clock has a different speed history."
+          relation: "τ = t"
+        - id: eight-seconds
+          label: "8 seconds"
+          description: "Divide the platform interval by the dilation factor γ = 1.25."
+          separatingAssumption: "An ideal clock accumulates dt/γ along each constant-speed leg; both legs here have the same speed magnitude, giving 10/1.25 = 8 seconds."
+          relation: "τ = t/γ = 8 s"

@@ -332,5 +332,65 @@ realRate:
   natural: false
 embeddable: true
 predictMode:
-  exempt: true
-  reason: "Predict-mode candidate authoring and the tape event wiring belong to am-inst-predict-mode-ti7m (still open); the bead's three prompts (b's value once light constraints hold, whether reciprocity plus light constraints fully fix the map, the Galilean light-speed prediction) are named in the bead text but not authored as manifest predictMode.prompts here."
+  enabled: true
+  prompts:
+    - promptId: sr-04-predict-light-constraints
+      supportedCandidateId: b-equals-a
+      controlId: candidateB
+      question: "In x′ = a(x − vt), t′ = bt + dx, once both light directions must stay at light speed, what must b be?"
+      explanation: "The right-moving and left-moving light conditions together give b = a and d = −av/c². They tie the time scale to the space scale and make time depend on position, but they leave the common scale a(v) free."
+      candidates:
+        - id: b-fixed-at-one
+          label: "b = 1, whatever a is"
+          description: "Time keeps its original scale while the space scale changes."
+          separatingAssumption: "Keeping b = 1 is compatible with both light conditions only when a = 1 as well; the light conditions require b and a to change together."
+          relation: "b = 1"
+        - id: b-one-ray
+          label: "b = a(1 − v/c), with time independent of position"
+          description: "The time scale is chosen to preserve the right-moving light ray alone."
+          separatingAssumption: "This choice preserves the ray moving with the observer when d = 0, but the ray moving the other way then no longer has speed c."
+          relation: "b = a(1 − v/c), d = 0"
+        - id: b-equals-a
+          label: "b = a, with d = −av/c²"
+          description: "Both light conditions relate the time scale, space scale and position-dependent time."
+          separatingAssumption: "Requiring both light directions fixes b/a = 1 and d/a = −v/c², leaving a(v) to be determined by further requirements."
+          relation: "b = a, d = −av/c²"
+    - promptId: sr-04-predict-map-fixed
+      supportedCandidateId: one-free-function
+      controlId: enabledConstraints
+      question: "With both light directions and reciprocity required, is the map now fully fixed?"
+      explanation: "Reciprocity gives a(v)a(−v)(1 − v²/c²) = 1. It fixes the product of the two scale factors, not each factor separately. Isotropy and the positive branch connected to the identity are still needed to select the final map."
+      candidates:
+        - id: fixed
+          label: "Yes: a = γ"
+          description: "Reciprocity is taken to select one scale factor immediately."
+          separatingAssumption: "This also assumes a(v) = a(−v), the isotropy condition. Reciprocity alone fixes their product and does not supply that equality."
+        - id: one-free-function
+          label: "No: a(v)a(−v) = γ² still permits a family of scale functions"
+          description: "The product is fixed while the individual scale factors remain undetermined."
+          separatingAssumption: "A product relation does not determine its two factors separately; isotropy supplies their equality and the identity branch selects the positive solution."
+        - id: two-free-functions
+          label: "No: a and b can still be chosen separately"
+          description: "The space and time scales are treated as independent."
+          separatingAssumption: "That freedom would require dropping the light conditions, which have already tied b to a."
+    - promptId: sr-04-predict-galilean-light
+      supportedCandidateId: ordinary-subtraction
+      controlId: vOverC
+      question: "An observer moves at 0.6 of light speed in the same direction as a light ray. Under the ordinary change of frame, what speed does the observer assign to that light?"
+      explanation: "The ordinary change of frame uses x′ = x − vt and t′ = t. It gives c − 0.6c = 0.4c for this ray, as an ether theory using that map would expect. Preserving light speed for every inertial observer requires changing the map."
+      candidates:
+        - id: ordinary-subtraction
+          label: "0.4 of light speed"
+          description: "Ordinary subtraction of speeds for the ray moving with the observer."
+          separatingAssumption: "The ordinary map keeps the same time coordinate and subtracts the observer's speed, giving c − v."
+          relation: "c − v = 0.4c"
+        - id: unchanged
+          label: "Light speed"
+          description: "Every inertial observer is taken to assign the same speed to light."
+          separatingAssumption: "That is the light-speed requirement of the new map; the ordinary map with t′ = t does not satisfy it."
+          relation: "c"
+        - id: opposite-ray
+          label: "1.6 of light speed"
+          description: "The ordinary result for light traveling against the observer."
+          separatingAssumption: "The magnitude c + v belongs to the ray traveling the other way, not the ray moving in the observer's direction."
+          relation: "c + v = 1.6c"

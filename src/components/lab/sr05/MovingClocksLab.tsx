@@ -22,10 +22,12 @@ import {
 import { createSr05Session, type PreparedSr05Example } from "../../../experiments/sr05/session.ts";
 import { SR05_TAPE } from "../../../experiments/sr05/tape.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
+import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { SR05_READER_WEAVE } from "../../../reader/weave/clockPassages.ts";
 import { SessionResultWeave } from "../../../reader/weave/SessionResultWeave.tsx";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
+import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { readablePowers } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
 import "./sr05.css";
@@ -73,6 +75,8 @@ function fmt(value: number | null, digits = 6): string {
   return readablePowers(exponent === undefined ? trimmed : `${trimmed}e${exponent}`);
 }
 
+const SR05_PROMPTS = PREDICT_PROMPTS["sr-05"] ?? [];
+
 const PRESET_ORDER = [
   "sr-05-inertial-0.6c",
   "sr-05-out-and-back-0.6c",
@@ -119,6 +123,7 @@ export function MovingClocksLab({
     [sharedSession, instanceId, example],
   );
   const view = useInstrumentView(session);
+  const gate = usePredictGate("sr-05", SR05_PROMPTS);
   const [draft, setDraft] = useState(() => clockDraft(session.acceptedParameters()));
   const [failure, setFailure] = useState<ApplyFailure | null>(null);
   const [ready, setReady] = useState(false);
@@ -139,6 +144,10 @@ export function MovingClocksLab({
     session,
     session.acceptedParameters(),
     restoreFromLocation,
+    (restored, predictions) => {
+      setDraft(clockDraft(restored));
+      gate.restore(predictions ?? []);
+    },
   );
 
   const accepted = view.accepted;
@@ -220,7 +229,7 @@ export function MovingClocksLab({
       <header className="lab-heading">
         <h2 id={`${instanceId}-title`}>Moving clocks</h2>
       </header>
-      <LabTapeLink link={tapeLink} />
+      <LabTapeLink link={withPredictions(tapeLink, gate)} />
       <div className="lab-status-row">
         <ExecutionChrome
           state={executionKind}
@@ -235,6 +244,7 @@ export function MovingClocksLab({
           and its values and explanations remain available. The controls need JavaScript to respond.
         </p>
       </noscript>
+      <PredictGatePanels gate={gate} reasoningHref="/papers/special-relativity/#s4" />
       <div className="lab-columns">
         <div>
           <form
@@ -362,6 +372,7 @@ export function MovingClocksLab({
           <AcceptedStatus
             worked={accepted === undefined || accepted === session.getServerSnapshot().accepted}
             summary={statusSummary}
+            response={gate.response}
           />
         </div>
 
@@ -369,6 +380,7 @@ export function MovingClocksLab({
           className="lab-results"
           aria-label="What the clocks read"
           data-testid="sr05-run-summary"
+          {...gate.response}
         >
           <ClockBars
             properTime={properTime}
@@ -498,36 +510,44 @@ export function MovingClocksLab({
         </section>
       </div>
 
-      <SessionResultWeave
-        session={session}
-        binding={SR05_READER_WEAVE}
-        highlightPaper={highlightPaper}
-      />
+      <div {...gate.response}>
+        <SessionResultWeave
+          session={session}
+          binding={SR05_READER_WEAVE}
+          suspended={!gate.open || failure !== null}
+          announcementsEnabled={gate.open}
+          highlightPaper={highlightPaper}
+        />
+      </div>
 
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
           children of the lab root, which labShell.css's detail rules select. */}
-      <p data-detail="0">
+      <p data-detail="0" {...gate.response}>
         <noscript>
           <b className="reading-label">In one breath</b>
         </noscript>
         {withScripts(SR05_CAPTION.r0)}
       </p>
-      <p data-detail="1">
+      <p data-detail="1" {...gate.response}>
         <noscript>
           <b className="reading-label">Full explanation</b>
         </noscript>
         {withScripts(SR05_CAPTION.r1)}
       </p>
-      <p data-detail="2" hidden>
+      <p data-detail="2" hidden {...gate.response}>
         <noscript>
           <b className="reading-label">Every step</b>
         </noscript>
         {withScripts(SR05_CAPTION.r2)}
       </p>
-      <LabMargin>{withScripts(SR05_CAPTION.r3)}</LabMargin>
+      <LabMargin>
+        <span {...gate.response}>{withScripts(SR05_CAPTION.r3)}</span>
+      </LabMargin>
 
       {/* The reader can read the evaluator that produced these numbers (am-f3e4). */}
-      <ShowTheCode instrumentId="sr-05" listings={getKernelListingsForInstrument("sr-05")} />
+      <div {...gate.response}>
+        <ShowTheCode instrumentId="sr-05" listings={getKernelListingsForInstrument("sr-05")} />
+      </div>
 
       <p className="fine">
         Model: an ideal clock whose rate depends only on its instantaneous speed. Not modeled:
