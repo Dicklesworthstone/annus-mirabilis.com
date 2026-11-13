@@ -46,7 +46,7 @@ import { getKernelListingsForInstrument } from "../../../content/kernel/listings
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { LabMargin } from "../LabMargin.tsx";
-import { PredictGatePanels, usePredictGate } from "../PredictGate.tsx";
+import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { ShowTheCode } from "../ShowTheCode.tsx";
 export type IonizationLabProps = Readonly<{
   example?: PreparedLq09Example | undefined;
@@ -111,18 +111,6 @@ export function IonizationLab({
     (retainedId) => createLq09Session(retainedId, example),
     createReaderCheckpointBinding(LQ09_TAPE),
   );
-  /**
-   * A shared ?tape= link restores through this laboratory's own session (dispatch 335). No draft needs
-   * setting: every field reads `drafts[key] ?? shown(key)`, and `shown` comes from the accepted
-   * snapshot, so a restored tape appears in the fields with nothing else to keep in step.
-   */
-  const tapeLink = useLabTapeLink(
-    LQ09_TAPE,
-    session,
-    session.acceptedParameters(),
-    restoreFromLocation,
-  );
-
   const snapshot = useInstrumentView(session);
 
   const accepted = snapshot.accepted;
@@ -183,6 +171,21 @@ export function IonizationLab({
    */
   const [failure, setFailure] = useState<ApplyFailure | null>(null);
   const [error, setError] = useState("");
+  // Typed overrides must be cleared after a verified restore; otherwise they hide the restored
+  // accepted settings. An imported prediction is displayed without replacing the private original.
+  const tapeLink = useLabTapeLink(
+    LQ09_TAPE,
+    session,
+    session.acceptedParameters(),
+    true,
+    (_parameters, predictions) => {
+      setDrafts({});
+      setFailure(null);
+      setError("");
+      gate.restore(predictions ?? []);
+    },
+    { restoreFromLocation },
+  );
 
   function apply(patch: Partial<Lq09Parameters>) {
     // applyFailure() keeps the refusal whole. The previous line read
@@ -261,7 +264,7 @@ export function IonizationLab({
         <p className="eyebrow">Gas ionization by light</p>
         <h2>Gas ionization bounds and counting model</h2>
       </header>
-      <LabTapeLink link={tapeLink} />
+      <LabTapeLink link={withPredictions(tapeLink, gate)} sharePath="/lab/lq-09/" />
       <div className="lab-status-row">
         <ExecutionChrome
           state={executionKind}
@@ -356,7 +359,11 @@ export function IonizationLab({
             <WalkthroughControl
               binding={LQ09_TAPE}
               session={session}
-              onPlayed={() => setDrafts({})}
+              onPlayed={() => {
+                setDrafts({});
+                setFailure(null);
+                setError("");
+              }}
             />
           </ExperimentSettings>
 
