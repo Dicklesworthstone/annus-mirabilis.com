@@ -79,11 +79,14 @@ export function createNotebookSession(manifest: NoteManifest, storage: NotebookS
               : "No notes recorded yet. All explanations are available without answering.",
       });
   }
-  function unchanged(): boolean {
+  function unchanged(): "saved" | "unavailable" | "conflict" {
     const raw = read();
-    if (raw.status === "unavailable") return true;
+    if (raw.status === "unavailable") return "unavailable";
     const value = raw.status === "ok" ? (raw.value ?? null) : null;
-    if (raw.status === "corrupt" || (value !== expectedRaw && value !== attemptedRaw)) {
+    if (
+      raw.status === "corrupt" ||
+      (value !== expectedRaw && (attemptedRaw === null || value !== attemptedRaw))
+    ) {
       imports.invalidate();
       publish({
         blocked: true,
@@ -91,23 +94,26 @@ export function createNotebookSession(manifest: NoteManifest, storage: NotebookS
         message:
           "Stored notes changed elsewhere. Your in-tab notes were retained and not saved over the other version. Export them before reloading or starting over.",
       });
-      return false;
+      return "conflict";
     }
-    return true;
+    return "saved";
   }
-  function persist(doc: DiscoveryNotebook, reset: boolean): void {
+  function persist(doc: DiscoveryNotebook, reset: boolean, canWrite: boolean): void {
     const raw = encodeNotebook(doc, manifest);
-    attemptedRaw = raw;
-    let result: ReturnType<NotebookStoragePort["write"]>;
-    try {
-      result = storage.write(raw);
-    } catch {
-      result = { status: "unavailable" };
+    let result: ReturnType<NotebookStoragePort["write"]> = { status: "unavailable" };
+    if (canWrite) {
+      attemptedRaw = raw;
+      try {
+        result = storage.write(raw);
+      } catch {
+        result = { status: "unavailable" };
+      }
     }
     if (result.status === "ok") expectedRaw = raw;
     publish({
       document: doc,
       resetSequence: view.resetSequence + (reset ? 1 : 0),
+      retainedRaw: reset && result.status === "ok" ? null : view.retainedRaw,
       message:
         result.status === "ok"
           ? "Recorded notes saved on this device. Draft fields are not saved."
@@ -119,8 +125,10 @@ export function createNotebookSession(manifest: NoteManifest, storage: NotebookS
     if (!view.ready || view.blocked) return false;
     try {
       const next = update(view.document);
-      if (!unchanged()) return false;
-      persist(next, reset);
+      const saved = unchanged();
+      if (saved === "conflict") return false;
+      // An unreadable saved version is unknown, even if a write would succeed.
+      persist(next, reset, saved === "saved");
       return true;
     } catch (error) {
       publish({ message: error instanceof Error ? error.message : "The notes were not changed." });
@@ -158,9 +166,15 @@ export function createNotebookSession(manifest: NoteManifest, storage: NotebookS
       if (!view.ready) return;
       imports.invalidate();
       const raw = read();
-      expectedRaw = raw.status === "ok" ? (raw.value ?? null) : null;
-      publish({ blocked: false, retainedRaw: null });
-      persist(emptyNotebook(manifest), true);
+      const canWrite = raw.status === "ok" || raw.status === "missing";
+      if (canWrite) expectedRaw = raw.status === "ok" ? (raw.value ?? null) : null;
+      attemptedRaw = null;
+      publish({
+        blocked: false,
+        retainedRaw:
+          raw.status === "ok" ? (raw.value ?? view.retainedRaw) : (view.retainedRaw ?? expectedRaw),
+      });
+      persist(emptyNotebook(manifest), true, canWrite);
     },
   });
 }
