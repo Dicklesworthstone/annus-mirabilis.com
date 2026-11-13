@@ -93,6 +93,17 @@ jobs:
           src/testing/sr05Lab.test.tsx
           src/testing/sr05Controls.test.tsx
           src/testing/labFormSweep.test.tsx
+          src/testing/lightQuantaPredictionGates.test.tsx
+          src/testing/relativityPredictionGates.test.tsx
+          src/testing/predictSupportedCandidates.test.ts
+          src/testing/predictGateHidesOnlyTheResponse.test.tsx
+          src/testing/sr04.manifest.test.ts
+          src/testing/lq03.manifest.test.ts
+          src/components/lab/PredictGate.test.tsx
+          src/experiments/permalink/sessionTape.transaction.test.ts
+          src/experiments/permalink/LabTapeLink.predictions.test.tsx
+          src/experiments/permalink/LabTapeLink.newRun.test.tsx
+          src/experiments/permalink/LabTapeLink.recovery.test.tsx
           src/search/closingPassages.test.ts
           src/search/languageFaces.test.ts
           src/search/queryQuality.test.ts

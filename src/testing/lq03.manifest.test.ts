@@ -33,12 +33,20 @@ describe("lq03.manifest: LQ-03 manifest registration (am-lq-03-spectrum-08vz)", 
     expect(exp.embeddable).toBe(true);
   });
 
-  test("predictMode is honestly exempt with a reason, not a fabricated enabled prompt set", () => {
+  test("predictMode enables the authored questions, supported candidates and declared controls", () => {
     const exp = validateExperiment(loadRawManifest());
-    expect("exempt" in exp.predictMode && exp.predictMode.exempt).toBe(true);
-    if ("exempt" in exp.predictMode) {
-      expect(exp.predictMode.reason.length).toBeGreaterThan(0);
-    }
+    if (!("enabled" in exp.predictMode)) throw new Error("This instrument must offer predictions.");
+    expect(exp.predictMode.enabled).toBe(true);
+    expect(
+      exp.predictMode.prompts.map((prompt) => [
+        prompt.promptId,
+        prompt.supportedCandidateId,
+        prompt.controlId,
+      ]),
+    ).toEqual([
+      ["lq-03-predict-density-peak", "lq-03-predict-density-peak-different-frequency", "convention"],
+      ["lq-03-predict-band-energy", "lq-03-predict-band-energy-same-energy", "coordinate"],
+    ]);
   });
 
   test("the temperature parameter's domain matches the bead's stated teaching range", () => {

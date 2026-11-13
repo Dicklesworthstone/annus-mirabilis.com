@@ -33,12 +33,27 @@ describe("sr04.manifest: SR-04 manifest registration (am-sr-04-lorentz-map-px1k)
     expect(exp.embeddable).toBe(true);
   });
 
-  test("predictMode is honestly exempt with a reason naming the real blocker", () => {
+  test("predictMode names authored candidates and registered controls", () => {
     const exp = validateExperiment(loadRawManifest());
-    expect("exempt" in exp.predictMode && exp.predictMode.exempt).toBe(true);
-    if ("exempt" in exp.predictMode) {
-      expect(exp.predictMode.reason).toContain("am-inst-predict-mode-ti7m");
+    if (!("enabled" in exp.predictMode)) throw new Error("This instrument must offer predictions.");
+    expect(exp.predictMode.enabled).toBe(true);
+    const parameterIds = new Set(exp.parameters.map((parameter) => parameter.id));
+    const actionIds = new Set(exp.actions.map((action) => action.actionId));
+    for (const prompt of exp.predictMode.prompts) {
+      if (prompt.controlId !== undefined) expect(parameterIds.has(prompt.controlId)).toBe(true);
+      if (prompt.actionId !== undefined) expect(actionIds.has(prompt.actionId)).toBe(true);
     }
+    expect(
+      exp.predictMode.prompts.map((prompt) => [
+        prompt.promptId,
+        prompt.supportedCandidateId,
+        prompt.controlId,
+      ]),
+    ).toEqual([
+      ["sr-04-predict-light-constraints", "b-equals-a", "candidateB"],
+      ["sr-04-predict-map-fixed", "one-free-function", "candidateA"],
+      ["sr-04-predict-galilean-light", "ordinary-subtraction", "vOverC"],
+    ]);
   });
 
   test("the historical mode declares the bounded Galilean comparison and its exclusions", () => {

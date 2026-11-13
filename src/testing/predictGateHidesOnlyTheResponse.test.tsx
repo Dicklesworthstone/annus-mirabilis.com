@@ -128,6 +128,7 @@ describe("the predict gate hides the response and nothing a reader needs in orde
 
   const hidden: string[] = [];
   const withChrome: string[] = [];
+  const withGate: string[] = [];
   let gatedRegions = 0;
   let examined = 0;
 
@@ -137,6 +138,7 @@ describe("the predict gate hides the response and nothing a reader needs in orde
       const c = page.container;
       examined += 1;
       gatedRegions += c.querySelectorAll(GATED).length;
+      if (c.querySelector(GATED)) withGate.push(route);
       if (c.querySelector(".execution-chrome")) withChrome.push(route);
       const found: string[] = [];
       for (const sel of MUST_STAY_VISIBLE)
@@ -160,7 +162,10 @@ describe("the predict gate hides the response and nothing a reader needs in orde
     // A selector that matched nothing, or a gate that never armed, would make every assertion above
     // pass while examining nothing. Both are asserted rather than assumed.
     expect(examined).toBe(routes.length);
-    expect(gatedRegions).toBeGreaterThan(20);
+    // SR07 records a prediction at its derivation step; all other core routes arm this gate.
+    expect(routes.length).toBe(33);
+    expect([...withGate].sort()).toEqual(routes.filter((route) => route !== "sr-07"));
+    expect(gatedRegions).toBeGreaterThanOrEqual(withGate.length);
     expect([...withChrome].sort()).toEqual(CHROME_BEARING);
   });
 });

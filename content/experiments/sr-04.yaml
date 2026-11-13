@@ -357,7 +357,7 @@ predictMode:
           relation: "b = a, d = −av/c²"
     - promptId: sr-04-predict-map-fixed
       supportedCandidateId: one-free-function
-      controlId: enabledConstraints
+      controlId: candidateA
       question: "With both light directions and reciprocity required, is the map now fully fixed?"
       explanation: "Reciprocity gives a(v)a(−v)(1 − v²/c²) = 1. It fixes the product of the two scale factors, not each factor separately. Isotropy and the positive branch connected to the identity are still needed to select the final map."
       candidates:

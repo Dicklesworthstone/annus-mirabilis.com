@@ -30,6 +30,7 @@ import {
 } from "../../experiments/predict/predictStorage.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR02_EXAMPLE } from "../../experiments/sr02/session.ts";
 import type { PreparedSr03Example } from "../../experiments/sr03/session.ts";
+import type { PreparedSr05Example } from "../../experiments/sr05/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR06_EXAMPLE } from "../../experiments/sr06/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR08_EXAMPLE } from "../../experiments/sr08/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR09_EXAMPLE } from "../../experiments/sr09/session.ts";
@@ -46,6 +47,7 @@ import rawBm08Example from "../../generated/bm08-example.json";
 import rawLq01Example from "../../generated/lq01-example.json";
 import { type GeneratedPredictPrompt, PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import rawSr03Example from "../../generated/sr03-example.json";
+import rawSr05Example from "../../generated/sr05-example.json";
 import rawSr10Example from "../../generated/sr10-example.json";
 import { createStorageContext } from "../../platform/storage/store.ts";
 import { applyReaderPrepaint } from "../../reader/detail/prepaint.ts";
@@ -68,6 +70,8 @@ import { CameraLab } from "./CameraLab.tsx";
 import { CoefficientLab } from "./CoefficientLab.tsx";
 import { DriftDiffusionLab } from "./DriftDiffusionLab.tsx";
 import { InferenceLab } from "./InferenceLab.tsx";
+import { SpectrumLab } from "./lq03/SpectrumLab.tsx";
+import { EntropyWorkbenchLab } from "./lq04/EntropyWorkbenchLab.tsx";
 import { IndependentConfigurationsLab } from "./lq05/IndependentConfigurationsLab.tsx";
 import { CoefficientMatchLab } from "./lq06/CoefficientMatchLab.tsx";
 import { FluorescenceLab } from "./lq07/FluorescenceLab.tsx";
@@ -81,6 +85,8 @@ import { OsmoticPartitionLab } from "./OsmoticPartitionLab.tsx";
 import { presentedOrder } from "./PredictGate.tsx";
 import { RodSimultaneityLab } from "./RodSimultaneityLab.tsx";
 import { ClockSyncLab } from "./sr01/ClockSyncLab.tsx";
+import { LorentzMapLab } from "./sr04/LorentzMapLab.tsx";
+import { MovingClocksLab } from "./sr05/MovingClocksLab.tsx";
 import { VelocityCompositionLab } from "./sr06/VelocityCompositionLab.tsx";
 import { FieldFrameChangeLab } from "./sr08/FieldFrameChangeLab.tsx";
 import { DopplerAberrationLab } from "./sr09/DopplerAberrationLab.tsx";
@@ -200,6 +206,20 @@ const LABS: readonly GatedLab[] = [
     statusLine: true,
   },
   {
+    lab: "lq-03",
+    element: () => createElement(SpectrumLab, {}),
+    result: "Spectral densities at the probe frequency",
+    sharesTape: true,
+    statusLine: false,
+  },
+  {
+    lab: "lq-04",
+    element: () => createElement(EntropyWorkbenchLab, {}),
+    result: "Constrained-state comparison at fixed E, ν and dν",
+    sharesTape: true,
+    statusLine: false,
+  },
+  {
     lab: "lq-05",
     element: () => createElement(IndependentConfigurationsLab, {}),
     result: "Calculated microstate and entropy outputs",
@@ -280,6 +300,21 @@ const LABS: readonly GatedLab[] = [
     statusLine: true,
   },
   {
+    lab: "sr-04",
+    element: () => createElement(LorentzMapLab, {}),
+    result: "Construction result",
+    sharesTape: true,
+    statusLine: false,
+  },
+  {
+    lab: "sr-05",
+    element: () =>
+      createElement(MovingClocksLab, { example: rawSr05Example as PreparedSr05Example }),
+    result: "Loss per second",
+    sharesTape: true,
+    statusLine: true,
+  },
+  {
     lab: "sr-06",
     element: () => createElement(VelocityCompositionLab, { example: SR06_EXAMPLE }),
     result: "Accepted composition",
@@ -330,6 +365,14 @@ const LABS: readonly GatedLab[] = [
     statusLine: true,
   },
 ];
+
+test("the shared response gate covers every core lab except SR07's derivation-step prediction", () => {
+  const expected = Object.keys(PREDICT_PROMPTS)
+    .filter((lab) => /^(bm|lq|me|sr)-\d\d$/.test(lab) && lab !== "sr-07")
+    .sort();
+  expect(expected.length).toBe(32);
+  expect(LABS.map(({ lab }) => lab).sort()).toEqual(expected);
+});
 
 type Handlers = Record<string, ((...args: unknown[]) => void) | undefined>;
 /** Under this happy-dom harness a dispatched event does not reach React, so handlers are called. */

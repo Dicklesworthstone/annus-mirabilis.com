@@ -377,7 +377,7 @@ predictMode:
         - id: lq-03-predict-band-energy-changed-energy
           label: "The band energy changes with the peak"
           description: "Moving the density peak changes the energy assigned to the selected band."
-          separatingAssumption: "Confuses the height or location of a density peak with an integral over a fixed physical band. The density and interval width change together."
+          separatingAssumption: "Treats the height or location of a density peak as the integral over a fixed physical band. The density and interval width change together."
         - id: lq-03-predict-band-energy-narrow-band-only
           label: "They agree only for a very narrow band"
           description: "Coordinate invariance requires the narrow-band approximation used in the entropy argument."
