@@ -60,7 +60,7 @@ describe("synchronization results expose the consequence of the chosen definitio
     expect(report.stepReports.every((step) => step.verificationStatus === "verified")).toBe(true);
   });
 
-  test("support retains all entry assumptions and distinguishes a convention from a measurement", () => {
+  test("support keeps assumptions and distinguishes a convention from measurement", () => {
     expect(records?.problems).toEqual([]);
     const support = project().support;
     if (support?.kind !== "checked-proof") throw new Error("Missing midpoint support.");
@@ -76,9 +76,9 @@ describe("synchronization results expose the consequence of the chosen definitio
     expect(premises.get("arg-sr-synchronization")?.explanation).toContain(
       "do not measure either one-way duration independently",
     );
-    expect(
-      premises.get("sr-synchronization-return-after-departure")?.explanation,
-    ).toContain("departure reading is not zero");
+    expect(premises.get("sr-synchronization-return-after-departure")?.explanation).toContain(
+      "departure reading is not zero",
+    );
   });
 
   test("the static results route links to the actual section's complete derivation", async () => {
@@ -93,9 +93,7 @@ describe("synchronization results expose the consequence of the chosen definitio
     expect(result).toContain('data-conclusion-equation="eq-model-sr-sync-midpoint"');
     expect(result).toContain("Why should I believe this step?");
     expect(result).toContain("What this route uses");
-    expect(result).toContain(
-      'href="/papers/special-relativity/s1/#sr-synchronization-derivation"',
-    );
+    expect(result).toContain('href="/papers/special-relativity/s1/#sr-synchronization-derivation"');
     const section = await exportMarkup(
       await PaperPage({ paperId: "special-relativity", section: "s1" }),
     );
@@ -111,9 +109,7 @@ describe("synchronization results expose the consequence of the chosen definitio
       ...control,
       support: { ...control.support, conclusion: criterionRecord.id },
     };
-    expect(refusal(() => project(changed))).toBe(
-      "result-support-derivation-conclusion-missing",
-    );
+    expect(refusal(() => project(changed))).toBe("result-support-derivation-conclusion-missing");
     expect(checkedSupportFor(card("sr-two-postulates"), equations)).toBeUndefined();
   });
 
@@ -130,9 +126,7 @@ describe("synchronization results expose the consequence of the chosen definitio
       assumptions: ["The two one-way durations have been independently measured."],
     };
     for (const changed of [changedMidpoint, changedCriterion]) {
-      const source = equations.map((equation) =>
-        equation.id === changed.id ? changed : equation,
-      );
+      const source = equations.map((equation) => (equation.id === changed.id ? changed : equation));
       expect(refusal(() => project(card(), source))).toBe(
         "result-support-derivation-record-mismatch",
       );
