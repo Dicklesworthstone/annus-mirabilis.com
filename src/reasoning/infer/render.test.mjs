@@ -117,13 +117,16 @@ test("all tabular scroll regions are named and keyboard focusable", () => {
     assert.ok(tag.includes('tabindex="0"'));
   }
 });
-test("deferred companion case contains no invented numbers or blocked questions", () => {
+test("the deferred historical case leads to the usable illustrative second-observation workflow", () => {
   const companion = html.split("data-infer-companion>")[1].split("</section>")[0];
   assert.ok(
     companion.includes(
-      "The second measurement, from the viscosity of dilute solutions, is in preparation.",
+      "The historical dissertation datasets and their reconstruction remain in preparation.",
     ),
   );
+  assert.ok(companion.includes('href="/lab/avogadro-lab/#identify-two-observations"'));
+  assert.ok(companion.includes("Pin illustrative observations and admit the second relation"));
+  assert.ok(companion.includes("without changing either observation"));
   assert.ok(!/\d/.test(companion.replace(/<[^>]*>/g, "")));
   assert.ok(html.includes("No independent radius has been admitted"));
 });
