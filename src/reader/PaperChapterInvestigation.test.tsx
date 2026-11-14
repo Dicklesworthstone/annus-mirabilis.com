@@ -129,6 +129,8 @@ describe("the chapter's live task keeps the accepted experiment across reading a
       expect(baseline.instanceId).toBe(instance);
 
       if (item.paper === "light-quanta") {
+        expect(document.querySelector("[data-photoelectric-comparison-offer]")).toBeNull();
+        expect(document.querySelector("[data-photoelectric-comparison]")).toBeNull();
         await type('input[id$="-incidentPower"]', "2", true);
       } else if (item.paper === "special-relativity") {
         await type('input[name="speed"]', "0.6");
