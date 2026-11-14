@@ -1,4 +1,5 @@
 /** Transport controls for these tests only. All successful outputs come from the production owners. */
+import assert from "node:assert/strict";
 import tracerExample from "../../generated/bm01-example.json";
 import densityExample from "../../generated/bm06-example.json";
 import { createBm01Host } from "../../workers/host/bm01Host.ts";
@@ -21,12 +22,12 @@ export async function smallBrownianExamples(): Promise<{
 }> {
   const parameters = { ...BM01_DEFAULTS, M: 12, H: 0.2, interval: 0.2 };
   const recording = await createBm01Recording(parameters, { yieldControl: async () => {} });
-  if (recording.kind !== "accepted") throw new Error("The real tracer fixture must record.");
+  assert(recording.kind === "accepted", "The real tracer fixture must record.");
   const measured = measureBm01(recording.data, parameters, false);
-  if (measured.kind !== "accepted") throw new Error("The real tracer fixture must be measured.");
+  assert(measured.kind === "accepted", "The real tracer fixture must be measured.");
   const densityParameters = { ...BM06_DEFAULTS, t: 0.2 };
   const density = await evaluateBm06(densityParameters, { yieldControl: async () => {} });
-  if (density.kind !== "accepted") throw new Error("The real density fixture must be evaluated.");
+  assert(density.kind === "accepted", "The real density fixture must be evaluated.");
   return {
     tracer: {
       ...tracerExample,
@@ -177,6 +178,5 @@ export async function waitFor(condition: () => boolean): Promise<void> {
   const deadline = Date.now() + 5000;
   while (!condition() && Date.now() < deadline)
     await new Promise((resolve) => setTimeout(resolve, 5));
-  if (!condition())
-    throw new Error("The owner did not reach the expected state within five seconds.");
+  assert(condition(), "The owner did not reach the expected state within five seconds.");
 }
