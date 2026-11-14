@@ -29,7 +29,7 @@ function comparison(width = 1280, search = "", hash = "") {
   root.innerHTML = `
     <a data-split-section-link href="/papers/special-relativity/s0/view/split/">Introduction</a>
     <fieldset hidden disabled data-split-controls>
-      <select data-split-source-choice><option>parallel</option><option>german</option><option>english</option></select>
+      <select data-split-source-choice><option>parallel</option><option>german</option><option>english</option><option>gloss</option></select>
       <select data-split-companion-choice><option>reading</option><option>results</option></select>
       <button data-split-swap>Swap pane order</button>
     </fieldset>
@@ -37,7 +37,8 @@ function comparison(width = 1280, search = "", hash = "") {
     <nav data-split-tabs><a id="split-source-tab" href="#split-source-pane" data-split-tab="source">German and English</a><a id="split-companion-tab" href="#split-companion-pane" data-split-tab="companion">Explanation</a></nav>
     <div data-split-columns>
       <section id="split-source-pane" data-split-role="source"><h2 id="split-source-heading" data-split-source-label>German and English</h2><a data-split-source-face-link href="/papers/special-relativity/s1/view/parallel/">Open source</a>
-        <div id="split-row-s1-p1" data-split-source-row="s1-p1"><p data-split-language="german"><span id="s1-p1">Deutsch</span></p><p data-split-language="english"><span id="en-s1-p1-s1">English</span><a data-action="show-aligned-source" href="#s1-p1">Show source</a></p><a data-split-go="companion" href="#pane-b--argument">Explanation of this paragraph</a></div>
+        <div data-split-gloss-tools hidden>Show reasoning words</div>
+        <div id="split-row-s1-p1" data-split-source-row="s1-p1"><p data-split-language="german"><span id="s1-p1">Deutsch</span><span id="s1-p1-s1">Die Kraft.</span></p><p data-split-language="english"><span id="en-s1-p1-s1">English</span><a data-action="show-aligned-source" href="#s1-p1">Show source</a></p><div data-split-language="gloss" hidden><span id="split-gloss--s1-p1-s1">Die / the Kraft / force</span><button data-action="read-german" aria-label="Read the German sentence: Die Kraft.">Read German</button></div><a data-split-go="companion" href="#pane-b--argument">Explanation of this paragraph</a></div>
       </section>
       <section id="split-companion-pane" data-split-role="companion"><h2 id="split-companion-heading" data-split-companion-label>Explanation</h2><a data-split-companion-face-link href="/papers/special-relativity/s1/">Open explanation</a><div data-split-explanation><article id="pane-b--argument"><span id="argument"></span><p>Actual explanation content.</p><a href="#split-row-s1-p1" data-split-go="source">Read the source</a><details><summary>Steps</summary><p id="inside-step">An explained step</p></details></article></div><div data-split-results hidden><article id="result-energy">Actual result</article><a href="#pane-b--argument" data-split-go="explanation">Read this explanation</a></div></section>
     </div>`;
@@ -55,6 +56,7 @@ function comparison(width = 1280, search = "", hash = "") {
       parallel: "/papers/special-relativity/s1/view/parallel/",
       german: "/papers/special-relativity/s1/view/german/",
       english: "/papers/special-relativity/s1/view/english/",
+      gloss: "/papers/special-relativity/s1/view/gloss/",
       reading: "/papers/special-relativity/s1/",
       results: "/papers/special-relativity/s1/view/results/",
     },
@@ -80,6 +82,7 @@ function change(root: HTMLElement, selector: string, value: string) {
 describe("real split reader controller", () => {
   test("desktop has both full panes and source choice changes only the rendered language", () => {
     const root = comparison();
+    expect(q(root, "[data-split-language=gloss]").hidden).toBe(true);
     expect(q(root, "[data-split-controls]").hidden).toBe(false);
     expect(q(root, "[data-split-role=source]").hidden).toBe(false);
     expect(q(root, "[data-split-role=companion]").hidden).toBe(false);
@@ -93,6 +96,35 @@ describe("real split reader controller", () => {
     expect(q(root, "[data-split-explanation]").textContent).toContain(
       "Actual explanation content.",
     );
+  });
+
+  test("gloss preserves its sentence target and chosen companion across mobile links", async () => {
+    const root = comparison(320, "?panes=gloss,reading", "#s1-p1-s1");
+    expect(q(root, "[data-split-language=gloss]").hidden).toBe(false);
+    expect(q(root, "[data-split-language=german]").hidden).toBe(true);
+    expect(q(root, "[data-split-language=english]").hidden).toBe(true);
+    expect(q(root, "[data-split-gloss-tools]").hidden).toBe(false);
+    expect(q<HTMLAnchorElement>(root, "[data-split-source-face-link]").pathname).toBe(
+      "/papers/special-relativity/s1/view/gloss/",
+    );
+    click(root, '[data-split-go="companion"]');
+    const sourceLink = q<HTMLAnchorElement>(root, '[data-split-go="source"]');
+    sourceLink.href = "#s1-p1-s1";
+    click(root, '[data-split-go="source"]');
+    await new Promise<number>((resolve) => window.requestAnimationFrame(resolve));
+    expect(document.activeElement?.id).toBe("split-gloss--s1-p1-s1");
+    expect(q(root, "[data-split-role=source]").hidden).toBe(false);
+    expect(new URL(window.location.href).searchParams.get("panes")).toBe("gloss,reading");
+    expect(q<HTMLAnchorElement>(root, "[data-split-section-link]").search).toContain(
+      "panes=gloss%2Creading",
+    );
+    click(root, '[data-action="read-german"]');
+    expect(q(root, "[data-split-notice]").textContent).toBe("German sentence: Die Kraft.");
+    change(root, "[data-split-source-choice]", "parallel");
+    expect(q(root, "[data-split-language=gloss]").hidden).toBe(true);
+    expect(q(root, "[data-split-language=german]").hidden).toBe(false);
+    expect(q(root, "[data-split-language=english]").hidden).toBe(false);
+    expect(q(root, "[data-split-gloss-tools]").hidden).toBe(true);
   });
 
   for (const width of [320, 390]) {
@@ -187,6 +219,7 @@ describe("real split reader controller", () => {
     cleanup = undefined;
     expect(q(root, "[data-split-role=companion]").hidden).toBe(false);
     expect(q(root, "[data-split-controls]").hidden).toBe(true);
+    expect(q(root, "[data-split-language=gloss]").hidden).toBe(true);
     change(root, "[data-split-source-choice]", "german");
     expect(q(root, "[data-split-language=english]").hidden).toBe(false);
   });

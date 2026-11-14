@@ -95,6 +95,12 @@ jobs:
           src/experiments/lq08
           src/testing/radiation.entropy.test.ts
           src/reader/weave
+          src/reader/split
+          src/reader/faces/GlossSentence.test.tsx
+          src/testing/lq05
+          src/testing/radiation.configurations.test.ts
+          src/physics/reference/molecularProducts.test.mjs
+          src/physics/reference/molecularDimensions.test.mjs
           src/reader/notebook/panel.test.ts
           src/reader/notebook/lq08Replay.integration.test.mjs
           src/reader/notebook/bm08Replay.integration.test.mjs

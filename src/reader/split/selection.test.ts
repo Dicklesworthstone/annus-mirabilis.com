@@ -7,8 +7,8 @@ import {
 } from "./selection.ts";
 
 describe("split face choices", () => {
-  test("all six supported pairs and their reverse preserve the actual requested faces", () => {
-    for (const source of ["parallel", "german", "english"] as const) {
+  test("supported pairs and their reverse preserve the actual requested faces", () => {
+    for (const source of ["parallel", "german", "english", "gloss"] as const) {
       for (const companion of ["reading", "results"] as const) {
         expect(splitSelectionFromSearch(`?panes=${source},${companion}`)).toEqual({
           selection: { source, companion, reversed: false },
@@ -69,6 +69,7 @@ describe("section-sized split deep links", () => {
       parallel: "/papers/special-relativity/s0/view/parallel/",
       german: "/papers/special-relativity/s0/view/german/",
       english: "/papers/special-relativity/s0/view/english/",
+      gloss: "/papers/special-relativity/s0/view/gloss/",
       reading: "/papers/special-relativity/s0/",
       results: "/papers/special-relativity/s0/view/results/",
     },
@@ -77,6 +78,8 @@ describe("section-sized split deep links", () => {
     for (const hash of [
       "#s10-p1-s1",
       "#en-s10-p1-s1",
+      "#split-gloss--s10-p1-s1",
+      "#split-gloss--eq-s10-d1",
       "#eq-s10-d1",
       "#pane-b--sr-dynamics",
       "#sr-dynamics",

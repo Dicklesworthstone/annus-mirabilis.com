@@ -18,6 +18,8 @@ export interface RenderInlinesOptions {
    * shares its page with another rendering of the same ids: the parallel face's English column.
    */
   readonly idPrefix?: string | undefined;
+  /** Scope repeated printed displays without changing their canonical equation identity. */
+  readonly displayIdPrefix?: string | undefined;
   /**
    * The element a footnote mark points at. A German face lists its footnotes as
    * `footnote-<id>` (Footnote.tsx), which is the default. An English face has no such list: its
@@ -102,7 +104,11 @@ export function renderInlines(
                 // A block of its own line (reader.css .inline-display): an inline span cannot
                 // scroll, so a formula wider than a phone column widened the page instead.
                 className="inline-display"
-                id={node.equationId}
+                id={
+                  node.equationId
+                    ? `${options?.displayIdPrefix ?? ""}${node.equationId}`
+                    : undefined
+                }
                 data-block-id={node.equationId}
                 data-equation-id={node.equationId}
                 data-kind="equation"

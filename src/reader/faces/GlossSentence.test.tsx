@@ -82,6 +82,27 @@ describe("GlossSentence (am-6iz4)", () => {
     }
   });
 
+  test("split gloss scopes DOM targets and labels while keeping canonical sentence identity", () => {
+    for (const glossUnit of [undefined, GLOSS]) {
+      const html = renderToStaticMarkup(
+        <GlossSentence
+          sentenceId="s0-p1-s1"
+          idPrefix="split-gloss--"
+          germanText="Gibt die"
+          glossUnit={glossUnit}
+          modalityClasses={[]}
+        />,
+      );
+      expect(html).toContain('id="split-gloss--s0-p1-s1"');
+      expect(html).toContain('data-sentence-id="s0-p1-s1"');
+      const label = /aria-labelledby="([^"]+)"/.exec(html)?.[1];
+      expect(label).toBeDefined();
+      expect(label?.startsWith("split-gloss--sentence-")).toBe(true);
+      expect(html).toContain(`id="${label}"`);
+      expect(html).not.toContain(' id="s0-p1-s1"');
+    }
+  });
+
   test("the missing-gloss sentence announces itself like its glossed sibling", () => {
     // 51fff71c turned this branch from a bare <div> into a labelled <section>. It had no
     // coverage, so the label could be dropped again without anything failing.

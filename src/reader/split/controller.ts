@@ -1,6 +1,7 @@
 import {
   COMPANION_LABELS,
   SOURCE_LABELS,
+  SPLIT_GLOSS_PREFIX,
   type SplitCompanion,
   type SplitLocation,
   type SplitPane,
@@ -73,8 +74,15 @@ export function attachSplitReader(root: HTMLElement, scope: SplitLocation): () =
     sourceTab.textContent = SOURCE_LABELS[selection.source];
     companionTab.textContent = COMPANION_LABELS[selection.companion];
     for (const el of sourcePane.querySelectorAll<HTMLElement>("[data-split-language]")) {
-      el.hidden = selection.source !== "parallel" && el.dataset.splitLanguage !== selection.source;
+      const language = el.dataset.splitLanguage;
+      el.hidden = !(
+        language === selection.source ||
+        (selection.source === "parallel" && (language === "german" || language === "english")) ||
+        (selection.source === "gloss" && el.hasAttribute("data-split-gloss-fallback"))
+      );
     }
+    for (const el of sourcePane.querySelectorAll<HTMLElement>("[data-split-gloss-tools]"))
+      el.hidden = selection.source !== "gloss";
     explanation.hidden = selection.companion !== "reading";
     results.hidden = selection.companion !== "results";
     // Match DOM and visual order, including keyboard traversal and the screen-reader sequence.
@@ -151,6 +159,10 @@ export function attachSplitReader(root: HTMLElement, scope: SplitLocation): () =
     }
     if (!id || id.length > 240) return;
     let target = doc.getElementById(id);
+    if (selection.source === "gloss") {
+      const glossTarget = doc.getElementById(`${SPLIT_GLOSS_PREFIX}${id}`);
+      if (glossTarget && sourcePane.contains(glossTarget)) target = glossTarget;
+    }
     if (!target || !root.contains(target)) return;
     const original = target;
     if (companionPane.contains(target)) {
@@ -164,7 +176,7 @@ export function attachSplitReader(root: HTMLElement, scope: SplitLocation): () =
       const language = target.closest<HTMLElement>("[data-split-language]");
       if (
         language &&
-        selection.source !== "parallel" &&
+        (selection.source !== "parallel" || language.dataset.splitLanguage === "gloss") &&
         language.dataset.splitLanguage !== selection.source
       ) {
         const row = target.closest<HTMLElement>("[data-split-source-row]");
@@ -247,6 +259,12 @@ export function attachSplitReader(root: HTMLElement, scope: SplitLocation): () =
       revealHash(true);
       return;
     }
+    const readingAction = target?.closest<HTMLElement>('[data-action^="read-"]');
+    if (selection.source === "gloss" && readingAction && sourcePane.contains(readingAction)) {
+      notice = readingAction.getAttribute("aria-label")?.replace(/^Read the /, "") ?? "";
+      render();
+      return;
+    }
     // Sentence-alignment controls can reveal the other language even from a single-language face.
     if (
       sourcePane.contains(target) &&
@@ -302,7 +320,9 @@ export function attachSplitReader(root: HTMLElement, scope: SplitLocation): () =
     explanation.hidden = false;
     results.hidden = true;
     for (const language of sourcePane.querySelectorAll<HTMLElement>("[data-split-language]"))
-      language.hidden = false;
+      language.hidden = language.dataset.splitLanguage === "gloss";
+    for (const el of sourcePane.querySelectorAll<HTMLElement>("[data-split-gloss-tools]"))
+      el.hidden = true;
     root.removeAttribute("data-split-enhanced");
   };
 }

@@ -4,7 +4,6 @@ import { GlossReasoningToggle } from "./GlossReasoningToggle.tsx";
 import { SourceAliasAnchors } from "./SourceAliases.tsx";
 import "./glossReasoning.css";
 import { Fragment } from "react";
-import { plainText } from "../../content/schemas/inlines.ts";
 import type { ReviewRecord } from "../../content/schemas/review.ts";
 import type {
   Alignment,
@@ -21,7 +20,7 @@ import { PassageProjections, projectionParagraphLabel } from "../PassageProjecti
 import type { PassageProjection } from "../projections/passageProjections.ts";
 import { AlignmentController } from "./AlignmentController.tsx";
 import { buildAlignmentIndex } from "./alignment.ts";
-import { claimedDisplayIds } from "./displayClaims.ts";
+import { claimedDisplayIds, glossDisplaysIn } from "./displayClaims.ts";
 import { ExplainerFragments } from "./ExplainerFragments.tsx";
 import { sectionsLabel } from "./editionCoverage.ts";
 import { GlossSentence } from "./GlossSentence.tsx";
@@ -180,26 +179,6 @@ export function GlossFace({
       editorialNotes={editorialNotes}
     />
   );
-  const displaysIn = (
-    block: SourceBlock,
-    span: { start: number; end: number },
-    placed: Set<string>,
-  ): SourceBlock[] => {
-    const out: SourceBlock[] = [];
-    let offset = 0;
-    for (const node of block.inlines) {
-      const length = Array.from(plainText([node])).length;
-      if (node.kind === "math" && node.display && node.equationId) {
-        const eq = equationById.get(node.equationId);
-        if (eq && !placed.has(eq.id) && offset >= span.start && offset <= span.end) {
-          placed.add(eq.id);
-          out.push(eq);
-        }
-      }
-      offset += length;
-    }
-    return out;
-  };
 
   return (
     <article
@@ -360,7 +339,7 @@ export function GlossFace({
                   {block.sentenceSpans.map((sp) => (
                     <Fragment key={sp.id}>
                       {glossSentenceFor(block, sp)}
-                      {displaysIn(block, sp.span, placed).map(renderEquation)}
+                      {glossDisplaysIn(block, sp.span, equationById, placed).map(renderEquation)}
                     </Fragment>
                   ))}
                   <PassageProjections

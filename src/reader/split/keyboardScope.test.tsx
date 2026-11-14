@@ -73,3 +73,42 @@ test("split sentence navigation stays inside the source and leaves companion key
   document.getElementById("s1-p1-s2")?.dispatchEvent(after);
   expect(after.defaultPrevented).toBe(false);
 });
+
+test("sentence keys focus visible gloss instead of its hidden German duplicate", async () => {
+  document.body.innerHTML = `<main>
+    <div data-split-source-content>
+      <div hidden>
+        <span data-source-sentence data-sentence-id="s1-p1-s1" id="s1-p1-s1" tabindex="-1">Erstens.</span>
+        <span data-source-sentence data-sentence-id="s1-p1-s2" id="s1-p1-s2" tabindex="-1">Zweitens.</span>
+      </div>
+      <div data-split-language="gloss">
+        <span data-source-sentence data-sentence-id="s1-p1-s1" id="split-gloss--s1-p1-s1" tabindex="-1">Erstens / first</span>
+        <span data-source-sentence data-sentence-id="s1-p1-s2" id="split-gloss--s1-p1-s2" tabindex="-1">Zweitens / second</span>
+      </div>
+    </div>
+    <div id="island"></div>
+  </main>`;
+  const island = document.getElementById("island");
+  if (!island) throw new Error("test island missing");
+  mounted = createRoot(island);
+  await act(async () =>
+    mounted?.render(
+      <AlignmentController
+        index={index}
+        containerSelector="[data-split-source-content]"
+        keyboardScope="container"
+      />,
+    ),
+  );
+  const first = document.getElementById("split-gloss--s1-p1-s1");
+  await act(async () => first?.focus());
+  await act(async () => {
+    first?.dispatchEvent(new KeyboardEvent("keydown", { key: "j", bubbles: true }));
+  });
+  expect(document.activeElement?.id).toBe("split-gloss--s1-p1-s2");
+  expect(document.getElementById("s1-p1-s2")?.hasAttribute("data-aligned-active")).toBe(false);
+  await act(async () => {
+    document.activeElement?.dispatchEvent(new KeyboardEvent("keydown", { key: "k", bubbles: true }));
+  });
+  expect(document.activeElement?.id).toBe("split-gloss--s1-p1-s1");
+});

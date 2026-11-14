@@ -1,8 +1,10 @@
+import { getModalityClasses } from "../../content/schemas/glossConventions.ts";
 import { paneDomId } from "../anchors/paneIds.ts";
 import { AlignmentController } from "../faces/AlignmentController.tsx";
 import { buildAlignmentIndex } from "../faces/alignment.ts";
 import type { BilingualEdition } from "../faces/bilingualLoader.ts";
 import { FootnoteItem } from "../faces/Footnote.tsx";
+import { GlossReasoningToggle } from "../faces/GlossReasoningToggle.tsx";
 import { ENGLISH_ANCHOR_PREFIX } from "../faces/ParallelFace.tsx";
 import type { ParallelRow } from "../faces/parallelRows.ts";
 import { SourceBlock } from "../faces/SourceBlock.tsx";
@@ -11,6 +13,8 @@ import { unitsBySourceRef } from "../faces/TranslationUnit.tsx";
 import { faceLinkHref } from "../paperRoutes.ts";
 import type { PassageProjectionIndex } from "../projections/passageProjections.ts";
 import type { splitSourceSection } from "./sourceSection.ts";
+import { SplitGloss } from "./SplitGloss.tsx";
+import "../faces/glossReasoning.css";
 
 export function SplitSource({
   edition,
@@ -27,9 +31,32 @@ export function SplitSource({
 }) {
   const paper = edition.paper.slug;
   const footnoteUnits = unitsBySourceRef(source.units);
+  const alignment = buildAlignmentIndex(source.alignment, source.blocks, source.units);
+  const glosses = new Map((edition.glossUnits ?? []).map((unit) => [unit.sentenceId, unit]));
+  const translations = new Map(source.units.map((unit) => [unit.id, unit]));
+  const equations = new Map(
+    source.blocks.filter((block) => block.kind === "equation").map((block) => [block.id, block]),
+  );
+  const modalityClasses = getModalityClasses();
+  const gloss = (row: ParallelRow) =>
+    row.block && row.block.sentenceSpans.length > 0 ? (
+      <SplitGloss
+        block={row.block}
+        glosses={glosses}
+        translations={translations}
+        alignment={alignment}
+        equations={equations}
+        modalityClasses={modalityClasses}
+      />
+    ) : null;
   const english = (row: ParallelRow) =>
     row.english.length > 0 ? (
-      <div className="split-source-language" data-split-language="english" lang="en">
+      <div
+        className="split-source-language"
+        data-split-language="english"
+        data-split-gloss-fallback={!row.block || undefined}
+        lang="en"
+      >
         <p className="split-language-label">English</p>
         <TranslationParagraphs
           units={source.units}
@@ -69,9 +96,16 @@ export function SplitSource({
     ) : null;
   };
   return (
-    <div data-split-source-content>
+    <div data-split-source-content className="gloss-face">
+      <div data-split-gloss-tools hidden>
+        <p className="fine">
+          German words retain their order, with English word meanings underneath. The full
+          translation remains available in the source chooser.
+        </p>
+        <GlossReasoningToggle />
+      </div>
       <AlignmentController
-        index={buildAlignmentIndex(source.alignment, source.blocks, source.units)}
+        index={alignment}
         containerSelector="[data-split-source-content]"
         keyboardScope="container"
       />
@@ -83,7 +117,12 @@ export function SplitSource({
           data-split-source-row={row.key}
         >
           {row.block ? (
-            <div className="split-source-language" data-split-language="german" lang="de">
+            <div
+              className="split-source-language"
+              data-split-language="german"
+              data-split-gloss-fallback={row.block.sentenceSpans.length === 0 || undefined}
+              lang="de"
+            >
               <p className="split-language-label">German</p>
               <SourceBlock
                 block={row.block}
@@ -93,6 +132,7 @@ export function SplitSource({
             </div>
           ) : null}
           {english(row)}
+          {gloss(row)}
           {explainedIn(row)}
         </div>
       ))}
@@ -107,7 +147,12 @@ export function SplitSource({
               data-split-source-row={row.key}
             >
               {row.block ? (
-                <div className="split-source-language" data-split-language="german" lang="de">
+                <div
+                  className="split-source-language"
+                  data-split-language="german"
+                  data-split-gloss-fallback={row.block.sentenceSpans.length === 0 || undefined}
+                  lang="de"
+                >
                   <p className="split-language-label">German</p>
                   <ol className="footnotes-list">
                     <FootnoteItem footnote={row.block} anchored />
@@ -115,6 +160,7 @@ export function SplitSource({
                 </div>
               ) : null}
               {english(row)}
+              {gloss(row)}
               {explainedIn(row)}
             </div>
           ))}

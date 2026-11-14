@@ -7,6 +7,7 @@ import { loadBilingualEdition } from "../faces/bilingualLoader.ts";
 import { buildAlignmentIndex } from "../faces/alignment.ts";
 import { SplitReadingView } from "./SplitReadingView.tsx";
 import { splitSourceSection } from "./sourceSection.ts";
+import { SPLIT_GLOSS_PREFIX } from "./selection.ts";
 
 const textOf = (html: string) =>
   html
@@ -62,6 +63,13 @@ describe("published split reading markup", () => {
       expect(text).toContain(translationProbe ?? "missing English");
       expect(text).toContain(explanationProbe ?? "missing explanation");
       const ids = uniqueIds(html);
+      const firstSentence = edition.blocks
+        .filter((block) => block.section === first.id && block.kind === "paragraph")
+        .flatMap((block) => block.sentenceSpans)[0];
+      expect(firstSentence).toBeDefined();
+      expect(ids.has(`${SPLIT_GLOSS_PREFIX}${firstSentence?.id}`)).toBe(true);
+      expect(html).toContain('data-split-language="gloss"');
+      expect(html).toContain('data-split-gloss-tools="true" hidden=""');
       for (const a of args) {
         expect(ids.has(`pane-b--${a.id}`)).toBe(true);
         expect(ids.has(a.id)).toBe(true);
@@ -92,7 +100,16 @@ describe("published split reading markup", () => {
     );
     const ids = uniqueIds(html);
     expect(ids.has("s3-p1")).toBe(true);
+    expect(ids.has(`${SPLIT_GLOSS_PREFIX}s3-p1-s1`)).toBe(true);
     expect(html).toContain('data-translation-unit-id="s3-p1-s1"');
+    for (const block of source.blocks.filter((item) => item.kind !== "equation")) {
+      for (const node of block.inlines) {
+        if (node.kind === "math" && node.display && node.equationId) {
+          expect(ids.has(node.equationId)).toBe(true);
+          expect(ids.has(`${SPLIT_GLOSS_PREFIX}${node.equationId}`)).toBe(true);
+        }
+      }
+    }
     for (const section of ["s0", "s10"]) {
       expect(html).not.toContain(`data-split-source-row="${section}-`);
       expect(html).not.toContain(`data-translation-unit-id="${section}-`);

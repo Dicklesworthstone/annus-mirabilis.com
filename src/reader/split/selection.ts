@@ -2,9 +2,10 @@ import { sectionAnchorOf } from "../../content/anchors.ts";
 import { contentIdFromDomId } from "../anchors/paneIds.ts";
 import { parseSplitPanesFromSearch } from "../viewMode.ts";
 
-export type SplitSource = "parallel" | "german" | "english";
+export type SplitSource = "parallel" | "german" | "english" | "gloss";
 export type SplitCompanion = "reading" | "results";
 export type SplitPane = "source" | "companion";
+export const SPLIT_GLOSS_PREFIX = "split-gloss--";
 export interface SplitSelection {
   readonly source: SplitSource;
   readonly companion: SplitCompanion;
@@ -21,6 +22,7 @@ export const SOURCE_LABELS: Readonly<Record<SplitSource, string>> = {
   parallel: "German and English",
   german: "German source",
   english: "English translation",
+  gloss: "Interlinear gloss",
 };
 export const COMPANION_LABELS: Readonly<Record<SplitCompanion, string>> = {
   reading: "Explanation",
@@ -28,7 +30,7 @@ export const COMPANION_LABELS: Readonly<Record<SplitCompanion, string>> = {
 };
 
 const isSource = (face: string): face is SplitSource =>
-  face === "parallel" || face === "german" || face === "english";
+  face === "parallel" || face === "german" || face === "english" || face === "gloss";
 const isCompanion = (face: string): face is SplitCompanion =>
   face === "reading" || face === "results";
 
@@ -61,7 +63,7 @@ export function splitSelectionFromSearch(search: string): {
   return {
     selection: DEFAULT_SELECTION,
     notice:
-      "This split view pairs a German, English, or bilingual source with Explanation or Results. The requested pair is unavailable here. Showing the bilingual source and explanation; other faces remain available above.",
+      "This split view pairs German, English, bilingual, or interlinear gloss source with Explanation or Results. The requested pair is unavailable here. Showing the bilingual source and explanation; other faces remain available above.",
   };
 }
 
@@ -94,6 +96,7 @@ export function splitSectionDestination(url: URL, scope: SplitLocation): URL | n
   }
   if (id.length > 240) return null;
   id = contentIdFromDomId(id).replace(/^en-/, "");
+  if (id.startsWith(SPLIT_GLOSS_PREFIX)) id = id.slice(SPLIT_GLOSS_PREFIX.length);
   const section = scope.argumentSections[id] ?? sectionAnchorOf(id);
   if (!section || section === scope.section || !scope.sections.includes(section)) return null;
   const href = scope.sectionHrefs[section];

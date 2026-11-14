@@ -10,7 +10,7 @@
  * paragraph claims still stands alone. GermanDraftFace makes the same choice for the ledger draft
  * (its claimedEquationIds).
  */
-import type { Inline } from "../../content/schemas/inlines.ts";
+import { type Inline, plainText } from "../../content/schemas/inlines.ts";
 import type { SourceBlock } from "../../content/schemas/source.ts";
 
 function displayIds(inlines: readonly Inline[], into: Set<string>): void {
@@ -31,4 +31,27 @@ export function claimedDisplayIds(blocks: readonly SourceBlock[]): ReadonlySet<s
 export function withoutClaimedDisplays<T extends SourceBlock>(blocks: readonly T[]): T[] {
   const claimed = claimedDisplayIds(blocks);
   return blocks.filter((b) => !(b.kind === "equation" && claimed.has(b.id)));
+}
+
+/** Display blocks immediately following a gloss sentence, in the source's printed order. */
+export function glossDisplaysIn(
+  block: SourceBlock,
+  span: { start: number; end: number },
+  equations: ReadonlyMap<string, SourceBlock>,
+  placed: Set<string>,
+): SourceBlock[] {
+  const out: SourceBlock[] = [];
+  let offset = 0;
+  for (const node of block.inlines) {
+    const length = Array.from(plainText([node])).length;
+    if (node.kind === "math" && node.display && node.equationId) {
+      const eq = equations.get(node.equationId);
+      if (eq && !placed.has(eq.id) && offset >= span.start && offset <= span.end) {
+        placed.add(eq.id);
+        out.push(eq);
+      }
+    }
+    offset += length;
+  }
+  return out;
 }

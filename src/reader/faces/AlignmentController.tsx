@@ -41,10 +41,12 @@ export function AlignmentController({
 
     /** A German sentence's element, or its block's when the id names a whole block. */
     function sourceElement(id: string): Element | null {
-      return (
-        root.querySelector(`[data-sentence-id="${id}"]`) ||
-        root.querySelector(`[data-block-id="${id}"]`)
-      );
+      const candidates = [
+        ...root.querySelectorAll(`[data-sentence-id="${id}"]`),
+        ...root.querySelectorAll(`[data-block-id="${id}"]`),
+      ];
+      // Prefer the displayed projection, keeping the hidden source available to "Show source".
+      return candidates.find((element) => !element.closest("[hidden]")) ?? candidates[0] ?? null;
     }
 
     function targetElement(id: string): Element | null {
@@ -213,8 +215,8 @@ export function AlignmentController({
         // both land on the first -- and agreeing by coincidence is how they would stop agreeing.
         const nextId = nextSentenceId(index, currentId);
         if (nextId) {
-          const el = root.querySelector<HTMLElement>(`[data-sentence-id="${nextId}"]`);
-          if (el) {
+          const el = sourceElement(nextId);
+          if (el instanceof HTMLElement) {
             el.focus();
             applyHighlights(nextId, "source");
           }
@@ -225,8 +227,8 @@ export function AlignmentController({
         const currentId = currentActive?.getAttribute("data-sentence-id") || currentActive?.id;
         const prevId = prevSentenceId(index, currentId);
         if (prevId) {
-          const el = root.querySelector<HTMLElement>(`[data-sentence-id="${prevId}"]`);
-          if (el) {
+          const el = sourceElement(prevId);
+          if (el instanceof HTMLElement) {
             el.focus();
             applyHighlights(prevId, "source");
           }

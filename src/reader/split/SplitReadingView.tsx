@@ -108,6 +108,7 @@ export async function SplitReadingView({
               <option value="parallel">German and English</option>
               <option value="german">German source</option>
               <option value="english">English translation</option>
+              <option value="gloss">Interlinear gloss</option>
             </select>
           </label>
           <label htmlFor="split-companion-choice">
@@ -341,6 +342,7 @@ export async function SplitReadingView({
             parallel: faceLinkHref(paper.id, "parallel", selected.id),
             german: faceLinkHref(paper.id, "german", selected.id),
             english: faceLinkHref(paper.id, "english", selected.id),
+            gloss: faceLinkHref(paper.id, "gloss", selected.id),
             reading: paperPath(paper.id, selected.id),
             results: faceLinkHref(paper.id, "results", selected.id),
           }}

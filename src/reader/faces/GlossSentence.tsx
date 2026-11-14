@@ -28,6 +28,8 @@ export interface GlossSentenceProps {
    * block id (GlossFace.tsx), and a second element with that id would be a duplicate.
    */
   readonly elementId?: string | null | undefined;
+  /** Scope DOM ids when the same sentence is also printed in another split pane projection. */
+  readonly idPrefix?: string | undefined;
 }
 
 /**
@@ -114,8 +116,11 @@ export function GlossSentence({
   atoms,
   germanInlines,
   elementId,
+  idPrefix = "",
 }: GlossSentenceProps) {
-  const domId = elementId === null ? undefined : (elementId ?? sentenceId);
+  const domId = elementId === null ? undefined : (elementId ?? `${idPrefix}${sentenceId}`);
+  const germanId = `${idPrefix}sentence-german-${sentenceId}`;
+  const wordsId = `${idPrefix}sentence-header-${sentenceId}`;
   // No gloss unit yet: the German as printed, and one quiet line linking the same sentence on the
   // parallel face. What the gloss does not cover is named once, at the top of the face (GlossFace.tsx
   // unglossedSections); a boxed notice under every such sentence said it 87 times on Brownian motion.
@@ -131,13 +136,13 @@ export function GlossSentence({
         // order for nothing. -1 keeps it focusable for the #sentenceId deep link, which
         // is what the return-to-the-exact-sentence route needs.
         tabIndex={-1}
-        aria-labelledby={`sentence-german-${sentenceId}`}
+        aria-labelledby={germanId}
       >
-        <div className="sentence-german-unadorned" id={`sentence-german-${sentenceId}`} lang="de">
+        <div className="sentence-german-unadorned" id={germanId} lang="de">
           {germanInlines
             ? renderInlines(
                 germanInlines,
-                { terms: { paper: paperSlug, holder: sentenceId } },
+                { idPrefix, terms: { paper: paperSlug, holder: sentenceId } },
                 `gloss-de-${sentenceId}`,
               )
             : germanText}
@@ -192,7 +197,7 @@ export function GlossSentence({
       // real tab stops in its actions nav, so tabIndex={0} added a redundant stop in
       // front of each one of them, the whole length of the reading face.
       tabIndex={-1}
-      aria-labelledby={`sentence-header-${sentenceId}`}
+      aria-labelledby={wordsId}
     >
       {/* Semantic actions for non-visual and assistive reading */}
       <nav className="sentence-actions" aria-label={`Sentence actions for ${sentenceId}`}>
@@ -247,6 +252,7 @@ export function GlossSentence({
       {/* Interlinear word pairs layout */}
       <div
         className="gloss-pairs-container"
+        id={wordsId}
         data-pairs-container="true"
         data-gloss-stream={printed ? "printed" : "word-only"}
       >

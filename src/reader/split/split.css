@@ -113,6 +113,14 @@
   padding-top: 1rem;
   border-top: 1px dotted var(--line);
 }
+.split-reader [data-split-source-content].gloss-face {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+.split-gloss-display {
+  margin-block: 1rem;
+}
 .split-reader .split-language-label {
   color: var(--muted);
   font-size: var(--type-micro);
