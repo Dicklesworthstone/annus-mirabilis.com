@@ -26,6 +26,16 @@ import {
 } from "../../experiments/lq08/comparison.ts";
 import { validateLq08Parameters } from "../../experiments/lq08/parameters.ts";
 import type { PreparedLq08Example } from "../../experiments/lq08/session.ts";
+import {
+  ME03_COMPARISON,
+  me03ComparisonIdentity,
+  me03ComparisonParameters,
+  verifyMe03Comparison,
+  verifyMe03SavedComparison,
+} from "../../experiments/me03/comparison.ts";
+import { ME03_DEFAULTS } from "../../experiments/me03/definition.ts";
+import type { PreparedMe03Example } from "../../experiments/me03/session.ts";
+import { settingsFromTape } from "../../experiments/permalink/sessionTape.ts";
 import type { TapeReplayGrid } from "../../experiments/permalink/types.ts";
 import {
   fixedSr03ComparisonParameters,
@@ -38,12 +48,13 @@ import type { PreparedSr03Example } from "../../experiments/sr03/session.ts";
 import type { WorkerChannel } from "../../workers/scheduler/hostScheduler.ts";
 import type { ReplayCatalogue } from "./replayCompatibility.ts";
 
-export type ReplayInstrumentId = "bm-01" | "bm-08" | "lq-08" | "sr-03";
+export type ReplayInstrumentId = "bm-01" | "bm-08" | "lq-08" | "sr-03" | "me-03";
 export type ComparisonReplayKind =
   | "bm01-comparison"
   | "bm08-comparison"
   | "lq08-comparison"
-  | "sr03-comparison";
+  | "sr03-comparison"
+  | "me03-comparison";
 export type ComparisonReplayPrediction = "smaller" | "same" | "larger";
 export type ComparisonReplaySession = ComparisonPort &
   Readonly<{ setSchedulingPaused(paused: boolean): void }>;
@@ -67,6 +78,11 @@ export type ComparisonReplayOwner = Readonly<{ identity: ComparisonIdentity }> &
     | Readonly<{
         instrumentId: "lq-08";
         example: PreparedLq08Example;
+        workerFactory?: never;
+      }>
+    | Readonly<{
+        instrumentId: "me-03";
+        example: PreparedMe03Example;
         workerFactory?: never;
       }>
   );
@@ -98,6 +114,8 @@ export type ComparisonReplayAdapter = Readonly<{
   predictionPromptId: string;
   predictions: Readonly<Record<ComparisonReplayPrediction, string>>;
   parameters(input: unknown): ComparisonParameters;
+  /** Decode only the instrument's declared Boolean fields from the established tape wire format. */
+  parametersFromTape?(input: Readonly<Record<string, number | string>>): ComparisonParameters;
   replayGrid(parameters: ComparisonParameters): TapeReplayGrid | undefined;
   verifyAccepted(
     baseline: ComparisonSnapshot,
@@ -360,6 +378,70 @@ const adapters: Readonly<Record<ReplayInstrumentId, ComparisonReplayAdapter>> = 
     },
     async loadCatalogue(): Promise<ReplayCatalogue> {
       const { default: catalogue } = await import("../../generated/sr03-notebook-replay.json");
+      return catalogue as ReplayCatalogue;
+    },
+  }),
+  "me-03": Object.freeze({
+    instrumentId: "me-03",
+    kind: "me03-comparison",
+    mode: "me-03:default",
+    contract: ME03_COMPARISON,
+    title: "My controlled system-boundary comparison",
+    paper: "mass-energy",
+    anchor: "arg-me-small-speed",
+    saveDescription:
+      "Keeps both accepted energy and mass accounts, the fixed emission settings and the one boundary change. Replaying calculates both accounts again through the registered mass–energy model.",
+    evidenceDescription:
+      "These are the accepted energy and mass accounts you saved for one emission. Opening this entry does not recompute them. Radiation rest mass remains not applicable in the 1905 ledger; it is never replaced by zero.",
+    matchingScalarsMessage:
+      "Finished. The accepted energy and mass readouts agree within relative tolerance 1e-12, that is, to one part in a trillion. Both accounts describe the same emission; not-applicable rest mass retains its saved explanation.",
+    seedPolicy: Object.freeze({ kind: "deterministic", value: "0" }),
+    predictionPromptId: "me-03-predict-comparison-energy-change",
+    predictions: Object.freeze({
+      smaller: "The selected system’s energy change will be smaller",
+      same: "The selected system’s energy change will stay the same",
+      larger: "The selected system’s energy change will be larger",
+    }),
+    parameters: me03ComparisonParameters,
+    parametersFromTape: (input: Readonly<Record<string, number | string>>) =>
+      me03ComparisonParameters(settingsFromTape(input, ME03_DEFAULTS)),
+    replayGrid: () => undefined,
+    verifyAccepted: verifyMe03Comparison,
+    verifySaved: verifyMe03SavedComparison,
+    async createSession(instanceId: string, owner: ComparisonReplayOwner) {
+      if (owner.instrumentId !== "me-03")
+        throw new ComparisonReplayAdapterError(
+          "replay-owner-mismatch",
+          "This saved comparison requires the system-boundary ledger.",
+        );
+      const { createMe03Session } = await import("../../experiments/me03/session.ts");
+      const session = createMe03Session(
+        instanceId,
+        me03ComparisonParameters(owner.example.parameters),
+      );
+      return Object.freeze({
+        ...session,
+        stop() {
+          // Explicit calculations finish synchronously; there is no background work to stop.
+        },
+        disconnect() {
+          // The host calculation owns no worker or animation loop.
+        },
+        setSchedulingPaused(_paused: boolean) {
+          // Scheduling does not change an explicitly requested synchronous calculation.
+        },
+      });
+    },
+    async loadCurrentOwner(): Promise<ComparisonReplayOwner> {
+      const [{ DEFAULT_PREPARED_EXAMPLE }, { default: digests }] = await Promise.all([
+        import("../../experiments/me03/session.ts"),
+        import("../../generated/lab-source-digests.json"),
+      ]);
+      const example = { ...DEFAULT_PREPARED_EXAMPLE, sourceDigest: digests["me-03"] };
+      return { instrumentId: "me-03", example, identity: me03ComparisonIdentity(example) };
+    },
+    async loadCatalogue(): Promise<ReplayCatalogue> {
+      const { default: catalogue } = await import("../../generated/me03-notebook-replay.json");
       return catalogue as ReplayCatalogue;
     },
   }),

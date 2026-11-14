@@ -267,7 +267,11 @@ export function createComparisonReplayRunner(
           phase: "baseline",
           message: "Rebuilding the saved baseline with the current calculation.",
         });
-        issue(replay.tape.initialConditions);
+        issue(
+          adapter.parametersFromTape
+            ? adapter.parametersFromTape(replay.tape.initialConditions)
+            : adapter.parameters(replay.tape.initialConditions),
+        );
       } catch {
         if (generation === thisRun)
           fail("It could not be run again in this browser. What you saved is unchanged.");

@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { type FormEvent, useEffect, useId, useState } from "react";
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
@@ -38,12 +38,14 @@ import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { ShowTheCode } from "../ShowTheCode.tsx";
 import { withScripts } from "../subscripts.tsx";
 import { WalkthroughControl } from "../WalkthroughControl.tsx";
+import { BoundaryControlledComparison } from "./BoundaryControlledComparison.tsx";
 import { BoundaryLedgerPlot } from "./BoundaryLedgerPlot.tsx";
 import { PhotonBoxPlot } from "./PhotonBoxPlot.tsx";
 import "../labControls.css";
 import "./me03.css";
 import "../showTheCode.css";
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
+import labDigests from "../../../generated/lab-source-digests.json";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
@@ -76,6 +78,7 @@ export function BoundaryLedgerLab({
   example,
   title = "System-boundary energy ledger with cited energy-source cards",
   session: sharedSession,
+  showComparison = true,
 }: {
   example?: PreparedMe03Example | undefined;
   instanceId?: string | undefined;
@@ -87,6 +90,8 @@ export function BoundaryLedgerLab({
    * owns its own, as on /lab/me-03/.
    */
   session?: ReturnType<typeof createMe03Session> | undefined;
+  /** Chapter investigations capture their shared owner; the optional comparison owns a separate run. */
+  showComparison?: boolean;
 }) {
   const id = useId();
   const [session] = useState(
@@ -345,6 +350,54 @@ export function BoundaryLedgerLab({
               </button>
             </div>
           </fieldset>
+          {!isBox && (
+            <form onSubmit={submit} aria-label="Energy ledger parameters" noValidate>
+              <fieldset className="lab-choice">
+                <legend>Emission settings</legend>
+                <div className="control-row">
+                  <label htmlFor={`${id}-emitted-energy`}>Energy emitted L (J)</label>
+                  <input
+                    id={`${id}-emitted-energy`}
+                    name="emittedEnergy"
+                    type="number"
+                    step="any"
+                    min="0"
+                    max="1e28"
+                    className="input-number"
+                    value={draft.emittedEnergy}
+                    aria-invalid={Boolean(error)}
+                    aria-describedby={error ? `${id}-ledger-refusal` : undefined}
+                    onChange={(event) => setDraft({ ...draft, emittedEnergy: event.target.value })}
+                  />
+                </div>
+                <div className="control-row">
+                  <label htmlFor={`${id}-input-energy`}>External energy input (J)</label>
+                  <input
+                    id={`${id}-input-energy`}
+                    name="inputEnergy"
+                    type="number"
+                    step="any"
+                    min="0"
+                    max="1e28"
+                    className="input-number"
+                    value={draft.inputEnergy}
+                    aria-invalid={Boolean(error)}
+                    aria-describedby={error ? `${id}-ledger-refusal` : undefined}
+                    onChange={(event) => setDraft({ ...draft, inputEnergy: event.target.value })}
+                  />
+                </div>
+                <p className="fine">
+                  Calculate to apply these energies; the accepted result stays visible until then.
+                  Use zero external input for an isolated emission. Positive external input belongs
+                  to the retained-radiation, heated-enclosure model. The cited context cards keep
+                  their own energy figures; these settings control the ideal ledger.
+                </p>
+                <button type="submit" className="secondary">
+                  Calculate with these energies
+                </button>
+              </fieldset>
+            </form>
+          )}
           {isBox ? (
             <fieldset className="lab-choice">
               <legend>Give the light pulse a mass m = E/c²?</legend>
@@ -633,7 +686,12 @@ export function BoundaryLedgerLab({
             />
           </ExperimentSettings>
           {error && (
-            <p className="notice error" role="alert" data-refusal-code={refusalCode ?? undefined}>
+            <p
+              id={`${id}-ledger-refusal`}
+              className="notice error"
+              role="alert"
+              data-refusal-code={refusalCode ?? undefined}
+            >
               {error} {KEPT_RESULT}
             </p>
           )}
@@ -767,6 +825,16 @@ export function BoundaryLedgerLab({
           )}
         </div>
       </div>
+
+      {showComparison && (
+        <div {...gate.response}>
+          <BoundaryControlledComparison
+            session={session}
+            sourceDigest={example?.sourceDigest ?? labDigests["me-03"]}
+            enabled={gate.open}
+          />
+        </div>
+      )}
 
       {/* The kernel's own source, extracted at build time with its hash pinned
           (src/content/kernel). It replaces a block retyped by hand, which was not the kernel's

@@ -8,6 +8,7 @@ import {
 import type { ControlledComparisonState } from "../../experiments/compare/controlledComparison.ts";
 import { scientificDigest } from "../../experiments/digest/scientificDigest.ts";
 import { validateTapeV2 } from "../../experiments/permalink/schema.ts";
+import { tapeStateOf } from "../../experiments/permalink/sessionTape.ts";
 import type { TapeV2 } from "../../experiments/permalink/types.ts";
 import { decodeResult } from "../../experiments/results/codec.ts";
 import {
@@ -389,7 +390,9 @@ export function parseComparisonReplay(value: unknown): ComparisonReplay {
     tape.replayGrid?.horizon !== grid?.horizon
   )
     throw new TypeError("Replay tape identity differs from its saved evidence.");
-  const params = adapter.parameters(tape.initialConditions);
+  const params = adapter.parametersFromTape
+    ? adapter.parametersFromTape(tape.initialConditions)
+    : adapter.parameters(tape.initialConditions);
   if (Object.keys(a.parameters).some((key) => !Object.is(a.parameters[key], params[key])))
     throw new TypeError("Replay tape does not start at the saved baseline.");
   const changed = result.variation.changedInput,
@@ -504,7 +507,7 @@ export async function captureComparisonReplay(
     streamVersion: a.identity.streamVersion,
     allocationId: a.identity.allocationId,
     ...(grid ? { replayGrid: grid } : {}),
-    initialConditions: a.parameters,
+    initialConditions: tapeStateOf(a.parameters),
     events:
       key === null
         ? []
