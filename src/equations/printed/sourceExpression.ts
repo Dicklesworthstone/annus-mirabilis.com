@@ -132,7 +132,10 @@ class RowParser {
     return { tree: { ...tree, opId } as Expression, start, end, parts, marker };
   }
 
-  parse(previousLeft?: Expression): { row: SourceExpressionNode; continuation: boolean } {
+  parse(
+    previousLeft?: Expression,
+    allowChainedRelations = false,
+  ): { rows: readonly SourceExpressionNode[]; continuation: boolean } {
     const alignment = this.peek()?.value === "&";
     if (alignment) this.take("&");
     const continuation = this.peek()?.value === "=";
@@ -144,20 +147,38 @@ class RowParser {
     if (!operator) {
       if (!left) this.fail("Expected an expression or relation.");
       this.finish();
-      return { row: left, continuation: false };
+      return { rows: [left], continuation: false };
     }
     const sign = this.take();
-    if (!left && !previousLeft) this.fail("A continuation equality needs a preceding left side.");
+    const leftTree = left?.tree ?? previousLeft;
+    if (!leftTree) this.fail("A continuation equality needs a preceding left side.");
     const right = this.sum();
-    this.finish();
     const row = this.operation(
-      { kind: "relation", operator, left: left?.tree ?? previousLeft!, right: right.tree },
+      { kind: "relation", operator, left: leftTree, right: right.tree },
       left?.start ?? sign.start,
       right.end,
       [...(left ? [{ name: "left", node: left }] : []), { name: "right", node: right }],
       sign,
     );
-    return { row, continuation };
+    const rows = [row];
+    // A = B = C means both A = B and A = C. Only the new right side and equals sign
+    // are printed again: reusing A's tree must not invent another physical term occurrence.
+    // Other relation kinds and nested equalities remain outside this opt-in grammar.
+    while (allowChainedRelations && operator === "=" && this.peek()?.value === "=") {
+      const nextSign = this.take("=");
+      const nextRight = this.sum();
+      rows.push(
+        this.operation(
+          { kind: "relation", operator, left: leftTree, right: nextRight.tree },
+          nextSign.start,
+          nextRight.end,
+          [{ name: "right", node: nextRight }],
+          nextSign,
+        ),
+      );
+    }
+    this.finish();
+    return { rows, continuation };
   }
 
   private finish(): void {
@@ -375,6 +396,7 @@ class RowParser {
 export function parseSourceExpression(
   display: CheckedDisplay,
   symbolIndices: Readonly<Record<string, string>> = {},
+  allowChainedRelations = false,
 ): SourceExpression {
   let items = lexemes(display);
   const aligned = items[0]?.value === "\\begin{aligned}";
@@ -399,9 +421,11 @@ export function parseSourceExpression(
     const previous = rows.at(-1)?.tree;
     const parsed = new RowParser(display, line, symbolIndices).parse(
       previous?.kind === "relation" ? previous.left : undefined,
+      allowChainedRelations,
     );
     if (parsed.continuation) continuationRows.push(rows.length);
-    rows.push(parsed.row);
+    for (let i = 1; i < parsed.rows.length; i++) continuationRows.push(rows.length + i);
+    rows.push(...parsed.rows);
   }
   return { rows, continuationRows };
 }

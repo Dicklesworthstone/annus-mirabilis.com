@@ -156,6 +156,7 @@ jobs:
           src/equations/printed/sourceSemantics.test.ts
           src/equations/printed/relativityOperations.test.tsx
           src/equations/printed/relativityConsequences.test.tsx
+          src/equations/printed/relativityLightComplex.test.tsx
           src/equations/derivations/srSynchronization.test.ts
           src/content/results
           src/reader/faces/printedOperations.test.tsx

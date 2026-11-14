@@ -242,7 +242,7 @@ describe("exact relation and dimension contracts", () => {
     }
   });
 
-  test("the electrical check uses EMU dimensions and refuses missing or corrupted EMU data without falling back (sourceSemantics.ts:375)", () => {
+  test("the electrical check uses EMU dimensions and refuses missing or corrupted EMU data without falling back (sourceSemantics.ts:378)", () => {
     const d = display("eq-s8-d2");
     const charge = quantities.get("elementaryCharge");
     if (!charge) throw new Error("The source charge must be registered.");
@@ -260,7 +260,7 @@ describe("exact relation and dimension contracts", () => {
     expect(() => compile(d)).not.toThrow();
   });
 
-  test("a consistent dimensionless rewrite cannot masquerade as the printed amount j (sourceSemantics.ts:400)", () => {
+  test("a consistent dimensionless rewrite cannot masquerade as the printed amount j (sourceSemantics.ts:403)", () => {
     const d = display("eq-s9-d3");
     const altered = new Map(quantities);
     for (const id of ["molarGasConstant", "ionizedGramMolecules"]) {

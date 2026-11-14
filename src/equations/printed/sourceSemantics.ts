@@ -303,7 +303,7 @@ export function compilePrintedSourceSemantics(
     );
   const indices =
     relativity?.symbolIndices ?? brownian?.symbolIndices ?? lightQuanta?.symbolIndices ?? {};
-  const parsed = parseSourceExpression(display, indices);
+  const parsed = parseSourceExpression(display, indices, relativity?.allowChainedRelations);
   const expectedOperator = budget ? budget.relationOperator : "=";
   if (
     parsed.rows.some(({ tree }) =>
@@ -345,9 +345,12 @@ export function compilePrintedSourceSemantics(
   for (const [path, reading] of Object.entries(guide.primary)) {
     const node = nodes.find((n) => n.path === path)?.node;
     const operands = node ? walk(node.tree) : [];
+    const symbolIndex = relativity?.primary[path]?.symbolIndex;
     if (
       !node ||
       node.tree.kind !== reading.kind ||
+      (symbolIndex !== undefined &&
+        (node.tree.kind !== "symbol" || node.tree.index !== symbolIndex)) ||
       quantitiesIn(node.tree).join("\u0000") !== [...reading.quantities].sort().join("\u0000") ||
       (reading.literalNumbers !== undefined &&
         operands

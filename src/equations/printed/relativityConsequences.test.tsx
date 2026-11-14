@@ -361,8 +361,8 @@ describe("a dimensionally plausible substitution cannot inherit a different scie
     expect(() => compile(value)).not.toThrow();
   });
 
-  test("wave phases, chained equalities and mirror-pressure formulas are not silently opted in", () => {
-    for (const id of ["eq-s7-d1", "eq-s8-d4", "eq-s8-d6"]) {
+  test("wave phases and mirror-pressure formulas are not silently opted in", () => {
+    for (const id of ["eq-s7-d1", "eq-s8-d6"]) {
       const value = display(id);
       expect(
         compilePrintedSourceSemantics(value, compilePrintedDisplay(value), quantities),
