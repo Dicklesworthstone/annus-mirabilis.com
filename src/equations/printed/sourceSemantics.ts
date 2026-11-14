@@ -5,12 +5,15 @@ import fractions from "../../../content/foundations/bridge-fractions-ratios.json
 import signs from "../../../content/foundations/bridge-negative-numbers-direction.json";
 import entropy from "../../../content/foundations/entropy-multiplicity.json";
 import temperature from "../../../content/foundations/entropy-temperature.json";
+import inference from "../../../content/foundations/error-and-inference.json";
 import fields from "../../../content/foundations/fields-waves.json";
 import frames from "../../../content/foundations/frames-events.json";
 import logarithms from "../../../content/foundations/logarithms.json";
+import rms from "../../../content/foundations/mean-variance-rms.json";
 import independence from "../../../content/foundations/probability-independence.json";
 import taylor from "../../../content/foundations/taylor-expansion.json";
 import historicalUnits from "../../../content/foundations/unit-system-1905.json";
+import viscosity from "../../../content/foundations/viscosity-stokes-drag.json";
 import energy from "../../../content/foundations/work-energy.json";
 import { checkDimensions } from "../../content/dimensions/check.ts";
 import type { QuantityDescriptor } from "../../content/dimensions/unitSystems.ts";
@@ -21,6 +24,7 @@ import { renderLatex } from "../latex/render.ts";
 import type { Quantity, QuantityRegistry } from "../quantities.ts";
 import { dimensionText } from "../termFacts.ts";
 import { withQuantityIds } from "../termQuantities.ts";
+import { BROWNIAN_ARITHMETIC, BROWNIAN_OPERATION_GUIDES } from "./brownianOperations.ts";
 import { type CheckedDisplay, type CompiledPrintedDisplay, FACE_KATEX } from "./displayTerms.ts";
 import {
   LIGHT_QUANTA_BUDGET_ARITHMETIC,
@@ -32,6 +36,7 @@ import {
   MASS_ENERGY_OPERATION_GUIDES,
   type OperationReading,
 } from "./massEnergyOperations.ts";
+import { RELATIVITY_ARITHMETIC, RELATIVITY_OPERATION_GUIDES } from "./relativityOperations.ts";
 import { parseSourceExpression, type SourceExpression, sourceNodes } from "./sourceExpression.ts";
 
 export type PrintedOperation = OperationReading &
@@ -256,6 +261,9 @@ const FOUNDATION_TITLES = new Map(
     logarithms,
     independence,
     historicalUnits,
+    viscosity,
+    rms,
+    inference,
   ].map(({ id, title }) => [id, title]),
 );
 
@@ -273,15 +281,28 @@ export function compilePrintedSourceSemantics(
     display.paper === "light-quanta" ? LIGHT_QUANTA_OPERATION_GUIDES[display.display] : undefined;
   const budget =
     display.paper === "light-quanta" ? LIGHT_QUANTA_BUDGET_GUIDES[display.display] : undefined;
-  if (display.paper !== "mass-energy" && !lightQuanta && !budget) return undefined;
-  const guide = budget ?? lightQuanta ?? MASS_ENERGY_OPERATION_GUIDES[display.display];
+  const brownian =
+    display.paper === "brownian-motion" ? BROWNIAN_OPERATION_GUIDES[display.display] : undefined;
+  const relativity =
+    display.paper === "special-relativity"
+      ? RELATIVITY_OPERATION_GUIDES[display.display]
+      : undefined;
+  if (display.paper !== "mass-energy" && !lightQuanta && !budget && !brownian && !relativity)
+    return undefined;
+  const guide =
+    relativity ??
+    brownian ??
+    budget ??
+    lightQuanta ??
+    MASS_ENERGY_OPERATION_GUIDES[display.display];
   if (!guide)
     throw new SourceSemanticsError(
       "printed-source-operation",
       display.display,
       "This mass-energy display has no authored operation guide.",
     );
-  const indices = lightQuanta?.symbolIndices ?? {};
+  const indices =
+    relativity?.symbolIndices ?? brownian?.symbolIndices ?? lightQuanta?.symbolIndices ?? {};
   const parsed = parseSourceExpression(display, indices);
   const expectedOperator = budget ? budget.relationOperator : "=";
   if (
@@ -323,10 +344,21 @@ export function compilePrintedSourceSemantics(
     );
   for (const [path, reading] of Object.entries(guide.primary)) {
     const node = nodes.find((n) => n.path === path)?.node;
+    const operands = node ? walk(node.tree) : [];
     if (
       !node ||
       node.tree.kind !== reading.kind ||
-      quantitiesIn(node.tree).join("\u0000") !== [...reading.quantities].sort().join("\u0000")
+      quantitiesIn(node.tree).join("\u0000") !== [...reading.quantities].sort().join("\u0000") ||
+      (reading.literalNumbers !== undefined &&
+        operands
+          .flatMap((item) => (item.kind === "number" ? [item.value] : []))
+          .sort()
+          .join("\u0000") !== [...reading.literalNumbers].sort().join("\u0000")) ||
+      (reading.constantNames !== undefined &&
+        operands
+          .flatMap((item) => (item.kind === "constant" ? [item.name] : []))
+          .sort()
+          .join("\u0000") !== [...reading.constantNames].sort().join("\u0000"))
     )
       throw new SourceSemanticsError(
         "printed-source-operation",
@@ -349,7 +381,7 @@ export function compilePrintedSourceSemantics(
     return { dimension: dimensionText(dimensionExponents), dimensionExponents };
   }
   const rowDimensions = parsed.rows.map(({ tree }) => dimensions(tree));
-  const expectedDimension = (budget ?? lightQuanta)?.expectedDimension ?? [
+  const expectedDimension = (brownian ?? budget ?? lightQuanta)?.expectedDimension ?? [
     "2",
     "1",
     "-2",
@@ -357,24 +389,41 @@ export function compilePrintedSourceSemantics(
     "0",
     "0",
   ];
-  if (rowDimensions.some((d) => d.dimensionExponents.join(",") !== expectedDimension.join(",")))
+  const expectedRows =
+    relativity?.expectedRowDimensions ?? parsed.rows.map(() => expectedDimension);
+  if (
+    expectedRows.length !== rowDimensions.length ||
+    rowDimensions.some(
+      (d, index) => d.dimensionExponents.join(",") !== expectedRows[index]?.join(","),
+    )
+  )
     throw new SourceSemanticsError(
       "printed-source-dimension",
       display.display,
       "The authored display expects " +
-        (lightQuanta || budget ? dimensionText(expectedDimension) : "energy") +
-        " in every complete expression or relation side.",
+        (relativity
+          ? expectedRows
+              .map((dimension, index) => `row ${index + 1}: ${dimensionText(dimension)}`)
+              .join("; ")
+          : lightQuanta || budget || brownian
+            ? dimensionText(expectedDimension)
+            : "energy") +
+        " in the corresponding complete expression or relation sides.",
     );
   const operationMarks: SourceMark[] = [];
   const operations: PrintedOperation[] = nodes.flatMap(({ path, node }) => {
     if (!node.marker) return [];
     const id = nodeId(node.tree);
     const authored = guide.primary[path];
-    const arithmetic = budget
-      ? LIGHT_QUANTA_BUDGET_ARITHMETIC
-      : lightQuanta
-        ? LIGHT_QUANTA_ARITHMETIC
-        : MASS_ENERGY_ARITHMETIC;
+    const arithmetic = relativity
+      ? RELATIVITY_ARITHMETIC
+      : brownian
+        ? BROWNIAN_ARITHMETIC
+        : budget
+          ? LIGHT_QUANTA_BUDGET_ARITHMETIC
+          : lightQuanta
+            ? LIGHT_QUANTA_ARITHMETIC
+            : MASS_ENERGY_ARITHMETIC;
     const reading = authored ?? arithmetic[node.tree.kind];
     const foundationTitle = reading ? FOUNDATION_TITLES.get(reading.foundation) : undefined;
     if (
@@ -384,7 +433,8 @@ export function compilePrintedSourceSemantics(
       (node.tree.kind === "power" &&
         (node.tree.exponent.num !== 2 || node.tree.exponent.den !== 1)) ||
       (node.tree.kind === "function" &&
-        node.tree.name !== (lightQuanta ? "ln" : budget ? undefined : "cos"))
+        node.tree.name !==
+          (lightQuanta ? "ln" : budget || brownian || relativity ? undefined : "cos"))
     )
       throw new SourceSemanticsError(
         "printed-source-operation",
@@ -452,7 +502,9 @@ export function compilePrintedSourceSemantics(
             : "The AST renderer normalizes spacing, delimiters, powers, function spelling, relation spelling, punctuation and aligned rows. The original source typography is retained with validated term and operation spans.",
       },
       dimensionStatus: "consistent",
-      dimension: rowDimensions[0]!.dimension,
+      dimension: rowDimensions.every((row) => row.dimension === rowDimensions[0]!.dimension)
+        ? rowDimensions[0]!.dimension
+        : rowDimensions.map((row, index) => `row ${index + 1}: ${row.dimension}`).join("; "),
       context: guide.context,
       premise: guide.premise,
       next: guide.next,

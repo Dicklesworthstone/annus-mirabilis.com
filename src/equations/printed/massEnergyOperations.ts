@@ -16,6 +16,9 @@ type PrimaryReading = OperationReading &
   Readonly<{
     kind: Expression["kind"];
     quantities: readonly string[];
+    /** Independently authored operands when a reading relies on an exact coefficient. */
+    literalNumbers?: readonly string[];
+    constantNames?: readonly string[];
   }>;
 
 export type MassEnergyOperationGuide = Readonly<{

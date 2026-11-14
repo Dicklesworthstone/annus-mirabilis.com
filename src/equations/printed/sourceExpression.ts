@@ -10,6 +10,7 @@
  * opt it into a source-semantics contract or supply an authored explanation.
  */
 import type { Expression } from "../ast.ts";
+import { glyphSignature, printedAtoms } from "../latex/printedAtoms.ts";
 import { tokenizeLatex } from "../latex/tokenize.ts";
 import type { CheckedDisplay, CheckedTerm } from "./displayTerms.ts";
 
@@ -69,6 +70,7 @@ function lexemes(display: CheckedDisplay): readonly Lexeme[] {
     }
   }
   const terms = new Map(display.terms.map((term) => [term.start, term]));
+  const atoms = new Map(printedAtoms(display.latex).map((atom) => [atom.start, atom]));
   const bound: Lexeme[] = [];
   for (let i = 0; i < items.length; i++) {
     const item = items[i]!;
@@ -77,8 +79,15 @@ function lexemes(display: CheckedDisplay): readonly Lexeme[] {
       bound.push(item);
       continue;
     }
-    bound.push({ value: term.glyph, start: term.start, end: term.end, term });
-    while (items[i + 1] && items[i + 1]!.start < term.end) i++;
+    // A scripted name followed by a power is marked only around its base to preserve MathML.
+    // Parse the whole checked name, as identified by the same owner that chose that mark.
+    const atom = atoms.get(term.start);
+    const end =
+      atom?.markEnd === term.end && atom.signature === glyphSignature(term.glyph)
+        ? atom.end
+        : term.end;
+    bound.push({ value: term.glyph, start: term.start, end, term });
+    while (items[i + 1] && items[i + 1]!.start < end) i++;
   }
   return bound;
 }
@@ -193,7 +202,7 @@ class RowParser {
       next &&
       (next.term ||
         /^[0-9]$/.test(next.value) ||
-        ["{", "(", "[", "\\left", "\\frac", "\\sqrt", "\\cos", "\\lg"].includes(next.value))
+        ["{", "(", "[", "\\left", "\\frac", "\\sqrt", "\\cos", "\\lg", "\\pi"].includes(next.value))
     );
   }
 
@@ -304,6 +313,13 @@ class RowParser {
       }
       return { tree: { kind: "number", value }, start: token.start, end, parts: [] };
     }
+    if (token.value === "\\pi")
+      return {
+        tree: { kind: "constant", name: "pi" },
+        start: token.start,
+        end: token.end,
+        parts: [],
+      };
     if (token.value === "\\frac") {
       const numerator = this.argument();
       const denominator = this.argument();
