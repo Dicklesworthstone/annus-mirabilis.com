@@ -332,7 +332,7 @@ describe("every publication guard has an actual reject and accept case", () => {
     expect(() => compile(d)).not.toThrow();
   });
 
-  test("a changed power cannot keep the authored square explanation (sourceSemantics.ts:439)", () => {
+  test("a changed power cannot keep the authored square explanation (sourceSemantics.ts:444)", () => {
     const d = display("eq-s0-d1");
     // The radicand remains dimensionless and all quantity bindings retain their offsets,
     // so this reaches the authored-reading check rather than an earlier dimension refusal.

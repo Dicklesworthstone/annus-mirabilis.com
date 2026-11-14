@@ -83,6 +83,8 @@ jobs:
           src/components/foundations/FieldWaveSamples.test.tsx
           src/experiments/shelfOptics
           src/experiments/bm01
+          src/experiments/groups
+          src/components/lab/*Linked*.test.tsx
           src/experiments/bm08
           src/experiments/avogadro
           src/components/lab/avogadro
@@ -97,6 +99,9 @@ jobs:
           src/reader/weave
           src/reader/split
           src/reader/faces/GlossSentence.test.tsx
+          src/reader/faces/glossNavigation.test.ts
+          src/reader/faces/glossNavigation.react.test.ts
+          src/reader/faces/glossSections.test.tsx
           src/testing/lq05
           src/testing/radiation.configurations.test.ts
           src/physics/reference/molecularProducts.test.mjs
@@ -149,6 +154,8 @@ jobs:
           src/experiments/permalink/LabTapeLink.newRun.test.tsx
           src/experiments/permalink/LabTapeLink.recovery.test.tsx
           src/equations/printed/sourceSemantics.test.ts
+          src/equations/printed/relativityOperations.test.tsx
+          src/equations/printed/relativityConsequences.test.tsx
           src/equations/derivations/srSynchronization.test.ts
           src/content/results
           src/reader/faces/printedOperations.test.tsx
