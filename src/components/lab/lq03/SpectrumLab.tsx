@@ -519,8 +519,8 @@ export function SpectrumLab({
                 These results use the light paper’s α = 6.10 × 10<sup>−57</sup> erg s⁴/cm³ (the
                 corrected exponent), β = 4.866 × 10<sup>−11</sup> s K, and the editorial light speed
                 3 × 10<sup>8</sup> m/s. All three curves share these spectral coefficients: the
-                Planck comparison uses the same empirical calibration, and the classical curve
-                uses its low-frequency limit α/β. No modern h or Boltzmann constant enters this
+                Planck comparison uses the same empirical calibration, and the classical curve uses
+                its low-frequency limit α/β. No modern h or Boltzmann constant enters this
                 calculation. All densities are converted to SI.{" "}
                 <a href="/papers/light-quanta/#s2">Read §2</a>.
               </>

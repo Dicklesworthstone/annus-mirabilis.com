@@ -54,7 +54,9 @@ export function SaveComparisonReplay({
       ]);
       if (!savedPassage) {
         if (alive.current)
-          setError("The comparison's source passage could not be resolved. Your words are still here.");
+          setError(
+            "The comparison's source passage could not be resolved. Your words are still here.",
+          );
         return;
       }
       const store = getNotebookStore();

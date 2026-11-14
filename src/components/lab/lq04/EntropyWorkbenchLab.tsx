@@ -492,14 +492,14 @@ export function EntropyWorkbenchLab({
             <p className="fine" data-entropy-slope-method>
               At each accepted state, the slope comparison holds frequency and volume fixed and
               probes the energy density at ρ ± δρ, with δρ/ρ ={" "}
-              <Sci value={LQ04_ENTROPY_SLOPE_COMPARISON.relativeDensityStep} digits={0} />.
-              It divides the change of entropy density by the change of energy density and
-              compares that numerical slope with 1/T, using a relative tolerance of{" "}
-              <Sci value={LQ04_ENTROPY_SLOPE_COMPARISON.relativeTolerance} digits={0} />.
-              The actual density half-spacing appears above. This checks the local numerical
-              consistency of the Wien entropy formula; the two-state volume comparison holds
-              energy fixed instead. It supplies no independent experimental evidence and does
-              not fix the entropy integration constant.
+              <Sci value={LQ04_ENTROPY_SLOPE_COMPARISON.relativeDensityStep} digits={0} />. It
+              divides the change of entropy density by the change of energy density and compares
+              that numerical slope with 1/T, using a relative tolerance of{" "}
+              <Sci value={LQ04_ENTROPY_SLOPE_COMPARISON.relativeTolerance} digits={0} />. The actual
+              density half-spacing appears above. This checks the local numerical consistency of the
+              Wien entropy formula; the two-state volume comparison holds energy fixed instead. It
+              supplies no independent experimental evidence and does not fix the entropy integration
+              constant.
             </p>
           ) : null}
 

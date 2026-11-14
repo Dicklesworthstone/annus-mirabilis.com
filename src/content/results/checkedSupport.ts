@@ -40,7 +40,10 @@ import { srLightComplexDerivation } from "../../equations/derivations/srLightCom
 import { srSynchronizationChain } from "../../equations/derivations/srSynchronization.ts";
 import { structurallyEqual } from "../../equations/derivations/treeUtils.ts";
 import type { DerivationChain } from "../../equations/derivations/types.ts";
-import { type ChainVerificationReport, verifyChain } from "../../equations/derivations/verifyChain.ts";
+import {
+  type ChainVerificationReport,
+  verifyChain,
+} from "../../equations/derivations/verifyChain.ts";
 import type { EquationRecord } from "../../equations/record.ts";
 import { ResultCardsError } from "./printedChecks.ts";
 import type { ResultCardRecord } from "./resultCards.ts";

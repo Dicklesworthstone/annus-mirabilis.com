@@ -75,7 +75,7 @@ describe("result support reaches the actual proof owners through toCard", () => 
     expect(project(card("me-closing-remarks")).support).toBeUndefined();
   });
 
-  test("result-support-conclusion-mismatch refuses a different argument or paper (checkedSupport.ts:318)", () => {
+  test("result-support-conclusion-mismatch refuses a different argument or paper (checkedSupport.ts:321)", () => {
     const control = card("me-kinetic-energy-drop");
     expect(project(control).support).toBeDefined();
     const changed = withProof(control, { conclusion: "eq-model-me-quadratic-drop" });
@@ -89,7 +89,7 @@ describe("result support reaches the actual proof owners through toCard", () => 
     expect(rule(() => project(control, []))).toBe("result-support-conclusion-mismatch");
   });
 
-  test("result-support-conclusion-mismatch refuses a mass-energy owner for an SR result (checkedSupport.ts:332)", () => {
+  test("result-support-conclusion-mismatch refuses a mass-energy owner for an SR result (checkedSupport.ts:335)", () => {
     const control = loadResultCards(ROOT, "special-relativity")?.cards.find(
       (record) => record.id === "sr-light-complex-energy",
     );

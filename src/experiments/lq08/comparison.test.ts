@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, test } from "bun:test";
+import assert from "node:assert/strict";
 import type { Baseline, ComparisonValue } from "../compare/Baseline.ts";
 import {
   lq08ComparisonIdentity,
@@ -220,21 +221,24 @@ describe("photoelectric controlled comparisons retain the physical distinctions"
     expect(comparison.getSnapshot().baseline.parameters.incidentPower).toBe(0.002);
     expect(comparison.getSnapshot().variant.parameters.incidentPower).toBe(0.002);
   });
-  test(
-    "photoelectric-comparison-evidence refuses false source and settings (comparison.ts:94)",
-    () => {
-      for (const sourceDigest of ["", "anonymous", "source:sha256:abc"]) {
-        expect(() => lq08ComparisonIdentity({ sourceDigest })).toThrow("identified source");
-      }
-      for (const parameters of [
-        { ...LQ08_DEFAULTS, frequency: 0 },
-        { ...LQ08_DEFAULTS, incidentPower: -0.001 },
-        { ...LQ08_DEFAULTS, workFunction: 7 },
-      ]) {
-        expect(() => lq08ComparisonParameters(parameters)).toThrow("valid, complete");
-      }
-    },
-  );
+  test("photoelectric-comparison-evidence refuses false source and settings (comparison.ts:90)", () => {
+    for (const sourceDigest of ["", "anonymous", "source:sha256:abc"]) {
+      assert.throws(() => lq08ComparisonIdentity({ sourceDigest }), {
+        code: "photoelectric-comparison-evidence",
+        message: /identified source/,
+      });
+    }
+    for (const parameters of [
+      { ...LQ08_DEFAULTS, frequency: 0 },
+      { ...LQ08_DEFAULTS, incidentPower: -0.001 },
+      { ...LQ08_DEFAULTS, workFunction: 7 },
+    ]) {
+      assert.throws(() => lq08ComparisonParameters(parameters), {
+        code: "photoelectric-comparison-evidence",
+        message: /valid, complete/,
+      });
+    }
+  });
 
   test("saved readouts cannot detach a numeric value from its scientific owner evidence", () => {
     const comparison = live();
@@ -271,5 +275,4 @@ describe("photoelectric controlled comparisons retain the physical distinctions"
     };
     expect(verifyLq08Comparison(state.baselineSnapshot, corrupted, state.result)).not.toBeNull();
   });
-
 });

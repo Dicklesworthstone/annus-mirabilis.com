@@ -1,8 +1,4 @@
-import type {
-  Baseline,
-  ComparisonIdentity,
-  ComparisonSnapshot,
-} from "../compare/Baseline.ts";
+import type { Baseline, ComparisonIdentity, ComparisonSnapshot } from "../compare/Baseline.ts";
 import type { ComparisonResult } from "../compare/compatibility.ts";
 import { comparisonReason } from "../compare/resultEvidence.ts";
 import {
@@ -150,14 +146,19 @@ function acceptedSnapshot(snapshot: ComparisonSnapshot): void {
       (output.status !== "value" ||
         !Object.is(output.value, parameters[id as keyof Lq08Parameters]))
     ) {
-      refuseLq08Comparison("The accepted photoelectric inputs do not identify the displayed calculation.");
+      refuseLq08Comparison(
+        "The accepted photoelectric inputs do not identify the displayed calculation.",
+      );
     }
   }
 }
 
 /** Setup changes may branch the run; the fixed measurement and observer cannot change. */
 function verifyContinuity(
-  baseline: Pick<ComparisonSnapshot, "instanceId" | "snapshotVersion" | "actionIndex" | "revisions">,
+  baseline: Pick<
+    ComparisonSnapshot,
+    "instanceId" | "snapshotVersion" | "actionIndex" | "revisions"
+  >,
   variant: Pick<ComparisonSnapshot, "instanceId" | "snapshotVersion" | "actionIndex" | "revisions">,
   changedInput: string | null,
 ): string | null {

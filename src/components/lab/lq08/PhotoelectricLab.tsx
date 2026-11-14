@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
@@ -25,6 +25,7 @@ import {
 } from "../../../experiments/results/applyFailure.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
+import preparedLq08Example from "../../../generated/lq08-example.json";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { LQ08_READER_WEAVE } from "../../../reader/weave/photoelectricPassages.ts";
 import { SessionResultWeave } from "../../../reader/weave/SessionResultWeave.tsx";
@@ -516,10 +517,7 @@ export function PhotoelectricLab({
       <div {...gate.response}>
         <PhotoelectricControlledComparison
           session={session}
-          sourceDigest={
-            example?.sourceDigest ??
-            LQ08_TAPE.environment.artifactDigest.replace(/^host:/, "source:")
-          }
+          sourceDigest={example?.sourceDigest ?? preparedLq08Example.sourceDigest}
           enabled={gate.open}
         />
       </div>

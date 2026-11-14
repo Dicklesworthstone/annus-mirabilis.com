@@ -3,10 +3,7 @@
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
 import { ComparisonPanel } from "../../../experiments/compare/ComparisonPanel.tsx";
 import { comparisonStatement } from "../../../experiments/compare/comparisonStatement.ts";
-import {
-  LQ08_COMPARISON,
-  lq08ComparisonParameters,
-} from "../../../experiments/lq08/comparison.ts";
+import { LQ08_COMPARISON, lq08ComparisonParameters } from "../../../experiments/lq08/comparison.ts";
 import { createLq08ComparisonSession } from "../../../experiments/lq08/comparisonSession.ts";
 import type { createLq08Session } from "../../../experiments/lq08/session.ts";
 import { comparisonReplayAdapter } from "../../../reader/notebook/comparisonAdapters.ts";
@@ -23,19 +20,12 @@ const INPUTS = ["incidentPower", "frequency", "workFunction"] as const;
 type Input = (typeof INPUTS)[number];
 type Controller = ReturnType<typeof createLq08ComparisonSession>;
 
-function shown(controller: Controller, input: Input): string {
-  const value = controller.getSnapshot().variant.parameters[input];
+function shown(value: unknown, input: Input): string {
   const factor = LQ08_COMPARISON.inputs[input]?.displayFactor ?? 1;
   return typeof value === "number" ? String(value * factor) : "";
 }
 
-function Comparison({
-  controller,
-  onClose,
-}: {
-  controller: Controller;
-  onClose(): void;
-}) {
+function Comparison({ controller, onClose }: { controller: Controller; onClose(): void }) {
   const uid = useId();
   const state = useSyncExternalStore(
     controller.subscribe,
@@ -44,13 +34,16 @@ function Comparison({
   );
   const [ready, setReady] = useState(false);
   const [input, setInput] = useState<Input>("incidentPower");
-  const [draft, setDraft] = useState(() => shown(controller, "incidentPower"));
+  const [draft, setDraft] = useState(() =>
+    shown(state.variant.parameters.incidentPower, "incidentPower"),
+  );
   const [error, setError] = useState("");
   const [nextPrediction, setNextPrediction] = useState<ReplayPrediction | null>(null);
   const [issuedPrediction, setIssuedPrediction] = useState<ComparisonPredictionIntent | null>(null);
   const adapter = comparisonReplayAdapter("lq-08");
   const prediction = predictionForAccepted(issuedPrediction, state);
-  const changedInput = state.result.kind === "accepted" ? state.result.variation.changedInput : null;
+  const changedInput =
+    state.result.kind === "accepted" ? state.result.variation.changedInput : null;
   const field = LQ08_COMPARISON.inputs[input];
   const enabled = ready && state.phase === "live" && !state.pending;
 
@@ -62,8 +55,8 @@ function Comparison({
   }, [controller]);
 
   useEffect(() => {
-    setDraft(shown(controller, input));
-  }, [controller, input, state.variant]);
+    setDraft(shown(state.variant.parameters[input], input));
+  }, [input, state.variant]);
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -138,9 +131,9 @@ function Comparison({
             ))}
           </select>
           <p className="fine">
-            Quantum efficiency and collector potential stay fixed. After changing an input, pin
-            the accepted variant as a new baseline or return to the pinned baseline before choosing
-            a different input.
+            Quantum efficiency and collector potential stay fixed. After changing an input, pin the
+            accepted variant as a new baseline or return to the pinned baseline before choosing a
+            different input.
           </p>
           <label htmlFor={uid + "-value"}>
             Variant {field?.label.toLowerCase()}
@@ -178,9 +171,9 @@ function Comparison({
             ))}
           </select>
           <p className="fine">
-            Predict the energy of one quantum at the selected frequency, not how many arrive.
-            Your choice is recorded with the next completed comparison; changing it afterward does
-            not rewrite that prediction.
+            Predict the energy of one quantum at the selected frequency, not how many arrive. Your
+            choice is recorded with the next completed comparison; changing it afterward does not
+            rewrite that prediction.
           </p>
           <div className="actions">
             <button type="submit">Compare this one change</button>
@@ -285,7 +278,11 @@ export function PhotoelectricControlledComparison({
       <button type="button" disabled={!ready || !enabled} onClick={pin}>
         Pin accepted settings for comparison
       </button>
-      {error && <p role="alert" className="notice error">{error}</p>}
+      {error && (
+        <p role="alert" className="notice error">
+          {error}
+        </p>
+      )}
     </section>
   );
 }

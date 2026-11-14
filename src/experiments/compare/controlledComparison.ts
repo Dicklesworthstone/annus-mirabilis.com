@@ -79,7 +79,8 @@ export function createControlledComparison(
     variantSnapshot: options.variant,
     result: initialResult,
     requestedParameters: null,
-    message: options.initialMessage ?? "Static worked comparison, calculated when this site was built.",
+    message:
+      options.initialMessage ?? "Static worked comparison, calculated when this site was built.",
     error: "",
   });
   const serverState = state;
