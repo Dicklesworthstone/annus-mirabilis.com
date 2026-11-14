@@ -26,7 +26,7 @@ export type ExperimentGroupDefinition = Readonly<{
   canonicalUnit: string;
   commandClass: CommandClass;
   direction: "propagates";
-  conversion: "unit-display";
+  conversion: "unit-display" | "none";
   commitPolicy: "coherent";
   defaultEnabled: false;
   members: readonly GroupMemberDefinition[];
@@ -138,22 +138,28 @@ export function compileExperimentGroup(
   if (!/^[a-z][a-z0-9-]*$/.test(groupId) || input.schemaVersion !== 1)
     return invalid("Use a stable group id and schemaVersion 1.");
   if (!quantityIds.has(quantityId)) return invalid(`Unknown canonical quantity ${quantityId}.`);
-  if (quantityId !== "frameSpeed" || canonicalUnit !== "m/s")
+  const observer =
+    quantityId === "frameSpeed" &&
+    canonicalUnit === "m/s" &&
+    input.commandClass === "observer-change" &&
+    input.conversion === "unit-display";
+  const radius =
+    quantityId === "particleRadius" &&
+    canonicalUnit === "m" &&
+    input.commandClass === "setup-change" &&
+    input.conversion === "none";
+  // These are the two mounted, tested relations. Brownian parameters and their manifest domains
+  // already use metres: the display label "um" is not their stored unit and must not rescale them.
+  if (!observer && !radius)
     return invalid(
-      "This observer group requires the canonical frameSpeed quantity in SI metres per second (m/s).",
+      "Use the supported frameSpeed observer relation or particleRadius setup relation with its canonical unit and conversion.",
     );
-  // This first vertical slice deliberately admits only a coherent observer relation. Extending
-  // command semantics or commit policy must add its lifecycle proof rather than accept unused data.
   if (
-    input.commandClass !== "observer-change" ||
     input.direction !== "propagates" ||
-    input.conversion !== "unit-display" ||
     input.commitPolicy !== "coherent" ||
     input.defaultEnabled !== false
   )
-    return invalid(
-      "This group requires opt-in, coherent observer changes and registered unit conversion.",
-    );
+    return invalid("This group requires opt-in, coherent propagation and its declared conversion.");
   if (!Array.isArray(input.members) || input.members.length < 2 || input.members.length > 8)
     return invalid("A group declares between two and eight member instruments.");
   const seen = new Set<string>();
@@ -177,9 +183,8 @@ export function compileExperimentGroup(
       );
     if (parameter.role !== "independent")
       return invalid(`${where} is derived and cannot be linked.`);
-    const domains = [
-      domainInSI(parameter.modelDomain, parameter.displayUnit, canonicalUnit, where),
-    ];
+    const parameterUnit = input.conversion === "none" ? canonicalUnit : parameter.displayUnit;
+    const domains = [domainInSI(parameter.modelDomain, parameterUnit, canonicalUnit, where)];
     if (parameter.numericalDomain) {
       const numerical = parameter.numericalDomain;
       // Unspecified numerical bounds leave the already bounded model domain unchanged.
@@ -189,7 +194,7 @@ export function compileExperimentGroup(
             ...parameter.modelDomain,
             ...numerical,
           },
-          parameter.displayUnit,
+          parameterUnit,
           canonicalUnit,
           where,
         ),
@@ -209,9 +214,9 @@ export function compileExperimentGroup(
     label,
     quantityId,
     canonicalUnit,
-    commandClass: "observer-change",
+    commandClass: input.commandClass as CommandClass,
     direction: "propagates",
-    conversion: "unit-display",
+    conversion: input.conversion as "unit-display" | "none",
     commitPolicy: "coherent",
     defaultEnabled: false,
     members: Object.freeze(members),

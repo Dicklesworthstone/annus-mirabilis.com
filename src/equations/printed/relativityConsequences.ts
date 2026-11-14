@@ -199,16 +199,12 @@ const CONSEQUENCE_OPERATIONS: Readonly<Record<string, RelativityOperationGuide>>
         },
         ["1"],
       ),
-      "row1.right.denominator.args.1": primary(
-        "quotient",
-        ["velocityInMovingFrame", ...SPEEDS],
-        {
-          title: "Compare the product of velocities with V squared",
-          does: "Divide the signed product v w by V^2.",
-          why: "The numerator and denominator have speed-squared dimensions. Their ratio is dimensionless, and its sign depends on whether the two velocities have the same or opposite directions.",
-          foundation: "bridge-fractions-ratios",
-        },
-      ),
+      "row1.right.denominator.args.1": primary("quotient", ["velocityInMovingFrame", ...SPEEDS], {
+        title: "Compare the product of velocities with V squared",
+        does: "Divide the signed product v w by V^2.",
+        why: "The numerator and denominator have speed-squared dimensions. Their ratio is dimensionless, and its sign depends on whether the two velocities have the same or opposite directions.",
+        foundation: "bridge-fractions-ratios",
+      }),
     },
   },
   "eq-s7-d3": {
@@ -220,7 +216,12 @@ const CONSEQUENCE_OPERATIONS: Readonly<Record<string, RelativityOperationGuide>>
     primary: {
       row1: primary(
         "relation",
-        ["waveAngularFrequencyMoving", "waveAngularFrequencyStationary", "lorentzFactor", ...DIRECTION],
+        [
+          "waveAngularFrequencyMoving",
+          "waveAngularFrequencyStationary",
+          "lorentzFactor",
+          ...DIRECTION,
+        ],
         {
           title: "Transform angular frequency",
           does: "Multiply omega by beta times (1 - a v/V) to obtain omega prime.",
@@ -344,16 +345,12 @@ const CONSEQUENCE_OPERATIONS: Readonly<Record<string, RelativityOperationGuide>>
     premise: WAVE_PREMISE + " Here phi = pi/2 in K, so its longitudinal direction cosine is zero.",
     next: WAVE_ROUTE,
     primary: {
-      row1: primary(
-        "relation",
-        ["propagationAngleMoving", ...SPEEDS],
-        {
-          title: "Resolve the transverse aberration sign",
-          does: "For a ray transverse in K, set its moving-frame direction cosine to -v/V.",
-          why: "Positive v produces a negative longitudinal propagation component in k. A direction drawn toward the source points the other way, which explains why changing that convention can appear to reverse the sign.",
-          foundation: "fields-waves",
-        },
-      ),
+      row1: primary("relation", ["propagationAngleMoving", ...SPEEDS], {
+        title: "Resolve the transverse aberration sign",
+        does: "For a ray transverse in K, set its moving-frame direction cosine to -v/V.",
+        why: "Positive v produces a negative longitudinal propagation component in k. A direction drawn toward the source points the other way, which explains why changing that convention can appear to reverse the sign.",
+        foundation: "fields-waves",
+      }),
       "row1.left": primary("function", ["propagationAngleMoving"], cosine),
       "row1.right": subtractRatio,
       "row1.right.argument": speedRatio,
@@ -508,176 +505,158 @@ const CONSEQUENCE_OPERATIONS: Readonly<Record<string, RelativityOperationGuide>>
  * These explicit source positions also keep energy, volume and field-amplitude ratios oriented.
  * Symbols retain their existing quantity inspector; these assertions add no operation markers.
  */
-const SOURCE_QUANTITY_PATHS: Readonly<
-  Record<string, Readonly<Record<string, readonly string[]>>>
-> = {
-  "eq-s5-d6": {
-    velocityComposed: ["row1.left"],
-    frameSpeed: [
-      "row1.right.numerator.args.0",
-      "row1.right.denominator.args.1.numerator.args.0",
-    ],
-    velocityInMovingFrame: [
-      "row1.right.numerator.args.1",
-      "row1.right.denominator.args.1.numerator.args.1",
-    ],
-    speedOfLight: ["row1.right.denominator.args.1.denominator.base"],
-  },
-  "eq-s7-d3": {
-    waveAngularFrequencyMoving: ["row1.left"],
-    waveAngularFrequencyStationary: ["row1.right.args.0"],
-    lorentzFactor: ["row1.right.args.1"],
-    directionCosineStationary: [
-      "row1.right.args.2.argument.args.1.argument.args.0",
-    ],
-    frameSpeed: ["row1.right.args.2.argument.args.1.argument.args.1.numerator"],
-    speedOfLight: ["row1.right.args.2.argument.args.1.argument.args.1.denominator"],
-  },
-  "eq-s7-d4": {
-    directionCosineMoving: ["row1.left"],
-    directionCosineStationary: [
-      "row1.right.numerator.args.0",
-      "row1.right.denominator.args.1.argument.args.0",
-    ],
-    frameSpeed: [
-      "row1.right.numerator.args.1.argument.numerator",
-      "row1.right.denominator.args.1.argument.args.1.numerator",
-    ],
-    speedOfLight: [
-      "row1.right.numerator.args.1.argument.denominator",
-      "row1.right.denominator.args.1.argument.args.1.denominator",
-    ],
-  },
-  "eq-s7-d5": {
-    directionCosineMoving: ["row1.left"],
-    directionCosineStationary: [
-      "row1.right.numerator",
-      "row1.right.denominator.args.1.argument.args.1.argument.args.0",
-    ],
-    lorentzFactor: ["row1.right.denominator.args.0"],
-    frameSpeed: [
-      "row1.right.denominator.args.1.argument.args.1.argument.args.1.numerator",
-    ],
-    speedOfLight: [
-      "row1.right.denominator.args.1.argument.args.1.argument.args.1.denominator",
-    ],
-  },
-  "eq-s7-d6": {
-    directionCosineMoving: ["row1.left"],
-    directionCosineStationary: [
-      "row1.right.numerator",
-      "row1.right.denominator.args.1.argument.args.1.argument.args.0",
-    ],
-    lorentzFactor: ["row1.right.denominator.args.0"],
-    frameSpeed: [
-      "row1.right.denominator.args.1.argument.args.1.argument.args.1.numerator",
-    ],
-    speedOfLight: [
-      "row1.right.denominator.args.1.argument.args.1.argument.args.1.denominator",
-    ],
-  },
-  "eq-s7-d7": {
-    waveFrequencyMoving: ["row1.left"],
-    waveFrequencyStationary: ["row1.right.args.0"],
-    propagationAngleStationary: [
-      "row1.right.args.1.numerator.args.1.argument.args.0.argument",
-    ],
-    frameSpeed: [
-      "row1.right.args.1.numerator.args.1.argument.args.1.numerator",
-      "row1.right.args.1.denominator.radicand.args.1.argument.base.argument.numerator",
-    ],
-    speedOfLight: [
-      "row1.right.args.1.numerator.args.1.argument.args.1.denominator",
-      "row1.right.args.1.denominator.radicand.args.1.argument.base.argument.denominator",
-    ],
-  },
-  "eq-s7-d8": {
-    waveFrequencyMoving: ["row1.left"],
-    waveFrequencyStationary: ["row1.right.args.0"],
-    frameSpeed: [
-      "row1.right.args.1.radicand.numerator.args.1.argument.numerator",
-      "row1.right.args.1.radicand.denominator.args.1.numerator",
-    ],
-    speedOfLight: [
-      "row1.right.args.1.radicand.numerator.args.1.argument.denominator",
-      "row1.right.args.1.radicand.denominator.args.1.denominator",
-    ],
-  },
-  "eq-s7-d9": {
-    propagationAngleMoving: ["row1.left.argument"],
-    propagationAngleStationary: [
-      "row1.right.numerator.args.0.argument",
-      "row1.right.denominator.args.1.argument.args.1.argument",
-    ],
-    frameSpeed: [
-      "row1.right.numerator.args.1.argument.numerator",
-      "row1.right.denominator.args.1.argument.args.0.numerator",
-    ],
-    speedOfLight: [
-      "row1.right.numerator.args.1.argument.denominator",
-      "row1.right.denominator.args.1.argument.args.0.denominator",
-    ],
-  },
-  "eq-s7-d10": {
-    propagationAngleMoving: ["row1.left.argument"],
-    frameSpeed: ["row1.right.argument.numerator"],
-    speedOfLight: ["row1.right.argument.denominator"],
-  },
-  "eq-s7-d11": {
-    lightAmplitudeMoving: ["row1.left.base"],
-    lightAmplitudeStationary: ["row1.right.args.0.base"],
-    frameSpeed: [
-      "row1.right.args.1.numerator.base.argument.args.1.argument.args.0.numerator",
-      "row1.right.args.1.denominator.args.1.argument.base.argument.numerator",
-    ],
-    speedOfLight: [
-      "row1.right.args.1.numerator.base.argument.args.1.argument.args.0.denominator",
-      "row1.right.args.1.denominator.args.1.argument.base.argument.denominator",
-    ],
-    propagationAngleStationary: [
-      "row1.right.args.1.numerator.base.argument.args.1.argument.args.1.argument",
-    ],
-  },
-  "eq-s7-d12": {
-    lightAmplitudeMoving: ["row1.left.base"],
-    lightAmplitudeStationary: ["row1.right.args.0.base"],
-    frameSpeed: [
-      "row1.right.args.1.numerator.args.1.argument.numerator",
-      "row1.right.args.1.denominator.args.1.numerator",
-    ],
-    speedOfLight: [
-      "row1.right.args.1.numerator.args.1.argument.denominator",
-      "row1.right.args.1.denominator.args.1.denominator",
-    ],
-  },
-  "eq-s8-d3": {
-    lightComplexVolumeMoving: ["row1.left.numerator"],
-    lightComplexVolumeStationary: ["row1.left.denominator"],
-    frameSpeed: [
-      "row1.right.numerator.radicand.args.1.argument.base.argument.numerator",
-      "row1.right.denominator.args.1.argument.args.0.numerator",
-    ],
-    speedOfLight: [
-      "row1.right.numerator.radicand.args.1.argument.base.argument.denominator",
-      "row1.right.denominator.args.1.argument.args.0.denominator",
-    ],
-    propagationAngleStationary: [
-      "row1.right.denominator.args.1.argument.args.1.argument",
-    ],
-  },
-  "eq-s8-d5": {
-    lightComplexEnergyMoving: ["row1.left.numerator"],
-    lightComplexEnergyStationary: ["row1.left.denominator"],
-    frameSpeed: [
-      "row1.right.radicand.numerator.args.1.argument.numerator",
-      "row1.right.radicand.denominator.args.1.numerator",
-    ],
-    speedOfLight: [
-      "row1.right.radicand.numerator.args.1.argument.denominator",
-      "row1.right.radicand.denominator.args.1.denominator",
-    ],
-  },
-};
+const SOURCE_QUANTITY_PATHS: Readonly<Record<string, Readonly<Record<string, readonly string[]>>>> =
+  {
+    "eq-s5-d6": {
+      velocityComposed: ["row1.left"],
+      frameSpeed: ["row1.right.numerator.args.0", "row1.right.denominator.args.1.numerator.args.0"],
+      velocityInMovingFrame: [
+        "row1.right.numerator.args.1",
+        "row1.right.denominator.args.1.numerator.args.1",
+      ],
+      speedOfLight: ["row1.right.denominator.args.1.denominator.base"],
+    },
+    "eq-s7-d3": {
+      waveAngularFrequencyMoving: ["row1.left"],
+      waveAngularFrequencyStationary: ["row1.right.args.0"],
+      lorentzFactor: ["row1.right.args.1"],
+      directionCosineStationary: ["row1.right.args.2.argument.args.1.argument.args.0"],
+      frameSpeed: ["row1.right.args.2.argument.args.1.argument.args.1.numerator"],
+      speedOfLight: ["row1.right.args.2.argument.args.1.argument.args.1.denominator"],
+    },
+    "eq-s7-d4": {
+      directionCosineMoving: ["row1.left"],
+      directionCosineStationary: [
+        "row1.right.numerator.args.0",
+        "row1.right.denominator.args.1.argument.args.0",
+      ],
+      frameSpeed: [
+        "row1.right.numerator.args.1.argument.numerator",
+        "row1.right.denominator.args.1.argument.args.1.numerator",
+      ],
+      speedOfLight: [
+        "row1.right.numerator.args.1.argument.denominator",
+        "row1.right.denominator.args.1.argument.args.1.denominator",
+      ],
+    },
+    "eq-s7-d5": {
+      directionCosineMoving: ["row1.left"],
+      directionCosineStationary: [
+        "row1.right.numerator",
+        "row1.right.denominator.args.1.argument.args.1.argument.args.0",
+      ],
+      lorentzFactor: ["row1.right.denominator.args.0"],
+      frameSpeed: ["row1.right.denominator.args.1.argument.args.1.argument.args.1.numerator"],
+      speedOfLight: ["row1.right.denominator.args.1.argument.args.1.argument.args.1.denominator"],
+    },
+    "eq-s7-d6": {
+      directionCosineMoving: ["row1.left"],
+      directionCosineStationary: [
+        "row1.right.numerator",
+        "row1.right.denominator.args.1.argument.args.1.argument.args.0",
+      ],
+      lorentzFactor: ["row1.right.denominator.args.0"],
+      frameSpeed: ["row1.right.denominator.args.1.argument.args.1.argument.args.1.numerator"],
+      speedOfLight: ["row1.right.denominator.args.1.argument.args.1.argument.args.1.denominator"],
+    },
+    "eq-s7-d7": {
+      waveFrequencyMoving: ["row1.left"],
+      waveFrequencyStationary: ["row1.right.args.0"],
+      propagationAngleStationary: ["row1.right.args.1.numerator.args.1.argument.args.0.argument"],
+      frameSpeed: [
+        "row1.right.args.1.numerator.args.1.argument.args.1.numerator",
+        "row1.right.args.1.denominator.radicand.args.1.argument.base.argument.numerator",
+      ],
+      speedOfLight: [
+        "row1.right.args.1.numerator.args.1.argument.args.1.denominator",
+        "row1.right.args.1.denominator.radicand.args.1.argument.base.argument.denominator",
+      ],
+    },
+    "eq-s7-d8": {
+      waveFrequencyMoving: ["row1.left"],
+      waveFrequencyStationary: ["row1.right.args.0"],
+      frameSpeed: [
+        "row1.right.args.1.radicand.numerator.args.1.argument.numerator",
+        "row1.right.args.1.radicand.denominator.args.1.numerator",
+      ],
+      speedOfLight: [
+        "row1.right.args.1.radicand.numerator.args.1.argument.denominator",
+        "row1.right.args.1.radicand.denominator.args.1.denominator",
+      ],
+    },
+    "eq-s7-d9": {
+      propagationAngleMoving: ["row1.left.argument"],
+      propagationAngleStationary: [
+        "row1.right.numerator.args.0.argument",
+        "row1.right.denominator.args.1.argument.args.1.argument",
+      ],
+      frameSpeed: [
+        "row1.right.numerator.args.1.argument.numerator",
+        "row1.right.denominator.args.1.argument.args.0.numerator",
+      ],
+      speedOfLight: [
+        "row1.right.numerator.args.1.argument.denominator",
+        "row1.right.denominator.args.1.argument.args.0.denominator",
+      ],
+    },
+    "eq-s7-d10": {
+      propagationAngleMoving: ["row1.left.argument"],
+      frameSpeed: ["row1.right.argument.numerator"],
+      speedOfLight: ["row1.right.argument.denominator"],
+    },
+    "eq-s7-d11": {
+      lightAmplitudeMoving: ["row1.left.base"],
+      lightAmplitudeStationary: ["row1.right.args.0.base"],
+      frameSpeed: [
+        "row1.right.args.1.numerator.base.argument.args.1.argument.args.0.numerator",
+        "row1.right.args.1.denominator.args.1.argument.base.argument.numerator",
+      ],
+      speedOfLight: [
+        "row1.right.args.1.numerator.base.argument.args.1.argument.args.0.denominator",
+        "row1.right.args.1.denominator.args.1.argument.base.argument.denominator",
+      ],
+      propagationAngleStationary: [
+        "row1.right.args.1.numerator.base.argument.args.1.argument.args.1.argument",
+      ],
+    },
+    "eq-s7-d12": {
+      lightAmplitudeMoving: ["row1.left.base"],
+      lightAmplitudeStationary: ["row1.right.args.0.base"],
+      frameSpeed: [
+        "row1.right.args.1.numerator.args.1.argument.numerator",
+        "row1.right.args.1.denominator.args.1.numerator",
+      ],
+      speedOfLight: [
+        "row1.right.args.1.numerator.args.1.argument.denominator",
+        "row1.right.args.1.denominator.args.1.denominator",
+      ],
+    },
+    "eq-s8-d3": {
+      lightComplexVolumeMoving: ["row1.left.numerator"],
+      lightComplexVolumeStationary: ["row1.left.denominator"],
+      frameSpeed: [
+        "row1.right.numerator.radicand.args.1.argument.base.argument.numerator",
+        "row1.right.denominator.args.1.argument.args.0.numerator",
+      ],
+      speedOfLight: [
+        "row1.right.numerator.radicand.args.1.argument.base.argument.denominator",
+        "row1.right.denominator.args.1.argument.args.0.denominator",
+      ],
+      propagationAngleStationary: ["row1.right.denominator.args.1.argument.args.1.argument"],
+    },
+    "eq-s8-d5": {
+      lightComplexEnergyMoving: ["row1.left.numerator"],
+      lightComplexEnergyStationary: ["row1.left.denominator"],
+      frameSpeed: [
+        "row1.right.radicand.numerator.args.1.argument.numerator",
+        "row1.right.radicand.denominator.args.1.numerator",
+      ],
+      speedOfLight: [
+        "row1.right.radicand.numerator.args.1.argument.denominator",
+        "row1.right.radicand.denominator.args.1.denominator",
+      ],
+    },
+  };
 
 export const RELATIVITY_CONSEQUENCE_GUIDES: Readonly<Record<string, RelativityOperationGuide>> =
   Object.fromEntries(

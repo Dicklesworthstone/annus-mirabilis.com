@@ -191,7 +191,13 @@ describe("printed velocity, wave and light-complex operations", () => {
 
   test("angular and cyclic frequency share a Doppler factor without becoming the same quantity", () => {
     const cyclic = rhs("eq-s7-d7", { "\\nu": 100, "\\varphi": Math.PI / 3, v: 6, V: 10 });
-    const angular = rhs("eq-s7-d3", { "\\omega": 200 * Math.PI, "\\beta": 1.25, a: 0.5, v: 6, V: 10 });
+    const angular = rhs("eq-s7-d3", {
+      "\\omega": 200 * Math.PI,
+      "\\beta": 1.25,
+      a: 0.5,
+      v: 6,
+      V: 10,
+    });
     expect(cyclic).toBeCloseTo(87.5, 12);
     expect(angular).toBeCloseTo(2 * Math.PI * cyclic, 12);
     expect(angular).not.toBeCloseTo(cyclic, 8);
@@ -253,7 +259,8 @@ describe("a dimensionally plausible substitution cannot inherit a different scie
       const parsed = parseSourceExpression(changed, RELATIVITY_OPERATION_GUIDES[id]?.symbolIndices);
       for (const { tree } of parsed.rows)
         expect(
-          checkDimensions(tree, sourceDimensionRegistry(quantities), { context: "gaussian-cgs" }).status,
+          checkDimensions(tree, sourceDimensionRegistry(quantities), { context: "gaussian-cgs" })
+            .status,
         ).toBe("consistent");
       refuses(() => compile(changed), "printed-source-operation");
       expect(() => compile(value)).not.toThrow();
@@ -262,9 +269,11 @@ describe("a dimensionally plausible substitution cannot inherit a different scie
 
   test("exchanging two same-dimension owners cannot preserve a reversed ratio or frame assignment", () => {
     const cases: readonly (readonly [string, string, string])[] = [
-      ...Object.keys(RELATIVITY_CONSEQUENCE_GUIDES).map(
-        (id): readonly [string, string, string] => [id, "frameSpeed", "speedOfLight"],
-      ),
+      ...Object.keys(RELATIVITY_CONSEQUENCE_GUIDES).map((id): readonly [string, string, string] => [
+        id,
+        "frameSpeed",
+        "speedOfLight",
+      ]),
       ["eq-s7-d3", "waveAngularFrequencyMoving", "waveAngularFrequencyStationary"],
       ["eq-s7-d7", "waveFrequencyMoving", "waveFrequencyStationary"],
       ["eq-s7-d9", "propagationAngleMoving", "propagationAngleStationary"],
@@ -295,7 +304,8 @@ describe("a dimensionally plausible substitution cannot inherit a different scie
       const parsed = parseSourceExpression(changed, RELATIVITY_OPERATION_GUIDES[id]?.symbolIndices);
       for (const { tree } of parsed.rows)
         expect(
-          checkDimensions(tree, sourceDimensionRegistry(quantities), { context: "gaussian-cgs" }).status,
+          checkDimensions(tree, sourceDimensionRegistry(quantities), { context: "gaussian-cgs" })
+            .status,
         ).toBe("consistent");
       refuses(() => compile(changed), "printed-source-operation");
       expect(() => compile(value)).not.toThrow();
@@ -321,10 +331,7 @@ describe("a dimensionally plausible substitution cannot inherit a different scie
       () => compile(replace(display("eq-s7-d8"), "1 - ", "2 - ")),
       "printed-source-operation",
     );
-    refuses(
-      () => compile(replace(display("eq-s7-d11"), "^2", "^4")),
-      "printed-source-dimension",
-    );
+    refuses(() => compile(replace(display("eq-s7-d11"), "^2", "^4")), "printed-source-dimension");
     refuses(
       () => compile(replace(display("eq-s7-d9"), "\\cos", "\\lg")),
       "printed-source-operation",

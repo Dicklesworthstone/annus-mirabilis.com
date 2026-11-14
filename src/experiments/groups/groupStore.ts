@@ -1,5 +1,7 @@
+import { type ApplyFailure, applyFailure, failureFromThrown } from "../results/applyFailure.ts";
+import { type ExecutionOutcome, executionOutcomeRegistry } from "../results/outcomes.ts";
 import { makeRefusal, type RequestRefusal } from "../results/refusals.ts";
-import type { AcceptedSnapshot } from "../store/instanceStore.ts";
+import type { AcceptedSnapshot, RequestToken } from "../store/instanceStore.ts";
 import type { GroupMemberPort } from "./memberPort.ts";
 import {
   type ExperimentGroupDefinition,
@@ -9,15 +11,17 @@ import {
 
 export type GroupAction =
   | Readonly<{ kind: "accepted"; generationId: number }>
-  | Readonly<{ kind: "refused"; refusal: RequestRefusal }>;
+  | Readonly<{ kind: "refused"; refusal: RequestRefusal }>
+  | Readonly<{ kind: "outcome"; outcome: ExecutionOutcome }>;
 
 export type GroupMemberState = Readonly<{
   instanceId: string;
   instrumentId: string;
   label: string;
-  status: "independent" | "pending" | "accepted" | "refused";
+  status: "independent" | "pending" | "accepted" | "refused" | "unavailable";
   accepted: AcceptedSnapshot | null;
   refusal: RequestRefusal | null;
+  failure?: ApplyFailure | null;
 }>;
 
 export type CoherentGroupSnapshot = Readonly<{
@@ -33,7 +37,7 @@ export type CoherentGroupSnapshot = Readonly<{
 export type ExperimentGroupState = Readonly<{
   enabled: boolean;
   generationId: number;
-  phase: "independent" | "pending" | "accepted" | "refused";
+  phase: "independent" | "pending" | "accepted" | "refused" | "incomplete";
   requestedValueSI: number | null;
   coherent: CoherentGroupSnapshot | null;
   /** Last unlinked descriptions, kept until the first coherent generation exists. */
@@ -41,26 +45,42 @@ export type ExperimentGroupState = Readonly<{
   members: readonly GroupMemberState[];
   message: string;
   refusal: RequestRefusal | null;
+  failure?: ApplyFailure | null;
 }>;
 
 function refused(
   requirements: string,
-  parameterId = "beta",
+  parameterId?: string,
   instrumentId?: string,
 ): RequestRefusal {
-  return makeRefusal(
-    "invalid-parameter",
-    { parameterIds: [parameterId] },
-    {
-      details: { requirements, ...(instrumentId ? { instrumentId } : {}) },
-    },
-  );
+  return makeRefusal("invalid-parameter", parameterId ? { parameterIds: [parameterId] } : {}, {
+    details: { requirements, ...(instrumentId ? { instrumentId } : {}) },
+  });
 }
 
 function sameValue(left: number | null, right: number): boolean {
   return (
     left !== null &&
     Math.abs(left - right) <= 8 * Number.EPSILON * Math.max(1, Math.abs(left), Math.abs(right))
+  );
+}
+
+function matchesIssued(snapshot: AcceptedSnapshot, token: RequestToken | null): boolean {
+  if (token === null) return true;
+  return (
+    snapshot.instanceId === token.instanceId &&
+    snapshot.experimentId === token.experimentId &&
+    snapshot.runId === token.runId &&
+    snapshot.actionIndex === token.actionIndex &&
+    Object.keys(token.revisions).every(
+      (key) =>
+        snapshot.revisions[key as keyof RequestToken["revisions"]] ===
+        token.revisions[key as keyof RequestToken["revisions"]],
+    ) &&
+    Object.keys(snapshot.parameters).length === Object.keys(token.parameters).length &&
+    Object.keys(token.parameters).every((key) =>
+      Object.is(snapshot.parameters[key], token.parameters[key]),
+    )
   );
 }
 
@@ -72,6 +92,7 @@ function sameValue(left: number | null, right: number): boolean {
 export function createExperimentGroup(
   definition: ExperimentGroupDefinition,
   initialMembers: readonly GroupMemberPort[],
+  options: Readonly<{ onError?: (error: unknown) => void }> = {},
 ) {
   function admitted(port: GroupMemberPort): boolean {
     const declared = definition.members.find((member) => member === port.definition);
@@ -97,11 +118,13 @@ export function createExperimentGroup(
   const subscriptions = new Map<string, () => void>();
   const listeners = new Set<() => void>();
   let connected = false;
-  let dispatching = false;
+  let dispatching = 0;
   type Ticket = {
     actionIndex: number | null;
-    refusal: RequestRefusal | null;
+    failure: ApplyFailure | null;
     previousRunId: string | null;
+    previousValueSI: number | null;
+    token: RequestToken | null;
   };
   type Flight = { generationId: number; valueSI: number; tickets: Map<string, Ticket> };
   let flight: Flight | null = null;
@@ -131,13 +154,30 @@ export function createExperimentGroup(
       beforeLink.flatMap((member) => (member.accepted ? [member.accepted] : [])),
     ),
     message:
-      "These instruments have independent observer controls. Link them when you want one observer.",
+      "These instruments have independent controls. Link them to share the declared quantity.",
     refusal: null,
   });
   const serverState = state;
   function emit(patch: Partial<ExperimentGroupState>) {
     state = Object.freeze({ ...state, ...patch });
-    for (const listener of listeners) listener();
+    for (const listener of [...listeners]) {
+      try {
+        listener();
+      } catch (error) {
+        if (options.onError) {
+          try {
+            options.onError(error);
+          } catch (reportingError) {
+            queueMicrotask(() => {
+              throw reportingError;
+            });
+          }
+        } else
+          queueMicrotask(() => {
+            throw error;
+          });
+      }
+    }
   }
 
   function refresh() {
@@ -158,15 +198,18 @@ export function createExperimentGroup(
     const members = [...ports.values()].map((port): GroupMemberState => {
       const view = port.getSnapshot();
       const ticket = current.tickets.get(port.instanceId);
-      let failure = ticket?.refusal ?? null;
+      let failure = ticket?.failure ?? null;
       let status: GroupMemberState["status"] = "pending";
       if (ticket && ticket.actionIndex !== null) {
         if (view.requested && view.requested.actionIndex > ticket.actionIndex)
-          failure = refused(
-            "This instrument received a newer independent request. Apply the shared speed again or unlink.",
-            port.definition.parameterId,
-            port.definition.instrumentId,
-          );
+          failure = applyFailure({
+            kind: "refused",
+            refusal: refused(
+              "This instrument received a newer independent request. Apply the shared value again or unlink.",
+              port.definition.parameterId,
+              port.definition.instrumentId,
+            ),
+          });
         else if (!view.pending && view.requested?.actionIndex === ticket.actionIndex) {
           if (
             view.status === "accepted" &&
@@ -174,8 +217,16 @@ export function createExperimentGroup(
             view.accepted.actionIndex === ticket.actionIndex &&
             view.accepted.instanceId === port.instanceId &&
             view.accepted.experimentId === port.definition.instrumentId &&
-            view.accepted.runId === ticket.previousRunId &&
-            sameValue(port.valueSI(view.accepted), current.valueSI)
+            (definition.commandClass === "observer-change"
+              ? view.accepted.runId === ticket.previousRunId
+              : ticket.token !== null &&
+                view.accepted.runId === ticket.token.runId &&
+                (ticket.previousValueSI === current.valueSI ||
+                  ticket.token.runId !== ticket.previousRunId)) &&
+            matchesIssued(view.accepted, ticket.token) &&
+            (definition.conversion === "none"
+              ? port.valueSI(view.accepted) === current.valueSI
+              : sameValue(port.valueSI(view.accepted), current.valueSI))
           ) {
             status = "accepted";
             accepted.push(
@@ -186,34 +237,40 @@ export function createExperimentGroup(
               }),
             );
           } else if (view.status === "accepted") {
-            failure = refused(
-              "The returned observer description does not preserve this run or match the shared speed.",
-              port.definition.parameterId,
-              port.definition.instrumentId,
-            );
-          } else {
-            failure =
-              view.refusal ??
-              refused(
-                "This instrument could not complete the shared observer change. The last complete comparison is kept.",
+            failure = applyFailure({
+              kind: "refused",
+              refusal: refused(
+                "The returned result does not match the issued run and shared value.",
                 port.definition.parameterId,
                 port.definition.instrumentId,
-              );
+              ),
+            });
+          } else {
+            failure = view.refusal
+              ? applyFailure({ kind: "refused", refusal: view.refusal })
+              : view.outcome
+                ? applyFailure({ kind: "outcome", outcome: view.outcome })
+                : {
+                    kind: "unexplained",
+                    resultKind: view.status,
+                    text: "This instrument did not complete the shared change. The last complete comparison is kept. Apply again to retry.",
+                  };
           }
         }
       }
-      if (failure) status = "refused";
+      if (failure) status = failure.kind === "refused" ? "refused" : "unavailable";
       return Object.freeze({
         instanceId: port.instanceId,
         instrumentId: port.definition.instrumentId,
         label: port.definition.label,
         status,
         accepted: view.accepted,
-        refusal: failure,
+        refusal: failure?.kind === "refused" ? failure.refusal : null,
+        failure,
       });
     });
     if (flight !== current) return;
-    const failure = members.find((member) => member.refusal)?.refusal ?? null;
+    const failure = members.find((member) => member.failure)?.failure ?? null;
     if (!failure && accepted.length === ports.size && ports.size >= 2) {
       emit({
         phase: "accepted",
@@ -224,15 +281,19 @@ export function createExperimentGroup(
           members: Object.freeze(accepted),
         }),
         refusal: null,
+        failure: null,
         message:
-          "All linked instruments now describe the same observer. The light and each experiment's run are unchanged.",
+          definition.commandClass === "observer-change"
+            ? "All linked instruments now describe the same observer. The light and each experiment's run are unchanged."
+            : "All linked instruments now use the same particle radius. Each setup has its own accepted run.",
       });
       return;
     }
     emit({
-      phase: failure ? "refused" : "pending",
+      phase: failure ? (failure.kind === "refused" ? "refused" : "incomplete") : "pending",
       members: Object.freeze(members),
-      refusal: failure,
+      refusal: failure?.kind === "refused" ? failure.refusal : null,
+      failure,
       message: failure
         ? state.coherent
           ? "The shared change did not complete. The last complete comparison remains below."
@@ -246,7 +307,7 @@ export function createExperimentGroup(
       return {
         kind: "refused",
         refusal: refused(
-          "Link at least two mounted instruments before changing their shared observer.",
+          "Link at least two mounted instruments before changing their shared quantity.",
         ),
       };
     const excluding = [...ports.values()].find(
@@ -255,7 +316,7 @@ export function createExperimentGroup(
     if (excluding) {
       flight = null; // No older response may publish as the result of the refused request.
       const failure = refused(
-        `The observer speed is outside the admitted range for ${excluding.definition.label}. Keep a speed within the shared range.`,
+        `The shared value is outside the admitted range for ${excluding.definition.instrumentId.toUpperCase()} (${excluding.definition.label}). Keep a value within the shared range.`,
         excluding.definition.parameterId,
         excluding.definition.instrumentId,
       );
@@ -265,10 +326,22 @@ export function createExperimentGroup(
         requestedValueSI: Number.isFinite(valueSI) ? valueSI : null,
         members: Object.freeze(
           independentMembers().map((member) =>
-            Object.freeze({ ...member, status: "refused" as const, refusal: failure }),
+            Object.freeze({
+              ...member,
+              status:
+                member.instanceId === excluding.instanceId
+                  ? ("refused" as const)
+                  : ("independent" as const),
+              refusal: member.instanceId === excluding.instanceId ? failure : null,
+              failure:
+                member.instanceId === excluding.instanceId
+                  ? applyFailure({ kind: "refused", refusal: failure })
+                  : null,
+            }),
           ),
         ),
         refusal: failure,
+        failure: applyFailure({ kind: "refused", refusal: failure }),
         message: state.coherent
           ? "No member was changed. The last complete comparison is kept."
           : "No member was changed. The separate accepted descriptions are kept.",
@@ -283,14 +356,18 @@ export function createExperimentGroup(
           port.instanceId,
           {
             actionIndex: null,
-            refusal: null,
+            failure: null,
             previousRunId: port.getSnapshot().accepted?.runId ?? null,
+            previousValueSI: port.getSnapshot().accepted
+              ? port.valueSI(port.getSnapshot().accepted as AcceptedSnapshot)
+              : null,
+            token: null,
           },
         ]),
       ),
     };
     flight = current;
-    dispatching = true;
+    dispatching += 1;
     emit({
       enabled: true,
       generationId: current.generationId,
@@ -302,7 +379,8 @@ export function createExperimentGroup(
         ),
       ),
       refusal: null,
-      message: "Applying one observer speed to the linked instruments.",
+      failure: null,
+      message: "Applying one shared value to the linked instruments.",
     });
     try {
       for (const port of ports.values()) {
@@ -315,29 +393,41 @@ export function createExperimentGroup(
             result.kind === "accepted" &&
             Number.isSafeInteger(result.actionIndex) &&
             result.actionIndex >= 0
-          )
+          ) {
             ticket.actionIndex = result.actionIndex;
-          else
-            ticket.refusal =
-              result.kind === "refused"
-                ? result.refusal
-                : refused(
-                    "The instrument did not identify its observer request.",
-                    port.definition.parameterId,
-                    port.definition.instrumentId,
-                  );
-        } catch {
-          ticket.refusal = refused(
-            "The instrument could not apply this observer change. The last complete comparison is kept.",
-            port.definition.parameterId,
-            port.definition.instrumentId,
+            ticket.token = result.token ?? null;
+            if (definition.commandClass === "setup-change" && ticket.token === null)
+              ticket.failure = {
+                kind: "unexplained",
+                resultKind: "missing-request-token",
+                text: "The instrument did not identify its setup request.",
+              };
+          } else
+            ticket.failure = applyFailure(result) ?? {
+              kind: "unexplained",
+              resultKind: "missing-action-index",
+              text: "The instrument did not identify its shared request.",
+            };
+        } catch (error) {
+          ticket.failure = failureFromThrown(
+            error,
+            "The instrument could not apply the shared change. The last complete comparison is kept.",
           );
         }
       }
     } finally {
-      dispatching = false;
+      dispatching -= 1;
     }
-    if (flight === current) refresh();
+    // A nested change can finish while dispatch is still batched. Reconcile the newest flight
+    // after the outer dispatch unwinds, even when this caller has been superseded.
+    refresh();
+    if (flight !== current)
+      return {
+        kind: "outcome",
+        outcome: { outcome: "superseded", ...executionOutcomeRegistry.superseded },
+      };
+    if (state.failure?.kind === "unavailable")
+      return { kind: "outcome", outcome: state.failure.outcome };
     return state.phase === "refused" && state.refusal
       ? { kind: "refused", refusal: state.refusal }
       : { kind: "accepted", generationId: current.generationId };
@@ -355,8 +445,8 @@ export function createExperimentGroup(
         members.flatMap((member) => (member.accepted ? [member.accepted] : [])),
       ),
       refusal: null,
-      message:
-        "The observers are unlinked. Each instrument keeps its current accepted speed and run.",
+      failure: null,
+      message: "The instruments are unlinked. Each keeps its current accepted value and run.",
     });
   }
 
@@ -386,11 +476,15 @@ export function createExperimentGroup(
       if (!connected || ports.size < 2)
         return {
           kind: "refused",
-          refusal: refused("At least two mounted instruments are needed for a shared observer."),
+          refusal: refused("At least two mounted instruments are needed for a shared quantity."),
         };
       // A failed first link still labels the controls as linked and keeps each static example
       // separately labelled until the first complete generation exists.
-      state = Object.freeze({ ...state, enabled: true });
+      state = Object.freeze({
+        ...state,
+        enabled: true,
+        coherent: state.enabled ? state.coherent : null,
+      });
       return change(valueSI);
     },
     change,

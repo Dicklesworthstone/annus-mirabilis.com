@@ -1,0 +1,53 @@
+.linked-radius-control {
+  padding: 1.25rem;
+  border-block: 1px solid var(--line);
+  background: var(--panel);
+}
+.linked-radius-chip,
+.linked-radius-form {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 0.8rem 1.25rem;
+}
+.linked-radius-chip {
+  align-items: center;
+  font-size: var(--type-fine);
+}
+.linked-radius-chip button {
+  margin-inline-start: auto;
+}
+.linked-radius-form .input-field {
+  flex: 1 1 12rem;
+  max-width: 21rem;
+}
+.linked-brownian label {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  margin-bottom: 0.35rem;
+}
+.linked-brownian-members {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+.linked-brownian-members .laboratory {
+  min-width: 0;
+  padding: clamp(1rem, 2vw, 1.75rem);
+}
+.linked-brownian-members h3 {
+  margin-top: 0;
+}
+.linked-brownian-members form button {
+  margin-top: 0.6rem;
+}
+@media (max-width: 720px) {
+  .linked-brownian-members {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .linked-radius-form button {
+    width: 100%;
+  }
+}

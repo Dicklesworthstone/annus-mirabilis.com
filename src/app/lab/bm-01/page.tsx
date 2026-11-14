@@ -33,6 +33,10 @@ export default function TracerPage() {
         <h2>From this trial</h2>
         <ul>
           <li>
+            <a href="/lab/bm-01/linked/">Link the tracer ensemble and its probability curve</a>, and
+            change one particle radius in both instruments.
+          </li>
+          <li>
             <a href="/lab/bm-01/compare/">Change one input and compare</a>: radius, viscosity,
             temperature or observation interval, side by side.
           </li>

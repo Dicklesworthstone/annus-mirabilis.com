@@ -301,7 +301,7 @@ describe("independent dimension premises and truthful operation readings", () =>
     expect(() => compile(d)).not.toThrow();
   });
 
-  test("a cosine cannot inherit logarithm prose, nor a logarithm inherit the mass-energy cosine reading (sourceSemantics.ts:439)", async () => {
+  test("a cosine cannot inherit logarithm prose, nor a logarithm inherit the mass-energy cosine reading (sourceSemantics.ts:444)", async () => {
     const lq = display("eq-s4-d5");
     const wrongCosine = replaceOperator(lq, "\\lg", "\\cos");
     expect(refuses(() => compile(wrongCosine), "printed-source-operation")).toContain(

@@ -30,6 +30,10 @@ export default function BrownianLabPage() {
         <h2>From here</h2>
         <ul>
           <li>
+            <a href="/lab/bm-01/linked/">Link the tracer ensemble and its probability curve</a>, and
+            change one particle radius in both instruments.
+          </li>
+          <li>
             <a href="/discover/brownian-motion/">Start with the no-algebra encounter</a>
           </li>
           <li>

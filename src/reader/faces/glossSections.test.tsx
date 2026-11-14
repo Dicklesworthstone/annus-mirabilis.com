@@ -109,9 +109,9 @@ describe("the gloss's sections", () => {
     if (declared === undefined) return;
     const sections = declared.replaceAll("&quot;", '"');
     expect(contents.match(/(?:^|\s)id="s0"/g)).toHaveLength(1);
-    expect(
-      glossPageForStrandedAnchor("s0", `/papers/${paper}/s10/view/gloss/`, sections),
-    ).toBe(`/papers/${paper}/s0/view/gloss/#s0`);
+    expect(glossPageForStrandedAnchor("s0", `/papers/${paper}/s10/view/gloss/`, sections)).toBe(
+      `/papers/${paper}/s0/view/gloss/#s0`,
+    );
     const pages = new Map<string, string>();
     for (const [anchor, section] of [
       ["eq-s7-d1", "s7"],

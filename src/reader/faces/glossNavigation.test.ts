@@ -101,9 +101,7 @@ describe("a paginated gloss keeps every declared kind of source address", () => 
       ]),
     );
     for (const id of ["s7-p1-s1-m1", "s7-p1-s1-m2"])
-      expect(glossPageForStrandedAnchor(id, PATH, sections)).toBe(
-        `${PAPER}/s7/view/gloss/#${id}`,
-      );
+      expect(glossPageForStrandedAnchor(id, PATH, sections)).toBe(`${PAPER}/s7/view/gloss/#${id}`);
     expect(glossPageForStrandedAnchor("s7-p1-s1-m99", PATH, sections)).toBeNull();
   });
 

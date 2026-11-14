@@ -11,7 +11,7 @@ import {
   type Sr10Parameters,
 } from "../sr10/definition.ts";
 import { validateSr10Parameters } from "../sr10/parameters.ts";
-import { snapshotOutputs } from "../sr10/session.ts";
+import { createSr10Session, snapshotOutputs } from "../sr10/session.ts";
 import { createInstanceStore, type Parameters, type RequestToken } from "../store/instanceStore.ts";
 import { createExperimentGroup } from "./groupStore.ts";
 import { loadRelativityObserverGroup } from "./load.ts";
@@ -98,6 +98,33 @@ function comparison(id: string) {
 }
 
 describe("coherent generations with real independently owned snapshots", () => {
+  test("a reentrant newer synchronous observer generation settles when the outer dispatch unwinds", () => {
+    const doppler = createSr09Session("nested-doppler");
+    const light = createSr10Session("nested-light");
+    const group = createExperimentGroup(definition, [
+      createGroupMemberPort(definition, "sr-09", doppler, SR09_CLASSES),
+      createGroupMemberPort(definition, "sr-10", light, SR10_CLASSES),
+    ]);
+    group.connect();
+    let nested = false;
+    const unsubscribe = doppler.subscribe(() => {
+      if (!nested && doppler.getSnapshot().pending) {
+        nested = true;
+        group.change(speed(0.4));
+      }
+    });
+    const first = group.link(speed(0.2));
+    expect(nested).toBe(true);
+    expect(first.kind).toBe("outcome");
+    expect(group.getSnapshot().phase).toBe("accepted");
+    expect(group.getSnapshot().coherent?.generationId).toBe(2);
+    expect(
+      group.getSnapshot().coherent?.members.map((member) => member.snapshot.parameters.beta),
+    ).toEqual([0.4, 0.4]);
+    unsubscribe();
+    group.disconnect();
+  });
+
   test("one pending or partial member cannot publish a coherent comparison", () => {
     const { group, light } = comparison("pending");
     const separate = group.getSnapshot().independentSnapshots;
@@ -189,7 +216,7 @@ describe("coherent generations with real independently owned snapshots", () => {
     group.disconnect();
   });
 
-  test("invalid-experiment-group refuses duplicate instances or a forged member domain (groupStore.ts:92)", () => {
+  test("invalid-experiment-group refuses duplicate instances or a forged member domain (groupStore.ts:113)", () => {
     const { group, ports } = comparison("identity");
     assert(ports[0] && ports[1]);
     expect(() => createExperimentGroup(definition, [ports[0], ports[0]])).toThrow(

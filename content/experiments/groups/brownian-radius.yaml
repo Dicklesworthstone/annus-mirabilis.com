@@ -1,0 +1,16 @@
+schemaVersion: 1
+groupId: brownian-radius
+label: Shared particle radius
+quantityId: particleRadius
+canonicalUnit: m
+commandClass: setup-change
+direction: propagates
+conversion: none
+commitPolicy: coherent
+defaultEnabled: false
+members:
+  - instrumentId: bm-01
+    parameterId: a
+  - instrumentId: bm-06
+    parameterId: a
+
