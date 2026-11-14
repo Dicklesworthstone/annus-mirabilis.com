@@ -56,6 +56,8 @@ import {
 import "./reader.css";
 import { PaperDiscovery } from "./PaperDiscovery.tsx";
 import { PassageProjections } from "./PassageProjections.tsx";
+import { practiceNavigationFor } from "./practice/catalogue.ts";
+import { PassagePractice } from "./practice/PassagePractice.tsx";
 import { loadPassageProjections } from "./projections/passageProjections.ts";
 import { SectionTapes } from "./SectionTapes.tsx";
 
@@ -124,17 +126,22 @@ export async function PaperReader({
   // The first encounter is shown on the whole paper and on §4. Its lesson link opens the lesson
   // beside the text, as the other papers' entrances do, so it is a place the reader returns to.
   const showsEntrance = !section || section === "s4";
+  const practiceNavigation = practiceNavigationFor(paper.id, section, args);
   const anchors = [
     ...(showsEntrance ? [ENTRY_ANCHOR] : []),
     ...args.map((a) => a.id),
     ...sections.map((s) => s.id),
+    ...practiceNavigation.anchors,
   ];
   const registry = { paperId: paper.id, anchors, foundations: foundations.map((f) => f.id) };
   // The Letters control says how many of the paper's formulas it redraws (paperEquations.ts).
   const reach = notationReach(paper.id);
   const notationHelp = reach ? notationReachLine(reach) : undefined;
   const titles = Object.fromEntries(foundations.map((f) => [f.id, f.title]));
-  const questions = Object.fromEntries(args.map((a) => [a.id, a.question]));
+  const questions = {
+    ...Object.fromEntries(args.map((a) => [a.id, a.question])),
+    ...practiceNavigation.questions,
+  };
   if (showsEntrance) questions[ENTRY_ANCHOR] = validateEntranceRecord(brownianEntrance).question;
   /*
     THE COMPANION ON A SECTION PAGE: the page the section was printed on, and a key to its symbols.
@@ -494,6 +501,13 @@ export async function PaperReader({
                         </summary>
                         <ReadingBlocks blocks={a.readings.margin} foundations={foundations} />
                       </details>
+                      <PassagePractice
+                        paperId={paper.id}
+                        sectionId={a.section}
+                        argumentId={a.id}
+                        passageTitle={a.title}
+                        sectionPage={section !== undefined}
+                      />
                     </div>
                     <div data-face-results hidden>
                       <p>{a.recap}</p>

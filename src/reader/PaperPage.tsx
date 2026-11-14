@@ -90,6 +90,8 @@ import "./paperLayout.css";
 import { PaperChapterInvestigation } from "./PaperChapterInvestigation.tsx";
 import { PaperDiscovery } from "./PaperDiscovery.tsx";
 import { PassageProjections } from "./PassageProjections.tsx";
+import { practiceNavigationFor } from "./practice/catalogue.ts";
+import { PassagePractice } from "./practice/PassagePractice.tsx";
 import { loadPassageProjections } from "./projections/passageProjections.ts";
 import { SectionTapes } from "./SectionTapes.tsx";
 
@@ -483,17 +485,22 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
       : entrance
         ? "entry-mass-energy"
         : null;
+  const practiceNavigation = practiceNavigationFor(paper.id, sectionId, args);
   const anchors = [
     ...(entryAnchor && (!sectionId || entrance) ? [entryAnchor] : []),
     ...args.map((a) => a.id),
     ...sections.map((s) => s.id),
+    ...practiceNavigation.anchors,
   ];
   const registry = { paperId: paper.id, anchors, foundations: foundations.map((f) => f.id) };
   // The Letters control says how many of the paper's formulas it redraws (paperEquations.ts).
   const reach = notationReach(paper.id);
   const notationHelp = reach ? notationReachLine(reach) : undefined;
   const titles = Object.fromEntries(foundations.map((f) => [f.id, f.title]));
-  const questions = Object.fromEntries(args.map((a) => [a.id, a.question]));
+  const questions = {
+    ...Object.fromEntries(args.map((a) => [a.id, a.question])),
+    ...practiceNavigation.questions,
+  };
   if (entrance) questions["entry-mass-energy"] = entrance.question;
   if (lightEntrance) questions["entry-light-quanta"] = lightEntrance.question;
   if (clockEntrance) questions["entry-special-relativity"] = clockEntrance.question;
@@ -820,6 +827,13 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                           scope={{ paper: paper.id, section: a.section, where: `${a.id} margin` }}
                         />
                       </details>
+                      <PassagePractice
+                        paperId={paper.id}
+                        sectionId={a.section}
+                        argumentId={a.id}
+                        passageTitle={a.title}
+                        sectionPage={sectionId !== undefined}
+                      />
                     </div>
                     <div data-face-results hidden>
                       <p>{a.recap}</p>
