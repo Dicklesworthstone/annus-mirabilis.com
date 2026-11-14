@@ -338,7 +338,13 @@ export default function LightQuantaRoute() {
                 relativity paper uses the same letter for 1/√(1 − <em>v</em>²/<em>V</em>²), a
                 different quantity.
               </p>
-              <ExercisePart part={ENTROPY_COUNT_EXERCISE} />
+              <ExercisePart
+                part={ENTROPY_COUNT_EXERCISE}
+                notebook={{
+                  title: "Count the independent radiation units",
+                  sourceAnchor: "arg-lq-entropy-correspondence",
+                }}
+              />
               <details>
                 <summary>What has and has not been established</summary>
                 <p>
@@ -403,12 +409,24 @@ export default function LightQuantaRoute() {
                 </p>
               </details>
               <p>First write the rule about the electrons as a formula.</p>
-              <ExercisePart part={GREATEST_ENERGY_EXERCISE} />
+              <ExercisePart
+                part={GREATEST_ENERGY_EXERCISE}
+                notebook={{
+                  title: "The greatest escaping electron energy",
+                  sourceAnchor: "arg-lq-photoelectric-energy",
+                }}
+              />
               <p>
                 Then try it on numbers. It needs one constant, and here it takes today&rsquo;s
                 value.
               </p>
-              <NumericPart part={GREATEST_ELECTRON_ENERGY} />
+              <NumericPart
+                part={GREATEST_ELECTRON_ENERGY}
+                notebook={{
+                  title: "Calculate the escaping electron energy",
+                  sourceAnchor: "arg-lq-photoelectric-energy",
+                }}
+              />
               <StepDoors>
                 <StepDoor href="/papers/light-quanta/s8/#arg-lq-photoelectric-energy">
                   Go straight to the explanation: what higher frequency changes, and what more light
@@ -460,11 +478,29 @@ export default function LightQuantaRoute() {
             text.
           </p>
           <p>First, read the constant off a line, as the photoelectric effect lets you.</p>
-          <NumericPart part={H_FROM_STOPPING_LINE} />
+          <NumericPart
+            part={H_FROM_STOPPING_LINE}
+            notebook={{
+              title: "Infer the energy scale from the stopping line",
+              sourceAnchor: "arg-lq-stopping-and-losses",
+            }}
+          />
           <p>Next, the lowest frequency that frees anything from a made-up surface.</p>
-          <NumericPart part={THRESHOLD_TWO_EV} />
+          <NumericPart
+            part={THRESHOLD_TWO_EV}
+            notebook={{
+              title: "Find the threshold frequency",
+              sourceAnchor: "arg-lq-photoelectric-energy",
+            }}
+          />
           <p>Then how many quanta an ordinary green source gives off.</p>
-          <NumericPart part={QUANTA_PER_SECOND} />
+          <NumericPart
+            part={QUANTA_PER_SECOND}
+            notebook={{
+              title: "Energy per quantum and the arrival rate",
+              sourceAnchor: "arg-lq-photoelectric-energy",
+            }}
+          />
           <p>
             Two to put in your own words: one from step 07, and one you can try first in the
             counting laboratory&rsquo;s <a href={LQ05_LOCKED_HREF}>locked counterexample</a>.

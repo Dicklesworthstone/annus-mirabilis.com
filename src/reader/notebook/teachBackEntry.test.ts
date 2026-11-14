@@ -8,6 +8,7 @@ import { createNotebookStore } from "./notebookStore.ts";
 import {
   emptyNotebook,
   NOTEBOOK_KEY,
+  NOTEBOOK_SCHEMA_VERSION,
   type NotebookTeachBackEntry,
   parseNotebookEntry,
 } from "./schema.ts";
@@ -94,7 +95,7 @@ describe("saved teach-back explanations use the reading notebook", () => {
     const store = createNotebookStore(f.storage);
     store.open();
     const opened = store.getSnapshot().document;
-    expect(opened.schemaVersion).toBe(2);
+    expect(opened.schemaVersion).toBe(NOTEBOOK_SCHEMA_VERSION);
     expect(opened.entries).toEqual(old.entries);
     expect(opened.lastPlace).toEqual(old.lastPlace);
     expect(f.writes()).toBe(0);
@@ -104,7 +105,7 @@ describe("saved teach-back explanations use the reading notebook", () => {
     expect(store.add(entry("new-explanation")).ok).toBe(true);
     const saved = f.values.get(NOTEBOOK_KEY);
     if (!saved) throw new Error("The upgraded notebook was not saved.");
-    expect(JSON.parse(saved).schemaVersion).toBe(2);
+    expect(JSON.parse(saved).schemaVersion).toBe(NOTEBOOK_SCHEMA_VERSION);
     expect(store.getSnapshot().document.entries[0]).toEqual(oldEntry);
   });
 
@@ -314,9 +315,9 @@ describe("typed saved-explanation refusals preserve the input", () => {
     assert.equal(reads, 0);
   });
 
-  test("notebook-migration-version: only a version 1 notebook with an entry array enters this migration", () => {
+  test("notebook-migration-version: only a version 1 notebook with an entry array enters this migration (teachBack.ts:43)", () => {
     const old = { ...emptyNotebook(), schemaVersion: 1 };
-    assert.deepEqual(migrateTeachBackNotebook(old), emptyNotebook());
+    assert.deepEqual(migrateTeachBackNotebook(old), { ...emptyNotebook(), schemaVersion: 2 });
     for (const input of [emptyNotebook(), { ...old, entries: {} }]) {
       const original = JSON.stringify(input);
       assert.throws(() => migrateTeachBackNotebook(input), {
@@ -327,7 +328,7 @@ describe("typed saved-explanation refusals preserve the input", () => {
     }
   });
 
-  test("notebook-migration-entry: legacy notes are retained and fake version 1 teach-backs or sparse entries are refused", () => {
+  test("notebook-migration-entry: legacy notes are retained and fake version 1 teach-backs or sparse entries are refused (teachBack.ts:56)", () => {
     const { teachBack: _capture, ...saved } = entry();
     const note = { ...saved, kind: "note" };
     const old = { ...emptyNotebook(), schemaVersion: 1, entries: [note] };

@@ -253,7 +253,10 @@ export default function BrownianEncounter() {
           </p>
         </section>
         <BrownianStage stage={INFERENCE_STAGE}>
-          <ExercisePart part={MOLECULAR_NUMBER_EXERCISE} />
+          <ExercisePart
+            part={MOLECULAR_NUMBER_EXERCISE}
+            notebook={{ title: "Infer the molecular number", sourceAnchor: "arg-bm-inference" }}
+          />
           <StepDoors>
             <StepDoor href="/papers/brownian-motion/s5/#arg-bm-inference">
               Go straight to the explanation: what would let us count molecules
@@ -270,12 +273,24 @@ export default function BrownianEncounter() {
             compares your expression with the answer at sample values of D and t across the tracer
             laboratory's ranges, not by matching text.
           </p>
-          <ExercisePart part={DISPLACEMENT_SCALE_EXERCISE} />
+          <ExercisePart
+            part={DISPLACEMENT_SCALE_EXERCISE}
+            notebook={{
+              title: "From one displacement axis to two",
+              sourceAnchor: "arg-bm-gaussian",
+            }}
+          />
           <p>
             Now the number itself. With Einstein’s own inputs the formula gives a distance a
             laboratory could go and measure. Type it in the unit you prefer.
           </p>
-          <NumericPart part={EINSTEIN_ONE_SECOND} />
+          <NumericPart
+            part={EINSTEIN_ONE_SECOND}
+            notebook={{
+              title: "A particle's displacement in one second",
+              sourceAnchor: "arg-bm-gaussian",
+            }}
+          />
           <PpeTask task={PPE_TASK} />
         </section>
         <aside className="notice">

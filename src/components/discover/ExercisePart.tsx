@@ -6,20 +6,27 @@ import {
   type AnswerVerdict,
   checkExerciseAnswer,
   type ExpressionExercisePart,
-  exerciseRenderKey,
   NEXT_ACTION,
+  snapshotExercise,
 } from "../../discovery/exercises/answer.ts";
 import type { DomainProbeOutcome } from "../../discovery/exercises/domainProbe.ts";
 import { plainText } from "../../discovery/exercises/numeric.ts";
 import { Sci } from "../lab/Sci.tsx";
+import { type ExerciseNotebookBinding, SavedExerciseResponse } from "./SavedExerciseResponse.tsx";
 
 export type { ExpressionExercisePart } from "../../discovery/exercises/answer.ts";
 
 /** A changed computational definition remounts the form instead of relabelling its verdict. */
-export function ExercisePart({ part }: { part: ExpressionExercisePart }) {
+export function ExercisePart({
+  part,
+  notebook,
+}: {
+  part: ExpressionExercisePart;
+  notebook?: ExerciseNotebookBinding;
+}) {
   let key: string;
   try {
-    key = exerciseRenderKey(part);
+    key = JSON.stringify(snapshotExercise(part));
   } catch {
     return (
       <p className="notice" role="alert">
@@ -27,10 +34,18 @@ export function ExercisePart({ part }: { part: ExpressionExercisePart }) {
       </p>
     );
   }
-  return <ExerciseForm key={key} part={part} />;
+  return <ExerciseForm key={key} part={part} definitionKey={key} notebook={notebook} />;
 }
 
-function ExerciseForm({ part }: { part: ExpressionExercisePart }) {
+function ExerciseForm({
+  part,
+  definitionKey,
+  notebook,
+}: {
+  part: ExpressionExercisePart;
+  definitionKey: string;
+  notebook: ExerciseNotebookBinding | undefined;
+}) {
   const id = useId();
   const epoch = useRef(0);
   const [draft, setDraft] = useState("");
@@ -56,7 +71,7 @@ function ExerciseForm({ part }: { part: ExpressionExercisePart }) {
   }
 
   return (
-    <div className="exercise-part" data-exercise-part={part.id}>
+    <div className="exercise-part" data-exercise-part={part.id} id={`exercise-${part.id}`}>
       <p className="exercise-prompt">{part.prompt}</p>
       <CheckedRanges domains={part.domains} />
       <noscript>
@@ -144,6 +159,26 @@ function ExerciseForm({ part }: { part: ExpressionExercisePart }) {
             </>
           )}
         </div>
+      )}
+      {notebook && (
+        <SavedExerciseResponse
+          definition={{
+            partId: part.id,
+            prompt: part.prompt,
+            partKind: "expression",
+            definitionKey,
+          }}
+          binding={notebook}
+          answer={draft}
+          unit={null}
+          onRestore={(answer) => {
+            epoch.current++;
+            setDraft(answer);
+            setVerdict(null);
+            setPending(false);
+            document.getElementById(`${id}-answer`)?.focus();
+          }}
+        />
       )}
       <details className="exercise-worked">
         <summary>Show a worked explanation</summary>

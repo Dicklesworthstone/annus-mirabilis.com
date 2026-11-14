@@ -1,6 +1,7 @@
 import { createModalCloseButton, makeDismissible } from "../../a11y/modal/dismiss.ts";
 import { capstoneCaptureHref } from "./capstoneEntry.ts";
 import { appendCapstoneView } from "./capstoneView.ts";
+import { exerciseResponseHref, exerciseResponseText } from "./exerciseEntry.ts";
 import { exportNotebookHtml, exportNotebookJson } from "./export.ts";
 import { mountNotebookMergePanel } from "./mergePanel.ts";
 import type { NotebookReviewResult } from "./mergeReview.ts";
@@ -35,6 +36,7 @@ export const NOTEBOOK_KIND_LABELS = {
   replay: "Comparison replay",
   capstone: "Capstone reconstruction",
   teachBack: "Teach-back explanation",
+  exercise: "Exercise response",
 } as const;
 export type NotebookDraft = Readonly<{ frame: NotebookFrame; title: string }>;
 /** The names the rest of the site uses (/papers/, the home plates), not the route slugs. */
@@ -396,7 +398,9 @@ export function mountNotebookPanel(
             ? capstoneCaptureHref(entry.capstone)
             : entry.kind === "teachBack"
               ? teachBackHref(entry.frame.paper, entry.teachBack)
-              : notebookFrameHref(entry.frame);
+              : entry.kind === "exercise"
+                ? exerciseResponseHref(entry.frame.paper, entry.exercise)
+                : notebookFrameHref(entry.frame);
         link.addEventListener("click", (event) => {
           if (
             event.button === 0 &&
@@ -407,7 +411,10 @@ export function mountNotebookPanel(
           )
             closePanel();
         });
-        const body = node("p", entry.text);
+        const body = node(
+          "p",
+          entry.kind === "exercise" ? exerciseResponseText(entry.text, entry.exercise) : entry.text,
+        );
         body.className = "notebook-text";
         const edit = button("Edit note", () => {
           draft = { frame: entry.frame, title: entry.title };
@@ -430,6 +437,7 @@ export function mountNotebookPanel(
         );
         article.append(node("h4", NOTEBOOK_KIND_LABELS[entry.kind]), link);
         if (entry.kind === "teachBack") article.append(node("p", entry.teachBack.prompt));
+        if (entry.kind === "exercise") article.append(node("p", entry.exercise.prompt));
         article.append(body);
         if (entry.kind === "replay") {
           const evidenceHost = node("div");
@@ -457,6 +465,22 @@ export function mountNotebookPanel(
           });
           inspect.dataset.replayInspect = entry.id;
           article.append(inspect, evidenceHost);
+        } else if (entry.kind === "exercise") {
+          article.append(
+            node(
+              "p",
+              `Saved ${entry.createdAt}, with guide revision ${entry.exercise.guideRevision}. This is your saved response, not a current checker verdict.`,
+            ),
+          );
+          const revise = node("a", "Return to this exercise to restore or revise the response");
+          revise.href = exerciseResponseHref(entry.frame.paper, entry.exercise);
+          const source = node("a", "Read the linked source passage");
+          source.href = notebookFrameHref(entry.frame);
+          const reviseLine = node("p");
+          const sourceLine = node("p");
+          reviseLine.append(revise);
+          sourceLine.append(source);
+          article.append(reviseLine, sourceLine);
         } else if (entry.kind === "teachBack") {
           article.append(
             node(
@@ -499,7 +523,7 @@ export function mountNotebookPanel(
     }
   });
   function add(
-    kind: Exclude<NotebookEntry["kind"], "replay" | "capstone" | "teachBack">,
+    kind: Exclude<NotebookEntry["kind"], "replay" | "capstone" | "teachBack" | "exercise">,
     frame: NotebookFrame,
     title: string,
     text: string,

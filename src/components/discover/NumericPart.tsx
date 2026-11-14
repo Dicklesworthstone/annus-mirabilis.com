@@ -11,6 +11,7 @@ import {
   unitLabel,
 } from "../../discovery/exercises/numeric.ts";
 import { Sci } from "../lab/Sci.tsx";
+import { type ExerciseNotebookBinding, SavedExerciseResponse } from "./SavedExerciseResponse.tsx";
 
 export type { NumericExercisePart } from "../../discovery/exercises/numeric.ts";
 
@@ -19,7 +20,39 @@ export type { NumericExercisePart } from "../../discovery/exercises/numeric.ts";
  * a check against a reference computed at build time. The answer stays in the page's memory and is
  * never sent anywhere; the worked explanation is available before and after any check.
  */
-export function NumericPart({ part }: { part: NumericExercisePart }) {
+export function NumericPart({
+  part,
+  notebook,
+}: {
+  part: NumericExercisePart;
+  notebook?: ExerciseNotebookBinding;
+}) {
+  if (numericPartProblems(part).length > 0)
+    return (
+      <p className="notice" role="alert">
+        This exercise is unavailable because its settings are invalid.
+      </p>
+    );
+  const definitionKey = JSON.stringify(part);
+  return (
+    <NumericForm
+      key={definitionKey}
+      part={part}
+      definitionKey={definitionKey}
+      notebook={notebook}
+    />
+  );
+}
+
+function NumericForm({
+  part,
+  definitionKey,
+  notebook,
+}: {
+  part: NumericExercisePart;
+  definitionKey: string;
+  notebook: ExerciseNotebookBinding | undefined;
+}) {
   const id = useId();
   const [value, setValue] = useState("");
   const [unit, setUnit] = useState(part.units[0] ?? "");
@@ -27,20 +60,13 @@ export function NumericPart({ part }: { part: NumericExercisePart }) {
   const [ready, setReady] = useState(false);
   useEffect(() => setReady(true), []);
 
-  if (numericPartProblems(part).length > 0)
-    return (
-      <p className="notice" role="alert">
-        This exercise is unavailable because its settings are invalid.
-      </p>
-    );
-
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setVerdict(checkNumericAnswer(part, value, unit));
   }
 
   return (
-    <div className="exercise-part" data-exercise-part={part.id}>
+    <div className="exercise-part" data-exercise-part={part.id} id={`exercise-${part.id}`}>
       <p className="exercise-prompt">{part.prompt}</p>
       <noscript>
         <p className="notice">
@@ -103,6 +129,21 @@ export function NumericPart({ part }: { part: NumericExercisePart }) {
               : verdict.message}
           </p>
         </div>
+      )}
+      {notebook && (
+        <SavedExerciseResponse
+          definition={{ partId: part.id, prompt: part.prompt, partKind: "numeric", definitionKey }}
+          binding={notebook}
+          answer={value}
+          unit={unit}
+          units={part.units}
+          onRestore={(answer, savedUnit) => {
+            setValue(answer);
+            setUnit(savedUnit ?? part.units[0] ?? "");
+            setVerdict(null);
+            document.getElementById(`${id}-value`)?.focus();
+          }}
+        />
       )}
       <details className="exercise-worked">
         <summary>Show a worked explanation</summary>

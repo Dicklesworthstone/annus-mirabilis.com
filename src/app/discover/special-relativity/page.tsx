@@ -325,9 +325,21 @@ export default function SpecialRelativityRoute() {
                 </p>
               </details>
               <p>First the clock, as a formula.</p>
-              <ExercisePart part={MOVING_CLOCK_EXERCISE} />
+              <ExercisePart
+                part={MOVING_CLOCK_EXERCISE}
+                notebook={{
+                  title: "Relate a moving clock to the frame clocks",
+                  sourceAnchor: "arg-sr-clock-and-length",
+                }}
+              />
               <p>Then the rod, on numbers.</p>
-              <NumericPart part={MOVING_ROD} />
+              <NumericPart
+                part={MOVING_ROD}
+                notebook={{
+                  title: "Measure a moving rod",
+                  sourceAnchor: "arg-sr-clock-and-length",
+                }}
+              />
               <StepDoors>
                 <StepDoor href="/papers/special-relativity/s4/#arg-sr-clock-and-length">
                   Go straight to the explanation: what a moving clock and rod actually report
@@ -424,11 +436,29 @@ export default function SpecialRelativityRoute() {
             text, so any correct way of writing an answer is accepted.
           </p>
           <p>First, how two speeds combine, as section 5 finds.</p>
-          <ExercisePart part={COMPOSITION_EXERCISE} />
+          <ExercisePart
+            part={COMPOSITION_EXERCISE}
+            notebook={{
+              title: "Compose two velocities",
+              sourceAnchor: "arg-sr-velocity-composition",
+            }}
+          />
           <p>Next, a clock&rsquo;s speed from what it reads and what the resting clocks read.</p>
-          <ExercisePart part={CLOCK_SPEED_EXERCISE} />
+          <ExercisePart
+            part={CLOCK_SPEED_EXERCISE}
+            notebook={{
+              title: "Infer the speed from clock readings",
+              sourceAnchor: "arg-sr-clock-and-length",
+            }}
+          />
           <p>Then the light clock, a later picture of the same factor.</p>
-          <NumericPart part={LIGHT_CLOCK_PATH} />
+          <NumericPart
+            part={LIGHT_CLOCK_PATH}
+            notebook={{
+              title: "Compare a light clock's paths",
+              sourceAnchor: "arg-sr-clock-and-length",
+            }}
+          />
           <p>One to put in your own words, from step 04.</p>
           <ExplanationPart
             part={SIMULTANEITY_EXPLANATION}

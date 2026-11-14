@@ -177,12 +177,24 @@ export default function MassEnergyRoute() {
           afterFirstParagraph={<JourneyFormula {...PAGE_FORMULAS.meKineticDrop} />}
         >
           <p>First write the result as the paper prints it, in its own letters.</p>
-          <ExercisePart part={MASS_GIVEN_UP_EXERCISE} />
+          <ExercisePart
+            part={MASS_GIVEN_UP_EXERCISE}
+            notebook={{
+              title: "Inertia given up with emitted energy",
+              sourceAnchor: "arg-me-mass-change",
+            }}
+          />
           <p>
             Now put a number to it. The coefficient is small in the units of everyday things, and
             working one case shows how small.
           </p>
-          <NumericPart part={SEALED_LAMP_YEAR} />
+          <NumericPart
+            part={SEALED_LAMP_YEAR}
+            notebook={{
+              title: "Account for a sealed lamp's energy",
+              sourceAnchor: "arg-me-mass-change",
+            }}
+          />
           <StepDoors>
             <StepDoor href="/papers/mass-energy/#arg-me-small-speed">
               Go straight to the explanation: why the slow-speed coefficient is the one to read
@@ -228,17 +240,35 @@ export default function MassEnergyRoute() {
             accepted: the checker compares your expression with the answer at sample values of L, v
             and V, not by matching text.
           </p>
-          <ExercisePart part={PULSE_SUM_EXERCISE} />
+          <ExercisePart
+            part={PULSE_SUM_EXERCISE}
+            notebook={{
+              title: "Add the two transformed pulse energies",
+              sourceAnchor: "arg-me-two-ledgers",
+            }}
+          />
           <p>
             Next the 1906 route, the side door below. The number is small enough that the sign is
             the only thing you could see.
           </p>
-          <NumericPart part={BOX_RECOIL} />
+          <NumericPart
+            part={BOX_RECOIL}
+            notebook={{
+              title: "Compare the box recoil and emitted energy",
+              sourceAnchor: "arg-me-mass-change",
+            }}
+          />
           <p>
             Then the step that decides where the mass is read: at a finite speed the quotient is not
             yet the mass.
           </p>
-          <NumericPart part={PROXY_AT_SIX_TENTHS} />
+          <NumericPart
+            part={PROXY_AT_SIX_TENTHS}
+            notebook={{
+              title: "Compare the finite-speed proxy with the limit",
+              sourceAnchor: "arg-me-small-speed",
+            }}
+          />
           <p>Last, the choice the whole argument rests on, in your own words.</p>
           <ExplanationPart
             part={EQUAL_AND_OPPOSITE_EXPLANATION}

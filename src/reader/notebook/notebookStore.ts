@@ -233,11 +233,15 @@ export function createNotebookStore(storage: NotebookStorage) {
       open();
       if (!state.document.entries.some((entry) => entry.id === id))
         return { ok: false, message: "That notebook entry no longer exists." };
-      if (state.document.entries.some((entry) => entry.id === id && entry.kind === "teachBack"))
+      if (
+        state.document.entries.some(
+          (entry) => entry.id === id && ["teachBack", "exercise"].includes(entry.kind),
+        )
+      )
         return {
           ok: false,
           message:
-            "Return to this question to save another explanation. Your earlier explanation stays unchanged.",
+            "Return to this question to save another response. Your earlier response stays unchanged.",
         };
       return commit({
         ...state.document,
@@ -252,7 +256,7 @@ export function createNotebookStore(storage: NotebookStorage) {
     ): NotebookChange {
       open();
       const entry = state.document.entries.find((item) => item.id === id);
-      if (!entry || entry.kind !== "replay")
+      if (entry?.kind !== "replay")
         return { ok: false, message: "That saved comparison no longer exists." };
       return commit({
         ...state.document,

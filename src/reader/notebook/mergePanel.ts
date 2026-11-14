@@ -16,6 +16,7 @@ const FIELD_NAMES: Readonly<Record<string, string>> = {
   replay: "saved comparison data",
   capstone: "saved reconstruction",
   teachBack: "question and guide revision",
+  exercise: "exercise question, definition and unit",
 };
 type MergeStore = Pick<
   NotebookStore,
@@ -84,6 +85,21 @@ export function mountNotebookMergePanel(
         node("p", `Question when saved: ${entry.teachBack.prompt}`),
         node("p", `Guide revision when saved: ${entry.teachBack.guideRevision}`),
       );
+    } else if (entry.kind === "exercise") {
+      section.append(
+        node("p", `Question when saved: ${entry.exercise.prompt}`),
+        node("p", `Guide revision when saved: ${entry.exercise.guideRevision}`),
+        node("p", `Selected unit: ${entry.exercise.unit ?? "none (expression)"}`),
+      );
+      const details = node("details");
+      const definition = node("pre", entry.exercise.definitionKey);
+      definition.style.whiteSpace = "pre-wrap";
+      definition.style.overflowWrap = "anywhere";
+      details.append(
+        node("summary", "Inspect the saved exercise definition (does not check the answer)"),
+        definition,
+      );
+      section.append(details);
     } else if (entry.kind === "replay" || entry.kind === "capstone") {
       const details = node("details");
       details.append(

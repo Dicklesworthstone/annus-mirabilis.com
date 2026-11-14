@@ -1,8 +1,10 @@
 import { comparisonDisplay } from "../../experiments/compare/comparisonStatement.ts";
 import { capstoneCaptureHref, capstoneCaptureText } from "./capstoneEntry.ts";
 import { comparisonReplayAdapter } from "./comparisonAdapters.ts";
+import { exerciseResponseHref, exerciseResponseText } from "./exerciseEntry.ts";
 import {
   type NotebookDocument,
+  type NotebookExerciseEntry,
   type NotebookReplayEntry,
   type NotebookTeachBackEntry,
   notebookFrameHref,
@@ -52,16 +54,19 @@ function replayHtml(entry: NotebookReplayEntry): string {
 function teachBackHtml(entry: NotebookTeachBackEntry): string {
   return `<section><h3>The question when you answered</h3><p>${escapeHtml(entry.teachBack.prompt)}</p><h3>Your explanation</h3><pre>${escapeHtml(entry.text)}</pre><p>Saved ${escapeHtml(entry.createdAt)}, with guide revision ${escapeHtml(entry.teachBack.guideRevision)}. Earlier explanations are kept separately; none is assessed.</p></section>`;
 }
+function exerciseHtml(entry: NotebookExerciseEntry): string {
+  return `<section><h3>The question when you answered</h3><p>${escapeHtml(entry.exercise.prompt)}</p><h3>Your saved response</h3><pre>${escapeHtml(exerciseResponseText(entry.text, entry.exercise))}</pre><p>Saved ${escapeHtml(entry.createdAt)}, with guide revision ${escapeHtml(entry.exercise.guideRevision)}. This is your response, not a current checker verdict. Return to the exercise to check it again.</p></section>`;
+}
 /** Self-contained, script-free private export. Text is never interpreted as HTML or Markdown. */
 export function exportNotebookHtml(input: NotebookDocument): string {
   const document = parseNotebookDocument(input);
   const entries = document.entries
     .map(
       (entry) => `<article><h2>${escapeHtml(entry.title)}</h2>
-<p>${escapeHtml(entry.kind === "nextStep" ? "Next step" : entry.kind === "teachBack" ? "Teach-back explanation" : entry.kind)} · ${escapeHtml(entry.frame.paper.replaceAll("-", " "))}</p>
-${entry.kind === "teachBack" ? teachBackHtml(entry) : `<pre>${escapeHtml(entry.text)}</pre>`}
+<p>${escapeHtml(entry.kind === "nextStep" ? "Next step" : entry.kind === "teachBack" ? "Teach-back explanation" : entry.kind === "exercise" ? "Exercise response" : entry.kind)} · ${escapeHtml(entry.frame.paper.replaceAll("-", " "))}</p>
+${entry.kind === "teachBack" ? teachBackHtml(entry) : entry.kind === "exercise" ? exerciseHtml(entry) : `<pre>${escapeHtml(entry.text)}</pre>`}
 ${entry.kind === "replay" ? replayHtml(entry) : entry.kind === "capstone" ? `<section><h3>Snapshot saved ${escapeHtml(entry.createdAt)}</h3><pre>${escapeHtml(capstoneCaptureText(entry.capstone))}</pre></section>` : ""}
-<a href="${escapeHtml(`https://annus-mirabilis.com${entry.kind === "capstone" ? capstoneCaptureHref(entry.capstone) : entry.kind === "teachBack" ? teachBackHref(entry.frame.paper, entry.teachBack) : notebookFrameHref(entry.frame)}`)}">${entry.kind === "capstone" ? "Open this capstone" : entry.kind === "teachBack" ? "Return to this question" : "Return to this passage"}</a></article>`,
+<a href="${escapeHtml(`https://annus-mirabilis.com${entry.kind === "capstone" ? capstoneCaptureHref(entry.capstone) : entry.kind === "teachBack" ? teachBackHref(entry.frame.paper, entry.teachBack) : entry.kind === "exercise" ? exerciseResponseHref(entry.frame.paper, entry.exercise) : notebookFrameHref(entry.frame)}`)}">${entry.kind === "capstone" ? "Open this capstone" : entry.kind === "teachBack" ? "Return to this question" : entry.kind === "exercise" ? "Return to this exercise" : "Return to this passage"}</a></article>`,
     )
     .join("\n");
   const last = document.lastPlace;
