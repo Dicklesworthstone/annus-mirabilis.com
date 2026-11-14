@@ -199,11 +199,19 @@ export function mountNotebookPanel(
     draft: NotebookDraft | null = null,
     editing: string | null = null;
   let renderedEntries: readonly NotebookEntry[] | null = null;
-  const replays: (() => void)[] = [];
-  let replayGeneration = 0;
-  function clearReplays() {
-    replayGeneration++;
-    for (const dispose of replays.splice(0)) dispose();
+  type EntryView = {
+    content: string;
+    article: HTMLElement;
+    dispose?: () => void;
+  };
+  const entryViews = new Map<string, EntryView>();
+  const paperSections = new Map<string, HTMLElement>();
+  function clearEntries() {
+    for (const view of entryViews.values()) view.dispose?.();
+    entryViews.clear();
+    paperSections.clear();
+    list.replaceChildren();
+    renderedEntries = null;
   }
   const urls = new Map<string, ReturnType<typeof setTimeout>>();
   let disposed = false,
@@ -332,23 +340,56 @@ export function mountNotebookPanel(
     clear.hidden = nothingSaved && state.document.lastPlace === null;
     if (state.document.entries === renderedEntries) return;
     renderedEntries = state.document.entries;
-    clearReplays();
-    list.replaceChildren();
-    if (!renderedEntries.length)
-      list.append(
+    // The store validates every commit into new objects, including a change of reading place.
+    // Compare complete admitted entries by value, and keep unchanged editors attached: rebuilding
+    // the list discarded their private drafts, selection and any comparison already running.
+    const contents = new Map(renderedEntries.map((entry) => [entry.id, JSON.stringify(entry)]));
+    for (const [id, view] of entryViews) {
+      if (contents.get(id) === view.content) continue;
+      view.dispose?.();
+      view.article.remove();
+      entryViews.delete(id);
+    }
+    for (const [paper, section] of paperSections) {
+      if (renderedEntries.some((entry) => entry.frame.paper === paper)) continue;
+      section.remove();
+      paperSections.delete(paper);
+    }
+    if (!renderedEntries.length) {
+      list.replaceChildren(
         node(
           "p",
           "No entries yet. On a paper page, press the bookmark beside a passage heading to save a question, a next step or a note.",
         ),
       );
+      return;
+    }
+    // Only the empty-state paragraph is replaced; existing paper sections remain connected.
+    list.querySelector(":scope > p")?.remove();
+    let nextSection = list.firstElementChild;
     for (const paper of NOTEBOOK_PAPERS) {
       const entries = renderedEntries.filter((entry) => entry.frame.paper === paper);
       if (!entries.length) continue;
-      const section = node("section");
-      section.append(node("h3", PAPER_NAMES[paper] ?? paper.replaceAll("-", " ")));
+      let section = paperSections.get(paper);
+      if (!section) {
+        section = node("section");
+        section.append(node("h3", PAPER_NAMES[paper] ?? paper.replaceAll("-", " ")));
+        paperSections.set(paper, section);
+      }
+      if (section !== nextSection) list.insertBefore(section, nextSection);
+      nextSection = section.nextElementSibling;
+      let nextArticle = section.firstElementChild?.nextElementSibling ?? null;
       for (const entry of entries) {
+        const retained = entryViews.get(entry.id);
+        if (retained) {
+          if (retained.article !== nextArticle) section.insertBefore(retained.article, nextArticle);
+          nextArticle = retained.article.nextElementSibling;
+          continue;
+        }
         const article = node("article");
         article.className = "notebook-entry";
+        const entryView: EntryView = { content: JSON.stringify(entry), article };
+        entryViews.set(entry.id, entryView);
         const link = node("a", entry.title);
         link.href =
           entry.kind === "capstone"
@@ -393,22 +434,21 @@ export function mountNotebookPanel(
         if (entry.kind === "replay") {
           const evidenceHost = node("div");
           const inspect = button("Open the saved comparison", () => {
-            const request = replayGeneration;
             inspect.disabled = true;
             void Promise.all([import("./replayView.ts"), import("./replayCurrent.ts")])
               .then(([view, current]) => {
-                if (disposed || request !== replayGeneration || !shown()) return;
+                if (disposed || entryViews.get(entry.id) !== entryView || !shown()) return;
                 const mounted = view.mountReplayView(
                   evidenceHost,
                   entry,
                   store,
                   current.replayEnvironment(entry.replay),
                 );
-                replays.push(mounted.dispose);
+                entryView.dispose = mounted.dispose;
                 inspect.hidden = true;
               })
               .catch(() => {
-                if (!disposed && request === replayGeneration) {
+                if (!disposed && entryViews.get(entry.id) === entryView) {
                   inspect.disabled = false;
                   error.textContent =
                     "The saved comparison could not be opened here. It is still saved, and it can be exported.";
@@ -438,9 +478,9 @@ export function mountNotebookPanel(
           article.append(edit);
         }
         article.append(remove);
-        section.append(article);
+        section.insertBefore(article, nextArticle);
+        nextArticle = article.nextElementSibling;
       }
-      list.append(section);
     }
   }
   form.addEventListener("submit", (event) => {
@@ -514,8 +554,7 @@ export function mountNotebookPanel(
     importGeneration++;
     importFile.value = "";
     clearMerge();
-    clearReplays();
-    renderedEntries = null;
+    clearEntries();
     dialog.close();
     confirmation.hidden = true;
     if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
@@ -541,7 +580,7 @@ export function mountNotebookPanel(
       clearMerge();
       unsubscribe();
       closePanel();
-      clearReplays();
+      clearEntries();
       dismissal.abort();
       container.remove();
       for (const [url, timeout] of urls) {
