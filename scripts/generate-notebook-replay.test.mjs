@@ -6,6 +6,7 @@ import { resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { loadPaperPayload } from "../src/content/compiler/serverLoaders.ts";
+import { LQ08_MODEL } from "../src/experiments/lq08/definition.ts";
 import { fixedSr03ComparisonParameters } from "../src/experiments/sr03/comparison.ts";
 import { generateNotebookReplay } from "./generate-notebook-replay.mjs";
 
@@ -54,13 +55,48 @@ test("replay catalogue hashes actual compiled arguments, retains aliases and gen
   assert.ok(!observerFirst.includes("explanationBefore"));
 });
 
-test("fresh preparation produces both owner examples before generating notebook catalogues", async () => {
+test("fresh preparation produces all owner examples before generating notebook catalogues", async () => {
   const config = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
   const commands = config.scripts["prepare:lab"].split(/\s*&&\s*/u);
   const notebook = commands.indexOf("bun scripts/generate-notebook-replay.mjs");
   assert.ok(notebook >= 0);
-  for (const required of ["generate-brownian-comparison.mjs", "generate-sr03.mjs"]) {
+  for (const required of [
+    "generate-brownian-comparison.mjs",
+    "generate-sr03.mjs",
+    "generate-photoelectric.mjs",
+  ]) {
     const position = commands.indexOf(`bun scripts/${required}`);
     assert.ok(position >= 0 && position < notebook, `${required} must precede notebook replay`);
   }
+});
+
+test("photoelectric replay uses its real evaluator digest and only the light-quanta paper", async () => {
+  await generateNotebookReplay(root, output);
+  const first = await readFile(resolve(output, "lq08-notebook-replay.json"), "utf8");
+  await generateNotebookReplay(root, output);
+  assert.equal(await readFile(resolve(output, "lq08-notebook-replay.json"), "utf8"), first);
+  const catalogue = JSON.parse(first);
+  const paper = await loadPaperPayload("light-quanta", root);
+  assert.equal(Object.keys(catalogue.passages).length, paper.arguments.length);
+  for (const argument of paper.arguments)
+    assert.equal(
+      catalogue.passages[argument.id].contentRevision,
+      createHash("sha256").update(JSON.stringify(argument)).digest("hex"),
+    );
+  assert.ok(catalogue.passages["arg-lq-photoelectric-energy"]);
+  assert.equal(catalogue.passages["arg-lq-photoelectric-energy"].translationRevision, null);
+  assert.equal(catalogue.passages["arg-bm-observable"], undefined);
+  assert.equal(catalogue.passages["arg-sr-rod-events"], undefined);
+  const example = JSON.parse(
+    await readFile(resolve(root, "src/generated/lq08-example.json"), "utf8"),
+  );
+  assert.equal(catalogue.identity.sourceDigest, example.sourceDigest);
+  assert.equal(catalogue.identity.modelVersion, LQ08_MODEL.id);
+  assert.equal(catalogue.identity.constantSetId, LQ08_MODEL.constantSetId);
+  assert.equal(catalogue.identity.streamVersion, "deterministic");
+  assert.equal(catalogue.identity.allocationId, "deterministic");
+  assert.equal(catalogue.identity.artifactDigest, null);
+  assert.equal(catalogue.identity.executionLabel, "host-calculation");
+  assert.equal(catalogue.example, undefined);
+  assert.ok(!first.includes("explanationBefore"));
 });

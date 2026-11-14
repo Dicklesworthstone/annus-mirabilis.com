@@ -77,9 +77,14 @@ jobs:
           src/reasoning/infer
           src/physics/reference/inference/identifiability.test.mjs
           src/experiments/lq04
+          src/experiments/lq08
           src/testing/radiation.entropy.test.ts
           src/reader/weave
           src/reader/notebook/panel.test.ts
+          src/reader/notebook/lq08Replay.integration.test.mjs
+          src/reader/notebook/bm08Replay.integration.test.mjs
+          src/reader/notebook/sr03Replay.integration.test.mjs
+          scripts/generate-notebook-replay.test.mjs
           src/content/essays/essays.test.ts
           src/search/essayDocuments.test.ts
           src/components/essays/EssayReading.test.tsx
@@ -98,6 +103,9 @@ jobs:
           src/testing/sr01Recording.test.tsx
           src/testing/me01TapeLink.test.tsx
           src/testing/lq09Recording.test.tsx
+          src/testing/lq08.browser.test.tsx
+          src/testing/lq08/lq08.predict.test.tsx
+          src/testing/lq08Tape.test.tsx
           src/testing/labFormSweep.test.tsx
           src/testing/lightQuantaPredictionGates.test.tsx
           src/testing/relativityPredictionGates.test.tsx
@@ -106,6 +114,7 @@ jobs:
           src/testing/sr04.manifest.test.ts
           src/testing/lq03.manifest.test.ts
           src/components/lab/PredictGate.test.tsx
+          src/components/lab/lq08/PhotoelectricControlledComparison.test.tsx
           src/components/lab/TracerPlayback.test.tsx
           src/components/lab/ModeAllocationLab.test.tsx
           src/components/lab/ModeAllocationLab.refusals.test.tsx

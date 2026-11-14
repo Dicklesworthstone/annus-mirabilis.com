@@ -359,7 +359,7 @@ test("registered paper/catalogue boundaries keep provenance and escaped private 
   assert.doesNotMatch(JSON.stringify(savedEntry.replay.tape), /event-notes/);
 });
 
-test("(comparisonAdapters.ts:254) SR03 and tracer adapters reject a different owner before creating a worker", async () => {
+test("(comparisonAdapters.ts:341) SR03 and tracer adapters reject a different owner before creating a worker", async () => {
   const io = transport();
   await assert.rejects(
     comparisonReplayAdapter("sr-03").createSession("wrong-owner", {

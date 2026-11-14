@@ -351,7 +351,7 @@ test("unknown adapters and a wrong owner are explicitly refused before any worke
   assert.equal(io.metrics.created, 0);
 });
 
-test("(comparisonAdapters.ts:153) tracer session accepts its own prepared example and refuses a camera owner", async () => {
+test("(comparisonAdapters.ts:179) tracer session accepts its own prepared example and refuses a camera owner", async () => {
   const adapter = comparisonReplayAdapter("bm-01"),
     io = transport();
   await assert.rejects(
@@ -377,7 +377,7 @@ test("(comparisonAdapters.ts:153) tracer session accepts its own prepared exampl
   session.disconnect();
 });
 
-test("(comparisonAdapters.ts:202) camera session accepts its own prepared example and refuses a tracer owner", async () => {
+test("(comparisonAdapters.ts:228) camera session accepts its own prepared example and refuses a tracer owner", async () => {
   const adapter = comparisonReplayAdapter("bm-08"),
     io = transport();
   await assert.rejects(
@@ -437,7 +437,7 @@ test("camera recipe parsing refuses a second changed input, physical-path change
   }
 });
 
-test("(comparisonAdapters.ts:109) camera parameters admit one recording and refuse additional hypothetical experiments", () => {
+test("(comparisonAdapters.ts:135) camera parameters admit one recording and refuse additional hypothetical experiments", () => {
   assert.deepEqual(comparisonReplayAdapter("bm-08").parameters(parameters), parameters);
   assert.throws(
     () => comparisonReplayAdapter("bm-08").parameters({ ...parameters, coverageTrials: 1 }),
@@ -445,7 +445,7 @@ test("(comparisonAdapters.ts:109) camera parameters admit one recording and refu
   );
 });
 
-test("(comparisonAdapters.ts:140) tracer parameters admit their canonical settings and refuse camera settings", () => {
+test("(comparisonAdapters.ts:166) tracer parameters admit their canonical settings and refuse camera settings", () => {
   assert.deepEqual(comparisonReplayAdapter("bm-01").parameters(BM01_DEFAULTS), BM01_DEFAULTS);
   assert.throws(() => comparisonReplayAdapter("bm-01").parameters(parameters), {
     code: "invalid-replay-parameters",
