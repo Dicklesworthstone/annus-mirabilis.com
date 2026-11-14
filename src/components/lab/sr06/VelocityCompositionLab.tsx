@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { type FormEvent, useEffect, useId, useState } from "react";
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
@@ -21,6 +21,7 @@ import {
   SR06_PRESETS,
   type Sr06Mode,
   type Sr06Parameters,
+  sr06CompositionSettings,
 } from "../../../experiments/sr06/definition.ts";
 import { decodeSr06Settings } from "../../../experiments/sr06/permalink.ts";
 import { createSr06Session, type PreparedSr06Example } from "../../../experiments/sr06/session.ts";
@@ -32,7 +33,6 @@ import { useRetainedSession } from "../../../experiments/store/retainedSession.t
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
-import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
 import { LabMargin } from "../LabMargin.tsx";
 import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
@@ -129,10 +129,11 @@ export function VelocityCompositionLab({
   };
   const composed = numberAt("composedSpeedOverC");
   const galilean = numberAt("galileanSpeedOverC");
+  const active = sr06CompositionSettings(p);
   const statusSummary =
     composed === null
       ? "the composed speed is not defined at these settings."
-      : `composing ${fixed(p.frameBeta, 4)}c with ${fixed(p.movingSpeed, 4)}c at ${fixed(p.alphaDeg, 1)}° gives ${fixed(composed, 4)}c${galilean === null ? "" : `, where Galileo's addition gives ${fixed(galilean, 4)}c`}.`;
+      : `composing ${fixed(p.frameBeta, 4)}c with ${fixed(active.speed, 4)}c at ${fixed(active.angleDeg, 1)}° gives ${fixed(composed, 4)}c${galilean === null ? "" : `, where Galileo's addition gives ${fixed(galilean, 4)}c`}.`;
 
   useEffect(() => {
     const shared = decodeSr06Settings(restoreFromLocation ? window.location.search : "");
@@ -169,8 +170,8 @@ export function VelocityCompositionLab({
     apply({ ...p, mode });
   }
 
-  // α is the question in "angled" mode, so it sits under the mode choice there. In the other
-  // two modes it is still an input to the composition, so it stays reachable in the drawer.
+  // Only the angled arrangement uses this saved angle. The collinear arrangement fixes it at
+  // zero; the second boost has its own direction, expressed in the intermediate frame.
   const alphaField = (
     <div className="input-field">
       <label htmlFor={`${id}-alpha`}>Angle α in the moving frame (degrees)</label>
@@ -206,8 +207,8 @@ export function VelocityCompositionLab({
       </div>
       <noscript>
         <p className="notice">
-          JavaScript is off. The worked case 0.6c with 0.6c composes to 15/17 of light speed, about
-          0.882353c. Changing settings requires JavaScript.
+          JavaScript is off. The worked result is shown below. Changing settings requires
+          JavaScript.
         </p>
       </noscript>
       <PredictGatePanels gate={gate} />
@@ -228,19 +229,21 @@ export function VelocityCompositionLab({
                 onChange={(e) => setDraft({ ...draft, frameBeta: e.target.value })}
               />
             </div>
-            <div className="input-field">
-              <label htmlFor={`${id}-w`}>Moving-frame speed w/c</label>
-              <input
-                id={`${id}-w`}
-                name="movingSpeed"
-                type="number"
-                step="0.01"
-                min="0"
-                max="1"
-                value={draft.movingSpeed}
-                onChange={(e) => setDraft({ ...draft, movingSpeed: e.target.value })}
-              />
-            </div>
+            {p.mode !== "two-boosts" ? (
+              <div className="input-field">
+                <label htmlFor={`${id}-w`}>Moving-frame speed w/c</label>
+                <input
+                  id={`${id}-w`}
+                  name="movingSpeed"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="1"
+                  value={draft.movingSpeed}
+                  onChange={(e) => setDraft({ ...draft, movingSpeed: e.target.value })}
+                />
+              </div>
+            ) : null}
             <fieldset>
               <legend>How the two motions meet</legend>
               {(["collinear", "angled", "two-boosts"] as const).map((mode) => (
@@ -257,12 +260,18 @@ export function VelocityCompositionLab({
               ))}
             </fieldset>
             {p.mode === "angled" ? alphaField : null}
+            {p.mode === "collinear" ? (
+              <p className="fine">
+                Along one line uses α = 0°. Choose “At an angle α” to change direction.
+              </p>
+            ) : null}
             {p.mode === "two-boosts" ? (
               <>
                 <div className="input-field">
                   <label htmlFor={`${id}-v2`}>Second boost speed / c</label>
                   <input
                     id={`${id}-v2`}
+                    name="secondBeta"
                     type="number"
                     step="0.01"
                     min="-0.95"
@@ -275,6 +284,7 @@ export function VelocityCompositionLab({
                   <label htmlFor={`${id}-a2`}>Second boost angle (degrees)</label>
                   <input
                     id={`${id}-a2`}
+                    name="secondAngleDeg"
                     type="number"
                     step="1"
                     value={draft.secondAngleDeg}
@@ -292,12 +302,6 @@ export function VelocityCompositionLab({
               Show rapidity (a later aid, named by Robb in 1911; not the 1905 presentation)
             </label>
             <button type="submit">Apply settings</button>
-            {p.mode === "angled" ? null : (
-              <ExperimentSettings contents="the angle α in the moving frame">
-                {alphaField}
-                <p className="fine">Changes here apply with Apply settings.</p>
-              </ExperimentSettings>
-            )}
           </fieldset>
           {failure && (
             /* THE TYPED SURFACE (am-ig23): the code a gate can find, and the admissible value the schema

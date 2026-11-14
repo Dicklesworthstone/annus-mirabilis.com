@@ -26,11 +26,21 @@ export const SR06_DEFAULTS: Sr06Parameters = Object.freeze({
   flowSpeed: 7.06,
 });
 
+/** The active arrangement; the other mode's saved controls do not enter this calculation. */
+export function sr06CompositionSettings(p: Sr06Parameters): Readonly<{
+  speed: number;
+  angleDeg: number;
+}> {
+  return p.mode === "two-boosts"
+    ? { speed: p.secondBeta, angleDeg: p.secondAngleDeg }
+    : { speed: p.movingSpeed, angleDeg: p.mode === "collinear" ? 0 : p.alphaDeg };
+}
+
 export const SR06_CLASSES: Readonly<Record<keyof Sr06Parameters, ParameterClass>> = Object.freeze({
   frameBeta: "input",
   movingSpeed: "input",
   alphaDeg: "input",
-  mode: "presentation",
+  mode: "input",
   secondBeta: "input",
   secondAngleDeg: "input",
   showRapidity: "presentation",
@@ -72,6 +82,10 @@ const contract = (
   });
 
 export const SR06_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.freeze({
+  movingUxOverC: contract("1", "input-moving-x-velocity-over-c"),
+  movingUyOverC: contract("1", "input-moving-y-velocity-over-c"),
+  galileanUxOverC: contract("1", "galilean-sum-x-velocity-over-c"),
+  galileanUyOverC: contract("1", "galilean-sum-y-velocity-over-c"),
   composedUxOverC: contract("1", "composed-x-velocity-over-c"),
   composedUyOverC: contract("1", "composed-y-velocity-over-c"),
   composedSpeedOverC: contract("1", "composed-speed-over-c"),

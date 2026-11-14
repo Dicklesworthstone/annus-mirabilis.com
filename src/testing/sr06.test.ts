@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { SR06_DEFAULTS } from "../experiments/sr06/definition.ts";
 import { validateSr06Parameters } from "../experiments/sr06/parameters.ts";
 import { createSr06Session, evaluateSr06 } from "../experiments/sr06/session.ts";
+import type { AcceptedSnapshot } from "../experiments/store/instanceStore.ts";
 import { alignedBoost, composeBoosts, generalBoost } from "../physics/reference/kinematics.ts";
 import { newRunIdentity, TestLogger } from "./log/logger.ts";
 
@@ -12,7 +13,10 @@ const suite = "instrument-sr-06";
 const logRoot = mkdtempSync(join(tmpdir(), "sr06-"));
 const logger = new TestLogger(suite, newRunIdentity(), logRoot);
 
-function scalar(id: string, outputs: ReturnType<typeof evaluateSr06>): number {
+function scalar(
+  id: string,
+  outputs: ReturnType<typeof evaluateSr06> | AcceptedSnapshot["outputs"],
+): number {
   const o = outputs.find((r) => r.quantityId === id);
   expect(o?.status).toBe("value");
   if (o?.status !== "value" || typeof o.value !== "number") throw new Error(id);
@@ -156,5 +160,69 @@ describe("SR-06 two-boosts mode reports the doubly boosted frame's velocity", ()
   test("the collinear and angled modes still compose the moving point", () => {
     expect(read({ mode: "collinear" }, "composedSpeedOverC")).toBeCloseTo(15 / 17, 12);
     expect(read({ mode: "angled", alphaDeg: 90 }, "composedSpeedOverC")).toBeCloseTo(0.768375, 6);
+  });
+});
+
+describe("SR-06 mode consistency across vectors, speed, shortfall and rapidity", () => {
+  test("collinear mode keeps a saved angled direction out of every active calculation", () => {
+    const out = evaluateSr06({ ...SR06_DEFAULTS, alphaDeg: 90, showRapidity: true });
+    expect(scalar("composedSpeedOverC", out)).toBeCloseTo(15 / 17, 12);
+    expect(scalar("composedUyOverC", out)).toBe(0);
+    expect(scalar("movingUxOverC", out)).toBe(0.6);
+    expect(scalar("movingUyOverC", out)).toBe(0);
+    expect(scalar("galileanUxOverC", out)).toBe(1.2);
+    expect(scalar("galileanUyOverC", out)).toBe(0);
+    expect(scalar("shortfall", out)).toBeCloseTo(2 / 17, 12);
+    expect(Math.tanh(scalar("rapiditySum", out))).toBeCloseTo(15 / 17, 12);
+    expect(out).toEqual(evaluateSr06({ ...SR06_DEFAULTS, alphaDeg: 0, showRapidity: true }));
+  });
+
+  test("two boosts publish the selected boost's vectors and rapidity, even with different saved point controls", () => {
+    const p = {
+      ...SR06_DEFAULTS,
+      mode: "two-boosts" as const,
+      movingSpeed: 0.2,
+      alphaDeg: 180,
+      secondBeta: 0.6,
+      secondAngleDeg: 90,
+    };
+    const out = evaluateSr06(p);
+    expect(scalar("movingUxOverC", out)).toBeCloseTo(0, 12);
+    expect(scalar("movingUyOverC", out)).toBeCloseTo(0.6, 12);
+    expect(scalar("galileanUxOverC", out)).toBeCloseTo(0.6, 12);
+    expect(scalar("galileanUyOverC", out)).toBeCloseTo(0.6, 12);
+    expect(scalar("composedUxOverC", out)).toBeCloseTo(0.6, 12);
+    expect(scalar("composedUyOverC", out)).toBeCloseTo(0.48, 12);
+    expect(scalar("rapidityMoving", out)).toBeCloseTo(Math.log(2), 12);
+    expect(out.find((r) => r.quantityId === "rapiditySum")?.status).toBe("not-applicable");
+    expect(out).toEqual(evaluateSr06({ ...p, movingSpeed: 1, alphaDeg: 0 }));
+  });
+
+  test("a resultant toward negative x has a speed shortfall between zero and one", () => {
+    const out = evaluateSr06({ ...SR06_DEFAULTS, frameBeta: -0.9, movingSpeed: 0.1 });
+    expect(scalar("composedUxOverC", out)).toBeCloseTo(-80 / 91, 12);
+    expect(scalar("composedSpeedOverC", out)).toBeCloseTo(80 / 91, 12);
+    expect(scalar("shortfall", out)).toBeCloseTo(11 / 91, 12);
+    expect(Math.tanh(scalar("rapiditySum", out))).toBeCloseTo(-80 / 91, 12);
+  });
+
+  test("changing arrangement starts a new run; a visibility change keeps that run and its physical result", () => {
+    const initial = { ...SR06_DEFAULTS, alphaDeg: 90 };
+    const session = createSr06Session("sr06-mode-switch", initial);
+    const before = session.getSnapshot().accepted;
+    expect(before).not.toBeNull();
+    expect(session.apply({ ...initial, mode: "angled" }).kind).toBe("accepted");
+    const angled = session.getSnapshot().accepted;
+    expect(angled?.runId).not.toBe(before?.runId);
+    expect(scalar("composedUyOverC", angled?.outputs ?? [])).toBeCloseTo(0.48, 12);
+    expect(session.apply({ ...initial, mode: "angled", showRapidity: true }).kind).toBe("accepted");
+    const visible = session.getSnapshot().accepted;
+    expect(visible?.runId).toBe(angled?.runId);
+    expect(visible?.outputs).toEqual(angled?.outputs);
+    expect(session.apply({ ...initial, showRapidity: true }).kind).toBe("accepted");
+    const collinear = session.getSnapshot().accepted;
+    expect(collinear?.runId).not.toBe(angled?.runId);
+    expect(scalar("composedSpeedOverC", collinear?.outputs ?? [])).toBeCloseTo(15 / 17, 12);
+    expect(session.acceptedParameters().alphaDeg).toBe(90);
   });
 });

@@ -12,7 +12,13 @@ import {
 import { encodeResult } from "../results/codec.ts";
 import type { ScientificResult } from "../results/types.ts";
 import { createInstanceStore, type Parameters } from "../store/instanceStore.ts";
-import { SR06_CLASSES, SR06_DEFAULTS, SR06_OUTPUTS, type Sr06Parameters } from "./definition.ts";
+import {
+  SR06_CLASSES,
+  SR06_DEFAULTS,
+  SR06_OUTPUTS,
+  type Sr06Parameters,
+  sr06CompositionSettings,
+} from "./definition.ts";
 import { validateSr06Parameters } from "./parameters.ts";
 
 function identity(id: keyof typeof SR06_OUTPUTS) {
@@ -53,9 +59,9 @@ export function evaluateSr06(p: Sr06Parameters): ScientificResult[] {
   // In two-boosts mode the composed velocity is the doubly boosted frame's: the second boost,
   // given in the intermediate frame, composed with the first. It used to stay the moving point's,
   // so the table read U = 0.882c beside the product's gamma 1.5625, which belongs to 0.768c.
-  const twoBoosts = p.mode === "two-boosts";
-  const w = twoBoosts ? p.secondBeta : p.movingSpeed;
-  const alpha = ((twoBoosts ? p.secondAngleDeg : p.alphaDeg) * Math.PI) / 180;
+  const active = sr06CompositionSettings(p);
+  const w = active.speed;
+  const alpha = (active.angleDeg * Math.PI) / 180;
   const wx = w * Math.cos(alpha);
   const wy = w * Math.sin(alpha);
   const composed = transformVelocity({ ux: wx, uy: wy, uz: 0 }, -p.frameBeta, 1);
@@ -71,6 +77,10 @@ export function evaluateSr06(p: Sr06Parameters): ScientificResult[] {
   const U = Math.hypot(ux, uy);
   const galilean = Math.hypot(p.frameBeta + wx, wy);
   outputs.push(
+    value("movingUxOverC", wx),
+    value("movingUyOverC", wy),
+    value("galileanUxOverC", p.frameBeta + wx),
+    value("galileanUyOverC", wy),
     value("composedUxOverC", ux),
     value("composedUyOverC", uy),
     value("composedSpeedOverC", U),
@@ -87,7 +97,10 @@ export function evaluateSr06(p: Sr06Parameters): ScientificResult[] {
     outputs.push(value("printedSpeedOverC", U));
   }
   if (p.mode === "collinear" && w < 1) {
-    const s = composedSpeedShortfall(p.frameBeta, w);
+    // The owner returns 1 minus a signed velocity. Reflect both inputs when the resultant
+    // points along -x so this readout remains the shortfall of the speed |U| from light speed.
+    const direction = ux < 0 ? -1 : 1;
+    const s = composedSpeedShortfall(direction * p.frameBeta, direction * w);
     outputs.push(
       s.status === "value"
         ? value("shortfall", s.value)
@@ -159,7 +172,7 @@ export function evaluateSr06(p: Sr06Parameters): ScientificResult[] {
     );
   }
   const r1 = rapidity(p.frameBeta);
-  const r2 = p.movingSpeed < 1 ? rapidity(p.movingSpeed) : null;
+  const r2 = Math.abs(w) < 1 ? rapidity(w) : null;
   outputs.push(
     r1.status === "value"
       ? value("rapidityFrame", r1.value)

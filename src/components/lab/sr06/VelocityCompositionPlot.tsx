@@ -21,6 +21,7 @@ function arrow(
   color: string,
   label: string,
   side: 1 | -1,
+  scale: number,
 ): {
   line: string;
   tip: string;
@@ -30,7 +31,6 @@ function arrow(
   color: string;
   label: string;
 } {
-  const scale = 80;
   const x2 = 100 + x * scale;
   const y2 = 100 - y * scale;
   const len = Math.hypot(x2 - 100, y2 - 100) || 1;
@@ -57,44 +57,80 @@ function arrow(
 }
 
 export function VelocityCompositionPlot({ snapshot }: { snapshot: AcceptedSnapshot }) {
-  const ux = num(snapshot, "composedUxOverC") ?? 0;
-  const uy = num(snapshot, "composedUyOverC") ?? 0;
+  const ux = num(snapshot, "composedUxOverC");
+  const uy = num(snapshot, "composedUyOverC");
   const U = num(snapshot, "composedSpeedOverC");
   const gal = num(snapshot, "galileanSpeedOverC");
-  const p = snapshot.parameters as { frameBeta: number; movingSpeed: number; alphaDeg: number };
-  const alpha = (p.alphaDeg * Math.PI) / 180;
-  const wx = p.movingSpeed * Math.cos(alpha);
-  const wy = p.movingSpeed * Math.sin(alpha);
-  const galileanX = p.frameBeta + wx;
-  const galileanY = wy;
-  const composed = arrow(ux, uy, "var(--plot)", "U", 1);
-  const moving = arrow(wx, wy, "var(--ink)", "w", -1);
-  const frame = arrow(p.frameBeta, 0, "var(--accent)", "v", 1);
-  const galilean = arrow(galileanX, galileanY, "var(--muted)", "Galilean", -1);
+  const p = snapshot.parameters as { frameBeta: number; mode: string };
+  // Every physical vector is published by the same owner as the table. Only projection into
+  // the drawing's coordinates belongs here; a saved control for another mode is not a vector.
+  const wx = num(snapshot, "movingUxOverC");
+  const wy = num(snapshot, "movingUyOverC");
+  const galileanX = num(snapshot, "galileanUxOverC");
+  const galileanY = num(snapshot, "galileanUyOverC");
+  const scale =
+    80 /
+    Math.max(
+      1,
+      Math.abs(p.frameBeta),
+      ...[ux, uy, wx, wy, galileanX, galileanY].map((v) => Math.abs(v ?? 0)),
+    );
+  const arrows =
+    ux !== null &&
+    uy !== null &&
+    wx !== null &&
+    wy !== null &&
+    galileanX !== null &&
+    galileanY !== null
+      ? [
+          arrow(p.frameBeta, 0, "var(--accent)", "v", 1, scale),
+          arrow(wx, wy, "var(--ink)", "w", -1, scale),
+          arrow(galileanX, galileanY, "var(--muted)", "Galilean", -1, scale),
+          arrow(ux, uy, "var(--plot)", "U", 1, scale),
+        ]
+      : null;
   const matrixOut = result(snapshot, "productMatrix");
   const matrix =
     matrixOut.status === "value" && typeof matrixOut.value !== "number" ? matrixOut.value : null;
   return (
     <div className="sr06-plot">
-      <svg viewBox="0 0 200 200" role="img" aria-labelledby="sr06-plot-title">
-        <title id="sr06-plot-title">Velocity composition in units of c</title>
-        <circle cx="100" cy="100" r="80" fill="none" stroke="currentColor" strokeDasharray="3 3" />
-        <path d="M20 100 H180 M100 20 V180" stroke="currentColor" strokeWidth="0.5" />
-        {[frame, moving, galilean, composed].map((a) => (
-          <g key={a.label}>
-            <path d={a.line} stroke={a.color} fill="none" strokeWidth="1.6" />
-            <polygon points={a.tip} fill={a.color} />
-            <text x={a.lx} y={a.ly} fontSize="8" fill={a.color} textAnchor={a.anchor}>
-              {a.label}
-            </text>
-          </g>
-        ))}
-      </svg>
+      {arrows ? (
+        <svg viewBox="0 0 200 200" role="img" aria-labelledby="sr06-plot-title">
+          <title id="sr06-plot-title">Velocity composition in units of c</title>
+          <circle
+            cx="100"
+            cy="100"
+            r={scale}
+            fill="none"
+            stroke="currentColor"
+            strokeDasharray="3 3"
+          />
+          <path d="M20 100 H180 M100 20 V180" stroke="currentColor" strokeWidth="0.5" />
+          {arrows.map((a) => (
+            <g key={a.label} data-velocity-vector={a.label}>
+              <path d={a.line} stroke={a.color} fill="none" strokeWidth="1.6" />
+              <polygon points={a.tip} fill={a.color} />
+              <text x={a.lx} y={a.ly} fontSize="8" fill={a.color} textAnchor={a.anchor}>
+                {a.label}
+              </text>
+            </g>
+          ))}
+        </svg>
+      ) : (
+        <p>
+          The velocity diagram is unavailable for this result. Read the explanation in the table.
+        </p>
+      )}
       <p className="fine">
         The dashed circle is light speed. The Galilean sum is labeled and is not the model. Composed
         speed {U === null ? "unavailable" : `${fixed(U, 6)} c`}
         {gal === null ? "" : `; Galilean ${fixed(gal, 6)} c`}.
       </p>
+      {p.mode === "two-boosts" ? (
+        <p className="fine">
+          Here w is the second boost velocity, measured in the intermediate frame.
+        </p>
+      ) : null}
       {matrix && matrix.length === 16 ? (
         <table className="sr06-matrix">
           <caption>Two-boost product matrix (full 4×4, not a parallel-axis shortcut)</caption>
