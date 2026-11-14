@@ -15,6 +15,7 @@ import {
 import { DescriptionOrWorld } from "./DescriptionOrWorld.tsx";
 import { EnergyLedger } from "./EnergyLedger.tsx";
 import { EntropyTemperatureCheck } from "./EntropyTemperatureCheck.tsx";
+import { FieldWaveSamples } from "./FieldWaveSamples.tsx";
 import { FourCellsTwiceTheSide } from "./FourCellsTwiceTheSide.tsx";
 import { FourOutcomes } from "./FourOutcomes.tsx";
 import { HeightIsNotProbability } from "./HeightIsNotProbability.tsx";
@@ -139,6 +140,8 @@ function constructionFor(id: FoundationConstructionId, headingLevel: HeadingLeve
       return <RapidityAdder headingLevel={headingLevel} />;
     case "vectors-components":
       return <TurnedAxes headingLevel={headingLevel} />;
+    case "fields-waves":
+      return <FieldWaveSamples headingLevel={headingLevel} />;
     case "dot-cross-products":
       return <ProductsView headingLevel={headingLevel} />;
     case "conservation-symmetry":
