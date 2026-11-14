@@ -50,6 +50,8 @@ import { GlossFace } from "./faces/GlossFace.tsx";
 import { sectionGlossPath } from "./faces/glossSections.ts";
 import { ParallelFace } from "./faces/ParallelFace.tsx";
 import { firstUseCallouts } from "./firstUse.ts";
+import { PinnedEquationDock } from "./layout/PinnedEquationCompanion.tsx";
+import { PinnedEquationProvider } from "./layout/PinnedEquationContext.tsx";
 import {
   LazyClockFirstEncounter,
   LazyLightQuantaDerivation,
@@ -62,8 +64,6 @@ import {
   LazySRSynchronizationDerivation,
 } from "./lazyIslands.tsx";
 import { ledgerGaps } from "./ledgerGaps.ts";
-import { PinnedEquationDock } from "./layout/PinnedEquationCompanion.tsx";
-import { PinnedEquationProvider } from "./layout/PinnedEquationContext.tsx";
 import { MassEnergyDerivation } from "./MassEnergyDerivation.tsx";
 import { MassEnergyLowSpeed } from "./MassEnergyLowSpeed.tsx";
 import { loadPaperMargins } from "./marginRecords.ts";
@@ -87,6 +87,7 @@ import { UnexplainedOutlineEntry, UnexplainedPartsLine } from "./UnexplainedPart
 import { outlineOrder, paperParts, unexplainedParts } from "./unexplainedParts.ts";
 import "./reader.css";
 import "./paperLayout.css";
+import { PaperChapterInvestigation } from "./PaperChapterInvestigation.tsx";
 import { PaperDiscovery } from "./PaperDiscovery.tsx";
 import { PassageProjections } from "./PassageProjections.tsx";
 import { loadPassageProjections } from "./projections/passageProjections.ts";
@@ -896,6 +897,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                     )}
                   </article>
                 ))}
+              <PaperChapterInvestigation paper={paper.id} section={s.id} />
               {/* Where a walkthrough of this section exists, the way to it (am-2rl9). This shell
                   serves light-quanta, relativity and mass-energy; PaperReader serves Brownian and
                   carries the same mount. Renders nothing on the sections that have none. */}

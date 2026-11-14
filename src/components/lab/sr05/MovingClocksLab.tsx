@@ -50,6 +50,8 @@ export type MovingClocksLabProps = Readonly<{
    */
   restoreFromLocation?: boolean | undefined;
   highlightPaper?: boolean | undefined;
+  /** Restoring a form uses the retained accepted snapshot, without issuing a new calculation. */
+  onValidationStateChange?: ((state: "invalid" | "restored") => void) | undefined;
 }>;
 
 function numberOf(
@@ -116,6 +118,7 @@ export function MovingClocksLab({
   session: sharedSession,
   restoreFromLocation = false,
   highlightPaper = false,
+  onValidationStateChange,
 }: MovingClocksLabProps) {
   const instanceId = useId();
   const session = useMemo(
@@ -126,6 +129,7 @@ export function MovingClocksLab({
   const gate = usePredictGate("sr-05", SR05_PROMPTS);
   const [draft, setDraft] = useState(() => clockDraft(session.acceptedParameters()));
   const [failure, setFailure] = useState<ApplyFailure | null>(null);
+  const [restored, setRestored] = useState(false);
   const [ready, setReady] = useState(false);
   const acceptedParameters = (view.accepted?.parameters ??
     session.acceptedParameters()) as Sr05Parameters;
@@ -136,6 +140,7 @@ export function MovingClocksLab({
   useEffect(() => {
     setDraft(clockDraft(acceptedParameters));
     setFailure(null);
+    setRestored(false);
   }, [acceptedParameters]);
 
   /** A shared tape restores the owner; its accepted settings also synchronize the form above. */
@@ -193,6 +198,7 @@ export function MovingClocksLab({
       : `a clock moving at ${fmt(params.speed)}c${route}: the platform clocks read ${fmt(coordinateTime)} s while it reads ${fmt(properTime)} s.`;
 
   function apply(parameters: unknown) {
+    setRestored(false);
     try {
       const failed = applyFailure(session.apply(parameters));
       setFailure(failed);
@@ -216,6 +222,8 @@ export function MovingClocksLab({
   function restoreAcceptedSettings() {
     setDraft(clockDraft(session.acceptedParameters()));
     setFailure(null);
+    setRestored(true);
+    onValidationStateChange?.("restored");
   }
 
   return (
@@ -325,6 +333,11 @@ export function MovingClocksLab({
                 </button>
               </div>
             </fieldset>
+            {restored && (
+              <p className="fine" role="status">
+                Returned to the kept accepted settings. No new calculation was made.
+              </p>
+            )}
             {failure && (
               <div
                 id={`${instanceId}-error`}

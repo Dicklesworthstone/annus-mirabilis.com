@@ -74,6 +74,8 @@ export type PhotoelectricLabProps = Readonly<{
    * owns its own, as on /lab/lq-08/.
    */
   session?: ReturnType<typeof createLq08Session> | undefined;
+  /** Notify an enclosing investigation when form validation stops before reaching the owner. */
+  onValidationStateChange?: ((state: "invalid" | "restored") => void) | undefined;
 }>;
 
 // The three prompts come from the manifest, content/experiments/lq-08.yaml, through the generated
@@ -170,6 +172,7 @@ export function PhotoelectricLab({
   predict = true,
   highlightPaper = false,
   session: sharedSession,
+  onValidationStateChange,
 }: PhotoelectricLabProps) {
   const instanceId = useId();
   const session = useMemo(
@@ -273,6 +276,7 @@ export function PhotoelectricLab({
       setDrafts((d) => ({ ...d, [key]: text }));
       setFailure(null);
       setError(`${FIELDS[key].label}: enter a number.`);
+      onValidationStateChange?.("invalid");
       return;
     }
     const stored = n * FIELDS[key].scale;
@@ -281,6 +285,7 @@ export function PhotoelectricLab({
       setDrafts((d) => ({ ...d, [key]: text }));
       setFailure(null);
       setError(lq08RangeSentence(key));
+      onValidationStateChange?.("invalid");
       return;
     }
     if (apply({ [key]: stored })) {

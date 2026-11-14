@@ -307,7 +307,7 @@ export const PPE_TASK: PpeTask = {
   promptId: "ppe-light-quanta-s7-s9",
   task: "Predict first. A lamp gets brighter, but its frequency stays below the threshold. Of the number of electrons freed each second, the greatest energy any of them leaves with, and the power falling on the metal, which should not rise merely because the laboratory draws more marks arriving?",
   perturbPrompt:
-    "In the laboratory at step 08, keep the 2 eV surface, set the frequency below 483.6 THz, and double the incident power: the count of electrons stays at zero, and the laboratory says that in this model no electron is emitted. Then press its preset “The intensity probe (rate vs energy)”, which is above the threshold, and double the power again: the rate rises, and the greatest energy stays where it was.",
+    "In the photoelectric laboratory, keep the 2 eV surface, set the frequency below 483.6 THz, and double the incident power: the count of electrons stays at zero, and the laboratory says that in this model no electron is emitted. Then press its preset “The intensity probe (rate vs energy)”, which is above the threshold, and double the power again: the rate rises, and the greatest energy stays where it was.",
   explainPrompt:
     "Explain both results in terms of what one quantum can do, and say what the moving marks in the laboratory are and are not.",
 };

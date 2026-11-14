@@ -332,7 +332,7 @@ const button = (id: string) => `“${SR05_PRESETS[id]?.label ?? id}”`;
 export const PPE_TASK: PpeTask = {
   promptId: "ppe-special-relativity-s4",
   task: "Predict first. One clock goes out and back at 0.6 of the speed of light while the resting clocks advance 10 s; another circles at the same speed for the same 10 s. When each returns to the clock that stayed, which reads less, or do they read the same?",
-  perturbPrompt: `In the laboratory at step 08, press ${button("sr-05-out-and-back-0.6c")} and read the moving clock; then press ${button("sr-05-circle-0.6c")} and read it again. Last, press ${button("sr-05-low-speed-1e-4")} and set the exact loss per second beside the printed second-order form.`,
+  perturbPrompt: `In the moving-clock laboratory, press ${button("sr-05-out-and-back-0.6c")} and read the moving clock; then press ${button("sr-05-circle-0.6c")} and read it again. Last, press ${button("sr-05-low-speed-1e-4")} and set the exact loss per second beside the printed second-order form.`,
   explainPrompt:
     "Explain why the two paths give the same reading, and say what the laboratory computes rather than measures.",
 };
