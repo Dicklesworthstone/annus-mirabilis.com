@@ -1,14 +1,28 @@
 "use client";
 
-import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import {
+  type FormEvent,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { createBm01BrowserChannel } from "../../experiments/bm01/browser.ts";
-import { createBm01Session, type PreparedBm01Example } from "../../experiments/bm01/session.ts";
+import type { PreparedBm01Example } from "../../experiments/bm01/session.ts";
 import { createBm06BrowserChannel } from "../../experiments/bm06/browser.ts";
-import { createBm06Session, type PreparedBm06Example } from "../../experiments/bm06/session.ts";
-import { createBrownianRadiusGroup } from "../../experiments/groups/brownianRadius.ts";
+import type { PreparedBm06Example } from "../../experiments/bm06/session.ts";
+import {
+  type BrownianRadiusSession,
+  createBrownianRadiusSession,
+  restoreBrownianRadiusFromUrl,
+  tapeForBrownianRadius,
+} from "../../experiments/groups/brownianRadiusTape.ts";
 import type { ExperimentGroupDefinition } from "../../experiments/groups/schema.ts";
 import { ExecutionLabel } from "../../experiments/labels/ExecutionLabel.tsx";
 import { useLaboratoryVisibility } from "../../experiments/lifecycle/useLaboratoryVisibility.ts";
+import { ShareControl } from "../../experiments/permalink/ShareControl.tsx";
 import { failureCode } from "../../experiments/results/applyFailure.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import type { WorkerChannel } from "../../workers/scheduler/hostScheduler.ts";
@@ -78,35 +92,133 @@ export function BrownianLinkedGroup({
   workerFactories?: readonly [() => WorkerChannel, () => WorkerChannel];
 }) {
   const id = useId();
-  const [sessions] = useState(
-    () =>
-      [
-        createBm01Session(id + "-linked-tracers", tracerExample, workerFactories[0]),
-        createBm06Session(id + "-linked-density", densityExample, workerFactories[1]),
-      ] as const,
+  const examples = useMemo(
+    () => ({ tracer: tracerExample, density: densityExample }),
+    [tracerExample, densityExample],
   );
-  const [group] = useState(() => createBrownianRadiusGroup(definition, sessions));
+  const [session, setSession] = useState(() =>
+    createBrownianRadiusSession(id + "-linked", definition, examples, workerFactories),
+  );
+  const { sessions, group } = session;
   const view = useSyncExternalStore(group.subscribe, group.getSnapshot, group.getServerSnapshot);
   const region = useLaboratoryVisibility(group);
   const [ready, setReady] = useState(false);
+  const [restoreNotice, setRestoreNotice] = useState("");
+  const restoring = useRef(true);
+  const restoreSequence = useRef(0);
+  const activeSession = useRef<BrownianRadiusSession | null>(session);
+  const candidates = useRef(
+    new Map<BrownianRadiusSession, Readonly<{ signal: AbortSignal; notice: string }>>(),
+  );
   const [sharedRadius, setSharedRadius] = useState(String(tracerExample.parameters.a * 1e6));
   const [radii, setRadii] = useState([
     String(tracerExample.parameters.a * 1e6),
     String(densityExample.parameters.a * 1e6),
   ]);
   useEffect(() => {
+    activeSession.current = session;
     group.connect();
-    setReady(true);
-    return () => group.disconnect();
-  }, [group]);
+    const restored = candidates.current.get(session);
+    if (restored) {
+      candidates.current.delete(session);
+      setRadii(sessions.map((owner) => String((owner.acceptedParameters().a as number) * 1e6)));
+      setSharedRadius(String((sessions[0].acceptedParameters().a as number) * 1e6));
+      setRestoreNotice(restored.notice);
+      restoring.current = false;
+      setReady(true);
+    }
+    return () => {
+      if (activeSession.current === session) activeSession.current = null;
+      group.disconnect();
+    };
+  }, [group, session, sessions]);
+
+  useEffect(() => {
+    let controller: AbortController | null = null;
+    let previousLocation: string | null = null;
+    function retireCandidates() {
+      for (const candidate of candidates.current.keys()) {
+        if (candidate !== activeSession.current) candidate.group.disconnect();
+      }
+      candidates.current.clear();
+    }
+    function restoreLocation() {
+      const address = new URL(window.location.href);
+      const locationKey = JSON.stringify([address.pathname, address.searchParams.getAll("tape")]);
+      if (locationKey === previousLocation) return;
+      previousLocation = locationKey;
+      controller?.abort();
+      retireCandidates();
+      const request = new AbortController();
+      controller = request;
+      restoreSequence.current += 1;
+      restoring.current = true;
+      setReady(false);
+      setRestoreNotice(
+        address.searchParams.has("tape")
+          ? "Checking the shared settings and calculating both instruments…"
+          : "",
+      );
+      void restoreBrownianRadiusFromUrl(
+        id + "-shared-" + restoreSequence.current,
+        definition,
+        examples,
+        workerFactories,
+        address.href,
+        request.signal,
+      ).then(
+        (restored) => {
+          if (request.signal.aborted || controller !== request) {
+            if (restored.kind === "restored") restored.session.group.disconnect();
+            return;
+          }
+          if (restored.kind === "restored") {
+            const next = restored.session;
+            candidates.current.set(next, { signal: request.signal, notice: restored.notice });
+            // Navigation can supersede this result before React commits the queued update.
+            setSession((current) =>
+              request.signal.aborted || controller !== request ? current : next,
+            );
+          } else {
+            setRestoreNotice(restored.kind === "not-restored" ? restored.notice : "");
+            restoring.current = false;
+            setReady(true);
+          }
+        },
+        () => {
+          if (request.signal.aborted || controller !== request) return;
+          setRestoreNotice(
+            "The shared comparison could not be restored. Your current comparison is kept.",
+          );
+          restoring.current = false;
+          setReady(true);
+        },
+      );
+    }
+    window.addEventListener("popstate", restoreLocation);
+    window.addEventListener("pageshow", restoreLocation);
+    restoreLocation();
+    return () => {
+      controller?.abort();
+      retireCandidates();
+      window.removeEventListener("popstate", restoreLocation);
+      window.removeEventListener("pageshow", restoreLocation);
+    };
+  }, [id, definition, examples, workerFactories]);
+
+  const shareTape = useMemo(() => tapeForBrownianRadius(session, view), [session, view]);
 
   function submitShared(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!ready || restoring.current) return;
+    setRestoreNotice("");
     if (view.enabled) group.update(metres(sharedRadius));
     else group.link(metres(sharedRadius));
   }
 
   function unlink() {
+    if (!ready || restoring.current) return;
+    setRestoreNotice("");
     group.unlink();
     setRadii(
       group
@@ -133,6 +245,7 @@ export function BrownianLinkedGroup({
       data-linked-group={definition.groupId}
       data-group-enabled={String(view.enabled)}
       data-group-status={view.status}
+      data-group-restoring={String(!ready)}
       data-requested-generation={view.generationId}
     >
       <h2 id={id + "-title"}>One radius, two ways of seeing the spread</h2>
@@ -159,7 +272,12 @@ export function BrownianLinkedGroup({
           <p className="linked-radius-chip" data-link-chip="particleRadius">
             <strong>{definition.label}</strong>
             <span>Tracer ensemble + spreading probability</span>
-            <button type="button" onClick={unlink}>
+            <button
+              type="button"
+              onClick={unlink}
+              disabled={!ready}
+              aria-label="Unlink the particle radius for both instruments"
+            >
               Unlink
             </button>
           </p>
@@ -194,7 +312,8 @@ export function BrownianLinkedGroup({
           radii. Try 0.5 μm, then 1 μm.
         </p>
         <p className="status-line" aria-live="polite" aria-atomic="true">
-          {announcement}
+          {restoreNotice && <span data-group-restore>{restoreNotice} </span>}
+          {(ready || !restoreNotice) && announcement}
         </p>
         {view.enabled && view.status !== "accepted" && (
           <p className="notice" data-previous-group-results>
@@ -252,6 +371,8 @@ export function BrownianLinkedGroup({
                 <form
                   onSubmit={(event) => {
                     event.preventDefault();
+                    if (!ready || restoring.current) return;
+                    setRestoreNotice("");
                     group.applyMember(member.instrumentId, metres(radii[index] ?? ""));
                   }}
                   noValidate
@@ -320,6 +441,17 @@ export function BrownianLinkedGroup({
         Unlinking keeps each instrument's last accepted result and stops any pending shared update.
         This link applies to these two instruments on this page.
       </p>
+      {ready && shareTape && (
+        <div>
+          <h3>Share the displayed settings</h3>
+          <p className="fine">
+            The link records both instruments' accepted settings, the tracer seed and whether their
+            radii are linked. Opening it calculates a new comparison from those settings. Particle
+            paths are not stored in the link.
+          </p>
+          <ShareControl tape={shareTape} />
+        </div>
+      )}
     </section>
   );
 }
