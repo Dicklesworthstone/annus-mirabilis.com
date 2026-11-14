@@ -14,7 +14,7 @@
 # 2026-10-13: lq-01-predict-phase-shift (controlId delta), lq-05-predict-ten-points (controlId n) and
 # lq-08-predict-double-power (controlId incidentPower) are all registered in their manifests, the
 # cited presets lq-01-equal-amplitudes and lq-08-intensity-probe each set their prompt's control, and
-# the-locked-positions is an lq-05 tape carrying a control event for n. Nothing here substitutes a
+# the-locked-positions is an lq-05 tape that sets n to ten, then locks those same points. Nothing here substitutes a
 # tour-authored question for a missing prompt, which the bead forbids.
 #
 # STEP 6 DOES NOT USE THE PARAGRAPH THE BEAD NAMES, and this is the one place where it departs.

@@ -13,7 +13,7 @@
 # ONE thing - a rigid cluster - that might be anywhere. The chance that it is in a given half is a half.
 # Not a half to the tenth: a half. So the probability is f, the entropy change is k ln f, and the number
 # of points does not appear in either. The instrument reports 0.5 against the independent reading's
-# 0.0009765625, a factor of 1024 at this n, and an expected wait of 2 trials against 1024.
+# 0.0009765625, a factor of 512 at this n, and an expected wait of 2 trials against 1024.
 #
 # WHY THIS IS THE FIXTURE THAT PROTECTS SECTION 6. The entire comparison with an ideal gas rests on the
 # entropy being proportional to the NUMBER of things, because that is what lets a coefficient be read as
@@ -27,7 +27,7 @@
 id: "lq05-locked-positions-counterexample"
 kind: "adversarial"
 title: "LQ-05 with the points locked together: the probability is a half, not a half to the tenth"
-description: "Locking ten points to each other makes them one rigid cluster, so the chance of finding them in a given half of the volume is one half and the entropy change is the logarithm of one half, with the number of points appearing in neither. Against the independent reading of 0.0009765625 that is a factor of 1024 at this n, and the expected wait falls from 1024 trials to 2. The counting argument of section 5 is therefore sensitive to independence, which is what makes it evidence about independent quanta in section 6."
+description: "Locking ten points to each other makes them one rigid cluster, so the chance of finding them in a given half of the volume is one half and the entropy change is the logarithm of one half, with the number of points appearing in neither. Against the independent reading of 0.0009765625 that is a factor of 512 at this n, and the expected wait falls from 1024 trials to 2. The counting argument of section 5 is therefore sensitive to independence, which is what makes it evidence about independent quanta in section 6."
 plausibleMistake: "That the probability of all n points being in a fraction f is f to the n because there are n points, so the formula holds however they are arranged. The exponent counts INDEPENDENT choices and not objects: ten points rigidly fixed to one another make one choice between them, so the exponent is one. A page applying f to the n here would report 0.0009765625 for a situation whose answer is 0.5, understating it by three orders of magnitude while looking exactly like the correct calculation."
 intendedFailure: "The locked model is evaluated as its own model rather than through the independent formula, so the probability comes out as f and the entropy as ln f with no n in them. The scenario passes only when the locked probability is 0.5 and the configuration probability agrees with it; a run returning 0.0009765625 would be the planted mistake itself, and a run that refused would be declining to evaluate a model that is well defined."
 constantSetId: "modern-si-2019"
@@ -67,6 +67,6 @@ expected:
       comparisonKind: tolerance
       tolerance:
         relative: 1.0e-12
-        rationale: "Two trials against 1024 for ten independent points. The wait is the form in which the factor of 1024 can be felt."
+        rationale: "Two trials against 1024 for ten independent points. The wait is the form in which the factor of 512 can be felt."
 modelVersion: 1
 schemaVersion: 1

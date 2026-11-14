@@ -1,3 +1,7 @@
+# A worked sequence through the actual LQ-05 controls: four independent points,
+# ten independent points, then the same ten points locked to one shared position.
+# Checkpoints bind the complete accepted settings; analytic probabilities come from the
+# selected owner. The seeded placement sample is a synthetic illustration, not evidence.
 tapeVersion: 2
 tapeId: the-locked-positions
 experimentId: lq-05
@@ -5,14 +9,17 @@ mode: "lq-05:default"
 modelIdentity:
   modelId: lq05-independent-configurations-v1
   modelVersion: "1"
-  artifactDigest: "host:sha256:b1e7451fa3787a1b51e5cb50d2d91aef1996707ee4390e89644c7f255094ad64"
+  artifactDigest: "host:sha256:d10ebb2fff9389051d1db33e86e0b29b8d59c5985245d81e349c5148404d9b36"
 constantSetId: modern-si-2019
 seed: "12345"
 streamVersion: 1
 allocationId: deterministic
 initialConditions:
-  n: 10
+  n: 4
   f: 0.5
+  view: "enumeration"
+  locked: "false"
+  seed: "12345"
   trials: 10000
 events:
   - kind: prediction
@@ -25,44 +32,72 @@ events:
   - kind: control
     actionIndex: 2
     commandClass: setup-change
-    commandId: set-particles
+    commandId: set-ten-points
     parameterId: n
-    value: 60
+    value: 10
+  - kind: control
+    actionIndex: 3
+    commandClass: setup-change
+    commandId: lock-ten-points
+    parameterId: locked
+    value: "true"
 checkpoints:
-  - actionIndex: 1
+  - actionIndex: 0
     stepIndex: 1
     simulatedTime: 1
-    digest: "host:3e4c67a9eb19c27a"
+    digest: "host:0ccc309961571381"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1
     seed: "12345"
     streamPositions: []
-    label: "Ten independent particles in half a volume"
-    teachingNote: "With 10 independent points, W = (1/2)^10 = 1/1024."
+    label: "Four independent points in half a volume"
+    teachingNote: "Each point makes its own choice. All four lie in the left half in one of 16 equally likely arrangements."
+    expectedDisplayValues:
+      - label: "W (four independent)"
+        value: 0.0625
+        outputId: configurationProbability
+        unit: "1"
+        constantSetId: modern-si-2019
+  - actionIndex: 2
+    stepIndex: 1
+    simulatedTime: 1
+    digest: "host:3e4c65a9eb19bf14"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "12345"
+    streamPositions: []
+    label: "Ten independent points in half a volume"
+    teachingNote: "Changing only the count to ten gives one chance in 1024. The points still choose independently."
     expectedDisplayValues:
       - label: "W (independent)"
         value: 0.0009765625
         outputId: configurationProbability
         unit: "1"
         constantSetId: modern-si-2019
-  - actionIndex: 2
-    stepIndex: 2
-    simulatedTime: 2
-    digest: "host:d5f02dcdcc302a11"
+  - actionIndex: 3
+    stepIndex: 1
+    simulatedTime: 1
+    digest: "host:65f5a9dc5f10bdd8"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1
     seed: "12345"
     streamPositions: []
-    label: "Ten locked particles moving rigidly"
-    teachingNote: "When the 10 points are rigidly locked, W = 1/2."
+    label: "The same ten points locked to one position"
+    teachingNote: "Keep the count and volume fraction fixed, but switch on the lock. One shared placement decides all ten points, so the chance is one in two. Independence, not the number of labels, produced the earlier power."
     expectedDisplayValues:
       - label: "W (locked)"
         value: 0.5
-        outputId: lockedProbability
+        outputId: configurationProbability
+        unit: "1"
+        constantSetId: modern-si-2019
+      - label: "Expected placements for one success"
+        value: 2
+        outputId: expectedTrialsToOne
         unit: "1"
         constantSetId: modern-si-2019
 title: "The locked positions"
-description: "Demonstrates that the probability is (V/V0)^n only when the points are independent; rigidly locked points give V/V0."
+description: "Compare four independent points, ten independent points, and the same ten points locked to one shared position. The probability is (V/V0)^n only when the points are independent; the locked group gives V/V0."
 isTeachingSequence: true
