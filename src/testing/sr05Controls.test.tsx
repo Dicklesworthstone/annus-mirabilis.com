@@ -223,7 +223,7 @@ describe("typed moving-clock investigation", () => {
     expect(container.querySelector("[data-apply-failure]")).toBeNull();
   });
 
-  test("a shared owner's accepted change synchronizes the form without exposing unimplemented observer settings", async () => {
+  test("a shared owner's accepted change synchronizes the trip and the implemented observer control", async () => {
     await mount();
     await edit("speed", "unfinished");
     await act(async () => {
@@ -232,7 +232,10 @@ describe("typed moving-clock investigation", () => {
     expect(field("speed").value).toBe("0.8");
     expect(field("coordinateDuration").value).toBe("20");
     expect(readout("properTime")).toBe("12 s");
-    expect(container.querySelector('[name="frameOfDescription"]')).toBeNull();
+    expect(container.querySelector<HTMLInputElement>('[name="frameOfDescription"]')?.value).toBe(
+      "0",
+    );
+    expect(container.querySelector('[data-testid="sr05-observer-view"]')).not.toBeNull();
   });
 
   test("an inline clock keeps its supplied owner, shares the standalone lab and replays accepted stops", async () => {

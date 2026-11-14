@@ -69,16 +69,26 @@ jobs:
           src/testing/scheduler*.test.ts
           src/testing/concurrency.test.ts
           src/testing/readerViewLoaders.integration.test.tsx
+          src/reader/PaperChapterInvestigation.render.test.tsx
+          src/reader/PaperChapterInvestigation.test.tsx
+          src/reader/chapterInvestigationSession.test.ts
           src/a11y/readingSettings/readingOnlyLifecycle.test.tsx
           src/reader/notebook/exerciseEntry.test.ts
           src/reader/notebook/teachBackEntry.test.ts
           src/components/discover/SavedExerciseResponse.test.tsx
+          src/components/discover/BainbridgeComparison.test.tsx
+          src/components/discover/MassEnergyWorldCheck.test.tsx
+          src/discovery/revisit
+          src/discovery/connections
           src/components/foundations/FieldWaveSamples.test.tsx
           src/experiments/shelfOptics
           src/experiments/bm01
           src/experiments/bm08
           src/experiments/avogadro
           src/components/lab/avogadro
+          src/physics/reference/molecularIdentification*.test.ts
+          src/experiments/me03/bainbridge.test.ts
+          src/testing/datasets/datasetObservationDate.test.ts
           src/reasoning/infer
           src/physics/reference/inference/identifiability.test.mjs
           src/experiments/lq04
@@ -103,6 +113,8 @@ jobs:
           src/testing/sr-05.test.ts
           src/testing/sr05Lab.test.tsx
           src/testing/sr05Controls.test.tsx
+          src/experiments/sr05/observer.test.ts
+          src/components/lab/sr05/ClockObserverView.test.tsx
           src/testing/bm03/bm03.tape.test.ts
           src/testing/bm03/bm03.recording.test.tsx
           src/testing/sr01Recording.test.tsx
