@@ -5,6 +5,7 @@ import { Fragment } from "react";
 import { parseYaml } from "../../content/provenance/yaml.ts";
 import { loadTeachingTapes, tapesForExperiment } from "../../content/teachingTapes.ts";
 import { CATALOGUE_IDS, CATALOGUE_STATUS, type CatalogueId } from "../../experiments/catalogue.ts";
+import { LINKED_OBSERVER_LESSON } from "../../experiments/groups/linkedObserverLesson.ts";
 import { labName } from "../../reader/actions/labNames.ts";
 import { previewValue } from "./previewPrecision.ts";
 import "./instruments.css";
@@ -451,6 +452,14 @@ export default function InstrumentsIndex() {
           <InstrumentList ids={loose} />
         </section>
       ) : null}
+
+      <section className="instrument-group">
+        <h2>Link two instruments</h2>
+        <p>{LINKED_OBSERVER_LESSON.description}</p>
+        <p>
+          <a href={LINKED_OBSERVER_LESSON.href}>{LINKED_OBSERVER_LESSON.question}</a>
+        </p>
+      </section>
 
       <section className="reading page-flush">
         <h2>In preparation</h2>

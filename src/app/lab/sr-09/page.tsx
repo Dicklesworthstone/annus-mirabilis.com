@@ -3,6 +3,7 @@ import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { LabTapes } from "../../../components/lab/LabTapes.tsx";
 import { DopplerAberrationLab } from "../../../components/lab/sr09/DopplerAberrationLab.tsx";
+import { LINKED_OBSERVER_LESSON } from "../../../experiments/groups/linkedObserverLesson.ts";
 import { validateSr09Parameters } from "../../../experiments/sr09/parameters.ts";
 import example from "../../../generated/sr09-example.json";
 
@@ -37,6 +38,11 @@ export default function DopplerAberrationPage() {
         <h2>From here</h2>
 
         <ul>
+          <li>
+            <a href={LINKED_OBSERVER_LESSON.href}>
+              Compare frequency and light energy with one linked observer
+            </a>
+          </li>
           <li>
             <a href="/papers/special-relativity/#s7">Read §7 of the 1905 relativity paper</a>
           </li>

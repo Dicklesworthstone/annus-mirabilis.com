@@ -1,0 +1,15 @@
+schemaVersion: 1
+groupId: relativity-observer
+label: "The observer's speed"
+quantityId: frameSpeed
+canonicalUnit: m/s
+commandClass: observer-change
+direction: propagates
+conversion: unit-display
+commitPolicy: coherent
+defaultEnabled: false
+members:
+  - instrumentId: sr-09
+    parameterId: beta
+  - instrumentId: sr-10
+    parameterId: beta

@@ -18,6 +18,17 @@ describe("exact conversions", () => {
   test("1 ls is exactly 299792458 m", () => {
     expect(convertExact("1", "ls", "m")).toBe("299792458");
   });
+  test("a frame speed in c travels as an exact SI speed, separately from a dimensionless ratio", () => {
+    expect(convertExact("0.6", "c", "m/s")).toBe("179875474.8");
+    expect(convertExact("179875474.8", "m/s", "c")).toBe("0.6");
+    expect(conversionFactor("c", "m/s")).toEqual({
+      factor: { num: 299792458n, den: 1n },
+      exactness: "exact",
+    });
+    for (const speed of [-0.95, -0.6, 0, 0.6, 0.95])
+      expect(convertValue(convertValue(speed, "c", "m/s"), "m/s", "c")).toBeCloseTo(speed, 15);
+    assert.throws(() => convertValue(1, "c", "1"), { code: "family-mismatch" });
+  });
   test("1 eV in J keeps every printed digit", () => {
     expect(convertExact("1", "eV", "J")).toBe("0.0000000000000000001602176634");
   });
@@ -158,7 +169,7 @@ describe("parseExactDecimal", () => {
 });
 
 describe("adapters refusal throw sites (am-muyh)", () => {
-  test("adapters: (adapters.ts:110) unknown-unit raised when unit definition is missing", () => {
+  test("adapters: (adapters.ts:115) unknown-unit raised when unit definition is missing", () => {
     expect(() => conversionFactor("nonexistent-unit", "m")).toThrow(UnitConversionError);
     try {
       conversionFactor("nonexistent-unit", "m");
@@ -176,7 +187,7 @@ describe("adapters refusal throw sites (am-muyh)", () => {
     expect(accepted.exactness).toBe("exact");
   });
 
-  test("adapters: (adapters.ts:124) family-mismatch raised when units belong to different dimension families", () => {
+  test("adapters: (adapters.ts:129) family-mismatch raised when units belong to different dimension families", () => {
     expect(() => conversionFactor("m", "Pa*s")).toThrow(UnitConversionError);
     try {
       conversionFactor("m", "Pa*s");
@@ -196,7 +207,7 @@ describe("adapters refusal throw sites (am-muyh)", () => {
     expect(accepted.exactness).toBe("exact");
   });
 
-  test("adapters: (adapters.ts:171) non-terminating-decimal raised when exact rational factor cannot terminate in base 10", () => {
+  test("adapters: (adapters.ts:176) non-terminating-decimal raised when exact rational factor cannot terminate in base 10", () => {
     expect(() => convertExact("1", "statC", "C")).toThrow(UnitConversionError);
     try {
       convertExact("1", "statC", "C");
@@ -212,7 +223,7 @@ describe("adapters refusal throw sites (am-muyh)", () => {
     expect(accepted).toBe("0.00135");
   });
 
-  test("adapters: (adapters.ts:196) invalid-decimal raised when decimal string format is unparseable", () => {
+  test("adapters: (adapters.ts:201) invalid-decimal raised when decimal string format is unparseable", () => {
     expect(() => parseExactDecimal("not-a-finite-decimal")).toThrow(UnitConversionError);
     try {
       parseExactDecimal("not-a-finite-decimal");
@@ -231,7 +242,7 @@ describe("adapters refusal throw sites (am-muyh)", () => {
     expect(accepted.den).toBe(5_000_000_000_000_000_000_000_000_000n);
   });
 
-  test("adapters: (adapters.ts:222) nonfinite-value raised when convertValue receives NaN or Infinity", () => {
+  test("adapters: (adapters.ts:227) nonfinite-value raised when convertValue receives NaN or Infinity", () => {
     expect(() => convertValue(Number.NaN, "m", "cm")).toThrow(UnitConversionError);
     expect(() => convertValue(Number.POSITIVE_INFINITY, "m", "cm")).toThrow(UnitConversionError);
     try {
@@ -248,7 +259,7 @@ describe("adapters refusal throw sites (am-muyh)", () => {
     expect(accepted).toBe(250);
   });
 
-  test("adapters: (adapters.ts:238) nonfinite-value raised when convertTemperatureValue receives NaN or Infinity", () => {
+  test("adapters: (adapters.ts:243) nonfinite-value raised when convertTemperatureValue receives NaN or Infinity", () => {
     expect(() => convertTemperatureValue(Number.NaN, "K", "degC")).toThrow(UnitConversionError);
     expect(() => convertTemperatureValue(Number.NEGATIVE_INFINITY, "degC", "K")).toThrow(
       UnitConversionError,
@@ -269,7 +280,7 @@ describe("adapters refusal throw sites (am-muyh)", () => {
     expect(accepted).toBeCloseTo(17, 10);
   });
 
-  test("adapters: (adapters.ts:243) unknown-unit raised when convertTemperatureValue receives an unhandled temperature unit pair", () => {
+  test("adapters: (adapters.ts:248) unknown-unit raised when convertTemperatureValue receives an unhandled temperature unit pair", () => {
     expect(() => convertTemperatureValue(300, "degF" as unknown as "K", "degC")).toThrow(
       UnitConversionError,
     );
@@ -289,7 +300,7 @@ describe("adapters refusal throw sites (am-muyh)", () => {
     expect(convertTemperatureValue(273.15, "K", "degC")).toBe(0);
   });
 
-  test("adapters: (adapters.ts:258) nonfinite-value raised when convertTemperatureDelta receives NaN or Infinity", () => {
+  test("adapters: (adapters.ts:263) nonfinite-value raised when convertTemperatureDelta receives NaN or Infinity", () => {
     expect(() => convertTemperatureDelta(Number.NaN, "K", "degC")).toThrow(UnitConversionError);
     expect(() => convertTemperatureDelta(Number.POSITIVE_INFINITY, "degC", "K")).toThrow(
       UnitConversionError,
@@ -310,7 +321,7 @@ describe("adapters refusal throw sites (am-muyh)", () => {
     expect(accepted).toBe(5);
   });
 
-  test("adapters: (adapters.ts:260) unknown-unit raised when convertTemperatureDelta receives invalid temperature units", () => {
+  test("adapters: (adapters.ts:265) unknown-unit raised when convertTemperatureDelta receives invalid temperature units", () => {
     expect(() => convertTemperatureDelta(5, "m" as unknown as "K", "degC")).toThrow(
       UnitConversionError,
     );

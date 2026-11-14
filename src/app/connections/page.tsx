@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { contentIndex } from "../../content/server.ts";
 import { ConnectionExercises } from "../../discovery/connections/ConnectionExercises.tsx";
 import { buildConnectionExercises } from "../../discovery/connections/records.ts";
+import { LINKED_OBSERVER_LESSON } from "../../experiments/groups/linkedObserverLesson.ts";
 import { ConnectionMap } from "./ConnectionMap.tsx";
 
 export const metadata: Metadata = {
@@ -51,6 +52,10 @@ export default async function ConnectionsPage() {
           <a href="/lab/sr-10/">Finite light complex</a> ·{" "}
           <a href="/papers/mass-energy/">Mass–energy paper</a> ·{" "}
           <a href="/lab/me-01/">Two energy ledgers</a>
+        </p>
+        <p>
+          <a href={LINKED_OBSERVER_LESSON.href}>{LINKED_OBSERVER_LESSON.question}</a> Link the two
+          relativity instruments to a single observer and compare their predictions.
         </p>
       </section>
       {/* The connection this section records is one the paper makes itself: footnote 1 of the

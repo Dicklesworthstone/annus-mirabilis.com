@@ -3,6 +3,7 @@ import { LabFormula, LabInlineFormula } from "../../../components/lab/LabFormula
 import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { LabTapes } from "../../../components/lab/LabTapes.tsx";
 import { LightComplexLab } from "../../../components/lab/sr10/LightComplexLab.tsx";
+import { LINKED_OBSERVER_LESSON } from "../../../experiments/groups/linkedObserverLesson.ts";
 import { validateSr10Parameters } from "../../../experiments/sr10/parameters.ts";
 import example from "../../../generated/sr10-example.json";
 
@@ -36,6 +37,11 @@ export default function LightComplexPage() {
         <h2>From here</h2>
 
         <ul>
+          <li>
+            <a href={LINKED_OBSERVER_LESSON.href}>
+              Compare light energy and frequency with one linked observer
+            </a>
+          </li>
           <li>
             <a href="/papers/special-relativity/#s8">Read §8 of the 1905 relativity paper</a>
           </li>

@@ -40,6 +40,11 @@ const UNITS: readonly UnitDefinition[] = Object.freeze([
   def("cm", "length", 1n, 100n, "exact"),
   def("ls", "length", SPEED_OF_LIGHT_M_PER_S, 1n, "exact"),
 
+  // Speed. A value displayed in c is a speed, not a dimensionless ratio. Shared observer
+  // controls transport it in m/s and use this exact adapter at each laboratory boundary.
+  def("m/s", "speed", 1n, 1n, "exact"),
+  def("c", "speed", SPEED_OF_LIGHT_M_PER_S, 1n, "exact"),
+
   // Dynamic viscosity
   def("Pa*s", "viscosity", 1n, 1n, "exact"),
   def("mPa*s", "viscosity", 1n, 1_000n, "exact"),

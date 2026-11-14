@@ -86,6 +86,7 @@ import {
 } from "../src/search/documents.ts";
 import { essayDocuments } from "../src/search/essayDocuments.ts";
 import { journeyStageDocuments } from "../src/search/journeyStageDocuments.ts";
+import { linkedGroupDocuments } from "../src/search/linkedGroupDocuments.ts";
 import { timelineDocuments } from "../src/search/timelineDocuments.ts";
 import { buildNativeSearchScript } from "./app/native-search.ts";
 
@@ -428,6 +429,7 @@ export async function loadSearchCorpus(
     ...walkthroughDocuments(walkthroughs, profile),
     ...discoveryDocuments(ROUTE_INDEX, profile),
     ...journeyStages,
+    ...linkedGroupDocuments(profile),
     ...tourDocuments(guidedTours, profile),
     ...notation,
     ...german,
