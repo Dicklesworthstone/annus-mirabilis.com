@@ -261,7 +261,7 @@ test("unchanged descriptions and a genuine K → k → K return admit an empty m
   }
 });
 
-test("(replayEntry.ts:343) saved observer admission rejects tampered physical revisions and stale observer identity before any owner", async () => {
+test("(replayEntry.ts:344) saved observer admission rejects tampered physical revisions and stale observer identity before any owner", async () => {
   for (const revision of ["input", "measurement", "estimator", "observer"]) {
     const changed = structuredClone(savedEntry.replay);
     changed.variant.revisions[revision] =
@@ -359,7 +359,7 @@ test("registered paper/catalogue boundaries keep provenance and escaped private 
   assert.doesNotMatch(JSON.stringify(savedEntry.replay.tape), /event-notes/);
 });
 
-test("(comparisonAdapters.ts:341) SR03 and tracer adapters reject a different owner before creating a worker", async () => {
+test("(comparisonAdapters.ts:359) SR03 and tracer adapters reject a different owner before creating a worker", async () => {
   const io = transport();
   await assert.rejects(
     comparisonReplayAdapter("sr-03").createSession("wrong-owner", {

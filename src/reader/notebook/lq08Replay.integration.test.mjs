@@ -346,7 +346,7 @@ test("a corrupt checkpoint, changed model or mismatched prepared identity cannot
   run.dispose();
 });
 
-test("(comparisonAdapters.ts:273) photoelectric replay requires complete valid apparatus settings", () => {
+test("(comparisonAdapters.ts:291) photoelectric replay requires complete valid apparatus settings", () => {
   assert.deepEqual(adapter.parameters(example.parameters), example.parameters);
   const missingFrequency = Object.fromEntries(
     Object.entries(example.parameters).filter(([key]) => key !== "frequency"),
@@ -363,7 +363,7 @@ test("(comparisonAdapters.ts:273) photoelectric replay requires complete valid a
   }
 });
 
-test("(comparisonAdapters.ts:284) extra changes, arbitrary seeds, foreign owners and fabricated evidence are refused", async () => {
+test("(comparisonAdapters.ts:302) extra changes, arbitrary seeds, foreign owners and fabricated evidence are refused", async () => {
   const extra = structuredClone(savedEntry.replay);
   extra.variant.parameters.frequency = 8e14;
   assert.throws(() => parseComparisonReplay(extra));
