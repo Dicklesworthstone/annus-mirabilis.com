@@ -111,7 +111,10 @@ describe("reading-only owns the entire live loading lifecycle", () => {
     expect(html).toContain("data-explanation");
     expect(html).toContain('data-reading-only-instrument="pending"');
     expect(html).not.toContain("data-live-experiment");
-    passed("server-defers-live-import", "No-script markup keeps the worked case without live imports.");
+    passed(
+      "server-defers-live-import",
+      "No-script markup keeps the worked case without live imports.",
+    );
   });
 
   test("a saved on preference hydrates without importing or mounting the live view", async () => {
@@ -167,7 +170,10 @@ describe("reading-only owns the entire live loading lifecycle", () => {
     expect(counts.imports).toBe(1);
     expect(counts.active).toBe(1);
     staticCaseRemains();
-    passed("blocked-storage-preference", "The applied preference works without reading blocked storage.");
+    passed(
+      "blocked-storage-preference",
+      "The applied preference works without reading blocked storage.",
+    );
   });
 
   test("enabling reading-only disposes live resources and revokes an earlier explicit load", async () => {
@@ -188,7 +194,10 @@ describe("reading-only owns the entire live loading lifecycle", () => {
     expect(counts.disposals).toBe(2);
     expect(counts.imports).toBe(1);
     staticCaseRemains();
-    passed("preference-revokes-load", "Re-enabling reading-only releases resources and asks before loading again.");
+    passed(
+      "preference-revokes-load",
+      "Re-enabling reading-only releases resources and asks before loading again.",
+    );
   });
 
   test("a module resolving after reading-only is enabled cannot mount a hidden view", async () => {
@@ -210,7 +219,10 @@ describe("reading-only owns the entire live loading lifecycle", () => {
     staticCaseRemains();
     await load();
     expect(counts.active).toBe(1);
-    passed("pending-import-revoked", "A late module completion cannot start resources without permission.");
+    passed(
+      "pending-import-revoked",
+      "A late module completion cannot start resources without permission.",
+    );
   });
 
   test("an explicit load belongs to one experiment instance", async () => {
@@ -226,7 +238,10 @@ describe("reading-only owns the entire live loading lifecycle", () => {
     await load();
     expect(counts.active).toBe(1);
     expect(container.querySelector('[data-live-experiment="another-reading-test"]')).not.toBeNull();
-    passed("load-scoped-to-instance", "A different experiment instance requires its own explicit load.");
+    passed(
+      "load-scoped-to-instance",
+      "A different experiment instance requires its own explicit load.",
+    );
   });
 
   test("a controlled preference takes effect without retaining a prior load grant", async () => {
@@ -240,7 +255,10 @@ describe("reading-only owns the entire live loading lifecycle", () => {
     expect(counts.active).toBe(0);
     expect(container.querySelector("[data-load-experiment]")).not.toBeNull();
     staticCaseRemains();
-    passed("controlled-preference-revokes-load", "A controlled reading-only change revokes the earlier grant.");
+    passed(
+      "controlled-preference-revokes-load",
+      "A controlled reading-only change revokes the earlier grant.",
+    );
   });
 
   test("reading-only defers GPU probing and the probe releases its temporary context", async () => {
@@ -249,12 +267,17 @@ describe("reading-only owns the entire live loading lifecycle", () => {
     Object.defineProperty(window, "WebGLRenderingContext", { configurable: true, value: class {} });
     let probes = 0;
     let released = 0;
-    const probe = spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(() => {
+    function probeContext(contextId: "webgl"): WebGLRenderingContext;
+    function probeContext(contextId: "2d" | "bitmaprenderer" | "webgl2"): null;
+    function probeContext(contextId: string): RenderingContext | null;
+    function probeContext(contextId: string): RenderingContext | null {
+      if (contextId !== "webgl" && contextId !== "experimental-webgl") return null;
       probes++;
       return {
         getExtension: () => ({ loseContext: () => released++ }),
       } as unknown as WebGLRenderingContext;
-    });
+    }
+    const probe = spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(probeContext);
     restoreProbe = () => probe.mockRestore();
     await mount({ "bm-06": { webgl: loader } });
     expect(probes).toBe(0);
@@ -263,6 +286,9 @@ describe("reading-only owns the entire live loading lifecycle", () => {
     expect(probes).toBeGreaterThan(0);
     expect(released).toBe(probes);
     expect(counts.active).toBe(1);
-    passed("gpu-probe-after-load", "GPU capability checks wait for permission and release their probe contexts.");
+    passed(
+      "gpu-probe-after-load",
+      "GPU capability checks wait for permission and release their probe contexts.",
+    );
   });
 });

@@ -9,8 +9,8 @@ import {
 } from "../../experiments/lq08/comparison.ts";
 import { createLq08Session } from "../../experiments/lq08/session.ts";
 import { encodeResult, parseResult } from "../../experiments/results/codec.ts";
-import { createStorageContext } from "../../platform/storage/store.ts";
 import { thresholdFrequencyFromEv } from "../../physics/reference/photoelectric.ts";
+import { createStorageContext } from "../../platform/storage/store.ts";
 import { comparisonReplayAdapter, comparisonReplayAdapterForKind } from "./comparisonAdapters.ts";
 import { exportNotebookHtml, exportNotebookJson } from "./export.ts";
 import { createNotebookStore } from "./notebookStore.ts";
@@ -60,8 +60,7 @@ function controlled(initial = {}, change = { incidentPower: 0.002 }) {
   });
   controller.connect();
   assert.equal(controller.start(), true);
-  if (change !== null)
-    assert.equal(controller.apply({ ...baseline.parameters, ...change }), true);
+  if (change !== null) assert.equal(controller.apply({ ...baseline.parameters, ...change }), true);
   const state = controller.getSnapshot();
   assert.equal(state.phase, "live");
   assert.equal(state.pending, false);
@@ -105,11 +104,7 @@ async function finish(run, allowChangedModel = false) {
 
 const state = controlled();
 const input = { state, passage, ...words, prediction: "same" };
-const savedEntry = await makeReplayEntry(
-  input,
-  "photoelectric-saved",
-  "2026-11-14T12:00:00.000Z",
-);
+const savedEntry = await makeReplayEntry(input, "photoelectric-saved", "2026-11-14T12:00:00.000Z");
 
 test("photoelectric save, storage reload, export/import and explicit replay preserve the one physical change", async () => {
   const saved = storage();
@@ -384,7 +379,10 @@ test("(comparisonAdapters.ts:284) extra changes, arbitrary seeds, foreign owners
     code: "invalid-replay-comparison-evidence",
   });
   const unchanged = await captureComparisonReplay(controlled({}, null), passage, words);
-  for (const [key, value] of [["quantumEfficiency", 0.2], ["collectorPotential", -0.1]]) {
+  for (const [key, value] of [
+    ["quantumEfficiency", 0.2],
+    ["collectorPotential", -0.1],
+  ]) {
     const locked = structuredClone(unchanged);
     locked.variant.parameters[key] = value;
     assert.throws(() => parseComparisonReplay(locked), /held fixed/);
@@ -407,10 +405,9 @@ test("(comparisonAdapters.ts:284) extra changes, arbitrary seeds, foreign owners
     }),
     { code: "replay-owner-mismatch" },
   );
-  assert.throws(
-    () => runner(savedEntry.replay, { instrumentId: "bm-01", workerFactory }),
-    { code: "replay-owner-mismatch" },
-  );
+  assert.throws(() => runner(savedEntry.replay, { instrumentId: "bm-01", workerFactory }), {
+    code: "replay-owner-mismatch",
+  });
 });
 
 test("stopping during checkpoint admission cancels the pending synchronous replay", async () => {

@@ -50,6 +50,7 @@ const LABS: readonly Case[] = [
       createElement(MovingClocksLab, {
         example: rawSr05Example as PreparedSr05Example,
         restoreFromLocation: true,
+        highlightPaper: true,
       }),
     binding: SR05_TAPE,
     changed: { ...SR05_DEFAULTS, speed: 0.3 },
@@ -77,6 +78,9 @@ function handlers(container: HTMLElement, target: Element): Handlers {
 
 async function mounted(element: ReactElement, run: (container: HTMLElement) => Promise<void>) {
   const container = createContainer();
+  const paper = document.createElement("main");
+  container.replaceWith(paper);
+  paper.append(container);
   const root = createRoot(container);
   try {
     await act(async () => root.render(element));
@@ -84,6 +88,7 @@ async function mounted(element: ReactElement, run: (container: HTMLElement) => P
   } finally {
     await act(async () => root.unmount());
     removeContainer(container);
+    paper.remove();
   }
 }
 
@@ -166,12 +171,13 @@ describe("relativity predictions preserve access to controls and the accepted ru
           // Accepted readings stay intact; a refused request must hide its old live source evidence.
           const currentSourceWeave = () =>
             lab.id === "sr-05"
-              ? surface.querySelector<HTMLElement>("[data-result-weave]")
+              ? surface.querySelector<HTMLDetailsElement>("[data-result-weave]")
               : null;
           const sourceLinks = () =>
             [...(currentSourceWeave()?.querySelectorAll(".result-weave-links a") ?? [])].map(
               (link) => link.getAttribute("href"),
             );
+          let sourceSentence: HTMLElement | null = null;
           if (lab.id === "sr-05") {
             const sourceWeave = currentSourceWeave();
             assert.ok(sourceWeave, "The moving-clock result must expose its real source weave.");
@@ -182,11 +188,29 @@ describe("relativity predictions preserve access to controls and the accepted ru
             expect(sourceWeave.querySelector('[data-weave-lit="true"]')).not.toBeNull();
             expect(sourceWeave.querySelector("[data-weave-row] dl")).not.toBeNull();
             expect(sourceLinks().length).toBeGreaterThan(0);
+            expect(sourceWeave.querySelector("[data-weave-snapshot]")?.textContent).toContain(
+              "Prepared worked example",
+            );
+            expect(sourceLinks()).toEqual([
+              "/papers/special-relativity/view/german/#s4-p9-s2",
+              "/papers/special-relativity/view/english/#s4-p9-s2",
+            ]);
+            history.replaceState({}, "", "/papers/special-relativity/s4/");
+            sourceSentence = document.createElement("span");
+            sourceSentence.className = "source-sentence";
+            sourceSentence.dataset.sentenceId = "s4-p9-s2";
+            sourceSentence.textContent = "The moving clock's loss per second.";
+            container.before(sourceSentence);
+            await act(async () => {
+              sourceWeave.open = true;
+              sourceWeave.dispatchEvent(new Event("toggle"));
+            });
+            expect(sourceSentence.hasAttribute("data-live-weave-owner")).toBe(false);
+            expect(sourceWeave.querySelector('[aria-live="polite"]')?.textContent).toBe("");
           }
           const linksBefore = sourceLinks();
           const acceptedText = () => {
-            const sourceResponse =
-              currentSourceWeave()?.closest("[data-predict-response]") ?? null;
+            const sourceResponse = currentSourceWeave()?.closest("[data-predict-response]") ?? null;
             return [...surface.querySelectorAll("[data-predict-response]")]
               .filter((response) => response !== sourceResponse)
               .map((response) => response.textContent);
@@ -227,6 +251,9 @@ describe("relativity predictions preserve access to controls and the accepted ru
             expect(sourceWeave.querySelector("[data-weave-row] dl")).toBeNull();
             expect(sourceWeave.closest(AWAITING)).not.toBeNull();
             expect(sourceLinks()).toEqual(linksBefore);
+            assert.ok(sourceSentence);
+            expect(sourceSentence.hasAttribute("data-live-weave-owner")).toBe(false);
+            expect(sourceWeave.querySelector('[aria-live="polite"]')?.textContent).toBe("");
           }
         });
       },

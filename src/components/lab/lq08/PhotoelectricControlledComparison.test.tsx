@@ -203,7 +203,9 @@ test("one-input comparisons lock the other controls, retain refused results and 
   const refusal = required("[data-photoelectric-comparison] [role=alert]");
   expect(refusal.textContent).toBeTruthy();
   expect(required('input[name="comparison-value"]').getAttribute("aria-invalid")).toBe("true");
-  expect(required('input[name="comparison-value"]').getAttribute("aria-describedby")).toBe(refusal.id);
+  expect(required('input[name="comparison-value"]').getAttribute("aria-describedby")).toBe(
+    refusal.id,
+  );
   expect(required("[data-comparison-results]").getAttribute("data-variant-snapshot")).toBe(version);
   expect(columns(inputRow("frequency")).slice(1, 3)).toEqual(["600", "800"]);
   await click("Return variant to pinned baseline");
@@ -221,7 +223,9 @@ test("below-threshold comparisons retain unavailable energies and genuine zero r
     outputRow("maxKineticEnergy").querySelectorAll('[data-result-status="not-applicable"]'),
   ).toHaveLength(2);
   expect(
-    outputRow("stoppingPotentialMagnitude").querySelectorAll('[data-result-status="not-applicable"]'),
+    outputRow("stoppingPotentialMagnitude").querySelectorAll(
+      '[data-result-status="not-applicable"]',
+    ),
   ).toHaveLength(2);
   expect(outputRow("stoppingPotentialMagnitude").textContent).toContain("no emitted electron");
   expect(outputRow("photocurrent").querySelectorAll('[data-result-status="value"]')).toHaveLength(
@@ -287,10 +291,13 @@ test("the reader saves the accepted comparison and original prediction, then exp
     expect(notebook.querySelectorAll("table")).toHaveLength(1);
     await click("Run the saved comparison again", notebook);
     await until(
-      () => notebook.querySelector<HTMLElement>("[data-fresh-replay]")?.dataset.phase === "complete",
+      () =>
+        notebook.querySelector<HTMLElement>("[data-fresh-replay]")?.dataset.phase === "complete",
     );
     expect(notebook.querySelectorAll("table")).toHaveLength(2);
-    expect(store.getSnapshot().document.entries.find((item) => item.id === entry.id)).toEqual(entry);
+    expect(store.getSnapshot().document.entries.find((item) => item.id === entry.id)).toEqual(
+      entry,
+    );
   } finally {
     if (previousWorker) Object.defineProperty(globalThis, "Worker", previousWorker);
     else Reflect.deleteProperty(globalThis, "Worker");
