@@ -5,8 +5,16 @@ import { DiscoveryNotebookProvider, useDiscoveryNotebook, useNotebookView } from
 import { NOTE_PAPER_TITLES, noteStageHref } from "./manifest.ts";
 import { DiscoveryNotebookControls } from "./NotebookControls.tsx";
 
+type RevisitStageLink = Readonly<{ paper: NoteManifest["paper"]; stageId: string; href: string }>;
+
 /** Reads the guide's same registered document; no mirrored notebook or migration. */
-export function KeptStageNotes({ manifests }: { manifests: readonly NoteManifest[] }) {
+export function KeptStageNotes({
+  manifests,
+  revisits = [],
+}: {
+  manifests: readonly NoteManifest[];
+  revisits?: readonly RevisitStageLink[];
+}) {
   return (
     <section
       id="discovery-notes"
@@ -20,25 +28,33 @@ export function KeptStageNotes({ manifests }: { manifests: readonly NoteManifest
       </p>
       {manifests.map((manifest) => (
         <DiscoveryNotebookProvider key={manifest.paper} manifest={manifest}>
-          <KeptGuideNotes manifest={manifest} />
+          <KeptGuideNotes manifest={manifest} revisits={revisits} />
         </DiscoveryNotebookProvider>
       ))}
     </section>
   );
 }
 
-function KeptGuideNotes({ manifest }: { manifest: NoteManifest }) {
+function KeptGuideNotes({
+  manifest,
+  revisits,
+}: {
+  manifest: NoteManifest;
+  revisits: readonly RevisitStageLink[];
+}) {
   const notebook = useDiscoveryNotebook();
   if (!notebook) return null;
-  return <GuideNotes notebook={notebook} manifest={manifest} />;
+  return <GuideNotes notebook={notebook} manifest={manifest} revisits={revisits} />;
 }
 
 function GuideNotes({
   notebook,
   manifest,
+  revisits,
 }: {
   notebook: NonNullable<ReturnType<typeof useDiscoveryNotebook>>;
   manifest: NoteManifest;
+  revisits: readonly RevisitStageLink[];
 }) {
   const view = useNotebookView(notebook.session);
   return (
@@ -48,6 +64,9 @@ function GuideNotes({
       </h3>
       {view.document.entries.map((entry) => {
         const stage = manifest.stages.find((item) => item.id === entry.stageId);
+        const revisit = revisits.find(
+          (item) => item.paper === manifest.paper && item.stageId === entry.stageId,
+        );
         return (
           <section className="discovery-note-attempt" key={entry.stageId}>
             <h4>
@@ -69,6 +88,11 @@ function GuideNotes({
                 Return to this step and add an observation
               </a>
             </p>
+            {revisit && (
+              <p>
+                <a href={revisit.href}>Try this idea in a changed case</a>
+              </p>
+            )}
           </section>
         );
       })}

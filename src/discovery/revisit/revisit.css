@@ -1,0 +1,56 @@
+.revisit-browser [hidden] {
+  display: none;
+}
+
+.revisit-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  border: 1px solid var(--line);
+  padding: 1rem;
+  margin-block: 1.5rem 0.5rem;
+  min-inline-size: 0;
+}
+
+.revisit-filters label {
+  display: grid;
+  gap: 0.35rem;
+  flex: 1 1 15rem;
+  min-inline-size: 0;
+}
+
+.revisit-filters select {
+  inline-size: 100%;
+  max-inline-size: 100%;
+  min-inline-size: 0;
+}
+
+.revisit-card {
+  border-block-start: 1px solid var(--line);
+  margin-block: 1.75rem;
+  padding-block-start: 1.25rem;
+  overflow-wrap: anywhere;
+}
+
+.revisit-card,
+.revisit-card textarea {
+  scroll-margin-block-start: 6rem;
+}
+
+.revisit-reminder {
+  margin-block: 1rem;
+}
+
+.revisit-return {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  margin-block: 1.25rem 0.5rem;
+}
+
+@media print {
+  .revisit-filters,
+  #revisit-choice-note {
+    display: none;
+  }
+}

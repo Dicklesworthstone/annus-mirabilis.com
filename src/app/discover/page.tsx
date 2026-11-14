@@ -194,6 +194,11 @@ export default function DiscoverIndex() {
       <section className="reading page-flush">
         <h2>When you have followed a route</h2>
         <p>
+          <a href="/discover/revisit/">Try an idea in a changed case</a>: choose a familiar topic,
+          reconsider its assumptions, and compare your explanation with the worked reasoning. You
+          can save your words privately and return to earlier versions in your notebook.
+        </p>
+        <p>
           The <a href="/capstones/">capstones</a> lay each paper&rsquo;s argument out whole: the
           claims, the chain that fixes what has to come before what, and the assumptions each claim
           leans on. One per paper, optional, and made to be printed.

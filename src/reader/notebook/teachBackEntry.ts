@@ -3,6 +3,7 @@ import {
   connectionAnswerHref,
   validConnectionAnswerIdentity,
 } from "../../discovery/connections/answerLocations.ts";
+import { revisitHrefFromPrompt } from "../../discovery/revisit/links.ts";
 
 /** The question as it stood when the reader chose to save an explanation. */
 export type TeachBackCapture = Readonly<{
@@ -81,6 +82,7 @@ export function teachBackHref(paper: string, input: TeachBackCapture): string {
   const capture = parseTeachBackCapture(input, paper);
   return (
     connectionAnswerHref(paper, capture.promptId, "explanation") ??
+    revisitHrefFromPrompt(paper, capture.promptId) ??
     `/discover/${paper}/#explanation-${capture.promptId}`
   );
 }

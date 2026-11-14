@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { KeptInvestigations } from "../../discovery/investigation/KeptInvestigations.tsx";
 import { JOURNEY_NOTE_MANIFESTS } from "../../discovery/journeys/JourneyNotebook.tsx";
 import { KeptStageNotes } from "../../discovery/notes/KeptStageNotes.tsx";
+import { REVISIT_STAGE_LINKS } from "../../discovery/revisit/catalogue.ts";
 
 export const metadata: Metadata = {
   title: "Your private reading notebook",
@@ -40,7 +41,12 @@ export default function NotebookPage() {
           </p>
         </noscript>
         <KeptInvestigations />
-        <KeptStageNotes manifests={JOURNEY_NOTE_MANIFESTS} />
+        <KeptStageNotes manifests={JOURNEY_NOTE_MANIFESTS} revisits={REVISIT_STAGE_LINKS} />
+        <p>
+          <a href="/discover/revisit/">Revisit an idea in a changed case</a>. Choose a topic from
+          any guide, compare your reasoning with its worked explanation, and keep another private
+          answer whenever you wish.
+        </p>
         {/* What goes in it, how it stays private, and how to keep a copy: three short blocks a
           reader can scan, where four paragraphs of equal weight used to run on. Every fact from
           those paragraphs is kept. */}
