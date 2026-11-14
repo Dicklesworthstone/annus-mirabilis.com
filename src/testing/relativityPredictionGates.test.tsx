@@ -163,7 +163,35 @@ describe("relativity predictions preserve access to controls and the accepted ru
           for (const summary of surface.querySelectorAll(".status-line, .sr05-bars"))
             expect(summary.closest(AWAITING)).not.toBeNull();
 
-          const before = responses.map((response) => response.textContent);
+          // Accepted readings stay intact; a refused request must hide its old live source evidence.
+          const currentSourceWeave = () =>
+            lab.id === "sr-05"
+              ? surface.querySelector<HTMLElement>("[data-result-weave]")
+              : null;
+          const sourceLinks = () =>
+            [...(currentSourceWeave()?.querySelectorAll(".result-weave-links a") ?? [])].map(
+              (link) => link.getAttribute("href"),
+            );
+          if (lab.id === "sr-05") {
+            const sourceWeave = currentSourceWeave();
+            assert.ok(sourceWeave, "The moving-clock result must expose its real source weave.");
+            const sourceResponse = sourceWeave.closest("[data-predict-response]");
+            assert.ok(sourceResponse);
+            expect(responses).toContain(sourceResponse);
+            expect(sourceWeave.querySelector("[data-weave-snapshot]")).not.toBeNull();
+            expect(sourceWeave.querySelector('[data-weave-lit="true"]')).not.toBeNull();
+            expect(sourceWeave.querySelector("[data-weave-row] dl")).not.toBeNull();
+            expect(sourceLinks().length).toBeGreaterThan(0);
+          }
+          const linksBefore = sourceLinks();
+          const acceptedText = () => {
+            const sourceResponse =
+              currentSourceWeave()?.closest("[data-predict-response]") ?? null;
+            return [...surface.querySelectorAll("[data-predict-response]")]
+              .filter((response) => response !== sourceResponse)
+              .map((response) => response.textContent);
+          };
+          const before = acceptedText();
           const runId = surface.getAttribute("data-run-id");
           assert.ok(runId, "The accepted run must have a real identity.");
           const input = form.querySelector<HTMLInputElement>('input[name="' + lab.field + '"]');
@@ -185,8 +213,21 @@ describe("relativity predictions preserve access to controls and the accepted ru
           for (const currency of surface.querySelectorAll("[data-currency-state]"))
             expect(currency.closest(AWAITING)).toBeNull();
           expect(surface.getAttribute("data-run-id")).toBe(runId);
-          expect(responses.map((response) => response.textContent)).toEqual(before);
-          expect(responses.every((response) => response.matches(AWAITING))).toBe(true);
+          expect(acceptedText()).toEqual(before);
+          const currentResponses = [...surface.querySelectorAll("[data-predict-response]")];
+          expect(currentResponses).toHaveLength(responses.length);
+          expect(currentResponses.every((response) => response.matches(AWAITING))).toBe(true);
+          if (lab.id === "sr-05") {
+            const sourceWeave = currentSourceWeave();
+            assert.ok(sourceWeave, "The live source weave must remain present after refusal.");
+            expect(sourceWeave.querySelector('[data-weave-inactive="refused"]')).not.toBeNull();
+            expect(sourceWeave.querySelector("[data-weave-snapshot]")).toBeNull();
+            expect(sourceWeave.querySelector("[data-weave-context]")).toBeNull();
+            expect(sourceWeave.querySelector('[data-weave-lit="true"]')).toBeNull();
+            expect(sourceWeave.querySelector("[data-weave-row] dl")).toBeNull();
+            expect(sourceWeave.closest(AWAITING)).not.toBeNull();
+            expect(sourceLinks()).toEqual(linksBefore);
+          }
         });
       },
     );
