@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import assert from "node:assert/strict";
+import { deflateRawSync } from "node:zlib";
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -10,7 +11,9 @@ import {
   uninstallDom,
 } from "../../testing/reactDom.ts";
 import { ME01_TAPE } from "../me01/tape.ts";
-import { decodeTapePermalink } from "./codec.ts";
+import { SR05_TAPE } from "../sr05/tape.ts";
+import { checkpointJson } from "../store/instanceCheckpoint.ts";
+import { bytesToBase64Url, decodeTapePermalink, encodeTapePermalink } from "./codec.ts";
 import { FIXTURE_TEACHING_TAPE_EINSTEIN_08 } from "./fixture.ts";
 import { ShareControl } from "./ShareControl.tsx";
 import { tapeForSettings } from "./sessionTape.ts";
@@ -74,12 +77,87 @@ describe("ShareControl (am-inst-permalink-tape-s677)", () => {
     expect(html).not.toContain('data-testid="predictions-toggle"');
   });
 
+  test("canonical settings preserve recorded actions and predictions and read older links", () => {
+    const original: TapeV2 = {
+      ...FIXTURE_TEACHING_TAPE_EINSTEIN_08,
+      predictions: [
+        { promptId: "bm-01-first", form: "candidate", payload: { candidateId: "wider" } },
+        { promptId: "bm-01-second", form: "candidate", payload: { candidateId: "narrower" } },
+      ],
+    };
+    const reordered: TapeV2 = {
+      ...original,
+      initialConditions: Object.fromEntries(Object.entries(original.initialConditions).reverse()),
+    };
+    expect(Object.keys(reordered.initialConditions)).not.toEqual(
+      Object.keys(original.initialConditions),
+    );
+    expect(encodeTapePermalink(reordered)).toBe(encodeTapePermalink(original));
+
+    // This is the old wire format, deliberately bypassing the canonical payload writer.
+    const legacy = bytesToBase64Url(
+      deflateRawSync(new TextEncoder().encode(JSON.stringify(original))),
+    );
+    for (const encoded of [legacy, encodeTapePermalink(reordered)]) {
+      const decoded = decodeTapePermalink(encoded);
+      assert.ok(decoded.kind === "success");
+      expect(decoded.tape.initialConditions).toEqual(original.initialConditions);
+      expect(decoded.tape.events).toEqual(original.events);
+      expect(decoded.tape.predictions).toEqual(original.predictions);
+      expect(decoded.tape.acceptedCheckpoint).toEqual(original.acceptedCheckpoint);
+    }
+  });
+
   describe("in a page", () => {
     beforeEach(async () => {
       await installDom();
     });
     afterEach(async () => {
       await uninstallDom();
+    });
+
+    test("restored settings keep one share URL; changed physics gets another", async () => {
+      const settings = { ...SR05_TAPE.defaults, speed: 0.0001, worldlinePreset: "inertial" };
+      const restoredSettings = JSON.parse(checkpointJson(settings));
+      expect(Object.keys(restoredSettings)).not.toEqual(Object.keys(settings));
+      const first = tapeForSettings(SR05_TAPE, settings);
+      const restored = tapeForSettings(SR05_TAPE, restoredSettings);
+      const changed = tapeForSettings(SR05_TAPE, { ...restoredSettings, speed: 0.5 });
+      assert.ok(first && restored && changed, "The clock owner must accept all three settings.");
+      const container = createContainer();
+      const root = createRoot(container);
+      try {
+        await act(async () => {
+          root.render(
+            <>
+              <ShareControl tape={first} baseUrl="http://localhost/lab/sr-05/" />
+              <ShareControl tape={restored} baseUrl="http://localhost/lab/sr-05/" />
+              <ShareControl tape={changed} baseUrl="http://localhost/lab/sr-05/" />
+            </>,
+          );
+        });
+        const inputs = [
+          ...container.querySelectorAll<HTMLInputElement>('[data-testid="selectable-url"]'),
+        ];
+        expect(inputs).toHaveLength(3);
+        const deadline = Date.now() + 2000;
+        while (inputs.some((input) => !input.value)) {
+          assert.ok(Date.now() < deadline, "All real tape links must finish encoding.");
+          await act(async () => {
+            await new Promise<void>((resolve) => setTimeout(resolve, 5));
+          });
+        }
+        expect(inputs[0]?.value).toBe(inputs[1]?.value);
+        expect(inputs[2]?.value).not.toBe(inputs[0]?.value);
+        for (const [index, tape] of [first, restored, changed].entries()) {
+          const decoded = decodeTapePermalink(inputs[index]?.value);
+          assert.ok(decoded.kind === "success");
+          expect(decoded.tape).toEqual(tape);
+        }
+      } finally {
+        await act(async () => root.unmount());
+        removeContainer(container);
+      }
     });
 
     test("two independent controls label their own accepted experiment links", async () => {
