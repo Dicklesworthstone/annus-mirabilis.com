@@ -1,7 +1,9 @@
 import "./connections.css";
+import { createHash } from "node:crypto";
 import { ExercisePart } from "../../components/discover/ExercisePart.tsx";
 import { ExplanationPart } from "../../components/discover/ExplanationPart.tsx";
 import { NumericPart } from "../../components/discover/NumericPart.tsx";
+import { connectionAnswerLocation } from "./answerLocations.ts";
 import { AVOGADRO_RADIUS_COMPARISON, type AvogadroRadiusComparison } from "./avogadro.ts";
 import type { ConnectionExercise, ConnectionExercisePart, ConnectionLink } from "./types.ts";
 
@@ -18,17 +20,30 @@ function ExerciseLinks({ links }: { links: readonly ConnectionLink[] }) {
   );
 }
 
-function Part({ entry }: { entry: ConnectionExercisePart }) {
+function Part({ entry, title }: { entry: ConnectionExercisePart; title: string }) {
+  const location = connectionAnswerLocation(entry.part.id);
+  const notebook =
+    location && location.kind === entry.kind
+      ? {
+          title,
+          sourceAnchor: location.sourceAnchor,
+          context: {
+            paper: location.paper,
+            revision: `connection:${createHash("sha256").update(JSON.stringify(entry)).digest("hex")}`,
+          },
+        }
+      : undefined;
+  const saved = notebook ? { notebook } : {};
   return (
     <fieldset className="connection-exercise" aria-label={entry.part.prompt}>
       {entry.kind === "numeric" && (
         <>
-          <NumericPart part={entry.part} />
+          <NumericPart part={entry.part} {...saved} />
           <p>{entry.part.reference.executionLabel}</p>
         </>
       )}
-      {entry.kind === "expression" && <ExercisePart part={entry.part} />}
-      {entry.kind === "explanation" && <ExplanationPart part={entry.part} />}
+      {entry.kind === "expression" && <ExercisePart part={entry.part} {...saved} />}
+      {entry.kind === "explanation" && <ExplanationPart part={entry.part} {...saved} />}
     </fieldset>
   );
 }
@@ -87,8 +102,9 @@ export function ConnectionExercises({ exercises }: { exercises: readonly Connect
         <h2 id="cross-journey-heading">Carry a reasoning move into another paper</h2>
         <p>
           Choose a comparison. Worked explanations and criteria are available before you answer.
-          Number and expression checks run in this page; explanations are yours to judge, and no
-          answer is sent anywhere.
+          Number and expression checks run in this page; explanations are yours to judge. Save an
+          answer explicitly to keep it in your private notebook, return to this question, or export
+          your work. Earlier saved answers stay beside later ones. Nothing is sent anywhere.
         </p>
         <nav aria-label="Cross-paper exercises">
           <ExerciseLinks
@@ -119,7 +135,11 @@ export function ConnectionExercises({ exercises }: { exercises: readonly Connect
                 <p key={paragraph}>{paragraph}</p>
               ))}
               {section.parts.map((entry) => (
-                <Part key={entry.part.id} entry={entry} />
+                <Part
+                  key={entry.part.id}
+                  entry={entry}
+                  title={`${exercise.title}: ${section.title}`}
+                />
               ))}
               {section.id === "avogadro-brownian" && (
                 <RadiusComparison comparison={AVOGADRO_RADIUS_COMPARISON} />

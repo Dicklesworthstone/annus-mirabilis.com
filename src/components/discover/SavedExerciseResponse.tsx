@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useDiscoveryNotebook } from "../../discovery/notes/context.tsx";
+import type { NotebookAnswerBinding } from "../../reader/notebook/answerContext.ts";
 import { type ExerciseCapture, exerciseResponseText } from "../../reader/notebook/exerciseEntry.ts";
 import type { NotebookState, NotebookStore } from "../../reader/notebook/notebookStore.ts";
 import type { NotebookExerciseEntry } from "../../reader/notebook/schema.ts";
 
-export type ExerciseNotebookBinding = Readonly<{ title: string; sourceAnchor: string }>;
+export type ExerciseNotebookBinding = NotebookAnswerBinding;
 export type SavedExerciseDefinition = Readonly<{
   partId: string;
   prompt: string;
@@ -31,7 +32,8 @@ export function SavedExerciseResponse({
   onRestore(answer: string, unit: string | null): void;
 }>) {
   const guide = useDiscoveryNotebook();
-  const paper = guide?.manifest.paper;
+  const context = binding.context ?? guide?.manifest;
+  const paper = context?.paper;
   const [store, setStore] = useState<NotebookStore | null>(null);
   const [snapshot, setSnapshot] = useState<NotebookState | null>(null);
   const [notice, setNotice] = useState("");
@@ -45,6 +47,11 @@ export function SavedExerciseResponse({
     pending?.draft === draft && snapshot?.document.entries.includes(pending.entry)
       ? pending.entry
       : null;
+
+  // Editing away and back must not revive an earlier replacement confirmation.
+  useEffect(() => {
+    setPending((current) => (current && current.draft !== draft ? null : current));
+  }, [draft]);
 
   useEffect(() => {
     if (!paper) return;
@@ -71,10 +78,10 @@ export function SavedExerciseResponse({
     };
   }, [paper]);
 
-  if (!guide) return null;
+  if (!context) return null;
 
   function save() {
-    if (!store || !guide || !answer.trim() || draft === lastSaved) return;
+    if (!store || !context || !answer.trim() || draft === lastSaved) return;
     try {
       const result = store.add({
         id:
@@ -83,7 +90,7 @@ export function SavedExerciseResponse({
             : `exercise-${Array.from(crypto.getRandomValues(new Uint8Array(16)), (byte) => byte.toString(16).padStart(2, "0")).join("")}`,
         kind: "exercise",
         frame: {
-          paper: guide.manifest.paper,
+          paper: context.paper,
           anchor: binding.sourceAnchor,
           view: "reading",
           detail: 1,
@@ -96,7 +103,7 @@ export function SavedExerciseResponse({
         exercise: {
           schemaVersion: 1,
           ...definition,
-          guideRevision: guide.manifest.revision,
+          guideRevision: context.revision,
           unit,
         },
       });
@@ -171,10 +178,12 @@ export function SavedExerciseResponse({
                 <p className="discovery-note-text">
                   {exerciseResponseText(entry.text, entry.exercise)}
                 </p>
-                {entry.exercise.guideRevision !== guide.manifest.revision || !compatible ? (
+                {entry.exercise.guideRevision !== context.revision || !compatible ? (
                   <p>
-                    This response belongs to guide revision {entry.exercise.guideRevision}. The
-                    question then was: {entry.exercise.prompt}
+                    {binding.context
+                      ? "This response belongs to an earlier version of this question."
+                      : `This response belongs to guide revision ${entry.exercise.guideRevision}.`}{" "}
+                    The question then was: {entry.exercise.prompt}
                   </p>
                 ) : null}
                 {compatible ? (

@@ -1,4 +1,8 @@
 import { DISCOVERY_PAPERS, type DiscoveryPaper } from "../../content/schemas/discovery.ts";
+import {
+  connectionAnswerHref,
+  validConnectionAnswerIdentity,
+} from "../../discovery/connections/answerLocations.ts";
 
 /** The question as it stood when the reader chose to save an explanation. */
 export type TeachBackCapture = Readonly<{
@@ -55,6 +59,7 @@ export function parseTeachBackCapture(input: unknown, paper: string): TeachBackC
     value.schemaVersion !== 1 ||
     !boundedText(value.promptId, 160) ||
     !/^[a-z][a-z0-9-]*$/u.test(value.promptId) ||
+    !validConnectionAnswerIdentity(paper, value.promptId as string, "explanation") ||
     !boundedText(value.prompt, 4000) ||
     !boundedText(value.guideRevision, 80) ||
     !/^[a-zA-Z0-9][a-zA-Z0-9._:-]*$/u.test(value.guideRevision)
@@ -74,5 +79,8 @@ export function parseTeachBackCapture(input: unknown, paper: string): TeachBackC
 /** A public question address only; neither the answer nor the private entry id enters the URL. */
 export function teachBackHref(paper: string, input: TeachBackCapture): string {
   const capture = parseTeachBackCapture(input, paper);
-  return `/discover/${paper}/#explanation-${capture.promptId}`;
+  return (
+    connectionAnswerHref(paper, capture.promptId, "explanation") ??
+    `/discover/${paper}/#explanation-${capture.promptId}`
+  );
 }

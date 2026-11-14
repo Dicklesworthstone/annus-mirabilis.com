@@ -1,4 +1,8 @@
 import { DISCOVERY_PAPERS, type DiscoveryPaper } from "../../content/schemas/discovery.ts";
+import {
+  connectionAnswerHref,
+  validConnectionAnswerIdentity,
+} from "../../discovery/connections/answerLocations.ts";
 
 /** A reader's response and the question's identity, never a saved verdict or executable input. */
 export type ExerciseCapture = Readonly<{
@@ -74,6 +78,11 @@ export function parseExerciseCapture(
     !boundedText(value.guideRevision, 80) ||
     !/^[a-zA-Z0-9][a-zA-Z0-9._:-]*$/u.test(value.guideRevision) ||
     !["expression", "numeric"].includes(value.partKind as string) ||
+    !validConnectionAnswerIdentity(
+      paper,
+      value.partId as string,
+      value.partKind as ExerciseCapture["partKind"],
+    ) ||
     !boundedText(value.definitionKey, 32_000) ||
     (answer !== undefined && !boundedText(answer, value.partKind === "numeric" ? 64 : 200)) ||
     (value.partKind === "expression" ? value.unit !== null : !boundedText(value.unit, 80))
@@ -96,7 +105,10 @@ export function parseExerciseCapture(
 /** Only public exercise identities enter links, never an answer or a private entry id. */
 export function exerciseResponseHref(paper: string, capture: ExerciseCapture): string {
   const checked = parseExerciseCapture(capture, paper);
-  return `/discover/${paper}/#exercise-${checked.partId}`;
+  return (
+    connectionAnswerHref(paper, checked.partId, checked.partKind) ??
+    `/discover/${paper}/#exercise-${checked.partId}`
+  );
 }
 
 export function exerciseResponseText(answer: string, capture: ExerciseCapture): string {
