@@ -1,6 +1,7 @@
 /** A result names its supporting calculation, or records why no checked proof is available. */
 export const RESULT_PROOF_IDS = [
   "bm-equilibrium-diffusivity",
+  "bm-molecular-number-inference",
   "lq-entropy-energy-scale",
   "me-ledger-elimination",
   "me-low-speed-coefficient",

@@ -46,6 +46,7 @@ import { type ComponentProps, lazy } from "react";
 import type { LinearProofExplorer } from "../equations/derivations/LinearProofExplorer.tsx";
 import type { LowSpeedExplorer } from "../equations/derivations/LowSpeedExplorer.tsx";
 import type { BrownianDerivation } from "./BrownianDerivation.tsx";
+import type { BrownianInferenceDerivation } from "./BrownianInferenceDerivation.tsx";
 import type { BrownianFirstEncounter } from "./entrances/BrownianFirstEncounter.tsx";
 import type { ClockFirstEncounter } from "./entrances/ClockFirstEncounter.tsx";
 import type { LightQuantaFirstEncounter } from "./entrances/LightQuantaFirstEncounter.tsx";
@@ -171,4 +172,15 @@ export function LazySRSynchronizationDerivation(
   props: ComponentProps<typeof SRSynchronizationDerivation>,
 ) {
   return <SRSynchronizationSteps {...props} />;
+}
+
+const BrownianInferenceSteps = lazy(() =>
+  import("./BrownianInferenceDerivation.tsx").then((m) => ({
+    default: m.BrownianInferenceDerivation,
+  })),
+);
+export function LazyBrownianInferenceDerivation(
+  props: ComponentProps<typeof BrownianInferenceDerivation>,
+) {
+  return <BrownianInferenceSteps {...props} />;
 }

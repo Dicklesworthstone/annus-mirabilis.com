@@ -260,8 +260,10 @@ cards:
 
   - id: bm-molecular-number
     support:
-      kind: "no-checked-proof"
-      reason: "The inference uses a measured displacement and an independently supplied particle radius; no checked derivation record covers this inversion."
+      kind: "checked-proof"
+      proofId: "bm-molecular-number-inference"
+      conclusion: "eq-model-bm-avogadro-inference"
+      scope: "Exact algebra from an explicitly admitted moment-fitting equation to the molecular-number estimate, with an independent radius and positive observed one-axis mean square. This does not prove the physical moment law, equality of a sample with its population mean, measurement validity, unbiasedness or uncertainty coverage."
     title: "Determining N from the displacement"
     section: s5
     arguments: [arg-bm-inference]

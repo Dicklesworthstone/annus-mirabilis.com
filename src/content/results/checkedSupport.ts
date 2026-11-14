@@ -7,6 +7,8 @@
  * source-order graph projection: the checks establish conditional algebra and limits,
  * never the physical premises or historical fidelity.
  */
+import brownianInferenceRecord from "../../../content/equations/brownian-motion/eq-model-bm-avogadro-inference.json";
+import brownianMomentRecord from "../../../content/equations/brownian-motion/eq-model-bm-mean-square-growth.json";
 import brownianMolarRecord from "../../../content/equations/brownian-motion/eq-model-bm-diffusivity-molar.json";
 import lqMolarEnergyRecord from "../../../content/equations/light-quanta/eq-model-lq-energy-per-point-molar.json";
 import lqGasRecord from "../../../content/equations/light-quanta/eq-model-lq-gas-entropy-change.json";
@@ -25,6 +27,8 @@ import laboratoryRecord from "../../../content/equations/special-relativity/eq-m
 import printedRecord from "../../../content/equations/special-relativity/eq-model-sr-transverse-mass-printed.json";
 import type { Expression } from "../../equations/ast.ts";
 import { verifyBrownianEquilibrium } from "../../equations/derivations/brownianEquilibriumProof.ts";
+import { brownianInferenceChain } from "../../equations/derivations/brownianInference.ts";
+import { verifyBrownianInference } from "../../equations/derivations/brownianInferenceProof.ts";
 import { brownianEquilibriumDerivation } from "../../equations/derivations/brownianSource.ts";
 import { verifyLqCoefficientCorrespondence } from "../../equations/derivations/lightQuantaCoefficientProof.ts";
 import { lqCoefficientCorrespondence } from "../../equations/derivations/lightQuantaEntropy.ts";
@@ -125,6 +129,42 @@ const DERIVATION_PROOFS: Readonly<Record<DerivationProofId, DerivationProof>> = 
           "Cancelling ∂n/∂x requires a nonzero gradient in the selected weak-force equilibrium. " +
           "A uniform zero-force state gives 0 = 0 and does not determine D. Applying the " +
           "coefficient in that limit retains the linear-response model assumption.",
+      },
+    ],
+  },
+  "bm-molecular-number-inference": {
+    paper: "brownian-motion",
+    conclusion: brownianInferenceRecord.id,
+    title: "Follow the conditional inversion from observed spread to an estimate",
+    href: "/papers/brownian-motion/s5/#bm-molecular-number-derivation",
+    records: [brownianMolarRecord, brownianMomentRecord, brownianInferenceRecord],
+    chains: [brownianInferenceChain],
+    verify: verifyBrownianInference,
+    premises: [
+      {
+        id: "bm-inference-observed-moment-fit",
+        label: "An explicit fitting definition",
+        explanation:
+          "Choose the molecular-number estimate whose model mean square matches the observed " +
+          "one-axis mean square. This definition does not equate a finite sample with its " +
+          "population expectation or make the estimate equal to the unknown model parameter.",
+      },
+      {
+        id: "bm-inference-independent-inputs",
+        label: "Independently supplied radius and other inputs",
+        explanation:
+          "R, temperature, viscosity and particle radius are supplied independently. Without " +
+          "the radius the observations constrain only aN. Neither an assumed N nor modern " +
+          "exact kB can generate observations and then serve as independent evidence for N.",
+      },
+      {
+        id: "bm-inference-positive-domain",
+        label: "Positive inputs and an applicable one-axis model",
+        explanation:
+          "The interval, mean square, candidate estimate and independent inputs are positive " +
+          "and finite. The dilute-sphere Stokes model and zero-drift population moment law " +
+          "are admitted. Gaussian calculus, measurement validity, finite-sample bias and " +
+          "uncertainty coverage are outside this algebraic check.",
       },
     ],
   },

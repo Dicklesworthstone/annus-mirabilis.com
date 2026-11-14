@@ -18,6 +18,7 @@ import {
 } from "../../physics/reference/diffusion/routeA.ts";
 import { type Expression, walk } from "../ast.ts";
 import { verifyBrownianEquilibrium } from "./brownianEquilibriumProof.ts";
+import { brownianInferenceChain } from "./brownianInference.ts";
 import {
   brownianDerivationMetadata,
   brownianDisplayChain,
@@ -325,14 +326,22 @@ test("Taylor approximations stay marked until the controlled continuum limit and
   }
 });
 
-test("all 15 Brownian source steps have synchronized owned R0–R3 readings", () => {
+test("Brownian source owners retain synchronized R0–R3 readings alongside inference", () => {
   const owners = [
     brownianDerivationMetadata.s3.ownerBeadId,
     brownianDerivationMetadata.s4.ownerBeadId,
   ];
   const live = loadLiveReadingsInput(process.cwd(), { ownerBeadIds: owners });
   assert.deepEqual(live.unparseable, []);
-  assert.equal(live.input.targets.length, 15);
+  const expectedTargetIds = [
+    brownianEquilibriumDerivation,
+    brownianKernelDerivation,
+    brownianInferenceChain,
+  ].flatMap((chain) => chain.steps.map((step) => chain.id + "/" + step.id));
+  assert.deepEqual(
+    live.input.targets.map((target) => target.targetId).sort(),
+    expectedTargetIds.sort(),
+  );
   assert.deepEqual(auditReadings(live.input).findings, []);
   for (const [section, chain] of [
     ["s3", brownianEquilibriumDerivation],

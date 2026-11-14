@@ -1,6 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { brownianInferenceChain } from "../../equations/derivations/brownianInference.ts";
+import { verifyBrownianInference } from "../../equations/derivations/brownianInferenceProof.ts";
 import { verifyBrownianEquilibrium } from "../../equations/derivations/brownianEquilibriumProof.ts";
 import {
   brownianEquilibriumDerivation,
@@ -149,5 +151,64 @@ describe("Brownian diffusivity support reaches the checked conditional equilibri
     expect(refusal(() => checkedSupportFor(changed, equations))).toBe(
       "result-support-derivation-conclusion-missing",
     );
+  });
+});
+
+describe("molecular-number support reaches the conditional observed-moment inversion", () => {
+  test("the result links to the reader and keeps fitting and independent inputs visible", () => {
+    const report = verifyBrownianInference(brownianInferenceChain);
+    expect(report.passed).toBe(true);
+    expect(report.stepReports).toHaveLength(3);
+    const support = project(card("bm-molecular-number")).support;
+    expect(support?.kind).toBe("checked-proof");
+    expect(support?.proofId).toBe("bm-molecular-number-inference");
+    expect(support?.href).toBe("/papers/brownian-motion/s5/#bm-molecular-number-derivation");
+    expect(support?.conclusion.equationId).toBe("eq-model-bm-avogadro-inference");
+    expect(support?.scope).toContain("admitted moment-fitting equation");
+    expect(support?.scope).toContain("unbiasedness");
+    const ids = support?.assumptions.map((premise) => premise.id);
+    expect(ids).toContain("bm-inference-observed-moment-fit");
+    expect(ids).toContain("bm-inference-independent-inputs");
+    expect(ids).toContain("bm-inference-positive-domain");
+    expect(support?.assumptions.map((premise) => premise.explanation).join(" ")).toContain("only aN");
+  });
+
+  test("altered, missing or duplicated canonical premises cannot claim checked inference", () => {
+    const control = card("bm-molecular-number");
+    for (const id of [
+      "eq-model-bm-diffusivity-molar",
+      "eq-model-bm-mean-square-growth",
+      "eq-model-bm-avogadro-inference",
+    ]) {
+      const record = equations.find((candidate) => candidate.id === id)!;
+      expect(refusal(() => project(control, [...equations, record]))).toBe(
+        "result-support-derivation-record-mismatch",
+      );
+      expect(
+        refusal(() => project(control, replaceConclusion({ ...record, assumptions: [] }))),
+      ).toBe("result-support-derivation-record-mismatch");
+    }
+    expect(
+      refusal(() =>
+        project(control, equations.filter((record) => record.id !== "eq-model-bm-mean-square-growth")),
+      ),
+    ).toBe("result-support-derivation-record-mismatch");
+    const original = conclusion();
+    const altered = parseEquationRecord(
+      JSON.parse(JSON.stringify(original).replace('"value":"6"', '"value":"12"')),
+      "wrong coefficient for molecular inference",
+    );
+    expect(refusal(() => project(control, replaceConclusion(altered)))).toBe(
+      "result-support-derivation-record-mismatch",
+    );
+    if (control.support.kind !== "checked-proof") throw new Error("Missing inference support.");
+    expect(
+      refusal(() =>
+        project({
+          ...control,
+          support: { ...control.support, conclusion: "eq-model-bm-diffusivity-from-data" },
+        }),
+      ),
+    ).toBe("result-support-derivation-conclusion-missing");
   });
 });

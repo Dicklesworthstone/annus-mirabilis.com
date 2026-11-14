@@ -20,6 +20,13 @@ const cases = [
     steps: 8,
   },
   {
+    paperId: "brownian-motion",
+    section: "s5",
+    argument: "arg-bm-inference",
+    id: "bm-molecular-number-derivation",
+    steps: 3,
+  },
+  {
     paperId: "light-quanta",
     section: "s4",
     argument: "arg-lq-fixed-band-volume",

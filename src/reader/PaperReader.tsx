@@ -22,7 +22,11 @@ import { Companion } from "./layout/Companion.tsx";
 import { type CompanionKind, resolveCompanionKind } from "./layout/companionKind.ts";
 import { ReaderLayout } from "./layout/ReaderLayout.tsx";
 import { StickyLabRegion } from "./layout/StickyLabRegion.tsx";
-import { LazyBrownianDerivation, LazyBrownianFirstEncounter } from "./lazyIslands.tsx";
+import {
+  LazyBrownianDerivation,
+  LazyBrownianFirstEncounter,
+  LazyBrownianInferenceDerivation,
+} from "./lazyIslands.tsx";
 import { loadPaperMargins } from "./marginRecords.ts";
 import { PaperMargins } from "./PaperMargins.tsx";
 import "./actions/kindRegistration.ts";
@@ -487,6 +491,16 @@ export async function PaperReader({
                               {a.id === "arg-bm-diffusivity"
                                 ? "Follow the steps from osmotic balance to diffusivity"
                                 : "Follow the steps from random displacements to the diffusion equation"}
+                            </a>
+                          </p>
+                        ))}
+                      {a.id === "arg-bm-inference" &&
+                        (section ? (
+                          <LazyBrownianInferenceDerivation />
+                        ) : (
+                          <p className="fine">
+                            <a href="/papers/brownian-motion/s5/#bm-molecular-number-derivation">
+                              Follow the conditional steps from observed spread to a molecular-number estimate
                             </a>
                           </p>
                         ))}
