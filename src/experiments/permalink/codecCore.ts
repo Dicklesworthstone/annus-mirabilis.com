@@ -126,7 +126,12 @@ export function tapePayloadBytes(tape: TapeV2, options?: EncodeTapeOptions): Uin
     streamVersion: validated.streamVersion,
     allocationId: validated.allocationId,
     ...(validated.replayGrid ? { replayGrid: validated.replayGrid } : {}),
-    initialConditions: validated.initialConditions,
+    // Restoring a checkpoint sorts settings; their insertion order is not experiment identity.
+    initialConditions: Object.fromEntries(
+      Object.keys(validated.initialConditions)
+        .sort()
+        .map((key) => [key, validated.initialConditions[key]]),
+    ),
     ...(validated.presetId ? { presetId: validated.presetId } : {}),
     events: validated.events,
     ...(validated.teachingTapeRef ? { teachingTapeRef: validated.teachingTapeRef } : {}),
