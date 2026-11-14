@@ -28,6 +28,7 @@ export default function InlinePhotoelectricInvestigation({
         example={example}
         session={session}
         linked={false}
+        showComparison={false}
         highlightPaper
         onValidationStateChange={session.validationStateChanged}
       />

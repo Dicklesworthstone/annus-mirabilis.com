@@ -13,6 +13,7 @@ import type { Sr05Parameters } from "../../experiments/sr05/definition.ts";
 import { createSr05Session, type PreparedSr05Example } from "../../experiments/sr05/session.ts";
 import type { PublishedResult } from "../../experiments/store/instanceStore.ts";
 import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
+import { chapterInvestigationSession } from "../../reader/chapterInvestigationSession.ts";
 import { sentenceNumber } from "../lab/presentation.ts";
 import { MovingClocksLab } from "../lab/sr05/MovingClocksLab.tsx";
 
@@ -54,8 +55,8 @@ export function RelativityWorldCheck({
   session?: ReturnType<typeof createSr05Session> | undefined;
 }) {
   const id = useId();
-  const [session] = useState(
-    () => sharedSession ?? createSr05Session(`world-check-${id}`, example),
+  const [session] = useState(() =>
+    chapterInvestigationSession(sharedSession ?? createSr05Session(`world-check-${id}`, example)),
   );
   useInvestigationWitness("sr-05", session, example.sourceDigest ?? "");
   const view = useInstrumentView(session);
@@ -107,7 +108,11 @@ export function RelativityWorldCheck({
   return (
     <>
       <InvestigationLabLink experimentId="sr-05" />
-      <MovingClocksLab example={example} session={session} />
+      <MovingClocksLab
+        example={example}
+        session={session}
+        onValidationStateChange={session.validationStateChanged}
+      />
       <WorldCheck check={check} live={live} />
       <section data-world-check-later aria-labelledby={`${id}-later`}>
         <h3 id={`${id}-later`}>Later evidence, not on the 1904 shelf</h3>

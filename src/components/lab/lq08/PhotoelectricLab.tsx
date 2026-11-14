@@ -74,6 +74,8 @@ export type PhotoelectricLabProps = Readonly<{
    * owns its own, as on /lab/lq-08/.
    */
   session?: ReturnType<typeof createLq08Session> | undefined;
+  /** An embedded investigation captures the main owner; the optional comparison owns another run. */
+  showComparison?: boolean;
   /** Notify an enclosing investigation when form validation stops before reaching the owner. */
   onValidationStateChange?: ((state: "invalid" | "restored") => void) | undefined;
 }>;
@@ -172,6 +174,7 @@ export function PhotoelectricLab({
   predict = true,
   highlightPaper = false,
   session: sharedSession,
+  showComparison = true,
   onValidationStateChange,
 }: PhotoelectricLabProps) {
   const instanceId = useId();
@@ -519,13 +522,15 @@ export function PhotoelectricLab({
         </section>
       </div>
 
-      <div {...gate.response}>
-        <PhotoelectricControlledComparison
-          session={session}
-          sourceDigest={example?.sourceDigest ?? preparedLq08Example.sourceDigest}
-          enabled={gate.open}
-        />
-      </div>
+      {showComparison && (
+        <div {...gate.response}>
+          <PhotoelectricControlledComparison
+            session={session}
+            sourceDigest={example?.sourceDigest ?? preparedLq08Example.sourceDigest}
+            enabled={gate.open}
+          />
+        </div>
+      )}
 
       <div {...gate.response}>
         <SessionResultWeave

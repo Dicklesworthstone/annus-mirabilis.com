@@ -14,6 +14,7 @@ import type { Me03Parameters } from "../../experiments/me03/definition.ts";
 import { createMe03Session, type PreparedMe03Example } from "../../experiments/me03/session.ts";
 import type { AcceptedSnapshot, PublishedResult } from "../../experiments/store/instanceStore.ts";
 import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
+import { chapterInvestigationSession } from "../../reader/chapterInvestigationSession.ts";
 import { BoundaryLedgerLab } from "../lab/me03/BoundaryLedgerLab.tsx";
 import { sentenceNumber } from "../lab/presentation.ts";
 import { BainbridgeComparison } from "./BainbridgeComparison.tsx";
@@ -68,8 +69,10 @@ export function MassEnergyWorldCheck({
   session?: ReturnType<typeof createMe03Session> | undefined;
 }) {
   const id = useId();
-  const [session] = useState(
-    () => sharedSession ?? createMe03Session(`world-check-${id}`, example.parameters),
+  const [session] = useState(() =>
+    chapterInvestigationSession(
+      sharedSession ?? createMe03Session(`world-check-${id}`, example.parameters),
+    ),
   );
   useInvestigationWitness("me-03", session, example.sourceDigest ?? "");
   const view = useInstrumentView(session);
@@ -121,6 +124,7 @@ export function MassEnergyWorldCheck({
       <BoundaryLedgerLab
         example={example}
         session={session}
+        showComparison={false}
         title="The boundary ledger, for the check"
       />
       <WorldCheck check={check} live={live} />

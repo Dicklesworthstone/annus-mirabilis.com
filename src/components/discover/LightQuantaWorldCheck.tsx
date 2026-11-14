@@ -14,6 +14,7 @@ import type { MillikanOverlayResult } from "../../experiments/lq08/millikan.ts";
 import { createLq08Session, type PreparedLq08Example } from "../../experiments/lq08/session.ts";
 import type { PublishedResult } from "../../experiments/store/instanceStore.ts";
 import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
+import { chapterInvestigationSession } from "../../reader/chapterInvestigationSession.ts";
 import { PhotoelectricLab } from "../lab/lq08/PhotoelectricLab.tsx";
 import { sentenceNumber } from "../lab/presentation.ts";
 import { Sci } from "../lab/Sci.tsx";
@@ -54,8 +55,8 @@ export function LightQuantaWorldCheck({
   session?: ReturnType<typeof createLq08Session> | undefined;
 }) {
   const id = useId();
-  const [session] = useState(
-    () => sharedSession ?? createLq08Session(`world-check-${id}`, example),
+  const [session] = useState(() =>
+    chapterInvestigationSession(sharedSession ?? createLq08Session(`world-check-${id}`, example)),
   );
   useInvestigationWitness("lq-08", session, example.sourceDigest ?? "");
   const view = useInstrumentView(session);
@@ -100,6 +101,8 @@ export function LightQuantaWorldCheck({
         millikan={millikan}
         readings={false}
         linked={false}
+        showComparison={false}
+        onValidationStateChange={session.validationStateChanged}
       />
       <WorldCheck check={check} live={live} />
       <section data-world-check-later aria-labelledby={`${id}-later`}>
