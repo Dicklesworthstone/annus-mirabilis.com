@@ -23,9 +23,15 @@ primaryPublicationId: bainbridge-1933-physical-review
 series:
   - id: lithium-7-proton
     publicationId: bainbridge-1933-physical-review
+    observationDateUnavailable:
+      reason: "The letter combines separately reported particle-energy and mass measurements without giving their observation dates. Its dateline and issue date are not dates of observation."
+      source: "Bainbridge, Physical Review 44, p. 123, left column and references 1, 2 and 4; visually inspected original page, Internet Archive leaf n60."
     description: "Lithium-7 plus a proton produces two alpha particles. Bainbridge compares the energy inferred from Cockcroft and Walton's observations with a mass difference using Aston's helium and hydrogen values and his own lithium-7 value. The letter does not give observation dates; its 16 June 1933 dateline and 15 July publication are not observation dates."
   - id: lithium-6-deuteron
     publicationId: bainbridge-1933-physical-review
+    observationDateUnavailable:
+      reason: "The letter describes recent disintegration work and separately cited mass measurements, but does not state when these observations were made. No date range is inferred from publication dates."
+      source: "Bainbridge, Physical Review 44, lower left and right columns and references 1, 3, 4 and 5; visually inspected original page, Internet Archive leaf n60."
     description: "Conditional interpretation of Lewis, Livingston and Lawrence's observations as lithium-6 capturing a deuteron and producing two alpha particles. The energy estimate uses extrapolated range-energy data and conservation of momentum. The mass difference uses Aston's helium value and Bainbridge's deuterium and lithium-6 values. The letter does not date these separate observations."
 digitizer:
   name: "agent:ChatGPT-science-workflow"
