@@ -9,6 +9,7 @@
  * b=1 is the original coefficient; b=2.5 is the corrected coefficient.
  */
 import type { ResultPayload, ScientificResult } from "../../experiments/results/types.ts";
+import { molecularProductValuesFromLogs } from "./molecularProducts.ts";
 
 export const MOLECULAR_DIMENSIONS_OWNER = "molecular-dimensions";
 /** An explicit admission ceiling, not a universal accuracy certificate. */
@@ -156,15 +157,13 @@ export function inferMolecularDimensions(
       "model",
     );
   }
-  const logRadius =
-    (Math.log(p.specificViscosity) -
+  const { radius, molecularNumber: N } = molecularProductValuesFromLogs(
+    logA,
+    Math.log(p.specificViscosity) -
       Math.log(p.viscosityCoefficient) -
       Math.log((4 * Math.PI) / 3) -
-      Math.log(p.molarConcentration) -
-      logA) /
-    2;
-  const radius = Math.exp(logRadius);
-  const N = Math.exp(logA - logRadius);
+      Math.log(p.molarConcentration),
+  );
   if (![radius, N, phi].every((n) => Number.isFinite(n) && n > 0)) {
     return refuse(
       "nonrepresentable-output",
