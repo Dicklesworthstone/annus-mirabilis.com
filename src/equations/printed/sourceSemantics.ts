@@ -424,7 +424,11 @@ export function compilePrintedSourceSemantics(
           : lightQuanta
             ? LIGHT_QUANTA_ARITHMETIC
             : MASS_ENERGY_ARITHMETIC;
-    const reading = authored ?? arithmetic[node.tree.kind];
+    const functionReading =
+      node.tree.kind === "function" && relativity
+        ? relativity.functions?.[node.tree.name]
+        : undefined;
+    const reading = authored ?? functionReading ?? arithmetic[node.tree.kind];
     const foundationTitle = reading ? FOUNDATION_TITLES.get(reading.foundation) : undefined;
     if (
       !id ||
@@ -433,8 +437,9 @@ export function compilePrintedSourceSemantics(
       (node.tree.kind === "power" &&
         (node.tree.exponent.num !== 2 || node.tree.exponent.den !== 1)) ||
       (node.tree.kind === "function" &&
-        node.tree.name !==
-          (lightQuanta ? "ln" : budget || brownian || relativity ? undefined : "cos"))
+        (relativity
+          ? !functionReading
+          : node.tree.name !== (lightQuanta ? "ln" : budget || brownian ? undefined : "cos")))
     )
       throw new SourceSemanticsError(
         "printed-source-operation",

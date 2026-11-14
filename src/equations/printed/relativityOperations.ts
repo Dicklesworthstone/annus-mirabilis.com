@@ -1,17 +1,22 @@
 /**
- * The final coordinate transformation and its printed Lorentz factor in paper 3, §3.
+ * Coordinate, velocity, wave and light-complex operations in paper 3.
  * These readings explain the checked source expression, not a new numerical implementation.
  * Einstein's beta is the modern gamma; tau belongs to the moving system's synchronized clocks.
  */
 import type { Expression } from "../ast.ts";
 import type { MassEnergyOperationGuide, OperationReading } from "./massEnergyOperations.ts";
+import { RELATIVITY_CONSEQUENCE_GUIDES } from "./relativityConsequences.ts";
 
 export type RelativityOperationGuide = MassEnergyOperationGuide &
   Readonly<{
-    /** Each source row has its own authored expectation: time, then three lengths. */
+    /** Each source row has its own authored physical dimension. */
     expectedRowDimensions: readonly (readonly string[])[];
     /** Vector components share a quantity owner without sharing a printed glyph. */
     symbolIndices: Readonly<Record<string, string>>;
+    /** A function is permitted only when this display supplies its scientific reading. */
+    functions?: Readonly<
+      Partial<Record<Extract<Expression, { kind: "function" }>["name"], OperationReading>>
+    >;
   }>;
 type PrimaryReading = MassEnergyOperationGuide["primary"][string];
 
@@ -27,14 +32,14 @@ const FRAME_PREMISE =
 const NORMALIZATION_PREMISE =
   " The final equations use phi(v) = 1. The preceding argument fixes this scale using reciprocity, spatial isotropy, identical rods and clocks, and the positive branch continuous from rest. Preserving the speed of light alone leaves the scale undetermined.";
 
-/** Arithmetic stays local to the coordinate transformation and the dimensionless factor. */
+/** Arithmetic shared by the explicitly authored transformations. */
 export const RELATIVITY_ARITHMETIC: Readonly<
   Partial<Record<Expression["kind"], OperationReading>>
 > = {
   relation: {
     title: "Read the equality",
     does: "The complete expressions on both sides have the same value under the stated frame and speed conditions.",
-    why: "The equality expresses a coordinate assignment or a definition. A dimensional check tests compatible units; it does not establish the light postulate or the synchronization convention.",
+    why: "The equality expresses the stated relation between quantities. A dimensional check tests compatible units; it does not establish the light postulate or the synchronization convention.",
     foundation: "bridge-equals-sign-relationship",
   },
   sum: {
@@ -52,31 +57,31 @@ export const RELATIVITY_ARITHMETIC: Readonly<
   product: {
     title: "Multiply the factors",
     does: "Multiply the adjacent factors, preserving the contents of each group and fraction.",
-    why: "The product carries the dimensions of all its factors. The Lorentz factor is dimensionless, so multiplying by it preserves a time or length dimension.",
+    why: "The product carries the dimensions of all its factors. Multiplying by the dimensionless Lorentz factor preserves the dimension of the other factor.",
     foundation: "bridge-fractions-ratios",
   },
   quotient: {
     title: "Divide by the complete denominator",
     does: "Divide everything above the fraction bar by everything below it.",
-    why: "V is positive and the square-root denominator is positive for |v| < V. These conditions keep the printed divisions defined.",
+    why: "The denominator must be nonzero under the stated model and frame conditions. A ratio of quantities with the same dimensions has no units.",
     foundation: "bridge-fractions-ratios",
   },
   group: {
     title: "Keep the complete group together",
     does: "Treat the enclosed expression as one input to the surrounding multiplication or power.",
-    why: "Beta multiplies the whole time or position difference. In the factor definition, the square applies to the whole ratio v/V.",
+    why: "An operation outside the group applies to the complete enclosed expression. Moving a factor inside only one term would change the relation.",
     foundation: "bridge-fractions-ratios",
   },
   power: {
     title: "Square the complete base",
     does: "Multiply the base by itself, including its denominator when the base is a ratio.",
-    why: "The square of v/V is dimensionless and unchanged by reversing v. V squared instead carries speed-squared dimensions.",
+    why: "Squaring doubles every dimension exponent. A squared speed ratio stays dimensionless; a squared field amplitude has energy-density dimensions in the paper's Gaussian conventions.",
     foundation: "bridge-fractions-ratios",
   },
   root: {
     title: "Take the positive square root",
     does: "Take the positive square root of the entire radicand.",
-    why: "For |v| < V the radicand is positive. The positive branch gives beta = 1 at rest and keeps the time orientation continuous from that case.",
+    why: "The stated subluminal conditions keep these radicands positive. The positive branch is continuous from the rest-frame case; the light-speed endpoint does not define an inertial observer.",
     foundation: "frames-events",
   },
 };
@@ -139,6 +144,7 @@ const factorGuide: RelativityOperationGuide = {
 
 /** Only these source displays opt in; the earlier undetermined phi(v) is not guessed. */
 export const RELATIVITY_OPERATION_GUIDES: Readonly<Record<string, RelativityOperationGuide>> = {
+  ...RELATIVITY_CONSEQUENCE_GUIDES,
   "eq-s3-d16": factorGuide,
   "eq-s3-d25": {
     expectedRowDimensions: [TIME, LENGTH, LENGTH, LENGTH],
