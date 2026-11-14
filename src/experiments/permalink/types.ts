@@ -1,5 +1,5 @@
 /**
- * Types and interfaces for Tape Schema Version 2 and Permalink serialization.
+ * Types and interfaces for versioned experiment and group permalink serialization.
  * Specification: am-inst-permalink-tape-s677, am-rt-control-tapes-0gc
  */
 
@@ -120,6 +120,34 @@ export type TapeV2 = Readonly<{
   description?: string | undefined;
 }>;
 
+/**
+ * V3 adds a declared relationship around independently replayable V2 owners. memberId is a
+ * stable slot within this link, never a mounted instanceId or a shared worker/run identity.
+ */
+export type TapeGroupV3 = Readonly<{
+  tapeVersion: 3;
+  group: Readonly<{
+    definitionVersion: 1;
+    groupId: string;
+    quantityId: string;
+    canonicalUnit: string;
+    commandClass: "setup-change" | "observer-change";
+    direction: "propagates";
+    conversion: "unit-display" | "none";
+    commitPolicy: "coherent";
+    enabled: boolean;
+    valueSI: number | null;
+  }>;
+  members: readonly Readonly<{
+    memberId: string;
+    parameterId: string;
+    displayUnit: string;
+    tape: TapeV2;
+  }>[];
+}>;
+
+export type TapeDocument = TapeV2 | TapeGroupV3;
+
 export type ExperimentEnvironment = Readonly<{
   experimentId: string;
   mode: string;
@@ -133,9 +161,9 @@ export type ExperimentEnvironment = Readonly<{
   replayGrid?: TapeReplayGrid | undefined;
 }>;
 
-export type TapeDecodeResult =
+export type TapeDecodeResult<T extends TapeDocument = TapeV2> =
   | Readonly<{ kind: "absent" }>
-  | Readonly<{ kind: "success"; tape: TapeV2 }>
+  | Readonly<{ kind: "success"; tape: T }>
   | Readonly<{
       kind: "invalid";
       notice: string;

@@ -6,8 +6,9 @@
  * tests; browserCodec.ts compresses with CompressionStream for the pages. Both call these, so a link
  * one writes the other reads, and a refusal says the same thing in either.
  */
-import { TapeValidationError, validateTapeV2 } from "./schema.ts";
-import type { TapeDecodeResult, TapeScientificCheckpoint, TapeV2 } from "./types.ts";
+import { validateTapeDocument } from "./groupSchema.ts";
+import { TapeValidationError } from "./schema.ts";
+import type { TapeDecodeResult, TapeDocument, TapeScientificCheckpoint, TapeV2 } from "./types.ts";
 
 export const MAX_PERMALINK_URL_LENGTH = 2048;
 
@@ -113,9 +114,34 @@ export function extractTapeParam(
 }
 
 /** The UTF-8 JSON bytes a tape is written as, before compression. Validates the tape first. */
-export function tapePayloadBytes(tape: TapeV2, options?: EncodeTapeOptions): Uint8Array {
-  const validated = validateTapeV2(tape);
+export function tapePayloadBytes(tape: TapeDocument, options?: EncodeTapeOptions): Uint8Array {
+  const validated = validateTapeDocument(tape);
+  const payload =
+    validated.tapeVersion === 2
+      ? singleTapePayload(validated, options)
+      : {
+          tapeVersion: 3,
+          group: validated.group,
+          members: [...validated.members]
+            .sort((a, b) => a.memberId.localeCompare(b.memberId, "en"))
+            .map((member) => ({
+              memberId: member.memberId,
+              parameterId: member.parameterId,
+              displayUnit: member.displayUnit,
+              tape: singleTapePayload(member.tape, options),
+            })),
+        };
+  const bytes = new TextEncoder().encode(JSON.stringify(payload));
+  if (validated.tapeVersion === 3 && bytes.byteLength > MAX_DECOMPRESSED_TAPE_BYTES)
+    throw new TapeValidationError(
+      "tape-oversize",
+      "This group exceeds the maximum decompressed tape size.",
+    );
+  return bytes;
+}
 
+/** The original V2 field order and scientific-state compaction remain identical. */
+function singleTapePayload(validated: TapeV2, options?: EncodeTapeOptions): object {
   const payload: Record<string, unknown> = {
     tapeVersion: 2,
     experimentId: validated.experimentId,
@@ -153,7 +179,7 @@ export function tapePayloadBytes(tape: TapeV2, options?: EncodeTapeOptions): Uin
     payload.predictions = validated.predictions;
   }
 
-  return new TextEncoder().encode(JSON.stringify(payload));
+  return payload;
 }
 
 /** Lossless ranges keep a complete ensemble checkpoint inside the existing URL/byte budgets. */
@@ -195,7 +221,7 @@ function compactScientificState(state: TapeScientificCheckpoint): object {
  */
 export function tapeBytesFrom(
   rawInput: string | URLSearchParams | URL | null | undefined,
-): Readonly<{ kind: "bytes"; bytes: Uint8Array }> | TapeDecodeResult {
+): Readonly<{ kind: "bytes"; bytes: Uint8Array }> | Exclude<TapeDecodeResult, { kind: "success" }> {
   const tapeParam = extractTapeParam(rawInput);
   if (!tapeParam) {
     return { kind: "absent" };
@@ -226,7 +252,9 @@ export function tapeBytesFrom(
 }
 
 /** The reader's result when the decompressed tape is past MAX_DECOMPRESSED_TAPE_BYTES. */
-export function oversizeDecompressed(err: unknown): TapeDecodeResult {
+export function oversizeDecompressed(
+  err: unknown,
+): Exclude<TapeDecodeResult, { kind: "success" }> {
   return {
     kind: "invalid",
     notice:
@@ -258,7 +286,7 @@ function isPlausiblyUncompressedJson(bytes: Uint8Array): boolean {
 export function uncompressedFallback(
   bytes: Uint8Array,
   err: unknown,
-): Readonly<{ kind: "text"; text: string }> | TapeDecodeResult {
+): Readonly<{ kind: "text"; text: string }> | Exclude<TapeDecodeResult, { kind: "success" }> {
   // Only fall back to uncompressed raw UTF-8 if the input was plausibly uncompressed JSON
   // (starts with '{' or '[' after leading whitespace).
   if (isPlausiblyUncompressedJson(bytes)) {
@@ -283,7 +311,7 @@ export function uncompressedFallback(
 }
 
 /** The last decode steps: JSON, then the tape schema. */
-export function decodeTapeText(text: string): TapeDecodeResult {
+export function decodeTapeDocumentText(text: string): TapeDecodeResult<TapeDocument> {
   // 4. JSON parsing
   let parsed: unknown;
   try {
@@ -299,7 +327,7 @@ export function decodeTapeText(text: string): TapeDecodeResult {
 
   // 5. Schema validation
   try {
-    const tape = validateTapeV2(parsed);
+    const tape = validateTapeDocument(parsed);
     return {
       kind: "success",
       tape,
@@ -320,6 +348,32 @@ export function decodeTapeText(text: string): TapeDecodeResult {
       details: { error: String(err) },
     };
   }
+}
+
+/** Existing single-instrument readers never silently discard the other group members. */
+export function singleTapeResult(result: TapeDecodeResult<TapeDocument>): TapeDecodeResult {
+  if (result.kind !== "success") return result;
+  if (result.tape.tapeVersion === 3)
+    return {
+      kind: "invalid",
+      reason: "tape-group-route-required",
+      notice: "This link contains a linked comparison. Open it in the comparison laboratory.",
+    };
+  return { kind: "success", tape: result.tape };
+}
+
+export function decodeTapeText(text: string): TapeDecodeResult {
+  return singleTapeResult(decodeTapeDocumentText(text));
+}
+
+/** V3 links must fit the existing transport budget before a reader can copy them. */
+export function boundedTapeEncoding(encoded: string, tapeVersion: number): string {
+  if (tapeVersion === 3 && encoded.length > MAX_PERMALINK_URL_LENGTH)
+    throw new TapeValidationError(
+      "tape-oversize",
+      "This group exceeds the maximum encoded tape size.",
+    );
+  return encoded;
 }
 
 /**

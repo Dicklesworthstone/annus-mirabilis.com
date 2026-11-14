@@ -2,12 +2,13 @@
 
 import { useEffect, useId, useState } from "react";
 import { encodeTapePermalinkInBrowser } from "./browserCodec.ts";
+import { MAX_PERMALINK_URL_LENGTH } from "./codecCore.ts";
 import "./permalink.css";
 import { SHARE_FORMS } from "./shareForms.ts";
-import type { TapeV2 } from "./types.ts";
+import type { TapeDocument } from "./types.ts";
 
 export type ShareControlProps = {
-  readonly tape: TapeV2;
+  readonly tape: TapeDocument;
   /** The page the link opens; by default the page this control is on, without its query. */
   readonly baseUrl?: string;
   readonly onCopied?: () => void;
@@ -34,7 +35,10 @@ export function ShareControl({ tape, baseUrl, onCopied }: ShareControlProps) {
   const [encoded, setEncoded] = useState<Readonly<{ key: string; url: string }> | null>(null);
   const [failedKey, setFailedKey] = useState<string | null>(null);
 
-  const hasPredictions = Boolean(tape.predictions && tape.predictions.length > 0);
+  const hasPredictions =
+    tape.tapeVersion === 2
+      ? Boolean(tape.predictions?.length)
+      : tape.members.some((member) => Boolean(member.tape.predictions?.length));
   const formSpec = SHARE_FORMS["experiment-preset"];
   // Keyed on the tape's content, so a caller that rebuilds an equal tape each render does not
   // re-encode, and a changed tape always does.
@@ -57,7 +61,12 @@ export function ShareControl({ tape, baseUrl, onCopied }: ShareControlProps) {
     }).then(
       (value) => {
         if (live) {
-          setEncoded({ key: encodingKey, url: `${base}?tape=${value}` });
+          const url = `${base}?tape=${value}`;
+          if (tape.tapeVersion === 3 && url.length > MAX_PERMALINK_URL_LENGTH) {
+            setFailedKey(encodingKey);
+            return;
+          }
+          setEncoded({ key: encodingKey, url });
           setFailedKey(null);
         }
       },

@@ -1,5 +1,5 @@
 /**
- * Bounded Encoder and Decoder for Tape Schema Version 2 permalinks (?tape=).
+ * Bounded encoder and decoder for V2 owner and V3 group permalinks (?tape=).
  * Specification: am-inst-permalink-tape-s677, am-rt-control-tapes-0gc, am-rt-u64-identities-7ce
  *
  * Synchronous, with node:zlib, for the server and the tests. Pages use browserCodec.ts, which
@@ -8,17 +8,19 @@
 
 import { deflateRawSync, inflateRawSync } from "node:zlib";
 import {
+  boundedTapeEncoding,
   bytesToBase64Url,
   decodeBase64Url,
-  decodeTapeText,
+  decodeTapeDocumentText,
   type EncodeTapeOptions,
   MAX_DECOMPRESSED_TAPE_BYTES,
   oversizeDecompressed,
+  singleTapeResult,
   tapeBytesFrom,
   tapePayloadBytes,
   uncompressedFallback,
 } from "./codecCore.ts";
-import type { TapeDecodeResult, TapeV2 } from "./types.ts";
+import type { TapeDecodeResult, TapeDocument } from "./types.ts";
 
 export {
   bytesToBase64Url,
@@ -65,21 +67,24 @@ export function base64UrlToBytes(base64url: string): Uint8Array {
 }
 
 /**
- * Encodes a valid TapeV2 object into a Base64URL string.
+ * Encodes a valid versioned tape into a Base64URL string.
  * Strictly preserves 64-bit decimal string seeds, applies deflate compression, and validates bounds.
  */
-export function encodeTapePermalink(tape: TapeV2, options?: EncodeTapeOptions): string {
-  return bytesToBase64Url(deflateRawSync(tapePayloadBytes(tape, options)));
+export function encodeTapePermalink(tape: TapeDocument, options?: EncodeTapeOptions): string {
+  return boundedTapeEncoding(
+    bytesToBase64Url(deflateRawSync(tapePayloadBytes(tape, options))),
+    tape.tapeVersion,
+  );
 }
 
 /**
- * Decodes a tape permalink string into a validated TapeV2.
+ * Decodes a tape permalink string into a validated V2 owner or V3 group.
  * Automatically decompresses deflate payloads or parses raw JSON.
  * Never throws or crashes; returns a structured TapeDecodeResult.
  */
-export function decodeTapePermalink(
+export function decodeTapeDocument(
   rawInput: string | URLSearchParams | URL | null | undefined,
-): TapeDecodeResult {
+): TapeDecodeResult<TapeDocument> {
   const start = tapeBytesFrom(rawInput);
   if (start.kind !== "bytes") return start;
   const bytes = start.bytes;
@@ -98,5 +103,12 @@ export function decodeTapePermalink(
     text = fallback.text;
   }
 
-  return decodeTapeText(text);
+  return decodeTapeDocumentText(text);
+}
+
+/** Compatibility facade for laboratories with one scientific owner. */
+export function decodeTapePermalink(
+  rawInput: string | URLSearchParams | URL | null | undefined,
+): TapeDecodeResult {
+  return singleTapeResult(decodeTapeDocument(rawInput));
 }

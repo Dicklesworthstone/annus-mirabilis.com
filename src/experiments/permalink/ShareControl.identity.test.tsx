@@ -8,11 +8,11 @@ import * as browserCodec from "./browserCodec.ts";
 import { encodeTapePermalink } from "./codec.ts";
 import { ShareControl } from "./ShareControl.tsx";
 import { tapeForSettings } from "./sessionTape.ts";
-import type { TapeV2 } from "./types.ts";
+import type { TapeDocument, TapeGroupV3, TapeV2 } from "./types.ts";
 
 let root: Root | null = null;
 let restoreEncoder: (() => void) | null = null;
-let jobs: { tape: TapeV2; release(): void; fail(): void }[] = [];
+let jobs: { tape: TapeDocument; release(): void; fail(): void }[] = [];
 
 beforeEach(async () => {
   await installDom();
@@ -147,4 +147,36 @@ test("a different destination or failed encoding cannot keep the prior valid lin
   expect(state().url.value).toBe("");
   expect(state().copy.disabled).toBe(true);
   expect(document.body.textContent).toContain("Your accepted result remains available");
+});
+
+test("a V3 comparison whose full URL exceeds the limit never exposes an unusable copy", async () => {
+  const recorded: TapeGroupV3 = {
+    tapeVersion: 3,
+    group: {
+      definitionVersion: 1,
+      groupId: "comparison",
+      quantityId: "frameSpeed",
+      canonicalUnit: "m/s",
+      commandClass: "observer-change",
+      direction: "propagates",
+      conversion: "unit-display",
+      commitPolicy: "coherent",
+      enabled: false,
+      valueSI: null,
+    },
+    members: ["first", "second"].map((memberId) => ({
+      memberId,
+      parameterId: "frameSpeed",
+      displayUnit: "c",
+      tape: tape(0.1),
+    })),
+  };
+  const baseUrl = `https://example.test/${"a".repeat(1800)}/`;
+  expect(encodeTapePermalink(recorded).length).toBeLessThan(2048);
+  await act(async () => root?.render(<ShareControl tape={recorded} baseUrl={baseUrl} />));
+  await until(() => jobs.length === 1);
+  await act(async () => jobs[0]?.release());
+  await until(() => document.querySelector('[role="alert"]') !== null);
+  expect(state().url.value).toBe("");
+  expect(state().copy.disabled).toBe(true);
 });

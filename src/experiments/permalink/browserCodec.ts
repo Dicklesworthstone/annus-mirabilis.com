@@ -7,16 +7,18 @@
  * so the same link decodes the same way on the server, in the tests and in a reader's browser.
  */
 import {
+  boundedTapeEncoding,
   bytesToBase64Url,
-  decodeTapeText,
+  decodeTapeDocumentText,
   type EncodeTapeOptions,
   MAX_DECOMPRESSED_TAPE_BYTES,
   oversizeDecompressed,
+  singleTapeResult,
   tapeBytesFrom,
   tapePayloadBytes,
   uncompressedFallback,
 } from "./codecCore.ts";
-import type { TapeDecodeResult, TapeV2 } from "./types.ts";
+import type { TapeDecodeResult, TapeDocument } from "./types.ts";
 
 async function deflateRaw(bytes: Uint8Array): Promise<Uint8Array> {
   const stream = new Blob([bytes]).stream().pipeThrough(new CompressionStream("deflate-raw"));
@@ -55,16 +57,19 @@ async function inflateRawCapped(
 
 /** encodeTapePermalink for a page: the same Base64URL text codec.ts writes for the same tape. */
 export async function encodeTapePermalinkInBrowser(
-  tape: TapeV2,
+  tape: TapeDocument,
   options?: EncodeTapeOptions,
 ): Promise<string> {
-  return bytesToBase64Url(await deflateRaw(tapePayloadBytes(tape, options)));
+  return boundedTapeEncoding(
+    bytesToBase64Url(await deflateRaw(tapePayloadBytes(tape, options))),
+    tape.tapeVersion,
+  );
 }
 
 /** decodeTapePermalink for a page. Never throws; every failure is a result with a notice. */
-export async function decodeTapePermalinkInBrowser(
+export async function decodeTapeDocumentInBrowser(
   rawInput: string | URLSearchParams | URL | null | undefined,
-): Promise<TapeDecodeResult> {
+): Promise<TapeDecodeResult<TapeDocument>> {
   const start = tapeBytesFrom(rawInput);
   if (start.kind !== "bytes") return start;
   const bytes = start.bytes;
@@ -82,5 +87,12 @@ export async function decodeTapePermalinkInBrowser(
     text = fallback.text;
   }
 
-  return decodeTapeText(text);
+  return decodeTapeDocumentText(text);
+}
+
+/** Compatibility facade for laboratories with one scientific owner. */
+export async function decodeTapePermalinkInBrowser(
+  rawInput: string | URLSearchParams | URL | null | undefined,
+): Promise<TapeDecodeResult> {
+  return singleTapeResult(await decodeTapeDocumentInBrowser(rawInput));
 }

@@ -1,6 +1,14 @@
 "use client";
 
-import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import {
+  type FormEvent,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { readTypedNumber } from "../../experiments/controls/typedNumber.ts";
 import type { ExperimentGroupState, GroupAction } from "../../experiments/groups/groupStore.ts";
 import {
@@ -8,7 +16,12 @@ import {
   type LinkedObserverExamples,
   type LinkedObserverInstrument,
 } from "../../experiments/groups/linkedObserver.ts";
+import {
+  restoreLinkedObserverFromUrl,
+  tapeForLinkedObserver,
+} from "../../experiments/groups/linkedObserverTape.ts";
 import type { ExperimentGroupDefinition } from "../../experiments/groups/schema.ts";
+import { ShareControl } from "../../experiments/permalink/ShareControl.tsx";
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import { convertValue } from "../../units/adapters.ts";
@@ -59,7 +72,7 @@ export function LinkedObserverLab({
   examples: LinkedObserverExamples;
 }) {
   const id = useId();
-  const [session] = useState(() =>
+  const [session, setSession] = useState(() =>
     createLinkedObserverSession(`linked-observer-${id}`, definition, examples),
   );
   const state = useSyncExternalStore(
@@ -74,11 +87,70 @@ export function LinkedObserverLab({
     "sr-10": String(examples.lightComplex.parameters.beta),
   });
   const [problem, setProblem] = useState("");
+  const [restoreNotice, setRestoreNotice] = useState("");
+  const restoreSequence = useRef(0);
+  const restoring = useRef(true);
   useEffect(() => {
     session.connect();
-    setReady(true);
     return () => session.disconnect();
   }, [session]);
+
+  useEffect(() => {
+    let controller: AbortController | null = null;
+    let previousLocation: string | null = null;
+    function restoreLocation() {
+      const address = new URL(window.location.href);
+      const locationKey = JSON.stringify([address.pathname, address.searchParams.getAll("tape")]);
+      if (locationKey === previousLocation) return;
+      previousLocation = locationKey;
+      controller?.abort();
+      const request = new AbortController();
+      controller = request;
+      restoreSequence.current += 1;
+      restoring.current = true;
+      setReady(false);
+      setRestoreNotice(
+        address.searchParams.has("tape")
+          ? "Checking both instruments in the shared comparison…"
+          : "",
+      );
+      void restoreLinkedObserverFromUrl(
+        `linked-observer-${id}-shared-${restoreSequence.current}`,
+        definition,
+        examples,
+        address.href,
+        request.signal,
+      ).then((restored) => {
+        if (request.signal.aborted || controller !== request) return;
+        if (restored.kind === "restored") {
+          const next = restored.session;
+          const dopplerBeta = String(next.owners.doppler.acceptedParameters().beta);
+          const complexBeta = String(next.owners.lightComplex.acceptedParameters().beta);
+          setSession(next);
+          setSharedDraft(dopplerBeta);
+          setIndependentDrafts({ "sr-09": dopplerBeta, "sr-10": complexBeta });
+          setProblem("");
+          setRestoreNotice(
+            next.getSnapshot().enabled
+              ? "Both accepted instrument states are restored with their observers linked."
+              : "Both accepted instrument states are restored with independent observers.",
+          );
+        } else setRestoreNotice(restored.kind === "not-restored" ? restored.notice : "");
+        restoring.current = false;
+        setReady(true);
+      });
+    }
+    window.addEventListener("popstate", restoreLocation);
+    window.addEventListener("pageshow", restoreLocation);
+    restoreLocation();
+    return () => {
+      controller?.abort();
+      window.removeEventListener("popstate", restoreLocation);
+      window.removeEventListener("pageshow", restoreLocation);
+    };
+  }, [id, definition, examples]);
+
+  const shareTape = useMemo(() => tapeForLinkedObserver(session, state), [session, state]);
 
   function report(action: GroupAction) {
     setProblem(action.kind === "refused" ? refusalSentence(action.refusal) : "");
@@ -93,16 +165,19 @@ export function LinkedObserverLab({
   }
   function shared(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!ready || restoring.current) return;
     const speed = typedSpeed(sharedDraft);
     if (speed === null) return;
     report(state.enabled ? session.changeLinkedSpeed(speed) : session.link(speed));
   }
   function independently(event: FormEvent<HTMLFormElement>, instrument: LinkedObserverInstrument) {
     event.preventDefault();
+    if (!ready || restoring.current) return;
     const speed = typedSpeed(independentDrafts[instrument]);
     if (speed !== null) report(session.changeIndependentSpeed(instrument, speed));
   }
   function unlink() {
+    if (!ready || restoring.current) return;
     session.unlink();
     setIndependentDrafts({
       "sr-09": String(session.owners.doppler.acceptedParameters().beta),
@@ -125,6 +200,11 @@ export function LinkedObserverLab({
       data-group-enabled={state.enabled}
       data-group-phase={state.phase}
     >
+      {restoreNotice ? (
+        <p className="notice" role="status" aria-live="polite" data-group-restore="">
+          {restoreNotice}
+        </p>
+      ) : null}
       <div className="linked-observer-fixed">
         <h2>Keep the same light</h2>
         <p>
@@ -140,7 +220,7 @@ export function LinkedObserverLab({
         </p>
       </div>
       <form className="linked-observer-link" onSubmit={shared} noValidate hidden={!ready}>
-        <fieldset>
+        <fieldset disabled={!ready}>
           <legend>
             {state.enabled
               ? "One observer for both instruments"
@@ -358,6 +438,16 @@ export function LinkedObserverLab({
           partial result is presented as a complete comparison.
         </p>
       )}
+      {ready && shareTape ? (
+        <div>
+          <p className="fine">
+            {state.enabled && state.phase !== "accepted"
+              ? "This link saves the last complete comparison shown above."
+              : "This link saves both accepted instrument states and whether the observers are linked."}
+          </p>
+          <ShareControl tape={shareTape} />
+        </div>
+      ) : null}
       <noscript>
         <p className="notice">
           The worked cases are readable without JavaScript. JavaScript enables linked and
