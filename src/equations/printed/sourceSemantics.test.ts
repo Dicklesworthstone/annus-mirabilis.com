@@ -108,7 +108,7 @@ describe("the seven source displays, parsed before typography exceptions", () =>
     expect(offset.rows[0]?.tree).not.toEqual(offset.rows[1]?.tree);
   });
 
-  test("unknown mathematics is refused instead of guessed (sourceExpression.ts:99)", () => {
+  test("unknown mathematics is refused instead of guessed (sourceExpression.ts:108)", () => {
     const d = display("eq-s0-d7");
     expect(
       refuses(
@@ -179,7 +179,7 @@ describe("exact dimensions and scientific limitations", () => {
     ]);
   });
 
-  test("an inconsistent unit and an unsupported dimension stop publication (sourceSemantics.ts:343)", () => {
+  test("an inconsistent unit and an unsupported dimension stop publication (sourceSemantics.ts:375)", () => {
     const d = display("eq-s0-d7");
     const q = quantities.get("speedOfLight");
     if (!q) throw new Error("The canonical speed of light must exist.");
@@ -242,7 +242,7 @@ describe("source rendering with safe operation markers", () => {
       );
   });
 
-  test("crossing, duplicate and injected markers cannot enter trust (sourceSemantics.ts:179)", () => {
+  test("crossing, duplicate and injected markers cannot enter trust (sourceSemantics.ts:184)", () => {
     const mark = { start: 0, end: 4, id: "operation.one", kind: "op" as const };
     for (const marks of [
       [mark, { ...mark, start: 2, end: 6, id: "operation.two" }],
@@ -253,7 +253,7 @@ describe("source rendering with safe operation markers", () => {
     expect(markSourceOperations("abcdef", [mark])).toContain("operation.one");
   });
 
-  test("an extra binding is refused, other papers stay disabled (sourceSemantics.ts:319)", () => {
+  test("an extra binding is refused, other papers stay disabled (sourceSemantics.ts:340)", () => {
     const d = display("eq-s0-d7");
     const first = d.terms[0];
     if (!first) throw new Error("The source fixture must contain terms.");
@@ -289,7 +289,7 @@ describe("source rendering with safe operation markers", () => {
 });
 
 describe("every publication guard has an actual reject and accept case", () => {
-  test("an alignment must contain the complete display (sourceExpression.ts:367)", () => {
+  test("an alignment must contain the complete display (sourceExpression.ts:383)", () => {
     const d = display("eq-s0-d5");
     expect(
       refuses(
@@ -300,7 +300,7 @@ describe("every publication guard has an actual reject and accept case", () => {
     expect(parseSourceExpression(d).rows).toHaveLength(2);
   });
 
-  test("an unknown display has no invented operation guide (sourceSemantics.ts:279)", () => {
+  test("an unknown display has no invented operation guide (sourceSemantics.ts:299)", () => {
     const d = display("eq-s0-d7");
     expect(
       refuses(
@@ -316,7 +316,7 @@ describe("every publication guard has an actual reject and accept case", () => {
     expect(compile(d).semantics.operations.some((operation) => operation.primary)).toBe(true);
   });
 
-  test("a guide bound to a different expression is refused (sourceSemantics.ts:331)", () => {
+  test("a guide bound to a different expression is refused (sourceSemantics.ts:363)", () => {
     const d = display("eq-s0-d7");
     expect(
       refuses(
@@ -332,7 +332,7 @@ describe("every publication guard has an actual reject and accept case", () => {
     expect(() => compile(d)).not.toThrow();
   });
 
-  test("a changed power cannot keep the authored square explanation (sourceSemantics.ts:389)", () => {
+  test("a changed power cannot keep the authored square explanation (sourceSemantics.ts:439)", () => {
     const d = display("eq-s0-d1");
     // The radicand remains dimensionless and all quantity bindings retain their offsets,
     // so this reaches the authored-reading check rather than an earlier dimension refusal.
@@ -346,7 +346,7 @@ describe("every publication guard has an actual reject and accept case", () => {
     expect(() => compile(d)).not.toThrow();
   });
 
-  test("consistent non-energy equalities cannot masquerade as the source ledger (sourceSemantics.ts:361)", () => {
+  test("consistent non-energy equalities cannot masquerade as the source ledger (sourceSemantics.ts:400)", () => {
     const d = display("eq-s0-d2");
     const altered = new Map(quantities);
     for (const id of ["bodyEnergyRestBefore", "bodyEnergyRestAfter", "emittedEnergyRestFrame"]) {
@@ -367,7 +367,7 @@ describe("every publication guard has an actual reject and accept case", () => {
     expect(compile(d).semantics.dimension).toBe("length² × mass × time⁻²");
   });
 
-  test("actual rendered HTML must retain every expected operation marker (sourceSemantics.ts:222)", () => {
+  test("actual rendered HTML must retain every expected operation marker (sourceSemantics.ts:227)", () => {
     const d = display("eq-s0-d7");
     const original = compilePrintedDisplay(d);
     const built = compile(d);
@@ -389,7 +389,7 @@ describe("every publication guard has an actual reject and accept case", () => {
     );
   });
 
-  test("a malformed visual cannot replace a source display (sourceSemantics.ts:230)", () => {
+  test("a malformed visual cannot replace a source display (sourceSemantics.ts:235)", () => {
     const d = display("eq-s0-d7");
     const original = compilePrintedDisplay(d);
     const built = compile(d);

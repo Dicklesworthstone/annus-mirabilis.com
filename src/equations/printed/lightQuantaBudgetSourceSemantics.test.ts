@@ -169,7 +169,7 @@ describe("the printed light-quanta energy budgets", () => {
 });
 
 describe("exact relation and dimension contracts", () => {
-  test("bounds keep their authored direction even when reversed bounds remain dimensionally consistent (sourceSemantics.ts:292)", () => {
+  test("bounds keep their authored direction even when reversed bounds remain dimensionally consistent (sourceSemantics.ts:313)", () => {
     for (const [id, expected] of Object.entries(EXPECTED)) {
       const original = display(id);
       const tree = compile(original).semantics.rows[0];
@@ -192,7 +192,7 @@ describe("exact relation and dimension contracts", () => {
     }
   });
 
-  test("old equalities cannot become standalone expressions or bounds, and the standalone source cannot gain an equality (sourceSemantics.ts:292)", async () => {
+  test("old equalities cannot become standalone expressions or bounds, and the standalone source cannot gain an equality (sourceSemantics.ts:313)", async () => {
     const mass = await checkPaperDisplays(process.cwd(), "mass-energy");
     const energy = mass?.displays.find((d) => d.display === "eq-s0-d2");
     if (!energy) throw new Error("The real mass-energy equality must exist.");
@@ -242,7 +242,7 @@ describe("exact relation and dimension contracts", () => {
     }
   });
 
-  test("the electrical check uses EMU dimensions and refuses missing or corrupted EMU data without falling back (sourceSemantics.ts:343)", () => {
+  test("the electrical check uses EMU dimensions and refuses missing or corrupted EMU data without falling back (sourceSemantics.ts:375)", () => {
     const d = display("eq-s8-d2");
     const charge = quantities.get("elementaryCharge");
     if (!charge) throw new Error("The source charge must be registered.");
@@ -260,7 +260,7 @@ describe("exact relation and dimension contracts", () => {
     expect(() => compile(d)).not.toThrow();
   });
 
-  test("a consistent dimensionless rewrite cannot masquerade as the printed amount j (sourceSemantics.ts:361)", () => {
+  test("a consistent dimensionless rewrite cannot masquerade as the printed amount j (sourceSemantics.ts:400)", () => {
     const d = display("eq-s9-d3");
     const altered = new Map(quantities);
     for (const id of ["molarGasConstant", "ionizedGramMolecules"]) {
@@ -282,7 +282,7 @@ describe("exact relation and dimension contracts", () => {
     expect(compile(d).semantics.dimension).toBe("amount");
   });
 
-  test("expanded relation grammar still refuses unknown, chained and partially parsed mathematics (sourceExpression.ts:99)", () => {
+  test("expanded relation grammar still refuses unknown, chained and partially parsed mathematics (sourceExpression.ts:108)", () => {
     for (const id of ["eq-s7-d1", "eq-s8-d1"]) {
       const d = display(id);
       expect(
