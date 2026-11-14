@@ -38,9 +38,11 @@ import { mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { dump } from "js-yaml";
 import { reportPopulation } from "../../../scripts/gate-census/population.ts";
 import { loadHistoricalDataset } from "../../content/datasets/loader.ts";
 import type { HistoricalDataset } from "../../content/schemas/experiment.ts";
+import { strictParse } from "../../content/schemas/strictParse.ts";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const DATASET_DIR = join(ROOT, "content", "datasets");
@@ -84,7 +86,7 @@ type CorpusAudit = Readonly<{
   loaded: readonly LoadedRecord[];
   /** Each entry names the file and the validator's own message, never a count. */
   loadFailures: readonly string[];
-  missingObservationDate: readonly string[];
+  unexplainedObservationDate: readonly string[];
 }>;
 
 /**
@@ -107,14 +109,18 @@ function auditCorpus(dir: string): CorpusAudit {
     }
   }
 
-  const missingObservationDate: string[] = [];
+  const unexplainedObservationDate: string[] = [];
   for (const { dataset } of loaded) {
     const series = dataset.series ?? [];
-    const stated = series.length > 0 && series.every((s) => s.observationDate !== undefined);
-    if (!stated) missingObservationDate.push(dataset.id);
+    const stated =
+      series.length > 0 &&
+      series.every(
+        (s) => s.observationDate !== undefined || s.observationDateUnavailable !== undefined,
+      );
+    if (!stated) unexplainedObservationDate.push(dataset.id);
   }
 
-  return { files, loaded, loadFailures, missingObservationDate };
+  return { files, loaded, loadFailures, unexplainedObservationDate };
 }
 
 const audit = auditCorpus(DATASET_DIR);
@@ -138,15 +144,17 @@ describe("the shipped dataset corpus (am-inst-dataset-overlay-ra9r)", () => {
     expect(audit.loaded.length).toBe(audit.files.length);
   });
 
-  test("a record carrying no observationDate is one of the declared ones", () => {
-    const undeclared = audit.missingObservationDate.filter((id) => !NO_OBSERVATION_DATE.has(id));
+  test("a record with neither observation dates nor sourced absence is one of the declared ones", () => {
+    const undeclared = audit.unexplainedObservationDate.filter(
+      (id) => !NO_OBSERVATION_DATE.has(id),
+    );
     expect(undeclared).toEqual([]);
     /*
      * The debt is printed rather than merely tolerated, because a declared absence nobody reads
      * is an exemption. Measured 2 of 2 on 2026-10-18.
      */
     console.log(
-      `[dataset corpus] ${audit.missingObservationDate.length} of ${audit.loaded.length} shipped records state no observationDate: ${audit.missingObservationDate.join(", ") || "none"}`,
+      `[dataset corpus] ${audit.unexplainedObservationDate.length} of ${audit.loaded.length} shipped records state neither observation dates nor sourced absence: ${audit.unexplainedObservationDate.join(", ") || "none"}`,
     );
     for (const [, reason] of NO_OBSERVATION_DATE) {
       expect(reason.trim().length).toBeGreaterThan(20);
@@ -201,5 +209,51 @@ describe("the shipped dataset corpus (am-inst-dataset-overlay-ra9r)", () => {
     console.log(
       `[dataset corpus control] planted 3 records: ${plantedAudit.loadFailures.length} refused and named, ${plantedAudit.loaded.length} loaded clean`,
     );
+  });
+
+  test("a sourced unavailable date passes while silent omission and contradictory dates remain visible", () => {
+    const planted = mkdtempSync(join(tmpdir(), "am-dataset-observation-date-plant-"));
+    const base = strictParse(
+      readFileSync(join(DATASET_DIR, "fixture-dataset.yaml"), "utf8"),
+      "yaml",
+    ) as Record<string, unknown>;
+    const series = {
+      id: "undated-series",
+      publicationId: "pub-1900",
+      description: "A fixture series whose source gives no observation date.",
+    };
+    const unavailable = {
+      reason: "The cited table gives no observation date; the publication year is a separate fact.",
+      source: "Fixture source, table 1.",
+    };
+    const write = (id: string, evidence: Record<string, unknown>) => {
+      writeFileSync(
+        join(planted, `${id}.yaml`),
+        dump(
+          { ...base, id, series: [{ ...series, ...evidence }] },
+          { noRefs: true, lineWidth: -1 },
+        ),
+        "utf8",
+      );
+    };
+    write("sourced-unavailable", { observationDateUnavailable: unavailable });
+    write("silently-omitted", {});
+    write("empty-explanation", { observationDateUnavailable: { ...unavailable, reason: " " } });
+    const publication = (base.publications as { publicationDate: unknown }[])[0];
+    expect(publication).toBeDefined();
+    write("publication-date-substitution", {
+      observationDateUnavailable: unavailable,
+      observationDate: publication?.publicationDate,
+    });
+
+    const result = auditCorpus(planted);
+    expect(result.unexplainedObservationDate).toEqual(["silently-omitted"]);
+    expect(result.loaded.map(({ dataset }) => dataset.id)).toEqual([
+      "silently-omitted",
+      "sourced-unavailable",
+    ]);
+    expect(result.loadFailures.join("\n")).toContain("empty-explanation.yaml");
+    expect(result.loadFailures.join("\n")).toContain("publication-date-substitution.yaml");
+    expect(result.loadFailures.join("\n")).toContain("invalid-observation-date-availability");
   });
 });

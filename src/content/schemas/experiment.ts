@@ -2710,7 +2710,8 @@ export type DatasetSeries = Readonly<{
   publicationId: string;
   observationDate?: PaperDate | undefined;
   description: string;
-}>;
+}> &
+  DatasetObservationDateAvailability;
 
 export type DatasetRow = Readonly<{
   seriesId?: string | undefined;
@@ -3074,7 +3075,7 @@ export function validateHistoricalDataset(
         );
       }
       let obsDate: PaperDate | undefined;
-      if (sRaw.observationDate) {
+      if (sRaw.observationDate !== undefined) {
         obsDate = validatePaperDate(
           sRaw.observationDate,
           sRaw.id as string,
@@ -3093,7 +3094,7 @@ export function validateHistoricalDataset(
       seriesList.push({
         id: sRaw.id,
         publicationId: sRaw.publicationId,
-        observationDate: obsDate,
+        ...datasetObservationDateAvailability(sRaw, obsDate, sPath),
         description: (sRaw.description as string) || "",
       });
     }
@@ -4122,4 +4123,52 @@ function independentReferenceOf(
     experimentId: entry.experimentId as string,
     quantityId: entry.quantityId as string,
   };
+}
+
+/** Missing historical information is explicit evidence, never an inferred observation date. */
+export type ObservationDateUnavailable = Readonly<{ reason: string; source: string }>;
+type DatasetObservationDateAvailability =
+  | Readonly<{
+      observationDate: PaperDate;
+      observationDateUnavailable?: undefined;
+    }>
+  | Readonly<{
+      observationDate?: undefined;
+      observationDateUnavailable?: ObservationDateUnavailable | undefined;
+    }>;
+
+/** Legacy omissions remain detectable by the corpus audit; a sourced absence is a different state. */
+function datasetObservationDateAvailability(
+  raw: Record<string, unknown>,
+  observationDate: PaperDate | undefined,
+  path: string,
+): DatasetObservationDateAvailability {
+  const unavailable = raw.observationDateUnavailable;
+  if (unavailable === undefined) {
+    return observationDate === undefined ? {} : { observationDate };
+  }
+  const evidence = unavailable as Record<string, unknown> | null;
+  if (
+    raw.observationDate !== undefined ||
+    !evidence ||
+    typeof evidence !== "object" ||
+    Array.isArray(evidence) ||
+    typeof evidence.reason !== "string" ||
+    !evidence.reason.trim() ||
+    typeof evidence.source !== "string" ||
+    !evidence.source.trim()
+  ) {
+    throw new ExperimentValidationError(
+      "invalid-observation-date-availability",
+      "Supply either an observation date or an unavailable-date explanation with nonempty reason and source, never both. A publication date is not a substitute for missing observation dates.",
+      "HistoricalDataset",
+      `${path}.observationDateUnavailable`,
+    );
+  }
+  return Object.freeze({
+    observationDateUnavailable: Object.freeze({
+      reason: evidence.reason.trim(),
+      source: evidence.source.trim(),
+    }),
+  });
 }
