@@ -5,6 +5,7 @@ import { ExplanationPart } from "../../components/discover/ExplanationPart.tsx";
 import { NumericPart } from "../../components/discover/NumericPart.tsx";
 import { connectionAnswerLocation } from "./answerLocations.ts";
 import { AVOGADRO_RADIUS_COMPARISON, type AvogadroRadiusComparison } from "./avogadro.ts";
+import { DissertationComparison } from "./DissertationComparison.tsx";
 import type { ConnectionExercise, ConnectionExercisePart, ConnectionLink } from "./types.ts";
 
 function ExerciseLinks({ links }: { links: readonly ConnectionLink[] }) {
@@ -129,11 +130,16 @@ export function ConnectionExercises({ exercises }: { exercises: readonly Connect
             <p key={paragraph}>{paragraph}</p>
           ))}
           {exercise.sections.map((section) => (
-            <section key={section.id} aria-labelledby={`${section.id}-title`}>
+            <section
+              key={section.id}
+              id={section.id}
+              aria-labelledby={`${section.id}-title`}
+            >
               <h4 id={`${section.id}-title`}>{section.title}</h4>
               {section.paragraphs.map((paragraph) => (
                 <p key={paragraph}>{paragraph}</p>
               ))}
+              {section.id === "avogadro-dissertation" && <DissertationComparison />}
               {section.parts.map((entry) => (
                 <Part
                   key={entry.part.id}

@@ -490,6 +490,13 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
           Setting both concentration and viscosity increment to zero removes the extra information:
           the solute diffusion then determines only aN, not a unique radius and number.
         </p>
+        <p>
+          <a href="/connections/#avogadro-dissertation">
+            Reconstruct the dissertation, supplement, and correction from their printed results
+          </a>
+          . The source comparison separates the change in observations from the change in
+          coefficient.
+        </p>
       </section>
       <p>
         <a href={`/lab/avogadro-lab/?${encodeAvogadroParameters(accepted)}`}>

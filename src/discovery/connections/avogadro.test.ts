@@ -38,6 +38,10 @@ import {
   requireAvogadroComputation,
   AVOGADRO_BROWNIAN_SETTINGS as settings,
 } from "./avogadro.ts";
+import {
+  DISSERTATION_NUMERIC_PARTS,
+  DISSERTATION_SOURCES,
+} from "./dissertationHistorical.ts";
 
 describe("molecular-number transfer exercise", () => {
   test("a refused, unavailable or interrupted reference cannot publish an exercise reference", () => {
@@ -320,15 +324,25 @@ describe("molecular-number transfer exercise", () => {
           expect(explanationOutcome(item.part).kind).toBe("needs-human-reading");
   });
 
-  test("unverified dissertation fixtures never become historical exercises from a presence flag", () => {
+  test("pinned historical exercises do not depend on the full companion or lab presence", () => {
     for (const companionPresent of [false, true]) {
       const exercise = buildAvogadroExercise({ companionPresent, avogadroLabPresent: false });
       const dissertation = exercise.sections.find(
         (section) => section.id === "avogadro-dissertation",
       );
-      expect(dissertation?.parts).toEqual([]);
-      expect(dissertation?.paragraphs.join(" ")).toContain("in preparation");
+      expect(dissertation?.parts.map((entry) => entry.part.id)).toEqual(
+        DISSERTATION_NUMERIC_PARTS.map((part) => part.id),
+      );
+      expect(dissertation?.parts.every((entry) => entry.kind === "numeric")).toBe(true);
+      expect(dissertation?.title).toBe("Route 3: the dissertation and its correction");
+      expect(dissertation?.paragraphs.join(" ")).toContain("do not fill missing experimental inputs");
+      expect(dissertation?.links?.map((link) => link.href)).toEqual([
+        DISSERTATION_SOURCES.dissertation.mainHref,
+        DISSERTATION_SOURCES.dissertation.supplementHref,
+        DISSERTATION_SOURCES.correction.href,
+      ]);
       expect(exercise.links.some((link) => link.href === "/lab/avogadro-lab/")).toBe(false);
+      expect(JSON.stringify(exercise)).not.toContain("/papers/molecular-dimensions/");
       expect(JSON.stringify(exercise)).not.toContain("two of the three were at first wrong");
     }
     const publishedLab = buildAvogadroExercise({

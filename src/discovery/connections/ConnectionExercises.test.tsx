@@ -62,18 +62,39 @@ describe("cross-paper exercises before JavaScript runs", () => {
     expect(family).not.toContain("<input");
   });
 
-  test("unavailable dissertation evidence is named, and absent lab capabilities leave no link", () => {
+  test("the historical route remains usable without the full companion or lab", () => {
     const unavailable = renderToStaticMarkup(
       <ConnectionExercises
         exercises={buildConnectionExercises({ companionPresent: false, avogadroLabPresent: false })}
       />,
     );
-    expect(unavailable).toContain("Route 3: the dissertation, in preparation");
+    expect(unavailable).toContain("Route 3: the dissertation and its correction");
+    expect(unavailable).toContain('id="avogadro-dissertation"');
+    expect(unavailable).toContain(
+      'data-dissertation-comparison="printed-products-and-coefficient-correction"',
+    );
+    expect(unavailable).toContain('href="/papers/pdfs/ap-19-289.pdf#page=17"');
+    expect(unavailable).toContain('href="/papers/pdfs/ap-19-289.pdf#page=18"');
+    expect(unavailable).toContain('href="/papers/pdfs/ap-34-591.pdf#page=2"');
     expect(unavailable).not.toContain('href="/lab/avogadro-lab/"');
     expect(unavailable).not.toContain('href="/papers/molecular-dimensions/"');
     expect(html).toContain('href="/lab/avogadro-lab/"');
     expect(html).toContain('data-historical-status="later-development"');
     expect(html.match(/>Modern lens<\/p>/g)).toHaveLength(2);
+  });
+
+  test("the source comparison separates changed observations from the coefficient correction", () => {
+    expect(html).toContain(
+      "<caption>Three stages, with the observations and the coefficient kept distinct</caption>",
+    );
+    for (const value of ["2.1", "2.1212", "4.15", "6.56", "6.5617", "3.3539"])
+      expect(html).toContain(`${value} × 10²³`);
+    for (const value of ["0.99", "0.98058", "0.78", "0.49332"])
+      expect(html).toContain(`${value} nm`);
+    expect(html).toContain("the correction note does not print it");
+    expect(html).toContain("rounded historical values supplies a confidence interval");
+    for (const suffix of ["radius", "number", "correction"])
+      expect(html).toContain(`id="exercise-cross-journey-avogadro-dissertation-${suffix}"`);
   });
 
   test("additional renderer copy passes the shared voice check", () => {

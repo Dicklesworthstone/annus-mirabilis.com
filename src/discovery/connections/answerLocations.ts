@@ -29,6 +29,21 @@ export const CONNECTION_ANSWER_LOCATIONS = {
     sourceAnchor: "arg-bm-inference",
     kind: "numeric",
   },
+  "cross-journey-avogadro-dissertation-radius": {
+    paper: "brownian-motion",
+    sourceAnchor: "arg-bm-inference",
+    kind: "numeric",
+  },
+  "cross-journey-avogadro-dissertation-number": {
+    paper: "brownian-motion",
+    sourceAnchor: "arg-bm-inference",
+    kind: "numeric",
+  },
+  "cross-journey-avogadro-dissertation-correction": {
+    paper: "brownian-motion",
+    sourceAnchor: "arg-bm-inference",
+    kind: "numeric",
+  },
   "cross-journey-avogadro-compare-evidence": {
     paper: "brownian-motion",
     sourceAnchor: "arg-bm-inference",

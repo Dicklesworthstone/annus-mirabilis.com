@@ -4,7 +4,7 @@ import { EFFECTIVE_MASS_EXERCISE } from "./effectiveMass.ts";
 import { STATISTICAL_EXERCISE } from "./statistical.ts";
 import type { ConnectionExercise } from "./types.ts";
 
-/** The implemented laboratory route is a preview, separate from the missing historical route. */
+/** The laboratory and the printed-product exercise have separate evidence and source links. */
 export function buildConnectionExercises(
   availability: AvogadroContentAvailability = {
     companionPresent: false,

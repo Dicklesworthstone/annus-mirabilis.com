@@ -1,4 +1,4 @@
-/** Transfer exercise: radiation constants and a synthetic Brownian inference of N. */
+/** Transfer exercise: three routes to N, with printed evidence distinct from synthetic data. */
 import {
   type ConstantSet,
   ConstantSetError,
@@ -33,6 +33,10 @@ import {
   type NumericReference,
   referenceFromEvaluation,
 } from "../exercises/numeric.ts";
+import {
+  DISSERTATION_NUMERIC_PARTS,
+  DISSERTATION_SOURCES,
+} from "./dissertationHistorical.ts";
 import type { ConnectionExercise } from "./types.ts";
 
 export const AVOGADRO_EXERCISE_ID = "cross-journey-avogadro-three-ways";
@@ -359,8 +363,8 @@ export function buildAvogadroExercise(
     id: AVOGADRO_EXERCISE_ID,
     title: "Infer a molecular number by different routes",
     introduction: [
-      "Radiation and suspended particles offer different ways to infer the number of molecules in a mole. Work through the radiation estimate and a synthetic Brownian example, then compare what each calculation needs from the world.",
-      "Two determinations are ready here. The third determination, from the dissertation, is in preparation.",
+      "Radiation, suspended particles, and dissolved molecules offer different ways to infer the number of molecules in a mole. Work through a radiation estimate, a synthetic Brownian example, and the dissertation's printed calculation, then compare what each needs from the world.",
+      "The dissertation exercise separates the original calculation, the January 1906 supplement's changed observations, and the 1911 correction of the viscosity coefficient. Reconstructing a printed result is not a new measurement.",
     ],
     sections: [
       {
@@ -399,13 +403,28 @@ export function buildAvogadroExercise(
       },
       {
         id: "avogadro-dissertation",
-        title: "Route 3: the dissertation, in preparation",
+        title: "Route 3: the dissertation and its correction",
         paragraphs: [
-          availability.companionPresent
-            ? "The companion record is present, but its historical input fixtures and verified constant sets are still needed before this exercise can reproduce the dissertation and its correction. The third determination remains in preparation."
-            : "The third determination is in preparation. It will reproduce the dissertation and correction only when the companion reading and their verified historical input fixtures are available.",
+          "The dissertation combines two observations of a sugar solution. Diffusion determines NP and viscosity determines NP³, where P is the molecular radius, not its diameter. Dividing the two relations determines P²; their different radius dependence breaks the ambiguity left by diffusion alone.",
+          "The main calculation on p. 305 prints NP = 2.08 × 10¹⁶ cm/mol and NP³ = 200 cm³/mol. It combines viscosity data at 20 °C with diffusion data at 9.5 °C, neglecting the possible change in radius. Einstein also warns that his dilute-solution formula is not exact for the 10% solution used for diffusion.",
+          "The January 1906 supplement uses new diffusion and viscosity observations. The 1911 note then changes the viscosity coefficient from 1 to 2.5 while retaining that later observational basis. Changing the observations and correcting the coefficient are separate steps.",
+          "The first two questions reconstruct the main text from its printed products; the last applies the coefficient change to the supplement's published result. These calculations do not fill missing experimental inputs or assign an uncertainty interval. The source pages below are available independently of the full companion reading.",
         ],
-        parts: [],
+        parts: DISSERTATION_NUMERIC_PARTS.map((part) => ({ kind: "numeric" as const, part })),
+        links: [
+          {
+            href: DISSERTATION_SOURCES.dissertation.mainHref,
+            label: "Read the original calculation, printed p. 305",
+          },
+          {
+            href: DISSERTATION_SOURCES.dissertation.supplementHref,
+            label: "Read the January 1906 supplement's results, printed p. 306",
+          },
+          {
+            href: DISSERTATION_SOURCES.correction.href,
+            label: "Read the 1911 correction, printed p. 592",
+          },
+        ],
       },
       {
         id: "avogadro-comparison",
@@ -422,11 +441,11 @@ export function buildAvogadroExercise(
                 "Radiation and Brownian motion constrain a microscopic quantity through different macroscopic observations and physical premises.",
                 "The radiation route depends on the fitted radiation constants; the Brownian route depends on the measured spread and independently known radius.",
                 "Without the radius, the Brownian inference identifies a compatible family of a and N rather than one N.",
-                "The dissertation comparison also needs the coefficient of φ and the input data used by each printing; a coefficient change alone cannot explain a change of data.",
+                "The dissertation combines viscosity's NP³ with diffusion's NP to determine both P and N; the supplement changes the observations, while the 1911 coefficient correction changes the inference from them.",
                 "The modern exact Avogadro constant is a definition adopted in 2019, and a synthetic recovery supplies no new experimental evidence.",
               ],
               workedExplanation:
-                "An unseen molecular number can become measurable through unrelated observations, but agreement matters only after examining how the inputs were obtained. Radiation supplies fitted constants; Brownian motion supplies a displacement distribution whose interpretation requires the particle radius and drag model. Removing the radius leaves aN = RT/(6πηD), so each positive radius has a compatible N. A radius inferred from those same displacements cannot serve as independent input. The dissertation route needs its own viscosity coefficient and historical solution data, which are still being prepared here. The modern N_A = 6.02214076 × 10²³ mol⁻¹ is exact by the SI definition adopted in 2019; it was not a prescribed target for the 1905 estimates. The synthetic sample demonstrates the calculation and its conditional interval, while evidence for molecules requires measurements.",
+                "An unseen molecular number can become measurable through unrelated observations, but agreement matters only after examining how the inputs were obtained. Radiation supplies fitted constants; Brownian motion supplies a displacement distribution whose interpretation requires the particle radius and drag model. Removing the radius leaves aN = RT/(6πηD), so each positive radius has a compatible N. A radius inferred from those same displacements cannot serve as independent input. The dissertation separates P and N by combining viscosity's NP³ with diffusion's NP. Its original calculation, supplement, and correction must be compared with their observational inputs kept distinct: correcting the original products alone does not produce the 1911 result. Reconstructing the printed products checks that inference but supplies no new observation. Brownian motion and the dissertation also share assumptions about molecular diffusion and viscous drag, so the routes are not independent in every premise. The modern N_A = 6.02214076 × 10²³ mol⁻¹ is exact by the SI definition adopted in 2019; it was not a prescribed target for the 1905 estimates. The synthetic sample demonstrates the calculation and its conditional interval, while evidence for molecules requires measurements.",
             },
           },
         ],
