@@ -18,6 +18,14 @@ import type {
 import type { ComparisonResult } from "../../experiments/compare/compatibility.ts";
 import type { ComparisonPort } from "../../experiments/compare/controlledComparison.ts";
 import type { ComparisonContract } from "../../experiments/compare/singleVariationLock.ts";
+import {
+  LQ08_COMPARISON,
+  lq08ComparisonIdentity,
+  verifyLq08Comparison,
+  verifyLq08SavedComparison,
+} from "../../experiments/lq08/comparison.ts";
+import { validateLq08Parameters } from "../../experiments/lq08/parameters.ts";
+import type { PreparedLq08Example } from "../../experiments/lq08/session.ts";
 import type { TapeReplayGrid } from "../../experiments/permalink/types.ts";
 import {
   fixedSr03ComparisonParameters,
@@ -30,19 +38,37 @@ import type { PreparedSr03Example } from "../../experiments/sr03/session.ts";
 import type { WorkerChannel } from "../../workers/scheduler/hostScheduler.ts";
 import type { ReplayCatalogue } from "./replayCompatibility.ts";
 
-export type ReplayInstrumentId = "bm-01" | "bm-08" | "sr-03";
-export type ComparisonReplayKind = "bm01-comparison" | "bm08-comparison" | "sr03-comparison";
+export type ReplayInstrumentId = "bm-01" | "bm-08" | "lq-08" | "sr-03";
+export type ComparisonReplayKind =
+  | "bm01-comparison"
+  | "bm08-comparison"
+  | "lq08-comparison"
+  | "sr03-comparison";
 export type ComparisonReplayPrediction = "smaller" | "same" | "larger";
 export type ComparisonReplaySession = ComparisonPort &
   Readonly<{ setSchedulingPaused(paused: boolean): void }>;
-export type ComparisonReplayOwner = Readonly<{
-  identity: ComparisonIdentity;
-  workerFactory: () => WorkerChannel;
-}> &
+export type ComparisonReplayOwner = Readonly<{ identity: ComparisonIdentity }> &
   (
-    | Readonly<{ instrumentId?: "bm-01"; example: PreparedBm01Example }>
-    | Readonly<{ instrumentId: "bm-08"; example: PreparedBm08Example }>
-    | Readonly<{ instrumentId: "sr-03"; example: PreparedSr03Example }>
+    | Readonly<{
+        instrumentId?: "bm-01";
+        example: PreparedBm01Example;
+        workerFactory: () => WorkerChannel;
+      }>
+    | Readonly<{
+        instrumentId: "bm-08";
+        example: PreparedBm08Example;
+        workerFactory: () => WorkerChannel;
+      }>
+    | Readonly<{
+        instrumentId: "sr-03";
+        example: PreparedSr03Example;
+        workerFactory: () => WorkerChannel;
+      }>
+    | Readonly<{
+        instrumentId: "lq-08";
+        example: PreparedLq08Example;
+        workerFactory?: never;
+      }>
   );
 
 export class ComparisonReplayAdapterError extends TypeError {
@@ -219,6 +245,67 @@ const adapters: Readonly<Record<ReplayInstrumentId, ComparisonReplayAdapter>> = 
       };
     },
     loadCatalogue: loadBrownianCatalogue,
+  }),
+  "lq-08": Object.freeze({
+    instrumentId: "lq-08",
+    kind: "lq08-comparison",
+    mode: "lq-08:default",
+    contract: LQ08_COMPARISON,
+    title: "My controlled photoelectric comparison",
+    paper: "light-quanta",
+    anchor: "arg-lq-photoelectric-energy",
+    saveDescription:
+      "Keeps both accepted sets of energy, rate and current readouts, their exact settings and the one change you made. Replaying evaluates the registered photoelectric model again.",
+    evidenceDescription:
+      "These are the accepted energy, rate and current readouts you saved. Opening this entry does not recompute them. Inapplicable energies and an undetermined current retain their original explanations.",
+    matchingScalarsMessage:
+      "Finished. The accepted photoelectric readouts agree within relative tolerance 1e-12, that is, to one part in a trillion. Inapplicable and undetermined results retain their saved explanations.",
+    seedPolicy: Object.freeze({ kind: "deterministic", value: "0" }),
+    predictionPromptId: "lq-08-predict-comparison-quantum-energy",
+    predictions: Object.freeze({
+      smaller: "Energy per quantum will be smaller",
+      same: "Energy per quantum will stay the same",
+      larger: "Energy per quantum will be larger",
+    }),
+    parameters(input: unknown) {
+      const checked = validateLq08Parameters(input);
+      if (checked.kind !== "accepted")
+        throw new ComparisonReplayAdapterError(
+          "invalid-replay-parameters",
+          "A photoelectric comparison needs valid, complete apparatus settings.",
+        );
+      return checked.data;
+    },
+    replayGrid: () => undefined,
+    verifyAccepted: verifyLq08Comparison,
+    verifySaved: verifyLq08SavedComparison,
+    async createSession(instanceId: string, owner: ComparisonReplayOwner) {
+      if (owner.instrumentId !== "lq-08")
+        throw new ComparisonReplayAdapterError(
+          "replay-owner-mismatch",
+          "This saved comparison requires the photoelectric instrument.",
+        );
+      const { createLq08Session } = await import("../../experiments/lq08/session.ts");
+      const session = createLq08Session(instanceId, owner.example);
+      return Object.freeze({
+        ...session,
+        setSchedulingPaused(_paused: boolean) {
+          // Each explicit apply completes synchronously. There is no background work to schedule.
+        },
+      });
+    },
+    async loadCurrentOwner(): Promise<ComparisonReplayOwner> {
+      const { default: example } = await import("../../generated/lq08-example.json");
+      return {
+        instrumentId: "lq-08",
+        example,
+        identity: lq08ComparisonIdentity(example),
+      };
+    },
+    async loadCatalogue(): Promise<ReplayCatalogue> {
+      const { default: catalogue } = await import("../../generated/lq08-notebook-replay.json");
+      return catalogue as ReplayCatalogue;
+    },
   }),
   "sr-03": Object.freeze({
     instrumentId: "sr-03",

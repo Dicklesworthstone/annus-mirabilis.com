@@ -7,6 +7,7 @@ import { parseContentYaml } from "../src/content/compiler/loaders.ts";
 import { loadPaperPayload } from "../src/content/compiler/serverLoaders.ts";
 import { prepareSr03Comparisons } from "../src/content/sr03Comparison.ts";
 import { bm01ComparisonIdentity } from "../src/experiments/bm01/comparison.ts";
+import { lq08ComparisonIdentity } from "../src/experiments/lq08/comparison.ts";
 import { sr03ComparisonIdentity } from "../src/experiments/sr03/comparison.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -44,38 +45,46 @@ export async function generateNotebookReplay(
     await readFile(resolve(root, "src/generated/bm01-comparison.json"), "utf8"),
   );
   const sr03 = JSON.parse(await readFile(resolve(root, "src/generated/sr03-example.json"), "utf8"));
+  const lq08 = JSON.parse(await readFile(resolve(root, "src/generated/lq08-example.json"), "utf8"));
   const identity = bm01ComparisonIdentity(example);
   if (
-    [identity.sourceDigest, sr03.sourceDigest].some(
+    [identity.sourceDigest, sr03.sourceDigest, lq08.sourceDigest].some(
       (digest) => !/^source:sha256:[a-f0-9]{64}$/u.test(digest),
     )
   )
     throw new Error("Generate the current comparison examples first.");
-  const [brownian, relativity, observerComparisons] = await Promise.all([
+  const [brownian, relativity, lightQuanta, observerComparisons] = await Promise.all([
     paperCatalogue(root, "brownian-motion"),
     paperCatalogue(root, "special-relativity"),
+    paperCatalogue(root, "light-quanta"),
     prepareSr03Comparisons(sr03.sourceDigest),
   ]);
   const fixedPair = observerComparisons[0]?.baseline;
   if (
     !Object.hasOwn(brownian.passages, "arg-bm-observable") ||
     !Object.hasOwn(relativity.passages, "arg-sr-rod-events") ||
+    !Object.hasOwn(lightQuanta.passages, "arg-lq-photoelectric-energy") ||
     !fixedPair
   )
     throw new Error("The saved comparisons need their compiled passages and fixed-pair example.");
-  // Preserve the existing Brownian payload and return value. Relativity has a separate catalogue
-  // so an anchor in another paper can never appear resolved under the saved paper's URL.
+  // Preserve the existing Brownian payload and return value. Each paper has its own catalogue
+  // so a foreign anchor can never appear resolved under the saved paper's URL.
   const output = { identity, ...brownian };
   const observer = {
     identity: sr03ComparisonIdentity(fixedPair),
     ...relativity,
     example: fixedPair,
   };
+  const photoelectric = { identity: lq08ComparisonIdentity(lq08), ...lightQuanta };
   await mkdir(outputDirectory, { recursive: true });
   await writeFile(resolve(outputDirectory, "notebook-replay.json"), `${JSON.stringify(output)}\n`);
   await writeFile(
     resolve(outputDirectory, "sr03-notebook-replay.json"),
     `${JSON.stringify(observer)}\n`,
+  );
+  await writeFile(
+    resolve(outputDirectory, "lq08-notebook-replay.json"),
+    `${JSON.stringify(photoelectric)}\n`,
   );
   return output;
 }
@@ -84,7 +93,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   console.log(
     JSON.stringify({
       event: "notebook-replay-catalogue-generated",
-      papers: ["brownian-motion", "special-relativity"],
+      papers: ["brownian-motion", "special-relativity", "light-quanta"],
       passages: Object.keys(result.passages).length,
       sourceDigest: result.identity.sourceDigest,
     }),

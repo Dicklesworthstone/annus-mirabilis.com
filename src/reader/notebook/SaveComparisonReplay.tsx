@@ -5,7 +5,11 @@ import { comparisonReplayAdapter } from "./comparisonAdapters.ts";
 import { REPLAY_LIMITS, type ReplayPassage, type ReplayPrediction } from "./replayEntry.ts";
 import "./replaySave.css";
 
-/** The save boundary is explicit and local. No note is included in props sent by the server. */
+/**
+ * The save boundary is explicit and local. No note is included in props sent by the server.
+ * Embedded comparisons may omit passage metadata; Save then reads the registered paper's public
+ * catalogue while retaining the accepted state and private words captured at the click.
+ */
 export function SaveComparisonReplay({
   state,
   passage,
@@ -13,7 +17,7 @@ export function SaveComparisonReplay({
   ready,
 }: Readonly<{
   state: ControlledComparisonState;
-  passage: ReplayPassage;
+  passage?: ReplayPassage;
   prediction: ReplayPrediction | null;
   ready: boolean;
 }>) {
@@ -41,12 +45,20 @@ export function SaveComparisonReplay({
     // Keep the displayed accepted snapshot and words as they were when Save was requested.
     const input = { state, passage, before, after, notes, prediction };
     try {
-      const [{ getNotebookStore }, { saveComparisonReplay }] = await Promise.all([
+      const [{ getNotebookStore }, { saveComparisonReplay }, savedPassage] = await Promise.all([
         import("./browserStore.ts"),
         import("./saveReplay.ts"),
+        passage === undefined
+          ? adapter.loadCatalogue().then((catalogue) => catalogue.passages[adapter.anchor] ?? null)
+          : Promise.resolve(passage),
       ]);
+      if (!savedPassage) {
+        if (alive.current)
+          setError("The comparison's source passage could not be resolved. Your words are still here.");
+        return;
+      }
       const store = getNotebookStore();
-      const result = await saveComparisonReplay(store, input);
+      const result = await saveComparisonReplay(store, { ...input, passage: savedPassage });
       if (!alive.current) return;
       if (!result.ok) {
         setError(result.message);

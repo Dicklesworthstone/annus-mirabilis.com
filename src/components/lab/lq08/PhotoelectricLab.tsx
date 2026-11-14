@@ -37,6 +37,7 @@ import { Sci } from "../Sci.tsx";
 import { SliderField } from "../SliderField.tsx";
 import { withScripts } from "../subscripts.tsx";
 import { MillikanFigure6Panel } from "./MillikanFigure6Panel.tsx";
+import { PhotoelectricControlledComparison } from "./PhotoelectricControlledComparison.tsx";
 import {
   CurrentVoltagePlot,
   EnergyLadderPlot,
@@ -236,11 +237,13 @@ export function PhotoelectricLab({
   const frequencyThz = fixed(params.frequency / 1e12, 1);
   const quantum = `a quantum of ${frequencyThz} THz light carries ${fixed(qEnergyEv, 2)} eV`;
   const statusSummary =
-    kMaxEv === null || vsVal === null
-      ? `${quantum}, less than the ${fixed(params.workFunction, 2)} eV work function, so no electron is freed.`
-      : kMaxEv === 0
-        ? `${quantum}, exactly the work function, so an electron is freed with no energy to spare.`
-        : `${quantum}, more than the ${fixed(params.workFunction, 2)} eV work function, so the fastest electrons leave with ${fixed(kMaxEv, 2)} eV and a stopping potential of ${fixed(vsVal, 2)} V holds them back.`;
+    qRateVal === 0
+      ? `${quantum}, but the lamp power is zero, so no quanta arrive and no electrons are freed.`
+      : kMaxEv === null || vsVal === null
+        ? `${quantum}, less than the ${fixed(params.workFunction, 2)} eV work function, so no electron is freed.`
+        : kMaxEv === 0
+          ? `${quantum}, exactly the work function: the energy budget reaches the emission threshold with no kinetic energy left over.`
+          : `${quantum}, more than the ${fixed(params.workFunction, 2)} eV work function, so the most energetic electrons could leave with ${fixed(kMaxEv, 2)} eV and a stopping potential of ${fixed(vsVal, 2)} V would hold them back.`;
 
   // Saturation current in microamperes: e * eRate * 1e6
   const iSatMicroAmps = eRateVal * 1.602176634e-19 * 1e6;
@@ -508,6 +511,17 @@ export function PhotoelectricLab({
             </tbody>
           </table>
         </section>
+      </div>
+
+      <div {...gate.response}>
+        <PhotoelectricControlledComparison
+          session={session}
+          sourceDigest={
+            example?.sourceDigest ??
+            LQ08_TAPE.environment.artifactDigest.replace(/^host:/, "source:")
+          }
+          enabled={gate.open}
+        />
       </div>
 
       <div {...gate.response}>

@@ -54,6 +54,8 @@ export function createControlledComparison(
     identity: ComparisonIdentity;
     baseline: ComparisonSnapshot;
     variant: ComparisonSnapshot;
+    /** Runtime-pinned comparisons must not claim to be generated build examples. */
+    initialMessage?: string;
     verifyAccepted?: (
       baseline: ComparisonSnapshot,
       variant: ComparisonSnapshot,
@@ -77,7 +79,7 @@ export function createControlledComparison(
     variantSnapshot: options.variant,
     result: initialResult,
     requestedParameters: null,
-    message: "Static worked comparison, calculated when this site was built.",
+    message: options.initialMessage ?? "Static worked comparison, calculated when this site was built.",
     error: "",
   });
   const serverState = state;
