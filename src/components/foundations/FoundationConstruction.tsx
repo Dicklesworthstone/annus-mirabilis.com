@@ -4,6 +4,7 @@ import { AddingInStrips } from "./AddingInStrips.tsx";
 import { BalancedAccount } from "./BalancedAccount.tsx";
 import { BellAndItsWidths } from "./BellAndItsWidths.tsx";
 import { BoostTable } from "./BoostTable.tsx";
+import { ChargeForces } from "./ChargeForces.tsx";
 import { ConfigurationCounter } from "./ConfigurationCounter.tsx";
 import { CountingThePlaces } from "./CountingThePlaces.tsx";
 import { CrossingABoundary } from "./CrossingABoundary.tsx";
@@ -140,6 +141,8 @@ function constructionFor(id: FoundationConstructionId, headingLevel: HeadingLeve
       return <RapidityAdder headingLevel={headingLevel} />;
     case "vectors-components":
       return <TurnedAxes headingLevel={headingLevel} />;
+    case "electromagnetism-charges":
+      return <ChargeForces headingLevel={headingLevel} />;
     case "fields-waves":
       return <FieldWaveSamples headingLevel={headingLevel} />;
     case "dot-cross-products":
