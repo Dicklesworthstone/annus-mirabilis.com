@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MASS_ENERGY_LATER_EVIDENCE } from "../../content/massEnergyShelf.ts";
 import { WORLD_CHECK } from "../../discovery/massEnergy/journeyIV.ts";
+import { loadBainbridgeRecord } from "../../experiments/me03/bainbridgeRecord.ts";
 import { ME03_DEFAULTS, type Me03Parameters } from "../../experiments/me03/definition.ts";
 import { createMe03Session, DEFAULT_PREPARED_EXAMPLE } from "../../experiments/me03/session.ts";
 import {
@@ -20,6 +21,7 @@ const check = (session?: Session) => (
     example={DEFAULT_PREPARED_EXAMPLE}
     check={WORLD_CHECK}
     laterEvidence={MASS_ENERGY_LATER_EVIDENCE}
+    bainbridge={loadBainbridgeRecord()}
     session={session}
   />
 );
@@ -133,6 +135,11 @@ describe("the readout follows what the reader applies", () => {
       container.querySelector('[aria-label="The boundary ledger, for the check"]')?.innerHTML;
     await act(async () => root.render(check(session)));
     expect(read()).toBe("−1.11 × 10⁻¹⁷ kg, or −1.11 × 10⁻¹⁴ g");
+    const historicalTable = () =>
+      container.querySelector('[data-historical-dataset="bainbridge-1933-mass-energy"] tbody')
+        ?.textContent;
+    const observed = historicalTable();
+    expect(observed).toContain("0.0181 ± 0.0006");
     const before = ledger();
     expect(before).toBeDefined();
     await act(async () => {
@@ -141,6 +148,7 @@ describe("the readout follows what the reader applies", () => {
     });
     expect(read()).toBe("−0.001 kg, or −1 g");
     expect(ledger()).not.toBe(before);
+    expect(historicalTable()).toBe(observed);
     await act(async () => root.unmount());
     removeContainer(container);
   });
