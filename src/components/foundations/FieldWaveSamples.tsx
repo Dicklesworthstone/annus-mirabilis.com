@@ -7,22 +7,36 @@ import {
   WAVE_FIELDS,
   WAVE_PLOT_WIDTH_NM,
   type WaveInputs,
+  type WaveRefusal,
+  waveDisplayValue,
   waveInputs,
   waveNumber,
-  type WaveRefusal,
   waveSamples,
 } from "../../foundations/waveSamples.ts";
+import { Sci } from "../lab/Sci.tsx";
 import { type HeadingLevel, headingTag } from "./headingLevel.ts";
+
+/** Scientific notation keeps a small nonzero mean square visible; field roundoff is separate. */
+function WaveReading({
+  value,
+  roundoffScale,
+}: {
+  readonly value: number;
+  readonly roundoffScale?: number;
+}) {
+  const displayed = waveDisplayValue(value, roundoffScale);
+  return displayed !== 0 && Math.abs(displayed) < 0.0001 ? (
+    <Sci value={displayed} digits={4} />
+  ) : (
+    waveNumber(displayed)
+  );
+}
 
 const plotX = (positionNm: number) => 40 + (300 * positionNm) / WAVE_PLOT_WIDTH_NM;
 const plotY = (fieldVpm: number) => 120 - 40 * fieldVpm;
 
 /** One frozen field profile and one fixed-place observation, from the same accepted wave. */
-export function FieldWaveSamples({
-  headingLevel = 3,
-}: {
-  readonly headingLevel?: HeadingLevel;
-}) {
+export function FieldWaveSamples({ headingLevel = 3 }: { readonly headingLevel?: HeadingLevel }) {
   const id = useId();
   const Title = headingTag(headingLevel);
   const Sub = headingTag(headingLevel, 1);
@@ -80,8 +94,8 @@ export function FieldWaveSamples({
         position; its height is the electric field there, not a particle's path.
       </p>
       <p className="fine">
-        Ideal model, host calculation. Each picture is a frozen instant. A femtosecond is
-        10⁻¹⁵ seconds; the wave still travels at the speed of light. No animation runs automatically.
+        Ideal model, host calculation. Each picture is a frozen instant. A femtosecond is 10⁻¹⁵
+        seconds; the wave still travels at the speed of light. No animation runs automatically.
       </p>
 
       <form
@@ -156,12 +170,20 @@ export function FieldWaveSamples({
       <div className="construction-display" role="status" aria-atomic="true">
         <p>
           Applied wavelength: <strong>{waveNumber(state.settings.wavelengthNm)} nm</strong>. Field
-          amplitude: <strong>{waveNumber(state.settings.amplitudeVpm)} V/m</strong>.
+          amplitude:{" "}
+          <strong>
+            <WaveReading value={state.settings.amplitudeVpm} /> V/m
+          </strong>
+          .
         </p>
         <p>
           At position {waveNumber(state.probe.positionNm)} nm and time{" "}
           {waveNumber(state.probe.timeFs)} fs, the field is{" "}
-          <strong>{waveNumber(state.probe.fieldVpm)} V/m</strong>.
+          <strong>
+            <WaveReading value={state.probe.fieldVpm} roundoffScale={state.settings.amplitudeVpm} />{" "}
+            V/m
+          </strong>
+          .
         </p>
         <dl className="readout-grid">
           <dt>Frequency</dt>
@@ -169,9 +191,17 @@ export function FieldWaveSamples({
           <dt>Time for one cycle</dt>
           <dd>{waveNumber(state.periodFs)} fs</dd>
           <dt>Mean field over a cycle</dt>
-          <dd>{waveNumber(state.cycleMeanFieldVpm)} V/m</dd>
+          <dd>
+            <WaveReading
+              value={state.cycleMeanFieldVpm}
+              roundoffScale={state.settings.amplitudeVpm}
+            />{" "}
+            V/m
+          </dd>
           <dt>Mean square field over a cycle</dt>
-          <dd>{waveNumber(state.cycleMeanSquareVpm2)} (V/m)²</dd>
+          <dd>
+            <WaveReading value={state.cycleMeanSquareVpm2} /> (V/m)²
+          </dd>
         </dl>
       </div>
 
@@ -183,14 +213,14 @@ export function FieldWaveSamples({
         aria-labelledby={id + "-plot-title " + id + "-plot-description"}
       >
         <title id={id + "-plot-title"}>
-          Electric field across space at {waveNumber(state.settings.timeFs)} femtoseconds
+          {`Electric field across space at ${waveNumber(state.settings.timeFs)} femtoseconds`}
         </title>
         <desc id={id + "-plot-description"}>
           The curve repeats every {waveNumber(state.settings.wavelengthNm)} nanometres and reaches
           positive and negative {waveNumber(state.settings.amplitudeVpm)} volts per metre. The dot
           marks position {waveNumber(state.probe.positionNm)} nanometres, where the field is{" "}
-          {waveNumber(state.probe.fieldVpm)} volts per metre. The table below reads one wavelength
-          at this same instant.
+          {waveNumber(state.probe.fieldVpm, state.settings.amplitudeVpm)} volts per metre. The table
+          below reads one wavelength at this same instant.
         </desc>
         <text className="bridge-axis-name" x={40} y={18}>
           Electric field (V/m)
@@ -252,7 +282,9 @@ export function FieldWaveSamples({
           {state.spatialRows.map((point) => (
             <tr key={point.positionNm}>
               <th scope="row">{waveNumber(point.positionNm)}</th>
-              <td>{waveNumber(point.fieldVpm)}</td>
+              <td>
+                <WaveReading value={point.fieldVpm} roundoffScale={state.settings.amplitudeVpm} />
+              </td>
             </tr>
           ))}
         </tbody>
@@ -261,14 +293,12 @@ export function FieldWaveSamples({
       <Sub>One position through a cycle</Sub>
       <p>
         Stay at {waveNumber(state.settings.probeNm)} nm. These eight readings are evenly spaced
-        through one complete cycle, starting at the applied time. The sign reverses, but its
-        square stays nonnegative. For this single cosine wave, their averages give the full-cycle
-        averages shown above.
+        through one complete cycle, starting at the applied time. The sign reverses, but its square
+        stays nonnegative. For this single cosine wave, their averages give the full-cycle averages
+        shown above.
       </p>
       <table className="data-table">
-        <caption>
-          A cycle at position {waveNumber(state.settings.probeNm)} nm
-        </caption>
+        <caption>A cycle at position {waveNumber(state.settings.probeNm)} nm</caption>
         <thead>
           <tr>
             <th scope="col">Time (fs)</th>
@@ -280,9 +310,15 @@ export function FieldWaveSamples({
             <tr key={point.timeFs}>
               <th scope="row">{waveNumber(point.timeFs)}</th>
               <td>
-                {waveNumber(point.fieldVpm)} V/m
+                <WaveReading value={point.fieldVpm} roundoffScale={state.settings.amplitudeVpm} />{" "}
+                V/m
                 <br />
-                Square: {waveNumber(point.squareVpm2)} (V/m)²
+                Square:{" "}
+                <WaveReading
+                  value={point.squareVpm2}
+                  roundoffScale={state.settings.amplitudeVpm ** 2}
+                />{" "}
+                (V/m)²
               </td>
             </tr>
           ))}
@@ -292,21 +328,21 @@ export function FieldWaveSamples({
       <div className="construction-text-equivalent">
         <Sub>What it shows, in words</Sub>
         <p>
-          A 500 nm wavelength takes about 1.67 fs to pass a fixed place. At the initial setting,
-          the field there starts at +1 V/m, passes through zero after a quarter period, reaches
-          −1 V/m after half a period, and returns to +1 V/m after a full period.
+          A 500 nm wavelength takes about 1.67 fs to pass a fixed place. At the initial setting, the
+          field there starts at +1 V/m, passes through zero after a quarter period, reaches −1 V/m
+          after half a period, and returns to +1 V/m after a full period.
         </p>
         <p>
-          Doubling the wavelength doubles the period and halves the frequency, while the wave
-          speed stays fixed. Doubling the field amplitude doubles the height of every crest and
-          makes the mean square four times as large. The mean field over a cycle is zero in both
-          cases; a zero mean field does not imply zero energy delivered.
+          Doubling the wavelength doubles the period and halves the frequency, while the wave speed
+          stays fixed. Doubling the field amplitude doubles the height of every crest and makes the
+          mean square four times as large. The mean field over a cycle is zero in both cases; a zero
+          mean field does not imply zero energy delivered.
         </p>
         <p>
-          The displayed square is in (V/m)². It is proportional to the intensity of this ideal
-          plane wave, but it is not itself a power per area. This construction shows one field
-          component in empty space; it does not model a detector, a pulse, or the motion of
-          charges in a material.
+          The displayed square is in (V/m)². It is proportional to the intensity of this ideal plane
+          wave, but it is not itself a power per area. This construction shows one field component
+          in empty space; it does not model a detector, a pulse, or the motion of charges in a
+          material.
         </p>
         <p>
           <a href="/papers/special-relativity/s7/">

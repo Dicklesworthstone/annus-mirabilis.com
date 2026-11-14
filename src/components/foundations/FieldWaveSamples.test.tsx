@@ -148,6 +148,20 @@ describe("fields and waves is operable through the foundation dispatcher", () =>
     expect(container.querySelector('[role="status"]')?.textContent).toContain("the field is 1 V/m");
   });
 
+  test("a small nonzero wave keeps its mean square visible without exposing phase roundoff", async () => {
+    await act(async () => root.render(<FoundationConstruction foundationId="fields-waves" />));
+    await type("amplitudeVpm", "0.001");
+    await submit();
+    const meanSquare = values(container)["Mean square field over a cycle"];
+    expect(meanSquare).toMatch(/5.*10[−-]7/);
+    expect(container.querySelectorAll("table")[1]?.textContent).toMatch(/Square: 1.*10[−-]6/);
+    expect(values(container)["Mean field over a cycle"]).toBe("0 V/m");
+    await act(async () => button("Advance a quarter period").click());
+    expect(values(container)["Mean square field over a cycle"]).toBe(meanSquare);
+    expect(container.querySelector('[role="status"]')?.textContent).toContain("the field is 0 V/m");
+    expect(container.querySelector("tbody td")?.textContent).toBe("0");
+  });
+
   test("a zero field and the last allowed instant remain real inspectable states", async () => {
     await act(async () => root.render(<FoundationConstruction foundationId="fields-waves" />));
     await type("amplitudeVpm", "0");

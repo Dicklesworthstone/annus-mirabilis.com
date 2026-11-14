@@ -1,5 +1,6 @@
 import { planeWave } from "../physics/reference/radiation/waves.ts";
 import { C_SI } from "../physics/reference/waves.ts";
+import { exponentialSpoken } from "../units/scientific.ts";
 
 /** A bounded teaching view of the existing plane-wave owner, in readable space and time units. */
 export const WAVE_FIELDS = [
@@ -177,8 +178,18 @@ export function waveSamples(input: WaveSettings): WaveResult {
   };
 }
 
-/** Display rounding must not turn an exact zero into a negative-zero label. */
-export function waveNumber(value: number): string {
-  const rounded = Number(value.toFixed(4));
+/** Roundoff is relative to the field scale, never an absolute cutoff for a small wave. */
+export function waveDisplayValue(value: number, roundoffScale?: number): number {
+  return roundoffScale !== undefined &&
+    Math.abs(value) <= 16 * Number.EPSILON * Math.abs(roundoffScale)
+    ? 0
+    : value;
+}
+
+/** Plain text for labels and SVG descriptions; small nonzero readings keep their magnitude. */
+export function waveNumber(value: number, roundoffScale?: number): string {
+  const displayed = waveDisplayValue(value, roundoffScale);
+  if (displayed !== 0 && Math.abs(displayed) < 0.0001) return exponentialSpoken(displayed, 4);
+  const rounded = Number(displayed.toFixed(4));
   return String(Object.is(rounded, -0) ? 0 : rounded).replace("-", "−");
 }
