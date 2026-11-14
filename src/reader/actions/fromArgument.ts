@@ -404,6 +404,213 @@ const ARG_BM_INFERENCE_OBSTACLES: ObstacleResponses = {
   },
 };
 
+/** Brownian §4: averaging removes the cross terms only under the stated step assumptions. */
+const independentStepsLink = (foundationId: string) => [
+  {
+    foundationId,
+    callingAnchor: "arg-bm-independent-steps",
+    returnCaption: "Return to why independent, centred steps make the mean square grow with time.",
+  },
+];
+const ARG_BM_INDEPENDENT_STEPS_OBSTACLES: ObstacleResponses = {
+  unfamiliarWordOrSymbol: {
+    explanation:
+      "Δᵢ is the signed displacement in step i; n counts the steps and τ is the time per step. Angle brackets mean an average over many realizations. l² is the mean square of one step. Thus ⟨x²⟩ averages the squared total displacements, while ⟨x⟩² squares their signed average. Those two operations give different answers.",
+    foundationLinks: independentStepsLink("mean-variance-rms"),
+  },
+  physicalReason: {
+    explanation:
+      "Independence lets the average of a product of different steps factor into the product of their averages. Centred steps have zero average, so those cross terms vanish. Neither condition alone makes this argument work. Einstein needs an interval τ long enough for independence to be a useful approximation; it is not asserted down to every instant of a tracer's motion.",
+    foundationLinks: independentStepsLink("probability-independence"),
+  },
+  connectionToPicture: {
+    explanation:
+      "For the passage's two-step walk, list the four equally likely pairs: (+1, +1), (+1, −1), (−1, +1), (−1, −1). Their endpoints are +2, 0, 0, −2. The signed average stays zero, but the squared endpoints are 4, 0, 0, 4 and average to 2. A wider cloud can therefore keep the same centre.",
+    foundationLinks: independentStepsLink("random-walks"),
+  },
+  tooMuchAtOnce: {
+    explanation:
+      "Keep just the square-root comparison from the passage. In the ±1 walk, 4 steps give mean square 4 and RMS displacement 2. After 16 steps those values are 16 and 4. Four times as many steps, and therefore four times the time at fixed τ, doubles the RMS displacement. It does not quadruple it.",
+    foundationLinks: independentStepsLink("bridge-squaring-square-roots"),
+  },
+  algebraicMove: {
+    explanation:
+      "First expand (A + B)² = A² + 2AB + B², then average. Independence gives ⟨AB⟩ = ⟨A⟩⟨B⟩, and centring makes this zero. For n steps all the cross terms vanish in the same way, leaving n copies of l². Substitute n = t/τ and define D = l²/(2τ); the remaining expression is ⟨x²⟩ = 2Dt.",
+    foundationLinks: independentStepsLink("probability-independence"),
+  },
+  purposeOfCalculation: {
+    explanation:
+      "This step finds an observable that accumulates predictably even when individual displacements do not: the mean square. It supplies the bridge from random steps to the diffusivity in the next passage. The fixed-jump walk is a mathematical reconstruction; it does not claim that a liquid makes a tracer take literal jumps of one prescribed length.",
+    foundationLinks: independentStepsLink("random-walks"),
+  },
+};
+
+/** Brownian §4: retain normalization, symmetry, finite second moment and the approximation's scale. */
+const diffusionEquationLink = (foundationId: string) => [
+  {
+    foundationId,
+    callingAnchor: "arg-bm-diffusion-equation",
+    returnCaption: "Return to how the jump law becomes the diffusion equation on larger scales.",
+  },
+];
+const ARG_BM_DIFFUSION_EQUATION_OBSTACLES: ObstacleResponses = {
+  unfamiliarWordOrSymbol: {
+    explanation:
+      "p(x,t) is a density over position, so its integral over an interval is a probability. φ(Δ) is a different density, over possible displacements during time τ. The symbols ∂p/∂t and ∂²p/∂x² mean the density's time rate of change and its spatial curvature. D has units of length squared per time.",
+    foundationLinks: diffusionEquationLink("partial-derivatives"),
+  },
+  physicalReason: {
+    explanation:
+      "To reach x after a jump Δ, a tracer must start at x − Δ. Add the contributions of all possible jumps, using the same jump law at every starting position. Equal left and right jumps remove a preferred direction. The approximation also needs a density that varies little across one jump and one interval, with τ still long enough for the independence assumption.",
+    foundationLinks: diffusionEquationLink("diffusion-equation"),
+  },
+  connectionToPicture: {
+    explanation:
+      "Picture a smooth density peak and its neighbouring lower regions. At the top the curvature is negative, so D times the curvature makes the peak fall. In a hollow the curvature is positive and the density rises. The changing curve describes the whole population; it does not prescribe the next move of any particular tracer.",
+    foundationLinks: diffusionEquationLink("functions-graphs"),
+  },
+  tooMuchAtOnce: {
+    explanation:
+      "Follow the three spatial terms. The jump probabilities add to one, so the first term is the present density. Equal positive and negative jumps cancel the slope term. Squared jumps add rather than cancel, leaving the curvature term. Subtract the present density from both sides and divide by τ. The remaining time rate is D times the curvature, within the retained approximation.",
+    foundationLinks: diffusionEquationLink("taylor-expansion"),
+  },
+  algebraicMove: {
+    explanation:
+      "After the two Taylor expansions, normalization gives p on the right and symmetry gives zero for the first jump moment. The retained equation is p + τ ∂p/∂t ≈ p + ½⟨Δ²⟩ ∂²p/∂x². Subtract p, divide by positive τ, and name ⟨Δ²⟩/(2τ) as D. A finite second moment is needed for this coefficient.",
+    foundationLinks: diffusionEquationLink("taylor-expansion"),
+  },
+  purposeOfCalculation: {
+    explanation:
+      "The calculation connects a random displacement rule to a deterministic law for density. It drops higher spatial and time terms, so it applies on scales larger than one jump. An exact diffusion limit requires the jumps and time interval to shrink together while D stays finite. Setting τ to zero with the same finite jumps would not justify the equation.",
+    foundationLinks: diffusionEquationLink("diffusion-equation"),
+  },
+};
+
+/** Brownian §4: a density predicts interval probabilities; its point-source formula requires positive time. */
+const gaussianLink = (foundationId: string) => [
+  {
+    foundationId,
+    callingAnchor: "arg-bm-gaussian",
+    returnCaption:
+      "Return to the spreading density, its interval probabilities and one-coordinate RMS.",
+  },
+];
+const ARG_BM_GAUSSIAN_OBSTACLES: ObstacleResponses = {
+  unfamiliarWordOrSymbol: {
+    explanation:
+      "p is probability density, with units of inverse length; its height is not itself a probability. D is diffusivity, t is elapsed time and λₓ is the root-mean-square displacement along one axis. In e^(−x²/(4Dt)), the ratio x²/(4Dt) has no units. The square-root factor underneath makes the total area one.",
+    foundationLinks: gaussianLink("distributions"),
+  },
+  physicalReason: {
+    explanation:
+      "This solution assumes every tracer starts at the same point on an unbounded line, with constant positive D and no drift. The bell curve solves the diffusion equation under those conditions. Walls, a spread of initial positions or a different transport law require a different solution. The Gaussian formula here is defined for positive time.",
+    foundationLinks: gaussianLink("gaussian-distributions"),
+  },
+  connectionToPicture: {
+    explanation:
+      "Read an area under the curve: shade the interval from one position to another, and its area is the chance of finding a tracer there. As time grows the bell widens and its peak falls while the total area stays one. The signed centre stays at the start. Neither the height of the peak nor the path of one tracer is the ensemble's RMS width.",
+    foundationLinks: gaussianLink("distributions"),
+  },
+  tooMuchAtOnce: {
+    explanation:
+      "Use the passage's interval check. Between −λₓ and +λₓ lies about 68% of the probability, and between −2λₓ and +2λₓ about 95%, at every positive time. As time increases these intervals widen because λₓ = √(2Dt). These percentages describe repeated tracers or realizations; they do not promise that a particular tracer stays inside an interval.",
+    foundationLinks: gaussianLink("gaussian-distributions"),
+  },
+  algebraicMove: {
+    explanation:
+      "Set u = x/√(4Dt), so dx = √(4Dt) du and x² = 4Dt u². The square-root factors cancel in the integral. Normalization uses ∫e^(−u²) du = √π over the whole line. For the second moment, integration by parts gives ∫u²e^(−u²) du = √π/2. Multiplying that normalized one-half by 4Dt gives ⟨x²⟩ = 2Dt.",
+    foundationLinks: gaussianLink("integration"),
+  },
+  purposeOfCalculation: {
+    explanation:
+      "The density law now predicts a measurable spread: λₓ = √(2Dt) for one coordinate. Three independent coordinates instead have total mean square 6Dt. At t = 0 every tracer is at the start, a point distribution; the finite bell formula cannot be evaluated there. Distinguishing these cases keeps a density plot from silently answering a different measurement question.",
+    foundationLinks: gaussianLink("mean-variance-rms"),
+  },
+};
+
+/** Mass-energy: the unchanged additive constant is a physical premise, not a result of cancellation. */
+const constantPremiseLink = (foundationId: string) => [
+  {
+    foundationId,
+    callingAnchor: "arg-me-constant-premise",
+    returnCaption:
+      "Return to the unchanged offset needed to identify the kinetic-energy difference.",
+  },
+];
+const ARG_ME_CONSTANT_PREMISE_OBSTACLES: ObstacleResponses = {
+  unfamiliarWordOrSymbol: {
+    explanation:
+      "E is the body's energy in its rest frame, H its energy in the moving frame and K its kinetic energy in that moving frame. Subscripts 0 and 1 mean before and after emission. Capital C is an additive energy offset in H − E = K + C. It is different from lowercase c, the speed of light.",
+    foundationLinks: constantPremiseLink("bridge-letter-for-quantity"),
+  },
+  physicalReason: {
+    explanation:
+      "The paper identifies each frame-energy difference with kinetic energy plus an offset and asserts that the offset is unchanged by the emission. That assertion is needed to interpret the subtraction as a kinetic-energy drop. The two energy balances alone do not establish it. The conclusion remains conditional on this premise.",
+    foundationLinks: constantPremiseLink("work-energy"),
+  },
+  connectionToPicture: {
+    explanation:
+      "Write the two differences in parallel rows: before, K₀ + C; after, K₁ + C. When the second row is subtracted, the identical C entries cancel. If the entries instead read C₀ and C₁, their difference would remain in the result. A crossed-out pair in the ledger represents the assumed equality of those entries.",
+    foundationLinks: constantPremiseLink("conservation-symmetry"),
+  },
+  tooMuchAtOnce: {
+    explanation:
+      "Keep only the part that can get lost: the two offsets. Calling both of them C says they are the same before and after. Their difference is then zero. If they may change, the ledger gives the kinetic-energy drop plus the offset change, and cannot separate them. Cancelling matching symbols does not prove that the offsets really match.",
+    foundationLinks: constantPremiseLink("bridge-equals-sign-relationship"),
+  },
+  algebraicMove: {
+    explanation:
+      "Substitute H₀ − E₀ = K₀ + C and H₁ − E₁ = K₁ + C into the previous subtraction. The right side becomes (K₀ + C) − (K₁ + C) = K₀ − K₁. With distinct offsets it would be (K₀ − K₁) + (C₀ − C₁). Only the unchanged-offset premise removes that last term.",
+    foundationLinks: constantPremiseLink("bridge-equals-sign-relationship"),
+  },
+  purposeOfCalculation: {
+    explanation:
+      "This is the bridge from a difference between two energy accounts to the loss of energy of motion L(γ − 1). The body has the same speed before and after the symmetric emission. The next passage asks what a drop in kinetic energy at that same speed implies for inertia. No absolute body-energy formula has been assumed here.",
+    foundationLinks: constantPremiseLink("work-energy"),
+  },
+};
+
+/** Mass-energy: read the limiting quadratic coefficient, not the finite-speed quotient or an assumed rest energy. */
+const smallSpeedLink = (foundationId: string) => [
+  {
+    foundationId,
+    callingAnchor: "arg-me-small-speed",
+    returnCaption: "Return to the low-speed coefficient that identifies the loss of inertial mass.",
+  },
+];
+const ARG_ME_SMALL_SPEED_OBSTACLES: ObstacleResponses = {
+  unfamiliarWordOrSymbol: {
+    explanation:
+      "β = v/c is speed as a fraction of the speed of light, and γ = 1/√(1 − β²) is the transformation factor. K₀ − K₁ is the kinetic energy lost by the body. The coefficient of v²/2 is the quantity multiplying that factor in the leading low-speed term; Newtonian mechanics identifies such a coefficient with a mass difference.",
+    foundationLinks: smallSpeedLink("taylor-expansion"),
+  },
+  physicalReason: {
+    explanation:
+      "At low speed, Newtonian kinetic energy is mv²/2. The body keeps the same speed before and after emission, so a change in the coefficient multiplying v²/2 identifies a change in inertia. Comparing this with the leading term of L(γ − 1) yields the mass lost. The argument does not insert an absolute rest energy mc² into the ledgers.",
+    foundationLinks: smallSpeedLink("work-energy"),
+  },
+  connectionToPicture: {
+    explanation:
+      "Compare the exact kinetic-energy drop with the quadratic approximation as functions of speed. They agree to leading order near zero and separate at larger speeds. At v = 0.6c the exact drop is 0.25L, while the quadratic term is 0.18L. That difference shows why dividing one high-speed value by v²/2 does not identify the low-speed coefficient.",
+    foundationLinks: smallSpeedLink("functions-graphs"),
+  },
+  tooMuchAtOnce: {
+    explanation:
+      "Use the passage's β = 0.1 check. γ − 1 is about 0.0050378. The leading term β²/2 is 0.005, and the next term 3β⁴/8 is 0.0000375. The leading term already lies close, and the next explains most of the difference. Lowering the speed further suppresses the higher powers.",
+    foundationLinks: smallSpeedLink("taylor-expansion"),
+  },
+  algebraicMove: {
+    explanation:
+      "Expand γ − 1 = β²/2 + 3β⁴/8 + higher powers, then replace β² by v²/c². The leading drop is (L/c²)v²/2. Newtonian mechanics gives (m₀ − m₁)v²/2 at the same low speed. Matching the limiting coefficients identifies the positive mass lost, m₀ − m₁ = L/c²; it does not equate the full finite-speed expressions.",
+    foundationLinks: smallSpeedLink("taylor-expansion"),
+  },
+  purposeOfCalculation: {
+    explanation:
+      "The finite-speed quotient 2L(γ − 1)/v² contains higher-speed corrections. Its limit as v approaches zero is L/c², the mass-loss coefficient under the preceding premises. At exactly v = 0 the unreduced quotient reads 0/0, so use the limit rather than division by zero. The limiting coefficient is meaningful even where that quotient cannot be evaluated directly.",
+    foundationLinks: smallSpeedLink("taylor-expansion"),
+  },
+};
+
 /** The passages marked hard, each with an authored answer for all six obstacles. */
 const OBSTACLES: Readonly<Record<string, ObstacleResponses>> = {
   "arg-bm-observable": ARG_BM_OBSERVABLE_OBSTACLES,
@@ -414,6 +621,11 @@ const OBSTACLES: Readonly<Record<string, ObstacleResponses>> = {
   "arg-sr-velocity-composition": ARG_SR_VELOCITY_COMPOSITION_OBSTACLES,
   "arg-sr-lorentz-map": ARG_SR_LORENTZ_MAP_OBSTACLES,
   "arg-me-subtraction": ARG_ME_SUBTRACTION_OBSTACLES,
+  "arg-bm-independent-steps": ARG_BM_INDEPENDENT_STEPS_OBSTACLES,
+  "arg-bm-diffusion-equation": ARG_BM_DIFFUSION_EQUATION_OBSTACLES,
+  "arg-bm-gaussian": ARG_BM_GAUSSIAN_OBSTACLES,
+  "arg-me-constant-premise": ARG_ME_CONSTANT_PREMISE_OBSTACLES,
+  "arg-me-small-speed": ARG_ME_SMALL_SPEED_OBSTACLES,
 };
 
 export function passageActionsFromArgument(argument: Argument): PassageActions {
