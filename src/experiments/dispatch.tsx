@@ -151,6 +151,8 @@ export interface ExperimentDispatchProps {
   readonly presentation?: Presentation | undefined;
   readonly viewLoaders?: ViewLoaders | undefined;
   readonly sourceHref?: string | undefined;
+  /** Authored presentation wording, for example a tour question without notation. */
+  readonly question?: string | undefined;
   /** When true, the live view waits for "Load this experiment". Static case stays. */
   readonly readingOnly?: boolean | undefined;
   /** When true, device is unsupported (e.g. worker failed, bound exceeded). */
@@ -171,12 +173,13 @@ function LiveExperimentView({
   instanceId,
   presentation,
   sourceHref,
+  question,
   hasWebGl,
   onLog,
   onEnvironmentUnsupported,
 }: Pick<
   ExperimentDispatchProps,
-  "instanceId" | "sourceHref" | "hasWebGl" | "onLog" | "onEnvironmentUnsupported"
+  "instanceId" | "sourceHref" | "question" | "hasWebGl" | "onLog" | "onEnvironmentUnsupported"
 > & {
   state: Extract<ExperimentDispatchState, { kind: "registered" }>;
   presentation: Presentation;
@@ -198,6 +201,7 @@ function LiveExperimentView({
         <div data-instrument-id={address} data-execution-label="unavailable">
           <ReadingOnlyKeepContent
             explanation={
+              question ??
               state.question ??
               "This instrument answers a stated question with an owned, tested response."
             }
@@ -211,7 +215,13 @@ function LiveExperimentView({
   }
 
   if (!activeLoader) {
-    return <InPreparationNotice id={address} question={state.question} sourceHref={sourceHref} />;
+    return (
+      <InPreparationNotice
+        id={address}
+        question={question ?? state.question}
+        sourceHref={sourceHref}
+      />
+    );
   }
 
   const LazyView = lazyView(activeLoader);
@@ -241,6 +251,7 @@ export function ExperimentDispatch({
   presentation = "standard",
   viewLoaders = {},
   sourceHref,
+  question,
   readingOnly,
   unavailable,
   hasWebGl,
@@ -264,7 +275,7 @@ export function ExperimentDispatch({
     return (
       <InPreparationNotice
         id={state.mode ? `${state.id}:${state.mode}` : state.id}
-        question={state.question}
+        question={question ?? state.question}
         sourceHref={sourceHref}
       />
     );
@@ -278,6 +289,7 @@ export function ExperimentDispatch({
       <div data-instrument-id={address} data-execution-label="unavailable">
         <ReadingOnlyKeepContent
           explanation={
+            question ??
             state.question ??
             "This instrument answers a stated question with an owned, tested response."
           }
@@ -298,13 +310,20 @@ export function ExperimentDispatch({
     // into this call yet. Rendered as the same in-preparation surface: a
     // reader can never tell "no manifest" from "no view module" apart, and
     // neither should show a number.
-    return <InPreparationNotice id={address} question={state.question} sourceHref={sourceHref} />;
+    return (
+      <InPreparationNotice
+        id={address}
+        question={question ?? state.question}
+        sourceHref={sourceHref}
+      />
+    );
   }
 
   return (
     <div data-instrument-id={address}>
       <ReadingOnlyKeepContent
         explanation={
+          question ??
           state.question ??
           "This instrument answers a stated question with an owned, tested response."
         }
@@ -319,6 +338,7 @@ export function ExperimentDispatch({
           instanceId={instanceId}
           presentation={presentation}
           sourceHref={sourceHref}
+          question={question}
           hasWebGl={hasWebGl}
           onLog={onLog}
           onEnvironmentUnsupported={onEnvironmentUnsupported}

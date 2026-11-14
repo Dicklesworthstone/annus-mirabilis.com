@@ -34,7 +34,8 @@ function resultText(result: PublishedResult | undefined, column: TourColumn): st
   if (value === null) return outputStatusRegistry[result.status].message;
   if (column.format === "direction")
     return value === 0 ? "Unchanged" : value < 0 ? "Decreases" : "Increases";
-  const formatted = number.format(column.format === "percent" ? value * 100 : value);
+  const displayValue = value / (column.displayDivisor ?? 1);
+  const formatted = number.format(column.format === "percent" ? displayValue * 100 : displayValue);
   return result.status === "analytic-limit" ? `Analytic limit: ${formatted}` : formatted;
 }
 

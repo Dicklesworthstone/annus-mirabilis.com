@@ -69,7 +69,7 @@ describe("the mass–energy tour's authored bindings and no-JavaScript surface",
     }
   });
 
-  test("(massEnergyTourSpec.ts:119) the two-flash prompt accepts its tilt preset and refuses a different existing preset", () => {
+  test("(massEnergyTourSpec.ts:121) the two-flash prompt accepts its tilt preset and refuses a different existing preset", () => {
     const step = stepFor("me-01");
     const accepted = massEnergyTourSpec(step);
     expect(accepted?.revealId).toBe("me-01-sixty-degree-tilt");
@@ -92,7 +92,7 @@ describe("the mass–energy tour's authored bindings and no-JavaScript surface",
     );
   });
 
-  test("(massEnergyTourSpec.ts:263) the sealed-box prompt accepts its internal-transfer preset and refuses the externally heated box", () => {
+  test("(massEnergyTourSpec.ts:265) the sealed-box prompt accepts its internal-transfer preset and refuses the externally heated box", () => {
     const step = stepFor("me-03");
     const accepted = massEnergyTourSpec(step);
     expect(accepted?.revealId).toBe("me-03-sealed-lamp-and-mirror");
@@ -118,7 +118,7 @@ describe("the mass–energy tour's authored bindings and no-JavaScript surface",
     expect(massEnergyTourSpec({ ...stepFor("me-01"), instrumentId: "bm-01" })).toBeNull();
   });
 
-  test("(massEnergyTourSpec.ts:183) a compatible tape is accepted, while missing or changed-source tapes are refused", () => {
+  test("(massEnergyTourSpec.ts:185) a compatible tape is accepted, while missing or changed-source tapes are refused", () => {
     expect(specFor("me-02").actions.map((action) => action.tapeActionIndex)).toEqual([
       0,
       ...tape.events.map((event) => event.actionIndex),
@@ -138,7 +138,7 @@ describe("the mass–energy tour's authored bindings and no-JavaScript surface",
     }
   });
 
-  test("(massEnergyTourSpec.ts:194) the tape's valid opening is accepted, while invalid opening settings cannot become a worked example", () => {
+  test("(massEnergyTourSpec.ts:196) the tape's valid opening is accepted, while invalid opening settings cannot become a worked example", () => {
     expect(specFor("me-02").initial).toMatchObject({ beta: 0.6, energyUnit: "normalized" });
     for (const initialConditions of [
       { beta: 1, emittedEnergy: 1 },
@@ -155,7 +155,7 @@ describe("the mass–energy tour's authored bindings and no-JavaScript surface",
     }
   });
 
-  test("(massEnergyTourSpec.ts:210) the sequence accepts speed events and refuses other commands or invalid speeds", () => {
+  test("(massEnergyTourSpec.ts:212) the sequence accepts speed events and refuses other commands or invalid speeds", () => {
     const first = tape.events[0];
     assert.ok(first);
     expect(specFor("me-02").actions[1]?.parameters).toMatchObject({ beta: first.value });

@@ -7,16 +7,22 @@
  * - reading: each paragraph's R0 overview, and a way to the passage that explains it, labelled as
  *   leaving the equation-free path;
  * - instrument: the prompt's question and its three choices, each opening its response in a native
- *   <details>, so the step works without JavaScript and nothing is scored. Mass–energy mounts
+ *   <details>, so the step works without JavaScript and nothing is scored. Light quanta and mass–energy mount
  *   compact owner-backed instruments, with worked tables retained in the initial HTML. Other
  *   laboratories still link their full reading until an equation-free face exists;
  * - journey stage: the journey's own move summary, by reference, labelled a draft while it is one.
  */
+import lightQuantaEntrance from "../../../content/arguments/light-quanta/entrance-light-quanta.json";
 import { validateEntranceRecord } from "../../content/entrances/entranceRecord.ts";
 import type { Tour, TourStep } from "../../content/tours/tours.ts";
 import entranceExample from "../../generated/mass-energy-entrance.json";
 import type { MassEnergyEntranceScenario } from "../../reader/entrances/massEnergyExample.ts";
-import { LazyMassEnergyFirstEncounter } from "../../reader/lazyIslands.tsx";
+import {
+  LazyLightQuantaFirstEncounter,
+  LazyMassEnergyFirstEncounter,
+} from "../../reader/lazyIslands.tsx";
+import { LightQuantaTourInstrument } from "./LightQuantaTourInstrument.tsx";
+import { lightQuantaTourSpec } from "./lightQuantaTourSpec.ts";
 import { MassEnergyTourInstrument } from "./MassEnergyTourInstrument.tsx";
 import { massEnergyTourSpec } from "./massEnergyTourSpec.ts";
 
@@ -31,6 +37,8 @@ function FirstEncounter({
   paper: string;
   step: Extract<TourStep, { kind: "first-encounter" }>;
 }) {
+  if (paper === "light-quanta" && step.recordId === lightQuantaEntrance.id)
+    return <LazyLightQuantaFirstEncounter record={validateEntranceRecord(lightQuantaEntrance)} />;
   if (step.recordId !== "entrance-mass-energy")
     return (
       <p className="notice">
@@ -75,7 +83,16 @@ function Reading({ paper, step }: { paper: string; step: Extract<TourStep, { kin
   );
 }
 
-function Instrument({ step }: { step: Extract<TourStep, { kind: "instrument" }> }) {
+async function Instrument({ step }: { step: Extract<TourStep, { kind: "instrument" }> }) {
+  const lightQuanta = await lightQuantaTourSpec(step);
+  if (lightQuanta)
+    return (
+      <LightQuantaTourInstrument
+        step={step}
+        spec={lightQuanta}
+        instanceId={"tour-" + step.id + "-" + lightQuanta.id}
+      />
+    );
   const spec = massEnergyTourSpec(step);
   if (spec)
     return (

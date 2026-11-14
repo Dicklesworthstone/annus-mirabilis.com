@@ -31,6 +31,8 @@ export type TourColumn = Readonly<{
   label: string;
   unit: string;
   format?: "direction" | "percent";
+  /** Display-unit conversion only; the accepted quantity and its stored value are unchanged. */
+  displayDivisor?: number;
 }>;
 export type TourResultRow = Readonly<{
   id: string;
