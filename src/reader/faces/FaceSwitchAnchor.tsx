@@ -20,6 +20,11 @@ import {
   pendingPassageProjectionReturn,
 } from "../passageProjectionNavigation.ts";
 import { contentIdVariants, isSentenceContentId } from "../weave/contentIds.ts";
+import {
+  GLOSS_ANCHOR_SECTIONS_ATTRIBUTE,
+  glossPageForStrandedAnchor,
+  glossRedirectTransfer,
+} from "./glossNavigation.ts";
 
 /**
  * A fragment this face does not publish is resolved to the id it does, instead of landing nowhere.
@@ -448,6 +453,8 @@ export function sectionPageForStrandedAnchor(
 }
 
 export function FaceSwitchAnchor() {
+  /** An intermediate section redirect must not consume the destination's saved position. */
+  const redirectingRef = useRef(false);
   /** The anchor's place the last time it was at least half visible. */
   const placeRef = useRef<PlaceKeeperSnapshot | undefined>(undefined);
   /** The initial face transfer owns the place until a later history traversal. */
@@ -468,6 +475,39 @@ export function FaceSwitchAnchor() {
       return;
     }
     const present = (id: string) => document.getElementById(id) !== null;
+    const currentPath = window.location.pathname + window.location.search;
+    const declaredSections = document
+      .querySelector(`[data-reader-root][${GLOSS_ANCHOR_SECTIONS_ATTRIBUTE}]`)
+      ?.getAttribute(GLOSS_ANCHOR_SECTIONS_ATTRIBUTE);
+    // An authored destination takes precedence over an old id's section prefix. Keep a local
+    // exact or split-sentence target, but do not strand a moved alias at its former section.
+    if (
+      declaredSections !== undefined &&
+      declaredSections !== null &&
+      !contentIdVariants(requested).some(present)
+    ) {
+      const destination = glossPageForStrandedAnchor(requested, currentPath, declaredSections);
+      if (destination !== null) {
+        redirectingRef.current = true;
+        try {
+          const stored = window.sessionStorage.getItem(PLACE_KEY);
+          const transfer = stored
+            ? glossRedirectTransfer(
+                JSON.parse(stored),
+                currentPath,
+                window.location.hash,
+                destination,
+              )
+            : null;
+          window.sessionStorage.removeItem(PLACE_KEY);
+          if (transfer) window.sessionStorage.setItem(PLACE_KEY, JSON.stringify(transfer));
+        } catch {
+          // Blocked storage leaves the declared fragment destination available.
+        }
+        window.location.replace(destination);
+        return;
+      }
+    }
     const resolved =
       resolvedFaceAnchor(requested, present) ??
       // Nothing in the source grammar is on this page. If it is the results face, the carried id
@@ -482,6 +522,7 @@ export function FaceSwitchAnchor() {
         ),
       );
     if (resolved === null) {
+      if (declaredSections !== undefined && declaredSections !== null) return;
       /*
        * Nothing on this page carries the anchor and nothing in its grammar resolves. Before
        * leaving the reader at the top, ask whether this face prints their section on a page of its
@@ -544,6 +585,7 @@ export function FaceSwitchAnchor() {
     face cannot restore a stale position, and a failed parse cannot wedge every future visit.
   */
   useEffect(() => {
+    if (redirectingRef.current) return;
     let raw: string | null = null;
     try {
       raw = window.sessionStorage.getItem(PLACE_KEY);

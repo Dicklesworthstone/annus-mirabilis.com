@@ -7,6 +7,8 @@ import { describe, expect, test } from "bun:test";
 import { exportMarkup } from "../../testing/exportMarkup.ts";
 import { PaperPage } from "../PaperPage.tsx";
 import { loadBilingualEdition } from "./bilingualLoader.ts";
+import { GlossFace } from "./GlossFace.tsx";
+import { glossPageForStrandedAnchor } from "./glossNavigation.ts";
 import { blocksBySection, paperGlossPath, sectionGlossPath } from "./glossSections.ts";
 
 const PAPERS = ["mass-energy", "light-quanta", "brownian-motion", "special-relativity"] as const;
@@ -97,5 +99,63 @@ describe("the gloss's sections", () => {
     expect(glossed.size).toBeGreaterThan(0);
     expect(new Set(printed.filter((id) => glossed.has(id))).size).toBe(glossed.size);
     expect(printed.length).toBe(new Set(printed).size);
+  });
+
+  test("the emitted address map reaches actual equation, part, and closing anchors", async () => {
+    const paper = "special-relativity";
+    const contents = await exportMarkup(await PaperPage({ paperId: paper, face: "gloss" }));
+    const declared = /data-gloss-anchor-sections="([^"]+)"/.exec(contents)?.[1];
+    expect(declared).toBeDefined();
+    if (declared === undefined) return;
+    const sections = declared.replaceAll("&quot;", '"');
+    expect(contents.match(/(?:^|\s)id="s0"/g)).toHaveLength(1);
+    expect(
+      glossPageForStrandedAnchor("s0", `/papers/${paper}/s10/view/gloss/`, sections),
+    ).toBe(`/papers/${paper}/s0/view/gloss/#s0`);
+    const pages = new Map<string, string>();
+    for (const [anchor, section] of [
+      ["eq-s7-d1", "s7"],
+      ["eq-A", "s10"],
+      ["part-2", "s6"],
+      ["closing-received", "s10"],
+    ] as const) {
+      expect(contents).not.toContain(`id="${anchor}"`);
+      expect(
+        glossPageForStrandedAnchor(anchor, `/papers/${paper}/view/gloss/?detail=2`, sections),
+      ).toBe(`/papers/${paper}/${section}/view/gloss/?detail=2#${anchor}`);
+      let html = pages.get(section);
+      if (html === undefined) {
+        html = await exportMarkup(await PaperPage({ paperId: paper, face: "gloss", section }));
+        pages.set(section, html);
+      }
+      expect(html).toContain(`id="${anchor}"`);
+      expect(
+        glossPageForStrandedAnchor(
+          anchor,
+          `/papers/${paper}/${section}/view/gloss/?detail=2`,
+          sections,
+        ),
+      ).toBeNull();
+    }
+  });
+
+  test("an unglossed footnote retains its canonical source address beside its wrapper", async () => {
+    const edition = await loadBilingualEdition("special-relativity");
+    expect(edition).not.toBeNull();
+    if (!edition) return;
+    const footnote = edition.blocks.find((block) => block.kind === "footnote");
+    expect(footnote).toBeDefined();
+    if (!footnote) return;
+    const html = await exportMarkup(
+      <GlossFace
+        paper={edition.paper}
+        blocks={edition.blocks}
+        glossUnits={[]}
+        modalityClasses={[]}
+        section={footnote.section}
+      />,
+    );
+    expect(html.match(new RegExp(`(?:^|\\s)id="${footnote.id}"`, "g"))).toHaveLength(1);
+    expect(html).toContain(`id="footnote-${footnote.id}"`);
   });
 });

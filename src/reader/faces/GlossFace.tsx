@@ -26,6 +26,7 @@ import { sectionsLabel } from "./editionCoverage.ts";
 import { GlossSentence } from "./GlossSentence.tsx";
 import {
   blocksBySection,
+  glossAnchorSections,
   glossedSentencesIn,
   paperGlossPath,
   sectionGlossPath,
@@ -187,6 +188,7 @@ export function GlossFace({
       data-face="gloss"
       data-paper-slug={paper.slug}
       data-reasoning-words={initialReasoningWords ? "on" : "off"}
+      data-gloss-anchor-sections={JSON.stringify(glossAnchorSections(blocks, aliases))}
     >
       {/* Inline formulas as targets, on a paper drawn in colour (dispatch 272). */}
       <InlineTerms paper={paper.slug} />
@@ -264,7 +266,10 @@ export function GlossFace({
       )}
 
       {/* Main Blocks Stream */}
-      <div className="gloss-face-content">
+      <div
+        className="gloss-face-content"
+        id={pageBlocks.some((block) => block.id === shownSection) ? undefined : shownSection}
+      >
         {pageBlocks.map((block) => {
           // Footnotes are collected into their own glossed list below.
           if (block.kind === "footnote") return null;
@@ -403,7 +408,7 @@ export function GlossFace({
                   {sp && glossMap.has(sp.id) ? (
                     glossSentenceFor(fn, sp)
                   ) : (
-                    <span lang="de">
+                    <span id={fn.id} lang="de">
                       {renderInlines(
                         fn.inlines,
                         { terms: { paper: paper.slug, holder: fn.id } },
