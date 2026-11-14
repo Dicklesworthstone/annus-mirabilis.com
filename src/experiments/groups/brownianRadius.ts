@@ -247,6 +247,12 @@ export function createBrownianRadiusGroup(
       group.connect();
       refresh();
     },
+    adoptAccepted(value: number) {
+      if (!connected || closing) return null;
+      const result = group.adoptAccepted(value);
+      refresh();
+      return result;
+    },
     link: (value: number) => linkedChange(value, true),
     update: (value: number) => linkedChange(value, false),
     applyMember(instrumentId: string, value: number) {

@@ -1,5 +1,6 @@
 import { BM01_PROTOCOL, decodeLabHello, decodeLabResponse } from "../../workers/protocol/bm01.ts";
 import { LabProtocolError } from "../../workers/protocol/bm06.ts";
+import { createAcceptedPublicationReader } from "../../workers/scheduler/acceptedPublication.ts";
 import type { WorkerAdmission } from "../../workers/scheduler/admission.ts";
 import { createHostScheduler, type WorkerChannel } from "../../workers/scheduler/hostScheduler.ts";
 import { createRecordingContinuity } from "../../workers/scheduler/recordingContinuity.ts";
@@ -85,6 +86,7 @@ export function createBm01Session(
   const schedulingPause = createSchedulingPause((paused) => scheduler?.setSchedulingPaused(paused));
   const verifiers = new WeakMap<RequestToken, PublicationVerifier>();
   const continuity = createRecordingContinuity(store);
+  const publication = createAcceptedPublicationReader(store.getSnapshot, "bm-01", Object.keys(BM01_OUTPUTS));
   const ownerProtocol = {
     version: BM01_PROTOCOL,
     decodeHello: decodeLabHello,
@@ -147,6 +149,7 @@ export function createBm01Session(
         decodeResponse(message, token, digest) {
           const response = decodeLabResponse(message, token, digest);
           if (response.result.kind !== "accepted") return response;
+          publication.remember(token, response.result.data);
           const { outputs, stepIndex, simulationTime } = response.result.data;
           // The recording checksum is checked at the channel seam; the result store owns only
           // its declared scientific outputs, so transport metadata never enters publication.
@@ -174,6 +177,7 @@ export function createBm01Session(
   }
   return Object.freeze({
     getSnapshot: store.getSnapshot,
+    acceptedPublication: publication.read,
     getServerSnapshot: () => serverSnapshot,
     subscribe: store.subscribe,
     apply: (input: unknown) => apply(input),

@@ -5,26 +5,31 @@ import { createWorkerWalkthroughTarget } from "../permalink/workerWalkthrough.ts
 import type { Bm01Parameters } from "./definition.ts";
 import { BM01_DRAFT_TAPE } from "./draftTape.ts";
 import { createBm01Session, type PreparedBm01Example } from "./session.ts";
+import { captureBm01Tape } from "./tapeCapture.ts";
 import { validateBm01ScientificTape, verifyBm01ScientificCheckpoint } from "./tapeCheckpoint.ts";
 
 /** Ordinary links load settings; explicit playback verifies both the complete path and results. */
 export function createBm01TapeBinding(
   example: PreparedBm01Example,
   workerFactory: () => WorkerChannel,
+  resources?: Parameters<typeof createBm01Session>[3],
 ): WorkerTapeBinding {
-  return Object.freeze({
+  const binding: WorkerTapeBinding = {
     ...BM01_DRAFT_TAPE,
     environment: Object.freeze({
       ...BM01_DRAFT_TAPE.environment,
       artifactDigest: example.sourceDigest.replace(/^source:/, "host:"),
     }),
-    createSession: (instanceId: string) => createBm01Session(instanceId, example, workerFactory),
+    createSession: (instanceId: string) => createBm01Session(instanceId, example, workerFactory, resources),
+    capture: (session, accepted) =>
+      captureBm01Tape(binding, session, accepted, example.sourceDigest),
     scientificReplay: {
       validate: (tape, states) => validateBm01ScientificTape(tape, states, example.sourceDigest),
       verify: (tape, publication) =>
         verifyBm01ScientificCheckpoint(tape, publication, example.sourceDigest),
     },
-  });
+  };
+  return Object.freeze(binding);
 }
 
 export function createBm01WalkthroughTarget(

@@ -5,6 +5,7 @@ import {
   decodeLabResponse,
   LabProtocolError,
 } from "../../workers/protocol/bm06.ts";
+import { createAcceptedPublicationReader } from "../../workers/scheduler/acceptedPublication.ts";
 import type { WorkerAdmission } from "../../workers/scheduler/admission.ts";
 import { createHostScheduler, type WorkerChannel } from "../../workers/scheduler/hostScheduler.ts";
 import { createRecordingContinuity } from "../../workers/scheduler/recordingContinuity.ts";
@@ -14,6 +15,7 @@ import {
 } from "../../workers/scheduler/retention.ts";
 import {
   createVerifiedWorkerChannel,
+  type PublicationVerifier,
   type VerifiablePublication,
 } from "../../workers/scheduler/verifiedChannel.ts";
 import { type DigestValue, scientificDigest } from "../digest/scientificDigest.ts";
@@ -21,7 +23,7 @@ import { createSchedulingPause } from "../lifecycle/schedulingPause.ts";
 import { PINNED_ARTIFACT } from "../provenance/pinnedFrankenSim.ts";
 import { parseResult } from "../results/codec.ts";
 import { executionOutcomeRegistry } from "../results/outcomes.ts";
-import { createInstanceStore, type Parameters } from "../store/instanceStore.ts";
+import { createInstanceStore, type Parameters, type RequestToken } from "../store/instanceStore.ts";
 import {
   BM06_FRANKENSIM_GRID_OWNER,
   BM06_MODEL,
@@ -148,6 +150,8 @@ export function createBm06Session(
   let scheduler: ReturnType<typeof createHostScheduler> | null = null;
   const schedulingPause = createSchedulingPause((paused) => scheduler?.setSchedulingPaused(paused));
   const continuity = createRecordingContinuity(store);
+  const verifiers = new WeakMap<RequestToken, PublicationVerifier>();
+  const publication = createAcceptedPublicationReader(store.getSnapshot, "bm-06", Object.keys(BM06_OUTPUTS));
   const ownerProtocol = {
     version: BM06_PROTOCOL,
     decodeHello: decodeLabHello,
@@ -155,7 +159,7 @@ export function createBm06Session(
     decodeResponse: decodeLabResponse,
   };
 
-  function apply(input: unknown, newRun = false) {
+  function apply(input: unknown, newRun = false, verify?: PublicationVerifier) {
     const validated = validateBm06Parameters(input);
     if (validated.kind !== "accepted") return validated;
     const parameters = validated.data;
@@ -181,6 +185,7 @@ export function createBm06Session(
     }
     request ??= store.issue("continue");
     if (store.getSnapshot().requested !== request) return superseded();
+    if (verify) verifiers.set(request, verify);
     scheduler ??= createHostScheduler(
       store,
       () =>
@@ -189,7 +194,7 @@ export function createBm06Session(
           ownerProtocol,
           example.sourceDigest,
           (token) => {
-            const verify = continuity.verifier(token);
+            const verify = continuity.verifier(token, verifiers.get(token));
             return async (publication) => {
               const recordingCheckpoint = await calculationCheckpoint(
                 publication,
@@ -203,7 +208,15 @@ export function createBm06Session(
           },
         ),
       example.sourceDigest,
-      ownerProtocol,
+      {
+        ...ownerProtocol,
+        decodeResponse(message, token, digest) {
+          const response = decodeLabResponse(message, token, digest);
+          if (response.result.kind === "accepted")
+            publication.remember(token, response.result.data);
+          return response;
+        },
+      },
       undefined,
       {
         admission: resources.admission,
@@ -223,9 +236,11 @@ export function createBm06Session(
 
   return Object.freeze({
     getSnapshot: store.getSnapshot,
+    acceptedPublication: publication.read,
     getServerSnapshot: () => serverSnapshot,
     subscribe: store.subscribe,
     apply: (input: unknown) => apply(input),
+    applyVerified: (input: unknown, verify: PublicationVerifier) => apply(input, false, verify),
     startNewRun: (input: unknown) => apply(input, true),
     /** A one-time value copy from a named BM-01 instance's accepted snapshot: `source` is read
      * once, spread into an ordinary setup-change patch, and never retained or subscribed to, so

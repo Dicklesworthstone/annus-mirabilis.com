@@ -489,6 +489,62 @@ export function createExperimentGroup(
     },
     change,
     unlink,
+    /**
+     * A freshly restored private group may adopt its owners' already verified final results.
+     * No caller supplies snapshots and no worker request is issued. Existing generations cannot
+     * be overwritten through this seam; subsequent changes use the ordinary command path.
+     */
+    adoptAccepted(valueSI: number): GroupAction {
+      if (!connected || dispatching || state.enabled || state.generationId !== 0 || ports.size < 2)
+        return {
+          kind: "refused",
+          refusal: refused("Only a fresh group can adopt a complete accepted comparison."),
+        };
+      const tickets = new Map<string, Ticket>();
+      for (const port of ports.values()) {
+        const view = port.getSnapshot();
+        const snapshot = view.accepted;
+        const token = view.requested;
+        if (
+          !admitted(port) ||
+          !insideGroupDomain(port.definition.domain, valueSI) ||
+          view.pending ||
+          view.status !== "accepted" ||
+          !snapshot?.final ||
+          !token ||
+          !matchesIssued(snapshot, token) ||
+          (definition.conversion === "none"
+            ? port.valueSI(snapshot) !== valueSI
+            : !sameValue(port.valueSI(snapshot), valueSI))
+        )
+          return {
+            kind: "refused",
+            refusal: refused("Every restored owner must have accepted the declared shared value."),
+          };
+        tickets.set(port.instanceId, {
+          actionIndex: snapshot.actionIndex,
+          failure: null,
+          previousRunId: snapshot.runId,
+          previousValueSI: valueSI,
+          token,
+        });
+      }
+      const adopted: Flight = { generationId: 1, valueSI, tickets };
+      flight = adopted;
+      state = Object.freeze({
+        ...state,
+        enabled: true,
+        generationId: adopted.generationId,
+        requestedValueSI: valueSI,
+      });
+      refresh();
+      return flight === adopted && state.enabled && state.phase === "accepted"
+        ? { kind: "accepted", generationId: adopted.generationId }
+        : {
+            kind: "refused",
+            refusal: refused("The restored comparison changed before it could be adopted."),
+          };
+    },
     /** Membership is explicit. An ordinary second instance is never discovered or linked. */
     attach(port: GroupMemberPort): GroupAction {
       if (!admitted(port) || ports.has(port.instanceId) || ports.size >= 8)
