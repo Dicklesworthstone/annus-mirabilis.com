@@ -127,4 +127,71 @@ describe("LQ-02 refuses a non-positive field and states a large temperature read
       removeContainer(container);
     }
   });
+
+  test("probe changes publish measurement revisions while retaining the accepted physical setup", async () => {
+    const container = createContainer();
+    const root = createRoot(container);
+    try {
+      await act(async () => {
+        root.render(createElement(ModeAllocationLab));
+      });
+      const lab = container.querySelector<HTMLElement>('[data-instrument-id="lq-02"]');
+      if (!lab) throw new TypeError("The mode-allocation laboratory did not mount.");
+      const probe = field(container, "Probe frequency, for the share-above readout (Hz)");
+      const inputRevision = lab.getAttribute("data-accepted-input-revision");
+      const runId = lab.getAttribute("data-run-id");
+      const measurementRevision = lab.getAttribute("data-accepted-measurement-revision");
+      expect(measurementRevision).toMatch(/^\d+$/);
+      expect(lab.getAttribute("data-measurement-revision")).toBe(measurementRevision);
+
+      const readout = (label: string): string => {
+        const row = [...container.querySelectorAll("tr")].find(
+          (entry) => entry.querySelector("th")?.textContent === label,
+        );
+        const text = row?.querySelector("td")?.textContent;
+        if (text === undefined || text === null) throw new TypeError(`No readout: ${label}`);
+        return text;
+      };
+      const meanLabel = "Mean energy per resonator oscillation";
+      const cutoffLabel = "Energy with resonators up to the cutoff";
+      const shareLabel = "Share of that energy above the probe frequency";
+      const mean = readout(meanLabel);
+      const cutoff = readout(cutoffLabel);
+      expect(readout(shareLabel)).toContain("0.9990000");
+
+      for (const [index, value] of ["5e13", "1e300"].entries()) {
+        await act(async () => {
+          type(probe, value);
+        });
+        await act(async () => {
+          submit(probe);
+        });
+        const acceptedMeasurement = String(Number(measurementRevision) + index + 1);
+        expect(lab.getAttribute("data-accepted-measurement-revision")).toBe(acceptedMeasurement);
+        expect(lab.getAttribute("data-measurement-revision")).toBe(acceptedMeasurement);
+        expect(lab.getAttribute("data-accepted-input-revision")).toBe(inputRevision);
+        expect(lab.getAttribute("data-input-revision")).toBe(inputRevision);
+        expect(lab.getAttribute("data-run-id")).toBe(runId);
+        expect(readout(meanLabel)).toBe(mean);
+        expect(readout(cutoffLabel)).toBe(cutoff);
+        expect(container.querySelector("[role=alert]")).toBeNull();
+        expect(probe.value).toBe(value);
+        expect(readerText(container)).not.toMatch(/\bNaN\b|\bInfinity\b/);
+        if (index === 0) expect(readout(shareLabel)).toContain("0.8750000");
+        else {
+          // Positive probes have no declared upper bound. Unrepresentable probe energy is a
+          // typed unavailable measurement, not a silently clamped value or a rejected setup.
+          expect(readout(shareLabel)).toContain("Not modeled here:");
+          expect(readout(shareLabel)).toContain(
+            "needs both the cutoff and probe energies to be finite values",
+          );
+        }
+      }
+    } finally {
+      await act(async () => {
+        root.unmount();
+      });
+      removeContainer(container);
+    }
+  });
 });

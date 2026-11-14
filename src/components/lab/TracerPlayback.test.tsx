@@ -189,6 +189,62 @@ describe("real tracer playback controls", () => {
     expect(frames.size).toBe(0);
   });
 
+  for (const invalidTime of ["abc", "", "-0.01", "1.01", "1e300", "-1e300", "1e400"]) {
+    test(`refuses playback time ${JSON.stringify(invalidTime)} without changing the recording`, async () => {
+      const accepted = session.getSnapshot();
+      await setInput('input[type="number"]', "0.4");
+      await press("Go to time");
+      const paths = plot().innerHTML;
+      const time = container.querySelector<HTMLInputElement>(
+        'input[type="number"]',
+      ) as HTMLInputElement;
+      // Browser constraint validation must not prevent the application's explained refusal.
+      expect(time.closest("form")?.noValidate).toBe(true);
+
+      await setInput('input[type="number"]', invalidTime);
+      const refusedDraft = time.value;
+      await press("Go to time");
+
+      const error = container.querySelector<HTMLElement>(".notice.error");
+      expect(error?.textContent).toContain("Enter a playback time from 0 to 1 seconds.");
+      expect(error?.textContent).toContain("last accepted settings");
+      expect(error?.getAttribute("role")).toBe("status");
+      expect(error?.getAttribute("aria-live")).toBe("polite");
+      expect(time.getAttribute("aria-invalid")).toBe("true");
+      expect(time.getAttribute("aria-describedby")).toBe(error?.id);
+      expect(time.value).toBe(refusedDraft);
+      expect(plot().innerHTML).toBe(paths);
+      expect(plot().dataset.playbackTime).toBe("0.4");
+      expect(frames.size).toBe(0);
+      expect(session.getSnapshot()).toBe(accepted);
+      expect(workersCreated).toBe(0);
+
+      await setInput('input[type="number"]', "0.5");
+      await press("Go to time");
+      expect(container.querySelector(".notice.error")).toBeNull();
+      expect(time.hasAttribute("aria-invalid")).toBe(false);
+      expect(time.hasAttribute("aria-describedby")).toBe(false);
+      expect(plot().dataset.playbackTime).toBe("0.5");
+      expect(plot().dataset.recordedTime).toBe("0.5");
+      expect(session.getSnapshot()).toBe(accepted);
+    });
+  }
+
+  test("a refused seek leaves the running playback clock and its accepted samples intact", async () => {
+    const accepted = session.getSnapshot();
+    await press("Play recording");
+    await advance(200);
+    await setInput('input[type="number"]', "1e300");
+    await press("Go to time");
+    expect(Number(plot().dataset.playbackTime)).toBeCloseTo(0.2, 12);
+    expect(frames.size).toBe(1);
+    expect(button("Pause playback").disabled).toBe(false);
+    await advance(100);
+    expect(Number(plot().dataset.playbackTime)).toBeCloseTo(0.3, 12);
+    expect(session.getSnapshot()).toBe(accepted);
+    expect(workersCreated).toBe(0);
+  });
+
   test("offscreen playback pauses and keeps its place until the reader explicitly resumes", async () => {
     await press("Play recording");
     await advance(200);

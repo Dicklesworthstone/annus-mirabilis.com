@@ -13,6 +13,7 @@ import {
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import { formatPlaybackRate } from "../../visuals/kit/scale.ts";
 import { TimeLegend } from "../../visuals/kit/TimeLegend.tsx";
+import { KEPT_RESULT } from "./keptResult.ts";
 import { array, display, identity } from "./presentation.ts";
 import { TracerPaths } from "./TracerPlots.tsx";
 import "./tracerPlayback.css";
@@ -65,6 +66,7 @@ function RecordingPlayer({
   const [visible, setVisible] = useState(false);
   const [motionPaused, setMotionPaused] = useState(false);
   const [timeDraft, setTimeDraft] = useState(String(duration));
+  const [timeError, setTimeError] = useState("");
   const [notice, setNotice] = useState("");
   const first = views[0] as RecordingPlayback;
   const playing = views.some((view) => view.playing);
@@ -148,11 +150,13 @@ function RecordingPlayer({
 
   function seek(seconds: number) {
     if (!Number.isFinite(seconds) || seconds < 0 || seconds > duration) {
-      setNotice(
-        `Enter a playback time from 0 to ${display(duration)} seconds. The view is unchanged.`,
+      setTimeError(
+        `Enter a playback time from 0 to ${display(duration)} seconds. No playback change was applied. ${KEPT_RESULT}`,
       );
+      setNotice("");
       return;
     }
+    setTimeError("");
     pause();
     change({ operation: "seek", seconds });
     setTimeDraft(String(seconds));
@@ -165,6 +169,7 @@ function RecordingPlayer({
   }
 
   function compare(enabled: boolean) {
+    setTimeError("");
     pause();
     const now = window.performance.now();
     for (const [index, clock] of clocks.entries()) {
@@ -221,6 +226,7 @@ function RecordingPlayer({
       </div>
       <form
         onSubmit={seekTyped}
+        noValidate
         hidden={!ready}
         className="tracer-playback-controls"
         aria-label="Replay accepted tracer paths"
@@ -283,8 +289,21 @@ function RecordingPlayer({
                 max={duration}
                 step="any"
                 value={timeDraft}
+                aria-invalid={timeError ? true : undefined}
+                aria-describedby={timeError ? `${id}-time-error` : undefined}
                 onChange={(event) => setTimeDraft(event.target.value)}
               />
+              {timeError && (
+                <p
+                  id={`${id}-time-error`}
+                  className="notice error"
+                  role="status"
+                  aria-live="polite"
+                  aria-atomic="true"
+                >
+                  {timeError}
+                </p>
+              )}
               <button type="submit" className="secondary">
                 Go to time
               </button>

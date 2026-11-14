@@ -178,6 +178,10 @@ export function ModeAllocationLab({
       aria-labelledby={`${id}-title`}
       data-instrument-id="lq-02"
       {...instrumentRootAttributes(view)}
+      data-measurement-revision={
+        view.requested?.revisions.measurement ?? view.accepted?.revisions.measurement
+      }
+      data-accepted-measurement-revision={view.accepted?.revisions.measurement}
       {...executionLabelAttributes(executionKind)}
     >
       <header className="lab-heading">
