@@ -5,6 +5,10 @@ import { createRoot, type Root } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
 import { SpectrumLab } from "../../components/lab/lq03/SpectrumLab.tsx";
 import { MovingClocksLab } from "../../components/lab/sr05/MovingClocksLab.tsx";
+import {
+  installPredictPersistence,
+  REMEMBERS_NOTHING,
+} from "../../experiments/predict/predictPersistence.ts";
 import Lq03ClarificationView from "../../experiments/views/lq03View.tsx";
 import Sr05ClarificationView from "../../experiments/views/sr05View.tsx";
 import { installDom, uninstallDom } from "../../testing/reactDom.ts";
@@ -15,6 +19,7 @@ let host: HTMLElement;
 
 beforeEach(async () => {
   await installDom();
+  installPredictPersistence(REMEMBERS_NOTHING);
   main = document.createElement("main");
   host = document.createElement("div");
   main.append(host);
@@ -25,6 +30,7 @@ beforeEach(async () => {
 afterEach(async () => {
   await act(async () => root?.unmount());
   root = null;
+  installPredictPersistence(REMEMBERS_NOTHING);
   await uninstallDom();
 });
 
@@ -44,6 +50,27 @@ async function mount(element: ReactNode, paper: string) {
   await act(async () => root?.render(element));
   const panel = host.querySelector<HTMLDetailsElement>("[data-result-weave]");
   assert.ok(panel, "The real reader adapter must render its session's weave");
+  expect(panel.closest("[data-predict-response]")?.getAttribute("data-predict-response")).toBe(
+    "awaiting",
+  );
+  expect(panel.querySelector("[data-weave-snapshot]")?.textContent).toContain(
+    "Prepared worked example",
+  );
+  expect(panel.querySelector("[data-weave-inactive]")).toBeNull();
+  // The prepared comparison stays in the no-script HTML. Even opening its hidden disclosure
+  // must not annotate the paper or announce an answer while the optional prediction is waiting.
+  await disclose(panel, true);
+  expect(main.querySelector("[data-live-weave-owner]")).toBeNull();
+  expect(panel.querySelector('[role="status"]')?.textContent).toBe("");
+  await disclose(panel, false);
+  const skip = [...host.querySelectorAll("button")].find(
+    (button) => button.textContent?.trim() === "Skip prediction",
+  );
+  assert.ok(skip, "The reader must be able to reveal the comparison without a prediction");
+  await act(async () => skip.click());
+  expect(panel.closest("[data-predict-response]")?.getAttribute("data-predict-response")).toBe(
+    "shown",
+  );
   return panel;
 }
 
@@ -231,4 +258,8 @@ test("both reader adapters include the prepared comparison and exact source link
   expect(spectrum).toContain("/papers/light-quanta/view/german/#s4-p1-s3");
   expect(clock).toContain("Prepared worked example");
   expect(spectrum).toContain("Prepared worked example");
+  for (const html of [clock, spectrum]) {
+    expect(html).not.toContain('data-weave-inactive="refused"');
+    expect(html).toContain('data-predict-response="awaiting"');
+  }
 });

@@ -515,7 +515,7 @@ export function MovingClocksLab({
         <SessionResultWeave
           session={session}
           binding={SR05_READER_WEAVE}
-          suspended={!gate.open || failure !== null}
+          suspended={failure !== null}
           announcementsEnabled={gate.open}
           highlightPaper={highlightPaper}
         />

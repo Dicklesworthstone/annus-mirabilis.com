@@ -528,7 +528,7 @@ export function EntropyWorkbenchLab({
         <SessionResultWeave
           session={session}
           binding={LQ04_READER_WEAVE}
-          suspended={!gate.open || failure !== null}
+          suspended={failure !== null}
           announcementsEnabled={gate.open}
           highlightPaper={highlightPaper}
         />

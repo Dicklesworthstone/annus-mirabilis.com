@@ -4,6 +4,10 @@ import { act, type ReactNode } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
 import { EntropyWorkbenchLab } from "../../components/lab/lq04/EntropyWorkbenchLab.tsx";
+import {
+  installPredictPersistence,
+  REMEMBERS_NOTHING,
+} from "../../experiments/predict/predictPersistence.ts";
 import Lq04ClarificationView from "../../experiments/views/lq04View.tsx";
 import { installDom, uninstallDom } from "../../testing/reactDom.ts";
 
@@ -16,6 +20,7 @@ let host: HTMLElement;
 
 beforeEach(async () => {
   await installDom();
+  installPredictPersistence(REMEMBERS_NOTHING);
   main = document.createElement("main");
   host = document.createElement("div");
   main.append(host);
@@ -27,6 +32,7 @@ beforeEach(async () => {
 afterEach(async () => {
   await act(async () => root?.unmount());
   root = null;
+  installPredictPersistence(REMEMBERS_NOTHING);
   await uninstallDom();
 });
 
@@ -51,7 +57,26 @@ async function mount(element: ReactNode) {
   await act(async () => root?.render(element));
   const panel = host.querySelector<HTMLDetailsElement>("[data-result-weave]");
   assert.ok(panel, "The entropy workbench must expose its accepted session's source pointers");
+  expect(panel.closest("[data-predict-response]")?.getAttribute("data-predict-response")).toBe(
+    "awaiting",
+  );
+  expect(panel.querySelector("[data-weave-snapshot]")?.textContent).toContain(
+    "Prepared worked example",
+  );
+  expect(panel.querySelector("[data-weave-inactive]")).toBeNull();
+  // The prepared comparison stays in the no-script HTML. Even opening its hidden disclosure
+  // must not annotate the paper or announce an answer while the optional prediction is waiting.
   await disclose(panel, true);
+  expect(main.querySelector("[data-live-weave-owner]")).toBeNull();
+  expect(panel.querySelector('[role="status"]')?.textContent).toBe("");
+  const skip = [...host.querySelectorAll("button")].find(
+    (button) => button.textContent?.trim() === "Skip prediction",
+  );
+  assert.ok(skip, "The reader must be able to reveal the comparison without a prediction");
+  await act(async () => skip.click());
+  expect(panel.closest("[data-predict-response]")?.getAttribute("data-predict-response")).toBe(
+    "shown",
+  );
   return panel;
 }
 
@@ -196,7 +221,11 @@ test("standalone and no-script entropy examples expose canonical source links wi
   for (const id of ["s4-p5-s1", "s4-p1-s3", "s3-p4-s3"])
     for (const face of ["german", "english"])
       expect(html).toContain(`/papers/light-quanta/view/${face}/#${id}`);
-  expect(html).toContain("lq04-s3-derivative-check");
+  expect(html).toContain('data-weave-predicate="lq04-s4-volume-law"');
+  expect(html).toContain('data-weave-predicate="lq04-s3-derivative-check"');
+  expect(html).toContain("Prepared worked example");
+  expect(html).not.toContain('data-weave-inactive="refused"');
+  expect(html).toContain('data-predict-response="awaiting"');
   expect(html).toContain("Entropy density slope at fixed frequency");
   expect(html).toContain("Inverse temperature 1/T");
 });

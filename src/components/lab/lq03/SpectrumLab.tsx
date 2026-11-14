@@ -695,7 +695,7 @@ export function SpectrumLab({
         <SessionResultWeave
           session={session}
           binding={weaveBinding}
-          suspended={!gate.open || failure !== null}
+          suspended={failure !== null}
           announcementsEnabled={gate.open}
           highlightPaper={highlightPaper}
         />

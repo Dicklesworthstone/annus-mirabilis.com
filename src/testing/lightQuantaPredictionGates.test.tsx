@@ -254,7 +254,13 @@ describe("light-quanta prediction gates", () => {
       expect(required(".lab-margin p > span").matches(AWAITING)).toBe(true);
       expect(required(".show-the-code").closest(AWAITING)).not.toBeNull();
       expect(required("[data-result-weave]").closest(AWAITING)).not.toBeNull();
-      expect(container.querySelector("[data-weave-snapshot]")).toBeNull();
+      // The no-script reader needs the accepted comparison in the server HTML. Its enclosing
+      // response waits with JavaScript; a pending prediction is not a refused calculation.
+      const comparison = required("[data-weave-snapshot]");
+      expect(comparison.closest(AWAITING)).not.toBeNull();
+      expect(comparison.textContent).toContain("Prepared worked example");
+      expect(container.querySelector("[data-weave-inactive]")).toBeNull();
+      expect(container.querySelector("[data-live-weave-owner]")).toBeNull();
       expect(required('[data-result-weave] [aria-live="polite"]').textContent).toBe("");
       expect(required("form").closest(AWAITING)).toBeNull();
       expect(required(".lab-status-row").closest(AWAITING)).toBeNull();
@@ -397,6 +403,14 @@ describe("light-quanta prediction gates", () => {
       const caption = required(".laboratory > p[data-detail='0']");
       expect(caption.textContent?.trim().length).toBeGreaterThan(0);
       expect(required("noscript").textContent).toContain("complete worked example");
+      const weave = required("[data-result-weave]");
+      expect(weave.closest(AWAITING)).not.toBeNull();
+      expect(required("[data-weave-snapshot]", weave).textContent).toContain(
+        "Prepared worked example",
+      );
+      expect(weave.querySelector('[data-weave-lit="true"]')).not.toBeNull();
+      expect(weave.querySelector("[data-weave-inactive]")).toBeNull();
+      expect(weave.querySelector('[aria-live="polite"]')?.textContent).toBe("");
     });
   }
 
