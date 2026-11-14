@@ -2,12 +2,14 @@ import {
   type BinomialDistribution,
   binomialInside,
   type EnumerationOutcome,
-  enumerateConfigurations,
+  enumerateFractionConfigurations,
   type IndependentPointsProbabilityResult,
   independentPointsProbability,
+  lockedPointsInside,
   lockedPositionsProbability,
   type SeededPointSamplingResult,
   sampleIndependentPoints,
+  sampleLockedPoints,
 } from "../../physics/reference/radiation.ts";
 import type { AcceptedSnapshot, ExperimentView, PublishedResult } from "../store/instanceStore.ts";
 import { LQ05_DEFAULTS, type Lq05Parameters } from "./definition.ts";
@@ -15,6 +17,9 @@ import { validateLq05Parameters } from "./parameters.ts";
 
 export type Lq05Evaluation = Readonly<{
   independentProbability: IndependentPointsProbabilityResult;
+  /** The selected dependence model, used by every displayed probability and logarithm. */
+  probability: IndependentPointsProbabilityResult;
+  distribution: BinomialDistribution;
   binomial: BinomialDistribution;
   enumeration: EnumerationOutcome;
   locked: ReturnType<typeof lockedPositionsProbability>;
@@ -33,64 +38,70 @@ export type PreparedLq05Example = Readonly<{
 export function evaluateLq05(parameters: Lq05Parameters): Lq05Evaluation {
   const independentProbability = independentPointsProbability(parameters.n, parameters.f);
   const binomial = binomialInside(parameters.n, parameters.f);
-  const cells = parameters.f <= 0.5 ? Math.round(1 / parameters.f) : 2;
-  const enumeration = enumerateConfigurations(parameters.n, cells);
   const locked = lockedPositionsProbability(parameters.n, parameters.f);
-  const sampling = sampleIndependentPoints({
+  const probability = parameters.locked ? locked : independentProbability;
+  const distribution = parameters.locked
+    ? lockedPointsInside(parameters.n, parameters.f)
+    : binomial;
+  const enumeration = enumerateFractionConfigurations(
+    parameters.n,
+    parameters.f,
+    parameters.locked,
+  );
+  const samplingOwner = parameters.locked ? sampleLockedPoints : sampleIndependentPoints;
+  const sampling = samplingOwner({
     n: parameters.n,
     f: parameters.f,
     trials: parameters.trials,
     seed: parameters.seed,
   });
 
-  const effectiveProb = parameters.locked ? locked.value : independentProbability.value;
-  const effectiveLnW = parameters.locked ? Math.log(locked.value) : independentProbability.lnW;
-  const effectiveLog10W = parameters.locked
-    ? Math.log10(locked.value)
-    : independentProbability.log10W;
-  const effectiveDeltaSOverKb = parameters.locked
-    ? Math.log(locked.value)
-    : independentProbability.deltaSOverKb;
-  const expectedTrialsToOne = effectiveProb > 0 ? 1 / effectiveProb : Number.POSITIVE_INFINITY;
+  const expectedTrialsToOne = 1 / probability.value;
+  const probabilityOwner = parameters.locked
+    ? "radiation.lockedPositionsProbability"
+    : "radiation.independentPointsProbability";
+  const sampleOwner = parameters.locked
+    ? "radiation.sampleLockedPoints"
+    : "radiation.sampleIndependentPoints";
 
   const outputs: readonly PublishedResult[] = Object.freeze([
     {
       quantityId: "configurationProbability",
       unit: "1",
       semanticKind: "probability",
-      ownerId: "radiation.independentPointsProbability",
+      ownerId: probabilityOwner,
       status: "value",
-      value: effectiveProb,
+      value: probability.value,
     },
     {
       quantityId: "lnW",
       unit: "1",
       semanticKind: "log-probability",
-      ownerId: "radiation.independentPointsProbability",
+      ownerId: probabilityOwner,
       status: "value",
-      value: effectiveLnW,
+      value: probability.lnW,
     },
     {
       quantityId: "log10W",
       unit: "1",
       semanticKind: "log10-probability",
-      ownerId: "radiation.independentPointsProbability",
+      ownerId: probabilityOwner,
       status: "value",
-      value: effectiveLog10W,
+      value: probability.log10W,
     },
     {
       quantityId: "deltaSOverKb",
       unit: "1",
       semanticKind: "entropy-dimensionless",
-      ownerId: "radiation.independentPointsProbability",
+      ownerId: probabilityOwner,
       status: "value",
-      value: effectiveDeltaSOverKb,
+      value: probability.deltaSOverKb,
     },
     {
       quantityId: "sampleFraction",
       unit: "1",
       semanticKind: "empirical-probability",
-      ownerId: "radiation.sampleIndependentPoints",
+      ownerId: sampleOwner,
       status: "value",
       value: sampling.sampleFraction,
     },
@@ -98,7 +109,7 @@ export function evaluateLq05(parameters: Lq05Parameters): Lq05Evaluation {
       quantityId: "successCount",
       unit: "1",
       semanticKind: "success-count",
-      ownerId: "radiation.sampleIndependentPoints",
+      ownerId: sampleOwner,
       status: "value",
       value: sampling.successCount,
     },
@@ -106,7 +117,7 @@ export function evaluateLq05(parameters: Lq05Parameters): Lq05Evaluation {
       quantityId: "drawCountAfter",
       unit: "1",
       semanticKind: "draw-count",
-      ownerId: "radiation.sampleIndependentPoints",
+      ownerId: sampleOwner,
       status: "value",
       value: sampling.drawCountAfter,
     },
@@ -114,7 +125,7 @@ export function evaluateLq05(parameters: Lq05Parameters): Lq05Evaluation {
       quantityId: "expectedTrialsToOne",
       unit: "1",
       semanticKind: "expected-trials",
-      ownerId: "radiation.independentPointsProbability",
+      ownerId: probabilityOwner,
       status: "value",
       value: expectedTrialsToOne,
     },
@@ -130,6 +141,8 @@ export function evaluateLq05(parameters: Lq05Parameters): Lq05Evaluation {
 
   return Object.freeze({
     independentProbability,
+    probability,
+    distribution,
     binomial,
     enumeration,
     locked,

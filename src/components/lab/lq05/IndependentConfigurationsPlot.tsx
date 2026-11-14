@@ -21,7 +21,15 @@ export function IndependentConfigurationsPlot({
   response,
 }: IndependentConfigurationsPlotProps) {
   const { n, f, view, locked } = parameters;
-  const { independentProbability, binomial, enumeration, locked: lockedRes, sampling } = evaluation;
+  const {
+    independentProbability,
+    probability,
+    distribution,
+    enumeration,
+    locked: lockedRes,
+    sampling,
+  } = evaluation;
+  const peakProbability = Math.max(...distribution.terms.map((term) => term.probability));
 
   const boxWidth = 320;
   const boxHeight = 160;
@@ -92,7 +100,7 @@ export function IndependentConfigurationsPlot({
             background: "var(--wash)",
           }}
           role="img"
-          aria-label={`Volume container with subvolume fraction ${f.toFixed(2)} and ${n} ${locked ? "locked" : "independent"} points`}
+          aria-label={`Volume container with subvolume fraction ${f.toFixed(2)} and ${n} ${locked ? "coincident locked" : "independent"} points; schematic, not a sampled placement`}
         >
           <defs>
             <clipPath id={clipId}>
@@ -121,9 +129,9 @@ export function IndependentConfigurationsPlot({
           />
 
           {/* Render points */}
-          {Array.from({ length: Math.min(n, 60) }, (_, i) => {
-            const xNorm = locked ? 0.15 + (i % 6) * 0.04 : ((i * 37 + 19) % 97) / 100;
-            const yNorm = locked ? 0.3 + Math.floor(i / 6) * 0.12 : ((i * 53 + 23) % 89) / 100;
+          {Array.from({ length: locked ? 1 : Math.min(n, 60) }, (_, i) => {
+            const xNorm = locked ? 0.25 : ((i * 37 + 19) % 97) / 100;
+            const yNorm = locked ? 0.5 : ((i * 53 + 23) % 89) / 100;
             const cx = 16 + xNorm * (boxWidth - 32);
             const cy = 16 + yNorm * (boxHeight - 32);
             const inside = cx <= subWidth;
@@ -145,6 +153,12 @@ export function IndependentConfigurationsPlot({
               opacity="0.9"
             />
           ))}
+
+          {locked && (
+            <text x="88" y="104" textAnchor="middle" fontSize="11" fill="var(--ink)">
+              {n} {n === 1 ? "point" : "coincident points"}
+            </text>
+          )}
 
           {/* Partition Label */}
           <text
@@ -183,7 +197,7 @@ export function IndependentConfigurationsPlot({
           <span>
             Mode:{" "}
             <strong style={{ color: "var(--ink)" }}>
-              {locked ? "Locked cluster (rigidly coupled)" : "Independent points"}
+              {locked ? "Locked points (one shared position)" : "Independent points"}
             </strong>
           </span>
           <span {...response}>
@@ -223,7 +237,7 @@ export function IndependentConfigurationsPlot({
             margin: "0 0 0.5rem",
           }}
         >
-          Binomial distribution P(k): the chance that k of the {n} points lie inside
+          {locked ? "Locked distribution P(k)" : "Binomial distribution P(k)"}: the chance that k of the {n} points lie inside
         </h3>
 
         <div
@@ -235,13 +249,15 @@ export function IndependentConfigurationsPlot({
             paddingTop: "8px",
           }}
         >
-          {binomial.terms.map((term) => {
-            const heightPct = Math.max(2, Math.min(100, term.probability * 100 * 2.5));
+          {distribution.terms.map((term) => {
+            const heightPct = (term.probability / peakProbability) * 100;
             const isAllInside = term.k === n;
             const labelled = isAllInside || (term.k % labelStep === 0 && n - term.k >= labelStep);
             return (
               <div
                 key={`term-${term.k}`}
+                data-configuration-k={term.k}
+                data-probability={term.probability}
                 style={{
                   flex: "1 1 0",
                   minWidth: 0,
@@ -285,9 +301,36 @@ export function IndependentConfigurationsPlot({
             marginBottom: 0,
           }}
         >
-          The last bar, k = {n}, is every point inside: W = P({n}) = f<sup>{n}</sup>.
+          The last bar, k = {n}, is every point inside: W = P({n}) ={" "}
+          {locked ? "f" : <>f<sup>{n}</sup></>}.
+          {locked && " All points share one position, so intermediate counts are impossible."}
         </p>
       </div>
+
+      <details {...response} className="lq05-probability-table">
+        <summary>Probability table</summary>
+        <table>
+          <caption>
+            {locked ? "Coincident locked positions" : "Independent positions"} at fraction {f}
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Points inside k</th>
+              <th scope="col">Probability P(k)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {distribution.terms.map((term) => (
+              <tr key={term.k}>
+                <th scope="row">{term.k}</th>
+                <td>
+                  <Sci value={term.probability} digits={8} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </details>
 
       {/* 3. View-specific diagnostics */}
       {view === "enumeration" && enumeration.status === "value" && (
@@ -312,10 +355,18 @@ export function IndependentConfigurationsPlot({
           </span>
           . Exact ratio:{" "}
           <span style={{ fontFamily: "var(--font-mono, monospace)", fontWeight: "bold" }}>
-            1 / {enumeration.totalConfigurations.toLocaleString()}
+            {enumeration.favorableConfigurations.toLocaleString()} / {enumeration.totalConfigurations.toLocaleString()}
           </span>
           .
         </div>
+      )}
+
+      {view === "enumeration" && enumeration.status === "execution-outcome" && (
+        <p {...response} data-enumeration-budget="exceeded" className="fine">
+          Exact enumeration exceeds the configuration budget for this fraction. The fraction
+          remains unchanged. The probability table and logarithmic view remain available, or
+          choose Sampling for a seeded estimate.
+        </p>
       )}
 
       {view === "sampling" && (
@@ -330,7 +381,9 @@ export function IndependentConfigurationsPlot({
             color: "var(--ink)",
           }}
         >
-          <strong>Monte Carlo Philox sampling:</strong> {sampling.successCount} successes out of{" "}
+          <strong>Monte Carlo Philox sampling:</strong>{" "}
+          {locked ? "One shared position per trial. " : "Independent positions in each trial. "}
+          {sampling.successCount} successes out of{" "}
           {sampling.trials.toLocaleString()} trials (
           <Sci value={sampling.sampleFraction} digits={4} />
           ). Seed:{" "}
@@ -352,15 +405,15 @@ export function IndependentConfigurationsPlot({
         >
           <strong>Logarithmic Boltzmann scaling:</strong> log₁₀ W ={" "}
           <span style={{ fontFamily: "var(--font-mono, monospace)", fontWeight: "bold" }}>
-            {fixed(independentProbability.log10W, 4)}
+            {fixed(probability.log10W, 4)}
           </span>
           , ln W ={" "}
           <span style={{ fontFamily: "var(--font-mono, monospace)", fontWeight: "bold" }}>
-            {fixed(independentProbability.lnW, 4)}
+            {fixed(probability.lnW, 4)}
           </span>
           , ΔS/k_B ={" "}
           <span style={{ fontFamily: "var(--font-mono, monospace)", fontWeight: "bold" }}>
-            {fixed(independentProbability.deltaSOverKb, 4)}
+            {fixed(probability.deltaSOverKb, 4)}
           </span>
           .
         </div>

@@ -36,8 +36,8 @@ export const LQ05_MODEL = Object.freeze({
   label: "Independent configurations & Boltzmann entropy · host calculation",
   assumptions: Object.freeze([
     "No favored part of the space or direction in volume V₀.",
-    "Negligible interactions among the n movable points.",
-    "Other movable points may also be present without altering the independent distribution.",
+    "Independent points have negligible interactions. Locked points occupy one shared position.",
+    "In independent mode, other movable points do not alter the independent distribution.",
     "No assumption is needed about the laws of motion of the points.",
   ]),
   notModeled: Object.freeze(notModeledFor("lq-05")),
@@ -92,15 +92,67 @@ const c = (
  * that corresponds to nothing cannot be checked, and widening it is part of adding the path. The strict
  * acceptance gate still records LQ-05 as having no non-numeric case either way, so this hides no debt.
  */
+/** Each accepted dependence model retains the identity of its actual numerical owner. */
+const paired = (
+  unit: string,
+  semanticKind: string,
+  ownerId: string,
+  lockedOwnerId: string,
+): OutputContract =>
+  Object.freeze({
+    ...c(unit, semanticKind, ownerId),
+    admittedOwnerIds: Object.freeze([lockedOwnerId]),
+  });
+
 export const LQ05_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.freeze({
-  configurationProbability: c("1", "probability", "radiation.independentPointsProbability"),
-  lnW: c("1", "log-probability", "radiation.independentPointsProbability"),
-  log10W: c("1", "log10-probability", "radiation.independentPointsProbability"),
-  deltaSOverKb: c("1", "entropy-dimensionless", "radiation.independentPointsProbability"),
-  sampleFraction: c("1", "empirical-probability", "radiation.sampleIndependentPoints"),
-  successCount: c("1", "success-count", "radiation.sampleIndependentPoints"),
-  drawCountAfter: c("1", "draw-count", "radiation.sampleIndependentPoints"),
-  expectedTrialsToOne: c("1", "expected-trials", "radiation.independentPointsProbability"),
+  configurationProbability: paired(
+    "1",
+    "probability",
+    "radiation.independentPointsProbability",
+    "radiation.lockedPositionsProbability",
+  ),
+  lnW: paired(
+    "1",
+    "log-probability",
+    "radiation.independentPointsProbability",
+    "radiation.lockedPositionsProbability",
+  ),
+  log10W: paired(
+    "1",
+    "log10-probability",
+    "radiation.independentPointsProbability",
+    "radiation.lockedPositionsProbability",
+  ),
+  deltaSOverKb: paired(
+    "1",
+    "entropy-dimensionless",
+    "radiation.independentPointsProbability",
+    "radiation.lockedPositionsProbability",
+  ),
+  sampleFraction: paired(
+    "1",
+    "empirical-probability",
+    "radiation.sampleIndependentPoints",
+    "radiation.sampleLockedPoints",
+  ),
+  successCount: paired(
+    "1",
+    "success-count",
+    "radiation.sampleIndependentPoints",
+    "radiation.sampleLockedPoints",
+  ),
+  drawCountAfter: paired(
+    "1",
+    "draw-count",
+    "radiation.sampleIndependentPoints",
+    "radiation.sampleLockedPoints",
+  ),
+  expectedTrialsToOne: paired(
+    "1",
+    "expected-trials",
+    "radiation.independentPointsProbability",
+    "radiation.lockedPositionsProbability",
+  ),
   lockedProbability: c("1", "locked-probability", "radiation.lockedPositionsProbability"),
 });
 

@@ -515,7 +515,7 @@ export function IndependentConfigurationsLab({
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
                   {p.locked
-                    ? "Rigid cluster moving as one unit"
+                    ? "Coincident points sharing one position"
                     : "Probability that all n independent points are found in V"}
                 </td>
               </tr>
@@ -527,9 +527,7 @@ export function IndependentConfigurationsLab({
                   {p.locked ? "ln f" : "n ln f"}
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 600 }}>
-                  {p.locked
-                    ? fixed(Math.log(evaluation.locked.value), 6)
-                    : fixed(evaluation.independentProbability.lnW, 6)}
+                  {fixed(evaluation.probability.lnW, 6)}
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
                   Proportional to the entropy difference ΔS / k<sub>B</sub>
@@ -543,12 +541,14 @@ export function IndependentConfigurationsLab({
                   {p.locked ? "ln f" : "n ln(V/V₀)"}
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 600 }}>
-                  {p.locked
-                    ? fixed(Math.log(evaluation.locked.value), 6)
-                    : fixed(evaluation.independentProbability.deltaSOverKb, 6)}
+                  {fixed(evaluation.probability.deltaSOverKb, 6)}
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
-                  Matches Wien-regime radiation entropy S − S₀ = (E / hν) k<sub>B</sub> ln(V/V₀)
+                  {p.locked ? (
+                    "One collective coordinate; the independent-particle exponent is absent."
+                  ) : (
+                    <>Matches Wien-regime radiation entropy S − S₀ = (E / hν) k<sub>B</sub> ln(V/V₀)</>
+                  )}
                 </td>
               </tr>
               <tr style={{ borderBottom: "1px solid var(--line)" }}>
@@ -559,9 +559,7 @@ export function IndependentConfigurationsLab({
                   {p.locked ? "log₁₀ f" : "n log₁₀ f"}
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)" }}>
-                  {p.locked
-                    ? fixed(Math.log10(evaluation.locked.value), 6)
-                    : fixed(evaluation.independentProbability.log10W, 6)}
+                  {fixed(evaluation.probability.log10W, 6)}
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
                   Order of magnitude (for example 10⁻¹⁸ at n = 60)

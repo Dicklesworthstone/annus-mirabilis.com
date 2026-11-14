@@ -39,30 +39,44 @@ function bigIntComb(n: number, k: number): bigint {
   return num / den;
 }
 
+/** Preserve the admitted decimal fraction instead of rounding it to six places. */
+export function configurationFraction(f: number): Readonly<{ p: bigint; q: bigint }> {
+  const cells = Math.round(1 / f);
+  if (Number.isSafeInteger(cells) && cells > 0 && 1 / cells === f) {
+    return { p: 1n, q: BigInt(cells) };
+  }
+  const [mantissa = "0", exponent = "0"] = String(f).split("e");
+  const [whole = "0", fractional = ""] = mantissa.split(".");
+  const places = fractional.length - Number(exponent);
+  let p = BigInt(whole + fractional) * 10n ** BigInt(Math.max(0, -places));
+  let q = 10n ** BigInt(Math.max(0, places));
+  let a = p;
+  let b = q;
+  while (b !== 0n) [a, b] = [b, a % b];
+  if (a !== 0n) {
+    p /= a;
+    q /= a;
+  }
+  return { p, q };
+}
+
+/** Divide bounded leading digits before applying scale; huge exact counts need not fit a double. */
+function probabilityRatio(numerator: bigint, denominator: bigint): number {
+  if (numerator === 0n) return 0;
+  const n = numerator.toString();
+  const d = denominator.toString();
+  const headN = n.slice(0, 16);
+  const headD = d.slice(0, 16);
+  return (
+    (Number(headN) / Number(headD)) *
+    10 ** (n.length - headN.length - (d.length - headD.length))
+  );
+}
+
 /** Exact binomial distribution of points inside volume fraction f. */
 export function binomialInside(n: number, f: number | { p: bigint; q: bigint }): CountDistribution {
-  let pBig: bigint;
-  let qBig: bigint;
-  let fNum: number;
-
-  if (typeof f === "object") {
-    pBig = f.p;
-    qBig = f.q;
-    fNum = Number(f.p) / Number(f.q);
-  } else {
-    fNum = f;
-    // Retain the existing LQ-05 numeric-input conversion contract.
-    if (f === 0.5) {
-      pBig = 1n;
-      qBig = 2n;
-    } else if (f === 0.25) {
-      pBig = 1n;
-      qBig = 4n;
-    } else {
-      pBig = BigInt(Math.round(f * 1e6));
-      qBig = 1000000n;
-    }
-  }
+  const { p: pBig, q: qBig } = typeof f === "object" ? f : configurationFraction(f);
+  const fNum = typeof f === "object" ? probabilityRatio(f.p, f.q) : f;
 
   const denomTotal = bigIntPow(qBig, n);
   const qMinusP = qBig - pBig;
@@ -73,7 +87,7 @@ export function binomialInside(n: number, f: number | { p: bigint; q: bigint }):
     terms.push({
       k,
       exactProbability: { numerator: num, denominator: denomTotal },
-      probability: Number(num) / Number(denomTotal),
+      probability: probabilityRatio(num, denomTotal),
     });
   }
   return { n, f: fNum, terms };
@@ -90,6 +104,9 @@ export function lockedPositionsProbability(
   value: number;
   linearRepresentable: true;
   modelNote: string;
+  lnW: number;
+  log10W: number;
+  deltaSOverKb: number;
 }> {
   return {
     status: "value",
@@ -98,5 +115,25 @@ export function lockedPositionsProbability(
     value: f,
     linearRepresentable: true,
     modelNote: "perfectly locked positions have probability f that all lie in fraction f",
+    lnW: Math.log(f),
+    log10W: Math.log10(f),
+    deltaSOverKb: Math.log(f),
+  };
+}
+
+/** A coincident locked group has only two outcomes: every point outside, or every point inside. */
+export function lockedPointsInside(n: number, f: number): CountDistribution {
+  const { p, q } = configurationFraction(f);
+  return {
+    n,
+    f,
+    terms: Array.from({ length: n + 1 }, (_, k) => {
+      const numerator = k === n ? p : k === 0 ? q - p : 0n;
+      return {
+        k,
+        exactProbability: { numerator, denominator: q },
+        probability: probabilityRatio(numerator, q),
+      };
+    }),
   };
 }

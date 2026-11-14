@@ -61,7 +61,7 @@ describe("LQ-05 UI components and route", () => {
     expect(htmlIndep).toContain("W = f<sup>n</sup>");
     expect(htmlLocked).toContain("W<sub>locked</sub> = f");
     for (const html of [htmlIndep, htmlLocked]) expect(html).not.toMatch(/ⁿ|W_locked/);
-    expect(htmlLocked).toContain("Locked cluster (rigidly coupled)");
+    expect(htmlLocked).toContain("Locked points (one shared position)");
   });
 
   test("IndependentConfigurationsLab renders laboratory root with data attributes and noscript fallback", () => {

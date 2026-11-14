@@ -8,7 +8,13 @@ import { createPhiloxStream } from "../philox.ts";
 import { packLogRepresentation } from "./representability.ts";
 import type { EnumerationOutcome, Rational, SeededPointSamplingResult } from "./types.ts";
 
-export { binomialInside, lockedPositionsProbability } from "./configurationCounts.ts";
+import { configurationFraction } from "./configurationCounts.ts";
+
+export {
+  binomialInside,
+  lockedPointsInside,
+  lockedPositionsProbability,
+} from "./configurationCounts.ts";
 
 export const ENUMERATION_BUDGET_MAX_CONFIGURATIONS = 1048576; // 2^20
 
@@ -102,6 +108,51 @@ export function enumerateConfigurations(n: number, cells: number): EnumerationOu
   };
 }
 
+/**
+ * Count configurations for the actual admitted fraction p/q. A locked group has one
+ * placement coordinate; n independent points have n. Never round f to a different cell.
+ */
+export function enumerateFractionConfigurations(
+  n: number,
+  f: number,
+  locked = false,
+): EnumerationOutcome {
+  const { p, q } = configurationFraction(f);
+  const coordinates = locked ? 1 : n;
+  const total = bigIntPow(q, coordinates);
+  if (total > BigInt(ENUMERATION_BUDGET_MAX_CONFIGURATIONS)) {
+    const requested = Number(total);
+    const exactWorkCount = Number.isSafeInteger(requested);
+    return {
+      status: "execution-outcome",
+      outcome: {
+        outcome: "budget-exhausted",
+        ...executionOutcomeRegistry["budget-exhausted"],
+        // Above safe integer precision, report a proven lower bound and preserve the exact
+        // count in details. A work counter must not turn into Infinity or a rounded answer.
+        requested: {
+          workUnits: exactWorkCount ? requested : ENUMERATION_BUDGET_MAX_CONFIGURATIONS + 1,
+          allocationBytes: 0,
+        },
+        allowed: { workUnits: ENUMERATION_BUDGET_MAX_CONFIGURATIONS, allocationBytes: 0 },
+        details: {
+          requestedConfigurations: total.toString(),
+          requestedWorkIsLowerBound: !exactWorkCount,
+        },
+      },
+    };
+  }
+  const favorable = bigIntPow(p, coordinates);
+  return {
+    status: "value",
+    n,
+    cells: Number(q),
+    totalConfigurations: Number(total),
+    favorableConfigurations: Number(favorable),
+    probability: Number(favorable) / Number(total),
+  };
+}
+
 export type SeededSamplingInput = Readonly<{
   n: number;
   f: number;
@@ -111,27 +162,29 @@ export type SeededSamplingInput = Readonly<{
   allocationId?: string | undefined;
 }>;
 
-/**
- * Seeded sampling of independent point placements through Philox stream (LQ-05).
- */
-export function sampleIndependentPoints(input: SeededSamplingInput): SeededPointSamplingResult {
+/** Shared draw loop; each dependence model declares its placement count and stream domain. */
+function samplePlacements(
+  input: SeededSamplingInput,
+  drawsPerTrial: number,
+  tileMask: number,
+  defaultAllocationId: string,
+): SeededPointSamplingResult {
   const { n, f, trials } = input;
   const streamKernelId = input.streamKernelId ?? 0x19050005;
-  const allocationId = input.allocationId ?? "lq-05.configuration.v1";
+  const allocationId = input.allocationId ?? defaultAllocationId;
   const seed = typeof input.seed === "bigint" ? input.seed.toString() : input.seed;
 
   let successCount = 0;
-  const drawsPerTrial = n;
 
   for (let t = 0; t < trials; t++) {
     const stream = createPhiloxStream({
       seed,
       kernel: streamKernelId,
-      tile: t,
+      tile: (t | tileMask) >>> 0,
     });
 
     let allInside = true;
-    for (let p = 0; p < n; p++) {
+    for (let p = 0; p < drawsPerTrial; p++) {
       const u = stream.nextF64();
       if (u >= f) {
         allInside = false;
@@ -154,4 +207,14 @@ export function sampleIndependentPoints(input: SeededSamplingInput): SeededPoint
     allocationId,
     seed,
   };
+}
+
+/** Seeded independent point placements, preserving the registered configuration stream. */
+export function sampleIndependentPoints(input: SeededSamplingInput): SeededPointSamplingResult {
+  return samplePlacements(input, input.n, 0, "lq-05.configuration.v1");
+}
+
+/** One placement per trial in the registered locked-position stream domain. */
+export function sampleLockedPoints(input: SeededSamplingInput): SeededPointSamplingResult {
+  return samplePlacements(input, 1, 0x80000000, "lq-05.locked.v1");
 }
