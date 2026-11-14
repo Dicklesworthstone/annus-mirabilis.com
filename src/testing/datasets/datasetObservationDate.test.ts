@@ -32,22 +32,20 @@ function fixture(evidence: Record<string, unknown>): Record<string, unknown> {
 }
 
 describe("invalid-observation-date-availability", () => {
-  test("accept: (experiment.ts:4161) preserves sourced absence without manufacturing a date or changing the shelf", () => {
-    const record = validateHistoricalDataset(fixture({ observationDateUnavailable: unavailable }));
-    expect(record.series?.[0]?.observationDateUnavailable).toEqual(unavailable);
-    expect(record.series?.[0]?.observationDate).toBeUndefined();
-    expect(record.publications[0]?.publicationDate.earliest).toBe("1900-01-01");
-    expect(getDatasetShelfStatus(record).eligible).toBe(true);
-    expect(Object.isFrozen(record.series?.[0]?.observationDateUnavailable)).toBe(true);
-  });
-
   test("silent omission stays absent so the corpus audit can report it", () => {
     const record = validateHistoricalDataset(fixture({}));
     expect(record.series?.[0]?.observationDate).toBeUndefined();
     expect(record.series?.[0]?.observationDateUnavailable).toBeUndefined();
   });
 
-  test("reject: (experiment.ts:4161) empty or unsourced explanations and a publication-date substitution alongside missingness", () => {
+  test("accept/reject: (experiment.ts:4161) preserves sourced absence and refuses unsourced explanations or a date substitution alongside missingness", () => {
+    const record = validateHistoricalDataset(fixture({ observationDateUnavailable: unavailable }));
+    expect(record.series?.[0]?.observationDateUnavailable).toEqual(unavailable);
+    expect(record.series?.[0]?.observationDate).toBeUndefined();
+    expect(record.publications[0]?.publicationDate.earliest).toBe("1900-01-01");
+    expect(getDatasetShelfStatus(record).eligible).toBe(true);
+    expect(Object.isFrozen(record.series?.[0]?.observationDateUnavailable)).toBe(true);
+
     const base = fixture({});
     const publicationDate = (base.publications as { publicationDate: unknown }[])[0]
       ?.publicationDate;
