@@ -69,6 +69,11 @@ jobs:
           src/testing/scheduler*.test.ts
           src/testing/concurrency.test.ts
           src/testing/readerViewLoaders.integration.test.tsx
+          src/a11y/readingSettings/readingOnlyLifecycle.test.tsx
+          src/reader/notebook/exerciseEntry.test.ts
+          src/reader/notebook/teachBackEntry.test.ts
+          src/components/discover/SavedExerciseResponse.test.tsx
+          src/components/foundations/FieldWaveSamples.test.tsx
           src/experiments/shelfOptics
           src/experiments/bm01
           src/experiments/bm08

@@ -37,9 +37,7 @@ export function ReadingOnlyView({
     const sync = () => {
       const next = readingOnlyProp ?? readReadingOnlyFlag();
       setGate((previous) =>
-        previous.readingOnly === next
-          ? previous
-          : { readingOnly: next, explicitLoad: false },
+        previous.readingOnly === next ? previous : { readingOnly: next, explicitLoad: false },
       );
     };
     sync();
@@ -61,9 +59,7 @@ export function ReadingOnlyView({
 
   return (
     <div
-      data-reading-only-instrument={
-        readingOnly === null ? "pending" : readingOnly ? "on" : "off"
-      }
+      data-reading-only-instrument={readingOnly === null ? "pending" : readingOnly ? "on" : "off"}
     >
       {!showLive && readingOnly !== null && (
         <p>
