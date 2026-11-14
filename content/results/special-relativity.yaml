@@ -67,8 +67,10 @@ cards:
 
   - id: sr-synchronous-clocks
     support:
-      kind: "no-checked-proof"
-      reason: "The clock-synchronization procedure is defined and explained in the linked passages; no checked derivation record covers its consequences."
+      kind: "checked-proof"
+      proofId: "sr-synchronization-midpoint"
+      conclusion: "eq-model-sr-sync-midpoint"
+      scope: "The midpoint reading follows by exact algebra after adopting the equal-travel-time definition. This does not measure either one-way light speed, establish a universal light speed, or prove consistency for an entire clock network."
     title: "Synchronous clocks and the time of a distant event"
     section: s1
     arguments: [arg-sr-synchronization]

@@ -4,6 +4,7 @@ export const RESULT_PROOF_IDS = [
   "lq-entropy-energy-scale",
   "me-ledger-elimination",
   "me-low-speed-coefficient",
+  "sr-synchronization-midpoint",
   "sr-light-complex-energy",
   "sr-electron-force-conventions",
   "sr-electron-work",

@@ -19,6 +19,8 @@ import densityRecord from "../../../content/equations/special-relativity/eq-mode
 import energyRecord from "../../../content/equations/special-relativity/eq-model-sr-light-energy.json";
 import volumeRecord from "../../../content/equations/special-relativity/eq-model-sr-light-volume.json";
 import longitudinalRecord from "../../../content/equations/special-relativity/eq-model-sr-longitudinal-mass.json";
+import syncCriterionRecord from "../../../content/equations/special-relativity/eq-model-sr-sync-equal-legs.json";
+import syncMidpointRecord from "../../../content/equations/special-relativity/eq-model-sr-sync-midpoint.json";
 import laboratoryRecord from "../../../content/equations/special-relativity/eq-model-sr-transverse-mass-laboratory.json";
 import printedRecord from "../../../content/equations/special-relativity/eq-model-sr-transverse-mass-printed.json";
 import type { Expression } from "../../equations/ast.ts";
@@ -35,6 +37,7 @@ import {
   srElectronWork,
 } from "../../equations/derivations/srElectron.ts";
 import { srLightComplexDerivation } from "../../equations/derivations/srLightComplex.ts";
+import { srSynchronizationChain } from "../../equations/derivations/srSynchronization.ts";
 import { structurallyEqual } from "../../equations/derivations/treeUtils.ts";
 import type { DerivationChain } from "../../equations/derivations/types.ts";
 import { type ChainVerificationReport, verifyChain } from "../../equations/derivations/verifyChain.ts";
@@ -166,6 +169,39 @@ const DERIVATION_PROOFS: Readonly<Record<DerivationProofId, DerivationProof>> = 
         explanation:
           "V/V₀ is positive and different from one, so ln(V/V₀) is nonzero. Equal volumes " +
           "give zero entropy change on both sides and cannot identify an effective count.",
+      },
+    ],
+  },
+  "sr-synchronization-midpoint": {
+    paper: "special-relativity",
+    conclusion: syncMidpointRecord.id,
+    title: "Follow the synchronization definition to the midpoint reading",
+    href: "/papers/special-relativity/s1/#sr-synchronization-derivation",
+    records: [syncCriterionRecord, syncMidpointRecord],
+    chains: [srSynchronizationChain],
+    premises: [
+      {
+        id: "arg-sr-synchronization",
+        label: "Adopt the equal-travel-time definition",
+        explanation:
+          "Assign equal duration to the outward and return light journeys. The reading at B " +
+          "is defined by that choice; the round-trip readings at A do not measure either " +
+          "one-way duration independently.",
+      },
+      {
+        id: "sr-synchronization-stationary-clocks-common-rate",
+        label: "Compare clocks at rest with a common rate",
+        explanation:
+          "A and B are at rest in the same inertial system, and their clock readings use " +
+          "the same time unit and rate. This calculation sets B's offset for one round trip.",
+      },
+      {
+        id: "sr-synchronization-return-after-departure",
+        label: "The signal returns after it leaves",
+        explanation:
+          "A records departure and return locally, with the return later than departure. " +
+          "The assigned reflection reading is halfway between those two readings, " +
+          "including when the departure reading is not zero.",
       },
     ],
   },
