@@ -30,6 +30,7 @@ import { KEPT_RESULT } from "../keptResult.ts";
 import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { readablePowers } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
+import { ClockObserverView } from "./ClockObserverView.tsx";
 import "./sr05.css";
 
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
@@ -50,7 +51,7 @@ export type MovingClocksLabProps = Readonly<{
    */
   restoreFromLocation?: boolean | undefined;
   highlightPaper?: boolean | undefined;
-  /** Restoring a form uses the retained accepted snapshot, without issuing a new calculation. */
+  /** A chapter may capture the retained result only after both refused forms are resolved. */
   onValidationStateChange?: ((state: "invalid" | "restored") => void) | undefined;
 }>;
 
@@ -104,7 +105,12 @@ type ClockDraft = Readonly<{
 }>;
 
 /** Draft text is separate from the accepted scientific settings, including blank fields. */
-function clockDraft(parameters: Sr05Parameters): ClockDraft {
+function clockDraft(
+  parameters: Pick<
+    Sr05Parameters,
+    "speed" | "worldlinePreset" | "coordinateDuration" | "lightClockArm"
+  >,
+): ClockDraft {
   return {
     speed: String(parameters.speed),
     worldlinePreset: parameters.worldlinePreset,
@@ -130,18 +136,30 @@ export function MovingClocksLab({
   const [draft, setDraft] = useState(() => clockDraft(session.acceptedParameters()));
   const [failure, setFailure] = useState<ApplyFailure | null>(null);
   const [restored, setRestored] = useState(false);
+  const [observerDraft, setObserverDraft] = useState(() =>
+    String(session.acceptedParameters().frameOfDescription),
+  );
+  const [observerFailure, setObserverFailure] = useState<ApplyFailure | null>(null);
+  const [observerNotice, setObserverNotice] = useState("");
   const [ready, setReady] = useState(false);
   const acceptedParameters = (view.accepted?.parameters ??
     session.acceptedParameters()) as Sr05Parameters;
+  const { speed, worldlinePreset, coordinateDuration, lightClockArm, frameOfDescription } =
+    acceptedParameters;
 
   useEffect(() => setReady(true), []);
   // Presets, a shared session and restored tapes all publish through this same owner. Only an
   // accepted change replaces the form; typing or a refusal never changes the displayed results.
   useEffect(() => {
-    setDraft(clockDraft(acceptedParameters));
+    setDraft(clockDraft({ speed, worldlinePreset, coordinateDuration, lightClockArm }));
     setFailure(null);
     setRestored(false);
-  }, [acceptedParameters]);
+    setObserverNotice("");
+  }, [speed, worldlinePreset, coordinateDuration, lightClockArm]);
+  useEffect(() => {
+    setObserverDraft(String(frameOfDescription));
+    setObserverFailure(null);
+  }, [frameOfDescription]);
 
   /** A shared tape restores the owner; its accepted settings also synchronize the form above. */
   const tapeLink = useLabTapeLink(
@@ -151,6 +169,12 @@ export function MovingClocksLab({
     true,
     (restored, predictions) => {
       setDraft(clockDraft(restored));
+      setFailure(null);
+      setRestored(false);
+      setObserverDraft(String(restored.frameOfDescription));
+      setObserverFailure(null);
+      setObserverNotice("");
+      onValidationStateChange?.("restored");
       gate.restore(predictions ?? []);
     },
     { restoreFromLocation },
@@ -197,14 +221,25 @@ export function MovingClocksLab({
       ? "no clock reading is available for these settings."
       : `a clock moving at ${fmt(params.speed)}c${route}: the platform clocks read ${fmt(coordinateTime)} s while it reads ${fmt(properTime)} s.`;
 
-  function apply(parameters: unknown) {
+  function apply(parameters: unknown, replaceObserverDraft = false) {
     setRestored(false);
     try {
       const failed = applyFailure(session.apply(parameters));
       setFailure(failed);
-      if (!failed) setDraft(clockDraft(session.acceptedParameters()));
+      onValidationStateChange?.(
+        failed || (!replaceObserverDraft && observerFailure) ? "invalid" : "restored",
+      );
+      if (!failed) {
+        setDraft(clockDraft(session.acceptedParameters()));
+        if (replaceObserverDraft) {
+          setObserverDraft(String(session.acceptedParameters().frameOfDescription));
+          setObserverFailure(null);
+          setObserverNotice("");
+        }
+      }
     } catch (error) {
       setFailure(failureFromThrown(error, "These settings could not be calculated."));
+      onValidationStateChange?.("invalid");
     }
   }
 
@@ -223,8 +258,29 @@ export function MovingClocksLab({
     setDraft(clockDraft(session.acceptedParameters()));
     setFailure(null);
     setRestored(true);
-    onValidationStateChange?.("restored");
+    onValidationStateChange?.(observerFailure ? "invalid" : "restored");
   }
+
+  function submitObserver(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setObserverNotice("");
+    try {
+      const failed = applyFailure(session.apply({ frameOfDescription: typedOrNaN(observerDraft) }));
+      setObserverFailure(failed);
+      onValidationStateChange?.(failed || failure ? "invalid" : "restored");
+      if (!failed) {
+        setObserverDraft(String(session.acceptedParameters().frameOfDescription));
+        setObserverNotice(
+          "Observer coordinates updated for the same trip; the events and local clock readings are unchanged.",
+        );
+      }
+    } catch (error) {
+      setObserverFailure(failureFromThrown(error, "This observer could not be calculated."));
+      onValidationStateChange?.("invalid");
+    }
+  }
+
+  const activeFailure = observerFailure ?? failure;
 
   return (
     <section
@@ -243,7 +299,7 @@ export function MovingClocksLab({
         <ExecutionChrome
           state={executionKind}
           view={view}
-          validationRefusal={failure?.kind === "refused" ? failure.refusal : null}
+          validationRefusal={activeFailure?.kind === "refused" ? activeFailure.refusal : null}
         />
       </div>
 
@@ -365,7 +421,7 @@ export function MovingClocksLab({
                     className="secondary"
                     data-preset-id={id}
                     aria-pressed={params !== undefined && paramsMatch(params, preset.parameters)}
-                    onClick={() => apply(preset.parameters)}
+                    onClick={() => apply(preset.parameters, true)}
                   >
                     {preset.label}
                   </button>
@@ -373,6 +429,73 @@ export function MovingClocksLab({
               })}
             </div>
           </fieldset>
+          <form
+            onSubmit={submitObserver}
+            noValidate
+            aria-label="Moving clock observer"
+            aria-describedby={
+              observerFailure ? `${instanceId}-observer-error` : `${instanceId}-observer-note`
+            }
+          >
+            <fieldset className="lab-choice" disabled={!ready}>
+              <legend>Describe the same trip from another frame</legend>
+              <div className="input-field">
+                <label htmlFor={`${instanceId}-observer`}>
+                  Observer speed v/c <span>(from −0.95 to 0.95)</span>
+                </label>
+                <input
+                  id={`${instanceId}-observer`}
+                  name="frameOfDescription"
+                  type="text"
+                  inputMode="decimal"
+                  value={observerDraft}
+                  aria-invalid={observerFailure ? true : undefined}
+                  aria-describedby={
+                    observerFailure ? `${instanceId}-observer-error` : `${instanceId}-observer-note`
+                  }
+                  onChange={(event) => {
+                    setObserverDraft(event.target.value);
+                    setObserverNotice("");
+                  }}
+                />
+              </div>
+              <p className="fine" id={`${instanceId}-observer-note`}>
+                The observer moves along the platform’s x axis. Applying this changes only the
+                coordinates of the accepted trip; unfinished trip settings stay in their boxes.
+              </p>
+              <div className="actions">
+                <button type="submit">Apply observer</button>
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() => {
+                    setObserverDraft(String(session.acceptedParameters().frameOfDescription));
+                    setObserverFailure(null);
+                    setObserverNotice("");
+                    onValidationStateChange?.(failure ? "invalid" : "restored");
+                  }}
+                >
+                  Use accepted observer
+                </button>
+              </div>
+            </fieldset>
+            {observerFailure && (
+              <div
+                id={`${instanceId}-observer-error`}
+                className="notice"
+                role="alert"
+                data-refusal-code={failureCode(observerFailure)}
+                data-apply-failure={observerFailure.kind}
+              >
+                <p>
+                  {observerFailure.text} {KEPT_RESULT}
+                </p>
+              </div>
+            )}
+            <p role="status" aria-live="polite" aria-atomic="true" data-observer-notice>
+              {observerNotice}
+            </p>
+          </form>
           {params ? (
             <dl className="reading-grid">
               <dt>Clock speed (fraction of c)</dt>
@@ -525,10 +648,19 @@ export function MovingClocksLab({
       </div>
 
       <div {...gate.response}>
+        <ClockObserverView
+          outputs={outputs}
+          preset={params.worldlinePreset}
+          beta={params.frameOfDescription}
+          id={`${instanceId}-observer-events`}
+        />
+      </div>
+
+      <div {...gate.response}>
         <SessionResultWeave
           session={session}
           binding={SR05_READER_WEAVE}
-          suspended={failure !== null}
+          suspended={failure !== null || observerFailure !== null}
           announcementsEnabled={gate.open}
           highlightPaper={highlightPaper}
         />

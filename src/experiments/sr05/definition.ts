@@ -1,5 +1,6 @@
 import { notModeledFor } from "../notModeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
+import { SR05_OBSERVER_OUTPUTS } from "./observer.ts";
 export type WorldlinePreset = "inertial" | "out-and-back" | "circle";
 
 export const WORLDLINE_PRESETS: readonly WorldlinePreset[] = Object.freeze([
@@ -53,6 +54,7 @@ const c = (
   Object.freeze({ unit, semanticKind, ownerId, statuses: Object.freeze([...statuses]) });
 
 export const SR05_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.freeze({
+  ...SR05_OBSERVER_OUTPUTS,
   speed: c("1", "signed-frame-speed", "sr05.acceptedInputs"),
   coordinateDuration: c("s", "coordinate-time", "sr05.acceptedInputs"),
   lightClockArm: c("ls", "length", "sr05.acceptedInputs"),

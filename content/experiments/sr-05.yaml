@@ -9,8 +9,11 @@ title: "SR-05: Moving clocks"
 explanatoryQuestion: "How much less time does a moving clock record than the clocks it passes, and does a clock that goes out and comes back show the difference when they meet again?"
 sourceRefs:
   - paper: special-relativity
+    id: s3
+  - paper: special-relativity
     id: s4
 argumentIds:
+  - arg-sr-lorentz-map
   - arg-sr-clock-and-length
   - arg-sr-transported-clock
 schemaVersion: 1
@@ -147,9 +150,36 @@ outputs:
     allowedStatuses:
       - value
       - outside-domain
+  - id: eventTimesK
+    quantityId: coordinateTimeStationary
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: eventPositionsK
+    quantityId: coordinatePositionStationary
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: eventClockReadings
+    quantityId: properTimeElapsed
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: eventTimesObserver
+    quantityId: coordinateTimeMoving
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: eventPositionsObserver
+    quantityId: coordinatePositionMoving
+    allowedStatuses:
+      - value
+      - outside-domain
 assumptions:
   - "Ideal clocks whose rate depends only on their speed, special-relativistic kinematics, and one inertial platform whose synchronized clocks the moving clock is compared with."
   - "A reunion compares readings at one place; readings at separated places are not compared across frames."
+  - "Named events are fixed by the trip in K. An inertial frame moving along K's x axis assigns new coordinates using the Lorentz transformation, with origins coincident and origin-clock readings zero at departure."
+  - "The circular preset makes one complete revolution in the x-y plane. The x-t diagrams mark events without joining them; overlapping projections may still differ in y."
   - "Modern SI constants."
 admittedDomain: "Signed clock and frame speeds within 0.95c, coordinate durations from 10^-9 to 10^9 s, light-clock arms from 10^-9 to 1000 light-seconds. The equator remark is an illustrative limit of the model, not a prediction for the Earth."
 notModeled:
@@ -187,6 +217,14 @@ owner:
       language: ts
       module: "src/experiments/sr05/worldline.ts"
       exportName: "reciprocalRates"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/experiments/sr05/observer.ts"
+      exportName: "clockEvents"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/events.ts"
+      exportName: "redescribe"
   identifierBindings:
     - kernelFunction: properTimeAlongLegs
       identifier: "properTime"
@@ -209,6 +247,18 @@ owner:
     - kernelFunction: lightClockTicks
       identifier: "coordinateTick"
       quantityId: eventSeparationTemporalStationary
+    - kernelFunction: clockEvents
+      identifier: "speed"
+      quantityId: clockSpeedStationary
+    - kernelFunction: clockEvents
+      identifier: "coordinateDuration"
+      quantityId: coordinateTimeStationary
+    - kernelFunction: clockEvents
+      identifier: "ownClockReading"
+      quantityId: properTimeElapsed
+    - kernelFunction: redescribe
+      identifier: "beta"
+      quantityId: frameSpeed
 views:
   - id: clock-readings
     kind: table
@@ -224,7 +274,41 @@ views:
     consumes:
       - lightClockProperTick
       - lightClockCoordinateTick
+  - id: fixed-clock-events
+    kind: table
+    consumes:
+      - eventTimesK
+      - eventPositionsK
+      - eventClockReadings
+      - eventTimesObserver
+      - eventPositionsObserver
+  - id: event-coordinate-projections
+    kind: svg
+    consumes:
+      - eventTimesK
+      - eventPositionsK
+      - eventTimesObserver
+      - eventPositionsObserver
 actions:
+  - actionId: sr-05-redescribe-clock-events
+    family: observer
+    question: "Which event coordinates change with the observer, and which clock readings stay the same?"
+    inputs:
+      - frameOfDescription
+    commandClass: observer-change
+    acceptedResult:
+      outputs:
+        - eventTimesK
+        - eventPositionsK
+        - eventClockReadings
+        - eventTimesObserver
+        - eventPositionsObserver
+      allowedStatuses:
+        - value
+        - outside-domain
+    visualAffordance: "Apply the observer speed to compare the same named events in two x-t coordinate diagrams without restarting the trip"
+    equivalentAffordance: "Type an observer speed and read every named event's own-clock reading and both coordinate assignments in the table; circular events include y"
+    announcement: "Observer coordinates updated for the same trip; the events and local clock readings are unchanged"
   - actionId: sr-05-choose-worldline
     family: clock-event
     question: "What does the travelling clock read when it meets the platform clock again, compared with the platform's time?"

@@ -38,3 +38,48 @@
   background: var(--wash);
   margin-top: 1rem;
 }
+
+.sr05-observer-plots {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: 1rem;
+}
+
+.sr05-event-plot {
+  margin: 0;
+  min-width: 0;
+}
+
+.sr05-event-plot svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.sr05-event-axis {
+  stroke: var(--muted);
+  stroke-width: 1;
+}
+
+.sr05-event-platform {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+.sr05-event-traveller {
+  fill: var(--accent);
+  stroke: var(--ink);
+  stroke-width: 1;
+}
+
+.sr05-event-table {
+  max-width: 100%;
+  overflow-x: auto;
+  margin-block: 1rem;
+}
+
+.sr05-event-table th,
+.sr05-event-table td {
+  white-space: nowrap;
+}

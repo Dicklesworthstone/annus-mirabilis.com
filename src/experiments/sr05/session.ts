@@ -2,6 +2,7 @@ import { parseResult } from "../results/codec.ts";
 import type { ScientificResult } from "../results/types.ts";
 import { createInstanceStore, type Parameters } from "../store/instanceStore.ts";
 import { SR05_CLASSES, SR05_OUTPUTS, type Sr05Parameters } from "./definition.ts";
+import { observerResults } from "./observer.ts";
 import { validateSr05Parameters } from "./parameters.ts";
 import {
   dilationLossPerSecond,
@@ -330,6 +331,7 @@ export function evaluateSr05(p: Sr05Parameters): ScientificResult[] {
     });
   }
 
+  outputs.push(...observerResults(p));
   return outputs;
 }
 
@@ -389,7 +391,8 @@ export function createSr05Session(instanceId: string, example?: PreparedSr05Exam
       else setup[key] = parameters[key];
     }
 
-    let request = newRun || Object.keys(setup).length ? store.issue("setup-change", setup) : null;
+    const changedSetup = newRun || Object.keys(setup).length > 0;
+    let request = changedSetup ? store.issue("setup-change", setup) : null;
     if (Object.keys(observer).length) request = store.issue("observer-change", observer);
     if (Object.keys(presentation).length)
       request = store.issue("presentation-change", presentation);
@@ -399,7 +402,7 @@ export function createSr05Session(instanceId: string, example?: PreparedSr05Exam
     store.publish({
       ...request,
       outputs: computedOutputs,
-      stepIndex: (store.getSnapshot().accepted?.stepIndex ?? 0) + 1,
+      stepIndex: (store.getSnapshot().accepted?.stepIndex ?? 0) + (changedSetup ? 1 : 0),
       simulationTime: 0,
       final: true,
     });

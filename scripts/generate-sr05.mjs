@@ -46,7 +46,13 @@ export async function generateSr05() {
     parameters,
     stepIndex: snapshot.stepIndex,
     simulationTime: 0,
-    results: snapshot.outputs.map(encodeResult),
+    results: snapshot.outputs.map((output) =>
+      encodeResult(
+        output.status === "value" && typeof output.value !== "number"
+          ? { ...output, value: output.value.copy() }
+          : output,
+      ),
+    ),
   };
 
   await mkdir(resolve(root, "src/generated"), { recursive: true });
