@@ -68,7 +68,7 @@ function ForcePicture({
       aria-labelledby={id + "-title " + id + "-description"}
     >
       <title id={id + "-title"}>
-        {title}: {forceDirection(force)}
+        {`${title}: ${forceDirection(force)}`}
       </title>
       <desc id={id + "-description"}>
         The horizontal axis is the x component and the vertical axis is the y component. Every
