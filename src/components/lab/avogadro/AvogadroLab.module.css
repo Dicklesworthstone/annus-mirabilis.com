@@ -70,3 +70,19 @@
   font-weight: 400;
   color: var(--muted);
 }
+
+.observations {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.4rem 1rem;
+}
+.observations dt {
+  font-weight: 600;
+}
+.observations dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.sourceDigest {
+  overflow-wrap: anywhere;
+}

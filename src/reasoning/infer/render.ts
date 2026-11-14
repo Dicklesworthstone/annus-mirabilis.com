@@ -146,5 +146,5 @@ export function renderInferenceWorkbench(example: InferenceExample, uid: string)
   return `<div class="inference-workbench" data-infer-workbench data-ready="false" data-source-digest="${e(example.sourceDigest)}"><noscript><p class="notice">JavaScript is off. Both fixed-data families, the complete tables, and the optional worked solutions remain readable. Applying a new information choice requires JavaScript.</p></noscript>
 ${renderRadiusCase(example.ideal, uid)}
 ${renderCameraCase(example.camera, uid)}
-<section class="reading" data-infer-companion><h2>A different kind of second measurement</h2><p>The second measurement, from the viscosity of dilute solutions, is in preparation.</p></section></div>`;
+<section class="reading" data-infer-companion><h2>A different kind of second measurement</h2><p>A separate viscosity observation can identify both the solute radius and molecular number because it constrains a different power of the radius. <a href="/lab/avogadro-lab/#identify-two-observations">Pin illustrative observations and admit the second relation in the molecular-number laboratory.</a> Withhold it again to recover the compatible family without changing either observation.</p><p>This companion preview uses illustrative inputs. The historical dissertation datasets and their reconstruction remain in preparation.</p></section></div>`;
 }

@@ -1,0 +1,33 @@
+# New observable combinations in the illustrative viscosity–diffusion identification workbench.
+# These are derived quantities of the admitted model, not historical measurements or constants.
+- id: radiusCubedTimesMolecularNumber
+  name: Compatible radius cubed times molecular number
+  description: >
+    The product N a³ constrained by the relative viscosity excess of a dilute solution at
+    independently supplied molar concentration and a declared coefficient of volume fraction.
+    It is distinct from radiusNumberProduct (N a), which diffusion constrains. Neither product
+    alone identifies both the solute radius and molecular number.
+  dimensionStatus: declared
+  dimension: [3, 0, 0, 0, 0, -1]
+  permittedUnits:
+    - unit: m3/mol
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: relativeSpecificViscosityResidual
+  name: Relative residual of the specific viscosity
+  description: >
+    Predicted minus recorded relative viscosity excess, divided by the recorded excess, for a
+    candidate radius and molecular number. This dimensionless model residual tests compatibility
+    with the independently admitted viscosity observation. It is not measurement uncertainty or
+    a statistical significance, and is unavailable when the observation is withheld, its model
+    is not admitted, or the candidate exceeds the dilute model's volume-fraction ceiling.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  permittedUnits:
+    - unit: "1"
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical

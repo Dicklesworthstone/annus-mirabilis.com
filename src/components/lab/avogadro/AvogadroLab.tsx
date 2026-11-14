@@ -30,6 +30,7 @@ import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { LabMargin } from "../LabMargin.tsx";
 import { display, identity, result, unitText } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
+import { AvogadroIdentification } from "./AvogadroIdentification.tsx";
 import styles from "./AvogadroLab.module.css";
 import { AvogadroSensitivity } from "./AvogadroSensitivity.tsx";
 
@@ -331,7 +332,9 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
               role="alert"
               data-apply-failure={error.kind}
               data-refusal-code={failureCode(error)}
-              data-execution-outcome={error.kind === "unavailable" ? error.outcome.outcome : undefined}
+              data-execution-outcome={
+                error.kind === "unavailable" ? error.outcome.outcome : undefined
+              }
             >
               {withScripts(error.text)} The last accepted example remains displayed.
             </p>
@@ -444,6 +447,7 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
         authored illustrative observations. No historical measurement dataset is claimed here.
       </p>
       <p className="fine">{basis.provenance}</p>
+      <AvogadroIdentification snapshot={snapshot} sourceDigest={sourceDigest} ready={ready} />
       <AvogadroSensitivity
         parameters={accepted}
         snapshotVersion={snapshot.snapshotVersion}
