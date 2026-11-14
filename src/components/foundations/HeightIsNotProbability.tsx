@@ -1,208 +1,395 @@
-import { useId } from "react";
+"use client";
+
+import { useId, useState } from "react";
 import {
-  BIN,
-  binDensityPerMetre,
-  binDensityPerMicrometre,
-  binProbability,
-  FLAT_SPANS,
-  flatDensity,
-} from "../../foundations/bridgeFigures.ts";
+  DEFAULT_HISTOGRAM_BOUNDARIES,
+  DEFAULT_HISTOGRAM_OBSERVATIONS,
+  type HistogramUnit,
+  INITIAL_HISTOGRAM,
+  type ObservationRefusal,
+  projectHistogram,
+  readHistogram,
+} from "../../foundations/observations.ts";
+import { exponentialSpoken, exponentialText } from "../../units/scientific.ts";
+import { Sci, SciSvg } from "../lab/Sci.tsx";
 import { type HeadingLevel, headingTag } from "./headingLevel.ts";
+import "./observationWorkbench.css";
 
-/**
- * The two pictures foundation:distributions argues with and never drew (dispatch 420).
- *
- * The lesson was 3,950 visible characters and its title is a denial: "Density is not probability".
- * A denial is the hardest thing to carry in prose alone, because the reader has to hold both the
- * thing and its negation, and the page gave them nothing to look at.
- *
- * Two panels, each attacking the same claim from a different side, both drawn from numbers the
- * lesson already prints. The first is one bin labelled in two units: the height reads 0.15 per
- * micrometre or 150,000 per metre depending only on the ruler, while the area it encloses is 0.3
- * either way. The second is one unit of probability spread over four micrometres and then over
- * two: the height doubles and the area does not move. Between them they say what the stopping
- * point says, that only the area over an interval is a probability.
- *
- * The two rectangles in the second panel are drawn on one density scale and one length scale, so
- * "twice as tall over half the width" is literally true of the pixels and not only of the caption.
- */
-
-const W = 300;
-
-/** Panel one: a single bin, labelled twice. */
-const A_H = 168,
-  A_LEFT = 84,
-  A_RIGHT = 216,
-  A_BASE = 124,
-  A_TOP = 54;
-
-/** Panel two: one unit of probability over two spans, on one scale. */
-const B_H = 200,
-  B_X0 = 40,
-  B_PER_MICROMETRE = 48,
-  B_PER_DENSITY = 120;
-const bx = (micrometres: number) => B_X0 + micrometres * B_PER_MICROMETRE;
-const ROWS = [
-  { base: 84, span: FLAT_SPANS[0] },
-  { base: 174, span: FLAT_SPANS[1] },
-] as const;
+const rounded = (value: number) => Number(value.toPrecision(4));
+const spoken = (value: number) => exponentialSpoken(rounded(value));
+const textNumber = (value: number) => exponentialText(rounded(value));
 
 export function HeightIsNotProbability({
   headingLevel = 3,
 }: {
   readonly headingLevel?: HeadingLevel;
 }) {
-  const headingId = useId(),
-    Title = headingTag(headingLevel),
-    Sub = headingTag(headingLevel, 1);
-  const probability = binProbability();
-  const perMicrometre = binDensityPerMicrometre();
-  const perMetre = binDensityPerMetre().toLocaleString("en-GB");
+  const id = useId();
+  const Title = headingTag(headingLevel);
+  const Sub = headingTag(headingLevel, 1);
+  const [histogram, setHistogram] = useState(INITIAL_HISTOGRAM);
+  const [draftObservations, setDraftObservations] = useState(DEFAULT_HISTOGRAM_OBSERVATIONS);
+  const [draftBoundaries, setDraftBoundaries] = useState(DEFAULT_HISTOGRAM_BOUNDARIES);
+  const [accepted, setAccepted] = useState({
+    observations: DEFAULT_HISTOGRAM_OBSERVATIONS,
+    boundaries: DEFAULT_HISTOGRAM_BOUNDARIES,
+  });
+  const [error, setError] = useState<ObservationRefusal | null>(null);
+  const [unit, setUnit] = useState<HistogramUnit>("micrometre");
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const projection = projectHistogram(histogram, unit);
+  const metres = projectHistogram(histogram, "metre");
+  const selected = projection.bins[selectedIndex];
+  const selectedMicrometres = histogram.bins[selectedIndex];
+  const selectedMetres = metres.bins[selectedIndex];
+  const pending =
+    draftObservations !== accepted.observations || draftBoundaries !== accepted.boundaries;
+
+  function apply(observations: string, boundaries: string) {
+    const result = readHistogram(observations, boundaries);
+    if (result.kind === "invalid") {
+      setError(result);
+      return;
+    }
+    setHistogram(result.histogram);
+    setDraftObservations(observations);
+    setDraftBoundaries(boundaries);
+    setAccepted({ observations, boundaries });
+    setSelectedIndex(0);
+    setError(null);
+  }
+
+  const low = Math.min(...projection.bins.map((bin) => bin.lower));
+  const high = Math.max(...projection.bins.map((bin) => bin.upper));
+  const maxDensity = Math.max(...projection.bins.map((bin) => bin.density));
+  const x = (value: number) => 40 + ((value - low) / (high - low)) * 320;
+  const y = (value: number) => 174 - (value / maxDensity) * 116;
 
   return (
     <section
-      className="foundation-construction"
-      aria-labelledby={headingId}
+      className="foundation-construction observation-workbench"
+      aria-labelledby={`${id}-title`}
       data-foundation-construction="distributions"
     >
-      <Title id={headingId} className="construction-title">
+      <Title id={`${id}-title`} className="construction-title">
         The height moves, the area does not
       </Title>
       <p>
-        One bin, holding {BIN.inBin} of the {BIN.particles} particles. Its height is written twice,
-        in two units of length; what it encloses is written once.
+        Place observations into intervals. Each bar has area equal to its share of the observations:
+        its height is that share divided by its width. Try unequal widths, then change the ruler
+        from micrometres to metres.
       </p>
-
-      <svg
-        className="bridge-figure"
-        viewBox={`0 0 ${W} ${A_H}`}
-        role="img"
-        aria-label={`A single bar standing on a ${BIN.micrometres} micrometre stretch of ruler, holding ${BIN.inBin} of ${BIN.particles} particles. Its height is labelled both ${perMicrometre} per micrometre and ${perMetre} per metre, the same height under two units of length, and the area it encloses is labelled ${probability} under either.`}
+      <form
+        className="construction-controls observation-entry"
+        noValidate
+        onSubmit={(event) => {
+          event.preventDefault();
+          apply(draftObservations, draftBoundaries);
+        }}
       >
-        {/* Two lines, not one: the single sentence ran 324 units wide in a 300-unit viewBox and
-            would have been clipped, which the label audit caught. */}
-        <text className="bridge-number" x={W / 2} y={24} textAnchor="middle">
-          height: {perMicrometre} per μm
-        </text>
-        <text className="bridge-number" x={W / 2} y={40} textAnchor="middle">
-          or {perMetre} per metre
-        </text>
-        <line className="bridge-tick" x1={A_LEFT - 10} y1={A_TOP} x2={A_RIGHT + 10} y2={A_TOP} />
-        <rect
-          className="bridge-bar-share"
-          x={A_LEFT}
-          y={A_TOP}
-          width={A_RIGHT - A_LEFT}
-          height={A_BASE - A_TOP}
+        <label htmlFor={`${id}-observations`}>Observed displacements in micrometres (µm)</label>
+        <textarea
+          id={`${id}-observations`}
+          name="observations"
+          rows={2}
+          value={draftObservations}
+          maxLength={4096}
+          aria-invalid={error?.field === "observations" ? true : undefined}
+          aria-describedby={`${id}-help${error?.field === "observations" ? ` ${id}-error` : ""}`}
+          onInput={(event) => {
+            setDraftObservations(event.currentTarget.value);
+            setError(null);
+          }}
         />
-        <rect
-          className="bridge-bar-whole"
-          x={A_LEFT}
-          y={A_TOP}
-          width={A_RIGHT - A_LEFT}
-          height={A_BASE - A_TOP}
+        <label htmlFor={`${id}-boundaries`}>
+          Bin boundaries in micrometres (µm), in increasing order
+        </label>
+        <textarea
+          id={`${id}-boundaries`}
+          name="boundaries"
+          rows={2}
+          value={draftBoundaries}
+          maxLength={4096}
+          aria-invalid={error?.field === "boundaries" ? true : undefined}
+          aria-describedby={`${id}-help ${id}-boundary-help${error?.field === "boundaries" ? ` ${id}-error` : ""}`}
+          onInput={(event) => {
+            setDraftBoundaries(event.currentTarget.value);
+            setError(null);
+          }}
         />
-        <text
-          className="bridge-axis-name"
-          x={(A_LEFT + A_RIGHT) / 2}
-          y={A_BASE - 34}
-          textAnchor="middle"
+        <p id={`${id}-help`} className="fine">
+          Use 1 to 32 observations and 2 to 13 boundaries, separated by commas or spaces. Numbers
+          must be between −1000 and 1000 µm; nonzero magnitudes must be at least 0.000001 µm.
+        </p>
+        <p id={`${id}-boundary-help`} className="fine">
+          Every observation must fit between the first and last boundaries. Bin widths must be at
+          least 0.000001 µm. A boundary belongs to the bin on its right; the last bin includes its
+          right edge too. The initial observations are invented.
+        </p>
+        <div className="observation-actions">
+          <button type="submit">Apply observations and bins</button>
+          <button
+            type="button"
+            className="secondary"
+            onClick={() => apply(DEFAULT_HISTOGRAM_OBSERVATIONS, DEFAULT_HISTOGRAM_BOUNDARIES)}
+          >
+            Equal-width example
+          </button>
+          <button
+            type="button"
+            className="secondary"
+            onClick={() => apply(DEFAULT_HISTOGRAM_OBSERVATIONS, "0, 2, 3, 8")}
+          >
+            Unequal-width example
+          </button>
+        </div>
+        {error ? (
+          <p id={`${id}-error`} role="alert">
+            {error.reason} The last accepted histogram is still shown.
+          </p>
+        ) : null}
+        {pending && !error ? (
+          <p className="fine">
+            Apply both entries to update the histogram and its table together. The current drawing
+            still uses the last accepted observations and bins.
+          </p>
+        ) : null}
+      </form>
+
+      <div className="observation-choices">
+        <label htmlFor={`${id}-unit`}>Ruler for the display</label>
+        <select
+          id={`${id}-unit`}
+          name="histogram-unit"
+          value={unit}
+          onChange={(event) => {
+            const value = event.currentTarget.value;
+            if (value === "micrometre" || value === "metre") setUnit(value);
+          }}
         >
-          area {probability}
-        </text>
-        <line className="bridge-axis" x1={20} y1={A_BASE} x2={280} y2={A_BASE} />
-        {[A_LEFT, A_RIGHT].map((tick) => (
-          <line
-            key={tick}
-            className="bridge-tick"
-            x1={tick}
-            y1={A_BASE}
-            x2={tick}
-            y2={A_BASE + 8}
-          />
-        ))}
-        <text className="bridge-number" x={W / 2} y={A_BASE + 24} textAnchor="middle">
-          {BIN.micrometres} μm bin, {BIN.inBin} of {BIN.particles} particles
-        </text>
-        <text className="bridge-axis-name" x={W / 2} y={A_H - 6} textAnchor="middle">
-          along the ruler
-        </text>
-      </svg>
-
-      <p className="fine">
-        Change the ruler from micrometres to metres and the height is multiplied by a million. The
-        bin still holds {probability} of the particles. A number that moves when you change the
-        ruler was never the probability.
+          <option value="micrometre">Micrometres (µm)</option>
+          <option value="metre">Metres (m)</option>
+        </select>
+        <label htmlFor={`${id}-selected`}>Bin to inspect</label>
+        <select
+          id={`${id}-selected`}
+          name="histogram-bin"
+          value={selectedIndex}
+          onChange={(event) => {
+            const value = Number(event.currentTarget.value);
+            if (projection.bins.some((bin) => bin.index === value)) setSelectedIndex(value);
+          }}
+        >
+          {projection.bins.map((bin) => (
+            <option key={bin.index} value={bin.index}>
+              Bin {bin.index + 1}: {textNumber(bin.lower)} to {textNumber(bin.upper)}{" "}
+              {projection.symbol}
+            </option>
+          ))}
+        </select>
+      </div>
+      <p role="status" aria-atomic="true">
+        {histogram.count} observations in {histogram.bins.length} bins. Total share{" "}
+        <Sci value={rounded(histogram.totalProbability)} />. Heights are per {unit}.
+        {selected ? (
+          <>
+            {" "}
+            Selected bin {selected.index + 1}: {selected.count} observations, share{" "}
+            <Sci value={rounded(selected.probability)} />.
+          </>
+        ) : null}
       </p>
-
-      <p>
-        The same the other way round: one whole unit of probability, spread over {FLAT_SPANS[0]} μm
-        and then squeezed into {FLAT_SPANS[1]}.
-      </p>
-
       <svg
-        className="bridge-figure"
-        viewBox={`0 0 ${W} ${B_H}`}
+        className="bridge-figure observation-figure"
+        viewBox="0 0 400 245"
         role="img"
-        aria-label={`Two rectangles drawn on one scale. The upper is ${FLAT_SPANS[0]} micrometres wide and ${flatDensity(FLAT_SPANS[0])} per micrometre tall. The lower is ${FLAT_SPANS[1]} micrometres wide, half as wide, and ${flatDensity(FLAT_SPANS[1])} per micrometre tall, twice as tall. Both enclose an area of 1, so both hold the whole probability.`}
+        aria-label={`A histogram of ${histogram.count} entered observations in ${histogram.bins.length} intervals. Horizontal distances are in ${unit}s and heights are probability density per ${unit}. Bar widths follow the entered boundaries, so area gives the share in each interval. Bin ${histogram.tallestBin + 1} reaches a greatest height and bin ${histogram.largestShareBin + 1} holds a greatest share. The table gives every count, width, height, and area.`}
       >
-        <text className="bridge-axis-name" x="2" y="14">
-          chance per micrometre
+        <text className="bridge-axis-name" x={40} y={19}>
+          density per {unit}
         </text>
-        {ROWS.map((row) => {
-          const density = flatDensity(row.span);
-          const top = row.base - density * B_PER_DENSITY;
-          return (
-            <g key={row.span}>
-              <rect
-                className="bridge-bar-share"
-                x={bx(0)}
-                y={top}
-                width={bx(row.span) - bx(0)}
-                height={row.base - top}
-              />
-              <rect
-                className="bridge-bar-whole"
-                x={bx(0)}
-                y={top}
-                width={bx(row.span) - bx(0)}
-                height={row.base - top}
-              />
-              <line className="bridge-axis" x1={bx(0) - 14} y1={row.base} x2={280} y2={row.base} />
-              <text className="bridge-number" x={bx(0) + 6} y={top - 6}>
-                {density} per μm over {row.span} μm
-              </text>
+        <text className="bridge-number" x={40} y={40}>
+          highest <SciSvg value={rounded(maxDensity)} />
+        </text>
+        {projection.bins.map((bin) => (
+          <g key={bin.index}>
+            <rect
+              className={`bridge-bar${bin.index === selectedIndex ? " observation-selected-bin" : ""}`}
+              x={x(bin.lower)}
+              y={y(bin.density)}
+              width={x(bin.upper) - x(bin.lower)}
+              height={174 - y(bin.density)}
+            />
+            {x(bin.upper) - x(bin.lower) > 18 ? (
               <text
-                className="bridge-axis-name"
-                x={(bx(0) + bx(row.span)) / 2}
-                y={row.base - 10}
+                className="bridge-number"
+                x={(x(bin.lower) + x(bin.upper)) / 2}
+                y={194}
                 textAnchor="middle"
               >
-                area 1
+                {bin.index + 1}
               </text>
-            </g>
-          );
-        })}
-        <text className="bridge-axis-name" x={W / 2} y={B_H - 6} textAnchor="middle">
-          micrometres
+            ) : null}
+          </g>
+        ))}
+        <line className="bridge-axis" x1={40} y1={174} x2={360} y2={174} />
+        <line className="bridge-axis" x1={40} y1={50} x2={40} y2={174} />
+        <text className="bridge-number" x={40} y={215} textAnchor="start">
+          <SciSvg value={rounded(low)} />
+        </text>
+        <text className="bridge-number" x={360} y={215} textAnchor="end">
+          <SciSvg value={rounded(high)} />
+        </text>
+        <text className="bridge-axis-name" x={200} y={239} textAnchor="middle">
+          displacement ({projection.symbol}); bin numbers below bars
         </text>
       </svg>
 
+      {selected && selectedMicrometres && selectedMetres ? (
+        <>
+          <dl className="readout-grid observation-readouts">
+            <dt>Selected bin</dt>
+            <dd data-histogram-output="selected">{selected.index + 1}</dd>
+            <dt>Observations in the bin</dt>
+            <dd data-histogram-output="count">
+              {selected.count} of {histogram.count}
+            </dd>
+            <dt>Bin width</dt>
+            <dd data-histogram-output="width">
+              <Sci value={rounded(selected.width)} /> {projection.symbol}
+            </dd>
+            <dt>Probability density</dt>
+            <dd data-histogram-output="density">
+              <Sci value={rounded(selected.density)} /> per {unit}
+            </dd>
+            <dt>Share of observations</dt>
+            <dd data-histogram-output="probability">
+              <Sci value={rounded(selected.probability)} />
+            </dd>
+            <dt>Area: density × width</dt>
+            <dd data-histogram-output="area">
+              <Sci value={rounded(selected.area)} />
+            </dd>
+          </dl>
+          <svg
+            className="bridge-figure observation-figure"
+            viewBox="0 0 400 210"
+            role="img"
+            aria-label={`Selected bin ${selected.index + 1}, shown as one rectangle under two rulers. Its width is ${spoken(selectedMicrometres.width)} micrometres or ${spoken(selectedMetres.width)} metres. Its density is ${spoken(selectedMicrometres.density)} per micrometre or ${spoken(selectedMetres.density)} per metre. Multiplying either width by its matching density gives the same dimensionless area ${spoken(selected.probability)}. This schematic is labelled with the accepted bin values; its pixel size is fixed.`}
+          >
+            <text className="bridge-number" x={200} y={24} textAnchor="middle">
+              height <SciSvg value={rounded(selectedMicrometres.density)} /> per µm
+            </text>
+            <text className="bridge-number" x={200} y={47} textAnchor="middle">
+              or <SciSvg value={rounded(selectedMetres.density)} /> per m
+            </text>
+            {selected.count > 0 ? (
+              <rect className="bridge-bar" x={96} y={62} width={208} height={80} />
+            ) : (
+              <line className="bridge-axis" x1={96} y1={142} x2={304} y2={142} />
+            )}
+            <text className="bridge-axis-name" x={200} y={108} textAnchor="middle">
+              area <SciSvg value={rounded(selected.probability)} />
+            </text>
+            <line className="bridge-axis" x1={72} y1={142} x2={328} y2={142} />
+            <text className="bridge-number" x={200} y={166} textAnchor="middle">
+              width <SciSvg value={rounded(selectedMicrometres.width)} /> µm
+            </text>
+            <text className="bridge-number" x={200} y={190} textAnchor="middle">
+              or <SciSvg value={rounded(selectedMetres.width)} /> m
+            </text>
+          </svg>
+          <p className="fine">
+            The selected-bin diagram is a labelled schematic. Changing units multiplies density by a
+            million and divides width by a million. Its area and its count stay fixed.
+          </p>
+        </>
+      ) : null}
+
+      <section
+        className="construction-table-wrap"
+        aria-labelledby={`${id}-table`}
+        // biome-ignore lint/a11y/noNoninteractiveTabindex: keyboard readers need to scroll the off-screen columns of this labelled table region.
+        tabIndex={0}
+      >
+        <table>
+          <caption id={`${id}-table`}>Every accepted bin, using {unit}s for length</caption>
+          <thead>
+            <tr>
+              <th scope="col">Bin</th>
+              <th scope="col">Interval ({projection.symbol})</th>
+              <th scope="col">Count</th>
+              <th scope="col">Width ({projection.symbol})</th>
+              <th scope="col">Density (per {unit})</th>
+              <th scope="col">Share</th>
+              <th scope="col">Area</th>
+            </tr>
+          </thead>
+          <tbody>
+            {projection.bins.map((bin) => (
+              <tr key={bin.index} data-histogram-row={bin.index}>
+                <th scope="row">{bin.index + 1}</th>
+                <td>
+                  <Sci value={rounded(bin.lower)} /> ≤ x {bin.includesUpper ? "≤" : "<"}{" "}
+                  <Sci value={rounded(bin.upper)} />
+                </td>
+                <td>{bin.count}</td>
+                <td>
+                  <Sci value={rounded(bin.width)} />
+                </td>
+                <td>
+                  <Sci value={rounded(bin.density)} />
+                </td>
+                <td>
+                  <Sci value={rounded(bin.probability)} />
+                </td>
+                <td>
+                  <Sci value={rounded(bin.area)} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr>
+              <th scope="row" colSpan={2}>
+                Total
+              </th>
+              <td>{histogram.count}</td>
+              <td colSpan={2}>All observations included</td>
+              <td>
+                <Sci value={rounded(histogram.totalProbability)} />
+              </td>
+              <td>
+                <Sci value={rounded(histogram.totalProbability)} />
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </section>
+      <p className="fine">
+        Numbers are rounded to four significant figures. Counts and calculations use the entered
+        values; rounded rows may not add to exactly one.
+      </p>
       <div className="construction-text-equivalent">
         <Sub>What it shows, in words</Sub>
         <p>
-          The first drawing is one {BIN.micrometres} micrometre bin holding {BIN.inBin} of{" "}
-          {BIN.particles} particles. Measured per micrometre its height is {perMicrometre}; measured
-          per metre the same height is {perMetre}. Nothing about the particles changed between those
-          two numbers, only the ruler. The area the bar encloses is {probability} under either, and
-          that is the bin's probability.
+          Every observation is counted once. A bin's share is its count divided by {histogram.count}
+          . Its density is that share divided by the bin width, and multiplying height by width
+          recovers the share. A density may exceed one; the share stays between zero and one.
         </p>
         <p>
-          The second drawing is one whole unit of probability twice over. Spread across{" "}
-          {FLAT_SPANS[0]} micrometres it stands {flatDensity(FLAT_SPANS[0])} per micrometre tall;
-          squeezed into {FLAT_SPANS[1]} it stands {flatDensity(FLAT_SPANS[1])}, exactly twice as
-          tall over half the width. The two rectangles enclose the same area, 1, because it is the
-          same probability. The height was never the probability; the area always was.
+          Bin {histogram.tallestBin + 1} reaches a greatest height. Bin{" "}
+          {histogram.largestShareBin + 1} contains a greatest share.
+          {histogram.tallestBin !== histogram.largestShareBin
+            ? " They differ here: the tallest bar does not contain the most observations."
+            : " Try the unequal-width example: a narrow bar can be taller while enclosing a smaller share."}{" "}
+          The same physical interval has the same share when its ruler changes.
+        </p>
+        <p>
+          These bars describe the entered observations. A bin's share is the probability of landing
+          in that bin if one of those observations is chosen uniformly. Inferring a continuous
+          distribution or a probability for a future observation needs a model and evidence beyond
+          this histogram. The bars do not reveal where within a bin its observations lie.
         </p>
       </div>
     </section>

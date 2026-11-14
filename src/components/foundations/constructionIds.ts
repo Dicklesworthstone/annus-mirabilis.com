@@ -98,6 +98,8 @@ export const CONSTRUCTIONS_WITH_CONTROLS: readonly FoundationConstructionId[] = 
   // A reader sets a power and a surface and the push answers (dispatch 468).
   "momentum-energy-light",
   "probability-independence",
+  "mean-variance-rms",
+  "distributions",
 ];
 
 /** The construction id for a foundation, with or without its `foundation:` prefix, or null. */

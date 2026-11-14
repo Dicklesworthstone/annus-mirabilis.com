@@ -1,0 +1,45 @@
+.observation-workbench {
+  min-width: 0;
+}
+
+.observation-entry > label,
+.observation-choices > label {
+  display: block;
+  margin-block: 0.75rem 0.5rem;
+}
+
+.observation-entry textarea {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  padding: 0.5rem;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  resize: vertical;
+}
+
+.observation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.observation-choices select {
+  max-width: 100%;
+}
+
+.observation-figure.bridge-figure {
+  max-width: 28rem;
+}
+
+.observation-selected-bin {
+  stroke-width: 3;
+}
+
+.observation-readouts {
+  margin-block: 1rem;
+}

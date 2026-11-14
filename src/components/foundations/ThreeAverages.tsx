@@ -1,176 +1,298 @@
-import { useId } from "react";
+"use client";
+
+import { useId, useState } from "react";
 import {
-  average,
-  meanDistance,
-  meanSquare,
-  PARTICLE_ENDS,
-  PRINTED_RMS,
-} from "../../foundations/bridgeFigures.ts";
+  DEFAULT_OBSERVATIONS,
+  INITIAL_OBSERVATION_SUMMARY,
+  readObservations,
+} from "../../foundations/observations.ts";
+import { exponentialSpoken } from "../../units/scientific.ts";
+import { Sci, SciSvg } from "../lab/Sci.tsx";
 import { type HeadingLevel, headingTag } from "./headingLevel.ts";
+import "./observationWorkbench.css";
 
-/**
- * The three answers foundation:mean-variance-rms gives to one question (dispatch 444).
- *
- * The lesson asks which average shows how far particles got and answers with three, none of which
- * the page drew. Its four displacements are already drawn twice elsewhere, as bars in
- * bridge-a-graph and as squares in bridge-squaring-square-roots, so this draws the part neither
- * does: the three statistics laid on one scale of distance, where the gap between them is the
- * whole lesson.
- *
- * The mean square is deliberately NOT on that scale. It is 5 square micrometres, an area, and
- * putting it beside two lengths would be the error the lesson exists to prevent; taking its square
- * root is what brings it back to a distance.
- */
-
-const A_W = 300,
-  A_H = 148,
-  A_MID = 150,
-  A_UNIT = 30,
-  A_SPAN = 4,
-  A_AXIS = 92;
-const ax = (u: number) => A_MID + u * A_UNIT;
-
-const B_W = 300,
-  B_H = 152,
-  B_LEFT = 40,
-  B_PER_UNIT = 60,
-  B_AXIS = 104;
-const bx = (d: number) => B_LEFT + d * B_PER_UNIT;
+// Display rounding only. Every computation and plot position uses the accepted, unrounded data.
+const rounded = (value: number) => Number(value.toPrecision(4));
+const spoken = (value: number) => exponentialSpoken(rounded(value));
 
 export function ThreeAverages({ headingLevel = 3 }: { readonly headingLevel?: HeadingLevel }) {
-  const headingId = useId(),
-    Title = headingTag(headingLevel),
-    Sub = headingTag(headingLevel, 1);
-  const mean = average(PARTICLE_ENDS);
-  const distance = meanDistance(PARTICLE_ENDS);
-  const squares = meanSquare(PARTICLE_ENDS);
+  const id = useId();
+  const Title = headingTag(headingLevel);
+  const Sub = headingTag(headingLevel, 1);
+  const [summary, setSummary] = useState(INITIAL_OBSERVATION_SUMMARY);
+  const [draft, setDraft] = useState(DEFAULT_OBSERVATIONS);
+  const [acceptedText, setAcceptedText] = useState(DEFAULT_OBSERVATIONS);
+  const [error, setError] = useState("");
+
+  function apply(text: string) {
+    const result = readObservations(text);
+    if (result.kind === "invalid") {
+      setError(result.reason);
+      return;
+    }
+    setSummary(result.summary);
+    setDraft(text);
+    setAcceptedText(text);
+    setError("");
+  }
+
+  const low = Math.min(0, ...summary.values);
+  const high = Math.max(0, ...summary.values);
+  const padding = (high - low || 1) * 0.1;
+  const x = (value: number) => 38 + ((value - low + padding) / (high - low + 2 * padding)) * 324;
+  const axis = 42 + summary.count * 12;
+  const lengths = [
+    { label: "Signed mean", value: summary.mean },
+    { label: "Mean distance", value: summary.meanAbsolute },
+    { label: "RMS", value: summary.rms },
+    { label: "Standard deviation", value: summary.standardDeviation },
+  ];
+  const lengthLow = Math.min(0, summary.mean);
+  const lengthHigh = Math.max(summary.rms, summary.standardDeviation, 0);
+  const lengthSpan = lengthHigh - lengthLow || 1;
+  const lengthX = (value: number) => 164 + ((value - lengthLow) / lengthSpan) * 212;
 
   return (
     <section
-      className="foundation-construction"
-      aria-labelledby={headingId}
+      className="foundation-construction observation-workbench"
+      aria-labelledby={`${id}-title`}
       data-foundation-construction="mean-variance-rms"
     >
-      <Title id={headingId} className="construction-title">
+      <Title id={`${id}-title`} className="construction-title">
         One question, three answers
       </Title>
       <p>
-        The four displacements the lesson counts, on a ruler through the start. Two went left and
-        two went right, by matching amounts.
+        Enter signed displacements from a common start. Compare the average position, average
+        distance, and root mean square. Then move the whole sample to see why spread around its own
+        mean is a different question.
       </p>
-
-      <svg
-        className="bridge-figure"
-        viewBox={`0 0 ${A_W} ${A_H}`}
-        role="img"
-        aria-label={`Four points on a ruler numbered from minus four to plus four micrometres, at ${PARTICLE_ENDS.join(", ")}. Two lie left of zero and two right of it, at matching distances, and a mark under zero shows that their average position is ${mean}.`}
+      <form
+        className="construction-controls observation-entry"
+        noValidate
+        onSubmit={(event) => {
+          event.preventDefault();
+          apply(draft);
+        }}
       >
-        {PARTICLE_ENDS.map((u) => (
-          <circle key={u} className="bridge-dot" cx={ax(u)} cy={54} r="5" />
-        ))}
-        <line className="bridge-axis" x1={ax(-A_SPAN)} y1={A_AXIS} x2={ax(A_SPAN)} y2={A_AXIS} />
-        {[-4, -3, -2, -1, 0, 1, 2, 3, 4].map((u) => (
-          <line
-            key={u}
-            className="bridge-tick"
-            x1={ax(u)}
-            y1={A_AXIS}
-            x2={ax(u)}
-            y2={A_AXIS + (u === 0 ? 10 : 5)}
-          />
-        ))}
-        {[-3, 0, 3].map((u) => (
-          <text key={u} className="bridge-number" x={ax(u)} y={A_AXIS + 24} textAnchor="middle">
-            {u > 0 ? `+${u}` : u}
-          </text>
-        ))}
-        <path
-          className="bridge-marker"
-          d={`M ${ax(mean) - 7} ${A_AXIS + 34} L ${ax(mean) + 7} ${A_AXIS + 34} L ${ax(mean)} ${A_AXIS + 24} Z`}
+        <label htmlFor={`${id}-observations`}>Displacements in micrometres (µm)</label>
+        <textarea
+          id={`${id}-observations`}
+          name="observations"
+          rows={2}
+          value={draft}
+          maxLength={4096}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={`${id}-help${error ? ` ${id}-error` : ""}`}
+          onInput={(event) => {
+            setDraft(event.currentTarget.value);
+            setError("");
+          }}
         />
-        <text className="bridge-axis-name" x={A_MID} y={A_H - 6} textAnchor="middle">
-          average position {mean}
-        </text>
-      </svg>
+        <p id={`${id}-help`} className="fine">
+          Use 1 to 32 numbers separated by commas or spaces, from −1000 to 1000 µm. A nonzero
+          magnitude must be at least 0.000001 µm. The examples are invented observations.
+        </p>
+        <div className="observation-actions">
+          <button type="submit">Apply observations</button>
+          <button type="button" className="secondary" onClick={() => apply(DEFAULT_OBSERVATIONS)}>
+            Balanced sample
+          </button>
+          <button type="button" className="secondary" onClick={() => apply("0, 2, 4, 6")}>
+            Shifted example (+3 µm)
+          </button>
+          <button type="button" className="secondary" onClick={() => apply("3, 3, 3, 3")}>
+            All at 3 µm
+          </button>
+        </div>
+        {error ? (
+          <p id={`${id}-error`} role="alert">
+            {error} The last accepted sample is still shown.
+          </p>
+        ) : null}
+        {draft !== acceptedText && !error ? (
+          <p className="fine">
+            Apply the edited observations to update the drawings, averages, and table together.
+          </p>
+        ) : null}
+      </form>
 
-      <p>
-        Now the three averages on one scale of distance from the start. They are three different
-        numbers because they answer three different questions.
+      <p role="status" aria-atomic="true">
+        {summary.count} observations: mean <Sci value={rounded(summary.mean)} /> µm, RMS{" "}
+        <Sci value={rounded(summary.rms)} /> µm, standard deviation{" "}
+        <Sci value={rounded(summary.standardDeviation)} /> µm.
       </p>
-
       <svg
-        className="bridge-figure"
-        viewBox={`0 0 ${B_W} ${B_H}`}
+        className="bridge-figure observation-figure"
+        viewBox={`0 0 400 ${axis + 58}`}
         role="img"
-        aria-label={`A scale of distance from the start running from 0 to 4 micrometres, with three marks on it. The average position sits at ${mean}. The average distance, ignoring sign, sits at ${distance}. The root mean square sits at about ${PRINTED_RMS}, a little beyond it. The mean square itself is ${squares} square micrometres and is not on this scale, because it is an area rather than a distance.`}
+        aria-label={`${summary.count} entered observations, each on its own row, measured in micrometres from the same zero. Their signed mean is ${spoken(summary.mean)} micrometres, shown by the dashed line. Every observation and its deviation from that mean is listed in the table below.`}
       >
-        <line className="bridge-axis" x1={bx(0)} y1={B_AXIS} x2={bx(4)} y2={B_AXIS} />
-        {[0, 1, 2, 3, 4].map((d) => (
-          <g key={d}>
-            <line className="bridge-tick" x1={bx(d)} y1={B_AXIS} x2={bx(d)} y2={B_AXIS + 6} />
-            <text className="bridge-number" x={bx(d)} y={B_AXIS + 22} textAnchor="middle">
-              {d}
+        <line className="bridge-grid" x1={x(0)} y1={18} x2={x(0)} y2={axis} />
+        <line className="bridge-step" x1={x(summary.mean)} y1={18} x2={x(summary.mean)} y2={axis} />
+        {summary.rows.map((row) => (
+          <g key={row.index}>
+            <text className="bridge-number" x={8} y={32 + row.index * 12}>
+              {row.index + 1}
+            </text>
+            <circle className="bridge-dot" cx={x(row.value)} cy={28 + row.index * 12} r={4} />
+          </g>
+        ))}
+        <line className="bridge-axis" x1={28} y1={axis} x2={372} y2={axis} />
+        {[...new Set([low, 0, high])].map((value) => (
+          <g key={value}>
+            <line className="bridge-tick" x1={x(value)} y1={axis} x2={x(value)} y2={axis + 6} />
+            <text className="bridge-number" x={x(value)} y={axis + 24} textAnchor="middle">
+              <SciSvg value={rounded(value)} />
             </text>
           </g>
         ))}
-        {/* Staggered, because the last two sit a fifth of a micrometre apart. */}
-        <line className="bridge-step" x1={bx(mean)} y1={B_AXIS} x2={bx(mean)} y2={78} />
-        <circle className="bridge-dot" cx={bx(mean)} cy={B_AXIS} r="5" />
-        <text className="bridge-number" x={bx(mean)} y={70} textAnchor="middle">
-          mean {mean}
-        </text>
-
-        <line className="bridge-step" x1={bx(distance)} y1={B_AXIS} x2={bx(distance)} y2={56} />
-        <circle className="bridge-dot" cx={bx(distance)} cy={B_AXIS} r="5" />
-        <text className="bridge-number" x={bx(distance)} y={48} textAnchor="middle">
-          mean distance {distance}
-        </text>
-
-        <line
-          className="bridge-step"
-          x1={bx(PRINTED_RMS)}
-          y1={B_AXIS}
-          x2={bx(PRINTED_RMS)}
-          y2={30}
-        />
-        <circle className="bridge-dot" cx={bx(PRINTED_RMS)} cy={B_AXIS} r="5" />
-        <text className="bridge-number" x={bx(PRINTED_RMS)} y={22} textAnchor="middle">
-          RMS {PRINTED_RMS}
-        </text>
-
-        <text className="bridge-axis-name" x={B_W / 2} y={B_H - 6} textAnchor="middle">
-          micrometres from the start
+        <text className="bridge-axis-name" x={200} y={axis + 49} textAnchor="middle">
+          displacement from the start (µm)
         </text>
       </svg>
 
-      <p className="fine">
-        The mean square, {squares} square micrometres, is not on that scale and could not be: it is
-        an area. Taking its square root is what brings it back to a distance, and that root, about{" "}
-        {PRINTED_RMS}, sits a little beyond the average distance of {distance}.
-      </p>
+      <svg
+        className="bridge-figure observation-figure"
+        viewBox="0 0 400 202"
+        role="img"
+        aria-label={`Four lengths compared on one micrometre scale. The signed mean is ${spoken(summary.mean)}, mean distance is ${spoken(summary.meanAbsolute)}, root mean square is ${spoken(summary.rms)}, and standard deviation is ${spoken(summary.standardDeviation)}. RMS measures distance from zero; standard deviation measures spread around the sample mean. Squared quantities are reported separately below.`}
+      >
+        {lengths.map((entry, index) => (
+          <g key={entry.label}>
+            <text className="bridge-number" x={4} y={28 + index * 36}>
+              {entry.label}
+            </text>
+            <line
+              className="bridge-grid"
+              x1={164}
+              y1={24 + index * 36}
+              x2={376}
+              y2={24 + index * 36}
+            />
+            <line
+              className="bridge-axis"
+              x1={lengthX(0)}
+              y1={24 + index * 36}
+              x2={lengthX(entry.value)}
+              y2={24 + index * 36}
+            />
+            <circle className="bridge-dot" cx={lengthX(entry.value)} cy={24 + index * 36} r={4} />
+          </g>
+        ))}
+        <line className="bridge-step" x1={lengthX(0)} y1={12} x2={lengthX(0)} y2={155} />
+        {[...new Set([lengthLow, 0, lengthHigh])].map((value) => (
+          <text
+            key={value}
+            className="bridge-number"
+            x={lengthX(value)}
+            y={174}
+            textAnchor="middle"
+          >
+            <SciSvg value={rounded(value)} />
+          </text>
+        ))}
+        <text className="bridge-axis-name" x={270} y={197} textAnchor="middle">
+          micrometres
+        </text>
+      </svg>
 
+      <dl className="readout-grid observation-readouts">
+        <dt>Signed mean</dt>
+        <dd data-observation-output="mean">
+          <Sci value={rounded(summary.mean)} /> µm
+        </dd>
+        <dt>Mean distance from zero</dt>
+        <dd data-observation-output="mean-absolute">
+          <Sci value={rounded(summary.meanAbsolute)} /> µm
+        </dd>
+        <dt>Root mean square</dt>
+        <dd data-observation-output="rms">
+          <Sci value={rounded(summary.rms)} /> µm
+        </dd>
+        <dt>Standard deviation</dt>
+        <dd data-observation-output="standard-deviation">
+          <Sci value={rounded(summary.standardDeviation)} /> µm
+        </dd>
+        <dt>Mean square</dt>
+        <dd data-observation-output="mean-square">
+          <Sci value={rounded(summary.meanSquare)} /> µm²
+        </dd>
+        <dt>Variance around the mean</dt>
+        <dd data-observation-output="variance">
+          <Sci value={rounded(summary.variance)} /> µm²
+        </dd>
+      </dl>
+      <p>
+        Mean square = variance + squared mean: <Sci value={rounded(summary.meanSquare)} /> µm² ={" "}
+        <Sci value={rounded(summary.variance)} /> µm² + <Sci value={rounded(summary.squaredMean)} />{" "}
+        µm². Taking the square root gives RMS from the mean square, and standard deviation from the
+        variance.
+      </p>
+      <section
+        className="construction-table-wrap"
+        aria-labelledby={`${id}-table`}
+        // biome-ignore lint/a11y/noNoninteractiveTabindex: keyboard readers need to scroll the off-screen columns of this labelled table region.
+        tabIndex={0}
+      >
+        <table>
+          <caption id={`${id}-table`}>
+            Each observation and its contribution to the two squares
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Observation</th>
+              <th scope="col">Displacement (µm)</th>
+              <th scope="col">Square (µm²)</th>
+              <th scope="col">Deviation from mean (µm)</th>
+              <th scope="col">Squared deviation (µm²)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {summary.rows.map((row) => (
+              <tr key={row.index} data-observation-row={row.index}>
+                <th scope="row">{row.index + 1}</th>
+                <td>
+                  <Sci value={rounded(row.value)} />
+                </td>
+                <td>
+                  <Sci value={rounded(row.square)} />
+                </td>
+                <td>
+                  <Sci value={rounded(row.deviation)} />
+                </td>
+                <td>
+                  <Sci value={rounded(row.squaredDeviation)} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+      <p className="fine">
+        Both squared columns are averaged by dividing by {summary.count}, the number of
+        observations. This describes the entered sample; it does not use the divisor one less than
+        the sample size that appears in an unbiased variance estimate. Readouts are rounded to four
+        significant figures; calculations use the entered values.
+      </p>
       <div className="construction-text-equivalent">
         <Sub>What it shows, in words</Sub>
         <p>
-          The first drawing puts the four displacements, {PARTICLE_ENDS.join(", ")} micrometres, on
-          a ruler through the start. Two are left of zero and two right of it at matching distances,
-          so the average position is {mean}: the particles have spread out and their average has not
-          moved at all.
+          The points have mean <Sci value={rounded(summary.mean)} /> µm and variance{" "}
+          <Sci value={rounded(summary.variance)} /> µm² around that mean. Their RMS distance from
+          the start is <Sci value={rounded(summary.rms)} /> µm; their standard deviation around the
+          mean is <Sci value={rounded(summary.standardDeviation)} /> µm.
+          {summary.mean === 0
+            ? " The mean is zero here, so RMS and standard deviation coincide."
+            : " The nonzero mean contributes to RMS even when every point has the same displacement."}
         </p>
         <p>
-          The second puts three averages on one scale of distance. The average position is {mean}.
-          The average of the distances, ignoring sign, is {distance}. The root mean square is about{" "}
-          {PRINTED_RMS}, a little farther out, because squaring weighs the two particles that went
-          three micrometres more heavily than the two that went one. The mean square, {squares}{" "}
-          square micrometres, is not drawn there: it is an area, and putting it beside two lengths
-          would be the mistake the lesson exists to prevent.
+          The balanced example has mean zero and variance 5 µm². Shifting those four points by 3 µm
+          changes their mean to 3 µm and mean square to 14 µm², while variance stays 5 µm². Putting
+          all four at 3 µm makes the variance zero and the RMS 3 µm.
         </p>
         <p>
-          What it does not show: these four are one sample, not the model behind it. A small random
-          sample need not have a signed average of exactly zero even when the model's is zero, and
-          nothing in either drawing distinguishes a real cancellation from a lucky one. The root
-          mean square and the standard deviation are the same number here only because this average
-          happens to be zero; where it is not, they part company, and neither drawing shows that.
+          These are sample descriptions. They do not establish a random-motion model, prove that
+          drift is absent, or estimate an uncertainty from repeated experiments.
         </p>
       </div>
     </section>
