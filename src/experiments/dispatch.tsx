@@ -98,10 +98,13 @@ function checkWebGlContext(): boolean {
   if (typeof window === "undefined" || typeof document === "undefined") return false;
   try {
     const canvas = document.createElement("canvas");
-    return Boolean(
-      window.WebGLRenderingContext &&
-        (canvas.getContext("webgl") || canvas.getContext("experimental-webgl")),
-    );
+    if (!window.WebGLRenderingContext) return false;
+    const context = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+    if (!context) return false;
+    // A capability probe is not the view's GPU owner. Release its context immediately so
+    // repeated openings cannot exhaust the browser's context limit before a view starts.
+    (context as WebGLRenderingContext).getExtension("WEBGL_lose_context")?.loseContext();
+    return true;
   } catch {
     return false;
   }
@@ -160,6 +163,70 @@ export interface ExperimentDispatchProps {
   readonly onEnvironmentUnsupported?: ((detail: string) => void) | undefined;
   /** Injected declaration that instrument cannot honor tour presentation. */
   readonly cannotHonorTour?: boolean | undefined;
+}
+
+/** Capability probes and lazy imports belong to the live region, after its loading permission. */
+function LiveExperimentView({
+  state,
+  instanceId,
+  presentation,
+  sourceHref,
+  hasWebGl,
+  onLog,
+  onEnvironmentUnsupported,
+}: Pick<
+  ExperimentDispatchProps,
+  "instanceId" | "sourceHref" | "hasWebGl" | "onLog" | "onEnvironmentUnsupported"
+> & {
+  state: Extract<ExperimentDispatchState, { kind: "registered" }>;
+  presentation: Presentation;
+}) {
+  const address = state.mode ? `${state.id}:${state.mode}` : state.id;
+  let activeLoader: ViewLoader | undefined;
+  if (typeof state.view === "function") {
+    activeLoader = state.view;
+  } else if (state.view) {
+    const webGlAvailable = hasWebGl ?? checkWebGlContext();
+    if (webGlAvailable && state.view.webgl) {
+      activeLoader = state.view.webgl;
+    } else if (!webGlAvailable && state.view.fallback2d) {
+      onLog?.("webgl-unavailable");
+      activeLoader = state.view.fallback2d;
+    } else if (!webGlAvailable && state.view.webgl && !state.view.fallback2d) {
+      onEnvironmentUnsupported?.("webgl-unavailable");
+      return (
+        <div data-instrument-id={address} data-execution-label="unavailable">
+          <ReadingOnlyKeepContent
+            explanation={
+              state.question ??
+              "This instrument answers a stated question with an owned, tested response."
+            }
+            workedCase="The static worked case stays in the page when reading-only is on. Loading the experiment does not remove it."
+          />
+        </div>
+      );
+    } else {
+      activeLoader = state.view.fallback2d ?? state.view.webgl;
+    }
+  }
+
+  if (!activeLoader) {
+    return <InPreparationNotice id={address} question={state.question} sourceHref={sourceHref} />;
+  }
+
+  const LazyView = lazyView(activeLoader);
+  return (
+    <PresentationProvider presentation={presentation}>
+      <Suspense fallback={<InPreparationNotice id={address} sourceHref={sourceHref} />}>
+        <LazyView
+          key={`${state.id}:${instanceId}`}
+          instanceId={instanceId}
+          mode={state.mode}
+          presentation={presentation}
+        />
+      </Suspense>
+    </PresentationProvider>
+  );
 }
 
 /**
@@ -234,41 +301,6 @@ export function ExperimentDispatch({
     return <InPreparationNotice id={address} question={state.question} sourceHref={sourceHref} />;
   }
 
-  // Resolve view loader (direct ViewLoader or WebGL/2D mode structure)
-  let activeLoader: ViewLoader | undefined;
-  if (typeof state.view === "function") {
-    activeLoader = state.view;
-  } else {
-    const webGlAvailable = hasWebGl ?? checkWebGlContext();
-    if (webGlAvailable && state.view.webgl) {
-      activeLoader = state.view.webgl;
-    } else if (!webGlAvailable && state.view.fallback2d) {
-      onLog?.("webgl-unavailable");
-      activeLoader = state.view.fallback2d;
-    } else if (!webGlAvailable && state.view.webgl && !state.view.fallback2d) {
-      // Missing WebGL context and mode declares only WebGL view
-      onEnvironmentUnsupported?.("webgl-unavailable");
-      return (
-        <div data-instrument-id={address} data-execution-label="unavailable">
-          <ReadingOnlyKeepContent
-            explanation={
-              state.question ??
-              "This instrument answers a stated question with an owned, tested response."
-            }
-            workedCase="The static worked case stays in the page when reading-only is on. Loading the experiment does not remove it."
-          />
-        </div>
-      );
-    } else {
-      activeLoader = state.view.fallback2d ?? state.view.webgl;
-    }
-  }
-
-  if (!activeLoader) {
-    return <InPreparationNotice id={address} question={state.question} sourceHref={sourceHref} />;
-  }
-
-  const LazyView = lazyView(activeLoader);
   return (
     <div data-instrument-id={address}>
       <ReadingOnlyKeepContent
@@ -278,17 +310,19 @@ export function ExperimentDispatch({
         }
         workedCase="The static worked case stays in the page when reading-only is on. Loading the experiment does not remove it."
       />
-      <ReadingOnlyView {...(readingOnly !== undefined ? { readingOnly } : {})}>
-        <PresentationProvider presentation={presentation}>
-          <Suspense fallback={<InPreparationNotice id={address} sourceHref={sourceHref} />}>
-            <LazyView
-              key={`${state.id}:${instanceId}`}
-              instanceId={instanceId}
-              mode={state.mode}
-              presentation={presentation}
-            />
-          </Suspense>
-        </PresentationProvider>
+      <ReadingOnlyView
+        key={`${state.id}:${instanceId}`}
+        {...(readingOnly !== undefined ? { readingOnly } : {})}
+      >
+        <LiveExperimentView
+          state={state}
+          instanceId={instanceId}
+          presentation={presentation}
+          sourceHref={sourceHref}
+          hasWebGl={hasWebGl}
+          onLog={onLog}
+          onEnvironmentUnsupported={onEnvironmentUnsupported}
+        />
       </ReadingOnlyView>
     </div>
   );
