@@ -21,6 +21,8 @@ import { createSr03Session, type PreparedSr03Example } from "../../experiments/s
 import { createSr03TapeBinding, createSr03WalkthroughTarget } from "../../experiments/sr03/tape.ts";
 import { useRetainedSession } from "../../experiments/store/retainedSession.tsx";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
+import { SR03_READER_WEAVE } from "../../reader/weave/rodPassages.ts";
+import { SessionResultWeave } from "../../reader/weave/SessionResultWeave.tsx";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
@@ -51,6 +53,7 @@ export type RodSimultaneityLabProps = Readonly<{
   title?: string;
   instanceId?: string | undefined;
   restoreFromLocation?: boolean | undefined;
+  highlightPaper?: boolean | undefined;
 }>;
 
 /** The values table's row names, in the reader's words. */
@@ -108,6 +111,7 @@ export function RodSimultaneityLab({
   title = "Rod measurement, simultaneity, and causal order laboratory",
   instanceId,
   restoreFromLocation = true,
+  highlightPaper = false,
 }: RodSimultaneityLabProps) {
   const id = useId();
   const session = useRetainedSession(
@@ -748,6 +752,16 @@ export function RodSimultaneityLab({
           response={gate.response}
         />
         <LabTapeLink link={withPredictions(tapeLink, gate)} workerWalkthrough={workerWalkthrough} />
+      </div>
+
+      <div {...gate.response}>
+        <SessionResultWeave
+          session={session}
+          binding={SR03_READER_WEAVE}
+          suspended={failure !== null}
+          announcementsEnabled={gate.open}
+          highlightPaper={highlightPaper}
+        />
       </div>
 
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
