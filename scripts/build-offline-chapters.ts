@@ -14,6 +14,12 @@ import { recordQuantities } from "../src/equations/printedGlyphs.ts";
 import { teachingProfile } from "../src/equations/teachingProfiles.ts";
 import { parseResult } from "../src/experiments/results/codec.ts";
 import { loadOfflineAssets } from "../src/platform/offline/assets.ts";
+import { loadOfflineSectionSources } from "../src/platform/offline/SourceSection.tsx";
+import {
+  assertOfflineSourceInputs,
+  offlineSourceInputs,
+  type OfflineSourceInputs,
+} from "../src/platform/offline/sourceInputs.ts";
 import {
   type OfflineBudget,
   type OfflineWorkedExample,
@@ -97,6 +103,7 @@ export async function buildOfflineChapters(
   if (index.payloads.some((entry) => entry.kind !== "paper" && entry.kind !== "foundation"))
     throw new Error("A new compiled payload kind needs an explicit offline coverage decision.");
   const files: ReturnType<typeof packageOfflineChapter>[] = [];
+  let sourceInputs: OfflineSourceInputs | undefined;
   // The current reading schema publishes explanatory drafts only. As with site search,
   // do not leak those drafts into preview/launch artifacts while reviewed projections are absent.
   if (profile === "scaffold") {
@@ -113,6 +120,7 @@ export async function buildOfflineChapters(
         .filter((entry) => entry.kind === "foundation")
         .map((entry) => loadFoundationPayload(entry.id, root)),
     );
+    sourceInputs = await offlineSourceInputs(root, papers.map(({ payload }) => payload.paper.id));
     const assets = await loadOfflineAssets(root);
     const examples = await preparedExamples(root);
     const budgets = JSON.parse(
@@ -143,8 +151,8 @@ export async function buildOfflineChapters(
       // BUILD 18b failed once a term id followed \partial. A paper without a table stops the
       // build rather than borrowing another paper's: like a changed schema, it needs an explicit
       // offline adapter, so both share the one refusal.
-      const profile = teachingProfile(payload.paper.id);
-      if (payload.schemaVersion !== 1 || payload.paper.status !== "explanation-preview" || !profile)
+      const teaching = teachingProfile(payload.paper.id);
+      if (payload.schemaVersion !== 1 || payload.paper.status !== "explanation-preview" || !teaching)
         throw new Error(
           "A changed publication schema, or a paper without a teaching profile, needs an explicit offline adapter.",
         );
@@ -154,12 +162,13 @@ export async function buildOfflineChapters(
         title: equation.title,
         latex: expressionLatex(
           equation.tree,
-          recordQuantities(profile.quantities, equation.printedGlyphs),
+          recordQuantities(teaching.quantities, equation.printedGlyphs),
         ),
         spoken: equation.spoken,
         explanation: equation.explanation,
       }));
       for (const section of payload.paper.sections) {
+        const sources = await loadOfflineSectionSources(root, payload.paper.id, section.id, profile);
         files.push(
           packageOfflineChapter(
             {
@@ -172,10 +181,11 @@ export async function buildOfflineChapters(
               examples,
               assets,
               budget: budgets.default,
+              ...(sources ? { sources } : {}),
               identity: {
                 buildDigest: index.buildDigest,
                 contentRevision: revision,
-                translationRevision: null,
+                translationRevision: sources?.coverage.translationRevision ?? null,
                 generatedAt,
                 releaseId: null,
               },
@@ -200,6 +210,7 @@ export async function buildOfflineChapters(
     buildDigest: index.buildDigest,
     profile,
     chapters: files.map((file) => file.entry),
+    ...(sourceInputs ? { sourceInputs } : {}),
   };
   // Use the shared registry and serializer, not a second script hash manifest format.
   const buildRevision = execFileSync("git", ["rev-parse", "HEAD"], {
@@ -217,6 +228,8 @@ export async function buildOfflineChapters(
   const detailScript = scriptManifest.scripts.find((entry) => entry.id === "offline-detail");
   if (!detailScript || files.some((file) => file.scriptHash !== detailScript.sha256))
     throw new Error("Offline script bytes do not match the shared inline-script registry.");
+  if (sourceInputs)
+    assertOfflineSourceInputs(sourceInputs, await offlineSourceInputs(root, sourceInputs.papers));
   await publishOfflineChapters(root, manifest, files);
   await mkdir(resolve(root, "artifacts/build"), { recursive: true });
   await writeFile(

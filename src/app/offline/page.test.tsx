@@ -197,6 +197,8 @@ describe("offlineFacts", () => {
     expect(facts).toEqual({
       chapters: 2,
       papers: 1,
+      germanChapters: 0,
+      englishChapters: 0,
       totalBytes: 1100,
       totalGzipBytes: 350,
       smallestBytes: 400,
@@ -211,6 +213,20 @@ describe("offlineFacts", () => {
       chapters: [chapter("x", "s0", 900, 100), chapter("x", "s1", 400, 300)],
     } as never);
     expect([crossed?.largestBytes, crossed?.largestGzipBytes]).toEqual([900, 300]);
+  });
+
+  test("source availability is counted from the download descriptors", () => {
+    const german = {
+      paper: "light-quanta", section: "s0", bytes: 400, gzipBytes: 100,
+      sources: { germanBlocks: 3, englishUnits: 0 },
+    };
+    const bilingual = {
+      paper: "light-quanta", section: "s1", bytes: 700, gzipBytes: 250,
+      sources: { germanBlocks: 5, englishUnits: 8 },
+    };
+    const facts = offlineFacts({ chapters: [german, bilingual] } as never);
+    expect(facts?.germanChapters).toBe(2);
+    expect(facts?.englishChapters).toBe(1);
   });
 
   test("refuses a gap in the sections, and counts each paper separately", () => {

@@ -12,6 +12,12 @@ import type {
 import { renderInlineLatex } from "../../equations/render/inlineKatex.ts";
 import { type OfflineFigureAsset, renderOfflineAsset } from "./assets.ts";
 import { OFFLINE_DETAIL_SOURCE } from "./detail.inline.ts";
+import type { OfflineSourceAttachment, OfflineSourceCoverage } from "./SourceSection.tsx";
+import {
+  OfflineSourceError,
+  offlineMarkupIds,
+  prepareOfflineSourceMarkup,
+} from "./sourceProjection.ts";
 
 export const OFFLINE_CHAPTER_VERSION = 1;
 export const OFFLINE_ORIGIN = "https://annus-mirabilis.com";
@@ -51,6 +57,7 @@ export type OfflineChapterInput = Readonly<{
   assets: Readonly<{ mathCss: string; printCss: string; notices: readonly string[] }>;
   budget: OfflineBudget;
   figures?: readonly OfflineFigureAsset[] | undefined;
+  sources?: OfflineSourceAttachment | undefined;
 }>;
 export type OfflineChapterEntry = Readonly<{
   paper: string;
@@ -61,6 +68,7 @@ export type OfflineChapterEntry = Readonly<{
   bytes: number;
   gzipBytes: number;
   contentRevision: string;
+  sources?: OfflineSourceCoverage | undefined;
 }>;
 export const offlineDigest = (text: string | Uint8Array): string =>
   createHash("sha256").update(text).digest("hex");
@@ -169,6 +177,33 @@ export function packageOfflineChapter(
     throw new TypeError("Invalid offline revision identity.");
   if (![budget.rawBytes, budget.gzipBytes].every((n) => Number.isSafeInteger(n) && n > 0))
     throw new TypeError("Offline byte budgets must be positive integers.");
+  const explanationAnchor = input.sources ? "explanation-" + section.id : section.id;
+  const sources = input.sources;
+  if (sources && (
+    !Number.isSafeInteger(sources.coverage.germanBlocks) || sources.coverage.germanBlocks < 1 ||
+    !Number.isSafeInteger(sources.coverage.englishUnits) || sources.coverage.englishUnits < 0 ||
+    !/^[a-f0-9]{64}$/u.test(sources.coverage.revision) ||
+    (sources.coverage.englishUnits > 0
+      ? !/^[a-f0-9]{64}$/u.test(sources.coverage.translationRevision ?? "")
+      : sources.coverage.translationRevision !== null) ||
+    identity.translationRevision !== sources.coverage.translationRevision
+  ))
+    throw new OfflineSourceError(
+      "offline-source-coverage",
+      "Offline source coverage and translation revision must match the packaged text.",
+    );
+  const sourceHtml = sources
+    ? prepareOfflineSourceMarkup(sources.html, paper.id, new Set([explanationAnchor]))
+    : "";
+  const sourceNavigation = sources
+    ? '<nav aria-label="Chapter and source text"><a href="#' + explanationAnchor + '">Explanation</a> · <a href="#offline-german-' + section.id + '">German source</a>' +
+      (sources.coverage.englishUnits > 0 ? ' · <a href="#offline-english-' + section.id + '">English translation</a>' : "") + "</nav>"
+    : "";
+  const contentsDescription = sources
+    ? "This file contains the available authored explanation and German source text" +
+      (sources.coverage.englishUnits > 0 ? ", with the available English translation." : ".")
+    : "This file contains the available authored explanation, not the transcription or translation.";
+
   const args = section.arguments.map((name) => {
     const matches = input.arguments.filter((argument) => argument.id === name);
     const argument = matches[0];
@@ -331,7 +366,8 @@ export function packageOfflineChapter(
     : "<p>No scans or external figures are embedded. Their source references do not grant redistribution rights.</p>";
   const scriptHash = createHash("sha256").update(OFFLINE_DETAIL_SOURCE).digest("base64");
   const csp = `default-src 'none'; script-src 'sha256-${scriptHash}'; style-src 'unsafe-inline'; font-src data:; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'`;
-  const html = `<!doctype html>\n<html lang="en" data-detail="1" data-lens="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="${e(csp)}"><meta name="referrer" content="no-referrer"><title>${e(section.title)} · ${e(paper.title)}</title><style>${css}</style></head><body><a href="#${section.id}">Skip to the chapter</a><header data-print-header><p>Annus Mirabilis · saved explanation preview</p><h1>${e(paper.title)}: ${e(section.title)}</h1><p lang="de">${e(paper.germanTitle)}</p><p>This file contains the available authored explanation, not the transcription or translation. No simulation, search index, notebook, or private settings are included. Only explicit online links need a connection.</p><p><a rel="noreferrer" href="${canonical}">Current online chapter</a></p><fieldset data-screen-only><legend>Choose a reading</legend><label>Detail <select data-offline-detail disabled><option value="0">Overview</option><option value="1" selected>Full explanation</option><option value="2">Show every step</option></select></label><label><input type="checkbox" data-offline-modern disabled> Show modern qualifications</label></fieldset><p data-offline-status role="status" aria-live="polite"></p><noscript><p>JavaScript is off. The full explanation, foundations, source references, and static worked results are readable.</p></noscript></header><main><section id="${section.id}" tabindex="-1"><h2>${e(section.title)}</h2>${passages}</section>${figuresSection}${appendix ? `<section><h2>Foundations included in this file</h2>${appendix}</section>` : ""}${worked ? `<section><h2>Static laboratory examples</h2>${worked}</section>` : ""}<section><h2>Source references</h2><ol>${citations}</ol></section></main><footer data-print-footer><h2>Edition identity and attribution</h2><dl><dt>Generated</dt><dd>${e(identity.generatedAt)}</dd><dt>Content revision</dt><dd class="revision">${e(identity.contentRevision)}</dd><dt>Translation revision</dt><dd>${e(identity.translationRevision ?? "None: this file holds the explanation, not the translation")}</dd><dt>Build digest</dt><dd class="revision">${e(identity.buildDigest)}</dd><dt>Release</dt><dd>${e(identity.releaseId ?? "Development scaffold; not a published release")}</dd></dl>${input.assets.notices.map((notice) => `<pre>${e(notice)}</pre>`).join("\n")}${figuresNotice}</footer><script>${OFFLINE_DETAIL_SOURCE}</script></body></html>\n`;
+  const html = `<!doctype html>\n<html lang="en" data-detail="1" data-lens="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="${e(csp)}"><meta name="referrer" content="no-referrer"><title>${e(section.title)} · ${e(paper.title)}</title><style>${css}</style></head><body><a href="#${explanationAnchor}">Skip to the chapter</a><header data-print-header><p>Annus Mirabilis · saved explanation preview</p><h1>${e(paper.title)}: ${e(section.title)}</h1><p lang="de">${e(paper.germanTitle)}</p><p>${contentsDescription} No simulation, search index, notebook, or private settings are included. Only explicit online links need a connection.</p><p><a rel="noreferrer" href="${canonical}">Current online chapter</a></p>${sourceNavigation}<fieldset data-screen-only><legend>Choose a reading</legend><label>Detail <select data-offline-detail disabled><option value="0">Overview</option><option value="1" selected>Full explanation</option><option value="2">Show every step</option></select></label><label><input type="checkbox" data-offline-modern disabled> Show modern qualifications</label></fieldset><p data-offline-status role="status" aria-live="polite"></p><noscript><p>JavaScript is off. The full explanation, foundations, source references, and static worked results are readable.</p></noscript></header><main><section id="${explanationAnchor}" tabindex="-1"><h2>${e(section.title)}</h2>${passages}</section>${sourceHtml}${figuresSection}${appendix ? `<section><h2>Foundations included in this file</h2>${appendix}</section>` : ""}${worked ? `<section><h2>Static laboratory examples</h2>${worked}</section>` : ""}<section><h2>Source references</h2><ol>${citations}</ol></section></main><footer data-print-footer><h2>Edition identity and attribution</h2><dl><dt>Generated</dt><dd>${e(identity.generatedAt)}</dd><dt>Content revision</dt><dd class="revision">${e(identity.contentRevision)}</dd>${sources ? `<dt>Source text revision</dt><dd class="revision">${e(sources.coverage.revision)}</dd>` : ""}<dt>Translation revision</dt><dd>${e(identity.translationRevision ?? "None: this file holds the explanation, not the translation")}</dd><dt>Build digest</dt><dd class="revision">${e(identity.buildDigest)}</dd><dt>Release</dt><dd>${e(identity.releaseId ?? "Development scaffold; not a published release")}</dd></dl>${input.assets.notices.map((notice) => `<pre>${e(notice)}</pre>`).join("\n")}${figuresNotice}</footer><script>${OFFLINE_DETAIL_SOURCE}</script></body></html>\n`;
+  if (sources) offlineMarkupIds(html);
   const bytes = Buffer.byteLength(html),
     gzipBytes = gzipSync(html, { level: 9 }).byteLength;
   const contributors = {
@@ -353,6 +389,7 @@ export function packageOfflineChapter(
     bytes,
     gzipBytes,
     contentRevision: identity.contentRevision,
+    ...(sources ? { sources: sources.coverage } : {}),
   };
   return Object.freeze({
     entry: Object.freeze(entry),
@@ -371,7 +408,21 @@ fieldset { display: flex; flex-wrap: wrap; gap: 1rem; } select,input { font: inh
 [hidden] { display: none !important; } .question { font-weight: bold; }
 .formula,.table-scroll { max-width: 100%; overflow-x: auto; } .formula { margin-block: 1rem; }
 pre,.revision { white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; font-size: .8rem; }
+.offline-source { border-top: 1px solid #aaa; padding-top: 1rem; }
+.offline-source details { margin-block: 1.5rem; } .offline-source summary { cursor: pointer; font-weight: bold; }
+.offline-source .source-block-wrapper { margin-block: 1.2rem; }
+.offline-source .source-paragraph, .offline-source .translation-paragraph { margin-block: 1rem; }
+.offline-source .inline-display, .offline-source .translation-equation { display: block; overflow-x: auto; max-width: 100%; margin-block: .75rem; }
+.offline-source .block-locator { float: right; font-size: .75rem; margin-inline-start: 1rem; }
+.offline-source .footnotes-list { list-style: none; padding: 0; }
+.offline-source .footnote-item, .offline-source .translation-footnote { margin-block: 1rem; font-size: .9rem; }
+.offline-source .offline-source-legend { display: inline-block; padding: .15rem .3rem; font-size: .8rem; }
+.offline-source .offline-source-return, .offline-source .show-aligned-action { font-size: .8rem; }
+.offline-source .show-aligned-action { margin-inline-start: .35rem; }
+.offline-source .page-turn-number::after { content: "[" attr(data-page) "]"; font-size: .75rem; }
+.offline-source .page-turn-rule { border-inline-start: 1px solid #888; margin-inline: .2rem; }
+.offline-source :target { background: #f7ebbf; outline: 2px solid #a98545; outline-offset: .15rem; }
 table { width: 100%; border-collapse: collapse; font-size: .85rem; } td,th { border: 1px solid #aaa; padding: .35rem; text-align: left; }
 dl { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,2fr); gap: .3rem 1rem; } dd { margin: 0; }
-@media print { body { max-width: none; padding: 0; } h1 { break-before: auto; page-break-before: auto; } [data-screen-only],[data-offline-status],noscript { display: none; } .katex-html { display: block !important; } .katex-mathml { position: absolute !important; } pre { font-size: 7pt; } }
+@media print { .offline-source details { display: block; } .offline-source summary { display: none; } body { max-width: none; padding: 0; } h1 { break-before: auto; page-break-before: auto; } [data-screen-only],[data-offline-status],noscript { display: none; } .katex-html { display: block !important; } .katex-mathml { position: absolute !important; } pre { font-size: 7pt; } }
 `;

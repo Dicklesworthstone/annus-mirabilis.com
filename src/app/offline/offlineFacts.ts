@@ -12,6 +12,8 @@ import type { OfflineManifest } from "../../platform/offline/server.ts";
 export type OfflineFacts = Readonly<{
   chapters: number;
   papers: number;
+  germanChapters: number;
+  englishChapters: number;
   totalBytes: number;
   totalGzipBytes: number;
   smallestBytes: number;
@@ -60,6 +62,8 @@ export function offlineFacts(manifest: OfflineManifest | null): OfflineFacts | n
   return Object.freeze({
     chapters: chapters.length,
     papers: papers.size,
+    germanChapters: chapters.filter((entry) => (entry.sources?.germanBlocks ?? 0) > 0).length,
+    englishChapters: chapters.filter((entry) => (entry.sources?.englishUnits ?? 0) > 0).length,
     totalBytes,
     totalGzipBytes,
     smallestBytes,

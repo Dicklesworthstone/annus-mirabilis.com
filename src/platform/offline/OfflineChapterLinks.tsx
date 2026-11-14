@@ -1,4 +1,4 @@
-import { loadOfflineChapter, loadOfflineManifest } from "./server.ts";
+import { loadOfflineChapterList } from "./server.ts";
 import "./offline.css";
 
 /**
@@ -38,18 +38,8 @@ export async function OfflineChapterLinks({
   /** The paper's title on /offline/; when given, the explanation and the index link are left out. */
   heading?: string;
 }) {
-  const manifest = await loadOfflineManifest();
-  const chapters =
-    manifest?.chapters.filter(
-      (entry) => entry.paper === paperId && (section === undefined || entry.section === section),
-    ) ?? [];
+  const chapters = await loadOfflineChapterList(paperId, section);
   if (chapters.length === 0) return null;
-  // Integrity-check before showing the size or the download, not just when the route is read.
-  for (const entry of chapters) {
-    const file = entry.path.slice(`/offline/${entry.paper}/`.length);
-    if (!(await loadOfflineChapter(entry.paper, file)))
-      throw new Error("An advertised offline chapter is absent from the current build.");
-  }
   const onIndex = heading !== undefined;
   // On /offline/ each list sits under the page's own introduction, so it takes the page's left
   // edge (page-flush, globals.css). Centred, the lists started 280px right of the introduction at
@@ -66,8 +56,9 @@ export async function OfflineChapterLinks({
         <p>
           Each chapter is one HTML file that opens in any browser without a connection. It holds the
           explanation at every level of detail, the lessons it links to, its source references and
-          the numbers worked out when the site was built. It has no notes of yours and no running
-          simulations. It is an explanation, not an edition of the paper.
+          the numbers worked out when the site was built. The label beside each download says whether
+          German source text and English translation are included. It has no notes of yours and no
+          running simulations.
         </p>
       )}
       <ul className="offline-chapter-list">
@@ -82,7 +73,14 @@ export async function OfflineChapterLinks({
               <span className="visually-hidden">Download </span>
               {entry.title}
             </a>{" "}
-            <span className="fine">HTML, {formatSize(entry.bytes)}</span>
+            <span className="fine">
+              HTML, {formatSize(entry.bytes)}
+              {entry.sources
+                ? entry.sources.englishUnits > 0
+                  ? " · German and English included"
+                  : " · German included"
+                : " · explanation only"}
+            </span>
           </li>
         ))}
       </ul>

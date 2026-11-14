@@ -94,6 +94,23 @@ try {
           );
         assert.deepEqual(broken, []);
       });
+      await check(`${lane}: German, English and footnotes remain usable without a source request`, async () => {
+        assert.ok(chapter.sources?.germanBlocks > 0, "The current chapter must carry its source section.");
+        assert.ok(chapter.sources?.englishUnits > 0, "The current chapter must carry its translation.");
+        assert.ok(await page.locator('[data-offline-source-face="german"]').isVisible());
+        assert.ok(await page.locator('[data-offline-source-face="english"]').isVisible());
+        assert.equal(await page.locator(".offline-source button").count(), 0);
+        const englishLink = page.locator('.offline-source-return a[href^="#en-"]').first();
+        assert.ok(await englishLink.count());
+        const target = (await englishLink.getAttribute("href")).slice(1);
+        await englishLink.click();
+        assert.ok(await page.locator('[id="' + target + '"]').isVisible());
+        const sourceLink = page.locator('[data-offline-source-face="english"] a.show-aligned-action[href^="#"]').first();
+        assert.ok(await sourceLink.count());
+        const sourceTarget = (await sourceLink.getAttribute("href")).slice(1);
+        await sourceLink.click();
+        assert.ok(await page.locator('[id="' + sourceTarget + '"]').isVisible());
+      });
       await check(`${lane}: no page-wide overflow at 320 pixels`, async () => {
         assert.equal(
           await page.evaluate(

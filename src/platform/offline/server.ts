@@ -1,6 +1,12 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { OFFLINE_CHAPTER_VERSION, type OfflineChapterEntry, offlineDigest } from "./chapter.ts";
+import {
+  assertOfflineSourceInputs,
+  offlineSourceInputs,
+  type OfflineSourceInputs,
+} from "./sourceInputs.ts";
+import { OfflineSourceError } from "./sourceProjection.ts";
 
 export type OfflineProfile = "scaffold" | "preview" | "launch";
 export type OfflineManifest = Readonly<{
@@ -8,6 +14,7 @@ export type OfflineManifest = Readonly<{
   buildDigest: string;
   profile: OfflineProfile;
   chapters: readonly OfflineChapterEntry[];
+  sourceInputs?: OfflineSourceInputs | undefined;
 }>;
 export function offlineProfile(input: unknown): OfflineProfile {
   if (input === undefined) return "scaffold";
@@ -28,6 +35,20 @@ export function parseOfflineManifest(value: unknown): OfflineManifest {
     !["scaffold", "preview", "launch"].includes(manifest.profile)
   )
     throw new TypeError("Invalid offline manifest.");
+  if (manifest.sourceInputs !== undefined) {
+    const source = manifest.sourceInputs;
+    if (
+      !source || manifest.profile !== "scaffold" ||
+      !Array.isArray(source.papers) || source.papers.length > 64 ||
+      source.papers.some((paper) => typeof paper !== "string" || !ID.test(paper)) ||
+      new Set(source.papers).size !== source.papers.length ||
+      typeof source.sha256 !== "string" || !HASH.test(source.sha256)
+    )
+      throw new OfflineSourceError(
+        "offline-source-manifest",
+        "Invalid offline source input identity or profile.",
+      );
+  }
   const seen = new Set<string>();
   for (const entry of manifest.chapters) {
     if (
@@ -51,6 +72,22 @@ export function parseOfflineManifest(value: unknown): OfflineManifest {
       seen.has(`${entry.paper}/${entry.section}`)
     )
       throw new TypeError("Invalid or duplicate offline chapter descriptor.");
+    if (entry.sources !== undefined) {
+      const source = entry.sources;
+      if (
+        !source || !manifest.sourceInputs?.papers.includes(entry.paper) ||
+        !Number.isSafeInteger(source.germanBlocks) || source.germanBlocks < 1 ||
+        !Number.isSafeInteger(source.englishUnits) || source.englishUnits < 0 ||
+        typeof source.revision !== "string" || !HASH.test(source.revision) ||
+        (source.englishUnits > 0
+          ? typeof source.translationRevision !== "string" || !HASH.test(source.translationRevision)
+          : source.translationRevision !== null)
+      )
+        throw new OfflineSourceError(
+          "offline-source-coverage",
+          "Invalid offline source coverage or translation revision.",
+        );
+    }
     seen.add(`${entry.paper}/${entry.section}`);
   }
   return manifest;
@@ -109,6 +146,10 @@ export async function loadOfflineManifest(
     throw new Error(
       "Offline chapters are stale for the current content or profile. Run prepare:offline.",
     );
+  if (manifest.sourceInputs) {
+    const currentSources = await offlineSourceInputs(root, manifest.sourceInputs.papers);
+    assertOfflineSourceInputs(manifest.sourceInputs, currentSources);
+  }
   return manifest;
 }
 export async function loadOfflineChapter(
@@ -120,8 +161,27 @@ export async function loadOfflineChapter(
   const manifest = await loadOfflineManifest(root);
   const entry = manifest?.chapters.find((item) => item.path === `/offline/${paper}/${file}`);
   if (!entry) return null;
-  const bytes = await readFile(resolve(root, "generated/offline", paper, file));
+  return readCheckedChapter(root, entry);
+}
+
+async function readCheckedChapter(root: string, entry: OfflineChapterEntry) {
+  const file = entry.path.slice(`/offline/${entry.paper}/`.length);
+  const bytes = await readFile(resolve(root, "generated/offline", entry.paper, file));
   if (bytes.byteLength !== entry.bytes || offlineDigest(bytes) !== entry.sha256)
     throw new Error("Offline chapter integrity check failed.");
   return Object.freeze({ html: new TextDecoder("utf-8", { fatal: true }).decode(bytes), entry });
+}
+
+/** Validate the source revision once for a displayed list, then check every offered file. */
+export async function loadOfflineChapterList(
+  paper: string,
+  section?: string,
+  root = process.cwd(),
+): Promise<readonly OfflineChapterEntry[]> {
+  const manifest = await loadOfflineManifest(root);
+  const chapters = manifest?.chapters.filter(
+    (entry) => entry.paper === paper && (section === undefined || entry.section === section),
+  ) ?? [];
+  for (const entry of chapters) await readCheckedChapter(root, entry);
+  return chapters;
 }

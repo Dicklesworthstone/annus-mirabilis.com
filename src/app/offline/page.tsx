@@ -8,7 +8,7 @@ import "../../components/home/wideProse.css";
 export const metadata: Metadata = {
   title: "Chapters to read offline",
   description:
-    "Each explained section as one HTML file that opens without a connection, with the lessons it links to and its source references.",
+    "Each explained section as one HTML file that opens without a connection, with available German source text, English translation, mathematics and linked lessons.",
 };
 
 export default async function OfflinePage() {
@@ -28,7 +28,8 @@ export default async function OfflinePage() {
         <h1>Take a chapter with you</h1>
         <p className="lead">
           Each chapter is one HTML file. It opens in any browser without an app or a connection, and
-          carries its mathematics and the lessons it links to.
+          carries its mathematics and the lessons it links to. Downloads can also carry the section’s
+          German text and English translation, with passage links that work inside the file.
         </p>
         {facts && (
           <p>
@@ -36,10 +37,15 @@ export default async function OfflinePage() {
             {facts.contiguousSections ? ", one for every section of the four papers" : ""}. A
             chapter is between {formatSize(facts.smallestBytes)} and{" "}
             {formatSize(facts.largestBytes)}, and between {formatSize(facts.smallestGzipBytes)} and{" "}
-            {formatSize(facts.largestGzipBytes)} compressed for the journey: the shortest section
-            and the longest cost nearly the same to fetch, because every chapter carries the same
-            fonts, so that its formulas render with nothing left to load. Every chapter together is{" "}
+            {formatSize(facts.largestGzipBytes)} compressed for the journey. Every chapter carries its own math fonts, so that its formulas
+            render with nothing left to load. Every chapter together is{" "}
             {formatSize(facts.totalBytes)}, or {formatSize(facts.totalGzipBytes)} compressed.
+          </p>
+        )}
+        {facts && facts.germanChapters > 0 && (
+          <p>
+            {facts.germanChapters} chapters include German source text; {facts.englishChapters} include
+            the available English translation. The download labels identify them before you save.
           </p>
         )}
         <p>
@@ -68,9 +74,10 @@ export default async function OfflinePage() {
         <section className="reading page-flush" id="what-is-not-here">
           <h2>What a chapter does not carry</h2>
           <p>
-            It is an explanation, not an edition of the paper. The German text and the English
-            translation are separate work and are not in it, so a chapter is somewhere to read the
-            argument, not somewhere to check the wording against the plate.
+            Chapters labelled with German or English include those texts and their footnotes, so
+            you can compare the wording with the explanation without a connection. Other chapters
+            carry the explanation alone. The photographic scans of the printed pages stay online;
+            a source-text download does not include the plates.
           </p>
           <p>
             The laboratories do not run in it. Where an instrument had a worked example prepared
@@ -81,8 +88,8 @@ export default async function OfflinePage() {
           <p>
             Nothing of yours travels with it, and neither does the site's search. Each chapter
             states this in its own opening: &ldquo;No simulation, search index, notebook, or private
-            settings are included. Only explicit online links need a connection.&rdquo; Those links
-            are the laboratories, the paper's own sections here, and the DOIs in its references.
+            settings are included. Only explicit online links need a connection.&rdquo; The German and English passage links stay inside the file when their targets are included.
+            Links to other sections, scans, laboratories and DOIs need a connection.
           </p>
           <p>
             There is nothing to install and nothing is kept for you. This site registers no service
