@@ -1,0 +1,183 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-composed-velocity-y",
+  "paper": "special-relativity",
+  "argument": "arg-sr-velocity-composition",
+  "title": "Compose the transverse velocity from k to K",
+  "spoken": "The transverse velocity in K is the moving-frame transverse velocity divided by gamma times one plus v times the moving-frame longitudinal velocity over c squared.",
+  "explanation": "This component applies to oblique motion as well as to collinear motion. Even when the point moves only sideways in k, its velocity across the motion changes because K and k assign different elapsed times.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "The inertial frame k moves with signed velocity v along K's x axis, with c > 0 and |v| < c. The coordinate origins coincide at t = tau = 0 and the axes have the same normalization and orientation.",
+    "The point moves uniformly in k with components w_x and w_y, with w_x squared + w_y squared at most c squared. The inverse Lorentz time map gives t = gamma tau (1 + v w_x/c squared).",
+    "Use a nonzero elapsed time from the common origin when defining a velocity as coordinate displacement divided by elapsed time. Gamma and 1 + v w_x/c squared are positive in the admitted domain.",
+    "Modern teaching notation; the derivation projects w_x and w_y to the paper's w_xi and w_eta, gamma to beta, and c to V. The existing minus-sign velocity records describe the opposite direction K to k."
+  ],
+  "tree": {
+    "kind": "relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-sr-composed-velocity-y.t.result",
+      "quantityId": "velocityComponentYStationary"
+    },
+    "right": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "symbol",
+        "termId": "eq-model-sr-composed-velocity-y.t.movingY",
+        "quantityId": "velocityComponentYMoving"
+      },
+      "denominator": {
+        "kind": "product",
+        "args": [
+          {
+            "kind": "symbol",
+            "termId": "eq-model-sr-composed-velocity-y.t.factor",
+            "quantityId": "lorentzFactor"
+          },
+          {
+            "kind": "sum",
+            "args": [
+              {
+                "kind": "number",
+                "value": "1"
+              },
+              {
+                "kind": "quotient",
+                "numerator": {
+                  "kind": "product",
+                  "args": [
+                    {
+                      "kind": "symbol",
+                      "termId": "eq-model-sr-composed-velocity-y.t.speed",
+                      "quantityId": "frameSpeed"
+                    },
+                    {
+                      "kind": "symbol",
+                      "termId": "eq-model-sr-composed-velocity-y.t.movingX",
+                      "quantityId": "velocityComponentXMoving"
+                    }
+                  ],
+                  "opId": "eq-model-sr-composed-velocity-y.op.speedProduct"
+                },
+                "denominator": {
+                  "kind": "power",
+                  "base": {
+                    "kind": "symbol",
+                    "termId": "eq-model-sr-composed-velocity-y.t.light",
+                    "quantityId": "speedOfLight"
+                  },
+                  "exponent": {
+                    "num": 2,
+                    "den": 1
+                  },
+                  "opId": "eq-model-sr-composed-velocity-y.op.lightSquared"
+                },
+                "opId": "eq-model-sr-composed-velocity-y.op.correction"
+              }
+            ],
+            "opId": "eq-model-sr-composed-velocity-y.op.denominator"
+          }
+        ],
+        "opId": "eq-model-sr-composed-velocity-y.op.scaledDenominator"
+      },
+      "opId": "eq-model-sr-composed-velocity-y.op.ratio"
+    },
+    "opId": "eq-model-sr-composed-velocity-y.op.relation"
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-composed-velocity-y.t.result",
+      "title": "Velocity along y in K",
+      "explanation": "The resulting component measured with K's rulers and clocks.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-composed-velocity-y.t.movingX",
+      "title": "Velocity along ξ in k",
+      "explanation": "The given longitudinal component measured in the moving frame k.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-composed-velocity-y.t.speed",
+      "title": "Speed of k relative to K",
+      "explanation": "The signed frame velocity along the common longitudinal axis.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-composed-velocity-y.t.light",
+      "title": "Speed of light",
+      "explanation": "The positive light speed, written V in the paper and c in this teaching equation.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-composed-velocity-y.op.lightSquared",
+      "title": "The square of light speed",
+      "explanation": "The velocity product is divided by c squared to make a dimensionless correction.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-composed-velocity-y.op.speedProduct",
+      "title": "Frame speed times the longitudinal component",
+      "explanation": "Only the component parallel to the frame motion enters the time correction.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-composed-velocity-y.op.correction",
+      "title": "The change in time assignment",
+      "explanation": "This ratio comes from the position term in the Lorentz time transformation.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-composed-velocity-y.op.denominator",
+      "title": "One plus the time correction",
+      "explanation": "Positive when the frame is subluminal and the moving point's speed does not exceed light speed.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-composed-velocity-y.t.movingY",
+      "title": "Given sideways component in k",
+      "explanation": "The transverse coordinate is unchanged between frames, while the elapsed time changes.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-composed-velocity-y.t.factor",
+      "title": "Lorentz factor",
+      "explanation": "The positive factor gamma = 1/sqrt(1-v squared/c squared), printed beta in §3.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-composed-velocity-y.op.scaledDenominator",
+      "title": "The full change in elapsed time",
+      "explanation": "A sideways velocity keeps the time transformation's Lorentz factor as well as the longitudinal correction.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-composed-velocity-y.op.ratio",
+      "title": "The component measured in K",
+      "explanation": "Divide the transformed displacement by the time measured in the same frame K.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-composed-velocity-y.op.relation",
+      "title": "Composition from k to K",
+      "explanation": "The moving-frame velocity is given; the stationary-frame component is the result.",
+      "foundation": "bridge-fractions-ratios"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The transverse component in K",
+      "nodeId": "eq-model-sr-composed-velocity-y.t.result"
+    },
+    {
+      "text": " follows by transforming both displacement and elapsed time from k to K."
+    }
+  ]
+}

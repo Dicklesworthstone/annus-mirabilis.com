@@ -346,8 +346,10 @@ cards:
 
   - id: sr-velocity-addition
     support:
-      kind: "no-checked-proof"
-      reason: "The coordinate transformation and velocity composition are explained in the linked passages; no checked derivation record covers this result."
+      kind: "checked-proof"
+      proofId: "sr-velocity-composition"
+      conclusion: "eq-model-sr-composed-velocity-x"
+      scope: "Exact algebra derives both velocity components from the admitted section 3 map and a uniform path, in the paper's direction from k to K. The collinear case sets the sideways component to zero. The general speed bound, light-speed case and group-composition claims require their separate arguments and are not certified by this component proof."
     title: "The addition theorem of velocities"
     section: s5
     arguments: [arg-sr-velocity-composition]
@@ -363,7 +365,7 @@ cards:
       - anchor: s5-p6
         sentences: [1]
       - anchor: eq-s5-d8
-    equations: [eq-model-sr-velocity-x, eq-model-sr-velocity-y]
+    equations: [eq-model-sr-composed-velocity-x, eq-model-sr-composed-velocity-y]
     oneSentence: "A point that moves with the velocity \\(w\\) in the system k, while k moves with \\(v\\) relative to K, has in K a velocity \\(U\\) that for two velocities along one line is \\(U=(v+w)/(1+vw/V^2)\\), so that two velocities smaller than \\(V\\) always compose to one smaller than \\(V\\), and the velocity of light composed with a smaller one stays \\(V\\)."
     decoder:
       - symbol: "\\(U\\)"
@@ -375,7 +377,7 @@ cards:
       - symbol: "\"nur in erster Annäherung\""
         meaning: "Only to a first approximation: when \\(v\\) and \\(w\\) are small compared with \\(V\\), the terms divided by \\(V^2\\) are small, and \\(U\\) is close to what the parallelogram of velocities gives."
       - symbol: "the modern layer"
-        meaning: "The theorem finds the velocity in K from the velocity in k, with a plus sign. The modern equations run the other way, from K to k, with a minus sign, and write \\(c\\) for \\(V\\)."
+        meaning: "The teaching equations on this card follow the theorem from k to K, with a plus sign, and write \\(c\\) for \\(V\\). The explanation passage also displays the inverse transformation from K to k, which has a minus sign. The given and resulting frames must be read with each formula."
     qualifications:
       - kind: premise
         text: "The theorem applies the transformation equations of § 3 to a point moving uniformly in k."

@@ -6,6 +6,7 @@ export const RESULT_PROOF_IDS = [
   "me-ledger-elimination",
   "me-low-speed-coefficient",
   "sr-synchronization-midpoint",
+  "sr-velocity-composition",
   "sr-light-complex-energy",
   "sr-electron-force-conventions",
   "sr-electron-work",

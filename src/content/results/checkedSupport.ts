@@ -25,6 +25,11 @@ import syncCriterionRecord from "../../../content/equations/special-relativity/e
 import syncMidpointRecord from "../../../content/equations/special-relativity/eq-model-sr-sync-midpoint.json";
 import laboratoryRecord from "../../../content/equations/special-relativity/eq-model-sr-transverse-mass-laboratory.json";
 import printedRecord from "../../../content/equations/special-relativity/eq-model-sr-transverse-mass-printed.json";
+import velocityPositionRecord from "../../../content/equations/special-relativity/eq-model-sr-map-position.json";
+import velocityTimeRecord from "../../../content/equations/special-relativity/eq-model-sr-map-time.json";
+import velocityInverseTimeRecord from "../../../content/equations/special-relativity/eq-model-sr-inverse-time.json";
+import composedVelocityXRecord from "../../../content/equations/special-relativity/eq-model-sr-composed-velocity-x.json";
+import composedVelocityYRecord from "../../../content/equations/special-relativity/eq-model-sr-composed-velocity-y.json";
 import type { Expression } from "../../equations/ast.ts";
 import { verifyBrownianEquilibrium } from "../../equations/derivations/brownianEquilibriumProof.ts";
 import { brownianInferenceChain } from "../../equations/derivations/brownianInference.ts";
@@ -42,6 +47,8 @@ import {
 } from "../../equations/derivations/srElectron.ts";
 import { srLightComplexDerivation } from "../../equations/derivations/srLightComplex.ts";
 import { srSynchronizationChain } from "../../equations/derivations/srSynchronization.ts";
+import { srVelocityChains } from "../../equations/derivations/srVelocityComposition.ts";
+import { verifySRVelocityComposition } from "../../equations/derivations/srVelocityProof.ts";
 import { structurallyEqual } from "../../equations/derivations/treeUtils.ts";
 import type { DerivationChain } from "../../equations/derivations/types.ts";
 import {
@@ -212,6 +219,47 @@ const DERIVATION_PROOFS: Readonly<Record<DerivationProofId, DerivationProof>> = 
         explanation:
           "V/V₀ is positive and different from one, so ln(V/V₀) is nonzero. Equal volumes " +
           "give zero entropy change on both sides and cannot identify an effective count.",
+      },
+    ],
+  },
+  "sr-velocity-composition": {
+    paper: "special-relativity",
+    conclusion: composedVelocityXRecord.id,
+    title: "Follow both velocity components from k to K",
+    href: "/papers/special-relativity/s5/#sr-velocity-derivation",
+    records: [
+      velocityPositionRecord,
+      velocityTimeRecord,
+      velocityInverseTimeRecord,
+      composedVelocityXRecord,
+      composedVelocityYRecord,
+    ],
+    chains: srVelocityChains,
+    verify: verifySRVelocityComposition,
+    premises: [
+      {
+        id: "arg-sr-lorentz-map",
+        label: "The admitted coordinate transformation",
+        explanation:
+          "The section 3 Lorentz map and its inverse describe the same events in inertial frames with identically normalized and oriented axes. The transverse equality eta = y is retained as an admitted result of that map.",
+      },
+      {
+        id: "sr-velocity-straight-path-through-common-origin",
+        label: "One uniform path through the common origin",
+        explanation:
+          "The given moving-frame motion is xi = w_xi tau and eta = w_eta tau. Dividing coordinates by elapsed time is valid for this uniform path from the common origin.",
+      },
+      {
+        id: "sr-velocity-positive-light-speed-subluminal-frame-causal-point",
+        label: "Positive light speed and a subluminal frame",
+        explanation:
+          "V is positive, |v| is less than V, and the point's speed is at most V. Hence the Lorentz factor and 1 + v w_xi/V squared are positive. These are domain premises, not consequences established by the algebra.",
+      },
+      {
+        id: "sr-velocity-nonzero-elapsed-time",
+        label: "A nonzero elapsed time for the velocity ratios",
+        explanation:
+          "The time used to form displacement divided by time is nonzero. The common origin's 0/0 does not define a velocity, and no step divides by the sideways velocity.",
       },
     ],
   },

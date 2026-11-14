@@ -2,11 +2,15 @@ ownerBeadId: 'am-srk-equations-30cq'
 paper: 'special-relativity'
 targetKinds:
   - 'derivation-step'
+  - 'equation'
 scope:
   sections:
     - 's1'
     - 's3'
+    - 's5'
   chainIds:
+    - 'chain-sr-velocity-longitudinal'
+    - 'chain-sr-velocity-transverse'
     - 'chain-sr-synchronization-midpoint'
     - 'chain-sr-coordinate-source-synchronization'
     - 'chain-sr-coordinate-source-clocks'
@@ -669,3 +673,173 @@ targets:
       r3: 'Einstein’s §1 explicitly defines the equality of the two assigned light-travel times before discussing its consistency for many clocks. This pedagogical reconstruction expands the algebraic consequence of that definition; it does not claim to reproduce unprinted intermediate work. The source writes A’s return reading with a prime. Here it is labelled return so that a prime is not mistaken for a moving-frame coordinate. A single round trip does not independently measure the two one-way durations, and the algebra does not establish the separate consistency assumptions for an entire clock network. These explanations remain authored drafts, without a historical or physics review certification.'
       r3Citations:
         - 'Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §1, pp. 893–895. Source anchors s1-p7, eq-s1-d1 and s1-p8; the midpoint form is reused explicitly in §3, eq-s3-d1.'
+
+  - kind: "derivation-step"
+    id: "chain-sr-velocity-longitudinal/sr-velocity-longitudinal-position"
+    readings:
+      r0: "Begin with the point's straight motion in k and replace its position using the coordinate map."
+      r1: "The given motion is ξ = wξ τ. Insert ξ = β(x - vt), keeping the moving-frame time τ on the other side."
+      r2: "The point starts at the common origin and moves uniformly in k. Its longitudinal coordinate is therefore its constant k velocity times elapsed k time. The position transformation supplies the left side, but the right side still contains a time measured in k. Substituting the position alone cannot yet give a velocity measured in K."
+      r3: "Section 5 gives a uniform motion in k, transforms it to K, and obtains separate longitudinal and transverse components before discussing the speed magnitude and its collinear specialization. This reconstruction expands that algebra. Its transverse chain uses the inverse time map to keep the surviving Lorentz factor visible; it does not claim to reproduce unprinted intermediate work. The source writes V for light speed, beta for the Lorentz factor and w_xi, w_eta for the moving-frame components. Ux and Uy are introduced here for K components; the paper's U is their magnitude. These are authored explanatory drafts, and an executable algebra check does not certify historical or physics review."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §5, pp. 905–907; source anchors eq-s5-d1, eq-s5-d2 and eq-s5-d6. The coordinate map is in §3, eq-s3-d25."
+
+  - kind: "derivation-step"
+    id: "chain-sr-velocity-longitudinal/sr-velocity-longitudinal-time"
+    readings:
+      r0: "Transform the time on the same path as well as its position."
+      r1: "Insert τ = β(t - vx/V²) into the motion equation. The position term in this clock reading is the origin of the velocity rule's denominator."
+      r2: "The velocity in k divides a k displacement by a k time. Expressing it through K's variables therefore requires both coordinate relations for the same event. The resulting equation is β(x - vt) = wξ β(t - vx/V²). No new velocity-composition law has been assumed; all the mixing comes from the admitted coordinate map."
+      r3: "Section 5 gives a uniform motion in k, transforms it to K, and obtains separate longitudinal and transverse components before discussing the speed magnitude and its collinear specialization. This reconstruction expands that algebra. Its transverse chain uses the inverse time map to keep the surviving Lorentz factor visible; it does not claim to reproduce unprinted intermediate work. The source writes V for light speed, beta for the Lorentz factor and w_xi, w_eta for the moving-frame components. Ux and Uy are introduced here for K components; the paper's U is their magnitude. These are authored explanatory drafts, and an executable algebra check does not certify historical or physics review."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §5, pp. 905–907; source anchors eq-s5-d1, eq-s5-d2 and eq-s5-d6. The coordinate map is in §3, eq-s3-d25."
+
+  - kind: "derivation-step"
+    id: "chain-sr-velocity-longitudinal/sr-velocity-longitudinal-cancel-factor"
+    readings:
+      r0: "The same nonzero factor multiplies both sides, so divide it out."
+      r1: "Cancel β on both sides. Its positivity follows from V > 0 and the subluminal frame condition |v| < V."
+      r2: "For a frame moving slower than light, β = 1/sqrt(1 - v²/V²) is finite and positive. Dividing both sides by β therefore preserves the equation and leaves x - vt = wξ(t - vx/V²). This cancellation is not allowed for a frame at light speed, where the admitted coordinate transformation itself is undefined."
+      r3: "Section 5 gives a uniform motion in k, transforms it to K, and obtains separate longitudinal and transverse components before discussing the speed magnitude and its collinear specialization. This reconstruction expands that algebra. Its transverse chain uses the inverse time map to keep the surviving Lorentz factor visible; it does not claim to reproduce unprinted intermediate work. The source writes V for light speed, beta for the Lorentz factor and w_xi, w_eta for the moving-frame components. Ux and Uy are introduced here for K components; the paper's U is their magnitude. These are authored explanatory drafts, and an executable algebra check does not certify historical or physics review."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §5, pp. 905–907; source anchors eq-s5-d1, eq-s5-d2 and eq-s5-d6. The coordinate map is in §3, eq-s3-d25."
+
+  - kind: "derivation-step"
+    id: "chain-sr-velocity-longitudinal/sr-velocity-longitudinal-add-frame-distance"
+    readings:
+      r0: "Add the frame's displacement to both sides."
+      r1: "Adding vt leaves x alone on the left. The right still contains x through the transformed time."
+      r2: "The left side x - vt is the point's displacement relative to the moving origin, expressed in K coordinates. Add the same quantity vt to both sides to obtain x = wξ(t - vx/V²) + vt. At this stage ordinary addition appears in the right-hand side, but its remaining x term must still be moved and accounted for."
+      r3: "Section 5 gives a uniform motion in k, transforms it to K, and obtains separate longitudinal and transverse components before discussing the speed magnitude and its collinear specialization. This reconstruction expands that algebra. Its transverse chain uses the inverse time map to keep the surviving Lorentz factor visible; it does not claim to reproduce unprinted intermediate work. The source writes V for light speed, beta for the Lorentz factor and w_xi, w_eta for the moving-frame components. Ux and Uy are introduced here for K components; the paper's U is their magnitude. These are authored explanatory drafts, and an executable algebra check does not certify historical or physics review."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §5, pp. 905–907; source anchors eq-s5-d1, eq-s5-d2 and eq-s5-d6. The coordinate map is in §3, eq-s3-d25."
+
+  - kind: "derivation-step"
+    id: "chain-sr-velocity-longitudinal/sr-velocity-longitudinal-move-x-term"
+    readings:
+      r0: "Bring the position contribution from the clock transformation to the left."
+      r1: "Add v wξ x/V² to both sides. The right-hand negative position term cancels, leaving only terms proportional to t."
+      r2: "Expand wξ(t - vx/V²) as wξ t - v wξ x/V². Adding v wξ x/V² removes the second term from the right and places it beside x on the left. Thus x + v wξ x/V² = wξ t + vt. This is the part of the algebra that a simple addition of speeds omits."
+      r3: "Section 5 gives a uniform motion in k, transforms it to K, and obtains separate longitudinal and transverse components before discussing the speed magnitude and its collinear specialization. This reconstruction expands that algebra. Its transverse chain uses the inverse time map to keep the surviving Lorentz factor visible; it does not claim to reproduce unprinted intermediate work. The source writes V for light speed, beta for the Lorentz factor and w_xi, w_eta for the moving-frame components. Ux and Uy are introduced here for K components; the paper's U is their magnitude. These are authored explanatory drafts, and an executable algebra check does not certify historical or physics review."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §5, pp. 905–907; source anchors eq-s5-d1, eq-s5-d2 and eq-s5-d6. The coordinate map is in §3, eq-s3-d25."
+
+  - kind: "derivation-step"
+    id: "chain-sr-velocity-longitudinal/sr-velocity-longitudinal-factor"
+    readings:
+      r0: "Collect the common position on one side and the common time on the other."
+      r1: "Factor x from the left and t from the right. The position now carries the factor 1 + v wξ/V²."
+      r2: "Both left-hand terms contain x, and both right-hand terms contain t. Exact collection gives x(1 + v wξ/V²) = t(wξ + v). The correction is dimensionless because its numerator and denominator both have dimensions of speed squared. No small-speed approximation has been used in obtaining this factor."
+      r3: "Section 5 gives a uniform motion in k, transforms it to K, and obtains separate longitudinal and transverse components before discussing the speed magnitude and its collinear specialization. This reconstruction expands that algebra. Its transverse chain uses the inverse time map to keep the surviving Lorentz factor visible; it does not claim to reproduce unprinted intermediate work. The source writes V for light speed, beta for the Lorentz factor and w_xi, w_eta for the moving-frame components. Ux and Uy are introduced here for K components; the paper's U is their magnitude. These are authored explanatory drafts, and an executable algebra check does not certify historical or physics review."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §5, pp. 905–907; source anchors eq-s5-d1, eq-s5-d2 and eq-s5-d6. The coordinate map is in §3, eq-s3-d25."
+
+  - kind: "derivation-step"
+    id: "chain-sr-velocity-longitudinal/sr-velocity-longitudinal-divide-time"
+    readings:
+      r0: "Divide by elapsed time and the positive correction to obtain displacement per K time."
+      r1: "Use a nonzero elapsed t and divide by t(1 + v wξ/V²). The left becomes x/t, while the right retains the time correction in its denominator."
+      r2: "The given point has speed at most V, so |wξ| is at most V. Together with |v| < V this gives |v wξ/V²| < 1, hence 1 + v wξ/V² > 0. The elapsed time is chosen nonzero. Both divisions are therefore admitted, and the result is x/t = (wξ + v)/(1 + v wξ/V²)."
+      r3: "Section 5 gives a uniform motion in k, transforms it to K, and obtains separate longitudinal and transverse components before discussing the speed magnitude and its collinear specialization. This reconstruction expands that algebra. Its transverse chain uses the inverse time map to keep the surviving Lorentz factor visible; it does not claim to reproduce unprinted intermediate work. The source writes V for light speed, beta for the Lorentz factor and w_xi, w_eta for the moving-frame components. Ux and Uy are introduced here for K components; the paper's U is their magnitude. These are authored explanatory drafts, and an executable algebra check does not certify historical or physics review."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §5, pp. 905–907; source anchors eq-s5-d1, eq-s5-d2 and eq-s5-d6. The coordinate map is in §3, eq-s3-d25."
+
+  - kind: "derivation-step"
+    id: "chain-sr-velocity-longitudinal/sr-velocity-longitudinal-name-component"
+    readings:
+      r0: "Name the resulting longitudinal velocity, measured entirely in K."
+      r1: "Write Ux for x/t. This component formula works whether or not the point also moves sideways in k."
+      r2: "The motion is uniform, and x and t refer to the same path and frame, so the ratio is its constant longitudinal velocity in K. Calling that component Ux distinguishes it from the paper's U, the magnitude of the full velocity. Only when the transverse component vanishes does the signed longitudinal rule supply the complete collinear motion."
+      r3: "Section 5 gives a uniform motion in k, transforms it to K, and obtains separate longitudinal and transverse components before discussing the speed magnitude and its collinear specialization. This reconstruction expands that algebra. Its transverse chain uses the inverse time map to keep the surviving Lorentz factor visible; it does not claim to reproduce unprinted intermediate work. The source writes V for light speed, beta for the Lorentz factor and w_xi, w_eta for the moving-frame components. Ux and Uy are introduced here for K components; the paper's U is their magnitude. These are authored explanatory drafts, and an executable algebra check does not certify historical or physics review."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §5, pp. 905–907; source anchors eq-s5-d1, eq-s5-d2 and eq-s5-d6. The coordinate map is in §3, eq-s3-d25."
+
+  - kind: "derivation-step"
+    id: "chain-sr-velocity-transverse/sr-velocity-transverse-insert-motion"
+    readings:
+      r0: "Evaluate the inverse time transformation along the same moving point's path."
+      r1: "Start with t = β(τ + vξ/V²) and replace ξ by wξ τ. The same longitudinal component controls the elapsed-time conversion for every direction of motion."
+      r2: "The inverse map expresses K time in terms of k coordinates. It follows from the admitted section 3 transformation by exchanging the frame roles and reversing v. The point's longitudinal motion supplies ξ = wξ τ, so t = β(τ + v wξ τ/V²). Its sideways component has not entered this clock relation."
+      r3: "Section 5 gives a uniform motion in k, transforms it to K, and obtains separate longitudinal and transverse components before discussing the speed magnitude and its collinear specialization. This reconstruction expands that algebra. Its transverse chain uses the inverse time map to keep the surviving Lorentz factor visible; it does not claim to reproduce unprinted intermediate work. The source writes V for light speed, beta for the Lorentz factor and w_xi, w_eta for the moving-frame components. Ux and Uy are introduced here for K components; the paper's U is their magnitude. These are authored explanatory drafts, and an executable algebra check does not certify historical or physics review."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §5, pp. 905–907; source anchors eq-s5-d1, eq-s5-d2 and eq-s5-d6. The coordinate map is in §3, eq-s3-d25."
+
+  - kind: "derivation-step"
+    id: "chain-sr-velocity-transverse/sr-velocity-transverse-factor-time"
+    readings:
+      r0: "Factor out the moving-frame elapsed time."
+      r1: "Collect τ to obtain t = β τ(1 + v wξ/V²). This relation supplies the denominator used to measure the sideways velocity."
+      r2: "Both terms inside the bracket contain τ. Factoring it out is exact rational algebra and leaves the same dimensionless correction found in the longitudinal chain. The factor β remains because this chain converts elapsed time alone. It will not be cancelled by a longitudinal position transformation when the transverse coordinate is used."
+      r3: "Section 5 gives a uniform motion in k, transforms it to K, and obtains separate longitudinal and transverse components before discussing the speed magnitude and its collinear specialization. This reconstruction expands that algebra. Its transverse chain uses the inverse time map to keep the surviving Lorentz factor visible; it does not claim to reproduce unprinted intermediate work. The source writes V for light speed, beta for the Lorentz factor and w_xi, w_eta for the moving-frame components. Ux and Uy are introduced here for K components; the paper's U is their magnitude. These are authored explanatory drafts, and an executable algebra check does not certify historical or physics review."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §5, pp. 905–907; source anchors eq-s5-d1, eq-s5-d2 and eq-s5-d6. The coordinate map is in §3, eq-s3-d25."
+
+  - kind: "derivation-step"
+    id: "chain-sr-velocity-transverse/sr-velocity-transverse-solve-time"
+    readings:
+      r0: "Solve for the time recorded by k."
+      r1: "Divide by β(1 + v wξ/V²) and put τ on the left. Both factors are positive under the stated physical conditions."
+      r2: "The positive Lorentz factor belongs to a subluminal inertial frame. The correction is positive because |v wξ/V²| < 1. Their product cannot vanish, so τ = t/[β(1 + v wξ/V²)]. This is the elapsed k time available for the sideways displacement during elapsed K time t."
+      r3: "Section 5 gives a uniform motion in k, transforms it to K, and obtains separate longitudinal and transverse components before discussing the speed magnitude and its collinear specialization. This reconstruction expands that algebra. Its transverse chain uses the inverse time map to keep the surviving Lorentz factor visible; it does not claim to reproduce unprinted intermediate work. The source writes V for light speed, beta for the Lorentz factor and w_xi, w_eta for the moving-frame components. Ux and Uy are introduced here for K components; the paper's U is their magnitude. These are authored explanatory drafts, and an executable algebra check does not certify historical or physics review."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §5, pp. 905–907; source anchors eq-s5-d1, eq-s5-d2 and eq-s5-d6. The coordinate map is in §3, eq-s3-d25."
+
+  - kind: "derivation-step"
+    id: "chain-sr-velocity-transverse/sr-velocity-transverse-multiply-velocity"
+    readings:
+      r0: "Multiply that moving-frame time by the given sideways velocity."
+      r1: "The product wη τ is the sideways displacement in k. Multiplying both sides by wη also admits wη = 0."
+      r2: "The point moves uniformly, so its sideways displacement is wη times elapsed τ. Multiply the time relation by that velocity on both sides. There is no division by wη: a path with no sideways motion remains allowed and gives a zero sideways displacement. The transformed time factor stays in the denominator."
+      r3: "Section 5 gives a uniform motion in k, transforms it to K, and obtains separate longitudinal and transverse components before discussing the speed magnitude and its collinear specialization. This reconstruction expands that algebra. Its transverse chain uses the inverse time map to keep the surviving Lorentz factor visible; it does not claim to reproduce unprinted intermediate work. The source writes V for light speed, beta for the Lorentz factor and w_xi, w_eta for the moving-frame components. Ux and Uy are introduced here for K components; the paper's U is their magnitude. These are authored explanatory drafts, and an executable algebra check does not certify historical or physics review."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §5, pp. 905–907; source anchors eq-s5-d1, eq-s5-d2 and eq-s5-d6. The coordinate map is in §3, eq-s3-d25."
+
+  - kind: "derivation-step"
+    id: "chain-sr-velocity-transverse/sr-velocity-transverse-name-position"
+    readings:
+      r0: "Use the transverse coordinate equality to read the same displacement in K."
+      r1: "The specified motion gives η = wη τ, and the admitted coordinate map gives η = y. Replace the product by y."
+      r2: "Section 3 derived the transverse coordinate equality using the normalization and symmetry of the axes and transverse light propagation. That result is a premise here, not a new assumption about a sideways force. Using η = y converts the left side to a K displacement while the right side still contains the full time-conversion factor."
+      r3: "Section 5 gives a uniform motion in k, transforms it to K, and obtains separate longitudinal and transverse components before discussing the speed magnitude and its collinear specialization. This reconstruction expands that algebra. Its transverse chain uses the inverse time map to keep the surviving Lorentz factor visible; it does not claim to reproduce unprinted intermediate work. The source writes V for light speed, beta for the Lorentz factor and w_xi, w_eta for the moving-frame components. Ux and Uy are introduced here for K components; the paper's U is their magnitude. These are authored explanatory drafts, and an executable algebra check does not certify historical or physics review."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §5, pp. 905–907; source anchors eq-s5-d1, eq-s5-d2 and eq-s5-d6. The coordinate map is in §3, eq-s3-d25."
+
+  - kind: "derivation-step"
+    id: "chain-sr-velocity-transverse/sr-velocity-transverse-divide-time"
+    readings:
+      r0: "Divide the sideways displacement by K's elapsed time."
+      r1: "For nonzero t, the ratio y/t equals wη/[β(1 + v wξ/V²)]. The Lorentz factor remains in this component."
+      r2: "Cancel the same nonzero elapsed K time from the two sides after division. A sideways coordinate is unchanged by the boost, while the time used to measure its rate changes. Consequently the sideways velocity generally differs between frames even though there is no sideways acceleration or force in this coordinate comparison."
+      r3: "Section 5 gives a uniform motion in k, transforms it to K, and obtains separate longitudinal and transverse components before discussing the speed magnitude and its collinear specialization. This reconstruction expands that algebra. Its transverse chain uses the inverse time map to keep the surviving Lorentz factor visible; it does not claim to reproduce unprinted intermediate work. The source writes V for light speed, beta for the Lorentz factor and w_xi, w_eta for the moving-frame components. Ux and Uy are introduced here for K components; the paper's U is their magnitude. These are authored explanatory drafts, and an executable algebra check does not certify historical or physics review."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §5, pp. 905–907; source anchors eq-s5-d1, eq-s5-d2 and eq-s5-d6. The coordinate map is in §3, eq-s3-d25."
+
+  - kind: "derivation-step"
+    id: "chain-sr-velocity-transverse/sr-velocity-transverse-name-component"
+    readings:
+      r0: "Name the sideways component of the velocity in K."
+      r1: "Write Uy for y/t. Together, Ux and Uy describe oblique motion; their magnitude is the paper's resulting speed U."
+      r2: "The two component relations use the same event path and the same K time. The speed magnitude can be formed only after both components have been transformed. Setting wη = 0 gives Uy = 0 and the collinear case. For an oblique path, treating Ux alone as the speed would discard part of the motion."
+      r3: "Section 5 gives a uniform motion in k, transforms it to K, and obtains separate longitudinal and transverse components before discussing the speed magnitude and its collinear specialization. This reconstruction expands that algebra. Its transverse chain uses the inverse time map to keep the surviving Lorentz factor visible; it does not claim to reproduce unprinted intermediate work. The source writes V for light speed, beta for the Lorentz factor and w_xi, w_eta for the moving-frame components. Ux and Uy are introduced here for K components; the paper's U is their magnitude. These are authored explanatory drafts, and an executable algebra check does not certify historical or physics review."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §5, pp. 905–907; source anchors eq-s5-d1, eq-s5-d2 and eq-s5-d6. The coordinate map is in §3, eq-s3-d25."
+
+  - kind: "equation"
+    id: "eq-model-sr-composed-velocity-x"
+    readings:
+      r0: "Transform both the displacement and its elapsed time to compose the longitudinal velocity from k to K."
+      r1: "This is the direction used in §5: the point's motion is given in k, and its motion in K is found. With no transverse component it becomes the collinear addition rule."
+      r2: "Start with the uniform path xi = w_xi tau and insert both section 3 coordinate relations. Divide out their common nonzero Lorentz factor, collect all terms proportional to x, and divide by the nonzero elapsed K time. The resulting denominator is positive under the stated subluminal frame and causal-point conditions. This is a longitudinal component; a sideways component must also be transformed before finding the speed magnitude."
+      r3: "Section 5 gives a uniform motion in k, transforms it to K, and obtains separate longitudinal and transverse components before discussing the speed magnitude and its collinear specialization. This reconstruction expands that algebra. Its transverse chain uses the inverse time map to keep the surviving Lorentz factor visible; it does not claim to reproduce unprinted intermediate work. The source writes V for light speed, beta for the Lorentz factor and w_xi, w_eta for the moving-frame components. Ux and Uy are introduced here for K components; the paper's U is their magnitude. These are authored explanatory drafts, and an executable algebra check does not certify historical or physics review."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §5, pp. 905–907; source anchors eq-s5-d1, eq-s5-d2 and eq-s5-d6. The coordinate map is in §3, eq-s3-d25."
+
+  - kind: "equation"
+    id: "eq-model-sr-composed-velocity-y"
+    readings:
+      r0: "The transverse coordinate is unchanged, while the time used to measure its velocity changes between frames."
+      r1: "This component applies to oblique motion as well as to collinear motion. Even when the point moves only sideways in k, its velocity across the motion changes because K and k assign different elapsed times."
+      r2: "Use the inverse time map t = gamma(tau + v xi/c squared) along the path xi = w_xi tau. Factor tau and divide by the positive gamma times the time correction. Multiplying by w_eta gives the sideways displacement, which the admitted transverse coordinate map identifies with y. Dividing by nonzero t yields the K component, with the Lorentz factor retained in its denominator."
+      r3: "Section 5 gives a uniform motion in k, transforms it to K, and obtains separate longitudinal and transverse components before discussing the speed magnitude and its collinear specialization. This reconstruction expands that algebra. Its transverse chain uses the inverse time map to keep the surviving Lorentz factor visible; it does not claim to reproduce unprinted intermediate work. The source writes V for light speed, beta for the Lorentz factor and w_xi, w_eta for the moving-frame components. Ux and Uy are introduced here for K components; the paper's U is their magnitude. These are authored explanatory drafts, and an executable algebra check does not certify historical or physics review."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §5, pp. 905–907; source anchors eq-s5-d1, eq-s5-d2 and eq-s5-d6. The coordinate map is in §3, eq-s3-d25."

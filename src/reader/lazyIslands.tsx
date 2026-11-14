@@ -57,6 +57,7 @@ import type { SRElectronDerivation } from "./SRElectronDerivation.tsx";
 import type { SRFieldDerivation } from "./SRFieldDerivation.tsx";
 import type { SRLightComplexDerivation } from "./SRLightComplexDerivation.tsx";
 import type { SRSynchronizationDerivation } from "./SRSynchronizationDerivation.tsx";
+import type { SRVelocityDerivation } from "./SRVelocityDerivation.tsx";
 import "./entrances/countingEntrance.css";
 import "./entrances/massEnergyEntrance.css";
 import "../equations/derivations/linearProof.css";
@@ -183,4 +184,11 @@ export function LazyBrownianInferenceDerivation(
   props: ComponentProps<typeof BrownianInferenceDerivation>,
 ) {
   return <BrownianInferenceSteps {...props} />;
+}
+
+const SRVelocitySteps = lazy(() =>
+  import("./SRVelocityDerivation.tsx").then((m) => ({ default: m.SRVelocityDerivation })),
+);
+export function LazySRVelocityDerivation(props: ComponentProps<typeof SRVelocityDerivation>) {
+  return <SRVelocitySteps {...props} />;
 }

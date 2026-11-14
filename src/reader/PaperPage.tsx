@@ -62,6 +62,7 @@ import {
   LazySRFieldDerivation,
   LazySRLightComplexDerivation,
   LazySRSynchronizationDerivation,
+  LazySRVelocityDerivation,
 } from "./lazyIslands.tsx";
 import { ledgerGaps } from "./ledgerGaps.ts";
 import { MassEnergyDerivation } from "./MassEnergyDerivation.tsx";
@@ -798,6 +799,17 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                           <p className="fine">
                             <a href="/papers/special-relativity/s1/#sr-synchronization-derivation">
                               Follow the synchronization definition to its midpoint consequence
+                            </a>
+                          </p>
+                        ))}
+                      {paper.id === "special-relativity" &&
+                        a.id === "arg-sr-velocity-composition" &&
+                        (sectionId ? (
+                          <LazySRVelocityDerivation />
+                        ) : (
+                          <p className="fine">
+                            <a href="/papers/special-relativity/s5/#sr-velocity-derivation">
+                              Derive both velocity components by transforming the clock and the displacement
                             </a>
                           </p>
                         ))}
