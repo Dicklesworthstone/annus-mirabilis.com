@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, useSyncExternalStore } from "react";
+import { useId, useState } from "react";
 import type { WorldCheck as WorldCheckType } from "../../content/schemas/journey.ts";
 import { KnowledgeCardView } from "../../discovery/cards/KnowledgeCard.tsx";
 import type { KnowledgeCard } from "../../discovery/cards/types.ts";
@@ -9,12 +9,14 @@ import {
   useInvestigationWitness,
 } from "../../discovery/investigation/context.tsx";
 import { WorldCheck } from "../../discovery/WorldCheck.tsx";
+import type { BainbridgeRecord } from "../../experiments/me03/bainbridge.ts";
 import type { Me03Parameters } from "../../experiments/me03/definition.ts";
 import { createMe03Session, type PreparedMe03Example } from "../../experiments/me03/session.ts";
 import type { AcceptedSnapshot, PublishedResult } from "../../experiments/store/instanceStore.ts";
 import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { BoundaryLedgerLab } from "../lab/me03/BoundaryLedgerLab.tsx";
 import { sentenceNumber } from "../lab/presentation.ts";
+import { BainbridgeComparison } from "./BainbridgeComparison.tsx";
 
 const BOUNDARY_WORDS: Readonly<Record<Me03Parameters["boundary"], string>> = {
   "body-alone": "around the body alone",
@@ -55,11 +57,13 @@ export function MassEnergyWorldCheck({
   example,
   check,
   laterEvidence,
+  bainbridge,
   session: sharedSession,
 }: {
   example: PreparedMe03Example;
   check: WorldCheckType;
   laterEvidence: readonly KnowledgeCard[];
+  bainbridge: BainbridgeRecord;
   /** A session owned by whoever embeds the check. Omitted, it owns its own. */
   session?: ReturnType<typeof createMe03Session> | undefined;
 }) {
@@ -120,6 +124,7 @@ export function MassEnergyWorldCheck({
         title="The boundary ledger, for the check"
       />
       <WorldCheck check={check} live={live} />
+      <BainbridgeComparison record={bainbridge} />
       <section data-world-check-later aria-labelledby={`${id}-later`}>
         <h3 id={`${id}-later`}>Later evidence, not on the 1904 shelf</h3>
         {laterEvidence.map((card) => (

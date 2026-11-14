@@ -50,6 +50,7 @@ import { PpeTask } from "../../../discovery/PpeTask.tsx";
 import { RouteMap } from "../../../discovery/RouteMap.tsx";
 import { SourceJump } from "../../../discovery/SourceJump.tsx";
 import { StepDoor, StepDoors } from "../../../discovery/StepDoor.tsx";
+import { loadBainbridgeRecord } from "../../../experiments/me03/bainbridgeRecord.ts";
 import { DEFAULT_PREPARED_EXAMPLE } from "../../../experiments/me03/session.ts";
 import labDigests from "../../../generated/lab-source-digests.json";
 
@@ -222,14 +223,14 @@ export default function MassEnergyRoute() {
             example={ledgerExample}
             check={WORLD_CHECK}
             laterEvidence={MASS_ENERGY_LATER_EVIDENCE}
+            bainbridge={loadBainbridgeRecord()}
           />
           <p>
             The paper says only that a test is not ruled out for bodies whose energy content changes
-            a great deal, and names radium salts. The cards above are later tests of another kind:
-            in 1932 Cockcroft and Walton set the energy released when lithium nuclei break apart
-            beside the mass lost, and in 1933 Bainbridge weighed those nuclei with a mass
-            spectrograph. They test the result, and they were on no one&rsquo;s shelf when the paper
-            was written.
+            a great deal, and names radium salts. The later comparisons above use nuclear reactions
+            and independent mass measurements. Bainbridge combined his own mass-spectrograph values
+            with Aston&rsquo;s; his letter preserves both an agreement and an unresolved
+            discrepancy. These observations were on no one&rsquo;s shelf when the paper was written.
           </p>
         </section>
         <section id="step-07">

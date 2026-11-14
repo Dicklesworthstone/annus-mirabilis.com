@@ -1,0 +1,45 @@
+# Quantities in Bainbridge's 1933 comparison. The historical mass scale is retained in the dataset.
+- id: reactionEnergyGain
+  name: Nuclear reaction energy gain
+  description: The reported gain of kinetic energy in a nuclear disintegration, after subtracting the incident particle's energy.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: laboratory
+  colorRole: energy
+
+- id: energyEquivalentMass
+  name: Mass equivalent of a reported energy gain
+  description: The mass equivalent calculated from a reported reaction energy using mass-energy equivalence, distinct from a mass difference measured independently.
+  dimensionStatus: declared
+  dimension: [0, 1, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: reactionMassDefect
+  name: Independently measured reaction mass defect
+  description: The positive difference between reactant and product masses, obtained from mass measurements independently of the reported reaction energy.
+  dimensionStatus: declared
+  dimension: [0, 1, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
+- id: quotedMassMeasurementError
+  name: Quoted error of a measured mass difference
+  description: The magnitude of the source's quoted mass error, retaining the source's interpretation rather than assigning a modern confidence level or standard uncertainty.
+  dimensionStatus: declared
+  dimension: [0, 1, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: reactionEnergyMeasurementError
+  name: Error of a reported reaction energy gain
+  description: The uncertainty of a reaction energy inferred from particle observations. An unreported value remains missing, never a zero error.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: laboratory
+  colorRole: statistical

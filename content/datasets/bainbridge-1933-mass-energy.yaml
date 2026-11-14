@@ -1,0 +1,109 @@
+# Visual transcription of the two comparisons in the original letter, p. 123.
+# Receipt: docs/provenance/datasets/bainbridge-1933-mass-energy.md.
+id: bainbridge-1933-mass-energy
+title: "Bainbridge (1933): two comparisons of mass difference and released energy"
+evidenceStatus: historical-measurement
+publications:
+  - id: bainbridge-1933-physical-review
+    citation: cit-bainbridge-1933
+    locator:
+      kind: text
+      page: 123
+      sentence: "The Equivalence of Mass and Energy: the lithium-7 and lithium-6 comparisons"
+    publicationDate:
+      type: issue-publication
+      text: "15 July 1933"
+      earliest: "1933-07-15"
+      latest: "1933-07-15"
+      precision: day
+      source: "Printed page heading, Physical Review volume 44, p. 123"
+      verifiedAt: "2026-11-14"
+      confirmedFromScan: true
+primaryPublicationId: bainbridge-1933-physical-review
+series:
+  - id: lithium-7-proton
+    publicationId: bainbridge-1933-physical-review
+    description: "Lithium-7 plus a proton produces two alpha particles. Bainbridge compares the energy inferred from Cockcroft and Walton's observations with a mass difference using Aston's helium and hydrogen values and his own lithium-7 value. The letter does not give observation dates; its 16 June 1933 dateline and 15 July publication are not observation dates."
+  - id: lithium-6-deuteron
+    publicationId: bainbridge-1933-physical-review
+    description: "Conditional interpretation of Lewis, Livingston and Lawrence's observations as lithium-6 capturing a deuteron and producing two alpha particles. The energy estimate uses extrapolated range-energy data and conservation of momentum. The mass difference uses Aston's helium value and Bainbridge's deuterium and lithium-6 values. The letter does not date these separate observations."
+digitizer:
+  name: "agent:ChatGPT-science-workflow"
+  method: "Manual visual reading of the original printed p. 123, Internet Archive leaf n60, downloaded as a public JPEG. No OCR or embedded text layer was used. Lowered final digits are transcribed as decimal digits: 16.9_7 becomes 16.97, 0.018_1 becomes 0.0181, 0.025_5 becomes 0.0255, and 0.023_8 becomes 0.0238. Both comparisons are retained, including the one Bainbridge judged unsatisfactory."
+  date: "2026-11-14"
+  sourcePageImage: "https://archive.org/download/sim_physical-review_1933-07-15_44_2/page/n60.jpg"
+  digitizationRevision: 1
+columns:
+  - name: "Reported gain of energy, inferred from particle observations"
+    quantityId: reactionEnergyGain
+    unit: "MeV"
+    role: derived
+  - name: "Bainbridge's reported mass equivalent if energy equals mass times light-speed squared"
+    quantityId: energyEquivalentMass
+    unit: "O16-mass-unit"
+    role: derived
+  - name: "Mass difference from independent mass-spectrograph values"
+    quantityId: reactionMassDefect
+    unit: "O16-mass-unit"
+    role: observed
+  - name: "Quoted error of the independent mass difference"
+    quantityId: quotedMassMeasurementError
+    unit: "O16-mass-unit"
+    role: derived
+  - name: "Uncertainty of the reported energy gain"
+    quantityId: reactionEnergyMeasurementError
+    unit: "MeV"
+    role: derived
+rows:
+  - seriesId: lithium-7-proton
+    cells:
+      - kind: number
+        value: 16.97
+        originalToken: "16.9₇ × 10⁶ e-volts"
+      - kind: number
+        value: 0.0182
+        originalToken: "0.0182"
+      - kind: number
+        value: 0.0181
+        originalToken: "0.018₁"
+      - kind: number
+        value: 0.0006
+        originalToken: "±0.0006"
+      - kind: missing
+        reason: "The letter supplies no numerical uncertainty for this energy gain."
+  - seriesId: lithium-6-deuteron
+    cells:
+      - kind: number
+        value: 23.7
+        originalToken: "23.7 × 10⁶ e-volts"
+      - kind: number
+        value: 0.0255
+        originalToken: "0.025₅"
+      - kind: number
+        value: 0.0238
+        originalToken: "0.023₈"
+      - kind: number
+        value: 0.0004
+        originalToken: "±0.0004"
+      - kind: missing
+        reason: "Bainbridge says a stricter comparison must await values including the probable error in determining the alpha-particle ranges; the letter gives no numerical energy uncertainty."
+uncertainty:
+  type: quoted-mass-error-energy-error-unreported
+  perRow: true
+  description: "The quoted mass errors are ±0.0006 and ±0.0004 in the source's O16 mass units. Bainbridge describes the first agreement in terms of probable error. These quantities are not relabelled as standard deviations or 95 percent confidence intervals. No numerical uncertainty is supplied for the energy gains. A discrepancy divided by the quoted mass error is a descriptive ratio only, not a significance statistic or a complete uncertainty budget."
+notes: "The mass unit is the historical physical oxygen-16 scale (oxygen-16 assigned mass 16), exactly as stated on p. 123. It is not the modern carbon-12 unified atomic mass unit, and no conversion between these scales is performed. The energy-equivalent masses are Bainbridge's printed conditional calculations, not a second independent measurement. The measured mass differences come from separate mass-spectrograph results; their printed aggregate values are not reconstructed from the energy law. The first reaction agrees within the quoted mass error. Bainbridge judges the second unsatisfactory and conditions its interpretation on the lithium-6 reaction assignment, momentum conservation and extrapolated range-energy calibration. These are two different reported reactions, not repeated observations for a pooled fit. Observation dates are not supplied by this letter."
+rights:
+  status: in-copyright-witness-only
+  statement: "Numerical facts and short identifying tokens are transcribed with attribution. The original letter and scan are linked as evidence; no scan or full article is redistributed and no public-domain or open-license claim is made."
+  source: "https://doi.org/10.1103/PhysRev.44.123.2"
+  recordedAt: "2026-11-14"
+  reuseTerms: source-terms
+  credit: "Kenneth T. Bainbridge, Physical Review 44, 123 (1933); page image from Internet Archive."
+allowedInferenceModelIds: []
+calibrationIds: []
+sharedInputIds: []
+addressesResults:
+  - resultId: me-mass-decrease
+    relation: tested-a-prediction
+    statement: "The letter compares mass equivalents of reported nuclear reaction energies with mass differences obtained from independent mass measurements. It reports agreement for one reaction and an unresolved discrepancy for another."
+    openQuestion: "The energy uncertainties and full calibration information are not supplied here. The second reaction assignment and range-energy extrapolation are conditional, and neither row establishes a universal statistical test of mass-energy equivalence."
