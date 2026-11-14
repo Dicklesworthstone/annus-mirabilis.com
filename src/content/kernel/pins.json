@@ -131,7 +131,7 @@
     "src/physics/reference/fields.ts": "source:sha256:35f3c9e1b7082b6b3db49289f2f9cac6256addde96ae68888c49508db3684f35",
     "src/physics/reference/waves.ts": "source:sha256:a9a41cdef1247caf617289e9271ece9f64d9a7c3712588a64ee415b1f1016351",
     "src/physics/reference/radiation/waves.ts": "source:sha256:e23539acda7f42f960c576206d22a3f85e2215d29bc6ba28bd8bc2beba2ffd20",
-    "src/physics/reference/radiation/configurations.ts": "source:sha256:1a84ee831f8fe9591e12bf2ec45c2c90923a127bf6448e18dbed651530e1b0c6",
+    "src/physics/reference/radiation/configurations.ts": "source:sha256:2302e129a19da353b60b0ff9b21a0458a52e5099d78861fc0fdd0a3e14a269e7",
     "src/physics/reference/radiation/quanta.ts": "source:sha256:403c9876a03e3d2cf3b7d36dfd9c3cf1d817f1a92d41e02cfd8a4b840a60855b",
     "src/physics/reference/photoelectric.ts": "source:sha256:ca361598255f5613f435d993ff93cce920609c66259a3cd50ec79d1ba50d9fa3",
     "src/physics/reference/radiation/classical.ts": "source:sha256:4bd17877af687af97ac3f7f121fa33122bde72efb436578174b695939adfe8a5",
