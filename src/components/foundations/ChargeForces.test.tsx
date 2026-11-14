@@ -289,6 +289,14 @@ test("the charge lesson remains meaningful without JavaScript or a visible force
   );
   expect(html).toContain("JavaScript is off, so the controls below cannot change anything.");
   expect(html).toContain("<h4");
+  const titles = [...html.matchAll(/<title(?:\s[^>]*)?>([^<]*)<\/title>/g)].map(
+    (match) => match[1],
+  );
+  expect(titles).toEqual([
+    "Electric force: up (+y)",
+    "Magnetic force: down (−y)",
+    "Total force: Zero force",
+  ]);
   expect(html).toContain("Ideal model, host calculation");
   expect(html).toContain(
     "<caption>Separate forces and their total at the applied settings</caption>",

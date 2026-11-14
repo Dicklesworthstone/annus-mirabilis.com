@@ -5,6 +5,7 @@ import {
   readWaveInputs,
   WAVE_FIELDS,
   WAVE_PLOT_WIDTH_NM,
+  waveDisplayValue,
   waveInputs,
   waveNumber,
   waveSamples,
@@ -181,7 +182,31 @@ describe("wave settings preserve an applied picture until legal input is supplie
       settings: DEFAULT_WAVE_SETTINGS,
     });
     assert.equal(waveNumber(-0), "0");
-    assert.equal(waveNumber(-1e-15), "0");
+    assert.equal(waveNumber(-1e-15), "minus 1.0000 times 10 to the power minus 15");
     assert.equal(waveNumber(-0.5), "−0.5");
+  });
+
+  it("preserves a weak wave while suppressing only roundoff relative to its amplitude", () => {
+    assert.equal(waveDisplayValue(-1e-15), -1e-15);
+    assert.equal(waveDisplayValue(-1e-15, 1), 0);
+    assert.equal(waveNumber(-1e-15, 1), "0");
+    assert.equal(waveDisplayValue(-1e-15, 0.001), -1e-15);
+
+    const weak = accepted({ ...DEFAULT_WAVE_SETTINGS, amplitudeVpm: 0.001 });
+    const squaredAmplitude = weak.settings.amplitudeVpm ** 2;
+    assert.ok(Math.abs(weak.cycleMeanSquareVpm2 - 5e-7) <= 5e-19);
+    assert.equal(
+      waveDisplayValue(weak.cycleMeanSquareVpm2, squaredAmplitude),
+      weak.cycleMeanSquareVpm2,
+    );
+    assert.equal(
+      waveNumber(weak.cycleMeanSquareVpm2, squaredAmplitude),
+      "5.0000 times 10 to the power minus 7",
+    );
+    assert.equal(waveNumber(weak.probe.fieldVpm, weak.settings.amplitudeVpm), "0.001");
+
+    const quarter = accepted({ ...weak.settings, timeFs: weak.periodFs / 4 });
+    assert.equal(waveDisplayValue(quarter.probe.fieldVpm, weak.settings.amplitudeVpm), 0);
+    assert.equal(waveNumber(quarter.probe.fieldVpm, weak.settings.amplitudeVpm), "0");
   });
 });
