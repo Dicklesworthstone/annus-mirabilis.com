@@ -7,11 +7,12 @@
  * - reading: each paragraph's R0 overview, and a way to the passage that explains it, labelled as
  *   leaving the equation-free path;
  * - instrument: the prompt's question and its three choices, each opening its response in a native
- *   <details>, so the step works without JavaScript and nothing is scored. Light quanta, mass–energy
- *   and relativity mount compact owner-backed instruments with worked tables in the initial HTML. Other
- *   laboratories still link their full reading until an equation-free face exists;
+ *   <details>, so the step works without JavaScript and nothing is scored. All four paper tours
+ *   mount compact owner-backed instruments with worked tables in the initial HTML. The Brownian
+ *   shape comparison also provides histograms and their accessible data tables;
  * - journey stage: the journey's own move summary, by reference, labelled a draft while it is one.
  */
+import brownianEntrance from "../../../content/arguments/brownian-motion/entrance-brownian-motion.json";
 import lightQuantaEntrance from "../../../content/arguments/light-quanta/entrance-light-quanta.json";
 import relativityEntrance from "../../../content/arguments/special-relativity/entrance-special-relativity.json";
 import { validateEntranceRecord } from "../../content/entrances/entranceRecord.ts";
@@ -23,6 +24,9 @@ import {
   LazyLightQuantaFirstEncounter,
   LazyMassEnergyFirstEncounter,
 } from "../../reader/lazyIslands.tsx";
+import { BrownianTourFirstEncounter } from "./BrownianTourFirstEncounter.tsx";
+import { BrownianTourInstrument } from "./BrownianTourInstrument.tsx";
+import { brownianTourSpec } from "./brownianTourSpec.ts";
 import { LightQuantaTourInstrument } from "./LightQuantaTourInstrument.tsx";
 import { lightQuantaTourSpec } from "./lightQuantaTourSpec.ts";
 import { MassEnergyTourInstrument } from "./MassEnergyTourInstrument.tsx";
@@ -41,6 +45,8 @@ function FirstEncounter({
   paper: string;
   step: Extract<TourStep, { kind: "first-encounter" }>;
 }) {
+  if (paper === "brownian-motion" && step.recordId === brownianEntrance.id)
+    return <BrownianTourFirstEncounter record={validateEntranceRecord(brownianEntrance)} />;
   if (paper === "special-relativity" && step.recordId === relativityEntrance.id)
     return <LazyClockFirstEncounter record={validateEntranceRecord(relativityEntrance)} />;
   if (paper === "light-quanta" && step.recordId === lightQuantaEntrance.id)
@@ -103,6 +109,15 @@ async function Instrument({ step }: { step: Extract<TourStep, { kind: "instrumen
   if (spec)
     return (
       <MassEnergyTourInstrument step={step} spec={spec} instanceId={`tour-${step.id}-${spec.id}`} />
+    );
+  const brownian = await brownianTourSpec(step);
+  if (brownian)
+    return (
+      <BrownianTourInstrument
+        step={step}
+        spec={brownian}
+        instanceId={`tour-${step.id}-${brownian.id}`}
+      />
     );
   const relativity = await relativityTourSpec(step);
   if (relativity)
