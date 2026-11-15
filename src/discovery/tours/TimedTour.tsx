@@ -7,17 +7,19 @@
  * - reading: each paragraph's R0 overview, and a way to the passage that explains it, labelled as
  *   leaving the equation-free path;
  * - instrument: the prompt's question and its three choices, each opening its response in a native
- *   <details>, so the step works without JavaScript and nothing is scored. Light quanta and mass–energy mount
- *   compact owner-backed instruments, with worked tables retained in the initial HTML. Other
+ *   <details>, so the step works without JavaScript and nothing is scored. Light quanta, mass–energy
+ *   and relativity mount compact owner-backed instruments with worked tables in the initial HTML. Other
  *   laboratories still link their full reading until an equation-free face exists;
  * - journey stage: the journey's own move summary, by reference, labelled a draft while it is one.
  */
 import lightQuantaEntrance from "../../../content/arguments/light-quanta/entrance-light-quanta.json";
+import relativityEntrance from "../../../content/arguments/special-relativity/entrance-special-relativity.json";
 import { validateEntranceRecord } from "../../content/entrances/entranceRecord.ts";
 import type { Tour, TourStep } from "../../content/tours/tours.ts";
 import entranceExample from "../../generated/mass-energy-entrance.json";
 import type { MassEnergyEntranceScenario } from "../../reader/entrances/massEnergyExample.ts";
 import {
+  LazyClockFirstEncounter,
   LazyLightQuantaFirstEncounter,
   LazyMassEnergyFirstEncounter,
 } from "../../reader/lazyIslands.tsx";
@@ -25,6 +27,8 @@ import { LightQuantaTourInstrument } from "./LightQuantaTourInstrument.tsx";
 import { lightQuantaTourSpec } from "./lightQuantaTourSpec.ts";
 import { MassEnergyTourInstrument } from "./MassEnergyTourInstrument.tsx";
 import { massEnergyTourSpec } from "./massEnergyTourSpec.ts";
+import { RelativityTourInstrument } from "./RelativityTourInstrument.tsx";
+import { relativityTourSpec } from "./relativityTourSpec.ts";
 
 /** "ME-01" for me-01: the name the laboratory page carries. */
 const labName = (id: string) => id.toUpperCase();
@@ -37,6 +41,8 @@ function FirstEncounter({
   paper: string;
   step: Extract<TourStep, { kind: "first-encounter" }>;
 }) {
+  if (paper === "special-relativity" && step.recordId === relativityEntrance.id)
+    return <LazyClockFirstEncounter record={validateEntranceRecord(relativityEntrance)} />;
   if (paper === "light-quanta" && step.recordId === lightQuantaEntrance.id)
     return <LazyLightQuantaFirstEncounter record={validateEntranceRecord(lightQuantaEntrance)} />;
   if (step.recordId !== "entrance-mass-energy")
@@ -97,6 +103,15 @@ async function Instrument({ step }: { step: Extract<TourStep, { kind: "instrumen
   if (spec)
     return (
       <MassEnergyTourInstrument step={step} spec={spec} instanceId={`tour-${step.id}-${spec.id}`} />
+    );
+  const relativity = await relativityTourSpec(step);
+  if (relativity)
+    return (
+      <RelativityTourInstrument
+        step={step}
+        spec={relativity}
+        instanceId={`tour-${step.id}-${relativity.id}`}
+      />
     );
   return (
     <div data-instrument-step={step.instrumentId} data-prompt-id={step.promptId}>

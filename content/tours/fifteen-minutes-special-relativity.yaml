@@ -18,13 +18,11 @@
 # `still-simultaneous-8-ls` and `not-simultaneous-not-a-length`; sr-03.yaml registers
 # `earlier-trailing`, `still-simultaneous` and `later-trailing`, and asks for the SIGN of the time
 # separation in the rod's frame rather than for a simultaneity-and-length verdict. Its numbers
-# differ too: the bead's 7.5 s and 12.5 ls belong to a pair 10 ls apart in our frame, while the
-# preset the bead cites, sr-03-boost-0.6c, selects the pair `platform-simultaneous` on a rod of rest
-# length 10 ls, which our frame measures as 8 ls, giving 6 seconds in the rod's frame. This tour
-# follows the manifest on all three counts, because the bead requires it to: it "never invents a
-# question its instrument does not ask and never renames a prompt its owner has registered", and
-# "the fix belongs in whichever file departed from the owner's manifest", which here is the bead's
-# own superseded table rather than sr-03.yaml.
+# differ too: the bead's 7.5 s and 12.5 ls belong to two arbitrary platform marks 10 ls apart.
+# The older sr-03-boost-0.6c preset selects exactly that pair, not both ends of the moving rod.
+# This tour uses sr-03-valid-pair-0.6c instead: its frame-simultaneous pair lies on the rod's
+# endpoints, 8 ls apart at one platform time and 6 seconds apart in the rod's frame. The live
+# comparison and prepared tables therefore answer the rod-end question actually asked here.
 #
 # STEP 7 DOES NOT USE THE PARAGRAPH THE BEAD NAMES, which is the second departure and the same shape
 # as the light-quanta tour's. The bead asks for "the §4 paragraph on the clock moved from A to B",
@@ -94,7 +92,7 @@ steps:
     kind: instrument
     instrument: sr-03
     promptId: sr-03-predict-endpoint-pair
-    preset: sr-03-boost-0.6c
+    preset: sr-03-valid-pair-0.6c
     minutes: 2
     purpose: "What it takes to measure the length of something that is moving: catch both of its ends at one time. The question is whose time, and what the pair of markings looks like to the rod."
     tourPrediction:
