@@ -239,7 +239,7 @@ describe("independent dimension premises and truthful operation readings", () =>
     ).toEqual(["0", "0", "0", "0", "0", "1"]);
   });
 
-  test("dimensionful logarithm arguments and symbolic-power exponents are refused (sourceSemantics.ts:378)", () => {
+  test("dimensionful logarithm arguments and symbolic-power exponents are refused (sourceSemantics.ts:383)", () => {
     const logarithm = parse(display("eq-s5-d6")).rows[0]?.tree;
     if (logarithm?.kind !== "relation") throw new Error("The entropy law must be an equality.");
     const altered = {
@@ -276,7 +276,7 @@ describe("independent dimension premises and truthful operation readings", () =>
     expect(() => compile(d)).not.toThrow();
   });
 
-  test("dimensionally consistent but non-entropy laws fail the independently authored premise (sourceSemantics.ts:403)", () => {
+  test("dimensionally consistent but non-entropy laws fail the independently authored premise (sourceSemantics.ts:408)", () => {
     const altered = new Map(quantities);
     for (const id of ["entropy", "molarGasConstant"]) {
       const q = quantities.get(id);
@@ -301,7 +301,7 @@ describe("independent dimension premises and truthful operation readings", () =>
     expect(() => compile(d)).not.toThrow();
   });
 
-  test("a cosine cannot inherit logarithm prose, nor a logarithm inherit the mass-energy cosine reading (sourceSemantics.ts:447)", async () => {
+  test("a cosine cannot inherit logarithm prose, nor a logarithm inherit the mass-energy cosine reading (sourceSemantics.ts:452)", async () => {
     const lq = display("eq-s4-d5");
     const wrongCosine = replaceOperator(lq, "\\lg", "\\cos");
     expect(refuses(() => compile(wrongCosine), "printed-source-operation")).toContain(
@@ -318,7 +318,7 @@ describe("independent dimension premises and truthful operation readings", () =>
     expect(() => compile(me)).not.toThrow();
   });
 
-  test("a lost reference-state glyph cannot silently drop its authored instance binding (sourceSemantics.ts:340)", () => {
+  test("a lost reference-state glyph cannot silently drop its authored instance binding (sourceSemantics.ts:345)", () => {
     const d = display("eq-s5-d7");
     const changed = {
       ...d,

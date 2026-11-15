@@ -179,7 +179,7 @@ describe("exact dimensions and scientific limitations", () => {
     ]);
   });
 
-  test("an inconsistent unit and an unsupported dimension stop publication (sourceSemantics.ts:378)", () => {
+  test("an inconsistent unit and an unsupported dimension stop publication (sourceSemantics.ts:383)", () => {
     const d = display("eq-s0-d7");
     const q = quantities.get("speedOfLight");
     if (!q) throw new Error("The canonical speed of light must exist.");
@@ -253,7 +253,7 @@ describe("source rendering with safe operation markers", () => {
     expect(markSourceOperations("abcdef", [mark])).toContain("operation.one");
   });
 
-  test("an extra binding is refused, other papers stay disabled (sourceSemantics.ts:340)", () => {
+  test("an extra binding is refused, other papers stay disabled (sourceSemantics.ts:345)", () => {
     const d = display("eq-s0-d7");
     const first = d.terms[0];
     if (!first) throw new Error("The source fixture must contain terms.");
@@ -316,7 +316,7 @@ describe("every publication guard has an actual reject and accept case", () => {
     expect(compile(d).semantics.operations.some((operation) => operation.primary)).toBe(true);
   });
 
-  test("a guide bound to a different expression is refused (sourceSemantics.ts:366)", () => {
+  test("a guide bound to a different expression is refused (sourceSemantics.ts:371)", () => {
     const d = display("eq-s0-d7");
     expect(
       refuses(
@@ -332,7 +332,7 @@ describe("every publication guard has an actual reject and accept case", () => {
     expect(() => compile(d)).not.toThrow();
   });
 
-  test("a changed power cannot keep the authored square explanation (sourceSemantics.ts:447)", () => {
+  test("a changed power cannot keep the authored square explanation (sourceSemantics.ts:452)", () => {
     const d = display("eq-s0-d1");
     // The radicand remains dimensionless and all quantity bindings retain their offsets,
     // so this reaches the authored-reading check rather than an earlier dimension refusal.
@@ -346,7 +346,7 @@ describe("every publication guard has an actual reject and accept case", () => {
     expect(() => compile(d)).not.toThrow();
   });
 
-  test("consistent non-energy equalities cannot masquerade as the source ledger (sourceSemantics.ts:403)", () => {
+  test("consistent non-energy equalities cannot masquerade as the source ledger (sourceSemantics.ts:408)", () => {
     const d = display("eq-s0-d2");
     const altered = new Map(quantities);
     for (const id of ["bodyEnergyRestBefore", "bodyEnergyRestAfter", "emittedEnergyRestFrame"]) {

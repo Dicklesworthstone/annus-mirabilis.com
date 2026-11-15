@@ -13,7 +13,18 @@ import {
   sourceDimensionRegistry,
 } from "./sourceSemantics.ts";
 
-const IDS = ["eq-s3-d9", "eq-s5-d1", "eq-s5-d2", "eq-s5-d3", "eq-s5-d5"];
+const IDS = [
+  "eq-s1-d1",
+  "eq-s1-d2",
+  "eq-s3-d5",
+  "eq-s3-d6",
+  "eq-s3-d9",
+  "eq-s4-d12",
+  "eq-s5-d1",
+  "eq-s5-d2",
+  "eq-s5-d3",
+  "eq-s5-d5",
+];
 const checked = await checkPaperDisplays(process.cwd(), "brownian-motion");
 if (!checked || checked.problems.length) throw new Error("The Brownian source must check clean.");
 const quantities = getQuantityRegistry().quantities;
@@ -29,6 +40,11 @@ function compile(source: CheckedDisplay) {
   const result = compilePrintedSourceSemantics(source, compilePrintedDisplay(source), quantities);
   if (!result) throw new Error("The named Brownian display must publish source semantics.");
   return result;
+}
+
+function parse(source: CheckedDisplay) {
+  const guide = BROWNIAN_OPERATION_GUIDES[source.display];
+  return parseSourceExpression(source, guide?.symbolIndices, guide?.allowChainedRelations);
 }
 
 function refuses(action: () => unknown, code: string): string {
@@ -58,7 +74,7 @@ function replaceOperator(source: CheckedDisplay, from: string, to: string): Chec
 }
 
 describe("the Brownian source's diffusivity, displacement and inference operations", () => {
-  test("the five named relations publish and other printed forms keep their original rendering", async () => {
+  test("the named displays publish and other printed forms keep their original rendering", async () => {
     expect(Object.keys(BROWNIAN_OPERATION_GUIDES).sort()).toEqual([...IDS].sort());
     const published = await printedDisplays(process.cwd(), ["brownian-motion"], []);
     expect(published.problems).toEqual([]);
@@ -90,7 +106,7 @@ describe("the Brownian source's diffusivity, displacement and inference operatio
   test("pi stays an exact named constant and every printed physical occurrence retains its binding", () => {
     for (const id of IDS) {
       const source = display(id);
-      const parsed = parseSourceExpression(source);
+      const parsed = parse(source);
       const terms = sourceNodes(parsed).flatMap(({ node }) =>
         node.tree.kind === "symbol" ? [node.tree] : [],
       );
@@ -141,9 +157,8 @@ describe("the Brownian source's diffusivity, displacement and inference operatio
     // KaTeX marks only lambda's base when its subscript and a square share a math atom.
     // Parsing still consumes the whole checked name before reading the independent power.
     expect(inference.latex.slice(displacement.start, displacement.end)).toBe("\\lambda");
-    const squared = sourceNodes(parseSourceExpression(inference)).find(
-      ({ node }) => node.tree.kind === "power",
-    )?.node.tree;
+    const squared = sourceNodes(parse(inference)).find(({ node }) => node.tree.kind === "power")
+      ?.node.tree;
     expect(squared?.kind).toBe("power");
     if (squared?.kind !== "power") throw new Error("The observed RMS must remain squared.");
     expect(squared.exponent).toEqual({ num: 2, den: 1 });
@@ -167,9 +182,7 @@ describe("the Brownian source's diffusivity, displacement and inference operatio
       expect(JSON.stringify(source)).toBe(before);
       const restored = JSON.parse(JSON.stringify(built.semantics)) as typeof built.semantics;
       expect(restored.rows).toEqual(built.semantics.rows);
-      expect(restored.roundTrip.canonicalLatex).toBe(
-        canonicalSourceLatex(source, parseSourceExpression(source)),
-      );
+      expect(restored.roundTrip.canonicalLatex).toBe(canonicalSourceLatex(source, parse(source)));
       expect(restored.roundTrip.status).toBe(
         restored.roundTrip.canonicalLatex === source.latex ? "identical" : "typography-exception",
       );
@@ -177,6 +190,51 @@ describe("the Brownian source's diffusivity, displacement and inference operatio
         1,
       );
     }
+  });
+
+  test("the RMS definition and diffusion prediction retain different statistical and time roles", () => {
+    const source = display("eq-s4-d12");
+    const parsed = parse(source);
+    const built = compile(source);
+    expect(parsed.rows).toHaveLength(2);
+    expect(parsed.continuationRows).toEqual([1]);
+    const meanSquare = source.terms.find((term) => term.glyph === "\\overline{x^2}");
+    expect(meanSquare?.quantityId).toBe("meanSquareDisplacement1d");
+    expect(source.terms.find((term) => term.glyph === "t")?.quantityId).toBe("observationInterval");
+    const definition = parsed.rows[0]?.tree;
+    if (definition?.kind !== "relation" || definition.right.kind !== "root")
+      throw new Error("The first equality must define RMS by a square root.");
+    expect(definition.right.radicand).toMatchObject({
+      kind: "symbol",
+      quantityId: "meanSquareDisplacement1d",
+      termId: meanSquare?.termId,
+    });
+    const prediction = built.semantics.operations.find((operation) => operation.path === "row2");
+    expect(prediction?.primary).toBe(true);
+    expect(prediction?.why).toContain("not part of the definition of RMS");
+    expect(prediction?.dimensionExponents).toEqual(["1", "0", "0", "0", "0", "0"]);
+    expect(
+      built.semantics.operations.find((operation) => operation.path === "row2.right.radicand")
+        ?.dimensionExponents,
+    ).toEqual(["2", "0", "0", "0", "0", "0"]);
+    expect(built.semantics.premise).toContain("not a signed mean or a variance");
+    // These quantities have matching dimensions but mean different things. Neither the
+    // zero-drift assumption nor dimensional consistency licenses changing the source's role.
+    for (const [original, replacement] of [
+      ["meanSquareDisplacement1d", "displacementVariance1d"],
+      ["observationInterval", "fieldTimeCoordinate"],
+    ] as const)
+      refuses(
+        () =>
+          compile({
+            ...source,
+            terms: source.terms.map((term) =>
+              term.quantityId === original ? { ...term, quantityId: replacement } : term,
+            ),
+          }),
+        "printed-source-operation",
+      );
+    refuses(() => compile(replaceOperator(source, "2 D", "6 D")), "printed-source-operation");
   });
 
   test("the same printed N changes role only in the inference display", () => {

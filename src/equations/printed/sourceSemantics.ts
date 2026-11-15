@@ -303,8 +303,13 @@ export function compilePrintedSourceSemantics(
     );
   const indices =
     relativity?.symbolIndices ?? brownian?.symbolIndices ?? lightQuanta?.symbolIndices ?? {};
-  const parsed = parseSourceExpression(display, indices, relativity?.allowChainedRelations);
-  const expectedOperator = budget ? budget.relationOperator : "=";
+  const parsed = parseSourceExpression(
+    display,
+    indices,
+    relativity?.allowChainedRelations ?? brownian?.allowChainedRelations,
+  );
+  const expectedOperator =
+    brownian?.relationOperator === null ? null : budget ? budget.relationOperator : "=";
   if (
     parsed.rows.some(({ tree }) =>
       tree.kind === "relation" ? tree.operator !== expectedOperator : expectedOperator !== null,
