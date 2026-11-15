@@ -8,7 +8,7 @@ import { parseU64 } from "../../experiments/identity/u64.ts";
 import { WALKTHROUGH_CATALOGUE } from "../../experiments/permalink/walkthroughCatalogue.ts";
 import type { WalkthroughCatalogue, WalkthroughCheckpoint } from "../../experiments/permalink/walkthroughCheckpoints.ts";
 import { PresentationProvider } from "../../experiments/presentation.ts";
-import type { PublishedResult } from "../../experiments/store/instanceStore.ts";
+import type { ExperimentView, PublishedResult } from "../../experiments/store/instanceStore.ts";
 import { createContainer, installDom, uninstallDom } from "../../testing/reactDom.ts";
 import { exportMarkup } from "../../testing/exportMarkup.ts";
 import type { WorkerChannel } from "../../workers/scheduler/hostScheduler.ts";
@@ -17,7 +17,7 @@ import { TimedTour } from "./TimedTour.tsx";
 import { BrownianTourView } from "./BrownianTourViews.tsx";
 import { brownianAcceptedAction, brownianTourExecution, createBrownianTourOwner } from "./brownianTourOwners.ts";
 import { brownianHistogram } from "./brownianTourPresentation.ts";
-import { BrownianTourBindingError, brownianKernelActions, brownianTourSpec, type BrownianTourSpec, type BrownianTourStep } from "./brownianTourSpec.ts";
+import { blockedBrownianTourWorker, brownianKernelActions, brownianTourSpec, brownianWorkedRow, readBrownianTourPreset, requireBrownianTourHistogram, type BrownianTourSpec, type BrownianTourStep } from "./brownianTourSpec.ts";
 
 const loaded = loadTour(process.cwd(), "fifteen-minutes-brownian-motion");
 assert.ok(loaded);
@@ -161,13 +161,13 @@ describe("Brownian tour comparisons use scientific owner results", () => {
     expect(scalar(second.outputs, "rmsDisplacement1d")).toBe(scalar(first.outputs, "rmsDisplacement1d"));
   });
 
-  test("(brownianTourSpec.ts:181) (brownianTourSpec.ts:223) (brownianTourSpec.ts:272) another prompt or reveal cannot substitute for an authored lesson", async () => {
+  test("(brownianTourSpec.ts:189) (brownianTourSpec.ts:231) (brownianTourSpec.ts:279) another prompt or reveal cannot substitute for an authored lesson", async () => {
     for (const id of ids)
       await expect(brownianTourSpec({ ...stepFor(id), controlId: "wrong-control" }))
         .rejects.toMatchObject({ code: "brownian-tour-binding" });
   });
 
-  test("(brownianTourSpec.ts:72) (brownianTourSpec.ts:187) (brownianTourSpec.ts:278) (brownianTourSpec.ts:302) unsafe or mismatched presets fail before becoming a comparison", async () => {
+  test("(brownianTourSpec.ts:72) (brownianTourSpec.ts:195) (brownianTourSpec.ts:285) (brownianTourSpec.ts:309) unsafe or mismatched presets fail before becoming a comparison", async () => {
     const tracer = specFor("bm-01");
     const distribution = specFor("bm-06");
     assert.ok(tracer.id === "bm-01" && distribution.id === "bm-06");
@@ -183,8 +183,12 @@ describe("Brownian tour comparisons use scientific owner results", () => {
       .rejects.toMatchObject({ code: "brownian-tour-binding" });
   });
 
-  test("(brownianTourSpec.ts:113) (brownianTourSpec.ts:118) (brownianTourSpec.ts:120) (brownianTourSpec.ts:125) (brownianTourSpec.ts:134) (brownianTourSpec.ts:154) missing, incompatible or altered recorded settings cannot masquerade as the walkthrough", () => {
-    expect(() => brownianKernelActions({ walkthroughs: [], problems: [] })).toThrow(BrownianTourBindingError);
+  test("(brownianTourSpec.ts:118) missing, incompatible or altered recorded settings cannot masquerade as the walkthrough", () => {
+    const rejectsTape = (run: () => unknown) => assert.throws(run, {
+      name: "BrownianTourBindingError", code: "brownian-tour-tape",
+    });
+    expect(brownianKernelActions(WALKTHROUGH_CATALOGUE).length).toBe(3);
+    rejectsTape(() => brownianKernelActions({ walkthroughs: [], problems: [] }));
     for (const mutate of [
       (stop: WalkthroughCheckpoint) => ({ ...stop, settings: { ...stop.settings, n: 399 } }),
       (stop: WalkthroughCheckpoint) => ({ ...stop, tape: null }),
@@ -203,14 +207,14 @@ describe("Brownian tour comparisons use scientific owner results", () => {
         } : null,
       }),
     ]) {
-      expect(() => brownianKernelActions(changeStops((stop) => stop.settings.n === 400 ? mutate(stop) : stop)))
-        .toThrow(BrownianTourBindingError);
+      rejectsTape(() => brownianKernelActions(changeStops((stop) =>
+        stop.settings.n === 400 ? mutate(stop) : stop)));
     }
   });
 
-  test("(brownianTourSpec.ts:139) (brownianTourSpec.ts:143) a broken recorded prefix is refused even if its final displayed settings look right", () => {
+  test("(brownianTourSpec.ts:118) a broken recorded prefix is refused even if its final displayed settings look right", () => {
     for (const invalidPrevious of [false, true])
-      expect(() => brownianKernelActions(changeStops((stop) =>
+      assert.throws(() => brownianKernelActions(changeStops((stop) =>
         stop.settings.n !== 400 || !stop.tape ? stop : {
           ...stop,
           tape: {
@@ -218,10 +222,10 @@ describe("Brownian tour comparisons use scientific owner results", () => {
             events: stop.tape.events.map((event, index) => index ? event :
               invalidPrevious ? { ...event, previousValue: 999 } : { ...event, paramId: "unrecognized" }),
           },
-        }))).toThrow(BrownianTourBindingError);
+        })), { name: "BrownianTourBindingError", code: "brownian-tour-tape" });
   });
 
-  test("(brownianTourSpec.ts:162) a consistent recorded prefix cannot change the variance of only one rule", () => {
+  test("(brownianTourSpec.ts:118) a consistent recorded prefix cannot change the variance of only one rule", () => {
     const changed = changeStops((stop) => {
       if (stop.settings.n !== 400 || stop.settings.kernel !== "uniform" || !stop.tape) return stop;
       const stepRms = Number(stop.settings.stepRms) * 2;
@@ -231,7 +235,56 @@ describe("Brownian tour comparisons use scientific owner results", () => {
         tape: { ...stop.tape, initialConditions: { ...stop.tape.initialConditions, stepRms } },
       };
     });
-    expect(() => brownianKernelActions(changed)).toThrow("Only the step rule may differ");
+    assert.throws(() => brownianKernelActions(changed), {
+      code: "brownian-tour-tape", message: /Only the step rule may differ/,
+    });
+  });
+
+  test("(brownianTourSpec.ts:77) the server factory refuses accidental worker creation while session construction stays static", () => {
+    const owner = createBrownianTourOwner(specFor("bm-01"), "server-worker-guard", blockedBrownianTourWorker);
+    expect(owner.getSnapshot().accepted?.final).toBe(true);
+    assert.throws(blockedBrownianTourWorker, {
+      code: "brownian-tour-owner", message: "A worked example cannot start a worker.",
+    });
+    owner.disconnect();
+  });
+
+  test("(brownianTourSpec.ts:82) pending, incomplete and refused views cannot label old outputs as a worked comparison", () => {
+    const owner = createBrownianTourOwner(specFor("bm-06"), "worked-row-guard", blockedBrownianTourWorker);
+    const view = owner.getSnapshot();
+    assert.ok(view.accepted);
+    expect(brownianWorkedRow("accepted", "Accepted", view).outputs.length).toBeGreaterThan(0);
+    const invalid: readonly ExperimentView[] = [
+      { ...view, status: "pending", pending: true },
+      { ...view, accepted: { ...view.accepted, final: false } },
+      { ...view, status: "refused" },
+      { ...view, accepted: null },
+    ];
+    for (const candidate of invalid)
+      assert.throws(() => brownianWorkedRow("invalid", "Invalid", candidate), {
+        code: "brownian-tour-owner", message: "A worked row needs a final accepted result.",
+      });
+    owner.disconnect();
+  });
+
+  test("(brownianTourSpec.ts:105) a missing preset is refused in the real validated manifest", () => {
+    expect(readBrownianTourPreset("bm-01", "bm-01-radius-probe").parameterValues.interval).toBe(1);
+    assert.throws(() => readBrownianTourPreset("bm-01", "bm-01-tour-missing-preset"), {
+      code: "brownian-tour-binding", message: "The tour's authored preset is missing.",
+    });
+  });
+
+  test("(brownianTourSpec.ts:95) a missing owner array cannot become a required histogram", () => {
+    const owner = createBrownianTourOwner(specFor("bm-05"), "histogram-guard", blockedBrownianTourWorker);
+    const accepted = owner.getSnapshot().accepted;
+    assert.ok(accepted);
+    const histogram = requireBrownianTourHistogram(accepted.outputs);
+    expect(histogram.edges.length).toBe(histogram.observed.length + 1);
+    const incomplete = accepted.outputs.filter((output) => output.quantityId !== "histogramGaussian");
+    assert.throws(() => requireBrownianTourHistogram(incomplete), {
+      code: "brownian-tour-owner", message: "The walk owner did not publish its histogram.",
+    });
+    owner.disconnect();
   });
 
   test("histogram projection never invents unavailable arrays", () => {
