@@ -4,6 +4,11 @@
  * Spec: AGENTS.md, am-cm-machine-readable-exports-xgy, and docs/EXPORTS.md.
  */
 
+import type { Expression } from "../../equations/ast.ts";
+import type { Experiment } from "../schemas/experiment.ts";
+import type { Argument } from "../schemas/reading.ts";
+import type { AlignmentEdge, EditorialNote, SourceBlock, TranslationUnit } from "../schemas/source.ts";
+
 export const EXPORT_SCHEMA_VERSION = 1 as const;
 
 export type ExportFormat = "json" | "markdown" | "xml" | "tsv";
@@ -82,6 +87,12 @@ export interface PaperExport {
   readonly rights: LayerRights;
   readonly contentRevision: string;
   readonly sourceAssetDigest?: string | undefined;
+  readonly sourceRevision?: string | undefined;
+  readonly translationDigest?: string | undefined;
+  readonly status?: string | undefined;
+  readonly sourceStatus?: string | undefined;
+  readonly sourceNotice?: string | undefined;
+  readonly editorialNotes?: readonly EditorialNote[] | undefined;
   readonly links: {
     readonly self: string;
     readonly jsonld: string;
@@ -96,6 +107,7 @@ export interface SectionSentenceExport {
   readonly english?: string | undefined;
   readonly sourceBlockId: string;
   readonly translationUnitId?: string | undefined;
+  readonly translationUnitIds?: readonly string[] | undefined;
   readonly reviewState?: string | undefined;
   readonly draft?: boolean | undefined;
 }
@@ -111,6 +123,9 @@ export interface SectionBlockExport {
   }[];
   readonly translation?: string | undefined;
   readonly equationId?: string | undefined;
+  readonly revision?: number | undefined;
+  readonly status?: SourceBlock["status"] | undefined;
+  readonly inlines?: SourceBlock["inlines"] | undefined;
 }
 
 export interface SectionReadingBlockExport {
@@ -149,6 +164,7 @@ export interface SectionExport {
         readonly id: string;
         readonly title: string;
         readonly text: string;
+        readonly record?: EditorialNote | undefined;
       }[]
     | undefined;
   readonly reviewState?: string | undefined;
@@ -157,6 +173,12 @@ export interface SectionExport {
   readonly contentRevision: string;
   readonly translationRevision?: number | undefined;
   readonly sourceAssetDigest?: string | undefined;
+  readonly sourceRevision?: string | undefined;
+  readonly translationDigest?: string | undefined;
+  /** Exact many-to-many edges; the sentence English is only a convenience projection. */
+  readonly alignments?: readonly AlignmentEdge[] | undefined;
+  readonly translationUnits?: readonly TranslationUnit[] | undefined;
+  readonly arguments?: readonly Argument[] | undefined;
 }
 
 export interface EquationExport {
@@ -175,6 +197,10 @@ export interface EquationExport {
   readonly derivations?: readonly string[];
   readonly rights: LayerRights;
   readonly contentRevision: string;
+  readonly reviewState?: string | undefined;
+  readonly notation?: string | undefined;
+  readonly assumptions?: readonly string[] | undefined;
+  readonly tree?: Expression | undefined;
 }
 
 export interface ArgumentExport {
@@ -199,6 +225,9 @@ export interface ArgumentExport {
   readonly citations?: readonly string[];
   readonly rights: LayerRights;
   readonly contentRevision: string;
+  readonly reviewState?: string | undefined;
+  readonly prerequisites?: Argument["prerequisites"] | undefined;
+  readonly readings?: Argument["readings"] | undefined;
 }
 
 export interface ExperimentExportParameter {
@@ -228,6 +257,8 @@ export interface ExperimentExport {
   readonly historicalBasis?: string;
   readonly rights: LayerRights;
   readonly contentRevision: string;
+  /** Complete declarative manifest, including categorical and boolean parameters. */
+  readonly manifest?: Experiment | undefined;
 }
 
 export interface ExportIndexEntry {
