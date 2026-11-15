@@ -26,6 +26,7 @@ import {
   lqWienEntropyDerivation,
 } from "./lightQuantaEntropy.ts";
 import { verifyLqCoefficientCorrespondence } from "./lightQuantaCoefficientProof.ts";
+import { verifyLqWienEntropy } from "./lightQuantaEntropyProof.ts";
 import { evaluateExpression } from "./spotCheck.ts";
 import type { DerivationChain, DerivationStep } from "./types.ts";
 import { verifyChain } from "./verifyChain.ts";
@@ -47,18 +48,17 @@ function near(actual: number, expected: number, relative = 1e-10) {
   );
 }
 
-test("LQ coefficient algebra is checked while calculus and model claims remain drafts", () => {
+test("LQ calculus and coefficient algebra have separate checks without changing draft metadata", () => {
   for (const chain of chains) {
     const report =
       chain === lqCoefficientCorrespondence
         ? verifyLqCoefficientCorrespondence(chain)
-        : verifyChain(chain);
+        : verifyLqWienEntropy(chain);
     assert.equal(report.passed, true, JSON.stringify(report));
     const checkedCoefficients = chain === lqCoefficientCorrespondence;
-    assert.equal(report.isPublicationReady, checkedCoefficients);
+    assert.equal(report.isPublicationReady, true);
     assert.equal(verifyChain(chain, { isPublicationGate: true }).passed, checkedCoefficients);
-    if (checkedCoefficients)
-      assert.ok(report.stepReports.every((entry) => entry.verificationStatus === "verified"));
+    assert.ok(report.stepReports.every((entry) => entry.verificationStatus === "verified"));
     assert.equal(chain.steps.at(-1)?.id, chain.targetStepId);
     assert.equal(chain.steps.filter((entry) => entry.isMove).length, 1);
     for (const entry of chain.steps) {

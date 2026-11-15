@@ -11,8 +11,12 @@ import brownianInferenceRecord from "../../../content/equations/brownian-motion/
 import brownianMomentRecord from "../../../content/equations/brownian-motion/eq-model-bm-mean-square-growth.json";
 import brownianMolarRecord from "../../../content/equations/brownian-motion/eq-model-bm-diffusivity-molar.json";
 import lqMolarEnergyRecord from "../../../content/equations/light-quanta/eq-model-lq-energy-per-point-molar.json";
+import lqEntropyTemperatureRecord from "../../../content/equations/light-quanta/eq-model-lq-entropy-temperature.json";
 import lqGasRecord from "../../../content/equations/light-quanta/eq-model-lq-gas-entropy-change.json";
 import lqVolumeRecord from "../../../content/equations/light-quanta/eq-model-lq-volume-entropy.json";
+import lqEntropyDensityRecord from "../../../content/equations/light-quanta/eq-model-lq-wien-entropy-density.json";
+import lqInverseTemperatureRecord from "../../../content/equations/light-quanta/eq-model-lq-wien-inverse-temperature.json";
+import lqSpectrumRecord from "../../../content/equations/light-quanta/eq-model-lq-wien-spectrum.json";
 import dopplerRecord from "../../../content/equations/special-relativity/eq-model-sr-doppler-factor.json";
 import frequencyRecord from "../../../content/equations/special-relativity/eq-model-sr-doppler-ratio.json";
 import workIntegralRecord from "../../../content/equations/special-relativity/eq-model-sr-electron-work-integral.json";
@@ -36,7 +40,11 @@ import { brownianInferenceChain } from "../../equations/derivations/brownianInfe
 import { verifyBrownianInference } from "../../equations/derivations/brownianInferenceProof.ts";
 import { brownianEquilibriumDerivation } from "../../equations/derivations/brownianSource.ts";
 import { verifyLqCoefficientCorrespondence } from "../../equations/derivations/lightQuantaCoefficientProof.ts";
-import { lqCoefficientCorrespondence } from "../../equations/derivations/lightQuantaEntropy.ts";
+import {
+  lqCoefficientCorrespondence,
+  lqWienEntropyDerivation,
+} from "../../equations/derivations/lightQuantaEntropy.ts";
+import { verifyLqWienEntropy } from "../../equations/derivations/lightQuantaEntropyProof.ts";
 import { buildMassEnergyElimination } from "../../equations/derivations/massEnergyElimination.ts";
 import { buildMassEnergyLowSpeed } from "../../equations/derivations/massEnergyLowSpeed.ts";
 import {
@@ -172,6 +180,61 @@ const DERIVATION_PROOFS: Readonly<Record<DerivationProofId, DerivationProof>> = 
           "and finite. The dilute-sphere Stokes model and zero-drift population moment law " +
           "are admitted. Gaussian calculus, measurement validity, finite-sample bias and " +
           "uncertainty coverage are outside this algebraic check.",
+      },
+    ],
+  },
+  "lq-wien-entropy-volume": {
+    paper: "light-quanta",
+    conclusion: lqVolumeRecord.id,
+    title: "Follow Wien's law through the entropy boundary to its volume dependence",
+    href: "/papers/light-quanta/s4/#lq-wien-entropy-derivation",
+    records: [
+      lqSpectrumRecord,
+      lqInverseTemperatureRecord,
+      lqEntropyTemperatureRecord,
+      lqEntropyDensityRecord,
+      lqVolumeRecord,
+    ],
+    chains: [lqWienEntropyDerivation],
+    verify: verifyLqWienEntropy,
+    premises: [
+      {
+        id: "arg-lq-wien-integration",
+        label: "The admitted Wien approximation",
+        explanation:
+          "Use ρν = Aν³ exp(−Bν/T) in its dilute, large-ν/T regime. The calculation checks " +
+          "consequences of this empirical approximation; its applicability remains a physical premise.",
+      },
+      {
+        id: "arg-lq-entropy-temperature",
+        label: "The thermodynamic entropy slope",
+        explanation:
+          "At each fixed frequency, use (∂sν/∂ρν)ν = 1/T. The equilibrium thermodynamic " +
+          "argument that supplies this identity is a premise of this calculation.",
+      },
+      {
+        id: "lq-positive-wien-domain",
+        label: "Positive quantities and both states dilute",
+        explanation:
+          "A, B, ν, T, ρν, E, Δν and both volumes are positive. Every logarithm argument " +
+          "and cancelled denominator is then defined. Both comparison states must remain " +
+          "in Wien's regime; equal volumes are allowed and give zero entropy change.",
+      },
+      {
+        id: "lq-zero-density-entropy-boundary",
+        label: "Entropy vanishes at zero density",
+        explanation:
+          "Adopt sν(0) = 0 at each fixed frequency. The one-sided limit of the integrated " +
+          "expression is C(ν), so this premise fixes C(ν) = 0. An unfixed C(ν) would leave " +
+          "the extra volume term Δν C(ν)(V − V₀).",
+      },
+      {
+        id: "lq-fixed-energy-frequency-band",
+        label: "The same energy and narrow frequency band",
+        explanation:
+          "Compare equilibrium states with the same E, ν and narrow Δν, using E = VΔνρν " +
+          "and S(V) = VΔνsν. Only V changes. A moving reflecting wall changes energy and " +
+          "frequency and does not implement this comparison.",
       },
     ],
   },

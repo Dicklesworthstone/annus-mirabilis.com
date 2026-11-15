@@ -6,6 +6,7 @@ import {
   lqWienEntropyDerivation,
 } from "../../equations/derivations/lightQuantaEntropy.ts";
 import { verifyLqCoefficientCorrespondence } from "../../equations/derivations/lightQuantaCoefficientProof.ts";
+import { verifyLqWienEntropy } from "../../equations/derivations/lightQuantaEntropyProof.ts";
 import { verifyChain } from "../../equations/derivations/verifyChain.ts";
 import { type Expression, walk } from "../../equations/ast.ts";
 import { type EquationRecord, parseEquationRecord } from "../../equations/record.ts";
@@ -105,12 +106,10 @@ describe("the light-quanta card supports the conditional molar energy scale", ()
     }
   });
 
-  test("the upstream entropy calculus remains unverified", () => {
+  test("the generic calculus gate stays closed and the thermodynamic identity remains a premise", () => {
     expect(verifyChain(lqWienEntropyDerivation, { isPublicationGate: true }).passed).toBe(false);
-    for (const id of ["lq-entropy-temperature", "lq-radiation-entropy-volume"]) {
-      expect(card(id).support.kind).toBe("no-checked-proof");
-      expect(project(card(id)).support).toBeUndefined();
-    }
+    expect(card("lq-entropy-temperature").support.kind).toBe("no-checked-proof");
+    expect(project(card("lq-entropy-temperature")).support).toBeUndefined();
   });
 
   test("wrong coefficients in the conclusion or an admitted entropy law are rejected", () => {
@@ -155,5 +154,59 @@ describe("the light-quanta card supports the conditional molar energy scale", ()
     expect(refusal(() => checkedSupportFor(changed, equations))).toBe(
       "result-support-derivation-conclusion-missing",
     );
+  });
+});
+
+describe("the light-quanta volume card checks Wien's conditional entropy calculus", () => {
+  test("the reader receives the completed proof and all remaining physical premises", () => {
+    const report = verifyLqWienEntropy();
+    expect(report.passed).toBe(true);
+    expect(report.isPublicationReady).toBe(true);
+    const support = project(card("lq-radiation-entropy-volume")).support;
+    if (support?.kind !== "checked-proof") throw new Error("Missing Wien entropy support.");
+    expect(support.proofId).toBe("lq-wien-entropy-volume");
+    expect(support.href).toBe("/papers/light-quanta/s4/#lq-wien-entropy-derivation");
+    expect(support.conclusion.equationId).toBe("eq-model-lq-volume-entropy");
+    expect(support.scope).toContain("one-sided zero-density limit");
+    expect(support.scope).toContain("remain premises");
+    const ids = support.assumptions.map((premise) => premise.id);
+    for (const premise of lqWienEntropyDerivation.entryAssumptions) expect(ids).toContain(premise.ref);
+    expect(support.assumptions.find((premise) => premise.id === "lq-zero-density-entropy-boundary")
+      ?.explanation).toContain("extra volume term");
+    expect(support.assumptions.find((premise) => premise.id === "lq-positive-wien-domain")
+      ?.explanation).toContain("equal volumes are allowed");
+    expect(support.assumptions.find((premise) => premise.id === "lq-fixed-energy-frequency-band")
+      ?.explanation).toContain("same E, ν and narrow Δν");
+  });
+
+  test("changed or missing canonical premises and intermediate equations cannot keep a support badge", () => {
+    const result = card("lq-radiation-entropy-volume");
+    for (const id of [
+      "eq-model-lq-wien-spectrum",
+      "eq-model-lq-wien-inverse-temperature",
+      "eq-model-lq-entropy-temperature",
+      "eq-model-lq-wien-entropy-density",
+      "eq-model-lq-volume-entropy",
+    ]) {
+      const original = equation(id);
+      if (original.tree.kind !== "relation") throw new Error("Expected an equation.");
+      const changed = parseEquationRecord({
+        ...original,
+        tree: { ...original.tree, right: {
+          kind: "product", args: [{ kind: "number", value: "2" }, original.tree.right],
+        } },
+      }, "changed Wien premise " + id);
+      expect(refusal(() => project(result, inputsWith(changed))))
+        .toBe("result-support-derivation-record-mismatch");
+      expect(refusal(() => project(result, equations.filter((record) => record.id !== id))))
+        .toBe("result-support-derivation-record-mismatch");
+    }
+  });
+
+  test("the zero-density physical boundary cannot be silently changed in the supplied record", () => {
+    const original = equation("eq-model-lq-wien-entropy-density");
+    const changed = { ...original, assumptions: ["The entropy-density constant may be arbitrary."] };
+    expect(refusal(() => checkedSupportFor(card("lq-radiation-entropy-volume"), inputsWith(changed))))
+      .toBe("result-support-derivation-record-mismatch");
   });
 });

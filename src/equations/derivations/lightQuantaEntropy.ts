@@ -1,8 +1,8 @@
 /**
  * Paper 1 §§4 and 6, reconstructed from the reader's canonical equation records.
  * Bindings distinguish V from V₀ and S(V) from S(V₀); only the render projection uses glyphs.
- * The coefficient algebra is checked conditionally. Calculus and the physical correspondence
- * remain authored drafts pending scientific review.
+ * The coefficient algebra and Wien entropy calculus have separate conditional proof owners.
+ * Physical premises and the heuristic correspondence remain distinct from those checks.
  */
 import constantsRecord from "../../../content/equations/light-quanta/eq-model-lq-avogadro-from-spectrum.json";
 import countRecord from "../../../content/equations/light-quanta/eq-model-lq-effective-count.json";
@@ -161,6 +161,16 @@ const comparedEntropy = relation(
   sum(volumeEntropy(V), negate(volumeEntropy(V0))),
   "compared-entropy",
 );
+
+/** Canonical premises and bound quantities; the build-time proof owns their transformations. */
+export const lqWienProofInputs = Object.freeze({
+  spectrum,
+  entropyTemperature,
+  entropyWithConstant,
+  rho, nu, A, B, E, dNu, V, V0, S, S0, C,
+  betaNu,
+  prefactor,
+});
 
 export const lqWienEntropyDerivation: DerivationChain = {
   id: "chain-lq-wien-entropy",

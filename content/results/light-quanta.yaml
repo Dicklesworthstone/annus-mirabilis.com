@@ -133,8 +133,10 @@ cards:
 
   - id: lq-radiation-entropy-volume
     support:
-      kind: "no-checked-proof"
-      reason: "The Wien-law inversion and entropy integration are explained in the linked passages; no checked derivation record covers their boundary condition and volume comparison."
+      kind: "checked-proof"
+      proofId: "lq-wien-entropy-volume"
+      conclusion: "eq-model-lq-volume-entropy"
+      scope: "Checks the Wien-law inversion, logarithmic antiderivative with C(ν), one-sided zero-density limit and fixed-energy volume comparison. The empirical Wien approximation, thermodynamic identity and vanishing entropy boundary remain premises; both states must be dilute and share E, ν and Δν."
     title: "How the entropy of monochromatic radiation depends on its volume"
     section: s4
     arguments: [arg-lq-fixed-band-volume, arg-lq-wien-integration]
