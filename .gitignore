@@ -96,6 +96,8 @@ src/generated/
 # Versioned reading payloads and public machine-readable exports
 generated/
 public/edition/
+public/exports/
+public/schemas/exports/
 .env*
 
 # iPhone app (App plan §4). Xcode output lives OUTSIDE the repository

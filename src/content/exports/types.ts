@@ -7,6 +7,7 @@
 import type { Expression } from "../../equations/ast.ts";
 import type { Experiment } from "../schemas/experiment.ts";
 import type { Argument } from "../schemas/reading.ts";
+import type { SpanAnchor } from "../schemas/spans.ts";
 import type { AlignmentEdge, EditorialNote, SourceBlock, TranslationUnit } from "../schemas/source.ts";
 
 export const EXPORT_SCHEMA_VERSION = 1 as const;
@@ -106,6 +107,7 @@ export interface SectionSentenceExport {
   readonly german: string;
   readonly english?: string | undefined;
   readonly sourceBlockId: string;
+  readonly sourceSpan?: SpanAnchor | undefined;
   readonly translationUnitId?: string | undefined;
   readonly translationUnitIds?: readonly string[] | undefined;
   readonly reviewState?: string | undefined;

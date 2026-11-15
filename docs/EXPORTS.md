@@ -28,15 +28,15 @@ All paths are relative to the site root:
 | Endpoint Path | Format | Content / Purpose |
 |---|---|---|
 | `/exports/v1/index.json` | JSON | Master inventory of all exports with paths, byte sizes, SHA-256 digests, and version identities. |
-| `/exports/v1/papers/<slug>.json` | JSON | Complete paper record: metadata, chronology, journal citation, section outline, rights statements, and discovery links. |
-| `/exports/v1/papers/<slug>/<section>.json` | JSON | Section-level export: sentence-level bilingual parallel texts, source blocks, readings, footnotes, and editorial notes. |
+| `/exports/v1/papers/<slug>.json` | JSON | Paper record: metadata, chronology, journal citation, outline, complete editorial notes, rights, and discovery links. |
+| `/exports/v1/papers/<slug>/<section>.json` | JSON | Section-level export: exact source blocks, bilingual units and alignment edges, all four readings, footnotes, and scoped editorial notes. |
 | `/exports/v1/papers/<slug>/<section>.md` | Markdown | Safe plain-text Markdown export of the section with escaped HTML characters and LaTeX mathematics. |
-| `/exports/v1/equations/<id>.json` | JSON | Modern and historical LaTeX, spoken text, quantity bindings, and derivation references. |
+| `/exports/v1/equations/<id>.json` | JSON | Modern teaching equations: LaTeX, spoken text, exact semantic tree, quantities, operation ids, assumptions, and review status. |
 | `/exports/v1/arguments/<id>.json` | JSON | Analytical argument graph: premises, evidence, conclusion, limitations, and the four meanings. |
 | `/exports/v1/experiments/<id>.json` | JSON | Declarative experiment manifest: parameters, units, defaults, and historical basis (zero executable code). |
-| `/exports/v1/tei/<slug>.xml` | XML | TEI P5 XML critical edition with `<teiHeader>` and bilingual parallel `<s>` sentences. |
-| `/exports/v1/jsonld/<slug>.json` | JSON-LD | Schema.org `ScholarlyArticle` structured data for bibliographic indexers. |
-| `/exports/v1/corpus/<slug>.tsv` | TSV | Sentence-aligned bilingual parallel corpus (`id \t german \t english`) for NLP and translation research. |
+| `/exports/v1/tei/<slug>.xml` | XML | TEI XML with the bibliographic header, every source block, real sentence ids, and linked translation units. |
+| `/exports/v1/jsonld/<slug>.json` | JSON-LD | Schema.org graph with separate historical article and modern commentary entities. |
+| `/exports/v1/corpus/<slug>.tsv` | TSV | Aligned bilingual corpus (`id \t german \t english`), including unspanned source block ids. |
 
 ---
 
@@ -110,14 +110,24 @@ Every export file carries explicit rights statements per layer:
 
 ## 6. Publication Mirror & Release Profiles
 
-Exports faithfully reflect the published website state according to the active release profile:
+The production build reads `AM_RELEASE_PROFILE` and uses the same draft boundary as
+the current search and offline chapter builders:
 
-- **`preview` Profile:**
-  - Includes draft units and machine-draft translations.
-  - Drafts are explicitly marked with `draft: true` and their corresponding `reviewState` (e.g., `"machine-draft"` or `"draft"`).
-- **`production` / `launch` Profiles:**
-  - Only published, verified units are exported.
-  - Unreleased sections or machine drafts are completely excluded from both exported files and `index.json`.
+- **`scaffold` (default):** publishes the current explanatory edition, including
+  its draft German source and the English units with their actual translator,
+  agent-review records, revision, and review state. Section-level `draft: true`
+  does not overwrite the separate source and translation review records.
+- **`preview` / `launch`:** publishes the JSON Schemas and an index with no content
+  entries. The current compiled reading schema contains explanatory drafts only.
+  Reviewed content needs an explicit admission adapter before those profiles can
+  publish paper, source, argument, equation, or experiment records.
+- Any other value, including `production`, is refused. The old fixture emitter's
+  profile conventions are not the production build contract.
+
+Publication stages a complete bundle before replacing either public subtree.
+Previous bundles are retained outside `public/`, under `generated/exports-build-*/previous/`.
+A rebuild from scaffold to a strict profile therefore cannot leave old draft files
+reachable at their earlier public URLs.
 
 ---
 
@@ -139,16 +149,108 @@ Exports faithfully reflect the published website state according to the active r
 
 ## 8. Discovery Links
 
-HTML pages for papers and sections advertise their machine-readable exports via `<link rel="alternate">` tags in the `<head>`:
+Paper and section App Router pages call `paperMetadata`, which supplies Next metadata `alternates.types` only for files that `publishedExportLinks` finds under `public/`. After this generator runs and the site is rebuilt, those files are advertised as `<link rel="alternate">` tags in the generated `<head>`. Strict profiles omit the content files and therefore omit those alternate links:
 
 ```html
-<!-- On /paper/brownian-motion -->
+<!-- On /papers/brownian-motion/ -->
 <link rel="alternate" type="application/json" href="/exports/v1/papers/brownian-motion.json" title="Machine-readable Paper Export (JSON)" />
 <link rel="alternate" type="application/ld+json" href="/exports/v1/jsonld/brownian-motion.json" title="Schema.org ScholarlyArticle (JSON-LD)" />
 <link rel="alternate" type="application/tei+xml" href="/exports/v1/tei/brownian-motion.xml" title="TEI P5 XML Critical Edition" />
 <link rel="alternate" type="text/tab-separated-values" href="/exports/v1/corpus/brownian-motion.tsv" title="Sentence-Aligned Bilingual Parallel Corpus (TSV)" />
 
-<!-- On /paper/brownian-motion/s1 -->
+<!-- On /papers/brownian-motion/s1/ -->
 <link rel="alternate" type="application/json" href="/exports/v1/papers/brownian-motion/s1.json" title="Section s1 Export (JSON)" />
 <link rel="alternate" type="text/markdown" href="/exports/v1/papers/brownian-motion/s1.md" title="Section s1 Export (Markdown)" />
 ```
+
+
+## 9. Build and provenance identities
+
+`scripts/build-exports.ts` is the production entry point. It runs after content
+preparation and consumes the digest-checked compiled paper payloads, each paper's
+own provenance receipt, the bilingual loader's source records, the validated
+published margin-note loader, and registered declarative experiment manifests.
+
+```sh
+bun scripts/build-exports.ts
+bun test src/content/exports
+```
+
+The generated files belong in `public/exports/v1/` and
+`public/schemas/exports/v1/`. They are build output, not hand-edited records.
+The index inventories the six published schemas as well as every content file.
+Its own checksum is not included recursively in its file list.
+
+The revision fields identify different layers:
+
+| Field | Identity |
+|---|---|
+| `contentRevision` | The compiled content build digest. |
+| `sourceRevision` | SHA-256 of the selected canonical German source records; paper records aggregate their section identities. |
+| `translationDigest` | SHA-256 of canonical English units and their alignment edges; paper records aggregate their section identities. |
+| `translationUnits[].revision` | The exact authored revision of that translation unit. |
+| `blocks[].revision` | The exact authored source block revision. |
+| `sourceAssetDigest` | That paper's scan SHA-256, included only when its receipt permits publication. |
+
+The optional legacy scalar `translationRevision` is not manufactured by taking a
+maximum or summing independent unit revisions. The full unit revisions and
+`translationDigest` carry the actual identity. Rebuilding identical inputs under
+the same profile produces identical bytes; no wall-clock timestamp enters the bundle.
+
+## 10. Reading the exported layers
+
+**Parallel text.** `sentences` contains only authored sentence ids and exact
+code-point slices of their validated source text. Each live sentence also retains its exact
+`sourceSpan` anchor and digest. No sentence id is invented for a
+heading, equation, footnote, or closing record. All source blocks remain in
+`blocks` with original inlines, status, locators, and revision. The full
+`translationUnits` and `alignments` arrays retain many-to-many relationships,
+ranges, translator attribution, and agent review. Convenience `english` strings
+join a source's aligned units in authored English order; consumers that need
+alignment topology should use the edges. An unaligned unit with a valid source
+reference is retained without inventing a sentence pairing.
+
+
+For anchored live records, TEI interleaves any source text outside the sentence
+spans without changing the original sentence ids. Markdown labels that uncovered
+source context separately. TSV keeps its three-column format: if real sentence
+spans leave non-whitespace source text uncovered, it emits the complete source
+under the existing block id, with the available aligned English. Exact sentence
+ids and alignment remain in JSON and TEI. Fully covered blocks retain sentence
+rows, and blocks without sentences retain block rows. Legacy callers without
+`sourceSpan` keep their supplied sentence identities and translations; serializers
+do not guess missing offsets or claim to reconstruct their unrecorded gaps.
+
+**Explanations and editorial notes.** Section `arguments` preserves argument
+boundaries and every R0–R3 reading, while `readings` keeps the flattened compatible
+projection. Argument records retain the exact typed prerequisite edges and all four
+meaning statements. Paper `editorialNotes` carries every published note with its
+kind, historical statement, source support, authorship, and review state. A section
+includes a note only when its `affectedIds` names that section's source or argument;
+the complete note remains in `editorialNotes[].record`.
+
+**Equations.** The standalone equation endpoints currently cover the compiled
+modern teaching records. Their `notation: "modern-pedagogical"`, semantic tree,
+assumptions, and review state make that scope explicit. They do not claim a
+historical source formula by filling `latexSource` with a modern reconstruction.
+Original printed math and its equation ids are preserved in section
+`blocks[].inlines`. Dedicated paper-scoped exports of the compiled printed-source
+term and operation semantics remain future work.
+
+**Experiment manifests.** The compatible `parameters` field is a numeric summary.
+The complete `manifest` field is authoritative: it preserves every numeric,
+categorical, and boolean default; declared domains; outputs and refusal statuses;
+assumptions; limitations; modes and historical labels; presets; and provenance.
+It contains declarations, not runtime functions or a reader's results.
+
+**Bibliographic metadata.** JSON-LD uses the same historical-article and commentary
+constructors as the scholarly metadata layer. Einstein's article carries its
+verified journal identity and publication dates. The site's authorship, revision,
+and license belong to the separate commentary entity. Neither an original
+publication date nor Einstein's authorship is assigned to the modern edition.
+
+**Current boundaries.** These exports do not promote a draft to human-reviewed
+status, certify an argument as proved, synthesize absent evidence or derivation
+links, or export browser notebook data. The fixture emitter remains available for
+its existing callers and tests; the build uses the stricter live adapter described
+here.

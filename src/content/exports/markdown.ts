@@ -9,6 +9,7 @@
  */
 
 import type { SectionExport } from "./types.ts";
+import { projectBlockText } from "./sourceText.ts";
 
 /**
  * Escapes characters that could be interpreted as HTML markup or Markdown formatting.
@@ -83,65 +84,79 @@ export function generateSectionMarkdown(section: SectionExport): string {
   lines.push("---");
   lines.push("");
 
-  // Parallel text: sentences or blocks
+  // Source and translation retain actual source ids and their separate review provenance.
   if (section.sentences.length > 0) {
-    lines.push("## Parallel Text");
-    lines.push("");
+    lines.push("## Parallel Text", "");
     for (const sent of section.sentences) {
       lines.push(`### [${sent.id}]`);
       lines.push(`**DE:** ${escapeMarkdownSourceText(sent.german)}`);
-      if (sent.english) {
-        lines.push(`**EN:** ${escapeMarkdownSourceText(sent.english)}`);
-      }
-      if (sent.draft || sent.reviewState) {
-        lines.push(`*Status:* \`${sent.reviewState ?? "draft"}\``);
-      }
+      if (sent.english) lines.push(`**EN:** ${escapeMarkdownSourceText(sent.english)}`);
+      const sourceStatus = section.blocks.find((block) => block.id === sent.sourceBlockId)?.status;
+      if (sourceStatus) lines.push(`*Source review:* \`${sourceStatus.review}\``);
+      if (sent.reviewState) lines.push(`*Translation review:* \`${sent.reviewState}\``);
+      if (sent.draft) lines.push("*Draft source or translation; see the separate review records.*");
       lines.push("");
     }
-  } else if (section.blocks.length > 0) {
-    lines.push("## Source Blocks");
-    lines.push("");
-    for (const block of section.blocks) {
+  }
+  const sourceContexts = section.blocks
+    .map((block) => ({ block, projection: projectBlockText(block, section.sentences) }))
+    .filter(({ projection }) => projection.anchored && projection.hasUncoveredText);
+  if (sourceContexts.length > 0) {
+    lines.push("## Source Context Outside Sentence Spans", "");
+    for (const { block, projection } of sourceContexts) {
+      lines.push(`### Source block \`${block.id}\``, "");
+      for (const part of projection.parts) {
+        if (!part.sentence && /\S/u.test(part.text)) {
+          lines.push(`**DE (unsegmented context):** ${escapeMarkdownSourceText(part.text)}`, "");
+        }
+      }
+    }
+  }
+  const sentenceBlocks = new Set(section.sentences.map((sentence) => sentence.sourceBlockId));
+  const otherBlocks = section.blocks.filter((block) => !sentenceBlocks.has(block.id));
+  if (otherBlocks.length > 0) {
+    lines.push("## Source Blocks", "");
+    for (const block of otherBlocks) {
       lines.push(`### [${block.id}] (${block.kind})`);
       lines.push(`**DE:** ${escapeMarkdownSourceText(block.diplomaticText)}`);
-      if (block.translation) {
-        lines.push(`**EN:** ${escapeMarkdownSourceText(block.translation)}`);
-      }
+      if (block.translation) lines.push(`**EN:** ${escapeMarkdownSourceText(block.translation)}`);
+      if (block.status) lines.push(`*Source review:* \`${block.status.review}\``);
       lines.push("");
     }
   }
 
-  // Readings (if present)
-  if (section.readings) {
-    if (section.readings.overview && section.readings.overview.length > 0) {
-      lines.push("## Overview Reading");
-      lines.push("");
-      for (const b of section.readings.overview) {
+  // Every reading and argument, including R2 steps and R3 historical qualification.
+  for (const [level, title] of [
+    ["overview", "Overview Reading (R0)"],
+    ["full", "Full Reading (R1)"],
+    ["steps", "Step-by-step Reading (R2)"],
+    ["margin", "Historical and Technical Reading (R3)"],
+  ] as const) {
+    const readings = section.arguments?.length
+      ? section.arguments.map((argument) => ({
+          title: argument.title,
+          blocks: argument.readings[level],
+        }))
+      : [{ title: "", blocks: section.readings?.[level] ?? [] }];
+    if (!readings.some((reading) => reading.blocks.length > 0)) continue;
+    lines.push(`## ${title}`, "");
+    for (const reading of readings) {
+      if (reading.title) lines.push(`### ${escapeMarkdownSourceText(reading.title)}`, "");
+      for (const b of reading.blocks) {
         if (b.kind === "paragraph" && b.text) {
-          lines.push(escapeMarkdownSourceText(b.text));
-          lines.push("");
+          lines.push(escapeMarkdownSourceText(b.text), "");
         } else if (b.kind === "formula" && b.latex) {
-          lines.push(formatFormulaMarkdown(b.latex, b.spoken));
-          lines.push("");
-        }
-      }
-    }
-
-    if (section.readings.full && section.readings.full.length > 0) {
-      lines.push("## Full Reading");
-      lines.push("");
-      for (const b of section.readings.full) {
-        if (b.kind === "paragraph" && b.text) {
-          lines.push(escapeMarkdownSourceText(b.text));
-          lines.push("");
-        } else if (b.kind === "formula" && b.latex) {
-          lines.push(formatFormulaMarkdown(b.latex, b.spoken));
-          lines.push("");
+          lines.push(formatFormulaMarkdown(b.latex, b.spoken), "");
         } else if (b.kind === "steps" && b.items) {
           lines.push(
             b.items.map((item, i) => `${i + 1}. ${escapeMarkdownSourceText(item)}`).join("\n"),
+            "",
           );
-          lines.push("");
+        } else if (b.kind === "foundation" && b.id) {
+          lines.push(
+            `Foundation: \`${b.id}\`. ${escapeMarkdownSourceText(b.returnCaption ?? "")}`,
+            "",
+          );
         }
       }
     }

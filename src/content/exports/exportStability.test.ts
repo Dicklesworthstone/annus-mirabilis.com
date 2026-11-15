@@ -37,6 +37,7 @@ import {
   FIXTURE_BROWNIAN_TRANSLATION_UNITS,
 } from "../../testing/fixtures/bilingual/brownianBilingualFixture.ts";
 import { emitMachineReadableExports } from "./emitter.ts";
+import type { SectionExport } from "./types.ts";
 import {
   ExportSchemaClosureError,
   ExportValidationError,
@@ -46,7 +47,7 @@ import {
 const HERE = dirname(fileURLToPath(import.meta.url));
 
 /** The section-unit anchor in the Markdown export: a heading of the form `### [<id>]`. */
-const MARKDOWN_UNIT_ID = /^### \[([^\]]+)\]$/gm;
+const MARKDOWN_UNIT_ID = /^### \[([^\]]+)\](?: \([^\r\n]+\))?$/gm;
 
 function fixturePayload(rootDir: string) {
   return {
@@ -115,7 +116,7 @@ function sourceWithoutComments(source: string): string {
 }
 
 describe("export stability: the formats carry one unit set, and nothing is stamped", () => {
-  test("every section's JSON and Markdown carry exactly the same unit ids", async () => {
+  test("JSON, Markdown, TSV and TEI retain the exact source units and available English", async () => {
     const root = await mkdtemp(resolve(process.env.AM_TEST_TMP ?? tmpdir(), "am-parity-"));
     const index = await emitMachineReadableExports(fixturePayload(root));
 
@@ -136,12 +137,59 @@ describe("export stability: the formats carry one unit set, and nothing is stamp
       const jsonText = await readFile(resolve(root, "exports/v1", jsonPath), "utf8");
       const markdownText = await readFile(resolve(root, "exports/v1", markdownPath), "utf8");
 
-      const jsonIds = ((JSON.parse(jsonText).sentences ?? []) as { id: string }[]).map(
-        (sentence) => sentence.id,
-      );
+      const section = JSON.parse(jsonText) as SectionExport;
+      const sentenceBlocks = new Set(section.sentences.map((sentence) => sentence.sourceBlockId));
+      // Real sentence identities plus real blocks with no sentence projection. An unspanned
+      // equation or footnote must not disappear merely because another block has sentences.
+      const jsonIds = [
+        ...section.sentences.map((sentence) => sentence.id),
+        ...section.blocks.filter((block) => !sentenceBlocks.has(block.id)).map((block) => block.id),
+      ];
       const markdownIds = [...markdownText.matchAll(MARKDOWN_UNIT_ID)].map(
         (match) => match[1] as string,
       );
+      expect(new Set(markdownIds).size).toBe(markdownIds.length);
+      expect([...markdownIds].sort()).toEqual([...jsonIds].sort());
+
+      // TSV's legacy fixture has no span offsets, so it preserves those same sentence
+      // projections and adds the unspanned equation. Anchored partial coverage is tested
+      // independently in sourceText.test.ts with a complete three-column block fallback.
+      const tsv = await readFile(
+        resolve(root, "exports/v1/corpus", `${section.paperSlug}.tsv`), "utf8",
+      );
+      const rows = tsv.split("\n").filter((line) => line !== "" && !line.startsWith("#"))
+        .slice(1).map((line) => line.split("\t"));
+      expect(rows.every((row) => row.length === 3)).toBe(true);
+      const tsvIds = rows.map((row) => row[0] as string);
+      expect(new Set(tsvIds).size).toBe(tsvIds.length);
+      expect([...tsvIds].sort()).toEqual([...jsonIds].sort());
+
+      const tei = await readFile(
+        resolve(root, "exports/v1/tei", `${section.paperSlug}.xml`), "utf8",
+      );
+      const german = tei.match(/<text xml:lang="de">([\s\S]*?)<\/text>/)?.[1] ?? "";
+      const english = tei.match(/<text xml:lang="en">([\s\S]*?)<\/text>/)?.[1] ?? "";
+      const germanIds = [...german.matchAll(/xml:id="([^"]+)"/g)]
+        .map((match) => match[1] as string).filter((id) => !id.startsWith("de-section-"));
+      const expectedGerman = [...new Set([
+        ...section.blocks.map((block) => block.id),
+        ...section.sentences.map((sentence) => sentence.id),
+      ])];
+      expect(new Set(germanIds).size).toBe(germanIds.length);
+      expect([...germanIds].sort()).toEqual(expectedGerman.sort());
+      const englishIds = [...english.matchAll(/xml:id="([^"]+)"/g)]
+        .map((match) => match[1] as string).filter((id) => !id.startsWith("en-section-"));
+      const expectedEnglish = [
+        ...section.sentences.filter((sentence) => sentence.english).map((sentence) => `en-${sentence.id}`),
+        ...section.blocks.filter((block) => !sentenceBlocks.has(block.id) && block.translation)
+          .map((block) => `en-${block.id}`),
+      ];
+      expect(new Set(englishIds).size).toBe(englishIds.length);
+      expect([...englishIds].sort()).toEqual(expectedEnglish.sort());
+      for (const reference of [...english.matchAll(/corresp="#([^"]+)"/g)]) {
+        expect(germanIds).toContain(reference[1]);
+      }
+
 
       // Each format's own ids must also be distinct, or a set comparison would hide a duplicate.
       expect({ path: jsonPath, distinct: new Set(jsonIds).size }).toEqual({
@@ -183,6 +231,9 @@ describe("export stability: the formats carry one unit set, and nothing is stamp
     ];
     const surface = [
       "emitter.ts",
+      "live.ts",
+      "sourceProjection.ts",
+      "sourceText.ts",
       "markdown.ts",
       "tei.ts",
       "jsonld.ts",

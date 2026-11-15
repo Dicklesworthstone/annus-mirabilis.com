@@ -5,7 +5,9 @@
  * correspondence linking.
  */
 
+import { plainText } from "../schemas/inlines.ts";
 import type { PaperExport, SectionExport } from "./types.ts";
+import { projectBlockText } from "./sourceText.ts";
 
 function escapeXml(str: string): string {
   if (!str) return "";
@@ -34,8 +36,6 @@ export function generateTeiXml(paper: PaperExport, sections: readonly SectionExp
   lines.push("      </titleStmt>");
   lines.push("      <publicationStmt>");
   lines.push("        <publisher>Annus Mirabilis (annus-mirabilis.com)</publisher>");
-  lines.push("        <pubPlace>Cambridge, MA</pubPlace>");
-  lines.push(`        <date when="2026">2026</date>`);
   lines.push("        <availability status=" + '"restricted">');
   lines.push('          <licence target="https://annus-mirabilis.com/NOTICE">');
   lines.push(`            ${escapeXml(paper.rights.germanText?.statement ?? "")} `);
@@ -43,6 +43,11 @@ export function generateTeiXml(paper: PaperExport, sections: readonly SectionExp
   lines.push("          </licence>");
   lines.push("        </availability>");
   lines.push("      </publicationStmt>");
+  if (paper.sourceNotice) {
+    lines.push(
+      `      <notesStmt><note type="edition-status">${escapeXml(paper.sourceNotice)}</note></notesStmt>`,
+    );
+  }
   lines.push("      <sourceDesc>");
   lines.push("        <biblStruct>");
   lines.push("          <analytic>");
@@ -60,7 +65,11 @@ export function generateTeiXml(paper: PaperExport, sections: readonly SectionExp
     `            <biblScope unit="page" from="${paper.journal.pages.first}" to="${paper.journal.pages.last}">${paper.journal.pages.first}–${paper.journal.pages.last}</biblScope>`,
   );
   lines.push("            <imprint>");
-  lines.push('              <date when="1905">1905</date>');
+  for (const date of paper.dates) {
+    lines.push(
+      `              <date type="${escapeXml(date.type)}"${date.earliest ? ` notBefore="${escapeXml(date.earliest)}"` : ""}${date.latest ? ` notAfter="${escapeXml(date.latest)}"` : ""}>${escapeXml(date.text ?? date.earliest ?? date.type)}</date>`,
+    );
+  }
   lines.push("            </imprint>");
   lines.push("          </monogr>");
   if (paper.journal.doi) {
@@ -86,22 +95,26 @@ export function generateTeiXml(paper: PaperExport, sections: readonly SectionExp
   lines.push("        <body>");
   for (const sec of sections) {
     lines.push(
-      `          <div type="section" xml:id="de-${sec.sectionId}" n="${escapeXml(sec.title)}">`,
+      `          <div type="section" xml:id="de-section-${sec.sectionId}" n="${escapeXml(sec.title)}">`,
     );
     lines.push(`            <head>${escapeXml(sec.title)}</head>`);
-    lines.push("            <p>");
-    if (sec.sentences.length > 0) {
-      for (const sent of sec.sentences) {
-        lines.push(`              <s xml:id="${escapeXml(sent.id)}">${escapeXml(sent.german)}</s>`);
-      }
-    } else {
-      for (const block of sec.blocks) {
-        lines.push(
-          `              <s xml:id="${escapeXml(block.id)}">${escapeXml(block.diplomaticText)}</s>`,
-        );
-      }
+    for (const block of sec.blocks) {
+      const projection = projectBlockText(block, sec.sentences);
+      const identifier = projection.parts.some((part) => part.sentence?.id === block.id)
+        ? ""
+        : ` xml:id="${escapeXml(block.id)}"`;
+      const content = projection.parts.map((part) => part.sentence
+        ? `<s xml:id="${escapeXml(part.sentence.id)}">${escapeXml(part.text)}</s>`
+        : escapeXml(part.text)).join("");
+      lines.push(`            <ab type="${escapeXml(block.kind)}"${identifier}>${content}</ab>`);
     }
-    lines.push("            </p>");
+    for (const sentence of sec.sentences.filter(
+      (sentence) => !sec.blocks.some((block) => block.id === sentence.sourceBlockId),
+    )) {
+      lines.push(
+        `            <ab><s xml:id="${escapeXml(sentence.id)}">${escapeXml(sentence.german)}</s></ab>`,
+      );
+    }
     lines.push("          </div>");
   }
   lines.push("        </body>");
@@ -110,13 +123,37 @@ export function generateTeiXml(paper: PaperExport, sections: readonly SectionExp
   // English Text
   lines.push('      <text xml:lang="en">');
   lines.push("        <body>");
+  const emittedUnits = new Set<string>();
+  const allEdges = sections.flatMap((section) => section.alignments ?? []);
+  const sourceAddresses = new Set(sections.flatMap((section) => [
+    ...section.blocks.map((block) => block.id),
+    ...section.sentences.map((sentence) => sentence.id),
+  ]));
   for (const sec of sections) {
     lines.push(
-      `          <div type="section" xml:id="en-${sec.sectionId}" n="${escapeXml(sec.title)}">`,
+      `          <div type="section" xml:id="en-section-${sec.sectionId}" n="${escapeXml(sec.title)}">`,
     );
     lines.push(`            <head>${escapeXml(sec.title)}</head>`);
     lines.push("            <p>");
-    if (sec.sentences.length > 0) {
+    if (sec.translationUnits !== undefined) {
+      for (const unit of sec.translationUnits) {
+        if (emittedUnits.has(unit.id)) continue;
+        emittedUnits.add(unit.id);
+        const aligned = allEdges
+          .filter((edge) => edge.target.translationUnitId === unit.id)
+          .map((edge) => edge.source.sentenceId ?? edge.source.blockId);
+        const addresses = aligned.length > 0
+          ? aligned
+          : unit.sourceRefs.map((ref) => ref.id).filter((id) => sourceAddresses.has(id));
+        const references = [...new Set(addresses)].map((id) => `#${id}`);
+        const correspondence = references.length > 0
+          ? ` corresp="${escapeXml(references.join(" "))}"`
+          : "";
+        lines.push(
+          `              <seg xml:id="en-${escapeXml(unit.id)}"${correspondence}>${escapeXml(plainText(unit.inlines))}</seg>`,
+        );
+      }
+    } else {
       for (const sent of sec.sentences) {
         if (sent.english) {
           lines.push(
@@ -124,8 +161,8 @@ export function generateTeiXml(paper: PaperExport, sections: readonly SectionExp
           );
         }
       }
-    } else {
-      for (const block of sec.blocks) {
+      const sentenceBlocks = new Set(sec.sentences.map((sentence) => sentence.sourceBlockId));
+      for (const block of sec.blocks.filter((block) => !sentenceBlocks.has(block.id))) {
         if (block.translation) {
           lines.push(
             `              <s xml:id="en-${escapeXml(block.id)}" corresp="#${escapeXml(block.id)}">${escapeXml(block.translation)}</s>`,

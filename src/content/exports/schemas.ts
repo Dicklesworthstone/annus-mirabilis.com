@@ -135,6 +135,17 @@ export const SECTION_EXPORT_SCHEMA = {
           german: { type: "string" },
           english: { type: "string" },
           sourceBlockId: { type: "string" },
+          sourceSpan: {
+            type: "object",
+            required: ["start", "end", "blockRevision", "textDigest"],
+            additionalProperties: false,
+            properties: {
+              start: { type: "integer", minimum: 0 },
+              end: { type: "integer", minimum: 1 },
+              blockRevision: { type: "integer", minimum: 1 },
+              textDigest: { type: "string", pattern: "^[a-f0-9]{64}$" },
+            },
+          },
           translationUnitId: { type: "string" },
           translationUnitIds: { type: "array", items: { type: "string" } },
           reviewState: { type: "string" },
