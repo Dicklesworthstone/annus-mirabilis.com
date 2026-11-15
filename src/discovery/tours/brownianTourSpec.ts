@@ -21,7 +21,7 @@ import { settingsFromTape } from "../../experiments/permalink/sessionTape.ts";
 import { WALKTHROUGH_CATALOGUE } from "../../experiments/permalink/walkthroughCatalogue.ts";
 import type { WalkthroughCatalogue } from "../../experiments/permalink/walkthroughCheckpoints.ts";
 import { encodeResult } from "../../experiments/results/codec.ts";
-import type { ExperimentView } from "../../experiments/store/instanceStore.ts";
+import type { ExperimentView, PublishedResult } from "../../experiments/store/instanceStore.ts";
 import tracerExample from "../../generated/bm01-example.json";
 import walkExample from "../../generated/bm05-example.json";
 import distributionExample from "../../generated/bm06-example.json";
@@ -73,12 +73,12 @@ function accepted<T>(result: Computation<T>, message: string): T {
   return result.data;
 }
 
-const noWorker = () => {
+export const blockedBrownianTourWorker = () => {
   throw new BrownianTourBindingError("brownian-tour-owner", "A worked example cannot start a worker.");
 };
 
-function workedRow(id: string, label: string, view: ExperimentView): TourResultRow {
-  if (view.pending || !view.accepted?.final)
+export function brownianWorkedRow(id: string, label: string, view: ExperimentView): TourResultRow {
+  if (view.status !== "accepted" || view.pending || !view.accepted?.final)
     throw new BrownianTourBindingError("brownian-tour-owner", "A worked row needs a final accepted result.");
   return {
     id,
@@ -88,8 +88,16 @@ function workedRow(id: string, label: string, view: ExperimentView): TourResultR
   };
 }
 
+/** A comparison cannot replace a missing owner histogram with an invented curve. */
+export function requireBrownianTourHistogram(outputs: readonly PublishedResult[]): BrownianHistogram {
+  const histogram = brownianHistogram(outputs);
+  if (!histogram)
+    throw new BrownianTourBindingError("brownian-tour-owner", "The walk owner did not publish its histogram.");
+  return histogram;
+}
+
 type PresetReader = (instrumentId: string, presetId: string) => PresetEntry;
-function readPreset(instrumentId: string, presetId: string): PresetEntry {
+export function readBrownianTourPreset(instrumentId: string, presetId: string): PresetEntry {
   const path = join(process.cwd(), "content", "experiments", instrumentId + ".yaml");
   const manifest = validateExperiment(parseContentYaml(readFileSync(path, "utf8"), path), path);
   const preset = manifest.presets.find((entry) => entry.presetId === presetId);
@@ -173,7 +181,7 @@ export function brownianKernelActions(
 export async function brownianTourSpec(
   step: BrownianTourStep,
   catalogue: WalkthroughCatalogue = WALKTHROUGH_CATALOGUE,
-  presetReader: PresetReader = readPreset,
+  presetReader: PresetReader = readBrownianTourPreset,
 ): Promise<BrownianTourSpec | null> {
   if (step.instrumentId === "bm-01") {
     if (step.promptId !== "bm-01-predict-observation-interval" || step.controlId !== "interval" ||
@@ -209,8 +217,8 @@ export async function brownianTourSpec(
         { quantityId: "rmsDisplacement1d", label: "Typical distance predicted by the model", unit: "micrometres", displayDivisor: 1e-6 },
         { quantityId: "sampleRms", label: "Typical distance in this sample", unit: "micrometres", displayDivisor: 1e-6 },
       ],
-      workedRows: actions.map((action, index) => workedRow(action.id, action.label,
-        createBm01Session("tour-worked-tracers-" + index, examples[index]!, noWorker).getSnapshot())),
+      workedRows: actions.map((action, index) => brownianWorkedRow(action.id, action.label,
+        createBm01Session("tour-worked-tracers-" + index, examples[index]!, blockedBrownianTourWorker).getSnapshot())),
       reading: "Watching four times as long doubles the model's typical distance from the start. A finite group of particles gives a nearby result, with ordinary sampling variation.",
       limitation: "These are synthetic paths under an ideal model, measured along one direction. The two observations belong to the same recording, so they are not independent trials. The historical preset uses the constants stated with Einstein's Brownian argument.",
       sourceHref: "/papers/brownian-motion/view/parallel/#s5-p3",
@@ -237,10 +245,9 @@ export async function brownianTourSpec(
     }
     const example = examples[0]!;
     const views = examples.map((prepared, index) =>
-      createBm05Session("tour-worked-walks-" + index, prepared, noWorker).getSnapshot());
+      createBm05Session("tour-worked-walks-" + index, prepared, blockedBrownianTourWorker).getSnapshot());
     const histograms = actions.map((action, index) => {
-      const data = brownianHistogram(views[index]!.accepted!.outputs);
-      if (!data) throw new BrownianTourBindingError("brownian-tour-owner", "The walk owner did not publish its histogram.");
+      const data = requireBrownianTourHistogram(views[index]!.accepted!.outputs);
       return { id: action.id, label: action.label, data };
     });
     return {
@@ -252,7 +259,7 @@ export async function brownianTourSpec(
         { quantityId: "modelRms", label: "Typical distance predicted by the model", unit: "micrometres", displayDivisor: 1e-6 },
         { quantityId: "sampleRms", label: "Typical distance in this sample", unit: "micrometres", displayDivisor: 1e-6 },
       ],
-      workedRows: actions.map((action, index) => workedRow(action.id, action.label, views[index]!)),
+      workedRows: actions.map((action, index) => brownianWorkedRow(action.id, action.label, views[index]!)),
       histograms,
       histogramExtent: [
         Math.min(...histograms.map((item) => item.data.edges[0]!)),
@@ -294,7 +301,7 @@ export async function brownianTourSpec(
     }
     const example = examples[0]!;
     const views = examples.map((prepared, index) =>
-      createBm06Session("tour-worked-distribution-" + index, prepared, noWorker).getSnapshot());
+      createBm06Session("tour-worked-distribution-" + index, prepared, blockedBrownianTourWorker).getSnapshot());
     const distance = views[0]!.accepted!.outputs.find((output) => output.quantityId === "rmsDisplacement1d");
     // Preserve authored bounds; allow their rounding in the label, never in owner outputs.
     if (distance?.status !== "value" || typeof distance.value !== "number" ||
@@ -309,7 +316,7 @@ export async function brownianTourSpec(
         { quantityId: "rmsDisplacement1d", label: "Typical distance predicted by the model", unit: "micrometres", displayDivisor: 1e-6 },
         { quantityId: "intervalProbability", label: "Share inside the interval", unit: "percent", format: "percent" },
       ],
-      workedRows: actions.map((action, index) => workedRow(action.id, action.label, views[index]!)),
+      workedRows: actions.map((action, index) => brownianWorkedRow(action.id, action.label, views[index]!)),
       reading: "About two particles in three fall within one typical distance on either side of the start. Widening the interval to two typical distances includes about 95 in 100. The typical distance is a measure of spread, not an outer boundary.",
       limitation: "These are exact model chances for an unbounded line, using modern constants. They are not counts from a finite particle sample. Widening the interval changes what is counted, while the distribution itself stays the same.",
       sourceHref: "/papers/brownian-motion/view/parallel/#s5-p3",
