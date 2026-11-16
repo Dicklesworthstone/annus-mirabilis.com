@@ -458,8 +458,10 @@ cards:
 
   - id: sr-doppler-aberration
     support:
-      kind: "no-checked-proof"
-      reason: "The transformed wave phase and ray direction are explained in the linked passages; no checked derivation record covers both results."
+      kind: "checked-proof"
+      proofId: "sr-doppler-phase"
+      conclusion: "eq-model-sr-doppler-factor"
+      scope: "Exact phase substitution, independent-coordinate coefficient matching and positive-domain division establish the frequency ratio and both direction components, conditional on the admitted inverse Lorentz map and vacuum plane-wave description. The field-amplitude transformation and empirical validity of the premises are separate."
     title: "Doppler's principle and aberration for any velocity"
     section: s7
     arguments: [arg-sr-doppler-aberration]

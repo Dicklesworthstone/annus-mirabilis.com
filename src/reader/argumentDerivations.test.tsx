@@ -6,6 +6,20 @@ import { PaperReader } from "./PaperReader.tsx";
 
 const cases = [
   {
+    paperId: "light-quanta",
+    section: "s8",
+    argument: "arg-lq-photoelectric-energy",
+    id: "lq-photoelectric-derivation",
+    steps: 3,
+  },
+  {
+    paperId: "special-relativity",
+    section: "s7",
+    argument: "arg-sr-doppler-aberration",
+    id: "sr-doppler-derivation",
+    steps: 10,
+  },
+  {
     paperId: "brownian-motion",
     section: "s3",
     argument: "arg-bm-diffusivity",

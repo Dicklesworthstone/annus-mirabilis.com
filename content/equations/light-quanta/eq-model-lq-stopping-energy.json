@@ -13,8 +13,11 @@
   "assumptions": [
     "One electron receives the whole of one quantum, h times the frequency, and nothing from a second quantum.",
     "Escaping costs the electron at least the escape work; any further loss on the way out is not negative.",
+    "The fastest escaping electrons can attain zero additional loss after paying the escape work; nonnegative losses alone establish only an upper bound.",
+    "Planck's constant and frequency are positive, escape work is nonnegative, and the quantum energy is at least the escape work. Equality at threshold does not guarantee a measurable current.",
     "These are modern teaching equations in SI notation, not a transcription of the printed section 8.",
-    "The stopping potential is taken as measured on the fastest electrons, with contact potentials between electrode materials ignored."
+    "The stopping potential is taken as measured on the fastest electrons, with contact potentials between electrode materials ignored.",
+    "The elementary charge and stopping potential denote positive charge magnitude and nonnegative retarding-potential magnitude, not the signed electron charge."
   ],
   "tree": {
     "kind": "relation",

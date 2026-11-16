@@ -52,7 +52,9 @@ import type { ClockFirstEncounter } from "./entrances/ClockFirstEncounter.tsx";
 import type { LightQuantaFirstEncounter } from "./entrances/LightQuantaFirstEncounter.tsx";
 import type { MassEnergyFirstEncounter } from "./entrances/MassEnergyFirstEncounter.tsx";
 import type { LightQuantaDerivation } from "./LightQuantaDerivation.tsx";
+import type { PhotoelectricDerivation } from "./PhotoelectricDerivation.tsx";
 import type { SRCoordinateDerivation } from "./SRCoordinateDerivation.tsx";
+import type { SRDopplerDerivation } from "./SRDopplerDerivation.tsx";
 import type { SRElectronDerivation } from "./SRElectronDerivation.tsx";
 import type { SRFieldDerivation } from "./SRFieldDerivation.tsx";
 import type { SRLightComplexDerivation } from "./SRLightComplexDerivation.tsx";
@@ -191,4 +193,18 @@ const SRVelocitySteps = lazy(() =>
 );
 export function LazySRVelocityDerivation(props: ComponentProps<typeof SRVelocityDerivation>) {
   return <SRVelocitySteps {...props} />;
+}
+
+const PhotoelectricSteps = lazy(() =>
+  import("./PhotoelectricDerivation.tsx").then((m) => ({ default: m.PhotoelectricDerivation })),
+);
+export function LazyPhotoelectricDerivation(props: ComponentProps<typeof PhotoelectricDerivation>) {
+  return <PhotoelectricSteps {...props} />;
+}
+
+const SRDopplerSteps = lazy(() =>
+  import("./SRDopplerDerivation.tsx").then((m) => ({ default: m.SRDopplerDerivation })),
+);
+export function LazySRDopplerDerivation(props: ComponentProps<typeof SRDopplerDerivation>) {
+  return <SRDopplerSteps {...props} />;
 }

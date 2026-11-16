@@ -8,32 +8,36 @@
  * never the physical premises or historical fidelity.
  */
 import brownianInferenceRecord from "../../../content/equations/brownian-motion/eq-model-bm-avogadro-inference.json";
-import brownianMomentRecord from "../../../content/equations/brownian-motion/eq-model-bm-mean-square-growth.json";
 import brownianMolarRecord from "../../../content/equations/brownian-motion/eq-model-bm-diffusivity-molar.json";
+import brownianMomentRecord from "../../../content/equations/brownian-motion/eq-model-bm-mean-square-growth.json";
 import lqMolarEnergyRecord from "../../../content/equations/light-quanta/eq-model-lq-energy-per-point-molar.json";
 import lqEntropyTemperatureRecord from "../../../content/equations/light-quanta/eq-model-lq-entropy-temperature.json";
 import lqGasRecord from "../../../content/equations/light-quanta/eq-model-lq-gas-entropy-change.json";
+import photoelectricMaximumRecord from "../../../content/equations/light-quanta/eq-model-lq-photoelectric-maximum.json";
+import stoppingEnergyRecord from "../../../content/equations/light-quanta/eq-model-lq-stopping-energy.json";
 import lqVolumeRecord from "../../../content/equations/light-quanta/eq-model-lq-volume-entropy.json";
 import lqEntropyDensityRecord from "../../../content/equations/light-quanta/eq-model-lq-wien-entropy-density.json";
 import lqInverseTemperatureRecord from "../../../content/equations/light-quanta/eq-model-lq-wien-inverse-temperature.json";
 import lqSpectrumRecord from "../../../content/equations/light-quanta/eq-model-lq-wien-spectrum.json";
+import aberrationRecord from "../../../content/equations/special-relativity/eq-model-sr-aberration.json";
+import composedVelocityXRecord from "../../../content/equations/special-relativity/eq-model-sr-composed-velocity-x.json";
+import composedVelocityYRecord from "../../../content/equations/special-relativity/eq-model-sr-composed-velocity-y.json";
 import dopplerRecord from "../../../content/equations/special-relativity/eq-model-sr-doppler-factor.json";
 import frequencyRecord from "../../../content/equations/special-relativity/eq-model-sr-doppler-ratio.json";
 import workIntegralRecord from "../../../content/equations/special-relativity/eq-model-sr-electron-work-integral.json";
 import workResultRecord from "../../../content/equations/special-relativity/eq-model-sr-electron-work-result.json";
+import inversePositionRecord from "../../../content/equations/special-relativity/eq-model-sr-inverse-position.json";
+import velocityInverseTimeRecord from "../../../content/equations/special-relativity/eq-model-sr-inverse-time.json";
 import densityRecord from "../../../content/equations/special-relativity/eq-model-sr-light-density.json";
 import energyRecord from "../../../content/equations/special-relativity/eq-model-sr-light-energy.json";
 import volumeRecord from "../../../content/equations/special-relativity/eq-model-sr-light-volume.json";
 import longitudinalRecord from "../../../content/equations/special-relativity/eq-model-sr-longitudinal-mass.json";
+import velocityPositionRecord from "../../../content/equations/special-relativity/eq-model-sr-map-position.json";
+import velocityTimeRecord from "../../../content/equations/special-relativity/eq-model-sr-map-time.json";
 import syncCriterionRecord from "../../../content/equations/special-relativity/eq-model-sr-sync-equal-legs.json";
 import syncMidpointRecord from "../../../content/equations/special-relativity/eq-model-sr-sync-midpoint.json";
 import laboratoryRecord from "../../../content/equations/special-relativity/eq-model-sr-transverse-mass-laboratory.json";
 import printedRecord from "../../../content/equations/special-relativity/eq-model-sr-transverse-mass-printed.json";
-import velocityPositionRecord from "../../../content/equations/special-relativity/eq-model-sr-map-position.json";
-import velocityTimeRecord from "../../../content/equations/special-relativity/eq-model-sr-map-time.json";
-import velocityInverseTimeRecord from "../../../content/equations/special-relativity/eq-model-sr-inverse-time.json";
-import composedVelocityXRecord from "../../../content/equations/special-relativity/eq-model-sr-composed-velocity-x.json";
-import composedVelocityYRecord from "../../../content/equations/special-relativity/eq-model-sr-composed-velocity-y.json";
 import type { Expression } from "../../equations/ast.ts";
 import { verifyBrownianEquilibrium } from "../../equations/derivations/brownianEquilibriumProof.ts";
 import { brownianInferenceChain } from "../../equations/derivations/brownianInference.ts";
@@ -45,8 +49,12 @@ import {
   lqWienEntropyDerivation,
 } from "../../equations/derivations/lightQuantaEntropy.ts";
 import { verifyLqWienEntropy } from "../../equations/derivations/lightQuantaEntropyProof.ts";
+import { photoelectricChain } from "../../equations/derivations/lightQuantaPhotoelectric.ts";
+import { verifyPhotoelectric } from "../../equations/derivations/lightQuantaPhotoelectricProof.ts";
 import { buildMassEnergyElimination } from "../../equations/derivations/massEnergyElimination.ts";
 import { buildMassEnergyLowSpeed } from "../../equations/derivations/massEnergyLowSpeed.ts";
+import { srDopplerAssumptions, srDopplerChains } from "../../equations/derivations/srDoppler.ts";
+import { verifySRDoppler } from "../../equations/derivations/srDopplerProof.ts";
 import {
   srElectronLaboratory,
   srElectronLongitudinal,
@@ -94,6 +102,57 @@ type DerivationProof = Readonly<{
  * for authored, unchecked calculus is not a checked proof.
  */
 const DERIVATION_PROOFS: Readonly<Record<DerivationProofId, DerivationProof>> = {
+  "lq-photoelectric-energy": {
+    paper: "light-quanta",
+    conclusion: photoelectricMaximumRecord.id,
+    title: "Follow one quantum through escape work to stopping voltage",
+    href: "/papers/light-quanta/s8/#lq-photoelectric-derivation",
+    records: [photoelectricMaximumRecord, stoppingEnergyRecord],
+    chains: [photoelectricChain],
+    verify: verifyPhotoelectric,
+    premises: [
+      {
+        id: "lq-photoelectric-whole-quantum",
+        label: "One quantum supplies one electron's energy",
+        explanation:
+          "The admitted model transfers one light quantum's full energy to one electron. This is a physical premise, not a consequence of the energy bookkeeping.",
+      },
+      {
+        id: "lq-photoelectric-attainable-edge",
+        label: "The fastest electrons have no additional loss",
+        explanation:
+          "The maximum assumes electrons can escape after paying the stated work W without an additional energy loss. A generic emitted electron may have less energy.",
+      },
+      {
+        id: "lq-photoelectric-admissible-domain",
+        label: "Positive energy scales and an admitted emission budget",
+        explanation:
+          "h, ν and the charge magnitude e are positive, W is nonnegative and hν is at least W. Below threshold the model has no emitted-electron stopping voltage; a negative algebraic remainder is not an electron energy.",
+      },
+      {
+        id: "lq-photoelectric-retarding-work",
+        label: "Electrical work supplies a separate stopping condition",
+        explanation:
+          "Use the independently supplied relation between electrical work and a nonnegative retarding-voltage magnitude, with e the positive charge magnitude. Contact potentials and additional material effects are outside this ideal comparison.",
+      },
+    ],
+  },
+  "sr-doppler-phase": {
+    paper: "special-relativity",
+    conclusion: dopplerRecord.id,
+    title: "Follow one wave phase to the frequency and direction changes",
+    href: "/papers/special-relativity/s7/#sr-doppler-derivation",
+    records: [
+      inversePositionRecord,
+      velocityInverseTimeRecord,
+      dopplerRecord,
+      frequencyRecord,
+      aberrationRecord,
+    ],
+    chains: srDopplerChains,
+    verify: verifySRDoppler,
+    premises: srDopplerAssumptions,
+  },
   "bm-equilibrium-diffusivity": {
     paper: "brownian-motion",
     conclusion: brownianMolarRecord.id,

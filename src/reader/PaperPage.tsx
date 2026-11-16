@@ -57,7 +57,9 @@ import {
   LazyLightQuantaDerivation,
   LazyLightQuantaFirstEncounter,
   LazyMassEnergyFirstEncounter,
+  LazyPhotoelectricDerivation,
   LazySRCoordinateDerivation,
+  LazySRDopplerDerivation,
   LazySRElectronDerivation,
   LazySRFieldDerivation,
   LazySRLightComplexDerivation,
@@ -747,6 +749,28 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                             </a>
                           </p>
                         ))}
+                      {paper.id === "light-quanta" &&
+                        a.id === "arg-lq-photoelectric-energy" &&
+                        (sectionId ? (
+                          <LazyPhotoelectricDerivation />
+                        ) : (
+                          <p className="fine">
+                            <a href="/papers/light-quanta/s8/#lq-photoelectric-derivation">
+                              Follow one quantum from escape work to stopping voltage
+                            </a>
+                          </p>
+                        ))}
+                      {paper.id === "special-relativity" &&
+                        a.id === "arg-sr-doppler-aberration" &&
+                        (sectionId ? (
+                          <LazySRDopplerDerivation />
+                        ) : (
+                          <p className="fine">
+                            <a href="/papers/special-relativity/s7/#sr-doppler-derivation">
+                              Follow one wave phase to its frequency and direction in another frame
+                            </a>
+                          </p>
+                        ))}
                       {paper.id === "special-relativity" &&
                         a.id === "arg-sr-light-complex" &&
                         (sectionId ? (
@@ -809,7 +833,8 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                         ) : (
                           <p className="fine">
                             <a href="/papers/special-relativity/s5/#sr-velocity-derivation">
-                              Derive both velocity components by transforming the clock and the displacement
+                              Derive both velocity components by transforming the clock and the
+                              displacement
                             </a>
                           </p>
                         ))}

@@ -323,8 +323,10 @@ cards:
 
   - id: lq-photoelectric-energy
     support:
-      kind: "no-checked-proof"
-      reason: "The photoelectric energy balance is explained with its one-quantum premise; no checked derivation record covers this result."
+      kind: "checked-proof"
+      proofId: "lq-photoelectric-energy"
+      conclusion: "eq-model-lq-photoelectric-maximum"
+      scope: "The calculation derives the maximum kinetic energy and stopping-potential magnitude from whole-quantum transfer, an attainable lossless escape edge, and independently admitted electrical work. It keeps the emission threshold explicit; it does not establish those physical premises, predict current, or turn partial transfer into an equality."
     title: "The energy of the electrons that light sets free"
     section: s8
     arguments: [arg-lq-photoelectric-energy, arg-lq-stopping-and-losses]
