@@ -8,6 +8,7 @@ import temperature from "../../../content/foundations/entropy-temperature.json";
 import inference from "../../../content/foundations/error-and-inference.json";
 import fields from "../../../content/foundations/fields-waves.json";
 import frames from "../../../content/foundations/frames-events.json";
+import functions from "../../../content/foundations/functions-graphs.json";
 import logarithms from "../../../content/foundations/logarithms.json";
 import rms from "../../../content/foundations/mean-variance-rms.json";
 import independence from "../../../content/foundations/probability-independence.json";
@@ -252,6 +253,7 @@ const FOUNDATION_TITLES = new Map(
     fractions,
     signs,
     fields,
+    functions,
     frames,
     taylor,
     energy,
@@ -307,7 +309,12 @@ export function compilePrintedSourceSemantics(
     display,
     indices,
     relativity?.allowChainedRelations ?? brownian?.allowChainedRelations,
-    { allowAlignedColumns: relativity?.allowAlignedColumns ?? false },
+    {
+      allowAlignedColumns: relativity?.allowAlignedColumns ?? false,
+      ...(relativity?.functionQuantities
+        ? { functionQuantities: relativity.functionQuantities }
+        : {}),
+    },
   );
   const expectedOperator =
     brownian?.relationOperator === null ? null : budget ? budget.relationOperator : "=";
@@ -422,7 +429,7 @@ export function compilePrintedSourceSemantics(
   const operationMarks: SourceMark[] = [];
   const operations: PrintedOperation[] = nodes.flatMap(({ path, node }) => {
     if (!node.marker) return [];
-    const id = nodeId(node.tree);
+    const id = node.operationId ?? nodeId(node.tree);
     const authored = guide.primary[path];
     const arithmetic = relativity
       ? RELATIVITY_ARITHMETIC

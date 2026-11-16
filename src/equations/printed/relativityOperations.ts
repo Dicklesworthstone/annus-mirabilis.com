@@ -7,6 +7,7 @@ import type { Expression } from "../ast.ts";
 import type { MassEnergyOperationGuide, OperationReading } from "./massEnergyOperations.ts";
 import { RELATIVITY_CONSEQUENCE_GUIDES } from "./relativityConsequences.ts";
 import { RELATIVITY_ELECTRODYNAMICS_GUIDES } from "./relativityElectrodynamics.ts";
+import { RELATIVITY_FIELD_GUIDES } from "./relativityFields.ts";
 import { RELATIVITY_LIGHT_COMPLEX_GUIDES } from "./relativityLightComplex.ts";
 
 export type RelativityOperationGuide = MassEnergyOperationGuide &
@@ -26,6 +27,8 @@ export type RelativityOperationGuide = MassEnergyOperationGuide &
     allowChainedRelations?: boolean;
     /** A printed alignment can place independent equalities in adjacent columns. */
     allowAlignedColumns?: boolean;
+    /** A quantity application is permitted only for these explicitly named function quantities. */
+    functionQuantities?: readonly string[];
     /** A function is permitted only when this display supplies its scientific reading. */
     functions?: Readonly<
       Partial<Record<Extract<Expression, { kind: "function" }>["name"], OperationReading>>
@@ -159,6 +162,7 @@ const factorGuide: RelativityOperationGuide = {
 export const RELATIVITY_OPERATION_GUIDES: Readonly<Record<string, RelativityOperationGuide>> = {
   ...RELATIVITY_CONSEQUENCE_GUIDES,
   ...RELATIVITY_ELECTRODYNAMICS_GUIDES,
+  ...RELATIVITY_FIELD_GUIDES,
   ...RELATIVITY_LIGHT_COMPLEX_GUIDES,
   "eq-s3-d16": factorGuide,
   "eq-s6-d3": {

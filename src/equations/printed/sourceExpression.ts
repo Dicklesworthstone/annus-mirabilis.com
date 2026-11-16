@@ -27,6 +27,8 @@ export type SourceExpressionNode = Readonly<{
   end: number;
   /** Only the printed sign for a relation or a sum; the whole construct for a fraction/root. */
   marker?: Readonly<{ start: number; end: number }>;
+  /** A quantity application keeps an operation identity separate from its printed term. */
+  operationId?: string;
   parts: readonly Readonly<{ name: string; node: SourceExpressionNode }>[];
 }>;
 
@@ -40,6 +42,8 @@ export type SourceExpression = Readonly<{
 export type SourceExpressionOptions = Readonly<{
   /** Independent relations separated by &\\qquad inside an aligned environment. */
   allowAlignedColumns?: boolean;
+  /** Only named quantity functions consume a following parenthesized argument. */
+  functionQuantities?: readonly string[];
 }>;
 
 export class SourceExpressionError extends Error {
@@ -104,6 +108,7 @@ class RowParser {
     private readonly display: CheckedDisplay,
     private readonly items: readonly Lexeme[],
     private readonly symbolIndices: Readonly<Record<string, string>>,
+    private readonly options: SourceExpressionOptions,
   ) {}
 
   private peek(): Lexeme | undefined {
@@ -135,7 +140,14 @@ class RowParser {
     marker: Readonly<{ start: number; end: number }> = { start, end },
   ): SourceExpressionNode {
     const opId = `${this.display.paper}.${this.display.display}.op.${start}.${tree.kind}`;
-    return { tree: { ...tree, opId } as Expression, start, end, parts, marker };
+    return {
+      tree: tree.kind === "symbol" ? tree : ({ ...tree, opId } as Expression),
+      start,
+      end,
+      parts,
+      marker,
+      operationId: opId,
+    };
   }
 
   parse(
@@ -316,20 +328,33 @@ class RowParser {
 
   private atom(): SourceExpressionNode {
     const token = this.take();
-    if (token.term)
+    if (token.term) {
+      const tree: Extract<Expression, { kind: "symbol" }> = {
+        kind: "symbol",
+        termId: token.term.termId,
+        quantityId: token.term.quantityId,
+        ...(this.symbolIndices[token.term.glyph] !== undefined
+          ? { index: this.symbolIndices[token.term.glyph] }
+          : {}),
+      };
+      if (this.options.functionQuantities?.includes(token.term.quantityId)) {
+        // A declared quantity such as psi(v) is evaluated at v; multiplying psi by v
+        // would change both its physical meaning and its dimensions. Its source glyph
+        // still owns one term, and the argument owns its own term and operations.
+        this.take("(");
+        const argument = this.sum();
+        const close = this.take(")");
+        return this.operation({ ...tree, at: argument.tree }, token.start, close.end, [
+          { name: "at", node: argument },
+        ]);
+      }
       return {
-        tree: {
-          kind: "symbol",
-          termId: token.term.termId,
-          quantityId: token.term.quantityId,
-          ...(this.symbolIndices[token.term.glyph] !== undefined
-            ? { index: this.symbolIndices[token.term.glyph] }
-            : {}),
-        },
+        tree,
         start: token.start,
         end: token.end,
         parts: [],
       };
+    }
     if (/^[0-9]$/.test(token.value)) {
       let value = token.value;
       let end = token.end;
@@ -441,7 +466,7 @@ export function parseSourceExpression(
     const independent = line.length > 1;
     for (const column of line) {
       const previous = independent || previousLineHadColumns ? undefined : rows.at(-1)?.tree;
-      const parsed = new RowParser(display, column, symbolIndices).parse(
+      const parsed = new RowParser(display, column, symbolIndices, options).parse(
         previous?.kind === "relation" ? previous.left : undefined,
         allowChainedRelations,
       );
