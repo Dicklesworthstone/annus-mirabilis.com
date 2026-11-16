@@ -247,6 +247,43 @@ describe("scientific Brownian comparison records", () => {
     expect(lab.tracer.channels.slice(1).every((channel) => channel.disposed)).toBe(true);
   });
 
+  test("a superseded replay releases a held private worker without waiting for its reply", async () => {
+    const { lab, tape } = await record(laboratory({ densityHold: (index) => index === 1 }));
+    const cancellation = new AbortController();
+    const pending = restoreBrownianGroup("superseded-held-pair", lab.inputs, lab.bundle, tape, {
+      signal: cancellation.signal,
+      timeoutMs: 15_000,
+    });
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    try {
+      await waitFor(() => lab.density[1]?.results.length === 1);
+      lab.bundle.group.update(2e-6);
+      const result = await Promise.race([
+        pending,
+        new Promise<null>((resolve) => {
+          timeout = setTimeout(() => resolve(null), 1000);
+        }),
+      ]);
+      assert(result, "A superseded replay must not wait for the held worker or its timeout.");
+      expect(result.kind).toBe("not-restored");
+      if (result.kind === "not-restored") expect(result.notice).toContain("newer change");
+      expect(lab.density[1]?.disposed).toBe(true);
+      await waitFor(() => lab.bundle.group.getSnapshot().coherent?.value === 2e-6);
+      expect(lab.bundle.group.getSnapshot().status).toBe("accepted");
+      expect(lab.resources.admission.activeCount).toBe(0);
+      expect(lab.resources.admission.queuedCount).toBe(0);
+      // A late delivery cannot resurrect the retired candidate or change the newer comparison.
+      const latest = lab.bundle.group.getSnapshot().coherent;
+      lab.density[1]?.release();
+      await Promise.resolve();
+      expect(lab.bundle.group.getSnapshot().coherent).toBe(latest);
+    } finally {
+      if (timeout !== undefined) clearTimeout(timeout);
+      cancellation.abort();
+      await pending;
+    }
+  });
+
   test("restoration cancels pending old owners under a two-worker admission bound", async () => {
     const source = await record();
     const lab = laboratory({

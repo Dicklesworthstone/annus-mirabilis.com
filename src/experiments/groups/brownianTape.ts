@@ -263,8 +263,26 @@ export async function restoreBrownianGroup(
   if (!stillCurrent()) return superseded();
   let privateBundle: BrownianGroupBundle | undefined;
   const detachPause: (() => void)[] = [];
+  const detachCurrent: (() => void)[] = [];
+  const replayCancellation = new AbortController();
+  let replaced = false;
+  const cancelReplay = () => replayCancellation.abort();
+  const cancelIfReplaced = () => {
+    if (stillCurrent()) return;
+    replaced = true;
+    cancelReplay();
+  };
   let handedOff = false;
   try {
+    // A superseded private worker must release its admission slot immediately. Waiting until
+    // both replays finish lets a held stale reply compete with the reader's newer calculation.
+    for (const session of current.sessions) detachCurrent.push(session.subscribe(cancelIfReplaced));
+    detachCurrent.push(current.group.subscribe(cancelIfReplaced));
+    options.signal?.addEventListener("abort", cancelReplay, { once: true });
+    if (options.signal?.aborted) cancelReplay();
+    cancelIfReplaced();
+    if (replaced) return superseded();
+    if (replayCancellation.signal.aborted) return refused("Comparison restoration was canceled.");
     privateBundle = createBrownianGroupBundle(instanceId, inputs);
     for (const [index, session] of privateBundle.sessions.entries())
       detachPause.push(inheritSchedulingPause(current.sessions[index] ?? current.sessions[0], session));
@@ -274,7 +292,11 @@ export async function restoreBrownianGroup(
       const binding = bindings[index];
       const tape = prepared.replays[index];
       if (!session || !binding || !tape) return refused("The private comparison is incomplete.");
-      const replayed = await restoreWorkerTape(binding, session, tape, options);
+      const replayed = await restoreWorkerTape(binding, session, tape, {
+        ...options,
+        signal: replayCancellation.signal,
+      });
+      if (replaced || !stillCurrent()) return superseded();
       if (replayed.kind !== "restored") return replayed;
     }
     if (options.signal?.aborted) return refused("Comparison restoration was canceled.");
@@ -295,6 +317,8 @@ export async function restoreBrownianGroup(
   } catch (error) {
     return refused(`The recorded comparison could not be restored: ${String(error)}`);
   } finally {
+    options.signal?.removeEventListener("abort", cancelReplay);
+    for (const detach of detachCurrent) detach();
     for (const detach of detachPause) detach();
     if (!handedOff) privateBundle?.group.disconnect();
   }
