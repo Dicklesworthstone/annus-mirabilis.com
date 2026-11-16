@@ -1,5 +1,5 @@
 "use client";
-import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { type FormEvent, useEffect, useId, useState } from "react";
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { readTypedNumber } from "../../../experiments/controls/typedNumber.ts";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
@@ -29,6 +29,8 @@ import { createReaderCheckpointBinding } from "../../../experiments/store/reader
 import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
+import { SessionResultWeave } from "../../../reader/weave/SessionResultWeave.tsx";
+import { SR09_READER_WEAVE } from "../../../reader/weave/wavePassages.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
@@ -81,11 +83,13 @@ export function DopplerAberrationLab({
   restoreFromLocation = true,
   example,
   title = "Doppler principle and aberration",
+  highlightPaper = false,
 }: {
   example: PreparedSr09Example;
   instanceId?: string | undefined;
   restoreFromLocation?: boolean | undefined;
   title?: string;
+  highlightPaper?: boolean;
 }) {
   const id = useId();
   const session = useRetainedSession(
@@ -429,6 +433,15 @@ export function DopplerAberrationLab({
       </div>
       {/* The caption's readings follow the instrument (dispatch 263). Above the predict gate they
           pushed the instrument more than 1000px down at 1440; every sentence is still here. */}
+      <div {...gate.response}>
+        <SessionResultWeave
+          session={session}
+          binding={SR09_READER_WEAVE}
+          suspended={refusal !== null}
+          announcementsEnabled={gate.open}
+          highlightPaper={highlightPaper}
+        />
+      </div>
       <p data-detail="0">
         <noscript>
           <b className="reading-label">In one breath</b>
