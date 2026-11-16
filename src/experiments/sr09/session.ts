@@ -74,6 +74,7 @@ export function createSr09Session(
 
     const setup: Record<string, number | string | boolean> = {};
     const observer: Record<string, number | string | boolean> = {};
+    const measurement: Record<string, number | string | boolean> = {};
     const presentation: Record<string, number | string | boolean> = {};
 
     (Object.keys(next) as (keyof Sr09Parameters)[]).forEach((key) => {
@@ -81,6 +82,8 @@ export function createSr09Session(
       const cls = SR09_CLASSES[key];
       if (cls === "observer") {
         observer[key] = next[key];
+      } else if (cls === "measurement") {
+        measurement[key] = next[key];
       } else if (cls === "presentation") {
         presentation[key] = next[key];
       } else {
@@ -91,6 +94,9 @@ export function createSr09Session(
     let request = newRun || Object.keys(setup).length ? store.issue("setup-change", setup) : null;
     if (Object.keys(observer).length) {
       request = store.issue("observer-change", observer);
+    }
+    if (Object.keys(measurement).length) {
+      request = store.issue("measurement-change", measurement);
     }
     if (Object.keys(presentation).length) {
       request = store.issue("presentation-change", presentation);
