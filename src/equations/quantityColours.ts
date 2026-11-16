@@ -116,6 +116,7 @@ export function assignQuantityColours(
 ): Readonly<Record<string, number>> {
   const ordered = [...equations].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   const order: string[] = [];
+  const indices = new Map<string, number>();
   const hard = new Map<string, Set<string>>();
   const soft = new Map<string, Set<string>>();
   const join = (map: Map<string, Set<string>>, ids: readonly string[]) => {
@@ -133,7 +134,11 @@ export function assignQuantityColours(
         "equation-exceeds-palette",
         `${e.id} shows ${ids.length} quantities; the palette has ${QUANTITY_PALETTE.length} colours.`,
       );
-    for (const id of ids) if (!order.includes(id)) order.push(id);
+    for (const id of ids) {
+      if (indices.has(id)) continue;
+      indices.set(id, order.length);
+      order.push(id);
+    }
     join(hard, ids);
     const group = byArgument.get(e.argument) ?? new Set<string>();
     for (const id of ids) group.add(id);
@@ -151,69 +156,103 @@ export function assignQuantityColours(
     join(hard, view);
   }
 
-  const colours = new Map<string, number>();
-  const neighbourSlots = (id: string, map: Map<string, Set<string>>) =>
-    new Set(
-      [...(map.get(id) ?? [])].flatMap((q) => {
-        const slot = colours.get(q);
-        return slot === undefined ? [] : [slot];
-      }),
-    );
-  /** Lexicographic: is key a ranked above key b? */
-  const above = (a: readonly number[], b: readonly number[]) => {
-    for (const [i, v] of a.entries()) if (v !== b[i]) return v > (b[i] ?? 0);
-    return false;
-  };
-  const next = (): string | undefined => {
-    let best: string | undefined;
-    let bestKey: readonly number[] = [];
-    for (const [index, id] of order.entries()) {
-      if (colours.has(id)) continue;
-      const key = [neighbourSlots(id, hard).size, hard.get(id)?.size ?? 0, -index];
-      if (best === undefined || above(key, bestKey)) {
-        best = id;
-        bestKey = key;
+  // Index once, rather than rebuilding sets of string neighbours at every search node. The
+  // indices retain first appearance, so equal saturation and degree still choose the same id.
+  const indexed = (map: Map<string, Set<string>>) =>
+    order.map((id) => Int32Array.from(map.get(id) ?? [], (q) => indices.get(q) as number));
+  const hardNeighbours = indexed(hard);
+  const softNeighbours = indexed(soft);
+  const slotCount = QUANTITY_PALETTE.length;
+  const colours = new Int32Array(order.length).fill(-1);
+  const hardCounts = new Uint32Array(order.length * slotCount);
+  const softCounts = new Uint32Array(order.length * slotCount);
+  const saturation = new Uint8Array(order.length);
+  const blocked = new Uint16Array(order.length);
+  const inPaper = new Uint32Array(slotCount);
+  // Each recursive depth owns nine candidate cells. A child's sort cannot alter its parent's
+  // remaining choices, and backtracking allocates no temporary maps, sets or candidate arrays.
+  const candidates = new Uint8Array(order.length * slotCount);
+  const setColour = (id: number, slot: number, change: 1 | -1) => {
+    colours[id] = change === 1 ? slot : -1;
+    inPaper[slot] = (inPaper[slot] as number) + change;
+    const bit = 1 << slot;
+    for (const neighbour of hardNeighbours[id] as Int32Array) {
+      const offset = neighbour * slotCount + slot;
+      const previous = hardCounts[offset] as number;
+      const count = previous + change;
+      hardCounts[offset] = count;
+      if (previous === 0) {
+        saturation[neighbour] = (saturation[neighbour] as number) + 1;
+        blocked[neighbour] = (blocked[neighbour] as number) | bit;
+      } else if (count === 0) {
+        saturation[neighbour] = (saturation[neighbour] as number) - 1;
+        blocked[neighbour] = (blocked[neighbour] as number) & ~bit;
       }
     }
-    return best;
+    for (const neighbour of softNeighbours[id] as Int32Array) {
+      const offset = neighbour * slotCount + slot;
+      softCounts[offset] = (softCounts[offset] as number) + change;
+    }
   };
   let nodes = 0;
-  const search = (): boolean => {
+  const search = (depth: number): boolean => {
     nodes++;
     if (options.nodeBudget !== undefined && nodes > options.nodeBudget)
       throw new QuantityColourError(
         "search-budget-exceeded",
         `The colour search stopped at its budget of ${options.nodeBudget} nodes without an answer.`,
       );
-    const id = next();
-    if (id === undefined) return true;
-    const blocked = neighbourSlots(id, hard);
+    // Keep the budget check before the completed-colouring case: that final call is a node too.
+    if (depth === order.length) return true;
+    let id = -1;
+    let bestSaturation = -1;
+    let bestDegree = -1;
+    for (let index = 0; index < order.length; index++) {
+      if (colours[index] !== -1) continue;
+      const distinct = saturation[index] as number;
+      const degree = (hardNeighbours[index] as Int32Array).length;
+      if (distinct > bestSaturation || (distinct === bestSaturation && degree > bestDegree)) {
+        id = index;
+        bestSaturation = distinct;
+        bestDegree = degree;
+      }
+    }
     // How many of its argument's quantities hold each slot. A count, not a yes or no: relativity's
     // plane waves share their free quantities, every slot was held by one of them, and the flag let
     // three free quantities fall to the same lowest slot, four quantities in one colour where one
     // pair was all ten needed (dispatch 233).
-    const crowd = new Map<number, number>();
-    for (const q of soft.get(id) ?? []) {
-      const slot = colours.get(q);
-      if (slot !== undefined) crowd.set(slot, (crowd.get(slot) ?? 0) + 1);
+    const crowdOffset = id * slotCount;
+    const candidateOffset = depth * slotCount;
+    const mask = blocked[id] as number;
+    let candidateCount = 0;
+    for (let slot = 0; slot < slotCount; slot++) {
+      if (mask & (1 << slot)) continue;
+      let at = candidateCount;
+      while (at > 0) {
+        const other = candidates[candidateOffset + at - 1] as number;
+        const rank =
+          (softCounts[crowdOffset + slot] as number) -
+            (softCounts[crowdOffset + other] as number) ||
+          Number((inPaper[slot] as number) > 0) - Number((inPaper[other] as number) > 0) ||
+          slot - other;
+        if (rank >= 0) break;
+        candidates[candidateOffset + at] = other;
+        at--;
+      }
+      candidates[candidateOffset + at] = slot;
+      candidateCount++;
     }
-    const inPaper = new Set(colours.values());
-    const candidates = QUANTITY_PALETTE.filter((c) => !blocked.has(c.slot)).sort(
-      (a, b) =>
-        (crowd.get(a.slot) ?? 0) - (crowd.get(b.slot) ?? 0) ||
-        Number(inPaper.has(a.slot)) - Number(inPaper.has(b.slot)) ||
-        a.slot - b.slot,
-    );
-    for (const c of candidates) {
-      colours.set(id, c.slot);
-      if (search()) return true;
-      colours.delete(id);
+    for (let at = 0; at < candidateCount; at++) {
+      const slot = candidates[candidateOffset + at] as number;
+      setColour(id, slot, 1);
+      if (search(depth + 1)) return true;
+      setColour(id, slot, -1);
     }
     return false;
   };
   let found: boolean;
   try {
-    found = search();
+    found = search(0);
   } finally {
     if (options.stats) options.stats.nodes += nodes;
   }
@@ -222,7 +261,9 @@ export function assignQuantityColours(
       "paper-not-colourable",
       `These equations cannot be coloured with ${QUANTITY_PALETTE.length} colours so that no equation repeats one.`,
     );
-  return Object.freeze(Object.fromEntries(order.map((id) => [id, colours.get(id) as number])));
+  return Object.freeze(
+    Object.fromEntries(order.map((id, index) => [id, colours[index] as number])),
+  );
 }
 
 /**
