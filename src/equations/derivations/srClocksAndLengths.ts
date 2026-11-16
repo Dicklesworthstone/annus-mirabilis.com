@@ -494,8 +494,8 @@ export const srClockLengthChains = [srClocksAndLengths.clock, srClocksAndLengths
 const glyphs: Readonly<Record<string, string>> = {
   coordinateTimeStationary: "t",
   coordinatePositionStationary: "x",
-  coordinateTimeMoving: "t′",
-  coordinatePositionMoving: "x′",
+  coordinateTimeMoving: "t'",
+  coordinatePositionMoving: "x'",
   frameSpeed: "v",
   speedOfLight: "c",
   lorentzFactor: "\\gamma",

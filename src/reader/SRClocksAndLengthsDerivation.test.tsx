@@ -1,12 +1,36 @@
 import { expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
+import { renderExpressionMarkup } from "../equations/derivations/mathRenderer.ts";
 import {
+  presentSRClockLengthExpression,
   srClockLengthChains,
   srClockLengthSourceLinks,
 } from "../equations/derivations/srClocksAndLengths.ts";
 import { exportMarkup } from "../testing/exportMarkup.ts";
 import { PaperPage } from "./PaperPage.tsx";
 import { SRClocksAndLengthsDerivation } from "./SRClocksAndLengthsDerivation.tsx";
+
+test("moving-frame coordinates keep the frame prime and event index on the same MathML symbol", () => {
+  for (const [quantityId, coordinate] of [
+    ["coordinateTimeMoving", "t"],
+    ["coordinatePositionMoving", "x"],
+  ] as const) {
+    for (const index of ["1", "2"]) {
+      const projected = presentSRClockLengthExpression({
+        kind: "symbol",
+        quantityId,
+        termId: `${quantityId}.event${index}`,
+        index,
+      });
+      const { html } = renderExpressionMarkup(projected);
+      const mathml = html.match(/<math[\s\S]*?<\/math>/)?.[0];
+      expect(mathml).toBeDefined();
+      expect(mathml).toContain(`<msubsup><mi>${coordinate}</mi><mn>${index}</mn><mo`);
+      expect(mathml).toContain(">′</mo></msubsup>");
+      expect(mathml).not.toContain("<mtext>′</mtext>");
+    }
+  }
+});
 
 test("both full measurement chains, event choices and source returns are present without JavaScript", () => {
   const html = renderToStaticMarkup(<SRClocksAndLengthsDerivation activeDetail="2" />);
