@@ -307,6 +307,7 @@ export function compilePrintedSourceSemantics(
     display,
     indices,
     relativity?.allowChainedRelations ?? brownian?.allowChainedRelations,
+    { allowAlignedColumns: relativity?.allowAlignedColumns ?? false },
   );
   const expectedOperator =
     brownian?.relationOperator === null ? null : budget ? budget.relationOperator : "=";

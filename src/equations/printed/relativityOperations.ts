@@ -6,6 +6,7 @@
 import type { Expression } from "../ast.ts";
 import type { MassEnergyOperationGuide, OperationReading } from "./massEnergyOperations.ts";
 import { RELATIVITY_CONSEQUENCE_GUIDES } from "./relativityConsequences.ts";
+import { RELATIVITY_ELECTRODYNAMICS_GUIDES } from "./relativityElectrodynamics.ts";
 import { RELATIVITY_LIGHT_COMPLEX_GUIDES } from "./relativityLightComplex.ts";
 
 export type RelativityOperationGuide = MassEnergyOperationGuide &
@@ -23,6 +24,8 @@ export type RelativityOperationGuide = MassEnergyOperationGuide &
     symbolIndices: Readonly<Record<string, string>>;
     /** Chained equals signs require an explicitly authored reading of every continuation. */
     allowChainedRelations?: boolean;
+    /** A printed alignment can place independent equalities in adjacent columns. */
+    allowAlignedColumns?: boolean;
     /** A function is permitted only when this display supplies its scientific reading. */
     functions?: Readonly<
       Partial<Record<Extract<Expression, { kind: "function" }>["name"], OperationReading>>
@@ -155,8 +158,18 @@ const factorGuide: RelativityOperationGuide = {
 /** Only these source displays opt in; the earlier undetermined phi(v) is not guessed. */
 export const RELATIVITY_OPERATION_GUIDES: Readonly<Record<string, RelativityOperationGuide>> = {
   ...RELATIVITY_CONSEQUENCE_GUIDES,
+  ...RELATIVITY_ELECTRODYNAMICS_GUIDES,
   ...RELATIVITY_LIGHT_COMPLEX_GUIDES,
   "eq-s3-d16": factorGuide,
+  "eq-s6-d3": {
+    ...factorGuide,
+    context:
+      "Section 6 repeats the Lorentz factor while transforming the field equations. The printed beta is gamma in modern notation, not the speed ratio v/V.",
+    next: {
+      href: "/papers/special-relativity/s6/#sr-field-derivation",
+      label: "Follow the field equations and their transformation",
+    },
+  },
   "eq-s3-d25": {
     expectedRowDimensions: [TIME, LENGTH, LENGTH, LENGTH],
     symbolIndices: { x: "x", y: "y", z: "z", "\\xi": "x", "\\eta": "y", "\\zeta": "z" },

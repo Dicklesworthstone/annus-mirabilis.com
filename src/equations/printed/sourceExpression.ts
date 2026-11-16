@@ -36,6 +36,12 @@ export type SourceExpression = Readonly<{
   continuationRows: readonly number[];
 }>;
 
+/** Additional source constructions are admitted by the display's authored operation guide. */
+export type SourceExpressionOptions = Readonly<{
+  /** Independent relations separated by &\\qquad inside an aligned environment. */
+  allowAlignedColumns?: boolean;
+}>;
+
 export class SourceExpressionError extends Error {
   constructor(
     readonly code: "printed-expression-unsupported",
@@ -397,6 +403,7 @@ export function parseSourceExpression(
   display: CheckedDisplay,
   symbolIndices: Readonly<Record<string, string>> = {},
   allowChainedRelations = false,
+  options: SourceExpressionOptions = {},
 ): SourceExpression {
   let items = lexemes(display);
   const aligned = items[0]?.value === "\\begin{aligned}";
@@ -410,22 +417,46 @@ export function parseSourceExpression(
       );
     items = items.slice(1, -1);
   }
-  const lines: Lexeme[][] = [[]];
-  for (const item of items) {
-    if (aligned && item.value === "\\\\") lines.push([]);
-    else lines.at(-1)!.push(item);
+  // Preserve physical rows so a later equality cannot accidentally inherit a left side
+  // from the other column. The delimiter is opted in exactly as printed; \quad and a bare
+  // alignment tab still belong to the ordinary grammar and are not guessed to be separators.
+  const lines: Lexeme[][][] = [[[]]];
+  for (let index = 0; index < items.length; index++) {
+    const item = items[index]!;
+    if (aligned && item.value === "\\\\") lines.push([[]]);
+    else if (
+      aligned &&
+      options.allowAlignedColumns &&
+      item.value === "&" &&
+      items[index + 1]?.value === "\\qquad"
+    ) {
+      lines.at(-1)!.push([]);
+      index++;
+    } else lines.at(-1)!.at(-1)!.push(item);
   }
   const rows: SourceExpressionNode[] = [];
   const continuationRows: number[] = [];
+  let previousLineHadColumns = false;
   for (const line of lines) {
-    const previous = rows.at(-1)?.tree;
-    const parsed = new RowParser(display, line, symbolIndices).parse(
-      previous?.kind === "relation" ? previous.left : undefined,
-      allowChainedRelations,
-    );
-    if (parsed.continuation) continuationRows.push(rows.length);
-    for (let i = 1; i < parsed.rows.length; i++) continuationRows.push(rows.length + i);
-    rows.push(...parsed.rows);
+    const independent = line.length > 1;
+    for (const column of line) {
+      const previous = independent || previousLineHadColumns ? undefined : rows.at(-1)?.tree;
+      const parsed = new RowParser(display, column, symbolIndices).parse(
+        previous?.kind === "relation" ? previous.left : undefined,
+        allowChainedRelations,
+      );
+      if (independent && parsed.rows.some((row) => row.tree.kind !== "relation"))
+        throw new SourceExpressionError(
+          "printed-expression-unsupported",
+          display.display,
+          column[0]?.start ?? display.latex.length,
+          "Each aligned column must contain an independent relation.",
+        );
+      if (parsed.continuation) continuationRows.push(rows.length);
+      for (let i = 1; i < parsed.rows.length; i++) continuationRows.push(rows.length + i);
+      rows.push(...parsed.rows);
+    }
+    previousLineHadColumns = independent;
   }
   return { rows, continuationRows };
 }
