@@ -1,7 +1,9 @@
 import { describe, expect, test } from "bun:test";
+import assert from "node:assert/strict";
 import { checkVoice } from "../../content/checks/voice/index.ts";
 import { constantValue, getConstantSet } from "../../physics/reference/constants.ts";
 import { boostMatrixXT } from "../../physics/reference/kinematics.ts";
+import { convertValue, listUnitsInFamily } from "../../units/adapters.ts";
 import { type AnswerVerdict, checkExerciseAnswer, snapshotExercise } from "../exercises/answer.ts";
 import { explanationOutcome } from "../exercises/explanation.ts";
 import {
@@ -129,13 +131,18 @@ describe("four authored tasks use the shared checker contracts", () => {
           ids.push(entry.part.id);
           if (entry.kind === "numeric") {
             expect(numericPartProblems(entry.part)).toEqual([]);
-            expect(
-              checkNumericAnswer(
-                entry.part,
-                String(entry.part.reference.value),
-                entry.part.units[0] ?? "",
-              ).kind,
-            ).toBe("agrees");
+            const base = listUnitsInFamily(entry.part.family).find(
+              (unit) => unit.factor.num === 1n && unit.factor.den === 1n,
+            );
+            assert(base, "The authored numeric reference must have a base SI unit.");
+            for (const unit of entry.part.units)
+              expect(
+                checkNumericAnswer(
+                  entry.part,
+                  String(convertValue(entry.part.reference.value, base.unit, unit)),
+                  unit,
+                ).kind,
+              ).toBe("agrees");
           } else if (entry.kind === "expression") {
             expect(() => snapshotExercise(entry.part)).not.toThrow();
           } else {

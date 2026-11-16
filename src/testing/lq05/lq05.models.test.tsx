@@ -158,9 +158,10 @@ test("the rendered locked view agrees across bars, exact counts, sampling and lo
   expect(text).toContain("intermediate counts are impossible");
   expect(render("sampling")).toContain("One shared position per trial.");
   const logarithmic = render("logarithmic");
-  expect(logarithmic).toContain(Math.log10(0.3).toFixed(4));
-  expect(logarithmic).toContain(Math.log(0.3).toFixed(4));
-  expect(logarithmic).not.toContain((4 * Math.log(0.3)).toFixed(4));
+  // The shared display uses a true minus and trims insignificant trailing zeros.
+  expect(logarithmic).toContain("−0.5229");
+  expect(logarithmic).toContain("−1.204");
+  expect(logarithmic).not.toContain("−4.8159");
 });
 
 test("the full-volume endpoint and a budget-limited view never substitute another fraction", () => {
