@@ -33,6 +33,10 @@ import {
 } from "./lightQuantaBudgetOperations.ts";
 import { LIGHT_QUANTA_ARITHMETIC, LIGHT_QUANTA_OPERATION_GUIDES } from "./lightQuantaOperations.ts";
 import {
+  LIGHT_QUANTA_RADIATION_ARITHMETIC,
+  LIGHT_QUANTA_RADIATION_GUIDES,
+} from "./lightQuantaRadiationOperations.ts";
+import {
   MASS_ENERGY_ARITHMETIC,
   MASS_ENERGY_OPERATION_GUIDES,
   type OperationReading,
@@ -283,18 +287,28 @@ export function compilePrintedSourceSemantics(
     display.paper === "light-quanta" ? LIGHT_QUANTA_OPERATION_GUIDES[display.display] : undefined;
   const budget =
     display.paper === "light-quanta" ? LIGHT_QUANTA_BUDGET_GUIDES[display.display] : undefined;
+  const radiation =
+    display.paper === "light-quanta" ? LIGHT_QUANTA_RADIATION_GUIDES[display.display] : undefined;
   const brownian =
     display.paper === "brownian-motion" ? BROWNIAN_OPERATION_GUIDES[display.display] : undefined;
   const relativity =
     display.paper === "special-relativity"
       ? RELATIVITY_OPERATION_GUIDES[display.display]
       : undefined;
-  if (display.paper !== "mass-energy" && !lightQuanta && !budget && !brownian && !relativity)
+  if (
+    display.paper !== "mass-energy" &&
+    !lightQuanta &&
+    !budget &&
+    !radiation &&
+    !brownian &&
+    !relativity
+  )
     return undefined;
   const guide =
     relativity ??
     brownian ??
     budget ??
+    radiation ??
     lightQuanta ??
     MASS_ENERGY_OPERATION_GUIDES[display.display];
   if (!guide)
@@ -308,7 +322,9 @@ export function compilePrintedSourceSemantics(
   const parsed = parseSourceExpression(
     display,
     indices,
-    relativity?.allowChainedRelations ?? brownian?.allowChainedRelations,
+    relativity?.allowChainedRelations ??
+      brownian?.allowChainedRelations ??
+      radiation?.allowChainedRelations,
     {
       allowAlignedColumns: relativity?.allowAlignedColumns ?? false,
       ...(relativity?.functionQuantities
@@ -359,11 +375,16 @@ export function compilePrintedSourceSemantics(
     const node = nodes.find((n) => n.path === path)?.node;
     const operands = node ? walk(node.tree) : [];
     const symbolIndex = relativity?.primary[path]?.symbolIndex;
+    const exponent = radiation?.primary[path]?.exponent;
     if (
       !node ||
       node.tree.kind !== reading.kind ||
       (symbolIndex !== undefined &&
         (node.tree.kind !== "symbol" || node.tree.index !== symbolIndex)) ||
+      (exponent !== undefined &&
+        (node.tree.kind !== "power" ||
+          node.tree.exponent.num !== exponent ||
+          node.tree.exponent.den !== 1)) ||
       quantitiesIn(node.tree).join("\u0000") !== [...reading.quantities].sort().join("\u0000") ||
       (reading.literalNumbers !== undefined &&
         operands
@@ -397,7 +418,7 @@ export function compilePrintedSourceSemantics(
     return { dimension: dimensionText(dimensionExponents), dimensionExponents };
   }
   const rowDimensions = parsed.rows.map(({ tree }) => dimensions(tree));
-  const expectedDimension = (brownian ?? budget ?? lightQuanta)?.expectedDimension ?? [
+  const expectedDimension = (brownian ?? budget ?? radiation ?? lightQuanta)?.expectedDimension ?? [
     "2",
     "1",
     "-2",
@@ -421,7 +442,7 @@ export function compilePrintedSourceSemantics(
           ? expectedRows
               .map((dimension, index) => `row ${index + 1}: ${dimensionText(dimension)}`)
               .join("; ")
-          : lightQuanta || budget || brownian
+          : lightQuanta || budget || radiation || brownian
             ? dimensionText(expectedDimension)
             : "energy") +
         " in the corresponding complete expression or relation sides.",
@@ -437,9 +458,11 @@ export function compilePrintedSourceSemantics(
         ? BROWNIAN_ARITHMETIC
         : budget
           ? LIGHT_QUANTA_BUDGET_ARITHMETIC
-          : lightQuanta
-            ? LIGHT_QUANTA_ARITHMETIC
-            : MASS_ENERGY_ARITHMETIC;
+          : radiation
+            ? LIGHT_QUANTA_RADIATION_ARITHMETIC
+            : lightQuanta
+              ? LIGHT_QUANTA_ARITHMETIC
+              : MASS_ENERGY_ARITHMETIC;
     const functionReading =
       node.tree.kind === "function" && relativity
         ? relativity.functions?.[node.tree.name]
@@ -451,11 +474,13 @@ export function compilePrintedSourceSemantics(
       !reading ||
       !foundationTitle ||
       (node.tree.kind === "power" &&
-        (node.tree.exponent.num !== 2 || node.tree.exponent.den !== 1)) ||
+        (node.tree.exponent.num !== (radiation ? radiation.primary[path]?.exponent : 2) ||
+          node.tree.exponent.den !== 1)) ||
       (node.tree.kind === "function" &&
         (relativity
           ? !functionReading
-          : node.tree.name !== (lightQuanta ? "ln" : budget || brownian ? undefined : "cos")))
+          : node.tree.name !==
+            (lightQuanta ? "ln" : budget || radiation || brownian ? undefined : "cos")))
     )
       throw new SourceSemanticsError(
         "printed-source-operation",

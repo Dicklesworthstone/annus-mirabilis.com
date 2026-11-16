@@ -5,6 +5,7 @@ import { walk } from "../ast.ts";
 import { type CheckedDisplay, compilePrintedDisplay } from "./displayTerms.ts";
 import { LIGHT_QUANTA_BUDGET_GUIDES } from "./lightQuantaBudgetOperations.ts";
 import { LIGHT_QUANTA_OPERATION_GUIDES } from "./lightQuantaOperations.ts";
+import { LIGHT_QUANTA_RADIATION_GUIDES } from "./lightQuantaRadiationOperations.ts";
 import { checkPaperDisplays, printedDisplays } from "./paperDisplays.ts";
 import { parseSourceExpression, sourceNodes } from "./sourceExpression.ts";
 import {
@@ -82,7 +83,11 @@ describe("the source entropy and probability comparison", () => {
     const actual = [
       ...new Set(published.displays.filter((d) => d.semantics).map((d) => d.display)),
     ];
-    const authored = [...IDS, ...Object.keys(LIGHT_QUANTA_BUDGET_GUIDES)];
+    const authored = [
+      ...IDS,
+      ...Object.keys(LIGHT_QUANTA_BUDGET_GUIDES),
+      ...Object.keys(LIGHT_QUANTA_RADIATION_GUIDES),
+    ];
     expect(actual.sort()).toEqual(authored.sort());
     const remaining = checked.displays.filter((d) => !authored.includes(d.display));
     expect(remaining.length).toBeGreaterThan(0);
@@ -94,8 +99,8 @@ describe("the source entropy and probability comparison", () => {
       ).toBe(original.html);
     }
     // A grammar extension alone never opts this already parseable equality into the feature.
-    expect(() => parseSourceExpression(display("eq-s1-d1"))).not.toThrow();
-    expect(actual).not.toContain("eq-s1-d1");
+    expect(() => parseSourceExpression(display("eq-s5-d10"))).not.toThrow();
+    expect(actual).not.toContain("eq-s5-d10");
   });
 
   test("all physical terms, including every exponent occurrence, keep their exact bindings", () => {
