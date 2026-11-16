@@ -49,7 +49,9 @@ export type LoadedSearch = Readonly<{
   papers: readonly string[];
 }>;
 
-/** No query parameter, telemetry, disk storage or partial-result cache exists on this path. */
+const SHARD_DOWNLOAD_CONCURRENCY = 4;
+
+/** No query parameter, telemetry or application storage exists on this path. */
 export function createSearchLoader(fetcher: typeof fetch = (...args) => globalThis.fetch(...args)) {
   let pending: Promise<LoadedSearch> | null = null;
   let loaded: LoadedSearch | null = null;
@@ -57,47 +59,84 @@ export function createSearchLoader(fetcher: typeof fetch = (...args) => globalTh
   async function fetchAll(forceReload = false): Promise<LoadedSearch> {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 30000);
-    try {
-      const response = await fetcher("/search/index-manifest.json", {
-        cache: "no-cache",
+    const isAborted = (error: unknown) =>
+      controller.signal.aborted ||
+      (error instanceof Error && (error.name === "AbortError" || error.name === "TimeoutError"));
+    const request = (path: string, cache: RequestCache) =>
+      fetcher(path, {
+        cache,
+        mode: "same-origin",
         credentials: "omit",
         redirect: "error",
         signal: controller.signal,
       });
+    try {
+      let response: Response;
+      let cachedOnly = false;
+      try {
+        response = await request("/search/index-manifest.json", "no-cache");
+      } catch (error) {
+        if (isAborted(error)) throw error;
+        // A new page has no in-memory index. Reuse the HTTP cache when revalidation cannot reach
+        // the network, but never conceal a server error, invalid manifest, timeout or cancellation.
+        // Every shard is still checked against this manifest before any result is published.
+        response = await request("/search/index-manifest.json", "only-if-cached");
+        cachedOnly = true;
+      }
+      controller.signal.throwIfAborted();
       const manifest = validateSearchManifest(
         json(await readSearchResponse(response, SEARCH_LIMITS.manifestBytes)),
       );
+      const shards: ReturnType<typeof parseSearchShard>[] = new Array(manifest.shards.length);
+      let nextShard = 0;
+      async function downloadShards() {
+        while (nextShard < manifest.shards.length) {
+          controller.signal.throwIfAborted();
+          const index = nextShard++;
+          const descriptor = manifest.shards[index]!;
+          async function verifiedBytes(cache: RequestCache) {
+            const shardResponse = await request(descriptor.path, cache);
+            const bytes = await readSearchResponse(shardResponse, descriptor.bytes);
+            if (
+              bytes.byteLength !== descriptor.bytes ||
+              (await searchBytesDigest(bytes)) !== descriptor.sha256
+            )
+              throw new Error("Search shard bytes do not match the current manifest.");
+            controller.signal.throwIfAborted();
+            return bytes;
+          }
+          try {
+            let bytes: Uint8Array;
+            try {
+              bytes = await verifiedBytes(
+                cachedOnly ? "only-if-cached" : forceReload ? "reload" : "force-cache",
+              );
+            } catch (error) {
+              if (cachedOnly || forceReload || isAborted(error)) throw error;
+              // Retry corrupt, truncated, oversized or unavailable cached responses once. The
+              // same byte bound applies while reading the replacement, before parsing it.
+              bytes = await verifiedBytes("reload");
+            }
+            shards[index] = parseSearchShard(json(bytes), descriptor.documents);
+          } catch (error) {
+            // A failed index is not a partial result. Stop the other bounded download workers,
+            // including their response streams, rather than leaving them running after refusal.
+            // Preserve the first failure as the abort reason, regardless of completion order.
+            controller.abort(error);
+            throw error;
+          }
+        }
+      }
+      await Promise.all(
+        Array.from(
+          { length: Math.min(SHARD_DOWNLOAD_CONCURRENCY, manifest.shards.length) },
+          downloadShards,
+        ),
+      );
       const documents: SearchDocument[] = [],
         aliases: SearchAlias[] = [];
-      for (const descriptor of manifest.shards) {
-        let shardResponse = await fetcher(descriptor.path, {
-          cache: forceReload ? "reload" : "force-cache",
-          credentials: "omit",
-          redirect: "error",
-          signal: controller.signal,
-        });
-        let bytes = await readSearchResponse(shardResponse, descriptor.bytes);
-        if (
-          !forceReload &&
-          (bytes.byteLength !== descriptor.bytes ||
-            (await searchBytesDigest(bytes)) !== descriptor.sha256)
-        ) {
-          // A cached response under force-cache was corrupt or poisoned in browser cache.
-          // Bypass the cache with a fresh reload to recover from the network and update the cache.
-          shardResponse = await fetcher(descriptor.path, {
-            cache: "reload",
-            credentials: "omit",
-            redirect: "error",
-            signal: controller.signal,
-          });
-          bytes = await readSearchResponse(shardResponse, descriptor.bytes);
-        }
-        if (
-          bytes.byteLength !== descriptor.bytes ||
-          (await searchBytesDigest(bytes)) !== descriptor.sha256
-        )
-          throw new Error("Search shard bytes do not match the current manifest.");
-        const shard = parseSearchShard(json(bytes), descriptor.documents);
+      // Completion order cannot change result tie-breaking or the edition's document order.
+      for (const shard of shards) {
         documents.push(...shard.documents);
         aliases.push(...shard.aliases);
       }
@@ -110,6 +149,7 @@ export function createSearchLoader(fetcher: typeof fetch = (...args) => globalTh
       });
     } finally {
       clearTimeout(timeout);
+      controller.abort();
     }
   }
   return Object.freeze({

@@ -68,6 +68,38 @@ function network() {
   };
 }
 
+/** Model the browser's separate network and HTTP cache, including offline revalidation failure. */
+function cachedNetwork() {
+  const n = network();
+  const cache = new Map();
+  let online = true;
+  const calls = [];
+  return {
+    ...n,
+    calls,
+    cache,
+    offline() {
+      online = false;
+    },
+    async fetcher(path, options) {
+      calls.push({ path, options });
+      if (options.cache === "only-if-cached") {
+        assert.equal(options.mode, "same-origin");
+        return cache.has(path)
+          ? new Response(cache.get(path))
+          : new Response("Not cached", { status: 504 });
+      }
+      if (options.cache === "force-cache" && cache.has(path))
+        return new Response(cache.get(path));
+      if (!online) throw new TypeError("Network unavailable");
+      if (!n.files.has(path)) return new Response("Not found", { status: 404 });
+      const text = n.files.get(path);
+      cache.set(path, text);
+      return new Response(text);
+    },
+  };
+}
+
 test("loader construction fetches nothing; loading is deduplicated and local queries work offline", async () => {
   const n = network(),
     loader = createSearchLoader(n.fetcher);
@@ -86,6 +118,173 @@ test("loader construction fetches nothing; loading is deduplicated and local que
     n.calls.every(({ options }) => options.credentials === "omit" && options.redirect === "error"),
   );
   assert.equal(n.calls[0].options.cache, "no-cache");
+});
+test("a new page can search the complete cached edition after going offline", async () => {
+  const n = cachedNetwork();
+  const online = await createSearchLoader(n.fetcher).load();
+  const beforeReload = n.calls.length;
+  n.offline();
+  // A fresh loader is essential: reusing the old loader would only prove its memory cache.
+  const offline = await createSearchLoader(n.fetcher).load();
+  assert.notEqual(offline, online);
+  assert.equal(offline.buildDigest, online.buildDigest);
+  assert.equal(offline.engine.size, documents.length);
+  assert.equal(offline.engine.search("clocks disagree")[0].document.id, "b");
+  assert.equal(offline.engine.search("λₓ")[0].document.id, "a");
+  const requests = n.calls.slice(beforeReload);
+  assert.equal(requests[0].options.cache, "no-cache");
+  assert.ok(requests.slice(1).every(({ options }) => options.cache === "only-if-cached"));
+  assert.ok(requests.every(({ options }) => options.credentials === "omit"));
+});
+test("offline reload refuses incomplete or corrupt cached editions, without partial results", async () => {
+  for (const damage of [
+    (n) => n.cache.clear(),
+    (n) => n.cache.delete(n.pack.files[0].descriptor.path),
+    (n) => n.cache.set(n.pack.files[0].descriptor.path, "invalid"),
+    (n) => n.cache.set("/search/index-manifest.json", "invalid"),
+  ]) {
+    const n = cachedNetwork();
+    await createSearchLoader(n.fetcher).load();
+    damage(n);
+    n.offline();
+    await assert.rejects(createSearchLoader(n.fetcher).load());
+  }
+});
+test("online reload prefers the current edition over a valid cached manifest", async () => {
+  const n = cachedNetwork();
+  const earlier = await createSearchLoader(n.fetcher).load();
+  const next = packageSearchIndex(
+    [...documents, { ...documents[0], id: "new-passage", title: "Newly published passage" }],
+    [],
+    "c".repeat(64),
+    "scaffold",
+  );
+  n.files.set("/search/index-manifest.json", next.manifestText);
+  for (const file of next.files) n.files.set(file.descriptor.path, file.text);
+  const current = await createSearchLoader(n.fetcher).load();
+  assert.notEqual(current.buildDigest, earlier.buildDigest);
+  assert.equal(current.engine.search("Newly published passage")[0].document.id, "new-passage");
+  assert.ok(n.calls.every(({ options }) => options.cache !== "only-if-cached"));
+});
+test("a network response containing an invalid manifest never falls back to the older edition", async () => {
+  const n = cachedNetwork();
+  await createSearchLoader(n.fetcher).load();
+  n.files.set("/search/index-manifest.json", "not json");
+  await assert.rejects(createSearchLoader(n.fetcher).load());
+  assert.ok(n.calls.every(({ options }) => options.cache !== "only-if-cached"));
+});
+test("oversized and unavailable cached shards are replaced once with verified network bytes", async () => {
+  const n = cachedNetwork();
+  await createSearchLoader(n.fetcher).load();
+  const shard = n.pack.files[0];
+  n.cache.set(shard.descriptor.path, `${shard.text} oversized cache entry`);
+  const before = n.calls.length;
+  const loaded = await createSearchLoader(n.fetcher).load();
+  assert.equal(loaded.engine.size, documents.length);
+  assert.deepEqual(
+    n.calls
+      .slice(before)
+      .filter(({ path }) => path === shard.descriptor.path)
+      .map(({ options }) => options.cache),
+    ["force-cache", "reload"],
+  );
+  assert.equal(n.cache.get(shard.descriptor.path), shard.text);
+
+  const calls = [];
+  const fetcher = async (path, options) => {
+    calls.push({ path, options });
+    if (path === shard.descriptor.path && options.cache === "force-cache")
+      return new Response("Cached error", { status: 503 });
+    return n.fetcher(path, options);
+  };
+  assert.equal((await createSearchLoader(fetcher).load()).engine.size, documents.length);
+  assert.ok(
+    calls.some(
+      ({ path, options }) => path === shard.descriptor.path && options.cache === "reload",
+    ),
+  );
+});
+test("aborted manifest requests are never retried through the offline cache", async () => {
+  const calls = [];
+  const loader = createSearchLoader(async (path, options) => {
+    calls.push({ path, options });
+    throw new DOMException("Cancelled", "AbortError");
+  });
+  await assert.rejects(loader.load(), { name: "AbortError" });
+  assert.equal(calls.length, 1);
+});
+test("the download deadline cancels the request without an offline retry", async (t) => {
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  const calls = [];
+  const loader = createSearchLoader(
+    (path, options) =>
+      new Promise((_resolve, reject) => {
+        calls.push({ path, options });
+        options.signal.addEventListener("abort", () => reject(options.signal.reason), {
+          once: true,
+        });
+      }),
+  );
+  const pending = loader.load();
+  t.mock.timers.tick(30000);
+  await assert.rejects(pending, { name: "AbortError" });
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].options.signal.aborted, true);
+});
+test("shards download concurrently within a fixed bound and retain every document", async () => {
+  const records = Array.from({ length: 12 }, (_, i) => ({
+    ...documents[0],
+    id: `passage-${i}`,
+    paper: `collection-${i}`,
+    title: `Passage ${i}`,
+  }));
+  const pack = packageSearchIndex(records, [], "d".repeat(64), "scaffold");
+  const files = new Map(pack.files.map((file) => [file.descriptor.path, file.text]));
+  let active = 0;
+  let maximum = 0;
+  let completed = 0;
+  const loader = createSearchLoader(async (path) => {
+    if (path === "/search/index-manifest.json") return new Response(pack.manifestText);
+    active++;
+    maximum = Math.max(maximum, active);
+    // Vary completion order without asserting elapsed time. Serial loading reaches one active
+    // request; an unbounded Promise.all starts every request before any timer can resolve.
+    await new Promise((resolve) => setTimeout(resolve, 1 + ((files.size - completed) % 3)));
+    active--;
+    completed++;
+    return new Response(files.get(path));
+  });
+  const result = await loader.load();
+  assert.ok(maximum > 1, "Independent shards must overlap in flight");
+  assert.ok(maximum <= 4, `At most four shard downloads may run together, observed ${maximum}`);
+  assert.equal(completed, pack.files.length);
+  assert.equal(result.engine.size, records.length);
+  for (const record of records)
+    assert.ok(result.engine.search(record.title).some((hit) => hit.document.id === record.id));
+});
+test("one invalid network shard cancels its in-flight siblings and a later load can retry", async () => {
+  const n = network();
+  const broken = n.pack.files[0];
+  let fail = true;
+  let cancelled = 0;
+  const loader = createSearchLoader(async (path, options) => {
+    if (!fail || path === "/search/index-manifest.json") return n.fetcher(path, options);
+    if (path === broken.descriptor.path) return new Response("invalid");
+    return new Promise((_resolve, reject) => {
+      options.signal.addEventListener(
+        "abort",
+        () => {
+          cancelled++;
+          reject(options.signal.reason);
+        },
+        { once: true },
+      );
+    });
+  });
+  await assert.rejects(loader.load(), /match/u);
+  assert.ok(cancelled > 0, "Failure must cancel an actually in-flight sibling");
+  fail = false;
+  assert.equal((await loader.load()).engine.size, documents.length);
 });
 test("failed partial downloads never become an offline cache and can be retried", async () => {
   const n = network(),
