@@ -53,6 +53,7 @@ import type { LightQuantaFirstEncounter } from "./entrances/LightQuantaFirstEnco
 import type { MassEnergyFirstEncounter } from "./entrances/MassEnergyFirstEncounter.tsx";
 import type { LightQuantaDerivation } from "./LightQuantaDerivation.tsx";
 import type { PhotoelectricDerivation } from "./PhotoelectricDerivation.tsx";
+import type { SRChargeCurrentDerivation } from "./SRChargeCurrentDerivation.tsx";
 import type { SRCoordinateDerivation } from "./SRCoordinateDerivation.tsx";
 import type { SRDopplerDerivation } from "./SRDopplerDerivation.tsx";
 import type { SRElectronDerivation } from "./SRElectronDerivation.tsx";
@@ -207,4 +208,15 @@ const SRDopplerSteps = lazy(() =>
 );
 export function LazySRDopplerDerivation(props: ComponentProps<typeof SRDopplerDerivation>) {
   return <SRDopplerSteps {...props} />;
+}
+
+const SRChargeCurrentSteps = lazy(() =>
+  import("./SRChargeCurrentDerivation.tsx").then((m) => ({
+    default: m.SRChargeCurrentDerivation,
+  })),
+);
+export function LazySRChargeCurrentDerivation(
+  props: ComponentProps<typeof SRChargeCurrentDerivation>,
+) {
+  return <SRChargeCurrentSteps {...props} />;
 }

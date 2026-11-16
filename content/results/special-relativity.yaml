@@ -629,8 +629,10 @@ cards:
 
   - id: sr-convection-current
     support:
-      kind: "no-checked-proof"
-      reason: "The charge and current transformation is explained in the linked passages; no checked derivation record covers this result."
+      kind: "checked-proof"
+      proofId: "sr-charge-current"
+      conclusion: "eq-model-sr-charge-density"
+      scope: "Given the source density and carrier-velocity transformations, the calculation obtains the density and all three current components, then checks that adding species gives the total density and longitudinal current laws. It allows a neutral mixture to carry current and never divides by net charge density. The source density law remains a premise; the full Maxwell-Hertz covariance argument, continuity equation and total-charge invariance require separate derivations."
     title: "The Maxwell-Hertz equations with convection current keep their form"
     section: s9
     arguments: [arg-sr-charge-current]

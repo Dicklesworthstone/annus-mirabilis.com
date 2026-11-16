@@ -58,6 +58,7 @@ import {
   LazyLightQuantaFirstEncounter,
   LazyMassEnergyFirstEncounter,
   LazyPhotoelectricDerivation,
+  LazySRChargeCurrentDerivation,
   LazySRCoordinateDerivation,
   LazySRDopplerDerivation,
   LazySRElectronDerivation,
@@ -768,6 +769,17 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                           <p className="fine">
                             <a href="/papers/special-relativity/s7/#sr-doppler-derivation">
                               Follow one wave phase to its frequency and direction in another frame
+                            </a>
+                          </p>
+                        ))}
+                      {paper.id === "special-relativity" &&
+                        a.id === "arg-sr-charge-current" &&
+                        (sectionId ? (
+                          <LazySRChargeCurrentDerivation />
+                        ) : (
+                          <p className="fine">
+                            <a href="/papers/special-relativity/s9/#sr-charge-current-derivation">
+                              Follow charge and current through a frame change, including a neutral wire
                             </a>
                           </p>
                         ))}

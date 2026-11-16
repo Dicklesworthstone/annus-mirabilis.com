@@ -20,6 +20,8 @@ import lqEntropyDensityRecord from "../../../content/equations/light-quanta/eq-m
 import lqInverseTemperatureRecord from "../../../content/equations/light-quanta/eq-model-lq-wien-inverse-temperature.json";
 import lqSpectrumRecord from "../../../content/equations/light-quanta/eq-model-lq-wien-spectrum.json";
 import aberrationRecord from "../../../content/equations/special-relativity/eq-model-sr-aberration.json";
+import chargeDensityRecord from "../../../content/equations/special-relativity/eq-model-sr-charge-density.json";
+import currentDensityRecord from "../../../content/equations/special-relativity/eq-model-sr-current-density.json";
 import composedVelocityXRecord from "../../../content/equations/special-relativity/eq-model-sr-composed-velocity-x.json";
 import composedVelocityYRecord from "../../../content/equations/special-relativity/eq-model-sr-composed-velocity-y.json";
 import dopplerRecord from "../../../content/equations/special-relativity/eq-model-sr-doppler-factor.json";
@@ -53,6 +55,11 @@ import { photoelectricChain } from "../../equations/derivations/lightQuantaPhoto
 import { verifyPhotoelectric } from "../../equations/derivations/lightQuantaPhotoelectricProof.ts";
 import { buildMassEnergyElimination } from "../../equations/derivations/massEnergyElimination.ts";
 import { buildMassEnergyLowSpeed } from "../../equations/derivations/massEnergyLowSpeed.ts";
+import {
+  srChargeCurrentAssumptions,
+  srChargeCurrentChains,
+} from "../../equations/derivations/srChargeCurrent.ts";
+import { verifySRChargeCurrent } from "../../equations/derivations/srChargeCurrentProof.ts";
 import { srDopplerAssumptions, srDopplerChains } from "../../equations/derivations/srDoppler.ts";
 import { verifySRDoppler } from "../../equations/derivations/srDopplerProof.ts";
 import {
@@ -152,6 +159,16 @@ const DERIVATION_PROOFS: Readonly<Record<DerivationProofId, DerivationProof>> = 
     chains: srDopplerChains,
     verify: verifySRDoppler,
     premises: srDopplerAssumptions,
+  },
+  "sr-charge-current": {
+    paper: "special-relativity",
+    conclusion: chargeDensityRecord.id,
+    title: "Follow charge and current from one species to a neutral mixture",
+    href: "/papers/special-relativity/s9/#sr-charge-current-derivation",
+    records: [chargeDensityRecord, currentDensityRecord],
+    chains: srChargeCurrentChains,
+    verify: verifySRChargeCurrent,
+    premises: srChargeCurrentAssumptions,
   },
   "bm-equilibrium-diffusivity": {
     paper: "brownian-motion",
