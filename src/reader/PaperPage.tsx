@@ -66,6 +66,7 @@ import {
   LazySRLightComplexDerivation,
   LazySRMirrorDerivation,
   LazySRSynchronizationDerivation,
+  LazySRClocksAndLengthsDerivation,
   LazySRVelocityDerivation,
 } from "./lazyIslands.tsx";
 import { ledgerGaps } from "./ledgerGaps.ts";
@@ -847,6 +848,17 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                           <p className="fine">
                             <a href="/papers/special-relativity/s1/#sr-synchronization-derivation">
                               Follow the synchronization definition to its midpoint consequence
+                            </a>
+                          </p>
+                        ))}
+                      {paper.id === "special-relativity" &&
+                        a.id === "arg-sr-clock-and-length" &&
+                        (sectionId ? (
+                          <LazySRClocksAndLengthsDerivation />
+                        ) : (
+                          <p className="fine">
+                            <a href="/papers/special-relativity/s4/#sr-clock-length-derivation">
+                              Derive the clock interval and moving length by choosing the events
                             </a>
                           </p>
                         ))}

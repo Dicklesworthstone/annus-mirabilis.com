@@ -7,8 +7,11 @@ scope:
   sections:
     - 's1'
     - 's3'
+    - 's4'
     - 's5'
   chainIds:
+    - 'chain-sr-moving-clock'
+    - 'chain-sr-simultaneous-length'
     - 'chain-sr-velocity-longitudinal'
     - 'chain-sr-velocity-transverse'
     - 'chain-sr-synchronization-midpoint'
@@ -843,3 +846,120 @@ targets:
       r3: "Section 5 gives a uniform motion in k, transforms it to K, and obtains separate longitudinal and transverse components before discussing the speed magnitude and its collinear specialization. This reconstruction expands that algebra. Its transverse chain uses the inverse time map to keep the surviving Lorentz factor visible; it does not claim to reproduce unprinted intermediate work. The source writes V for light speed, beta for the Lorentz factor and w_xi, w_eta for the moving-frame components. Ux and Uy are introduced here for K components; the paper's U is their magnitude. These are authored explanatory drafts, and an executable algebra check does not certify historical or physics review."
       r3Citations:
         - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §5, pp. 905–907; source anchors eq-s5-d1, eq-s5-d2 and eq-s5-d6. The coordinate map is in §3, eq-s3-d25."
+  - kind: 'derivation-step'
+    id: "chain-sr-moving-clock/sr-clock-subtract-first-event"
+    readings:
+      r0: "Compare two ticks instead of relying on where a clock's zero was set."
+      r1: "Start from the inverse time map for the second tick. Subtract the first tick's mapped stationary-frame time from both sides."
+      r2: "Apply t = γ(t′ + vx′/c²) to event 2, then subtract γ(t′₁ + vx′₁/c²). This begins with the admitted §3 map, not with a clock-rate formula. Both events are described in the same pair of inertial frames with the same v and γ."
+      r3: "This is a teaching reconstruction of §4 using two events and modern interval notation. Einstein measures the sphere at t = 0 and obtains the clock rate by substituting x = vt into the forward time transformation. Subtracting two instances of the already admitted maps makes the measurement conditions and the cancellation of arbitrary starting readings explicit. Modern Δτ denotes one clock's proper elapsed time; the paper's τ is the moving system's time coordinate. The source's later curved-path extension and low-speed approximation are distinct claims."
+      r3Citations:
+        - "A. Einstein, Zur Elektrodynamik bewegter Körper (1905), §4, Annalen der Physik 17, pp. 903–906; §3 supplies the coordinate transformation."
+  - kind: 'derivation-step'
+    id: "chain-sr-moving-clock/sr-clock-map-first-event"
+    readings:
+      r0: "Use that same coordinate map for the first tick."
+      r1: "The subtracted expression on the left is t₁ by the same inverse map. Keep the two moving-frame position terms on the right until the measurement identifies which events were chosen."
+      r2: "Subtract γ(t′₁ + vx′₁/c²) from γ(t′₂ + vx′₂/c²). Neither t′₁ nor x′₁ is assumed zero. For unrelated events, a position-dependent correction remains; the time-dilation conclusion is not available yet. The remaining correction is proportional to x′₂ − x′₁. Only a stated choice of events can remove it; the coordinate map alone does not."
+      r3: "This is a teaching reconstruction of §4 using two events and modern interval notation. Einstein measures the sphere at t = 0 and obtains the clock rate by substituting x = vt into the forward time transformation. Subtracting two instances of the already admitted maps makes the measurement conditions and the cancellation of arbitrary starting readings explicit. Modern Δτ denotes one clock's proper elapsed time; the paper's τ is the moving system's time coordinate. The source's later curved-path extension and low-speed approximation are distinct claims."
+      r3Citations:
+        - "A. Einstein, Zur Elektrodynamik bewegter Körper (1905), §4, Annalen der Physik 17, pp. 903–906; §3 supplies the coordinate transformation."
+  - kind: 'derivation-step'
+    id: "chain-sr-moving-clock/sr-clock-same-place"
+    readings:
+      r0: "Choose two ticks of the same clock, at one place in its own frame."
+      r1: "The moving clock is at rest in k. Its two ticks have the same x′ coordinate, even when that coordinate is not zero."
+      r2: "This is the measurement choice: x′₂ = x′₁. It would be wrong to impose Δx = 0 in K for a clock moving through K, or to use two distant moving clocks and call their interval one clock's elapsed time."
+      r3: "This is a teaching reconstruction of §4 using two events and modern interval notation. Einstein measures the sphere at t = 0 and obtains the clock rate by substituting x = vt into the forward time transformation. Subtracting two instances of the already admitted maps makes the measurement conditions and the cancellation of arbitrary starting readings explicit. Modern Δτ denotes one clock's proper elapsed time; the paper's τ is the moving system's time coordinate. The source's later curved-path extension and low-speed approximation are distinct claims."
+      r3Citations:
+        - "A. Einstein, Zur Elektrodynamik bewegter Körper (1905), §4, Annalen der Physik 17, pp. 903–906; §3 supplies the coordinate transformation."
+  - kind: 'derivation-step'
+    id: "chain-sr-moving-clock/sr-clock-cancel-position"
+    readings:
+      r0: "The equal position contributions cancel, leaving gamma times the clock interval."
+      r1: "The same vx′/c² term occurs in each reading. Subtracting it leaves γ(t′₂ − t′₁)."
+      r2: "Collect the exact difference: γ(t′₂ + vx′₁/c²) − γ(t′₁ + vx′₁/c²) = γ(t′₂ − t′₁). The cancellation uses a common inertial boost and equal moving-frame positions, not a zero clock reading or a zero clock position."
+      r3: "This is a teaching reconstruction of §4 using two events and modern interval notation. Einstein measures the sphere at t = 0 and obtains the clock rate by substituting x = vt into the forward time transformation. Subtracting two instances of the already admitted maps makes the measurement conditions and the cancellation of arbitrary starting readings explicit. Modern Δτ denotes one clock's proper elapsed time; the paper's τ is the moving system's time coordinate. The source's later curved-path extension and low-speed approximation are distinct claims."
+      r3Citations:
+        - "A. Einstein, Zur Elektrodynamik bewegter Körper (1905), §4, Annalen der Physik 17, pp. 903–906; §3 supplies the coordinate transformation."
+  - kind: 'derivation-step'
+    id: "chain-sr-moving-clock/sr-clock-name-proper-interval"
+    readings:
+      r0: "Name the interval that the moving clock itself records."
+      r1: "Use Δτ for the elapsed time on this one clock. This identification uses its rest-frame position; it is not a claim about every difference of moving-frame coordinate times."
+      r2: "The modern proper-time interval Δτ equals t′₂ − t′₁ along this resting ideal clock. The paper uses τ for k's time coordinate, so the modern Δτ used here is a distinct notation and meaning."
+      r3: "This is a teaching reconstruction of §4 using two events and modern interval notation. Einstein measures the sphere at t = 0 and obtains the clock rate by substituting x = vt into the forward time transformation. Subtracting two instances of the already admitted maps makes the measurement conditions and the cancellation of arbitrary starting readings explicit. Modern Δτ denotes one clock's proper elapsed time; the paper's τ is the moving system's time coordinate. The source's later curved-path extension and low-speed approximation are distinct claims."
+      r3Citations:
+        - "A. Einstein, Zur Elektrodynamik bewegter Körper (1905), §4, Annalen der Physik 17, pp. 903–906; §3 supplies the coordinate transformation."
+  - kind: 'derivation-step'
+    id: "chain-sr-moving-clock/sr-clock-name-stationary-interval"
+    readings:
+      r0: "The stationary clocks assign gamma times as much time to those same two ticks."
+      r1: "Name t₂ − t₁ as Δt. The result is Δt = γΔτ. Since γ is at least one, the moving clock records no more time between the ticks than the stationary frame assigns."
+      r2: "The two ticks occur at different places in K when v is nonzero, so Δt uses K's synchronized clocks at those places. The result is conditional on the §3 map and an inertial ideal clock. It neither establishes a round-trip aging comparison nor extends the inertial result to accelerated or curved paths."
+      r3: "This is a teaching reconstruction of §4 using two events and modern interval notation. Einstein measures the sphere at t = 0 and obtains the clock rate by substituting x = vt into the forward time transformation. Subtracting two instances of the already admitted maps makes the measurement conditions and the cancellation of arbitrary starting readings explicit. Modern Δτ denotes one clock's proper elapsed time; the paper's τ is the moving system's time coordinate. The source's later curved-path extension and low-speed approximation are distinct claims."
+      r3Citations:
+        - "A. Einstein, Zur Elektrodynamik bewegter Körper (1905), §4, Annalen der Physik 17, pp. 903–906; §3 supplies the coordinate transformation."
+  - kind: 'derivation-step'
+    id: "chain-sr-simultaneous-length/sr-length-subtract-first-event"
+    readings:
+      r0: "Compare the two endpoint marks instead of choosing one endpoint as the origin."
+      r1: "Start from x′₂ = γ(x₂ − vt₂), then subtract γ(x₁ − vt₁) from both sides. Both marks belong to the same rigid rod at rest in k."
+      r2: "Apply the canonical position map to endpoint event 2 and subtract the first endpoint's mapped position. The rest-frame endpoint locations are fixed because the rod is at rest in k; the measuring frame still has to say when its two marks are made."
+      r3: "This is a teaching reconstruction of §4 using two events and modern interval notation. Einstein measures the sphere at t = 0 and obtains the clock rate by substituting x = vt into the forward time transformation. Subtracting two instances of the already admitted maps makes the measurement conditions and the cancellation of arbitrary starting readings explicit. Modern Δτ denotes one clock's proper elapsed time; the paper's τ is the moving system's time coordinate. The source's later curved-path extension and low-speed approximation are distinct claims."
+      r3Citations:
+        - "A. Einstein, Zur Elektrodynamik bewegter Körper (1905), §4, Annalen der Physik 17, pp. 903–906; §3 supplies the coordinate transformation."
+  - kind: 'derivation-step'
+    id: "chain-sr-simultaneous-length/sr-length-map-first-event"
+    readings:
+      r0: "Use the coordinate map for both ends of the rod."
+      r1: "The subtracted expression on the left is x′₁ by the same position map. Before choosing the measurement times, the difference on the right includes the rod's motion between those times."
+      r2: "The exact difference is x′₂ − x′₁ = γ[(x₂ − x₁) − v(t₂ − t₁)]. If the stationary observer marks one end later than the other, x₂ − x₁ alone is not the rod's simultaneous length."
+      r3: "This is a teaching reconstruction of §4 using two events and modern interval notation. Einstein measures the sphere at t = 0 and obtains the clock rate by substituting x = vt into the forward time transformation. Subtracting two instances of the already admitted maps makes the measurement conditions and the cancellation of arbitrary starting readings explicit. Modern Δτ denotes one clock's proper elapsed time; the paper's τ is the moving system's time coordinate. The source's later curved-path extension and low-speed approximation are distinct claims."
+      r3Citations:
+        - "A. Einstein, Zur Elektrodynamik bewegter Körper (1905), §4, Annalen der Physik 17, pp. 903–906; §3 supplies the coordinate transformation."
+  - kind: 'derivation-step'
+    id: "chain-sr-simultaneous-length/sr-length-same-time"
+    readings:
+      r0: "Mark both ends at the same time in the frame that measures the length."
+      r1: "Choose t₂ = t₁ in the stationary system K. This is a simultaneous coordinate measurement, not a photograph of arriving light."
+      r2: "The measurement protocol is Δt = 0 in K, not Δt′ = 0 in k. Those two simultaneity conditions select different endpoint events when v is nonzero. Holding the wrong frame's time equal would give a different separation, not the measured moving length."
+      r3: "This is a teaching reconstruction of §4 using two events and modern interval notation. Einstein measures the sphere at t = 0 and obtains the clock rate by substituting x = vt into the forward time transformation. Subtracting two instances of the already admitted maps makes the measurement conditions and the cancellation of arbitrary starting readings explicit. Modern Δτ denotes one clock's proper elapsed time; the paper's τ is the moving system's time coordinate. The source's later curved-path extension and low-speed approximation are distinct claims."
+      r3Citations:
+        - "A. Einstein, Zur Elektrodynamik bewegter Körper (1905), §4, Annalen der Physik 17, pp. 903–906; §3 supplies the coordinate transformation."
+  - kind: 'derivation-step'
+    id: "chain-sr-simultaneous-length/sr-length-cancel-motion"
+    readings:
+      r0: "The equal motion contributions cancel, leaving a relation between the two separations."
+      r1: "Both marks use the same vt. Their difference is x′₂ − x′₁ = γ(x₂ − x₁)."
+      r2: "Collect γ(x₂ − vt₁) − γ(x₁ − vt₁) exactly. The cancellation needs equal K times; it does not require t₁ = 0 or x₁ = 0. γ is constant because the frames have constant relative velocity."
+      r3: "This is a teaching reconstruction of §4 using two events and modern interval notation. Einstein measures the sphere at t = 0 and obtains the clock rate by substituting x = vt into the forward time transformation. Subtracting two instances of the already admitted maps makes the measurement conditions and the cancellation of arbitrary starting readings explicit. Modern Δτ denotes one clock's proper elapsed time; the paper's τ is the moving system's time coordinate. The source's later curved-path extension and low-speed approximation are distinct claims."
+      r3Citations:
+        - "A. Einstein, Zur Elektrodynamik bewegter Körper (1905), §4, Annalen der Physik 17, pp. 903–906; §3 supplies the coordinate transformation."
+  - kind: 'derivation-step'
+    id: "chain-sr-simultaneous-length/sr-length-name-rest-separation"
+    readings:
+      r0: "The fixed separation in the rod's own frame is its rest length."
+      r1: "Name x′₂ − x′₁ as L₀. The endpoints do not move in k, so their separation is the same even though K's simultaneous marks need not be simultaneous in k."
+      r2: "Order the rod's endpoints along the positive x′ direction so L₀ > 0. Their coordinates remain constant in k. This rest condition is why a difference of their coordinates is the rest length despite the differing moving-frame times of the selected events."
+      r3: "This is a teaching reconstruction of §4 using two events and modern interval notation. Einstein measures the sphere at t = 0 and obtains the clock rate by substituting x = vt into the forward time transformation. Subtracting two instances of the already admitted maps makes the measurement conditions and the cancellation of arbitrary starting readings explicit. Modern Δτ denotes one clock's proper elapsed time; the paper's τ is the moving system's time coordinate. The source's later curved-path extension and low-speed approximation are distinct claims."
+      r3Citations:
+        - "A. Einstein, Zur Elektrodynamik bewegter Körper (1905), §4, Annalen der Physik 17, pp. 903–906; §3 supplies the coordinate transformation."
+  - kind: 'derivation-step'
+    id: "chain-sr-simultaneous-length/sr-length-name-measurement"
+    readings:
+      r0: "The separation between the simultaneous stationary marks is the measured length."
+      r1: "Name x₂ − x₁ as L. The condition just imposed is what makes this separation a length measurement of the moving rod."
+      r2: "The equation is now L₀ = γL. A spatial difference between events at unequal K times cannot be given this same L label. Light-travel delay would require a separate optical model."
+      r3: "This is a teaching reconstruction of §4 using two events and modern interval notation. Einstein measures the sphere at t = 0 and obtains the clock rate by substituting x = vt into the forward time transformation. Subtracting two instances of the already admitted maps makes the measurement conditions and the cancellation of arbitrary starting readings explicit. Modern Δτ denotes one clock's proper elapsed time; the paper's τ is the moving system's time coordinate. The source's later curved-path extension and low-speed approximation are distinct claims."
+      r3Citations:
+        - "A. Einstein, Zur Elektrodynamik bewegter Körper (1905), §4, Annalen der Physik 17, pp. 903–906; §3 supplies the coordinate transformation."
+  - kind: 'derivation-step'
+    id: "chain-sr-simultaneous-length/sr-length-divide-factor"
+    readings:
+      r0: "Divide the rest length by gamma to get the moving length."
+      r1: "Divide both sides by the same positive γ and exchange the sides: L = L₀/γ. At rest γ is one; at nonzero subluminal speed it is greater than one."
+      r2: "The admitted domain c > 0 and |v| < c selects a positive finite γ, so division is defined. The result shortens only the direction of motion. The unchanged transverse axes of the source's sphere use the separate §3 transverse coordinate equations, not this one-dimensional calculation."
+      r3: "This is a teaching reconstruction of §4 using two events and modern interval notation. Einstein measures the sphere at t = 0 and obtains the clock rate by substituting x = vt into the forward time transformation. Subtracting two instances of the already admitted maps makes the measurement conditions and the cancellation of arbitrary starting readings explicit. Modern Δτ denotes one clock's proper elapsed time; the paper's τ is the moving system's time coordinate. The source's later curved-path extension and low-speed approximation are distinct claims."
+      r3Citations:
+        - "A. Einstein, Zur Elektrodynamik bewegter Körper (1905), §4, Annalen der Physik 17, pp. 903–906; §3 supplies the coordinate transformation."

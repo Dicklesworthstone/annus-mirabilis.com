@@ -254,8 +254,10 @@ cards:
 
   - id: sr-moving-rigid-body
     support:
-      kind: "no-checked-proof"
-      reason: "The simultaneous measurement of a moving body is explained in the linked passages; no checked derivation record covers this result."
+      kind: "checked-proof"
+      proofId: "sr-simultaneous-length"
+      conclusion: "eq-model-sr-length-contraction"
+      scope: "The longitudinal relation L = L₀/γ for a rigid rod measured at simultaneous stationary-frame times. The unchanged transverse axes of the sphere require the separate transverse coordinate map; this is not an optical appearance calculation."
     title: "A moving sphere measured as an ellipsoid"
     section: s4
     arguments: [arg-sr-clock-and-length]
@@ -296,8 +298,10 @@ cards:
 
   - id: sr-moving-clock
     support:
-      kind: "no-checked-proof"
-      reason: "The comparison of clock readings is explained in the linked passages; no checked derivation record covers this result."
+      kind: "checked-proof"
+      proofId: "sr-moving-clock"
+      conclusion: "eq-model-sr-time-dilation"
+      scope: "The exact inertial relation Δt = γΔτ for two ticks at one moving-frame position. The low-speed expansion, transported-clock comparison and curved-path extension on this card require separate arguments."
     title: "A moving clock falls behind"
     section: s4
     arguments: [arg-sr-clock-and-length, arg-sr-transported-clock]

@@ -29,6 +29,8 @@ import frequencyRecord from "../../../content/equations/special-relativity/eq-mo
 import workIntegralRecord from "../../../content/equations/special-relativity/eq-model-sr-electron-work-integral.json";
 import workResultRecord from "../../../content/equations/special-relativity/eq-model-sr-electron-work-result.json";
 import inversePositionRecord from "../../../content/equations/special-relativity/eq-model-sr-inverse-position.json";
+import lengthRecord from "../../../content/equations/special-relativity/eq-model-sr-length-contraction.json";
+import factorRecord from "../../../content/equations/special-relativity/eq-model-sr-lorentz-factor.json";
 import velocityInverseTimeRecord from "../../../content/equations/special-relativity/eq-model-sr-inverse-time.json";
 import densityRecord from "../../../content/equations/special-relativity/eq-model-sr-light-density.json";
 import energyRecord from "../../../content/equations/special-relativity/eq-model-sr-light-energy.json";
@@ -39,6 +41,7 @@ import velocityTimeRecord from "../../../content/equations/special-relativity/eq
 import mirrorFrequencyRecord from "../../../content/equations/special-relativity/eq-model-sr-mirror-frequency.json";
 import syncCriterionRecord from "../../../content/equations/special-relativity/eq-model-sr-sync-equal-legs.json";
 import syncMidpointRecord from "../../../content/equations/special-relativity/eq-model-sr-sync-midpoint.json";
+import clockRecord from "../../../content/equations/special-relativity/eq-model-sr-time-dilation.json";
 import laboratoryRecord from "../../../content/equations/special-relativity/eq-model-sr-transverse-mass-laboratory.json";
 import printedRecord from "../../../content/equations/special-relativity/eq-model-sr-transverse-mass-printed.json";
 import type { Expression } from "../../equations/ast.ts";
@@ -62,6 +65,8 @@ import {
 } from "../../equations/derivations/srChargeCurrent.ts";
 import { verifySRChargeCurrent } from "../../equations/derivations/srChargeCurrentProof.ts";
 import { srDopplerAssumptions, srDopplerChains } from "../../equations/derivations/srDoppler.ts";
+import { srClockLengthAssumptions, srClocksAndLengths } from "../../equations/derivations/srClocksAndLengths.ts";
+import { verifySRClocksAndLengths } from "../../equations/derivations/srClocksAndLengthsProof.ts";
 import { verifySRDoppler } from "../../equations/derivations/srDopplerProof.ts";
 import {
   srElectronLaboratory,
@@ -112,6 +117,27 @@ type DerivationProof = Readonly<{
  * for authored, unchecked calculus is not a checked proof.
  */
 const DERIVATION_PROOFS: Readonly<Record<DerivationProofId, DerivationProof>> = {
+  "sr-moving-clock": {
+    paper: "special-relativity",
+    conclusion: clockRecord.id,
+    title: "Follow two ticks of the same clock through the coordinate map",
+    href: "/papers/special-relativity/s4/#sr-clock-length-clock",
+    records: [velocityInverseTimeRecord, factorRecord, clockRecord],
+    chains: [srClocksAndLengths.clock],
+    verify: verifySRClocksAndLengths,
+    premises: srClockLengthAssumptions.filter((assumption) =>
+      !["sr-clock-length-resting-rigid-rod", "sr-clock-length-stationary-simultaneity"].includes(assumption.id)),
+  },
+  "sr-simultaneous-length": {
+    paper: "special-relativity",
+    conclusion: lengthRecord.id,
+    title: "Follow simultaneous endpoint marks to the moving length",
+    href: "/papers/special-relativity/s4/#sr-clock-length-rod",
+    records: [velocityPositionRecord, factorRecord, lengthRecord],
+    chains: [srClocksAndLengths.length],
+    verify: verifySRClocksAndLengths,
+    premises: srClockLengthAssumptions.filter((assumption) => assumption.id !== "sr-clock-length-same-resting-clock"),
+  },
   "lq-photoelectric-energy": {
     paper: "light-quanta",
     conclusion: photoelectricMaximumRecord.id,

@@ -7,6 +7,8 @@ export const RESULT_PROOF_IDS = [
   "lq-photoelectric-energy",
   "me-ledger-elimination",
   "me-low-speed-coefficient",
+  "sr-moving-clock",
+  "sr-simultaneous-length",
   "sr-synchronization-midpoint",
   "sr-velocity-composition",
   "sr-doppler-phase",
