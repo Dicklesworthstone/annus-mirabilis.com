@@ -9,10 +9,7 @@ import {
   createLq01Session,
   type PreparedLq01Example,
 } from "../../experiments/lq01/session.ts";
-import {
-  LQ05_PRESETS,
-  type Lq05Parameters,
-} from "../../experiments/lq05/definition.ts";
+import type { Lq05Parameters } from "../../experiments/lq05/definition.ts";
 import { createLq05Session } from "../../experiments/lq05/session.ts";
 import { LQ05_TAPE } from "../../experiments/lq05/tape.ts";
 import {
@@ -234,7 +231,7 @@ export async function lightQuantaTourSpec(
         "The walkthrough must record ten independent points before locking those same ten points.",
       );
     const initial = independent.parameters;
-    const locked = LQ05_PRESETS["lq-05-locked-positions"].parameters;
+    const locked = ending.parameters;
     const actions: readonly TourAction<Lq05Parameters>[] = [
       { id: "ten-independent", label: "Ten independent choices", parameters: initial },
       {

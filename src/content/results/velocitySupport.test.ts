@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test";
+import assert from "node:assert/strict";
 import inverseTimeRecord from "../../../content/equations/special-relativity/eq-model-sr-inverse-time.json";
 import positionRecord from "../../../content/equations/special-relativity/eq-model-sr-map-position.json";
 import timeRecord from "../../../content/equations/special-relativity/eq-model-sr-map-time.json";
@@ -43,8 +44,10 @@ test("missing or changed source maps, component equations and assumptions lose c
 });
 
 test("the source-direction proof cannot be relabeled as the reverse-direction equation", () => {
+  const support = card.support;
+  assert(support.kind === "checked-proof");
   expect(() => checkedSupportFor({
     ...card,
-    support: { ...card.support, kind: "checked-proof", proofId: "sr-velocity-composition", conclusion: "eq-model-sr-velocity-x" },
+    support: { ...support, conclusion: "eq-model-sr-velocity-x" },
   }, equations)).toThrow(ResultCardsError);
 });

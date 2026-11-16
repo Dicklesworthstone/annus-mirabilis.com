@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { brownianInferenceChain } from "../../equations/derivations/brownianInference.ts";
@@ -161,6 +162,7 @@ describe("molecular-number support reaches the conditional observed-moment inver
     expect(report.stepReports).toHaveLength(3);
     const support = project(card("bm-molecular-number")).support;
     expect(support?.kind).toBe("checked-proof");
+    assert(support?.kind === "checked-proof");
     expect(support?.proofId).toBe("bm-molecular-number-inference");
     expect(support?.href).toBe("/papers/brownian-motion/s5/#bm-molecular-number-derivation");
     expect(support?.conclusion.equationId).toBe("eq-model-bm-avogadro-inference");
@@ -201,12 +203,13 @@ describe("molecular-number support reaches the conditional observed-moment inver
     expect(refusal(() => project(control, replaceConclusion(altered)))).toBe(
       "result-support-derivation-record-mismatch",
     );
-    if (control.support.kind !== "checked-proof") throw new Error("Missing inference support.");
+    const support = control.support;
+    assert(support.kind === "checked-proof", "Missing inference support.");
     expect(
       refusal(() =>
         project({
           ...control,
-          support: { ...control.support, conclusion: "eq-model-bm-diffusivity-from-data" },
+          support: { ...support, conclusion: "eq-model-bm-diffusivity-from-data" },
         }),
       ),
     ).toBe("result-support-derivation-conclusion-missing");

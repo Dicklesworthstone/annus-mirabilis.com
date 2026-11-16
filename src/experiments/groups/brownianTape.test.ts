@@ -114,10 +114,11 @@ describe("scientific Brownian comparison records", () => {
     const changed = structuredClone(publication);
     const probability = changed.outputs.find((output) => output.quantityId === "intervalProbability");
     assert(probability?.status === "value" && typeof probability.value === "number");
+    const tamperedProbability = probability.value * 0.9;
     const scalarTamper = {
       ...changed,
       outputs: changed.outputs.map((output) => output === probability
-        ? { ...probability, value: probability.value * 0.9 }
+        ? { ...probability, value: tamperedProbability }
         : output),
     };
     expect(await verifyBm06ScientificCheckpoint(captured.tape, scalarTamper, fixture.density.sourceDigest)).not.toBeNull();

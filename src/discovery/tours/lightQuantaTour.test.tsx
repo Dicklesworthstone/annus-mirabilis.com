@@ -106,7 +106,7 @@ describe("the light-quanta tour is a complete equation-free path", () => {
     expect(html).not.toContain("data-tour-owner=");
   });
 
-  test("(lightQuantaTourSpec.ts:143) unrelated presets cannot substitute for the authored phase question", async () => {
+  test("(lightQuantaTourSpec.ts:140) unrelated presets cannot substitute for the authored phase question", async () => {
     const step = stepFor("lq-01");
     expect((await lightQuantaTourSpec(step))?.revealId).toBe("lq-01-phase-shifted");
     await expect(
@@ -114,7 +114,7 @@ describe("the light-quanta tour is a complete equation-free path", () => {
     ).rejects.toMatchObject({ code: "light-quanta-tour-binding" });
   });
 
-  test("(lightQuantaTourSpec.ts:291) the lamp comparison refuses a different question or reveal", async () => {
+  test("(lightQuantaTourSpec.ts:288) the lamp comparison refuses a different question or reveal", async () => {
     const step = stepFor("lq-08");
     expect((await lightQuantaTourSpec(step))?.revealId).toBe("double-power");
     await expect(lightQuantaTourSpec({ ...step, controlId: "frequency" })).rejects.toMatchObject({
@@ -122,13 +122,13 @@ describe("the light-quanta tour is a complete equation-free path", () => {
     });
   });
 
-  test("(lightQuantaTourSpec.ts:199) the authored counting walkthrough must be present", async () => {
+  test("(lightQuantaTourSpec.ts:196) the authored counting walkthrough must be present", async () => {
     await expect(
       lightQuantaTourSpec(stepFor("lq-05"), { walkthroughs: [], problems: [] }),
     ).rejects.toMatchObject({ code: "light-quanta-tour-tape" });
   });
 
-  test("(lightQuantaTourSpec.ts:209) every checkpoint must replay, including the intermediate ten-independent case", async () => {
+  test("(lightQuantaTourSpec.ts:206) every checkpoint must replay, including the intermediate ten-independent case", async () => {
     const spec = await specFor("lq-05");
     expect(spec.initial).toMatchObject({ n: 10, f: 0.5, locked: false });
     for (const checkpoint of recording.checkpoints) {
@@ -162,7 +162,7 @@ describe("the light-quanta tour is a complete equation-free path", () => {
     }
   });
 
-  test("(lightQuantaTourSpec.ts:232) a replayable sequence still needs both ten-independent and ten-locked stops", async () => {
+  test("(lightQuantaTourSpec.ts:229) a replayable sequence still needs both ten-independent and ten-locked stops", async () => {
     const onlyEnd: WalkthroughCatalogue = {
       walkthroughs: [{ ...recording, checkpoints: recording.checkpoints.slice(-1) }],
       problems: [],
@@ -172,7 +172,7 @@ describe("the light-quanta tour is a complete equation-free path", () => {
     });
   });
 
-  test("(lightQuantaTourSpec.ts:116) the wave worked example refuses settings the actual operation rejects", async () => {
+  test("(lightQuantaTourSpec.ts:113) the wave worked example refuses settings the actual operation rejects", async () => {
     const spec = await specFor("lq-01");
     assert.ok(spec.id === "lq-01");
     await expect(
@@ -180,13 +180,14 @@ describe("the light-quanta tour is a complete equation-free path", () => {
     ).rejects.toMatchObject({ code: "light-quanta-tour-owner" });
   });
 
-  test("(lightQuantaTourSpec.ts:97) a refused or pending calculation cannot become a worked comparison", async () => {
+  test("(lightQuantaTourSpec.ts:94) a refused or pending calculation cannot become a worked comparison", async () => {
     const spec = await specFor("lq-08");
     const owner = createLightQuantaTourOwner(spec, "refused-worked-row");
     const accepted = owner.getSnapshot();
     expect(lightQuantaWorkedRow("good", "Good", accepted, { kind: "accepted" }).outputs.length).toBeGreaterThan(0);
-    expect(() => lightQuantaWorkedRow("bad", "Bad", accepted, { kind: "refused" })).toThrow(
-      "complete accepted calculation",
+    assert.throws(
+      () => lightQuantaWorkedRow("bad", "Bad", accepted, { kind: "refused" }),
+      { code: "light-quanta-tour-owner", message: /complete accepted calculation/ },
     );
     expect(() =>
       lightQuantaWorkedRow("pending", "Pending", { ...accepted, pending: true }, { kind: "accepted" }),

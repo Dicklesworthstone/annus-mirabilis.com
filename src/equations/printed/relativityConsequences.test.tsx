@@ -73,9 +73,10 @@ function rhs(id: string, glyphValues: Readonly<Record<string, number>>): number 
   const parsed = parseSourceExpression(value, RELATIVITY_OPERATION_GUIDES[id]?.symbolIndices);
   assert(parsed.rows.length === 1 && parsed.rows[0]?.tree.kind === "relation");
   const assignment = Object.fromEntries(
-    value.terms.flatMap((term) =>
-      glyphValues[term.glyph] === undefined ? [] : [[term.termId, glyphValues[term.glyph]]],
-    ),
+    value.terms.flatMap((term): Array<[string, number]> => {
+      const number = glyphValues[term.glyph];
+      return number === undefined ? [] : [[term.termId, number]];
+    }),
   );
   const result = evaluateExpression(parsed.rows[0].tree.right, assignment);
   assert(Number.isFinite(result), "Every numerical check must evaluate a bound source tree.");

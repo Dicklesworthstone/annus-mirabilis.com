@@ -218,18 +218,19 @@ describe("coherent generations with real independently owned snapshots", () => {
 
   test("invalid-experiment-group refuses duplicate instances or a forged member domain (groupStore.ts:113)", () => {
     const { group, ports } = comparison("identity");
-    assert(ports[0] && ports[1]);
-    expect(() => createExperimentGroup(definition, [ports[0], ports[0]])).toThrow(
+    const [first, second] = ports;
+    assert(first && second);
+    expect(() => createExperimentGroup(definition, [first, first])).toThrow(
       ExperimentGroupDefinitionError,
     );
     const forged = {
-      ...ports[1],
+      ...second,
       definition: {
-        ...ports[1].definition,
-        domain: { ...ports[1].definition.domain, max: Number.MAX_VALUE },
+        ...second.definition,
+        domain: { ...second.definition.domain, max: Number.MAX_VALUE },
       },
     };
-    expect(() => createExperimentGroup(definition, [ports[0], forged])).toThrow(
+    expect(() => createExperimentGroup(definition, [first, forged])).toThrow(
       ExperimentGroupDefinitionError,
     );
     expect(group.attach(forged).kind).toBe("refused");

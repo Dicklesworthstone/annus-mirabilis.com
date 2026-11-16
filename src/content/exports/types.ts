@@ -50,12 +50,12 @@ export interface LayerRights {
 
 export interface ExportDateEntry {
   readonly type: string;
-  readonly text?: string;
-  readonly earliest?: string;
-  readonly latest?: string;
-  readonly precision?: string;
-  readonly source?: string;
-  readonly verifiedAt?: string;
+  readonly text?: string | undefined;
+  readonly earliest?: string | undefined;
+  readonly latest?: string | undefined;
+  readonly precision?: string | undefined;
+  readonly source?: string | undefined;
+  readonly verifiedAt?: string | undefined;
 }
 
 export interface PaperExportSectionRef {
