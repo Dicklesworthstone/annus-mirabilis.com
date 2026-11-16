@@ -59,6 +59,7 @@ import {
   LazyMassEnergyFirstEncounter,
   LazyPhotoelectricDerivation,
   LazySRChargeCurrentDerivation,
+  LazySRClocksAndLengthsDerivation,
   LazySRCoordinateDerivation,
   LazySRDopplerDerivation,
   LazySRElectronDerivation,
@@ -66,7 +67,6 @@ import {
   LazySRLightComplexDerivation,
   LazySRMirrorDerivation,
   LazySRSynchronizationDerivation,
-  LazySRClocksAndLengthsDerivation,
   LazySRVelocityDerivation,
 } from "./lazyIslands.tsx";
 import { ledgerGaps } from "./ledgerGaps.ts";
@@ -792,7 +792,8 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                         ) : (
                           <p className="fine">
                             <a href="/papers/special-relativity/s9/#sr-charge-current-derivation">
-                              Follow charge and current through a frame change, including a neutral wire
+                              Follow charge and current through a frame change, including a neutral
+                              wire
                             </a>
                           </p>
                         ))}

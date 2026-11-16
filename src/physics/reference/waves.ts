@@ -312,7 +312,8 @@ export function classicalSourceDopplerFactor(beta: number, thetaRad: number): nu
 }
 
 /**
- * Computes detector wavefront crossing count in a time window T.
+ * Computes detector wavefront crossings over coordinate time T in the frame that supplies
+ * omega, k and detectorVelocity. T is not the detector's proper-time interval.
  * Delta_phi = |(k . v_det - omega) * T|
  * Crossings = Delta_phi / (2 * pi)
  */
@@ -656,8 +657,10 @@ export type Sr09Input = Readonly<{
   beta: number;
   propagationAngleDeg: number;
   frequencyHz: number;
+  /** Named detector rest frame, or a custom detector velocity measured in K. */
   detectorMotion?: "rest-in-k" | "rest-in-K" | "custom";
   detectorSpeed?: number;
+  /** K-coordinate duration in seconds, not detector proper time. */
   countingWindow?: number;
   secondOrderSpeed?: number;
   selectedEventId?: string;
@@ -796,7 +799,14 @@ export function evaluateSr09(input: Sr09Input): Sr09EvaluationResult {
   const recedingFactor = Math.sqrt((1 - beta) / (1 + beta));
   const approachingFactor = Math.sqrt((1 + beta) / (1 - beta));
 
-  const detectorSpeed = input.detectorSpeed ?? beta;
+  // Named rest modes determine the detector velocity in K. A saved custom speed must not
+  // override them; callers without a mode retain the original detectorSpeed ?? beta fallback.
+  const detectorSpeed =
+    input.detectorMotion === "rest-in-k"
+      ? beta
+      : input.detectorMotion === "rest-in-K"
+        ? 0
+        : (input.detectorSpeed ?? beta);
   const detectorWindow = input.countingWindow ?? 10 / nuK;
   const detectorCrossings = detectorCrossingCount({
     omega: omegaK,
@@ -804,7 +814,12 @@ export function evaluateSr09(input: Sr09Input): Sr09EvaluationResult {
     detectorVelocity: { x: detectorSpeed * C_SI, y: 0, z: 0 },
     window: detectorWindow,
   });
-  const detectorProperRateHz = detectorCrossings / detectorWindow;
+  // The count uses K time. The measured rate uses the same interval on the detector's own
+  // clock, whose Lorentz factor need not be the observer frame's factor for a custom detector.
+  const detectorGamma = gamma(detectorSpeed);
+  const detectorProperWindow =
+    detectorGamma.status === "value" ? detectorWindow / detectorGamma.value : Number.NaN;
+  const detectorProperRateHz = detectorCrossings / detectorProperWindow;
 
   const modernAberration = modernEarthOrbitAberration();
   const earthOrbitAberrationArcsec = modernAberration.arcsec;

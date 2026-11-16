@@ -66,7 +66,9 @@ async function mount(view: ReactNode) {
   expect(panel.closest("[data-predict-response]")?.getAttribute("data-predict-response")).toBe(
     "awaiting",
   );
-  expect(panel.querySelector("[data-weave-snapshot]")?.textContent).toContain("Prepared worked example");
+  expect(panel.querySelector("[data-weave-snapshot]")?.textContent).toContain(
+    "Prepared worked example",
+  );
   await disclose(panel, true);
   expect(main.querySelector("[data-live-weave-owner]")).toBeNull();
   expect(panel.querySelector('[role="status"]')?.textContent).toBe("");
@@ -115,7 +117,10 @@ for (const fixture of [
   { id: "sr-10", View: Sr10ClarificationView, sentences: ["s8-p5-s1", "s8-p2-s2"] },
 ] as const) {
   test(`${fixture.id} reader pointers follow accepted inputs, honor prediction, and clear on refusal and unmount`, async () => {
-    const nodes = fixture.sentences.flatMap((id) => [sentence(id, "german"), sentence(id, "english")]);
+    const nodes = fixture.sentences.flatMap((id) => [
+      sentence(id, "german"),
+      sentence(id, "english"),
+    ]);
     const unrelated = sentence("s7-p1-s1", "german");
     const originalText = nodes.map((node) => node.textContent);
     const panel = await mount(

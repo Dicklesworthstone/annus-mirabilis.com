@@ -21,21 +21,21 @@ import lqInverseTemperatureRecord from "../../../content/equations/light-quanta/
 import lqSpectrumRecord from "../../../content/equations/light-quanta/eq-model-lq-wien-spectrum.json";
 import aberrationRecord from "../../../content/equations/special-relativity/eq-model-sr-aberration.json";
 import chargeDensityRecord from "../../../content/equations/special-relativity/eq-model-sr-charge-density.json";
-import currentDensityRecord from "../../../content/equations/special-relativity/eq-model-sr-current-density.json";
 import composedVelocityXRecord from "../../../content/equations/special-relativity/eq-model-sr-composed-velocity-x.json";
 import composedVelocityYRecord from "../../../content/equations/special-relativity/eq-model-sr-composed-velocity-y.json";
+import currentDensityRecord from "../../../content/equations/special-relativity/eq-model-sr-current-density.json";
 import dopplerRecord from "../../../content/equations/special-relativity/eq-model-sr-doppler-factor.json";
 import frequencyRecord from "../../../content/equations/special-relativity/eq-model-sr-doppler-ratio.json";
 import workIntegralRecord from "../../../content/equations/special-relativity/eq-model-sr-electron-work-integral.json";
 import workResultRecord from "../../../content/equations/special-relativity/eq-model-sr-electron-work-result.json";
 import inversePositionRecord from "../../../content/equations/special-relativity/eq-model-sr-inverse-position.json";
-import lengthRecord from "../../../content/equations/special-relativity/eq-model-sr-length-contraction.json";
-import factorRecord from "../../../content/equations/special-relativity/eq-model-sr-lorentz-factor.json";
 import velocityInverseTimeRecord from "../../../content/equations/special-relativity/eq-model-sr-inverse-time.json";
+import lengthRecord from "../../../content/equations/special-relativity/eq-model-sr-length-contraction.json";
 import densityRecord from "../../../content/equations/special-relativity/eq-model-sr-light-density.json";
 import energyRecord from "../../../content/equations/special-relativity/eq-model-sr-light-energy.json";
 import volumeRecord from "../../../content/equations/special-relativity/eq-model-sr-light-volume.json";
 import longitudinalRecord from "../../../content/equations/special-relativity/eq-model-sr-longitudinal-mass.json";
+import factorRecord from "../../../content/equations/special-relativity/eq-model-sr-lorentz-factor.json";
 import velocityPositionRecord from "../../../content/equations/special-relativity/eq-model-sr-map-position.json";
 import velocityTimeRecord from "../../../content/equations/special-relativity/eq-model-sr-map-time.json";
 import mirrorFrequencyRecord from "../../../content/equations/special-relativity/eq-model-sr-mirror-frequency.json";
@@ -64,9 +64,12 @@ import {
   srChargeCurrentChains,
 } from "../../equations/derivations/srChargeCurrent.ts";
 import { verifySRChargeCurrent } from "../../equations/derivations/srChargeCurrentProof.ts";
-import { srDopplerAssumptions, srDopplerChains } from "../../equations/derivations/srDoppler.ts";
-import { srClockLengthAssumptions, srClocksAndLengths } from "../../equations/derivations/srClocksAndLengths.ts";
+import {
+  srClockLengthAssumptions,
+  srClocksAndLengths,
+} from "../../equations/derivations/srClocksAndLengths.ts";
 import { verifySRClocksAndLengths } from "../../equations/derivations/srClocksAndLengthsProof.ts";
+import { srDopplerAssumptions, srDopplerChains } from "../../equations/derivations/srDoppler.ts";
 import { verifySRDoppler } from "../../equations/derivations/srDopplerProof.ts";
 import {
   srElectronLaboratory,
@@ -125,8 +128,12 @@ const DERIVATION_PROOFS: Readonly<Record<DerivationProofId, DerivationProof>> = 
     records: [velocityInverseTimeRecord, factorRecord, clockRecord],
     chains: [srClocksAndLengths.clock],
     verify: verifySRClocksAndLengths,
-    premises: srClockLengthAssumptions.filter((assumption) =>
-      !["sr-clock-length-resting-rigid-rod", "sr-clock-length-stationary-simultaneity"].includes(assumption.id)),
+    premises: srClockLengthAssumptions.filter(
+      (assumption) =>
+        !["sr-clock-length-resting-rigid-rod", "sr-clock-length-stationary-simultaneity"].includes(
+          assumption.id,
+        ),
+    ),
   },
   "sr-simultaneous-length": {
     paper: "special-relativity",
@@ -136,7 +143,9 @@ const DERIVATION_PROOFS: Readonly<Record<DerivationProofId, DerivationProof>> = 
     records: [velocityPositionRecord, factorRecord, lengthRecord],
     chains: [srClocksAndLengths.length],
     verify: verifySRClocksAndLengths,
-    premises: srClockLengthAssumptions.filter((assumption) => assumption.id !== "sr-clock-length-same-resting-clock"),
+    premises: srClockLengthAssumptions.filter(
+      (assumption) => assumption.id !== "sr-clock-length-same-resting-clock",
+    ),
   },
   "lq-photoelectric-energy": {
     paper: "light-quanta",

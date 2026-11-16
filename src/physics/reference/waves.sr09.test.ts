@@ -64,3 +64,81 @@ describe("SR-09 Doppler and aberration from one transform", () => {
     );
   });
 });
+
+describe("SR-09 detector clocks and counting windows", () => {
+  const frequencyHz = 5e14;
+  const trial = {
+    beta: 0.6,
+    propagationAngleDeg: 0,
+    frequencyHz,
+    countingWindow: 20 / frequencyHz,
+  };
+
+  test("rest modes override custom speed and each detector uses its own clock", () => {
+    // Twenty source cycles elapse in K. The moving detector counts fewer or more fronts;
+    // converting that interval to its own time is a separate operation.
+    for (const { mode, speed, count, rate } of [
+      { mode: "rest-in-K", speed: 0.8, count: 20, rate: 1 },
+      { mode: "rest-in-k", speed: 0, count: 8, rate: 0.5 },
+      { mode: "custom", speed: -0.8, count: 36, rate: 3 },
+    ] as const) {
+      const snap = evaluateSr09({ ...trial, detectorMotion: mode, detectorSpeed: speed });
+      expect(snap.status).toBe("value");
+      expect(snap.detectorCrossings).toBeCloseTo(count, 12);
+      expect(snap.detectorProperRateHz / frequencyHz).toBeCloseTo(rate, 12);
+    }
+  });
+
+  test("a custom detector's count and proper rate do not depend on the viewing frame", () => {
+    for (const beta of [-0.8, 0, 0.6]) {
+      const snap = evaluateSr09({
+        ...trial,
+        beta,
+        detectorMotion: "custom",
+        detectorSpeed: -0.6,
+      });
+      expect(snap.detectorCrossings).toBeCloseTo(32, 12);
+      expect(snap.detectorProperRateHz / frequencyHz).toBeCloseTo(2, 12);
+    }
+  });
+
+  test("a detector at rest in k measures the transformed wave frequency", () => {
+    for (const beta of [-0.6, 0, 0.6, 0.8]) {
+      for (const propagationAngleDeg of [0, 60, 90, 180, 270]) {
+        const snap = evaluateSr09({
+          ...trial,
+          beta,
+          propagationAngleDeg,
+          detectorMotion: "rest-in-k",
+          detectorSpeed: -0.8,
+        });
+        expect(snap.detectorProperRateHz / snap.waveFrequencyMovingHz).toBeCloseTo(1, 12);
+      }
+    }
+  });
+
+  test("a longer coordinate window changes the count without changing the proper rate", () => {
+    const base = evaluateSr09({ ...trial, detectorMotion: "rest-in-k" });
+    for (const cycles of [5, 10, 40]) {
+      const snap = evaluateSr09({
+        ...trial,
+        detectorMotion: "rest-in-k",
+        countingWindow: cycles / frequencyHz,
+      });
+      expect(snap.detectorCrossings / base.detectorCrossings).toBeCloseTo(cycles / 20, 12);
+      expect(snap.detectorProperRateHz / base.detectorProperRateHz).toBeCloseTo(1, 12);
+    }
+  });
+
+  test("legacy callers without a detector mode retain their velocity selection", () => {
+    for (const { speed, count, rate } of [
+      { speed: null, count: 8, rate: 0.5 },
+      { speed: 0, count: 20, rate: 1 },
+      { speed: -0.6, count: 32, rate: 2 },
+    ]) {
+      const snap = evaluateSr09(speed === null ? trial : { ...trial, detectorSpeed: speed });
+      expect(snap.detectorCrossings).toBeCloseTo(count, 12);
+      expect(snap.detectorProperRateHz / frequencyHz).toBeCloseTo(rate, 12);
+    }
+  });
+});

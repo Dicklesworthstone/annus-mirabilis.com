@@ -887,7 +887,7 @@ targets:
     readings:
       r0: "Name the interval that the moving clock itself records."
       r1: "Use Δτ for the elapsed time on this one clock. This identification uses its rest-frame position; it is not a claim about every difference of moving-frame coordinate times."
-      r2: "The modern proper-time interval Δτ equals t′₂ − t′₁ along this resting ideal clock. The paper uses τ for k's time coordinate, so the modern Δτ used here is a distinct notation and meaning."
+      r2: "The modern proper-time interval Δτ equals t′₂ − t′₁ along this resting ideal clock. The paper uses τ for k's time coordinate, so the modern Δτ used here is a distinct notation and meaning. This equality uses the clock's single inertial worldline; a coordinate-time difference between separate clocks has no such interpretation."
       r3: "This is a teaching reconstruction of §4 using two events and modern interval notation. Einstein measures the sphere at t = 0 and obtains the clock rate by substituting x = vt into the forward time transformation. Subtracting two instances of the already admitted maps makes the measurement conditions and the cancellation of arbitrary starting readings explicit. Modern Δτ denotes one clock's proper elapsed time; the paper's τ is the moving system's time coordinate. The source's later curved-path extension and low-speed approximation are distinct claims."
       r3Citations:
         - "A. Einstein, Zur Elektrodynamik bewegter Körper (1905), §4, Annalen der Physik 17, pp. 903–906; §3 supplies the coordinate transformation."
@@ -914,7 +914,7 @@ targets:
     readings:
       r0: "Use the coordinate map for both ends of the rod."
       r1: "The subtracted expression on the left is x′₁ by the same position map. Before choosing the measurement times, the difference on the right includes the rod's motion between those times."
-      r2: "The exact difference is x′₂ − x′₁ = γ[(x₂ − x₁) − v(t₂ − t₁)]. If the stationary observer marks one end later than the other, x₂ − x₁ alone is not the rod's simultaneous length."
+      r2: "The exact difference is x′₂ − x′₁ = γ[(x₂ − x₁) − v(t₂ − t₁)]. If the stationary observer marks one end later than the other, x₂ − x₁ alone is not the rod's simultaneous length. The extra term v(t₂ − t₁) is the displacement during the interval between endpoint marks, so the chosen timing is part of the measurement."
       r3: "This is a teaching reconstruction of §4 using two events and modern interval notation. Einstein measures the sphere at t = 0 and obtains the clock rate by substituting x = vt into the forward time transformation. Subtracting two instances of the already admitted maps makes the measurement conditions and the cancellation of arbitrary starting readings explicit. Modern Δτ denotes one clock's proper elapsed time; the paper's τ is the moving system's time coordinate. The source's later curved-path extension and low-speed approximation are distinct claims."
       r3Citations:
         - "A. Einstein, Zur Elektrodynamik bewegter Körper (1905), §4, Annalen der Physik 17, pp. 903–906; §3 supplies the coordinate transformation."

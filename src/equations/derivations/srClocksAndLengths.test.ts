@@ -18,11 +18,11 @@ import {
   presentSRClockLengthChain,
   presentSRClockLengthExpression,
   SR_CLOCKS_AND_LENGTHS_RECORDS,
+  SRClocksAndLengthsError,
   srClockLengthChains,
   srClockLengthHistoricalReading,
   srClockLengthSourceLinks,
   srClocksAndLengths,
-  SRClocksAndLengthsError,
 } from "./srClocksAndLengths.ts";
 import { verifySRClocksAndLengths } from "./srClocksAndLengthsProof.ts";
 import { structurallyEqual } from "./treeUtils.ts";
@@ -40,8 +40,12 @@ test("both measurement chains check every step and reach their canonical results
     for (let index = 1; index < chain.steps.length; index++)
       expect(structurallyEqual(chain.steps[index - 1]!.to, chain.steps[index]!.from)).toBe(true);
   }
-  expect(structurallyEqual(srClocksAndLengths.clock.steps.at(-1)!.to, srClocksAndLengths.setup.clock)).toBe(true);
-  expect(structurallyEqual(srClocksAndLengths.length.steps.at(-1)!.to, srClocksAndLengths.setup.length)).toBe(true);
+  expect(
+    structurallyEqual(srClocksAndLengths.clock.steps.at(-1)!.to, srClocksAndLengths.setup.clock),
+  ).toBe(true);
+  expect(
+    structurallyEqual(srClocksAndLengths.length.steps.at(-1)!.to, srClocksAndLengths.setup.length),
+  ).toBe(true);
 });
 
 test("missing steps, reordered arguments and disconnected replacements receive no proof credit", () => {
@@ -51,13 +55,18 @@ test("missing steps, reordered arguments and disconnected replacements receive n
     [reordered[0], reordered[1]] = [reordered[1]!, reordered[0]!];
     expect(verifySRClocksAndLengths({ ...chain, steps: reordered }).passed).toBe(false);
     const last = chain.steps.at(-1)!;
-    const disconnected = { ...chain, steps: [...chain.steps.slice(0, -1), { ...last, from: last.to }] };
+    const disconnected = {
+      ...chain,
+      steps: [...chain.steps.slice(0, -1), { ...last, from: last.to }],
+    };
     if (last.rule.kind === "substitute")
       expect(verifyChain(disconnected, { isPublicationGate: true }).passed).toBe(true);
     expect(verifySRClocksAndLengths(disconnected).passed).toBe(false);
     expect(verifySRClocksAndLengths({ ...chain, target: "unrelated-equation" }).passed).toBe(false);
     expect(verifySRClocksAndLengths({ ...chain, routeKind: "source-order" }).passed).toBe(false);
-    expect(verifySRClocksAndLengths({ ...chain, proofRouteId: "unrelated-route" }).passed).toBe(false);
+    expect(verifySRClocksAndLengths({ ...chain, proofRouteId: "unrelated-route" }).passed).toBe(
+      false,
+    );
   }
 });
 
@@ -67,13 +76,30 @@ test("a measurement cannot silently change its frame, omit a premise or invent a
     const move = chain.steps.find((step) => step.isMove)!;
     for (const changed of [
       { ...move, premiseRefs: [] },
-      { ...move, rule: { ...move.rule, params: { ...move.rule.params, citedEquality: "Use equal coordinates in the other frame." } } },
-      { ...move, rule: { ...move.rule, params: { ...move.rule.params, replacement: { kind: "number", value: "0" } } } },
+      {
+        ...move,
+        rule: {
+          ...move.rule,
+          params: {
+            ...move.rule.params,
+            citedEquality: "Use equal coordinates in the other frame.",
+          },
+        },
+      },
+      {
+        ...move,
+        rule: {
+          ...move.rule,
+          params: { ...move.rule.params, replacement: { kind: "number", value: "0" } },
+        },
+      },
     ]) {
-      expect(verifySRClocksAndLengths({
-        ...chain,
-        steps: chain.steps.map((step) => step.id === move.id ? changed : step),
-      }).passed).toBe(false);
+      expect(
+        verifySRClocksAndLengths({
+          ...chain,
+          steps: chain.steps.map((step) => (step.id === move.id ? changed : step)),
+        }).passed,
+      ).toBe(false);
     }
   }
 });
@@ -87,25 +113,36 @@ test("division by the Lorentz factor requires its actual positive subluminal dom
     { quantity: { kind: "number", value: "0" } },
     { simplify: false },
   ]) {
-    expect(verifySRClocksAndLengths({
-      ...chain,
-      steps: [...chain.steps.slice(0, -1), { ...last, rule: { ...last.rule, params: { ...last.rule.params, ...patch } } }],
-    }).passed).toBe(false);
+    expect(
+      verifySRClocksAndLengths({
+        ...chain,
+        steps: [
+          ...chain.steps.slice(0, -1),
+          { ...last, rule: { ...last.rule, params: { ...last.rule.params, ...patch } } },
+        ],
+      }).passed,
+    ).toBe(false);
   }
 });
 
-test("changed canonical frame maps or result meanings refuse (srClocksAndLengths.ts:110)", () => {
-  for (const key of Object.keys(SR_CLOCKS_AND_LENGTHS_RECORDS) as (keyof typeof SR_CLOCKS_AND_LENGTHS_RECORDS)[]) {
+test("changed canonical frame maps or result meanings refuse (srClocksAndLengths.ts:136)", () => {
+  for (const key of Object.keys(
+    SR_CLOCKS_AND_LENGTHS_RECORDS,
+  ) as (keyof typeof SR_CLOCKS_AND_LENGTHS_RECORDS)[]) {
     const records = structuredClone(SR_CLOCKS_AND_LENGTHS_RECORDS);
     Object.assign(records[key], { tree: { kind: "number", value: "1" } });
     let caught: unknown;
-    try { createSRClocksAndLengthsSetup(records); } catch (error) { caught = error; }
+    try {
+      createSRClocksAndLengthsSetup(records);
+    } catch (error) {
+      caught = error;
+    }
     expect(caught).toBeInstanceOf(SRClocksAndLengthsError);
     expect((caught as SRClocksAndLengthsError).code).toBe("sr-clock-length-canonical-mismatch");
   }
 });
 
-test("unknown presentation quantities refuse (srClocksAndLengths.ts:291)", () => {
+test("unknown presentation quantities refuse (srClocksAndLengths.ts:511)", () => {
   let caught: unknown;
   try {
     presentSRClockLengthExpression({ kind: "symbol", termId: "unknown", quantityId: "unknown" });
@@ -118,11 +155,18 @@ test("unknown presentation quantities refuse (srClocksAndLengths.ts:291)", () =>
 
 function value<T>(result: KinematicResult<T>): T {
   expect(result.status).toBe("value");
-  if (result.status !== "value") throw new Error("The numerical fixture left the stated inertial domain.");
+  if (result.status !== "value")
+    throw new Error("The numerical fixture left the stated inertial domain.");
   return result.value;
 }
 
-function bindings(first: Event, second: Event, firstMoving: Event, secondMoving: Event, beta: number) {
+function bindings(
+  first: Event,
+  second: Event,
+  firstMoving: Event,
+  secondMoving: Event,
+  beta: number,
+) {
   return {
     "coordinateTimeStationary.event1": first.t,
     "coordinateTimeStationary.event2": second.t,
@@ -145,10 +189,13 @@ function bindings(first: Event, second: Event, firstMoving: Event, secondMoving:
 function checkAllEqualities(chain: DerivationChain, inputs: Readonly<Record<string, number>>) {
   for (const step of chain.steps) {
     for (const equation of [step.from, step.to]) {
-      if (equation.kind !== "relation") throw new Error("Every published clock and rod step must be an equality.");
+      if (equation.kind !== "relation")
+        throw new Error("Every published clock and rod step must be an equality.");
       const left = evaluateExpression(equation.left, inputs);
       const right = evaluateExpression(equation.right, inputs);
-      expect(Math.abs(left - right)).toBeLessThan(1e-11 * Math.max(1, Math.abs(left), Math.abs(right)));
+      expect(Math.abs(left - right)).toBeLessThan(
+        1e-11 * Math.max(1, Math.abs(left), Math.abs(right)),
+      );
     }
   }
 }
@@ -164,7 +211,10 @@ test("all clock equations agree with transformed tick events at nonzero readings
       const second = value(transformEvent(secondMoving, inverse));
       const inputs = bindings(first, second, firstMoving, secondMoving, beta);
       checkAllEqualities(srClocksAndLengths.clock, inputs);
-      expect(inputs.eventSeparationTemporalStationary).toBeCloseTo(value(dilatedInterval(0.8, beta)), 12);
+      expect(inputs.eventSeparationTemporalStationary).toBeCloseTo(
+        value(dilatedInterval(0.8, beta)),
+        12,
+      );
     }
   }
 });
@@ -207,25 +257,48 @@ test("the wrong event conditions give different answers in the independent event
 });
 
 test("presentation preserves event identities, all source returns and owned R0–R3 reasons", () => {
-  const owner = yaml.load(readFileSync(new URL(
-    "../../../content/editorial/readings-owners/am-srk-equations-30cq.yaml", import.meta.url,
-  ), "utf8")) as { ownerBeadId: string; targets: { id: string; readings: unknown }[] };
+  const owner = yaml.load(
+    readFileSync(
+      new URL(
+        "../../../content/editorial/readings-owners/am-srk-equations-30cq.yaml",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+  ) as { ownerBeadId: string; targets: { id: string; readings: unknown }[] };
   const targets = srClockLengthChains.flatMap((chain) => {
     const display = presentSRClockLengthChain(chain);
     return chain.steps.map((step, index) => {
-      const symbols = (tree: Expression) => walk(tree).filter((node) => node.kind === "symbol").map((node) =>
-        node.kind === "symbol" && { quantityId: node.quantityId, index: node.index });
+      const symbols = (tree: Expression) =>
+        walk(tree)
+          .filter((node) => node.kind === "symbol")
+          .map(
+            (node) => node.kind === "symbol" && { quantityId: node.quantityId, index: node.index },
+          );
       expect(symbols(display.steps[index]!.to)).toEqual(symbols(step.to));
       expect(srClockLengthSourceLinks.some((source) => source.id === step.sourceAnchor)).toBe(true);
       const targetId = chain.id + "/" + step.id;
       const readings = { ...step.reasons, ...srClockLengthHistoricalReading };
       expect(owner.targets.find((target) => target.id === targetId)?.readings).toEqual(readings);
-      return { targetId, targetKind: "derivation-step" as const, paper: "special-relativity", readings };
+      return {
+        targetId,
+        targetKind: "derivation-step" as const,
+        paper: "special-relativity",
+        readings,
+      };
     });
   });
-  const report = auditReadings({ targets, owners: [{
-    ownerBeadId: owner.ownerBeadId, fileName: owner.ownerBeadId + ".yaml",
-    paper: "special-relativity", targetKinds: ["derivation-step"], targetIds: targets.map((target) => target.targetId),
-  }] });
+  const report = auditReadings({
+    targets,
+    owners: [
+      {
+        ownerBeadId: owner.ownerBeadId,
+        fileName: owner.ownerBeadId + ".yaml",
+        paper: "special-relativity",
+        targetKinds: ["derivation-step"],
+        targetIds: targets.map((target) => target.targetId),
+      },
+    ],
+  });
   expect(report.findings.filter((finding) => finding.severity === "error")).toEqual([]);
 });

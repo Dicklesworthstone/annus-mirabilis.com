@@ -1,6 +1,9 @@
 import { expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
-import { srClockLengthChains, srClockLengthSourceLinks } from "../equations/derivations/srClocksAndLengths.ts";
+import {
+  srClockLengthChains,
+  srClockLengthSourceLinks,
+} from "../equations/derivations/srClocksAndLengths.ts";
 import { exportMarkup } from "../testing/exportMarkup.ts";
 import { PaperPage } from "./PaperPage.tsx";
 import { SRClocksAndLengthsDerivation } from "./SRClocksAndLengthsDerivation.tsx";
@@ -13,7 +16,7 @@ test("both full measurement chains, event choices and source returns are present
   }
   for (const source of srClockLengthSourceLinks) {
     expect(html).toContain('id="' + source.id + '"');
-    expect(html).toContain('/papers/special-relativity/view/german/#' + source.anchor);
+    expect(html).toContain("/papers/special-relativity/view/german/#" + source.anchor);
   }
   expect(html).toContain("<math");
   expect(html).toContain("<details");
@@ -27,7 +30,9 @@ test("both full measurement chains, event choices and source returns are present
 });
 
 test("the actual section route mounts the chains and the paper route returns to that section", async () => {
-  const section = await exportMarkup(await PaperPage({ paperId: "special-relativity", section: "s4" }));
+  const section = await exportMarkup(
+    await PaperPage({ paperId: "special-relativity", section: "s4" }),
+  );
   expect(section).toContain('id="sr-clock-length-derivation"');
   expect(section).toContain('id="sr-clock-length-clock"');
   expect(section).toContain('id="sr-clock-length-rod"');

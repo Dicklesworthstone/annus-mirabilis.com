@@ -54,6 +54,7 @@ import type { MassEnergyFirstEncounter } from "./entrances/MassEnergyFirstEncoun
 import type { LightQuantaDerivation } from "./LightQuantaDerivation.tsx";
 import type { PhotoelectricDerivation } from "./PhotoelectricDerivation.tsx";
 import type { SRChargeCurrentDerivation } from "./SRChargeCurrentDerivation.tsx";
+import type { SRClocksAndLengthsDerivation } from "./SRClocksAndLengthsDerivation.tsx";
 import type { SRCoordinateDerivation } from "./SRCoordinateDerivation.tsx";
 import type { SRDopplerDerivation } from "./SRDopplerDerivation.tsx";
 import type { SRElectronDerivation } from "./SRElectronDerivation.tsx";
@@ -62,7 +63,6 @@ import type { SRLightComplexDerivation } from "./SRLightComplexDerivation.tsx";
 import type { SRMirrorDerivation } from "./SRMirrorDerivation.tsx";
 import type { SRSynchronizationDerivation } from "./SRSynchronizationDerivation.tsx";
 import type { SRVelocityDerivation } from "./SRVelocityDerivation.tsx";
-import type { SRClocksAndLengthsDerivation } from "./SRClocksAndLengthsDerivation.tsx";
 import "./entrances/countingEntrance.css";
 import "./entrances/massEnergyEntrance.css";
 import "../equations/derivations/linearProof.css";
@@ -231,8 +231,12 @@ export function LazySRMirrorDerivation(props: ComponentProps<typeof SRMirrorDeri
 }
 
 const SRClocksAndLengthsSteps = lazy(() =>
-  import("./SRClocksAndLengthsDerivation.tsx").then((m) => ({ default: m.SRClocksAndLengthsDerivation })),
+  import("./SRClocksAndLengthsDerivation.tsx").then((m) => ({
+    default: m.SRClocksAndLengthsDerivation,
+  })),
 );
-export function LazySRClocksAndLengthsDerivation(props: ComponentProps<typeof SRClocksAndLengthsDerivation>) {
+export function LazySRClocksAndLengthsDerivation(
+  props: ComponentProps<typeof SRClocksAndLengthsDerivation>,
+) {
   return <SRClocksAndLengthsSteps {...props} />;
 }
