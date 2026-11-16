@@ -573,8 +573,10 @@ cards:
 
   - id: sr-moving-mirror
     support:
-      kind: "no-checked-proof"
-      reason: "The incident and reflected energy accounts are explained in the linked passages; no checked derivation record covers this moving-boundary result."
+      kind: "checked-proof"
+      proofId: "sr-moving-mirror"
+      conclusion: "eq-model-sr-mirror-frequency"
+      scope: "Given the wave transformations and ideal reflection in the mirror frame, the calculation obtains the reflected frequency and direction, then the energy rates across the moving surface. Energy balance determines pressure only for nonzero mirror speed; the stationary pressure uses a separate continuity premise. The light must reach the mirror. These conditional steps check the corrected canonical frequency denominator while preserving the printed source."
     title: "Light reflected by a moving mirror, and its pressure"
     section: s8
     arguments: [arg-sr-moving-mirror]

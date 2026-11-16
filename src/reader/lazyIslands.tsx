@@ -59,6 +59,7 @@ import type { SRDopplerDerivation } from "./SRDopplerDerivation.tsx";
 import type { SRElectronDerivation } from "./SRElectronDerivation.tsx";
 import type { SRFieldDerivation } from "./SRFieldDerivation.tsx";
 import type { SRLightComplexDerivation } from "./SRLightComplexDerivation.tsx";
+import type { SRMirrorDerivation } from "./SRMirrorDerivation.tsx";
 import type { SRSynchronizationDerivation } from "./SRSynchronizationDerivation.tsx";
 import type { SRVelocityDerivation } from "./SRVelocityDerivation.tsx";
 import "./entrances/countingEntrance.css";
@@ -219,4 +220,11 @@ export function LazySRChargeCurrentDerivation(
   props: ComponentProps<typeof SRChargeCurrentDerivation>,
 ) {
   return <SRChargeCurrentSteps {...props} />;
+}
+
+const SRMirrorSteps = lazy(() =>
+  import("./SRMirrorDerivation.tsx").then((m) => ({ default: m.SRMirrorDerivation })),
+);
+export function LazySRMirrorDerivation(props: ComponentProps<typeof SRMirrorDerivation>) {
+  return <SRMirrorSteps {...props} />;
 }

@@ -11,6 +11,7 @@ export const RESULT_PROOF_IDS = [
   "sr-velocity-composition",
   "sr-doppler-phase",
   "sr-light-complex-energy",
+  "sr-moving-mirror",
   "sr-charge-current",
   "sr-electron-force-conventions",
   "sr-electron-work",

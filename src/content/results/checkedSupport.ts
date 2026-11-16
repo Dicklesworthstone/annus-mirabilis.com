@@ -36,6 +36,7 @@ import volumeRecord from "../../../content/equations/special-relativity/eq-model
 import longitudinalRecord from "../../../content/equations/special-relativity/eq-model-sr-longitudinal-mass.json";
 import velocityPositionRecord from "../../../content/equations/special-relativity/eq-model-sr-map-position.json";
 import velocityTimeRecord from "../../../content/equations/special-relativity/eq-model-sr-map-time.json";
+import mirrorFrequencyRecord from "../../../content/equations/special-relativity/eq-model-sr-mirror-frequency.json";
 import syncCriterionRecord from "../../../content/equations/special-relativity/eq-model-sr-sync-equal-legs.json";
 import syncMidpointRecord from "../../../content/equations/special-relativity/eq-model-sr-sync-midpoint.json";
 import laboratoryRecord from "../../../content/equations/special-relativity/eq-model-sr-transverse-mass-laboratory.json";
@@ -69,6 +70,8 @@ import {
   srElectronWork,
 } from "../../equations/derivations/srElectron.ts";
 import { srLightComplexDerivation } from "../../equations/derivations/srLightComplex.ts";
+import { srMirrorAssumptions, srMirrorChains } from "../../equations/derivations/srMirror.ts";
+import { verifySRMirror } from "../../equations/derivations/srMirrorProof.ts";
 import { srSynchronizationChain } from "../../equations/derivations/srSynchronization.ts";
 import { srVelocityChains } from "../../equations/derivations/srVelocityComposition.ts";
 import { verifySRVelocityComposition } from "../../equations/derivations/srVelocityProof.ts";
@@ -159,6 +162,16 @@ const DERIVATION_PROOFS: Readonly<Record<DerivationProofId, DerivationProof>> = 
     chains: srDopplerChains,
     verify: verifySRDoppler,
     premises: srDopplerAssumptions,
+  },
+  "sr-moving-mirror": {
+    paper: "special-relativity",
+    conclusion: mirrorFrequencyRecord.id,
+    title: "Follow reflection through moving-surface energy transfer to pressure",
+    href: "/papers/special-relativity/s8/#sr-mirror-derivation",
+    records: [dopplerRecord, aberrationRecord, mirrorFrequencyRecord],
+    chains: srMirrorChains,
+    verify: verifySRMirror,
+    premises: srMirrorAssumptions,
   },
   "sr-charge-current": {
     paper: "special-relativity",

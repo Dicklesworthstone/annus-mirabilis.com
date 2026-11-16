@@ -64,6 +64,7 @@ import {
   LazySRElectronDerivation,
   LazySRFieldDerivation,
   LazySRLightComplexDerivation,
+  LazySRMirrorDerivation,
   LazySRSynchronizationDerivation,
   LazySRVelocityDerivation,
 } from "./lazyIslands.tsx";
@@ -769,6 +770,17 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                           <p className="fine">
                             <a href="/papers/special-relativity/s7/#sr-doppler-derivation">
                               Follow one wave phase to its frequency and direction in another frame
+                            </a>
+                          </p>
+                        ))}
+                      {paper.id === "special-relativity" &&
+                        a.id === "arg-sr-moving-mirror" &&
+                        (sectionId ? (
+                          <LazySRMirrorDerivation />
+                        ) : (
+                          <p className="fine">
+                            <a href="/papers/special-relativity/s8/#sr-mirror-derivation">
+                              Follow the reflected wave through its energy transfer and pressure
                             </a>
                           </p>
                         ))}
