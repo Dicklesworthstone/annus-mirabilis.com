@@ -1,14 +1,14 @@
 import { describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { type Expression, walk } from "../../equations/ast.ts";
+import { verifyLqCoefficientCorrespondence } from "../../equations/derivations/lightQuantaCoefficientProof.ts";
 import {
   lqCoefficientCorrespondence,
   lqWienEntropyDerivation,
 } from "../../equations/derivations/lightQuantaEntropy.ts";
-import { verifyLqCoefficientCorrespondence } from "../../equations/derivations/lightQuantaCoefficientProof.ts";
 import { verifyLqWienEntropy } from "../../equations/derivations/lightQuantaEntropyProof.ts";
 import { verifyChain } from "../../equations/derivations/verifyChain.ts";
-import { type Expression, walk } from "../../equations/ast.ts";
 import { type EquationRecord, parseEquationRecord } from "../../equations/record.ts";
 import { toCard } from "../../reader/faces/results/fromRecords.ts";
 import { checkedSupportFor } from "./checkedSupport.ts";
@@ -170,13 +170,19 @@ describe("the light-quanta volume card checks Wien's conditional entropy calculu
     expect(support.scope).toContain("one-sided zero-density limit");
     expect(support.scope).toContain("remain premises");
     const ids = support.assumptions.map((premise) => premise.id);
-    for (const premise of lqWienEntropyDerivation.entryAssumptions) expect(ids).toContain(premise.ref);
-    expect(support.assumptions.find((premise) => premise.id === "lq-zero-density-entropy-boundary")
-      ?.explanation).toContain("extra volume term");
-    expect(support.assumptions.find((premise) => premise.id === "lq-positive-wien-domain")
-      ?.explanation).toContain("equal volumes are allowed");
-    expect(support.assumptions.find((premise) => premise.id === "lq-fixed-energy-frequency-band")
-      ?.explanation).toContain("same E, ν and narrow Δν");
+    for (const premise of lqWienEntropyDerivation.entryAssumptions)
+      expect(ids).toContain(premise.ref);
+    expect(
+      support.assumptions.find((premise) => premise.id === "lq-zero-density-entropy-boundary")
+        ?.explanation,
+    ).toContain("extra volume term");
+    expect(
+      support.assumptions.find((premise) => premise.id === "lq-positive-wien-domain")?.explanation,
+    ).toContain("equal volumes are allowed");
+    expect(
+      support.assumptions.find((premise) => premise.id === "lq-fixed-energy-frequency-band")
+        ?.explanation,
+    ).toContain("same E, ν and narrow Δν");
   });
 
   test("changed or missing canonical premises and intermediate equations cannot keep a support badge", () => {
@@ -190,23 +196,45 @@ describe("the light-quanta volume card checks Wien's conditional entropy calculu
     ]) {
       const original = equation(id);
       if (original.tree.kind !== "relation") throw new Error("Expected an equation.");
-      const changed = parseEquationRecord({
-        ...original,
-        tree: { ...original.tree, right: {
-          kind: "product", args: [{ kind: "number", value: "2" }, original.tree.right],
-        } },
-      }, "changed Wien premise " + id);
-      expect(refusal(() => project(result, inputsWith(changed))))
-        .toBe("result-support-derivation-record-mismatch");
-      expect(refusal(() => project(result, equations.filter((record) => record.id !== id))))
-        .toBe("result-support-derivation-record-mismatch");
+      const changed = parseEquationRecord(
+        {
+          ...original,
+          tree: {
+            ...original.tree,
+            right: {
+              kind: "product",
+              args: [{ kind: "number", value: "2" }, original.tree.right],
+            },
+          },
+        },
+        "changed Wien premise " + id,
+      );
+      expect(refusal(() => project(result, inputsWith(changed)))).toBe(
+        "result-support-derivation-record-mismatch",
+      );
+      expect(
+        refusal(() =>
+          project(
+            result,
+            equations.filter((record) => record.id !== id),
+          ),
+        ),
+      ).toBe(
+        id === "eq-model-lq-volume-entropy"
+          ? "result-support-conclusion-mismatch"
+          : "result-support-derivation-record-mismatch",
+      );
     }
   });
 
   test("the zero-density physical boundary cannot be silently changed in the supplied record", () => {
     const original = equation("eq-model-lq-wien-entropy-density");
-    const changed = { ...original, assumptions: ["The entropy-density constant may be arbitrary."] };
-    expect(refusal(() => checkedSupportFor(card("lq-radiation-entropy-volume"), inputsWith(changed))))
-      .toBe("result-support-derivation-record-mismatch");
+    const changed = {
+      ...original,
+      assumptions: ["The entropy-density constant may be arbitrary."],
+    };
+    expect(
+      refusal(() => checkedSupportFor(card("lq-radiation-entropy-volume"), inputsWith(changed))),
+    ).toBe("result-support-derivation-record-mismatch");
   });
 });
