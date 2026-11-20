@@ -229,6 +229,77 @@ describe("optional choices on the rendered discovery fork", () => {
     expect(window.document.activeElement).toBe(radios()[0]);
   });
 
+  for (const clearAll of [false, true])
+    test(`a queued ${clearAll ? "storage-wide" : "journey"} clear still protects pending choices after newer bytes arrive`, async () => {
+      const storage = window.localStorage;
+      const original = JSON.stringify({ schemaVersion: 1, choices: { "fork-old": "old-idea" } });
+      storage.setItem(KEY, original);
+      let full = true;
+      Object.defineProperty(window, "localStorage", {
+        configurable: true,
+        value: {
+          get length() {
+            return storage.length;
+          },
+          getItem: (key: string) => storage.getItem(key),
+          setItem(key: string, value: string) {
+            if (full) throw new DOMException("Full", "QuotaExceededError");
+            storage.setItem(key, value);
+          },
+        },
+      });
+      await mount();
+      await click(radios()[0]);
+      await click(radios(secondFork.id)[1]);
+      const remote = JSON.stringify({ schemaVersion: 1, choices: { "fork-remote": "new-idea" } });
+      await act(async () => {
+        // Another tab completes both operations before this page receives either queued event.
+        if (clearAll) storage.clear();
+        else storage.removeItem(KEY);
+        storage.setItem(KEY, remote);
+        window.dispatchEvent(
+          new StorageEvent("storage", {
+            key: clearAll ? null : KEY,
+            oldValue: clearAll ? null : original,
+            newValue: null,
+          }),
+        );
+        window.dispatchEvent(new StorageEvent("storage", { key: KEY, newValue: remote }));
+      });
+      expect(radios()[0]?.checked).toBe(true);
+      expect(radios(secondFork.id)[1]?.checked).toBe(true);
+      expect(island().textContent).toContain("Another tab changed or cleared");
+      expect(island(secondFork.id).textContent).toContain("Another tab changed or cleared");
+      expect(storage.getItem(KEY)).toBe(remote);
+      full = false;
+      await click(
+        [...island().querySelectorAll("button")].find(
+          (button) => button.textContent === "Keep this page's choice",
+        ),
+      );
+      expect(storage.getItem(KEY)).toBe(remote);
+      // Confirming one fork and retrying may not restore the other without its own consent.
+      await click(
+        [...island().querySelectorAll("button")].find(
+          (button) => button.textContent === "Try saving again",
+        ),
+      );
+      expect(storage.getItem(KEY)).toBe(remote);
+      expect(island(secondFork.id).textContent).toContain("Another tab changed or cleared");
+      await click(
+        [...island(secondFork.id).querySelectorAll("button")].find(
+          (button) => button.textContent === "Keep this page's choice",
+        ),
+      );
+      expect(document().choices).toEqual({
+        "fork-remote": "new-idea",
+        [firstFork.id]: firstFork.branches[0]?.id,
+        [secondFork.id]: secondFork.branches[1]?.id,
+      });
+      expect(island().textContent).toContain("Kept on this device.");
+      expect(island(secondFork.id).textContent).toContain("Kept on this device.");
+    });
+
   for (const cleared of [false, true])
     test(`a competing saved choice keeps the local ${cleared ? "clear" : "selection"} until explicitly confirmed`, async () => {
       const storage = window.localStorage;

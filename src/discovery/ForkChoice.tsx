@@ -6,6 +6,7 @@ import {
   clearJourneyChoice,
   JOURNEY_STORAGE_NAMESPACE,
   type JourneyWriteStatus,
+  notifyJourneyStorageClear,
   readJourneyState,
   retryJourneyChoices,
   saveJourneyChoice,
@@ -117,6 +118,8 @@ export function ForkChoice({
     }
     function storageChanged(event: StorageEvent) {
       if (event.key !== null && event.key !== JOURNEY_STORAGE_NAMESPACE) return;
+      // The event records a clear that newer durable bytes may already have replaced.
+      if (event.newValue === null) notifyJourneyStorageClear(ctx);
       // Refresh durable choices without discarding this page's unsaved selections.
       restore();
     }

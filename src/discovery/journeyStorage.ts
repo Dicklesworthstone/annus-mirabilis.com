@@ -162,6 +162,11 @@ export function readJourneyState(ctx: StorageContext): JourneyReadResult {
   };
 }
 
+/** A queued clear still requires consent even if another tab has already saved newer bytes. */
+export function notifyJourneyStorageClear(ctx: StorageContext): void {
+  for (const change of sessionFor(ctx).pending.values()) change.conflict = true;
+}
+
 function writeJourneyState(ctx: StorageContext): JourneyWriteResult {
   const registration = ctx.registry.get(JOURNEY_STORAGE_NAMESPACE);
   if (
