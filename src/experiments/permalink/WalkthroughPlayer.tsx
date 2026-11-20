@@ -15,6 +15,8 @@ import {
   type WalkthroughLocation,
 } from "./walkthroughLocation.ts";
 
+type PlayerOutcome = WalkthroughAction | Readonly<{ kind: "cancelled"; notice: string }>;
+
 async function loadCatalogue(): Promise<WalkthroughCatalogue> {
   const { WALKTHROUGH_CATALOGUE } = await import("./walkthroughCatalogue.ts");
   return WALKTHROUGH_CATALOGUE;
@@ -41,27 +43,62 @@ export function WalkthroughPlayer({
   const [retry, setRetry] = useState(0);
   const [tapeId, setTapeId] = useState("");
   const [manualIndex, setIndex] = useState(0);
-  const [result, setResult] = useState<WalkthroughAction | null>(null);
+  const [result, setResult] = useState<PlayerOutcome | null>(null);
   const [working, setWorking] = useState(false);
   const pendingAction = useRef<AbortController | null>(null);
+  const actionTrigger = useRef<HTMLButtonElement | null>(null);
   const [location, setLocation] = useState<WalkthroughLocation>({ kind: "absent" });
   const experimentId = target.experimentId;
 
-  useEffect(() => () => pendingAction.current?.abort(), []);
+  useEffect(
+    () => () => {
+      const controller = pendingAction.current;
+      pendingAction.current = null;
+      controller?.abort();
+    },
+    [],
+  );
 
-  async function run(action: (signal: AbortSignal) => Promise<WalkthroughAction>) {
+  // The cancellation control disappears after use. Return keyboard focus only after React has
+  // re-enabled the original action, rather than leaving it on the document body.
+  useEffect(() => {
+    if (result?.kind === "cancelled") actionTrigger.current?.focus();
+  }, [result]);
+
+  async function run(
+    action: (signal: AbortSignal) => Promise<WalkthroughAction>,
+    trigger: HTMLButtonElement,
+  ) {
     if (pendingAction.current) return;
     const controller = new AbortController();
     pendingAction.current = controller;
+    actionTrigger.current = trigger;
     setWorking(true);
     setResult(null);
     try {
       const outcome = await action(controller.signal);
-      if (!controller.signal.aborted) setResult(outcome);
+      if (pendingAction.current === controller && !controller.signal.aborted) setResult(outcome);
     } finally {
-      if (pendingAction.current === controller) pendingAction.current = null;
-      if (!controller.signal.aborted) setWorking(false);
+      // An old adapter may finish after cancellation and a fresh action. It owns neither the
+      // new feedback nor the new action's busy state.
+      if (pendingAction.current === controller) {
+        pendingAction.current = null;
+        if (!controller.signal.aborted) setWorking(false);
+      }
     }
+  }
+
+  function cancel() {
+    const controller = pendingAction.current;
+    if (!controller) return;
+    pendingAction.current = null;
+    controller.abort();
+    setWorking(false);
+    setResult({
+      kind: "cancelled",
+      notice:
+        "Calculation cancelled. The laboratory keeps its last accepted result. You can retry this stop or choose another.",
+    });
   }
 
   useEffect(
@@ -250,9 +287,11 @@ export function WalkthroughPlayer({
                 <button
                   type="button"
                   disabled={!checkpoint || (!formOnly && !checkpoint.tape)}
-                  onClick={() =>
-                    void run((signal) =>
-                      applyWalkthroughCheckpointAsync(target, walkthrough, index, signal),
+                  onClick={(event) =>
+                    void run(
+                      (signal) =>
+                        applyWalkthroughCheckpointAsync(target, walkthrough, index, signal),
+                      event.currentTarget,
                     )
                   }
                 >
@@ -264,9 +303,11 @@ export function WalkthroughPlayer({
                   <button
                     type="button"
                     style={{ whiteSpace: "normal", maxWidth: "100%" }}
-                    onClick={() =>
-                      void run((signal) =>
-                        calculateWalkthroughCheckpointAsync(target, walkthrough, index, signal),
+                    onClick={(event) =>
+                      void run(
+                        (signal) =>
+                          calculateWalkthroughCheckpointAsync(target, walkthrough, index, signal),
+                        event.currentTarget,
                       )
                     }
                   >
@@ -291,6 +332,14 @@ export function WalkthroughPlayer({
             </p>
           )}
         </fieldset>
+      )}
+      {working && (
+        <p>
+          {/* Outside the disabled fieldset: a paused or stalled worker still has an operable exit. */}
+          <button type="button" onClick={cancel}>
+            Cancel calculation
+          </button>
+        </p>
       )}
       <p>
         <a href="/tapes/">Browse all recorded walkthroughs</a>

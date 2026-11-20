@@ -2,6 +2,7 @@ import { afterEach, beforeEach, expect, test } from "bun:test";
 import { act, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { installDom, uninstallDom } from "../../testing/reactDom.ts";
+import { FIXTURE_TEACHING_TAPE_EINSTEIN_08 } from "./fixture.ts";
 import type { TapeV2 } from "./types.ts";
 import { WalkthroughPlayer } from "./WalkthroughPlayer.tsx";
 import type {
@@ -166,7 +167,11 @@ test("the player stays busy until the worker action resolves and aborts an actio
       });
     },
   };
-  const tape = { tapeVersion: 2 } as TapeV2;
+  const tape: TapeV2 = {
+    ...FIXTURE_TEACHING_TAPE_EINSTEIN_08,
+    experimentId: "sr-03",
+    mode: "sr-03:default",
+  };
   const load = async (): Promise<WalkthroughCatalogue> => ({
     walkthroughs: [
       {
