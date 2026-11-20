@@ -318,8 +318,8 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
   function fail(
     id: Exclude<ExecutionOutcomeId, "budget-exhausted">,
     details?: ExecutionOutcome["details"],
+    token: RequestToken | null = pending ?? active,
   ): void {
-    const token = pending ?? active;
     pending = null;
     failures++;
     // Release the old worker before publication: a store subscriber may immediately retry.
@@ -397,6 +397,16 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
               return;
             }
             const response = protocol.decodeResponse(message, token, sourceDigest);
+            if (
+              response.token.instanceId === token.instanceId &&
+              response.token.experimentId === token.experimentId &&
+              response.token.actionIndex < token.actionIndex
+            ) {
+              // A decoded late packet does not finish the current request. Keep its deadline,
+              // active token and worker reservation until its own response arrives.
+              notify("stale", response.token);
+              return;
+            }
             clearDeadline();
             active = null;
             releaseAdmission();
@@ -422,6 +432,18 @@ export function createDedicatedScheduler(options: DedicatedSchedulerOptions): De
               decision = store.refuse(response.token, response.result.refusal);
             } else {
               decision = store.fail(response.token, response.result.outcome);
+            }
+
+            if (
+              !decision.accepted &&
+              store.getSnapshot().requested === token &&
+              store.getSnapshot().pending
+            ) {
+              // The current response failed publication, rather than losing a race to newer
+              // inputs. Its deadline is already cleared: leaving it pending would never finish.
+              // Close before notifying subscribers so an immediate retry owns a fresh worker.
+              fail("invariant-violation", { reason: decision.reason }, token);
+              return;
             }
 
             notify(decision.accepted ? "completed" : "stale", response.token ?? token);
