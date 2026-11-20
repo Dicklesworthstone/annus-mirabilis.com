@@ -7,6 +7,7 @@ import {
   getJourneyChoice,
   JOURNEY_STORAGE_NAMESPACE,
   readJourneyState,
+  retryJourneyChoices,
   saveJourneyChoice,
 } from "./journeyStorage.ts";
 
@@ -152,5 +153,173 @@ describe("journeyStorage", () => {
     const predictionsEntry = storageKeyRegistry.get("am:predictions:v1");
     expect(predictionsEntry?.ownerBeadId).toBe("am-inst-predict-mode-ti7m");
     expect(predictionsEntry?.ownerBeadId).not.toBe("am-disc-journey-framework-umbg");
+  });
+
+  test("quota recovery combines unsaved choices with other tabs' changes at different forks", () => {
+    const storage = createMemoryStorage();
+    let full = true;
+    const limited: Storage = {
+      ...storage,
+      setItem(key, value) {
+        if (full) throw new DOMException("Full", "QuotaExceededError");
+        storage.setItem(key, value);
+      },
+    };
+    const local = createStorageContext({ getStorage: () => limited });
+    const remote = createStorageContext({ getStorage: () => storage });
+    expect(saveJourneyChoice(local, "fork-local", "local-idea").status).toBe("quota");
+    expect(saveJourneyChoice(remote, "fork-remote", "remote-idea").status).toBe("ok");
+    full = false;
+    expect(saveJourneyChoice(local, "fork-next", "next-idea").status).toBe("ok");
+    expect(readJourneyState(remote).value?.choices).toEqual({
+      "fork-local": "local-idea",
+      "fork-remote": "remote-idea",
+      "fork-next": "next-idea",
+    });
+  });
+
+  test("competing changes to one fork preserve both versions until the reader chooses again", () => {
+    const storage = createMemoryStorage();
+    let full = true;
+    const local = createStorageContext({
+      getStorage: () => ({
+        ...storage,
+        setItem(key, value) {
+          if (full) throw new DOMException("Full", "QuotaExceededError");
+          storage.setItem(key, value);
+        },
+      }),
+    });
+    const remote = createStorageContext({ getStorage: () => storage });
+    saveJourneyChoice(local, "fork-shared", "local-idea");
+    saveJourneyChoice(remote, "fork-shared", "remote-idea");
+    const saved = storage.getItem(JOURNEY_STORAGE_NAMESPACE);
+    full = false;
+    const read = readJourneyState(local);
+    expect(read.value?.choices["fork-shared"]).toBe("local-idea");
+    expect(read.conflicts).toContain("fork-shared");
+    expect(retryJourneyChoices(local).status).toBe("conflict");
+    expect(storage.getItem(JOURNEY_STORAGE_NAMESPACE)).toBe(saved);
+    expect(saveJourneyChoice(local, "fork-other", "other-idea").status).toBe("conflict");
+    expect(storage.getItem(JOURNEY_STORAGE_NAMESPACE)).toBe(saved);
+    expect(getJourneyChoice(local, "fork-other")).toBe("other-idea");
+    expect(saveJourneyChoice(local, "fork-shared", "local-idea").status).toBe("ok");
+    expect(readJourneyState(remote).value?.choices).toEqual({
+      "fork-shared": "local-idea",
+      "fork-other": "other-idea",
+    });
+  });
+
+  test("a failed clear is merged without restoring that fork or losing another tab's new choice", () => {
+    const storage = createMemoryStorage();
+    const remote = createStorageContext({ getStorage: () => storage });
+    saveJourneyChoice(remote, "fork-cleared", "old-idea");
+    let full = true;
+    const local = createStorageContext({
+      getStorage: () => ({
+        ...storage,
+        setItem(key, value) {
+          if (full) throw new DOMException("Full", "QuotaExceededError");
+          storage.setItem(key, value);
+        },
+      }),
+    });
+    expect(clearJourneyChoice(local, "fork-cleared").status).toBe("quota");
+    saveJourneyChoice(remote, "fork-remote", "remote-idea");
+    full = false;
+    expect(saveJourneyChoice(local, "fork-next", "next-idea").status).toBe("ok");
+    expect(readJourneyState(remote).value?.choices).toEqual({
+      "fork-remote": "remote-idea",
+      "fork-next": "next-idea",
+    });
+  });
+
+  test("unknown durable choices are never replaced when reading fails but writing would succeed", () => {
+    const storage = createMemoryStorage();
+    const saved = JSON.stringify({ schemaVersion: 1, choices: { "fork-remote": "remote-idea" } });
+    storage.setItem(JOURNEY_STORAGE_NAMESPACE, saved);
+    let blocked = true;
+    let writes = 0;
+    const local = createStorageContext({
+      getStorage: () => ({
+        ...storage,
+        getItem(key) {
+          if (blocked) throw new DOMException("Unreadable", "SecurityError");
+          return storage.getItem(key);
+        },
+        setItem(key, value) {
+          writes++;
+          storage.setItem(key, value);
+        },
+      }),
+    });
+    expect(saveJourneyChoice(local, "fork-local", "local-idea").status).toBe("unavailable");
+    expect(writes).toBe(0);
+    expect(storage.getItem(JOURNEY_STORAGE_NAMESPACE)).toBe(saved);
+    expect(getJourneyChoice(local, "fork-local")).toBe("local-idea");
+    blocked = false;
+    expect(saveJourneyChoice(local, "fork-local", "local-idea").status).toBe("ok");
+    expect(readJourneyState(local).value?.choices).toEqual({
+      "fork-remote": "remote-idea",
+      "fork-local": "local-idea",
+    });
+  });
+
+  test("a clear in another tab does not discard unsaved work or silently resurrect it", () => {
+    const storage = createMemoryStorage();
+    const remote = createStorageContext({ getStorage: () => storage });
+    saveJourneyChoice(remote, "fork-old", "old-idea");
+    let full = true;
+    const local = createStorageContext({
+      getStorage: () => ({
+        ...storage,
+        setItem(key, value) {
+          if (full) throw new DOMException("Full", "QuotaExceededError");
+          storage.setItem(key, value);
+        },
+      }),
+    });
+    expect(saveJourneyChoice(local, "fork-local", "local-idea").status).toBe("quota");
+    storage.removeItem(JOURNEY_STORAGE_NAMESPACE);
+    full = false;
+    expect(readJourneyState(local).conflicts).toContain("fork-local");
+    expect(getJourneyChoice(local, "fork-local")).toBe("local-idea");
+    expect(storage.getItem(JOURNEY_STORAGE_NAMESPACE)).toBe(null);
+    expect(saveJourneyChoice(local, "fork-local", "local-idea").status).toBe("ok");
+    expect(readJourneyState(remote).value?.choices).toEqual({ "fork-local": "local-idea" });
+  });
+
+  test("resolving one pending fork after an external clear cannot revive another without consent", () => {
+    const storage = createMemoryStorage();
+    const remote = createStorageContext({ getStorage: () => storage });
+    saveJourneyChoice(remote, "fork-old", "old-idea");
+    let full = true;
+    const local = createStorageContext({
+      getStorage: () => ({
+        ...storage,
+        setItem(key, value) {
+          if (full) throw new DOMException("Full", "QuotaExceededError");
+          storage.setItem(key, value);
+        },
+      }),
+    });
+    saveJourneyChoice(local, "fork-first", "first-idea");
+    saveJourneyChoice(local, "fork-second", "second-idea");
+    storage.removeItem(JOURNEY_STORAGE_NAMESPACE);
+    full = false;
+    expect(readJourneyState(local).conflicts).toEqual(["fork-first", "fork-second"]);
+    // Another saved choice after the clear is not consent to restore either pending choice.
+    saveJourneyChoice(remote, "fork-new", "new-idea");
+    const saved = storage.getItem(JOURNEY_STORAGE_NAMESPACE);
+    expect(readJourneyState(local).conflicts).toEqual(["fork-first", "fork-second"]);
+    expect(saveJourneyChoice(local, "fork-first", "first-idea").status).toBe("conflict");
+    expect(readJourneyState(local).conflicts).toEqual(["fork-second"]);
+    expect(storage.getItem(JOURNEY_STORAGE_NAMESPACE)).toBe(saved);
+    expect(saveJourneyChoice(local, "fork-second", "second-idea").status).toBe("ok");
+    expect(readJourneyState(remote).value?.choices).toEqual({
+      "fork-new": "new-idea",
+      "fork-first": "first-idea",
+      "fork-second": "second-idea",
+    });
   });
 });

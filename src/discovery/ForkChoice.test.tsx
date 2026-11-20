@@ -183,4 +183,108 @@ describe("optional choices on the rendered discovery fork", () => {
     expect(radios().some((radio) => radio.checked)).toBe(false);
     expect(window.localStorage.getItem(KEY)).toBe(null);
   });
+
+  test("an external update preserves an unsaved choice at another question and both save on recovery", async () => {
+    const storage = window.localStorage;
+    let full = true;
+    Object.defineProperty(window, "localStorage", {
+      configurable: true,
+      value: {
+        get length() {
+          return storage.length;
+        },
+        getItem: (key: string) => storage.getItem(key),
+        setItem(key: string, value: string) {
+          if (full) throw new DOMException("Full", "QuotaExceededError");
+          storage.setItem(key, value);
+        },
+      },
+    });
+    await mount();
+    await click(radios()[0]);
+    const remote = JSON.stringify({
+      schemaVersion: 1,
+      choices: { [secondFork.id]: secondFork.branches[1]?.id },
+    });
+    await act(async () => {
+      storage.setItem(KEY, remote);
+      window.dispatchEvent(new StorageEvent("storage", { key: KEY, newValue: remote }));
+    });
+    expect(radios()[0]?.checked).toBe(true);
+    expect(radios(secondFork.id)[1]?.checked).toBe(true);
+    expect(storage.getItem(KEY)).toBe(remote);
+    expect(island().textContent).toContain("only while this page is open");
+    full = false;
+    await click(
+      [...island().querySelectorAll("button")].find(
+        (button) => button.textContent === "Try saving again",
+      ),
+    );
+    expect(document().choices).toEqual({
+      [firstFork.id]: firstFork.branches[0]?.id,
+      [secondFork.id]: secondFork.branches[1]?.id,
+    });
+    expect(island().textContent).toContain("Kept on this device.");
+    expect(island().textContent).not.toContain("only while this page is open");
+    expect(window.document.activeElement).toBe(radios()[0]);
+  });
+
+  for (const cleared of [false, true])
+    test(`a competing saved choice keeps the local ${cleared ? "clear" : "selection"} until explicitly confirmed`, async () => {
+      const storage = window.localStorage;
+      storage.setItem(
+        KEY,
+        JSON.stringify({
+          schemaVersion: 1,
+          choices: { [firstFork.id]: firstFork.branches[0]?.id },
+        }),
+      );
+      let full = true;
+      Object.defineProperty(window, "localStorage", {
+        configurable: true,
+        value: {
+          get length() {
+            return storage.length;
+          },
+          getItem: (key: string) => storage.getItem(key),
+          setItem(key: string, value: string) {
+            if (full) throw new DOMException("Full", "QuotaExceededError");
+            storage.setItem(key, value);
+          },
+        },
+      });
+      await mount();
+      await click(cleared ? island().querySelector("button") : radios()[1]);
+      const remote = JSON.stringify({
+        schemaVersion: 1,
+        choices: { [firstFork.id]: cleared ? firstFork.branches[1]?.id : "another-tab-idea" },
+      });
+      await act(async () => {
+        storage.setItem(KEY, remote);
+        window.dispatchEvent(new StorageEvent("storage", { key: KEY, newValue: remote }));
+      });
+      expect(
+        radios()
+          .filter((radio) => radio.checked)
+          .map((radio) => radio.value),
+      ).toEqual(cleared ? [] : [firstFork.branches[1]?.id]);
+      expect(island().textContent).toContain("Another tab changed or cleared");
+      expect(storage.getItem(KEY)).toBe(remote);
+      full = false;
+      await click(
+        [...island().querySelectorAll("button")].find(
+          (button) => button.textContent === "Keep this page's choice",
+        ),
+      );
+      expect(document().choices[firstFork.id]).toBe(
+        cleared ? undefined : firstFork.branches[1]?.id,
+      );
+      expect(island().textContent).not.toContain("Another tab changed or cleared");
+      expect(window.document.activeElement).toBe(radios()[0]);
+      expect(
+        [...island().querySelectorAll("button")].some(
+          (button) => button.textContent === "Keep this page's choice",
+        ),
+      ).toBe(false);
+    });
 });

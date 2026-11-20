@@ -1,20 +1,18 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import {
-  createStorageContext,
-  type StorageContext,
-  type WriteStatus,
-} from "../platform/storage/store.ts";
+import { createStorageContext, type StorageContext } from "../platform/storage/store.ts";
 import {
   clearJourneyChoice,
   JOURNEY_STORAGE_NAMESPACE,
+  type JourneyWriteStatus,
   readJourneyState,
+  retryJourneyChoices,
   saveJourneyChoice,
 } from "./journeyStorage.ts";
 
 type Choice = Readonly<{ id: string; label: string }>;
-type ChoiceChange = Readonly<{ forkId: string; status: WriteStatus; cleared: boolean }>;
+type ChoiceChange = Readonly<{ forkId: string; status: JourneyWriteStatus; cleared: boolean }>;
 const CHANGE_EVENT = "am:journey-choice-change";
 
 // Forks on the same page share fallback memory as well as durable storage. Release it when the
@@ -34,6 +32,8 @@ interface ChoiceView {
   ready: boolean;
   selected: string | undefined;
   hasChoice: boolean;
+  pending: boolean;
+  conflict: boolean;
   message: string;
 }
 
@@ -57,6 +57,8 @@ export function ForkChoice({
     ready: false,
     selected: undefined,
     hasChoice: false,
+    pending: false,
+    conflict: false,
     message: "",
   });
 
@@ -71,7 +73,8 @@ export function ForkChoice({
           ? read.value.choices[forkId]
           : undefined;
       const selected = choices.find((choice) => choice.id === saved)?.id;
-      const temporary = ctx.fallback.has(JOURNEY_STORAGE_NAMESPACE);
+      const temporary = read.pending?.includes(forkId) === true;
+      const conflict = read.conflicts?.includes(forkId) === true;
       let message = selected ? "Kept on this device." : "";
       if (change?.cleared) message = "Your choice is cleared on this device.";
       if (temporary || read.status === "unavailable") {
@@ -86,22 +89,35 @@ export function ForkChoice({
       }
       if (change?.status === "unregistered")
         message = "The change could not be kept on this device.";
+      if (change?.status === "conflict" && temporary)
+        message =
+          "This choice stays in this page until the competing changes at the other questions are resolved.";
+      if (conflict)
+        message =
+          "Another tab changed or cleared the saved choice. This page keeps your choice here. Keep this page's choice to save it, or reload to use the saved version.";
       if (saved && !selected)
         message =
           "The saved choice is not part of this version of the question. You can choose again or clear it.";
       if (read.status === "corrupt")
         message =
           "Your saved choices could not be read. The earlier data is retained in Your data on this device; you can make a new choice.";
-      setView({ ready: true, selected, hasChoice: saved !== undefined, message });
+      setView({
+        ready: true,
+        selected,
+        hasChoice: saved !== undefined,
+        pending: temporary,
+        conflict,
+        message,
+      });
     }
     function changed(event: Event) {
       const change = (event as CustomEvent<ChoiceChange>).detail;
-      if (change.forkId === forkId) restore(change);
+      // One successful write can save several pending forks after storage recovers.
+      restore(change.forkId === forkId ? change : undefined);
     }
     function storageChanged(event: StorageEvent) {
       if (event.key !== null && event.key !== JOURNEY_STORAGE_NAMESPACE) return;
-      // An explicit change or clear in another tab supersedes a temporary local copy too.
-      ctx.fallback.delete(JOURNEY_STORAGE_NAMESPACE);
+      // Refresh durable choices without discarding this page's unsaved selections.
       restore();
     }
     restore();
@@ -130,6 +146,22 @@ export function ForkChoice({
       }),
     );
     if (choiceId === undefined) firstChoice.current?.focus();
+  }
+
+  function savePending() {
+    const ctx = context.current;
+    if (!ctx) return;
+    if (view.conflict) choose(view.selected);
+    else {
+      const result = retryJourneyChoices(ctx);
+      window.dispatchEvent(
+        new CustomEvent<ChoiceChange>(CHANGE_EVENT, {
+          detail: { forkId, status: result.status, cleared: !view.hasChoice },
+        }),
+      );
+    }
+    // Saving removes this button, so return keyboard focus to the stable question controls.
+    firstChoice.current?.focus();
   }
 
   const selected = choices.find((choice) => choice.id === view.selected);
@@ -162,6 +194,11 @@ export function ForkChoice({
         <button type="button" disabled={!view.hasChoice} onClick={() => choose()}>
           Clear my choice
         </button>
+        {view.pending && (
+          <button type="button" onClick={savePending}>
+            {view.conflict ? "Keep this page's choice" : "Try saving again"}
+          </button>
+        )}
       </fieldset>
       {selected && (
         <p className="fine journey-choice-summary">

@@ -16,10 +16,9 @@ import {
 import { QUARANTINE_KEY, quarantine } from "../platform/storage/quarantine.ts";
 import {
   type ReadResult,
-  readRaw,
   removeRaw,
   type StorageContext,
-  type WriteResult,
+  type WriteStatus,
   writeRaw,
 } from "../platform/storage/store.ts";
 
@@ -37,9 +36,48 @@ export const DEFAULT_JOURNEY_STATE: JourneyStateDocument = {
   choices: {},
 };
 
-// If quarantine itself cannot be saved, keep the unreadable durable original. A new choice
-// still works in memory, but must not overwrite the only retained copy of the earlier data.
-const preserveOriginal = new WeakSet<StorageContext>();
+export type JourneyReadResult = ReadResult<JourneyStateDocument> &
+  Readonly<{ pending?: readonly string[]; conflicts?: readonly string[] }>;
+export type JourneyWriteStatus = WriteStatus | "conflict";
+export type JourneyWriteResult = Readonly<{ status: JourneyWriteStatus }>;
+
+type DurableJourney = Readonly<{
+  status: ReadResult["status"];
+  raw: string | null | undefined;
+  value: JourneyStateDocument;
+  writable: boolean;
+}>;
+type PendingChoice = {
+  before: string | undefined;
+  after: string | undefined;
+  known: boolean;
+  baseExisted: boolean;
+  conflict: boolean;
+};
+type JourneySession = {
+  known?: DurableJourney;
+  latest?: DurableJourney;
+  pending: Map<string, PendingChoice>;
+};
+const sessions = new WeakMap<StorageContext, JourneySession>();
+function sessionFor(ctx: StorageContext): JourneySession {
+  let session = sessions.get(ctx);
+  if (!session) {
+    session = { pending: new Map() };
+    sessions.set(ctx, session);
+  }
+  return session;
+}
+function choiceAt(document: JourneyStateDocument, id: string): string | undefined {
+  return Object.hasOwn(document.choices, id) ? document.choices[id] : undefined;
+}
+function readDurableBytes(ctx: StorageContext): string | null | undefined {
+  try {
+    return ctx.backend()?.getItem(JOURNEY_STORAGE_NAMESPACE);
+  } catch {
+    return undefined;
+  }
+}
 
 function isJourneyState(value: unknown): value is JourneyStateDocument {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
@@ -61,46 +99,70 @@ function isJourneyState(value: unknown): value is JourneyStateDocument {
   );
 }
 
-/**
- * Reads the journey state document, returning the stored document or a clean default state.
- */
-export function readJourneyState(ctx: StorageContext): ReadResult<JourneyStateDocument> {
-  // A quota failure can leave older bytes on disk. The current page must keep the most recent
-  // choice, including a clear, rather than resurrecting that older document on its next read.
-  const temporary = ctx.fallback.get(JOURNEY_STORAGE_NAMESPACE);
-  const result =
-    temporary === undefined
-      ? readRaw(ctx, JOURNEY_STORAGE_NAMESPACE)
-      : { status: "ok" as const, value: temporary };
-  if (result.status !== "ok" || result.value === undefined) {
-    if (result.status === "missing") preserveOriginal.delete(ctx);
-    return { status: result.status, value: DEFAULT_JOURNEY_STATE };
-  }
+function readDurableJourney(ctx: StorageContext): DurableJourney {
+  const raw = readDurableBytes(ctx);
+  if (raw === undefined || raw === null)
+    return {
+      status: raw === null ? "missing" : "unavailable",
+      raw,
+      value: DEFAULT_JOURNEY_STATE,
+      writable: raw === null,
+    };
   try {
-    const document: unknown = migrateDocument(JOURNEY_MIGRATION_CHAIN, JSON.parse(result.value));
-    if (isJourneyState(document)) {
-      if (temporary === undefined) preserveOriginal.delete(ctx);
-      return { status: "ok", value: document };
-    }
+    const document: unknown = migrateDocument(JOURNEY_MIGRATION_CHAIN, JSON.parse(raw));
+    if (isJourneyState(document)) return { status: "ok", raw, value: document, writable: true };
   } catch {
     // Invalid JSON and versions this edition cannot read are preserved by the same path below.
   }
-  const held = quarantine(
-    ctx,
-    JOURNEY_STORAGE_NAMESPACE,
-    result.value,
-    "journey-choices-unreadable",
-  );
-  if (held.quarantined && !ctx.fallback.has(QUARANTINE_KEY)) {
+  const held = quarantine(ctx, JOURNEY_STORAGE_NAMESPACE, raw, "journey-choices-unreadable");
+  if (held.quarantined && !ctx.fallback.has(QUARANTINE_KEY) && readDurableBytes(ctx) === raw) {
     removeRaw(ctx, JOURNEY_STORAGE_NAMESPACE);
-    preserveOriginal.delete(ctx);
-  } else {
-    preserveOriginal.add(ctx);
+    if (readDurableBytes(ctx) === null)
+      return { status: "corrupt", raw: null, value: DEFAULT_JOURNEY_STATE, writable: true };
   }
-  return { status: "corrupt", value: DEFAULT_JOURNEY_STATE };
+  return { status: "corrupt", raw, value: DEFAULT_JOURNEY_STATE, writable: false };
 }
 
-function writeJourneyState(ctx: StorageContext, document: JourneyStateDocument): WriteResult {
+/**
+ * Read durable choices even while this page has unsaved work. Pending changes overlay only their
+ * own forks. Disjoint edits combine; competing edits stay in this page and leave the other tab's
+ * saved choice untouched until the reader explicitly chooses again at that fork.
+ */
+export function readJourneyState(ctx: StorageContext): JourneyReadResult {
+  const session = sessionFor(ctx);
+  const saved = readDurableJourney(ctx);
+  session.latest = saved;
+  if (saved.writable) session.known = saved;
+  const basis = saved.writable ? saved.value : (session.known?.value ?? DEFAULT_JOURNEY_STATE);
+  const choices = new Map(Object.entries(basis.choices));
+  for (const [id, change] of session.pending) {
+    if (saved.writable) {
+      const current = choiceAt(saved.value, id);
+      if (current === change.after) {
+        session.pending.delete(id);
+        continue;
+      }
+      change.conflict =
+        change.conflict ||
+        (change.known ? current !== change.before : current !== undefined) ||
+        (saved.raw === null && change.baseExisted);
+    }
+    if (change.after === undefined) choices.delete(id);
+    else choices.set(id, change.after);
+  }
+  const value: JourneyStateDocument = { schemaVersion: 1, choices: Object.fromEntries(choices) };
+  const pending = [...session.pending.keys()];
+  const conflicts = [...session.pending].filter(([, change]) => change.conflict).map(([id]) => id);
+  if (pending.length) ctx.fallback.set(JOURNEY_STORAGE_NAMESPACE, JSON.stringify(value));
+  else ctx.fallback.delete(JOURNEY_STORAGE_NAMESPACE);
+  return {
+    status: saved.status,
+    value,
+    ...(pending.length ? { pending, conflicts } : {}),
+  };
+}
+
+function writeJourneyState(ctx: StorageContext): JourneyWriteResult {
   const registration = ctx.registry.get(JOURNEY_STORAGE_NAMESPACE);
   if (
     registration?.kind !== "document" ||
@@ -108,17 +170,45 @@ function writeJourneyState(ctx: StorageContext, document: JourneyStateDocument):
   ) {
     return { status: "unregistered" };
   }
+  const current = readJourneyState(ctx);
+  const session = sessionFor(ctx);
+  if (current.conflicts?.length) return { status: "conflict" };
+  // A successful write is unsafe when the current durable contents could not be read.
+  if (!session.latest?.writable) return { status: "unavailable" };
+  if (!session.pending.size) return { status: "ok" };
+  const document = current.value ?? DEFAULT_JOURNEY_STATE;
   const raw = JSON.stringify(document);
-  if (preserveOriginal.has(ctx)) {
-    ctx.fallback.set(JOURNEY_STORAGE_NAMESPACE, raw);
-    return { status: "unavailable" };
-  }
   // The same UTF-16 accounting as the registered storage layer's size display.
   if ((JOURNEY_STORAGE_NAMESPACE.length + raw.length) * 2 > registration.maxBytes) {
     ctx.fallback.set(JOURNEY_STORAGE_NAMESPACE, raw);
     return { status: "quota" };
   }
-  return writeRaw(ctx, JOURNEY_STORAGE_NAMESPACE, raw);
+  const result = writeRaw(ctx, JOURNEY_STORAGE_NAMESPACE, raw);
+  if (result.status === "ok") {
+    session.pending.clear();
+    session.known = { status: "ok", raw, value: document, writable: true };
+  }
+  return result;
+}
+
+function changeJourneyChoice(
+  ctx: StorageContext,
+  elementId: string,
+  choice: string | undefined,
+): JourneyWriteResult {
+  readJourneyState(ctx);
+  const session = sessionFor(ctx);
+  const baseline = session.known;
+  // A new explicit choice resolves this fork against the version the reader can now read.
+  // It grants no permission to overwrite competing changes at any other fork.
+  session.pending.set(elementId, {
+    before: baseline ? choiceAt(baseline.value, elementId) : undefined,
+    after: choice,
+    known: baseline !== undefined,
+    baseExisted: baseline !== undefined && baseline.raw !== null,
+    conflict: false,
+  });
+  return writeJourneyState(ctx);
 }
 
 /**
@@ -128,24 +218,18 @@ export function saveJourneyChoice(
   ctx: StorageContext,
   elementId: string,
   choiceId: string,
-): WriteResult {
-  const current = readJourneyState(ctx).value ?? DEFAULT_JOURNEY_STATE;
-  const updated: JourneyStateDocument = {
-    schemaVersion: 1,
-    choices: {
-      ...current.choices,
-      [elementId]: choiceId,
-    },
-  };
-  return writeJourneyState(ctx, updated);
+): JourneyWriteResult {
+  return changeJourneyChoice(ctx, elementId, choiceId);
 }
 
 /** Clears only this stage or fork. A failed save keeps that clear in this page's memory. */
-export function clearJourneyChoice(ctx: StorageContext, elementId: string): WriteResult {
-  const current = readJourneyState(ctx).value ?? DEFAULT_JOURNEY_STATE;
-  const choices = { ...current.choices };
-  delete choices[elementId];
-  return writeJourneyState(ctx, { schemaVersion: 1, choices });
+export function clearJourneyChoice(ctx: StorageContext, elementId: string): JourneyWriteResult {
+  return changeJourneyChoice(ctx, elementId, undefined);
+}
+
+/** Retry pending edits without treating a newly changed saved choice as consent to replace it. */
+export function retryJourneyChoices(ctx: StorageContext): JourneyWriteResult {
+  return writeJourneyState(ctx);
 }
 
 /**
