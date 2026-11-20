@@ -235,7 +235,7 @@ test("notebook namespace is the already registered owner key", () => {
 // each site was disabled with `false &&` instead, and each reddened exactly the test that cites
 // it, 17 pass 1 fail. The ratchet's instruction says to rename the code; where the code is
 // unobservable, disabling the site is the same question asked the only way it can be.
-test("(notebookStore.ts:191) notebook-merge-saved-unavailable: a saved notebook that cannot be read refuses the merge and keeps both originals", () => {
+test("(notebookStore.ts:201) notebook-merge-saved-unavailable: a saved notebook that cannot be read refuses the merge and keeps both originals", () => {
   const storage = backend(JSON.stringify(emptyNotebook()));
   const store = createNotebookStore(storage);
   store.add(entry("n1", "Work in this tab"));
@@ -252,7 +252,7 @@ test("(notebookStore.ts:191) notebook-merge-saved-unavailable: a saved notebook 
   assert.equal(storage.raw(), savedBefore);
   assert.equal(storage.writes, writesBefore);
 });
-test("(notebookStore.ts:197) notebook-merge-saved-too-large: a saved notebook over the byte limit refuses the merge and says to keep both exports", () => {
+test("(notebookStore.ts:207) notebook-merge-saved-too-large: a saved notebook over the byte limit refuses the merge and says to keep both exports", () => {
   const storage = backend(JSON.stringify(emptyNotebook()));
   storage.maxBytes = 32;
   const store = createNotebookStore(storage);
@@ -375,4 +375,77 @@ test("explicitly loading a genuinely cleared saved notebook clears only this tab
     JSON.parse(io.raw()).entries.map((item) => item.id),
     ["new"],
   );
+});
+
+for (const status of ["unavailable", "corrupt", "ok"])
+  test(`unreadable ${status} storage never writes over unseen notes, even when writes would succeed`, () => {
+    const saved = JSON.stringify({
+      ...emptyNotebook(),
+      entries: [entry("earlier", "Earlier work")],
+    });
+    const io = backend(saved);
+    const read = io.read.bind(io);
+    io.read = () => ({ status });
+    const store = createNotebookStore(io);
+    store.open();
+    assert.equal(store.getSnapshot().persistence, "session-only");
+    assert.equal(store.add(entry("new", "New work in this tab")).ok, true);
+    assert.equal(store.remember(place).ok, true);
+    assert.equal(store.retry().ok, true);
+    assert.equal(io.writes, 0);
+    assert.equal(io.raw(), saved);
+    assert.equal(store.getSnapshot().persistence, "session-only");
+    assert.equal(store.getSnapshot().document.entries[0].text, "New work in this tab");
+    assert.deepEqual(store.getSnapshot().document.lastPlace, place);
+    assert.match(store.getSnapshot().message, /could not be saved/);
+
+    // Once reads recover, an existing notebook is a conflict, not permission to overwrite it.
+    io.read = read;
+    assert.equal(store.retry().ok, true);
+    assert.equal(store.getSnapshot().persistence, "conflict");
+    assert.equal(io.writes, 0);
+    assert.equal(io.raw(), saved);
+    const preview = store.previewSavedMerge();
+    assert.equal(preview.ok, true);
+    assert.equal(store.commitMerge(preview.review).ok, true);
+    assert.equal(store.getSnapshot().persistence, "saved");
+    assert.deepEqual(
+      JSON.parse(io.raw()).entries.map((item) => item.text),
+      ["New work in this tab", "Earlier work"],
+    );
+  });
+
+test("a read failure during editing retains both the tab's edits and another tab's saved work", () => {
+  const io = backend(JSON.stringify({ ...emptyNotebook(), entries: [entry()] }));
+  const read = io.read.bind(io);
+  const store = createNotebookStore(io);
+  store.open();
+  const newer = JSON.stringify({ ...emptyNotebook(), entries: [entry("remote", "Another tab")] });
+  io.replace(newer);
+  io.read = () => ({ status: "unavailable" });
+  assert.equal(store.updateText("n1", "Edited while reads were blocked").ok, true);
+  assert.equal(io.writes, 0);
+  assert.equal(io.raw(), newer);
+  assert.equal(store.getSnapshot().persistence, "session-only");
+  assert.match(exportNotebookJson(store.getSnapshot().document), /Edited while reads were blocked/);
+
+  io.read = read;
+  store.retry();
+  assert.equal(store.getSnapshot().persistence, "conflict");
+  assert.equal(io.writes, 0);
+  assert.equal(io.raw(), newer);
+});
+
+test("session notes save after reads recover and confirm there is no stored notebook", () => {
+  const io = backend();
+  const read = io.read.bind(io);
+  io.read = () => ({ status: "unavailable" });
+  const store = createNotebookStore(io);
+  assert.equal(store.add(entry()).ok, true);
+  assert.equal(io.writes, 0);
+  assert.equal(io.raw(), null);
+  io.read = read;
+  assert.equal(store.retry().ok, true);
+  assert.equal(store.getSnapshot().persistence, "saved");
+  assert.equal(JSON.parse(io.raw()).entries[0].text, "Private question");
 });

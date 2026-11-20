@@ -78,11 +78,11 @@ export function createNotebookStore(storage: NotebookStorage) {
     if (saved.text === null) {
       publish({
         ...state,
-        persistence: saved.raw.status === "unavailable" ? "session-only" : "saved",
+        persistence: saved.raw.status === "missing" ? "saved" : "session-only",
         message:
-          saved.raw.status === "unavailable"
-            ? SESSION_MESSAGE
-            : "Notes stay on this device. Browser storage is not a permanent backup.",
+          saved.raw.status === "missing"
+            ? "Notes stay on this device. Browser storage is not a permanent backup."
+            : SESSION_MESSAGE,
       });
       return;
     }
@@ -156,6 +156,16 @@ export function createNotebookStore(storage: NotebookStorage) {
           !(state.persistence === "session-only" && saved.text === JSON.stringify(state.document))))
     ) {
       publish({ ...state, document, persistence: "conflict", message: CONFLICT_MESSAGE });
+      return { ok: true };
+    }
+    // A failed read does not establish that the saved notebook is empty or unchanged. A write
+    // can still succeed, so attempting one here could erase unseen notes. Keep this change in
+    // memory; a retry must read and compare the durable copy before it can save anything.
+    if (
+      (saved.raw.status !== "ok" && saved.raw.status !== "missing") ||
+      (saved.raw.status === "ok" && saved.text === null)
+    ) {
+      publish({ ...state, document, persistence: "session-only", message: SESSION_MESSAGE });
       return { ok: true };
     }
     const outcome = storage.write(document);
