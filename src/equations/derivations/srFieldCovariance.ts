@@ -43,6 +43,7 @@ export interface SRFieldCovarianceReport {
   readonly rows: readonly SRFieldCovarianceRowCheck[];
   readonly inverseTransform: boolean;
   readonly reason?: string;
+  readonly refusalCode?: RefusalCode;
 }
 
 type RefusalCode = "sr-field-covariance-expression" | "sr-field-covariance-budget";
@@ -390,6 +391,12 @@ export function verifySRFieldCovariance(
   } catch (error) {
     if (!(error instanceof SRFieldCovarianceRefusal) && !(error instanceof PolynomialRefusal))
       throw error;
-    return { passed: false, rows: results, inverseTransform: false, reason: error.message };
+    return {
+      passed: false,
+      rows: results,
+      inverseTransform: false,
+      reason: error.message,
+      ...(error instanceof SRFieldCovarianceRefusal ? { refusalCode: error.refusalCode } : {}),
+    };
   }
 }

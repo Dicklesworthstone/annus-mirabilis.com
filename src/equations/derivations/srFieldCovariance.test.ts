@@ -197,5 +197,10 @@ test("unsupported domains, field denominators, higher derivatives and excessive 
     assert.equal(report.passed, false);
     assert.equal(report.inverseTransform, false);
     assert.ok(report.reason, left.kind);
+    if (left === deep) {
+      assert.equal(report.refusalCode, "sr-field-covariance-budget");
+    } else {
+      assert.equal(report.refusalCode, "sr-field-covariance-expression");
+    }
   }
 });
