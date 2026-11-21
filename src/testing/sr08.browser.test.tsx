@@ -55,6 +55,7 @@ describe("SR-08 Field Frame Change Lab View & Route (am-sr-08-field-frame-change
     expect(html).toContain('data-quantity-id="electricFieldStationary">(0, 1, 0)<');
     expect(html).toContain('data-quantity-id="electricFieldMoving">(0, 1.25, 0)<');
     expect(html).not.toContain("(0.00 V/m)");
-    expect(html).toMatch(/>E\s*′?\s*\(1\.(00|25) V\/m\)</);
+    expect(html).toContain("Ey = 1 V/m");
+    expect(html).toContain("The arrows show only x and y.");
   });
 });

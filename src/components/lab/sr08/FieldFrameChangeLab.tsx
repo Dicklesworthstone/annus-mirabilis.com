@@ -1,11 +1,6 @@
 "use client";
 
-import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
-import {
-  declaredDomains,
-  domainRequirement,
-} from "../../../experiments/controls/declaredDomain.ts";
-import { readTypedNumber } from "../../../experiments/controls/typedNumber.ts";
+import { type FormEvent, useEffect, useId, useState } from "react";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
@@ -20,7 +15,6 @@ import {
   SR08_NOT_MODELED,
   type Sr08Parameters,
 } from "../../../experiments/sr08/definition.ts";
-import { validateSr08Parameters } from "../../../experiments/sr08/parameters.ts";
 import {
   createSr08Session,
   type PreparedSr08Example,
@@ -36,6 +30,13 @@ import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { display, fixed, identity, result, sentenceNumber } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
 import { FieldFrameChangePlot } from "./FieldFrameChangePlot.tsx";
+import {
+  readSr08Settings,
+  SR08_NUMBER_FIELDS,
+  type Sr08NumberField,
+  type Sr08TypedSettings,
+  typedSr08Settings,
+} from "./fieldSettings.ts";
 import "../labControls.css";
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
@@ -89,21 +90,6 @@ function SnapshotReading({
 // replaces a question this file kept for itself, drawn below the results it asked about.
 const SR08_PROMPTS = PREDICT_PROMPTS["sr-08"] ?? [];
 
-/** The fields a reader types, as text: the boost as a fraction of c, and the two field components. */
-type Sr08Typed = Readonly<{ boost: string; ey: string; bz: string }>;
-function typedFrom(p: Sr08Parameters): Sr08Typed {
-  return {
-    boost: String(Number((p.boost / C_SI).toPrecision(12))),
-    ey: String(p.electricFieldY),
-    bz: String(p.magneticFieldZ),
-  };
-}
-/** A typed boost that overflows once multiplied by c reads as outside the declared range. */
-const BOOST_DOMAIN = declaredDomains("sr-08").boost;
-const BOOST_TOO_LARGE = BOOST_DOMAIN
-  ? domainRequirement(BOOST_DOMAIN, { label: "Boost speed", unit: "c", scale: 1 / C_SI })
-  : "Enter a boost speed below the speed of light.";
-
 export function FieldFrameChangeLab({
   instanceId,
   restoreFromLocation = true,
@@ -140,15 +126,15 @@ export function FieldFrameChangeLab({
      */
     (restored) => {
       setDraft({ ...restored });
-      setTyped(typedFrom(restored));
+      setTyped(typedSr08Settings(restored));
     },
   );
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("sr-08", SR08_PROMPTS);
   const [draft, setDraft] = useState<Sr08Parameters>(() => ({ ...session.acceptedParameters() }));
-  // The three typed fields keep the reader's text and are read on Apply, so a cleared field is
-  // refused by name rather than becoming 0 (dispatch 165).
-  const [typed, setTyped] = useState<Sr08Typed>(() => typedFrom(session.acceptedParameters()));
+  const [typed, setTyped] = useState<Sr08TypedSettings>(() =>
+    typedSr08Settings(session.acceptedParameters()),
+  );
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
   /**
@@ -184,38 +170,65 @@ export function FieldFrameChangeLab({
       return;
     }
     setDraft(parameters);
-    setTyped(typedFrom(parameters));
+    setTyped(typedSr08Settings(parameters));
     accept();
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const boost = readTypedNumber(typed.boost, "the boost speed", (v) => v * C_SI, BOOST_TOO_LARGE);
-    if (boost.kind === "refused") return refuse(boost.refusal, boost.requirement);
-    const ey = readTypedNumber(typed.ey, "the electric field Ey");
-    if (ey.kind === "refused") return refuse(ey.refusal, ey.requirement);
-    const bz = readTypedNumber(typed.bz, "the magnetic field Bz");
-    if (bz.kind === "refused") return refuse(bz.refusal, bz.requirement);
-    const checked = validateSr08Parameters({
-      ...draft,
-      boost: boost.value,
-      electricFieldY: ey.value,
-      magneticFieldZ: bz.value,
-    });
+    const checked = readSr08Settings(draft, typed);
     if (checked.kind !== "accepted") {
-      refuse(checked.refusal, refusalSentence(checked.refusal));
+      refuse(checked.refusal, checked.requirement);
       return;
     }
     apply(checked.data);
+  }
+
+  function placeChargeAtRest(frame: "stationary" | "moving") {
+    const checked = readSr08Settings(draft, {
+      ...typed,
+      chargeVelocityX: frame === "moving" ? typed.boost : "0",
+      chargeVelocityY: "0",
+      chargeVelocityZ: "0",
+    });
+    if (checked.kind !== "accepted") {
+      refuse(checked.refusal, checked.requirement);
+      return;
+    }
+    apply({
+      ...checked.data,
+      // Reuse the accepted SI boost exactly, without a second fraction-of-c round trip.
+      chargeVelocityX: frame === "moving" ? checked.data.boost : 0,
+      chargeVelocityY: 0,
+      chargeVelocityZ: 0,
+    });
+  }
+
+  function numberFields(group: Sr08NumberField["group"]) {
+    return (
+      <div className="input-grid">
+        {SR08_NUMBER_FIELDS.filter((field) => field.group === group).map((field) => (
+          <div className="input-field" key={field.key}>
+            <label htmlFor={`${id}-${field.name}`}>{field.label}</label>
+            <input
+              id={`${id}-${field.name}`}
+              type="number"
+              name={field.name}
+              step={field.step}
+              {...(field.key === "boost" ? { min: -0.95, max: 0.95 } : {})}
+              value={typed[field.key]}
+              onChange={(event) => setTyped({ ...typed, [field.key]: event.currentTarget.value })}
+            />
+          </div>
+        ))}
+      </div>
+    );
   }
 
   const eStat = result(snapshot, "electricFieldStationary");
   const eMov = result(snapshot, "electricFieldMoving");
   const bStat = result(snapshot, "magneticFieldStationary");
   const bMov = result(snapshot, "magneticFieldMoving");
-  const invDot = result(snapshot, "fieldInvariantEDotB");
-  const invDiff = result(snapshot, "fieldInvariantE2MinusC2B2");
-  const gRes = result(snapshot, "lorentzFactor");
   const fLab = result(snapshot, "transverseForceLaboratory");
   const fCom = result(snapshot, "transverseForceComoving");
   // One sentence for the status line: each field before and after the change of frame.
@@ -311,7 +324,7 @@ export function FieldFrameChangeLab({
             </fieldset>
 
             <fieldset>
-              <legend>Unit convention</legend>
+              <legend>Notation guide</legend>
               <label className="check">
                 <input
                   type="radio"
@@ -319,7 +332,7 @@ export function FieldFrameChangeLab({
                   checked={draft.unitLayer === "si"}
                   onChange={() => setDraft({ ...draft, unitLayer: "si" })}
                 />{" "}
-                SI (V/m, T)
+                Modern field names
               </label>
               <label className="check">
                 <input
@@ -328,25 +341,15 @@ export function FieldFrameChangeLab({
                   checked={draft.unitLayer === "gaussian"}
                   onChange={() => setDraft({ ...draft, unitLayer: "gaussian" })}
                 />{" "}
-                Historical Gaussian
+                Einstein’s printed field names
               </label>
             </fieldset>
 
-            <div className="input-grid">
-              <div className="input-field">
-                <label htmlFor={`${id}-boost`}>Boost v/c</label>
-                <input
-                  id={`${id}-boost`}
-                  type="number"
-                  name="boost"
-                  step="0.05"
-                  min="-0.95"
-                  max="0.95"
-                  value={typed.boost}
-                  onChange={(event) => setTyped({ ...typed, boost: event.currentTarget.value })}
-                />
-              </div>
-            </div>
+            <p className="fine">
+              Numerical inputs and readings stay in SI units. The printed-name guide identifies
+              Einstein’s symbols; it does not convert SI values to Gaussian units.
+            </p>
+            {numberFields("observer")}
 
             <div className="preset-list">
               <button
@@ -406,31 +409,60 @@ export function FieldFrameChangeLab({
             </div>
 
             <button type="submit">Apply settings</button>
-            <ExperimentSettings contents="the electric and magnetic field strengths">
-              <div className="input-grid">
-                <div className="input-field">
-                  <label htmlFor={`${id}-ey`}>Electric Ey (V/m)</label>
-                  <input
-                    id={`${id}-ey`}
-                    type="number"
-                    name="ey"
-                    step="0.1"
-                    value={typed.ey}
-                    onChange={(event) => setTyped({ ...typed, ey: event.currentTarget.value })}
-                  />
+            <ExperimentSettings contents="all field components and the test charge’s motion">
+              <fieldset>
+                <legend>Electric field in stationary frame K</legend>
+                {numberFields("electric")}
+              </fieldset>
+              <fieldset>
+                <legend>Magnetic field in stationary frame K</legend>
+                {numberFields("magnetic")}
+              </fieldset>
+              <fieldset>
+                <legend>Test charge in stationary frame K</legend>
+                {numberFields("charge")}
+                <p className="fine">
+                  The sign of q sets the sign of the force. A zero charge feels no electromagnetic
+                  force; the field transformation is unchanged.
+                </p>
+                {numberFields("velocity")}
+                <p className="fine">
+                  Enter each velocity as a fraction of c. Their combined speed must remain below c.
+                  Changing these components changes the charge’s motion; changing the observer boost
+                  describes that same motion from another frame.
+                </p>
+                <div className="preset-list">
+                  <button
+                    type="button"
+                    className="secondary"
+                    onClick={() => placeChargeAtRest("stationary")}
+                  >
+                    Charge at rest in K
+                  </button>
+                  <button
+                    type="button"
+                    className="secondary"
+                    onClick={() => placeChargeAtRest("moving")}
+                  >
+                    Charge at rest in k
+                  </button>
                 </div>
-                <div className="input-field">
-                  <label htmlFor={`${id}-bz`}>Magnetic Bz (T)</label>
-                  <input
-                    id={`${id}-bz`}
-                    type="number"
-                    name="bz"
-                    step="1e-9"
-                    value={typed.bz}
-                    onChange={(event) => setTyped({ ...typed, bz: event.currentTarget.value })}
-                  />
-                </div>
-              </div>
+                <p className="fine">
+                  These two buttons apply the current fields, charge and boost together with the
+                  selected rest-frame velocity.
+                </p>
+              </fieldset>
+              <label className="check">
+                <input
+                  type="checkbox"
+                  name="decomposeComponents"
+                  checked={draft.decomposeComponents}
+                  onChange={(event) =>
+                    setDraft({ ...draft, decomposeComponents: event.currentTarget.checked })
+                  }
+                />{" "}
+                Show the electric arrow’s x and y components
+              </label>
               <p className="fine">Changes here apply with Apply settings.</p>
               {/* The recorded walkthrough, played into this session. Its records became
               carryable in f64267b03, when their checkpoint digests were recorded. */}
@@ -439,7 +471,7 @@ export function FieldFrameChangeLab({
                 session={session}
                 onPlayed={(parameters) => {
                   setDraft({ ...(parameters as Sr08Parameters) });
-                  setTyped(typedFrom(parameters as Sr08Parameters));
+                  setTyped(typedSr08Settings(parameters as Sr08Parameters));
                 }}
               />
             </ExperimentSettings>
@@ -458,14 +490,21 @@ export function FieldFrameChangeLab({
         <LabTapeLink link={withPredictions(tapeLink, gate)} />
 
         <div className="lab-results" {...gate.response}>
+          {p.unitLayer === "gaussian" && (
+            <aside className="notice" aria-label="Einstein’s printed field names">
+              <p>
+                In §6, (X, Y, Z) name the electric components and (L, M, N) the magnetic components.
+                V is the speed of light and β is the factor now called γ. Einstein’s Gaussian field
+                normalization differs from SI. The values and units below remain SI, including when
+                this guide is open.
+              </p>
+            </aside>
+          )}
           <FieldFrameChangePlot
             electricStationary={eStat}
             electricMoving={eMov}
             magneticStationary={bStat}
             magneticMoving={bMov}
-            invariantDot={invDot}
-            invariantDiff={invDiff}
-            gamma={gRes}
             forceLab={fLab}
             forceComoving={fCom}
             frame={p.descriptionFrame}
@@ -478,7 +517,7 @@ export function FieldFrameChangeLab({
             <table>
               <caption>
                 Comparison of electromagnetic field quantities across stationary (K) and moving (k)
-                frames.
+                frames. Each vector lists its x, y and z components, in that order.
               </caption>
               <tbody>
                 <tr>
@@ -522,24 +561,64 @@ export function FieldFrameChangeLab({
                   </td>
                 </tr>
                 <tr>
+                  <th scope="row">Charge velocity u (Stationary K)</th>
+                  <td>
+                    <SnapshotReading
+                      snapshot={snapshot}
+                      quantityId="chargeVelocityStationary"
+                      unit="m/s"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Charge velocity u′ (Moving k)</th>
+                  <td>
+                    <SnapshotReading
+                      snapshot={snapshot}
+                      quantityId="chargeVelocityMoving"
+                      unit="m/s"
+                    />
+                  </td>
+                </tr>
+                <tr>
                   <th scope="row">Lorentz Factor γ</th>
                   <td>
                     <SnapshotReading snapshot={snapshot} quantityId="lorentzFactor" />
                   </td>
                 </tr>
                 <tr>
-                  <th scope="row">Invariant E² − c²B²</th>
+                  <th scope="row">Invariant E² − c²B² (K)</th>
                   <td>
                     <SnapshotReading snapshot={snapshot} quantityId="fieldInvariantE2MinusC2B2" />{" "}
                     (V/m)²
                   </td>
                 </tr>
                 <tr>
-                  <th scope="row">Invariant E · B</th>
+                  <th scope="row">Invariant E′² − c²B′² (k)</th>
+                  <td>
+                    <SnapshotReading
+                      snapshot={snapshot}
+                      quantityId="fieldInvariantE2MinusC2B2Moving"
+                      unit="(V/m)²"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Invariant E · B (K)</th>
                   <td>
                     <SnapshotReading
                       snapshot={snapshot}
                       quantityId="fieldInvariantEDotB"
+                      unit="T·V/m"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Invariant E′ · B′ (k)</th>
+                  <td>
+                    <SnapshotReading
+                      snapshot={snapshot}
+                      quantityId="fieldInvariantEDotBMoving"
                       unit="T·V/m"
                     />
                   </td>
@@ -555,7 +634,7 @@ export function FieldFrameChangeLab({
                   </td>
                 </tr>
                 <tr>
-                  <th scope="row">Comoving force F′</th>
+                  <th scope="row">Moving-frame force F′</th>
                   <td>
                     <SnapshotReading
                       snapshot={snapshot}
@@ -567,6 +646,53 @@ export function FieldFrameChangeLab({
               </tbody>
             </table>
           </div>
+          <details>
+            <summary>Why do the two frames give different forces?</summary>
+            <p>
+              Force is momentum change per unit time. Both the momentum components and the time
+              between events depend on the frame. Compare the force from the moving frame’s fields
+              with the transformed laboratory force, rather than requiring F and F′ to be equal. The
+              frame k is the charge’s rest frame only when its velocity u′ is zero.
+            </p>
+            <div className="table-wrapper">
+              <table>
+                <caption>
+                  One accepted charge state, two ways to calculate its moving-frame force
+                </caption>
+                <tbody>
+                  {(
+                    [
+                      ["Electric contribution qE (K)", "electricForceStationary", "N"],
+                      ["Magnetic contribution q(u × B) (K)", "magneticForceStationary", "N"],
+                      ["Electric contribution qE′ (k)", "electricForceMoving", "N"],
+                      ["Magnetic contribution q(u′ × B′) (k)", "magneticForceMoving", "N"],
+                      ["Force from transformed fields (k)", "transverseForceComoving", "N"],
+                      ["Force from transforming F (k)", "forceMovingFromFourForce", "N"],
+                      [
+                        "Difference between the two calculations",
+                        "forceTransformationResidual",
+                        "N",
+                      ],
+                      ["Time ratio dt′/dt along the charge’s motion", "particleTimeJacobian", ""],
+                    ] as const
+                  ).map(([label, quantityId, unit]) => (
+                    <tr key={quantityId}>
+                      <th scope="row">{label}</th>
+                      <td>
+                        <SnapshotReading snapshot={snapshot} quantityId={quantityId} unit={unit} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="fine">
+              The transformed-force calculation is a modern consistency check, not a premise of
+              Einstein’s derivation. Small numerical residuals can remain after rounding. Choosing
+              “Charge at rest in k” sets u′ to zero: the force there is entirely electric, making
+              §6’s new manner of expression directly inspectable.
+            </p>
+          </details>
         </div>
       </div>
 
