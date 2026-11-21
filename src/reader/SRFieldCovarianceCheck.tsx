@@ -16,6 +16,7 @@ export function SRFieldCovarianceCheck({ report }: { readonly report: SRFieldCov
       curls &&
       (row.divergence === "electric" ? electric : row.divergence === "magnetic" ? magnetic : true),
   }));
+  const failedRows = report.rows.filter((row) => !row.coordinateChange || !row.residualIdentity);
   return (
     <section
       id="sr-field-covariance-check"
@@ -140,10 +141,34 @@ export function SRFieldCovarianceCheck({ report }: { readonly report: SRFieldCov
           </p>
         </>
       ) : (
-        <p>
-          The exact field-identity check is unavailable. The authored equations and their
-          assumptions remain available below; this page does not claim a checked covariance result.
-        </p>
+        <>
+          <p>
+            The exact field-identity check is unavailable. The authored equations and their
+            assumptions remain available below; this page does not claim a checked covariance
+            result.
+          </p>
+          {(report.reason || failedRows.length > 0) && (
+            <details>
+              <summary>Why the exact check is unavailable</summary>
+              {report.reason && <p>{report.reason}</p>}
+              {failedRows.length > 0 && (
+                <ul>
+                  {failedRows.map((row) => (
+                    <li key={row.component} data-field-check-failure={row.component}>
+                      Component{" "}
+                      <a href={`#sr-field-component-${row.component.toLowerCase()}`}>
+                        {row.component}
+                      </a>
+                      : {!row.coordinateChange && "coordinate change check failed"}
+                      {!row.coordinateChange && !row.residualIdentity && "; "}
+                      {!row.residualIdentity && "residual identity check failed"}.
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </details>
+          )}
+        </>
       )}
     </section>
   );

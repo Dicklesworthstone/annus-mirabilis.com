@@ -3,6 +3,7 @@ import { act } from "react";
 import { hydrateRoot, type Root } from "react-dom/client";
 import { renderToStaticMarkup, renderToString } from "react-dom/server";
 import { verifySRFieldCovariance } from "../equations/derivations/srFieldCovariance.ts";
+import { srFieldComponentRows } from "../equations/derivations/srFieldTransforms.ts";
 import { exportMarkup } from "../testing/exportMarkup.ts";
 import { createContainer, installDom, removeContainer, uninstallDom } from "../testing/reactDom.ts";
 import { PaperPage } from "./PaperPage.tsx";
@@ -37,6 +38,52 @@ test("a failed exact check offers the authored derivation without a checked clai
   );
   expect(html).toContain('data-field-covariance="unavailable"');
   expect(html).toContain("does not claim a checked covariance result");
+  expect(html).not.toContain('type="checkbox"');
+  expect(html).not.toContain("Established");
+});
+
+test("an incomplete real check exposes its reason without inventing failed component or inverse checks", () => {
+  const incomplete = verifySRFieldCovariance(srFieldComponentRows.slice(1));
+  expect(incomplete.passed).toBe(false);
+  expect(incomplete.inverseTransform).toBe(false);
+  expect(incomplete.rows).toHaveLength(0);
+  expect(incomplete.reason).toBe(
+    "Every electric and magnetic component is required exactly once in source order.",
+  );
+  const html = renderToStaticMarkup(<SRFieldCovarianceCheck report={incomplete} />);
+  expect(html).toContain("Why the exact check is unavailable");
+  expect(html).toContain(incomplete.reason ?? "missing reason");
+  expect(html).not.toContain("data-field-check-failure");
+  expect(html).not.toContain("inverse");
+  expect(html).not.toContain('type="checkbox"');
+});
+
+test("a real wrong-sign field row names the failed component and retains no checked controls", () => {
+  const wrongSign = verifySRFieldCovariance(
+    srFieldComponentRows.map((row) =>
+      row.component === "Y"
+        ? {
+            ...row,
+            grouped: {
+              ...row.grouped,
+              left: { kind: "negate" as const, argument: row.grouped.left },
+            },
+          }
+        : row,
+    ),
+  );
+  expect(wrongSign.passed).toBe(false);
+  expect(wrongSign.reason).toBeUndefined();
+  expect(wrongSign.rows.filter((row) => !row.residualIdentity).map((row) => row.component)).toEqual(
+    ["Y"],
+  );
+  const html = renderToStaticMarkup(<SRFieldCovarianceCheck report={wrongSign} />);
+  expect(html).toContain('data-field-covariance="unavailable"');
+  expect(html).toContain('data-field-check-failure="Y"');
+  expect(html).toContain('href="#sr-field-component-y"');
+  expect(html).toContain("residual identity check failed");
+  expect(html).not.toContain("coordinate change check failed");
+  expect((html.match(/data-field-check-failure=/g) ?? []).length).toBe(1);
   expect(html).not.toContain('type="checkbox"');
   expect(html).not.toContain("Established");
 });

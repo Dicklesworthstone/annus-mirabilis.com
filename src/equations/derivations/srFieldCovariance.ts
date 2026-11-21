@@ -47,16 +47,16 @@ export interface SRFieldCovarianceReport {
 }
 
 type RefusalCode = "sr-field-covariance-expression" | "sr-field-covariance-budget";
-export class SRFieldCovarianceRefusal extends Error {
+export class SRFieldCovarianceError extends Error {
   readonly refusalCode: RefusalCode;
   constructor(refusalCode: RefusalCode, message: string) {
     super(message);
-    this.name = "SRFieldCovarianceRefusal";
+    this.name = "SRFieldCovarianceError";
     this.refusalCode = refusalCode;
   }
 }
 function refuse(message: string): never {
-  throw new SRFieldCovarianceRefusal("sr-field-covariance-expression", message);
+  throw new SRFieldCovarianceError("sr-field-covariance-expression", message);
 }
 
 const order = ["X", "Y", "Z", "L", "M", "N"] as const;
@@ -90,7 +90,7 @@ function algebra() {
   let work = 0;
   function budget(condition: boolean): void {
     if (!condition || ++work > 100_000)
-      throw new SRFieldCovarianceRefusal(
+      throw new SRFieldCovarianceError(
         "sr-field-covariance-budget",
         "The exact field check exceeds its arithmetic or expression budget.",
       );
@@ -389,14 +389,14 @@ export function verifySRFieldCovariance(
       inverseTransform,
     };
   } catch (error) {
-    if (!(error instanceof SRFieldCovarianceRefusal) && !(error instanceof PolynomialRefusal))
+    if (!(error instanceof SRFieldCovarianceError) && !(error instanceof PolynomialRefusal))
       throw error;
     return {
       passed: false,
       rows: results,
       inverseTransform: false,
       reason: error.message,
-      ...(error instanceof SRFieldCovarianceRefusal ? { refusalCode: error.refusalCode } : {}),
+      ...(error instanceof SRFieldCovarianceError ? { refusalCode: error.refusalCode } : {}),
     };
   }
 }
