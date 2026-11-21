@@ -383,7 +383,12 @@ export function kineticEnergy(
       "invalid-input",
       "Kinetic energy requires finite positive mass and speed.",
     );
-    return Object.freeze({ exact: out, newtonian: out, lowSpeedExpansion: out, ratio: 1 });
+    return Object.freeze({
+      exact: out,
+      newtonian: Object.freeze({ ...out, quantityId: "kineticEnergyNewtonian" }),
+      lowSpeedExpansion: Object.freeze({ ...out, quantityId: "kineticEnergyLowSpeedExpansion" }),
+      ratio: 1,
+    });
   }
 
   const gMinus1Res = gammaMinusOne(beta);
@@ -395,7 +400,12 @@ export function kineticEnergy(
       "superluminal-speed",
       "Kinetic energy requires |beta| < 1.",
     );
-    return Object.freeze({ exact: out, newtonian: out, lowSpeedExpansion: out, ratio: 1 });
+    return Object.freeze({
+      exact: out,
+      newtonian: Object.freeze({ ...out, quantityId: "kineticEnergyNewtonian" }),
+      lowSpeedExpansion: Object.freeze({ ...out, quantityId: "kineticEnergyLowSpeedExpansion" }),
+      ratio: 1,
+    });
   }
 
   const mc2 = mass * C_SI * C_SI;
@@ -433,7 +443,10 @@ export function acceleratingPotential(
       "invalid-charge",
       "Accelerating potential requires positive charge magnitude.",
     );
-    return Object.freeze({ exact: out, newtonian: out });
+    return Object.freeze({
+      exact: out,
+      newtonian: Object.freeze({ ...out, quantityId: "acceleratingPotentialNewtonian" }),
+    });
   }
 
   const ke = kineticEnergy(mass, beta);
@@ -445,7 +458,10 @@ export function acceleratingPotential(
       "outside-domain",
       "Kinetic energy is outside domain.",
     );
-    return Object.freeze({ exact: out, newtonian: out });
+    return Object.freeze({
+      exact: out,
+      newtonian: Object.freeze({ ...out, quantityId: "acceleratingPotentialNewtonian" }),
+    });
   }
 
   const exactVal = typeof ke.exact.value === "number" ? ke.exact.value : 0;
