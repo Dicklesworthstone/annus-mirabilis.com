@@ -1,5 +1,5 @@
 import type { NumericView } from "../../../experiments/store/instanceStore.ts";
-import { fixed } from "../presentation.ts";
+import { fixed, sentenceNumber } from "../presentation.ts";
 import { Sci, SubSvg } from "../Sci.tsx";
 import "./sr13.css";
 
@@ -20,10 +20,14 @@ export interface ElectronDynamicsPlotProps {
   transverseMassLaboratoryKg: number;
   kineticEnergyJ: number;
   kineticEnergyNewtonianJ: number;
-  acceleratingPotentialV: number;
-  acceleratingPotentialNewtonianV: number;
-  radiusCurvatureMagneticM: number;
-  radiusCurvatureElectricM: number;
+  acceleratingPotentialV: number | null;
+  acceleratingPotentialNewtonianV: number | null;
+  acceleratingPotentialReason?: string;
+  acceleratingPotentialNewtonianReason?: string;
+  radiusCurvatureMagneticM: number | null;
+  radiusCurvatureElectricM: number | null;
+  radiusCurvatureMagneticReason?: string;
+  radiusCurvatureElectricReason?: string;
   lorentzFactor: number;
   datasetOverlay: "none" | "kaufmann-1902-1906" | "bucherer-1908";
   /** The kernel's path in metres, x0, y0, x1, y1, ... (trajectoryPositions); absent before it ran. */
@@ -49,7 +53,7 @@ function lengthLabel(metres: number): string {
 
 export function ElectronDynamicsPlot({
   initialSpeed,
-  initialDirectionDeg: _initialDirectionDeg,
+  initialDirectionDeg,
   electricFieldX,
   electricFieldY,
   electricFieldZ,
@@ -66,21 +70,30 @@ export function ElectronDynamicsPlot({
   kineticEnergyNewtonianJ,
   acceleratingPotentialV,
   acceleratingPotentialNewtonianV,
+  acceleratingPotentialReason = "Not defined at these settings.",
+  acceleratingPotentialNewtonianReason = "Not defined at these settings.",
   radiusCurvatureMagneticM,
   radiusCurvatureElectricM,
+  radiusCurvatureMagneticReason = "Not defined at these settings.",
+  radiusCurvatureElectricReason = "Not defined at these settings.",
   lorentzFactor,
   datasetOverlay,
   trajectory = null,
   integrationIntervalS = 0,
 }: ElectronDynamicsPlotProps) {
-  const beta = Math.abs(initialSpeed);
   const gamma = Math.max(1, lorentzFactor || 1);
 
   // A mass as a multiple of the electron's rest mass m, or in kilograms for a custom particle. It
   // printed "1.953125 m" for both, which read as metres beside the radii in metres below, and a
   // custom particle's kilograms were labelled "m" too.
   const massText = (kg: number) =>
-    particle === "electron" ? `${fixed(kg / 9.1093837e-31, 6)} × m` : `${kg.toPrecision(4)} kg`;
+    particle === "electron" ? (
+      `${fixed(kg / 9.1093837e-31, 6)} × m`
+    ) : (
+      <>
+        <Sci value={kg} digits={3} /> kg
+      </>
+    );
 
   const width = 800;
   const height = 360;
@@ -140,19 +153,26 @@ export function ElectronDynamicsPlot({
         {/* The chamber's title and settings are sentences, so they are HTML: inside the 800-unit
             drawing they rendered at 4-5px on a 390px phone. */}
         <p className="sr13-chamber-title">
-          Uniform field chamber (E = <Sci value={eMag} digits={1} /> V/m, B = {fixed(bMag, 3)} T
-          {magneticFieldZ > 0 ? ", out of the page" : magneticFieldZ < 0 ? ", into the page" : ""})
+          Uniform field chamber · x–y projection (|E| = <Sci value={eMag} digits={2} /> V/m, |B| ={" "}
+          <Sci value={bMag} digits={2} /> T)
         </p>
         <p className="fine sr13-chamber-meta">
-          v₀ = {fixed(beta, 3)}c · γ = {fixed(gamma, 4)} · convention: {forceConvention} (
+          Initial β = {fixed(initialSpeed, 3)} · direction = {fixed(initialDirectionDeg, 1)}° · γ ={" "}
+          {fixed(gamma, 4)} · convention: {forceConvention} (
           {massLanguage === "1905" ? "1905 masses" : "modern momentum"})
+        </p>
+        <p className="fine sr13-chamber-meta">
+          E = (<Sci value={electricFieldX} digits={2} />, <Sci value={electricFieldY} digits={2} />,{" "}
+          <Sci value={electricFieldZ} digits={2} />) V/m; B = (
+          <Sci value={magneticFieldX} digits={2} />, <Sci value={magneticFieldY} digits={2} />,{" "}
+          <Sci value={magneticFieldZ} digits={2} />) T. Components are ordered x, y, z.
         </p>
         <svg
           className="sr13-chamber"
           viewBox={`0 0 ${width} ${height}`}
           style={{ width: "100%", height: "auto", display: "block", userSelect: "none" }}
           role="img"
-          aria-label={`Electron dynamics trajectory diagram: initial speed v = ${beta.toFixed(2)}c, gamma = ${fixed(gamma, 4)}`}
+          aria-label={`Particle trajectory projected onto the x–y plane: initial signed β = ${fixed(initialSpeed, 3)}, direction = ${initialDirectionDeg} degrees, gamma = ${fixed(gamma, 4)}`}
         >
           <title>Relativistic Electron Dynamics and Deflection (Einstein 1905 §10)</title>
 
@@ -206,7 +226,31 @@ export function ElectronDynamicsPlot({
           />
 
           {/* Field directions, top right */}
-          {eMag > 0 ? (
+          {electricFieldX !== 0 ? (
+            <g transform={`translate(${frame.right - 250}, ${frame.top + 36})`}>
+              <line
+                x1={electricFieldX < 0 ? 40 : 0}
+                y1={0}
+                x2={electricFieldX < 0 ? 0 : 40}
+                y2={0}
+                stroke="var(--accent)"
+                strokeWidth={2}
+                markerEnd="url(#arrow-field-e)"
+              />
+              <text
+                x={12}
+                y={-12}
+                style={{
+                  fill: "var(--accent)",
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "var(--sr13-label, 16px)",
+                }}
+              >
+                E<SubSvg>x</SubSvg>
+              </text>
+            </g>
+          ) : null}
+          {electricFieldY !== 0 ? (
             <g transform={`translate(${frame.right - 150}, ${frame.top + 16})`}>
               {/* Up for +E_y, because the drawing's y points up, as the path's does. */}
               <line
@@ -231,7 +275,7 @@ export function ElectronDynamicsPlot({
               </text>
             </g>
           ) : null}
-          {bMag > 0 ? (
+          {magneticFieldZ !== 0 ? (
             <g transform={`translate(${frame.right - 60}, ${frame.top + 16})`}>
               <circle cx={0} cy={20} r={10} fill="none" stroke="var(--plot)" strokeWidth={1.5} />
               {/* A dot for +B_z, out of the page; a cross for -B_z, into it. */}
@@ -290,7 +334,7 @@ export function ElectronDynamicsPlot({
                   fontWeight: 500,
                 }}
               >
-                e⁻ entry
+                {particle === "electron" ? "e⁻ entry" : "particle entry"}
               </text>
 
               {end ? (
@@ -339,8 +383,9 @@ export function ElectronDynamicsPlot({
         </svg>
         <p className="fine sr13-chamber-legend">
           {count > 0 && integrationIntervalS > 0
-            ? `The path over the first ${(integrationIntervalS * 1e9).toPrecision(2)} ns, computed by the model and drawn to scale in the x–y plane.`
-            : "The path appears once the model has run at these settings."}
+            ? `The trajectory over the first ${sentenceNumber(integrationIntervalS * 1e9)} ns, computed by the model and drawn to scale as an x–y projection. Motion along z is not shown.`
+            : "The path appears once the model has run at these settings."}{" "}
+          Arrows show Ex and Ey; the dot or cross shows Bz out of or into the page.
         </p>
         {/* No Kaufmann or Bucherer measurement is drawn: neither has been digitized as a cited
             HistoricalDataset (am-data-kaufmann-1902-1906-52ya, am-data-bucherer-1908-w3mf), and the
@@ -473,7 +518,7 @@ export function ElectronDynamicsPlot({
               color: "var(--ink)",
             }}
           >
-            {(kineticEnergyJ / 1.602176634e-19 / 1e3).toFixed(2)} keV
+            <Sci value={kineticEnergyJ / 1.602176634e-19 / 1e3} digits={3} /> keV
           </div>
           <div className="fine" style={{ marginTop: "0.125rem" }}>
             mc²(γ − 1)
@@ -497,7 +542,7 @@ export function ElectronDynamicsPlot({
               marginTop: "0.125rem",
             }}
           >
-            {(kineticEnergyNewtonianJ / 1.602176634e-19 / 1e3).toFixed(2)} keV
+            <Sci value={kineticEnergyNewtonianJ / 1.602176634e-19 / 1e3} digits={3} /> keV
           </div>
           <div className="fine" style={{ marginTop: "0.125rem" }}>
             ½mv²
@@ -522,10 +567,16 @@ export function ElectronDynamicsPlot({
               color: "var(--plot)",
             }}
           >
-            {(acceleratingPotentialV / 1e3).toFixed(2)} kV
+            {acceleratingPotentialV !== null && Number.isFinite(acceleratingPotentialV) ? (
+              <>
+                <Sci value={acceleratingPotentialV / 1e3} digits={3} /> kV
+              </>
+            ) : (
+              acceleratingPotentialReason
+            )}
           </div>
           <div className="fine" style={{ marginTop: "0.125rem" }}>
-            W / e (exact)
+            W / |q| (exact, from rest to the initial speed)
           </div>
         </div>
 
@@ -546,10 +597,17 @@ export function ElectronDynamicsPlot({
               marginTop: "0.125rem",
             }}
           >
-            {(acceleratingPotentialNewtonianV / 1e3).toFixed(2)} kV
+            {acceleratingPotentialNewtonianV !== null &&
+            Number.isFinite(acceleratingPotentialNewtonianV) ? (
+              <>
+                <Sci value={acceleratingPotentialNewtonianV / 1e3} digits={3} /> kV
+              </>
+            ) : (
+              acceleratingPotentialNewtonianReason
+            )}
           </div>
           <div className="fine" style={{ marginTop: "0.125rem" }}>
-            ½mv² / e
+            ½mv² / |q|
           </div>
         </div>
       </div>
@@ -572,7 +630,7 @@ export function ElectronDynamicsPlot({
           }}
         >
           <div style={{ color: "var(--muted)" }}>
-            Magnetic curvature radius (R<sub>m</sub>)
+            Pure transverse magnetic reference radius (R<sub>m</sub>)
           </div>
           <div
             style={{
@@ -582,9 +640,13 @@ export function ElectronDynamicsPlot({
               marginTop: "0.125rem",
             }}
           >
-            {Number.isFinite(radiusCurvatureMagneticM)
-              ? `${fixed(radiusCurvatureMagneticM, 4)} m`
-              : "Straight path (B = 0)"}
+            {radiusCurvatureMagneticM !== null && Number.isFinite(radiusCurvatureMagneticM) ? (
+              <>
+                <Sci value={radiusCurvatureMagneticM} digits={3} /> m
+              </>
+            ) : (
+              radiusCurvatureMagneticReason
+            )}
           </div>
           <div className="fine" style={{ marginTop: "0.125rem" }}>
             γmv / (|q|B)
@@ -600,7 +662,7 @@ export function ElectronDynamicsPlot({
           }}
         >
           <div style={{ color: "var(--muted)" }}>
-            Electric curvature radius (R<sub>e</sub>)
+            Pure transverse electric reference radius (R<sub>e</sub>)
           </div>
           <div
             style={{
@@ -610,15 +672,24 @@ export function ElectronDynamicsPlot({
               marginTop: "0.125rem",
             }}
           >
-            {Number.isFinite(radiusCurvatureElectricM)
-              ? `${fixed(radiusCurvatureElectricM, 4)} m`
-              : "Straight path (E = 0)"}
+            {radiusCurvatureElectricM !== null && Number.isFinite(radiusCurvatureElectricM) ? (
+              <>
+                <Sci value={radiusCurvatureElectricM} digits={3} /> m
+              </>
+            ) : (
+              radiusCurvatureElectricReason
+            )}
           </div>
           <div className="fine" style={{ marginTop: "0.125rem" }}>
             γmv² / (|q|E)
           </div>
         </div>
       </div>
+      <p className="fine">
+        These energies and coefficients describe the initial speed. Each reference radius assumes a
+        separate pure field perpendicular to the velocity; it does not measure the curvature of the
+        general combined-field trajectory above.
+      </p>
 
       {/* Convention Insight Note */}
       <div className="notice" style={{ fontSize: "var(--type-fine)" }}>

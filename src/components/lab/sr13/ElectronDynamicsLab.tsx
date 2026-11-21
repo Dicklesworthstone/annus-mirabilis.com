@@ -1,5 +1,5 @@
 "use client";
-import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { type FormEvent, useEffect, useId, useState } from "react";
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { readTypedNumber } from "../../../experiments/controls/typedNumber.ts";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
@@ -13,6 +13,7 @@ import { refusalSentence } from "../../../experiments/results/refusalSentence.ts
 import type { RequestRefusal } from "../../../experiments/results/refusals.ts";
 import {
   SR13_CAPTION,
+  SR13_DEFAULTS,
   SR13_NOT_MODELED,
   SR13_OUTPUTS,
   type Sr13Parameters,
@@ -29,6 +30,8 @@ import { createReaderCheckpointBinding } from "../../../experiments/store/reader
 import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
+import { SR13_READER_WEAVE } from "../../../reader/weave/electronPassages.ts";
+import { SessionResultWeave } from "../../../reader/weave/SessionResultWeave.tsx";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
@@ -74,17 +77,46 @@ function SnapshotReading({
 // The manifest's prompts (scripts/generate-predict-prompts.mjs), one stable array for the gate.
 const SR13_PROMPTS = PREDICT_PROMPTS["sr-13"] ?? [];
 
-/**
- * The three typed fields, as the reader typed them, read on Apply (dispatch 165). Number(field) as
- * they typed turned a cleared field into 0 and applied it without a word.
- */
-type Sr13Typed = Readonly<{ initialSpeed: string; electricFieldY: string; magneticFieldZ: string }>;
+const NUMERIC_FIELDS = {
+  initialSpeed: { label: "Initial speed β = v/c", min: -0.95, max: 0.95, step: "0.01" },
+  initialDirectionDeg: {
+    label: "Initial direction in the x–y plane (degrees)",
+    min: 0,
+    max: 360,
+    step: "1",
+  },
+  integrationInterval: {
+    label: "Trajectory duration (seconds)",
+    min: 1e-13,
+    max: 1e-6,
+    step: "any",
+  },
+  electricFieldX: { label: "Electric field Ex (V/m)", min: -1e8, max: 1e8, step: "10000" },
+  electricFieldY: { label: "Electric field Ey (V/m)", min: -1e8, max: 1e8, step: "10000" },
+  electricFieldZ: { label: "Electric field Ez (V/m)", min: -1e8, max: 1e8, step: "10000" },
+  magneticFieldX: { label: "Magnetic field Bx (Tesla)", min: -10, max: 10, step: "0.005" },
+  magneticFieldY: { label: "Magnetic field By (Tesla)", min: -10, max: 10, step: "0.005" },
+  magneticFieldZ: { label: "Magnetic field Bz (Tesla)", min: -10, max: 10, step: "0.005" },
+  customCharge: { label: "Custom particle charge q (C)", min: -1e-6, max: 1e-6, step: "any" },
+  customMass: { label: "Custom particle rest mass m (kg)", min: 1e-31, max: 1e-3, step: "any" },
+} as const;
+type NumericField = keyof typeof NUMERIC_FIELDS;
+type Sr13Typed = Readonly<Record<NumericField, string>>;
+// Keep the reader's text until Apply: a cleared number field must not silently become zero.
 function typedFrom(p: Sr13Parameters): Sr13Typed {
-  return {
-    initialSpeed: String(p.initialSpeed),
-    electricFieldY: String(p.electricFieldY),
-    magneticFieldZ: String(p.magneticFieldZ),
-  };
+  return Object.fromEntries(
+    (Object.keys(NUMERIC_FIELDS) as NumericField[]).map((name) => [
+      name,
+      String(p[name] ?? SR13_DEFAULTS[name]),
+    ]),
+  ) as Sr13Typed;
+}
+
+function unavailableReason(snapshot: AcceptedSnapshot, quantityId: string): string {
+  const item = result(snapshot, quantityId);
+  return item.status === "outside-domain" || item.status === "not-applicable"
+    ? item.reason
+    : statusMessage(item.status);
 }
 
 export function ElectronDynamicsLab({
@@ -92,11 +124,13 @@ export function ElectronDynamicsLab({
   restoreFromLocation = true,
   example,
   title = "Dynamics of the slowly accelerated electron",
+  highlightPaper = false,
 }: {
   example: PreparedSr13Example;
   instanceId?: string | undefined;
   restoreFromLocation?: boolean | undefined;
   title?: string;
+  highlightPaper?: boolean;
 }) {
   const id = useId();
   const session = useRetainedSession(
@@ -169,23 +203,52 @@ export function ElectronDynamicsLab({
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const speed = readTypedNumber(typed.initialSpeed, "the initial speed β");
-    if (speed.kind === "refused") return refuse(speed.refusal, speed.requirement);
-    const ey = readTypedNumber(typed.electricFieldY, "the electric field Ey");
-    if (ey.kind === "refused") return refuse(ey.refusal, ey.requirement);
-    const bz = readTypedNumber(typed.magneticFieldZ, "the magnetic field Bz");
-    if (bz.kind === "refused") return refuse(bz.refusal, bz.requirement);
-    const checked = validateSr13Parameters({
-      ...draft,
-      initialSpeed: speed.value,
-      electricFieldY: ey.value,
-      magneticFieldZ: bz.value,
-    });
+    const parameters = { ...draft };
+    for (const name of Object.keys(NUMERIC_FIELDS) as NumericField[]) {
+      if (draft.particle === "electron" && (name === "customCharge" || name === "customMass")) {
+        continue;
+      }
+      const label = NUMERIC_FIELDS[name].label;
+      const number = readTypedNumber(typed[name], label.charAt(0).toLowerCase() + label.slice(1));
+      if (number.kind === "refused") return refuse(number.refusal, number.requirement);
+      parameters[name] = number.value;
+    }
+    const checked = validateSr13Parameters(parameters);
     if (checked.kind !== "accepted") {
       refuse(checked.refusal, refusalSentence(checked.refusal));
       return;
     }
     apply(checked.data);
+  }
+
+  function numberField(name: NumericField, disabled = false) {
+    const { label, min, max, step } = NUMERIC_FIELDS[name];
+    return (
+      <div className="input-field" key={name}>
+        <label htmlFor={`${id}-${name}`}>{label}</label>
+        <input
+          id={`${id}-${name}`}
+          type="number"
+          name={name}
+          inputMode="decimal"
+          min={min}
+          max={max}
+          step={step}
+          disabled={disabled}
+          value={typed[name]}
+          onChange={(event) => setTyped({ ...typed, [name]: event.currentTarget.value })}
+        />
+      </div>
+    );
+  }
+
+  function preset(settings: Partial<Sr13Parameters>) {
+    apply({
+      ...SR13_DEFAULTS,
+      forceConvention: p.forceConvention,
+      massLanguage: p.massLanguage,
+      ...settings,
+    });
   }
 
   const beta = numericOf(result(snapshot, "speedRatio")) ?? draft.initialSpeed;
@@ -195,21 +258,20 @@ export function ElectronDynamicsLab({
   const transMLab = numericOf(result(snapshot, "transverseMassLaboratory")) ?? 0;
   const keExact = numericOf(result(snapshot, "kineticEnergy")) ?? 0;
   const keNewt = numericOf(result(snapshot, "kineticEnergyNewtonian")) ?? 0;
-  const potExact = numericOf(result(snapshot, "acceleratingPotential")) ?? 0;
-  const potNewt = numericOf(result(snapshot, "acceleratingPotentialNewtonian")) ?? 0;
-  const rm = numericOf(result(snapshot, "radiusCurvatureMagnetic")) ?? Infinity;
-  const re = numericOf(result(snapshot, "radiusCurvatureElectric")) ?? Infinity;
+  const potExact = numericOf(result(snapshot, "acceleratingPotential"));
+  const potNewt = numericOf(result(snapshot, "acceleratingPotentialNewtonian"));
+  const rm = numericOf(result(snapshot, "radiusCurvatureMagnetic"));
+  const re = numericOf(result(snapshot, "radiusCurvatureElectric"));
   // The path the chamber draws: the same accepted snapshot as every number beside it. Looked up, not
   // required, so a snapshot prepared before the kernel published a path renders without one.
   const path = snapshot.outputs.find((o) => o.quantityId === "trajectoryPositions");
   const trajectory = path?.status === "value" && typeof path.value !== "number" ? path.value : null;
-  // One sentence for the status line: the electron's kinetic energy and the potential that gives
-  // it, each beside what Newton's formula says.
+  const particleName = p.particle === "electron" ? "an electron" : "the custom particle";
   const statusSummary =
-    numericOf(result(snapshot, "kineticEnergy")) !== null &&
-    numericOf(result(snapshot, "acceleratingPotential")) !== null
-      ? `an electron at ${fixed(beta, 3)}c, γ = ${fixed(gammaVal, 4)}, carries ${sentenceNumber(keExact)} J of kinetic energy where Newton's formula gives ${sentenceNumber(keNewt)} J; reaching this speed from rest takes ${sentenceNumber(potExact)} V, against ${sentenceNumber(potNewt)} V by Newton's formula.`
-      : "the electron's energy is outside the model's domain at this speed.";
+    `${particleName} initially at ${fixed(beta, 3)}c, γ = ${fixed(gammaVal, 4)}, carries ${sentenceNumber(keExact)} J of kinetic energy where Newton's formula gives ${sentenceNumber(keNewt)} J. ` +
+    (potExact !== null && potNewt !== null
+      ? `Reaching this speed from rest takes ${sentenceNumber(potExact)} V, against ${sentenceNumber(potNewt)} V by Newton's formula.`
+      : unavailableReason(snapshot, "acceleratingPotential"));
 
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
   // example, an accepted recalculation a host calculation.
@@ -256,7 +318,7 @@ export function ElectronDynamicsLab({
       <div className="lab-columns">
         <form noValidate onSubmit={submit} aria-label="Electron dynamics controls">
           <fieldset disabled={!ready}>
-            <legend>Set field strengths, initial speed, and conventions</legend>
+            <legend>Set the particle, initial motion, fields, and conventions</legend>
             <div className="lab-choice">
               <p className="fine">
                 Section 10 examines the motion of a slowly accelerated electron in electromagnetic
@@ -270,8 +332,7 @@ export function ElectronDynamicsLab({
                   type="button"
                   className="secondary"
                   onClick={() =>
-                    apply({
-                      ...p,
+                    preset({
                       initialSpeed: 0.6,
                       electricFieldY: 1e5,
                       magneticFieldZ: 0,
@@ -286,8 +347,7 @@ export function ElectronDynamicsLab({
                   type="button"
                   className="secondary"
                   onClick={() =>
-                    apply({
-                      ...p,
+                    preset({
                       initialSpeed: 0.95,
                       electricFieldY: 0,
                       magneticFieldZ: 0,
@@ -301,8 +361,7 @@ export function ElectronDynamicsLab({
                   type="button"
                   className="secondary"
                   onClick={() =>
-                    apply({
-                      ...p,
+                    preset({
                       initialSpeed: 0.6,
                       electricFieldY: 0,
                       magneticFieldZ: 0.01,
@@ -316,8 +375,7 @@ export function ElectronDynamicsLab({
                   type="button"
                   className="secondary"
                   onClick={() =>
-                    apply({
-                      ...p,
+                    preset({
                       initialSpeed: 0.6,
                       electricFieldY: 1e5,
                       magneticFieldZ: 0.01,
@@ -327,25 +385,28 @@ export function ElectronDynamicsLab({
                 >
                   Crossed fields (E and B together)
                 </button>
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() => preset({ electricFieldX: -1e5, electricFieldY: 0 })}
+                >
+                  Parallel electric acceleration
+                </button>
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() =>
+                    preset({ initialDirectionDeg: 45, electricFieldY: 0, magneticFieldZ: 0.01 })
+                  }
+                >
+                  Oblique injection (45° in a magnetic field)
+                </button>
               </div>
             </div>
             <div className="input-grid">
-              <div className="input-field">
-                <label htmlFor={`${id}-initialSpeed`}>Initial speed β = v/c</label>
-                <input
-                  id={`${id}-initialSpeed`}
-                  type="number"
-                  name="initialSpeed"
-                  inputMode="decimal"
-                  step="0.01"
-                  min="-0.95"
-                  max="0.95"
-                  value={typed.initialSpeed}
-                  onChange={(event) =>
-                    setTyped({ ...typed, initialSpeed: event.currentTarget.value })
-                  }
-                />
-              </div>
+              {numberField("initialSpeed")}
+              {numberField("initialDirectionDeg")}
+              {numberField("integrationInterval")}
               <div className="input-field">
                 <label htmlFor={`${id}-forceConvention`}>Force convention</label>
                 <select
@@ -363,38 +424,47 @@ export function ElectronDynamicsLab({
                   <option value="laboratory">Laboratory (Planck 1906: F = dp/dt)</option>
                 </select>
               </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-particle`}>Particle</label>
+                <select
+                  id={`${id}-particle`}
+                  name="particle"
+                  value={draft.particle}
+                  onChange={(event) =>
+                    setDraft({
+                      ...draft,
+                      particle: event.currentTarget.value as "electron" | "custom",
+                    })
+                  }
+                >
+                  <option value="electron">Electron (negative elementary charge)</option>
+                  <option value="custom">Custom particle (choose charge and rest mass)</option>
+                </select>
+              </div>
             </div>
+            <p className="fine">
+              The initial velocity lies in the x–y plane: 0° points along +x and 90° along +y. A
+              negative β reverses that direction. The chamber shows the x–y projection; motion along
+              z is not shown. Each trajectory uses the model&apos;s fixed 120 time steps; longer
+              durations and stronger fields can leave rapid turns unresolved.
+            </p>
+            <div className="input-grid">
+              {numberField("customCharge", draft.particle !== "custom")}
+              {numberField("customMass", draft.particle !== "custom")}
+            </div>
+            <p className="fine">
+              Custom charge and mass apply only to the custom particle. The sign of q sets the
+              direction of its electric and magnetic deflections; q = 0 gives an uncharged particle.
+            </p>
             <button type="submit">Apply settings</button>
-            <ExperimentSettings contents="electric and magnetic field strengths, mass language, a historical dataset overlay">
+            <ExperimentSettings contents="all electric and magnetic field components, mass language, a historical dataset overlay">
               <div className="input-grid">
-                <div className="input-field">
-                  <label htmlFor={`${id}-electricFieldY`}>Electric field Ey (V/m)</label>
-                  <input
-                    id={`${id}-electricFieldY`}
-                    type="number"
-                    name="electricFieldY"
-                    inputMode="decimal"
-                    step="10000"
-                    value={typed.electricFieldY}
-                    onChange={(event) =>
-                      setTyped({ ...typed, electricFieldY: event.currentTarget.value })
-                    }
-                  />
-                </div>
-                <div className="input-field">
-                  <label htmlFor={`${id}-magneticFieldZ`}>Magnetic field Bz (Tesla)</label>
-                  <input
-                    id={`${id}-magneticFieldZ`}
-                    type="number"
-                    name="magneticFieldZ"
-                    inputMode="decimal"
-                    step="0.005"
-                    value={typed.magneticFieldZ}
-                    onChange={(event) =>
-                      setTyped({ ...typed, magneticFieldZ: event.currentTarget.value })
-                    }
-                  />
-                </div>
+                {numberField("electricFieldX")}
+                {numberField("electricFieldY")}
+                {numberField("electricFieldZ")}
+                {numberField("magneticFieldX")}
+                {numberField("magneticFieldY")}
+                {numberField("magneticFieldZ")}
                 <div className="input-field">
                   <label htmlFor={`${id}-massLanguage`}>Mass language</label>
                   <select
@@ -463,7 +533,7 @@ export function ElectronDynamicsLab({
         <LabTapeLink link={withPredictions(tapeLink, gate)} />
         <div className="lab-results" {...gate.response}>
           <ElectronDynamicsPlot
-            initialSpeed={beta}
+            initialSpeed={p.initialSpeed}
             initialDirectionDeg={p.initialDirectionDeg}
             electricFieldX={p.electricFieldX}
             electricFieldY={p.electricFieldY}
@@ -481,17 +551,29 @@ export function ElectronDynamicsLab({
             kineticEnergyNewtonianJ={keNewt}
             acceleratingPotentialV={potExact}
             acceleratingPotentialNewtonianV={potNewt}
+            acceleratingPotentialReason={unavailableReason(snapshot, "acceleratingPotential")}
+            acceleratingPotentialNewtonianReason={unavailableReason(
+              snapshot,
+              "acceleratingPotentialNewtonian",
+            )}
             radiusCurvatureMagneticM={rm}
             radiusCurvatureElectricM={re}
+            radiusCurvatureMagneticReason={unavailableReason(snapshot, "radiusCurvatureMagnetic")}
+            radiusCurvatureElectricReason={unavailableReason(snapshot, "radiusCurvatureElectric")}
             lorentzFactor={gammaVal}
             datasetOverlay={p.datasetOverlay}
             trajectory={trajectory}
             integrationIntervalS={p.integrationInterval}
           />
-          <h3>Values at these settings</h3>
+          <h3>Values at the initial speed</h3>
+          <p className="fine">
+            Energy, potential, and mass coefficients refer to the initial speed, before the fields
+            act. Each reference radius assumes a separate purely transverse field of the displayed
+            magnitude; neither is the curvature of a general combined-field trajectory.
+          </p>
           <table>
             <caption>
-              Relativistic electron dynamics quantities computed under current settings.
+              Relativistic particle dynamics quantities computed under the accepted settings.
             </caption>
             <tbody>
               <tr>
@@ -533,7 +615,7 @@ export function ElectronDynamicsLab({
                 </td>
               </tr>
               <tr>
-                <th scope="row">Accelerating potential (P = W/e)</th>
+                <th scope="row">Accelerating potential (P = W/|q|)</th>
                 <td>
                   <SnapshotReading
                     snapshot={snapshot}
@@ -544,7 +626,7 @@ export function ElectronDynamicsLab({
               </tr>
               <tr>
                 <th scope="row">
-                  Magnetic curvature radius (R<sub>m</sub>)
+                  Pure transverse magnetic reference radius (R<sub>m</sub>)
                 </th>
                 <td>
                   <SnapshotReading
@@ -556,7 +638,7 @@ export function ElectronDynamicsLab({
               </tr>
               <tr>
                 <th scope="row">
-                  Electric curvature radius (R<sub>e</sub>)
+                  Pure transverse electric reference radius (R<sub>e</sub>)
                 </th>
                 <td>
                   <SnapshotReading
@@ -569,6 +651,15 @@ export function ElectronDynamicsLab({
             </tbody>
           </table>
         </div>
+      </div>
+      <div {...gate.response}>
+        <SessionResultWeave
+          session={session}
+          binding={SR13_READER_WEAVE}
+          suspended={refusal !== null}
+          announcementsEnabled={gate.open}
+          highlightPaper={highlightPaper}
+        />
       </div>
       {/* The caption follows the instrument it describes; above it, it came between a phone's heading and the result. */}
       <p data-detail="0">
