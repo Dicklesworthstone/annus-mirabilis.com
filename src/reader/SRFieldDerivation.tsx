@@ -4,6 +4,7 @@ import { type Expression, nodeId } from "../equations/ast.ts";
 import { expressionToSpokenText } from "../equations/derivations/a11yText.ts";
 import { DerivationChain } from "../equations/derivations/DerivationChain.tsx";
 import { renderExpressionMarkup } from "../equations/derivations/mathRenderer.ts";
+import type { SRFieldCovarianceReport } from "../equations/derivations/srFieldCovariance.ts";
 import {
   srFieldAnsatzEquations,
   srFieldComponentRows,
@@ -20,10 +21,12 @@ import {
   srFieldTransformMetadata,
   srFieldVacuumConstraints,
 } from "../equations/derivations/srFieldTransforms.ts";
+import { SRFieldCovarianceCheck } from "./SRFieldCovarianceCheck.tsx";
 
 export interface SRFieldDerivationProps {
   readonly activeDetail?: "0" | "1" | "2";
   readonly perspective?: "historical" | "modern";
+  readonly covarianceReport?: SRFieldCovarianceReport;
 }
 
 function FieldEquation({
@@ -66,6 +69,7 @@ const sourceReturns = [
 export function SRFieldDerivation({
   activeDetail = "1",
   perspective = "historical",
+  covarianceReport,
 }: SRFieldDerivationProps) {
   return (
     <section
@@ -160,8 +164,13 @@ export function SRFieldDerivation({
         {srFieldVacuumConstraints.map((expression) => (
           <FieldEquation key={nodeId(expression)} expression={expression} />
         ))}
+        {covarianceReport && <SRFieldCovarianceCheck report={covarianceReport} />}
         {srFieldComponentRows.map((row) => (
-          <details key={row.component} data-field-component={row.component}>
+          <details
+            key={row.component}
+            id={`sr-field-component-${row.component.toLowerCase()}`}
+            data-field-component={row.component}
+          >
             <summary>
               {row.component}: {componentDescriptions[row.component]}
             </summary>

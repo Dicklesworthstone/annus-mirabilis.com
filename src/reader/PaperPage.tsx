@@ -14,6 +14,7 @@ import { loadConcordanceForPaper } from "../content/notation/loader.ts";
 import { hasResultCards } from "../content/results/resultCards.ts";
 import { getModalityClasses } from "../content/schemas/glossConventions.ts";
 import { loadPaper } from "../content/server.ts";
+import { verifySRFieldCovariance } from "../equations/derivations/srFieldCovariance.ts";
 import type { CompiledMissingStepLesson } from "../equations/missingStep/compiled.ts";
 import { MissingStepDisclosure } from "../equations/missingStep/MissingStepPanel.tsx";
 import entranceExample from "../generated/mass-energy-entrance.json";
@@ -833,7 +834,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                       {paper.id === "special-relativity" &&
                         a.id === "arg-sr-field-components" &&
                         (sectionId ? (
-                          <LazySRFieldDerivation />
+                          <LazySRFieldDerivation covarianceReport={verifySRFieldCovariance()} />
                         ) : (
                           <p className="fine">
                             <a href="/papers/special-relativity/s6/#sr-field-derivation">

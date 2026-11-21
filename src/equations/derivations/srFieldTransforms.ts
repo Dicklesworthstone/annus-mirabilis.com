@@ -4,8 +4,9 @@
  * normalize that factor. The SI records below are a separate unit conversion.
  *
  * The generic substitution checker checks the authored replacement, not a PDE
- * proof. The component regroupings remain draft, authored-unverified steps;
- * independent analytic-derivative fixtures test their full residual identities.
+ * proof. The source-order steps retain their draft, authored-unverified labels.
+ * The separate srFieldCovariance owner checks their full residual identities
+ * exactly; it does not establish the physical identification or common factor.
  */
 
 import bxRecord from "../../../content/equations/special-relativity/eq-model-sr-field-bx.json";
