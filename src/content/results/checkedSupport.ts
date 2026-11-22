@@ -90,11 +90,15 @@ import {
   verifyChain,
 } from "../../equations/derivations/verifyChain.ts";
 import type { EquationRecord } from "../../equations/record.ts";
+import { checkedFieldCovarianceSupport } from "./fieldCovarianceSupport.ts";
 import { ResultCardsError } from "./printedChecks.ts";
 import type { ResultCardRecord } from "./resultCards.ts";
 import type { CheckedResultSupport, ResultProofId } from "./supportDeclarations.ts";
 
-type DerivationProofId = Extract<ResultProofId, `sr-${string}` | `bm-${string}` | `lq-${string}`>;
+type DerivationProofId = Exclude<
+  Extract<ResultProofId, `sr-${string}` | `bm-${string}` | `lq-${string}`>,
+  "sr-field-covariance"
+>;
 type ProofRecord = Readonly<{
   id: string;
   paper: string;
@@ -597,6 +601,9 @@ export function checkedSupportFor(
       "result-support-conclusion-mismatch",
       `${card.id}: ${declaration.conclusion} is not an equation of this card's argument.`,
     );
+
+  if (declaration.proofId === "sr-field-covariance")
+    return checkedFieldCovarianceSupport(card.id, declaration, conclusion, equations);
 
   if (Object.hasOwn(DERIVATION_PROOFS, declaration.proofId))
     return checkedDerivationSupport(

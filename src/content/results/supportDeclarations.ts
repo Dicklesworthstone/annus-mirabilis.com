@@ -14,6 +14,7 @@ export const RESULT_PROOF_IDS = [
   "sr-doppler-phase",
   "sr-light-complex-energy",
   "sr-moving-mirror",
+  "sr-field-covariance",
   "sr-charge-current",
   "sr-electron-force-conventions",
   "sr-electron-work",

@@ -400,3 +400,81 @@ export function verifySRFieldCovariance(
     };
   }
 }
+
+/**
+ * Check the actual SI records against the candidates whose vacuum identities were
+ * checked above. With one common electric-field scale, the Gaussian magnetic
+ * component is c times the SI component. This is a unit conversion, not a new
+ * physical premise or a proof of the identification of the fields.
+ */
+export function verifySRFieldSIComponents(
+  rows: readonly Readonly<{ component: SRFieldComponent; tree: Expression }>[],
+): Readonly<{ passed: boolean; components: readonly SRFieldComponent[]; reason?: string }> {
+  const components: SRFieldComponent[] = [];
+  try {
+    if (rows.length !== order.length || rows.some((row, index) => row.component !== order[index]))
+      refuse("Every SI field component is required exactly once in source order.");
+    const ring = algebra();
+    const speed: Expression = { kind: "symbol", termId: "c", quantityId: "speedOfLight" };
+    function gaussianUnits(expression: Expression, depth = 0): Expression {
+      if (depth > 24) refuse("The SI field expression exceeds the conversion depth.");
+      switch (expression.kind) {
+        case "symbol":
+          return expression.quantityId === "magneticFieldStationary"
+            ? { kind: "quotient", numerator: expression, denominator: speed }
+            : expression;
+        case "number":
+          return expression;
+        case "group":
+        case "negate":
+          return { ...expression, argument: gaussianUnits(expression.argument, depth + 1) };
+        case "sum":
+        case "product":
+          if (expression.args.length === 0 || expression.args.length > 32)
+            refuse("An SI field sum or product must have a bounded, nonempty set of terms.");
+          return {
+            ...expression,
+            args: expression.args.map((term) => gaussianUnits(term, depth + 1)),
+          };
+        case "quotient":
+          return {
+            ...expression,
+            numerator: gaussianUnits(expression.numerator, depth + 1),
+            denominator: gaussianUnits(expression.denominator, depth + 1),
+          };
+        case "power":
+          return { ...expression, base: gaussianUnits(expression.base, depth + 1) };
+        default:
+          return refuse("Only algebraic field components belong to this SI conversion.");
+      }
+    }
+    for (const { component, tree } of rows) {
+      const [stationaryQuantity, index] = fieldCoordinates[component];
+      const movingQuantity = stationaryQuantity.replace("Stationary", "Moving");
+      if (
+        tree.kind !== "relation" ||
+        tree.operator !== "=" ||
+        tree.left.kind !== "symbol" ||
+        tree.left.quantityId !== movingQuantity ||
+        tree.left.index !== index ||
+        tree.left.at ||
+        tree.left.args ||
+        tree.left.scale
+      )
+        refuse(`The ${component} record must identify its unscaled moving-field component.`);
+      const converted = gaussianUnits(tree.right);
+      const candidate =
+        stationaryQuantity === "magneticFieldStationary"
+          ? { kind: "product" as const, args: [speed, converted] }
+          : converted;
+      if (!ring.equal(ring.expand(candidate), ring.expand(srFieldCandidateComponents[component])))
+        refuse(`The ${component} SI component does not match its checked Gaussian candidate.`);
+      components.push(component);
+    }
+    return { passed: true, components };
+  } catch (error) {
+    if (!(error instanceof SRFieldCovarianceError) && !(error instanceof PolynomialRefusal))
+      throw error;
+    return { passed: false, components, reason: error.message };
+  }
+}

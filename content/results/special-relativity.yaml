@@ -409,8 +409,10 @@ cards:
 
   - id: sr-field-transformation
     support:
-      kind: "no-checked-proof"
-      reason: "The field-component transformation is explained in the linked passages; no checked source-order derivation record covers all components."
+      kind: "checked-proof"
+      proofId: "sr-field-covariance"
+      conclusion: "eq-model-sr-field-ey"
+      scope: "Given the coordinate map of §3 and a constant subluminal boost, the six candidate field components satisfy exact Maxwell–Hertz residual identities and invert when the boost reverses. The actual SI component records are checked against those candidates by an explicit unit conversion. The original curl equations and both zero-divergence conditions are premises for inferring the six transformed curl equations. Physical identification of the candidate fields, the common factor ψ and its normalization remain additional premises, not conclusions of this algebra."
     title: "The electric and magnetic forces in the moving system"
     section: s6
     arguments: [arg-sr-field-derivatives, arg-sr-field-components]
