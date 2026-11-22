@@ -14,6 +14,7 @@ export default function Sr12ClarificationView({ instanceId }: ExperimentViewProp
       example={{ ...example, parameters: checked.data }}
       instanceId={instanceId}
       restoreFromLocation={false}
+      highlightPaper
     />
   );
 }

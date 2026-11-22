@@ -29,6 +29,8 @@ import { instrumentRootAttributes } from "../../../experiments/store/identityAtt
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 import { createReaderCheckpointBinding } from "../../../experiments/store/readerCheckpoint.ts";
 import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
+import { SR12_READER_WEAVE } from "../../../reader/weave/chargeCurrentPassages.ts";
+import { SessionResultWeave } from "../../../reader/weave/SessionResultWeave.tsx";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { display, fixed, identity, result, sentenceNumber } from "../presentation.ts";
@@ -89,12 +91,14 @@ const BOOST_TOO_LARGE = BOOST_DOMAIN
 export function ChargeCurrentLab({
   instanceId,
   restoreFromLocation = true,
+  highlightPaper = false,
   example,
   title = "Charge and current density in moving frames",
 }: {
   example: PreparedSr12Example;
   instanceId?: string | undefined;
   restoreFromLocation?: boolean | undefined;
+  highlightPaper?: boolean;
   title?: string;
 }) {
   const id = useId();
@@ -796,6 +800,16 @@ export function ChargeCurrentLab({
           </tbody>
         </table>
       </section>
+
+      <div {...gate.response}>
+        <SessionResultWeave
+          session={session}
+          binding={SR12_READER_WEAVE}
+          suspended={refusal !== null || error.length > 0}
+          announcementsEnabled={gate.open}
+          highlightPaper={highlightPaper}
+        />
+      </div>
 
       {/* Editorial Explanations (R0-R3) */}
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct

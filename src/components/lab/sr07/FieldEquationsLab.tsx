@@ -42,6 +42,8 @@ import { instrumentRootAttributes } from "../../../experiments/store/identityAtt
 import { createReaderCheckpointBinding } from "../../../experiments/store/readerCheckpoint.ts";
 import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
+import { SR07_READER_WEAVE } from "../../../reader/weave/fieldPassages.ts";
+import { SessionResultWeave } from "../../../reader/weave/SessionResultWeave.tsx";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
@@ -103,12 +105,14 @@ const POLS: readonly Sr07Polarization[] = ["primary", "secondary"];
 export function FieldEquationsLab({
   instanceId,
   restoreFromLocation = true,
+  highlightPaper = false,
   example,
   title = "The field equations keep their form",
 }: {
   example: PreparedSr07Example;
   instanceId?: string | undefined;
   restoreFromLocation?: boolean | undefined;
+  highlightPaper?: boolean;
   title?: string;
 }) {
   const id = useId();
@@ -189,6 +193,7 @@ export function FieldEquationsLab({
 
   if (!snapshot) throw new Error("SR-07 requires an accepted snapshot.");
 
+  const awaitingPrediction = p.equationId === "ampere-x" && p.stepIndex === 2 && predict === null;
   const eq = SR07_EQUATIONS[p.equationId];
   const displayed = p.unitLayer === "printed-gaussian" ? eq.printed : eq.si;
   const unitLabel =
@@ -426,7 +431,7 @@ export function FieldEquationsLab({
             Step {p.stepIndex + 1} of {SR07_STEPS.length}
           </p>
           <p className="sr07-step">{SR07_STEPS[p.stepIndex]}</p>
-          {p.equationId === "ampere-x" && p.stepIndex === 2 && predict === null ? (
+          {awaitingPrediction ? (
             <form
               noValidate
               onSubmit={(e) => {
@@ -564,6 +569,15 @@ export function FieldEquationsLab({
         Residuals are an oracle on an admitted analytic wave. They are not the section 6 argument.
         The algebra above is a static worked example.
       </p>
+      <div hidden={awaitingPrediction}>
+        <SessionResultWeave
+          session={session}
+          binding={SR07_READER_WEAVE}
+          suspended={failure !== null || error.length > 0}
+          announcementsEnabled={!awaitingPrediction}
+          highlightPaper={highlightPaper}
+        />
+      </div>
       <details>
         <summary>Show the validation code</summary>
         <p>

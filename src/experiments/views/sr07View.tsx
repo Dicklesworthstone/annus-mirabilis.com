@@ -9,6 +9,11 @@ const example = { ...DEFAULT_PREPARED_EXAMPLE, sourceDigest: labDigests["sr-07"]
 
 export default function Sr07ClarificationView({ instanceId }: ExperimentViewProps) {
   return (
-    <FieldEquationsLab example={example} instanceId={instanceId} restoreFromLocation={false} />
+    <FieldEquationsLab
+      example={example}
+      instanceId={instanceId}
+      restoreFromLocation={false}
+      highlightPaper
+    />
   );
 }

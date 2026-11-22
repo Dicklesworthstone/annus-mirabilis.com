@@ -25,6 +25,8 @@ import { instrumentRootAttributes } from "../../../experiments/store/identityAtt
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 import { createReaderCheckpointBinding } from "../../../experiments/store/readerCheckpoint.ts";
 import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
+import { SR08_READER_WEAVE } from "../../../reader/weave/fieldPassages.ts";
+import { SessionResultWeave } from "../../../reader/weave/SessionResultWeave.tsx";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { display, fixed, identity, result, sentenceNumber } from "../presentation.ts";
@@ -93,12 +95,14 @@ const SR08_PROMPTS = PREDICT_PROMPTS["sr-08"] ?? [];
 export function FieldFrameChangeLab({
   instanceId,
   restoreFromLocation = true,
+  highlightPaper = false,
   example,
   title = "Electric and magnetic frame change",
 }: {
   example: PreparedSr08Example;
   instanceId?: string | undefined;
   restoreFromLocation?: boolean | undefined;
+  highlightPaper?: boolean;
   title?: string;
 }) {
   const id = useId();
@@ -694,6 +698,16 @@ export function FieldFrameChangeLab({
             </p>
           </details>
         </div>
+      </div>
+
+      <div {...gate.response}>
+        <SessionResultWeave
+          session={session}
+          binding={SR08_READER_WEAVE}
+          suspended={refusal !== null || error.length > 0}
+          announcementsEnabled={gate.open}
+          highlightPaper={highlightPaper}
+        />
       </div>
 
       {/* The caption's readings follow the instrument (dispatch 263). Above the predict gate they
