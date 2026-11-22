@@ -1,3 +1,4 @@
+import { sketchSvg } from "../../discovery/capstone/worksheetSketch.ts";
 import { comparisonDisplay } from "../../experiments/compare/comparisonStatement.ts";
 import { capstoneCaptureHref, capstoneCaptureText } from "./capstoneEntry.ts";
 import { comparisonReplayAdapter } from "./comparisonAdapters.ts";
@@ -65,7 +66,7 @@ export function exportNotebookHtml(input: NotebookDocument): string {
       (entry) => `<article><h2>${escapeHtml(entry.title)}</h2>
 <p>${escapeHtml(entry.kind === "nextStep" ? "Next step" : entry.kind === "teachBack" ? "Teach-back explanation" : entry.kind === "exercise" ? "Exercise response" : entry.kind)} · ${escapeHtml(entry.frame.paper.replaceAll("-", " "))}</p>
 ${entry.kind === "teachBack" ? teachBackHtml(entry) : entry.kind === "exercise" ? exerciseHtml(entry) : `<pre>${escapeHtml(entry.text)}</pre>`}
-${entry.kind === "replay" ? replayHtml(entry) : entry.kind === "capstone" ? `<section><h3>Snapshot saved ${escapeHtml(entry.createdAt)}</h3><pre>${escapeHtml(capstoneCaptureText(entry.capstone))}</pre></section>` : ""}
+${entry.kind === "replay" ? replayHtml(entry) : entry.kind === "capstone" ? `<section><h3>Snapshot saved ${escapeHtml(entry.createdAt)}</h3>${sketchSvg(entry.capstone.worksheet.sketch)}<pre>${escapeHtml(capstoneCaptureText(entry.capstone))}</pre></section>` : ""}
 <a href="${escapeHtml(`https://annus-mirabilis.com${entry.kind === "capstone" ? capstoneCaptureHref(entry.capstone) : entry.kind === "teachBack" ? teachBackHref(entry.frame.paper, entry.teachBack) : entry.kind === "exercise" ? exerciseResponseHref(entry.frame.paper, entry.exercise) : notebookFrameHref(entry.frame)}`)}">${entry.kind === "capstone" ? "Open this capstone" : entry.kind === "teachBack" ? "Return to this question" : entry.kind === "exercise" ? "Return to this exercise" : "Return to this passage"}</a></article>`,
     )
     .join("\n");

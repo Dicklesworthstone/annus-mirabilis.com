@@ -63,6 +63,16 @@ function fixture() {
       ["time", "value"],
       ["one\ntwo", "α | β"],
     ],
+    sketch: {
+      description: "Two energy accounts, one body.",
+      strokes: [
+        [
+          { x: 80, y: 90 },
+          { x: 900, y: 500 },
+        ],
+        [{ x: 500, y: 300 }],
+      ],
+    },
   };
   return { worksheet, capture: captureCapstone(capstone, worksheet, equations) };
 }
@@ -78,14 +88,39 @@ test("notebook-capstone-invalid: valid snapshots roundtrip for all four papers",
 
 test("capture is detached and deeply frozen, not an alias of a live worksheet", () => {
   const { worksheet, capture } = fixture();
-  worksheet.table[0]![0] = "changed after save";
+  const row = worksheet.table[0];
+  const point = worksheet.sketch.strokes[0]?.[0];
+  assert.ok(row);
+  assert.ok(point);
+  row[0] = "changed after save";
   worksheet.assumptionMarks.c1.push("a2");
   worksheet.annotations["eq-ledger"] = "new note";
+  worksheet.sketch.description = "edited later";
+  point.x = 100;
   assert.equal(capture.worksheet.table[0]?.[0], "time");
   assert.deepEqual(capture.worksheet.assumptionMarks.c1, ["a1"]);
   assert.equal(capture.worksheet.annotations["eq-ledger"], "Both frames count the same body.");
   assert.ok(Object.isFrozen(capture.worksheet.table[0]));
   assert.ok(Object.isFrozen(capture.claims));
+  assert.equal(capture.worksheet.sketch.description, "Two energy accounts, one body.");
+  assert.equal(capture.worksheet.sketch.strokes[0]?.[0]?.x, 80);
+  assert.ok(Object.isFrozen(capture.worksheet.sketch));
+  assert.ok(Object.isFrozen(capture.worksheet.sketch.strokes));
+  assert.ok(Object.isFrozen(capture.worksheet.sketch.strokes[0]));
+  assert.ok(Object.isFrozen(capture.worksheet.sketch.strokes[0]?.[0]));
+});
+
+test("saved version-one worksheets migrate inside old notebook captures without rewriting their input", () => {
+  const { capture } = fixture();
+  const { sketch: _sketch, ...worksheet } = capture.worksheet;
+  const older = { ...capture, worksheet: { ...worksheet, schemaVersion: 1 } };
+  const raw = JSON.stringify(older);
+  const restored = parseCapstoneCapture(older);
+  assert.equal(restored.worksheet.schemaVersion, 2);
+  assert.deepEqual(restored.worksheet.sketch, { description: "", strokes: [] });
+  assert.deepEqual(restored.worksheet.annotations, capture.worksheet.annotations);
+  assert.equal(JSON.stringify(older), raw);
+  assert.deepEqual(parseCapstoneCapture(restored), restored);
 });
 
 test("notebook-capstone-invalid: malformed and forward-version entries are refused without discarding fields", () => {
@@ -145,6 +180,32 @@ test("notebook-capstone-invalid: the complete UTF-8 capture has a bound, includi
   assert.equal(capture.worksheet.explanation, fixture().worksheet.explanation);
 });
 
+test("a legacy capture at its byte limit survives the empty-drawing migration without losing words", () => {
+  const { capture } = fixture();
+  const { sketch: _sketch, ...withoutSketch } = capture.worksheet;
+  const original = {
+    ...capture,
+    worksheet: { ...withoutSketch, schemaVersion: 1 },
+    prompt: "",
+    equations: Object.fromEntries(
+      Array.from({ length: 19 }, (_, index) => [`eq-${index}`, "x".repeat(10000)]),
+    ),
+  };
+  const bytes = (value: unknown) => new TextEncoder().encode(JSON.stringify(value)).length;
+  const remaining = 196608 - bytes(original);
+  assert.ok(remaining > 0 && remaining <= 10000);
+  original.prompt = "p".repeat(remaining);
+  const raw = JSON.stringify(original);
+  assert.equal(bytes(original), 196608);
+  const migrated = readCapstoneCapture(original);
+  assert.ok(migrated, "a previously admitted snapshot must remain readable at its byte limit");
+  assert.equal(bytes(migrated), 196649);
+  assert.deepEqual(readCapstoneCapture(JSON.parse(JSON.stringify(migrated))), migrated);
+  assert.equal(JSON.stringify(original), raw);
+  assert.equal(readCapstoneCapture({ ...original, prompt: `${original.prompt}p` }), null);
+  assert.equal(readCapstoneCapture({ ...migrated, prompt: `${migrated.prompt}p` }), null);
+});
+
 test("human-readable capture retains order, all annotations, every table cell and all assumption wording", () => {
   const { capture } = fixture();
   const text = capstoneCaptureText(capture);
@@ -156,6 +217,9 @@ test("human-readable capture retains order, all annotations, every table cell an
     "My own explanation π\n<not markup>",
     "Column 1: one\ntwo",
     "Column 2: α | β",
+    "Two energy accounts, one body.",
+    "Stroke 1: (80, 90) → (900, 500)",
+    "Stroke 2: (500, 300)",
   ])
     assert.ok(text.includes(expected), expected);
   assert.ok(text.includes("not an assessment or a record of a laboratory calculation"));
@@ -177,6 +241,10 @@ test("a reviewed attempt restores a new editable copy while leaving the notebook
   assert.deepEqual(result.worksheet, capture.worksheet);
   assert.notEqual(result.worksheet, capture.worksheet);
   assert.notEqual(result.worksheet.table[0], capture.worksheet.table[0]);
+  assert.notEqual(
+    result.worksheet.sketch.strokes[0]?.[0],
+    capture.worksheet.sketch.strokes[0]?.[0],
+  );
   assert.ok(!Object.isFrozen(result.worksheet));
 });
 

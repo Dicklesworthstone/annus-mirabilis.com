@@ -10,10 +10,10 @@ it("all four capstone documents have independent bounded, exportable, clearable 
     const registration = storageKeyRegistry.get(key);
     assert.equal(registration?.kind, "document");
     assert.equal(registration?.ownerBeadId, "am-disc-capstones-infra-3352");
-    assert.equal(registration?.schemaVersion, 1);
+    assert.equal(registration?.schemaVersion, 2);
     assert.equal(registration?.exportable, true);
     assert.equal(registration?.clearable, true);
     assert.ok((registration?.maxBytes ?? 0) >= 2 * (WORKSHEET_LIMITS.bytes + key.length));
   }
-  assert.equal(storageKeyRegistry.get("am:notebook:v1")?.schemaVersion, 1);
+  assert.equal(storageKeyRegistry.get("am:notebook:v1")?.schemaVersion, 3);
 });

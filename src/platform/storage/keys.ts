@@ -35,6 +35,11 @@ export type KeyRegistration = SettingRegistration | DocumentRegistration;
 
 export const SETTINGS_KEY_PREFIX = "am:settings:v1:";
 
+const NOTEBOOK_ORIGINAL_MAX_BYTES = 1_048_576;
+// An older notebook may hold 500 capstones. Each empty-drawing migration adds 41 ASCII
+// characters, counted as 82 bytes by browser storage. Keep that exact migration reserve.
+const NOTEBOOK_DRAWING_MIGRATION_RESERVE_BYTES = 41_000;
+
 export class DuplicateKeyRegistrationError extends Error {
   readonly key: string;
   constructor(key: string) {
@@ -332,7 +337,7 @@ export const SEED_ENTRIES: readonly KeyRegistration[] = [
       document_(
         CAPSTONE_WORKSHEET_KEYS[paper],
         "am-disc-capstones-infra-3352",
-        1,
+        2,
         `Capstone worksheet: ${DISCOVERY_PAPER_NAMES[paper]}`,
         { maxBytes: 300_000 },
       ),
@@ -360,7 +365,9 @@ export const SEED_ENTRIES: readonly KeyRegistration[] = [
       maxBytes: 128_000,
     },
   ),
-  document_("am:notebook:v1", "am-read-notebook-tde", 3, "Notebook", { maxBytes: 1_048_576 }),
+  document_("am:notebook:v1", "am-read-notebook-tde", 3, "Notebook", {
+    maxBytes: NOTEBOOK_ORIGINAL_MAX_BYTES + NOTEBOOK_DRAWING_MIGRATION_RESERVE_BYTES,
+  }),
   // Which saved place the reader dismissed "Continue where you left off" for (reader/notebook/browser.ts).
   document_(
     "am:notebook-recap:v1",

@@ -1,12 +1,20 @@
 /** A private reconstruction, including enough reference wording to read it after an edition changes. */
 import type { Capstone } from "../../discovery/capstone/capstoneSchema.ts";
+import { sketchText } from "../../discovery/capstone/worksheetSketch.ts";
 import {
   readWorksheet,
+  WORKSHEET_LIMITS,
   type WorksheetState,
   worksheetMatches,
 } from "../../discovery/capstone/worksheetState.ts";
 
-export const CAPSTONE_CAPTURE_LIMITS = Object.freeze({ bytes: 196608, labels: 128, text: 10000 });
+export const CAPSTONE_CAPTURE_LIMITS = Object.freeze({
+  // Admission measures the normalized snapshot. Preserve the original budget plus only the
+  // empty drawing's migration overhead, including for a legacy snapshot exactly at its limit.
+  bytes: 196608 + (WORKSHEET_LIMITS.bytes - WORKSHEET_LIMITS.legacyBytes),
+  labels: 128,
+  text: 10000,
+});
 export const CAPSTONE_PAPERS = [
   "brownian-motion",
   "light-quanta",
@@ -82,6 +90,14 @@ function freezeWorksheet(worksheet: WorksheetState): WorksheetState {
       ),
     ),
     table: Object.freeze(worksheet.table.map((row) => Object.freeze([...row]))),
+    sketch: Object.freeze({
+      description: worksheet.sketch.description,
+      strokes: Object.freeze(
+        worksheet.sketch.strokes.map((stroke) =>
+          Object.freeze(stroke.map((point) => Object.freeze({ ...point }))),
+        ),
+      ),
+    }),
   });
 }
 /** Strict admission, independent of a server-side content registry or laboratory evaluator. */
@@ -248,6 +264,7 @@ export function capstoneCaptureText(input: CapstoneCapture): string {
     lines.push(`Row ${row + 1}`);
     for (const [col, value] of cells.entries()) lines.push(`  Column ${col + 1}: ${value}`);
   }
+  lines.push("", "Your drawing", sketchText(state.sketch));
   lines.push("", "All assumptions available when saved");
   for (const [id, value] of Object.entries(capture.assumptions)) lines.push(`${value} [${id}]`);
   return `${lines.join("\n")}\n`;

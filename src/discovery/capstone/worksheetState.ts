@@ -1,5 +1,11 @@
 /** Private capstone work. No physics, storage I/O, clocks or scoring live in this model. */
 import type { Capstone } from "./capstoneSchema.ts";
+import { emptySketch, readSketch, type WorksheetSketch } from "./worksheetSketch.ts";
+
+const LEGACY_WORKSHEET_BYTES = 131072;
+// Normalizing a maximum-size version 1 worksheet adds exactly this empty-drawing envelope.
+// Reserving its bytes keeps every admitted old worksheet exportable and importable after upgrade.
+const EMPTY_SKETCH_OVERHEAD_BYTES = 41;
 
 export const WORKSHEET_LIMITS = Object.freeze({
   text: 10000,
@@ -7,29 +13,32 @@ export const WORKSHEET_LIMITS = Object.freeze({
   rows: 10,
   columns: 6,
   cell: 1000,
-  bytes: 131072,
+  legacyBytes: LEGACY_WORKSHEET_BYTES,
+  bytes: LEGACY_WORKSHEET_BYTES + EMPTY_SKETCH_OVERHEAD_BYTES,
 });
 
 export type WorksheetState = Readonly<{
-  schemaVersion: 1;
+  schemaVersion: 2;
   capstoneId: string;
   order: readonly string[];
   annotations: Readonly<Record<string, string>>;
   assumptionMarks: Readonly<Record<string, readonly string[]>>;
   explanation: string;
   table: readonly (readonly string[])[];
+  sketch: WorksheetSketch;
 }>;
 
 /** A new attempt starts in the authored order, with no answers filled in. */
 export function emptyWorksheet(capstone: Pick<Capstone, "id" | "startOrder">): WorksheetState {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     capstoneId: capstone.id,
     order: [...capstone.startOrder],
     annotations: {},
     assumptionMarks: {},
     explanation: "",
     table: [],
+    sketch: emptySketch(),
   };
 }
 
@@ -121,6 +130,7 @@ export function readWorksheet(input: unknown): WorksheetState | null {
     "assumptionMarks",
     "explanation",
     "table",
+    ...(input.schemaVersion === 2 ? ["sketch"] : []),
   ];
   if (
     Object.keys(input).length !== fields.length ||
@@ -128,7 +138,7 @@ export function readWorksheet(input: unknown): WorksheetState | null {
   )
     return null;
   if (
-    input.schemaVersion !== 1 ||
+    (input.schemaVersion !== 1 && input.schemaVersion !== 2) ||
     !validId(input.capstoneId) ||
     !idList(input.order) ||
     input.order.length === 0 ||
@@ -160,9 +170,15 @@ export function readWorksheet(input: unknown): WorksheetState | null {
   )
     return null;
   if (table.some((row) => row.length !== table[0].length)) return null;
-  if (new TextEncoder().encode(JSON.stringify(input)).length > WORKSHEET_LIMITS.bytes) return null;
+  // Version 1 never carried a drawing. Upgrade only the detached in-memory copy; storage reads
+  // still preserve the exact original bytes until the reader intentionally edits or imports it.
+  const sketch = input.schemaVersion === 1 ? emptySketch() : readSketch(input.sketch);
+  if (!sketch) return null;
+  const byteLimit =
+    input.schemaVersion === 1 ? WORKSHEET_LIMITS.legacyBytes : WORKSHEET_LIMITS.bytes;
+  if (new TextEncoder().encode(JSON.stringify(input)).length > byteLimit) return null;
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     capstoneId: input.capstoneId,
     order: [...input.order],
     annotations: Object.fromEntries(notes) as Record<string, string>,
@@ -171,6 +187,7 @@ export function readWorksheet(input: unknown): WorksheetState | null {
     ),
     explanation: input.explanation,
     table: table.map((row: string[]) => [...row]),
+    sketch,
   };
 }
 

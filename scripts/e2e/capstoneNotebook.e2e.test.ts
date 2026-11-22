@@ -11,6 +11,7 @@ import { test } from "node:test";
 import { chromium } from "playwright";
 import ts from "typescript";
 import type { Capstone } from "../../src/discovery/capstone/capstoneSchema.ts";
+import { sketchSvg } from "../../src/discovery/capstone/worksheetSketch.ts";
 import type { WorksheetState } from "../../src/discovery/capstone/worksheetState.ts";
 import type { NotebookState, NotebookStore } from "../../src/reader/notebook/notebookStore.ts";
 import {
@@ -125,13 +126,23 @@ test("save, inspect, restore and export complete capstone attempts in Chromium",
         reviewRecordIds: [],
       };
       let worksheet: WorksheetState = {
-        schemaVersion: 1,
+        schemaVersion: 2,
         capstoneId: capstone.id,
         order: ["c2", "c1"],
         annotations: { "eq-ledger": "<img src=x onerror=alert(1)>", retired: "Keep this note" },
         assumptionMarks: { c1: ["a1"] },
         explanation: "First explanation π",
         table: [["one", "two"]],
+        sketch: {
+          description: "Two paths <img src=x onerror=alert(1)> π",
+          strokes: [
+            [
+              { x: 10, y: 20 },
+              { x: 100, y: 200 },
+            ],
+            [{ x: 500, y: 300 }],
+          ],
+        },
       };
       let state: NotebookState = {
         document: {
@@ -261,6 +272,7 @@ test("save, inspect, restore and export complete capstone attempts in Chromium",
     await restore.click();
     assert.equal((await state()).restores, 1);
     assert.equal((await state()).worksheet.explanation, "First explanation π");
+    assert.deepEqual((await state()).worksheet.sketch, first.capstone.worksheet.sketch);
     assert.deepEqual(
       (await state()).state.document.entries[0],
       first,
@@ -279,6 +291,33 @@ test("save, inspect, restore and export complete capstone attempts in Chromium",
     await page.getByText("Read the complete saved reconstruction", { exact: true }).click();
     assert.equal(await page.locator("img,script").count(), 0);
     assert.match(await page.locator("#saved-view").innerText(), /<img src=x onerror=alert\(1\)>/);
+    const drawing = page.locator("#saved-view svg");
+    const path = "M 10 20 L 100 200 M 500 300 L 500 300";
+    assert.equal(await drawing.getAttribute("viewBox"), "0 0 1000 600");
+    assert.equal(await drawing.locator("path").getAttribute("d"), path);
+    assert.equal(
+      await drawing.locator("desc").textContent(),
+      first.capstone.worksheet.sketch.description,
+    );
+    assert.match(await page.locator("#saved-view pre").innerText(), /\(10, 20\).*\(100, 200\)/);
+    // The notebook's static exporter uses this production SVG renderer. Parsing its bytes in a
+    // browser proves that descriptions remain text, including markup-looking private words.
+    const exportedDrawing = await page.evaluate((markup) => {
+      const document = new DOMParser().parseFromString(markup, "image/svg+xml");
+      return {
+        viewBox: document.documentElement.getAttribute("viewBox"),
+        path: document.querySelector("path")?.getAttribute("d"),
+        description: document.querySelector("desc")?.textContent,
+        executableNodes: document.querySelectorAll("img,image,script,foreignObject,parsererror")
+          .length,
+      };
+    }, sketchSvg(first.capstone.worksheet.sketch));
+    assert.deepEqual(exportedDrawing, {
+      viewBox: "0 0 1000 600",
+      path,
+      description: first.capstone.worksheet.sketch.description,
+      executableNodes: 0,
+    });
     await page
       .getByRole("button", { name: "Export this attempt as worksheet JSON", exact: true })
       .click();

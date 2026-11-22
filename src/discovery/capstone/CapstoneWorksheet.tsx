@@ -5,6 +5,7 @@ import { CAPSTONE_WORKSHEET_KEYS } from "../../platform/storage/keys.ts";
 import { dependencyFeedback } from "../shared/dependencyFeedback.ts";
 import { ReorderList } from "../shared/ReorderList.tsx";
 import { CapstoneNotebookControls } from "./CapstoneNotebookControls.tsx";
+import { CapstoneSketch } from "./CapstoneSketch.tsx";
 import type { Capstone } from "./capstoneSchema.ts";
 import { createBrowserWorksheetStorage } from "./worksheetPersistence.ts";
 import {
@@ -142,16 +143,18 @@ export function CapstoneWorksheet({
     if (compare) feedbackHeading.current?.focus();
   }, [compare]);
 
-  function change(next: WorksheetState) {
+  function change(next: WorksheetState): boolean {
     if (!readWorksheet(next)) {
       setNotice(
         "That change exceeds the worksheet's size limit. Nothing was changed; export a copy before shortening your work.",
       );
-      return;
+      return false;
     }
-    if (store.current) store.current.edit(next);
-    else setState(next);
+    if (store.current) {
+      if (!store.current.edit(next)) return false;
+    } else setState(next);
     setNotice("");
+    return true;
   }
   function download(text: string, filename: string) {
     try {
@@ -636,9 +639,10 @@ export function CapstoneWorksheet({
               </tbody>
             </table>
           )}
-          <h4>A drawing on paper</h4>
-          <p>This space is left blank for a drawing when you print the worksheet.</p>
-          <div className="capstone-drawing-box" />
+          <CapstoneSketch
+            sketch={state.sketch}
+            onChange={(sketch) => change({ ...state, sketch })}
+          />
 
           <div className="capstone-controls">
             <button

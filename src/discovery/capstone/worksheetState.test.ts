@@ -77,7 +77,7 @@ describe("private capstone worksheet state", () => {
     for (const bad of [
       null,
       [],
-      { ...state, schemaVersion: 2 },
+      { ...state, schemaVersion: 3 },
       { ...state, surprise: true },
       { ...state, order: [] },
       { ...state, order: ["a", "a"] },
@@ -94,6 +94,101 @@ describe("private capstone worksheet state", () => {
     };
     assert.equal(readWorksheet(getter), null);
     assert.equal(called, false);
+  });
+  it("reads a version-one worksheet without changing its original and exports its lossless upgrade", () => {
+    const { sketch: _sketch, ...withoutSketch } = emptyWorksheet(capstone);
+    const original = {
+      ...withoutSketch,
+      schemaVersion: 1,
+      annotations: { "eq-private": "Keep my older words λ" },
+      explanation: "My earlier reconstruction",
+      table: [["original cell"]],
+    };
+    const raw = JSON.stringify(original);
+    const migrated = readWorksheet(original);
+    assert.ok(migrated);
+    assert.equal(migrated.schemaVersion, 2);
+    assert.deepEqual(migrated.sketch, { description: "", strokes: [] });
+    assert.deepEqual(migrated.annotations, original.annotations);
+    assert.deepEqual(migrated.table, original.table);
+    assert.equal(migrated.explanation, original.explanation);
+    assert.equal(JSON.stringify(original), raw);
+    assert.deepEqual(readWorksheet(JSON.parse(exportWorksheet(migrated))), migrated);
+    // A v1 record with a drawing is not a known older format; do not discard an unexpected field.
+    assert.equal(
+      readWorksheet({ ...original, sketch: { description: "older?", strokes: [] } }),
+      null,
+    );
+    assert.equal(readWorksheet({ ...withoutSketch, schemaVersion: 2 }), null);
+  });
+  it("keeps a version-one worksheet at its byte limit importable after the drawing upgrade", () => {
+    const { sketch: _sketch, ...withoutSketch } = emptyWorksheet(capstone);
+    const original = {
+      ...withoutSketch,
+      schemaVersion: 1,
+      annotations: Object.fromEntries(
+        Array.from({ length: 13 }, (_, index) => [
+          `equation:term-${index}`,
+          "x".repeat(WORKSHEET_LIMITS.text),
+        ]),
+      ),
+      explanation: "",
+      table: [
+        ["Time", "Observation"],
+        ["later", "spread"],
+      ],
+    };
+    const bytes = (value: unknown) => new TextEncoder().encode(JSON.stringify(value)).length;
+    const remaining = 131072 - bytes(original);
+    assert.ok(remaining > 0 && remaining <= WORKSHEET_LIMITS.text);
+    original.explanation = "y".repeat(remaining);
+    const raw = JSON.stringify(original);
+    assert.equal(bytes(original), 131072);
+    const migrated = readWorksheet(original);
+    assert.ok(migrated);
+    assert.equal(bytes(migrated), 131113);
+    const restored = readWorksheet(JSON.parse(exportWorksheet(migrated)));
+    assert.ok(restored, "the largest admitted older worksheet must survive its exported upgrade");
+    assert.deepEqual(restored, migrated);
+    assert.equal(JSON.stringify(original), raw);
+    assert.ok(readWorksheet({ ...restored, explanation: `z${restored.explanation.slice(1)}` }));
+    assert.equal(readWorksheet({ ...original, explanation: `${original.explanation}z` }), null);
+    assert.equal(readWorksheet({ ...migrated, sketch: { description: "z", strokes: [] } }), null);
+  });
+  it("keeps every drawing point and its description detached across JSON import and export", () => {
+    const state = {
+      ...emptyWorksheet(capstone),
+      sketch: {
+        description: "Two ledgers, linked by subtraction.\n<not markup>",
+        strokes: [
+          [
+            { x: 0, y: 0 },
+            { x: 1000, y: 600 },
+          ],
+          [{ x: 500, y: 300 }],
+        ],
+      },
+    };
+    const restored = readWorksheet(JSON.parse(exportWorksheet(state)));
+    assert.deepEqual(restored, state);
+    assert.notEqual(restored?.sketch.strokes[0]?.[0], state.sketch.strokes[0]?.[0]);
+    assert.equal(
+      readWorksheet({ ...state, sketch: { ...state.sketch, strokes: [[{ x: -1, y: 0 }]] } }),
+      null,
+    );
+    let invoked = false;
+    const accessor = {
+      strokes: [],
+      get description() {
+        invoked = true;
+        return "private";
+      },
+    };
+    assert.equal(readWorksheet({ ...state, sketch: accessor }), null);
+    assert.equal(invoked, false);
+    const cyclic: unknown[] = [];
+    cyclic.push(cyclic);
+    assert.equal(readWorksheet({ ...state, sketch: { description: "", strokes: cyclic } }), null);
   });
   it("refuses poisoned map keys and incompatible edition identities", () => {
     const state = emptyWorksheet(capstone);

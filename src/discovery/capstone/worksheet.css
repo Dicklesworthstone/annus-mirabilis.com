@@ -73,6 +73,43 @@
   border: 1px solid currentColor;
   margin-block: 1rem;
 }
+.capstone-sketch-surface {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 5 / 3;
+  margin-block: 1rem;
+  border: 1px solid currentColor;
+  background: var(--paper);
+}
+.capstone-sketch-surface[data-drawing-enabled="true"] {
+  cursor: crosshair;
+  touch-action: none;
+}
+.capstone-sketch-ink {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.capstone-sketch-cursor {
+  fill: none;
+  stroke: var(--focus-ring);
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+}
+.capstone-sketch input[type="range"] {
+  display: block;
+  width: 100%;
+  min-height: 2.75rem;
+}
+.capstone-sketch label,
+.capstone-sketch output {
+  display: block;
+  margin-block: 0.5rem;
+}
 .capstone-print-text,
 .capstone-print-table {
   display: none;
@@ -122,8 +159,16 @@
     break-after: avoid;
   }
   .capstone-worksheet .capstone-math,
-  .capstone-worksheet .capstone-drawing-box {
+  .capstone-worksheet .capstone-drawing-box,
+  .capstone-sketch-surface {
     break-inside: avoid;
+  }
+  .capstone-sketch-surface {
+    background: white;
+    color: black;
+  }
+  .capstone-sketch-cursor {
+    display: none;
   }
   .capstone-worksheet a::after {
     content: " (" attr(href) ")";

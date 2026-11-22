@@ -2,12 +2,28 @@ import { strict as assert } from "node:assert";
 import { test } from "node:test";
 import type { Capstone } from "../../discovery/capstone/capstoneSchema.ts";
 import { saveCapstoneSnapshot } from "../../discovery/capstone/notebookControls.ts";
-import { emptyWorksheet, readWorksheet } from "../../discovery/capstone/worksheetState.ts";
+import {
+  emptyWorksheet,
+  readWorksheet,
+  WORKSHEET_LIMITS,
+} from "../../discovery/capstone/worksheetState.ts";
+import { createKeyRegistry, SEED_ENTRIES } from "../../platform/storage/keys.ts";
 import { CapstoneCaptureError, captureCapstone } from "./capstoneEntry.ts";
 import { exportNotebookHtml, exportNotebookJson } from "./export.ts";
 import { mergeNotebook } from "./import.ts";
-import type { NotebookState, NotebookStore } from "./notebookStore.ts";
-import { emptyNotebook, parseNotebookDocument, parseNotebookEntry } from "./schema.ts";
+import {
+  createNotebookStore,
+  type NotebookState,
+  type NotebookStorage,
+  type NotebookStore,
+} from "./notebookStore.ts";
+import {
+  emptyNotebook,
+  NOTEBOOK_KEY,
+  NOTEBOOK_LIMITS,
+  parseNotebookDocument,
+  parseNotebookEntry,
+} from "./schema.ts";
 
 const capstone: Capstone = {
   id: "capstone-test",
@@ -41,6 +57,15 @@ const worksheet = {
   annotations: { "eq-ledger": "<img src=x onerror=alert(1)>", "old-term": "Preserve this" },
   assumptionMarks: { c1: ["a1"] },
   table: [["<a href='https://bad.invalid'>", "1 & 2"]],
+  sketch: {
+    description: '<script>private diagram</script> "ledger"',
+    strokes: [
+      [
+        { x: 12, y: 34 },
+        { x: 900, y: 566 },
+      ],
+    ],
+  },
 };
 const entry = {
   id: "attempt-1",
@@ -76,6 +101,101 @@ test("the notebook admits a typed capstone and old text notes together without f
   assert.equal(reopened.entries[0]?.text, "Do not alter");
 });
 
+test("the notebook budget reserves only the worst-case empty-drawing migration overhead", () => {
+  const registration = createKeyRegistry(SEED_ENTRIES).get(NOTEBOOK_KEY);
+  assert.ok(registration);
+  assert.equal(
+    registration.maxBytes,
+    1_048_576 +
+      2 * NOTEBOOK_LIMITS.entries * (WORKSHEET_LIMITS.bytes - WORKSHEET_LIMITS.legacyBytes),
+  );
+});
+
+test("a full legacy notebook remains editable and durable after its capstone drawing migration", () => {
+  const originalLimit = 1_048_576;
+  const { sketch: _sketch, ...withoutSketch } = entry.capstone.worksheet;
+  const olderEntry = {
+    ...entry,
+    capstone: {
+      ...entry.capstone,
+      worksheet: { ...withoutSketch, schemaVersion: 1 },
+    },
+  };
+  const notes = Array.from({ length: 130 }, (_, index) => ({
+    id: `filler-${index}`,
+    kind: "note" as const,
+    frame: entry.frame,
+    title: "Earlier words",
+    text: "x",
+    createdAt: entry.createdAt,
+  }));
+  const olderNotebook = { ...emptyNotebook(), entries: [olderEntry, ...notes] };
+  let remaining = originalLimit / 2 - NOTEBOOK_KEY.length - JSON.stringify(olderNotebook).length;
+  assert.ok(remaining > 0);
+  for (const note of notes) {
+    const extra = Math.min(remaining, NOTEBOOK_LIMITS.text - note.text.length);
+    note.text += "x".repeat(extra);
+    remaining -= extra;
+  }
+  assert.equal(remaining, 0);
+  const originalRaw = JSON.stringify(olderNotebook);
+  assert.equal(2 * (NOTEBOOK_KEY.length + originalRaw.length), originalLimit);
+  const registration = createKeyRegistry(SEED_ENTRIES).get(NOTEBOOK_KEY);
+  assert.ok(registration);
+
+  function stored(maxBytes: number) {
+    let raw = originalRaw;
+    let writes = 0;
+    const storage: NotebookStorage = {
+      maxBytes,
+      read: () => ({ status: "ok", value: raw }),
+      write(document) {
+        const next = JSON.stringify(document);
+        if (2 * (NOTEBOOK_KEY.length + next.length) > maxBytes) return { status: "quota" };
+        raw = next;
+        writes++;
+        return { status: "ok" };
+      },
+      decode: JSON.parse,
+      preserve: () => assert.fail("this valid older notebook must remain readable"),
+      discardFallback() {},
+    };
+    return { storage, raw: () => raw, writes: () => writes };
+  }
+
+  const note = notes[0];
+  assert.ok(note);
+  const replacement = `y${note.text.slice(1)}`;
+  const oldBudget = stored(originalLimit);
+  const oldStore = createNotebookStore(oldBudget.storage);
+  oldStore.open();
+  assert.equal(oldStore.getSnapshot().persistence, "saved");
+  assert.equal(oldStore.updateText(note.id, replacement).ok, false);
+  assert.equal(oldBudget.raw(), originalRaw);
+
+  const durable = stored(registration.maxBytes);
+  const store = createNotebookStore(durable.storage);
+  store.open();
+  assert.equal(store.getSnapshot().persistence, "saved");
+  assert.equal(durable.raw(), originalRaw);
+  assert.equal(durable.writes(), 0);
+  assert.equal(store.updateText(note.id, replacement).ok, true);
+  assert.equal(store.getSnapshot().persistence, "saved");
+  assert.equal(durable.writes(), 1);
+  assert.equal(2 * (NOTEBOOK_KEY.length + durable.raw().length), originalLimit + 82);
+  const reopened = createNotebookStore(durable.storage);
+  reopened.open();
+  assert.equal(reopened.getSnapshot().persistence, "saved");
+  assert.deepEqual(reopened.getSnapshot().document, store.getSnapshot().document);
+  assert.equal(reopened.getSnapshot().document.entries[1]?.text, replacement);
+  const captured = reopened.getSnapshot().document.entries[0];
+  assert.equal(captured?.kind, "capstone");
+  if (captured?.kind === "capstone") {
+    assert.equal(captured.capstone.worksheet.schemaVersion, 2);
+    assert.deepEqual(captured.capstone.worksheet.sketch, { description: "", strokes: [] });
+  }
+});
+
 test("notebook-capstone-invalid: paper mismatches, missing payloads and stray replay data are rejected", () => {
   assert.throws(
     () => parseNotebookEntry({ ...entry, frame: { ...entry.frame, paper: "light-quanta" } }),
@@ -99,6 +219,24 @@ test("readable export escapes every private payload and links only to the public
   assert.ok(!html.includes("<script>"));
   assert.ok(!html.includes("<img "));
   assert.ok(!html.includes("?attempt"));
+  assert.ok(html.includes('viewBox="0 0 1000 600"'));
+  assert.ok(html.includes('d="M 12 34 L 900 566"'));
+  assert.ok(html.includes("&lt;script&gt;private diagram&lt;/script&gt; &quot;ledger&quot;"));
+  assert.ok(html.includes("Stroke 1: (12, 34) → (900, 566)"));
+});
+
+test("an undescribed drawing remains visible and explicitly undescribed in the readable notebook export", () => {
+  const undescribed = {
+    ...entry,
+    capstone: captureCapstone(
+      capstone,
+      { ...worksheet, sketch: { ...worksheet.sketch, description: "" } },
+      equations,
+    ),
+  };
+  const html = exportNotebookHtml({ ...emptyNotebook(), entries: [undescribed] });
+  assert.ok(html.includes('d="M 12 34 L 900 566"'));
+  assert.ok(html.includes("Description: no description"));
 });
 
 test("import roundtrips the worksheet and refuses an edited same-id attempt without changing the current notebook", () => {
