@@ -346,6 +346,8 @@ weavePredicates:
   - lq07-s7-energy-conservation
   - lq07-s7-multi-quantum-deviation
   - lq07-s7-weak-illumination-rate
+  - lq07-s7-non-wien-boundary
+  - lq07-s7-body-energy-premise
 historicalOverlays: []
 realRate:
   natural: false

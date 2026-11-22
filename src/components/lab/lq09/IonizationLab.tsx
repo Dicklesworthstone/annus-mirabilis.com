@@ -45,6 +45,7 @@ import "./ionizationLab.css";
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
+import { ClosingQuantaLiveWeave } from "../../../reader/weave/ClosingQuantaLiveWeave.tsx";
 import { LabMargin } from "../LabMargin.tsx";
 import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { ShowTheCode } from "../ShowTheCode.tsx";
@@ -56,6 +57,7 @@ export type IonizationLabProps = Readonly<{
    * keeps the setup its page gave it rather than taking one from an address it does not own.
    */
   restoreFromLocation?: boolean | undefined;
+  highlightPaper?: boolean | undefined;
 }>;
 
 // The manifest's prompts (scripts/generate-predict-prompts.mjs), one stable array for the gate. They
@@ -103,6 +105,7 @@ export function IonizationLab({
   example,
   instanceId,
   restoreFromLocation = false,
+  highlightPaper = false,
 }: IonizationLabProps) {
   const uid = useId();
   const labInstanceId = instanceId ?? `lq09-${uid}`;
@@ -538,6 +541,16 @@ export function IonizationLab({
             ))}
           </ul>
         </div>
+      </div>
+
+      <div {...gate.response}>
+        <ClosingQuantaLiveWeave
+          instrumentId="lq-09"
+          session={session}
+          suspended={failure !== null || error !== ""}
+          announcementsEnabled={gate.open}
+          highlightPaper={highlightPaper}
+        />
       </div>
 
       <details className="lq09-code">

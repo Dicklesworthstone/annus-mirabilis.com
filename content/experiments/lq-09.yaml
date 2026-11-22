@@ -331,6 +331,12 @@ presets:
       absorptionEfficiency: 1.0
       duration: 1.0
       declaredFraction: 1.0
+weavePredicates:
+  - lq09-s9-energy-threshold
+  - lq09-s9-below-threshold
+  - lq09-s9-full-yield-count
+  - lq09-s9-declared-yield
+  - lq09-s9-unknown-yield
 realRate:
   natural: false
 embeddable: true

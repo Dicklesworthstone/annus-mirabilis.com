@@ -18,5 +18,5 @@ const example: PreparedLq07Example = {
 };
 
 export default function Lq07ClarificationView({ instanceId }: ExperimentViewProps) {
-  return <FluorescenceLab example={example} instanceId={instanceId} restoreFromLocation={false} />;
+  return <FluorescenceLab example={example} instanceId={instanceId} restoreFromLocation={false} highlightPaper />;
 }

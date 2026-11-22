@@ -30,6 +30,7 @@ import { refusalSentence } from "../../../experiments/results/refusalSentence.ts
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
+import { ClosingQuantaLiveWeave } from "../../../reader/weave/ClosingQuantaLiveWeave.tsx";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
@@ -50,12 +51,14 @@ const LQ07_PROMPTS = PREDICT_PROMPTS["lq-07"] ?? [];
 export function FluorescenceLab({
   instanceId,
   restoreFromLocation = true,
+  highlightPaper = false,
   example,
   title = "Fluorescence energy budget and Stokes's rule",
 }: {
   example?: PreparedLq07Example | undefined;
   instanceId?: string | undefined;
   restoreFromLocation?: boolean | undefined;
+  highlightPaper?: boolean | undefined;
   title?: string | undefined;
 }) {
   const id = useId();
@@ -575,7 +578,9 @@ export function FluorescenceLab({
                 <th scope="row">Maximum allowed frequency</th>
                 <td style={{ fontFamily: "var(--font-mono)" }}>ν₂,max</td>
                 <td style={{ fontFamily: "var(--font-mono)", fontWeight: 600 }}>
-                  {(evaluation.budget.nu2MaxHz / 1e12).toFixed(2)} THz
+                  {evaluation.budget.status === "outside-domain"
+                    ? "No frequency bound is determined in this regime"
+                    : <>{(evaluation.budget.nu2MaxHz / 1e12).toFixed(2)} THz</>}
                 </td>
                 <td className="fine">Upper frequency bound for emitted light</td>
               </tr>
@@ -601,9 +606,11 @@ export function FluorescenceLab({
                   E<sub>other</sub>
                 </td>
                 <td style={{ fontFamily: "var(--font-mono)" }}>
-                  {evaluation.budget.allowed
-                    ? `${fixed(evaluation.budget.eOtherEv, 4)} eV`
-                    : "Not applicable (disallowed)"}
+                  {evaluation.budget.status === "outside-domain"
+                    ? "Not determined in this regime"
+                    : evaluation.budget.allowed
+                      ? `${fixed(evaluation.budget.eOtherEv, 4)} eV`
+                      : "Not applicable (disallowed)"}
                 </td>
                 <td className="fine">Energy transferred to thermal modes of medium</td>
               </tr>
@@ -617,18 +624,32 @@ export function FluorescenceLab({
                     color: "var(--accent)",
                   }}
                 >
-                  {fixed(evaluation.budget.energyDeficitEv, 4)} eV
+                  {evaluation.budget.status === "outside-domain"
+                    ? "Not determined in this regime"
+                    : <>{fixed(evaluation.budget.energyDeficitEv, 4)} eV</>}
                 </td>
                 <td className="fine">
-                  {evaluation.budget.energyDeficitEv > 0
-                    ? "Energy required from non-existent source"
-                    : "Zero (Conserved)"}
+                  {evaluation.budget.status === "outside-domain"
+                    ? "The selected heuristic supplies no energy-budget verdict"
+                    : evaluation.budget.energyDeficitEv > 0
+                      ? "Additional energy required beyond the selected budget"
+                      : "No additional energy needed within the selected budget"}
                 </td>
               </tr>
             </tbody>
           </table>
         </section>
       </section>
+
+      <div {...gate.response}>
+        <ClosingQuantaLiveWeave
+          instrumentId="lq-07"
+          session={session}
+          suspended={error !== ""}
+          announcementsEnabled={gate.open}
+          highlightPaper={highlightPaper}
+        />
+      </div>
 
       {/* Assumptions & Not Modeled */}
       <footer

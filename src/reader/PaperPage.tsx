@@ -55,6 +55,7 @@ import { PinnedEquationDock } from "./layout/PinnedEquationCompanion.tsx";
 import { PinnedEquationProvider } from "./layout/PinnedEquationContext.tsx";
 import {
   LazyClockFirstEncounter,
+  LazyLightQuantaClosingDerivation,
   LazyLightQuantaDerivation,
   LazyLightQuantaFirstEncounter,
   LazyMassEnergyFirstEncounter,
@@ -750,6 +751,28 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                           <p className="fine">
                             <a href="/papers/light-quanta/s6/#lq-entropy-correspondence-derivation">
                               Follow the entropy comparison and energy per quantum step by step
+                            </a>
+                          </p>
+                        ))}
+                      {paper.id === "light-quanta" &&
+                        a.id === "arg-lq-fluorescence-budget" &&
+                        (sectionId ? (
+                          <LazyLightQuantaClosingDerivation section="s7" />
+                        ) : (
+                          <p className="fine">
+                            <a href="/papers/light-quanta/s7/#lq-fluorescence-derivation">
+                              Follow the fluorescence energy budget and its assumptions
+                            </a>
+                          </p>
+                        ))}
+                      {paper.id === "light-quanta" &&
+                        a.id === "arg-lq-ionization-and-counts" &&
+                        (sectionId ? (
+                          <LazyLightQuantaClosingDerivation section="s9" />
+                        ) : (
+                          <p className="fine">
+                            <a href="/papers/light-quanta/s9/#lq-ionization-derivation">
+                              Follow the ionization threshold and the conditional count bound
                             </a>
                           </p>
                         ))}
