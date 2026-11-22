@@ -1,8 +1,17 @@
+"use client";
+
+import { useId, useRef, useState } from "react";
 import type { MillikanOverlayResult } from "../../../experiments/lq08/millikan.ts";
+import { DatasetEvidenceReveal } from "../../../visuals/overlays/DatasetEvidenceReveal.tsx";
 import { fixed } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 
 type Plottable = Extract<MillikanOverlayResult, { kind: "plottable" }>;
+
+function originalRow(point: Plottable["points"][number]): number | null {
+  const index = point.rowIndex;
+  return typeof index === "number" && Number.isSafeInteger(index) && index >= 0 ? index : null;
+}
 
 /**
  * Millikan's 1916 sodium points on his own scale, beside LQ-08's model (dispatch 249).
@@ -15,6 +24,34 @@ type Plottable = Extract<MillikanOverlayResult, { kind: "plottable" }>;
  * arrives computed in millikan.ts; this only projects and formats.
  */
 export function MillikanFigure6Panel({ data }: { data: Plottable }) {
+  const id = useId();
+  const inspectionId = `${id}-millikan-evidence`;
+  const inspection = useRef<HTMLDetailsElement>(null);
+  const [selectedRowIndex, setSelectedRowIndex] = useState<number | null>(null);
+  const sourceEvidence = data.evidence;
+  const inspectablePoints = data.points.filter((point) => {
+    const rowIndex = originalRow(point);
+    return sourceEvidence !== undefined && rowIndex !== null && sourceEvidence.dataset.rows[rowIndex] !== undefined;
+  });
+  const selectedPoint =
+    inspectablePoints.find((point) => originalRow(point) === selectedRowIndex) ??
+    inspectablePoints[0];
+  const selectedOriginalRow = selectedPoint ? originalRow(selectedPoint) : null;
+  const allRowsIdentified = data.points.every((point) => originalRow(point) !== null);
+  const wavelengthColumn = sourceEvidence?.dataset.columns.findIndex(
+    (column) => column.quantityId === "wavelength",
+  );
+  function lineLabel(rowIndex: number) {
+    const cell =
+      wavelengthColumn === undefined || wavelengthColumn < 0
+        ? undefined
+        : sourceEvidence?.dataset.rows[rowIndex]?.cells[wavelengthColumn];
+    return cell?.kind === "number" ? (cell.originalToken ?? String(cell.value)) : undefined;
+  }
+  function inspect(rowIndex: number) {
+    setSelectedRowIndex(rowIndex);
+    if (inspection.current) inspection.current.open = true;
+  }
   const width = 420;
   const height = 250;
   const padding = { top: 20, right: 24, bottom: 50, left: 62 };
@@ -35,6 +72,7 @@ export function MillikanFigure6Panel({ data }: { data: Plottable }) {
     <section
       data-testid="millikan-fig6-panel"
       data-view-id="lq-08-millikan-fig6"
+      data-dataset-id={sourceEvidence?.dataset.id}
       style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
     >
       <h3 style={{ margin: "0 0 0.25rem", fontSize: "0.875rem", fontWeight: 600 }}>
@@ -50,7 +88,7 @@ export function MillikanFigure6Panel({ data }: { data: Plottable }) {
       </p>
       <svg
         viewBox={`0 0 ${width} ${height}`}
-        role="img"
+        role={inspectablePoints.length > 0 ? "group" : "img"}
         aria-label={`Millikan's 1916 sodium points: intercept potential against frequency, ${data.points.length} points, the line through the ${usedCount} that fixed his slope`}
         style={{
           width: "100%",
@@ -127,20 +165,43 @@ export function MillikanFigure6Panel({ data }: { data: Plottable }) {
           stroke="var(--ink)"
           strokeWidth="1.5"
         />
-        {data.points.map((p) => (
-          <circle
-            key={p.frequencyHz}
-            data-frequency-hz={p.frequencyHz}
-            data-intercept-volts={p.interceptVolts}
-            data-used-for-slope={p.usedForSlope}
-            cx={scaleX(p.frequencyHz)}
-            cy={scaleY(p.interceptVolts)}
-            r="4.5"
-            fill={p.usedForSlope ? "var(--accent)" : "var(--panel)"}
-            stroke="var(--accent)"
-            strokeWidth="2"
-          />
-        ))}
+        {data.points.map((p, pointIndex) => {
+          const rowIndex = originalRow(p);
+          const key = rowIndex === null ? `display-point-${pointIndex}` : `source-row-${rowIndex}`;
+          const point = (
+            <circle
+              data-frequency-hz={p.frequencyHz}
+              data-intercept-volts={p.interceptVolts}
+              data-used-for-slope={p.usedForSlope}
+              data-dataset-row-index={rowIndex ?? undefined}
+              cx={scaleX(p.frequencyHz)}
+              cy={scaleY(p.interceptVolts)}
+              r="4.5"
+              fill={p.usedForSlope ? "var(--accent)" : "var(--panel)"}
+              stroke="var(--accent)"
+              strokeWidth={rowIndex !== null && selectedOriginalRow === rowIndex ? "3" : "2"}
+            />
+          );
+          return sourceEvidence && rowIndex !== null && sourceEvidence.dataset.rows[rowIndex] ? (
+            <a
+              key={key}
+              href={`#${inspectionId}`}
+              aria-label={`Inspect dataset row ${rowIndex + 1}${lineLabel(rowIndex) ? `, mercury line ${lineLabel(rowIndex)} Å` : ""}`}
+              onClick={() => inspect(rowIndex)}
+              data-inspect-point={rowIndex}
+            >
+              <circle
+                cx={scaleX(p.frequencyHz)}
+                cy={scaleY(p.interceptVolts)}
+                r="14"
+                fill="transparent"
+              />
+              {point}
+            </a>
+          ) : (
+            <g key={key}>{point}</g>
+          );
+        })}
       </svg>
       <p
         className="fine"
@@ -180,29 +241,117 @@ export function MillikanFigure6Panel({ data }: { data: Plottable }) {
         V&middot;s
       </p>
       <details>
-        <summary className="fine">His points</summary>
+        <summary className="fine">
+          His points{sourceEvidence ? " and their source rows" : ""}
+        </summary>
         <table className="fine">
+          <caption>
+            Recorded mercury lines{allRowsIdentified ? ", in dataset order" : ", in this payload's order"}.
+            A row outside the slope fit remains a measured point.
+          </caption>
           <thead>
             <tr>
+              <th scope="col">{allRowsIdentified ? "Dataset row" : "Point identity"}</th>
+              {sourceEvidence && <th scope="col">Mercury line (Å)</th>}
               <th scope="col">Frequency (THz)</th>
               <th scope="col">Potential (V)</th>
-              <th scope="col">Fixed the slope</th>
+              <th scope="col">Role in the slope fit</th>
+              {sourceEvidence && <th scope="col">Source inspection</th>}
             </tr>
           </thead>
           <tbody>
-            {data.points.map((p) => (
-              <tr key={p.frequencyHz}>
-                <td>{fixed(p.frequencyHz / 1e12, 1)}</td>
-                <td>
-                  {p.interceptVolts < 0 ? "−" : "+"}
-                  {fixed(Math.abs(p.interceptVolts), 3)}
-                </td>
-                <td>{p.usedForSlope ? "yes" : "no"}</td>
-              </tr>
-            ))}
+            {data.points.map((p, pointIndex) => {
+              const rowIndex = originalRow(p);
+              const key = rowIndex === null ? `display-point-${pointIndex}` : `source-row-${rowIndex}`;
+              return (
+                <tr key={key} data-source-row={rowIndex ?? undefined}>
+                  <th scope="row">
+                    {rowIndex === null ? `Displayed point ${pointIndex + 1}` : rowIndex + 1}
+                  </th>
+                  {sourceEvidence && (
+                    <td>
+                      {rowIndex === null
+                        ? "Original row not recorded"
+                        : (lineLabel(rowIndex) ?? "Not recorded")}
+                    </td>
+                  )}
+                  <td>{fixed(p.frequencyHz / 1e12, 1)}</td>
+                  <td>
+                    {p.interceptVolts < 0 ? "−" : "+"}
+                    {fixed(Math.abs(p.interceptVolts), 3)}
+                  </td>
+                  <td>
+                    {p.usedForSlope
+                      ? "Used for the slope"
+                      : (p.slopeExclusionReason ?? "Not among the rows used for the slope")}
+                  </td>
+                  {sourceEvidence && (
+                    <td>
+                      {rowIndex !== null && sourceEvidence.dataset.rows[rowIndex] ? (
+                        <a
+                          href={`#${inspectionId}`}
+                          onClick={() => inspect(rowIndex)}
+                          data-inspect-row={rowIndex}
+                          aria-current={selectedOriginalRow === rowIndex ? "true" : undefined}
+                        >
+                          Inspect row {rowIndex + 1}
+                        </a>
+                      ) : (
+                        "Original row unavailable"
+                      )}
+                    </td>
+                  )}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </details>
+      {!allRowsIdentified && (
+        <p className="fine">
+          This older payload does not identify every original dataset row. Displayed point numbers
+          describe only this list's order; they cannot open a source-row inspection.
+        </p>
+      )}
+      {sourceEvidence && selectedPoint && selectedOriginalRow !== null && (
+        <>
+          <details>
+            <summary className="fine">Uncertainty in the points and the fitted slope</summary>
+            <p className="fine">{sourceEvidence.dataset.uncertainty.description}</p>
+            <p className="fine">
+              The uncertainty beside the slope fitted here is a residual-based standard error.
+              It does not combine the source's stated intercept error with the extra uncertainty
+              of reading the figure, and it is not an experimental confidence interval for h.
+              The signed intercepts have not been shifted by a contact-potential correction.
+            </p>
+          </details>
+          <details id={inspectionId} ref={inspection} data-millikan-inspection>
+            <summary>Inspect the source behind a point</summary>
+            <p role="status" data-selected-source-row={selectedOriginalRow}>
+              Dataset row {selectedOriginalRow + 1}
+              {lineLabel(selectedOriginalRow)
+                ? `, mercury line ${lineLabel(selectedOriginalRow)} Å`
+                : ""}
+              .{" "}
+              {selectedPoint.usedForSlope
+                ? "This point belongs to the lines used for the slope."
+                : (selectedPoint.slopeExclusionReason ?? "This point is not used for the slope.")}
+            </p>
+            <p className="fine">
+              Select a plotted point or its table row to inspect another reading. The plain-text
+              disclosure below includes all recorded rows and works without JavaScript.
+            </p>
+            <DatasetEvidenceReveal
+              dataset={sourceEvidence.dataset}
+              selectedRowIndex={selectedOriginalRow}
+              idPrefix={`${id}-`}
+              citationText={data.citation}
+              sourceLinks={sourceEvidence.sourceLinks}
+              showAllRowsInStaticView
+            />
+          </details>
+        </>
+      )}
       <p className="fine" style={{ margin: 0 }}>
         {data.citation} Fig. 6.
       </p>

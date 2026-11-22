@@ -14,6 +14,13 @@ export interface DatasetEvidenceRevealProps {
   readonly onSelectRow?: ((rowIndex: number) => void) | undefined;
   readonly normalizationFactor?: number | undefined;
   readonly className?: string | undefined;
+  /** Scope anchors when one laboratory appears in both comparison panes. */
+  readonly idPrefix?: string | undefined;
+  /** Resolve bibliography ids before this data reaches a client view. */
+  readonly citationText?: string | undefined;
+  readonly sourceLinks?: readonly Readonly<{ label: string; href: string }>[] | undefined;
+  /** Keep every source row inspectable without the scripted row selector. */
+  readonly showAllRowsInStaticView?: boolean | undefined;
   /**
    * The publication decision recorded for the scan asset this reveal would crop, from the
    * asset's own `SourceAsset.publicationDecision`. Omitted means no determination has been
@@ -71,6 +78,10 @@ function ShownDatasetEvidenceReveal({
   selectedRowIndex = 0,
   normalizationFactor,
   className = "",
+  idPrefix = "",
+  citationText: resolvedCitation,
+  sourceLinks,
+  showAllRowsInStaticView = false,
   publicationDecision,
 }: DatasetEvidenceRevealProps): ReactElement {
   const [activeStep, setActiveStep] = useState<StepNumber>(1);
@@ -103,9 +114,10 @@ function ShownDatasetEvidenceReveal({
   const activeRow = rows[selectedRowIndex] ?? rows[0];
 
   const citationText =
-    typeof publication?.citation === "string"
+    resolvedCitation ??
+    (typeof publication?.citation === "string"
       ? publication.citation
-      : (publication?.citation?.title ?? dataset.title);
+      : (publication?.citation?.title ?? dataset.title));
 
   /*
    * Every string below is formatted once and passed to both surfaces, for the same reason the
@@ -142,9 +154,9 @@ function ShownDatasetEvidenceReveal({
    * does not promise a scroll -- a hidden element can be `:target` without being scrolled to.
    */
   const stepAnchor = (step: StepNumber): string =>
-    `dataset-${dataset.id}-${seriesId ?? "default"}-step${step}`;
+    `${idPrefix}dataset-${dataset.id}-${seriesId ?? "default"}-step${step}`;
 
-  const stepBody = (step: StepNumber): ReactElement => {
+  const stepBody = (step: StepNumber, staticView = false): ReactElement => {
     switch (step) {
       case 1:
         return (
@@ -156,9 +168,23 @@ function ShownDatasetEvidenceReveal({
             cropTableNumber={cropTableNumber}
             mayPublishCrop={mayPublishCrop}
             publicationDecision={publicationDecision}
+            sourceLinks={sourceLinks}
           />
         );
       case 2:
+        if (staticView && showAllRowsInStaticView)
+          return (
+            <>
+              {rows.map((row) => (
+                <PrintedValuesBody
+                  key={dataset.rows.indexOf(row)}
+                  dataset={dataset}
+                  activeRow={row}
+                  selectedRowIndex={dataset.rows.indexOf(row)}
+                />
+              ))}
+            </>
+          );
         return (
           <PrintedValuesBody
             dataset={dataset}
@@ -339,7 +365,7 @@ function ShownDatasetEvidenceReveal({
               >
                 {STEP_TITLES[step]}
               </h4>
-              {stepBody(step)}
+              {stepBody(step, true)}
             </section>
           ))}
           <p style={{ margin: 0 }}>
@@ -359,6 +385,7 @@ function SourceRegionBody({
   cropTableNumber,
   mayPublishCrop,
   publicationDecision,
+  sourceLinks,
 }: {
   readonly citationText: string;
   readonly locatorText: string;
@@ -367,6 +394,7 @@ function SourceRegionBody({
   readonly cropTableNumber: string | number;
   readonly mayPublishCrop: boolean;
   readonly publicationDecision: PublicationDecision | undefined;
+  readonly sourceLinks: readonly Readonly<{ label: string; href: string }>[] | undefined;
 }): ReactElement {
   return (
     <>
@@ -395,6 +423,15 @@ function SourceRegionBody({
         <p style={{ margin: 0 }}>
           <strong>Rights Status:</strong> {rightsStatement}
         </p>
+        {sourceLinks && sourceLinks.length > 0 && (
+          <ul style={{ margin: "0.5rem 0 0", paddingLeft: "1.25rem" }}>
+            {sourceLinks.map((link) => (
+              <li key={link.href}>
+                <a href={link.href}>{link.label}</a>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {/* Crop display or locator-only fallback per rights policy */}
@@ -457,7 +494,8 @@ function PrintedValuesBody({
   return (
     <>
       <p className="fine" style={{ margin: "0 0 0.5rem" }}>
-        Selected row index: {selectedRowIndex} (showing exact printed tokens from historical source)
+        Dataset row {selectedRowIndex + 1}. Recorded tokens are preserved where supplied; values
+        read from a figure are not printed tokens.
       </p>
       {activeRow && (
         <table
@@ -469,7 +507,9 @@ function PrintedValuesBody({
             marginBottom: "0.75rem",
           }}
           data-testid="tokens-table"
+          data-dataset-row-index={selectedRowIndex}
         >
+          <caption>Source row {selectedRowIndex + 1}: recorded tokens and canonical values</caption>
           <thead>
             <tr style={{ background: "var(--wash)", borderBottom: "1px solid var(--line)" }}>
               <th style={{ padding: "0.5rem", textAlign: "left" }}>Column</th>
@@ -516,7 +556,7 @@ function PrintedValuesBody({
                       background: "var(--wash)",
                     }}
                   >
-                    {rawToken || "not printed separately"}
+                    {rawToken || "No printed token recorded"}
                   </td>
                   <td
                     style={{
@@ -558,8 +598,9 @@ function TransformationsBody({
       }}
     >
       <li>
-        <strong>Units conversion:</strong> All numerical columns mapped from historical CGS /
-        printed units to SI standards.
+        <strong>Units conversion:</strong> Canonical values use each column's stated unit. The
+        record below describes how the source was read and reduced; a column is not silently
+        converted to SI or shifted onto a theoretical curve.
       </li>
       {normalizationFactor !== undefined && (
         <li>

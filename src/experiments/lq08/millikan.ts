@@ -21,6 +21,7 @@
  */
 
 import type { DatasetPlotVerdict, PlotAxis } from "../../content/datasets/plotVerdict.ts";
+import type { DatasetFitExclusion, HistoricalDataset } from "../../content/schemas/experiment.ts";
 import {
   type ConstantSet,
   constantValue,
@@ -42,11 +43,14 @@ export const MILLIKAN_FIG6_AXES: Readonly<{ x: PlotAxis; y: PlotAxis }> = Object
 });
 
 export interface MeasuredInterceptPoint {
+  /** Original dataset row, present on current evaluations; older payloads may lack it. */
+  readonly rowIndex?: number;
   readonly frequencyHz: number;
   /** The intercept on the potential axis, signed, as the figure plots it. */
   readonly interceptVolts: number;
   /** Whether this is one of the points the record says fixed the slope. */
   readonly usedForSlope: boolean;
+  readonly slopeExclusionReason?: string;
 }
 
 /** A slope the source prints, carried as printed with where it is printed. */
@@ -55,7 +59,14 @@ export type PrintedSlope = Readonly<{ label: string; slopeVs: number; citation: 
 /** Which of the record's rows fixed the slope, and the slopes the source prints for them. */
 export type MillikanSlopeFit = Readonly<{
   rowsUsed: readonly number[];
+  rowsExcluded?: readonly DatasetFitExclusion[];
   printedSlopes: readonly PrintedSlope[];
+}>;
+
+/** Present only after the server admits the dataset and its comparison, never on a refusal. */
+export type MillikanEvidence = Readonly<{
+  dataset: HistoricalDataset;
+  sourceLinks: readonly Readonly<{ label: string; href: string }>[];
 }>;
 
 /** Fits a line to intercept potentials against frequency. */
@@ -115,6 +126,8 @@ export type MillikanOverlayResult =
       printedSlopes: readonly PrintedSlope[];
       modelLineSlopeVs: number;
       modelLineSource: ModelLineSource;
+      /** Older comparison payloads can carry values without the source-inspection payload. */
+      evidence?: MillikanEvidence;
     }>
   | Readonly<{ kind: "withheld"; citation: string; reason: string }>;
 
@@ -139,13 +152,16 @@ export function evaluateMillikanOverlay(
   }
   if (!fit) return withheld("The record does not say which of its points fixed the slope.");
   const used = new Set(fit.rowsUsed);
-  const points = verdict.points.map((p) =>
-    Object.freeze({
+  const points = verdict.points.map((p) => {
+    const excluded = fit.rowsExcluded?.find((row) => row.rowIndex === p.rowIndex);
+    return Object.freeze({
+      rowIndex: p.rowIndex,
       frequencyHz: p.x,
       interceptVolts: p.y,
       usedForSlope: used.has(p.rowIndex),
-    }),
-  );
+      ...(!used.has(p.rowIndex) && excluded ? { slopeExclusionReason: excluded.reason } : {}),
+    });
+  });
   const slopePoints = points.filter((p) => p.usedForSlope);
   if (slopePoints.length < 3) {
     return withheld(

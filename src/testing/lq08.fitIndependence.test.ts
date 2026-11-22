@@ -29,7 +29,12 @@ const CONSTRUCTED: DatasetPlotVerdict = Object.freeze({
 });
 const CONSTRUCTED_POINTS: readonly MeasuredInterceptPoint[] =
   CONSTRUCTED.kind === "plottable"
-    ? CONSTRUCTED.points.map((p) => ({ frequencyHz: p.x, interceptVolts: p.y, usedForSlope: true }))
+    ? CONSTRUCTED.points.map((p) => ({
+        rowIndex: p.rowIndex,
+        frequencyHz: p.x,
+        interceptVolts: p.y,
+        usedForSlope: true,
+      }))
     : [];
 /** Every constructed row fixes the slope; no slope is printed for constructed rows. */
 const ALL_ROWS: MillikanSlopeFit = { rowsUsed: [0, 1, 2, 3, 4], printedSlopes: [] };
