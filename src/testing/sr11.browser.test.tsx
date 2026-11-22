@@ -104,6 +104,7 @@ describe("SR-11 Moving Mirror Lab View & Route (am-sr-11-moving-mirror-wnz1)", (
       <MovingMirrorPlot
         beta={-0.6}
         incidentAngleDeg={0}
+        incidentFrequencyRatio={out("incidentFrequencyRatio")}
         phiReflectedDeg={out("phiReflectedDeg")}
         frequencyRatio={out("frequencyRatio")}
         radiationPressure={out("radiationPressure")}

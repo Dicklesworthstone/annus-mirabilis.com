@@ -31,7 +31,7 @@ parameters:
   - id: incidentAngleDeg
     label: "Incident angle"
     accessibleName: "Angle of incident light ray relative to mirror normal in degrees"
-    accessibleDescription: "Angle phi in degrees between the incident light wave vector and the mirror normal."
+    accessibleDescription: "Angle phi in the laboratory frame K, in degrees between the incident light wave vector and the mirror normal."
     quantityId: incidentAngle
     displayUnit: "deg"
     modelDomain:
@@ -51,7 +51,7 @@ parameters:
   - id: incidentEnergyDensity
     label: "Incident energy density"
     accessibleName: "Energy density u of incident radiation"
-    accessibleDescription: "Energy density of the incident light beam in J/m³ or Gaussian units."
+    accessibleDescription: "Energy density of the incident light beam in the laboratory frame K, in J/m³."
     quantityId: energyDensity
     displayUnit: "J/m³"
     modelDomain:
@@ -129,6 +129,20 @@ parameters:
     role: independent
     commandClass: observer-change
 outputs:
+  - id: incidentAngleInFrameDeg
+    quantityId: incidentAngleInFrameDeg
+    allowedStatuses:
+      - value
+      - not-applicable
+      - outside-domain
+    primary: true
+  - id: incidentFrequencyRatio
+    quantityId: incidentFrequencyRatio
+    allowedStatuses:
+      - value
+      - not-applicable
+      - outside-domain
+    primary: false
   - id: frequencyRatio
     quantityId: frequencyRatio
     allowedStatuses:
@@ -240,6 +254,8 @@ views:
   - id: svg-ray-reflection
     kind: svg
     consumes:
+      - incidentAngleInFrameDeg
+      - incidentFrequencyRatio
       - frequencyRatio
       - cosPhiReflected
       - phiReflectedDeg
@@ -252,6 +268,8 @@ views:
   - id: table-moving-mirror
     kind: table
     consumes:
+      - incidentAngleInFrameDeg
+      - incidentFrequencyRatio
       - frequencyRatio
       - cosPhiReflected
       - phiReflectedDeg
@@ -274,6 +292,8 @@ actions:
     commandClass: setup-change
     acceptedResult:
       outputs:
+        - incidentAngleInFrameDeg
+        - incidentFrequencyRatio
         - frequencyRatio
         - cosPhiReflected
         - phiReflectedDeg

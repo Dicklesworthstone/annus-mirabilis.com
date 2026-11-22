@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { SR11_DEFAULTS } from "../experiments/sr11/definition.ts";
+import { SR11_DEFAULTS, SR11_OUTPUTS } from "../experiments/sr11/definition.ts";
 import { validateSr11Parameters } from "../experiments/sr11/parameters.ts";
 import { decodeSr11Settings, encodeSr11Settings } from "../experiments/sr11/permalink.ts";
 import { createSr11Session, snapshotOutputs } from "../experiments/sr11/session.ts";
@@ -10,7 +10,9 @@ describe("SR-11 session store, parameter validation, and permalinks", () => {
     const snap = session.getSnapshot().accepted;
     expect(snap).toBeDefined();
     expect(snap?.parameters).toBeDefined();
-    expect(snap?.outputs.length).toBe(10);
+    expect(snap?.outputs.map((output) => output.quantityId).sort()).toEqual(
+      Object.keys(SR11_OUTPUTS).sort(),
+    );
     expect(session.acceptedParameters().beta).toBe(0.6);
   });
 
@@ -92,7 +94,9 @@ describe("SR-11 session store, parameter validation, and permalinks", () => {
 
   test("snapshot outputs match evaluateSr11", () => {
     const outputs = snapshotOutputs(SR11_DEFAULTS);
-    expect(outputs.length).toBe(10);
+    expect(outputs.map((output) => output.quantityId).sort()).toEqual(
+      Object.keys(SR11_OUTPUTS).sort(),
+    );
     const freqRatio = outputs.find((o) => o.quantityId === "frequencyRatio");
     expect(freqRatio?.status).toBe("value");
     if (freqRatio?.status === "value" && typeof freqRatio.value === "number") {

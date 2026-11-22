@@ -59,6 +59,12 @@ const c = (
   Object.freeze({ unit, semanticKind, ownerId, statuses: Object.freeze([...statuses]) });
 
 export const SR11_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.freeze({
+  incidentAngleInFrameDeg: c("deg", "angle", "waves", [
+    "value",
+    "not-applicable",
+    "outside-domain",
+  ]),
+  incidentFrequencyRatio: c("1", "ratio", "waves", ["value", "not-applicable", "outside-domain"]),
   frequencyRatio: c("1", "ratio", "waves", ["value", "not-applicable", "outside-domain"]),
   cosPhiReflected: c("1", "cosine", "waves", ["value", "not-applicable", "outside-domain"]),
   phiReflectedDeg: c("deg", "angle", "waves", ["value", "not-applicable", "outside-domain"]),

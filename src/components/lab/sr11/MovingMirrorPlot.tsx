@@ -1,12 +1,14 @@
-import { fixed } from "../presentation.ts";
 import "./sr11.css";
 import { Sci } from "../Sci.tsx";
 
 export interface MovingMirrorPlotProps {
   beta: number;
+  /** Accepted incident propagation angle in the selected description frame. */
   incidentAngleDeg: number;
   phiReflectedDeg: number;
+  /** Both frequency ratios use the incident laboratory frequency as their reference. */
   frequencyRatio: number;
+  incidentFrequencyRatio: number;
   radiationPressure: number;
   radiationForce: number;
   incidentPower: number;
@@ -19,8 +21,9 @@ export interface MovingMirrorPlotProps {
 }
 
 // Drawing frame. The rays are drawn in screen coordinates with y pointing down, and the physics
-// y-axis is mapped onto it unchanged: the incident ray travels along (cos φ, sin φ), so it arrives
-// from the upper left, and the reflected ray leaves along (cos φ′′′, sin φ′′′), below the normal.
+// y-axis is mapped onto it unchanged. Both ray directions belong to the selected frame:
+// the incident ray arrives along (cos φ_in, sin φ_in), and the reflected ray leaves along
+// (cos φ_out, sin φ_out), below the normal.
 export const MIRROR_FRAME = {
   width: 470,
   height: 410,
@@ -69,6 +72,7 @@ export function MovingMirrorPlot({
   incidentAngleDeg,
   phiReflectedDeg,
   frequencyRatio,
+  incidentFrequencyRatio,
   radiationPressure: _radiationPressure,
   radiationForce,
   incidentPower,
@@ -77,26 +81,35 @@ export function MovingMirrorPlot({
   energyBalanceResidual: _energyBalanceResidual,
   frame,
   isApplicable,
-  notApplicableReason: _notApplicableReason,
+  notApplicableReason,
 }: MovingMirrorPlotProps) {
   const { width, height, mirrorX, centerY, mirrorHeight } = MIRROR_FRAME;
+  const selectedFrame = frame === "mirror" ? "mirror rest frame (k)" : "laboratory frame (K)";
+  const shownBeta = frame === "mirror" ? 0 : beta;
+  const unavailableReason = notApplicableReason ?? "Reflection is unavailable for these settings.";
   const phiIncRad = (incidentAngleDeg * Math.PI) / 180;
-  const rays = mirrorRayGeometry(incidentAngleDeg, phiReflectedDeg);
+  // The owner supplies both angles in the selected frame. No ray is inferred from a refusal.
+  const rays = isApplicable ? mirrorRayGeometry(incidentAngleDeg, phiReflectedDeg) : null;
+  const diagramDescription = isApplicable
+    ? `Reflection in the ${selectedFrame}: mirror speed ${shownBeta.toFixed(2)}c, light arriving at ${incidentAngleDeg.toFixed(1)} degrees from +x and leaving at ${phiReflectedDeg.toFixed(1)} degrees from +x`
+    : `Reflection in the ${selectedFrame}: ${unavailableReason}`;
 
   // The drawing's colours, set per theme in sr11.css so each stands on the panel in both.
   const incColor = "var(--sr11-incident)";
   const reflColor =
-    frequencyRatio > 1.01
+    frequencyRatio > incidentFrequencyRatio * 1.01
       ? "var(--sr11-higher)"
-      : frequencyRatio < 0.99
+      : frequencyRatio < incidentFrequencyRatio * 0.99
         ? "var(--sr11-lower)"
         : "var(--sr11-incident)";
   const reflWords =
-    frequencyRatio > 1.01
+    frequencyRatio > incidentFrequencyRatio * 1.01
       ? "reflected light, at a higher frequency"
-      : frequencyRatio < 0.99
+      : frequencyRatio < incidentFrequencyRatio * 0.99
         ? "reflected light, at a lower frequency"
-        : "reflected light, at the same frequency";
+        : frequencyRatio === incidentFrequencyRatio
+          ? "reflected light, at the same frequency"
+          : "reflected light, at nearly the same frequency";
   const velocityColor = "var(--sr11-velocity)";
   const forceColor = "var(--sr11-force)";
 
@@ -114,22 +127,18 @@ export function MovingMirrorPlot({
   // (centerY + rayLength, plus the label), so a ray leaving steeply downward never crosses it.
   const velocityY = height - 38;
   const velocityWords =
-    Math.abs(beta) <= 0.01
+    shownBeta === 0
       ? "mirror at rest"
-      : beta > 0
-        ? `v = +${beta.toFixed(2)}c, receding`
-        : `v = ${beta.toFixed(2)}c, approaching`;
+      : shownBeta > 0
+        ? `v = +${shownBeta.toFixed(2)}c, receding`
+        : `v = ${shownBeta.toFixed(2)}c, approaching`;
 
   return (
     <div className="sr11-figure">
       <div className="sr11-figure-grid">
         <div className="sr11-diagram">
-          <svg
-            viewBox={`0 0 ${width} ${height}`}
-            role="img"
-            aria-label={`Moving mirror: speed β = ${beta.toFixed(2)}, light arriving at ${incidentAngleDeg.toFixed(1)} degrees from the normal${isApplicable ? ` and leaving at ${phiReflectedDeg.toFixed(1)} degrees` : ", never reaching the mirror"}`}
-          >
-            <title>Moving mirror with incident and reflected light</title>
+          <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={diagramDescription}>
+            <title>{`Reflection in the ${selectedFrame}`}</title>
             <defs>
               <marker
                 id="arrow-inc"
@@ -217,11 +226,11 @@ export function MovingMirrorPlot({
             )}
 
             {/* Mirror velocity */}
-            {Math.abs(beta) > 0.01 && (
+            {Math.abs(shownBeta) > 0.01 && (
               <line
                 x1={mirrorX}
                 y1={velocityY}
-                x2={mirrorX + beta * 110}
+                x2={mirrorX + shownBeta * 110}
                 y2={velocityY}
                 stroke={velocityColor}
                 strokeWidth="3"
@@ -229,7 +238,7 @@ export function MovingMirrorPlot({
               />
             )}
             <text
-              x={clampLabelX(mirrorX + (Math.abs(beta) > 0.01 ? beta * 55 : 0))}
+              x={clampLabelX(mirrorX + (Math.abs(shownBeta) > 0.01 ? shownBeta * 55 : 0))}
               y={velocityY + 24}
               textAnchor="middle"
               style={labelStyle}
@@ -255,7 +264,7 @@ export function MovingMirrorPlot({
               </g>
             )}
 
-            {isApplicable ? (
+            {rays ? (
               <g>
                 <polyline
                   points={midpoint(rays.incidentStart, rays.incidentEnd)}
@@ -297,43 +306,14 @@ export function MovingMirrorPlot({
                   />
                 )}
               </g>
-            ) : (
-              <g>
-                <line
-                  x1={rays.incidentStart.x}
-                  y1={rays.incidentStart.y}
-                  x2={rays.incidentStart.x + 120 * Math.cos(phiIncRad)}
-                  y2={rays.incidentStart.y + 120 * Math.sin(phiIncRad)}
-                  stroke="var(--muted)"
-                  strokeWidth="2"
-                  strokeDasharray="4 4"
-                />
-                <text
-                  x={clampLabelX(rays.incidentStart.x)}
-                  y={rays.incidentStart.y - 12}
-                  textAnchor="middle"
-                  style={labelStyle}
-                >
-                  incident
-                </text>
-              </g>
-            )}
+            ) : null}
           </svg>
-          {isApplicable ? null : (
-            <p className="fine sr11-no-reflection">
-              No reflection at these settings. Along the normal the light moves at c·cos φ ={" "}
-              {fixed(Math.cos(phiIncRad), 3)}c, no faster than the mirror at {fixed(beta, 3)}c, so
-              it never reaches the mirror.
-            </p>
-          )}
+          {isApplicable ? null : <p className="fine sr11-no-reflection">{unavailableReason}</p>}
         </div>
 
         <div className="sr11-ledger">
           <p className="sr11-ledger-title">Energy per second</p>
-          <p className="fine sr11-ledger-frame">
-            At the mirror, in the{" "}
-            {frame === "mirror" ? "mirror rest frame (k)" : "laboratory frame (K)"}
-          </p>
+          <p className="fine sr11-ledger-frame">At the mirror, in the {selectedFrame}</p>
           {isApplicable ? (
             <>
               <div className="sr11-ledger-row">
@@ -413,7 +393,7 @@ export function MovingMirrorPlot({
               </ul>
             </>
           ) : (
-            <p className="fine">Nothing is exchanged: no light reaches the mirror.</p>
+            <p className="fine">{unavailableReason}</p>
           )}
         </div>
       </div>

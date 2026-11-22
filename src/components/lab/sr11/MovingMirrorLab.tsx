@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useId, useState, useSyncExternalStore } from "react";
+import { useEffect, useId, useState } from "react";
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
@@ -76,9 +76,9 @@ function SnapshotReading({
 type NumericKey = "beta" | "incidentAngleDeg" | "incidentEnergyDensity" | "mirrorArea";
 
 const FIELD_LABELS: Readonly<Record<NumericKey, string>> = {
-  beta: "Mirror velocity β = v/c",
-  incidentAngleDeg: "Incident angle φ",
-  incidentEnergyDensity: "Incident energy density u",
+  beta: "Mirror velocity β = v/c in K",
+  incidentAngleDeg: "Incident angle φ in K",
+  incidentEnergyDensity: "Incident energy density u in K",
   mirrorArea: "Mirror surface area A_{m}",
 };
 
@@ -201,6 +201,8 @@ export function MovingMirrorLab({
     };
   }
 
+  const incidentAngle = numericOf(result(snapshot, "incidentAngleInFrameDeg"));
+  const incidentFrequency = numericOf(result(snapshot, "incidentFrequencyRatio"));
   const freqRatio = numericOf(result(snapshot, "frequencyRatio"));
   const phiReflDeg = numericOf(result(snapshot, "phiReflectedDeg"));
   const radPressure = numericOf(result(snapshot, "radiationPressure"));
@@ -210,15 +212,27 @@ export function MovingMirrorLab({
   const pWork = numericOf(result(snapshot, "workRate"));
   const pResidual = numericOf(result(snapshot, "energyBalanceResidual"));
 
-  const isApplicable = freqRatio !== null;
+  const isApplicable = freqRatio !== null && incidentAngle !== null && incidentFrequency !== null;
   const notApplicableItem = result(snapshot, "frequencyRatio");
-  const notApplicableReason = "reason" in notApplicableItem ? notApplicableItem.reason : undefined;
+  const notApplicableReason =
+    "reason" in notApplicableItem
+      ? notApplicableItem.reason
+      : !isApplicable
+        ? "The accepted result does not include the incident geometry in this frame."
+        : undefined;
+  const descriptionFrame = p.frame === "mirror" ? "mirror rest frame k" : "laboratory frame K";
   // One sentence for the status line: where the light leaves, at what frequency, and where the
   // arriving power goes.
   const statusSummary =
-    freqRatio !== null && phiReflDeg !== null && pInc !== null && pRefl !== null && pWork !== null
-      ? `light meeting a mirror that moves at ${fixed(p.beta, 3)}c, ${fixed(p.incidentAngleDeg, 1)}° from the normal, leaves at ${fixed(phiReflDeg, 1)}° with ${fixed(freqRatio, 4)} of its frequency; of ${sentenceNumber(pInc)} W arriving, ${sentenceNumber(pRefl)} W is reflected and ${sentenceNumber(pWork)} W does work on the mirror.`
-      : (notApplicableReason ?? "the reflection is not defined for these settings.");
+    incidentAngle !== null &&
+    incidentFrequency !== null &&
+    freqRatio !== null &&
+    phiReflDeg !== null &&
+    pInc !== null &&
+    pRefl !== null &&
+    pWork !== null
+      ? `in the ${descriptionFrame}, the incident ray is at ${fixed(incidentAngle, 1)}° and the reflected ray at ${fixed(phiReflDeg, 1)}° from +x. Their frequencies are ${fixed(incidentFrequency, 4)} and ${fixed(freqRatio, 4)} times the original incident frequency in K; ${sentenceNumber(pInc)} W arrives, ${sentenceNumber(pRefl)} W leaves and ${sentenceNumber(pWork)} W is work done on the mirror.`
+      : (notApplicableReason ?? "The reflection is not defined for these settings.");
 
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
   // example, an accepted recalculation a host calculation.
@@ -365,7 +379,8 @@ export function MovingMirrorLab({
         <div className="lab-results" {...gate.response}>
           <MovingMirrorPlot
             beta={p.beta}
-            incidentAngleDeg={p.incidentAngleDeg}
+            incidentAngleDeg={incidentAngle ?? 0}
+            incidentFrequencyRatio={incidentFrequency ?? 1}
             phiReflectedDeg={phiReflDeg ?? 0}
             frequencyRatio={freqRatio ?? 1}
             radiationPressure={radPressure ?? 0}
@@ -379,32 +394,52 @@ export function MovingMirrorLab({
             notApplicableReason={notApplicableReason}
           />
 
-          <h3>Values at these settings</h3>
+          <h3>Values in the {descriptionFrame}</h3>
+          <p>
+            The input speed, incident angle and energy density describe the same beam and mirror in
+            K. The frame selector changes the reported directions and power ledger. Both frequency
+            ratios below use the original incident frequency in K as their reference; reflection in
+            k leaves the incident and reflected frequencies equal.
+          </p>
           <table>
-            <caption>
-              Relativistic wave reflection quantities and energy conservation ledger across frames.
-            </caption>
+            <caption>Wave reflection and energy ledger in the {descriptionFrame}.</caption>
             <tbody>
               <tr>
-                <th scope="row">Frequency ratio ν′′′/ν</th>
+                <th scope="row">Incident direction in this frame</th>
+                <td>
+                  <SnapshotReading
+                    snapshot={snapshot}
+                    quantityId="incidentAngleInFrameDeg"
+                    unit="°"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Incident frequency / original incident frequency in K</th>
+                <td>
+                  <SnapshotReading snapshot={snapshot} quantityId="incidentFrequencyRatio" />
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Reflected frequency / original incident frequency in K</th>
                 <td>
                   <SnapshotReading snapshot={snapshot} quantityId="frequencyRatio" />
                 </td>
               </tr>
               <tr>
-                <th scope="row">Reflection cosine cos(φ′′′)</th>
+                <th scope="row">Reflected direction cosine in this frame</th>
                 <td>
                   <SnapshotReading snapshot={snapshot} quantityId="cosPhiReflected" />
                 </td>
               </tr>
               <tr>
-                <th scope="row">Reflection angle φ′′′</th>
+                <th scope="row">Reflected direction in this frame</th>
                 <td>
-                  <SnapshotReading snapshot={snapshot} quantityId="phiReflectedDeg" /> °
+                  <SnapshotReading snapshot={snapshot} quantityId="phiReflectedDeg" unit="°" />
                 </td>
               </tr>
               <tr>
-                <th scope="row">Amplitude ratio A′′′/A</th>
+                <th scope="row">Reflected amplitude / original incident amplitude in K</th>
                 <td>
                   <SnapshotReading snapshot={snapshot} quantityId="amplitudeRatio" />
                 </td>
@@ -434,9 +469,7 @@ export function MovingMirrorLab({
                 </td>
               </tr>
               <tr>
-                <th scope="row">
-                  Work done on the mirror, P·v·A<sub>m</sub>
-                </th>
+                <th scope="row">Work done on the mirror in this frame</th>
                 <td>
                   <SnapshotReading snapshot={snapshot} quantityId="workRate" unit="W" />
                 </td>

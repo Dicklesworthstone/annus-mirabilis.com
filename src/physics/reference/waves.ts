@@ -1275,6 +1275,11 @@ export interface Sr11EvaluationResult {
   mirrorArea: number;
   frame: "lab" | "mirror";
   unitLayer: "si" | "gaussian";
+  /** Incident direction in the selected description frame, measured from +x. */
+  incidentAngleInFrameDeg: number;
+  /** Incident frequency divided by the original incident frequency in K. */
+  incidentFrequencyRatio: number;
+  /** Reflected frequency divided by that same original K frequency. */
   frequencyRatio: number;
   cosPhiReflected: number;
   phiReflectedRad: number;
@@ -1325,6 +1330,8 @@ export function evaluateSr11(input: Sr11Input): Sr11EvaluationResult {
       mirrorArea: Am,
       frame,
       unitLayer,
+      incidentAngleInFrameDeg: Number.NaN,
+      incidentFrequencyRatio: Number.NaN,
       frequencyRatio: Number.NaN,
       cosPhiReflected: Number.NaN,
       phiReflectedRad: Number.NaN,
@@ -1338,6 +1345,8 @@ export function evaluateSr11(input: Sr11Input): Sr11EvaluationResult {
       energyBalanceResidual: Number.NaN,
       explanation: reason,
       results: [
+        outside("incidentAngleInFrameDeg", "deg", "angle"),
+        outside("incidentFrequencyRatio", "1", "ratio"),
         outside("frequencyRatio", "1", "ratio"),
         outside("cosPhiReflected", "1", "cosine"),
         outside("phiReflectedDeg", "deg", "angle"),
@@ -1363,6 +1372,19 @@ export function evaluateSr11(input: Sr11Input): Sr11EvaluationResult {
       unit: string,
       semanticKind: string,
     ): ScientificResult => {
+      if (mmRes.status === "indeterminate") {
+        return Object.freeze({
+          quantityId,
+          unit,
+          semanticKind,
+          ownerId: OWNER_ID,
+          status: "outside-domain" as const,
+          condition: "interception-boundary-within-numerical-tolerance",
+          domainKind: "numerical" as const,
+          reason,
+          boundary: { parameterId: "incidentAngleDeg", value: 0 },
+        });
+      }
       if (mmRes.status === "outside-domain") {
         return Object.freeze({
           quantityId,
@@ -1394,6 +1416,8 @@ export function evaluateSr11(input: Sr11Input): Sr11EvaluationResult {
       mirrorArea: Am,
       frame,
       unitLayer,
+      incidentAngleInFrameDeg: Number.NaN,
+      incidentFrequencyRatio: Number.NaN,
       frequencyRatio: Number.NaN,
       cosPhiReflected: Number.NaN,
       phiReflectedRad: Number.NaN,
@@ -1407,6 +1431,8 @@ export function evaluateSr11(input: Sr11Input): Sr11EvaluationResult {
       energyBalanceResidual: Number.NaN,
       explanation: reason,
       results: [
+        makeStatusResult("incidentAngleInFrameDeg", "deg", "angle"),
+        makeStatusResult("incidentFrequencyRatio", "1", "ratio"),
         makeStatusResult("frequencyRatio", "1", "ratio"),
         makeStatusResult("cosPhiReflected", "1", "cosine"),
         makeStatusResult("phiReflectedDeg", "deg", "angle"),
@@ -1423,6 +1449,8 @@ export function evaluateSr11(input: Sr11Input): Sr11EvaluationResult {
     });
   }
 
+  let incidentAngleInFrameDeg = phiDeg;
+  let incidentFrequencyRatio = 1;
   let frequencyRatio: number;
   let cosPhiReflected: number;
   let phiReflectedRad: number;
@@ -1437,9 +1465,13 @@ export function evaluateSr11(input: Sr11Input): Sr11EvaluationResult {
 
   if (frame === "mirror") {
     const ledger = mirrorFrameLedger(beta, phiRad, { I: u * c, Am, c }); // I is intensity, u·c
+    incidentAngleInFrameDeg = (ledger.phiPrimeRad * 180) / Math.PI;
+    incidentFrequencyRatio = ledger.frequencyFactor;
     frequencyRatio = ledger.frequencyFactor;
-    cosPhiReflected = ledger.cosPhiPrime;
-    phiReflectedRad = ledger.phiPrimeRad;
+    // The ledger supplies the incoming direction in k. Reflection reverses its normal
+    // component while preserving its transverse component, frequency and amplitude.
+    cosPhiReflected = -ledger.cosPhiPrime;
+    phiReflectedRad = Math.PI - ledger.phiPrimeRad;
     amplitudeRatio = ledger.frequencyFactor;
     radiationPressure = ledger.forcePrime / Am;
     radiationForce = ledger.forcePrime;
@@ -1481,6 +1513,8 @@ export function evaluateSr11(input: Sr11Input): Sr11EvaluationResult {
     });
 
   const results: ScientificResult[] = [
+    val("incidentAngleInFrameDeg", "deg", "angle", incidentAngleInFrameDeg),
+    val("incidentFrequencyRatio", "1", "ratio", incidentFrequencyRatio),
     val("frequencyRatio", "1", "ratio", frequencyRatio),
     val("cosPhiReflected", "1", "cosine", cosPhiReflected),
     val("phiReflectedDeg", "deg", "angle", phiReflectedDeg),
@@ -1501,6 +1535,8 @@ export function evaluateSr11(input: Sr11Input): Sr11EvaluationResult {
     mirrorArea: Am,
     frame,
     unitLayer,
+    incidentAngleInFrameDeg,
+    incidentFrequencyRatio,
     frequencyRatio,
     cosPhiReflected,
     phiReflectedRad,
