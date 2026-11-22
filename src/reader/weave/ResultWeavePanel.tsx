@@ -165,7 +165,11 @@ export function ResultWeavePanel({
                       {condition.kind === "agreement"
                         ? `${condition.boundFamily === "dkw" ? "DKW sampling bound" : "Published owner band"}; at least ${condition.minimumSampleSize} samples. Enter significance: ${condition.enterAlpha}; exit significance: ${condition.exitAlpha}.`
                         : condition.kind === "threshold"
-                          ? `${condition.quantityId}: ${condition.direction}; enter ${condition.enter}, exit ${condition.exit}.`
+                          ? condition.direction === "at-least" &&
+                            condition.enter === -Number.MAX_VALUE &&
+                            condition.exit === -Number.MAX_VALUE
+                            ? `${condition.quantityId}: a finite scalar reading.`
+                            : `${condition.quantityId}: ${condition.direction}; enter ${condition.enter}, exit ${condition.exit}.`
                           : condition.kind === "regime"
                             ? condition.on === "constantSet"
                               ? "The constant set this record names is the active one."

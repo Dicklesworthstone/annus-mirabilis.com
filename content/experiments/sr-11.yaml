@@ -382,6 +382,7 @@ probes:
   - type-angle
   - toggle-units
 weavePredicates:
+  - sr11-reflection
   - sr11-radiation-pressure
   - sr11-energy-balance
 historicalOverlays: []

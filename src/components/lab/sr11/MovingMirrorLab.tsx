@@ -39,6 +39,7 @@ import { SliderField } from "../SliderField.tsx";
 import { withScripts } from "../subscripts.tsx";
 import { WalkthroughControl } from "../WalkthroughControl.tsx";
 import { MovingMirrorPlot } from "./MovingMirrorPlot.tsx";
+import { SR11LiveWeave } from "./SR11LiveWeave.tsx";
 
 function numericOf(item: PublishedResult | undefined): number | null {
   if (!item) return null;
@@ -56,7 +57,14 @@ function SnapshotReading({
   /** Printed after a number only: after a refusal's sentence it read as part of the sentence. */
   unit?: string;
 }) {
-  const item = result(snapshot, quantityId);
+  const item = snapshot.outputs.find((output) => output.quantityId === quantityId);
+  if (!item) {
+    return (
+      <span data-quantity-id={quantityId}>
+        This accepted snapshot does not include this reading.
+      </span>
+    );
+  }
   if (item.status === "value" && typeof item.value === "number") {
     return (
       <span data-quantity-id={quantityId}>
@@ -88,12 +96,14 @@ const SR11_PROMPTS = PREDICT_PROMPTS["sr-11"] ?? [];
 export function MovingMirrorLab({
   instanceId,
   restoreFromLocation = true,
+  highlightPaper = false,
   example,
   title = "Moving mirror reflection and radiation pressure",
 }: {
   example: PreparedSr11Example;
   instanceId?: string | undefined;
   restoreFromLocation?: boolean | undefined;
+  highlightPaper?: boolean | undefined;
   title?: string;
 }) {
   const id = useId();
@@ -201,8 +211,14 @@ export function MovingMirrorLab({
     };
   }
 
-  const incidentAngle = numericOf(result(snapshot, "incidentAngleInFrameDeg"));
-  const incidentFrequency = numericOf(result(snapshot, "incidentFrequencyRatio"));
+  // Older or partial accepted snapshots may predate these selected-frame readings. Their
+  // absence cannot be filled from K's input angle or a guessed frequency reference.
+  const incidentAngle = numericOf(
+    snapshot.outputs.find((output) => output.quantityId === "incidentAngleInFrameDeg"),
+  );
+  const incidentFrequency = numericOf(
+    snapshot.outputs.find((output) => output.quantityId === "incidentFrequencyRatio"),
+  );
   const freqRatio = numericOf(result(snapshot, "frequencyRatio"));
   const phiReflDeg = numericOf(result(snapshot, "phiReflectedDeg"));
   const radPressure = numericOf(result(snapshot, "radiationPressure"));
@@ -495,6 +511,14 @@ export function MovingMirrorLab({
         </div>
       </div>
       {/* The caption follows the instrument it describes; above it, it came between a phone's heading and the result. */}
+      <div {...gate.response}>
+        <SR11LiveWeave
+          session={session}
+          suspended={refusal !== null}
+          announcementsEnabled={gate.open}
+          highlightPaper={highlightPaper}
+        />
+      </div>
       <p data-detail="0">
         <noscript>
           <b className="reading-label">In one breath</b>
