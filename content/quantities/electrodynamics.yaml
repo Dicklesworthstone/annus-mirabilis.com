@@ -415,6 +415,45 @@
     hide a genuine 2*pi disagreement, and never compared through its cosine.
   colorRole: field
 
+- id: detectorCrossings
+  name: Accumulated wave cycles at a detector
+  description: >
+    Absolute phase advance along a detector's worldline divided by a full turn, over a stated
+    counting interval. Fractional cycles are retained; this is not a rounded integer tally of
+    wave crests. The interval and detector must stay fixed when comparing descriptions.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: count
+  mathematicalKind: scalar
+  frame: frame-independent
+  colorRole: field
+
+- id: detectorProperFrequency
+  name: Wave frequency on the detector's clock
+  description: >
+    Accumulated wave cycles divided by the detector's elapsed proper time. It equals the
+    frequency in k only when that detector is at rest in k; a detector with its own chosen
+    velocity must not inherit the viewing frame's frequency identity.
+  dimensionStatus: declared
+  dimension: [0, 0, -1, 0, 0, 0]
+  frequencyKind: cyclic
+  mathematicalKind: scalar
+  frame: object-rest
+  colorRole: time-rate
+
+- id: wavePhaseAgreement
+  name: Named-event phase comparison
+  description: >
+    The owner's numerical check of two evaluations of the same wavePhase at the same event:
+    one for agreement within the stated tolerance, zero for disagreement. A phase that could
+    not be evaluated has no comparison value. This indicator is not independent evidence.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: pure-number
+  mathematicalKind: scalar
+  frame: frame-independent
+  colorRole: field
+
 - id: dopplerFactor
   name: Doppler factor
   description: The ratio by which a moving-mirror or moving-source frequency is scaled, as printed in section 7's Doppler derivation.

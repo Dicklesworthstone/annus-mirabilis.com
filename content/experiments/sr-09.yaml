@@ -68,6 +68,23 @@ parameters:
       kind: linear
     role: independent
     commandClass: setup-change
+  - id: detectorMotion
+    label: "Detector motion"
+    accessibleName: "Detector rest frame or custom speed"
+    accessibleDescription: "Choose a detector at rest in K, at rest in the selected observer frame k, or moving at a custom speed in K."
+    quantityId: frameSpeed
+    displayUnit: ""
+    modelDomain:
+      enumerated: [rest-in-K, rest-in-k, custom]
+      reason: "Three named detector motion choices."
+    visualRange:
+      min: 0
+      max: 2
+    default: rest-in-k
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
   - id: detectorSpeed
     label: "Detector speed"
     accessibleName: "Speed of the detector as a fraction of c"
@@ -110,9 +127,9 @@ parameters:
     commandClass: setup-change
   - id: countingWindowCycles
     label: "Counting window"
-    accessibleName: "Length of the counting window in wave cycles"
-    accessibleDescription: "How many wave cycles the counting window spans."
-    quantityId: duration
+    accessibleName: "Counting window in K in source periods"
+    accessibleDescription: "K-coordinate duration measured in periods of the stationary wave; the detector's elapsed proper time is shown separately."
+    quantityId: detectorCrossings
     displayUnit: "1"
     modelDomain:
       min: 0
@@ -126,6 +143,23 @@ parameters:
       kind: linear
     role: independent
     commandClass: measurement-change
+  - id: selectedEventId
+    label: "Phase-query event"
+    accessibleName: "Named event for the phase query"
+    accessibleDescription: "Inspect the same origin or downstream event in both frames. Selecting it changes the presentation, not the physical run."
+    quantityId: wavePhase
+    displayUnit: ""
+    modelDomain:
+      enumerated: [sr-09-event-origin-tick, sr-09-event-offset]
+      reason: "Two fixed named events supplied by the wave owner."
+    visualRange:
+      min: 0
+      max: 1
+    default: sr-09-event-origin-tick
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: presentation-change
 outputs:
   - id: frameSpeed
     quantityId: frameSpeed
@@ -178,11 +212,49 @@ outputs:
     quantityId: detectorCrossings
     allowedStatuses:
       - value
+      - outside-domain
     primary: false
   - id: detectorProperRateHz
-    quantityId: waveFrequencyMoving
+    quantityId: detectorProperFrequency
     allowedStatuses:
       - value
+      - outside-domain
+    primary: false
+  - id: detectorSpeedK
+    quantityId: frameSpeed
+    allowedStatuses: [value, outside-domain]
+    primary: false
+  - id: countingWindowK
+    quantityId: coordinateTimeStationary
+    allowedStatuses: [value, outside-domain]
+    primary: false
+  - id: detectorProperWindow
+    quantityId: properTimeElapsed
+    allowedStatuses: [value, outside-domain]
+    primary: false
+  - id: namedEventTimesK
+    quantityId: coordinateTimeStationary
+    allowedStatuses: [value, outside-domain]
+    primary: false
+  - id: namedEventTimesMoving
+    quantityId: coordinateTimeMoving
+    allowedStatuses: [value, outside-domain]
+    primary: false
+  - id: namedEventPositionsK
+    quantityId: coordinatePositionStationary
+    allowedStatuses: [value, outside-domain]
+    primary: false
+  - id: namedEventPositionsMoving
+    quantityId: coordinatePositionMoving
+    allowedStatuses: [value, outside-domain]
+    primary: false
+  - id: namedEventPhases
+    quantityId: wavePhase
+    allowedStatuses: [value, outside-domain]
+    primary: false
+  - id: namedEventPhaseAgreement
+    quantityId: wavePhaseAgreement
+    allowedStatuses: [value, outside-domain]
     primary: false
   - id: earthOrbitAberrationArcsec
     quantityId: propagationAngleMoving
@@ -276,6 +348,28 @@ views:
       - dopplerFactor
       - wavePhase
 actions:
+  - actionId: change-counting-window
+    family: clock-event
+    question: "How many wave cycles accumulate over this K-coordinate interval, and at what rate on the detector's own clock?"
+    inputs: [countingWindowCycles]
+    commandClass: measurement-change
+    acceptedResult:
+      outputs: [detectorCrossings, detectorProperRateHz, countingWindowK, detectorProperWindow]
+      allowedStatuses: [value, outside-domain]
+    visualAffordance: "Direct-entry counting window beside the detector table."
+    equivalentAffordance: "Enter a positive duration in source periods and apply settings; read the two clock durations, accumulated cycles, and proper rate."
+    announcement: "Updated the counting interval for the same run."
+  - actionId: query-phase
+    family: clock-event
+    question: "Do two frame descriptions give the same phase at this named event?"
+    inputs: [selectedEventId]
+    commandClass: presentation-change
+    acceptedResult:
+      outputs: [namedEventPhases, namedEventPhaseAgreement]
+      allowedStatuses: [value, outside-domain]
+    visualAffordance: "Named-event radio buttons beside the two coordinate and phase tables."
+    equivalentAffordance: "Select the named event with the keyboard and read both phases and the owner's comparison."
+    announcement: "Selected event, both frame phases, and comparison within the stated tolerance."
   - actionId: change-boost-angle
     family: fields-boosts
     question: "How do light frequency and angle transform under a boost along x?"

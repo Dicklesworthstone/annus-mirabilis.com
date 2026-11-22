@@ -2,6 +2,8 @@ import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import DopplerAberrationPage from "../app/lab/sr-09/page.tsx";
 import { DopplerAberrationLab } from "../components/lab/sr09/DopplerAberrationLab.tsx";
+import { parseResult } from "../experiments/results/codec.ts";
+import { SR09_OUTPUTS } from "../experiments/sr09/definition.ts";
 import { createSr09Session, type PreparedSr09Example } from "../experiments/sr09/session.ts";
 import rawExample from "../generated/sr09-example.json";
 
@@ -43,6 +45,11 @@ describe("SR-09 Doppler and Aberration Lab View & Route (am-sr-09-doppler-aberra
     expect(html).toContain("Worked case (readable without JavaScript)");
     expect(html).toContain("For a ray at right angles");
     expect(html).toContain('data-instrument-id="sr-09"');
+    expect(html).toContain("Accumulated wave cycles");
+    expect(html).toContain('data-event-id="sr-09-event-origin-tick"');
+    expect(html).toContain('data-event-id="sr-09-event-offset"');
+    expect(html).toContain("The two evaluations agree");
+    expect(html).not.toContain("Not included in this example.");
   });
 
   test("DopplerAberrationLab consumes the snapshot: named rays, classical comparison, no slider", () => {
@@ -65,11 +72,40 @@ describe("SR-09 Doppler and Aberration Lab View & Route (am-sr-09-doppler-aberra
     const snap = session.getSnapshot().accepted;
     expect(snap).toBeDefined();
     expect(snap?.experimentId).toBe("sr-09");
+    expect(snap?.outputs.map((output) => output.quantityId).sort()).toEqual(
+      Object.keys(SR09_OUTPUTS).sort(),
+    );
     const doppler = snap?.outputs.find((o) => o.quantityId === "dopplerFactor");
     expect(doppler?.status).toBe("value");
     if (doppler?.status === "value" && typeof doppler.value === "number") {
       expect(doppler.value).toBeCloseTo(0.5, 6);
     }
+  });
+
+  test("an older partial worked example reports missing detector and event readings honestly", () => {
+    const oldIds = new Set([
+      "frameSpeed",
+      "propagationAngleStationary",
+      "propagationAngleMoving",
+      "waveFrequencyStationary",
+      "waveFrequencyMoving",
+      "dopplerFactor",
+      "wavePhase",
+      "lorentzFactor",
+      "classicalObserverDopplerFactor",
+      "classicalSourceDopplerFactor",
+      "recedingDopplerFactor",
+      "approachingDopplerFactor",
+    ]);
+    const oldExample = {
+      ...example,
+      results: example.results.filter((encoded) => oldIds.has(parseResult(encoded).quantityId)),
+    };
+    const html = renderToStaticMarkup(<DopplerAberrationLab example={oldExample} />);
+    expect(html).toContain("Not included in this example.");
+    expect(html).toContain("The phase comparison is unavailable in this snapshot.");
+    expect(html).not.toContain("The two evaluations agree");
+    expect(withoutCodePanel(html)).not.toContain("NaN");
   });
 
   test("the code-panel stripper takes the panel and nothing beside it", () => {

@@ -3,7 +3,13 @@ import { encodeResult, parseResult } from "../results/codec.ts";
 import { refuseNonFiniteValues } from "../results/numberRange.ts";
 import type { ScientificResult } from "../results/types.ts";
 import { createInstanceStore, type Parameters } from "../store/instanceStore.ts";
-import { SR09_CLASSES, SR09_DEFAULTS, SR09_OUTPUTS, type Sr09Parameters } from "./definition.ts";
+import {
+  SR09_CLASSES,
+  SR09_DEFAULTS,
+  SR09_EVENTS,
+  SR09_OUTPUTS,
+  type Sr09Parameters,
+} from "./definition.ts";
 import { sr09InputFromParameters, validateSr09Parameters } from "./parameters.ts";
 
 export type PreparedSr09Example = Readonly<{
@@ -16,9 +22,72 @@ export type PreparedSr09Example = Readonly<{
 
 export function snapshotOutputs(p: Sr09Parameters): ScientificResult[] {
   const snap = evaluateSr09(sr09InputFromParameters(p));
+  /** Project owner records without another evaluation or any new physical calculation. */
+  function output(quantityId: string, value: number | Float64Array): ScientificResult {
+    const contract = SR09_OUTPUTS[quantityId];
+    if (!contract) throw new TypeError(`Unregistered SR-09 output: ${quantityId}`);
+    const { statuses: _statuses, ...identity } = contract;
+    if (snap.status === "outside-domain") {
+      return {
+        quantityId,
+        ...identity,
+        status: "outside-domain",
+        condition: "superluminal-speed",
+        domainKind: "physical",
+        reason: "No inertial observer at |v| >= c.",
+        boundary: { parameterId: "beta", value: SR09_DEFAULTS.beta },
+      };
+    }
+    return { quantityId, ...identity, status: "value", value };
+  }
+  const events = SR09_EVENTS.map(({ id }) => snap.events.find((event) => event.id === id));
+  const projected = [
+    ...snap.results,
+    output("detectorCrossings", snap.detectorCrossings),
+    output("detectorProperRateHz", snap.detectorProperRateHz),
+    output("detectorSpeedK", snap.detectorSpeedK),
+    output("countingWindowK", snap.countingWindowK),
+    output("detectorProperWindow", snap.detectorProperWindow),
+    output(
+      "namedEventTimesK",
+      Float64Array.from(events, (event) => event?.eventK.t ?? NaN),
+    ),
+    output(
+      "namedEventTimesMoving",
+      Float64Array.from(events, (event) => event?.event_k.t ?? NaN),
+    ),
+    output(
+      "namedEventPositionsK",
+      Float64Array.from(
+        events.flatMap((event) =>
+          event ? [event.eventK.x, event.eventK.y, event.eventK.z] : [NaN, NaN, NaN],
+        ),
+      ),
+    ),
+    output(
+      "namedEventPositionsMoving",
+      Float64Array.from(
+        events.flatMap((event) =>
+          event ? [event.event_k.x, event.event_k.y, event.event_k.z] : [NaN, NaN, NaN],
+        ),
+      ),
+    ),
+    output(
+      "namedEventPhases",
+      Float64Array.from(
+        events.flatMap((event) => (event ? [event.phaseK, event.phase_k] : [NaN, NaN])),
+      ),
+    ),
+    output(
+      "namedEventPhaseAgreement",
+      Float64Array.from(events, (event) =>
+        event?.phasesAgree === true ? 1 : event?.phasesAgree === false ? 0 : NaN,
+      ),
+    ),
+  ];
   // A frequency past about 10^296 THz is infinite in hertz; say so per output instead of letting the
   // store refuse the whole publication, which no caller catches (see numberRange.ts).
-  return refuseNonFiniteValues(snap.results, [
+  return refuseNonFiniteValues(projected, [
     { parameterId: "frequencyTHz", value: p.frequencyTHz, admissible: SR09_DEFAULTS.frequencyTHz },
     {
       parameterId: "countingWindowCycles",

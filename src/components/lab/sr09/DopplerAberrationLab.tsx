@@ -41,6 +41,7 @@ import { ShowTheCode } from "../ShowTheCode.tsx";
 import { withScripts } from "../subscripts.tsx";
 import { WalkthroughControl } from "../WalkthroughControl.tsx";
 import { DopplerAberrationPlot } from "./DopplerAberrationPlot.tsx";
+import { Sr09Observations } from "./Sr09Observations.tsx";
 
 function numericOf(item: PublishedResult | undefined): number | null {
   if (!item) return null;
@@ -66,12 +67,20 @@ function SnapshotReading({
 }
 
 /** The typed fields, kept as the reader typed them and read on Apply (dispatch 165). */
-type Sr09Typed = { beta: string; propagationAngleDeg: string; frequencyTHz: string };
+type Sr09Typed = {
+  beta: string;
+  propagationAngleDeg: string;
+  frequencyTHz: string;
+  detectorSpeed: string;
+  countingWindowCycles: string;
+};
 function typedFrom(q: Sr09Parameters): Sr09Typed {
   return {
     beta: String(q.beta),
     propagationAngleDeg: String(q.propagationAngleDeg),
     frequencyTHz: String(q.frequencyTHz),
+    detectorSpeed: String(q.detectorSpeed),
+    countingWindowCycles: String(q.countingWindowCycles),
   };
 }
 
@@ -161,17 +170,40 @@ export function DopplerAberrationLab({
     if (angle.kind === "refused") return refuse(angle.refusal, angle.requirement);
     const frequency = readTypedNumber(typed.frequencyTHz, "the frequency in K");
     if (frequency.kind === "refused") return refuse(frequency.refusal, frequency.requirement);
+    const countingWindow = readTypedNumber(
+      typed.countingWindowCycles,
+      "the counting window in source periods",
+    );
+    if (countingWindow.kind === "refused")
+      return refuse(countingWindow.refusal, countingWindow.requirement);
+    const detectorSpeed =
+      draft.detectorMotion === "custom"
+        ? readTypedNumber(typed.detectorSpeed, "the detector speed in K")
+        : { kind: "accepted" as const, value: draft.detectorSpeed };
+    if (detectorSpeed.kind === "refused")
+      return refuse(detectorSpeed.refusal, detectorSpeed.requirement);
     const checked = validateSr09Parameters({
       ...draft,
       beta: beta.value,
       propagationAngleDeg: angle.value,
       frequencyTHz: frequency.value,
+      detectorSpeed: detectorSpeed.value,
+      countingWindowCycles: countingWindow.value,
     });
     if (checked.kind !== "accepted") {
       refuse(checked.refusal, refusalSentence(checked.refusal));
       return;
     }
     apply(checked.data);
+  }
+  function selectEvent(selectedEventId: string) {
+    const outcome = session.apply({ ...p, selectedEventId });
+    if (outcome.kind === "refused") {
+      refuse(outcome.refusal, refusalSentence(outcome.refusal));
+      return;
+    }
+    // Inspecting a result must not discard an unfinished detector/observer edit.
+    setDraft((current) => ({ ...current, selectedEventId }));
   }
   const doppler = numericOf(result(snapshot, "dopplerFactor"));
   const thetaK = numericOf(result(snapshot, "propagationAngleStationary"));
@@ -229,8 +261,8 @@ export function DopplerAberrationLab({
       <noscript>
         <p className="notice">
           JavaScript is off. This is a complete worked example calculated when the site was built.
-          Frequency ratios, the transverse case, and the classical comparison remain available;
-          changing the settings requires JavaScript.
+          Frequency ratios, detector readings, both named events, and the classical comparison
+          remain available; changing the settings requires JavaScript.
         </p>
       </noscript>
       <PredictGatePanels gate={gate} />
@@ -302,6 +334,68 @@ export function DopplerAberrationLab({
                 />
               </div>
             </div>
+            <h3>Choose a detector and counting window</h3>
+            <div className="input-grid">
+              <div className="input-field">
+                <label htmlFor={`${id}-detectorMotion`}>Detector motion</label>
+                <select
+                  id={`${id}-detectorMotion`}
+                  name="detectorMotion"
+                  value={draft.detectorMotion}
+                  onChange={(event) =>
+                    setDraft({
+                      ...draft,
+                      detectorMotion: event.currentTarget.value as Sr09Parameters["detectorMotion"],
+                    })
+                  }
+                >
+                  <option value="rest-in-k">At rest in moving frame k</option>
+                  <option value="rest-in-K">At rest in stationary frame K</option>
+                  <option value="custom">Custom speed in K</option>
+                </select>
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-detectorSpeed`}>
+                  Custom detector speed in K (fraction of c)
+                </label>
+                <input
+                  id={`${id}-detectorSpeed`}
+                  name="detectorSpeed"
+                  type="number"
+                  inputMode="decimal"
+                  min="-1"
+                  max="1"
+                  step="0.01"
+                  disabled={draft.detectorMotion !== "custom"}
+                  value={typed.detectorSpeed}
+                  onChange={(event) =>
+                    setTyped({ ...typed, detectorSpeed: event.currentTarget.value })
+                  }
+                />
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-countingWindowCycles`}>
+                  Counting window in K (source periods)
+                </label>
+                <input
+                  id={`${id}-countingWindowCycles`}
+                  name="countingWindowCycles"
+                  type="number"
+                  inputMode="decimal"
+                  min="0"
+                  step="any"
+                  value={typed.countingWindowCycles}
+                  onChange={(event) =>
+                    setTyped({ ...typed, countingWindowCycles: event.currentTarget.value })
+                  }
+                />
+              </div>
+            </div>
+            <p className="fine">
+              A source period is one cycle of the light in K. The detector’s own elapsed time is
+              shown separately. “At rest in k” follows the selected observer; choose K or a custom
+              speed to keep the detector fixed while comparing observers.
+            </p>
             <button type="submit">Apply settings</button>
             <ExperimentSettings contents="the source frequency">
               <div className="input-grid">
@@ -430,6 +524,14 @@ export function DopplerAberrationLab({
             order in v/c.
           </p>
         </div>
+      </div>
+      <div {...gate.response}>
+        <Sr09Observations
+          snapshot={snapshot}
+          ready={ready}
+          announcementsEnabled={gate.open && refusal === null}
+          onSelectEvent={selectEvent}
+        />
       </div>
       {/* The caption's readings follow the instrument (dispatch 263). Above the predict gate they
           pushed the instrument more than 1000px down at 1440; every sentence is still here. */}

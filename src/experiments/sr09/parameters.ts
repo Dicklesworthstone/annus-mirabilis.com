@@ -2,7 +2,7 @@ import type { Sr09Input } from "../../physics/reference/waves.ts";
 import { type DomainDisplay, withinDeclaredDomain } from "../controls/declaredDomain.ts";
 import { optionalNumber } from "../controls/typedNumber.ts";
 import { makeRefusal } from "../results/refusals.ts";
-import type { Sr09Parameters } from "./definition.ts";
+import { SR09_DEFAULTS, SR09_EVENTS, type Sr09Parameters } from "./definition.ts";
 
 export type Sr09ParameterCheck =
   | { kind: "accepted"; data: Sr09Parameters }
@@ -32,8 +32,43 @@ function validateSr09Fields(input: unknown): Sr09ParameterCheck {
   const countingWindowCycles = optionalNumber(o, "countingWindowCycles", 10);
   const secondOrderSpeed = optionalNumber(o, "secondOrderSpeed", 0.005);
   const selectedEventId =
-    typeof o.selectedEventId === "string" ? o.selectedEventId : "sr-09-event-origin-tick";
+    typeof o.selectedEventId === "string" ? o.selectedEventId : SR09_DEFAULTS.selectedEventId;
   const showCovectorNote = Boolean(o.showCovectorNote);
+
+  if (
+    o.detectorMotion !== undefined &&
+    o.detectorMotion !== "rest-in-K" &&
+    o.detectorMotion !== "rest-in-k" &&
+    o.detectorMotion !== "custom"
+  ) {
+    return {
+      kind: "refused",
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["detectorMotion"] },
+        {
+          details: {
+            requirements: "Choose a detector at rest in K, at rest in k, or a custom speed.",
+          },
+        },
+      ),
+    };
+  }
+  if (
+    (o.selectedEventId !== undefined && typeof o.selectedEventId !== "string") ||
+    !SR09_EVENTS.some((event) => event.id === selectedEventId)
+  ) {
+    return {
+      kind: "refused",
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["selectedEventId"] },
+        {
+          details: { requirements: "Choose the origin cycle tick or the offset downstream event." },
+        },
+      ),
+    };
+  }
 
   if (!Number.isFinite(beta)) {
     return {
@@ -141,6 +176,8 @@ const SR09_DOMAIN_DISPLAY: Readonly<Record<string, DomainDisplay>> = {
   beta: { label: "observer speed β" },
   propagationAngleDeg: { label: "propagation angle θ" },
   frequencyTHz: { label: "frequency in K" },
+  detectorSpeed: { label: "detector speed in K" },
+  countingWindowCycles: { label: "counting window in source periods" },
 };
 
 /** The fields above, then every range content/experiments/sr-09.yaml declares (dispatch 134). */

@@ -141,4 +141,21 @@ describe("SR-09 detector clocks and counting windows", () => {
       expect(snap.detectorProperRateHz / frequencyHz).toBeCloseTo(rate, 12);
     }
   });
+
+  test("the report retains both durations and the effective detector velocity", () => {
+    const snap = evaluateSr09({ ...trial, detectorMotion: "custom", detectorSpeed: -0.8 });
+    expect(snap.countingWindowK).toBe(trial.countingWindow);
+    expect(snap.detectorProperWindow * 1e15).toBeCloseTo(24, 12);
+    expect(snap.detectorSpeedK).toBe(-0.8);
+  });
+
+  test("refused phase evaluations retain absence rather than agreeing as zeroes", () => {
+    const snap = evaluateSr09({ ...trial, frequencyHz: Number.POSITIVE_INFINITY });
+    expect(snap.events).toHaveLength(2);
+    for (const event of snap.events) {
+      expect(Number.isNaN(event.phaseK)).toBe(true);
+      expect(Number.isNaN(event.phase_k)).toBe(true);
+      expect(event.phasesAgree).toBeNull();
+    }
+  });
 });

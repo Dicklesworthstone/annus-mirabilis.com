@@ -675,7 +675,8 @@ export interface Sr09NamedEventRecord {
   wave_k: Wave4Vector;
   phaseK: number;
   phase_k: number;
-  phasesAgree: boolean;
+  /** Null when either phase could not be evaluated; missing phases never agree as zeroes. */
+  phasesAgree: boolean | null;
   adversarialPhase_k: number;
 }
 
@@ -700,6 +701,9 @@ export interface Sr09EvaluationResult {
   lineOfSightApproachingFactor: number;
   detectorCrossings: number;
   detectorProperRateHz: number;
+  detectorSpeedK: number;
+  countingWindowK: number;
+  detectorProperWindow: number;
   earthOrbitAberrationArcsec: number;
   earthOrbitAberrationFormatted: string;
   secondOrderShift: number;
@@ -753,6 +757,9 @@ export function evaluateSr09(input: Sr09Input): Sr09EvaluationResult {
       lineOfSightApproachingFactor: Number.NaN,
       detectorCrossings: Number.NaN,
       detectorProperRateHz: Number.NaN,
+      detectorSpeedK: Number.NaN,
+      countingWindowK: Number.NaN,
+      detectorProperWindow: Number.NaN,
       earthOrbitAberrationArcsec: Number.NaN,
       earthOrbitAberrationFormatted: "outside-domain",
       secondOrderShift: Number.NaN,
@@ -851,15 +858,15 @@ export function evaluateSr09(input: Sr09Input): Sr09EvaluationResult {
   };
   const p1_K = phaseAtEvent(event1_K, wave1_K);
   const p1_k = phaseAtEvent(event1_k, wave1_k);
-  const val1_K = p1_K.status === "value" && typeof p1_K.value === "number" ? p1_K.value : 0;
-  const val1_k = p1_k.status === "value" && typeof p1_k.value === "number" ? p1_k.value : 0;
+  const val1_K = p1_K.status === "value" && typeof p1_K.value === "number" ? p1_K.value : NaN;
+  const val1_k = p1_k.status === "value" && typeof p1_k.value === "number" ? p1_k.value : NaN;
 
   // Adversarial Phase: uses Galilean wave transformation where kx does not mix with omega
   const adv_kx_k = g * (kxK + (beta * omegaK) / C_SI);
   const adv_wave1_k = { omega: omega_k, kx: adv_kx_k, ky: kyK, kz: kzK };
   const adv_p1_k = phaseAtEvent(event1_k, adv_wave1_k);
   const adv_val1_k =
-    adv_p1_k.status === "value" && typeof adv_p1_k.value === "number" ? adv_p1_k.value : 0;
+    adv_p1_k.status === "value" && typeof adv_p1_k.value === "number" ? adv_p1_k.value : NaN;
 
   // Event 2: offset event (t = 2e-15 s, x = 3e-7 m, y = 0, z = 0)
   const event2_K = { t: 2e-15, x: 3e-7, y: 0, z: 0 };
@@ -871,11 +878,11 @@ export function evaluateSr09(input: Sr09Input): Sr09EvaluationResult {
   };
   const p2_K = phaseAtEvent(event2_K, wave1_K);
   const p2_k = phaseAtEvent(event2_k, wave1_k);
-  const val2_K = p2_K.status === "value" && typeof p2_K.value === "number" ? p2_K.value : 0;
-  const val2_k = p2_k.status === "value" && typeof p2_k.value === "number" ? p2_k.value : 0;
+  const val2_K = p2_K.status === "value" && typeof p2_K.value === "number" ? p2_K.value : NaN;
+  const val2_k = p2_k.status === "value" && typeof p2_k.value === "number" ? p2_k.value : NaN;
   const adv_p2_k = phaseAtEvent(event2_k, adv_wave1_k);
   const adv_val2_k =
-    adv_p2_k.status === "value" && typeof adv_p2_k.value === "number" ? adv_p2_k.value : 0;
+    adv_p2_k.status === "value" && typeof adv_p2_k.value === "number" ? adv_p2_k.value : NaN;
 
   const events: readonly Sr09NamedEventRecord[] = [
     Object.freeze({
@@ -888,8 +895,10 @@ export function evaluateSr09(input: Sr09Input): Sr09EvaluationResult {
       phaseK: val1_K,
       phase_k: val1_k,
       phasesAgree:
-        classifyWithTolerance(val1_K - val1_k, { absolute: 1e-12 }).sign === "indeterminate" ||
-        val1_K === val1_k,
+        Number.isFinite(val1_K - val1_k)
+          ? classifyWithTolerance(val1_K - val1_k, { absolute: 1e-12 }).sign === "indeterminate" ||
+            val1_K === val1_k
+          : null,
       adversarialPhase_k: adv_val1_k,
     }),
     Object.freeze({
@@ -902,8 +911,10 @@ export function evaluateSr09(input: Sr09Input): Sr09EvaluationResult {
       phaseK: val2_K,
       phase_k: val2_k,
       phasesAgree:
-        classifyWithTolerance(val2_K - val2_k, { absolute: 1e-12 }).sign === "indeterminate" ||
-        val2_K === val2_k,
+        Number.isFinite(val2_K - val2_k)
+          ? classifyWithTolerance(val2_K - val2_k, { absolute: 1e-12 }).sign === "indeterminate" ||
+            val2_K === val2_k
+          : null,
       adversarialPhase_k: adv_val2_k,
     }),
   ];
@@ -1028,6 +1039,9 @@ export function evaluateSr09(input: Sr09Input): Sr09EvaluationResult {
     lineOfSightApproachingFactor: approachingFactor,
     detectorCrossings,
     detectorProperRateHz,
+    detectorSpeedK: detectorSpeed,
+    countingWindowK: detectorWindow,
+    detectorProperWindow,
     earthOrbitAberrationArcsec,
     earthOrbitAberrationFormatted,
     secondOrderShift: secondOrderShiftVal,

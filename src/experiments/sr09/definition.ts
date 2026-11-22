@@ -24,6 +24,13 @@ export const SR09_DEFAULTS: Sr09Parameters = Object.freeze({
   showCovectorNote: false,
 });
 
+/** Stable identities, in the order used by the published event arrays. Coordinates come from
+ * the owner, not this roster: changing observer must re-describe these same two events. */
+export const SR09_EVENTS = Object.freeze([
+  Object.freeze({ id: "sr-09-event-origin-tick", label: "Origin cycle tick" }),
+  Object.freeze({ id: "sr-09-event-offset", label: "Offset downstream event" }),
+]);
+
 export const SR09_CLASSES: Readonly<Record<keyof Sr09Parameters, ParameterClass>> = Object.freeze({
   beta: "observer",
   propagationAngleDeg: "input",
@@ -77,4 +84,17 @@ export const SR09_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
   classicalSourceDopplerFactor: c("1", "ratio", "waves", ["value", "outside-domain"]),
   recedingDopplerFactor: c("1", "ratio", "waves", ["value", "outside-domain"]),
   approachingDopplerFactor: c("1", "ratio", "waves", ["value", "outside-domain"]),
+  detectorCrossings: c("1", "cycle-count", "waves", ["value", "outside-domain"]),
+  detectorProperRateHz: c("Hz", "frequency", "waves", ["value", "outside-domain"]),
+  detectorSpeedK: c("c", "speed", "waves", ["value", "outside-domain"]),
+  countingWindowK: c("s", "coordinate-duration", "waves", ["value", "outside-domain"]),
+  detectorProperWindow: c("s", "proper-duration", "waves", ["value", "outside-domain"]),
+  namedEventTimesK: c("s", "coordinate-time", "waves", ["value", "outside-domain"]),
+  namedEventTimesMoving: c("s", "coordinate-time", "waves", ["value", "outside-domain"]),
+  namedEventPositionsK: c("m", "position", "waves", ["value", "outside-domain"]),
+  namedEventPositionsMoving: c("m", "position", "waves", ["value", "outside-domain"]),
+  // Both frame evaluations bind the single invariant wavePhase quantity. Each event contributes
+  // [phase in K, phase in k]; no reduction modulo a full turn is made.
+  namedEventPhases: c("rad", "angle", "waves", ["value", "outside-domain"]),
+  namedEventPhaseAgreement: c("1", "comparison-flag", "waves", ["value", "outside-domain"]),
 });

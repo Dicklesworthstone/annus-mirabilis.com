@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parsePredictPromptId } from "../content/ids.ts";
+import { loadQuantityRegistry } from "../content/quantities/registry.ts";
 import { validateExperiment } from "../content/schemas/experiment.ts";
 import { strictParse } from "../content/schemas/strictParse.ts";
 import { catalogueStatus, isCatalogueId } from "../experiments/catalogue.ts";
@@ -22,6 +23,23 @@ describe("SR-09 manifest and metadata contract", () => {
     expect(manifest.explanatoryQuestion).toBe(SR09_QUESTION);
     expect(manifest.embeddable).toBe(true);
     expect(manifest.notModeled.length).toBeGreaterThan(0);
+    expect(
+      manifest.parameters.find((parameter) => parameter.id === "countingWindowCycles")
+        ?.commandClass,
+    ).toBe("measurement-change");
+    expect(
+      manifest.parameters.find((parameter) => parameter.id === "selectedEventId")?.commandClass,
+    ).toBe("presentation-change");
+    expect(manifest.outputs.find((output) => output.id === "namedEventPhases")?.quantityId).toBe(
+      "wavePhase",
+    );
+    const detectorRateId = manifest.outputs.find(
+      (output) => output.id === "detectorProperRateHz",
+    )?.quantityId;
+    expect(detectorRateId).toBe("detectorProperFrequency");
+    const registry = loadQuantityRegistry();
+    expect(registry.quantities.get("detectorProperFrequency")?.frame).toBe("object-rest");
+    expect(registry.quantities.get("detectorCrossings")?.dimensionlessKind).toBe("count");
 
     const ids =
       "enabled" in manifest.predictMode && manifest.predictMode.enabled
