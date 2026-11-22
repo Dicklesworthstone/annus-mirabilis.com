@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { act, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
+import { CAPSTONE_WORKSHEET_KEYS } from "../../platform/storage/keys.ts";
 import { installDom, uninstallDom } from "../../testing/reactDom.ts";
 import { CapstoneWorksheet } from "./CapstoneWorksheet.tsx";
 import type { Capstone } from "./capstoneSchema.ts";
@@ -167,5 +168,67 @@ describe("optional capstone worksheet", () => {
     quota = false;
     await click("Retry saving");
     expect(document.body.textContent).toContain("Saved on this device");
+  });
+  test("a queued cross-tab clear preserves the local draft and requires explicit recovery", async () => {
+    await mount();
+    await click("Use the paper's order");
+    const original = saved;
+    quota = true;
+    await click("Add a row");
+    expect(document.querySelectorAll(".capstone-table-row input").length).toBe(2);
+    expect(button("Retry saving")).toBeDefined();
+    // The browser delivers the clear after a second write has already restored the old bytes.
+    saved = null;
+    saved = original;
+    quota = false;
+    await act(async () => {
+      window.dispatchEvent(
+        new StorageEvent("storage", {
+          key: CAPSTONE_WORKSHEET_KEYS["brownian-motion"],
+          oldValue: original,
+          newValue: null,
+        }),
+      );
+    });
+    expect(document.body.textContent).toContain("changed elsewhere or was cleared");
+    expect(button("Clear this worksheet").disabled).toBe(true);
+    expect(document.querySelectorAll(".capstone-table-row input").length).toBe(2);
+    await click("Add a column");
+    expect(document.querySelectorAll(".capstone-table-row input").length).toBe(3);
+    expect(saved).toBe(original);
+    await click("Load saved worksheet");
+    await click("Replace with saved worksheet");
+    expect(document.querySelectorAll(".capstone-table-row input").length).toBe(0);
+    await click("Add a row");
+    expect(JSON.parse(saved ?? "{}").table).toEqual([["", ""]]);
+  });
+  test("other capstones and session storage do not conflict; a site-wide clear does", async () => {
+    await mount();
+    await click("Use the paper's order");
+    const original = saved;
+    await act(async () => {
+      window.dispatchEvent(
+        new StorageEvent("storage", {
+          key: CAPSTONE_WORKSHEET_KEYS["mass-energy"],
+          oldValue: "another worksheet",
+          newValue: null,
+        }),
+      );
+      window.dispatchEvent(
+        new StorageEvent("storage", {
+          key: CAPSTONE_WORKSHEET_KEYS["brownian-motion"],
+          oldValue: original,
+          newValue: null,
+          storageArea: window.sessionStorage,
+        }),
+      );
+    });
+    expect(document.body.textContent).not.toContain("changed elsewhere or was cleared");
+    expect(button("Clear this worksheet").disabled).toBe(false);
+    await act(async () => {
+      window.dispatchEvent(new StorageEvent("storage", { key: null }));
+    });
+    expect(document.body.textContent).toContain("changed elsewhere or was cleared");
+    expect(saved).toBe(original);
   });
 });

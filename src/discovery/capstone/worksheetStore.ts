@@ -10,6 +10,11 @@ import {
 export type WorksheetRead = Readonly<
   { status: "ok"; raw: string } | { status: "missing" | "unavailable" }
 >;
+/** A browser event records a change even if later writes have already replaced its bytes. */
+export type WorksheetStorageChange = Readonly<{
+  oldValue: string | null;
+  newValue: string | null;
+}>;
 export interface WorksheetStorage {
   read(): WorksheetRead;
   write(raw: string): "saved" | "unavailable" | "quota";
@@ -158,7 +163,7 @@ export function createWorksheetStore(capstone: Definition, storage: WorksheetSto
       open();
       save(snapshot.worksheet);
     },
-    checkForExternalChange() {
+    checkForExternalChange(observed?: WorksheetStorageChange) {
       if (
         snapshot.persistence === "unopened" ||
         snapshot.persistence === "protected" ||
@@ -166,9 +171,27 @@ export function createWorksheetStore(capstone: Definition, storage: WorksheetSto
       )
         return;
       const saved = read();
-      if (saved.status === "unavailable") return;
+      // Storage events are queued. Reading only today's bytes loses a clear or replacement
+      // followed by another write back to the original bytes. A pending draft must not silently
+      // repopulate a cleared document, even if that draft has never been saved successfully.
+      const witnessedChange =
+        observed !== undefined &&
+        (!baseKnown ||
+          observed.newValue !== baseRaw ||
+          (observed.newValue === null &&
+            (observed.oldValue !== null || snapshot.persistence === "session-only")));
+      if (saved.status === "unavailable") {
+        if (witnessedChange)
+          publish({
+            ...snapshot,
+            persistence: "conflict",
+            message: CONFLICT,
+            recoveryRaw: observed?.newValue ?? null,
+          });
+        return;
+      }
       const raw = saved.status === "ok" ? saved.raw : null;
-      if ((!baseKnown && raw !== null) || (baseKnown && raw !== baseRaw))
+      if (witnessedChange || (!baseKnown && raw !== null) || (baseKnown && raw !== baseRaw))
         publish({ ...snapshot, persistence: "conflict", message: CONFLICT, recoveryRaw: raw });
     },
     /** Consent applies only to the saved bytes this tab has seen, never a newly changed document. */

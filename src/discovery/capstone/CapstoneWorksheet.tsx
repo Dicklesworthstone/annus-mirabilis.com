@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import { CAPSTONE_WORKSHEET_KEYS } from "../../platform/storage/keys.ts";
 import { dependencyFeedback } from "../shared/dependencyFeedback.ts";
 import { ReorderList } from "../shared/ReorderList.tsx";
 import { CapstoneNotebookControls } from "./CapstoneNotebookControls.tsx";
@@ -96,13 +97,25 @@ export function CapstoneWorksheet({
     setReady(true);
     const unsubscribe = current.subscribe(refresh);
     const check = () => current.checkForExternalChange();
-    window.addEventListener("storage", check);
+    const key = Object.hasOwn(CAPSTONE_WORKSHEET_KEYS, capstone.paper)
+      ? CAPSTONE_WORKSHEET_KEYS[capstone.paper as keyof typeof CAPSTONE_WORKSHEET_KEYS]
+      : undefined;
+    const storageChanged = (event: StorageEvent) => {
+      if (event.key !== null && event.key !== key) return;
+      try {
+        if (event.storageArea && event.storageArea !== window.localStorage) return;
+      } catch {
+        // A blocked storage getter cannot erase evidence of a change already delivered to us.
+      }
+      current.checkForExternalChange({ oldValue: event.oldValue, newValue: event.newValue });
+    };
+    window.addEventListener("storage", storageChanged);
     window.addEventListener("pageshow", check);
     window.addEventListener("focus", check);
     return () => {
       unsubscribe();
       store.current = null;
-      window.removeEventListener("storage", check);
+      window.removeEventListener("storage", storageChanged);
       window.removeEventListener("pageshow", check);
       window.removeEventListener("focus", check);
     };

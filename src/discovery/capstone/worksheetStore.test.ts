@@ -165,6 +165,70 @@ describe("capstone device persistence", () => {
     assert.equal(backend.raw(), null);
     assert.equal(store.getSnapshot().worksheet.explanation, "Keep privately");
   });
+  it("a queued clear protects unsaved work even when another tab has restored the saved bytes", () => {
+    const original = JSON.stringify({ ...emptyWorksheet(definition()), explanation: "Saved" });
+    const backend = memory(original);
+    const store = createWorksheetStore(definition(), backend.port);
+    store.open();
+    backend.quota(true);
+    store.edit({ ...emptyWorksheet(definition()), explanation: "This tab's unsaved work" });
+
+    backend.replace(null);
+    backend.replace(original);
+    backend.quota(false);
+    store.checkForExternalChange({ oldValue: original, newValue: null });
+    assert.equal(store.getSnapshot().persistence, "conflict");
+    assert.equal(store.getSnapshot().worksheet.explanation, "This tab's unsaved work");
+    assert.equal(store.getSnapshot().recoveryRaw, original);
+    store.retry();
+    assert.equal(backend.writes(), 0);
+    assert.equal(backend.raw(), original);
+
+    assert.equal(store.reloadConfirmed(), true);
+    assert.equal(store.getSnapshot().worksheet.explanation, "Saved");
+    store.edit({ ...emptyWorksheet(definition()), explanation: "A new explicit edit" });
+    assert.equal(JSON.parse(backend.raw() ?? "{}").explanation, "A new explicit edit");
+  });
+  it("a queued replacement is still a conflict after the saved bytes change back", () => {
+    const original = JSON.stringify({ ...emptyWorksheet(definition()), explanation: "Original" });
+    const changed = JSON.stringify({ ...emptyWorksheet(definition()), explanation: "Elsewhere" });
+    const backend = memory(original);
+    const store = createWorksheetStore(definition(), backend.port);
+    store.open();
+    backend.replace(changed);
+    backend.replace(original);
+    store.checkForExternalChange({ oldValue: original, newValue: changed });
+    assert.equal(store.getSnapshot().persistence, "conflict");
+    assert.equal(store.clearConfirmed(), false);
+    assert.equal(backend.raw(), original);
+  });
+  it("clear events protect a session-only draft even if it has never reached device storage", () => {
+    for (const oldValue of [null, "a transient worksheet from another tab"]) {
+      const backend = memory();
+      backend.quota(true);
+      const store = createWorksheetStore(definition(), backend.port);
+      store.edit({ ...emptyWorksheet(definition()), explanation: "Not saved yet" });
+      store.checkForExternalChange({ oldValue, newValue: null });
+      backend.quota(false);
+      store.retry();
+      assert.equal(store.getSnapshot().persistence, "conflict");
+      assert.equal(backend.raw(), null);
+      assert.equal(store.getSnapshot().worksheet.explanation, "Not saved yet");
+    }
+  });
+  it("event evidence survives unavailable storage and unchanged checks do not invent a conflict", () => {
+    const original = JSON.stringify(emptyWorksheet(definition()));
+    const backend = memory(original);
+    const store = createWorksheetStore(definition(), backend.port);
+    store.open();
+    store.checkForExternalChange();
+    store.checkForExternalChange({ oldValue: null, newValue: original });
+    assert.equal(store.getSnapshot().persistence, "saved");
+    backend.unavailable(true);
+    store.checkForExternalChange({ oldValue: original, newValue: null });
+    assert.equal(store.getSnapshot().persistence, "conflict");
+    assert.deepEqual(store.getSnapshot().worksheet, emptyWorksheet(definition()));
+  });
   it("clearing one worksheet leaves another capstone untouched", () => {
     const a = memory(),
       b = memory();
