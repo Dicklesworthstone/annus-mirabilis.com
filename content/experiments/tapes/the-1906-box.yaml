@@ -8,12 +8,13 @@ isTeachingSequence: true
 modelIdentity:
   modelId: me-03-box-1906-v1
   modelVersion: "1"
-  artifactDigest: "host:sha256:20bc784e86e15aa852c4334f3ec5fea4750a0710fa6c6da223919cc478afe042"
+  artifactDigest: "host:sha256:cdd71331382e63d8333a2748f59c4a106c19357eb8c33117e08f74c1385673d3"
 constantSetId: modern-si-2019
 seed: "0"
 streamVersion: 1
 allocationId: deterministic
 initialConditions:
+  initialEmitterMass: 1.0
   boxMass: 1
   boxLength: 1
   pulseEnergy: 1
@@ -36,7 +37,7 @@ checkpoints:
   - actionIndex: 2
     stepIndex: 0
     simulatedTime: 3.33564095198152e-9
-    digest: "host:57374735eec874d7"
+    digest: "host:3668e9a4b10f4dda"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1

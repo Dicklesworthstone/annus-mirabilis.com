@@ -22,7 +22,7 @@ isTeachingSequence: true
 modelIdentity:
   modelId: mass-energy-two-ledgers-host
   modelVersion: "1"
-  artifactDigest: "host:sha256:5aac7486f4ee7b7cdb199b112b76eed3944ac078b71909336cb04df376b7cd67"
+  artifactDigest: "host:sha256:5119cd102af995ceca32b11712cc20884f367b133bd3215f9c06912653fef8da"
 constantSetId: modern-si-2019
 seed: "0"
 streamVersion: 1

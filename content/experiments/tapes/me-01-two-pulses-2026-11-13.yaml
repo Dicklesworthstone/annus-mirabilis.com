@@ -12,7 +12,7 @@ mode: me-01:default
 modelIdentity:
   modelId: mass-energy-two-ledgers-host
   modelVersion: "1"
-  artifactDigest: host:sha256:45d34c4610b6c999e2bb171e2ce4b07ffa7ece86ffaffbaeb294f498cc4d0214
+  artifactDigest: "host:sha256:5119cd102af995ceca32b11712cc20884f367b133bd3215f9c06912653fef8da"
 constantSetId: modern-si-2019
 seed: "0"
 streamVersion: 1

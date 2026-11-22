@@ -8,7 +8,7 @@ isTeachingSequence: true
 modelIdentity:
   modelId: me-03-box-1906-v1
   modelVersion: "1"
-  artifactDigest: "host:sha256:20bc784e86e15aa852c4334f3ec5fea4750a0710fa6c6da223919cc478afe042"
+  artifactDigest: "host:sha256:cdd71331382e63d8333a2748f59c4a106c19357eb8c33117e08f74c1385673d3"
 constantSetId: modern-si-2019
 seed: "0"
 streamVersion: 1
@@ -17,6 +17,7 @@ initialConditions:
   boundary: body-alone
   disposition: retained
   emittedEnergy: 1.0
+  initialEmitterMass: 1.0
   inputEnergy: 0.0
   cardId: me-03-sealed-lamp-and-mirror
   mode: "1905"
@@ -53,7 +54,7 @@ checkpoints:
   - actionIndex: 1
     stepIndex: 0
     simulatedTime: 0
-    digest: "host:19643a79cbc73c87"
+    digest: "host:cdeb9c18e9574af8"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1
@@ -75,7 +76,7 @@ checkpoints:
   - actionIndex: 2
     stepIndex: 0
     simulatedTime: 0
-    digest: "host:f17605865a9a12a3"
+    digest: "host:b4d89a8861515956"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1
@@ -92,7 +93,7 @@ checkpoints:
   - actionIndex: 3
     stepIndex: 0
     simulatedTime: 0
-    digest: "host:81e6d83318bacbf4"
+    digest: "host:d03a719f1b2a997d"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1

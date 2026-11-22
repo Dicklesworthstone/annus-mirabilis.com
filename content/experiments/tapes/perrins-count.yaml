@@ -12,7 +12,7 @@ isTeachingSequence: true
 modelIdentity:
   modelId: inference-bm07-host
   modelVersion: "1"
-  artifactDigest: "host:sha256:749cfc31192a26769ed3a7069a8d03cf31770aea947d4bc717ffebeb5a1a3e97"
+  artifactDigest: "host:sha256:0bcb3d482ae8cc8bc7a096d023eaac1b36254ee1e8afb47f6e940c9bc26dc1e3"
 constantSetId: scenario-bm07-hidden-number
 seed: "1909"
 streamVersion: 1
@@ -56,7 +56,7 @@ checkpoints:
   - actionIndex: 0
     stepIndex: 4096
     simulatedTime: 1024
-    digest: "host:sha256:ca7a2625edecd14166360c63ddb763ebe566ddf477aa4a0a20f1c0e546591907"
+    digest: "host:sha256:db82d13f0ab8c0516f65ca698a0ae48b55987a2947867e4ee02329bc3cd90336"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1
@@ -88,7 +88,7 @@ checkpoints:
   - actionIndex: 1
     stepIndex: 4096
     simulatedTime: 1024
-    digest: "host:sha256:f448e326f78775ea71e81e8933593b41cf1cfdaaeb33a7cba9654d95c6aecf4b"
+    digest: "host:sha256:f5edde07899648f5ad31190fea46ffc99d111607e623d569a1dce2e8f02541e2"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1
