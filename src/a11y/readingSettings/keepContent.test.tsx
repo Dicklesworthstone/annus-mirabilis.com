@@ -110,10 +110,11 @@ describe("dispatcher under reading-only", () => {
             readingOnly: true,
           }),
         );
+        await import("../../experiments/workedCases/PreparedWorkedCase.tsx");
       });
       expect(container.querySelector("[data-explanation]")?.textContent).toBeTruthy();
       expect(container.querySelector("[data-static-worked-case]")?.textContent).toContain(
-        "static worked case",
+        "Probability inside that interval",
       );
       expect(container.querySelector('[data-testid="fixture-bm-06"]')).toBeNull();
       const button = container.querySelector("[data-load-experiment]");

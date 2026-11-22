@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, spyOn, test } from "bun:test";
+import { readFileSync } from "node:fs";
 import { act, useEffect } from "react";
 import { createRoot, hydrateRoot, type Root } from "react-dom/client";
 import { renderToString } from "react-dom/server";
@@ -8,6 +9,11 @@ import {
   type ViewLoader,
   type ViewLoaders,
 } from "../../experiments/dispatch.tsx";
+import {
+  findWorkedCase,
+  type InstrumentWorkedCaseIndex,
+} from "../../experiments/workedCases/types.ts";
+import { WorkedCase } from "../../experiments/workedCases/WorkedCase.tsx";
 import { getLogger } from "../../testing/log/logger.ts";
 import {
   createContainer,
@@ -17,6 +23,9 @@ import {
 } from "../../testing/reactDom.ts";
 
 const logger = getLogger("a11y-reading-only");
+const preparedCases = JSON.parse(
+  readFileSync(new URL("../../generated/instrument-worked-cases.json", import.meta.url), "utf8"),
+) as InstrumentWorkedCaseIndex;
 let root: Root | undefined;
 let container: HTMLElement;
 let restoreProbe: (() => void) | undefined;
@@ -55,13 +64,26 @@ function trackedView() {
   return { counts, loader, View };
 }
 
-function experiment(viewLoaders: ViewLoaders, readingOnly?: boolean, instanceId = "reading-test") {
+function experiment(
+  viewLoaders: ViewLoaders,
+  readingOnly?: boolean,
+  instanceId = "reading-test",
+  hasWebGl?: boolean,
+) {
   return (
     <ExperimentDispatch
       id="bm-06"
       instanceId={instanceId}
       viewLoaders={viewLoaders}
       readingOnly={readingOnly}
+      hasWebGl={hasWebGl}
+      workedCase={
+        <WorkedCase
+          record={findWorkedCase(preparedCases, "bm-06")}
+          instrumentId="bm-06"
+          mode={null}
+        />
+      }
     />
   );
 }
@@ -87,7 +109,10 @@ async function load() {
 }
 
 function staticCaseRemains() {
-  expect(container.querySelector("[data-static-worked-case]")?.textContent).toBeTruthy();
+  const content = container.querySelector("[data-static-worked-case]");
+  expect(content?.textContent).toContain("Probability inside that interval");
+  expect(content?.querySelector('[data-prepared-worked-case="bm-06"]')).not.toBeNull();
+  expect(content?.closest("[hidden], template")).toBeNull();
   expect(container.querySelector("[data-explanation]")?.textContent).toBeTruthy();
 }
 
@@ -102,12 +127,16 @@ function passed(testId: string, message: string) {
 }
 
 describe("reading-only owns the entire live loading lifecycle", () => {
-  test("the server serves the worked case without starting a lazy import", () => {
+  test("the server serves a real worked case inline without starting a live import", () => {
     const { counts, loader } = trackedView();
     const html = renderToString(experiment({ "bm-06": loader }));
     expect(counts.imports).toBe(0);
     expect(counts.mounts).toBe(0);
     expect(html).toContain("data-static-worked-case");
+    expect(html).toContain('data-prepared-worked-case="bm-06"');
+    expect(html).toContain("Probability inside that interval");
+    expect(html).not.toContain('hidden id="S:');
+    expect(html).not.toContain("The static worked case stays in the page");
     expect(html).toContain("data-explanation");
     expect(html).toContain('data-reading-only-instrument="pending"');
     expect(html).not.toContain("data-live-experiment");
@@ -290,5 +319,21 @@ describe("reading-only owns the entire live loading lifecycle", () => {
       "gpu-probe-after-load",
       "GPU capability checks wait for permission and release their probe contexts.",
     );
+  });
+
+  test("an unavailable live view preserves exactly one prepared case", async () => {
+    const { counts, loader } = trackedView();
+    root = createRoot(container);
+    await act(async () => {
+      root?.render(experiment({ "bm-06": { webgl: loader } }, true, "unsupported", false));
+    });
+    expect(container.querySelectorAll("[data-static-worked-case]").length).toBe(1);
+    await load();
+    expect(counts.imports).toBe(0);
+    expect(container.querySelectorAll("[data-static-worked-case]").length).toBe(1);
+    expect(container.querySelector('[data-execution-label="unavailable"]')?.textContent).toContain(
+      "prepared worked example remains above",
+    );
+    staticCaseRemains();
   });
 });

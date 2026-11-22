@@ -459,7 +459,7 @@ export function DriftDiffusionLab({
           <DensityProfilePlot snapshot={snapshot} widthMicrons={p.W * 1e6} />
           <FluxBalancePlot snapshot={snapshot} />
           {problem ? null : (
-            <p role="status" className="notice">
+            <p role="status" className="notice" data-results="calculation">
               {announcement}
             </p>
           )}

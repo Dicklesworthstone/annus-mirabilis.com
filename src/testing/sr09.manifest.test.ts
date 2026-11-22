@@ -23,10 +23,17 @@ describe("SR-09 manifest and metadata contract", () => {
     expect(manifest.explanatoryQuestion).toBe(SR09_QUESTION);
     expect(manifest.embeddable).toBe(true);
     expect(manifest.notModeled.length).toBeGreaterThan(0);
-    expect(
-      manifest.parameters.find((parameter) => parameter.id === "countingWindowCycles")
-        ?.commandClass,
-    ).toBe("measurement-change");
+    const countingWindow = manifest.parameters.find(
+      (parameter) => parameter.id === "countingWindowCycles",
+    );
+    expect(countingWindow?.commandClass).toBe("measurement-change");
+    expect(countingWindow?.quantityId).toBe("sourcePeriodCount");
+    expect(manifest.outputs.find((output) => output.id === "detectorCrossings")?.quantityId).toBe(
+      "detectorCrossings",
+    );
+    expect(manifest.outputs.find((output) => output.id === "countingWindowK")?.quantityId).toBe(
+      "eventSeparationTemporalStationary",
+    );
     expect(
       manifest.parameters.find((parameter) => parameter.id === "selectedEventId")?.commandClass,
     ).toBe("presentation-change");
@@ -38,8 +45,11 @@ describe("SR-09 manifest and metadata contract", () => {
     )?.quantityId;
     expect(detectorRateId).toBe("detectorProperFrequency");
     const registry = loadQuantityRegistry();
+    expect(registry.quantities.get("sourcePeriodCount")?.frame).toBe("stationary-system");
+    expect(registry.quantities.get("sourcePeriodCount")?.dimensionlessKind).toBe("count");
     expect(registry.quantities.get("detectorProperFrequency")?.frame).toBe("object-rest");
     expect(registry.quantities.get("detectorCrossings")?.dimensionlessKind).toBe("count");
+    expect(registry.quantities.get("detectorCrossings")?.frame).toBe("frame-independent");
 
     const ids =
       "enabled" in manifest.predictMode && manifest.predictMode.enabled

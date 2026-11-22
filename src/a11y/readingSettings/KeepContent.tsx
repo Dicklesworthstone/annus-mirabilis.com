@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 /**
  * Markup contract for reading-only (am-a11y-reading-only-6wwd): the
  * explanation and the static worked case stay in the served HTML.
@@ -9,7 +11,7 @@ export function ReadingOnlyKeepContent({
   workedCase,
 }: {
   explanation: string;
-  workedCase: string;
+  workedCase: ReactNode;
 }) {
   return (
     <div data-reading-only-surface data-execution-label="static">
@@ -19,7 +21,7 @@ export function ReadingOnlyKeepContent({
       </section>
       <section data-static-worked-case data-worked-example>
         <h2>Static worked case</h2>
-        <p>{workedCase}</p>
+        {typeof workedCase === "string" ? <p>{workedCase}</p> : workedCase}
       </section>
     </div>
   );

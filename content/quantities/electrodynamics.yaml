@@ -415,6 +415,20 @@
     hide a genuine 2*pi disagreement, and never compared through its cosine.
   colorRole: field
 
+- id: sourcePeriodCount
+  name: Source periods in a stationary-frame counting window
+  description: >
+    The number of periods of the wave in K used to specify a K-coordinate duration:
+    the duration is this count divided by the wave frequency in K. Fractional periods
+    are admitted. This is the chosen duration scale, not the accumulated wave cycles
+    along a moving detector's worldline, which bind detectorCrossings.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: count
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: time-rate
+
 - id: detectorCrossings
   name: Accumulated wave cycles at a detector
   description: >

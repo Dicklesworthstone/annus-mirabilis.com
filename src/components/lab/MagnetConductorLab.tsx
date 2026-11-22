@@ -556,12 +556,12 @@ function ApparatusPanel({
           Coil moves
         </label>
       </fieldset>
-      <p>
+      <p data-results="qualitative">
         {motionState === "magnet-moves"
           ? SR02_APPARATUS_CAPTIONS.magnetMoves
           : SR02_APPARATUS_CAPTIONS.coilMoves}
       </p>
-      <p>{SR02_APPARATUS_CAPTIONS.observation}</p>
+      <p data-results="qualitative">{SR02_APPARATUS_CAPTIONS.observation}</p>
       <details open={resolutionOpen || undefined}>
         <summary>How the 1905 paper removes this asymmetry (§6)</summary>
         <p data-resolution="section-6">{SR02_APPARATUS_CAPTIONS.resolution}</p>

@@ -60,17 +60,6 @@ export function LightQuantaTourInstrument({
           </details>
         ))}
         <p>{spec.description}</p>
-        <details data-tour-worked-example={spec.id}>
-          <summary>Compare the worked results</summary>
-          <ExecutionLabel state="static-example" />
-          <TourResultsTable
-            columns={spec.columns}
-            rows={spec.workedRows}
-            rowHeading={spec.rowHeading}
-            caption="Worked comparison, available without interactive controls"
-          />
-          <p>{spec.reading}</p>
-        </details>
         <p>{spec.limitation}</p>
         <ExperimentDispatch
           id={spec.id}
@@ -80,6 +69,19 @@ export function LightQuantaTourInstrument({
           sourceHref={"/lab/" + spec.id + "/"}
           viewLoaders={viewLoaders}
           readingOnly={!hydrated ? true : readingOnly}
+          workedCase={
+            <details data-tour-worked-example={spec.id}>
+              <summary>Compare the worked results</summary>
+              <ExecutionLabel state="static-example" />
+              <TourResultsTable
+                columns={spec.columns}
+                rows={spec.workedRows}
+                rowHeading={spec.rowHeading}
+                caption="Worked comparison, available without interactive controls"
+              />
+              <p>{spec.reading}</p>
+            </details>
+          }
         />
         <div className="guided-tour-actions">
           <a href={spec.sourceHref}>Read the source passage beside its English translation</a>

@@ -71,7 +71,7 @@ const c = (
 ): OutputContract =>
   Object.freeze({ unit, semanticKind, ownerId, statuses: Object.freeze([...statuses]) });
 
-export const SR09_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.freeze({
+export const SR09_OUTPUTS = Object.freeze({
   frameSpeed: c("c", "speed", "waves", ["value", "outside-domain"]),
   propagationAngleStationary: c("deg", "angle", "waves", ["value", "outside-domain"]),
   propagationAngleMoving: c("deg", "angle", "waves", ["value", "outside-domain"]),
@@ -97,4 +97,4 @@ export const SR09_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
   // [phase in K, phase in k]; no reduction modulo a full turn is made.
   namedEventPhases: c("rad", "angle", "waves", ["value", "outside-domain"]),
   namedEventPhaseAgreement: c("1", "comparison-flag", "waves", ["value", "outside-domain"]),
-});
+} satisfies Readonly<Record<string, OutputContract>>);

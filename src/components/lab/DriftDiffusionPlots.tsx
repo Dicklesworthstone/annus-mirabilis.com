@@ -423,7 +423,7 @@ export function ForceCancellationPanel({
             gradient; decay lengths are not applicable and the equilibrium concentration is uniform.
           </p>
         ) : isEinsteinMatch ? (
-          <p style={{ margin: 0 }}>
+          <p style={{ margin: 0 }} data-results="calculation">
             <strong>Equilibrium Agreement (m = 1.0):</strong> The kinetic kicks exactly match the
             thermal expectation. The two routes to <var>D</var> agree, confirming Einstein’s
             relation{" "}

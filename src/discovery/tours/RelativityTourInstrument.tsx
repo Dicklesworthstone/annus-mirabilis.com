@@ -47,7 +47,9 @@ export function RelativityTourInstrument({
         data-prompt-id={step.promptId}
       >
         <LocalPredictions />
-        <p><strong>{step.question}</strong></p>
+        <p>
+          <strong>{step.question}</strong>
+        </p>
         <p className="fine">
           Open an answer to read its explanation, or make a prediction with the controls below.
         </p>
@@ -58,17 +60,6 @@ export function RelativityTourInstrument({
           </details>
         ))}
         <p>{spec.description}</p>
-        <details data-tour-worked-example={spec.id}>
-          <summary>Compare the worked results</summary>
-          <ExecutionLabel state="static-example" />
-          <TourResultsTable
-            columns={spec.columns}
-            rows={spec.workedRows}
-            rowHeading={spec.rowHeading}
-            caption="Worked comparison, available without interactive controls"
-          />
-          <p>{spec.reading}</p>
-        </details>
         <p>{spec.limitation}</p>
         <ExperimentDispatch
           id={spec.id}
@@ -78,6 +69,19 @@ export function RelativityTourInstrument({
           sourceHref={"/lab/" + spec.id + "/"}
           viewLoaders={viewLoaders}
           readingOnly={!hydrated ? true : readingOnly}
+          workedCase={
+            <details data-tour-worked-example={spec.id}>
+              <summary>Compare the worked results</summary>
+              <ExecutionLabel state="static-example" />
+              <TourResultsTable
+                columns={spec.columns}
+                rows={spec.workedRows}
+                rowHeading={spec.rowHeading}
+                caption="Worked comparison, available without interactive controls"
+              />
+              <p>{spec.reading}</p>
+            </details>
+          }
         />
         <div className="guided-tour-actions">
           <a href={spec.sourceHref}>Read the source section beside its English translation</a>

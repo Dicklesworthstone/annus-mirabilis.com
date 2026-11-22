@@ -5,15 +5,11 @@
  * replaces ("Unknown experiment ids fail explicitly instead of showing a
  * plausible wrong model", AGENTS.md).
  *
- * View loading is dependency-injected (`ViewLoaders`), not a hard-coded
- * global map: no live, store-subscribing view component exists yet for any
- * real instrument (the five registered ids currently render through
- * pre-generated static `*Comparison` components in `src/components/lab/`,
- * a different, static-example rendering path owned by the existing
- * `/lab/bm-0N` routes, not by this dispatcher). Real view wiring is
- * `am-inst-lab-route-f8f3`'s scope. Until then, this module's own
- * correctness is proven with fixture loaders, exactly as this bead's Test
- * Plan specifies ("dispatch.test.tsx, using a compiled fixture manifest").
+ * View loading is dependency-injected (`ViewLoaders`). Reader clarifications
+ * supply the core adapters; tours supply their own presentation adapters.
+ * A fixed prepared example lives outside the live view's loading permission.
+ * Tours pass their own equation-free worked comparison as content so it is
+ * visible without JavaScript; reader clarifications load compact prepared data.
  *
  * `React.lazy` code-splits its loader the same way `next/dynamic` does,
  * but runs during SSR unless the caller also skips server rendering; the
@@ -25,7 +21,13 @@
  * real views, not to this generic module.
  */
 
-import { type ComponentType, type LazyExoticComponent, lazy, Suspense } from "react";
+import {
+  type ComponentType,
+  type LazyExoticComponent,
+  lazy,
+  type ReactNode,
+  Suspense,
+} from "react";
 import { ReadingOnlyKeepContent } from "../a11y/readingSettings/KeepContent.tsx";
 import { ReadingOnlyView } from "../a11y/readingSettings/ReadingOnlyView.tsx";
 import type { CatalogueAddressErrorCode, CatalogueId } from "./catalogue.ts";
@@ -36,6 +38,7 @@ import { registryEntry } from "./registry.ts";
 import { AvailableInFullReadingNotice } from "./states/AvailableInFullReadingNotice.tsx";
 import { InPreparationNotice } from "./states/InPreparationNotice.tsx";
 import { UnknownExperimentNotice } from "./states/UnknownExperimentNotice.tsx";
+import { LazyWorkedCase } from "./workedCases/LazyWorkedCase.tsx";
 
 export interface ExperimentViewProps {
   readonly instanceId: string;
@@ -155,6 +158,8 @@ export interface ExperimentDispatchProps {
   readonly question?: string | undefined;
   /** When true, the live view waits for "Load this experiment". Static case stays. */
   readonly readingOnly?: boolean | undefined;
+  /** An authored fixed comparison; tours supply their equation-free, no-script content here. */
+  readonly workedCase?: ReactNode;
   /** When true, device is unsupported (e.g. worker failed, bound exceeded). */
   readonly unavailable?: boolean | undefined;
   /** Injected WebGL availability override for testing/emulation. */
@@ -165,6 +170,22 @@ export interface ExperimentDispatchProps {
   readonly onEnvironmentUnsupported?: ((detail: string) => void) | undefined;
   /** Injected declaration that instrument cannot honor tour presentation. */
   readonly cannotHonorTour?: boolean | undefined;
+}
+
+function StaticWorkedCase({
+  instrumentId,
+  mode,
+  record,
+}: {
+  instrumentId: string;
+  mode: string | null;
+  record: ReactNode;
+}) {
+  return record === undefined ? (
+    <LazyWorkedCase instrumentId={instrumentId} mode={mode} />
+  ) : (
+    <>{record}</>
+  );
 }
 
 /** Capability probes and lazy imports belong to the live region, after its loading permission. */
@@ -199,14 +220,10 @@ function LiveExperimentView({
       onEnvironmentUnsupported?.("webgl-unavailable");
       return (
         <div data-instrument-id={address} data-execution-label="unavailable">
-          <ReadingOnlyKeepContent
-            explanation={
-              question ??
-              state.question ??
-              "This instrument answers a stated question with an owned, tested response."
-            }
-            workedCase="The static worked case stays in the page when reading-only is on. Loading the experiment does not remove it."
-          />
+          <p role="status">
+            The interactive view is unavailable on this device. The prepared worked example remains
+            above.
+          </p>
         </div>
       );
     } else {
@@ -253,6 +270,7 @@ export function ExperimentDispatch({
   sourceHref,
   question,
   readingOnly,
+  workedCase,
   unavailable,
   hasWebGl,
   onLog,
@@ -293,7 +311,9 @@ export function ExperimentDispatch({
             state.question ??
             "This instrument answers a stated question with an owned, tested response."
           }
-          workedCase="The static worked case stays in the page when reading-only is on. Loading the experiment does not remove it."
+          workedCase={
+            <StaticWorkedCase instrumentId={state.id} mode={state.mode} record={workedCase} />
+          }
         />
       </div>
     );
@@ -327,7 +347,9 @@ export function ExperimentDispatch({
           state.question ??
           "This instrument answers a stated question with an owned, tested response."
         }
-        workedCase="The static worked case stays in the page when reading-only is on. Loading the experiment does not remove it."
+        workedCase={
+          <StaticWorkedCase instrumentId={state.id} mode={state.mode} record={workedCase} />
+        }
       />
       <ReadingOnlyView
         key={`${state.id}:${instanceId}`}

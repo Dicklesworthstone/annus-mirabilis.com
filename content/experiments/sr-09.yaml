@@ -129,7 +129,7 @@ parameters:
     label: "Counting window"
     accessibleName: "Counting window in K in source periods"
     accessibleDescription: "K-coordinate duration measured in periods of the stationary wave; the detector's elapsed proper time is shown separately."
-    quantityId: detectorCrossings
+    quantityId: sourcePeriodCount
     displayUnit: "1"
     modelDomain:
       min: 0
@@ -225,7 +225,7 @@ outputs:
     allowedStatuses: [value, outside-domain]
     primary: false
   - id: countingWindowK
-    quantityId: coordinateTimeStationary
+    quantityId: eventSeparationTemporalStationary
     allowedStatuses: [value, outside-domain]
     primary: false
   - id: detectorProperWindow

@@ -335,7 +335,7 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
           <p className="me03-figure-title">
             {isFourMomentum ? "Four-momentum summary" : "Energy and mass inside the boundary"}
           </p>
-          <dl className="me03-ledger">
+          <dl className="me03-ledger" data-results>
             <div>
               <dt>Inside the boundary</dt>
               <dd>{BOUNDARY_WORDS[boundary]}</dd>

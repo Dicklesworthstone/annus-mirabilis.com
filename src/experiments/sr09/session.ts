@@ -23,9 +23,11 @@ export type PreparedSr09Example = Readonly<{
 export function snapshotOutputs(p: Sr09Parameters): ScientificResult[] {
   const snap = evaluateSr09(sr09InputFromParameters(p));
   /** Project owner records without another evaluation or any new physical calculation. */
-  function output(quantityId: string, value: number | Float64Array): ScientificResult {
+  function output(
+    quantityId: keyof typeof SR09_OUTPUTS,
+    value: number | Float64Array,
+  ): ScientificResult {
     const contract = SR09_OUTPUTS[quantityId];
-    if (!contract) throw new TypeError(`Unregistered SR-09 output: ${quantityId}`);
     const { statuses: _statuses, ...identity } = contract;
     if (snap.status === "outside-domain") {
       return {

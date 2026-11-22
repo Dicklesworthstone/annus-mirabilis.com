@@ -34,7 +34,7 @@ export type PlateRow = { label: Run[]; values: Run[][] };
 /** A table instrument's plate: the names of its columns of values, when the table names them. */
 export type TablePlate = { columns: Run[][]; rows: PlateRow[] };
 
-type Element = {
+export type Element = {
   tag: string;
   attrs: string;
   children: (Element | string)[];
@@ -121,7 +121,7 @@ export function parseMarkup(html: string): Element {
 }
 
 /** The value of an attribute, "" for a bare one, or null when the element does not carry it. */
-function attribute(element: Element, name: string): string | null {
+export function attribute(element: Element, name: string): string | null {
   const m = new RegExp(
     `(?:^|\\s)${name}(?:\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+)))?(?=\\s|$)`,
     "i",
@@ -129,11 +129,11 @@ function attribute(element: Element, name: string): string | null {
   return m ? (m[1] ?? m[2] ?? m[3] ?? "") : null;
 }
 
-function elements(parent: Element): Element[] {
+export function elements(parent: Element): Element[] {
   return parent.children.filter((child): child is Element => typeof child !== "string");
 }
 
-function descendants(parent: Element, tag: string): Element[] {
+export function descendants(parent: Element, tag: string): Element[] {
   const found: Element[] = [];
   for (const child of elements(parent)) {
     if (child.tag === tag) found.push(child);
@@ -143,7 +143,7 @@ function descendants(parent: Element, tag: string): Element[] {
 }
 
 /** Whether a reader without JavaScript sees the element on arriving at the page. */
-function inView(element: Element): boolean {
+export function inView(element: Element): boolean {
   for (let node: Element | null = element; node; node = node.parent) {
     if (node.tag === "noscript" || node.tag === "template") return false;
     if (node.tag === "details" && attribute(node, "open") === null) return false;
